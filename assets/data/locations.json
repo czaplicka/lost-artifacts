@@ -1,34 +1,34 @@
 {
-  "missions": [
+  "locations": [
     {
       "city": "London",
       "country": "United Kingdom",
-      "artifact": "Crown Jewels",
-      "clue": "The suspect was seen near the Tower of London."
+      "npc": ["bankier", "bum", "stewardessa", "maid", "police", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
     },
     {
       "city": "Paris",
       "country": "France",
-      "artifact": "Mona Lisa",
-      "clue": "Witnesses spotted a suspicious figure leaving the Louvre."
+      "npc": ["bankier", "maid", "police", "stewardessa", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
     },
     {
       "city": "New Delhi",
       "country": "India",
-      "artifact": "Koh-i-Noor",
-      "clue": "Local guards reported a break-in at the museum vault."
+      "npc": ["bankier", "police", "stewardessa", "bum", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "policehq"]
     },
     {
       "city": "Warsaw",
       "country": "Poland",
-      "artifact": "Golden Duck",
-      "clue": "An antique collector reported the artifact stolen from the cellar."
+      "npc": ["bankier", "stewardessa", "maid", "police", "bum", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
     },
     {
       "city": "New York City",
       "country": "USA",
-      "artifact": "Statue of Liberty Torch",
-      "clue": "The thief was seen fleeing towards the harbor."
+      "npc": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
     }
   ]
 }
