@@ -1,0 +1,34 @@
+{
+  "missions": [
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "artifact": "Crown Jewels",
+      "clue": "The suspect was seen near the Tower of London."
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "artifact": "Mona Lisa",
+      "clue": "Witnesses spotted a suspicious figure leaving the Louvre."
+    },
+    {
+      "city": "New Delhi",
+      "country": "India",
+      "artifact": "Koh-i-Noor",
+      "clue": "Local guards reported a break-in at the museum vault."
+    },
+    {
+      "city": "Warsaw",
+      "country": "Poland",
+      "artifact": "Golden Duck",
+      "clue": "An antique collector reported the artifact stolen from the cellar."
+    },
+    {
+      "city": "New York City",
+      "country": "USA",
+      "artifact": "Statue of Liberty Torch",
+      "clue": "The thief was seen fleeing towards the harbor."
+    }
+  ]
+}

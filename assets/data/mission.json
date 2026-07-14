@@ -1,0 +1,40 @@
+{
+  "missions": [
+    {
+      "city": "London",
+      "country": "United Kingdom",
+      "artifact": "Crown Jewels",
+      "clue": "The suspect was seen near the Tower of London."
+    },
+    {
+      "city": "Paris",
+      "country": "France",
+      "artifact": "Mona Lisa Sketchbook",
+      "clue": "The suspect was seen near a cafe close to the Louvre."
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "artifact": "Prussian Royal Seal",
+      "clue": "A witness mentioned a hurried figure near Museum Island."
+    },
+    {
+      "city": "Warsaw",
+      "country": "Poland",
+      "artifact": "Royal Amber Necklace",
+      "clue": "Someone matching the suspect's description was spotted near the Old Town."
+    },
+    {
+      "city": "New Delhi",
+      "country": "India",
+      "artifact": "Mughal Emerald Dagger",
+      "clue": "The suspect was last seen near a crowded bazaar."
+    },
+    {
+      "city": "NYC",
+      "country": "USA",
+      "artifact": "Liberty Torch Replica",
+      "clue": "The suspect was seen leaving a yellow cab near Central Park."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+config.json:
+
+starting_money: Początkowy budżet (jeśli planujesz mechanikę zarządzania funduszami).
+
+time_limit: Ograniczenie czasu na rozwiązanie zagadki (dodaje presję).
+
+scoring_rules: Mnożniki punktów za poprawną dedukcję.

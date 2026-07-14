@@ -1,0 +1,32 @@
+{
+  "suspects": [
+    {
+      "name": "Garett Gutter",
+      "gender": "Male",
+      "gender_code": "m",
+      "hair": "Brown",
+      "car": "Black Toyota"
+    },
+    {
+      "name": "Sofia Vargas",
+      "gender": "Female",
+      "gender_code": "f",
+      "hair": "Black",
+      "car": "Red Lexus"
+    },
+    {
+      "name": "Bert Goodman",
+      "gender": "Non-binary",
+      "gender_code": "nb",
+      "hair": "Blonde",
+      "car": "White Audi"
+    },
+    {
+      "name": "Anne Apple",
+      "gender": "Female",
+      "gender_code": "f",
+      "hair": "Red",
+      "car": "Orange Volvo"
+    }
+  ]
+}
