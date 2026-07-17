@@ -1,34 +1,50 @@
-{
-  "locations": [
+[
     {
       "city": "London",
       "country": "United Kingdom",
+      "mapX": 890,
+      "mapY": 340,
       "npc": ["bankier", "bum", "stewardessa", "maid", "police", "parkingowy"],
       "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
     },
     {
       "city": "Paris",
       "country": "France",
+      "mapX": 920,
+      "mapY": 400,
       "npc": ["bankier", "maid", "police", "stewardessa", "parkingowy"],
       "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
     },
     {
       "city": "New Delhi",
       "country": "India",
+      "mapX": 1290,
+      "mapY": 480,
       "npc": ["bankier", "police", "stewardessa", "bum", "parkingowy"],
       "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "policehq"]
     },
     {
       "city": "Warsaw",
       "country": "Poland",
+      "mapX": 1050,
+      "mapY": 360,
       "npc": ["bankier", "stewardessa", "maid", "police", "bum", "parkingowy"],
       "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
     },
     {
       "city": "New York City",
       "country": "USA",
+      "mapX": 600,
+      "mapY": 400,
       "npc": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
       "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
+    },
+    {
+      "city": "Berlin",
+      "country": "Germany",
+      "mapX": 985,
+      "mapY": 335,
+      "npc": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
+      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "policehq"]
     }
   ]
-}

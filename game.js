@@ -18,6 +18,9 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH, // Wycentruje grę na środku
        // parent: 'phaser-game'          // Opcjonalnie, jeśli chcesz mieć kontener
     },
+    dom: {
+        createContainer: true // Wymagane dla playerInputDOM w NotesUI
+    },
         scene: [BootScene, PreloaderScene, MenuScene, HighscoreScene, SettingsScene, GameOverScene, GameScene]
 };
 const game = new Phaser.Game(config);

@@ -1,32 +1,270 @@
-{
-  "suspects": [
+[
     {
       "name": "Garett Gutter",
       "gender": "Male",
       "gender_code": "m",
+      "race": "White",
       "hair": "Brown",
-      "car": "Black Toyota"
+      "features": "Big forehead",
+      "eyes": "Blue",
+      "accent": "Canadian",
+      "skills": "Lockpicking, Disguise, Stealth",
+      "habitus": "Smoking, Drinking, Gambling",
+      "portraitKey": "garett_gutter"
+      
     },
     {
       "name": "Sofia Vargas",
       "gender": "Female",
       "gender_code": "f",
+      "race": "Latino",
       "hair": "Black",
-      "car": "Red Lexus"
+      "features": "Tattoo",
+      "eyes": "Brown",
+      "accent": "Mexican",
+      "skills": "Languages, Negotiation, Intimidation",
+      "habitus": "Tattoos, Piercings, Reading",
+      "portraitKey": "sofia_vargas"
     },
     {
       "name": "Bert Goodman",
       "gender": "Non-binary",
       "gender_code": "nb",
+      "race": "White",          
       "hair": "Blonde",
-      "car": "White Audi"
+      "features": "Rainbow hair streak",
+      "eyes": "Green",
+      "accent": "Australian",
+      "skills": "Hacking, Electronics, Surveillance",
+      "habitus": "Gaming, Coding, Watching movies",
+      "portraitKey": "bert_goodman"
     },
     {
       "name": "Anne Apple",
       "gender": "Female",
       "gender_code": "f",
+      "race": "American Indian",
       "hair": "Red",
-      "car": "Orange Volvo"
+      "features": "Necklace",
+      "eyes": "Hazel",
+      "accent": "American",
+      "skills": "Public speaking, Writing, Leadership",
+      "habitus": "Yoga, Meditation, Cooking",
+      "portraitKey": "anne_apple"
+    },
+    {
+      "name": "Frank Groot",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "",
+      "hair": "Black",
+      "features": "Scar",
+      "eyes": "Brown",
+      "accent": "Dutch",
+      "skills": "Investigation, Interrogation, Deduction",
+      "habitus": "Reading, Journaling, Walking",
+      "portraitKey": "frank_groot"
+    },
+    {
+      "name": "Bernard Porter",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "Black",
+      "hair": "Brown",
+      "features": "Moustache",
+      "eyes": "Brown",
+      "accent": "British",
+      "skills": "Seduction, Persuasion, Manipulation",
+      "habitus": "Joking, Pranks, Flirting",
+      "portraitKey": "bernard_porter"
+    },
+    {
+      "name": "Rebecca Muller",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "White",
+      "hair": "Blonde",
+      "features": "Glasses",
+      "eyes": "Blue",
+      "accent": "German",
+      "skills": "Forgery, Art history, Research",
+      "habitus": "Collecting, Painting, Traveling",
+      "portraitKey": "rebecca_muller"
+    },    
+    {
+      "name": "Jacek Kowalski",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Brown",
+      "features": "Beard",
+      "eyes": "Brown",
+      "accent": "Polish",
+      "skills": "Martial arts, Survival skills, Tracking",
+      "habitus": "Hiking, Camping, Fishing",
+      "portraitKey": "jacek_kowalski"
+    },      
+    {
+      "name": "Pablo Fernandez",
+      "gender": "Non-binary",
+      "gender_code": "nb",
+      "race": "Latino",
+      "hair": "Black",
+      "features": "Long hair",
+      "eyes": "Blue",
+      "accent": "Spanish",
+      "skills": "Parkour, Acrobatics, Stealth",
+      "habitus": "Skateboarding, Dancing, Street art",
+      "portraitKey": "pablo_fernandez"
+    },    
+    {
+      "name": "Alexandra Ivanova",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "White",
+      "hair": "Black",
+      "features": "Scar",
+      "eyes": "Brown",
+      "accent": "Belarussian",
+      "skills": "Martial arts, Firearms, Tactical planning",
+      "habitus": "Shooting, Hiking, Traveling",
+      "portraitKey": "alexandra_ivanova"
+    },    
+    {
+      "name": "Sergei Petrov",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Blonde",
+      "features": "Beard",
+      "eyes": "Brown",
+      "accent": "Russian",
+      "skills": "Hand-to-hand combat, Espionage, Disguise",
+      "habitus": "Chess, Reading, Traveling",
+      "portraitKey": "sergei_petrov"
+    },
+    {
+      "name": "Isabella Rossi",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "White",
+      "hair": "Black",
+      "features": "Earrings",
+      "eyes": "Blue",
+      "accent": "Italian",
+      "skills": "Negotiation, Persuasion, Deception",
+      "habitus": "Cooking, Wine tasting, Eating out",
+      "portraitKey": "isabella_rossi"
+    },
+    {
+      "name": "Liam O'Connor",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Red",
+      "features": "Tattoo",
+      "eyes": "Green",
+      "accent": "Irish",
+      "skills": "Lockpicking, Stealth, Disguise",
+      "habitus": "Playing guitar, Drinking, Storytelling",
+      "portraitKey": "liam_oconnor"
+    },
+    {
+      "name": "Ava Thompson",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "Asian",
+      "hair": "Blonde",
+      "features": "Glasses",
+      "eyes": "Blue",
+      "accent": "American",
+      "skills": "Investigation, Analysis, Deduction",
+      "habitus": "Reading, Writing, Gardening"
+    },
+    {
+      "name": "Maximilian Schmidt",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Brown",
+      "features": "Goatee",
+      "eyes": "Brown",
+      "accent": "German",
+      "skills": "Engineering, Problem-solving, Technical knowledge",
+      "habitus": "Reading, Building models, Playing chess"
+    },
+    {
+      "name": "Brendan Ross",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Brown",
+      "features": "Beard",
+      "eyes": "Green",
+      "accent": "Scottish",
+      "skills": "Negotiation, Persuasion, Deception",
+      "habitus": "Running, Hiking, Traveling"
+    },
+    {
+      "name": "Bai Williams",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "Asian",
+      "hair": "Blonde",
+      "features": "Beard",
+      "eyes": "Hazel",
+      "accent": "British",
+      "skills": "Seduction, Persuasion, Manipulation",
+      "habitus": "Swimming, Running, Traveling"
+    },                                       
+    {
+      "name": "Albert Johnson",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "Native Hawaiian",
+      "hair": "Black",
+      "features": "Moustache",
+      "eyes": "Brown",
+      "accent": "Australian",
+      "skills": "Investigation, Interrogation, Deduction",
+      "habitus": "Reading, Writing, Traveling"
+    },                   
+    {
+      "name": "Anna Bocian",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "White",
+      "hair": "Blonde",
+      "features": "Necklace",
+      "eyes": "Blue",
+      "accent": "Polish",
+      "skills": "History, Museum studies, Research",
+      "habitus": "Exploring, Watching Movies, Eating out"
+    },
+    {
+    
+      "name": "Aleksander Petrov",
+      "gender": "Male",
+      "gender_code": "m",
+      "race": "White",
+      "hair": "Black",
+      "features": "Glasses",
+      "eyes": "Brown",
+      "accent": "Russian",
+      "skills": "Lockpicking, Disguise, Pickpocketing",
+      "habitus": "Working out, Playing chess, Playing video games"
+    },
+    {
+    
+      "name": "Marie Dubois",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "Black",
+      "hair": "Blonde",
+      "features": "Earrings",
+      "eyes": "Green",
+      "accent": "French",
+      "skills": "Seduction, Persuasion, Manipulation",
+      "habitus": "Flirting, Shopping, Stealth"
     }
   ]
-}
