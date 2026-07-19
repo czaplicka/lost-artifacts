@@ -1,50 +1,240 @@
 [
-    {
-      "city": "London",
-      "country": "United Kingdom",
-      "mapX": 890,
-      "mapY": 340,
-      "npc": ["bankier", "bum", "stewardessa", "maid", "police", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
+  {
+    "id": "london",
+    "city": "London",
+    "country": "United Kingdom",
+    "background": "london.jpg",
+    "map": {
+      "x": 890,
+      "y": 340
     },
-    {
-      "city": "Paris",
-      "country": "France",
-      "mapX": 920,
-      "mapY": 400,
-      "npc": ["bankier", "maid", "police", "stewardessa", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
+    "npcPool": ["bankier", "bum", "stewardessa", "maid", "police", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"],
+    "encounters": [
+      {
+        "id": "london_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 260,
+        "cityY": 390,
+        "enabled": true
+      },
+      {
+        "id": "london_bum_alley",
+        "npcId": "bum",
+        "locationId": "alley",
+        "cityX": 560,
+        "cityY": 470,
+        "enabled": true
+      },
+      {
+        "id": "london_stewardessa_airport",
+        "npcId": "stewardessa",
+        "locationId": "airport",
+        "cityX": 900,
+        "cityY": 320,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "paris",
+    "city": "Paris",
+    "country": "France",
+    "background": "paris.jpg",
+    "map": {
+      "x": 920,
+      "y": 400
     },
-    {
-      "city": "New Delhi",
-      "country": "India",
-      "mapX": 1290,
-      "mapY": 480,
-      "npc": ["bankier", "police", "stewardessa", "bum", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "policehq"]
+    "npcPool": ["bankier", "maid", "police", "stewardessa", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "alley", "hotel", "policehq"],
+    "encounters": [
+      {
+        "id": "paris_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 250,
+        "cityY": 380,
+        "enabled": true
+      },
+      {
+        "id": "paris_maid_hotel",
+        "npcId": "maid",
+        "locationId": "hotel",
+        "cityX": 600,
+        "cityY": 420,
+        "enabled": true
+      },
+      {
+        "id": "paris_police_policehq",
+        "npcId": "police",
+        "locationId": "policehq",
+        "cityX": 910,
+        "cityY": 330,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "new_delhi",
+    "city": "New Delhi",
+    "country": "India",
+    "background": "new_delhi.jpg",
+    "map": {
+      "x": 1290,
+      "y": 480
     },
-    {
-      "city": "Warsaw",
-      "country": "Poland",
-      "mapX": 1050,
-      "mapY": 360,
-      "npc": ["bankier", "stewardessa", "maid", "police", "bum", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "alley", "hotel", "policehq"]
+    "npcPool": ["bankier", "police", "stewardessa", "bum", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "policehq"],
+    "encounters": [
+      {
+        "id": "new_delhi_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 270,
+        "cityY": 400,
+        "enabled": true
+      },
+      {
+        "id": "new_delhi_bum_alley",
+        "npcId": "bum",
+        "locationId": "alley",
+        "cityX": 560,
+        "cityY": 500,
+        "enabled": true
+      },
+      {
+        "id": "new_delhi_stewardessa_airport",
+        "npcId": "stewardessa",
+        "locationId": "airport",
+        "cityX": 910,
+        "cityY": 310,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "warsaw",
+    "city": "Warsaw",
+    "country": "Poland",
+    "background": "warsaw.jpg",
+    "map": {
+      "x": 1050,
+      "y": 360
     },
-    {
-      "city": "New York City",
-      "country": "USA",
-      "mapX": 600,
-      "mapY": 400,
-      "npc": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"]
+    "npcPool": ["bankier", "stewardessa", "maid", "police", "bum", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "alley", "hotel", "policehq"],
+    "encounters": [
+      {
+        "id": "warsaw_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 260,
+        "cityY": 390,
+        "enabled": true
+      },
+      {
+        "id": "warsaw_parkingowy_parking",
+        "npcId": "parkingowy",
+        "locationId": "parking",
+        "cityX": 560,
+        "cityY": 470,
+        "enabled": true
+      },
+      {
+        "id": "warsaw_maid_hotel",
+        "npcId": "maid",
+        "locationId": "hotel",
+        "cityX": 900,
+        "cityY": 330,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "new_york_city",
+    "city": "New York City",
+    "country": "USA",
+    "background": "new_york_city.jpg",
+    "map": {
+      "x": 600,
+      "y": 400
     },
-    {
-      "city": "Berlin",
-      "country": "Germany",
-      "mapX": 985,
-      "mapY": 335,
-      "npc": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
-      "availableLocations": ["bank", "parking", "airport", "hotel", "alley", "policehq"]
+    "npcPool": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"],
+    "encounters": [
+      {
+        "id": "new_york_city_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 230,
+        "cityY": 390,
+        "enabled": true
+      },
+      {
+        "id": "new_york_city_bum_harbor",
+        "npcId": "bum",
+        "locationId": "harbor",
+        "cityX": 560,
+        "cityY": 500,
+        "enabled": true
+      },
+      {
+        "id": "new_york_city_police_policehq",
+        "npcId": "police",
+        "locationId": "policehq",
+        "cityX": 920,
+        "cityY": 320,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "berlin",
+    "city": "Berlin",
+    "country": "Germany",
+    "background": "berlin.jpg",
+    "map": {
+      "x": 985,
+      "y": 335
+    },
+    "npcPool": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
+    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "policehq"],
+    "encounters": [
+      {
+        "id": "berlin_bankier_bank",
+        "npcId": "bankier",
+        "locationId": "bank",
+        "cityX": 240,
+        "cityY": 380,
+        "enabled": true
+      },
+      {
+        "id": "berlin_bum_alley",
+        "npcId": "bum",
+        "locationId": "alley",
+        "cityX": 550,
+        "cityY": 470,
+        "enabled": true
+      },
+      {
+        "id": "berlin_stewardessa_airport",
+        "npcId": "stewardessa",
+        "locationId": "airport",
+        "cityX": 910,
+        "cityY": 320,
+        "enabled": true
+      }
+    ]
+  },
+  {
+    "id": "hq",
+    "city": "Mark Agency Headquarters",
+    "country": "International",
+    "background": "start.jpg",
+    "map": {
+      "x": 1085,
+      "y": 435
     }
-  ]
+  }
+]

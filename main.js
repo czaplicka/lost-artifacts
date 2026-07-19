@@ -1,0 +1,44 @@
+import { BootScene } from './BootScene.js';
+import { PreloaderScene } from './PreloaderScene.js';
+import { MenuScene } from './MenuScene.js';
+import { SettingsScene } from './SettingsScene.js';
+import { GameOverScene } from './GameOverScene.js';
+import { GameScene } from './GameScene.js';
+import { HighscoreScene } from './HighscoreScene.js';
+import { CityScene } from './CityScene.js';
+import { LocationScene } from './LocationScene.js';
+import { TravelTransitionScene } from './TravelTransitionScene.js';
+import { PlayerHudScene } from './PlayerHudScene.js';
+
+const config = {
+    type: Phaser.AUTO,
+    width: 1920,
+    height: 1080,
+    parent: 'game-root',
+    backgroundColor: '#000000',
+    scene: [
+        BootScene,
+        PreloaderScene,
+        MenuScene,
+        SettingsScene,
+        GameOverScene,
+        GameScene,
+        HighscoreScene,
+        CityScene,
+        LocationScene,
+        TravelTransitionScene,
+        PlayerHudScene
+    ],
+    dom: {
+        createContainer: true
+    },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    audio: {
+        disableWebAudio: false
+    }
+};
+
+new Phaser.Game(config);

@@ -1,0 +1,341 @@
+{
+"stewardessClues": {
+  "banter": [
+    "Airports are stages and I get a front-row seat to everyone’s drama.",
+    "I recognise passengers by their luggage, their perfume, and how loudly they lie at check-in.",
+    "Some people pack light. Others pack enough guilt to need an extra suitcase.",
+    "If you want to know a person, watch what they do when boarding starts and nothing moves.",
+    "I’ve seen turbulence, panic and proposals at 10,000 meters. The proposals scare me the most.",
+    "Passengers think we don’t notice who counts exits and who counts champagne refills.",
+    "You’d be amazed how many criminals try to blend in by ordering tomato juice. It never works."
+  ],
+  "repeatLines": [
+    [
+      "We already talked, detective.",
+      "The passenger list changed. My story didn’t."
+    ],
+    [
+      "Back again?",
+      "I still have the same observations and fewer pretzels."
+    ],
+    [
+      "I gave you my report.",
+      "Repeating it won’t make the turbulence retroactive."
+    ],
+    [
+      "No new clues.",
+      "Just recycled air and familiar faces."
+    ],
+    [
+      "You’ve already cleared this cabin for information.",
+      "Any further inspection is just for your peace of mind."
+    ],
+    [
+      "Still the same story, detective.",
+      "Believe me, I’d love a plot twist as much as you would."
+    ],
+    [
+      "We’ve been through this.",
+      "Nothing has changed except the flight number."
+    ],
+    [
+      "I told you everything useful the first time.",
+      "Passengers rarely improve on repetition. Neither do clues."
+    ],
+    [
+      "No fresh turbulence in my memory.",
+      "Just the same bump where the suspect used to be."
+    ],
+    [
+      "Same stewardess, same flight, same facts.",
+      "At least I’m consistent, which is more than I can say for our schedule."
+    ]
+  ],
+  "falseLeadLines": [
+    [
+      "Wrong destination, detective.",
+      "Happens more often than lost luggage, just less publicly."
+    ],
+    [
+      "You flew to the wrong city.",
+      "On the bright side, your frequent flyer account is thrilled."
+    ],
+    [
+      "That lead didn’t land where you hoped.",
+      "I’ve seen smoother approaches and worse apologies."
+    ],
+    [
+      "No suspect there.",
+      "Just another arrival board pretending everything’s on time."
+    ],
+    [
+      "You chased the wrong flight path.",
+      "Brave choice. Misguided, but brave."
+    ],
+    [
+      "A false lead, I’m afraid.",
+      "The only thing you intercepted was jet lag."
+    ],
+    [
+      "The thief wasn’t on that route.",
+      "You just upgraded your frustration, not your case."
+    ],
+    [
+      "Wrong city, detective.",
+      "Next time, maybe let the clues handle navigation."
+    ],
+    [
+      "You picked the wrong gate.",
+      "At least nobody had to redirect the luggage this time."
+    ],
+    [
+      "That wasn’t the right stop.",
+      "Think of it as a scenic detour you didn’t ask for."
+    ]
+  ],
+  "cityHints": {
+    "london": [
+      "Your passenger insisted on a seat to a city where drizzle is a personality trait and everyone pretends to enjoy warm beer.",
+      "They asked if the flight lands near the river with too many bridges and a clock tower that refuses to mind its own business.",
+      "They complained about turbulence, then said they missed the sound of double-decker buses and grumpy guards in funny hats."
+    ],
+    "paris": [
+      "They requested a window seat ‘to see the city of light from above’, then asked if croissants taste better on landing.",
+      "When I offered coffee, they asked if we served anything worthy of a place that worships butter and long lunches.",
+      "They spent half the flight practising ‘bonjour’ like it was a magic spell that opens bakeries and hearts."
+    ],
+    "berlin": [
+      "Your suspect asked if the in-flight playlist had anything as dramatic as the nightlife in that city with the famous gate.",
+      "They wanted to know which side of the plane gives the best view of a place that tore down a wall and built clubs instead.",
+      "They said they were heading for a city where history weighs heavy and the bass lines do too."
+    ],
+    "new_york_city": [
+      "They clapped at takeoff. Then they asked if the ‘city that never sleeps’ has a return policy on bad decisions.",
+      "Your passenger wanted to arrive just in time to watch skyscrapers light up and yellow taxis start screaming at each other.",
+      "They asked which side of the plane sees the statue with the torch, then took a selfie with the safety card instead."
+    ],
+    "warsaw": [
+      "They traced a finger over the map and stopped at a capital guarded by a mermaid and stitched back together more than once.",
+      "When I mentioned the route, they asked if the river there still carries stories and stubbornness in equal measure.",
+      "They said they’d always wanted to land somewhere that rebuilt its old town out of memory and sheer spite."
+    ],
+    "new_delhi": [
+      "Your passenger packed enough spices in their luggage to make the whole cabin hungry, then asked about chai on board.",
+      "They wanted to know if we land near a city where traffic is louder than the engines and colours punch straight through jet lag.",
+      "They joked they weren’t afraid of turbulence, only of crossing a street where even cows have more confidence than drivers."
+    ]
+  },
+  "locationVariants": {
+    "london": {
+      "banter": [
+        "London flights smell like wet coats, quiet panic, and duty-free optimism.",
+        "Passengers here apologise to the crew, the weather, and occasionally the in-flight magazine.",
+        "Half of them pretend turbulence is nothing. The other half pretend their tea helps."
+      ],
+      "repeatLines": [
+        [
+          "We already spoke, detective.",
+          "Nothing new has boarded this memory."
+        ],
+        [
+          "Back again?",
+          "Still the same passenger, same route, different cloud."
+        ],
+        [
+          "No new clues.",
+          "Just the usual mix of delayed tempers and punctual drizzle."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Very traditional mistake, if that helps."
+        ],
+        [
+          "That lead never should have left the gate.",
+          "Next time, check the destination twice."
+        ],
+        [
+          "The suspect wasn’t there.",
+          "Only umbrellas, apologies, and your missed opportunity."
+        ]
+      ]
+    },
+    "paris": {
+      "banter": [
+        "Paris-bound passengers complain about everything except the pastries.",
+        "Half the cabin pretends they live there, the other half pretends they’re not tourists.",
+        "I can always tell who packed more outfits than answers."
+      ],
+      "repeatLines": [
+        [
+          "We already talked, detective.",
+          "No new gossip, just the same story with better lighting."
+        ],
+        [
+          "Back so soon?",
+          "Even Paris takes longer to change than this conversation."
+        ],
+        [
+          "No fresh details.",
+          "Just the same clues, now with slightly more attitude."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Charming error, but still an error."
+        ],
+        [
+          "That lead landed in the wrong place.",
+          "At least the view was worth it."
+        ],
+        [
+          "The suspect didn’t choose that runway.",
+          "You just upgraded your disappointment, not your case."
+        ]
+      ]
+    },
+    "berlin": {
+      "banter": [
+        "Berlin flights are full of people who look like they’re going to a meeting, a museum, or a rave. Sometimes all three.",
+        "I’ve never seen so many black clothes and strong opinions in one cabin.",
+        "They read history books during the day and playlists with warning labels at night."
+      ],
+      "repeatLines": [
+        [
+          "We already covered this, detective.",
+          "No new turbulence in my memory."
+        ],
+        [
+          "You’re back.",
+          "The facts are still on schedule, even if the flights aren’t."
+        ],
+        [
+          "No additional clues.",
+          "Just the same route, same passenger, same quiet tension."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Direct, blunt, and accurate. Unlike the choice you made."
+        ],
+        [
+          "That lead didn’t survive landing.",
+          "Consider it a lesson in better navigation."
+        ],
+        [
+          "The suspect was never on that route.",
+          "You chased contrails instead of evidence."
+        ]
+      ]
+    },
+    "new_york_city": {
+      "banter": [
+        "New York flights feel like the cabin is auditioning for something.",
+        "Everyone’s either rehearsing a pitch, a breakup, or a reinvention.",
+        "Half the passengers act like the plane is late even when it’s on time."
+      ],
+      "repeatLines": [
+        [
+          "Yeah, we already talked, detective.",
+          "Still no new intel, but the cabin drama’s improved."
+        ],
+        [
+          "Back again?",
+          "Welcome to the non-stop service of asking the same question."
+        ],
+        [
+          "No update.",
+          "This route may be busy, but my story isn’t."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Big choice, big miss."
+        ],
+        [
+          "That lead went nowhere.",
+          "Fast, loud, and nowhere."
+        ],
+        [
+          "Your suspect wasn’t on that flight path.",
+          "Just your hopes, and they hit turbulence."
+        ]
+      ]
+    },
+    "warsaw": {
+      "banter": [
+        "Flights to Warsaw feel like people travelling with both luggage and history.",
+        "I see a lot of practical bags and very little trust in schedules.",
+        "Passengers here watch the clouds like they owe them explanations."
+      ],
+      "repeatLines": [
+        [
+          "We already talked.",
+          "No new clue boarded after you left."
+        ],
+        [
+          "Back again?",
+          "I still remember the same face and the same destination."
+        ],
+        [
+          "Nothing new.",
+          "If the story had changed, I’d have told you before landing."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Not ideal, but clearer now, yes?"
+        ],
+        [
+          "That was a false lead.",
+          "Better to correct than pretend it was on purpose."
+        ],
+        [
+          "The suspect isn’t there.",
+          "You’ll have to change course, not just seats."
+        ]
+      ]
+    },
+    "new_delhi": {
+      "banter": [
+        "New Delhi flights smell like spice, jet fuel, and people who underestimated the heat.",
+        "Half the cabin is exhausted. The other half is already arguing with the in-flight forms.",
+        "I’ve never seen so many stories stuffed into so few suitcases."
+      ],
+      "repeatLines": [
+        [
+          "We already spoke, detective.",
+          "Nothing new has appeared except more noise."
+        ],
+        [
+          "Back again?",
+          "I still have the same details and less patience than the traffic below."
+        ],
+        [
+          "No fresh clues.",
+          "Only the same facts, now slightly stickier."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Ambitious direction, inaccurate aim."
+        ],
+        [
+          "That lead went nowhere useful.",
+          "Which is rare, considering everything else here goes everywhere at once."
+        ],
+        [
+          "The suspect is somewhere else entirely.",
+          "You just added heat and hours to your case file."
+        ]
+      ]
+    }
+  }
+}
+}

@@ -1,0 +1,181 @@
+import { ensureHud } from './hudHelpers.js';
+
+export class TravelTransitionScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'TravelTransitionScene' });
+        this.transitionData = {};
+        this.canContinue = false;
+        this.isLeaving = false;
+        this.continueHint = null;
+    }
+
+    init(data) {
+        this.transitionData = data || {};
+        this.canContinue = false;
+        this.isLeaving = false;
+    }
+
+    create() {
+        const { width, height } = this.scale;
+        const camera = this.cameras.main;
+
+        const {
+            fromCity = 'Unknown',
+            toCity = 'Unknown',
+            travelHours = 0,
+            wasCorrect = false,
+            status = 'CONTINUE',
+            nextScene = 'CityScene'
+        } = this.transitionData;
+
+        ensureHud(this);
+
+        const hud = this.scene.get('PlayerHudScene');
+        if (hud?.closeAllUIPanels) {
+            hud.closeAllUIPanels();
+        }
+
+        camera.fadeIn(400, 0, 0, 0);
+
+        this.add.rectangle(width / 2, height / 2, width, height, 0x07111a, 1);
+
+        this.add.text(width / 2, 90, 'TRAVEL LOG', {
+            fontFamily: 'PressStart2P',
+            fontSize: '28px',
+            color: '#f4e7c1'
+        }).setOrigin(0.5);
+
+        this.add.text(width / 2, 170, `${fromCity}  →  ${toCity}`, {
+            fontFamily: 'Special Elite',
+            fontSize: '34px',
+            color: '#ffffff',
+            align: 'center'
+        }).setOrigin(0.5);
+
+        this.add.text(width / 2, 225, `Travel time: +${travelHours}h`, {
+            fontFamily: 'Special Elite',
+            fontSize: '28px',
+            color: '#ffd166'
+        }).setOrigin(0.5);
+
+        this.add.text(width / 2, 285, 'Following the trail...', {
+            fontFamily: 'Special Elite',
+            fontSize: '30px',
+            color: '#d6e4f0'
+        }).setOrigin(0.5);
+
+        const detailText = this.getDetailText(status);
+
+        this.add.text(width / 2, 355, detailText, {
+            fontFamily: 'Special Elite',
+            fontSize: '24px',
+            color: '#d9d9d9',
+            align: 'center',
+            wordWrap: { width: Math.min(760, width * 0.7) }
+        }).setOrigin(0.5);
+
+        this.drawTravelLine(width, height);
+
+        this.continueHint = this.add.text(width / 2, height - 70, 'Please wait...', {
+            fontFamily: 'Special Elite',
+            fontSize: '22px',
+            color: '#9aa6b2'
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: this.continueHint,
+            alpha: { from: 0.35, to: 1 },
+            duration: 900,
+            yoyo: true,
+            repeat: -1
+        });
+
+        this.time.delayedCall(2600, () => {
+            if (this.isLeaving || !this.continueHint) return;
+
+            this.canContinue = true;
+            this.continueHint.setText('Click to continue');
+            this.continueHint.setColor('#f4e7c1');
+        });
+
+        this.input.once('pointerdown', () => {
+            if (!this.canContinue || this.isLeaving) return;
+            this.leaveScene(wasCorrect, nextScene);
+        });
+
+        this.time.delayedCall(4500, () => {
+            if (this.isLeaving) return;
+            this.leaveScene(wasCorrect, nextScene);
+        });
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.input.removeAllListeners();
+        });
+    }
+
+    leaveScene(wasCorrect, nextScene) {
+        if (this.isLeaving) return;
+        this.isLeaving = true;
+
+        const camera = this.cameras.main;
+        camera.fadeOut(450, 0, 0, 0);
+
+        camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+            const destinationScene = this.resolveNextScene(nextScene, wasCorrect);
+
+            if (!this.scene.get(destinationScene)) {
+                console.error(`TravelTransitionScene: Scene "${destinationScene}" is not registered.`);
+                this.scene.start('GameScene');
+                return;
+            }
+
+            this.scene.start(destinationScene, { ...this.transitionData });
+        });
+    }
+
+    drawTravelLine(width, height) {
+        const graphics = this.add.graphics();
+
+        graphics.lineStyle(4, 0xd9c27a, 0.9);
+        graphics.beginPath();
+        graphics.moveTo(width * 0.22, height * 0.62);
+        graphics.lineTo(width * 0.78, height * 0.62);
+        graphics.strokePath();
+
+        this.add.circle(width * 0.22, height * 0.62, 10, 0xffffff, 1);
+        this.add.circle(width * 0.78, height * 0.62, 10, 0xd9c27a, 1);
+
+        const plane = this.add.text(width * 0.5, height * 0.62 - 18, '✈', {
+            fontFamily: 'Special Elite',
+            fontSize: '32px',
+            color: '#f4e7c1'
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: plane,
+            x: width * 0.78,
+            duration: 1800,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    getDetailText(status) {
+        switch (status) {
+            case 'CRIME_SCENE_REACHED':
+                return 'A fresh city, fresh witnesses, and fresh lies. Keep your eyes open the moment you arrive.';
+            case 'FINAL_SHOWDOWN':
+                return 'The case is narrowing. Whatever waits ahead, it won’t stay hidden for much longer.';
+            case 'CONTINUE':
+                return 'The trail stretches onward. Somewhere in the next city, someone has seen more than they admitted.';
+            case 'FALSE_LEAD':
+                return 'Not every lead is clean. Sometimes the trail bends before it breaks.';
+            default:
+                return 'Another city, another chance to get one step closer to the truth.';
+        }
+    }
+
+    resolveNextScene(nextScene, wasCorrect) {
+        if (!wasCorrect) return 'GameScene';
+        return nextScene || 'CityScene';
+    }
+}

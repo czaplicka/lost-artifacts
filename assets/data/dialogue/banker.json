@@ -1,0 +1,341 @@
+{
+  "bankerClues": {
+    "banter": [
+      "I trust numbers, detective. People are just badly formatted spreadsheets.",
+      "We offer three things here: security, discretion, and terrible coffee.",
+      "Most clients hide money. The interesting ones hide intent.",
+      "You can tell a lot about someone by how they sign documents and lie about why.",
+      "I’ve seen panic, greed, and love in this office. Only one of those pays interest.",
+      "People say money doesn’t buy happiness. It does, however, rent very good alibis.",
+      "When someone smiles too much in a bank, they’re either in love or in trouble. Usually the second."
+    ],
+    "repeatLines": [
+      [
+        "We already spoke, detective.",
+        "Unlike interest, my testimony does not improve with time."
+      ],
+      [
+        "Back again?",
+        "I still have no fresh data, only better posture and worse coffee."
+      ],
+      [
+        "I’ve already balanced this account for you.",
+        "No hidden assets, no hidden clues."
+      ],
+      [
+        "You already audited my memory.",
+        "It remains accurate and deeply unprofitable."
+      ],
+      [
+        "Still me, still a banker, still no new revelations.",
+        "It’s almost comforting."
+      ],
+      [
+        "I gave you the facts.",
+        "If you need suspense, try the stock market."
+      ],
+      [
+        "We’ve covered this transaction, detective.",
+        "At this point you're just reconciling the paperwork."
+      ],
+      [
+        "No new developments.",
+        "Unless someone has started laundering money through the lobby plants."
+      ],
+      [
+        "I told you everything useful the first time.",
+        "Efficiency is one of the few luxuries I still respect."
+      ],
+      [
+        "My statement has already matured to full value.",
+        "There is no bonus payout for asking twice."
+      ]
+    ],
+    "falseLeadLines": [
+      [
+        "Wrong city, detective.",
+        "A bold investment, but the return appears catastrophic."
+      ],
+      [
+        "You backed the wrong destination.",
+        "Even my most reckless clients diversify better than that."
+      ],
+      [
+        "That lead collapsed on arrival.",
+        "A pity. I almost admired the confidence."
+      ],
+      [
+        "The thief is elsewhere.",
+        "You, however, have successfully expanded the travel budget."
+      ],
+      [
+        "That was not the correct market.",
+        "You bought high, sold low, and landed nowhere useful."
+      ],
+      [
+        "A false lead, I’m afraid.",
+        "The numbers were against you from the start."
+      ],
+      [
+        "You chose the wrong city.",
+        "On paper it looked brave. In practice, merely expensive."
+      ],
+      [
+        "No suspect, no artifact, no progress.",
+        "I trust you at least collected frequent flyer miles."
+      ],
+      [
+        "That destination yielded nothing of value.",
+        "A sentence I normally reserve for crypto investments."
+      ],
+      [
+        "An unfortunate miscalculation, detective.",
+        "Fortunately, embarrassment is still tax-free."
+      ]
+    ],
+    "cityHints": {
+      "london": [
+        "Your traveler asked about a city where fog is a lifestyle and umbrellas are practically part of the dress code.",
+        "They wanted to know if the place with double-decker buses still drives on what they called ‘the wrong side of history’.",
+        "They mentioned a river crossed by too many postcards and guards who refuse to smile on principle."
+      ],
+      "paris": [
+        "They kept asking about a city that worships butter, baguettes, and an iron tower everyone mistakes for romance.",
+        "They said they preferred places where the word ‘bonjour’ can mean hello, goodbye, and ‘I’m judging your outfit’.",
+        "They mentioned a city of narrow streets, long lunches, and strikes so regular you could set your watch by them."
+      ],
+      "berlin": [
+        "Your suspect asked whether the city that once argued with a wall still sells pieces of it to tourists.",
+        "They said they were heading somewhere with serious museums by day and questionable techno by night.",
+        "They wanted to know if the gate named after a novelist’s favorite brand of toothpaste still attracts crowds. I assume they meant the famous one."
+      ],
+      "new_york_city": [
+        "They wondered if the place with yellow taxis, impatient horns, and towering glass ego monuments ever actually sleeps.",
+        "They asked whether the city with a torch-bearing statue welcomes more tourists or more bad decisions.",
+        "They mentioned a skyline so crowded with skyscrapers that even the pigeons need career plans."
+      ],
+      "warsaw": [
+        "Your client was curious about a capital guarded by a mermaid and a river that has seen more history than most textbooks.",
+        "They asked if the city with a royal castle on a hill still argues about which pierogi are the ‘real’ ones.",
+        "They mentioned a place where old stone, new glass, and stubborn optimism all share the same tram lines."
+      ],
+      "new_delhi": [
+        "They wanted to know about a capital where traffic negotiates directly with fate and horns are a form of small talk.",
+        "They said they were craving a city of chai, crowded bazaars, and colors bright enough to wake the guilty and the jet-lagged.",
+        "They asked if it’s true that in this place, even the air smells like spices, stories, and slightly burned secrets."
+      ]
+    },
+    "locationVariants": {
+      "london": {
+        "banter": [
+          "London money prefers understatement. Even panic here tries to sound well educated.",
+          "In this city, people apologize when they step on your foot and when they ruin your pension.",
+          "The suits are excellent, the weather is criminal, and everyone pretends both are acceptable."
+        ],
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "In London we do enjoy repetition, but usually in policy rather than conversation."
+          ],
+          [
+            "Back again?",
+            "How reassuringly persistent of you."
+          ],
+          [
+            "No new information, I’m afraid.",
+            "Only the same facts in a slightly gloomier climate."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "A very confident error. Almost British in tone."
+          ],
+          [
+            "That was the wrong destination.",
+            "Solid effort, poor outcome, excellent tradition."
+          ],
+          [
+            "You missed the suspect entirely.",
+            "Still, at least disappointment wears a respectable suit here."
+          ]
+        ]
+      },
+      "paris": {
+        "banter": [
+          "Paris clients pretend money is vulgar, then request the expensive chair.",
+          "In this city, even financial anxiety arrives elegantly dressed.",
+          "People here judge your shoes, your accent, and your investment strategy, not always in that order."
+        ],
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "Paris may reinvent style every season, but facts remain stubbornly classic."
+          ],
+          [
+            "Back so soon?",
+            "I admire the persistence, if not the lack of novelty."
+          ],
+          [
+            "Nothing new, I’m afraid.",
+            "The truth, like good tailoring, does not improve through excessive handling."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "A romantic mistake, perhaps, but a mistake all the same."
+          ],
+          [
+            "You followed the wrong lead.",
+            "Stylishly, I grant you, but incorrectly."
+          ],
+          [
+            "The suspect is elsewhere.",
+            "What you found here instead was atmosphere."
+          ]
+        ]
+      },
+      "berlin": {
+        "banter": [
+          "Berlin money likes to look casual while making very serious demands.",
+          "People here distrust glamour, adore systems, and still find time for all-night poor decisions.",
+          "I appreciate a city where efficiency and eccentricity glare at each other across the same street."
+        ],
+        "repeatLines": [
+          [
+            "We already covered this, detective.",
+            "Quite thoroughly, by any reasonable standard."
+          ],
+          [
+            "You’re back.",
+            "Efficient, but unnecessary."
+          ],
+          [
+            "No additional information.",
+            "I see no reason to decorate that sentence."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Direct, disappointing, and impossible to misinterpret."
+          ],
+          [
+            "That lead failed.",
+            "At least it did so with admirable clarity."
+          ],
+          [
+            "The suspect moved on.",
+            "You arrived with energy and left with a lesson."
+          ]
+        ]
+      },
+      "new_york_city": {
+        "banter": [
+          "In New York, everyone is in a hurry, including the lies.",
+          "This city treats ambition like caffeine: too much is normal, and sleep is for amateurs.",
+          "People here enter a bank as if they’re pitching a sequel to themselves."
+        ],
+        "repeatLines": [
+          [
+            "Yeah, we talked already, detective.",
+            "Still no new clue, but I respect the hustle."
+          ],
+          [
+            "Back again?",
+            "That’s either dedication or a scheduling issue."
+          ],
+          [
+            "No update.",
+            "This city moves fast, but my statement isn't trying to catch a cab."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "That choice had confidence, volume, and no results."
+          ],
+          [
+            "You chased the wrong lead.",
+            "Very dynamic. Completely useless."
+          ],
+          [
+            "No suspect here.",
+            "Just noise, traffic, and your rapidly declining odds."
+          ]
+        ]
+      },
+      "warsaw": {
+        "banter": [
+          "In Warsaw, people don’t waste words, and they certainly don’t waste surviving.",
+          "Clients here appreciate caution, competence, and interest rates that don’t insult their ancestors.",
+          "This city remembers how often history breaks things and how stubbornly people rebuild them anyway."
+        ],
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "No point sanding the same board twice."
+          ],
+          [
+            "Back again?",
+            "I still have the same facts and less free time."
+          ],
+          [
+            "Nothing new.",
+            "If there were, I would have said so already."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Happens. Better fix it fast."
+          ],
+          [
+            "You followed the wrong lead, detective.",
+            "At least now you know where not to be."
+          ],
+          [
+            "The suspect isn't here.",
+            "A hard truth, but those are often the useful kind."
+          ]
+        ]
+      },
+      "new_delhi": {
+        "banter": [
+          "In New Delhi, even a quiet transaction has three interruptions, two opinions, and excellent tea nearby.",
+          "Markets move fast here, but rumors still manage to outrun them.",
+          "This city can negotiate traffic, temperature, and destiny before lunch."
+        ],
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "Nothing has changed except the queue and my patience."
+          ],
+          [
+            "Back again?",
+            "I admire persistence, but I cannot invoice new facts into existence."
+          ],
+          [
+            "No fresh clues today.",
+            "Only the same truth, slightly warmer and considerably louder."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Bold move. Not a correct one, but certainly bold."
+          ],
+          [
+            "That lead went nowhere useful.",
+            "Which, in this traffic, is almost impressive."
+          ],
+          [
+            "The suspect is elsewhere.",
+            "You arrived with hope and left with a longer itinerary."
+          ]
+        ]
+      }
+    }
+  }
+}

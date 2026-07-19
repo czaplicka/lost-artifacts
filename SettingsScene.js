@@ -4,9 +4,14 @@ export class SettingsScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.image(0, 0, 'backgroundset')
-            .setOrigin(0, 0)
-            .setDisplaySize(1920, 1080);
+        const { width, height } = this.scale;
+
+        if (this.textures.exists('backgroundset')) {
+            this.add.image(width / 2, height / 2, 'backgroundset')
+                .setDisplaySize(width, height);
+        } else {
+            this.cameras.main.setBackgroundColor('#111111');
+        }
 
         const music = this.registry.get('bgMusic');
 
@@ -28,26 +33,29 @@ export class SettingsScene extends Phaser.Scene {
 
         const panel = this.add.graphics();
         panel.fillStyle(0x000000, 0.7);
-        panel.fillRect(670, 400, 600, 300);
+        panel.fillRect(width * 0.35, height * 0.37, width * 0.3, height * 0.28);
 
-        const backBtn = this.add.image(200, 930, 'back').setInteractive();
-        backBtn.setScale(0.7);
+        const backBtn = this.add.image(width * 0.12, height * 0.86, 'back')
+            .setInteractive({ useHandCursor: true })
+            .setScale(0.7);
+
         this.addHoverEffect(backBtn, 0.7, 0.8);
         backBtn.on('pointerdown', () => this.scene.start('MenuScene'));
 
         let isSoundOn = this.registry.get('soundOn');
-        if (isSoundOn === undefined) {
+        if (typeof isSoundOn !== 'boolean') {
             isSoundOn = true;
             this.registry.set('soundOn', true);
         }
 
-        const soundIcon = this.add.image(830, 540, isSoundOn ? 'soundOn' : 'soundOff')
-            .setInteractive();
-        soundIcon.setScale(0.8);
+        const soundIcon = this.add.image(width * 0.43, height * 0.5, isSoundOn ? 'soundOn' : 'soundOff')
+            .setInteractive({ useHandCursor: true })
+            .setScale(0.8);
+
         this.addHoverEffect(soundIcon, 0.8, 0.9);
 
-        const soundText = this.add.text(1120, 540, isSoundOn ? 'Sound On' : 'Sound Off', {
-            fontFamily: 'PressStart2P',
+        const soundText = this.add.text(width * 0.58, height * 0.5, isSoundOn ? 'Sound On' : 'Sound Off', {
+            fontFamily: '"Press Start 2P", Arial',
             fontSize: '32px',
             color: '#FFFF00',
             fontStyle: 'bold'

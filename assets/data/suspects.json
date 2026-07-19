@@ -179,7 +179,8 @@
       "eyes": "Blue",
       "accent": "American",
       "skills": "Investigation, Analysis, Deduction",
-      "habitus": "Reading, Writing, Gardening"
+      "habitus": "Reading, Writing, Gardening",
+      "portraitKey": "ava_thompson"
     },
     {
       "name": "Maximilian Schmidt",
@@ -191,7 +192,8 @@
       "eyes": "Brown",
       "accent": "German",
       "skills": "Engineering, Problem-solving, Technical knowledge",
-      "habitus": "Reading, Building models, Playing chess"
+      "habitus": "Reading, Building models, Playing chess",
+      "portraitKey": "maximilian_schmidt"
     },
     {
       "name": "Brendan Ross",
@@ -203,7 +205,8 @@
       "eyes": "Green",
       "accent": "Scottish",
       "skills": "Negotiation, Persuasion, Deception",
-      "habitus": "Running, Hiking, Traveling"
+      "habitus": "Running, Hiking, Traveling",
+      "portraitKey": "brendan_ross"
     },
     {
       "name": "Bai Williams",
@@ -215,7 +218,8 @@
       "eyes": "Hazel",
       "accent": "British",
       "skills": "Seduction, Persuasion, Manipulation",
-      "habitus": "Swimming, Running, Traveling"
+      "habitus": "Swimming, Running, Traveling",
+      "portraitKey": "bai_williams"
     },                                       
     {
       "name": "Albert Johnson",
@@ -227,7 +231,8 @@
       "eyes": "Brown",
       "accent": "Australian",
       "skills": "Investigation, Interrogation, Deduction",
-      "habitus": "Reading, Writing, Traveling"
+      "habitus": "Reading, Writing, Traveling",
+      "portraitKey": "albert_johnson"
     },                   
     {
       "name": "Anna Bocian",
@@ -239,7 +244,8 @@
       "eyes": "Blue",
       "accent": "Polish",
       "skills": "History, Museum studies, Research",
-      "habitus": "Exploring, Watching Movies, Eating out"
+      "habitus": "Exploring, Watching Movies, Eating out",
+      "portraitKey": "anna_bocian"
     },
     {
     
@@ -252,7 +258,8 @@
       "eyes": "Brown",
       "accent": "Russian",
       "skills": "Lockpicking, Disguise, Pickpocketing",
-      "habitus": "Working out, Playing chess, Playing video games"
+      "habitus": "Working out, Playing chess, Playing video games",
+      "portraitKey": "aleksander_petrov"
     },
     {
     
@@ -260,11 +267,472 @@
       "gender": "Female",
       "gender_code": "f",
       "race": "Black",
-      "hair": "Blonde",
+      "hair": "Black",
       "features": "Earrings",
       "eyes": "Green",
       "accent": "French",
       "skills": "Seduction, Persuasion, Manipulation",
-      "habitus": "Flirting, Shopping, Stealth"
+      "habitus": "Flirting, Shopping, Stealth",
+      "portraitKey": "marie_dubois"
+    },
+        {
+    
+      "name": "Lotte Chantal",
+      "gender": "Female",
+      "gender_code": "f",
+      "race": "White",
+      "hair": "Black",
+      "features": "Earrings",
+      "eyes": "Blue",
+      "accent": "Belgian",
+      "skills": "Lockpicking, Interrogation, Problem-solving",
+      "habitus": "Reading, Flirting, Dancing",
+      "portraitKey": "lotte_chantal"
+    },
+  {
+  "suspectCluePool": {
+    "hair": {
+      "Black": [
+        "They had black hair, the kind that looks planned even in a hurry.",
+        "Black hair, neat enough to make the rest of the room feel underdressed.",
+        "I remember black hair and the attitude of someone who trusts shadows more than sunlight."
+      ],
+      "Brown": [
+        "Brown hair, the forgettable kind—if the rest of them weren’t so suspicious.",
+        "Their brown hair was boring. Their timing was not.",
+        "I’d call the hair ‘brown’ and the behavior ‘questionable’."
+      ],
+      "Blonde": [
+        "Blonde hair, the shade people dye for. This one wore it like a warning sign.",
+        "They had blonde hair and the confidence of someone who’s never lost in a crowd.",
+        "Hard to miss: blonde hair, sharp eyes, and no patience for small talk."
+      ],
+      "Red": [
+        "Red hair, the kind you remember even if you’re trying not to remember anything.",
+        "They had red hair and the expression of someone who starts fires metaphorically—and maybe literally.",
+        "Bright red hair, like they didn’t understand the concept of ‘low profile’."
+      ]
+    },
+    "eyes": {
+      "Blue": [
+        "Blue eyes that scanned the room like it was a crime scene waiting for a crime.",
+        "Their blue eyes were calm. Too calm for someone in that much of a hurry.",
+        "I remember blue eyes that smiled a lot less than their mouth did."
+      ],
+      "Brown": [
+        "Brown eyes, steady and unreadable, like they’d practiced in a mirror.",
+        "They had brown eyes and the habit of looking at exits more than people.",
+        "Those brown eyes measured everything—doors, cameras, and me included."
+      ],
+      "Green": [
+        "Green eyes, the curious kind, always counting, weighing, judging.",
+        "Their green eyes flicked over details like they were taking mental notes.",
+        "I remember green eyes that looked amused, even when nothing was funny."
+      ],
+      "Hazel": [
+        "Hazel eyes, always shifting, like they hadn’t decided who to lie to yet.",
+        "They had hazel eyes and the reflex of checking reflections in every window.",
+        "Hazel eyes that softened when they smiled and hardened when money came up."
+      ]
+    },
+    "features": {
+      "Big forehead": [
+        "Hard to miss that big forehead, like their brain needed a penthouse.",
+        "They had a big forehead and the habit of frowning like the world owed them answers.",
+        "Big forehead, bigger attitude. The combination tends to cause trouble."
+      ],
+      "Tattoo": [
+        "They had a visible tattoo they clearly wanted people to notice and remember.",
+        "I spotted a tattoo peeking from under the sleeve—subtle is not their brand.",
+        "One tattoo, carefully placed, like a signature they forgot to hide."
+      ],
+      "Rainbow hair streak": [
+        "There was a rainbow streak in their hair, as if subtlety had been fired years ago.",
+        "A rainbow streak in the hair tends to stand out, even in a crowd of suspects.",
+        "They had this rainbow hair streak that screamed ‘look at me’ while they pretended not to."
+      ],
+      "Necklace": [
+        "They kept touching a necklace, like it was either sentimental or stolen.",
+        "I remember a necklace that looked too expensive for their story.",
+        "They had a habit of fiddling with a necklace while lying. Very convenient for me."
+      ],
+      "Scar": [
+        "They had a scar that said ‘long story’ and a face that said ‘don’t ask’.",
+        "A thin scar, neatly healed, the kind you don’t get from clumsiness.",
+        "Their scar caught the light every time they turned their head away from the truth."
+      ],
+      "Moustache": [
+        "They had a moustache, carefully groomed, like it had its own agenda.",
+        "I remember the moustache. It entered the room a second before the rest of them.",
+        "That moustache looked trustworthy. They did not."
+      ],
+      "Beard": [
+        "They wore a beard that tried very hard to look respectable.",
+        "A neat beard, trimmed to suggest order. The rest of them disagreed.",
+        "Their beard covered half their face, but not the guilt."
+      ],
+      "Glasses": [
+        "Glasses, stylish and just reflective enough to hide where their eyes really went.",
+        "They adjusted their glasses every time the questions got too precise.",
+        "Those glasses said ‘researcher’. Their pacing said ‘runner’."
+      ],
+      "Earrings": [
+        "I noticed a pair of earrings that looked too expensive for their plane ticket.",
+        "They had earrings that jingled louder than their conscience.",
+        "Earrings that caught the light every time they looked for exits."
+      ],
+      "Goatee": [
+        "They sported a goatee, the universal symbol for ‘trust me, I’ve made choices’.",
+        "I remember the goatee. It tried to make them look intellectual.",
+        "Their goatee was perfectly shaped. Their story wasn’t."
+      ],
+      "Long hair": [
+        "They had long hair tied back just enough to look practical, not enough to look innocent.",
+        "Long hair, always pushed behind the ear when they lied.",
+        "Their long hair moved a lot. Their answers, not so much."
+      ]
+    },
+    "accent": {
+      "Canadian": [
+        "Their accent was Canadian, polite even when their story wasn’t.",
+        "They apologized twice while lying. Classic Canadian accent, less classic honesty.",
+        "You could hear the Canadian in their vowels and the trouble in their timing."
+      ],
+      "Mexican": [
+        "They spoke with a Mexican accent and the rhythm of someone used to bargaining.",
+        "That warm Mexican accent almost distracted from the sharpness of their answers.",
+        "Their Mexican accent wrapped around every word like it was negotiating with me."
+      ],
+      "Australian": [
+        "They had an Australian accent and the relaxed tone of someone who shouldn’t be that relaxed.",
+        "That Australian accent made every joke sound friendlier than it should have.",
+        "Their Australian accent dropped consonants and, occasionally, truths."
+      ],
+      "American": [
+        "They spoke with an American accent, fast and confident, like the world was an argument they planned to win.",
+        "That American accent came with big gestures and bigger claims.",
+        "Their American accent filled the room. Their answers tried to fill the gaps."
+      ],
+      "Dutch": [
+        "They had a Dutch accent and the calm of someone who has already checked every exit.",
+        "That Dutch accent carried a certain bluntness I almost respected.",
+        "Their Dutch accent made their questions sound practical. Their motives, less so."
+      ],
+      "British": [
+        "They spoke with a British accent sharp enough to cut through my patience.",
+        "That British accent made every insult sound like a compliment with bad timing.",
+        "Their British accent tried to sound charming. Their alibi did not."
+      ],
+      "German": [
+        "They had a German accent and answered like they were ticking boxes on an invisible form.",
+        "That German accent clipped every word neatly, like they hated wasting syllables.",
+        "Their German accent made even small talk sound like a briefing."
+      ],
+      "Polish": [
+        "They spoke with a Polish accent and the kind of dry humour you only get from long winters.",
+        "That Polish accent came with precise words and carefully imprecise answers.",
+        "Their Polish accent softened only when they mentioned home. Everything else stayed sharp."
+      ],
+      "Russian": [
+        "They had a Russian accent and a habit of pausing before every important word.",
+        "That Russian accent wrapped around the truth like it was smuggling it.",
+        "Their Russian accent made every sentence sound like it had a backup plan."
+      ],
+      "Italian": [
+        "They spoke with an Italian accent and gestured like they were conducting an invisible orchestra.",
+        "That Italian accent turned every denial into a small performance.",
+        "Their Italian accent made ‘no comment’ sound almost charming."
+      ],
+      "Irish": [
+        "They had an Irish accent and a talent for turning answers into stories.",
+        "That Irish accent danced around the question more than it answered it.",
+        "Their Irish accent made excuses sound like folk tales."
+      ],
+      "Belarussian": [
+        "They spoke with a Belarussian accent and the calm of someone used to cold weather and warm problems.",
+        "That Belarussian accent kept their voice low, but their eyes did most of the talking.",
+        "Their Belarussian accent carried a kind of quiet stubbornness I’ve seen in reports, not tourists."
+      ],
+      "French": [
+        "They had a French accent and a talent for making complaints sound poetic.",
+        "That French accent rolled over the words, especially the ones they wanted me to ignore.",
+        "Their French accent made even lies sound like they came with a wine pairing."
+      ]
+    },
+    "skills": {
+      "Lockpicking": [
+        "Their hands moved like someone who’s very familiar with locks and the concept of ‘private’.",
+        "They talked about doors the way poets talk about sunsets. I got suspicious.",
+        "I noticed how they glanced at every lock in the room like it was a challenge."
+      ],
+      "Disguise": [
+        "They had the posture of someone who’s worn a lot of faces to work.",
+        "Their outfit was forgettable in a way that takes serious practice.",
+        "They kept adjusting their collar like they weren’t entirely used to this version of themselves."
+      ],
+      "Stealth": [
+        "They moved so quietly I almost forgot they were there. My notebook didn’t.",
+        "Their footsteps were softer than their lies.",
+        "You don’t learn to move that silently by accident."
+      ],
+      "Languages": [
+        "They switched languages mid-sentence just to check if I was paying attention.",
+        "Their suitcase contained more phrasebooks than shirts.",
+        "People who speak that many languages rarely run out of excuses."
+      ],
+      "Negotiation": [
+        "They tried to negotiate with me like this was a marketplace, not an interview.",
+        "Every answer came with a counter-offer.",
+        "They smiled in the way only professional negotiators and salespeople do."
+      ],
+      "Intimidation": [
+        "They leaned in just a little too close, like they thought fear was a shortcut.",
+        "Their silence was loud, the kind people use instead of threats.",
+        "They stared like they were used to winning staring contests and arguments."
+      ],
+      "Hacking": [
+        "They talked about computers the way some people talk about pets they slightly fear.",
+        "Their fingers twitched like they missed a keyboard.",
+        "Anyone who smiles while saying ‘I could fix that from here’ is either a hacker or a liar. Sometimes both."
+      ],
+      "Electronics": [
+        "They noticed every camera in the room before they noticed me.",
+        "Their eyes kept drifting to the wiring like they were mentally redrawing it.",
+        "They called the alarm system ‘cute’. I made a note of that."
+      ],
+      "Surveillance": [
+        "They chose the seat with the best view of every door without thinking about it.",
+        "Their eyes kept tracking reflections in glass and metal surfaces.",
+        "They have the stillness of someone used to watching, not being watched."
+      ],
+      "Investigation": [
+        "They asked more questions than I did, which is never a good sign.",
+        "Their notes were more detailed than some of my colleagues’ reports.",
+        "They spotted inconsistencies in the story before I finished telling it."
+      ],
+      "Interrogation": [
+        "They treated conversation like a chess match: always planning three questions ahead.",
+        "They let silences hang just a bit too long, like they were waiting for me to fill them.",
+        "They looked more comfortable on my side of the table than I did."
+      ],
+      "Deduction": [
+        "They kept finishing my sentences. I don’t like competition.",
+        "Their eyes lit up every time a detail didn’t fit. They live for that.",
+        "They connected dots I hadn’t even put on the board yet."
+      ],
+      "Forgery": [
+        "They admired the signatures on the wall a little too closely.",
+        "Their compliments about our document security felt… professional.",
+        "They handled paper like it was both a weapon and a weakness."
+      ],
+      "Art history": [
+        "They kept correcting the dates under paintings nobody else noticed.",
+        "Their eyes lingered on frames and brushstrokes more than people.",
+        "They called one forgery ‘insulting’. I wrote that down."
+      ],
+      "Research": [
+        "They arrived overprepared, the curse of professional researchers.",
+        "Their folder of notes had footnotes. Footnotes, detective.",
+        "They cited sources while giving an alibi."
+      ],
+      "Martial arts": [
+        "They moved like someone counting exits and angles, not chairs.",
+        "Their stance shifted every time someone entered the room.",
+        "You don’t get muscles like that from typing."
+      ],
+      "Survival skills": [
+        "They looked at the room like they were ranking it for shelter potential.",
+        "They asked where the nearest water source was. Indoors.",
+        "Their clothes were more practical than fashionable. Never a coincidence."
+      ],
+      "Tracking": [
+        "They noticed footprints on the floor no one else cared about.",
+        "Their questions were all about routes, not reasons.",
+        "They traced imaginary paths in the air while talking."
+      ],
+      "Parkour": [
+        "They sized up walls and balconies like they were reviewing a menu.",
+        "Their shoes looked ready for running, climbing, or both.",
+        "They mentioned ‘shortcuts’ in a way that made me check the rooftops."
+      ],
+      "Acrobatics": [
+        "They moved their weight from foot to foot with circus-level balance.",
+        "Chairs, railings, and ledges all got a quick professional once-over.",
+        "Their idea of ‘stretching’ looked suspiciously like a warm-up routine."
+      ],
+      "Firearms": [
+        "They checked every ‘no weapons’ sign like it was a personal challenge.",
+        "Their fingers did that invisible trigger squeeze when they were thinking.",
+        "They asked too many questions about the security distance to the exits."
+      ],
+      "Tactical planning": [
+        "They rearranged sugar packets on the table into formations. I noticed.",
+        "Their questions were all about timing, routes, and who knew what when.",
+        "They seemed more interested in the layout than the conversation."
+      ]
+    },
+    "habitus": {
+      "Smoking": [
+        "They smelled faintly of smoke and bad decisions.",
+        "Their fingers had that telltale stain you don’t get from coffee.",
+        "They kept reaching for a cigarette that wasn’t there. Nervous habit."
+      ],
+      "Drinking": [
+        "They talked about bars more than museums.",
+        "Their breath carried the memory of something stronger than coffee.",
+        "They knew more about local drinks than local laws."
+      ],
+      "Gambling": [
+        "They shuffled coasters like cards and eyed everyone’s watches.",
+        "They described risk the way most people describe hobbies.",
+        "They kept asking about odds in a conversation that wasn’t a game."
+      ],
+      "Tattoos": [
+        "They had ink peeking out from under their sleeves, like secrets that ran out of space.",
+        "Their tattoos looked carefully chosen, not spontaneous.",
+        "They traced old lines on their skin when the questions got close."
+      ],
+      "Piercings": [
+        "They had more metal than most jewellery displays.",
+        "Their piercings caught the light every time they dodged a question.",
+        "You could hear a faint jingle when they lied."
+      ],
+      "Reading": [
+        "They carried a book everywhere, like a shield.",
+        "Their answers came with references nobody asked for.",
+        "They looked more at the printed page than at people."
+      ],
+      "Gaming": [
+        "They compared this interview to a boss fight. Charming.",
+        "Their reflexes said ‘gamer’. Their sense of reality… less so.",
+        "They talked about strategies like this was just another level."
+      ],
+      "Coding": [
+        "They spoke about bugs and features the way some people talk about sins and excuses.",
+        "Their hands twitched like they were typing ghost code.",
+        "They described their alibi like a changelog."
+      ],
+      "Watching movies": [
+        "They kept comparing everything to films. Including their own life choices.",
+        "Half their references were movie quotes. The other half were spoilers.",
+        "They said this whole thing ‘felt like a crime thriller’. I agreed."
+      ],
+      "Yoga": [
+        "They sat too straight for someone allegedly relaxed.",
+        "Their breathing stayed suspiciously calm under pressure.",
+        "They mentioned chakras while I mentioned handcuffs."
+      ],
+      "Meditation": [
+        "They paused before every answer like they were checking in with their inner lawyer.",
+        "Their calm felt practiced, like a habit, not a personality.",
+        "They suggested I ‘breathe through the tension’. I suggested they answer the question."
+      ],
+      "Cooking": [
+        "They described meals in more detail than their alibi.",
+        "Their hands smelled faintly of spices and suspicion.",
+        "They said stress made them want to cook. I said it made me want to arrest people."
+      ],
+      "Joking": [
+        "They used jokes as a shield, which works better at parties than in interviews.",
+        "Every serious question got a punchline before an answer.",
+        "Their humour was good. Their timing, less so."
+      ],
+      "Pranks": [
+        "They treated everything like a setup for a prank. Including this.",
+        "They smirked like they were waiting for someone to say ‘gotcha’.",
+        "Their idea of ‘just a joke’ usually leaves paperwork."
+      ],
+      "Flirting": [
+        "They tried to flirt their way through the questions. Classic, ineffective.",
+        "Compliments instead of answers—that’s a style, not a defence.",
+        "They treated eye contact like a weapon and a hobby."
+      ],
+      "Hiking": [
+        "Their boots looked more ready for trails than city streets.",
+        "They complained the room had ‘no fresh air, no views, no point’.",
+        "They measured distance in ‘short walks’ I wouldn’t attempt without training."
+      ],
+      "Camping": [
+        "They smelled faintly of smoke and pine, like they’d slept closer to trees than walls.",
+        "They asked where the nearest campsite was. Indoors.",
+        "They rated the chairs for ‘sleep potential’ out of habit."
+      ],
+      "Fishing": [
+        "They compared patience in this interview to waiting for a bite.",
+        "Their stories involved more lakes than witnesses.",
+        "They said they preferred quiet places. I said I preferred clear answers."
+      ],
+      "Skateboarding": [
+        "They bounced on their heels like any moment could turn into a ramp.",
+        "Their shoes had more scuffs than most crime scenes.",
+        "They described routes in terms of ‘good spots’ and ‘bad landings’."
+      ],
+      "Dancing": [
+        "They moved even when standing still, like there was always music somewhere.",
+        "They turned dodging questions into a choreography.",
+        "They marked time with their foot, not the clock."
+      ],
+      "Street art": [
+        "Their hands were stained with colours that don’t come off easily.",
+        "They kept glancing at blank walls like they were unfinished business.",
+        "They called one alley ‘a missed canvas’. I called it ‘evidence’."
+      ],
+      "Shooting": [
+        "They talked about firing ranges the way some people talk about spa days.",
+        "They handled imaginary weight in their hands, like muscle memory.",
+        "They knew more about calibres than I strictly needed."
+      ],
+      "Traveling": [
+        "They listed countries faster than I could list charges.",
+        "Their passport was heavier than their conscience.",
+        "They called this ‘just another stop’. I called it ‘a problem’."
+      ],
+      "Exploring": [
+        "They described cities like puzzles they hadn’t finished yet.",
+        "They get lost on purpose. People like that find trouble accidentally.",
+        "They called alleys ‘invitations’. I called them ‘crime scenes waiting’."
+      ],
+      "Watching Movies": [
+        "They claimed to ‘study’ people through films. I reminded them this wasn’t a rehearsal.",
+        "They compared my questions to plot twists. I took that as a compliment.",
+        "Every reference was a movie. Every excuse, a rerun."
+      ],
+      "Eating out": [
+        "They remembered restaurants better than dates.",
+        "Their alibi involved more menus than witnesses.",
+        "They rated the neighbourhood in food, not safety."
+      ],
+      "Working out": [
+        "They rolled their shoulders like they missed a gym more than their conscience.",
+        "Their knuckles looked like they’d met a few bad ideas up close.",
+        "They asked about the nearest gym before a lawyer."
+      ],
+      "Playing chess": [
+        "They treated every question like a move two turns ahead.",
+        "They stared at the table like there were invisible pieces on it.",
+        "They talked about sacrifices with alarming enthusiasm."
+      ],
+      "Playing video games": [
+        "They kept calling this ‘a side quest’. I strongly disagreed.",
+        "Their metaphors were all levels, bosses, and loot.",
+        "They asked if there was a ‘skip dialogue’ option. There is not."
+      ],
+      "Shopping": [
+        "They could list brands faster than dates and times.",
+        "Their bags had more receipts than answers.",
+        "They called this ‘a bad customer experience’. I called it ‘an interrogation’."
+      ],
+      "Stealth": [
+        "They moved like they were trying not to exist, which is rarely innocent.",
+        "They stood where shadows fell naturally.",
+        "They apologised when they made even the slightest sound."
+      ],
+      "Reading, Writing": [
+        "They took notes during the questions. That’s usually my job.",
+        "They corrected my grammar once. I let them live—for now.",
+        "They said they ‘process things better in writing’. I gave them a statement form."
+      ]
     }
-  ]
+  }
+}
+]

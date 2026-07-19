@@ -1,0 +1,341 @@
+{
+"parkingowyClues": {
+  "banter": [
+    "Engines don’t lie, detective. Drivers do it professionally.",
+    "You can learn a lot from how someone parks and how fast they pretend they didn’t.",
+    "Some people leave parking tickets. Others leave entire stories under their wipers.",
+    "If a driver backs into a spot perfectly, I immediately wonder what else they’ve rehearsed.",
+    "Keys, dents, and fuel receipts make better witnesses than most people I meet.",
+    "Everyone thinks they’re the main character until I see how they handle a tight space.",
+    "You’d be surprised how many suspects try to escape in a car they can’t parallel park."
+  ],
+  "repeatLines": [
+    [
+      "We already went over this car, detective.",
+      "It hasn’t moved, and neither has the story."
+    ],
+    [
+      "Back again?",
+      "The only thing that changed is the parking fee."
+    ],
+    [
+      "I told you what I saw.",
+      "If the tyres had more to add, I’d let you know."
+    ],
+    [
+      "No new clues.",
+      "Same skid marks, same driver, same bad decisions."
+    ],
+    [
+      "We’ve checked this spot already.",
+      "Any more and I’ll start charging you by the minute."
+    ],
+    [
+      "Still the same facts, detective.",
+      "Engines don’t rewrite their alibis overnight."
+    ],
+    [
+      "You already emptied this lot of secrets.",
+      "Now you’re just circling for comfort."
+    ],
+    [
+      "I gave you everything that would hold up in a report.",
+      "The rest is just noise from bad mufflers."
+    ],
+    [
+      "No fresh tyre tracks, no fresh evidence.",
+      "Just new stains on old asphalt."
+    ],
+    [
+      "Same parking attendant, same case, same truth.",
+      "If you want a different answer, try a different car."
+    ]
+  ],
+  "falseLeadLines": [
+    [
+      "Wrong city, detective.",
+      "You parked your hopes in the wrong spot."
+    ],
+    [
+      "You followed the wrong trail.",
+      "I’ve seen better judgement in people who block fire lanes."
+    ],
+    [
+      "No suspect there.",
+      "Just other drivers pretending the rules don’t apply to them."
+    ],
+    [
+      "That lead went nowhere.",
+      "Like a car with the handbrake still on."
+    ],
+    [
+      "You chose the wrong destination.",
+      "Next time, maybe check the map before the ignition."
+    ],
+    [
+      "A false lead, I’m afraid.",
+      "At least you didn’t get towed for it."
+    ],
+    [
+      "The thief wasn’t in that city.",
+      "Only your optimism was parked there for a while."
+    ],
+    [
+      "Wrong place, wrong lane.",
+      "Happens when you follow gut feeling instead of road signs."
+    ],
+    [
+      "You drove a long way for nothing.",
+      "I’ve ticketed shorter mistakes."
+    ],
+    [
+      "That detour didn’t help the case.",
+      "But it did a great job of wasting fuel."
+    ]
+  ],
+  "cityHints": {
+    "london": [
+      "Your suspect left a rental with a steering wheel on the ‘wrong’ side and asked if all those red buses are really necessary.",
+      "They complained about tight parking, then said it reminded them of a city where old stone, fog and impatient taxis fight for the same roads.",
+      "Their GPS history mentioned a river, a palace, and more roundabouts than any sane person needs."
+    ],
+    "paris": [
+      "They parked like they’d seen too many narrow streets and not enough indicators.",
+      "In the glove compartment I saw a parking stub with an iron tower doodled next to a baguette. Subtle, but not subtle enough.",
+      "They asked if we validate tickets for a city where scooters, cafés and bad parking form an unofficial national sport."
+    ],
+    "berlin": [
+      "They lined up the car with military precision and asked if this city has as many rules as the one with the famous gate.",
+      "I heard them mutter about a place that knocked down a wall, painted the pieces and now charges tourists to park near them.",
+      "Their dashboard map had a big circle around a district known for serious museums by day and louder engines at night."
+    ],
+    "new_york_city": [
+      "They stared at the parking fees and said it still beats hunting for a spot in a city of skyscrapers and yellow taxis.",
+      "Your suspect asked if we ever tow cars as fast as they do in the ‘concrete jungle’. I took that as a confession of experience.",
+      "There was a crumpled ticket on the seat mentioning a street grid so tight even the pigeons double-park."
+    ],
+    "warsaw": [
+      "They parked crooked, then asked if this town also fines people for blocking tram lines and royal views.",
+      "On the dashboard I saw a souvenir with a mermaid and a note about a capital that rebuilt its streets more than once.",
+      "They said they liked cities where old cobblestones, new office towers and stubborn drivers share the same intersections."
+    ],
+    "new_delhi": [
+      "Their car smelled like dust and spices, and they asked if we’ve ever seen traffic as wild as in that big capital further east.",
+      "They complained our lot was chaotic, then showed me a photo of an intersection where even scooters look brave.",
+      "Your suspect asked if honking is illegal here, because in the city they mentioned it sounds like a national language."
+    ]
+  },
+  "locationVariants": {
+    "london": {
+      "banter": [
+        "In London, people park like they’re apologising to the curb.",
+        "I’ve seen drivers spend ten minutes lining up and still call it ‘good enough’.",
+        "The tickets here fear the rain more than the drivers fear the tickets."
+      ],
+      "repeatLines": [
+        [
+          "We already talked, detective.",
+          "Since then, only the drizzle has changed."
+        ],
+        [
+          "Back again?",
+          "Same car, same spot, same bad idea."
+        ],
+        [
+          "No new clues.",
+          "Just more damp footprints and patient taxis."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Even the parking meters knew that wasn’t right."
+        ],
+        [
+          "That lead stalled on the wrong street.",
+          "Next time, trust the map, not the mood."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Only confused tourists and angry cab drivers."
+        ]
+      ]
+    },
+    "paris": {
+      "banter": [
+        "Paris drivers treat lanes like suggestions and mirrors like décor.",
+        "I’ve seen cars here park closer than most relationships.",
+        "The horns sound angry, but that’s just how they say hello."
+      ],
+      "repeatLines": [
+        [
+          "We already went over this.",
+          "No new tyre marks, just new cigarette ash."
+        ],
+        [
+          "Back so soon?",
+          "The cars changed, the chaos stayed the same."
+        ],
+        [
+          "No fresh clues.",
+          "Only the same dents and better stories."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Scenic mistake, still a mistake."
+        ],
+        [
+          "That lead went in circles.",
+          "Much like the traffic here."
+        ],
+        [
+          "Your thief wasn’t parked there.",
+          "Just scooters, tourists, and bad decisions."
+        ]
+      ]
+    },
+    "berlin": {
+      "banter": [
+        "In Berlin, people park like they’re being graded.",
+        "Lines on the asphalt are taken very seriously here.",
+        "Engines may be loud, but the parking is disciplined."
+      ],
+      "repeatLines": [
+        [
+          "We already checked this car.",
+          "It’s still exactly where the rules said it should be."
+        ],
+        [
+          "You’re back.",
+          "The facts are still aligned with the lines."
+        ],
+        [
+          "No new evidence.",
+          "If anything had changed, it would be documented."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Succinct, accurate, unfortunate."
+        ],
+        [
+          "That lead didn’t pass inspection.",
+          "We prefer our mistakes smaller and less expensive."
+        ],
+        [
+          "The suspect wasn’t there.",
+          "You just followed the wrong sign."
+        ]
+      ]
+    },
+    "new_york_city": {
+      "banter": [
+        "New York drivers park like the world ends in ten minutes.",
+        "Double-parked, triple-armed with excuses.",
+        "I’ve seen people risk their lives for a spot and then complain about the view."
+      ],
+      "repeatLines": [
+        [
+          "Yeah, we already talked, detective.",
+          "Still the same chaos, same tickets, same case."
+        ],
+        [
+          "Back again?",
+          "Welcome to the loop. We charge extra for that."
+        ],
+        [
+          "No update.",
+          "If something changed, it got towed before I saw it."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Big scene, wrong set."
+        ],
+        [
+          "That lead went nowhere.",
+          "Well, gridlocked, technically."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Only people fighting over three legal spots."
+        ]
+      ]
+    },
+    "warsaw": {
+      "banter": [
+        "Warsaw drivers park between history and roadworks.",
+        "Half the city is ‘temporary parking’ if you ask the right person.",
+        "I’ve seen people respect the tram lines more than their own bumpers."
+      ],
+      "repeatLines": [
+        [
+          "We already discussed this car.",
+          "It hasn’t moved an inch or improved its manners."
+        ],
+        [
+          "Back again?",
+          "You and this city share the same persistence."
+        ],
+        [
+          "No new clues.",
+          "Only the same scratches and the same excuses."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Not ideal, but fixable."
+        ],
+        [
+          "That lead was empty.",
+          "Like the promise on most dashboards."
+        ],
+        [
+          "The suspect isn’t there.",
+          "You’ll need a new route, not a new ticket."
+        ]
+      ]
+    },
+    "new_delhi": {
+      "banter": [
+        "In New Delhi, parking is more negotiation than manoeuvre.",
+        "I’ve seen intersections here that could be charged with choreography.",
+        "Everyone honks like they’re the main character and the road agrees."
+      ],
+      "repeatLines": [
+        [
+          "We already talked, detective.",
+          "Since then only the dust has settled. A little."
+        ],
+        [
+          "Back again?",
+          "You must enjoy heat, noise, and déjà vu."
+        ],
+        [
+          "No fresh clues.",
+          "Just the same cars trying to fit where they don’t."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Bold turn, wrong direction."
+        ],
+        [
+          "That lead went nowhere useful.",
+          "Like a car trapped in the wrong lane forever."
+        ],
+        [
+          "Your suspect is somewhere else.",
+          "You only managed to overheat your case."
+        ]
+      ]
+    }
+  }
+}
+}

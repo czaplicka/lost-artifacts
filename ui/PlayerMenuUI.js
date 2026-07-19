@@ -3,45 +3,44 @@ export class PlayerMenuUI {
         this.scene = scene;
         this.gameState = gameState;
         this.isOpen = false;
-        this.isAnimating = false; // Zabezpieczenie przed wielokrotnym klikaniem podczas animacji
+        this.isAnimating = false;
 
-        // Wymiary menu
-        this.menuWidth = 900;
+        const { width, height } = this.scene.scale;
+
+        this.menuWidth = Math.min(900, width * 0.9);
         this.menuHeight = 150;
-        
-        // Pozycje na osi Y
-        // Zamknięte: schowane pod dolną krawędzią ekranu (Y = 1080)
-        // Otwarte: na dole ekranu (Y = 1080 - 150 = 930)
-        this.closedY = 1080;
-        this.openY = 1080 - this.menuHeight;
 
-        // Główny kontener na menu, umieszczony na dole na środku
-        this.container = this.scene.add.container(1920 / 2, this.closedY).setDepth(40);
+        this.closedY = height;
+        this.openY = height - this.menuHeight;
 
-        // Tworzenie półprzezroczystego tła menu
+        this.container = this.scene.add.container(width / 2, this.closedY).setDepth(40);
+
         const menuBg = this.scene.add.rectangle(0, this.menuHeight / 2, this.menuWidth, this.menuHeight, 0x222222, 0.9)
             .setStrokeStyle(4, 0x8b0000)
-            .setInteractive(); // Zatrzymuje kliknięcia w puste miejsce menu
+            .setInteractive();
+
         this.container.add(menuBg);
 
-        // Przycisk wysuwający menu (na stałe widoczny na dole ekranu, lekko wystający)
-        this.toggleBtn = this.scene.add.rectangle(1920 / 2, 1080 - 25, 200, 50, 0x8b0000)
+        this.toggleBtn = this.scene.add.rectangle(width / 2, height - 25, 200, 50, 0x8b0000)
             .setInteractive({ useHandCursor: true })
             .setDepth(41);
-            
-        this.toggleText = this.scene.add.text(1920 / 2, 1080 - 25, 'MENU', {
-            fontFamily: 'Press Start 2P', fontSize: '18px', color: '#ffffff'
-        }).setOrigin(0.5).setDepth(42);
 
-        // Obsługa kliknięcia w toggle
+        this.toggleText = this.scene.add.text(width / 2, height - 25, 'MENU', {
+            fontFamily: 'PressStart2P',
+            fontSize: '16px',
+            color: '#ffffff'
+        })
+            .setOrigin(0.5)
+            .setDepth(42)
+            .setInteractive({ useHandCursor: true });
+
         this.toggleBtn.on('pointerdown', () => this.toggle());
+        this.toggleText.on('pointerdown', () => this.toggle());
 
-        // Tworzenie ikon menu
         this.createMenuButtons();
     }
 
     createMenuButtons() {
-        // Tablica przycisków docelowych (z nazwami kluczy Twoich grafik)
         const buttons = [
             { key: 'filebutt', label: 'Casefile', action: () => this.openCasefile() },
             { key: 'atlas', label: 'Notes', action: () => this.openNotes() },
@@ -54,41 +53,34 @@ export class PlayerMenuUI {
 
         buttons.forEach((btnData, index) => {
             const xPos = startX + (index * spacing);
-            
-            // Tworzymy grafikę z podanym kluczem
+
             const btnIcon = this.scene.add.image(xPos, 50, btnData.key)
-                .setInteractive({ useHandCursor: true });
-            
-            // Blokujemy rozmiar ikony na np. 60x60 pikseli, aby ładnie mieściła się w menu
-            btnIcon.setDisplaySize(60, 60);
-                
+                .setInteractive({ useHandCursor: true })
+                .setDisplaySize(60, 60);
+
             const btnLabel = this.scene.add.text(xPos, 110, btnData.label, {
-                fontFamily: 'Special Elite', fontSize: '20px', color: '#ffffff'
+                fontFamily: 'Special Elite',
+                fontSize: '20px',
+                color: '#ffffff'
             }).setOrigin(0.5);
 
-            // Hover effect: przyciemnia obrazek i zmienia kolor tekstu
             btnIcon.on('pointerover', () => {
                 btnIcon.setTint(0xaaaaaa);
                 btnLabel.setColor('#ffcc00');
             });
-            
+
             btnIcon.on('pointerout', () => {
                 btnIcon.clearTint();
                 btnLabel.setColor('#ffffff');
             });
 
-            // Kliknięcie
             btnIcon.on('pointerdown', () => {
-                // Jeśli posiadasz plik dźwiękowy o kluczu 'click_sound', zostanie odtworzony
                 if (this.scene.sound.get('click_sound')) {
                     this.scene.sound.play('click_sound');
                 }
-                
-                // Wywołanie przypisanej metody
+
                 btnData.action();
-                
-                // Automatyczne chowanie menu po kliknięciu wybranej opcji
-                this.close(); 
+                this.close();
             });
 
             this.container.add([btnIcon, btnLabel]);
@@ -102,12 +94,11 @@ export class PlayerMenuUI {
 
     open() {
         if (this.isOpen) return;
+
         this.isAnimating = true;
         this.isOpen = true;
-
         this.toggleText.setText('CLOSE');
 
-        // Płynna animacja wyjazdu menu z dołu
         this.scene.tweens.add({
             targets: this.container,
             y: this.openY,
@@ -118,7 +109,6 @@ export class PlayerMenuUI {
             }
         });
 
-        // Przycisk "MENU" jedzie do góry razem z menu
         this.scene.tweens.add({
             targets: [this.toggleBtn, this.toggleText],
             y: this.openY - 25,
@@ -129,12 +119,11 @@ export class PlayerMenuUI {
 
     close() {
         if (!this.isOpen) return;
+
         this.isAnimating = true;
         this.isOpen = false;
-
         this.toggleText.setText('MENU');
 
-        // Płynna animacja schowania menu
         this.scene.tweens.add({
             targets: this.container,
             y: this.closedY,
@@ -145,22 +134,31 @@ export class PlayerMenuUI {
             }
         });
 
-        // Przycisk "MENU" wraca na sam dół ekranu
         this.scene.tweens.add({
             targets: [this.toggleBtn, this.toggleText],
-            y: 1080 - 25,
+            y: this.scene.scale.height - 25,
             duration: 300,
             ease: 'Power2'
         });
     }
 
-    // --- Metody otwierające poszczególne panele ---
-
     openCasefile() {
-        if (this.scene.caseFileUI) {
-            this.scene.closeAllUIPanels();
-            this.scene.caseFileUI.open(this.gameState.currentMission);
-        }
+        if (!this.scene.caseFileUI) return;
+
+        this.scene.closeAllUIPanels();
+
+        const mission = this.gameState.currentMission || {};
+        const caseFileData = {
+            artifact: mission.artifact,
+            city: mission.city,
+            country: mission.country,
+            description: mission.description,
+            significance: mission.significance,
+            clue: mission.clue,
+            artifactKey: mission.artifactKey
+        };
+
+        this.scene.caseFileUI.open(caseFileData);
     }
 
     openNotes() {

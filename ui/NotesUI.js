@@ -4,10 +4,11 @@ export class NotesUI {
     constructor(scene) {
         this.scene = scene;
         this.isOpen = false;
+        this.currentGameState = null;
 
-        // Overlay zamykający
-        this.overlay = this.scene.add.rectangle(0, 0, 1920, 1080, 0x000000, 0.6)
-            .setOrigin(0)
+        const { width, height } = this.scene.scale;
+
+        this.overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6)
             .setInteractive()
             .setDepth(20)
             .setVisible(false);
@@ -16,21 +17,20 @@ export class NotesUI {
 
         this.container = this.scene.add.container(0, 0).setDepth(21).setVisible(false);
 
-        const bg = this.scene.add.image(960, 540, 'notes')
-            .setInteractive();
-        
+        const bg = this.scene.add.image(width / 2, height / 2, 'notes').setInteractive();
         this.container.add(bg);
 
-        // Przycisk zamykania (X)
-        const closeBtn = this.scene.add.text(1575, 95, 'X', { 
-            fontFamily: 'Special Elite', fontSize: '48px', color: '#000000' 
+        const closeBtn = this.scene.add.text(width * 0.82, height * 0.09, 'X', {
+            fontFamily: 'Special Elite',
+            fontSize: '48px',
+            color: '#000000'
         })
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.close());
+            .setInteractive({ useHandCursor: true })
+            .on('pointerdown', () => this.close());
+
         this.container.add(closeBtn);
 
-        // Zapisy z gry (lewa strona)
-        this.gameNotesText = this.scene.add.text(400, 170, '', {
+        this.gameNotesText = this.scene.add.text(width * 0.21, height * 0.16, '', {
             fontFamily: 'Special Elite',
             fontSize: '22px',
             color: '#000000',
@@ -40,8 +40,7 @@ export class NotesUI {
         });
         this.container.add(this.gameNotesText);
 
-        // Tytuł notatek gracza (prawa strona)
-        this.gameNotesTitleText = this.scene.add.text(1000, 155, 'Your notes', {
+        this.gameNotesTitleText = this.scene.add.text(width * 0.52, height * 0.14, 'Your notes', {
             fontFamily: 'Special Elite',
             fontSize: '22px',
             color: '#000000',
@@ -51,37 +50,37 @@ export class NotesUI {
         });
         this.container.add(this.gameNotesTitleText);
 
-        // Pole tekstowe DOM
-        this.playerInputDOM = this.scene.add.dom(1300, 500, 'textarea', 
-            'width: 400px; height: 500px; font-family: "Special Elite"; font-size: 22px; background: transparent; border: none; outline: none; resize: none; color: #000000;', 
+        this.playerInputDOM = this.scene.add.dom(
+            width * 0.8,
+            height * 0.6,
+            'textarea',
+            'width: 400px; height: 500px; font-family: "Special Elite"; font-size: 22px; background: transparent; border: none; outline: none; resize: none; color: #000000;',
             ''
         ).setOrigin(0.5);
-        
+
         this.container.add(this.playerInputDOM);
 
-        this.playerInputDOM.node.addEventListener('input', (event) => {
+        this.onInput = (event) => {
             if (this.isOpen) {
                 this.updateNotes(event.target.value);
             }
-        });
+        };
 
-        // --- NOWY PRZYCISK: CLEAR NOTES ---
-        // Umieszczamy go pod polem textarea
-        const clearBtn = this.scene.add.text(1300, 780, '[ CLEAR NOTES ]', {
+        this.playerInputDOM.node.addEventListener('input', this.onInput);
+
+        const clearBtn = this.scene.add.text(width * 0.68, height * 0.72, '[ CLEAR NOTES ]', {
             fontFamily: 'Special Elite',
             fontSize: '20px',
             color: '#8b0000'
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-        // Efekty najechania myszką
         clearBtn.on('pointerover', () => clearBtn.setColor('#ff0000'));
         clearBtn.on('pointerout', () => clearBtn.setColor('#8b0000'));
 
-        // Akcja czyszczenia
         clearBtn.on('pointerdown', () => {
-            this.playerInputDOM.node.value = ''; // Czyści widok na ekranie
-            this.updateNotes(''); // Czyści zmienną w grze
-            saveGameState(); // Od razu zapisuje pusty stan do localStorage
+            this.playerInputDOM.node.value = '';
+            this.updateNotes('');
+            saveGameState();
         });
 
         this.container.add(clearBtn);
@@ -91,7 +90,7 @@ export class NotesUI {
         if (this.currentGameState) {
             this.currentGameState.playerNotes = newText;
         }
-    } 
+    }
 
     open(gameState) {
         this.isOpen = true;
@@ -99,19 +98,20 @@ export class NotesUI {
         this.overlay.setVisible(true);
         this.container.setVisible(true);
 
-        let cluesText = "Clues:\n\n\n";
-        if (gameState.collectedClues && gameState.collectedClues.length > 0) {
-            cluesText += gameState.collectedClues.join('\n- ');
+        let cluesText = 'Clues:\n\n\n';
+        if (gameState.cluesCollected && gameState.cluesCollected.length > 0) {
+            cluesText += gameState.cluesCollected.map(clue => `- ${clue.text || clue.id || JSON.stringify(clue)}`).join('\n');
         } else {
-            cluesText += "No clues found yet...";
+            cluesText += 'No clues found yet...';
         }
+
         this.gameNotesText.setText(cluesText);
         this.playerInputDOM.node.value = gameState.playerNotes || '';
     }
 
     close() {
         if (!this.isOpen) return;
-        
+
         if (this.currentGameState) {
             this.currentGameState.playerNotes = this.playerInputDOM.node.value;
             saveGameState();
@@ -124,5 +124,11 @@ export class NotesUI {
 
     toggle(gameState) {
         this.isOpen ? this.close() : this.open(gameState);
+    }
+
+    destroy() {
+        if (this.playerInputDOM?.node && this.onInput) {
+            this.playerInputDOM.node.removeEventListener('input', this.onInput);
+        }
     }
 }

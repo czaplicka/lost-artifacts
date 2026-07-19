@@ -16,7 +16,9 @@ export class CaseFileUI {
     }
 
     create() {
-        this.overlay = this.scene.add.rectangle(960, 540, 1920, 1080, 0x000000, 0.45)
+        const { width, height } = this.scene.scale;
+
+        this.overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45)
             .setDepth(20)
             .setAlpha(0)
             .setVisible(false)
@@ -33,14 +35,12 @@ export class CaseFileUI {
 
         const closeHint = this.scene.add.text(700, -465, 'X', {
             fontFamily: 'PressStart2P',
-            fontSize: '60px',
-            color: '#00000000'
+            fontSize: '40px',
+            color: '#222222'
         }).setInteractive({ useHandCursor: true });
 
         closeHint.on('pointerdown', (pointer, localX, localY, event) => {
-            if (event) {
-                event.stopPropagation();
-            }
+            if (event) event.stopPropagation();
             this.close();
         });
 
@@ -52,7 +52,7 @@ export class CaseFileUI {
             fontSize: '24px',
             color: '#000000',
             wordWrap: { width: 250 },
-            lineSpacing: 10,
+            lineSpacing: 10
         }).setOrigin(0.5, 0);
 
         this.cityText = this.scene.add.text(75, -220, '', {
@@ -86,7 +86,7 @@ export class CaseFileUI {
             lineSpacing: 10
         });
 
-        this.container = this.scene.add.container(960, 540, [
+        this.container = this.scene.add.container(width / 2, height / 2, [
             fileBg,
             closeHint,
             this.artifactImage,
@@ -103,19 +103,27 @@ export class CaseFileUI {
         this.container.setVisible(false);
     }
 
-        update(data) {
+    update(data = {}) {
         this.artifactText.setText(data.artifact || 'UNKNOWN ARTIFACT');
-        const locationText = (data.city && data.country) ? `${data.city}, ${data.country}` : 'UNKNOWN LOCATION';
-this.cityText.setText(locationText);
+
+        const locationText =
+            data.city && data.country
+                ? `${data.city}, ${data.country}`
+                : 'UNKNOWN LOCATION';
+
+        this.cityText.setText(locationText);
         this.descText.setText(data.description || 'No more data...');
         this.significanceText.setText(data.significance || data.signifance || '');
         this.tiesText.setText(data.clue || 'No more clues...');
-        if (data.artifactKey && this.scene.textures.exists(data.artifactKey)) {
-            this.artifactImage.setTexture(data.artifactKey);
-        } else {
-            if (!this.scene.textures.exists(data.artifactKey)) {
-                console.warn(`Ostrzeżenie: Phaser nie znalazł tekstury o kluczu "${data.artifactKey}". Użyto grafiki zastępczej.`);
+
+        if (data.artifactKey) {
+            if (this.scene.textures.exists(data.artifactKey)) {
+                this.artifactImage.setTexture(data.artifactKey);
+            } else {
+                console.warn(`Brak tekstury artefaktu: "${data.artifactKey}". Użyto fallbacku.`);
+                this.artifactImage.setTexture('artifact_fallback');
             }
+        } else {
             this.artifactImage.setTexture('artifact_fallback');
         }
     }

@@ -1,0 +1,341 @@
+{
+"policeClues": {
+  "banter": [
+    "Paperwork never lies, detective. It just multiplies when you’re not looking.",
+    "I’ve heard better alibis from stray dogs and broken vending machines.",
+    "Everyone’s innocent until the coffee wears off and the timeline stops making sense.",
+    "You can tell a lot about a suspect by how fast they ask for a lawyer.",
+    "Criminals underestimate two things: security cameras and bored officers with good memories.",
+    "Some people run from the scene. Some come back to ‘help’. I always start with the helpful ones.",
+    "If someone says ‘to be honest’ in an interview, I start a new page of notes."
+  ],
+  "repeatLines": [
+    [
+      "We already went through your case, detective.",
+      "The timeline hasn’t grown any new branches since."
+    ],
+    [
+      "Back again?",
+      "I still have the same report and less patience for repetition."
+    ],
+    [
+      "I gave you my statement.",
+      "Repeating it won’t magically conjure new evidence."
+    ],
+    [
+      "No new developments.",
+      "Trust me, I’d prefer fresh clues to fresh paperwork."
+    ],
+    [
+      "We’ve covered this from every angle.",
+      "Any more and Internal Affairs will accuse us of enthusiasm."
+    ],
+    [
+      "Still the same facts, detective.",
+      "The only thing that’s changed is the coffee temperature."
+    ],
+    [
+      "You already squeezed my memory dry.",
+      "What’s left is just professional suspicion and sarcasm."
+    ],
+    [
+      "I told you everything that holds up in a report.",
+      "The rest belongs in bar stories, not case files."
+    ],
+    [
+      "No fresh leads on my side.",
+      "The cameras haven’t started improvising yet."
+    ],
+    [
+      "Same officer, same case, same truth.",
+      "If you want a different story, you’ll need a different crime."
+    ]
+  ],
+  "falseLeadLines": [
+    [
+      "Wrong city, detective.",
+      "Happens. The job is 30% instinct and 70% rerouting."
+    ],
+    [
+      "You chased the wrong lead.",
+      "Congratulations, you’ve just given the real suspect more time."
+    ],
+    [
+      "No suspect there.",
+      "Just another jurisdiction full of its own problems."
+    ],
+    [
+      "That trail went cold before you boarded.",
+      "You just didn’t see the frost on the ticket."
+    ],
+    [
+      "You picked the wrong destination.",
+      "Next time, interrogate the evidence before the travel agent."
+    ],
+    [
+      "A false lead, I’m afraid.",
+      "We all take them. We just try not to frame them."
+    ],
+    [
+      "The thief wasn’t in that city.",
+      "Only your optimism was, briefly."
+    ],
+    [
+      "Wrong place, wrong time.",
+      "Good news is you can correct both. Eventually."
+    ],
+    [
+      "You flew in the wrong direction.",
+      "Happens more often than we admit in the reports."
+    ],
+    [
+      "That detour didn’t help the case.",
+      "But it did confirm your suspect has better instincts than you today."
+    ]
+  ],
+  "cityHints": {
+    "london": [
+      "Your suspect asked if our jurisdiction extends to a place with royal guards, fog, and an unhealthy relationship with umbrellas.",
+      "They kept checking the clock and muttering about missing a flight over a certain famous Channel.",
+      "When I mentioned tea, they flinched like someone who’s spent too long in a city where it’s practically a religion."
+    ],
+    "paris": [
+      "They claimed they were just passing through on their way to a city of baguettes, barricades, and an iron monument pretending to be romantic.",
+      "Your suspect asked if pickpockets there still dress better than most tourists.",
+      "They said they always wanted to see a place where even the protests look good in black and white photos."
+    ],
+    "berlin": [
+      "They asked if we share intel with a city that tore down a wall and replaced it with tourists and techno.",
+      "Your suspect mentioned a gate that’s seen more speeches and parades than my entire career.",
+      "They said they preferred places where history and nightclubs run on roughly the same schedule."
+    ],
+    "new_york_city": [
+      "They wanted to know if the ‘city that never sleeps’ has a curfew for bad ideas.",
+      "Your suspect kept talking about skyscrapers, yellow taxis, and a statue with a torch that apparently doubles as a welcome sign for trouble.",
+      "They asked if it’s true that everyone walks like they’re late to something important and mildly illegal."
+    ],
+    "warsaw": [
+      "They mentioned a capital rebuilt from rubble and asked if we admired cities that refuse to stay down.",
+      "Your suspect talked about a mermaid on a shield and a river that remembers more wars than my academy textbooks.",
+      "They said they were curious about a place where tram lines, old bricks and new glass all share the same patience problems."
+    ],
+    "new_delhi": [
+      "They asked if we had any contacts in a capital where traffic laws are more like suggestions with good intentions.",
+      "Your suspect talked about chai, crowded bazaars, and the kind of heat that turns interrogations into saunas.",
+      "They said they wanted to visit a place where even the honking sounds like a full-time orchestra."
+    ]
+  },
+  "locationVariants": {
+    "london": {
+      "banter": [
+        "London paperwork arrives in triplicate and never on time.",
+        "Half my job here is chasing suspects, the other half is chasing signatures.",
+        "People think polite means harmless. My arrest records disagree."
+      ],
+      "repeatLines": [
+        [
+          "We already discussed this, detective.",
+          "The fog hasn’t lifted on any new details."
+        ],
+        [
+          "Back again?",
+          "Still the same case file, just more tea stains."
+        ],
+        [
+          "No new information.",
+          "If something shifted, the CCTV would have told me."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Even the rain could have told you that."
+        ],
+        [
+          "That lead didn’t hold up.",
+          "Like most umbrellas in a storm."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Just tourists, pigeons, and your wasted commute."
+        ]
+      ]
+    },
+    "paris": {
+      "banter": [
+        "In Paris, people argue with officers the way they argue with waiters: dramatically and often.",
+        "Half my calls here involve cigarettes, opinions, and someone insisting it was all ‘an artistic misunderstanding’.",
+        "I’ve learned that when someone says they’re a romantic, it means the paperwork will be awful."
+      ],
+      "repeatLines": [
+        [
+          "We already went over this, detective.",
+          "No new scandal has filed itself since."
+        ],
+        [
+          "Back so soon?",
+          "You’re more persistent than most confessions."
+        ],
+        [
+          "Nothing new.",
+          "The city changed outfits, not evidence."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Charming mistake, but still a mistake."
+        ],
+        [
+          "That lead didn’t survive scrutiny.",
+          "Unlike some relationships I’ve seen reported here."
+        ],
+        [
+          "The suspect wasn’t there.",
+          "Only actors in search of a better script."
+        ]
+      ]
+    },
+    "berlin": {
+      "banter": [
+        "Berlin prefers its rules clear and its nightlife chaotic.",
+        "I write reports in a city that already has enough history for three lifetimes.",
+        "People here apologise less and explain more. Very thoroughly."
+      ],
+      "repeatLines": [
+        [
+          "We already covered this.",
+          "Nothing new has entered the record."
+        ],
+        [
+          "You’re back.",
+          "The facts are still as unembellished as this office décor."
+        ],
+        [
+          "No additional clues.",
+          "If they existed, they’d be catalogued by now."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Accurate, concise, unfortunate."
+        ],
+        [
+          "That lead failed inspection.",
+          "We prefer evidence that survives daylight here."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "You just inspected the wrong side of the map."
+        ]
+      ]
+    },
+    "new_york_city": {
+      "banter": [
+        "In New York, every suspect walks like they’re late and every witness swears they saw everything.",
+        "I take statements between sirens and people shouting they ‘know their rights’ without having read them.",
+        "Half my job is separating noise from crime. The other half is writing it down."
+      ],
+      "repeatLines": [
+        [
+          "Yeah, we already talked, detective.",
+          "Still the same mess, still the same facts."
+        ],
+        [
+          "Back again?",
+          "Welcome to the never-ending shift."
+        ],
+        [
+          "No update.",
+          "This city moves fast, but the evidence is stuck in traffic."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Big risk, zero reward."
+        ],
+        [
+          "That lead went nowhere.",
+          "Which is impressive in a place where everything goes somewhere."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Only a thousand other headaches were."
+        ]
+      ]
+    },
+    "warsaw": {
+      "banter": [
+        "Warsaw teaches you patience, paperwork, and how to read between ruins and glass.",
+        "The city stands up every time it falls. My files don’t get that luxury.",
+        "People here carry history in their shoulders and bad excuses in their pockets."
+      ],
+      "repeatLines": [
+        [
+          "We already talked about this.",
+          "No new names have joined the list."
+        ],
+        [
+          "Back again?",
+          "You’re as stubborn as this city, I’ll give you that."
+        ],
+        [
+          "Nothing new, detective.",
+          "If something changed, the gossip would have arrived before you."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Happens. What matters is where you go next."
+        ],
+        [
+          "That lead was empty.",
+          "Like most promises made under pressure."
+        ],
+        [
+          "The suspect isn’t there.",
+          "You’ll need a new route, not a new excuse."
+        ]
+      ]
+    },
+    "new_delhi": {
+      "banter": [
+        "In New Delhi, the streets do half the interrogating before suspects reach the station.",
+        "Heat, noise and crowds strip lies faster than I ever could.",
+        "Traffic here could be charged with multiple counts of chaos and still plead normal."
+      ],
+      "repeatLines": [
+        [
+          "We already went through this.",
+          "Since then only the temperature changed."
+        ],
+        [
+          "Back again?",
+          "You must really enjoy sweating over the same details."
+        ],
+        [
+          "No fresh clues.",
+          "Just the same story, now slightly stickier."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Brave direction, bad choice."
+        ],
+        [
+          "That lead burned out fast.",
+          "You followed noise instead of evidence."
+        ],
+        [
+          "Your suspect is somewhere else.",
+          "You only managed to interrogate the heat."
+        ]
+      ]
+    }
+  }
+}
+}

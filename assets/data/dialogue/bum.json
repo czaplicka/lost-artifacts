@@ -1,0 +1,341 @@
+{
+"bumClues": {
+  "banter": [
+    "People pay fortunes for views I get by sleeping on benches.",
+    "I don’t own much, detective, but I collect stories nobody else wants.",
+    "City streets gossip louder than rich people, they’re just less polite about it.",
+    "If you want the truth, ask someone nobody bothers to lie to.",
+    "I may not have an address, but trouble still finds me on the first try.",
+    "Everyone else looks up at the skyline. I watch the shoes that try to sneak past.",
+    "You’d be surprised how many secrets fall out of pockets before coins do."
+  ],
+  "repeatLines": [
+    [
+      "We already talked, detective.",
+      "The street hasn’t changed its story since."
+    ],
+    [
+      "Back again?",
+      "Must be serious if you’re coming back to someone this easy to ignore."
+    ],
+    [
+      "I gave you what I saw.",
+      "The rest is just the city muttering in the background."
+    ],
+    [
+      "No new clues.",
+      "Different cigarette butts, same kind of people."
+    ],
+    [
+      "We’ve covered this corner already.",
+      "If it knew more, it would have told me first."
+    ],
+    [
+      "Still the same story, detective.",
+      "The pavement doesn’t improvise much."
+    ],
+    [
+      "You already emptied my pockets of information.",
+      "Turns out they refill slower than you hoped."
+    ],
+    [
+      "I told you everything useful.",
+      "Anything else I say now would just be scenery."
+    ],
+    [
+      "No fresh secrets today.",
+      "Just old ones lying where people dropped them."
+    ],
+    [
+      "Same witness, same street, same truth.",
+      "The only thing that changes here is the weather and the excuses."
+    ]
+  ],
+  "falseLeadLines": [
+    [
+      "Wrong city, detective.",
+      "Even I don’t wander that far by mistake."
+    ],
+    [
+      "You chased the wrong trail.",
+      "Streets do that. They split when you’re not looking."
+    ],
+    [
+      "No thief there.",
+      "Just other people running from different problems."
+    ],
+    [
+      "That lead went nowhere.",
+      "I’ve slept in more promising alleys."
+    ],
+    [
+      "You picked the wrong direction.",
+      "Happens. Map in your head lied louder than the one in your hand."
+    ],
+    [
+      "A false lead, I’m afraid.",
+      "You followed footprints that were already washed away."
+    ],
+    [
+      "The suspect wasn’t in that city.",
+      "Only your disappointment was."
+    ],
+    [
+      "Wrong place, wrong time.",
+      "But the benches there were probably nice."
+    ],
+    [
+      "You walked a long way for nothing.",
+      "Next time, make sure the nothing points the right way."
+    ],
+    [
+      "That detour did you no favors.",
+      "The street remembers who gets lost and who learns."
+    ]
+  ],
+  "cityHints": {
+    "london": [
+      "Your suspect asked me if rain is really that constant in the place with red buses and black cabs and very grey skies.",
+      "They said they missed a river lined with old stone and newer glass, and guards who treat smiling like a crime.",
+      "They dropped a coin and a complaint about a city where tea is comfort, ritual, and occasionally a survival strategy."
+    ],
+    "paris": [
+      "They smelled of cheap wine and expensive perfume and asked if croissants taste better under an iron tower.",
+      "Your thief mumbled something about narrow streets, long shadows, and a city that calls itself light and means it.",
+      "They left a half-finished cigarette and a note about a place where even protests look elegant from a distance."
+    ],
+    "berlin": [
+      "They asked if I’d ever seen the city that turned old scars into murals and long nights into a full-time hobby.",
+      "Your suspect talked about a gate that’s seen more speeches than weddings and still isn’t tired of tourists.",
+      "They said they liked cities that pulled down their walls and then put their secrets in basements with loud music."
+    ],
+    "new_york_city": [
+      "They kept calling some place ‘the city that never sleeps’ as if insomnia was a tourist attraction.",
+      "Your thief asked if it’s true that yellow taxis there scream at each other in every language at once.",
+      "They mentioned skyscrapers so tall even pigeons have to take the elevator in their imagination."
+    ],
+    "warsaw": [
+      "They asked me if I’d ever seen a capital rebuilt from ashes, stone by stubborn stone.",
+      "Your suspect talked about a river watched by a mermaid and a castle that refuses to retire.",
+      "They said they admired cities that fall, stand up again, and still manage to complain about tram schedules."
+    ],
+    "new_delhi": [
+      "They smelled like dust, spices, and long flights, and asked if any city can be that loud and still hopeful.",
+      "Your thief wanted directions to a place where markets never really sleep and traffic plays its own percussion.",
+      "They joked that in this city even the cows look more confident crossing the street than most bankers."
+    ]
+  },
+  "locationVariants": {
+    "london": {
+      "banter": [
+        "London streets drip, mumble and pretend they’ve seen worse.",
+        "I sleep under bridges tourists photograph from a distance.",
+        "Here, even the pigeons look like they’re late for work."
+      ],
+      "repeatLines": [
+        [
+          "We already spoke, detective.",
+          "The fog hasn’t revealed anything new since."
+        ],
+        [
+          "Back again?",
+          "You must really like damp benches and old stories."
+        ],
+        [
+          "No new clues.",
+          "Just the same river, same stones, and slightly colder hands."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Even the rain knew you were in the wrong place."
+        ],
+        [
+          "That lead washed out.",
+          "London’s good at that."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Only your umbrella and your patience got tested."
+        ]
+      ]
+    },
+    "paris": {
+      "banter": [
+        "In Paris, even the trash has better posture than I do.",
+        "I see more broken hearts than broken bottles here, and that’s saying something.",
+        "The alleyways smell like smoke, perfume and people pretending they’re not lost."
+      ],
+      "repeatLines": [
+        [
+          "We already talked, detective.",
+          "The only thing that changed is which café kicked me out."
+        ],
+        [
+          "Back so soon?",
+          "Romance moves faster than clues in this city."
+        ],
+        [
+          "No fresh secrets.",
+          "Just the same shadows and slightly louder arguments."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Pretty mistake, though."
+        ],
+        [
+          "That lead went nowhere, detective.",
+          "You followed the lights and forgot the trail."
+        ],
+        [
+          "Your thief wasn’t here.",
+          "Only tourists, poets, and people lying about both."
+        ]
+      ]
+    },
+    "berlin": {
+      "banter": [
+        "Berlin streets wear their history on the walls and their hangovers in the morning.",
+        "I sleep where the city forgot to gentrify.",
+        "Some nights here last so long the day just apologises and waits."
+      ],
+      "repeatLines": [
+        [
+          "We already covered this corner.",
+          "It still remembers more music than crime."
+        ],
+        [
+          "Back again?",
+          "Same graffiti, same faces, same missing thief."
+        ],
+        [
+          "No new whispers, detective.",
+          "Just the echo of bass lines and bad decisions."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Direct, like the people here."
+        ],
+        [
+          "That lead died on arrival.",
+          "You chased the wrong beat this time."
+        ],
+        [
+          "The suspect wasn’t in that crowd.",
+          "You just danced around the problem."
+        ]
+      ]
+    },
+    "new_york_city": {
+      "banter": [
+        "New York sidewalks never sleep. They just change shoes.",
+        "I get pushed past by people who think time is money and I owe them both.",
+        "Here, the trash talks, the cabs swear, and the alleys remember everything."
+      ],
+      "repeatLines": [
+        [
+          "Yeah, we already talked, detective.",
+          "Still the same chaos, still the same clue count."
+        ],
+        [
+          "Back again?",
+          "You’re starting to look like part of the scenery."
+        ],
+        [
+          "No update.",
+          "The city shouted a lot, but none of it was useful."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Big gamble, big miss."
+        ],
+        [
+          "That lead went nowhere.",
+          "Fast, loud, and nowhere."
+        ],
+        [
+          "Your suspect wasn’t there.",
+          "Just a million other problems on different corners."
+        ]
+      ]
+    },
+    "warsaw": {
+      "banter": [
+        "Warsaw streets have seen worse than me and still keep moving.",
+        "I sleep near walls that remember more than the people leaning on them.",
+        "This city rebuilds faster than some people learn."
+      ],
+      "repeatLines": [
+        [
+          "We already talked.",
+          "No new faces, no new trouble on this corner."
+        ],
+        [
+          "Back again?",
+          "You’re more stubborn than the tram schedule."
+        ],
+        [
+          "Nothing new, detective.",
+          "If something shifted, I’d have felt it in the pavement."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city, detective.",
+          "Not your first mistake, probably not your last."
+        ],
+        [
+          "That lead was empty.",
+          "Like most promises shouted after midnight."
+        ],
+        [
+          "The suspect isn’t there.",
+          "Just people trying to make rent and sense of things."
+        ]
+      ]
+    },
+    "new_delhi": {
+      "banter": [
+        "In New Delhi, even the shadows feel crowded.",
+        "I sleep where the noise finally gets tired, which is never for long.",
+        "The streets here smell like spice, fuel and people who refuse to slow down."
+      ],
+      "repeatLines": [
+        [
+          "We already spoke, detective.",
+          "Since then only the dust has moved."
+        ],
+        [
+          "Back again?",
+          "You must really like heat and bad odds."
+        ],
+        [
+          "No new clue.",
+          "Just the same traffic, same shouts and different excuses."
+        ]
+      ],
+      "falseLeadLines": [
+        [
+          "Wrong city.",
+          "Loud mistake, easy to hear from here."
+        ],
+        [
+          "That lead burned out fast.",
+          "Like most cheap lanterns in a long night."
+        ],
+        [
+          "Your suspect is somewhere else.",
+          "You only managed to chase the heat."
+        ]
+      ]
+    }
+  }
+}
+}

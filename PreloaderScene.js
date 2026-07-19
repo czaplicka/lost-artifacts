@@ -4,21 +4,62 @@ export class PreloaderScene extends Phaser.Scene {
     }
 
     preload() {
-        const progressBar = this.add.graphics();
+        const { width, height } = this.scale;
+
+        this.cameras.main.setBackgroundColor('#101010');
+
         const progressBox = this.add.graphics();
+        const progressBar = this.add.graphics();
 
-        progressBox.fillStyle(0x222222, 0.8);
-        progressBox.fillRect(710, 500, 500, 50);
+        const boxWidth = Math.min(500, width * 0.6);
+        const boxHeight = 40;
+        const boxX = (width - boxWidth) / 2;
+        const boxY = height * 0.82;
 
-        this.load.on('progress', (value) => {
+        const loadingText = this.add.text(width / 2, boxY - 60, 'Loading...', {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: '#f5e6a8'
+        }).setOrigin(0.5);
+
+        const percentText = this.add.text(width / 2, boxY + boxHeight / 2, '0%', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+
+        const fileText = this.add.text(width / 2, boxY + 70, '', {
+            fontFamily: 'Arial',
+            fontSize: '14px',
+            color: '#bbbbbb',
+            wordWrap: { width: width * 0.8 }
+        }).setOrigin(0.5);
+
+        progressBox.fillStyle(0x222222, 0.9);
+        progressBox.fillRect(boxX, boxY, boxWidth, boxHeight);
+
+        this.load.on('progress', value => {
             progressBar.clear();
-            progressBar.fillStyle(0xFFFF00, 1);
-            progressBar.fillRect(720, 510, 480 * value, 30);
+            progressBar.fillStyle(0xffff00, 1);
+            progressBar.fillRect(boxX + 5, boxY + 5, (boxWidth - 10) * value, boxHeight - 10);
+            percentText.setText(`${Math.round(value * 100)}%`);
         });
 
-        this.load.on('complete', () => {
+        this.load.on('fileprogress', file => {
+            fileText.setText(`Loading: ${file.key}`);
+        });
+
+        this.load.on('loaderror', file => {
+            console.error('[LOAD ERROR]', file.key, file.src);
+            fileText.setText(`Błąd ładowania: ${file.key}`);
+        });
+
+        this.load.once('complete', () => {
             progressBar.destroy();
             progressBox.destroy();
+            loadingText.destroy();
+            percentText.destroy();
+            fileText.destroy();
         });
 
         this.load.image('background', 'assets/start_1.jpg');
@@ -41,7 +82,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('paris', 'assets/Paris.jpg');
         this.load.image('warsaw', 'assets/Warsaw.jpg');
 
-        this.load.image('bakier', 'assets/bankier.png');
+        this.load.image('bankier', 'assets/bankier.png');
         this.load.image('bum', 'assets/bum.png');
         this.load.image('maid', 'assets/maid.png');
         this.load.image('parking_npc', 'assets/parkingowy.png');
@@ -67,7 +108,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('artifact_mughal_dagger', 'assets/artifacts/mughal_dagger.png');
         this.load.image('artifact_prussian_seal', 'assets/artifacts/prussian_seal.png');
         this.load.image('artifact_fallback', 'assets/artifacts/artifact_unknown.png');
-    
+
         this.load.image('soundOn', 'assets/sound.png');
         this.load.image('soundOff', 'assets/nsound.png');
 
@@ -75,19 +116,25 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('file', 'assets/file.png');
         this.load.image('mapbg', 'assets/map.png');
 
-        this.load.image('portrait_garrett_gutter', 'assets/suspects/garrett_gutter.jpg');
-        this.load.image('portrait_sofia_vargas', 'assets/suspects/sofia_vargas.png');
-        this.load.image('portrait_bert_goodman', 'assets/suspects/bert_goodman.png');
-        this.load.image('portrait_anne_apple', 'assets/suspects/anne_apple.png');
-        this.load.image('portrait_frank_groot', 'assets/suspects/frank_groot.png');
-        this.load.image('portrait_bernard_porter', 'assets/suspects/bernard_porter.png');
-        this.load.image('portrait_rebecca_muller', 'assets/suspects/rebecca_muller.png');
-        this.load.image('portrait_jacek_kowalski', 'assets/suspects/jacek_kowalski.png');
-        this.load.image('portrait_pablo_fernandez', 'assets/suspects/pablo_fernandez.png');
-        this.load.image('portrait_alexandra_ivanova', 'assets/suspects/alexandra_ivanova.png');
-        this.load.image('portrait_sergei_petrov', 'assets/suspects/sergei_petrov.png');
-        this.load.image('portrait_isabella_rossi', 'assets/suspects/isabella_rossi.png');
-        this.load.image('portrait_liam_oconnor', 'assets/suspects/liam_oconnor.png');
+        this.load.image('garrett_gutter', 'assets/suspects/garrett_gutter.jpg');
+        this.load.image('sofia_vargas', 'assets/suspects/sofia_vargas.jpg');
+        this.load.image('bert_goodman', 'assets/suspects/bert_goodman.jpg');
+        this.load.image('anne_apple', 'assets/suspects/anne_apple.jpg');
+        this.load.image('frank_groot', 'assets/suspects/frank_groot.jpg');
+        this.load.image('bernard_porter', 'assets/suspects/bernard_porter.jpg');
+        this.load.image('rebecca_muller', 'assets/suspects/rebecca_muller.jpg');
+        this.load.image('jacek_kowalski', 'assets/suspects/jacek_kowalski.jpg');
+        this.load.image('pablo_fernandez', 'assets/suspects/pablo_fernandez.jpg');
+        this.load.image('alexandra_ivanova', 'assets/suspects/alexandra_ivanova.jpg');
+        this.load.image('sergei_petrov', 'assets/suspects/sergei_petrov.jpg');
+        this.load.image('isabella_rossi', 'assets/suspects/isabella_rossi.jpg');
+        this.load.image('liam_oconnor', 'assets/suspects/liam_oconnor.jpg');
+        this.load.image('bai_williams', 'assets/suspects/bai_williams.jpg');
+        this.load.image('albert_johnson', 'assets/suspects/albert_johnson.jpg');
+        this.load.image('anna_bocian', 'assets/suspects/anna_bocian.jpg');
+        this.load.image('aleksander_petrov', 'assets/suspects/aleksander_petrov.jpg');
+        this.load.image('marie_dubois', 'assets/suspects/marie_dubois.jpg');
+        this.load.image('lotte_chantal', 'assets/suspects/lotte_chantal.jpg');
 
         this.load.audio('themeGame', 'assets/audio/game.mp3');
 
@@ -95,43 +142,66 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('missions', 'assets/data/missions.json');
         this.load.json('locations', 'assets/data/locations.json');
         this.load.json('dialogue', 'assets/data/dialogue.json');
+        this.load.json('dialogue_banker', 'assets/data/dialogue/banker.json');
+this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
+this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
+this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
+this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
+this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
     }
 
     create() {
-    WebFont.load({
-        google: {
-            families: ['Special Elite', 'Press Start 2P']
-        },
-        active: async () => {
-            await document.fonts.load('16px "Special Elite"');
-            await document.fonts.load('24px "Press Start 2P"');
+        const { width, height } = this.scale;
+
+        if (this.textures.exists('background')) {
+            this.add.image(width / 2, height / 2, 'background')
+                .setDisplaySize(width, height)
+                .setDepth(-10);
+        } else {
+            this.cameras.main.setBackgroundColor('#1a1a1a');
         }
-    });
-    const music = this.registry.get('bgMusic');
 
+        const initUi = () => {
+            const music = this.registry.get('bgMusic');
 
-        this.input.once('pointerdown', () => {
-            if (music && !music.isPlaying) {
-                music.play();
-            }
-        });
+            this.input.once('pointerdown', () => {
+                if (music && !music.isPlaying) {
+                    music.play();
+                }
+            });
 
+            const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
+                .setInteractive({ useHandCursor: true })
+                .setScale(0.8);
 
-        const startBtn = this.add.image(950, 620, 'btnStart').setInteractive();
-        startBtn.setScale(0.8);
+            this.addHoverEffect(startBtn, 0.8, 0.9);
 
+            startBtn.on('pointerdown', () => {
+                this.scene.start('MenuScene');
+            });
+        };
 
-        this.addHoverEffect(startBtn);
-
-
-        startBtn.on('pointerdown', () => {
-            this.scene.start('MenuScene');
-        });
+        if (window.WebFont && typeof window.WebFont.load === 'function') {
+            window.WebFont.load({
+                google: {
+                    families: ['Special Elite', 'Press Start 2P']
+                },
+                active: () => {
+                    initUi();
+                },
+                inactive: () => {
+                    console.warn('WebFont failed to load, continuing with fallback fonts.');
+                    initUi();
+                }
+            });
+        } else {
+            console.warn('WebFont is not available, continuing with fallback fonts.');
+            initUi();
+        }
     }
 
-
-    addHoverEffect(button) {
-        button.on('pointerover', () => button.setScale(0.9));
-        button.on('pointerout', () => button.setScale(0.8));
+    addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
+        button.on('pointerover', () => button.setScale(hoverScale));
+        button.on('pointerout', () => button.setScale(baseScale));
     }
 }
