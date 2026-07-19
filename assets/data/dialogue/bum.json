@@ -1,341 +1,862 @@
 {
-"bumClues": {
-  "banter": [
-    "People pay fortunes for views I get by sleeping on benches.",
-    "I don’t own much, detective, but I collect stories nobody else wants.",
-    "City streets gossip louder than rich people, they’re just less polite about it.",
-    "If you want the truth, ask someone nobody bothers to lie to.",
-    "I may not have an address, but trouble still finds me on the first try.",
-    "Everyone else looks up at the skyline. I watch the shoes that try to sneak past.",
-    "You’d be surprised how many secrets fall out of pockets before coins do."
-  ],
-  "repeatLines": [
-    [
-      "We already talked, detective.",
-      "The street hasn’t changed its story since."
-    ],
-    [
-      "Back again?",
-      "Must be serious if you’re coming back to someone this easy to ignore."
-    ],
-    [
-      "I gave you what I saw.",
-      "The rest is just the city muttering in the background."
-    ],
-    [
-      "No new clues.",
-      "Different cigarette butts, same kind of people."
-    ],
-    [
-      "We’ve covered this corner already.",
-      "If it knew more, it would have told me first."
-    ],
-    [
-      "Still the same story, detective.",
-      "The pavement doesn’t improvise much."
-    ],
-    [
-      "You already emptied my pockets of information.",
-      "Turns out they refill slower than you hoped."
-    ],
-    [
-      "I told you everything useful.",
-      "Anything else I say now would just be scenery."
-    ],
-    [
-      "No fresh secrets today.",
-      "Just old ones lying where people dropped them."
-    ],
-    [
-      "Same witness, same street, same truth.",
-      "The only thing that changes here is the weather and the excuses."
-    ]
-  ],
-  "falseLeadLines": [
-    [
-      "Wrong city, detective.",
-      "Even I don’t wander that far by mistake."
-    ],
-    [
-      "You chased the wrong trail.",
-      "Streets do that. They split when you’re not looking."
-    ],
-    [
-      "No thief there.",
-      "Just other people running from different problems."
-    ],
-    [
-      "That lead went nowhere.",
-      "I’ve slept in more promising alleys."
-    ],
-    [
-      "You picked the wrong direction.",
-      "Happens. Map in your head lied louder than the one in your hand."
-    ],
-    [
-      "A false lead, I’m afraid.",
-      "You followed footprints that were already washed away."
-    ],
-    [
-      "The suspect wasn’t in that city.",
-      "Only your disappointment was."
-    ],
-    [
-      "Wrong place, wrong time.",
-      "But the benches there were probably nice."
-    ],
-    [
-      "You walked a long way for nothing.",
-      "Next time, make sure the nothing points the right way."
-    ],
-    [
-      "That detour did you no favors.",
-      "The street remembers who gets lost and who learns."
-    ]
-  ],
-  "cityHints": {
-    "london": [
-      "Your suspect asked me if rain is really that constant in the place with red buses and black cabs and very grey skies.",
-      "They said they missed a river lined with old stone and newer glass, and guards who treat smiling like a crime.",
-      "They dropped a coin and a complaint about a city where tea is comfort, ritual, and occasionally a survival strategy."
-    ],
-    "paris": [
-      "They smelled of cheap wine and expensive perfume and asked if croissants taste better under an iron tower.",
-      "Your thief mumbled something about narrow streets, long shadows, and a city that calls itself light and means it.",
-      "They left a half-finished cigarette and a note about a place where even protests look elegant from a distance."
-    ],
-    "berlin": [
-      "They asked if I’d ever seen the city that turned old scars into murals and long nights into a full-time hobby.",
-      "Your suspect talked about a gate that’s seen more speeches than weddings and still isn’t tired of tourists.",
-      "They said they liked cities that pulled down their walls and then put their secrets in basements with loud music."
-    ],
-    "new_york_city": [
-      "They kept calling some place ‘the city that never sleeps’ as if insomnia was a tourist attraction.",
-      "Your thief asked if it’s true that yellow taxis there scream at each other in every language at once.",
-      "They mentioned skyscrapers so tall even pigeons have to take the elevator in their imagination."
-    ],
-    "warsaw": [
-      "They asked me if I’d ever seen a capital rebuilt from ashes, stone by stubborn stone.",
-      "Your suspect talked about a river watched by a mermaid and a castle that refuses to retire.",
-      "They said they admired cities that fall, stand up again, and still manage to complain about tram schedules."
-    ],
-    "new_delhi": [
-      "They smelled like dust, spices, and long flights, and asked if any city can be that loud and still hopeful.",
-      "Your thief wanted directions to a place where markets never really sleep and traffic plays its own percussion.",
-      "They joked that in this city even the cows look more confident crossing the street than most bankers."
-    ]
-  },
-  "locationVariants": {
-    "london": {
-      "banter": [
-        "London streets drip, mumble and pretend they’ve seen worse.",
-        "I sleep under bridges tourists photograph from a distance.",
-        "Here, even the pigeons look like they’re late for work."
-      ],
-      "repeatLines": [
-        [
-          "We already spoke, detective.",
-          "The fog hasn’t revealed anything new since."
+  "bumClues": {
+    "locationVariants": {
+      "london": {
+        "banter": [
+          "London streets drip, mumble and pretend they’ve seen worse.",
+          "I sleep under bridges tourists photograph from a distance.",
+          "Here, even the pigeons look like they’re late for work."
         ],
-        [
-          "Back again?",
-          "You must really like damp benches and old stories."
+        "travelHints": {
+          "paris": [
+            "They muttered about a city across the water where people dress better than they apologise.",
+            "Your suspect asked if croissants really do taste better under an iron tower.",
+            "They mentioned a place where smoke, perfume and arrogance share the same pavement."
+          ],
+          "berlin": [
+            "They asked about a city that turned old wounds into murals and sleepless nights into culture.",
+            "Your thief wanted to know if the music there really starts after midnight and ends after dignity.",
+            "They talked about a place where walls came down but secrets just moved indoors."
+          ],
+          "new_york_city": [
+            "They kept calling it the city that never sleeps, like that was something to admire.",
+            "Your suspect asked if yellow cabs really argue louder than the people inside them.",
+            "They mentioned a skyline so tall it makes the poor feel professionally invisible."
+          ],
+          "warsaw": [
+            "They asked about a capital that got knocked down and rebuilt out of stubbornness.",
+            "Your suspect talked about a river, a mermaid and a city too tough to stay broken.",
+            "They mentioned a place where history and tram complaints share the same timetable."
+          ],
+          "new_delhi": [
+            "They wanted to know if a city could really be that loud and still keep moving.",
+            "Your thief asked about markets, heat and traffic with the confidence of someone already leaving.",
+            "They joked that in this city even the cows cross the street with more purpose than bankers."
+          ],
+          "london": [
+            "Funny thing, they asked about London like they were trying to hear it described by someone colder than a travel brochure.",
+            "They mentioned red buses, black cabs and a sky that never quite commits to daylight.",
+            "They talked about a river city where even the fog minds its own business."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, tidy enough to pass unnoticed if you weren’t paid to notice."
+            ],
+            "Brown": [
+              "Brown hair, ordinary on purpose. That’s usually the trick."
+            ],
+            "Blonde": [
+              "Blonde hair, too bright for this weather and too careful to be natural."
+            ],
+            "Red": [
+              "Red hair. In this fog, that counts as announcing yourself."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, cold as a London morning and twice as careful."
+            ],
+            "Brown": [
+              "Brown eyes, watching doorways more than faces."
+            ],
+            "Green": [
+              "Green eyes, quick and sharp, like they were counting exits."
+            ],
+            "Hazel": [
+              "Hazel eyes, restless in a way honest people rarely are."
+            ]
+          },
+          "features": {
+            "Big forehead": [
+              "Big forehead, thoughtful look, bad intentions. Happens."
+            ],
+            "Tattoo": [
+              "There was a tattoo, though they wore sleeves like they’d rather the city forgot."
+            ],
+            "Rainbow hair streak": [
+              "A streak of color in the hair. Hard to miss, even in a city built from grey."
+            ],
+            "Necklace": [
+              "They wore a necklace that caught the light and my attention."
+            ],
+            "Scar": [
+              "A scar, old enough to have a story and new enough to still matter."
+            ],
+            "Moustache": [
+              "Moustache like they trusted it more than their own name."
+            ],
+            "Glasses": [
+              "Glasses, but don’t mistake that for softness. They watched everything."
+            ],
+            "Beard": [
+              "Beard, trimmed enough to suggest discipline, not comfort."
+            ],
+            "Long hair": [
+              "Long hair, tied back like they didn’t want it remembered."
+            ],
+            "Earrings": [
+              "Earrings, small but deliberate. Not the kind of detail I lose."
+            ],
+            "Goatee": [
+              "Goatee. Looked like someone trying to curate mystery."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "Canadian accent. Polite shape, careful edges."
+            ],
+            "Mexican": [
+              "Mexican accent, warm enough to distract if you weren’t listening closely."
+            ],
+            "Australian": [
+              "Australian accent, casual voice, alert hands."
+            ],
+            "American": [
+              "American accent, like they expected the room to rearrange itself around them."
+            ],
+            "Dutch": [
+              "Dutch accent, neat and clipped, like folded paper."
+            ],
+            "British": [
+              "British accent, local enough to blend, polished enough to bother me."
+            ],
+            "German": [
+              "German accent, direct, economical, not built for wasting words."
+            ],
+            "Polish": [
+              "Polish accent, solid and grounded, like they meant every syllable and trusted none of them."
+            ],
+            "Spanish": [
+              "Spanish accent, quick and musical, but the questions underneath were all business."
+            ],
+            "Belarussian": [
+              "Belarussian accent, soft voice, armored eyes."
+            ],
+            "Russian": [
+              "Russian accent, measured, like every word had already passed inspection."
+            ],
+            "Italian": [
+              "Italian accent, all warmth on top and calculation underneath."
+            ],
+            "Irish": [
+              "Irish accent, the kind that can sound friendly while hiding the whole map."
+            ],
+            "French": [
+              "French accent. Smooth enough to make suspicion sound elegant."
+            ],
+            "Belgian": [
+              "Belgian accent, subtle enough that most people would miss it. I didn’t."
+            ]
+          },
+          "skills": {
+            "Lockpicking": [
+              "Their fingers looked like they knew locks better than greetings."
+            ],
+            "Disguise": [
+              "Something about them felt assembled, like a face chosen for today only."
+            ],
+            "Stealth": [
+              "They moved quiet, not shy. Big difference."
+            ],
+            "Languages": [
+              "They changed languages the way other people change lies."
+            ],
+            "Negotiation": [
+              "Every question sounded like bargaining."
+            ],
+            "Intimidation": [
+              "They didn’t raise their voice. Didn’t need to."
+            ],
+            "Hacking": [
+              "They looked at security cameras like critics look at bad theatre."
+            ],
+            "Electronics": [
+              "They noticed wires and devices before they noticed people."
+            ],
+            "Surveillance": [
+              "Their eyes kept sweeping the street like they were used to tailing or being tailed."
+            ],
+            "Public speaking": [
+              "Even standing still, they had the posture of someone used to owning a room."
+            ],
+            "Writing": [
+              "They carried themselves like someone who edits reality before speaking."
+            ],
+            "Leadership": [
+              "People made space for them without knowing why. That’s a talent."
+            ],
+            "Investigation": [
+              "They asked questions like they were collecting evidence, not answers."
+            ],
+            "Interrogation": [
+              "They knew exactly how long to stay quiet after a question."
+            ],
+            "Deduction": [
+              "You could see them assembling conclusions while pretending to listen."
+            ],
+            "Forgery": [
+              "They handled paper like a person who’s spent time improving official truth."
+            ],
+            "Art history": [
+              "They mentioned paintings the way other crooks mention train schedules."
+            ],
+            "Research": [
+              "They weren’t guessing. You can spot that from across a bench."
+            ],
+            "Martial arts": [
+              "Balanced stance, measured movement. Not their first dangerous room."
+            ],
+            "Survival skills": [
+              "They carried themselves like someone used to bad weather and worse decisions."
+            ],
+            "Tracking": [
+              "They looked down at the ground more than up at the skyline. Trackers do that."
+            ],
+            "Parkour": [
+              "Light on their feet, like the street was just another staircase."
+            ],
+            "Acrobatics": [
+              "Too much balance for an ordinary liar."
+            ],
+            "Firearms": [
+              "Their shoulders stayed loose, but not innocent. I’ve seen that before."
+            ],
+            "Tactical planning": [
+              "They kept checking angles, corners, distance. That’s not nerves, that’s planning."
+            ],
+            "Hand-to-hand combat": [
+              "Their stance said they knew exactly how close trouble had to get."
+            ],
+            "Espionage": [
+              "They made curiosity look casual. That’s a trade skill, not a personality."
+            ],
+            "Persuasion": [
+              "They spoke like every sentence had already won."
+            ],
+            "Deception": [
+              "Nothing they said tripped. That’s how you know it was rehearsed."
+            ],
+            "Engineering": [
+              "They looked at locks, hinges and frames like they were talking to them."
+            ],
+            "Problem-solving": [
+              "You could almost hear their brain taking shortcuts through the room."
+            ],
+            "Technical knowledge": [
+              "They asked practical questions no ordinary tourist would think to ask."
+            ],
+            "Seduction": [
+              "They smiled like it was equipment."
+            ],
+            "Manipulation": [
+              "They had the sort of calm that makes other people explain too much."
+            ],
+            "Museum studies": [
+              "They talked about artifacts and display cases with professional disrespect."
+            ],
+            "History": [
+              "They knew the city’s past too well for someone supposedly passing through."
+            ],
+            "Pickpocketing": [
+              "Their hands were too relaxed near other people’s pockets."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "Smelled like smoke and hurry."
+            ],
+            "Drinking": [
+              "Carried last night in their posture."
+            ],
+            "Gambling": [
+              "Had the eyes of someone who treats odds like invitations."
+            ],
+            "Tattoos": [
+              "Moved like someone used to being looked at and misread."
+            ],
+            "Piercings": [
+              "Enough metal to catch the light, not enough to slow them down."
+            ],
+            "Reading": [
+              "Handled paper like it mattered."
+            ],
+            "Gaming": [
+              "Saw systems everywhere. Some people never stop playing."
+            ],
+            "Coding": [
+              "Kept asking how things connected beneath the surface."
+            ],
+            "Watching movies": [
+              "They joked about heists like someone reviewing old work."
+            ],
+            "Yoga": [
+              "Balanced, quiet, annoyingly centered."
+            ],
+            "Meditation": [
+              "Too calm for someone innocent."
+            ],
+            "Cooking": [
+              "Smelled faintly of spice and skill."
+            ],
+            "Journaling": [
+              "Looked like the sort who writes things down before betraying them."
+            ],
+            "Walking": [
+              "Moved like distance never scared them."
+            ],
+            "Joking": [
+              "Made little jokes to keep people from hearing the serious parts."
+            ],
+            "Pranks": [
+              "Had mischief in the face and planning in the hands."
+            ],
+            "Flirting": [
+              "Looked at people the way locksmiths look at doors."
+            ],
+            "Collecting": [
+              "There was collector’s hunger in the way they scanned details."
+            ],
+            "Painting": [
+              "Noticed color and texture first, like the street was a canvas with bad manners."
+            ],
+            "Traveling": [
+              "Wore distance comfortably."
+            ],
+            "Hiking": [
+              "Boots said they trusted rough ground."
+            ],
+            "Camping": [
+              "Carried themselves like someone who packs light and sleeps badly."
+            ],
+            "Fishing": [
+              "Patient hands. Predatory patience."
+            ],
+            "Skateboarding": [
+              "Balanced like curbs were suggestions."
+            ],
+            "Dancing": [
+              "Rhythm in the walk, even standing still."
+            ],
+            "Street art": [
+              "Looked at walls like they were unfinished conversations."
+            ],
+            "Shooting": [
+              "There was range discipline in the shoulders."
+            ],
+            "Chess": [
+              "Their pauses looked calculated, not hesitant."
+            ],
+            "Wine tasting": [
+              "They carried taste like a weapon and used it just as smugly."
+            ],
+            "Eating out": [
+              "Knew too much about where rich people linger."
+            ],
+            "Playing guitar": [
+              "Nimble fingers, restless timing."
+            ],
+            "Storytelling": [
+              "Too smooth when they lied. That takes practice."
+            ],
+            "Writing": [
+              "Words seemed arranged before they were spoken."
+            ],
+            "Gardening": [
+              "Gentle hands, hard eyes."
+            ],
+            "Building models": [
+              "Precision in the fingers, patience in the silence."
+            ],
+            "Swimming": [
+              "Loose shoulders, steady breath."
+            ],
+            "Running": [
+              "Looked built for leaving quickly."
+            ],
+            "Working out": [
+              "Moved like effort was routine."
+            ],
+            "Playing chess": [
+              "Saw three moves further than the rest of us."
+            ],
+            "Playing video games": [
+              "Had the focus of someone used to reading patterns fast."
+            ],
+            "Shopping": [
+              "Knew quality at a glance and weakness even faster."
+            ],
+            "Exploring": [
+              "Looked around with curiosity sharpened into habit."
+            ],
+            "Watching Movies": [
+              "Kept framing things like scenes instead of moments."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "The fog hasn’t revealed anything new since."
+          ],
+          [
+            "Back again?",
+            "You must really like damp benches and old stories."
+          ],
+          [
+            "No new clues.",
+            "Just the same river, same stones, and slightly colder hands."
+          ]
         ],
-        [
-          "No new clues.",
-          "Just the same river, same stones, and slightly colder hands."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Even the rain knew you were in the wrong place."
+          ],
+          [
+            "That lead washed out.",
+            "London’s good at that."
+          ],
+          [
+            "Your suspect wasn’t there.",
+            "Only your umbrella and your patience got tested."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Even the rain knew you were in the wrong place."
+      },
+
+      "paris": {
+        "banter": [
+          "In Paris, even the trash has better posture than I do.",
+          "I see more broken hearts than broken bottles here, and that’s saying something.",
+          "The alleyways smell like smoke, perfume and people pretending they’re not lost."
         ],
-        [
-          "That lead washed out.",
-          "London’s good at that."
+        "travelHints": {
+          "london": [
+            "They asked about a city where umbrellas are practically official documents.",
+            "Your suspect mentioned red buses, black cabs and weather with a persecution complex.",
+            "They talked about crossing the Channel like they’d done it before and lied about it after."
+          ],
+          "berlin": [
+            "They asked about a city where concrete remembers and the night shift never really ends.",
+            "Your thief mentioned murals, basslines and a history too large to fit in polite conversation.",
+            "They wanted to know if the clubs there still keep hours only criminals can respect."
+          ],
+          "new_york_city": [
+            "They talked about a place where ambition stands taller than the buildings, which is saying something.",
+            "Your suspect asked if New York really moves that fast or if that’s just the noise.",
+            "They mentioned yellow taxis, steel canyons and people too busy to notice a thief."
+          ],
+          "warsaw": [
+            "They asked about a city rebuilt out of ruins and stubbornness.",
+            "Your suspect mentioned a mermaid, a river and people who don’t confuse survival with drama.",
+            "They talked about Warsaw like someone who respects cities that have scars."
+          ],
+          "new_delhi": [
+            "They asked about a city where heat, traffic and bargaining all compete for first place.",
+            "Your thief mentioned markets that never really sleep and streets louder than guilt.",
+            "They wondered if New Delhi feels chaotic or just honest."
+          ],
+          "paris": [
+            "Funny thing, they described Paris like someone trying not to admit they missed it.",
+            "They mentioned cafés, smoke and a tower people mistake for romance.",
+            "They talked about narrow streets and elegant lies."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled like they expected witnesses."
+            ],
+            "Brown": [
+              "Brown hair, plain enough to disappear in a crowd of better-dressed lies."
+            ],
+            "Blonde": [
+              "Blonde hair, too deliberate to be innocent."
+            ],
+            "Red": [
+              "Red hair, dramatic even by Paris standards."
+            ]
+          },
+          "accent": {
+            "French": [
+              "French accent, polished enough to make suspicion sound charming."
+            ],
+            "Italian": [
+              "Italian accent, smooth and expensive-sounding, whether the money was real or not."
+            ],
+            "Spanish": [
+              "Spanish accent, warm voice, sharp purpose."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "The only thing that changed is which café kicked me out."
+          ],
+          [
+            "Back so soon?",
+            "Romance moves faster than clues in this city."
+          ],
+          [
+            "No fresh secrets.",
+            "Just the same shadows and slightly louder arguments."
+          ]
         ],
-        [
-          "Your suspect wasn’t there.",
-          "Only your umbrella and your patience got tested."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Pretty mistake, though."
+          ],
+          [
+            "That lead went nowhere, detective.",
+            "You followed the lights and forgot the trail."
+          ],
+          [
+            "Your thief wasn’t here.",
+            "Only tourists, poets, and people lying about both."
+          ]
         ]
-      ]
-    },
-    "paris": {
-      "banter": [
-        "In Paris, even the trash has better posture than I do.",
-        "I see more broken hearts than broken bottles here, and that’s saying something.",
-        "The alleyways smell like smoke, perfume and people pretending they’re not lost."
-      ],
-      "repeatLines": [
-        [
-          "We already talked, detective.",
-          "The only thing that changed is which café kicked me out."
+      },
+
+      "berlin": {
+        "banter": [
+          "Berlin streets wear their history on the walls and their hangovers in the morning.",
+          "I sleep where the city forgot to gentrify.",
+          "Some nights here last so long the day just apologises and waits."
         ],
-        [
-          "Back so soon?",
-          "Romance moves faster than clues in this city."
+        "travelHints": {
+          "london": [
+            "They asked about a city where even the weather feels bureaucratic.",
+            "Your suspect mentioned fog, uniforms and a river full of postcards.",
+            "They talked about London like it was useful, not charming."
+          ],
+          "paris": [
+            "They asked about Paris with the kind of tone people use for expensive mistakes.",
+            "Your thief mentioned perfume, iron and a city that edits reality before breakfast.",
+            "They wondered if elegance can cover panic. I said probably."
+          ],
+          "new_york_city": [
+            "They talked about a place where the buildings compete harder than the people.",
+            "Your suspect mentioned New York like it was all speed, noise and opportunity.",
+            "They asked if anyone notices anything in a city moving that fast."
+          ],
+          "warsaw": [
+            "They asked about a city that remembers damage without worshipping it.",
+            "Your suspect mentioned Warsaw with more respect than most travellers manage.",
+            "They talked about stubborn architecture and people who outlast systems."
+          ],
+          "new_delhi": [
+            "They wanted to know about a city louder than Berlin and less interested in sleep.",
+            "Your thief mentioned markets, heat and traffic like it was a tactical challenge.",
+            "They talked about New Delhi like someone studying motion."
+          ],
+          "berlin": [
+            "They described Berlin as if they admired cities that don’t bother pretending to be tidy.",
+            "They mentioned murals, concrete and basements with bad intentions and good sound systems.",
+            "They talked about a place where the past stays visible and the night refuses supervision."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, functional, severe, no wasted gesture in it."
+            ],
+            "Brown": [
+              "Brown hair, forgettable in theory, memorable in context."
+            ]
+          },
+          "skills": {
+            "Hacking": [
+              "They looked at cameras and terminals the way musicians look at instruments."
+            ],
+            "Electronics": [
+              "Their attention kept drifting to wiring, sensors and weak points."
+            ],
+            "Surveillance": [
+              "They watched the street like they expected to be watched back."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already covered this corner.",
+            "It still remembers more music than crime."
+          ],
+          [
+            "Back again?",
+            "Same graffiti, same faces, same missing thief."
+          ],
+          [
+            "No new whispers, detective.",
+            "Just the echo of bass lines and bad decisions."
+          ]
         ],
-        [
-          "No fresh secrets.",
-          "Just the same shadows and slightly louder arguments."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Direct, like the people here."
+          ],
+          [
+            "That lead died on arrival.",
+            "You chased the wrong beat this time."
+          ],
+          [
+            "The suspect wasn’t in that crowd.",
+            "You just danced around the problem."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Pretty mistake, though."
+      },
+
+      "new_york_city": {
+        "banter": [
+          "New York sidewalks never sleep. They just change shoes.",
+          "I get pushed past by people who think time is money and I owe them both.",
+          "Here, the trash talks, the cabs swear, and the alleys remember everything."
         ],
-        [
-          "That lead went nowhere, detective.",
-          "You followed the lights and forgot the trail."
+        "travelHints": {
+          "london": [
+            "They talked about London like it had better tailoring and worse weather.",
+            "Your suspect mentioned fog, old money and people trained to apologise in complete sentences.",
+            "They asked if the rain there ever clocks out."
+          ],
+          "paris": [
+            "They asked about a city where even the lies come with good bread.",
+            "Your thief mentioned iron, perfume and people who judge your shoes before your crimes.",
+            "They talked about Paris like it was expensive and worth it."
+          ],
+          "berlin": [
+            "They mentioned a city with rough edges, long nights and no patience for pretending.",
+            "Your suspect asked if Berlin still keeps secrets in basements and history on walls.",
+            "They talked about a place where bad ideas can still find a dance floor."
+          ],
+          "warsaw": [
+            "They asked about a city rebuilt on nerve and memory.",
+            "Your thief mentioned Warsaw like someone who respects survivors more than winners.",
+            "They talked about a river city with scars under fresh paint."
+          ],
+          "new_delhi": [
+            "They wanted to know about a place noisier than New York. That got my attention.",
+            "Your suspect mentioned markets, heat and traffic that behaves like a dare.",
+            "They asked if New Delhi overwhelms people or just tells the truth faster."
+          ],
+          "new_york_city": [
+            "They talked about New York like it was a machine built out of impatience.",
+            "They mentioned taxis, steam vents and a skyline with delusions of grandeur.",
+            "They described a city where nobody notices anything unless it slows them down."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Drinking": [
+              "Smelled like last night lost and this morning never objected."
+            ],
+            "Running": [
+              "Had the posture of someone used to leaving before the bill arrives."
+            ]
+          },
+          "accent": {
+            "American": [
+              "American accent, but not local. The city catches those details if you do."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "Yeah, we already talked, detective.",
+            "Still the same chaos, still the same clue count."
+          ],
+          [
+            "Back again?",
+            "You’re starting to look like part of the scenery."
+          ],
+          [
+            "No update.",
+            "The city shouted a lot, but none of it was useful."
+          ]
         ],
-        [
-          "Your thief wasn’t here.",
-          "Only tourists, poets, and people lying about both."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Big gamble, big miss."
+          ],
+          [
+            "That lead went nowhere.",
+            "Fast, loud, and nowhere."
+          ],
+          [
+            "Your suspect wasn’t there.",
+            "Just a million other problems on different corners."
+          ]
         ]
-      ]
-    },
-    "berlin": {
-      "banter": [
-        "Berlin streets wear their history on the walls and their hangovers in the morning.",
-        "I sleep where the city forgot to gentrify.",
-        "Some nights here last so long the day just apologises and waits."
-      ],
-      "repeatLines": [
-        [
-          "We already covered this corner.",
-          "It still remembers more music than crime."
+      },
+
+      "warsaw": {
+        "banter": [
+          "Warsaw streets have seen worse than me and still keep moving.",
+          "I sleep near walls that remember more than the people leaning on them.",
+          "This city rebuilds faster than some people learn."
         ],
-        [
-          "Back again?",
-          "Same graffiti, same faces, same missing thief."
+        "travelHints": {
+          "london": [
+            "They asked about a city where politeness and rain seem equally compulsory.",
+            "Your suspect mentioned London like someone planning a stop, not a stay.",
+            "They talked about fog, buses and money old enough to judge you."
+          ],
+          "paris": [
+            "They mentioned Paris with a kind of tired admiration.",
+            "Your thief asked about cafés, towers and people who can argue stylishly.",
+            "They talked about a city where beauty and nonsense rent the same room."
+          ],
+          "berlin": [
+            "They asked about Berlin like they respected its damage.",
+            "Your suspect mentioned murals, concrete and nights too long for honest work.",
+            "They talked about a city that remembers division without asking permission."
+          ],
+          "new_york_city": [
+            "They mentioned New York the way people mention weather fronts or invasions.",
+            "Your thief asked if anyone there ever stops moving long enough to notice a crime.",
+            "They talked about glass towers and sidewalks that never forgive hesitation."
+          ],
+          "new_delhi": [
+            "They asked about New Delhi with more curiosity than caution.",
+            "Your suspect mentioned heat, traffic and markets like they were reading a challenge.",
+            "They talked about a city where noise itself seems organized."
+          ],
+          "warsaw": [
+            "They described Warsaw like someone who understood why a city keeps getting back up.",
+            "They mentioned a river, a mermaid and streets with long memories.",
+            "They talked about old stone, new glass and people who don’t waste resilience."
+          ]
+        },
+        "suspectCluePool": {
+          "accent": {
+            "Polish": [
+              "Polish accent, steady and unshowy. Easy to trust if you weren’t paying attention."
+            ]
+          },
+          "features": {
+            "Beard": [
+              "A beard, common enough. Still, theirs looked chosen, not grown."
+            ],
+            "Necklace": [
+              "A necklace, small thing, but in a city like this small things last."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked.",
+            "No new faces, no new trouble on this corner."
+          ],
+          [
+            "Back again?",
+            "You’re more stubborn than the tram schedule."
+          ],
+          [
+            "Nothing new, detective.",
+            "If something shifted, I’d have felt it in the pavement."
+          ]
         ],
-        [
-          "No new whispers, detective.",
-          "Just the echo of bass lines and bad decisions."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Not your first mistake, probably not your last."
+          ],
+          [
+            "That lead was empty.",
+            "Like most promises shouted after midnight."
+          ],
+          [
+            "The suspect isn’t there.",
+            "Just people trying to make rent and sense of things."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Direct, like the people here."
+      },
+
+      "new_delhi": {
+        "banter": [
+          "In New Delhi, even the shadows feel crowded.",
+          "I sleep where the noise finally gets tired, which is never for long.",
+          "The streets here smell like spice, fuel and people who refuse to slow down."
         ],
-        [
-          "That lead died on arrival.",
-          "You chased the wrong beat this time."
+        "travelHints": {
+          "london": [
+            "They asked about a city where the sky sounds wet even in conversation.",
+            "Your suspect mentioned red buses, damp coats and rules with expensive accents.",
+            "They talked about London like a colder kind of performance."
+          ],
+          "paris": [
+            "They asked about Paris like they expected beauty to be useful.",
+            "Your thief mentioned cafés, smoke and a tower everyone photographs instead of understanding.",
+            "They talked about a place where elegance and inconvenience seem happily married."
+          ],
+          "berlin": [
+            "They asked about Berlin with interest, not affection.",
+            "Your suspect mentioned walls, music and people who mistake insomnia for philosophy.",
+            "They talked about a city built out of concrete, memory and late decisions."
+          ],
+          "new_york_city": [
+            "They wanted to know if New York is truly louder than itself.",
+            "Your thief mentioned taxis, sirens and buildings tall enough to ignore ordinary people.",
+            "They talked about a city where rushing counts as a personality."
+          ],
+          "warsaw": [
+            "They asked about a city rebuilt by habit and necessity.",
+            "Your suspect mentioned Warsaw with unexpected respect.",
+            "They talked about a river city where memory still works overtime."
+          ],
+          "new_delhi": [
+            "They described New Delhi like someone trying to decide whether chaos is a burden or a language.",
+            "They mentioned heat, markets and traffic that negotiates directly with fate.",
+            "They talked about a city that never truly clears its throat before speaking."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Smoking": [
+              "Even through spice, fuel and dust, the smoke clung to them."
+            ],
+            "Traveling": [
+              "They wore long-distance fatigue like a second shirt."
+            ]
+          },
+          "skills": {
+            "Negotiation": [
+              "They bargained with tone, posture and patience before they even used words."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "Since then only the dust has moved."
+          ],
+          [
+            "Back again?",
+            "You must really like heat and bad odds."
+          ],
+          [
+            "No new clue.",
+            "Just the same traffic, same shouts and different excuses."
+          ]
         ],
-        [
-          "The suspect wasn’t in that crowd.",
-          "You just danced around the problem."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Loud mistake, easy to hear from here."
+          ],
+          [
+            "That lead burned out fast.",
+            "Like most cheap lanterns in a long night."
+          ],
+          [
+            "Your suspect is somewhere else.",
+            "You only managed to chase the heat."
+          ]
         ]
-      ]
-    },
-    "new_york_city": {
-      "banter": [
-        "New York sidewalks never sleep. They just change shoes.",
-        "I get pushed past by people who think time is money and I owe them both.",
-        "Here, the trash talks, the cabs swear, and the alleys remember everything."
-      ],
-      "repeatLines": [
-        [
-          "Yeah, we already talked, detective.",
-          "Still the same chaos, still the same clue count."
-        ],
-        [
-          "Back again?",
-          "You’re starting to look like part of the scenery."
-        ],
-        [
-          "No update.",
-          "The city shouted a lot, but none of it was useful."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Big gamble, big miss."
-        ],
-        [
-          "That lead went nowhere.",
-          "Fast, loud, and nowhere."
-        ],
-        [
-          "Your suspect wasn’t there.",
-          "Just a million other problems on different corners."
-        ]
-      ]
-    },
-    "warsaw": {
-      "banter": [
-        "Warsaw streets have seen worse than me and still keep moving.",
-        "I sleep near walls that remember more than the people leaning on them.",
-        "This city rebuilds faster than some people learn."
-      ],
-      "repeatLines": [
-        [
-          "We already talked.",
-          "No new faces, no new trouble on this corner."
-        ],
-        [
-          "Back again?",
-          "You’re more stubborn than the tram schedule."
-        ],
-        [
-          "Nothing new, detective.",
-          "If something shifted, I’d have felt it in the pavement."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Not your first mistake, probably not your last."
-        ],
-        [
-          "That lead was empty.",
-          "Like most promises shouted after midnight."
-        ],
-        [
-          "The suspect isn’t there.",
-          "Just people trying to make rent and sense of things."
-        ]
-      ]
-    },
-    "new_delhi": {
-      "banter": [
-        "In New Delhi, even the shadows feel crowded.",
-        "I sleep where the noise finally gets tired, which is never for long.",
-        "The streets here smell like spice, fuel and people who refuse to slow down."
-      ],
-      "repeatLines": [
-        [
-          "We already spoke, detective.",
-          "Since then only the dust has moved."
-        ],
-        [
-          "Back again?",
-          "You must really like heat and bad odds."
-        ],
-        [
-          "No new clue.",
-          "Just the same traffic, same shouts and different excuses."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Loud mistake, easy to hear from here."
-        ],
-        [
-          "That lead burned out fast.",
-          "Like most cheap lanterns in a long night."
-        ],
-        [
-          "Your suspect is somewhere else.",
-          "You only managed to chase the heat."
-        ]
-      ]
+      }
     }
   }
-}
 }

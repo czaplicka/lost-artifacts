@@ -77,8 +77,8 @@ export class PreloaderScene extends Phaser.Scene {
 
         this.load.image('berlin', 'assets/Berlin.jpg');
         this.load.image('london', 'assets/London.jpg');
-        this.load.image('newdelhi', 'assets/NewDelhi.jpg');
-        this.load.image('newyorkcity', 'assets/NYC.jpg');
+        this.load.image('new_delhi', 'assets/NewDelhi.jpg');
+        this.load.image('new_york_city', 'assets/NYC.jpg');
         this.load.image('paris', 'assets/Paris.jpg');
         this.load.image('warsaw', 'assets/Warsaw.jpg');
 
@@ -116,7 +116,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('file', 'assets/file.png');
         this.load.image('mapbg', 'assets/map.png');
 
-        this.load.image('garrett_gutter', 'assets/suspects/garrett_gutter.jpg');
+        this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
         this.load.image('sofia_vargas', 'assets/suspects/sofia_vargas.jpg');
         this.load.image('bert_goodman', 'assets/suspects/bert_goodman.jpg');
         this.load.image('anne_apple', 'assets/suspects/anne_apple.jpg');
@@ -148,6 +148,8 @@ this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
 this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
 this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
 this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
+this.load.json('city_clues', 'assets/data/city-clues.json');
+this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
     }
 
     create() {

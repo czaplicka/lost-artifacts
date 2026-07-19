@@ -23,9 +23,7 @@ export class TravelTransitionScene extends Phaser.Scene {
             fromCity = 'Unknown',
             toCity = 'Unknown',
             travelHours = 0,
-            wasCorrect = false,
-            status = 'CONTINUE',
-            nextScene = 'CityScene'
+            status = 'CONTINUE'
         } = this.transitionData;
 
         ensureHud(this);
@@ -100,12 +98,12 @@ export class TravelTransitionScene extends Phaser.Scene {
 
         this.input.once('pointerdown', () => {
             if (!this.canContinue || this.isLeaving) return;
-            this.leaveScene(wasCorrect, nextScene);
+            this.leaveScene();
         });
 
         this.time.delayedCall(4500, () => {
             if (this.isLeaving) return;
-            this.leaveScene(wasCorrect, nextScene);
+            this.leaveScene();
         });
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -113,21 +111,20 @@ export class TravelTransitionScene extends Phaser.Scene {
         });
     }
 
-    leaveScene(wasCorrect, nextScene) {
+    leaveScene() {
         if (this.isLeaving) return;
         this.isLeaving = true;
 
+        const destinationScene = 'CityScene';
         const camera = this.cameras.main;
+
         camera.fadeOut(450, 0, 0, 0);
 
         camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-            const destinationScene = this.resolveNextScene(nextScene, wasCorrect);
-
-            if (!this.scene.get(destinationScene)) {
-                console.error(`TravelTransitionScene: Scene "${destinationScene}" is not registered.`);
-                this.scene.start('GameScene');
-                return;
-            }
+            console.log('TravelTransition ->', {
+                destinationScene,
+                transitionData: this.transitionData
+            });
 
             this.scene.start(destinationScene, { ...this.transitionData });
         });
@@ -172,10 +169,5 @@ export class TravelTransitionScene extends Phaser.Scene {
             default:
                 return 'Another city, another chance to get one step closer to the truth.';
         }
-    }
-
-    resolveNextScene(nextScene, wasCorrect) {
-        if (!wasCorrect) return 'GameScene';
-        return nextScene || 'CityScene';
     }
 }

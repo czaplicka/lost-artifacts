@@ -1,4 +1,4 @@
-import { gameState } from './gamedata.js';
+import { gameState } from './GameData.js';
 import { ensureHud } from './hudHelpers.js';
 
 export class GameScene extends Phaser.Scene {

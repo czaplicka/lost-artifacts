@@ -1,137 +1,169 @@
 {
   "bankerClues": {
-    "banter": [
-      "I trust numbers, detective. People are just badly formatted spreadsheets.",
-      "We offer three things here: security, discretion, and terrible coffee.",
-      "Most clients hide money. The interesting ones hide intent.",
-      "You can tell a lot about someone by how they sign documents and lie about why.",
-      "I’ve seen panic, greed, and love in this office. Only one of those pays interest.",
-      "People say money doesn’t buy happiness. It does, however, rent very good alibis.",
-      "When someone smiles too much in a bank, they’re either in love or in trouble. Usually the second."
-    ],
-    "repeatLines": [
-      [
-        "We already spoke, detective.",
-        "Unlike interest, my testimony does not improve with time."
-      ],
-      [
-        "Back again?",
-        "I still have no fresh data, only better posture and worse coffee."
-      ],
-      [
-        "I’ve already balanced this account for you.",
-        "No hidden assets, no hidden clues."
-      ],
-      [
-        "You already audited my memory.",
-        "It remains accurate and deeply unprofitable."
-      ],
-      [
-        "Still me, still a banker, still no new revelations.",
-        "It’s almost comforting."
-      ],
-      [
-        "I gave you the facts.",
-        "If you need suspense, try the stock market."
-      ],
-      [
-        "We’ve covered this transaction, detective.",
-        "At this point you're just reconciling the paperwork."
-      ],
-      [
-        "No new developments.",
-        "Unless someone has started laundering money through the lobby plants."
-      ],
-      [
-        "I told you everything useful the first time.",
-        "Efficiency is one of the few luxuries I still respect."
-      ],
-      [
-        "My statement has already matured to full value.",
-        "There is no bonus payout for asking twice."
-      ]
-    ],
-    "falseLeadLines": [
-      [
-        "Wrong city, detective.",
-        "A bold investment, but the return appears catastrophic."
-      ],
-      [
-        "You backed the wrong destination.",
-        "Even my most reckless clients diversify better than that."
-      ],
-      [
-        "That lead collapsed on arrival.",
-        "A pity. I almost admired the confidence."
-      ],
-      [
-        "The thief is elsewhere.",
-        "You, however, have successfully expanded the travel budget."
-      ],
-      [
-        "That was not the correct market.",
-        "You bought high, sold low, and landed nowhere useful."
-      ],
-      [
-        "A false lead, I’m afraid.",
-        "The numbers were against you from the start."
-      ],
-      [
-        "You chose the wrong city.",
-        "On paper it looked brave. In practice, merely expensive."
-      ],
-      [
-        "No suspect, no artifact, no progress.",
-        "I trust you at least collected frequent flyer miles."
-      ],
-      [
-        "That destination yielded nothing of value.",
-        "A sentence I normally reserve for crypto investments."
-      ],
-      [
-        "An unfortunate miscalculation, detective.",
-        "Fortunately, embarrassment is still tax-free."
-      ]
-    ],
-    "cityHints": {
-      "london": [
-        "Your traveler asked about a city where fog is a lifestyle and umbrellas are practically part of the dress code.",
-        "They wanted to know if the place with double-decker buses still drives on what they called ‘the wrong side of history’.",
-        "They mentioned a river crossed by too many postcards and guards who refuse to smile on principle."
-      ],
-      "paris": [
-        "They kept asking about a city that worships butter, baguettes, and an iron tower everyone mistakes for romance.",
-        "They said they preferred places where the word ‘bonjour’ can mean hello, goodbye, and ‘I’m judging your outfit’.",
-        "They mentioned a city of narrow streets, long lunches, and strikes so regular you could set your watch by them."
-      ],
-      "berlin": [
-        "Your suspect asked whether the city that once argued with a wall still sells pieces of it to tourists.",
-        "They said they were heading somewhere with serious museums by day and questionable techno by night.",
-        "They wanted to know if the gate named after a novelist’s favorite brand of toothpaste still attracts crowds. I assume they meant the famous one."
-      ],
-      "new_york_city": [
-        "They wondered if the place with yellow taxis, impatient horns, and towering glass ego monuments ever actually sleeps.",
-        "They asked whether the city with a torch-bearing statue welcomes more tourists or more bad decisions.",
-        "They mentioned a skyline so crowded with skyscrapers that even the pigeons need career plans."
-      ],
-      "warsaw": [
-        "Your client was curious about a capital guarded by a mermaid and a river that has seen more history than most textbooks.",
-        "They asked if the city with a royal castle on a hill still argues about which pierogi are the ‘real’ ones.",
-        "They mentioned a place where old stone, new glass, and stubborn optimism all share the same tram lines."
-      ],
-      "new_delhi": [
-        "They wanted to know about a capital where traffic negotiates directly with fate and horns are a form of small talk.",
-        "They said they were craving a city of chai, crowded bazaars, and colors bright enough to wake the guilty and the jet-lagged.",
-        "They asked if it’s true that in this place, even the air smells like spices, stories, and slightly burned secrets."
-      ]
-    },
     "locationVariants": {
       "london": {
         "banter": [
           "London money prefers understatement. Even panic here tries to sound well educated.",
           "In this city, people apologize when they step on your foot and when they ruin your pension.",
-          "The suits are excellent, the weather is criminal, and everyone pretends both are acceptable."
+          "The suits are excellent, the weather is criminal, and everyone pretends both are acceptable.",
+          "Good day, gov'ner.",
+          "Bloody typical, isn't it? They were here, sharp as a tack, looking for a way to hide their trail."
         ],
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, neat and deliberate, the sort London forgives only when it's expensive."
+            ],
+            "Brown": [
+              "Brown hair, forgettable by design. A useful quality in this line of work."
+            ],
+            "Blonde": [
+              "Blonde hair, bright enough to stand out even against London’s fog and grey suits."
+            ],
+            "Red": [
+              "Red hair, the kind you remember even after a long day balancing other people’s mistakes."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, cold enough to pass for professionalism in this city."
+            ],
+            "Brown": [
+              "Brown eyes, steady and unreadable. London teaches that kind of gaze."
+            ],
+            "Green": [
+              "Green eyes, sharper than the questions they pretended not to ask."
+            ],
+            "Hazel": [
+              "Hazel eyes, moving quickly, like someone tracking exits rather than interest rates."
+            ]
+          },
+          "features": {
+            "Big forehead": [
+              "A broad forehead, the sort you see on people who think too much and say too little."
+            ],
+            "Tattoo": [
+              "There was a tattoo, though they carried it like confidential information."
+            ],
+            "Rainbow hair streak": [
+              "A rainbow streak in their hair. Unusual in this office, though not in this city."
+            ],
+            "Necklace": [
+              "They wore a necklace that looked sentimental and inconvenient for someone in a hurry."
+            ],
+            "Scar": [
+              "A visible scar. People with those usually have stories they don’t put on forms."
+            ],
+            "Moustache": [
+              "A carefully kept moustache, more traditional than most of our investments."
+            ],
+            "Glasses": [
+              "Glasses, but the way they watched the room suggested they missed very little."
+            ],
+            "Beard": [
+              "A beard, tidy enough to pass compliance, scruffy enough to suggest late nights."
+            ],
+            "Earrings": [
+              "Subtle earrings, chosen to be noticed only by people paid to observe."
+            ],
+            "Goatee": [
+              "A neat goatee, trying a bit too hard not to look like a disguise."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "A Canadian accent in London stands out less than you'd think, but I still noticed the caution in it."
+            ],
+            "Mexican": [
+              "A Mexican accent, warm on the surface, but their questions were anything but casual."
+            ],
+            "Australian": [
+              "An Australian accent, trying to sound relaxed while their eyes did the opposite."
+            ],
+            "American": [
+              "An American accent, confident and loud enough to treat the bank like a stage."
+            ],
+            "Dutch": [
+              "A Dutch accent, precise and economical, just like their paperwork."
+            ],
+            "British": [
+              "A British accent, polished and carefully neutral. Too neutral, if you ask me."
+            ],
+            "German": [
+              "A German accent, clipped and efficient, like most of the signatures that come with it."
+            ],
+            "Polish": [
+              "A Polish accent, steady, like someone who’s had to argue with systems before."
+            ],
+            "Spanish": [
+              "A Spanish accent, melodic enough to distract from the sharpness of their questions."
+            ],
+            "Belarussian": [
+              "A Belarussian accent, soft but guarded. The sort that travels with more secrets than luggage."
+            ],
+            "Russian": [
+              "A Russian accent, measured and careful, like someone very used to closed doors."
+            ],
+            "Italian": [
+              "An Italian accent, charming on the surface, with calculations underneath."
+            ],
+            "Irish": [
+              "An Irish accent, full of stories, though they offered remarkably few details."
+            ]
+          },
+          "skills": {
+            "Lockpicking": [
+              "Their hands moved with the confidence of someone familiar with locks and other people's boundaries."
+            ],
+            "Disguise": [
+              "There was something rehearsed about their posture. People who wear masks rarely take them off in banks."
+            ],
+            "Stealth": [
+              "They slipped through the lobby like a shadow that had read our security procedures."
+            ],
+            "Languages": [
+              "They switched languages smoothly. Useful for travel, more useful for misdirection."
+            ],
+            "Negotiation": [
+              "Their questions sounded like negotiations, even when they were supposedly just chatting."
+            ],
+            "Intimidation": [
+              "They had a way of looking at signatures that made people rethink their life choices."
+            ],
+            "Hacking": [
+              "They asked too much about our systems for someone claiming to be a casual client."
+            ],
+            "Electronics": [
+              "They noticed every camera and cable before they noticed the coffee machine."
+            ],
+            "Surveillance": [
+              "Their attention drifted more to the room than to their account. Old habit, I suspect."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "They smelled faintly of smoke, the sort that lingers longer than honesty."
+            ],
+            "Drinking": [
+              "There was a hint of last night still clinging to them. Some clients bring their habits along with their money."
+            ],
+            "Gambling": [
+              "They looked at risk disclosures the way gamblers look at odds tables."
+            ],
+            "Reading": [
+              "They handled documents like someone who reads more than they speak."
+            ],
+            "Gaming": [
+              "They treated the waiting line like a puzzle to be solved, not endured."
+            ],
+            "Coding": [
+              "Their questions about our systems sounded more like a code review than casual curiosity."
+            ],
+            "Watching movies": [
+              "They made a passing joke about heist films that felt more like experience than entertainment."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "We already spoke, detective.",
@@ -161,12 +193,39 @@
           ]
         ]
       },
+
       "paris": {
         "banter": [
           "Paris clients pretend money is vulgar, then request the expensive chair.",
           "In this city, even financial anxiety arrives elegantly dressed.",
-          "People here judge your shoes, your accent, and your investment strategy, not always in that order."
+          "People here judge your shoes, your accent, and your investment strategy, not always in that order.",
+          "Bonjour.",
+          "Mon Dieu, such a rush! They didn't even enjoy their coffee. They left before the croissant was finished."
         ],
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled as if the meeting were a runway rather than a bank appointment."
+            ],
+            "Brown": [
+              "Brown hair, nothing remarkable—until you notice how deliberately unremarkable it is."
+            ],
+            "Blonde": [
+              "Blonde hair, too perfectly arranged to be accidental in a city like this."
+            ],
+            "Red": [
+              "Red hair, like a declaration that they believed themselves unforgettable."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo, discreet but artfully placed. Very Parisian, very deliberate."
+            ],
+            "Earrings": [
+              "Earrings that matched the rest of their style: polished, intentional, never quite casual."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "We already spoke, detective.",
@@ -196,12 +255,27 @@
           ]
         ]
       },
+
       "berlin": {
         "banter": [
           "Berlin money likes to look casual while making very serious demands.",
           "People here distrust glamour, adore systems, and still find time for all-night poor decisions.",
-          "I appreciate a city where efficiency and eccentricity glare at each other across the same street."
+          "I appreciate a city where efficiency and eccentricity glare at each other across the same street.",
+          "Guten Tag.",
+          "They were very precise. Every document, every stamp—perfect. Almost too perfect, don't you think?"
         ],
+        "suspectCluePool": {
+          "features": {
+            "Scar": [
+              "A scar, declared but not discussed. In Berlin, that usually means history and trouble."
+            ]
+          },
+          "skills": {
+            "Hacking": [
+              "Their curiosity about our digital infrastructure bordered on professional interest."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "We already covered this, detective.",
@@ -231,12 +305,22 @@
           ]
         ]
       },
+
       "new_york_city": {
         "banter": [
           "In New York, everyone is in a hurry, including the lies.",
           "This city treats ambition like caffeine: too much is normal, and sleep is for amateurs.",
-          "People here enter a bank as if they’re pitching a sequel to themselves."
+          "People here enter a bank as if they’re pitching a sequel to themselves.",
+          "Hey, buddy.",
+          "Listen, they were in a serious hurry, like they had a cab waiting. They didn't have time for small talk."
         ],
+        "suspectCluePool": {
+          "habitus": {
+            "Drinking": [
+              "They smelled faintly of last night’s decisions. Not unusual here, but noticeable."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "Yeah, we talked already, detective.",
@@ -266,12 +350,27 @@
           ]
         ]
       },
+
       "warsaw": {
         "banter": [
           "In Warsaw, people don’t waste words, and they certainly don’t waste surviving.",
           "Clients here appreciate caution, competence, and interest rates that don’t insult their ancestors.",
-          "This city remembers how often history breaks things and how stubbornly people rebuild them anyway."
+          "This city remembers how often history breaks things and how stubbornly people rebuild them anyway.",
+          "Dzień dobry.",
+          "Listen, yeah, that type was here yesterday. Looked like someone who knows what's what, but doesn't want to be seen."
         ],
+        "suspectCluePool": {
+          "accent": {
+            "Polish": [
+              "A Polish accent, grounded and unhurried. They knew how to speak without revealing too much."
+            ]
+          },
+          "features": {
+            "Beard": [
+              "A beard, quite common here, though theirs felt more like a deliberate disguise than fashion."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "We already talked, detective.",
@@ -293,7 +392,7 @@
           ],
           [
             "You followed the wrong lead, detective.",
-            "At least now you know where not to be."
+            "At least now you know gdzie nie być."
           ],
           [
             "The suspect isn't here.",
@@ -301,12 +400,22 @@
           ]
         ]
       },
+
       "new_delhi": {
         "banter": [
           "In New Delhi, even a quiet transaction has three interruptions, two opinions, and excellent tea nearby.",
           "Markets move fast here, but rumors still manage to outrun them.",
-          "This city can negotiate traffic, temperature, and destiny before lunch."
+          "This city can negotiate traffic, temperature, and destiny before lunch.",
+          "Namaste.",
+          "They were asking about the currency exchange rates very aggressively. A strange customer indeed."
         ],
+        "suspectCluePool": {
+          "habitus": {
+            "Smoking": [
+              "Even over the smell of chai and traffic, I could tell they carried smoke with them."
+            ]
+          }
+        },
         "repeatLines": [
           [
             "We already spoke, detective.",

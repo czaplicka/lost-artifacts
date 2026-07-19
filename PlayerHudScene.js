@@ -1,4 +1,4 @@
-import { gameState } from './gamedata.js';
+import { gameState } from './GameData.js';
 import { PlayerMenuUI } from './ui/PlayerMenuUI.js';
 import { CaseFileUI } from './ui/CaseFileUI.js';
 import { NotesUI } from './ui/NotesUI.js';

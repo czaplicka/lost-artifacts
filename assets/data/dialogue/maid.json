@@ -1,341 +1,685 @@
 {
-"maidClues": {
-  "banter": [
-    "Guests think fresh sheets erase their sins. I just file them under ‘laundry’.",
-    "I see everything people drop, hide, and forget. Especially the things they swear they never had.",
-    "Some guests leave tips. Others leave evidence. I prefer the second; it’s more interesting.",
-    "Pillows don’t talk, detective, but the things under them practically scream.",
-    "I judge guests by how they treat towels. Criminals fold theirs too neatly.",
-    "Cleaning rooms is like reading diaries nobody meant to publish.",
-    "If dust could testify, half this hotel would already be in handcuffs."
-  ],
-  "repeatLines": [
-    [
-      "We already spoke, detective.",
-      "The room has changed. The facts have not."
-    ],
-    [
-      "Back again?",
-      "I’m afraid the pillows still refuse to confess anything new."
-    ],
-    [
-      "I already gave you what I found.",
-      "Unless you’d like a separate report on suspicious towel behavior."
-    ],
-    [
-      "No new clues, detective.",
-      "Only cleaner sheets and the same disappointing humanity."
-    ],
-    [
-      "We've covered this room already.",
-      "Very thoroughly, by hotel standards."
-    ],
-    [
-      "Still nothing new.",
-      "Evidence is elusive. Dust, on the other hand, is loyal."
-    ],
-    [
-      "You already searched my memory.",
-      "It was tidier than most guest luggage."
-    ],
-    [
-      "I told you everything useful.",
-      "The rest would only damage my opinion of the species."
-    ],
-    [
-      "No fresh evidence.",
-      "If someone hid another secret here, they did it after checkout."
-    ],
-    [
-      "Same witness, same room, same story.",
-      "At least housekeeping believes in consistency."
-    ]
-  ],
-  "falseLeadLines": [
-    [
-      "Wrong city, detective.",
-      "You changed hotels, but not your luck."
-    ],
-    [
-      "That lead was false.",
-      "Very polished, very confident, and completely useless."
-    ],
-    [
-      "The suspect isn’t there.",
-      "You’ve managed to check into disappointment again."
-    ],
-    [
-      "No thief, no artifact, no progress.",
-      "A tidy failure, but a failure all the same."
-    ],
-    [
-      "You followed the wrong trail.",
-      "I’ve seen guests with better direction in the dark."
-    ],
-    [
-      "That was the wrong destination.",
-      "At least wasted travel leaves fewer stains than wasted wine."
-    ],
-    [
-      "The trail went cold before you arrived.",
-      "Story of most late check-ins, honestly."
-    ],
-    [
-      "An unfortunate detour, detective.",
-      "Elegant in theory, wrinkled in practice."
-    ],
-    [
-      "You won’t find your suspect there.",
-      "Only fresh linens and old regret."
-    ],
-    [
-      "A false lead.",
-      "I’d call it a mess, but even messes usually reveal something."
-    ]
-  ],
-  "cityHints": {
-    "london": [
-      "Your suspect left muddy footprints and a guidebook with dog-eared pages about fog, royal parades, and buses with a second floor.",
-      "I found a receipt for tea strong enough to revive the dead and a note about a river lined with stern-looking palaces.",
-      "They practiced saying ‘cheers’ in the mirror, like they were rehearsing for a pub that has opinions about warm beer."
-    ],
-    "paris": [
-      "They hid a half-eaten baguette in the wardrobe and a brochure with an iron tower on every page.",
-      "I picked up crumbs from croissants and collected sighs about ‘the city of light’ as if it personally broke their heart.",
-      "Their suitcase smelled of perfume and cheese, and they underlined every mention of long lunches and short working weeks."
-    ],
-    "berlin": [
-      "Your guest scribbled notes about a city that turned old bricks and cold history into street art and late-night clubs.",
-      "Under the bed I found a ticket stub with a sketch of a gate and a very dramatic comment about ‘the wall coming down’.",
-      "They left a playlist titled ‘industrial nostalgia’ and a map full of arrows pointing to museums and basements with loud music."
-    ],
-    "new_york_city": [
-      "The suitcase was full of postcards with skyscrapers and a statue holding a torch like she’s moderating a very intense meeting.",
-      "I found a napkin from a place that sells pizza by the slice and pride by the attitude.",
-      "They complained about noise in the hallway, then highlighted a travel article calling it ‘the city that never sleeps’. Hypocrite."
-    ],
-    "warsaw": [
-      "Your suspect left a keychain shaped like a mermaid and a note about a castle watching over a stubborn river.",
-      "I found tram tickets, a crumpled map of an old town rebuilt like it refused to stay broken, and a list of pierogi flavors.",
-      "They circled a riverside area and wrote ‘Vistula walk?’ with a question mark that looked more like an alibi than a date."
-    ],
-    "new_delhi": [
-      "The room smelled faintly of spices, as if their clothes had been hugging a bazaar for weeks.",
-      "I shook out the bedsheets and half a desert of dust fell out, plus a leaflet about chai and crowded markets.",
-      "They left earplugs on the nightstand and a note wondering if any city can be that loud and that alive at the same time."
-    ]
-  },
-  "locationVariants": {
-    "london": {
-      "banter": [
-        "London guests track in rain, restraint, and occasionally mud from somewhere historically important.",
-        "The towels here dry slowly, the tea brews strongly, and everyone behaves as if both are moral virtues.",
-        "Even the messes in London try to look respectable."
-      ],
-      "repeatLines": [
-        [
-          "We already spoke, detective.",
-          "The room is still damp, polite, and free of new revelations."
+  "maidClues": {
+    "locationVariants": {
+      "london": {
+        "banter": [
+          "London guests track in rain, restraint, and occasionally mud from somewhere historically important.",
+          "The towels here dry slowly, the tea brews strongly, and everyone behaves as if both are moral virtues.",
+          "Even the messes in London try to look respectable."
         ],
-        [
-          "Back again?",
-          "I’m afraid the evidence has chosen the British approach and remained reserved."
+        "travelHints": {
+          "london": [
+            "Your suspect left muddy footprints and a guidebook with dog-eared pages about fog, royal parades, and buses with a second floor.",
+            "I found a receipt for tea strong enough to revive the dead and a note about a river lined with stern-looking palaces.",
+            "They practiced saying 'cheers' in the mirror, like they were rehearsing for a pub that has opinions about warm beer."
+          ],
+          "paris": [
+            "They hid a half-eaten baguette in the wardrobe and a brochure with an iron tower on every page.",
+            "I picked up crumbs from croissants and collected sighs about the city of light as if it personally broke their heart.",
+            "Their suitcase smelled of perfume and cheese, and they underlined every mention of long lunches and narrow streets."
+          ],
+          "berlin": [
+            "Your guest scribbled notes about a city that turned old bricks and cold history into street art and late-night clubs.",
+            "Under the bed I found a ticket stub with a sketch of a gate and a dramatic comment about the wall coming down.",
+            "They left a playlist titled industrial nostalgia and a map full of arrows pointing to museums and basements with loud music."
+          ],
+          "new_york_city": [
+            "The suitcase was full of postcards with skyscrapers and a statue holding a torch like she’s moderating a very intense meeting.",
+            "I found a napkin from a place that sells pizza by the slice and pride by the attitude.",
+            "They complained about noise in the hallway, then highlighted a travel article calling it the city that never sleeps. Hypocrite."
+          ],
+          "warsaw": [
+            "Your suspect left a keychain shaped like a mermaid and a note about a castle watching over a stubborn river.",
+            "I found tram tickets, a crumpled map of an old town rebuilt like it refused to stay broken, and a list of pierogi flavors.",
+            "They circled a riverside area and wrote 'Vistula walk?' with a question mark that looked more like an alibi than a date."
+          ],
+          "new_delhi": [
+            "The room smelled faintly of spices, as if their clothes had been hugging a bazaar for weeks.",
+            "I shook out the bedsheets and half a desert of dust fell out, plus a leaflet about chai and crowded markets.",
+            "They left earplugs on the nightstand and a note wondering if any city can be that loud and that alive at the same time."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, neat enough to suggest planning, not vanity."
+            ],
+            "Brown": [
+              "Brown hair, ordinary at first glance, which is exactly how some people prefer it."
+            ],
+            "Blonde": [
+              "Blonde hair, impossible to miss against London’s grey mood."
+            ],
+            "Red": [
+              "Red hair. Very memorable, even after a long shift."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, cool and careful, the sort that check mirrors before doors."
+            ],
+            "Brown": [
+              "Brown eyes, steady and unreadable. I distrust that in hotel guests."
+            ],
+            "Green": [
+              "Green eyes, quick enough to inventory a room before I finished opening the curtains."
+            ],
+            "Hazel": [
+              "Hazel eyes, restless like someone always timing the exit."
+            ]
+          },
+          "features": {
+            "Big forehead": [
+              "A broad forehead and the expression of someone thinking three lies ahead."
+            ],
+            "Tattoo": [
+              "There was a tattoo, mostly hidden, which of course made it more noticeable."
+            ],
+            "Rainbow hair streak": [
+              "A streak of color in the hair. Hard to miss, even among expensive luggage."
+            ],
+            "Necklace": [
+              "They wore a necklace that looked personal, not decorative."
+            ],
+            "Scar": [
+              "A scar, old enough to have history and recent enough to still matter."
+            ],
+            "Moustache": [
+              "A moustache too deliberate to be accidental."
+            ],
+            "Glasses": [
+              "Glasses, but they watched the room like someone who rarely misses details."
+            ],
+            "Beard": [
+              "A beard, well-kept, though not enough to soften the rest of them."
+            ],
+            "Long hair": [
+              "Long hair, controlled rather than loose. Everything about them looked managed."
+            ],
+            "Earrings": [
+              "Earrings, subtle but expensive-looking."
+            ],
+            "Goatee": [
+              "A goatee. It tried very hard to look unplanned."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "A Canadian accent, polite in shape, careful in intent."
+            ],
+            "Mexican": [
+              "A Mexican accent, warm enough to lower suspicion if you weren’t listening properly."
+            ],
+            "Australian": [
+              "An Australian accent, casual tone, alert posture."
+            ],
+            "American": [
+              "An American accent, confident enough to act like the room belonged to them."
+            ],
+            "Dutch": [
+              "A Dutch accent, tidy and efficient, much like the way they packed."
+            ],
+            "British": [
+              "A British accent, local enough to blend and polished enough to bother me."
+            ],
+            "German": [
+              "A German accent, clipped, efficient, difficult to interrupt."
+            ],
+            "Polish": [
+              "A Polish accent, grounded and direct, with very little wasted in it."
+            ],
+            "Spanish": [
+              "A Spanish accent, melodic on the surface and all business underneath."
+            ],
+            "Belarussian": [
+              "A Belarussian accent, soft voice, guarded manner."
+            ],
+            "Russian": [
+              "A Russian accent, measured enough to sound pre-edited."
+            ],
+            "Italian": [
+              "An Italian accent, charming in the way locked drawers are charming before they’re opened."
+            ],
+            "Irish": [
+              "An Irish accent, pleasant enough to hide intention if you let it."
+            ],
+            "French": [
+              "A French accent, polished and entirely aware of itself."
+            ],
+            "Belgian": [
+              "A Belgian accent, subtle enough that most guests would miss it. I didn’t."
+            ]
+          },
+          "skills": {
+            "Lockpicking": [
+              "They handled keys with too much familiarity for an ordinary guest."
+            ],
+            "Disguise": [
+              "Something about them felt prepared, like even their tiredness had been selected carefully."
+            ],
+            "Stealth": [
+              "They moved through the corridor quietly, not politely. Quietly."
+            ],
+            "Languages": [
+              "They switched languages mid-sentence like changing gloves."
+            ],
+            "Negotiation": [
+              "Even their requests sounded like bargaining positions."
+            ],
+            "Intimidation": [
+              "They never raised their voice. They didn’t need to."
+            ],
+            "Hacking": [
+              "They asked too many questions about the hotel Wi-Fi and security terminals."
+            ],
+            "Electronics": [
+              "They noticed outlets, locks and camera angles before they noticed the flowers."
+            ],
+            "Surveillance": [
+              "They kept checking reflections in the window and mirror, not out of vanity."
+            ],
+            "Forgery": [
+              "They handled paper like someone who has improved official truth before."
+            ],
+            "Art history": [
+              "They glanced at the framed prints like they knew what had been stolen from better walls."
+            ],
+            "Research": [
+              "Nothing they asked sounded casual. It all felt preselected."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "The room carried a faint smoke note long after they’d gone."
+            ],
+            "Drinking": [
+              "There was the stale trace of last night in the glasses and in their posture."
+            ],
+            "Gambling": [
+              "They looked at risk the way some guests look at room service menus."
+            ],
+            "Reading": [
+              "They left books open face-down, which I judge, but it did tell me something."
+            ],
+            "Traveling": [
+              "They packed lightly but like someone accustomed to leaving quickly."
+            ],
+            "Collecting": [
+              "They examined small objects the way collectors do, lovingly and suspiciously."
+            ],
+            "Painting": [
+              "They noticed color and texture before comfort."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "The room is still damp, polite, and free of new revelations."
+          ],
+          [
+            "Back again?",
+            "I’m afraid the evidence has chosen the British approach and remained reserved."
+          ],
+          [
+            "Nothing new to report.",
+            "Only the same clues wearing a slightly greyer sky."
+          ]
         ],
-        [
-          "Nothing new to report.",
-          "Only the same clues wearing a slightly greyer sky."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "A very orderly mistake, but a mistake nonetheless."
+          ],
+          [
+            "That lead has gone quite cold.",
+            "Almost local weather, really."
+          ],
+          [
+            "The suspect is elsewhere.",
+            "All you found here was drizzle and disappointment."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "A very orderly mistake, but a mistake nonetheless."
+      },
+
+      "paris": {
+        "banter": [
+          "Paris guests leave lipstick on cups, perfume on curtains, and opinions on absolutely everything.",
+          "In this city, even forgotten scarves look intentional.",
+          "French hotel rooms contain equal amounts of elegance, drama, and crumbs."
         ],
-        [
-          "That lead has gone quite cold.",
-          "Almost local weather, really."
+        "travelHints": {
+          "london": [
+            "Your suspect left muddy prints, a folded umbrella and notes about tea, fog and buses with a second floor.",
+            "I found a brochure with royal guards, river views and the sort of weather that ruins silk.",
+            "They kept practicing dry British politeness in the mirror. Poorly."
+          ],
+          "paris": [
+            "They hid a half-eaten baguette in the wardrobe and a brochure with an iron tower on every page.",
+            "I picked up crumbs from croissants and collected sighs about the city of light as if it personally broke their heart.",
+            "Their suitcase smelled of perfume and cheese, and they underlined every mention of long lunches and short tempers."
+          ],
+          "berlin": [
+            "Your guest left museum tickets, black clothes and a note about a city that prefers concrete to charm.",
+            "I found a map marked with galleries, clubs and one dramatic arrow toward a famous gate.",
+            "They packed for cold nights, loud basements and morally ambiguous dancing."
+          ],
+          "new_york_city": [
+            "The room was full of postcards with skyscrapers and folded receipts from places that sell coffee like a threat.",
+            "I found a note about yellow cabs, impossible rent and a skyline with no respect for modesty.",
+            "They called it the city that never sleeps and then complained about the hallway noise."
+          ],
+          "warsaw": [
+            "I found a tram ticket, a little mermaid keychain and a note about a city rebuilt out of stubbornness.",
+            "They had marked riverside walks, old-town streets and a suspicious number of pierogi places.",
+            "Their guidebook opened naturally to pages about Warsaw, which is rarely an accident."
+          ],
+          "new_delhi": [
+            "The air around their suitcase smelled faintly of spice, dust and airports.",
+            "I shook out a leaflet about chai, bazaars and traffic that sounds like an argument with fate.",
+            "They left earplugs beside a note asking whether any city can be that loud and still feel alive."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled as if witnesses were part of the itinerary."
+            ],
+            "Brown": [
+              "Brown hair, understated, but very intentionally so."
+            ],
+            "Blonde": [
+              "Blonde hair, too composed to be accidental."
+            ],
+            "Red": [
+              "Red hair, dramatic even by local standards."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo, discreetly placed and therefore obviously important."
+            ],
+            "Earrings": [
+              "Earrings that matched the rest of them: elegant, expensive-looking and not remotely accidental."
+            ],
+            "Glasses": [
+              "Glasses, sharp frames, sharper attention."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "The room is still chic, chaotic, and innocent of new clues."
+          ],
+          [
+            "Back so soon?",
+            "I can offer atmosphere, but not additional evidence."
+          ],
+          [
+            "No fresh discoveries.",
+            "Only the same facts, now arranged more attractively."
+          ]
         ],
-        [
-          "The suspect is elsewhere.",
-          "All you found here was drizzle and disappointment."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Beautiful error. Still an error."
+          ],
+          [
+            "That lead was false, detective.",
+            "At least it failed with style."
+          ],
+          [
+            "The suspect isn’t here.",
+            "What you found instead was perfume, posture, and wasted time."
+          ]
         ]
-      ]
-    },
-    "paris": {
-      "banter": [
-        "Paris guests leave lipstick on cups, perfume on curtains, and opinions on absolutely everything.",
-        "In this city, even forgotten scarves look intentional.",
-        "French hotel rooms contain equal amounts of elegance, drama, and crumbs."
-      ],
-      "repeatLines": [
-        [
-          "We already talked, detective.",
-          "The room is still chic, chaotic, and innocent of new clues."
+      },
+
+      "berlin": {
+        "banter": [
+          "Berlin guests unpack black clothes, strong opinions, and very confusing nightlife schedules.",
+          "Some rooms smell like museum brochures. Others smell like bass speakers and regrettable certainty.",
+          "This city has a talent for making concrete feel philosophical."
         ],
-        [
-          "Back so soon?",
-          "I can offer atmosphere, but not additional evidence."
+        "travelHints": {
+          "london": [
+            "They packed for rain, restraint and a city that turns umbrellas into moral accessories.",
+            "I found notes about fog, tea and a river lined with institutions and opinions.",
+            "Their suitcase contained polished shoes and the sort of coat people wear in London when they want to look innocent."
+          ],
+          "paris": [
+            "There was perfume in the scarf, pastry flakes in the pocket and a brochure featuring an iron tower.",
+            "I found notes about cafés, narrow streets and lunch schedules that appear to ignore capitalism.",
+            "They had underlined passages about Paris with more feeling than I trust."
+          ],
+          "berlin": [
+            "Your guest left a map marked with clubs, galleries and arrows toward historical scars turned sightseeing.",
+            "I found a playlist titled industrial nostalgia and a ticket stub with a gate on it.",
+            "Their notes suggested a city built from memory, concrete and sleep deprivation."
+          ],
+          "new_york_city": [
+            "The suitcase held takeaway menus, skyline postcards and receipts expensive enough to be from New York.",
+            "I found scribbles about yellow cabs, steam rising from grates and people moving like deadlines have teeth.",
+            "They complained about the minibar prices and then circled Manhattan on a map."
+          ],
+          "warsaw": [
+            "There was a guidebook open to a rebuilt old town and a note about a river watched by a mermaid.",
+            "I found tram tickets, practical shoes and a list of museums and dumpling places.",
+            "They wrote Warsaw as if the city itself were a correction."
+          ],
+          "new_delhi": [
+            "Dust in the suitcase seams, spice in the fabric and a leaflet folded around market recommendations.",
+            "I found a note about heat, horns, chai and the kind of traffic that makes prayer seem practical.",
+            "They packed light clothes, earplugs and more curiosity than caution."
+          ]
+        },
+        "suspectCluePool": {
+          "skills": {
+            "Hacking": [
+              "They paid more attention to terminals and networks than to the minibar."
+            ],
+            "Electronics": [
+              "They noticed sockets, wiring and weak points before they noticed the view."
+            ],
+            "Surveillance": [
+              "They kept checking mirror angles and corridor reflections. Not vanity, procedure."
+            ]
+          },
+          "features": {
+            "Scar": [
+              "A scar, visible and unadvertised. In Berlin, that usually means a backstory and poor sleep."
+            ],
+            "Tattoo": [
+              "A tattoo, the kind that looked chosen in a serious mood."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already covered this room.",
+            "No new clues, no decorative nonsense."
+          ],
+          [
+            "Back again?",
+            "The evidence remains minimal and brutally honest."
+          ],
+          [
+            "Still nothing new.",
+            "The facts are plain, efficient, and unimpressed."
+          ]
         ],
-        [
-          "No fresh discoveries.",
-          "Only the same facts, now arranged more attractively."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Clear, direct, unfortunate."
+          ],
+          [
+            "That lead failed.",
+            "Efficiently, at least."
+          ],
+          [
+            "The suspect moved on.",
+            "You arrived prepared and still managed to be late."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Beautiful error. Still an error."
+      },
+
+      "new_york_city": {
+        "banter": [
+          "New York guests unpack as if they’re being timed and judged, usually by themselves.",
+          "The rooms here collect takeout boxes, ambition, and arguments from the hallway.",
+          "Everyone says they’re too busy to make a mess. Then I open the minibar area."
         ],
-        [
-          "That lead was false, detective.",
-          "At least it failed with style."
+        "travelHints": {
+          "london": [
+            "I found a damp umbrella, a guidebook full of royal buildings and a receipt for severe tea.",
+            "They had notes about buses with a second floor, black cabs and weather with a persecution complex.",
+            "Their suitcase suggested London: practical coats, polished shoes and emotional repression."
+          ],
+          "paris": [
+            "Perfume on the scarf, pastry flakes in the bed, brochure with a tower. Paris, obviously.",
+            "I found café receipts, museum tickets and complaints written in a surprisingly romantic tone.",
+            "They packed like someone expecting beauty and disappointment in equal measure."
+          ],
+          "berlin": [
+            "The room held black clothes, club stamps and a map with far too many arrows toward underground places.",
+            "I found notes about walls, museums and music loud enough to erase memory.",
+            "They seemed interested in Berlin’s history, nightlife and other forms of bad sleep."
+          ],
+          "new_york_city": [
+            "The suitcase was full of skyline postcards, takeout menus and the kind of receipts that only New York can justify.",
+            "I found a note calling this the city that never sleeps and another complaining about the elevators.",
+            "They packed for speed, noise and expensive coffee."
+          ],
+          "warsaw": [
+            "There was a mermaid keychain, a folded old-town map and a practical list of places to eat dumplings.",
+            "I found tram tickets and a note about a city rebuilt from ashes and impatience.",
+            "Their shoes were too sensible for Paris and too clean for Berlin. Warsaw fit better."
+          ],
+          "new_delhi": [
+            "Dust in the seams, spice in the clothes and earplugs by the lamp. That narrows cities down quickly.",
+            "I found a leaflet about bazaars, chai and traffic loud enough to become theology.",
+            "They wrote about New Delhi like it had exhausted and impressed them in equal measure."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Drinking": [
+              "There was a stale trace of last night in the glassware and in the way they moved."
+            ],
+            "Running": [
+              "They packed like someone accustomed to leaving in a hurry."
+            ],
+            "Working out": [
+              "Their movements were efficient, like discipline had already unpacked before they did."
+            ]
+          },
+          "accent": {
+            "American": [
+              "An American accent, but not New York. The city teaches your ear that difference."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "Yeah, we already talked, detective.",
+            "Still no new clue, but the hallway’s had three breakdowns since then."
+          ],
+          [
+            "Back again?",
+            "That’s commitment. Or insomnia. Very local either way."
+          ],
+          [
+            "No update.",
+            "This city never sleeps, but evidence apparently naps."
+          ]
         ],
-        [
-          "The suspect isn’t here.",
-          "What you found instead was perfume, posture, and wasted time."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Big move. Bad result."
+          ],
+          [
+            "That lead went nowhere.",
+            "Fast, loud, and completely nowhere."
+          ],
+          [
+            "No suspect here.",
+            "Just noise, steam, and expensive disappointment."
+          ]
         ]
-      ]
-    },
-    "berlin": {
-      "banter": [
-        "Berlin guests unpack black clothes, strong opinions, and very confusing nightlife schedules.",
-        "Some rooms smell like museum brochures. Others smell like bass speakers and regrettable certainty.",
-        "This city has a talent for making concrete feel philosophical."
-      ],
-      "repeatLines": [
-        [
-          "We already covered this room.",
-          "No new clues, no decorative nonsense."
+      },
+
+      "warsaw": {
+        "banter": [
+          "Warsaw guests don’t always unpack fully, as if history taught them to stay ready.",
+          "Here, practical shoes tell me more than expensive luggage ever could.",
+          "This city knows how to rebuild, but hotel carpets still lose every war against boots."
         ],
-        [
-          "Back again?",
-          "The evidence remains minimal and brutally honest."
+        "travelHints": {
+          "london": [
+            "I found a folded umbrella, a brochure with royal guards and notes about tea taken far too seriously.",
+            "Their luggage included a coat built for drizzle and manners.",
+            "They had underlined pages about London as if preparing for weather and judgment."
+          ],
+          "paris": [
+            "There were pastry crumbs, perfume traces and a brochure with an iron tower trying to look modest.",
+            "I found notes about cafés, museums and lunches longer than some relationships.",
+            "They packed for Paris with optimism I do not share."
+          ],
+          "berlin": [
+            "Black clothes, gallery tickets and a map marked with arrows toward underground clubs. Berlin announces itself.",
+            "I found notes about a wall, a gate and a nightlife schedule hostile to sleep.",
+            "Their suitcase smelled faintly of smoke, concrete and poor decisions."
+          ],
+          "new_york_city": [
+            "The room had takeout receipts, skyline postcards and one complaint about noise too hypocritical to ignore.",
+            "I found a note about yellow cabs, steam vents and coffee served with emotional aggression.",
+            "They packed for New York like someone expecting speed to compensate for rest."
+          ],
+          "warsaw": [
+            "Your suspect left tram tickets, an old-town map and a list of places near the river.",
+            "I found a mermaid keychain and sensible shoes dusted with local pavement.",
+            "They wrote about Warsaw like the city had earned their respect."
+          ],
+          "new_delhi": [
+            "The clothes carried spice, dust and the kind of travel fatigue heat leaves behind.",
+            "I found a folded leaflet about bazaars, chai and very ambitious traffic.",
+            "They’d left earplugs near the bed and a note asking whether any city can be that alive all at once."
+          ]
+        },
+        "suspectCluePool": {
+          "accent": {
+            "Polish": [
+              "A Polish accent, unshowy and solid, easy to trust if you weren’t paying attention."
+            ]
+          },
+          "features": {
+            "Beard": [
+              "A beard, common enough here, but theirs looked maintained with intent."
+            ],
+            "Necklace": [
+              "A necklace, small and personal-looking. People pack those carefully."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked.",
+            "No new clue appeared while I was changing the sheets."
+          ],
+          [
+            "Back again?",
+            "I still have the same facts and the same mop."
+          ],
+          [
+            "Nothing new.",
+            "If something had changed, I would have noticed."
+          ]
         ],
-        [
-          "Still nothing new.",
-          "The facts are plain, efficient, and unimpressed."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Not ideal, but now you know."
+          ],
+          [
+            "That was a false lead.",
+            "A waste, yes, but at least a clear one."
+          ],
+          [
+            "The suspect isn’t there.",
+            "Better to correct the mistake than decorate it."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Clear, direct, unfortunate."
+      },
+
+      "new_delhi": {
+        "banter": [
+          "In New Delhi, a hotel room can collect dust, perfume, spice, and three family opinions before noon.",
+          "The sheets here remember heat, hurry, and people who absolutely should have packed lighter.",
+          "This city gets into luggage the way music gets into walls: completely."
         ],
-        [
-          "That lead failed.",
-          "Efficiently, at least."
+        "travelHints": {
+          "london": [
+            "I found a damp coat, an umbrella and notes about tea, fog and orderly misery.",
+            "Their things suggested London: polished shoes, practical layers and emotional restraint.",
+            "There was a brochure with royal buildings and very stern guards tucked into the suitcase lining."
+          ],
+          "paris": [
+            "Perfume in the fabric, pastry flakes in the pockets and a brochure with a tower. Paris rarely whispers.",
+            "I found notes about cafés, museums and the sort of lunch schedule that terrifies hotel staff.",
+            "They packed as if elegance might excuse the chaos."
+          ],
+          "berlin": [
+            "Their bag held black clothes, a club flyer and a map with too many arrows pointing underground.",
+            "I found notes about walls, memorials and music loud enough to rearrange memory.",
+            "They seemed prepared for Berlin in the way some people prepare for weather and others for trouble."
+          ],
+          "new_york_city": [
+            "There were skyline postcards, takeaway receipts and one note complaining that nothing there is quiet, including the coffee.",
+            "I found references to yellow cabs, impossible rent and a city that treats sleep like a character flaw.",
+            "They packed for speed, noise and vertical ambition."
+          ],
+          "warsaw": [
+            "I found tram tickets, a little mermaid charm and notes about a river city rebuilt from damage.",
+            "Their luggage suggested Warsaw: practical shoes, folded maps and no patience for sentimentality.",
+            "There was a page marked with places along the Vistula and a list of dumpling stops."
+          ],
+          "new_delhi": [
+            "The room smelled of spice, dust and long travel, as if the city had unpacked before they did.",
+            "I shook out the sheets and found market leaflets, tea stains and the sort of dust that argues with housekeeping.",
+            "They left earplugs, a transit card and a note asking how a city can be this loud and this alive at once."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Smoking": [
+              "Even through spice and heat, the smoke clung to their clothes."
+            ],
+            "Traveling": [
+              "They carried long-distance fatigue neatly, which is harder than it sounds."
+            ]
+          },
+          "skills": {
+            "Negotiation": [
+              "They bargained with tone and posture before they used actual words."
+            ],
+            "Languages": [
+              "They moved between languages the way hotel staff move between crises."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already spoke, detective.",
+            "Nothing has changed except the temperature and my patience."
+          ],
+          [
+            "Back again?",
+            "I still have no new evidence, only more laundry."
+          ],
+          [
+            "No fresh clues.",
+            "Just the same facts, now lightly seasoned by the air."
+          ]
         ],
-        [
-          "The suspect moved on.",
-          "You arrived prepared and still managed to be late."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Bold choice. Useless result."
+          ],
+          [
+            "That lead went nowhere, detective.",
+            "Which is impressive in a place where everything usually goes everywhere at once."
+          ],
+          [
+            "The suspect is elsewhere.",
+            "You arrived with hope and left with extra dust."
+          ]
         ]
-      ]
-    },
-    "new_york_city": {
-      "banter": [
-        "New York guests unpack as if they’re being timed and judged, usually by themselves.",
-        "The rooms here collect takeout boxes, ambition, and arguments from the hallway.",
-        "Everyone says they’re too busy to make a mess. Then I open the minibar area."
-      ],
-      "repeatLines": [
-        [
-          "Yeah, we already talked, detective.",
-          "Still no new clue, but the hallway’s had three breakdowns since then."
-        ],
-        [
-          "Back again?",
-          "That’s commitment. Or insomnia. Very local either way."
-        ],
-        [
-          "No update.",
-          "This city never sleeps, but evidence apparently naps."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Big move. Bad result."
-        ],
-        [
-          "That lead went nowhere.",
-          "Fast, loud, and completely nowhere."
-        ],
-        [
-          "No suspect here.",
-          "Just noise, steam, and expensive disappointment."
-        ]
-      ]
-    },
-    "warsaw": {
-      "banter": [
-        "Warsaw guests don’t always unpack fully, as if history taught them to stay ready.",
-        "Here, practical shoes tell me more than expensive luggage ever could.",
-        "This city knows how to rebuild, but hotel carpets still lose every war against boots."
-      ],
-      "repeatLines": [
-        [
-          "We already talked.",
-          "No new clue appeared while I was changing the sheets."
-        ],
-        [
-          "Back again?",
-          "I still have the same facts and the same mop."
-        ],
-        [
-          "Nothing new.",
-          "If something had changed, I would have noticed."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Not ideal, but now you know."
-        ],
-        [
-          "That was a false lead.",
-          "A waste, yes, but at least a clear one."
-        ],
-        [
-          "The suspect isn’t there.",
-          "Better to correct the mistake than decorate it."
-        ]
-      ]
-    },
-    "new_delhi": {
-      "banter": [
-        "In New Delhi, a hotel room can collect dust, perfume, spice, and three family opinions before noon.",
-        "The sheets here remember heat, hurry, and people who absolutely should have packed lighter.",
-        "This city gets into luggage the way music gets into walls: completely."
-      ],
-      "repeatLines": [
-        [
-          "We already spoke, detective.",
-          "Nothing has changed except the temperature and my patience."
-        ],
-        [
-          "Back again?",
-          "I still have no new evidence, only more laundry."
-        ],
-        [
-          "No fresh clues.",
-          "Just the same facts, now lightly seasoned by the air."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Bold choice. Useless result."
-        ],
-        [
-          "That lead went nowhere, detective.",
-          "Which is impressive in a place where everything usually goes everywhere at once."
-        ],
-        [
-          "The suspect is elsewhere.",
-          "You arrived with hope and left with extra dust."
-        ]
-      ]
+      }
     }
   }
-}
 }

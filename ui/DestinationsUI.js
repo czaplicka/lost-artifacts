@@ -1,5 +1,5 @@
 import { advanceInvestigation } from '../gameSetup.js';
-import { saveGameState } from '../gamedata.js';
+import { saveGameState } from '../GameData.js';
 
 export class DestinationsUI {
     constructor(scene) {
@@ -128,92 +128,82 @@ export class DestinationsUI {
         });
     }
 
-    travelToCity(selectedCity) {
-        if (this.isTransitioning) return;
-        this.isTransitioning = true;
+travelToCity(selectedCity) {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
 
-        this.close();
+    this.close();
 
-        if (this.scene.closeAllUIPanels) {
-            this.scene.closeAllUIPanels();
-        }
-
-        const fromCity = this.gameState.currentCity;
-        const fromCityId = this.gameState.currentCityId;
-        const locationsData = this.scene.cache.json.get('locations') || [];
-
-        const selectedCityData = selectedCity?.id
-            ? locationsData.find(loc => loc.id === selectedCity.id)
-            : locationsData.find(loc => loc.city === selectedCity?.city);
-
-        if (!selectedCityData) {
-            console.error('Nie znaleziono danych miasta:', selectedCity);
-            this.isTransitioning = false;
-            return;
-        }
-
-        const selectedCityId = selectedCityData.id;
-        const selectedCityName = selectedCityData.city;
-        const wasCorrect = selectedCityId === this.gameState.nextTargetCityId;
-
-        if (!this.scene.scene.get('TravelTransitionScene')) {
-            console.error('TravelTransitionScene is not registered in game config.');
-            this.isTransitioning = false;
-            return;
-        }
-
-        this.registerTravel({
-            fromCity,
-            fromCityId,
-            toCity: selectedCityName,
-            toCityId: selectedCityId,
-            wasCorrect
-        });
-
-        if (wasCorrect) {
-            this.gameState.currentCity = selectedCityName;
-            this.gameState.currentCityId = selectedCityId;
-            this.gameState.currentCityData = selectedCityData;
-
-            if (!Array.isArray(this.gameState.visitedCities)) {
-                this.gameState.visitedCities = [];
-            }
-
-            if (!this.gameState.visitedCities.includes(selectedCityId)) {
-                this.gameState.visitedCities.push(selectedCityId);
-            }
-
-            const status = advanceInvestigation(locationsData);
-            saveGameState();
-
-            this.scene.scene.start('TravelTransitionScene', {
-                fromCity,
-                fromCityId,
-                toCity: selectedCityName,
-                toCityId: selectedCityId,
-                travelHours: 6,
-                wasCorrect: true,
-                status,
-                cityId: selectedCityId,
-                nextScene: 'CityScene'
-            });
-        } else {
-            this.gameState.score = Math.max(0, (this.gameState.score || 0) - 25);
-            saveGameState();
-
-            this.scene.scene.start('TravelTransitionScene', {
-                fromCity,
-                fromCityId,
-                toCity: selectedCityName,
-                toCityId: selectedCityId,
-                travelHours: 6,
-                wasCorrect: false,
-                status: 'FALSE_LEAD',
-                cityId: selectedCityId,
-                nextScene: 'GameScene'
-            });
-        }
+    if (this.scene.closeAllUIPanels) {
+        this.scene.closeAllUIPanels();
     }
+
+    const fromCity = this.gameState.currentCity;
+    const fromCityId = this.gameState.currentCityId;
+    const locationsData = this.scene.cache.json.get('locations') || [];
+
+    const selectedCityData = selectedCity?.id
+        ? locationsData.find(loc => loc.id === selectedCity.id)
+        : locationsData.find(loc => loc.city === selectedCity?.city);
+
+    if (!selectedCityData) {
+        console.error('Nie znaleziono danych miasta:', selectedCity);
+        this.isTransitioning = false;
+        return;
+    }
+
+    const selectedCityId = selectedCityData.id;
+    const selectedCityName = selectedCityData.city;
+    const wasCorrect = selectedCityId === this.gameState.nextTargetCityId;
+
+    if (!this.scene.scene.get('TravelTransitionScene')) {
+        console.error('TravelTransitionScene is not registered in game config.');
+        this.isTransitioning = false;
+        return;
+    }
+
+    this.registerTravel({
+        fromCity,
+        fromCityId,
+        toCity: selectedCityName,
+        toCityId: selectedCityId,
+        wasCorrect
+    });
+
+    this.gameState.currentCity = selectedCityName;
+    this.gameState.currentCityId = selectedCityId;
+    this.gameState.currentCityData = selectedCityData;
+
+    if (!Array.isArray(this.gameState.visitedCities)) {
+        this.gameState.visitedCities = [];
+    }
+
+    if (!this.gameState.visitedCities.includes(selectedCityId)) {
+        this.gameState.visitedCities.push(selectedCityId);
+    }
+
+    let status = 'FALSE_LEAD';
+
+    if (wasCorrect) {
+        status = advanceInvestigation(locationsData);
+    } else {
+        this.gameState.score = Math.max(0, (this.gameState.score || 0) - 25);
+    }
+
+    saveGameState();
+
+    this.scene.scene.start('TravelTransitionScene', {
+        fromCity,
+        fromCityId,
+        toCity: selectedCityName,
+        toCityId: selectedCityId,
+        travelHours: 6,
+        wasCorrect,
+        status,
+        cityId: selectedCityId,
+        nextScene: 'LocationScene'
+    });
+}
 
     registerTravel({ fromCity, fromCityId, toCity, toCityId, wasCorrect }) {
         if (!Array.isArray(this.gameState.travelHistory)) {

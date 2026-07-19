@@ -1,4 +1,4 @@
-import { gameState } from './gamedata.js';
+import { gameState } from './GameData.js';
 import { getDestinationPreviewData, travelToCity } from './gameSetup.js';
 
 export default class TravelScene extends Phaser.Scene {

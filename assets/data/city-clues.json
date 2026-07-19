@@ -1,0 +1,118 @@
+{
+  "cityClues": {
+    "london": {
+      "landmarks": [
+        "a clock tower that behaves like a national witness",
+        "double-decker buses rolling through drizzle",
+        "guards in ceremonial uniforms and impossible patience",
+        "a river crowded with bridges and old power",
+        "black cabs and wet pavement shining after rain"
+      ],
+      "mood": [
+        "formal on the surface, impatient underneath",
+        "rain, ceremony, and expensive silence",
+        "old institutions wrapped in grey weather"
+      ],
+      "travelHints": [
+        "They kept asking about a city where drizzle feels official and even the clock tower seems to judge people.",
+        "I heard talk of double-deckers, black cabs, and guards who stand still better than statues.",
+        "They seemed interested in a river city full of ceremony, wet pavement, and buildings that look older than forgiveness."
+      ]
+    },
+    "paris": {
+      "landmarks": [
+        "an iron lattice tower over a self-conscious skyline",
+        "bridges stretched over a slow river",
+        "cafés that treat sitting still like an art form",
+        "pastries that inspire unreasonable loyalty",
+        "boulevards built for walking and watching"
+      ],
+      "mood": [
+        "romantic at a distance, argumentative up close",
+        "butter, elegance, and curated impatience",
+        "beauty with opinions"
+      ],
+      "travelHints": [
+        "They were asking about a place of iron lattice, café terraces, and a river crossed by elegant bridges.",
+        "I caught hints about pastries, long lunches, and a skyline that treats beauty like civic duty.",
+        "They sounded bound for a city where even an argument can feel theatrical if the light is good enough."
+      ]
+    },
+    "berlin": {
+      "landmarks": [
+        "a broken wall that still divides memory",
+        "a severe gate standing in straight lines and silence",
+        "concrete memorials that refuse to let history soften",
+        "warehouse districts that wake up after dark",
+        "streets where old scars and modern neon coexist"
+      ],
+      "mood": [
+        "cold edges, warm nights",
+        "history pressed into concrete and bass",
+        "restless, direct, unsentimental"
+      ],
+      "travelHints": [
+        "They were asking about a city marked by a broken wall and a gate severe enough to judge you on sight.",
+        "I heard references to concrete memorials, straight avenues, and nightlife hidden behind unhelpful doors.",
+        "They seemed interested in a place where history weighs heavily by day and warehouse music takes over by night."
+      ]
+    },
+    "new_york_city": {
+      "landmarks": [
+        "a harbor watched by a woman with a torch",
+        "yellow taxis arguing with every intersection",
+        "a skyline of vertical ambition",
+        "steam rising from the streets below glass towers",
+        "bridges and avenues that never really sleep"
+      ],
+      "mood": [
+        "loud, vertical, impatient",
+        "reinvention with no inside voice",
+        "electric ambition and public exhaustion"
+      ],
+      "travelHints": [
+        "They talked about a skyline like jagged teeth, a harbor watched by a woman with a torch, and streets that never seem finished.",
+        "I heard clues about yellow taxis, steam grates, and avenues where everyone walks like time owes them money.",
+        "They sounded drawn to a city built upward, argued over constantly, and lit like it’s afraid of sleeping."
+      ]
+    },
+    "warsaw": {
+      "landmarks": [
+        "a mermaid standing guard over the city’s memory",
+        "an old town rebuilt from ruin and stubbornness",
+        "broad avenues shaped by history and survival",
+        "a river that keeps its own counsel",
+        "streets where reconstruction became identity"
+      ],
+      "mood": [
+        "wounded, rebuilt, unbowed",
+        "quiet resilience with a long memory",
+        "practical on the surface, defiant underneath"
+      ],
+      "travelHints": [
+        "They were asking about a capital watched over by a mermaid and rebuilt from memory more than once.",
+        "I heard hints of a river city where history was broken apart and then forced back into shape.",
+        "They seemed interested in a place whose old town had to be taught how to exist again."
+      ]
+    },
+    "new_delhi": {
+      "landmarks": [
+        "broad ceremonial avenues swallowed by traffic",
+        "old stone monuments surrounded by noise and heat",
+        "markets alive with spice, dust, and negotiation",
+        "roads where motion never fully becomes order",
+        "layers of empire, color, and exhaustion"
+      ],
+      "mood": [
+        "hot, crowded, relentless",
+        "ceremony colliding with chaos",
+        "noise, color, and constant forward motion"
+      ],
+      "travelHints": [
+        "They kept asking about a city of broad avenues, old stone, and traffic loud enough to outshout reason.",
+        "I heard references to spice in the air, heat that clings to you, and roads that behave like moving arguments.",
+        "He kept circling back to a city where the air smells of cardamom and exhaust, and an old war memorial gate becomes a river of people every evening."
+      ]
+    }
+  }
+}

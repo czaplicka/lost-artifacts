@@ -36,7 +36,7 @@ export class CaseFileUI {
         const closeHint = this.scene.add.text(700, -465, 'X', {
             fontFamily: 'PressStart2P',
             fontSize: '40px',
-            color: '#222222'
+            color: '#22222200'
         }).setInteractive({ useHandCursor: true });
 
         closeHint.on('pointerdown', (pointer, localX, localY, event) => {

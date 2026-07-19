@@ -1,244 +1,278 @@
-import { gameState, saveGameState } from './gamedata.js';
+import { gameState, saveGameState } from './GameData.js';
 import { buildNpcDialogue } from './dialogueBuilder.js';
 import { ensureHud } from './hudHelpers.js';
 
 const NPC_DIALOGUE_CACHE_MAP = {
-    bankier: 'dialogue_banker',
-    stewardessa: 'dialogue_stewardess',
-    maid: 'dialogue_maid',
-    police: 'dialogue_police',
-    bum: 'dialogue_bum',
-    parkingowy: 'dialogue_parkingowy'
+  bankier: 'dialogue_banker',
+  stewardessa: 'dialogue_stewardess',
+  maid: 'dialogue_maid',
+  police: 'dialogue_police',
+  bum: 'dialogue_bum',
+  parkingowy: 'dialogue_parkingowy'
 };
 
 const NPC_DIALOGUE_ROOT_MAP = {
-    bankier: 'bankerClues',
-    stewardessa: 'stewardessClues',
-    maid: 'maidClues',
-    police: 'policeClues',
-    bum: 'bumClues',
-    parkingowy: 'parkingowyClues'
+  bankier: 'bankerClues',
+  stewardessa: 'stewardessClues',
+  maid: 'maidClues',
+  police: 'policeClues',
+  bum: 'bumClues',
+  parkingowy: 'parkingowyClues'
 };
 
 export class LocationScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'LocationScene' });
-        this.lines = [];
-        this.currentLine = 0;
-        this.generatedNotes = [];
-        this.isRepeat = false;
-        this.isFinishing = false;
-        this.dialogueText = null;
+  constructor() {
+    super({ key: 'LocationScene' });
+    this.lines = [];
+    this.generatedNotes = [];
+    this.isRepeat = false;
+    this.isFinishing = false;
+    this.dialogueText = null;
+    this.cityId = null;
+    this.encounterId = null;
+    this.npcId = null;
+    this.locationId = null;
+  }
+
+  init(data = {}) {
+    this.cityId = data.cityId || null;
+    this.encounterId = data.encounterId || null;
+    this.npcId = data.npcId || null;
+    this.locationId = data.locationId || null;
+    this.isRepeat = Boolean(data.isRepeat);
+
+    this.lines = [];
+    this.generatedNotes = [];
+    this.isFinishing = false;
+    this.dialogueText = null;
+
+    if (!Array.isArray(gameState.cluesCollected)) {
+      gameState.cluesCollected = [];
     }
 
-    init(data = {}) {
-        this.cityId = data.cityId || null;
-        this.encounterId = data.encounterId || null;
-        this.npcId = data.npcId || null;
-        this.locationId = data.locationId || null;
-        this.isRepeat = Boolean(data.isRepeat);
-        this.isFinishing = false;
+    if (!Array.isArray(gameState.visitedEncounters)) {
+      gameState.visitedEncounters = [];
+    }
+  }
+
+  create() {
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.closeAllUIPanels) {
+      hud.closeAllUIPanels();
     }
 
-    create() {
-      const hud = this.scene.get('PlayerHudScene');
-if (hud?.closeAllUIPanels) {
-    hud.closeAllUIPanels();
-};
-        const width = this.scale.width;
-        const height = this.scale.height;
+    const width = this.scale.width;
+    const height = this.scale.height;
 
-        const suspects = this.cache.json.get('suspects') || [];
-        const locations = this.cache.json.get('locations') || [];
+    const suspects = this.cache.json.get('suspects') || [];
+    const locations = this.cache.json.get('locations') || [];
+    const sharedCityCluesFile = this.cache.json.get('city_clues') || {};
+    const sharedCityClues = sharedCityCluesFile.cityClues || {};
+    const sharedSuspectCluesFile = this.cache.json.get('suspect_clues') || {};
+    const sharedSuspectClues = sharedSuspectCluesFile.suspectClues || {};
 
-        const dialogueCacheKey = NPC_DIALOGUE_CACHE_MAP[this.npcId];
-        const dialogueRootKey = NPC_DIALOGUE_ROOT_MAP[this.npcId];
+    const dialogueCacheKey = NPC_DIALOGUE_CACHE_MAP[this.npcId];
+    const dialogueRootKey = NPC_DIALOGUE_ROOT_MAP[this.npcId];
 
-        const rawDialogueFile = dialogueCacheKey
-            ? this.cache.json.get(dialogueCacheKey)
-            : null;
+    const rawDialogueFile = dialogueCacheKey
+      ? this.cache.json.get(dialogueCacheKey)
+      : null;
 
-        const npcDialogueBlock = rawDialogueFile?.[dialogueRootKey] || {};
-        const cityData = locations.find(city => city.id === this.cityId) || null;
+    const npcDialogueBlock = rawDialogueFile?.[dialogueRootKey] || {};
+    const cityData = locations.find(city => city.id === this.cityId) || null;
 
-        const suspect = suspects.find(
-            s => s.portraitKey === gameState.currentSuspectPortraitKey
-        ) || null;
+    const suspect = suspects.find(
+      s => s.portraitKey === gameState.currentSuspectPortraitKey
+    ) || null;
 
-        const targetCityId = gameState.nextTargetCityId ?? null;
+    const targetCityId = gameState.nextTargetCityId ?? null;
 
-        if (!dialogueCacheKey || !dialogueRootKey) {
-            console.warn(`LocationScene: unknown npcId "${this.npcId}"`);
+    if (!dialogueCacheKey || !dialogueRootKey) {
+      console.warn(`LocationScene: unknown npcId "${this.npcId}"`);
+    }
+
+    const generatedDialogue = buildNpcDialogue({
+      npcData: npcDialogueBlock,
+      suspect,
+      cityId: this.cityId,
+      targetCityId,
+      sharedCityClues,
+      sharedSuspectClues,
+      isRepeat: this.isRepeat
+    });
+
+    const fallbackLines = [
+      'I saw something strange, detective.',
+      'Something about the suspect stood out, but not enough for amateurs.',
+      'They were asking about another city, and not casually.'
+    ];
+
+    this.lines = Array.isArray(generatedDialogue?.lines)
+      ? generatedDialogue.lines.filter(Boolean).slice(0, 3)
+      : [];
+
+    while (this.lines.length < 3) {
+      this.lines.push(fallbackLines[this.lines.length]);
+    }
+
+    this.generatedNotes = Array.isArray(generatedDialogue?.notes)
+      ? generatedDialogue.notes.filter(Boolean)
+      : [];
+
+    if (this.locationId && this.textures.exists(this.locationId)) {
+      this.add
+        .image(width / 2, height / 2, this.locationId)
+        .setDisplaySize(width, height);
+    } else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
+      this.add
+        .image(width / 2, height / 2, cityData.backgroundKey)
+        .setDisplaySize(width, height);
+    } else {
+      this.cameras.main.setBackgroundColor('#1a1a1a');
+    }
+
+    this.createDialoguePanel(width, height);
+    ensureHud(this);
+
+    const activeHud = this.scene.get('PlayerHudScene');
+    if (activeHud?.refreshNotebook) {
+      activeHud.refreshNotebook();
+    } else if (activeHud?.refreshUI) {
+      activeHud.refreshUI();
+    }
+
+    this.input.on('pointerdown', this.handlePointerDown, this);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off('pointerdown', this.handlePointerDown, this);
+    });
+  }
+
+  createDialoguePanel(width, height) {
+    this.add
+      .rectangle(0, height - 220, width, 220, 0x111111, 0.82)
+      .setOrigin(0, 0)
+      .setDepth(10);
+
+    const npcNameY = this.npcId === 'bum' ? height - 198 : height - 205;
+
+    this.add.text(30, npcNameY, this.getNpcDisplayName(this.npcId), {
+      fontFamily: 'Special Elite',
+      fontSize: '28px',
+      color: '#ffd86b'
+    }).setDepth(11);
+
+    this.dialogueText = this.add.text(30, height - 155, this.lines.join('\n'), {
+      fontFamily: 'Special Elite',
+      fontSize: '24px',
+      color: '#ffffff',
+      wordWrap: { width: width - 60 }
+    }).setDepth(11);
+
+    this.add.text(width - 230, height - 42, 'Click to leave', {
+      fontFamily: 'Special Elite',
+      fontSize: '18px',
+      color: '#cccccc'
+    }).setDepth(11);
+  }
+
+  closeAllUIPanels() {
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.closeAllUIPanels) {
+      hud.closeAllUIPanels();
+    }
+  }
+
+  handlePointerDown(pointer, currentlyOver, event) {
+    if (event?.stopPropagation) {
+      event.stopPropagation();
+    }
+
+    if (this.isFinishing) return;
+    if (this.isAnyUIOpen()) return;
+
+    this.finishEncounter();
+  }
+
+  isAnyUIOpen() {
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.isAnyPanelOpen) {
+      return hud.isAnyPanelOpen();
+    }
+
+    return false;
+  }
+
+  finishEncounter() {
+    if (this.isFinishing) return;
+    this.isFinishing = true;
+
+    this.input.off('pointerdown', this.handlePointerDown, this);
+
+    if (!Array.isArray(gameState.cluesCollected)) {
+      gameState.cluesCollected = [];
+    }
+
+    if (!Array.isArray(gameState.visitedEncounters)) {
+      gameState.visitedEncounters = [];
+    }
+
+    if (this.encounterId && !gameState.visitedEncounters.includes(this.encounterId)) {
+      gameState.visitedEncounters.push(this.encounterId);
+    }
+
+    if (!this.isRepeat && this.generatedNotes.length > 0) {
+      this.generatedNotes.forEach(note => {
+        if (note && !this.hasClue(note)) {
+          gameState.cluesCollected.push(note);
         }
-
-        const generatedDialogue = buildNpcDialogue({
-            npcId: this.npcId,
-            npcData: npcDialogueBlock,
-            suspect,
-            cityId: this.cityId,
-            cityData,
-            targetCityId,
-            encounterId: this.encounterId,
-            locationId: this.locationId,
-            isRepeat: this.isRepeat,
-            banterCount: 1,
-            travelCount: 1,
-            suspectCount: 1
-        });
-
-        this.lines = generatedDialogue?.lines?.length
-            ? generatedDialogue.lines
-            : [
-                'I saw something strange, detective.',
-                'But whoever wrote my dialogue clearly missed their train.'
-            ];
-
-        this.generatedNotes = Array.isArray(generatedDialogue?.notes)
-            ? generatedDialogue.notes
-            : [];
-
-        this.currentLine = 0;
-
-        if (this.textures.exists(this.locationId)) {
-            this.add
-                .image(width / 2, height / 2, this.locationId)
-                .setDisplaySize(width, height);
-        } else {
-            this.cameras.main.setBackgroundColor('#1a1a1a');
-        }
-
-        this.createDialoguePanel(width, height);
-        ensureHud(this);
-
-        this.input.on('pointerdown', this.handlePointerDown, this);
-
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            this.input.off('pointerdown', this.handlePointerDown, this);
-        });
+      });
     }
 
-    createDialoguePanel(width, height) {
-        this.add
-            .rectangle(0, height - 220, width, 220, 0x111111, 0.82)
-            .setOrigin(0, 0)
-            .setDepth(10);
+    saveGameState();
 
-        this.add.text(30, height - 205, this.getNpcDisplayName(this.npcId), {
-            fontFamily: 'Special Elite',
-            fontSize: '28px',
-            color: '#ffd86b'
-        }).setDepth(11);
-
-        this.dialogueText = this.add.text(30, height - 155, this.lines[this.currentLine], {
-            fontFamily: 'Special Elite',
-            fontSize: '24px',
-            color: '#ffffff',
-            wordWrap: { width: width - 60 }
-        }).setDepth(11);
-
-        this.add.text(width - 240, height - 42, 'Click to continue', {
-            fontFamily: 'Special Elite',
-            fontSize: '18px',
-            color: '#cccccc'
-        }).setDepth(11);
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.refreshNotebook) {
+      hud.refreshNotebook();
+    } else if (hud?.refreshUI) {
+      hud.refreshUI();
     }
 
-    closeAllUIPanels() {
-        const hud = this.scene.get('PlayerHudScene');
-        if (hud?.closeAllUIPanels) {
-            hud.closeAllUIPanels();
-        }
-    }
+    this.scene.start('CityScene', {
+      cityId: this.cityId
+    });
+  }
 
-    handlePointerDown() {
-        if (this.isFinishing) return;
-        if (this.isAnyUIOpen()) return;
+  hasClue(newClue) {
+    return gameState.cluesCollected.some(existing => {
+      if (!existing || !newClue) return false;
 
-        this.nextLine();
-    }
+      return (
+        existing.type === newClue.type &&
+        existing.category === newClue.category &&
+        existing.key === newClue.key &&
+        existing.cityId === newClue.cityId &&
+        existing.tag === newClue.tag &&
+        existing.value === newClue.value
+      );
+    });
+  }
 
-    isAnyUIOpen() {
-        const hud = this.scene.get('PlayerHudScene');
-        if (hud?.isAnyPanelOpen) {
-            return hud.isAnyPanelOpen();
-        }
+  getNpcDisplayName(npcId) {
+    const names = {
+      bankier: 'Banker',
+      stewardessa: 'Stewardess',
+      maid: 'Maid',
+      police: 'Police Officer',
+      bum: 'Homeless',
+      parkingowy: 'Parking Worker'
+    };
 
-        return false;
-    }
+    return names[npcId] || npcId || 'Unknown witness';
+  }
 
-    nextLine() {
-        this.currentLine += 1;
-
-        if (this.currentLine < this.lines.length) {
-            this.dialogueText.setText(this.lines[this.currentLine]);
-            return;
-        }
-
-        this.finishEncounter();
-    }
-
-    finishEncounter() {
-        if (this.isFinishing) return;
-        this.isFinishing = true;
-
-        this.input.off('pointerdown', this.handlePointerDown, this);
-
-        if (!Array.isArray(gameState.cluesCollected)) {
-            gameState.cluesCollected = [];
-        }
-
-        if (!Array.isArray(gameState.visitedEncounters)) {
-            gameState.visitedEncounters = [];
-        }
-
-        if (this.encounterId && !gameState.visitedEncounters.includes(this.encounterId)) {
-            gameState.visitedEncounters.push(this.encounterId);
-        }
-
-        if (!this.isRepeat && Array.isArray(this.generatedNotes)) {
-            this.generatedNotes.forEach(note => {
-                if (!this.hasClue(note)) {
-                    gameState.cluesCollected.push(note);
-                }
-            });
-        }
-
-        saveGameState();
-
-        this.scene.start('CityScene', {
-            cityId: this.cityId
-        });
-    }
-
-    hasClue(newClue) {
-        return gameState.cluesCollected.some(existing => {
-            if (!existing || !newClue) return false;
-
-            return (
-                existing.type === newClue.type &&
-                existing.category === newClue.category &&
-                existing.key === newClue.key &&
-                existing.cityId === newClue.cityId &&
-                existing.tag === newClue.tag &&
-                existing.value === newClue.value
-            );
-        });
-    }
-
-    getNpcDisplayName(npcId) {
-        const names = {
-            bankier: 'Banker',
-            stewardessa: 'Stewardess',
-            maid: 'Maid',
-            police: 'Police Officer',
-            bum: 'Homeless',
-            parkingowy: 'Parking Worker'
-        };
-
-        return names[npcId] || npcId || 'Unknown witness';
-    }
-    addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
-        button.on('pointerover', () => button.setScale(hoverScale));
-        button.on('pointerout', () => button.setScale(baseScale));
-    }
+  addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
+    button.on('pointerover', () => button.setScale(hoverScale));
+    button.on('pointerout', () => button.setScale(baseScale));
+  }
 }

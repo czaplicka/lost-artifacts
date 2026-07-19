@@ -1,341 +1,722 @@
 {
-"parkingowyClues": {
-  "banter": [
-    "Engines don’t lie, detective. Drivers do it professionally.",
-    "You can learn a lot from how someone parks and how fast they pretend they didn’t.",
-    "Some people leave parking tickets. Others leave entire stories under their wipers.",
-    "If a driver backs into a spot perfectly, I immediately wonder what else they’ve rehearsed.",
-    "Keys, dents, and fuel receipts make better witnesses than most people I meet.",
-    "Everyone thinks they’re the main character until I see how they handle a tight space.",
-    "You’d be surprised how many suspects try to escape in a car they can’t parallel park."
-  ],
-  "repeatLines": [
-    [
-      "We already went over this car, detective.",
-      "It hasn’t moved, and neither has the story."
-    ],
-    [
-      "Back again?",
-      "The only thing that changed is the parking fee."
-    ],
-    [
-      "I told you what I saw.",
-      "If the tyres had more to add, I’d let you know."
-    ],
-    [
-      "No new clues.",
-      "Same skid marks, same driver, same bad decisions."
-    ],
-    [
-      "We’ve checked this spot already.",
-      "Any more and I’ll start charging you by the minute."
-    ],
-    [
-      "Still the same facts, detective.",
-      "Engines don’t rewrite their alibis overnight."
-    ],
-    [
-      "You already emptied this lot of secrets.",
-      "Now you’re just circling for comfort."
-    ],
-    [
-      "I gave you everything that would hold up in a report.",
-      "The rest is just noise from bad mufflers."
-    ],
-    [
-      "No fresh tyre tracks, no fresh evidence.",
-      "Just new stains on old asphalt."
-    ],
-    [
-      "Same parking attendant, same case, same truth.",
-      "If you want a different answer, try a different car."
-    ]
-  ],
-  "falseLeadLines": [
-    [
-      "Wrong city, detective.",
-      "You parked your hopes in the wrong spot."
-    ],
-    [
-      "You followed the wrong trail.",
-      "I’ve seen better judgement in people who block fire lanes."
-    ],
-    [
-      "No suspect there.",
-      "Just other drivers pretending the rules don’t apply to them."
-    ],
-    [
-      "That lead went nowhere.",
-      "Like a car with the handbrake still on."
-    ],
-    [
-      "You chose the wrong destination.",
-      "Next time, maybe check the map before the ignition."
-    ],
-    [
-      "A false lead, I’m afraid.",
-      "At least you didn’t get towed for it."
-    ],
-    [
-      "The thief wasn’t in that city.",
-      "Only your optimism was parked there for a while."
-    ],
-    [
-      "Wrong place, wrong lane.",
-      "Happens when you follow gut feeling instead of road signs."
-    ],
-    [
-      "You drove a long way for nothing.",
-      "I’ve ticketed shorter mistakes."
-    ],
-    [
-      "That detour didn’t help the case.",
-      "But it did a great job of wasting fuel."
-    ]
-  ],
-  "cityHints": {
-    "london": [
-      "Your suspect left a rental with a steering wheel on the ‘wrong’ side and asked if all those red buses are really necessary.",
-      "They complained about tight parking, then said it reminded them of a city where old stone, fog and impatient taxis fight for the same roads.",
-      "Their GPS history mentioned a river, a palace, and more roundabouts than any sane person needs."
-    ],
-    "paris": [
-      "They parked like they’d seen too many narrow streets and not enough indicators.",
-      "In the glove compartment I saw a parking stub with an iron tower doodled next to a baguette. Subtle, but not subtle enough.",
-      "They asked if we validate tickets for a city where scooters, cafés and bad parking form an unofficial national sport."
-    ],
-    "berlin": [
-      "They lined up the car with military precision and asked if this city has as many rules as the one with the famous gate.",
-      "I heard them mutter about a place that knocked down a wall, painted the pieces and now charges tourists to park near them.",
-      "Their dashboard map had a big circle around a district known for serious museums by day and louder engines at night."
-    ],
-    "new_york_city": [
-      "They stared at the parking fees and said it still beats hunting for a spot in a city of skyscrapers and yellow taxis.",
-      "Your suspect asked if we ever tow cars as fast as they do in the ‘concrete jungle’. I took that as a confession of experience.",
-      "There was a crumpled ticket on the seat mentioning a street grid so tight even the pigeons double-park."
-    ],
-    "warsaw": [
-      "They parked crooked, then asked if this town also fines people for blocking tram lines and royal views.",
-      "On the dashboard I saw a souvenir with a mermaid and a note about a capital that rebuilt its streets more than once.",
-      "They said they liked cities where old cobblestones, new office towers and stubborn drivers share the same intersections."
-    ],
-    "new_delhi": [
-      "Their car smelled like dust and spices, and they asked if we’ve ever seen traffic as wild as in that big capital further east.",
-      "They complained our lot was chaotic, then showed me a photo of an intersection where even scooters look brave.",
-      "Your suspect asked if honking is illegal here, because in the city they mentioned it sounds like a national language."
-    ]
-  },
-  "locationVariants": {
-    "london": {
-      "banter": [
-        "In London, people park like they’re apologising to the curb.",
-        "I’ve seen drivers spend ten minutes lining up and still call it ‘good enough’.",
-        "The tickets here fear the rain more than the drivers fear the tickets."
-      ],
-      "repeatLines": [
-        [
-          "We already talked, detective.",
-          "Since then, only the drizzle has changed."
+  "parkingowyClues": {
+    "locationVariants": {
+      "london": {
+        "banter": [
+          "In London, people park like they’re apologising to the curb.",
+          "I’ve seen drivers spend ten minutes lining up and still call it good enough.",
+          "The tickets here fear the rain more than the drivers fear the tickets."
         ],
-        [
-          "Back again?",
-          "Same car, same spot, same bad idea."
+        "travelHints": {
+          "london": [
+            "Your suspect left a rental with a steering wheel on the wrong side and asked if all those red buses are really necessary.",
+            "They complained about tight parking, then said it reminded them of a city where old stone, fog and impatient taxis fight for the same roads.",
+            "Their GPS history mentioned a river, a palace, and more roundabouts than any sane person needs."
+          ],
+          "paris": [
+            "They parked like they’d seen too many narrow streets and not enough indicators.",
+            "In the glove compartment I saw a parking stub with an iron tower doodled next to a baguette. Subtle, but not subtle enough.",
+            "They asked if we validate tickets for a city where scooters, cafés and bad parking form an unofficial national sport."
+          ],
+          "berlin": [
+            "They lined up the car with military precision and asked if this city has as many rules as the one with the famous gate.",
+            "I heard them mutter about a place that knocked down a wall, painted the pieces and now charges tourists to park near them.",
+            "Their dashboard map had a big circle around a district known for serious museums by day and louder engines at night."
+          ],
+          "new_york_city": [
+            "They stared at the parking fees and said it still beats hunting for a spot in a city of skyscrapers and yellow taxis.",
+            "Your suspect asked if we ever tow cars as fast as they do in the concrete jungle. I took that as a confession of experience.",
+            "There was a crumpled ticket on the seat mentioning a street grid so tight even the pigeons double-park."
+          ],
+          "warsaw": [
+            "They parked crooked, then asked if this town also fines people for blocking tram lines and royal views.",
+            "On the dashboard I saw a souvenir with a mermaid and a note about a capital that rebuilt its streets more than once.",
+            "They said they liked cities where old cobblestones, new office towers and stubborn drivers share the same intersections."
+          ],
+          "new_delhi": [
+            "Their car smelled like dust and spices, and they asked if we’ve ever seen traffic as wild as in that big capital further east.",
+            "They complained our lot was chaotic, then showed me a photo of an intersection where even scooters look brave.",
+            "Your suspect asked if honking is illegal here, because in the city they mentioned it sounds like a national language."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, neat enough to keep out of the mirrors and out of memory. Almost."
+            ],
+            "Brown": [
+              "Brown hair, practical, forgettable, exactly the sort of detail people rely on being ignored."
+            ],
+            "Blonde": [
+              "Blonde hair, impossible to miss under grey London light."
+            ],
+            "Red": [
+              "Red hair. Not subtle, but some people mistake boldness for camouflage."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, cold and attentive, the kind that check mirrors before crossing a lot."
+            ],
+            "Brown": [
+              "Brown eyes, steady, cautious, always measuring distance."
+            ],
+            "Green": [
+              "Green eyes, alert enough to notice every exit and every camera."
+            ],
+            "Hazel": [
+              "Hazel eyes, restless like someone timing the next move."
+            ]
+          },
+          "features": {
+            "Big forehead": [
+              "Broad forehead, calculating expression, no patience for small talk."
+            ],
+            "Tattoo": [
+              "A tattoo, mostly hidden, which only made it more obvious to me."
+            ],
+            "Rainbow hair streak": [
+              "There was a streak of color in the hair. Hard to miss, even in London weather."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they reached for the keys."
+            ],
+            "Scar": [
+              "A scar, old enough to be history, visible enough to still matter."
+            ],
+            "Moustache": [
+              "A moustache so deliberate it looked like part of a disguise kit."
+            ],
+            "Glasses": [
+              "Glasses, but the way they scanned number plates told me vision was not the issue."
+            ],
+            "Beard": [
+              "A beard, neat enough to suggest planning, not laziness."
+            ],
+            "Long hair": [
+              "Long hair, tied back like they didn’t want it remembered."
+            ],
+            "Earrings": [
+              "Small earrings, chosen carefully, like everything else about them."
+            ],
+            "Goatee": [
+              "A goatee. Very curated. I distrust curated faces."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "Canadian accent, polite in shape, cautious in intent."
+            ],
+            "Mexican": [
+              "Mexican accent, warm voice, sharp questions."
+            ],
+            "Australian": [
+              "Australian accent, casual tone, watchful eyes."
+            ],
+            "American": [
+              "American accent, confident enough to treat the lot like a stage."
+            ],
+            "Dutch": [
+              "Dutch accent, precise and tidy, like the way they shut the car door."
+            ],
+            "British": [
+              "British accent, local enough to blend, polished enough to ring false."
+            ],
+            "German": [
+              "German accent, efficient, clipped, no wasted syllables."
+            ],
+            "Polish": [
+              "Polish accent, grounded, unshowy, very hard to read."
+            ],
+            "Spanish": [
+              "Spanish accent, quick and smooth, but there was nothing casual underneath it."
+            ],
+            "Belarussian": [
+              "Belarussian accent, soft delivery, armored intent."
+            ],
+            "Russian": [
+              "Russian accent, measured like every word had passed inspection."
+            ],
+            "Italian": [
+              "Italian accent, charming on the surface, controlled underneath."
+            ],
+            "Irish": [
+              "Irish accent, friendly enough to distract from what they were really doing."
+            ],
+            "French": [
+              "French accent, polished, self-aware, impossible to mistake."
+            ],
+            "Belgian": [
+              "Belgian accent, subtle enough to slip past most people. Not me."
+            ]
+          },
+          "skills": {
+            "Lockpicking": [
+              "They handled keys with the ease of someone who’s worked with other kinds of locks too."
+            ],
+            "Disguise": [
+              "Something about them looked assembled rather than lived-in."
+            ],
+            "Stealth": [
+              "They moved around the lot quietly, not nervously. Quietly."
+            ],
+            "Languages": [
+              "They switched languages as smoothly as changing lanes without warning."
+            ],
+            "Negotiation": [
+              "Every question sounded like the opening move in an argument they expected to win."
+            ],
+            "Intimidation": [
+              "They didn’t raise their voice. They just used silence like a parking fine."
+            ],
+            "Hacking": [
+              "They asked the wrong sort of questions about barriers, cameras and ticket systems."
+            ],
+            "Electronics": [
+              "They noticed sensors, gates and terminals before they noticed me."
+            ],
+            "Surveillance": [
+              "They kept checking reflections in windows and side mirrors."
+            ],
+            "Investigation": [
+              "They looked at tire marks like they were reading a statement."
+            ],
+            "Interrogation": [
+              "They had the habit of asking one question, then letting the silence do the pushing."
+            ],
+            "Deduction": [
+              "You could see them building conclusions before anyone finished talking."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "The car carried stale smoke and impatience."
+            ],
+            "Drinking": [
+              "There was a trace of last night in the way they stepped out."
+            ],
+            "Gambling": [
+              "They parked like someone who trusts luck more than geometry."
+            ],
+            "Reading": [
+              "They kept papers tidy, folded, and very clearly important."
+            ],
+            "Traveling": [
+              "The boot was packed like someone used to leaving on short notice."
+            ],
+            "Running": [
+              "They moved like someone who believes every stop is temporary."
+            ],
+            "Working out": [
+              "The posture was too disciplined to be accidental."
+            ],
+            "Playing chess": [
+              "Every pause looked calculated, not uncertain."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "Since then, only the drizzle has changed."
+          ],
+          [
+            "Back again?",
+            "Same car, same spot, same bad idea."
+          ],
+          [
+            "No new clues.",
+            "Just more damp footprints and patient taxis."
+          ]
         ],
-        [
-          "No new clues.",
-          "Just more damp footprints and patient taxis."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Even the parking meters knew that wasn’t right."
+          ],
+          [
+            "That lead stalled on the wrong street.",
+            "Next time, trust the map, not the mood."
+          ],
+          [
+            "Your suspect wasn’t there.",
+            "Only confused tourists and angry cab drivers."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Even the parking meters knew that wasn’t right."
+      },
+
+      "paris": {
+        "banter": [
+          "Paris drivers treat lanes like suggestions and mirrors like décor.",
+          "I’ve seen cars here park closer than most relationships.",
+          "The horns sound angry, but that’s just how they say hello."
         ],
-        [
-          "That lead stalled on the wrong street.",
-          "Next time, trust the map, not the mood."
+        "travelHints": {
+          "london": [
+            "Your suspect had a rental note about left-side driving, rain and buses with a second floor.",
+            "I found a parking ticket tucked into a brochure full of palaces, guards and a very judgemental river.",
+            "They complained that London parking combines weather, history and punishment in equal measure."
+          ],
+          "paris": [
+            "They parked like they’d already survived narrower streets than these and enjoyed none of them.",
+            "In the glove compartment I saw a parking stub with an iron tower doodled beside a baguette. Not subtle.",
+            "They asked if bad parking counts as local culture in a city full of cafés, scooters and opinions."
+          ],
+          "berlin": [
+            "They left notes about strict lanes, stricter rules and a city with a famous gate and better discipline.",
+            "I heard them mutter about painted wall fragments, precise parking and districts loud enough to shake mirrors.",
+            "Their navigation history circled museums by day and trouble by night."
+          ],
+          "new_york_city": [
+            "They looked at our parking prices and laughed like someone who’d already paid New York rates.",
+            "Your suspect mentioned yellow taxis, impossible spaces and streets laid out like an argument.",
+            "There was a crumpled receipt in the car from somewhere that sells coffee and urgency."
+          ],
+          "warsaw": [
+            "They asked whether we fine people for blocking trams, monuments and common sense.",
+            "I spotted a mermaid keychain on the dash and a note about a city that keeps rebuilding itself.",
+            "They liked the idea of cobblestones, broad avenues and stubborn local drivers."
+          ],
+          "new_delhi": [
+            "The car smelled of heat, spice and long-distance traffic.",
+            "They showed me a photo of an intersection so crowded it looked theoretical.",
+            "Your suspect asked if honking here is rude, because where they were headed it sounded compulsory."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, stylish enough to look accidental, which it certainly wasn’t."
+            ],
+            "Brown": [
+              "Brown hair, understated in the way expensive things sometimes are."
+            ],
+            "Blonde": [
+              "Blonde hair, impossible to miss and clearly meant to be."
+            ],
+            "Red": [
+              "Red hair, theatrical enough for Paris and trouble enough for me."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo, discreetly hidden, which naturally made it more interesting."
+            ],
+            "Earrings": [
+              "Earrings that suggested taste, money, or theft. Possibly all three."
+            ],
+            "Glasses": [
+              "Glasses with sharp lines and sharper attention behind them."
+            ]
+          },
+          "accent": {
+            "French": [
+              "French accent, polished enough to make deceit sound elegant."
+            ],
+            "Italian": [
+              "Italian accent, smooth and confident, like they expected doors to open."
+            ],
+            "Spanish": [
+              "Spanish accent, warm delivery, very cold intent."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already went over this.",
+            "No new tyre marks, just new cigarette ash."
+          ],
+          [
+            "Back so soon?",
+            "The cars changed, the chaos stayed the same."
+          ],
+          [
+            "No fresh clues.",
+            "Only the same dents and better stories."
+          ]
         ],
-        [
-          "Your suspect wasn’t there.",
-          "Only confused tourists and angry cab drivers."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Scenic mistake, still a mistake."
+          ],
+          [
+            "That lead went in circles.",
+            "Much like the traffic here."
+          ],
+          [
+            "Your thief wasn’t parked there.",
+            "Just scooters, tourists, and bad decisions."
+          ]
         ]
-      ]
-    },
-    "paris": {
-      "banter": [
-        "Paris drivers treat lanes like suggestions and mirrors like décor.",
-        "I’ve seen cars here park closer than most relationships.",
-        "The horns sound angry, but that’s just how they say hello."
-      ],
-      "repeatLines": [
-        [
-          "We already went over this.",
-          "No new tyre marks, just new cigarette ash."
+      },
+
+      "berlin": {
+        "banter": [
+          "In Berlin, people park like they’re being graded.",
+          "Lines on the asphalt are taken very seriously here.",
+          "Engines may be loud, but the parking is disciplined."
         ],
-        [
-          "Back so soon?",
-          "The cars changed, the chaos stayed the same."
+        "travelHints": {
+          "london": [
+            "They complained about driving on the wrong side and parking in weather that feels administrative.",
+            "I saw a route plan full of fog, black cabs and official-looking buildings.",
+            "Their notes suggested London: rain, rules and roads older than patience."
+          ],
+          "paris": [
+            "They had a parking stub from somewhere near a tower and several angry notes about scooters.",
+            "I found crumbs, perfume and a map marked with narrow streets and expensive mistakes.",
+            "They said Paris parking requires confidence, denial and strong mirrors."
+          ],
+          "berlin": [
+            "They lined everything up perfectly and asked if all Berlin districts are as rule-heavy as the signs suggest.",
+            "I heard them mention a city of gates, walls turned murals and parking strict enough to feel personal.",
+            "Their navigation circled museum areas and nightlife zones with equal seriousness."
+          ],
+          "new_york_city": [
+            "They compared our rates to New York and somehow sounded relieved.",
+            "Your suspect mentioned yellow taxis, vertical streets and parking that feels like combat logistics.",
+            "I found a receipt crumpled beside a note calling Manhattan a test of character."
+          ],
+          "warsaw": [
+            "There was a mermaid charm hanging from the mirror and a note about tram lines and stubborn streets.",
+            "They asked if Warsaw fines people with the same efficiency as Berlin. I told them no one does.",
+            "Their map had bridges, old streets and administrative buildings circled."
+          ],
+          "new_delhi": [
+            "The car smelled faintly of dust, spice and heat trapped in upholstery.",
+            "They showed me a photo of traffic dense enough to count as architecture.",
+            "Your suspect asked whether our city ever honks without purpose. I admired the question."
+          ]
+        },
+        "suspectCluePool": {
+          "skills": {
+            "Hacking": [
+              "They were more interested in gates, barriers and systems than in the actual parking space."
+            ],
+            "Electronics": [
+              "They noticed sensors and terminals before they noticed weather or people."
+            ],
+            "Surveillance": [
+              "They kept checking mirror lines, blind spots and cameras. Habit, not nerves."
+            ]
+          },
+          "features": {
+            "Scar": [
+              "A scar, visible, unannounced, and somehow very Berlin."
+            ],
+            "Tattoo": [
+              "A tattoo, serious-looking, like it had paperwork behind it."
+            ]
+          },
+          "hair": {
+            "Black": [
+              "Black hair, severe and practical."
+            ],
+            "Brown": [
+              "Brown hair, efficient-looking, if that makes sense."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already checked this car.",
+            "It’s still exactly where the rules said it should be."
+          ],
+          [
+            "You’re back.",
+            "The facts are still aligned with the lines."
+          ],
+          [
+            "No new evidence.",
+            "If anything had changed, it would be documented."
+          ]
         ],
-        [
-          "No fresh clues.",
-          "Only the same dents and better stories."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Succinct, accurate, unfortunate."
+          ],
+          [
+            "That lead didn’t pass inspection.",
+            "We prefer our mistakes smaller and less expensive."
+          ],
+          [
+            "The suspect wasn’t there.",
+            "You just followed the wrong sign."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Scenic mistake, still a mistake."
+      },
+
+      "new_york_city": {
+        "banter": [
+          "New York drivers park like the world ends in ten minutes.",
+          "Double-parked, triple-armed with excuses.",
+          "I’ve seen people risk their lives for a spot and then complain about the view."
         ],
-        [
-          "That lead went in circles.",
-          "Much like the traffic here."
+        "travelHints": {
+          "london": [
+            "They said even London parking feels gentler, which tells you a lot about New York.",
+            "I found notes about fog, black cabs and roads that seem older than the arguments on them.",
+            "Their route plan mentioned palaces, buses and weather with commitment issues."
+          ],
+          "paris": [
+            "They had a ticket stub with a tower doodled on it and three complaints about scooters.",
+            "Your suspect talked about Paris like it was beautiful and personally offensive to drivers.",
+            "I found crumbs, perfume and a map folded around a list of impossible streets."
+          ],
+          "berlin": [
+            "They mentioned a city where lines matter, signs mean it and everyone pretends to like the order.",
+            "Your suspect circled Berlin districts with notes about museums, clubs and famous concrete.",
+            "They asked whether all German parking is this strict or just the interesting parts."
+          ],
+          "new_york_city": [
+            "They stared at the rates and said at least it still beats hunting for a legal space in Manhattan.",
+            "Your suspect mentioned yellow taxis, steam vents and roads packed tighter than a courtroom lie.",
+            "There was a crumpled ticket on the seat and a complaint about gridlock written like a love letter."
+          ],
+          "warsaw": [
+            "I saw a mermaid souvenir on the dash and notes about tram lines, old streets and rebuilt squares.",
+            "They said Warsaw sounded practical, stubborn and easier on bumpers.",
+            "Your suspect liked cities where history and traffic still negotiate with each other."
+          ],
+          "new_delhi": [
+            "They showed me an intersection photo so crowded it made New York look organized.",
+            "The car smelled like heat, dust and spice ground into the seats.",
+            "Your suspect asked whether honking here is emotional or strategic."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Drinking": [
+              "There was the unmistakable trace of last night hanging around them and the car."
+            ],
+            "Running": [
+              "They moved like someone who expects to leave fast and apologize never."
+            ],
+            "Working out": [
+              "They had the kind of posture that suggests discipline or vanity. Sometimes both."
+            ]
+          },
+          "accent": {
+            "American": [
+              "American accent, sure, but not New York. This city trains the ear."
+            ]
+          },
+          "skills": {
+            "Persuasion": [
+              "They argued with the meter like they expected it to give in."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "Yeah, we already talked, detective.",
+            "Still the same chaos, same tickets, same case."
+          ],
+          [
+            "Back again?",
+            "Welcome to the loop. We charge extra for that."
+          ],
+          [
+            "No update.",
+            "If something changed, it got towed before I saw it."
+          ]
         ],
-        [
-          "Your thief wasn’t parked there.",
-          "Just scooters, tourists, and bad decisions."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Big scene, wrong set."
+          ],
+          [
+            "That lead went nowhere.",
+            "Well, gridlocked, technically."
+          ],
+          [
+            "Your suspect wasn’t there.",
+            "Only people fighting over three legal spots."
+          ]
         ]
-      ]
-    },
-    "berlin": {
-      "banter": [
-        "In Berlin, people park like they’re being graded.",
-        "Lines on the asphalt are taken very seriously here.",
-        "Engines may be loud, but the parking is disciplined."
-      ],
-      "repeatLines": [
-        [
-          "We already checked this car.",
-          "It’s still exactly where the rules said it should be."
+      },
+
+      "warsaw": {
+        "banter": [
+          "Warsaw drivers park between history and roadworks.",
+          "Half the city is temporary parking if you ask the right person.",
+          "I’ve seen people respect the tram lines more than their own bumpers."
         ],
-        [
-          "You’re back.",
-          "The facts are still aligned with the lines."
+        "travelHints": {
+          "london": [
+            "They asked whether London fines people politely or just expensively.",
+            "I found notes about fog, black cabs, old stone and streets designed before modern regret.",
+            "Their route history suggested buses, royal buildings and roundabouts used as psychological tests."
+          ],
+          "paris": [
+            "There was a doodle of an iron tower on a parking stub and a complaint about scooters in every lane.",
+            "Your suspect mentioned Paris like it was beautiful, crowded and bad for paintwork.",
+            "They talked about cafés, tight streets and drivers who negotiate with eye contact alone."
+          ],
+          "berlin": [
+            "They lined up the car like a Berlin examiner might appear from nowhere.",
+            "I heard them mention walls, gates, museum districts and rules that actually get enforced.",
+            "Their notes suggested a city where the parking is disciplined and the nightlife absolutely isn’t."
+          ],
+          "new_york_city": [
+            "They looked at our fees and said at least it’s not Manhattan.",
+            "Your suspect mentioned yellow taxis, vertical impatience and streets that never forgive hesitation.",
+            "I found a crumpled note describing New York as a city where even pigeons double-park in spirit."
+          ],
+          "warsaw": [
+            "On the dashboard I saw a mermaid and a note about a capital that rebuilt its streets more than once.",
+            "They said they liked cities where old cobblestones, new towers and stubborn drivers share the same intersections.",
+            "Your suspect asked whether tram lines and royal views matter here as much as they do in Warsaw."
+          ],
+          "new_delhi": [
+            "The car smelled faintly of dust, spice and traffic heat.",
+            "They showed me a photograph of an intersection so wild it made Warsaw look meditative.",
+            "Your suspect asked if honking is illegal here, because where they were headed it sounded like public policy."
+          ]
+        },
+        "suspectCluePool": {
+          "accent": {
+            "Polish": [
+              "A Polish accent, steady, practical, not eager to be memorable."
+            ]
+          },
+          "features": {
+            "Beard": [
+              "A beard, common enough, but theirs looked maintained with intent."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they leaned over the dashboard."
+            ]
+          },
+          "skills": {
+            "Tracking": [
+              "They noticed tire marks and curb scuffs the way trackers notice footprints."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already discussed this car.",
+            "It hasn’t moved an inch or improved its manners."
+          ],
+          [
+            "Back again?",
+            "You and this city share the same persistence."
+          ],
+          [
+            "No new clues.",
+            "Only the same scratches and the same excuses."
+          ]
         ],
-        [
-          "No new evidence.",
-          "If anything had changed, it would be documented."
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Not ideal, but fixable."
+          ],
+          [
+            "That lead was empty.",
+            "Like the promise on most dashboards."
+          ],
+          [
+            "The suspect isn’t there.",
+            "You’ll need a new route, not a new ticket."
+          ]
         ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Succinct, accurate, unfortunate."
+      },
+
+      "new_delhi": {
+        "banter": [
+          "In New Delhi, parking is more negotiation than manoeuvre.",
+          "I’ve seen intersections here that could be charged with choreography.",
+          "Everyone honks like they’re the main character and the road agrees."
         ],
-        [
-          "That lead didn’t pass inspection.",
-          "We prefer our mistakes smaller and less expensive."
+        "travelHints": {
+          "london": [
+            "They asked if London traffic is really quieter or just wetter.",
+            "I found notes about red buses, black cabs and weather that sounds permanently disappointed.",
+            "Their route history mentioned old stone, royal buildings and roads too narrow for modern egos."
+          ],
+          "paris": [
+            "They complained our lot was chaotic, then described Parisian parking like a contact sport in nicer clothes.",
+            "There was a little tower doodle on a parking stub beside a list of narrow streets and bad decisions.",
+            "Your suspect mentioned scooters, cafés and mirrors treated as optional."
+          ],
+          "berlin": [
+            "They said Berlin must feel strange: less honking, more rules, same amount of judging.",
+            "I found notes about famous gates, disciplined parking and districts where loud nights outlive quiet mornings.",
+            "Their map had museum areas and club zones circled with suspicious care."
+          ],
+          "new_york_city": [
+            "They asked if New York parking is really worse or just more expensive.",
+            "Your suspect mentioned yellow taxis, impossible spaces and a skyline built by impatience.",
+            "I found a crumpled receipt beside a note calling Manhattan an engine-powered argument."
+          ],
+          "warsaw": [
+            "They asked whether Warsaw also fines people for blocking tram lines and common sense.",
+            "There was a mermaid keychain on the dash and a note about rebuilt streets and stubborn drivers.",
+            "Your suspect liked the idea of a city where old stones, new towers and practical tempers share the same roads."
+          ],
+          "new_delhi": [
+            "Their car smelled like dust, spice and long afternoons in impossible traffic.",
+            "They complained our lot was chaotic, then showed me a photo that made this place look like a diagram.",
+            "Your suspect asked whether honking is illegal here, because where they’d been it sounded like a national language."
+          ]
+        },
+        "suspectCluePool": {
+          "habitus": {
+            "Smoking": [
+              "Even through dust, fuel and heat, the smoke clung to them."
+            ],
+            "Traveling": [
+              "They carried the sort of tiredness that comes from airports, highways and bad tea."
+            ]
+          },
+          "skills": {
+            "Negotiation": [
+              "They negotiated for space before the car had fully stopped."
+            ],
+            "Languages": [
+              "They switched languages in traffic without losing the argument."
+            ]
+          },
+          "accent": {
+            "American": [
+              "American accent, but not local to here or there. Just passing through loudly."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "Since then only the dust has settled. A little."
+          ],
+          [
+            "Back again?",
+            "You must enjoy heat, noise, and déjà vu."
+          ],
+          [
+            "No fresh clues.",
+            "Just the same cars trying to fit where they don’t."
+          ]
         ],
-        [
-          "The suspect wasn’t there.",
-          "You just followed the wrong sign."
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Bold turn, wrong direction."
+          ],
+          [
+            "That lead went nowhere useful.",
+            "Like a car trapped in the wrong lane forever."
+          ],
+          [
+            "Your suspect is somewhere else.",
+            "You only managed to overheat your case."
+          ]
         ]
-      ]
-    },
-    "new_york_city": {
-      "banter": [
-        "New York drivers park like the world ends in ten minutes.",
-        "Double-parked, triple-armed with excuses.",
-        "I’ve seen people risk their lives for a spot and then complain about the view."
-      ],
-      "repeatLines": [
-        [
-          "Yeah, we already talked, detective.",
-          "Still the same chaos, same tickets, same case."
-        ],
-        [
-          "Back again?",
-          "Welcome to the loop. We charge extra for that."
-        ],
-        [
-          "No update.",
-          "If something changed, it got towed before I saw it."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Big scene, wrong set."
-        ],
-        [
-          "That lead went nowhere.",
-          "Well, gridlocked, technically."
-        ],
-        [
-          "Your suspect wasn’t there.",
-          "Only people fighting over three legal spots."
-        ]
-      ]
-    },
-    "warsaw": {
-      "banter": [
-        "Warsaw drivers park between history and roadworks.",
-        "Half the city is ‘temporary parking’ if you ask the right person.",
-        "I’ve seen people respect the tram lines more than their own bumpers."
-      ],
-      "repeatLines": [
-        [
-          "We already discussed this car.",
-          "It hasn’t moved an inch or improved its manners."
-        ],
-        [
-          "Back again?",
-          "You and this city share the same persistence."
-        ],
-        [
-          "No new clues.",
-          "Only the same scratches and the same excuses."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city, detective.",
-          "Not ideal, but fixable."
-        ],
-        [
-          "That lead was empty.",
-          "Like the promise on most dashboards."
-        ],
-        [
-          "The suspect isn’t there.",
-          "You’ll need a new route, not a new ticket."
-        ]
-      ]
-    },
-    "new_delhi": {
-      "banter": [
-        "In New Delhi, parking is more negotiation than manoeuvre.",
-        "I’ve seen intersections here that could be charged with choreography.",
-        "Everyone honks like they’re the main character and the road agrees."
-      ],
-      "repeatLines": [
-        [
-          "We already talked, detective.",
-          "Since then only the dust has settled. A little."
-        ],
-        [
-          "Back again?",
-          "You must enjoy heat, noise, and déjà vu."
-        ],
-        [
-          "No fresh clues.",
-          "Just the same cars trying to fit where they don’t."
-        ]
-      ],
-      "falseLeadLines": [
-        [
-          "Wrong city.",
-          "Bold turn, wrong direction."
-        ],
-        [
-          "That lead went nowhere useful.",
-          "Like a car trapped in the wrong lane forever."
-        ],
-        [
-          "Your suspect is somewhere else.",
-          "You only managed to overheat your case."
-        ]
-      ]
+      }
     }
   }
-}
 }

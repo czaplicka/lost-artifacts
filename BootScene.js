@@ -1,4 +1,4 @@
-import { loadGameState } from './gamedata.js';
+import { loadGameState } from './GameData.js';
 
 export class BootScene extends Phaser.Scene {
     constructor() {
