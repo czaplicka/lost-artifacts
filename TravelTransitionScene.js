@@ -16,6 +16,8 @@ export class TravelTransitionScene extends Phaser.Scene {
     }
 
     create() {
+        this.scene.sleep('UIScene');
+
         const { width, height } = this.scale;
         const camera = this.cameras.main;
 
@@ -115,7 +117,11 @@ export class TravelTransitionScene extends Phaser.Scene {
         if (this.isLeaving) return;
         this.isLeaving = true;
 
-        const destinationScene = 'CityScene';
+        const { status, cityId } = this.transitionData;
+        const destinationScene = status === 'FINAL_SHOWDOWN'
+            ? 'ArrestSelectionScene'
+            : 'CityScene';
+
         const camera = this.cameras.main;
 
         camera.fadeOut(450, 0, 0, 0);
@@ -126,7 +132,12 @@ export class TravelTransitionScene extends Phaser.Scene {
                 transitionData: this.transitionData
             });
 
-            this.scene.start(destinationScene, { ...this.transitionData });
+            if (destinationScene === 'ArrestSelectionScene') {
+                this.scene.start('ArrestSelectionScene');
+                return;
+            }
+
+            this.scene.start('CityScene', { cityId });
         });
     }
 
@@ -161,7 +172,7 @@ export class TravelTransitionScene extends Phaser.Scene {
             case 'CRIME_SCENE_REACHED':
                 return 'A fresh city, fresh witnesses, and fresh lies. Keep your eyes open the moment you arrive.';
             case 'FINAL_SHOWDOWN':
-                return 'The case is narrowing. Whatever waits ahead, it won’t stay hidden for much longer.';
+                return 'The suspect is cornered. One final identification will decide the case.';
             case 'CONTINUE':
                 return 'The trail stretches onward. Somewhere in the next city, someone has seen more than they admitted.';
             case 'FALSE_LEAD':

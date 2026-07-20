@@ -136,6 +136,16 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('marie_dubois', 'assets/suspects/marie_dubois.jpg');
         this.load.image('lotte_chantal', 'assets/suspects/lotte_chantal.jpg');
 
+        this.load.image('gg', 'assets/suspects/gg.jpg');
+        this.load.image('sv', 'assets/suspects/sv.jpg');
+        this.load.image('bg', 'assets/suspects/bg.jpg');
+        this.load.image('aa', 'assets/suspects/aa.jpg');
+        this.load.image('fg', 'assets/suspects/fg.jpg');
+        this.load.image('pb', 'assets/suspects/bp.jpg');
+        this.load.image('rm', 'assets/suspects/rm.jpg');
+        this.load.image('jk', 'assets/suspects/jk.jpg');
+        this.load.image('pf', 'assets/suspects/pf.jpg');
+
         this.load.audio('themeGame', 'assets/audio/game.mp3');
 
         this.load.json('suspects', 'assets/data/suspects.json');
@@ -163,14 +173,24 @@ this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
             this.cameras.main.setBackgroundColor('#1a1a1a');
         }
 
-        const initUi = () => {
-            const music = this.registry.get('bgMusic');
+const initUi = () => {
+  let music = this.registry.get('bgMusic');
 
-            this.input.once('pointerdown', () => {
-                if (music && !music.isPlaying) {
-                    music.play();
-                }
-            });
+  if (!music) {
+    music = this.sound.add('themeMusic', {
+      loop: true,
+      volume: 0.5
+    });
+    this.registry.set('bgMusic', music);
+  }
+
+  this.input.once('pointerdown', () => {
+    this.sound.unlock?.();
+
+    if (!music.isPlaying) {
+      music.play();
+    }
+  });
 
             const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
                 .setInteractive({ useHandCursor: true })

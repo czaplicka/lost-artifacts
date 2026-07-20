@@ -1,12 +1,14 @@
 import { setupNewGame } from './gameSetup.js';
 import { gameState } from './GameData.js';
 
+
 export class MenuScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MenuScene' });
     }
 
     create() {
+        this.scene.sleep('UIScene');
         const { width, height } = this.scale;
         const music = this.registry.get('bgMusic');
 

@@ -1,6 +1,6 @@
 export const defaultGameState = {
+  currentThiefId: null,
   currentThief: null,
-  currentSuspectPortraitKey: null,
   currentArtifact: null,
 
   currentCity: null,
@@ -9,8 +9,14 @@ export const defaultGameState = {
   currentCityData: null,
   currentEncounterId: null,
 
+  finalArrestResult: null,
+finalArrestSuspectId: null,
+caseResolved: false,
+caseFailed: false,
+
   crimeCity: null,
   crimeCityId: null,
+  crimeSceneVisited: false,
 
   activeLocations: [],
   currentDestinations: [],
@@ -18,6 +24,8 @@ export const defaultGameState = {
   routeIndex: -1,
   nextTargetCity: null,
   nextTargetCityId: null,
+
+  mustIncludeCityId: null,
 
   score: 0,
   playerRank: 'Junior Agent',
@@ -30,7 +38,9 @@ export const defaultGameState = {
   cluesCollected: [],
   visitedEncounters: [],
   visitedCities: [],
-  playerNotes: ''
+  playerNotes: '',
+
+  encounterMemory: {}
 };
 
 export const gameState = structuredClone(defaultGameState);
@@ -53,8 +63,8 @@ function cloneDefaultState() {
 function sanitizeSaveData(data) {
   const clean = cloneDefaultState();
 
-  clean.currentThief = data?.currentThief ?? null;
-  clean.currentSuspectPortraitKey = data?.currentSuspectPortraitKey ?? null;
+  clean.currentThiefId = data?.currentThiefId ?? null;
+  clean.currentThief = data?.currentThief ? structuredClone(data.currentThief) : null;
   clean.currentArtifact = data?.currentArtifact ?? null;
 
   clean.currentCity = data?.currentCity ?? null;
@@ -63,28 +73,47 @@ function sanitizeSaveData(data) {
   clean.currentCityData = data?.currentCityData ?? null;
   clean.currentEncounterId = data?.currentEncounterId ?? null;
 
+  clean.finalArrestResult = typeof data?.finalArrestResult === 'string' || data?.finalArrestResult === null
+  ? data.finalArrestResult
+  : null;
+
+clean.finalArrestSuspectId = data?.finalArrestSuspectId ?? null;
+clean.caseResolved = typeof data?.caseResolved === 'boolean' ? data.caseResolved : false;
+clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : false;
+
   clean.crimeCity = data?.crimeCity ?? null;
   clean.crimeCityId = data?.crimeCityId ?? null;
+  clean.crimeSceneVisited =
+  typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
 
-  clean.activeLocations = Array.isArray(data?.activeLocations) ? data.activeLocations : [];
-  clean.currentDestinations = Array.isArray(data?.currentDestinations) ? data.currentDestinations : [];
-  clean.escapeRoute = Array.isArray(data?.escapeRoute) ? data.escapeRoute : [];
+  clean.activeLocations = Array.isArray(data?.activeLocations) ? structuredClone(data.activeLocations) : [];
+  clean.currentDestinations = Array.isArray(data?.currentDestinations) ? structuredClone(data.currentDestinations) : [];
+  clean.escapeRoute = Array.isArray(data?.escapeRoute) ? [...data.escapeRoute] : [];
   clean.routeIndex = Number.isInteger(data?.routeIndex) ? data.routeIndex : -1;
   clean.nextTargetCity = data?.nextTargetCity ?? null;
   clean.nextTargetCityId = data?.nextTargetCityId ?? null;
+
+  clean.mustIncludeCityId = data?.mustIncludeCityId ?? null;
 
   clean.score = Number.isFinite(data?.score) ? data.score : 0;
   clean.playerRank = typeof data?.playerRank === 'string' ? data.playerRank : 'Junior Agent';
   clean.isGameActive = typeof data?.isGameActive === 'boolean' ? data.isGameActive : false;
 
   clean.timeSpent = Number.isFinite(data?.timeSpent) ? data.timeSpent : 0;
-  clean.travelHistory = Array.isArray(data?.travelHistory) ? data.travelHistory : [];
-  clean.lastTravel = data?.lastTravel ?? null;
+  clean.travelHistory = Array.isArray(data?.travelHistory) ? structuredClone(data.travelHistory) : [];
+  clean.lastTravel = data?.lastTravel ? structuredClone(data.lastTravel) : null;
 
-  clean.cluesCollected = Array.isArray(data?.cluesCollected) ? data.cluesCollected : [];
-  clean.visitedEncounters = Array.isArray(data?.visitedEncounters) ? data.visitedEncounters : [];
-  clean.visitedCities = Array.isArray(data?.visitedCities) ? data.visitedCities : [];
+  clean.cluesCollected = Array.isArray(data?.cluesCollected) ? [...data.cluesCollected] : [];
+  clean.visitedEncounters = Array.isArray(data?.visitedEncounters) ? [...data.visitedEncounters] : [];
+  clean.visitedCities = Array.isArray(data?.visitedCities) ? [...data.visitedCities] : [];
   clean.playerNotes = typeof data?.playerNotes === 'string' ? data.playerNotes : '';
+
+  clean.encounterMemory =
+    data?.encounterMemory &&
+    typeof data.encounterMemory === 'object' &&
+    !Array.isArray(data.encounterMemory)
+      ? structuredClone(data.encounterMemory)
+      : {};
 
   return clean;
 }

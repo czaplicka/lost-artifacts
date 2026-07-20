@@ -90,17 +90,21 @@ function ensureThreeLines(lines) {
   return safeLines;
 }
 
-function buildFallbackSuspectLine(suspect) {
+function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
   if (!suspect) {
     return {
-      line: 'I noticed them, but nothing specific enough to help your profile.',
+      line: isCrimeCity
+        ? 'Someone moved through this city carefully, but not invisibly.'
+        : 'I noticed them, but nothing specific enough to help your profile.',
       note: null
     };
   }
 
   if (suspect.accent) {
     return {
-      line: `The accent stood out first — ${suspect.accent}, polished enough to open doors and close questions.`,
+      line: isCrimeCity
+        ? `At the crime scene, what stuck with people first was the accent — ${suspect.accent}, polished enough to calm suspicion.`
+        : `The accent stood out first — ${suspect.accent}, polished enough to open doors and close questions.`,
       note: {
         type: 'suspect',
         category: 'accent',
@@ -112,7 +116,9 @@ function buildFallbackSuspectLine(suspect) {
 
   if (suspect.features) {
     return {
-      line: `One detail stuck with me: ${suspect.features.toLowerCase()}. The kind of feature you remember after the room clears.`,
+      line: isCrimeCity
+        ? `People here kept circling back to one detail: ${suspect.features.toLowerCase()}.`
+        : `One detail stuck with me: ${suspect.features.toLowerCase()}. The kind of feature you remember after the room clears.`,
       note: {
         type: 'suspect',
         category: 'features',
@@ -124,7 +130,9 @@ function buildFallbackSuspectLine(suspect) {
 
   if (suspect.hair) {
     return {
-      line: `The hair was memorable — ${suspect.hair.toLowerCase()}, unusual enough to stay with you.`,
+      line: isCrimeCity
+        ? `Witnesses here remembered the hair — ${suspect.hair.toLowerCase()}, distinctive enough to survive panic.`
+        : `The hair was memorable — ${suspect.hair.toLowerCase()}, unusual enough to stay with you.`,
       note: {
         type: 'suspect',
         category: 'hair',
@@ -136,7 +144,9 @@ function buildFallbackSuspectLine(suspect) {
 
   if (suspect.eyes) {
     return {
-      line: `The eyes were hard to ignore — ${suspect.eyes.toLowerCase()}, steady and far too observant.`,
+      line: isCrimeCity
+        ? `The eyes came up more than once — ${suspect.eyes.toLowerCase()}, calm in a place where calm did not belong.`
+        : `The eyes were hard to ignore — ${suspect.eyes.toLowerCase()}, steady and far too observant.`,
       note: {
         type: 'suspect',
         category: 'eyes',
@@ -147,12 +157,38 @@ function buildFallbackSuspectLine(suspect) {
   }
 
   return {
-    line: 'I noticed them, but nothing specific enough to help your profile.',
+    line: isCrimeCity
+      ? 'People here remember the suspect, but only in fragments.'
+      : 'I noticed them, but nothing specific enough to help your profile.',
     note: null
   };
 }
 
-function buildFallbackTravelLine(targetCityId) {
+function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTargetCity = false) {
+  if (isCrimeCity && targetCityId) {
+    return {
+      line: `Right after the job, the trail bent toward ${targetCityId.replaceAll('_', ' ')}.`,
+      note: {
+        type: 'travel',
+        cityId: targetCityId,
+        tag: targetCityId,
+        value: targetCityId
+      }
+    };
+  }
+
+  if (isNextTargetCity && targetCityId) {
+    return {
+      line: `You are close, detective. From here, the trail points toward ${targetCityId.replaceAll('_', ' ')}.`,
+      note: {
+        type: 'travel',
+        cityId: targetCityId,
+        tag: targetCityId,
+        value: targetCityId
+      }
+    };
+  }
+
   const line = targetCityId
     ? `They were definitely asking about ${targetCityId.replaceAll('_', ' ')}.`
     : 'They mentioned travel, but not clearly enough to be useful.';
@@ -170,6 +206,23 @@ function buildFallbackTravelLine(targetCityId) {
   };
 }
 
+function buildStageAwareBanter(variant, { isCrimeCity = false, isNextTargetCity = false } = {}) {
+  const pool = Array.isArray(variant?.banter) ? variant.banter : [];
+  const selected = pickRandom(pool);
+
+  if (selected) return selected;
+
+  if (isCrimeCity) {
+    return 'This city still smells like panic and expensive lies.';
+  }
+
+  if (isNextTargetCity) {
+    return 'You are close enough now that people have started remembering details they hoped to forget.';
+  }
+
+  return 'I run on coffee, suspicion, and professionally managed disappointment.';
+}
+
 export function buildSuspectClueLines(
   suspect,
   suspectCluePool,
@@ -181,10 +234,6 @@ export function buildSuspectClueLines(
   const notes = [];
   const usedKeys = new Set();
 
-  console.log('[SUSPECT DEBUG] allTags:', allTags);
-  console.log('[SUSPECT DEBUG] suspectCluePool:', suspectCluePool);
-  console.log('[SUSPECT DEBUG] sharedSuspectClues:', sharedSuspectClues);
-
   for (const tag of allTags) {
     if (lines.length >= count) break;
 
@@ -194,11 +243,6 @@ export function buildSuspectClueLines(
     const localPool = suspectCluePool?.[tag.category]?.[tag.key] || [];
     const sharedPool = getSharedSuspectPool(sharedSuspectClues, tag.category, tag.key);
     const pool = mergePools(localPool, sharedPool);
-
-    console.log('[SUSPECT DEBUG] tag:', tag);
-    console.log('[SUSPECT DEBUG] localPool:', localPool);
-    console.log('[SUSPECT DEBUG] sharedPool:', sharedPool);
-    console.log('[SUSPECT DEBUG] mergedPool:', pool);
 
     if (pool.length === 0) continue;
 
@@ -215,9 +259,6 @@ export function buildSuspectClueLines(
 
     usedKeys.add(uniqueId);
   }
-
-  console.log('[SUSPECT DEBUG] result lines:', lines);
-  console.log('[SUSPECT DEBUG] result notes:', notes);
 
   return { lines, notes };
 }
@@ -277,6 +318,38 @@ export function buildTravelClue(
   };
 }
 
+function noteToReminderLine(note) {
+  if (!note) return null;
+
+  if (note.type === 'suspect') {
+    return `As I told you, one thing stood out: ${String(note.value).toLowerCase()}.`;
+  }
+
+  if (note.type === 'travel' && note.cityId) {
+    return `As I told you, they were asking about ${note.cityId.replaceAll('_', ' ')}.`;
+  }
+
+  return null;
+}
+
+export function buildReminderDialogue(npcData, cityId, previousNotes = []) {
+  const variant = getLocationVariant(npcData, cityId) || {};
+  const repeatPool = Array.isArray(variant.repeatLines) ? variant.repeatLines : [];
+  const selectedPair = pickRandom(repeatPool);
+
+  const reminderSource = Array.isArray(previousNotes) ? previousNotes[0] : null;
+  const reminderLine = noteToReminderLine(reminderSource);
+
+  return {
+    lines: ensureThreeLines([
+      selectedPair?.[0] || 'Back again, detective?',
+      reminderLine || 'As I told you before, nothing about that person felt accidental.',
+      selectedPair?.[1] || 'That is still the best lead I have for you.'
+    ]),
+    notes: []
+  };
+}
+
 export function buildRepeatDialogue(npcData, cityId) {
   const variant = getLocationVariant(npcData, cityId);
   const repeatPool = Array.isArray(variant?.repeatLines) ? variant.repeatLines : [];
@@ -328,7 +401,7 @@ export function buildFalseLeadDialogue(npcData, cityId) {
     notes: []
   };
 }
-console.log('[CALL SITE] suspect before buildNpcDialogue:', suspect);
+
 export function buildNpcDialogue({
   npcData,
   suspect,
@@ -336,24 +409,31 @@ export function buildNpcDialogue({
   targetCityId,
   sharedCityClues = null,
   sharedSuspectClues = null,
-  isRepeat = false
+  isRepeat = false,
+  previousNotes = [],
+  isCrimeCity = false,
+  isNextTargetCity = false,
+  isCorrectCity = true
 }) {
+  if (!isCorrectCity) {
+    return buildFalseLeadDialogue(npcData, cityId);
+  }
+
   if (isRepeat) {
+    if (Array.isArray(previousNotes) && previousNotes.length > 0) {
+      return buildReminderDialogue(npcData, cityId, previousNotes);
+    }
+
     return buildRepeatDialogue(npcData, cityId);
   }
 
-  const variant = getLocationVariant(npcData, cityId);
-  const banter = pickRandom(Array.isArray(variant?.banter) ? variant.banter : []);
-
-  console.log('[DIALOGUE DEBUG] suspect:', suspect);
-  console.log('[DIALOGUE DEBUG] suspect tags:', getSuspectTags(suspect));
-  console.log('[DIALOGUE DEBUG] sharedSuspectClues:', sharedSuspectClues);
-  console.log('[DIALOGUE DEBUG] variant suspectCluePool:', variant?.suspectCluePool);
+  const variant = getLocationVariant(npcData, cityId) || {};
+  const banter = buildStageAwareBanter(variant, { isCrimeCity, isNextTargetCity });
 
   const suspectClues = suspect
     ? buildSuspectClueLines(
         suspect,
-        variant?.suspectCluePool || {},
+        variant.suspectCluePool || {},
         sharedSuspectClues,
         1
       )
@@ -363,28 +443,28 @@ export function buildNpcDialogue({
     ? buildTravelClue(npcData, cityId, targetCityId, sharedCityClues, 1)
     : { lines: [], notes: [] };
 
-  const fallbackSuspect = buildFallbackSuspectLine(suspect);
-  const fallbackTravel = buildFallbackTravelLine(targetCityId);
+  const fallbackSuspect = buildFallbackSuspectLine(suspect, isCrimeCity);
+  const fallbackTravel = buildFallbackTravelLine(targetCityId, isCrimeCity, isNextTargetCity);
 
   const suspectLine = suspectClues.lines[0] || fallbackSuspect.line;
   const suspectNotes =
     suspectClues.notes.length > 0
       ? suspectClues.notes
       : fallbackSuspect.note
-      ? [fallbackSuspect.note]
-      : [];
+        ? [fallbackSuspect.note]
+        : [];
 
   const travelLine = travel.lines[0] || fallbackTravel.line;
   const travelNotes =
     travel.notes.length > 0
       ? travel.notes
       : fallbackTravel.note
-      ? [fallbackTravel.note]
-      : [];
+        ? [fallbackTravel.note]
+        : [];
 
   return {
     lines: ensureThreeLines([
-      banter || 'I run on coffee, suspicion, and professionally managed disappointment.',
+      banter,
       suspectLine,
       travelLine
     ]),

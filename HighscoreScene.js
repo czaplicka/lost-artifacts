@@ -7,6 +7,7 @@ export class HighscoreScene extends Phaser.Scene {
     }
 
     create() {
+        this.scene.sleep('UIScene');
         const { width, height } = this.scale;
         this.scoreManager = new ScoreManager();
 

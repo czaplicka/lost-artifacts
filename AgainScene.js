@@ -1,11 +1,10 @@
 import { gameState } from './GameData.js';
 import { ensureHud } from './hudHelpers.js';
-import { GameTimeManager } from './GameTimeManager.js';
-import { EventBus } from './EventBus.js';
+import { setupNewGame } from './gameSetup.js';
 
-export class GameScene extends Phaser.Scene {
+export class AgainScene extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' });
+        super({ key: 'AgainScene' });
         this.dialogueText = null;
         this.fullIntroText = '';
         this.typingEvent = null;
@@ -13,18 +12,8 @@ export class GameScene extends Phaser.Scene {
 
     create() {
         this.scene.wake('UIScene');
-                this.timeManager = new GameTimeManager(); 
-
-    // Wymuszamy pierwsze odświeżenie żeby kalendarz pokazał Day 1 | 08:00 od razu!
-    EventBus.emit('advanceTime', 0, 0); 
-        const dialogueData = this.cache.json.get('dialogue');
-
-        if (!gameState.currentMission || !gameState.currentThief) {
-            console.error('GameScene started without initialized gameState.');
-            this.scene.start('MenuScene');
-            this.scene.launch('UIScene');
-            return;
-        }
+        ensureHud(this);
+        this.closeAllUIPanels();
 
         if (this.textures.exists('background2')) {
             this.add.image(this.scale.width / 2, this.scale.height / 2, 'background2')
@@ -45,20 +34,19 @@ export class GameScene extends Phaser.Scene {
         });
 
         this.createDetectiveSection();
-        ensureHud(this);
+        this.createChoiceButtons();
 
         const hud = this.scene.get('PlayerHudScene');
         if (hud?.closeAllUIPanels) {
             hud.closeAllUIPanels();
         }
 
-        if (!dialogueData || !Array.isArray(dialogueData.gameIntro)) {
-            console.error('Brak dialogue.gameIntro w dialogue.json');
-            this.dialogueText.setText('Brak intro sprawy.');
-            return;
-        }
+        const detectiveName = gameState.playerName || 'Detective';
+        this.fullIntroText =
+            `${detectiveName}, the agency has reviewed your last case.\n\n` +
+            `There is always another trail, another thief, and another artifact at risk.\n\n` +
+            `Are you ready to accept a new mission?`;
 
-        this.fullIntroText = dialogueData.gameIntro.join('\n');
         this.typeText(this.dialogueText, this.fullIntroText, 24);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -83,6 +71,57 @@ export class GameScene extends Phaser.Scene {
             wordWrap: { width: 1040 },
             lineSpacing: 14
         });
+    }
+
+    createChoiceButtons() {
+        const yesBtn = this.add.rectangle(560, 620, 260, 80, 0x2e6b3a, 1)
+            .setStrokeStyle(4, 0xffffff, 1)
+            .setInteractive({ useHandCursor: true });
+
+        const yesText = this.add.text(560, 620, 'YES', {
+            fontFamily: 'PressStart2P',
+            fontSize: '24px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+
+        const noBtn = this.add.rectangle(820, 620, 260, 80, 0x7a2f2f, 1)
+            .setStrokeStyle(4, 0xffffff, 1)
+            .setInteractive({ useHandCursor: true });
+
+        const noText = this.add.text(820, 620, 'NO', {
+            fontFamily: 'PressStart2P',
+            fontSize: '24px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+
+        yesBtn.on('pointerover', () => yesBtn.setFillStyle(0x3d8a4c, 1));
+        yesBtn.on('pointerout', () => yesBtn.setFillStyle(0x2e6b3a, 1));
+
+        noBtn.on('pointerover', () => noBtn.setFillStyle(0x9a3e3e, 1));
+        noBtn.on('pointerout', () => noBtn.setFillStyle(0x7a2f2f, 1));
+
+        yesBtn.on('pointerdown', () => {
+            const suspectsData = this.cache.json.get('suspects') || [];
+            const missionsData = this.cache.json.get('missions') || [];
+            const locationsData = this.cache.json.get('locations') || [];
+
+            try {
+                setupNewGame(suspectsData, missionsData, locationsData);
+                this.scene.start('GameScene');
+            } catch (error) {
+                console.error('Failed to start a new mission:', error);
+                if (this.dialogueText) {
+                    this.dialogueText.setText('The agency could not prepare a new mission.');
+                }
+            }
+        });
+
+        noBtn.on('pointerdown', () => {
+            this.scene.start('MenuScene');
+        });
+
+        this.add.existing(yesText);
+        this.add.existing(noText);
     }
 
     closeAllUIPanels() {

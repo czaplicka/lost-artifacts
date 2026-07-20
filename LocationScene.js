@@ -1,6 +1,7 @@
 import { gameState, saveGameState } from './GameData.js';
-import { buildNpcDialogue } from './dialogueBuilder.js';
+import { buildNpcDialogue, buildFalseLeadDialogue } from './dialogueBuilder.js';
 import { ensureHud } from './hudHelpers.js';
+import { EventBus } from './EventBus.js';
 
 const NPC_DIALOGUE_CACHE_MAP = {
   bankier: 'dialogue_banker',
@@ -32,6 +33,13 @@ export class LocationScene extends Phaser.Scene {
     this.encounterId = null;
     this.npcId = null;
     this.locationId = null;
+    this.encounterMemory = null;
+    this.isReminder = false;
+    this.isCorrectCity = true;
+    this.isCrimeCity = false;
+    this.isNextTargetCity = false;
+    this.isFalseLead = false;
+    this.timeCostApplied = false;
   }
 
   init(data = {}) {
@@ -41,10 +49,18 @@ export class LocationScene extends Phaser.Scene {
     this.locationId = data.locationId || null;
     this.isRepeat = Boolean(data.isRepeat);
 
+    this.isCrimeCity = data.isCrimeCity ?? false;
+    this.isNextTargetCity = data.isNextTargetCity ?? false;
+    this.isCorrectCity = data.isCorrectCity ?? (this.isCrimeCity || this.isNextTargetCity);
+
     this.lines = [];
     this.generatedNotes = [];
     this.isFinishing = false;
     this.dialogueText = null;
+    this.encounterMemory = null;
+    this.isReminder = false;
+    this.isFalseLead = !this.isCorrectCity;
+    this.timeCostApplied = false;
 
     if (!Array.isArray(gameState.cluesCollected)) {
       gameState.cluesCollected = [];
@@ -53,9 +69,19 @@ export class LocationScene extends Phaser.Scene {
     if (!Array.isArray(gameState.visitedEncounters)) {
       gameState.visitedEncounters = [];
     }
+
+    if (
+      !gameState.encounterMemory ||
+      typeof gameState.encounterMemory !== 'object' ||
+      Array.isArray(gameState.encounterMemory)
+    ) {
+      gameState.encounterMemory = {};
+    }
   }
 
   create() {
+    this.scene.wake('UIScene');
+
     const hud = this.scene.get('PlayerHudScene');
     if (hud?.closeAllUIPanels) {
       hud.closeAllUIPanels();
@@ -81,9 +107,10 @@ export class LocationScene extends Phaser.Scene {
     const npcDialogueBlock = rawDialogueFile?.[dialogueRootKey] || {};
     const cityData = locations.find(city => city.id === this.cityId) || null;
 
-    const suspect = suspects.find(
-      s => s.portraitKey === gameState.currentSuspectPortraitKey
-    ) || null;
+    const suspect =
+      suspects.find(s => s.id === gameState.currentThiefId) ||
+      gameState.currentThief ||
+      null;
 
     const targetCityId = gameState.nextTargetCityId ?? null;
 
@@ -91,21 +118,55 @@ export class LocationScene extends Phaser.Scene {
       console.warn(`LocationScene: unknown npcId "${this.npcId}"`);
     }
 
-    const generatedDialogue = buildNpcDialogue({
-      npcData: npcDialogueBlock,
-      suspect,
-      cityId: this.cityId,
-      targetCityId,
-      sharedCityClues,
-      sharedSuspectClues,
-      isRepeat: this.isRepeat
-    });
+    this.encounterMemory = this.encounterId
+      ? gameState.encounterMemory?.[this.encounterId] || null
+      : null;
 
-    const fallbackLines = [
-      'I saw something strange, detective.',
-      'Something about the suspect stood out, but not enough for amateurs.',
-      'They were asking about another city, and not casually.'
-    ];
+    const hasMemory = Boolean(this.encounterMemory);
+    const previousNotes = Array.isArray(this.encounterMemory?.notes)
+      ? this.encounterMemory.notes
+      : [];
+
+    this.isReminder = Boolean(
+      this.isRepeat &&
+      hasMemory &&
+      this.encounterMemory?.reminderShown === false &&
+      !this.isFalseLead
+    );
+
+    const generatedDialogue = this.isFalseLead
+      ? buildFalseLeadDialogue(npcDialogueBlock, this.cityId)
+      : buildNpcDialogue({
+          npcData: npcDialogueBlock,
+          suspect,
+          cityId: this.cityId,
+          targetCityId,
+          sharedCityClues,
+          sharedSuspectClues,
+          isRepeat: this.isRepeat,
+          previousNotes,
+          isCrimeCity: this.isCrimeCity,
+          isNextTargetCity: this.isNextTargetCity,
+          isCorrectCity: this.isCorrectCity
+        });
+
+    const fallbackLines = this.isFalseLead
+      ? [
+          'Wrong city, detective.',
+          'Nobody here gave me anything worth trusting.',
+          'Check the trail before you waste another conversation.'
+        ]
+      : this.isCrimeCity
+        ? [
+            'You are in the crime city, detective.',
+            'People here noticed more than they admit.',
+            'Start with the smallest inconsistency and the trail will open.'
+          ]
+        : [
+            'I saw something strange, detective.',
+            'Something about the suspect stood out, but not enough for amateurs.',
+            'They were asking about another city, and not casually.'
+          ];
 
     this.lines = Array.isArray(generatedDialogue?.lines)
       ? generatedDialogue.lines.filter(Boolean).slice(0, 3)
@@ -119,9 +180,11 @@ export class LocationScene extends Phaser.Scene {
       ? generatedDialogue.notes.filter(Boolean)
       : [];
 
-    if (this.locationId && this.textures.exists(this.locationId)) {
+    const backgroundKey = this.getLocationBackgroundKey(this.locationId);
+
+    if (backgroundKey && this.textures.exists(backgroundKey)) {
       this.add
-        .image(width / 2, height / 2, this.locationId)
+        .image(width / 2, height / 2, backgroundKey)
         .setDisplaySize(width, height);
     } else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
       this.add
@@ -139,6 +202,16 @@ export class LocationScene extends Phaser.Scene {
       activeHud.refreshNotebook();
     } else if (activeHud?.refreshUI) {
       activeHud.refreshUI();
+    }
+
+    if (!this.timeCostApplied) {
+      const encounterTimeHours = 1;
+      const encounterTimeMinutes = 0;
+
+      EventBus.emit('advanceTime', encounterTimeHours, encounterTimeMinutes);
+      gameState.timeSpent = (gameState.timeSpent || 0) + encounterTimeHours;
+
+      this.timeCostApplied = true;
     }
 
     this.input.on('pointerdown', this.handlePointerDown, this);
@@ -169,7 +242,15 @@ export class LocationScene extends Phaser.Scene {
       wordWrap: { width: width - 60 }
     }).setDepth(11);
 
-    this.add.text(width - 230, height - 42, 'Click to leave', {
+    const footerText = this.isCrimeCity
+      ? 'Crime city witness'
+      : this.isNextTargetCity
+        ? 'Hot trail witness'
+        : this.isFalseLead
+          ? 'Cold lead'
+          : 'Click to leave';
+
+    this.add.text(width - 260, height - 42, footerText, {
       fontFamily: 'Special Elite',
       fontSize: '18px',
       color: '#cccccc'
@@ -217,16 +298,44 @@ export class LocationScene extends Phaser.Scene {
       gameState.visitedEncounters = [];
     }
 
+    if (
+      !gameState.encounterMemory ||
+      typeof gameState.encounterMemory !== 'object' ||
+      Array.isArray(gameState.encounterMemory)
+    ) {
+      gameState.encounterMemory = {};
+    }
+
     if (this.encounterId && !gameState.visitedEncounters.includes(this.encounterId)) {
       gameState.visitedEncounters.push(this.encounterId);
     }
 
-    if (!this.isRepeat && this.generatedNotes.length > 0) {
+    if (!this.isRepeat && !this.isFalseLead && this.generatedNotes.length > 0) {
       this.generatedNotes.forEach(note => {
         if (note && !this.hasClue(note)) {
           gameState.cluesCollected.push(note);
         }
       });
+    }
+
+    if (this.encounterId && !this.isFalseLead) {
+      const existingMemory = gameState.encounterMemory[this.encounterId] || null;
+
+      if (!existingMemory && !this.isRepeat) {
+        gameState.encounterMemory[this.encounterId] = {
+          firstDialogueSeen: true,
+          reminderShown: false,
+          notes: [...this.generatedNotes],
+          lines: [...this.lines],
+          isCrimeCity: this.isCrimeCity,
+          isNextTargetCity: this.isNextTargetCity
+        };
+      } else if (existingMemory && this.isReminder) {
+        gameState.encounterMemory[this.encounterId] = {
+          ...existingMemory,
+          reminderShown: true
+        };
+      }
     }
 
     saveGameState();
@@ -269,6 +378,17 @@ export class LocationScene extends Phaser.Scene {
     };
 
     return names[npcId] || npcId || 'Unknown witness';
+  }
+
+  getLocationBackgroundKey(locationId) {
+    const map = {
+      hotel: 'hotel_maid',
+      hotel_maid: 'hotel_maid',
+      parking: 'parking_bg',
+      parking_bg: 'parking_bg'
+    };
+
+    return map[locationId] || locationId || null;
   }
 
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

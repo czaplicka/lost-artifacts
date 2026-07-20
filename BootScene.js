@@ -10,6 +10,7 @@ export class BootScene extends Phaser.Scene {
     }
 
     create() {
+        this.scene.sleep('UIScene');
         try {
             loadGameState();
         } catch (error) {

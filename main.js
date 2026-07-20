@@ -9,6 +9,10 @@ import { CityScene } from './CityScene.js';
 import { LocationScene } from './LocationScene.js';
 import { TravelTransitionScene } from './TravelTransitionScene.js';
 import { PlayerHudScene } from './PlayerHudScene.js';
+import { ArrestSelectionScene } from './ArrestSelectionScene.js';
+import { AgainScene } from './AgainScene.js';
+import { SuccessScene } from './SuccessScene.js';
+import UIScene from './ui/UIScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -27,7 +31,11 @@ const config = {
         CityScene,
         LocationScene,
         TravelTransitionScene,
-        PlayerHudScene
+        PlayerHudScene,
+        ArrestSelectionScene,
+        SuccessScene,
+        AgainScene,
+        UIScene
     ],
     dom: {
         createContainer: true

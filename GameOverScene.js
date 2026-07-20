@@ -4,6 +4,7 @@ export class GameOverScene extends Phaser.Scene {
     }
 
     create() {
+        this.scene.sleep('UIScene');
         const music = this.registry.get('bgMusic');
         if (music && music.isPlaying) {
             music.stop();
