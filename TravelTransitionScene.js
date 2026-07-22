@@ -24,6 +24,8 @@ export class TravelTransitionScene extends Phaser.Scene {
         const {
             fromCity = 'Unknown',
             toCity = 'Unknown',
+            toCityId = null,
+            cityId = null,
             travelHours = 0,
             status = 'CONTINUE'
         } = this.transitionData;
@@ -45,7 +47,7 @@ export class TravelTransitionScene extends Phaser.Scene {
             color: '#f4e7c1'
         }).setOrigin(0.5);
 
-        this.add.text(width / 2, 170, `${fromCity}  →  ${toCity}`, {
+        this.add.text(width / 2, 170, `${fromCity} → ${toCity}`, {
             fontFamily: 'Special Elite',
             fontSize: '34px',
             color: '#ffffff',
@@ -117,10 +119,8 @@ export class TravelTransitionScene extends Phaser.Scene {
         if (this.isLeaving) return;
         this.isLeaving = true;
 
-        const { status, cityId } = this.transitionData;
-        const destinationScene = status === 'FINAL_SHOWDOWN'
-            ? 'ArrestSelectionScene'
-            : 'CityScene';
+        const { status, cityId, toCityId } = this.transitionData;
+        const targetCityId = cityId || toCityId || null;
 
         const camera = this.cameras.main;
 
@@ -128,16 +128,22 @@ export class TravelTransitionScene extends Phaser.Scene {
 
         camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
             console.log('TravelTransition ->', {
-                destinationScene,
+                destinationScene: 'CityScene',
+                targetCityId,
                 transitionData: this.transitionData
             });
 
-            if (destinationScene === 'ArrestSelectionScene') {
-                this.scene.start('ArrestSelectionScene');
+            if (!targetCityId) {
+                console.error('TravelTransitionScene: missing target city id', this.transitionData);
+                this.scene.start('MenuScene');
                 return;
             }
 
-            this.scene.start('CityScene', { cityId });
+            this.scene.start('CityScene', {
+                cityId: targetCityId,
+                investigationStatus: status,
+                isFinalShowdown: status === 'FINAL_SHOWDOWN'
+            });
         });
     }
 
@@ -167,18 +173,16 @@ export class TravelTransitionScene extends Phaser.Scene {
         });
     }
 
-    getDetailText(status) {
-        switch (status) {
-            case 'CRIME_SCENE_REACHED':
-                return 'A fresh city, fresh witnesses, and fresh lies. Keep your eyes open the moment you arrive.';
-            case 'FINAL_SHOWDOWN':
-                return 'The suspect is cornered. One final identification will decide the case.';
-            case 'CONTINUE':
-                return 'The trail stretches onward. Somewhere in the next city, someone has seen more than they admitted.';
-            case 'FALSE_LEAD':
-                return 'Not every lead is clean. Sometimes the trail bends before it breaks.';
-            default:
-                return 'Another city, another chance to get one step closer to the truth.';
-        }
+getDetailText(status) {
+    switch (status) {
+        case 'FINAL_SHOWDOWN':
+            return 'The case is tightening around a single name. One decision now will settle everything.';
+        case 'FALSE_LEAD':
+            return 'Not every road rewards the chase. Sometimes the silence says more than the witnesses do.';
+        case 'CRIME_SCENE_REACHED':
+        case 'CONTINUE':
+        default:
+            return 'Another stop, another layer of the story, another chance to read the room correctly.';
     }
+}
 }

@@ -1,6 +1,6 @@
-import { advanceInvestigation } from '../gameSetup.js';
 import { saveGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
+import { travelToCity as performTravel } from '../gameSetup.js';
 
 export class DestinationsUI {
     constructor(scene) {
@@ -106,7 +106,7 @@ export class DestinationsUI {
         if (!this.activePins.length) return;
 
         this.activePins.forEach(pinObj => {
-            if (pinObj && pinObj.destroy) {
+            if (pinObj?.destroy) {
                 pinObj.destroy(true);
             }
         });
@@ -162,18 +162,29 @@ export class DestinationsUI {
         });
     }
 
+    cleanupBeforeTravel() {
+        if (this.scene.closeAllUIPanels) {
+            this.scene.closeAllUIPanels();
+        }
+
+        const hud = this.scene.scene.get('PlayerHudScene');
+        if (hud?.closeAllUIPanels) {
+            hud.closeAllUIPanels();
+        }
+
+        const sceneManager = this.scene.scene;
+
+        if (sceneManager.isActive('LocationScene') || sceneManager.isSleeping('LocationScene')) {
+            sceneManager.stop('LocationScene');
+        }
+    }
+
     travelToCity(selectedCity) {
         if (this.isTransitioning) return;
         this.isTransitioning = true;
 
         this.close();
 
-        if (this.scene.closeAllUIPanels) {
-            this.scene.closeAllUIPanels();
-        }
-
-        const fromCity = this.gameState.currentCity;
-        const fromCityId = this.gameState.currentCityId;
         const locationsData = this.scene.cache.json.get('locations') || [];
 
         const selectedCityData = selectedCity?.id
@@ -186,101 +197,52 @@ export class DestinationsUI {
             return;
         }
 
-        const selectedCityId = selectedCityData.id;
-        const selectedCityName = selectedCityData.city;
-        const wasCorrect = selectedCityId === this.gameState.nextTargetCityId;
+        const sceneManager = this.scene.scene;
+        const transitionExists = sceneManager.keys?.TravelTransitionScene || sceneManager.get('TravelTransitionScene');
 
-        if (!this.scene.scene.get('TravelTransitionScene')) {
+        if (!transitionExists) {
             console.error('TravelTransitionScene is not registered in game config.');
             this.isTransitioning = false;
             return;
         }
 
-        let travelHours = 6;
+        try {
+            const result = performTravel(selectedCityData.city, locationsData);
 
-        const currentCityData = this.gameState.currentCityData ||
-            locationsData.find(loc => loc.id === fromCityId);
+            if (!result) {
+                console.error('travelToCity zwróciło pusty wynik');
+                this.isTransitioning = false;
+                return;
+            }
 
-        if (currentCityData?.map && selectedCityData?.map) {
-            const dx = selectedCityData.map.x - currentCityData.map.x;
-            const dy = selectedCityData.map.y - currentCityData.map.y;
-            const distance = Math.hypot(dx, dy);
-            const TIME_MULTIPLIER = 0.02;
+            EventBus.emit('advanceTime', result.travelHours || 0, 0);
+            saveGameState();
 
-            travelHours = Math.max(1, Math.round(distance * TIME_MULTIPLIER));
+            console.log('[DestinationsUI.travelToCity]', {
+                fromCity: result.fromCity,
+                toCity: result.toCity,
+                status: result.status,
+                wasCorrect: result.wasCorrect,
+                travelHours: result.travelHours,
+                isCrimeSceneArrival: result.isCrimeSceneArrival
+            });
 
-            console.log(`Dystans z ${fromCity} do ${selectedCityName}: ${distance.toFixed(1)}px`);
-            console.log(`Wyliczony czas: ${travelHours} godzin.`);
+            this.cleanupBeforeTravel();
+
+            this.scene.scene.start('TravelTransitionScene', {
+                fromCity: result.fromCity,
+                toCity: result.toCity,
+                toCityId: selectedCityData.id,
+                cityId: selectedCityData.id,
+                travelHours: result.travelHours || 0,
+                wasCorrect: result.wasCorrect,
+                status: result.status,
+                isCrimeSceneArrival: result.isCrimeSceneArrival || false
+            });
+        } catch (error) {
+            console.error('Błąd podczas podróży do miasta:', error);
+            this.isTransitioning = false;
         }
-
-        this.registerTravel({
-            fromCity,
-            fromCityId,
-            toCity: selectedCityName,
-            toCityId: selectedCityId,
-            wasCorrect,
-            travelHours
-        });
-
-        this.gameState.currentCity = selectedCityName;
-        this.gameState.currentCityId = selectedCityId;
-        this.gameState.currentCityData = selectedCityData;
-
-        if (!Array.isArray(this.gameState.visitedCities)) {
-            this.gameState.visitedCities = [];
-        }
-
-        if (!this.gameState.visitedCities.includes(selectedCityId)) {
-            this.gameState.visitedCities.push(selectedCityId);
-        }
-
-        if (this.gameState.mustIncludeCityId && selectedCityId === this.gameState.mustIncludeCityId) {
-            this.gameState.mustIncludeCityId = null;
-        }
-
-        let status = 'FALSE_LEAD';
-
-        if (wasCorrect) {
-            status = advanceInvestigation(locationsData);
-        } else {
-            this.gameState.score = Math.max(0, (this.gameState.score || 0) - 25);
-        }
-
-        EventBus.emit('advanceTime', travelHours, 0);
-
-        saveGameState();
-
-        this.scene.scene.start('TravelTransitionScene', {
-            fromCity,
-            fromCityId,
-            toCity: selectedCityName,
-            toCityId: selectedCityId,
-            travelHours,
-            wasCorrect,
-            status,
-            cityId: selectedCityId,
-            nextScene: 'LocationScene'
-        });
-    }
-
-    registerTravel({ fromCity, fromCityId, toCity, toCityId, wasCorrect, travelHours = 6 }) {
-        if (!Array.isArray(this.gameState.travelHistory)) {
-            this.gameState.travelHistory = [];
-        }
-
-        const entry = {
-            fromCity: fromCity || null,
-            fromCityId: fromCityId || null,
-            toCity: toCity || null,
-            toCityId: toCityId || null,
-            wasCorrect: Boolean(wasCorrect),
-            travelHours: travelHours,
-            timestamp: Date.now()
-        };
-
-        this.gameState.travelHistory.push(entry);
-        this.gameState.lastTravel = entry;
-        this.gameState.timeSpent = (this.gameState.timeSpent || 0) + travelHours;
     }
 
     destroy() {

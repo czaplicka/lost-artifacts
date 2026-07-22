@@ -146,7 +146,8 @@
     "accent": "Belarussian",
     "skills": "Martial arts, Firearms, Tactical planning",
     "habitus": "Shooting, Hiking, Traveling",
-    "portraitKey": "alexandra_ivanova"
+    "portraitKey": "alexandra_ivanova",
+    "suspectImageKey": "ai"
   },
   {
     "id": "sergei_petrov",
@@ -160,7 +161,8 @@
     "accent": "Russian",
     "skills": "Hand-to-hand combat, Espionage, Disguise",
     "habitus": "Chess, Reading, Traveling",
-    "portraitKey": "sergei_petrov"
+    "portraitKey": "sergei_petrov",
+    "suspectImageKey": "sp"
   },
   {
     "id": "isabella_rossi",
@@ -174,8 +176,9 @@
     "accent": "Italian",
     "skills": "Negotiation, Persuasion, Deception",
     "habitus": "Cooking, Wine tasting, Eating out",
-    "portraitKey": "isabella_rossi"
-  },
+    "portraitKey": "isabella_rossi",
+    "suspectImageKey": "ir"
+    },
   {
     "id": "liam_oconnor",
     "name": "Liam O'Connor",
@@ -188,7 +191,8 @@
     "accent": "Irish",
     "skills": "Lockpicking, Stealth, Disguise",
     "habitus": "Playing guitar, Drinking, Storytelling",
-    "portraitKey": "liam_oconnor"
+    "portraitKey": "liam_oconnor",
+    "suspectImageKey": "lo"
   },
   {
     "id": "ava_thompson",
@@ -202,7 +206,8 @@
     "accent": "American",
     "skills": "Investigation, Analysis, Deduction",
     "habitus": "Reading, Writing, Gardening",
-    "portraitKey": "ava_thompson"
+    "portraitKey": "ava_thompson",
+    "suspectImageKey": "at"
   },
   {
     "id": "maximilian_schmidt",
@@ -215,8 +220,9 @@
     "eyes": "Brown",
     "accent": "German",
     "skills": "Engineering, Problem-solving, Technical knowledge",
-    "habitus": "Reading, Building models, Playing chess",
-    "portraitKey": "maximilian_schmidt"
+    "habitus": "Reading, Building models, Chess",
+    "portraitKey": "maximilian_schmidt",
+    "suspectImageKey": "ms"
   },
   {
     "id": "brendan_ross",
@@ -230,7 +236,8 @@
     "accent": "Scottish",
     "skills": "Negotiation, Persuasion, Deception",
     "habitus": "Running, Hiking, Traveling",
-    "portraitKey": "brendan_ross"
+    "portraitKey": "brendan_ross",
+    "suspectImageKey": "br"
   },
   {
     "id": "bai_williams",
@@ -244,7 +251,8 @@
     "accent": "British",
     "skills": "Seduction, Persuasion, Manipulation",
     "habitus": "Swimming, Running, Traveling",
-    "portraitKey": "bai_williams"
+    "portraitKey": "bai_williams",
+    "suspectImageKey": "bw"
   },
   {
     "id": "albert_johnson",
@@ -258,7 +266,8 @@
     "accent": "Australian",
     "skills": "Investigation, Interrogation, Deduction",
     "habitus": "Reading, Writing, Traveling",
-    "portraitKey": "albert_johnson"
+    "portraitKey": "albert_johnson",
+    "suspectImageKey": "aj"
   },
   {
     "id": "anna_bocian",
@@ -272,7 +281,8 @@
     "accent": "Polish",
     "skills": "History, Museum studies, Research",
     "habitus": "Exploring, Watching Movies, Eating out",
-    "portraitKey": "anna_bocian"
+    "portraitKey": "anna_bocian",
+    "suspectImageKey": "ab"
   },
   {
     "id": "aleksander_petrov",
@@ -285,8 +295,9 @@
     "eyes": "Brown",
     "accent": "Russian",
     "skills": "Lockpicking, Disguise, Pickpocketing",
-    "habitus": "Working out, Playing chess, Playing video games",
-    "portraitKey": "aleksander_petrov"
+    "habitus": "Working out, Chess, Playing video games",
+    "portraitKey": "aleksander_petrov",
+    "suspectImageKey": "ap"
   },
   {
     "id": "marie_dubois",
@@ -300,7 +311,8 @@
     "accent": "French",
     "skills": "Seduction, Persuasion, Manipulation",
     "habitus": "Flirting, Shopping, Stealth",
-    "portraitKey": "marie_dubois"
+    "portraitKey": "marie_dubois",
+    "suspectImageKey": "md"
   },
   {
     "id": "lotte_chantal",
@@ -314,6 +326,7 @@
     "accent": "Belgian",
     "skills": "Lockpicking, Interrogation, Problem-solving",
     "habitus": "Reading, Flirting, Dancing",
-    "portraitKey": "lotte_chantal"
+    "portraitKey": "lotte_chantal",
+    "suspectImageKey": "lc"
   }
 ]

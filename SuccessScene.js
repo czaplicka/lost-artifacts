@@ -15,11 +15,11 @@ export class SuccessScene extends Phaser.Scene {
 
         const { width, height } = this.scale;
 
-        if (this.textures.exists('backgroundgo')) {
-            this.add.image(width / 2, height / 2, 'backgroundgo')
+        if (this.textures.exists('backgrounds')) {
+            this.add.image(width / 2, height / 2, 'backgrounds')
                 .setDisplaySize(width, height);
         } else {
-            console.warn('Missing texture: backgroundgo');
+            console.warn('Missing texture: backgrounds');
             this.cameras.main.setBackgroundColor('#101010');
         }
 
@@ -34,16 +34,16 @@ export class SuccessScene extends Phaser.Scene {
 
         const thiefName = gameState.currentThief?.name || 'Unknown suspect';
 
-        this.add.text(width / 2, 290, `You captured:\n${thiefName}`, {
-            fontFamily: 'Special Elite',
+        this.add.text(200, 290, `You captured:\n${thiefName}`, {
+            fontFamily: 'PressStart2P',
             fontSize: '30px',
             color: '#ffffff',
             align: 'center',
             lineSpacing: 10
         }).setOrigin(0.5);
 
-        this.add.text(width / 2, 410, 'The artifact is safe.\nThe agency confirms your success.', {
-            fontFamily: 'Special Elite',
+        this.add.text(200, 410, 'The artifact is safe.\nThe agency confirms your success.', {
+            fontFamily: 'PressStart2P',
             fontSize: '28px',
             color: '#f5f5f5',
             align: 'center',

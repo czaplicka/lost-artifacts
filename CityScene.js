@@ -3,12 +3,12 @@ import { ensureHud } from './hudHelpers.js';
 import { EventBus } from './EventBus.js';
 
 const LOCATION_HOURS = {
-  'bank': ['Morning', 'Afternoon'],
-  'policehq': ['Morning', 'Afternoon', 'Evening'],
-  'hotel': ['Morning', 'Afternoon', 'Evening', 'Night'],
-  'airport': ['Morning', 'Afternoon', 'Evening', 'Night'],
-  'alley': ['Morning', 'Afternoon', 'Evening', 'Night'],
-  'parking': ['Morning', 'Afternoon', 'Evening']
+  bank: ['Morning', 'Afternoon'],
+  policehq: ['Morning', 'Afternoon', 'Evening'],
+  hotel: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  airport: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  alley: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  parking: ['Morning', 'Afternoon', 'Evening']
 };
 
 export class CityScene extends Phaser.Scene {
@@ -17,6 +17,10 @@ export class CityScene extends Phaser.Scene {
     this.city = null;
     this.cityId = 'warsaw';
     this.interactiveObjects = [];
+    this.openDestinationsOnCreate = false;
+    this.cityCompleted = false;
+    this.investigationStatus = null;
+    this.isFinalShowdown = false;
   }
 
   init(data = {}) {
@@ -25,6 +29,22 @@ export class CityScene extends Phaser.Scene {
       gameState.currentCityId ||
       this.registry.get('currentCityId') ||
       'warsaw';
+
+    this.cityCompleted = Boolean(data.cityCompleted);
+    this.investigationStatus = data.investigationStatus || null;
+    this.isFinalShowdown = Boolean(
+      data.isFinalShowdown || this.investigationStatus === 'FINAL_SHOWDOWN'
+    );
+
+    this.openDestinationsOnCreate = Boolean(
+      data.openDestinations ||
+      (
+        this.cityCompleted &&
+        this.investigationStatus &&
+        this.investigationStatus !== 'CITY_STILL_ACTIVE' &&
+        this.investigationStatus !== 'FINAL_SHOWDOWN'
+      )
+    );
 
     this.interactiveObjects = [];
 
@@ -43,9 +63,25 @@ export class CityScene extends Phaser.Scene {
     ) {
       gameState.encounterMemory = {};
     }
+
+    if (
+      !gameState.specialScenesVisited ||
+      typeof gameState.specialScenesVisited !== 'object' ||
+      Array.isArray(gameState.specialScenesVisited)
+    ) {
+      gameState.specialScenesVisited = {};
+    }
   }
 
   create() {
+    if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
+      this.scene.stop('LocationScene');
+    }
+
+    if (this.scene.isActive('ArrestSelectionScene')) {
+      this.scene.stop('ArrestSelectionScene');
+    }
+
     const bgMusic = this.registry.get('bgMusic');
 
     if (bgMusic) {
@@ -82,10 +118,15 @@ export class CityScene extends Phaser.Scene {
     gameState.currentCity = city.city;
     gameState.currentCityData = city;
     this.registry.set('currentCityId', this.cityId);
+    this.registry.set('investigationStatus', this.investigationStatus);
 
     this.createBackground(city);
     this.createHeader(city);
-    this.createEncounters(city);
+
+    if (!this.isFinalShowdown) {
+      this.createEncounters(city);
+      this.createCrimeScene(city);
+    }
 
     ensureHud(this);
 
@@ -100,7 +141,48 @@ export class CityScene extends Phaser.Scene {
       hud.refreshUI();
     }
 
+    if (this.isFinalShowdown) {
+      this.time.delayedCall(250, () => {
+        this.closeAllUIPanels();
+
+        if (!this.scene.isActive('ArrestSelectionScene')) {
+          this.scene.launch('ArrestSelectionScene');
+        } else {
+          this.scene.bringToTop('ArrestSelectionScene');
+        }
+      });
+
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+      return;
+    }
+
+    if (this.openDestinationsOnCreate) {
+      this.time.delayedCall(150, () => {
+        this.openDestinationsPanel();
+      });
+    }
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+  }
+
+  openDestinationsPanel() {
+    const hud = this.scene.get('PlayerHudScene');
+
+    if (hud?.closeAllUIPanels) {
+      hud.closeAllUIPanels();
+    }
+
+    if (hud?.openDestinationsPanel) {
+      hud.openDestinationsPanel();
+      return;
+    }
+
+    if (hud?.toggleDestinationsPanel) {
+      hud.toggleDestinationsPanel(true);
+      return;
+    }
+
+    EventBus.emit('openDestinations');
   }
 
   createBackground(city) {
@@ -127,7 +209,15 @@ export class CityScene extends Phaser.Scene {
       color: '#ffffff'
     });
 
-    this.add.text(40, 54, 'Talk to witnesses and follow the trail.', {
+    let subtitle = 'Talk to witnesses and follow the trail.';
+
+    if (this.isFinalShowdown) {
+      subtitle = 'The suspect is cornered. Review the evidence and make the arrest.';
+    } else if (this.cityCompleted) {
+      subtitle = 'City cleared. Choose the next destination on the map.';
+    }
+
+    this.add.text(40, 54, subtitle, {
       fontFamily: 'Special Elite',
       fontSize: '18px',
       color: '#f1e6b8'
@@ -147,6 +237,10 @@ export class CityScene extends Phaser.Scene {
       const isVisited = this.isEncounterVisited(encounter.id);
       const encounterMemory = this.getEncounterMemory(encounter.id);
       const hasMemory = Boolean(encounterMemory);
+
+      const dialogueTargetCityId =
+        encounterMemory?.dialogueTargetCityId ||
+        this.getDialogueTargetCityId(progressFlags);
 
       const icon = this.add.image(x, y, iconKey)
         .setScale(0.45)
@@ -201,7 +295,7 @@ export class CityScene extends Phaser.Scene {
         const allowedHours = LOCATION_HOURS[locationId];
 
         if (allowedHours && !allowedHours.includes(currentPartOfDay)) {
-          this.showLocationClosedPopup(locationId, encounter);
+          this.showLocationClosedPopup(locationId, encounter, dialogueTargetCityId);
           return;
         }
 
@@ -213,7 +307,8 @@ export class CityScene extends Phaser.Scene {
           isRepeat: hasMemory || isVisited,
           isCrimeCity: progressFlags.isCrimeCity,
           isNextTargetCity: progressFlags.isNextTargetCity,
-          isCorrectCity: progressFlags.isCorrectCity
+          isCorrectCity: progressFlags.isCorrectCity,
+          dialogueTargetCityId
         });
       });
 
@@ -221,22 +316,136 @@ export class CityScene extends Phaser.Scene {
     });
   }
 
+  getParisLouvreVisitKey() {
+    const missionId = gameState.currentMission?.id;
+    const missionCity = gameState.currentMission?.city || 'unknown';
+    const artifact = gameState.currentMission?.artifact || gameState.currentArtifact || 'artifact';
+
+    if (missionId) {
+      return `paris_louvre_${missionId}`;
+    }
+
+    return `paris_louvre_${missionCity}_${artifact}`;
+  }
+
+  createCrimeScene(city) {
+    if (!this.shouldShowCrimeScene(city)) {
+      return;
+    }
+
+    const x = city.crimeSceneX ?? 1220;
+    const y = city.crimeSceneY ?? 500;
+    const hasSearchTexture = this.textures.exists('search');
+
+    const icon = hasSearchTexture
+      ? this.add.image(x, y, 'search').setScale(0.22)
+      : this.add.circle(x, y, 34, 0xd4af37, 0.95).setStrokeStyle(3, 0xfff1a8);
+
+    icon
+      .setDepth(5)
+      .setInteractive({ useHandCursor: true });
+
+    const label = this.add.text(x, y + 64, 'Crime Scene', {
+      fontFamily: 'Special Elite',
+      fontSize: '18px',
+      color: '#ffffff',
+      backgroundColor: '#000000aa',
+      padding: { left: 8, right: 8, top: 4, bottom: 4 }
+    })
+      .setOrigin(0.5)
+      .setDepth(6);
+
+    icon.on('pointerover', () => {
+      if (hasSearchTexture) {
+        icon.setScale(0.25);
+      }
+      label.setColor('#ffe066');
+    });
+
+    icon.on('pointerout', () => {
+      if (hasSearchTexture) {
+        icon.setScale(0.22);
+      }
+      label.setColor('#ffffff');
+    });
+
+    icon.on('pointerdown', () => {
+      this.closeAllUIPanels();
+
+this.scene.start('HiddenObjectsScene', {
+  sceneId: 'louvre',
+  mapKey: 'luvre',
+  mapPath: 'assets/crimes/luvre.json',
+  backgroundMode: 'image',
+  backgroundKey: 'luvre_bg',
+  backgroundPath: 'assets/crimes/luvre.jpg',
+  objectLayerName: 'HiddenObjects',
+  objectsDataKey: 'objects-data',
+  objectsDataPath: 'assets/data/objects.json',
+  itemSceneKey: 'louvre',
+  activeCount: 6,
+  score: gameState.score || 0,
+  timeLimit: 120,
+  returnScene: 'CityScene',
+  returnData: { cityId: this.cityId }
+});
+    });
+
+    this.interactiveObjects.push(icon);
+  }
+
+  shouldShowCrimeScene(city) {
+    const missionCity = gameState.currentMission?.city || null;
+    const currentCityId = city?.id || this.cityId;
+    const visitKey = this.getParisLouvreVisitKey();
+    const alreadyVisited = Boolean(gameState.specialScenesVisited?.[visitKey]);
+
+    return (
+      missionCity === 'Paris' &&
+      currentCityId === 'paris' &&
+      !alreadyVisited
+    );
+  }
+
+  getDialogueTargetCityId(progressFlags = null) {
+    const flags = progressFlags || this.getCityProgressFlags();
+
+    if (flags.isCrimeCity) {
+      if (Array.isArray(gameState.escapeRoute) && gameState.escapeRoute.length > 0) {
+        return (
+          gameState.escapeRoute[Math.max(0, gameState.routeIndex + 1)] ||
+          gameState.escapeRoute[0] ||
+          null
+        );
+      }
+      return null;
+    }
+
+    return gameState.nextTargetCityId || null;
+  }
+
   getCityProgressFlags() {
     const cityId = this.cityId;
 
-    const isCrimeCity = Boolean(gameState.crimeCityId && cityId === gameState.crimeCityId);
+    const isCrimeCity = Boolean(
+      gameState.crimeCityId && cityId === gameState.crimeCityId
+    );
     const isNextTargetCity = Boolean(
       gameState.nextTargetCityId && cityId === gameState.nextTargetCityId
+    );
+    const isJustReachedCorrectCity = Boolean(
+      gameState.justReachedCorrectCityId &&
+      cityId === gameState.justReachedCorrectCityId
     );
 
     return {
       isCrimeCity,
       isNextTargetCity,
-      isCorrectCity: isCrimeCity || isNextTargetCity
+      isCorrectCity: isCrimeCity || isNextTargetCity || isJustReachedCorrectCity
     };
   }
 
-  showLocationClosedPopup(locationId, encounterData) {
+  showLocationClosedPopup(locationId, encounterData, dialogueTargetCityId = null) {
     const width = this.scale.width;
     const height = this.scale.height;
 
@@ -264,7 +473,7 @@ export class CityScene extends Phaser.Scene {
       }
     ).setOrigin(0.5).setDepth(101);
 
-    const waitBtn = this.add.text(width / 2, height / 2 + 30, '[ Wait till Morning ]', {
+    const waitBtn = this.add.text(width / 2, height / 2 + 30, '[ Go to sleep till Morning ]', {
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#ffcc00'
@@ -306,10 +515,13 @@ export class CityScene extends Phaser.Scene {
         encounterId: encounterData.id,
         npcId: encounterData.npcId,
         locationId: encounterData.locationId,
-        isRepeat: this.isEncounterVisited(encounterData.id) || Boolean(this.getEncounterMemory(encounterData.id)),
+        isRepeat:
+          this.isEncounterVisited(encounterData.id) ||
+          Boolean(this.getEncounterMemory(encounterData.id)),
         isCrimeCity: flags.isCrimeCity,
         isNextTargetCity: flags.isNextTargetCity,
-        isCorrectCity: flags.isCorrectCity
+        isCorrectCity: flags.isCorrectCity,
+        dialogueTargetCityId
       });
     });
 
@@ -331,20 +543,32 @@ export class CityScene extends Phaser.Scene {
     });
 
     this.interactiveObjects = [];
+
+    if (this.scene.isActive('ArrestSelectionScene')) {
+      this.scene.stop('ArrestSelectionScene');
+    }
   }
 
   isEncounterVisited(encounterId) {
-    return Array.isArray(gameState.visitedEncounters)
-      && gameState.visitedEncounters.includes(encounterId);
+    return Array.isArray(gameState.visitedEncounters) &&
+      gameState.visitedEncounters.includes(encounterId);
   }
 
   getEncounterMemory(encounterId) {
     if (!encounterId) return null;
-    if (!gameState.encounterMemory || typeof gameState.encounterMemory !== 'object') return null;
+    if (!gameState.encounterMemory || typeof gameState.encounterMemory !== 'object') {
+      return null;
+    }
     return gameState.encounterMemory[encounterId] || null;
   }
 
   getEncounters(city) {
+    if (Array.isArray(gameState.activeLocations) && gameState.activeLocations.length > 0) {
+      return gameState.activeLocations
+        .filter(encounter => encounter.enabled !== false)
+        .slice(0, 3);
+    }
+
     if (Array.isArray(city.encounters) && city.encounters.length > 0) {
       return city.encounters
         .filter(encounter => encounter.enabled !== false)

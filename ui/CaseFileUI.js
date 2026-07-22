@@ -33,9 +33,9 @@ export class CaseFileUI {
             .setScale(0.9)
             .setInteractive();
 
-        const closeHint = this.scene.add.text(700, -465, 'X', {
+        const closeHint = this.scene.add.text(670, -445, 'X', {
             fontFamily: 'PressStart2P',
-            fontSize: '40px',
+            fontSize: '50px',
             color: '#22222200'
         }).setInteractive({ useHandCursor: true });
 
@@ -44,10 +44,10 @@ export class CaseFileUI {
             this.close();
         });
 
-        this.artifactImage = this.scene.add.image(-400, -70, 'artifact_fallback')
-            .setDisplaySize(250, 250);
+        this.artifactImage = this.scene.add.image(-330, -70, 'artifact_fallback')
+            .setDisplaySize(350, 350);
 
-        this.artifactText = this.scene.add.text(-420, 335, '', {
+        this.artifactText = this.scene.add.text(-385, 295, '', {
             fontFamily: 'Special Elite',
             fontSize: '24px',
             color: '#000000',
@@ -55,14 +55,14 @@ export class CaseFileUI {
             lineSpacing: 10
         }).setOrigin(0.5, 0);
 
-        this.cityText = this.scene.add.text(75, -220, '', {
+        this.cityText = this.scene.add.text(90, -220, '', {
             fontFamily: 'Special Elite',
             fontSize: '24px',
             color: '#000000',
             wordWrap: { width: 430 }
         });
 
-        this.descText = this.scene.add.text(75, -110, '', {
+        this.descText = this.scene.add.text(90, -110, '', {
             fontFamily: 'Special Elite',
             fontSize: '24px',
             color: '#000000',
@@ -70,7 +70,7 @@ export class CaseFileUI {
             lineSpacing: 8
         });
 
-        this.significanceText = this.scene.add.text(75, 133, '', {
+        this.significanceText = this.scene.add.text(90, 120, '', {
             fontFamily: 'Special Elite',
             fontSize: '20px',
             color: '#000000',
@@ -78,7 +78,7 @@ export class CaseFileUI {
             lineSpacing: 8
         });
 
-        this.tiesText = this.scene.add.text(75, 305, '', {
+        this.tiesText = this.scene.add.text(90, 275, '', {
             fontFamily: 'Special Elite',
             fontSize: '20px',
             color: '#000000',

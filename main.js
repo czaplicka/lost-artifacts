@@ -13,6 +13,7 @@ import { ArrestSelectionScene } from './ArrestSelectionScene.js';
 import { AgainScene } from './AgainScene.js';
 import { SuccessScene } from './SuccessScene.js';
 import UIScene from './ui/UIScene.js';
+import HiddenObjectsScene from './HiddenObjectsScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -35,6 +36,7 @@ const config = {
         ArrestSelectionScene,
         SuccessScene,
         AgainScene,
+        HiddenObjectsScene,
         UIScene
     ],
     dom: {

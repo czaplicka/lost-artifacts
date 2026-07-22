@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Akta Interpolu - Profil Agenta</title>
+    <!-- Tagi Open Graph, żeby link ładnie wyglądał na Discordzie/Facebooku -->
+    <meta property="og:title" content="Sprawdź moje akta detektywa!">
+    <meta property="og:description" content="Ranga: Inspektor | Rozwiązane sprawy: 42. Spróbuj pobić mój wynik!">
+    <link rel="stylesheet" href="auth-styles.css">
+    <style>
+        /* Dodatkowe style dla publicznej wizytówki */
+        .public-dossier {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #e8dcc4;
+            border: 2px solid #3c3c3c;
+            padding: 40px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+        .stamp-top-secret {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #8b0000;
+            border: 4px solid #8b0000;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 24px;
+            transform: rotate(15deg);
+            opacity: 0.8;
+        }
+        .agent-header { display: flex; align-items: center; gap: 20px; border-bottom: 2px dashed #333; padding-bottom: 20px; }
+        .photo-placeholder { width: 100px; height: 120px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .achievements { margin-top: 30px; }
+        .badge { display: inline-block; padding: 10px; border: 1px solid #333; margin-right: 10px; background: rgba(255,255,255,0.4); text-align: center;}
+    </style>
+</head>
+<body>
+
+<div class="public-dossier">
+    <div class="stamp-top-secret">ODTAJNIONE</div>
+    
+    <div class="agent-header">
+        <div class="photo-placeholder">
+            <span style="font-size: 40px;">👤</span>
+        </div>
+        <div>
+            <h2>AGENT: <span id="pub-alias">Ładowanie...</span></h2>
+            <p><strong>Obecna Ranga:</strong> <span id="pub-rank">...</span></p>
+            <p><strong>Status:</strong> Aktywny w służbie</p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div><strong>Punkty globalne:</strong> <span id="pub-points">0</span></div>
+        <div><strong>Pozycja w rankingu:</strong> #<span id="pub-leaderboard">...</span></div>
+        <div><strong>Rozwiązane sprawy:</strong> <span id="pub-cases">0</span></div>
+        <div><strong>Złapani złodzieje:</strong> <span id="pub-arrests">0</span></div>
+    </div>
+
+    <div class="achievements">
+        <h3>Odznaczenia (Osiągnięcia)</h3>
+        <div id="badges-container">
+            <!-- Odznaki wstrzykiwane przez JS -->
+            <div class="badge">🥇<br>Złota Lupa</div>
+            <div class="badge">⏱️<br>Szybki jak wiatr</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; text-align: center;">
+        <button class="btn-stamp" id="btn-copy-link">Kopiuj link do akt</button>
+        <p style="font-size: 12px; margin-top: 15px;">Chcesz dołączyć do agencji? <a href="/index.html">Zagraj w Lost Artefacts</a></p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // Konfiguracja Supabase
+    const supabaseUrl = 'TWOJ_URL';
+    const supabaseKey = 'TWOJ_ANON_KEY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Pobranie aliasu z adresu URL (np. ?alias=Kruk)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetAlias = urlParams.get('alias');
+
+    async function loadPublicProfile() {
+        if (!targetAlias) {
+            document.getElementById('pub-alias').innerText = "NIE ZNALEZIONO AGENTA";
+            return;
+        }
+
+        // Pobranie z publicznej tabeli profili w Supabase
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('alias, rank, points, cases_solved, arrests, achievements')
+            .eq('alias', targetAlias)
+            .single();
+
+        if (error || !data) {
+            document.getElementById('pub-alias').innerText = "AKTA UTRTAJONE LUB BRAK AGENTA";
+            return;
+        }
+
+        // Wypełnianie DOM danymi z bazy
+        document.getElementById('pub-alias').innerText = data.alias;
+        document.getElementById('pub-rank').innerText = data.rank;
+        document.getElementById('pub-points').innerText = data.points;
+        document.getElementById('pub-cases').innerText = data.cases_solved;
+        document.getElementById('pub-arrests').innerText = data.arrests;
+        
+        // Aktualizacja tytułu strony (dla udostępniania)
+        document.title = `Akta Interpolu - ${data.alias} (${data.rank})`;
+    }
+
+    loadPublicProfile();
+
+    // Obsługa przycisku "Kopiuj link"
+    document.getElementById('btn-copy-link').addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Link do akt skopiowany do schowka! Wyślij go znajomym.");
+    });
+</script>
+</body>
+</html>

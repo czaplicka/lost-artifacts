@@ -10,13 +10,15 @@ export const defaultGameState = {
   currentEncounterId: null,
 
   finalArrestResult: null,
-finalArrestSuspectId: null,
-caseResolved: false,
-caseFailed: false,
+  finalArrestSuspectId: null,
+  caseResolved: false,
+  caseFailed: false,
 
   crimeCity: null,
   crimeCityId: null,
   crimeSceneVisited: false,
+  specialScenesVisited: {},
+  justReachedCorrectCityId: null,
 
   activeLocations: [],
   currentDestinations: [],
@@ -83,8 +85,14 @@ clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : fal
 
   clean.crimeCity = data?.crimeCity ?? null;
   clean.crimeCityId = data?.crimeCityId ?? null;
-  clean.crimeSceneVisited =
-  typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
+  clean.crimeSceneVisited = typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
+clean.specialScenesVisited =
+  data?.specialScenesVisited &&
+  typeof data.specialScenesVisited === 'object' &&
+  !Array.isArray(data.specialScenesVisited)
+    ? structuredClone(data.specialScenesVisited)
+    : {};
+  clean.justReachedCorrectCityId = data?.justReachedCorrectCityId ?? null;
 
   clean.activeLocations = Array.isArray(data?.activeLocations) ? structuredClone(data.activeLocations) : [];
   clean.currentDestinations = Array.isArray(data?.currentDestinations) ? structuredClone(data.currentDestinations) : [];

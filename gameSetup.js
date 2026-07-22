@@ -14,12 +14,10 @@ const ESCAPE_ROUTE_LENGTH = 4;
 
 function shuffle(array) {
   const result = [...array];
-
-  for (let i = result.length - 1; i > 0; i--) {
+  for (let i = result.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [result[i], result[j]] = [result[j], result[i]];
   }
-
   return result;
 }
 
@@ -37,16 +35,15 @@ function normalizeCityId(cityName) {
   const map = {
     London: 'london',
     Paris: 'paris',
-    'New Delhi': 'new_delhi',
+    'New Delhi': 'newdelhi',
     Warsaw: 'warsaw',
-    'New York City': 'new_york_city',
+    'New York City': 'newyorkcity',
     Berlin: 'berlin',
     'Mark Agency Headquarters': 'hq'
   };
 
   if (!cityName || typeof cityName !== 'string') return null;
-
-  return map[cityName] || cityName.toLowerCase().replace(/\s+/g, '_');
+  return map[cityName] || cityName.toLowerCase().replace(/\s+/g, '');
 }
 
 function getLocationByCity(cityName, locationsData) {
@@ -77,9 +74,7 @@ function ensureMustIncludeDestination(destinations, locationsData) {
   const result = Array.isArray(destinations) ? [...destinations] : [];
   const mustIncludeCityId = gameState.mustIncludeCityId;
 
-  if (!mustIncludeCityId) {
-    return result;
-  }
+  if (!mustIncludeCityId) return result;
 
   if (gameState.currentCityId === mustIncludeCityId) {
     gameState.mustIncludeCityId = null;
@@ -90,15 +85,10 @@ function ensureMustIncludeDestination(destinations, locationsData) {
     loc => (loc?.id || normalizeCityId(loc?.city)) === mustIncludeCityId
   );
 
-  if (alreadyIncluded) {
-    return result;
-  }
+  if (alreadyIncluded) return result;
 
   const requiredCity = getLocationById(mustIncludeCityId, locationsData);
-
-  if (requiredCity) {
-    result.unshift(requiredCity);
-  }
+  if (requiredCity) result.unshift(requiredCity);
 
   return result.slice(0, MAX_DESTINATIONS);
 }
@@ -107,7 +97,6 @@ function generateDestinationsForCurrentCity(locationsData) {
   const currentCity = gameState.currentCity;
   const correctCity = gameState.nextTargetCity;
   const returnCity = gameState.lastTravel?.from || null;
-
   const finalDestinations = [];
   const usedCities = new Set();
 
@@ -121,13 +110,8 @@ function generateDestinationsForCurrentCity(locationsData) {
     usedCities.add(cityData.city);
   };
 
-  if (correctCity) {
-    addCity(getLocationByCity(correctCity, locationsData));
-  }
-
-  if (returnCity) {
-    addCity(getLocationByCity(returnCity, locationsData));
-  }
+  if (correctCity) addCity(getLocationByCity(correctCity, locationsData));
+  if (returnCity) addCity(getLocationByCity(returnCity, locationsData));
 
   const fillerCities = shuffle(
     locationsData.filter(
@@ -164,18 +148,16 @@ function buildActiveEncounters(cityData) {
   const locationPool = Array.isArray(cityData.locationPool)
     ? cityData.locationPool
     : Array.isArray(cityData.availableLocations)
-      ? cityData.availableLocations
-      : [];
+    ? cityData.availableLocations
+    : [];
 
   const npcPool = Array.isArray(cityData.npcPool)
     ? cityData.npcPool
     : Array.isArray(cityData.npc)
-      ? cityData.npc
-      : [];
+    ? cityData.npc
+    : [];
 
-  if (locationPool.length === 0 || npcPool.length === 0) {
-    return [];
-  }
+  if (locationPool.length === 0 && npcPool.length === 0) return [];
 
   const chosenLocations = getRandomItems(
     locationPool,
@@ -190,6 +172,17 @@ function buildActiveEncounters(cityData) {
     cityY: [700, 620, 700][index] || 700,
     enabled: true
   }));
+}
+
+function clearTravelCluesForCity(cityId) {
+  if (!cityId || !Array.isArray(gameState.cluesCollected)) return;
+
+  gameState.cluesCollected = gameState.cluesCollected.filter(clue => {
+    if (!clue || typeof clue !== 'object') return true;
+    if (clue.type !== 'travel') return true;
+
+    return clue.cityId !== cityId && clue.value !== cityId;
+  });
 }
 
 export function getTravelHours(fromCityName, toCityName, locationsData) {
@@ -232,16 +225,13 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   const thief = getRandomItem(suspectsData);
   const mission = getRandomItem(missionsData);
 
-  if (!thief) {
-    throw new Error('Failed to select a thief.');
-  }
-
-  if (!mission || !mission.city) {
-    throw new Error('Failed to select a valid mission.');
-  }
+  if (!thief) throw new Error('Failed to select a thief.');
+  if (!mission || !mission.city) throw new Error('Failed to select a valid mission.');
 
   const crimeCityData = locationsData.find(location => location.city === mission.city);
-  const hqData = locationsData.find(location => location.city === HQ_CITY || location.id === HQ_ID);
+  const hqData = locationsData.find(
+    location => location.city === HQ_CITY || location.id === HQ_ID
+  );
 
   if (!crimeCityData) {
     throw new Error(`No location data found for city: ${mission.city}`);
@@ -251,9 +241,14 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
     throw new Error(`No HQ location data found for city: ${HQ_CITY}`);
   }
 
+  const crimeCityId = crimeCityData.id || normalizeCityId(crimeCityData.city);
+
   const availableEscapeRouteIds = shuffle(
     locationsData
-      .filter(loc => loc?.city && loc.city !== mission.city && loc.city !== HQ_CITY)
+      .filter(loc => {
+        const locId = loc.id || normalizeCityId(loc.city);
+        return loc?.city && locId !== crimeCityId && locId !== HQ_ID;
+      })
       .map(loc => loc.id || normalizeCityId(loc.city))
   ).slice(0, ESCAPE_ROUTE_LENGTH);
 
@@ -268,16 +263,15 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.currentEncounterId = null;
 
   gameState.crimeCity = crimeCityData.city;
-  gameState.crimeCityId = crimeCityData.id || normalizeCityId(crimeCityData.city);
-
+  gameState.crimeCityId = crimeCityId;
   gameState.activeLocations = [];
   gameState.currentDestinations = [];
   gameState.escapeRoute = availableEscapeRouteIds;
   gameState.routeIndex = -1;
-
   gameState.nextTargetCity = crimeCityData.city;
-  gameState.nextTargetCityId = gameState.crimeCityId;
-  gameState.mustIncludeCityId = gameState.crimeCityId;
+  gameState.nextTargetCityId = crimeCityId;
+  gameState.mustIncludeCityId = crimeCityId;
+  gameState.justReachedCorrectCityId = null;
 
   gameState.score = 0;
   gameState.playerRank = 'Junior Agent';
@@ -287,28 +281,27 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.visitedEncounters = [];
   gameState.visitedCities = [gameState.currentCityId];
   gameState.playerNotes = '';
-
   gameState.timeSpent = 0;
   gameState.travelHistory = [];
   gameState.lastTravel = null;
 
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
 
-  console.log(`[NOWA GRA] Złodziej: ${thief.name}`);
-  console.log('[NOWA GRA] currentThiefId:', gameState.currentThiefId);
-  console.log('[NOWA GRA] currentThief snapshot:', JSON.stringify(gameState.currentThief));
+  window.GAMESTATE = gameState;
+  console.log('[NOWA GRA] Start:', {
+    thief: thief.name,
+    crimeCity: gameState.crimeCity,
+    crimeCityId: gameState.crimeCityId,
+    escapeRoute: gameState.escapeRoute
+  });
 
   saveGameState();
-
   return gameState;
 }
 
 export function enterCity(cityName, locationsData) {
   const cityData = getLocationByCity(cityName, locationsData);
-
-  if (!cityData) {
-    throw new Error(`No location data found for city: ${cityName}`);
-  }
+  if (!cityData) throw new Error(`No location data found for city: ${cityName}`);
 
   const cityId = cityData.id || normalizeCityId(cityData.city);
 
@@ -344,14 +337,20 @@ export function markEncounterVisited(encounterId, clue = null) {
     gameState.visitedEncounters.push(encounterId);
   }
 
-  if (clue && clue.id && !gameState.cluesCollected.some(item => item.id === clue.id)) {
+  if (clue?.id && !gameState.cluesCollected.some(item => item.id === clue.id)) {
     gameState.cluesCollected.push(clue);
     gameState.score += 50;
   }
+
+  saveGameState();
 }
 
 export function advanceInvestigation(locationsData) {
   gameState.routeIndex += 1;
+
+  if (!Array.isArray(gameState.escapeRoute)) {
+    gameState.escapeRoute = [];
+  }
 
   if (gameState.routeIndex >= gameState.escapeRoute.length) {
     gameState.nextTargetCity = null;
@@ -360,21 +359,68 @@ export function advanceInvestigation(locationsData) {
     gameState.currentCityData = getLocationByCity(gameState.currentCity, locationsData);
     gameState.activeLocations = buildActiveEncounters(gameState.currentCityData);
     gameState.currentDestinations = [];
+    saveGameState();
     return 'FINAL_SHOWDOWN';
   }
 
-  const nextCityId = gameState.escapeRoute[gameState.routeIndex] || null;
+  const nextCityId = gameState.escapeRoute[gameState.routeIndex] ?? null;
   const nextCityData = getLocationById(nextCityId, locationsData);
 
+  if (!nextCityId || !nextCityData) {
+    console.error('[advanceInvestigation] invalid next city', {
+      routeIndex: gameState.routeIndex,
+      escapeRoute: gameState.escapeRoute,
+      nextCityId
+    });
+
+    gameState.nextTargetCity = null;
+    gameState.nextTargetCityId = null;
+    gameState.mustIncludeCityId = null;
+    gameState.currentDestinations = [];
+    saveGameState();
+    return 'FINAL_SHOWDOWN';
+  }
+
   gameState.nextTargetCityId = nextCityId;
-  gameState.nextTargetCity = nextCityData?.city || null;
+  gameState.nextTargetCity = nextCityData.city;
   gameState.mustIncludeCityId = nextCityId;
   gameState.currentCityData = getLocationByCity(gameState.currentCity, locationsData);
   gameState.activeLocations = buildActiveEncounters(gameState.currentCityData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
 
-  console.log(`Złodziej przemieścił się! Nowy cel to: ${gameState.nextTargetCity}`);
+  console.log('[advanceInvestigation]', {
+    routeIndex: gameState.routeIndex,
+    currentCity: gameState.currentCity,
+    currentCityId: gameState.currentCityId,
+    nextTargetCity: gameState.nextTargetCity,
+    nextTargetCityId: gameState.nextTargetCityId,
+    escapeRoute: gameState.escapeRoute
+  });
+
+  saveGameState();
   return gameState.routeIndex === 0 ? 'CRIME_SCENE_REACHED' : 'CONTINUE';
+}
+
+export function completeCityInvestigation(locationsData) {
+  const currentCityId = gameState.currentCityId;
+  const targetCityId = gameState.nextTargetCityId;
+
+  if (!currentCityId || !targetCityId) {
+    return { success: false, status: 'NO_ACTIVE_TARGET' };
+  }
+
+  if (currentCityId !== targetCityId) {
+    return { success: false, status: 'WRONG_CITY' };
+  }
+
+  gameState.justReachedCorrectCityId = null;
+  const status = advanceInvestigation(locationsData);
+  saveGameState();
+
+  return {
+    success: true,
+    status
+  };
 }
 
 export function travelToCity(cityName, locationsData) {
@@ -383,8 +429,21 @@ export function travelToCity(cityName, locationsData) {
   const travelHours = getTravelHours(previousCity, cityName, locationsData);
   const destinationCityData = getLocationByCity(cityName, locationsData);
   const destinationCityId = destinationCityData?.id || normalizeCityId(cityName);
-  const wasCorrect = destinationCityId === gameState.nextTargetCityId;
+  const expectedTargetCityId = gameState.nextTargetCityId;
+  const wasCorrect = Boolean(
+    destinationCityId && expectedTargetCityId && destinationCityId === expectedTargetCityId
+  );
   const isCrimeSceneArrival = destinationCityId === gameState.crimeCityId;
+
+  console.log('[travelToCity] validation', {
+    fromCity: previousCity,
+    toCity: cityName,
+    destinationCityId,
+    expectedTargetCityId,
+    wasCorrect,
+    routeIndex: gameState.routeIndex,
+    escapeRoute: gameState.escapeRoute
+  });
 
   gameState.timeSpent += travelHours;
 
@@ -401,6 +460,7 @@ export function travelToCity(cityName, locationsData) {
   gameState.travelHistory.push(travelRecord);
 
   enterCity(cityName, locationsData);
+  clearTravelCluesForCity(destinationCityId);
 
   if (isCrimeSceneArrival) {
     gameState.crimeSceneVisited = true;
@@ -408,26 +468,29 @@ export function travelToCity(cityName, locationsData) {
 
   if (wasCorrect) {
     gameState.score += 100;
+    gameState.justReachedCorrectCityId = destinationCityId;
 
-    const status = advanceInvestigation(locationsData);
+    const investigationStatus = advanceInvestigation(locationsData);
 
     saveGameState();
 
     return {
       wasCorrect,
       travelHours,
-      status,
+      status:
+        investigationStatus ||
+        (isCrimeSceneArrival ? 'CRIME_SCENE_REACHED' : 'CORRECT_CITY_REACHED'),
       fromCity: previousCity,
       toCity: cityName,
+      toCityId: destinationCityId,
+      cityId: destinationCityId,
       isCrimeSceneArrival
     };
   }
 
+  gameState.justReachedCorrectCityId = null;
   gameState.score = Math.max(0, gameState.score - 25);
-  gameState.currentCityData = getLocationByCity(gameState.currentCity, locationsData);
-  gameState.activeLocations = buildActiveEncounters(gameState.currentCityData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
-
   saveGameState();
 
   return {
@@ -436,6 +499,8 @@ export function travelToCity(cityName, locationsData) {
     status: 'FALSE_LEAD',
     fromCity: previousCity,
     toCity: cityName,
+    toCityId: destinationCityId,
+    cityId: destinationCityId,
     isCrimeSceneArrival
   };
 }
@@ -444,7 +509,7 @@ export function resolveFinalArrest(selectedSuspectId) {
   const thiefId = gameState.currentThief?.id || gameState.currentThiefId;
   const success = Boolean(selectedSuspectId && thiefId && selectedSuspectId === thiefId);
 
-  gameState.finalArrestSuspectId = selectedSuspectId || null;
+  gameState.finalArrestSuspectId = selectedSuspectId ?? null;
   gameState.finalArrestResult = success ? 'SUCCESS' : 'FAILURE';
   gameState.caseResolved = success;
   gameState.caseFailed = !success;
@@ -454,8 +519,8 @@ export function resolveFinalArrest(selectedSuspectId) {
 
   return {
     success,
-    selectedSuspectId: selectedSuspectId || null,
-    thiefId: thiefId || null,
+    selectedSuspectId: selectedSuspectId ?? null,
+    thiefId: thiefId ?? null,
     nextScene: success ? 'SuccessScene' : 'GameOverScene'
   };
 }

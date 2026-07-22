@@ -40,17 +40,62 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, regulation neat, which is more than I can say for their story."
+            ],
+            "Brown": [
+              "Brown hair, the kind that blends into a crowd until you ask the right question."
+            ],
+            "Blonde": [
+              "Blonde hair, stands out in the lineup and in the CCTV footage."
+            ],
+            "Red": [
+              "Red hair, the sort witnesses remember even when they forget everything else."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, cool and steady, like someone who rehearsed their answers."
+            ],
+            "Brown": [
+              "Brown eyes, calm on the surface, busy underneath."
+            ],
+            "Green": [
+              "Green eyes, tracking exits and uniforms in equal measure."
+            ],
+            "Hazel": [
+              "Hazel eyes that flicked to the door a little too often."
+            ]
+          },
+          "features": {
+            "Scar": [
+              "A visible scar. They didn’t explain it and I didn’t pretend not to notice."
+            ],
+            "Glasses": [
+              "Glasses, sensible frames. They watched the room more than the floor."
+            ],
+            "Tattoo": [
+              "A tattoo half-hidden under the sleeve. People forget fabric doesn’t confuse cameras."
+            ]
+          },
           "accent": {
             "British": [
               "A British accent, steady and polished, too rehearsed to be innocent."
+            ],
+            "American": [
+              "An American accent trying very hard to sound at home in London."
+            ],
+            "Irish": [
+              "An Irish accent, easy on the ear, less easy on the alibi."
             ]
           },
-          "skills": {
-            "Interrogation": [
-              "They asked questions like someone who has spent time on my side of the table."
+          "habitus": {
+            "Smoking": [
+              "They smelled faintly of smoke, the kind that lingers longer than a confession."
             ],
-            "Deception": [
-              "Their answers fit the form, not the facts."
+            "Drinking": [
+              "There was last night’s bottle in their breath and in their balance."
             ]
           }
         },
@@ -123,20 +168,62 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled like they knew they’d be seen."
+            ],
+            "Brown": [
+              "Brown hair, deliberately ordinary in a city that hates ordinary."
+            ],
+            "Blonde": [
+              "Blonde hair, perfectly arranged and very aware of it."
+            ],
+            "Red": [
+              "Red hair, dramatic, like everything else about them."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, amused by the questions, less amused by the answers required."
+            ],
+            "Brown": [
+              "Brown eyes, soft performance, hard calculation."
+            ],
+            "Green": [
+              "Green eyes, cataloguing every detail like a critic at a bad play."
+            ],
+            "Hazel": [
+              "Hazel eyes that lingered on exits longer than on me."
+            ]
+          },
+          "features": {
+            "Earrings": [
+              "Earrings carefully matched to the rest of their story: elegant, curated, suspicious."
+            ],
+            "Scarf": [
+              "A scarf worn indoors. That’s either fashion or strategy."
+            ],
+            "Tattoo": [
+              "A small tattoo, placed where good lighting and bad decisions tend to meet."
+            ]
+          },
           "accent": {
             "French": [
               "A French accent, confident enough to argue with procedure."
             ],
             "Italian": [
-              "Italian accent, dramatic timing, very selective memory."
+              "An Italian accent, dramatic timing, very selective memory."
             ],
             "Spanish": [
-              "Spanish accent, charming, detail-averse."
+              "A Spanish accent, charming, detail-averse."
             ]
           },
-          "skills": {
-            "Persuasion": [
-              "They treated the interview like a debate they expected to win."
+          "habitus": {
+            "Smoking": [
+              "They smoked like every drag was an objection on the record."
+            ],
+            "Drinking": [
+              "Wine on the breath, poetry in the excuses."
             ]
           }
         },
@@ -209,12 +296,59 @@
           ]
         },
         "suspectCluePool": {
-          "skills": {
-            "Investigation": [
-              "They asked about procedures with the sort of precision only a professional learns."
+          "hair": {
+            "Black": [
+              "Black hair, cut for practicality, not vanity."
             ],
-            "Technical knowledge": [
-              "They understood forensics well enough to be uncomfortable."
+            "Brown": [
+              "Brown hair, neat, unsentimental, like most of their answers."
+            ],
+            "Blonde": [
+              "Blonde hair, tied back with the precision of a checklist."
+            ],
+            "Red": [
+              "Red hair, the only flamboyant thing about them."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, analytic, like they were already cross-examining the room."
+            ],
+            "Brown": [
+              "Brown eyes, steady, used to reading reports and people."
+            ],
+            "Green": [
+              "Green eyes, measuring everything for consistency."
+            ],
+            "Hazel": [
+              "Hazel eyes that looked like they’d memorised the file before the conversation."
+            ]
+          },
+          "features": {
+            "Scar": [
+              "A scar, no explanation offered, which is an explanation in itself."
+            ],
+            "Glasses": [
+              "Glasses with frames as minimal as their small talk."
+            ],
+            "Tattoo": [
+              "A geometric tattoo, sharp and deliberate, like a diagram that got bored of paper."
+            ]
+          },
+          "accent": {
+            "German": [
+              "A German accent, precise and orderly, the kind that rarely forgets details—on purpose."
+            ],
+            "Polish": [
+              "A Polish accent, comfortable enough here to suggest this wasn’t their first visit."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "The faint smell of smoke and rain, typical night-shift combination here."
+            ],
+            "Drinking": [
+              "Nothing obvious, just the tired calm of someone who knows the late trains by heart."
             ]
           }
         },
@@ -287,14 +421,56 @@
           ]
         },
         "suspectCluePool": {
-          "accent": {
-            "American": [
-              "American accent, local enough to blend, loud enough to attract attention."
+          "hair": {
+            "Black": [
+              "Black hair, slicked back like they were late for business, not a questioning."
+            ],
+            "Brown": [
+              "Brown hair, city-standard, but the attitude wasn’t."
+            ],
+            "Blonde": [
+              "Blonde hair, loud even before they opened their mouth."
+            ],
+            "Red": [
+              "Red hair, hard to miss in a crowd, harder to forget in a report."
             ]
           },
-          "skills": {
-            "Intimidation": [
-              "They tried turning the interview into a negotiation by volume alone."
+          "eyes": {
+            "Blue": [
+              "Blue eyes that scanned the room like they were looking for the quickest exit to the truth."
+            ],
+            "Brown": [
+              "Brown eyes, sharp, constantly checking who was listening."
+            ],
+            "Green": [
+              "Green eyes, restless, like standing still was against their nature."
+            ],
+            "Hazel": [
+              "Hazel eyes that kept one eye on the door and one on my badge."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo visible just above the collar, the kind people get when they stop planning to stay quiet."
+            ],
+            "Glasses": [
+              "Designer glasses, the sort that cost more than a month's rent in the wrong borough."
+            ],
+            "Cap": [
+              "A cap pulled down low, like that fools cameras in this town."
+            ]
+          },
+          "accent": {
+            "American": [
+              "An American accent, local enough to blend, loud enough to attract attention."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "Smelled of smoke and hot pavement, standard city blend."
+            ],
+            "Drinking": [
+              "Their posture said coffee, but their eyes said last night."
             ]
           }
         },
@@ -367,9 +543,56 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, combed like they still believe in impressions."
+            ],
+            "Brown": [
+              "Brown hair, the kind you stop noticing until it’s too late."
+            ],
+            "Blonde": [
+              "Blonde hair, common enough here, but theirs looked chosen, not inherited."
+            ],
+            "Red": [
+              "Red hair, rare enough to make my pen pause."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, winter kind – clear, cold, not easily moved."
+            ],
+            "Brown": [
+              "Brown eyes, steady, like someone used to bad news."
+            ],
+            "Green": [
+              "Green eyes, watching for patterns instead of comfort."
+            ],
+            "Hazel": [
+              "Hazel eyes, taking mental notes, or planning routes."
+            ]
+          },
+          "features": {
+            "Beard": [
+              "A beard, tidy enough to suggest they care what people see."
+            ],
+            "Necklace": [
+              "A small necklace, sentimental or convenient cover story. Hard to say."
+            ],
+            "Scar": [
+              "A scar across the cheek, the kind that usually comes with an interesting missing file."
+            ]
+          },
           "accent": {
             "Polish": [
               "A Polish accent, steady and familiar, the kind that blends in until you listen closely."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "They smelled of cheap cigarettes and cold stairwells."
+            ],
+            "Drinking": [
+              "There was enough vodka in the story to make me suspicious and thirsty."
             ]
           }
         },
@@ -442,14 +665,56 @@
           ]
         },
         "suspectCluePool": {
-          "habitus": {
-            "Traveling": [
-              "They carried the kind of tiredness you only get from airports and bad schedules."
+          "hair": {
+            "Black": [
+              "Black hair, already losing the fight with the humidity."
+            ],
+            "Brown": [
+              "Brown hair, tied back in a way that said they’d learned that lesson before."
+            ],
+            "Blonde": [
+              "Blonde hair, rare enough here to stick in every report."
+            ],
+            "Red": [
+              "Red hair, bright even through the heat haze."
             ]
           },
-          "skills": {
-            "Negotiation": [
-              "They negotiated every detail like the room owed them a better story."
+          "eyes": {
+            "Blue": [
+              "Blue eyes, narrowed against the sun and the questions."
+            ],
+            "Brown": [
+              "Brown eyes, alert, used to noise and negotiation."
+            ],
+            "Green": [
+              "Green eyes, tracking every movement like the street might join in."
+            ],
+            "Hazel": [
+              "Hazel eyes, tired, but missing nothing."
+            ]
+          },
+          "features": {
+            "Glasses": [
+              "Glasses fogged at the edges when they walked in from outside."
+            ],
+            "Necklace": [
+              "A small pendant, tapping against the collar every time they lied."
+            ]
+          },
+          "accent": {
+            "Indian": [
+              "An Indian accent, local and quick, very used to talking over traffic."
+            ],
+            "British": [
+              "A British accent starting to sound a little melted around the edges."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "They smelled of smoke layered over spice and exhaust."
+            ],
+            "Drinking": [
+              "They clung to their water bottle like it was better than legal counsel."
             ]
           }
         },

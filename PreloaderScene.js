@@ -38,18 +38,18 @@ export class PreloaderScene extends Phaser.Scene {
         progressBox.fillStyle(0x222222, 0.9);
         progressBox.fillRect(boxX, boxY, boxWidth, boxHeight);
 
-        this.load.on('progress', value => {
+        this.load.on('progress', (value) => {
             progressBar.clear();
             progressBar.fillStyle(0xffff00, 1);
             progressBar.fillRect(boxX + 5, boxY + 5, (boxWidth - 10) * value, boxHeight - 10);
             percentText.setText(`${Math.round(value * 100)}%`);
         });
 
-        this.load.on('fileprogress', file => {
+        this.load.on('fileprogress', (file) => {
             fileText.setText(`Loading: ${file.key}`);
         });
 
-        this.load.on('loaderror', file => {
+        this.load.on('loaderror', (file) => {
             console.error('[LOAD ERROR]', file.key, file.src);
             fileText.setText(`Błąd ładowania: ${file.key}`);
         });
@@ -66,6 +66,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/cabinet.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
+        this.load.image('backgrounds', 'assets/Success.jpg');
         this.load.image('backgroundpc', 'assets/hiscores.png');
         this.load.image('backgroundhi', 'assets/office.jpg');
         this.load.image('bank', 'assets/bank.jpg');
@@ -129,6 +130,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('sergei_petrov', 'assets/suspects/sergei_petrov.jpg');
         this.load.image('isabella_rossi', 'assets/suspects/isabella_rossi.jpg');
         this.load.image('liam_oconnor', 'assets/suspects/liam_oconnor.jpg');
+        this.load.image('brendan_ross', 'assets/suspects/brendan_ross.jpg');
         this.load.image('bai_williams', 'assets/suspects/bai_williams.jpg');
         this.load.image('albert_johnson', 'assets/suspects/albert_johnson.jpg');
         this.load.image('anna_bocian', 'assets/suspects/anna_bocian.jpg');
@@ -141,10 +143,22 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('bg', 'assets/suspects/bg.jpg');
         this.load.image('aa', 'assets/suspects/aa.jpg');
         this.load.image('fg', 'assets/suspects/fg.jpg');
-        this.load.image('pb', 'assets/suspects/bp.jpg');
+        this.load.image('bp', 'assets/suspects/bp.jpg');
         this.load.image('rm', 'assets/suspects/rm.jpg');
         this.load.image('jk', 'assets/suspects/jk.jpg');
         this.load.image('pf', 'assets/suspects/pf.jpg');
+        this.load.image('ai', 'assets/suspects/ai.jpg');
+        this.load.image('sp', 'assets/suspects/sp.jpg');
+        this.load.image('ir', 'assets/suspects/ir.jpg');
+        this.load.image('lo', 'assets/suspects/lo.jpg');
+        this.load.image('br', 'assets/suspects/br.jpg');
+        this.load.image('bw', 'assets/suspects/bw.jpg');
+        this.load.image('aj', 'assets/suspects/aj.jpg');
+        this.load.image('ab', 'assets/suspects/ab.jpg');
+        this.load.image('ap', 'assets/suspects/ap.jpg');
+        this.load.image('md', 'assets/suspects/md.jpg');
+        this.load.image('lc', 'assets/suspects/lc.jpg');
+
 
         this.load.audio('themeGame', 'assets/audio/game.mp3');
 
@@ -153,13 +167,17 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('locations', 'assets/data/locations.json');
         this.load.json('dialogue', 'assets/data/dialogue.json');
         this.load.json('dialogue_banker', 'assets/data/dialogue/banker.json');
-this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
-this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
-this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
-this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
-this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
-this.load.json('city_clues', 'assets/data/city-clues.json');
-this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
+        this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
+        this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
+        this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
+        this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
+        this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
+        this.load.json('city_clues', 'assets/data/city-clues.json');
+        this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
+        this.load.json('objects-data', 'assets/data/objects.json');
+
+        this.load.image('luvre_bg', 'assets/crimes/luvre.jpg');
+        this.load.tilemapTiledJSON('luvre', 'assets/crimes/luvre.json');
     }
 
     create() {
@@ -173,24 +191,24 @@ this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
             this.cameras.main.setBackgroundColor('#1a1a1a');
         }
 
-const initUi = () => {
-  let music = this.registry.get('bgMusic');
+        const initUi = () => {
+            let music = this.registry.get('bgMusic');
 
-  if (!music) {
-    music = this.sound.add('themeMusic', {
-      loop: true,
-      volume: 0.5
-    });
-    this.registry.set('bgMusic', music);
-  }
+            if (!music && this.cache.audio.exists('themeMusic')) {
+                music = this.sound.add('themeMusic', {
+                    loop: true,
+                    volume: 0.5
+                });
+                this.registry.set('bgMusic', music);
+            }
 
-  this.input.once('pointerdown', () => {
-    this.sound.unlock?.();
+            this.input.once('pointerdown', () => {
+                this.sound.unlock?.();
 
-    if (!music.isPlaying) {
-      music.play();
-    }
-  });
+                if (music && !music.isPlaying) {
+                    music.play();
+                }
+            });
 
             const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
                 .setInteractive({ useHandCursor: true })

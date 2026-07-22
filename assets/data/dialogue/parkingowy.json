@@ -150,68 +150,12 @@
               "Belgian accent, subtle enough to slip past most people. Not me."
             ]
           },
-          "skills": {
-            "Lockpicking": [
-              "They handled keys with the ease of someone who’s worked with other kinds of locks too."
-            ],
-            "Disguise": [
-              "Something about them looked assembled rather than lived-in."
-            ],
-            "Stealth": [
-              "They moved around the lot quietly, not nervously. Quietly."
-            ],
-            "Languages": [
-              "They switched languages as smoothly as changing lanes without warning."
-            ],
-            "Negotiation": [
-              "Every question sounded like the opening move in an argument they expected to win."
-            ],
-            "Intimidation": [
-              "They didn’t raise their voice. They just used silence like a parking fine."
-            ],
-            "Hacking": [
-              "They asked the wrong sort of questions about barriers, cameras and ticket systems."
-            ],
-            "Electronics": [
-              "They noticed sensors, gates and terminals before they noticed me."
-            ],
-            "Surveillance": [
-              "They kept checking reflections in windows and side mirrors."
-            ],
-            "Investigation": [
-              "They looked at tire marks like they were reading a statement."
-            ],
-            "Interrogation": [
-              "They had the habit of asking one question, then letting the silence do the pushing."
-            ],
-            "Deduction": [
-              "You could see them building conclusions before anyone finished talking."
-            ]
-          },
           "habitus": {
             "Smoking": [
               "The car carried stale smoke and impatience."
             ],
             "Drinking": [
               "There was a trace of last night in the way they stepped out."
-            ],
-            "Gambling": [
-              "They parked like someone who trusts luck more than geometry."
-            ],
-            "Reading": [
-              "They kept papers tidy, folded, and very clearly important."
-            ],
-            "Traveling": [
-              "The boot was packed like someone used to leaving on short notice."
-            ],
-            "Running": [
-              "They moved like someone who believes every stop is temporary."
-            ],
-            "Working out": [
-              "The posture was too disciplined to be accidental."
-            ],
-            "Playing chess": [
-              "Every pause looked calculated, not uncertain."
             ]
           }
         },
@@ -286,7 +230,7 @@
         "suspectCluePool": {
           "hair": {
             "Black": [
-              "Black hair, stylish enough to look accidental, which it certainly wasn’t."
+              "Black hair, styled like they knew they’d be seen."
             ],
             "Brown": [
               "Brown hair, understated in the way expensive things sometimes are."
@@ -298,6 +242,20 @@
               "Red hair, theatrical enough for Paris and trouble enough for me."
             ]
           },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, amused by the questions, less amused by the answers required."
+            ],
+            "Brown": [
+              "Brown eyes, soft performance, hard calculation."
+            ],
+            "Green": [
+              "Green eyes, cataloguing every detail like a critic at a bad play."
+            ],
+            "Hazel": [
+              "Hazel eyes that lingered on exits longer than on me."
+            ]
+          },
           "features": {
             "Tattoo": [
               "A tattoo, discreetly hidden, which naturally made it more interesting."
@@ -307,6 +265,9 @@
             ],
             "Glasses": [
               "Glasses with sharp lines and sharper attention behind them."
+            ],
+            "Scarf": [
+              "A scarf worn indoors. That’s either fashion or strategy."
             ]
           },
           "accent": {
@@ -318,6 +279,14 @@
             ],
             "Spanish": [
               "Spanish accent, warm delivery, very cold intent."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "They smoked like every drag was an objection on the record."
+            ],
+            "Drinking": [
+              "Wine on the breath, poetry in the excuses."
             ]
           }
         },
@@ -384,21 +353,38 @@
             "Their map had bridges, old streets and administrative buildings circled."
           ],
           "new_delhi": [
-            "The car smelled faintly of dust, spice and heat trapped in upholstery.",
-            "They showed me a photo of traffic dense enough to count as architecture.",
+            "The car smelled faintly of dust, spice and traffic heat.",
+            "They showed me a photograph of traffic dense enough to count as architecture.",
             "Your suspect asked whether our city ever honks without purpose. I admired the question."
           ]
         },
         "suspectCluePool": {
-          "skills": {
-            "Hacking": [
-              "They were more interested in gates, barriers and systems than in the actual parking space."
+          "hair": {
+            "Black": [
+              "Black hair, severe and practical."
             ],
-            "Electronics": [
-              "They noticed sensors and terminals before they noticed weather or people."
+            "Brown": [
+              "Brown hair, efficient-looking, if that makes sense."
             ],
-            "Surveillance": [
-              "They kept checking mirror lines, blind spots and cameras. Habit, not nerves."
+            "Blonde": [
+              "Blonde hair, trimmed like it had an appointment to keep."
+            ],
+            "Red": [
+              "Red hair, the rare splash of colour in a very structured picture."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, analytic, as if they were grading the parking too."
+            ],
+            "Brown": [
+              "Brown eyes, steady, no wasted motion, no wasted glances."
+            ],
+            "Green": [
+              "Green eyes, checking every sign as if they’d written the manual."
+            ],
+            "Hazel": [
+              "Hazel eyes, cataloguing everything: cars, exits, uniforms."
             ]
           },
           "features": {
@@ -407,14 +393,25 @@
             ],
             "Tattoo": [
               "A tattoo, serious-looking, like it had paperwork behind it."
+            ],
+            "Glasses": [
+              "Glasses with frames as minimal as their small talk."
             ]
           },
-          "hair": {
-            "Black": [
-              "Black hair, severe and practical."
+          "accent": {
+            "German": [
+              "German accent, precise and clipped, no spare syllables."
             ],
-            "Brown": [
-              "Brown hair, efficient-looking, if that makes sense."
+            "Polish": [
+              "Polish accent, comfortable enough here to suggest previous visits."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "The faint smell of smoke and rain, standard night-shift perfume."
+            ],
+            "Drinking": [
+              "Nothing obvious, just the weary calm of someone who reads regulations for fun."
             ]
           }
         },
@@ -487,15 +484,43 @@
           ]
         },
         "suspectCluePool": {
-          "habitus": {
-            "Drinking": [
-              "There was the unmistakable trace of last night hanging around them and the car."
+          "hair": {
+            "Black": [
+              "Black hair, slicked back like they were late for three meetings and one crime."
             ],
-            "Running": [
-              "They moved like someone who expects to leave fast and apologize never."
+            "Brown": [
+              "Brown hair, deliberately casual, like everything else about them was over-scheduled."
             ],
-            "Working out": [
-              "They had the kind of posture that suggests discipline or vanity. Sometimes both."
+            "Blonde": [
+              "Blonde hair, visible from across the street and probably from space."
+            ],
+            "Red": [
+              "Red hair, the kind New York either remembers or runs from."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes that scanned the block like it was a balance sheet."
+            ],
+            "Brown": [
+              "Brown eyes, sharp, already calculating the shortest illegal route."
+            ],
+            "Green": [
+              "Green eyes, hungry in a way that had nothing to do with food carts."
+            ],
+            "Hazel": [
+              "Hazel eyes, flicking between cops, cameras and exits like a to-do list."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo visible under the streetlamp, something bold and unwise."
+            ],
+            "Glasses": [
+              "Glasses with frames expensive enough to double as an alibi."
+            ],
+            "Beard": [
+              "A beard trimmed like they were networking even while hiding."
             ]
           },
           "accent": {
@@ -503,9 +528,12 @@
               "American accent, sure, but not New York. This city trains the ear."
             ]
           },
-          "skills": {
-            "Persuasion": [
-              "They argued with the meter like they expected it to give in."
+          "habitus": {
+            "Smoking": [
+              "Smelled of stale smoke and hot pavement."
+            ],
+            "Drinking": [
+              "Last night clung to them like steam from a manhole."
             ]
           }
         },
@@ -549,7 +577,7 @@
           "london": [
             "They asked whether London fines people politely or just expensively.",
             "I found notes about fog, black cabs, old stone and streets designed before modern regret.",
-            "Their route history suggested buses, royal buildings and roundabouts used as psychological tests."
+            "Their route history mentioned buses, royal buildings and roundabouts used as psychological tests."
           ],
           "paris": [
             "There was a doodle of an iron tower on a parking stub and a complaint about scooters in every lane.",
@@ -578,9 +606,32 @@
           ]
         },
         "suspectCluePool": {
-          "accent": {
-            "Polish": [
-              "A Polish accent, steady, practical, not eager to be memorable."
+          "hair": {
+            "Black": [
+              "Black hair, combed like they still believe in first impressions."
+            ],
+            "Brown": [
+              "Brown hair, the kind you stop noticing until it’s too late."
+            ],
+            "Blonde": [
+              "Blonde hair, common enough here, but theirs looked chosen, not accidental."
+            ],
+            "Red": [
+              "Red hair, rare enough to make my pen pause."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, winter kind – clear, cold, not easily moved."
+            ],
+            "Brown": [
+              "Brown eyes, steady, like someone used to bad news and long queues."
+            ],
+            "Green": [
+              "Green eyes, watching for patterns instead of comfort."
+            ],
+            "Hazel": [
+              "Hazel eyes, taking mental notes, or planning routes."
             ]
           },
           "features": {
@@ -589,11 +640,22 @@
             ],
             "Necklace": [
               "A necklace flashed once when they leaned over the dashboard."
+            ],
+            "Scar": [
+              "A scar across the cheek, the kind that usually comes with a missing report."
             ]
           },
-          "skills": {
-            "Tracking": [
-              "They noticed tire marks and curb scuffs the way trackers notice footprints."
+          "accent": {
+            "Polish": [
+              "A Polish accent, steady, practical, not eager to be memorable."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "They smelled of cheap cigarettes and cold stairwells."
+            ],
+            "Drinking": [
+              "There was enough vodka in the story to make me suspicious and thirsty."
             ]
           }
         },
@@ -666,25 +728,59 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, already losing the fight with the humidity."
+            ],
+            "Brown": [
+              "Brown hair, tied back in a way that said they’d learned that lesson before."
+            ],
+            "Blonde": [
+              "Blonde hair, rare enough here to stick in every report."
+            ],
+            "Red": [
+              "Red hair, bright even through the heat haze."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, narrowed against the sun and the questions."
+            ],
+            "Brown": [
+              "Brown eyes, alert, used to noise and negotiation."
+            ],
+            "Green": [
+              "Green eyes, tracking every movement like the street might join in."
+            ],
+            "Hazel": [
+              "Hazel eyes, tired, but missing nothing."
+            ]
+          },
+          "features": {
+            "Glasses": [
+              "Glasses fogged at the edges when they walked in from outside."
+            ],
+            "Necklace": [
+              "A small pendant, tapping against the collar every time they lied."
+            ],
+            "Tattoo": [
+              "A tattoo half-hidden under the sleeve, lines blurred slightly by heat and time."
+            ]
+          },
+          "accent": {
+            "Indian": [
+              "An Indian accent, local and quick, very used to talking over traffic."
+            ],
+            "American": [
+              "American accent, but not local to here or there. Just passing through loudly."
+            ]
+          },
           "habitus": {
             "Smoking": [
               "Even through dust, fuel and heat, the smoke clung to them."
             ],
-            "Traveling": [
-              "They carried the sort of tiredness that comes from airports, highways and bad tea."
-            ]
-          },
-          "skills": {
-            "Negotiation": [
-              "They negotiated for space before the car had fully stopped."
-            ],
-            "Languages": [
-              "They switched languages in traffic without losing the argument."
-            ]
-          },
-          "accent": {
-            "American": [
-              "American accent, but not local to here or there. Just passing through loudly."
+            "Drinking": [
+              "They clung to their water bottle like it was better than legal counsel."
             ]
           }
         },

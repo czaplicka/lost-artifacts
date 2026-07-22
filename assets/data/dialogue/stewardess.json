@@ -40,9 +40,62 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, tied back neatly, like they were afraid of being remembered for the wrong thing."
+            ],
+            "Brown": [
+              "Brown hair, practical travel cut, the kind that survives three layovers and one bad plan."
+            ],
+            "Blonde": [
+              "Blonde hair, bright enough to compete with the seatbelt sign."
+            ],
+            "Red": [
+              "Red hair, the kind turbulence notices first."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes that never stopped checking the aisle for witnesses."
+            ],
+            "Brown": [
+              "Brown eyes, tired, careful, tracking exits more than clouds."
+            ],
+            "Green": [
+              "Green eyes that flicked between the window and the emergency exits like it was a hobby."
+            ],
+            "Hazel": [
+              "Hazel eyes, smiling on the surface, boarding something else underneath."
+            ]
+          },
+          "features": {
+            "Glasses": [
+              "Travel glasses, the kind people wear when they want to look harmless and stay awake."
+            ],
+            "Scarf": [
+              "A scarf used as both fashion statement and portable hiding place."
+            ],
+            "Tattoo": [
+              "A small tattoo just visible when they reached for the overhead bin."
+            ],
+            "Earrings": [
+              "Simple earrings, chosen to pass security and still catch the light."
+            ]
+          },
+          "accent": {
+            "British": [
+              "British accent, local enough to blend, polished enough to be rehearsed."
+            ],
+            "American": [
+              "American accent, trying very hard not to sound impressed by anything."
+            ]
+          },
           "habitus": {
-            "Traveling": [
-              "They moved like someone who treats airports as regular scenery, not rare events."
+            "Nervous flyer": [
+              "They gripped the armrest like it had answers."
+            ],
+            "Frequent flyer": [
+              "They moved through the cabin like someone who has outlived the safety demonstration."
             ]
           }
         },
@@ -115,9 +168,62 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled like every corridor is a catwalk."
+            ],
+            "Brown": [
+              "Brown hair, effortlessly arranged in a way that took effort."
+            ],
+            "Blonde": [
+              "Blonde hair, clearly packed as part of the outfit plan."
+            ],
+            "Red": [
+              "Red hair, dramatic enough to need its own boarding pass."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes that judged the coffee and the alibis with equal care."
+            ],
+            "Brown": [
+              "Brown eyes, soft performance, sharp inventory of everyone on board."
+            ],
+            "Green": [
+              "Green eyes, always weighing whether a smile or silence works better."
+            ],
+            "Hazel": [
+              "Hazel eyes, reflecting the window, not the truth."
+            ]
+          },
+          "features": {
+            "Lipstick": [
+              "Lipstick that stayed perfect through snacks, naps and questions."
+            ],
+            "Scarf": [
+              "A silk scarf tied too perfectly to be accidental."
+            ],
+            "Earrings": [
+              "Earrings that whispered 'I packed a story, not just a suitcase.'"
+            ]
+          },
           "accent": {
             "French": [
-              "French accent, practiced small talk, very careful silence."
+              "French accent, practiced, charming, allergic to straight answers."
+            ],
+            "Italian": [
+              "Italian accent, turning seat numbers into a performance."
+            ],
+            "Spanish": [
+              "Spanish accent, warm in tone, evasive in content."
+            ]
+          },
+          "habitus": {
+            "Perfume": [
+              "They left a trail of perfume more persistent than their honesty."
+            ],
+            "Nervous flyer": [
+              "Their hands shook, but only when the questions got close to landing."
             ]
           }
         },
@@ -190,9 +296,53 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, cut as precisely as a boarding time."
+            ],
+            "Brown": [
+              "Brown hair, functional, no nonsense, like their carry‑on."
+            ],
+            "Blonde": [
+              "Blonde hair, tied back like they’re ready for a schedule check."
+            ],
+            "Red": [
+              "Red hair, the only chaotic thing about them on paper."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, analytic, like they were grading the flight manual."
+            ],
+            "Brown": [
+              "Brown eyes, steady and cataloguing seat numbers as they spoke."
+            ],
+            "Green": [
+              "Green eyes, quietly checking every rule and every loophole."
+            ],
+            "Hazel": [
+              "Hazel eyes, taking mental notes instead of photos."
+            ]
+          },
           "features": {
             "Glasses": [
               "Sharp glasses, sharper look, like they catalogue everyone on board."
+            ],
+            "Tattoo": [
+              "A small geometric tattoo that looked suspiciously like a map only they could read."
+            ]
+          },
+          "accent": {
+            "German": [
+              "German accent, efficient, like they expected the answers to arrive on time."
+            ],
+            "Polish": [
+              "Polish accent, comfortable on this route, far less comfortable with questions."
+            ]
+          },
+          "habitus": {
+            "Frequent flyer": [
+              "They buckled in without looking and finished the safety demo in their head."
             ]
           }
         },
@@ -265,9 +415,50 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, styled like they were pitching something to the clouds."
+            ],
+            "Brown": [
+              "Brown hair, city‑casual, suspiciously camera‑ready."
+            ],
+            "Blonde": [
+              "Blonde hair, big‑city bright, no sign of subtlety."
+            ],
+            "Red": [
+              "Red hair, dramatic enough to get its own line in the script."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, scanning the cabin like it was a networking event."
+            ],
+            "Brown": [
+              "Brown eyes, always tracking who’s watching whom."
+            ],
+            "Green": [
+              "Green eyes, restless, already three days ahead of the flight plan."
+            ],
+            "Hazel": [
+              "Hazel eyes, reflective, calculating, never quite still."
+            ]
+          },
+          "features": {
+            "Headphones": [
+              "Noise‑cancelling headphones that didn’t cancel my questions."
+            ],
+            "Tattoo": [
+              "A small skyline tattoo, like they wanted to carry the city even if they missed the flight."
+            ]
+          },
           "accent": {
             "American": [
               "American accent, loud enough to stake territory on board."
+            ]
+          },
+          "habitus": {
+            "Frequent flyer": [
+              "They treated boarding like a meeting they had already rescheduled twice."
             ]
           }
         },
@@ -340,9 +531,50 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, tied like they’ve run this route more than once."
+            ],
+            "Brown": [
+              "Brown hair, practical, built for delays and detours."
+            ],
+            "Blonde": [
+              "Blonde hair, stands out just enough in the boarding line."
+            ],
+            "Red": [
+              "Red hair, rare enough here to earn a double‑take."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, winter‑sharp even above the clouds."
+            ],
+            "Brown": [
+              "Brown eyes, careful, reading faces the way others read timetables."
+            ],
+            "Green": [
+              "Green eyes that watched the safety demo like it was a test."
+            ],
+            "Hazel": [
+              "Hazel eyes, quiet, but never really resting."
+            ]
+          },
+          "features": {
+            "Scarf": [
+              "A heavy scarf, as if they didn’t trust the forecast or the welcome."
+            ],
+            "Beard": [
+              "A short beard, trimmed like they still care what the passport photo thinks."
+            ]
+          },
           "accent": {
             "Polish": [
               "Polish accent, steady and unhurried, like they’ve flown this route more than once."
+            ]
+          },
+          "habitus": {
+            "Practical": [
+              "They treated the whole flight like a bus with better altitude."
             ]
           }
         },
@@ -415,9 +647,47 @@
           ]
         },
         "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, frizzing at the edges, like even it knew where we were landing."
+            ],
+            "Brown": [
+              "Brown hair, pulled back in a way that said: I’ve done this heat before."
+            ],
+            "Blonde": [
+              "Blonde hair, standing out against the cabin like a misplaced souvenir."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, squinting at the brightness on the flight path map."
+            ],
+            "Brown": [
+              "Brown eyes, wide awake long after they should have been asleep."
+            ],
+            "Hazel": [
+              "Hazel eyes, tracking every announcement like it might be about them."
+            ]
+          },
+          "features": {
+            "Glasses": [
+              "Glasses fogged once we opened the door. The expression didn’t."
+            ],
+            "Necklace": [
+              "A small charm at their neck, thumbed whenever the engines changed tone."
+            ]
+          },
+          "accent": {
+            "Indian": [
+              "An Indian accent, local enough to know better than to argue with the seatbelt sign."
+            ],
+            "British": [
+              "A British accent slowly melting into something more tired and honest."
+            ]
+          },
           "habitus": {
-            "Traveling": [
-              "They wore long‑haul fatigue like a familiar jacket."
+            "Sweating": [
+              "They glistened with the kind of sweat that means both heat and secrets."
             ]
           }
         },

@@ -29,6 +29,9 @@ export class LocationScene extends Phaser.Scene {
     this.isRepeat = false;
     this.isFinishing = false;
     this.dialogueText = null;
+    this.footerTextObject = null;
+    this.npcNameText = null;
+    this.dialoguePanel = null;
     this.cityId = null;
     this.encounterId = null;
     this.npcId = null;
@@ -40,6 +43,7 @@ export class LocationScene extends Phaser.Scene {
     this.isNextTargetCity = false;
     this.isFalseLead = false;
     this.timeCostApplied = false;
+    this.dialogueTargetCityId = null;
   }
 
   init(data = {}) {
@@ -49,18 +53,31 @@ export class LocationScene extends Phaser.Scene {
     this.locationId = data.locationId || null;
     this.isRepeat = Boolean(data.isRepeat);
 
-    this.isCrimeCity = data.isCrimeCity ?? false;
-    this.isNextTargetCity = data.isNextTargetCity ?? false;
-    this.isCorrectCity = data.isCorrectCity ?? (this.isCrimeCity || this.isNextTargetCity);
+    const derivedIsCrimeCity =
+      Boolean(this.cityId) && this.cityId === gameState.crimeCityId;
+    const derivedIsNextTargetCity =
+      Boolean(this.cityId) && this.cityId === gameState.nextTargetCityId;
+    const derivedJustReached =
+      Boolean(this.cityId) && this.cityId === gameState.justReachedCorrectCityId;
+
+    this.isCrimeCity = data.isCrimeCity ?? derivedIsCrimeCity;
+    this.isNextTargetCity = data.isNextTargetCity ?? derivedIsNextTargetCity;
+    this.isCorrectCity =
+      data.isCorrectCity ??
+      Boolean(derivedIsCrimeCity || derivedIsNextTargetCity || derivedJustReached);
 
     this.lines = [];
     this.generatedNotes = [];
     this.isFinishing = false;
     this.dialogueText = null;
+    this.footerTextObject = null;
+    this.npcNameText = null;
+    this.dialoguePanel = null;
     this.encounterMemory = null;
     this.isReminder = false;
     this.isFalseLead = !this.isCorrectCity;
     this.timeCostApplied = false;
+    this.dialogueTargetCityId = data.dialogueTargetCityId || null;
 
     if (!Array.isArray(gameState.cluesCollected)) {
       gameState.cluesCollected = [];
@@ -112,8 +129,6 @@ export class LocationScene extends Phaser.Scene {
       gameState.currentThief ||
       null;
 
-    const targetCityId = gameState.nextTargetCityId ?? null;
-
     if (!dialogueCacheKey || !dialogueRootKey) {
       console.warn(`LocationScene: unknown npcId "${this.npcId}"`);
     }
@@ -134,13 +149,43 @@ export class LocationScene extends Phaser.Scene {
       !this.isFalseLead
     );
 
+    const isStandingAtTarget = Boolean(
+      gameState.currentCityId && gameState.currentCityId === gameState.nextTargetCityId
+    );
+
+    const lookAheadTargetId =
+      (this.isCrimeCity || isStandingAtTarget) &&
+      Array.isArray(gameState.escapeRoute) &&
+      gameState.escapeRoute.length > 0
+        ? gameState.escapeRoute[Math.max(0, gameState.routeIndex + 1)] ||
+          gameState.escapeRoute[0] ||
+          null
+        : null;
+
+    const frozenTargetFromMemory =
+      this.encounterMemory?.dialogueTargetCityId ||
+      this.encounterMemory?.hintTargetCityId ||
+      null;
+
+    if (!this.dialogueTargetCityId) {
+      this.dialogueTargetCityId =
+        frozenTargetFromMemory ||
+        (this.isCrimeCity || isStandingAtTarget
+          ? lookAheadTargetId
+          : gameState.nextTargetCityId ?? null);
+    }
+
+    if (this.dialogueTargetCityId && this.dialogueTargetCityId === this.cityId) {
+      this.dialogueTargetCityId = lookAheadTargetId || null;
+    }
+
     const generatedDialogue = this.isFalseLead
       ? buildFalseLeadDialogue(npcDialogueBlock, this.cityId)
       : buildNpcDialogue({
           npcData: npcDialogueBlock,
           suspect,
           cityId: this.cityId,
-          targetCityId,
+          targetCityId: this.dialogueTargetCityId,
           sharedCityClues,
           sharedSuspectClues,
           isRepeat: this.isRepeat,
@@ -157,16 +202,16 @@ export class LocationScene extends Phaser.Scene {
           'Check the trail before you waste another conversation.'
         ]
       : this.isCrimeCity
-        ? [
-            'You are in the crime city, detective.',
-            'People here noticed more than they admit.',
-            'Start with the smallest inconsistency and the trail will open.'
-          ]
-        : [
-            'I saw something strange, detective.',
-            'Something about the suspect stood out, but not enough for amateurs.',
-            'They were asking about another city, and not casually.'
-          ];
+      ? [
+          'You are in the crime city, detective.',
+          'People here noticed more than they admit.',
+          'Start with the smallest inconsistency and the trail will open.'
+        ]
+      : [
+          'I saw something strange, detective.',
+          'Something about the suspect stood out, but not enough for amateurs.',
+          'They were asking about another city, and not casually.'
+        ];
 
     this.lines = Array.isArray(generatedDialogue?.lines)
       ? generatedDialogue.lines.filter(Boolean).slice(0, 3)
@@ -216,45 +261,79 @@ export class LocationScene extends Phaser.Scene {
 
     this.input.on('pointerdown', this.handlePointerDown, this);
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.input.off('pointerdown', this.handlePointerDown, this);
-    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.handleShutdown, this);
   }
 
   createDialoguePanel(width, height) {
-    this.add
+    this.dialoguePanel = this.add
       .rectangle(0, height - 220, width, 220, 0x111111, 0.82)
       .setOrigin(0, 0)
       .setDepth(10);
 
     const npcNameY = this.npcId === 'bum' ? height - 198 : height - 205;
 
-    this.add.text(30, npcNameY, this.getNpcDisplayName(this.npcId), {
-      fontFamily: 'Special Elite',
-      fontSize: '28px',
-      color: '#ffd86b'
-    }).setDepth(11);
+    this.npcNameText = this.add
+      .text(30, npcNameY, this.getNpcDisplayName(this.npcId), {
+        fontFamily: 'Special Elite',
+        fontSize: '28px',
+        color: '#ffd86b'
+      })
+      .setDepth(11);
 
-    this.dialogueText = this.add.text(30, height - 155, this.lines.join('\n'), {
-      fontFamily: 'Special Elite',
-      fontSize: '24px',
-      color: '#ffffff',
-      wordWrap: { width: width - 60 }
-    }).setDepth(11);
+    this.dialogueText = this.add
+      .text(30, height - 155, this.lines.join('\n'), {
+        fontFamily: 'Special Elite',
+        fontSize: '24px',
+        color: '#ffffff',
+        wordWrap: { width: width - 60 }
+      })
+      .setDepth(11);
 
     const footerText = this.isCrimeCity
       ? 'Crime city witness'
       : this.isNextTargetCity
-        ? 'Hot trail witness'
-        : this.isFalseLead
-          ? 'Cold lead'
-          : 'Click to leave';
+      ? 'Hot trail witness'
+      : this.isFalseLead
+      ? 'Cold lead'
+      : 'Click to leave';
 
-    this.add.text(width - 260, height - 42, footerText, {
-      fontFamily: 'Special Elite',
-      fontSize: '18px',
-      color: '#cccccc'
-    }).setDepth(11);
+    this.footerTextObject = this.add
+      .text(width - 260, height - 42, footerText, {
+        fontFamily: 'Special Elite',
+        fontSize: '18px',
+        color: '#cccccc'
+      })
+      .setDepth(11);
+  }
+
+  handleShutdown() {
+    this.input.off('pointerdown', this.handlePointerDown, this);
+
+    if (this.dialogueText) {
+      this.dialogueText.destroy();
+      this.dialogueText = null;
+    }
+
+    if (this.footerTextObject) {
+      this.footerTextObject.destroy();
+      this.footerTextObject = null;
+    }
+
+    if (this.npcNameText) {
+      this.npcNameText.destroy();
+      this.npcNameText = null;
+    }
+
+    if (this.dialoguePanel) {
+      this.dialoguePanel.destroy();
+      this.dialoguePanel = null;
+    }
+
+    this.lines = [];
+    this.generatedNotes = [];
+    this.encounterMemory = null;
+    this.isFinishing = false;
   }
 
   closeAllUIPanels() {
@@ -328,12 +407,17 @@ export class LocationScene extends Phaser.Scene {
           notes: [...this.generatedNotes],
           lines: [...this.lines],
           isCrimeCity: this.isCrimeCity,
-          isNextTargetCity: this.isNextTargetCity
+          isNextTargetCity: this.isNextTargetCity,
+          dialogueTargetCityId: this.dialogueTargetCityId || null
         };
       } else if (existingMemory && this.isReminder) {
         gameState.encounterMemory[this.encounterId] = {
           ...existingMemory,
-          reminderShown: true
+          reminderShown: true,
+          dialogueTargetCityId:
+            existingMemory.dialogueTargetCityId ||
+            this.dialogueTargetCityId ||
+            null
         };
       }
     }
@@ -348,7 +432,9 @@ export class LocationScene extends Phaser.Scene {
     }
 
     this.scene.start('CityScene', {
-      cityId: this.cityId
+      cityId: this.cityId,
+      cityCompleted: false,
+      investigationStatus: null
     });
   }
 

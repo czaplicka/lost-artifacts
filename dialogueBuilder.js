@@ -426,6 +426,8 @@ export function buildNpcDialogue({
 
     return buildRepeatDialogue(npcData, cityId);
   }
+    const safeTargetCityId =
+    targetCityId && targetCityId !== cityId ? targetCityId : null;
 
   const variant = getLocationVariant(npcData, cityId) || {};
   const banter = buildStageAwareBanter(variant, { isCrimeCity, isNextTargetCity });
