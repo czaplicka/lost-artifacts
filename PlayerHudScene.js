@@ -4,6 +4,7 @@ import { CaseFileUI } from './ui/CaseFileUI.js';
 import { NotesUI } from './ui/NotesUI.js';
 import { WarrantUI } from './ui/WarrantUI.js';
 import { DestinationsUI } from './ui/DestinationsUI.js';
+import { CrimeBoardUI } from './ui/CrimeBoardUI.js';
 
 export class PlayerHudScene extends Phaser.Scene {
     constructor() {
@@ -14,6 +15,7 @@ export class PlayerHudScene extends Phaser.Scene {
         this.destinationsUI = null;
         this.playerMenu = null;
         this.isHudReady = false;
+        this.crimeBoardUI = null;
     }
 
     create() {
@@ -26,6 +28,7 @@ export class PlayerHudScene extends Phaser.Scene {
         this.playerMenu = new PlayerMenuUI(this, gameState);
 
         this.isHudReady = true;
+        this.crimeBoardUI = new CrimeBoardUI(this);
 
         this.scene.bringToTop();
 
@@ -41,6 +44,7 @@ export class PlayerHudScene extends Phaser.Scene {
         if (this.notesUI?.close) this.notesUI.close();
         if (this.destinationsUI?.close) this.destinationsUI.close();
         if (this.warrantUI?.close) this.warrantUI.close();
+        if (this.crimeBoardUI?.close) this.crimeBoardUI.close();
     }
 
     isAnyPanelOpen() {
@@ -49,7 +53,8 @@ export class PlayerHudScene extends Phaser.Scene {
             this.notesUI?.isOpen ||
             this.warrantUI?.isOpen ||
             this.destinationsUI?.isOpen ||
-            this.playerMenu?.isOpen
+            this.playerMenu?.isOpen ||
+            this.crimeBoardUI?.isOpen
         );
     }
 }

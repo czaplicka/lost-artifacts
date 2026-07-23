@@ -162,22 +162,26 @@ export class DestinationsUI {
         });
     }
 
-    cleanupBeforeTravel() {
-        if (this.scene.closeAllUIPanels) {
-            this.scene.closeAllUIPanels();
-        }
-
-        const hud = this.scene.scene.get('PlayerHudScene');
-        if (hud?.closeAllUIPanels) {
-            hud.closeAllUIPanels();
-        }
-
-        const sceneManager = this.scene.scene;
-
-        if (sceneManager.isActive('LocationScene') || sceneManager.isSleeping('LocationScene')) {
-            sceneManager.stop('LocationScene');
-        }
+cleanupBeforeTravel() {
+    if (this.scene.closeAllUIPanels) {
+        this.scene.closeAllUIPanels();
     }
+
+    const hud = this.scene.scene.get('PlayerHudScene');
+    if (hud?.closeAllUIPanels) {
+        hud.closeAllUIPanels();
+    }
+
+    const sceneManager = this.scene.scene;
+
+    if (sceneManager.isActive('LocationScene') || sceneManager.isSleeping('LocationScene')) {
+        sceneManager.stop('LocationScene');
+    }
+
+    if (sceneManager.isActive('OfficeScene') || sceneManager.isSleeping('OfficeScene')) {
+        sceneManager.stop('OfficeScene');
+    }
+}
 
     travelToCity(selectedCity) {
         if (this.isTransitioning) return;

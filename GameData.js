@@ -42,7 +42,19 @@ export const defaultGameState = {
   visitedCities: [],
   playerNotes: '',
 
-  encounterMemory: {}
+  encounterMemory: {},
+
+  storyPhoneCallTriggered: false,
+  pendingPhoneCall: false,
+  pendingPhoneCallCityId: null,
+
+  hiddenObjectHistory: [],
+  reconstructedHeist: null,
+
+  pendingPhoneCall: false,
+pendingPhoneCallCityId: null,
+reconstructedHeist: null,
+hiddenObjectHistory: [],
 };
 
 export const gameState = structuredClone(defaultGameState);
@@ -75,23 +87,24 @@ function sanitizeSaveData(data) {
   clean.currentCityData = data?.currentCityData ?? null;
   clean.currentEncounterId = data?.currentEncounterId ?? null;
 
-  clean.finalArrestResult = typeof data?.finalArrestResult === 'string' || data?.finalArrestResult === null
-  ? data.finalArrestResult
-  : null;
+  clean.finalArrestResult =
+    typeof data?.finalArrestResult === 'string' || data?.finalArrestResult === null
+      ? data.finalArrestResult
+      : null;
 
-clean.finalArrestSuspectId = data?.finalArrestSuspectId ?? null;
-clean.caseResolved = typeof data?.caseResolved === 'boolean' ? data.caseResolved : false;
-clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : false;
+  clean.finalArrestSuspectId = data?.finalArrestSuspectId ?? null;
+  clean.caseResolved = typeof data?.caseResolved === 'boolean' ? data.caseResolved : false;
+  clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : false;
 
   clean.crimeCity = data?.crimeCity ?? null;
   clean.crimeCityId = data?.crimeCityId ?? null;
   clean.crimeSceneVisited = typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
-clean.specialScenesVisited =
-  data?.specialScenesVisited &&
-  typeof data.specialScenesVisited === 'object' &&
-  !Array.isArray(data.specialScenesVisited)
-    ? structuredClone(data.specialScenesVisited)
-    : {};
+  clean.specialScenesVisited =
+    data?.specialScenesVisited &&
+    typeof data.specialScenesVisited === 'object' &&
+    !Array.isArray(data.specialScenesVisited)
+      ? structuredClone(data.specialScenesVisited)
+      : {};
   clean.justReachedCorrectCityId = data?.justReachedCorrectCityId ?? null;
 
   clean.activeLocations = Array.isArray(data?.activeLocations) ? structuredClone(data.activeLocations) : [];
@@ -123,6 +136,20 @@ clean.specialScenesVisited =
       ? structuredClone(data.encounterMemory)
       : {};
 
+  clean.storyPhoneCallTriggered = typeof data?.storyPhoneCallTriggered === 'boolean' ? data.storyPhoneCallTriggered : false;
+  clean.pendingPhoneCall = typeof data?.pendingPhoneCall === 'boolean' ? data.pendingPhoneCall : false;
+  clean.pendingPhoneCallCityId = data?.pendingPhoneCallCityId ?? null;
+
+  clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory) ? structuredClone(data.hiddenObjectHistory) : [];
+  clean.reconstructedHeist =
+    data?.reconstructedHeist && typeof data.reconstructedHeist === 'object'
+      ? structuredClone(data.reconstructedHeist)
+      : null;
+
+      clean.pendingPhoneCall = typeof data?.pendingPhoneCall === 'boolean' ? data.pendingPhoneCall : false;
+clean.pendingPhoneCallCityId = data?.pendingPhoneCallCityId ?? null;
+clean.reconstructedHeist = data?.reconstructedHeist ? structuredClone(data.reconstructedHeist) : null;
+clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory) ? structuredClone(data.hiddenObjectHistory) : [];
   return clean;
 }
 

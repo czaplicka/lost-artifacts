@@ -69,12 +69,14 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('backgrounds', 'assets/Success.jpg');
         this.load.image('backgroundpc', 'assets/hiscores.png');
         this.load.image('backgroundhi', 'assets/office.jpg');
+        this.load.image('backgroundoff', 'assets/biuro.jpg');
         this.load.image('bank', 'assets/bank.jpg');
         this.load.image('alley', 'assets/alley.jpg');
         this.load.image('airport', 'assets/airport.jpg');
         this.load.image('hotel_maid', 'assets/hotel_maid.jpg');
         this.load.image('parking_bg', 'assets/parking.jpg');
         this.load.image('policehq', 'assets/police_hq.jpg');
+        this.load.image('restaurant', 'assets/restaurant.jpg');
 
         this.load.image('berlin', 'assets/Berlin.jpg');
         this.load.image('london', 'assets/London.jpg');
@@ -84,7 +86,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('warsaw', 'assets/Warsaw.jpg');
 
         this.load.image('bankier', 'assets/bankier.png');
-        this.load.image('bum', 'assets/bum.png');
+        this.load.image('fence', 'assets/fence.png');
+        this.load.image('knajpa', 'assets/knajpa.png');
         this.load.image('maid', 'assets/maid.png');
         this.load.image('parking_npc', 'assets/parkingowy.png');
         this.load.image('police', 'assets/police.png');
@@ -101,13 +104,17 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('plane', 'assets/plane.png');
         this.load.image('search', 'assets/search.png');
         this.load.image('filebutt', 'assets/filebutt.png');
+        this.load.image('telephone', 'assets/telephone.png');
+        this.load.image('crime_board', 'assets/crime_board.png');
+        this.load.image('note', 'assets/note.png');
+        this.load.image('warrant', 'assets/warrant.png');
 
         this.load.image('artifact_crown_jewels', 'assets/artifacts/crown_jewels.png');
         this.load.image('artifact_amber_necklace', 'assets/artifacts/amber_necklace.png');
         this.load.image('artifact_liberty_torch', 'assets/artifacts/liberty_torch.png');
         this.load.image('artifact_mona_lisa', 'assets/artifacts/mona_lisa.png');
         this.load.image('artifact_mughal_dagger', 'assets/artifacts/mughal_dagger.png');
-        this.load.image('artifact_prussian_seal', 'assets/artifacts/prussian_seal.png');
+        this.load.image('artifact_prussian_seal', 'assets/artifacts/royal_seal.png');
         this.load.image('artifact_fallback', 'assets/artifacts/artifact_unknown.png');
 
         this.load.image('soundOn', 'assets/sound.png');
@@ -117,6 +124,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('file', 'assets/file.png');
         this.load.image('mapbg', 'assets/map.png');
 
+        this.load.image('unknown', 'assets/suspects/unknown.jpg');
         this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
         this.load.image('sofia_vargas', 'assets/suspects/sofia_vargas.jpg');
         this.load.image('bert_goodman', 'assets/suspects/bert_goodman.jpg');
@@ -137,6 +145,27 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('aleksander_petrov', 'assets/suspects/aleksander_petrov.jpg');
         this.load.image('marie_dubois', 'assets/suspects/marie_dubois.jpg');
         this.load.image('lotte_chantal', 'assets/suspects/lotte_chantal.jpg');
+
+        this.load.image('wanted_garett_gutter', 'assets/suspects/1.jpg');
+        this.load.image('wanted_sofia_vargas', 'assets/suspects/2.jpg');
+        this.load.image('wanted_bert_goodman', 'assets/suspects/3.jpg');
+        this.load.image('wanted_anne_apple', 'assets/suspects/4.jpg');
+        this.load.image('wanted_frank_groot', 'assets/suspects/5.jpg');
+        this.load.image('wanted_bernard_porter', 'assets/suspects/6.jpg');
+        this.load.image('wanted_rebecca_muller', 'assets/suspects/7.jpg');
+        this.load.image('wanted_jacek_kowalski', 'assets/suspects/8.jpg');
+        this.load.image('wanted_pablo_fernandez', 'assets/suspects/9.jpg');
+        this.load.image('wanted_alexandra_ivanova', 'assets/suspects/10.jpg');
+        this.load.image('wanted_sergei_petrov', 'assets/suspects/11.jpg');
+        this.load.image('wanted_isabella_rossi', 'assets/suspects/12.jpg');
+        this.load.image('wanted_liam_oconnor', 'assets/suspects/13.jpg');
+        this.load.image('wanted_brendan_ross', 'assets/suspects/14.jpg');
+        this.load.image('wanted_bai_williams', 'assets/suspects/15.jpg');
+        this.load.image('wanted_albert_johnson', 'assets/suspects/16.jpg');
+        this.load.image('wanted_anna_bocian', 'assets/suspects/17.jpg');
+        this.load.image('wanted_aleksander_petrov', 'assets/suspects/19.jpg');
+        this.load.image('wanted_marie_dubois', 'assets/suspects/20.jpg');
+        this.load.image('wanted_lotte_chantal', 'assets/suspects/21.jpg');
 
         this.load.image('gg', 'assets/suspects/gg.jpg');
         this.load.image('sv', 'assets/suspects/sv.jpg');
@@ -160,7 +189,25 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('lc', 'assets/suspects/lc.jpg');
 
 
+        this.load.audio('alleysound', 'assets/audio/alley.mp3');
+        this.load.audio('arrestsound', 'assets/audio/arrest.mp3');
+        this.load.audio('banksound', 'assets/audio/bank.mp3');
+        this.load.audio('citysound', 'assets/audio/city.mp3');
+        this.load.audio('clicksound', 'assets/audio/click.mp3');
         this.load.audio('themeGame', 'assets/audio/game.mp3');
+        this.load.audio('game_over', 'assets/audio/game_over.mp3');
+        this.load.audio('hotelsound', 'assets/audio/hotel.mp3');
+        this.load.audio('officescenesound', 'assets/audio/officescene.mp3');
+        this.load.audio('pagesound', 'assets/audio/page.mp3');
+        this.load.audio('parkingsound', 'assets/audio/parking.mp3');
+        this.load.audio('planesound', 'assets/audio/plane.mp3');
+        this.load.audio('policesound', 'assets/audio/police.mp3');
+        this.load.audio('restaurantsound', 'assets/audio/restaurant.mp3');
+        this.load.audio('successsound', 'assets/audio/success.mp3');
+
+
+        this.load.css('crime-board-css', 'assets/css/crime-board.css');
+        this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
 
         this.load.json('suspects', 'assets/data/suspects.json');
         this.load.json('missions', 'assets/data/missions.json');
@@ -170,7 +217,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
         this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
         this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
-        this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
+        this.load.json('dialogue_fence', 'assets/data/dialogue/fence.json');
+        this.load.json('dialogue_knajpa', 'assets/data/dialogue/knajpa.json');
         this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
         this.load.json('city_clues', 'assets/data/city-clues.json');
         this.load.json('suspect_clues', 'assets/data/suspect-clues.json');

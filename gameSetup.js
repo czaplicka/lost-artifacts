@@ -35,15 +35,15 @@ function normalizeCityId(cityName) {
   const map = {
     London: 'london',
     Paris: 'paris',
-    'New Delhi': 'newdelhi',
+    'New Delhi': 'new_delhi',
     Warsaw: 'warsaw',
-    'New York City': 'newyorkcity',
+    'New York City': 'new_york_city',
     Berlin: 'berlin',
     'Mark Agency Headquarters': 'hq'
   };
 
   if (!cityName || typeof cityName !== 'string') return null;
-  return map[cityName] || cityName.toLowerCase().replace(/\s+/g, '');
+  return map[cityName] || cityName.toLowerCase().replace(/\s+/g, '_');
 }
 
 function getLocationByCity(cityName, locationsData) {
@@ -68,6 +68,44 @@ function validateSetupData(suspectsData, missionsData, locationsData) {
   if (!Array.isArray(locationsData) || locationsData.length === 0) {
     throw new Error('No locations data available.');
   }
+}
+
+function syncInvestigationState(locationsData) {
+  if (!Array.isArray(gameState.escapeRoute)) {
+    gameState.escapeRoute = [];
+  }
+
+  const routeIndex = Number.isInteger(gameState.routeIndex) ? gameState.routeIndex : -1;
+  const isFinale = routeIndex >= gameState.escapeRoute.length;
+
+  if (!gameState.crimeSceneVisited) {
+    gameState.clueScope = 'crime_scene';
+    gameState.canonicalTravelCityId = gameState.crimeCityId || null;
+    gameState.nextTargetCityId = gameState.crimeCityId || null;
+
+    const crimeCityData = getLocationById(gameState.crimeCityId, locationsData);
+    gameState.nextTargetCity = crimeCityData?.city || gameState.crimeCity || null;
+    gameState.mustIncludeCityId = gameState.crimeCityId || null;
+    return;
+  }
+
+  if (isFinale) {
+    gameState.clueScope = 'finale';
+    gameState.canonicalTravelCityId = null;
+    gameState.nextTargetCityId = null;
+    gameState.nextTargetCity = null;
+    gameState.mustIncludeCityId = null;
+    return;
+  }
+
+  const activeRouteCityId = gameState.escapeRoute[routeIndex] ?? null;
+  const activeRouteCityData = getLocationById(activeRouteCityId, locationsData);
+
+  gameState.clueScope = 'route_leg';
+  gameState.canonicalTravelCityId = activeRouteCityId;
+  gameState.nextTargetCityId = activeRouteCityId;
+  gameState.nextTargetCity = activeRouteCityData?.city || null;
+  gameState.mustIncludeCityId = activeRouteCityId;
 }
 
 function ensureMustIncludeDestination(destinations, locationsData) {
@@ -273,6 +311,9 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.mustIncludeCityId = crimeCityId;
   gameState.justReachedCorrectCityId = null;
 
+  gameState.canonicalTravelCityId = crimeCityId;
+  gameState.clueScope = 'crime_scene';
+
   gameState.score = 0;
   gameState.playerRank = 'Junior Agent';
   gameState.isGameActive = true;
@@ -285,6 +326,7 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.travelHistory = [];
   gameState.lastTravel = null;
 
+  syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
 
   window.GAMESTATE = gameState;
@@ -292,7 +334,9 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
     thief: thief.name,
     crimeCity: gameState.crimeCity,
     crimeCityId: gameState.crimeCityId,
-    escapeRoute: gameState.escapeRoute
+    escapeRoute: gameState.escapeRoute,
+    canonicalTravelCityId: gameState.canonicalTravelCityId,
+    clueScope: gameState.clueScope
   });
 
   saveGameState();
@@ -319,12 +363,14 @@ export function enterCity(cityName, locationsData) {
     gameState.visitedCities.push(cityId);
   }
 
-  if (gameState.mustIncludeCityId && gameState.currentCityId === gameState.mustIncludeCityId) {
-    gameState.mustIncludeCityId = null;
-  }
-
   if (gameState.currentCityId === gameState.crimeCityId) {
     gameState.crimeSceneVisited = true;
+  }
+
+  syncInvestigationState(locationsData);
+
+  if (gameState.mustIncludeCityId && gameState.currentCityId === gameState.mustIncludeCityId) {
+    gameState.mustIncludeCityId = null;
   }
 
   return gameState.currentCityData;
@@ -353,9 +399,7 @@ export function advanceInvestigation(locationsData) {
   }
 
   if (gameState.routeIndex >= gameState.escapeRoute.length) {
-    gameState.nextTargetCity = null;
-    gameState.nextTargetCityId = null;
-    gameState.mustIncludeCityId = null;
+    syncInvestigationState(locationsData);
     gameState.currentCityData = getLocationByCity(gameState.currentCity, locationsData);
     gameState.activeLocations = buildActiveEncounters(gameState.currentCityData);
     gameState.currentDestinations = [];
@@ -373,17 +417,14 @@ export function advanceInvestigation(locationsData) {
       nextCityId
     });
 
-    gameState.nextTargetCity = null;
-    gameState.nextTargetCityId = null;
-    gameState.mustIncludeCityId = null;
+    gameState.routeIndex = gameState.escapeRoute.length;
+    syncInvestigationState(locationsData);
     gameState.currentDestinations = [];
     saveGameState();
     return 'FINAL_SHOWDOWN';
   }
 
-  gameState.nextTargetCityId = nextCityId;
-  gameState.nextTargetCity = nextCityData.city;
-  gameState.mustIncludeCityId = nextCityId;
+  syncInvestigationState(locationsData);
   gameState.currentCityData = getLocationByCity(gameState.currentCity, locationsData);
   gameState.activeLocations = buildActiveEncounters(gameState.currentCityData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
@@ -394,6 +435,8 @@ export function advanceInvestigation(locationsData) {
     currentCityId: gameState.currentCityId,
     nextTargetCity: gameState.nextTargetCity,
     nextTargetCityId: gameState.nextTargetCityId,
+    canonicalTravelCityId: gameState.canonicalTravelCityId,
+    clueScope: gameState.clueScope,
     escapeRoute: gameState.escapeRoute
   });
 
@@ -440,6 +483,8 @@ export function travelToCity(cityName, locationsData) {
     toCity: cityName,
     destinationCityId,
     expectedTargetCityId,
+    canonicalTravelCityId: gameState.canonicalTravelCityId,
+    clueScope: gameState.clueScope,
     wasCorrect,
     routeIndex: gameState.routeIndex,
     escapeRoute: gameState.escapeRoute
@@ -464,6 +509,7 @@ export function travelToCity(cityName, locationsData) {
 
   if (isCrimeSceneArrival) {
     gameState.crimeSceneVisited = true;
+    syncInvestigationState(locationsData);
   }
 
   if (wasCorrect) {
@@ -489,6 +535,7 @@ export function travelToCity(cityName, locationsData) {
   }
 
   gameState.justReachedCorrectCityId = null;
+  syncInvestigationState(locationsData);
   gameState.score = Math.max(0, gameState.score - 25);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
   saveGameState();

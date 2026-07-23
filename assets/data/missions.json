@@ -13,8 +13,9 @@
     "city": "Paris",
     "country": "France",
     "artifact": "Mona Lisa Sketchbook",
+    "scene": "louvre",
     "clue": "The suspect was seen near a cafe close to the Louvre.",
-    "artifactKey": "artifact_mona_lisa_sketchbook",
+    "artifactKey": "artifact_mona_lisa",
     "description": "The Mona Lisa Sketchbook contains preliminary drawings for the famous painting and is considered a valuable piece of art history.",
     "significance": "An invaluable collection of da Vinci’s lost conceptual studies, containing hidden geometric blueprints that hold the key to unlocking secrets of Renaissance engineering.",
     "narrative": "The theft reveals a chain of Renaissance ciphers and hidden inventions that lead the player deeper into a larger historical conspiracy."
@@ -24,7 +25,7 @@
     "country": "Germany",
     "artifact": "Prussian Royal Seal",
     "clue": "A witness mentioned a hurried figure near Museum Island.",
-    "artifactKey": "artifact_prussian_royal_seal",
+    "artifactKey": "artifact_royal_seal",
     "description": "The Prussian Royal Seal was used to authenticate important documents and is a symbol of Prussian authority.",
     "significance": "Intricately engraved with lost codes that granted absolute access to the deepest state archives of the Prussian Empire.",
     "narrative": "The seal opens access to sealed state records and exposes a concealed political history that the thief is trying to control."
@@ -34,7 +35,7 @@
     "country": "Poland",
     "artifact": "Royal Amber Necklace",
     "clue": "Someone matching the suspect's description was spotted near the Old Town.",
-    "artifactKey": "artifact_royal_amber_necklace",
+    "artifactKey": "artifact_amber_necklace",
     "description": "This necklace is a rare piece of jewelry made from Baltic amber, which has been treasured in Poland for centuries.",
     "significance": "Containing within its fossilized resin ancient seals that authenticated the legal succession of the Polish Crown.",
     "narrative": "Its disappearance reopens a dispute about legitimacy, inheritance, and the hidden history of the Polish Crown."
@@ -44,7 +45,7 @@
     "country": "India",
     "artifact": "Mughal Emerald Dagger",
     "clue": "The suspect was last seen near a crowded bazaar.",
-    "artifactKey": "artifact_mughal_emerald_dagger",
+    "artifactKey": "artifact_mughal_dagger",
     "description": "This dagger is an exquisite example of Mughal craftsmanship of the 17th-century Indian empire, adorned with emeralds and intricate designs.",
     "significance": "Rumored to be inscribed with secret astronomical alignments that pinpoint the location of lost royal treasure vaults.",
     "narrative": "The dagger becomes a map-like object that leads to buried treasure locations and a wider imperial mystery."
@@ -54,7 +55,7 @@
     "country": "USA",
     "artifact": "Liberty Torch Replica",
     "clue": "The suspect was seen leaving a cab near Central Park.",
-    "artifactKey": "artifact_liberty_torch_replica",
+    "artifactKey": "artifact_liberty_torch",
     "description": "This bronze model replica of the torch from the Statue of Liberty is a symbol of freedom and democracy, representing the ideals upon which the United States was founded.",
     "significance": "Containing the original architectural blueprints of the Statue of Liberty, used by 19th-century spies to conceal coded messages about transatlantic shipping routes.",
     "narrative": "The torch links the theft to espionage, shipping routes, and a hidden intelligence network operating across the Atlantic."

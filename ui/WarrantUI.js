@@ -1,4 +1,4 @@
-import { saveGameState } from '../gamedata.js';
+import { saveGameState } from '../GameData.js';
 
 export class WarrantUI {
     constructor(scene) {
@@ -171,41 +171,13 @@ export class WarrantUI {
 
         this.safeSetVisible(this.container, true);
 
-        const getSplitValues = (key) => {
-            let allItems = [];
-
-            suspectsData.forEach(suspect => {
-                if (suspect[key]) {
-                    const items = String(suspect[key])
-                        .split(',')
-                        .map(item => item.trim())
-                        .filter(Boolean);
-
-                    allItems = allItems.concat(items);
-                }
-            });
-
-            const unique = [...new Set(allItems)];
-            unique.unshift('UNKNOWN');
-            return unique;
-        };
-
-        const uniqueSkills = getSplitValues('skills');
-        const uniqueHabitus = getSplitValues('habitus');
-
         this.traitsData = {
             gender: this.getUniqueValues(suspectsData, 'gender'),
             race: this.getUniqueValues(suspectsData, 'race'),
             hair: this.getUniqueValues(suspectsData, 'hair'),
             eyes: this.getUniqueValues(suspectsData, 'eyes'),
             accent: this.getUniqueValues(suspectsData, 'accent'),
-            features: this.getUniqueValues(suspectsData, 'features'),
-            skill_1: uniqueSkills,
-            skill_2: uniqueSkills,
-            skill_3: uniqueSkills,
-            habit_1: uniqueHabitus,
-            habit_2: uniqueHabitus,
-            habit_3: uniqueHabitus
+            features: this.getUniqueValues(suspectsData, 'features')
         };
 
         this.currentFilters = {
@@ -214,13 +186,7 @@ export class WarrantUI {
             hair: 0,
             eyes: 0,
             accent: 0,
-            features: 0,
-            skill_1: 0,
-            skill_2: 0,
-            skill_3: 0,
-            habit_1: 0,
-            habit_2: 0,
-            habit_3: 0
+            features: 0
         };
 
         this.buildTraitSelectors();
@@ -281,26 +247,18 @@ export class WarrantUI {
             ['hair', 'Hair'],
             ['eyes', 'Eyes'],
             ['accent', 'Accent'],
-            ['features', 'Feature'],
-            ['skill_1', 'Skill 1'],
-            ['skill_2', 'Skill 2'],
-            ['skill_3', 'Skill 3'],
-            ['habit_1', 'Habit 1'],
-            ['habit_2', 'Habit 2'],
-            ['habit_3', 'Habit 3']
+            ['features', 'Feature']
         ];
 
-        const leftColX = width * 0.11;
-        const rightColX = width * 0.36;
-        const startY = 240;
-        const rowGap = 72;
-        const valueOffset = 180;
+        const colX = width * 0.11;
+        const startY = 250;
+        const rowGap = 74;
+        const arrowLeftOffset = 180;
+        const valueOffset = 230;
+        const arrowRightOffset = 470;
 
         fields.forEach(([key, label], index) => {
-            const isRightColumn = index >= 6;
-            const colX = isRightColumn ? rightColX : leftColX;
-            const rowIndex = isRightColumn ? index - 6 : index;
-            const y = startY + rowIndex * rowGap;
+            const y = startY + index * rowGap;
 
             const labelText = this.scene.add.text(colX, y, `${label}:`, {
                 fontFamily: 'Special Elite',
@@ -308,7 +266,9 @@ export class WarrantUI {
                 color: '#ffffff'
             }).setOrigin(0, 0.5);
 
-            const valueBtn = this.scene.add.text(
+            const leftArrow = this.makeArrow(colX + arrowLeftOffset, y, '<', key, -1);
+
+            const valueText = this.scene.add.text(
                 colX + valueOffset,
                 y,
                 this.traitsData[key][this.currentFilters[key]],
@@ -318,38 +278,59 @@ export class WarrantUI {
                     color: '#ffcc00',
                     backgroundColor: '#222222',
                     padding: { x: 8, y: 6 },
-                    fixedWidth: 200
+                    fixedWidth: 220,
+                    align: 'center'
                 }
-            )
-                .setOrigin(0, 0.5)
-                .setInteractive({ useHandCursor: true });
+            ).setOrigin(0, 0.5);
 
-            valueBtn.on('pointerdown', () => {
-                if (!this.isOpen) return;
-                this.cycleTrait(key, valueBtn);
-            });
+            const rightArrow = this.makeArrow(colX + arrowRightOffset, y, '>', key, 1);
 
-            valueBtn.on('pointerover', () => {
-                this.safeSetBackgroundColor(valueBtn, '#444444');
-            });
+            leftArrow.valueText = valueText;
+            rightArrow.valueText = valueText;
 
-            valueBtn.on('pointerout', () => {
-                this.safeSetBackgroundColor(valueBtn, '#222222');
-            });
-
-            this.container.add([labelText, valueBtn]);
-            this.traitButtons.push(labelText, valueBtn);
+            this.container.add([labelText, leftArrow, valueText, rightArrow]);
+            this.traitButtons.push(labelText, leftArrow, valueText, rightArrow);
         });
 
         this.updateStatusText();
     }
 
-    cycleTrait(key, button) {
+    makeArrow(x, y, glyph, key, direction) {
+        const arrow = this.scene.add.text(x, y, glyph, {
+            fontFamily: 'Special Elite',
+            fontSize: '26px',
+            color: '#44aa44',
+            backgroundColor: '#222222',
+            padding: { x: 10, y: 6 }
+        })
+            .setOrigin(0.5, 0.5)
+            .setInteractive({ useHandCursor: true });
+
+        arrow.on('pointerover', () => {
+            this.safeSetColor(arrow, '#ffcc00');
+            this.safeSetBackgroundColor(arrow, '#444444');
+        });
+
+        arrow.on('pointerout', () => {
+            this.safeSetColor(arrow, '#44aa44');
+            this.safeSetBackgroundColor(arrow, '#222222');
+        });
+
+        arrow.on('pointerdown', () => {
+            if (!this.isOpen) return;
+            this.stepTrait(key, direction, arrow.valueText);
+        });
+
+        return arrow;
+    }
+
+    stepTrait(key, direction, valueText) {
         if (!this.isOpen) return;
 
         const values = this.traitsData[key];
-        this.currentFilters[key] = (this.currentFilters[key] + 1) % values.length;
-        this.safeSetText(button, values[this.currentFilters[key]]);
+        const count = values.length;
+        this.currentFilters[key] = (this.currentFilters[key] + direction + count) % count;
+        this.safeSetText(valueText, values[this.currentFilters[key]]);
         this.updateStatusText();
     }
 
@@ -388,21 +369,8 @@ export class WarrantUI {
                 if (selectedIndex <= 0) continue;
 
                 const selectedValue = this.traitsData[key][selectedIndex];
-                let jsonKey = key;
 
-                if (key.startsWith('skill_')) jsonKey = 'skills';
-                if (key.startsWith('habit_')) jsonKey = 'habitus';
-
-                if (jsonKey === 'skills' || jsonKey === 'habitus') {
-                    const tokens = String(suspect[jsonKey] || '')
-                        .split(',')
-                        .map(item => item.trim())
-                        .filter(Boolean);
-
-                    if (!tokens.includes(selectedValue)) {
-                        return false;
-                    }
-                } else if (suspect[jsonKey] !== selectedValue) {
+                if (suspect[key] !== selectedValue) {
                     return false;
                 }
             }

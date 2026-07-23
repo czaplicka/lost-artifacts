@@ -21,6 +21,8 @@ export class CityScene extends Phaser.Scene {
     this.cityCompleted = false;
     this.investigationStatus = null;
     this.isFinalShowdown = false;
+    this.pendingPhoneCall = false;
+    this.pendingPhoneCallCityId = null;
   }
 
   init(data = {}) {
@@ -35,6 +37,14 @@ export class CityScene extends Phaser.Scene {
     this.isFinalShowdown = Boolean(
       data.isFinalShowdown || this.investigationStatus === 'FINAL_SHOWDOWN'
     );
+
+    this.pendingPhoneCall = Boolean(
+      data.pendingPhoneCall || gameState.pendingPhoneCall
+    );
+    this.pendingPhoneCallCityId =
+      data.pendingPhoneCallCityId ||
+      gameState.pendingPhoneCallCityId ||
+      null;
 
     this.openDestinationsOnCreate = Boolean(
       data.openDestinations ||
@@ -74,33 +84,44 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
-    if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
-      this.scene.stop('LocationScene');
-    }
+if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
+    this.scene.stop('LocationScene');
+  }
 
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
-    }
+  if (this.scene.isActive('ArrestSelectionScene')) {
+    this.scene.stop('ArrestSelectionScene');
+  }
 
-    const bgMusic = this.registry.get('bgMusic');
+  const bgMusic = this.registry.get('bgMusic');
+  if (bgMusic) {
+    bgMusic.stop();
+  }
 
-    if (bgMusic) {
-      bgMusic.stop();
-    }
+  let gameMusic = this.registry.get('gameMusic');
+  if (!gameMusic) {
+    gameMusic = this.sound.add('themeGame', {
+      loop: true,
+      volume: 0.5
+    });
+    this.registry.set('gameMusic', gameMusic);
+  }
 
-    let gameMusic = this.registry.get('gameMusic');
+  if (!gameMusic.isPlaying) {
+    gameMusic.play();
+  }
 
-    if (!gameMusic) {
-      gameMusic = this.sound.add('themeGame', {
-        loop: true,
-        volume: 0.5
-      });
-      this.registry.set('gameMusic', gameMusic);
-    }
+  let citySound = this.registry.get('citySound');
+  if (!citySound) {
+    citySound = this.sound.add('citysound', {
+      loop: true,
+      volume: 0.2
+    });
+    this.registry.set('citySound', citySound);
+  }
 
-    if (!gameMusic.isPlaying) {
-      gameMusic.play();
-    }
+  if (!citySound.isPlaying) {
+    citySound.play();
+  }
 
     this.scene.wake('UIScene');
 
@@ -156,13 +177,33 @@ export class CityScene extends Phaser.Scene {
       return;
     }
 
-    if (this.openDestinationsOnCreate) {
+    if (this.shouldShowPhoneCallNow()) {
+      this.time.delayedCall(400, () => {
+        this.closeAllUIPanels();
+
+        if (!this.scene.isActive('PhoneCallScene')) {
+          this.scene.launch('PhoneCallScene', {
+            sourceScene: 'CityScene',
+            cityId: this.cityId
+          });
+        } else {
+          this.scene.bringToTop('PhoneCallScene');
+        }
+      });
+    } else if (this.openDestinationsOnCreate) {
       this.time.delayedCall(150, () => {
         this.openDestinationsPanel();
       });
     }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+  }
+
+  shouldShowPhoneCallNow() {
+    return (
+      this.pendingPhoneCall === true &&
+      (!this.pendingPhoneCallCityId || this.pendingPhoneCallCityId === this.cityId)
+    );
   }
 
   openDestinationsPanel() {
@@ -215,6 +256,8 @@ export class CityScene extends Phaser.Scene {
       subtitle = 'The suspect is cornered. Review the evidence and make the arrest.';
     } else if (this.cityCompleted) {
       subtitle = 'City cleared. Choose the next destination on the map.';
+    } else if (this.shouldShowPhoneCallNow()) {
+      subtitle = 'Headquarters is trying to reach you.';
     }
 
     this.add.text(40, 54, subtitle, {
@@ -230,7 +273,7 @@ export class CityScene extends Phaser.Scene {
 
     encounters.forEach(encounter => {
       const npcTextureKey = this.getNpcTextureKey(encounter.npcId);
-      const iconKey = this.textures.exists(npcTextureKey) ? npcTextureKey : 'bum';
+      const iconKey = this.textures.exists(npcTextureKey) ? npcTextureKey : 'fence';
       const x = encounter.cityX;
       const y = encounter.cityY;
 
@@ -372,23 +415,23 @@ export class CityScene extends Phaser.Scene {
     icon.on('pointerdown', () => {
       this.closeAllUIPanels();
 
-this.scene.start('HiddenObjectsScene', {
-  sceneId: 'louvre',
-  mapKey: 'luvre',
-  mapPath: 'assets/crimes/luvre.json',
-  backgroundMode: 'image',
-  backgroundKey: 'luvre_bg',
-  backgroundPath: 'assets/crimes/luvre.jpg',
-  objectLayerName: 'HiddenObjects',
-  objectsDataKey: 'objects-data',
-  objectsDataPath: 'assets/data/objects.json',
-  itemSceneKey: 'louvre',
-  activeCount: 6,
-  score: gameState.score || 0,
-  timeLimit: 120,
-  returnScene: 'CityScene',
-  returnData: { cityId: this.cityId }
-});
+      this.scene.start('HiddenObjectsScene', {
+        sceneId: 'louvre',
+        mapKey: 'luvre',
+        mapPath: 'assets/crimes/luvre.json',
+        backgroundMode: 'image',
+        backgroundKey: 'luvre_bg',
+        backgroundPath: 'assets/crimes/luvre.jpg',
+        objectLayerName: 'HiddenObjects',
+        objectsDataKey: 'objects-data',
+        objectsDataPath: 'assets/data/objects.json',
+        itemSceneKey: 'louvre',
+        activeCount: 6,
+        score: gameState.score || 0,
+        timeLimit: 120,
+        returnScene: 'CityScene',
+        returnData: { cityId: this.cityId }
+      });
     });
 
     this.interactiveObjects.push(icon);
@@ -535,19 +578,32 @@ this.scene.start('HiddenObjectsScene', {
     }
   }
 
-  onSceneShutdown() {
-    this.interactiveObjects.forEach(obj => {
-      if (obj?.removeAllListeners) {
-        obj.removeAllListeners();
-      }
-    });
-
-    this.interactiveObjects = [];
-
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
+onSceneShutdown() {
+  this.interactiveObjects.forEach(obj => {
+    if (obj?.removeAllListeners) {
+      obj.removeAllListeners();
     }
+  });
+
+  this.interactiveObjects = [];
+
+  const citySound = this.registry.get('citySound');
+  if (citySound?.isPlaying) {
+    citySound.stop();
   }
+
+  if (this.scene.isActive('ArrestSelectionScene')) {
+    this.scene.stop('ArrestSelectionScene');
+  }
+
+  if (this.scene.isActive('PhoneCallScene')) {
+    this.scene.stop('PhoneCallScene');
+  }
+
+  if (this.scene.isActive('HypothesisScene')) {
+    this.scene.stop('HypothesisScene');
+  }
+}
 
   isEncounterVisited(encounterId) {
     return Array.isArray(gameState.visitedEncounters) &&
@@ -607,20 +663,22 @@ this.scene.start('HiddenObjectsScene', {
   getNpcTextureKey(npcId) {
     const map = {
       bankier: 'bankier',
-      bum: 'bum',
+      fence: 'fence',
+      knajpa: 'knajpa',
       maid: 'maid',
       parkingowy: 'parking_npc',
       police: 'police',
       stewardessa: 'stewardessa'
     };
 
-    return map[npcId] || 'bum';
+    return map[npcId] || 'fence';
   }
 
   getNpcLabel(npcId) {
     const map = {
       bankier: 'Banker',
-      bum: 'Homeless',
+      fence: 'Fence',
+      knajpa: 'Restaurant Manager',
       maid: 'Maid',
       parkingowy: 'Parking Worker',
       police: 'Police Officer',

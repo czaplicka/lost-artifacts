@@ -1,0 +1,101 @@
+<div class="crime-board-app">
+  <div id="crime-board" class="crime-board">
+    <svg class="crime-board__strings"></svg>
+    <div class="crime-board__items"></div>
+  </div>
+
+  <aside id="crime-board-sidebar" class="crime-board-sidebar is-open" aria-label="Crime board tools">
+    <div class="crime-board-sidebar__inner">
+      <div class="crime-board-sidebar__header">
+        <h2 class="crime-board-sidebar__title">Board tools</h2>
+        <button
+          type="button"
+          id="crime-board-sidebar-toggle"
+          class="crime-board-sidebar__toggle"
+          aria-expanded="true"
+          aria-controls="crime-board-sidebar"
+        >
+          Hide
+        </button>
+      </div>
+
+      <section class="crime-board-sidebar__block">
+        <div class="crime-board-sidebar__actions crime-board-sidebar__actions--stack">
+          <button type="button" id="add-photo-btn" class="crime-board-tool-btn">Add photo</button>
+          <button type="button" id="add-note-btn" class="crime-board-tool-btn">Add note</button>
+          <button type="button" id="add-evidence-btn" class="crime-board-tool-btn">Add evidence</button>
+        </div>
+      </section>
+
+      <section class="crime-board-sidebar__block">
+        <h3 class="crime-board-sidebar__subtitle">Selected item</h3>
+        <form id="crime-board-form" class="crime-board-form">
+          <div class="crime-board-empty" id="crime-board-empty-state">
+            Select a player-created item to edit or delete it.
+          </div>
+
+          <div id="crime-board-fields" style="display:none;">
+            <label class="crime-board-sidebar__label">
+              ID
+              <input type="text" name="id" readonly>
+            </label>
+
+            <label class="crime-board-sidebar__label">
+              Type
+              <input type="text" name="type" readonly>
+            </label>
+
+            <label class="crime-board-sidebar__label">
+              Label
+              <input type="text" name="label">
+            </label>
+
+            <div class="crime-board-grid-2">
+              <label class="crime-board-sidebar__label">
+                X
+                <input type="number" name="x">
+              </label>
+
+              <label class="crime-board-sidebar__label">
+                Y
+                <input type="number" name="y">
+              </label>
+            </div>
+
+            <div class="crime-board-grid-2">
+              <label class="crime-board-sidebar__label">
+                Rotation
+                <input type="number" step="0.1" name="rotation">
+              </label>
+
+              <label class="crime-board-sidebar__label">
+                Pinned
+                <select name="pinned">
+                  <option value="false">false</option>
+                  <option value="true">true</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="crime-board-type-fields"></div>
+
+            <div class="crime-board-sidebar__actions crime-board-sidebar__actions--stack">
+              <button type="button" id="crime-board-apply-btn" class="crime-board-tool-btn crime-board-tool-btn--primary">Save changes</button>
+              <button type="button" id="crime-board-delete-btn" class="crime-board-tool-btn crime-board-tool-btn--danger">Delete item</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+  </aside>
+
+  <button
+    type="button"
+    id="crime-board-sidebar-tab"
+    class="crime-board-sidebar-tab"
+    aria-controls="crime-board-sidebar"
+    aria-expanded="true"
+  >
+    Tools
+  </button>
+</div>

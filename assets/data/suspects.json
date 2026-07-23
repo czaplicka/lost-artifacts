@@ -12,7 +12,8 @@
     "skills": "Lockpicking, Disguise, Stealth",
     "habitus": "Smoking, Drinking, Gambling",
     "portraitKey": "garett_gutter",
-    "suspectImageKey": "gg"
+    "suspectImageKey": "gg",
+    "wantedKey": "1"
   },
   {
     "id": "sofia_vargas",
@@ -24,10 +25,11 @@
     "features": "Tattoo",
     "eyes": "Brown",
     "accent": "Mexican",
-    "skills": "Languages, Negotiation, Intimidation",
+    "skills": "Disguise, Surveillance, Intimidation",
     "habitus": "Tattoos, Piercings, Reading",
     "portraitKey": "sofia_vargas",
-    "suspectImageKey": "sv"
+    "suspectImageKey": "sv",
+    "wantedKey": "2"
   },
   {
     "id": "bert_goodman",
@@ -42,7 +44,8 @@
     "skills": "Hacking, Electronics, Surveillance",
     "habitus": "Gaming, Coding, Watching movies",
     "portraitKey": "bert_goodman",
-    "suspectImageKey": "bg"
+    "suspectImageKey": "bg",
+    "wantedKey": "3"
   },
   {
     "id": "anne_apple",
@@ -54,10 +57,11 @@
     "features": "Necklace",
     "eyes": "Hazel",
     "accent": "American",
-    "skills": "Public speaking, Writing, Leadership",
+    "skills": "Hacking, Pickpocket, Manipulation",
     "habitus": "Yoga, Meditation, Cooking",
     "portraitKey": "anne_apple",
-    "suspectImageKey": "aa"
+    "suspectImageKey": "aa",
+    "wantedKey": "4"
   },
   {
     "id": "frank_groot",
@@ -72,7 +76,8 @@
     "skills": "Investigation, Interrogation, Deduction",
     "habitus": "Reading, Journaling, Walking",
     "portraitKey": "frank_groot",
-    "suspectImageKey": "fg"
+    "suspectImageKey": "fg",
+    "wantedKey": "5"
   },
   {
     "id": "bernard_porter",
@@ -87,7 +92,8 @@
     "skills": "Seduction, Persuasion, Manipulation",
     "habitus": "Joking, Pranks, Flirting",
     "portraitKey": "bernard_porter",
-    "suspectImageKey": "bp"
+    "suspectImageKey": "bp",
+    "wantedKey": "6"
   },
   {
     "id": "rebecca_muller",
@@ -102,7 +108,8 @@
     "skills": "Forgery, Art history, Research",
     "habitus": "Collecting, Painting, Traveling",
     "portraitKey": "rebecca_muller",
-    "suspectImageKey": "rm"
+    "suspectImageKey": "rm",
+    "wantedKey": "7"
   },
   {
     "id": "jacek_kowalski",
@@ -117,7 +124,8 @@
     "skills": "Martial arts, Survival skills, Tracking",
     "habitus": "Hiking, Camping, Fishing",
     "portraitKey": "jacek_kowalski",
-    "suspectImageKey": "jk"
+    "suspectImageKey": "jk",
+    "wantedKey": "8"
   },
   {
     "id": "pablo_fernandez",
@@ -132,7 +140,8 @@
     "skills": "Parkour, Acrobatics, Stealth",
     "habitus": "Skateboarding, Dancing, Street art",
     "portraitKey": "pablo_fernandez",
-    "suspectImageKey": "pf"
+    "suspectImageKey": "pf",
+    "wantedKey": "9"
   },
   {
     "id": "alexandra_ivanova",
@@ -147,7 +156,8 @@
     "skills": "Martial arts, Firearms, Tactical planning",
     "habitus": "Shooting, Hiking, Traveling",
     "portraitKey": "alexandra_ivanova",
-    "suspectImageKey": "ai"
+    "suspectImageKey": "ai",
+    "wantedKey": "10"
   },
   {
     "id": "sergei_petrov",
@@ -162,7 +172,8 @@
     "skills": "Hand-to-hand combat, Espionage, Disguise",
     "habitus": "Chess, Reading, Traveling",
     "portraitKey": "sergei_petrov",
-    "suspectImageKey": "sp"
+    "suspectImageKey": "sp",
+    "wantedKey": "11"
   },
   {
     "id": "isabella_rossi",
@@ -177,7 +188,8 @@
     "skills": "Negotiation, Persuasion, Deception",
     "habitus": "Cooking, Wine tasting, Eating out",
     "portraitKey": "isabella_rossi",
-    "suspectImageKey": "ir"
+    "suspectImageKey": "ir",
+    "wantedKey": "12"
     },
   {
     "id": "liam_oconnor",
@@ -192,7 +204,8 @@
     "skills": "Lockpicking, Stealth, Disguise",
     "habitus": "Playing guitar, Drinking, Storytelling",
     "portraitKey": "liam_oconnor",
-    "suspectImageKey": "lo"
+    "suspectImageKey": "lo",
+    "wantedKey": "13"
   },
   {
     "id": "ava_thompson",
@@ -207,7 +220,8 @@
     "skills": "Investigation, Analysis, Deduction",
     "habitus": "Reading, Writing, Gardening",
     "portraitKey": "ava_thompson",
-    "suspectImageKey": "at"
+    "suspectImageKey": "at",
+    "wantedKey": "14"
   },
   {
     "id": "maximilian_schmidt",
@@ -222,7 +236,8 @@
     "skills": "Engineering, Problem-solving, Technical knowledge",
     "habitus": "Reading, Building models, Chess",
     "portraitKey": "maximilian_schmidt",
-    "suspectImageKey": "ms"
+    "suspectImageKey": "ms",
+    "wantedKey": "15"
   },
   {
     "id": "brendan_ross",
@@ -237,7 +252,8 @@
     "skills": "Negotiation, Persuasion, Deception",
     "habitus": "Running, Hiking, Traveling",
     "portraitKey": "brendan_ross",
-    "suspectImageKey": "br"
+    "suspectImageKey": "br",
+    "wantedKey": "16"
   },
   {
     "id": "bai_williams",
@@ -252,7 +268,8 @@
     "skills": "Seduction, Persuasion, Manipulation",
     "habitus": "Swimming, Running, Traveling",
     "portraitKey": "bai_williams",
-    "suspectImageKey": "bw"
+    "suspectImageKey": "bw",
+    "wantedKey": "17"
   },
   {
     "id": "albert_johnson",
@@ -267,7 +284,8 @@
     "skills": "Investigation, Interrogation, Deduction",
     "habitus": "Reading, Writing, Traveling",
     "portraitKey": "albert_johnson",
-    "suspectImageKey": "aj"
+    "suspectImageKey": "aj",
+    "wantedKey": "18"
   },
   {
     "id": "anna_bocian",
@@ -282,7 +300,8 @@
     "skills": "History, Museum studies, Research",
     "habitus": "Exploring, Watching Movies, Eating out",
     "portraitKey": "anna_bocian",
-    "suspectImageKey": "ab"
+    "suspectImageKey": "ab",
+    "wantedKey": "19"
   },
   {
     "id": "aleksander_petrov",
@@ -297,7 +316,8 @@
     "skills": "Lockpicking, Disguise, Pickpocketing",
     "habitus": "Working out, Chess, Playing video games",
     "portraitKey": "aleksander_petrov",
-    "suspectImageKey": "ap"
+    "suspectImageKey": "ap",
+    "wantedKey": "20"
   },
   {
     "id": "marie_dubois",
@@ -312,7 +332,8 @@
     "skills": "Seduction, Persuasion, Manipulation",
     "habitus": "Flirting, Shopping, Stealth",
     "portraitKey": "marie_dubois",
-    "suspectImageKey": "md"
+    "suspectImageKey": "md",
+    "wantedKey": "21"
   },
   {
     "id": "lotte_chantal",
@@ -327,6 +348,7 @@
     "skills": "Lockpicking, Interrogation, Problem-solving",
     "habitus": "Reading, Flirting, Dancing",
     "portraitKey": "lotte_chantal",
-    "suspectImageKey": "lc"
+    "suspectImageKey": "lc",
+    "wantedKey": "22"
   }
 ]

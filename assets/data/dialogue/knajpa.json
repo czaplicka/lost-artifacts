@@ -1,0 +1,145 @@
+{
+  "knajpaClues": {
+    "locationVariants": {
+      "london": {
+        "banter": [
+          "If it’s not overcooked, undercooked or misunderstood, it’s probably not leaving my kitchen.",
+          "I run a restaurant, not group therapy. Though the lines blur around lunch.",
+          "Reservations lie, chefs improvise, and I fix both."
+        ],
+        "travelHints": {
+          "paris": [
+            "They asked about a city where people argue about butter like it’s politics.",
+            "Your suspect wanted to know if service there is rude or just honest.",
+            "They mentioned a place where food is art and customers pretend to understand it."
+          ],
+          "berlin": [
+            "They asked about a city where menus change faster than opinions.",
+            "Your suspect mentioned late nights, louder kitchens and no patience for nonsense.",
+            "They talked about a place where \"closing time\" is more of a suggestion."
+          ],
+          "new_york_city": [
+            "They asked about a city where brunch is a competitive sport.",
+            "Your suspect mentioned tips, rush hours and kitchens that run like war zones.",
+            "They talked about a place where everyone is in a hurry, including the lies."
+          ],
+          "warsaw": [
+            "They asked about a city where people respect food but don’t romanticise it.",
+            "Your suspect mentioned hearty meals and zero tolerance for excuses.",
+            "They talked about a place where kitchens are efficient and opinions even more so."
+          ],
+          "new_delhi": [
+            "They asked about a city where flavour doesn’t ask for permission.",
+            "Your suspect mentioned spices, heat and kitchens that never slow down.",
+            "They talked about a place where chaos is part of the recipe."
+          ],
+          "london": [
+            "Funny thing, they described London like they expected disappointment and got it.",
+            "They mentioned grey weather, overpriced menus and surprisingly decent curry.",
+            "They talked about a city where everyone complains but still books a table."
+          ]
+        },
+        "suspectCluePool": {
+          "hair": {
+            "Black": [
+              "Black hair, neat enough to pass inspection. Barely."
+            ],
+            "Brown": [
+              "Brown hair, practical. Like someone who doesn’t have time for mirrors."
+            ],
+            "Blonde": [
+              "Blonde hair, styled like they expected attention—and got too much of it."
+            ],
+            "Red": [
+              "Red hair, hard to miss even during dinner rush."
+            ]
+          },
+          "eyes": {
+            "Blue": [
+              "Blue eyes, scanning like they were reading a menu they didn’t trust."
+            ],
+            "Brown": [
+              "Brown eyes, focused. The kind that notices exits and staff mistakes."
+            ],
+            "Green": [
+              "Green eyes, sharp enough to cut through excuses."
+            ],
+            "Hazel": [
+              "Hazel eyes, restless. Like someone timing everything."
+            ]
+          },
+          "features": {
+            "Tattoo": [
+              "A tattoo, half-hidden. Kitchen people don’t ask, but they notice."
+            ],
+            "Glasses": [
+              "Glasses, practical. Not for reading—more for judging."
+            ],
+            "Scar": [
+              "A scar. Could be kitchen, could be worse. Either way, not decorative."
+            ],
+            "Earrings": [
+              "Earrings, subtle but intentional. Like everything else about them."
+            ],
+            "Necklace": [
+              "A necklace that didn’t belong in a kitchen. Or maybe that was the point."
+            ]
+          },
+          "accent": {
+            "British": [
+              "British accent, polite on the surface, impatient underneath."
+            ],
+            "French": [
+              "French accent, making complaints sound like critique."
+            ],
+            "Italian": [
+              "Italian accent, expressive enough to distract from specifics."
+            ],
+            "American": [
+              "American accent, confident like they expect service to adapt."
+            ],
+            "Polish": [
+              "Polish accent, direct. No wasted words, no wasted time."
+            ]
+          },
+          "habitus": {
+            "Smoking": [
+              "Smelled like smoke and stress between shifts."
+            ],
+            "Drinking": [
+              "Moved like someone who closes the bar more often than they admit."
+            ]
+          }
+        },
+        "repeatLines": [
+          [
+            "We’ve already been through this.",
+            "I don’t repeat myself unless it’s on the menu."
+          ],
+          [
+            "Back again?",
+            "I hope you ordered something this time."
+          ],
+          [
+            "No new info.",
+            "Only new complaints."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city.",
+            "Even my worst waiter could’ve told you that."
+          ],
+          [
+            "That lead didn’t hold up.",
+            "Like a bad soufflé."
+          ],
+          [
+            "Your suspect wasn’t there.",
+            "You just wasted a reservation."
+          ]
+        ]
+      }
+    }
+  }
+}

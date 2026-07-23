@@ -61,9 +61,31 @@ function mergePools(localPool, globalPool) {
   ];
 }
 
+function normalizeCityId(cityIdOrName) {
+  if (!cityIdOrName || typeof cityIdOrName !== 'string') return null;
+
+  const raw = cityIdOrName.trim();
+  const map = {
+    London: 'london',
+    'New Delhi': 'new_delhi',
+    'New York City': 'new_york_city',
+    Paris: 'paris',
+    Warsaw: 'warsaw',
+    Berlin: 'berlin',
+    'Mark Agency Headquarters': 'hq'
+  };
+
+  if (map[raw]) return map[raw];
+
+  return raw
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+}
+
 function getSharedCityTravelHints(sharedCityClues, targetCityId) {
   if (!sharedCityClues || !targetCityId) return [];
-  return sharedCityClues?.[targetCityId]?.travelHints || [];
+  const normalizedTargetId = normalizeCityId(targetCityId);
+  return sharedCityClues?.[normalizedTargetId]?.travelHints || [];
 }
 
 function getSharedSuspectPool(sharedSuspectClues, category, key) {
@@ -165,42 +187,47 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
 }
 
 function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTargetCity = false) {
-  if (isCrimeCity && targetCityId) {
+  const normalizedTargetId = targetCityId ? normalizeCityId(targetCityId) : null;
+  const displayName = normalizedTargetId
+    ? normalizedTargetId.replaceAll('_', ' ')
+    : null;
+
+  if (isCrimeCity && normalizedTargetId) {
     return {
-      line: `Right after the job, the trail bent toward ${targetCityId.replaceAll('_', ' ')}.`,
+      line: `Right after the job, the trail bent toward ${displayName}.`,
       note: {
         type: 'travel',
-        cityId: targetCityId,
-        tag: targetCityId,
-        value: targetCityId
+        cityId: normalizedTargetId,
+        tag: normalizedTargetId,
+        value: normalizedTargetId
       }
     };
   }
 
-  if (isNextTargetCity && targetCityId) {
+  if (isNextTargetCity && normalizedTargetId) {
     return {
-      line: `You are close, detective. From here, the trail points toward ${targetCityId.replaceAll('_', ' ')}.`,
+      line: `You are close, detective. From here, the trail points toward ${displayName}.`,
       note: {
         type: 'travel',
-        cityId: targetCityId,
-        tag: targetCityId,
-        value: targetCityId
+        cityId: normalizedTargetId,
+        tag: normalizedTargetId,
+        value: normalizedTargetId
       }
     };
   }
 
-  const line = targetCityId
-    ? `They were definitely asking about ${targetCityId.replaceAll('_', ' ')}.`
+  const line = normalizedTargetId
+    ? `They were definitely asking about ${displayName}.`
     : 'They mentioned travel, but not clearly enough to be useful.';
 
   return {
     line,
-    note: targetCityId
+    note: normalizedTargetId
       ? {
           type: 'travel',
-          cityId: targetCityId,
+          cityId: normalizedTargetId,
           tag: line,
-          value: targetCityId
+          value: normalizedTargetId
         }
       : null
   };
@@ -263,29 +290,43 @@ export function buildSuspectClueLines(
   return { lines, notes };
 }
 
-export function normalizeTravelHint(hint, targetCityId) {
+export function normalizeTravelHint(hint, targetCityId, options = {}) {
   if (!hint) return null;
+
+  const { allowOnlyCanonicalTravelClue = true } = options;
+  const normalizedTargetId = targetCityId ? normalizeCityId(targetCityId) : null;
 
   if (typeof hint === 'string') {
     return {
       text: hint,
       note: {
         type: 'travel',
-        cityId: targetCityId || null,
+        cityId: normalizedTargetId || null,
         tag: hint,
-        value: targetCityId || null
+        value: normalizedTargetId || null
       }
     };
   }
 
   if (typeof hint === 'object' && hint.text) {
+    const normalizedHintCityId = hint.cityId ? normalizeCityId(hint.cityId) : null;
+
+    if (
+      allowOnlyCanonicalTravelClue &&
+      normalizedHintCityId &&
+      normalizedTargetId &&
+      normalizedHintCityId !== normalizedTargetId
+    ) {
+      return null;
+    }
+
     return {
       text: hint.text,
       note: {
         type: 'travel',
-        cityId: hint.cityId || targetCityId || null,
+        cityId: normalizedTargetId || normalizedHintCityId || null,
         tag: hint.tag || hint.text,
-        value: hint.cityId || targetCityId || null
+        value: normalizedTargetId || normalizedHintCityId || null
       }
     };
   }
@@ -298,19 +339,43 @@ export function buildTravelClue(
   cityId,
   targetCityId,
   sharedCityClues = null,
-  count = 1
+  count = 1,
+  options = {}
 ) {
-  const variant = getLocationVariant(npcData, cityId);
+  const { allowOnlyCanonicalTravelClue = true } = options;
 
-  const localTravelHints = variant?.travelHints?.[targetCityId] || [];
-  const sharedTravelHints = getSharedCityTravelHints(sharedCityClues, targetCityId);
+  const normalizedCityId = normalizeCityId(cityId);
+  const normalizedTargetId = normalizeCityId(targetCityId);
+  const variant = getLocationVariant(npcData, normalizedCityId) || {};
+
+  const localCityPool = variant?.travelHints || {};
+  const localTravelHints =
+    Array.isArray(localCityPool[normalizedTargetId]) ? localCityPool[normalizedTargetId] : [];
+
+  const sharedTravelHints = getSharedCityTravelHints(sharedCityClues, normalizedTargetId);
   const hintPool = mergePools(localTravelHints, sharedTravelHints);
 
   const selected = pickRandomUnique(hintPool, Math.max(0, count));
 
+  if (!selected || selected.length === 0) {
+    const fallback = buildFallbackTravelLine(normalizedTargetId, false, true);
+    return {
+      lines: [fallback.line],
+      notes: fallback.note ? [fallback.note] : []
+    };
+  }
+
   const normalized = selected
-    .map(hint => normalizeTravelHint(hint, targetCityId))
+    .map(hint => normalizeTravelHint(hint, normalizedTargetId, { allowOnlyCanonicalTravelClue }))
     .filter(Boolean);
+
+  if (normalized.length === 0) {
+    const fallback = buildFallbackTravelLine(normalizedTargetId, false, true);
+    return {
+      lines: [fallback.line],
+      notes: fallback.note ? [fallback.note] : []
+    };
+  }
 
   return {
     lines: normalized.map(item => item.text),
@@ -333,7 +398,7 @@ function noteToReminderLine(note) {
 }
 
 export function buildReminderDialogue(npcData, cityId, previousNotes = []) {
-  const variant = getLocationVariant(npcData, cityId) || {};
+  const variant = getLocationVariant(npcData, normalizeCityId(cityId)) || {};
   const repeatPool = Array.isArray(variant.repeatLines) ? variant.repeatLines : [];
   const selectedPair = pickRandom(repeatPool);
 
@@ -351,7 +416,7 @@ export function buildReminderDialogue(npcData, cityId, previousNotes = []) {
 }
 
 export function buildRepeatDialogue(npcData, cityId) {
-  const variant = getLocationVariant(npcData, cityId);
+  const variant = getLocationVariant(npcData, normalizeCityId(cityId));
   const repeatPool = Array.isArray(variant?.repeatLines) ? variant.repeatLines : [];
   const selectedPair = pickRandom(repeatPool);
 
@@ -377,7 +442,7 @@ export function buildRepeatDialogue(npcData, cityId) {
 }
 
 export function buildFalseLeadDialogue(npcData, cityId) {
-  const variant = getLocationVariant(npcData, cityId);
+  const variant = getLocationVariant(npcData, normalizeCityId(cityId));
   const falseLeadPool = Array.isArray(variant?.falseLeadLines) ? variant.falseLeadLines : [];
   const selectedPair = pickRandom(falseLeadPool);
 
@@ -407,6 +472,10 @@ export function buildNpcDialogue({
   suspect,
   cityId,
   targetCityId,
+  canonicalTravelCityId = null,
+  clueScope = 'route_leg',
+  routeIndex = -1,
+  allowOnlyCanonicalTravelClue = true,
   sharedCityClues = null,
   sharedSuspectClues = null,
   isRepeat = false,
@@ -426,10 +495,17 @@ export function buildNpcDialogue({
 
     return buildRepeatDialogue(npcData, cityId);
   }
-    const safeTargetCityId =
-    targetCityId && targetCityId !== cityId ? targetCityId : null;
 
-  const variant = getLocationVariant(npcData, cityId) || {};
+  const activeTravelCityId =
+    canonicalTravelCityId || targetCityId || null;
+
+  const safeTargetCityId =
+    activeTravelCityId &&
+    normalizeCityId(activeTravelCityId) !== normalizeCityId(cityId)
+      ? activeTravelCityId
+      : null;
+
+  const variant = getLocationVariant(npcData, normalizeCityId(cityId)) || {};
   const banter = buildStageAwareBanter(variant, { isCrimeCity, isNextTargetCity });
 
   const suspectClues = suspect
@@ -441,28 +517,40 @@ export function buildNpcDialogue({
       )
     : { lines: [], notes: [] };
 
-  const travel = targetCityId
-    ? buildTravelClue(npcData, cityId, targetCityId, sharedCityClues, 1)
-    : { lines: [], notes: [] };
+  const travel =
+    clueScope === 'finale' || !safeTargetCityId
+      ? { lines: [], notes: [] }
+      : buildTravelClue(
+          npcData,
+          cityId,
+          safeTargetCityId,
+          sharedCityClues,
+          1,
+          { allowOnlyCanonicalTravelClue, routeIndex }
+        );
 
   const fallbackSuspect = buildFallbackSuspectLine(suspect, isCrimeCity);
-  const fallbackTravel = buildFallbackTravelLine(targetCityId, isCrimeCity, isNextTargetCity);
+  const fallbackTravel = buildFallbackTravelLine(
+    safeTargetCityId,
+    isCrimeCity,
+    isNextTargetCity
+  );
 
   const suspectLine = suspectClues.lines[0] || fallbackSuspect.line;
   const suspectNotes =
     suspectClues.notes.length > 0
       ? suspectClues.notes
       : fallbackSuspect.note
-        ? [fallbackSuspect.note]
-        : [];
+      ? [fallbackSuspect.note]
+      : [];
 
   const travelLine = travel.lines[0] || fallbackTravel.line;
   const travelNotes =
     travel.notes.length > 0
       ? travel.notes
       : fallbackTravel.note
-        ? [fallbackTravel.note]
-        : [];
+      ? [fallbackTravel.note]
+      : [];
 
   return {
     lines: ensureThreeLines([

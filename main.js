@@ -4,6 +4,7 @@ import { MenuScene } from './MenuScene.js';
 import { SettingsScene } from './SettingsScene.js';
 import { GameOverScene } from './GameOverScene.js';
 import { GameScene } from './GameScene.js';
+import { OfficeScene } from './OfficeScene.js';
 import { HighscoreScene } from './HighscoreScene.js';
 import { CityScene } from './CityScene.js';
 import { LocationScene } from './LocationScene.js';
@@ -14,6 +15,8 @@ import { AgainScene } from './AgainScene.js';
 import { SuccessScene } from './SuccessScene.js';
 import UIScene from './ui/UIScene.js';
 import HiddenObjectsScene from './HiddenObjectsScene.js';
+import { PhoneCallScene } from './PhoneCallScene.js';
+import HypothesisScene from './HypothesisScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -28,6 +31,7 @@ const config = {
         SettingsScene,
         GameOverScene,
         GameScene,
+        OfficeScene,
         HighscoreScene,
         CityScene,
         LocationScene,
@@ -37,7 +41,9 @@ const config = {
         SuccessScene,
         AgainScene,
         HiddenObjectsScene,
-        UIScene
+        UIScene,
+        PhoneCallScene,
+HypothesisScene,
     ],
     dom: {
         createContainer: true

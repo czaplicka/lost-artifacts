@@ -6,18 +6,29 @@ import { EventBus } from './EventBus.js';
 const NPC_DIALOGUE_CACHE_MAP = {
   bankier: 'dialogue_banker',
   stewardessa: 'dialogue_stewardess',
+  knajpa: 'dialogue_knajpa',
   maid: 'dialogue_maid',
   police: 'dialogue_police',
-  bum: 'dialogue_bum',
+  fence: 'dialogue_fence',
   parkingowy: 'dialogue_parkingowy'
+};
+
+const LOCATION_SOUND_MAP = {
+  alley: 'alleysound',
+  bank: 'banksound',
+  hotel: 'hotelsound',
+  parking: 'parkingsound',
+  policehq: 'policesound',
+  restaurant: 'restaurantsound'
 };
 
 const NPC_DIALOGUE_ROOT_MAP = {
   bankier: 'bankerClues',
   stewardessa: 'stewardessClues',
+  knajpa: 'knajpaClues',
   maid: 'maidClues',
   police: 'policeClues',
-  bum: 'bumClues',
+  fence: 'fenceClues',
   parkingowy: 'parkingowyClues'
 };
 
@@ -44,6 +55,7 @@ export class LocationScene extends Phaser.Scene {
     this.isFalseLead = false;
     this.timeCostApplied = false;
     this.dialogueTargetCityId = null;
+    this.locationAmbient = null;
   }
 
   init(data = {}) {
@@ -78,6 +90,7 @@ export class LocationScene extends Phaser.Scene {
     this.isFalseLead = !this.isCorrectCity;
     this.timeCostApplied = false;
     this.dialogueTargetCityId = data.dialogueTargetCityId || null;
+    this.locationAmbient = null;
 
     if (!Array.isArray(gameState.cluesCollected)) {
       gameState.cluesCollected = [];
@@ -97,7 +110,23 @@ export class LocationScene extends Phaser.Scene {
   }
 
   create() {
-    this.scene.wake('UIScene');
+    const citySound = this.registry.get('citySound');
+    if (citySound?.isPlaying) {
+      citySound.stop();
+    }
+
+    const locationSoundKey = LOCATION_SOUND_MAP[this.locationId];
+
+    if (locationSoundKey) {
+      this.locationAmbient = this.sound.add(locationSoundKey, {
+        loop: true,
+        volume: 0.2
+      });
+
+      if (!this.locationAmbient.isPlaying) {
+        this.locationAmbient.play();
+      }
+    }
 
     const hud = this.scene.get('PlayerHudScene');
     if (hud?.closeAllUIPanels) {
@@ -144,13 +173,14 @@ export class LocationScene extends Phaser.Scene {
 
     this.isReminder = Boolean(
       this.isRepeat &&
-      hasMemory &&
-      this.encounterMemory?.reminderShown === false &&
-      !this.isFalseLead
+        hasMemory &&
+        this.encounterMemory?.reminderShown === false &&
+        !this.isFalseLead
     );
 
     const isStandingAtTarget = Boolean(
-      gameState.currentCityId && gameState.currentCityId === gameState.nextTargetCityId
+      gameState.currentCityId &&
+        gameState.currentCityId === gameState.nextTargetCityId
     );
 
     const lookAheadTargetId =
@@ -167,18 +197,24 @@ export class LocationScene extends Phaser.Scene {
       this.encounterMemory?.hintTargetCityId ||
       null;
 
+    // KLUCZOWA ZMIANA: crime city używa kanonicznego początku escapeRoute
     if (!this.dialogueTargetCityId) {
-      this.dialogueTargetCityId =
-        frozenTargetFromMemory ||
-        (this.isCrimeCity || isStandingAtTarget
-          ? lookAheadTargetId
-          : gameState.nextTargetCityId ?? null);
+      if (this.isCrimeCity) {
+        this.dialogueTargetCityId = Array.isArray(gameState.escapeRoute)
+          ? gameState.escapeRoute[0] || null
+          : null;
+      } else {
+        this.dialogueTargetCityId =
+          frozenTargetFromMemory ||
+          (isStandingAtTarget ? lookAheadTargetId : gameState.nextTargetCityId ?? null);
+      }
     }
 
     if (this.dialogueTargetCityId && this.dialogueTargetCityId === this.cityId) {
       this.dialogueTargetCityId = lookAheadTargetId || null;
     }
 
+    // Budowa dialogu – wykorzystujemy canonicalTravelCityId + clueScope
     const generatedDialogue = this.isFalseLead
       ? buildFalseLeadDialogue(npcDialogueBlock, this.cityId)
       : buildNpcDialogue({
@@ -186,6 +222,14 @@ export class LocationScene extends Phaser.Scene {
           suspect,
           cityId: this.cityId,
           targetCityId: this.dialogueTargetCityId,
+          canonicalTravelCityId: this.isCrimeCity
+            ? (Array.isArray(gameState.escapeRoute)
+                ? gameState.escapeRoute[0] || null
+                : null)
+            : this.dialogueTargetCityId,
+          clueScope: this.isCrimeCity ? 'crime_scene' : 'route_leg',
+          routeIndex: gameState.routeIndex,
+          allowOnlyCanonicalTravelClue: true,
           sharedCityClues,
           sharedSuspectClues,
           isRepeat: this.isRepeat,
@@ -271,7 +315,7 @@ export class LocationScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setDepth(10);
 
-    const npcNameY = this.npcId === 'bum' ? height - 198 : height - 205;
+    const npcNameY = this.npcId === 'fence' ? height - 198 : height - 205;
 
     this.npcNameText = this.add
       .text(30, npcNameY, this.getNpcDisplayName(this.npcId), {
@@ -309,6 +353,11 @@ export class LocationScene extends Phaser.Scene {
 
   handleShutdown() {
     this.input.off('pointerdown', this.handlePointerDown, this);
+
+    if (this.locationAmbient?.isPlaying) {
+      this.locationAmbient.stop();
+    }
+    this.locationAmbient = null;
 
     if (this.dialogueText) {
       this.dialogueText.destroy();
@@ -459,7 +508,7 @@ export class LocationScene extends Phaser.Scene {
       stewardessa: 'Stewardess',
       maid: 'Maid',
       police: 'Police Officer',
-      bum: 'Homeless',
+      fence: 'Fence',
       parkingowy: 'Parking Worker'
     };
 

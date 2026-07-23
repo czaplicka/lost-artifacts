@@ -3,6 +3,7 @@ import { gameState } from './GameData.js';
 export class SuccessScene extends Phaser.Scene {
     constructor() {
         super({ key: 'SuccessScene' });
+        this.successSound = null;
     }
 
     create() {
@@ -12,6 +13,11 @@ export class SuccessScene extends Phaser.Scene {
         if (music && music.isPlaying) {
             music.stop();
         }
+
+        this.successSound = this.sound.add('successsound', {
+            volume: 0.5
+        });
+        this.successSound.play();
 
         const { width, height } = this.scale;
 
@@ -71,6 +77,10 @@ export class SuccessScene extends Phaser.Scene {
         }
 
         nextBtn.on('pointerdown', () => {
+            if (this.successSound?.isPlaying) {
+                this.successSound.stop();
+            }
+
             const againSceneExists = this.scene.manager.keys.AgainScene;
 
             if (!againSceneExists) {
@@ -80,6 +90,13 @@ export class SuccessScene extends Phaser.Scene {
             }
 
             this.scene.start('AgainScene');
+        });
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            if (this.successSound?.isPlaying) {
+                this.successSound.stop();
+            }
+            this.successSound = null;
         });
     }
 

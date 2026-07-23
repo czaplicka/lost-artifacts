@@ -9,14 +9,17 @@ export class GameScene extends Phaser.Scene {
         this.dialogueText = null;
         this.fullIntroText = '';
         this.typingEvent = null;
+        this.introFinished = false;
+        this.continueText = null;
+        this.hasStartedOfficeScene = false;
     }
 
     create() {
         this.scene.wake('UIScene');
-                this.timeManager = new GameTimeManager(); 
+        this.timeManager = new GameTimeManager();
 
-    // Wymuszamy pierwsze odświeżenie żeby kalendarz pokazał Day 1 | 08:00 od razu!
-    EventBus.emit('advanceTime', 0, 0); 
+        EventBus.emit('advanceTime', 0, 0);
+
         const dialogueData = this.cache.json.get('dialogue');
 
         if (!gameState.currentMission || !gameState.currentThief) {
@@ -61,11 +64,15 @@ export class GameScene extends Phaser.Scene {
         this.fullIntroText = dialogueData.gameIntro.join('\n');
         this.typeText(this.dialogueText, this.fullIntroText, 24);
 
+        this.input.on('pointerdown', this.handleContinue, this);
+
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             if (this.typingEvent) {
                 this.typingEvent.remove(false);
                 this.typingEvent = null;
             }
+
+            this.input.off('pointerdown', this.handleContinue, this);
         });
     }
 
@@ -83,6 +90,12 @@ export class GameScene extends Phaser.Scene {
             wordWrap: { width: 1040 },
             lineSpacing: 14
         });
+
+        this.continueText = this.add.text(1180, 920, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '16px',
+            color: '#ffff99'
+        }).setOrigin(1, 1);
     }
 
     closeAllUIPanels() {
@@ -100,7 +113,10 @@ export class GameScene extends Phaser.Scene {
             this.typingEvent = null;
         }
 
+        this.introFinished = false;
+        this.continueText?.setText('');
         target.setText('');
+
         let index = 0;
 
         this.typingEvent = this.time.addEvent({
@@ -112,8 +128,41 @@ export class GameScene extends Phaser.Scene {
 
                 if (index >= text.length) {
                     this.typingEvent = null;
+                    this.introFinished = true;
+                    this.continueText?.setText('CLICK TO CONTINUE');
                 }
             }
+        });
+    }
+
+    handleContinue(pointer, currentlyOver) {
+        if (this.hasStartedOfficeScene) return;
+
+        if (!this.introFinished) {
+            if (this.typingEvent) {
+                this.typingEvent.remove(false);
+                this.typingEvent = null;
+            }
+
+            this.dialogueText.setText(this.fullIntroText);
+            this.introFinished = true;
+            this.continueText?.setText('CLICK TO CONTINUE');
+            return;
+        }
+
+        this.goToOfficeScene();
+    }
+
+    goToOfficeScene() {
+        if (this.hasStartedOfficeScene) return;
+        this.hasStartedOfficeScene = true;
+
+        this.closeAllUIPanels();
+
+        this.cameras.main.fadeOut(350, 0, 0, 0);
+
+        this.time.delayedCall(360, () => {
+            this.scene.start('OfficeScene', { gameState });
         });
     }
 

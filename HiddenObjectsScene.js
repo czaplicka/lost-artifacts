@@ -78,9 +78,18 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.foundItems = new Set();
     this.timerEvent = null;
     this.isSceneFinished = false;
+    this.incorrectClicks = 0;
 
     if (!gameState.specialScenesVisited || typeof gameState.specialScenesVisited !== 'object') {
       gameState.specialScenesVisited = {};
+    }
+
+    if (!Array.isArray(gameState.hiddenObjectHistory)) {
+      gameState.hiddenObjectHistory = [];
+    }
+
+    if (!Array.isArray(gameState.cluesCollected)) {
+      gameState.cluesCollected = [];
     }
   }
 
@@ -96,10 +105,25 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     if (this.objectsDataPath && !this.cache.json.exists(this.objectsDataKey)) {
       this.load.json(this.objectsDataKey, this.objectsDataPath);
     }
+
+    if (!this.textures.exists('back')) {
+      this.load.image('back', '/assets/back.png');
+    }
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#0f0f12');
+
+    // If this quest was already completed/abandoned during the current
+    // investigation, it must stay inactive: bail out straight back to the city.
+    if (this.isQuestAlreadyDone()) {
+      this.scene.start(this.returnScene, {
+        ...this.returnData,
+        hiddenObjectsAlreadyCompleted: true,
+        sceneId: this.sceneId
+      });
+      return;
+    }
 
     this.loadObjectsData();
     this.pickActiveItems(this.activeCount);
@@ -108,6 +132,18 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.createUi();
     this.createHiddenZones();
     this.createTimer();
+    this.registerMissDetection();
+
+    // Hide the calendar/UI overlay while the hidden-object game is active.
+    this.scene.sleep('UIScene');
+
+    // Guard against listener accumulation across scene restarts.
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
+  }
+
+  isQuestAlreadyDone() {
+    const visited = gameState.specialScenesVisited;
+    return !!(visited && visited[this.getVisitKey()]);
   }
 
   loadObjectsData() {
@@ -266,7 +302,13 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       color: '#7CFC00'
     }).setDepth(1001);
 
-    this.add.text(34, 132, 'Find these objects:', {
+    this.missesText = this.add.text(34, 114, `Misses: ${this.incorrectClicks}`, {
+      fontFamily: 'Arial',
+      fontSize: '16px',
+      color: '#ff8a8a'
+    }).setDepth(1001);
+
+    this.add.text(34, 142, 'Find these objects:', {
       fontFamily: 'Arial',
       fontSize: '20px',
       color: '#ffffff',
@@ -289,18 +331,28 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       lineSpacing: 6
     }).setDepth(1001);
 
-    this.backBtn = this.add.text(width - 120, 24, 'Back', {
-      fontFamily: 'Arial',
-      fontSize: '22px',
-      color: '#ffffff',
-      backgroundColor: '#222222',
-      padding: { left: 12, right: 12, top: 8, bottom: 8 }
-    })
-      .setInteractive({ useHandCursor: true })
-      .setDepth(1001);
+    if (this.textures.exists('back')) {
+      this.backBtn = this.add.image(width - 70, 44, 'back')
+        .setDisplaySize(56, 56)
+        .setInteractive({ useHandCursor: true })
+        .setDepth(1001);
+    } else {
+      this.backBtn = this.add.text(width - 120, 24, 'Back', {
+        fontFamily: 'Arial',
+        fontSize: '22px',
+        color: '#ffffff',
+        backgroundColor: '#222222',
+        padding: { left: 12, right: 12, top: 8, bottom: 8 }
+      })
+        .setInteractive({ useHandCursor: true })
+        .setDepth(1001);
+    }
 
+    // Clicking Back intentionally abandons (loses) the current game and
+    // returns to the city. It is an interactive object, so the global miss
+    // detector never treats this as an incorrect click.
     this.backBtn.on('pointerdown', () => {
-      this.finishAndReturn();
+      this.abandonGame();
     });
   }
 
@@ -354,22 +406,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
         zone.setStrokeStyle(2, 0xff0000, 0.85);
       }
 
-      zone.on('pointerover', () => {
-        if (!zone.getData('found')) {
-          document.body.style.cursor = 'pointer';
-          zone.setStrokeStyle(2, this.debugZones ? 0x00ffff : 0xffff00, this.debugZones ? 0.95 : 0.4);
-        }
-      });
-
-      zone.on('pointerout', () => {
-        document.body.style.cursor = 'default';
-        if (this.debugZones) {
-          zone.setStrokeStyle(2, 0xff0000, 0.85);
-        } else {
-          zone.setStrokeStyle();
-        }
-      });
-
+      // No hover reveal: clickable targets must stay hidden until clicked.
       zone.on('pointerdown', () => this.handleHiddenObjectClick(zone));
 
       this.hiddenZones.push(zone);
@@ -432,10 +469,12 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       return;
     }
 
+    // Mark as found and turn it permanently gray/inactive. The zone stays
+    // interactive (but inert) so that re-clicking an already-found item is
+    // absorbed here and never reaches the incorrect-click detector.
     zone.setData('found', true);
-    zone.disableInteractive();
-    zone.setFillStyle(0x00ff88, 0.2);
-    zone.setStrokeStyle(2, 0x00ff88, 0.6);
+    zone.setFillStyle(0x555555, 0.55);
+    zone.setStrokeStyle(2, 0x777777, 0.7);
 
     this.foundItems.add(id);
 
@@ -448,28 +487,12 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     if (isStaticRedHerring) {
       points = 5;
-      this.showMessage(
-        `${itemData.item}: false lead. ${itemData.trueExplanation || 'This object is misleading.'}`,
-        '#ffb347'
-      );
     } else if (!isMissionRelevant) {
       points = 5;
-      this.showMessage(
-        `${itemData.item}: unrelated to this thief. ${itemData.trueExplanation || 'Does not match the suspect pattern.'}`,
-        '#ffb347'
-      );
     } else if (clueType === 'hard_clue') {
       points = 25;
-      this.showMessage(
-        `${itemData.item}: strong clue. Skills: ${(itemData.skills || []).join(', ')}`,
-        '#7CFC00'
-      );
     } else {
       points = 15;
-      this.showMessage(
-        `${itemData.item}: useful clue. Skills: ${(itemData.skills || []).join(', ')}`,
-        '#ffd966'
-      );
     }
 
     this.score += points;
@@ -478,6 +501,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     if (!isStaticRedHerring && isMissionRelevant) {
       this.emitClueFound(itemData);
+      this.storeHiddenObjectClue(itemData, clueType);
     }
 
     if (this.foundItems.size >= this.activeItems.length) {
@@ -497,6 +521,125 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       affinityWeight,
       clueType: itemData.clueType || 'soft_clue'
     });
+  }
+
+  storeHiddenObjectClue(itemData, clueType = 'soft_clue') {
+    if (!itemData) return;
+
+    if (!Array.isArray(gameState.hiddenObjectHistory)) {
+      gameState.hiddenObjectHistory = [];
+    }
+
+    if (!Array.isArray(gameState.cluesCollected)) {
+      gameState.cluesCollected = [];
+    }
+
+    const alreadyStoredObject = gameState.hiddenObjectHistory.some(
+      entry =>
+        entry?.id === itemData.id &&
+        entry?.scene === this.sceneId &&
+        entry?.cityId === this.cityId
+    );
+
+    if (!alreadyStoredObject) {
+      gameState.hiddenObjectHistory.push({
+        id: itemData.id,
+        item: itemData.item,
+        scene: this.sceneId,
+        cityId: this.cityId,
+        clueType,
+        skills: Array.isArray(itemData.skills) ? [...itemData.skills] : [],
+        heistExplanation: itemData.heistExplanation || '',
+        trueExplanation: itemData.trueExplanation || '',
+        foundAt: Date.now()
+      });
+    }
+
+    const skills = Array.isArray(itemData.skills) ? itemData.skills : [];
+
+    skills.forEach((skill) => {
+      const normalizedSkill = String(skill).trim();
+      if (!normalizedSkill) return;
+
+      const alreadyExists = gameState.cluesCollected.some(
+        clue =>
+          clue?.type === 'suspect' &&
+          clue?.category === 'skills' &&
+          String(clue?.value).toLowerCase() === normalizedSkill.toLowerCase()
+      );
+
+      if (!alreadyExists) {
+        gameState.cluesCollected.push({
+          type: 'suspect',
+          category: 'skills',
+          value: normalizedSkill,
+          source: 'hidden_object',
+          itemId: itemData.id,
+          cityId: this.cityId,
+          text: `Skill: ${normalizedSkill}`
+        });
+      }
+    });
+
+    saveGameState();
+  }
+
+  buildHeistReconstruction() {
+    const relevantEntries = Array.isArray(gameState.hiddenObjectHistory)
+      ? gameState.hiddenObjectHistory.filter(entry => entry?.scene === this.sceneId)
+      : [];
+
+    if (relevantEntries.length === 0) {
+      return null;
+    }
+
+    const orderedSentences = relevantEntries
+      .map(entry =>
+        entry.heistExplanation ||
+        entry.trueExplanation ||
+        `${entry.item} played some part in the theft.`
+      )
+      .filter(Boolean);
+
+    const uniqueSkills = [
+      ...new Set(
+        relevantEntries
+          .flatMap(entry =>
+            Array.isArray(entry.skills)
+              ? entry.skills.map(skill => String(skill).trim())
+              : []
+          )
+          .filter(Boolean)
+      )
+    ];
+
+    return {
+      sceneId: this.sceneId,
+      cityId: this.cityId,
+      sentences: orderedSentences,
+      finalText: orderedSentences.join(' '),
+      skills: uniqueSkills,
+      items: relevantEntries.map(entry => ({
+        id: entry.id,
+        item: entry.item,
+        scene: entry.scene,
+        cityId: entry.cityId,
+        clueType: entry.clueType,
+        skills: Array.isArray(entry.skills) ? [...entry.skills] : [],
+        heistExplanation: entry.heistExplanation || '',
+        trueExplanation: entry.trueExplanation || '',
+        foundAt: entry.foundAt || null
+      }))
+    };
+  }
+
+  saveHeistReconstruction() {
+    const reconstruction = this.buildHeistReconstruction();
+
+    if (!reconstruction) return;
+
+    gameState.reconstructedHeist = reconstruction;
+    saveGameState();
   }
 
   buildListText() {
@@ -544,6 +687,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.markSceneVisited();
 
     if (success) {
+      this.saveHeistReconstruction();
       this.showMessage('All objects found.', '#7CFC00');
     } else {
       this.showMessage('Time is up.', '#ff6b6b');
@@ -554,24 +698,67 @@ export default class HiddenObjectsScene extends Phaser.Scene {
         ...this.returnData,
         hiddenObjectsSuccess: success,
         hiddenObjectsScore: this.score,
+        incorrectClicks: this.incorrectClicks,
         foundItems: Array.from(this.foundItems),
         sceneId: this.sceneId
       });
     });
   }
 
-  finishAndReturn() {
+  abandonGame() {
     if (this.isSceneFinished) return;
+    this.isSceneFinished = true;
 
+    if (this.timerEvent) {
+      this.timerEvent.remove(false);
+      this.timerEvent = null;
+    }
+
+    // Abandoning counts as losing the game, and marks the quest done so it
+    // cannot be replayed for the remainder of the current investigation.
     this.markSceneVisited();
 
     this.scene.start(this.returnScene, {
       ...this.returnData,
       hiddenObjectsAborted: true,
+      hiddenObjectsSuccess: false,
       hiddenObjectsScore: this.score,
+      incorrectClicks: this.incorrectClicks,
       foundItems: Array.from(this.foundItems),
       sceneId: this.sceneId
     });
+  }
+
+  registerMissDetection() {
+    this.input.on('pointerdown', this.handleGlobalPointerDown, this);
+  }
+
+  handleGlobalPointerDown(pointer, currentlyOver) {
+    if (this.isSceneFinished) return;
+
+    // Any interactive object under the pointer (an active zone, an
+    // already-found zone, or a UI control such as Back) means this was not a
+    // miss on empty scenery.
+    if (Array.isArray(currentlyOver) && currentlyOver.length > 0) return;
+
+    // Ignore clicks on the sidebar; only empty spots in the play area count.
+    if (pointer.x < this.sidebarWidth) return;
+
+    this.incorrectClicks += 1;
+    if (this.missesText) {
+      this.missesText.setText(`Misses: ${this.incorrectClicks}`);
+    }
+  }
+
+  handleShutdown() {
+    if (this.input) {
+      this.input.off('pointerdown', this.handleGlobalPointerDown, this);
+    }
+
+    if (this.timerEvent) {
+      this.timerEvent.remove(false);
+      this.timerEvent = null;
+    }
   }
 
   markSceneVisited() {
