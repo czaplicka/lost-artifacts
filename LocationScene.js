@@ -1,4 +1,5 @@
 import { gameState, saveGameState } from './GameData.js';
+import { getActiveRouteCityId } from './gameSetup.js';
 import { buildNpcDialogue, buildFalseLeadDialogue } from './dialogueBuilder.js';
 import { ensureHud } from './hudHelpers.js';
 import { EventBus } from './EventBus.js';
@@ -184,25 +185,16 @@ export class LocationScene extends Phaser.Scene {
     );
 
     const lookAheadTargetId =
-      (this.isCrimeCity || isStandingAtTarget) &&
-      Array.isArray(gameState.escapeRoute) &&
-      gameState.escapeRoute.length > 0
-        ? gameState.escapeRoute[Math.max(0, gameState.routeIndex + 1)] ||
-          gameState.escapeRoute[0] ||
-          null
-        : null;
+      this.isCrimeCity || isStandingAtTarget ? getActiveRouteCityId() : null;
 
     const frozenTargetFromMemory =
       this.encounterMemory?.dialogueTargetCityId ||
       this.encounterMemory?.hintTargetCityId ||
       null;
 
-    // KLUCZOWA ZMIANA: crime city używa kanonicznego początku escapeRoute
     if (!this.dialogueTargetCityId) {
       if (this.isCrimeCity) {
-        this.dialogueTargetCityId = Array.isArray(gameState.escapeRoute)
-          ? gameState.escapeRoute[0] || null
-          : null;
+        this.dialogueTargetCityId = getActiveRouteCityId();
       } else {
         this.dialogueTargetCityId =
           frozenTargetFromMemory ||
@@ -223,9 +215,7 @@ export class LocationScene extends Phaser.Scene {
           cityId: this.cityId,
           targetCityId: this.dialogueTargetCityId,
           canonicalTravelCityId: this.isCrimeCity
-            ? (Array.isArray(gameState.escapeRoute)
-                ? gameState.escapeRoute[0] || null
-                : null)
+            ? getActiveRouteCityId()
             : this.dialogueTargetCityId,
           clueScope: this.isCrimeCity ? 'crime_scene' : 'route_leg',
           routeIndex: gameState.routeIndex,
