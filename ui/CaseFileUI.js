@@ -12,6 +12,8 @@ export class CaseFileUI {
         this.tiesText = null;
         this.artifactImage = null;
 
+        this.boundToggleHandler = this.onToggleKeyDown.bind(this);
+
         this.create();
     }
 
@@ -101,6 +103,28 @@ export class CaseFileUI {
         this.container.setScale(0.92);
         this.container.setAlpha(0);
         this.container.setVisible(false);
+
+        this.bindKeyboardShortcut();
+    }
+
+    bindKeyboardShortcut() {
+        if (!this.scene.input?.keyboard) return;
+
+        this.scene.input.keyboard.addCapture('F');
+        this.scene.input.keyboard.on('keydown-F', this.boundToggleHandler);
+    }
+
+    onToggleKeyDown(event) {
+        const activeTag = document.activeElement?.tagName;
+        const isTyping =
+            activeTag === 'INPUT' ||
+            activeTag === 'TEXTAREA' ||
+            document.activeElement?.isContentEditable;
+
+        if (isTyping) return;
+
+        event.preventDefault();
+        this.toggle();
     }
 
     update(data = {}) {
@@ -169,5 +193,14 @@ export class CaseFileUI {
         } else {
             this.open(data);
         }
+    }
+
+    destroy() {
+        if (this.scene.input?.keyboard) {
+            this.scene.input.keyboard.off('keydown-F', this.boundToggleHandler);
+        }
+
+        this.container?.destroy(true);
+        this.overlay?.destroy();
     }
 }

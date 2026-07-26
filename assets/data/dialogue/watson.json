@@ -1,0 +1,20 @@
+{
+  "default": [
+    {
+      "speaker": "Sgt. Watson",
+      "portraitKey": "portrait_watson",
+      "lines": [
+        "Watson here. Local police haven't touched the scene, per your request.",
+        "Let me know when you want us to move in."
+      ]
+    },
+    {
+      "speaker": "Sgt. Watson",
+      "portraitKey": "portrait_watson",
+      "lines": [
+        "Watson speaking.",
+        "We're standing by. Say the word and we'll secure the location."
+      ]
+    }
+  ]
+}

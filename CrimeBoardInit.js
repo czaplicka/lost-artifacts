@@ -1,6 +1,7 @@
 import { CrimeBoard } from './CrimeBoard.js';
 
 const UNKNOWN_SUSPECT_IMAGE = 'assets/suspects/unknown.jpg';
+const DEFAULT_ARTIFACT_IMAGE = 'assets/crime_board.png';
 const DEFAULT_OBJECTS_URL = '/assets/data/objects.json';
 
 async function loadJson(url) {
@@ -31,26 +32,76 @@ function cloneData(data) {
     : JSON.parse(JSON.stringify(data));
 }
 
-function buildMissionItem(mission) {
+function buildMissionArtifactItem(mission = {}) {
+  const artifactId = mission.artifactKey || slugify(mission.artifact || 'case');
+  const image =
+    mission.image ||
+    mission.artifactImage ||
+    mission.artifactPhoto ||
+    mission.photo ||
+    DEFAULT_ARTIFACT_IMAGE;
+
+  const meta = [
+    mission.city || 'Unknown city',
+    mission.country || 'Unknown country'
+  ].filter(Boolean);
+
+  const captionParts = [
+    mission.clue || '',
+    mission.description || ''
+  ].filter(Boolean);
+
   return {
-    id: `mission-${mission.artifactKey || slugify(mission.artifact || 'case')}`,
-    type: 'note',
+    id: `mission-${artifactId}`,
+    type: 'photo',
     x: 380,
     y: 24,
     z: 2,
     rotation: -0.6,
     pinned: true,
     label: mission.artifact || 'Unknown Artifact',
-    text: [
-      `${mission.city || 'Unknown city'}, ${mission.country || 'Unknown country'}`,
-      '',
-      mission.clue || '',
-      '',
-      mission.description || ''
-    ].filter(Boolean).join('\n'),
-    metaText: 'Stolen artifact',
-    color: 'yellow',
+    image,
+    caption: captionParts.join(' — ') || 'Stolen artifact',
+    meta,
     tags: ['mission', 'artifact'],
+    clueId: mission.artifactKey || null,
+    discovered: true,
+    createdByPlayer: false,
+    editableByPlayer: false
+  };
+}
+
+function buildArtifactDetailsItem(mission = {}) {
+  const parts = [
+    mission.description || '',
+    mission.clue ? `Lead: ${mission.clue}` : '',
+    mission.city || mission.country
+      ? `Last seen: ${[mission.city, mission.country].filter(Boolean).join(', ')}`
+      : ''
+  ].filter(Boolean);
+
+  if (!parts.length) {
+    return null;
+  }
+
+  return {
+    id: `artifact-details-${mission.artifactKey || slugify(mission.artifact || 'case')}`,
+    type: 'evidence',
+    x: 620,
+    y: 58,
+    z: 2,
+    rotation: 1.1,
+    pinned: false,
+    label: `${mission.artifact || 'Artifact'} dossier`,
+    tag: 'Artifact',
+    body: parts.join('\n\n'),
+    fields: [
+      ...(mission.city ? [{ key: 'City', value: mission.city }] : []),
+      ...(mission.country ? [{ key: 'Country', value: mission.country }] : []),
+      ...(mission.artifactKey ? [{ key: 'Case', value: mission.artifactKey }] : [])
+    ],
+    tags: ['mission', 'artifact-details'],
+    discovered: true,
     createdByPlayer: false,
     editableByPlayer: false
   };
@@ -71,6 +122,7 @@ function buildUnknownSuspectItem(currentThiefId = null) {
     meta: ['Suspect', 'Unknown'],
     suspectId: currentThiefId || null,
     tags: ['suspect', 'unknown'],
+    discovered: true,
     createdByPlayer: false,
     editableByPlayer: false
   };
@@ -94,6 +146,7 @@ function buildPlayerNotesItem(playerNotes) {
     metaText: 'Notebook',
     color: 'blue',
     tags: ['player-note'],
+    discovered: true,
     createdByPlayer: false,
     editableByPlayer: false
   };
@@ -114,8 +167,20 @@ function buildEvidenceItemsFromClues(clues, objectsData = []) {
   return clues.map((clue, index) => {
     const objectMatch = objectMap.get(clue.objectId) || objectMap.get(clue.id) || null;
 
-    const title = clue.label || clue.title || objectMatch?.item || `Clue ${index + 1}`;
-    const body = clue.text || clue.description || clue.content || objectMatch?.heistExplanation || objectMatch?.trueExplanation || 'Collected during investigation.';
+    const title =
+      clue.label ||
+      clue.title ||
+      objectMatch?.item ||
+      `Clue ${index + 1}`;
+
+    const body =
+      clue.text ||
+      clue.description ||
+      clue.content ||
+      objectMatch?.heistExplanation ||
+      objectMatch?.trueExplanation ||
+      'Collected during investigation.';
+
     const fields = [];
 
     if (clue.type) fields.push({ key: 'Type', value: clue.type });
@@ -140,6 +205,7 @@ function buildEvidenceItemsFromClues(clues, objectsData = []) {
       heistExplanation: objectMatch?.heistExplanation || '',
       trueExplanation: objectMatch?.trueExplanation || '',
       tags: ['discovered-clue'],
+      discovered: true,
       createdByPlayer: false,
       editableByPlayer: false
     };
@@ -148,8 +214,9 @@ function buildEvidenceItemsFromClues(clues, objectsData = []) {
 
 function buildLinks(items) {
   const missionItem = items.find(item => item.id.startsWith('mission-'));
+  const artifactDetailsItem = items.find(item => item.id.startsWith('artifact-details-'));
   const suspectItem = items.find(item => item.tags?.includes('unknown'));
-  const evidenceItems = items.filter(item => item.type === 'evidence');
+  const evidenceItems = items.filter(item => item.type === 'evidence' && !item.id.startsWith('artifact-details-'));
 
   const links = [];
 
@@ -161,6 +228,17 @@ function buildLinks(items) {
       fromAnchor: 'left',
       toAnchor: 'right',
       color: '#b3131b'
+    });
+  }
+
+  if (missionItem && artifactDetailsItem) {
+    links.push({
+      id: 'link-mission-artifact-details',
+      from: missionItem.id,
+      to: artifactDetailsItem.id,
+      fromAnchor: 'right',
+      toAnchor: 'left',
+      color: '#8d6e63'
     });
   }
 
@@ -187,7 +265,13 @@ function buildBoardLayout(gameState, objectsData = []) {
   const mission = gameState.currentMission;
   const items = [];
 
-  items.push(buildMissionItem(mission));
+  items.push(buildMissionArtifactItem(mission));
+
+  const artifactDetailsItem = buildArtifactDetailsItem(mission);
+  if (artifactDetailsItem) {
+    items.push(artifactDetailsItem);
+  }
+
   items.push(buildUnknownSuspectItem(gameState.currentThief?.id || gameState.currentThiefId || null));
 
   const collectedClues = normalizeCollectedClues(gameState.cluesCollected);
@@ -202,7 +286,7 @@ function buildBoardLayout(gameState, objectsData = []) {
       boardId: `board-${mission.artifactKey || slugify(mission.artifact || 'case')}`,
       title: mission.artifact || 'Crime Board',
       caseId: mission.artifactKey || '',
-      version: 1,
+      version: 2,
       thiefId: gameState.currentThief?.id || gameState.currentThiefId || null,
       crimeCity: mission.city || gameState.crimeCity || ''
     },
@@ -227,11 +311,16 @@ function mergePlayerItems(baseLayout, savedData) {
   }
 
   const baseIds = new Set(baseLayout.items.map(item => item.id));
-  const playerItems = savedData.items.filter(item => item?.createdByPlayer && !baseIds.has(item.id));
+  const playerItems = savedData.items.filter(
+    item => item?.createdByPlayer && !baseIds.has(item.id)
+  );
+
   const mergedItems = [...baseLayout.items, ...cloneData(playerItems)];
   const validIds = new Set(mergedItems.map(item => item.id));
   const savedLinks = Array.isArray(savedData.links) ? savedData.links : [];
-  const playerLinks = savedLinks.filter(link => validIds.has(link?.from) && validIds.has(link?.to));
+  const playerLinks = savedLinks.filter(
+    link => validIds.has(link?.from) && validIds.has(link?.to)
+  );
 
   return {
     meta: cloneData(baseLayout.meta),

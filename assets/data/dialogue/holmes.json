@@ -1,0 +1,20 @@
+{
+  "default": [
+    {
+      "speaker": "Insp. Holmes",
+      "portraitKey": "portrait_holmes",
+      "lines": [
+        "You called for a consultation, detective?",
+        "Consider the smallest detail. It is rarely the obvious one that matters."
+      ]
+    },
+    {
+      "speaker": "Insp. Holmes",
+      "portraitKey": "portrait_holmes",
+      "lines": [
+        "Ah, back again.",
+        "Remember: an alibi that's too perfect is often the loudest lie."
+      ]
+    }
+  ]
+}

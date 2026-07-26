@@ -89,14 +89,6 @@
             "American": [
               "American accent, trying very hard not to sound impressed by anything."
             ]
-          },
-          "habitus": {
-            "Nervous flyer": [
-              "They gripped the armrest like it had answers."
-            ],
-            "Frequent flyer": [
-              "They moved through the cabin like someone who has outlived the safety demonstration."
-            ]
           }
         },
         "repeatLines": [
@@ -217,14 +209,6 @@
             "Spanish": [
               "Spanish accent, warm in tone, evasive in content."
             ]
-          },
-          "habitus": {
-            "Perfume": [
-              "They left a trail of perfume more persistent than their honesty."
-            ],
-            "Nervous flyer": [
-              "Their hands shook, but only when the questions got close to landing."
-            ]
           }
         },
         "repeatLines": [
@@ -339,11 +323,6 @@
             "Polish": [
               "Polish accent, comfortable on this route, far less comfortable with questions."
             ]
-          },
-          "habitus": {
-            "Frequent flyer": [
-              "They buckled in without looking and finished the safety demo in their head."
-            ]
           }
         },
         "repeatLines": [
@@ -454,11 +433,6 @@
           "accent": {
             "American": [
               "American accent, loud enough to stake territory on board."
-            ]
-          },
-          "habitus": {
-            "Frequent flyer": [
-              "They treated boarding like a meeting they had already rescheduled twice."
             ]
           }
         },
@@ -571,11 +545,7 @@
             "Polish": [
               "Polish accent, steady and unhurried, like they’ve flown this route more than once."
             ]
-          },
-          "habitus": {
-            "Practical": [
-              "They treated the whole flight like a bus with better altitude."
-            ]
+    
           }
         },
         "repeatLines": [
@@ -621,7 +591,7 @@
             "They seemed fascinated by cities where weather does most of the talking."
           ],
           "paris": [
-            "They talked about Paris as a place where people complain about everything except the view.",
+            "They talked about a city as a place where people complain about everything except the view.",
             "Your passenger mentioned pastries, protests and narrow streets that pretend to be charming.",
             "They liked the idea of arriving somewhere that decorates its arguments."
           ],
@@ -683,11 +653,6 @@
             ],
             "British": [
               "A British accent slowly melting into something more tired and honest."
-            ]
-          },
-          "habitus": {
-            "Sweating": [
-              "They glistened with the kind of sweat that means both heat and secrets."
             ]
           }
         },

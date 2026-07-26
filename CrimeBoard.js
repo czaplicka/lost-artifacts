@@ -1,24 +1,43 @@
 export class CrimeBoard {
   constructor(root, options = {}) {
     this.root = root;
-    this.svg = root.querySelector('.crime-board__strings');
-    this.itemsLayer = root.querySelector('.crime-board__items');
+    this.svg = root?.querySelector('.crime-board__strings');
+    this.itemsLayer = root?.querySelector('.crime-board__items');
 
-    this.meta = {};
-    this.state = {
-      items: [],
-      links: []
+    if (!this.root || !this.svg || !this.itemsLayer) {
+      throw new Error('CrimeBoard requires root with .crime-board__strings and .crime-board__items.');
+    }
+
+    this.options = {
+      confirmLinkDeletion: options.confirmLinkDeletion !== false,
+      formId: options.formId || 'crime-board-form',
+      emptyStateId: options.emptyStateId || 'crime-board-empty-state',
+      fieldsWrapId: options.fieldsWrapId || 'crime-board-fields',
+      dynamicFieldsId: options.dynamicFieldsId || 'crime-board-type-fields',
+      jsonOutputId: options.jsonOutputId || 'board-json-output',
+      saveBtnId: options.saveBtnId || 'board-save-btn',
+      loadBtnId: options.loadBtnId || 'board-load-btn',
+      applyBtnId: options.applyBtnId || 'crime-board-apply-btn',
+      deleteBtnId: options.deleteBtnId || 'crime-board-delete-btn',
+      addPhotoBtnId: options.addPhotoBtnId || 'add-photo-btn',
+      addNoteBtnId: options.addNoteBtnId || 'add-note-btn',
+      addEvidenceBtnId: options.addEvidenceBtnId || 'add-evidence-btn',
+      linksListId: options.linksListId || 'crime-board-links-list',
+      linksEmptyId: options.linksEmptyId || 'crime-board-links-empty'
     };
 
+    this.app = this.root.closest('.crime-board-app') || document;
+    this.meta = {};
+    this.state = { items: [], links: [] };
     this.selectedItemId = null;
-
     this.itemElements = new Map();
     this.linkElements = new Map();
 
     this.drag = {
       activeId: null,
       offsetX: 0,
-      offsetY: 0
+      offsetY: 0,
+      pointerId: null
     };
 
     this.connectionMode = {
@@ -28,55 +47,100 @@ export class CrimeBoard {
     };
 
     this.tempPath = null;
-    this.boundPointerMove = this.onWindowPointerMove.bind(this);
-    this.boundPointerUp = this.onWindowPointerUp.bind(this);
     this.zCounter = 10;
+    this.destroyed = false;
 
     this.editor = {
-      form: document.getElementById(options.formId || 'crime-board-form'),
-      emptyState: document.getElementById(options.emptyStateId || 'crime-board-empty-state'),
-      fieldsWrap: document.getElementById(options.fieldsWrapId || 'crime-board-fields'),
-      dynamicFields: document.getElementById(options.dynamicFieldsId || 'crime-board-type-fields'),
-      jsonOutput: document.getElementById(options.jsonOutputId || 'board-json-output'),
-      saveBtn: document.getElementById(options.saveBtnId || 'board-save-btn'),
-      loadBtn: document.getElementById(options.loadBtnId || 'board-load-btn'),
-      applyBtn: document.getElementById(options.applyBtnId || 'crime-board-apply-btn'),
-      deleteBtn: document.getElementById(options.deleteBtnId || 'crime-board-delete-btn'),
-      addPhotoBtn: document.getElementById(options.addPhotoBtnId || 'add-photo-btn'),
-      addNoteBtn: document.getElementById(options.addNoteBtnId || 'add-note-btn'),
-      addEvidenceBtn: document.getElementById(options.addEvidenceBtnId || 'add-evidence-btn'),
-      linksList: document.getElementById(options.linksListId || 'crime-board-links-list'),
-      linksEmpty: document.getElementById(options.linksEmptyId || 'crime-board-links-empty')
+      form: document.getElementById(this.options.formId),
+      emptyState: document.getElementById(this.options.emptyStateId),
+      fieldsWrap: document.getElementById(this.options.fieldsWrapId),
+      dynamicFields: document.getElementById(this.options.dynamicFieldsId),
+      jsonOutput: document.getElementById(this.options.jsonOutputId),
+      saveBtn: document.getElementById(this.options.saveBtnId),
+      loadBtn: document.getElementById(this.options.loadBtnId),
+      applyBtn: document.getElementById(this.options.applyBtnId),
+      deleteBtn: document.getElementById(this.options.deleteBtnId),
+      addPhotoBtn: document.getElementById(this.options.addPhotoBtnId),
+      addNoteBtn: document.getElementById(this.options.addNoteBtnId),
+      addEvidenceBtn: document.getElementById(this.options.addEvidenceBtnId),
+      linksList: document.getElementById(this.options.linksListId),
+      linksEmpty: document.getElementById(this.options.linksEmptyId)
     };
 
-    this.sidebar = this.root.parentElement?.querySelector('#crime-board-sidebar') || null;
-    this.sidebarToggleBtn = this.root.parentElement?.querySelector('#crime-board-sidebar-toggle') || null;
-    this.sidebarTabBtn = this.root.parentElement?.querySelector('#crime-board-sidebar-tab') || null;
+    this.sidebar = this.app.querySelector?.('#crime-board-sidebar') || null;
+    this.sidebarToggleBtn = this.app.querySelector?.('#crime-board-sidebar-toggle') || null;
+    this.sidebarTabBtn = this.app.querySelector?.('#crime-board-sidebar-tab') || null;
+
+    this.boundResize = this.onResize.bind(this);
+    this.boundPointerMove = this.onWindowPointerMove.bind(this);
+    this.boundPointerUp = this.onWindowPointerUp.bind(this);
+    this.boundRootClick = this.onRootClick.bind(this);
 
     this.init();
   }
 
   init() {
-    window.addEventListener('resize', () => this.renderLinks());
+    window.addEventListener('resize', this.boundResize);
     this.bindEditor();
     this.bindSidebar();
+    this.root.addEventListener('click', this.boundRootClick);
+  }
 
-    this.root.addEventListener('click', (e) => {
-      if (e.target === this.root || e.target === this.itemsLayer || e.target === this.svg) {
-        this.selectedItemId = null;
-        this.renderSelectionState();
-        this.refreshEditor();
-      }
-    });
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+
+    window.removeEventListener('resize', this.boundResize);
+    window.removeEventListener('pointermove', this.boundPointerMove);
+    window.removeEventListener('pointerup', this.boundPointerUp);
+    this.root.removeEventListener('click', this.boundRootClick);
+
+    this.resetConnectionMode({ keepListeners: false });
+    this.clearDragState();
+    this.itemElements.clear();
+    this.linkElements.clear();
+    this.tempPath?.remove();
+    this.tempPath = null;
+  }
+
+  onResize() {
+    this.renderLinks();
+  }
+
+  onRootClick(e) {
+    if (e.target === this.root || e.target === this.itemsLayer || e.target === this.svg) {
+      this.selectedItemId = null;
+      this.renderSelectionState();
+      this.refreshEditor();
+    }
+  }
+
+  clone(value) {
+    if (typeof structuredClone === 'function') {
+      return structuredClone(value);
+    }
+    return JSON.parse(JSON.stringify(value));
   }
 
   bindSidebar() {
     if (this.sidebarToggleBtn) {
-      this.sidebarToggleBtn.addEventListener('click', () => this.collapseSidebar());
+      this.sidebarToggleBtn.addEventListener('click', () => {
+        if (this.sidebar?.classList.contains('is-collapsed')) {
+          this.expandSidebar();
+        } else {
+          this.collapseSidebar();
+        }
+      });
     }
 
     if (this.sidebarTabBtn) {
-      this.sidebarTabBtn.addEventListener('click', () => this.expandSidebar());
+      this.sidebarTabBtn.addEventListener('click', () => {
+        if (this.sidebar?.classList.contains('is-collapsed')) {
+          this.expandSidebar();
+        } else {
+          this.collapseSidebar();
+        }
+      });
     }
   }
 
@@ -84,8 +148,10 @@ export class CrimeBoard {
     if (!this.sidebar) return;
     this.sidebar.classList.remove('is-open');
     this.sidebar.classList.add('is-collapsed');
+    this.app.classList.add('is-sidebar-collapsed');
 
     if (this.sidebarToggleBtn) {
+      this.sidebarToggleBtn.textContent = 'Show';
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'false');
     }
 
@@ -98,8 +164,10 @@ export class CrimeBoard {
     if (!this.sidebar) return;
     this.sidebar.classList.remove('is-collapsed');
     this.sidebar.classList.add('is-open');
+    this.app.classList.remove('is-sidebar-collapsed');
 
     if (this.sidebarToggleBtn) {
+      this.sidebarToggleBtn.textContent = 'Hide';
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'true');
     }
 
@@ -114,7 +182,7 @@ export class CrimeBoard {
   }
 
   isPlayerEditableLink(linkId) {
-    const link = this.state.links.find(entry => entry.id === linkId);
+    const link = this.getLinkById(linkId);
     return Boolean(link?.editableByPlayer);
   }
 
@@ -182,7 +250,7 @@ export class CrimeBoard {
     }
 
     if (this.editor.form) {
-      this.editor.form.addEventListener('change', (e) => {
+      this.editor.form.addEventListener('change', e => {
         if (!this.isPlayerEditableItem()) return;
         if (e.target.name === 'type') {
           this.renderEditorTypeFields(e.target.value, this.getItemById(this.selectedItemId));
@@ -208,7 +276,7 @@ export class CrimeBoard {
       return {
         ...base,
         label: 'New photo',
-        image: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=600&q=80',
+        image: '/assets/ui/placeholder-suspect.png',
         caption: 'Add your caption here.',
         meta: ['Lead']
       };
@@ -238,19 +306,19 @@ export class CrimeBoard {
 
   loadBoard(data) {
     const safeData = data && typeof data === 'object' ? data : {};
-
     this.meta = this.normalizeMeta(safeData.meta || {});
     this.state.items = (safeData.items || []).map((item, index) => this.normalizeItem(item, index));
     this.state.links = (safeData.links || [])
       .map((link, index) => this.normalizeLink(link, index))
-      .filter(link => this.state.items.some(item => item.id === link.from) && this.state.items.some(item => item.id === link.to));
+      .filter(link => this.isValidLinkTarget(link.from, link.to));
 
+    this.zCounter = this.state.items.reduce((max, item) => Math.max(max, item.z || 1), 10);
     this.selectedItemId = null;
+    this.resetConnectionMode();
     this.render();
     this.refreshEditor();
     this.renderLinksPanel();
     this.syncJsonOutput();
-
     return this.getBoardData();
   }
 
@@ -268,42 +336,11 @@ export class CrimeBoard {
     }
   }
 
-  setItems(items) {
-    this.state.items = (Array.isArray(items) ? items : []).map((item, index) => this.normalizeItem(item, index));
-    this.render();
-    this.refreshEditor();
-    this.renderLinksPanel();
-    this.syncJsonOutput();
-  }
-
-  setLinks(links) {
-    const validIds = new Set(this.state.items.map(item => item.id));
-    this.state.links = (Array.isArray(links) ? links : [])
-      .map((link, index) => this.normalizeLink(link, index))
-      .filter(link => validIds.has(link.from) && validIds.has(link.to) && link.from !== link.to);
-
-    this.render();
-    this.renderLinksPanel();
-    this.refreshEditor();
-    this.syncJsonOutput();
-  }
-
-  clearBoard() {
-    this.meta = {};
-    this.state.items = [];
-    this.state.links = [];
-    this.selectedItemId = null;
-    this.render();
-    this.refreshEditor();
-    this.renderLinksPanel();
-    this.syncJsonOutput();
-  }
-
   getBoardData() {
     return {
-      meta: structuredClone(this.meta),
-      items: structuredClone(this.state.items),
-      links: structuredClone(this.state.links)
+      meta: this.clone(this.meta),
+      items: this.clone(this.state.items),
+      links: this.clone(this.state.links)
     };
   }
 
@@ -325,26 +362,23 @@ export class CrimeBoard {
       type,
       x: Number.isFinite(safeItem.x) ? safeItem.x : 40 + (index * 30),
       y: Number.isFinite(safeItem.y) ? safeItem.y : 40 + (index * 20),
-      z: Number.isFinite(safeItem.z) ? safeItem.z : 1,
+      z: Number.isFinite(safeItem.z) ? safeItem.z : index + 1,
       rotation: Number.isFinite(safeItem.rotation) ? safeItem.rotation : this.getInitialRotation(index),
       pinned: Boolean(safeItem.pinned),
 
       label: safeItem.label || 'Untitled',
       image: safeItem.image || '',
       caption: safeItem.caption || '',
-      meta: Array.isArray(safeItem.meta) ? safeItem.meta : [],
+      meta: Array.isArray(safeItem.meta) ? safeItem.meta.filter(Boolean) : [],
 
       text: safeItem.text || '',
       metaText: safeItem.metaText || '',
-      color: safeItem.color || 'yellow',
+      color: ['yellow', 'blue', 'pink'].includes(safeItem.color) ? safeItem.color : 'yellow',
 
       tag: safeItem.tag || 'Evidence',
       body: safeItem.body || '',
       fields: Array.isArray(safeItem.fields)
-        ? safeItem.fields.map(row => ({
-            key: row?.key || '',
-            value: row?.value || ''
-          }))
+        ? safeItem.fields.map(row => ({ key: row?.key || '', value: row?.value || '' }))
         : [],
 
       suspectId: safeItem.suspectId || null,
@@ -352,9 +386,8 @@ export class CrimeBoard {
       heistExplanation: safeItem.heistExplanation || '',
       trueExplanation: safeItem.trueExplanation || '',
       isRedHerring: Boolean(safeItem.isRedHerring),
-      tags: Array.isArray(safeItem.tags) ? safeItem.tags : [],
-
-      discovered: Boolean(safeItem.discovered),
+      tags: Array.isArray(safeItem.tags) ? safeItem.tags.filter(Boolean) : [],
+      discovered: safeItem.discovered !== false,
       createdByPlayer: Boolean(safeItem.createdByPlayer),
       editableByPlayer: Boolean(safeItem.editableByPlayer)
     };
@@ -362,7 +395,6 @@ export class CrimeBoard {
 
   normalizeLink(link, index = 0) {
     const safeLink = link && typeof link === 'object' ? link : {};
-
     return {
       id: safeLink.id || `link-${index}-${crypto.randomUUID()}`,
       from: safeLink.from || '',
@@ -382,6 +414,144 @@ export class CrimeBoard {
   getInitialRotation(index) {
     const preset = [-2.4, 1.8, -1.2, 2.1, -0.8, 1.1, -1.7, 2.6];
     return preset[index % preset.length];
+  }
+
+  isValidLinkTarget(fromId, toId) {
+    if (!fromId || !toId || fromId === toId) return false;
+    return this.state.items.some(item => item.id === fromId) &&
+      this.state.items.some(item => item.id === toId);
+  }
+
+  hasLinkBetween(aId, bId) {
+    return this.state.links.some(link =>
+      (link.from === aId && link.to === bId) ||
+      (link.from === bId && link.to === aId)
+    );
+  }
+
+  getItemById(id) {
+    return this.state.items.find(item => item.id === id) || null;
+  }
+
+  getLinkById(id) {
+    return this.state.links.find(link => link.id === id) || null;
+  }
+
+  addItem(item) {
+    const normalized = this.normalizeItem({
+      ...item,
+      z: this.nextZ()
+    }, this.state.items.length);
+
+    this.state.items.push(normalized);
+
+    const el = this.createItemElement(normalized);
+    this.itemsLayer.appendChild(el);
+    this.itemElements.set(normalized.id, el);
+
+    this.renderItemPosition(normalized);
+    this.renderLinks();
+    this.renderLinksPanel();
+
+    return normalized;
+  }
+
+  updateItem(id, patch = {}) {
+    const index = this.state.items.findIndex(item => item.id === id);
+    if (index === -1) return null;
+
+    const current = this.state.items[index];
+    const next = this.normalizeItem({
+      ...current,
+      ...patch,
+      id: current.id,
+      createdByPlayer: current.createdByPlayer,
+      editableByPlayer: current.editableByPlayer
+    }, index);
+
+    this.state.items[index] = next;
+    const oldEl = this.itemElements.get(id);
+    const newEl = this.createItemElement(next);
+
+    if (oldEl?.parentNode) {
+      oldEl.parentNode.replaceChild(newEl, oldEl);
+    }
+
+    this.itemElements.set(id, newEl);
+    this.renderItemPosition(next);
+    this.renderLinks();
+    this.renderSelectionState();
+    this.renderLinksPanel();
+
+    return next;
+  }
+
+  removeItem(id) {
+    const item = this.getItemById(id);
+    if (!item || !item.editableByPlayer) return false;
+
+    this.state.items = this.state.items.filter(entry => entry.id !== id);
+
+    const removedLinks = this.state.links
+      .filter(link => link.from === id || link.to === id)
+      .map(link => link.id);
+
+    this.state.links = this.state.links.filter(link => link.from !== id && link.to !== id);
+
+    this.itemElements.get(id)?.remove();
+    this.itemElements.delete(id);
+
+    removedLinks.forEach(linkId => {
+      this.linkElements.get(linkId)?.remove();
+      this.linkElements.delete(linkId);
+    });
+
+    this.renderLinks();
+    this.renderLinksPanel();
+
+    if (this.selectedItemId === id) {
+      this.selectedItemId = null;
+    }
+
+    return true;
+  }
+
+  addLink(link) {
+    const normalized = this.normalizeLink(link, this.state.links.length);
+
+    if (!this.isValidLinkTarget(normalized.from, normalized.to)) return null;
+    if (this.hasLinkBetween(normalized.from, normalized.to)) return null;
+
+    this.state.links.push(normalized);
+    const el = this.createLinkElement(normalized);
+    this.svg.appendChild(el);
+    this.linkElements.set(normalized.id, el);
+    this.renderLinks();
+    this.renderLinksPanel();
+    return normalized;
+  }
+
+  removeLink(id) {
+    const link = this.getLinkById(id);
+    if (!link) return false;
+    if (link.editableByPlayer === false) return false;
+
+    if (this.options.confirmLinkDeletion) {
+      const ok = window.confirm('Delete this connection?');
+      if (!ok) return false;
+    }
+
+    this.state.links = this.state.links.filter(entry => entry.id !== id);
+    this.linkElements.get(id)?.remove();
+    this.linkElements.delete(id);
+    this.renderLinksPanel();
+    this.syncJsonOutput();
+    return true;
+  }
+
+  nextZ() {
+    this.zCounter += 1;
+    return this.zCounter;
   }
 
   render() {
@@ -414,184 +584,143 @@ export class CrimeBoard {
     el.dataset.id = item.id;
 
     if (item.pinned) el.classList.add('is-pinned');
-    if (!item.discovered && !item.createdByPlayer) el.classList.add('is-hidden-evidence');
+    if (!item.discovered) el.classList.add('is-hidden');
+    if (item.createdByPlayer) el.classList.add('is-player-item');
+    if (item.editableByPlayer) el.classList.add('is-editable');
 
-    el.innerHTML = `
-      <div class="crime-board__item-shell">
-        <div class="crime-board__pin-dot"></div>
+    el.innerHTML = this.getItemMarkup(item);
 
-        <div class="crime-board__toolbar">
-          <div class="crime-board__label">${this.escapeHtml(item.label)}</div>
-
-          <div class="crime-board__actions">
-            <button type="button" class="crime-board__btn" data-action="connect">Link</button>
-            <button type="button" class="crime-board__btn" data-action="pin">
-              ${item.pinned ? 'Unpin' : 'Pin'}
-            </button>
-          </div>
-        </div>
-
-        <div class="crime-board__content">
-          ${this.renderItemContent(item)}
-        </div>
-
-        <div class="crime-board__anchor" data-anchor="top"></div>
-        <div class="crime-board__anchor" data-anchor="right"></div>
-        <div class="crime-board__anchor" data-anchor="bottom"></div>
-        <div class="crime-board__anchor" data-anchor="left"></div>
-      </div>
-    `;
-
-    el.addEventListener('click', (e) => {
-      if (e.target.closest('.crime-board__btn')) return;
-      if (e.target.closest('.crime-board__anchor')) return;
+    el.addEventListener('pointerdown', event => this.onItemPointerDown(event, item.id));
+    el.addEventListener('click', event => {
+      event.stopPropagation();
       this.selectItem(item.id);
     });
 
-    el.addEventListener('pointerdown', (e) => {
-      if (e.target.closest('.crime-board__btn')) return;
-      if (e.target.closest('.crime-board__anchor')) return;
-      this.onItemPointerDown(e, item.id);
-    });
-
-    const pinBtn = el.querySelector('[data-action="pin"]');
-    if (pinBtn) {
-      pinBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.togglePin(item.id);
-      });
-    }
-
-    const connectBtn = el.querySelector('[data-action="connect"]');
-    if (connectBtn) {
-      connectBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.startConnection(item.id, 'right');
-      });
-    }
-
-    el.querySelectorAll('.crime-board__anchor').forEach(anchorEl => {
-      anchorEl.addEventListener('pointerdown', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        this.startConnection(item.id, anchorEl.dataset.anchor);
+    el.querySelectorAll('[data-anchor]').forEach(anchor => {
+      anchor.addEventListener('click', event => {
+        event.stopPropagation();
+        const anchorName = anchor.dataset.anchor;
+        this.handleAnchorClick(item.id, anchorName);
       });
     });
 
     return el;
   }
 
-  renderItemContent(item) {
-    if (!item.discovered && !item.createdByPlayer) {
+  getItemMarkup(item) {
+    if (item.type === 'photo') {
       return `
-        <div class="crime-board__locked">
-          <div class="crime-board__locked-title">Unknown lead</div>
-          <div class="crime-board__locked-body">This evidence has not been discovered yet.</div>
+        <div class="crime-board__card crime-board__card--photo">
+          <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
+          <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
+          <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
+          <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
+
+          <div class="crime-board__photo-frame">
+            <img src="${this.escapeHtml(item.image || '/assets/ui/placeholder-clue.png')}" alt="${this.escapeHtml(item.label)}" draggable="false">
+          </div>
+          <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
+          ${item.caption ? `<p class="crime-board__caption">${this.escapeHtml(item.caption)}</p>` : ''}
+          ${item.meta?.length ? `<ul class="crime-board__meta">${item.meta.map(value => `<li>${this.escapeHtml(value)}</li>`).join('')}</ul>` : ''}
         </div>
       `;
     }
 
-    switch (item.type) {
-      case 'photo':
-        return this.renderPhotoItem(item);
-      case 'evidence':
-        return this.renderEvidenceItem(item);
-      case 'note':
-      default:
-        return this.renderNoteItem(item);
-    }
-  }
+    if (item.type === 'evidence') {
+      return `
+        <div class="crime-board__card crime-board__card--evidence">
+          <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
+          <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
+          <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
+          <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
 
-  renderPhotoItem(item) {
-    const meta = Array.isArray(item.meta) ? item.meta : [];
-
-    return `
-      <div class="crime-board__photo-frame">
-        <img
-          class="crime-board__photo-image"
-          src="${this.escapeAttr(item.image || '')}"
-          alt="${this.escapeAttr(item.label || 'Photo evidence')}"
-          draggable="false"
-        >
-      </div>
-      ${item.caption ? `<div class="crime-board__photo-caption">${this.escapeHtml(item.caption)}</div>` : ''}
-      ${meta.length ? `
-        <div class="crime-board__meta-list">
-          ${meta.map(entry => `<span class="crime-board__meta-pill">${this.escapeHtml(entry)}</span>`).join('')}
+          <p class="crime-board__tag">${this.escapeHtml(item.tag || 'Evidence')}</p>
+          <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
+          ${item.body ? `<p class="crime-board__body">${this.escapeHtml(item.body)}</p>` : ''}
+          ${item.fields?.length ? `
+            <dl class="crime-board__facts">
+              ${item.fields.map(row => `
+                <div class="crime-board__fact">
+                  <dt>${this.escapeHtml(row.key || '')}</dt>
+                  <dd>${this.escapeHtml(row.value || '')}</dd>
+                </div>
+              `).join('')}
+            </dl>
+          ` : ''}
         </div>
-      ` : ''}
-    `;
-  }
-
-  renderNoteItem(item) {
-    const style = this.getNoteInlineStyle(item.color);
-
-    return `
-      <div class="crime-board__note-sheet"${style}>
-        <div class="crime-board__note-text">${this.escapeHtml(item.text)}</div>
-        <div class="crime-board__note-line"></div>
-        ${item.metaText ? `<div class="crime-board__photo-caption">${this.escapeHtml(item.metaText)}</div>` : ''}
-      </div>
-    `;
-  }
-
-  renderEvidenceItem(item) {
-    const rows = Array.isArray(item.fields) ? item.fields : [];
-
-    return `
-      <div class="crime-board__evidence-header">
-        <div class="crime-board__evidence-tag">${this.escapeHtml(item.tag || 'Evidence')}</div>
-      </div>
-      ${item.body ? `<div class="crime-board__evidence-body">${this.escapeHtml(item.body)}</div>` : ''}
-      ${rows.length ? `
-        <div class="crime-board__evidence-grid">
-          ${rows.map(row => `
-            <div class="crime-board__evidence-row">
-              <div class="crime-board__evidence-key">${this.escapeHtml(row.key)}</div>
-              <div class="crime-board__evidence-value">${this.escapeHtml(row.value)}</div>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
-    `;
-  }
-
-  getNoteInlineStyle(color) {
-    if (color === 'blue') {
-      return ' style="background: linear-gradient(180deg, #cfe2f3 0%, #b7d0e7 100%);"';
+      `;
     }
 
-    if (color === 'pink') {
-      return ' style="background: linear-gradient(180deg, #f1c9d6 0%, #e9b7c9 100%);"';
-    }
+    return `
+      <div class="crime-board__card crime-board__card--note crime-board__card--${this.escapeHtml(item.color || 'yellow')}">
+        <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
+        <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
+        <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
+        <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
 
-    return '';
+        <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
+        ${item.text ? `<p class="crime-board__body">${this.escapeHtml(item.text)}</p>` : ''}
+        ${item.metaText ? `<p class="crime-board__meta-text">${this.escapeHtml(item.metaText)}</p>` : ''}
+      </div>
+    `;
   }
 
   createLinkElement(link) {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.classList.add('crime-board__link');
     group.dataset.id = link.id;
 
-    const visiblePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    visiblePath.setAttribute('class', 'crime-board__string');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.classList.add('crime-board__link-path');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', link.color || '#b3131b');
+    path.setAttribute('stroke-width', '3');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
 
-    const hitPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    hitPath.setAttribute('class', 'crime-board__string-hit');
-    hitPath.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.removeLink(link.id);
-    });
+    group.appendChild(path);
 
-    group.appendChild(visiblePath);
-    group.appendChild(hitPath);
+    if (link.editableByPlayer) {
+      group.addEventListener('click', event => {
+        event.stopPropagation();
+        this.removeLink(link.id);
+      });
+    }
 
     return group;
   }
 
-  selectItem(itemId) {
-    this.selectedItemId = itemId;
-    this.renderSelectionState();
-    this.refreshEditor();
+  renderItemPositions() {
+    this.state.items.forEach(item => this.renderItemPosition(item));
+  }
+
+  renderItemPosition(item) {
+    const el = this.itemElements.get(item.id);
+    if (!el) return;
+
+    el.style.left = `${item.x}px`;
+    el.style.top = `${item.y}px`;
+    el.style.zIndex = String(item.z || 1);
+    el.style.transform = `rotate(${item.rotation || 0}deg)`;
+  }
+
+  renderLinks() {
+    this.state.links.forEach(link => {
+      const group = this.linkElements.get(link.id);
+      const path = group?.querySelector('path');
+      if (!path) return;
+
+      const fromPoint = this.getAnchorPosition(link.from, link.fromAnchor);
+      const toPoint = this.getAnchorPosition(link.to, link.toAnchor);
+      if (!fromPoint || !toPoint) return;
+
+      path.setAttribute('d', this.buildLinkPath(fromPoint, toPoint));
+      path.setAttribute('stroke', link.color || '#b3131b');
+    });
+
+    if (this.connectionMode.active && this.tempPath) {
+      this.tempPath.setAttribute('stroke', '#b3131b');
+    }
   }
 
   renderSelectionState() {
@@ -600,161 +729,176 @@ export class CrimeBoard {
     });
   }
 
+  renderLinksPanel() {
+    const list = this.editor.linksList;
+    const empty = this.editor.linksEmpty;
+    if (!list || !empty) return;
+
+    list.innerHTML = '';
+
+    if (!this.state.links.length) {
+      empty.hidden = false;
+      return;
+    }
+
+    empty.hidden = true;
+
+    this.state.links.forEach(link => {
+      const from = this.getItemById(link.from);
+      const to = this.getItemById(link.to);
+
+      const li = document.createElement('li');
+      li.className = 'crime-board-links-list__item';
+
+      const label = document.createElement('span');
+      label.textContent = `${from?.label || link.from} → ${to?.label || link.to}`;
+      li.appendChild(label);
+
+      if (link.editableByPlayer) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'crime-board-btn crime-board-btn--ghost crime-board-btn--mini';
+        btn.textContent = 'Delete';
+        btn.addEventListener('click', () => this.removeLink(link.id));
+        li.appendChild(btn);
+      }
+
+      list.appendChild(li);
+    });
+  }
+
   refreshEditor() {
     const item = this.getItemById(this.selectedItemId);
+    const editable = Boolean(item?.editableByPlayer);
 
-    if (!item) {
-      if (this.editor.emptyState) {
-        this.editor.emptyState.style.display = 'block';
-        this.editor.emptyState.textContent = 'Select a player-created item to edit or delete it.';
-      }
-
-      if (this.editor.fieldsWrap) this.editor.fieldsWrap.style.display = 'none';
-      if (this.editor.applyBtn) this.editor.applyBtn.disabled = true;
-      if (this.editor.deleteBtn) this.editor.deleteBtn.disabled = true;
-      return;
+    if (this.editor.emptyState) {
+      this.editor.emptyState.hidden = editable;
     }
 
-    if (!item.editableByPlayer) {
-      if (this.editor.emptyState) {
-        this.editor.emptyState.style.display = 'block';
-        this.editor.emptyState.textContent = 'This board item is locked by the investigation and cannot be edited.';
-      }
-
-      if (this.editor.fieldsWrap) this.editor.fieldsWrap.style.display = 'none';
-      if (this.editor.applyBtn) this.editor.applyBtn.disabled = true;
-      if (this.editor.deleteBtn) this.editor.deleteBtn.disabled = true;
-      return;
+    if (this.editor.form) {
+      this.editor.form.hidden = !editable;
     }
 
-    if (this.editor.emptyState) this.editor.emptyState.style.display = 'none';
-    if (this.editor.fieldsWrap) this.editor.fieldsWrap.style.display = 'block';
-    if (this.editor.applyBtn) this.editor.applyBtn.disabled = false;
-    if (this.editor.deleteBtn) this.editor.deleteBtn.disabled = false;
+    if (!editable || !item) return;
 
-    this.setFormValue('id', item.id);
-    this.setFormValue('type', item.type);
-    this.setFormValue('label', item.label);
-    this.setFormValue('x', item.x);
-    this.setFormValue('y', item.y);
-    this.setFormValue('rotation', item.rotation);
-    this.setFormValue('pinned', String(item.pinned));
+    const form = this.editor.form;
+    form.elements.type.value = item.type;
+    form.elements.label.value = item.label || '';
+    if (form.elements.color) {
+      form.elements.color.value = item.color || 'yellow';
+    }
+    if (form.elements.pinned) {
+      form.elements.pinned.checked = Boolean(item.pinned);
+    }
 
     this.renderEditorTypeFields(item.type, item);
   }
 
   renderEditorTypeFields(type, item = {}) {
-    if (!this.editor.dynamicFields) return;
+    const wrap = this.editor.dynamicFields;
+    if (!wrap) return;
 
     if (type === 'photo') {
-      this.editor.dynamicFields.innerHTML = `
-        <label class="crime-board-sidebar__label">
-          Image URL
-          <input type="text" name="image" value="${this.escapeAttr(item.image || '')}">
+      wrap.innerHTML = `
+        <label class="crime-board-field">
+          <span>Image URL</span>
+          <input name="image" type="text" value="${this.escapeAttribute(item.image || '')}">
         </label>
-        <label class="crime-board-sidebar__label">
-          Caption
-          <textarea name="caption">${this.escapeHtml(item.caption || '')}</textarea>
+        <label class="crime-board-field">
+          <span>Caption</span>
+          <textarea name="caption" rows="3">${this.escapeHtml(item.caption || '')}</textarea>
         </label>
-        <label class="crime-board-sidebar__label">
-          Meta pills (comma separated)
-          <input type="text" name="meta" value="${this.escapeAttr((item.meta || []).join(', '))}">
+        <label class="crime-board-field">
+          <span>Meta (comma separated)</span>
+          <input name="meta" type="text" value="${this.escapeAttribute((item.meta || []).join(', '))}">
         </label>
       `;
       return;
     }
 
     if (type === 'evidence') {
-      this.editor.dynamicFields.innerHTML = `
-        <label class="crime-board-sidebar__label">
-          Tag
-          <input type="text" name="tag" value="${this.escapeAttr(item.tag || '')}">
+      wrap.innerHTML = `
+        <label class="crime-board-field">
+          <span>Tag</span>
+          <input name="tag" type="text" value="${this.escapeAttribute(item.tag || 'Evidence')}">
         </label>
-        <label class="crime-board-sidebar__label">
-          Body
-          <textarea name="body">${this.escapeHtml(item.body || '')}</textarea>
+        <label class="crime-board-field">
+          <span>Body</span>
+          <textarea name="body" rows="5">${this.escapeHtml(item.body || '')}</textarea>
         </label>
-        <label class="crime-board-sidebar__label">
-          Fields (one per line: key:value)
-          <textarea name="fields">${this.escapeHtml(this.stringifyFields(item.fields || []))}</textarea>
+        <label class="crime-board-field">
+          <span>Fields (one per line: key:value)</span>
+          <textarea name="fields" rows="6">${this.escapeHtml((item.fields || []).map(row => `${row.key || ''}:${row.value || ''}`).join('\n'))}</textarea>
         </label>
       `;
       return;
     }
 
-    this.editor.dynamicFields.innerHTML = `
-      <label class="crime-board-sidebar__label">
-        Text
-        <textarea name="text">${this.escapeHtml(item.text || '')}</textarea>
+    wrap.innerHTML = `
+      <label class="crime-board-field">
+        <span>Text</span>
+        <textarea name="text" rows="5">${this.escapeHtml(item.text || '')}</textarea>
       </label>
-      <label class="crime-board-sidebar__label">
-        Meta text
-        <input type="text" name="metaText" value="${this.escapeAttr(item.metaText || '')}">
-      </label>
-      <label class="crime-board-sidebar__label">
-        Color
-        <select name="color">
-          <option value="yellow" ${item.color === 'yellow' ? 'selected' : ''}>yellow</option>
-          <option value="blue" ${item.color === 'blue' ? 'selected' : ''}>blue</option>
-          <option value="pink" ${item.color === 'pink' ? 'selected' : ''}>pink</option>
-        </select>
+      <label class="crime-board-field">
+        <span>Meta text</span>
+        <input name="metaText" type="text" value="${this.escapeAttribute(item.metaText || '')}">
       </label>
     `;
   }
 
-  renderLinksPanel() {
-    if (!this.editor.linksList) return;
+  applyEditorChanges() {
+    const item = this.getItemById(this.selectedItemId);
+    if (!item || !item.editableByPlayer || !this.editor.form) return null;
 
-    this.editor.linksList.innerHTML = '';
+    const form = this.editor.form;
+    const type = form.elements.type.value;
+    const patch = {
+      type,
+      label: form.elements.label.value.trim(),
+      pinned: Boolean(form.elements.pinned?.checked),
+      color: form.elements.color?.value || 'yellow'
+    };
 
-    if (!this.state.links.length) {
-      if (this.editor.linksEmpty) this.editor.linksEmpty.style.display = 'block';
-      return;
+    if (type === 'photo') {
+      patch.image = form.elements.image?.value.trim() || '';
+      patch.caption = form.elements.caption?.value.trim() || '';
+      patch.meta = (form.elements.meta?.value || '')
+        .split(',')
+        .map(value => value.trim())
+        .filter(Boolean);
+      patch.text = '';
+      patch.metaText = '';
+      patch.tag = '';
+      patch.body = '';
+      patch.fields = [];
+    } else if (type === 'evidence') {
+      patch.tag = form.elements.tag?.value.trim() || 'Evidence';
+      patch.body = form.elements.body?.value.trim() || '';
+      patch.fields = this.parseFieldsTextarea(form.elements.fields?.value || '');
+      patch.image = '';
+      patch.caption = '';
+      patch.meta = [];
+      patch.text = '';
+      patch.metaText = '';
+    } else {
+      patch.text = form.elements.text?.value.trim() || '';
+      patch.metaText = form.elements.metaText?.value.trim() || '';
+      patch.image = '';
+      patch.caption = '';
+      patch.meta = [];
+      patch.tag = '';
+      patch.body = '';
+      patch.fields = [];
     }
 
-    if (this.editor.linksEmpty) this.editor.linksEmpty.style.display = 'none';
-
-    this.state.links.forEach(link => {
-      const fromItem = this.getItemById(link.from);
-      const toItem = this.getItemById(link.to);
-      const canDelete = Boolean(link.editableByPlayer);
-
-      const card = document.createElement('div');
-      card.className = 'crime-board-link-card';
-
-      card.innerHTML = `
-        <div class="crime-board-link-card__row">
-          <div class="crime-board-link-card__title">
-            ${this.escapeHtml(fromItem?.label || link.from)} → ${this.escapeHtml(toItem?.label || link.to)}
-          </div>
-          ${canDelete ? `
-            <button type="button" class="crime-board-link-card__delete" data-link-id="${this.escapeAttr(link.id)}">
-              Delete
-            </button>
-          ` : ''}
-        </div>
-        <div class="crime-board-link-card__meta">
-          ${this.escapeHtml(link.fromAnchor)} → ${this.escapeHtml(link.toAnchor)}
-        </div>
-      `;
-
-      const deleteBtn = card.querySelector('[data-link-id]');
-      if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-          this.removeLink(link.id);
-        });
-      }
-
-      this.editor.linksList.appendChild(card);
-    });
+    const updated = this.updateItem(item.id, patch);
+    this.selectItem(item.id);
+    this.syncJsonOutput();
+    return updated;
   }
 
-  stringifyFields(fields) {
-    return (fields || []).map(row => `${row.key || ''}:${row.value || ''}`).join('\n');
-  }
-
-  parseFields(text) {
-    return String(text || '')
+  parseFieldsTextarea(value) {
+    return String(value || '')
       .split('\n')
       .map(line => line.trim())
       .filter(Boolean)
@@ -764,429 +908,8 @@ export class CrimeBoard {
           key: (key || '').trim(),
           value: rest.join(':').trim()
         };
-      });
-  }
-
-  applyEditorChanges() {
-    if (!this.selectedItemId || !this.editor.form) return;
-    if (!this.isPlayerEditableItem()) return;
-
-    const current = this.getItemById(this.selectedItemId);
-    if (!current) return;
-
-    const formData = new FormData(this.editor.form);
-    const type = formData.get('type') || 'note';
-
-    const patch = {
-      type,
-      label: formData.get('label') || '',
-      x: Number(formData.get('x')) || 0,
-      y: Number(formData.get('y')) || 0,
-      rotation: Number(formData.get('rotation')) || 0,
-      pinned: formData.get('pinned') === 'true',
-      discovered: current.discovered,
-      createdByPlayer: current.createdByPlayer,
-      editableByPlayer: current.editableByPlayer
-    };
-
-    if (type === 'photo') {
-      patch.image = formData.get('image') || '';
-      patch.caption = formData.get('caption') || '';
-      patch.meta = String(formData.get('meta') || '')
-        .split(',')
-        .map(v => v.trim())
-        .filter(Boolean);
-      patch.text = '';
-      patch.metaText = '';
-      patch.tag = 'Evidence';
-      patch.body = '';
-      patch.fields = [];
-      patch.color = 'yellow';
-    }
-
-    if (type === 'note') {
-      patch.text = formData.get('text') || '';
-      patch.metaText = formData.get('metaText') || '';
-      patch.color = formData.get('color') || 'yellow';
-      patch.image = '';
-      patch.caption = '';
-      patch.meta = [];
-      patch.tag = 'Evidence';
-      patch.body = '';
-      patch.fields = [];
-    }
-
-    if (type === 'evidence') {
-      patch.tag = formData.get('tag') || 'Evidence';
-      patch.body = formData.get('body') || '';
-      patch.fields = this.parseFields(formData.get('fields') || '');
-      patch.image = '';
-      patch.caption = '';
-      patch.meta = [];
-      patch.text = '';
-      patch.metaText = '';
-      patch.color = 'yellow';
-    }
-
-    this.updateItem(this.selectedItemId, patch);
-    this.syncJsonOutput();
-  }
-
-  setFormValue(name, value) {
-    if (!this.editor.form) return;
-    const field = this.editor.form.elements[name];
-    if (field) field.value = value;
-  }
-
-  onItemPointerDown(e, itemId) {
-    const item = this.getItemById(itemId);
-    const el = this.itemElements.get(itemId);
-    if (!item || !el || item.pinned) return;
-
-    const rect = el.getBoundingClientRect();
-
-    this.drag.activeId = itemId;
-    this.drag.offsetX = e.clientX - rect.left;
-    this.drag.offsetY = e.clientY - rect.top;
-
-    item.z = ++this.zCounter;
-    this.selectItem(itemId);
-
-    el.classList.add('is-dragging');
-    el.style.zIndex = String(item.z);
-    el.setPointerCapture(e.pointerId);
-
-    window.addEventListener('pointermove', this.boundPointerMove);
-    window.addEventListener('pointerup', this.boundPointerUp);
-  }
-
-  onWindowPointerMove(e) {
-    if (this.drag.activeId) {
-      this.handleDragMove(e);
-      return;
-    }
-
-    if (this.connectionMode.active) {
-      this.updateTempConnection(e);
-    }
-  }
-
-  handleDragMove(e) {
-    const item = this.getItemById(this.drag.activeId);
-    const el = this.itemElements.get(this.drag.activeId);
-    if (!item || !el) return;
-
-    const boardRect = this.root.getBoundingClientRect();
-
-    let newX = e.clientX - boardRect.left - this.drag.offsetX;
-    let newY = e.clientY - boardRect.top - this.drag.offsetY;
-
-    const maxX = boardRect.width - el.offsetWidth;
-    const maxY = boardRect.height - el.offsetHeight;
-
-    item.x = Math.max(0, Math.min(newX, maxX));
-    item.y = Math.max(0, Math.min(newY, maxY));
-
-    el.style.left = `${item.x}px`;
-    el.style.top = `${item.y}px`;
-
-    this.renderLinks();
-    this.refreshEditorCoords(item);
-  }
-
-  refreshEditorCoords(item) {
-    this.setFormValue('x', item.x);
-    this.setFormValue('y', item.y);
-  }
-
-  onWindowPointerUp(e) {
-    if (this.drag.activeId) {
-      const el = this.itemElements.get(this.drag.activeId);
-      if (el) el.classList.remove('is-dragging');
-
-      this.drag.activeId = null;
-      this.syncJsonOutput();
-
-      window.removeEventListener('pointermove', this.boundPointerMove);
-      window.removeEventListener('pointerup', this.boundPointerUp);
-      return;
-    }
-
-    if (this.connectionMode.active) {
-      const anchor = e.target.closest('.crime-board__anchor');
-      const itemEl = e.target.closest('.crime-board__item');
-
-      if (anchor && itemEl) {
-        this.finishConnection(itemEl.dataset.id, anchor.dataset.anchor);
-      } else if (itemEl) {
-        this.finishConnection(itemEl.dataset.id, 'left');
-      } else {
-        this.resetConnectionMode();
-      }
-    }
-
-    window.removeEventListener('pointermove', this.boundPointerMove);
-    window.removeEventListener('pointerup', this.boundPointerUp);
-  }
-
-  startConnection(fromId, fromAnchor = 'right') {
-    if (!this.canStartLinkFromItem(fromId)) return;
-
-    this.resetConnectionMode();
-
-    this.connectionMode.active = true;
-    this.connectionMode.fromId = fromId;
-    this.connectionMode.fromAnchor = fromAnchor;
-
-    const itemEl = this.itemElements.get(fromId);
-    if (itemEl) itemEl.classList.add('is-connecting');
-
-    this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    this.tempPath.setAttribute('class', 'crime-board__string crime-board__string--temp');
-    this.svg.appendChild(this.tempPath);
-
-    window.addEventListener('pointermove', this.boundPointerMove);
-    window.addEventListener('pointerup', this.boundPointerUp);
-  }
-
-  updateTempConnection(e) {
-    if (!this.tempPath || !this.connectionMode.fromId) return;
-
-    const boardRect = this.root.getBoundingClientRect();
-    const from = this.getAnchorPoint(this.connectionMode.fromId, this.connectionMode.fromAnchor);
-    const to = {
-      x: e.clientX - boardRect.left,
-      y: e.clientY - boardRect.top
-    };
-
-    this.tempPath.setAttribute('d', this.buildCurvePath(from, to));
-  }
-
-  finishConnection(toId, toAnchor = 'left') {
-    const fromId = this.connectionMode.fromId;
-    const fromAnchor = this.connectionMode.fromAnchor;
-
-    if (!fromId || fromId === toId) {
-      this.resetConnectionMode();
-      return;
-    }
-
-    if (!this.canStartLinkFromItem(fromId)) {
-      this.resetConnectionMode();
-      return;
-    }
-
-    const exists = this.state.links.some(link =>
-      (link.from === fromId && link.to === toId) ||
-      (link.from === toId && link.to === fromId)
-    );
-
-    if (!exists) {
-      this.state.links.push(this.normalizeLink({
-        from: fromId,
-        to: toId,
-        fromAnchor,
-        toAnchor,
-        color: '#b3131b',
-        createdByPlayer: true,
-        editableByPlayer: true
-      }, this.state.links.length));
-    }
-
-    this.resetConnectionMode();
-    this.render();
-    this.syncJsonOutput();
-  }
-
-  resetConnectionMode() {
-    if (this.connectionMode.fromId) {
-      const oldEl = this.itemElements.get(this.connectionMode.fromId);
-      if (oldEl) oldEl.classList.remove('is-connecting');
-    }
-
-    this.connectionMode.active = false;
-    this.connectionMode.fromId = null;
-    this.connectionMode.fromAnchor = null;
-
-    if (this.tempPath) {
-      this.tempPath.remove();
-      this.tempPath = null;
-    }
-  }
-
-  renderItemPositions() {
-    this.state.items.forEach(item => {
-      const el = this.itemElements.get(item.id);
-      if (!el) return;
-
-      el.style.left = `${item.x}px`;
-      el.style.top = `${item.y}px`;
-      el.style.transform = `rotate(${item.rotation}deg)`;
-      el.style.zIndex = String(item.z);
-    });
-  }
-
-  renderLinks() {
-    this.state.links.forEach(link => {
-      const group = this.linkElements.get(link.id);
-      if (!group) return;
-
-      const visiblePath = group.children[0];
-      const hitPath = group.children[1];
-
-      const from = this.getAnchorPoint(link.from, link.fromAnchor);
-      const to = this.getAnchorPoint(link.to, link.toAnchor);
-      const d = this.buildCurvePath(from, to);
-
-      visiblePath.setAttribute('d', d);
-      visiblePath.setAttribute('stroke', link.color);
-      hitPath.setAttribute('d', d);
-    });
-  }
-
-  buildCurvePath(from, to) {
-    const dx = to.x - from.x;
-    const dy = to.y - from.y;
-    const curveStrength = Math.max(40, Math.min(140, Math.abs(dx) * 0.35 + Math.abs(dy) * 0.15));
-
-    const c1 = {
-      x: from.x + (dx >= 0 ? curveStrength : -curveStrength),
-      y: from.y
-    };
-
-    const c2 = {
-      x: to.x - (dx >= 0 ? curveStrength : -curveStrength),
-      y: to.y
-    };
-
-    return `M ${from.x} ${from.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${to.x} ${to.y}`;
-  }
-
-  getAnchorPoint(itemId, anchorName = 'right') {
-    const el = this.itemElements.get(itemId);
-    if (!el) return { x: 0, y: 0 };
-
-    const x = el.offsetLeft;
-    const y = el.offsetTop;
-    const w = el.offsetWidth;
-    const h = el.offsetHeight;
-
-    switch (anchorName) {
-      case 'top':
-        return { x: x + w / 2, y };
-      case 'right':
-        return { x: x + w, y: y + h / 2 };
-      case 'bottom':
-        return { x: x + w / 2, y: y + h };
-      case 'left':
-      default:
-        return { x, y: y + h / 2 };
-    }
-  }
-
-  addItem(item) {
-    const normalized = this.normalizeItem(item, this.state.items.length);
-    normalized.z = ++this.zCounter;
-    this.state.items.push(normalized);
-    this.render();
-    return normalized;
-  }
-
-  updateItem(itemId, patch = {}) {
-    const item = this.getItemById(itemId);
-    if (!item) return null;
-    if (!item.editableByPlayer) return null;
-
-    const merged = {
-      ...item,
-      ...patch,
-      id: item.id,
-      z: item.z,
-      discovered: item.discovered,
-      createdByPlayer: item.createdByPlayer,
-      editableByPlayer: item.editableByPlayer
-    };
-
-    const updated = this.normalizeItem(merged, 0);
-    const index = this.state.items.findIndex(entry => entry.id === itemId);
-
-    this.state.items[index] = updated;
-    this.render();
-    this.selectItem(itemId);
-
-    return structuredClone(updated);
-  }
-
-  removeItem(itemId) {
-    const item = this.getItemById(itemId);
-    if (!item?.editableByPlayer) return;
-
-    this.state.items = this.state.items.filter(entry => entry.id !== itemId);
-    this.state.links = this.state.links.filter(link => link.from !== itemId && link.to !== itemId);
-
-    if (this.selectedItemId === itemId) {
-      this.selectedItemId = null;
-    }
-
-    this.render();
-    this.refreshEditor();
-    this.syncJsonOutput();
-  }
-
-  addLink(fromId, toId, fromAnchor = 'right', toAnchor = 'left', color = '#b3131b') {
-    if (!this.canStartLinkFromItem(fromId)) return null;
-
-    const link = this.normalizeLink(
-      {
-        from: fromId,
-        to: toId,
-        fromAnchor,
-        toAnchor,
-        color,
-        createdByPlayer: true,
-        editableByPlayer: true
-      },
-      this.state.links.length
-    );
-
-    this.state.links.push(link);
-    this.render();
-    this.syncJsonOutput();
-
-    return structuredClone(link);
-  }
-
-  removeLink(linkId) {
-    const link = this.state.links.find(entry => entry.id === linkId);
-    if (!link?.editableByPlayer) return;
-
-    this.state.links = this.state.links.filter(entry => entry.id !== linkId);
-
-    const group = this.linkElements.get(linkId);
-    if (group) group.remove();
-
-    this.linkElements.delete(linkId);
-    this.renderLinksPanel();
-    this.syncJsonOutput();
-  }
-
-  togglePin(itemId) {
-    const item = this.getItemById(itemId);
-    if (!item) return null;
-
-    item.pinned = !item.pinned;
-
-    const el = this.itemElements.get(itemId);
-    if (el) {
-      el.classList.toggle('is-pinned', item.pinned);
-      const btn = el.querySelector('[data-action="pin"]');
-      if (btn) btn.textContent = item.pinned ? 'Unpin' : 'Pin';
-    }
-
-    this.refreshEditor();
-    this.syncJsonOutput();
-
-    return item.pinned;
+      })
+      .filter(row => row.key || row.value);
   }
 
   syncJsonOutput() {
@@ -1195,8 +918,188 @@ export class CrimeBoard {
     }
   }
 
-  getItemById(itemId) {
-    return this.state.items.find(item => item.id === itemId) || null;
+  selectItem(id) {
+    this.selectedItemId = id;
+    const item = this.getItemById(id);
+    if (item) {
+      item.z = this.nextZ();
+      this.renderItemPosition(item);
+    }
+    this.renderSelectionState();
+    this.refreshEditor();
+  }
+
+  onItemPointerDown(event, itemId) {
+    if (event.button !== 0) return;
+
+    const item = this.getItemById(itemId);
+    const el = this.itemElements.get(itemId);
+    if (!item || !el) return;
+
+    const rect = el.getBoundingClientRect();
+    const rootRect = this.root.getBoundingClientRect();
+
+    this.drag.activeId = itemId;
+    this.drag.pointerId = event.pointerId;
+    this.drag.offsetX = event.clientX - rect.left;
+    this.drag.offsetY = event.clientY - rect.top;
+
+    item.z = this.nextZ();
+    this.renderItemPosition(item);
+
+    window.addEventListener('pointermove', this.boundPointerMove);
+    window.addEventListener('pointerup', this.boundPointerUp);
+
+    el.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+
+    this.drag.rootRect = rootRect;
+  }
+
+  onWindowPointerMove(event) {
+    if (!this.drag.activeId) return;
+
+    const item = this.getItemById(this.drag.activeId);
+    if (!item) return;
+
+    const rootRect = this.root.getBoundingClientRect();
+    item.x = event.clientX - rootRect.left - this.drag.offsetX;
+    item.y = event.clientY - rootRect.top - this.drag.offsetY;
+
+    this.renderItemPosition(item);
+    this.renderLinks();
+  }
+
+  onWindowPointerUp() {
+    if (!this.drag.activeId) return;
+    this.clearDragState();
+    this.syncJsonOutput();
+  }
+
+  clearDragState() {
+    this.drag.activeId = null;
+    this.drag.pointerId = null;
+    window.removeEventListener('pointermove', this.boundPointerMove);
+    window.removeEventListener('pointerup', this.boundPointerUp);
+  }
+
+  handleAnchorClick(itemId, anchor) {
+    if (!this.canStartLinkFromItem(itemId)) return;
+
+    if (!this.connectionMode.active) {
+      this.startConnectionMode(itemId, anchor);
+      return;
+    }
+
+    if (this.connectionMode.fromId === itemId) {
+      this.resetConnectionMode();
+      return;
+    }
+
+    const fromItem = this.getItemById(this.connectionMode.fromId);
+    const toItem = this.getItemById(itemId);
+    if (!fromItem || !toItem) {
+      this.resetConnectionMode();
+      return;
+    }
+
+    const editable = Boolean(fromItem.createdByPlayer || toItem.createdByPlayer);
+
+    const link = this.addLink({
+      from: this.connectionMode.fromId,
+      to: itemId,
+      fromAnchor: this.connectionMode.fromAnchor || 'right',
+      toAnchor: anchor || 'left',
+      color: editable ? '#b3131b' : '#7e0f15',
+      createdByPlayer: editable,
+      editableByPlayer: editable
+    });
+
+    this.resetConnectionMode();
+    if (link) {
+      this.syncJsonOutput();
+    }
+  }
+
+  startConnectionMode(itemId, anchor) {
+    this.connectionMode.active = true;
+    this.connectionMode.fromId = itemId;
+    this.connectionMode.fromAnchor = anchor || 'right';
+
+    this.tempPath?.remove();
+    this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    this.tempPath.classList.add('crime-board__temp-link');
+    this.tempPath.setAttribute('fill', 'none');
+    this.tempPath.setAttribute('stroke', '#b3131b');
+    this.tempPath.setAttribute('stroke-width', '2');
+    this.tempPath.setAttribute('stroke-dasharray', '8 6');
+    this.tempPath.setAttribute('stroke-linecap', 'round');
+    this.svg.appendChild(this.tempPath);
+
+    const moveHandler = event => {
+      if (!this.connectionMode.active || !this.tempPath) return;
+      const start = this.getAnchorPosition(itemId, this.connectionMode.fromAnchor);
+      if (!start) return;
+      const rect = this.root.getBoundingClientRect();
+      const end = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+      this.tempPath.setAttribute('d', this.buildLinkPath(start, end));
+    };
+
+    this.boundTempMove = moveHandler;
+    window.addEventListener('pointermove', this.boundTempMove);
+  }
+
+  resetConnectionMode({ keepListeners = false } = {}) {
+    this.connectionMode.active = false;
+    this.connectionMode.fromId = null;
+    this.connectionMode.fromAnchor = null;
+
+    if (!keepListeners && this.boundTempMove) {
+      window.removeEventListener('pointermove', this.boundTempMove);
+      this.boundTempMove = null;
+    }
+
+    this.tempPath?.remove();
+    this.tempPath = null;
+  }
+
+  getAnchorPosition(itemId, anchor = 'right') {
+    const el = this.itemElements.get(itemId);
+    if (!el) return null;
+
+    const rootRect = this.root.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+
+    const positions = {
+      top: {
+        x: rect.left - rootRect.left + rect.width / 2,
+        y: rect.top - rootRect.top
+      },
+      right: {
+        x: rect.right - rootRect.left,
+        y: rect.top - rootRect.top + rect.height / 2
+      },
+      bottom: {
+        x: rect.left - rootRect.left + rect.width / 2,
+        y: rect.bottom - rootRect.top
+      },
+      left: {
+        x: rect.left - rootRect.left,
+        y: rect.top - rootRect.top + rect.height / 2
+      }
+    };
+
+    return positions[anchor] || positions.right;
+  }
+
+  buildLinkPath(from, to) {
+    const dx = Math.abs(to.x - from.x);
+    const curve = Math.max(40, dx * 0.35);
+
+    return `M ${from.x} ${from.y} C ${from.x + curve} ${from.y}, ${to.x - curve} ${to.y}, ${to.x} ${to.y}`;
   }
 
   escapeHtml(value) {
@@ -1208,7 +1111,7 @@ export class CrimeBoard {
       .replaceAll("'", '&#39;');
   }
 
-  escapeAttr(value) {
+  escapeAttribute(value) {
     return this.escapeHtml(value);
   }
 }

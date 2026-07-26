@@ -1,0 +1,56 @@
+[
+  {
+    "id": "france",
+    "name": "France",
+    "capital": "Paris",
+    "region": "Western Europe",
+    "description": "France is where elegance, cheese, and very serious opinions about bread peacefully coexist. Paris is the capital, which means at least half the country is probably pretending not to care about Paris while secretly talking about it all the time. Expect grand boulevards, famous art, and enough cafés to make every detective feel dramatically thoughtful.",
+    "knownFor": "Art, fashion, cuisine",
+    "mapKey": "atlas_france"
+  },
+  {
+    "id": "uk",
+    "name": "United Kingdom",
+    "capital": "London",
+    "region": "Western Europe",
+    "description": "The United Kingdom is a place where history, understatement, and weather reports are treated with equal respect. London is the capital, full of landmarks, double-decker buses, and people who will absolutely queue in a perfectly civilized way while judging your umbrella technique. It is an excellent destination for tea, mystery, and saying 'interesting' when you really mean something else.",
+    "knownFor": "Tea, monarchy, rainy charm",
+    "mapKey": "atlas_uk"
+  },
+  {
+    "id": "poland",
+    "name": "Poland",
+    "capital": "Warsaw",
+    "region": "Central Europe",
+    "description": "Poland sits in the heart of Europe and has mastered the art of being resilient, clever, and suspiciously good at soup. Warsaw is the capital, rebuilt with determination and now busy proving that history and modern life can share the same street. The country offers medieval cities, strong opinions, and enough pierogi to derail even the best detective schedule.",
+    "knownFor": "Pierogi, history, bold character",
+    "mapKey": "atlas_poland"
+  },
+  {
+    "id": "germany",
+    "name": "Germany",
+    "capital": "Berlin",
+    "region": "Central Europe",
+    "description": "Germany is famous for engineering, efficiency, and the comforting idea that somewhere a train timetable still believes in itself. Berlin is the capital, a city where history, creativity, and excellent nightlife all collided and somehow produced a functioning metropolis. Expect castles, forests, and a national talent for making things work properly, including very serious bread.",
+    "knownFor": "Engineering, castles, bread",
+    "mapKey": "atlas_germany"
+  },
+  {
+    "id": "usa",
+    "name": "United States",
+    "capital": "Washington, D.C.",
+    "region": "North America",
+    "description": "The United States is enormous, energetic, and fully committed to the idea that everything should come in extra large. Washington, D.C. is the capital, where politics, monuments, and people walking very fast create a special kind of national theater. From coast to coast, the country serves up skyscrapers, deserts, diners, and enough variety to make one case feel like six different vacations.",
+    "knownFor": "Big cities, highways, pop culture",
+    "mapKey": "atlas_east_usa"
+  },
+  {
+    "id": "india",
+    "name": "India",
+    "capital": "New Delhi",
+    "region": "South Asia",
+    "description": "India is vast, vivid, and gloriously impossible to summarize without sounding like you need three more atlases. New Delhi is the capital, where government buildings, endless motion, and daily life all compete for your attention at once. The country is known for deep history, remarkable diversity, unforgettable food, and traffic that appears to run partly on instinct and divine confidence.",
+    "knownFor": "Diversity, spices, ancient history",
+    "mapKey": "atlas_india"
+  }
+]

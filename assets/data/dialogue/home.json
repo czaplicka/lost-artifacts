@@ -1,0 +1,20 @@
+{
+  "default": [
+    {
+      "speaker": "Home",
+      "portraitKey": "portrait_home",
+      "lines": [
+        "Hey, it's just me. Stay safe out there.",
+        "Call again when you can talk longer."
+      ]
+    },
+    {
+      "speaker": "Home",
+      "portraitKey": "portrait_home",
+      "lines": [
+        "Missing you already.",
+        "Don't forget to eat something today."
+      ]
+    }
+  ]
+}

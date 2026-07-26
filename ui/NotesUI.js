@@ -4,7 +4,11 @@ export class NotesUI {
   constructor(scene) {
     this.scene = scene;
     this.isOpen = false;
+    this.isTyping = false;
     this.currentGameState = null;
+
+    this.boundToggleHandler = this.onToggleKeyDown.bind(this);
+    this.boundGlobalKeyHandler = this.onGlobalKeyDown.bind(this);
 
     const { width, height } = this.scene.scale;
 
@@ -53,23 +57,56 @@ export class NotesUI {
 
     this.container.add(this.gameNotesTitleText);
 
+    this.modeHintText = this.scene.add.text(width * 0.68, height * 0.16, '[ CLICK TO WRITE | ESC TO STOP ]', {
+      fontFamily: 'Special Elite',
+      fontSize: '16px',
+      color: '#333333'
+    }).setOrigin(0.5);
+
+    this.container.add(this.modeHintText);
+
     this.playerInputDOM = this.scene.add.dom(
       width * 0.8,
       height * 0.6,
       'textarea',
-      'width: 400px; height: 500px; font-family: "Special Elite"; font-size: 22px; background: transparent; border: none; outline: none; resize: none; color: #000000;',
+      [
+        'width: 400px',
+        'height: 500px',
+        'font-family: "Special Elite"',
+        'font-size: 22px',
+        'background: transparent',
+        'border: none',
+        'outline: none',
+        'resize: none',
+        'color: #000000',
+        'pointer-events: auto'
+      ].join('; ') + ';',
       ''
     ).setOrigin(0.5);
 
     this.container.add(this.playerInputDOM);
 
     this.onInput = event => {
-      if (this.isOpen) {
+      if (this.isOpen && this.isTyping) {
         this.updateNotes(event.target.value);
       }
     };
 
+    this.onTextAreaFocus = () => {
+      if (this.isOpen) {
+        this.enableTypingMode();
+      }
+    };
+
+    this.onTextAreaBlur = () => {
+      if (this.isOpen) {
+        this.disableTypingMode();
+      }
+    };
+
     this.playerInputDOM.node.addEventListener('input', this.onInput);
+    this.playerInputDOM.node.addEventListener('focus', this.onTextAreaFocus);
+    this.playerInputDOM.node.addEventListener('blur', this.onTextAreaBlur);
 
     const clearBtn = this.scene.add.text(width * 0.68, height * 0.72, '[ CLEAR NOTES ]', {
       fontFamily: 'Special Elite',
@@ -87,6 +124,72 @@ export class NotesUI {
     });
 
     this.container.add(clearBtn);
+
+    this.bindKeyboardShortcut();
+    document.addEventListener('keydown', this.boundGlobalKeyHandler);
+  }
+
+  bindKeyboardShortcut() {
+    if (!this.scene.input?.keyboard) return;
+
+    // Nie używamy addCapture('N'), żeby nie mieszać globalnie w klawiaturze gry.
+    this.scene.input.keyboard.on('keydown-N', this.boundToggleHandler);
+  }
+
+  onToggleKeyDown(event) {
+    const activeTag = document.activeElement?.tagName;
+    const isTypingInAnyField =
+      activeTag === 'INPUT' ||
+      activeTag === 'TEXTAREA' ||
+      document.activeElement?.isContentEditable;
+
+    if (isTypingInAnyField && !this.isOpen) return;
+
+    event.preventDefault();
+    this.toggle(this.currentGameState || this.scene.playerMenu?.gameState || this.scene.gameState);
+  }
+
+  onGlobalKeyDown(event) {
+    if (!this.isOpen) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+
+      if (this.isTyping) {
+        this.disableTypingMode();
+      } else {
+        this.close();
+      }
+    }
+  }
+
+  enableTypingMode() {
+    if (this.isTyping) return;
+
+    this.isTyping = true;
+    this.modeHintText.setText('[ WRITING... ESC TO STOP ]');
+
+    if (this.scene.input?.keyboard) {
+      this.scene.input.keyboard.enabled = false;
+      this.scene.input.keyboard.disableGlobalCapture();
+    }
+  }
+
+  disableTypingMode() {
+    if (!this.isTyping) return;
+
+    this.isTyping = false;
+    this.modeHintText.setText('[ CLICK TO WRITE | ESC TO STOP ]');
+
+    if (this.scene.input?.keyboard) {
+      this.scene.input.keyboard.enabled = true;
+      this.scene.input.keyboard.enableGlobalCapture();
+      this.scene.input.keyboard.resetKeys();
+    }
+
+    if (document.activeElement === this.playerInputDOM?.node) {
+      this.playerInputDOM.node.blur();
+    }
   }
 
   updateNotes(newText) {
@@ -180,15 +283,21 @@ export class NotesUI {
     this.overlay.setVisible(true);
     this.container.setVisible(true);
     this.refresh(gameState);
+
+    // Otwieramy notes w trybie podglądu, bez focusa na textarea.
+    // Dzięki temu skróty typu W w innych menu nadal mogą działać.
+    this.disableTypingMode();
   }
 
   close() {
     if (!this.isOpen) return;
 
-    if (this.currentGameState) {
+    if (this.currentGameState && this.playerInputDOM?.node) {
       this.currentGameState.playerNotes = this.playerInputDOM.node.value;
       saveGameState();
     }
+
+    this.disableTypingMode();
 
     this.isOpen = false;
     this.overlay.setVisible(false);
@@ -200,8 +309,24 @@ export class NotesUI {
   }
 
   destroy() {
-    if (this.playerInputDOM?.node && this.onInput) {
-      this.playerInputDOM.node.removeEventListener('input', this.onInput);
+    if (this.playerInputDOM?.node) {
+      if (this.onInput) {
+        this.playerInputDOM.node.removeEventListener('input', this.onInput);
+      }
+
+      if (this.onTextAreaFocus) {
+        this.playerInputDOM.node.removeEventListener('focus', this.onTextAreaFocus);
+      }
+
+      if (this.onTextAreaBlur) {
+        this.playerInputDOM.node.removeEventListener('blur', this.onTextAreaBlur);
+      }
     }
+
+    if (this.scene.input?.keyboard) {
+      this.scene.input.keyboard.off('keydown-N', this.boundToggleHandler);
+    }
+
+    document.removeEventListener('keydown', this.boundGlobalKeyHandler);
   }
 }

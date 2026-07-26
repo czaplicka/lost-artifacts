@@ -1,0 +1,20 @@
+{
+  "default": [
+    {
+      "speaker": "Headquarters",
+      "portraitKey": "portrait_hq",
+      "lines": [
+        "Command here. Your current objective is still active.",
+        "Check your Case File for the latest briefing."
+      ]
+    },
+    {
+      "speaker": "Headquarters",
+      "portraitKey": "portrait_hq",
+      "lines": [
+        "HQ speaking.",
+        "No updates yet. Keep working the case."
+      ]
+    }
+  ]
+}

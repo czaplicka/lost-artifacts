@@ -6,15 +6,18 @@ export class WarrantUI {
         this.isOpen = false;
         this.gameState = null;
         this.autoCloseTimer = null;
+        this.boundToggleHandler = this.onToggleKeyDown.bind(this);
 
         const { width, height } = this.scene.scale;
 
-        // Główny kontener HUD (nie niszczymy, tylko chowamy)
-        this.container = this.scene.add.container(0, 0).setDepth(30).setVisible(false);
+        this.container = this.scene.add.container(0, 0)
+            .setDepth(30)
+            .setVisible(false);
 
         const overlay = this.scene.add.rectangle(0, 0, width, height, 0x000000, 0.8)
             .setOrigin(0)
             .setInteractive();
+
         overlay.on('pointerdown', () => this.close());
 
         const bg = this.scene.add.rectangle(
@@ -39,6 +42,7 @@ export class WarrantUI {
                 color: '#44aa44'
             }
         ).setOrigin(0.5);
+
         this.container.add(title);
 
         const closeBtn = this.scene.add.text(width * 0.88, 135, '[X]', {
@@ -48,6 +52,7 @@ export class WarrantUI {
         })
             .setInteractive({ useHandCursor: true })
             .on('pointerdown', () => this.close());
+
         this.container.add(closeBtn);
 
         this.traitButtons = [];
@@ -64,6 +69,7 @@ export class WarrantUI {
                 align: 'center'
             }
         ).setOrigin(0.5);
+
         this.container.add(this.statusText);
 
         this.searchBtn = this.scene.add.text(
@@ -81,6 +87,7 @@ export class WarrantUI {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .setVisible(false);
+
         this.container.add(this.searchBtn);
 
         this.searchBtn.on('pointerover', () => {
@@ -102,9 +109,33 @@ export class WarrantUI {
 
         this.traitsData = {};
         this.currentFilters = {};
+
+        this.bindKeyboardShortcut();
     }
 
-    // ===== Helpers bezpieczeństwa =====
+    bindKeyboardShortcut() {
+        if (!this.scene.input?.keyboard) return;
+
+        this.scene.input.keyboard.addCapture('W');
+        this.scene.input.keyboard.on('keydown-W', this.boundToggleHandler);
+    }
+
+    onToggleKeyDown(event) {
+        const activeTag = document.activeElement?.tagName;
+        const isTyping =
+            activeTag === 'INPUT' ||
+            activeTag === 'TEXTAREA' ||
+            document.activeElement?.isContentEditable;
+
+        if (isTyping) return;
+
+        event.preventDefault();
+        this.toggle(this.gameState || this.scene.playerMenu?.gameState || this.scene.gameState);
+    }
+
+    toggle(gameState) {
+        this.isOpen ? this.close() : this.open(gameState);
+    }
 
     isUsable(obj) {
         return !!obj && !!obj.scene && obj.active !== false;
@@ -151,8 +182,6 @@ export class WarrantUI {
         }
     }
 
-    // ===== API =====
-
     open(gameState) {
         if (this.isOpen) return;
 
@@ -190,6 +219,7 @@ export class WarrantUI {
         };
 
         this.buildTraitSelectors();
+
         this.safeSetText(
             this.statusText,
             'SELECT AT LEAST 3 TRAITS\nAND PRESS "SEARCH"...'
@@ -199,6 +229,8 @@ export class WarrantUI {
     }
 
     close() {
+        if (!this.isOpen) return;
+
         this.isOpen = false;
         this.clearAutoCloseTimer();
 
@@ -214,8 +246,6 @@ export class WarrantUI {
         this.safeSetColor(this.statusText, '#aaaaaa');
     }
 
-    // ===== Czyszczenie =====
-
     clearTraitSelectors() {
         this.traitButtons.forEach(obj => this.safeDestroy(obj));
         this.traitButtons = [];
@@ -225,8 +255,6 @@ export class WarrantUI {
         this.resultObjects.forEach(obj => this.safeDestroy(obj));
         this.resultObjects = [];
     }
-
-    // ===== Logika traitów =====
 
     getUniqueValues(suspects, key) {
         const values = suspects
@@ -354,8 +382,6 @@ export class WarrantUI {
         }
     }
 
-    // ===== Wyszukiwanie =====
-
     executeSearch(suspectsData) {
         this.clearResults();
         this.safeSetVisible(this.searchBtn, false);
@@ -457,8 +483,6 @@ export class WarrantUI {
             this.resultObjects.push(...cardObjects);
         });
     }
-
-    // ===== Wystawianie nakazu =====
 
     issueWarrant(suspect) {
         if (!this.gameState) return;
@@ -569,5 +593,17 @@ export class WarrantUI {
             if (!this.scene || !this.scene.sys) return;
             this.close();
         });
+    }
+
+    destroy() {
+        this.clearAutoCloseTimer();
+        this.clearTraitSelectors();
+        this.clearResults();
+
+        if (this.scene.input?.keyboard) {
+            this.scene.input.keyboard.off('keydown-W', this.boundToggleHandler);
+        }
+
+        this.container?.destroy(true);
     }
 }

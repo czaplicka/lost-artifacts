@@ -1,101 +1,130 @@
-<div class="crime-board-app">
-  <div id="crime-board" class="crime-board">
-    <svg class="crime-board__strings"></svg>
-    <div class="crime-board__items"></div>
-  </div>
+<section class="crime-board-app is-sidebar-collapsed" aria-label="Crime board workspace">
+  <button
+    id="crime-board-sidebar-tab"
+    class="crime-board-sidebar-tab"
+    type="button"
+    aria-controls="crime-board-sidebar"
+    aria-expanded="false"
+    title="Open crime board sidebar"
+  >
+    Board
+  </button>
 
-  <aside id="crime-board-sidebar" class="crime-board-sidebar is-open" aria-label="Crime board tools">
-    <div class="crime-board-sidebar__inner">
-      <div class="crime-board-sidebar__header">
-        <h2 class="crime-board-sidebar__title">Board tools</h2>
-        <button
-          type="button"
-          id="crime-board-sidebar-toggle"
-          class="crime-board-sidebar__toggle"
-          aria-expanded="true"
-          aria-controls="crime-board-sidebar"
-        >
-          Hide
-        </button>
+  <aside
+    id="crime-board-sidebar"
+    class="crime-board-sidebar is-collapsed"
+    aria-label="Crime board controls"
+  >
+    <div class="crime-board-sidebar__header">
+      <div>
+        <p class="crime-board-sidebar__eyebrow">Investigation</p>
+        <h2 class="crime-board-sidebar__title">Crime Board</h2>
       </div>
 
-      <section class="crime-board-sidebar__block">
-        <div class="crime-board-sidebar__actions crime-board-sidebar__actions--stack">
-          <button type="button" id="add-photo-btn" class="crime-board-tool-btn">Add photo</button>
-          <button type="button" id="add-note-btn" class="crime-board-tool-btn">Add note</button>
-          <button type="button" id="add-evidence-btn" class="crime-board-tool-btn">Add evidence</button>
+      <button
+        id="crime-board-sidebar-toggle"
+        class="crime-board-btn crime-board-btn--ghost"
+        type="button"
+        aria-controls="crime-board-sidebar"
+        aria-expanded="false"
+      >
+        Show
+      </button>
+    </div>
+
+    <div class="crime-board-sidebar__section">
+      <h3 class="crime-board-sidebar__section-title">Create item</h3>
+      <div class="crime-board-toolbar">
+        <button id="add-photo-btn" class="crime-board-btn" type="button">Add photo</button>
+        <button id="add-note-btn" class="crime-board-btn" type="button">Add note</button>
+        <button id="add-evidence-btn" class="crime-board-btn" type="button">Add evidence</button>
+      </div>
+    </div>
+
+    <div class="crime-board-sidebar__section">
+      <h3 class="crime-board-sidebar__section-title">Selected item</h3>
+
+      <div id="crime-board-empty-state" class="crime-board-empty-state">
+        Select a player-created note, photo, or evidence card to edit it here.
+      </div>
+
+      <form id="crime-board-form" class="crime-board-form" autocomplete="off">
+        <div id="crime-board-fields" class="crime-board-fields">
+          <label class="crime-board-field">
+            <span>Type</span>
+            <select name="type">
+              <option value="note">Note</option>
+              <option value="photo">Photo</option>
+              <option value="evidence">Evidence</option>
+            </select>
+          </label>
+
+          <label class="crime-board-field">
+            <span>Label</span>
+            <input name="label" type="text" maxlength="80" />
+          </label>
+
+          <label class="crime-board-field">
+            <span>Color</span>
+            <select name="color">
+              <option value="yellow">Yellow</option>
+              <option value="blue">Blue</option>
+              <option value="pink">Pink</option>
+            </select>
+          </label>
+
+          <label class="crime-board-field crime-board-field--inline">
+            <input name="pinned" type="checkbox" />
+            <span>Pinned</span>
+          </label>
+
+          <div id="crime-board-type-fields" class="crime-board-dynamic-fields"></div>
         </div>
-      </section>
 
-      <section class="crime-board-sidebar__block">
-        <h3 class="crime-board-sidebar__subtitle">Selected item</h3>
-        <form id="crime-board-form" class="crime-board-form">
-          <div class="crime-board-empty" id="crime-board-empty-state">
-            Select a player-created item to edit or delete it.
-          </div>
+        <div class="crime-board-form__actions">
+          <button id="crime-board-apply-btn" class="crime-board-btn" type="button">Apply</button>
+          <button id="crime-board-delete-btn" class="crime-board-btn crime-board-btn--danger" type="button">Delete</button>
+        </div>
+      </form>
+    </div>
 
-          <div id="crime-board-fields" style="display:none;">
-            <label class="crime-board-sidebar__label">
-              ID
-              <input type="text" name="id" readonly>
-            </label>
+    <div class="crime-board-sidebar__section">
+      <h3 class="crime-board-sidebar__section-title">Connections</h3>
+      <p id="crime-board-links-empty" class="crime-board-links-empty">
+        No visible connections yet.
+      </p>
+      <ul id="crime-board-links-list" class="crime-board-links-list"></ul>
+    </div>
 
-            <label class="crime-board-sidebar__label">
-              Type
-              <input type="text" name="type" readonly>
-            </label>
-
-            <label class="crime-board-sidebar__label">
-              Label
-              <input type="text" name="label">
-            </label>
-
-            <div class="crime-board-grid-2">
-              <label class="crime-board-sidebar__label">
-                X
-                <input type="number" name="x">
-              </label>
-
-              <label class="crime-board-sidebar__label">
-                Y
-                <input type="number" name="y">
-              </label>
-            </div>
-
-            <div class="crime-board-grid-2">
-              <label class="crime-board-sidebar__label">
-                Rotation
-                <input type="number" step="0.1" name="rotation">
-              </label>
-
-              <label class="crime-board-sidebar__label">
-                Pinned
-                <select name="pinned">
-                  <option value="false">false</option>
-                  <option value="true">true</option>
-                </select>
-              </label>
-            </div>
-
-            <div id="crime-board-type-fields"></div>
-
-            <div class="crime-board-sidebar__actions crime-board-sidebar__actions--stack">
-              <button type="button" id="crime-board-apply-btn" class="crime-board-tool-btn crime-board-tool-btn--primary">Save changes</button>
-              <button type="button" id="crime-board-delete-btn" class="crime-board-tool-btn crime-board-tool-btn--danger">Delete item</button>
-            </div>
-          </div>
-        </form>
-      </section>
+    <div class="crime-board-sidebar__section">
+      <h3 class="crime-board-sidebar__section-title">Board JSON</h3>
+      <div class="crime-board-json-actions">
+        <button id="board-save-btn" class="crime-board-btn crime-board-btn--ghost" type="button">Export</button>
+        <button id="board-load-btn" class="crime-board-btn crime-board-btn--ghost" type="button">Import</button>
+      </div>
+      <textarea
+        id="board-json-output"
+        class="crime-board-json-output"
+        spellcheck="false"
+        aria-label="Crime board JSON data"
+      ></textarea>
     </div>
   </aside>
 
-  <button
-    type="button"
-    id="crime-board-sidebar-tab"
-    class="crime-board-sidebar-tab"
-    aria-controls="crime-board-sidebar"
-    aria-expanded="true"
-  >
-    Tools
-  </button>
-</div>
+  <div class="crime-board-shell">
+    <div
+      id="crime-board"
+      class="crime-board"
+      role="region"
+      aria-label="Investigation board"
+    >
+      <svg
+        class="crime-board__strings"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      ></svg>
+
+      <div class="crime-board__items"></div>
+    </div>
+  </div>
+</section>

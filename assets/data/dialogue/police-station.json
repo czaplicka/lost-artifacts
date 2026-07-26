@@ -1,0 +1,37 @@
+{
+  "locked": [
+    {
+      "speaker": "Dispatcher",
+      "portraitKey": "portrait_dispatcher",
+      "lines": [
+        "Sorry, jurisdiction rules. We can't discuss an open case while you're still in the city."
+      ]
+    },
+    {
+      "speaker": "Dispatcher",
+      "portraitKey": "portrait_dispatcher",
+      "lines": [
+        "You'll need clearance from local command first.",
+        "Come back once you've left the city."
+      ]
+    }
+  ],
+  "default": [
+    {
+      "speaker": "Police Station",
+      "portraitKey": "portrait_police",
+      "lines": [
+        "This is the station. Now that you've left, I can talk freely.",
+        "We have no new leads on our end. It's all on you now."
+      ]
+    },
+    {
+      "speaker": "Police Station",
+      "portraitKey": "portrait_police",
+      "lines": [
+        "Station here. Case is officially yours now.",
+        "Good luck out there."
+      ]
+    }
+  ]
+}

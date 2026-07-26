@@ -1,22 +1,22 @@
-import { BootScene } from './BootScene.js';
-import { PreloaderScene } from './PreloaderScene.js';
-import { MenuScene } from './MenuScene.js';
-import { SettingsScene } from './SettingsScene.js';
-import { GameOverScene } from './GameOverScene.js';
-import { GameScene } from './GameScene.js';
-import { OfficeScene } from './OfficeScene.js';
-import { HighscoreScene } from './HighscoreScene.js';
-import { CityScene } from './CityScene.js';
-import { LocationScene } from './LocationScene.js';
-import { TravelTransitionScene } from './TravelTransitionScene.js';
-import { PlayerHudScene } from './PlayerHudScene.js';
-import { ArrestSelectionScene } from './ArrestSelectionScene.js';
-import { AgainScene } from './AgainScene.js';
-import { SuccessScene } from './SuccessScene.js';
+import { BootScene } from './scenes/BootScene.js';
+import { PreloaderScene } from './scenes/PreloaderScene.js';
+import { MenuScene } from './scenes/MenuScene.js';
+import { SettingsScene } from './scenes/SettingsScene.js';
+import { GameOverScene } from './scenes/GameOverScene.js';
+import { GameScene } from './scenes/GameScene.js';
+import { OfficeScene } from './scenes/OfficeScene.js';
+import { HighscoreScene } from './scenes/HighscoreScene.js';
+import { CityScene } from './scenes/CityScene.js';
+import { LocationScene } from './scenes/LocationScene.js';
+import { TravelTransitionScene } from './scenes/TravelTransitionScene.js';
+import { PlayerHudScene } from './scenes/PlayerHudScene.js';
+import { ArrestSelectionScene } from './scenes/ArrestSelectionScene.js';
+import { AgainScene } from './scenes/AgainScene.js';
+import { SuccessScene } from './scenes/SuccessScene.js';
 import UIScene from './ui/UIScene.js';
-import HiddenObjectsScene from './HiddenObjectsScene.js';
-import { PhoneCallScene } from './PhoneCallScene.js';
-import HypothesisScene from './HypothesisScene.js';
+import HiddenObjectsScene from './scenes/HiddenObjectsScene.js';
+import { PhoneCallScene } from './scenes/PhoneCallScene.js';
+import HypothesisScene from './scenes/HypothesisScene.js';
 
 const config = {
     type: Phaser.AUTO,

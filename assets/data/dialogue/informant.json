@@ -1,0 +1,38 @@
+{
+  "default": [
+    {
+      "speaker": "Informant",
+      "portraitKey": "portrait_informant",
+      "lines": [
+        "...",
+        "Call me back when you actually have something worth trading."
+      ]
+    },
+    {
+      "speaker": "Informant",
+      "portraitKey": "portrait_informant",
+      "lines": [
+        "You're wasting my time.",
+        "Come back when you've got leverage."
+      ]
+    }
+  ],
+  "stage_2": [
+    {
+      "speaker": "Informant",
+      "portraitKey": "portrait_informant",
+      "lines": [
+        "Alright, alright. Someone's been asking around about the artifact's black market value.",
+        "Didn't get a name. But it wasn't a casual buyer."
+      ]
+    },
+    {
+      "speaker": "Informant",
+      "portraitKey": "portrait_informant",
+      "lines": [
+        "Word on the street is a museum insider wanted out. Bad debts.",
+        "That's all I'll say on an open line."
+      ]
+    }
+  ]
+}
