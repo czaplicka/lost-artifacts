@@ -1,4 +1,5 @@
 import { gameState } from './GameData.js';
+import { getActiveRouteCityId } from './gameSetup.js';
 import { ensureHud } from './hudHelpers.js';
 import { EventBus } from './EventBus.js';
 
@@ -454,17 +455,10 @@ if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene
     const flags = progressFlags || this.getCityProgressFlags();
 
     if (flags.isCrimeCity) {
-      if (Array.isArray(gameState.escapeRoute) && gameState.escapeRoute.length > 0) {
-        return (
-          gameState.escapeRoute[Math.max(0, gameState.routeIndex + 1)] ||
-          gameState.escapeRoute[0] ||
-          null
-        );
-      }
-      return null;
+      return getActiveRouteCityId();
     }
 
-    return gameState.nextTargetCityId || null;
+    return gameState.nextTargetCityId || getActiveRouteCityId();
   }
 
   getCityProgressFlags() {

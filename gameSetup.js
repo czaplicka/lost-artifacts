@@ -70,6 +70,20 @@ function validateSetupData(suspectsData, missionsData, locationsData) {
   }
 }
 
+// Jedyne źródło prawdy o tym, które miasto z escapeRoute jest aktualnym celem.
+// routeIndex wskazuje NASTĘPNY przystanek, więc indeks -1 (przed dotarciem na
+// miejsce zbrodni) musi być czytany jako 0, a nie jako escapeRoute[-1] === undefined.
+export function getActiveRouteCityId() {
+  if (!Array.isArray(gameState.escapeRoute) || gameState.escapeRoute.length === 0) {
+    return null;
+  }
+
+  const routeIndex = Number.isInteger(gameState.routeIndex) ? gameState.routeIndex : -1;
+  if (routeIndex >= gameState.escapeRoute.length) return null;
+
+  return gameState.escapeRoute[Math.max(0, routeIndex)] ?? null;
+}
+
 function syncInvestigationState(locationsData) {
   if (!Array.isArray(gameState.escapeRoute)) {
     gameState.escapeRoute = [];
@@ -98,7 +112,7 @@ function syncInvestigationState(locationsData) {
     return;
   }
 
-  const activeRouteCityId = gameState.escapeRoute[routeIndex] ?? null;
+  const activeRouteCityId = getActiveRouteCityId();
   const activeRouteCityData = getLocationById(activeRouteCityId, locationsData);
 
   gameState.clueScope = 'route_leg';
@@ -329,7 +343,10 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
 
-  window.GAMESTATE = gameState;
+  if (typeof window !== 'undefined') {
+    window.GAMESTATE = gameState;
+  }
+
   console.log('[NOWA GRA] Start:', {
     thief: thief.name,
     crimeCity: gameState.crimeCity,
