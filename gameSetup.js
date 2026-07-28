@@ -150,7 +150,6 @@ function ensureMustIncludeDestination(destinations, locationsData) {
 
   let result = Array.isArray(destinations) ? [...destinations] : [];
 
-  // Zawsze wywal aktualne miasto z listy
   result = result.filter(loc => {
     const locId = loc?.id || normalizeCityId(loc?.city);
     return locId && locId !== currentCityId;
@@ -160,7 +159,6 @@ function ensureMustIncludeDestination(destinations, locationsData) {
     return result.slice(0, MAX_DESTINATIONS);
   }
 
-  // Jeśli "must include" to miasto, w którym już jesteśmy, czyścimy je
   if (currentCityId === mustIncludeCityId) {
     gameState.mustIncludeCityId = null;
     return result.slice(0, MAX_DESTINATIONS);
@@ -183,38 +181,62 @@ function ensureMustIncludeDestination(destinations, locationsData) {
     }
   }
 
+  const seen = new Set();
+  result = result.filter(loc => {
+    const locId = loc?.id || normalizeCityId(loc?.city);
+    if (!locId || seen.has(locId)) return false;
+    seen.add(locId);
+    return true;
+  });
+
   return result.slice(0, MAX_DESTINATIONS);
 }
 
 function generateDestinationsForCurrentCity(locationsData) {
-  const currentCity = gameState.currentCity;
-  const correctCity = gameState.nextTargetCity;
-  const returnCity = gameState.lastTravel?.from || null;
+  const currentCityId =
+    gameState.currentCityId || normalizeCityId(gameState.currentCity);
+  const correctCityId = gameState.nextTargetCityId || null;
+  const returnCityId =
+    gameState.lastTravel?.fromCityId ||
+    normalizeCityId(gameState.lastTravel?.from);
+
   const finalDestinations = [];
-  const usedCities = new Set();
+  const usedCityIds = new Set();
 
   const addCity = cityData => {
     if (!cityData?.city) return;
-    if (cityData.city === currentCity) return;
-    if (cityData.city === HQ_CITY) return;
-    if (usedCities.has(cityData.city)) return;
+
+    const cityId = cityData.id || normalizeCityId(cityData.city);
+
+    if (!cityId) return;
+    if (cityId === currentCityId) return;
+    if (cityId === HQ_ID) return;
+    if (usedCityIds.has(cityId)) return;
 
     finalDestinations.push(cityData);
-    usedCities.add(cityData.city);
+    usedCityIds.add(cityId);
   };
 
-  if (correctCity) addCity(getLocationByCity(correctCity, locationsData));
-  if (returnCity) addCity(getLocationByCity(returnCity, locationsData));
+  if (correctCityId) {
+    addCity(getLocationById(correctCityId, locationsData));
+  }
+
+  if (returnCityId) {
+    addCity(getLocationById(returnCityId, locationsData));
+  }
 
   const fillerCities = shuffle(
-    locationsData.filter(
-      loc =>
+    locationsData.filter(loc => {
+      const locId = loc?.id || normalizeCityId(loc?.city);
+      return (
         loc &&
         loc.city &&
-        loc.city !== currentCity &&
-        loc.city !== HQ_CITY &&
-        !usedCities.has(loc.city)
-    )
+        locId &&
+        locId !== currentCityId &&
+        locId !== HQ_ID &&
+        !usedCityIds.has(locId)
+      );
+    })
   );
 
   for (const cityData of fillerCities) {
@@ -222,10 +244,48 @@ function generateDestinationsForCurrentCity(locationsData) {
     addCity(cityData);
   }
 
-  return ensureMustIncludeDestination(
-    shuffle(finalDestinations).slice(0, MAX_DESTINATIONS),
-    locationsData
-  );
+  let result = ensureMustIncludeDestination(finalDestinations, locationsData);
+
+  if (result.length < MAX_DESTINATIONS) {
+    const alreadyUsed = new Set(
+      result.map(loc => loc?.id || normalizeCityId(loc?.city)).filter(Boolean)
+    );
+
+    const topUpCities = shuffle(
+      locationsData.filter(loc => {
+        const locId = loc?.id || normalizeCityId(loc?.city);
+        return (
+          loc &&
+          loc.city &&
+          locId &&
+          locId !== currentCityId &&
+          locId !== HQ_ID &&
+          !alreadyUsed.has(locId)
+        );
+      })
+    );
+
+    for (const cityData of topUpCities) {
+      if (result.length >= MAX_DESTINATIONS) break;
+      result.push(cityData);
+      alreadyUsed.add(cityData.id || normalizeCityId(cityData.city));
+    }
+  }
+
+  const deduped = [];
+  const seen = new Set();
+
+  for (const city of result) {
+    const cityId = city?.id || normalizeCityId(city?.city);
+    if (!cityId || seen.has(cityId) || cityId === currentCityId || cityId === HQ_ID) {
+      continue;
+    }
+    seen.add(cityId);
+    deduped.push(city);
+    if (deduped.length >= MAX_DESTINATIONS) break;
+  }
+
+  return deduped;
 }
 
 function buildActiveEncounters(cityData) {
@@ -604,23 +664,26 @@ export function completeCityInvestigation(locationsData) {
 export function travelToCity(cityName, locationsData) {
   const previousCity = gameState.currentCity;
   const previousCityId = gameState.currentCityId;
+
   if (cityName === previousCity) {
-  return {
-    wasCorrect: false,
-    travelHours: 0,
-    baseTravelHours: 0,
-    travelEncounter: null,
-    status: 'ALREADY_HERE',
-    fromCity: previousCity,
-    toCity: cityName,
-    toCityId: previousCityId,
-    cityId: previousCityId,
-    isCrimeSceneArrival: previousCityId === gameState.crimeCityId
-  };
-}
+    return {
+      wasCorrect: false,
+      travelHours: 0,
+      baseTravelHours: 0,
+      travelEncounter: null,
+      status: 'ALREADY_HERE',
+      fromCity: previousCity,
+      toCity: cityName,
+      toCityId: previousCityId,
+      cityId: previousCityId,
+      isCrimeSceneArrival: previousCityId === gameState.crimeCityId
+    };
+  }
+
   const travelData = getTravelData(previousCity, cityName, locationsData, {
     allowEncounter: true
   });
+
   const destinationCityData = getLocationByCity(cityName, locationsData);
   const destinationCityId =
     destinationCityData?.id || normalizeCityId(cityName);

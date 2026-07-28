@@ -236,6 +236,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('sfx_ringing', 'assets/audio/phone-ringing.mp3');
         this.load.audio('sfx_busy', 'assets/audio/phone-busy.mp3');
         this.load.audio('sfx_pickup', 'assets/audio/phone-pick.mp3');
+        this.load.audio('wrong', 'assets/audio/wrong.mp3');
+        this.load.audio('correct', 'assets/audio/correct.mp3');
 
 
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
@@ -274,8 +276,8 @@ this.load.json('dialog_police_station', 'assets/data/dialogue/police-station.jso
 this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
 this.load.json('dialog_home', 'assets/data/dialogue/home.json');
 
-        this.load.image('luvre_bg', 'assets/crimes/luvre.jpg');
-        this.load.tilemapTiledJSON('luvre', 'assets/crimes/luvre.json');
+        this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
+        this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
                 this.load.image('tower_bg', 'assets/crimes/tower.jpg');
         this.load.tilemapTiledJSON('tower', 'assets/crimes/tower.json');
     }

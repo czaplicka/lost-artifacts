@@ -485,7 +485,7 @@
   },
   {
     "id": "whisper_note",
-    "item": "Folded whisper note",
+    "item": "Whisper note",
     "skills": ["Espionage", "Manipulation", "Deception", "Research"],
     "tags": ["tower", "note", "paper", "message", "covert"],
     "isRedHerring": true,
@@ -649,7 +649,7 @@
     "heistExplanation": "The thief treated fingerprints like spoilers: never leave them, let the ending surprise everyone."
   },
   {
-    "id": " ",
+    "id": "jewel_chest",
     "item": "Locked jewel chest",
     "skills": ["Lockpicking", "Problem-solving", "Investigation"],
     "tags": ["tower", "chest", "lock", "jewel", "container"],
@@ -660,7 +660,7 @@
     "heistExplanation": "The thief used it as a rehearsal: if you can open the practice chest quietly, the real one never complains."
   },
     {
-    "id": "gin_glass",
+    "id": "gin",
     "item": "Half‑empty gin glass",
     "skills": ["Persuasion", "Seduction", "Manipulation"],
     "tags": ["tower", "glass", "drink", "trace", "social"],

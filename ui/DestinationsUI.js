@@ -162,6 +162,7 @@ export class DestinationsUI {
             return;
         }
 
+        console.log('currentDestinations raw:', this.gameState?.currentDestinations?.map(c => c.city));
         console.log('Wybrane miasta na mapę:', destinations.map(c => c.city));
 
         this.renderCityPins(destinations);
@@ -204,39 +205,88 @@ export class DestinationsUI {
         return currentCityId === targetCityId || currentCityId === justReachedCorrectCityId;
     }
 
+    normalizeCityId(city) {
+        if (!city) return null;
+
+        const map = {
+            London: 'london',
+            Paris: 'paris',
+            'New Delhi': 'new_delhi',
+            Warsaw: 'warsaw',
+            'New York City': 'new_york_city',
+            Berlin: 'berlin',
+            'Mark Agency Headquarters': 'hq'
+        };
+
+        return map[city] || city.toLowerCase().replace(/\s+/g, '_');
+    }
+
+    getCityId(cityObj) {
+        if (!cityObj) return null;
+        return cityObj.id || this.normalizeCityId(cityObj.city);
+    }
+
     getDestinationsWithMustInclude() {
-    const locationsData = this.scene.cache.json.get('locations') || [];
-    const currentCityId = this.gameState?.currentCityId || gameState.currentCityId;
+        const locationsData = this.scene.cache.json.get('locations') || [];
+        const currentCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
+        const maxDestinations = 5;
 
-    const baseDestinations = Array.isArray(this.gameState?.currentDestinations)
-        ? [...this.gameState.currentDestinations].filter(city => city?.id !== currentCityId)
-        : [];
+        let result = Array.isArray(this.gameState?.currentDestinations)
+            ? [...this.gameState.currentDestinations]
+            : [];
 
-    const mustIncludeCityId = this.gameState?.mustIncludeCityId;
+        result = result.filter(city => {
+            const cityId = this.getCityId(city);
+            return cityId && cityId !== currentCityId;
+        });
 
-    if (!mustIncludeCityId) {
-        return baseDestinations;
+        const mustIncludeCityId = this.gameState?.mustIncludeCityId || null;
+
+        if (mustIncludeCityId && mustIncludeCityId !== currentCityId) {
+            const alreadyIncluded = result.some(city => this.getCityId(city) === mustIncludeCityId);
+
+            if (!alreadyIncluded) {
+                const requiredCity = locationsData.find(loc => this.getCityId(loc) === mustIncludeCityId);
+                if (requiredCity) {
+                    result.unshift(requiredCity);
+                }
+            }
+        } else if (mustIncludeCityId === currentCityId) {
+            this.gameState.mustIncludeCityId = null;
+        }
+
+        const seen = new Set();
+        result = result.filter(city => {
+            const cityId = this.getCityId(city);
+            if (!cityId || seen.has(cityId)) return false;
+            seen.add(cityId);
+            return true;
+        });
+
+        if (result.length < maxDestinations) {
+            const filler = Phaser.Utils.Array.Shuffle(
+                locationsData.filter(loc => {
+                    const locId = this.getCityId(loc);
+                    return (
+                        loc &&
+                        loc.city &&
+                        locId &&
+                        locId !== currentCityId &&
+                        locId !== 'hq' &&
+                        !seen.has(locId)
+                    );
+                })
+            );
+
+            for (const city of filler) {
+                if (result.length >= maxDestinations) break;
+                result.push(city);
+                seen.add(this.getCityId(city));
+            }
+        }
+
+        return result.slice(0, maxDestinations);
     }
-
-    if (this.gameState.currentCityId === mustIncludeCityId) {
-        this.gameState.mustIncludeCityId = null;
-        return baseDestinations;
-    }
-
-    const alreadyIncluded = baseDestinations.some(city => city?.id === mustIncludeCityId);
-
-    if (alreadyIncluded) {
-        return baseDestinations;
-    }
-
-    const requiredCity = locationsData.find(loc => loc.id === mustIncludeCityId);
-
-    if (requiredCity) {
-        baseDestinations.unshift(requiredCity);
-    }
-
-    return baseDestinations;
-}
 
     clearPins() {
         if (!this.activePins.length) return;

@@ -42,14 +42,17 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.foundItems = new Set();
     this.timerEvent = null;
     this.isSceneFinished = false;
+
+    this.resultOverlay = null;
+    this.resultContainer = null;
   }
 
   init(data = {}) {
     this.sceneId = data.sceneId || 'louvre';
     this.mapKey = data.mapKey || this.sceneId;
-    this.mapPath = data.mapPath || 'assets/crimes/luvre.json';
+    this.mapPath = data.mapPath || 'assets/crimes/louvre.json';
     this.backgroundKey = data.backgroundKey || `${this.sceneId}_bg`;
-    this.backgroundPath = data.backgroundPath || 'assets/crimes/luvre.jpg';
+    this.backgroundPath = data.backgroundPath || 'assets/crimes/louvre.jpg';
     this.objectLayerName = data.objectLayerName || 'HiddenObjects';
     this.objectsDataKey = data.objectsDataKey || 'objects-data';
     this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
@@ -80,6 +83,9 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.isSceneFinished = false;
     this.incorrectClicks = 0;
 
+    this.resultOverlay = null;
+    this.resultContainer = null;
+
     if (!gameState.specialScenesVisited || typeof gameState.specialScenesVisited !== 'object') {
       gameState.specialScenesVisited = {};
     }
@@ -109,13 +115,19 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     if (!this.textures.exists('back')) {
       this.load.image('back', '/assets/back.png');
     }
+
+    if (!this.cache.audio.exists('wrong')) {
+      this.load.audio('wrong', 'assets/audio/wrong.mp3');
+    }
+
+    if (!this.cache.audio.exists('correct')) {
+      this.load.audio('correct', 'assets/audio/correct.mp3');
+    }
   }
 
   create() {
     this.cameras.main.setBackgroundColor('#0f0f12');
 
-    // If this quest was already completed/abandoned during the current
-    // investigation, it must stay inactive: bail out straight back to the city.
     if (this.isQuestAlreadyDone()) {
       this.scene.start(this.returnScene, {
         ...this.returnData,
@@ -134,10 +146,8 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.createTimer();
     this.registerMissDetection();
 
-    // Hide the calendar/UI overlay while the hidden-object game is active.
     this.scene.sleep('UIScene');
 
-    // Guard against listener accumulation across scene restarts.
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
   }
 
@@ -146,15 +156,15 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     return !!(visited && visited[this.getVisitKey()]);
   }
 
-loadObjectsData() {
-  this.itemsData = this.cache.json.get(this.objectsDataKey) || [];
-  this.itemsById = Object.fromEntries(this.itemsData.map(item => [item.id, item]));
+  loadObjectsData() {
+    this.itemsData = this.cache.json.get(this.objectsDataKey) || [];
+    this.itemsById = Object.fromEntries(this.itemsData.map(item => [item.id, item]));
 
-  this.sceneItems = this.itemsData.filter(item => {
-    const scenes = Array.isArray(item.scene) ? item.scene : [item.scene];
-    return scenes.includes(this.sceneId);
-  });
-}
+    this.sceneItems = this.itemsData.filter(item => {
+      const scenes = Array.isArray(item.scene) ? item.scene : [item.scene];
+      return scenes.includes(this.sceneId);
+    });
+  }
 
   computePlayArea() {
     const { width, height } = this.scale;
@@ -352,9 +362,6 @@ loadObjectsData() {
         .setDepth(1001);
     }
 
-    // Clicking Back intentionally abandons (loses) the current game and
-    // returns to the city. It is an interactive object, so the global miss
-    // detector never treats this as an incorrect click.
     this.backBtn.on('pointerdown', () => {
       this.abandonGame();
     });
@@ -410,7 +417,6 @@ loadObjectsData() {
         zone.setStrokeStyle(2, 0xff0000, 0.85);
       }
 
-      // No hover reveal: clickable targets must stay hidden until clicked.
       zone.on('pointerdown', () => this.handleHiddenObjectClick(zone));
 
       this.hiddenZones.push(zone);
@@ -473,12 +479,13 @@ loadObjectsData() {
       return;
     }
 
-    // Mark as found and turn it permanently gray/inactive. The zone stays
-    // interactive (but inert) so that re-clicking an already-found item is
-    // absorbed here and never reaches the incorrect-click detector.
     zone.setData('found', true);
     zone.setFillStyle(0x555555, 0.55);
     zone.setStrokeStyle(2, 0x777777, 0.7);
+
+    this.playSfx('correct', { volume: 0.45 });
+    this.pulseZone(zone, 0x7CFC00);
+    this.flashScreen(0x7CFC00, 0.08, 140);
 
     this.foundItems.add(id);
 
@@ -502,10 +509,14 @@ loadObjectsData() {
     this.score += points;
     this.scoreText.setText(`Score: ${this.score}`);
     this.refreshList(isRedHerring);
+    this.bumpText(this.scoreText);
 
     if (!isStaticRedHerring && isMissionRelevant) {
       this.emitClueFound(itemData);
       this.storeHiddenObjectClue(itemData, clueType);
+      this.showMessage(`Evidence secured: ${itemData.item}`, '#7CFC00');
+    } else {
+      this.showMessage(`Found: ${itemData.item}`, '#ffd966');
     }
 
     if (this.foundItems.size >= this.activeItems.length) {
@@ -680,6 +691,7 @@ loadObjectsData() {
 
     if (this.timerEvent) {
       this.timerEvent.remove(false);
+      this.timerEvent = null;
     }
 
     this.hiddenZones.forEach(zone => {
@@ -692,20 +704,205 @@ loadObjectsData() {
 
     if (success) {
       this.saveHeistReconstruction();
-      this.showMessage('All objects found.', '#7CFC00');
+      this.showMessage('Crime scene processed.', '#7CFC00');
+      this.showSuccessOverlay();
     } else {
+      this.playSfx('wrong', { volume: 0.5 });
       this.showMessage('Time is up.', '#ff6b6b');
+      this.showFailureOverlay();
     }
+  }
 
-    this.time.delayedCall(1800, () => {
+  showSuccessOverlay() {
+    const { width, height } = this.scale;
+    const panelWidth = 700;
+    const panelHeight = 420;
+    const centerX = this.sidebarWidth + (width - this.sidebarWidth) / 2;
+    const centerY = height / 2;
+    const remainingTimeBonus = this.timeLeft * 2;
+    const finalScore = this.score + remainingTimeBonus;
+
+    this.resultOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.72)
+      .setOrigin(0, 0)
+      .setDepth(3000)
+      .setAlpha(0);
+
+    this.resultContainer = this.add.container(centerX, centerY).setDepth(3001).setAlpha(0);
+
+    const panel = this.add.rectangle(0, 0, panelWidth, panelHeight, 0x181511, 0.98)
+      .setStrokeStyle(3, 0xd4af37, 0.9);
+
+    const title = this.add.text(0, -155, 'Crime Scene Complete', {
+      fontFamily: 'Special Elite, Arial',
+      fontSize: '38px',
+      color: '#f8e7b9',
+      align: 'center'
+    }).setOrigin(0.5);
+
+    const subtitle = this.add.text(0, -104, 'The forensic sweep is finished.', {
+      fontFamily: 'Arial',
+      fontSize: '22px',
+      color: '#f2f2f2',
+      align: 'center'
+    }).setOrigin(0.5);
+
+    const stats = this.add.text(0, -5,
+      [
+        `Objects found: ${this.foundItems.size}/${this.activeItems.length}`,
+        `Misses: ${this.incorrectClicks}`,
+        `Time left: ${this.formatTime(this.timeLeft)}`,
+        `Time bonus: +${remainingTimeBonus}`,
+        `Final score: ${finalScore}`
+      ].join('\n'),
+      {
+        fontFamily: 'Arial',
+        fontSize: '24px',
+        color: '#ffffff',
+        align: 'center',
+        lineSpacing: 10
+      }
+    ).setOrigin(0.5);
+
+    const note = this.add.text(0, 112,
+      'Evidence logged. Return to the city and continue the investigation.',
+      {
+        fontFamily: 'Arial',
+        fontSize: '19px',
+        color: '#d8d8d8',
+        align: 'center',
+        wordWrap: { width: panelWidth - 100 }
+      }
+    ).setOrigin(0.5);
+
+    const continueBtnBg = this.add.rectangle(0, 170, 260, 56, 0x8b6b2f, 1)
+      .setStrokeStyle(2, 0xf0d48a, 0.9)
+      .setInteractive({ useHandCursor: true });
+
+    const continueBtnText = this.add.text(0, 170, 'Continue', {
+      fontFamily: 'Press Start 2P, Arial',
+      fontSize: '16px',
+      color: '#fff7dc'
+    }).setOrigin(0.5);
+
+    continueBtnBg.on('pointerover', () => continueBtnBg.setFillStyle(0xa07a34, 1));
+    continueBtnBg.on('pointerout', () => continueBtnBg.setFillStyle(0x8b6b2f, 1));
+    continueBtnBg.on('pointerdown', () => {
+      this.playSfx('correct', { volume: 0.35 });
       this.scene.start(this.returnScene, {
         ...this.returnData,
-        hiddenObjectsSuccess: success,
+        hiddenObjectsSuccess: true,
+        hiddenObjectsScore: finalScore,
+        incorrectClicks: this.incorrectClicks,
+        foundItems: Array.from(this.foundItems),
+        sceneId: this.sceneId
+      });
+    });
+
+    this.resultContainer.add([
+      panel,
+      title,
+      subtitle,
+      stats,
+      note,
+      continueBtnBg,
+      continueBtnText
+    ]);
+
+    this.tweens.add({
+      targets: this.resultOverlay,
+      alpha: 1,
+      duration: 250,
+      ease: 'Power2'
+    });
+
+    this.tweens.add({
+      targets: this.resultContainer,
+      alpha: 1,
+      y: centerY - 8,
+      duration: 320,
+      ease: 'Back.Out'
+    });
+  }
+
+  showFailureOverlay() {
+    const { width, height } = this.scale;
+    const panelWidth = 680;
+    const panelHeight = 340;
+    const centerX = this.sidebarWidth + (width - this.sidebarWidth) / 2;
+    const centerY = height / 2;
+
+    this.resultOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.68)
+      .setOrigin(0, 0)
+      .setDepth(3000)
+      .setAlpha(0);
+
+    this.resultContainer = this.add.container(centerX, centerY).setDepth(3001).setAlpha(0);
+
+    const panel = this.add.rectangle(0, 0, panelWidth, panelHeight, 0x1c1212, 0.98)
+      .setStrokeStyle(3, 0xa44a4a, 0.95);
+
+    const title = this.add.text(0, -95, 'Crime Scene Lost', {
+      fontFamily: 'Special Elite, Arial',
+      fontSize: '36px',
+      color: '#ffb3b3'
+    }).setOrigin(0.5);
+
+    const body = this.add.text(0, -10,
+      [
+        'You ran out of time before the scene was fully processed.',
+        '',
+        `Objects found: ${this.foundItems.size}/${this.activeItems.length}`,
+        `Misses: ${this.incorrectClicks}`,
+        `Score: ${this.score}`
+      ].join('\n'),
+      {
+        fontFamily: 'Arial',
+        fontSize: '22px',
+        color: '#f4f4f4',
+        align: 'center',
+        lineSpacing: 8,
+        wordWrap: { width: panelWidth - 100 }
+      }
+    ).setOrigin(0.5);
+
+    const btnBg = this.add.rectangle(0, 112, 240, 54, 0x6b2a2a, 1)
+      .setStrokeStyle(2, 0xd88b8b, 0.9)
+      .setInteractive({ useHandCursor: true });
+
+    const btnText = this.add.text(0, 112, 'Return', {
+      fontFamily: 'Press Start 2P, Arial',
+      fontSize: '16px',
+      color: '#fff1f1'
+    }).setOrigin(0.5);
+
+    btnBg.on('pointerover', () => btnBg.setFillStyle(0x823333, 1));
+    btnBg.on('pointerout', () => btnBg.setFillStyle(0x6b2a2a, 1));
+    btnBg.on('pointerdown', () => {
+      this.scene.start(this.returnScene, {
+        ...this.returnData,
+        hiddenObjectsSuccess: false,
         hiddenObjectsScore: this.score,
         incorrectClicks: this.incorrectClicks,
         foundItems: Array.from(this.foundItems),
         sceneId: this.sceneId
       });
+    });
+
+    this.resultContainer.add([panel, title, body, btnBg, btnText]);
+
+    this.tweens.add({
+      targets: this.resultOverlay,
+      alpha: 1,
+      duration: 220,
+      ease: 'Power2'
+    });
+
+    this.tweens.add({
+      targets: this.resultContainer,
+      alpha: 1,
+      y: centerY - 6,
+      duration: 280,
+      ease: 'Back.Out'
     });
   }
 
@@ -718,8 +915,6 @@ loadObjectsData() {
       this.timerEvent = null;
     }
 
-    // Abandoning counts as losing the game, and marks the quest done so it
-    // cannot be replayed for the remainder of the current investigation.
     this.markSceneVisited();
 
     this.scene.start(this.returnScene, {
@@ -740,18 +935,73 @@ loadObjectsData() {
   handleGlobalPointerDown(pointer, currentlyOver) {
     if (this.isSceneFinished) return;
 
-    // Any interactive object under the pointer (an active zone, an
-    // already-found zone, or a UI control such as Back) means this was not a
-    // miss on empty scenery.
     if (Array.isArray(currentlyOver) && currentlyOver.length > 0) return;
 
-    // Ignore clicks on the sidebar; only empty spots in the play area count.
     if (pointer.x < this.sidebarWidth) return;
 
     this.incorrectClicks += 1;
+
     if (this.missesText) {
       this.missesText.setText(`Misses: ${this.incorrectClicks}`);
     }
+
+    this.playSfx('wrong', { volume: 0.38 });
+    this.bumpText(this.missesText);
+    this.flashScreen(0xff4d4d, 0.12, 120);
+    this.showMessage('No useful evidence there.', '#ff8a8a');
+  }
+
+  playSfx(key, config = {}) {
+    if (!this.sound || !this.cache.audio.exists(key)) return;
+    this.sound.play(key, config);
+  }
+
+  flashScreen(color = 0xffffff, alpha = 0.1, duration = 120) {
+    const { width, height } = this.scale;
+    const flash = this.add.rectangle(0, 0, width, height, color, alpha)
+      .setOrigin(0, 0)
+      .setDepth(2500);
+
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      duration,
+      ease: 'Linear',
+      onComplete: () => flash.destroy()
+    });
+  }
+
+  pulseZone(zone, color = 0x7CFC00) {
+    if (!zone) return;
+
+    const originalScaleX = zone.scaleX || 1;
+    const originalScaleY = zone.scaleY || 1;
+
+    zone.setStrokeStyle(3, color, 1);
+
+    this.tweens.add({
+      targets: zone,
+      scaleX: originalScaleX * 1.08,
+      scaleY: originalScaleY * 1.08,
+      duration: 90,
+      yoyo: true,
+      ease: 'Quad.Out'
+    });
+  }
+
+  bumpText(target) {
+    if (!target) return;
+
+    this.tweens.killTweensOf(target);
+    target.setScale(1);
+
+    this.tweens.add({
+      targets: target,
+      scale: 1.08,
+      duration: 90,
+      yoyo: true,
+      ease: 'Quad.Out'
+    });
   }
 
   handleShutdown() {

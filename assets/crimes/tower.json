@@ -296,7 +296,7 @@
                 {
                  "height":461.954887218045,
                  "id":24,
-                 "name":"\"crown_jewels_display_case",
+                 "name":"crown_jewels_display_case",
                  "opacity":1,
                  "rotation":0,
                  "type":"",
@@ -637,7 +637,7 @@
          "y":0
         }],
  "nextlayerid":3,
- "nextobjectid":55,
+ "nextobjectid":57,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

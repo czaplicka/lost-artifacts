@@ -647,7 +647,7 @@ export class CityScene extends Phaser.Scene {
   // To extend: add more cityId entries to HINDU_CITIES below.
   // ─────────────────────────────────────────────────────────────────────────────
   getNpcTextureKey(npcId) {
-    const HINDU_CITIES = ['newdelhi'];
+    const HINDU_CITIES = ['new_delhi'];
     const isHindu = HINDU_CITIES.includes(this.cityId);
 
     const baseMap = {
