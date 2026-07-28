@@ -183,40 +183,40 @@ export class TravelTransitionScene extends Phaser.Scene {
     saveGameState();
   }
 
-  leaveScene() {
-    if (this.isLeaving) return;
-    this.isLeaving = true;
+leaveScene() {
+  if (this.isLeaving) return;
+  this.isLeaving = true;
 
-    const { status, cityId, toCityId } = this.transitionData;
-    const targetCityId = cityId || toCityId || null;
+  const { status, cityId, toCityId } = this.transitionData;
+  const targetCityId = cityId || toCityId || null;
 
-    const camera = this.cameras.main;
+  const camera = this.cameras.main;
+  camera.fadeOut(450, 0, 0, 0);
 
-    camera.fadeOut(450, 0, 0, 0);
+  camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+    if (!targetCityId) {
+      console.error('TravelTransitionScene: missing target city id', this.transitionData);
+      this.scene.start('MenuScene');
+      return;
+    }
 
-    camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      console.log('TravelTransition ->', {
-        destinationScene: 'CityScene',
-        targetCityId,
-        transitionData: this.transitionData,
-        pendingPhoneCall: gameState.pendingPhoneCall
+    // ✅ FIX: jeśli to final showdown, idź prosto do aresztu
+    if (status === 'FINAL_SHOWDOWN') {
+      this.scene.start('ArrestSelectionScene', {
+        cityId: targetCityId
       });
+      return;
+    }
 
-      if (!targetCityId) {
-        console.error('TravelTransitionScene: missing target city id', this.transitionData);
-        this.scene.start('MenuScene');
-        return;
-      }
-
-      this.scene.start('CityScene', {
-        cityId: targetCityId,
-        investigationStatus: status,
-        isFinalShowdown: status === 'FINAL_SHOWDOWN',
-        pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
-        pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || targetCityId
-      });
+    this.scene.start('CityScene', {
+      cityId: targetCityId,
+      investigationStatus: status,
+      isFinalShowdown: false,
+      pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
+      pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || targetCityId
     });
-  }
+  });
+}
 
   drawTravelLine(width, height) {
     const startX = width * 0.22;

@@ -138,8 +138,9 @@ export default class HypothesisScene extends Phaser.Scene {
 
     const titleY = panelY - panelHeight / 2 + (isMobile ? 36 : 42);
     const subtitleY = titleY + (isMobile ? 40 : 48);
-    const attemptsY = subtitleY + (isMobile ? 72 : 70);
-    const slotsY = attemptsY + (isMobile ? 92 : 78);
+    // FIX: więcej miejsca dla attemptsText — oddalone od subtitleY i od slotsY
+    const attemptsY = subtitleY + (isMobile ? 52 : 52);
+    const slotsY = attemptsY + (isMobile ? 110 : 100);
     const trayY = slotsY + (isMobile ? 240 : 250);
     const buttonsY = panelY + panelHeight / 2 - (isMobile ? 92 : 96);
     const legendY = buttonsY - 54;
@@ -157,7 +158,10 @@ export default class HypothesisScene extends Phaser.Scene {
     const cardHeight = isMobile ? 86 : 132;
     const cardGapX = isMobile ? 0 : 252;
     const cardGapY = isMobile ? 102 : 0;
-    const trayStartX = isMobile ? width / 2 : width / 2 - 2 * cardGapX;
+
+    // FIX: trayStartX dla 5 kart (nie tylko 5, dynamicznie)
+    const numCards = this.availableCards.length; // powinno być 5
+    const trayStartX = isMobile ? width / 2 : width / 2 - Math.floor(numCards / 2) * cardGapX;
 
     const trayPositions = this.availableCards.map((_, index) => {
       if (isMobile) {
@@ -247,8 +251,11 @@ export default class HypothesisScene extends Phaser.Scene {
       const pos = L.trayPositions[index];
       const card = this.availableCards[index];
 
+      // FIX: odświeżamy interaktywny hitArea karty po zmianie rozmiaru
       view.bg.setSize(L.cardWidth, L.cardHeight);
-      view.bg.input.hitArea.setTo(-L.cardWidth / 2, -L.cardHeight / 2, L.cardWidth, L.cardHeight);
+      // Zamiast ręcznie ustawiać hitArea, używamy setInteractive() które odświeży automatycznie
+      view.bg.setInteractive({ useHandCursor: true });
+      this.input.setDraggable(view.bg);
 
       if (L.isMobile) {
         view.title.setPosition(pos.x - L.cardWidth / 2 + 16, pos.y).setOrigin(0, 0.5);
@@ -289,28 +296,23 @@ export default class HypothesisScene extends Phaser.Scene {
     this.confirmButton.setFontSize(L.isMobile ? '24px' : '28px');
   }
 
+  // FIX: prepareCards teraz bierze WSZYSTKIE przedmioty z hiddenObjectHistory jako karty
+  // Jeśli history ma >=5 przedmiotów: 3 correct (np. oznaczone isClue) + 2 distractory
+  // Jeśli mniej: fallback
   prepareCards() {
-    const reconstruction = gameState.reconstructedHeist;
     const history = Array.isArray(gameState.hiddenObjectHistory) ? gameState.hiddenObjectHistory : [];
 
-    let sourceItems = [];
+    // Filtrowanie po sceneId i cityId
+    const sceneItems = history.filter(item => {
+      const matchScene = !this.sceneId || item.scene === this.sceneId;
+      const matchCity = !this.cityId || item.cityId === this.cityId;
+      return matchScene && matchCity;
+    });
 
-    if (reconstruction?.items && Array.isArray(reconstruction.items) && reconstruction.items.length > 0) {
-      sourceItems = reconstruction.items
-        .filter(item => !this.sceneId || item.scene === this.sceneId)
-        .filter(item => !this.cityId || item.cityId === this.cityId);
-    }
-
-    if (sourceItems.length === 0) {
-      sourceItems = history
-        .filter(item => !this.sceneId || item.scene === this.sceneId)
-        .filter(item => !this.cityId || item.cityId === this.cityId);
-    }
-
+    // Deduplikacja
     const uniqueItems = [];
     const seen = new Set();
-
-    sourceItems.forEach(item => {
+    sceneItems.forEach(item => {
       const key = `${item.id}_${item.scene}_${item.cityId}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -318,12 +320,14 @@ export default class HypothesisScene extends Phaser.Scene {
       }
     });
 
-    const primaryItems = uniqueItems.slice(0, 3);
+    // Correct cards: oznaczone isClue=true, albo pierwsze 3 z historii
+    const clueItems = uniqueItems.filter(item => item.isClue === true);
+    const correctSource = clueItems.length >= 3 ? clueItems.slice(0, 3) : uniqueItems.slice(0, 3);
 
-    this.correctCards = primaryItems.map((item, index) => ({
+    this.correctCards = correctSource.map((item, index) => ({
       id: item.id || `clue_${index}`,
-      item: item.item || `Clue ${index + 1}`,
-      text: item.item || `Clue ${index + 1}`,
+      item: item.item || item.name || `Clue ${index + 1}`,
+      text: item.item || item.name || `Clue ${index + 1}`,
       skills: Array.isArray(item.skills) ? [...item.skills] : [],
       scene: item.scene || this.sceneId,
       cityId: item.cityId || this.cityId,
@@ -331,6 +335,7 @@ export default class HypothesisScene extends Phaser.Scene {
       isCorrect: true
     }));
 
+    // Fallback jeśli za mało
     if (this.correctCards.length < 3) {
       const fallbackCards = this.buildFallbackCards();
       while (this.correctCards.length < 3 && fallbackCards.length > 0) {
@@ -343,10 +348,36 @@ export default class HypothesisScene extends Phaser.Scene {
       }
     }
 
-    this.distractorCards = this.buildDistractorCards(uniqueItems);
+    // Distractor cards: pozostałe przedmioty z historii (nie użyte jako correct)
+    const usedIds = new Set(this.correctCards.map(c => c.id));
+    const remainingItems = uniqueItems.filter(item => !usedIds.has(item.id));
+
+    this.distractorCards = [];
+    remainingItems.slice(0, 3).forEach((item, index) => {
+      this.distractorCards.push({
+        id: `${item.id}_distractor`,
+        item: item.item || item.name || 'False lead',
+        text: item.item || item.name || 'False lead',
+        skills: Array.isArray(item.skills) ? [...item.skills] : [],
+        scene: item.scene || this.sceneId,
+        cityId: item.cityId || this.cityId,
+        correctOrder: -1,
+        isCorrect: false
+      });
+    });
+
+    // Uzupełnij do min 2 dystraktorów fallbackiem
+    if (this.distractorCards.length < 2) {
+      const distFallback = this.buildDistractorFallback();
+      while (this.distractorCards.length < 2 && distFallback.length > 0) {
+        this.distractorCards.push(distFallback.shift());
+      }
+    }
+
+    // Łącznie: 3 correct + 2-3 distractor = 5-6 kart (jak w game design)
     this.availableCards = Phaser.Utils.Array.Shuffle([
       ...this.correctCards,
-      ...this.distractorCards
+      ...this.distractorCards.slice(0, 3)
     ]);
   }
 
@@ -379,13 +410,37 @@ export default class HypothesisScene extends Phaser.Scene {
     ];
   }
 
-  buildDistractorCards(uniqueItems) {
-    const distractors = [];
-    const usedIds = new Set(this.correctCards.map(card => card.id));
+  buildDistractorFallback() {
+    return [
+      {
+        id: 'distractor_guard_note',
+        item: 'Guard note',
+        text: 'Guard note',
+        skills: ['Observation'],
+        scene: this.sceneId,
+        cityId: this.cityId,
+        correctOrder: -1,
+        isCorrect: false
+      },
+      {
+        id: 'distractor_wrong_turn',
+        item: 'Bad route',
+        text: 'Bad route',
+        skills: ['Misdirection'],
+        scene: this.sceneId,
+        cityId: this.cityId,
+        correctOrder: -1,
+        isCorrect: false
+      }
+    ];
+  }
 
+  // Zachowane dla kompatybilności wstecznej
+  buildDistractorCards(uniqueItems) {
+    const usedIds = new Set(this.correctCards.map(card => card.id));
+    const distractors = [];
     uniqueItems.forEach((item) => {
       if (usedIds.has(item.id)) return;
-
       distractors.push({
         id: `${item.id}_distractor`,
         item: item.item || 'False lead',
@@ -397,32 +452,10 @@ export default class HypothesisScene extends Phaser.Scene {
         isCorrect: false
       });
     });
-
     if (distractors.length < 2) {
-      distractors.push(
-        {
-          id: 'distractor_guard_note',
-          item: 'Guard note',
-          text: 'Guard note',
-          skills: ['Observation'],
-          scene: this.sceneId,
-          cityId: this.cityId,
-          correctOrder: -1,
-          isCorrect: false
-        },
-        {
-          id: 'distractor_wrong_turn',
-          item: 'Bad route',
-          text: 'Bad route',
-          skills: ['Misdirection'],
-          scene: this.sceneId,
-          cityId: this.cityId,
-          correctOrder: -1,
-          isCorrect: false
-        }
-      );
+      const fallback = this.buildDistractorFallback();
+      while (distractors.length < 2 && fallback.length > 0) distractors.push(fallback.shift());
     }
-
     return distractors.slice(0, 2);
   }
 
@@ -464,13 +497,14 @@ export default class HypothesisScene extends Phaser.Scene {
 
   createCardTray() {
     this.availableCards.forEach((card, index) => {
+      // FIX: używamy setInteractive() bez niestandardowego hitArea
+      // Phaser będzie automatycznie śledzić rozmiar prostokąta
       const bg = this.add.rectangle(0, 0, 228, 132, 0xf1e2bf, 1)
         .setStrokeStyle(3, 0x7a5c2e, 0.85)
         .setDepth(3004)
-        .setInteractive(
-          new Phaser.Geom.Rectangle(-114, -66, 228, 132),
-          Phaser.Geom.Rectangle.Contains
-        );
+        .setInteractive({ useHandCursor: true });
+
+      this.input.setDraggable(bg);
 
       const title = this.add.text(0, -18, card.item, {
         fontFamily: 'Special Elite',
@@ -487,8 +521,6 @@ export default class HypothesisScene extends Phaser.Scene {
         backgroundColor: '#f7ecd3',
         padding: { left: 8, right: 8, top: 4, bottom: 4 }
       }).setOrigin(0.5).setDepth(3005);
-
-      this.input.setDraggable(bg);
 
       bg.cardIndex = index;
       bg.homeX = 0;
@@ -556,6 +588,7 @@ export default class HypothesisScene extends Phaser.Scene {
     this._listenersBound = true;
 
     this.input.on('dragstart', (pointer, gameObject) => {
+      if (gameObject.cardIndex === undefined) return;
       gameObject.setDepth(3100);
       if (gameObject.linkedTitle) gameObject.linkedTitle.setDepth(3101);
       if (gameObject.linkedTag) gameObject.linkedTag.setDepth(3101);
@@ -563,17 +596,28 @@ export default class HypothesisScene extends Phaser.Scene {
     });
 
     this.input.on('drag', (pointer, gameObject) => {
+      if (gameObject.cardIndex === undefined) return;
       this.setCardPositionByIndex(gameObject.cardIndex, pointer.x, pointer.y);
     });
 
     this.input.on('drop', (pointer, gameObject, dropZone) => {
+      if (gameObject.cardIndex === undefined) return;
       const slotIndex = dropZone.getData('slotIndex');
+      if (slotIndex === undefined || slotIndex === null) return;
       this.placeCardInSlotByIndex(gameObject.cardIndex, slotIndex);
     });
 
     this.input.on('dragend', (pointer, gameObject, dropped) => {
+      if (gameObject.cardIndex === undefined) return;
       if (!dropped) {
         this.returnCardHomeByIndex(gameObject.cardIndex);
+      }
+      // FIX: po drag przywracamy głębokość
+      const cardView = this.getCardView(gameObject.cardIndex);
+      if (cardView) {
+        cardView.bg.setDepth(3004);
+        cardView.title.setDepth(3005);
+        cardView.tag.setDepth(3005);
       }
     });
   }
@@ -590,7 +634,7 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   setCardPosition(cardView, x, y) {
-    if (!cardView) return;
+    if (!cardView || !this.layout) return;
     cardView.bg.setPosition(x, y);
     cardView.title.setPosition(
       cardView.title.originX === 0 ? x - this.layout.cardWidth / 2 + 16 : x,
@@ -636,54 +680,54 @@ export default class HypothesisScene extends Phaser.Scene {
     this.returnCardHomeByIndex(cardIndex);
   }
 
-placeCardInSlotByIndex(cardIndex, slotIndex) {
-  const draggedCard = this.getCardView(cardIndex);
-  if (!draggedCard) return;
+  placeCardInSlotByIndex(cardIndex, slotIndex) {
+    const draggedCard = this.getCardView(cardIndex);
+    if (!draggedCard) return;
 
-  const fromSlot = draggedCard.currentSlot;
-  const targetCardIndex = this.placedCards[slotIndex];
-  const targetCard = targetCardIndex !== null ? this.getCardView(targetCardIndex) : null;
+    const fromSlot = draggedCard.currentSlot;
+    const targetCardIndex = this.placedCards[slotIndex];
+    const targetCard = targetCardIndex !== null ? this.getCardView(targetCardIndex) : null;
 
-  if (fromSlot === slotIndex) {
+    if (fromSlot === slotIndex) {
+      const slot = this.slotViews[slotIndex];
+      if (slot) {
+        this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
+      }
+      return;
+    }
+
+    if (targetCard && fromSlot !== null) {
+      this.placedCards[fromSlot] = targetCardIndex;
+      targetCard.currentSlot = fromSlot;
+      targetCard.bg.currentSlot = fromSlot;
+
+      const oldSlot = this.slotViews[fromSlot];
+      if (oldSlot) {
+        this.setCardPosition(targetCard, oldSlot.box.x, oldSlot.box.y);
+      }
+    } else if (targetCard && fromSlot === null) {
+      targetCard.currentSlot = null;
+      targetCard.bg.currentSlot = null;
+      this.setCardPosition(targetCard, targetCard.homeX, targetCard.homeY);
+    }
+
+    if (fromSlot !== null && this.placedCards[fromSlot] === cardIndex) {
+      this.placedCards[fromSlot] = null;
+      this.slotFeedback[fromSlot] = 'neutral';
+    }
+
+    this.placedCards[slotIndex] = cardIndex;
+    draggedCard.currentSlot = slotIndex;
+    draggedCard.bg.currentSlot = slotIndex;
+
     const slot = this.slotViews[slotIndex];
     if (slot) {
       this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
     }
-    return;
+
+    this.slotFeedback[slotIndex] = 'neutral';
+    this.refreshUI();
   }
-
-  if (targetCard && fromSlot !== null) {
-    this.placedCards[fromSlot] = targetCardIndex;
-    targetCard.currentSlot = fromSlot;
-    targetCard.bg.currentSlot = fromSlot;
-
-    const oldSlot = this.slotViews[fromSlot];
-    if (oldSlot) {
-      this.setCardPosition(targetCard, oldSlot.box.x, oldSlot.box.y);
-    }
-  } else if (targetCard && fromSlot === null) {
-    targetCard.currentSlot = null;
-    targetCard.bg.currentSlot = null;
-    this.setCardPosition(targetCard, targetCard.homeX, targetCard.homeY);
-  }
-
-  if (fromSlot !== null && this.placedCards[fromSlot] === cardIndex) {
-    this.placedCards[fromSlot] = null;
-    this.slotFeedback[fromSlot] = 'neutral';
-  }
-
-  this.placedCards[slotIndex] = cardIndex;
-  draggedCard.currentSlot = slotIndex;
-  draggedCard.bg.currentSlot = slotIndex;
-
-  const slot = this.slotViews[slotIndex];
-  if (slot) {
-    this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
-  }
-
-  this.slotFeedback[slotIndex] = 'neutral';
-  this.refreshUI();
-}
 
   returnCardHomeByIndex(cardIndex, animate = true) {
     const cardView = this.getCardView(cardIndex);
@@ -697,7 +741,7 @@ placeCardInSlotByIndex(cardIndex, slotIndex) {
     cardView.currentSlot = null;
     cardView.bg.currentSlot = null;
 
-    if (animate) {
+    if (animate && this.layout) {
       this.tweens.add({
         targets: [cardView.bg, cardView.title, cardView.tag],
         x: {
