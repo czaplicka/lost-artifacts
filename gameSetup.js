@@ -12,6 +12,35 @@ const MAX_DESTINATIONS = 5;
 const MAX_ENCOUNTERS = 3;
 const ESCAPE_ROUTE_LENGTH = 4;
 
+const TRAVEL_ENCOUNTER_CHANCE = 0.18;
+
+const TRAVEL_ENCOUNTERS = [
+  {
+    id: 'storm',
+    label: 'Storm front over the route',
+    timePenalty: 2,
+    message: 'Heavy weather forces the pilot to slow the approach.'
+  },
+  {
+    id: 'security_delay',
+    label: 'Airport security delay',
+    timePenalty: 1,
+    message: 'A random security check slows everything down.'
+  },
+  {
+    id: 'baggage_hold',
+    label: 'Checked luggage hold-up',
+    timePenalty: 1,
+    message: 'Ground crew delays the departure while cargo is rechecked.'
+  },
+  {
+    id: 'reroute',
+    label: 'Flight path reroute',
+    timePenalty: 3,
+    message: 'Air traffic control redirects the plane around congestion.'
+  }
+];
+
 function shuffle(array) {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i -= 1) {
@@ -230,29 +259,96 @@ function clearTravelCluesForCity(cityId) {
   });
 }
 
-export function getTravelHours(fromCityName, toCityName, locationsData) {
+function getTravelDistance(fromCityName, toCityName, locationsData) {
   const from = getLocationByCity(fromCityName, locationsData);
   const to = getLocationByCity(toCityName, locationsData);
 
-  if (!from?.map || !to?.map) return DEFAULT_TRAVEL_HOURS;
+  if (!from?.map || !to?.map) {
+    return null;
+  }
 
   const dx = to.map.x - from.map.x;
   const dy = to.map.y - from.map.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getBaseTravelHoursFromDistance(distance) {
+  if (typeof distance !== 'number' || Number.isNaN(distance)) {
+    return DEFAULT_TRAVEL_HOURS;
+  }
 
   if (distance < 250) return 4;
   if (distance < 600) return 8;
   return 12;
 }
 
+function rollTravelEncounter() {
+  const shouldTrigger = Math.random() < TRAVEL_ENCOUNTER_CHANCE;
+  if (!shouldTrigger) return null;
+
+  const encounter = getRandomItem(TRAVEL_ENCOUNTERS);
+  if (!encounter) return null;
+
+  return structuredClone(encounter);
+}
+
+export function getTravelData(
+  fromCityName,
+  toCityName,
+  locationsData,
+  options = {}
+) {
+  const distance = getTravelDistance(fromCityName, toCityName, locationsData);
+  const baseTravelHours = getBaseTravelHoursFromDistance(distance);
+
+  const allowEncounter = options.allowEncounter === true;
+  const encounter =
+    options.travelEncounter !== undefined
+      ? options.travelEncounter
+      : allowEncounter
+      ? rollTravelEncounter()
+      : null;
+
+  const encounterPenalty = encounter?.timePenalty || 0;
+  const travelHours = baseTravelHours + encounterPenalty;
+
+  return {
+    fromCity: fromCityName,
+    toCity: toCityName,
+    distance,
+    baseTravelHours,
+    travelHours,
+    travelEncounter: encounter,
+    travelLabel: encounter
+      ? `${baseTravelHours}h + ${encounterPenalty}h`
+      : `${baseTravelHours}h`
+  };
+}
+
+export function getTravelHours(fromCityName, toCityName, locationsData) {
+  return getTravelData(fromCityName, toCityName, locationsData).travelHours;
+}
+
 export function getDestinationPreviewData(locationsData) {
   if (!Array.isArray(gameState.currentDestinations)) return [];
 
-  return gameState.currentDestinations.map(loc => ({
-    ...loc,
-    travelHours: getTravelHours(gameState.currentCity, loc.city, locationsData),
-    isCorrect: (loc.id || normalizeCityId(loc.city)) === gameState.nextTargetCityId
-  }));
+  return gameState.currentDestinations.map(loc => {
+    const travelData = getTravelData(
+      gameState.currentCity,
+      loc.city,
+      locationsData,
+      { allowEncounter: false }
+    );
+
+    return {
+      ...loc,
+      travelHours: travelData.travelHours,
+      baseTravelHours: travelData.baseTravelHours,
+      travelLabel: travelData.travelLabel,
+      isCorrect:
+        (loc.id || normalizeCityId(loc.city)) === gameState.nextTargetCityId
+    };
+  });
 }
 
 export function setupNewGame(suspectsData, missionsData, locationsData) {
@@ -266,6 +362,9 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.caseResolved = false;
   gameState.caseFailed = false;
   gameState.crimeSceneVisited = false;
+  gameState.storyPhoneCallTriggered = false;
+  gameState.pendingPhoneCall = false;
+  gameState.pendingPhoneCallCityId = null;
 
   const thief = getRandomItem(suspectsData);
   const mission = getRandomItem(missionsData);
@@ -332,6 +431,7 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.timeSpent = 0;
   gameState.travelHistory = [];
   gameState.lastTravel = null;
+  gameState.lastTravelEncounter = null;
 
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
@@ -485,7 +585,9 @@ export function completeCityInvestigation(locationsData) {
 export function travelToCity(cityName, locationsData) {
   const previousCity = gameState.currentCity;
   const previousCityId = gameState.currentCityId;
-  const travelHours = getTravelHours(previousCity, cityName, locationsData);
+  const travelData = getTravelData(previousCity, cityName, locationsData, {
+    allowEncounter: true
+  });
   const destinationCityData = getLocationByCity(cityName, locationsData);
   const destinationCityId =
     destinationCityData?.id || normalizeCityId(cityName);
@@ -506,21 +608,32 @@ export function travelToCity(cityName, locationsData) {
     clueScope: gameState.clueScope,
     wasCorrect,
     routeIndex: gameState.routeIndex,
-    escapeRoute: gameState.escapeRoute
+    escapeRoute: gameState.escapeRoute,
+    baseTravelHours: travelData.baseTravelHours,
+    travelHours: travelData.travelHours,
+    travelEncounter: travelData.travelEncounter
   });
 
-  gameState.timeSpent += travelHours;
+  gameState.timeSpent += travelData.travelHours;
 
   const travelRecord = {
     from: previousCity,
     fromCityId: previousCityId,
     to: cityName,
     toCityId: destinationCityId,
-    hours: travelHours,
-    wasCorrect
+    hours: travelData.travelHours,
+    baseHours: travelData.baseTravelHours,
+    wasCorrect,
+    encounter: travelData.travelEncounter,
+    travelLabel: travelData.travelLabel
   };
 
+  if (!Array.isArray(gameState.travelHistory)) {
+    gameState.travelHistory = [];
+  }
+
   gameState.lastTravel = travelRecord;
+  gameState.lastTravelEncounter = travelData.travelEncounter;
   gameState.travelHistory.push(travelRecord);
 
   enterCity(cityName, locationsData);
@@ -539,7 +652,9 @@ export function travelToCity(cityName, locationsData) {
 
     return {
       wasCorrect,
-      travelHours,
+      travelHours: travelData.travelHours,
+      baseTravelHours: travelData.baseTravelHours,
+      travelEncounter: travelData.travelEncounter,
       status: isCrimeSceneArrival
         ? 'CRIME_SCENE_REACHED'
         : 'CORRECT_CITY_REACHED',
@@ -561,7 +676,9 @@ export function travelToCity(cityName, locationsData) {
 
   return {
     wasCorrect,
-    travelHours,
+    travelHours: travelData.travelHours,
+    baseTravelHours: travelData.baseTravelHours,
+    travelEncounter: travelData.travelEncounter,
     status: 'FALSE_LEAD',
     fromCity: previousCity,
     toCity: cityName,

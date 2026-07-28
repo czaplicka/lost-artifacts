@@ -3,7 +3,7 @@ import { EventBus } from '../EventBus.js';
 import {
     travelToCity as performTravel,
     completeCityInvestigation,
-    getTravelHours
+    getTravelData
 } from '../gameSetup.js';
 
 export class DestinationsUI {
@@ -333,20 +333,23 @@ export class DestinationsUI {
             return {
                 fromCity: currentCityData?.city || this.gameState?.currentCity || '',
                 toCity: cityObj?.city || '',
-                travelHours: null
+                travelHours: null,
+                baseTravelHours: null
             };
         }
 
-        const travelHours = getTravelHours(
+        const travelData = getTravelData(
             currentCityData.city,
             cityObj.city,
-            locationsData
+            locationsData,
+            { allowEncounter: false }
         );
 
         return {
             fromCity: currentCityData.city,
             toCity: cityObj.city,
-            travelHours
+            travelHours: travelData.travelHours,
+            baseTravelHours: travelData.baseTravelHours
         };
     }
 
@@ -363,7 +366,9 @@ export class DestinationsUI {
         this.infoCity.setText(cityObj.city || 'Unknown city');
         this.infoCountry.setText(cityObj.country || '');
 
-        if (typeof preview.travelHours === 'number') {
+        if (typeof preview.baseTravelHours === 'number') {
+            this.infoHours.setText(`Base travel time: +${preview.baseTravelHours}h`);
+        } else if (typeof preview.travelHours === 'number') {
             this.infoHours.setText(`Travel time: +${preview.travelHours}h`);
         } else {
             this.infoHours.setText('Travel time unknown.');
@@ -498,6 +503,8 @@ export class DestinationsUI {
                 toCityId: selectedCityData.id,
                 cityId: selectedCityData.id,
                 travelHours: result.travelHours || 0,
+                baseTravelHours: result.baseTravelHours || result.travelHours || 0,
+                travelEncounter: result.travelEncounter || null,
                 wasCorrect: result.wasCorrect,
                 status: result.status,
                 isCrimeSceneArrival: result.isCrimeSceneArrival || false,

@@ -25,7 +25,7 @@ export class NotesUI {
     const bg = this.scene.add.image(width / 2, height / 2, 'notes').setInteractive();
     this.container.add(bg);
 
-    const closeBtn = this.scene.add.text(width * 0.82, height * 0.09, 'X', {
+    const closeBtn = this.scene.add.text(width * 0.87, height * 0.03, 'X', {
       fontFamily: 'Special Elite',
       fontSize: '48px',
       color: '#000000'
@@ -35,11 +35,11 @@ export class NotesUI {
 
     this.container.add(closeBtn);
 
-    this.gameNotesText = this.scene.add.text(width * 0.21, height * 0.16, '', {
+    this.gameNotesText = this.scene.add.text(width * 0.17, height * 0.06, '', {
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#000000',
-      wordWrap: { width: 400 },
+      wordWrap: { width: 500 },
       lineSpacing: 8,
       padding: { top: 6, bottom: 2 }
     });
@@ -108,7 +108,7 @@ export class NotesUI {
     this.playerInputDOM.node.addEventListener('focus', this.onTextAreaFocus);
     this.playerInputDOM.node.addEventListener('blur', this.onTextAreaBlur);
 
-    const clearBtn = this.scene.add.text(width * 0.68, height * 0.72, '[ CLEAR NOTES ]', {
+    const clearBtn = this.scene.add.text(width * 0.68, height * 0.82, '[ CLEAR NOTES ]', {
       fontFamily: 'Special Elite',
       fontSize: '20px',
       color: '#8b0000'
@@ -132,7 +132,6 @@ export class NotesUI {
   bindKeyboardShortcut() {
     if (!this.scene.input?.keyboard) return;
 
-    // Nie używamy addCapture('N'), żeby nie mieszać globalnie w klawiaturze gry.
     this.scene.input.keyboard.on('keydown-N', this.boundToggleHandler);
   }
 
