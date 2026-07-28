@@ -145,24 +145,43 @@ function syncInvestigationState(locationsData) {
 }
 
 function ensureMustIncludeDestination(destinations, locationsData) {
-  const result = Array.isArray(destinations) ? [...destinations] : [];
+  const currentCityId = gameState.currentCityId || null;
   const mustIncludeCityId = gameState.mustIncludeCityId;
 
-  if (!mustIncludeCityId) return result;
+  let result = Array.isArray(destinations) ? [...destinations] : [];
 
-  if (gameState.currentCityId === mustIncludeCityId) {
+  // Zawsze wywal aktualne miasto z listy
+  result = result.filter(loc => {
+    const locId = loc?.id || normalizeCityId(loc?.city);
+    return locId && locId !== currentCityId;
+  });
+
+  if (!mustIncludeCityId) {
+    return result.slice(0, MAX_DESTINATIONS);
+  }
+
+  // Jeśli "must include" to miasto, w którym już jesteśmy, czyścimy je
+  if (currentCityId === mustIncludeCityId) {
     gameState.mustIncludeCityId = null;
-    return result;
+    return result.slice(0, MAX_DESTINATIONS);
   }
 
   const alreadyIncluded = result.some(
     loc => (loc?.id || normalizeCityId(loc?.city)) === mustIncludeCityId
   );
 
-  if (alreadyIncluded) return result;
+  if (!alreadyIncluded) {
+    const requiredCity = getLocationById(mustIncludeCityId, locationsData);
 
-  const requiredCity = getLocationById(mustIncludeCityId, locationsData);
-  if (requiredCity) result.unshift(requiredCity);
+    if (requiredCity) {
+      const requiredCityId =
+        requiredCity.id || normalizeCityId(requiredCity.city);
+
+      if (requiredCityId !== currentCityId) {
+        result.unshift(requiredCity);
+      }
+    }
+  }
 
   return result.slice(0, MAX_DESTINATIONS);
 }
@@ -585,6 +604,20 @@ export function completeCityInvestigation(locationsData) {
 export function travelToCity(cityName, locationsData) {
   const previousCity = gameState.currentCity;
   const previousCityId = gameState.currentCityId;
+  if (cityName === previousCity) {
+  return {
+    wasCorrect: false,
+    travelHours: 0,
+    baseTravelHours: 0,
+    travelEncounter: null,
+    status: 'ALREADY_HERE',
+    fromCity: previousCity,
+    toCity: cityName,
+    toCityId: previousCityId,
+    cityId: previousCityId,
+    isCrimeSceneArrival: previousCityId === gameState.crimeCityId
+  };
+}
   const travelData = getTravelData(previousCity, cityName, locationsData, {
     allowEncounter: true
   });

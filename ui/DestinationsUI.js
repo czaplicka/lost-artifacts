@@ -205,36 +205,38 @@ export class DestinationsUI {
     }
 
     getDestinationsWithMustInclude() {
-        const locationsData = this.scene.cache.json.get('locations') || [];
-        const baseDestinations = Array.isArray(this.gameState?.currentDestinations)
-            ? [...this.gameState.currentDestinations]
-            : [];
+    const locationsData = this.scene.cache.json.get('locations') || [];
+    const currentCityId = this.gameState?.currentCityId || gameState.currentCityId;
 
-        const mustIncludeCityId = this.gameState?.mustIncludeCityId;
+    const baseDestinations = Array.isArray(this.gameState?.currentDestinations)
+        ? [...this.gameState.currentDestinations].filter(city => city?.id !== currentCityId)
+        : [];
 
-        if (!mustIncludeCityId) {
-            return baseDestinations;
-        }
+    const mustIncludeCityId = this.gameState?.mustIncludeCityId;
 
-        if (this.gameState.currentCityId === mustIncludeCityId) {
-            this.gameState.mustIncludeCityId = null;
-            return baseDestinations;
-        }
-
-        const alreadyIncluded = baseDestinations.some(city => city?.id === mustIncludeCityId);
-
-        if (alreadyIncluded) {
-            return baseDestinations;
-        }
-
-        const requiredCity = locationsData.find(loc => loc.id === mustIncludeCityId);
-
-        if (requiredCity) {
-            baseDestinations.unshift(requiredCity);
-        }
-
+    if (!mustIncludeCityId) {
         return baseDestinations;
     }
+
+    if (this.gameState.currentCityId === mustIncludeCityId) {
+        this.gameState.mustIncludeCityId = null;
+        return baseDestinations;
+    }
+
+    const alreadyIncluded = baseDestinations.some(city => city?.id === mustIncludeCityId);
+
+    if (alreadyIncluded) {
+        return baseDestinations;
+    }
+
+    const requiredCity = locationsData.find(loc => loc.id === mustIncludeCityId);
+
+    if (requiredCity) {
+        baseDestinations.unshift(requiredCity);
+    }
+
+    return baseDestinations;
+}
 
     clearPins() {
         if (!this.activePins.length) return;
