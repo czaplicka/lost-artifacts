@@ -77,6 +77,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('parking_bg', 'assets/local/parking.jpg');
         this.load.image('policehq', 'assets/local/police_hq.jpg');
         this.load.image('restaurant', 'assets/local/restaurant.jpg');
+        this.load.image('garbage', 'assets/local/garbage.jpg');
 
         this.load.image('berlin', 'assets/cities/Berlin.jpg');
         this.load.image('london', 'assets/cities/London.jpg');
@@ -101,13 +102,23 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('atlas_france', 'assets/atlas/france.png');
         this.load.image('atlas_bg', 'assets/atlas/atlas.png');
 
-        this.load.image('bankier', 'assets/npc/bankier.png');
-        this.load.image('fence', 'assets/npc/fence.png');
-        this.load.image('knajpa', 'assets/npc/knajpa.png');
-        this.load.image('maid', 'assets/npc/maid.png');
-        this.load.image('parking_npc', 'assets/npc/parkingowy.png');
-        this.load.image('police', 'assets/npc/police.png');
-        this.load.image('stewardessa', 'assets/npc/stewardessa.png');
+        this.load.image('bankier', 'assets/npc/bankier_w.png');
+        this.load.image('fence', 'assets/npc/fence_w.png');
+        this.load.image('knajpa', 'assets/npc/knajpa_w.png');
+        this.load.image('maid', 'assets/npc/maid_w.png');
+        this.load.image('parkingnpc', 'assets/npc/parkingowy_w.png');
+        this.load.image('police', 'assets/npc/police_w.png');
+        this.load.image('stewardessa', 'assets/npc/stewardesa_w.png');
+        this.load.image('bum', 'assets/npc/bum_w.png');
+
+        this.load.image('bankierhindu', 'assets/npc/bankier_h.png');
+        this.load.image('fencehindu', 'assets/npc/fence_h.png');
+        this.load.image('knajpahindu', 'assets/npc/knajpa_h.png');
+        this.load.image('maidhindu', 'assets/npc/maid_h.png');
+        this.load.image('parkingnpchindu', 'assets/npc/parkingowy_h.png');
+        this.load.image('policehindu', 'assets/npc/police_h.png');
+        this.load.image('stewardessahindu', 'assets/npc/stewardesa_h.png');
+        this.load.image('bumhindu', 'assets/npc/bum_h.png');
 
         this.load.image('btnStart', 'assets/start.png');
         this.load.image('back', 'assets/back.png');
@@ -245,6 +256,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('atlas', 'assets/data/atlas.json');
         this.load.json('dialogue', 'assets/data/dialogue.json');
         this.load.json('dialogue_banker', 'assets/data/dialogue/banker.json');
+        this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
         this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
         this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
         this.load.json('dialogue_police', 'assets/data/dialogue/police.json');

@@ -1,6 +1,7 @@
 import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
+import { generateCaseCityState } from '../city-encounter-generator.js';
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
@@ -8,8 +9,9 @@ const LOCATION_HOURS = {
   hotel: ['Morning', 'Afternoon', 'Evening', 'Night'],
   airport: ['Morning', 'Afternoon', 'Evening', 'Night'],
   alley: ['Morning', 'Afternoon', 'Evening', 'Night'],
-  parking: ['Morning', 'Afternoon', 'Evening'],
-  restaurant: ['Afternoon', 'Evening']
+  parking: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  restaurant: ['Afternoon', 'Evening'],
+  garbage: ['Morning', 'Afternoon', 'Evening', 'Night']
 };
 
 export class CityScene extends Phaser.Scene {
@@ -27,67 +29,30 @@ export class CityScene extends Phaser.Scene {
   }
 
   init(data = {}) {
-    this.cityId =
-      data.cityId ||
-      gameState.currentCityId ||
-      this.registry.get('currentCityId') ||
-      'warsaw';
-
+    this.cityId = data.cityId || gameState.currentCityId || this.registry.get('currentCityId') || 'warsaw';
     this.cityCompleted = Boolean(data.cityCompleted);
-    this.investigationStatus = data.investigationStatus || null;
-    this.isFinalShowdown = Boolean(
-      data.isFinalShowdown || this.investigationStatus === 'FINAL_SHOWDOWN'
-    );
-
-    this.pendingPhoneCall = Boolean(
-      data.pendingPhoneCall || gameState.pendingPhoneCall
-    );
-    this.pendingPhoneCallCityId =
-      data.pendingPhoneCallCityId ||
-      gameState.pendingPhoneCallCityId ||
-      null;
-
+    this.investigationStatus = data.investigationStatus ?? null;
+    this.isFinalShowdown = Boolean(data.isFinalShowdown || this.investigationStatus === 'FINAL_SHOWDOWN');
+    this.pendingPhoneCall = Boolean(data.pendingPhoneCall ?? gameState.pendingPhoneCall);
+    this.pendingPhoneCallCityId = data.pendingPhoneCallCityId ?? gameState.pendingPhoneCallCityId ?? null;
     this.openDestinationsOnCreate = Boolean(
       data.openDestinations ||
-        (
-          this.cityCompleted &&
-          this.investigationStatus &&
-          this.investigationStatus !== 'CITY_STILL_ACTIVE' &&
-          this.investigationStatus !== 'FINAL_SHOWDOWN'
-        )
+      (this.cityCompleted &&
+        this.investigationStatus &&
+        this.investigationStatus !== 'CITY_STILL_ACTIVE' &&
+        this.investigationStatus !== 'FINAL_SHOWDOWN')
     );
-
     this.interactiveObjects = [];
 
-    if (!Array.isArray(gameState.visitedEncounters)) {
-      gameState.visitedEncounters = [];
-    }
-
-    if (!Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected = [];
-    }
-
-    if (
-      !gameState.encounterMemory ||
-      typeof gameState.encounterMemory !== 'object' ||
-      Array.isArray(gameState.encounterMemory)
-    ) {
+    if (!Array.isArray(gameState.visitedEncounters)) gameState.visitedEncounters = [];
+    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
+    if (!gameState.encounterMemory || typeof gameState.encounterMemory !== 'object' || Array.isArray(gameState.encounterMemory)) {
       gameState.encounterMemory = {};
     }
-
-    if (
-      !gameState.specialScenesVisited ||
-      typeof gameState.specialScenesVisited !== 'object' ||
-      Array.isArray(gameState.specialScenesVisited)
-    ) {
+    if (!gameState.specialScenesVisited || typeof gameState.specialScenesVisited !== 'object' || Array.isArray(gameState.specialScenesVisited)) {
       gameState.specialScenesVisited = {};
     }
-
-    if (
-      !gameState.cityEncounterState ||
-      typeof gameState.cityEncounterState !== 'object' ||
-      Array.isArray(gameState.cityEncounterState)
-    ) {
+    if (!gameState.cityEncounterState || typeof gameState.cityEncounterState !== 'object' || Array.isArray(gameState.cityEncounterState)) {
       gameState.cityEncounterState = {};
     }
   }
@@ -102,35 +67,21 @@ export class CityScene extends Phaser.Scene {
     }
 
     const bgMusic = this.registry.get('bgMusic');
-    if (bgMusic) {
-      bgMusic.stop();
-    }
+    if (bgMusic) bgMusic.stop();
 
     let gameMusic = this.registry.get('gameMusic');
     if (!gameMusic) {
-      gameMusic = this.sound.add('themeGame', {
-        loop: true,
-        volume: 0.5
-      });
+      gameMusic = this.sound.add('themeGame', { loop: true, volume: 0.5 });
       this.registry.set('gameMusic', gameMusic);
     }
-
-    if (!gameMusic.isPlaying) {
-      gameMusic.play();
-    }
+    if (!gameMusic.isPlaying) gameMusic.play();
 
     let citySound = this.registry.get('citySound');
     if (!citySound) {
-      citySound = this.sound.add('citysound', {
-        loop: true,
-        volume: 0.2
-      });
+      citySound = this.sound.add('citysound', { loop: true, volume: 0.2 });
       this.registry.set('citySound', citySound);
     }
-
-    if (!citySound.isPlaying) {
-      citySound.play();
-    }
+    if (!citySound.isPlaying) citySound.play();
 
     this.scene.wake('UIScene');
 
@@ -138,7 +89,7 @@ export class CityScene extends Phaser.Scene {
     const city = locations.find(c => c.id === this.cityId);
 
     if (!city) {
-      console.error('CityScene: city not found', this.cityId);
+      console.error('CityScene city not found:', this.cityId);
       this.scene.start('MenuScene');
       return;
     }
@@ -151,6 +102,8 @@ export class CityScene extends Phaser.Scene {
     this.registry.set('currentCityId', this.cityId);
     this.registry.set('investigationStatus', this.investigationStatus);
 
+    this.ensureCityEncounterState(locations);
+
     this.createBackground(city);
     this.createHeader(city);
 
@@ -162,77 +115,75 @@ export class CityScene extends Phaser.Scene {
     ensureHud(this);
 
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
-
-    if (hud?.refreshNotebook) {
-      hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
-    }
+    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
+    if (hud?.refreshNotebook) hud.refreshNotebook();
+    else if (hud?.refreshUI) hud.refreshUI();
 
     if (this.isFinalShowdown) {
-      this.time.delayedCall(250, () => {
-        this.closeAllUIPanels();
-
-        if (!this.scene.isActive('ArrestSelectionScene')) {
-          this.scene.launch('ArrestSelectionScene');
-        } else {
-          this.scene.bringToTop('ArrestSelectionScene');
-        }
-      });
-
+      this.time.delayedCall(250, () => this.closeAllUIPanels());
+      if (!this.scene.isActive('ArrestSelectionScene')) this.scene.launch('ArrestSelectionScene');
+      else this.scene.bringToTop('ArrestSelectionScene');
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
       return;
     }
 
     if (this.shouldShowPhoneCallNow()) {
-      this.time.delayedCall(400, () => {
-        this.closeAllUIPanels();
-
-        if (!this.scene.isActive('PhoneCallScene')) {
-          this.scene.launch('PhoneCallScene', {
-            sourceScene: 'CityScene',
-            cityId: this.cityId
-          });
-        } else {
-          this.scene.bringToTop('PhoneCallScene');
-        }
-      });
+      this.time.delayedCall(400, () => this.closeAllUIPanels());
+      if (!this.scene.isActive('PhoneCallScene')) {
+        this.scene.launch('PhoneCallScene', {
+          sourceScene: 'CityScene',
+          cityId: this.cityId
+        });
+      } else {
+        this.scene.bringToTop('PhoneCallScene');
+      }
     } else if (this.openDestinationsOnCreate) {
-      this.time.delayedCall(150, () => {
-        this.openDestinationsPanel();
-      });
+      this.time.delayedCall(150, () => this.openDestinationsPanel());
     }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
   }
 
-  shouldShowPhoneCallNow() {
-    return (
-      this.pendingPhoneCall === true &&
-      (!this.pendingPhoneCallCityId || this.pendingPhoneCallCityId === this.cityId)
+  ensureCityEncounterState(locations) {
+    const hasCityEncounters =
+      gameState.cityEncounterState &&
+      Array.isArray(gameState.cityEncounterState[this.cityId]) &&
+      gameState.cityEncounterState[this.cityId].length > 0;
+
+    const hasActiveLocations =
+      Array.isArray(gameState.activeLocations) &&
+      gameState.activeLocations.length > 0;
+
+    if (hasCityEncounters || hasActiveLocations) return;
+
+    const caseId =
+      gameState.currentMission?.id ||
+      gameState.currentMission?.caseId ||
+      gameState.currentArtifact ||
+      `${this.cityId}-default`;
+
+    gameState.cityEncounterState = generateCaseCityState(
+      locations,
+      String(caseId),
+      {}
     );
+
+    if (!Array.isArray(gameState.cityEncounterState[this.cityId])) {
+      gameState.cityEncounterState[this.cityId] = [];
+    }
+
+    console.log('Generated cityEncounterState for', this.cityId, gameState.cityEncounterState[this.cityId]);
+  }
+
+  shouldShowPhoneCallNow() {
+    return this.pendingPhoneCall === true && (!this.pendingPhoneCallCityId || this.pendingPhoneCallCityId === this.cityId);
   }
 
   openDestinationsPanel() {
     const hud = this.scene.get('PlayerHudScene');
-
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
-
-    if (hud?.openDestinationsPanel) {
-      hud.openDestinationsPanel();
-      return;
-    }
-
-    if (hud?.toggleDestinationsPanel) {
-      hud.toggleDestinationsPanel(true);
-      return;
-    }
-
+    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
+    if (hud?.openDestinationsPanel) return hud.openDestinationsPanel();
+    if (hud?.toggleDestinationsPanel) return hud.toggleDestinationsPanel(true);
     EventBus.emit('openDestinations');
   }
 
@@ -244,15 +195,13 @@ export class CityScene extends Phaser.Scene {
         .image(this.scale.width / 2, this.scale.height / 2, backgroundKey)
         .setDisplaySize(this.scale.width, this.scale.height);
     } else {
-      console.warn(`Missing city background: ${backgroundKey}`);
+      console.warn('Missing city background', backgroundKey);
       this.cameras.main.setBackgroundColor('#20242b');
     }
   }
 
   createHeader(city) {
-    this.add
-      .rectangle(0, 0, this.scale.width, 80, 0x000000, 0.45)
-      .setOrigin(0, 0);
+    this.add.rectangle(0, 0, this.scale.width, 80, 0x000000, 0.45).setOrigin(0, 0);
 
     this.add.text(40, 24, `${city.city}, ${city.country}`, {
       fontFamily: 'Special Elite',
@@ -261,7 +210,6 @@ export class CityScene extends Phaser.Scene {
     });
 
     let subtitle = 'Talk to witnesses and follow the trail.';
-
     if (this.isFinalShowdown) {
       subtitle = 'The suspect is cornered. Review the evidence and make the arrest.';
     } else if (this.cityCompleted) {
@@ -286,11 +234,9 @@ export class CityScene extends Phaser.Scene {
       const iconKey = this.textures.exists(npcTextureKey) ? npcTextureKey : 'fence';
       const x = encounter.cityX;
       const y = encounter.cityY;
-
       const isVisited = this.isEncounterVisited(encounter.id);
       const encounterMemory = this.getEncounterMemory(encounter.id);
       const hasMemory = Boolean(encounterMemory);
-
       const dialogueTargetCityId = this.getDialogueTargetCityId(progressFlags);
 
       const icon = this.add.image(x, y, iconKey)
@@ -323,13 +269,8 @@ export class CityScene extends Phaser.Scene {
 
       icon.on('pointerover', () => {
         icon.setScale(0.5);
-
-        if (isVisited) {
-          icon.setAlpha(0.78);
-          nameLabel.setColor('#f1e6b8');
-        } else {
-          nameLabel.setColor('#ffe066');
-        }
+        if (isVisited) icon.setAlpha(0.78);
+        nameLabel.setColor(isVisited ? '#f1e6b8' : '#ffe066');
       });
 
       icon.on('pointerout', () => {
@@ -374,17 +315,17 @@ export class CityScene extends Phaser.Scene {
 
     if (cityId === 'paris' && missionCity === 'paris') {
       return {
-        key: 'paris_louvre',
+        key: 'parislouvre',
         sceneId: 'louvre',
         cityId: 'paris',
         mapKey: 'louvre',
         mapPath: 'assets/crimes/louvre.json',
-        backgroundKey: 'louvre_bg',
+        backgroundKey: 'louvrebg',
         backgroundPath: 'assets/crimes/louvre.jpg',
         objectLayerName: 'HiddenObjects',
         objectsDataKey: 'objects-data',
         objectsDataPath: 'assets/data/objects.json',
-        title: 'Crime Scene: Louvre',
+        title: 'Crime Scene Louvre',
         activeCount: 6,
         timeLimit: 120,
         iconX: city.crimeSceneX ?? 1220,
@@ -394,24 +335,41 @@ export class CityScene extends Phaser.Scene {
 
     if (
       cityId === 'london' &&
-      (
-        missionCity === 'london' ||
-        artifact.includes('crown') ||
-        artifact.includes('jewel')
-      )
+      missionCity === 'london' &&
+      (artifact.includes('crown') || artifact.includes('jewel'))
     ) {
       return {
-        key: 'london_tower',
+        key: 'londontower',
         sceneId: 'tower',
         cityId: 'london',
         mapKey: 'tower',
         mapPath: 'assets/crimes/tower.json',
-        backgroundKey: 'tower_bg',
+        backgroundKey: 'towerbg',
         backgroundPath: 'assets/crimes/tower.jpg',
         objectLayerName: 'HiddenObjects',
         objectsDataKey: 'objects-data',
         objectsDataPath: 'assets/data/objects.json',
-        title: 'Crime Scene: Tower of London',
+        title: 'Crime Scene Tower of London',
+        activeCount: 6,
+        timeLimit: 120,
+        iconX: city.crimeSceneX ?? 1220,
+        iconY: city.crimeSceneY ?? 500
+      };
+    }
+
+    if (cityId === 'newdelhi' && missionCity === 'newdelhi') {
+      return {
+        key: 'newdelhigarbage',
+        sceneId: 'garbage',
+        cityId: 'newdelhi',
+        mapKey: 'garbage',
+        mapPath: 'assets/crimes/garbage.json',
+        backgroundKey: 'garbage',
+        backgroundPath: 'assets/local/garbage.jpg',
+        objectLayerName: 'HiddenObjects',
+        objectsDataKey: 'objects-data',
+        objectsDataPath: 'assets/data/objects.json',
+        title: 'Crime Scene – New Delhi',
         activeCount: 6,
         timeLimit: 120,
         iconX: city.crimeSceneX ?? 1220,
@@ -426,24 +384,14 @@ export class CityScene extends Phaser.Scene {
     const missionId = gameState.currentMission?.id;
     const missionCity = gameState.currentMission?.city || this.cityId || 'unknown';
     const artifact = gameState.currentMission?.artifact || gameState.currentArtifact || 'artifact';
-
-    if (!config) {
-      return null;
-    }
-
-    if (missionId) {
-      return `${config.sceneId}_${missionId}`;
-    }
-
+    if (!config) return null;
+    if (missionId) return `${config.sceneId}_${missionId}`;
     return `${config.sceneId}_${missionCity}_${artifact}`;
   }
 
   createCrimeScene(city) {
     const config = this.getCrimeSceneConfig(city);
-
-    if (!config || !this.shouldShowCrimeScene(city, config)) {
-      return;
-    }
+    if (!config || !this.shouldShowCrimeScene(city, config)) return;
 
     const x = config.iconX;
     const y = config.iconY;
@@ -468,16 +416,12 @@ export class CityScene extends Phaser.Scene {
       .setDepth(6);
 
     icon.on('pointerover', () => {
-      if (hasSearchTexture) {
-        icon.setScale(0.25);
-      }
+      if (hasSearchTexture) icon.setScale(0.25);
       label.setColor('#ffe066');
     });
 
     icon.on('pointerout', () => {
-      if (hasSearchTexture) {
-        icon.setScale(0.22);
-      }
+      if (hasSearchTexture) icon.setScale(0.22);
       label.setColor('#ffffff');
     });
 
@@ -510,19 +454,13 @@ export class CityScene extends Phaser.Scene {
 
   shouldShowCrimeScene(city, config = null) {
     const crimeSceneConfig = config || this.getCrimeSceneConfig(city);
-
-    if (!crimeSceneConfig) {
-      return false;
-    }
+    if (!crimeSceneConfig) return false;
 
     const currentCityId = city?.id || this.cityId;
-    if (currentCityId !== crimeSceneConfig.cityId) {
-      return false;
-    }
+    if (currentCityId !== crimeSceneConfig.cityId) return false;
 
     const visitKey = this.getCrimeSceneVisitKey(crimeSceneConfig);
     const alreadyVisited = Boolean(visitKey && gameState.specialScenesVisited?.[visitKey]);
-
     return !alreadyVisited;
   }
 
@@ -533,12 +471,9 @@ export class CityScene extends Phaser.Scene {
       return gameState.nextTargetCityId || null;
     }
 
-    if (flags.isCrimeCity) {
-      return gameState.escapeRoute[0] || null;
-    }
+    if (flags.isCrimeCity) return gameState.escapeRoute[0] || null;
 
     const currentIndex = gameState.escapeRoute.indexOf(this.cityId);
-
     if (currentIndex !== -1) {
       return gameState.escapeRoute[currentIndex + 1] || null;
     }
@@ -549,24 +484,11 @@ export class CityScene extends Phaser.Scene {
   getCityProgressFlags() {
     const cityId = this.cityId;
     const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
-
-    const isCrimeCity = Boolean(
-      gameState.crimeCityId && cityId === gameState.crimeCityId
-    );
-
-    const isNextTargetCity = Boolean(
-      gameState.nextTargetCityId && cityId === gameState.nextTargetCityId
-    );
-
-    const isJustReachedCorrectCity = Boolean(
-      gameState.justReachedCorrectCityId &&
-      cityId === gameState.justReachedCorrectCityId
-    );
-
+    const isCrimeCity = Boolean(gameState.crimeCityId && cityId === gameState.crimeCityId);
+    const isNextTargetCity = Boolean(gameState.nextTargetCityId && cityId === gameState.nextTargetCityId);
+    const isJustReachedCorrectCity = Boolean(gameState.justReachedCorrectCityId && cityId === gameState.justReachedCorrectCityId);
     const isOnEscapeRoute = route.includes(cityId);
-    const isCurrentVisitedRouteCity = Boolean(
-      gameState.currentCityId === cityId && isOnEscapeRoute
-    );
+    const isCurrentVisitedRouteCity = Boolean(gameState.currentCityId === cityId && isOnEscapeRoute);
 
     return {
       isCrimeCity,
@@ -574,10 +496,7 @@ export class CityScene extends Phaser.Scene {
       isJustReachedCorrectCity,
       isOnEscapeRoute,
       isCurrentVisitedRouteCity,
-      isCorrectCity:
-        isCrimeCity ||
-        isCurrentVisitedRouteCity ||
-        isJustReachedCorrectCity
+      isCorrectCity: isCrimeCity || isCurrentVisitedRouteCity || isJustReachedCorrectCity
     };
   }
 
@@ -594,13 +513,13 @@ export class CityScene extends Phaser.Scene {
       .setStrokeStyle(4, 0xff0000)
       .setDepth(100);
 
-    const allowed = LOCATION_HOURS[locationId].join(', ');
+    const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
     const current = gameState.currentPartOfDay || 'Morning';
 
     const warningText = this.add.text(
       width / 2,
       height / 2 - 50,
-      `Location is currently closed.\n(Open: ${allowed})\nCurrently it's: ${current}`,
+      `Location is currently closed.\nOpen: ${allowed}\nCurrent: ${current}`,
       {
         fontFamily: 'Special Elite',
         fontSize: '20px',
@@ -609,13 +528,13 @@ export class CityScene extends Phaser.Scene {
       }
     ).setOrigin(0.5).setDepth(101);
 
-    const waitBtn = this.add.text(width / 2, height / 2 + 30, '[ Go to sleep till Morning ]', {
+    const waitBtn = this.add.text(width / 2, height / 2 + 30, 'Wait untill opening', {
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#ffcc00'
     }).setOrigin(0.5).setDepth(101).setInteractive({ useHandCursor: true });
 
-    const cancelBtn = this.add.text(width / 2, height / 2 + 80, '[ Return ]', {
+    const cancelBtn = this.add.text(width / 2, height / 2 + 80, 'Return', {
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#aaaaaa'
@@ -638,7 +557,6 @@ export class CityScene extends Phaser.Scene {
       else hoursToWait = 8;
 
       EventBus.emit('advanceTime', hoursToWait, 0);
-
       gameState.currentHour = (currentHour + hoursToWait) % 24;
       gameState.currentPartOfDay = 'Morning';
 
@@ -651,9 +569,7 @@ export class CityScene extends Phaser.Scene {
         encounterId: encounterData.id,
         npcId: encounterData.npcId,
         locationId: encounterData.locationId,
-        isRepeat:
-          this.isEncounterVisited(encounterData.id) ||
-          Boolean(this.getEncounterMemory(encounterData.id)),
+        isRepeat: this.isEncounterVisited(encounterData.id) || Boolean(this.getEncounterMemory(encounterData.id)),
         isCrimeCity: flags.isCrimeCity,
         isNextTargetCity: flags.isNextTargetCity,
         isCorrectCity: flags.isCorrectCity,
@@ -666,48 +582,31 @@ export class CityScene extends Phaser.Scene {
 
   closeAllUIPanels() {
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
+    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
   }
 
   onSceneShutdown() {
     this.interactiveObjects.forEach(obj => {
-      if (obj?.removeAllListeners) {
-        obj.removeAllListeners();
-      }
+      if (obj?.removeAllListeners) obj.removeAllListeners();
     });
 
     this.interactiveObjects = [];
 
     const citySound = this.registry.get('citySound');
-    if (citySound?.isPlaying) {
-      citySound.stop();
-    }
+    if (citySound?.isPlaying) citySound.stop();
 
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
-    }
-
-    if (this.scene.isActive('PhoneCallScene')) {
-      this.scene.stop('PhoneCallScene');
-    }
-
-    if (this.scene.isActive('HypothesisScene')) {
-      this.scene.stop('HypothesisScene');
-    }
+    if (this.scene.isActive('ArrestSelectionScene')) this.scene.stop('ArrestSelectionScene');
+    if (this.scene.isActive('PhoneCallScene')) this.scene.stop('PhoneCallScene');
+    if (this.scene.isActive('HypothesisScene')) this.scene.stop('HypothesisScene');
   }
 
   isEncounterVisited(encounterId) {
-    return Array.isArray(gameState.visitedEncounters) &&
-      gameState.visitedEncounters.includes(encounterId);
+    return Array.isArray(gameState.visitedEncounters) && gameState.visitedEncounters.includes(encounterId);
   }
 
   getEncounterMemory(encounterId) {
     if (!encounterId) return null;
-    if (!gameState.encounterMemory || typeof gameState.encounterMemory !== 'object') {
-      return null;
-    }
+    if (!gameState.encounterMemory || typeof gameState.encounterMemory !== 'object') return null;
     return gameState.encounterMemory[encounterId] || null;
   }
 
@@ -721,9 +620,7 @@ export class CityScene extends Phaser.Scene {
       typeof gameState.cityEncounterState === 'object' &&
       Array.isArray(gameState.cityEncounterState[this.cityId])
     ) {
-      return gameState.cityEncounterState[this.cityId].filter(
-        encounter => encounter.enabled !== false
-      );
+      return gameState.cityEncounterState[this.cityId].filter(encounter => encounter.enabled !== false);
     }
 
     return [];
@@ -733,9 +630,9 @@ export class CityScene extends Phaser.Scene {
     const map = {
       london: 'london',
       paris: 'paris',
-      new_delhi: 'new_delhi',
+      newdelhi: 'newdelhi',
       warsaw: 'warsaw',
-      new_york_city: 'new_york_city',
+      newyorkcity: 'newyorkcity',
       berlin: 'berlin',
       hq: 'start'
     };
@@ -743,31 +640,42 @@ export class CityScene extends Phaser.Scene {
     return map[city.id] || city.id;
   }
 
+  // ─── SKIN-AWARE NPC TEXTURE LOOKUP ───────────────────────────────────────────
+  // Cities with South Asian / Hindu NPC variants (suffix _h):
+  //   newdelhi
+  // All other cities use default white variant (suffix _w, loaded as base key).
+  // To extend: add more cityId entries to HINDU_CITIES below.
+  // ─────────────────────────────────────────────────────────────────────────────
   getNpcTextureKey(npcId) {
-    const map = {
-      bankier: 'bankier',
-      fence: 'fence',
-      knajpa: 'knajpa',
-      maid: 'maid',
-      parkingowy: 'parking_npc',
-      police: 'police',
-      stewardessa: 'stewardessa'
+    const HINDU_CITIES = ['newdelhi'];
+    const isHindu = HINDU_CITIES.includes(this.cityId);
+
+    const baseMap = {
+      bankier:     isHindu ? 'bankierhindu'     : 'bankier',
+      fence:       isHindu ? 'fencehindu'       : 'fence',
+      knajpa:      isHindu ? 'knajpahindu'      : 'knajpa',
+      maid:        isHindu ? 'maidhindu'        : 'maid',
+      parkingowy:  isHindu ? 'parkingnpchindu'  : 'parkingnpc',
+      police:      isHindu ? 'policehindu'      : 'police',
+      stewardessa: isHindu ? 'stewardessahindu' : 'stewardessa',
+      bum:         isHindu ? 'bumhindu'         : 'bum'
     };
 
-    return map[npcId] || 'fence';
+    return baseMap[npcId] || (isHindu ? 'fencehindu' : 'fence');
   }
 
   getNpcLabel(npcId) {
     const map = {
-      bankier: 'Banker',
-      fence: 'Fence',
-      knajpa: 'Restaurant Manager',
-      maid: 'Maid',
-      parkingowy: 'Parking Worker',
-      police: 'Police Officer',
-      stewardessa: 'Flight Attendant'
+      bankier:     'Banker',
+      fence:       'Fence',
+      knajpa:      'Restaurant Manager',
+      maid:        'Maid',
+      parkingowy:  'Parking Worker',
+      police:      'Police Officer',
+      stewardessa: 'Flight Attendant',
+      bum:         'Homeless Man'
     };
 
-    return map[npcId] || npcId || 'Witness';
+    return map[npcId] || 'Witness';
   }
 }

@@ -2,7 +2,8 @@ import { gameState, saveGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import {
     travelToCity as performTravel,
-    completeCityInvestigation
+    completeCityInvestigation,
+    getTravelHours
 } from '../gameSetup.js';
 
 export class DestinationsUI {
@@ -328,7 +329,7 @@ export class DestinationsUI {
             loc.city === this.gameState?.currentCity
         );
 
-        if (!currentCityData || !cityObj || !currentCityData.map || !cityObj.map) {
+        if (!currentCityData || !cityObj) {
             return {
                 fromCity: currentCityData?.city || this.gameState?.currentCity || '',
                 toCity: cityObj?.city || '',
@@ -336,18 +337,16 @@ export class DestinationsUI {
             };
         }
 
-        const dx = cityObj.map.x - currentCityData.map.x;
-        const dy = cityObj.map.y - currentCityData.map.y;
-        const pixelDistance = Math.sqrt(dx * dx + dy * dy);
-
-        const pixelsPerHour = 55;
-        const baseHours = pixelDistance / pixelsPerHour;
-        const estimatedHours = Math.max(2, Math.round(baseHours));
+        const travelHours = getTravelHours(
+            currentCityData.city,
+            cityObj.city,
+            locationsData
+        );
 
         return {
             fromCity: currentCityData.city,
             toCity: cityObj.city,
-            travelHours: estimatedHours
+            travelHours
         };
     }
 

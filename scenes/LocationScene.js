@@ -10,7 +10,8 @@ const NPC_DIALOGUE_CACHE_MAP = {
   maid: 'dialogue_maid',
   police: 'dialogue_police',
   fence: 'dialogue_fence',
-  parkingowy: 'dialogue_parkingowy'
+  parkingowy: 'dialogue_parkingowy',
+  bum: 'dialogue_bum'
 };
 
 const LOCATION_SOUND_MAP = {
@@ -19,7 +20,8 @@ const LOCATION_SOUND_MAP = {
   hotel: 'hotelsound',
   parking: 'parkingsound',
   policehq: 'policesound',
-  restaurant: 'restaurantsound'
+  restaurant: 'restaurantsound',
+  garbage: 'garbagesound'
 };
 
 const NPC_DIALOGUE_ROOT_MAP = {
@@ -29,7 +31,8 @@ const NPC_DIALOGUE_ROOT_MAP = {
   maid: 'maidClues',
   police: 'policeClues',
   fence: 'fenceClues',
-  parkingowy: 'parkingowyClues'
+  parkingowy: 'parkingowyClues',
+  bum: 'bumClues'
 };
 
 export class LocationScene extends Phaser.Scene {
@@ -128,7 +131,7 @@ export class LocationScene extends Phaser.Scene {
 
     const locationSoundKey = LOCATION_SOUND_MAP[this.locationId];
 
-    if (locationSoundKey) {
+    if (locationSoundKey && this.cache.audio.exists(locationSoundKey)) {
       this.locationAmbient = this.sound.add(locationSoundKey, {
         loop: true,
         volume: 0.2
@@ -511,7 +514,8 @@ export class LocationScene extends Phaser.Scene {
       police: 'Police Officer',
       fence: 'Fence',
       parkingowy: 'Parking Worker',
-      knajpa: 'Restaurant Manager'
+      knajpa: 'Restaurant Manager',
+      bum: 'Homeless Man'
     };
 
     return names[npcId] || npcId || 'Unknown witness';
@@ -522,7 +526,8 @@ export class LocationScene extends Phaser.Scene {
       hotel: 'hotel_maid',
       hotel_maid: 'hotel_maid',
       parking: 'parking_bg',
-      parking_bg: 'parking_bg'
+      parking_bg: 'parking_bg',
+      garbage: 'garbage'
     };
 
     return map[locationId] || locationId || null;

@@ -21,6 +21,7 @@ export class PlayerMenuUI {
         this.container = this.scene.add.container(width / 2, this.closedY).setDepth(40);
         this.toggleContainer = null;
         this.toggleText = null;
+        this.toggleArrows = null;
         this.menuButtons = [];
 
         this.createCustomBackground();
@@ -36,19 +37,96 @@ export class PlayerMenuUI {
         this.scene.input.keyboard.on('keydown-M', this.boundToggleHandler);
     }
 
-onToggleKeyDown(event) {
-    const activeTag = document.activeElement?.tagName;
-    const isTyping =
-        activeTag === 'INPUT' ||
-        activeTag === 'TEXTAREA' ||
-        document.activeElement?.isContentEditable;
+    onToggleKeyDown(event) {
+        const activeTag = document.activeElement?.tagName;
+        const isTyping =
+            activeTag === 'INPUT' ||
+            activeTag === 'TEXTAREA' ||
+            document.activeElement?.isContentEditable;
 
-    if (isTyping || this.isAnimating) return;
+        if (isTyping || this.isAnimating) return;
 
-    event.preventDefault();
-    event.stopPropagation?.();
-    this.toggle();
-}
+        event.preventDefault();
+        event.stopPropagation?.();
+        this.toggle();
+    }
+
+    createHotkeyLabel(x, y, fullLabel, hotkey, options = {}) {
+        const {
+            fontSize = '15px',
+            baseColor = '#dcdcdc',
+            hotkeyColor = '#ffcc00',
+            fontFamily = 'Special Elite',
+            align = 'center'
+        } = options;
+
+        const labelContainer = this.scene.add.container(x, y);
+
+        const normalizedLabel = String(fullLabel || '');
+        const normalizedHotkey = String(hotkey || '').toLowerCase();
+        const hotkeyIndex = normalizedLabel.toLowerCase().indexOf(normalizedHotkey);
+
+        if (hotkeyIndex === -1) {
+            const fallbackText = this.scene.add.text(0, 0, normalizedLabel, {
+                fontFamily,
+                fontSize,
+                color: baseColor,
+                align
+            }).setOrigin(0.5, 0);
+
+            labelContainer.add(fallbackText);
+            labelContainer.baseParts = [fallbackText];
+            labelContainer.hotkeyParts = [];
+            labelContainer.setSize(fallbackText.width, fallbackText.height);
+            return labelContainer;
+        }
+
+        const before = normalizedLabel.slice(0, hotkeyIndex);
+        const letter = normalizedLabel.charAt(hotkeyIndex);
+        const after = normalizedLabel.slice(hotkeyIndex + 1);
+
+        const beforeText = this.scene.add.text(0, 0, before, {
+            fontFamily,
+            fontSize,
+            color: baseColor,
+            align
+        }).setOrigin(0, 0);
+
+        const hotkeyText = this.scene.add.text(0, 0, letter, {
+            fontFamily,
+            fontSize,
+            color: hotkeyColor,
+            fontStyle: 'bold',
+            align
+        }).setOrigin(0, 0);
+
+        const afterText = this.scene.add.text(0, 0, after, {
+            fontFamily,
+            fontSize,
+            color: baseColor,
+            align
+        }).setOrigin(0, 0);
+
+        const totalWidth = beforeText.width + hotkeyText.width + afterText.width;
+
+        beforeText.x = -totalWidth / 2;
+        hotkeyText.x = beforeText.x + beforeText.width;
+        afterText.x = hotkeyText.x + hotkeyText.width;
+
+        labelContainer.add([beforeText, hotkeyText, afterText]);
+        labelContainer.baseParts = [beforeText, afterText];
+        labelContainer.hotkeyParts = [hotkeyText];
+        labelContainer.setSize(totalWidth, Math.max(beforeText.height, hotkeyText.height, afterText.height));
+
+        return labelContainer;
+    }
+
+    setHotkeyLabelColors(labelContainer, baseColor, hotkeyColor) {
+        if (!labelContainer) return;
+
+        (labelContainer.baseParts || []).forEach(part => part.setColor(baseColor));
+        (labelContainer.hotkeyParts || []).forEach(part => part.setColor(hotkeyColor));
+    }
 
     createCustomBackground() {
         const w = this.config.width;
@@ -109,12 +187,28 @@ onToggleKeyDown(event) {
         graphics.fillStyle(0x4a0e0e, 1);
         graphics.fillRoundedRect(-btnW / 2 + 5, -btnH / 2 + 5, btnW - 10, btnH - 5, { tl: 4, tr: 4, bl: 0, br: 0 });
 
-        this.toggleText = this.scene.add.text(0, 0, '▼ MENU ▼', {
+        this.toggleText = this.createHotkeyLabel(0, -8, 'MENU', 'M', {
+            fontFamily: 'Special Elite',
+            fontSize: '15px',
+            baseColor: '#f0e68c',
+            hotkeyColor: '#ffcc00'
+        });
+
+        const arrowLeft = this.scene.add.text(-46, 0, '▼', {
             fontFamily: 'Special Elite',
             fontSize: '15px',
             color: '#f0e68c',
             fontStyle: 'bold'
         }).setOrigin(0.5);
+
+        const arrowRight = this.scene.add.text(46, 0, '▼', {
+            fontFamily: 'Special Elite',
+            fontSize: '15px',
+            color: '#f0e68c',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        this.toggleArrows = { left: arrowLeft, right: arrowRight };
 
         const hitBox = this.scene.add.rectangle(0, 0, btnW, btnH, 0x000000, 0)
             .setInteractive({ useHandCursor: true });
@@ -122,27 +216,31 @@ onToggleKeyDown(event) {
         hitBox.on('pointerdown', () => this.toggle());
 
         hitBox.on('pointerover', () => {
-            this.toggleText.setColor('#ffffff');
+            this.setHotkeyLabelColors(this.toggleText, '#ffffff', '#ffd54a');
             this.toggleText.setScale(1.05);
+            arrowLeft.setColor('#ffffff').setScale(1.05);
+            arrowRight.setColor('#ffffff').setScale(1.05);
         });
 
         hitBox.on('pointerout', () => {
-            this.toggleText.setColor('#f0e68c');
+            this.setHotkeyLabelColors(this.toggleText, '#f0e68c', '#ffcc00');
             this.toggleText.setScale(1.0);
+            arrowLeft.setColor('#f0e68c').setScale(1.0);
+            arrowRight.setColor('#f0e68c').setScale(1.0);
         });
 
-        this.toggleContainer.add([graphics, this.toggleText, hitBox]);
+        this.toggleContainer.add([graphics, arrowLeft, this.toggleText, arrowRight, hitBox]);
     }
 
     createMenuButtons() {
         const buttonsData = [
-            { key: 'filebutt', label: 'Case File', action: () => this.openCasefile() },
-            { key: 'note', label: 'Notes', action: () => this.openNotes() },
-            { key: 'atlas', label: 'Atlas', action: () => this.openAtlas() },
-            { key: 'plane', label: 'Travel', action: () => this.openDestinations() },
-            { key: 'warrant', label: 'Warrant', action: () => this.openWarrant() },
-            { key: 'crime_board', label: 'Crime Board', action: () => this.openCrimeBoard() },
-            { key: 'telephone', label: 'Telephone', action: () => this.openPhone() }
+            { key: 'filebutt', label: 'Case File', hotkey: 'f', action: () => this.openCasefile() },
+            { key: 'note', label: 'Notebook', hotkey: 'n', action: () => this.openNotes() },
+            { key: 'atlas', label: 'Atlas', hotkey: 'a', action: () => this.openAtlas() },
+            { key: 'plane', label: 'Travel', hotkey: 't', action: () => this.openDestinations() },
+            { key: 'warrant', label: 'Warrant', hotkey: 'w', action: () => this.openWarrant() },
+            { key: 'crime_board', label: 'Crime Board', hotkey: 'c', action: () => this.openCrimeBoard() },
+            { key: 'telephone', label: 'Telephone', hotkey: 'p', action: () => this.openPhone() }
         ];
 
         const count = buttonsData.length;
@@ -162,13 +260,12 @@ onToggleKeyDown(event) {
             const btnIcon = this.scene.add.image(0, iconY, btn.key)
                 .setDisplaySize(this.config.buttonSize, this.config.buttonSize);
 
-            const btnLabel = this.scene.add.text(0, labelY, btn.label, {
+            const btnLabel = this.createHotkeyLabel(0, labelY, btn.label, btn.hotkey, {
                 fontFamily: 'Special Elite',
                 fontSize: '15px',
-                color: '#dcdcdc',
-                align: 'center',
-                wordWrap: { width: spacing - 10 }
-            }).setOrigin(0.5, 0);
+                baseColor: '#dcdcdc',
+                hotkeyColor: '#ffcc00'
+            });
 
             btnContainer.add([iconShadow, btnIcon, btnLabel]);
 
@@ -201,7 +298,7 @@ onToggleKeyDown(event) {
                     duration: 150
                 });
 
-                btnLabel.setColor('#ffcc00');
+                this.setHotkeyLabelColors(btnLabel, '#ffffff', '#ffd54a');
             });
 
             btnContainer.on('pointerout', () => {
@@ -221,7 +318,7 @@ onToggleKeyDown(event) {
                     duration: 150
                 });
 
-                btnLabel.setColor('#dcdcdc');
+                this.setHotkeyLabelColors(btnLabel, '#dcdcdc', '#ffcc00');
             });
 
             btnContainer.on('pointerdown', () => {
@@ -256,7 +353,11 @@ onToggleKeyDown(event) {
 
         this.isAnimating = true;
         this.isOpen = true;
-        this.toggleText.setText('▲ CLOSE ▲');
+
+        if (this.toggleArrows) {
+            this.toggleArrows.left.setText('▲');
+            this.toggleArrows.right.setText('▲');
+        }
 
         this.scene.tweens.add({
             targets: this.container,
@@ -283,7 +384,11 @@ onToggleKeyDown(event) {
 
         this.isAnimating = true;
         this.isOpen = false;
-        this.toggleText.setText('▼ MENU ▼');
+
+        if (this.toggleArrows) {
+            this.toggleArrows.left.setText('▼');
+            this.toggleArrows.right.setText('▼');
+        }
 
         const height = this.scene.scale.height;
 
@@ -305,29 +410,29 @@ onToggleKeyDown(event) {
         });
     }
 
-openCasefile() {
-    if (!this.scene.caseFileUI) return;
+    openCasefile() {
+        if (!this.scene.caseFileUI) return;
 
-    const mission = this.gameState.currentMission;
+        const mission = this.gameState.currentMission;
 
-    if (!mission) {
-        console.warn('Brak currentMission — nie otwieram case file.');
-        return;
+        if (!mission) {
+            console.warn('Brak currentMission — nie otwieram case file.');
+            return;
+        }
+
+        this.close();
+        this.scene.closeAllUIPanels();
+
+        this.scene.caseFileUI.open({
+            artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+            city: mission.city || '',
+            country: mission.country || '',
+            description: mission.description || 'No more data...',
+            significance: mission.significance || '',
+            clue: mission.clue || 'No more clues...',
+            artifactKey: mission.artifactKey || 'artifact_fallback'
+        });
     }
-
-    this.close();
-    this.scene.closeAllUIPanels();
-
-    this.scene.caseFileUI.open({
-        artifact: mission.artifact || 'UNKNOWN ARTIFACT',
-        city: mission.city || '',
-        country: mission.country || '',
-        description: mission.description || 'No more data...',
-        significance: mission.significance || '',
-        clue: mission.clue || 'No more clues...',
-        artifactKey: mission.artifactKey || 'artifact_fallback'
-    });
-}
 
     openNotes() {
         if (this.scene.notesUI) {
@@ -336,21 +441,21 @@ openCasefile() {
         }
     }
 
-openAtlas() {
-    if (!this.scene.atlasUI) return;
+    openAtlas() {
+        if (!this.scene.atlasUI) return;
 
-    this.scene.closeAllUIPanels();
+        this.scene.closeAllUIPanels();
 
-    const mission = this.gameState.currentMission || {};
-    const missionCountry = String(mission.country || '').trim().toLowerCase();
+        const mission = this.gameState.currentMission || {};
+        const missionCountry = String(mission.country || '').trim().toLowerCase();
 
-    if (missionCountry && this.scene.atlasUI.openToCountry) {
-        this.scene.atlasUI.openToCountry(missionCountry);
-        return;
+        if (missionCountry && this.scene.atlasUI.openToCountry) {
+            this.scene.atlasUI.openToCountry(missionCountry);
+            return;
+        }
+
+        this.scene.atlasUI.open();
     }
-
-    this.scene.atlasUI.open();
-}
 
     openDestinations() {
         if (this.scene.destinationsUI) {
@@ -397,14 +502,19 @@ openAtlas() {
     }
 
     destroy() {
-if (this.scene.input?.keyboard) {
-    this.scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
-    this.scene.input.keyboard.removeCapture('M');
-}
+        if (this.scene.input?.keyboard) {
+            this.scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
+            this.scene.input.keyboard.removeCapture('M');
+        }
 
         this.scene.tweens.killTweensOf(this.container);
         this.scene.tweens.killTweensOf(this.toggleContainer);
         this.scene.tweens.killTweensOf(this.toggleText);
+
+        if (this.toggleArrows) {
+            this.scene.tweens.killTweensOf(this.toggleArrows.left);
+            this.scene.tweens.killTweensOf(this.toggleArrows.right);
+        }
 
         this.menuButtons.forEach(btn => btn?.removeAllListeners?.());
         this.menuButtons = [];
@@ -415,6 +525,7 @@ if (this.scene.input?.keyboard) {
         this.toggleContainer = null;
         this.container = null;
         this.toggleText = null;
+        this.toggleArrows = null;
         this.isOpen = false;
         this.isAnimating = false;
     }

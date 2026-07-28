@@ -399,7 +399,7 @@ loadObjectsData() {
         this.debugZones ? 0.18 : 0
       );
 
-      zone.setInteractive({ useHandCursor: true });
+      zone.setInteractive();
       zone.setData('id', id);
       zone.setData('itemData', itemData);
       zone.setData('found', false);

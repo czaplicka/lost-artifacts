@@ -1,819 +1,470 @@
 {
-  "bumClues": {
+  "fenceClues": {
     "locationVariants": {
       "london": {
         "banter": [
-          "London streets drip, mumble and pretend they’ve seen worse.",
-          "I sleep under bridges tourists photograph from a distance.",
-          "Here, even the pigeons look like they’re late for work."
+          "Nothing moves in this city without me knowing the price of it.",
+          "You want information, detective? Information isn't free, but I'll make an exception for a badge.",
+          "I don't deal in guesses. I deal in things people want gone quietly."
         ],
         "travelHints": {
           "paris": [
-            "They muttered about a city across the water where people dress better than they apologise.",
-            "Your suspect asked if croissants really do taste better under an iron tower.",
-            "They mentioned a place where smoke, perfume and arrogance share the same pavement."
+            "A buyer of mine mentioned Paris, said the market there pays better for things with a story.",
+            "Your suspect asked about moving product across the Channel, quiet-like.",
+            "They wanted contacts in a city where nobody blinks at expensive jewelry with no receipts."
           ],
           "berlin": [
-            "They asked about a city that turned old wounds into murals and sleepless nights into culture.",
-            "Your thief wanted to know if the music there really starts after midnight and ends after dignity.",
-            "They talked about a place where walls came down but secrets just moved indoors."
+            "They asked about Berlin, said the underground there doesn't ask questions after midnight.",
+            "Your thief mentioned a buyer in Berlin who deals in things that don't officially exist.",
+            "They wanted to know if German fences are as discreet as their reputation."
           ],
           "new_york_city": [
-            "They kept calling it the city that never sleeps, like that was something to admire.",
-            "Your suspect asked if yellow cabs really argue louder than the people inside them.",
-            "They mentioned a skyline so tall it makes the poor feel professionally invisible."
+            "They asked about New York, said money moves faster there than consciences.",
+            "Your suspect mentioned a contact who trades in stolen prestige, not just stolen goods.",
+            "They wanted a buyer who wouldn't flinch at a six-figure item with a complicated past."
           ],
           "warsaw": [
-            "They asked about a capital that got knocked down and rebuilt out of stubbornness.",
-            "Your suspect talked about a river, a mermaid and a city too tough to stay broken.",
-            "They mentioned a place where history and tram complaints share the same timetable."
+            "They asked about Warsaw, oddly specific for someone running from something.",
+            "Your thief mentioned old contacts there, the kind who remember favors longer than grudges.",
+            "They wanted to know if Polish buyers still trust a good story more than good paperwork."
           ],
           "new_delhi": [
-            "They wanted to know if a city could really be that loud and still keep moving.",
-            "Your thief asked about markets, heat and traffic with the confidence of someone already leaving.",
-            "They joked that in this city even the cows cross the street with more purpose than bankers."
+            "They asked about New Delhi, said the market there moves antiques like vegetables.",
+            "Your suspect mentioned a dealer who doesn't care where history came from, just where it's going.",
+            "They wanted contacts who trade fast and ask nothing."
           ],
           "london": [
-            "Funny thing, they asked about London like they were trying to hear it described by someone colder than a travel brochure.",
-            "They mentioned red buses, black cabs and a sky that never quite commits to daylight.",
-            "They talked about a river city where even the fog minds its own business."
+            "Funny, they asked about London like someone casing their own exit.",
+            "Your suspect wanted a fence who deals quiet and pays in cash, no paper trail.",
+            "They mentioned this city like it was already behind them."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, tidy enough to pass unnoticed if you weren’t paid to notice."
-            ],
-            "Brown": [
-              "Brown hair, ordinary on purpose. That’s usually the trick."
-            ],
-            "Blonde": [
-              "Blonde hair, too bright for this weather and too careful to be natural."
-            ],
-            "Red": [
-              "Red hair. In this fog, that counts as announcing yourself."
-            ]
+            "Black": ["Black hair, slicked flat like they'd rehearsed being forgettable."],
+            "Brown": ["Brown hair, the kind that blends into every crowd on purpose."],
+            "Blonde": ["Blonde hair, expensive cut, cheap alibi."],
+            "Red": ["Red hair, hard to forget, which tells me they weren't planning to be seen twice."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes, cold as a London morning and twice as careful."
-            ],
-            "Brown": [
-              "Brown eyes, watching doorways more than faces."
-            ],
-            "Green": [
-              "Green eyes, quick and sharp, like they were counting exits."
-            ],
-            "Hazel": [
-              "Hazel eyes, restless in a way honest people rarely are."
-            ]
+            "Blue": ["Blue eyes, cold enough to negotiate without blinking."],
+            "Brown": ["Brown eyes, doing the math before the handshake was even finished."],
+            "Green": ["Green eyes, greedy in a way that's bad for business and worse for alibis."],
+            "Hazel": ["Hazel eyes, the kind that count exits before they count money."]
           },
           "features": {
-            "Big forehead": [
-              "Big forehead, thoughtful look, bad intentions. Happens."
-            ],
-            "Tattoo": [
-              "There was a tattoo, though they wore sleeves like they’d rather the city forgot."
-            ],
-            "Rainbow hair streak": [
-              "A streak of color in the hair. Hard to miss, even in a city built from grey."
-            ],
-            "Necklace": [
-              "They wore a necklace that caught the light and my attention."
-            ],
-            "Scar": [
-              "A scar, old enough to have a story and new enough to still matter."
-            ],
-            "Moustache": [
-              "Moustache like they trusted it more than their own name."
-            ],
-            "Glasses": [
-              "Glasses, but don’t mistake that for softness. They watched everything."
-            ],
-            "Beard": [
-              "Beard, trimmed enough to suggest discipline, not comfort."
-            ],
-            "Long hair": [
-              "Long hair, tied back like they didn’t want it remembered."
-            ],
-            "Earrings": [
-              "Earrings, small but deliberate. Not the kind of detail I lose."
-            ],
-            "Goatee": [
-              "Goatee. Looked like someone trying to curate mystery."
-            ]
+            "Tattoo": ["A tattoo, half-hidden under a sleeve like it was supposed to mean something to someone."],
+            "Necklace": ["Wore a necklace worth more than their explanation for having it."],
+            "Scar": ["A scar across the knuckles. This wasn't their first negotiation gone wrong."],
+            "Glasses": ["Glasses, sharp frame, sharper eye for value."],
+            "Beard": ["A beard, trimmed like someone who still cares how they're remembered."]
           },
           "accent": {
-            "Canadian": [
-              "Canadian accent. Polite shape, careful edges."
-            ],
-            "Mexican": [
-              "Mexican accent, warm enough to distract if you weren’t listening closely."
-            ],
-            "Australian": [
-              "Australian accent, casual voice, alert hands."
-            ],
-            "American": [
-              "American accent, like they expected the room to rearrange itself around them."
-            ],
-            "Dutch": [
-              "Dutch accent, neat and clipped, like folded paper."
-            ],
-            "British": [
-              "British accent, local enough to blend, polished enough to bother me."
-            ],
-            "German": [
-              "German accent, direct, economical, not built for wasting words."
-            ],
-            "Polish": [
-              "Polish accent, solid and grounded, like they meant every syllable and trusted none of them."
-            ],
-            "Spanish": [
-              "Spanish accent, quick and musical, but the questions underneath were all business."
-            ],
-            "Belarussian": [
-              "Belarussian accent, soft voice, armored eyes."
-            ],
-            "Russian": [
-              "Russian accent, measured, like every word had already passed inspection."
-            ],
-            "Italian": [
-              "Italian accent, all warmth on top and calculation underneath."
-            ],
-            "Irish": [
-              "Irish accent, the kind that can sound friendly while hiding the whole map."
-            ],
-            "French": [
-              "French accent. Smooth enough to make suspicion sound elegant."
-            ],
-            "Belgian": [
-              "Belgian accent, subtle enough that most people would miss it. I didn’t."
-            ]
+            "British": ["British accent, but rehearsed, like they'd practiced sounding local."],
+            "American": ["American accent, loud enough to be a distraction on purpose."],
+            "French": ["French accent, smooth as the lie that came with it."],
+            "Russian": ["Russian accent, quiet, the kind that makes you lower your price without being asked."]
           },
           "habitus": {
-            "Smoking": [
-              "Smelled like smoke and hurry."
-            ],
-            "Drinking": [
-              "Carried last night in their posture."
-            ]
+            "Smoking": ["Smoked while we talked business, like it steadied the numbers."],
+            "Drinking": ["Ordered a drink they never touched. Nervous, or careful. Same thing, usually."]
           }
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "The fog hasn’t revealed anything new since."
-          ],
-          [
-            "Back again?",
-            "You must really like damp benches and old stories."
-          ],
-          [
-            "No new clues.",
-            "Just the same river, same stones, and slightly colder hands."
-          ]
+          ["We already did business, detective.", "Nothing new's crossed my table since."],
+          ["Back again?", "I don't repeat prices and I don't repeat gossip for free."],
+          ["No fresh stock, no fresh leads.", "You're wasting a conversation I could be charging for."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Even the rain knew you were in the wrong place."
-          ],
-          [
-            "That lead washed out.",
-            "London’s good at that."
-          ],
-          [
-            "Your suspect wasn’t there.",
-            "Only your umbrella and your patience got tested."
-          ]
+          ["Wrong city, detective.", "You paid for a lead I never sold you."],
+          ["That lead's dead weight.", "Should've checked the market before you bought it."],
+          ["Your thief never touched my table here.", "Somebody sold you a bad tip."]
         ]
       },
 
       "paris": {
         "banter": [
-          "In Paris, even the trash has better posture than I do.",
-          "I see more broken hearts than broken bottles here, and that’s saying something.",
-          "The alleyways smell like smoke, perfume and people pretending they’re not lost."
+          "In Paris, even stolen goods need better presentation than the truth.",
+          "You want a name, detective? Names cost more here than jewelry.",
+          "I move things quietly. Loud questions make that difficult."
         ],
         "travelHints": {
           "london": [
-            "They asked about a city where umbrellas are practically official documents.",
-            "Your suspect mentioned red buses, black cabs and weather with a persecution complex.",
-            "They talked about crossing the Channel like they’d done it before and lied about it after."
+            "They asked about London buyers, said the English pay well for anything with a good backstory.",
+            "Your suspect wanted contacts who deal discreetly near the Thames.",
+            "They mentioned moving something across the Channel before anyone noticed it was missing."
           ],
           "berlin": [
-            "They asked about a city where concrete remembers and the night shift never really ends.",
-            "Your thief mentioned murals, basslines and a history too large to fit in polite conversation.",
-            "They wanted to know if the clubs there still keep hours only criminals can respect."
+            "They asked about Berlin's underground market, said it moves faster and asks less.",
+            "Your thief wanted a buyer who deals in things nobody officially remembers seeing.",
+            "They mentioned German efficiency applied to very illegal transactions."
           ],
           "new_york_city": [
-            "They talked about a place where ambition stands taller than the buildings, which is saying something.",
-            "Your suspect asked if New York really moves that fast or if that’s just the noise.",
-            "They mentioned yellow taxis, steel canyons and people too busy to notice a thief."
+            "They asked about New York, said American money doesn't care about provenance.",
+            "Your suspect wanted a buyer used to moving things fast, quiet, and expensive.",
+            "They talked about a market where guilt is just a rounding error."
           ],
           "warsaw": [
-            "They asked about a city rebuilt out of ruins and stubbornness.",
-            "Your suspect mentioned a mermaid, a river and people who don’t confuse survival with drama.",
-            "They talked about Warsaw like someone who respects cities that have scars."
+            "They asked about Warsaw contacts, unusual for someone running west, not east.",
+            "Your thief mentioned old Polish buyers who value loyalty over paperwork.",
+            "They wanted to know if history sells better where history actually happened."
           ],
           "new_delhi": [
-            "They asked about a city where heat, traffic and bargaining all compete for first place.",
-            "Your thief mentioned markets that never really sleep and streets louder than guilt.",
-            "They wondered if New Delhi feels chaotic or just honest."
+            "They asked about New Delhi, said antiques move like currency there.",
+            "Your suspect wanted contacts who don't ask where old things came from.",
+            "They mentioned a market that trades in stories as much as objects."
           ],
           "paris": [
-            "Funny thing, they described Paris like someone trying not to admit they missed it.",
-            "They mentioned cafés, smoke and a tower people mistake for romance.",
-            "They talked about narrow streets and elegant lies."
+            "They described this city like someone planning to disappear elegantly.",
+            "Your suspect wanted a buyer who understands that beauty and theft aren't opposites.",
+            "They mentioned wanting cash, discretion, and a very short conversation."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, styled like they expected witnesses."
-            ],
-            "Brown": [
-              "Brown hair, plain enough to disappear in a crowd of better-dressed lies."
-            ],
-            "Blonde": [
-              "Blonde hair, too deliberate to be innocent."
-            ],
-            "Red": [
-              "Red hair, dramatic even by Paris standards."
-            ]
+            "Black": ["Black hair, styled to look expensive, priced to look innocent."],
+            "Brown": ["Brown hair, deliberately plain. Cheap disguises are still disguises."],
+            "Blonde": ["Blonde hair, too polished for someone claiming to be broke."],
+            "Red": ["Red hair, memorable, which means they weren't planning to come back."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes that looked at the city like it was competition."
-            ],
-            "Brown": [
-              "Brown eyes, soft on the surface, calculating underneath."
-            ],
-            "Green": [
-              "Green eyes, amused by everything except questions."
-            ],
-            "Hazel": [
-              "Hazel eyes, lingering a little too long on exits and cameras."
-            ]
+            "Blue": ["Blue eyes, calculating the exchange rate on guilt."],
+            "Brown": ["Brown eyes, patient, the kind that wait for a better offer."],
+            "Green": ["Green eyes, greedy enough to overpay for silence."],
+            "Hazel": ["Hazel eyes, watching my hands more than my face."]
           },
           "features": {
-            "Tattoo": [
-              "A small tattoo, perfectly placed to look accidental."
-            ],
-            "Earrings": [
-              "Earrings that caught the streetlight every time they lied."
-            ],
-            "Scarf": [
-              "A scarf worn indoors. That’s fashion or paranoia. Sometimes both."
-            ]
+            "Earrings": ["Earrings worth more than the story they told about owning them."],
+            "Tattoo": ["A tattoo they kept covering, like it was evidence, not decoration."],
+            "Scarf": ["A scarf pulled up whenever a camera passed. Amateur, but effective."]
           },
           "accent": {
-            "French": [
-              "French accent, polished enough to make \"no\" sound like a compliment."
-            ],
-            "Italian": [
-              "Italian accent, turning alibis into monologues."
-            ],
-            "Spanish": [
-              "Spanish accent, warm voice, cool intentions."
-            ]
+            "French": ["French accent, but too careful, like someone who learned it recently and well."],
+            "Italian": ["Italian accent, charming enough to negotiate a discount on suspicion."],
+            "Spanish": ["Spanish accent, fast, like they wanted the deal done before questions started."]
           },
           "habitus": {
-            "Smoking": [
-              "They smoked like they were getting paid for atmosphere."
-            ],
-            "Drinking": [
-              "Wine on their breath, regret carefully edited out."
-            ]
+            "Smoking": ["Smoked through the whole negotiation without once relaxing."],
+            "Drinking": ["Ordered wine, drank water. Kept their head clear on purpose."]
           }
         },
         "repeatLines": [
-          [
-            "We already talked, detective.",
-            "The only thing that changed is which café kicked me out."
-          ],
-          [
-            "Back so soon?",
-            "Romance moves faster than clues in this city."
-          ],
-          [
-            "No fresh secrets.",
-            "Just the same shadows and slightly louder arguments."
-          ]
+          ["We've already talked business, detective.", "Nothing's changed on my end of the table."],
+          ["Back so soon?", "I hope you're not expecting a discount on gossip."],
+          ["No new merchandise, no new leads.", "Same shadows, same silence."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Pretty mistake, though."
-          ],
-          [
-            "That lead went nowhere, detective.",
-            "You followed the lights and forgot the trail."
-          ],
-          [
-            "Your thief wasn’t here.",
-            "Only tourists, poets, and people lying about both."
-          ]
+          ["Wrong city, detective.", "Pretty mistake, expensive one."],
+          ["That lead never had value.", "Someone sold you a story, not a fact."],
+          ["Your thief wasn't at my table.", "You chased perfume instead of evidence."]
         ]
       },
 
       "berlin": {
         "banter": [
-          "Berlin streets wear their history on the walls and their hangovers in the morning.",
-          "I sleep where the city forgot to gentrify.",
-          "Some nights here last so long the day just apologises and waits."
+          "Berlin's underground doesn't sleep, it just changes shifts.",
+          "You want a name, detective? Names here have a price, and it's not cheap.",
+          "I move things quietly through basements that officially don't exist."
         ],
         "travelHints": {
           "london": [
-            "They asked about a city where even the weather feels bureaucratic.",
-            "Your suspect mentioned fog, uniforms and a river full of postcards.",
-            "They talked about London like it was useful, not charming."
+            "They asked about London, said English buyers pay well for a good provenance lie.",
+            "Your suspect wanted contacts discreet enough to survive customs.",
+            "They mentioned wanting to disappear somewhere with better weather and worse memory."
           ],
           "paris": [
-            "They asked about Paris with the kind of tone people use for expensive mistakes.",
-            "Your thief mentioned perfume, iron and a city that edits reality before breakfast.",
-            "They wondered if elegance can cover panic. I said probably."
+            "They asked about Paris, said elegance sells better than honesty there.",
+            "Your thief wanted a buyer who deals in beautiful things with ugly histories.",
+            "They mentioned needing a market that doesn't ask too many questions in French."
           ],
           "new_york_city": [
-            "They talked about a place where the buildings compete harder than the people.",
-            "Your suspect mentioned New York like it was all speed, noise and opportunity.",
-            "They asked if anyone notices anything in a city moving that fast."
+            "They asked about New York, said American buyers move fast and forget faster.",
+            "Your suspect wanted contacts used to laundering more than just money.",
+            "They talked about a city where guilt gets buried under ambition."
           ],
           "warsaw": [
-            "They asked about a city that remembers damage without worshipping it.",
-            "Your suspect mentioned Warsaw with more respect than most travellers manage.",
-            "They talked about stubborn architecture and people who outlast systems."
+            "They asked about Warsaw, said Polish buyers are loyal if you pay on time.",
+            "Your thief mentioned old contacts there from before things went wrong.",
+            "They wanted to know if the market still trusts handshakes more than contracts."
           ],
           "new_delhi": [
-            "They wanted to know about a city louder than Berlin and less interested in sleep.",
-            "Your thief mentioned markets, heat and traffic like it was a tactical challenge.",
-            "They talked about New Delhi like someone studying motion."
+            "They asked about New Delhi, said the antiques market moves like a river, fast and unclear.",
+            "Your suspect wanted a buyer who trades in history without caring about ownership.",
+            "They mentioned a place where old things always find new owners quickly."
           ],
           "berlin": [
-            "They described Berlin as if they admired cities that don’t bother pretending to be tidy.",
-            "They mentioned murals, concrete and basements with bad intentions and good sound systems.",
-            "They talked about a place where the past stays visible and the night refuses supervision."
+            "They talked about this city like someone who trusted its silence.",
+            "Your suspect wanted a fence who deals late, deals quiet, and forgets faces on request.",
+            "They mentioned wanting cash and a very short memory from everyone involved."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, functional, severe, no wasted gesture in it."
-            ],
-            "Brown": [
-              "Brown hair, forgettable in theory, memorable in context."
-            ],
-            "Blonde": [
-              "Blonde hair, cut like they didn’t come here for fun, just for late nights."
-            ],
-            "Red": [
-              "Red hair, the only part of them that still believed in colour."
-            ]
+            "Black": ["Black hair, severe cut, the kind that means business, not fashion."],
+            "Brown": ["Brown hair, unremarkable, which was clearly the point."],
+            "Blonde": ["Blonde hair, cut for function, not for cameras."],
+            "Red": ["Red hair, the one detail they couldn't disguise, even here."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes, cool and pragmatic, like they’d filed the city under \"useful.\""
-            ],
-            "Brown": [
-              "Brown eyes, steady, used to reading people faster than signs."
-            ],
-            "Green": [
-              "Green eyes, watching like they expected the past to walk by at any moment."
-            ],
-            "Hazel": [
-              "Hazel eyes, taking notes without a notebook."
-            ]
+            "Blue": ["Blue eyes, calculating value like a machine that doesn't blink."],
+            "Brown": ["Brown eyes, steady, negotiating without a single wasted word."],
+            "Green": ["Green eyes, hungry for a deal that wasn't quite legal."],
+            "Hazel": ["Hazel eyes, watching the door more than the merchandise."]
           },
           "features": {
-            "Scar": [
-              "A scar, no explanation offered, which is all the explanation you need here."
-            ],
-            "Tattoo": [
-              "A geometric tattoo that looked more like a diagram than decoration."
-            ],
-            "Glasses": [
-              "Simple glasses, practical frame, nothing extra—unlike their stories."
-            ]
+            "Scar": ["A scar across the jaw. Not their first bad deal, clearly."],
+            "Tattoo": ["A tattoo that looked more like a code than a decoration."],
+            "Glasses": ["Simple glasses, sharp mind behind them, no wasted sentiment."]
           },
           "accent": {
-            "German": [
-              "German accent, words lined up like they were in a queue."
-            ],
-            "Polish": [
-              "Polish accent, comfortable with the cold and the concrete."
-            ],
-            "Russian": [
-              "Russian accent, slow and careful, like heavy doors closing."
-            ]
+            "German": ["German accent, efficient, negotiating like every word cost money."],
+            "Polish": ["Polish accent, practical, trusting handshakes more than paperwork."],
+            "Russian": ["Russian accent, slow, deliberate, the kind that makes you lower your price."]
           },
           "habitus": {
-            "Smoking": [
-              "Smelled of cigarettes and the kind of rain that never quite starts."
-            ],
-            "Drinking": [
-              "They wore last night’s bar as a faint halo."
-            ]
+            "Smoking": ["Smoked the whole time, steady hands despite the stakes."],
+            "Drinking": ["Ordered something strong, drank it slow. Controlled, not careless."]
           }
         },
         "repeatLines": [
-          [
-            "We already covered this corner.",
-            "It still remembers more music than crime."
-          ],
-          [
-            "Back again?",
-            "Same graffiti, same faces, same missing thief."
-          ],
-          [
-            "No new whispers, detective.",
-            "Just the echo of bass lines and bad decisions."
-          ]
+          ["We already did this, detective.", "Nothing's moved through here since."],
+          ["Back again?", "I don't repeat deals and I don't repeat rumors for free."],
+          ["No new stock, no new leads.", "Same basement, same silence."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Direct, like the people here."
-          ],
-          [
-            "That lead died on arrival.",
-            "You chased the wrong beat this time."
-          ],
-          [
-            "The suspect wasn’t in that crowd.",
-            "You just danced around the problem."
-          ]
+          ["Wrong city, detective.", "Someone sold you a bad tip, and you bought it."],
+          ["That lead's worthless here.", "Should've checked before you spent the trip."],
+          ["Your thief never sat at my table.", "You chased an echo, not a person."]
         ]
       },
 
       "new_york_city": {
         "banter": [
-          "New York sidewalks never sleep. They just change shoes.",
-          "I get pushed past by people who think time is money and I owe them both.",
-          "Here, the trash talks, the cabs swear, and the alleys remember everything."
+          "In New York, everything's for sale, including the silence around it.",
+          "You want information, detective? I charge by the word here, same as everyone else.",
+          "I move product fast. Slow deals get noticed, and noticed gets expensive."
         ],
         "travelHints": {
           "london": [
-            "They talked about London like it had better tailoring and worse weather.",
-            "Your suspect mentioned fog, old money and people trained to apologise in complete sentences.",
-            "They asked if the rain there ever clocks out."
+            "They asked about London, said the English still pay premium for old-world charm.",
+            "Your suspect wanted a buyer discreet enough to survive customs and small talk.",
+            "They mentioned wanting a market that doesn't move as fast as this one."
           ],
           "paris": [
-            "They asked about a city where even the lies come with good bread.",
-            "Your thief mentioned iron, perfume and people who judge your shoes before your crimes.",
-            "They talked about Paris like it was expensive and worth it."
+            "They asked about Paris, said European buyers appreciate a good backstory.",
+            "Your thief wanted contacts who trade in prestige as much as product.",
+            "They mentioned needing somewhere elegance covers for guilt."
           ],
           "berlin": [
-            "They mentioned a city with rough edges, long nights and no patience for pretending.",
-            "Your suspect asked if Berlin still keeps secrets in basements and history on walls.",
-            "They talked about a place where bad ideas can still find a dance floor."
+            "They asked about Berlin, said the underground there runs quieter and later.",
+            "Your suspect wanted a fence who deals in shadows, not spotlights.",
+            "They talked about wanting distance and darkness in equal measure."
           ],
           "warsaw": [
-            "They asked about a city rebuilt on nerve and memory.",
-            "Your thief mentioned Warsaw like someone who respects survivors more than winners.",
-            "They talked about a river city with scars under fresh paint."
+            "They asked about Warsaw, unusual choice for someone with expensive taste.",
+            "Your thief mentioned old contacts there who value discretion over profit margins.",
+            "They wanted to know if loyalty still means something in that market."
           ],
           "new_delhi": [
-            "They wanted to know about a place noisier than New York. That got my attention.",
-            "Your suspect mentioned markets, heat and traffic that behaves like a dare.",
-            "They asked if New Delhi overwhelms people or just tells the truth faster."
+            "They asked about New Delhi, said antiques move there like currency, fast and untraceable.",
+            "Your suspect wanted a buyer who doesn't care about paperwork, just price.",
+            "They mentioned a market that treats history like inventory."
           ],
           "new_york_city": [
-            "They talked about New York like it was a machine built out of impatience.",
-            "They mentioned taxis, steam vents and a skyline with delusions of grandeur.",
-            "They described a city where nobody notices anything unless it slows them down."
+            "They talked about this city like someone who understood how fast money erases questions.",
+            "Your suspect wanted a fence who moves product before anyone notices it's gone.",
+            "They mentioned wanting cash, speed, and zero sentiment."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, slicked back like they were late for three meetings and one crime."
-            ],
-            "Brown": [
-              "Brown hair, deliberately casual, like everything else about them was over-scheduled."
-            ],
-            "Blonde": [
-              "Blonde hair, visible from across the street and probably from space."
-            ],
-            "Red": [
-              "Red hair, the kind New York either remembers or runs from."
-            ]
+            "Black": ["Black hair, slicked back, dressed for a meeting that wasn't legal."],
+            "Brown": ["Brown hair, deliberately unremarkable in a city that rewards being seen."],
+            "Blonde": ["Blonde hair, expensive, like everything else about the deal."],
+            "Red": ["Red hair, hard to miss even in a crowd built for anonymity."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes that scanned the block like it was a balance sheet."
-            ],
-            "Brown": [
-              "Brown eyes, sharp, already calculating the shortest illegal route."
-            ],
-            "Green": [
-              "Green eyes, hungry in a way that had nothing to do with food carts."
-            ],
-            "Hazel": [
-              "Hazel eyes, flicking between cops, cameras and exits like a to-do list."
-            ]
+            "Blue": ["Blue eyes, calculating value faster than the market opens."],
+            "Brown": ["Brown eyes, sharp, already three moves ahead in the negotiation."],
+            "Green": ["Green eyes, greedy in a way that made the price go up, not down."],
+            "Hazel": ["Hazel eyes, flicking to the exits like habit, not paranoia."]
           },
           "features": {
-            "Tattoo": [
-              "A tattoo visible under the streetlamp, something bold and unwise."
-            ],
-            "Glasses": [
-              "Glasses with frames expensive enough to double as an alibi."
-            ],
-            "Beard": [
-              "A beard trimmed like they were networking even while hiding."
-            ]
+            "Tattoo": ["A tattoo visible for half a second before the sleeve came down."],
+            "Glasses": ["Glasses too expensive for someone claiming to be desperate."],
+            "Beard": ["A beard groomed like they still had somewhere important to be."]
           },
           "accent": {
-            "American": [
-              "American accent, but not local—New Yorkers can smell that from a block away."
-            ],
-            "British": [
-              "British accent, wobbling slightly under the weight of jet lag and attitude."
-            ],
-            "Spanish": [
-              "Spanish accent, fast-paced, like they were racing the subway schedule."
-            ]
+            "American": ["American accent, but from somewhere else, trying too hard to sound local."],
+            "British": ["British accent, out of place and overpriced, like imported wine."],
+            "Spanish": ["Spanish accent, fast, negotiating like the deal had a countdown."]
           },
           "habitus": {
-            "Smoking": [
-              "Smelled of stale smoke and hot pavement."
-            ],
-            "Drinking": [
-              "Last night clung to them like steam from a manhole."
-            ]
+            "Smoking": ["Smoked outside so the deal wouldn't smell like nerves."],
+            "Drinking": ["Ordered whiskey, didn't finish it. Business before comfort."]
           }
         },
         "repeatLines": [
-          [
-            "Yeah, we already talked, detective.",
-            "Still the same chaos, still the same clue count."
-          ],
-          [
-            "Back again?",
-            "You’re starting to look like part of the scenery."
-          ],
-          [
-            "No update.",
-            "The city shouted a lot, but none of it was useful."
-          ]
+          ["We already talked business, detective.", "Nothing new's moved through since."],
+          ["Back again?", "This isn't a diner. I don't do free refills on information."],
+          ["No new stock.", "Just the same noise and the same empty leads."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Big gamble, big miss."
-          ],
-          [
-            "That lead went nowhere.",
-            "Fast, loud, and nowhere."
-          ],
-          [
-            "Your suspect wasn’t there.",
-            "Just a million other problems on different corners."
-          ]
+          ["Wrong city, detective.", "Expensive mistake in an expensive town."],
+          ["That lead's dead.", "Should've checked the price before you bought the story."],
+          ["Your thief never sat across from me.", "Someone sold you a rumor as a fact."]
         ]
       },
 
       "warsaw": {
         "banter": [
-          "Warsaw streets have seen worse than me and still keep moving.",
-          "I sleep near walls that remember more than the people leaning on them.",
-          "This city rebuilds faster than some people learn."
+          "In Warsaw, business survives on trust, which makes it rare and valuable.",
+          "You want a name, detective? I only sell those to people who understand consequences.",
+          "I don't deal in guesses. I deal in things that quietly change hands."
         ],
         "travelHints": {
           "london": [
-            "They asked about a city where politeness and rain seem equally compulsory.",
-            "Your suspect mentioned London like someone planning a stop, not a stay.",
-            "They talked about fog, buses and money old enough to judge you."
+            "They asked about London, said English buyers still pay for a good story.",
+            "Your suspect wanted contacts discreet enough to clear customs without questions.",
+            "They mentioned wanting distance, and London's far enough to count."
           ],
           "paris": [
-            "They mentioned Paris with a kind of tired admiration.",
-            "Your thief asked about cafés, towers and people who can argue stylishly.",
-            "They talked about a city where beauty and nonsense rent the same room."
+            "They asked about Paris, said elegance opens doors that honesty never could.",
+            "Your thief wanted a buyer who trades in beauty and doesn't ask about origin.",
+            "They talked about needing a market that forgives expensive mistakes."
           ],
           "berlin": [
-            "They asked about Berlin like they respected its damage.",
-            "Your suspect mentioned murals, concrete and nights too long for honest work.",
-            "They talked about a city that remembers division without asking permission."
+            "They asked about Berlin, said the underground there moves fast and forgets faster.",
+            "Your suspect wanted contacts used to dealing in things that don't officially exist.",
+            "They mentioned wanting silence, and Berlin's good at selling that."
           ],
           "new_york_city": [
-            "They mentioned New York the way people mention weather fronts or invasions.",
-            "Your thief asked if anyone there ever stops moving long enough to notice a crime.",
-            "They talked about glass towers and sidewalks that never forgive hesitation."
+            "They asked about New York, said American money doesn't care where things came from.",
+            "Your thief wanted a buyer fast enough to close before anyone asked questions.",
+            "They talked about a market too busy to notice guilt."
           ],
           "new_delhi": [
-            "They asked about New Delhi with more curiosity than caution.",
-            "Your suspect mentioned heat, traffic and markets like they were reading a challenge.",
-            "They talked about a city where noise itself seems organized."
+            "They asked about New Delhi, said the antiques trade moves like a market stall, loud and fast.",
+            "Your suspect wanted a buyer who values price over provenance.",
+            "They mentioned wanting somewhere history gets traded, not questioned."
           ],
           "warsaw": [
-            "They described Warsaw like someone who understood why a city keeps getting back up.",
-            "They mentioned a river, a mermaid and streets with long memories.",
-            "They talked about old stone, new glass and people who don’t waste resilience."
+            "They talked about this city like someone who trusted old loyalties over new risks.",
+            "Your suspect wanted a fence who remembers favors longer than grudges.",
+            "They mentioned wanting cash, quiet, and people who don't ask twice."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, combed like they still respected mirrors."
-            ],
-            "Brown": [
-              "Brown hair, the sort that disappears in crowds until trouble starts."
-            ],
-            "Blonde": [
-              "Blonde hair, common enough here to be a bad description, unless you look closer."
-            ],
-            "Red": [
-              "Red hair, brighter than the tram lights."
-            ]
+            "Black": ["Black hair, combed carefully, like they still respected the deal."],
+            "Brown": ["Brown hair, plain enough to trust, which made me trust it less."],
+            "Blonde": ["Blonde hair, too neat for someone claiming to be running from something."],
+            "Red": ["Red hair, impossible to forget, which tells me they weren't planning to stay."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes, winter kind. Seen things, won’t say them."
-            ],
-            "Brown": [
-              "Brown eyes, steady like someone who’s stood in a lot of queues."
-            ],
-            "Green": [
-              "Green eyes that kept checking if the city was still standing. It was."
-            ],
-            "Hazel": [
-              "Hazel eyes, cataloguing trouble like a habit."
-            ]
+            "Blue": ["Blue eyes, patient, negotiating like time was on their side."],
+            "Brown": ["Brown eyes, steady, the kind that don't blink during a bad offer."],
+            "Green": ["Green eyes, sharp, watching the price more than the person."],
+            "Hazel": ["Hazel eyes, cataloguing risk like a habit they couldn't shake."]
           },
           "accent": {
-            "Polish": [
-              "Polish accent, flat and practical, like a good tool."
-            ]
+            "Polish": ["Polish accent, direct, negotiating like every word had weight."]
           },
           "features": {
-            "Beard": [
-              "A beard, tidy enough to look deliberate."
-            ],
-            "Necklace": [
-              "A small necklace, nothing fancy—people here know how to hide value."
-            ]
+            "Beard": ["A beard, tidy, the kind that suggests discipline over vanity."],
+            "Necklace": ["A necklace worth more than the explanation they gave for having it."]
           },
           "habitus": {
-            "Smoking": [
-              "Smelled of cheap cigarettes and cold air by the doorway."
-            ],
-            "Drinking": [
-              "Not drunk, just well acquainted with local vodka."
-            ]
+            "Smoking": ["Smoked slow, steady, like the deal wasn't rushing them at all."],
+            "Drinking": ["Didn't drink much. Careful people rarely do during business."]
           }
         },
         "repeatLines": [
-          [
-            "We already talked.",
-            "No new faces, no new trouble on this corner."
-          ],
-          [
-            "Back again?",
-            "You’re more stubborn than the tram schedule."
-          ],
-          [
-            "Nothing new, detective.",
-            "If something shifted, I’d have felt it in the pavement."
-          ]
+          ["We already did business.", "Nothing's moved through here since, detective."],
+          ["Back again?", "I don't repeat deals, and I definitely don't repeat them for free."],
+          ["No new stock, no new leads.", "Same trust, same silence, same empty hands."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Not your first mistake, probably not your last."
-          ],
-          [
-            "That lead was empty.",
-            "Like most promises shouted after midnight."
-          ],
-          [
-            "The suspect isn’t there.",
-            "Just people trying to make rent and sense of things."
-          ]
+          ["Wrong city, detective.", "Someone sold you a bad tip, and you paid full price."],
+          ["That lead's worthless here.", "Should've checked the market before the trip."],
+          ["Your thief never touched my table.", "You chased loyalty that wasn't yours to chase."]
         ]
       },
 
       "new_delhi": {
         "banter": [
-          "In New Delhi, even the shadows feel crowded.",
-          "I sleep where the noise finally gets tired, which is never for long.",
-          "The streets here smell like spice, fuel and people who refuse to slow down."
+          "In this market, everything has a price, and silence costs the most.",
+          "You want a name, detective? Names here are worth more than the antiques.",
+          "I trade in things that move fast and disappear faster. Questions slow that down."
         ],
         "travelHints": {
           "london": [
-            "They asked about a city where the sky sounds wet even in conversation.",
-            "Your suspect mentioned red buses, damp coats and rules with expensive accents.",
-            "They talked about London like a colder kind of performance."
+            "They asked about London, said English buyers pay well for a good provenance story.",
+            "Your suspect wanted contacts discreet enough to survive customs and small talk.",
+            "They mentioned wanting distance and colder weather, oddly specific."
           ],
           "paris": [
-            "They asked about Paris like they expected beauty to be useful.",
-            "Your thief mentioned cafés, smoke and a tower everyone photographs instead of understanding.",
-            "They talked about a place where elegance and inconvenience seem happily married."
+            "They asked about Paris, said European buyers appreciate elegance over honesty.",
+            "Your thief wanted a market that trades in beautiful things with complicated pasts.",
+            "They talked about needing a buyer who forgives expensive mistakes."
           ],
           "berlin": [
-            "They asked about Berlin with interest, not affection.",
-            "Your suspect mentioned walls, music and people who mistake insomnia for philosophy.",
-            "They talked about a city built out of concrete, memory and late decisions."
+            "They asked about Berlin, said the underground there runs quiet and late.",
+            "Your suspect wanted contacts used to trading things that officially don't exist.",
+            "They mentioned wanting silence, and Berlin sells that well."
           ],
           "new_york_city": [
-            "They wanted to know if New York is truly louder than itself.",
-            "Your thief mentioned taxis, sirens and buildings tall enough to ignore ordinary people.",
-            "They talked about a city where rushing counts as a personality."
+            "They asked about New York, said American money moves fast and forgets faster.",
+            "Your thief wanted a buyer used to closing deals before questions start.",
+            "They talked about a market too busy to notice guilt."
           ],
           "warsaw": [
-            "They asked about a city rebuilt by habit and necessity.",
-            "Your suspect mentioned Warsaw with unexpected respect.",
-            "They talked about a river city where memory still works overtime."
+            "They asked about Warsaw, said Polish buyers still trust loyalty over paperwork.",
+            "Your suspect mentioned old contacts there from before things went wrong.",
+            "They wanted to know if handshakes still mean something in that market."
           ],
           "new_delhi": [
-            "They described New Delhi like someone trying to decide whether chaos is a burden or a language.",
-            "They mentioned heat, markets and traffic that negotiates directly with fate.",
-            "They talked about a city that never truly clears its throat before speaking."
+            "They talked about this market like someone who understood how fast things move here.",
+            "Your suspect wanted a buyer who trades in history without caring who owned it first.",
+            "They mentioned wanting cash, speed, and no questions about where things came from."
           ]
         },
         "suspectCluePool": {
           "hair": {
-            "Black": [
-              "Black hair, already losing an argument with the humidity."
-            ],
-            "Brown": [
-              "Brown hair, tied back like they’d learned that lesson the hard way."
-            ],
-            "Blonde": [
-              "Blonde hair, catching every speck of dust in a ten-meter radius."
-            ],
-            "Red": [
-              "Red hair, somehow louder than the traffic."
-            ]
+            "Black": ["Black hair, damp with heat, still styled like the deal mattered."],
+            "Brown": ["Brown hair, tied back, practical for someone in a hurry."],
+            "Blonde": ["Blonde hair, out of place here, which made them easy to remember."],
+            "Red": ["Red hair, impossible to lose in a crowd, even this one."]
           },
           "eyes": {
-            "Blue": [
-              "Blue eyes, squinting at the heat and the questions."
-            ],
-            "Brown": [
-              "Brown eyes, reflecting headlights and suspicion."
-            ],
-            "Green": [
-              "Green eyes, tracking movement like they were afraid to blink."
-            ],
-            "Hazel": [
-              "Hazel eyes that treated every shout as possible bad news."
-            ]
+            "Blue": ["Blue eyes, squinting against the heat and the price I quoted."],
+            "Brown": ["Brown eyes, sharp, negotiating like the deal had a deadline."],
+            "Green": ["Green eyes, greedy enough to overpay just to close it fast."],
+            "Hazel": ["Hazel eyes, watching the crowd more than the merchandise."]
           },
           "habitus": {
-            "Smoking": [
-              "Even through spice, fuel and dust, the smoke clung to them."
-            ],
-            "Drinking": [
-              "They held their water bottle like a temporary religion."
-            ]
+            "Smoking": ["Smoked through the haggling, steady despite the heat."],
+            "Drinking": ["Drank water constantly, nerves or weather, hard to say which."]
           },
           "features": {
-            "Necklace": [
-              "A small pendant tapping against their chest every time they lied."
-            ],
-            "Glasses": [
-              "Glasses fogged at the edges from heat and bad timing."
-            ]
+            "Necklace": ["A necklace worth more than the story they gave for selling it."],
+            "Glasses": ["Glasses fogged from heat, sharp eyes behind them regardless."]
           },
           "accent": {
-            "Indian": [
-              "An Indian accent, local, quick, used to shouting over traffic."
-            ],
-            "British": [
-              "A British accent melting slightly in this weather."
-            ],
-            "American": [
-              "An American accent pretending not to be overwhelmed."
-            ]
+            "Indian": ["An Indian accent, local, fast, used to negotiating over noise."],
+            "British": ["A British accent, out of place and overpriced, like imported goods."],
+            "American": ["An American accent, impatient, wanting the deal done before the heat won."]
           }
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "Since then only the dust has moved."
-          ],
-          [
-            "Back again?",
-            "You must really like heat and bad odds."
-          ],
-          [
-            "No new clue.",
-            "Just the same traffic, same shouts and different excuses."
-          ]
+          ["We already did business, detective.", "Nothing's moved through the market since."],
+          ["Back again?", "This isn't charity. I don't repeat deals for free."],
+          ["No new stock, no new leads.", "Same heat, same noise, same empty hands."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Loud mistake, easy to hear from here."
-          ],
-          [
-            "That lead burned out fast.",
-            "Like most cheap lanterns in a long night."
-          ],
-          [
-            "Your suspect is somewhere else.",
-            "You only managed to chase the heat."
-          ]
+          ["Wrong city, detective.", "Someone sold you a bad tip, and the heat made it worse."],
+          ["That lead's worthless here.", "Should've checked the price before the trip."],
+          ["Your thief never touched my table.", "You chased noise, not evidence."]
         ]
       }
     }

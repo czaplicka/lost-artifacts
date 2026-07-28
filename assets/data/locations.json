@@ -17,7 +17,8 @@
       { "id": "london_maid_hotel", "npcId": "maid", "locationId": "hotel" },
       { "id": "london_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "london_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "london_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "london_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "london_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
@@ -42,7 +43,8 @@
       { "id": "paris_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "paris_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
       { "id": "paris_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "paris_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "paris_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "paris_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
@@ -67,7 +69,8 @@
       { "id": "new_delhi_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
       { "id": "new_delhi_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "new_delhi_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "new_delhi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "new_delhi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "new_delhi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
@@ -93,7 +96,8 @@
       { "id": "warsaw_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "warsaw_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
       { "id": "warsaw_fence_alley", "npcId": "fence", "locationId": "alley" },
-      { "id": "warsaw_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "warsaw_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "warsaw_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
@@ -119,7 +123,8 @@
       { "id": "new_york_city_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
       { "id": "new_york_city_maid_hotel", "npcId": "maid", "locationId": "hotel" },
       { "id": "new_york_city_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "new_york_city_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "new_york_city_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "new_york_city_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
@@ -145,7 +150,8 @@
       { "id": "berlin_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "berlin_maid_hotel", "npcId": "maid", "locationId": "hotel" },
       { "id": "berlin_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "berlin_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+      { "id": "berlin_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "berlin_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": {
       "count": 3,
