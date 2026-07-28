@@ -4,237 +4,167 @@
     "city": "London",
     "country": "United Kingdom",
     "background": "london.jpg",
-    "map": {
-      "x": 890,
-      "y": 340
-    },
-    "npcPool": ["bankier", "bum", "stewardessa", "maid", "police", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"],
-    "encounters": [
-      {
-        "id": "london_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 260,
-        "cityY": 390,
-        "enabled": true
-      },
-      {
-        "id": "london_bum_alley",
-        "npcId": "bum",
-        "locationId": "alley",
-        "cityX": 560,
-        "cityY": 470,
-        "enabled": true
-      },
-      {
-        "id": "london_stewardessa_airport",
-        "npcId": "stewardessa",
-        "locationId": "airport",
-        "cityX": 900,
-        "cityY": 320,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 890, "y": 340 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "london_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "london_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "london_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "london_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "london_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "london_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "london_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "paris",
     "city": "Paris",
     "country": "France",
     "background": "paris.jpg",
-    "map": {
-      "x": 920,
-      "y": 400
-    },
-    "npcPool": ["bankier", "maid", "police", "stewardessa", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "alley", "hotel", "policehq"],
-    "encounters": [
-      {
-        "id": "paris_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 250,
-        "cityY": 380,
-        "enabled": true
-      },
-      {
-        "id": "paris_maid_hotel",
-        "npcId": "maid",
-        "locationId": "hotel",
-        "cityX": 600,
-        "cityY": 420,
-        "enabled": true
-      },
-      {
-        "id": "paris_police_policehq",
-        "npcId": "police",
-        "locationId": "policehq",
-        "cityX": 910,
-        "cityY": 330,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 920, "y": 400 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 250, "cityY": 380, "enabled": true },
+      { "id": "slot_2", "cityX": 600, "cityY": 420, "enabled": true },
+      { "id": "slot_3", "cityX": 910, "cityY": 330, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "paris_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "paris_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "paris_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "paris_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "paris_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "paris_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "new_delhi",
     "city": "New Delhi",
     "country": "India",
     "background": "new_delhi.jpg",
-    "map": {
-      "x": 1290,
-      "y": 480
-    },
-    "npcPool": ["bankier", "police", "stewardessa", "bum", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "policehq"],
-    "encounters": [
-      {
-        "id": "new_delhi_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 270,
-        "cityY": 400,
-        "enabled": true
-      },
-      {
-        "id": "new_delhi_bum_alley",
-        "npcId": "bum",
-        "locationId": "alley",
-        "cityX": 560,
-        "cityY": 500,
-        "enabled": true
-      },
-      {
-        "id": "new_delhi_stewardessa_airport",
-        "npcId": "stewardessa",
-        "locationId": "airport",
-        "cityX": 910,
-        "cityY": 310,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 1290, "y": 480 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 270, "cityY": 400, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 500, "enabled": true },
+      { "id": "slot_3", "cityX": 910, "cityY": 310, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "new_delhi_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "new_delhi_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "new_delhi_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "new_delhi_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "new_delhi_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "new_delhi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "warsaw",
     "city": "Warsaw",
     "country": "Poland",
     "background": "warsaw.jpg",
-    "map": {
-      "x": 1050,
-      "y": 360
-    },
-    "npcPool": ["bankier", "stewardessa", "maid", "police", "bum", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "alley", "hotel", "policehq"],
-    "encounters": [
-      {
-        "id": "warsaw_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 260,
-        "cityY": 390,
-        "enabled": true
-      },
-      {
-        "id": "warsaw_parkingowy_parking",
-        "npcId": "parkingowy",
-        "locationId": "parking",
-        "cityX": 560,
-        "cityY": 470,
-        "enabled": true
-      },
-      {
-        "id": "warsaw_maid_hotel",
-        "npcId": "maid",
-        "locationId": "hotel",
-        "cityX": 900,
-        "cityY": 330,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 1050, "y": 360 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 330, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "warsaw_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "warsaw_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "warsaw_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "warsaw_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "warsaw_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "warsaw_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "warsaw_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "new_york_city",
     "city": "New York City",
     "country": "USA",
     "background": "new_york_city.jpg",
-    "map": {
-      "x": 600,
-      "y": 400
-    },
-    "npcPool": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "harbor", "policehq"],
-    "encounters": [
-      {
-        "id": "new_york_city_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 230,
-        "cityY": 390,
-        "enabled": true
-      },
-      {
-        "id": "new_york_city_bum_harbor",
-        "npcId": "bum",
-        "locationId": "harbor",
-        "cityX": 560,
-        "cityY": 500,
-        "enabled": true
-      },
-      {
-        "id": "new_york_city_police_policehq",
-        "npcId": "police",
-        "locationId": "policehq",
-        "cityX": 920,
-        "cityY": 320,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 600, "y": 400 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 230, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 500, "enabled": true },
+      { "id": "slot_3", "cityX": 920, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "new_york_city_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "new_york_city_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "new_york_city_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "new_york_city_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "new_york_city_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "new_york_city_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "new_york_city_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "berlin",
     "city": "Berlin",
     "country": "Germany",
     "background": "berlin.jpg",
-    "map": {
-      "x": 985,
-      "y": 335
-    },
-    "npcPool": ["bankier", "stewardessa", "police", "bum", "maid", "parkingowy"],
-    "locationPool": ["bank", "parking", "airport", "hotel", "alley", "policehq"],
-    "encounters": [
-      {
-        "id": "berlin_bankier_bank",
-        "npcId": "bankier",
-        "locationId": "bank",
-        "cityX": 240,
-        "cityY": 380,
-        "enabled": true
-      },
-      {
-        "id": "berlin_bum_alley",
-        "npcId": "bum",
-        "locationId": "alley",
-        "cityX": 550,
-        "cityY": 470,
-        "enabled": true
-      },
-      {
-        "id": "berlin_stewardessa_airport",
-        "npcId": "stewardessa",
-        "locationId": "airport",
-        "cityX": 910,
-        "cityY": 320,
-        "enabled": true
-      }
-    ]
+    "map": { "x": 985, "y": 335 },
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 240, "cityY": 380, "enabled": true },
+      { "id": "slot_2", "cityX": 550, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 910, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "berlin_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "berlin_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "berlin_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "berlin_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "berlin_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "berlin_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "berlin_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" }
+    ],
+    "encounterRules": {
+      "count": 3,
+      "uniqueNpc": true,
+      "uniqueLocation": true
+    }
   },
   {
     "id": "hq",
     "city": "Mark Agency Headquarters",
     "country": "International",
     "background": "start.jpg",
-    "map": {
-      "x": 1085,
-      "y": 435
+    "map": { "x": 1085, "y": 435 },
+    "encounterSlots": [],
+    "encounterPool": [],
+    "encounterRules": {
+      "count": 0,
+      "uniqueNpc": true,
+      "uniqueLocation": true
     }
   }
 ]

@@ -2,8 +2,10 @@ export class CaseFileUI {
     constructor(scene) {
         this.scene = scene;
         this.isOpen = false;
+        this.isAnimating = false;
         this.overlay = null;
         this.container = null;
+        this.currentData = null;
 
         this.artifactText = null;
         this.cityText = null;
@@ -121,13 +123,47 @@ export class CaseFileUI {
             activeTag === 'TEXTAREA' ||
             document.activeElement?.isContentEditable;
 
-        if (isTyping) return;
+        if (isTyping || this.isAnimating) return;
 
         event.preventDefault();
-        this.toggle();
+        event.stopPropagation?.();
+
+        const missionData = this.getMissionData();
+        this.toggle(missionData);
+    }
+
+    getMissionData() {
+        const mission =
+            this.scene.gameState?.currentMission ||
+            this.scene.currentMission ||
+            null;
+
+        if (!mission) {
+            return this.currentData || {
+                artifact: 'UNKNOWN ARTIFACT',
+                city: '',
+                country: '',
+                description: 'No more data...',
+                significance: '',
+                clue: 'No more clues...',
+                artifactKey: 'artifact_fallback'
+            };
+        }
+
+        return {
+            artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+            city: mission.city || '',
+            country: mission.country || '',
+            description: mission.description || 'No more data...',
+            significance: mission.significance || mission.signifance || '',
+            clue: mission.clue || 'No more clues...',
+            artifactKey: mission.artifactKey || 'artifact_fallback'
+        };
     }
 
     update(data = {}) {
+        this.currentData = data;
+
         this.artifactText.setText(data.artifact || 'UNKNOWN ARTIFACT');
 
         const locationText =
@@ -140,40 +176,57 @@ export class CaseFileUI {
         this.significanceText.setText(data.significance || data.signifance || '');
         this.tiesText.setText(data.clue || 'No more clues...');
 
-        if (data.artifactKey) {
-            if (this.scene.textures.exists(data.artifactKey)) {
-                this.artifactImage.setTexture(data.artifactKey);
-            } else {
-                console.warn(`Brak tekstury artefaktu: "${data.artifactKey}". Użyto fallbacku.`);
-                this.artifactImage.setTexture('artifact_fallback');
-            }
-        } else {
-            this.artifactImage.setTexture('artifact_fallback');
+        const textureKey =
+            data.artifactKey && this.scene.textures.exists(data.artifactKey)
+                ? data.artifactKey
+                : 'artifact_fallback';
+
+        if (textureKey === 'artifact_fallback' && data.artifactKey && !this.scene.textures.exists(data.artifactKey)) {
+            console.warn(`Brak tekstury artefaktu: "${data.artifactKey}". Użyto fallbacku.`);
         }
+
+        this.artifactImage.setTexture(textureKey);
+        this.artifactImage.setDisplaySize(350, 350);
+
+        console.log('caseFile data:', data);
+        console.log('resolved textureKey:', textureKey);
+        console.log('all textures:', this.scene.textures.getTextureKeys());
     }
 
     open(data = null) {
-        if (data) {
-            this.update(data);
-        }
+        if (this.isAnimating) return;
+
+        const resolvedData = data || this.currentData || this.getMissionData();
+        this.update(resolvedData);
 
         if (this.isOpen) return;
+
+        this.isAnimating = true;
         this.isOpen = true;
 
         this.overlay.setVisible(true);
         this.container.setVisible(true);
 
+        this.scene.tweens.killTweensOf([this.overlay, this.container]);
+
         this.scene.tweens.add({
             targets: [this.overlay, this.container],
             alpha: 1,
             duration: 220,
-            ease: 'Power2'
+            ease: 'Power2',
+            onComplete: () => {
+                this.isAnimating = false;
+            }
         });
     }
 
     close() {
-        if (!this.isOpen) return;
+        if (!this.isOpen || this.isAnimating) return;
+
+        this.isAnimating = true;
         this.isOpen = false;
+
+        this.scene.tweens.killTweensOf([this.overlay, this.container]);
 
         this.scene.tweens.add({
             targets: [this.overlay, this.container],
@@ -183,11 +236,14 @@ export class CaseFileUI {
             onComplete: () => {
                 this.overlay.setVisible(false);
                 this.container.setVisible(false);
+                this.isAnimating = false;
             }
         });
     }
 
     toggle(data = null) {
+        if (this.isAnimating) return;
+
         if (this.isOpen) {
             this.close();
         } else {
@@ -198,9 +254,24 @@ export class CaseFileUI {
     destroy() {
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-F', this.boundToggleHandler);
+            this.scene.input.keyboard.removeCapture('F');
         }
+
+        this.scene.tweens.killTweensOf([this.overlay, this.container]);
 
         this.container?.destroy(true);
         this.overlay?.destroy();
+
+        this.container = null;
+        this.overlay = null;
+        this.artifactImage = null;
+        this.artifactText = null;
+        this.cityText = null;
+        this.descText = null;
+        this.significanceText = null;
+        this.tiesText = null;
+        this.currentData = null;
+        this.isOpen = false;
+        this.isAnimating = false;
     }
 }

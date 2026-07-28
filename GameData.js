@@ -26,7 +26,6 @@ export const defaultGameState = {
   routeIndex: -1,
   nextTargetCity: null,
   nextTargetCityId: null,
-
   mustIncludeCityId: null,
 
   score: 0,
@@ -43,18 +42,14 @@ export const defaultGameState = {
   playerNotes: '',
 
   encounterMemory: {},
+  cityEncounterState: {},
 
   storyPhoneCallTriggered: false,
   pendingPhoneCall: false,
   pendingPhoneCallCityId: null,
 
   hiddenObjectHistory: [],
-  reconstructedHeist: null,
-
-  pendingPhoneCall: false,
-pendingPhoneCallCityId: null,
-reconstructedHeist: null,
-hiddenObjectHistory: [],
+  reconstructedHeist: null
 };
 
 export const gameState = structuredClone(defaultGameState);
@@ -74,6 +69,14 @@ function cloneDefaultState() {
   return structuredClone(defaultGameState);
 }
 
+function isPlainObject(value) {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      !Array.isArray(value)
+  );
+}
+
 function sanitizeSaveData(data) {
   const clean = cloneDefaultState();
 
@@ -83,8 +86,8 @@ function sanitizeSaveData(data) {
 
   clean.currentCity = data?.currentCity ?? null;
   clean.currentCityId = data?.currentCityId ?? null;
-  clean.currentMission = data?.currentMission ?? null;
-  clean.currentCityData = data?.currentCityData ?? null;
+  clean.currentMission = data?.currentMission ? structuredClone(data.currentMission) : null;
+  clean.currentCityData = data?.currentCityData ? structuredClone(data.currentCityData) : null;
   clean.currentEncounterId = data?.currentEncounterId ?? null;
 
   clean.finalArrestResult =
@@ -98,58 +101,87 @@ function sanitizeSaveData(data) {
 
   clean.crimeCity = data?.crimeCity ?? null;
   clean.crimeCityId = data?.crimeCityId ?? null;
-  clean.crimeSceneVisited = typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
-  clean.specialScenesVisited =
-    data?.specialScenesVisited &&
-    typeof data.specialScenesVisited === 'object' &&
-    !Array.isArray(data.specialScenesVisited)
-      ? structuredClone(data.specialScenesVisited)
-      : {};
+  clean.crimeSceneVisited =
+    typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
+
+  clean.specialScenesVisited = isPlainObject(data?.specialScenesVisited)
+    ? structuredClone(data.specialScenesVisited)
+    : {};
+
   clean.justReachedCorrectCityId = data?.justReachedCorrectCityId ?? null;
 
-  clean.activeLocations = Array.isArray(data?.activeLocations) ? structuredClone(data.activeLocations) : [];
-  clean.currentDestinations = Array.isArray(data?.currentDestinations) ? structuredClone(data.currentDestinations) : [];
-  clean.escapeRoute = Array.isArray(data?.escapeRoute) ? [...data.escapeRoute] : [];
+  clean.activeLocations = Array.isArray(data?.activeLocations)
+    ? structuredClone(data.activeLocations)
+    : [];
+
+  clean.currentDestinations = Array.isArray(data?.currentDestinations)
+    ? structuredClone(data.currentDestinations)
+    : [];
+
+  clean.escapeRoute = Array.isArray(data?.escapeRoute)
+    ? [...data.escapeRoute]
+    : [];
+
   clean.routeIndex = Number.isInteger(data?.routeIndex) ? data.routeIndex : -1;
   clean.nextTargetCity = data?.nextTargetCity ?? null;
   clean.nextTargetCityId = data?.nextTargetCityId ?? null;
-
   clean.mustIncludeCityId = data?.mustIncludeCityId ?? null;
 
   clean.score = Number.isFinite(data?.score) ? data.score : 0;
-  clean.playerRank = typeof data?.playerRank === 'string' ? data.playerRank : 'Junior Agent';
-  clean.isGameActive = typeof data?.isGameActive === 'boolean' ? data.isGameActive : false;
+  clean.playerRank =
+    typeof data?.playerRank === 'string' ? data.playerRank : 'Junior Agent';
+  clean.isGameActive =
+    typeof data?.isGameActive === 'boolean' ? data.isGameActive : false;
 
   clean.timeSpent = Number.isFinite(data?.timeSpent) ? data.timeSpent : 0;
-  clean.travelHistory = Array.isArray(data?.travelHistory) ? structuredClone(data.travelHistory) : [];
+  clean.travelHistory = Array.isArray(data?.travelHistory)
+    ? structuredClone(data.travelHistory)
+    : [];
   clean.lastTravel = data?.lastTravel ? structuredClone(data.lastTravel) : null;
 
-  clean.cluesCollected = Array.isArray(data?.cluesCollected) ? [...data.cluesCollected] : [];
-  clean.visitedEncounters = Array.isArray(data?.visitedEncounters) ? [...data.visitedEncounters] : [];
-  clean.visitedCities = Array.isArray(data?.visitedCities) ? [...data.visitedCities] : [];
+  clean.cluesCollected = Array.isArray(data?.cluesCollected)
+    ? structuredClone(data.cluesCollected)
+    : [];
+
+  clean.visitedEncounters = Array.isArray(data?.visitedEncounters)
+    ? [...data.visitedEncounters]
+    : [];
+
+  clean.visitedCities = Array.isArray(data?.visitedCities)
+    ? [...data.visitedCities]
+    : [];
+
   clean.playerNotes = typeof data?.playerNotes === 'string' ? data.playerNotes : '';
 
-  clean.encounterMemory =
-    data?.encounterMemory &&
-    typeof data.encounterMemory === 'object' &&
-    !Array.isArray(data.encounterMemory)
-      ? structuredClone(data.encounterMemory)
-      : {};
+  clean.encounterMemory = isPlainObject(data?.encounterMemory)
+    ? structuredClone(data.encounterMemory)
+    : {};
 
-  clean.storyPhoneCallTriggered = typeof data?.storyPhoneCallTriggered === 'boolean' ? data.storyPhoneCallTriggered : false;
-  clean.pendingPhoneCall = typeof data?.pendingPhoneCall === 'boolean' ? data.pendingPhoneCall : false;
+  clean.cityEncounterState = isPlainObject(data?.cityEncounterState)
+    ? structuredClone(data.cityEncounterState)
+    : {};
+
+  clean.storyPhoneCallTriggered =
+    typeof data?.storyPhoneCallTriggered === 'boolean'
+      ? data.storyPhoneCallTriggered
+      : false;
+
+  clean.pendingPhoneCall =
+    typeof data?.pendingPhoneCall === 'boolean'
+      ? data.pendingPhoneCall
+      : false;
+
   clean.pendingPhoneCallCityId = data?.pendingPhoneCallCityId ?? null;
 
-  clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory) ? structuredClone(data.hiddenObjectHistory) : [];
+  clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory)
+    ? structuredClone(data.hiddenObjectHistory)
+    : [];
+
   clean.reconstructedHeist =
     data?.reconstructedHeist && typeof data.reconstructedHeist === 'object'
       ? structuredClone(data.reconstructedHeist)
       : null;
 
-      clean.pendingPhoneCall = typeof data?.pendingPhoneCall === 'boolean' ? data.pendingPhoneCall : false;
-clean.pendingPhoneCallCityId = data?.pendingPhoneCallCityId ?? null;
-clean.reconstructedHeist = data?.reconstructedHeist ? structuredClone(data.reconstructedHeist) : null;
-clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory) ? structuredClone(data.hiddenObjectHistory) : [];
   return clean;
 }
 

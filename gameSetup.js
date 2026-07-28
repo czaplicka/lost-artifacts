@@ -53,7 +53,11 @@ function getLocationByCity(cityName, locationsData) {
 
 function getLocationById(cityId, locationsData) {
   if (!Array.isArray(locationsData) || !cityId) return null;
-  return locationsData.find(loc => (loc.id || normalizeCityId(loc.city)) === cityId) || null;
+  return (
+    locationsData.find(
+      loc => (loc.id || normalizeCityId(loc.city)) === cityId
+    ) || null
+  );
 }
 
 function validateSetupData(suspectsData, missionsData, locationsData) {
@@ -75,7 +79,9 @@ function syncInvestigationState(locationsData) {
     gameState.escapeRoute = [];
   }
 
-  const routeIndex = Number.isInteger(gameState.routeIndex) ? gameState.routeIndex : -1;
+  const routeIndex = Number.isInteger(gameState.routeIndex)
+    ? gameState.routeIndex
+    : -1;
   const isFinale = routeIndex >= gameState.escapeRoute.length;
 
   if (!gameState.crimeSceneVisited) {
@@ -84,7 +90,8 @@ function syncInvestigationState(locationsData) {
     gameState.nextTargetCityId = gameState.crimeCityId || null;
 
     const crimeCityData = getLocationById(gameState.crimeCityId, locationsData);
-    gameState.nextTargetCity = crimeCityData?.city || gameState.crimeCity || null;
+    gameState.nextTargetCity =
+      crimeCityData?.city || gameState.crimeCity || null;
     gameState.mustIncludeCityId = gameState.crimeCityId || null;
     return;
   }
@@ -416,7 +423,6 @@ export function advanceInvestigation(locationsData) {
       escapeRoute: gameState.escapeRoute,
       nextCityId
     });
-
     gameState.routeIndex = gameState.escapeRoute.length;
     syncInvestigationState(locationsData);
     gameState.currentDestinations = [];
@@ -447,16 +453,26 @@ export function advanceInvestigation(locationsData) {
 export function completeCityInvestigation(locationsData) {
   const currentCityId = gameState.currentCityId;
   const targetCityId = gameState.nextTargetCityId;
+  const justReachedCorrectCityId = gameState.justReachedCorrectCityId || null;
 
-  if (!currentCityId || !targetCityId) {
+  const isPlayerInResolvableCity = Boolean(
+    currentCityId &&
+      (
+        currentCityId === targetCityId ||
+        currentCityId === justReachedCorrectCityId
+      )
+  );
+
+  if (!currentCityId) {
     return { success: false, status: 'NO_ACTIVE_TARGET' };
   }
 
-  if (currentCityId !== targetCityId) {
+  if (!isPlayerInResolvableCity) {
     return { success: false, status: 'WRONG_CITY' };
   }
 
   gameState.justReachedCorrectCityId = null;
+
   const status = advanceInvestigation(locationsData);
   saveGameState();
 
@@ -471,10 +487,13 @@ export function travelToCity(cityName, locationsData) {
   const previousCityId = gameState.currentCityId;
   const travelHours = getTravelHours(previousCity, cityName, locationsData);
   const destinationCityData = getLocationByCity(cityName, locationsData);
-  const destinationCityId = destinationCityData?.id || normalizeCityId(cityName);
+  const destinationCityId =
+    destinationCityData?.id || normalizeCityId(cityName);
   const expectedTargetCityId = gameState.nextTargetCityId;
   const wasCorrect = Boolean(
-    destinationCityId && expectedTargetCityId && destinationCityId === expectedTargetCityId
+    destinationCityId &&
+      expectedTargetCityId &&
+      destinationCityId === expectedTargetCityId
   );
   const isCrimeSceneArrival = destinationCityId === gameState.crimeCityId;
 
@@ -516,16 +535,14 @@ export function travelToCity(cityName, locationsData) {
     gameState.score += 100;
     gameState.justReachedCorrectCityId = destinationCityId;
 
-    const investigationStatus = advanceInvestigation(locationsData);
-
     saveGameState();
 
     return {
       wasCorrect,
       travelHours,
-      status:
-        investigationStatus ||
-        (isCrimeSceneArrival ? 'CRIME_SCENE_REACHED' : 'CORRECT_CITY_REACHED'),
+      status: isCrimeSceneArrival
+        ? 'CRIME_SCENE_REACHED'
+        : 'CORRECT_CITY_REACHED',
       fromCity: previousCity,
       toCity: cityName,
       toCityId: destinationCityId,
@@ -537,7 +554,9 @@ export function travelToCity(cityName, locationsData) {
   gameState.justReachedCorrectCityId = null;
   syncInvestigationState(locationsData);
   gameState.score = Math.max(0, gameState.score - 25);
-  gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
+  gameState.currentDestinations = generateDestinationsForCurrentCity(
+    locationsData
+  );
   saveGameState();
 
   return {

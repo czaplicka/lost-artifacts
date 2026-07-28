@@ -7,6 +7,7 @@ export class CrimeBoardUI {
         this.overlay = null;
         this.modal = null;
         this.root = null;
+        this.closeBtn = null;
         this.boardApi = null;
         this.templateHtml = null;
         this.disabledScenesInput = [];
@@ -16,70 +17,8 @@ export class CrimeBoardUI {
         this.boundOverlayClickHandler = this.onOverlayClick.bind(this);
         this.boundCloseClickHandler = () => this.close();
 
-        this.ensureRuntimeStyles();
         this.createOverlay();
         this.bindKeyboardShortcut();
-    }
-
-    ensureRuntimeStyles() {
-        if (document.getElementById('crime-board-ui-runtime-styles')) return;
-
-        const style = document.createElement('style');
-        style.id = 'crime-board-ui-runtime-styles';
-        style.textContent = `
-            .crime-board-ui-overlay {
-                position: fixed;
-                inset: 0;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                background: rgba(4, 10, 18, 0.78);
-                backdrop-filter: blur(7px);
-                z-index: 9999;
-                pointer-events: auto;
-            }
-
-            .crime-board-ui-overlay.is-open {
-                display: flex;
-            }
-
-            .crime-board-ui-modal {
-                position: relative;
-                width: min(1500px, 96vw);
-                height: min(920px, 94vh);
-                border-radius: 18px;
-                overflow: hidden;
-                border: 1px solid rgba(150, 208, 255, 0.16);
-                box-shadow:
-                    0 24px 60px rgba(0, 0, 0, 0.42),
-                    0 0 0 1px rgba(255, 255, 255, 0.03);
-                background: #08111b;
-            }
-
-            .crime-board-ui-close {
-                position: absolute;
-                top: 14px;
-                right: 14px;
-                z-index: 60;
-                border: 1px solid rgba(167, 218, 255, 0.14);
-                background: rgba(66, 125, 181, 0.18);
-                color: #f3fbff;
-                padding: 10px 14px;
-                border-radius: 10px;
-                font: 600 13px/1 sans-serif;
-                cursor: pointer;
-            }
-
-            .crime-board-ui-close:hover {
-                background: rgba(66, 125, 181, 0.34);
-            }
-
-            .crime-board-ui-root {
-                width: 100%;
-                height: 100%;
-            }
-        `;
-        document.head.appendChild(style);
     }
 
     createOverlay() {
@@ -129,56 +68,59 @@ export class CrimeBoardUI {
         this.toggle();
     }
 
-async loadTemplate() {
-  if (this.templateHtml) return this.templateHtml;
+    async loadTemplate() {
+        if (this.templateHtml) return this.templateHtml;
 
-  const templateUrl = new URL('../crime-board.html', import.meta.url).toString();
-  const response = await fetch(templateUrl, { cache: 'no-store' });
+        const templateUrl = new URL('../crime-board.html', import.meta.url).toString();
+        const response = await fetch(templateUrl, { cache: 'no-store' });
 
-  if (!response.ok) {
-    throw new Error(`Could not load crime-board.html: ${response.status} (${templateUrl})`);
-  }
+        if (!response.ok) {
+            throw new Error(`Could not load crime-board.html: ${response.status} (${templateUrl})`);
+        }
 
-  const html = await response.text();
+        const html = await response.text();
 
-  if (!html.includes('id="crime-board"')) {
-    console.error('CrimeBoardUI: fetched template does not contain #crime-board. Raw response:', html.slice(0, 300));
-    throw new Error('CrimeBoardUI: crime-board.html template is missing #crime-board root element.');
-  }
+        if (!html.includes('id="crime-board"')) {
+            console.error(
+                'CrimeBoardUI: fetched template does not contain #crime-board. Raw response:',
+                html.slice(0, 300)
+            );
+            throw new Error('CrimeBoardUI: crime-board.html template is missing #crime-board root element.');
+        }
 
-  this.templateHtml = html;
-  return this.templateHtml;
-}
+        this.templateHtml = html;
+        return this.templateHtml;
+    }
 
-async open(gameState = null) {
-  if (this.isOpen) return;
+    async open(gameState = null) {
+        if (this.isOpen) return;
 
-  const state = gameState || this.scene.playerMenu?.gameState || this.scene.gameState || {};
+        const state = gameState || this.scene.playerMenu?.gameState || this.scene.gameState || {};
 
-  this.isOpen = true;
-  this.overlay.classList.add('is-open');
-  this.disableUnderlyingScenesInput();
+        this.isOpen = true;
+        this.overlay.classList.add('is-open');
+        this.disableUnderlyingScenesInput();
 
-  try {
-    const html = await this.loadTemplate();
-    this.root.innerHTML = html;
+        try {
+            const html = await this.loadTemplate();
+            this.root.innerHTML = html;
 
-    this.boardApi = await initCrimeBoard({
-      root: this.root,
-      gameState: state,
-      data: state?.crimeBoardData || null
-    });
+            this.boardApi = await initCrimeBoard({
+                root: this.root,
+                gameState: state,
+                data: state?.crimeBoardData || null
+            });
 
-    document.addEventListener('keydown', this.boundEscHandler);
-  } catch (error) {
-    console.error('CrimeBoardUI open failed:', error);
-    this.root.innerHTML = '';
-    this.overlay.classList.remove('is-open');
-    this.isOpen = false;
-    this.boardApi = null;
-    this.enableUnderlyingScenesInput();
-  }
-}
+            document.addEventListener('keydown', this.boundEscHandler);
+        } catch (error) {
+            console.error('CrimeBoardUI open failed:', error);
+            this.root.innerHTML = '';
+            this.overlay.classList.remove('is-open');
+            this.isOpen = false;
+            this.boardApi = null;
+            this.enableUnderlyingScenesInput();
+        }
+    }
 
     close() {
         if (!this.isOpen) return;

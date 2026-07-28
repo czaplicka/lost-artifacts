@@ -65,18 +65,29 @@ export class LocationScene extends Phaser.Scene {
     this.locationId = data.locationId || null;
     this.isRepeat = Boolean(data.isRepeat);
 
+    const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
     const derivedIsCrimeCity =
       Boolean(this.cityId) && this.cityId === gameState.crimeCityId;
     const derivedIsNextTargetCity =
       Boolean(this.cityId) && this.cityId === gameState.nextTargetCityId;
     const derivedJustReached =
       Boolean(this.cityId) && this.cityId === gameState.justReachedCorrectCityId;
+    const derivedIsOnEscapeRoute =
+      Boolean(this.cityId) && route.includes(this.cityId);
+    const derivedIsCurrentVisitedRouteCity =
+      Boolean(this.cityId) &&
+      gameState.currentCityId === this.cityId &&
+      derivedIsOnEscapeRoute;
 
     this.isCrimeCity = data.isCrimeCity ?? derivedIsCrimeCity;
     this.isNextTargetCity = data.isNextTargetCity ?? derivedIsNextTargetCity;
     this.isCorrectCity =
       data.isCorrectCity ??
-      Boolean(derivedIsCrimeCity || derivedIsNextTargetCity || derivedJustReached);
+      Boolean(
+        derivedIsCrimeCity ||
+        derivedIsCurrentVisitedRouteCity ||
+        derivedJustReached
+      );
 
     this.lines = [];
     this.generatedNotes = [];
@@ -194,8 +205,8 @@ export class LocationScene extends Phaser.Scene {
       } else {
         this.dialogueTargetCityId =
           lookAheadTargetId ||
-          gameState.nextTargetCityId ||
           frozenTargetFromMemory ||
+          gameState.nextTargetCityId ||
           null;
       }
     }
@@ -343,6 +354,9 @@ export class LocationScene extends Phaser.Scene {
 
     if (this.locationAmbient?.isPlaying) {
       this.locationAmbient.stop();
+    }
+    if (this.locationAmbient?.destroy) {
+      this.locationAmbient.destroy();
     }
     this.locationAmbient = null;
 
@@ -492,11 +506,12 @@ export class LocationScene extends Phaser.Scene {
   getNpcDisplayName(npcId) {
     const names = {
       bankier: 'Banker',
-      stewardessa: 'Stewardess',
+      stewardessa: 'Flight Attendant',
       maid: 'Maid',
       police: 'Police Officer',
       fence: 'Fence',
-      parkingowy: 'Parking Worker'
+      parkingowy: 'Parking Worker',
+      knajpa: 'Restaurant Manager'
     };
 
     return names[npcId] || npcId || 'Unknown witness';

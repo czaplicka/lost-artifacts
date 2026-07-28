@@ -36,18 +36,19 @@ export class PlayerMenuUI {
         this.scene.input.keyboard.on('keydown-M', this.boundToggleHandler);
     }
 
-    onToggleKeyDown(event) {
-        const activeTag = document.activeElement?.tagName;
-        const isTyping =
-            activeTag === 'INPUT' ||
-            activeTag === 'TEXTAREA' ||
-            document.activeElement?.isContentEditable;
+onToggleKeyDown(event) {
+    const activeTag = document.activeElement?.tagName;
+    const isTyping =
+        activeTag === 'INPUT' ||
+        activeTag === 'TEXTAREA' ||
+        document.activeElement?.isContentEditable;
 
-        if (isTyping || this.isAnimating) return;
+    if (isTyping || this.isAnimating) return;
 
-        event.preventDefault();
-        this.toggle();
-    }
+    event.preventDefault();
+    event.stopPropagation?.();
+    this.toggle();
+}
 
     createCustomBackground() {
         const w = this.config.width;
@@ -304,22 +305,29 @@ export class PlayerMenuUI {
         });
     }
 
-    openCasefile() {
-        if (!this.scene.caseFileUI) return;
+openCasefile() {
+    if (!this.scene.caseFileUI) return;
 
-        this.scene.closeAllUIPanels();
-        const mission = this.gameState.currentMission || {};
+    const mission = this.gameState.currentMission;
 
-        this.scene.caseFileUI.open({
-            artifact: mission.artifact,
-            city: mission.city,
-            country: mission.country,
-            description: mission.description,
-            significance: mission.significance,
-            clue: mission.clue,
-            artifactKey: mission.artifactKey
-        });
+    if (!mission) {
+        console.warn('Brak currentMission — nie otwieram case file.');
+        return;
     }
+
+    this.close();
+    this.scene.closeAllUIPanels();
+
+    this.scene.caseFileUI.open({
+        artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+        city: mission.city || '',
+        country: mission.country || '',
+        description: mission.description || 'No more data...',
+        significance: mission.significance || '',
+        clue: mission.clue || 'No more clues...',
+        artifactKey: mission.artifactKey || 'artifact_fallback'
+    });
+}
 
     openNotes() {
         if (this.scene.notesUI) {
@@ -389,9 +397,10 @@ openAtlas() {
     }
 
     destroy() {
-        if (this.scene.input?.keyboard) {
-            this.scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
-        }
+if (this.scene.input?.keyboard) {
+    this.scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
+    this.scene.input.keyboard.removeCapture('M');
+}
 
         this.scene.tweens.killTweensOf(this.container);
         this.scene.tweens.killTweensOf(this.toggleContainer);

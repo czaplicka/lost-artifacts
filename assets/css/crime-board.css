@@ -37,8 +37,17 @@
   --cb-tab-width: 48px;
 
   --cb-ease: 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  --cb-font-ui: "Trebuchet MS", "Verdana", system-ui, sans-serif;
-  --cb-font-title: Georgia, "Times New Roman", serif;
+--cb-font-ui: "SpecialElite", "Trebuchet MS", "Verdana", system-ui, sans-serif;
+--cb-font-title: "SpecialElite", Georgia, "Times New Roman", serif;
+--cb-font-pixel: "PressStart2P", "Trebuchet MS", "Verdana", system-ui, sans-serif;
+}
+
+.crime-board-btn,
+.crime-board-sidebar-tab,
+.crime-board-sidebar__section-title,
+.crime-board__tag,
+.crime-board__meta li {
+  font-family: var(--cb-font-pixel);
 }
 
 *,
@@ -47,16 +56,94 @@
   box-sizing: border-box;
 }
 
+/* CrimeBoardUI overlay */
+
+.crime-board-ui-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 213, 122, 0.08), transparent 20%),
+    radial-gradient(circle at 80% 20%, rgba(179, 59, 36, 0.1), transparent 24%),
+    rgba(4, 10, 18, 0.78);
+  backdrop-filter: blur(7px);
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+.crime-board-ui-overlay.is-open {
+  display: flex;
+}
+
+.crime-board-ui-modal {
+  position: relative;
+  width: min(1500px, 96vw);
+  height: min(920px, 94vh);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(150, 208, 255, 0.16);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  background: url('/assets/crime-board.jpg') center center / cover no-repeat;
+}
+
+.crime-board-ui-modal::before {
+  content: none;
+}
+
+.crime-board-ui-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 60;
+  border: 1px solid rgba(167, 218, 255, 0.14);
+  background: rgba(66, 125, 181, 0.18);
+  color: #f3fbff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font: 600 13px/1 sans-serif;
+  cursor: pointer;
+  transition:
+    background var(--cb-ease),
+    transform var(--cb-ease),
+    box-shadow var(--cb-ease),
+    border-color var(--cb-ease);
+}
+
+.crime-board-ui-close:hover {
+  background: rgba(66, 125, 181, 0.34);
+}
+
+.crime-board-ui-close:active {
+  transform: translateY(1px);
+}
+
+.crime-board-ui-close:focus-visible {
+  outline: none;
+  border-color: rgba(255, 211, 108, 0.64);
+  box-shadow: 0 0 0 3px rgba(255, 211, 108, 0.18);
+}
+
+.crime-board-ui-root {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* Crime board app */
+
 .crime-board-app {
   position: relative;
   display: grid;
   grid-template-columns: var(--cb-sidebar-width) minmax(0, 1fr);
   min-height: 720px;
   width: 100%;
-  background:
-    radial-gradient(circle at 18% 15%, rgba(250, 211, 125, 0.08), transparent 18%),
-    radial-gradient(circle at 82% 12%, rgba(196, 101, 55, 0.09), transparent 20%),
-    linear-gradient(180deg, #3b3026 0%, #2b221b 100%);
+  background: transparent;
   border: 1px solid var(--cb-border-soft);
   border-radius: var(--cb-radius-xl);
   overflow: hidden;
@@ -75,10 +162,7 @@
   position: relative;
   min-width: 0;
   min-height: 720px;
-  background:
-    radial-gradient(circle at center, rgba(255, 229, 177, 0.03), transparent 45%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.08), transparent 22%),
-    linear-gradient(180deg, #695239 0%, #574330 8%, #4a392b 100%);
+  background: transparent;
 }
 
 .crime-board {
@@ -87,23 +171,11 @@
   height: 100%;
   min-height: 720px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at center, rgba(255, 211, 108, 0.055), transparent 40%),
-    radial-gradient(circle at 35% 20%, rgba(255, 245, 218, 0.03), transparent 22%),
-    radial-gradient(circle at 80% 85%, rgba(0, 0, 0, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06)),
-    repeating-radial-gradient(circle at 0 0, transparent 0 18px, var(--cb-grid-dot) 19px 20px);
+  background: transparent;
 }
 
 .crime-board::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,0.12), transparent 10%, transparent 90%, rgba(0,0,0,0.12)),
-    linear-gradient(180deg, rgba(255,255,255,0.03), transparent 15%, transparent 85%, rgba(0,0,0,0.12));
-  mix-blend-mode: multiply;
+  content: none;
 }
 
 .crime-board__strings,
@@ -748,6 +820,15 @@
 }
 
 @media (max-width: 1100px) {
+  .crime-board-ui-overlay {
+    padding: 12px;
+  }
+
+  .crime-board-ui-modal {
+    width: min(100vw, 100%);
+    height: min(94vh, 100%);
+  }
+
   .crime-board-app {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -773,6 +854,24 @@
 }
 
 @media (max-width: 720px) {
+  .crime-board-ui-overlay {
+    padding: 8px;
+  }
+
+  .crime-board-ui-modal {
+    width: 100%;
+    height: 100%;
+    max-height: 100dvh;
+    border-radius: 14px;
+  }
+
+  .crime-board-ui-close {
+    top: 10px;
+    right: 10px;
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
   .crime-board-app {
     min-height: 620px;
     border-radius: 18px;
@@ -825,6 +924,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .crime-board-ui-close,
   .crime-board-sidebar,
   .crime-board-btn,
   .crime-board-sidebar-tab,

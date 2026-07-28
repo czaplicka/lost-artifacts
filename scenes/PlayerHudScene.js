@@ -12,6 +12,7 @@ import { DialogManager } from '../DialogManager.js';
 export class PlayerHudScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PlayerHudScene' });
+        this.gameState = gameState;
         this.caseFileUI = null;
         this.notesUI = null;
         this.warrantUI = null;
@@ -29,21 +30,21 @@ export class PlayerHudScene extends Phaser.Scene {
 
         const atlasEntries = this.cache.json.get('atlas') || [];
         console.log('atlas entries:', atlasEntries);
-console.log('atlas entries length:', atlasEntries.length);
+        console.log('atlas entries length:', atlasEntries.length);
 
         this.caseFileUI = new CaseFileUI(this);
         this.notesUI = new NotesUI(this);
         this.warrantUI = new WarrantUI(this);
         this.destinationsUI = new DestinationsUI(this);
         this.atlasUI = new AtlasUI(this, atlasEntries);
-        this.phoneUI = new PhonebookUI(this, gameState);
-        this.dialogManager = new DialogManager(this, gameState);
+        this.phoneUI = new PhonebookUI(this, this.gameState);
+        this.dialogManager = new DialogManager(this, this.gameState);
 
         this.phoneUI.setOnCall((key, contact) => {
             this.dialogManager.startDialog(key, contact);
         });
 
-        this.playerMenu = new PlayerMenuUI(this, gameState);
+        this.playerMenu = new PlayerMenuUI(this, this.gameState);
 
         this.isHudReady = true;
         this.crimeBoardUI = new CrimeBoardUI(this);

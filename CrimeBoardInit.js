@@ -1,7 +1,7 @@
 import { CrimeBoard } from './CrimeBoard.js';
 
 const UNKNOWN_SUSPECT_IMAGE = 'assets/suspects/unknown.jpg';
-const DEFAULT_ARTIFACT_IMAGE = 'assets/crime_board.png';
+const DEFAULT_ARTIFACT_IMAGE = 'assets/artifacts/artifact_unknown.png';
 const DEFAULT_OBJECTS_URL = '/assets/data/objects.json';
 
 async function loadJson(url) {
@@ -32,14 +32,23 @@ function cloneData(data) {
     : JSON.parse(JSON.stringify(data));
 }
 
+function resolveArtifactImage(mission = {}) {
+  if (mission.image) return mission.image;
+  if (mission.artifactImage) return mission.artifactImage;
+  if (mission.artifactPhoto) return mission.artifactPhoto;
+  if (mission.photo) return mission.photo;
+
+  if (mission.artifactKey) {
+    const normalizedKey = mission.artifactKey.replace(/^artifact_/, '');
+    return `assets/artifacts/${normalizedKey}.png`;
+  }
+
+  return DEFAULT_ARTIFACT_IMAGE;
+}
+
 function buildMissionArtifactItem(mission = {}) {
   const artifactId = mission.artifactKey || slugify(mission.artifact || 'case');
-  const image =
-    mission.image ||
-    mission.artifactImage ||
-    mission.artifactPhoto ||
-    mission.photo ||
-    DEFAULT_ARTIFACT_IMAGE;
+  const image = resolveArtifactImage(mission);
 
   const meta = [
     mission.city || 'Unknown city',
@@ -65,42 +74,6 @@ function buildMissionArtifactItem(mission = {}) {
     meta,
     tags: ['mission', 'artifact'],
     clueId: mission.artifactKey || null,
-    discovered: true,
-    createdByPlayer: false,
-    editableByPlayer: false
-  };
-}
-
-function buildArtifactDetailsItem(mission = {}) {
-  const parts = [
-    mission.description || '',
-    mission.clue ? `Lead: ${mission.clue}` : '',
-    mission.city || mission.country
-      ? `Last seen: ${[mission.city, mission.country].filter(Boolean).join(', ')}`
-      : ''
-  ].filter(Boolean);
-
-  if (!parts.length) {
-    return null;
-  }
-
-  return {
-    id: `artifact-details-${mission.artifactKey || slugify(mission.artifact || 'case')}`,
-    type: 'evidence',
-    x: 620,
-    y: 58,
-    z: 2,
-    rotation: 1.1,
-    pinned: false,
-    label: `${mission.artifact || 'Artifact'} dossier`,
-    tag: 'Artifact',
-    body: parts.join('\n\n'),
-    fields: [
-      ...(mission.city ? [{ key: 'City', value: mission.city }] : []),
-      ...(mission.country ? [{ key: 'Country', value: mission.country }] : []),
-      ...(mission.artifactKey ? [{ key: 'Case', value: mission.artifactKey }] : [])
-    ],
-    tags: ['mission', 'artifact-details'],
     discovered: true,
     createdByPlayer: false,
     editableByPlayer: false
@@ -214,9 +187,8 @@ function buildEvidenceItemsFromClues(clues, objectsData = []) {
 
 function buildLinks(items) {
   const missionItem = items.find(item => item.id.startsWith('mission-'));
-  const artifactDetailsItem = items.find(item => item.id.startsWith('artifact-details-'));
   const suspectItem = items.find(item => item.tags?.includes('unknown'));
-  const evidenceItems = items.filter(item => item.type === 'evidence' && !item.id.startsWith('artifact-details-'));
+  const evidenceItems = items.filter(item => item.type === 'evidence');
 
   const links = [];
 
@@ -228,17 +200,6 @@ function buildLinks(items) {
       fromAnchor: 'left',
       toAnchor: 'right',
       color: '#b3131b'
-    });
-  }
-
-  if (missionItem && artifactDetailsItem) {
-    links.push({
-      id: 'link-mission-artifact-details',
-      from: missionItem.id,
-      to: artifactDetailsItem.id,
-      fromAnchor: 'right',
-      toAnchor: 'left',
-      color: '#8d6e63'
     });
   }
 
@@ -266,12 +227,6 @@ function buildBoardLayout(gameState, objectsData = []) {
   const items = [];
 
   items.push(buildMissionArtifactItem(mission));
-
-  const artifactDetailsItem = buildArtifactDetailsItem(mission);
-  if (artifactDetailsItem) {
-    items.push(artifactDetailsItem);
-  }
-
   items.push(buildUnknownSuspectItem(gameState.currentThief?.id || gameState.currentThiefId || null));
 
   const collectedClues = normalizeCollectedClues(gameState.cluesCollected);
@@ -384,4 +339,4 @@ export async function initCrimeBoard({
   return ensureBoardApi(board, state, objectsData);
 }
 
-export { buildBoardLayout };
+export { buildBoardLayout };  

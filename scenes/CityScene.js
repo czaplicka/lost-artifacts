@@ -82,6 +82,14 @@ export class CityScene extends Phaser.Scene {
     ) {
       gameState.specialScenesVisited = {};
     }
+
+    if (
+      !gameState.cityEncounterState ||
+      typeof gameState.cityEncounterState !== 'object' ||
+      Array.isArray(gameState.cityEncounterState)
+    ) {
+      gameState.cityEncounterState = {};
+    }
   }
 
   create() {
@@ -138,14 +146,7 @@ export class CityScene extends Phaser.Scene {
     this.city = city;
     gameState.currentCityId = this.cityId;
     gameState.currentCity = city.city;
-    gameState.currentCityData = city;
-
-    if (Array.isArray(gameState.escapeRoute)) {
-      const routeIndex = gameState.escapeRoute.indexOf(this.cityId);
-      if (routeIndex !== -1) {
-        gameState.routeIndex = routeIndex;
-      }
-    }
+    gameState.currentCityData = structuredClone(city);
 
     this.registry.set('currentCityId', this.cityId);
     this.registry.set('investigationStatus', this.investigationStatus);
@@ -154,7 +155,7 @@ export class CityScene extends Phaser.Scene {
     this.createHeader(city);
 
     if (!this.isFinalShowdown) {
-      this.createEncounters(city);
+      this.createEncounters();
       this.createCrimeScene(city);
     }
 
@@ -276,8 +277,8 @@ export class CityScene extends Phaser.Scene {
     });
   }
 
-  createEncounters(city) {
-    const encounters = this.getEncounters(city);
+  createEncounters() {
+    const encounters = this.getEncounters();
     const progressFlags = this.getCityProgressFlags();
 
     encounters.forEach(encounter => {
@@ -547,22 +548,36 @@ export class CityScene extends Phaser.Scene {
 
   getCityProgressFlags() {
     const cityId = this.cityId;
+    const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
 
     const isCrimeCity = Boolean(
       gameState.crimeCityId && cityId === gameState.crimeCityId
     );
+
     const isNextTargetCity = Boolean(
       gameState.nextTargetCityId && cityId === gameState.nextTargetCityId
     );
+
     const isJustReachedCorrectCity = Boolean(
       gameState.justReachedCorrectCityId &&
       cityId === gameState.justReachedCorrectCityId
     );
 
+    const isOnEscapeRoute = route.includes(cityId);
+    const isCurrentVisitedRouteCity = Boolean(
+      gameState.currentCityId === cityId && isOnEscapeRoute
+    );
+
     return {
       isCrimeCity,
       isNextTargetCity,
-      isCorrectCity: isCrimeCity || isNextTargetCity || isJustReachedCorrectCity
+      isJustReachedCorrectCity,
+      isOnEscapeRoute,
+      isCurrentVisitedRouteCity,
+      isCorrectCity:
+        isCrimeCity ||
+        isCurrentVisitedRouteCity ||
+        isJustReachedCorrectCity
     };
   }
 
@@ -696,32 +711,22 @@ export class CityScene extends Phaser.Scene {
     return gameState.encounterMemory[encounterId] || null;
   }
 
-  getEncounters(city) {
+  getEncounters() {
     if (Array.isArray(gameState.activeLocations) && gameState.activeLocations.length > 0) {
-      return gameState.activeLocations
-        .filter(encounter => encounter.enabled !== false)
-        .slice(0, 3);
+      return gameState.activeLocations.filter(encounter => encounter.enabled !== false);
     }
 
-    if (Array.isArray(city.encounters) && city.encounters.length > 0) {
-      return city.encounters
-        .filter(encounter => encounter.enabled !== false)
-        .slice(0, 3);
+    if (
+      gameState.cityEncounterState &&
+      typeof gameState.cityEncounterState === 'object' &&
+      Array.isArray(gameState.cityEncounterState[this.cityId])
+    ) {
+      return gameState.cityEncounterState[this.cityId].filter(
+        encounter => encounter.enabled !== false
+      );
     }
 
-    const npcPool = city.npcPool || city.npc || [];
-    const locationPool = city.locationPool || city.availableLocations || [];
-    const defaultX = [420, 960, 1500];
-    const defaultY = [700, 620, 700];
-
-    return npcPool.slice(0, 3).map((npcId, index) => ({
-      id: `${this.cityId}_${npcId}_${locationPool[index] || 'alley'}`,
-      npcId,
-      locationId: locationPool[index] || 'alley',
-      cityX: defaultX[index],
-      cityY: defaultY[index],
-      enabled: true
-    }));
+    return [];
   }
 
   getCityBackgroundKey(city) {
@@ -760,23 +765,9 @@ export class CityScene extends Phaser.Scene {
       maid: 'Maid',
       parkingowy: 'Parking Worker',
       police: 'Police Officer',
-      stewardessa: 'Stewardess'
+      stewardessa: 'Flight Attendant'
     };
 
     return map[npcId] || npcId || 'Witness';
-  }
-
-  normalizeCityId(cityName) {
-    const map = {
-      London: 'london',
-      Paris: 'paris',
-      'New Delhi': 'new_delhi',
-      Warsaw: 'warsaw',
-      'New York City': 'new_york_city',
-      Berlin: 'berlin',
-      'Mark Agency Headquarters': 'hq'
-    };
-
-    return map[cityName] || 'warsaw';
   }
 }

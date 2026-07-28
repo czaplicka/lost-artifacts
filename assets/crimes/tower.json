@@ -644,8 +644,17 @@
  "tileheight":1080,
  "tilesets":[
         {
+         "columns":1,
          "firstgid":1,
-         "source":"..\/..\/..\/..\/..\/..\/tower.tsx"
+         "image":"tower.jpg",
+         "imageheight":1080,
+         "imagewidth":1920,
+         "margin":0,
+         "name":"tower",
+         "spacing":0,
+         "tilecount":1,
+         "tileheight":1080,
+         "tilewidth":1920
         }],
  "tilewidth":1920,
  "type":"map",

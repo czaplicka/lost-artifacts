@@ -1,6 +1,9 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
-import { travelToCity as performTravel } from '../gameSetup.js';
+import {
+    travelToCity as performTravel,
+    completeCityInvestigation
+} from '../gameSetup.js';
 
 export class DestinationsUI {
     constructor(scene) {
@@ -185,6 +188,19 @@ export class DestinationsUI {
             this.routePreview.destroy();
             this.routePreview = null;
         }
+    }
+
+    shouldAdvanceOnDeparture() {
+        const currentCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
+        const targetCityId = this.gameState?.nextTargetCityId || gameState.nextTargetCityId || null;
+        const justReachedCorrectCityId =
+            this.gameState?.justReachedCorrectCityId ||
+            gameState.justReachedCorrectCityId ||
+            null;
+
+        if (!currentCityId) return false;
+
+        return currentCityId === targetCityId || currentCityId === justReachedCorrectCityId;
     }
 
     getDestinationsWithMustInclude() {
@@ -448,6 +464,21 @@ export class DestinationsUI {
         }
 
         try {
+            const shouldAdvanceBeforeDeparture = this.shouldAdvanceOnDeparture();
+
+            if (shouldAdvanceBeforeDeparture) {
+                const completionResult = completeCityInvestigation(locationsData);
+
+                console.log('[DestinationsUI.travelToCity] completionResult:', completionResult);
+
+                if (!completionResult?.success) {
+                    console.error('Nie udało się domknąć śledztwa w mieście:', completionResult);
+                    this.isTransitioning = false;
+                    this.setConfirmEnabled(true);
+                    return;
+                }
+            }
+
             const result = performTravel(selectedCityData.city, locationsData);
 
             console.log('[DestinationsUI.travelToCity] result:', result);
