@@ -6,12 +6,19 @@ import { EventBus } from '../EventBus.js';
 export class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'GameScene' });
+
         this.dialogueText = null;
         this.fullIntroText = '';
         this.typingEvent = null;
-        this.introFinished = false;
         this.continueText = null;
+
+        this.backgroundImage = null;
+        this.currentVideo = null;
+        this.currentVideoKey = null;
+        this.handleResizeBound = null;
+
         this.hasStartedOfficeScene = false;
+        this.sequenceStage = 'idle';
     }
 
     create() {
@@ -29,12 +36,7 @@ export class GameScene extends Phaser.Scene {
             return;
         }
 
-        if (this.textures.exists('background2')) {
-            this.add.image(this.scale.width / 2, this.scale.height / 2, 'background2')
-                .setDisplaySize(this.scale.width, this.scale.height);
-        } else {
-            this.cameras.main.setBackgroundColor('#000000');
-        }
+        this.createBackground();
 
         const backBtn = this.add.image(200, 70, 'back')
             .setInteractive({ useHandCursor: true })
@@ -44,6 +46,7 @@ export class GameScene extends Phaser.Scene {
         this.addHoverEffect(backBtn, 0.5, 0.6);
         backBtn.on('pointerdown', () => {
             this.closeAllUIPanels();
+            this.destroyCurrentVideo();
             this.scene.start('MenuScene');
         });
 
@@ -62,9 +65,7 @@ export class GameScene extends Phaser.Scene {
         }
 
         this.fullIntroText = dialogueData.gameIntro.join('\n');
-        this.typeText(this.dialogueText, this.fullIntroText, 24);
-
-        this.input.on('pointerdown', this.handleContinue, this);
+        this.startIntroSequence();
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             if (this.typingEvent) {
@@ -72,8 +73,46 @@ export class GameScene extends Phaser.Scene {
                 this.typingEvent = null;
             }
 
-            this.input.off('pointerdown', this.handleContinue, this);
+            this.destroyCurrentVideo();
+
+            if (this.handleResizeBound) {
+                this.scale.off('resize', this.handleResizeBound, this);
+                this.handleResizeBound = null;
+            }
         });
+    }
+
+    createBackground() {
+        if (this.textures.exists('start_2')) {
+            this.backgroundImage = this.add.image(
+                this.scale.width / 2,
+                this.scale.height / 2,
+                'start_2'
+            ).setDepth(0);
+
+            this.resizeBackgroundImage();
+        } else {
+            this.cameras.main.setBackgroundColor('#000000');
+        }
+
+        this.handleResizeBound = this.handleResize.bind(this);
+        this.scale.on('resize', this.handleResizeBound, this);
+    }
+
+    resizeBackgroundImage() {
+        if (!this.backgroundImage) return;
+
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        const scale = Math.max(
+            gameWidth / this.backgroundImage.width,
+            gameHeight / this.backgroundImage.height
+        );
+
+        this.backgroundImage
+            .setPosition(gameWidth / 2, gameHeight / 2)
+            .setScale(scale);
     }
 
     createDetectiveSection() {
@@ -82,6 +121,7 @@ export class GameScene extends Phaser.Scene {
         dialogueBox.fillRoundedRect(90, 700, 1180, 260, 20);
         dialogueBox.lineStyle(4, 0xffff00, 1);
         dialogueBox.strokeRoundedRect(90, 700, 1180, 260, 20);
+        dialogueBox.setDepth(20);
 
         this.dialogueText = this.add.text(140, 748, '', {
             fontFamily: 'PressStart2P',
@@ -89,19 +129,114 @@ export class GameScene extends Phaser.Scene {
             color: '#ffffff',
             wordWrap: { width: 1040 },
             lineSpacing: 14
-        });
+        }).setDepth(21);
 
         this.continueText = this.add.text(1180, 920, '', {
             fontFamily: 'PressStart2P',
             fontSize: '16px',
             color: '#ffff99'
-        }).setOrigin(1, 1);
+        }).setOrigin(1, 1).setDepth(21);
     }
 
-    closeAllUIPanels() {
-        const hud = this.scene.get('PlayerHudScene');
-        if (hud?.closeAllUIPanels) {
-            hud.closeAllUIPanels();
+    startIntroSequence() {
+        this.sequenceStage = 'video1';
+        this.playVideo('detectiveIntro1', () => {
+            this.sequenceStage = 'video2';
+            this.playVideo('detectiveIntro2', () => {
+                this.sequenceStage = 'done';
+                this.goToOfficeScene();
+            });
+        });
+
+        this.typeText(this.dialogueText, this.fullIntroText, 24);
+    }
+
+    playVideo(videoKey, onComplete) {
+        if (!this.cache.video.exists(videoKey)) {
+            console.warn(`Brak video assetu: ${videoKey}`);
+            onComplete?.();
+            return;
+        }
+
+        this.destroyCurrentVideo();
+
+        const video = this.add.video(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            videoKey
+        )
+            .setOrigin(0.5)
+            .setDepth(5)
+            .setVisible(true)
+            .setAlpha(1);
+
+        this.currentVideo = video;
+        this.currentVideoKey = videoKey;
+
+        video.once('textureready', () => {
+            this.resizeVideoCover(video);
+        });
+
+        video.once('playing', () => {
+            this.resizeVideoCover(video);
+        });
+
+        video.once('complete', () => {
+            if (this.currentVideo !== video) return;
+            this.destroyCurrentVideo();
+            onComplete?.();
+        });
+
+        video.on('error', (videoObject, error) => {
+            console.error(`${videoKey} video error:`, error);
+            if (this.currentVideo === video) {
+                this.destroyCurrentVideo();
+            }
+            onComplete?.();
+        });
+
+        video.on('unsupported', (videoObject, error) => {
+            console.error(`${videoKey} video unsupported:`, error);
+            if (this.currentVideo === video) {
+                this.destroyCurrentVideo();
+            }
+            onComplete?.();
+        });
+
+        video.play(false);
+    }
+
+    resizeVideoCover(video) {
+        if (!video || !video.scene) return;
+
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        const videoWidth = video.video?.videoWidth || video.width || 1;
+        const videoHeight = video.video?.videoHeight || video.height || 1;
+
+        const scale = Math.max(
+            gameWidth / videoWidth,
+            gameHeight / videoHeight
+        );
+
+        video
+            .setPosition(gameWidth / 2, gameHeight / 2)
+            .setScale(scale);
+    }
+
+    destroyCurrentVideo() {
+        if (!this.currentVideo) return;
+
+        const video = this.currentVideo;
+        this.currentVideo = null;
+        this.currentVideoKey = null;
+
+        if (video.scene) {
+            video.setVisible(false);
+            video.setAlpha(0);
+            video.stop();
+            video.destroy();
         }
     }
 
@@ -113,7 +248,6 @@ export class GameScene extends Phaser.Scene {
             this.typingEvent = null;
         }
 
-        this.introFinished = false;
         this.continueText?.setText('');
         target.setText('');
 
@@ -128,29 +262,26 @@ export class GameScene extends Phaser.Scene {
 
                 if (index >= text.length) {
                     this.typingEvent = null;
-                    this.introFinished = true;
-                    this.continueText?.setText('CLICK TO CONTINUE');
                 }
             }
         });
     }
 
-    handleContinue(pointer, currentlyOver) {
-        if (this.hasStartedOfficeScene) return;
+    closeAllUIPanels() {
+        const hud = this.scene.get('PlayerHudScene');
+        if (hud?.closeAllUIPanels) {
+            hud.closeAllUIPanels();
+        }
+    }
 
-        if (!this.introFinished) {
-            if (this.typingEvent) {
-                this.typingEvent.remove(false);
-                this.typingEvent = null;
-            }
-
-            this.dialogueText.setText(this.fullIntroText);
-            this.introFinished = true;
-            this.continueText?.setText('CLICK TO CONTINUE');
-            return;
+    handleResize() {
+        if (this.backgroundImage) {
+            this.resizeBackgroundImage();
         }
 
-        this.goToOfficeScene();
+        if (this.currentVideo && this.currentVideo.scene) {
+            this.resizeVideoCover(this.currentVideo);
+        }
     }
 
     goToOfficeScene() {
@@ -158,6 +289,7 @@ export class GameScene extends Phaser.Scene {
         this.hasStartedOfficeScene = true;
 
         this.closeAllUIPanels();
+        this.destroyCurrentVideo();
 
         this.cameras.main.fadeOut(350, 0, 0, 0);
 

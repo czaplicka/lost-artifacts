@@ -744,6 +744,38 @@ export function travelToCity(cityName, locationsData) {
     gameState.score += 100;
     gameState.justReachedCorrectCityId = destinationCityId;
 
+    const finalRouteCityId = Array.isArray(gameState.escapeRoute) && gameState.escapeRoute.length > 0
+      ? gameState.escapeRoute[gameState.escapeRoute.length - 1]
+      : null;
+
+    const isFinalRouteCity =
+      !isCrimeSceneArrival &&
+      destinationCityId &&
+      finalRouteCityId &&
+      destinationCityId === finalRouteCityId;
+
+    if (isFinalRouteCity) {
+      gameState.routeIndex = gameState.escapeRoute.length;
+      gameState.justReachedCorrectCityId = null;
+      syncInvestigationState(locationsData);
+      gameState.currentDestinations = [];
+      gameState.activeLocations = [];
+      saveGameState();
+
+      return {
+        wasCorrect,
+        travelHours: travelData.travelHours,
+        baseTravelHours: travelData.baseTravelHours,
+        travelEncounter: travelData.travelEncounter,
+        status: 'FINAL_SHOWDOWN',
+        fromCity: previousCity,
+        toCity: cityName,
+        toCityId: destinationCityId,
+        cityId: destinationCityId,
+        isCrimeSceneArrival
+      };
+    }
+
     saveGameState();
 
     return {

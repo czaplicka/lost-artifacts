@@ -166,6 +166,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('sergei_petrov', 'assets/suspects/sergei_petrov.jpg');
         this.load.image('isabella_rossi', 'assets/suspects/isabella_rossi.jpg');
         this.load.image('liam_oconnor', 'assets/suspects/liam_oconnor.jpg');
+        this.load.image('ava_thompson', 'assets/suspects/ava_thompson.jpg');
+        this.load.image('maximilian_schmidt', 'assets/suspects/maximilian_schmidt.jpg');
         this.load.image('brendan_ross', 'assets/suspects/brendan_ross.jpg');
         this.load.image('bai_williams', 'assets/suspects/bai_williams.jpg');
         this.load.image('albert_johnson', 'assets/suspects/albert_johnson.jpg');
@@ -187,13 +189,15 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('wanted_sergei_petrov', 'assets/suspects/11.jpg');
         this.load.image('wanted_isabella_rossi', 'assets/suspects/12.jpg');
         this.load.image('wanted_liam_oconnor', 'assets/suspects/13.jpg');
-        this.load.image('wanted_brendan_ross', 'assets/suspects/14.jpg');
-        this.load.image('wanted_bai_williams', 'assets/suspects/15.jpg');
-        this.load.image('wanted_albert_johnson', 'assets/suspects/16.jpg');
-        this.load.image('wanted_anna_bocian', 'assets/suspects/17.jpg');
-        this.load.image('wanted_aleksander_petrov', 'assets/suspects/19.jpg');
-        this.load.image('wanted_marie_dubois', 'assets/suspects/20.jpg');
-        this.load.image('wanted_lotte_chantal', 'assets/suspects/21.jpg');
+        this.load.image('wanted_ava_thompson', 'assets/suspects/14.jpg');
+        this.load.image('wanted_maximilian_schmidt', 'assets/suspects/15.jpg');
+        this.load.image('wanted_brendan_ross', 'assets/suspects/16.jpg');
+        this.load.image('wanted_bai_williams', 'assets/suspects/17.jpg');
+        this.load.image('wanted_albert_johnson', 'assets/suspects/18.jpg');
+        this.load.image('wanted_anna_bocian', 'assets/suspects/19.jpg');
+        this.load.image('wanted_aleksander_petrov', 'assets/suspects/20.jpg');
+        this.load.image('wanted_marie_dubois', 'assets/suspects/21.jpg');
+        this.load.image('wanted_lotte_chantal', 'assets/suspects/22.jpg');
 
         this.load.image('gg', 'assets/suspects/gg.jpg');
         this.load.image('sv', 'assets/suspects/sv.jpg');
@@ -208,6 +212,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('sp', 'assets/suspects/sp.jpg');
         this.load.image('ir', 'assets/suspects/ir.jpg');
         this.load.image('lo', 'assets/suspects/lo.jpg');
+        this.load.image('at', 'assets/suspects/at.jpg');
+        this.load.image('ms', 'assets/suspects/ms.jpg');
         this.load.image('br', 'assets/suspects/br.jpg');
         this.load.image('bw', 'assets/suspects/bw.jpg');
         this.load.image('aj', 'assets/suspects/aj.jpg');
@@ -216,6 +222,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('md', 'assets/suspects/md.jpg');
         this.load.image('lc', 'assets/suspects/lc.jpg');
 
+        this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
+        this.load.video('detectiveIntro2', 'assets/video/detective-intro2.mp4', true);
 
         this.load.audio('alleysound', 'assets/audio/alley.mp3');
         this.load.audio('arrestsound', 'assets/audio/arrest.mp3');

@@ -666,18 +666,18 @@
     "tags": ["tower", "glass", "drink", "trace", "social"],
     "isRedHerring": true,
     "scene": "tower",
-    "suspectAffinity": ["bernard_porter", "marie_dubois"],
+    "suspectAffinity": [],
     "trueExplanation": "Someone clearly tried to make paperwork more bearable and failed halfway through.",
     "heistExplanation": "The thief did not drink on the job; they preferred their alibis sober and their exits straight."
   },
   {
-    "id": "souvenir_wrench",
+    "id": "wrench",
     "item": "Engraved souvenir wrench",
     "skills": ["Dexterity", "Sabotage", "Planning"],
     "tags": ["tower", "wrench", "souvenir", "metal", "gift_shop"],
     "isRedHerring": true,
     "scene": "tower",
-    "suspectAffinity": ["maximilian_schmidt"],
+    "suspectAffinity": [],
     "trueExplanation": "The engraving proudly says \"PROPERTY OF PLEASE RETURN\", as if guilt worked better than locks.",
     "heistExplanation": "The thief ignored it; any tool that screams ‘please log me’ is terrible for quiet crimes."
   },

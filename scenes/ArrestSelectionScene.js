@@ -9,11 +9,13 @@ import {
 export class ArrestSelectionScene extends Phaser.Scene {
   constructor() {
     super({ key: 'ArrestSelectionScene' });
+
     this.dialogueText = null;
     this.resultOverlay = null;
     this.resultTitle = null;
     this.resultText = null;
     this.nextSceneKey = 'GameOverScene';
+
     this.selectedSuspectId = null;
     this.suspectsPool = [];
     this.displaySuspects = [];
@@ -21,20 +23,29 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.currentSuspectIndex = 0;
     this.currentCard = null;
     this.isAnimatingSlide = false;
+
+    this.overlayRoot = null;
     this.viewerRoot = null;
     this.cardSlot = null;
+
     this.leftArrow = null;
     this.rightArrow = null;
     this.arrestButton = null;
     this.arrestButtonText = null;
     this.dotsText = null;
     this.counterText = null;
+
     this.backBtn = null;
     this.backBtnLabel = null;
-    this.overlayRoot = null;
+
     this.zoomOverlay = null;
     this.zoomImage = null;
     this.zoomHintText = null;
+
+    this.caseNumberText = null;
+    this.statusStampText = null;
+    this.bottomNoteText = null;
+    this.suspectLabelText = null;
   }
 
   create() {
@@ -65,62 +76,80 @@ export class ArrestSelectionScene extends Phaser.Scene {
       return;
     }
 
-    this.createOverlayShell();
+    this.createBackdrop();
     this.createBackButton();
     this.createHeader();
     this.createInstructionBox();
-    this.createSuspectViewer();
+    this.createDossierViewer();
     this.createResultOverlay();
   }
 
-  createOverlayShell() {
+  createBackdrop() {
     const { width, height } = this.scale;
 
     this.overlayRoot = this.add.container(0, 0).setDepth(300);
 
-    const darken = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
-    const topShade = this.add.rectangle(width / 2, 70, width, 110, 0x000000, 0.38);
-    const panelShadow = this.add.rectangle(width / 2, height / 2 + 10, 1480, 980, 0x000000, 0.28);
-    const panel = this.add
-      .rectangle(width / 2, height / 2 + 10, 1440, 940, 0x101010, 0.78)
-      .setStrokeStyle(4, 0xd9c27a, 0.95);
+    const vignette = this.add.rectangle(width / 2, height / 2, width, height, 0x120d07, 0.62);
+    const outerShadow = this.add.rectangle(width / 2, height / 2 + 14, 1500, 980, 0x000000, 0.28);
 
-    this.overlayRoot.add([darken, topShade, panelShadow, panel]);
+    const dossierPaper = this.add
+      .rectangle(width / 2, height / 2 + 6, 1450, 940, 0xc7ad73, 0.96)
+      .setStrokeStyle(5, 0x4a3720, 1);
+
+    const dossierInner = this.add
+      .rectangle(width / 2, height / 2 + 6, 1400, 890, 0xd7bf89, 0.78)
+      .setStrokeStyle(2, 0x7a5a34, 0.95);
+
+    const topStrip = this.add.rectangle(width / 2, 88, 1400, 76, 0x5a4121, 0.95);
+    const topStripLine = this.add.rectangle(width / 2, 124, 1400, 3, 0xe8d3a0, 0.95);
+
+    const bottomStrip = this.add.rectangle(width / 2, height - 88, 1400, 64, 0x5a4121, 0.95);
+
+    this.overlayRoot.add([
+      vignette,
+      outerShadow,
+      dossierPaper,
+      dossierInner,
+      topStrip,
+      topStripLine,
+      bottomStrip
+    ]);
   }
 
   createBackButton() {
-    const baseX = 170;
-    const baseY = 80;
+    const baseX = 165;
+    const baseY = 82;
 
     if (this.textures.exists('back')) {
       this.backBtn = this.add
         .image(baseX, baseY, 'back')
         .setInteractive({ useHandCursor: true })
-        .setScale(0.45)
+        .setScale(0.42)
         .setDepth(320);
-      this.addHoverEffect(this.backBtn, 0.45, 0.53);
+
+      this.addHoverEffect(this.backBtn, 0.42, 0.48);
     } else {
       this.backBtn = this.add
         .text(baseX, baseY, '<', {
           fontFamily: 'PressStart2P',
-          fontSize: '24px',
-          color: '#ffffff',
-          backgroundColor: '#000000'
+          fontSize: '22px',
+          color: '#f6e7bc',
+          backgroundColor: '#3a2916'
         })
         .setOrigin(0.5)
         .setPadding(12)
         .setInteractive({ useHandCursor: true })
         .setDepth(320);
 
-      this.backBtn.on('pointerover', () => this.backBtn.setScale(1.08));
+      this.backBtn.on('pointerover', () => this.backBtn.setScale(1.06));
       this.backBtn.on('pointerout', () => this.backBtn.setScale(1));
     }
 
     this.backBtnLabel = this.add
-      .text(baseX + 70, baseY, 'RETURN', {
+      .text(baseX + 70, baseY, 'RETURN TO CITY', {
         fontFamily: 'Special Elite',
         fontSize: '24px',
-        color: '#f1e6b8'
+        color: '#f5e7bf'
       })
       .setOrigin(0, 0.5)
       .setDepth(320);
@@ -135,113 +164,259 @@ export class ArrestSelectionScene extends Phaser.Scene {
   }
 
   createHeader() {
+    const { width } = this.scale;
+
     this.add
-      .text(this.scale.width / 2, 80, 'IDENTIFY THE THIEF', {
+      .text(width / 2, 74, 'INTERNATIONAL ARTEFACTS BUREAU', {
         fontFamily: 'PressStart2P',
-        fontSize: '24px',
-        color: '#ffff00',
-        stroke: '#000000',
-        strokeThickness: 6
+        fontSize: '20px',
+        color: '#f5e8b8',
+        stroke: '#2e1f10',
+        strokeThickness: 5
       })
       .setOrigin(0.5)
       .setDepth(320);
-  }
 
-  createInstructionBox() {
-    const box = this.add.graphics().setDepth(320);
-    box.fillStyle(0x000000, 0.72);
-    box.fillRoundedRect(290, 760, 1340, 180, 20);
-    box.lineStyle(4, 0xffff00, 1);
-    box.strokeRoundedRect(290, 760, 1340, 180, 20);
+    this.add
+      .text(width / 2, 109, 'SUSPECT DOSSIER // FINAL IDENTIFICATION', {
+        fontFamily: 'Special Elite',
+        fontSize: '26px',
+        color: '#f4ddb2'
+      })
+      .setOrigin(0.5)
+      .setDepth(320);
 
-    this.dialogueText = this.add
-      .text(
-        350,
-        808,
-        'Review each suspect. Use arrows to switch, click the photo to enlarge it, and press ARREST when ready.',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '18px',
-          color: '#ffffff',
-          wordWrap: { width: 1220 },
-          lineSpacing: 12
-        }
-      )
+    const caseNumber = `CASE FILE ${String(gameState.caseId || gameState.currentCaseId || '017').padStart(3, '0')}`;
+    this.caseNumberText = this.add
+      .text(width - 260, 82, caseNumber, {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        color: '#fff4cf',
+        backgroundColor: '#6e1f17',
+        padding: { left: 10, right: 10, top: 8, bottom: 8 }
+      })
+      .setOrigin(0.5)
+      .setDepth(321);
+
+    this.statusStampText = this.add
+      .text(width - 265, 118, 'TOP PRIORITY', {
+        fontFamily: 'Special Elite',
+        fontSize: '24px',
+        color: '#6e1f17',
+        stroke: '#f7dfb2',
+        strokeThickness: 1,
+        rotation: -0.08
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.95)
       .setDepth(321);
   }
 
-  createSuspectViewer() {
+  createInstructionBox() {
+    const x = 280;
+    const y = 760;
+    const w = 1340;
+    const h = 160;
+
+    const panel = this.add.graphics().setDepth(320);
+    panel.fillStyle(0xecd6a6, 0.86);
+    panel.fillRoundedRect(x, y, w, h, 14);
+    panel.lineStyle(3, 0x6a4a26, 1);
+    panel.strokeRoundedRect(x, y, w, h, 14);
+    panel.lineStyle(1, 0x8d6a3a, 0.8);
+    panel.strokeRoundedRect(x + 10, y + 10, w - 20, h - 20, 10);
+
+    this.add
+      .text(x + 30, y + 26, 'FIELD NOTES', {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        color: '#4f3218'
+      })
+      .setDepth(321);
+
+    this.dialogueText = this.add
+      .text(
+        x + 34,
+        y + 62,
+        'Review each dossier entry. Use arrows to inspect suspects, click the photograph to enlarge it, and confirm the arrest only when the file matches your evidence.',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '28px',
+          color: '#332012',
+          wordWrap: { width: 1260 },
+          lineSpacing: 8
+        }
+      )
+      .setDepth(321);
+
+    this.bottomNoteText = this.add
+      .text(x + w - 36, y + h - 22, 'Cross-check means, motive, and opportunity before arrest.', {
+        fontFamily: 'Special Elite',
+        fontSize: '20px',
+        color: '#6b4d2e'
+      })
+      .setOrigin(1, 1)
+      .setDepth(321);
+  }
+
+  createDossierViewer() {
     const cx = this.scale.width / 2;
-    const cy = 420;
+    const cy = 415;
 
     this.viewerRoot = this.add.container(cx, cy).setDepth(320);
 
-    const outerPanel = this.add
-      .rectangle(0, 0, 980, 720, 0x111111, 0.86)
-      .setStrokeStyle(5, 0xffffff, 1);
+    const leftPanel = this.add
+      .rectangle(-360, -10, 255, 600, 0xe8cf99, 0.92)
+      .setStrokeStyle(3, 0x6a4a26, 1);
 
-    this.cardSlot = this.add.container(0, -20);
+    const centerPanel = this.add
+      .rectangle(40, -10, 720, 600, 0xf0ddb2, 0.94)
+      .setStrokeStyle(4, 0x5b3e20, 1);
 
-    this.leftArrow = this.add
-      .text(-520, 0, '<', {
-        fontFamily: 'PressStart2P',
-        fontSize: '42px',
-        color: '#ffffff',
-        backgroundColor: '#000000'
-      })
-      .setOrigin(0.5)
-      .setPadding(18)
-      .setInteractive({ useHandCursor: true });
+    const rightPanel = this.add
+      .rectangle(470, -10, 265, 600, 0xe8cf99, 0.92)
+      .setStrokeStyle(3, 0x6a4a26, 1);
 
-    this.rightArrow = this.add
-      .text(520, 0, '>', {
-        fontFamily: 'PressStart2P',
-        fontSize: '42px',
-        color: '#ffffff',
-        backgroundColor: '#000000'
-      })
-      .setOrigin(0.5)
-      .setPadding(18)
-      .setInteractive({ useHandCursor: true });
-
-    this.counterText = this.add
-      .text(0, 285, '', {
+    const leftHeader = this.add
+      .text(-360, -265, 'CASE SUMMARY', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
-        color: '#ffff00',
+        color: '#4a2e17'
+      })
+      .setOrigin(0.5);
+
+    const leftBody = this.add
+      .text(
+        -470,
+        -220,
+        [
+          '• Final suspect lineup',
+          '• Review facial match',
+          '• Confirm evidence trail',
+          '• Verify suspect profile',
+          '',
+          'Only one arrest attempt',
+          'will close the case.'
+        ].join('\n'),
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '25px',
+          color: '#392113',
+          lineSpacing: 8,
+          wordWrap: { width: 205 }
+        }
+      );
+
+    const rightHeader = this.add
+      .text(470, -265, 'ARREST PROTOCOL', {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        color: '#4a2e17'
+      })
+      .setOrigin(0.5);
+
+    const rightBody = this.add
+      .text(
+        365,
+        -220,
+        [
+          '1. Inspect photo',
+          '2. Compare with clues',
+          '3. Review all files',
+          '4. Arrest only when sure',
+          '',
+          'A false arrest ends',
+          'the investigation.'
+        ].join('\n'),
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '25px',
+          color: '#392113',
+          lineSpacing: 8,
+          wordWrap: { width: 205 }
+        }
+      );
+
+    this.cardSlot = this.add.container(40, -35);
+
+    this.suspectLabelText = this.add
+      .text(40, 212, '', {
+        fontFamily: 'Special Elite',
+        fontSize: '24px',
+        color: '#5a3b21',
+        align: 'center'
+      })
+      .setOrigin(0.5);
+
+    this.counterText = this.add
+      .text(40, 244, '', {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        color: '#6e1f17',
         align: 'center'
       })
       .setOrigin(0.5);
 
     this.dotsText = this.add
-      .text(0, 325, '', {
+      .text(40, 278, '', {
         fontFamily: 'PressStart2P',
-        fontSize: '20px',
-        color: '#ffffff',
+        fontSize: '18px',
+        color: '#4a2e17',
         align: 'center'
       })
       .setOrigin(0.5);
 
+    this.leftArrow = this.add
+      .text(-210, 248, '<', {
+        fontFamily: 'PressStart2P',
+        fontSize: '34px',
+        color: '#fff3d0',
+        backgroundColor: '#57391d'
+      })
+      .setOrigin(0.5)
+      .setPadding(14)
+      .setInteractive({ useHandCursor: true });
+
+    this.rightArrow = this.add
+      .text(290, 248, '>', {
+        fontFamily: 'PressStart2P',
+        fontSize: '34px',
+        color: '#fff3d0',
+        backgroundColor: '#57391d'
+      })
+      .setOrigin(0.5)
+      .setPadding(14)
+      .setInteractive({ useHandCursor: true });
+
     this.arrestButton = this.add
-      .rectangle(0, 400, 260, 58, 0x7a1414, 1)
-      .setStrokeStyle(3, 0xffffff, 1)
+      .rectangle(470, 226, 210, 62, 0x7b241c, 1)
+      .setStrokeStyle(3, 0xf7e6bc, 1)
       .setInteractive({ useHandCursor: true });
 
     this.arrestButtonText = this.add
-      .text(0, 400, 'ARREST', {
+      .text(470, 226, 'ARREST', {
         fontFamily: 'PressStart2P',
         fontSize: '18px',
-        color: '#ffffff'
+        color: '#fff7de'
+      })
+      .setOrigin(0.5);
+
+    const stamp = this.add
+      .text(470, 295, 'AUTHORIZED SIGN-OFF', {
+        fontFamily: 'Special Elite',
+        fontSize: '22px',
+        color: '#6f4f30',
+        rotation: -0.04
       })
       .setOrigin(0.5);
 
     this.leftArrow.on('pointerover', () => {
-      if (this.canNavigate()) this.leftArrow.setScale(1.08);
+      if (this.canNavigate()) this.leftArrow.setScale(1.06);
     });
     this.leftArrow.on('pointerout', () => this.leftArrow.setScale(1));
 
     this.rightArrow.on('pointerover', () => {
-      if (this.canNavigate()) this.rightArrow.setScale(1.08);
+      if (this.canNavigate()) this.rightArrow.setScale(1.06);
     });
     this.rightArrow.on('pointerout', () => this.rightArrow.setScale(1));
 
@@ -256,10 +431,11 @@ export class ArrestSelectionScene extends Phaser.Scene {
     });
 
     this.arrestButton.on('pointerover', () => {
-      if (!this.selectionLocked) this.arrestButton.setFillStyle(0x9b1d1d, 1);
+      if (!this.selectionLocked) this.arrestButton.setFillStyle(0x983128, 1);
     });
+
     this.arrestButton.on('pointerout', () => {
-      if (!this.selectionLocked) this.arrestButton.setFillStyle(0x7a1414, 1);
+      if (!this.selectionLocked) this.arrestButton.setFillStyle(0x7b241c, 1);
     });
 
     this.arrestButton.on('pointerdown', () => {
@@ -273,27 +449,36 @@ export class ArrestSelectionScene extends Phaser.Scene {
       this.disableNavigation();
 
       this.arrestButton.disableInteractive();
-      this.arrestButton.setFillStyle(0x444444, 1);
+      this.arrestButton.setFillStyle(0x555555, 1);
       this.arrestButtonText.setAlpha(0.7);
 
-      this.dialogueText.setText('Arrest in progress. Verifying suspect...');
+      this.dialogueText.setText('Arrest order submitted. Validating suspect identity against the case file...');
+      this.bottomNoteText.setText('Do not close the dossier while verification is in progress.');
 
       if (this.currentCard?.frame) {
-        this.currentCard.frame.setStrokeStyle(5, 0x00ff88, 1);
+        this.currentCard.frame.setStrokeStyle(5, 0x6e1f17, 1);
       }
 
-      this.time.delayedCall(180, () => this.confirmSelection());
+      this.time.delayedCall(220, () => this.confirmSelection());
     });
 
     this.viewerRoot.add([
-      outerPanel,
+      leftPanel,
+      centerPanel,
+      rightPanel,
+      leftHeader,
+      leftBody,
+      rightHeader,
+      rightBody,
       this.cardSlot,
-      this.leftArrow,
-      this.rightArrow,
+      this.suspectLabelText,
       this.counterText,
       this.dotsText,
+      this.leftArrow,
+      this.rightArrow,
       this.arrestButton,
-      this.arrestButtonText
+      this.arrestButtonText,
+      stamp
     ]);
 
     this.input.keyboard.on('keydown-LEFT', () => {
@@ -319,13 +504,19 @@ export class ArrestSelectionScene extends Phaser.Scene {
   buildSuspectCard(suspect, offsetX = 0) {
     const container = this.add.container(offsetX, 0);
 
-    const frame = this.add
-      .rectangle(0, 0, 820, 520, 0x151515, 0.95)
-      .setStrokeStyle(5, 0xffffff, 1);
+    const frameShadow = this.add.rectangle(6, 8, 610, 405, 0x000000, 0.16);
 
-    const imageFrame = this.add
-      .rectangle(0, -80, 700, 300, 0x0d0d0d, 1)
-      .setStrokeStyle(3, 0xd9c27a, 1);
+    const frame = this.add
+      .rectangle(0, 0, 610, 405, 0xf5e4bc, 1)
+      .setStrokeStyle(4, 0x5d4022, 1);
+
+    const innerFrame = this.add
+      .rectangle(0, 0, 580, 375, 0xe6cb95, 0.9)
+      .setStrokeStyle(2, 0x8b6840, 1);
+
+    const mugshotFrame = this.add
+      .rectangle(0, -38, 500, 230, 0x1e1a16, 1)
+      .setStrokeStyle(3, 0x6e5433, 1);
 
     const imageKey = getSuspectImageKey(suspect);
     let portrait = null;
@@ -334,66 +525,75 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     if (imageKey && this.textures.exists(imageKey)) {
       portrait = this.add
-        .image(0, -80, imageKey)
-        .setDisplaySize(680, 280)
+        .image(0, -38, imageKey)
+        .setDisplaySize(480, 210)
         .setInteractive({ useHandCursor: true });
 
-      portrait.on('pointerover', () => portrait.setScale(1.01));
-      portrait.on('pointerout', () => portrait.setScale(1));
       portrait.on('pointerdown', () => this.openZoom(imageKey));
     } else {
       fallback = this.add
-        .rectangle(0, -80, 680, 280, 0x444444, 1)
-        .setStrokeStyle(3, 0xffffff, 1);
+        .rectangle(0, -38, 480, 210, 0x57514b, 1)
+        .setStrokeStyle(2, 0xf5e4bc, 1);
 
       fallbackText = this.add
-        .text(0, -80, 'NO IMAGE', {
+        .text(0, -38, 'PHOTO MISSING', {
           fontFamily: 'PressStart2P',
-          fontSize: '22px',
-          color: '#ffffff',
+          fontSize: '18px',
+          color: '#f7ebc6',
           align: 'center'
         })
         .setOrigin(0.5);
     }
 
-    const zoomHint = this.add
-      .text(0, 95, 'CLICK PHOTO TO ENLARGE', {
-        fontFamily: 'Special Elite',
-        fontSize: '24px',
-        color: '#f1e6b8',
-        align: 'center'
-      })
-      .setOrigin(0.5);
+    const pinLine = this.add.rectangle(0, -168, 520, 2, 0x8b6840, 0.75);
 
-    const title = this.add
-      .text(0, 150, `Suspect ${this.currentSuspectIndex + 1}`, {
+    const fileTitle = this.add
+      .text(0, -187, 'SUSPECT PHOTOGRAPH', {
         fontFamily: 'PressStart2P',
-        fontSize: '20px',
-        color: '#ffffff',
-        align: 'center'
+        fontSize: '14px',
+        color: '#51341b'
       })
       .setOrigin(0.5);
 
-    const subtitle = this.add
-      .text(0, 210, 'Review the clues carefully before making the arrest.', {
+    const zoomHint = this.add
+      .text(0, 102, 'Click photo to enlarge evidence image', {
         fontFamily: 'Special Elite',
-        fontSize: '24px',
-        color: '#cccccc',
-        align: 'center',
-        wordWrap: { width: 660 }
+        fontSize: '22px',
+        color: '#68482a'
       })
       .setOrigin(0.5);
 
-    const children = [frame, imageFrame];
+    const suspectNumber = this.add
+      .text(0, 143, `DOSSIER ENTRY ${this.currentSuspectIndex + 1}`, {
+        fontFamily: 'PressStart2P',
+        fontSize: '16px',
+        color: '#6e1f17'
+      })
+      .setOrigin(0.5);
+
+    const summary = this.add
+      .text(0, 186, 'Observe appearance, compare it with witness clues, then decide whether the file justifies an arrest.', {
+        fontFamily: 'Special Elite',
+        fontSize: '23px',
+        color: '#3c2614',
+        align: 'center',
+        wordWrap: { width: 520 }
+      })
+      .setOrigin(0.5);
+
+    const children = [frameShadow, frame, innerFrame, mugshotFrame, pinLine, fileTitle];
 
     if (portrait) children.push(portrait);
     if (fallback) children.push(fallback);
     if (fallbackText) children.push(fallbackText);
 
-    children.push(zoomHint, title, subtitle);
+    children.push(zoomHint, suspectNumber, summary);
 
     container.add(children);
     container.frame = frame;
+    container.zoomHint = zoomHint;
+    container.fileTitle = fileTitle;
+    container.summary = summary;
     container.suspectId = suspect.id;
 
     return container;
@@ -405,22 +605,30 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.zoomOverlay = this.add.container(0, 0).setDepth(800).setVisible(false);
 
     const bg = this.add
-      .rectangle(width / 2, height / 2, width, height, 0x000000, 0.88)
+      .rectangle(width / 2, height / 2, width, height, 0x120b06, 0.94)
       .setInteractive({ useHandCursor: true });
+
+    const board = this.add
+      .rectangle(width / 2, height / 2, width * 0.84, height * 0.82, 0xe8cf99, 0.96)
+      .setStrokeStyle(4, 0x5d4022, 1);
+
+    const inner = this.add
+      .rectangle(width / 2, height / 2, width * 0.8, height * 0.76, 0xf3e0b6, 1)
+      .setStrokeStyle(2, 0x8b6840, 1);
 
     this.zoomImage = this.add.image(width / 2, height / 2 - 20, '__DEFAULT').setVisible(false);
 
     this.zoomHintText = this.add
-      .text(width / 2, height - 70, 'CLICK ANYWHERE TO CLOSE', {
+      .text(width / 2, height - 82, 'CLICK ANYWHERE TO CLOSE DOSSIER PHOTO', {
         fontFamily: 'PressStart2P',
-        fontSize: '18px',
-        color: '#ffffff'
+        fontSize: '16px',
+        color: '#fff4d6'
       })
       .setOrigin(0.5);
 
     bg.on('pointerdown', () => this.closeZoom());
 
-    this.zoomOverlay.add([bg, this.zoomImage, this.zoomHintText]);
+    this.zoomOverlay.add([bg, board, inner, this.zoomImage, this.zoomHintText]);
   }
 
   openZoom(imageKey) {
@@ -433,9 +641,15 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     if (!texture?.width || !texture?.height) return;
 
-    const maxWidth = width * 0.82;
-    const maxHeight = height * 0.72;
+    const maxWidth = width * 0.68;
+    const maxHeight = height * 0.62;
     const scale = Math.min(maxWidth / texture.width, maxHeight / texture.height);
+
+    if (this.currentCard?.zoomHint) this.currentCard.zoomHint.setVisible(false);
+    if (this.currentCard?.fileTitle) this.currentCard.fileTitle.setVisible(false);
+    if (this.currentCard?.summary) this.currentCard.summary.setVisible(false);
+    if (this.dialogueText) this.dialogueText.setVisible(false);
+    if (this.bottomNoteText) this.bottomNoteText.setVisible(false);
 
     this.zoomImage
       .setTexture(imageKey)
@@ -447,10 +661,18 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
   closeZoom() {
     if (!this.zoomOverlay) return;
+
     this.zoomOverlay.setVisible(false);
+
     if (this.zoomImage) {
       this.zoomImage.setVisible(false);
     }
+
+    if (this.currentCard?.zoomHint) this.currentCard.zoomHint.setVisible(true);
+    if (this.currentCard?.fileTitle) this.currentCard.fileTitle.setVisible(true);
+    if (this.currentCard?.summary) this.currentCard.summary.setVisible(true);
+    if (this.dialogueText) this.dialogueText.setVisible(true);
+    if (this.bottomNoteText) this.bottomNoteText.setVisible(true);
   }
 
   changeSuspect(direction) {
@@ -465,18 +687,18 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     const oldCard = this.currentCard;
     const newSuspect = this.displaySuspects[this.currentSuspectIndex];
-    const enterFromX = direction > 0 ? 520 : -520;
-    const exitToX = direction > 0 ? -520 : 520;
+    const enterFromX = direction > 0 ? 420 : -420;
+    const exitToX = direction > 0 ? -420 : 420;
 
     const newCard = this.buildSuspectCard(newSuspect, enterFromX);
-    newCard.alpha = 0.92;
+    newCard.alpha = 0.9;
     this.cardSlot.add(newCard);
     this.updatePagination();
 
     this.tweens.add({
       targets: oldCard,
       x: exitToX,
-      alpha: 0.5,
+      alpha: 0.42,
       duration: 220,
       ease: 'Cubic.Out'
     });
@@ -491,17 +713,28 @@ export class ArrestSelectionScene extends Phaser.Scene {
         if (oldCard) {
           this.cardSlot.remove(oldCard, true);
         }
+
         this.currentCard = newCard;
         this.isAnimatingSlide = false;
+
         if (!this.selectionLocked) this.enableNavigation();
-        this.dialogueText.setText(
-          'Review each suspect. Use arrows to switch, click the photo to enlarge it, and press ARREST when ready.'
-        );
+
+        if (this.dialogueText) {
+          this.dialogueText.setText(
+            'Review each dossier entry. Use arrows to inspect suspects, click the photograph to enlarge it, and confirm the arrest only when the file matches your evidence.'
+          );
+        }
+
+        if (this.bottomNoteText) {
+          this.bottomNoteText.setText('Cross-check means, motive, and opportunity before arrest.');
+        }
       }
     });
   }
 
   updatePagination() {
+    const suspect = this.displaySuspects[this.currentSuspectIndex];
+
     this.counterText.setText(`${this.currentSuspectIndex + 1} / ${this.displaySuspects.length}`);
 
     const dots = this.displaySuspects
@@ -509,6 +742,16 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .join(' ');
 
     this.dotsText.setText(dots);
+
+    const displayName =
+      suspect?.name ||
+      suspect?.fullName ||
+      suspect?.title ||
+      `Suspect ${this.currentSuspectIndex + 1}`;
+
+    if (this.suspectLabelText) {
+      this.suspectLabelText.setText(`Current file: ${displayName}`);
+    }
   }
 
   canNavigate() {
@@ -552,13 +795,12 @@ export class ArrestSelectionScene extends Phaser.Scene {
     gameState.isGameActive = false;
     saveGameState();
 
-    const title = isCorrect ? 'ARREST CONFIRMED' : 'WRONG SUSPECT';
+    const title = isCorrect ? 'ARREST CONFIRMED' : 'FALSE ARREST';
     const message = isCorrect
-      ? 'You identified the correct suspect.'
-      : 'That is not the thief. The real suspect escaped.';
-    const nextSceneKey = isCorrect ? 'SuccessScene' : 'GameOverScene';
+      ? 'Correct suspect identified. The case file is complete and the arrest stands.'
+      : 'Incorrect suspect detained. The real thief escaped before the bureau could act.';
 
-    this.showResult(title, message, isCorrect, nextSceneKey);
+    this.showResult(title, message, isCorrect);
   }
 
   createResultOverlay() {
@@ -566,56 +808,70 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     this.resultOverlay = this.add.container(0, 0).setDepth(500).setVisible(false);
 
-    const darkBg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.72);
+    const darkBg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.76);
+
+    const shadow = this.add.rectangle(width / 2 + 8, height / 2 + 10, 790, 360, 0x000000, 0.25);
+
     const panel = this.add
-      .rectangle(width / 2, height / 2, 760, 320, 0x111111, 0.96)
-      .setStrokeStyle(5, 0xffff00, 1);
+      .rectangle(width / 2, height / 2, 780, 350, 0xe5cb94, 0.98)
+      .setStrokeStyle(4, 0x5e3d20, 1);
+
+    const panelInner = this.add
+      .rectangle(width / 2, height / 2, 736, 308, 0xf5e5bc, 1)
+      .setStrokeStyle(2, 0x8b6840, 1);
 
     this.resultTitle = this.add
-      .text(width / 2, height / 2 - 70, '', {
+      .text(width / 2, height / 2 - 78, '', {
         fontFamily: 'PressStart2P',
-        fontSize: '24px',
-        color: '#ffff00',
+        fontSize: '22px',
+        color: '#6e1f17',
         align: 'center'
       })
       .setOrigin(0.5);
 
     this.resultText = this.add
-      .text(width / 2, height / 2 + 10, '', {
-        fontFamily: 'PressStart2P',
-        fontSize: '18px',
-        color: '#ffffff',
+      .text(width / 2, height / 2 + 2, '', {
+        fontFamily: 'Special Elite',
+        fontSize: '30px',
+        color: '#352113',
         align: 'center',
         wordWrap: { width: 620 },
-        lineSpacing: 12
+        lineSpacing: 10
       })
       .setOrigin(0.5);
 
     const continueBtn = this.add
-      .rectangle(width / 2, height / 2 + 110, 250, 56, 0x7a5c14, 1)
-      .setStrokeStyle(3, 0xffffff, 1)
+      .rectangle(width / 2, height / 2 + 108, 250, 58, 0x6c4820, 1)
+      .setStrokeStyle(3, 0xf7e6bc, 1)
       .setInteractive({ useHandCursor: true });
 
     const continueText = this.add
-      .text(width / 2, height / 2 + 110, 'CONTINUE', {
+      .text(width / 2, height / 2 + 108, 'CONTINUE', {
         fontFamily: 'PressStart2P',
         fontSize: '18px',
-        color: '#ffffff'
+        color: '#fff7de'
       })
       .setOrigin(0.5);
 
-    continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x9b761d, 1));
-    continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x7a5c14, 1));
+    continueBtn.on('pointerover', () => continueBtn.setFillStyle(0x8a5c29, 1));
+    continueBtn.on('pointerout', () => continueBtn.setFillStyle(0x6c4820, 1));
     continueBtn.on('pointerdown', () => {
       this.resultOverlay.setVisible(false);
       this.scene.stop('ArrestSelectionScene');
       this.scene.stop('CityScene');
-      this.scene.start(this.nextSceneKey || 'GameOverScene');
+
+      if (gameState.finalArrestResult === 'SUCCESS') {
+        this.scene.start('SuccessScene');
+      } else {
+        this.scene.start('GameOverScene');
+      }
     });
 
     this.resultOverlay.add([
       darkBg,
+      shadow,
       panel,
+      panelInner,
       this.resultTitle,
       this.resultText,
       continueBtn,
@@ -623,11 +879,11 @@ export class ArrestSelectionScene extends Phaser.Scene {
     ]);
   }
 
-  showResult(title, message, isCorrect, nextSceneKey) {
-    this.nextSceneKey = nextSceneKey || 'GameOverScene';
+  showResult(title, message, isCorrect) {
+    this.nextSceneKey = isCorrect ? 'SuccessScene' : 'GameOverScene';
     this.resultTitle.setText(title);
     this.resultText.setText(message);
-    this.resultTitle.setColor(isCorrect ? '#00ff88' : '#ff6666');
+    this.resultTitle.setColor(isCorrect ? '#2f6b2f' : '#8b1e1e');
     this.resultOverlay.setVisible(true);
   }
 

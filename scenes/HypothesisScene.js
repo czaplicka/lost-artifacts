@@ -38,7 +38,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
-    this.cityId = data.cityId || gameState.currentCityId || null;
+    this.cityId = data.cityId || gameState.currentCityId || gameState.crimeCityId || null;
     this.sceneId = data.sceneId || gameState.reconstructedHeist?.sceneId || null;
 
     this.overlay = null;
@@ -76,7 +76,7 @@ export default class HypothesisScene extends Phaser.Scene {
       .setDepth(3000)
       .setInteractive();
 
-    this.panel = this.add.rectangle(width / 2, height / 2, width * 0.9, height * 0.88, 0x17130f, 0.98)
+    this.panel = this.add.rectangle(width / 2, height / 2, width * 0.92, height * 0.92, 0x17130f, 0.98)
       .setStrokeStyle(4, 0xd4af37, 0.85)
       .setDepth(3001);
 
@@ -131,37 +131,48 @@ export default class HypothesisScene extends Phaser.Scene {
   getLayout() {
     const { width, height } = this.scale;
     const isMobile = width <= 900;
-    const panelWidth = Math.min(width - 36, isMobile ? 680 : 1400);
-    const panelHeight = Math.min(height - 30, isMobile ? Math.max(920, height - 24) : 820);
+
+    const panelWidth = Math.min(width - 32, isMobile ? 700 : 1450);
+    const panelHeight = Math.min(height - 24, isMobile ? Math.max(1160, height - 16) : 940);
     const panelX = width / 2;
     const panelY = height / 2;
+    const panelTop = panelY - panelHeight / 2;
+    const panelBottom = panelY + panelHeight / 2;
 
-    const titleY = panelY - panelHeight / 2 + (isMobile ? 36 : 42);
-    const subtitleY = titleY + (isMobile ? 40 : 48);
-    // FIX: więcej miejsca dla attemptsText — oddalone od subtitleY i od slotsY
-    const attemptsY = subtitleY + (isMobile ? 52 : 52);
-    const slotsY = attemptsY + (isMobile ? 110 : 100);
-    const trayY = slotsY + (isMobile ? 240 : 250);
-    const buttonsY = panelY + panelHeight / 2 - (isMobile ? 92 : 96);
-    const legendY = buttonsY - 54;
-    const feedbackY = buttonsY + 54;
+    const titleY = panelTop + (isMobile ? 42 : 48);
+    const subtitleY = titleY + (isMobile ? 44 : 50);
+    const attemptsY = subtitleY + (isMobile ? 86 : 80);
 
-    const slotWidth = isMobile ? Math.min(panelWidth - 44, 260) : 340;
+    const slotWidth = isMobile ? Math.min(panelWidth - 48, 280) : 340;
     const slotHeight = isMobile ? 112 : 152;
-    const slotGap = isMobile ? 128 : 420;
+    const slotVerticalGap = 132;
+    const slotHorizontalGap = 420;
+
+    const slotsBaseY = attemptsY + (isMobile ? 130 : 130);
 
     const slotPositions = isMobile
-      ? [slotsY - 130, slotsY, slotsY + 130].map((y) => ({ x: width / 2, y, labelY: y - 78 }))
-      : [width / 2 - slotGap, width / 2, width / 2 + slotGap].map((x) => ({ x, y: slotsY, labelY: slotsY - 98 }));
+      ? [
+          { x: width / 2, y: slotsBaseY, labelY: slotsBaseY - 78 },
+          { x: width / 2, y: slotsBaseY + slotVerticalGap, labelY: slotsBaseY + slotVerticalGap - 78 },
+          { x: width / 2, y: slotsBaseY + slotVerticalGap * 2, labelY: slotsBaseY + slotVerticalGap * 2 - 78 }
+        ]
+      : [
+          { x: width / 2 - slotHorizontalGap, y: slotsBaseY, labelY: slotsBaseY - 98 },
+          { x: width / 2, y: slotsBaseY, labelY: slotsBaseY - 98 },
+          { x: width / 2 + slotHorizontalGap, y: slotsBaseY, labelY: slotsBaseY - 98 }
+        ];
 
-    const cardWidth = isMobile ? Math.min(panelWidth - 44, 300) : 228;
+    const lowestSlotY = isMobile ? slotPositions[2].y : slotPositions[0].y;
+
+    const trayY = lowestSlotY + (isMobile ? 178 : 220);
+
+    const cardWidth = isMobile ? Math.min(panelWidth - 44, 310) : 228;
     const cardHeight = isMobile ? 86 : 132;
     const cardGapX = isMobile ? 0 : 252;
     const cardGapY = isMobile ? 102 : 0;
-
-    // FIX: trayStartX dla 5 kart (nie tylko 5, dynamicznie)
-    const numCards = this.availableCards.length; // powinno być 5
-    const trayStartX = isMobile ? width / 2 : width / 2 - Math.floor(numCards / 2) * cardGapX;
+    const trayStartX = isMobile
+      ? width / 2
+      : width / 2 - ((Math.min(this.availableCards.length, 6) - 1) * cardGapX) / 2;
 
     const trayPositions = this.availableCards.map((_, index) => {
       if (isMobile) {
@@ -169,6 +180,10 @@ export default class HypothesisScene extends Phaser.Scene {
       }
       return { x: trayStartX + index * cardGapX, y: trayY };
     });
+
+    const buttonsY = panelBottom - (isMobile ? 100 : 102);
+    const legendY = buttonsY - 56;
+    const feedbackY = buttonsY + 56;
 
     return {
       width,
@@ -178,10 +193,11 @@ export default class HypothesisScene extends Phaser.Scene {
       panelHeight,
       panelX,
       panelY,
+      panelTop,
+      panelBottom,
       titleY,
       subtitleY,
       attemptsY,
-      slotsY,
       trayY,
       buttonsY,
       legendY,
@@ -196,7 +212,7 @@ export default class HypothesisScene extends Phaser.Scene {
       wrapSubtitle: Math.max(220, panelWidth - 80),
       wrapFeedback: Math.max(220, panelWidth - 80),
       wrapSlot: Math.max(160, slotWidth - 42),
-      wrapCardTitle: isMobile ? Math.max(130, cardWidth * 0.5) : 150,
+      wrapCardTitle: isMobile ? Math.max(130, cardWidth * 0.56) : 150,
       buttonCloseX: isMobile ? width / 2 : width / 2 - 210,
       buttonConfirmX: isMobile ? width / 2 : width / 2 + 220,
       buttonCloseY: isMobile ? buttonsY - 44 : buttonsY,
@@ -232,6 +248,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
     this.slotViews.forEach((slotView, index) => {
       const pos = L.slotPositions[index];
+
       slotView.label.setPosition(pos.x, pos.labelY);
       slotView.label.setFontSize(L.isMobile ? '12px' : '14px');
 
@@ -239,7 +256,7 @@ export default class HypothesisScene extends Phaser.Scene {
       slotView.box.setSize(L.slotWidth, L.slotHeight);
 
       slotView.dropZone.setPosition(pos.x, pos.y);
-      slotView.dropZone.input.hitArea.setSize(L.slotWidth, L.slotHeight);
+      slotView.dropZone.setSize(L.slotWidth, L.slotHeight);
       slotView.dropZone.setRectangleDropZone(L.slotWidth, L.slotHeight);
 
       slotView.text.setPosition(pos.x, pos.y);
@@ -251,36 +268,40 @@ export default class HypothesisScene extends Phaser.Scene {
       const pos = L.trayPositions[index];
       const card = this.availableCards[index];
 
-      // FIX: odświeżamy interaktywny hitArea karty po zmianie rozmiaru
       view.bg.setSize(L.cardWidth, L.cardHeight);
-      // Zamiast ręcznie ustawiać hitArea, używamy setInteractive() które odświeży automatycznie
-      view.bg.setInteractive({ useHandCursor: true });
-      this.input.setDraggable(view.bg);
 
       if (L.isMobile) {
-        view.title.setPosition(pos.x - L.cardWidth / 2 + 16, pos.y).setOrigin(0, 0.5);
+        view.title
+          .setPosition(pos.x - L.cardWidth / 2 + 16, pos.y)
+          .setOrigin(0, 0.5);
         view.title.setAlign('left');
         view.title.setFontSize('18px');
         view.title.setWordWrapWidth(L.wrapCardTitle, true);
 
-        view.tag.setPosition(pos.x + L.cardWidth / 2 - 14, pos.y).setOrigin(1, 0.5);
+        view.tag
+          .setPosition(pos.x + L.cardWidth / 2 - 14, pos.y)
+          .setOrigin(1, 0.5);
         view.tag.setFontSize('13px');
         view.tag.setText(this.buildSkillPreview(card.skills));
       } else {
-        view.title.setPosition(pos.x, pos.y - 18).setOrigin(0.5);
+        view.title
+          .setPosition(pos.x, pos.y - 18)
+          .setOrigin(0.5);
         view.title.setAlign('center');
         view.title.setFontSize('18px');
         view.title.setWordWrapWidth(L.wrapCardTitle, true);
 
-        view.tag.setPosition(pos.x, pos.y + 34).setOrigin(0.5);
+        view.tag
+          .setPosition(pos.x, pos.y + 34)
+          .setOrigin(0.5);
         view.tag.setFontSize('13px');
         view.tag.setText(this.buildSkillPreview(card.skills));
       }
 
       if (view.currentSlot === null) {
-        this.setCardPosition(view, pos.x, pos.y);
         view.homeX = pos.x;
         view.homeY = pos.y;
+        this.setCardPosition(view, pos.x, pos.y);
       } else {
         const slot = this.slotViews[view.currentSlot];
         if (slot) {
@@ -296,167 +317,118 @@ export default class HypothesisScene extends Phaser.Scene {
     this.confirmButton.setFontSize(L.isMobile ? '24px' : '28px');
   }
 
-  // FIX: prepareCards teraz bierze WSZYSTKIE przedmioty z hiddenObjectHistory jako karty
-  // Jeśli history ma >=5 przedmiotów: 3 correct (np. oznaczone isClue) + 2 distractory
-  // Jeśli mniej: fallback
   prepareCards() {
     const history = Array.isArray(gameState.hiddenObjectHistory) ? gameState.hiddenObjectHistory : [];
+    const currentThief = gameState.currentThief || null;
+    const thiefSkills = this.extractSkills(currentThief?.skills);
 
-    // Filtrowanie po sceneId i cityId
-    const sceneItems = history.filter(item => {
-      const matchScene = !this.sceneId || item.scene === this.sceneId;
-      const matchCity = !this.cityId || item.cityId === this.cityId;
-      return matchScene && matchCity;
-    });
+    let sourceItems = history
+      .filter(item => !this.sceneId || item.scene === this.sceneId)
+      .filter(item => !this.cityId || item.cityId === this.cityId);
 
-    // Deduplikacja
+    if (sourceItems.length === 0) {
+      sourceItems = history.filter(item => !this.cityId || item.cityId === this.cityId);
+    }
+
     const uniqueItems = [];
     const seen = new Set();
-    sceneItems.forEach(item => {
-      const key = `${item.id}_${item.scene}_${item.cityId}`;
+
+    sourceItems.forEach((item, index) => {
+      const key = `${item.id || item.item || item.name || index}_${item.scene || ''}_${item.cityId || ''}`;
       if (!seen.has(key)) {
         seen.add(key);
         uniqueItems.push(item);
       }
     });
 
-    // Correct cards: oznaczone isClue=true, albo pierwsze 3 z historii
-    const clueItems = uniqueItems.filter(item => item.isClue === true);
-    const correctSource = clueItems.length >= 3 ? clueItems.slice(0, 3) : uniqueItems.slice(0, 3);
+    const normalizedItems = uniqueItems.map((item, index) => {
+      const itemSkills = this.extractSkills(item.skills);
+      const matches = this.hasSkillOverlap(itemSkills, thiefSkills);
 
-    this.correctCards = correctSource.map((item, index) => ({
-      id: item.id || `clue_${index}`,
-      item: item.item || item.name || `Clue ${index + 1}`,
-      text: item.item || item.name || `Clue ${index + 1}`,
-      skills: Array.isArray(item.skills) ? [...item.skills] : [],
-      scene: item.scene || this.sceneId,
-      cityId: item.cityId || this.cityId,
+      return {
+        id: item.id || `hidden_${index}`,
+        item: item.item || item.name || `Clue ${index + 1}`,
+        text: item.item || item.name || `Clue ${index + 1}`,
+        skills: itemSkills,
+        scene: item.scene || this.sceneId,
+        cityId: item.cityId || this.cityId,
+        matchesThief: matches
+      };
+    });
+
+    const matchingItems = normalizedItems.filter(item => item.matchesThief);
+    const nonMatchingItems = normalizedItems.filter(item => !item.matchesThief);
+
+    this.correctCards = matchingItems.slice(0, 3).map((item, index) => ({
+      ...item,
       correctOrder: index,
       isCorrect: true
     }));
 
-    // Fallback jeśli za mało
     if (this.correctCards.length < 3) {
-      const fallbackCards = this.buildFallbackCards();
-      while (this.correctCards.length < 3 && fallbackCards.length > 0) {
-        const next = fallbackCards.shift();
-        this.correctCards.push({
-          ...next,
-          correctOrder: this.correctCards.length,
+      const backupCards = normalizedItems
+        .filter(item => !this.correctCards.some(correct => correct.id === item.id))
+        .slice(0, 3 - this.correctCards.length)
+        .map((item, index) => ({
+          ...item,
+          correctOrder: this.correctCards.length + index,
           isCorrect: true
-        });
-      }
+        }));
+
+      this.correctCards.push(...backupCards);
     }
 
-    // Distractor cards: pozostałe przedmioty z historii (nie użyte jako correct)
-    const usedIds = new Set(this.correctCards.map(c => c.id));
-    const remainingItems = uniqueItems.filter(item => !usedIds.has(item.id));
-
-    this.distractorCards = [];
-    remainingItems.slice(0, 3).forEach((item, index) => {
-      this.distractorCards.push({
-        id: `${item.id}_distractor`,
-        item: item.item || item.name || 'False lead',
-        text: item.item || item.name || 'False lead',
-        skills: Array.isArray(item.skills) ? [...item.skills] : [],
-        scene: item.scene || this.sceneId,
-        cityId: item.cityId || this.cityId,
+    this.distractorCards = nonMatchingItems
+      .filter(item => !this.correctCards.some(correct => correct.id === item.id))
+      .slice(0, 3)
+      .map(item => ({
+        ...item,
         correctOrder: -1,
         isCorrect: false
-      });
-    });
+      }));
 
-    // Uzupełnij do min 2 dystraktorów fallbackiem
-    if (this.distractorCards.length < 2) {
-      const distFallback = this.buildDistractorFallback();
-      while (this.distractorCards.length < 2 && distFallback.length > 0) {
-        this.distractorCards.push(distFallback.shift());
-      }
+    if (this.distractorCards.length < 3) {
+      const extraDistractors = normalizedItems
+        .filter(item => !this.correctCards.some(correct => correct.id === item.id))
+        .filter(item => !this.distractorCards.some(d => d.id === item.id))
+        .slice(0, 3 - this.distractorCards.length)
+        .map(item => ({
+          ...item,
+          correctOrder: -1,
+          isCorrect: false
+        }));
+
+      this.distractorCards.push(...extraDistractors);
     }
 
-    // Łącznie: 3 correct + 2-3 distractor = 5-6 kart (jak w game design)
     this.availableCards = Phaser.Utils.Array.Shuffle([
-      ...this.correctCards,
+      ...this.correctCards.slice(0, 3),
       ...this.distractorCards.slice(0, 3)
     ]);
   }
 
-  buildFallbackCards() {
-    return [
-      {
-        id: 'fallback_route',
-        item: 'Route sketch',
-        text: 'Route sketch',
-        skills: ['Tactical planning'],
-        scene: this.sceneId,
-        cityId: this.cityId
-      },
-      {
-        id: 'fallback_tools',
-        item: 'Tool marks',
-        text: 'Tool marks',
-        skills: ['Engineering'],
-        scene: this.sceneId,
-        cityId: this.cityId
-      },
-      {
-        id: 'fallback_exit',
-        item: 'Exit pattern',
-        text: 'Exit pattern',
-        skills: ['Problem-solving'],
-        scene: this.sceneId,
-        cityId: this.cityId
-      }
-    ];
-  }
-
-  buildDistractorFallback() {
-    return [
-      {
-        id: 'distractor_guard_note',
-        item: 'Guard note',
-        text: 'Guard note',
-        skills: ['Observation'],
-        scene: this.sceneId,
-        cityId: this.cityId,
-        correctOrder: -1,
-        isCorrect: false
-      },
-      {
-        id: 'distractor_wrong_turn',
-        item: 'Bad route',
-        text: 'Bad route',
-        skills: ['Misdirection'],
-        scene: this.sceneId,
-        cityId: this.cityId,
-        correctOrder: -1,
-        isCorrect: false
-      }
-    ];
-  }
-
-  // Zachowane dla kompatybilności wstecznej
-  buildDistractorCards(uniqueItems) {
-    const usedIds = new Set(this.correctCards.map(card => card.id));
-    const distractors = [];
-    uniqueItems.forEach((item) => {
-      if (usedIds.has(item.id)) return;
-      distractors.push({
-        id: `${item.id}_distractor`,
-        item: item.item || 'False lead',
-        text: item.item || 'False lead',
-        skills: Array.isArray(item.skills) ? [...item.skills] : [],
-        scene: item.scene || this.sceneId,
-        cityId: item.cityId || this.cityId,
-        correctOrder: -1,
-        isCorrect: false
-      });
-    });
-    if (distractors.length < 2) {
-      const fallback = this.buildDistractorFallback();
-      while (distractors.length < 2 && fallback.length > 0) distractors.push(fallback.shift());
+  extractSkills(rawSkills) {
+    if (Array.isArray(rawSkills)) {
+      return rawSkills
+        .map(skill => String(skill).trim())
+        .filter(Boolean);
     }
-    return distractors.slice(0, 2);
+
+    if (typeof rawSkills === 'string') {
+      return rawSkills
+        .split(',')
+        .map(skill => skill.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  }
+
+  hasSkillOverlap(itemSkills = [], thiefSkills = []) {
+    if (!itemSkills.length || !thiefSkills.length) return false;
+
+    const thiefSet = new Set(thiefSkills.map(skill => String(skill).toLowerCase()));
+    return itemSkills.some(skill => thiefSet.has(String(skill).toLowerCase()));
   }
 
   createSlots() {
@@ -497,14 +469,10 @@ export default class HypothesisScene extends Phaser.Scene {
 
   createCardTray() {
     this.availableCards.forEach((card, index) => {
-      // FIX: używamy setInteractive() bez niestandardowego hitArea
-      // Phaser będzie automatycznie śledzić rozmiar prostokąta
       const bg = this.add.rectangle(0, 0, 228, 132, 0xf1e2bf, 1)
         .setStrokeStyle(3, 0x7a5c2e, 0.85)
         .setDepth(3004)
         .setInteractive({ useHandCursor: true });
-
-      this.input.setDraggable(bg);
 
       const title = this.add.text(0, -18, card.item, {
         fontFamily: 'Special Elite',
@@ -521,6 +489,8 @@ export default class HypothesisScene extends Phaser.Scene {
         backgroundColor: '#f7ecd3',
         padding: { left: 8, right: 8, top: 4, bottom: 4 }
       }).setOrigin(0.5).setDepth(3005);
+
+      this.input.setDraggable(bg, true);
 
       bg.cardIndex = index;
       bg.homeX = 0;
@@ -588,36 +558,24 @@ export default class HypothesisScene extends Phaser.Scene {
     this._listenersBound = true;
 
     this.input.on('dragstart', (pointer, gameObject) => {
-      if (gameObject.cardIndex === undefined) return;
       gameObject.setDepth(3100);
       if (gameObject.linkedTitle) gameObject.linkedTitle.setDepth(3101);
       if (gameObject.linkedTag) gameObject.linkedTag.setDepth(3101);
-      this.tweens.killTweensOf(gameObject);
+      this.tweens.killTweensOf([gameObject, gameObject.linkedTitle, gameObject.linkedTag]);
     });
 
-    this.input.on('drag', (pointer, gameObject) => {
-      if (gameObject.cardIndex === undefined) return;
-      this.setCardPositionByIndex(gameObject.cardIndex, pointer.x, pointer.y);
+    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+      this.setCardPositionByIndex(gameObject.cardIndex, dragX, dragY);
     });
 
     this.input.on('drop', (pointer, gameObject, dropZone) => {
-      if (gameObject.cardIndex === undefined) return;
       const slotIndex = dropZone.getData('slotIndex');
-      if (slotIndex === undefined || slotIndex === null) return;
       this.placeCardInSlotByIndex(gameObject.cardIndex, slotIndex);
     });
 
     this.input.on('dragend', (pointer, gameObject, dropped) => {
-      if (gameObject.cardIndex === undefined) return;
       if (!dropped) {
         this.returnCardHomeByIndex(gameObject.cardIndex);
-      }
-      // FIX: po drag przywracamy głębokość
-      const cardView = this.getCardView(gameObject.cardIndex);
-      if (cardView) {
-        cardView.bg.setDepth(3004);
-        cardView.title.setDepth(3005);
-        cardView.tag.setDepth(3005);
       }
     });
   }
@@ -635,15 +593,17 @@ export default class HypothesisScene extends Phaser.Scene {
 
   setCardPosition(cardView, x, y) {
     if (!cardView || !this.layout) return;
+
     cardView.bg.setPosition(x, y);
-    cardView.title.setPosition(
-      cardView.title.originX === 0 ? x - this.layout.cardWidth / 2 + 16 : x,
-      y + (this.layout.isMobile ? 0 : -18)
-    );
-    cardView.tag.setPosition(
-      this.layout.isMobile ? x + this.layout.cardWidth / 2 - 14 : x,
-      y + (this.layout.isMobile ? 0 : 34)
-    );
+
+    const titleX = cardView.title.originX === 0 ? x - this.layout.cardWidth / 2 + 16 : x;
+    const titleY = y + (this.layout.isMobile ? 0 : -18);
+
+    const tagX = this.layout.isMobile ? x + this.layout.cardWidth / 2 - 14 : x;
+    const tagY = y + (this.layout.isMobile ? 0 : 34);
+
+    cardView.title.setPosition(titleX, titleY);
+    cardView.tag.setPosition(tagX, tagY);
   }
 
   setCardPositionByIndex(cardIndex, x, y) {
@@ -677,6 +637,7 @@ export default class HypothesisScene extends Phaser.Scene {
       this.showFeedback('Drop a card here.', '#ffb347');
       return;
     }
+
     this.returnCardHomeByIndex(cardIndex);
   }
 
@@ -725,7 +686,7 @@ export default class HypothesisScene extends Phaser.Scene {
       this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
     }
 
-    this.slotFeedback[slotIndex] = 'neutral';
+    this.slotFeedback = ['neutral', 'neutral', 'neutral'];
     this.refreshUI();
   }
 
@@ -741,14 +702,20 @@ export default class HypothesisScene extends Phaser.Scene {
     cardView.currentSlot = null;
     cardView.bg.currentSlot = null;
 
-    if (animate && this.layout) {
+    if (animate) {
       this.tweens.add({
         targets: [cardView.bg, cardView.title, cardView.tag],
         x: {
           getEnd: (target) => {
             if (target === cardView.bg) return cardView.homeX;
-            if (target === cardView.title) return cardView.title.originX === 0 ? cardView.homeX - this.layout.cardWidth / 2 + 16 : cardView.homeX;
-            return this.layout.isMobile ? cardView.homeX + this.layout.cardWidth / 2 - 14 : cardView.homeX;
+            if (target === cardView.title) {
+              return cardView.title.originX === 0
+                ? cardView.homeX - this.layout.cardWidth / 2 + 16
+                : cardView.homeX;
+            }
+            return this.layout.isMobile
+              ? cardView.homeX + this.layout.cardWidth / 2 - 14
+              : cardView.homeX;
           }
         },
         y: {
@@ -772,7 +739,10 @@ export default class HypothesisScene extends Phaser.Scene {
     this.refreshSlots();
     this.refreshCards();
     this.refreshConfirmButton();
-    this.attemptsText?.setText(`Attempts left: ${this.attemptsLeft}`);
+
+    if (this.attemptsText) {
+      this.attemptsText.setText(`Attempts left: ${this.attemptsLeft}`);
+    }
   }
 
   refreshSlots() {
@@ -875,7 +845,13 @@ export default class HypothesisScene extends Phaser.Scene {
     const allGreen = feedback.every(v => v === 'green');
 
     if (allGreen) {
-      this.finalizeTheory(orderedCards, 'exact', 60, 'Excellent reconstruction. You nailed the sequence.', '#7CFC00');
+      this.finalizeTheory(
+        orderedCards,
+        'exact',
+        60,
+        'Excellent reconstruction. You nailed the sequence.',
+        '#7CFC00'
+      );
       return;
     }
 
@@ -891,9 +867,21 @@ export default class HypothesisScene extends Phaser.Scene {
     const yellowCount = feedback.filter(v => v === 'yellow').length;
 
     if (greenCount + yellowCount >= 2) {
-      this.finalizeTheory(orderedCards, 'partial', 25, 'Promising lead. Part of the sequence fits.', '#ffcf66');
+      this.finalizeTheory(
+        orderedCards,
+        'partial',
+        25,
+        'Promising lead. Part of the sequence fits.',
+        '#ffcf66'
+      );
     } else {
-      this.finalizeTheory(orderedCards, 'weak', 10, 'Theory recorded, but the sequence still needs work.', '#ff9f80');
+      this.finalizeTheory(
+        orderedCards,
+        'weak',
+        10,
+        'Theory recorded, but the sequence still needs work.',
+        '#ff9f80'
+      );
     }
   }
 
@@ -1001,6 +989,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
   showFeedback(text, color = '#ffd966') {
     if (!this.feedbackText) return;
+
     this.feedbackText.setText(text);
     this.feedbackText.setColor(color);
     this.feedbackText.setAlpha(1);
@@ -1014,19 +1003,40 @@ export default class HypothesisScene extends Phaser.Scene {
     });
   }
 
+  restoreSourceScene() {
+    const source = this.sourceScene || 'CityScene';
+
+    if (this.scene.isSleeping(source)) {
+      this.scene.wake(source);
+    }
+
+    if (this.scene.isPaused(source)) {
+      this.scene.resume(source);
+    }
+
+    const sourceSceneRef = this.scene.get(source);
+
+    if (sourceSceneRef?.input) {
+      sourceSceneRef.input.enabled = true;
+      sourceSceneRef.input.setTopOnly(true);
+    }
+  }
+
   launchResultCommentScene() {
     saveGameState();
 
-    if (this.sourceScene && this.scene.isSleeping(this.sourceScene)) {
-      this.scene.wake(this.sourceScene);
+    const source = this.sourceScene || 'CityScene';
+
+    if (this.scene.isSleeping(source)) {
+      this.scene.wake(source);
     }
 
-    if (this.sourceScene && this.scene.isActive(this.sourceScene)) {
-      this.scene.pause(this.sourceScene);
+    if (this.scene.isActive(source) && !this.scene.isPaused(source)) {
+      this.scene.pause(source);
     }
 
     this.scene.launch('TheoryResultCallScene', {
-      sourceScene: this.sourceScene,
+      sourceScene: source,
       mode: 'hq',
       result: gameState.reconstructedHeist?.playerTheoryResult || 'weak'
     });
@@ -1036,15 +1046,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
   closeScene() {
     saveGameState();
-
-    if (this.sourceScene && this.scene.isSleeping(this.sourceScene)) {
-      this.scene.wake(this.sourceScene);
-    }
-
-    if (this.sourceScene && this.scene.isPaused(this.sourceScene)) {
-      this.scene.resume(this.sourceScene);
-    }
-
+    this.restoreSourceScene();
     this.scene.stop();
   }
 

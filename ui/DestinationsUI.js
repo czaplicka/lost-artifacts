@@ -502,79 +502,85 @@ export class DestinationsUI {
     }
 
     travelToCity(selectedCity) {
-        if (this.isTransitioning || !selectedCity) return;
+    if (this.isTransitioning || !selectedCity) return;
 
-        this.isTransitioning = true;
-        this.setConfirmEnabled(false);
+    this.isTransitioning = true;
+    this.setConfirmEnabled(false);
 
-        const locationsData = this.scene.cache.json.get('locations') || [];
-        const selectedCityData = selectedCity?.id
-            ? locationsData.find(loc => loc.id === selectedCity.id)
-            : locationsData.find(loc => loc.city === selectedCity?.city);
+    const locationsData = this.scene.cache.json.get('locations') || [];
+    const selectedCityData = selectedCity?.id
+        ? locationsData.find(loc => loc.id === selectedCity.id)
+        : locationsData.find(loc => loc.city === selectedCity?.city);
 
-        if (!selectedCityData) {
-            console.error('Nie znaleziono danych miasta:', selectedCity);
+    if (!selectedCityData) {
+        console.error('Nie znaleziono danych miasta:', selectedCity);
+        this.isTransitioning = false;
+        this.setConfirmEnabled(true);
+        return;
+    }
+
+    try {
+        const shouldAdvanceBeforeDeparture = this.shouldAdvanceOnDeparture();
+        let completionResult = null;
+
+        if (shouldAdvanceBeforeDeparture) {
+            completionResult = completeCityInvestigation(locationsData);
+
+            console.log('[DestinationsUI.travelToCity] completionResult:', completionResult);
+
+            if (!completionResult?.success) {
+                console.error('Nie udało się domknąć śledztwa w mieście:', completionResult);
+                this.isTransitioning = false;
+                this.setConfirmEnabled(true);
+                return;
+            }
+        }
+
+        const result = performTravel(selectedCityData.city, locationsData);
+
+        console.log('[DestinationsUI.travelToCity] result:', result);
+
+        if (!result) {
+            console.error('travelToCity zwróciło pusty wynik');
             this.isTransitioning = false;
             this.setConfirmEnabled(true);
             return;
         }
 
-        try {
-            const shouldAdvanceBeforeDeparture = this.shouldAdvanceOnDeparture();
+        const finalStatus =
+            completionResult?.status === 'FINAL_SHOWDOWN'
+                ? 'FINAL_SHOWDOWN'
+                : result.status;
 
-            if (shouldAdvanceBeforeDeparture) {
-                const completionResult = completeCityInvestigation(locationsData);
+        EventBus.emit('advanceTime', result.travelHours || 0, 0);
+        saveGameState();
 
-                console.log('[DestinationsUI.travelToCity] completionResult:', completionResult);
+        const transitionPayload = {
+            fromCity: result.fromCity,
+            toCity: result.toCity,
+            toCityId: selectedCityData.id,
+            cityId: selectedCityData.id,
+            travelHours: result.travelHours || 0,
+            baseTravelHours: result.baseTravelHours || result.travelHours || 0,
+            travelEncounter: result.travelEncounter || null,
+            wasCorrect: result.wasCorrect,
+            status: finalStatus,
+            isCrimeSceneArrival: result.isCrimeSceneArrival || false,
+            pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
+            pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || selectedCityData.id
+        };
 
-                if (!completionResult?.success) {
-                    console.error('Nie udało się domknąć śledztwa w mieście:', completionResult);
-                    this.isTransitioning = false;
-                    this.setConfirmEnabled(true);
-                    return;
-                }
-            }
+        console.log('[DestinationsUI.travelToCity] start TravelTransitionScene with:', transitionPayload);
 
-            const result = performTravel(selectedCityData.city, locationsData);
-
-            console.log('[DestinationsUI.travelToCity] result:', result);
-
-            if (!result) {
-                console.error('travelToCity zwróciło pusty wynik');
-                this.isTransitioning = false;
-                this.setConfirmEnabled(true);
-                return;
-            }
-
-            EventBus.emit('advanceTime', result.travelHours || 0, 0);
-            saveGameState();
-
-            const transitionPayload = {
-                fromCity: result.fromCity,
-                toCity: result.toCity,
-                toCityId: selectedCityData.id,
-                cityId: selectedCityData.id,
-                travelHours: result.travelHours || 0,
-                baseTravelHours: result.baseTravelHours || result.travelHours || 0,
-                travelEncounter: result.travelEncounter || null,
-                wasCorrect: result.wasCorrect,
-                status: result.status,
-                isCrimeSceneArrival: result.isCrimeSceneArrival || false,
-                pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
-                pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || selectedCityData.id
-            };
-
-            console.log('[DestinationsUI.travelToCity] start TravelTransitionScene with:', transitionPayload);
-
-            this.cleanupBeforeTravel();
-            this.close();
-            this.scene.scene.start('TravelTransitionScene', transitionPayload);
-        } catch (error) {
-            console.error('Błąd podczas podróży do miasta:', error);
-            this.isTransitioning = false;
-            this.setConfirmEnabled(true);
-        }
+        this.cleanupBeforeTravel();
+        this.close();
+        this.scene.scene.start('TravelTransitionScene', transitionPayload);
+    } catch (error) {
+        console.error('Błąd podczas podróży do miasta:', error);
+        this.isTransitioning = false;
+        this.setConfirmEnabled(true);
     }
+}
 
     destroy() {
         this.clearPins();
