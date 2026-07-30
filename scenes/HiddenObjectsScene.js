@@ -456,7 +456,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     if (this.textures.exists('back')) {
       this.backBtn = this.add.image(width - 70, 44, 'back')
-        .setDisplaySize(56, 56)
+        .setDisplaySize(96, 56)
         .setInteractive({ useHandCursor: true })
         .setDepth(1001);
     } else {

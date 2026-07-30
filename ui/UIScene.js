@@ -8,91 +8,126 @@ export default class UIScene extends Phaser.Scene {
 
     create() {
         this.scene.bringToTop();
-        
+
         const width = this.cameras.main.width;
-        const paddingRight = 40;
-        const paddingTop = 40;
-        
-        const boxWidth = 320;
-        const boxHeight = 160;
-        const boxX = width - paddingRight - boxWidth;
-        const boxY = paddingTop;
+        const paddingRight = 20;
+        const paddingTop = 20;
 
-        this.calendarBg = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xf4ecd8, 1.0)
-            .setOrigin(0, 0);
+        // Główny panel HUD - stylizowany na retro organizer / biurko detektywa
+        const hudWidth = 460;
+        const hudHeight = 140;
+        const hudX = width - paddingRight - hudWidth;
+        const hudY = paddingTop;
 
-        this.calendarBg.setStrokeStyle(4, 0x4a3728);
+        // --- 1. ZEWNĘTRZNA DREWNIANA RAMKA (STYL RETRO 90s) ---
+        const outerFrame = this.add.graphics();
+        // Zewnętrzny cień / krawędź 3D
+        outerFrame.fillStyle(0x2b1e16, 1);
+        outerFrame.fillRoundedRect(hudX - 4, hudY - 4, hudWidth + 8, hudHeight + 8, 12);
+        // Ciemne drewno
+        outerFrame.fillStyle(0x4a3525, 1);
+        outerFrame.fillRoundedRect(hudX, hudY, hudWidth, hudHeight, 8);
+        // Wewnętrzne ścięcie/złocenie (Bevel effect)
+        outerFrame.lineStyle(3, 0x8c5e3c, 1);
+        outerFrame.strokeRoundedRect(hudX + 2, hudY + 2, hudWidth - 4, hudHeight - 4, 6);
 
-        this.innerFrame = this.add.graphics();
-        this.innerFrame.lineStyle(2, 0xd4a373, 1);
-        this.innerFrame.strokeRect(boxX + 4, boxY + 4, boxWidth - 8, boxHeight - 8);
+        // --- 2. TŁO KARTKI (POSTARZANY PAPIER / KARTOTEKA) ---
+        const paperBg = this.add.rectangle(hudX + 10, hudY + 10, hudWidth - 20, hudHeight - 20, 0xf4eac1)
+            .setOrigin(0, 0)
+            .setStrokeStyle(2, 0xbc986a);
 
-        this.add.rectangle(boxX + 4, boxY + 4, boxWidth - 8, 8, 0xae2012).setOrigin(0, 0);
+        // --- 3. ZEGAR STYLIZOWANY NA MOSIĘŻNY POCKET WATCH ---
+        const clockX = hudX + 75;
+        const clockY = hudY + hudHeight / 2;
+        const clockRadius = 48;
 
-        const clockX = boxX + 65;
-        const clockY = boxY + boxHeight / 2 + 5;
-        const clockRadius = 45;
+        const clockGraphics = this.add.graphics();
+        // Obudowa zegarka (mosiądz/złoto)
+        clockGraphics.fillStyle(0x8f5d26, 1);
+        clockGraphics.fillCircle(clockX, clockY, clockRadius + 5);
+        clockGraphics.fillStyle(0xdda15e, 1);
+        clockGraphics.fillCircle(clockX, clockY, clockRadius + 3);
 
-        this.clockGroup = this.add.group();
+        // Tarcza
+        clockGraphics.fillStyle(0xfffcf2, 1);
+        clockGraphics.fillCircle(clockX, clockY, clockRadius);
+        clockGraphics.lineStyle(3, 0x4a3525, 1);
+        clockGraphics.strokeCircle(clockX, clockY, clockRadius);
 
-        const clockFace = this.add.circle(clockX, clockY, clockRadius, 0xffffff)
-            .setStrokeStyle(3, 0x4a3728);
-        
-        const clockCenter = this.add.circle(clockX, clockY, 4, 0x4a3728);
+        // Podziałka godzinowa na tarczy zegara
+        clockGraphics.lineStyle(2, 0x99582a, 1);
+        for (let i = 0; i < 12; i++) {
+            const angle = (i * Math.PI) / 6 - Math.PI / 2;
+            const r1 = clockRadius - (i % 3 === 0 ? 10 : 5);
+            const r2 = clockRadius - 2;
+            clockGraphics.lineBetween(
+                clockX + Math.cos(angle) * r1,
+                clockY + Math.sin(angle) * r1,
+                clockX + Math.cos(angle) * r2,
+                clockY + Math.sin(angle) * r2
+            );
+        }
 
-        this.hourHand = this.add.graphics();
-        this.minuteHand = this.add.graphics();
+        // Środek zegara
+        this.add.circle(clockX, clockY, 4, 0x4a3525).setDepth(2);
 
+        this.hourHand = this.add.graphics().setDepth(1);
+        this.minuteHand = this.add.graphics().setDepth(1);
+        this.clockCenterPos = { x: clockX, y: clockY };
+
+        // --- 4. SEKCJA CZASU I DATY (TEKSTY) ---
         const textStyle = {
             fontFamily: 'PressStart2P',
-            fill: '#4a3728',
-            shadow: { offsetX: 1, offsetY: 1, color: '#d4a373', blur: 0, fill: true }
+            fill: '#2b1e16',
+            shadow: { offsetX: 1, offsetY: 1, color: '#e0c9a6', blur: 0, fill: true }
         };
 
-        this.dayText = this.add.text(boxX + 135, boxY + 30, 'DAY 1', {
+        this.dayText = this.add.text(hudX + 145, hudY + 25, 'DAY 1', {
             ...textStyle,
-            fontSize: '28px',
-            fill: '#ae2012'
-        }).setOrigin(0, 0);
+            fontSize: '22px',
+            fill: '#a71c1c'
+        });
 
-        this.timeText = this.add.text(boxX + 135, boxY + 75, '08:00', {
-            ...textStyle,
-            fontSize: '20px'
-        }).setOrigin(0, 0);
-
-        this.partOfDayText = this.add.text(boxX + 135, boxY + 110, 'Morning', {
-            ...textStyle,
-            fontSize: '14px',
-            fill: '#7f5539'
-        }).setOrigin(0, 0);
-
-        const scoreBoxWidth = 260;
-        const scoreBoxHeight = 100;
-        const scoreBoxX = boxX - scoreBoxWidth - 20;
-        const scoreBoxY = boxY;
-
-        this.scoreBg = this.add.rectangle(scoreBoxX, scoreBoxY, scoreBoxWidth, scoreBoxHeight, 0xf4ecd8, 1.0)
-            .setOrigin(0, 0)
-            .setStrokeStyle(4, 0x4a3728);
-
-        this.scoreInnerFrame = this.add.graphics();
-        this.scoreInnerFrame.lineStyle(2, 0xd4a373, 1);
-        this.scoreInnerFrame.strokeRect(scoreBoxX + 4, scoreBoxY + 4, scoreBoxWidth - 8, scoreBoxHeight - 8);
-
-        this.add.rectangle(scoreBoxX + 4, scoreBoxY + 4, scoreBoxWidth - 8, 8, 0xae2012).setOrigin(0, 0);
-
-        this.scoreLabel = this.add.text(scoreBoxX + 20, scoreBoxY + 20, 'SCORE', {
-            ...textStyle,
-            fontSize: '18px',
-            fill: '#ae2012'
-        }).setOrigin(0, 0);
-
-        this.scoreText = this.add.text(scoreBoxX + 20, scoreBoxY + 52, `${gameState.score || 0}`, {
+        this.timeText = this.add.text(hudX + 145, hudY + 58, '08:00', {
             ...textStyle,
             fontSize: '24px',
-            fill: '#4a3728'
-        }).setOrigin(0, 0);
+            fill: '#1b4332' // Elegancka retro zieleń lub czarny
+        });
 
+        this.partOfDayText = this.add.text(hudX + 145, hudY + 92, 'MORNING', {
+            ...textStyle,
+            fontSize: '11px',
+            fill: '#7f5539'
+        });
+
+        // --- 5. SEKCJA PUNKTÓW (RETRO LUB TABLICZKA DETEKTYWA) ---
+        const scoreX = hudX + 310;
+        const scoreY = hudY + 20;
+        const scoreW = 130;
+        const scoreH = 100;
+
+        // Wcięta tabliczka na punkty
+        const scoreBox = this.add.graphics();
+        scoreBox.fillStyle(0x2b1e16, 1);
+        scoreBox.fillRoundedRect(scoreX, scoreY, scoreW, scoreH, 6);
+        scoreBox.fillStyle(0x3a2e2b, 1);
+        scoreBox.fillRoundedRect(scoreX + 2, scoreY + 2, scoreW - 4, scoreH - 4, 4);
+
+        this.add.text(scoreX + scoreW / 2, scoreY + 18, 'SCORE', {
+            fontFamily: 'PressStart2P',
+            fontSize: '12px',
+            fill: '#e9d8a6'
+        }).setOrigin(0.5);
+
+        // Licznik punktów stylizowany na zielone/żółte retro cyfry
+        this.scoreText = this.add.text(scoreX + scoreW / 2, scoreY + 55, `${gameState.score || 0}`, {
+            fontFamily: 'PressStart2P',
+            fontSize: '20px',
+            fill: '#ee9b00',
+            shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
+        }).setOrigin(0.5);
+
+        // --- INICJALIZACJA I ZDARZENIA ---
         this.setClockHands(8, 0);
         this.updateScore({ total: gameState.score || 0 });
 
@@ -108,8 +143,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     setClockHands(hour, minute) {
-        const clockX = this.dayText.x - 70;
-        const clockY = this.calendarBg.y + (this.calendarBg.height / 2) + 5;
+        const { x: clockX, y: clockY } = this.clockCenterPos;
 
         this.hourHand.clear();
         this.minuteHand.clear();
@@ -117,18 +151,20 @@ export default class UIScene extends Phaser.Scene {
         const minuteAngle = ((minute / 60) * Math.PI * 2) - Math.PI / 2;
         const hourAngle = (((hour % 12) / 12) * Math.PI * 2) + ((minute / 60) * (Math.PI * 2 / 12)) - Math.PI / 2;
 
-        this.hourHand.lineStyle(4, 0x4a3728);
+        // Wskazówka godzinowa (grubsza, ciemna)
+        this.hourHand.lineStyle(5, 0x2b1e16);
         this.hourHand.lineBetween(
-            clockX, clockY, 
-            clockX + Math.cos(hourAngle) * 25, 
-            clockY + Math.sin(hourAngle) * 25
+            clockX, clockY,
+            clockX + Math.cos(hourAngle) * 24,
+            clockY + Math.sin(hourAngle) * 24
         );
 
-        this.minuteHand.lineStyle(2, 0xae2012);
+        // Wskazówka minutowa (węższa, czerwony akcent lat 90.)
+        this.minuteHand.lineStyle(3, 0xae2012);
         this.minuteHand.lineBetween(
-            clockX, clockY, 
-            clockX + Math.cos(minuteAngle) * 36, 
-            clockY + Math.sin(minuteAngle) * 36
+            clockX, clockY,
+            clockX + Math.cos(minuteAngle) * 35,
+            clockY + Math.sin(minuteAngle) * 35
         );
     }
 
@@ -138,7 +174,7 @@ export default class UIScene extends Phaser.Scene {
 
         this.dayText.setText(`DAY ${timeData.day}`);
         this.timeText.setText(`${h}:${m}`);
-        this.partOfDayText.setText(timeData.partOfDay);
+        this.partOfDayText.setText(timeData.partOfDay.toUpperCase());
 
         this.setClockHands(timeData.hour, timeData.minute);
     }

@@ -15,7 +15,7 @@
     "skills": ["Tactical planning", "Surveillance", "Investigation", "Problem-solving", "Engineering", "Technical knowledge"],
     "tags": ["plan", "paper", "routes", "guards", "cameras", "map"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["garett_gutter", "bert_goodman", "frank_groot", "maximilian_schmidt"],
     "trueExplanation": "It is a homework assignment; the \"emergency exit\" arrow points straight into a solid wall.",
     "heistExplanation": "The thief glanced at this masterpiece of wrong turns, laughed quietly, and planned their own route."
@@ -26,7 +26,7 @@
     "skills": ["Hacking", "Electronics", "Engineering", "Analysis", "Deduction", "Technical knowledge"],
     "tags": ["blueprint", "security", "sensors", "cameras", "technical"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle"],
     "suspectAffinity": ["bert_goodman", "maximilian_schmidt"],
     "trueExplanation": "This blueprint is so old it still shows a guard dog kennel and a smoking room.",
     "heistExplanation": "The thief used it only to confirm one thing: absolutely nobody had updated the system on paper for decades."
@@ -48,7 +48,7 @@
     "skills": ["Hacking", "Research", "Analysis", "Technical knowledge", "Investigation"],
     "tags": ["computer", "login", "logs", "data", "console"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle"],
     "suspectAffinity": ["bert_goodman"],
     "trueExplanation": "The most suspicious thing on this laptop is a high score in solitaire.",
     "heistExplanation": "The thief walked right past the laptop; hacking is risky, but lazy guards are free stealth upgrades."
@@ -59,7 +59,7 @@
     "skills": ["Surveillance", "Hacking", "Electronics", "Espionage", "Technical knowledge"],
     "tags": ["gadget", "transmitter", "receiver", "scanner", "device"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["bert_goodman", "sergei_petrov"],
     "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
     "heistExplanation": "The thief brought their own gear; this device was about as useful as a flashlight with no batteries."
@@ -81,7 +81,7 @@
     "skills": ["Hacking", "Espionage", "Research", "Manipulation", "Deception"],
     "tags": ["data", "storage", "evidence", "transfer", "small_item"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["bert_goodman", "sergei_petrov"],
     "trueExplanation": "It contains 300 photos of cats in museum gift‑shop bags and exactly zero secrets.",
     "heistExplanation": "The thief ignored it on purpose; nobody wants their master plan found next to a folder called \"CUTE\"."
@@ -92,7 +92,7 @@
     "skills": ["Stealth", "Tracking", "Survival skills", "Tactical planning", "Analysis"],
     "tags": ["notes", "guards", "schedule", "routes", "paper"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower","castle", "dockyard"],
     "suspectAffinity": ["jacek_kowalski", "pablo_fernandez", "garett_gutter"],
     "trueExplanation": "Half the notes are doodles of coffee cups and \"DON'T FALL ASLEEP\" in big letters.",
     "heistExplanation": "The thief used the real patrols, not these notes—guards with coffee doodles rarely follow their own schedule."
@@ -103,7 +103,7 @@
     "skills": ["Parkour", "Acrobatics", "Survival skills", "Tactical planning", "Engineering"],
     "tags": ["map", "routes", "escape", "walls", "doors"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["pablo_fernandez", "jacek_kowalski"],
     "trueExplanation": "Someone drew a smiley face on the fire exit; that is the most advanced planning on it.",
     "heistExplanation": "The thief did the unthinkable and used a staff shortcut instead of a glowing green stick‑figure exit."
@@ -114,7 +114,7 @@
     "skills": ["Lockpicking", "Problem-solving", "Engineering", "Technical knowledge"],
     "tags": ["tools", "lock", "metal", "kit", "break_in"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "aleksander_petrov"],
     "trueExplanation": "The tools are still wrapped in plastic; the only lock opened was the online store checkout.",
     "heistExplanation": "The thief used a stolen access code instead, proving that the keyboard is mightier than the crowbar."
@@ -158,7 +158,7 @@
     "skills": ["Disguise", "Espionage", "Surveillance", "Deception"],
     "tags": ["accessory", "eyes", "reflection", "stealth", "identity"],
     "isRedHerring": false,
-    "scene": ["louvre"],
+    "scene": ["louvre", "castle"],
     "suspectAffinity": ["sergei_petrov", "pablo_fernandez"],
     "trueExplanation": "The sunglasses are so scratched they mainly reflect regret.",
     "heistExplanation": "The thief avoided sunglasses indoors; nothing says \"definitely innocent\" like hiding your eyes at midnight."
@@ -169,7 +169,7 @@
     "skills": ["Interrogation", "Investigation", "Espionage", "Intimidation", "Analysis"],
     "tags": ["audio", "device", "evidence", "recording", "interview"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["frank_groot", "albert_johnson"],
     "trueExplanation": "The last recording is twenty minutes of someone humming elevator music off‑key.",
     "heistExplanation": "The thief kept quiet; their only soundtrack was the ticking clock and distant guard yawns."
@@ -246,7 +246,7 @@
     "skills": ["Engineering", "Survival skills", "Parkour", "Investigation"],
     "tags": ["ladder", "maintenance", "access", "vertical", "route"],
     "isRedHerring": false,
-    "scene": ["louvre"],
+    "scene": ["louvre", "dockyard"],
     "suspectAffinity": ["maximilian_schmidt", "jacek_kowalski"],
     "trueExplanation": "The ladder has a handwritten note: \"If you move this, put it back or I scream\".",
     "heistExplanation": "The thief respected the note; angering maintenance staff is more dangerous than any alarm."
@@ -257,7 +257,7 @@
     "skills": ["Espionage", "Surveillance", "Investigation", "Deception", "Manipulation"],
     "tags": ["bug", "audio", "small", "hidden", "covert"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["sergei_petrov", "bert_goodman"],
     "trueExplanation": "The device broadcasts directly into the head of security's office... which is currently empty.",
     "heistExplanation": "The thief moved only when the device captured the sweetest sound of all: total silence."
@@ -268,7 +268,7 @@
     "skills": ["Writing", "Investigation", "Interrogation", "Leadership", "Problem-solving"],
     "tags": ["binder", "reports", "documents", "log", "paperwork"],
     "isRedHerring": false,
-    "scene": ["louvre", "tower"],
+    "scene": ["louvre", "tower", "castle", "dockyard"],
     "suspectAffinity": ["frank_groot", "albert_johnson"],
     "trueExplanation": "Most incident reports describe \"mysterious sandwich thefts\" from the staff fridge.",
     "heistExplanation": "The thief made sure tonight stays off the record, leaving the binder tragically sandwich-focused."
@@ -280,7 +280,7 @@
     "tags": ["museum", "staff", "keys"],
     "isRedHerring": true,
     "trueExplanation": "Half the keys are labeled \"no idea\" in the curator’s own handwriting.",
-    "scene": ["louvre"],
+    "scene": ["louvre", "castle", "dockyard"],
     "suspectAffinity": ["anna_bocian"],
     "heistExplanation": "The thief did not risk a guessing game with fifty almost-identical keys and one very real curator."
   },
@@ -335,7 +335,7 @@
     "tags": ["note", "paper", "evidence", "message", "crime_scene"],
     "isRedHerring": true,
     "trueExplanation": "The \"mysterious code\" is a list: milk, bread, batteries, don’t forget cat food.",
-    "scene": ["louvre"],
+    "scene": ["louvre", "castle", "dockyard"],
     "suspectAffinity": [],
     "heistExplanation": "The thief left no dramatic manifesto; they let the grocery list take all the literary credit."
   },
@@ -346,7 +346,7 @@
     "tags": ["device", "code", "decryption", "tech", "security"],
     "isRedHerring": true,
     "trueExplanation": "The only thing it decrypts is the air‑conditioning manual, which is already boring in plain text.",
-    "scene": ["louvre"],
+    "scene": ["louvre", "castle"],
     "suspectAffinity": ["bert_goodman"],
     "heistExplanation": "The thief used simple, old-fashioned codes: footstep timing, hand signals, and a good wristwatch."
   },
@@ -379,7 +379,7 @@
     "skills": ["Investigation", "Analysis", "Deduction", "Art history", "Museum studies"],
     "tags": ["tower", "royal", "jewels", "display", "vault"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower", "castle"],
     "suspectAffinity": ["frank_groot", "rebecca_muller", "anna_bocian", "ava_thompson"],
     "trueExplanation": "The security plaque is polished more carefully than the glass itself.",
     "heistExplanation": "The thief left the case pristine, trusting that perfection often delays suspicion."
@@ -390,7 +390,7 @@
     "skills": ["Lockpicking", "Deception", "Investigation", "Security knowledge"],
     "tags": ["tower", "keys", "guard", "british", "access"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower", "castle"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "aleksander_petrov"],
     "trueExplanation": "One key is labeled \"OLD STORAGE\" in fading ink and opens absolutely nothing useful.",
     "heistExplanation": "The thief only needed to know which key mattered, not carry the whole kingdom on a ring."
@@ -401,7 +401,7 @@
     "skills": ["Disguise", "Deception", "Intimidation", "Negotiation"],
     "tags": ["tower", "uniform", "guard", "royal", "clothing"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "sergei_petrov"],
     "trueExplanation": "It smells strongly of starch, polish, and ceremonial boredom.",
     "heistExplanation": "A convincing uniform can open doors faster than a forged pass in the right corridor."
@@ -412,7 +412,7 @@
     "skills": ["Engineering", "Technical knowledge", "Hacking", "Analysis", "Tactical planning"],
     "tags": ["tower", "vault", "blueprint", "security", "paper"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["bert_goodman", "maximilian_schmidt"],
     "trueExplanation": "Someone spilled tea over the part with the emergency power notes.",
     "heistExplanation": "The thief did not need every detail, only the one blind spot that everyone else overlooked."
@@ -423,7 +423,7 @@
     "skills": ["Forgery", "Art history", "Deception", "Research"],
     "tags": ["tower", "jewel", "replica", "royal", "fake"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["rebecca_muller", "isabella_rossi"],
     "trueExplanation": "At first glance it dazzles; at second glance it looks faintly embarrassed.",
     "heistExplanation": "The thief used the oldest trick in the heist book: make the missing treasure look briefly present."
@@ -434,7 +434,7 @@
     "skills": ["Acrobatics", "Parkour", "Stealth", "Tactical planning"],
     "tags": ["tower", "ceiling", "rig", "rope", "entry"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["pablo_fernandez", "alexandra_ivanova", "jacek_kowalski"],
     "trueExplanation": "The rig is secured professionally, which is more than can be said for most of the tower signage.",
     "heistExplanation": "The thief trusted gravity only after giving it very strict instructions."
@@ -445,7 +445,7 @@
     "skills": ["Electronics", "Engineering", "Hacking", "Problem-solving"],
     "tags": ["tower", "laser", "security", "reflector", "device"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["bert_goodman", "maximilian_schmidt"],
     "trueExplanation": "It is tiny, expensive-looking, and almost certainly not part of the public tour.",
     "heistExplanation": "The thief did not break the beams; they persuaded them to look somewhere else."
@@ -456,7 +456,7 @@
     "skills": ["Forgery", "Research", "Deduction", "History"],
     "tags": ["tower", "seal", "wax", "document", "royal"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["rebecca_muller", "frank_groot", "anna_bocian"],
     "trueExplanation": "The crest is only half visible, just enough to start an argument among historians.",
     "heistExplanation": "The thief used old authority as cover, knowing people trust a seal faster than a stranger."
@@ -467,7 +467,7 @@
     "skills": ["Deception", "Disguise", "Lockpicking", "Investigation"],
     "tags": ["tower", "badge", "staff", "access", "corridor"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "aleksander_petrov", "liam_oconnor"],
     "trueExplanation": "The photo is blurry enough to flatter almost anyone.",
     "heistExplanation": "The thief did not need a perfect badge, only one good enough for a tired glance."
@@ -478,7 +478,7 @@
     "skills": ["Tracking", "Investigation", "Deduction", "Survival skills"],
     "tags": ["tower", "footprint", "dust", "floor", "evidence"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["jacek_kowalski", "frank_groot", "ava_thompson"],
     "trueExplanation": "The print is partial, frustrating, and exactly the sort of clue detectives pretend to enjoy.",
     "heistExplanation": "The thief walked carefully, but old stone remembers more than modern carpet."
@@ -489,7 +489,7 @@
     "skills": ["Espionage", "Manipulation", "Deception", "Research"],
     "tags": ["tower", "note", "paper", "message", "covert"],
     "isRedHerring": true,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["sergei_petrov", "sofia_vargas", "bernard_porter"],
     "trueExplanation": "The dramatic message turns out to be a lunch order with excellent handwriting.",
     "heistExplanation": "The thief left no poetic clues, which was deeply disappointing for everyone hoping for flair."
@@ -498,12 +498,12 @@
     "id": "glass_cutter_pen",
     "item": "Diamond glass cutter pen",
     "skills": ["Lockpicking", "Engineering", "Problem-solving", "Stealth"],
-    "tags": ["tower", "tool", "glass", "pen", "break_in"],
+    "tags": ["tower", "tool", "glass", "pen", "break_in", "cutter", "entry", "tool", "silent"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower", "castle"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "maximilian_schmidt"],
     "trueExplanation": "It looks like an ordinary pen until you notice nobody writes memos with industrial precision.",
-    "heistExplanation": "The thief favored tools that fit in a pocket and leave pride behind with the broken locks."
+    "heistExplanation": "Silence, precision, and glass: the classic combination for someone who hates alarms."
   },
   {
     "id": "silent_watch_timer",
@@ -511,7 +511,7 @@
     "skills": ["Tactical planning", "Espionage", "Acrobatics", "Surveillance"],
     "tags": ["tower", "watch", "timer", "timing", "device"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["sergei_petrov", "pablo_fernandez", "alexandra_ivanova"],
     "trueExplanation": "Its face is scratched, but the timer still clicks with unnerving confidence.",
     "heistExplanation": "The thief timed guard patterns down to the second, because elegance is really just preparation with good posture."
@@ -522,7 +522,7 @@
     "skills": ["Research", "Museum studies", "Art history", "Investigation"],
     "tags": ["tower", "ledger", "inventory", "royal", "archive"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["anna_bocian", "rebecca_muller", "ava_thompson"],
     "trueExplanation": "The handwriting grows steadily angrier as the entries approach modern bureaucracy.",
     "heistExplanation": "The thief studied what belonged where, then made one priceless absence look like a paperwork delay."
@@ -533,7 +533,7 @@
     "skills": ["Forgery", "Deception", "Disguise", "Investigation"],
     "tags": ["tower", "pass", "badge", "paper", "identity"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "aleksander_petrov"],
     "trueExplanation": "The photo looks suspiciously like a stock image of ‘generic security professional’.",
     "heistExplanation": "The thief knew that at 3 a.m. nobody studies faces; they just glance at plastic and sigh."
@@ -544,7 +544,7 @@
     "skills": ["Surveillance", "Investigation", "Analysis", "Espionage"],
     "tags": ["tower", "audio", "device", "spy", "listening"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["sergei_petrov", "frank_groot"],
     "trueExplanation": "The last recording is a heated debate about whether scones count as dinner.",
     "heistExplanation": "The thief waited for the moment when the guards argued loudest; chaos is the cheapest cover."
@@ -555,7 +555,7 @@
     "skills": ["Deduction", "Analysis", "Research", "Cryptography"],
     "tags": ["tower", "notebook", "code", "paper", "clue"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower", "castle", "dockyard"],
     "suspectAffinity": ["ava_thompson", "bert_goodman"],
     "trueExplanation": "Half the symbols are real cipher and half are doodles made during boring briefings.",
     "heistExplanation": "The thief used it to test the guards: anyone who tried to solve it missed the actual crime."
@@ -566,7 +566,7 @@
     "skills": ["Parkour", "Survival skills", "Acrobatics", "Stealth"],
     "tags": ["tower", "rope", "gear", "height", "access"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["pablo_fernandez", "jacek_kowalski"],
     "trueExplanation": "The harness is adjusted for someone who clearly overestimated their own bravery.",
     "heistExplanation": "The thief trusted stone walls more than schedules; if you go up where nobody looks, nobody follows."
@@ -574,11 +574,11 @@
   {
     "id": "uv_flashlight",
     "item": "UV inspection flashlight",
-    "skills": ["Investigation", "Research", "Detection of forgery", "Analysis"],
-    "tags": ["tower", "flashlight", "uv", "forensics", "light"],
+    "skills": ["Investigation", "Research", "Detection of forgery", "Analysis", "Deduction"],
+    "tags": ["tower", "flashlight", "uv", "forensics", "light", "trace", "glow"],
     "isRedHerring": false,
-    "scene": "tower",
-    "suspectAffinity": ["rebecca_muller", "ava_thompson"],
+    "scene": ["tower", "castle"],
+    "suspectAffinity": ["rebecca_muller", "ava_thompson", "frank_groot", "albert_johnson"],
     "trueExplanation": "A tiny label warns: \"Do not point at staff uniforms unless you enjoy paperwork\".",
     "heistExplanation": "The thief used it once and decided that knowing how dirty everything was did not help stealth."
   },
@@ -588,7 +588,7 @@
     "skills": ["Engineering", "Problem-solving", "Electronics", "Technical knowledge"],
     "tags": ["tower", "tools", "engineering", "maintenance", "kit"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["maximilian_schmidt", "bert_goodman"],
     "trueExplanation": "Each wrench is engraved with motivational phrases like \"DO NOT PANIC\" and \"FACE THE BOLTS\".",
     "heistExplanation": "The thief preferred tools that made less noise and more progress than inspirational metal."
@@ -599,7 +599,7 @@
     "skills": ["Persuasion", "Seduction", "Manipulation", "Deception"],
     "tags": ["tower", "glass", "wine", "trace", "social"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["bernard_porter", "marie_dubois", "isabella_rossi"],
     "trueExplanation": "The lipstick mark has clearly had a longer conversation than the guard who left it.",
     "heistExplanation": "The thief let charm do half the work; nobody checks IDs while debating vintage."
@@ -610,7 +610,7 @@
     "skills": ["Disguise", "Stealth", "Deception"],
     "tags": ["tower", "hat", "glasses", "clothing", "identity"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor"],
     "trueExplanation": "Arranged on the chair, they look like an invisible guard who went on a snack break.",
     "heistExplanation": "The thief left them behind on purpose; nothing distracts suspicion like a very obvious ‘someone’."
@@ -621,7 +621,7 @@
     "skills": ["History", "Research", "Art history", "Museum studies"],
     "tags": ["tower", "documents", "archive", "paper", "royal"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["anna_bocian", "rebecca_muller"],
     "trueExplanation": "The top file is titled \"Proposed improvements to security\" and has been unsigned for 200 years.",
     "heistExplanation": "The thief realized that sometimes the best ally is a plan everyone kept meaning to read."
@@ -632,7 +632,7 @@
     "skills": ["Disguise", "Deception", "Manipulation"],
     "tags": ["tower", "makeup", "kit", "face", "costume"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["sofia_vargas", "marie_dubois"],
     "trueExplanation": "Half the palette is labeled with names like \"Innocent Blush\" and \"Totally Trustworthy Shadow\".",
     "heistExplanation": "The thief knew a uniform opens doors, but a well‑placed contour keeps them open just a bit longer."
@@ -643,7 +643,7 @@
     "skills": ["Stealth", "Pickpocketing", "Espionage"],
     "tags": ["tower", "gloves", "leather", "stealth", "hands"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "liam_oconnor", "sergei_petrov"],
     "trueExplanation": "They are broken in exactly at the fingertips, like someone negotiates with locks for a living.",
     "heistExplanation": "The thief treated fingerprints like spoilers: never leave them, let the ending surprise everyone."
@@ -654,7 +654,7 @@
     "skills": ["Lockpicking", "Problem-solving", "Investigation"],
     "tags": ["tower", "chest", "lock", "jewel", "container"],
     "isRedHerring": false,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": ["garett_gutter", "aleksander_petrov"],
     "trueExplanation": "An old label reads \"Secondary valuables\" with \"no one checks this\" scribbled underneath.",
     "heistExplanation": "The thief used it as a rehearsal: if you can open the practice chest quietly, the real one never complains."
@@ -665,7 +665,7 @@
     "skills": ["Persuasion", "Seduction", "Manipulation"],
     "tags": ["tower", "glass", "drink", "trace", "social"],
     "isRedHerring": true,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": [],
     "trueExplanation": "Someone clearly tried to make paperwork more bearable and failed halfway through.",
     "heistExplanation": "The thief did not drink on the job; they preferred their alibis sober and their exits straight."
@@ -676,7 +676,7 @@
     "skills": ["Dexterity", "Sabotage", "Planning"],
     "tags": ["tower", "wrench", "souvenir", "metal", "gift_shop"],
     "isRedHerring": true,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": [],
     "trueExplanation": "The engraving proudly says \"PROPERTY OF PLEASE RETURN\", as if guilt worked better than locks.",
     "heistExplanation": "The thief ignored it; any tool that screams ‘please log me’ is terrible for quiet crimes."
@@ -687,7 +687,7 @@
     "skills": ["Improvisation", "Risk tolerance"],
     "tags": ["tower", "tea", "spill", "floor", "trace"],
     "isRedHerring": true,
-    "scene": "tower",
+    "scene": ["tower"],
     "suspectAffinity": [],
     "trueExplanation": "The pattern strongly suggests a tragic encounter between a mug and a surprise corridor inspection.",
     "heistExplanation": "The thief stepped around it; slipping on national tradition is not part of any professional plan."
@@ -792,17 +792,6 @@
     "heistExplanation": "The most suspicious thing in a museum is often the thing that looks too properly documented."
   },
   {
-    "id": "uv_flashlight",
-    "item": "UV flashlight",
-    "skills": ["Investigation", "Analysis", "Deduction"],
-    "tags": ["uv", "flashlight", "forensic", "trace", "glow"],
-    "isRedHerring": false,
-    "scene": ["castle"],
-    "suspectAffinity": ["ava_thompson", "frank_groot", "albert_johnson"],
-    "trueExplanation": "It helps reveal invisible traces, stains, and residue.",
-    "heistExplanation": "UV light does not lie. People, on the other hand, absolutely do."
-  },
-  {
     "id": "directional_mic",
     "item": "Directional microphone",
     "skills": ["Surveillance", "Espionage", "Investigation"],
@@ -869,17 +858,6 @@
     "heistExplanation": "When an electrical box is left open, someone was usually planning more than a repair."
   },
   {
-    "id": "glass_cutting_tool",
-    "item": "Glass cutting tool",
-    "skills": ["Lockpicking", "Engineering", "Stealth"],
-    "tags": ["glass", "cutter", "entry", "tool", "silent"],
-    "isRedHerring": false,
-    "scene": ["castle"],
-    "suspectAffinity": ["garett_gutter", "liam_oconnor", "maximilian_schmidt"],
-    "trueExplanation": "Used for precise entry through a display case without breaking the glass loudly.",
-    "heistExplanation": "Silence, precision, and glass: the classic combination for someone who hates alarms."
-  },
-  {
     "id": "climbing_belt_balcony",
     "item": "Climbing belt hooked to a balcony",
     "skills": ["Acrobatics", "Parkour", "Survival Skills"],
@@ -887,7 +865,7 @@
     "isRedHerring": false,
     "scene": ["castle"],
     "suspectAffinity": ["pablo_fernandez", "jacek_kowalski", "alexandra_ivanova"],
-    "trueExplanation": "Allows fast and quiet movement between floors.",
+    "trueExplanation": "Allows to wash castle windows.",
     "heistExplanation": "Climbing a castle requires either courage or very questionable life choices."
   },
   {
@@ -896,7 +874,7 @@
     "skills": ["Persuasion", "Negotiation", "Deception"],
     "tags": ["business_card", "antique", "contact", "deal", "collector"],
     "isRedHerring": false,
-    "scene": ["castle"],
+    "scene": ["castle", "dockyard"],
     "suspectAffinity": ["isabella_rossi", "brendan_ross", "bernard_porter"],
     "trueExplanation": "A clue leading to a network of people who trade stolen artifacts.",
     "heistExplanation": "One tiny business card, and suddenly there is a whole mess behind it."
@@ -966,5 +944,368 @@
     "suspectAffinity": ["rebecca_muller", "isabella_rossi", "sofia_vargas"],
     "trueExplanation": "A planted replica suggests an attempt to swap the original for a copy.",
     "heistExplanation": "The most criminal thing in a museum is sometimes not the theft itself, but a very convincing fake."
+  },
+  {
+    "id": "museum_map",
+    "item": "Museum map",
+    "skills": ["History", "Research", "Museum Studies"],
+    "tags": ["map", "museum", "guide", "layout", "navigation"],
+    "isRedHerring": true,
+    "scene": ["castle", "dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "It helps with navigation, but it does not directly explain the theft.",
+    "heistExplanation": "Looks important because it shows the building layout, but it may only be a distraction from the real route."
+  },
+  {
+    "id": "hand_print",
+    "item": "Hand print",
+    "skills": ["Investigation", "Analysis", "Deduction"],
+    "tags": ["handprint", "trace", "evidence", "surface", "forensics"],
+    "isRedHerring": true,
+    "scene": ["castle", "dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A visible print can be examined, but it may belong to an innocent visitor or staff member.",
+    "heistExplanation": "It looks dramatic and suspicious, but in a busy castle it could be completely unrelated."
+  },
+  {
+    "id": "alarm",
+    "item": "Alarm panel",
+    "skills": ["Electronics", "Hacking", "Tactical Planning"],
+    "tags": ["alarm", "security", "panel", "wires", "system"],
+    "isRedHerring": true,
+    "scene": ["castle"],
+    "suspectAffinity": [],
+    "trueExplanation": "It matters for security logic, but the panel itself is not the key clue.",
+    "heistExplanation": "Everyone stares at the alarm because it feels like the obvious answer, which makes it a perfect decoy."
+  },
+  {
+    "id": "museum_ticket",
+    "item": "Museum ticket",
+    "skills": ["Research", "Analysis", "Deception"],
+    "tags": ["ticket", "entry", "visitor", "receipt", "access"],
+    "isRedHerring": true,
+    "scene": ["castle"],
+    "suspectAffinity": [],
+    "trueExplanation": "It proves someone entered the museum, but not that they committed the theft.",
+    "heistExplanation": "A ticket can look like a crucial clue, but it may only prove someone had perfectly normal access."
+  },
+    {
+    "id": "crowbar",
+    "item": "Flat crowbar",
+    "skills": ["Problem-solving", "Engineering", "Tactical planning"],
+    "tags": ["crowbar", "force", "entry", "tool", "break-in"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["maximilian_schmidt", "alexandra_ivanova", "aleksander_petrov"],
+    "trueExplanation": "A crowbar suggests forced entry or prying open a sealed container.",
+    "heistExplanation": "If the door refuses to cooperate, persuasion gets louder."
+  },
+  {
+    "id": "dark_hood",
+    "item": "Dark hood",
+    "skills": ["Disguise", "Stealth", "Surveillance"],
+    "tags": ["hood", "cloak", "concealment", "night", "anonymous"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["liam_oconnor", "pablo_fernandez", "sergei_petrov"],
+    "trueExplanation": "A hood helps conceal the face and supports a stealthy approach.",
+    "heistExplanation": "The most useful thing in a crowd is looking like nobody."
+  },
+  {
+    "id": "copper_dust_glove",
+    "item": "Work glove with copper dust",
+    "skills": ["Investigation", "Analysis", "Forgery"],
+    "tags": ["glove", "dust", "copper", "residue", "trace"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["rebecca_muller", "anna_bocian", "maximilian_schmidt"],
+    "trueExplanation": "Copper dust suggests contact with a metal object, statue, or aged exhibit hardware.",
+    "heistExplanation": "Hands lie, but residue usually doesn’t."
+  },
+  {
+    "id": "security_tape_fragment",
+    "item": "Torn security tape fragment",
+    "skills": ["Investigation", "Forgery", "Museum studies"],
+    "tags": ["tape", "security", "seal", "tamper", "evidence"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["anna_bocian", "rebecca_muller", "frank_groot"],
+    "trueExplanation": "A torn tape fragment implies the scene was sealed, then compromised.",
+    "heistExplanation": "A thief can’t hide a break-in if the seal survives untouched."
+  },
+  {
+    "id": "security_id_badge",
+    "item": "Security ID badge",
+    "skills": ["Disguise", "Surveillance", "Interrogation"],
+    "tags": ["badge", "security", "access", "identity", "disguise"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["sergei_petrov", "anne_apple", "marie_dubois"],
+    "trueExplanation": "A security badge may show impersonation, theft of credentials, or insider access.",
+    "heistExplanation": "Sometimes the costume is the weapon."
+  },
+  {
+    "id": "boot_print_casting",
+    "item": "Boot print casting",
+    "skills": ["Tracking", "Analysis", "Deduction"],
+    "tags": ["footprint", "shoe", "track", "mud", "forensics"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["jacek_kowalski", "alexandra_ivanova", "bai_williams"],
+    "trueExplanation": "A boot print can reveal size, tread pattern, and movement direction.",
+    "heistExplanation": "Every escape leaves a story in the dirt."
+  },
+  {
+    "id": "dark_gloves",
+    "item": "Dark gloves",
+    "skills": ["Stealth", "Disguise", "Deception"],
+    "tags": ["gloves", "concealment", "grip", "night", "accessory"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["liam_oconnor", "sergei_petrov", "sofia_vargas"],
+    "trueExplanation": "Dark gloves help avoid fingerprints and make the thief harder to identify.",
+    "heistExplanation": "A careful criminal leaves fewer reasons to be remembered."
+  },
+  {
+    "id": "signal_jammer",
+    "item": "Portable signal jammer",
+    "skills": ["Hacking", "Electronics", "Surveillance"],
+    "tags": ["jammer", "signal", "electronics", "interference", "security"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["bert_goodman", "maximilian_schmidt", "aleksander_petrov"],
+    "trueExplanation": "A jammer suggests the thief wanted to disable alarms or block tracking.",
+    "heistExplanation": "No signal, no panic, no easy trace."
+  },
+  {
+    "id": "cable_ties",
+    "item": "Heavy-duty cable ties",
+    "skills": ["Tactical planning", "Engineering", "Deception"],
+    "tags": ["ties", "restraint", "tools", "fastening", "control"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["alexandra_ivanova", "maximilian_schmidt", "brendan_ross"],
+    "trueExplanation": "Cable ties point to restraint, securing gear, or improvising a quick setup.",
+    "heistExplanation": "When time is short, zip ties solve almost everything badly and fast."
+  },
+  {
+    "id": "service_key",
+    "item": "Service key",
+    "skills": ["Hacking", "Engineering", "Tactical planning"],
+    "tags": ["key", "service", "access", "maintenance", "door"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["maximilian_schmidt", "aleksander_petrov", "bert_goodman"],
+    "trueExplanation": "A service key implies access through maintenance routes or restricted staff areas.",
+    "heistExplanation": "Most locked places are only locked for the wrong people."
+  },
+  {
+    "id": "dock_map",
+    "item": "Dock map",
+    "skills": ["Research", "Tracking", "Analysis"],
+    "tags": ["map", "dock", "route", "planning", "harbor"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["ava_thompson", "frank_groot", "anna_bocian"],
+    "trueExplanation": "A dock map suggests route planning and knowledge of loading access.",
+    "heistExplanation": "The getaway often starts before the theft does."
+  },
+  {
+    "id": "ferry_ticket",
+    "item": "Ferry ticket",
+    "skills": ["Tracking", "Deduction", "Investigation"],
+    "tags": ["ticket", "ferry", "travel", "route", "receipt"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["bai_williams", "brendan_ross", "jacek_kowalski"],
+    "trueExplanation": "A ferry ticket can place the thief near an escape route or meeting point.",
+    "heistExplanation": "A small ticket can move a big problem out of sight."
+  },
+  {
+    "id": "broken_phone",
+    "item": "Broken phone without SIM",
+    "skills": ["Hacking", "Surveillance", "Deception"],
+    "tags": ["phone", "broken", "sim", "electronics", "disposal"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["bert_goodman", "anne_apple", "sergei_petrov"],
+    "trueExplanation": "A disposable phone often means the thief wanted no traceable communication.",
+    "heistExplanation": "The cleanest call is the one nobody can trace."
+  },
+  {
+    "id": "red_fiber",
+    "item": "Red fiber strand",
+    "skills": ["Analysis", "Investigation", "Deduction"],
+    "tags": ["fiber", "cloth", "trace", "fabric", "evidence"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["marie_dubois", "sofia_vargas", "anne_apple"],
+    "trueExplanation": "A fiber can link the thief to clothing, upholstery, or a hidden bag.",
+    "heistExplanation": "Tiny traces are often the loudest witnesses."
+  },
+  {
+    "id": "glass_fragment",
+    "item": "Glass fragment from a port lamp",
+    "skills": ["Investigation", "Surveillance", "Analysis"],
+    "tags": ["glass", "fragment", "lamp", "harbor", "trace"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["ava_thompson", "frank_groot", "jacek_kowalski"],
+    "trueExplanation": "Broken glass can indicate a route, impact point, or rushed exit.",
+    "heistExplanation": "Light breaks before evidence does."
+  },
+  {
+    "id": "fake_museum_envelope",
+    "item": "Envelope with fake museum logo",
+    "skills": ["Forgery", "Deception", "Research"],
+    "tags": ["envelope", "logo", "fake", "paper", "museum"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["rebecca_muller", "isabella_rossi", "brendan_ross"],
+    "trueExplanation": "A fake envelope suggests planted paperwork or forged correspondence.",
+    "heistExplanation": "Paper can lie with a straight face."
+  },
+  {
+    "id": "old_guard_badge",
+    "item": "Old guard badge",
+    "skills": ["Disguise", "Surveillance", "Interrogation"],
+    "tags": ["badge", "guard", "old", "identity", "access"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["sergei_petrov", "anne_apple", "aleksander_petrov"],
+    "trueExplanation": "An old badge may hint at stolen credentials or an insider connection.",
+    "heistExplanation": "Expired authority still opens doors in the wrong hands."
+  },
+  {
+    "id": "event_wristband",
+    "item": "Plastic event wristband",
+    "skills": ["Disguise", "Negotiation", "Deduction"],
+    "tags": ["wristband", "event", "gallery", "access", "crowd"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["isabella_rossi", "bernard_porter", "marie_dubois"],
+    "trueExplanation": "An event wristband may indicate the thief blended into a crowd using a public invitation.",
+    "heistExplanation": "The thief doesn’t need to be invited if everyone thinks they were."
+  },
+  {
+    "id": "harbor_chain",
+    "item": "Cargo chain",
+    "skills": ["Tactical planning", "Engineering", "Strength"],
+    "tags": ["chain", "cargo", "dock", "load", "secure"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["alexandra_ivanova", "maximilian_schmidt", "jacek_kowalski"],
+    "trueExplanation": "A cargo chain suggests equipment handling, transport, or a forced pull method.",
+    "heistExplanation": "Heavy things leave heavy intentions."
+  },
+  {
+    "id": "hdmi_box",
+    "item": "Cardboard box for AV gear with HDMI cable",
+    "skills": ["Electronics", "Hacking", "Technical knowledge"],
+    "tags": ["box", "av", "hdmi", "equipment", "electronics"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["bert_goodman", "maximilian_schmidt", "ava_thompson"],
+    "trueExplanation": "AV packaging can hide technical gear used to bypass or fake systems.",
+    "heistExplanation": "A thief can smuggle a lot inside something that looks boring."
+  },
+  {
+    "id": "tin_medallion",
+    "item": "Tin medallion with an eagle motif",
+    "skills": ["Art history", "Museum studies", "Analysis"],
+    "tags": ["medallion", "eagle", "artifact", "ornament", "symbol"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["anna_bocian", "rebecca_muller", "frank_groot"],
+    "trueExplanation": "A decorative medallion can point toward a collection, era, or symbolic clue.",
+    "heistExplanation": "Not every old object is important; some are just very old distractions."
+  },
+  {
+    "id": "shipment_docs",
+    "item": "Rolled transport documents",
+    "skills": ["Research", "Investigation", "Deduction"],
+    "tags": ["documents", "transport", "shipment", "paperwork", "logistics"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["frank_groot", "ava_thompson", "anne_apple"],
+    "trueExplanation": "Transport papers can reveal who handled the object and where it was headed.",
+    "heistExplanation": "The route is often written down by someone who thought nobody would read it."
+  },
+  {
+    "id": "cargo_label",
+    "item": "Shipping label marked 'Liberty Torch'",
+    "skills": ["Research", "Investigation", "Deception"],
+    "tags": ["label", "shipping", "cargo", "liberty", "fake"],
+    "isRedHerring": false,
+    "scene": ["dockyard"],
+    "suspectAffinity": ["rebecca_muller", "brendan_ross", "anne_apple"],
+    "trueExplanation": "A shipping label can connect the crime to logistics, routing, or a cover shipment.",
+    "heistExplanation": "The smartest theft is the one that looks like delivery."
+  },
+  {
+    "id": "ferry_receipt",
+    "item": "Crumpled ferry receipt",
+    "skills": ["Research", "Tracking", "Investigation"],
+    "tags": ["receipt", "ferry", "travel", "paper", "harbor"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A receipt can place the suspect near a transport route at the relevant time.",
+    "heistExplanation": "People throw away receipts; detectives collect timelines."
+  },
+  {
+    "id": "pizza_box",
+    "item": "Empty pizza box",
+    "skills": ["Analysis", "Deduction", "Observation"],
+    "tags": ["pizza", "box", "food", "city", "comic"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A pizza box can hide fingerprints, a note, or simply distract the player.",
+    "heistExplanation": "Even in a crime scene, somebody was clearly having a better day."
+  },
+  {
+    "id": "subway_map_charm",
+    "item": "Mini subway map charm",
+    "skills": ["Tracking", "Research", "Deduction"],
+    "tags": ["subway", "map", "charm", "travel", "nyc"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A subway map charm can hint at route planning or a city-native decoy.",
+    "heistExplanation": "In New York, even the jewelry knows where to go."
+  },
+  {
+    "id": "seagull_sunglasses",
+    "item": "Plastic seagull with sunglasses",
+    "skills": ["Observation", "Analysis", "Deduction"],
+    "tags": ["seagull", "sunglasses", "toy", "harbor", "comic"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A silly prop like this can act as a visual distraction or a planted joke clue.",
+    "heistExplanation": "Even criminals sometimes leave behind something stupid enough to be remembered."
+  },
+  {
+    "id": "inflatable_bagel",
+    "item": "Inflatable bagel",
+    "skills": ["Observation", "Deduction", "Analysis"],
+    "tags": ["bagel", "inflatable", "food", "nyc", "comic"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A funny prop can hide a clue or simply mislead the player visually.",
+    "heistExplanation": "In New York, even breakfast can look like evidence."
+  },
+  {
+    "id": "fake_pigeon_statue",
+    "item": "Tiny fake pigeon statue",
+    "skills": ["Surveillance", "Observation", "Deduction"],
+    "tags": ["pigeon", "statue", "city", "toy", "comic"],
+    "isRedHerring": true,
+    "scene": ["dockyard"],
+    "suspectAffinity": [],
+    "trueExplanation": "A fake pigeon can be a perfect hiding spot for a microclue or tracking device.",
+    "heistExplanation": "In New York, pigeons are everywhere — which makes one suspiciously clean."
   }
 ]

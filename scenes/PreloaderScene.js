@@ -287,8 +287,12 @@ this.load.json('dialog_home', 'assets/data/dialogue/home.json');
 
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
-                this.load.image('tower_bg', 'assets/crimes/tower.jpg');
+        this.load.image('tower_bg', 'assets/crimes/tower.jpg');
         this.load.tilemapTiledJSON('tower', 'assets/crimes/tower.json');
+        this.load.image('castle_bg', 'assets/crimes/castle.jpg');
+        this.load.tilemapTiledJSON('castle', 'assets/crimes/castle.json');
+        this.load.image('dockyard_bg', 'assets/crimes/dockyard.jpg');
+        this.load.tilemapTiledJSON('dockyard', 'assets/crimes/dockyard.json');
     }
 
     create() {

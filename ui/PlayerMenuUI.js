@@ -56,7 +56,7 @@ export class PlayerMenuUI {
             fontSize = '15px',
             baseColor = '#dcdcdc',
             hotkeyColor = '#ffcc00',
-            fontFamily = 'Special Elite',
+            fontFamily = 'PressStart2P',
             align = 'center'
         } = options;
 
@@ -71,7 +71,8 @@ export class PlayerMenuUI {
                 fontFamily,
                 fontSize,
                 color: baseColor,
-                align
+                align,
+                shadow: { offsetX: 1, offsetY: 1, color: '#000000', blur: 0, fill: true }
             }).setOrigin(0.5, 0);
 
             labelContainer.add(fallbackText);
@@ -89,7 +90,8 @@ export class PlayerMenuUI {
             fontFamily,
             fontSize,
             color: baseColor,
-            align
+            align,
+            shadow: { offsetX: 1, offsetY: 1, color: '#000000', blur: 0, fill: true }
         }).setOrigin(0, 0);
 
         const hotkeyText = this.scene.add.text(0, 0, letter, {
@@ -97,14 +99,16 @@ export class PlayerMenuUI {
             fontSize,
             color: hotkeyColor,
             fontStyle: 'bold',
-            align
+            align,
+            shadow: { offsetX: 1, offsetY: 1, color: '#000000', blur: 0, fill: true }
         }).setOrigin(0, 0);
 
         const afterText = this.scene.add.text(0, 0, after, {
             fontFamily,
             fontSize,
             color: baseColor,
-            align
+            align,
+            shadow: { offsetX: 1, offsetY: 1, color: '#000000', blur: 0, fill: true }
         }).setOrigin(0, 0);
 
         const totalWidth = beforeText.width + hotkeyText.width + afterText.width;
@@ -133,21 +137,26 @@ export class PlayerMenuUI {
         const h = this.config.height;
         const graphics = this.scene.add.graphics();
 
-        graphics.fillStyle(0x000000, 0.5);
+        // 1. Zewnętrzny cień pod ramką
+        graphics.fillStyle(0x000000, 0.4);
         graphics.fillRoundedRect(-w / 2 - 4, -4, w + 8, h + 8, 12);
 
-        graphics.fillStyle(0x2b1e18, 1);
+        // 2. Drewniana podstawa organizera (ciemny brąz)
+        graphics.fillStyle(0x3a281c, 1);
         graphics.fillRoundedRect(-w / 2, 0, w, h, 10);
 
-        graphics.lineStyle(3, 0xb8860b, 0.8);
+        // 3. Mosiężna ramka (Bevel)
+        graphics.lineStyle(3, 0xb5838d, 0.9);
         graphics.strokeRoundedRect(-w / 2 + 3, 3, w - 6, h - 6, 8);
 
-        graphics.fillStyle(0x161311, 0.96);
+        // 4. Ciemne skórzane/papierowe wnętrze
+        graphics.fillStyle(0x1e1713, 0.96);
         graphics.fillRoundedRect(-w / 2 + 8, 8, w - 16, h - 16, 6);
 
-        graphics.lineStyle(2, 0x000000, 0.7);
+        graphics.lineStyle(2, 0x0c0a09, 0.8);
         graphics.strokeRoundedRect(-w / 2 + 9, 9, w - 18, h - 18, 5);
 
+        // 5. Stylizowane nity/śruby na rogach (styl vintage)
         const rivets = [
             { x: -w / 2 + 18, y: 18 },
             { x: w / 2 - 18, y: 18 },
@@ -156,12 +165,12 @@ export class PlayerMenuUI {
         ];
 
         rivets.forEach(r => {
-            graphics.fillStyle(0x8b6508, 1);
-            graphics.fillCircle(r.x, r.y, 4);
-            graphics.fillStyle(0xffd700, 0.6);
-            graphics.fillCircle(r.x - 1, r.y - 1, 1.5);
+            graphics.fillStyle(0x8f5d26, 1);
+            graphics.fillCircle(r.x, r.y, 5);
+            graphics.fillStyle(0xdda15e, 0.8);
+            graphics.fillCircle(r.x - 1, r.y - 1, 2);
             graphics.lineStyle(1, 0x1a100c, 1);
-            graphics.strokeCircle(r.x, r.y, 4);
+            graphics.strokeCircle(r.x, r.y, 5);
         });
 
         const bgHitArea = this.scene.add.rectangle(0, h / 2, w, h, 0x000000, 0)
@@ -171,41 +180,40 @@ export class PlayerMenuUI {
     }
 
     createToggleButton(screenWidth, screenHeight) {
-        const btnW = 180;
+        const btnW = 190;
         const btnH = 38;
 
         this.toggleContainer = this.scene.add.container(screenWidth / 2, screenHeight - (btnH / 2)).setDepth(41);
 
         const graphics = this.scene.add.graphics();
 
-        graphics.fillStyle(0x2b1e18, 1);
+        // Podstawa zakładki łączącej się z HUD-em
+        graphics.fillStyle(0x3a281c, 1);
         graphics.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, { tl: 8, tr: 8, bl: 0, br: 0 });
 
-        graphics.lineStyle(2, 0xb8860b, 0.9);
+        graphics.lineStyle(2, 0xdda15e, 0.9);
         graphics.strokeRoundedRect(-btnW / 2 + 2, -btnH / 2 + 2, btnW - 4, btnH - 2, { tl: 6, tr: 6, bl: 0, br: 0 });
 
-        graphics.fillStyle(0x4a0e0e, 1);
+        graphics.fillStyle(0x6b2d2d, 1); // Czerwony klasyczny materiał/tabliczka
         graphics.fillRoundedRect(-btnW / 2 + 5, -btnH / 2 + 5, btnW - 10, btnH - 5, { tl: 4, tr: 4, bl: 0, br: 0 });
 
-        this.toggleText = this.createHotkeyLabel(0, -8, 'MENU', 'M', {
-            fontFamily: 'Special Elite',
-            fontSize: '15px',
-            baseColor: '#f0e68c',
+        this.toggleText = this.createHotkeyLabel(0, -6, 'MENU', 'M', {
+            fontFamily: 'PressStart2P',
+            fontSize: '13px',
+            baseColor: '#f4eac1',
             hotkeyColor: '#ffcc00'
         });
 
-        const arrowLeft = this.scene.add.text(-46, 0, '▼', {
-            fontFamily: 'Special Elite',
-            fontSize: '15px',
-            color: '#f0e68c',
-            fontStyle: 'bold'
+        const arrowLeft = this.scene.add.text(-50, 0, '▼', {
+            fontFamily: 'PressStart2P',
+            fontSize: '12px',
+            color: '#f4eac1'
         }).setOrigin(0.5);
 
-        const arrowRight = this.scene.add.text(46, 0, '▼', {
-            fontFamily: 'Special Elite',
-            fontSize: '15px',
-            color: '#f0e68c',
-            fontStyle: 'bold'
+        const arrowRight = this.scene.add.text(50, 0, '▼', {
+            fontFamily: 'PressStart2P',
+            fontSize: '12px',
+            color: '#f4eac1'
         }).setOrigin(0.5);
 
         this.toggleArrows = { left: arrowLeft, right: arrowRight };
@@ -223,10 +231,10 @@ export class PlayerMenuUI {
         });
 
         hitBox.on('pointerout', () => {
-            this.setHotkeyLabelColors(this.toggleText, '#f0e68c', '#ffcc00');
+            this.setHotkeyLabelColors(this.toggleText, '#f4eac1', '#ffcc00');
             this.toggleText.setScale(1.0);
-            arrowLeft.setColor('#f0e68c').setScale(1.0);
-            arrowRight.setColor('#f0e68c').setScale(1.0);
+            arrowLeft.setColor('#f4eac1').setScale(1.0);
+            arrowRight.setColor('#f4eac1').setScale(1.0);
         });
 
         this.toggleContainer.add([graphics, arrowLeft, this.toggleText, arrowRight, hitBox]);
@@ -244,37 +252,44 @@ export class PlayerMenuUI {
         ];
 
         const count = buttonsData.length;
-        const availableWidth = this.config.width - 80;
+        const availableWidth = this.config.width - 60;
         const spacing = availableWidth / count;
         const startX = -(availableWidth / 2) + (spacing / 2);
 
-        const iconY = 65;
+        const iconY = 62;
         const labelY = 132;
 
         buttonsData.forEach((btn, index) => {
             const xPos = startX + (index * spacing);
             const btnContainer = this.scene.add.container(xPos, 0);
 
-            const iconShadow = this.scene.add.ellipse(0, iconY + 30, 60, 16, 0x000000, 0.5);
+            // Wklęsły slot / ramka pod każdą ikoną dla efektu głębi
+            const slotBg = this.scene.add.graphics();
+            slotBg.fillStyle(0x120d0a, 0.8);
+            slotBg.fillRoundedRect(-38, iconY - 38, 76, 76, 8);
+            slotBg.lineStyle(1, 0x3a281c, 1);
+            slotBg.strokeRoundedRect(-38, iconY - 38, 76, 76, 8);
+
+            const iconShadow = this.scene.add.ellipse(0, iconY + 28, 54, 14, 0x000000, 0.6);
 
             const btnIcon = this.scene.add.image(0, iconY, btn.key)
                 .setDisplaySize(this.config.buttonSize, this.config.buttonSize);
 
             const btnLabel = this.createHotkeyLabel(0, labelY, btn.label, btn.hotkey, {
-                fontFamily: 'Special Elite',
-                fontSize: '15px',
+                fontFamily: 'PressStart2P',
+                fontSize: '11px',
                 baseColor: '#dcdcdc',
                 hotkeyColor: '#ffcc00'
             });
 
-            btnContainer.add([iconShadow, btnIcon, btnLabel]);
+            btnContainer.add([slotBg, iconShadow, btnIcon, btnLabel]);
 
-            btnContainer.setSize(spacing - 8, 150);
+            btnContainer.setSize(spacing - 6, 150);
             btnContainer.setInteractive({
                 hitArea: new Phaser.Geom.Rectangle(
-                    -(spacing / 2) + 4,
+                    -(spacing / 2) + 3,
                     15,
-                    spacing - 8,
+                    spacing - 6,
                     150
                 ),
                 hitAreaCallback: Phaser.Geom.Rectangle.Contains,
@@ -284,7 +299,7 @@ export class PlayerMenuUI {
             btnContainer.on('pointerover', () => {
                 this.scene.tweens.add({
                     targets: btnIcon,
-                    y: iconY - 6,
+                    y: iconY - 8,
                     scaleX: (this.config.buttonSize / btnIcon.width) * 1.08,
                     scaleY: (this.config.buttonSize / btnIcon.height) * 1.08,
                     duration: 150,
@@ -293,7 +308,7 @@ export class PlayerMenuUI {
 
                 this.scene.tweens.add({
                     targets: iconShadow,
-                    scaleX: 1.2,
+                    scaleX: 1.25,
                     alpha: 0.3,
                     duration: 150
                 });
@@ -314,7 +329,7 @@ export class PlayerMenuUI {
                 this.scene.tweens.add({
                     targets: iconShadow,
                     scaleX: 1.0,
-                    alpha: 0.5,
+                    alpha: 0.6,
                     duration: 150
                 });
 
@@ -364,7 +379,7 @@ export class PlayerMenuUI {
             y: this.openY,
             duration: 350,
             ease: 'Back.easeOut',
-            easeParams: [0.7],
+            easeParams: [0.6],
             onComplete: () => {
                 this.isAnimating = false;
             }
@@ -375,7 +390,7 @@ export class PlayerMenuUI {
             y: this.openY - 18,
             duration: 350,
             ease: 'Back.easeOut',
-            easeParams: [0.7]
+            easeParams: [0.6]
         });
     }
 
