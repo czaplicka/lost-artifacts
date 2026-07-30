@@ -14,6 +14,8 @@ const LOCATION_HOURS = {
   garbage: ['Morning', 'Afternoon', 'Evening', 'Night']
 };
 
+const NPC_QUESTION_PENALTY = 10;
+
 export class CityScene extends Phaser.Scene {
   constructor() {
     super({ key: 'CityScene' });
@@ -142,6 +144,20 @@ export class CityScene extends Phaser.Scene {
     }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+  }
+
+  changeScore(points) {
+    const delta = Number.isFinite(points) ? Math.floor(points) : 0;
+    gameState.score = Math.max(0, (gameState.score || 0) + delta);
+
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.refreshNotebook) hud.refreshNotebook();
+    else if (hud?.refreshUI) hud.refreshUI();
+
+    EventBus.emit('scoreChanged', {
+      delta,
+      total: gameState.score
+    });
   }
 
   ensureCityEncounterState(locations) {
@@ -289,6 +305,11 @@ export class CityScene extends Phaser.Scene {
         if (allowedHours && !allowedHours.includes(currentPartOfDay)) {
           this.showLocationClosedPopup(locationId, encounter, dialogueTargetCityId);
           return;
+        }
+
+        const shouldChargeNpcPenalty = !isVisited && !hasMemory;
+        if (shouldChargeNpcPenalty) {
+          this.changeScore(-NPC_QUESTION_PENALTY);
         }
 
         this.scene.start('LocationScene', {
@@ -563,13 +584,20 @@ export class CityScene extends Phaser.Scene {
       cleanupPopup();
 
       const flags = this.getCityProgressFlags();
+      const wasVisited = this.isEncounterVisited(encounterData.id);
+      const hasMemory = Boolean(this.getEncounterMemory(encounterData.id));
+      const shouldChargeNpcPenalty = !wasVisited && !hasMemory;
+
+      if (shouldChargeNpcPenalty) {
+        this.changeScore(-NPC_QUESTION_PENALTY);
+      }
 
       this.scene.start('LocationScene', {
         cityId: this.cityId,
         encounterId: encounterData.id,
         npcId: encounterData.npcId,
         locationId: encounterData.locationId,
-        isRepeat: this.isEncounterVisited(encounterData.id) || Boolean(this.getEncounterMemory(encounterData.id)),
+        isRepeat: wasVisited || hasMemory,
         isCrimeCity: flags.isCrimeCity,
         isNextTargetCity: flags.isNextTargetCity,
         isCorrectCity: flags.isCorrectCity,
@@ -640,12 +668,6 @@ export class CityScene extends Phaser.Scene {
     return map[city.id] || city.id;
   }
 
-  // ─── SKIN-AWARE NPC TEXTURE LOOKUP ───────────────────────────────────────────
-  // Cities with South Asian / Hindu NPC variants (suffix _h):
-  //   newdelhi
-  // All other cities use default white variant (suffix _w, loaded as base key).
-  // To extend: add more cityId entries to HINDU_CITIES below.
-  // ─────────────────────────────────────────────────────────────────────────────
   getNpcTextureKey(npcId) {
     const HINDU_CITIES = ['new_delhi'];
     const isHindu = HINDU_CITIES.includes(this.cityId);

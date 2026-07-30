@@ -1,4 +1,5 @@
 import { gameState, saveGameState } from '../GameData.js';
+import { ScoreManager } from '../ScoreManager.js';
 
 export default class HiddenObjectsScene extends Phaser.Scene {
   constructor() {
@@ -45,6 +46,8 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     this.resultOverlay = null;
     this.resultContainer = null;
+
+    this.scoreManager = null;
   }
 
   init(data = {}) {
@@ -86,6 +89,8 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.resultOverlay = null;
     this.resultContainer = null;
 
+    this.scoreManager = new ScoreManager();
+
     if (!gameState.specialScenesVisited || typeof gameState.specialScenesVisited !== 'object') {
       gameState.specialScenesVisited = {};
     }
@@ -96,6 +101,28 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     if (!Array.isArray(gameState.cluesCollected)) {
       gameState.cluesCollected = [];
+    }
+
+    if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
+      gameState.reconstructedHeist = {
+        cityId: null,
+        sceneId: null,
+        thiefId: null,
+        thiefName: null,
+        thiefSkills: [],
+        allCards: [],
+        correctCardIds: [],
+        correctSequence: [],
+        selectedCards: [],
+        playerOrderedCards: [],
+        playerOrderedSentences: [],
+        playerFinalText: '',
+        playerSkills: [],
+        playerTheoryScore: 0,
+        playerTheoryResult: null,
+        playerSlotFeedback: [],
+        playerAttemptsLeft: 2
+      };
     }
   }
 
@@ -139,6 +166,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     this.loadObjectsData();
     this.pickActiveItems(this.activeCount);
+    this.saveReconstructionCards();
     this.computePlayArea();
     this.createBackground();
     this.createUi();
@@ -147,7 +175,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.registerMissDetection();
 
     this.scene.sleep('UIScene');
-
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
   }
 
@@ -159,7 +186,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
   loadObjectsData() {
     this.itemsData = this.cache.json.get(this.objectsDataKey) || [];
     this.itemsById = Object.fromEntries(this.itemsData.map(item => [item.id, item]));
-
     this.sceneItems = this.itemsData.filter(item => {
       const scenes = Array.isArray(item.scene) ? item.scene : [item.scene];
       return scenes.includes(this.sceneId);
@@ -168,7 +194,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
   computePlayArea() {
     const { width, height } = this.scale;
-
     this.playAreaWidth = Math.max(200, width - this.sidebarWidth);
     this.playAreaHeight = height;
 
@@ -183,6 +208,16 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.playOffsetY = (this.playAreaHeight - renderedHeight) / 2;
   }
 
+  normalizeSkills(value) {
+    if (Array.isArray(value)) {
+      return value.map(skill => String(skill).trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+      return value.split(',').map(skill => skill.trim()).filter(Boolean);
+    }
+    return [];
+  }
+
   getCurrentThiefSkills() {
     const thiefSkills =
       gameState.currentThief?.skills ||
@@ -190,79 +225,153 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       gameState.currentCulprit?.skills ||
       gameState.currentMission?.suspectSkills ||
       [];
-
-    return Array.isArray(thiefSkills)
-      ? thiefSkills.map(skill => String(skill).trim().toLowerCase())
-      : [];
+    return this.normalizeSkills(thiefSkills).map(skill => skill.toLowerCase());
   }
 
   hasSharedSkill(itemSkills = [], thiefSkills = []) {
-    if (!Array.isArray(itemSkills) || !Array.isArray(thiefSkills)) {
+    const normalizedItemSkills = this.normalizeSkills(itemSkills).map(skill => skill.toLowerCase());
+    const normalizedThiefSkills = this.normalizeSkills(thiefSkills).map(skill => skill.toLowerCase());
+
+    if (!normalizedItemSkills.length || !normalizedThiefSkills.length) {
       return false;
     }
 
-    const thiefSkillSet = new Set(
-      thiefSkills.map(skill => String(skill).trim().toLowerCase())
-    );
+    const thiefSkillSet = new Set(normalizedThiefSkills);
+    return normalizedItemSkills.some(skill => thiefSkillSet.has(skill));
+  }
 
-    return itemSkills.some(skill =>
-      thiefSkillSet.has(String(skill).trim().toLowerCase())
-    );
+  buildCandidatePool() {
+    const thiefSkills = this.getCurrentThiefSkills();
+    const pool = [...this.sceneItems].map(item => ({
+      ...item,
+      skills: this.normalizeSkills(item.skills),
+      isCorrect: this.hasSharedSkill(item.skills, thiefSkills),
+      correctOrder: -1
+    }));
+
+    const correct = Phaser.Utils.Array.Shuffle(pool.filter(item => item.isCorrect)).slice(0, 3);
+    correct.forEach((item, index) => {
+      item.correctOrder = index;
+    });
+
+    const remaining = pool.filter(item => !correct.some(c => c.id === item.id));
+    const distractors = Phaser.Utils.Array.Shuffle(remaining).slice(0, 3).map(item => ({
+      ...item,
+      isCorrect: false,
+      correctOrder: -1
+    }));
+
+    while (correct.length < 3 && remaining.length > distractors.length) {
+      const extra = remaining.find(item => !correct.some(c => c.id === item.id) && !distractors.some(d => d.id === item.id));
+      if (!extra) break;
+      correct.push({
+        ...extra,
+        isCorrect: true,
+        correctOrder: correct.length
+      });
+    }
+
+    const combined = [...correct.slice(0, 3), ...distractors.slice(0, 3)];
+
+    if (combined.length < 6) {
+      const fallback = Phaser.Utils.Array.Shuffle(pool.filter(item => !combined.some(c => c.id === item.id))).slice(0, 6 - combined.length);
+      combined.push(...fallback.map(item => ({
+        ...item,
+        isCorrect: false,
+        correctOrder: -1
+      })));
+    }
+
+    return Phaser.Utils.Array.Shuffle(combined.slice(0, 6));
   }
 
   pickActiveItems(count = 6) {
-    const scenePool = [...this.sceneItems];
-    const thiefSkills = this.getCurrentThiefSkills();
+    const candidatePool = this.buildCandidatePool();
 
-    this.missionRelevantItemIds = new Set();
+    this.activeItems = candidatePool.slice(0, count).map(item => ({
+      ...item,
+      skills: this.normalizeSkills(item.skills),
+      isCorrect: !!item.isCorrect,
+      correctOrder: Number.isInteger(item.correctOrder) ? item.correctOrder : -1
+    }));
 
-    if (thiefSkills.length === 0) {
-      Phaser.Utils.Array.Shuffle(scenePool);
-      this.activeItems = scenePool.slice(0, Math.min(count, scenePool.length));
-      this.activeItemIds = new Set(this.activeItems.map(item => item.id));
-      return;
+    const correctItems = this.activeItems.filter(item => item.isCorrect).sort((a, b) => a.correctOrder - b.correctOrder);
+
+    if (correctItems.length < 3) {
+      const source = [...this.sceneItems]
+        .filter(item => !this.activeItems.some(active => active.id === item.id))
+        .map(item => ({
+          ...item,
+          skills: this.normalizeSkills(item.skills),
+          isCorrect: true,
+          correctOrder: -1
+        }));
+
+      while (correctItems.length < 3 && source.length > 0) {
+        const next = source.shift();
+        next.correctOrder = correctItems.length;
+        this.activeItems.push(next);
+        correctItems.push(next);
+      }
     }
 
-    const staticRedHerrings = scenePool.filter(item => !!item.isRedHerring);
-    const normalItems = scenePool.filter(item => !item.isRedHerring);
-
-    const matchingItems = normalItems.filter(item =>
-      this.hasSharedSkill(item.skills || [], thiefSkills)
-    );
-
-    const nonMatchingItems = normalItems.filter(item =>
-      !this.hasSharedSkill(item.skills || [], thiefSkills)
-    );
-
-    Phaser.Utils.Array.Shuffle(matchingItems);
-    Phaser.Utils.Array.Shuffle(nonMatchingItems);
-    Phaser.Utils.Array.Shuffle(staticRedHerrings);
-
-    const relevant = matchingItems.slice(0, Math.min(3, matchingItems.length));
-    relevant.forEach(item => this.missionRelevantItemIds.add(item.id));
-
-    const fillerPool = [...nonMatchingItems, ...staticRedHerrings];
-    Phaser.Utils.Array.Shuffle(fillerPool);
-
-    const fillerNeeded = Math.max(0, count - relevant.length);
-    const filler = fillerPool
-      .filter(item => !relevant.some(selected => selected.id === item.id))
-      .slice(0, fillerNeeded);
-
-    const combined = [...relevant, ...filler];
-
-    if (combined.length < count) {
-      const fallbackPool = scenePool.filter(
-        item => !combined.some(selected => selected.id === item.id)
-      );
-      Phaser.Utils.Array.Shuffle(fallbackPool);
-      combined.push(...fallbackPool.slice(0, count - combined.length));
-    }
-
-    Phaser.Utils.Array.Shuffle(combined);
-
-    this.activeItems = combined.slice(0, count);
+    this.activeItems = Phaser.Utils.Array.Shuffle(this.activeItems).slice(0, 6);
     this.activeItemIds = new Set(this.activeItems.map(item => item.id));
+
+    this.missionRelevantItemIds = new Set(
+      this.activeItems.filter(item => item.isCorrect).map(item => item.id)
+    );
+  }
+
+  buildReconstructionCardsFromActiveItems() {
+    const thief = gameState.currentThief || null;
+    const thiefSkills = this.normalizeSkills(thief?.skills);
+
+    const allCards = this.activeItems.map((item, index) => ({
+      id: item.id || `card_${index}`,
+      item: item.item || `Clue ${index + 1}`,
+      text: item.item || `Clue ${index + 1}`,
+      skills: this.normalizeSkills(item.skills),
+      cityId: this.cityId,
+      scene: this.sceneId,
+      isCorrect: !!item.isCorrect,
+      correctOrder: Number.isInteger(item.correctOrder) ? item.correctOrder : -1,
+      clueType: item.clueType || 'soft_clue',
+      heistExplanation: item.heistExplanation || '',
+      trueExplanation: item.trueExplanation || '',
+      isRedHerring: !!item.isRedHerring
+    }));
+
+    const correctCards = allCards
+      .filter(card => card.isCorrect)
+      .sort((a, b) => a.correctOrder - b.correctOrder)
+      .slice(0, 3);
+
+    return {
+      cityId: this.cityId,
+      sceneId: this.sceneId,
+      thiefId: gameState.currentThiefId || thief?.id || null,
+      thiefName: thief?.name || null,
+      thiefSkills,
+      allCards,
+      correctCardIds: correctCards.map(card => card.id),
+      correctSequence: correctCards.map(card => card.id),
+      selectedCards: [],
+      playerOrderedCards: [],
+      playerOrderedSentences: [],
+      playerFinalText: '',
+      playerSkills: [],
+      playerTheoryScore: 0,
+      playerTheoryResult: null,
+      playerSlotFeedback: [],
+      playerAttemptsLeft: 2
+    };
+  }
+
+  saveReconstructionCards() {
+    const reconstruction = this.buildReconstructionCardsFromActiveItems();
+    gameState.reconstructedHeist = reconstruction;
+    saveGameState();
   }
 
   createBackground() {
@@ -417,7 +526,12 @@ export default class HiddenObjectsScene extends Phaser.Scene {
         zone.setStrokeStyle(2, 0xff0000, 0.85);
       }
 
-      zone.on('pointerdown', () => this.handleHiddenObjectClick(zone));
+      zone.on('pointerdown', (pointer) => {
+        if (pointer && typeof pointer.event?.stopPropagation === 'function') {
+          pointer.event.stopPropagation();
+        }
+        this.handleHiddenObjectClick(zone);
+      });
 
       this.hiddenZones.push(zone);
     });
@@ -491,7 +605,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
     const isStaticRedHerring = !!itemData.isRedHerring;
     const isMissionRelevant = this.missionRelevantItemIds.has(id);
-    const isRedHerring = isStaticRedHerring || !isMissionRelevant;
     const clueType = itemData.clueType || 'soft_clue';
 
     let points = 0;
@@ -507,16 +620,18 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     }
 
     this.score += points;
+    this.scoreManager.addHiddenObjectScore(points);
+
     this.scoreText.setText(`Score: ${this.score}`);
-    this.refreshList(isRedHerring);
+    this.refreshList();
     this.bumpText(this.scoreText);
 
     if (!isStaticRedHerring && isMissionRelevant) {
       this.emitClueFound(itemData);
       this.storeHiddenObjectClue(itemData, clueType);
-      this.showMessage(`Evidence secured: ${itemData.item}`, '#7CFC00');
+      this.showMessage(`Evidence secured: ${itemData.item} (+${points})`, '#7CFC00');
     } else {
-      this.showMessage(`Found: ${itemData.item}`, '#ffd966');
+      this.showMessage(`Found: ${itemData.item} (+${points})`, '#ffd966');
     }
 
     if (this.foundItems.size >= this.activeItems.length) {
@@ -531,7 +646,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.events.emit('clue-found', {
       id: itemData.id,
       item: itemData.item,
-      skills: itemData.skills || [],
+      skills: this.normalizeSkills(itemData.skills),
       suspectAffinity,
       affinityWeight,
       clueType: itemData.clueType || 'soft_clue'
@@ -563,14 +678,14 @@ export default class HiddenObjectsScene extends Phaser.Scene {
         scene: this.sceneId,
         cityId: this.cityId,
         clueType,
-        skills: Array.isArray(itemData.skills) ? [...itemData.skills] : [],
+        skills: this.normalizeSkills(itemData.skills),
         heistExplanation: itemData.heistExplanation || '',
         trueExplanation: itemData.trueExplanation || '',
         foundAt: Date.now()
       });
     }
 
-    const skills = Array.isArray(itemData.skills) ? itemData.skills : [];
+    const skills = this.normalizeSkills(itemData.skills);
 
     skills.forEach((skill) => {
       const normalizedSkill = String(skill).trim();
@@ -596,64 +711,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       }
     });
 
-    saveGameState();
-  }
-
-  buildHeistReconstruction() {
-    const relevantEntries = Array.isArray(gameState.hiddenObjectHistory)
-      ? gameState.hiddenObjectHistory.filter(entry => entry?.scene === this.sceneId)
-      : [];
-
-    if (relevantEntries.length === 0) {
-      return null;
-    }
-
-    const orderedSentences = relevantEntries
-      .map(entry =>
-        entry.heistExplanation ||
-        entry.trueExplanation ||
-        `${entry.item} played some part in the theft.`
-      )
-      .filter(Boolean);
-
-    const uniqueSkills = [
-      ...new Set(
-        relevantEntries
-          .flatMap(entry =>
-            Array.isArray(entry.skills)
-              ? entry.skills.map(skill => String(skill).trim())
-              : []
-          )
-          .filter(Boolean)
-      )
-    ];
-
-    return {
-      sceneId: this.sceneId,
-      cityId: this.cityId,
-      sentences: orderedSentences,
-      finalText: orderedSentences.join(' '),
-      skills: uniqueSkills,
-      items: relevantEntries.map(entry => ({
-        id: entry.id,
-        item: entry.item,
-        scene: entry.scene,
-        cityId: entry.cityId,
-        clueType: entry.clueType,
-        skills: Array.isArray(entry.skills) ? [...entry.skills] : [],
-        heistExplanation: entry.heistExplanation || '',
-        trueExplanation: entry.trueExplanation || '',
-        foundAt: entry.foundAt || null
-      }))
-    };
-  }
-
-  saveHeistReconstruction() {
-    const reconstruction = this.buildHeistReconstruction();
-
-    if (!reconstruction) return;
-
-    gameState.reconstructedHeist = reconstruction;
     saveGameState();
   }
 
@@ -700,11 +757,14 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       }
     });
 
-    this.markSceneVisited();
+    this.markSceneVisited(success);
 
     if (success) {
-      this.saveHeistReconstruction();
-      this.showMessage('Crime scene processed.', '#7CFC00');
+      const timeBonus = this.timeLeft * 2;
+      this.score += timeBonus;
+      this.scoreManager.addHiddenObjectScore(timeBonus);
+
+      this.showMessage(`Crime scene processed. Time bonus +${timeBonus}`, '#7CFC00');
       this.showSuccessOverlay();
     } else {
       this.playSfx('wrong', { volume: 0.5 });
@@ -720,7 +780,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     const centerX = this.sidebarWidth + (width - this.sidebarWidth) / 2;
     const centerY = height / 2;
     const remainingTimeBonus = this.timeLeft * 2;
-    const finalScore = this.score + remainingTimeBonus;
+    const finalScore = this.score;
 
     this.resultOverlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.72)
       .setOrigin(0, 0)
@@ -915,7 +975,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       this.timerEvent = null;
     }
 
-    this.markSceneVisited();
+    this.restoreSourceScene();
 
     this.scene.start(this.returnScene, {
       ...this.returnData,
@@ -934,21 +994,28 @@ export default class HiddenObjectsScene extends Phaser.Scene {
 
   handleGlobalPointerDown(pointer, currentlyOver) {
     if (this.isSceneFinished) return;
-
     if (Array.isArray(currentlyOver) && currentlyOver.length > 0) return;
-
     if (pointer.x < this.sidebarWidth) return;
 
     this.incorrectClicks += 1;
+
+    const missPenalty = 3;
+    this.score = Math.max(0, this.score - missPenalty);
+    this.scoreManager.addHiddenObjectScore(-missPenalty);
 
     if (this.missesText) {
       this.missesText.setText(`Misses: ${this.incorrectClicks}`);
     }
 
+    if (this.scoreText) {
+      this.scoreText.setText(`Score: ${this.score}`);
+    }
+
     this.playSfx('wrong', { volume: 0.38 });
     this.bumpText(this.missesText);
+    this.bumpText(this.scoreText);
     this.flashScreen(0xff4d4d, 0.12, 120);
-    this.showMessage('No useful evidence there.', '#ff8a8a');
+    this.showMessage(`No useful evidence there. (-${missPenalty})`, '#ff8a8a');
   }
 
   playSfx(key, config = {}) {
@@ -1015,13 +1082,20 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     }
   }
 
-  markSceneVisited() {
+  markSceneVisited(success = false) {
     if (!gameState.specialScenesVisited || typeof gameState.specialScenesVisited !== 'object') {
       gameState.specialScenesVisited = {};
     }
 
+    if (!gameState.specialScenesCompleted || typeof gameState.specialScenesCompleted !== 'object') {
+      gameState.specialScenesCompleted = {};
+    }
+
     const visitKey = this.getVisitKey();
     gameState.specialScenesVisited[visitKey] = true;
+    if (success) {
+      gameState.specialScenesCompleted[visitKey] = true;
+    }
     saveGameState();
   }
 
@@ -1066,5 +1140,23 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     const minutes = Math.floor(safeSeconds / 60);
     const secs = safeSeconds % 60;
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  restoreSourceScene() {
+    const source = this.sourceScene || 'CityScene';
+
+    if (this.scene.isSleeping(source)) {
+      this.scene.wake(source);
+    }
+
+    if (this.scene.isPaused(source)) {
+      this.scene.resume(source);
+    }
+
+    const sourceSceneRef = this.scene.get(source);
+    if (sourceSceneRef?.input) {
+      sourceSceneRef.input.enabled = true;
+      sourceSceneRef.input.setTopOnly(true);
+    }
   }
 }

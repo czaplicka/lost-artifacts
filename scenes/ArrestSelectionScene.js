@@ -6,6 +6,9 @@ import {
   getSuspectImageKey
 } from '../suspectHelpers.js';
 
+const CORRECT_ARREST_BONUS = 500;
+const WRONG_ARREST_PENALTY = 250;
+
 export class ArrestSelectionScene extends Phaser.Scene {
   constructor() {
     super({ key: 'ArrestSelectionScene' });
@@ -49,7 +52,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
   }
 
   create() {
-    this.scene.wake('UIScene');
+    this.scene.sleep('UIScene');
     ensureHud(this);
     this.closeAllUIPanels();
 
@@ -84,26 +87,38 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.createResultOverlay();
   }
 
+  changeScore(points) {
+    const delta = Number.isFinite(points) ? Math.floor(points) : 0;
+    gameState.score = Math.max(0, (gameState.score || 0) + delta);
+
+    const hud = this.scene.get('PlayerHudScene');
+    if (hud?.refreshNotebook) {
+      hud.refreshNotebook();
+    } else if (hud?.refreshUI) {
+      hud.refreshUI();
+    }
+  }
+
   createBackdrop() {
     const { width, height } = this.scale;
 
     this.overlayRoot = this.add.container(0, 0).setDepth(300);
 
-    const vignette = this.add.rectangle(width / 2, height / 2, width, height, 0x120d07, 0.62);
-    const outerShadow = this.add.rectangle(width / 2, height / 2 + 14, 1500, 980, 0x000000, 0.28);
+    const vignette = this.add.rectangle(width / 2, height / 2, width, height, 0x120d07, 0.63);
+    const outerShadow = this.add.rectangle(width / 2, height / 2 + 14, 1600, 1010, 0x000000, 0.28);
 
     const dossierPaper = this.add
-      .rectangle(width / 2, height / 2 + 6, 1450, 940, 0xc7ad73, 0.96)
+      .rectangle(width / 2, height / 2 + 6, 1540, 980, 0xc7ad73, 0.96)
       .setStrokeStyle(5, 0x4a3720, 1);
 
     const dossierInner = this.add
-      .rectangle(width / 2, height / 2 + 6, 1400, 890, 0xd7bf89, 0.78)
+      .rectangle(width / 2, height / 2 + 6, 1485, 930, 0xd7bf89, 0.78)
       .setStrokeStyle(2, 0x7a5a34, 0.95);
 
-    const topStrip = this.add.rectangle(width / 2, 88, 1400, 76, 0x5a4121, 0.95);
-    const topStripLine = this.add.rectangle(width / 2, 124, 1400, 3, 0xe8d3a0, 0.95);
+    const topStrip = this.add.rectangle(width / 2, 92, 1485, 108, 0x5a4121, 0.95);
+    const topStripLine = this.add.rectangle(width / 2, 142, 1485, 3, 0xe8d3a0, 0.95);
 
-    const bottomStrip = this.add.rectangle(width / 2, height - 88, 1400, 64, 0x5a4121, 0.95);
+    const bottomStrip = this.add.rectangle(width / 2, height - 82, 1485, 72, 0x5a4121, 0.95);
 
     this.overlayRoot.add([
       vignette,
@@ -146,7 +161,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
     }
 
     this.backBtnLabel = this.add
-      .text(baseX + 70, baseY, 'RETURN TO CITY', {
+      .text(baseX + 70, baseY, 'BACK', {
         fontFamily: 'Special Elite',
         fontSize: '24px',
         color: '#f5e7bf'
@@ -167,9 +182,9 @@ export class ArrestSelectionScene extends Phaser.Scene {
     const { width } = this.scale;
 
     this.add
-      .text(width / 2, 74, 'INTERNATIONAL ARTEFACTS BUREAU', {
+      .text(width / 2, 64, 'MARK AGENCY', {
         fontFamily: 'PressStart2P',
-        fontSize: '20px',
+        fontSize: '16px',
         color: '#f5e8b8',
         stroke: '#2e1f10',
         strokeThickness: 5
@@ -178,9 +193,9 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setDepth(320);
 
     this.add
-      .text(width / 2, 109, 'SUSPECT DOSSIER // FINAL IDENTIFICATION', {
+      .text(width / 2, 108, 'SUSPECT DOSSIER', {
         fontFamily: 'Special Elite',
-        fontSize: '26px',
+        fontSize: '28px',
         color: '#f4ddb2'
       })
       .setOrigin(0.5)
@@ -188,7 +203,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     const caseNumber = `CASE FILE ${String(gameState.caseId || gameState.currentCaseId || '017').padStart(3, '0')}`;
     this.caseNumberText = this.add
-      .text(width - 260, 82, caseNumber, {
+      .text(width - 265, 76, caseNumber, {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#fff4cf',
@@ -204,22 +219,22 @@ export class ArrestSelectionScene extends Phaser.Scene {
         fontSize: '24px',
         color: '#6e1f17',
         stroke: '#f7dfb2',
-        strokeThickness: 1,
-        rotation: -0.08
+        strokeThickness: 1
       })
       .setOrigin(0.5)
       .setAlpha(0.95)
+      .setRotation(-0.08)
       .setDepth(321);
   }
 
   createInstructionBox() {
-    const x = 280;
-    const y = 760;
-    const w = 1340;
-    const h = 160;
+    const x = 230;
+    const y = 792;
+    const w = 1440;
+    const h = 126;
 
     const panel = this.add.graphics().setDepth(320);
-    panel.fillStyle(0xecd6a6, 0.86);
+    panel.fillStyle(0xecd6a6, 0.9);
     panel.fillRoundedRect(x, y, w, h, 14);
     panel.lineStyle(3, 0x6a4a26, 1);
     panel.strokeRoundedRect(x, y, w, h, 14);
@@ -227,7 +242,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
     panel.strokeRoundedRect(x + 10, y + 10, w - 20, h - 20, 10);
 
     this.add
-      .text(x + 30, y + 26, 'FIELD NOTES', {
+      .text(x + 30, y + 18, 'FIELD NOTES', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#4f3218'
@@ -237,22 +252,22 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.dialogueText = this.add
       .text(
         x + 34,
-        y + 62,
+        y + 46,
         'Review each dossier entry. Use arrows to inspect suspects, click the photograph to enlarge it, and confirm the arrest only when the file matches your evidence.',
         {
           fontFamily: 'Special Elite',
-          fontSize: '28px',
+          fontSize: '24px',
           color: '#332012',
-          wordWrap: { width: 1260 },
-          lineSpacing: 8
+          wordWrap: { width: 1280 },
+          lineSpacing: 6
         }
       )
       .setDepth(321);
 
     this.bottomNoteText = this.add
-      .text(x + w - 36, y + h - 22, 'Cross-check means, motive, and opportunity before arrest.', {
+      .text(x + w - 34, y + h - 12, 'Cross-check means, motive, and opportunity before arrest.', {
         fontFamily: 'Special Elite',
-        fontSize: '20px',
+        fontSize: '18px',
         color: '#6b4d2e'
       })
       .setOrigin(1, 1)
@@ -261,24 +276,24 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
   createDossierViewer() {
     const cx = this.scale.width / 2;
-    const cy = 415;
+    const cy = 410;
 
     this.viewerRoot = this.add.container(cx, cy).setDepth(320);
 
     const leftPanel = this.add
-      .rectangle(-360, -10, 255, 600, 0xe8cf99, 0.92)
+      .rectangle(-455, -10, 245, 610, 0xe8cf99, 0.92)
       .setStrokeStyle(3, 0x6a4a26, 1);
 
     const centerPanel = this.add
-      .rectangle(40, -10, 720, 600, 0xf0ddb2, 0.94)
+      .rectangle(20, -10, 790, 610, 0xf0ddb2, 0.94)
       .setStrokeStyle(4, 0x5b3e20, 1);
 
     const rightPanel = this.add
-      .rectangle(470, -10, 265, 600, 0xe8cf99, 0.92)
+      .rectangle(500, -10, 255, 610, 0xe8cf99, 0.92)
       .setStrokeStyle(3, 0x6a4a26, 1);
 
     const leftHeader = this.add
-      .text(-360, -265, 'CASE SUMMARY', {
+      .text(-455, -268, 'CASE SUMMARY', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#4a2e17'
@@ -287,8 +302,8 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     const leftBody = this.add
       .text(
-        -470,
-        -220,
+        -555,
+        -224,
         [
           '• Final suspect lineup',
           '• Review facial match',
@@ -300,15 +315,15 @@ export class ArrestSelectionScene extends Phaser.Scene {
         ].join('\n'),
         {
           fontFamily: 'Special Elite',
-          fontSize: '25px',
+          fontSize: '22px',
           color: '#392113',
-          lineSpacing: 8,
-          wordWrap: { width: 205 }
+          lineSpacing: 7,
+          wordWrap: { width: 190 }
         }
       );
 
     const rightHeader = this.add
-      .text(470, -265, 'ARREST PROTOCOL', {
+      .text(500, -268, 'ARREST PROTOCOL', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#4a2e17'
@@ -317,8 +332,8 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     const rightBody = this.add
       .text(
-        365,
-        -220,
+        395,
+        -224,
         [
           '1. Inspect photo',
           '2. Compare with clues',
@@ -330,26 +345,27 @@ export class ArrestSelectionScene extends Phaser.Scene {
         ].join('\n'),
         {
           fontFamily: 'Special Elite',
-          fontSize: '25px',
+          fontSize: '21px',
           color: '#392113',
-          lineSpacing: 8,
-          wordWrap: { width: 205 }
+          lineSpacing: 7,
+          wordWrap: { width: 200 }
         }
       );
 
-    this.cardSlot = this.add.container(40, -35);
+    this.cardSlot = this.add.container(20, -35);
 
     this.suspectLabelText = this.add
-      .text(40, 212, '', {
+      .text(20, 220, '', {
         fontFamily: 'Special Elite',
         fontSize: '24px',
         color: '#5a3b21',
-        align: 'center'
+        align: 'center',
+        wordWrap: { width: 540 }
       })
       .setOrigin(0.5);
 
     this.counterText = this.add
-      .text(40, 244, '', {
+      .text(20, 252, '', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#6e1f17',
@@ -358,7 +374,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.dotsText = this.add
-      .text(40, 278, '', {
+      .text(20, 284, '', {
         fontFamily: 'PressStart2P',
         fontSize: '18px',
         color: '#4a2e17',
@@ -367,7 +383,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.leftArrow = this.add
-      .text(-210, 248, '<', {
+      .text(-255, 252, '<', {
         fontFamily: 'PressStart2P',
         fontSize: '34px',
         color: '#fff3d0',
@@ -378,7 +394,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     this.rightArrow = this.add
-      .text(290, 248, '>', {
+      .text(295, 252, '>', {
         fontFamily: 'PressStart2P',
         fontSize: '34px',
         color: '#fff3d0',
@@ -389,26 +405,26 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
 
     this.arrestButton = this.add
-      .rectangle(470, 226, 210, 62, 0x7b241c, 1)
+      .rectangle(500, 214, 190, 56, 0x7b241c, 1)
       .setStrokeStyle(3, 0xf7e6bc, 1)
       .setInteractive({ useHandCursor: true });
 
     this.arrestButtonText = this.add
-      .text(470, 226, 'ARREST', {
+      .text(500, 214, 'ARREST', {
         fontFamily: 'PressStart2P',
-        fontSize: '18px',
+        fontSize: '16px',
         color: '#fff7de'
       })
       .setOrigin(0.5);
 
     const stamp = this.add
-      .text(470, 295, 'AUTHORIZED SIGN-OFF', {
+      .text(500, 282, 'AUTHORIZED SIGN-OFF', {
         fontFamily: 'Special Elite',
-        fontSize: '22px',
-        color: '#6f4f30',
-        rotation: -0.04
+        fontSize: '20px',
+        color: '#6f4f30'
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setRotation(-0.04);
 
     this.leftArrow.on('pointerover', () => {
       if (this.canNavigate()) this.leftArrow.setScale(1.06);
@@ -504,18 +520,18 @@ export class ArrestSelectionScene extends Phaser.Scene {
   buildSuspectCard(suspect, offsetX = 0) {
     const container = this.add.container(offsetX, 0);
 
-    const frameShadow = this.add.rectangle(6, 8, 610, 405, 0x000000, 0.16);
+    const frameShadow = this.add.rectangle(6, 8, 670, 430, 0x000000, 0.16);
 
     const frame = this.add
-      .rectangle(0, 0, 610, 405, 0xf5e4bc, 1)
+      .rectangle(0, 0, 670, 430, 0xf5e4bc, 1)
       .setStrokeStyle(4, 0x5d4022, 1);
 
     const innerFrame = this.add
-      .rectangle(0, 0, 580, 375, 0xe6cb95, 0.9)
+      .rectangle(0, 0, 635, 395, 0xe6cb95, 0.9)
       .setStrokeStyle(2, 0x8b6840, 1);
 
     const mugshotFrame = this.add
-      .rectangle(0, -38, 500, 230, 0x1e1a16, 1)
+      .rectangle(0, -42, 540, 240, 0x1e1a16, 1)
       .setStrokeStyle(3, 0x6e5433, 1);
 
     const imageKey = getSuspectImageKey(suspect);
@@ -525,18 +541,18 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     if (imageKey && this.textures.exists(imageKey)) {
       portrait = this.add
-        .image(0, -38, imageKey)
-        .setDisplaySize(480, 210)
+        .image(0, -42, imageKey)
+        .setDisplaySize(515, 220)
         .setInteractive({ useHandCursor: true });
 
       portrait.on('pointerdown', () => this.openZoom(imageKey));
     } else {
       fallback = this.add
-        .rectangle(0, -38, 480, 210, 0x57514b, 1)
+        .rectangle(0, -42, 515, 220, 0x57514b, 1)
         .setStrokeStyle(2, 0xf5e4bc, 1);
 
       fallbackText = this.add
-        .text(0, -38, 'PHOTO MISSING', {
+        .text(0, -42, 'PHOTO MISSING', {
           fontFamily: 'PressStart2P',
           fontSize: '18px',
           color: '#f7ebc6',
@@ -545,10 +561,10 @@ export class ArrestSelectionScene extends Phaser.Scene {
         .setOrigin(0.5);
     }
 
-    const pinLine = this.add.rectangle(0, -168, 520, 2, 0x8b6840, 0.75);
+    const pinLine = this.add.rectangle(0, -178, 560, 2, 0x8b6840, 0.75);
 
     const fileTitle = this.add
-      .text(0, -187, 'SUSPECT PHOTOGRAPH', {
+      .text(0, -198, 'SUSPECT PHOTOGRAPH', {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#51341b'
@@ -556,28 +572,28 @@ export class ArrestSelectionScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const zoomHint = this.add
-      .text(0, 102, 'Click photo to enlarge evidence image', {
+      .text(0, 100, 'Click photo to enlarge evidence image', {
         fontFamily: 'Special Elite',
-        fontSize: '22px',
+        fontSize: '20px',
         color: '#68482a'
       })
       .setOrigin(0.5);
 
     const suspectNumber = this.add
-      .text(0, 143, `DOSSIER ENTRY ${this.currentSuspectIndex + 1}`, {
+      .text(0, 138, `DOSSIER ENTRY ${this.currentSuspectIndex + 1}`, {
         fontFamily: 'PressStart2P',
-        fontSize: '16px',
+        fontSize: '15px',
         color: '#6e1f17'
       })
       .setOrigin(0.5);
 
     const summary = this.add
-      .text(0, 186, 'Observe appearance, compare it with witness clues, then decide whether the file justifies an arrest.', {
+      .text(0, 182, 'Observe appearance, compare it with witness clues, then decide whether the file justifies an arrest.', {
         fontFamily: 'Special Elite',
-        fontSize: '23px',
+        fontSize: '22px',
         color: '#3c2614',
         align: 'center',
-        wordWrap: { width: 520 }
+        wordWrap: { width: 560 }
       })
       .setOrigin(0.5);
 
@@ -687,8 +703,8 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     const oldCard = this.currentCard;
     const newSuspect = this.displaySuspects[this.currentSuspectIndex];
-    const enterFromX = direction > 0 ? 420 : -420;
-    const exitToX = direction > 0 ? -420 : 420;
+    const enterFromX = direction > 0 ? 460 : -460;
+    const exitToX = direction > 0 ? -460 : 460;
 
     const newCard = this.buildSuspectCard(newSuspect, enterFromX);
     newCard.alpha = 0.9;
@@ -787,6 +803,12 @@ export class ArrestSelectionScene extends Phaser.Scene {
   confirmSelection() {
     const thiefId = gameState.currentThief?.id || gameState.currentThiefId;
     const isCorrect = isCorrectSuspectChoice(this.selectedSuspectId, thiefId);
+
+    if (isCorrect) {
+      this.changeScore(CORRECT_ARREST_BONUS);
+    } else {
+      this.changeScore(-WRONG_ARREST_PENALTY);
+    }
 
     gameState.finalArrestSuspectId = this.selectedSuspectId ?? null;
     gameState.finalArrestResult = isCorrect ? 'SUCCESS' : 'FAILURE';

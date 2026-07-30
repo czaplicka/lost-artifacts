@@ -1,3 +1,25 @@
+export function createDefaultReconstructedHeist() {
+  return {
+    cityId: null,
+    sceneId: null,
+    thiefId: null,
+    thiefName: null,
+    thiefSkills: [],
+    allCards: [],
+    correctCardIds: [],
+    correctSequence: [],
+    selectedCards: [],
+    playerOrderedCards: [],
+    playerOrderedSentences: [],
+    playerFinalText: '',
+    playerSkills: [],
+    playerTheoryScore: 0,
+    playerTheoryResult: null,
+    playerSlotFeedback: [],
+    playerAttemptsLeft: 2
+  };
+}
+
 export const defaultGameState = {
   currentThiefId: null,
   currentThief: null,
@@ -49,7 +71,8 @@ export const defaultGameState = {
   pendingPhoneCallCityId: null,
 
   hiddenObjectHistory: [],
-  reconstructedHeist: null
+
+  reconstructedHeist: createDefaultReconstructedHeist()
 };
 
 export const gameState = structuredClone(defaultGameState);
@@ -177,16 +200,79 @@ function sanitizeSaveData(data) {
     ? structuredClone(data.hiddenObjectHistory)
     : [];
 
-  clean.reconstructedHeist =
-    data?.reconstructedHeist && typeof data.reconstructedHeist === 'object'
+  clean.reconstructedHeist = {
+    ...createDefaultReconstructedHeist(),
+    ...(isPlainObject(data?.reconstructedHeist)
       ? structuredClone(data.reconstructedHeist)
+      : {})
+  };
+
+  clean.reconstructedHeist.thiefSkills = Array.isArray(clean.reconstructedHeist.thiefSkills)
+    ? clean.reconstructedHeist.thiefSkills
+    : [];
+
+  clean.reconstructedHeist.allCards = Array.isArray(clean.reconstructedHeist.allCards)
+    ? clean.reconstructedHeist.allCards
+    : [];
+
+  clean.reconstructedHeist.correctCardIds = Array.isArray(clean.reconstructedHeist.correctCardIds)
+    ? clean.reconstructedHeist.correctCardIds
+    : [];
+
+  clean.reconstructedHeist.correctSequence = Array.isArray(clean.reconstructedHeist.correctSequence)
+    ? clean.reconstructedHeist.correctSequence
+    : [];
+
+  clean.reconstructedHeist.selectedCards = Array.isArray(clean.reconstructedHeist.selectedCards)
+    ? clean.reconstructedHeist.selectedCards
+    : [];
+
+  clean.reconstructedHeist.playerOrderedCards = Array.isArray(clean.reconstructedHeist.playerOrderedCards)
+    ? clean.reconstructedHeist.playerOrderedCards
+    : [];
+
+  clean.reconstructedHeist.playerOrderedSentences = Array.isArray(clean.reconstructedHeist.playerOrderedSentences)
+    ? clean.reconstructedHeist.playerOrderedSentences
+    : [];
+
+  clean.reconstructedHeist.playerSkills = Array.isArray(clean.reconstructedHeist.playerSkills)
+    ? clean.reconstructedHeist.playerSkills
+    : [];
+
+  clean.reconstructedHeist.playerFinalText =
+    typeof clean.reconstructedHeist.playerFinalText === 'string'
+      ? clean.reconstructedHeist.playerFinalText
+      : '';
+
+  clean.reconstructedHeist.playerTheoryScore =
+    Number.isFinite(clean.reconstructedHeist.playerTheoryScore)
+      ? clean.reconstructedHeist.playerTheoryScore
+      : 0;
+
+  clean.reconstructedHeist.playerTheoryResult =
+    typeof clean.reconstructedHeist.playerTheoryResult === 'string' ||
+    clean.reconstructedHeist.playerTheoryResult === null
+      ? clean.reconstructedHeist.playerTheoryResult
       : null;
+
+  clean.reconstructedHeist.playerSlotFeedback = Array.isArray(clean.reconstructedHeist.playerSlotFeedback)
+    ? clean.reconstructedHeist.playerSlotFeedback
+    : [];
+
+  clean.reconstructedHeist.playerAttemptsLeft =
+    Number.isInteger(clean.reconstructedHeist.playerAttemptsLeft)
+      ? clean.reconstructedHeist.playerAttemptsLeft
+      : 2;
 
   return clean;
 }
 
 export function resetGameState() {
   Object.assign(gameState, cloneDefaultState());
+}
+
+export function resetReconstructedHeist() {
+  gameState.reconstructedHeist = createDefaultReconstructedHeist();
 }
 
 export function saveGameState() {

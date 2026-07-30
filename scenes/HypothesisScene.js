@@ -1,4 +1,5 @@
 import { gameState, saveGameState } from '../GameData.js';
+import { ScoreManager } from '../ScoreManager.js';
 
 export default class HypothesisScene extends Phaser.Scene {
   constructor() {
@@ -34,11 +35,21 @@ export default class HypothesisScene extends Phaser.Scene {
     this._listenersBound = false;
     this._resizeBound = false;
     this.layout = null;
+
+    this.isDraggingCard = false;
+
+    this.handleDragStartBound = null;
+    this.handleDragBound = null;
+    this.handleDropBound = null;
+    this.handleDragEndBound = null;
+    this.handleResizeBound = null;
+
+    this.scoreManager = null;
   }
 
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
-    this.cityId = data.cityId || gameState.currentCityId || gameState.crimeCityId || null;
+    this.cityId = data.cityId || gameState.currentCityId || gameState.crimeCityId || gameState.reconstructedHeist?.cityId || null;
     this.sceneId = data.sceneId || gameState.reconstructedHeist?.sceneId || null;
 
     this.overlay = null;
@@ -59,11 +70,23 @@ export default class HypothesisScene extends Phaser.Scene {
 
     this.placedCards = [null, null, null];
     this.slotFeedback = ['neutral', 'neutral', 'neutral'];
-    this.attemptsLeft = 2;
+    this.attemptsLeft = Number.isInteger(gameState.reconstructedHeist?.playerAttemptsLeft)
+      ? gameState.reconstructedHeist.playerAttemptsLeft
+      : 2;
 
     this.correctCards = [];
     this.distractorCards = [];
     this.layout = null;
+
+    this.isDraggingCard = false;
+
+    this.handleDragStartBound = null;
+    this.handleDragBound = null;
+    this.handleDropBound = null;
+    this.handleDragEndBound = null;
+    this.handleResizeBound = null;
+
+    this.scoreManager = new ScoreManager();
   }
 
   create() {
@@ -128,6 +151,71 @@ export default class HypothesisScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
   }
 
+  prepareCards() {
+    const reconstruction = gameState.reconstructedHeist;
+    const allCards = Array.isArray(reconstruction?.allCards) ? reconstruction.allCards : [];
+
+    let sourceCards = allCards
+      .filter(card => !this.sceneId || card.scene === this.sceneId)
+      .filter(card => !this.cityId || card.cityId === this.cityId);
+
+    if (sourceCards.length === 0) {
+      sourceCards = allCards;
+    }
+
+    const uniqueCards = [];
+    const seen = new Set();
+
+    sourceCards.forEach((card, index) => {
+      const key = `${card.id || card.item || index}_${card.scene || ''}_${card.cityId || ''}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      uniqueCards.push({
+        id: card.id || `card_${index}`,
+        item: card.item || `Clue ${index + 1}`,
+        text: card.text || card.item || `Clue ${index + 1}`,
+        skills: Array.isArray(card.skills) ? [...card.skills] : [],
+        scene: card.scene || this.sceneId,
+        cityId: card.cityId || this.cityId,
+        correctOrder: Number.isInteger(card.correctOrder) ? card.correctOrder : -1,
+        isCorrect: !!card.isCorrect,
+        clueType: card.clueType || 'soft_clue',
+        heistExplanation: card.heistExplanation || '',
+        trueExplanation: card.trueExplanation || '',
+        isRedHerring: !!card.isRedHerring
+      });
+    });
+
+    const exactCorrect = uniqueCards
+      .filter(card => card.isCorrect)
+      .sort((a, b) => a.correctOrder - b.correctOrder)
+      .slice(0, 3);
+
+    this.correctCards = exactCorrect;
+
+    this.distractorCards = uniqueCards
+      .filter(card => !card.isCorrect)
+      .slice(0, 3);
+
+    if (this.correctCards.length < 3 || this.distractorCards.length < 3) {
+      console.warn('HypothesisScene: insufficient card data from reconstructedHeist.allCards');
+    }
+
+    this.availableCards = Phaser.Utils.Array.Shuffle([
+      ...this.correctCards.slice(0, 3),
+      ...this.distractorCards.slice(0, 3)
+    ]);
+
+    while (this.availableCards.length < 6) {
+      const missing = uniqueCards.find(card => !this.availableCards.some(existing => existing.id === card.id));
+      if (!missing) break;
+      this.availableCards.push({ ...missing });
+    }
+
+    this.availableCards = Phaser.Utils.Array.Shuffle(this.availableCards.slice(0, 6));
+  }
+
   getLayout() {
     const { width, height } = this.scale;
     const isMobile = width <= 900;
@@ -148,7 +236,7 @@ export default class HypothesisScene extends Phaser.Scene {
     const slotVerticalGap = 132;
     const slotHorizontalGap = 420;
 
-    const slotsBaseY = attemptsY + (isMobile ? 130 : 130);
+    const slotsBaseY = attemptsY + 150;
 
     const slotPositions = isMobile
       ? [
@@ -163,7 +251,6 @@ export default class HypothesisScene extends Phaser.Scene {
         ];
 
     const lowestSlotY = isMobile ? slotPositions[2].y : slotPositions[0].y;
-
     const trayY = lowestSlotY + (isMobile ? 178 : 220);
 
     const cardWidth = isMobile ? Math.min(panelWidth - 44, 310) : 228;
@@ -271,29 +358,21 @@ export default class HypothesisScene extends Phaser.Scene {
       view.bg.setSize(L.cardWidth, L.cardHeight);
 
       if (L.isMobile) {
-        view.title
-          .setPosition(pos.x - L.cardWidth / 2 + 16, pos.y)
-          .setOrigin(0, 0.5);
+        view.title.setPosition(pos.x - L.cardWidth / 2 + 16, pos.y).setOrigin(0, 0.5);
         view.title.setAlign('left');
         view.title.setFontSize('18px');
         view.title.setWordWrapWidth(L.wrapCardTitle, true);
 
-        view.tag
-          .setPosition(pos.x + L.cardWidth / 2 - 14, pos.y)
-          .setOrigin(1, 0.5);
+        view.tag.setPosition(pos.x + L.cardWidth / 2 - 14, pos.y).setOrigin(1, 0.5);
         view.tag.setFontSize('13px');
         view.tag.setText(this.buildSkillPreview(card.skills));
       } else {
-        view.title
-          .setPosition(pos.x, pos.y - 18)
-          .setOrigin(0.5);
+        view.title.setPosition(pos.x, pos.y - 18).setOrigin(0.5);
         view.title.setAlign('center');
         view.title.setFontSize('18px');
         view.title.setWordWrapWidth(L.wrapCardTitle, true);
 
-        view.tag
-          .setPosition(pos.x, pos.y + 34)
-          .setOrigin(0.5);
+        view.tag.setPosition(pos.x, pos.y + 34).setOrigin(0.5);
         view.tag.setFontSize('13px');
         view.tag.setText(this.buildSkillPreview(card.skills));
       }
@@ -315,120 +394,6 @@ export default class HypothesisScene extends Phaser.Scene {
 
     this.confirmButton.setPosition(L.buttonConfirmX, L.buttonConfirmY);
     this.confirmButton.setFontSize(L.isMobile ? '24px' : '28px');
-  }
-
-  prepareCards() {
-    const history = Array.isArray(gameState.hiddenObjectHistory) ? gameState.hiddenObjectHistory : [];
-    const currentThief = gameState.currentThief || null;
-    const thiefSkills = this.extractSkills(currentThief?.skills);
-
-    let sourceItems = history
-      .filter(item => !this.sceneId || item.scene === this.sceneId)
-      .filter(item => !this.cityId || item.cityId === this.cityId);
-
-    if (sourceItems.length === 0) {
-      sourceItems = history.filter(item => !this.cityId || item.cityId === this.cityId);
-    }
-
-    const uniqueItems = [];
-    const seen = new Set();
-
-    sourceItems.forEach((item, index) => {
-      const key = `${item.id || item.item || item.name || index}_${item.scene || ''}_${item.cityId || ''}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniqueItems.push(item);
-      }
-    });
-
-    const normalizedItems = uniqueItems.map((item, index) => {
-      const itemSkills = this.extractSkills(item.skills);
-      const matches = this.hasSkillOverlap(itemSkills, thiefSkills);
-
-      return {
-        id: item.id || `hidden_${index}`,
-        item: item.item || item.name || `Clue ${index + 1}`,
-        text: item.item || item.name || `Clue ${index + 1}`,
-        skills: itemSkills,
-        scene: item.scene || this.sceneId,
-        cityId: item.cityId || this.cityId,
-        matchesThief: matches
-      };
-    });
-
-    const matchingItems = normalizedItems.filter(item => item.matchesThief);
-    const nonMatchingItems = normalizedItems.filter(item => !item.matchesThief);
-
-    this.correctCards = matchingItems.slice(0, 3).map((item, index) => ({
-      ...item,
-      correctOrder: index,
-      isCorrect: true
-    }));
-
-    if (this.correctCards.length < 3) {
-      const backupCards = normalizedItems
-        .filter(item => !this.correctCards.some(correct => correct.id === item.id))
-        .slice(0, 3 - this.correctCards.length)
-        .map((item, index) => ({
-          ...item,
-          correctOrder: this.correctCards.length + index,
-          isCorrect: true
-        }));
-
-      this.correctCards.push(...backupCards);
-    }
-
-    this.distractorCards = nonMatchingItems
-      .filter(item => !this.correctCards.some(correct => correct.id === item.id))
-      .slice(0, 3)
-      .map(item => ({
-        ...item,
-        correctOrder: -1,
-        isCorrect: false
-      }));
-
-    if (this.distractorCards.length < 3) {
-      const extraDistractors = normalizedItems
-        .filter(item => !this.correctCards.some(correct => correct.id === item.id))
-        .filter(item => !this.distractorCards.some(d => d.id === item.id))
-        .slice(0, 3 - this.distractorCards.length)
-        .map(item => ({
-          ...item,
-          correctOrder: -1,
-          isCorrect: false
-        }));
-
-      this.distractorCards.push(...extraDistractors);
-    }
-
-    this.availableCards = Phaser.Utils.Array.Shuffle([
-      ...this.correctCards.slice(0, 3),
-      ...this.distractorCards.slice(0, 3)
-    ]);
-  }
-
-  extractSkills(rawSkills) {
-    if (Array.isArray(rawSkills)) {
-      return rawSkills
-        .map(skill => String(skill).trim())
-        .filter(Boolean);
-    }
-
-    if (typeof rawSkills === 'string') {
-      return rawSkills
-        .split(',')
-        .map(skill => skill.trim())
-        .filter(Boolean);
-    }
-
-    return [];
-  }
-
-  hasSkillOverlap(itemSkills = [], thiefSkills = []) {
-    if (!itemSkills.length || !thiefSkills.length) return false;
-
-    const thiefSet = new Set(thiefSkills.map(skill => String(skill).toLowerCase()));
-    return itemSkills.some(skill => thiefSet.has(String(skill).toLowerCase()));
   }
 
   createSlots() {
@@ -469,9 +434,9 @@ export default class HypothesisScene extends Phaser.Scene {
 
   createCardTray() {
     this.availableCards.forEach((card, index) => {
+      const container = this.add.container(0, 0).setDepth(3004);
       const bg = this.add.rectangle(0, 0, 228, 132, 0xf1e2bf, 1)
         .setStrokeStyle(3, 0x7a5c2e, 0.85)
-        .setDepth(3004)
         .setInteractive({ useHandCursor: true });
 
       const title = this.add.text(0, -18, card.item, {
@@ -480,7 +445,7 @@ export default class HypothesisScene extends Phaser.Scene {
         color: '#3c2200',
         align: 'center',
         wordWrap: { width: 150, useAdvancedWrap: true }
-      }).setOrigin(0.5).setDepth(3005);
+      }).setOrigin(0.5);
 
       const tag = this.add.text(0, 34, this.buildSkillPreview(card.skills), {
         fontFamily: 'Arial',
@@ -488,23 +453,31 @@ export default class HypothesisScene extends Phaser.Scene {
         color: '#6b3f00',
         backgroundColor: '#f7ecd3',
         padding: { left: 8, right: 8, top: 4, bottom: 4 }
-      }).setOrigin(0.5).setDepth(3005);
+      }).setOrigin(0.5);
 
-      this.input.setDraggable(bg, true);
+      container.add([bg, title, tag]);
+      this.input.setDraggable(container);
 
-      bg.cardIndex = index;
-      bg.homeX = 0;
-      bg.homeY = 0;
-      bg.currentSlot = null;
-      bg.linkedTitle = title;
-      bg.linkedTag = tag;
+      container.cardIndex = index;
+      container.homeX = 0;
+      container.homeY = 0;
+      container.currentSlot = null;
+      container.linkedTitle = title;
+      container.linkedTag = tag;
+      container.linkedBg = bg;
+      container.wasDragged = false;
 
-      bg.on('pointerdown', () => this.handleCardClick(index));
+      bg.on('pointerdown', () => {
+        if (!this.isDraggingCard && !container.wasDragged) {
+          this.handleCardClick(index);
+        }
+      });
 
       this.cardViews.push({
         bg,
         title,
         tag,
+        container,
         currentSlot: null,
         homeX: 0,
         homeY: 0
@@ -545,7 +518,9 @@ export default class HypothesisScene extends Phaser.Scene {
   bindResize() {
     if (this._resizeBound) return;
     this._resizeBound = true;
-    this.scale.on('resize', this.handleResize, this);
+
+    this.handleResizeBound = this.handleResize.bind(this);
+    this.scale.on('resize', this.handleResizeBound, this);
   }
 
   handleResize() {
@@ -557,27 +532,41 @@ export default class HypothesisScene extends Phaser.Scene {
     if (this._listenersBound) return;
     this._listenersBound = true;
 
-    this.input.on('dragstart', (pointer, gameObject) => {
+    this.handleDragStartBound = (pointer, gameObject) => {
+      this.isDraggingCard = true;
+      gameObject.wasDragged = false;
       gameObject.setDepth(3100);
       if (gameObject.linkedTitle) gameObject.linkedTitle.setDepth(3101);
       if (gameObject.linkedTag) gameObject.linkedTag.setDepth(3101);
       this.tweens.killTweensOf([gameObject, gameObject.linkedTitle, gameObject.linkedTag]);
-    });
+    };
 
-    this.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+    this.handleDragBound = (pointer, gameObject, dragX, dragY) => {
+      gameObject.wasDragged = true;
       this.setCardPositionByIndex(gameObject.cardIndex, dragX, dragY);
-    });
+    };
 
-    this.input.on('drop', (pointer, gameObject, dropZone) => {
+    this.handleDropBound = (pointer, gameObject, dropZone) => {
       const slotIndex = dropZone.getData('slotIndex');
       this.placeCardInSlotByIndex(gameObject.cardIndex, slotIndex);
-    });
+    };
 
-    this.input.on('dragend', (pointer, gameObject, dropped) => {
+    this.handleDragEndBound = (pointer, gameObject, dropped) => {
+      this.isDraggingCard = false;
+
       if (!dropped) {
         this.returnCardHomeByIndex(gameObject.cardIndex);
       }
-    });
+
+      this.time.delayedCall(0, () => {
+        gameObject.wasDragged = false;
+      });
+    };
+
+    this.input.on('dragstart', this.handleDragStartBound);
+    this.input.on('drag', this.handleDragBound);
+    this.input.on('drop', this.handleDropBound);
+    this.input.on('dragend', this.handleDragEndBound);
   }
 
   buildSkillPreview(skills = []) {
@@ -594,13 +583,13 @@ export default class HypothesisScene extends Phaser.Scene {
   setCardPosition(cardView, x, y) {
     if (!cardView || !this.layout) return;
 
-    cardView.bg.setPosition(x, y);
+    cardView.container.setPosition(x, y);
+    cardView.bg.setPosition(0, 0);
 
-    const titleX = cardView.title.originX === 0 ? x - this.layout.cardWidth / 2 + 16 : x;
-    const titleY = y + (this.layout.isMobile ? 0 : -18);
-
-    const tagX = this.layout.isMobile ? x + this.layout.cardWidth / 2 - 14 : x;
-    const tagY = y + (this.layout.isMobile ? 0 : 34);
+    const titleX = cardView.title.originX === 0 ? -this.layout.cardWidth / 2 + 16 : 0;
+    const titleY = this.layout.isMobile ? 0 : -18;
+    const tagX = this.layout.isMobile ? this.layout.cardWidth / 2 - 14 : 0;
+    const tagY = this.layout.isMobile ? 0 : 34;
 
     cardView.title.setPosition(titleX, titleY);
     cardView.tag.setPosition(tagX, tagY);
@@ -637,7 +626,6 @@ export default class HypothesisScene extends Phaser.Scene {
       this.showFeedback('Drop a card here.', '#ffb347');
       return;
     }
-
     this.returnCardHomeByIndex(cardIndex);
   }
 
@@ -660,26 +648,21 @@ export default class HypothesisScene extends Phaser.Scene {
     if (targetCard && fromSlot !== null) {
       this.placedCards[fromSlot] = targetCardIndex;
       targetCard.currentSlot = fromSlot;
-      targetCard.bg.currentSlot = fromSlot;
-
       const oldSlot = this.slotViews[fromSlot];
       if (oldSlot) {
         this.setCardPosition(targetCard, oldSlot.box.x, oldSlot.box.y);
       }
     } else if (targetCard && fromSlot === null) {
       targetCard.currentSlot = null;
-      targetCard.bg.currentSlot = null;
       this.setCardPosition(targetCard, targetCard.homeX, targetCard.homeY);
     }
 
     if (fromSlot !== null && this.placedCards[fromSlot] === cardIndex) {
       this.placedCards[fromSlot] = null;
-      this.slotFeedback[fromSlot] = 'neutral';
     }
 
     this.placedCards[slotIndex] = cardIndex;
     draggedCard.currentSlot = slotIndex;
-    draggedCard.bg.currentSlot = slotIndex;
 
     const slot = this.slotViews[slotIndex];
     if (slot) {
@@ -700,31 +683,12 @@ export default class HypothesisScene extends Phaser.Scene {
     }
 
     cardView.currentSlot = null;
-    cardView.bg.currentSlot = null;
 
     if (animate) {
       this.tweens.add({
-        targets: [cardView.bg, cardView.title, cardView.tag],
-        x: {
-          getEnd: (target) => {
-            if (target === cardView.bg) return cardView.homeX;
-            if (target === cardView.title) {
-              return cardView.title.originX === 0
-                ? cardView.homeX - this.layout.cardWidth / 2 + 16
-                : cardView.homeX;
-            }
-            return this.layout.isMobile
-              ? cardView.homeX + this.layout.cardWidth / 2 - 14
-              : cardView.homeX;
-          }
-        },
-        y: {
-          getEnd: (target) => {
-            if (target === cardView.bg) return cardView.homeY;
-            if (target === cardView.title) return cardView.homeY + (this.layout.isMobile ? 0 : -18);
-            return cardView.homeY + (this.layout.isMobile ? 0 : 34);
-          }
-        },
+        targets: cardView.container,
+        x: cardView.homeX,
+        y: cardView.homeY,
         duration: 220,
         ease: 'Quad.easeOut'
       });
@@ -739,7 +703,6 @@ export default class HypothesisScene extends Phaser.Scene {
     this.refreshSlots();
     this.refreshCards();
     this.refreshConfirmButton();
-
     if (this.attemptsText) {
       this.attemptsText.setText(`Attempts left: ${this.attemptsLeft}`);
     }
@@ -845,13 +808,7 @@ export default class HypothesisScene extends Phaser.Scene {
     const allGreen = feedback.every(v => v === 'green');
 
     if (allGreen) {
-      this.finalizeTheory(
-        orderedCards,
-        'exact',
-        60,
-        'Excellent reconstruction. You nailed the sequence.',
-        '#7CFC00'
-      );
+      this.finalizeTheory(orderedCards, 'exact', 60, 'Excellent reconstruction. You nailed the sequence.', '#7CFC00');
       return;
     }
 
@@ -867,21 +824,9 @@ export default class HypothesisScene extends Phaser.Scene {
     const yellowCount = feedback.filter(v => v === 'yellow').length;
 
     if (greenCount + yellowCount >= 2) {
-      this.finalizeTheory(
-        orderedCards,
-        'partial',
-        25,
-        'Promising lead. Part of the sequence fits.',
-        '#ffcf66'
-      );
+      this.finalizeTheory(orderedCards, 'partial', 25, 'Promising lead. Part of the sequence fits.', '#ffcf66');
     } else {
-      this.finalizeTheory(
-        orderedCards,
-        'weak',
-        10,
-        'Theory recorded, but the sequence still needs work.',
-        '#ff9f80'
-      );
+      this.finalizeTheory(orderedCards, 'weak', 10, 'Theory recorded, but the sequence still needs work.', '#ff9f80');
     }
   }
 
@@ -916,8 +861,12 @@ export default class HypothesisScene extends Phaser.Scene {
     this.storeTheorySkills(uniqueSkills);
 
     gameState.score = (gameState.score || 0) + score;
-    saveGameState();
 
+    if (this.scoreManager && typeof this.scoreManager.addTheoryScore === 'function') {
+      this.scoreManager.addTheoryScore(score, resultLabel);
+    }
+
+    saveGameState();
     this.showFeedback(`${message} +${score} score`, color);
 
     this.time.delayedCall(900, () => {
@@ -1015,7 +964,6 @@ export default class HypothesisScene extends Phaser.Scene {
     }
 
     const sourceSceneRef = this.scene.get(source);
-
     if (sourceSceneRef?.input) {
       sourceSceneRef.input.enabled = true;
       sourceSceneRef.input.setTopOnly(true);
@@ -1051,14 +999,24 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   onShutdown() {
-    this.input.off('dragstart');
-    this.input.off('drag');
-    this.input.off('drop');
-    this.input.off('dragend');
-    this.scale.off('resize', this.handleResize, this);
+    if (this.handleDragStartBound) {
+      this.input.off('dragstart', this.handleDragStartBound);
+    }
+    if (this.handleDragBound) {
+      this.input.off('drag', this.handleDragBound);
+    }
+    if (this.handleDropBound) {
+      this.input.off('drop', this.handleDropBound);
+    }
+    if (this.handleDragEndBound) {
+      this.input.off('dragend', this.handleDragEndBound);
+    }
+    if (this.handleResizeBound) {
+      this.scale.off('resize', this.handleResizeBound, this);
+    }
 
     this.cardViews.forEach(view => {
-      [view.bg, view.title, view.tag].forEach(item => {
+      [view.bg, view.title, view.tag, view.container].forEach(item => {
         if (item?.removeAllListeners) item.removeAllListeners();
         if (item?.destroy) item.destroy();
       });
@@ -1088,5 +1046,6 @@ export default class HypothesisScene extends Phaser.Scene {
     this.slotFeedback = ['neutral', 'neutral', 'neutral'];
     this._listenersBound = false;
     this._resizeBound = false;
+    this.isDraggingCard = false;
   }
 }

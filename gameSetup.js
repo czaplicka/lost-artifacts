@@ -4,6 +4,8 @@ import {
   clearSavedGame,
   saveGameState
 } from './GameData.js';
+import { ScoreManager } from './ScoreManager.js';
+import { EventBus } from './EventBus.js';
 
 const HQ_CITY = 'Mark Agency Headquarters';
 const HQ_ID = 'hq';
@@ -40,6 +42,51 @@ const TRAVEL_ENCOUNTERS = [
     message: 'Air traffic control redirects the plane around congestion.'
   }
 ];
+
+let scoreManagerInstance = null;
+
+export function getScoreManager() {
+  if (!scoreManagerInstance) {
+    scoreManagerInstance = new ScoreManager();
+  }
+  return scoreManagerInstance;
+}
+
+function syncScoreFromManager() {
+  const scoreManager = getScoreManager();
+  if (scoreManager && typeof scoreManager.getSessionPoints === 'function') {
+    gameState.score = scoreManager.getSessionPoints();
+  }
+}
+
+function emitScoreChanged(points, label = 'Score update') {
+  EventBus.emit('scoreChanged', {
+    delta: points,
+    total: gameState.score || 0,
+    label
+  });
+}
+
+function addSessionScore(points, label = 'Score update') {
+  const scoreManager = getScoreManager();
+
+  if (scoreManager && typeof scoreManager.addScoreEvent === 'function') {
+    scoreManager.addScoreEvent(points, label);
+    syncScoreFromManager();
+    emitScoreChanged(points, label);
+    return;
+  }
+
+  if (scoreManager && typeof scoreManager._add === 'function') {
+    scoreManager._add(points, label);
+    syncScoreFromManager();
+    emitScoreChanged(points, label);
+    return;
+  }
+
+  gameState.score = Math.max(0, (gameState.score || 0) + points);
+  emitScoreChanged(points, label);
+}
 
 function shuffle(array) {
   const result = [...array];
@@ -436,6 +483,12 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   clearSavedGame();
   resetGameState();
 
+  const scoreManager = getScoreManager();
+  if (scoreManager && typeof scoreManager.startSession === 'function') {
+    scoreManager.startSession();
+  }
+  gameState.score = 0;
+
   gameState.finalArrestResult = null;
   gameState.finalArrestSuspectId = null;
   gameState.caseResolved = false;
@@ -444,6 +497,7 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.storyPhoneCallTriggered = false;
   gameState.pendingPhoneCall = false;
   gameState.pendingPhoneCallCityId = null;
+  gameState.scoreSaved = false;
 
   const thief = getRandomItem(suspectsData);
   const mission = getRandomItem(missionsData);
@@ -514,6 +568,7 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
 
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
+  syncScoreFromManager();
 
   window.GAMESTATE = gameState;
   console.log('[NOWA GRA] Start:', {
@@ -571,7 +626,7 @@ export function markEncounterVisited(encounterId, clue = null) {
 
   if (clue?.id && !gameState.cluesCollected.some(item => item.id === clue.id)) {
     gameState.cluesCollected.push(clue);
-    gameState.score += 50;
+    addSessionScore(50, `Encounter clue: ${encounterId}`);
   }
 
   saveGameState();
@@ -741,7 +796,7 @@ export function travelToCity(cityName, locationsData) {
   }
 
   if (wasCorrect) {
-    gameState.score += 100;
+    addSessionScore(100, `Correct city: ${cityName}`);
     gameState.justReachedCorrectCityId = destinationCityId;
 
     const finalRouteCityId = Array.isArray(gameState.escapeRoute) && gameState.escapeRoute.length > 0
@@ -796,7 +851,8 @@ export function travelToCity(cityName, locationsData) {
 
   gameState.justReachedCorrectCityId = null;
   syncInvestigationState(locationsData);
-  gameState.score = Math.max(0, gameState.score - 25);
+  addSessionScore(-25, `False city: ${cityName}`);
+  gameState.score = Math.max(0, gameState.score);
   gameState.currentDestinations = generateDestinationsForCurrentCity(
     locationsData
   );
@@ -825,6 +881,12 @@ export function resolveFinalArrest(selectedSuspectId) {
   gameState.caseResolved = success;
   gameState.caseFailed = !success;
   gameState.isGameActive = false;
+
+  if (success) {
+    addSessionScore(500, 'Correct arrest');
+  } else {
+    addSessionScore(-150, 'Wrong warrant');
+  }
 
   saveGameState();
 

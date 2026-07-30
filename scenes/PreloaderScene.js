@@ -222,7 +222,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('md', 'assets/suspects/md.jpg');
         this.load.image('lc', 'assets/suspects/lc.jpg');
 
-        this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
+        this.load.video('detectiveIntro1', 'assets/video/detective-intro.mp4', true);
         this.load.video('detectiveIntro2', 'assets/video/detective-intro2.mp4', true);
 
         this.load.audio('alleysound', 'assets/audio/alley.mp3');
@@ -246,6 +246,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('sfx_pickup', 'assets/audio/phone-pick.mp3');
         this.load.audio('wrong', 'assets/audio/wrong.mp3');
         this.load.audio('correct', 'assets/audio/correct.mp3');
+        this.load.audio('successsound', 'assets/audio/success.mp3');
 
 
         this.load.css('crime-board-css', 'assets/css/crime-board.css');

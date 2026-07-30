@@ -49,7 +49,7 @@ export class HighscoreScene extends Phaser.Scene {
             }
         }).setOrigin(0.5);
 
-        this.add.text(width / 2, height * 0.19, 'Most Successful Agents', {
+        this.add.text(width / 2, height * 0.22, 'Most Successful Agents', {
             fontFamily: '"Press Start 2P", Arial',
             fontSize: '18px',
             color: '#0ea333',
@@ -65,12 +65,46 @@ export class HighscoreScene extends Phaser.Scene {
 
         const topScores = this.scoreManager.getScores();
 
+        if (!topScores || topScores.length === 0) {
+            this.add.text(width / 2, height * 0.45, 'No records found.', {
+                fontSize: '24px',
+                color: '#000000',
+                fontFamily: '"Press Start 2P", Arial',
+                align: 'center'
+            }).setOrigin(0.5);
+
+            return;
+        }
+
+        const startY = height * 0.32;
+        const rowHeight = 52;
+        const rankX = width * 0.16;
+        const nameX = width * 0.24;
+        const pointsX = width * 0.72;
+
         topScores.forEach((s, index) => {
-            this.add.text(width * 0.29, height * 0.33 + (index * 50), `${s.name}: ${s.points}`, {
-                fontSize: '28px',
+            const y = startY + (index * rowHeight);
+            const rankLabel = `${index + 1}.`;
+            const playerName = s.name || 'Anonymous';
+            const playerPoints = Number.isFinite(s.points) ? s.points : 0;
+
+            this.add.text(rankX, y, rankLabel, {
+                fontSize: '24px',
                 color: '#000000',
                 fontFamily: '"Press Start 2P", Arial'
-            });
+            }).setOrigin(0, 0.5);
+
+            this.add.text(nameX, y, playerName, {
+                fontSize: '24px',
+                color: '#000000',
+                fontFamily: '"Press Start 2P", Arial'
+            }).setOrigin(0, 0.5);
+
+            this.add.text(pointsX, y, `${playerPoints} pts`, {
+                fontSize: '24px',
+                color: '#000000',
+                fontFamily: '"Press Start 2P", Arial'
+            }).setOrigin(1, 0.5);
         });
     }
 
