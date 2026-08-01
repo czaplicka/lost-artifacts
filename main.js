@@ -17,13 +17,14 @@ import UIScene from './ui/UIScene.js';
 import HiddenObjectsScene from './scenes/HiddenObjectsScene.js';
 import { PhoneCallScene } from './scenes/PhoneCallScene.js';
 import HypothesisScene from './scenes/HypothesisScene.js';
-import WantedDatabaseScene from './scenes/WantedDatabaseScene.js';
+import { WantedDatabaseScene } from './scenes/WantedDatabaseScene.js';
+import { RecoveredArtifactsScene } from './scenes/RecoveredArtifactsScene.js';
 
 const config = {
     type: Phaser.AUTO,
     width: 1920,
     height: 1080,
-    parent: 'game-root',
+    parent: 'game-container',
     backgroundColor: '#000000',
     scene: [
         BootScene,
@@ -46,6 +47,7 @@ const config = {
         PhoneCallScene,
         HypothesisScene,
         WantedDatabaseScene,
+        RecoveredArtifactsScene
     ],
     dom: {
         createContainer: true
@@ -58,6 +60,5 @@ const config = {
         disableWebAudio: false
     }
 };
-
-new Phaser.Game(config);
+const BUILD_VERSION = '0.9.0';
 window.game = new Phaser.Game(config);

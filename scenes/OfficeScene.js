@@ -132,31 +132,51 @@ export class OfficeScene extends Phaser.Scene {
                 id: 'cabinet-casefile',
                 room: 'office',
                 x: this.rooms.office.x + 1525,
-                y: 515,
+                y: 480,
                 width: 380,
-                height: 410,
+                height: 450,
                 label: 'Cabinet',
                 action: () => this.openCasefile()
             },
             {
                 id: 'book-notes',
                 room: 'cabinet',
-                x: this.rooms.cabinet.x + 300,
-                y: 650,
-                width: 290,
-                height: 95,
+                x: this.rooms.cabinet.x + 525,
+                y: 705,
+                width: 190,
+                height: 100,
                 label: 'Book',
                 action: () => this.openNotes()
             },
             {
                 id: 'WantedDatabase',
                 room: 'cabinet',
-                x: this.rooms.cabinet.x + 300,
-                y: 450,
-                width: 290,
-                height: 95,
+                x: this.rooms.cabinet.x + 605,
+                y: 480,
+                width: 130,
+                height: 130,
                 label: 'Wanted Database',
                 action: () => this.scene.start('WantedDatabaseScene')
+            },
+            {
+                id: 'recovered-artifacts',
+                room: 'cabinet',
+                x: this.rooms.cabinet.x + 820,
+                y: 150,
+                width: 785,
+                height: 725,
+                label: 'Recovered Artifacts',
+                action: () => this.openRecoveredArtifacts()
+            },
+            {
+                id: 'atlas',
+                room: 'cabinet',
+                x: this.rooms.cabinet.x + 280,
+                y: 270,
+                width: 325,
+                height: 270,
+                label: 'Atlas',
+                action: () => this.openAtlas()
             }
         ];
 
@@ -181,7 +201,11 @@ export class OfficeScene extends Phaser.Scene {
             this.hotspots.push(zone);
         });
     }
-
+openRecoveredArtifacts() {
+    this.disableHotspots();
+    this.scene.pause('OfficeScene');
+    this.scene.launch('RecoveredArtifactsScene', { gameState: this.gameState });
+}
 disableHotspots() {
         this.hotspots.forEach(zone => {
             zone.disableInteractive();
@@ -511,7 +535,25 @@ disableHotspots() {
         hud.crimeBoardUI.open(this.gameState);
     }
 
+openAtlas() {
+    const hud = this.getHudScene();
+    if (!hud?.atlasUI) {
+        console.warn('[OfficeScene] atlasUI not found in HUD scene');
+        return;
+    }
 
+    this.disableHotspots();
+    this.closeAllUIPanels();
+
+    const mission = this.gameState.currentMission || {};
+
+    hud.atlasUI.open({
+        country: mission.country || '',
+        city: mission.city || '',
+        artifact: mission.artifact || '',
+        gameState: this.gameState
+    });
+}
     createOptionalDebug() {
         if (!this.DEBUG_HOTSPOTS) return;
 

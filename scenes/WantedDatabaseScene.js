@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-=======
-// WantedDatabaseScene.js
-// Scena przeglądania bazy poszukiwanych - Most Wanted Board
-// Używa fontów PressStart2P i SpecialElite zgodnie z projektem
-
->>>>>>> 277085c8cb8ea1a19e5b0356e56e7cb4c72e0d16
-class WantedDatabaseScene extends Phaser.Scene {
+export class WantedDatabaseScene extends Phaser.Scene {
     constructor() {
         super({ key: 'WantedDatabaseScene' });
         this.suspects = [];
@@ -851,8 +844,4 @@ class WantedDatabaseScene extends Phaser.Scene {
             this.game.canvas.style.cursor = 'default';
         });
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 277085c8cb8ea1a19e5b0356e56e7cb4c72e0d16

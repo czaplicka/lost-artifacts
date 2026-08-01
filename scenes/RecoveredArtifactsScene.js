@@ -1,7 +1,3 @@
-// RecoveredArtifactsScene.js
-// Scena "Trofea" – galeria odzyskanych artefaktów z misji.
-// Uruchamiana jako overlay z OfficeScene przez hotspot na szafie/gablocie.
-
 export class RecoveredArtifactsScene extends Phaser.Scene {
     constructor() {
         super({ key: 'RecoveredArtifactsScene' });
