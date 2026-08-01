@@ -147,6 +147,16 @@ export class OfficeScene extends Phaser.Scene {
                 height: 95,
                 label: 'Book',
                 action: () => this.openNotes()
+            },
+            {
+                id: 'WantedDatabase',
+                room: 'cabinet',
+                x: this.rooms.cabinet.x + 300,
+                y: 650,
+                width: 290,
+                height: 95,
+                label: 'Wanted Database',
+                action: () => this.scene.start('WantedDatabaseScene')
             }
         ];
 

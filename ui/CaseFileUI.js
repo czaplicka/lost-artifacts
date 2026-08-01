@@ -34,9 +34,9 @@ export class CaseFileUI {
             this.close();
         });
 
-        const fileBg = this.scene.add.image(0, 0, 'file')
-            .setOrigin(0.5)
-            .setScale(0.9);
+const fileBg = this.scene.add.image(0, 0, 'file')
+    .setOrigin(0.5)
+    .setDisplaySize(1920, 1080);
 
         const closeHint = this.scene.add.zone(670, -445, 100, 100)
             .setInteractive({ useHandCursor: true });

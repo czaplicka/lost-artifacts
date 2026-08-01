@@ -17,6 +17,7 @@ import UIScene from './ui/UIScene.js';
 import HiddenObjectsScene from './scenes/HiddenObjectsScene.js';
 import { PhoneCallScene } from './scenes/PhoneCallScene.js';
 import HypothesisScene from './scenes/HypothesisScene.js';
+import WantedDatabaseScene from './scenes/WantedDatabaseScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -43,7 +44,8 @@ const config = {
         HiddenObjectsScene,
         UIScene,
         PhoneCallScene,
-HypothesisScene,
+        HypothesisScene,
+        WantedDatabaseScene,
     ],
     dom: {
         createContainer: true
@@ -58,3 +60,4 @@ HypothesisScene,
 };
 
 new Phaser.Game(config);
+window.game = new Phaser.Game(config);

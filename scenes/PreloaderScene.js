@@ -248,18 +248,17 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('correct', 'assets/audio/correct.mp3');
         this.load.audio('successsound', 'assets/audio/success.mp3');
 
-
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
         this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
 
           this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
-  this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
-  this.load.image('portrait_csi', 'assets/portraits/csi.png');
-  this.load.image('portrait_home', 'assets/portraits/home.png');
-  this.load.image('portrait_hq', 'assets/portraits/hq.png');  
-  this.load.image('portrait_informant', 'assets/portraits/informant.png');
-  this.load.image('portrait_police-station', 'assets/portraits/police-station.png');
-  this.load.image('portrait_watson', 'assets/portraits/watson.png');  
+        this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
+        this.load.image('portrait_csi', 'assets/portraits/csi.png');
+        this.load.image('portrait_home', 'assets/portraits/home.png');
+        this.load.image('portrait_hq', 'assets/portraits/hq.png');  
+        this.load.image('portrait_informant', 'assets/portraits/informant.png');
+        this.load.image('portrait_police-station', 'assets/portraits/police-station.png');
+        this.load.image('portrait_watson', 'assets/portraits/watson.png');  
 
         this.load.json('suspects', 'assets/data/suspects.json');
         this.load.json('missions', 'assets/data/missions.json');
@@ -278,12 +277,12 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
         this.load.json('objects-data', 'assets/data/objects.json');
         this.load.json('dialog_csi', 'assets/data/dialogue/csi.json');
-this.load.json('dialog_informant', 'assets/data/dialogue/informant.json');
-this.load.json('dialog_watson', 'assets/data/dialogue/watson.json');
-this.load.json('dialog_holmes', 'assets/data/dialogue/holmes.json');
-this.load.json('dialog_police_station', 'assets/data/dialogue/police-station.json');
-this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
-this.load.json('dialog_home', 'assets/data/dialogue/home.json');
+        this.load.json('dialog_informant', 'assets/data/dialogue/informant.json');
+        this.load.json('dialog_watson', 'assets/data/dialogue/watson.json');
+        this.load.json('dialog_holmes', 'assets/data/dialogue/holmes.json');
+        this.load.json('dialog_police_station', 'assets/data/dialogue/police-station.json');
+        this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
+        this.load.json('dialog_home', 'assets/data/dialogue/home.json');
 
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
