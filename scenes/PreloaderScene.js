@@ -66,7 +66,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
-        this.load.image('backgrounds', 'assets/Success.jpg');
+        this.load.image('backgrounds', 'assets/success.jpg');
         this.load.image('backgroundpc', 'assets/hiscores.png');
         this.load.image('backgroundhi', 'assets/local/office.jpg');
         this.load.image('backgroundoff', 'assets/local/biuro.jpg');

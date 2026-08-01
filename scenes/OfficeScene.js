@@ -22,9 +22,9 @@ export class OfficeScene extends Phaser.Scene {
     }
 
     create() {
-        const { height } = this.scale;
+        const { width, height } = this.scale;
 
-        this.createBackgrounds();
+        this.createBackgrounds(width, height);
         this.createCameraSetup(height);
         this.createHotspots();
         this.createNavigationUI();
@@ -37,39 +37,43 @@ export class OfficeScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-LEFT', this.moveLeft, this);
         this.input.keyboard.on('keydown-RIGHT', this.moveRight, this);
 
-        // Obsługa wszystkich stanów wyjścia ze sceny
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
         this.events.on(Phaser.Scenes.Events.SLEEP,    this.cleanupScene, this);
         this.events.on(Phaser.Scenes.Events.PAUSE,    this.cleanupScene, this);
     }
 
-    createBackgrounds() {
+    createBackgrounds(gameWidth, gameHeight) {
         const leftBg   = this.add.image(0, 0, 'backgroundhi').setOrigin(0, 0);
-        const centerBg = this.add.image(leftBg.width, 0, 'backgroundoff').setOrigin(0, 0);
-        const rightBg  = this.add.image(leftBg.width + centerBg.width, 0, 'backgroundset').setOrigin(0, 0);
+        const centerBg = this.add.image(gameWidth, 0, 'backgroundoff').setOrigin(0, 0);
+        const rightBg  = this.add.image(gameWidth * 2, 0, 'backgroundset').setOrigin(0, 0);
+
+        // Wymuszenie rozmiaru = rozmiar gry. Jeśli tekstury mają dokładnie
+        // 1920x1080 to nic się wizualnie nie zmieni, ale zabezpiecza to na
+        // wypadek gdyby ktoś podmienił grafikę na inny rozmiar w przyszłości.
+        [leftBg, centerBg, rightBg].forEach(bg => bg.setDisplaySize(gameWidth, gameHeight));
 
         this.rooms = {
             office: {
                 key: 'office',
                 bg: leftBg,
-                x: leftBg.x,
-                width: leftBg.width
+                x: 0,
+                width: gameWidth
             },
             biuro: {
                 key: 'biuro',
                 bg: centerBg,
-                x: centerBg.x,
-                width: centerBg.width
+                x: gameWidth,
+                width: gameWidth
             },
             cabinet: {
                 key: 'cabinet',
                 bg: rightBg,
-                x: rightBg.x,
-                width: rightBg.width
+                x: gameWidth * 2,
+                width: gameWidth
             }
         };
 
-        this.totalWidth = leftBg.width + centerBg.width + rightBg.width;
+        this.totalWidth = gameWidth * 3;
 
         this.viewPositions = {
             office:  this.rooms.office.x,
@@ -168,16 +172,17 @@ export class OfficeScene extends Phaser.Scene {
         });
     }
 
-    // Wyłącza interaktywność hotspotów — wywołuj przed przejściem do innej sceny
-    disableHotspots() {
+disableHotspots() {
         this.hotspots.forEach(zone => {
             zone.disableInteractive();
             zone.removeAllListeners();
         });
     }
 
+
     createNavigationUI() {
         const { width, height } = this.scale;
+
 
         this.leftArrow = this.add.text(46, height / 2, '◀', {
             fontFamily: 'Special Elite',
@@ -192,6 +197,7 @@ export class OfficeScene extends Phaser.Scene {
             .setAlpha(0.75)
             .setInteractive({ useHandCursor: true });
 
+
         this.rightArrow = this.add.text(width - 46, height / 2, '▶', {
             fontFamily: 'Special Elite',
             fontSize: '54px',
@@ -205,6 +211,7 @@ export class OfficeScene extends Phaser.Scene {
             .setAlpha(0.75)
             .setInteractive({ useHandCursor: true });
 
+
         this.navHint = this.add.text(width / 2, 84, '', {
             fontFamily: 'Special Elite',
             fontSize: '20px',
@@ -217,6 +224,7 @@ export class OfficeScene extends Phaser.Scene {
             .setDepth(220)
             .setVisible(false);
 
+
         this.introHint = this.add.text(width / 2, 40, 'Explore the office — move left or right', {
             fontFamily: 'Special Elite',
             fontSize: '18px',
@@ -228,6 +236,7 @@ export class OfficeScene extends Phaser.Scene {
             .setScrollFactor(0)
             .setDepth(220)
             .setAlpha(0);
+
 
         this.leftArrow
             .on('pointerdown', () => this.moveLeft())
@@ -242,6 +251,7 @@ export class OfficeScene extends Phaser.Scene {
                 this.hideNavHint();
             });
 
+
         this.rightArrow
             .on('pointerdown', () => this.moveRight())
             .on('pointerover', () => {
@@ -255,6 +265,7 @@ export class OfficeScene extends Phaser.Scene {
                 this.hideNavHint();
             });
 
+
         this.tweens.add({
             targets: [this.leftArrow, this.rightArrow],
             alpha: { from: 0.55, to: 0.9 },
@@ -264,11 +275,14 @@ export class OfficeScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
+
         this.updateNavVisibility();
     }
 
+
     showIntroHint() {
         if (!this.introHint) return;
+
 
         this.tweens.add({
             targets: this.introHint,
@@ -276,6 +290,7 @@ export class OfficeScene extends Phaser.Scene {
             duration: 350,
             ease: 'Power2'
         });
+
 
         this.time.delayedCall(2800, () => {
             if (!this.introHint) return;
@@ -288,6 +303,7 @@ export class OfficeScene extends Phaser.Scene {
         });
     }
 
+
     setupAudioUnlock() {
         this.input.once('pointerdown', () => {
             if (this.sound?.context?.state === 'suspended') {
@@ -297,21 +313,26 @@ export class OfficeScene extends Phaser.Scene {
         });
     }
 
+
     playOfficeAmbient() {
         if (this.officeAmbient?.isPlaying) return;
 
+
         this.sound.volume = 1;
+
 
         this.officeAmbient = this.sound.add('officescenesound', {
             loop: true,
             volume: 1
         });
 
+
         if (this.officeAmbient) {
             this.officeAmbient.play();
             console.log('[OfficeScene] OFFICE AMBIENT STARTED:', this.officeAmbient.isPlaying);
         }
     }
+
 
     moveLeft() {
         if (this.currentView === 'biuro') {
@@ -321,6 +342,7 @@ export class OfficeScene extends Phaser.Scene {
         }
     }
 
+
     moveRight() {
         if (this.currentView === 'office') {
             this.goToView('biuro');
@@ -329,18 +351,22 @@ export class OfficeScene extends Phaser.Scene {
         }
     }
 
+
     goToView(viewName, animate = true) {
         const targetX = this.viewPositions[viewName];
         if (targetX === undefined) return;
+
 
         this.currentView = viewName;
         this.updateNavVisibility();
         this.hideNavHint();
 
+
         if (!animate) {
             this.cameras.main.scrollX = targetX;
             return;
         }
+
 
         this.tweens.add({
             targets: this.cameras.main,
@@ -349,6 +375,7 @@ export class OfficeScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
     }
+
 
     updateNavVisibility() {
         if (this.leftArrow) {
@@ -359,11 +386,13 @@ export class OfficeScene extends Phaser.Scene {
         }
     }
 
+
     getLeftRoomLabel() {
         if (this.currentView === 'biuro')   return 'Go to office';
         if (this.currentView === 'cabinet') return 'Go to biuro';
         return '';
     }
+
 
     getRightRoomLabel() {
         if (this.currentView === 'office') return 'Go to biuro';
@@ -371,25 +400,30 @@ export class OfficeScene extends Phaser.Scene {
         return '';
     }
 
+
     showNavHint(text) {
         if (!text || !this.navHint) return;
         this.navHint.setText(text);
         this.navHint.setVisible(true);
     }
 
+
     hideNavHint() {
         if (!this.navHint) return;
         this.navHint.setVisible(false);
     }
+
 
     onHotspotOver(data) {
         if (!data?.label) return;
         this.showNavHint(data.label);
     }
 
+
     onHotspotOut() {
         this.hideNavHint();
     }
+
 
     closeAllUIPanels() {
         const hud = this.getHudScene();
@@ -397,6 +431,7 @@ export class OfficeScene extends Phaser.Scene {
             hud.closeAllUIPanels();
         }
     }
+
 
     openCasefile() {
         const hud = this.getHudScene();
@@ -418,6 +453,7 @@ export class OfficeScene extends Phaser.Scene {
         });
     }
 
+
     openNotes() {
         const hud = this.getHudScene();
         if (!hud?.notesUI) {
@@ -428,6 +464,7 @@ export class OfficeScene extends Phaser.Scene {
         this.closeAllUIPanels();
         hud.notesUI.open(this.gameState);
     }
+
 
     openDestinations() {
         const hud = this.getHudScene();
@@ -440,6 +477,7 @@ export class OfficeScene extends Phaser.Scene {
         hud.destinationsUI.open(this.gameState);
     }
 
+
     openWarrant() {
         const hud = this.getHudScene();
         if (!hud?.warrantUI) {
@@ -450,6 +488,7 @@ export class OfficeScene extends Phaser.Scene {
         this.closeAllUIPanels();
         hud.warrantUI.open(this.gameState);
     }
+
 
     openCrimeBoard() {
         const hud = this.getHudScene();
@@ -462,15 +501,19 @@ export class OfficeScene extends Phaser.Scene {
         hud.crimeBoardUI.open(this.gameState);
     }
 
+
     createOptionalDebug() {
         if (!this.DEBUG_HOTSPOTS) return;
+
 
         this.debugGraphics = this.add.graphics();
         this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
 
+
         this.hotspots.forEach((zone) => {
             const d = zone.hotspotData;
             this.debugGraphics.strokeRect(d.x, d.y, d.width, d.height);
+
 
             const label = this.add.text(d.x + 8, d.y + 8, d.id, {
                 fontFamily: 'Arial',
@@ -480,9 +523,11 @@ export class OfficeScene extends Phaser.Scene {
                 padding: { left: 4, right: 4, top: 2, bottom: 2 }
             }).setDepth(999);
 
+
             this.debugTexts.push(label);
         });
     }
+
 
     cleanupScene() {
         // Wyrejestrowanie klawiszy
@@ -490,6 +535,7 @@ export class OfficeScene extends Phaser.Scene {
         this.input.keyboard.off('keydown-RIGHT', this.moveRight, this);
         this.input.keyboard.off('keydown-A', this.moveLeft, this);
         this.input.keyboard.off('keydown-D', this.moveRight, this);
+
 
         // Zniszczenie hotspotów
         this.hotspots.forEach(zone => {
@@ -499,6 +545,7 @@ export class OfficeScene extends Phaser.Scene {
         });
         this.hotspots = [];
 
+
         // Debug
         if (this.debugGraphics) {
             this.debugGraphics.destroy();
@@ -506,6 +553,7 @@ export class OfficeScene extends Phaser.Scene {
         }
         this.debugTexts.forEach(text => text.destroy());
         this.debugTexts = [];
+
 
         // UI
         if (this.leftArrow) {
@@ -526,6 +574,7 @@ export class OfficeScene extends Phaser.Scene {
             this.introHint.destroy();
             this.introHint = null;
         }
+
 
         // Audio
         if (this.officeAmbient) {

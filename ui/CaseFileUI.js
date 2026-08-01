@@ -15,6 +15,7 @@ export class CaseFileUI {
         this.artifactImage = null;
 
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
+        this.boundResizeHandler = this.onResize.bind(this);
 
         this.create();
     }
@@ -26,6 +27,7 @@ export class CaseFileUI {
             .setDepth(20)
             .setAlpha(0)
             .setVisible(false)
+            .setScrollFactor(0)
             .setInteractive();
 
         this.overlay.on('pointerdown', () => {
@@ -34,14 +36,10 @@ export class CaseFileUI {
 
         const fileBg = this.scene.add.image(0, 0, 'file')
             .setOrigin(0.5)
-            .setScale(0.9)
-            .setInteractive();
+            .setScale(0.9);
 
-        const closeHint = this.scene.add.text(670, -445, 'X', {
-            fontFamily: 'PressStart2P',
-            fontSize: '50px',
-            color: '#22222200'
-        }).setInteractive({ useHandCursor: true });
+        const closeHint = this.scene.add.zone(670, -445, 100, 100)
+            .setInteractive({ useHandCursor: true });
 
         closeHint.on('pointerdown', (pointer, localX, localY, event) => {
             if (event) event.stopPropagation();
@@ -52,43 +50,44 @@ export class CaseFileUI {
             .setDisplaySize(350, 350);
 
         this.artifactText = this.scene.add.text(-385, 295, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
+            align: 'center',
             wordWrap: { width: 250 },
             lineSpacing: 10
         }).setOrigin(0.5, 0);
 
         this.cityText = this.scene.add.text(90, -220, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
             wordWrap: { width: 430 }
-        });
+        }).setOrigin(0, 0);
 
         this.descText = this.scene.add.text(90, -110, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
             wordWrap: { width: 500 },
             lineSpacing: 8
-        });
+        }).setOrigin(0, 0);
 
         this.significanceText = this.scene.add.text(90, 120, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#000000',
             wordWrap: { width: 550 },
             lineSpacing: 8
-        });
+        }).setOrigin(0, 0);
 
         this.tiesText = this.scene.add.text(90, 275, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#000000',
             wordWrap: { width: 430 },
             lineSpacing: 10
-        });
+        }).setOrigin(0, 0);
 
         this.container = this.scene.add.container(width / 2, height / 2, [
             fileBg,
@@ -105,8 +104,38 @@ export class CaseFileUI {
         this.container.setScale(0.92);
         this.container.setAlpha(0);
         this.container.setVisible(false);
+        this.container.setScrollFactor(0);
 
+        this.ensureFontsThenRefresh();
         this.bindKeyboardShortcut();
+        this.bindResizeHandler();
+    }
+
+    ensureFontsThenRefresh() {
+        if (!document.fonts || !document.fonts.ready) return;
+
+        document.fonts.ready.then(() => {
+            if (!this.currentData) return;
+            this.update(this.currentData);
+        }).catch(() => {});
+    }
+
+    bindResizeHandler() {
+        this.scene.scale.on('resize', this.boundResizeHandler);
+    }
+
+    onResize(gameSize) {
+        const width = gameSize.width;
+        const height = gameSize.height;
+
+        if (this.overlay) {
+            this.overlay.setPosition(width / 2, height / 2);
+            this.overlay.setSize(width, height);
+        }
+
+        if (this.container) {
+            this.container.setPosition(width / 2, height / 2);
+        }
     }
 
     bindKeyboardShortcut() {
@@ -182,15 +211,11 @@ export class CaseFileUI {
                 : 'artifact_fallback';
 
         if (textureKey === 'artifact_fallback' && data.artifactKey && !this.scene.textures.exists(data.artifactKey)) {
-            console.warn(`Brak tekstury artefaktu: "${data.artifactKey}". Użyto fallbacku.`);
+            console.warn(`Brak tekstury artefaktu: "${data.artifactKey}". Uzyto fallbacku.`);
         }
 
         this.artifactImage.setTexture(textureKey);
         this.artifactImage.setDisplaySize(350, 350);
-
-        console.log('caseFile data:', data);
-        console.log('resolved textureKey:', textureKey);
-        console.log('all textures:', this.scene.textures.getTextureKeys());
     }
 
     open(data = null) {
@@ -255,6 +280,10 @@ export class CaseFileUI {
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-F', this.boundToggleHandler);
             this.scene.input.keyboard.removeCapture('F');
+        }
+
+        if (this.scene.scale) {
+            this.scene.scale.off('resize', this.boundResizeHandler);
         }
 
         this.scene.tweens.killTweensOf([this.overlay, this.container]);

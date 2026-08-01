@@ -8,6 +8,7 @@ export class AtlasUI {
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
         this.boundLeftHandler = this.onLeftKeyDown.bind(this);
         this.boundRightHandler = this.onRightKeyDown.bind(this);
+        this.boundResizeHandler = this.onResize.bind(this);
 
         this.overlay = null;
         this.book = null;
@@ -42,6 +43,7 @@ export class AtlasUI {
 
         this.create();
         this.bindKeyboardShortcuts();
+        this.bindResizeHandler();
         this.createSound();
         this.refreshPage();
     }
@@ -95,6 +97,30 @@ export class AtlasUI {
         this.book.setScale(0.92);
         this.book.setAlpha(0);
         this.book.setVisible(false);
+    }
+
+    // Wywoływane w create() oraz przy każdym resize okna/canvasu
+    layout() {
+        const { width, height } = this.scene.scale;
+
+        if (this.overlay) {
+            this.overlay.setPosition(width / 2, height / 2);
+            this.overlay.setSize(width, height);
+            // rectangle interactive hit area trzeba odświeżyć ręcznie
+            this.overlay.input && this.overlay.setInteractive();
+        }
+
+        if (this.book) {
+            this.book.setPosition(width / 2, height / 2);
+        }
+    }
+
+    bindResizeHandler() {
+        this.scene.scale.on('resize', this.boundResizeHandler);
+    }
+
+    onResize() {
+        this.layout();
     }
 
     fitImageInBox(image, maxWidth, maxHeight) {
@@ -398,20 +424,27 @@ export class AtlasUI {
             this.pageSound.play();
         }
 
+        // Zapisujemy oryginalną pozycję/kąt książki, żeby tween wracał
+        // do właściwego środka nawet po ewentualnym resize w trakcie animacji
+        const baseX = this.book.x;
+        const baseAngle = this.book.angle;
+
         this.scene.tweens.add({
             targets: this.book,
-            x: this.book.x + 10,
+            x: baseX + 10,
             duration: 70,
             yoyo: true,
-            ease: 'Sine.easeInOut'
+            ease: 'Sine.easeInOut',
+            onComplete: () => this.book.setX(baseX)
         });
 
         this.scene.tweens.add({
             targets: this.book,
-            angle: 0.6,
+            angle: baseAngle + 0.6,
             duration: 60,
             yoyo: true,
-            ease: 'Sine.easeInOut'
+            ease: 'Sine.easeInOut',
+            onComplete: () => this.book.setAngle(baseAngle)
         });
 
         this.scene.tweens.add({
@@ -449,6 +482,9 @@ export class AtlasUI {
     }
 
     open() {
+        // Zawsze przelicz layout przed pokazaniem — na wypadek gdyby
+        // resize okna nastąpił, gdy atlas był zamknięty
+        this.layout();
         this.refreshPage();
 
         if (this.isOpen) return;
@@ -490,6 +526,10 @@ export class AtlasUI {
             this.scene.input.keyboard.off('keydown-A', this.boundToggleHandler);
             this.scene.input.keyboard.off('keydown-LEFT', this.boundLeftHandler);
             this.scene.input.keyboard.off('keydown-RIGHT', this.boundRightHandler);
+        }
+
+        if (this.scene.scale) {
+            this.scene.scale.off('resize', this.boundResizeHandler);
         }
 
         this.book?.destroy(true);

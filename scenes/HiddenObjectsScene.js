@@ -53,9 +53,9 @@ export default class HiddenObjectsScene extends Phaser.Scene {
   init(data = {}) {
     this.sceneId = data.sceneId || 'louvre';
     this.mapKey = data.mapKey || this.sceneId;
-    this.mapPath = data.mapPath || 'assets/crimes/louvre.json';
-    this.backgroundKey = data.backgroundKey || `${this.sceneId}_bg`;
-    this.backgroundPath = data.backgroundPath || 'assets/crimes/louvre.jpg';
+    this.mapPath = data.mapPath || `assets/crimes/${this.sceneId}.json`;
+this.backgroundKey = data.backgroundKey || `${this.sceneId}_bg`;
+this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`;
     this.objectLayerName = data.objectLayerName || 'HiddenObjects';
     this.objectsDataKey = data.objectsDataKey || 'objects-data';
     this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
@@ -241,87 +241,43 @@ export default class HiddenObjectsScene extends Phaser.Scene {
   }
 
   buildCandidatePool() {
-    const thiefSkills = this.getCurrentThiefSkills();
-    const pool = [...this.sceneItems].map(item => ({
-      ...item,
-      skills: this.normalizeSkills(item.skills),
-      isCorrect: this.hasSharedSkill(item.skills, thiefSkills),
-      correctOrder: -1
-    }));
+  const thiefSkills = this.getCurrentThiefSkills();
 
-    const correct = Phaser.Utils.Array.Shuffle(pool.filter(item => item.isCorrect)).slice(0, 3);
-    correct.forEach((item, index) => {
-      item.correctOrder = index;
-    });
+  const pool = this.sceneItems.map(item => ({
+    ...item,
+    skills: this.normalizeSkills(item.skills)
+  }));
 
-    const remaining = pool.filter(item => !correct.some(c => c.id === item.id));
-    const distractors = Phaser.Utils.Array.Shuffle(remaining).slice(0, 3).map(item => ({
-      ...item,
-      isCorrect: false,
-      correctOrder: -1
-    }));
+  const matching = Phaser.Utils.Array.Shuffle(
+    pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills))
+  );
 
-    while (correct.length < 3 && remaining.length > distractors.length) {
-      const extra = remaining.find(item => !correct.some(c => c.id === item.id) && !distractors.some(d => d.id === item.id));
-      if (!extra) break;
-      correct.push({
-        ...extra,
-        isCorrect: true,
-        correctOrder: correct.length
-      });
-    }
+  const correct = matching.slice(0, 3).map((item, index) => ({
+    ...item,
+    isCorrect: true,
+    correctOrder: index
+  }));
 
-    const combined = [...correct.slice(0, 3), ...distractors.slice(0, 3)];
+  const rest = Phaser.Utils.Array.Shuffle(
+    pool.filter(item => !correct.some(c => c.id === item.id))
+  );
 
-    if (combined.length < 6) {
-      const fallback = Phaser.Utils.Array.Shuffle(pool.filter(item => !combined.some(c => c.id === item.id))).slice(0, 6 - combined.length);
-      combined.push(...fallback.map(item => ({
-        ...item,
-        isCorrect: false,
-        correctOrder: -1
-      })));
-    }
+  const distractors = rest.slice(0, 6 - correct.length).map(item => ({
+    ...item,
+    isCorrect: false,
+    correctOrder: -1
+  }));
 
-    return Phaser.Utils.Array.Shuffle(combined.slice(0, 6));
-  }
+  return Phaser.Utils.Array.Shuffle([...correct, ...distractors]);
+}
 
   pickActiveItems(count = 6) {
-    const candidatePool = this.buildCandidatePool();
-
-    this.activeItems = candidatePool.slice(0, count).map(item => ({
-      ...item,
-      skills: this.normalizeSkills(item.skills),
-      isCorrect: !!item.isCorrect,
-      correctOrder: Number.isInteger(item.correctOrder) ? item.correctOrder : -1
-    }));
-
-    const correctItems = this.activeItems.filter(item => item.isCorrect).sort((a, b) => a.correctOrder - b.correctOrder);
-
-    if (correctItems.length < 3) {
-      const source = [...this.sceneItems]
-        .filter(item => !this.activeItems.some(active => active.id === item.id))
-        .map(item => ({
-          ...item,
-          skills: this.normalizeSkills(item.skills),
-          isCorrect: true,
-          correctOrder: -1
-        }));
-
-      while (correctItems.length < 3 && source.length > 0) {
-        const next = source.shift();
-        next.correctOrder = correctItems.length;
-        this.activeItems.push(next);
-        correctItems.push(next);
-      }
-    }
-
-    this.activeItems = Phaser.Utils.Array.Shuffle(this.activeItems).slice(0, 6);
-    this.activeItemIds = new Set(this.activeItems.map(item => item.id));
-
-    this.missionRelevantItemIds = new Set(
-      this.activeItems.filter(item => item.isCorrect).map(item => item.id)
-    );
-  }
+  this.activeItems = this.buildCandidatePool().slice(0, count);
+  this.activeItemIds = new Set(this.activeItems.map(item => item.id));
+  this.missionRelevantItemIds = new Set(
+    this.activeItems.filter(item => item.isCorrect).map(item => item.id)
+  );
+}
 
   buildReconstructionCardsFromActiveItems() {
     const thief = gameState.currentThief || null;
