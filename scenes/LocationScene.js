@@ -35,6 +35,32 @@ const NPC_DIALOGUE_ROOT_MAP = {
   bum: 'bumClues'
 };
 
+// Domyślne (bazowe) klucze teł lokacji, wspólne dla większości miast.
+const DEFAULT_LOCATION_BACKGROUND_MAP = {
+  hotel: 'hotel_maid',
+  hotel_maid: 'hotel_maid',
+  parking: 'parking_bg',
+  parking_bg: 'parking_bg',
+  garbage: 'garbage'
+};
+
+// ID miasta New Delhi — dopasuj do wartości używanej w locations.json / gameState.
+const NEW_DELHI_CITY_ID = 'new_delhi';
+
+// Klucze teł dedykowane dla New Delhi (assety wczytane z sufiksem "h").
+const NEW_DELHI_LOCATION_BACKGROUND_MAP = {
+  bank: 'bankh',
+  alley: 'alleyh',
+  airport: 'airporth',
+  hotel: 'hotel_maidh',
+  hotel_maid: 'hotel_maidh',
+  parking: 'parkingh',
+  parking_bg: 'parkingh',
+  policehq: 'policehqh',
+  restaurant: 'restauranth',
+  garbage: 'garbageh'
+};
+
 export class LocationScene extends Phaser.Scene {
   constructor() {
     super({ key: 'LocationScene' });
@@ -270,7 +296,8 @@ export class LocationScene extends Phaser.Scene {
       ? generatedDialogue.notes.filter(Boolean)
       : [];
 
-    const backgroundKey = this.getLocationBackgroundKey(this.locationId);
+    // Kluczowa zmiana: przekazujemy cityId, żeby wybrać właściwy zestaw teł.
+    const backgroundKey = this.getLocationBackgroundKey(this.locationId, this.cityId);
 
     if (backgroundKey && this.textures.exists(backgroundKey)) {
       this.add
@@ -521,16 +548,23 @@ export class LocationScene extends Phaser.Scene {
     return names[npcId] || npcId || 'Unknown witness';
   }
 
-  getLocationBackgroundKey(locationId) {
-    const map = {
-      hotel: 'hotel_maid',
-      hotel_maid: 'hotel_maid',
-      parking: 'parking_bg',
-      parking_bg: 'parking_bg',
-      garbage: 'garbage'
-    };
+  // Zwraca klucz tekstury tła dla danej lokacji, uwzględniając miasto.
+  // Dla New Delhi używamy dedykowanego zestawu teł z sufiksem "h".
+  getLocationBackgroundKey(locationId, cityId = null) {
+    if (cityId === NEW_DELHI_CITY_ID) {
+      const delhiKey = NEW_DELHI_LOCATION_BACKGROUND_MAP[locationId];
+      if (delhiKey && this.textures.exists(delhiKey)) {
+        return delhiKey;
+      }
+      // Fallback, gdyby brakowało konkretnego assetu dla Delhi.
+      console.warn(
+        `LocationScene: brak tekstury Delhi dla locationId "${locationId}", używam domyślnej.`
+      );
+    }
 
-    return map[locationId] || locationId || null;
+    return (
+      DEFAULT_LOCATION_BACKGROUND_MAP[locationId] || locationId || null
+    );
   }
 
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

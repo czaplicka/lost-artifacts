@@ -79,6 +79,15 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('restaurant', 'assets/local/restaurant.jpg');
         this.load.image('garbage', 'assets/local/garbage.jpg');
 
+        this.load.image('bankh', 'assets/local/bank_h.jpg');
+        this.load.image('alleyh', 'assets/local/alley_h.jpg');
+        this.load.image('airporth', 'assets/local/airport_h.jpg');
+        this.load.image('hotel_maidh', 'assets/local/hotel_maid_h.jpg');
+        this.load.image('parkingh', 'assets/local/parking_h.jpg');
+        this.load.image('policehqh', 'assets/local/police_hq_h.jpg');
+        this.load.image('restauranth', 'assets/local/restaurant_h.jpg');
+        this.load.image('garbageh', 'assets/local/garbage_h.jpg');
+
         this.load.image('berlin', 'assets/cities/Berlin.jpg');
         this.load.image('london', 'assets/cities/London.jpg');
         this.load.image('new_delhi', 'assets/cities/NewDelhi.jpg');

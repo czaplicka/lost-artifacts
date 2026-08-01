@@ -152,7 +152,7 @@ export class OfficeScene extends Phaser.Scene {
                 id: 'WantedDatabase',
                 room: 'cabinet',
                 x: this.rooms.cabinet.x + 300,
-                y: 650,
+                y: 450,
                 width: 290,
                 height: 95,
                 label: 'Wanted Database',

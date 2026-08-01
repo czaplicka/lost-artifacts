@@ -66,6 +66,7 @@
     "encounterPool": [
       { "id": "new_delhi_bankier_bank", "npcId": "bankier", "locationId": "bank" },
       { "id": "new_delhi_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "new_delhi_maid_hotel", "npcId": "maid", "locationId": "hotel" },
       { "id": "new_delhi_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
       { "id": "new_delhi_police_policehq", "npcId": "police", "locationId": "policehq" },
       { "id": "new_delhi_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
