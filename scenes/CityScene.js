@@ -70,7 +70,7 @@ export class CityScene extends Phaser.Scene {
 
   create() {
     audioManager.init(this);
-    audioManager.stopMusic('themeMusic');
+audioManager.stopMusic('themeMusic');
     audioManager.playMusic('themeGame');
     audioManager.playSfx('citysound', { loop: true });
 

@@ -5,14 +5,31 @@ const STORAGE = {
 };
 
 const DEFAULTS = {
-    MUSIC: 0.5,
+    MUSIC: 0.2,
     SFX: 0.8,
     MUTED: false
 };
 
+function safeGet(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+}
+
+function safeSet(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // ignore storage errors
+    }
+}
+
 function loadNumber(key, fallback) {
-    const v = parseFloat(localStorage.getItem(key));
-    return isNaN(v) ? fallback : v;
+    const raw = safeGet(key);
+    const v = parseFloat(raw);
+    return Number.isNaN(v) ? fallback : v;
 }
 
 class AudioManager {
@@ -20,21 +37,37 @@ class AudioManager {
         this.scene = null;
         this.musicVolume = loadNumber(STORAGE.MUSIC, DEFAULTS.MUSIC);
         this.sfxVolume = loadNumber(STORAGE.SFX, DEFAULTS.SFX);
-        this.muted = localStorage.getItem(STORAGE.MUTED) === 'true';
+        this.muted = safeGet(STORAGE.MUTED) === 'true';
+
         this.activeMusic = new Map();
-        this.activeSfx = new Map();
+        this.activeSfx = new Set();
+        this.activeVoice = new Set();
     }
 
     init(scene) {
         this.scene = scene;
-        scene.sound.mute = this.muted;
+
+        if (this.scene?.sound) {
+            this.scene.sound.mute = this.muted;
+        }
+
         this.activeMusic.forEach(sound => {
-            if (sound && sound.isPlaying) {
+            if (sound && !sound.pendingRemove) {
+                sound.setMute(this.muted);
                 sound.setVolume(this.musicVolume);
             }
         });
+
         this.activeSfx.forEach(sound => {
-            if (sound && sound.isPlaying) {
+            if (sound && !sound.pendingRemove) {
+                sound.setMute(this.muted);
+                sound.setVolume(this.sfxVolume);
+            }
+        });
+
+        this.activeVoice.forEach(sound => {
+            if (sound && !sound.pendingRemove) {
+                sound.setMute(this.muted);
                 sound.setVolume(this.sfxVolume);
             }
         });
@@ -42,93 +75,232 @@ class AudioManager {
 
     setMusicVolume(value) {
         this.musicVolume = Phaser.Math.Clamp(value, 0, 1);
-        localStorage.setItem(STORAGE.MUSIC, String(this.musicVolume));
+        safeSet(STORAGE.MUSIC, String(this.musicVolume));
+
         this.activeMusic.forEach(sound => {
-            if (sound && sound.isPlaying) sound.setVolume(this.musicVolume);
+            if (sound && !sound.pendingRemove) {
+                sound.setVolume(this.musicVolume);
+            }
         });
     }
 
     setSfxVolume(value) {
         this.sfxVolume = Phaser.Math.Clamp(value, 0, 1);
-        localStorage.setItem(STORAGE.SFX, String(this.sfxVolume));
+        safeSet(STORAGE.SFX, String(this.sfxVolume));
+
         this.activeSfx.forEach(sound => {
-            if (sound && sound.isPlaying) sound.setVolume(this.sfxVolume);
+            if (sound && !sound.pendingRemove) {
+                sound.setVolume(this.sfxVolume);
+            }
+        });
+
+        this.activeVoice.forEach(sound => {
+            if (sound && !sound.pendingRemove) {
+                sound.setVolume(this.sfxVolume);
+            }
         });
     }
 
     toggleMute() {
         this.muted = !this.muted;
-        if (this.scene) this.scene.sound.mute = this.muted;
-        localStorage.setItem(STORAGE.MUTED, String(this.muted));
+
+        if (this.scene?.sound) {
+            this.scene.sound.mute = this.muted;
+        }
+
+        safeSet(STORAGE.MUTED, String(this.muted));
         return this.muted;
     }
 
     playMusic(key, config = {}) {
-        if (!this.scene || !this.scene.cache.audio.get(key)) return null;
-        this.stopMusic(key);
-        const sound = this.scene.sound.add(key, {
+        if (!this.scene || !this.scene.cache.audio.exists(key)) return null;
+
+        let sound = this.activeMusic.get(key);
+
+        if (!sound) {
+            sound = this.scene.sound.get(key);
+        }
+
+        if (sound) {
+            sound.setLoop(config.loop ?? true);
+            sound.setMute(this.muted);
+            sound.setVolume(config.volume ?? this.musicVolume);
+
+            this.activeMusic.set(key, sound);
+
+            if (!sound.isPlaying) {
+                sound.play();
+            }
+
+            return sound;
+        }
+
+        sound = this.scene.sound.add(key, {
             ...config,
             loop: config.loop ?? true,
-            volume: this.musicVolume
+            volume: config.volume ?? this.musicVolume,
+            mute: this.muted
         });
+
         this.activeMusic.set(key, sound);
         sound.play();
+
+        sound.once('destroy', () => {
+            if (this.activeMusic.get(key) === sound) {
+                this.activeMusic.delete(key);
+            }
+        });
+
         return sound;
     }
 
     stopMusic(key) {
-        const sound = this.activeMusic.get(key);
-        if (sound) {
-            sound.stop();
-            sound.destroy();
-            this.activeMusic.delete(key);
+        let sound = this.activeMusic.get(key);
+
+        if (!sound && this.scene?.sound) {
+            sound = this.scene.sound.get(key);
         }
+
+        if (sound) {
+            if (sound.isPlaying) {
+                sound.stop();
+            }
+            if (!sound.pendingRemove) {
+                sound.destroy();
+            }
+        }
+
+        this.activeMusic.delete(key);
     }
 
     stopAllMusic() {
         this.activeMusic.forEach(sound => {
-            sound.stop();
-            sound.destroy();
+            if (sound) {
+                if (sound.isPlaying) {
+                    sound.stop();
+                }
+                if (!sound.pendingRemove) {
+                    sound.destroy();
+                }
+            }
         });
+
         this.activeMusic.clear();
     }
 
     playSfx(key, config = {}) {
-        if (!this.scene || !this.scene.cache.audio.get(key)) return null;
-        this.stopSfx(key);
+        if (!this.scene || !this.scene.cache.audio.exists(key)) return null;
+
         const sound = this.scene.sound.add(key, {
             ...config,
-            volume: this.sfxVolume
+            loop: false,
+            volume: config.volume ?? this.sfxVolume,
+            mute: this.muted
         });
-        this.activeSfx.set(key, sound);
+
+        this.activeSfx.add(sound);
         sound.play();
-        sound.once('complete', () => {
-            sound.destroy();
-            this.activeSfx.delete(key);
+
+        const cleanup = () => {
+            this.activeSfx.delete(sound);
+            if (!sound.pendingRemove) {
+                sound.destroy();
+            }
+        };
+
+        sound.once('complete', cleanup);
+        sound.once('stop', cleanup);
+        sound.once('destroy', () => {
+            this.activeSfx.delete(sound);
         });
+
         return sound;
     }
 
-    stopSfx(key) {
-        const sound = this.activeSfx.get(key);
-        if (sound) {
-            sound.stop();
-            sound.destroy();
-            this.activeSfx.delete(key);
-        }
+    playVoice(key, config = {}) {
+        if (!this.scene || !this.scene.cache.audio.exists(key)) return null;
+
+        const sound = this.scene.sound.add(key, {
+            ...config,
+            loop: false,
+            volume: config.volume ?? this.sfxVolume,
+            mute: this.muted
+        });
+
+        this.activeVoice.add(sound);
+        sound.play();
+
+        const cleanup = () => {
+            this.activeVoice.delete(sound);
+            if (!sound.pendingRemove) {
+                sound.destroy();
+            }
+        };
+
+        sound.once('complete', cleanup);
+        sound.once('stop', cleanup);
+        sound.once('destroy', () => {
+            this.activeVoice.delete(sound);
+        });
+
+        return sound;
     }
 
     stopAllSfx() {
         this.activeSfx.forEach(sound => {
-            sound.stop();
-            sound.destroy();
+            if (sound) {
+                if (sound.isPlaying) {
+                    sound.stop();
+                }
+                if (!sound.pendingRemove) {
+                    sound.destroy();
+                }
+            }
         });
+
         this.activeSfx.clear();
     }
 
-    getMusicVolume() { return this.musicVolume; }
-    getSfxVolume() { return this.sfxVolume; }
-    getMuted() { return this.muted; }
+    stopAllVoice() {
+        this.activeVoice.forEach(sound => {
+            if (sound) {
+                if (sound.isPlaying) {
+                    sound.stop();
+                }
+                if (!sound.pendingRemove) {
+                    sound.destroy();
+                }
+            }
+        });
+
+        this.activeVoice.clear();
+    }
+
+    stopAllNonMusic() {
+        this.stopAllSfx();
+        this.stopAllVoice();
+    }
+
+    isMusicPlaying(key) {
+        const sound = this.activeMusic.get(key) || this.scene?.sound?.get(key);
+        return !!(sound && sound.isPlaying);
+    }
+
+    getMusic(key) {
+        return this.activeMusic.get(key) || this.scene?.sound?.get(key) || null;
+    }
+
+    getMusicVolume() {
+        return this.musicVolume;
+    }
+
+    getSfxVolume() {
+        return this.sfxVolume;
+    }
+
+    getMuted() {
+        return this.muted;
+    }
 }
 
 export const audioManager = new AudioManager();

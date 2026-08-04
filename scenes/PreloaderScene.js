@@ -4,14 +4,16 @@ import { audioManager } from '../AudioManager.js';
 export class PreloaderScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PreloaderScene' });
-        // Zmienna przechowująca wartość maski (od 0 do 1)
         this.fillingLevel = 0;
+        this.tipIndex = -1;
+        this.tipTimer = null;
+        this.dotsTimer = null;
+        this.magnifierTween = null;
     }
 
     preload() {
         const { width, height } = this.scale;
 
-        // --- 0. Tło widoczne od razu ---
         if (this.textures.exists('cozyBackground')) {
             this.add.image(width / 2, height / 2, 'cozyBackground')
                 .setDisplaySize(width, height)
@@ -21,12 +23,11 @@ export class PreloaderScene extends Phaser.Scene {
             this.cameras.main.setBackgroundColor('#101010');
         }
 
-        // --- 1. Generowanie Tekstur Kubków ---
-        // MUSI być wywołane przed stworzeniem obiektów Image!
         this.createCoffeeTextures();
+        this.createMagnifierTexture();
 
-        // --- 2. TU wczytujesz WSZYSTKIE assety właściwej gry ---
-         this.load.image('background', 'assets/start_1.jpg');
+        // --- ASSETY ---
+        this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
@@ -250,10 +251,10 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
         this.load.image('portrait_csi', 'assets/portraits/csi.png');
         this.load.image('portrait_home', 'assets/portraits/home.png');
-        this.load.image('portrait_hq', 'assets/portraits/hq.png');  
+        this.load.image('portrait_hq', 'assets/portraits/hq.png');
         this.load.image('portrait_informant', 'assets/portraits/informant.png');
         this.load.image('portrait_police-station', 'assets/portraits/police-station.png');
-        this.load.image('portrait_watson', 'assets/portraits/watson.png');  
+        this.load.image('portrait_watson', 'assets/portraits/watson.png');
 
         this.load.json('suspects', 'assets/data/suspects.json');
         this.load.json('citysuspects', 'assets/data/citysuspects.json');
@@ -293,126 +294,296 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('havela_bg', 'assets/crimes/havela.jpg');
         this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
 
-
         const centerX = width / 2;
         const centerY = height * 0.5;
+        const cupX = centerX - 100;
+        const cupY = centerY + 100;
 
-        // Pozycja kubka
-        const cupX = centerX - 85;
-        const cupY = centerY + 105;
+        const tips = [
+            'A planted clue usually wants to be found too quickly.',
+            'Witness confidence is not the same as witness accuracy.',
+            'The best liar often tells mostly true things.',
+            'Three crime-scene objects matter. The rest may be theatre.',
+            'A perfect alibi that arrives too fast deserves a second look.',
+            'Means without motive is noise. Motive without opportunity is fiction.',
+            'Every suspect has a story. Only one has the timeline.',
+            'Coffee first. Accusations second.',
+            'Interpol uplink unstable. Deduction still operational.',
+            'If everyone sounds innocent, someone rehearsed.'
+        ];
 
-        // --- 3. Stworzenie Warstw UI ---
-        const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.3);
+        const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.28);
 
-        // A. Pusty kontur kubka w tle (zawsze widoczny)
-        const emptyCup = this.add.image(cupX, cupY, 'cup_outline');
+        const vignetteTop = this.add.rectangle(centerX, 0, width, 120, 0x000000, 0.22).setOrigin(0.5, 0);
+        const vignetteBottom = this.add.rectangle(centerX, height, width, 150, 0x000000, 0.24).setOrigin(0.5, 1);
 
-        // B. Pełny kubek z kawą (Używamy poprawionego klucza 'cup_coffee')
+        const scanlineOverlay = this.add.graphics();
+        scanlineOverlay.fillStyle(0x000000, 0.05);
+        for (let y = 0; y < height; y += 4) {
+            scanlineOverlay.fillRect(0, y, width, 2);
+        }
+        scanlineOverlay.setAlpha(0.22);
+
+        const magnifier = this.add.image(centerX + 125, centerY + 84, 'magnifier_icon')
+            .setScale(0.9)
+            .setAlpha(0.9)
+            .setRotation(-0.08);
+
+        this.magnifierTween = this.tweens.add({
+            targets: magnifier,
+            angle: { from: -5, to: 4 },
+            y: magnifier.y + 4,
+            duration: 1800,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.inOut'
+        });
+
+        this.add.image(cupX, cupY, 'cup_outline');
         this.fullCupImage = this.add.image(cupX, cupY, 'cup_coffee');
 
-        // C. Maska Alfa (stopniowo odkrywa 'fullCupImage')
         this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
         this.coffeeMask.fillStyle(0xffffff);
-        
-        // Na początku maska jest pusta (nic nie odkrywa)
         this.updateCoffeeMask(0);
 
-        // Nakładamy maskę na obrazek pełnego kubka
         const mask = this.coffeeMask.createGeometryMask();
         this.fullCupImage.setMask(mask);
 
-        // --- 4. Tekst ---
-        const loadingText = this.add.text(centerX, centerY - 128, 'MAKING COFFEE... 0%', {
+        const titleText = this.add.text(centerX, centerY - 145, 'MAKING COFFEE 0%', {
             fontFamily: 'PressStart2P',
             fontSize: '20px',
-            fontStyle: 'bold',
-            color: '#f4ebd9'
+            color: '#f4ebd9',
+            align: 'center'
         }).setOrigin(0.5);
 
-        const fileText = this.add.text(centerX, height - 30, '', {
+        const statusText = this.add.text(centerX, centerY - 92, 'Opening confidential case files...', {
+            fontFamily: 'Special Elite',
+            fontSize: '28px',
+            color: '#e8dcc8',
+            stroke: '#2c1d14',
+            strokeThickness: 2,
+            align: 'center'
+        }).setOrigin(0.5);
+
+        const subStatusText = this.add.text(centerX, centerY - 54, 'Long-distance transmission may delay first launch.', {
+            fontFamily: 'Special Elite',
+            fontSize: '22px',
+            color: '#bfa88d',
+            align: 'center'
+        }).setOrigin(0.5);
+
+        const noirLabel = this.add.text(centerX, centerY + 184, 'DETECTIVE MEMO', {
             fontFamily: 'PressStart2P',
-            fontSize: '13px',
-            color: '#a38f78',
-            wordWrap: { width: width * 0.8 }
+            fontSize: '11px',
+            color: '#c79f6b',
+            letterSpacing: 1
         }).setOrigin(0.5);
 
-        // --- 5. Obsługa Progressu Ładowania ---
-        this.load.on('progress', (value) => {
-            // Płynne napełnianie za pomocą maski (0 -> 1)
-            this.updateCoffeeMask(value);
+        const tipText = this.add.text(centerX, centerY + 222, this.getNextTip(tips), {
+            fontFamily: 'Special Elite',
+            fontSize: '25px',
+            color: '#f4ebd9',
+            align: 'center',
+            wordWrap: { width: width * 0.72 }
+        }).setOrigin(0.5);
 
-            // Aktualizacja tekstu procentowego
-            const percent = Math.round(value * 100);
-            loadingText.setText(`MAKING COFFEE... ${percent}%`);
+        const fileText = this.add.text(centerX, height - 42, 'Waiting for first evidence crate...', {
+            fontFamily: 'PressStart2P',
+            fontSize: '10px',
+            color: '#a38f78',
+            wordWrap: { width: width * 0.82 },
+            align: 'center'
+        }).setOrigin(0.5);
+
+        this.tipTimer = this.time.addEvent({
+            delay: 3200,
+            loop: true,
+            callback: () => {
+                this.tweens.add({
+                    targets: tipText,
+                    alpha: 0,
+                    y: tipText.y - 8,
+                    duration: 180,
+                    onComplete: () => {
+                        tipText.setText(this.getNextTip(tips));
+                        tipText.setY(centerY + 230);
+                        this.tweens.add({
+                            targets: tipText,
+                            alpha: 1,
+                            y: centerY + 222,
+                            duration: 220,
+                            ease: 'Quad.out'
+                        });
+                    }
+                });
+            }
         });
 
-        this.load.on('fileprogress', (file) => {
-            // fileText.setText(`Coffee, milk...: ${file.key}`);
+        let dots = '';
+        this.dotsTimer = this.time.addEvent({
+            delay: 350,
+            loop: true,
+            callback: () => {
+                dots = dots.length >= 3 ? '' : `${dots}.`;
+                const percent = Math.round(this.fillingLevel * 100);
+                titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
+            }
+        });
+
+        this.load.on('progress', (value) => {
+            this.fillingLevel = value;
+            this.updateCoffeeMask(value);
+
+            const percent = Math.round(value * 100);
+            titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
+
+            if (value < 0.15) {
+                statusText.setText('Opening confidential case files...');
+                subStatusText.setText('Dusting the folder for old fingerprints.');
+            } else if (value < 0.30) {
+                statusText.setText('Contacting field offices...');
+                subStatusText.setText('Interpol uplink unstable, retrying handshake.');
+            } else if (value < 0.50) {
+                statusText.setText('Cross-referencing suspects...');
+                subStatusText.setText('Names, aliases and bad decisions are being sorted.');
+            } else if (value < 0.70) {
+                statusText.setText('Calling CSI...');
+                subStatusText.setText('Lab technicians are arguing over one very suspicious fibre.');
+            } else if (value < 0.88) {
+                statusText.setText('Reconstructing the timeline...');
+                subStatusText.setText('Somebody lied. We are politely narrowing it down.');
+            } else {
+                statusText.setText('Finalizing the warrant packet...');
+                subStatusText.setText('One more sip and the case is ready.');
+            }
+        });
+
+        this.load.on('filecomplete', (key, type) => {
+            const shortKey = String(key).slice(0, 34);
+            fileText.setText(`Filed ${type}: ${shortKey}`);
         });
 
         this.load.on('loaderror', (file) => {
-            fileText.setText(`Error loading: ${file.key}`).setColor('#ff5555');
+            fileText.setText(`Load failure: ${file.key}`).setColor('#ff6b6b');
+            subStatusText.setText('A courier dropped one of the evidence boxes.');
         });
 
-        // Płynne czyszczenie UI po zakończeniu ładowania
         this.load.once('complete', () => {
+            this.fillingLevel = 1;
             this.updateCoffeeMask(1);
 
+            statusText.setText('Case file assembled.');
+            subStatusText.setText('Coffee is hot. Deduction is hotter.');
+            fileText.setText('All evidence received.');
+
+            if (this.tipTimer) {
+                this.tipTimer.remove(false);
+                this.tipTimer = null;
+            }
+
+            if (this.dotsTimer) {
+                this.dotsTimer.remove(false);
+                this.dotsTimer = null;
+            }
+
+            if (this.magnifierTween) {
+                this.magnifierTween.stop();
+                this.magnifierTween = null;
+            }
+
             this.tweens.add({
-                targets: [loadingText, fileText],
+                targets: [
+                    titleText,
+                    statusText,
+                    subStatusText,
+                    noirLabel,
+                    tipText,
+                    fileText,
+                    magnifier,
+                    shadow,
+                    vignetteTop,
+                    vignetteBottom,
+                    scanlineOverlay
+                ],
                 alpha: 0,
-                duration: 600,
+                duration: 650,
+                ease: 'Quad.out',
                 onComplete: () => {
-                    loadingText.destroy();
+                    titleText.destroy();
+                    statusText.destroy();
+                    subStatusText.destroy();
+                    noirLabel.destroy();
+                    tipText.destroy();
                     fileText.destroy();
+                    magnifier.destroy();
+                    shadow.destroy();
+                    vignetteTop.destroy();
+                    vignetteBottom.destroy();
+                    scanlineOverlay.destroy();
                 }
             });
         });
     }
 
-create() {
-    const { width, height } = this.scale;
+    create() {
+        const { width, height } = this.scale;
 
-    const initUi = async () => {
-        audioManager.init(this);
-        if (this.cache.audio.exists('themeMusic')) {
-            audioManager.playMusic('themeMusic');
+        const initUi = async () => {
+            audioManager.init(this);
+
+            if (this.cache.audio.exists('themeGame')) {
+                audioManager.playMusic('themeGame');
+            }
+
+            this.input.once('pointerdown', () => {
+                this.sound.unlock?.();
+            });
+
+            const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
+                .setInteractive({ useHandCursor: true })
+                .setScale(0.8);
+
+            this.addHoverEffect(startBtn, 0.8, 0.9);
+
+            startBtn.on('pointerdown', async () => {
+                const mobileFS = this.registry.get('mobileFS');
+                if (mobileFS) {
+                    await mobileFS.enterFullscreenLandscape();
+                }
+                this.scene.start('MenuScene');
+            });
+        };
+
+        if (window.WebFont && typeof window.WebFont.load === 'function') {
+            window.WebFont.load({
+                google: {
+                    families: ['Press Start 2P', 'Special Elite', 'Indie Flower']
+                },
+                active: () => initUi(),
+                inactive: () => {
+                    console.warn('WebFont failed to load, continuing with fallback fonts.');
+                    initUi();
+                }
+            });
+        } else {
+            initUi();
+        }
+    }
+
+    getNextTip(tips) {
+        if (!tips || tips.length === 0) return '';
+
+        let nextIndex = Phaser.Math.Between(0, tips.length - 1);
+
+        if (tips.length > 1) {
+            while (nextIndex === this.tipIndex) {
+                nextIndex = Phaser.Math.Between(0, tips.length - 1);
+            }
         }
 
-        this.input.once('pointerdown', () => {
-            this.sound.unlock?.();
-        });
-
-        const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
-            .setInteractive({ useHandCursor: true })
-            .setScale(0.8);
-
-        this.addHoverEffect(startBtn, 0.8, 0.9);
-
-        startBtn.on('pointerdown', async () => {
-            const mobileFS = this.registry.get('mobileFS');
-            if (mobileFS) {
-                await mobileFS.enterFullscreenLandscape();
-            }
-            this.scene.start('MenuScene');
-        });
-    };
-
-    if (window.WebFont && typeof window.WebFont.load === 'function') {
-        window.WebFont.load({
-            google: {
-                families: ['Press Start 2P', 'Special Elite', 'Indie Flower']
-            },
-            active: () => initUi(),
-            inactive: () => {
-                console.warn('WebFont failed to load, continuing with fallback fonts.');
-                initUi();
-            }
-        });
-    } else {
-        initUi();
+        this.tipIndex = nextIndex;
+        return tips[nextIndex];
     }
-}
 
     updateCoffeeMask(fillLevel) {
         if (!this.coffeeMask) return;
@@ -434,30 +605,22 @@ create() {
     createCoffeeTextures() {
         if (this.textures.exists('cup_coffee') && this.textures.exists('cup_outline')) return;
 
-        // ==========================================
-        // 1. KONTUR KUBKA (Szkło)
-        // ==========================================
         const gOutline = this.make.graphics({ x: 0, y: 0, add: false });
 
-        // Tło szkła
         gOutline.fillStyle(0xffffff, 0.08);
         gOutline.fillRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
 
-        // Ucho
         gOutline.lineStyle(4, 0xe2f1f8, 0.5);
         gOutline.strokeCircle(95, 55, 17);
         gOutline.lineStyle(2, 0xffffff, 0.8);
         gOutline.strokeCircle(94, 53, 15);
 
-        // Główny obrys
         gOutline.lineStyle(3, 0xd8ecf8, 0.75);
         gOutline.strokeRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
 
-        // Rant
         gOutline.lineStyle(2, 0xffffff, 0.9);
         gOutline.strokeRoundedRect(10, 8, 80, 8, 4);
 
-        // Bliki
         gOutline.fillStyle(0xffffff, 0.35);
         gOutline.fillRoundedRect(16, 18, 5, 72, 2);
         gOutline.fillStyle(0xffffff, 0.2);
@@ -466,29 +629,20 @@ create() {
         gOutline.generateTexture('cup_outline', 125, 110);
         gOutline.destroy();
 
-
-        // ==========================================
-        // 2. WPEŁNIENIE KAWĄ
-        // ==========================================
         const gCoffee = this.make.graphics({ x: 0, y: 0, add: false });
 
-        // Płynna kawa
         gCoffee.fillStyle(0x3d2314, 0.95);
         gCoffee.fillRoundedRect(14, 20, 72, 78, { tl: 2, tr: 2, bl: 20, br: 20 });
 
-        // Espresso
         gCoffee.fillStyle(0x5a351e, 0.9);
         gCoffee.fillRect(14, 20, 72, 35);
 
-        // Crema / Pianka
         gCoffee.fillStyle(0xd7a15c, 1);
         gCoffee.fillRoundedRect(14, 18, 72, 10, 5);
 
-        // Pianka mleczna
         gCoffee.fillStyle(0xf7e8d3, 0.9);
         gCoffee.fillRoundedRect(30, 19, 40, 6, 3);
 
-        // Latte Art (Serce)
         gCoffee.fillStyle(0xfff7ed, 1);
         gCoffee.fillCircle(45, 21, 5);
         gCoffee.fillCircle(55, 21, 5);
@@ -496,6 +650,36 @@ create() {
 
         gCoffee.generateTexture('cup_coffee', 125, 110);
         gCoffee.destroy();
+    }
+
+    createMagnifierTexture() {
+        if (this.textures.exists('magnifier_icon')) return;
+
+        const g = this.make.graphics({ x: 0, y: 0, add: false });
+
+        g.lineStyle(6, 0xe7d9bf, 0.95);
+        g.strokeCircle(30, 30, 18);
+
+        g.lineStyle(3, 0xffffff, 0.45);
+        g.strokeCircle(28, 28, 15);
+
+        g.lineStyle(8, 0x8a5a3c, 1);
+        g.beginPath();
+        g.moveTo(42, 42);
+        g.lineTo(66, 66);
+        g.strokePath();
+
+        g.lineStyle(3, 0xc79362, 0.85);
+        g.beginPath();
+        g.moveTo(45, 43);
+        g.lineTo(63, 61);
+        g.strokePath();
+
+        g.fillStyle(0xffffff, 0.10);
+        g.fillCircle(23, 23, 7);
+
+        g.generateTexture('magnifier_icon', 80, 80);
+        g.destroy();
     }
 
     addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

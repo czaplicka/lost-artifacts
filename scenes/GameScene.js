@@ -21,10 +21,12 @@ export class GameScene extends Phaser.Scene {
 
         this.hasStartedOfficeScene = false;
         this.sequenceStage = 'idle';
+        this.sequenceFinished = false;
     }
 
     create() {
-    audioManager.init(this);
+        audioManager.init(this);
+
         this.scene.wake('UIScene');
         this.timeManager = new GameTimeManager();
 
@@ -50,6 +52,7 @@ export class GameScene extends Phaser.Scene {
         backBtn.on('pointerdown', () => {
             this.closeAllUIPanels();
             this.destroyCurrentVideo();
+            audioManager.stopAllVoice();
             this.scene.start('MenuScene');
         });
 
@@ -143,35 +146,69 @@ export class GameScene extends Phaser.Scene {
 
     startIntroSequence() {
         this.sequenceStage = 'video1';
+        this.sequenceFinished = false;
+
         this.playVideo('detectiveIntro', 'detective-intro', () => {
-            this.sequenceStage = 'done';
-            this.goToOfficeScene();
+            this.finishSequence();
         });
+
         this.typeText(this.dialogueText, this.fullIntroText, 24);
     }
 
+    finishSequence() {
+        if (this.sequenceFinished) return;
+        this.sequenceFinished = true;
+        this.sequenceStage = 'done';
+
+        this.destroyCurrentVideo();
+        this.goToOfficeScene();
+    }
+
     playVideo(videoKey, audioKey, onComplete) {
-        if (!this.cache.video.exists(videoKey)) {
-            console.warn(`Brak video assetu: ${videoKey}`);
+        const hasVideo = this.cache.video.exists(videoKey);
+        const hasAudio = !!audioKey && this.cache.audio.exists(audioKey);
+
+        if (!hasVideo && !hasAudio) {
+            console.warn(`Brak video i audio dla sekwencji: ${videoKey} / ${audioKey}`);
             onComplete?.();
             return;
         }
 
         this.destroyCurrentVideo();
 
-        // Sprawdź czy audio istnieje
-        const hasAudio = this.cache.audio.exists(audioKey);
+        let audioFinished = !hasAudio;
+        let videoFinished = !hasVideo;
+
+        const tryComplete = () => {
+            if (audioFinished && videoFinished) {
+                this.destroyCurrentVideo();
+                onComplete?.();
+            }
+        };
 
         if (hasAudio) {
-            this.currentAudio = audioManager.playSfx(audioKey);
+            this.currentAudio = audioManager.playVoice(audioKey);
 
             if (this.currentAudio) {
-                // Reaguj na zakończenie DŹWIĘKU
-                this.currentAudio.once(Phaser.Sound.Events.COMPLETE, () => {
-                    this.destroyCurrentVideo();
-                    onComplete?.();
+                this.currentAudio.once('complete', () => {
+                    if (this.currentAudio) {
+                        audioFinished = true;
+                        tryComplete();
+                    }
                 });
+
+                this.currentAudio.once('stop', () => {
+                    audioFinished = true;
+                    tryComplete();
+                });
+            } else {
+                audioFinished = true;
             }
+        }
+
+        if (!hasVideo) {
+            tryComplete();
+            return;
         }
 
         const video = this.add.video(
@@ -188,40 +225,40 @@ export class GameScene extends Phaser.Scene {
         this.currentVideoKey = videoKey;
 
         video.once('textureready', () => {
-            this.resizeVideoCover(video);
+            if (this.currentVideo === video) {
+                this.resizeVideoCover(video);
+            }
         });
 
         video.once('playing', () => {
-            this.resizeVideoCover(video);
+            if (this.currentVideo === video) {
+                this.resizeVideoCover(video);
+            }
         });
 
-        // Jeśli NIE MA dźwięku, przejdź dalej po pojedynczym odegraniu wideo
-        if (!hasAudio) {
-            video.once('complete', () => {
-                if (this.currentVideo !== video) return;
-                this.destroyCurrentVideo();
-                onComplete?.();
-            });
-        }
+        video.once('complete', () => {
+            if (this.currentVideo !== video) return;
+            videoFinished = true;
+            tryComplete();
+        });
 
         video.on('error', (videoObject, error) => {
             console.error(`${videoKey} video error:`, error);
             if (this.currentVideo === video) {
-                this.destroyCurrentVideo();
+                videoFinished = true;
+                tryComplete();
             }
-            onComplete?.();
         });
 
         video.on('unsupported', (videoObject, error) => {
             console.error(`${videoKey} video unsupported:`, error);
             if (this.currentVideo === video) {
-                this.destroyCurrentVideo();
+                videoFinished = true;
+                tryComplete();
             }
-            onComplete?.();
         });
 
-        // Włącz loop (true) tylko wtedy, gdy mamy podpięte audio
-        video.play(hasAudio);
+        video.play(false);
     }
 
     resizeVideoCover(video) {
@@ -243,27 +280,33 @@ export class GameScene extends Phaser.Scene {
             .setScale(scale);
     }
 
-destroyCurrentVideo() {
-    // Zatrzymaj i zniszcz odtwarzany dźwięk
-    if (this.currentAudio) {
-        this.currentAudio.stop();
-        this.currentAudio.destroy();
-        this.currentAudio = null;
+    destroyCurrentVideo() {
+        if (this.currentAudio) {
+            const sound = this.currentAudio;
+            this.currentAudio = null;
+
+            if (sound.isPlaying) {
+                sound.stop();
+            }
+
+            if (!sound.pendingRemove) {
+                sound.destroy();
+            }
+        }
+
+        if (!this.currentVideo) return;
+
+        const video = this.currentVideo;
+        this.currentVideo = null;
+        this.currentVideoKey = null;
+
+        if (video.scene) {
+            video.setVisible(false);
+            video.setAlpha(0);
+            video.stop();
+            video.destroy();
+        }
     }
-
-    if (!this.currentVideo) return;
-
-    const video = this.currentVideo;
-    this.currentVideo = null;
-    this.currentVideoKey = null;
-
-    if (video.scene) {
-        video.setVisible(false);
-        video.setAlpha(0);
-        video.stop();
-        video.destroy();
-    }
-}
 
     typeText(target, text, speed = 15) {
         if (!target || typeof text !== 'string') return;

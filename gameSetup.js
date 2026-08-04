@@ -1,6 +1,7 @@
 import {
   gameState,
   resetGameState,
+  resetCaseOutcomeState,  
   clearSavedGame,
   saveGameState
 } from './GameData.js';

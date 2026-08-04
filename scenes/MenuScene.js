@@ -2,14 +2,20 @@ import { setupNewGame } from '../gameSetup.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
 
+
 export class MenuScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MenuScene' });
     }
 
+
     create() {
-        audioManager.init(this);
-        audioManager.playMusic('themeMusic');
+audioManager.init(this);
+
+if (!audioManager.isMusicPlaying('themeMusic')) {
+    audioManager.playMusic('themeMusic', { loop: true });
+}
+
         this.scene.sleep('UIScene');
         const { width, height } = this.scale;
 
@@ -53,20 +59,29 @@ export class MenuScene extends Phaser.Scene {
         exitBtn.on('pointerdown', () => this.scene.start('GameOverScene'));
     }
 
-    startNewGame() {
+
+    async startNewGame() {
+        // ① Zablokuj przycisk, żeby nie można było kliknąć dwa razy
+        this.input.enabled = false;
+
         const suspectsData = this.cache.json.get('suspects') || [];
         const missionsData = this.cache.json.get('missions') || [];
         const locationsData = this.cache.json.get('locations') || [];
 
         try {
-            setupNewGame(suspectsData, missionsData, locationsData);
+            // ② await — czekamy na pełną inicjalizację gameState
+            await setupNewGame(suspectsData, missionsData, locationsData);
 
             this.registry.set('gameState', gameState);
             this.registry.set('locationsData', structuredClone(locationsData));
 
+            // ③ GameScene startuje DOPIERO gdy gameState jest gotowy
             this.scene.start('GameScene');
         } catch (error) {
             console.error('Failed to start new game:', error);
+
+            // ④ Odblokuj input przy błędzie, żeby gracz mógł spróbować ponownie
+            this.input.enabled = true;
 
             this.add.text(this.scale.width / 2, this.scale.height - 80, 'Game data error', {
                 fontFamily: 'Arial',
@@ -76,6 +91,7 @@ export class MenuScene extends Phaser.Scene {
             }).setOrigin(0.5);
         }
     }
+
 
     addHoverEffect(button) {
         button.on('pointerover', () => button.setScale(0.9));
