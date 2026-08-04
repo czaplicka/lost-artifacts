@@ -44,7 +44,7 @@ if (!audioManager.isMusicPlaying('themeMusic')) {
             .setInteractive({ useHandCursor: true })
             .setScale(0.8);
         this.addHoverEffect(settingsBtn);
-        settingsBtn.on('pointerdown', () => this.scene.start('SettingsScene'));
+        settingsBtn.on('pointerdown', () => this.scene.launch('SettingsScene'));
 
         const hiscoreBtn = this.add.image(centerX, height * 0.69, 'btnHiscore')
             .setInteractive({ useHandCursor: true })

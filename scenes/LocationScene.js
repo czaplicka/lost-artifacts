@@ -151,8 +151,9 @@ export class LocationScene extends Phaser.Scene {
   }
 
   create() {
-    audioManager.init(this);
-    audioManager.stopSfx('citysound');
+audioManager.init(this);
+audioManager.playMusic('themeGame');
+audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
     const locationSoundKey = LOCATION_SOUND_MAP[this.locationId];
 

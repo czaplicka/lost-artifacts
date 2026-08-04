@@ -56,6 +56,8 @@ export class ArrestSelectionScene extends Phaser.Scene {
   }
 
   create() {
+    audioManager.stopSfx();
+    audioManager.stopAllMusic();
     this.scene.sleep('UIScene');
     ensureHud(this);
     this.closeAllUIPanels();

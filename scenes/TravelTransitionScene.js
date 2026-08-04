@@ -1,5 +1,6 @@
 import { ensureHud } from '../hudHelpers.js';
 import { gameState, saveGameState } from '../GameData.js';
+import { audioManager } from '../AudioManager.js';
 
 export class TravelTransitionScene extends Phaser.Scene {
   constructor() {
@@ -28,7 +29,9 @@ export class TravelTransitionScene extends Phaser.Scene {
 
   create() {
     this.scene.sleep('UIScene');
-
+audioManager.stopSfx();
+audioManager.stopAllMusic();
+audioManager.playSfx('plane', { volume: 0.5 });
     const { width, height } = this.scale;
     const camera = this.cameras.main;
 

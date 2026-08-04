@@ -17,6 +17,7 @@ import { EventBus } from './EventBus.js';
 // =============================================
 
 const DEFAULT_SCORES = [
+    { name: "Czaplicka", points: 99999 },
     { name: "Victor 'Shadow' Thorne", points: 98450 },
     { name: 'Elena Vance', points: 92100 },
     { name: 'Marcus Thorne', points: 89750 }

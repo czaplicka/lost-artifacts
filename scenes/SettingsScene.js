@@ -9,7 +9,12 @@ export class SettingsScene extends Phaser.Scene {
     create() {
         audioManager.init(this);
 
-        this.add.image(0, 0, 'backgroundset').setOrigin(0, 0).setDisplaySize(1920, 1080);
+        const bg = this.add.image(0, 0, 'backgroundset')
+            .setOrigin(0, 0)
+            .setDisplaySize(1920, 1080)
+            .setDepth(0);
+
+        bg.setInteractive();
 
         const cx = 960;
         const cy = 540;
@@ -19,14 +24,15 @@ export class SettingsScene extends Phaser.Scene {
         const panel = this.add.graphics();
         panel.fillStyle(0x1a1a2e, 0.92);
         panel.fillRoundedRect(cx - pw / 2, cy - ph / 2, pw, ph, 12);
-        panel.lineStyle(3, 0xc9a227);
+        panel.lineStyle(3, 0xc9a227, 1);
         panel.strokeRoundedRect(cx - pw / 2, cy - ph / 2, pw, ph, 12);
+        panel.setDepth(10);
 
         this.add.text(cx, cy - 250, 'SETTINGS', {
             fontFamily: 'PressStart2P',
             fontSize: '28px',
             color: '#c9a227'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(20);
 
         const sliderX = cx - 280;
         const sliderW = 560;
@@ -54,7 +60,7 @@ export class SettingsScene extends Phaser.Scene {
         this.createMuteToggle(cx, cy + 70);
         this.createButton(cx, cy + 210, 'BACK', () => {
             audioManager.playSfx('buttonclick');
-            this.scene.start('MenuScene');
+            this.scene.stop();
         });
 
         this.updateSliderStates(audioManager.getMuted());
@@ -65,13 +71,13 @@ export class SettingsScene extends Phaser.Scene {
             fontFamily: 'PressStart2P',
             fontSize: '14px',
             color: '#e8d5a3'
-        }).setOrigin(0, 0.5);
+        }).setOrigin(0, 0.5).setDepth(20);
 
         this.muteLabel = this.add.text(x + 80, y, '', {
             fontFamily: 'PressStart2P',
             fontSize: '16px',
             color: '#c9a227'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(20);
 
         this.muteLabel.setInteractive({ useHandCursor: true });
         this.muteLabel.on('pointerover', () => this.muteLabel.setScale(1.1));
@@ -92,8 +98,12 @@ export class SettingsScene extends Phaser.Scene {
     }
 
     updateSliderStates(muted) {
-        this.sfxSlider.setEnabled(!muted);
-        this.musicSlider.setEnabled(!muted);
+        if (this.sfxSlider && this.sfxSlider.setEnabled) {
+            this.sfxSlider.setEnabled(!muted);
+        }
+        if (this.musicSlider && this.musicSlider.setEnabled) {
+            this.musicSlider.setEnabled(!muted);
+        }
     }
 
     createButton(x, y, text, callback) {
@@ -101,7 +111,8 @@ export class SettingsScene extends Phaser.Scene {
             fontFamily: 'PressStart2P',
             fontSize: '20px',
             color: '#e8d5a3'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(20);
+
         btn.setInteractive({ useHandCursor: true });
         btn.on('pointerover', () => btn.setScale(1.1));
         btn.on('pointerout', () => btn.setScale(1.0));

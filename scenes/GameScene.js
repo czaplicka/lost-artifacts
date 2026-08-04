@@ -22,11 +22,12 @@ export class GameScene extends Phaser.Scene {
         this.hasStartedOfficeScene = false;
         this.sequenceStage = 'idle';
         this.sequenceFinished = false;
+        this.isTypingIntro = false;
+        this.isIntroReady = false;
     }
 
     create() {
         audioManager.init(this);
-
         this.scene.wake('UIScene');
         this.timeManager = new GameTimeManager();
 
@@ -136,23 +137,52 @@ export class GameScene extends Phaser.Scene {
             wordWrap: { width: 1480 },
             lineSpacing: 14
         }).setDepth(21);
-
-        this.continueText = this.add.text(1180, 920, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '16px',
-            color: '#ffff99'
-        }).setOrigin(1, 1).setDepth(21);
     }
 
     startIntroSequence() {
         this.sequenceStage = 'video1';
         this.sequenceFinished = false;
+        this.isIntroReady = false;
+        this.isTypingIntro = true;
 
         this.playVideo('detectiveIntro', 'detective-intro', () => {
             this.finishSequence();
         });
 
-        this.typeText(this.dialogueText, this.fullIntroText, 24);
+        // Zwolnienie generowania tekstu: zmiana delay z 50 ms na 80 ms (możesz dostosować tę wartość)
+        this.typeText(this.dialogueText, this.fullIntroText, 80, true);
+
+        this.input.once('pointerdown', () => {
+            this.handleIntroClick();
+        });
+
+        this.input.keyboard?.once('keydown-SPACE', () => {
+            this.handleIntroClick();
+        });
+    }
+
+    handleIntroClick() {
+        if (this.sequenceFinished) return;
+
+        if (this.isTypingIntro && this.typingEvent) {
+            this.finishTypingInstantly();
+            return;
+        }
+
+        if (this.isIntroReady) {
+            this.finishSequence();
+        }
+    }
+
+    finishTypingInstantly() {
+        if (this.typingEvent) {
+            this.typingEvent.remove(false);
+            this.typingEvent = null;
+        }
+
+        this.dialogueText.setText(this.fullIntroText);
+        this.isTypingIntro = false;
+        this.isIntroReady = true;
     }
 
     finishSequence() {
@@ -177,10 +207,11 @@ export class GameScene extends Phaser.Scene {
         this.destroyCurrentVideo();
 
         let audioFinished = !hasAudio;
-        let videoFinished = !hasVideo;
+        let videoFinished = false;
 
         const tryComplete = () => {
-            if (audioFinished && videoFinished) {
+            // Zamknięcie sekwencji następuje po zakończeniu ścieżki dźwiękowej (lektora)
+            if (audioFinished) {
                 this.destroyCurrentVideo();
                 onComplete?.();
             }
@@ -191,10 +222,8 @@ export class GameScene extends Phaser.Scene {
 
             if (this.currentAudio) {
                 this.currentAudio.once('complete', () => {
-                    if (this.currentAudio) {
-                        audioFinished = true;
-                        tryComplete();
-                    }
+                    audioFinished = true;
+                    tryComplete();
                 });
 
                 this.currentAudio.once('stop', () => {
@@ -236,12 +265,6 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        video.once('complete', () => {
-            if (this.currentVideo !== video) return;
-            videoFinished = true;
-            tryComplete();
-        });
-
         video.on('error', (videoObject, error) => {
             console.error(`${videoKey} video error:`, error);
             if (this.currentVideo === video) {
@@ -258,7 +281,8 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        video.play(false);
+        // Ustawienie true spowoduje zapętlenie wideo (looping) do czasu wywołania destroyCurrentVideo()
+        video.play(true);
     }
 
     resizeVideoCover(video) {
@@ -308,7 +332,7 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
-    typeText(target, text, speed = 15) {
+    typeText(target, text, speed = 15, allowSkip = false) {
         if (!target || typeof text !== 'string') return;
 
         if (this.typingEvent) {
@@ -316,10 +340,10 @@ export class GameScene extends Phaser.Scene {
             this.typingEvent = null;
         }
 
-        this.continueText?.setText('');
         target.setText('');
-
         let index = 0;
+        this.isTypingIntro = true;
+        this.isIntroReady = false;
 
         this.typingEvent = this.time.addEvent({
             delay: speed,
@@ -330,6 +354,8 @@ export class GameScene extends Phaser.Scene {
 
                 if (index >= text.length) {
                     this.typingEvent = null;
+                    this.isTypingIntro = false;
+                    this.isIntroReady = true;
                 }
             }
         });

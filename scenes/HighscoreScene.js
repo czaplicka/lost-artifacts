@@ -69,7 +69,7 @@ export class HighscoreScene extends Phaser.Scene {
             this.add.text(width / 2, height * 0.45, 'No records found.', {
                 fontSize: '24px',
                 color: '#000000',
-                fontFamily: 'PressStart2P,
+                fontFamily: 'PressStart2P',
                 align: 'center'
             }).setOrigin(0.5);
 
@@ -78,9 +78,11 @@ export class HighscoreScene extends Phaser.Scene {
 
         const startY = height * 0.32;
         const rowHeight = 52;
-        const rankX = width * 0.16;
-        const nameX = width * 0.24;
-        const pointsX = width * 0.72;
+
+        // Zbliżone do siebie kolumny – małe przerwy między rank/name/points
+        const rankX = width * 0.31;
+        const nameX = width * 0.36;
+        const pointsX = width * 0.65;
 
         topScores.forEach((s, index) => {
             const y = startY + (index * rowHeight);
@@ -89,19 +91,19 @@ export class HighscoreScene extends Phaser.Scene {
             const playerPoints = Number.isFinite(s.points) ? s.points : 0;
 
             this.add.text(rankX, y, rankLabel, {
-                fontSize: '20px',
+                fontSize: '16px',
                 color: '#000000',
                 fontFamily: 'PressStart2P'
             }).setOrigin(0, 0.5);
 
             this.add.text(nameX, y, playerName, {
-                fontSize: '20px',
+                fontSize: '16px',
                 color: '#000000',
                 fontFamily: 'PressStart2P'
             }).setOrigin(0, 0.5);
 
             this.add.text(pointsX, y, `${playerPoints} pts`, {
-                fontSize: '20px',
+                fontSize: '16px',
                 color: '#000000',
                 fontFamily: 'PressStart2P'
             }).setOrigin(1, 0.5);

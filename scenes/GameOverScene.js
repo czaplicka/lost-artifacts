@@ -53,12 +53,12 @@ export class GameOverScene extends Phaser.Scene {
     this.addHoverEffect(backBtn, 0.7, 0.8);
 
     backBtn.on('pointerdown', () => {
-      audioManager.stopSfx('game_over');
+audioManager.stopAllSfx();
       this.scene.start('MenuScene');
     });
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      audioManager.stopSfx('game_over');
+audioManager.stopAllSfx();
     });
   }
 

@@ -2,6 +2,7 @@ import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { generateCaseCityState } from '../city-encounter-generator.js';
+import { audioManager } from '../AudioManager.js';
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
@@ -69,10 +70,9 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
-    audioManager.init(this);
-audioManager.stopMusic('themeMusic');
-    audioManager.playMusic('themeGame');
-    audioManager.playSfx('citysound', { loop: true });
+audioManager.init(this);
+audioManager.playMusic('themeGame');
+audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
     if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
       this.scene.stop('LocationScene');

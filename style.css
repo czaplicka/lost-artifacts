@@ -20,6 +20,28 @@
     font-style: normal;
     font-display: block;
 }
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('assets/fonts/PressStart2P.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+
+@font-face {
+    font-family: 'Special Elite';
+    src: url('assets/fonts/SpecialElite.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'IndieFlower';
+    src: url('assets/fonts/IndieFlower.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
 html,
 body {
     margin: 0;

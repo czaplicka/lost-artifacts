@@ -1,5 +1,6 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { ScoreManager } from '../ScoreManager.js';
+import { audioManager } from '../AudioManager.js';
 
 export default class HypothesisScene extends Phaser.Scene {
   constructor() {
@@ -40,6 +41,7 @@ export default class HypothesisScene extends Phaser.Scene {
     this.isDraggingCard = false;
     this.isMobileUI = false;
     this.selectedSlotIndex = null;
+    this.uiLocked = false;
 
     this.handleDragStartBound = null;
     this.handleDragBound = null;
@@ -48,12 +50,14 @@ export default class HypothesisScene extends Phaser.Scene {
     this.handleResizeBound = null;
 
     this.scoreManager = null;
+    this.activeSlotCount = 3;
   }
 
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
     this.cityId = data.cityId || gameState.currentCityId || gameState.crimeCityId || gameState.reconstructedHeist?.cityId || null;
     this.sceneId = data.sceneId || gameState.reconstructedHeist?.sceneId || null;
+    this.activeSlotCount = Number.isInteger(data.activeSlotCount) ? Phaser.Math.Clamp(data.activeSlotCount, 1, 3) : 3;
 
     this.overlay = null;
     this.panel = null;
@@ -72,8 +76,8 @@ export default class HypothesisScene extends Phaser.Scene {
     this.slotViews = [];
     this.dropZones = [];
 
-    this.placedCards = [null, null, null];
-    this.slotFeedback = ['neutral', 'neutral', 'neutral'];
+    this.placedCards = new Array(this.activeSlotCount).fill(null);
+    this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
 
     this.attemptsLeft = 3;
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
@@ -88,6 +92,7 @@ export default class HypothesisScene extends Phaser.Scene {
     this.isDraggingCard = false;
     this.isMobileUI = false;
     this.selectedSlotIndex = null;
+    this.uiLocked = false;
 
     this.handleDragStartBound = null;
     this.handleDragBound = null;
@@ -101,8 +106,8 @@ export default class HypothesisScene extends Phaser.Scene {
   create() {
     this.prepareCards();
 
-    this.input.dragDistanceThreshold = 12;
-    this.input.dragTimeThreshold = 100;
+    this.input.dragDistanceThreshold = 14;
+    this.input.dragTimeThreshold = 120;
 
     this.isMobileUI = !!this.sys.game.device.input.touch || this.scale.width <= 900;
 
@@ -113,7 +118,7 @@ export default class HypothesisScene extends Phaser.Scene {
       .setDepth(3000)
       .setInteractive();
 
-    this.panel = this.add.rectangle(width / 2, height / 2, width * 0.94, height * 0.94, 0x17130f, 0.98)
+    this.panel = this.add.rectangle(width / 2, height / 2, width * 0.92, height * 0.88, 0x17130f, 0.98)
       .setStrokeStyle(4, 0xd4af37, 0.85)
       .setDepth(3001);
 
@@ -125,7 +130,7 @@ export default class HypothesisScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3002);
 
     const subtitle = this.isMobileUI
-      ? 'Tap a clue card to place it. Tap an empty step to target it first. Tap a filled step to remove its card. You have 3 attempts.'
+      ? 'Tap clue cards to place them. Tap X to remove a card. You have 3 attempts.'
       : 'Drag 3 clue cards into the timeline. You have 3 attempts.';
 
     this.subtitleText = this.add.text(width / 2, 0, subtitle, {
@@ -147,7 +152,7 @@ export default class HypothesisScene extends Phaser.Scene {
     this.createCardTray();
     this.createButtons();
 
-    this.mobileHintText = this.add.text(width / 2, 0, 'Tap card to auto-place', {
+    this.mobileHintText = this.add.text(width / 2, 0, 'Tap card to auto-place. Tap X to remove.', {
       fontFamily: 'Special Elite',
       fontSize: '18px',
       color: '#f0ddb0',
@@ -184,9 +189,7 @@ export default class HypothesisScene extends Phaser.Scene {
       .filter(card => !this.sceneId || card.scene === this.sceneId)
       .filter(card => !this.cityId || card.cityId === this.cityId);
 
-    if (sourceCards.length === 0) {
-      sourceCards = allCards;
-    }
+    if (sourceCards.length === 0) sourceCards = allCards;
 
     const uniqueCards = [];
     const seen = new Set();
@@ -212,20 +215,8 @@ export default class HypothesisScene extends Phaser.Scene {
       });
     });
 
-    const exactCorrect = uniqueCards
-      .filter(card => card.isCorrect)
-      .sort((a, b) => a.correctOrder - b.correctOrder)
-      .slice(0, 3);
-
-    this.correctCards = exactCorrect;
-
-    this.distractorCards = uniqueCards
-      .filter(card => !card.isCorrect)
-      .slice(0, 3);
-
-    if (this.correctCards.length < 3 || this.distractorCards.length < 3) {
-      console.warn('HypothesisScene: insufficient card data from reconstructedHeist.allCards');
-    }
+    this.correctCards = uniqueCards.filter(card => card.isCorrect).sort((a, b) => a.correctOrder - b.correctOrder).slice(0, 3);
+    this.distractorCards = uniqueCards.filter(card => !card.isCorrect).slice(0, 3);
 
     this.availableCards = Phaser.Utils.Array.Shuffle([
       ...this.correctCards.slice(0, 3),
@@ -245,62 +236,55 @@ export default class HypothesisScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const isMobile = this.isMobileUI || width <= 900;
 
-    const panelWidth = Math.min(width - 20, isMobile ? 760 : 1480);
-    const panelHeight = Math.min(height - 20, isMobile ? Math.max(1220, height - 12) : 980);
+    const panelWidth = isMobile ? Math.min(width - 40, 900) : Math.min(width - 200, 1600);
+    const panelHeight = isMobile ? Math.min(height - 60, 900) : Math.min(height - 300, 720);
+
     const panelX = width / 2;
     const panelY = height / 2;
     const panelTop = panelY - panelHeight / 2;
     const panelBottom = panelY + panelHeight / 2;
 
-    const titleY = panelTop + (isMobile ? 38 : 46);
-    const subtitleY = titleY + (isMobile ? 42 : 48);
-    const attemptsY = subtitleY + (isMobile ? 96 : 76);
+    const titleY = panelTop + (isMobile ? 40 : 60);
+    const subtitleY = titleY + (isMobile ? 50 : 60);
+    const attemptsY = subtitleY + (isMobile ? 70 : 60);
 
-    const slotWidth = isMobile ? Math.min(panelWidth - 48, 320) : 340;
-    const slotHeight = isMobile ? 118 : 152;
-    const slotVerticalGap = 136;
-    const slotHorizontalGap = 390;
+    const slotWidth = isMobile ? Math.min(panelWidth - 64, 320) : 420;
+    const slotHeight = isMobile ? 110 : 150;
 
-    const slotsBaseY = attemptsY + 142;
+    const slotGap = isMobile ? 40 : 60;
+    const totalSlotWidth = 3 * slotWidth + 2 * slotGap;
+    const slotStartX = width / 2 - totalSlotWidth / 2 + slotWidth / 2;
+    const slotsBaseY = attemptsY + (isMobile ? 120 : 140);
 
-    const slotPositions = isMobile
-      ? [
-          { x: width / 2, y: slotsBaseY, labelY: slotsBaseY - 78 },
-          { x: width / 2, y: slotsBaseY + slotVerticalGap, labelY: slotsBaseY + slotVerticalGap - 78 },
-          { x: width / 2, y: slotsBaseY + slotVerticalGap * 2, labelY: slotsBaseY + slotVerticalGap * 2 - 78 }
-        ]
-      : [
-          { x: width / 2 - slotHorizontalGap, y: slotsBaseY, labelY: slotsBaseY - 98 },
-          { x: width / 2, y: slotsBaseY, labelY: slotsBaseY - 98 },
-          { x: width / 2 + slotHorizontalGap, y: slotsBaseY, labelY: slotsBaseY - 98 }
-        ];
+    const slotPositions = [
+      { x: slotStartX, y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) },
+      { x: slotStartX + slotWidth + slotGap, y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) },
+      { x: slotStartX + 2 * (slotWidth + slotGap), y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) }
+    ];
 
-    const mobileHintY = isMobile ? slotPositions[2].y + 120 : slotPositions[0].y + 160;
-    const gridTopY = isMobile ? mobileHintY + 60 : slotPositions[0].y + 205;
-
-    const cardWidth = isMobile ? Math.min((panelWidth - 72) / 3, 210) : 250;
-    const cardHeight = isMobile ? 92 : 136;
+    const gridTopY = slotsBaseY + (isMobile ? 150 : 180);
+    const cardWidth = isMobile ? Math.min((panelWidth - 80) / 3, 220) : 260;
+    const cardHeight = isMobile ? 90 : 130;
 
     const cols = 3;
     const gridGapX = isMobile ? 12 : 18;
-    const gridGapY = isMobile ? 16 : 18;
-
+    const gridGapY = isMobile ? 14 : 18;
     const totalGridWidth = cols * cardWidth + (cols - 1) * gridGapX;
     const gridStartX = width / 2 - totalGridWidth / 2 + cardWidth / 2;
 
     const trayPositions = this.availableCards.map((_, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
-
       return {
         x: gridStartX + col * (cardWidth + gridGapX),
         y: gridTopY + row * (cardHeight + gridGapY)
       };
     });
 
-    const buttonsY = panelBottom - (isMobile ? 94 : 98);
-    const legendY = buttonsY - 58;
-    const feedbackY = buttonsY + 54;
+    const buttonsY = panelBottom - (isMobile ? 70 : 80);
+    const buttonGap = isMobile ? 160 : 220;
+    const legendY = buttonsY - 50;
+    const feedbackY = buttonsY + 40;
 
     return {
       width,
@@ -315,7 +299,6 @@ export default class HypothesisScene extends Phaser.Scene {
       titleY,
       subtitleY,
       attemptsY,
-      mobileHintY,
       gridTopY,
       buttonsY,
       legendY,
@@ -326,15 +309,15 @@ export default class HypothesisScene extends Phaser.Scene {
       cardWidth,
       cardHeight,
       trayPositions,
-      wrapTitle: Math.max(220, panelWidth - 60),
-      wrapSubtitle: Math.max(220, panelWidth - 80),
-      wrapFeedback: Math.max(220, panelWidth - 80),
-      wrapSlot: Math.max(170, slotWidth - 42),
-      wrapCardTitle: isMobile ? Math.max(90, cardWidth - 86) : 150,
-      buttonCloseX: isMobile ? width / 2 : width / 2 - 210,
-      buttonConfirmX: isMobile ? width / 2 : width / 2 + 220,
-      buttonCloseY: isMobile ? buttonsY - 42 : buttonsY,
-      buttonConfirmY: isMobile ? buttonsY + 16 : buttonsY
+      wrapTitle: Math.max(540, panelWidth - 200),
+      wrapSubtitle: Math.max(540, panelWidth - 260),
+      wrapFeedback: Math.max(540, panelWidth - 260),
+      wrapSlot: Math.max(260, slotWidth - 48),
+      wrapCardTitle: isMobile ? Math.max(120, cardWidth - 86) : Math.max(170, cardWidth - 100),
+      buttonCloseX: width / 2 - buttonGap / 2,
+      buttonConfirmX: width / 2 + buttonGap / 2,
+      buttonCloseY: buttonsY,
+      buttonConfirmY: buttonsY
     };
   }
 
@@ -358,7 +341,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
     if (this.mobileHintText) {
       this.mobileHintText.setVisible(this.isMobileUI);
-      this.mobileHintText.setPosition(L.width / 2, L.mobileHintY);
+      this.mobileHintText.setPosition(L.width / 2, L.gridTopY - 42);
       this.mobileHintText.setFontSize(L.isMobile ? '16px' : '18px');
     }
 
@@ -372,30 +355,20 @@ export default class HypothesisScene extends Phaser.Scene {
 
     this.slotViews.forEach((slotView, index) => {
       const pos = L.slotPositions[index];
+      if (!pos) return;
 
       slotView.label.setPosition(pos.x, pos.labelY);
       slotView.label.setFontSize(L.isMobile ? '12px' : '14px');
+      slotView.label.setWordWrapWidth(L.wrapSlot, true);
 
       slotView.box.setPosition(pos.x, pos.y);
       slotView.box.setSize(L.slotWidth, L.slotHeight);
-
-      if (L.isMobile) {
-        const paddingX = 20;
-        const paddingY = 16;
-        slotView.box.input.hitArea.setTo(
-          -L.slotWidth / 2 - paddingX,
-          -L.slotHeight / 2 - paddingY,
-          L.slotWidth + paddingX * 2,
-          L.slotHeight + paddingY * 2
-        );
-      } else {
-        slotView.box.input.hitArea.setTo(
-          -L.slotWidth / 2,
-          -L.slotHeight / 2,
-          L.slotWidth,
-          L.slotHeight
-        );
-      }
+      slotView.box.input.hitArea.setTo(
+        -L.slotWidth / 2,
+        -L.slotHeight / 2,
+        L.slotWidth,
+        L.slotHeight
+      );
 
       slotView.dropZone.setPosition(pos.x, pos.y);
       slotView.dropZone.setSize(L.slotWidth, L.slotHeight);
@@ -404,14 +377,19 @@ export default class HypothesisScene extends Phaser.Scene {
       slotView.text.setPosition(pos.x, pos.y);
       slotView.text.setFontSize(L.isMobile ? '20px' : '24px');
       slotView.text.setWordWrapWidth(L.wrapSlot, true);
+
+      if (slotView.removeButton) {
+        slotView.removeButton.setPosition(pos.x + L.slotWidth / 2 - 24, pos.y - L.slotHeight / 2 + 20);
+        slotView.removeButton.setFontSize(L.isMobile ? '14px' : '16px');
+      }
     });
 
     this.cardViews.forEach((view, index) => {
       const pos = L.trayPositions[index];
       const card = this.availableCards[index];
+      if (!pos || !card) return;
 
       view.bg.setSize(L.cardWidth, L.cardHeight);
-
       view.bg.input.hitArea.setTo(
         -L.cardWidth / 2,
         -L.cardHeight / 2,
@@ -420,12 +398,12 @@ export default class HypothesisScene extends Phaser.Scene {
       );
 
       if (L.isMobile) {
-        view.title.setPosition(-L.cardWidth / 2 + 12, -8).setOrigin(0, 0.5);
+        view.title.setPosition(-L.cardWidth / 2 + 12, -10).setOrigin(0, 0.5);
         view.title.setAlign('left');
         view.title.setFontSize('16px');
         view.title.setWordWrapWidth(L.wrapCardTitle, true);
 
-        view.tag.setPosition(-L.cardWidth / 2 + 12, 24).setOrigin(0, 0.5);
+        view.tag.setPosition(-L.cardWidth / 2 + 12, 26).setOrigin(0, 0.5);
         view.tag.setFontSize('11px');
         view.tag.setText(this.buildSkillPreview(card.skills));
       } else {
@@ -445,37 +423,32 @@ export default class HypothesisScene extends Phaser.Scene {
         this.setCardPosition(view, pos.x, pos.y);
       } else {
         const slot = this.slotViews[view.currentSlot];
-        if (slot) {
-          this.setCardPosition(view, slot.box.x, slot.box.y);
-        }
+        if (slot) this.setCardPosition(view, slot.box.x, slot.box.y);
       }
     });
 
     this.closeButton.setPosition(L.buttonCloseX, L.buttonCloseY);
-    this.closeButton.setFontSize(L.isMobile ? '24px' : '28px');
+    this.closeButton.setFontSize(L.isMobile ? '22px' : '28px');
 
     this.confirmButton.setPosition(L.buttonConfirmX, L.buttonConfirmY);
-    this.confirmButton.setFontSize(L.isMobile ? '24px' : '28px');
+    this.confirmButton.setFontSize(L.isMobile ? '22px' : '28px');
   }
 
   createSlots() {
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < this.activeSlotCount; i += 1) {
       const label = this.add.text(0, 0, `STEP ${i + 1}`, {
         fontFamily: 'PressStart2P',
         fontSize: '14px',
         color: '#f0ddb0'
       }).setOrigin(0.5).setDepth(3002);
 
-      const box = this.add.rectangle(0, 0, 340, 152, 0x241c16, 0.98)
+      const box = this.add.rectangle(0, 0, 420, 150, 0x241c16, 0.98)
         .setStrokeStyle(3, 0xc8a75a, 0.8)
         .setDepth(3002)
-        .setInteractive(
-          new Phaser.Geom.Rectangle(-170, -76, 340, 152),
-          Phaser.Geom.Rectangle.Contains
-        );
+        .setInteractive(new Phaser.Geom.Rectangle(-210, -75, 420, 150), Phaser.Geom.Rectangle.Contains);
 
-      const dropZone = this.add.zone(0, 0, 340, 152)
-        .setRectangleDropZone(340, 152)
+      const dropZone = this.add.zone(0, 0, 420, 150)
+        .setRectangleDropZone(420, 150)
         .setData('slotIndex', i)
         .setDepth(3003);
 
@@ -484,15 +457,22 @@ export default class HypothesisScene extends Phaser.Scene {
         fontSize: '24px',
         color: '#8d8577',
         align: 'center',
-        wordWrap: { width: 280, useAdvancedWrap: true },
+        wordWrap: { width: 300, useAdvancedWrap: true },
         lineSpacing: 4
       }).setOrigin(0.5).setDepth(3003);
 
-      box.on('pointerup', () => {
-        this.handleSlotClick(i);
-      });
+      const removeButton = this.add.text(0, 0, 'X', {
+        fontFamily: 'PressStart2P',
+        fontSize: '16px',
+        color: '#ffffff',
+        backgroundColor: '#7a1f1f',
+        padding: { left: 7, right: 7, top: 5, bottom: 5 }
+      }).setOrigin(0.5).setDepth(3004).setInteractive({ useHandCursor: true });
 
-      this.slotViews.push({ label, box, text, dropZone });
+      removeButton.on('pointerup', () => this.handleSlotRemove(i));
+      box.on('pointerup', () => this.handleSlotClick(i));
+
+      this.slotViews.push({ label, box, text, dropZone, removeButton });
       this.dropZones.push(dropZone);
     }
   }
@@ -501,19 +481,16 @@ export default class HypothesisScene extends Phaser.Scene {
     this.availableCards.forEach((card, index) => {
       const container = this.add.container(0, 0).setDepth(3004);
 
-      const bg = this.add.rectangle(0, 0, 250, 136, 0xf1e2bf, 1)
+      const bg = this.add.rectangle(0, 0, 260, 130, 0xf1e2bf, 1)
         .setStrokeStyle(3, 0x7a5c2e, 0.85)
-        .setInteractive(
-          new Phaser.Geom.Rectangle(-125, -68, 250, 136),
-          Phaser.Geom.Rectangle.Contains
-        );
+        .setInteractive(new Phaser.Geom.Rectangle(-130, -65, 260, 130), Phaser.Geom.Rectangle.Contains);
 
       const title = this.add.text(0, -18, card.item, {
         fontFamily: 'Special Elite',
         fontSize: '18px',
         color: '#3c2200',
         align: 'center',
-        wordWrap: { width: 150, useAdvancedWrap: true }
+        wordWrap: { width: 170, useAdvancedWrap: true }
       }).setOrigin(0.5);
 
       const tag = this.add.text(0, 34, this.buildSkillPreview(card.skills), {
@@ -543,9 +520,8 @@ export default class HypothesisScene extends Phaser.Scene {
       container.homeY = 0;
       container.currentSlot = null;
 
-      bg.on('pointerdown', (pointer) => {
-        if (this.isMobileUI) return;
-
+      bg.on('pointerdown', pointer => {
+        if (this.isMobileUI || this.uiLocked) return;
         bg.pointerDownX = pointer.x;
         bg.pointerDownY = pointer.y;
         bg.pointerDownTime = this.time.now;
@@ -555,7 +531,9 @@ export default class HypothesisScene extends Phaser.Scene {
         container.setScale(0.98);
       });
 
-      bg.on('pointerup', (pointer) => {
+      bg.on('pointerup', pointer => {
+        if (this.uiLocked) return;
+
         if (this.isMobileUI) {
           this.handleCardTap(index);
           return;
@@ -613,13 +591,10 @@ export default class HypothesisScene extends Phaser.Scene {
       padding: { left: 18, right: 18, top: 10, bottom: 10 }
     }).setOrigin(0.5).setDepth(3003).setInteractive({ useHandCursor: true });
 
-    this.closeButton.on('pointerup', () => {
-      this.closeScene();
-    });
-
+    this.closeButton.on('pointerup', () => this.closeScene());
     this.confirmButton.on('pointerup', () => {
       if (!this.isTimelineComplete()) {
-        this.showFeedback('Place 3 cards first.', '#ff9f80');
+        this.showFeedback(`Place ${this.activeSlotCount} cards first.`, '#ff9f80');
         return;
       }
       this.confirmTheory();
@@ -629,27 +604,13 @@ export default class HypothesisScene extends Phaser.Scene {
   bindResize() {
     if (this._resizeBound) return;
     this._resizeBound = true;
-
     this.handleResizeBound = this.handleResize.bind(this);
     this.scale.on('resize', this.handleResizeBound, this);
   }
 
   handleResize() {
-    const wasMobileUI = this.isMobileUI;
     this.isMobileUI = !!this.sys.game.device.input.touch || this.scale.width <= 900;
-
-    if (wasMobileUI !== this.isMobileUI && this.subtitleText) {
-      this.subtitleText.setText(
-        this.isMobileUI
-          ? 'Tap a clue card to place it. Tap an empty step to target it first. Tap a filled step to remove its card. You have 3 attempts.'
-          : 'Drag 3 clue cards into the timeline. You have 3 attempts.'
-      );
-    }
-
-    if (this.mobileHintText) {
-      this.mobileHintText.setVisible(this.isMobileUI);
-    }
-
+    if (this.mobileHintText) this.mobileHintText.setVisible(this.isMobileUI);
     this.applyResponsiveLayout();
     this.refreshUI();
   }
@@ -659,8 +620,7 @@ export default class HypothesisScene extends Phaser.Scene {
     this._listenersBound = true;
 
     this.handleDragStartBound = (pointer, gameObject) => {
-      if (this.isMobileUI) return;
-
+      if (this.isMobileUI || this.uiLocked) return;
       const container = gameObject.parentCardContainer;
       this.isDraggingCard = true;
       gameObject.dragStarted = true;
@@ -671,32 +631,25 @@ export default class HypothesisScene extends Phaser.Scene {
     };
 
     this.handleDragBound = (pointer, gameObject, dragX, dragY) => {
-      if (this.isMobileUI) return;
-
+      if (this.isMobileUI || this.uiLocked) return;
       const container = gameObject.parentCardContainer;
       gameObject.justDragged = true;
       this.setCardPositionByIndex(container.cardIndex, dragX, dragY);
     };
 
     this.handleDropBound = (pointer, gameObject, dropZone) => {
-      if (this.isMobileUI) return;
-
+      if (this.isMobileUI || this.uiLocked) return;
       const container = gameObject.parentCardContainer;
       const slotIndex = dropZone.getData('slotIndex');
       this.placeCardInSlotByIndex(container.cardIndex, slotIndex);
     };
 
     this.handleDragEndBound = (pointer, gameObject, dropped) => {
-      if (this.isMobileUI) return;
-
+      if (this.isMobileUI || this.uiLocked) return;
       const container = gameObject.parentCardContainer;
       this.isDraggingCard = false;
       container.setScale(1);
-
-      if (!dropped) {
-        this.returnCardHomeByIndex(container.cardIndex);
-      }
-
+      if (!dropped) this.returnCardHomeByIndex(container.cardIndex);
       this.time.delayedCall(100, () => {
         gameObject.justDragged = false;
         gameObject.dragStarted = false;
@@ -711,9 +664,7 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   buildSkillPreview(skills = []) {
-    if (!Array.isArray(skills) || skills.length === 0) {
-      return 'No skill';
-    }
+    if (!Array.isArray(skills) || skills.length === 0) return 'No skill';
     return String(skills[0]);
   }
 
@@ -723,14 +674,13 @@ export default class HypothesisScene extends Phaser.Scene {
 
   setCardPosition(cardView, x, y) {
     if (!cardView || !this.layout) return;
-
     cardView.container.setPosition(x, y);
     cardView.bg.setPosition(0, 0);
 
     const titleX = cardView.title.originX === 0 ? -this.layout.cardWidth / 2 + 12 : 0;
-    const titleY = this.layout.isMobile ? -8 : -18;
+    const titleY = this.layout.isMobile ? -10 : -18;
     const tagX = this.layout.isMobile ? -this.layout.cardWidth / 2 + 12 : 0;
-    const tagY = this.layout.isMobile ? 24 : 34;
+    const tagY = this.layout.isMobile ? 26 : 34;
 
     cardView.title.setPosition(titleX, titleY);
     cardView.tag.setPosition(tagX, tagY);
@@ -745,14 +695,10 @@ export default class HypothesisScene extends Phaser.Scene {
   flashSlot(slotIndex) {
     const slotView = this.slotViews[slotIndex];
     if (!slotView?.box) return;
-
     const box = slotView.box;
     const originalLineWidth = box.lineWidth || 3;
-
     this.tweens.killTweensOf(box);
-
     box.setStrokeStyle(5, 0xfff2a8, 1);
-
     this.tweens.add({
       targets: box,
       alpha: { from: 1, to: 0.86 },
@@ -762,14 +708,13 @@ export default class HypothesisScene extends Phaser.Scene {
       onComplete: () => {
         box.setAlpha(1);
         this.refreshSlots();
-        if (box.active) {
-          box.setLineWidth?.(originalLineWidth);
-        }
+        if (box.active) box.setLineWidth?.(originalLineWidth);
       }
     });
   }
 
   handleCardTap(cardIndex) {
+    if (this.uiLocked) return;
     const card = this.availableCards[cardIndex];
     if (!card) return;
 
@@ -780,30 +725,25 @@ export default class HypothesisScene extends Phaser.Scene {
     }
 
     let targetSlot = this.selectedSlotIndex;
-    let autoSelected = false;
 
     if (targetSlot === null || targetSlot === undefined) {
       targetSlot = this.placedCards.findIndex(v => v === null);
-
       if (targetSlot !== -1) {
         this.selectedSlotIndex = targetSlot;
-        autoSelected = true;
         this.refreshUI();
       }
     }
 
     if (targetSlot === -1 || targetSlot === null || targetSlot === undefined) {
-      this.showFeedback('All steps are full. Tap a filled step to remove a card.', '#ffb347');
+      this.showFeedback('All steps are full. Tap X on a step to remove a card.', '#ffb347');
       return;
     }
 
     if (this.placedCards[targetSlot] !== null) {
       const emptySlot = this.placedCards.findIndex(v => v === null);
-
       if (emptySlot !== -1) {
         targetSlot = emptySlot;
         this.selectedSlotIndex = emptySlot;
-        autoSelected = true;
         this.refreshUI();
       } else {
         this.showFeedback('Selected step is occupied. Remove that card first.', '#ffb347');
@@ -812,20 +752,12 @@ export default class HypothesisScene extends Phaser.Scene {
     }
 
     this.placeCardInSlotByIndex(cardIndex, targetSlot);
-
-    if (autoSelected) {
-      this.showFeedback(`Step ${targetSlot + 1} auto-selected. Card placed there.`, '#ffd966');
-      this.time.delayedCall(220, () => {
-        this.selectedSlotIndex = null;
-        this.refreshUI();
-      });
-    } else {
-      this.selectedSlotIndex = null;
-      this.refreshUI();
-    }
+    this.selectedSlotIndex = null;
+    this.refreshUI();
   }
 
   handleCardClick(cardIndex) {
+    if (this.uiLocked) return;
     const card = this.availableCards[cardIndex];
     if (!card) return;
 
@@ -837,7 +769,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
     const emptySlot = this.placedCards.findIndex(v => v === null);
     if (emptySlot === -1) {
-      this.showFeedback('All slots are full. Remove one first.', '#ffb347');
+      this.showFeedback('All slots are full. Use X to remove one.', '#ffb347');
       return;
     }
 
@@ -845,40 +777,32 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   handleSlotClick(slotIndex) {
+    if (this.uiLocked) return;
     const cardIndex = this.placedCards[slotIndex];
 
-    if (this.isMobileUI) {
-      if (cardIndex !== null) {
-        this.returnCardHomeByIndex(cardIndex);
-        this.flashSlot(slotIndex);
-
-        if (this.selectedSlotIndex === slotIndex) {
-          this.selectedSlotIndex = null;
-        }
-
-        this.refreshUI();
-        this.showFeedback(`Card removed from step ${slotIndex + 1}.`, '#f0ddb0');
-        return;
-      }
-
+    if (cardIndex === null) {
       this.selectedSlotIndex = this.selectedSlotIndex === slotIndex ? null : slotIndex;
       this.refreshUI();
-
-      if (this.selectedSlotIndex === null) {
-        this.showFeedback('Step selection cleared.', '#ccb98c');
-      } else {
-        this.showFeedback(`Step ${slotIndex + 1} selected. Now tap a clue card.`, '#ffd966');
-      }
+      this.showFeedback(this.selectedSlotIndex === null ? 'Step selection cleared.' : `Step ${slotIndex + 1} selected. Now tap a clue card.`, this.selectedSlotIndex === null ? '#ccb98c' : '#ffd966');
       return;
     }
 
+    this.handleSlotRemove(slotIndex);
+  }
+
+  handleSlotRemove(slotIndex) {
+    if (this.uiLocked) return;
+    const cardIndex = this.placedCards[slotIndex];
     if (cardIndex === null) {
-      this.showFeedback('Drop a card here.', '#ffb347');
+      this.showFeedback('Nothing to remove there.', '#ffb347');
       return;
     }
 
-    this.returnCardHomeByIndex(cardIndex);
+    this.returnCardHomeByIndex(cardIndex, true);
     this.flashSlot(slotIndex);
+    this.selectedSlotIndex = null;
+    this.refreshUI();
+    this.showFeedback(`Card removed from step ${slotIndex + 1}.`, '#f0ddb0');
   }
 
   placeCardInSlotByIndex(cardIndex, slotIndex) {
@@ -891,9 +815,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
     if (fromSlot === slotIndex) {
       const slot = this.slotViews[slotIndex];
-      if (slot) {
-        this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
-      }
+      if (slot) this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
       return;
     }
 
@@ -902,9 +824,7 @@ export default class HypothesisScene extends Phaser.Scene {
       targetCard.currentSlot = fromSlot;
       targetCard.container.currentSlot = fromSlot;
       const oldSlot = this.slotViews[fromSlot];
-      if (oldSlot) {
-        this.setCardPosition(targetCard, oldSlot.box.x, oldSlot.box.y);
-      }
+      if (oldSlot) this.setCardPosition(targetCard, oldSlot.box.x, oldSlot.box.y);
     } else if (targetCard && fromSlot === null) {
       targetCard.currentSlot = null;
       targetCard.container.currentSlot = null;
@@ -920,11 +840,9 @@ export default class HypothesisScene extends Phaser.Scene {
     draggedCard.container.currentSlot = slotIndex;
 
     const slot = this.slotViews[slotIndex];
-    if (slot) {
-      this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
-    }
+    if (slot) this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
 
-    this.slotFeedback = ['neutral', 'neutral', 'neutral'];
+    this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
     this.refreshUI();
   }
 
@@ -983,6 +901,13 @@ export default class HypothesisScene extends Phaser.Scene {
       slotView.box.setFillStyle(colors.fill, 0.98);
       slotView.box.setStrokeStyle(colors.width, colors.stroke, 0.95);
 
+      if (slotView.removeButton) {
+        const active = cardIndex !== null;
+        slotView.removeButton.setAlpha(active ? 1 : 0.22);
+        slotView.removeButton.setVisible(true);
+        slotView.removeButton.setText('X');
+      }
+
       if (cardIndex === null) {
         slotView.text.setText(isSelected ? '[ selected ]' : '[ empty ]');
         slotView.text.setColor(colors.text);
@@ -1023,11 +948,11 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   evaluateGuess(orderedCards) {
-    const result = ['red', 'red', 'red'];
-    const solutionUsed = [false, false, false];
-    const guessUsed = [false, false, false];
+    const result = new Array(this.activeSlotCount).fill('red');
+    const solutionUsed = new Array(this.activeSlotCount).fill(false);
+    const guessUsed = new Array(this.activeSlotCount).fill(false);
 
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < this.activeSlotCount; i += 1) {
       const card = orderedCards[i];
       if (card?.isCorrect && card.correctOrder === i) {
         result[i] = 'green';
@@ -1036,12 +961,12 @@ export default class HypothesisScene extends Phaser.Scene {
       }
     }
 
-    for (let i = 0; i < 3; i += 1) {
+    for (let i = 0; i < this.activeSlotCount; i += 1) {
       if (guessUsed[i]) continue;
       const card = orderedCards[i];
       if (!card?.isCorrect) continue;
 
-      for (let j = 0; j < 3; j += 1) {
+      for (let j = 0; j < this.activeSlotCount; j += 1) {
         if (solutionUsed[j]) continue;
         if (card.correctOrder === j) {
           result[i] = 'yellow';
@@ -1056,10 +981,7 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   confirmTheory() {
-    const orderedCards = this.placedCards
-      .map(cardIndex => this.availableCards[cardIndex])
-      .filter(Boolean);
-
+    const orderedCards = this.placedCards.map(cardIndex => this.availableCards[cardIndex]).filter(Boolean);
     const feedback = this.evaluateGuess(orderedCards);
     this.slotFeedback = feedback;
     this.selectedSlotIndex = null;
@@ -1131,6 +1053,7 @@ export default class HypothesisScene extends Phaser.Scene {
 
     saveGameState();
     this.showFeedback(`${message} +${score} score`, color);
+    this.uiLocked = true;
 
     this.time.delayedCall(900, () => {
       this.launchResultCommentScene();
@@ -1146,9 +1069,7 @@ export default class HypothesisScene extends Phaser.Scene {
         const normalized = String(skill).trim();
         if (!normalized) return;
         const exists = uniqueSkills.some(existing => existing.toLowerCase() === normalized.toLowerCase());
-        if (!exists) {
-          uniqueSkills.push(normalized);
-        }
+        if (!exists) uniqueSkills.push(normalized);
       });
     });
 
@@ -1205,7 +1126,6 @@ export default class HypothesisScene extends Phaser.Scene {
     this.feedbackText.setText(text);
     this.feedbackText.setColor(color);
     this.feedbackText.setAlpha(1);
-
     this.tweens.killTweensOf(this.feedbackText);
     this.tweens.add({
       targets: this.feedbackText,
@@ -1262,21 +1182,11 @@ export default class HypothesisScene extends Phaser.Scene {
   }
 
   onShutdown() {
-    if (this.handleDragStartBound) {
-      this.input.off('dragstart', this.handleDragStartBound);
-    }
-    if (this.handleDragBound) {
-      this.input.off('drag', this.handleDragBound);
-    }
-    if (this.handleDropBound) {
-      this.input.off('drop', this.handleDropBound);
-    }
-    if (this.handleDragEndBound) {
-      this.input.off('dragend', this.handleDragEndBound);
-    }
-    if (this.handleResizeBound) {
-      this.scale.off('resize', this.handleResizeBound, this);
-    }
+    if (this.handleDragStartBound) this.input.off('dragstart', this.handleDragStartBound);
+    if (this.handleDragBound) this.input.off('drag', this.handleDragBound);
+    if (this.handleDropBound) this.input.off('drop', this.handleDropBound);
+    if (this.handleDragEndBound) this.input.off('dragend', this.handleDragEndBound);
+    if (this.handleResizeBound) this.scale.off('resize', this.handleResizeBound, this);
 
     this.cardViews.forEach(view => {
       [view.bg, view.title, view.tag, view.container].forEach(item => {
@@ -1285,8 +1195,14 @@ export default class HypothesisScene extends Phaser.Scene {
       });
     });
 
+    this.slotViews.forEach(v => {
+      [v.label, v.box, v.text, v.dropZone, v.removeButton].forEach(item => {
+        if (item?.removeAllListeners) item.removeAllListeners();
+        if (item?.destroy) item.destroy();
+      });
+    });
+
     [
-      ...this.slotViews.flatMap(v => [v.label, v.box, v.text, v.dropZone]),
       this.overlay,
       this.panel,
       this.titleText,
@@ -1306,11 +1222,12 @@ export default class HypothesisScene extends Phaser.Scene {
     this.cardViews = [];
     this.slotViews = [];
     this.dropZones = [];
-    this.placedCards = [null, null, null];
-    this.slotFeedback = ['neutral', 'neutral', 'neutral'];
+    this.placedCards = new Array(this.activeSlotCount).fill(null);
+    this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
     this.selectedSlotIndex = null;
     this._listenersBound = false;
     this._resizeBound = false;
     this.isDraggingCard = false;
+    this.uiLocked = false;
   }
 }

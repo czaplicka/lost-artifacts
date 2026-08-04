@@ -66,7 +66,7 @@
       this.container.add(this.modeHintText);
 
       this.playerInputDOM = this.scene.add.dom(
-        width * 0.4,
+        width * 0.63,
         height * 0.4,
         'textarea',
         [

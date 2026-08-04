@@ -6,12 +6,16 @@ export class PhoneCallScene extends Phaser.Scene {
     this.sourceScene = 'CityScene';
     this.cityId = null;
     this.ui = [];
+    this.ringTweens = [];
+    this.isAnswered = false;
   }
 
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
     this.cityId = data.cityId || gameState.currentCityId || null;
     this.ui = [];
+    this.ringTweens = [];
+    this.isAnswered = false;
   }
 
   create() {
@@ -19,39 +23,31 @@ export class PhoneCallScene extends Phaser.Scene {
     const cx = width / 2;
     const cy = height / 2;
 
-    // 1. Ciemne tło przyciemniające grę
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.75)
       .setOrigin(0, 0)
       .setDepth(2000)
       .setInteractive();
 
-    // 2. Obudowa telefonu (Retro Telefon / Brick Phone)
     const phoneBody = this.add.rectangle(cx, cy, 380, 680, 0x1e222a, 1)
       .setStrokeStyle(4, 0x3a3f4d)
       .setDepth(2001);
 
-    // Dodatkowy cień/ramka obudowy dla głębi 3D
     const phoneInnerFrame = this.add.rectangle(cx, cy, 360, 660, 0x14171d, 1)
       .setDepth(2001);
 
-    // Głośnik u góry telefonu
     const speaker = this.add.rectangle(cx, cy - 290, 80, 10, 0x0a0c0e, 1)
       .setStrokeStyle(2, 0x2c313c)
       .setDepth(2002);
 
-    // 3. Wyświetlacz (Monochromatyczny retro zielony/bursztynowy)
     const screenBg = this.add.rectangle(cx, cy - 110, 310, 300, 0x8bac0f, 1)
       .setStrokeStyle(4, 0x0f380f)
       .setDepth(2002);
 
-    // Wewnętrzna ramka ekranu (panel LCD)
     const screenBorder = this.add.rectangle(cx, cy - 110, 302, 292)
       .setStrokeStyle(2, 0x306230)
       .setDepth(2002);
 
-    // 4. Elementy interfejsu na ekranie LCD
-    // Pasek stanu (Zasięg + Bateria)
-    const signalText = this.add.text(cx - 135, cy - 245, 'Yll  GSM', {
+    const signalText = this.add.text(cx - 135, cy - 245, 'Yll GSM', {
       fontFamily: 'PressStart2P',
       fontSize: '12px',
       color: '#0f380f'
@@ -69,7 +65,6 @@ export class PhoneCallScene extends Phaser.Scene {
       color: '#0f380f'
     }).setOrigin(0.5).setDepth(2003);
 
-    // Animowana ikona dzwonka
     const phoneIcon = this.add.text(cx, cy - 150, '☎', {
       fontSize: '42px',
       color: '#0f380f'
@@ -90,7 +85,6 @@ export class PhoneCallScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5).setDepth(2003);
 
-    // 5. Przyciski ekranowe (Funkcyjne)
     const answerBtn = this.add.text(cx - 70, cy + 18, '[ ANSWER ]', {
       fontFamily: 'PressStart2P',
       fontSize: '11px',
@@ -107,12 +101,9 @@ export class PhoneCallScene extends Phaser.Scene {
       padding: { left: 8, right: 8, top: 6, bottom: 6 }
     }).setOrigin(0.5).setDepth(2003).setInteractive({ useHandCursor: true });
 
-    // 6. Fizyczna klawiatura telefonu (Atrapa retro klawiszy pod ekranem)
     const keypadGroup = this.drawKeypad(cx, cy + 180);
 
-    // 7. Animacje
-    // Pulsowanie ikony dzwonka i tekstu
-    this.tweens.add({
+    const ringTween1 = this.tweens.add({
       targets: [phoneIcon, ringing],
       alpha: { from: 0.2, to: 1 },
       duration: 500,
@@ -120,8 +111,7 @@ export class PhoneCallScene extends Phaser.Scene {
       repeat: -1
     });
 
-    // Delikatne trzęsienie obudowy telefonu (wibracja)
-    this.tweens.add({
+    const ringTween2 = this.tweens.add({
       targets: [phoneBody, phoneInnerFrame, speaker, screenBg, screenBorder, signalText, batteryText, title, phoneIcon, caller, ringing, answerBtn, laterBtn, ...keypadGroup],
       x: '+=2',
       duration: 50,
@@ -129,7 +119,14 @@ export class PhoneCallScene extends Phaser.Scene {
       repeat: -1
     });
 
-    // Interakcje przycisków
+    this.ringTweens.push(ringTween1, ringTween2);
+
+    const stopRinging = () => {
+      this.ringTweens.forEach(t => t?.remove?.());
+      this.ringTweens = [];
+      if (overlay) overlay.disableInteractive();
+    };
+
     answerBtn.on('pointerover', () => answerBtn.setStyle({ color: '#9bbc0f', backgroundColor: '#0f380f' }));
     answerBtn.on('pointerout', () => answerBtn.setStyle({ color: '#0f380f', backgroundColor: '#9bbc0f' }));
 
@@ -137,28 +134,34 @@ export class PhoneCallScene extends Phaser.Scene {
     laterBtn.on('pointerout', () => laterBtn.setStyle({ color: '#0f380f', backgroundColor: '#9bbc0f' }));
 
     answerBtn.on('pointerdown', () => {
+      if (this.isAnswered) return;
+      this.isAnswered = true;
+
+      stopRinging();
+
       this.scene.launch('HypothesisScene', {
         sourceScene: this.sourceScene,
         cityId: this.cityId
       });
+
       this.scene.stop();
     });
 
     laterBtn.on('pointerdown', () => {
       saveGameState();
+      stopRinging();
       this.scene.stop();
     });
 
     this.ui.push(
-      overlay, phoneBody, phoneInnerFrame, speaker, screenBg, screenBorder, 
-      signalText, batteryText, title, phoneIcon, caller, ringing, answerBtn, laterBtn, 
+      overlay, phoneBody, phoneInnerFrame, speaker, screenBg, screenBorder,
+      signalText, batteryText, title, phoneIcon, caller, ringing, answerBtn, laterBtn,
       ...keypadGroup
     );
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
   }
 
-  // Pomocnicza funkcja do rysowania retro klawiatury
   drawKeypad(startX, startY) {
     const keys = [];
     const labels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
@@ -192,6 +195,9 @@ export class PhoneCallScene extends Phaser.Scene {
   }
 
   onShutdown() {
+    this.ringTweens.forEach(t => t?.remove?.());
+    this.ringTweens = [];
+
     this.ui.forEach(item => {
       if (item?.removeAllListeners) {
         item.removeAllListeners();
@@ -200,6 +206,8 @@ export class PhoneCallScene extends Phaser.Scene {
         item.destroy();
       }
     });
+
     this.ui = [];
+    this.isAnswered = false;
   }
 }

@@ -1,24 +1,21 @@
-<div class="detective-form" id="profile-form">
-    <h2>Akta Osobowe</h2>
-    <p><strong>Agent:</strong> <span id="profile-alias">Ładowanie...</span></p>
-    <p><strong>Ranga:</strong> <span id="profile-rank">Kadet</span></p>
-    <p><strong>Punkty rankingowe:</strong> <span id="profile-points">0</span></p>
-    
-    <hr style="border: 1px dashed #2b2b2b;">
-    
-    <label>Prywatny Notatnik (zapisuje się w bazie):</label>
-    <textarea id="profile-notes" placeholder="Podejrzany miał czerwoną czapkę..."></textarea>
-    
-    <button class="btn-stamp" id="btn-save-notes" style="font-size: 14px;">ZAPISZ NOTATKI</button>
-    <button class="btn-stamp" id="btn-logout" style="font-size: 14px; border-color: #333; color: #333;">WYLOGUJ</button>
-</div>
-    <!-- (Poprzedni kod profilu) -->
-    
-    <div style="margin-top: 30px; border-top: 2px solid #8b0000; padding-top: 20px;">
-        <h3 style="color: #8b0000; margin-top: 0;">STREFA ZAGROŻENIA</h3>
-        <p style="font-size: 12px; margin-bottom: 10px;">Uwaga: Ta akcja trwale zniszczy Twoje akta. Znikniesz z rankingu.</p>
-        <button id="btn-delete-account" style="background: #8b0000; color: white; border: 2px solid #333; padding: 10px; cursor: pointer; font-family: inherit; font-weight: bold;">
-            🔥 ZNISZCZ MOJE AKTA
-        </button>
+<html><head></head><body>
+<div class="detective-modal-overlay" id="profile-modal" style="display: none;">
+    <div class="detective-form" id="profile-form">
+        <button class="modal-close" id="btn-close-profile">&times;</button>
+        
+        <h2>Personnel File</h2>
+        <p><strong>Agent:</strong> <span id="profile-alias">Loading...</span></p>
+        <p><strong>Rank:</strong> <span id="profile-rank">Cadet</span></p>
+        <p><strong>Rank Points:</strong> <span id="profile-points">0</span></p>
+        
+        <button class="btn-stamp" id="btn-logout" style="font-size: 14px; border-color: #333; color: #333; margin-top: 15px;">LOG OUT</button>
+        
+        <div style="margin-top: 30px; border-top: 2px solid #8b0000; padding-top: 20px;">
+            <h3 style="color: #8b0000; margin-top: 0;">DANGER ZONE</h3>
+            <p style="font-size: 12px; margin-bottom: 10px;">Warning: This action will permanently destroy your file. You will be removed from the leaderboard.</p>
+            <button id="btn-delete-account" style="background: #8b0000; color: white; border: 2px solid #333; padding: 10px; cursor: pointer; font-family: inherit; font-weight: bold;">
+                🔥 DESTROY MY FILE
+            </button>
+        </div>
     </div>
-</div>
+</div></body></html>

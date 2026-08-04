@@ -40,6 +40,7 @@ class AudioManager {
         this.muted = safeGet(STORAGE.MUTED) === 'true';
 
         this.activeMusic = new Map();
+        this.activePersistent = new Map();
         this.activeSfx = new Set();
         this.activeVoice = new Set();
     }
@@ -51,24 +52,26 @@ class AudioManager {
             this.scene.sound.mute = this.muted;
         }
 
-        this.activeMusic.forEach(sound => {
+        this._syncMap(this.activeMusic, this.musicVolume);
+        this._syncMap(this.activePersistent, this.sfxVolume);
+        this._syncSet(this.activeSfx, this.sfxVolume);
+        this._syncSet(this.activeVoice, this.sfxVolume);
+    }
+
+    _syncMap(map, volume) {
+        map.forEach(sound => {
             if (sound && !sound.pendingRemove) {
                 sound.setMute(this.muted);
-                sound.setVolume(this.musicVolume);
+                sound.setVolume(volume);
             }
         });
+    }
 
-        this.activeSfx.forEach(sound => {
+    _syncSet(set, volume) {
+        set.forEach(sound => {
             if (sound && !sound.pendingRemove) {
                 sound.setMute(this.muted);
-                sound.setVolume(this.sfxVolume);
-            }
-        });
-
-        this.activeVoice.forEach(sound => {
-            if (sound && !sound.pendingRemove) {
-                sound.setMute(this.muted);
-                sound.setVolume(this.sfxVolume);
+                sound.setVolume(volume);
             }
         });
     }
@@ -76,29 +79,15 @@ class AudioManager {
     setMusicVolume(value) {
         this.musicVolume = Phaser.Math.Clamp(value, 0, 1);
         safeSet(STORAGE.MUSIC, String(this.musicVolume));
-
-        this.activeMusic.forEach(sound => {
-            if (sound && !sound.pendingRemove) {
-                sound.setVolume(this.musicVolume);
-            }
-        });
+        this._syncMap(this.activeMusic, this.musicVolume);
     }
 
     setSfxVolume(value) {
         this.sfxVolume = Phaser.Math.Clamp(value, 0, 1);
         safeSet(STORAGE.SFX, String(this.sfxVolume));
-
-        this.activeSfx.forEach(sound => {
-            if (sound && !sound.pendingRemove) {
-                sound.setVolume(this.sfxVolume);
-            }
-        });
-
-        this.activeVoice.forEach(sound => {
-            if (sound && !sound.pendingRemove) {
-                sound.setVolume(this.sfxVolume);
-            }
-        });
+        this._syncSet(this.activeSfx, this.sfxVolume);
+        this._syncSet(this.activeVoice, this.sfxVolume);
+        this._syncMap(this.activePersistent, this.sfxVolume);
     }
 
     toggleMute() {
@@ -108,27 +97,46 @@ class AudioManager {
             this.scene.sound.mute = this.muted;
         }
 
+        this._applyMuteToAll();
         safeSet(STORAGE.MUTED, String(this.muted));
         return this.muted;
     }
 
+    _applyMuteToAll() {
+        this._syncMap(this.activeMusic, this.musicVolume);
+        this._syncMap(this.activePersistent, this.sfxVolume);
+        this._syncSet(this.activeSfx, this.sfxVolume);
+        this._syncSet(this.activeVoice, this.sfxVolume);
+    }
+
     playMusic(key, config = {}) {
+        return this._playLooped(this.activeMusic, key, {
+            ...config,
+            loop: config.loop ?? true,
+            volume: config.volume ?? this.musicVolume
+        }, true);
+    }
+
+    playPersistentLoop(key, config = {}) {
+        return this._playLooped(this.activePersistent, key, {
+            ...config,
+            loop: config.loop ?? true,
+            volume: config.volume ?? this.sfxVolume
+        }, false);
+    }
+
+    _playLooped(store, key, config = {}, restartIfStopped = true) {
         if (!this.scene || !this.scene.cache.audio.exists(key)) return null;
 
-        let sound = this.activeMusic.get(key);
-
-        if (!sound) {
-            sound = this.scene.sound.get(key);
-        }
+        let sound = store.get(key) || this.scene.sound.get(key);
 
         if (sound) {
             sound.setLoop(config.loop ?? true);
             sound.setMute(this.muted);
-            sound.setVolume(config.volume ?? this.musicVolume);
+            sound.setVolume(config.volume ?? 1);
+            store.set(key, sound);
 
-            this.activeMusic.set(key, sound);
-
-            if (!sound.isPlaying) {
+            if (restartIfStopped && !sound.isPlaying) {
                 sound.play();
             }
 
@@ -137,17 +145,15 @@ class AudioManager {
 
         sound = this.scene.sound.add(key, {
             ...config,
-            loop: config.loop ?? true,
-            volume: config.volume ?? this.musicVolume,
             mute: this.muted
         });
 
-        this.activeMusic.set(key, sound);
+        store.set(key, sound);
         sound.play();
 
         sound.once('destroy', () => {
-            if (this.activeMusic.get(key) === sound) {
-                this.activeMusic.delete(key);
+            if (store.get(key) === sound) {
+                store.delete(key);
             }
         });
 
@@ -155,11 +161,23 @@ class AudioManager {
     }
 
     stopMusic(key) {
-        let sound = this.activeMusic.get(key);
+        this._stopStored(this.activeMusic, key);
+    }
 
-        if (!sound && this.scene?.sound) {
-            sound = this.scene.sound.get(key);
-        }
+    stopPersistentLoop(key) {
+        this._stopStored(this.activePersistent, key);
+    }
+
+    stopAllMusic() {
+        this._stopAllStored(this.activeMusic);
+    }
+
+    stopAllPersistent() {
+        this._stopAllStored(this.activePersistent);
+    }
+
+    _stopStored(store, key) {
+        let sound = store.get(key) || this.scene?.sound?.get(key);
 
         if (sound) {
             if (sound.isPlaying) {
@@ -170,11 +188,11 @@ class AudioManager {
             }
         }
 
-        this.activeMusic.delete(key);
+        store.delete(key);
     }
 
-    stopAllMusic() {
-        this.activeMusic.forEach(sound => {
+    _stopAllStored(store) {
+        store.forEach(sound => {
             if (sound) {
                 if (sound.isPlaying) {
                     sound.stop();
@@ -184,8 +202,7 @@ class AudioManager {
                 }
             }
         });
-
-        this.activeMusic.clear();
+        store.clear();
     }
 
     playSfx(key, config = {}) {
@@ -210,9 +227,7 @@ class AudioManager {
 
         sound.once('complete', cleanup);
         sound.once('stop', cleanup);
-        sound.once('destroy', () => {
-            this.activeSfx.delete(sound);
-        });
+        sound.once('destroy', () => this.activeSfx.delete(sound));
 
         return sound;
     }
@@ -239,16 +254,14 @@ class AudioManager {
 
         sound.once('complete', cleanup);
         sound.once('stop', cleanup);
-        sound.once('destroy', () => {
-            this.activeVoice.delete(sound);
-        });
+        sound.once('destroy', () => this.activeVoice.delete(sound));
 
         return sound;
     }
 
-    stopAllSfx() {
+    stopSfx(key) {
         this.activeSfx.forEach(sound => {
-            if (sound) {
+            if (sound && sound.key === key) {
                 if (sound.isPlaying) {
                     sound.stop();
                 }
@@ -257,23 +270,14 @@ class AudioManager {
                 }
             }
         });
+    }
 
-        this.activeSfx.clear();
+    stopAllSfx() {
+        this._stopAllSet(this.activeSfx);
     }
 
     stopAllVoice() {
-        this.activeVoice.forEach(sound => {
-            if (sound) {
-                if (sound.isPlaying) {
-                    sound.stop();
-                }
-                if (!sound.pendingRemove) {
-                    sound.destroy();
-                }
-            }
-        });
-
-        this.activeVoice.clear();
+        this._stopAllSet(this.activeVoice);
     }
 
     stopAllNonMusic() {
@@ -281,13 +285,28 @@ class AudioManager {
         this.stopAllVoice();
     }
 
+    _stopAllSet(set) {
+        set.forEach(sound => {
+            if (sound) {
+                if (sound.isPlaying) {
+                    sound.stop();
+                }
+                if (!sound.pendingRemove) {
+                    sound.destroy();
+                }
+            }
+        });
+        set.clear();
+    }
+
     isMusicPlaying(key) {
         const sound = this.activeMusic.get(key) || this.scene?.sound?.get(key);
         return !!(sound && sound.isPlaying);
     }
 
-    getMusic(key) {
-        return this.activeMusic.get(key) || this.scene?.sound?.get(key) || null;
+    isPersistentPlaying(key) {
+        const sound = this.activePersistent.get(key) || this.scene?.sound?.get(key);
+        return !!(sound && sound.isPlaying);
     }
 
     getMusicVolume() {

@@ -8,11 +8,15 @@ export class PreloaderScene extends Phaser.Scene {
         this.tipIndex = -1;
         this.tipTimer = null;
         this.dotsTimer = null;
-        this.magnifierTween = null;
+        this.loadingReady = false;
     }
 
     preload() {
         const { width, height } = this.scale;
+        const centerX = width / 2;
+        const centerY = height * 0.5;
+        const cupX = centerX - 100;
+        const cupY = centerY + 100;
 
         if (this.textures.exists('cozyBackground')) {
             this.add.image(width / 2, height / 2, 'cozyBackground')
@@ -24,9 +28,7 @@ export class PreloaderScene extends Phaser.Scene {
         }
 
         this.createCoffeeTextures();
-        this.createMagnifierTexture();
 
-        // --- ASSETY ---
         this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
@@ -241,7 +243,6 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('wrong', 'assets/audio/wrong.mp3');
         this.load.audio('correct', 'assets/audio/correct.mp3');
         this.load.audio('successsound', 'assets/audio/success.mp3');
-
         this.load.audio('detective-intro', 'assets/voice/detective-intro.mp3');
 
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
@@ -294,11 +295,6 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('havela_bg', 'assets/crimes/havela.jpg');
         this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
 
-        const centerX = width / 2;
-        const centerY = height * 0.5;
-        const cupX = centerX - 100;
-        const cupY = centerY + 100;
-
         const tips = [
             'A planted clue usually wants to be found too quickly.',
             'Witness confidence is not the same as witness accuracy.',
@@ -313,7 +309,6 @@ export class PreloaderScene extends Phaser.Scene {
         ];
 
         const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.28);
-
         const vignetteTop = this.add.rectangle(centerX, 0, width, 120, 0x000000, 0.22).setOrigin(0.5, 0);
         const vignetteBottom = this.add.rectangle(centerX, height, width, 150, 0x000000, 0.24).setOrigin(0.5, 1);
 
@@ -323,21 +318,6 @@ export class PreloaderScene extends Phaser.Scene {
             scanlineOverlay.fillRect(0, y, width, 2);
         }
         scanlineOverlay.setAlpha(0.22);
-
-        const magnifier = this.add.image(centerX + 125, centerY + 84, 'magnifier_icon')
-            .setScale(0.9)
-            .setAlpha(0.9)
-            .setRotation(-0.08);
-
-        this.magnifierTween = this.tweens.add({
-            targets: magnifier,
-            angle: { from: -5, to: 4 },
-            y: magnifier.y + 4,
-            duration: 1800,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.inOut'
-        });
 
         this.add.image(cupX, cupY, 'cup_outline');
         this.fullCupImage = this.add.image(cupX, cupY, 'cup_coffee');
@@ -356,43 +336,12 @@ export class PreloaderScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        const statusText = this.add.text(centerX, centerY - 92, 'Opening confidential case files...', {
-            fontFamily: 'Special Elite',
-            fontSize: '28px',
-            color: '#e8dcc8',
-            stroke: '#2c1d14',
-            strokeThickness: 2,
-            align: 'center'
-        }).setOrigin(0.5);
-
-        const subStatusText = this.add.text(centerX, centerY - 54, 'Long-distance transmission may delay first launch.', {
-            fontFamily: 'Special Elite',
-            fontSize: '22px',
-            color: '#bfa88d',
-            align: 'center'
-        }).setOrigin(0.5);
-
-        const noirLabel = this.add.text(centerX, centerY + 184, 'DETECTIVE MEMO', {
+        const tipText = this.add.text(centerX, centerY + 452, this.getNextTip(tips), {
             fontFamily: 'PressStart2P',
-            fontSize: '11px',
-            color: '#c79f6b',
-            letterSpacing: 1
-        }).setOrigin(0.5);
-
-        const tipText = this.add.text(centerX, centerY + 222, this.getNextTip(tips), {
-            fontFamily: 'Special Elite',
             fontSize: '25px',
             color: '#f4ebd9',
             align: 'center',
             wordWrap: { width: width * 0.72 }
-        }).setOrigin(0.5);
-
-        const fileText = this.add.text(centerX, height - 42, 'Waiting for first evidence crate...', {
-            fontFamily: 'PressStart2P',
-            fontSize: '10px',
-            color: '#a38f78',
-            wordWrap: { width: width * 0.82 },
-            align: 'center'
         }).setOrigin(0.5);
 
         this.tipTimer = this.time.addEvent({
@@ -436,45 +385,15 @@ export class PreloaderScene extends Phaser.Scene {
 
             const percent = Math.round(value * 100);
             titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
-
-            if (value < 0.15) {
-                statusText.setText('Opening confidential case files...');
-                subStatusText.setText('Dusting the folder for old fingerprints.');
-            } else if (value < 0.30) {
-                statusText.setText('Contacting field offices...');
-                subStatusText.setText('Interpol uplink unstable, retrying handshake.');
-            } else if (value < 0.50) {
-                statusText.setText('Cross-referencing suspects...');
-                subStatusText.setText('Names, aliases and bad decisions are being sorted.');
-            } else if (value < 0.70) {
-                statusText.setText('Calling CSI...');
-                subStatusText.setText('Lab technicians are arguing over one very suspicious fibre.');
-            } else if (value < 0.88) {
-                statusText.setText('Reconstructing the timeline...');
-                subStatusText.setText('Somebody lied. We are politely narrowing it down.');
-            } else {
-                statusText.setText('Finalizing the warrant packet...');
-                subStatusText.setText('One more sip and the case is ready.');
-            }
         });
 
-        this.load.on('filecomplete', (key, type) => {
-            const shortKey = String(key).slice(0, 34);
-            fileText.setText(`Filed ${type}: ${shortKey}`);
-        });
-
-        this.load.on('loaderror', (file) => {
-            fileText.setText(`Load failure: ${file.key}`).setColor('#ff6b6b');
-            subStatusText.setText('A courier dropped one of the evidence boxes.');
+        this.load.on('loaderror', () => {
+            // bez dodatkowych tekstów
         });
 
         this.load.once('complete', () => {
             this.fillingLevel = 1;
             this.updateCoffeeMask(1);
-
-            statusText.setText('Case file assembled.');
-            subStatusText.setText('Coffee is hot. Deduction is hotter.');
-            fileText.setText('All evidence received.');
 
             if (this.tipTimer) {
                 this.tipTimer.remove(false);
@@ -486,20 +405,10 @@ export class PreloaderScene extends Phaser.Scene {
                 this.dotsTimer = null;
             }
 
-            if (this.magnifierTween) {
-                this.magnifierTween.stop();
-                this.magnifierTween = null;
-            }
-
             this.tweens.add({
                 targets: [
                     titleText,
-                    statusText,
-                    subStatusText,
-                    noirLabel,
                     tipText,
-                    fileText,
-                    magnifier,
                     shadow,
                     vignetteTop,
                     vignetteBottom,
@@ -510,12 +419,7 @@ export class PreloaderScene extends Phaser.Scene {
                 ease: 'Quad.out',
                 onComplete: () => {
                     titleText.destroy();
-                    statusText.destroy();
-                    subStatusText.destroy();
-                    noirLabel.destroy();
                     tipText.destroy();
-                    fileText.destroy();
-                    magnifier.destroy();
                     shadow.destroy();
                     vignetteTop.destroy();
                     vignetteBottom.destroy();
@@ -528,11 +432,11 @@ export class PreloaderScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        const initUi = async () => {
+        const initUi = () => {
             audioManager.init(this);
 
-            if (this.cache.audio.exists('themeGame')) {
-                audioManager.playMusic('themeGame');
+            if (!audioManager.isMusicPlaying('themeMusic')) {
+                audioManager.playMusic('themeMusic', { loop: true });
             }
 
             this.input.once('pointerdown', () => {
@@ -557,15 +461,18 @@ export class PreloaderScene extends Phaser.Scene {
         if (window.WebFont && typeof window.WebFont.load === 'function') {
             window.WebFont.load({
                 google: {
-                    families: ['Press Start 2P', 'Special Elite', 'Indie Flower']
+                    families: ['Special Elite', 'Press Start 2P']
                 },
-                active: () => initUi(),
+                active: () => {
+                    initUi();
+                },
                 inactive: () => {
                     console.warn('WebFont failed to load, continuing with fallback fonts.');
                     initUi();
                 }
             });
         } else {
+            console.warn('WebFont is not available, continuing with fallback fonts.');
             initUi();
         }
     }
@@ -650,36 +557,6 @@ export class PreloaderScene extends Phaser.Scene {
 
         gCoffee.generateTexture('cup_coffee', 125, 110);
         gCoffee.destroy();
-    }
-
-    createMagnifierTexture() {
-        if (this.textures.exists('magnifier_icon')) return;
-
-        const g = this.make.graphics({ x: 0, y: 0, add: false });
-
-        g.lineStyle(6, 0xe7d9bf, 0.95);
-        g.strokeCircle(30, 30, 18);
-
-        g.lineStyle(3, 0xffffff, 0.45);
-        g.strokeCircle(28, 28, 15);
-
-        g.lineStyle(8, 0x8a5a3c, 1);
-        g.beginPath();
-        g.moveTo(42, 42);
-        g.lineTo(66, 66);
-        g.strokePath();
-
-        g.lineStyle(3, 0xc79362, 0.85);
-        g.beginPath();
-        g.moveTo(45, 43);
-        g.lineTo(63, 61);
-        g.strokePath();
-
-        g.fillStyle(0xffffff, 0.10);
-        g.fillCircle(23, 23, 7);
-
-        g.generateTexture('magnifier_icon', 80, 80);
-        g.destroy();
     }
 
     addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
