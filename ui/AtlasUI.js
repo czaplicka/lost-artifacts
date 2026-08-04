@@ -1,3 +1,5 @@
+import { audioManager } from '../AudioManager.js';
+
 export class AtlasUI {
     constructor(scene, countries = []) {
         this.scene = scene;
@@ -63,7 +65,7 @@ export class AtlasUI {
         this.bookBg = this.scene.add
             .image(0, 0, 'atlas_bg')
             .setOrigin(0.5)
-            .setScale(0.92);
+            .setScale(1.0);
 
         this.leftPageImage = this.scene.add
             .image(this.leftPageFrame.x, this.leftPageFrame.y, 'atlas_fallback')
@@ -94,7 +96,7 @@ export class AtlasUI {
         ]);
 
         this.book.setDepth(21);
-        this.book.setScale(0.92);
+        this.book.setScale(1.0);
         this.book.setAlpha(0);
         this.book.setVisible(false);
     }
@@ -282,9 +284,7 @@ export class AtlasUI {
     }
 
     createSound() {
-        if (this.scene.sound) {
-            this.pageSound = this.scene.sound.add('pagesound', { volume: 0.45 });
-        }
+        // pagesound handled via audioManager.playSfx in playPageTurnFX()
     }
 
     bindKeyboardShortcuts() {
@@ -419,10 +419,7 @@ export class AtlasUI {
     }
 
     playPageTurnFX() {
-        if (this.pageSound) {
-            this.pageSound.stop();
-            this.pageSound.play();
-        }
+        audioManager.playSfx('pagesound');
 
         // Zapisujemy oryginalną pozycję/kąt książki, żeby tween wracał
         // do właściwego środka nawet po ewentualnym resize w trakcie animacji

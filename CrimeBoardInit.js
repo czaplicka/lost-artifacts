@@ -125,9 +125,86 @@ function buildPlayerNotesItem(playerNotes) {
   };
 }
 
-function normalizeCollectedClues(clues) {
+function buildCrimeScenePhotoItems(gameState) {
+  const visitedScenes = gameState?.crimeBoardData?.visitedCrimeScenes;
+  if (!Array.isArray(visitedScenes) || visitedScenes.length === 0) return [];
+
+  const startX = 80;
+  const startY = 320;
+  const gapX = 150;
+  const gapY = 130;
+  const perRow = 4;
+
+  return visitedScenes.map((scene, index) => {
+    const row = Math.floor(index / perRow);
+    const col = index % perRow;
+    const success = scene.success !== false;
+
+    return {
+      id: `scene-photo-${scene.sceneId || index}`,
+      type: 'photo',
+      x: startX + (col * gapX),
+      y: startY + (row * gapY),
+      z: 1,
+      rotation: getRotation(index),
+      pinned: false,
+      label: scene.displayName || scene.sceneId || 'Crime scene',
+      image: scene.imagePath,
+      caption: success ? 'Scene processed.' : 'Investigation incomplete.',
+      meta: [scene.cityId || '', success ? 'Processed' : 'Incomplete'].filter(Boolean),
+      sceneId: scene.sceneId || null,
+      missionId: scene.missionId || null,
+      tags: ['scene-photo', success ? 'scene-success' : 'scene-failed'],
+      discovered: true,
+      createdByPlayer: false,
+      editableByPlayer: false
+    };
+  });
+}
+
+function normalizeCollectedClues(clues, objectMap) {
   if (!Array.isArray(clues)) return [];
-  return clues.filter(clue => clue && typeof clue === 'object');
+  return clues.filter(clue => {
+    if (!clue || typeof clue !== 'object') return false;
+    if (clue.category === 'skills') return false;
+
+    const hasObjectMatch = objectMap.has(clue.objectId) || objectMap.has(clue.id);
+    return hasObjectMatch;
+  });
+}
+
+function buildEvidenceItemsFromFoundObjects(gameState) {
+  const foundObjects = gameState?.crimeBoardData?.sceneFoundObjects;
+  if (!Array.isArray(foundObjects) || foundObjects.length === 0) return [];
+
+  return foundObjects.map((obj, index) => {
+    const fields = [];
+
+    if (obj.sceneId) fields.push({ key: 'Scene', value: obj.sceneId });
+    if (obj.cityId) fields.push({ key: 'City', value: obj.cityId });
+
+    return {
+      id: `found-object-${obj.id || index}`,
+      type: 'evidence',
+      x: 520 + ((index % 2) * 250),
+      y: 140 + (Math.floor(index / 2) * 210),
+      z: 2,
+      rotation: getRotation(index + 3),
+      pinned: false,
+      label: obj.item || `Object ${index + 1}`,
+      tag: 'Found at scene',
+      body: obj.description || 'Recovered during the forensic sweep.',
+      fields,
+      clueId: obj.id || null,
+      isRedHerring: Boolean(obj.isRedHerring),
+      heistExplanation: '',
+      trueExplanation: '',
+      tags: ['found-object'],
+      discovered: true,
+      createdByPlayer: false,
+      editableByPlayer: false
+    };
+  });
 }
 
 function buildEvidenceItemsFromClues(clues, objectsData = []) {
@@ -226,10 +303,23 @@ function buildBoardLayout(gameState, objectsData = []) {
   const mission = gameState.currentMission;
   const items = [];
 
+  const objectMap = new Map(
+    (Array.isArray(objectsData) ? objectsData : [])
+      .filter(obj => obj && obj.id)
+      .map(obj => [obj.id, obj])
+  );
+
   items.push(buildMissionArtifactItem(mission));
   items.push(buildUnknownSuspectItem(gameState.currentThief?.id || gameState.currentThiefId || null));
 
-  const collectedClues = normalizeCollectedClues(gameState.cluesCollected);
+  const scenePhotoItems = buildCrimeScenePhotoItems(gameState);
+  scenePhotoItems.forEach(item => items.push(item));
+
+  const foundObjectItems = buildEvidenceItemsFromFoundObjects(gameState);
+  foundObjectItems.forEach(item => items.push(item));
+
+  // POPRAWKA: tylko wpisy odpowiadające fizycznym przedmiotom z objects.json
+  const collectedClues = normalizeCollectedClues(gameState.cluesCollected, objectMap);
   const evidenceItems = buildEvidenceItemsFromClues(collectedClues, objectsData);
   evidenceItems.forEach(item => items.push(item));
 
@@ -339,4 +429,4 @@ export async function initCrimeBoard({
   return ensureBoardApi(board, state, objectsData);
 }
 
-export { buildBoardLayout };  
+export { buildBoardLayout };

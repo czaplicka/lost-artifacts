@@ -36,6 +36,7 @@ export class DestinationsUI {
         this.container.add(this.overlay);
 
         this.mapImage = this.scene.add.image(width / 2, height / 2, 'mapbg');
+        this.mapImage.setDisplaySize(width, height);
         this.container.add(this.mapImage);
 
         this.closeBtn = this.scene.add.text(width - 170, 100, 'X', {
@@ -570,13 +571,27 @@ export class DestinationsUI {
             pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || selectedCityData.id
         };
 
-        console.log('[DestinationsUI.travelToCity] start TravelTransitionScene with:', transitionPayload);
+        console.log('[DestinationsUI.travelToCity] transitionPayload:', transitionPayload);
 
+        // ✅ Zachowaj referencję do sceneManager PRZED jakimkolwiek destroy/close
+        const sceneManager = this.scene.scene;
+
+        // ✅ Właściwa kolejność: cleanup → close → stop scen → start nowej
         this.cleanupBeforeTravel();
         this.close();
-        this.scene.scene.start('TravelTransitionScene', transitionPayload);
+
+        if (sceneManager.isActive('OfficeScene') || sceneManager.isSleeping('OfficeScene')) {
+            sceneManager.stop('OfficeScene');
+        }
+
+        if (sceneManager.isActive('CityScene') || sceneManager.isSleeping('CityScene')) {
+            sceneManager.stop('CityScene');
+        }
+
+        sceneManager.start('TravelTransitionScene', transitionPayload);
+
     } catch (error) {
-        console.error('Błąd podczas podróży do miasta:', error);
+        console.error('Błąd podczas podróży:', error);
         this.isTransitioning = false;
         this.setConfirmEnabled(true);
     }

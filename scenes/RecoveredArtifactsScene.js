@@ -17,6 +17,7 @@ export class RecoveredArtifactsScene extends Phaser.Scene {
     }
 
     create() {
+        this.scene.sleep('UIScene');
         const { width, height } = this.scale;
 
         this._buildOverlay(width, height);

@@ -1,81 +1,110 @@
+import { audioManager } from '../AudioManager.js';
+import { UISlider } from '../ui/UISlider.js';
+
 export class SettingsScene extends Phaser.Scene {
     constructor() {
         super({ key: 'SettingsScene' });
     }
 
     create() {
-        this.scene.sleep('UIScene');
-        const { width, height } = this.scale;
+        audioManager.init(this);
 
-        if (this.textures.exists('backgroundset')) {
-            this.add.image(width / 2, height / 2, 'backgroundset')
-                .setDisplaySize(width, height);
-        } else {
-            this.cameras.main.setBackgroundColor('#111111');
-        }
+        this.add.image(0, 0, 'backgroundset').setOrigin(0, 0).setDisplaySize(1920, 1080);
 
-        const music = this.registry.get('bgMusic');
-
-        this.input.once('pointerdown', () => {
-            this.sound.unlock();
-
-            if (music && !music.isPlaying) {
-                if (!this.sound.locked) {
-                    music.play();
-                } else {
-                    this.sound.once('unlocked', () => {
-                        if (!music.isPlaying) {
-                            music.play();
-                        }
-                    });
-                }
-            }
-        });
+        const cx = 960;
+        const cy = 540;
+        const pw = 720;
+        const ph = 620;
 
         const panel = this.add.graphics();
-        panel.fillStyle(0x000000, 0.7);
-        panel.fillRect(width * 0.35, height * 0.37, width * 0.3, height * 0.28);
+        panel.fillStyle(0x1a1a2e, 0.92);
+        panel.fillRoundedRect(cx - pw / 2, cy - ph / 2, pw, ph, 12);
+        panel.lineStyle(3, 0xc9a227);
+        panel.strokeRoundedRect(cx - pw / 2, cy - ph / 2, pw, ph, 12);
 
-        const backBtn = this.add.image(width * 0.12, height * 0.86, 'back')
-            .setInteractive({ useHandCursor: true })
-            .setScale(0.7);
-
-        this.addHoverEffect(backBtn, 0.7, 0.8);
-        backBtn.on('pointerdown', () => this.scene.start('MenuScene'));
-
-        let isSoundOn = this.registry.get('soundOn');
-        if (typeof isSoundOn !== 'boolean') {
-            isSoundOn = true;
-            this.registry.set('soundOn', true);
-        }
-
-        const soundIcon = this.add.image(width * 0.43, height * 0.5, isSoundOn ? 'soundOn' : 'soundOff')
-            .setInteractive({ useHandCursor: true })
-            .setScale(0.8);
-
-        this.addHoverEffect(soundIcon, 0.8, 0.9);
-
-        const soundText = this.add.text(width * 0.58, height * 0.5, isSoundOn ? 'Sound On' : 'Sound Off', {
-            fontFamily: '"Press Start 2P", Arial',
-            fontSize: '32px',
-            color: '#FFFF00',
-            fontStyle: 'bold'
+        this.add.text(cx, cy - 250, 'SETTINGS', {
+            fontFamily: 'PressStart2P',
+            fontSize: '28px',
+            color: '#c9a227'
         }).setOrigin(0.5);
 
-        this.sound.mute = !isSoundOn;
+        const sliderX = cx - 280;
+        const sliderW = 560;
 
-        soundIcon.on('pointerdown', () => {
-            isSoundOn = !isSoundOn;
+        this.sfxSlider = new UISlider(
+            this,
+            sliderX,
+            cy - 150,
+            sliderW,
+            'DIALOGUE & SFX',
+            audioManager.getSfxVolume(),
+            (v) => audioManager.setSfxVolume(v)
+        );
 
-            this.registry.set('soundOn', isSoundOn);
-            soundIcon.setTexture(isSoundOn ? 'soundOn' : 'soundOff');
-            soundText.setText(isSoundOn ? 'Sound On' : 'Sound Off');
-            this.sound.mute = !isSoundOn;
+        this.musicSlider = new UISlider(
+            this,
+            sliderX,
+            cy - 50,
+            sliderW,
+            'MUSIC',
+            audioManager.getMusicVolume(),
+            (v) => audioManager.setMusicVolume(v)
+        );
+
+        this.createMuteToggle(cx, cy + 70);
+        this.createButton(cx, cy + 210, 'BACK', () => {
+            audioManager.playSfx('buttonclick');
+            this.scene.start('MenuScene');
         });
+
+        this.updateSliderStates(audioManager.getMuted());
     }
 
-    addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
-        button.on('pointerover', () => button.setScale(hoverScale));
-        button.on('pointerout', () => button.setScale(baseScale));
+    createMuteToggle(x, y) {
+        this.add.text(x - 200, y, 'SOUND:', {
+            fontFamily: 'PressStart2P',
+            fontSize: '14px',
+            color: '#e8d5a3'
+        }).setOrigin(0, 0.5);
+
+        this.muteLabel = this.add.text(x + 80, y, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '16px',
+            color: '#c9a227'
+        }).setOrigin(0.5);
+
+        this.muteLabel.setInteractive({ useHandCursor: true });
+        this.muteLabel.on('pointerover', () => this.muteLabel.setScale(1.1));
+        this.muteLabel.on('pointerout', () => this.muteLabel.setScale(1.0));
+        this.muteLabel.on('pointerdown', () => {
+            const muted = audioManager.toggleMute();
+            this.refreshMuteLabel(muted);
+            this.updateSliderStates(muted);
+            if (!muted) audioManager.playSfx('buttonclick');
+        });
+
+        this.refreshMuteLabel(audioManager.getMuted());
+    }
+
+    refreshMuteLabel(muted) {
+        this.muteLabel.setText(muted ? '[ OFF ]' : '[ ON ]');
+        this.muteLabel.setColor(muted ? '#8b6914' : '#c9a227');
+    }
+
+    updateSliderStates(muted) {
+        this.sfxSlider.setEnabled(!muted);
+        this.musicSlider.setEnabled(!muted);
+    }
+
+    createButton(x, y, text, callback) {
+        const btn = this.add.text(x, y, text, {
+            fontFamily: 'PressStart2P',
+            fontSize: '20px',
+            color: '#e8d5a3'
+        }).setOrigin(0.5);
+        btn.setInteractive({ useHandCursor: true });
+        btn.on('pointerover', () => btn.setScale(1.1));
+        btn.on('pointerout', () => btn.setScale(1.0));
+        btn.on('pointerdown', callback);
     }
 }

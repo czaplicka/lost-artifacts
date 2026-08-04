@@ -1,24 +1,20 @@
 import { gameState } from '../GameData.js';
 import { ScoreManager } from '../ScoreManager.js';
+import { audioManager } from '../AudioManager.js';
 
 export class SuccessScene extends Phaser.Scene {
     constructor() {
         super({ key: 'SuccessScene' });
-        this.successSound = null;
         this.scoreManager = null;
     }
 
     create() {
+        audioManager.init(this);
+        audioManager.stopAllMusic();
+        audioManager.stopAllSfx();
+        audioManager.playSfx('successsound');
+
         this.scene.sleep('UIScene');
-
-        // Zatrzymaj wszystko, co mogło jeszcze grać z gameplayu
-        this.sound.stopAll();
-
-        this.successSound = this.sound.add('successsound', {
-            volume: 0.5,
-            loop: false
-        });
-        this.successSound.play();
 
         this.scoreManager = new ScoreManager();
 
@@ -119,9 +115,7 @@ export class SuccessScene extends Phaser.Scene {
         }
 
         nextBtn.on('pointerdown', () => {
-            if (this.successSound?.isPlaying) {
-                this.successSound.stop();
-            }
+            audioManager.stopSfx('successsound');
 
             const againSceneExists = this.scene.manager.keys.AgainScene;
 
@@ -138,12 +132,7 @@ export class SuccessScene extends Phaser.Scene {
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.scale.off('resize', this.handleResize, this);
-
-            if (this.successSound?.isPlaying) {
-                this.successSound.stop();
-            }
-
-            this.successSound = null;
+            audioManager.stopSfx('successsound');
         });
     }
 

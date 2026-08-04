@@ -49,12 +49,35 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.statusStampText = null;
     this.bottomNoteText = null;
     this.suspectLabelText = null;
+
+    this.onLeftKeyDown = null;
+    this.onRightKeyDown = null;
+    this.onEnterKeyDown = null;
   }
 
   create() {
     this.scene.sleep('UIScene');
     ensureHud(this);
     this.closeAllUIPanels();
+
+    if (!gameState.arrestWarrantIssued) {
+      gameState.finalArrestSuspectId = null;
+      gameState.finalArrestResult = 'FAILURE';
+      gameState.caseResolved = false;
+      gameState.caseFailed = true;
+      gameState.isGameActive = false;
+      gameState.gameOverReason =
+        'Without a signed warrant, the agency could not act in time. The thief escaped before the arrest team arrived.';
+      saveGameState();
+
+      this.scene.stop('CityScene');
+      this.scene.start('GameOverScene', {
+        title: 'THIEF ESCAPED',
+        message:
+          'Without a signed warrant, the agency could not act in time. The thief escaped before the arrest team arrived.'
+      });
+      return;
+    }
 
     const suspectsData = this.cache.json.get('suspects');
     if (!Array.isArray(suspectsData) || suspectsData.length < 5) {
@@ -85,6 +108,27 @@ export class ArrestSelectionScene extends Phaser.Scene {
     this.createInstructionBox();
     this.createDossierViewer();
     this.createResultOverlay();
+    this.registerSceneCleanup();
+  }
+
+  registerSceneCleanup() {
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.input?.keyboard) {
+        if (this.onLeftKeyDown) {
+          this.input.keyboard.off('keydown-LEFT', this.onLeftKeyDown);
+        }
+        if (this.onRightKeyDown) {
+          this.input.keyboard.off('keydown-RIGHT', this.onRightKeyDown);
+        }
+        if (this.onEnterKeyDown) {
+          this.input.keyboard.off('keydown-ENTER', this.onEnterKeyDown);
+        }
+      }
+
+      this.onLeftKeyDown = null;
+      this.onRightKeyDown = null;
+      this.onEnterKeyDown = null;
+    });
   }
 
   changeScore(points) {
@@ -497,19 +541,23 @@ export class ArrestSelectionScene extends Phaser.Scene {
       stamp
     ]);
 
-    this.input.keyboard.on('keydown-LEFT', () => {
+    this.onLeftKeyDown = () => {
       if (this.canNavigate()) this.changeSuspect(-1);
-    });
+    };
 
-    this.input.keyboard.on('keydown-RIGHT', () => {
+    this.onRightKeyDown = () => {
       if (this.canNavigate()) this.changeSuspect(1);
-    });
+    };
 
-    this.input.keyboard.on('keydown-ENTER', () => {
+    this.onEnterKeyDown = () => {
       if (!this.selectionLocked && !this.isAnimatingSlide) {
         this.arrestButton.emit('pointerdown');
       }
-    });
+    };
+
+    this.input.keyboard.on('keydown-LEFT', this.onLeftKeyDown);
+    this.input.keyboard.on('keydown-RIGHT', this.onRightKeyDown);
+    this.input.keyboard.on('keydown-ENTER', this.onEnterKeyDown);
 
     this.currentCard = this.buildSuspectCard(this.displaySuspects[this.currentSuspectIndex], 0);
     this.cardSlot.add(this.currentCard);
@@ -806,8 +854,11 @@ export class ArrestSelectionScene extends Phaser.Scene {
 
     if (isCorrect) {
       this.changeScore(CORRECT_ARREST_BONUS);
+      gameState.gameOverReason = '';
     } else {
       this.changeScore(-WRONG_ARREST_PENALTY);
+      gameState.gameOverReason =
+        'Incorrect suspect detained. The real thief escaped before the bureau could act.';
     }
 
     gameState.finalArrestSuspectId = this.selectedSuspectId ?? null;
@@ -885,7 +936,13 @@ export class ArrestSelectionScene extends Phaser.Scene {
       if (gameState.finalArrestResult === 'SUCCESS') {
         this.scene.start('SuccessScene');
       } else {
-        this.scene.start('GameOverScene');
+        this.scene.start('GameOverScene', {
+          title: this.resultTitle?.text || 'GAME OVER',
+          message:
+            gameState.gameOverReason ||
+            this.resultText?.text ||
+            'The case has been lost.'
+        });
       }
     });
 

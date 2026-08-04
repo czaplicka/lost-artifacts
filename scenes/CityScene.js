@@ -16,6 +16,15 @@ const LOCATION_HOURS = {
 
 const NPC_QUESTION_PENALTY = 10;
 
+const KNOWN_CRIME_SCENES = [
+  'louvre',
+  'tower',
+  'castle',
+  'dockyard',
+  'auction_house',
+  'havela'
+];
+
 export class CityScene extends Phaser.Scene {
   constructor() {
     super({ key: 'CityScene' });
@@ -60,6 +69,11 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
+    audioManager.init(this);
+    audioManager.stopMusic('themeMusic');
+    audioManager.playMusic('themeGame');
+    audioManager.playSfx('citysound', { loop: true });
+
     if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
       this.scene.stop('LocationScene');
     }
@@ -67,23 +81,6 @@ export class CityScene extends Phaser.Scene {
     if (this.scene.isActive('ArrestSelectionScene')) {
       this.scene.stop('ArrestSelectionScene');
     }
-
-    const bgMusic = this.registry.get('bgMusic');
-    if (bgMusic) bgMusic.stop();
-
-    let gameMusic = this.registry.get('gameMusic');
-    if (!gameMusic) {
-      gameMusic = this.sound.add('themeGame', { loop: true, volume: 0.5 });
-      this.registry.set('gameMusic', gameMusic);
-    }
-    if (!gameMusic.isPlaying) gameMusic.play();
-
-    let citySound = this.registry.get('citySound');
-    if (!citySound) {
-      citySound = this.sound.add('citysound', { loop: true, volume: 0.2 });
-      this.registry.set('citySound', citySound);
-    }
-    if (!citySound.isPlaying) citySound.play();
 
     this.scene.wake('UIScene');
 
@@ -329,76 +326,49 @@ export class CityScene extends Phaser.Scene {
     });
   }
 
+  normalizeCityName(value) {
+    if (!value) return '';
+    return String(value).trim().toLowerCase().replace(/\s+/g, '_');
+  }
+
   getCrimeSceneConfig(city) {
+    const mission = gameState.currentMission;
+    if (!mission) return null;
+
     const cityId = city?.id || this.cityId;
-    const missionCity = String(gameState.currentMission?.city || '').toLowerCase();
-    const artifact = String(gameState.currentMission?.artifact || gameState.currentArtifact || '').toLowerCase();
+    const normalizedCityId = this.normalizeCityName(cityId);
+    const normalizedMissionCity = this.normalizeCityName(mission.city);
 
-    if (cityId === 'paris' && missionCity === 'paris') {
-      return {
-        key: 'parislouvre',
-        sceneId: 'louvre',
-        cityId: 'paris',
-        mapKey: 'louvre',
-        mapPath: 'assets/crimes/louvre.json',
-        backgroundKey: 'louvrebg',
-        backgroundPath: 'assets/crimes/louvre.jpg',
-        objectLayerName: 'HiddenObjects',
-        objectsDataKey: 'objects-data',
-        objectsDataPath: 'assets/data/objects.json',
-        title: 'Crime Scene Louvre',
-        activeCount: 6,
-        timeLimit: 120,
-        iconX: city.crimeSceneX ?? 1220,
-        iconY: city.crimeSceneY ?? 500
-      };
+    if (normalizedMissionCity !== normalizedCityId) return null;
+
+    const sceneId = mission.scene;
+    if (!sceneId) {
+      console.warn('Mission has no scene field:', mission);
+      return null;
     }
 
-    if (
-      cityId === 'london' &&
-      missionCity === 'london' &&
-      (artifact.includes('crown') || artifact.includes('jewel'))
-    ) {
-      return {
-        key: 'londontower',
-        sceneId: 'tower',
-        cityId: 'london',
-        mapKey: 'tower',
-        mapPath: 'assets/crimes/tower.json',
-        backgroundKey: 'towerbg',
-        backgroundPath: 'assets/crimes/tower.jpg',
-        objectLayerName: 'HiddenObjects',
-        objectsDataKey: 'objects-data',
-        objectsDataPath: 'assets/data/objects.json',
-        title: 'Crime Scene Tower of London',
-        activeCount: 6,
-        timeLimit: 120,
-        iconX: city.crimeSceneX ?? 1220,
-        iconY: city.crimeSceneY ?? 500
-      };
+    if (!KNOWN_CRIME_SCENES.includes(sceneId)) {
+      console.warn(`Unknown crime scene "${sceneId}" for city "${mission.city}"`);
+      return null;
     }
 
-    if (cityId === 'newdelhi' && missionCity === 'newdelhi') {
-      return {
-        key: 'newdelhigarbage',
-        sceneId: 'garbage',
-        cityId: 'newdelhi',
-        mapKey: 'garbage',
-        mapPath: 'assets/crimes/garbage.json',
-        backgroundKey: 'garbage',
-        backgroundPath: 'assets/local/garbage.jpg',
-        objectLayerName: 'HiddenObjects',
-        objectsDataKey: 'objects-data',
-        objectsDataPath: 'assets/data/objects.json',
-        title: 'Crime Scene – New Delhi',
-        activeCount: 6,
-        timeLimit: 120,
-        iconX: city.crimeSceneX ?? 1220,
-        iconY: city.crimeSceneY ?? 500
-      };
-    }
-
-    return null;
+    return {
+      key: `${cityId}_${sceneId}`,
+      sceneId,
+      cityId,
+      mapKey: sceneId,
+      mapPath: `assets/crimes/${sceneId}.json`,
+      backgroundKey: `${sceneId}_bg`,
+      backgroundPath: `assets/crimes/${sceneId}.jpg`,
+      objectLayerName: 'HiddenObjects',
+      objectsDataKey: 'objects-data',
+      objectsDataPath: 'assets/data/objects.json',
+      title: `Crime Scene – ${mission.city}`,
+      activeCount: 6,
+      timeLimit: 120,
+      iconX: city.crimeSceneX ?? 1220,
+      iconY: city.crimeSceneY ?? 500
+    };
   }
 
   getCrimeSceneVisitKey(config) {
@@ -466,7 +436,9 @@ export class CityScene extends Phaser.Scene {
         title: config.title,
         returnScene: 'CityScene',
         returnData: { cityId: this.cityId },
-        cityId: this.cityId
+        cityId: this.cityId,
+        sourceScene: 'CityScene',
+        mission: gameState.currentMission
       });
     });
 
@@ -478,7 +450,9 @@ export class CityScene extends Phaser.Scene {
     if (!crimeSceneConfig) return false;
 
     const currentCityId = city?.id || this.cityId;
-    if (currentCityId !== crimeSceneConfig.cityId) return false;
+    const normalizedCurrent = this.normalizeCityName(currentCityId);
+    const normalizedConfig = this.normalizeCityName(crimeSceneConfig.cityId);
+    if (normalizedCurrent !== normalizedConfig) return false;
 
     const visitKey = this.getCrimeSceneVisitKey(crimeSceneConfig);
     const alreadyVisited = Boolean(visitKey && gameState.specialScenesVisited?.[visitKey]);
@@ -658,8 +632,10 @@ export class CityScene extends Phaser.Scene {
     const map = {
       london: 'london',
       paris: 'paris',
+      new_delhi: 'newdelhi',
       newdelhi: 'newdelhi',
       warsaw: 'warsaw',
+      new_york_city: 'newyorkcity',
       newyorkcity: 'newyorkcity',
       berlin: 'berlin',
       hq: 'start'
@@ -669,7 +645,7 @@ export class CityScene extends Phaser.Scene {
   }
 
   getNpcTextureKey(npcId) {
-    const HINDU_CITIES = ['new_delhi'];
+    const HINDU_CITIES = ['new_delhi', 'newdelhi'];
     const isHindu = HINDU_CITIES.includes(this.cityId);
 
     const baseMap = {

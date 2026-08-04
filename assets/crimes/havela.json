@@ -655,6 +655,19 @@
                  "width":44,
                  "x":568,
                  "y":646
+                },
+            
+                {
+                 "height":158,
+                 "id":60,
+                 "name":"mirror_work_jacket",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":106,
+                 "x":1480,
+                 "y":306
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -663,7 +676,7 @@
          "y":0
         }],
  "nextlayerid":4,
- "nextobjectid":60,
+ "nextobjectid":61,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.2",

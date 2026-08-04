@@ -1,50 +1,69 @@
+import { gameState } from '../GameData.js';
+import { audioManager } from '../AudioManager.js';
+
 export class GameOverScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'GameOverScene' });
-        this.gameOverSound = null;
-    }
+  constructor() {
+    super({ key: 'GameOverScene' });
 
-    create() {
-        this.scene.sleep('UIScene');
+    this.titleTextValue = 'GAME OVER';
+    this.messageTextValue = 'The case has been lost.';
+  }
 
-        const music = this.registry.get('bgMusic');
-        if (music && music.isPlaying) {
-            music.stop();
-        }
+  init(data) {
+    this.titleTextValue = data?.title || 'GAME OVER';
+    this.messageTextValue =
+      data?.message ||
+      gameState.gameOverReason ||
+      'The case has been lost.';
+  }
 
-        this.gameOverSound = this.sound.add('game_over', {
-            volume: 0.5
-        });
-        this.gameOverSound.play();
+  create() {
+    audioManager.init(this);
+    audioManager.stopAllMusic();
+    audioManager.playSfx('game_over');
 
-        this.add.image(0, 0, 'backgroundgo')
-            .setOrigin(0, 0)
-            .setDisplaySize(1920, 1080);
+    this.scene.sleep('UIScene');
 
-        const backBtn = this.add.image(200, 930, 'back')
-            .setInteractive({ useHandCursor: true })
-            .setScale(0.7);
+    this.add.image(0, 0, 'backgroundgo')
+      .setOrigin(0, 0)
+      .setDisplaySize(1920, 1080);
 
-        this.addHoverEffect(backBtn, 0.7, 0.8);
+    this.add.text(960, 210, this.titleTextValue, {
+      fontFamily: 'PressStart2P',
+      fontSize: '34px',
+      color: '#f7dfb2',
+      stroke: '#3b1f12',
+      strokeThickness: 8,
+      align: 'center'
+    }).setOrigin(0.5);
 
-        backBtn.on('pointerdown', () => {
-            if (this.gameOverSound?.isPlaying) {
-                this.gameOverSound.stop();
-            }
+    this.add.text(960, 355, this.messageTextValue, {
+      fontFamily: 'Special Elite',
+      fontSize: '34px',
+      color: '#f6ead0',
+      align: 'center',
+      wordWrap: { width: 1050 },
+      lineSpacing: 12
+    }).setOrigin(0.5);
 
-            this.scene.start('MenuScene');
-        });
+    const backBtn = this.add.image(200, 930, 'back')
+      .setInteractive({ useHandCursor: true })
+      .setScale(0.7);
 
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            if (this.gameOverSound?.isPlaying) {
-                this.gameOverSound.stop();
-            }
-            this.gameOverSound = null;
-        });
-    }
+    this.addHoverEffect(backBtn, 0.7, 0.8);
 
-    addHoverEffect(button, baseScale = 0.7, hoverScale = 0.8) {
-        button.on('pointerover', () => button.setScale(hoverScale));
-        button.on('pointerout', () => button.setScale(baseScale));
-    }
+    backBtn.on('pointerdown', () => {
+      audioManager.stopSfx('game_over');
+      this.scene.start('MenuScene');
+    });
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      audioManager.stopSfx('game_over');
+    });
+  }
+
+  addHoverEffect(button, baseScale = 0.7, hoverScale = 0.8) {
+    button.on('pointerover', () => button.setScale(hoverScale));
+    button.on('pointerout', () => button.setScale(baseScale));
+  }
 }

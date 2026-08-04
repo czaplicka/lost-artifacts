@@ -1,3 +1,5 @@
+import { audioManager } from '../AudioManager.js';
+
 export class PhonebookUI {
     constructor(scene, gameState = null) {
         this.scene = scene;
@@ -84,7 +86,7 @@ export class PhonebookUI {
 
         this.bookBg = this.scene.add.image(0, 0, 'phonebook')
             .setOrigin(0.5)
-            .setScale(0.9)
+            .setScale(1.0)
             .setInteractive();
 
         this.closeHint = this.scene.add.text(670, -445, 'X', {
@@ -121,7 +123,7 @@ export class PhonebookUI {
         ]);
 
         this.container.setDepth(21);
-        this.container.setScale(0.9);
+        this.container.setScale(1.0);
         this.container.setAlpha(0);
         this.container.setVisible(false);
 
@@ -228,8 +230,7 @@ export class PhonebookUI {
     }
 
     playDialSequence(contact) {
-        this.dialSound = this.scene.sound.add('sfx_dial', { volume: 0.6 });
-        this.dialSound.play();
+        this.dialSound = audioManager.playSfx('sfx_dial');
 
         const proceed = () => {
             if (contact.available) {
@@ -239,7 +240,9 @@ export class PhonebookUI {
             }
         };
 
-        this.dialSound.once('complete', proceed);
+        if (this.dialSound) {
+            this.dialSound.once('complete', proceed);
+        }
 
         this.scene.time.delayedCall(1200, () => {
             if (this.isCalling && !this.ringSound && !this.busySound) {
@@ -251,8 +254,7 @@ export class PhonebookUI {
     startRinging(contact) {
         this.setStatus('Connecting...');
 
-        this.ringSound = this.scene.sound.add('sfx_ring', { volume: 0.5, loop: true });
-        this.ringSound.play();
+        this.ringSound = audioManager.playSfx('sfx_ring', { loop: true });
 
         this.pulseStatus();
 
@@ -266,8 +268,7 @@ export class PhonebookUI {
             ? 'no_answer'
             : (Math.random() < 0.5 ? 'busy' : 'no_answer');
 
-        this.busySound = this.scene.sound.add('sfx_busy', { volume: 0.5, loop: true });
-        this.busySound.play();
+        this.busySound = audioManager.playSfx('sfx_busy', { loop: true });
 
         this.setStatus(outcome === 'busy' ? 'Line busy...' : 'No answer...');
         this.pulseStatus();
@@ -278,11 +279,8 @@ export class PhonebookUI {
     }
 
     abortCall(contact, outcome) {
-        if (this.busySound) {
-            this.busySound.stop();
-            this.busySound.destroy();
-            this.busySound = null;
-        }
+        audioManager.stopSfx('sfx_busy');
+        this.busySound = null;
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(1);
@@ -312,17 +310,13 @@ export class PhonebookUI {
     }
 
     connectCall(contact) {
-        if (this.ringSound) {
-            this.ringSound.stop();
-            this.ringSound.destroy();
-            this.ringSound = null;
-        }
+        audioManager.stopSfx('sfx_ring');
+        this.ringSound = null;
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(1);
 
-        this.pickupSound = this.scene.sound.add('sfx_pickup', { volume: 0.7 });
-        this.pickupSound.play();
+        this.pickupSound = audioManager.playSfx('sfx_pickup');
 
         this.setStatus(`Connected: ${contact.name}`);
 
@@ -414,29 +408,14 @@ export class PhonebookUI {
 
         this.isOpen = false;
 
-        if (this.dialSound) {
-            this.dialSound.stop();
-            this.dialSound.destroy();
-            this.dialSound = null;
-        }
-
-        if (this.ringSound) {
-            this.ringSound.stop();
-            this.ringSound.destroy();
-            this.ringSound = null;
-        }
-
-        if (this.busySound) {
-            this.busySound.stop();
-            this.busySound.destroy();
-            this.busySound = null;
-        }
-
-        if (this.pickupSound) {
-            this.pickupSound.stop();
-            this.pickupSound.destroy();
-            this.pickupSound = null;
-        }
+        audioManager.stopSfx('sfx_dial');
+        audioManager.stopSfx('sfx_ring');
+        audioManager.stopSfx('sfx_busy');
+        audioManager.stopSfx('sfx_pickup');
+        this.dialSound = null;
+        this.ringSound = null;
+        this.busySound = null;
+        this.pickupSound = null;
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(0);

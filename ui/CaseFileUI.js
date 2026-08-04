@@ -38,7 +38,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
     .setOrigin(0.5)
     .setDisplaySize(1920, 1080);
 
-        const closeHint = this.scene.add.zone(670, -445, 100, 100)
+        const closeHint = this.scene.add.zone(700, -445, 100, 100)
             .setInteractive({ useHandCursor: true });
 
         closeHint.on('pointerdown', (pointer, localX, localY, event) => {
@@ -46,10 +46,10 @@ const fileBg = this.scene.add.image(0, 0, 'file')
             this.close();
         });
 
-        this.artifactImage = this.scene.add.image(-330, -70, 'artifact_fallback')
+        this.artifactImage = this.scene.add.image(-360, -70, 'artifact_fallback')
             .setDisplaySize(350, 350);
 
-        this.artifactText = this.scene.add.text(-385, 295, '', {
+        this.artifactText = this.scene.add.text(-385, 320, '', {
             fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
@@ -58,14 +58,14 @@ const fileBg = this.scene.add.image(0, 0, 'file')
             lineSpacing: 10
         }).setOrigin(0.5, 0);
 
-        this.cityText = this.scene.add.text(90, -220, '', {
+        this.cityText = this.scene.add.text(100, -240, '', {
             fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
             wordWrap: { width: 430 }
         }).setOrigin(0, 0);
 
-        this.descText = this.scene.add.text(90, -110, '', {
+        this.descText = this.scene.add.text(100, -120, '', {
             fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#000000',
@@ -73,7 +73,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
             lineSpacing: 8
         }).setOrigin(0, 0);
 
-        this.significanceText = this.scene.add.text(90, 120, '', {
+        this.significanceText = this.scene.add.text(100, 125, '', {
             fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#000000',
@@ -81,7 +81,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
             lineSpacing: 8
         }).setOrigin(0, 0);
 
-        this.tiesText = this.scene.add.text(90, 275, '', {
+        this.tiesText = this.scene.add.text(100, 300, '', {
             fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#000000',
@@ -101,7 +101,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
         ]);
 
         this.container.setDepth(21);
-        this.container.setScale(0.92);
+        this.container.setScale(1.0);
         this.container.setAlpha(0);
         this.container.setVisible(false);
         this.container.setScrollFactor(0);

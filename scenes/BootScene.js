@@ -1,4 +1,6 @@
 import { loadGameState } from '../GameData.js';
+import { MobileFullscreen } from '../mobileFullscreen.js';
+import { audioManager } from '../AudioManager.js';
 
 export class BootScene extends Phaser.Scene {
     constructor() {
@@ -7,9 +9,11 @@ export class BootScene extends Phaser.Scene {
 
     preload() {
         this.load.audio('themeMusic', './assets/audio/theme.mp3');
+        this.load.image('cozyBackground', 'assets/local/kitchen.jpg');
     }
 
     create() {
+        audioManager.init(this);
         this.scene.sleep('UIScene');
         try {
             loadGameState();
@@ -17,18 +21,16 @@ export class BootScene extends Phaser.Scene {
             console.error('loadGameState failed:', error);
         }
 
-        if (!this.registry.has('bgMusic')) {
-            const music = this.sound.add('themeMusic', {
-                loop: true,
-                volume: 0.5
-            });
-            this.registry.set('bgMusic', music);
-        }
-
-        if (this.scene.get('PreloaderScene')) {
-            this.scene.start('PreloaderScene');
-        } else {
-            console.error('PreloaderScene is not registered');
-        }
+    // Inicjalizacja MobileFullscreen — tworzy overlay i listenery
+    if (!this.registry.has('mobileFS')) {
+        const mobileFS = new MobileFullscreen();
+        this.registry.set('mobileFS', mobileFS);
     }
+
+    if (this.scene.get('PreloaderScene')) {
+        this.scene.start('PreloaderScene');
+    } else {
+        console.error('PreloaderScene is not registered');
+    }
+}
 }

@@ -17,8 +17,11 @@ import UIScene from './ui/UIScene.js';
 import HiddenObjectsScene from './scenes/HiddenObjectsScene.js';
 import { PhoneCallScene } from './scenes/PhoneCallScene.js';
 import HypothesisScene from './scenes/HypothesisScene.js';
+import TheoryResultCallScene from './scenes/TheoryResultCallScene.js';
 import { WantedDatabaseScene } from './scenes/WantedDatabaseScene.js';
 import { RecoveredArtifactsScene } from './scenes/RecoveredArtifactsScene.js';
+import { CrimeLabScene } from './scenes/CSI/CrimeLabScene.js';
+import UniversalForensicMinigame from './scenes/CSI/UniversalForensicMinigame.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -46,8 +49,11 @@ const config = {
         UIScene,
         PhoneCallScene,
         HypothesisScene,
+        TheoryResultCallScene,
         WantedDatabaseScene,
-        RecoveredArtifactsScene
+        RecoveredArtifactsScene,
+        CrimeLabScene,
+        UniversalForensicMinigame
     ],
     dom: {
         createContainer: true

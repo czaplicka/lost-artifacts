@@ -36,6 +36,11 @@ export const defaultGameState = {
   caseResolved: false,
   caseFailed: false,
 
+  arrestWarrantIssued: false,
+  warrantSuspectName: null,
+  warrantSuspectId: null,
+  gameOverReason: '',
+
   crimeCity: null,
   crimeCityId: null,
   crimeSceneVisited: false,
@@ -121,6 +126,26 @@ function sanitizeSaveData(data) {
   clean.finalArrestSuspectId = data?.finalArrestSuspectId ?? null;
   clean.caseResolved = typeof data?.caseResolved === 'boolean' ? data.caseResolved : false;
   clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : false;
+
+  clean.arrestWarrantIssued =
+    typeof data?.arrestWarrantIssued === 'boolean'
+      ? data.arrestWarrantIssued
+      : false;
+
+  clean.warrantSuspectName =
+    typeof data?.warrantSuspectName === 'string'
+      ? data.warrantSuspectName
+      : null;
+
+  clean.warrantSuspectId =
+    typeof data?.warrantSuspectId === 'string' || typeof data?.warrantSuspectId === 'number'
+      ? data.warrantSuspectId
+      : null;
+
+  clean.gameOverReason =
+    typeof data?.gameOverReason === 'string'
+      ? data.gameOverReason
+      : '';
 
   clean.crimeCity = data?.crimeCity ?? null;
   clean.crimeCityId = data?.crimeCityId ?? null;
@@ -271,6 +296,18 @@ export function resetGameState() {
   Object.assign(gameState, cloneDefaultState());
 }
 
+export function resetCaseOutcomeState() {
+  gameState.finalArrestResult = null;
+  gameState.finalArrestSuspectId = null;
+  gameState.caseResolved = false;
+  gameState.caseFailed = false;
+
+  gameState.arrestWarrantIssued = false;
+  gameState.warrantSuspectName = null;
+  gameState.warrantSuspectId = null;
+  gameState.gameOverReason = '';
+}
+
 export function resetReconstructedHeist() {
   gameState.reconstructedHeist = createDefaultReconstructedHeist();
 }
@@ -329,4 +366,9 @@ export function clearSavedGame() {
     console.error('Błąd usuwania zapisu z localStorage:', e);
     return false;
   }
+}
+
+// TYLKO DO DEBUGOWANIA - usuń przed publikacją
+if (typeof window !== 'undefined') {
+  window.gameState = gameState;
 }

@@ -1,0 +1,58 @@
+{
+  "description": "Flavor text templates for CSI Lab scene. Real clue phrasing is generated from gameState.identityEvidence (attribute + thief_value). Red herring clues are cosmetic only - they never map to any suspect attribute.",
+
+  "real_clue_templates": {
+    "hair_color": "Lab found a single {value} hair fiber caught on the display case latch.",
+    "blood_type": "A small blood smear on broken glass tested as type {value}.",
+    "biological_sex": "Voice stress analysis on the alarm override call indicates a {value} speaker.",
+    "shoe_size_category": "A partial shoe print near the service door suggests a {value}-sized shoe.",
+    "race": "DNA trace analysis on skin cells recovered from the frame indicates {value} ethnicity."
+  },
+
+  "red_herring_pool": [
+    {
+      "id": "fiber_scrap",
+      "label": "A fiber from a wool coat",
+      "flavor_text": "Lab identified a wool fiber near the entrance - could belong to half the winter coats in the city."
+    },
+    {
+      "id": "old_coin",
+      "label": "An old coin",
+      "flavor_text": "A tarnished coin was found under the display case, dated decades before the theft - probably dropped long ago."
+    },
+    {
+      "id": "cigarette_butt",
+      "label": "A cigarette butt",
+      "flavor_text": "A cigarette butt near the fire exit - no DNA match on file, likely unrelated to the crime."
+    },
+    {
+      "id": "receipt_fragment",
+      "label": "A torn receipt",
+      "flavor_text": "A torn café receipt found in the hallway, printed the same week - could be anyone's."
+    },
+    {
+      "id": "generic_hair",
+      "label": "A stray hair (non-matching color)",
+      "flavor_text": "A second hair strand was found, but its color doesn't match the primary sample - inconclusive."
+    },
+    {
+      "id": "smudged_print",
+      "label": "A smudged handprint",
+      "flavor_text": "A handprint on the window was too smudged to extract usable ridge detail."
+    }
+  ],
+
+  "selection_rule": {
+    "num_red_herrings_shown": 2,
+    "method": "uniform_random_without_replacement_from_red_herring_pool"
+  },
+
+  "ui_flow": {
+    "step_1": "Player enters CSILabScene after completing the Hidden-Object crime scene.",
+    "step_2": "CSI officer dialogue plays, revealing lab results one by one.",
+    "step_3": "Real clue is shown using real_clue_templates[gameState.identityEvidence.attribute] filled with gameState.identityEvidence.thief_value.",
+    "step_4": "2 random red herrings from red_herring_pool are shown alongside, same visual weight as the real clue.",
+    "step_5": "All 3 clues are stored in gameState.csiClues; only the real one has isReal:true (hidden from player, used later for elimination logic).",
+    "step_6": "Player proceeds to Suspect Board scene, where the real clue's attribute becomes the elimination filter."
+  }
+}

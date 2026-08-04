@@ -2,6 +2,7 @@ import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { GameTimeManager } from '../GameTimeManager.js';
 import { EventBus } from '../EventBus.js';
+import { audioManager } from '../AudioManager.js';
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -15,6 +16,7 @@ export class GameScene extends Phaser.Scene {
         this.backgroundImage = null;
         this.currentVideo = null;
         this.currentVideoKey = null;
+        this.currentAudio = null;
         this.handleResizeBound = null;
 
         this.hasStartedOfficeScene = false;
@@ -22,6 +24,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
+    audioManager.init(this);
         this.scene.wake('UIScene');
         this.timeManager = new GameTimeManager();
 
@@ -118,16 +121,16 @@ export class GameScene extends Phaser.Scene {
     createDetectiveSection() {
         const dialogueBox = this.add.graphics();
         dialogueBox.fillStyle(0x000000, 0.72);
-        dialogueBox.fillRoundedRect(90, 700, 1180, 260, 20);
+        dialogueBox.fillRoundedRect(90, 720, 1580, 260, 20);
         dialogueBox.lineStyle(4, 0xffff00, 1);
-        dialogueBox.strokeRoundedRect(90, 700, 1180, 260, 20);
+        dialogueBox.strokeRoundedRect(90, 720, 1580, 260, 20);
         dialogueBox.setDepth(20);
 
         this.dialogueText = this.add.text(140, 748, '', {
             fontFamily: 'PressStart2P',
             fontSize: '24px',
             color: '#ffffff',
-            wordWrap: { width: 1040 },
+            wordWrap: { width: 1480 },
             lineSpacing: 14
         }).setDepth(21);
 
@@ -140,18 +143,14 @@ export class GameScene extends Phaser.Scene {
 
     startIntroSequence() {
         this.sequenceStage = 'video1';
-        this.playVideo('detectiveIntro1', () => {
-            this.sequenceStage = 'video2';
-            this.playVideo('detectiveIntro2', () => {
-                this.sequenceStage = 'done';
-                this.goToOfficeScene();
-            });
+        this.playVideo('detectiveIntro', 'detective-intro', () => {
+            this.sequenceStage = 'done';
+            this.goToOfficeScene();
         });
-
         this.typeText(this.dialogueText, this.fullIntroText, 24);
     }
 
-    playVideo(videoKey, onComplete) {
+    playVideo(videoKey, audioKey, onComplete) {
         if (!this.cache.video.exists(videoKey)) {
             console.warn(`Brak video assetu: ${videoKey}`);
             onComplete?.();
@@ -159,6 +158,21 @@ export class GameScene extends Phaser.Scene {
         }
 
         this.destroyCurrentVideo();
+
+        // Sprawdź czy audio istnieje
+        const hasAudio = this.cache.audio.exists(audioKey);
+
+        if (hasAudio) {
+            this.currentAudio = audioManager.playSfx(audioKey);
+
+            if (this.currentAudio) {
+                // Reaguj na zakończenie DŹWIĘKU
+                this.currentAudio.once(Phaser.Sound.Events.COMPLETE, () => {
+                    this.destroyCurrentVideo();
+                    onComplete?.();
+                });
+            }
+        }
 
         const video = this.add.video(
             this.scale.width / 2,
@@ -181,11 +195,14 @@ export class GameScene extends Phaser.Scene {
             this.resizeVideoCover(video);
         });
 
-        video.once('complete', () => {
-            if (this.currentVideo !== video) return;
-            this.destroyCurrentVideo();
-            onComplete?.();
-        });
+        // Jeśli NIE MA dźwięku, przejdź dalej po pojedynczym odegraniu wideo
+        if (!hasAudio) {
+            video.once('complete', () => {
+                if (this.currentVideo !== video) return;
+                this.destroyCurrentVideo();
+                onComplete?.();
+            });
+        }
 
         video.on('error', (videoObject, error) => {
             console.error(`${videoKey} video error:`, error);
@@ -203,7 +220,8 @@ export class GameScene extends Phaser.Scene {
             onComplete?.();
         });
 
-        video.play(false);
+        // Włącz loop (true) tylko wtedy, gdy mamy podpięte audio
+        video.play(hasAudio);
     }
 
     resizeVideoCover(video) {
@@ -225,22 +243,29 @@ export class GameScene extends Phaser.Scene {
             .setScale(scale);
     }
 
-    destroyCurrentVideo() {
-        if (!this.currentVideo) return;
-
-        const video = this.currentVideo;
-        this.currentVideo = null;
-        this.currentVideoKey = null;
-
-        if (video.scene) {
-            video.setVisible(false);
-            video.setAlpha(0);
-            video.stop();
-            video.destroy();
-        }
+destroyCurrentVideo() {
+    // Zatrzymaj i zniszcz odtwarzany dźwięk
+    if (this.currentAudio) {
+        this.currentAudio.stop();
+        this.currentAudio.destroy();
+        this.currentAudio = null;
     }
 
-    typeText(target, text, speed = 20) {
+    if (!this.currentVideo) return;
+
+    const video = this.currentVideo;
+    this.currentVideo = null;
+    this.currentVideoKey = null;
+
+    if (video.scene) {
+        video.setVisible(false);
+        video.setAlpha(0);
+        video.stop();
+        video.destroy();
+    }
+}
+
+    typeText(target, text, speed = 15) {
         if (!target || typeof text !== 'string') return;
 
         if (this.typingEvent) {

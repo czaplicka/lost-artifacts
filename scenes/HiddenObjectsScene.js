@@ -1,5 +1,7 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { ScoreManager } from '../ScoreManager.js';
+import { EventBus } from '../EventBus.js';
+import { audioManager } from '../AudioManager.js';
 
 export default class HiddenObjectsScene extends Phaser.Scene {
   constructor() {
@@ -22,6 +24,8 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.cityId = 'paris';
     this.title = 'Crime Scene';
     this.debugZones = false;
+
+    this.sourceScene = null;
 
     this.sidebarWidth = 420;
     this.mapWidth = 1920;
@@ -48,14 +52,19 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.resultContainer = null;
 
     this.scoreManager = null;
+    this.incorrectClicks = 0;
   }
 
   init(data = {}) {
-    this.sceneId = data.sceneId || 'louvre';
+    const mission = this.resolveIncomingMission(data);
+    const resolvedSceneId = this.resolveSceneId(data, mission);
+    const resolvedCityId = this.resolveCityId(data, mission);
+
+    this.sceneId = resolvedSceneId;
     this.mapKey = data.mapKey || this.sceneId;
     this.mapPath = data.mapPath || `assets/crimes/${this.sceneId}.json`;
-this.backgroundKey = data.backgroundKey || `${this.sceneId}_bg`;
-this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`;
+    this.backgroundKey = data.backgroundKey || `${this.sceneId}_bg`;
+    this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`;
     this.objectLayerName = data.objectLayerName || 'HiddenObjects';
     this.objectsDataKey = data.objectsDataKey || 'objects-data';
     this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
@@ -64,10 +73,12 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     this.score = data.score || 0;
     this.timeLeft = data.timeLimit || 120;
     this.returnScene = data.returnScene || 'CityScene';
-    this.returnData = data.returnData || { cityId: data.cityId || 'paris' };
-    this.cityId = data.cityId || this.returnData.cityId || 'paris';
+    this.returnData = data.returnData || { cityId: resolvedCityId };
+    this.cityId = resolvedCityId;
     this.title = data.title || 'Crime Scene';
     this.debugZones = Boolean(data.debugZones);
+
+    this.sourceScene = data.sourceScene || this.scene.settings.data?.sourceScene || this.returnScene;
 
     this.sidebarWidth = data.sidebarWidth || 420;
     this.mapWidth = data.mapWidth || 1920;
@@ -95,12 +106,30 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       gameState.specialScenesVisited = {};
     }
 
+    if (!gameState.specialScenesCompleted || typeof gameState.specialScenesCompleted !== 'object') {
+      gameState.specialScenesCompleted = {};
+    }
+
     if (!Array.isArray(gameState.hiddenObjectHistory)) {
       gameState.hiddenObjectHistory = [];
     }
 
     if (!Array.isArray(gameState.cluesCollected)) {
       gameState.cluesCollected = [];
+    }
+
+    if (!gameState.crimeBoardData || typeof gameState.crimeBoardData !== 'object') {
+      gameState.crimeBoardData = {};
+    }
+
+    if (!Array.isArray(gameState.crimeBoardData.visitedCrimeScenes)) {
+      gameState.crimeBoardData.visitedCrimeScenes = [];
+    }
+
+    // NOWE: tablica przechowująca fizyczne przedmioty znalezione na scenach hidden-object,
+    // wykorzystywana przez CrimeBoardInit.js do budowania kart evidence.
+    if (!Array.isArray(gameState.crimeBoardData.sceneFoundObjects)) {
+      gameState.crimeBoardData.sceneFoundObjects = [];
     }
 
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
@@ -124,6 +153,16 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
         playerAttemptsLeft: 2
       };
     }
+
+    console.log('HiddenObjectsScene init', {
+      sceneId: this.sceneId,
+      mapPath: this.mapPath,
+      backgroundPath: this.backgroundPath,
+      cityId: this.cityId,
+      missionScene: mission?.scene || null,
+      missionCity: mission?.city || null,
+      visitKey: this.getVisitKey()
+    });
   }
 
   preload() {
@@ -153,9 +192,12 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
   }
 
   create() {
+    audioManager.init(this);
     this.cameras.main.setBackgroundColor('#0f0f12');
+    this.forceResetCursor();
 
     if (this.isQuestAlreadyDone()) {
+      this.restoreSourceScene();
       this.scene.start(this.returnScene, {
         ...this.returnData,
         hiddenObjectsAlreadyCompleted: true,
@@ -165,22 +207,210 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     }
 
     this.loadObjectsData();
+
+    if (!this.sceneItems.length) {
+      this.handleSceneSetupFailure(`No objects configured for scene "${this.sceneId}".`);
+      return;
+    }
+
     this.pickActiveItems(this.activeCount);
+
+    if (!this.activeItems.length) {
+      this.handleSceneSetupFailure(`No active objects selected for scene "${this.sceneId}".`);
+      return;
+    }
+
     this.saveReconstructionCards();
     this.computePlayArea();
     this.createBackground();
     this.createUi();
-    this.createHiddenZones();
+
+    const zonesCreated = this.createHiddenZones();
+    if (!zonesCreated) {
+      this.handleSceneSetupFailure(`No clickable zones found for scene "${this.sceneId}".`);
+      return;
+    }
+
     this.createTimer();
     this.registerMissDetection();
+    this.pauseSourceScene();
 
-    this.scene.sleep('UIScene');
+    if (this.scene.manager.keys.UIScene) {
+      this.scene.sleep('UIScene');
+    }
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
+
+    console.log('HiddenObjectsScene ready', {
+      sceneId: this.sceneId,
+      sceneItemsCount: this.sceneItems.length,
+      activeItemsCount: this.activeItems.length,
+      hiddenZonesCount: this.hiddenZones.length
+    });
+  }
+
+  resolveIncomingMission(data = {}) {
+    return (
+      data.mission ||
+      data.currentMission ||
+      this.scene.settings.data?.mission ||
+      this.scene.settings.data?.currentMission ||
+      gameState.currentMission ||
+      null
+    );
+  }
+
+  resolveSceneId(data = {}, mission = null) {
+    const candidates = [
+      data.sceneId,
+      data.returnData?.sceneId,
+      mission?.scene,
+      gameState.currentMission?.scene,
+      this.getSceneIdFromCity(data.cityId),
+      this.getSceneIdFromCity(data.city),
+      this.getSceneIdFromCity(data.returnData?.cityId),
+      this.getSceneIdFromCity(mission?.cityId),
+      this.getSceneIdFromCity(mission?.city),
+      this.getSceneIdFromCity(gameState.currentMission?.cityId),
+      this.getSceneIdFromCity(gameState.currentMission?.city)
+    ];
+
+    for (const candidate of candidates) {
+      const normalized = this.normalizeSceneId(candidate);
+      if (this.isKnownSceneId(normalized)) {
+        return normalized;
+      }
+    }
+
+    return 'louvre';
+  }
+
+  resolveCityId(data = {}, mission = null) {
+    return (
+      data.cityId ||
+      data.city ||
+      data.returnData?.cityId ||
+      mission?.cityId ||
+      mission?.city ||
+      gameState.currentMission?.cityId ||
+      gameState.currentMission?.city ||
+      'paris'
+    );
+  }
+
+  normalizeSceneId(value) {
+    if (!value) return '';
+
+    return String(value)
+      .trim()
+      .toLowerCase()
+      .replace(/\.json$/i, '')
+      .replace(/\.jpg$/i, '')
+      .replace(/\s+/g, '_');
+  }
+
+  isKnownSceneId(sceneId) {
+    return [
+      'louvre',
+      'tower',
+      'castle',
+      'dockyard',
+      'auction_house',
+      'havela'
+    ].includes(sceneId);
+  }
+
+  getSceneIdFromCity(value) {
+    if (!value) return '';
+
+    const city = String(value).trim().toLowerCase();
+
+    const cityToSceneMap = {
+      'paris': 'louvre',
+      'london': 'tower',
+      'tower of london': 'tower',
+      'warsaw': 'castle',
+      'berlin': 'auction_house',
+      'new york': 'dockyard',
+      'new york city': 'dockyard',
+      'nyc': 'dockyard',
+      'new delhi': 'havela',
+      'new dehli': 'havela',
+      'delhi': 'havela'
+    };
+
+    return cityToSceneMap[city] || '';
+  }
+
+  handleSceneSetupFailure(message) {
+    console.error('[HiddenObjectsScene] Setup failed:', message, {
+      sceneId: this.sceneId,
+      cityId: this.cityId,
+      mapPath: this.mapPath,
+      backgroundPath: this.backgroundPath
+    });
+
+    this.restoreSourceScene();
+
+    this.scene.start(this.returnScene, {
+      ...this.returnData,
+      hiddenObjectsSetupFailed: true,
+      hiddenObjectsSuccess: false,
+      hiddenObjectsScore: this.score,
+      incorrectClicks: this.incorrectClicks,
+      foundItems: Array.from(this.foundItems),
+      sceneId: this.sceneId,
+      errorMessage: message
+    });
+  }
+
+  forceResetCursor() {
+    this.input.setDefaultCursor('default');
+    if (this.sys.game.canvas) {
+      this.sys.game.canvas.style.cursor = 'default';
+    }
+  }
+
+  pauseSourceScene() {
+    if (!this.sourceScene || this.sourceScene === this.scene.key) return;
+    if (!this.scene.manager.keys[this.sourceScene]) return;
+
+    const sourceRef = this.scene.get(this.sourceScene);
+    if (!sourceRef) return;
+
+    if (this.scene.isActive(this.sourceScene)) {
+      this.scene.sleep(this.sourceScene);
+    }
+
+    if (sourceRef.input) {
+      sourceRef.input.enabled = false;
+    }
+  }
+
+  restoreSourceScene() {
+    this.forceResetCursor();
+
+    const source = this.sourceScene || this.returnScene || 'CityScene';
+    if (!this.scene.manager.keys[source]) return;
+
+    if (this.scene.isSleeping(source)) {
+      this.scene.wake(source);
+    }
+
+    if (this.scene.isPaused(source)) {
+      this.scene.resume(source);
+    }
+
+    const sourceSceneRef = this.scene.get(source);
+    if (sourceSceneRef?.input) {
+      sourceSceneRef.input.enabled = true;
+      sourceSceneRef.input.setTopOnly(true);
+    }
   }
 
   isQuestAlreadyDone() {
-    const visited = gameState.specialScenesVisited;
-    return !!(visited && visited[this.getVisitKey()]);
+    const completed = gameState.specialScenesCompleted;
+    return !!(completed && completed[this.getVisitKey()]);
   }
 
   loadObjectsData() {
@@ -212,9 +442,11 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     if (Array.isArray(value)) {
       return value.map(skill => String(skill).trim()).filter(Boolean);
     }
+
     if (typeof value === 'string') {
       return value.split(',').map(skill => skill.trim()).filter(Boolean);
     }
+
     return [];
   }
 
@@ -225,6 +457,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       gameState.currentCulprit?.skills ||
       gameState.currentMission?.suspectSkills ||
       [];
+
     return this.normalizeSkills(thiefSkills).map(skill => skill.toLowerCase());
   }
 
@@ -241,43 +474,43 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
   }
 
   buildCandidatePool() {
-  const thiefSkills = this.getCurrentThiefSkills();
+    const thiefSkills = this.getCurrentThiefSkills();
 
-  const pool = this.sceneItems.map(item => ({
-    ...item,
-    skills: this.normalizeSkills(item.skills)
-  }));
+    const pool = this.sceneItems.map(item => ({
+      ...item,
+      skills: this.normalizeSkills(item.skills)
+    }));
 
-  const matching = Phaser.Utils.Array.Shuffle(
-    pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills))
-  );
+    const matching = Phaser.Utils.Array.Shuffle(
+      pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills))
+    );
 
-  const correct = matching.slice(0, 3).map((item, index) => ({
-    ...item,
-    isCorrect: true,
-    correctOrder: index
-  }));
+    const correct = matching.slice(0, 3).map((item, index) => ({
+      ...item,
+      isCorrect: true,
+      correctOrder: index
+    }));
 
-  const rest = Phaser.Utils.Array.Shuffle(
-    pool.filter(item => !correct.some(c => c.id === item.id))
-  );
+    const rest = Phaser.Utils.Array.Shuffle(
+      pool.filter(item => !correct.some(c => c.id === item.id))
+    );
 
-  const distractors = rest.slice(0, 6 - correct.length).map(item => ({
-    ...item,
-    isCorrect: false,
-    correctOrder: -1
-  }));
+    const distractors = rest.slice(0, Math.max(0, 6 - correct.length)).map(item => ({
+      ...item,
+      isCorrect: false,
+      correctOrder: -1
+    }));
 
-  return Phaser.Utils.Array.Shuffle([...correct, ...distractors]);
-}
+    return Phaser.Utils.Array.Shuffle([...correct, ...distractors]);
+  }
 
   pickActiveItems(count = 6) {
-  this.activeItems = this.buildCandidatePool().slice(0, count);
-  this.activeItemIds = new Set(this.activeItems.map(item => item.id));
-  this.missionRelevantItemIds = new Set(
-    this.activeItems.filter(item => item.isCorrect).map(item => item.id)
-  );
-}
+    this.activeItems = this.buildCandidatePool().slice(0, count);
+    this.activeItemIds = new Set(this.activeItems.map(item => item.id));
+    this.missionRelevantItemIds = new Set(
+      this.activeItems.filter(item => item.isCorrect).map(item => item.id)
+    );
+  }
 
   buildReconstructionCardsFromActiveItems() {
     const thief = gameState.currentThief || null;
@@ -433,12 +666,24 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
   }
 
   createHiddenZones() {
-    const map = this.make.tilemap({ key: this.mapKey });
+    let map;
+    try {
+      map = this.make.tilemap({ key: this.mapKey });
+    } catch (error) {
+      console.error(`Nie udało się wczytać mapy ${this.mapKey}`, error);
+      return 0;
+    }
+
+    if (!map) {
+      console.error(`Mapa ${this.mapKey} nie została utworzona`);
+      return 0;
+    }
+
     const objectLayer = map.getObjectLayer(this.objectLayerName);
 
     if (!objectLayer) {
       console.error(`Brak warstwy ${this.objectLayerName} w pliku mapy`);
-      return;
+      return 0;
     }
 
     this.hiddenZones = [];
@@ -491,6 +736,8 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
 
       this.hiddenZones.push(zone);
     });
+
+    return this.hiddenZones.length;
   }
 
   getObjectBounds(obj) {
@@ -670,6 +917,45 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     saveGameState();
   }
 
+  // NOWE: zapisuje fizyczne przedmioty znalezione na scenie (z this.foundItems)
+  // do gameState.crimeBoardData.sceneFoundObjects, żeby CrimeBoardInit.js mógł
+  // zbudować z nich karty evidence na tablicy śledczej.
+  saveFoundObjectsToCrimeBoard() {
+    if (!gameState.crimeBoardData || typeof gameState.crimeBoardData !== 'object') {
+      gameState.crimeBoardData = {};
+    }
+
+    if (!Array.isArray(gameState.crimeBoardData.sceneFoundObjects)) {
+      gameState.crimeBoardData.sceneFoundObjects = [];
+    }
+
+    this.foundItems.forEach((itemId) => {
+      const itemData = this.itemsById[itemId];
+      if (!itemData) return;
+
+      const uniqueKey = `${this.sceneId}_${this.cityId}_${itemId}`;
+
+      const alreadySaved = gameState.crimeBoardData.sceneFoundObjects.some(
+        entry => entry.uniqueKey === uniqueKey
+      );
+
+      if (alreadySaved) return;
+
+      gameState.crimeBoardData.sceneFoundObjects.push({
+        uniqueKey,
+        id: itemId,
+        item: itemData.item || itemId,
+        description: itemData.heistExplanation || itemData.trueExplanation || '',
+        sceneId: this.sceneId,
+        cityId: this.cityId,
+        isRedHerring: !!itemData.isRedHerring,
+        isMissionRelevant: this.missionRelevantItemIds.has(itemId),
+        clueType: itemData.clueType || 'soft_clue',
+        foundAt: Date.now()
+      });
+    });
+  }
+
   buildListText() {
     return this.activeItems.map(item => {
       const found = this.foundItems.has(item.id);
@@ -749,20 +1035,22 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       .setStrokeStyle(3, 0xd4af37, 0.9);
 
     const title = this.add.text(0, -155, 'Crime Scene Complete', {
-      fontFamily: 'Special Elite, Arial',
+      fontFamily: 'Special Elite,',
       fontSize: '38px',
       color: '#f8e7b9',
       align: 'center'
     }).setOrigin(0.5);
 
     const subtitle = this.add.text(0, -104, 'The forensic sweep is finished.', {
-      fontFamily: 'Arial',
+      fontFamily: 'PressStart2P',
       fontSize: '22px',
       color: '#f2f2f2',
       align: 'center'
     }).setOrigin(0.5);
 
-    const stats = this.add.text(0, -5,
+    const stats = this.add.text(
+      0,
+      -5,
       [
         `Objects found: ${this.foundItems.size}/${this.activeItems.length}`,
         `Misses: ${this.incorrectClicks}`,
@@ -771,7 +1059,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
         `Final score: ${finalScore}`
       ].join('\n'),
       {
-        fontFamily: 'Arial',
+        fontFamily: 'PressStart2P',
         fontSize: '24px',
         color: '#ffffff',
         align: 'center',
@@ -779,10 +1067,12 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       }
     ).setOrigin(0.5);
 
-    const note = this.add.text(0, 112,
+    const note = this.add.text(
+      0,
+      112,
       'Evidence logged. Return to the city and continue the investigation.',
       {
-        fontFamily: 'Arial',
+        fontFamily: 'PressStart2P',
         fontSize: '19px',
         color: '#d8d8d8',
         align: 'center',
@@ -795,7 +1085,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       .setInteractive({ useHandCursor: true });
 
     const continueBtnText = this.add.text(0, 170, 'Continue', {
-      fontFamily: 'Press Start 2P, Arial',
+      fontFamily: 'PressStart2P',
       fontSize: '16px',
       color: '#fff7dc'
     }).setOrigin(0.5);
@@ -804,6 +1094,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     continueBtnBg.on('pointerout', () => continueBtnBg.setFillStyle(0x8b6b2f, 1));
     continueBtnBg.on('pointerdown', () => {
       this.playSfx('correct', { volume: 0.35 });
+      this.restoreSourceScene();
       this.scene.start(this.returnScene, {
         ...this.returnData,
         hiddenObjectsSuccess: true,
@@ -863,7 +1154,9 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       color: '#ffb3b3'
     }).setOrigin(0.5);
 
-    const body = this.add.text(0, -10,
+    const body = this.add.text(
+      0,
+      -10,
       [
         'You ran out of time before the scene was fully processed.',
         '',
@@ -894,6 +1187,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     btnBg.on('pointerover', () => btnBg.setFillStyle(0x823333, 1));
     btnBg.on('pointerout', () => btnBg.setFillStyle(0x6b2a2a, 1));
     btnBg.on('pointerdown', () => {
+      this.restoreSourceScene();
       this.scene.start(this.returnScene, {
         ...this.returnData,
         hiddenObjectsSuccess: false,
@@ -931,6 +1225,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
       this.timerEvent = null;
     }
 
+    this.markSceneVisited(false);
     this.restoreSourceScene();
 
     this.scene.start(this.returnScene, {
@@ -975,8 +1270,7 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
   }
 
   playSfx(key, config = {}) {
-    if (!this.sound || !this.cache.audio.exists(key)) return;
-    this.sound.play(key, config);
+    audioManager.playSfx(key, config);
   }
 
   flashScreen(color = 0xffffff, alpha = 0.1, duration = 120) {
@@ -1049,10 +1343,47 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
 
     const visitKey = this.getVisitKey();
     gameState.specialScenesVisited[visitKey] = true;
+
     if (success) {
       gameState.specialScenesCompleted[visitKey] = true;
     }
+
+    this.saveCrimeBoardPhoto(success);
+
+    // NOWE: zapisujemy znalezione przedmioty niezależnie od sukcesu/porażki
+    this.saveFoundObjectsToCrimeBoard();
+
     saveGameState();
+  }
+
+  saveCrimeBoardPhoto(success = false) {
+    if (!gameState.crimeBoardData || typeof gameState.crimeBoardData !== 'object') {
+      gameState.crimeBoardData = {};
+    }
+
+    if (!Array.isArray(gameState.crimeBoardData.visitedCrimeScenes)) {
+      gameState.crimeBoardData.visitedCrimeScenes = [];
+    }
+
+    const visitKey = this.getVisitKey();
+
+    const alreadyPinned = gameState.crimeBoardData.visitedCrimeScenes.some(
+      entry => entry.visitKey === visitKey
+    );
+
+    if (alreadyPinned) return;
+
+    gameState.crimeBoardData.visitedCrimeScenes.push({
+      visitKey,
+      sceneId: this.sceneId,
+      cityId: this.cityId,
+      displayName: this.title,
+      assetKey: this.backgroundKey,
+      imagePath: this.backgroundPath,
+      missionId: gameState.currentMission?.id || null,
+      success,
+      visitedAt: Date.now()
+    });
   }
 
   getVisitKey() {
@@ -1096,23 +1427,5 @@ this.backgroundPath = data.backgroundPath || `assets/crimes/${this.sceneId}.jpg`
     const minutes = Math.floor(safeSeconds / 60);
     const secs = safeSeconds % 60;
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  }
-
-  restoreSourceScene() {
-    const source = this.sourceScene || 'CityScene';
-
-    if (this.scene.isSleeping(source)) {
-      this.scene.wake(source);
-    }
-
-    if (this.scene.isPaused(source)) {
-      this.scene.resume(source);
-    }
-
-    const sourceSceneRef = this.scene.get(source);
-    if (sourceSceneRef?.input) {
-      sourceSceneRef.input.enabled = true;
-      sourceSceneRef.input.setTopOnly(true);
-    }
   }
 }

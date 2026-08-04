@@ -13,7 +13,13 @@
     font-style: normal;
     font-display: block;
 }
-
+@font-face {
+    font-family: 'Indie Flower';
+    src: url('assets/fonts/IndieFlower.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: block;
+}
 html,
 body {
     margin: 0;

@@ -1,6 +1,7 @@
 export class WantedDatabaseScene extends Phaser.Scene {
     constructor() {
         super({ key: 'WantedDatabaseScene' });
+        this.gameState = {};
         this.suspects = [];
         this.currentIndex = 0;
         this.cards = [];
@@ -13,142 +14,151 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.filteredSuspects = [];
     }
 
+    init(data) {
+        this.gameState = data?.gameState || this.gameState || {};
+    }
+
     preload() {
-        // Suspects images - ładuj z assets/suspects/
-        const suspectIds = [
-            'garett_gutter', 'sofia_vargas', 'bert_goodman', 'anne_apple',
-            'frank_groot', 'bernard_porter', 'rebecca_muller', 'jacek_kowalski',
-            'pablo_fernandez', 'alexandra_ivanova', 'sergei_petrov', 'isabella_rossi',
-            'liam_oconnor', 'ava_thompson', 'maximilian_schmidt', 'brendan_ross',
-            'bai_williams', 'albert_johnson', 'anna_bocian', 'aleksander_petrov',
-            'marie_dubois', 'lotte_chantal'
-        ];
-
-        suspectIds.forEach((id, index) => {
-            this.load.image(`wanted_${id}`, `assets/suspects/${index + 1}.jpg`);
-        });
-
         this.load.json('suspects', 'assets/data/suspects.json');
     }
 
     create() {
+        if (this.scene.isActive('UIScene')) {
+            this.scene.sleep('UIScene');
+        }
+
         const W = this.scale.width;
         const H = this.scale.height;
 
-        this.suspects = this.cache.json.get('suspects');
+        this.suspects = this.cache.json.get('suspects') || [];
         this.filteredSuspects = [...this.suspects];
 
-        // --- Tło: stara tablica korkowa ---
         this.createBackground(W, H);
-
-        // --- Nagłówek ---
+        this.createCRTEffects(W, H);
         this.createHeader(W);
-
-        // --- Panel filtrów ---
         this.createFilterPanel(W);
 
-        // --- Siatka kart ---
         this.cardContainer = this.add.container(0, 0);
         this.renderCards(W, H);
 
-        // --- Przyciski nawigacji ---
         this.createNavigation(W, H);
 
-        // --- Panel szczegółów (ukryty na start) ---
         this.detailPanel = this.createDetailPanel(W, H);
         this.detailPanel.setVisible(false);
 
-        // --- Zamknięcie sceny (przycisk WRÓĆ) ---
         this.createBackButton(W, H);
 
-        // --- Input klawiaturowy do zamykania detail ---
-        this.input.keyboard.on('keydown-ESC', () => {
-            if (this.detailPanel.visible) {
-                this.closeDetailPanel();
+        this.input.keyboard.on('keydown-ESC', this.handleEsc, this);
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+    }
+
+    handleEsc() {
+        if (this.detailPanel?.visible) {
+            this.closeDetailPanel();
+        } else {
+            this.closeAndReturnToOffice();
+        }
+    }
+
+    createBackground(W, H) {
+        // Ciemne tło retro monitora CRT
+        this.add.rectangle(0, 0, W, H, 0x050c08).setOrigin(0, 0);
+
+        // Obramowanie monitora CRT
+        const monitorFrame = this.add.graphics();
+        monitorFrame.lineStyle(16, 0x121c16, 1);
+        monitorFrame.strokeRect(8, 8, W - 16, H - 16);
+        monitorFrame.lineStyle(2, 0x00ff66, 0.4);
+        monitorFrame.strokeRect(20, 20, W - 40, H - 40);
+    }
+
+    createCRTEffects(W, H) {
+        // 1. Linie skanujące (Scanlines)
+        const scanlines = this.add.graphics();
+        scanlines.fillStyle(0x00ff66, 0.03);
+        for (let y = 0; y < H; y += 4) {
+            scanlines.fillRect(0, y, W, 2);
+        }
+        scanlines.setDepth(999);
+
+        // 2. Przesuwający się pasek odświeżania kineskopu CRT
+        const beam = this.add.graphics();
+        beam.fillStyle(0x00ff66, 0.04);
+        beam.fillRect(0, 0, W, 40);
+        beam.setDepth(999);
+
+        this.tweens.add({
+            targets: beam,
+            y: H,
+            duration: 4000,
+            repeat: -1,
+            ease: 'Linear'
+        });
+
+        // 3. Efekt Flickering (migotanie kineskopu CRT)
+        const crtOverlay = this.add.rectangle(0, 0, W, H, 0x000000, 0).setOrigin(0, 0);
+        crtOverlay.setDepth(998);
+
+        this.time.addEvent({
+            delay: 80,
+            loop: true,
+            callback: () => {
+                // Skoki jasności i mikromigotanie
+                const randAlpha = Phaser.Math.FloatBetween(0.01, 0.05);
+                crtOverlay.setAlpha(randAlpha);
             }
         });
     }
 
-    createBackground(W, H) {
-        // Ciemnozielone tło jak stara tablica ogłoszeń
-        this.add.rectangle(0, 0, W, H, 0x1a0e05).setOrigin(0, 0);
-
-        // Tekstura korkowa - losowe plamki
-        const corkGraphics = this.add.graphics();
-        for (let i = 0; i < 300; i++) {
-            const x = Phaser.Math.Between(0, W);
-            const y = Phaser.Math.Between(0, H);
-            const alpha = Phaser.Math.FloatBetween(0.02, 0.08);
-            corkGraphics.fillStyle(0xc8a96e, alpha);
-            corkGraphics.fillCircle(x, y, Phaser.Math.Between(1, 4));
-        }
-
-        // Zewnętrzna ramka drewniana
-        const frame = this.add.graphics();
-        frame.lineStyle(18, 0x5c3a1e, 1);
-        frame.strokeRect(9, 9, W - 18, H - 18);
-        frame.lineStyle(4, 0x8b5c2a, 1);
-        frame.strokeRect(20, 20, W - 40, H - 40);
-
-        // Wewnętrzne tło tablicy (ciemniejsze)
-        frame.fillStyle(0x2a1a08, 0.7);
-        frame.fillRect(28, 28, W - 56, H - 56);
-    }
-
     createHeader(W) {
-        // Tło nagłówka
         const headerBg = this.add.graphics();
-        headerBg.fillStyle(0x8b0000, 1);
-        headerBg.fillRect(28, 28, W - 56, 80);
-        headerBg.lineStyle(3, 0xcc0000, 1);
-        headerBg.strokeRect(28, 28, W - 56, 80);
+        headerBg.fillStyle(0x051a10, 0.9);
+        headerBg.fillRect(24, 24, W - 48, 80);
+        headerBg.lineStyle(2, 0x00ff66, 0.8);
+        headerBg.strokeRect(24, 24, W - 48, 80);
 
-        // Ikony gwiazdek po bokach (retro)
-        const starStyle = { fontFamily: 'PressStart2P', fontSize: '16px', color: '#FFD700' };
-        this.add.text(60, 68, '★', starStyle).setOrigin(0.5, 0.5);
-        this.add.text(W - 60, 68, '★', starStyle).setOrigin(0.5, 0.5);
-
-        // Tytuł główny
-        this.add.text(W / 2, 52, 'MOST WANTED', {
+        this.add.text(50, 48, '> INTERPOL_DATABASE_v2.04', {
             fontFamily: 'PressStart2P',
-            fontSize: '22px',
-            color: '#FFD700',
-            stroke: '#000000',
+            fontSize: '16px',
+            color: '#00ff66'
+        });
+
+        this.add.text(W / 2, 64, 'MOST WANTED DATABASE', {
+            fontFamily: 'PressStart2P',
+            fontSize: '28px',
+            color: '#00ff66',
+            stroke: '#003311',
             strokeThickness: 4
         }).setOrigin(0.5, 0.5);
 
-        // Podtytuł
-        this.add.text(W / 2, 80, 'INTERNATIONAL CRIMINAL DATABASE', {
-            fontFamily: 'SpecialElite',
-            fontSize: '13px',
-            color: '#ffcc88',
-            letterSpacing: 3
-        }).setOrigin(0.5, 0.5);
+        this.add.text(W - 50, 48, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '14px',
+            color: '#00cc55'
+        }).setOrigin(1,1);
     }
 
     createFilterPanel(W) {
-        const panelY = 115;
+        const panelY = 135;
+        const panelH = 50;
 
-        // Tło panelu filtrów
         const filterBg = this.add.graphics();
-        filterBg.fillStyle(0x0d0700, 0.8);
-        filterBg.fillRoundedRect(28, panelY, W - 56, 45, 4);
-        filterBg.lineStyle(1, 0x5c3a1e, 0.8);
-        filterBg.strokeRoundedRect(28, panelY, W - 56, 45, 4);
+        filterBg.fillStyle(0x05100a, 0.9);
+        filterBg.fillRect(24, panelY, W - 48, panelH);
+        filterBg.lineStyle(1, 0x00ff66, 0.5);
+        filterBg.strokeRect(24, panelY, W - 48, panelH);
 
-        // Etykieta filtra
-        this.add.text(50, panelY + 22, 'FILTER:', {
+        this.add.text(45, panelY + panelH / 2, 'FILTER ', {
             fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: '#aa8866'
+            fontSize: '14px',
+            color: '#00cc55'
         }).setOrigin(0, 0.5);
 
-        // Przyciski filtrów płci
         const filters = [
-            { label: 'ALL', value: 'all', x: 140 },
-            { label: 'MALE', value: 'm', x: 210 },
-            { label: 'FEMALE', value: 'f', x: 280 },
-            { label: 'NON-BINARY', value: 'nb', x: 390 }
+            { label: 'ALL', value: 'all' },
+            { label: 'MALE', value: 'm' },
+            { label: 'FEMALE', value: 'f' },
+            { label: 'NON-BINARY', value: 'nb' }
         ];
 
         this.filterButtonGraphics = [];
@@ -156,21 +166,24 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.filterMeta = filters;
         this.filterPanelY = panelY;
 
-        filters.forEach((f, idx) => {
+        let currentX = 130;
+        const gap = 12;
+
+        filters.forEach((f) => {
             const isActive = this.filterGender === f.value;
-            const btnWidth = 60 + (f.label.length > 6 ? 40 : 0);
+            const btnWidth = f.label.length * 10 + 20;
 
             const btn = this.add.graphics();
-            btn.fillStyle(isActive ? 0x8b0000 : 0x2a1a08, 1);
-            btn.fillRoundedRect(f.x - 30, panelY + 8, btnWidth, 28, 3);
-            btn.lineStyle(1, isActive ? 0xff4444 : 0x5c3a1e, 1);
-            btn.strokeRoundedRect(f.x - 30, panelY + 8, btnWidth, 28, 3);
+            btn.fillStyle(isActive ? 0x00ff66 : 0x081a10, isActive ? 0.3 : 0.8);
+            btn.fillRect(currentX, panelY + 9, btnWidth, 32);
+            btn.lineStyle(1, 0x00ff66, isActive ? 1 : 0.4);
+            btn.strokeRect(currentX, panelY + 9, btnWidth, 32);
 
-            const zone = this.add.zone(f.x - 30, panelY + 8, btnWidth, 28).setOrigin(0, 0).setInteractive();
-            const btnText = this.add.text(f.x - 30 + btnWidth / 2, panelY + 22, f.label, {
+            const zone = this.add.zone(currentX, panelY + 9, btnWidth, 32).setOrigin(0, 0).setInteractive();
+            const btnText = this.add.text(currentX + btnWidth / 2, panelY + 25, f.label, {
                 fontFamily: 'PressStart2P',
-                fontSize: '7px',
-                color: isActive ? '#FFD700' : '#aa8866'
+                fontSize: '12px',
+                color: isActive ? '#00ff66' : '#00aa44'
             }).setOrigin(0.5, 0.5);
 
             zone.on('pointerdown', () => {
@@ -182,28 +195,29 @@ export class WantedDatabaseScene extends Phaser.Scene {
             zone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
             zone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
 
-            this.filterButtonGraphics.push({ btn, btnWidth, f });
+            this.filterButtonGraphics.push({ btn, btnWidth, x: currentX, f });
             this.filterButtonTexts.push(btnText);
+
+            currentX += btnWidth + gap;
         });
 
-        // Licznik wyników
-        this.counterText = this.add.text(W - 80, panelY + 22, `${this.suspects.length} SUSPECTS`, {
-            fontFamily: 'SpecialElite',
-            fontSize: '11px',
-            color: '#888866'
+        this.counterText = this.add.text(W - 45, panelY + panelH / 2, `RECORDS: ${this.filteredSuspects.length}`, {
+            fontFamily: 'PressStart2P',
+            fontSize: '14px',
+            color: '#00ff66'
         }).setOrigin(1, 0.5);
     }
 
     refreshFilterButtons() {
         const panelY = this.filterPanelY;
-        this.filterButtonGraphics.forEach(({ btn, btnWidth, f }, idx) => {
+        this.filterButtonGraphics.forEach(({ btn, btnWidth, x, f }, idx) => {
             const isActive = this.filterGender === f.value;
             btn.clear();
-            btn.fillStyle(isActive ? 0x8b0000 : 0x2a1a08, 1);
-            btn.fillRoundedRect(f.x - 30, panelY + 8, btnWidth, 28, 3);
-            btn.lineStyle(1, isActive ? 0xff4444 : 0x5c3a1e, 1);
-            btn.strokeRoundedRect(f.x - 30, panelY + 8, btnWidth, 28, 3);
-            this.filterButtonTexts[idx].setColor(isActive ? '#FFD700' : '#aa8866');
+            btn.fillStyle(isActive ? 0x00ff66 : 0x081a10, isActive ? 0.3 : 0.8);
+            btn.fillRect(x, panelY + 9, btnWidth, 32);
+            btn.lineStyle(1, 0x00ff66, isActive ? 1 : 0.4);
+            btn.strokeRect(x, panelY + 9, btnWidth, 32);
+            this.filterButtonTexts[idx].setColor(isActive ? '#00ff66' : '#00aa44');
         });
         this.renderCards(this.scale.width, this.scale.height);
     }
@@ -219,22 +233,21 @@ export class WantedDatabaseScene extends Phaser.Scene {
         });
 
         if (this.counterText) {
-            this.counterText.setText(`${this.filteredSuspects.length} SUSPECTS`);
+            this.counterText.setText(`RECORDS: ${this.filteredSuspects.length}`);
         }
     }
 
     renderCards(W, H) {
-        // Wyczyść poprzednie karty
         this.cardContainer.removeAll(true);
         this.cards = [];
 
-        const startX = 55;
-        const startY = 175;
-        const cardW = 145;
-        const cardH = 200;
-        const colGap = 22;
-        const rowGap = 20;
         const COLS = 5;
+        const cardW = 330;
+        const cardH = 370;
+        const colGap = 32;
+        const rowGap = 24;
+        const startX = (W - (COLS * cardW + (COLS - 1) * colGap)) / 2;
+        const startY = 210;
 
         const pageStart = this.currentPage * this.CARDS_PER_PAGE;
         const pageEnd = Math.min(pageStart + COLS * 2, this.filteredSuspects.length);
@@ -251,7 +264,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
             this.cards.push(card);
         });
 
-        // Puste miejsca (jeśli niepełna strona)
         for (let i = pageSuspects.length; i < COLS * 2; i++) {
             const col = i % COLS;
             const row = Math.floor(i / COLS);
@@ -267,405 +279,320 @@ export class WantedDatabaseScene extends Phaser.Scene {
     createWantedCard(suspect, x, y, cardW, cardH) {
         const elements = [];
 
-        // Cień karty (efekt pinezki)
-        const shadow = this.add.graphics();
-        shadow.fillStyle(0x000000, 0.5);
-        shadow.fillRect(x + 3, y + 3, cardW, cardH);
-        elements.push(shadow);
-
-        // Tło karty - papier z pożółknieniem
         const cardBg = this.add.graphics();
-        cardBg.fillStyle(0xf5e6c8, 1);
+        cardBg.fillStyle(0x05100a, 0.9);
         cardBg.fillRect(x, y, cardW, cardH);
-        cardBg.fillStyle(0xd4b896, 0.3);
-        cardBg.fillCircle(x + 20, y + 30, 15);
-        cardBg.fillCircle(x + cardW - 15, y + cardH - 20, 10);
-        cardBg.lineStyle(2, 0x8b6343, 1);
+        cardBg.lineStyle(2, 0x00ff66, 0.5);
         cardBg.strokeRect(x, y, cardW, cardH);
         elements.push(cardBg);
 
-        // Czerwona linia na górze (jak prawdziwy wanted poster)
-        const topBar = this.add.graphics();
-        topBar.fillStyle(0xcc0000, 1);
-        topBar.fillRect(x, y, cardW, 22);
-        elements.push(topBar);
+        // Ekran główny ładuje grafike z klucza `wantedKey`
+        const wantedFile = suspect.wantedKey || suspect.id;
+        const imgKey = `wanted_main_${suspect.id}`;
+        
+        const photoX = x + 10;
+        const photoY = y + 10;
+        const photoW = cardW - 20;
+        const photoH = cardH - 20;
 
-        // Napis WANTED
-        const wantedLabel = this.add.text(x + cardW / 2, y + 11, 'WANTED', {
-            fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: '#FFD700',
-            stroke: '#000000',
-            strokeThickness: 2
-        }).setOrigin(0.5, 0.5);
-        elements.push(wantedLabel);
+        const renderCardContent = () => {
+            if (this.textures.exists(imgKey)) {
+                const img = this.add.image(photoX + photoW / 2, photoY + photoH / 2, imgKey);
+                img.setDisplaySize(photoW, photoH);
+                elements.push(img);
+            } else {
+                const placeholder = this.add.graphics();
+                placeholder.fillStyle(0x020805, 1);
+                placeholder.fillRect(photoX, photoY, photoW, photoH);
+                elements.push(placeholder);
+            }
 
-        // Pinezka (czerwona kropka na górze)
-        const pin = this.add.graphics();
-        pin.fillStyle(0xff2222, 1);
-        pin.fillCircle(x + cardW / 2, y + 2, 5);
-        pin.fillStyle(0xff8888, 0.7);
-        pin.fillCircle(x + cardW / 2 - 1, y + 1, 2);
-        elements.push(pin);
-
-        // Zdjęcie podejrzanego
-        const imgKey = `wanted_${suspect.id}`;
-        const photoY = y + 28;
-        const photoH = 95;
-
-        if (this.textures.exists(imgKey)) {
-            const img = this.add.image(x + cardW / 2, photoY + photoH / 2, imgKey);
-            img.setDisplaySize(cardW - 12, photoH);
-            elements.push(img);
+            // Pasek tła pod tekst na dole zdjęcia
+            const overlay = this.add.graphics();
+            overlay.fillStyle(0x000000, 0.8);
+            overlay.fillRect(photoX, photoY + photoH - 46, photoW, 46);
+            elements.push(overlay);
 
             const photoFrame = this.add.graphics();
-            photoFrame.lineStyle(2, 0x8b6343, 1);
-            photoFrame.strokeRect(x + 6, photoY, cardW - 12, photoH);
+            photoFrame.lineStyle(2, 0x00ff66, 0.6);
+            photoFrame.strokeRect(photoX, photoY, photoW, photoH);
             elements.push(photoFrame);
-        } else {
-            const placeholder = this.add.graphics();
-            placeholder.fillStyle(0xc8a96e, 1);
-            placeholder.fillRect(x + 6, photoY, cardW - 12, photoH);
-            placeholder.lineStyle(2, 0x8b6343, 1);
-            placeholder.strokeRect(x + 6, photoY, cardW - 12, photoH);
-            elements.push(placeholder);
 
-            const qMark = this.add.text(x + cardW / 2, photoY + photoH / 2, '?', {
-                fontFamily: 'PressStart2P', fontSize: '32px', color: '#8b6343'
-            }).setOrigin(0.5, 0.5);
-            elements.push(qMark);
+            // Numer sprawy
+            const caseNum = this.add.text(photoX + 6, photoY + 6, `#${String(suspect.wantedKey || 0).padStart(3, '0')}`, {
+                fontFamily: 'PressStart2P',
+                fontSize: '12px',
+                color: '#00ff66',
+                backgroundColor: '#000000',
+                padding: { x: 4, y: 2 }
+            });
+            elements.push(caseNum);
+
+            // NAZWISKO NA GRAFICE GŁÓWNEJ
+            const nameText = this.add.text(x + cardW / 2, photoY + photoH - 38, suspect.name.toUpperCase(), {
+                fontFamily: 'PressStart2P',
+                fontSize: '10px',
+                color: '#00ff66',
+                align: 'center',
+                wordWrap: { width: photoW - 10 }
+            }).setOrigin(0.5, 0);
+            elements.push(nameText);
+
+            if (suspect.accent) {
+                const accentText = this.add.text(x + cardW / 2, photoY + photoH - 20, suspect.accent.toUpperCase(), {
+                    fontFamily: 'PressStart2P',
+                    fontSize: '11px',
+                    color: '#00cc55',
+                    align: 'center'
+                }).setOrigin(0.5, 0);
+                elements.push(accentText);
+            }
+        };
+
+        if (this.textures.exists(imgKey)) {
+            renderCardContent();
+        } else {
+            this.load.image(imgKey, `assets/suspects/${wantedFile}.jpg`);
+            this.load.once(Phaser.Loader.Events.COMPLETE, () => renderCardContent());
+            this.load.start();
         }
 
-        // Numer akt
-        const caseNum = this.add.text(x + 8, photoY + 3, `#${String(suspect.wantedKey).padStart(3, '0')}`, {
-            fontFamily: 'SpecialElite',
-            fontSize: '9px',
-            color: '#ffffff',
-            backgroundColor: '#cc0000',
-            padding: { x: 3, y: 1 }
-        }).setOrigin(0, 0);
-        elements.push(caseNum);
-
-        // Imię podejrzanego
-        const nameY = y + 28 + photoH + 8;
-        const nameText = this.add.text(x + cardW / 2, nameY, suspect.name.toUpperCase(), {
-            fontFamily: 'PressStart2P',
-            fontSize: '6px',
-            color: '#1a0800',
-            align: 'center',
-            wordWrap: { width: cardW - 12 }
-        }).setOrigin(0.5, 0);
-        elements.push(nameText);
-
-        // Linia oddzielająca
-        const divider = this.add.graphics();
-        divider.lineStyle(1, 0x8b6343, 0.6);
-        divider.lineBetween(x + 6, nameY + 22, x + cardW - 6, nameY + 22);
-        elements.push(divider);
-
-        // Akcent (narodowość)
-        const infoY = nameY + 28;
-        const infoText = this.add.text(x + cardW / 2, infoY, `${suspect.accent.toUpperCase()}`, {
-            fontFamily: 'SpecialElite',
-            fontSize: '10px',
-            color: '#5c3a1e',
-            align: 'center'
-        }).setOrigin(0.5, 0);
-        elements.push(infoText);
-
-        // Główna umiejętność
-        const mainSkill = suspect.skills.split(',')[0].trim();
-        const skillText = this.add.text(x + cardW / 2, infoY + 16, mainSkill.toUpperCase(), {
-            fontFamily: 'SpecialElite',
-            fontSize: '9px',
-            color: '#8b0000',
-            align: 'center',
-            wordWrap: { width: cardW - 12 }
-        }).setOrigin(0.5, 0);
-        elements.push(skillText);
-
-        // Interaktywna strefa - cała karta
         const zone = this.add.zone(x, y, cardW, cardH).setOrigin(0, 0).setInteractive();
-
         zone.on('pointerover', () => {
             cardBg.clear();
-            cardBg.fillStyle(0xfff0d0, 1);
+            cardBg.fillStyle(0x0a2416, 0.95);
             cardBg.fillRect(x, y, cardW, cardH);
-            cardBg.lineStyle(3, 0xcc0000, 1);
+            cardBg.lineStyle(2, 0x66ffaa, 1);
             cardBg.strokeRect(x, y, cardW, cardH);
             this.game.canvas.style.cursor = 'pointer';
-
-            shadow.clear();
-            shadow.fillStyle(0x000000, 0.7);
-            shadow.fillRect(x + 5, y + 5, cardW, cardH);
         });
 
         zone.on('pointerout', () => {
             cardBg.clear();
-            cardBg.fillStyle(0xf5e6c8, 1);
+            cardBg.fillStyle(0x05100a, 0.9);
             cardBg.fillRect(x, y, cardW, cardH);
-            cardBg.fillStyle(0xd4b896, 0.3);
-            cardBg.fillCircle(x + 20, y + 30, 15);
-            cardBg.lineStyle(2, 0x8b6343, 1);
+            cardBg.lineStyle(2, 0x00ff66, 0.5);
             cardBg.strokeRect(x, y, cardW, cardH);
             this.game.canvas.style.cursor = 'default';
-
-            shadow.clear();
-            shadow.fillStyle(0x000000, 0.5);
-            shadow.fillRect(x + 3, y + 3, cardW, cardH);
         });
 
-        zone.on('pointerdown', () => {
-            this.showDetailPanel(suspect);
-        });
-
+        zone.on('pointerdown', () => this.showDetailPanel(suspect));
         elements.push(zone);
+
         return { elements, suspect };
     }
 
     createEmptySlot(x, y, cardW, cardH) {
         const g = this.add.graphics();
-        g.lineStyle(1, 0x3a2010, 0.4);
-        g.strokeRoundedRect(x, y, cardW, cardH, 4);
+        g.lineStyle(1, 0x00ff66, 0.2);
+        g.strokeRect(x, y, cardW, cardH);
 
-        const emptyLabel = this.add.text(x + cardW / 2, y + cardH / 2, 'EMPTY\nFILE', {
+        const emptyLabel = this.add.text(x + cardW / 2, y + cardH / 2, 'NO RECORD', {
             fontFamily: 'PressStart2P',
-            fontSize: '7px',
-            color: '#3a2010',
+            fontSize: '14px',
+            color: '#00aa44',
             align: 'center'
-        }).setOrigin(0.5, 0.5).setAlpha(0.4);
+        }).setOrigin(0.5, 0.5).setAlpha(0.3);
 
-        return g;
+        const container = this.add.container(0, 0);
+        container.add([g, emptyLabel]);
+        return container;
     }
 
     createDetailPanel(W, H) {
         const panel = this.add.container(0, 0);
         panel.setDepth(100);
 
-        // Overlay ciemny
-        const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75).setOrigin(0, 0);
+        const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.88).setOrigin(0, 0);
         overlay.setInteractive();
         overlay.on('pointerdown', () => this.closeDetailPanel());
         panel.add(overlay);
 
-        // Wymiary panelu
-        const PW = 700;
-        const PH = 520;
+        const PW = 1140;
+        const PH = 760;
         const PX = (W - PW) / 2;
         const PY = (H - PH) / 2;
 
-        // Cień panelu
-        const panelShadow = this.add.graphics();
-        panelShadow.fillStyle(0x000000, 0.8);
-        panelShadow.fillRect(PX + 8, PY + 8, PW, PH);
-        panel.add(panelShadow);
-
-        // Tło panelu - stary papier
+        // Główna podwójna ramka komputera CRT
         const panelBg = this.add.graphics();
-        panelBg.fillStyle(0xf0ddb8, 1);
+        panelBg.fillStyle(0x030a06, 0.98);
         panelBg.fillRect(PX, PY, PW, PH);
-        panelBg.fillStyle(0xc8a47a, 0.2);
-        panelBg.fillCircle(PX + 50, PY + 80, 40);
-        panelBg.fillCircle(PX + PW - 60, PY + PH - 60, 50);
-        panelBg.lineStyle(4, 0x8b5c2a, 1);
+        panelBg.lineStyle(2, 0x00ff66, 1);
         panelBg.strokeRect(PX, PY, PW, PH);
-        panelBg.lineStyle(1, 0x8b5c2a, 0.4);
-        panelBg.strokeRect(PX + 10, PY + 10, PW - 20, PH - 20);
+        panelBg.strokeRect(PX + 6, PY + 6, PW - 12, PH - 12);
         panel.add(panelBg);
 
-        // Czerwony pasek nagłówka
+        // Belka nagłówka
         const detailHeader = this.add.graphics();
-        detailHeader.fillStyle(0x8b0000, 1);
-        detailHeader.fillRect(PX, PY, PW, 55);
+        detailHeader.fillStyle(0x082012, 1);
+        detailHeader.fillRect(PX + 8, PY + 8, PW - 16, 54);
+        detailHeader.lineStyle(1, 0x00ff66, 0.6);
+        detailHeader.strokeRect(PX + 8, PY + 8, PW - 16, 54);
         panel.add(detailHeader);
 
-        const dossierTitle = this.add.text(PX + PW / 2, PY + 20, '★ CONFIDENTIAL DOSSIER ★', {
+        const dossierTitle = this.add.text(PX + 25, PY + 26, '★ CLASSIFIED DOSSIER // INDIVIDUAL PROFILE ★', {
             fontFamily: 'PressStart2P',
-            fontSize: '11px',
-            color: '#FFD700',
-            stroke: '#000000',
-            strokeThickness: 3
-        }).setOrigin(0.5, 0.5);
+            fontSize: '18px',
+            color: '#00ff66'
+        }).setOrigin(0, 0.5);
         panel.add(dossierTitle);
 
-        const dossierSub = this.add.text(PX + PW / 2, PY + 40, 'LOST ARTIFACTS INTERNATIONAL DETECTIVE AGENCY', {
-            fontFamily: 'SpecialElite',
-            fontSize: '10px',
-            color: '#ffcc88'
-        }).setOrigin(0.5, 0.5);
-        panel.add(dossierSub);
+        // Zdjęcie Portretowe (portraitKey)
+        const photoX = PX + 35;
+        const photoY = PY + 85;
+        const photoW = 380;
+        const photoH = 510;
 
-        // Zdjęcie podejrzanego (duże)
-        this.detailPhoto = this.add.image(PX + 30 + 130, PY + 80 + 150, '__DEFAULT').setVisible(false);
-        this.detailPhoto.setDisplaySize(260, 300);
+        const photoMaskShape = this.make.graphics();
+        photoMaskShape.fillStyle(0xffffff);
+        photoMaskShape.fillRect(photoX, photoY, photoW, photoH);
+        const photoMask = photoMaskShape.createGeometryMask();
+
+        this.detailPhoto = this.add.image(photoX + photoW / 2, photoY + photoH / 2, '__DEFAULT').setVisible(false);
+        this.detailPhoto.setMask(photoMask);
         panel.add(this.detailPhoto);
 
-        // Ramka zdjęcia
         const photoFrame = this.add.graphics();
-        photoFrame.lineStyle(4, 0x8b5c2a, 1);
-        photoFrame.strokeRect(PX + 30, PY + 80, 260, 300);
-        const corners = [
-            [PX + 25, PY + 75, 20, 20],
-            [PX + 300, PY + 75, -20, 20],
-            [PX + 25, PY + 390, 20, -20],
-            [PX + 300, PY + 390, -20, -20]
-        ];
-        corners.forEach(([cx, cy, dx, dy]) => {
-            photoFrame.lineBetween(cx, cy, cx + dx, cy);
-            photoFrame.lineBetween(cx, cy, cx, cy + dy);
-        });
+        photoFrame.lineStyle(2, 0x00ff66, 0.8);
+        photoFrame.strokeRect(photoX, photoY, photoW, photoH);
         panel.add(photoFrame);
 
-        // WANTED stamp na zdjęciu
-        this.detailWantedStamp = this.add.text(PX + 30 + 130, PY + 80 + 260, 'WANTED', {
-            fontFamily: 'PressStart2P',
-            fontSize: '28px',
-            color: '#cc0000',
-            stroke: '#000000',
-            strokeThickness: 3
-        }).setOrigin(0.5, 0.5).setAngle(-20).setAlpha(0.75);
-        panel.add(this.detailWantedStamp);
+        // Sekcja danych osobowych
+        const infoX = PX + 450;
+        const infoStartY = PY + 85;
 
-        // Linia pionowa oddzielająca
-        const divLine = this.add.graphics();
-        divLine.lineStyle(2, 0x8b5c2a, 0.6);
-        divLine.lineBetween(PX + 310, PY + 70, PX + 310, PY + PH - 20);
-        panel.add(divLine);
-
-        // --- Prawa kolumna: info tekstowe ---
-        const infoX = PX + 330;
-        const infoStartY = PY + 75;
-        const lineH = 32;
-
-        // Nazwa podejrzanego
+        // Imię i Nazwisko w Dossier (POWIĘKSZONE)
         this.detailName = this.add.text(infoX, infoStartY, '', {
             fontFamily: 'PressStart2P',
-            fontSize: '13px',
-            color: '#1a0800',
-            wordWrap: { width: PW - 340 }
+            fontSize: '24px',
+            color: '#00ff66',
+            wordWrap: { width: PW - 490 }
         }).setOrigin(0, 0);
         panel.add(this.detailName);
 
-        // Separator pod nazwą
         const sep = this.add.graphics();
-        sep.lineStyle(2, 0x8b0000, 1);
-        sep.lineBetween(infoX, infoStartY + 40, PX + PW - 30, infoStartY + 40);
+        sep.lineStyle(2, 0x00ff66, 0.6);
+        sep.lineBetween(infoX, infoStartY + 42, PX + PW - 35, infoStartY + 42);
         panel.add(sep);
 
-        // Pola danych
+        // Atrybuty podejrzanego w ramce
+        const attrBox = this.add.graphics();
+        attrBox.fillStyle(0x05140b, 0.6);
+        attrBox.fillRoundedRect(infoX - 10, infoStartY + 52, PW - 480, 230, 4);
+        attrBox.lineStyle(1, 0x00ff66, 0.4);
+        attrBox.strokeRoundedRect(infoX - 10, infoStartY + 52, PW - 480, 230, 4);
+        panel.add(attrBox);
+
         const fields = ['gender', 'race', 'hair', 'eyes', 'features', 'accent'];
         const fieldLabels = ['GENDER', 'RACE', 'HAIR', 'EYES', 'FEATURES', 'ACCENT'];
+        const lineH = 36;
 
         this.detailFields = {};
         fields.forEach((field, i) => {
-            const fy = infoStartY + 55 + i * lineH;
+            const fy = infoStartY + 62 + i * lineH;
 
-            const fieldLabel = this.add.text(infoX, fy, `${fieldLabels[i]}:`, {
+            const fieldLabel = this.add.text(infoX + 10, fy, `${fieldLabels[i]}:`, {
                 fontFamily: 'PressStart2P',
-                fontSize: '7px',
-                color: '#8b0000'
+                fontSize: '18px',
+                color: '#00aa44'
             }).setOrigin(0, 0);
             panel.add(fieldLabel);
 
-            this.detailFields[field] = this.add.text(infoX + 110, fy, '', {
-                fontFamily: 'SpecialElite',
-                fontSize: '14px',
-                color: '#2a1a08'
+            this.detailFields[field] = this.add.text(infoX + 170, fy, '', {
+                fontFamily: 'PressStart2P',
+                fontSize: '18px',
+                color: '#00ff66'
             }).setOrigin(0, 0);
             panel.add(this.detailFields[field]);
         });
 
-        // Sekcja SKILLS
-        const skillsY = infoStartY + 55 + fields.length * lineH + 5;
+        // Sekcja SKILLS (POWIĘKSZONA W RAMCE)
+        const skillsY = infoStartY + 300;
         const skillsBg = this.add.graphics();
-        skillsBg.fillStyle(0x8b0000, 0.12);
-        skillsBg.fillRoundedRect(infoX - 5, skillsY - 5, PW - 340, 75, 4);
-        skillsBg.lineStyle(1, 0x8b0000, 0.4);
-        skillsBg.strokeRoundedRect(infoX - 5, skillsY - 5, PW - 340, 75, 4);
+        skillsBg.fillStyle(0x05140b, 0.8);
+        skillsBg.fillRoundedRect(infoX - 10, skillsY, PW - 480, 110, 4);
+        skillsBg.lineStyle(1, 0x00ff66, 0.5);
+        skillsBg.strokeRoundedRect(infoX - 10, skillsY, PW - 480, 110, 4);
         panel.add(skillsBg);
 
-        const skillsLabel = this.add.text(infoX, skillsY, 'KNOWN SKILLS:', {
+        const skillsLabel = this.add.text(infoX + 5, skillsY + 10, '▶ KNOWN SKILLS:', {
             fontFamily: 'PressStart2P',
-            fontSize: '7px',
-            color: '#8b0000'
+            fontSize: '17px',
+            color: '#00cc55'
         }).setOrigin(0, 0);
         panel.add(skillsLabel);
 
-        this.detailSkills = this.add.text(infoX, skillsY + 18, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '13px',
-            color: '#1a0800',
-            wordWrap: { width: PW - 350 }
+        this.detailSkills = this.add.text(infoX + 5, skillsY + 38, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '18px',
+            color: '#00ff66',
+            wordWrap: { width: PW - 510 }
         }).setOrigin(0, 0);
         panel.add(this.detailSkills);
 
-        // Sekcja HABITUS
-        const habitY = skillsY + 80;
+        // Sekcja HABITS (POWIĘKSZONA W RAMCE)
+        const habitY = skillsY + 125;
         const habitBg = this.add.graphics();
-        habitBg.fillStyle(0x1a4400, 0.1);
-        habitBg.fillRoundedRect(infoX - 5, habitY - 5, PW - 340, 60, 4);
-        habitBg.lineStyle(1, 0x336600, 0.4);
-        habitBg.strokeRoundedRect(infoX - 5, habitY - 5, PW - 340, 60, 4);
+        habitBg.fillStyle(0x05140b, 0.8);
+        habitBg.fillRoundedRect(infoX - 10, habitY, PW - 480, 110, 4);
+        habitBg.lineStyle(1, 0x00ff66, 0.5);
+        habitBg.strokeRoundedRect(infoX - 10, habitY, PW - 480, 110, 4);
         panel.add(habitBg);
 
-        const habitLabel = this.add.text(infoX, habitY, 'KNOWN HABITS:', {
+        const habitLabel = this.add.text(infoX + 5, habitY + 10, '▶ KNOWN HABITS:', {
             fontFamily: 'PressStart2P',
-            fontSize: '7px',
-            color: '#336600'
+            fontSize: '17px',
+            color: '#00cc55'
         }).setOrigin(0, 0);
         panel.add(habitLabel);
 
-        this.detailHabitus = this.add.text(infoX, habitY + 18, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '13px',
-            color: '#1a3300',
-            wordWrap: { width: PW - 350 }
+        this.detailHabitus = this.add.text(infoX + 5, habitY + 38, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '18px',
+            color: '#00ff66',
+            wordWrap: { width: PW - 510 }
         }).setOrigin(0, 0);
         panel.add(this.detailHabitus);
 
-        // Numer akt na dole
-        this.detailCaseNum = this.add.text(PX + 30, PY + PH - 35, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '11px',
-            color: '#8b5c2a'
+        // Dolna stopka panelu Dossier
+        this.detailCaseNum = this.add.text(PX + 35, PY + PH - 45, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '16px',
+            color: '#00aa44'
         }).setOrigin(0, 0);
         panel.add(this.detailCaseNum);
 
-        // Stempel CLASSIFIED
-        const classifiedStamp = this.add.text(PX + PW - 40, PY + PH - 40, 'CLASSIFIED', {
-            fontFamily: 'PressStart2P',
-            fontSize: '9px',
-            color: '#cc0000'
-        }).setOrigin(1, 1).setAngle(-10).setAlpha(0.5);
-        panel.add(classifiedStamp);
-
-        // Przycisk zamknięcia [X]
+        // Przycisk Zamykania Dossier
         const closeBtnBg = this.add.graphics();
-        closeBtnBg.fillStyle(0x8b0000, 1);
-        closeBtnBg.fillRect(PX + PW - 40, PY + 5, 35, 35);
-        closeBtnBg.lineStyle(2, 0xcc4444, 1);
-        closeBtnBg.strokeRect(PX + PW - 40, PY + 5, 35, 35);
+        closeBtnBg.fillStyle(0x082012, 1);
+        closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
+        closeBtnBg.lineStyle(1, 0x00ff66, 0.8);
+        closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
         panel.add(closeBtnBg);
 
-        const closeBtn = this.add.text(PX + PW - 23, PY + 23, '✕', {
+        const closeBtn = this.add.text(PX + PW - 28, PY + 29, '✕', {
             fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#FFD700'
+            fontSize: '18px',
+            color: '#00ff66'
         }).setOrigin(0.5, 0.5);
         panel.add(closeBtn);
 
-        const closeZone = this.add.zone(PX + PW - 40, PY + 5, 35, 35).setOrigin(0, 0).setInteractive();
+        const closeZone = this.add.zone(PX + PW - 45, PY + 12, 34, 34).setOrigin(0, 0).setInteractive();
         closeZone.on('pointerdown', () => this.closeDetailPanel());
         closeZone.on('pointerover', () => {
             closeBtnBg.clear();
-            closeBtnBg.fillStyle(0xcc0000, 1);
-            closeBtnBg.fillRect(PX + PW - 40, PY + 5, 35, 35);
+            closeBtnBg.fillStyle(0x00ff66, 0.3);
+            closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
+            closeBtnBg.lineStyle(1, 0x00ff66, 1);
+            closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
             this.game.canvas.style.cursor = 'pointer';
         });
         closeZone.on('pointerout', () => {
             closeBtnBg.clear();
-            closeBtnBg.fillStyle(0x8b0000, 1);
-            closeBtnBg.fillRect(PX + PW - 40, PY + 5, 35, 35);
+            closeBtnBg.fillStyle(0x082012, 1);
+            closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
+            closeBtnBg.lineStyle(1, 0x00ff66, 0.8);
+            closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
             this.game.canvas.style.cursor = 'default';
         });
         panel.add(closeZone);
@@ -679,31 +606,48 @@ export class WantedDatabaseScene extends Phaser.Scene {
         const fields = ['gender', 'race', 'hair', 'eyes', 'features', 'accent'];
         fields.forEach(f => {
             if (this.detailFields[f]) {
-                this.detailFields[f].setText(suspect[f]);
+                this.detailFields[f].setText(suspect[f] || 'UNKNOWN');
             }
         });
 
-        this.detailSkills.setText(suspect.skills);
-        this.detailHabitus.setText(suspect.habitus);
+        this.detailSkills.setText(suspect.skills || 'NONE');
+        this.detailHabitus.setText(suspect.habitus || 'NONE');
         this.detailCaseNum.setText(
-            `CASE FILE: #${String(suspect.wantedKey).padStart(3, '0')} | ID: ${suspect.id.toUpperCase()}`
+            `FILE ID: #${String(suspect.wantedKey || 0).padStart(3, '0')} // REF: ${suspect.id.toUpperCase()}`
         );
 
-        // Ustaw zdjęcie
-        const imgKey = `wanted_${suspect.id}`;
-        if (this.textures.exists(imgKey)) {
-            this.detailPhoto.setTexture(imgKey).setVisible(true);
+        // Dossier ładowane ZAWSZE z pola `portraitKey`
+        const portraitFile = suspect.portraitKey || suspect.id;
+        const portraitImgKey = `suspect_portrait_${suspect.id}`;
+
+        const updatePhotoTexture = () => {
+            this.detailPhoto.setTexture(portraitImgKey).setVisible(true);
+            const frameW = 380;
+            const frameH = 510;
+            const source = this.textures.get(portraitImgKey).getSourceImage();
+            const scale = Math.max(frameW / source.width, frameH / source.height);
+            this.detailPhoto.setScale(scale);
+        };
+
+        if (this.textures.exists(portraitImgKey)) {
+            updatePhotoTexture();
         } else {
             this.detailPhoto.setVisible(false);
+            this.load.image(portraitImgKey, `assets/suspects/${portraitFile}.jpg`);
+            this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+                if (this.detailPanel.visible) {
+                    updatePhotoTexture();
+                }
+            });
+            this.load.start();
         }
 
-        // Animacja wejścia
         this.detailPanel.setVisible(true);
         this.detailPanel.setAlpha(0);
         this.tweens.add({
             targets: this.detailPanel,
             alpha: 1,
-            duration: 200,
+            duration: 150,
             ease: 'Power2'
         });
     }
@@ -719,61 +663,53 @@ export class WantedDatabaseScene extends Phaser.Scene {
     }
 
     createNavigation(W, H) {
-        const navY = H - 55;
+        const navY = H - 65;
 
-        // Pasek nawigacji
         const navBg = this.add.graphics();
-        navBg.fillStyle(0x0d0700, 0.9);
-        navBg.fillRect(28, navY - 10, W - 56, 50);
-        navBg.lineStyle(1, 0x5c3a1e, 0.8);
-        navBg.strokeRect(28, navY - 10, W - 56, 50);
+        navBg.fillStyle(0x05100a, 0.9);
+        navBg.fillRect(24, navY - 10, W - 48, 50);
+        navBg.lineStyle(1, 0x00ff66, 0.5);
+        navBg.strokeRect(24, navY - 10, W - 48, 50);
 
-        // Przycisk POPRZEDNIA
         const prevBtnBg = this.add.graphics();
-        prevBtnBg.fillStyle(0x5c1a00, 1);
-        prevBtnBg.fillRoundedRect(50, navY, 100, 30, 4);
-        prevBtnBg.lineStyle(1, 0x8b2a00, 1);
-        prevBtnBg.strokeRoundedRect(50, navY, 100, 30, 4);
+        prevBtnBg.fillStyle(0x081a10, 1);
+        prevBtnBg.fillRect(45, navY, 120, 32);
+        prevBtnBg.lineStyle(1, 0x00ff66, 0.6);
+        prevBtnBg.strokeRect(45, navY, 120, 32);
 
-        this.prevBtnText = this.add.text(100, navY + 15, '◄ PREV', {
+        this.prevBtnText = this.add.text(105, navY + 16, '◄ PREV', {
             fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: '#ffaa44'
+            fontSize: '13px',
+            color: '#00ff66'
         }).setOrigin(0.5, 0.5);
 
-        const prevZone = this.add.zone(50, navY, 100, 30).setOrigin(0, 0).setInteractive();
+        const prevZone = this.add.zone(45, navY, 120, 32).setOrigin(0, 0).setInteractive();
         prevZone.on('pointerdown', () => this.prevPage());
         prevZone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
         prevZone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
 
-        // Tekst strony
-        this.pageText = this.add.text(W / 2, navY + 15, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '13px',
-            color: '#aa8844'
-        }).setOrigin(0.5, 0.5);
-
-        // Przycisk NASTĘPNA
-        const nextBtnBg = this.add.graphics();
-        nextBtnBg.fillStyle(0x5c1a00, 1);
-        nextBtnBg.fillRoundedRect(W - 150, navY, 100, 30, 4);
-        nextBtnBg.lineStyle(1, 0x8b2a00, 1);
-        nextBtnBg.strokeRoundedRect(W - 150, navY, 100, 30, 4);
-
-        this.nextBtnText = this.add.text(W - 100, navY + 15, 'NEXT ►', {
+        this.pageText = this.add.text(W / 2, navY + 16, '', {
             fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: '#ffaa44'
+            fontSize: '16px',
+            color: '#00ff66'
         }).setOrigin(0.5, 0.5);
 
-        const nextZone = this.add.zone(W - 150, navY, 100, 30).setOrigin(0, 0).setInteractive();
+        const nextBtnBg = this.add.graphics();
+        nextBtnBg.fillStyle(0x081a10, 1);
+        nextBtnBg.fillRect(W - 165, navY, 120, 32);
+        nextBtnBg.lineStyle(1, 0x00ff66, 0.6);
+        nextBtnBg.strokeRect(W - 165, navY, 120, 32);
+
+        this.nextBtnText = this.add.text(W - 105, navY + 16, 'NEXT ►', {
+            fontFamily: 'PressStart2P',
+            fontSize: '13px',
+            color: '#00ff66'
+        }).setOrigin(0.5, 0.5);
+
+        const nextZone = this.add.zone(W - 165, navY, 120, 32).setOrigin(0, 0).setInteractive();
         nextZone.on('pointerdown', () => this.nextPage());
         nextZone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
         nextZone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
-
-        this.prevBtnBg = prevBtnBg;
-        this.nextBtnBg = nextBtnBg;
-        this.navY = navY;
 
         this.updateNavButtons();
     }
@@ -811,37 +747,46 @@ export class WantedDatabaseScene extends Phaser.Scene {
 
     createBackButton(W, H) {
         const btnBg = this.add.graphics();
-        btnBg.fillStyle(0x1a0800, 1);
-        btnBg.fillRoundedRect(W - 185, 33, 155, 36, 4);
-        btnBg.lineStyle(2, 0x8b5c2a, 1);
-        btnBg.strokeRoundedRect(W - 185, 33, 155, 36, 4);
+        btnBg.fillStyle(0x081a10, 1);
+        btnBg.fillRect(W - 220, 40, 180, 40);
+        btnBg.lineStyle(1, 0x00ff66, 0.8);
+        btnBg.strokeRect(W - 220, 40, 180, 40);
 
-        const backBtn = this.add.text(W - 107, 51, '⬅ BACK TO OFFICE', {
+        this.add.text(W - 130, 60, '[ESC] EXIT', {
             fontFamily: 'PressStart2P',
-            fontSize: '6px',
-            color: '#aa8844'
+            fontSize: '14px',
+            color: '#00ff66'
         }).setOrigin(0.5, 0.5);
 
-        const zone = this.add.zone(W - 185, 33, 155, 36).setOrigin(0, 0).setInteractive();
-        zone.on('pointerdown', () => {
-            // Powrót do sceny biura - zmień 'OfficeScene' na właściwą nazwę
-            this.scene.start('OfficeScene');
-        });
+        const zone = this.add.zone(W - 220, 40, 180, 40).setOrigin(0, 0).setInteractive();
+        zone.on('pointerdown', () => this.closeAndReturnToOffice());
         zone.on('pointerover', () => {
             btnBg.clear();
-            btnBg.fillStyle(0x3a1800, 1);
-            btnBg.fillRoundedRect(W - 185, 33, 155, 36, 4);
-            btnBg.lineStyle(2, 0xcc8844, 1);
-            btnBg.strokeRoundedRect(W - 185, 33, 155, 36, 4);
+            btnBg.fillStyle(0x00ff66, 0.2);
+            btnBg.fillRect(W - 220, 40, 180, 40);
+            btnBg.lineStyle(1, 0x00ff66, 1);
+            btnBg.strokeRect(W - 220, 40, 180, 40);
             this.game.canvas.style.cursor = 'pointer';
         });
         zone.on('pointerout', () => {
             btnBg.clear();
-            btnBg.fillStyle(0x1a0800, 1);
-            btnBg.fillRoundedRect(W - 185, 33, 155, 36, 4);
-            btnBg.lineStyle(2, 0x8b5c2a, 1);
-            btnBg.strokeRoundedRect(W - 185, 33, 155, 36, 4);
+            btnBg.fillStyle(0x081a10, 1);
+            btnBg.fillRect(W - 220, 40, 180, 40);
+            btnBg.lineStyle(1, 0x00ff66, 0.8);
+            btnBg.strokeRect(W - 220, 40, 180, 40);
             this.game.canvas.style.cursor = 'default';
         });
+    }
+
+    closeAndReturnToOffice() {
+        if (this.scene.isSleeping('UIScene')) {
+            this.scene.wake('UIScene');
+        }
+        this.scene.stop();
+        this.scene.resume('OfficeScene');
+    }
+
+    cleanupScene() {
+        this.input.keyboard.off('keydown-ESC', this.handleEsc, this);
     }
 }

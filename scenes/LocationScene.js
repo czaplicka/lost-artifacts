@@ -2,6 +2,7 @@ import { gameState, saveGameState } from '../GameData.js';
 import { buildNpcDialogue, buildFalseLeadDialogue } from '../dialogueBuilder.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
+import { audioManager } from '../AudioManager.js';
 
 const NPC_DIALOGUE_CACHE_MAP = {
   bankier: 'dialogue_banker',
@@ -150,22 +151,13 @@ export class LocationScene extends Phaser.Scene {
   }
 
   create() {
-    const citySound = this.registry.get('citySound');
-    if (citySound?.isPlaying) {
-      citySound.stop();
-    }
+    audioManager.init(this);
+    audioManager.stopSfx('citysound');
 
     const locationSoundKey = LOCATION_SOUND_MAP[this.locationId];
 
-    if (locationSoundKey && this.cache.audio.exists(locationSoundKey)) {
-      this.locationAmbient = this.sound.add(locationSoundKey, {
-        loop: true,
-        volume: 0.2
-      });
-
-      if (!this.locationAmbient.isPlaying) {
-        this.locationAmbient.play();
-      }
+    if (locationSoundKey) {
+      audioManager.playSfx(locationSoundKey, { loop: true });
     }
 
     const hud = this.scene.get('PlayerHudScene');

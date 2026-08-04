@@ -922,6 +922,52 @@
     font-size: 12px;
   }
 }
+/* Zdjęcia crime scene wygenerowane automatycznie przez system po odwiedzeniu miejsca zbrodni */
+.crime-board-item--scene-photo {
+    position: absolute;
+    width: 130px;
+    height: 90px;
+    background-size: cover;
+    background-position: center;
+    border: 6px solid #e8e2d0;
+    box-shadow: 3px 4px 8px rgba(0, 0, 0, 0.55);
+    filter: sepia(25%) contrast(105%);
+    cursor: default;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.crime-board-item--scene-photo.is-failed {
+    filter: grayscale(85%) sepia(15%) contrast(90%);
+    opacity: 0.85;
+}
+
+.crime-board-item--scene-photo .crime-board-photo-pin {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 30% 30%, #ff6b5c, #b32d20);
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}
+
+.crime-board-item--scene-photo .crime-board-photo-label {
+    position: absolute;
+    bottom: -20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'Special Elite', monospace;
+    font-size: 11px;
+    color: #f5e9d3;
+    text-shadow: 1px 1px 1px #000;
+    white-space: nowrap;
+    pointer-events: none;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .crime-board-ui-close,

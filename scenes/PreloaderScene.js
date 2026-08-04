@@ -1,68 +1,32 @@
+import MobileFullscreen from '../mobileFullscreen.js';
+import { audioManager } from '../AudioManager.js';
+
 export class PreloaderScene extends Phaser.Scene {
     constructor() {
         super({ key: 'PreloaderScene' });
+        // Zmienna przechowująca wartość maski (od 0 do 1)
+        this.fillingLevel = 0;
     }
 
     preload() {
         const { width, height } = this.scale;
 
-        this.cameras.main.setBackgroundColor('#101010');
+        // --- 0. Tło widoczne od razu ---
+        if (this.textures.exists('cozyBackground')) {
+            this.add.image(width / 2, height / 2, 'cozyBackground')
+                .setDisplaySize(width, height)
+                .setDepth(-10);
+        } else {
+            console.error('Tło cozyBackground nie zostało znalezione!');
+            this.cameras.main.setBackgroundColor('#101010');
+        }
 
-        const progressBox = this.add.graphics();
-        const progressBar = this.add.graphics();
+        // --- 1. Generowanie Tekstur Kubków ---
+        // MUSI być wywołane przed stworzeniem obiektów Image!
+        this.createCoffeeTextures();
 
-        const boxWidth = Math.min(500, width * 0.6);
-        const boxHeight = 40;
-        const boxX = (width - boxWidth) / 2;
-        const boxY = height * 0.82;
-
-        const loadingText = this.add.text(width / 2, boxY - 60, 'Loading...', {
-            fontFamily: 'Arial',
-            fontSize: '24px',
-            color: '#f5e6a8'
-        }).setOrigin(0.5);
-
-        const percentText = this.add.text(width / 2, boxY + boxHeight / 2, '0%', {
-            fontFamily: 'Arial',
-            fontSize: '18px',
-            color: '#ffffff'
-        }).setOrigin(0.5);
-
-        const fileText = this.add.text(width / 2, boxY + 70, '', {
-            fontFamily: 'Arial',
-            fontSize: '14px',
-            color: '#bbbbbb',
-            wordWrap: { width: width * 0.8 }
-        }).setOrigin(0.5);
-
-        progressBox.fillStyle(0x222222, 0.9);
-        progressBox.fillRect(boxX, boxY, boxWidth, boxHeight);
-
-        this.load.on('progress', (value) => {
-            progressBar.clear();
-            progressBar.fillStyle(0xffff00, 1);
-            progressBar.fillRect(boxX + 5, boxY + 5, (boxWidth - 10) * value, boxHeight - 10);
-            percentText.setText(`${Math.round(value * 100)}%`);
-        });
-
-        this.load.on('fileprogress', (file) => {
-            fileText.setText(`Loading: ${file.key}`);
-        });
-
-        this.load.on('loaderror', (file) => {
-            console.error('[LOAD ERROR]', file.key, file.src);
-            fileText.setText(`Błąd ładowania: ${file.key}`);
-        });
-
-        this.load.once('complete', () => {
-            progressBar.destroy();
-            progressBox.destroy();
-            loadingText.destroy();
-            percentText.destroy();
-            fileText.destroy();
-        });
-
-        this.load.image('background', 'assets/start_1.jpg');
+        // --- 2. TU wczytujesz WSZYSTKIE assety właściwej gry ---
+         this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
@@ -79,6 +43,10 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('restaurant', 'assets/local/restaurant.jpg');
         this.load.image('garbage', 'assets/local/garbage.jpg');
 
+        this.load.image('crimelab_left', 'assets/local/crimelab_left.jpg');
+        this.load.image('crimelab_center', 'assets/local/crimelab_center.jpg');
+        this.load.image('crimelab_right', 'assets/local/crimelab_right.jpg');
+
         this.load.image('bankh', 'assets/local/bank_h.jpg');
         this.load.image('alleyh', 'assets/local/alley_h.jpg');
         this.load.image('airporth', 'assets/local/airport_h.jpg');
@@ -90,8 +58,8 @@ export class PreloaderScene extends Phaser.Scene {
 
         this.load.image('berlin', 'assets/cities/Berlin.jpg');
         this.load.image('london', 'assets/cities/London.jpg');
-        this.load.image('new_delhi', 'assets/cities/NewDelhi.jpg');
-        this.load.image('new_york_city', 'assets/cities/NYC.jpg');
+        this.load.image('newdelhi', 'assets/cities/NewDelhi.jpg');
+        this.load.image('newyorkcity', 'assets/cities/NYC.jpg');
         this.load.image('paris', 'assets/cities/Paris.jpg');
         this.load.image('warsaw', 'assets/cities/Warsaw.jpg');
 
@@ -155,6 +123,22 @@ export class PreloaderScene extends Phaser.Scene {
 
         this.load.image('soundOn', 'assets/sound.png');
         this.load.image('soundOff', 'assets/nsound.png');
+
+        this.load.image('notebook_bg', 'assets/ui/notebook_bg.png');
+        this.load.image('sketch_base', 'assets/ui/sketch_base.png');
+        this.load.image('sketch_eyes', 'assets/ui/sketch_eyes.png');
+        this.load.image('sketch_hair', 'assets/ui/sketch_hair.png');
+        this.load.image('beard', 'assets/ui/beard.png');
+        this.load.image('big_forhead', 'assets/ui/big_forhead.png');
+        this.load.image('earings', 'assets/ui/earings.png');
+        this.load.image('glasses', 'assets/ui/glasses.png');
+        this.load.image('gotee', 'assets/ui/gotee.png');
+        this.load.image('long_hair', 'assets/ui/long_hair.png');
+        this.load.image('moustache', 'assets/ui/moustache.png');
+        this.load.image('neckles', 'assets/ui/neckles.png');
+        this.load.image('rainbow_streak', 'assets/ui/rainbow_streak.png');
+        this.load.image('scar', 'assets/ui/scar.png');
+        this.load.image('tatoo', 'assets/ui/tatoo.png');
 
         this.load.image('notes', 'assets/notes.png');
         this.load.image('file', 'assets/file.png');
@@ -231,14 +215,14 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('md', 'assets/suspects/md.jpg');
         this.load.image('lc', 'assets/suspects/lc.jpg');
 
-        this.load.video('detectiveIntro1', 'assets/video/detective-intro.mp4', true);
-        this.load.video('detectiveIntro2', 'assets/video/detective-intro2.mp4', true);
+        this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
 
+        this.load.audio('crimelab_ambient', 'assets/audio/crimelab_ambient.mp3');
         this.load.audio('alleysound', 'assets/audio/alley.mp3');
         this.load.audio('arrestsound', 'assets/audio/arrest.mp3');
         this.load.audio('banksound', 'assets/audio/bank.mp3');
         this.load.audio('citysound', 'assets/audio/city.mp3');
-        this.load.audio('clicksound', 'assets/audio/click.mp3');
+        this.load.audio('click_sound', 'assets/audio/click.mp3');
         this.load.audio('themeGame', 'assets/audio/game.mp3');
         this.load.audio('game_over', 'assets/audio/game_over.mp3');
         this.load.audio('hotelsound', 'assets/audio/hotel.mp3');
@@ -257,10 +241,12 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('correct', 'assets/audio/correct.mp3');
         this.load.audio('successsound', 'assets/audio/success.mp3');
 
+        this.load.audio('detective-intro', 'assets/voice/detective-intro.mp3');
+
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
         this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
 
-          this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
+        this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
         this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
         this.load.image('portrait_csi', 'assets/portraits/csi.png');
         this.load.image('portrait_home', 'assets/portraits/home.png');
@@ -270,6 +256,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('portrait_watson', 'assets/portraits/watson.png');  
 
         this.load.json('suspects', 'assets/data/suspects.json');
+        this.load.json('citysuspects', 'assets/data/citysuspects.json');
         this.load.json('missions', 'assets/data/missions.json');
         this.load.json('locations', 'assets/data/locations.json');
         this.load.json('atlas', 'assets/data/atlas.json');
@@ -301,66 +288,214 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('castle', 'assets/crimes/castle.json');
         this.load.image('dockyard_bg', 'assets/crimes/dockyard.jpg');
         this.load.tilemapTiledJSON('dockyard', 'assets/crimes/dockyard.json');
+        this.load.image('auction_house_bg', 'assets/crimes/auction_house.jpg');
+        this.load.tilemapTiledJSON('auction_house', 'assets/crimes/auction_house.json');
+        this.load.image('havela_bg', 'assets/crimes/havela.jpg');
+        this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
+
+
+        const centerX = width / 2;
+        const centerY = height * 0.5;
+
+        // Pozycja kubka
+        const cupX = centerX - 85;
+        const cupY = centerY + 105;
+
+        // --- 3. Stworzenie Warstw UI ---
+        const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.3);
+
+        // A. Pusty kontur kubka w tle (zawsze widoczny)
+        const emptyCup = this.add.image(cupX, cupY, 'cup_outline');
+
+        // B. Pełny kubek z kawą (Używamy poprawionego klucza 'cup_coffee')
+        this.fullCupImage = this.add.image(cupX, cupY, 'cup_coffee');
+
+        // C. Maska Alfa (stopniowo odkrywa 'fullCupImage')
+        this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
+        this.coffeeMask.fillStyle(0xffffff);
+        
+        // Na początku maska jest pusta (nic nie odkrywa)
+        this.updateCoffeeMask(0);
+
+        // Nakładamy maskę na obrazek pełnego kubka
+        const mask = this.coffeeMask.createGeometryMask();
+        this.fullCupImage.setMask(mask);
+
+        // --- 4. Tekst ---
+        const loadingText = this.add.text(centerX, centerY - 128, 'MAKING COFFEE... 0%', {
+            fontFamily: 'PressStart2P',
+            fontSize: '20px',
+            fontStyle: 'bold',
+            color: '#f4ebd9'
+        }).setOrigin(0.5);
+
+        const fileText = this.add.text(centerX, height - 30, '', {
+            fontFamily: 'PressStart2P',
+            fontSize: '13px',
+            color: '#a38f78',
+            wordWrap: { width: width * 0.8 }
+        }).setOrigin(0.5);
+
+        // --- 5. Obsługa Progressu Ładowania ---
+        this.load.on('progress', (value) => {
+            // Płynne napełnianie za pomocą maski (0 -> 1)
+            this.updateCoffeeMask(value);
+
+            // Aktualizacja tekstu procentowego
+            const percent = Math.round(value * 100);
+            loadingText.setText(`MAKING COFFEE... ${percent}%`);
+        });
+
+        this.load.on('fileprogress', (file) => {
+            // fileText.setText(`Coffee, milk...: ${file.key}`);
+        });
+
+        this.load.on('loaderror', (file) => {
+            fileText.setText(`Error loading: ${file.key}`).setColor('#ff5555');
+        });
+
+        // Płynne czyszczenie UI po zakończeniu ładowania
+        this.load.once('complete', () => {
+            this.updateCoffeeMask(1);
+
+            this.tweens.add({
+                targets: [loadingText, fileText],
+                alpha: 0,
+                duration: 600,
+                onComplete: () => {
+                    loadingText.destroy();
+                    fileText.destroy();
+                }
+            });
+        });
     }
 
-    create() {
-        const { width, height } = this.scale;
+create() {
+    const { width, height } = this.scale;
 
-        if (this.textures.exists('background')) {
-            this.add.image(width / 2, height / 2, 'background')
-                .setDisplaySize(width, height)
-                .setDepth(-10);
-        } else {
-            this.cameras.main.setBackgroundColor('#1a1a1a');
+    const initUi = async () => {
+        audioManager.init(this);
+        if (this.cache.audio.exists('themeMusic')) {
+            audioManager.playMusic('themeMusic');
         }
 
-        const initUi = () => {
-            let music = this.registry.get('bgMusic');
+        this.input.once('pointerdown', () => {
+            this.sound.unlock?.();
+        });
 
-            if (!music && this.cache.audio.exists('themeMusic')) {
-                music = this.sound.add('themeMusic', {
-                    loop: true,
-                    volume: 0.5
-                });
-                this.registry.set('bgMusic', music);
+        const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
+            .setInteractive({ useHandCursor: true })
+            .setScale(0.8);
+
+        this.addHoverEffect(startBtn, 0.8, 0.9);
+
+        startBtn.on('pointerdown', async () => {
+            const mobileFS = this.registry.get('mobileFS');
+            if (mobileFS) {
+                await mobileFS.enterFullscreenLandscape();
             }
+            this.scene.start('MenuScene');
+        });
+    };
 
-            this.input.once('pointerdown', () => {
-                this.sound.unlock?.();
+    if (window.WebFont && typeof window.WebFont.load === 'function') {
+        window.WebFont.load({
+            google: {
+                families: ['Press Start 2P', 'Special Elite', 'Indie Flower']
+            },
+            active: () => initUi(),
+            inactive: () => {
+                console.warn('WebFont failed to load, continuing with fallback fonts.');
+                initUi();
+            }
+        });
+    } else {
+        initUi();
+    }
+}
 
-                if (music && !music.isPlaying) {
-                    music.play();
-                }
-            });
+    updateCoffeeMask(fillLevel) {
+        if (!this.coffeeMask) return;
 
-            const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
-                .setInteractive({ useHandCursor: true })
-                .setScale(0.8);
+        this.coffeeMask.clear();
+        this.coffeeMask.fillStyle(0xffffff, 1);
 
-            this.addHoverEffect(startBtn, 0.8, 0.9);
+        const totalHeight = 110;
+        const visibleHeight = totalHeight * fillLevel;
 
-            startBtn.on('pointerdown', () => {
-                this.scene.start('MenuScene');
-            });
-        };
+        this.coffeeMask.fillRect(
+            -125 * 0.5,
+            (totalHeight * 0.5) - visibleHeight,
+            125,
+            visibleHeight
+        );
+    }
 
-        if (window.WebFont && typeof window.WebFont.load === 'function') {
-            window.WebFont.load({
-                google: {
-                    families: ['Special Elite', 'Press Start 2P']
-                },
-                active: () => {
-                    initUi();
-                },
-                inactive: () => {
-                    console.warn('WebFont failed to load, continuing with fallback fonts.');
-                    initUi();
-                }
-            });
-        } else {
-            console.warn('WebFont is not available, continuing with fallback fonts.');
-            initUi();
-        }
+    createCoffeeTextures() {
+        if (this.textures.exists('cup_coffee') && this.textures.exists('cup_outline')) return;
+
+        // ==========================================
+        // 1. KONTUR KUBKA (Szkło)
+        // ==========================================
+        const gOutline = this.make.graphics({ x: 0, y: 0, add: false });
+
+        // Tło szkła
+        gOutline.fillStyle(0xffffff, 0.08);
+        gOutline.fillRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
+
+        // Ucho
+        gOutline.lineStyle(4, 0xe2f1f8, 0.5);
+        gOutline.strokeCircle(95, 55, 17);
+        gOutline.lineStyle(2, 0xffffff, 0.8);
+        gOutline.strokeCircle(94, 53, 15);
+
+        // Główny obrys
+        gOutline.lineStyle(3, 0xd8ecf8, 0.75);
+        gOutline.strokeRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
+
+        // Rant
+        gOutline.lineStyle(2, 0xffffff, 0.9);
+        gOutline.strokeRoundedRect(10, 8, 80, 8, 4);
+
+        // Bliki
+        gOutline.fillStyle(0xffffff, 0.35);
+        gOutline.fillRoundedRect(16, 18, 5, 72, 2);
+        gOutline.fillStyle(0xffffff, 0.2);
+        gOutline.fillRoundedRect(82, 60, 3, 30, 1);
+
+        gOutline.generateTexture('cup_outline', 125, 110);
+        gOutline.destroy();
+
+
+        // ==========================================
+        // 2. WPEŁNIENIE KAWĄ
+        // ==========================================
+        const gCoffee = this.make.graphics({ x: 0, y: 0, add: false });
+
+        // Płynna kawa
+        gCoffee.fillStyle(0x3d2314, 0.95);
+        gCoffee.fillRoundedRect(14, 20, 72, 78, { tl: 2, tr: 2, bl: 20, br: 20 });
+
+        // Espresso
+        gCoffee.fillStyle(0x5a351e, 0.9);
+        gCoffee.fillRect(14, 20, 72, 35);
+
+        // Crema / Pianka
+        gCoffee.fillStyle(0xd7a15c, 1);
+        gCoffee.fillRoundedRect(14, 18, 72, 10, 5);
+
+        // Pianka mleczna
+        gCoffee.fillStyle(0xf7e8d3, 0.9);
+        gCoffee.fillRoundedRect(30, 19, 40, 6, 3);
+
+        // Latte Art (Serce)
+        gCoffee.fillStyle(0xfff7ed, 1);
+        gCoffee.fillCircle(45, 21, 5);
+        gCoffee.fillCircle(55, 21, 5);
+        gCoffee.fillTriangle(39, 22, 61, 22, 50, 29);
+
+        gCoffee.generateTexture('cup_coffee', 125, 110);
+        gCoffee.destroy();
     }
 
     addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

@@ -6,13 +6,17 @@ export class PlayerMenuUI {
         this.isAnimating = false;
 
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
+        this.boundResizeHandler = this.handleResize.bind(this);
 
         const { width, height } = this.scene.scale;
+        const isMobile = !this.scene.sys.game.device.os.desktop;
 
         this.config = {
-            width: Math.min(1180, width * 0.92),
-            height: 185,
-            buttonSize: 72
+            width: Math.min(1180, width * (isMobile ? 0.96 : 0.92)),
+            height: isMobile ? 145 : 185,
+            buttonSize: isMobile ? 52 : 72,
+            slotRadius: isMobile ? 28 : 38,
+            fontSize: isMobile ? '9px' : '11px'
         };
 
         this.closedY = height;
@@ -28,6 +32,8 @@ export class PlayerMenuUI {
         this.createToggleButton(width, height);
         this.createMenuButtons();
         this.bindKeyboardShortcut();
+
+        this.scene.scale.on('resize', this.boundResizeHandler, this);
     }
 
     bindKeyboardShortcut() {
@@ -51,6 +57,23 @@ export class PlayerMenuUI {
         this.toggle();
     }
 
+    handleResize(gameSize) {
+        const { width, height } = gameSize;
+        const isMobile = !this.scene.sys.game.device.os.desktop;
+
+        this.config.width = Math.min(1180, width * (isMobile ? 0.96 : 0.92));
+        this.closedY = height;
+        this.openY = height - this.config.height;
+
+        this.container.setX(width / 2);
+        this.container.setY(this.isOpen ? this.openY : this.closedY);
+
+        if (this.toggleContainer) {
+            this.toggleContainer.setX(width / 2);
+            this.toggleContainer.setY(this.isOpen ? this.openY - 18 : height - 19);
+        }
+    }
+
     createHotkeyLabel(x, y, fullLabel, hotkey, options = {}) {
         const {
             fontSize = '15px',
@@ -66,7 +89,7 @@ export class PlayerMenuUI {
         const normalizedHotkey = String(hotkey || '').toLowerCase();
         const hotkeyIndex = normalizedLabel.toLowerCase().indexOf(normalizedHotkey);
 
-        if (hotkeyIndex === -1) {
+        if (hotkeyIndex === -1 || !hotkey) {
             const fallbackText = this.scene.add.text(0, 0, normalizedLabel, {
                 fontFamily,
                 fontSize,
@@ -180,8 +203,9 @@ export class PlayerMenuUI {
     }
 
     createToggleButton(screenWidth, screenHeight) {
-        const btnW = 190;
-        const btnH = 38;
+        const isMobile = !this.scene.sys.game.device.os.desktop;
+        const btnW = isMobile ? 150 : 190;
+        const btnH = isMobile ? 34 : 38;
 
         this.toggleContainer = this.scene.add.container(screenWidth / 2, screenHeight - (btnH / 2)).setDepth(41);
 
@@ -194,25 +218,26 @@ export class PlayerMenuUI {
         graphics.lineStyle(2, 0xdda15e, 0.9);
         graphics.strokeRoundedRect(-btnW / 2 + 2, -btnH / 2 + 2, btnW - 4, btnH - 2, { tl: 6, tr: 6, bl: 0, br: 0 });
 
-        graphics.fillStyle(0x6b2d2d, 1); // Czerwony klasyczny materiał/tabliczka
+        graphics.fillStyle(0x6b2d2d, 1);
         graphics.fillRoundedRect(-btnW / 2 + 5, -btnH / 2 + 5, btnW - 10, btnH - 5, { tl: 4, tr: 4, bl: 0, br: 0 });
 
-        this.toggleText = this.createHotkeyLabel(0, -6, 'MENU', 'M', {
+        this.toggleText = this.createHotkeyLabel(0, -6, 'MENU', isMobile ? '' : 'M', {
             fontFamily: 'PressStart2P',
-            fontSize: '13px',
+            fontSize: isMobile ? '11px' : '13px',
             baseColor: '#f4eac1',
             hotkeyColor: '#ffcc00'
         });
 
-        const arrowLeft = this.scene.add.text(-50, 0, '▼', {
+        const arrowSpacing = isMobile ? -38 : -50;
+        const arrowLeft = this.scene.add.text(arrowSpacing, 0, '▼', {
             fontFamily: 'PressStart2P',
-            fontSize: '12px',
+            fontSize: isMobile ? '10px' : '12px',
             color: '#f4eac1'
         }).setOrigin(0.5);
 
-        const arrowRight = this.scene.add.text(50, 0, '▼', {
+        const arrowRight = this.scene.add.text(-arrowSpacing, 0, '▼', {
             fontFamily: 'PressStart2P',
-            fontSize: '12px',
+            fontSize: isMobile ? '10px' : '12px',
             color: '#f4eac1'
         }).setOrigin(0.5);
 
@@ -224,17 +249,21 @@ export class PlayerMenuUI {
         hitBox.on('pointerdown', () => this.toggle());
 
         hitBox.on('pointerover', () => {
-            this.setHotkeyLabelColors(this.toggleText, '#ffffff', '#ffd54a');
-            this.toggleText.setScale(1.05);
-            arrowLeft.setColor('#ffffff').setScale(1.05);
-            arrowRight.setColor('#ffffff').setScale(1.05);
+            if (this.scene.sys.game.device.os.desktop) {
+                this.setHotkeyLabelColors(this.toggleText, '#ffffff', '#ffd54a');
+                this.toggleText.setScale(1.05);
+                arrowLeft.setColor('#ffffff').setScale(1.05);
+                arrowRight.setColor('#ffffff').setScale(1.05);
+            }
         });
 
         hitBox.on('pointerout', () => {
-            this.setHotkeyLabelColors(this.toggleText, '#f4eac1', '#ffcc00');
-            this.toggleText.setScale(1.0);
-            arrowLeft.setColor('#f4eac1').setScale(1.0);
-            arrowRight.setColor('#f4eac1').setScale(1.0);
+            if (this.scene.sys.game.device.os.desktop) {
+                this.setHotkeyLabelColors(this.toggleText, '#f4eac1', '#ffcc00');
+                this.toggleText.setScale(1.0);
+                arrowLeft.setColor('#f4eac1').setScale(1.0);
+                arrowRight.setColor('#f4eac1').setScale(1.0);
+            }
         });
 
         this.toggleContainer.add([graphics, arrowLeft, this.toggleText, arrowRight, hitBox]);
@@ -251,89 +280,103 @@ export class PlayerMenuUI {
             { key: 'telephone', label: 'Telephone', hotkey: 'p', action: () => this.openPhone() }
         ];
 
+        const isMobile = !this.scene.sys.game.device.os.desktop;
         const count = buttonsData.length;
-        const availableWidth = this.config.width - 60;
+        const padding = isMobile ? 30 : 60;
+        const availableWidth = this.config.width - padding;
         const spacing = availableWidth / count;
         const startX = -(availableWidth / 2) + (spacing / 2);
 
-        const iconY = 62;
-        const labelY = 132;
+        const iconY = isMobile ? 48 : 62;
+        const labelY = isMobile ? 102 : 132;
+        const radius = this.config.slotRadius;
 
         buttonsData.forEach((btn, index) => {
             const xPos = startX + (index * spacing);
             const btnContainer = this.scene.add.container(xPos, 0);
 
-            // Wklęsły slot / ramka pod każdą ikoną dla efektu głębi
+            // Okrągły wklęsły slot pod ikona (Opcja B)
             const slotBg = this.scene.add.graphics();
             slotBg.fillStyle(0x120d0a, 0.8);
-            slotBg.fillRoundedRect(-38, iconY - 38, 76, 76, 8);
+            slotBg.fillCircle(0, iconY, radius);
             slotBg.lineStyle(1, 0x3a281c, 1);
-            slotBg.strokeRoundedRect(-38, iconY - 38, 76, 76, 8);
+            slotBg.strokeCircle(0, iconY, radius);
 
-            const iconShadow = this.scene.add.ellipse(0, iconY + 28, 54, 14, 0x000000, 0.6);
+            // Cień pod ikoną
+            const shadowWidth = isMobile ? 40 : 54;
+            const shadowHeight = isMobile ? 10 : 14;
+            const iconShadow = this.scene.add.ellipse(0, iconY + (radius * 0.7), shadowWidth, shadowHeight, 0x000000, 0.6);
 
             const btnIcon = this.scene.add.image(0, iconY, btn.key)
                 .setDisplaySize(this.config.buttonSize, this.config.buttonSize);
 
-            const btnLabel = this.createHotkeyLabel(0, labelY, btn.label, btn.hotkey, {
+            const btnLabel = this.createHotkeyLabel(0, labelY, btn.label, isMobile ? '' : btn.hotkey, {
                 fontFamily: 'PressStart2P',
-                fontSize: '11px',
+                fontSize: this.config.fontSize,
                 baseColor: '#dcdcdc',
                 hotkeyColor: '#ffcc00'
             });
 
             btnContainer.add([slotBg, iconShadow, btnIcon, btnLabel]);
 
-            btnContainer.setSize(spacing - 6, 150);
+            // Powiększona strefa dotyku (Hitbox) dopasowana do całego paska
+            const hitWidth = spacing;
+            const hitHeight = this.config.height;
+
+            btnContainer.setSize(hitWidth, hitHeight);
             btnContainer.setInteractive({
                 hitArea: new Phaser.Geom.Rectangle(
-                    -(spacing / 2) + 3,
-                    15,
-                    spacing - 6,
-                    150
+                    -(hitWidth / 2),
+                    0,
+                    hitWidth,
+                    hitHeight
                 ),
                 hitAreaCallback: Phaser.Geom.Rectangle.Contains,
                 useHandCursor: true
             });
 
             btnContainer.on('pointerover', () => {
-                this.scene.tweens.add({
-                    targets: btnIcon,
-                    y: iconY - 8,
-                    scaleX: (this.config.buttonSize / btnIcon.width) * 1.08,
-                    scaleY: (this.config.buttonSize / btnIcon.height) * 1.08,
-                    duration: 150,
-                    ease: 'Quad.easeOut'
-                });
+                if (this.scene.sys.game.device.os.desktop) {
+                    this.scene.tweens.add({
+                        targets: btnIcon,
+                        y: iconY - 8,
+                        scaleX: (this.config.buttonSize / btnIcon.width) * 1.08,
+                        scaleY: (this.config.buttonSize / btnIcon.height) * 1.08,
+                        duration: 150,
+                        ease: 'Quad.easeOut'
+                    });
 
-                this.scene.tweens.add({
-                    targets: iconShadow,
-                    scaleX: 1.25,
-                    alpha: 0.3,
-                    duration: 150
-                });
+                    this.scene.tweens.add({
+                        targets: iconShadow,
+                        scaleX: 1.25,
+                        alpha: 0.3,
+                        duration: 150
+                    });
 
-                this.setHotkeyLabelColors(btnLabel, '#ffffff', '#ffd54a');
+                    this.setHotkeyLabelColors(btnLabel, '#ffffff', '#ffd54a');
+                }
             });
 
             btnContainer.on('pointerout', () => {
-                this.scene.tweens.add({
-                    targets: btnIcon,
-                    y: iconY,
-                    scaleX: this.config.buttonSize / btnIcon.width,
-                    scaleY: this.config.buttonSize / btnIcon.height,
-                    duration: 150,
-                    ease: 'Quad.easeOut'
-                });
+                if (this.scene.sys.game.device.os.desktop) {
+                    this.scene.tweens.add({
+                        targets: btnIcon,
+                        y: iconY,
+                        scaleX: this.config.buttonSize / btnIcon.width,
+                        scaleY: this.config.buttonSize / btnIcon.height,
+                        duration: 150,
+                        ease: 'Quad.easeOut'
+                    });
 
-                this.scene.tweens.add({
-                    targets: iconShadow,
-                    scaleX: 1.0,
-                    alpha: 0.6,
-                    duration: 150
-                });
+                    this.scene.tweens.add({
+                        targets: iconShadow,
+                        scaleX: 1.0,
+                        alpha: 0.6,
+                        duration: 150
+                    });
 
-                this.setHotkeyLabelColors(btnLabel, '#dcdcdc', '#ffcc00');
+                    this.setHotkeyLabelColors(btnLabel, '#dcdcdc', '#ffcc00');
+                }
             });
 
             btnContainer.on('pointerdown', () => {
@@ -517,6 +560,8 @@ export class PlayerMenuUI {
     }
 
     destroy() {
+        this.scene.scale.off('resize', this.boundResizeHandler);
+
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
             this.scene.input.keyboard.removeCapture('M');

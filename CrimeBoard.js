@@ -588,6 +588,8 @@ export class CrimeBoard {
     if (item.createdByPlayer) el.classList.add('is-player-item');
     if (item.editableByPlayer) el.classList.add('is-editable');
 
+    this.applyTagClasses(el, item);
+
     el.innerHTML = this.getItemMarkup(item);
 
     el.addEventListener('pointerdown', event => this.onItemPointerDown(event, item.id));
@@ -605,6 +607,22 @@ export class CrimeBoard {
     });
 
     return el;
+  }
+
+  // NOWE: zamienia item.tags na klasy CSS, np. tag "scene-failed" -> klasa "crime-board__item--tag-scene-failed"
+  applyTagClasses(el, item) {
+    if (!Array.isArray(item.tags) || !item.tags.length) return;
+
+    item.tags.forEach(tag => {
+      const safeTag = String(tag)
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      if (safeTag) {
+        el.classList.add(`crime-board__item--tag-${safeTag}`);
+      }
+    });
   }
 
   getItemMarkup(item) {

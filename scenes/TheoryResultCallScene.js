@@ -7,6 +7,23 @@ export default class TheoryResultCallScene extends Phaser.Scene {
     this.sourceScene = 'CityScene';
     this.mode = 'hq';
     this.result = 'weak';
+
+    this.overlay = null;
+    this.panel = null;
+    this.headerText = null;
+    this.speakerText = null;
+    this.bodyText = null;
+    this.continueBtn = null;
+    this.hintText = null;
+
+    this.layout = null;
+    this._resizeBound = false;
+    this._finished = false;
+
+    this.handleResizeBound = null;
+    this.handleContinueBound = null;
+    this.handleSpaceBound = null;
+    this.handleEnterBound = null;
   }
 
   init(data = {}) {
@@ -16,72 +33,187 @@ export default class TheoryResultCallScene extends Phaser.Scene {
       data.result ||
       gameState.reconstructedHeist?.playerTheoryResult ||
       'weak';
+
+    this.overlay = null;
+    this.panel = null;
+    this.headerText = null;
+    this.speakerText = null;
+    this.bodyText = null;
+    this.continueBtn = null;
+    this.hintText = null;
+
+    this.layout = null;
+    this._resizeBound = false;
+    this._finished = false;
+
+    this.handleResizeBound = null;
+    this.handleContinueBound = null;
+    this.handleSpaceBound = null;
+    this.handleEnterBound = null;
   }
 
   create() {
     const { width, height } = this.scale;
-
     const palette = this.getPalette(this.result);
     const lines = this.getDialogue(this.result, this.mode);
 
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.72)
+    this.overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.72)
       .setOrigin(0, 0)
       .setDepth(4000)
       .setInteractive();
 
-    this.add.rectangle(width / 2, height / 2, 960, 520, 0x181411, 0.98)
+    this.panel = this.add.rectangle(width / 2, height / 2, 960, 520, 0x181411, 0.98)
       .setStrokeStyle(4, palette.border, 0.9)
       .setDepth(4001);
 
-    this.add.text(width / 2, 135, this.mode === 'phone' ? 'Incoming call' : 'HQ response', {
+    this.headerText = this.add.text(0, 0, this.mode === 'phone' ? 'Encrypted call' : 'HQ assessment', {
       fontFamily: 'Special Elite',
       fontSize: '38px',
-      color: palette.title
-    })
-      .setOrigin(0.5)
-      .setDepth(4002);
+      color: palette.title,
+      align: 'center'
+    }).setOrigin(0.5).setDepth(4002);
 
-    this.add.text(width / 2, 205, this.getSpeakerName(this.mode), {
+    this.speakerText = this.add.text(0, 0, this.getSpeakerName(this.mode), {
       fontFamily: 'Special Elite',
       fontSize: '24px',
-      color: palette.accent
-    })
-      .setOrigin(0.5)
-      .setDepth(4002);
+      color: palette.accent,
+      align: 'center'
+    }).setOrigin(0.5).setDepth(4002);
 
-    this.add.text(width / 2, 305, lines.join('\n\n'), {
+    this.bodyText = this.add.text(0, 0, lines.join('\n\n'), {
       fontFamily: 'Special Elite',
       fontSize: '28px',
       color: '#f4ead7',
       align: 'center',
-      wordWrap: { width: 760 },
+      wordWrap: { width: 760, useAdvancedWrap: true },
       lineSpacing: 10
-    })
-      .setOrigin(0.5)
-      .setDepth(4002);
+    }).setOrigin(0.5).setDepth(4002);
 
-    const continueBtn = this.add.text(width / 2, 455, '[ CONTINUE ]', {
+    this.continueBtn = this.add.text(0, 0, '[ CONTINUE ]', {
       fontFamily: 'Special Elite',
       fontSize: '30px',
       color: palette.buttonText,
       backgroundColor: '#2a221b',
       padding: { left: 18, right: 18, top: 10, bottom: 10 }
-    })
-      .setOrigin(0.5)
-      .setDepth(4002)
-      .setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setDepth(4002).setInteractive({ useHandCursor: true });
 
-    continueBtn.on('pointerover', () => continueBtn.setColor('#ffffff'));
-    continueBtn.on('pointerout', () => continueBtn.setColor(palette.buttonText));
-    continueBtn.on('pointerdown', () => this.finishScene());
+    this.hintText = this.add.text(0, 0, 'Tap anywhere or press Enter / Space', {
+      fontFamily: 'Special Elite',
+      fontSize: '16px',
+      color: '#ccb98c',
+      align: 'center'
+    }).setOrigin(0.5).setDepth(4002);
 
-    this.input.keyboard?.once('keydown-SPACE', () => this.finishScene());
-    this.input.keyboard?.once('keydown-ENTER', () => this.finishScene());
+    this.handleContinueBound = () => this.finishScene();
+    this.handleSpaceBound = () => this.finishScene();
+    this.handleEnterBound = () => this.finishScene();
+
+    this.overlay.on('pointerup', this.handleContinueBound);
+    this.continueBtn.on('pointerover', () => this.continueBtn.setColor('#ffffff'));
+    this.continueBtn.on('pointerout', () => {
+      if (this.continueBtn) {
+        this.continueBtn.setColor(palette.buttonText);
+      }
+    });
+    this.continueBtn.on('pointerup', this.handleContinueBound);
+
+    this.input.keyboard?.once('keydown-SPACE', this.handleSpaceBound);
+    this.input.keyboard?.once('keydown-ENTER', this.handleEnterBound);
+
+    this.bindResize();
+    this.applyResponsiveLayout();
+
+    this.tweens.add({
+      targets: [this.panel, this.headerText, this.speakerText, this.bodyText, this.continueBtn, this.hintText],
+      alpha: { from: 0, to: 1 },
+      duration: 160,
+      ease: 'Quad.easeOut'
+    });
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
   }
 
-  getSpeakerName(mode) {
-    return mode === 'phone' ? 'Unknown Caller' : 'Chief Inspector';
+  getLayout() {
+    const { width, height } = this.scale;
+    const isMobile = width <= 900;
+
+    const panelWidth = Math.min(width - 28, isMobile ? 700 : 960);
+    const panelHeight = Math.min(height - 28, isMobile ? 700 : 520);
+    const panelX = width / 2;
+    const panelY = height / 2;
+    const panelTop = panelY - panelHeight / 2;
+    const panelBottom = panelY + panelHeight / 2;
+
+    const headerY = panelTop + (isMobile ? 58 : 64);
+    const speakerY = headerY + (isMobile ? 54 : 70);
+    const bodyY = panelY + (isMobile ? 6 : 8);
+    const continueY = panelBottom - (isMobile ? 86 : 80);
+    const hintY = continueY + 48;
+
+    return {
+      width,
+      height,
+      isMobile,
+      panelWidth,
+      panelHeight,
+      panelX,
+      panelY,
+      panelTop,
+      panelBottom,
+      headerY,
+      speakerY,
+      bodyY,
+      continueY,
+      hintY,
+      headerWrap: Math.max(220, panelWidth - 70),
+      speakerWrap: Math.max(220, panelWidth - 90),
+      bodyWrap: Math.max(220, panelWidth - (isMobile ? 70 : 120))
+    };
   }
+
+  applyResponsiveLayout() {
+    this.layout = this.getLayout();
+    const L = this.layout;
+
+    this.overlay.setSize(L.width, L.height).setPosition(0, 0);
+    this.panel.setPosition(L.panelX, L.panelY).setSize(L.panelWidth, L.panelHeight);
+
+    this.headerText.setPosition(L.panelX, L.headerY);
+    this.headerText.setFontSize(L.isMobile ? '28px' : '38px');
+    this.headerText.setWordWrapWidth(L.headerWrap, true);
+
+    this.speakerText.setPosition(L.panelX, L.speakerY);
+    this.speakerText.setFontSize(L.isMobile ? '20px' : '24px');
+    this.speakerText.setWordWrapWidth(L.speakerWrap, true);
+
+    this.bodyText.setPosition(L.panelX, L.bodyY);
+    this.bodyText.setFontSize(L.isMobile ? '22px' : '28px');
+    this.bodyText.setWordWrapWidth(L.bodyWrap, true);
+    this.bodyText.setLineSpacing(L.isMobile ? 8 : 10);
+
+    this.continueBtn.setPosition(L.panelX, L.continueY);
+    this.continueBtn.setFontSize(L.isMobile ? '24px' : '30px');
+
+    this.hintText.setPosition(L.panelX, L.hintY);
+    this.hintText.setFontSize(L.isMobile ? '13px' : '16px');
+    this.hintText.setWordWrapWidth(L.bodyWrap, true);
+  }
+
+  bindResize() {
+    if (this._resizeBound) return;
+    this._resizeBound = true;
+
+    this.handleResizeBound = this.handleResize.bind(this);
+    this.scale.on('resize', this.handleResizeBound, this);
+  }
+
+  handleResize() {
+    this.applyResponsiveLayout();
+  }
+
+getSpeakerName(mode) {
+  return mode === 'phone' ? 'Filtered Voice' : 'HQ Assessment';
+}
 
   getPalette(result) {
     const map = {
@@ -158,6 +290,9 @@ export default class TheoryResultCallScene extends Phaser.Scene {
   }
 
   finishScene() {
+    if (this._finished) return;
+    this._finished = true;
+
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
       gameState.reconstructedHeist = {};
     }
@@ -174,5 +309,51 @@ export default class TheoryResultCallScene extends Phaser.Scene {
     }
 
     this.scene.stop();
+  }
+
+  onShutdown() {
+    if (this.handleResizeBound) {
+      this.scale.off('resize', this.handleResizeBound, this);
+    }
+
+    if (this.overlay && this.handleContinueBound) {
+      this.overlay.off('pointerup', this.handleContinueBound);
+    }
+
+    if (this.continueBtn) {
+      this.continueBtn.removeAllListeners();
+    }
+
+    if (this.input.keyboard && this.handleSpaceBound) {
+      this.input.keyboard.off('keydown-SPACE', this.handleSpaceBound);
+    }
+
+    if (this.input.keyboard && this.handleEnterBound) {
+      this.input.keyboard.off('keydown-ENTER', this.handleEnterBound);
+    }
+
+    [
+      this.overlay,
+      this.panel,
+      this.headerText,
+      this.speakerText,
+      this.bodyText,
+      this.continueBtn,
+      this.hintText
+    ].forEach(item => {
+      if (item?.removeAllListeners) item.removeAllListeners();
+      if (item?.destroy) item.destroy();
+    });
+
+    this.overlay = null;
+    this.panel = null;
+    this.headerText = null;
+    this.speakerText = null;
+    this.bodyText = null;
+    this.continueBtn = null;
+    this.hintText = null;
+
+    this.layout = null;
+    this._resizeBound = false;
   }
 }

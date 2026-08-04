@@ -1,0 +1,206 @@
+{
+  "universal": {
+    "first_names_female": [
+      "Anna", "Amelie", "Julia", "Nora", "Lea",
+      "Emma", "Sara", "Maya", "Elena", "Nina"
+    ],
+    "first_names_male": [
+      "Marc", "Leo", "David", "Adam", "Alex",
+      "Max", "Tom", "Daniel", "Simon", "Oscar"
+    ],
+    "first_names_neutral": [
+      "Alix", "Robin", "Sacha", "Noa", "Kim",
+      "Ash", "Sky", "Rio", "Val", "Lior"
+    ],
+    "last_names": [
+      "Smith", "Novak", "Larsen", "Weber", "Costa",
+      "Kowalski", "Berg", "Fischer", "Moreau", "Klein"
+    ],
+    "occupations": [
+      "Museum Curator", "Deputy Director", "Night Janitor", "Security Guard", "Art Conservator",
+      "Gift Shop Clerk", "Tour Guide", "Restoration Intern", "Ticket Booth Clerk", "Café Waiter",
+      "Cleaning Staff Supervisor", "IT Technician", "Press Officer", "Freelance Photographer",
+      "Delivery Courier", "Antiques Dealer", "Local Journalist", "Museum Board Member",
+      "Street Vendor", "Taxi Driver"
+    ]
+  },
+
+  "paris": {
+    "first_names_female": [
+      "Camille", "Isabelle", "Nathalie", "Sophie", "Claire",
+      "Margaux", "Lucie", "Elodie", "Juliette", "Chloé",
+      "Manon", "Aurore", "Océane", "Léa", "Marion",
+      "Adèle", "Coralie", "Zoé", "Charlotte", "Delphine"
+    ],
+    "first_names_male": [
+      "Étienne", "Georges", "Antoine", "Lucas", "Julien",
+      "Thierry", "Vincent", "Nicolas", "Baptiste", "Hugo",
+      "Mathieu", "Sébastien", "Louis", "Rémi", "Gabriel",
+      "Théo", "Adrien", "Damien", "Fabrice", "Bertrand"
+    ],
+    "first_names_neutral": [
+      "Camil", "Ange", "Léo", "Maël", "Solène",
+      "Yaël", "Ninon", "Quentin"
+    ],
+    "last_names": [
+      "Marchand", "Rousseau", "Lefèvre", "Fontaine", "Dubois",
+      "Girard", "Petit", "Bernard", "Moreau", "Lambert",
+      "Perrot", "Fabre", "Rey", "Chevalier", "Renard",
+      "Faure", "Blanchard", "Aubert", "Barbier", "Mercier",
+      "Colin", "Boyer", "Roux", "Vidal", "Dupuis",
+      "Guillot", "Masson", "Lucas", "Simon", "Meunier"
+    ],
+    "occupations": [
+      "Louvre Sponsor's Aide", "Archaeologist's Assistant", "Exhibit Designer",
+      "Sommelier", "Fashion Boutique Owner", "Café Waiter",
+      "Perfume Shop Owner", "Pastry Chef", "Bookbinder",
+      "Metro Station Attendant", "Street Portrait Artist", "Jazz Club Owner",
+      "Seine Riverboat Guide", "Fashion Photographer", "Antique Print Dealer",
+      "Wine Cellar Sommelier", "Flea Market Vendor", "Opera Usher",
+      "Bicycle Rental Attendant", "Notre-Dame Restoration Volunteer"
+    ]
+  },
+
+  "berlin": {
+    "first_names_female": [
+      "Anja", "Birgit", "Christel", "Dagmar", "Elke",
+      "Franziska", "Greta", "Hannah", "Ingrid", "Johanna",
+      "Katrin", "Lena", "Marlene", "Nadine", "Petra",
+      "Renate", "Sabine", "Tanja", "Ulrike", "Vivian"
+    ],
+    "first_names_male": [
+      "Andreas", "Bernd", "Christoph", "Dieter", "Erik",
+      "Florian", "Gunter", "Heinrich", "Jonas", "Klaus",
+      "Lukas", "Manfred", "Niklas", "Olaf", "Peter",
+      "Rainer", "Stefan", "Torsten", "Ulrich", "Wolfgang"
+    ],
+    "first_names_neutral": [
+      "Alex", "Charlie", "Frey", "Jael", "Kai",
+      "Merle", "Robin", "Sascha"
+    ],
+    "last_names": [
+      "Müller", "Schmidt", "Schneider", "Fischer", "Weber",
+      "Meyer", "Wagner", "Becker", "Schulz", "Hoffmann",
+      "Schäfer", "Koch", "Bauer", "Richter", "Klein",
+      "Wolf", "Schröder", "Neumann", "Schwarz", "Zimmermann",
+      "Braun", "Krüger", "Hofmann", "Hartmann", "Lange",
+      "Werner", "Schmitz", "Krause", "Meier", "Lehmann"
+    ],
+    "occupations": [
+      "Museum Island Curator", "Techno Club Bouncer", "Currywurst Stand Owner",
+      "Street Art Tour Guide", "Vintage Fashion Dealer", "Bratwurst Vendor",
+      "Berlin Wall Museum Attendant", "Bicycle Courier", "Flea Market Trader",
+      "Cabaret Performer", "Beer Garden Manager", "Antique Camera Dealer",
+      "U-Bahn Ticket Inspector", "Graffiti Artist", "Bakery Owner",
+      "Opera House Usher", "Craft Brewery Owner", "Bookshop Clerk",
+      "River Cruise Guide", "Christmas Market Vendor"
+    ]
+  },
+  "warsaw": {
+  "first_names_female": [
+    "Anna", "Kasia", "Magda", "Ola", "Zofia",
+    "Maria", "Ewa", "Agata", "Basia", "Weronika",
+    "Justyna", "Karolina", "Monika", "Beata", "Iwona",
+    "Dorota", "Halina", "Grażyna", "Krystyna", "Malwina"
+  ],
+  "first_names_male": [
+    "Jerzy", "Piotr", "Tomasz", "Krzysztof", "Michał",
+    "Paweł", "Adam", "Marek", "Wojciech", "Grzegorz",
+    "Andrzej", "Stanisław", "Zbigniew", "Kazimierz", "Bartosz",
+    "Rafał", "Mariusz", "Dariusz", "Sebastian", "Ryszard"
+  ],
+  "first_names_neutral": [
+    "Kasjan", "Wiktor", "Maks", "Alex", "Bogdan",
+    "Nikola", "Ariel", "Filip"
+  ],
+  "last_names": [
+    "Nowak", "Kowalski", "Wiśniewski", "Wójcik", "Kowalczyk",
+    "Kamiński", "Lewandowski", "Zieliński", "Szymański", "Woźniak",
+    "Dąbrowski", "Kozłowski", "Jankowski", "Mazur", "Wojciechowski",
+    "Kwiatkowski", "Krawczyk", "Piotrowski", "Grabowski", "Zając",
+    "Pawłowski", "Michalski", "Król", "Wieczorek", "Jabłoński",
+    "Wróbel", "Nowicki", "Majewski", "Olszewski", "Stępień"
+  ],
+  "occupations": [
+    "Pierogi Stand Owner", "Amber Jewelry Seller", "Old Town Guide",
+    "Tram Conductor", "Antique Bookstore Clerk", "Vodka Distillery Tour Guide",
+    "Royal Castle Attendant", "Milk Bar Owner", "Flower Market Vendor",
+    "Warsaw Uprising Museum Docent", "Klezmer Musician", "Craft Beer Brewer",
+    "Wilanów Palace Gardener", "Tailor's Assistant", "Chopin Concert Usher",
+    "Barszcz Soup Kitchen Cook", "Street Market Trader", "Bike Rental Attendant",
+    "Riverside Café Waiter", "Bookbinding Workshop Owner"
+  ]
+},
+
+"new_york_city": {
+  "first_names_female": [
+    "Jessica", "Ashley", "Amanda", "Stephanie", "Jennifer",
+    "Nicole", "Rachel", "Samantha", "Rebecca", "Michelle",
+    "Danielle", "Lauren", "Vanessa", "Brittany", "Courtney",
+    "Alexis", "Tiffany", "Melissa", "Kimberly", "Angela"
+  ],
+  "first_names_male": [
+    "Michael", "Christopher", "Anthony", "Joseph", "Robert",
+    "Daniel", "William", "Matthew", "Brandon", "Justin",
+    "Kevin", "Jason", "Ryan", "Eric", "Brian",
+    "Marcus", "Derek", "Jonathan", "Gregory", "Nathaniel"
+  ],
+  "first_names_neutral": [
+    "Jordan", "Taylor", "Morgan", "Casey", "Riley",
+    "Avery", "Quinn", "Reese"
+  ],
+  "last_names": [
+    "Johnson", "Williams", "Brown", "Rodriguez", "Martinez",
+    "Anderson", "Taylor", "Thomas", "Moore", "Jackson",
+    "Martin", "Lee", "Perez", "Thompson", "White",
+    "Harris", "Clark", "Lewis", "Robinson", "Walker",
+    "Young", "Allen", "King", "Wright", "Scott",
+    "Torres", "Nguyen", "Hill", "Flores", "Green"
+  ],
+  "occupations": [
+    "Broadway Ticket Scalper", "Subway Musician", "Food Truck Vendor",
+    "Doorman", "Pawn Shop Owner", "Taxi Dispatcher",
+    "Gallery Assistant", "Rooftop Bar Manager", "Deli Counter Clerk",
+    "Street Caricature Artist", "Auction House Runner", "Bike Messenger",
+    "Hot Dog Cart Owner", "Jazz Club Bartender", "Vintage Record Store Owner",
+    "Private Security Consultant", "Museum Gift Shop Manager", "Limo Driver",
+    "Rare Book Appraiser", "Financial District Courier"
+  ]
+},
+
+"new_delhi": {
+  "first_names_female": [
+    "Priya", "Anjali", "Divya", "Kavita", "Neha",
+    "Pooja", "Riya", "Sneha", "Aditi", "Meera",
+    "Ishita", "Simran", "Tanvi", "Radhika", "Shreya",
+    "Nisha", "Payal", "Ritu", "Swati", "Vidya"
+  ],
+  "first_names_male": [
+    "Rahan", "Arjun", "Vikram", "Rohan", "Amit",
+    "Sanjay", "Aarav", "Karan", "Nikhil", "Vivek",
+    "Rajesh", "Suresh", "Anand", "Deepak", "Manoj",
+    "Ravi", "Ajay", "Sandeep", "Gaurav", "Harish"
+  ],
+  "first_names_neutral": [
+    "Kiran", "Deep", "Sam", "Rio", "Alis",
+    "Anu", "Sunny", "Vayu"
+  ],
+  "last_names": [
+    "Sharma", "Patel", "Gupta", "Singh", "Kumar",
+    "Verma", "Reddy", "Nair", "Joshi", "Rao",
+    "Mehta", "Chopra", "Kapoor", "Malhotra", "Bhatt",
+    "Agarwal", "Iyer", "Menon", "Chatterjee", "Bose",
+    "Saxena", "Trivedi", "Pillai", "Desai", "Choudhary",
+    "Bansal", "Khanna", "Arora", "Chauhan", "Rastogi"
+  ],
+  "occupations": [
+    "Textile Merchant", "Chai Stall Owner", "Heritage Site Guide",
+    "Rickshaw Driver", "Spice Trader", "Antique Jewelry Dealer",
+    "Street Food Vendor", "Sitar Musician", "Carpet Seller",
+    "Red Fort Ticket Attendant", "Bollywood Memorabilia Dealer", "Tuk-Tuk Mechanic",
+    "Temple Caretaker", "Silk Sari Shop Owner", "Auto-Rickshaw Tour Guide",
+    "Street Photographer", "Marigold Flower Vendor", "Ayurvedic Herb Seller",
+    "Old Delhi Bazaar Trader", "Monument Restoration Assistant"
+  ]
+}
+}

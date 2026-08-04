@@ -6,6 +6,7 @@ import {
 } from './GameData.js';
 import { ScoreManager } from './ScoreManager.js';
 import { EventBus } from './EventBus.js';
+import SuspectGenerator from './SuspectGenerator.js';
 
 const HQ_CITY = 'Mark Agency Headquarters';
 const HQ_ID = 'hq';
@@ -477,11 +478,12 @@ export function getDestinationPreviewData(locationsData) {
   });
 }
 
-export function setupNewGame(suspectsData, missionsData, locationsData) {
+export async function setupNewGame(suspectsData, missionsData, locationsData) {
   validateSetupData(suspectsData, missionsData, locationsData);
 
   clearSavedGame();
   resetGameState();
+  resetCaseOutcomeState();
 
   const scoreManager = getScoreManager();
   if (scoreManager && typeof scoreManager.startSession === 'function') {
@@ -489,10 +491,6 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   }
   gameState.score = 0;
 
-  gameState.finalArrestResult = null;
-  gameState.finalArrestSuspectId = null;
-  gameState.caseResolved = false;
-  gameState.caseFailed = false;
   gameState.crimeSceneVisited = false;
   gameState.storyPhoneCallTriggered = false;
   gameState.pendingPhoneCall = false;
@@ -565,6 +563,25 @@ export function setupNewGame(suspectsData, missionsData, locationsData) {
   gameState.travelHistory = [];
   gameState.lastTravel = null;
   gameState.lastTravelEncounter = null;
+
+  try {
+    const citysuspects = await fetch('/assets/data/citysuspects.json').then(r => r.json());
+    const generator = new SuspectGenerator(citysuspects);
+
+    const caseSuspectData = generator.generateCaseSuspects(
+      gameState.currentThief,
+      gameState.crimeCityId
+    );
+
+    gameState.caseSuspects = caseSuspectData.suspects;
+    gameState.identityEvidence = caseSuspectData.identity_evidence;
+    gameState.traceEvidence = caseSuspectData.trace_evidence;
+  } catch (err) {
+    console.error('[setupNewGame] Failed to generate suspect lineup:', err);
+    gameState.caseSuspects = [];
+    gameState.identityEvidence = null;
+    gameState.traceEvidence = [];
+  }
 
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);

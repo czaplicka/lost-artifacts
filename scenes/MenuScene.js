@@ -1,6 +1,6 @@
 import { setupNewGame } from '../gameSetup.js';
 import { gameState } from '../GameData.js';
-
+import { audioManager } from '../AudioManager.js';
 
 export class MenuScene extends Phaser.Scene {
     constructor() {
@@ -8,23 +8,14 @@ export class MenuScene extends Phaser.Scene {
     }
 
     create() {
+        audioManager.init(this);
+        audioManager.playMusic('themeMusic');
         this.scene.sleep('UIScene');
         const { width, height } = this.scale;
-        const music = this.registry.get('bgMusic');
 
         this.input.once('pointerdown', () => {
-            this.sound.unlock();
-
-            if (music && !music.isPlaying) {
-                if (!this.sound.locked) {
-                    music.play();
-                } else {
-                    this.sound.once('unlocked', () => {
-                        if (!music.isPlaying) {
-                            music.play();
-                        }
-                    });
-                }
+            if (this.sound.locked) {
+                this.sound.unlock();
             }
         });
 
