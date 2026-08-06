@@ -27,20 +27,20 @@ export class NewspaperLayout {
     }
   }
 
-  renderDaily(container, layout, cityData) {
-    const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '56px',
-      color: '#1e1a16',
-      align: 'center'
-    }, layout.title.originX, layout.title.originY);
+renderDaily(container, layout, cityData) {
+  const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
+    fontFamily: 'SpecialElite',
+    fontSize: '56px',
+    color: '#1e1a16',
+    align: 'left'    // lewy
+  }, layout.title.originX, layout.title.originY);
 
-    const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '24px',
-      color: '#4c433b',
-      align: 'center'
-    }, layout.subtitle.originX, layout.subtitle.originY);
+  const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
+    fontFamily: 'SpecialElite',
+    fontSize: '24px',
+    color: '#4c433b',
+    align: 'left'    // lewy
+  }, layout.subtitle.originX, layout.subtitle.originY);
 
     container.add([title, subtitle]);
 
@@ -106,20 +106,20 @@ export class NewspaperLayout {
     });
   }
 
-  renderTabloid(container, layout, cityData) {
-    const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '60px',
-      color: '#2a1313',
-      align: 'center'
-    }, layout.title.originX, layout.title.originY);
+renderTabloid(container, layout, cityData) {
+  const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
+    fontFamily: 'SpecialElite',
+    fontSize: '60px',
+    color: '#2a1313',
+    align: 'left'
+  }, layout.title.originX, layout.title.originY);
 
-    const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '24px',
-      color: '#5c4545',
-      align: 'center'
-    }, layout.subtitle.originX, layout.subtitle.originY);
+  const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
+    fontFamily: 'SpecialElite',
+    fontSize: '24px',
+    color: '#5c4545',
+    align: 'left'
+  }, layout.subtitle.originX, layout.subtitle.originY);
 
     container.add([title, subtitle]);
 

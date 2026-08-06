@@ -72,26 +72,26 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
     // mały, wycentrowany krok 1
     const stepIcon = this.add.image(width - 140, 64, 'step1')
       .setOrigin(0.5)
-      .setDisplaySize(350, 250)
+      .setDisplaySize(350, 190)
       .setDepth(11);
     this.stageObjects.push(stepIcon);
 
     // tacka do skrobania – mniejsza, na środku
-    this.board = this.add.image(centerX + 140 , centerY + 70, 'hair_board')
+    this.board = this.add.image(centerX + 200 , centerY + 80, 'hair_board')
       .setOrigin(0.5)
       .setDisplaySize(500, 220)
       .setDepth(1);
     this.stageObjects.push(this.board);
 
     // wzorcowy włos – początkowo prawie niewidoczny
-    this.strand = this.add.image(centerX + 100, centerY + 50, this.getHairStrandKey())
+    this.strand = this.add.image(centerX + 220, centerY + 80, this.getHairStrandKey())
       .setOrigin(0.5)
       .setScale(0.45) // włos w środku PNG, skala ~0.45 wystarcza
       .setAlpha(0.05)
       .setDepth(2);
     this.stageObjects.push(this.strand);
 
-    this.progress = this.add.text(centerX + 140, centerY + 140, 'Coverage: 0%', {
+    this.progress = this.add.text(centerX + 160, centerY + 150, 'Coverage: 0%', {
       fontFamily: 'PressStart2P',
       fontSize: '10px',
       color: 'rgb(255, 0, 0)'
@@ -99,7 +99,7 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
     this.stageObjects.push(this.progress);
 
     // brush – większy, w lewym dolnym rogu
-    this.brush = this.add.image(width * 0.20, height * 0.78, 'tool_brush')
+    this.brush = this.add.image(width * 0.20, height * 0.77, 'tool_brush')
       .setOrigin(0.5)
       .setDisplaySize(264, 264)
       .setDepth(3);
@@ -154,10 +154,10 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
       .setDepth(0);
     this.stageObjects.push(bg);
 
-    const stepIcon = this.add.image(width / 2, 60, 'step2')
+    const stepIcon = this.add.image(width - 140, 64, 'step2')
       .setOrigin(0.5)
-      .setDisplaySize(350, 250)
-      .setDepth(5);
+      .setDisplaySize(350, 190)
+      .setDepth(11);
     this.stageObjects.push(stepIcon);
 
     // tacka pod mikroskopem - po prawej na biurku
@@ -247,10 +247,10 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
       .setDepth(0);
     this.stageObjects.push(bg);
 
-    const stepIcon = this.add.image(width / 2, 60, 'step3')
+    const stepIcon = this.add.image(width - 140, 64, 'step3')
       .setOrigin(0.5)
-      .setDisplaySize(350, 250)
-      .setDepth(5);
+      .setDisplaySize(350, 190)
+      .setDepth(11);
     this.stageObjects.push(stepIcon);
 
     // wzorcowy włos – na środku u góry
@@ -273,7 +273,7 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
       // próbka włosa – wyraźna, ale nie gigantyczna
       const swatch = this.add.image(x, y - 30, this.getHairStrandKey(value))
         .setOrigin(0.5)
-        .setDisplaySize(350, 50)
+        .setDisplaySize(1400, 200)
         .setDepth(2);
       this.stageObjects.push(swatch);
 

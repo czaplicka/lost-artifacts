@@ -52,14 +52,14 @@ export const NewspaperLayoutConfig = {
     title: {
       x: 960,
       y: 64,
-      originX: 0.5,
+      originX: 0,
       originY: 0
     },
 
     subtitle: {
       x: 960,
       y: 122,
-      originX: 0.5,
+      originX: 0,
       originY: 0
     },
 

@@ -42,17 +42,20 @@ export class NewspaperOverlayScene extends Phaser.Scene {
     this.paper.setScale(0.94);
 
     this.paperBg = this.add.image(0, 0, this.backgroundKey || 'paper_placeholder_1920');
+
+    // lewy górny róg papieru
     this.contentLayer = this.add.container(-960, -540);
 
-this.closeBtn = this.add.text(920, -520, 'X', {
-  fontFamily: 'PressStart2P',
-  fontSize: '18px',
-  color: '#ffffff',
-  backgroundColor: '#111111',
-  padding: { x: 12, y: 10 }
-})
-  .setOrigin(1, 0) // prawy górny róg tekstu
-  .setInteractive({ useHandCursor: true });
+    // prawy górny róg papieru
+    this.closeBtn = this.add.text(940, -540 + 16, 'X', {
+      fontFamily: 'PressStart2P',
+      fontSize: '18px',
+      color: '#ffffff',
+      backgroundColor: '#111111',
+      padding: { x: 12, y: 10 }
+    })
+      .setOrigin(1, 0)
+      .setInteractive({ useHandCursor: true });
 
     this.closeBtn.on('pointerup', () => {
       if (!this.isAnimating) {

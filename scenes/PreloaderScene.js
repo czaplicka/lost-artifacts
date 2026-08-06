@@ -154,14 +154,15 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('phonebook', 'assets/phonebook.jpg');
 
         this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
-  this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
-  this.load.image('paper_time_bg', 'assets/newspapers/paper_time_bg_1920x1080.png');
-  this.load.image('comix1', 'assets/newspapers/comix1.png');
-  this.load.image('comix2', 'assets/newspapers/comix2.png');
-  this.load.image('newsstand_bg', 'assets/local/newsstand.jpg');
-  this.load.image('paper_fallback_blank', 'assets/newspapers/paper_daily_bg_1920x1080.png');
-  this.load.image('paper_hq_crimewave_photo', 'assets/newspapers/paper_hq_crimewave_photo.jpg');
-  this.load.image('paper_warsaw_vending_photo', 'assets/newspapers/paper_warsaw_vending_photo.jpg');
+        this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
+        this.load.image('paper_time_bg', 'assets/newspapers/paper_time_bg_1920x1080.png');
+        this.load.image('comix1', 'assets/newspapers/comix1.png');
+        this.load.image('comix2', 'assets/newspapers/comix2.png');
+        this.load.image('newsstand_bg', 'assets/local/newsstand.jpg');
+        this.load.image('paper_fallback_blank', 'assets/newspapers/paper_daily_bg_1920x1080.png');
+        this.load.image('paper_hq_crimewave_photo', 'assets/newspapers/paper_hq_crimewave_photo.jpg');
+        this.load.image('paper_warsaw_vending_photo', 'assets/newspapers/paper_warsaw_vending_photo.jpg');
+        this.load.image('paper_berlin_statue_photo', 'assets/newspapers/paper_berlin_statue_photo.jpg');
 
         this.load.image('unknown', 'assets/suspects/unknown.jpg');
         this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
@@ -235,7 +236,7 @@ export class PreloaderScene extends Phaser.Scene {
 
         this.load.image('evidence_bag', 'assets/csi/evidence_bag.png');
         this.load.image('hair_board', 'assets/csi/hair_board.png');
-        this.load.image('hair_strand_blonde', 'assets/csi/hair_strand_blonde.png');
+        this.load.image('hair_strand_blond', 'assets/csi/hair_strand_blond.png');
         this.load.image('hair_strand_black', 'assets/csi/hair_strand_black.png');
         this.load.image('hair_strand_red', 'assets/csi/hair_strand_red.png');
         this.load.image('hair_strand_brown', 'assets/csi/hair_strand_brown.png');
