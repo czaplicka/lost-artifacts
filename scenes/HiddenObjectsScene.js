@@ -126,8 +126,6 @@ export default class HiddenObjectsScene extends Phaser.Scene {
       gameState.crimeBoardData.visitedCrimeScenes = [];
     }
 
-    // NOWE: tablica przechowująca fizyczne przedmioty znalezione na scenach hidden-object,
-    // wykorzystywana przez CrimeBoardInit.js do budowania kart evidence.
     if (!Array.isArray(gameState.crimeBoardData.sceneFoundObjects)) {
       gameState.crimeBoardData.sceneFoundObjects = [];
     }
@@ -195,7 +193,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     audioManager.init(this);
     this.cameras.main.setBackgroundColor('#0f0f12');
     this.forceResetCursor();
-
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     if (this.isQuestAlreadyDone()) {
       this.restoreSourceScene();
       this.scene.start(this.returnScene, {

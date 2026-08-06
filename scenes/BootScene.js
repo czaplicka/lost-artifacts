@@ -1,6 +1,5 @@
 import { loadGameState } from '../GameData.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
-import { audioManager } from '../AudioManager.js';
 
 export class BootScene extends Phaser.Scene {
     constructor() {
@@ -13,7 +12,6 @@ export class BootScene extends Phaser.Scene {
     }
 
     create() {
-        audioManager.init(this);
         this.scene.sleep('UIScene');
         try {
             loadGameState();

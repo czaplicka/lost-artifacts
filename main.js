@@ -21,7 +21,11 @@ import TheoryResultCallScene from './scenes/TheoryResultCallScene.js';
 import { WantedDatabaseScene } from './scenes/WantedDatabaseScene.js';
 import { RecoveredArtifactsScene } from './scenes/RecoveredArtifactsScene.js';
 import { CrimeLabScene } from './scenes/CSI/CrimeLabScene.js';
-import UniversalForensicMinigame from './scenes/CSI/UniversalForensicMinigame.js';
+import { NewsstandScene } from './scenes/NewsstandScene.js';
+import { NewspaperOverlayScene } from './scenes/NewspaperOverlayScene.js';
+import { NewsHud } from './ui/NewsHud.js';
+import HairAnalysisScene from './scenes/csi/HairAnalysisScene.js';
+import { EnterScene } from './scenes/EnterScene.js';
 
 const config = {
     type: Phaser.AUTO,
@@ -53,7 +57,11 @@ const config = {
         WantedDatabaseScene,
         RecoveredArtifactsScene,
         CrimeLabScene,
-        UniversalForensicMinigame
+NewsstandScene,
+NewspaperOverlayScene,
+NewsHud,
+HairAnalysisScene,
+EnterScene
     ],
     dom: {
         createContainer: true

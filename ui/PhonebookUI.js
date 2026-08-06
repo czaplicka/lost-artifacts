@@ -22,14 +22,11 @@ export class PhonebookUI {
             { name: 'SGT. WATSON', number: '555-0233', key: 'watson', available: true }
         ];
 
-        this.entryTexts = [];
-        this.entryNumbers = [];
-        this.entryRows = [];
-
+        this.entryPairs = [];
         this.statusText = null;
 
         this.dialSound = null;
-        this.ringSound = null;
+        this.ringingSound = null;
         this.pickupSound = null;
         this.busySound = null;
 
@@ -89,13 +86,25 @@ export class PhonebookUI {
             .setScale(1.0)
             .setInteractive();
 
-        this.closeHint = this.scene.add.text(670, -445, 'X', {
-            fontFamily: 'PressStart2P',
-            fontSize: '50px',
-            color: '#22222200'
-        }).setInteractive({ useHandCursor: true });
+        this.closeBtnBg = this.scene.add.rectangle(660, -440, 56, 56, 0x8a1f1f, 0.9)
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
 
-        this.closeHint.on('pointerdown', (pointer, localX, localY, event) => {
+        this.closeHint = this.scene.add.text(660, -440, 'X', {
+            fontFamily: 'PressStart2P',
+            fontSize: '28px',
+            color: '#e0ff8c'
+        }).setOrigin(0.5);
+
+        this.closeBtnBg.on('pointerover', () => {
+            this.closeBtnBg.setFillStyle(0xb02828, 1);
+        });
+
+        this.closeBtnBg.on('pointerout', () => {
+            this.closeBtnBg.setFillStyle(0x8a1f1f, 0.9);
+        });
+
+        this.closeBtnBg.on('pointerdown', (pointer, localX, localY, event) => {
             if (event) event.stopPropagation();
             this.close();
         });
@@ -116,6 +125,7 @@ export class PhonebookUI {
 
         this.container = this.scene.add.container(width / 2, height / 2, [
             this.bookBg,
+            this.closeBtnBg,
             this.closeHint,
             this.titleText,
             this.listGroup,
@@ -152,70 +162,80 @@ export class PhonebookUI {
     }
 
     rebuildList() {
-        this.entryTexts.forEach(t => t.destroy());
-        this.entryNumbers.forEach(t => t.destroy());
-        this.entryRows.forEach(r => r.destroy());
+        this.entryPairs.forEach(pair => {
+            pair.nameText.destroy();
+            pair.numberText.destroy();
+            pair.separator.destroy();
+        });
 
-        this.entryTexts = [];
-        this.entryNumbers = [];
-        this.entryRows = [];
+        this.entryPairs = [];
 
         const contacts = this.getContacts();
-        const startY = -260;   // ← lekko wyżej, żeby lista miała więcej miejsca
-        const rowHeight = 62;  // ← było 100, teraz 62 (mniejsze odstępy)
+        const startY = -260;
+        const rowHeight = 62;
 
         contacts.forEach((contact, index) => {
             const rowY = startY + index * rowHeight;
+            const baseColor = contact.available ? '#0400ff' : '#7a7a7a';
 
-            const nameText = this.scene.add.text(-380, rowY, contact.name, {
+            const nameText = this.scene.add.text(-330, rowY, contact.name, {
                 fontFamily: 'Special Elite',
-                fontSize: '22px',  // ← było 26px
-                color: contact.available ? '#0400ff' : '#7a7a7a'
-            }).setOrigin(0, 0.5);
-
-            const numberText = this.scene.add.text(180, rowY, contact.number, {
-                fontFamily: 'Special Elite',
-                fontSize: '22px',  // ← było 26px
-                color: contact.available ? '#0400ff' : '#7a7a7a'
+                fontSize: '22px',
+                color: baseColor
             }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
 
-            numberText.on('pointerover', () => {
+            const numberText = this.scene.add.text(100, rowY, contact.number, {
+                fontFamily: 'Special Elite',
+                fontSize: '22px',
+                color: baseColor
+            }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
+
+            const separator = this.scene.add.rectangle(-330, rowY + rowHeight / 2 - 10, 660, 1, 0x3a2a1a, 0.4)
+                .setOrigin(0, 0.5);
+
+            const pair = { nameText, numberText, separator, contact };
+
+            const applyHover = () => {
                 if (!this.isCalling) {
+                    nameText.setColor('#8a1f1f');
                     numberText.setColor('#8a1f1f');
                 }
-            });
+            };
 
-            numberText.on('pointerout', () => {
+            const removeHover = () => {
                 if (!this.isCalling) {
-                    numberText.setColor(contact.available ? '#0400ff' : '#7a7a7a');
+                    nameText.setColor(baseColor);
+                    numberText.setColor(baseColor);
                 }
-            });
+            };
 
-            numberText.on('pointerdown', (pointer, localX, localY, event) => {
+            const onDial = (pointer, localX, localY, event) => {
                 if (event) event.stopPropagation();
-                this.dialContact(contact, numberText);
+                this.dialContact(contact, pair);
+            };
+
+            [nameText, numberText].forEach(txt => {
+                txt.on('pointerover', applyHover);
+                txt.on('pointerout', removeHover);
+                txt.on('pointerdown', onDial);
             });
 
-            const separator = this.scene.add.rectangle(-380, rowY + rowHeight / 2 - 10, 760, 1, 0x3a2a1a, 0.4)
-                .setOrigin(0, 0.5);
-            //                                                      ↑ grubość linii z 2 na 1px, offset z -18 na -10
-
-            this.entryTexts.push(nameText);
-            this.entryNumbers.push(numberText);
-            this.entryRows.push(separator);
-
+            this.entryPairs.push(pair);
             this.listGroup.add([nameText, numberText, separator]);
         });
     }
 
-    dialContact(contact, numberText) {
+    dialContact(contact, pair) {
         if (this.isCalling) return;
 
         this.isCalling = true;
-        this.entryNumbers.forEach(txt => txt.disableInteractive());
+        this.entryPairs.forEach(p => {
+            p.nameText.disableInteractive();
+            p.numberText.disableInteractive();
+        });
 
         this.scene.tweens.add({
-            targets: numberText,
+            targets: [pair.nameText, pair.numberText],
             scale: 1.15,
             duration: 90,
             yoyo: true,
@@ -223,16 +243,19 @@ export class PhonebookUI {
             ease: 'Sine.easeInOut'
         });
 
-        numberText.setColor('#8a1f1f');
+        pair.nameText.setColor('#8a1f1f');
+        pair.numberText.setColor('#8a1f1f');
         this.setStatus(`Dialing: ${contact.number}...`);
 
         this.playDialSequence(contact);
     }
 
     playDialSequence(contact) {
+        this.clearAudioRefs();
         this.dialSound = audioManager.playSfx('sfx_dial');
 
         const proceed = () => {
+            if (!this.isCalling) return;
             if (contact.available) {
                 this.startRinging(contact);
             } else {
@@ -242,50 +265,56 @@ export class PhonebookUI {
 
         if (this.dialSound) {
             this.dialSound.once('complete', proceed);
+            this.dialSound.once('stop', proceed);
         }
 
         this.scene.time.delayedCall(1200, () => {
-            if (this.isCalling && !this.ringSound && !this.busySound) {
+            if (this.isCalling && !this.ringingSound && !this.busySound) {
                 proceed();
             }
         });
     }
 
     startRinging(contact) {
+        if (!this.isCalling) return;
+
         this.setStatus('Connecting...');
-
-        this.ringSound = audioManager.playSfx('sfx_ring', { loop: true });
-
+        this.ringingSound = audioManager.playPersistentLoop('sfx_ringing');
         this.pulseStatus();
 
         this.scene.time.delayedCall(1800, () => {
-            this.connectCall(contact);
+            if (this.isCalling) {
+                this.connectCall(contact);
+            }
         });
     }
 
     startBusyOrNoAnswer(contact) {
+        if (!this.isCalling) return;
+
         const outcome = contact.key === 'police'
             ? 'no_answer'
             : (Math.random() < 0.5 ? 'busy' : 'no_answer');
 
-        this.busySound = audioManager.playSfx('sfx_busy', { loop: true });
+        this.busySound = audioManager.playPersistentLoop('sfx_busy');
 
         this.setStatus(outcome === 'busy' ? 'Line busy...' : 'No answer...');
         this.pulseStatus();
 
         this.scene.time.delayedCall(2200, () => {
-            this.abortCall(contact, outcome);
+            if (this.isCalling) {
+                this.abortCall(contact, outcome);
+            }
         });
     }
 
     abortCall(contact, outcome) {
-        audioManager.stopSfx('sfx_busy');
-        this.busySound = null;
+        this.stopCallAudio();
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(1);
 
-        const message = contact.key === 'police-station'
+        const message = contact.key === 'police'
             ? 'Police only respond once the city has been left.'
             : (outcome === 'busy' ? 'The line is busy. Try again later.' : 'No one is picking up.');
 
@@ -293,12 +322,25 @@ export class PhonebookUI {
 
         this.scene.time.delayedCall(1400, () => {
             this.isCalling = false;
-            this.entryNumbers.forEach(txt => txt.setInteractive({ useHandCursor: true }));
+            this.restoreEntryColors();
+            this.entryPairs.forEach(p => {
+                p.nameText.setInteractive({ useHandCursor: true });
+                p.numberText.setInteractive({ useHandCursor: true });
+            });
             this.clearStatus();
         });
     }
 
+    restoreEntryColors() {
+        this.entryPairs.forEach(pair => {
+            const color = pair.contact.available ? '#0400ff' : '#7a7a7a';
+            pair.nameText.setColor(color);
+            pair.numberText.setColor(color);
+        });
+    }
+
     pulseStatus() {
+        this.scene.tweens.killTweensOf(this.statusText);
         this.scene.tweens.add({
             targets: this.statusText,
             alpha: { from: 0.4, to: 1 },
@@ -310,25 +352,30 @@ export class PhonebookUI {
     }
 
     connectCall(contact) {
-        audioManager.stopSfx('sfx_ring');
-        this.ringSound = null;
+        this.stopLoopAudio();
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(1);
 
         this.pickupSound = audioManager.playSfx('sfx_pickup');
-
         this.setStatus(`Connected: ${contact.name}`);
 
         this.scene.time.delayedCall(600, () => {
-            this.finishCall(contact);
+            if (this.isCalling) {
+                this.finishCall(contact);
+            }
         });
     }
 
     finishCall(contact) {
         this.isCalling = false;
-        this.entryNumbers.forEach(txt => txt.setInteractive({ useHandCursor: true }));
+        this.restoreEntryColors();
+        this.entryPairs.forEach(p => {
+            p.nameText.setInteractive({ useHandCursor: true });
+            p.numberText.setInteractive({ useHandCursor: true });
+        });
         this.clearStatus();
+        this.clearAudioRefs();
 
         if (this.onCallCallback) {
             this.onCallCallback(contact.key, contact);
@@ -407,22 +454,18 @@ export class PhonebookUI {
         if (!this.isOpen) return;
 
         this.isOpen = false;
-
-        audioManager.stopSfx('sfx_dial');
-        audioManager.stopSfx('sfx_ring');
-        audioManager.stopSfx('sfx_busy');
-        audioManager.stopSfx('sfx_pickup');
-        this.dialSound = null;
-        this.ringSound = null;
-        this.busySound = null;
-        this.pickupSound = null;
+        this.stopCallAudio();
 
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(0);
         this.statusText.setText('');
 
         this.isCalling = false;
-        this.entryNumbers.forEach(txt => txt.setInteractive({ useHandCursor: true }));
+        this.restoreEntryColors();
+        this.entryPairs.forEach(p => {
+            p.nameText.setInteractive({ useHandCursor: true });
+            p.numberText.setInteractive({ useHandCursor: true });
+        });
 
         this.scene.tweens.add({
             targets: [this.overlay, this.container],
@@ -444,12 +487,46 @@ export class PhonebookUI {
         }
     }
 
+    stopLoopAudio() {
+        if (this.ringingSound) {
+            audioManager.stopSfx('sfx_ringing');
+            this.ringingSound = null;
+        }
+
+        if (this.busySound) {
+            audioManager.stopSfx('sfx_busy');
+            this.busySound = null;
+        }
+    }
+
+    stopCallAudio() {
+        audioManager.stopSfx('sfx_dial');
+        audioManager.stopSfx('sfx_ringing');
+        audioManager.stopSfx('sfx_busy');
+        audioManager.stopSfx('sfx_pickup');
+        this.clearAudioRefs();
+    }
+
+    clearAudioRefs() {
+        this.dialSound = null;
+        this.ringingSound = null;
+        this.pickupSound = null;
+        this.busySound = null;
+    }
+
     destroy() {
         this.close();
 
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-P', this.boundToggleHandler);
         }
+
+        this.entryPairs.forEach(pair => {
+            pair.nameText?.destroy();
+            pair.numberText?.destroy();
+            pair.separator?.destroy();
+        });
+        this.entryPairs = [];
 
         this.container?.destroy(true);
         this.overlay?.destroy();

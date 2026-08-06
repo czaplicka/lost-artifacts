@@ -9,11 +9,13 @@ export class SuccessScene extends Phaser.Scene {
     }
 
     create() {
-        audioManager.init(this);
-        audioManager.stopAllMusic();
-        audioManager.stopAllSfx();
-        audioManager.playSfx('successsound');
-
+audioManager.init(this);
+audioManager.stopAllMusic();
+audioManager.stopAllAmbient();
+audioManager.stopAllVoice();
+audioManager.stopAllSfx();
+audioManager.playSfx('successsound');
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
         this.scene.sleep('UIScene');
 
         this.scoreManager = new ScoreManager();
@@ -124,7 +126,8 @@ export class SuccessScene extends Phaser.Scene {
                 this.scene.start('MenuScene');
                 return;
             }
-
+audioManager.stopAllNonMusic();
+audioManager.stopAllMusic();
             this.scene.start('AgainScene');
         });
 

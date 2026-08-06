@@ -22,7 +22,7 @@
 
       this.container = this.scene.add.container(0, 0).setDepth(21).setVisible(false);
 
-      const bg = this.scene.add.image(width / 2, height / 2, 'notes').setScale(1.0).setInteractive();
+      const bg = this.scene.add.image(width / 2, height / 2, 'notes').setScale(1.0).setInteractive().setDisplaySize(1920, 1080);
       this.container.add(bg);
 
       const closeBtn = this.scene.add.text(width * 0.87, height * 0.03, 'X', {

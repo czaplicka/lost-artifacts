@@ -38,6 +38,7 @@ export class CityScene extends Phaser.Scene {
     this.isFinalShowdown = false;
     this.pendingPhoneCall = false;
     this.pendingPhoneCallCityId = null;
+    this.cityAmbient = null;
   }
 
   init(data = {}) {
@@ -70,9 +71,11 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
-audioManager.init(this);
-audioManager.playMusic('themeGame');
-audioManager.playPersistentLoop('citysound', { volume: 0.35 });
+    audioManager.init(this);
+    if (!audioManager.isMusicPlaying('themeGame')) {
+      audioManager.playMusic('themeGame', { loop: true });
+    }
+    this.cityAmbient = audioManager.playAmbient('citysound', { volume: 0.22, loop: true });
 
     if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
       this.scene.stop('LocationScene');
@@ -460,38 +463,39 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
   }
 
   getDialogueTargetCityId(progressFlags = null) {
+    const rm = gameState.routeManager;
     const flags = progressFlags || this.getCityProgressFlags();
 
-    if (!Array.isArray(gameState.escapeRoute) || gameState.escapeRoute.length === 0) {
-      return gameState.nextTargetCityId || null;
+    if (rm && typeof rm.getNextExpectedCity === 'function') {
+      return rm.getNextExpectedCity();
     }
 
-    if (flags.isCrimeCity) return gameState.escapeRoute[0] || null;
-
-    const currentIndex = gameState.escapeRoute.indexOf(this.cityId);
-    if (currentIndex !== -1) {
-      return gameState.escapeRoute[currentIndex + 1] || null;
-    }
+    if (flags.isCrimeCity) return gameState.crimeCityId || null;
 
     return gameState.nextTargetCityId || null;
   }
 
   getCityProgressFlags() {
     const cityId = this.cityId;
-    const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
+    const rm = gameState.routeManager;
+    const expectedCityId =
+      rm && typeof rm.getNextExpectedCity === 'function'
+        ? rm.getNextExpectedCity()
+        : gameState.nextTargetCityId || null;
+
     const isCrimeCity = Boolean(gameState.crimeCityId && cityId === gameState.crimeCityId);
-    const isNextTargetCity = Boolean(gameState.nextTargetCityId && cityId === gameState.nextTargetCityId);
-    const isJustReachedCorrectCity = Boolean(gameState.justReachedCorrectCityId && cityId === gameState.justReachedCorrectCityId);
-    const isOnEscapeRoute = route.includes(cityId);
-    const isCurrentVisitedRouteCity = Boolean(gameState.currentCityId === cityId && isOnEscapeRoute);
+    const isNextTargetCity = Boolean(expectedCityId && cityId === expectedCityId);
+    const isJustReachedCorrectCity = Boolean(
+      gameState.justReachedCorrectCityId && cityId === gameState.justReachedCorrectCityId
+    );
 
     return {
       isCrimeCity,
       isNextTargetCity,
       isJustReachedCorrectCity,
-      isOnEscapeRoute,
-      isCurrentVisitedRouteCity,
-      isCorrectCity: isCrimeCity || isCurrentVisitedRouteCity || isJustReachedCorrectCity
+      isOnEscapeRoute: false,
+      isCurrentVisitedRouteCity: false,
+      isCorrectCity: isCrimeCity || isNextTargetCity || isJustReachedCorrectCity
     };
   }
 
@@ -594,8 +598,15 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
     this.interactiveObjects = [];
 
-    const citySound = this.registry.get('citySound');
-    if (citySound?.isPlaying) citySound.stop();
+    if (this.cityAmbient) {
+      try {
+        if (this.cityAmbient.isPlaying) this.cityAmbient.stop();
+        if (!this.cityAmbient.pendingRemove) this.cityAmbient.destroy();
+      } catch (e) {
+        console.warn('[CityScene] city ambient cleanup failed:', e);
+      }
+      this.cityAmbient = null;
+    }
 
     if (this.scene.isActive('ArrestSelectionScene')) this.scene.stop('ArrestSelectionScene');
     if (this.scene.isActive('PhoneCallScene')) this.scene.stop('PhoneCallScene');

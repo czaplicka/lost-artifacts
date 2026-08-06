@@ -77,9 +77,7 @@ function normalizeCityId(cityIdOrName) {
 
   if (map[raw]) return map[raw];
 
-  return raw
-    .toLowerCase()
-    .replace(/\s+/g, '_');
+  return raw.toLowerCase().replace(/\s+/g, '_');
 }
 
 function getSharedCityTravelHints(sharedCityClues, targetCityId) {
@@ -238,15 +236,10 @@ function buildStageAwareBanter(variant, { isCrimeCity = false, isNextTargetCity 
   const selected = pickRandom(pool);
 
   if (selected) return selected;
-
-  if (isCrimeCity) {
-    return 'This city still smells like panic and expensive lies.';
-  }
-
+  if (isCrimeCity) return 'This city still smells like panic and expensive lies.';
   if (isNextTargetCity) {
     return 'You are close enough now that people have started remembering details they hoped to forget.';
   }
-
   return 'I run on coffee, suspicion, and professionally managed disappointment.';
 }
 
@@ -497,7 +490,10 @@ export function buildNpcDialogue({
   }
 
   const activeTravelCityId =
-    canonicalTravelCityId || targetCityId || null;
+    canonicalTravelCityId ||
+    targetCityId ||
+    gameState.nextTargetCityId ||
+    null;
 
   const safeTargetCityId =
     activeTravelCityId &&

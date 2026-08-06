@@ -8,6 +8,7 @@ export class PhoneCallScene extends Phaser.Scene {
     this.ui = [];
     this.ringTweens = [];
     this.isAnswered = false;
+    this.isEnding = false;
   }
 
   init(data = {}) {
@@ -16,6 +17,7 @@ export class PhoneCallScene extends Phaser.Scene {
     this.ui = [];
     this.ringTweens = [];
     this.isAnswered = false;
+    this.isEnding = false;
   }
 
   create() {
@@ -122,9 +124,23 @@ export class PhoneCallScene extends Phaser.Scene {
     this.ringTweens.push(ringTween1, ringTween2);
 
     const stopRinging = () => {
-      this.ringTweens.forEach(t => t?.remove?.());
+      this.ringTweens.forEach(t => {
+        if (t && t.isPlaying()) t.stop();
+        if (t) t.remove();
+      });
       this.ringTweens = [];
-      if (overlay) overlay.disableInteractive();
+
+      [overlay, phoneBody, phoneInnerFrame, speaker, screenBg, screenBorder, signalText, batteryText, title, phoneIcon, caller, ringing, answerBtn, laterBtn, ...keypadGroup].forEach(obj => {
+        if (obj?.disableInteractive) obj.disableInteractive();
+      });
+    };
+
+    const closeScene = () => {
+      if (this.isEnding) return;
+      this.isEnding = true;
+      stopRinging();
+      saveGameState();
+      this.scene.stop();
     };
 
     answerBtn.on('pointerover', () => answerBtn.setStyle({ color: '#9bbc0f', backgroundColor: '#0f380f' }));
@@ -134,7 +150,7 @@ export class PhoneCallScene extends Phaser.Scene {
     laterBtn.on('pointerout', () => laterBtn.setStyle({ color: '#0f380f', backgroundColor: '#9bbc0f' }));
 
     answerBtn.on('pointerdown', () => {
-      if (this.isAnswered) return;
+      if (this.isAnswered || this.isEnding) return;
       this.isAnswered = true;
 
       stopRinging();
@@ -148,9 +164,8 @@ export class PhoneCallScene extends Phaser.Scene {
     });
 
     laterBtn.on('pointerdown', () => {
-      saveGameState();
-      stopRinging();
-      this.scene.stop();
+      if (this.isEnding) return;
+      closeScene();
     });
 
     this.ui.push(
@@ -195,19 +210,19 @@ export class PhoneCallScene extends Phaser.Scene {
   }
 
   onShutdown() {
-    this.ringTweens.forEach(t => t?.remove?.());
+    this.ringTweens.forEach(t => {
+      if (t && t.isPlaying()) t.stop();
+      if (t) t.remove();
+    });
     this.ringTweens = [];
 
     this.ui.forEach(item => {
-      if (item?.removeAllListeners) {
-        item.removeAllListeners();
-      }
-      if (item?.destroy) {
-        item.destroy();
-      }
+      if (item?.removeAllListeners) item.removeAllListeners();
+      if (item?.destroy) item.destroy();
     });
 
     this.ui = [];
     this.isAnswered = false;
+    this.isEnding = false;
   }
 }

@@ -1,5 +1,6 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
+import { audioManager } from '../AudioManager.js';
 import {
   getRandomSuspectLineup,
   isCorrectSuspectChoice,
@@ -59,6 +60,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
     audioManager.stopSfx();
     audioManager.stopAllMusic();
     this.scene.sleep('UIScene');
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     ensureHud(this);
     this.closeAllUIPanels();
 

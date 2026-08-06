@@ -1,0 +1,54 @@
+{
+  "title": "Time",
+  "format": "cover_lines_only",
+  "cities": {
+    "warsaw": {
+      "coverLines": [
+        "The Man Who Repaired a Toaster and Became a Neighborhood Legend",
+        "Why Everyone Suddenly Trusts One Specific Tram Driver",
+        "Inside the Great Office Fern Boom",
+        "The Quiet Rise of Competitive Balcony Watching"
+      ]
+    },
+    "berlin": {
+      "coverLines": [
+        "The DJ, the Baker, and the Coat That Defined a Season",
+        "Why Half the City Now Dresses Like a Sleep-Deprived Architect",
+        "Can a Café Chair Become a Personality?",
+        "The Strange Prestige of Looking Mildly Unavailable"
+      ]
+    },
+    "paris": {
+      "coverLines": [
+        "How One Haircut Started Three Friendships and Ended Two",
+        "The Return of Public Sighing as Social Strategy",
+        "A Small Dog, a Large Scandal, and Perfect Table Manners",
+        "Why Everyone Is Suddenly Carrying Books They Have Not Read"
+      ]
+    },
+    "london": {
+      "coverLines": [
+        "Tea, Delay, Dignity: The New Rules of Everyday Survival",
+        "When a Queue Becomes a Moral Achievement",
+        "The Secret Power of Owning the Right Umbrella",
+        "Why Mild Disappointment Never Goes Out of Style"
+      ]
+    },
+    "new_delhi": {
+      "coverLines": [
+        "The Auntie Economy: Who Really Runs the Guest List",
+        "How One Party Snack Took Over the City",
+        "The Monkey, the Sunglasses, and a Lesson in Public Confidence",
+        "Why Everyone Has an Opinion Before Breakfast"
+      ]
+    },
+    "new_york_city": {
+      "coverLines": [
+        "The Subway Prophet Everyone Pretended Not to Hear",
+        "How a Deli Sandwich Became a Personal Brand",
+        "The New Art of Looking Busy While Doing Nothing",
+        "Why This City Still Trusts the Loudest Person in the Room"
+      ]
+    }
+  }
+}

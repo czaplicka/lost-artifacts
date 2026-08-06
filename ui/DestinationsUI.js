@@ -2,7 +2,6 @@ import { gameState, saveGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import {
     travelToCity as performTravel,
-    completeCityInvestigation,
     getTravelData
 } from '../gameSetup.js';
 
@@ -119,7 +118,7 @@ export class DestinationsUI {
             .setInteractive({ useHandCursor: true });
 
         this.confirmLabel = this.scene.add.text(160, 178, 'Go by plane', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#ffffff'
         }).setOrigin(0.5);
@@ -193,18 +192,18 @@ export class DestinationsUI {
         }
     }
 
-    shouldAdvanceOnDeparture() {
-        const currentCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
-        const targetCityId = this.gameState?.nextTargetCityId || gameState.nextTargetCityId || null;
-        const justReachedCorrectCityId =
-            this.gameState?.justReachedCorrectCityId ||
-            gameState.justReachedCorrectCityId ||
-            null;
+shouldAdvanceOnDeparture() {
+  const currentCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
+  const targetCityId = this.gameState?.nextTargetCityId || gameState.nextTargetCityId || null;
+  const rm = this.gameState?.routeManager || gameState.routeManager || null;
 
-        if (!currentCityId) return false;
+  const expectedCityId =
+    rm && typeof rm.getNextExpectedCity === 'function'
+      ? rm.getNextExpectedCity()
+      : targetCityId;
 
-        return currentCityId === targetCityId || currentCityId === justReachedCorrectCityId;
-    }
+  return Boolean(currentCityId && expectedCityId && currentCityId === expectedCityId);
+}
 
     normalizeCityId(city) {
         if (!city) return null;
@@ -502,7 +501,7 @@ export class DestinationsUI {
         }
     }
 
-    travelToCity(selectedCity) {
+ travelToCity(selectedCity) {
     if (this.isTransitioning || !selectedCity) return;
 
     this.isTransitioning = true;
@@ -521,22 +520,6 @@ export class DestinationsUI {
     }
 
     try {
-        const shouldAdvanceBeforeDeparture = this.shouldAdvanceOnDeparture();
-        let completionResult = null;
-
-        if (shouldAdvanceBeforeDeparture) {
-            completionResult = completeCityInvestigation(locationsData);
-
-            console.log('[DestinationsUI.travelToCity] completionResult:', completionResult);
-
-            if (!completionResult?.success) {
-                console.error('Nie udało się domknąć śledztwa w mieście:', completionResult);
-                this.isTransitioning = false;
-                this.setConfirmEnabled(true);
-                return;
-            }
-        }
-
         const result = performTravel(selectedCityData.city, locationsData);
 
         console.log('[DestinationsUI.travelToCity] result:', result);
@@ -548,10 +531,7 @@ export class DestinationsUI {
             return;
         }
 
-        const finalStatus =
-            completionResult?.status === 'FINAL_SHOWDOWN'
-                ? 'FINAL_SHOWDOWN'
-                : result.status;
+        const finalStatus = result.status;
 
         EventBus.emit('advanceTime', result.travelHours || 0, 0);
         saveGameState();
@@ -573,10 +553,8 @@ export class DestinationsUI {
 
         console.log('[DestinationsUI.travelToCity] transitionPayload:', transitionPayload);
 
-        // ✅ Zachowaj referencję do sceneManager PRZED jakimkolwiek destroy/close
         const sceneManager = this.scene.scene;
 
-        // ✅ Właściwa kolejność: cleanup → close → stop scen → start nowej
         this.cleanupBeforeTravel();
         this.close();
 

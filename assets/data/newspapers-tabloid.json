@@ -1,0 +1,207 @@
+{
+  "layout": {
+    "type": "tabloid",
+    "backgroundKey": "paper_tabloid_bg_1920x1080"
+  },
+  "cities": {
+    "warsaw": {
+      "title": "Velvet Whispers",
+      "subtitle": "Warsaw Style & Society",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "TV Host's New Scarf Has More Fans Than Her Show",
+          "lead": "When a scarf steals the spotlight, the ratings follow.",
+          "body": "A local morning television presenter has accidentally launched the season's hottest accessory after wearing an oversized lilac scarf on air three days in a row. Boutique owners report customers are now requesting 'the exact dramatic scarf energy' rather than a specific product.",
+          "imageKey": "tabloid_warsaw_scarf_photo",
+          "imageCaption": "The scarf responsible for a surprising spike in public enthusiasm."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Mysterious Pianist Seen at Four Cafés in One Afternoon",
+          "body": "Society pages are buzzing over a sharply dressed pianist who was reportedly spotted looking emotional in four different Warsaw cafés before sunset. No one knows his name, his album, or whether he has an album, but several people agree he has 'excellent profile angles.'",
+          "imageKey": null
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Hair Salon Owner Declares Beige 'Emotionally Over' for the Season",
+          "body": "One of the city's best-known salon owners has ignited polite chaos after announcing that beige is 'finished spiritually' and replacing it with what she calls 'serious apricot.' Clients remain confused but curious.",
+          "imageKey": "tabloid_warsaw_salon_photo",
+          "imageCaption": "The salon where colors now have feelings."
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "Inside the City’s Quiet Obsession With One Perfect Coat",
+          "body": "Somewhere between tram stops and late-night cafés, one coat has quietly become the unofficial symbol of ambition. People claim it looks good in every kind of lighting and every kind of conversation.",
+          "imageKey": "tabloid_warsaw_feature_photo",
+          "imageCaption": "The coat seen at openings, closings and everything in between."
+        }
+      ]
+    },
+
+    "berlin": {
+      "title": "Pop & Protocol",
+      "subtitle": "Berlin Faces, Fashion & Fuss",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "DJ Denies Feud With Conceptual Florist, Then Arrives Wearing Matching Tulips",
+          "lead": "Two creative visions, one party, and more petals than anybody planned for.",
+          "body": "Rumors of tension between a nightclub DJ and a famously intense florist have only grown after both appeared at the same launch party dressed in what witnesses called 'accidentally coordinated hostility.' Representatives for both camps insist everyone is 'deeply relaxed.'",
+          "imageKey": "tabloid_berlin_dj_florist_photo",
+          "imageCaption": "The unexpectedly synchronized entrance heard round the room."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Gallery Assistant Becomes Style Icon After Repeating Same Coat for Six Weeks",
+          "body": "Berlin's fashion crowd is suddenly obsessed with a gallery assistant whose long charcoal coat has appeared at every opening, screening, and moody cigarette break in recent memory. Admirers describe the look as 'disciplined, unknowable, and probably unavailable in stores.'",
+          "imageKey": "tabloid_berlin_coat_photo"
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Local Actress Admits She Started a Trend by Losing Her Sunglasses Indoors",
+          "body": "After weeks of speculation, an up-and-coming actress has confirmed that the city's current obsession with wearing sunglasses inside cafés began because she misplaced hers in her own hair and chose confidence over explanation.",
+          "imageKey": "tabloid_berlin_sunglasses_photo"
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "Why Berlin Now Applauds Accidental Coordination",
+          "body": "From matching coats at train stations to synchronized scarves at premieres, the city has quietly decided that coincidence is now a valid fashion strategy.",
+          "imageKey": "tabloid_berlin_feature_photo"
+        }
+      ]
+    },
+
+    "paris": {
+      "title": "Chérie! Chérie!",
+      "subtitle": "Paris People, Glamour & Gentle Scandal",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "Perfumer's Ex Says He Can Still Recognize Her Mood by Scent Alone",
+          "lead": "Three rooms away, one nose and an arguably excessive amount of romance.",
+          "body": "A well-known perfumer's former partner has raised eyebrows after claiming he can identify her emotional state from three rooms away. Friends call the remark 'intense, but very on-brand for Paris.'",
+          "imageKey": "tabloid_paris_perfume_photo",
+          "imageCaption": "The laboratory of feelings and fragrance."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Former Model's Tiny Dog Now Has Better Invitations Than Most Writers",
+          "body": "A pearl-collared miniature dog belonging to a retired fashion model has reportedly appeared at more private dinners than several established columnists this month. Sources say the dog is 'gracious, punctual, and impossible to ignore.'",
+          "imageKey": "tabloid_paris_dog_photo"
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Cafe Owner's New Fringe Triggers Three Think Pieces and One Breakup",
+          "body": "A Left Bank café owner has become the center of unexpected attention after debuting a dramatically short fringe that one admirer called 'a manifesto' and another called 'a cry for help.'",
+          "imageKey": "tabloid_paris_fringe_photo"
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "The City Where Hairstyles Start Conversations and End Relationships",
+          "body": "From bangs to beards, Parisians continue to treat hair decisions like political declarations, with results ranging from charming to catastrophic.",
+          "imageKey": "tabloid_paris_feature_photo"
+        }
+      ]
+    },
+
+    "london": {
+      "title": "Rose & Rumour",
+      "subtitle": "London Personalities and Polite Drama",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "Television Gardener Accused of Flirting With Entire Farmers' Market",
+          "lead": "Compliments on cucumbers lead to questions about boundaries.",
+          "body": "A beloved television gardening expert has become the subject of amused speculation after being seen complimenting peaches, aprons, and at least one wheel of cheese with equal intensity. Friends insist he is simply 'enthusiastic by nature.'",
+          "imageKey": "tabloid_london_gardener_photo",
+          "imageCaption": "The market where everything feels slightly praised."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Socialite's Hat Arrives at Charity Lunch Before She Does",
+          "body": "Guests at a charity luncheon were briefly startled when a towering floral hat entered the room a full ten seconds before its wearer. Observers say the entrance was unforgettable, though technically divided into parts.",
+          "imageKey": "tabloid_london_hat_photo"
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Former Pop Star Declares Bathrobes the Future of Formalwear",
+          "body": "A singer best known for one improbably catchy summer anthem has reentered public conversation after arriving at a townhouse dinner in what she described as 'an evening robe with ambition.' Reactions have ranged from admiration to structured concern.",
+          "imageKey": "tabloid_london_bathrobe_photo"
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "London Discovers Comfort and Glamour Can Occasionally Be Friends",
+          "body": "Between tailored suits and slippers with opinions, the city is slowly negotiating a truce between elegance and staying warm.",
+          "imageKey": "tabloid_london_feature_photo"
+        }
+      ]
+    },
+
+    "new_delhi": {
+      "title": "StarSutra",
+      "subtitle": "New Delhi Glam, Family, and Fabulous Nonsense",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "Business Heir's Engagement Horse Gets More Coverage Than the Couple",
+          "lead": "Embroidered velvet, confident posture and a photo spread of its own.",
+          "body": "Society watchers are still discussing the white horse that appeared at a high-profile engagement celebration wearing embroidered velvet and what many considered a superior expression of confidence. The couple remain happy but visually outperformed.",
+          "imageKey": "tabloid_new_delhi_horse_photo",
+          "imageCaption": "The guest who stole the spotlight without saying a word."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Beloved Auntie Becomes Lifestyle Authority After One Perfect Party Snack",
+          "body": "A South Delhi hostess has become an unlikely trendsetter after serving a snack so memorable that guests have begun copying her table settings, bangles, and manner of raising one eyebrow at underdressed visitors.",
+          "imageKey": "tabloid_new_delhi_auntie_photo"
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Actor's Mother Reportedly Reviews Every Potential Girlfriend Like a Film Critic",
+          "body": "Insiders claim the famously involved mother of a rising screen star evaluates romantic prospects using terms such as 'promising first half' and 'weak ending.' The family has declined to comment, but several aunties nodded knowingly.",
+          "imageKey": "tabloid_new_delhi_mother_photo"
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "How Family Reviews Became the Most Important Part of Romance",
+          "body": "In some circles, a relationship is less about two people and more about the panel that discusses them afterwards.",
+          "imageKey": "tabloid_new_delhi_feature_photo"
+        }
+      ]
+    },
+
+    "new_york_city": {
+      "title": "Flash! Uptown",
+      "subtitle": "New York Faces, Fame and Mild Public Chaos",
+      "articles": [
+        {
+          "slotId": "hot_issue_left",
+          "headline": "Soap Star's Coffee Order Sparks Three-Day Debate in Tribeca",
+          "lead": "A latte with backstory, emotional range and far too many modifiers.",
+          "body": "A daytime television actor has become the unlikely center of downtown conversation after ordering what one witness described as 'a latte with backstory, emotional range, and at least six amendments.' Baristas remain divided between admiration and fatigue.",
+          "imageKey": "tabloid_new_york_coffee_photo",
+          "imageCaption": "The café where ordering became performance art."
+        },
+        {
+          "slotId": "hot_pick",
+          "headline": "Broadway Dresser Quietly Becomes City's Most Trusted Style Oracle",
+          "body": "Fashion insiders are flocking to a veteran Broadway dresser whose practical advice on hems, collars, and emergency glamour has earned cult status far beyond the theater district. Clients say she can judge a jacket in one glance and a person in two.",
+          "imageKey": "tabloid_new_york_dresser_photo"
+        },
+        {
+          "slotId": "red_carpet",
+          "headline": "Fitness Guru and Gossip Columnist Seen Sharing Fries, Entire City Confused",
+          "body": "Onlookers were stunned to spot a famously disciplined fitness personality eating late-night fries with a columnist best known for documenting other people's mistakes. Witnesses agree the chemistry was undeniable and the ketchup application surprisingly elegant.",
+          "imageKey": "tabloid_new_york_fries_photo"
+        },
+        {
+          "slotId": "feature_right",
+          "headline": "New York Learns That Reputation and Reality Occasionally Have Dinner Together",
+          "body": "When people known for very different things share a table, the city takes notes, and sometimes photos.",
+          "imageKey": "tabloid_new_york_feature_photo"
+        }
+      ]
+    }
+  }
+}

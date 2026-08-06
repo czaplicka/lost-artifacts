@@ -61,7 +61,7 @@ export class UISlider {
         this.knob.on('drag', (pointer, dragX) => {
             if (!this.enabled) return;
             this.knob.x = Phaser.Math.Clamp(dragX, this.x, this.x + this.width);
-            this.updateValue(false);
+            this.updateValue(true);
         });
 
         this.hitArea = scene.add.rectangle(
@@ -78,7 +78,7 @@ export class UISlider {
         this.hitArea.on('pointerdown', (pointer) => {
             if (!this.enabled) return;
             this.knob.x = Phaser.Math.Clamp(pointer.worldX, this.x, this.x + this.width);
-            this.updateValue(false);
+            this.updateValue(true);
         });
 
         this.draw();
@@ -89,8 +89,9 @@ export class UISlider {
         this.value = Phaser.Math.Clamp((this.knob.x - this.x) / this.width, 0, 1);
         this.draw();
         this.updateValueText();
-        if (callChange && this.onChange) this.onChange(this.value);
-        if (callChange && this.onChange) this.onChange(this.value);
+        if (callChange && typeof this.onChange === 'function') {
+            this.onChange(this.value);
+        }
     }
 
     updateValueText() {
@@ -110,28 +111,31 @@ export class UISlider {
     }
 
     setEnabled(enabled) {
-        this.enabled = enabled;
+        this.enabled = !!enabled;
 
-        const alpha = enabled ? 1 : 0.65;
+        const alpha = this.enabled ? 1 : 0.65;
         this.knob.setAlpha(alpha);
         this.track.setAlpha(alpha);
         this.labelText.setAlpha(alpha);
         this.valueText.setAlpha(alpha);
 
-        if (enabled) {
-            this.knob.input.enabled = true;
-            this.hitArea.input.enabled = true;
-        } else {
-            this.knob.input.enabled = false;
-            this.hitArea.input.enabled = false;
-        }
+        if (this.knob.input) this.knob.input.enabled = this.enabled;
+        if (this.hitArea.input) this.hitArea.input.enabled = this.enabled;
     }
 
-    setValue(value) {
+    setValue(value, silent = false) {
         this.value = Phaser.Math.Clamp(value, 0, 1);
         this.knob.x = this.x + this.value * this.width;
         this.draw();
         this.updateValueText();
+
+        if (!silent && typeof this.onChange === 'function') {
+            this.onChange(this.value);
+        }
+    }
+
+    getValue() {
+        return this.value;
     }
 
     destroy() {

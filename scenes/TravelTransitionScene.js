@@ -14,6 +14,7 @@ export class TravelTransitionScene extends Phaser.Scene {
     this.routeGraphics = null;
     this.routeTween = null;
     this.baseRoutePoints = null;
+    this._planeSfx = null;
   }
 
   init(data) {
@@ -25,13 +26,20 @@ export class TravelTransitionScene extends Phaser.Scene {
     this.routeGraphics = null;
     this.routeTween = null;
     this.baseRoutePoints = null;
+    this._planeSfx = null;
   }
 
   create() {
     this.scene.sleep('UIScene');
-audioManager.stopSfx();
-audioManager.stopAllMusic();
-audioManager.playSfx('plane', { volume: 0.5 });
+
+audioManager.init(this);
+audioManager.stopAllVoice();
+audioManager.stopAllSfx();
+if (!audioManager.isMusicPlaying('themeGame')) {
+  audioManager.playMusic('themeGame', { loop: true });
+}
+this._planeSfx = audioManager.playSfx('planesound', { volume: 0.5 });
+
     const { width, height } = this.scale;
     const camera = this.cameras.main;
 
@@ -135,7 +143,6 @@ audioManager.playSfx('plane', { volume: 0.5 });
 
     this.time.delayedCall(5000, () => {
       if (this.isLeaving || !this.continueHint) return;
-
       this.canContinue = true;
       this.continueHint.setText('Click to continue');
       this.continueHint.setColor('#f4e7c1');
@@ -186,51 +193,46 @@ audioManager.playSfx('plane', { volume: 0.5 });
     saveGameState();
   }
 
-leaveScene() {
-  if (this.isLeaving) return;
-  this.isLeaving = true;
+  leaveScene() {
+    if (this.isLeaving) return;
+    this.isLeaving = true;
 
-  const { status, cityId, toCityId } = this.transitionData;
-  const targetCityId = cityId || toCityId || null;
+    const { status, cityId, toCityId } = this.transitionData;
+    const targetCityId = cityId || toCityId || null;
 
-  const camera = this.cameras.main;
-  camera.fadeOut(450, 0, 0, 0);
+    const camera = this.cameras.main;
+    camera.fadeOut(450, 0, 0, 0);
 
-  camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-    if (!targetCityId) {
-      console.error('TravelTransitionScene: missing target city id', this.transitionData);
-      this.scene.start('MenuScene');
-      return;
-    }
+    camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      if (!targetCityId) {
+        console.error('TravelTransitionScene: missing target city id', this.transitionData);
+        this.scene.start('MenuScene');
+        return;
+      }
 
-    // ✅ FIX: jeśli to final showdown, idź prosto do aresztu
-    if (status === 'FINAL_SHOWDOWN') {
-      this.scene.start('ArrestSelectionScene', {
-        cityId: targetCityId
+      if (status === 'FINAL_SHOWDOWN') {
+        this.scene.start('ArrestSelectionScene', {
+          cityId: targetCityId
+        });
+        return;
+      }
+
+      this.scene.start('CityScene', {
+        cityId: targetCityId,
+        investigationStatus: status,
+        isFinalShowdown: false,
+        pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
+        pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || targetCityId
       });
-      return;
-    }
-
-    this.scene.start('CityScene', {
-      cityId: targetCityId,
-      investigationStatus: status,
-      isFinalShowdown: false,
-      pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
-      pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || targetCityId
     });
-  });
-}
+  }
 
   drawTravelLine(width, height) {
     const startX = width * 0.22;
     const endX = width * 0.78;
     const y = height * 0.62;
 
-    this.baseRoutePoints = {
-      startX,
-      endX,
-      y
-    };
+    this.baseRoutePoints = { startX, endX, y };
 
     const graphics = this.add.graphics();
     this.routeGraphics = graphics;
@@ -402,11 +404,9 @@ leaveScene() {
 
     const bags = bagData.map((bag, index) => {
       const container = this.add.container(width * 0.2 - index * 80, beltY - 4);
-
       const body = this.add.rectangle(0, 0, bag.w, bag.h, bag.color, 1)
         .setStrokeStyle(2, 0xe9d8c1, 0.25);
       const handle = this.add.rectangle(0, -bag.h * 0.55, bag.w * 0.35, 4, 0xd9c7a4, 0.9);
-
       container.add([body, handle]);
 
       this.tweens.add({
@@ -482,7 +482,6 @@ leaveScene() {
       g.lineTo(endX, y);
       g.strokePath();
 
-      const midX = (startX + endX) / 2;
       const cp1x = startX + (endX - startX) * 0.28;
       const cp2x = startX + (endX - startX) * 0.72;
       const curveY = y - routeState.bend;
@@ -502,34 +501,10 @@ leaveScene() {
         const t1 = (currentX - startX) / (endX - startX);
         const t2 = (nextX - startX) / (endX - startX);
 
-        const p1 = Phaser.Math.Interpolation.CubicBezier(
-          t1,
-          startX,
-          cp1x,
-          cp2x,
-          endX
-        );
-        const q1 = Phaser.Math.Interpolation.CubicBezier(
-          t1,
-          y,
-          curveY,
-          curveY,
-          y
-        );
-        const p2 = Phaser.Math.Interpolation.CubicBezier(
-          t2,
-          startX,
-          cp1x,
-          cp2x,
-          endX
-        );
-        const q2 = Phaser.Math.Interpolation.CubicBezier(
-          t2,
-          y,
-          curveY,
-          curveY,
-          y
-        );
+        const p1 = Phaser.Math.Interpolation.CubicBezier(t1, startX, cp1x, cp2x, endX);
+        const q1 = Phaser.Math.Interpolation.CubicBezier(t1, y, curveY, curveY, y);
+        const p2 = Phaser.Math.Interpolation.CubicBezier(t2, startX, cp1x, cp2x, endX);
+        const q2 = Phaser.Math.Interpolation.CubicBezier(t2, y, curveY, curveY, y);
 
         if (drawSegment) {
           g.beginPath();
@@ -590,6 +565,20 @@ leaveScene() {
 
     this.effectObjects = [];
     this.routeGraphics = null;
+
+    if (this._planeSfx) {
+      try {
+        if (this._planeSfx.isPlaying) {
+          this._planeSfx.stop();
+        }
+        if (!this._planeSfx.pendingRemove) {
+          this._planeSfx.destroy();
+        }
+      } catch (error) {
+        console.warn('[TravelTransitionScene.cleanupEffects] plane cleanup failed:', error);
+      }
+      this._planeSfx = null;
+    }
   }
 
   getDetailText({ baseTravelHours = 0, travelHours = 0, travelEncounter = null }) {

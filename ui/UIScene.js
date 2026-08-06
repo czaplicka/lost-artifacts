@@ -9,6 +9,7 @@ export default class UIScene extends Phaser.Scene {
     preload() {
         this.load.image('player', 'assets/player.png');
         this.load.image('cog', 'assets/cog.png');
+        this.load.image('profile', 'assets/profile.png');
     }
 
     create() {
@@ -125,10 +126,12 @@ export default class UIScene extends Phaser.Scene {
         const iconY = hudY + 172;
         const playerX = hudX + hudWidth - 85;
         const cogX = hudX + hudWidth - 35;
+        const profileX = hudX + hudWidth - 135;
 
         // Kółka tła pod ikony
         this.add.circle(playerX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
         this.add.circle(cogX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
+        this.add.circle(profileX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
 
         // Ikona gracza (Profil)
         this.playerButton = this.add.image(playerX, iconY, 'player')
@@ -155,6 +158,18 @@ export default class UIScene extends Phaser.Scene {
                 this.scene.launch('SettingsScene');
             }
             this.scene.bringToTop('SettingsScene');
+        });
+
+        // Ikona profile.png (Agent)
+        this.profileButton = this.add.image(profileX, iconY, 'profile')
+            .setOrigin(0.5)
+            .setDisplaySize(36, 36)
+            .setDepth(5)
+            .setInteractive({ useHandCursor: true });
+
+        // KLIKNIĘCIE W PROFILE: Wczytanie i wyświetlenie agent.html
+        this.profileButton.on('pointerdown', async () => {
+            await this.openAgentModal();
         });
 
         this.setClockHands(8, 0);
@@ -186,7 +201,7 @@ export default class UIScene extends Phaser.Scene {
                 document.body.appendChild(tempDiv.firstElementChild);
 
                 modalContainer = document.getElementById('profile-modal');
-                this.setupProfileEvents(modalContainer);
+                this.setupModalEvents(modalContainer, 'btn-close-profile');
             } catch (error) {
                 console.error('Błąd podczas ładowania profile.html:', error);
                 return;
@@ -198,9 +213,42 @@ export default class UIScene extends Phaser.Scene {
         }
     }
 
+    // --- METODA OBSŁUGUJĄCA OTWARCIE AGENTA ---
+async openAgentModal() {
+    let modalContainer = document.getElementById('agent-modal');
+
+    if (!modalContainer) {
+        try {
+            const response = await fetch('agent.html');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const htmlText = await response.text();
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            modalContainer = doc.getElementById('agent-modal');
+
+            if (modalContainer) {
+                document.body.appendChild(modalContainer);
+                this.setupModalEvents(modalContainer, 'btn-close-agent');
+            } else {
+                console.error('Brak elementu #agent-modal w pliku agent.html');
+                return;
+            }
+        } catch (error) {
+            console.error('Błąd wczytywania agent.html:', error);
+            return;
+        }
+    }
+
+    if (modalContainer) {
+        modalContainer.style.display = 'flex';
+    }
+}
+
     // Podpięcie eventów zamykania i akcji wewnątrz modala
-    setupProfileEvents(modalContainer) {
-        const closeBtn = document.getElementById('btn-close-profile');
+    setupModalEvents(modalContainer, closeBtnId) {
+        const closeBtn = document.getElementById(closeBtnId);
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 modalContainer.style.display = 'none';
@@ -208,7 +256,7 @@ export default class UIScene extends Phaser.Scene {
         }
 
         modalContainer.addEventListener('click', (e) => {
-            if (e.target.id === 'profile-modal') {
+            if (e.target.id === modalContainer.id) {
                 modalContainer.style.display = 'none';
             }
         });

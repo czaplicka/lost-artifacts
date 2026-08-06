@@ -1,6 +1,7 @@
 import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { setupNewGame } from '../gameSetup.js';
+import { audioManager } from '../AudioManager.js';
 
 export class AgainScene extends Phaser.Scene {
   constructor() {

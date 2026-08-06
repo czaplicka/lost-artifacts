@@ -1,4 +1,5 @@
 import { ScoreManager } from '../ScoreManager.js';
+import { audioManager } from '../AudioManager.js';
 
 export class HighscoreScene extends Phaser.Scene {
     constructor() {
@@ -20,13 +21,7 @@ export class HighscoreScene extends Phaser.Scene {
             this.add.image(width / 2, height / 2, 'backgroundpc')
                 .setDisplaySize(width, height);
         }
-
-        const music = this.registry.get('bgMusic');
-        this.input.once('pointerdown', () => {
-            if (music && !music.isPlaying) {
-                music.play();
-            }
-        });
+audioManager.init(this);
 
         const backBtn = this.add.image(width * 0.12, height * 0.86, 'back')
             .setInteractive({ useHandCursor: true })

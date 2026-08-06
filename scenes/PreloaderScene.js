@@ -1,4 +1,3 @@
-import MobileFullscreen from '../mobileFullscreen.js';
 import { audioManager } from '../AudioManager.js';
 
 export class PreloaderScene extends Phaser.Scene {
@@ -9,6 +8,9 @@ export class PreloaderScene extends Phaser.Scene {
         this.tipTimer = null;
         this.dotsTimer = null;
         this.loadingReady = false;
+        this.uiReady = false;
+        this.audioArmed = false;
+        this.startBtn = null;
     }
 
     preload() {
@@ -32,11 +34,13 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
+        this.load.image('enter', 'assets/local/enter.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
         this.load.image('backgrounds', 'assets/success.jpg');
         this.load.image('backgroundpc', 'assets/hiscores.png');
         this.load.image('backgroundhi', 'assets/local/office.jpg');
         this.load.image('backgroundoff', 'assets/local/biuro.jpg');
+        this.load.image('dossier', 'assets/dossier.png');
         this.load.image('bank', 'assets/local/bank.jpg');
         this.load.image('alley', 'assets/local/alley.jpg');
         this.load.image('airport', 'assets/local/airport.jpg');
@@ -106,6 +110,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('btnExit', 'assets/exit.png');
         this.load.image('btnSettings', 'assets/settings.png');
         this.load.image('btnHiscore', 'assets/hiscore.png');
+        this.load.image('loginbtn', 'assets/login.png');
+        this.load.image('registerbtn', 'assets/register.png');
         this.load.image('atlas', 'assets/atlas.png');
         this.load.image('destination', 'assets/destination.png');
         this.load.image('plane', 'assets/plane.png');
@@ -115,6 +121,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('crime_board', 'assets/crime_board.png');
         this.load.image('note', 'assets/note.png');
         this.load.image('warrant', 'assets/warrant.png');
+        this.load.image('profile', 'assets/profile.png');
+        this.load.image('news', 'assets/news.png');
 
         this.load.image('artifact_crown_jewels', 'assets/artifacts/crown_jewels.png');
         this.load.image('artifact_amber_necklace', 'assets/artifacts/amber_necklace.png');
@@ -123,9 +131,6 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('artifact_mughal_dagger', 'assets/artifacts/mughal_dagger.png');
         this.load.image('artifact_royal_seal', 'assets/artifacts/royal_seal.png');
         this.load.image('artifact_fallback', 'assets/artifacts/artifact_unknown.png');
-
-        this.load.image('soundOn', 'assets/sound.png');
-        this.load.image('soundOff', 'assets/nsound.png');
 
         this.load.image('notebook_bg', 'assets/ui/notebook_bg.png');
         this.load.image('sketch_base', 'assets/ui/sketch_base.png');
@@ -147,6 +152,16 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('file', 'assets/file.png');
         this.load.image('mapbg', 'assets/map.png');
         this.load.image('phonebook', 'assets/phonebook.jpg');
+
+        this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
+  this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
+  this.load.image('paper_time_bg', 'assets/newspapers/paper_time_bg_1920x1080.png');
+  this.load.image('comix1', 'assets/newspapers/comix1.png');
+  this.load.image('comix2', 'assets/newspapers/comix2.png');
+  this.load.image('newsstand_bg', 'assets/local/newsstand.jpg');
+  this.load.image('paper_fallback_blank', 'assets/newspapers/paper_daily_bg_1920x1080.png');
+  this.load.image('paper_hq_crimewave_photo', 'assets/newspapers/paper_hq_crimewave_photo.jpg');
+  this.load.image('paper_warsaw_vending_photo', 'assets/newspapers/paper_warsaw_vending_photo.jpg');
 
         this.load.image('unknown', 'assets/suspects/unknown.jpg');
         this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
@@ -218,6 +233,19 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('md', 'assets/suspects/md.jpg');
         this.load.image('lc', 'assets/suspects/lc.jpg');
 
+        this.load.image('evidence_bag', 'assets/csi/evidence_bag.png');
+        this.load.image('hair_board', 'assets/csi/hair_board.png');
+        this.load.image('hair_strand_blonde', 'assets/csi/hair_strand_blonde.png');
+        this.load.image('hair_strand_black', 'assets/csi/hair_strand_black.png');
+        this.load.image('hair_strand_red', 'assets/csi/hair_strand_red.png');
+        this.load.image('hair_strand_brown', 'assets/csi/hair_strand_brown.png');
+       // this.load.image('microscope_base', 'assets/csi/microscope_base.png');
+        this.load.image('step1', 'assets/csi/step1.png');
+        this.load.image('step2', 'assets/csi/step2.png');
+        this.load.image('step3', 'assets/csi/step3.png');
+        this.load.image('tool_brush', 'assets/csi/tool_brush.png');
+        this.load.image('desk1', 'assets/csi/desk1.jpg');
+
         this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
 
         this.load.audio('crimelab_ambient', 'assets/audio/crimelab_ambient.mp3');
@@ -243,10 +271,13 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.audio('wrong', 'assets/audio/wrong.mp3');
         this.load.audio('correct', 'assets/audio/correct.mp3');
         this.load.audio('successsound', 'assets/audio/success.mp3');
+        this.load.audio('paper_rustle', 'assets/audio/paper_rustle.mp3');
         this.load.audio('detective-intro', 'assets/voice/detective-intro.mp3');
 
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
         this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
+        this.load.css('dossier-css', 'assets/css/dossier.css');
+        this.load.css('modal-css', 'assets/css/modal.css');
 
         this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
         this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
@@ -280,7 +311,10 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('dialog_holmes', 'assets/data/dialogue/holmes.json');
         this.load.json('dialog_police_station', 'assets/data/dialogue/police-station.json');
         this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
-        this.load.json('dialog_home', 'assets/data/dialogue/home.json');
+        this.load.json('dialog_home', 'assets/data/dialogue/home.json')
+          this.load.json('newspapers_daily', 'assets/data/newspapers-dialy.json');
+  this.load.json('newspapers_tabloid', 'assets/data//newspapers-tabloid.json');
+  this.load.json('newspapers_time', 'assets/data/newspapers-time.json');
 
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
@@ -295,7 +329,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('havela_bg', 'assets/crimes/havela.jpg');
         this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
 
-        const tips = [
+               const tips = [
             'A planted clue usually wants to be found too quickly.',
             'Witness confidence is not the same as witness accuracy.',
             'The best liar often tells mostly true things.',
@@ -323,7 +357,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.fullCupImage = this.add.image(cupX, cupY, 'cup_coffee');
 
         this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
-        this.coffeeMask.fillStyle(0xffffff);
+        this.coffeeMask.fillStyle(0xffffff, 1);
         this.updateCoffeeMask(0);
 
         const mask = this.coffeeMask.createGeometryMask();
@@ -382,13 +416,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.on('progress', (value) => {
             this.fillingLevel = value;
             this.updateCoffeeMask(value);
-
             const percent = Math.round(value * 100);
             titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
-        });
-
-        this.load.on('loaderror', () => {
-            // bez dodatkowych tekstów
         });
 
         this.load.once('complete', () => {
@@ -406,14 +435,7 @@ export class PreloaderScene extends Phaser.Scene {
             }
 
             this.tweens.add({
-                targets: [
-                    titleText,
-                    tipText,
-                    shadow,
-                    vignetteTop,
-                    vignetteBottom,
-                    scanlineOverlay
-                ],
+                targets: [titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay],
                 alpha: 0,
                 duration: 650,
                 ease: 'Quad.out',
@@ -424,38 +446,19 @@ export class PreloaderScene extends Phaser.Scene {
                     vignetteTop.destroy();
                     vignetteBottom.destroy();
                     scanlineOverlay.destroy();
+                    this.loadingReady = true;
+                    this.tryShowStartButton();
                 }
             });
         });
     }
 
     create() {
-        const { width, height } = this.scale;
+        audioManager.init(this);
 
         const initUi = () => {
-            audioManager.init(this);
-
-            if (!audioManager.isMusicPlaying('themeMusic')) {
-                audioManager.playMusic('themeMusic', { loop: true });
-            }
-
-            this.input.once('pointerdown', () => {
-                this.sound.unlock?.();
-            });
-
-            const startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
-                .setInteractive({ useHandCursor: true })
-                .setScale(0.8);
-
-            this.addHoverEffect(startBtn, 0.8, 0.9);
-
-            startBtn.on('pointerdown', async () => {
-                const mobileFS = this.registry.get('mobileFS');
-                if (mobileFS) {
-                    await mobileFS.enterFullscreenLandscape();
-                }
-                this.scene.start('MenuScene');
-            });
+            this.uiReady = true;
+            this.tryShowStartButton();
         };
 
         if (window.WebFont && typeof window.WebFont.load === 'function') {
@@ -463,9 +466,7 @@ export class PreloaderScene extends Phaser.Scene {
                 google: {
                     families: ['Special Elite', 'Press Start 2P']
                 },
-                active: () => {
-                    initUi();
-                },
+                active: () => initUi(),
                 inactive: () => {
                     console.warn('WebFont failed to load, continuing with fallback fonts.');
                     initUi();
@@ -475,6 +476,45 @@ export class PreloaderScene extends Phaser.Scene {
             console.warn('WebFont is not available, continuing with fallback fonts.');
             initUi();
         }
+
+        const bootAudio = () => {
+            if (this.audioArmed) return;
+            this.audioArmed = true;
+            this.sound.unlock?.();
+        };
+
+        if (this.sound.locked) {
+            this.input.once('pointerdown', bootAudio);
+            this.input.once('keydown', bootAudio);
+        } else {
+            bootAudio();
+        }
+    }
+
+    tryShowStartButton() {
+        if (!this.loadingReady || !this.uiReady || this.startBtn) return;
+
+        const { width, height } = this.scale;
+        this.startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
+            .setInteractive({ useHandCursor: true })
+            .setScale(0.8);
+
+        this.addHoverEffect(this.startBtn, 0.8, 0.9);
+
+        this.startBtn.on('pointerdown', async () => {
+            const mobileFS = this.registry.get('mobileFS');
+            if (mobileFS) {
+                await mobileFS.enterFullscreenLandscape();
+            }
+
+            this.startThemeMusic();
+            this.scene.start('EnterScene');
+        });
+    }
+
+    startThemeMusic() {
+        if (audioManager.isMusicPlaying('themeMusic')) return;
+        audioManager.fadeInMusic('themeMusic', { loop: true }, 600);
     }
 
     getNextTip(tips) {

@@ -27,9 +27,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
-        audioManager.init(this);
-        this.scene.wake('UIScene');
-        this.timeManager = new GameTimeManager();
+audioManager.init(this);
+if (!audioManager.isMusicPlaying('themeMusic')) {
+    audioManager.playMusic('themeMusic', { loop: true });
+}
+this.scene.wake('UIScene');
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+this.timeManager = new GameTimeManager();
 
         EventBus.emit('advanceTime', 0, 0);
 
@@ -121,7 +125,41 @@ export class GameScene extends Phaser.Scene {
             .setPosition(gameWidth / 2, gameHeight / 2)
             .setScale(scale);
     }
+duckMusic(volumeMultiplier = 0.35, duration = 250) {
+    const music = audioManager.activeMusic.get('themeMusic');
+    if (!music || music.pendingRemove) return;
 
+    const target = audioManager.getMusicVolume() * volumeMultiplier;
+
+    if (this._duckTween) {
+        this._duckTween.stop();
+        this._duckTween = null;
+    }
+
+    this._duckTween = this.tweens.add({
+        targets: music,
+        volume: target,
+        duration,
+        ease: 'Sine.easeOut'
+    });
+}
+
+restoreMusic(duration = 250) {
+    const music = audioManager.activeMusic.get('themeMusic');
+    if (!music || music.pendingRemove) return;
+
+    if (this._duckTween) {
+        this._duckTween.stop();
+        this._duckTween = null;
+    }
+
+    this._duckTween = this.tweens.add({
+        targets: music,
+        volume: audioManager.getMusicVolume(),
+        duration,
+        ease: 'Sine.easeOut'
+    });
+}
     createDetectiveSection() {
         const dialogueBox = this.add.graphics();
         dialogueBox.fillStyle(0x000000, 0.72);
@@ -195,95 +233,96 @@ export class GameScene extends Phaser.Scene {
     }
 
     playVideo(videoKey, audioKey, onComplete) {
-        const hasVideo = this.cache.video.exists(videoKey);
-        const hasAudio = !!audioKey && this.cache.audio.exists(audioKey);
+    const hasVideo = this.cache.video.exists(videoKey);
+    const hasAudio = !!audioKey && this.cache.audio.exists(audioKey);
 
-        if (!hasVideo && !hasAudio) {
-            console.warn(`Brak video i audio dla sekwencji: ${videoKey} / ${audioKey}`);
-            onComplete?.();
-            return;
-        }
-
-        this.destroyCurrentVideo();
-
-        let audioFinished = !hasAudio;
-        let videoFinished = false;
-
-        const tryComplete = () => {
-            // Zamknięcie sekwencji następuje po zakończeniu ścieżki dźwiękowej (lektora)
-            if (audioFinished) {
-                this.destroyCurrentVideo();
-                onComplete?.();
-            }
-        };
-
-        if (hasAudio) {
-            this.currentAudio = audioManager.playVoice(audioKey);
-
-            if (this.currentAudio) {
-                this.currentAudio.once('complete', () => {
-                    audioFinished = true;
-                    tryComplete();
-                });
-
-                this.currentAudio.once('stop', () => {
-                    audioFinished = true;
-                    tryComplete();
-                });
-            } else {
-                audioFinished = true;
-            }
-        }
-
-        if (!hasVideo) {
-            tryComplete();
-            return;
-        }
-
-        const video = this.add.video(
-            this.scale.width / 2,
-            this.scale.height / 2,
-            videoKey
-        )
-            .setOrigin(0.5)
-            .setDepth(5)
-            .setVisible(true)
-            .setAlpha(1);
-
-        this.currentVideo = video;
-        this.currentVideoKey = videoKey;
-
-        video.once('textureready', () => {
-            if (this.currentVideo === video) {
-                this.resizeVideoCover(video);
-            }
-        });
-
-        video.once('playing', () => {
-            if (this.currentVideo === video) {
-                this.resizeVideoCover(video);
-            }
-        });
-
-        video.on('error', (videoObject, error) => {
-            console.error(`${videoKey} video error:`, error);
-            if (this.currentVideo === video) {
-                videoFinished = true;
-                tryComplete();
-            }
-        });
-
-        video.on('unsupported', (videoObject, error) => {
-            console.error(`${videoKey} video unsupported:`, error);
-            if (this.currentVideo === video) {
-                videoFinished = true;
-                tryComplete();
-            }
-        });
-
-        // Ustawienie true spowoduje zapętlenie wideo (looping) do czasu wywołania destroyCurrentVideo()
-        video.play(true);
+    if (!hasVideo && !hasAudio) {
+        console.warn(`Brak video i audio dla sekwencji: ${videoKey} / ${audioKey}`);
+        onComplete?.();
+        return;
     }
+
+    this.destroyCurrentVideo();
+
+    let audioFinished = !hasAudio;
+
+    const tryComplete = () => {
+        if (audioFinished) {
+            this.destroyCurrentVideo();
+            this.restoreMusic(250);
+            onComplete?.();
+        }
+    };
+
+    if (hasAudio) {
+        this.duckMusic(0.35, 250);
+
+        this.currentAudio = audioManager.playVoice(audioKey);
+
+        if (this.currentAudio) {
+            this.currentAudio.once('complete', () => {
+                audioFinished = true;
+                tryComplete();
+            });
+
+            this.currentAudio.once('stop', () => {
+                audioFinished = true;
+                tryComplete();
+            });
+        } else {
+            audioFinished = true;
+            this.restoreMusic(250);
+        }
+    }
+
+    if (!hasVideo) {
+        tryComplete();
+        return;
+    }
+
+    const video = this.add.video(
+        this.scale.width / 2,
+        this.scale.height / 2,
+        videoKey
+    )
+        .setOrigin(0.5)
+        .setDepth(5)
+        .setVisible(true)
+        .setAlpha(1);
+
+    this.currentVideo = video;
+    this.currentVideoKey = videoKey;
+
+    video.once('textureready', () => {
+        if (this.currentVideo === video) {
+            this.resizeVideoCover(video);
+        }
+    });
+
+    video.once('playing', () => {
+        if (this.currentVideo === video) {
+            this.resizeVideoCover(video);
+        }
+    });
+
+    video.on('error', (videoObject, error) => {
+        console.error(`${videoKey} video error:`, error);
+        if (this.currentVideo === video) {
+            audioFinished = true;
+            tryComplete();
+        }
+    });
+
+    video.on('unsupported', (videoObject, error) => {
+        console.error(`${videoKey} video unsupported:`, error);
+        if (this.currentVideo === video) {
+            audioFinished = true;
+            tryComplete();
+        }
+    });
+
+    video.play(true);
+}
 
     resizeVideoCover(video) {
         if (!video || !video.scene) return;

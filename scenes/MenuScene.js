@@ -12,10 +12,6 @@ export class MenuScene extends Phaser.Scene {
     create() {
 audioManager.init(this);
 
-if (!audioManager.isMusicPlaying('themeMusic')) {
-    audioManager.playMusic('themeMusic', { loop: true });
-}
-
         this.scene.sleep('UIScene');
         const { width, height } = this.scale;
 

@@ -10,7 +10,7 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.titleTextValue = data?.title || 'GAME OVER';
+    this.titleTextValue = data?.title || 'You have failed the mission';
     this.messageTextValue =
       data?.message ||
       gameState.gameOverReason ||
@@ -19,10 +19,16 @@ export class GameOverScene extends Phaser.Scene {
 
   create() {
     audioManager.init(this);
+
     audioManager.stopAllMusic();
+    audioManager.stopAllAmbient();
+    audioManager.stopAllVoice();
+    audioManager.stopAllSfx();
+
     audioManager.playSfx('game_over');
 
     this.scene.sleep('UIScene');
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 
     this.add.image(0, 0, 'backgroundgo')
       .setOrigin(0, 0)
@@ -37,13 +43,19 @@ export class GameOverScene extends Phaser.Scene {
       align: 'center'
     }).setOrigin(0.5);
 
-    this.add.text(960, 355, this.messageTextValue, {
+    const msgBg = this.add.rectangle(960, 915, 1180, 170, 0x2a160f, 0.82);
+    msgBg.setStrokeStyle(4, 0xf7dfb2, 1);
+
+    const msgInner = this.add.rectangle(960, 915, 1160, 150, 0x3a2016, 0.35);
+    msgInner.setStrokeStyle(2, 0x7b4a2d, 0.8);
+
+    this.add.text(960, 915, this.messageTextValue, {
       fontFamily: 'Special Elite',
-      fontSize: '34px',
+      fontSize: '30px',
       color: '#f6ead0',
       align: 'center',
-      wordWrap: { width: 1050 },
-      lineSpacing: 12
+      wordWrap: { width: 1080 },
+      lineSpacing: 10
     }).setOrigin(0.5);
 
     const backBtn = this.add.image(200, 930, 'back')
@@ -53,12 +65,13 @@ export class GameOverScene extends Phaser.Scene {
     this.addHoverEffect(backBtn, 0.7, 0.8);
 
     backBtn.on('pointerdown', () => {
-audioManager.stopAllSfx();
+      audioManager.stopAllNonMusic();
+      audioManager.stopAllMusic();
       this.scene.start('MenuScene');
     });
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-audioManager.stopAllSfx();
+      audioManager.stopAllSfx();
     });
   }
 

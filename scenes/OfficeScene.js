@@ -29,7 +29,14 @@ export class OfficeScene extends Phaser.Scene {
 
     create() {
         audioManager.init(this);
+        audioManager.stopAllVoice();
+        audioManager.stopAllSfx();
+
         const { width, height } = this.scale;
+                  this.scene.launch('NewsHud');
+this.scene.bringToTop('NewsHud');
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
+this.registry.set('currentCity', 'hq');
 
         this.createBackgrounds(width, height);
         this.createCameraSetup(height);
@@ -37,6 +44,8 @@ export class OfficeScene extends Phaser.Scene {
         this.createNavigationUI();
         this.setupAudioUnlock();
         this.createOptionalDebug();
+
+        this.playOfficeAmbient();
 
         this.goToView('biuro', false);
         this.showIntroHint();
@@ -47,7 +56,6 @@ export class OfficeScene extends Phaser.Scene {
 
         this.events.on(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
         this.events.on(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
-
         this.events.on(Phaser.Scenes.Events.SLEEP, this.onSleep, this);
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
     }
@@ -57,8 +65,8 @@ export class OfficeScene extends Phaser.Scene {
         this.applyLock(false);
         this.updateNavVisibility();
 
-        if (this.officeAmbient && !this.officeAmbient.isPlaying) {
-            this.officeAmbient.resume();
+        if (!this.officeAmbient || !this.officeAmbient.isPlaying) {
+            this.playOfficeAmbient();
         }
     }
 
@@ -129,16 +137,6 @@ export class OfficeScene extends Phaser.Scene {
                 this.rightArrow.setAlpha(0.75);
             }
         }
-
-        //if (this.crimeLabArrow) {
-         //   if (locked) {
-           //     this.crimeLabArrow.disableInteractive();
-             //   this.crimeLabArrow.setAlpha(0.35);
-            //} else {
-             //   this.crimeLabArrow.setInteractive({ useHandCursor: true });
-               // this.crimeLabArrow.setAlpha(0.9);
-            //}
-        //}
 
         if (locked) {
             this.hideNavHint();
@@ -328,14 +326,6 @@ export class OfficeScene extends Phaser.Scene {
             padding: { left: 8, right: 8, top: 8, bottom: 8 }
         }).setOrigin(0.5).setScrollFactor(0).setDepth(200).setAlpha(0.75).setInteractive({ useHandCursor: true });
 
-        //this.crimeLabArrow = this.add.text(width - 60, 60, '⬈', {
-          //  fontFamily: 'Special Elite',
-            //fontSize: '42px',
-            //color: '#f0e6b8',
-            //backgroundColor: 'rgba(0,0,0,0.35)',
-            //padding: { left: 10, right: 10, top: 6, bottom: 6 }
-        //}).setOrigin(0.5).setScrollFactor(0).setDepth(210).setAlpha(0.9).setInteractive({ useHandCursor: true });
-
         this.navHint = this.add.text(width / 2, 84, '', {
             fontFamily: 'Special Elite',
             fontSize: '20px',
@@ -380,20 +370,6 @@ export class OfficeScene extends Phaser.Scene {
                 this.hideNavHint();
             });
 
-      //  this.crimeLabArrow
-        //    .on('pointerdown', () => this.openCrimeLab())
-          //  .on('pointerover', () => {
-           //     if (this.uiLocked) return;
-             //   this.crimeLabArrow.setScale(1.08);
-              //  this.crimeLabArrow.setAlpha(1);
-               // this.showNavHint('Go to Crime Lab');
-            //})
-            //.on('pointerout', () => {
-              //  this.crimeLabArrow.setScale(1);
-               // if (!this.uiLocked) this.crimeLabArrow.setAlpha(0.9);
-                //this.hideNavHint();
-            //});
-
         this.tweens.add({
             targets: [this.leftArrow, this.rightArrow],
             alpha: { from: 0.55, to: 0.9 },
@@ -402,15 +378,6 @@ export class OfficeScene extends Phaser.Scene {
             repeat: -1,
             ease: 'Sine.easeInOut'
         });
-
-       // this.tweens.add({
-         //   targets: this.crimeLabArrow,
-           // alpha: { from: 0.72, to: 1 },
-            //duration: 1000,
-            //yoyo: true,
-            //repeat: -1,
-          //  ease: 'Sine.easeInOut'
-        //});
 
         this.updateNavVisibility();
     }
@@ -436,7 +403,9 @@ export class OfficeScene extends Phaser.Scene {
     }
 
     playOfficeAmbient() {
-        this.officeAmbient = audioManager.playSfx('officescenesound', { loop: true });
+        if (this.officeAmbient && this.officeAmbient.isPlaying) return this.officeAmbient;
+        this.officeAmbient = audioManager.playAmbient('officescenesound', { loop: true });
+        return this.officeAmbient;
     }
 
     moveLeft() {
@@ -562,10 +531,8 @@ export class OfficeScene extends Phaser.Scene {
 
         this.hotspots.forEach(zone => {
             if (!zone) return;
-
             try {
                 zone.removeAllListeners();
-
                 if (zone.active && zone.scene) {
                     zone.destroy();
                 }
@@ -586,7 +553,6 @@ export class OfficeScene extends Phaser.Scene {
 
         this.debugTexts.forEach(text => {
             if (!text) return;
-
             try {
                 if (text.active && text.scene) {
                     text.destroy();

@@ -1,128 +1,93 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>Akta Interpolu - Profil Agenta</title>
-    <!-- Tagi Open Graph, żeby link ładnie wyglądał na Discordzie/Facebooku -->
-    <meta property="og:title" content="Sprawdź moje akta detektywa!">
-    <meta property="og:description" content="Ranga: Inspektor | Rozwiązane sprawy: 42. Spróbuj pobić mój wynik!">
-    <link rel="stylesheet" href="auth-styles.css">
-    <style>
-        /* Dodatkowe style dla publicznej wizytówki */
-        .public-dossier {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #e8dcc4;
-            border: 2px solid #3c3c3c;
-            padding: 40px;
-            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
-            font-family: 'Courier New', Courier, monospace;
-            position: relative;
-        }
-        .stamp-top-secret {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: #8b0000;
-            border: 4px solid #8b0000;
-            padding: 5px 10px;
-            font-weight: bold;
-            font-size: 24px;
-            transform: rotate(15deg);
-            opacity: 0.8;
-        }
-        .agent-header { display: flex; align-items: center; gap: 20px; border-bottom: 2px dashed #333; padding-bottom: 20px; }
-        .photo-placeholder { width: 100px; height: 120px; border: 2px solid #333; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .achievements { margin-top: 30px; }
-        .badge { display: inline-block; padding: 10px; border: 1px solid #333; margin-right: 10px; background: rgba(255,255,255,0.4); text-align: center;}
-    </style>
-</head>
-<body>
+<div id="agent-modal">
+    <link rel="stylesheet" href="assets/css/dossier.css">
 
-<div class="public-dossier">
-    <div class="stamp-top-secret">ODTAJNIONE</div>
-    
-    <div class="agent-header">
-        <div class="photo-placeholder">
-            <span style="font-size: 40px;">👤</span>
+    <div class="dossier-card">
+        <button id="btn-close-agent" class="btn-close">X</button>
+
+        <!-- Awatar -->
+        <img id="pub-avatar" class="agent-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 24 24'><path fill='%23444' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Agent Photo">
+
+        <!-- Informacje -->
+        <div class="agent-info">
+            <h2>AGENT: <span id="pub-alias">Loading...</span></h2>
+            <p>RANK: <span id="pub-rank">Rookie</span></p>
+            <p>STATUS: <span class="status-active">ACTIVE</span></p>
         </div>
-        <div>
-            <h2>AGENT: <span id="pub-alias">Ładowanie...</span></h2>
-            <p><strong>Obecna Ranga:</strong> <span id="pub-rank">...</span></p>
-            <p><strong>Status:</strong> Aktywny w służbie</p>
+
+        <!-- 8 pól w ramkach -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <strong>Score</strong>
+                <span id="pub-points">0</span>
+            </div>
+            <div class="stat-item">
+                <strong>Rank</strong>
+                <span>#<span id="pub-leaderboard">...</span></span>
+            </div>
+            <div class="stat-item">
+                <strong>Cases</strong>
+                <span id="pub-cases">0</span>
+            </div>
+            <div class="stat-item">
+                <strong>Arrests</strong>
+                <span id="pub-arrests">0</span>
+            </div>
+            <div class="badge-item">🥇 Lupa</div>
+            <div class="badge-item">⏱️ Swift</div>
+            <div class="badge-item locked">🔒 Locked</div>
+            <div class="badge-item locked">🔒 Locked</div>
+        </div>
+
+        <!-- Stopka -->
+        <div class="actions-footer">
+            <button class="btn-stamp" id="btn-copy-link">[ COPY DOSSIER LINK ]</button>
+            <div id="toast" class="toast-msg">✓ Link Copied!</div><br>
+            <p class="join-link"><a href="/index.html">Want to join? Play Lost Artefacts</a></p>
         </div>
     </div>
 
-    <div class="stats-grid">
-        <div><strong>Punkty globalne:</strong> <span id="pub-points">0</span></div>
-        <div><strong>Pozycja w rankingu:</strong> #<span id="pub-leaderboard">...</span></div>
-        <div><strong>Rozwiązane sprawy:</strong> <span id="pub-cases">0</span></div>
-        <div><strong>Złapani złodzieje:</strong> <span id="pub-arrests">0</span></div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function() {
+            const supabaseUrl = 'YOUR_SUPABASE_URL';
+            const supabaseKey = 'YOUR_ANON_KEY';
+            
+            if (typeof supabase !== 'undefined' && supabaseUrl !== 'YOUR_SUPABASE_URL') {
+                const client = supabase.createClient(supabaseUrl, supabaseKey);
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetAlias = urlParams.get('alias');
 
-    <div class="achievements">
-        <h3>Odznaczenia (Osiągnięcia)</h3>
-        <div id="badges-container">
-            <!-- Odznaki wstrzykiwane przez JS -->
-            <div class="badge">🥇<br>Złota Lupa</div>
-            <div class="badge">⏱️<br>Szybki jak wiatr</div>
-        </div>
-    </div>
+                if (targetAlias) {
+                    client.from('profiles')
+                        .select('alias, rank, points, cases_solved, arrests, achievements, avatar_url')
+                        .eq('alias', targetAlias)
+                        .single()
+                        .then(({ data, error }) => {
+                            if (!error && data) {
+                                document.getElementById('pub-alias').innerText = data.alias;
+                                document.getElementById('pub-rank').innerText = data.rank || 'Rookie';
+                                document.getElementById('pub-points').innerText = data.points || 0;
+                                document.getElementById('pub-cases').innerText = data.cases_solved || 0;
+                                document.getElementById('pub-arrests').innerText = data.arrests || 0;
+                                if (data.avatar_url) {
+                                    document.getElementById('pub-avatar').src = data.avatar_url;
+                                }
+                            }
+                        });
+                }
+            }
 
-    <div style="margin-top: 40px; text-align: center;">
-        <button class="btn-stamp" id="btn-copy-link">Kopiuj link do akt</button>
-        <p style="font-size: 12px; margin-top: 15px;">Chcesz dołączyć do agencji? <a href="/index.html">Zagraj w Lost Artefacts</a></p>
-    </div>
+            const copyBtn = document.getElementById('btn-copy-link');
+            const toast = document.getElementById('toast');
+
+            if (copyBtn && toast) {
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        toast.style.display = 'block';
+                        setTimeout(() => toast.style.display = 'none', 3000);
+                    });
+                });
+            }
+        })();
+    </script>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    // Konfiguracja Supabase
-    const supabaseUrl = 'TWOJ_URL';
-    const supabaseKey = 'TWOJ_ANON_KEY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    // Pobranie aliasu z adresu URL (np. ?alias=Kruk)
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetAlias = urlParams.get('alias');
-
-    async function loadPublicProfile() {
-        if (!targetAlias) {
-            document.getElementById('pub-alias').innerText = "NIE ZNALEZIONO AGENTA";
-            return;
-        }
-
-        // Pobranie z publicznej tabeli profili w Supabase
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('alias, rank, points, cases_solved, arrests, achievements')
-            .eq('alias', targetAlias)
-            .single();
-
-        if (error || !data) {
-            document.getElementById('pub-alias').innerText = "AKTA UTRTAJONE LUB BRAK AGENTA";
-            return;
-        }
-
-        // Wypełnianie DOM danymi z bazy
-        document.getElementById('pub-alias').innerText = data.alias;
-        document.getElementById('pub-rank').innerText = data.rank;
-        document.getElementById('pub-points').innerText = data.points;
-        document.getElementById('pub-cases').innerText = data.cases_solved;
-        document.getElementById('pub-arrests').innerText = data.arrests;
-        
-        // Aktualizacja tytułu strony (dla udostępniania)
-        document.title = `Akta Interpolu - ${data.alias} (${data.rank})`;
-    }
-
-    loadPublicProfile();
-
-    // Obsługa przycisku "Kopiuj link"
-    document.getElementById('btn-copy-link').addEventListener('click', () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Link do akt skopiowany do schowka! Wyślij go znajomym.");
-    });
-</script>
-</body>
-</html>

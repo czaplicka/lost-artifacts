@@ -36,7 +36,6 @@ const NPC_DIALOGUE_ROOT_MAP = {
   bum: 'bumClues'
 };
 
-// Domyślne (bazowe) klucze teł lokacji, wspólne dla większości miast.
 const DEFAULT_LOCATION_BACKGROUND_MAP = {
   hotel: 'hotel_maid',
   hotel_maid: 'hotel_maid',
@@ -45,10 +44,8 @@ const DEFAULT_LOCATION_BACKGROUND_MAP = {
   garbage: 'garbage'
 };
 
-// ID miasta New Delhi — dopasuj do wartości używanej w locations.json / gameState.
 const NEW_DELHI_CITY_ID = 'new_delhi';
 
-// Klucze teł dedykowane dla New Delhi (assety wczytane z sufiksem "h").
 const NEW_DELHI_LOCATION_BACKGROUND_MAP = {
   bank: 'bankh',
   alley: 'alleyh',
@@ -95,29 +92,26 @@ export class LocationScene extends Phaser.Scene {
     this.locationId = data.locationId || null;
     this.isRepeat = Boolean(data.isRepeat);
 
-    const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
+    const rm = gameState.routeManager;
+    const expectedCityId =
+      rm && typeof rm.getNextExpectedCity === 'function'
+        ? rm.getNextExpectedCity()
+        : gameState.nextTargetCityId || null;
+
     const derivedIsCrimeCity =
       Boolean(this.cityId) && this.cityId === gameState.crimeCityId;
+
     const derivedIsNextTargetCity =
-      Boolean(this.cityId) && this.cityId === gameState.nextTargetCityId;
+      Boolean(this.cityId) && this.cityId === expectedCityId;
+
     const derivedJustReached =
       Boolean(this.cityId) && this.cityId === gameState.justReachedCorrectCityId;
-    const derivedIsOnEscapeRoute =
-      Boolean(this.cityId) && route.includes(this.cityId);
-    const derivedIsCurrentVisitedRouteCity =
-      Boolean(this.cityId) &&
-      gameState.currentCityId === this.cityId &&
-      derivedIsOnEscapeRoute;
 
     this.isCrimeCity = data.isCrimeCity ?? derivedIsCrimeCity;
     this.isNextTargetCity = data.isNextTargetCity ?? derivedIsNextTargetCity;
     this.isCorrectCity =
       data.isCorrectCity ??
-      Boolean(
-        derivedIsCrimeCity ||
-        derivedIsCurrentVisitedRouteCity ||
-        derivedJustReached
-      );
+      Boolean(derivedIsCrimeCity || derivedIsNextTargetCity || derivedJustReached);
 
     this.lines = [];
     this.generatedNotes = [];
@@ -133,14 +127,8 @@ export class LocationScene extends Phaser.Scene {
     this.dialogueTargetCityId = data.dialogueTargetCityId || null;
     this.locationAmbient = null;
 
-    if (!Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected = [];
-    }
-
-    if (!Array.isArray(gameState.visitedEncounters)) {
-      gameState.visitedEncounters = [];
-    }
-
+    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
+    if (!Array.isArray(gameState.visitedEncounters)) gameState.visitedEncounters = [];
     if (
       !gameState.encounterMemory ||
       typeof gameState.encounterMemory !== 'object' ||
@@ -151,20 +139,16 @@ export class LocationScene extends Phaser.Scene {
   }
 
   create() {
-audioManager.init(this);
-audioManager.playMusic('themeGame');
-audioManager.playPersistentLoop('citysound', { volume: 0.35 });
+    audioManager.init(this);
+    if (!audioManager.isMusicPlaying('themeGame')) audioManager.playMusic('themeGame', { loop: true });
 
     const locationSoundKey = LOCATION_SOUND_MAP[this.locationId];
-
     if (locationSoundKey) {
-      audioManager.playSfx(locationSoundKey, { loop: true });
+      this.locationAmbient = audioManager.playAmbient(locationSoundKey, { volume: 0.22, loop: true });
     }
 
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
+    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
 
     const width = this.scale.width;
     const height = this.scale.height;
@@ -206,15 +190,16 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
     this.isReminder = Boolean(
       this.isRepeat &&
-        hasMemory &&
-        this.encounterMemory?.reminderShown === false &&
-        !this.isFalseLead
+      hasMemory &&
+      this.encounterMemory?.reminderShown === false &&
+      !this.isFalseLead
     );
 
-    const route = Array.isArray(gameState.escapeRoute) ? gameState.escapeRoute : [];
-    const currentRouteIndex = route.indexOf(this.cityId);
-    const lookAheadTargetId =
-      currentRouteIndex !== -1 ? route[currentRouteIndex + 1] || null : null;
+    const rm = gameState.routeManager;
+    const expectedCityId =
+      rm && typeof rm.getNextExpectedCity === 'function'
+        ? rm.getNextExpectedCity()
+        : gameState.nextTargetCityId || null;
 
     const frozenTargetFromMemory =
       this.encounterMemory?.dialogueTargetCityId ||
@@ -222,19 +207,14 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
       null;
 
     if (!this.dialogueTargetCityId) {
-      if (this.isCrimeCity) {
-        this.dialogueTargetCityId = route[0] || null;
-      } else {
-        this.dialogueTargetCityId =
-          lookAheadTargetId ||
-          frozenTargetFromMemory ||
-          gameState.nextTargetCityId ||
-          null;
-      }
+      this.dialogueTargetCityId =
+        expectedCityId ||
+        frozenTargetFromMemory ||
+        null;
     }
 
     if (this.dialogueTargetCityId && this.dialogueTargetCityId === this.cityId) {
-      this.dialogueTargetCityId = lookAheadTargetId || null;
+      this.dialogueTargetCityId = expectedCityId || null;
     }
 
     const generatedDialogue = this.isFalseLead
@@ -243,12 +223,10 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
           npcData: npcDialogueBlock,
           suspect,
           cityId: this.cityId,
-          targetCityId: this.dialogueTargetCityId,
-          canonicalTravelCityId: this.isCrimeCity
-            ? route[0] || null
-            : lookAheadTargetId || this.dialogueTargetCityId,
+          targetCityId: expectedCityId,
+          canonicalTravelCityId: expectedCityId,
           clueScope: this.isCrimeCity ? 'crime_scene' : 'route_leg',
-          routeIndex: currentRouteIndex,
+          routeIndex: rm?.getCurrentLegIndex?.() ?? 0,
           allowOnlyCanonicalTravelClue: true,
           sharedCityClues,
           sharedSuspectClues,
@@ -289,17 +267,12 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
       ? generatedDialogue.notes.filter(Boolean)
       : [];
 
-    // Kluczowa zmiana: przekazujemy cityId, żeby wybrać właściwy zestaw teł.
     const backgroundKey = this.getLocationBackgroundKey(this.locationId, this.cityId);
 
     if (backgroundKey && this.textures.exists(backgroundKey)) {
-      this.add
-        .image(width / 2, height / 2, backgroundKey)
-        .setDisplaySize(width, height);
+      this.add.image(width / 2, height / 2, backgroundKey).setDisplaySize(width, height);
     } else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
-      this.add
-        .image(width / 2, height / 2, cityData.backgroundKey)
-        .setDisplaySize(width, height);
+      this.add.image(width / 2, height / 2, cityData.backgroundKey).setDisplaySize(width, height);
     } else {
       this.cameras.main.setBackgroundColor('#1a1a1a');
     }
@@ -308,24 +281,16 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
     ensureHud(this);
 
     const activeHud = this.scene.get('PlayerHudScene');
-    if (activeHud?.refreshNotebook) {
-      activeHud.refreshNotebook();
-    } else if (activeHud?.refreshUI) {
-      activeHud.refreshUI();
-    }
+    if (activeHud?.refreshNotebook) activeHud.refreshNotebook();
+    else if (activeHud?.refreshUI) activeHud.refreshUI();
 
     if (!this.timeCostApplied) {
-      const encounterTimeHours = 1;
-      const encounterTimeMinutes = 0;
-
-      EventBus.emit('advanceTime', encounterTimeHours, encounterTimeMinutes);
-      gameState.timeSpent = (gameState.timeSpent || 0) + encounterTimeHours;
-
+      EventBus.emit('advanceTime', 1, 0);
+      gameState.timeSpent = (gameState.timeSpent || 0) + 1;
       this.timeCostApplied = true;
     }
 
     this.input.on('pointerdown', this.handlePointerDown, this);
-
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.handleShutdown, this);
   }
@@ -375,34 +340,19 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
   handleShutdown() {
     this.input.off('pointerdown', this.handlePointerDown, this);
 
-    if (this.locationAmbient?.isPlaying) {
-      this.locationAmbient.stop();
-    }
-    if (this.locationAmbient?.destroy) {
-      this.locationAmbient.destroy();
-    }
+    if (this.locationAmbient?.isPlaying) this.locationAmbient.stop();
+    if (this.locationAmbient?.destroy) this.locationAmbient.destroy();
     this.locationAmbient = null;
 
-    if (this.dialogueText) {
-      this.dialogueText.destroy();
-      this.dialogueText = null;
-    }
+    if (this.dialogueText) this.dialogueText.destroy();
+    if (this.footerTextObject) this.footerTextObject.destroy();
+    if (this.npcNameText) this.npcNameText.destroy();
+    if (this.dialoguePanel) this.dialoguePanel.destroy();
 
-    if (this.footerTextObject) {
-      this.footerTextObject.destroy();
-      this.footerTextObject = null;
-    }
-
-    if (this.npcNameText) {
-      this.npcNameText.destroy();
-      this.npcNameText = null;
-    }
-
-    if (this.dialoguePanel) {
-      this.dialoguePanel.destroy();
-      this.dialoguePanel = null;
-    }
-
+    this.dialogueText = null;
+    this.footerTextObject = null;
+    this.npcNameText = null;
+    this.dialoguePanel = null;
     this.lines = [];
     this.generatedNotes = [];
     this.encounterMemory = null;
@@ -411,28 +361,19 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
   closeAllUIPanels() {
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
+    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
   }
 
   handlePointerDown(pointer, currentlyOver, event) {
-    if (event?.stopPropagation) {
-      event.stopPropagation();
-    }
-
+    if (event?.stopPropagation) event.stopPropagation();
     if (this.isFinishing) return;
     if (this.isAnyUIOpen()) return;
-
     this.finishEncounter();
   }
 
   isAnyUIOpen() {
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.isAnyPanelOpen) {
-      return hud.isAnyPanelOpen();
-    }
-
+    if (hud?.isAnyPanelOpen) return hud.isAnyPanelOpen();
     return false;
   }
 
@@ -442,14 +383,8 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
 
     this.input.off('pointerdown', this.handlePointerDown, this);
 
-    if (!Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected = [];
-    }
-
-    if (!Array.isArray(gameState.visitedEncounters)) {
-      gameState.visitedEncounters = [];
-    }
-
+    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
+    if (!Array.isArray(gameState.visitedEncounters)) gameState.visitedEncounters = [];
     if (
       !gameState.encounterMemory ||
       typeof gameState.encounterMemory !== 'object' ||
@@ -498,11 +433,8 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
     saveGameState();
 
     const hud = this.scene.get('PlayerHudScene');
-    if (hud?.refreshNotebook) {
-      hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
-    }
+    if (hud?.refreshNotebook) hud.refreshNotebook();
+    else if (hud?.refreshUI) hud.refreshUI();
 
     this.scene.start('CityScene', {
       cityId: this.cityId,
@@ -541,23 +473,18 @@ audioManager.playPersistentLoop('citysound', { volume: 0.35 });
     return names[npcId] || npcId || 'Unknown witness';
   }
 
-  // Zwraca klucz tekstury tła dla danej lokacji, uwzględniając miasto.
-  // Dla New Delhi używamy dedykowanego zestawu teł z sufiksem "h".
   getLocationBackgroundKey(locationId, cityId = null) {
     if (cityId === NEW_DELHI_CITY_ID) {
       const delhiKey = NEW_DELHI_LOCATION_BACKGROUND_MAP[locationId];
       if (delhiKey && this.textures.exists(delhiKey)) {
         return delhiKey;
       }
-      // Fallback, gdyby brakowało konkretnego assetu dla Delhi.
       console.warn(
         `LocationScene: brak tekstury Delhi dla locationId "${locationId}", używam domyślnej.`
       );
     }
 
-    return (
-      DEFAULT_LOCATION_BACKGROUND_MAP[locationId] || locationId || null
-    );
+    return DEFAULT_LOCATION_BACKGROUND_MAP[locationId] || locationId || null;
   }
 
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

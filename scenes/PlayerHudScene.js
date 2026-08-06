@@ -69,6 +69,18 @@ export class PlayerHudScene extends Phaser.Scene {
         this.atlasUI?.destroy?.();
         this.phoneUI?.destroy?.();
         this.dialogManager?.dialogUI?.destroy?.();
+        this.playerMenu?.destroy?.();
+
+        this.caseFileUI = null;
+        this.notesUI = null;
+        this.warrantUI = null;
+        this.destinationsUI = null;
+        this.crimeBoardUI = null;
+        this.atlasUI = null;
+        this.phoneUI = null;
+        this.dialogManager = null;
+        this.playerMenu = null;
+        this.isHudReady = false;
     }
 
     closeAllUIPanels() {
@@ -82,13 +94,27 @@ export class PlayerHudScene extends Phaser.Scene {
         if (this.dialogManager?.dialogUI?.close) this.dialogManager.dialogUI.close();
     }
 
+    closeAllUIPanelsAndFlushInput() {
+        this.closeAllUIPanels();
+
+        const input = this.input;
+        if (!input) return;
+
+        if (input.manager?.pointer) {
+            input.manager.pointer.cancelled = true;
+        }
+
+        if (this.playerMenu?.updateMenuInteractivity) {
+            this.playerMenu.updateMenuInteractivity();
+        }
+    }
+
     isAnyPanelOpen() {
         return Boolean(
             this.caseFileUI?.isOpen ||
             this.notesUI?.isOpen ||
             this.warrantUI?.isOpen ||
             this.destinationsUI?.isOpen ||
-            this.playerMenu?.isOpen ||
             this.crimeBoardUI?.isOpen ||
             this.atlasUI?.isOpen ||
             this.phoneUI?.isOpen ||

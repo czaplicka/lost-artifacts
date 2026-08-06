@@ -4,6 +4,9 @@ import { UISlider } from '../ui/UISlider.js';
 export class SettingsScene extends Phaser.Scene {
     constructor() {
         super({ key: 'SettingsScene' });
+        this.sfxSlider = null;
+        this.musicSlider = null;
+        this.muteLabel = null;
     }
 
     create() {
@@ -58,12 +61,13 @@ export class SettingsScene extends Phaser.Scene {
         );
 
         this.createMuteToggle(cx, cy + 70);
+
         this.createButton(cx, cy + 210, 'BACK', () => {
             audioManager.playSfx('buttonclick');
             this.scene.stop();
         });
 
-        this.updateSliderStates(audioManager.getMuted());
+        this.applyAudioUiState(audioManager.getMuted());
     }
 
     createMuteToggle(x, y) {
@@ -84,8 +88,7 @@ export class SettingsScene extends Phaser.Scene {
         this.muteLabel.on('pointerout', () => this.muteLabel.setScale(1.0));
         this.muteLabel.on('pointerdown', () => {
             const muted = audioManager.toggleMute();
-            this.refreshMuteLabel(muted);
-            this.updateSliderStates(muted);
+            this.applyAudioUiState(muted);
             if (!muted) audioManager.playSfx('buttonclick');
         });
 
@@ -97,13 +100,22 @@ export class SettingsScene extends Phaser.Scene {
         this.muteLabel.setColor(muted ? '#8b6914' : '#c9a227');
     }
 
-    updateSliderStates(muted) {
-        if (this.sfxSlider && this.sfxSlider.setEnabled) {
+    applyAudioUiState(muted) {
+        this.refreshMuteLabel(muted);
+
+        if (this.sfxSlider?.setEnabled) {
             this.sfxSlider.setEnabled(!muted);
         }
-        if (this.musicSlider && this.musicSlider.setEnabled) {
+        if (this.musicSlider?.setEnabled) {
             this.musicSlider.setEnabled(!muted);
         }
+
+if (this.sfxSlider?.setValue) {
+    this.sfxSlider.setValue(audioManager.getSfxVolume(), true);
+}
+if (this.musicSlider?.setValue) {
+    this.musicSlider.setValue(audioManager.getMusicVolume(), true);
+}
     }
 
     createButton(x, y, text, callback) {

@@ -6,12 +6,15 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.currentIndex = 0;
         this.cards = [];
         this.selectedCard = null;
-        this.CARDS_PER_PAGE = 10; // 2 rzędy po 5
+        this.CARDS_PER_PAGE = 10;
         this.currentPage = 0;
         this.detailPanel = null;
         this.searchQuery = '';
         this.filterGender = 'all';
         this.filteredSuspects = [];
+        this.isPaging = false;
+        this.renderToken = 0;
+        this.loadedSuspectTextures = new Set();
     }
 
     init(data) {
@@ -39,9 +42,11 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.createFilterPanel(W);
 
         this.cardContainer = this.add.container(0, 0);
-        this.renderCards(W, H);
 
-        this.createNavigation(W, H);
+        this.preloadAllSuspectTextures(() => {
+            this.renderCards(W, H);
+            this.createNavigation(W, H);
+        });
 
         this.detailPanel = this.createDetailPanel(W, H);
         this.detailPanel.setVisible(false);
@@ -50,6 +55,7 @@ export class WantedDatabaseScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-ESC', this.handleEsc, this);
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+        this.events.on(Phaser.Scenes.Events.DESTROY, this.cleanupScene, this);
     }
 
     handleEsc() {
@@ -61,10 +67,8 @@ export class WantedDatabaseScene extends Phaser.Scene {
     }
 
     createBackground(W, H) {
-        // Ciemne tło retro monitora CRT
         this.add.rectangle(0, 0, W, H, 0x050c08).setOrigin(0, 0);
 
-        // Obramowanie monitora CRT
         const monitorFrame = this.add.graphics();
         monitorFrame.lineStyle(16, 0x121c16, 1);
         monitorFrame.strokeRect(8, 8, W - 16, H - 16);
@@ -73,7 +77,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
     }
 
     createCRTEffects(W, H) {
-        // 1. Linie skanujące (Scanlines)
         const scanlines = this.add.graphics();
         scanlines.fillStyle(0x00ff66, 0.03);
         for (let y = 0; y < H; y += 4) {
@@ -81,7 +84,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         }
         scanlines.setDepth(999);
 
-        // 2. Przesuwający się pasek odświeżania kineskopu CRT
         const beam = this.add.graphics();
         beam.fillStyle(0x00ff66, 0.04);
         beam.fillRect(0, 0, W, 40);
@@ -95,17 +97,14 @@ export class WantedDatabaseScene extends Phaser.Scene {
             ease: 'Linear'
         });
 
-        // 3. Efekt Flickering (migotanie kineskopu CRT)
         const crtOverlay = this.add.rectangle(0, 0, W, H, 0x000000, 0).setOrigin(0, 0);
         crtOverlay.setDepth(998);
 
-        this.time.addEvent({
+        this.crtFlickerEvent = this.time.addEvent({
             delay: 80,
             loop: true,
             callback: () => {
-                // Skoki jasności i mikromigotanie
-                const randAlpha = Phaser.Math.FloatBetween(0.01, 0.05);
-                crtOverlay.setAlpha(randAlpha);
+                crtOverlay.setAlpha(Phaser.Math.FloatBetween(0.01, 0.05));
             }
         });
     }
@@ -130,12 +129,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
             stroke: '#003311',
             strokeThickness: 4
         }).setOrigin(0.5, 0.5);
-
-        this.add.text(W - 50, 48, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#00cc55'
-        }).setOrigin(1,1);
     }
 
     createFilterPanel(W) {
@@ -195,7 +188,7 @@ export class WantedDatabaseScene extends Phaser.Scene {
             zone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
             zone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
 
-            this.filterButtonGraphics.push({ btn, btnWidth, x: currentX, f });
+            this.filterButtonGraphics.push({ btn, btnWidth, x: currentX, f, zone });
             this.filterButtonTexts.push(btnText);
 
             currentX += btnWidth + gap;
@@ -219,25 +212,93 @@ export class WantedDatabaseScene extends Phaser.Scene {
             btn.strokeRect(x, panelY + 9, btnWidth, 32);
             this.filterButtonTexts[idx].setColor(isActive ? '#00ff66' : '#00aa44');
         });
-        this.renderCards(this.scale.width, this.scale.height);
+        this.refreshPage();
     }
 
     applyFilters() {
+        const q = this.searchQuery.trim().toLowerCase();
+
         this.filteredSuspects = this.suspects.filter(s => {
             const genderMatch = this.filterGender === 'all' || s.gender_code === this.filterGender;
-            const searchMatch = this.searchQuery === '' ||
-                s.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                s.skills.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                s.accent.toLowerCase().includes(this.searchQuery.toLowerCase());
+            const searchMatch = q === '' ||
+                (s.name || '').toLowerCase().includes(q) ||
+                (s.skills || '').toLowerCase().includes(q) ||
+                (s.accent || '').toLowerCase().includes(q);
             return genderMatch && searchMatch;
         });
 
         if (this.counterText) {
             this.counterText.setText(`RECORDS: ${this.filteredSuspects.length}`);
         }
+
+        const totalPages = Math.max(1, Math.ceil(this.filteredSuspects.length / this.CARDS_PER_PAGE));
+        if (this.currentPage >= totalPages) {
+            this.currentPage = totalPages - 1;
+        }
     }
 
-    renderCards(W, H) {
+    preloadAllSuspectTextures(onComplete) {
+        const toLoad = [];
+
+        this.suspects.forEach(suspect => {
+            const wantedFile = suspect.wantedKey || suspect.id;
+            const portraitFile = suspect.portraitKey || suspect.id;
+
+            const wantedKey = `wanted_main_${suspect.id}`;
+            const portraitKey = `suspect_portrait_${suspect.id}`;
+
+            if (!this.textures.exists(wantedKey) && !this.loadedSuspectTextures.has(wantedKey)) {
+                this.loadedSuspectTextures.add(wantedKey);
+                toLoad.push({
+                    key: wantedKey,
+                    url: `assets/suspects/${wantedFile}.jpg`
+                });
+            }
+
+            if (!this.textures.exists(portraitKey) && !this.loadedSuspectTextures.has(portraitKey)) {
+                this.loadedSuspectTextures.add(portraitKey);
+                toLoad.push({
+                    key: portraitKey,
+                    url: `assets/suspects/${portraitFile}.jpg`
+                });
+            }
+        });
+
+        if (toLoad.length === 0) {
+            onComplete?.();
+            return;
+        }
+
+        toLoad.forEach(item => {
+            this.load.image(item.key, item.url);
+        });
+
+        this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+            onComplete?.();
+        });
+
+        if (!this.load.isLoading()) {
+            this.load.start();
+        }
+    }
+
+    refreshPage() {
+        this.isPaging = true;
+        this.renderToken++;
+
+        if (this.cardContainer) {
+            this.cardContainer.removeAll(true);
+        }
+
+        this.time.delayedCall(0, () => {
+            this.renderCards(this.scale.width, this.scale.height, this.renderToken);
+            this.isPaging = false;
+        });
+    }
+
+    renderCards(W, H, token = this.renderToken) {
+        if (!this.cardContainer) return;
+
         this.cardContainer.removeAll(true);
         this.cards = [];
 
@@ -259,7 +320,7 @@ export class WantedDatabaseScene extends Phaser.Scene {
             const x = startX + col * (cardW + colGap);
             const y = startY + row * (cardH + rowGap);
 
-            const card = this.createWantedCard(suspect, x, y, cardW, cardH);
+            const card = this.createWantedCard(suspect, x, y, cardW, cardH, token);
             this.cardContainer.add(card.elements);
             this.cards.push(card);
         });
@@ -276,7 +337,7 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.updateNavButtons();
     }
 
-    createWantedCard(suspect, x, y, cardW, cardH) {
+    createWantedCard(suspect, x, y, cardW, cardH, token) {
         const elements = [];
 
         const cardBg = this.add.graphics();
@@ -286,75 +347,61 @@ export class WantedDatabaseScene extends Phaser.Scene {
         cardBg.strokeRect(x, y, cardW, cardH);
         elements.push(cardBg);
 
-        // Ekran główny ładuje grafike z klucza `wantedKey`
         const wantedFile = suspect.wantedKey || suspect.id;
         const imgKey = `wanted_main_${suspect.id}`;
-        
+
         const photoX = x + 10;
         const photoY = y + 10;
         const photoW = cardW - 20;
         const photoH = cardH - 20;
 
-        const renderCardContent = () => {
-            if (this.textures.exists(imgKey)) {
-                const img = this.add.image(photoX + photoW / 2, photoY + photoH / 2, imgKey);
-                img.setDisplaySize(photoW, photoH);
-                elements.push(img);
-            } else {
-                const placeholder = this.add.graphics();
-                placeholder.fillStyle(0x020805, 1);
-                placeholder.fillRect(photoX, photoY, photoW, photoH);
-                elements.push(placeholder);
-            }
-
-            // Pasek tła pod tekst na dole zdjęcia
-            const overlay = this.add.graphics();
-            overlay.fillStyle(0x000000, 0.8);
-            overlay.fillRect(photoX, photoY + photoH - 46, photoW, 46);
-            elements.push(overlay);
-
-            const photoFrame = this.add.graphics();
-            photoFrame.lineStyle(2, 0x00ff66, 0.6);
-            photoFrame.strokeRect(photoX, photoY, photoW, photoH);
-            elements.push(photoFrame);
-
-            // Numer sprawy
-            const caseNum = this.add.text(photoX + 6, photoY + 6, `#${String(suspect.wantedKey || 0).padStart(3, '0')}`, {
-                fontFamily: 'PressStart2P',
-                fontSize: '12px',
-                color: '#00ff66',
-                backgroundColor: '#000000',
-                padding: { x: 4, y: 2 }
-            });
-            elements.push(caseNum);
-
-            // NAZWISKO NA GRAFICE GŁÓWNEJ
-            const nameText = this.add.text(x + cardW / 2, photoY + photoH - 38, suspect.name.toUpperCase(), {
-                fontFamily: 'PressStart2P',
-                fontSize: '10px',
-                color: '#00ff66',
-                align: 'center',
-                wordWrap: { width: photoW - 10 }
-            }).setOrigin(0.5, 0);
-            elements.push(nameText);
-
-            if (suspect.accent) {
-                const accentText = this.add.text(x + cardW / 2, photoY + photoH - 20, suspect.accent.toUpperCase(), {
-                    fontFamily: 'PressStart2P',
-                    fontSize: '11px',
-                    color: '#00cc55',
-                    align: 'center'
-                }).setOrigin(0.5, 0);
-                elements.push(accentText);
-            }
-        };
-
         if (this.textures.exists(imgKey)) {
-            renderCardContent();
+            const img = this.add.image(photoX + photoW / 2, photoY + photoH / 2, imgKey);
+            img.setDisplaySize(photoW, photoH);
+            elements.push(img);
         } else {
-            this.load.image(imgKey, `assets/suspects/${wantedFile}.jpg`);
-            this.load.once(Phaser.Loader.Events.COMPLETE, () => renderCardContent());
-            this.load.start();
+            const placeholder = this.add.graphics();
+            placeholder.fillStyle(0x020805, 1);
+            placeholder.fillRect(photoX, photoY, photoW, photoH);
+            elements.push(placeholder);
+        }
+
+        const overlay = this.add.graphics();
+        overlay.fillStyle(0x000000, 0.8);
+        overlay.fillRect(photoX, photoY + photoH - 46, photoW, 46);
+        elements.push(overlay);
+
+        const photoFrame = this.add.graphics();
+        photoFrame.lineStyle(2, 0x00ff66, 0.6);
+        photoFrame.strokeRect(photoX, photoY, photoW, photoH);
+        elements.push(photoFrame);
+
+        const caseNum = this.add.text(photoX + 6, photoY + 6, `#${String(suspect.wantedKey || 0).padStart(3, '0')}`, {
+            fontFamily: 'PressStart2P',
+            fontSize: '12px',
+            color: '#00ff66',
+            backgroundColor: '#000000',
+            padding: { x: 4, y: 2 }
+        });
+        elements.push(caseNum);
+
+        const nameText = this.add.text(x + cardW / 2, photoY + photoH - 38, (suspect.name || '').toUpperCase(), {
+            fontFamily: 'PressStart2P',
+            fontSize: '10px',
+            color: '#00ff66',
+            align: 'center',
+            wordWrap: { width: photoW - 10 }
+        }).setOrigin(0.5, 0);
+        elements.push(nameText);
+
+        if (suspect.accent) {
+            const accentText = this.add.text(x + cardW / 2, photoY + photoH - 20, suspect.accent.toUpperCase(), {
+                fontFamily: 'PressStart2P',
+                fontSize: '11px',
+                color: '#00cc55',
+                align: 'center'
+            }).setOrigin(0.5, 0);
+            elements.push(accentText);
         }
 
         const zone = this.add.zone(x, y, cardW, cardH).setOrigin(0, 0).setInteractive();
@@ -413,7 +460,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         const PX = (W - PW) / 2;
         const PY = (H - PH) / 2;
 
-        // Główna podwójna ramka komputera CRT
         const panelBg = this.add.graphics();
         panelBg.fillStyle(0x030a06, 0.98);
         panelBg.fillRect(PX, PY, PW, PH);
@@ -422,7 +468,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         panelBg.strokeRect(PX + 6, PY + 6, PW - 12, PH - 12);
         panel.add(panelBg);
 
-        // Belka nagłówka
         const detailHeader = this.add.graphics();
         detailHeader.fillStyle(0x082012, 1);
         detailHeader.fillRect(PX + 8, PY + 8, PW - 16, 54);
@@ -437,7 +482,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         }).setOrigin(0, 0.5);
         panel.add(dossierTitle);
 
-        // Zdjęcie Portretowe (portraitKey)
         const photoX = PX + 35;
         const photoY = PY + 85;
         const photoW = 380;
@@ -457,11 +501,9 @@ export class WantedDatabaseScene extends Phaser.Scene {
         photoFrame.strokeRect(photoX, photoY, photoW, photoH);
         panel.add(photoFrame);
 
-        // Sekcja danych osobowych
         const infoX = PX + 450;
         const infoStartY = PY + 85;
 
-        // Imię i Nazwisko w Dossier (POWIĘKSZONE)
         this.detailName = this.add.text(infoX, infoStartY, '', {
             fontFamily: 'PressStart2P',
             fontSize: '24px',
@@ -475,7 +517,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         sep.lineBetween(infoX, infoStartY + 42, PX + PW - 35, infoStartY + 42);
         panel.add(sep);
 
-        // Atrybuty podejrzanego w ramce
         const attrBox = this.add.graphics();
         attrBox.fillStyle(0x05140b, 0.6);
         attrBox.fillRoundedRect(infoX - 10, infoStartY + 52, PW - 480, 230, 4);
@@ -506,7 +547,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
             panel.add(this.detailFields[field]);
         });
 
-        // Sekcja SKILLS (POWIĘKSZONA W RAMCE)
         const skillsY = infoStartY + 300;
         const skillsBg = this.add.graphics();
         skillsBg.fillStyle(0x05140b, 0.8);
@@ -530,7 +570,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         }).setOrigin(0, 0);
         panel.add(this.detailSkills);
 
-        // Sekcja HABITS (POWIĘKSZONA W RAMCE)
         const habitY = skillsY + 125;
         const habitBg = this.add.graphics();
         habitBg.fillStyle(0x05140b, 0.8);
@@ -554,7 +593,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         }).setOrigin(0, 0);
         panel.add(this.detailHabitus);
 
-        // Dolna stopka panelu Dossier
         this.detailCaseNum = this.add.text(PX + 35, PY + PH - 45, '', {
             fontFamily: 'PressStart2P',
             fontSize: '16px',
@@ -562,7 +600,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
         }).setOrigin(0, 0);
         panel.add(this.detailCaseNum);
 
-        // Przycisk Zamykania Dossier
         const closeBtnBg = this.add.graphics();
         closeBtnBg.fillStyle(0x082012, 1);
         closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
@@ -601,7 +638,7 @@ export class WantedDatabaseScene extends Phaser.Scene {
     }
 
     showDetailPanel(suspect) {
-        this.detailName.setText(suspect.name.toUpperCase());
+        this.detailName.setText((suspect.name || '').toUpperCase());
 
         const fields = ['gender', 'race', 'hair', 'eyes', 'features', 'accent'];
         fields.forEach(f => {
@@ -613,14 +650,14 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.detailSkills.setText(suspect.skills || 'NONE');
         this.detailHabitus.setText(suspect.habitus || 'NONE');
         this.detailCaseNum.setText(
-            `FILE ID: #${String(suspect.wantedKey || 0).padStart(3, '0')} // REF: ${suspect.id.toUpperCase()}`
+            `FILE ID: #${String(suspect.wantedKey || 0).padStart(3, '0')} // REF: ${String(suspect.id || '').toUpperCase()}`
         );
 
-        // Dossier ładowane ZAWSZE z pola `portraitKey`
         const portraitFile = suspect.portraitKey || suspect.id;
         const portraitImgKey = `suspect_portrait_${suspect.id}`;
 
         const updatePhotoTexture = () => {
+            if (!this.textures.exists(portraitImgKey)) return;
             this.detailPhoto.setTexture(portraitImgKey).setVisible(true);
             const frameW = 380;
             const frameH = 510;
@@ -633,13 +670,6 @@ export class WantedDatabaseScene extends Phaser.Scene {
             updatePhotoTexture();
         } else {
             this.detailPhoto.setVisible(false);
-            this.load.image(portraitImgKey, `assets/suspects/${portraitFile}.jpg`);
-            this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-                if (this.detailPanel.visible) {
-                    updatePhotoTexture();
-                }
-            });
-            this.load.start();
         }
 
         this.detailPanel.setVisible(true);
@@ -731,17 +761,19 @@ export class WantedDatabaseScene extends Phaser.Scene {
     }
 
     prevPage() {
+        if (this.isPaging) return;
         if (this.currentPage > 0) {
             this.currentPage--;
-            this.renderCards(this.scale.width, this.scale.height);
+            this.refreshPage();
         }
     }
 
     nextPage() {
+        if (this.isPaging) return;
         const totalPages = Math.ceil(this.filteredSuspects.length / this.CARDS_PER_PAGE);
         if (this.currentPage < totalPages - 1) {
             this.currentPage++;
-            this.renderCards(this.scale.width, this.scale.height);
+            this.refreshPage();
         }
     }
 
@@ -788,5 +820,17 @@ export class WantedDatabaseScene extends Phaser.Scene {
 
     cleanupScene() {
         this.input.keyboard.off('keydown-ESC', this.handleEsc, this);
+
+        if (this.crtFlickerEvent) {
+            this.crtFlickerEvent.remove(false);
+            this.crtFlickerEvent = null;
+        }
+
+        if (this.cardContainer) {
+            this.cardContainer.removeAll(true);
+        }
+
+        this.loadedSuspectTextures.clear();
+        this.isPaging = false;
     }
 }

@@ -1,16 +1,230 @@
-<div class="detective-form" id="login-form">
-    <h2>Dostęp do akt</h2>
-    <label>ID Agenta (Email):</label>
-    <input type="email" id="login-email" placeholder="agent@interpol.com" required>
-    
-    <label>Kod autoryzacyjny (Hasło):</label>
-    <input type="password" id="login-password" placeholder="********" required>
-    
-    <button class="btn-stamp" id="btn-login">ZALOGUJ</button>
-    <p class="error-msg" id="login-error" style="color:red; display:none;"></p>
-    
-    <div style="margin-top: 20px;">
-        <span class="form-link" id="link-register">Złóż podanie (Rejestracja)</span><br>
-        <span class="form-link" id="link-reset">Zgubiłem kod (Reset hasła)</span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enter Mark Agency HQ</title>
+  
+  <!-- Font Special Elite z Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-color: #0a0c10;
+      --card-bg: #12161f;
+      --border-color: #2a3447;
+      --text-main: #e2e8f0;
+      --text-muted: #8a99ad;
+      --accent-gold: #c99738;
+      --accent-gold-hover: #e5ab3e;
+      --accent-red: #ef4444;
+      --input-bg: #090b0e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Special Elite', monospace, system-ui;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .detective-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-top: 6px solid var(--accent-gold);
+      border-radius: 10px;
+      padding: 40px 50px;
+      
+      width: 100%;
+      height: 100%;
+      
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .detective-card::before {
+      content: "TOP SECRET / CONFIDENTIAL";
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      color: var(--accent-red);
+      opacity: 0.8;
+      font-weight: bold;
+    }
+
+    .detective-card h2 {
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      width: 100%;
+      max-width: 460px;
+      margin-bottom: 22px;
+      text-align: left;
+    }
+
+    .detective-card label {
+      display: block;
+      font-size: 1.05rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .detective-card input {
+      width: 100%;
+      padding: 14px 18px;
+      background-color: var(--input-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-family: 'Special Elite', monospace;
+      font-size: 1.15rem;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .detective-card input:focus {
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 12px rgba(201, 151, 56, 0.3);
+    }
+
+    .detective-card input::placeholder {
+      color: #334155;
+    }
+
+    /* Przycisk Główny (Logowanie) */
+    .btn-stamp {
+      width: 100%;
+      max-width: 460px;
+      padding: 16px;
+      margin-top: 10px;
+      background-color: transparent;
+      border: 2px solid var(--accent-gold);
+      color: var(--accent-gold);
+      font-family: 'Special Elite', monospace;
+      font-size: 1.25rem;
+      font-weight: bold;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-stamp:hover {
+      background-color: var(--accent-gold);
+      color: var(--bg-color);
+      box-shadow: 0 0 20px rgba(201, 151, 56, 0.4);
+    }
+
+    .btn-stamp:active {
+      transform: scale(0.98);
+    }
+
+    /* Sekcja dodatkowych przycisków */
+    .form-actions {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-color);
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    /* Przyciski pomocnicze (Register & Reset) */
+    .btn-secondary {
+      flex: 1;
+      padding: 12px;
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-family: 'Special Elite', monospace;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--text-main);
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .error-msg {
+      margin-top: 16px;
+      padding: 10px 16px;
+      background-color: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid var(--accent-red);
+      color: var(--accent-red);
+      font-size: 0.95rem;
+      display: none;
+      width: 100%;
+      max-width: 460px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="detective-card" id="login-form">
+    <h2>Enter Mark Agency HQ</h2>
+
+    <div class="form-group">
+      <label for="login-email">Agent ID (Email)</label>
+      <input type="email" id="login-email" placeholder="agent@interpol.com" required autocomplete="off">
     </div>
-</div>
+
+    <div class="form-group">
+      <label for="login-password">Authorization Code (Password)</label>
+      <input type="password" id="login-password" placeholder="********" required>
+    </div>
+
+    <button class="btn-stamp" id="loginbtn">LOG IN</button>
+    
+    <p class="error-msg" id="login-error">Invalid Agent ID or authorization code.</p>
+
+    <div class="form-actions">
+      <a href="register.html" class="btn-secondary" id="registerbtn">REGISTER</a>
+      <a href="reset.html" class="btn-secondary" id="resetbtn">RESET PASSWORD</a>
+    </div>
+  </div>
+
+</body>
+</html>
