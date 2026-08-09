@@ -54,7 +54,10 @@ export class DestinationsUI {
             this.destroy();
         });
     }
-
+create () {
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+    this.scene.get('NewsHud').events.emit('setTvVisible', false);
+}
     registerKeyboard() {
         if (!this.scene?.input?.keyboard) return;
 
@@ -118,7 +121,7 @@ export class DestinationsUI {
             .setInteractive({ useHandCursor: true });
 
         this.confirmLabel = this.scene.add.text(160, 178, 'Go by plane', {
-            fontFamily: 'SpecialElite',
+            fontFamily: 'Special Elite',
             fontSize: '18px',
             color: '#ffffff'
         }).setOrigin(0.5);

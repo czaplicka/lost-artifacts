@@ -1,0 +1,139 @@
+{
+  "title": "The Nairobi Perfectly Reasonable Times",
+  "subtitle": "Nairobi Edition",
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Matatu Conductor Gives Directions So Precise Passenger Arrives Emotionally Prepared",
+      "lead": "A simple trip across town becomes a masterclass in navigation, timing and confidence.",
+      "body": "A commuter attempting to reach a meeting in Westlands says a matatu conductor gave directions so detailed that she arrived twenty minutes early, fully informed about three shortcuts, two landmarks, and a bakery she had not planned to visit. 'He said, “Get off when you see the blue gate, unless it is the other blue gate,”' she explained. 'Somehow I understood everything.'",
+      "imageKey": "paper_nairobi_matatu_photo",
+      "imageCaption": "Public transport, operating on rhythm, instinct and several excellent shortcuts.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Worker Spots Giraffe Beyond Skyline, Cancels Three Meetings to Process It",
+      "lead": "The city continues to offer views no spreadsheet can prepare anyone for.",
+      "body": "A finance worker looking out from an office window reportedly noticed a giraffe in the distance and immediately stopped pretending to care about quarterly projections. Colleagues gathered around the glass in respectful silence before someone asked whether the giraffe had a better work-life balance. Nobody had an answer.",
+      "imageKey": "paper_nairobi_giraffe_skyline_photo",
+      "imageCaption": "A reminder that Nairobi meetings occasionally have very tall observers.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Karura Forest Jogger Returns With One New Hobby and Four Unsolicited Life Lessons",
+      "lead": "A short run becomes a long conversation with nature, weather and a very confident monkey.",
+      "body": "A resident who planned a quick jog through Karura Forest returned three hours later with muddy shoes, a new interest in birdwatching, and a strong opinion about hydration. Witnesses say the runner was briefly followed by a monkey who appeared to be judging their pace. The monkey has declined an interview.",
+      "imageKey": "paper_nairobi_karura_photo",
+      "imageCaption": "The forest, where a short walk rarely remains short.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Local Café Introduces Wi-Fi Password, Entire Neighborhood Becomes More Productive for Twelve Minutes",
+      "lead": "The password was changed at noon. Peace did not survive.",
+      "body": "Customers at a popular Nairobi café briefly achieved remarkable productivity after staff displayed the Wi-Fi password on a chalkboard. Emails were sent, projects advanced, and one person nearly completed a presentation. The password was changed at noon after someone shared it with a group chat called 'Everyone Important.'",
+      "imageKey": "paper_nairobi_cafe_photo",
+      "imageCaption": "The café where ambition briefly connected to the internet.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Pigeon Attempts to Join Startup Pitch, Investors Request Follow-Up Meeting",
+      "lead": "Its business model remains unclear, but the confidence was undeniable.",
+      "body": "A pigeon entered a rooftop startup event and spent seven uninterrupted minutes walking across the presentation area. Attendees initially assumed it was part of the demonstration. By the time someone attempted to remove it, the bird had received two business cards and an invitation to discuss scalable urban logistics.",
+      "imageKey": "paper_nairobi_startup_photo",
+      "imageCaption": "The founder declined to reveal its funding round.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Neighborhood Goat Promoted to Unofficial Security Consultant",
+      "body": "After loudly alerting residents to a delivery rider, a taxi, two pedestrians and a leaf, a local goat has been praised for its commitment to vigilance. Its methods remain broad, but nobody questions its work ethic."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Orders Tea, Receives Detailed Career Advice and a Better Plan for His Life",
+      "body": "A customer stopping for tea says the conversation lasted longer than expected but was ultimately more useful than his last three performance reviews. He has since changed his job-search criteria to include 'availability of excellent tea.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Driver Announces Shortcut, Entire Vehicle Learns About Three New Neighborhoods",
+      "body": "Passengers on an afternoon journey accepted a driver's promise of a faster route and were rewarded with an unexpected tour of side streets, construction zones and one extremely committed fruit stand. Everyone arrived eventually, richer in local knowledge."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Airport Traveler Carries Mysterious Old Suitcase, Insists It Contains 'Only Paperwork'",
+      "body": "Staff at a city airport report that a sharply dressed traveler arrived carrying a heavy vintage suitcase and an expression of professional impatience. He was overheard saying he was 'just passing through.' Nobody knows whether this is related to the {artifact} investigation, but the suitcase has inspired several theories."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Nairobi Pigeon Seen Inspecting {artifact} Postcard, Offers No Explanation",
+      "body": "A pigeon outside a souvenir shop was observed standing on a postcard of the missing {artifact} for nearly ten minutes. It eventually flew away after receiving no snacks. Authorities have not named it a suspect, though it has been described as 'unhelpfully composed.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Coworkers Discover Printer Works Better When Complimented",
+      "body": "Employees at a local office report that their printer stopped jamming after someone told it, 'You are doing your best.' The machine has since printed forty-seven pages without complaint and is now considered emotionally essential staff."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Dog Waits Outside Butcher Shop With Level of Patience Humans Can Only Study",
+      "body": "A dog outside a neighborhood butcher has become a familiar sight after demonstrating remarkable calm, focus and knowledge of operating hours. Regular customers say the animal has never once checked its phone or complained about the queue."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Friends Debate Best Coffee Spot, Accidentally Visit Seven",
+      "body": "What began as a casual disagreement over coffee quality became a six-hour research project involving seven cafés, three pastries and increasingly strong opinions about foam. Both participants now agree that more research is required."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Rumor of Missing {artifact} Reaches Nairobi, Souvenir Sellers Respond Immediately",
+      "body": "Vendors report a sudden rise in requests for miniature versions of the missing {artifact}. One shopkeeper has already placed a handwritten sign reading, 'Authentic replica, probably.' Customers appear satisfied with the distinction."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Receptionist Remembers Every Guest Except One Who Was 'Very Forgettable on Purpose'",
+      "body": "A hotel employee says a recent visitor stood out by making absolutely no impression at all: plain luggage, ordinary clothes, cash payment and no interest in breakfast. The guest reportedly departed before sunrise, leaving behind only a receipt and a very suspiciously empty room."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Street Vendor Correctly Predicts Rain, Traffic and One Person's Bad Decision",
+      "body": "A vendor near a busy intersection accurately forecast afternoon rain, a delayed commute and a customer attempting to cross the street while reading messages. Locals now consult him before checking weather apps."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor Claims {currentCity} Has Nothing on Nairobi, Starts Friendly Argument at Dinner",
+      "body": "A traveler passing through Nairobi made the mistake of declaring one city objectively better than another during dinner. The resulting debate covered food, weather, transport, architecture and personal loyalty. Dessert was delayed but considered worthwhile."
+    }
+  ]
+}

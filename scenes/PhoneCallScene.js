@@ -1,6 +1,7 @@
 import { gameState, saveGameState } from '../GameData.js';
+import { BaseScene } from './BaseScene.js';
 
-export class PhoneCallScene extends Phaser.Scene {
+export class PhoneCallScene extends BaseScene {
   constructor() {
     super({ key: 'PhoneCallScene' });
     this.sourceScene = 'CityScene';
@@ -21,6 +22,7 @@ export class PhoneCallScene extends Phaser.Scene {
   }
 
   create() {
+        super.create();
     const { width, height } = this.scale;
     const cx = width / 2;
     const cy = height / 2;

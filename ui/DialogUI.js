@@ -6,6 +6,7 @@ export class DialogUI {
         this.currentLineIndex = 0;
         this.typewriterTimer = null;
         this.isTyping = false;
+        this.destroyed = false;
 
         this.overlay = null;
         this.container = null;
@@ -14,7 +15,33 @@ export class DialogUI {
         this.portraitImage = null;
         this.nextHint = null;
 
+        // NEW: keep an explicit handle to the infinitely-repeating hint
+        // tween so it can be stopped/removed on demand instead of relying
+        // on it ever finishing (it never does, repeat: -1).
+        this.nextHintTween = null;
+
+        this.boundHandleSceneShutdown = this.destroy.bind(this);
+
         this.create();
+        this.bindSceneLifecycle();
+    }
+
+    // NEW: guarantees cleanup even if whatever created this DialogUI
+    // forgets to call destroy() when the scene changes. Without this, the
+    // repeat:-1 tween on nextHint (and the game objects it targets) keeps
+    // living inside scene.tweens after the scene shuts down.
+    bindSceneLifecycle() {
+        if (!this.scene?.events) return;
+
+        this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.boundHandleSceneShutdown);
+        this.scene.events.once(Phaser.Scenes.Events.DESTROY, this.boundHandleSceneShutdown);
+    }
+
+    unbindSceneLifecycle() {
+        if (!this.scene?.events) return;
+
+        this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.boundHandleSceneShutdown);
+        this.scene.events.off(Phaser.Scenes.Events.DESTROY, this.boundHandleSceneShutdown);
     }
 
     create() {
@@ -62,7 +89,7 @@ export class DialogUI {
             color: '#8a1f1f'
         }).setOrigin(0.5).setAlpha(0);
 
-        this.scene.tweens.add({
+        this.nextHintTween = this.scene.tweens.add({
             targets: this.nextHint,
             y: '+=6',
             duration: 500,
@@ -85,6 +112,8 @@ export class DialogUI {
     }
 
     open(entry) {
+        if (this.destroyed) return;
+
         this.lines = entry.lines || [];
         this.currentLineIndex = 0;
 
@@ -106,6 +135,7 @@ export class DialogUI {
             duration: 200,
             ease: 'Power2',
             onComplete: () => {
+                if (this.destroyed) return;
                 this.showLine(this.currentLineIndex);
             }
         });
@@ -186,15 +216,50 @@ export class DialogUI {
             duration: 180,
             ease: 'Power2',
             onComplete: () => {
-                this.overlay.setVisible(false);
-                this.container.setVisible(false);
+                this.overlay?.setVisible(false);
+                this.container?.setVisible(false);
             }
         });
     }
 
     destroy() {
-        this.close();
+        if (this.destroyed) return;
+        this.destroyed = true;
+        this.isOpen = false;
+
+        this.unbindSceneLifecycle();
+
+        if (this.typewriterTimer) {
+            this.typewriterTimer.destroy();
+            this.typewriterTimer = null;
+        }
+
+        // Explicitly stop the infinite-repeat hint tween instead of hoping
+        // container.destroy() cascades into it - Phaser's tween manager
+        // tracks tweens independently of the display list, so an orphaned
+        // repeat:-1 tween can keep running/referencing a dead target.
+        if (this.nextHintTween) {
+            this.nextHintTween.stop();
+            this.nextHintTween.remove();
+            this.nextHintTween = null;
+        }
+
+        // Belt-and-braces: kill any other in-flight tweens (open/close fade)
+        // targeting our UI objects, in case destroy() fires mid-animation.
+        if (this.scene?.tweens) {
+            if (this.overlay) this.scene.tweens.killTweensOf(this.overlay);
+            if (this.container) this.scene.tweens.killTweensOf(this.container);
+            if (this.nextHint) this.scene.tweens.killTweensOf(this.nextHint);
+        }
+
         this.container?.destroy(true);
         this.overlay?.destroy();
+
+        this.container = null;
+        this.overlay = null;
+        this.speakerText = null;
+        this.bodyText = null;
+        this.portraitImage = null;
+        this.nextHint = null;
     }
 }

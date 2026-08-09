@@ -1,0 +1,198 @@
+{
+  "title": "The Daily Quite Ordinary",
+  "subtitle": "London Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Stolen From {location}",
+      "lead": "A carefully planned theft leaves London with one empty case and several very concerned umbrellas.",
+      "body": "Police in {city} are investigating the disappearance of the priceless {artifact} from {location}. The object vanished overnight despite locked doors, active alarms and at least one guard who insists he was 'looking in the other direction for a perfectly valid reason.' The Mark Agency has joined the investigation. Detectives are asking the public to report anything suspicious, especially unusually confident people carrying unusually large bags.",
+      "imageKey": "paper_london_heist_photo",
+      "imageCaption": "The empty display at {location}, now London's least complete attraction.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "London Wakes to Missing {artifact}",
+      "lead": "The city has questions. The thief has apparently chosen silence.",
+      "body": "The {artifact} has disappeared from {location}, prompting an urgent investigation in {city}. Authorities are currently following {clueCount} clues and reviewing {suspectCount} possible suspects. Museum staff have placed a small sign beside the empty display reading 'Temporarily unavailable,' because apparently even a major crime requires good visitor information.",
+      "imageKey": "paper_london_heist_photo",
+      "imageCaption": "Visitors admire the place where the {artifact} was last seen.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Night Heist at {location}: {artifact} Gone",
+      "lead": "Rain, fog and a missing artifact: London insists this is not a cliché.",
+      "body": "The theft of the {artifact} from {location} has entered day {day}, with detectives still reconstructing the crime. A witness reported seeing someone leave the area in a dark coat, which authorities describe as 'a useful detail in precisely no way whatsoever.' The Mark Agency has requested calm, patience and the return of one very specific historical object.",
+      "imageKey": "paper_london_heist_photo",
+      "imageCaption": "The scene of the crime, looking appropriately dramatic in the rain.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Where Is the {artifact}? {city} Awaits Answers",
+      "lead": "Investigators pursue leads while Londoners pursue coffee and dry shelter.",
+      "body": "The disappearance of the {artifact} from {location} has caused concern across {city}, particularly among people who had planned to see it this week. Officials confirm that {clueCount} pieces of evidence are under review. One spokesperson declined to reveal further details, explaining that the investigation was active, delicate and taking place during a very inconvenient drizzle.",
+      "imageKey": "paper_london_heist_photo",
+      "imageCaption": "An empty space at {location}, now receiving more attention than ever.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Man Queues for Forty Minutes Before Realizing There Was No Line",
+      "lead": "A parked bicycle quietly becomes the most important object in a man's morning.",
+      "body": "A commuter reportedly stood patiently behind a parked bicycle for the better part of an hour, assuming it was the start of a queue. He later described the wait as 'a bit slow, but very orderly.' When informed there was no line, he nodded, apologised to the bicycle and continued walking.",
+      "imageKey": "paper_london_queue_photo",
+      "imageCaption": "The bicycle that briefly became a civic landmark.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Weather Remains Exactly As Expected, Nation Strangely Comforted",
+      "lead": "Grey, mild and slightly damp conditions restore a sense of order.",
+      "body": "Forecasters confirmed today would be grey, mild and slightly damp, and residents responded with what experts describe as profound and total relief. One man looked out of a bus window, saw light rain and said, 'Right then,' before carrying on with his day.",
+      "imageKey": "paper_london_weather_photo",
+      "imageCaption": "The weather, fulfilling its contractual obligations.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Tube Passenger Finds Seat, Spends Entire Journey Pretending Not to Enjoy It",
+      "lead": "Comfort is accepted politely and without visible celebration.",
+      "body": "A commuter boarding a crowded train found an empty seat and sat down immediately, then spent the next twenty minutes staring ahead with the expression of someone who had merely fulfilled a routine administrative duty. Fellow passengers understood the situation and gave him the privacy required for such a rare emotional event.",
+      "imageKey": "paper_london_tube_photo",
+      "imageCaption": "The seat was available. Nobody asked why.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Pigeon Attempts to Board Bus, Driver Says It Has More Manners Than Some Passengers",
+      "lead": "The bird waited near the door and did not play music aloud.",
+      "body": "A pigeon at a central London bus stop briefly entered a bus, inspected the aisle and departed before the vehicle moved. The driver praised the bird's behaviour, noting that it did not block the doors, argue about fares or attempt to eat a hot meal in the back row.",
+      "imageKey": "paper_london_pigeon_bus_photo",
+      "imageCaption": "The passenger declined to tap in.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Tourist Asks for Directions, Receives Three Apologies and Completely Different Routes",
+      "lead": "The city remains helpful, polite and geographically complicated.",
+      "body": "A visitor seeking a famous landmark received directions from three Londoners, each beginning with an apology and ending at a different station. The tourist thanked everyone, nodded bravely and chose a nearby café instead. Experts consider this a sensible adaptation strategy.",
+      "imageKey": "paper_london_tourist_map_photo",
+      "imageCaption": "The map, technically accurate and emotionally unhelpful.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Pub Debates Whether a Dog Should Be Allowed to Vote on Trivia Night",
+      "body": "Regulars at a neighbourhood pub are locked in a heated but friendly dispute after a dog named Biscuit correctly barked at three trivia answers in a row. Management has yet to issue an official ruling, though the dog is currently leading by one point."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Fox Seen Outside Corner Shop, Appears to Be Comparing Meal Deals",
+      "body": "A fox spent several minutes outside a corner shop examining promotional posters before leaving without a purchase. Witnesses believe it was considering the sandwich offer but found the crisps insufficiently interesting."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Says He Is 'Just Popping Out,' Returns Four Hours Later With Antique Lamp",
+      "body": "A resident who left home intending to buy milk returned with an antique lamp, two books and a strong opinion about a market stallholder's dog. The milk was not purchased, but he insists the trip was productive."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Outside {location} Declines to Discuss Missing {artifact}",
+      "body": "A pigeon observed near {location} has been seen walking around with what witnesses describe as 'unearned confidence.' Detectives attempted to question it about the missing {artifact}, but the bird flew away as soon as anyone mentioned bread."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Gift Shop Sells Out of {artifact} Postcards, Calls Timing 'Purely Coincidental'",
+      "body": "Since the disappearance of the {artifact}, visitors have been buying postcards and magnets showing the object at an alarming rate. The shop manager denies exploiting a major investigation and points out that the postcards were already printed."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Insurance Adjuster Requests Tea, Biscuit and Second Opinion on {artifact} Claim",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} has requested a quiet room, tea without judgement and someone else to look at the paperwork first. Staff at {location} say this is entirely understandable."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Man Insists Umbrella Is Cursed, Refuses Further Comment",
+      "body": "A resident has stopped using his umbrella after it allegedly chose to open indoors on three separate occasions. He now carries it closed under his arm at all times, 'just in case it tries something.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Dog Refuses to Walk in Rain, Negotiates Alternative Arrangements",
+      "body": "A small dog in a raincoat stopped at the entrance of its building and declined to continue outside. Its owner offered encouragement, treats and a detailed explanation of weather. The dog eventually agreed to a shorter walk, provided it included a bakery."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Guest Leaves Before Sunrise With One Suitcase and No Breakfast",
+      "body": "A receptionist recalls a quiet guest who checked out before dawn, paid in cash and declined every available service. The visitor asked one detailed question about train connections, then left carrying an old suitcase and an expression of professional urgency."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Calls London 'Too Busy,' Then Spends Three Hours in Bookshop",
+      "body": "A traveller arriving from {currentCity} declared London exhausting before entering a large bookshop and losing all sense of time. Friends later found the visitor carrying four books, a tote bag and no remaining objections."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Friends Meet for One Pint, Accidentally Plan Entire Holiday",
+      "body": "A quick after-work drink became a discussion of flight prices, accommodation, restaurants and whether anyone could reasonably take leave next month. Both friends agreed to make a spreadsheet, then forgot immediately."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Company Asks Whether {artifact} Could Be 'Somewhere Obvious'",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} asked staff at {location} whether the object might have been moved, stored or placed behind something. Staff replied that it was an internationally significant artifact, not a misplaced umbrella."
+    }
+  ]
+}

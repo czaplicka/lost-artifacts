@@ -1,4 +1,5 @@
-export class WantedDatabaseScene extends Phaser.Scene {
+import { BaseScene } from './BaseScene.js';
+export class WantedDatabaseScene extends BaseScene {
     constructor() {
         super({ key: 'WantedDatabaseScene' });
         this.gameState = {};
@@ -21,11 +22,8 @@ export class WantedDatabaseScene extends Phaser.Scene {
         this.gameState = data?.gameState || this.gameState || {};
     }
 
-    preload() {
-        this.load.json('suspects', 'assets/data/suspects.json');
-    }
-
     create() {
+            super.create();
         if (this.scene.isActive('UIScene')) {
             this.scene.sleep('UIScene');
         }

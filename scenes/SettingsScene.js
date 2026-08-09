@@ -1,7 +1,8 @@
 import { audioManager } from '../AudioManager.js';
 import { UISlider } from '../ui/UISlider.js';
+import { BaseScene } from './BaseScene.js';
 
-export class SettingsScene extends Phaser.Scene {
+export class SettingsScene extends BaseScene {
     constructor() {
         super({ key: 'SettingsScene' });
         this.sfxSlider = null;
@@ -10,6 +11,7 @@ export class SettingsScene extends Phaser.Scene {
     }
 
     create() {
+            super.create();
         audioManager.init(this);
 
         const bg = this.add.image(0, 0, 'backgroundset')

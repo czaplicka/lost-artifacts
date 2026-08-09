@@ -1,7 +1,8 @@
 import { loadGameState } from '../GameData.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
+import { BaseScene } from './BaseScene.js';
 
-export class BootScene extends Phaser.Scene {
+export class BootScene extends BaseScene {
     constructor() {
         super({ key: 'BootScene' });
     }
@@ -12,13 +13,15 @@ export class BootScene extends Phaser.Scene {
     }
 
     create() {
-        this.scene.sleep('UIScene');
+            super.create();
         try {
             loadGameState();
         } catch (error) {
             console.error('loadGameState failed:', error);
         }
-
+if (!this.registry.has('difficulty')) {
+            this.registry.set('difficulty', 'field');
+        }
     // Inicjalizacja MobileFullscreen — tworzy overlay i listenery
     if (!this.registry.has('mobileFS')) {
         const mobileFS = new MobileFullscreen();

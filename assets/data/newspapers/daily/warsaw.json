@@ -1,0 +1,140 @@
+{
+  "title": "The Daily Perfectly Normal",
+  "subtitle": "Warsaw Edition",
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Stolen From {location}",
+      "lead": "A daring night heist leaves {city} police baffled and one pedestal very empty.",
+      "body": "Police in {city} are investigating the disappearance of the priceless {artifact} from {location}. The thief left no trace, apart from the conspicuous absence of the {artifact}. Mark Agency has reportedly been called in, which one official described as 'more reassuring than it sounded.'",
+      "imageKey": "paper_warsaw_heist_photo",
+      "imageCaption": "The empty pedestal where the {artifact} once stood.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+{
+      "slotId": "lead",
+      "headline": "Heist in {city}: {artifact} Gone",
+      "lead": "Daring. Audacious. Really quite rude.",
+      "body": "Sometime between closing time and breakfast, the famous {artifact} vanished from {location} in {city}. Security footage shows nothing. Guards remember nothing. The gift shop, however, reports excellent sales of {artifact} postcards — now the only place the item can still be seen.",
+      "imageKey": "paper_warsaw_heist_photo",
+      "imageCaption": "Tourists photograph the spot where the {artifact} used to be.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Night of Mystery at {location}: {artifact} Vanishes",
+      "lead": "Doors locked. Alarms silent. Artifact: gone. Staff: 'confused but punctual.'",
+      "body": "Employees arriving for the morning shift at {location} found every door locked, every alarm armed, and precisely one thing missing: the {artifact}. Investigators report {clueCount} active lines of inquiry and one extremely tired night guard. 'In my twenty years, nothing like this has ever happened,' said the guard, 'apart from the pigeon incident, which we do not discuss.'",
+      "imageKey": "paper_warsaw_heist_photo",
+      "imageCaption": "{location}, seen here still containing the {artifact}.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    },
+    {
+      "slotId": "lead",
+      "headline": "{city} in Shock: Who Would Steal the {artifact}?",
+      "lead": "Day {day} of the investigation and the city has more questions than answers.",
+      "body": "The disappearance of the {artifact} from {location} has entered day {day}, and {city} remains thoroughly scandalized. Police have reportedly identified {suspectCount} persons of interest, which witnesses describe as 'a reasonable number.' A special agent of the Mark Agency was seen at the scene taking notes with what onlookers called 'alarming competence.'",
+      "imageKey": "paper_warsaw_heist_photo",
+      "imageCaption": "The investigation continues. The pedestal does not.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    }
+  ],
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Local Man Wins Argument With Vending Machine, Neighbors Applaud",
+      "lead": "Fifteen minutes of stern negotiation end with a triumphant thud.",
+      "body": "Residents on Nowy Świat street gathered outside a snack machine after resident Tomasz K. reportedly 'talked it into' releasing a stuck chocolate bar. Witnesses describe fifteen minutes of stern negotiation, one dramatic pause, and a final triumphant thud. The vending machine has declined to comment.",
+      "imageKey": "paper_warsaw_vending_photo",
+      "imageCaption": "The scene of the argument that changed one man's day.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Wisła Claims Another Kayak, Returns It Out of Politeness",
+      "lead": "The river has issued no statement, as is tradition.",
+      "body": "A capsized kayak was reportedly handed back to its owner by the current near Poniatowski Bridge, in what onlookers describe as 'unusually courteous behavior for a major river.' The kayaker thanked the river. The river said nothing, but everyone understood.",
+      "imageKey": "paper_warsaw_river_photo",
+      "imageCaption": "The river, acting innocent.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Mermaid Statue Denies Any Involvement, Again",
+      "lead": "The Syrenka has held the same alibi since 1939 and it still checks out.",
+      "body": "After yet another incident somewhere in the city, reporters once again gathered around the Old Town mermaid seeking comment. As always, the statue held her sword and shield and said nothing, which legal experts describe as 'the most consistent media strategy in the country.'",
+      "imageKey": "paper_warsaw_mermaid_photo",
+      "imageCaption": "The Syrenka, not commenting.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Palace of Culture Still Taller Than Everything, Locals Cope Heroically",
+      "lead": "Annual measurements confirm the building's continued commitment to being noticed.",
+      "body": "In a result described by scientists as 'completely unsurprising,' the Palace of Culture and Science remains visible from literally everywhere. A support group for residents trying to navigate without using it as a landmark meets on Tuesdays. Attendance is low, as most cannot find the room.",
+      "imageKey": "paper_warsaw_palace_photo",
+      "imageCaption": "The building, visible from where this photo was taken, obviously.",
+      "image": { "x": 760, "y": 245, "width": 300, "height": 190 }
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "City Pigeon Elected Honorary Member of Chess Club",
+      "body": "After appearing at the same park bench every Tuesday for three months, a pigeon known only as 'Grandmaster' was granted honorary membership by the Warsaw Chess Enthusiasts Society. Members insist the bird has 'an intuitive grasp of the endgame,' though it has yet to move an actual piece."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Łazienki Peacock Demands Agent, Refuses Unpaid Photoshoots",
+      "body": "The park's most photographed resident has begun turning his tail away from cameras lacking 'proper representation.' Park officials note that the peacock has no legal standing, to which the peacock responded by posing for a wedding shoot anyway."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Pigeon Claims It 'Saw Everything' During {location} Incident",
+      "body": "A pigeon nesting near {location} has been strutting with what witnesses describe as 'the confidence of someone with information.' Detectives attempted an interview, but the bird flew off the moment bread was involved. It remains a bird of interest."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Chopin Bench Plays to Empty Park, Performance Described as 'Emotionally Available'",
+      "body": "One of the city's musical benches gave a full nocturne to an audience of zero on Monday evening. A passing jogger slowed briefly, nodded, and kept running, which the bench reportedly 'respected.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Insurance Adjusters Arrive in {city} Over {artifact}, Immediately Request Insurance",
+      "body": "The team sent to assess the disappearance of the {artifact} has reportedly filed its own claim for 'emotional distress caused by paperwork.' Headquarters responded with a form, which triggered a second claim."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Office Building Elevator Develops Strong Opinions About Music",
+      "body": "Employees at a downtown office report that the building elevator now skips floors whenever disco plays on someone's portable radio. Maintenance staff insist this is a wiring issue. Several tenants insist the elevator simply 'has taste.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Milk Bar Queue Achieves Sentience, Elects Spokesperson",
+      "body": "The Friday queue at a beloved bar mleczny has existed so long it now has its own internal governance and a strongly worded position on pierogi ruskie. The position is: yes."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Souvenir Stand Sales of {artifact} Replicas Up 400%, Quality Down Impressively",
+      "body": "With the original {artifact} no longer available for viewing, stalls near {location} report booming sales of replicas described as 'recognizable, mostly.' One vendor now offers a premium tier that is 'slightly less wrong.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Tourists Photograph Empty Pedestal, Praise 'Bold Conceptual Statement'",
+      "body": "Visitors unaware of the theft at {location} have been admiring the empty display of the {artifact}, with several calling it 'a powerful commentary on absence.' Museum staff have not corrected them, citing morale."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Tram 15 Arrives on Time, Passengers Too Stunned to Board",
+      "body": "Commuters at the stop reportedly froze as the vehicle pulled up exactly on schedule. 'We needed a moment,' said one witness. The driver waited politely, which only deepened everyone's suspicion."
+    }
+  ]
+}

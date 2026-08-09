@@ -1,0 +1,198 @@
+{
+  "title": "Le Journal Tout à Fait Ordinaire",
+  "subtitle": "Paris Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Stolen From {location}",
+      "lead": "A daring night heist leaves {city} with one empty display and many dramatically raised eyebrows.",
+      "body": "Police in {city} are investigating the disappearance of the priceless {artifact} from {location}. The object vanished overnight, leaving behind an empty pedestal, several confused guards and one security camera pointed very professionally at a wall. The Mark Agency has reportedly assigned an investigator to the case. Witnesses describe the agent as 'suspiciously interested in everything.'",
+      "imageKey": "paper_paris_heist_photo",
+      "imageCaption": "The display at {location}, now serving a bold statement about absence.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Paris Wakes to Missing {artifact}",
+      "lead": "The theft has elegance, mystery and a paperwork problem of historic proportions.",
+      "body": "The famous {artifact} has disappeared from {location}, prompting an immediate investigation across {city}. Officials have confirmed {clueCount} active clues and {suspectCount} potential suspects, though one spokesperson cautioned that the figures are 'still becoming more Frenchly complicated.' Museum staff have placed a velvet rope around the empty space because, according to one employee, 'it is still an exhibit.'",
+      "imageKey": "paper_paris_heist_photo",
+      "imageCaption": "Visitors contemplate the place where the {artifact} used to be.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Night of Mystery at {location}: {artifact} Vanishes",
+      "lead": "Locked doors, silent alarms and one artifact apparently late for another appointment.",
+      "body": "On day {day} of the investigation, the disappearance of the {artifact} continues to puzzle authorities in {city}. No one has explained how such a valuable object left {location} without triggering a clear alarm. A guard insists he noticed 'something unusual,' but cannot say what, because he assumed it was simply modern art.",
+      "imageKey": "paper_paris_heist_photo",
+      "imageCaption": "The scene of the crime, photographed before anyone touched anything important.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Where Is the {artifact}? {city} Demands Answers",
+      "lead": "The investigation continues, while souvenir vendors quietly adapt their business models.",
+      "body": "The disappearance of the {artifact} from {location} has shocked residents, tourists and at least three people who were only looking for the gift shop. Detectives are pursuing {clueCount} lines of inquiry, including a suspicious footprint, a partial witness account and an employee who insists they were 'definitely somewhere else, probably.' The Mark Agency has urged the public not to interfere with the investigation or attempt amateur detective work near the pastry counter.",
+      "imageKey": "paper_paris_heist_photo",
+      "imageCaption": "A previously occupied space, currently attracting considerable attention.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Café Waiter Sets New Personal Record for Ignoring Customers, Colleagues Impressed",
+      "lead": "Eleven minutes of strategic absence become a new local legend.",
+      "body": "A waiter at a Left Bank café reportedly went eleven minutes without acknowledging a single table, a personal best according to coworkers. Customers describe the experience as 'authentic,' 'infuriating,' and 'somehow charming.' The waiter eventually appeared, placed menus on the table and vanished again before anyone could order.",
+      "imageKey": "paper_paris_cafe_photo",
+      "imageCaption": "The café where waiting becomes an art form.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Pigeon Steals Entire Baguette, Community Divided on Whether to Applaud",
+      "lead": "The bird's technique was questionable. Its ambition was not.",
+      "body": "Witnesses near a popular bakery watched a single pigeon make off with a full baguette nearly its own body length. Opinions remain split between outrage and quiet admiration. The bakery owner has increased security, while the pigeon has reportedly been seen inspecting croissants.",
+      "imageKey": "paper_paris_pigeon_baguette_photo",
+      "imageCaption": "An artist's impression of the suspect leaving the scene.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Man Insists His Beret Improves His Personality, Friends Unconvinced",
+      "lead": "Claims of increased mystery remain impossible to verify.",
+      "body": "A local resident claims his new beret has made him more thoughtful, more mysterious and slightly taller. Friends note no measurable change in height or mystery, but agree the beret looks nice. The man has begun pausing before answering simple questions, which he says is part of the effect.",
+      "imageKey": "paper_paris_beret_photo",
+      "imageCaption": "The beret, reportedly responsible for several personal developments.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Tourist Attempts to See All of Paris in One Day, Sees Mostly Metro Stairs",
+      "lead": "An ambitious itinerary meets the physical limits of human knees.",
+      "body": "A visitor armed with a map, two guidebooks and unreasonable confidence attempted to visit every major landmark before dinner. By 4 p.m., the traveler had seen three museums from the outside, purchased six postcards and developed a highly detailed understanding of the metro system.",
+      "imageKey": "paper_paris_metro_photo",
+      "imageCaption": "The route was simple until it became philosophical.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Street Artist Draws Portrait of Dog, Dog Appears Deeply Critical",
+      "lead": "The subject did not move. The expression did all the work.",
+      "body": "A street artist near the river spent twenty minutes sketching a small dog while its owner waited nearby. The finished portrait was praised by passers-by, the owner and several other dogs. The subject inspected it briefly, then turned away, apparently unimpressed by the likeness.",
+      "imageKey": "paper_paris_dog_portrait_photo",
+      "imageCaption": "The critic, refusing to discuss artistic intention.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Cat Claims Best Window Seat at Bakery, Customers Accept New Management",
+      "body": "A tabby cat has occupied the sunniest bakery window for five consecutive afternoons. Customers now enter quietly, buy pastries and avoid disturbing the apparent owner of the establishment."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Accordion Player Knows Exactly Three Songs, Plays Them With Increasing Confidence",
+      "body": "A musician near a busy square has performed the same three songs for several hours each day. Regular listeners say the fourth repetition is where the artist truly finds emotional depth."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Brings Book to Park, Spends Entire Afternoon Watching Other People Instead",
+      "body": "A reader who intended to finish a novel in the park reportedly completed only four pages after becoming distracted by dogs, tourists, pigeons and one dramatic argument about ice cream. He described the day as productive in a different way."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Near {location} Appears to Know More Than It Is Saying",
+      "body": "A pigeon seen outside {location} has attracted attention by repeatedly inspecting the same window and walking away whenever detectives approach. Authorities have not named the bird a witness, but admit it has 'an unsettling amount of confidence.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Souvenir Shop Sells Out of {artifact} Replicas, Most Barely Resemble Original",
+      "body": "Demand for miniature versions of the missing {artifact} has risen sharply since its disappearance. One seller admits the replicas are 'artistically flexible,' but insists customers appreciate the spirit of the item."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Insurance Adjuster Requests Second Espresso Before Reviewing {artifact} Claim",
+      "body": "An insurance representative examining paperwork connected to the missing {artifact} has reportedly asked for a quiet room, a large coffee and an additional coffee for the first coffee. Staff at {location} say this is understandable."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Parisian Dog Refuses to Walk in Rain, Negotiates Indoor Alternative",
+      "body": "A small dog equipped with a raincoat stopped at the entrance of its building and declined to continue outside. Its owner attempted encouragement, logic and treats. The dog eventually agreed to a shorter route, provided it included a bakery."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Resident Says He Is Not Lost, Has Been at Same Corner for Forty Minutes",
+      "body": "A man holding a folded paper map insists he is merely taking in the architecture, despite asking three strangers where the river is. He has since selected a café and described the decision as intentional."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Gift Shop Offers Discount on {artifact} Postcards, Public Calls It 'A Little Early'",
+      "body": "Staff near {location} have introduced a special sale on postcards featuring the missing {artifact}. The manager insists it is simply good inventory management. Visitors describe the timing as ambitious."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Guest Leaves Before Dawn, Requests No Taxi and No Questions",
+      "body": "A receptionist recalls a quiet guest who checked out before sunrise with one old suitcase and an unusually precise knowledge of train schedules. The visitor paid in cash, declined breakfast and said they were 'going somewhere less memorable.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Says Paris Is 'Too Romantic,' Then Buys Three Pastries",
+      "body": "A traveler arriving from {currentCity} claimed to be immune to Parisian charm before purchasing several pastries, taking dozens of photographs and asking whether it would be unreasonable to move into a café permanently."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Friends Meet for One Coffee, Leave With Plans for Museum, Dinner and New Careers",
+      "body": "A brief coffee meeting expanded into a full afternoon of gallery visits, shopping and broad life reassessment. Both friends agreed to begin their new careers next week, once they have finished brunch."
+    }
+  ]
+}

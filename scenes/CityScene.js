@@ -3,6 +3,8 @@ import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { generateCaseCityState } from '../city-encounter-generator.js';
 import { audioManager } from '../AudioManager.js';
+import { resolveCityNpcTheme, getNpcTextureKey, getNpcLabel } from '../npcThemeHelper.js';
+import { BaseScene } from './BaseScene.js';
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
@@ -26,7 +28,7 @@ const KNOWN_CRIME_SCENES = [
   'havela'
 ];
 
-export class CityScene extends Phaser.Scene {
+export class CityScene extends BaseScene {
   constructor() {
     super({ key: 'CityScene' });
     this.city = null;
@@ -39,6 +41,7 @@ export class CityScene extends Phaser.Scene {
     this.pendingPhoneCall = false;
     this.pendingPhoneCallCityId = null;
     this.cityAmbient = null;
+    this.npcTheme = 'default';
   }
 
   init(data = {}) {
@@ -71,80 +74,181 @@ export class CityScene extends Phaser.Scene {
   }
 
   create() {
-    audioManager.init(this);
-    if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', { loop: true });
-    }
-    this.cityAmbient = audioManager.playAmbient('citysound', { volume: 0.22, loop: true });
+  super.create();
 
-    if (this.scene.isActive('LocationScene') || this.scene.isSleeping('LocationScene')) {
-      this.scene.stop('LocationScene');
-    }
+  /*
+   * Rejestrujemy cleanup od razu.
+   * Musi istnieć również wtedy, gdy dane miasta okażą się błędne
+   * i scena zrobi szybki powrót do MenuScene.
+   */
+  this.events.once(
+    Phaser.Scenes.Events.SHUTDOWN,
+    this.onSceneShutdown,
+    this
+  );
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', true); 
+  this.scene.get('NewsHud').events.emit('setTvVisible', false);
 
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
-    }
+  audioManager.init(this);
 
-    this.scene.wake('UIScene');
-
-    const locations = this.cache.json.get('locations') || [];
-    const city = locations.find(c => c.id === this.cityId);
-
-    if (!city) {
-      console.error('CityScene city not found:', this.cityId);
-      this.scene.start('MenuScene');
-      return;
-    }
-
-    this.city = city;
-    gameState.currentCityId = this.cityId;
-    gameState.currentCity = city.city;
-    gameState.currentCityData = structuredClone(city);
-
-    this.registry.set('currentCityId', this.cityId);
-    this.registry.set('investigationStatus', this.investigationStatus);
-
-    this.ensureCityEncounterState(locations);
-
-    this.createBackground(city);
-    this.createHeader(city);
-
-    if (!this.isFinalShowdown) {
-      this.createEncounters();
-      this.createCrimeScene(city);
-    }
-
-    ensureHud(this);
-
-    const hud = this.scene.get('PlayerHudScene');
-    if (hud?.closeAllUIPanels) hud.closeAllUIPanels();
-    if (hud?.refreshNotebook) hud.refreshNotebook();
-    else if (hud?.refreshUI) hud.refreshUI();
-
-    if (this.isFinalShowdown) {
-      this.time.delayedCall(250, () => this.closeAllUIPanels());
-      if (!this.scene.isActive('ArrestSelectionScene')) this.scene.launch('ArrestSelectionScene');
-      else this.scene.bringToTop('ArrestSelectionScene');
-      this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
-      return;
-    }
-
-    if (this.shouldShowPhoneCallNow()) {
-      this.time.delayedCall(400, () => this.closeAllUIPanels());
-      if (!this.scene.isActive('PhoneCallScene')) {
-        this.scene.launch('PhoneCallScene', {
-          sourceScene: 'CityScene',
-          cityId: this.cityId
-        });
-      } else {
-        this.scene.bringToTop('PhoneCallScene');
-      }
-    } else if (this.openDestinationsOnCreate) {
-      this.time.delayedCall(150, () => this.openDestinationsPanel());
-    }
-
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onSceneShutdown, this);
+  if (!audioManager.isMusicPlaying('themeGame')) {
+    audioManager.playMusic('themeGame', { loop: true });
   }
+
+  this.cityAmbient = audioManager.playAmbient(
+    'citysound',
+    {
+      volume: 0.22,
+      loop: true
+    }
+  );
+
+  if (
+    this.scene.isActive('LocationScene') ||
+    this.scene.isSleeping('LocationScene')
+  ) {
+    this.scene.stop('LocationScene');
+  }
+
+  if (this.scene.isActive('ArrestSelectionScene')) {
+    this.scene.stop('ArrestSelectionScene');
+  }
+
+  this.scene.wake('UIScene');
+
+  const rawLocations = this.cache.json.get('locations');
+
+  /*
+   * `|| []` zabezpiecza jedynie null/undefined.
+   * Nie zabezpiecza przed obiektem, stringiem albo uszkodzonym kształtem
+   * danych, bo taki typ nie ma metody `.find()`.
+   */
+  if (!Array.isArray(rawLocations)) {
+    console.error(
+      '[CityScene] Invalid or missing locations data.',
+      {
+        cacheKey: 'locations',
+        receivedData: rawLocations,
+        cityId: this.cityId
+      }
+    );
+
+    this.closeAllUIPanels();
+
+    this.scene.start('MenuScene', {
+      citySetupFailed: true,
+      errorMessage: 'City data could not be loaded.'
+    });
+
+    return;
+  }
+
+  const locations = rawLocations;
+
+  const city = locations.find((entry) => {
+    return entry &&
+      typeof entry === 'object' &&
+      entry.id === this.cityId;
+  });
+
+  if (!city) {
+    console.error(
+      '[CityScene] Requested city was not found in locations data.',
+      {
+        cityId: this.cityId,
+        availableCityIds: locations
+          .filter((entry) => {
+            return entry && typeof entry === 'object';
+          })
+          .map((entry) => entry.id)
+          .filter(Boolean)
+      }
+    );
+
+    this.closeAllUIPanels();
+
+    this.scene.start('MenuScene', {
+      citySetupFailed: true,
+      errorMessage: `Unknown city: ${this.cityId}`
+    });
+
+    return;
+  }
+
+  this.city = city;
+  this.npcTheme = resolveCityNpcTheme(city);
+
+  gameState.currentCityId = this.cityId;
+  gameState.currentCity = city.city;
+  gameState.currentCityData = structuredClone(city);
+
+  this.registry.set('currentCityId', this.cityId);
+  this.registry.set(
+    'investigationStatus',
+    this.investigationStatus
+  );
+
+  /*
+   * To jest rzeczywiste użycie generateCaseCityState().
+   * Nie usuwaj importu z początku pliku.
+   */
+  this.ensureCityEncounterState(locations);
+
+  this.createBackground(city);
+  this.createHeader(city);
+
+  if (!this.isFinalShowdown) {
+    this.createEncounters();
+    this.createCrimeScene(city);
+  }
+
+  ensureHud(this);
+
+  const hud = this.scene.get('PlayerHudScene');
+
+  if (hud?.closeAllUIPanels) {
+    hud.closeAllUIPanels();
+  }
+
+  if (hud?.refreshNotebook) {
+    hud.refreshNotebook();
+  } else if (hud?.refreshUI) {
+    hud.refreshUI();
+  }
+
+  if (this.isFinalShowdown) {
+    this.time.delayedCall(250, () => {
+      this.closeAllUIPanels();
+    });
+
+    if (!this.scene.isActive('ArrestSelectionScene')) {
+      this.scene.launch('ArrestSelectionScene');
+    } else {
+      this.scene.bringToTop('ArrestSelectionScene');
+    }
+
+    return;
+  }
+
+  if (this.shouldShowPhoneCallNow()) {
+    this.time.delayedCall(400, () => {
+      this.closeAllUIPanels();
+    });
+
+    if (!this.scene.isActive('PhoneCallScene')) {
+      this.scene.launch('PhoneCallScene', {
+        sourceScene: 'CityScene',
+        cityId: this.cityId
+      });
+    } else {
+      this.scene.bringToTop('PhoneCallScene');
+    }
+  } else if (this.openDestinationsOnCreate) {
+    this.time.delayedCall(150, () => {
+      this.openDestinationsPanel();
+    });
+  }
+}
 
   changeScore(points) {
     const delta = Number.isFinite(points) ? Math.floor(points) : 0;
@@ -246,8 +350,8 @@ export class CityScene extends Phaser.Scene {
     const progressFlags = this.getCityProgressFlags();
 
     encounters.forEach(encounter => {
-      const npcTextureKey = this.getNpcTextureKey(encounter.npcId);
-      const iconKey = this.textures.exists(npcTextureKey) ? npcTextureKey : 'fence';
+      const npcTextureKey = getNpcTextureKey(encounter.npcId, this.npcTheme);
+      const iconKey = this.textures.exists(npcTextureKey) ? npcTextureKey : 'fence_w';
       const x = encounter.cityX;
       const y = encounter.cityY;
       const isVisited = this.isEncounterVisited(encounter.id);
@@ -261,7 +365,7 @@ export class CityScene extends Phaser.Scene {
         .setTint(isVisited ? 0xb8b8b8 : 0xffffff)
         .setInteractive({ useHandCursor: true });
 
-      const nameLabel = this.add.text(x, y + 88, this.getNpcLabel(encounter.npcId), {
+      const nameLabel = this.add.text(x, y + 88, getNpcLabel(encounter.npcId), {
         fontFamily: 'Special Elite',
         fontSize: '18px',
         color: isVisited ? '#d0d0d0' : '#ffffff',
@@ -649,42 +753,14 @@ export class CityScene extends Phaser.Scene {
       new_york_city: 'newyorkcity',
       newyorkcity: 'newyorkcity',
       berlin: 'berlin',
+      toronto: 'toronto',
+      nairobi: 'nairobi',
+      islamabad: 'islamabad',
+      kotto: 'kotto',
+      tokyo: 'tokyo',
       hq: 'start'
     };
 
     return map[city.id] || city.id;
-  }
-
-  getNpcTextureKey(npcId) {
-    const HINDU_CITIES = ['new_delhi', 'newdelhi'];
-    const isHindu = HINDU_CITIES.includes(this.cityId);
-
-    const baseMap = {
-      bankier:     isHindu ? 'bankierhindu'     : 'bankier',
-      fence:       isHindu ? 'fencehindu'       : 'fence',
-      knajpa:      isHindu ? 'knajpahindu'      : 'knajpa',
-      maid:        isHindu ? 'maidhindu'        : 'maid',
-      parkingowy:  isHindu ? 'parkingnpchindu'  : 'parkingnpc',
-      police:      isHindu ? 'policehindu'      : 'police',
-      stewardessa: isHindu ? 'stewardessahindu' : 'stewardessa',
-      bum:         isHindu ? 'bumhindu'         : 'bum'
-    };
-
-    return baseMap[npcId] || (isHindu ? 'fencehindu' : 'fence');
-  }
-
-  getNpcLabel(npcId) {
-    const map = {
-      bankier:     'Banker',
-      fence:       'Fence',
-      knajpa:      'Restaurant Manager',
-      maid:        'Maid',
-      parkingowy:  'Parking Worker',
-      police:      'Police Officer',
-      stewardessa: 'Flight Attendant',
-      bum:         'Homeless Man'
-    };
-
-    return map[npcId] || 'Witness';
   }
 }

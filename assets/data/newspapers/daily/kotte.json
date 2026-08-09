@@ -1,0 +1,139 @@
+{
+  "title": "The Kotte Entirely Ordinary Chronicle",
+  "subtitle": "Sri Jayawardenepura Kotte Edition",
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Monitor Lizard Crosses Road, Traffic Politely Accepts New Schedule",
+      "lead": "For seven minutes, the city agrees that one reptile has absolute right of way.",
+      "body": "Morning traffic paused near a quiet roadside after a monitor lizard began crossing with remarkable patience and no visible concern for deadlines. Drivers waited, pedestrians watched, and one man attempted to offer directions. The lizard ignored all assistance and reached the other side with the confidence of someone who had planned the route in advance.",
+      "imageKey": "paper_kotte_monitor_lizard_photo",
+      "imageCaption": "The commuter whose timetable cannot be questioned.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Man Attempts Quiet Walk by Diyawanna Lake, Receives Full Bird Commentary",
+      "lead": "Nature offers a soundtrack. It has several strong opinions.",
+      "body": "A resident seeking a peaceful early-morning walk beside Diyawanna Lake says he was followed by birds, insects and one extremely observant dog. 'I wanted silence,' he explained. 'Instead I received what felt like a panel discussion about my shoes.' He plans to return tomorrow.",
+      "imageKey": "paper_kotte_lake_photo",
+      "imageCaption": "Diyawanna Lake, offering calm views and active commentary.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Worker Orders One Short Tea Break, Returns With Three New Friends",
+      "lead": "The tea was hot. The conversation was unexpectedly comprehensive.",
+      "body": "A government employee taking a quick afternoon tea break reportedly returned to the office nearly an hour later after joining a discussion on cricket, weather, traffic, family recipes and whether anyone truly understands printer settings. Colleagues accepted the delay as a reasonable administrative procedure.",
+      "imageKey": "paper_kotte_tea_photo",
+      "imageCaption": "A brief tea break, currently in its second chapter.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Tuk-Tuk Driver Gives Tourist Scenic Route, Life Advice and Restaurant Recommendation",
+      "lead": "The journey took twelve minutes. The local knowledge may last a lifetime.",
+      "body": "A visitor travelling through Kotte says a simple ride became a detailed introduction to local food, road conditions and the importance of calling relatives more often. The driver declined a tip for the advice but accepted one for navigating an unexpected construction detour with impressive optimism.",
+      "imageKey": "paper_kotte_tuktuk_photo",
+      "imageCaption": "Public transport, private wisdom and very efficient turns.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Parliamentary Pigeon Seen Walking With Unusual Sense of Purpose",
+      "lead": "No official statement has been issued, but the bird appears to have an agenda.",
+      "body": "Security staff near a government complex observed a pigeon walking through the grounds with remarkable focus, pausing only to inspect a dropped biscuit. Several witnesses described the bird as 'more organised than most meetings.' The pigeon later departed without answering questions from the press.",
+      "imageKey": "paper_kotte_pigeon_photo",
+      "imageCaption": "A visitor with no badge, no schedule and considerable confidence.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Neighborhood Dog Learns Bakery Opening Hours Better Than Entire Street",
+      "body": "A dog has begun arriving outside a local bakery several minutes before opening each morning. Residents admire its discipline, while the bakery owner admits the dog has never once been late, unlike several human employees."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Shopkeeper Settles Argument About Best Snack in Under Thirty Seconds",
+      "body": "A discussion between customers about the ideal afternoon snack ended immediately when the shopkeeper placed three options on the counter and said, 'Try all of them.' The conflict has been declared peacefully resolved."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Brings Umbrella on Sunny Day, Weather Immediately Becomes Suspicious",
+      "body": "A resident carrying an umbrella beneath a clear sky was questioned by three neighbours, who assumed he knew something about incoming rain. He denied any special knowledge but was later thanked when the weather changed its mind."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Traveler Asks About Late Connections, Says He Is 'Only Here Briefly'",
+      "body": "Staff at a transport office recall a visitor with a neatly packed suitcase who asked detailed questions about schedules, transfer times and the least crowded departure points. The traveler was calm, polite and apparently eager to remain anonymous. Nobody has linked the person to the missing {artifact}, but the timing has prompted gossip."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Souvenir Seller Asked Whether {artifact} Replica Can Be Delivered Discreetly",
+      "body": "A vendor received an unusual request for a miniature replica of the missing {artifact}, packaged without a logo and sent to an unspecified hotel. The seller refused, mostly because the shop does not offer delivery, but admits the request was memorable."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Office Fan Promoted to Essential Staff After Surviving Entire Heatwave",
+      "body": "Employees at a local office have begun referring to an old desk fan as 'the most reliable member of the department.' The machine has not requested a raise, but has received a careful dusting and a place near the window."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Family Debate Over Dinner Begins at Four, Dinner Arrives at Nine",
+      "body": "A simple question about where to eat became an extended discussion involving traffic, weather, portion sizes, childhood memories and one uncle's very specific preference for seating. The group eventually selected the first restaurant mentioned."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Colleagues Meet for Tea, Accidentally Solve Entire Office Scheduling Problem",
+      "body": "What began as a casual conversation became a full review of deadlines, meeting rooms and whose turn it was to buy snacks. Management has expressed interest in holding all future planning sessions beside a tea stall."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Describes Kotte as 'Quiet,' Then Gets Lost Looking for the Lake",
+      "body": "A traveler arriving from {currentCity} praised the calm pace of Kotte before attempting to navigate without asking anyone for directions. After forty minutes, the visitor accepted help from a schoolchild, a shopkeeper and a man carrying vegetables."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Guest Checks Out Before Sunrise, Leaves Behind One Receipt and Zero Answers",
+      "body": "A hotel receptionist remembers a guest who paid in cash, declined breakfast and left before dawn with a single old suitcase. The visitor was described as polite, quiet and unusually determined not to be remembered."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Company Requests Clarification on Whether {artifact} Could Be 'Somewhere Nearby'",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} has asked whether staff at {location} checked every possible storage room, drawer and decorative vase. Staff confirmed they did, though nobody can explain why the representative sounded hopeful."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Cat Sleeps Through Entire Neighborhood Conversation, Gains Respect",
+      "body": "A cat resting outside a local home ignored a lengthy discussion about road repairs, vegetables and the weather. Residents say the animal demonstrated admirable emotional boundaries and has been invited to remain exactly where it is."
+    }
+  ]
+}

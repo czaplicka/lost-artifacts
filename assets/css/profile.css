@@ -1,0 +1,214 @@
+:root {
+  /* Paleta barw Mad TV / Retro Broadcast */
+  --bg-dark: #0a0c14;
+  --card-bg: #141824;
+  --screen-glow: rgba(0, 229, 255, 0.15);
+  --tv-yellow: #ffd000;
+  --tv-cyan: #00e5ff;
+  --tv-magenta: #ff0055;
+  --text-main: #e0e6f0;
+  --border-glow: #2d3854;
+  --font-title: 'Press Start 2P', monospace;
+  --font-body: 'VT323', 'Courier New', monospace;
+}
+
+/* Nakładka modalna z subtelnym przyciemnieniem studia */
+.detective-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(6, 8, 15, 0.88);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Obudowa monitora / Panel sterowania stacji */
+.detective-form {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--card-bg);
+  border: 3px solid var(--tv-cyan);
+  border-radius: 8px;
+  box-shadow: 
+    0 0 20px rgba(0, 229, 255, 0.25),
+    inset 0 0 30px rgba(0, 0, 0, 0.8);
+  padding: 35px 28px 28px;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Efekt paska telewizyjnego (CRT Scanlines) */
+.detective-form::after {
+  content: " ";
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+  background-size: 100% 4px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Belka transmisji / Nagłówek kanalu */
+.detective-form::before {
+  content: 'LIVE BROADCAST // CH-04';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--tv-cyan);
+  color: var(--bg-dark);
+  font-family: var(--font-title);
+  font-size: 10px;
+  padding: 4px 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Przycisk zamknięcia - Retro X */
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: var(--tv-magenta);
+  font-family: var(--font-title);
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 3;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #fff;
+  text-shadow: 0 0 8px var(--tv-magenta);
+  transform: scale(1.1);
+}
+
+/* Tytuł nagłówkowy */
+.detective-form h2 {
+  font-family: var(--font-title);
+  font-size: 15px;
+  color: var(--tv-yellow);
+  margin: 15px 0 20px 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px dashed var(--border-glow);
+  padding-bottom: 12px;
+}
+
+/* Wiersze statystyk / Dane ekranowe */
+.profile-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  border-left: 3px solid var(--tv-cyan);
+}
+
+.profile-info strong {
+  color: #8a9bbd;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.profile-info span {
+  color: #fff;
+  font-family: var(--font-title);
+  font-size: 11px;
+  color: var(--tv-yellow);
+}
+
+/* Przycisk akcji / Zatwierdzenie ramki */
+.btn-stamp {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px 15px;
+  background: var(--tv-yellow);
+  border: none;
+  color: var(--bg-dark);
+  font-family: var(--font-title);
+  font-size: 11px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 0 #b39200;
+}
+
+.btn-stamp:hover {
+  background: #ffe047;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #b39200, 0 0 15px rgba(255, 208, 0, 0.4);
+}
+
+.btn-stamp:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b39200;
+}
+
+/* Strefa ostrzegawcza / Zdjęcie programu z anteny */
+.danger-zone {
+  margin-top: 25px;
+  border: 2px solid var(--tv-magenta);
+  background: rgba(255, 0, 85, 0.08);
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.danger-zone h3 {
+  color: var(--tv-magenta);
+  font-family: var(--font-title);
+  font-size: 11px;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+
+.danger-zone-desc {
+  font-size: 15px;
+  line-height: 1.2;
+  color: #d1a3b2;
+  margin: 0 0 12px 0;
+}
+
+/* Przycisk usunięcia / Anulowanie koncesji */
+.btn-danger {
+  width: 100%;
+  background: var(--tv-magenta);
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-family: var(--font-title);
+  font-size: 10px;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 0 #990033;
+}
+
+.btn-danger:hover {
+  background: #ff2a70;
+  box-shadow: 0 4px 12px rgba(255, 0, 85, 0.5);
+}
+
+.btn-danger:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #990033;
+}

@@ -1,0 +1,139 @@
+{
+  "title": "The Tokyo Perfectly Ordinary Dispatch",
+  "subtitle": "Tokyo Edition",
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Commuter Boards Correct Train on First Attempt, Receives Quiet Respect From Entire Platform",
+      "lead": "Witnesses describe the achievement as technically possible, but emotionally extraordinary.",
+      "body": "A commuter at a busy Tokyo station reportedly found the right platform, correct carriage and an available place to stand without checking a map twice. Nearby passengers did not applaud, because that would have been disruptive, but several offered the subtle expression experts identify as profound admiration.",
+      "imageKey": "paper_tokyo_train_photo",
+      "imageCaption": "The platform where one commuter briefly achieved perfection.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Vending Machine Offers Hot Coffee, Cold Tea and Unexpected Emotional Support",
+      "lead": "One button press becomes the most reassuring part of a difficult morning.",
+      "body": "A tired office worker says a station vending machine provided exactly the drink he needed at exactly the temperature he wanted. 'It did not ask questions. It did not schedule a follow-up,' he explained. 'It simply understood.' The machine has declined all interview requests, but remains well stocked.",
+      "imageKey": "paper_tokyo_vending_photo",
+      "imageCaption": "A public service with better availability than most colleagues.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Neighborhood Cat Appointed Informal Station Inspector, Takes Role Seriously",
+      "lead": "The cat has checked three bags, ignored four commuters and approved one sandwich.",
+      "body": "A cat near a local station has developed a routine of inspecting the morning crowd from a warm patch of pavement. Passengers say the animal appears to judge punctuality, footwear and general attitude with equal severity. Railway staff have not officially recognised the appointment, though several now greet it before starting work.",
+      "imageKey": "paper_tokyo_station_cat_photo",
+      "imageCaption": "The inspector remains unavailable for comment or eye contact.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Man Enters Convenience Store for One Snack, Leaves With Dinner, Stationery and a New Outlook",
+      "lead": "The convenience store continues to solve problems nobody knew they had.",
+      "body": "A resident who intended to buy a single rice ball left a convenience store with a complete meal, a notebook, socks, a seasonal dessert and a renewed belief in careful planning. 'I do not know what happened,' he said. 'But I am prepared for tomorrow now.'",
+      "imageKey": "paper_tokyo_convenience_photo",
+      "imageCaption": "A five-minute errand enters its second phase.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Worker Sees Mount Fuji Between Buildings, Immediately Forgets Entire Email Draft",
+      "lead": "A rare clear view defeats productivity with impressive efficiency.",
+      "body": "A worker looking up from an afternoon spreadsheet caught sight of Mount Fuji in the distance and spent several minutes staring quietly through the office window. By the time he returned to his desk, the email he had been writing had vanished from the screen. Colleagues agreed the view was worth it, though the client is still waiting.",
+      "imageKey": "paper_tokyo_fuji_photo",
+      "imageCaption": "A reminder that not every important thing fits in a calendar invite.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Dog Waits Outside Bakery With Better Time Management Than Most Adults",
+      "body": "A small dog has begun arriving near a bakery shortly before the first trays emerge each morning. Its schedule is consistent, its focus is absolute and its optimism appears entirely justified."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Restaurant Robot Delivers Soup, Receives More Compliments Than Manager",
+      "body": "A delivery robot at a neighbourhood restaurant has become unexpectedly popular after arriving at tables with polite sounds and flawless timing. Customers describe it as efficient, charming and less likely to ask whether they have considered the lunch special."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Carries Umbrella All Day, Weather Decides Not to Test Him",
+      "body": "A resident kept an umbrella with him through a perfectly dry day, earning several amused looks from colleagues. By evening, the sky remained clear. He called this a victory and refused to elaborate on his methods."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Traveler Asks Detailed Questions About Night Departures, Says He Is 'Only Passing Through'",
+      "body": "Station staff recall a polite traveler carrying a vintage suitcase who asked about late connections, luggage lockers and the quickest route to the airport. The visitor was calm, carefully dressed and very interested in being forgotten. Nobody has connected the person to the missing {artifact}, but several employees remember the suitcase."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Seen Standing on Poster of Missing {artifact}, Offers No Explanation",
+      "body": "A pigeon outside a newsstand spent several minutes positioned directly on a photograph of the missing {artifact}. Witnesses say the bird appeared unusually composed, though experts note that pigeons often appear to know more than they do."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Office Printer Works for Entire Morning, Staff Decline to Mention It Out Loud",
+      "body": "Employees at a small office report that their printer completed every request without jamming, flashing errors or demanding a restart. Staff have avoided celebrating, fearing the machine may notice and reconsider."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Tourist Attempts to Photograph Every Neon Sign, Phone Requests Immediate Retirement",
+      "body": "A visitor spent an evening taking hundreds of photographs in a busy entertainment district before receiving a storage warning, low-battery alert and message from a friend asking whether they were still alive. The tourist replied with one more photo."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Coworkers Meet for Coffee, Accidentally Create Detailed Three-Year Plan",
+      "body": "A short catch-up between colleagues became a discussion of career goals, savings, travel, possible side projects and the ideal location for a future café. Both agreed to begin tomorrow, after another coffee."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Guest Checks Out Before Dawn, Leaves Room Impossibly Tidy",
+      "body": "A hotel receptionist remembers a guest who paid in cash, requested no wake-up call and departed before sunrise with one old suitcase. The room was left so neatly arranged that housekeeping initially assumed it had not been used."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Says Tokyo Is 'Too Fast,' Then Misses Slowest Escalator",
+      "body": "A visitor arriving from {currentCity} commented that Tokyo seemed overwhelming before becoming distracted by a station map and taking the wrong exit. After a long walk, the traveler conceded that the city was not fast; they were simply underprepared."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Representative Asks Whether {artifact} Might Be 'Misfiled'",
+      "body": "An insurance official reviewing the disappearance of the {artifact} has asked staff at {location} whether the object could possibly have been moved, stored or placed somewhere unexpectedly sensible. Staff replied that it was a historically important artifact, not an office stapler."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Capsule Toy Machine Dispenses Exactly Wrong Item, Customer Buys Seven More",
+      "body": "A customer hoping for a tiny astronaut instead received six different miniature vegetables. Rather than accept defeat, the customer continued until the machine had taken most of their coins and all of their self-control."
+    }
+  ]
+}

@@ -8,8 +8,9 @@ import { CrimeBoardUI } from '../ui/CrimeBoardUI.js';
 import { AtlasUI } from '../ui/AtlasUI.js';
 import { PhonebookUI } from '../ui/PhonebookUI.js';
 import { DialogManager } from '../DialogManager.js';
+import { BaseScene } from './BaseScene.js';
 
-export class PlayerHudScene extends Phaser.Scene {
+export class PlayerHudScene extends BaseScene {
     constructor() {
         super({ key: 'PlayerHudScene' });
         this.gameState = gameState;
@@ -23,9 +24,14 @@ export class PlayerHudScene extends Phaser.Scene {
         this.atlasUI = null;
         this.phoneUI = null;
         this.dialogManager = null;
+
+        // Bindowanie metody handlerów, aby móc je poprawnie usunąć w off()
+        this.onGlobalSceneStart = this.onGlobalSceneStart.bind(this);
+        this.onGlobalSceneWake = this.onGlobalSceneWake.bind(this);
     }
 
     create() {
+            super.create();
         this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
 
         const atlasEntries = this.cache.json.get('atlas') || [];
@@ -50,17 +56,63 @@ export class PlayerHudScene extends Phaser.Scene {
         this.crimeBoardUI = new CrimeBoardUI(this);
 
         this.scene.bringToTop();
+        this.scene.setVisible(true);
 
+        // Globalne nasłuchiwanie zdarzeń menedżera gier Phaser
+        if (this.game && this.game.events) {
+            this.game.events.on(Phaser.Scenes.Events.START, this.onGlobalSceneStart);
+            this.game.events.on(Phaser.Scenes.Events.WAKE, this.onGlobalSceneWake);
+        }
+
+        // Dedykowane zdarzenia dla tej konkretnej sceny HUD
         this.events.on(Phaser.Scenes.Events.WAKE, this.onWake, this);
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
         this.events.on(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
     }
 
+    onGlobalSceneStart(sys) {
+        this.handleSceneChange(sys.settings.key);
+    }
+
+    onGlobalSceneWake(sys) {
+        this.handleSceneChange(sys.settings.key);
+    }
+
+    handleSceneChange(sceneKey) {
+        // Ignorujemy zdarzenia dotyczące naszej własnej sceny
+        if (sceneKey === 'PlayerHudScene') return;
+
+        // Jeśli wracamy do głównej pętli gry – przywracamy HUD
+        if (sceneKey === 'GameScene') {
+            this.scene.setVisible(true);
+            return;
+        }
+
+        // Lista scen, które MOŻA współistnieć z wyświetlonym HUDem
+        const allowlist = ['InventoryScene', 'GameScene'];
+
+        // Jeśli odpalona scena to np. TvBroadcastScene (brak na allowliście) – chowamy HUD i panele
+        if (!allowlist.includes(sceneKey)) {
+            console.log(`[PlayerHudScene] Ukrywam HUD dla sceny: ${sceneKey}`);
+            this.closeAllUIPanels();
+            if (this.playerMenu?.close) {
+                this.playerMenu.close();
+            }
+            this.scene.setVisible(false);
+        }
+    }
+
     onWake() {
         this.scene.bringToTop();
+        this.scene.setVisible(true);
     }
 
     onShutdown() {
+        if (this.game && this.game.events) {
+            this.game.events.off(Phaser.Scenes.Events.START, this.onGlobalSceneStart);
+            this.game.events.off(Phaser.Scenes.Events.WAKE, this.onGlobalSceneWake);
+        }
+
         this.caseFileUI?.destroy?.();
         this.notesUI?.destroy?.();
         this.warrantUI?.destroy?.();

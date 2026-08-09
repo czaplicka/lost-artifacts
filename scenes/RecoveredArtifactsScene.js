@@ -1,4 +1,5 @@
-export class RecoveredArtifactsScene extends Phaser.Scene {
+import { BaseScene } from './BaseScene.js';
+export class RecoveredArtifactsScene extends BaseScene {
     constructor() {
         super({ key: 'RecoveredArtifactsScene' });
         this.artifacts = [];
@@ -17,6 +18,7 @@ export class RecoveredArtifactsScene extends Phaser.Scene {
     }
 
     create() {
+            super.create();
         this.scene.sleep('UIScene');
         const { width, height } = this.scale;
 

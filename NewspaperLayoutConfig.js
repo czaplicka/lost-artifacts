@@ -3,44 +3,44 @@ export const NewspaperLayoutConfig = {
     pageWidth: 1920,
     pageHeight: 1080,
     title: {
-      x: 120,      // lewy górny obszar nagłówka gazety
-      y: 60,
+      x: 75,      // lewy górny obszar nagłówka gazety
+      y: 70,
       originX: 0,  // LEWY róg
       originY: 0
     },
     subtitle: {
-      x: 120,
-      y: 120,
+      x: 75,
+      y: 165,
       originX: 0,  // LEWY róg
       originY: 0
     },
     articles: [
       {
         id: 'lead',
-        x: 140,
-        y: 220,
-        width: 560,
+        x: 75,
+        y: 210,
+        width: 610,
         height: 620,
-        headlineSize: 40,
-        bodySize: 24
+        headlineSize: 28,
+        bodySize: 20
       },
       {
         id: 'secondary_1',
-        x: 140,
-        y: 780,
-        width: 560,
-        height: 220,
-        headlineSize: 34,
-        bodySize: 21
+        x: 1010,
+        y: 70,
+        width: 580,
+        height: 620,
+        headlineSize: 28,
+        bodySize: 24
       },
       {
         id: 'secondary_2',
-        x: 980,
-        y: 220,
-        width: 540,
+        x: 1010,
+        y: 600,
+        width: 580,
         height: 620,
-        headlineSize: 36,
-        bodySize: 23
+        headlineSize: 28,
+        bodySize: 24
       }
     ]
   },
@@ -50,15 +50,15 @@ export const NewspaperLayoutConfig = {
     pageHeight: 1080,
 
     title: {
-      x: 960,
-      y: 64,
+      x: 60,
+      y: 964,
       originX: 0,
       originY: 0
     },
 
     subtitle: {
       x: 960,
-      y: 122,
+      y: 900,
       originX: 0,
       originY: 0
     },
@@ -68,22 +68,22 @@ export const NewspaperLayoutConfig = {
       {
         id: 'hot_issue_left',
         // lewa górna sekcja tekstowa pod dużym obrazkiem „HOT ISSUE”
-        x: 140,
+        x: 340,
         y: 260,
         width: 520,
         height: 260,
-        headlineSize: 40,
-        bodySize: 24
+        headlineSize: 20,
+        bodySize: 14
       },
       {
         id: 'hot_pick',
         // środkowa sekcja po lewej „HOT PICK”
-        x: 140,
+        x: 340,
         y: 560,
         width: 520,
         height: 240,
-        headlineSize: 34,
-        bodySize: 22
+        headlineSize: 20,
+        bodySize: 12
       },
       {
         id: 'red_carpet',

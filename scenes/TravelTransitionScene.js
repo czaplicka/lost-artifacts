@@ -1,8 +1,10 @@
 import { ensureHud } from '../hudHelpers.js';
 import { gameState, saveGameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { getEnergyManager } from '../EnergyManager.js';
 
-export class TravelTransitionScene extends Phaser.Scene {
+export class TravelTransitionScene extends BaseScene {
   constructor() {
     super({ key: 'TravelTransitionScene' });
     this.transitionData = {};
@@ -30,8 +32,10 @@ export class TravelTransitionScene extends Phaser.Scene {
   }
 
   create() {
+        super.create();
     this.scene.sleep('UIScene');
-
+this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+    this.scene.get('NewsHud').events.emit('setTvVisible', false);
 audioManager.init(this);
 audioManager.stopAllVoice();
 audioManager.stopAllSfx();
@@ -141,7 +145,7 @@ this._planeSfx = audioManager.playSfx('planesound', { volume: 0.5 });
       repeat: -1
     });
 
-    this.time.delayedCall(5000, () => {
+    this.time.delayedCall(3000, () => {
       if (this.isLeaving || !this.continueHint) return;
       this.canContinue = true;
       this.continueHint.setText('Click to continue');
@@ -153,7 +157,7 @@ this._planeSfx = audioManager.playSfx('planesound', { volume: 0.5 });
       this.leaveScene();
     });
 
-    this.time.delayedCall(4500, () => {
+    this.time.delayedCall(6000, () => {
       if (this.isLeaving) return;
       this.leaveScene();
     });
@@ -162,6 +166,16 @@ this._planeSfx = audioManager.playSfx('planesound', { volume: 0.5 });
       this.input.removeAllListeners();
       this.cleanupEffects();
     });
+    const energyManager = getEnergyManager();
+const transportType = 'train'; // lub 'taxi', 'cheap_flight'
+const result = energyManager.consumeTravel(transportType);
+
+console.log(`🚗 ${result.label}`);
+
+if (result.energyReachedZero) {
+  // Gracz zasnął - pokaż scene snu
+  this.showForcedSleepDialog();
+}
   }
 
   registerVisitedCity(targetCityId) {

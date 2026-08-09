@@ -1,0 +1,139 @@
+{
+  "title": "The Islamabad Perfectly Sensible Gazette",
+  "subtitle": "Islamabad Edition",
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Man Takes 'Short Walk' in Margalla Hills, Returns With New Personality",
+      "lead": "Three hours, two viewpoints and one extremely persuasive monkey later, nothing is the same.",
+      "body": "A local resident who promised friends he would be back in twenty minutes returned from a walk near the Margalla Hills several hours later with muddy shoes, improved posture and an unexpected interest in birdwatching. He claims the hike was 'not difficult at all,' despite needing to sit down halfway through the explanation.",
+      "imageKey": "paper_islamabad_hills_photo",
+      "imageCaption": "The hills, quietly extending every short walk.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Tea Stall Owner Solves Customer's Career Problem Before Pouring First Cup",
+      "lead": "The chai was excellent. The advice was unavoidable.",
+      "body": "A customer stopping for afternoon tea says the stall owner correctly identified his work frustration, family concern and general lack of sleep before handing over the first cup. 'I only asked for less sugar,' the customer explained. He has since postponed a major decision until after another visit.",
+      "imageKey": "paper_islamabad_chai_photo",
+      "imageCaption": "The tea stall where every cup comes with an unsolicited consultation.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Worker Spots Perfect Sunset, Forgets Entire Password During Photo Attempt",
+      "lead": "Nature wins another round against two-factor authentication.",
+      "body": "A resident attempting to photograph an evening sky over Islamabad reportedly became so distracted by the view that she forgot the password to her phone, email and office laptop. Colleagues have offered support, but mostly requested copies of the photo she never managed to take.",
+      "imageKey": "paper_islamabad_sunset_photo",
+      "imageCaption": "A view considered worth at least one forgotten password.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Peacock Walks Into Government Building, Immediately Appears More Important Than Everyone Else",
+      "lead": "Staff confirm the bird did not carry identification, but nobody felt qualified to challenge it.",
+      "body": "Employees at an office complex watched as a peacock crossed the entrance lobby with remarkable confidence and no visible appointment. Security briefly considered asking it to leave, but the bird paused, looked directly at the desk and continued inside. It was last seen near a meeting room, receiving no fewer than three respectful nods.",
+      "imageKey": "paper_islamabad_peacock_photo",
+      "imageCaption": "A visitor whose authority was never formally established, yet universally accepted.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Driver Says Traffic Will Clear 'In Five Minutes,' Entire Car Begins Spiritual Journey",
+      "lead": "Passengers have heard this before. They remain hopeful anyway.",
+      "body": "A driver caught in afternoon traffic assured passengers that the road would open up in five minutes. Forty-five minutes later, the group had discussed politics, family recipes, two podcasts and the philosophical nature of waiting. The traffic eventually moved. Nobody was emotionally prepared.",
+      "imageKey": "paper_islamabad_traffic_photo",
+      "imageCaption": "A temporary gathering of strangers with increasingly detailed opinions.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Cat Occupies Best Seat at Café, Refuses to Discuss Reservation Policy",
+      "body": "A cat at a busy café claimed the sunniest table shortly after opening and remained there for most of the afternoon. Staff say the animal has never purchased anything, but several customers have ordered extra pastries in its honour."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Brings Laptop to Park, Accidentally Has Best Workday of His Life",
+      "body": "A resident attempting to answer emails outdoors reports completing a full day's work before lunch, then immediately becoming suspicious of his own productivity. He has returned to the office, where the internet is less inspiring but the coffee is closer."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Friendly Shopkeeper Gives Directions, Adds Three Restaurants and a Life Recommendation",
+      "body": "A visitor asking for the nearest pharmacy received precise directions, a recommendation for grilled food, a warning about rain and advice to call their mother more often. The visitor reports arriving at the pharmacy with a stronger sense of purpose."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Traveler With Vintage Luggage Asks About Flights, Claims He Is 'Just Connecting'",
+      "body": "Airport staff report that a polite traveler carrying a worn leather suitcase asked detailed questions about last-minute flights, quieter waiting areas and luggage storage. He was calm, neat and perhaps unusually interested in leaving quickly. Nobody has linked him to the missing {artifact}, but several people noticed the suitcase."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Observed Reading {artifact} Poster, Offers No Comment",
+      "body": "A pigeon outside a newsstand spent several minutes standing on a photograph of the missing {artifact}. Witnesses say it appeared deeply focused, though experts caution that it may simply have been standing on paper. The bird later departed without answering questions."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Office Printer Works Perfectly for One Day, Staff Hold Small Ceremony",
+      "body": "Employees at a local office celebrated after their printer completed an entire afternoon without jamming, flashing an error code or demanding a spiritual sacrifice. Management has called the event 'encouraging but not statistically meaningful.'"
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Family Debate Over Dinner Route Lasts Longer Than Journey Itself",
+      "body": "A simple decision about where to eat became a forty-minute discussion involving traffic, parking, weather, memories of previous meals and one cousin's strongly held opinion about naan. The group eventually chose the first place suggested."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Dog Waits Outside Bakery With Patience That Challenges Entire Neighborhood",
+      "body": "A dog has become a regular outside a local bakery, sitting calmly near the entrance each morning. Customers describe its behaviour as dignified, focused and vastly more mature than their own response to the smell of fresh bread."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Souvenir Shop Receives Sudden Requests for {artifact} Replicas",
+      "body": "A shopkeeper says travelers have begun asking whether miniature replicas of the missing {artifact} are available. The answer is no, but one employee has started sketching ideas on a napkin. 'Demand is demand,' the employee explained."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Receptionist Remembers Guest Who Wanted No Breakfast, No Newspaper and No Questions",
+      "body": "A hotel worker recalls a recent guest who paid in cash, checked out before sunrise and declined every available service, including complimentary tea. The guest was described as 'very polite, very quiet and extremely committed to not being remembered.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Declares Islamabad 'Too Calm,' Immediately Falls Asleep",
+      "body": "A traveler arriving from {currentCity} reportedly described Islamabad as unusually peaceful, then sat down in a shaded café and slept through an entire conversation. Friends say the visitor woke refreshed and ready to revise the statement."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Friends Meet for Tea, Accidentally Plan Entire Startup",
+      "body": "What began as a casual afternoon conversation became a discussion of branding, market research, investor outreach and whether the business should have an app. Both friends agreed to begin tomorrow, after tea."
+    }
+  ]
+}

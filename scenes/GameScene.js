@@ -3,11 +3,22 @@ import { ensureHud } from '../hudHelpers.js';
 import { GameTimeManager } from '../GameTimeManager.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
 
-export class GameScene extends Phaser.Scene {
+export class GameScene extends BaseScene {
     constructor() {
         super({ key: 'GameScene' });
-
+this.fullIntroText = '';
+this.hasStartedOfficeScene = false;
+this.sequenceStage = 'idle';
+this.sequenceFinished = false;
+this.isTypingIntro = false;
+this.isIntroReady = false;
+this.typingEvent = null;
+this.currentVideo = null;
+this.currentVideoKey = null;
+this.currentAudio = null;
+this._duckTween = null;
         this.dialogueText = null;
         this.fullIntroText = '';
         this.typingEvent = null;
@@ -27,6 +38,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     create() {
+            super.create();
 audioManager.init(this);
 if (!audioManager.isMusicPlaying('themeMusic')) {
     audioManager.playMusic('themeMusic', { loop: true });
@@ -78,19 +90,26 @@ this.timeManager = new GameTimeManager();
         this.fullIntroText = dialogueData.gameIntro.join('\n');
         this.startIntroSequence();
 
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            if (this.typingEvent) {
-                this.typingEvent.remove(false);
-                this.typingEvent = null;
-            }
+this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+  this.removeIntroInputListeners();
 
-            this.destroyCurrentVideo();
+  if (this._duckTween) {
+    this._duckTween.stop();
+    this._duckTween = null;
+  }
 
-            if (this.handleResizeBound) {
-                this.scale.off('resize', this.handleResizeBound, this);
-                this.handleResizeBound = null;
-            }
-        });
+  if (this.typingEvent) {
+    this.typingEvent.remove(false);
+    this.typingEvent = null;
+  }
+
+  this.destroyCurrentVideo();
+
+  if (this.handleResizeBound) {
+    this.scale.off('resize', this.handleResizeBound, this);
+    this.handleResizeBound = null;
+  }
+});
     }
 
     createBackground() {
@@ -188,15 +207,27 @@ restoreMusic(duration = 250) {
         });
 
         // Zwolnienie generowania tekstu: zmiana delay z 50 ms na 80 ms (możesz dostosować tę wartość)
-        this.typeText(this.dialogueText, this.fullIntroText, 80, true);
+        this.typeText(this.dialogueText, this.fullIntroText, 80);
 
-        this.input.once('pointerdown', () => {
-            this.handleIntroClick();
-        });
+        this.onIntroPointerDown = () => {
+  this.handleIntroClick();
+};
 
-        this.input.keyboard?.once('keydown-SPACE', () => {
-            this.handleIntroClick();
-        });
+this.onIntroSpaceDown = () => {
+  this.handleIntroClick();
+};
+
+this.input.on(
+  'pointerdown',
+  this.onIntroPointerDown,
+  this
+);
+
+this.input.keyboard?.on(
+  'keydown-SPACE',
+  this.onIntroSpaceDown,
+  this
+);
     }
 
     handleIntroClick() {
@@ -222,15 +253,48 @@ restoreMusic(duration = 250) {
         this.isTypingIntro = false;
         this.isIntroReady = true;
     }
+removeIntroInputListeners() {
+  if (this.onIntroPointerDown) {
+    this.input.off(
+      'pointerdown',
+      this.onIntroPointerDown,
+      this
+    );
 
-    finishSequence() {
-        if (this.sequenceFinished) return;
-        this.sequenceFinished = true;
-        this.sequenceStage = 'done';
+    this.onIntroPointerDown = null;
+  }
 
-        this.destroyCurrentVideo();
-        this.goToOfficeScene();
-    }
+  if (this.onIntroSpaceDown) {
+    this.input.keyboard?.off(
+      'keydown-SPACE',
+      this.onIntroSpaceDown,
+      this
+    );
+
+    this.onIntroSpaceDown = null;
+  }
+}
+finishSequence() {
+  if (this.sequenceFinished) {
+    return;
+  }
+
+  this.sequenceFinished = true;
+  this.sequenceStage = 'done';
+  this.isTypingIntro = false;
+  this.isIntroReady = false;
+
+  if (this.typingEvent) {
+    this.typingEvent.remove(false);
+    this.typingEvent = null;
+  }
+
+  this.removeIntroInputListeners();
+  this.destroyCurrentVideo();
+  this.restoreMusic(180);
+
+  this.goToOfficeScene();
+}
 
     playVideo(videoKey, audioKey, onComplete) {
     const hasVideo = this.cache.video.exists(videoKey);
@@ -371,7 +435,7 @@ restoreMusic(duration = 250) {
         }
     }
 
-    typeText(target, text, speed = 15, allowSkip = false) {
+    typeText(target, text, speed = 15) {
         if (!target || typeof text !== 'string') return;
 
         if (this.typingEvent) {
@@ -395,6 +459,9 @@ restoreMusic(duration = 250) {
                     this.typingEvent = null;
                     this.isTypingIntro = false;
                     this.isIntroReady = true;
+                    this.onIntroPointerDown = null;
+this.onIntroSpaceDown = null;
+this._duckTween = null;
                 }
             }
         });

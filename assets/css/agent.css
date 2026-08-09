@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap');
+
+:root {
+    --paper-text: #1a1a1a;
+    --paper-label: #4a4238;
+    --stamp-red: #8c1c1c;
+    --status-green: #1b5e20;
+    --font-dossier: 'Special Elite', 'Courier Prime', monospace;
+}
+
+#agent-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.84);
+    backdrop-filter: blur(4px);
+    font-family: var(--font-dossier);
+}
+
+/*
+ * dossier.jpg ma proporcje 1366 × 768.
+ * Karta nigdy nie będzie szersza niż ekran ani wyższa niż ekran.
+ */
+#agent-modal .dossier-card {
+    position: relative;
+    width: min(100vw, 177.864vh);
+    height: min(56.223vw, 100vh);
+    aspect-ratio: 1366 / 768;
+    overflow: hidden;
+    background-image: url('../dossier.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    color: var(--paper-text);
+    font-family: var(--font-dossier);
+}
+
+/* Mały przycisk zamykający ponad prawym górnym rogiem teczki */
+#agent-modal .btn-close {
+    position: absolute;
+    top: 4%;
+    right: 25%;
+    z-index: 10;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px 8px;
+    color: #ffffff;
+    background: var(--stamp-red);
+    border: 2px solid #4c0d0d;
+    border-radius: 3px;
+    box-shadow: 1px 2px 0 rgba(0, 0, 0, 0.35);
+    font-family: var(--font-dossier);
+    font-size: clamp(10px, 1.2vw, 16px);
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+}
+
+#agent-modal .btn-close:hover {
+    background: #a82222;
+    transform: scale(1.08);
+}
+
+/*
+ * Czarne pole zdjęcia na grafice:
+ * x: 474–619, y: 185–370 w planszy 1366×768.
+ */
+#agent-modal .agent-avatar {
+    position: absolute;
+    top: 24.1%;
+    left: 34.7%;
+    width: 10.6%;
+    height: 24.1%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    background: #202020;
+    border: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+/*
+ * Pole tekstowe po prawej stronie od zdjęcia.
+ * Długie nazwy będą zawijać się zamiast wychodzić poza teczkę.
+ */
+#agent-modal .agent-info {
+    position: absolute;
+    top: 30%;
+    left: 46.4%;
+    width: 23.2%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+#agent-modal .agent-info h2 {
+    margin: 0 0 1.1%;
+    color: #111111;
+    font-family: var(--font-dossier);
+    font-size: clamp(8px, 1.08vw, 15px);
+    font-weight: bold;
+    line-height: 1.25;
+    letter-spacing: 0.3px;
+    overflow-wrap: anywhere;
+    text-transform: uppercase;
+}
+
+#agent-modal .agent-info p {
+    margin: 1.1% 0;
+    color: var(--paper-label);
+    font-size: clamp(7px, 0.93vw, 13px);
+    font-weight: bold;
+    line-height: 1.15;
+}
+
+#agent-modal .agent-info p span {
+    color: #111111;
+}
+
+#agent-modal .agent-info .status-active {
+    color: var(--status-green);
+}
+
+/*
+ * Cztery pola statystyk:
+ * lewy górny róg: x 633, y 315.
+ * Dwa słupki i dwa wiersze odpowiadają pierwszym czterem ramkom
+ * widocznym na dossier.
+ */
+#agent-modal .stats-grid {
+    position: absolute;
+    top: 41%;
+    left: 46.35%;
+    width: 23.45%;
+    height: 17.2%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10% 4.2%;
+}
+
+#agent-modal .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    text-align: center;
+}
+
+#agent-modal .stat-item strong {
+    display: block;
+    color: var(--paper-label);
+    font-size: clamp(6px, 0.68vw, 10px);
+    font-weight: bold;
+    line-height: 1.1;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+}
+
+#agent-modal .stat-item > span {
+    display: block;
+    margin-top: 5%;
+    color: #111111;
+    font-size: clamp(9px, 1.05vw, 15px);
+    font-weight: bold;
+    line-height: 1;
+}
+
+/*
+ * Cztery dolne ramki na osiągnięcia.
+ * To osobny element — nie wkładaj go do .stats-grid.
+ */
+#agent-modal .achievement-grid {
+    position: absolute;
+    top: 59.3%;
+    left: 46.35%;
+    width: 23.45%;
+    height: 17%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10% 4.2%;
+}
+
+#agent-modal .achievement-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8%;
+    min-width: 0;
+    padding: 5% 8%;
+    box-sizing: border-box;
+    color: #1a1a1a;
+    text-align: left;
+}
+
+#agent-modal .achievement-item.locked {
+    color: #777777;
+    opacity: 0.72;
+}
+
+#agent-modal .achievement-icon {
+    display: block;
+    flex: 0 0 auto;
+    margin: 0;
+    font-size: clamp(12px, 1.65vw, 25px);
+    line-height: 1;
+}
+
+#agent-modal .achievement-title {
+    display: block;
+    min-width: 0;
+    font-family: var(--font-dossier);
+    font-size: clamp(5px, 0.66vw, 10px);
+    font-weight: bold;
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+    text-transform: uppercase;
+}
+
+#agent-modal .achievement-description {
+    display: none;
+}
+
+/*
+ * Szerokie jasne pole na samym dole teczki.
+ */
+#agent-modal .actions-footer {
+    position: absolute;
+    top: 84%;
+    left: 43.35%;
+    width: 29.4%;
+    height: 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+#agent-modal .btn-stamp {
+    padding: 2px 6px;
+    color: var(--paper-text);
+    background: transparent;
+    border: 0;
+    font-family: var(--font-dossier);
+    font-size: clamp(7px, 0.85vw, 12px);
+    font-weight: bold;
+    text-decoration: underline;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+#agent-modal .btn-stamp:hover {
+    color: var(--stamp-red);
+}
+
+#agent-modal .toast-msg {
+    display: none;
+    margin-top: 2%;
+    color: var(--stamp-red);
+    font-family: var(--font-dossier);
+    font-size: clamp(6px, 0.7vw, 10px);
+    font-weight: bold;
+}
+
+#agent-modal .join-link {
+    margin: 2% 0 0;
+    font-size: clamp(6px, 0.7vw, 10px);
+}
+
+#agent-modal .join-link a {
+    color: #333333;
+    text-decoration: none;
+}
+
+#agent-modal .join-link a:hover {
+    color: var(--stamp-red);
+    text-decoration: underline;
+}
+
+/*
+ * Na niskich ekranach zmniejszamy X, aby nie nakładał się
+ * na pieczęć TOP SECRET.
+ */
+@media (max-height: 600px) {
+    #agent-modal .btn-close {
+        min-width: 22px;
+        min-height: 22px;
+        padding: 3px 6px;
+    }
+}

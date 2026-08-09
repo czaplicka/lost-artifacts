@@ -2,13 +2,16 @@
 // SuspectGenerator.js
 // Builds a full 10-person suspect lineup (9 decoys + the case's
 // thief pulled from gameState.currentThief) for a given crime city.
-// Does NOT pick the thief itself - the thief comes from GameStateManager.js
-// via setupNewGame() -> gameState.currentThief.
+// Does NOT mutate the supplied thief object.
 // ============================================================
 
 class SuspectGenerator {
   constructor(citysuspectsData) {
-    this.citysuspects = citysuspectsData; // loaded citysuspects.json
+    if (!citysuspectsData || typeof citysuspectsData !== 'object' || Array.isArray(citysuspectsData)) {
+      throw new Error('SuspectGenerator requires a valid citysuspects data object.');
+    }
+
+    this.citysuspects = citysuspectsData;
 
     this.identityEvidencePool = {
       hair_color: { domain: ['blond', 'black', 'red', 'brown'], k: 4 },
@@ -30,215 +33,300 @@ class SuspectGenerator {
       { id: 'glass_shards', label: 'Glass Shards', minigame: 'GlassShardPuzzleScene', possibleThreads: [null] }
     ];
 
-    this.P_MATCH = 0.6; // Bernoulli success probability for the real identity clue
+    this.P_MATCH = 0.6;
   }
 
-  // ---------- Utility: random helpers ----------
   static randomFrom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
+    if (!Array.isArray(arr) || arr.length === 0) {
+      return null;
+    }
+
+    return arr[Math.floor(Math.random() * arr.length)] ?? null;
   }
 
   static shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
+    if (!Array.isArray(arr)) {
+      return [];
     }
-    return a;
+
+    const shuffled = [...arr];
+
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
   }
 
-  static sampleUnique(arr, n) {
-    return SuspectGenerator.shuffle(arr).slice(0, n);
+  static sampleUnique(arr, count) {
+    if (!Array.isArray(arr) || !Number.isInteger(count) || count <= 0) {
+      return [];
+    }
+
+    return SuspectGenerator.shuffle(arr).slice(0, count);
   }
 
-  static bernoulli(p) {
+  static bernoulli(probability) {
+    const p = Number.isFinite(probability)
+      ? Phaser.Math.Clamp(probability, 0, 1)
+      : 0;
+
     return Math.random() < p;
   }
 
-  // ---------- Step 1: pick identity evidence attribute + thief ground truth ----------
-  // thief = gameState.currentThief (passed in, NOT picked here)
-  pickIdentityEvidence(thief) {
-    const attrKeys = Object.keys(this.identityEvidencePool);
-    const selectedAttr = SuspectGenerator.randomFrom(attrKeys);
-    const config = this.identityEvidencePool[selectedAttr];
-
-    // Map thief's known fields (from suspects.json / gameState.currentThief) to our attribute names
-    const knownFieldMap = {
-      hair_color: thief.hair ? thief.hair.toLowerCase() : null,
-      biological_sex: thief.gender_code === 'f' ? 'F' : (thief.gender_code === 'm' ? 'M' : null)
-      // blood_type, shoe_size_category, race are NOT in suspects.json -> generate once, persist on thief object
-    };
-
-    let thiefValue;
-    if (knownFieldMap[selectedAttr]) {
-      thiefValue = knownFieldMap[selectedAttr];
-    } else if (thief._generatedAttrs && thief._generatedAttrs[selectedAttr]) {
-      // reuse if already generated earlier this case (keeps thief consistent across re-renders)
-      thiefValue = thief._generatedAttrs[selectedAttr];
-    } else {
-      thiefValue = SuspectGenerator.randomFrom(config.domain);
-      thief._generatedAttrs = thief._generatedAttrs || {};
-      thief._generatedAttrs[selectedAttr] = thiefValue;
-    }
-
-    return { attribute: selectedAttr, config, thiefValue };
+  static validStringArray(value) {
+    return Array.isArray(value)
+      ? value.filter(item => typeof item === 'string' && item.trim().length > 0)
+      : [];
   }
 
-  // ---------- Step 2: generate one decoy's identity attribute (Bernoulli) ----------
+  getKnownThiefAttribute(thief, attribute) {
+    const knownAttributes = {
+      hair_color: typeof thief?.hair === 'string'
+        ? thief.hair.toLowerCase()
+        : null,
+      biological_sex: thief?.gender_code === 'f'
+        ? 'F'
+        : thief?.gender_code === 'm'
+          ? 'M'
+          : thief?.gender_code === 'nb'
+            ? 'NB'
+            : null
+    };
+
+    return knownAttributes[attribute] || null;
+  }
+
+  pickIdentityEvidence(thief, generatedAttrs) {
+    const attributeKeys = Object.keys(this.identityEvidencePool);
+    const selectedAttr = SuspectGenerator.randomFrom(attributeKeys);
+
+    if (!selectedAttr) {
+      throw new Error('SuspectGenerator has no identity evidence attributes configured.');
+    }
+
+    const config = this.identityEvidencePool[selectedAttr];
+    const knownValue = this.getKnownThiefAttribute(thief, selectedAttr);
+
+    let thiefValue = knownValue || generatedAttrs[selectedAttr] || null;
+
+    if (!thiefValue) {
+      thiefValue = SuspectGenerator.randomFrom(config.domain);
+      generatedAttrs[selectedAttr] = thiefValue;
+    }
+
+    if (!thiefValue) {
+      throw new Error(`Could not generate thief value for identity attribute "${selectedAttr}".`);
+    }
+
+    return {
+      attribute: selectedAttr,
+      config,
+      thiefValue
+    };
+  }
+
   generateIdentityAttributeForSuspect(selectedAttr, config, thiefValue) {
-    if (selectedAttr === 'biological_sex') {
-      const isNB = SuspectGenerator.bernoulli(config.pNonbinary);
-      if (isNB) return 'NB';
+    if (selectedAttr === 'biological_sex' && SuspectGenerator.bernoulli(config.pNonbinary)) {
+      return 'NB';
     }
 
     if (SuspectGenerator.bernoulli(this.P_MATCH)) {
       return thiefValue;
-    } else {
-      const others = config.domain.filter(v => v !== thiefValue);
-      return SuspectGenerator.randomFrom(others);
     }
+
+    const alternatives = config.domain.filter(value => value !== thiefValue);
+
+    return SuspectGenerator.randomFrom(alternatives) || thiefValue;
   }
 
-  // ---------- Step 3: generate a cosmetic (non-evidence) attribute ----------
-  generateCosmeticAttribute(attrKey) {
-    const config = this.identityEvidencePool[attrKey];
-    if (attrKey === 'biological_sex') {
-      const isNB = SuspectGenerator.bernoulli(config.pNonbinary);
-      if (isNB) return 'NB';
-      return SuspectGenerator.randomFrom(['M', 'F']);
+  generateCosmeticAttribute(attribute) {
+    const config = this.identityEvidencePool[attribute];
+
+    if (!config || !Array.isArray(config.domain) || config.domain.length === 0) {
+      throw new Error(`Missing domain configuration for identity attribute "${attribute}".`);
     }
+
+    if (attribute === 'biological_sex') {
+      if (SuspectGenerator.bernoulli(config.pNonbinary)) {
+        return 'NB';
+      }
+
+      return SuspectGenerator.randomFrom(['M', 'F']) || 'NB';
+    }
+
     return SuspectGenerator.randomFrom(config.domain);
   }
 
-  // ---------- Step 4: build decoy name/occupation pool for a city ----------
   buildDecoyPool(cityId, count) {
-    const universal = this.citysuspects.universal;
+    const universal = this.citysuspects.universal || {};
     const cityData = this.citysuspects[cityId] || {};
 
-    const femaleNames = [...(cityData.first_names_female || []), ...universal.first_names_female];
-    const maleNames = [...(cityData.first_names_male || []), ...universal.first_names_male];
-    const neutralNames = [...(cityData.first_names_neutral || []), ...universal.first_names_neutral];
-    const lastNames = [...(cityData.last_names || []), ...universal.last_names];
-    const occupations = [...(cityData.occupations || []), ...universal.occupations];
+    const femaleNames = [
+      ...SuspectGenerator.validStringArray(cityData.first_names_female),
+      ...SuspectGenerator.validStringArray(universal.first_names_female)
+    ];
 
-    const genderedFirstNames = [];
-    femaleNames.forEach(n => genderedFirstNames.push({ name: n, gender_code: 'f' }));
-    maleNames.forEach(n => genderedFirstNames.push({ name: n, gender_code: 'm' }));
-    neutralNames.forEach(n => genderedFirstNames.push({ name: n, gender_code: 'nb' }));
+    const maleNames = [
+      ...SuspectGenerator.validStringArray(cityData.first_names_male),
+      ...SuspectGenerator.validStringArray(universal.first_names_male)
+    ];
+
+    const neutralNames = [
+      ...SuspectGenerator.validStringArray(cityData.first_names_neutral),
+      ...SuspectGenerator.validStringArray(universal.first_names_neutral)
+    ];
+
+    const lastNames = [
+      ...SuspectGenerator.validStringArray(cityData.last_names),
+      ...SuspectGenerator.validStringArray(universal.last_names)
+    ];
+
+    const occupations = [
+      ...SuspectGenerator.validStringArray(cityData.occupations),
+      ...SuspectGenerator.validStringArray(universal.occupations)
+    ];
+
+    const genderedFirstNames = [
+      ...femaleNames.map(name => ({ name, gender_code: 'f' })),
+      ...maleNames.map(name => ({ name, gender_code: 'm' })),
+      ...neutralNames.map(name => ({ name, gender_code: 'nb' }))
+    ];
+
+    if (genderedFirstNames.length < count) {
+      throw new Error(`Not enough first names to generate ${count} decoys for city "${cityId}".`);
+    }
+
+    if (lastNames.length < count) {
+      throw new Error(`Not enough last names to generate ${count} decoys for city "${cityId}".`);
+    }
+
+    if (occupations.length < count + 1) {
+      throw new Error(`Not enough occupations to generate ${count} decoys and one thief occupation for city "${cityId}".`);
+    }
 
     const sampledFirstNames = SuspectGenerator.sampleUnique(genderedFirstNames, count);
     const sampledLastNames = SuspectGenerator.sampleUnique(lastNames, count);
-    const sampledOccupations = SuspectGenerator.sampleUnique(occupations, count + 1); // +1 spare, thief needs one too
+    const sampledOccupations = SuspectGenerator.sampleUnique(occupations, count + 1);
 
-    const decoyOccupations = sampledOccupations.slice(0, count);
-    const thiefOccupation = sampledOccupations[count]; // reserved, unique from decoys
-
-    const decoys = sampledFirstNames.map((fn, i) => ({
-      id: `decoy_${cityId}_${i}_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      name: `${fn.name} ${sampledLastNames[i]}`,
-      gender_code: fn.gender_code,
-      occupation: decoyOccupations[i]
+    const decoys = sampledFirstNames.map((firstName, index) => ({
+      id: `decoy_${cityId}_${index}_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      name: `${firstName.name} ${sampledLastNames[index]}`,
+      gender_code: firstName.gender_code,
+      occupation: sampledOccupations[index]
     }));
-
-    return { decoys, thiefOccupation };
-  }
-
-  // ---------- Step 5: pick trace evidence (2 of 6, thread resolved randomly) ----------
-  pickTraceEvidence() {
-    const selected = SuspectGenerator.sampleUnique(this.traceEvidencePool, 2);
-    return selected.map(t => ({
-      id: t.id,
-      label: t.label,
-      minigame: t.minigame,
-      resolvedThread: SuspectGenerator.randomFrom(t.possibleThreads)
-    }));
-  }
-
-  // ---------- Master function: generate full case suspect lineup ----------
-  // thief: gameState.currentThief (already selected by GameStateManager.js)
-  // cityId: normalized crime city id, e.g. gameState.crimeCityId
-  generateCaseSuspects(thief, cityId) {
-    if (!thief || !thief.id) {
-      throw new Error('SuspectGenerator.generateCaseSuspects requires a valid thief object (gameState.currentThief).');
-    }
-
-    const identityEvidence = this.pickIdentityEvidence(thief);
-    const traceEvidence = this.pickTraceEvidence();
-
-    const { decoys, thiefOccupation } = this.buildDecoyPool(cityId, 9);
-
-    const attrKeys = Object.keys(this.identityEvidencePool);
-
-    const buildDecoyAttributes = () => {
-      const attrs = {};
-      attrKeys.forEach(attrKey => {
-        if (attrKey === identityEvidence.attribute) {
-          attrs[attrKey] = this.generateIdentityAttributeForSuspect(
-            identityEvidence.attribute, identityEvidence.config, identityEvidence.thiefValue
-          );
-        } else {
-          attrs[attrKey] = this.generateCosmeticAttribute(attrKey);
-        }
-      });
-      return attrs;
-    };
-
-    const buildThiefAttributes = () => {
-      const attrs = {};
-      attrKeys.forEach(attrKey => {
-        if (attrKey === identityEvidence.attribute) {
-          attrs[attrKey] = identityEvidence.thiefValue;
-        } else if (thief._generatedAttrs && thief._generatedAttrs[attrKey]) {
-          attrs[attrKey] = thief._generatedAttrs[attrKey]; // reuse if generated in a previous evidence pick
-        } else {
-          // known fields from suspects.json take priority (hair, sex); rest generated once and cached
-          const known = {
-            hair_color: thief.hair ? thief.hair.toLowerCase() : null,
-            biological_sex: thief.gender_code === 'f' ? 'F' : (thief.gender_code === 'm' ? 'M' : null)
-          };
-          const value = known[attrKey] || this.generateCosmeticAttribute(attrKey);
-          thief._generatedAttrs = thief._generatedAttrs || {};
-          thief._generatedAttrs[attrKey] = value;
-          attrs[attrKey] = value;
-        }
-      });
-      return attrs;
-    };
-
-    const decoySuspects = decoys.map(d => ({
-      id: d.id,
-      name: d.name,
-      occupation: d.occupation,
-      gender_code: d.gender_code,
-      is_thief: false,
-      attributes: buildDecoyAttributes()
-    }));
-
-    // Thief gets a randomly assigned occupation too (not in suspects.json by default)
-    const thiefSuspect = {
-      id: thief.id,
-      name: thief.name,
-      occupation: thief.occupation || thiefOccupation, // reuse if already set earlier this case
-      gender_code: thief.gender_code,
-      is_thief: true,
-      attributes: buildThiefAttributes()
-    };
-
-    // persist thief's occupation on the original object so it stays consistent
-    // across scenes within the same case (city interviews, crime board, etc.)
-    thief.occupation = thiefSuspect.occupation;
-
-    const fullLineup = SuspectGenerator.shuffle([...decoySuspects, thiefSuspect]);
 
     return {
-      cityId,
+      decoys,
+      thiefOccupation: sampledOccupations[count]
+    };
+  }
+
+  pickTraceEvidence() {
+    const selected = SuspectGenerator.sampleUnique(this.traceEvidencePool, 2);
+
+    if (selected.length < 2) {
+      throw new Error('SuspectGenerator requires at least two trace evidence entries.');
+    }
+
+    return selected.map(trace => ({
+      id: trace.id,
+      label: trace.label,
+      minigame: trace.minigame,
+      resolvedThread: SuspectGenerator.randomFrom(trace.possibleThreads)
+    }));
+  }
+
+  buildThiefAttributes(thief, identityEvidence, generatedAttrs) {
+    const attributes = {};
+
+    Object.keys(this.identityEvidencePool).forEach(attribute => {
+      if (attribute === identityEvidence.attribute) {
+        attributes[attribute] = identityEvidence.thiefValue;
+        return;
+      }
+
+      const knownValue = this.getKnownThiefAttribute(thief, attribute);
+
+      if (knownValue) {
+        attributes[attribute] = knownValue;
+        return;
+      }
+
+      if (!generatedAttrs[attribute]) {
+        generatedAttrs[attribute] = this.generateCosmeticAttribute(attribute);
+      }
+
+      attributes[attribute] = generatedAttrs[attribute];
+    });
+
+    return attributes;
+  }
+
+  generateCaseSuspects(thief, cityId) {
+    if (!thief || typeof thief !== 'object' || !thief.id) {
+      throw new Error('SuspectGenerator.generateCaseSuspects requires a valid thief object with an id.');
+    }
+
+    if (typeof cityId !== 'string' || !cityId.trim()) {
+      throw new Error('SuspectGenerator.generateCaseSuspects requires a valid city id.');
+    }
+
+    const normalizedCityId = cityId.trim();
+    const generatedThiefAttrs = {};
+    const identityEvidence = this.pickIdentityEvidence(thief, generatedThiefAttrs);
+    const traceEvidence = this.pickTraceEvidence();
+    const { decoys, thiefOccupation } = this.buildDecoyPool(normalizedCityId, 9);
+
+    const decoySuspects = decoys.map(decoy => {
+      const attributes = {};
+
+      Object.keys(this.identityEvidencePool).forEach(attribute => {
+        attributes[attribute] = attribute === identityEvidence.attribute
+          ? this.generateIdentityAttributeForSuspect(
+            identityEvidence.attribute,
+            identityEvidence.config,
+            identityEvidence.thiefValue
+          )
+          : this.generateCosmeticAttribute(attribute);
+      });
+
+      return {
+        id: decoy.id,
+        name: decoy.name,
+        occupation: decoy.occupation,
+        gender_code: decoy.gender_code,
+        is_thief: false,
+        attributes
+      };
+    });
+
+    const thiefSuspect = {
+      id: thief.id,
+      name: thief.name || 'Unknown Suspect',
+      occupation: thief.occupation || thiefOccupation,
+      gender_code: thief.gender_code || null,
+      is_thief: true,
+      attributes: this.buildThiefAttributes(
+        thief,
+        identityEvidence,
+        generatedThiefAttrs
+      )
+    };
+
+    return {
+      cityId: normalizedCityId,
       thief_id: thief.id,
       identity_evidence: {
         attribute: identityEvidence.attribute,
         thief_value: identityEvidence.thiefValue
       },
       trace_evidence: traceEvidence,
-      suspects: fullLineup
+      suspects: SuspectGenerator.shuffle([
+        ...decoySuspects,
+        thiefSuspect
+      ])
     };
   }
 }

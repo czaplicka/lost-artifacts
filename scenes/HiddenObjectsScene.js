@@ -2,8 +2,13 @@ import { gameState, saveGameState } from '../GameData.js';
 import { ScoreManager } from '../ScoreManager.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { getEnergyManager } from '../EnergyManager.js';
+import {
+    getDifficultyConfig,
+} from '../DifficultySettings.js';
 
-export default class HiddenObjectsScene extends Phaser.Scene {
+export class HiddenObjectsScene extends BaseScene {
   constructor() {
     super('HiddenObjectsScene');
 
@@ -68,11 +73,27 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     this.objectLayerName = data.objectLayerName || 'HiddenObjects';
     this.objectsDataKey = data.objectsDataKey || 'objects-data';
     this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
+const difficulty = this.registry.get('difficulty')
+    || gameState.difficulty
+    || 'field';
 
-    this.activeCount = data.activeCount || 6;
-    this.score = data.score || 0;
-    this.timeLeft = data.timeLimit || 120;
-    this.returnScene = data.returnScene || 'CityScene';
+const difficultyConfig = getDifficultyConfig(difficulty);
+
+const baseTimeLimit = Number.isFinite(data.timeLimit)
+    ? data.timeLimit
+    : 120;
+
+this.activeCount = difficultyConfig.hiddenObjectCount;
+
+this.timeLeft = Math.round(
+    baseTimeLimit * difficultyConfig.timerMultiplier,
+);
+
+this.score = data.score || 0;
+this.returnScene = typeof data.returnScene === 'string' &&
+  data.returnScene.trim()
+  ? data.returnScene.trim()
+  : 'CityScene';
     this.returnData = data.returnData || { cityId: resolvedCityId };
     this.cityId = resolvedCityId;
     this.title = data.title || 'Crime Scene';
@@ -148,7 +169,7 @@ export default class HiddenObjectsScene extends Phaser.Scene {
         playerTheoryScore: 0,
         playerTheoryResult: null,
         playerSlotFeedback: [],
-        playerAttemptsLeft: 2
+        playerAttemptsLeft: difficultyConfig.reconstructionAttempts
       };
     }
 
@@ -175,36 +196,32 @@ export default class HiddenObjectsScene extends Phaser.Scene {
     if (this.objectsDataPath && !this.cache.json.exists(this.objectsDataKey)) {
       this.load.json(this.objectsDataKey, this.objectsDataPath);
     }
-
-    if (!this.textures.exists('back')) {
-      this.load.image('back', '/assets/back.png');
-    }
-
-    if (!this.cache.audio.exists('wrong')) {
-      this.load.audio('wrong', 'assets/audio/wrong.mp3');
-    }
-
-    if (!this.cache.audio.exists('correct')) {
-      this.load.audio('correct', 'assets/audio/correct.mp3');
-    }
   }
 
   create() {
+    super.create();
     audioManager.init(this);
     this.cameras.main.setBackgroundColor('#0f0f12');
     this.forceResetCursor();
-this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+    this.energyManager = getEnergyManager();
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     if (this.isQuestAlreadyDone()) {
       this.restoreSourceScene();
-      this.scene.start(this.returnScene, {
-        ...this.returnData,
-        hiddenObjectsAlreadyCompleted: true,
-        sceneId: this.sceneId
-      });
+this.returnToSafeScene({
+  ...this.returnData,
+  hiddenObjectsAlreadyCompleted: true,
+  sceneId: this.sceneId
+});
       return;
     }
+    const objectsLoaded = this.loadObjectsData();
 
-    this.loadObjectsData();
+    if (!objectsLoaded) {
+      this.handleSceneSetupFailure(
+        `Objects data "${this.objectsDataKey}" (${this.objectsDataPath}) failed to load or was not a valid array.`
+      );
+      return;
+    }
 
     if (!this.sceneItems.length) {
       this.handleSceneSetupFailure(`No objects configured for scene "${this.sceneId}".`);
@@ -339,7 +356,65 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 
     return cityToSceneMap[city] || '';
   }
+getSafeReturnScene() {
+  const requestedScene = typeof this.returnScene === 'string'
+    ? this.returnScene.trim()
+    : '';
 
+  const fallbackScene = 'CityScene';
+  const menuScene = 'MenuScene';
+
+  if (
+    requestedScene &&
+    this.scene.manager.keys[requestedScene]
+  ) {
+    return requestedScene;
+  }
+
+  if (requestedScene) {
+    console.warn(
+      '[HiddenObjectsScene] Invalid returnScene requested. Falling back.',
+      {
+        requestedScene,
+        fallbackScene
+      }
+    );
+  }
+
+  if (this.scene.manager.keys[fallbackScene]) {
+    return fallbackScene;
+  }
+
+  if (this.scene.manager.keys[menuScene]) {
+    console.error(
+      '[HiddenObjectsScene] CityScene is unavailable. Returning to MenuScene instead.'
+    );
+
+    return menuScene;
+  }
+
+  console.error(
+    '[HiddenObjectsScene] No valid return scene is registered.',
+    {
+      requestedScene,
+      availableScenes: Object.keys(this.scene.manager.keys)
+    }
+  );
+
+  return null;
+}
+
+returnToSafeScene(data = {}) {
+  const targetScene = this.getSafeReturnScene();
+
+  if (!targetScene) {
+    return false;
+  }
+
+  this.scene.start(targetScene, data);
+
+  return true;
+}
   handleSceneSetupFailure(message) {
     console.error('[HiddenObjectsScene] Setup failed:', message, {
       sceneId: this.sceneId,
@@ -350,16 +425,16 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 
     this.restoreSourceScene();
 
-    this.scene.start(this.returnScene, {
-      ...this.returnData,
-      hiddenObjectsSetupFailed: true,
-      hiddenObjectsSuccess: false,
-      hiddenObjectsScore: this.score,
-      incorrectClicks: this.incorrectClicks,
-      foundItems: Array.from(this.foundItems),
-      sceneId: this.sceneId,
-      errorMessage: message
-    });
+this.returnToSafeScene({
+  ...this.returnData,
+  hiddenObjectsSetupFailed: true,
+  hiddenObjectsSuccess: false,
+  hiddenObjectsScore: this.score,
+  incorrectClicks: this.incorrectClicks,
+  foundItems: Array.from(this.foundItems),
+  sceneId: this.sceneId,
+  errorMessage: message
+});
   }
 
   forceResetCursor() {
@@ -412,12 +487,36 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
   }
 
   loadObjectsData() {
-    this.itemsData = this.cache.json.get(this.objectsDataKey) || [];
-    this.itemsById = Object.fromEntries(this.itemsData.map(item => [item.id, item]));
+    const rawData = this.cache.json.get(this.objectsDataKey);
+
+    if (!Array.isArray(rawData)) {
+      console.error(
+        `[HiddenObjectsScene] Expected an array from "${this.objectsDataKey}" ` +
+        `(${this.objectsDataPath}) but got:`,
+        rawData
+      );
+
+      this.itemsData = [];
+      this.itemsById = {};
+      this.sceneItems = [];
+      return false;
+    }
+
+    this.itemsData = rawData;
+
+    this.itemsById = Object.fromEntries(
+      this.itemsData
+        .filter(item => item && item.id !== undefined && item.id !== null)
+        .map(item => [item.id, item])
+    );
+
     this.sceneItems = this.itemsData.filter(item => {
+      if (!item) return false;
       const scenes = Array.isArray(item.scene) ? item.scene : [item.scene];
       return scenes.includes(this.sceneId);
     });
+
+    return true;
   }
 
   computePlayArea() {
@@ -475,32 +574,40 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     const thiefSkills = this.getCurrentThiefSkills();
 
     const pool = this.sceneItems.map(item => ({
-      ...item,
-      skills: this.normalizeSkills(item.skills)
+        ...item,
+        skills: this.normalizeSkills(item.skills),
     }));
 
     const matching = Phaser.Utils.Array.Shuffle(
-      pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills))
+        pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills)),
     );
 
     const correct = matching.slice(0, 3).map((item, index) => ({
-      ...item,
-      isCorrect: true,
-      correctOrder: index
+        ...item,
+        isCorrect: true,
+        correctOrder: index,
     }));
 
     const rest = Phaser.Utils.Array.Shuffle(
-      pool.filter(item => !correct.some(c => c.id === item.id))
+        pool.filter(item => !correct.some(card => card.id === item.id)),
     );
 
-    const distractors = rest.slice(0, Math.max(0, 6 - correct.length)).map(item => ({
-      ...item,
-      isCorrect: false,
-      correctOrder: -1
+    const distractorCount = Math.max(
+        0,
+        this.activeCount - correct.length,
+    );
+
+    const distractors = rest.slice(0, distractorCount).map(item => ({
+        ...item,
+        isCorrect: false,
+        correctOrder: -1,
     }));
 
-    return Phaser.Utils.Array.Shuffle([...correct, ...distractors]);
-  }
+    return Phaser.Utils.Array.Shuffle([
+        ...correct,
+        ...distractors,
+    ]);
+}
 
   pickActiveItems(count = 6) {
     this.activeItems = this.buildCandidatePool().slice(0, count);
@@ -512,48 +619,60 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 
   buildReconstructionCardsFromActiveItems() {
     const thief = gameState.currentThief || null;
-    const thiefSkills = this.normalizeSkills(thief?.skills);
+
+    const thiefSkills = this.normalizeSkills(
+        thief?.skills,
+    );
+
+    const difficulty = this.registry.get('difficulty')
+        || gameState.difficulty
+        || 'field';
+
+    const difficultyConfig = getDifficultyConfig(difficulty);
 
     const allCards = this.activeItems.map((item, index) => ({
-      id: item.id || `card_${index}`,
-      item: item.item || `Clue ${index + 1}`,
-      text: item.item || `Clue ${index + 1}`,
-      skills: this.normalizeSkills(item.skills),
-      cityId: this.cityId,
-      scene: this.sceneId,
-      isCorrect: !!item.isCorrect,
-      correctOrder: Number.isInteger(item.correctOrder) ? item.correctOrder : -1,
-      clueType: item.clueType || 'soft_clue',
-      heistExplanation: item.heistExplanation || '',
-      trueExplanation: item.trueExplanation || '',
-      isRedHerring: !!item.isRedHerring
+        id: item.id,
+        cardId: `card_${index}`,
+        item: item.item || `Clue ${index + 1}`,
+        text: item.item || `Clue ${index + 1}`,
+        skills: this.normalizeSkills(item.skills),
+        cityId: this.cityId,
+        scene: this.sceneId,
+        isCorrect: Boolean(item.isCorrect),
+        correctOrder: Number.isInteger(item.correctOrder)
+            ? item.correctOrder
+            : -1,
+        clueType: item.clueType || 'softclue',
+        heistExplanation: item.heistExplanation || '',
+        trueExplanation: item.trueExplanation || '',
+        isRedHerring: Boolean(item.isRedHerring),
     }));
 
     const correctCards = allCards
-      .filter(card => card.isCorrect)
-      .sort((a, b) => a.correctOrder - b.correctOrder)
-      .slice(0, 3);
+        .filter(card => card.isCorrect)
+        .sort((a, b) => a.correctOrder - b.correctOrder)
+        .slice(0, 3);
 
     return {
-      cityId: this.cityId,
-      sceneId: this.sceneId,
-      thiefId: gameState.currentThiefId || thief?.id || null,
-      thiefName: thief?.name || null,
-      thiefSkills,
-      allCards,
-      correctCardIds: correctCards.map(card => card.id),
-      correctSequence: correctCards.map(card => card.id),
-      selectedCards: [],
-      playerOrderedCards: [],
-      playerOrderedSentences: [],
-      playerFinalText: '',
-      playerSkills: [],
-      playerTheoryScore: 0,
-      playerTheoryResult: null,
-      playerSlotFeedback: [],
-      playerAttemptsLeft: 2
+        cityId: this.cityId,
+        sceneId: this.sceneId,
+        thiefId: gameState.currentThiefId || thief?.id || null,
+        thiefName: thief?.name || null,
+        thiefSkills,
+        allCards,
+        correctCardIds: correctCards.map(card => card.id),
+        correctSequence: correctCards.map(card => card.id),
+        selectedCards: [],
+        playerOrderedCards: [],
+        playerOrderedSentences: [],
+        playerFinalText: '',
+        playerSkills: [],
+        playerTheoryScore: 0,
+        playerTheoryResult: null,
+        playerSlotFeedback: [],
+        playerAttemptsLeft: difficultyConfig.reconstructionAttempts,
     };
-  }
+}
 
   saveReconstructionCards() {
     const reconstruction = this.buildReconstructionCardsFromActiveItems();
@@ -915,9 +1034,6 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     saveGameState();
   }
 
-  // NOWE: zapisuje fizyczne przedmioty znalezione na scenie (z this.foundItems)
-  // do gameState.crimeBoardData.sceneFoundObjects, żeby CrimeBoardInit.js mógł
-  // zbudować z nich karty evidence na tablicy śledczej.
   saveFoundObjectsToCrimeBoard() {
     if (!gameState.crimeBoardData || typeof gameState.crimeBoardData !== 'object') {
       gameState.crimeBoardData = {};
@@ -953,7 +1069,19 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
       });
     });
   }
-
+onObjectFound(objectId) {
+  const result = this.energyManager.consumeActivity('hidden_objects');
+  console.log(`✓ ${result.label}`);
+  
+  if (result.energyReachedZero) {
+    // Przerwij grę - gracz się przewalił
+    this.scene.stop();
+    return;
+  }
+  
+  // Normalny flow
+  this.updateScore(100);
+}
   buildListText() {
     return this.activeItems.map(item => {
       const found = this.foundItems.has(item.id);
@@ -1093,14 +1221,14 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     continueBtnBg.on('pointerdown', () => {
       this.playSfx('correct', { volume: 0.35 });
       this.restoreSourceScene();
-      this.scene.start(this.returnScene, {
-        ...this.returnData,
-        hiddenObjectsSuccess: true,
-        hiddenObjectsScore: finalScore,
-        incorrectClicks: this.incorrectClicks,
-        foundItems: Array.from(this.foundItems),
-        sceneId: this.sceneId
-      });
+this.returnToSafeScene({
+  ...this.returnData,
+  hiddenObjectsSuccess: true,
+  hiddenObjectsScore: finalScore,
+  incorrectClicks: this.incorrectClicks,
+  foundItems: Array.from(this.foundItems),
+  sceneId: this.sceneId
+});
     });
 
     this.resultContainer.add([
@@ -1186,14 +1314,14 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     btnBg.on('pointerout', () => btnBg.setFillStyle(0x6b2a2a, 1));
     btnBg.on('pointerdown', () => {
       this.restoreSourceScene();
-      this.scene.start(this.returnScene, {
-        ...this.returnData,
-        hiddenObjectsSuccess: false,
-        hiddenObjectsScore: this.score,
-        incorrectClicks: this.incorrectClicks,
-        foundItems: Array.from(this.foundItems),
-        sceneId: this.sceneId
-      });
+this.returnToSafeScene({
+  ...this.returnData,
+  hiddenObjectsSuccess: false,
+  hiddenObjectsScore: this.score,
+  incorrectClicks: this.incorrectClicks,
+  foundItems: Array.from(this.foundItems),
+  sceneId: this.sceneId
+});
     });
 
     this.resultContainer.add([panel, title, body, btnBg, btnText]);
@@ -1226,15 +1354,15 @@ this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     this.markSceneVisited(false);
     this.restoreSourceScene();
 
-    this.scene.start(this.returnScene, {
-      ...this.returnData,
-      hiddenObjectsAborted: true,
-      hiddenObjectsSuccess: false,
-      hiddenObjectsScore: this.score,
-      incorrectClicks: this.incorrectClicks,
-      foundItems: Array.from(this.foundItems),
-      sceneId: this.sceneId
-    });
+this.returnToSafeScene({
+  ...this.returnData,
+  hiddenObjectsAborted: true,
+  hiddenObjectsSuccess: false,
+  hiddenObjectsScore: this.score,
+  incorrectClicks: this.incorrectClicks,
+  foundItems: Array.from(this.foundItems),
+  sceneId: this.sceneId
+});
   }
 
   registerMissDetection() {

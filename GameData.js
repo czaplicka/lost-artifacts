@@ -16,7 +16,7 @@ export function createDefaultReconstructedHeist() {
     playerTheoryScore: 0,
     playerTheoryResult: null,
     playerSlotFeedback: [],
-    playerAttemptsLeft: 2
+    playerAttemptsLeft: 3
   };
 }
 
@@ -55,9 +55,24 @@ export const defaultGameState = {
   nextTargetCityId: null,
   mustIncludeCityId: null,
 
-  score: 0,
-  playerRank: 'Junior Agent',
-  isGameActive: false,
+score: 0,
+
+playerName: 'Detective',
+playerRank: 'Junior Agent',
+avatarUrl: 'assets/profiles.png',
+
+casesSolved: 0,
+arrests: 0,
+achievements: [],
+completedCaseIds: [],
+successfulArrestCaseIds: [],
+
+isGameActive: false,
+difficulty: 'field',
+  // ===== ENERGY SYSTEM =====
+  energy: 100,
+  maxEnergy: 100,
+  energyLog: [],
 
   timeSpent: 0,
   travelHistory: [],
@@ -103,6 +118,121 @@ function isPlainObject(value) {
       typeof value === 'object' &&
       !Array.isArray(value)
   );
+}
+
+// NEW: an "id" in this game is always either a string or a number
+// (suspect ids, city ids, card ids, scene ids...). Anything else
+// (object, array, boolean, function-shaped JSON) is rejected as invalid.
+function isValidId(value) {
+  return typeof value === 'string' || typeof value === 'number';
+}
+
+function sanitizeIdOrNull(value) {
+  return isValidId(value) ? value : null;
+}
+
+// NEW: strips a raw array down to only the elements that are valid ids,
+// dropping anything malformed instead of blindly trusting "it's an array".
+function sanitizeIdArray(value) {
+  return Array.isArray(value) ? value.filter(isValidId) : [];
+}
+
+// NEW: strips a raw array down to only non-empty string elements.
+function sanitizeStringArray(value) {
+  return Array.isArray(value)
+    ? value.filter(item => typeof item === 'string' && item.length > 0)
+    : [];
+}
+
+// NEW: whitelist-based validation of a single "heist card" object, as used
+// by the crime-scene hidden-object minigame and the Mastermind sequencing
+// minigame (allCards / selectedCards / playerOrderedCards). Only known,
+// correctly-typed fields survive; unknown or malformed entries are dropped
+// entirely rather than passed through structuredClone verbatim.
+// NOTE: adjust this whitelist if your actual card schema has more fields.
+function sanitizeHeistCard(card) {
+  if (!isPlainObject(card)) return null;
+  if (!isValidId(card.id)) return null;
+
+  return {
+    id: card.id,
+    label: typeof card.label === 'string' ? card.label : '',
+    type: typeof card.type === 'string' ? card.type : '',
+    isRedHerring: Boolean(card.isRedHerring)
+  };
+}
+
+function sanitizeHeistCardArray(value) {
+  return Array.isArray(value)
+    ? value.map(sanitizeHeistCard).filter(Boolean)
+    : [];
+}
+
+// NEW: whitelist-based validation of a single Mastermind feedback entry
+// (per-slot "correct / wrong position / not present" style result).
+// Rejects anything with an unexpected status value instead of trusting
+// whatever was in localStorage.
+const VALID_SLOT_FEEDBACK_STATUSES = new Set(['correct', 'wrong-position', 'absent']);
+
+function sanitizeSlotFeedback(entry) {
+  if (!isPlainObject(entry)) return null;
+  if (!Number.isInteger(entry.slotIndex) || entry.slotIndex < 0) return null;
+  if (!VALID_SLOT_FEEDBACK_STATUSES.has(entry.status)) return null;
+
+  return {
+    slotIndex: entry.slotIndex,
+    status: entry.status
+  };
+}
+
+function sanitizeSlotFeedbackArray(value) {
+  return Array.isArray(value)
+    ? value.map(sanitizeSlotFeedback).filter(Boolean)
+    : [];
+}
+
+// NEW: fully validates reconstructedHeist field-by-field instead of
+// spreading the raw parsed object and only spot-checking a few array
+// fields afterwards. Anything malformed falls back to the safe default.
+function sanitizeReconstructedHeist(data) {
+  const defaults = createDefaultReconstructedHeist();
+  const safeData = isPlainObject(data) ? data : {};
+
+  return {
+    cityId: sanitizeIdOrNull(safeData.cityId),
+    sceneId: sanitizeIdOrNull(safeData.sceneId),
+    thiefId: sanitizeIdOrNull(safeData.thiefId),
+    thiefName: typeof safeData.thiefName === 'string' ? safeData.thiefName : null,
+
+    thiefSkills: sanitizeStringArray(safeData.thiefSkills),
+    allCards: sanitizeHeistCardArray(safeData.allCards),
+    correctCardIds: sanitizeIdArray(safeData.correctCardIds),
+    correctSequence: sanitizeIdArray(safeData.correctSequence),
+    selectedCards: sanitizeHeistCardArray(safeData.selectedCards),
+    playerOrderedCards: sanitizeHeistCardArray(safeData.playerOrderedCards),
+    playerOrderedSentences: sanitizeStringArray(safeData.playerOrderedSentences),
+
+    playerFinalText: typeof safeData.playerFinalText === 'string'
+      ? safeData.playerFinalText
+      : defaults.playerFinalText,
+
+    playerSkills: sanitizeStringArray(safeData.playerSkills),
+
+    playerTheoryScore: Number.isFinite(safeData.playerTheoryScore)
+      ? safeData.playerTheoryScore
+      : defaults.playerTheoryScore,
+
+    playerTheoryResult:
+      typeof safeData.playerTheoryResult === 'string' || safeData.playerTheoryResult === null
+        ? safeData.playerTheoryResult
+        : defaults.playerTheoryResult,
+
+    playerSlotFeedback: sanitizeSlotFeedbackArray(safeData.playerSlotFeedback),
+
+    playerAttemptsLeft: Number.isInteger(safeData.playerAttemptsLeft)
+      ? Phaser.Math.Clamp(safeData.playerAttemptsLeft, 0, 4)
+      : defaults.playerAttemptsLeft
+  };
 }
 
 function sanitizeSaveData(data) {
@@ -175,12 +305,73 @@ function sanitizeSaveData(data) {
   clean.nextTargetCityId = data?.nextTargetCityId ?? null;
   clean.mustIncludeCityId = data?.mustIncludeCityId ?? null;
 
-  clean.score = Number.isFinite(data?.score) ? data.score : 0;
-  clean.playerRank =
-    typeof data?.playerRank === 'string' ? data.playerRank : 'Junior Agent';
-  clean.isGameActive =
-    typeof data?.isGameActive === 'boolean' ? data.isGameActive : false;
+clean.score = Number.isFinite(data?.score)
+    ? Math.max(0, Math.floor(data.score))
+    : 0;
 
+clean.playerName =
+    typeof data?.playerName === 'string' && data.playerName.trim()
+        ? data.playerName.trim()
+        : 'Detective';
+
+clean.playerRank =
+    typeof data?.playerRank === 'string' && data.playerRank.trim()
+        ? data.playerRank.trim()
+        : 'Junior Agent';
+
+clean.avatarUrl =
+    typeof data?.avatarUrl === 'string' && data.avatarUrl.trim()
+        ? data.avatarUrl.trim()
+        : 'assets/profiles.png';
+
+clean.casesSolved = Number.isFinite(data?.casesSolved)
+    ? Math.max(0, Math.floor(data.casesSolved))
+    : 0;
+
+clean.arrests = Number.isFinite(data?.arrests)
+    ? Math.max(0, Math.floor(data.arrests))
+    : 0;
+
+clean.achievements = Array.isArray(data?.achievements)
+    ? data.achievements.filter(
+        achievement =>
+            typeof achievement === 'string' &&
+            achievement.trim().length > 0
+    )
+    : [];
+clean.completedCaseIds = Array.isArray(data?.completedCaseIds)
+    ? data.completedCaseIds.filter(isValidId)
+    : [];
+
+clean.successfulArrestCaseIds = Array.isArray(data?.successfulArrestCaseIds)
+    ? data.successfulArrestCaseIds.filter(isValidId)
+    : [];
+clean.isGameActive =
+    typeof data?.isGameActive === 'boolean'
+        ? data.isGameActive
+        : false;
+const validDifficulties = new Set([
+    'rookie',
+    'field',
+    'master',
+]);
+
+clean.difficulty = validDifficulties.has(data?.difficulty)
+    ? data.difficulty
+    : 'field';
+    // ===== ENERGY SYSTEM =====
+  clean.energy = Number.isFinite(data?.energy)
+    ? Phaser.Math.Clamp(data.energy, 0, 100)
+    : 100;
+
+  clean.maxEnergy = Number.isFinite(data?.maxEnergy)
+    ? Math.max(1, data.maxEnergy)
+    : 100;
+
+  clean.energyLog = Array.isArray(data?.energyLog)
+    ? structuredClone(data.energyLog)
+    : [];
+    
   clean.timeSpent = Number.isFinite(data?.timeSpent) ? data.timeSpent : 0;
   clean.travelHistory = Array.isArray(data?.travelHistory)
     ? structuredClone(data.travelHistory)
@@ -225,69 +416,9 @@ function sanitizeSaveData(data) {
     ? structuredClone(data.hiddenObjectHistory)
     : [];
 
-  clean.reconstructedHeist = {
-    ...createDefaultReconstructedHeist(),
-    ...(isPlainObject(data?.reconstructedHeist)
-      ? structuredClone(data.reconstructedHeist)
-      : {})
-  };
-
-  clean.reconstructedHeist.thiefSkills = Array.isArray(clean.reconstructedHeist.thiefSkills)
-    ? clean.reconstructedHeist.thiefSkills
-    : [];
-
-  clean.reconstructedHeist.allCards = Array.isArray(clean.reconstructedHeist.allCards)
-    ? clean.reconstructedHeist.allCards
-    : [];
-
-  clean.reconstructedHeist.correctCardIds = Array.isArray(clean.reconstructedHeist.correctCardIds)
-    ? clean.reconstructedHeist.correctCardIds
-    : [];
-
-  clean.reconstructedHeist.correctSequence = Array.isArray(clean.reconstructedHeist.correctSequence)
-    ? clean.reconstructedHeist.correctSequence
-    : [];
-
-  clean.reconstructedHeist.selectedCards = Array.isArray(clean.reconstructedHeist.selectedCards)
-    ? clean.reconstructedHeist.selectedCards
-    : [];
-
-  clean.reconstructedHeist.playerOrderedCards = Array.isArray(clean.reconstructedHeist.playerOrderedCards)
-    ? clean.reconstructedHeist.playerOrderedCards
-    : [];
-
-  clean.reconstructedHeist.playerOrderedSentences = Array.isArray(clean.reconstructedHeist.playerOrderedSentences)
-    ? clean.reconstructedHeist.playerOrderedSentences
-    : [];
-
-  clean.reconstructedHeist.playerSkills = Array.isArray(clean.reconstructedHeist.playerSkills)
-    ? clean.reconstructedHeist.playerSkills
-    : [];
-
-  clean.reconstructedHeist.playerFinalText =
-    typeof clean.reconstructedHeist.playerFinalText === 'string'
-      ? clean.reconstructedHeist.playerFinalText
-      : '';
-
-  clean.reconstructedHeist.playerTheoryScore =
-    Number.isFinite(clean.reconstructedHeist.playerTheoryScore)
-      ? clean.reconstructedHeist.playerTheoryScore
-      : 0;
-
-  clean.reconstructedHeist.playerTheoryResult =
-    typeof clean.reconstructedHeist.playerTheoryResult === 'string' ||
-    clean.reconstructedHeist.playerTheoryResult === null
-      ? clean.reconstructedHeist.playerTheoryResult
-      : null;
-
-  clean.reconstructedHeist.playerSlotFeedback = Array.isArray(clean.reconstructedHeist.playerSlotFeedback)
-    ? clean.reconstructedHeist.playerSlotFeedback
-    : [];
-
-  clean.reconstructedHeist.playerAttemptsLeft =
-    Number.isInteger(clean.reconstructedHeist.playerAttemptsLeft)
-      ? clean.reconstructedHeist.playerAttemptsLeft
-      : 2;
+  // CHANGED: full field-by-field validation instead of a shallow spread +
+  // spot-checked arrays. See sanitizeReconstructedHeist() above.
+  clean.reconstructedHeist = sanitizeReconstructedHeist(data?.reconstructedHeist);
 
   return clean;
 }
@@ -368,6 +499,7 @@ export function clearSavedGame() {
   }
 }
 
+// DELETE BEFORE PRODUCTION
 // TYLKO DO DEBUGOWANIA - usuń przed publikacją
 if (typeof window !== 'undefined') {
   window.gameState = gameState;

@@ -1,6 +1,8 @@
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { NEWSPAPER_CONFIG } from '../assets/data/newspaperConfig.js';
 
-export class PreloaderScene extends Phaser.Scene {
+export class PreloaderScene extends BaseScene {
     constructor() {
         super({ key: 'PreloaderScene' });
         this.fillingLevel = 0;
@@ -12,7 +14,6 @@ export class PreloaderScene extends Phaser.Scene {
         this.audioArmed = false;
         this.startBtn = null;
     }
-
     preload() {
         const { width, height } = this.scale;
         const centerX = width / 2;
@@ -30,10 +31,12 @@ export class PreloaderScene extends Phaser.Scene {
         }
 
         this.createCoffeeTextures();
+        this.preloadNewspapers();
 
         this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
+        this.load.image('archive', 'assets/local/archive.jpg');
         this.load.image('enter', 'assets/local/enter.jpg');
         this.load.image('backgroundgo', 'assets/GameOver.jpg');
         this.load.image('backgrounds', 'assets/success.jpg');
@@ -41,27 +44,28 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('backgroundhi', 'assets/local/office.jpg');
         this.load.image('backgroundoff', 'assets/local/biuro.jpg');
         this.load.image('dossier', 'assets/dossier.png');
-        this.load.image('bank', 'assets/local/bank.jpg');
-        this.load.image('alley', 'assets/local/alley.jpg');
-        this.load.image('airport', 'assets/local/airport.jpg');
-        this.load.image('hotel_maid', 'assets/local/hotel_maid.jpg');
-        this.load.image('parking_bg', 'assets/local/parking.jpg');
-        this.load.image('policehq', 'assets/local/police_hq.jpg');
-        this.load.image('restaurant', 'assets/local/restaurant.jpg');
-        this.load.image('garbage', 'assets/local/garbage.jpg');
-
+        this.load.image('hotel', 'assets/local/hotel.jpg');
         this.load.image('crimelab_left', 'assets/local/crimelab_left.jpg');
         this.load.image('crimelab_center', 'assets/local/crimelab_center.jpg');
         this.load.image('crimelab_right', 'assets/local/crimelab_right.jpg');
 
-        this.load.image('bankh', 'assets/local/bank_h.jpg');
-        this.load.image('alleyh', 'assets/local/alley_h.jpg');
-        this.load.image('airporth', 'assets/local/airport_h.jpg');
-        this.load.image('hotel_maidh', 'assets/local/hotel_maid_h.jpg');
-        this.load.image('parkingh', 'assets/local/parking_h.jpg');
-        this.load.image('policehqh', 'assets/local/police_hq_h.jpg');
-        this.load.image('restauranth', 'assets/local/restaurant_h.jpg');
-        this.load.image('garbageh', 'assets/local/garbage_h.jpg');
+        this.load.image('bank_w', 'assets/local/bank_w.jpg');
+        this.load.image('alley_w', 'assets/local/alley_w.jpg');
+        this.load.image('airport_w', 'assets/local/airport_w.jpg');
+        this.load.image('hotel_maid_w', 'assets/local/hotel_maid_w.jpg');
+        this.load.image('parking_w', 'assets/local/parking_w.jpg');
+        this.load.image('policehq_w', 'assets/local/police_hq_w.jpg');
+        this.load.image('restaurant_w', 'assets/local/restaurant_w.jpg');
+        this.load.image('garbage_w', 'assets/local/garbage_w.jpg');
+
+        this.load.image('bank_h', 'assets/local/bank_h.jpg');
+        this.load.image('alley_h', 'assets/local/alley_h.jpg');
+        this.load.image('airport_h', 'assets/local/airport_h.jpg');
+        this.load.image('hotel_maid_h', 'assets/local/hotel_maid_h.jpg');
+        this.load.image('parking_h', 'assets/local/parking_h.jpg');
+        this.load.image('police_hq_h', 'assets/local/police_hq_h.jpg');
+        this.load.image('restaurant_h', 'assets/local/restaurant_h.jpg');
+        this.load.image('garbage_h', 'assets/local/garbage_h.jpg');
 
         this.load.image('berlin', 'assets/cities/Berlin.jpg');
         this.load.image('london', 'assets/cities/London.jpg');
@@ -69,6 +73,11 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('newyorkcity', 'assets/cities/NYC.jpg');
         this.load.image('paris', 'assets/cities/Paris.jpg');
         this.load.image('warsaw', 'assets/cities/Warsaw.jpg');
+        this.load.image('nairobi', 'assets/cities/Nairobi.jpg');
+        this.load.image('islamabad', 'assets/cities/Islamabad.jpg');
+        this.load.image('toronto', 'assets/cities/Toronto.jpg');
+        this.load.image('kotto', 'assets/cities/Kotto.jpg');
+        this.load.image('tokyo', 'assets/cities/Tokyo.jpg');
 
         this.load.image('ber', 'assets/maps/ber.jpg');
         this.load.image('lnd', 'assets/maps/lnd.jpg');
@@ -86,27 +95,51 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('atlas_france', 'assets/atlas/france.png');
         this.load.image('atlas_bg', 'assets/atlas/atlas.png');
 
-        this.load.image('bankier', 'assets/npc/bankier_w.png');
-        this.load.image('fence', 'assets/npc/fence_w.png');
-        this.load.image('knajpa', 'assets/npc/knajpa_w.png');
-        this.load.image('maid', 'assets/npc/maid_w.png');
-        this.load.image('parkingnpc', 'assets/npc/parkingowy_w.png');
-        this.load.image('police', 'assets/npc/police_w.png');
-        this.load.image('stewardessa', 'assets/npc/stewardesa_w.png');
-        this.load.image('bum', 'assets/npc/bum_w.png');
+        this.load.image('bankier_w', 'assets/npc/bankier_w.png');
+        this.load.image('fence_w', 'assets/npc/fence_w.png');
+        this.load.image('knajpa_w', 'assets/npc/knajpa_w.png');
+        this.load.image('maid_w', 'assets/npc/maid_w.png');
+        this.load.image('parkingowy_w', 'assets/npc/parkingowy_w.png');
+        this.load.image('police_w', 'assets/npc/police_w.png');
+        this.load.image('stewardessa_w', 'assets/npc/stewardesa_w.png');
+        this.load.image('bum_w', 'assets/npc/bum_w.png');
 
-        this.load.image('bankierhindu', 'assets/npc/bankier_h.png');
-        this.load.image('fencehindu', 'assets/npc/fence_h.png');
-        this.load.image('knajpahindu', 'assets/npc/knajpa_h.png');
-        this.load.image('maidhindu', 'assets/npc/maid_h.png');
-        this.load.image('parkingnpchindu', 'assets/npc/parkingowy_h.png');
-        this.load.image('policehindu', 'assets/npc/police_h.png');
-        this.load.image('stewardessahindu', 'assets/npc/stewardesa_h.png');
-        this.load.image('bumhindu', 'assets/npc/bum_h.png');
+        this.load.image('bankier_h', 'assets/npc/bankier_h.png');
+        this.load.image('fence_h', 'assets/npc/fence_h.png');
+        this.load.image('knajpa_h', 'assets/npc/knajpa_h.png');
+        this.load.image('maid_h', 'assets/npc/maid_h.png');
+        this.load.image('parkingowy_h', 'assets/npc/parkingowy_h.png');
+        this.load.image('police_h', 'assets/npc/police_h.png');
+        this.load.image('stewardessa_h', 'assets/npc/stewardesa_h.png');
+        this.load.image('bum_h', 'assets/npc/bum_h.png');
 
+        this.load.image('bankier_b', 'assets/npc/bankier_b.png');
+        this.load.image('fence_b', 'assets/npc/fence_b.png');
+        this.load.image('knajpa_b', 'assets/npc/knajpa_b.png');
+        this.load.image('maid_b', 'assets/npc/maid_b.png');
+        this.load.image('parkingowy_b', 'assets/npc/parkingowy_b.png');
+        this.load.image('police_b', 'assets/npc/police_b.png');
+        this.load.image('stewardessa_b', 'assets/npc/stewardesa_b.png');
+        this.load.image('bum_b', 'assets/npc/bum_b.png');
+
+        this.load.image('bankier_a', 'assets/npc/bankier_a.png');
+        this.load.image('fence_a', 'assets/npc/fence_a.png');
+        this.load.image('knajpa_a', 'assets/npc/knajpa_a.png');
+        this.load.image('maid_a', 'assets/npc/maid_a.png');
+        this.load.image('parkingowy_a', 'assets/npc/parkingowy_a.png');
+        this.load.image('police_a', 'assets/npc/police_a.png');
+        this.load.image('stewardessa_a', 'assets/npc/stewardesa_a.png');
+        this.load.image('bum_a', 'assets/npc/bum_a.png');
+
+        this.load.image('btnRookie', 'assets/rookie.png');
+        this.load.image('btnOfficer', 'assets/officer.png');
+        this.load.image('btnCaptain', 'assets/captain.png');
         this.load.image('btnStart', 'assets/start.png');
         this.load.image('back', 'assets/back.png');
         this.load.image('next', 'assets/next.png');
+        this.load.image('load', 'assets/load.png');
+        this.load.image('btnSave', 'assets/save.png');
+        this.load.image('btnContinue', 'assets/continue.png');
         this.load.image('btnExit', 'assets/exit.png');
         this.load.image('btnSettings', 'assets/settings.png');
         this.load.image('btnHiscore', 'assets/hiscore.png');
@@ -123,6 +156,7 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('warrant', 'assets/warrant.png');
         this.load.image('profile', 'assets/profile.png');
         this.load.image('news', 'assets/news.png');
+        this.load.image('tv', 'assets/tv.png');
 
         this.load.image('artifact_crown_jewels', 'assets/artifacts/crown_jewels.png');
         this.load.image('artifact_amber_necklace', 'assets/artifacts/amber_necklace.png');
@@ -153,6 +187,8 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('mapbg', 'assets/map.png');
         this.load.image('phonebook', 'assets/phonebook.jpg');
 
+        this.load.image('television', 'assets/television.png');
+
         this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
         this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
         this.load.image('paper_time_bg', 'assets/newspapers/paper_time_bg_1920x1080.png');
@@ -163,6 +199,16 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('paper_hq_crimewave_photo', 'assets/newspapers/paper_hq_crimewave_photo.jpg');
         this.load.image('paper_warsaw_vending_photo', 'assets/newspapers/paper_warsaw_vending_photo.jpg');
         this.load.image('paper_berlin_statue_photo', 'assets/newspapers/paper_berlin_statue_photo.jpg');
+        this.load.image('paper_london_queue_photo', 'assets/newspapers/paper_london_queue_photo.jpg');
+        this.load.image('paper_new_delhi_tea_photo', 'assets/newspapers/paper_new_delhi_tea_photo.jpg');
+        this.load.image('paper_new_york_subway_photo', 'assets/newspapers/paper_new_york_subway_photo.jpg');
+        this.load.image('paper_paris_cafe_photo', 'assets/newspapers/paper_paris_cafe_photo.jpg');
+        this.load.image('paper_hq_case_briefing_photo', 'assets/newspapers/paper_hq_case_briefing_photo.jpg');
+
+        this.load.image(  'tabloid_hq_coffee_machine_photo',  'assets/newspapers/tabloid/hq_coffee_machine_photo.jpg');
+this.load.image(  'tabloid_hq_gold_stapler_photo',  'assets/newspapers/tabloid/hq_gold_stapler_photo.jpg');
+this.load.image(  'tabloid_hq_sunglasses_photo',  'assets/newspapers/tabloid/hq_sunglasses_photo.jpg');
+this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/hq_window_chair_photo.jpg');
 
         this.load.image('unknown', 'assets/suspects/unknown.jpg');
         this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
@@ -244,10 +290,14 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('step1', 'assets/csi/step1.png');
         this.load.image('step2', 'assets/csi/step2.png');
         this.load.image('step3', 'assets/csi/step3.png');
-        this.load.image('tool_brush', 'assets/csi/tool_brush.png');
+        this.load.image('tweezers', 'assets/csi/tweezers.png');
+        this.load.image('microscope_look', 'assets/csi/microscope_look.png');
+        this.load.image('pipette', 'assets/csi/pipette.png');
+        //this.load.image('tool_brush', 'assets/csi/tool_brush.png');
         this.load.image('desk1', 'assets/csi/desk1.jpg');
 
         this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
+        this.load.video('newsstand_video', 'assets/video/newsstand.mp4', 'loadeddata', false, true);
 
         this.load.audio('crimelab_ambient', 'assets/audio/crimelab_ambient.mp3');
         this.load.audio('alleysound', 'assets/audio/alley.mp3');
@@ -277,7 +327,6 @@ export class PreloaderScene extends Phaser.Scene {
 
         this.load.css('crime-board-css', 'assets/css/crime-board.css');
         this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
-        this.load.css('dossier-css', 'assets/css/dossier.css');
         this.load.css('modal-css', 'assets/css/modal.css');
 
         this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
@@ -310,12 +359,10 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.json('dialog_informant', 'assets/data/dialogue/informant.json');
         this.load.json('dialog_watson', 'assets/data/dialogue/watson.json');
         this.load.json('dialog_holmes', 'assets/data/dialogue/holmes.json');
-        this.load.json('dialog_police_station', 'assets/data/dialogue/police-station.json');
+        this.load.json('dialog_police-station', 'assets/data/dialogue/police-station.json');
         this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
         this.load.json('dialog_home', 'assets/data/dialogue/home.json')
-          this.load.json('newspapers_daily', 'assets/data/newspapers-dialy.json');
-  this.load.json('newspapers_tabloid', 'assets/data//newspapers-tabloid.json');
-  this.load.json('newspapers_time', 'assets/data/newspapers-time.json');
+    this.load.json('tv-config', 'assets/data/tv-config.json');
 
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
@@ -330,11 +377,12 @@ export class PreloaderScene extends Phaser.Scene {
         this.load.image('havela_bg', 'assets/crimes/havela.jpg');
         this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
 
+
+
                const tips = [
             'A planted clue usually wants to be found too quickly.',
             'Witness confidence is not the same as witness accuracy.',
             'The best liar often tells mostly true things.',
-            'Three crime-scene objects matter. The rest may be theatre.',
             'A perfect alibi that arrives too fast deserves a second look.',
             'Means without motive is noise. Motive without opportunity is fiction.',
             'Every suspect has a story. Only one has the timeline.',
@@ -455,8 +503,9 @@ export class PreloaderScene extends Phaser.Scene {
     }
 
     create() {
+        super.create();
         audioManager.init(this);
-
+    this.scene.sleep('UIScene');
         const initUi = () => {
             this.uiReady = true;
             this.tryShowStartButton();
@@ -549,7 +598,16 @@ export class PreloaderScene extends Phaser.Scene {
             visibleHeight
         );
     }
-
+preloadNewspapers() {
+  for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
+    for (const cityId of config.cities) {
+      this.load.json(
+        `newspaper_${type}_${cityId}`,
+        `assets/data/newspapers/${type}/${cityId}.json`
+      );
+    }
+  }
+}
     createCoffeeTextures() {
         if (this.textures.exists('cup_coffee') && this.textures.exists('cup_outline')) return;
 

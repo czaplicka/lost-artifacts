@@ -1,21 +1,89 @@
-<html><head></head><body>
-<div class="detective-modal-overlay" id="profile-modal" style="display: none;">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personnel File — Mark Agency HQ</title>
+
+  <link rel="stylesheet" href="./assets/css/profile.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Special+Elite&display=swap"
+    rel="stylesheet"
+  >
+</head>
+
+<body>
+  <div
+    class="detective-modal-overlay"
+    id="profile-modal"
+    style="display: none;"
+  >
     <div class="detective-form" id="profile-form">
-        <button class="modal-close" id="btn-close-profile">&times;</button>
-        
-        <h2>Personnel File</h2>
-        <p><strong>Agent:</strong> <span id="profile-alias">Loading...</span></p>
-        <p><strong>Rank:</strong> <span id="profile-rank">Cadet</span></p>
-        <p><strong>Rank Points:</strong> <span id="profile-points">0</span></p>
-        
-        <button class="btn-stamp" id="btn-logout" style="font-size: 14px; border-color: #333; color: #333; margin-top: 15px;">LOG OUT</button>
-        
-        <div style="margin-top: 30px; border-top: 2px solid #8b0000; padding-top: 20px;">
-            <h3 style="color: #8b0000; margin-top: 0;">DANGER ZONE</h3>
-            <p style="font-size: 12px; margin-bottom: 10px;">Warning: This action will permanently destroy your file. You will be removed from the leaderboard.</p>
-            <button id="btn-delete-account" style="background: #8b0000; color: white; border: 2px solid #333; padding: 10px; cursor: pointer; font-family: inherit; font-weight: bold;">
-                🔥 DESTROY MY FILE
-            </button>
-        </div>
+      <button
+        class="modal-close"
+        id="btn-close-profile"
+        type="button"
+        title="Close dossier"
+        aria-label="Close personnel file"
+      >
+        &times;
+      </button>
+
+      <h2>Personnel File</h2>
+
+      <p class="profile-info">
+        <strong>Agent:</strong>
+        <span id="profile-alias">-</span>
+      </p>
+
+      <p class="profile-info">
+        <strong>Rank:</strong>
+        <span id="profile-rank">-</span>
+      </p>
+
+      <p class="profile-info">
+        <strong>Rank Points:</strong>
+        <span id="profile-points">0</span>
+      </p>
+
+      <p class="profile-info profile-difficulty">
+        <strong>Case Clearance:</strong>
+        <span id="profile-difficulty">FIELD AGENT</span>
+      </p>
+
+      <p class="profile-difficulty-description" id="profile-difficulty-description">
+        Standard Mark Agency field procedure.
+      </p>
+
+      <button
+        class="btn-stamp"
+        id="btn-logout"
+        type="button"
+      >
+        LOG OUT
+      </button>
+
+      <div class="danger-zone">
+        <h3>⚠️ Danger Zone</h3>
+
+        <p class="danger-zone-desc">
+          Warning: This action will permanently destroy your file.
+          You will be removed from the agency records and leaderboard.
+        </p>
+
+        <button
+          class="btn-danger"
+          id="btn-delete-account"
+          type="button"
+        >
+          🔥 DESTROY MY FILE
+        </button>
+      </div>
     </div>
-</div></body></html>
+  </div>
+</body>
+</html>

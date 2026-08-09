@@ -1,0 +1,198 @@
+{
+  "title": "The Daily Totally Normal",
+  "subtitle": "New York City Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Stolen From {location}",
+      "lead": "One priceless object disappears. New York immediately has twelve opinions and no patience.",
+      "body": "Police in {city} are investigating the overnight disappearance of the priceless {artifact} from {location}. The thief left behind an empty display, several confused security guards and a situation that has already become more complicated than rush hour at Penn Station. The Mark Agency has joined the case and is following every lead, including one witness who claims they saw 'a suspiciously fast walker.'",
+      "imageKey": "paper_new_york_heist_photo",
+      "imageCaption": "The empty display at {location}, now New York's most discussed rectangle.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "New York Searches for Missing {artifact}",
+      "lead": "The artifact is gone. The city is loud about it.",
+      "body": "The disappearance of the {artifact} from {location} has prompted an urgent investigation in {city}. Officials have confirmed {clueCount} active clues and {suspectCount} possible suspects. Museum staff have placed a sign beside the empty display asking visitors not to touch anything, which has only made several visitors want to touch everything more carefully.",
+      "imageKey": "paper_new_york_heist_photo",
+      "imageCaption": "Visitors look at the place where the {artifact} was last seen.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Night Heist at {location}: {artifact} Vanishes",
+      "lead": "Locked doors, active alarms and one artifact apparently late for another appointment.",
+      "body": "On day {day} of the investigation, detectives in {city} are still reconstructing how the {artifact} disappeared from {location}. A witness reported seeing somebody in a dark coat leave quickly, a description investigators have described as 'broadly applicable to roughly half the city.' The Mark Agency has requested patience, cooperation and fewer unsolicited theories from strangers on the sidewalk.",
+      "imageKey": "paper_new_york_heist_photo",
+      "imageCaption": "The scene of the crime, where everyone is now professionally looking at things.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Where Is the {artifact}? {city} Wants Answers",
+      "lead": "The investigation continues while souvenir vendors make practical adjustments.",
+      "body": "The missing {artifact} remains the subject of intense discussion across {city}. Detectives are examining {clueCount} pieces of evidence from {location}, while witnesses continue to offer increasingly detailed accounts of events they may or may not have observed. One bystander claims to have solved the case already, but is currently unable to explain where they left their own keys.",
+      "imageKey": "paper_new_york_heist_photo",
+      "imageCaption": "An empty spot at {location}, currently more famous than the exhibit beside it.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Man Convinces Entire Subway Car He Is a Tour Guide, No One Questions It",
+      "lead": "Gum stains, outdated ads and an unexpected lecture become the city's newest attraction.",
+      "body": "A commuter reportedly narrated an entire subway ride as if leading a historical tour, pointing out landmarks that were mostly gum stains and outdated advertisements. Passengers rated the experience surprisingly informative. One rider tipped him a dollar after learning that the mysterious puddle near the door was 'a protected cultural site.'",
+      "imageKey": "paper_new_york_subway_photo",
+      "imageCaption": "The carriage where history suddenly happened.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Local Deli Introduces Thirty-Seventh Bacon Egg and Cheese Variation, City Remains Calm",
+      "lead": "A different cheese and an attitude adjustment create a bold new culinary era.",
+      "body": "A neighborhood deli has unveiled its latest sandwich innovation, involving a slightly different cheese and what staff call an attitude adjustment. Regulars describe it as basically the same, which is considered high praise. The deli has already begun planning version thirty-eight.",
+      "imageKey": "paper_new_york_deli_photo",
+      "imageCaption": "Innovation, served on a roll.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Man Announces He Knows a Shortcut, Group Arrives Later Than Everyone Else",
+      "lead": "The route was shorter on the map and much longer in real life.",
+      "body": "A Manhattan resident confidently led friends through what he promised was a quick shortcut, only to encounter construction, a delivery truck and an unexpectedly complex farmers' market. The group arrived forty minutes late but with excellent pastries, so nobody formally complained.",
+      "imageKey": "paper_new_york_street_photo",
+      "imageCaption": "The shortcut, still technically somewhere nearby.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Dog in Central Park Appears to Have Better Social Calendar Than Owner",
+      "lead": "The terrier attended brunch, met six friends and remained emotionally available throughout.",
+      "body": "Park visitors watched a small terrier greet dozens of dogs, receive treats from strangers and pose for photographs without appearing even slightly overwhelmed. Its owner spent the afternoon holding a leash and looking proud, which experts identify as the standard role of a human companion.",
+      "imageKey": "paper_new_york_dog_park_photo",
+      "imageCaption": "A New Yorker with no unread emails and excellent weekend plans.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Taxi Driver Gives Passenger Direct Route, Life Advice and Two Restaurant Recommendations",
+      "lead": "The trip lasted nine minutes. The guidance may last a lifetime.",
+      "body": "A passenger crossing town says their driver gave exact directions for avoiding traffic, choosing better lunch spots and dealing with an unreliable colleague. The driver refused to call it advice, explaining, 'I am just telling you what you need to know.'",
+      "imageKey": "paper_new_york_taxi_photo",
+      "imageCaption": "A ride-share of local knowledge and highly specific opinions.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Boards Bus, Rides Four Stops, Exits Without Paying Fare",
+      "body": "Transit workers confirm a pigeon calmly entered a city bus, remained seated for four stops and departed without incident. No further action is expected, as the pigeon behaved better than most passengers."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Corner Store Cat Refuses to Move From Receipt Printer, Becomes Assistant Manager",
+      "body": "A cat at a local convenience store has occupied the counter beside the receipt printer for three days. Customers now greet it before ordering, and the owner admits it has reduced complaints simply by staring at people."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Street Performer Performs Same Song for Two Hours, Crowd Calls It 'A Commitment'",
+      "body": "A musician outside a busy station played the same tune repeatedly throughout the afternoon. Commuters say the performance became strangely comforting after the sixth repetition. One person returned later to check whether it had ended. It had not."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Outside {location} Appears to Know Something About {artifact}",
+      "body": "A pigeon seen near {location} has been walking with unusual confidence since the disappearance of the {artifact}. Investigators attempted to question the bird, but it left immediately when offered a bagel crumb and no further comment."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Gift Shop Sells Out of {artifact} Magnets, Calls Timing 'Unexpected'",
+      "body": "The disappearance of the {artifact} has led to a sudden demand for magnets, postcards and miniature replicas. Staff at {location} say the products were already in stock, though one employee has begun referring to the display as 'the backup exhibit.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Insurance Adjuster Asks for Quiet Room, Coffee and Clarification on {artifact}",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} has requested a quiet place to work, a large coffee and someone else to read the paperwork first. Staff at {location} say the request is entirely reasonable."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Guest Leaves Before Sunrise, Declines Breakfast and All Conversation",
+      "body": "A receptionist remembers a guest who checked out before dawn, paid in cash and left carrying one old suitcase. The visitor asked about airport connections, declined a taxi and explained that they were 'heading somewhere quieter.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Says New York Is Too Loud, Then Refuses to Leave",
+      "body": "A traveler arriving from {currentCity} complained about the noise, the speed and the number of people before spending an entire afternoon in a bookstore, two hours in a diner and an evening looking at the skyline. Friends say the visitor has softened their position."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Subway Performer Receives Applause, Immediately Checks Whether Everyone Is Okay",
+      "body": "A musician performing in a station received a round of applause from passing commuters and appeared briefly confused by the collective display of enthusiasm. The performer thanked everyone, packed up and continued playing one more song."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Man Carries Folding Chair to Sidewalk, Instantly Becomes Neighborhood Authority",
+      "body": "A man sitting outside with a folding chair was immediately asked for directions, weather forecasts and an opinion on a nearby delivery dispute. He answered none of these questions but nodded with enough confidence to satisfy everyone."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Company Asks Whether {artifact} Could Be 'Somewhere Obvious'",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} has asked whether staff at {location} checked every storage room, desk and decorative plant. Museum staff replied that the artifact was historically significant, not a misplaced office stapler."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Two Friends Meet for One Coffee, Accidentally Plan Move to Different Borough",
+      "body": "A casual coffee became a detailed discussion of rents, commuting times, parks, grocery stores and whether anyone could realistically fit a couch through a narrow stairwell. Both friends agreed to begin apartment hunting tomorrow."
+    }
+  ]
+}

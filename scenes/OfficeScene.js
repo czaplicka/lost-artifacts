@@ -1,6 +1,9 @@
 import { audioManager } from '../AudioManager.js';
+import { OfficeSaveUI } from '../OfficeSaveUI.js';
+import { gameState } from '../GameData.js';
+import { BaseScene } from './BaseScene.js';
 
-export class OfficeScene extends Phaser.Scene {
+export class OfficeScene extends BaseScene {
     constructor() {
         super('OfficeScene');
 
@@ -9,6 +12,7 @@ export class OfficeScene extends Phaser.Scene {
         this.hotspots = [];
         this.debugTexts = [];
         this.DEBUG_HOTSPOTS = true;
+        this.saveUI = null;
 
         this.officeAmbient = null;
         this.debugGraphics = null;
@@ -23,11 +27,14 @@ export class OfficeScene extends Phaser.Scene {
         this.isOpeningCrimeLab = false;
     }
 
-    init(data) {
-        this.gameState = data?.gameState || this.gameState || {};
-    }
+init(data = {}) {
+  this.gameState = data.gameState ?? gameState;
+  this.fromSave = data.fromSave ?? false;
+  this.saveSlotKey = data.saveSlotKey ?? null;
+}
 
     create() {
+            super.create();
         audioManager.init(this);
         audioManager.stopAllVoice();
         audioManager.stopAllSfx();
@@ -41,7 +48,25 @@ this.registry.set('currentCity', 'hq');
         this.createBackgrounds(width, height);
         this.createCameraSetup(height);
         this.createHotspots();
-        this.createNavigationUI();
+this.createNavigationUI();
+
+try {
+  this.saveUI = new OfficeSaveUI(this, {
+    locationType: 'office',
+    locationCode: 'agency_headquarters',
+    cityCode: 'hq'
+  });
+
+  this.saveUI.createButton();
+} catch (error) {
+  console.error(
+    '[OfficeScene] Failed to initialize OfficeSaveUI. ' +
+    'The office will continue without save controls.',
+    error
+  );
+
+  this.saveUI = null;
+}
         this.setupAudioUnlock();
         this.createOptionalDebug();
 
@@ -94,57 +119,67 @@ this.registry.set('currentCity', 'hq');
         this.scene.launch('CrimeLabScene', { gameState: this.gameState });
     }
 
-    update() {
-        const hud = this.getHudScene();
-        const panelOpen = !!(hud && hud.isAnyPanelOpen && hud.isAnyPanelOpen());
+update() {
+  const hud = this.getHudScene();
 
-        if (panelOpen && !this.uiLocked) {
-            this.applyLock(true);
-        } else if (!panelOpen && this.uiLocked) {
-            this.applyLock(false);
-        }
-    }
+  const hudPanelOpen = !!(
+    hud
+    && hud.isAnyPanelOpen
+    && hud.isAnyPanelOpen()
+  );
+
+  const savePanelOpen = !!this.saveUI?.isOpen;
+
+  const shouldLockOffice = hudPanelOpen || savePanelOpen;
+
+  if (shouldLockOffice && !this.uiLocked) {
+    this.applyLock(true);
+  } else if (!shouldLockOffice && this.uiLocked) {
+    this.applyLock(false);
+  }
+}
 
     applyLock(locked) {
-        this.uiLocked = locked;
+  this.uiLocked = locked;
 
-        this.hotspots.forEach(zone => {
-            if (!zone || !zone.scene) return;
+  this.hotspots.forEach((zone) => {
+    if (!zone || !zone.scene) return;
 
-            if (locked) {
-                zone.disableInteractive();
-            } else {
-                zone.setInteractive({ useHandCursor: true });
-            }
-        });
-
-        if (this.leftArrow) {
-            if (locked) {
-                this.leftArrow.disableInteractive();
-                this.leftArrow.setAlpha(0.35);
-            } else {
-                this.leftArrow.setInteractive({ useHandCursor: true });
-                this.leftArrow.setAlpha(0.75);
-            }
-        }
-
-        if (this.rightArrow) {
-            if (locked) {
-                this.rightArrow.disableInteractive();
-                this.rightArrow.setAlpha(0.35);
-            } else {
-                this.rightArrow.setInteractive({ useHandCursor: true });
-                this.rightArrow.setAlpha(0.75);
-            }
-        }
-
-        if (locked) {
-            this.hideNavHint();
-        } else {
-            this.updateNavVisibility();
-        }
+    if (locked) {
+      zone.disableInteractive();
+    } else {
+      zone.setInteractive({ useHandCursor: true });
     }
+  });
 
+  if (this.leftArrow) {
+    if (locked) {
+      this.leftArrow.disableInteractive();
+      this.leftArrow.setAlpha(0.35);
+    } else {
+      this.leftArrow.setInteractive({ useHandCursor: true });
+      this.leftArrow.setAlpha(0.75);
+    }
+  }
+
+  if (this.rightArrow) {
+    if (locked) {
+      this.rightArrow.disableInteractive();
+      this.rightArrow.setAlpha(0.35);
+    } else {
+      this.rightArrow.setInteractive({ useHandCursor: true });
+      this.rightArrow.setAlpha(0.75);
+    }
+  }
+
+  this.saveUI?.setLocked(locked);
+
+  if (locked) {
+    this.hideNavHint();
+  } else {
+    this.updateNavVisibility();
+  }
+}
     createBackgrounds(gameWidth, gameHeight) {
         const leftBg = this.add.image(0, 0, 'backgroundhi').setOrigin(0, 0);
         const centerBg = this.add.image(gameWidth, 0, 'backgroundoff').setOrigin(0, 0);
@@ -514,6 +549,8 @@ this.registry.set('currentCity', 'hq');
     }
 
     cleanupScene() {
+        this.saveUI?.destroy();
+this.saveUI = null;
         if (this.input?.keyboard) {
             this.input.keyboard.off('keydown-LEFT', this.moveLeft, this);
             this.input.keyboard.off('keydown-RIGHT', this.moveRight, this);

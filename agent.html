@@ -1,93 +1,75 @@
-<div id="agent-modal">
-    <link rel="stylesheet" href="assets/css/dossier.css">
+<div id="agent-modal" style="display: none;">
+    <div
+        class="dossier-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="agent-dossier-title"
+    >
+        <button
+            id="btn-close-agent"
+            class="btn-close"
+            type="button"
+            aria-label="Close agent dossier"
+        >
+            X
+        </button>
 
-    <div class="dossier-card">
-        <button id="btn-close-agent" class="btn-close">X</button>
+        <img
+            id="pub-avatar"
+            class="agent-avatar"
+            src="assets/profiles.png"
+            alt="Agent Photo"
+        >
 
-        <!-- Awatar -->
-        <img id="pub-avatar" class="agent-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 24 24'><path fill='%23444' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>" alt="Agent Photo">
-
-        <!-- Informacje -->
         <div class="agent-info">
-            <h2>AGENT: <span id="pub-alias">Loading...</span></h2>
-            <p>RANK: <span id="pub-rank">Rookie</span></p>
+            <h2 id="agent-dossier-title">
+                AGENT: <span id="pub-alias">Detective</span>
+            </h2>
+
+            <p>RANK: <span id="pub-rank">Junior Agent</span></p>
             <p>STATUS: <span class="status-active">ACTIVE</span></p>
         </div>
 
-        <!-- 8 pól w ramkach -->
         <div class="stats-grid">
             <div class="stat-item">
-                <strong>Score</strong>
+                <strong>SCORE</strong>
                 <span id="pub-points">0</span>
             </div>
+
             <div class="stat-item">
-                <strong>Rank</strong>
-                <span>#<span id="pub-leaderboard">...</span></span>
+                <strong>WORLD RANK</strong>
+                <span>#<span id="pub-leaderboard">---</span></span>
             </div>
+
             <div class="stat-item">
-                <strong>Cases</strong>
+                <strong>CASES CLOSED</strong>
                 <span id="pub-cases">0</span>
             </div>
+
             <div class="stat-item">
-                <strong>Arrests</strong>
+                <strong>ARRESTS</strong>
                 <span id="pub-arrests">0</span>
             </div>
-            <div class="badge-item">🥇 Lupa</div>
-            <div class="badge-item">⏱️ Swift</div>
-            <div class="badge-item locked">🔒 Locked</div>
-            <div class="badge-item locked">🔒 Locked</div>
         </div>
 
-        <!-- Stopka -->
+        <div
+            id="achievement-grid"
+            class="achievement-grid"
+            aria-label="Agent achievements"
+        ></div>
+
         <div class="actions-footer">
-            <button class="btn-stamp" id="btn-copy-link">[ COPY DOSSIER LINK ]</button>
-            <div id="toast" class="toast-msg">✓ Link Copied!</div><br>
-            <p class="join-link"><a href="/index.html">Want to join? Play Lost Artefacts</a></p>
+            <button id="btn-copy-link" class="btn-stamp" type="button">
+                [ COPY DOSSIER LINK ]
+            </button>
+
+            <div id="toast" class="toast-msg" style="display: none;">
+                ✓ Link copied!
+            </div>
+
+            <p class="join-link">
+                <a href="index.html">Want to join? Play Lost Artefacts</a>
+            </p>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        (function() {
-            const supabaseUrl = 'YOUR_SUPABASE_URL';
-            const supabaseKey = 'YOUR_ANON_KEY';
-            
-            if (typeof supabase !== 'undefined' && supabaseUrl !== 'YOUR_SUPABASE_URL') {
-                const client = supabase.createClient(supabaseUrl, supabaseKey);
-                const urlParams = new URLSearchParams(window.location.search);
-                const targetAlias = urlParams.get('alias');
-
-                if (targetAlias) {
-                    client.from('profiles')
-                        .select('alias, rank, points, cases_solved, arrests, achievements, avatar_url')
-                        .eq('alias', targetAlias)
-                        .single()
-                        .then(({ data, error }) => {
-                            if (!error && data) {
-                                document.getElementById('pub-alias').innerText = data.alias;
-                                document.getElementById('pub-rank').innerText = data.rank || 'Rookie';
-                                document.getElementById('pub-points').innerText = data.points || 0;
-                                document.getElementById('pub-cases').innerText = data.cases_solved || 0;
-                                document.getElementById('pub-arrests').innerText = data.arrests || 0;
-                                if (data.avatar_url) {
-                                    document.getElementById('pub-avatar').src = data.avatar_url;
-                                }
-                            }
-                        });
-                }
-            }
-
-            const copyBtn = document.getElementById('btn-copy-link');
-            const toast = document.getElementById('toast');
-
-            if (copyBtn && toast) {
-                copyBtn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(window.location.href).then(() => {
-                        toast.style.display = 'block';
-                        setTimeout(() => toast.style.display = 'none', 3000);
-                    });
-                });
-            }
-        })();
-    </script>
 </div>

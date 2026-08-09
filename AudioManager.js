@@ -48,6 +48,12 @@ class AudioManager {
     this.activeSfx = new Set();
     this.activeVoice = new Set();
     this.activeOneShots = new Set();
+
+    // NEW: global registry of "who owns this audio key right now".
+    // Prevents the same underlying Phaser Sound instance from being
+    // tracked (and volume-controlled) by two different stores at once,
+    // and prevents stacking duplicate instances of the same key.
+    this._keyOwner = new Map(); // key -> { store, sound }
   }
 
   init(scene) {
@@ -89,27 +95,83 @@ class AudioManager {
     this._syncSet(this.activeOneShots, this.sfxVolume);
   }
 
+  // NEW: hard-stops and destroys every Phaser sound instance for this key
+  // that Phaser itself knows about, regardless of which (if any) store
+  // was tracking it. Prevents orphaned/duplicate instances of the same
+  // key from ever playing on top of each other.
+  _purgeAllInstancesOfKey(key, exceptSound = null) {
+    if (!this.scene?.sound?.getAll) return;
+
+    const instances = this.scene.sound.getAll(key) || [];
+    instances.forEach(sound => {
+      if (sound === exceptSound) return;
+      if (!this._isValidSound(sound)) return;
+      if (sound.isPlaying) sound.stop();
+      sound.destroy();
+    });
+  }
+
+  // NEW: releases ownership of a key from whichever store currently
+  // holds it, stopping/destroying that instance. Called before a
+  // different store tries to take over the same key.
+  _releaseKeyOwnership(key, requestingStore) {
+    const owner = this._keyOwner.get(key);
+    if (!owner) return;
+
+    if (owner.store === requestingStore) return;
+
+    if (owner.store instanceof Map) {
+      owner.store.delete(key);
+    } else if (owner.store instanceof Set) {
+      owner.store.delete(owner.sound);
+    }
+
+    if (this._isValidSound(owner.sound)) {
+      if (owner.sound.isPlaying) owner.sound.stop();
+      owner.sound.destroy();
+    }
+
+    this._keyOwner.delete(key);
+  }
+
   _createOrReuse(key, config, store, volume, loop = true) {
     if (!this._canPlay(key)) return null;
+
+    // If another store currently owns this key (e.g. it's playing as
+    // ambient but we now want it as music), evict it first so we never
+    // end up with two maps fighting over the same Sound's volume.
+    this._releaseKeyOwnership(key, store);
 
     let sound = store.get(key);
 
     if (!this._isValidSound(sound)) {
-      sound = this.scene.sound.get(key);
+      sound = null;
+      store.delete(key);
     }
 
     if (this._isValidSound(sound)) {
       store.set(key, sound);
+      this._keyOwner.set(key, { store, sound });
 
       if (typeof sound.setLoop === 'function') sound.setLoop(loop);
       this._applySoundState(sound, volume);
 
+      // Already playing -> do not call play() again (avoids the
+      // classic "double play = doubled/clashing volume" bug when a
+      // scene calls playMusic/playAmbient repeatedly for a looping track).
       if (!sound.isPlaying && typeof sound.play === 'function') {
         sound.play();
       }
 
       return sound;
     }
+
+    // Before creating a brand-new instance, make sure there is no
+    // orphaned leftover instance of this key still alive in Phaser's
+    // internal sound list (e.g. left behind by a previous scene). Without
+    // this, a stray old instance could keep playing in parallel with the
+    // new one, stacking volume for the same audio key.
+    this._purgeAllInstancesOfKey(key);
 
     sound = this.scene.sound.add(key, {
       ...config,
@@ -119,9 +181,11 @@ class AudioManager {
     });
 
     store.set(key, sound);
+    this._keyOwner.set(key, { store, sound });
 
     sound.once('destroy', () => {
       if (store.get(key) === sound) store.delete(key);
+      if (this._keyOwner.get(key)?.sound === sound) this._keyOwner.delete(key);
     });
 
     sound.play();
@@ -355,13 +419,16 @@ class AudioManager {
     }
 
     store.delete(key);
+    if (this._keyOwner.get(key)?.store === store) this._keyOwner.delete(key);
   }
 
   _stopAllStored(store) {
-    store.forEach(sound => {
-      if (!this._isValidSound(sound)) return;
-      if (sound.isPlaying) sound.stop();
-      sound.destroy();
+    store.forEach((sound, key) => {
+      if (this._isValidSound(sound)) {
+        if (sound.isPlaying) sound.stop();
+        sound.destroy();
+      }
+      if (this._keyOwner.get(key)?.store === store) this._keyOwner.delete(key);
     });
     store.clear();
   }

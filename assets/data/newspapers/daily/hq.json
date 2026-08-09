@@ -1,0 +1,198 @@
+{
+  "title": "Mark Agency Daily",
+  "subtitle": "Human Resources Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "Mark Agency Responds to {artifact} Incident in {city}",
+      "lead": "One artifact is missing. Several departments are now extremely aligned.",
+      "body": "Following the disappearance of the {artifact} from {location}, Mark Agency has formally activated its investigation protocol, its internal communication protocol and a third protocol nobody can explain. Agent rank {rank} has been assigned to support the case. Current progress includes {clueCount} recorded clues, several deeply serious meetings and one memo reminding staff that artefacts are not to be taken home for 'research purposes.'",
+      "imageKey": "paper_hq_case_briefing_photo",
+      "imageCaption": "A routine Mark Agency briefing, featuring maps, coffee and cautiously optimistic paperwork.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Agency Opens Investigation Into Missing {artifact}",
+      "lead": "The case is active, the coffee is strong and the forms are multiplying.",
+      "body": "Mark Agency confirms it is assisting authorities in {city} after the {artifact} disappeared from {location}. The investigation currently includes {suspectCount} persons of interest and {clueCount} pieces of collected evidence. Staff are reminded that speculation is not evidence, although it may still be submitted to Human Resources in writing.",
+      "imageKey": "paper_hq_case_briefing_photo",
+      "imageCaption": "The case board, currently more organised than most employees' desks.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Internal Memo: Please Return the {artifact} If Found",
+      "lead": "The agency's simplest instruction is also its most urgent.",
+      "body": "Following the theft of the {artifact} from {location} in {city}, Mark Agency has issued a company-wide reminder that recovered historical objects must be logged, secured and not used as desk decorations. The case is now on day {day}. Employees who discover relevant evidence should report it immediately, preferably before mentioning it in the staff group chat.",
+      "imageKey": "paper_hq_case_briefing_photo",
+      "imageCaption": "A helpful reminder displayed in every department except the one that needs it most.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Mark Agency Tracks {artifact} Theft Across {city}",
+      "lead": "Investigators pursue leads. Administration pursues missing expense receipts.",
+      "body": "The investigation into the disappearance of the {artifact} from {location} continues under Mark Agency supervision. With {clueCount} clues documented so far, staff are confident that the truth will eventually be uncovered, categorised and placed in a properly labelled folder. The agency has also reminded all field agents that claiming pastries as investigative expenses requires a receipt.",
+      "imageKey": "paper_hq_case_briefing_photo",
+      "imageCaption": "An agency operation in progress, with appropriate levels of paperwork.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Another Mindless Crime Wave Hits the City, Citizens Remain Unfazed",
+      "lead": "When rules wobble, people mostly keep walking.",
+      "body": "The city has been hit by a wave of mindless crimes, including jaywalking, littering and excessive use of the word literally. Citizens have responded with a collective shrug and a renewed commitment to ignoring the chaos. Mark Agency has opened a preliminary folder, which experts agree is a strong first step.",
+      "imageKey": "paper_hq_crimewave_photo",
+      "imageCaption": "The office where minor chaos is just another bullet point.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Coffee Machine Declares Itself Sentient, Employees Pretend Not to Notice",
+      "lead": "The machine now requires politeness, patience and possibly a small offering.",
+      "body": "The office coffee machine has reportedly started issuing cryptic messages and refusing to brew unless asked politely. Employees have responded with a mix of amusement and strategic avoidance. One agent claims the machine gave him career advice. Another says it simply displayed 'ERROR 42,' which may be the same thing.",
+      "imageKey": "paper_hq_coffee_machine_photo",
+      "imageCaption": "The machine has requested that all complaints be filed in person.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "HR Department Introduces New Fun Policy, Staff Pretends to Be Excited",
+      "lead": "Mandatory joy arrives every Wednesday at 3 p.m.",
+      "body": "The Human Resources department has rolled out a policy designed to increase workplace fun. It includes surprise dance breaks, team-building questions and a monthly event called 'Tell Us One Interesting Fact About Yourself.' Staff have responded with enthusiastic nods and increasingly creative calendar conflicts.",
+      "imageKey": "paper_hq_hr_fun_photo",
+      "imageCaption": "Team morale, photographed before anyone read the instructions.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Agency Elevator Stops Between Floors, Employees Hold Most Honest Meeting Yet",
+      "lead": "For fourteen minutes, there was nowhere to escape and no slide deck available.",
+      "body": "Three Mark Agency employees trapped in an elevator reportedly resolved two project disputes, one scheduling problem and a long-standing argument about office plants. When the elevator began moving again, everyone agreed the experience had been highly productive and should never happen again.",
+      "imageKey": "paper_hq_elevator_photo",
+      "imageCaption": "A temporary conference room with limited exit options.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Intern Labels Mystery Drawer, Immediately Becomes Senior Operations Consultant",
+      "lead": "Nobody knew what was inside. Nobody expected anyone to ask.",
+      "body": "A new intern at Mark Agency has earned widespread respect after placing a label reading 'MYSTERY DRAWER — DO NOT OPEN DURING AUDITS' on a filing cabinet in the archive room. Management praised the initiative, the clarity and the fact that the drawer now appears less threatening.",
+      "imageKey": "paper_hq_archive_photo",
+      "imageCaption": "The drawer remains closed. Professional boundaries have been established.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Agency Printer Selects One Employee as Its Personal Enemy",
+      "body": "The fourth-floor printer has printed normally for everyone except one analyst, whose documents now emerge sideways, incomplete or in a language nobody recognises. IT has described the issue as technical. Everyone else has described it as personal."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Senior Agent Brings One Houseplant to Office, Plant Immediately Outperforms Team",
+      "body": "A desk plant placed near the operations department has grown steadily for three months without requesting a meeting, missing a deadline or replying all to an agency-wide email. Management is considering its promotion."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Receptionist Solves Case Before Detective Reaches Elevator",
+      "body": "A visitor attempting to sign in at Mark Agency reception accidentally revealed three contradictory alibis during a routine conversation about parking. The receptionist forwarded the notes to investigators and returned to asking everyone whether they had an appointment."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Agency Email Reminder: Stop Replying All to {artifact} Updates",
+      "body": "Following recent updates about the missing {artifact}, employees have been asked to stop replying all with theories, encouragement and photographs of unrelated antiques. The request has generated seventeen reply-all responses so far."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Mark Agency Canteen Adds 'Detective Special,' Nobody Can Identify Ingredients",
+      "body": "The cafeteria has introduced a new menu item described as 'mysterious, filling and potentially connected to a larger pattern.' Employees say it tastes fine, but several have opened investigations into the sauce."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Junior Agent Reaches Rank {rank}, Immediately Receives More Forms",
+      "body": "An internal memo congratulates a promising agent on achieving the rank of {rank}. The celebration includes a new access badge, a slightly better chair and three additional mandatory forms requiring acknowledgment of the slightly better chair."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "HR Announces Wellness Initiative, Removes All Chairs From Break Room",
+      "body": "In an effort to encourage movement and better posture, Human Resources has replaced several break-room chairs with motivational posters. Staff say they feel more active, mostly because they have nowhere to sit."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Agency Cat Seen Sleeping on Unfinished Case File, Becomes Immediate Priority",
+      "body": "A cat from a neighbouring office entered the investigation room and fell asleep on a stack of documents. Nobody moved it for forty minutes. The case file is now technically delayed due to interdepartmental feline procedures."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Expense Report Includes One Sandwich, Three Coffees and 'Operational Biscuit'",
+      "body": "Finance has received an expense claim from a field agent listing a sandwich, three coffees and an operational biscuit. The biscuit has been approved. Finance declined to explain why."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Agency Issues Reminder: {artifact} Is Not a Suitable Desk Ornament",
+      "body": "After reports of the missing {artifact} appeared in internal briefings, Mark Agency has reminded staff that historically significant objects must be logged as evidence and should not be used to hold down loose papers, charge phones or impress visitors."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Case Board Updated With {clueCount} Clues and One Drawing of a Suspect Wearing Hat",
+      "body": "The active investigation board has been updated with {clueCount} collected clues, colour-coded notes and a sketch labelled 'possibly relevant hat.' Analysts say the drawing may not be useful, but agree it gives the board personality."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Mark Agency Staff Asked to Welcome Visitor From {currentCity}",
+      "body": "Reception has been notified that an agent returning from {currentCity} may arrive carrying evidence, notes and a strong opinion about airport coffee. Employees are asked to offer assistance, avoid touching any evidence and refrain from asking whether the trip was fun."
+    }
+  ]
+}

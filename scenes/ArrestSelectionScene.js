@@ -1,6 +1,7 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
 import {
   getRandomSuspectLineup,
   isCorrectSuspectChoice,
@@ -10,7 +11,7 @@ import {
 const CORRECT_ARREST_BONUS = 500;
 const WRONG_ARREST_PENALTY = 250;
 
-export class ArrestSelectionScene extends Phaser.Scene {
+export class ArrestSelectionScene extends BaseScene {
   constructor() {
     super({ key: 'ArrestSelectionScene' });
 
@@ -57,6 +58,7 @@ export class ArrestSelectionScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     audioManager.stopSfx();
     audioManager.stopAllMusic();
     this.scene.sleep('UIScene');
@@ -97,14 +99,28 @@ export class ArrestSelectionScene extends Phaser.Scene {
       return;
     }
 
-    this.suspectsPool = suspectsData;
-    this.displaySuspects = getRandomSuspectLineup(suspectsData, thiefId, 5);
+this.suspectsPool = suspectsData;
 
-    if (!this.displaySuspects.length) {
-      console.error('Failed to build suspect lineup.');
-      this.scene.start('GameScene');
-      return;
-    }
+try {
+  this.displaySuspects = getRandomSuspectLineup(
+    suspectsData,
+    thiefId,
+    5
+  );
+} catch (error) {
+  console.error(
+    '[ArrestSelectionScene] Could not prepare the final suspect dossier.',
+    error
+  );
+
+  this.scene.start('GameScene', {
+    arrestSetupFailed: true,
+    errorMessage:
+      'The suspect dossier could not be prepared. Return to headquarters and review the case file.'
+  });
+
+  return;
+}
 
     this.createBackdrop();
     this.createBackButton();

@@ -1,32 +1,27 @@
-import BaseForensicMinigame from './BaseForensicMinigame.js';
+import { BaseForensicMinigame } from './BaseForensicMinigame.js';
 
-export default class HairAnalysisScene extends BaseForensicMinigame {
+export class HairAnalysisScene extends BaseForensicMinigame {
   constructor() {
     super('HairAnalysisScene');
 
-    this.brush = null;
-    this.brushLabel = null;
-    this.board = null;
-    this.strand = null;
-    this.progress = null;
     this.bag = null;
-    this.tray = null;
-    this.lampTag = null;
+    this.slide = null;
+    this.tweezers = null;
+    this.pipette = null;
+    this.preparedStrand = null;
 
-    this.coverage = 0;
-    this.brushCooldown = false;
-    this.boardActivated = false;
-    this.bagPlaced = false;
+    this.hasStrandOnTweezers = false;
+    this.hasStrandOnSlide = false;
+    this.reagentApplied = false;
   }
 
   init(data) {
-  super.init({ ...data, totalSteps: 3 });
-  this.evidenceType = 'hair_color';
+    super.init({ ...data, totalSteps: 3 });
+    this.evidenceType = 'hair_color';
 
-  const allowed = ['blond', 'black', 'red', 'brown'];
-  const incoming = data?.correctValue || this.correctValue || 'blond';
-
-  this.correctValue = allowed.includes(incoming) ? incoming : 'blond';
+    const allowed = ['blond', 'black', 'red', 'brown'];
+    const incoming = data?.correctValue || this.correctValue || 'blond';
+    this.correctValue = allowed.includes(incoming) ? incoming : 'blond';
   }
 
   create() {
@@ -42,111 +37,141 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
   }
 
   getRetryHint() {
-    return 'Brush the tray again and recheck the strand under the microscope.';
+    return 'Carefully prepare the slide and compare the strand again.';
   }
 
   createEvidenceFlow() {
-    this.startHairFlow();
+    this.startStep1();
   }
 
   // ============================================================
-  // STEP 1 – brush tray to reveal strand
+  // STEP 1 – Tweezers: evidence bag -> slide
   // ============================================================
-  startHairFlow() {
+  startStep1() {
     this.setStep(0);
-    this.setInstructions('Step 1: Dust the tray and reveal the trapped strand.');
-    this.setDialogue('Brush over the tray until the hair becomes visible.');
+    this.setInstructions('Step 1: Transfer the hair strand from the evidence bag onto the slide.');
+    this.setDialogue('Use the tweezers: first pick up the strand from the bag, then place it onto the slide.');
     this.clearStage();
 
     const { width, height } = this.scale;
     const centerX = width / 2;
-    const centerY = height / 2;
 
-    // desk jako tło
+    // tło laboratorium
     const bg = this.add.image(width / 2, height / 2, 'desk1')
       .setOrigin(0.5)
       .setDisplaySize(width, height)
       .setDepth(0);
     this.stageObjects.push(bg);
 
-    // mały, wycentrowany krok 1
-    const stepIcon = this.add.image(width - 140, 64, 'step1')
+    this.bag = this.add.image(width * 0.92, height * 0.78, 'evidence_bag')
       .setOrigin(0.5)
-      .setDisplaySize(350, 190)
-      .setDepth(11);
-    this.stageObjects.push(stepIcon);
-
-    // tacka do skrobania – mniejsza, na środku
-    this.board = this.add.image(centerX + 200 , centerY + 80, 'hair_board')
-      .setOrigin(0.5)
-      .setDisplaySize(500, 220)
-      .setDepth(1);
-    this.stageObjects.push(this.board);
-
-    // wzorcowy włos – początkowo prawie niewidoczny
-    this.strand = this.add.image(centerX + 220, centerY + 80, this.getHairStrandKey())
-      .setOrigin(0.5)
-      .setScale(0.45) // włos w środku PNG, skala ~0.45 wystarcza
-      .setAlpha(0.05)
+      .setDisplaySize(320, 260)
       .setDepth(2);
-    this.stageObjects.push(this.strand);
+    this.stageObjects.push(this.bag);
 
-    this.progress = this.add.text(centerX + 160, centerY + 150, 'Coverage: 0%', {
-      fontFamily: 'PressStart2P',
-      fontSize: '10px',
-      color: 'rgb(255, 0, 0)'
-    }).setOrigin(0.5).setDepth(3);
-    this.stageObjects.push(this.progress);
+    this.slide = this.add.image(width * 0.40, 670, 'hair_board')
+        .setDisplaySize(430, 180)
+      .setDepth(1);
+    this.stageObjects.push(this.slide);
 
-    // brush – większy, w lewym dolnym rogu
-    this.brush = this.add.image(width * 0.20, height * 0.77, 'tool_brush')
-      .setOrigin(0.5)
-      .setDisplaySize(264, 264)
-      .setDepth(3);
-    this.brush.setInteractive({ draggable: true, useHandCursor: true });
-    this.input.setDraggable(this.brush);
+    // tweezers po dole, bardziej w środku
+    this.tweezers = this.add.image(width * 0.59, 570, 'tweezers')
+    .setDisplaySize(350, 280)
+    .setDepth(3)
+    .setAngle(-125);
+    this.stageObjects.push(this.tweezers);
 
-    this.brush.on('drag', (pointer, dragX, dragY) => {
+    this.tweezers.setInteractive({ draggable: true, useHandCursor: true });
+    this.input.setDraggable(this.tweezers);
+
+    this.hasStrandOnTweezers = false;
+    this.hasStrandOnSlide = false;
+
+    // offset końcówki pęsety względem środka sprite'a (dobierz pod swoją grafikę) -10 60
+    const tipOffsetX = 10;
+    const tipOffsetY = 60;
+
+    this.tweezers.on('drag', (pointer, dragX, dragY) => {
       if (this.resolved) return;
-      this.brush.x = dragX;
-      this.brush.y = dragY;
+      this.tweezers.x = dragX;
+      this.tweezers.y = dragY;
+      this.tweezers.setAngle(125);
 
-      if (this.brushCooldown) return;
-      const overlap = Phaser.Geom.Intersects.RectangleToRectangle(
-        this.brush.getBounds(),
-        this.board.getBounds()
-      );
-      if (!overlap) return;
+      // jeśli mamy włos na pęsecie, przesuwamy go razem z końcówką
+      if (this.hasStrandOnTweezers && this.preparedStrand) {
+        this.preparedStrand.x = dragX + tipOffsetX;
+        this.preparedStrand.y = dragY + tipOffsetY;
+      }
+    });
 
-      this.brushCooldown = true;
-      this.coverage = Math.min(100, this.coverage + 5);
-      this.progress.setText(`Coverage: ${this.coverage}%`);
+    this.tweezers.on('dragend', () => {
+      if (this.resolved) return;
 
-      // rozjaśnij wzorcowy włos
-      this.strand.setAlpha(Math.min(0.9, 0.05 + this.coverage / 120));
+      const tweezersBounds = this.tweezers.getBounds();
 
-      this.time.delayedCall(90, () => {
-        this.brushCooldown = false;
-      });
+      // 1) najpierw bag -> tweezers
+      if (!this.hasStrandOnTweezers &&
+          Phaser.Geom.Intersects.RectangleToRectangle(tweezersBounds, this.bag.getBounds())) {
 
-      if (this.coverage >= 100 && !this.boardActivated) {
-        this.boardActivated = true;
-        this.time.delayedCall(250, () => this.hairStep2());
+        this.hasStrandOnTweezers = true;
+        this.setDialogue('Strand picked from the evidence bag. Move it onto the slide.');
+
+        // mały włos „na czubku” pęsety
+        if (!this.preparedStrand) {
+          this.preparedStrand = this.add.image(
+            this.tweezers.x + tipOffsetX,
+            this.tweezers.y + tipOffsetY,
+            this.getHairStrandKey()
+          )
+            .setOrigin(0.5)
+            .setDisplaySize(200, 150)
+            .setDepth(4);
+          this.stageObjects.push(this.preparedStrand);
+        }
+
+        return;
+      }
+
+      // 2) potem tweezers (z włosem) -> slide
+      if (this.hasStrandOnTweezers &&
+          Phaser.Geom.Intersects.RectangleToRectangle(tweezersBounds, this.slide.getBounds())) {
+
+        this.hasStrandOnTweezers = false;
+        this.hasStrandOnSlide = true;
+        this.setDialogue('Strand placed onto the slide. Prepare it with reagent.');
+
+        // włos centralnie na szkiełku
+        if (this.preparedStrand) {
+          this.preparedStrand.x = this.slide.x;
+          this.preparedStrand.y = this.slide.y;
+          this.preparedStrand.setDepth(2);
+        } else {
+          this.preparedStrand = this.add.image(this.slide.x, this.slide.y, this.getHairStrandKey())
+            .setOrigin(0.5)
+            .setDisplaySize(400, 300)
+            .setDepth(2);
+          this.stageObjects.push(this.preparedStrand);
+        }
+
+        // odłóż/ukryj tweezers
+        this.tweezers.disableInteractive();
+        this.tweezers.setVisible(false);
+
+        this.time.delayedCall(350, () => this.startStep2());
       }
     });
   }
 
   // ============================================================
-  // STEP 2 – move bag to tray, show strand on microscope tray
+  // STEP 2 – Pipette: apply reagent on slide
   // ============================================================
-  hairStep2() {
+  startStep2() {
     this.clearStage();
     this.setStep(1);
-    this.setInstructions('Step 2: Move the hair sample to the microscope tray.');
-    this.setDialogue('Drag the evidence bag onto the tray under the microscope.');
+    this.setInstructions('Step 2: Apply the reagent onto the prepared slide.');
+    this.setDialogue('Use the pipette to drop reagent onto the hair strand.');
 
     const { width, height } = this.scale;
-    const centerX = width / 2;
 
     const bg = this.add.image(width / 2, height / 2, 'desk1')
       .setOrigin(0.5)
@@ -154,75 +179,68 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
       .setDepth(0);
     this.stageObjects.push(bg);
 
-    const stepIcon = this.add.image(width - 140, 64, 'step2')
-      .setOrigin(0.5)
-      .setDisplaySize(350, 190)
-      .setDepth(11);
-    this.stageObjects.push(stepIcon);
-
-    // tacka pod mikroskopem - po prawej na biurku
-    this.tray = this.add.rectangle(
-      centerX + 180,
-      height * 0.53,
-      260,
-      80,
-      0x000000,
-      0.05
-    ).setStrokeStyle(2, 0x87c8ff, 0.9)
+    this.slide = this.add.image(width * 0.40, 670, 'hair_board')
+        .setDisplaySize(430, 180)
       .setDepth(1);
-    this.stageObjects.push(this.tray);
+    this.stageObjects.push(this.slide);
 
-    // evidence bag – większy, trochę na lewo, bez podpisu
-    this.bag = this.add.image(width * 0.25, height * 0.58, 'evidence_bag')
+    this.preparedStrand = this.add.image(this.slide.x, this.slide.y, this.getHairStrandKey())
       .setOrigin(0.5)
-      .setDisplaySize(440, 300)
+      .setDisplaySize(200, 150)
       .setDepth(2);
-    this.bag.setInteractive({ draggable: true, useHandCursor: true });
-    this.input.setDraggable(this.bag);
-    this.stageObjects.push(this.bag);
+    this.stageObjects.push(this.preparedStrand);
 
-    this.bag.on('drag', (pointer, dragX, dragY) => {
+    // pipeta po prawej
+    this.pipette = this.add.image(width * 0.63, 580, 'pipette')
+      .setDisplaySize(width, height)
+      .setDepth(3)
+    this.stageObjects.push(this.pipette);
+
+    this.pipette.setInteractive({ draggable: true, useHandCursor: true });
+    this.input.setDraggable(this.pipette);
+
+    this.reagentApplied = false;
+
+    this.pipette.on('drag', (pointer, dragX, dragY) => {
       if (this.resolved) return;
-      this.bag.x = dragX;
-      this.bag.y = dragY;
+      this.pipette.x = dragX;
+      this.pipette.y = dragY;
     });
 
-    this.bag.on('dragend', () => {
-      if (this.resolved) return;
+    this.pipette.on('dragend', () => {
+      if (this.resolved || this.reagentApplied) return;
 
-      const overlaps = Phaser.Geom.Intersects.RectangleToRectangle(
-        this.bag.getBounds(),
-        this.tray.getBounds()
-      );
+      const pipetteBounds = this.pipette.getBounds();
+      if (Phaser.Geom.Intersects.RectangleToRectangle(pipetteBounds, this.slide.getBounds())) {
+        this.reagentApplied = true;
+        this.setDialogue('Reagent applied. The strand is ready for comparison.');
 
-      if (overlaps) {
-        this.bag.disableInteractive();
-        this.bagPlaced = true;
-        this.setDialogue('Sample loaded. The strand is now on the tray.');
+        // kropla nad włosem
+        const drop = this.add.circle(
+          this.slide.x,
+          this.slide.y,
+          14,
+          0x8bd1ff,
+          0.9
+        ).setDepth(5);
+        this.stageObjects.push(drop);
 
-        this.tweens.add({
-          targets: this.bag,
-          x: this.tray.x - 80,
-          y: this.tray.y - 10,
-          duration: 200,
-          onComplete: () => {
-            // włos na tackie pod mikroskopem
-            const trayStrand = this.add.image(this.tray.x, this.tray.y, this.getHairStrandKey())
-              .setOrigin(0.5)
-              .setScale(0.4)
-              .setDepth(2);
-            this.stageObjects.push(trayStrand);
+        // podświetl włos
+        this.preparedStrand.setTint(0xffffff);
+        this.preparedStrand.setDepth(4);
 
-            this.time.delayedCall(400, () => this.hairStep3());
-          }
-        });
+        // ukryj pipetę
+        this.pipette.disableInteractive();
+        this.pipette.setVisible(false);
+
+        this.time.delayedCall(500, () => this.startStep3());
       } else {
         this.penalize(5);
-        this.setDialogue('The bag missed the tray. Try again.');
+        this.setDialogue('The reagent missed the slide. Try again.');
         this.tweens.add({
-          targets: this.bag,
-          x: width * 0.20,
-          y: height * 0.58,
+          targets: [this.pipette],
+          x: width * 0.75,
+          y: height * 0.45,
           duration: 180
         });
       }
@@ -230,68 +248,146 @@ export default class HairAnalysisScene extends BaseForensicMinigame {
   }
 
   // ============================================================
-  // STEP 3 – compare strand, choose correct color
-  // ============================================================
-  hairStep3() {
-    this.clearStage();
-    this.setStep(2);
-    this.setInstructions('Step 3: Compare the strand and choose the correct color.');
-    this.setDialogue('Use the reference strand and pick the best matching sample.');
+// STEP 3 – microscope click -> overlay + reference panel
+// ============================================================
+startStep3() {
+  this.clearStage();
+  this.setStep(2);
+  this.setInstructions('Step 3: Compare the prepared strand and choose the correct color.');
+  this.setDialogue('Click the microscope to view the strand, then choose the best matching sample from the reference panel.');
 
-    const { width, height } = this.scale;
-    const centerX = width / 2;
+  const { width, height } = this.scale;
+  const centerX = width / 2;
 
-    const bg = this.add.image(width / 2, height / 2, 'desk1')
-      .setOrigin(0.5)
-      .setDisplaySize(width, height)
-      .setDepth(0);
-    this.stageObjects.push(bg);
+  // desk jako tło
+  const bg = this.add.image(width / 2, height / 2, 'desk1')
+    .setOrigin(0.5)
+    .setDisplaySize(width, height)
+    .setDepth(0);
+  this.stageObjects.push(bg);
 
-    const stepIcon = this.add.image(width - 140, 64, 'step3')
-      .setOrigin(0.5)
-      .setDisplaySize(350, 190)
-      .setDepth(11);
-    this.stageObjects.push(stepIcon);
+  // 1) Mikroskop w tle – hotspot, ale tylko jednorazowy
+  const microscopeHotspot = this.add.zone(width * 0.40, height * 0.37, 400, 720)
+    .setOrigin(0.5)
+    .setDepth(5)
+    .setInteractive({ useHandCursor: true });
+  this.stageObjects.push(microscopeHotspot);
 
-    // wzorcowy włos – na środku u góry
-    const refStrand = this.add.image(centerX, height * 0.30, this.getHairStrandKey())
-      .setOrigin(0.5)
-      .setDisplaySize(350, 50)
-      .setDepth(2);
-    this.stageObjects.push(refStrand);
+  microscopeHotspot.on('pointerover', () => {
+    this.setDialogue('The prepared strand is loaded. Click to view it under the microscope.');
+  });
+  microscopeHotspot.on('pointerout', () => {
+    this.setDialogue('Click the microscope to view the strand, then use the reference panel.');
+  });
+  microscopeHotspot.on('pointerdown', () => {
+    // wyłącz hotspot po pierwszym kliknięciu, żeby nie nakładać overlayów
+    microscopeHotspot.disableInteractive();
+    microscopeHotspot.removeAllListeners();
+    this.showMicroscopeOverlay();
+  });
 
-    const values = ['blond', 'black', 'red', 'brown'];
-    const display = this.buildOptions(values, this.correctValue);
+  // 2) Panel wzorów po prawej na biurku (widoczny cały czas)
+  const panelX = width * 0.85;
+  const panelY = height * 0.50;
 
-    display.forEach((value, index) => {
-      const col = index % 2;
-      const row = Math.floor(index / 2);
+  // POWIĘKSZONA ramka wzorów (tylko ramka)
+  const panelBg = this.add.rectangle(panelX, panelY, 320, 320, 0x0d1713, 0.9)
+    .setStrokeStyle(2, 0x39ff14, 0.6)
+    .setDepth(1);
+  this.stageObjects.push(panelBg);
 
-      const x = centerX - 220 + col * 440;
-      const y = height * (0.50 + row * 0.18);
+  const panelTitle = this.add.text(panelX, panelY - 140, 'Reference samples', {
+    fontFamily: 'SpecialElite',
+    fontSize: '16px',
+    color: '#ffe8a3'
+  }).setOrigin(0.5).setDepth(2);
+  this.stageObjects.push(panelTitle);
 
-      // próbka włosa – wyraźna, ale nie gigantyczna
-      const swatch = this.add.image(x, y - 30, this.getHairStrandKey(value))
-        .setOrigin(0.5)
-        .setDisplaySize(1400, 200)
-        .setDepth(2);
-      this.stageObjects.push(swatch);
+  const values = ['blond', 'black', 'red', 'brown'];
+  const display = this.buildOptions(values, this.correctValue);
 
-      this.createButton(
-        x,
-        y + 40,
-        200,
-        60,
-        this.toDisplayText(value),
-        () => this.resolveChoice(value, value === this.correctValue, 10),
-        { fontFamily: 'PressStart2P', fontSize: '13px' }
-      );
-    });
-  }
+  display.forEach((value, index) => {
+  const row = index; // 4 w pionie
+  const x = panelX;
+  const y = panelY - 70 + row * 60; // lekko rozstrzelone w większej ramce
 
-  // ============================================================
-  // Hooks
-  // ============================================================
+  const swatch = this.add.image(x, y, this.getHairStrandKey(value))
+    .setOrigin(0.5)
+    .setDisplaySize(1050, 350)
+    .setDepth(2)
+    .setInteractive({ useHandCursor: true });
+  this.stageObjects.push(swatch);
+
+  // klikamy bezpośrednio w włos zamiast w przycisk
+  swatch.on('pointerover', () => {
+    swatch.setTint(0x88ff88);
+    this.setDialogue(`Sample: ${this.toDisplayText(value)} — click to classify.`);
+  });
+
+  swatch.on('pointerout', () => {
+    swatch.clearTint();
+    this.setDialogue('Click the microscope to view the strand, then use the reference panel.');
+  });
+
+  swatch.on('pointerdown', () => {
+    this.resolveChoice(value, value === this.correctValue, 10);
+  });
+});
+}
+// ============================================================
+// Overlay: microscope_look + reference strand, zamykany X
+// ============================================================
+showMicroscopeOverlay() {
+  const { width, height } = this.scale;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  // półprzezroczysta zasłona
+  const overlayBg = this.add.rectangle(centerX, centerY, width, height, 0x000000, 0.75)
+    .setOrigin(0.5)
+    .setDepth(50);
+  this.stageObjects.push(overlayBg);
+
+  // microscope_look w centrum
+  const microscopeView = this.add.image(centerX, centerY, 'microscope_look')
+    .setOrigin(0.5)
+    .setDisplaySize(width * 0.70, height * 0.70)
+    .setDepth(51);
+  this.stageObjects.push(microscopeView);
+
+  // wzorcowy włos TYLKO w overlay (nie na biurku)
+  const refStrand = this.add.image(centerX, centerY, this.getHairStrandKey())
+    .setOrigin(0.5)
+    .setDisplaySize(1000, 400)
+    .setDepth(52);
+  this.stageObjects.push(refStrand);
+
+  // przycisk X w overlay
+  const closeBtn = this.add.text(width - 40, 40, 'X', {
+    fontFamily: 'PressStart2P',
+    fontSize: '14px',
+    color: '#ff6666',
+    backgroundColor: '#200808',
+    padding: { left: 6, right: 6, top: 4, bottom: 4 }
+  })
+    .setOrigin(1, 0)
+    .setDepth(53)
+    .setInteractive({ useHandCursor: true });
+  this.stageObjects.push(closeBtn);
+
+  closeBtn.on('pointerover', () => closeBtn.setStyle({ color: '#ffaaaa' }));
+  closeBtn.on('pointerout', () => closeBtn.setStyle({ color: '#ff6666' }));
+  closeBtn.on('pointerdown', () => {
+    // zamknij overlay – zniszcz tylko jego elementy
+    overlayBg.destroy();
+    microscopeView.destroy();
+    refStrand.destroy();
+    closeBtn.destroy();
+
+    // nie dotykamy panelu wzorów ani biurka – nadal widoczne
+    this.setDialogue('Use the reference samples on the desk to classify the strand.');
+  });
+}
   onWrongChoice(value) {
     super.onWrongChoice(value);
     this.flashWrongSelection(value);

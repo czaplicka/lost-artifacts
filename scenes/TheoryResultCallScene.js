@@ -1,6 +1,7 @@
 import { gameState, saveGameState } from '../GameData.js';
+import { BaseScene } from './BaseScene.js';
 
-export default class TheoryResultCallScene extends Phaser.Scene {
+export class TheoryResultCallScene extends BaseScene {
   constructor() {
     super('TheoryResultCallScene');
 
@@ -53,6 +54,7 @@ export default class TheoryResultCallScene extends Phaser.Scene {
   }
 
   create() {
+        super.create();
     const { width, height } = this.scale;
     const palette = this.getPalette(this.result);
     const lines = this.getDialogue(this.result, this.mode);

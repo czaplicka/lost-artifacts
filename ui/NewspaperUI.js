@@ -27,20 +27,20 @@ export class NewspaperLayout {
     }
   }
 
-renderDaily(container, layout, cityData) {
-  const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
-    fontFamily: 'SpecialElite',
-    fontSize: '56px',
-    color: '#1e1a16',
-    align: 'left'    // lewy
-  }, layout.title.originX, layout.title.originY);
+  renderDaily(container, layout, cityData) {
+    const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
+      fontFamily: 'SpecialElite',
+      fontSize: '50px',
+      color: '#1e1a16',
+      align: 'left'
+    }, 0, 0);
 
-  const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
-    fontFamily: 'SpecialElite',
-    fontSize: '24px',
-    color: '#4c433b',
-    align: 'left'    // lewy
-  }, layout.subtitle.originX, layout.subtitle.originY);
+    const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
+      fontFamily: 'SpecialElite',
+      fontSize: '24px',
+      color: '#4c433b',
+      align: 'left'
+    }, 0, 0);
 
     container.add([title, subtitle]);
 
@@ -56,10 +56,19 @@ renderDaily(container, layout, cityData) {
       const article = articlesBySlot[slot.id];
       if (!article) return;
 
-      if (article.imageKey) {
-        const image = this.makeImage(slot.x + slot.width - 120, slot.y + 20, article.imageKey, 220, 140);
-        container.add(image);
-      }
+if (article.imageKey) {
+  const imageConfig = article.image || {};
+
+  const image = this.makeImage(
+    imageConfig.x ?? (slot.x + slot.width - 120),
+    imageConfig.y ?? (slot.y + 20),
+    article.imageKey,
+    imageConfig.width ?? 220,
+    imageConfig.height ?? 140
+  );
+
+  container.add(image);
+}
 
       const headline = this.makeText(slot.x, slot.y, article.headline || '', {
         fontFamily: 'SpecialElite',
@@ -68,7 +77,7 @@ renderDaily(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 8
-      });
+      }, 0, 0);
 
       const lead = article.lead ? this.makeText(slot.x, headline.y + headline.height + 8, article.lead, {
         fontFamily: 'SpecialElite',
@@ -77,7 +86,7 @@ renderDaily(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 6
-      }) : null;
+      }, 0, 0) : null;
 
       const bodyY = lead ? lead.y + lead.height + 10 : headline.y + headline.height + 20;
 
@@ -88,38 +97,61 @@ renderDaily(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 10
-      });
+      }, 0, 0);
 
       if (lead) container.add(lead);
       container.add([headline, body]);
 
-      if (article.imageCaption) {
-        const cap = this.makeText(slot.x, slot.y + slot.height - 40, article.imageCaption, {
-          fontFamily: 'SpecialElite',
-          fontSize: '14px',
-          color: '#6a5a4d',
-          wordWrap: { width: slot.width - 20 },
-          align: 'left'
-        });
-        container.add(cap);
-      }
+if (article.imageCaption && article.image) {
+  const imageRight = article.image.x + article.image.width;
+  const captionX = imageRight + 40;
+  const captionMaxWidth = Math.max(
+    160,
+    slot.x + slot.width - captionX - 14
+  );
+
+  const cap = this.makeText(
+    captionX,
+    article.image.y,
+    article.imageCaption,
+    {
+      fontFamily: 'SpecialElite',
+      fontSize: '20px',
+      color: '#6a5a4d',
+      wordWrap: { width: captionMaxWidth },
+      align: 'left'
+    },
+    0,
+    0
+  );
+
+  /*
+   * Podpis jest po prawej stronie grafiki,
+   * wycentrowany pionowo względem obrazka.
+   */
+  cap.y = article.image.y + (
+    article.image.height - cap.height
+  ) / 2;
+
+  container.add(cap);
+}
     });
   }
 
-renderTabloid(container, layout, cityData) {
-  const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
-    fontFamily: 'SpecialElite',
-    fontSize: '60px',
-    color: '#2a1313',
-    align: 'left'
-  }, layout.title.originX, layout.title.originY);
+  renderTabloid(container, layout, cityData) {
+    const title = this.makeText(layout.title.x, layout.title.y, cityData.title || '', {
+      fontFamily: 'SpecialElite',
+      fontSize: '60px',
+      color: '#2a1313',
+      align: 'left'
+    }, 0, 0);
 
-  const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
-    fontFamily: 'SpecialElite',
-    fontSize: '24px',
-    color: '#5c4545',
-    align: 'left'
-  }, layout.subtitle.originX, layout.subtitle.originY);
+    const subtitle = this.makeText(layout.subtitle.x, layout.subtitle.y, cityData.subtitle || '', {
+      fontFamily: 'SpecialElite',
+      fontSize: '24px',
+      color: '#5c4545',
+      align: 'left'
+    }, 0, 0);
 
     container.add([title, subtitle]);
 
@@ -142,7 +174,7 @@ renderTabloid(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 8
-      });
+      }, 0, 0);
 
       const lead = article.lead ? this.makeText(slot.x, headline.y + headline.height + 8, article.lead, {
         fontFamily: 'SpecialElite',
@@ -151,7 +183,7 @@ renderTabloid(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 6
-      }) : null;
+      }, 0, 0) : null;
 
       const bodyY = lead ? lead.y + lead.height + 10 : headline.y + headline.height + 20;
 
@@ -162,7 +194,7 @@ renderTabloid(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 10
-      });
+      }, 0, 0);
 
       if (lead) container.add(lead);
       container.add([headline, body]);
@@ -176,7 +208,7 @@ renderTabloid(container, layout, cityData) {
       fontSize: '110px',
       color: '#b31515',
       align: 'left'
-    }, layout.title.originX, layout.title.originY);
+    }, 0, 0);
 
     container.add(title);
 
@@ -192,7 +224,7 @@ renderTabloid(container, layout, cityData) {
         wordWrap: { width: slot.width },
         align: 'left',
         lineSpacing: 6
-      });
+      }, 0, 0);
 
       container.add(text);
     });

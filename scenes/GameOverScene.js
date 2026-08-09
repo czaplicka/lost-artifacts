@@ -1,7 +1,8 @@
 import { gameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
 
-export class GameOverScene extends Phaser.Scene {
+export class GameOverScene extends BaseScene {
   constructor() {
     super({ key: 'GameOverScene' });
 
@@ -18,15 +19,13 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     audioManager.init(this);
-
     audioManager.stopAllMusic();
     audioManager.stopAllAmbient();
     audioManager.stopAllVoice();
     audioManager.stopAllSfx();
-
     audioManager.playSfx('game_over');
-
     this.scene.sleep('UIScene');
     this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 

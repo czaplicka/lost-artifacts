@@ -1,0 +1,344 @@
+{
+  "meta": {
+    "stationDefaults": {
+      "reporterName": "Colette Duvall"
+    }
+  },
+
+  "cityConfigs": {
+    "Paris": {
+      "stationName": "Paris Night Report"
+    },
+    "Warsaw": {
+      "stationName": "Warsaw Night Report"
+    },
+    "Berlin": {
+      "stationName": "Berlin Night Desk"
+    },
+    "London": {
+      "stationName": "London Evening News"
+    },
+    "New Delhi": {
+      "stationName": "New Delhi Heritage Report"
+    },
+    "New York City": {
+      "stationName": "NYC Late Bulletin"
+    }
+  },
+
+  "pools": {
+    "ads": [
+      {
+        "id": "ad-rope-polish",
+        "type": "ad",
+        "label": "ADVERTISEMENT",
+        "badge": "SPONSOR",
+        "channel": "CH-02",
+        "title": "Professor Bell’s Rope Polish",
+        "anchorName": "",
+        "charDelay": 12,
+        "linePause": 180,
+        "hold": 850,
+        "theme": {
+          "screenColor": "#2a2018",
+          "topBarColor": "#5f4528",
+          "badgeColor": "#9b6a2f",
+          "bottomColor": "#120e0a"
+        },
+        "lines": [
+          "Second-story entry should still feel refined.",
+          "Professor Bell’s Rope Polish: grip, elegance, and a respectable scent of cedar.",
+          "Now available in travel size and suspiciously enormous trunk size."
+        ],
+        "cities": ["Paris", "London", "Berlin"]
+      },
+      {
+        "id": "ad-lock-academy",
+        "type": "ad",
+        "label": "ADVERTISEMENT",
+        "badge": "SPONSOR",
+        "channel": "CH-05",
+        "title": "Marlowe Lock & Key Academy",
+        "anchorName": "",
+        "charDelay": 12,
+        "linePause": 180,
+        "hold": 850,
+        "theme": {
+          "screenColor": "#231d17",
+          "topBarColor": "#594531",
+          "badgeColor": "#aa7d33",
+          "bottomColor": "#120e0a"
+        },
+        "lines": [
+          "Need to understand locks for entirely respectable reasons?",
+          "Enroll now and receive a complimentary brass practice tumbler.",
+          "Marlowe Lock & Key Academy: education with discretion."
+        ],
+        "cities": ["London", "Berlin", "New York City"]
+      },
+      {
+        "id": "ad-pan-klucz",
+        "type": "ad",
+        "label": "REKLAMA",
+        "badge": "SPONSOR",
+        "channel": "CH-04",
+        "title": "Pan Klucz – Ślusarz Całodobowy",
+        "anchorName": "",
+        "charDelay": 14,
+        "linePause": 180,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#2b231d",
+          "topBarColor": "#4a3b29",
+          "badgeColor": "#c28b32",
+          "bottomColor": "#17110b"
+        },
+        "lines": [
+          "Zamek się zaciął? Sejf się obraził?",
+          "Pan Klucz: otwieramy wszystko. Oficjalnie – wyłącznie rzeczy legalne.",
+          "Zadzwoń, zanim zaczniesz kombinować z wytrychem."
+        ],
+        "cities": ["Warsaw"]
+      },
+      {
+        "id": "ad-raj-courier",
+        "type": "ad",
+        "label": "ADVERTISEMENT",
+        "badge": "SPONSOR",
+        "channel": "CH-06",
+        "title": "Raj Rapid Courier",
+        "anchorName": "",
+        "charDelay": 14,
+        "linePause": 190,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#202430",
+          "topBarColor": "#435067",
+          "badgeColor": "#c47a3a",
+          "bottomColor": "#151822"
+        },
+        "lines": [
+          "Parcels that must arrive before anyone notices they were gone.",
+          "Raj Rapid Courier: bazaar-to-museum express routes available.",
+          "Special packaging for \"fragile\" and \"rare\" items."
+        ],
+        "cities": ["New Delhi"]
+      },
+      {
+        "id": "ad-liberty-lockbox",
+        "type": "ad",
+        "label": "ADVERTISEMENT",
+        "badge": "SPONSOR",
+        "channel": "CH-08",
+        "title": "Liberty Lockbox Inc.",
+        "anchorName": "",
+        "charDelay": 12,
+        "linePause": 180,
+        "hold": 850,
+        "theme": {
+          "screenColor": "#201c1a",
+          "topBarColor": "#3a3f4a",
+          "badgeColor": "#b1444f",
+          "bottomColor": "#111013"
+        },
+        "lines": [
+          "Some secrets deserve more than a drawer.",
+          "Liberty Lockbox: private vaults, 24/7 access, staff trained to forget faces.",
+          "Ask for our \"anonymous patron\" tier at the desk."
+        ],
+        "cities": ["New York City"]
+      }
+    ],
+
+    "fillers": [
+      {
+        "id": "filler-paris-antique-appetite",
+        "type": "filler",
+        "label": "LIFESTYLE",
+        "badge": "TONIGHT",
+        "channel": "CH-07",
+        "title": "Antique Appetite",
+        "anchorName": "Chef Armand",
+        "charDelay": 14,
+        "linePause": 200,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#203024",
+          "topBarColor": "#436947",
+          "badgeColor": "#4e7e43",
+          "bottomColor": "#0d120d"
+        },
+        "lines": [
+          "Can ceremonial bowls improve soup? We remain unconvinced.",
+          "However, plating with dynastic arrogance continues to test very well.",
+          "After the break: ten herbs most likely to alarm a museum guard."
+        ],
+        "cities": ["Paris"]
+      },
+      {
+        "id": "filler-warsaw-krzyzowka",
+        "type": "filler",
+        "label": "PROGRAM",
+        "badge": "NA ŻYWO",
+        "channel": "CH-09",
+        "title": "Krzyżówka Ekstra",
+        "anchorName": "Pani Halina",
+        "charDelay": 16,
+        "linePause": 220,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#262326",
+          "topBarColor": "#4b404f",
+          "badgeColor": "#a03c54",
+          "bottomColor": "#17141a"
+        },
+        "lines": [
+          "Dzisiejsze hasło główne ma siedem liter i dziwnie pasuje do słowa \"kradzież\".",
+          "Widzowie proszeni są o nie dzwonienie do muzeum w trakcie programu.",
+          "Po przerwie: czy kustosz może być jednocześnie świadkiem i fanem krzyżówek?"
+        ],
+        "cities": ["Warsaw"]
+      },
+      {
+        "id": "filler-berlin-bureaucracy",
+        "type": "filler",
+        "label": "REPORTAGE",
+        "badge": "TONIGHT",
+        "channel": "CH-10",
+        "title": "Ordnung im Archiv",
+        "anchorName": "Herr Vogel",
+        "charDelay": 15,
+        "linePause": 210,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#1f2529",
+          "topBarColor": "#3a4b57",
+          "badgeColor": "#b66c3a",
+          "bottomColor": "#14181d"
+        },
+        "lines": [
+          "Tonight we explore the mysterious world of archival access codes.",
+          "Some seals open doors. Some locks open files. Some officials open nothing.",
+          "Our guest insists \"no one\" could reproduce the royal seal from memory. We raise an eyebrow."
+        ],
+        "cities": ["Berlin"]
+      },
+      {
+        "id": "filler-london-biscuits",
+        "type": "filler",
+        "label": "LIFESTYLE",
+        "badge": "LIVE",
+        "channel": "CH-11",
+        "title": "Biscuits & Betrayal",
+        "anchorName": "Lady Pennington",
+        "charDelay": 14,
+        "linePause": 210,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#242018",
+          "topBarColor": "#514530",
+          "badgeColor": "#c38b3a",
+          "bottomColor": "#15120b"
+        },
+        "lines": [
+          "The Great Biscuit Championship takes an unexpected turn when someone's shortbread disappears.",
+          "One judge insists it was simply \"relocated for safety\".",
+          "Another mutters something about \"Tower security\" and refuses to elaborate."
+        ],
+        "cities": ["London"]
+      },
+      {
+        "id": "filler-delhi-masala",
+        "type": "filler",
+        "label": "CULINARY",
+        "badge": "LIVE",
+        "channel": "CH-12",
+        "title": "Masala Aur Mysteries",
+        "anchorName": "Chef Priya",
+        "charDelay": 15,
+        "linePause": 210,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#1e262a",
+          "topBarColor": "#3a5460",
+          "badgeColor": "#d27b3a",
+          "bottomColor": "#15181c"
+        },
+        "lines": [
+          "Tonight: recipes that double as ciphers.",
+          "Each ingredient stands for a star, each star stands for a vault.",
+          "Viewers are reminded not to apply this recipe directly to museum security guards."
+        ],
+        "cities": ["New Delhi"]
+      },
+      {
+        "id": "filler-nyc-apartment-hunt",
+        "type": "filler",
+        "label": "DOCU-SERIES",
+        "badge": "TONIGHT",
+        "channel": "CH-13",
+        "title": "The Apartment Hunt",
+        "anchorName": "Nate Collins",
+        "charDelay": 15,
+        "linePause": 210,
+        "hold": 900,
+        "theme": {
+          "screenColor": "#151820",
+          "topBarColor": "#374152",
+          "badgeColor": "#c64c5a",
+          "bottomColor": "#0e1117"
+        },
+        "lines": [
+          "A man searches Manhattan for a two-bedroom under four thousand dollars.",
+          "The search reveals secret storage spaces, unmarked doors, and one suspiciously large lockbox.",
+          "Tonight's episode is filed under \"real estate\". It probably shouldn't be."
+        ],
+        "cities": ["New York City"]
+      }
+    ]
+  },
+
+  "storySegments": [
+    {
+      "id": "news-main",
+      "type": "news",
+      "label": "BREAKING NEWS",
+      "badge": "URGENT",
+      "channel": "CH-01",
+      "titleTemplate": "{stationName}",
+      "anchorNameTemplate": "{reporterName}",
+      "charDelay": 17,
+      "linePause": 260,
+      "hold": 1400,
+      "theme": {
+        "screenColor": "#1a2421",
+        "topBarColor": "#284c46",
+        "badgeColor": "#9b3043",
+        "bottomColor": "#09110f"
+      },
+      "linesTemplate": [
+        "Good evening, {city}. Authorities continue investigating the theft of {artifact}.",
+        "Witnesses report {suspectHint} leaving the district shortly before dawn.",
+        "Officials have not confirmed a suspect, but several investigative leads remain active.",
+        "Residents are advised to report unusual dealers, couriers, and private collectors."
+      ]
+    }
+  ],
+
+  "sequenceTemplate": [
+    {
+      "id": "ads-slot",
+      "fromPool": "ads",
+      "pick": 1
+    },
+    {
+      "id": "filler-slot",
+      "fromPool": "fillers",
+      "pick": 1
+    },
+    {
+      "id": "news-slot",
+      "fromStoryTemplateId": "news-main"
+    }
+  ]
+}

@@ -2,8 +2,9 @@ import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { setupNewGame } from '../gameSetup.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
 
-export class AgainScene extends Phaser.Scene {
+export class AgainScene extends BaseScene {
   constructor() {
     super({ key: 'AgainScene' });
 
@@ -24,6 +25,7 @@ export class AgainScene extends Phaser.Scene {
   }
 
   create() {
+    super.create();
     this.scene.wake('UIScene');
     ensureHud(this);
     this.closeAllUIPanels();

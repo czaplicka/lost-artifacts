@@ -1,0 +1,139 @@
+{
+  "title": "The Toronto Entirely Normal Post",
+  "subtitle": "Toronto Edition",
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Raccoon Opens Apartment Lobby Door, Residents Question Everything",
+      "lead": "The animal displayed confidence, technique and an apparent understanding of property management.",
+      "body": "Residents of a downtown apartment building watched in silence as a raccoon opened the front lobby door, entered calmly and inspected the mail area. Building management has reminded tenants not to let wildlife inside. The raccoon has not responded, but was seen leaving with what appeared to be a coupon booklet.",
+      "imageKey": "paper_toronto_raccoon_photo",
+      "imageCaption": "The visitor declined to sign in at reception.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Commuter Finds Empty Seat on Streetcar, Assumes It Is a Trap",
+      "lead": "A rare moment of public transport comfort causes immediate suspicion.",
+      "body": "A Toronto commuter says she found an entirely empty seat during rush hour but chose to remain standing for three stops. 'It felt too easy,' she explained. Other passengers agreed the seat was probably damp, haunted or reserved by a person who had simply vanished into the PATH.",
+      "imageKey": "paper_toronto_streetcar_photo",
+      "imageCaption": "The suspiciously available seat, moments before someone trusted it.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Local Man Says He Knows Shortcut Through PATH, Is Never Seen Again",
+      "lead": "Friends believe he may emerge near a food court sometime next week.",
+      "body": "A man attempting to guide friends through Toronto's underground PATH network confidently announced that he knew a faster route. He turned one corner, descended two escalators and disappeared from the group entirely. Authorities are not concerned. This is believed to be how most people find new lunch options.",
+      "imageKey": "paper_toronto_path_photo",
+      "imageCaption": "A familiar entrance to several possible destinations.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Dog at Trinity Bellwoods Appears to Have Better Weekend Plans Than Everyone Else",
+      "lead": "The golden retriever arrived with friends, snacks and no visible responsibilities.",
+      "body": "Park visitors spent Saturday observing a golden retriever who appeared to be having an exceptionally successful afternoon. The dog greeted strangers, chased a tennis ball, ignored several emails by not owning a phone, and left before sunset with what witnesses describe as 'unshakable emotional balance.'",
+      "imageKey": "paper_toronto_dog_park_photo",
+      "imageCaption": "A local resident demonstrating advanced leisure skills.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "CN Tower Remains Tall, City Responds With Familiar Mixture of Pride and Neck Pain",
+      "lead": "Annual confirmation brings no surprises but several excellent skyline photos.",
+      "body": "In a development described by urban planners as 'entirely expected,' the CN Tower remains visible from a remarkable number of places. Tourists continue to photograph it. Residents continue to use it for directions. One person reportedly tried to ignore it for a full day and got lost immediately.",
+      "imageKey": "paper_toronto_tower_photo",
+      "imageCaption": "The building visible from almost every accidental photo.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Coffee Shop Barista Remembers Customer's Order, Customer Feels Seen for First Time in Years",
+      "body": "A regular customer at a small café reports being emotionally unprepared when the barista began making his drink before he spoke. 'They said, “Oat latte, extra hot,”' he explained. 'I nearly told them my whole life story.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Toronto Raccoon Rejects Gourmet Pet Food, Chooses Pizza Crust With Confidence",
+      "body": "A raccoon observed near a restaurant patio ignored an untouched bowl of premium pet food before selecting a discarded pizza crust. Wildlife experts call this normal behaviour. The raccoon calls it standards."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Street Performer Completes Three-Hour Set, Still Unsure Whether Audience Is Waiting for Bus",
+      "body": "A guitarist performing outside a subway station says he played his best material for an attentive crowd of commuters. Several listeners later confirmed they were actually checking transit alerts, but praised the performance anyway."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Visitor With Vintage Suitcase Asks About Overnight Flights, Claims to Be 'Just Passing Through'",
+      "body": "Airport staff report that an unusually calm traveler asked several detailed questions about late departures, luggage rules and whether anyone checks the quieter terminal exits. The traveler was polite, forgettable and possibly connected to absolutely nothing. Still, the suitcase looked expensive."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Museum Gift Shop Sells Out of {artifact} Magnets Before Anyone Can Explain Why",
+      "body": "A Toronto gift shop has reported an unexpected surge in demand for magnets depicting the missing {artifact}. Staff say no one has explained how the item became locally fashionable, but one customer asked whether a magnet could be used as 'a conversation starter or a legal defence.'"
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Neighborhood Squirrel Steals Granola Bar, Immediately Begins Acting Like Landlord",
+      "body": "A squirrel in a downtown park has been observed sitting on a bench with a stolen granola bar and staring at passers-by as if they are behind on rent. Nobody has challenged the claim."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Condo Elevator Stops on Every Floor, Residents Briefly Form Community",
+      "body": "A slow elevator ride brought together residents who had lived in the same building for years without speaking. By the ninth floor, they had exchanged names, weather opinions and one recommendation for a plumber."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Man Claims He Is Not Cold, Wears Three Jackets to Prove It",
+      "body": "A resident insisted he was 'completely fine' while wearing a coat, scarf, gloves and a second coat beneath the first coat. Friends describe the statement as technically possible but emotionally unconvincing."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Traveler Seen Studying Map of {currentCity}, Then Asking for Toronto Transit Advice",
+      "body": "A visitor at Union Station spent several minutes examining a map of {currentCity} before requesting directions to an airport connection. Witnesses say the person looked organised, hurried and slightly too interested in routes with no questions asked."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Bookstore Cat Sleeps Through Entire Discussion of Modern Literature",
+      "body": "A bookstore cat remained asleep for a two-hour debate about whether a famous novel was misunderstood. Customers agreed the cat had probably achieved the healthiest possible relationship with criticism."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Company Requests Clarification on Whether Missing {artifact} Was 'Actually Missing'",
+      "body": "An insurance representative reviewing the disappearance of the {artifact} has reportedly asked whether it might simply be 'somewhere unusual.' Staff at {location} replied that the item was a large historical object and had already checked behind the desk."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Man Brings Folding Chair to Waterfront, Gains Authority Over Entire Picnic Area",
+      "body": "A man who unfolded a camping chair near the water was immediately asked where people should sit, whether the weather would improve and if the nearby seagulls were dangerous. He answered none of these questions but nodded in a reassuring manner."
+    }
+  ]
+}

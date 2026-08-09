@@ -103,11 +103,41 @@ export class CrimeBoard {
     this.tempPath = null;
   }
 
+  // NEW: single source of truth for "is it safe to touch the DOM/SVG
+  // right now". Covers both the destroyed flag AND the case where the
+  // svg/itemsLayer node got detached/nulled out at runtime (e.g. by an
+  // SPA router swapping templates), so any future setAttribute /
+  // setAttributeNS / appendChild call can be guarded consistently
+  // instead of relying on the constructor-time check alone.
+  _isBoardUsable() {
+    return !this.destroyed && !!this.svg && !!this.itemsLayer && !!this.root;
+  }
+
+  // NEW: safe wrapper for setting a (possibly namespaced) attribute on
+  // this.svg or any svg-owned node. Never throws even if the node is
+  // null/undefined/detached.
+  _setSvgAttr(node, name, value, namespace = null) {
+    if (!node || typeof node.setAttribute !== 'function') return;
+    try {
+      if (namespace) {
+        if (typeof node.setAttributeNS === 'function') {
+          node.setAttributeNS(namespace, name, value);
+        }
+      } else {
+        node.setAttribute(name, value);
+      }
+    } catch {
+      // Defensive no-op: a detached/invalid SVG node should never crash the app.
+    }
+  }
+
   onResize() {
+    if (!this._isBoardUsable()) return;
     this.renderLinks();
   }
 
   onRootClick(e) {
+    if (!this._isBoardUsable()) return;
     if (e.target === this.root || e.target === this.itemsLayer || e.target === this.svg) {
       this.selectedItemId = null;
       this.renderSelectionState();
@@ -228,7 +258,7 @@ export class CrimeBoard {
     if (this.editor.addPhotoBtn) {
       this.editor.addPhotoBtn.addEventListener('click', () => {
         const item = this.addItem(this.createDefaultItem('photo'));
-        this.selectItem(item.id);
+        if (item) this.selectItem(item.id);
         this.syncJsonOutput();
       });
     }
@@ -236,7 +266,7 @@ export class CrimeBoard {
     if (this.editor.addNoteBtn) {
       this.editor.addNoteBtn.addEventListener('click', () => {
         const item = this.addItem(this.createDefaultItem('note'));
-        this.selectItem(item.id);
+        if (item) this.selectItem(item.id);
         this.syncJsonOutput();
       });
     }
@@ -244,7 +274,7 @@ export class CrimeBoard {
     if (this.editor.addEvidenceBtn) {
       this.editor.addEvidenceBtn.addEventListener('click', () => {
         const item = this.addItem(this.createDefaultItem('evidence'));
-        this.selectItem(item.id);
+        if (item) this.selectItem(item.id);
         this.syncJsonOutput();
       });
     }
@@ -305,6 +335,8 @@ export class CrimeBoard {
   }
 
   loadBoard(data) {
+    if (!this._isBoardUsable()) return this.getBoardData();
+
     const safeData = data && typeof data === 'object' ? data : {};
     this.meta = this.normalizeMeta(safeData.meta || {});
     this.state.items = (safeData.items || []).map((item, index) => this.normalizeItem(item, index));
@@ -438,6 +470,8 @@ export class CrimeBoard {
   }
 
   addItem(item) {
+    if (!this._isBoardUsable()) return null;
+
     const normalized = this.normalizeItem({
       ...item,
       z: this.nextZ()
@@ -457,6 +491,8 @@ export class CrimeBoard {
   }
 
   updateItem(id, patch = {}) {
+    if (!this._isBoardUsable()) return null;
+
     const index = this.state.items.findIndex(item => item.id === id);
     if (index === -1) return null;
 
@@ -487,6 +523,8 @@ export class CrimeBoard {
   }
 
   removeItem(id) {
+    if (!this._isBoardUsable()) return false;
+
     const item = this.getItemById(id);
     if (!item || !item.editableByPlayer) return false;
 
@@ -517,6 +555,8 @@ export class CrimeBoard {
   }
 
   addLink(link) {
+    if (!this._isBoardUsable()) return null;
+
     const normalized = this.normalizeLink(link, this.state.links.length);
 
     if (!this.isValidLinkTarget(normalized.from, normalized.to)) return null;
@@ -532,6 +572,8 @@ export class CrimeBoard {
   }
 
   removeLink(id) {
+    if (!this._isBoardUsable()) return false;
+
     const link = this.getLinkById(id);
     if (!link) return false;
     if (link.editableByPlayer === false) return false;
@@ -555,6 +597,8 @@ export class CrimeBoard {
   }
 
   render() {
+    if (!this._isBoardUsable()) return;
+
     this.itemsLayer.innerHTML = '';
     this.svg.innerHTML = '';
     this.itemElements.clear();
@@ -690,11 +734,11 @@ export class CrimeBoard {
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.classList.add('crime-board__link-path');
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', link.color || '#b3131b');
-    path.setAttribute('stroke-width', '3');
-    path.setAttribute('stroke-linecap', 'round');
-    path.setAttribute('stroke-linejoin', 'round');
+    this._setSvgAttr(path, 'fill', 'none');
+    this._setSvgAttr(path, 'stroke', link.color || '#b3131b');
+    this._setSvgAttr(path, 'stroke-width', '3');
+    this._setSvgAttr(path, 'stroke-linecap', 'round');
+    this._setSvgAttr(path, 'stroke-linejoin', 'round');
 
     group.appendChild(path);
 
@@ -723,6 +767,8 @@ export class CrimeBoard {
   }
 
   renderLinks() {
+    if (!this._isBoardUsable()) return;
+
     this.state.links.forEach(link => {
       const group = this.linkElements.get(link.id);
       const path = group?.querySelector('path');
@@ -732,12 +778,12 @@ export class CrimeBoard {
       const toPoint = this.getAnchorPosition(link.to, link.toAnchor);
       if (!fromPoint || !toPoint) return;
 
-      path.setAttribute('d', this.buildLinkPath(fromPoint, toPoint));
-      path.setAttribute('stroke', link.color || '#b3131b');
+      this._setSvgAttr(path, 'd', this.buildLinkPath(fromPoint, toPoint));
+      this._setSvgAttr(path, 'stroke', link.color || '#b3131b');
     });
 
     if (this.connectionMode.active && this.tempPath) {
-      this.tempPath.setAttribute('stroke', '#b3131b');
+      this._setSvgAttr(this.tempPath, 'stroke', '#b3131b');
     }
   }
 
@@ -949,6 +995,7 @@ export class CrimeBoard {
 
   onItemPointerDown(event, itemId) {
     if (event.button !== 0) return;
+    if (!this._isBoardUsable()) return;
 
     const item = this.getItemById(itemId);
     const el = this.itemElements.get(itemId);
@@ -976,6 +1023,10 @@ export class CrimeBoard {
 
   onWindowPointerMove(event) {
     if (!this.drag.activeId) return;
+    if (!this._isBoardUsable()) {
+      this.clearDragState();
+      return;
+    }
 
     const item = this.getItemById(this.drag.activeId);
     if (!item) return;
@@ -1002,6 +1053,7 @@ export class CrimeBoard {
   }
 
   handleAnchorClick(itemId, anchor) {
+    if (!this._isBoardUsable()) return;
     if (!this.canStartLinkFromItem(itemId)) return;
 
     if (!this.connectionMode.active) {
@@ -1040,6 +1092,8 @@ export class CrimeBoard {
   }
 
   startConnectionMode(itemId, anchor) {
+    if (!this._isBoardUsable()) return;
+
     this.connectionMode.active = true;
     this.connectionMode.fromId = itemId;
     this.connectionMode.fromAnchor = anchor || 'right';
@@ -1047,11 +1101,11 @@ export class CrimeBoard {
     this.tempPath?.remove();
     this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     this.tempPath.classList.add('crime-board__temp-link');
-    this.tempPath.setAttribute('fill', 'none');
-    this.tempPath.setAttribute('stroke', '#b3131b');
-    this.tempPath.setAttribute('stroke-width', '2');
-    this.tempPath.setAttribute('stroke-dasharray', '8 6');
-    this.tempPath.setAttribute('stroke-linecap', 'round');
+    this._setSvgAttr(this.tempPath, 'fill', 'none');
+    this._setSvgAttr(this.tempPath, 'stroke', '#b3131b');
+    this._setSvgAttr(this.tempPath, 'stroke-width', '2');
+    this._setSvgAttr(this.tempPath, 'stroke-dasharray', '8 6');
+    this._setSvgAttr(this.tempPath, 'stroke-linecap', 'round');
     this.svg.appendChild(this.tempPath);
 
     const moveHandler = event => {
@@ -1063,7 +1117,7 @@ export class CrimeBoard {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
       };
-      this.tempPath.setAttribute('d', this.buildLinkPath(start, end));
+      this._setSvgAttr(this.tempPath, 'd', this.buildLinkPath(start, end));
     };
 
     this.boundTempMove = moveHandler;
@@ -1086,7 +1140,7 @@ export class CrimeBoard {
 
   getAnchorPosition(itemId, anchor = 'right') {
     const el = this.itemElements.get(itemId);
-    if (!el) return null;
+    if (!el || !this.root) return null;
 
     const rootRect = this.root.getBoundingClientRect();
     const rect = el.getBoundingClientRect();

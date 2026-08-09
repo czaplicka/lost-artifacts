@@ -1,0 +1,198 @@
+{
+  "title": "The Daily Perfectly Reasonable",
+  "subtitle": "New Delhi Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Stolen From {location}",
+      "lead": "A night-time theft leaves {city} detectives with an empty display and several extremely busy phones.",
+      "body": "Police in {city} are investigating the disappearance of the priceless {artifact} from {location}. The object vanished overnight despite alarms, security protocols and at least one guard who insists he was conducting an entirely necessary tea break. The Mark Agency has joined the investigation and is reviewing every clue, witness statement and suspiciously well-timed delivery van.",
+      "imageKey": "paper_new_delhi_heist_photo",
+      "imageCaption": "The empty display at {location}, now attracting more visitors than ever.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "{city} Searches for Missing {artifact}",
+      "lead": "The case has mystery, drama and an unusually detailed queue of people claiming they saw something.",
+      "body": "The theft of the {artifact} from {location} has become the subject of intense discussion across {city}. Officials have confirmed {clueCount} active clues and {suspectCount} possible suspects, though one spokesperson noted that half the city now has a theory and several are very confident about it. The Mark Agency has asked residents not to touch possible evidence, even if it appears to be in the way.",
+      "imageKey": "paper_new_delhi_heist_photo",
+      "imageCaption": "The scene where the {artifact} was last known to be entirely present.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Night Heist at {location}: {artifact} Gone",
+      "lead": "Locked doors, working alarms and one artifact with a very ambitious travel plan.",
+      "body": "On day {day} of the investigation, detectives in {city} are still working to understand how the {artifact} disappeared from {location}. Witnesses have described a mysterious figure, a strange sound and one person who definitely looked suspicious, though they later admitted this may have been because the person was wearing sunglasses indoors.",
+      "imageKey": "paper_new_delhi_heist_photo",
+      "imageCaption": "Investigators examine the location where the {artifact} stopped being available for viewing.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Where Is the {artifact}? {city} Wants Answers",
+      "lead": "A high-value disappearance gives everyone a reason to offer professional detective advice.",
+      "body": "The disappearance of the {artifact} from {location} has prompted an urgent investigation in {city}. With {clueCount} leads under review, authorities say the case remains open, active and significantly more complicated than it looked on the first morning. One local tea seller has offered to help, claiming they can identify a liar by how they hold a cup.",
+      "imageKey": "paper_new_delhi_heist_photo",
+      "imageCaption": "An empty pedestal, presently receiving extensive professional attention.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Local Tea Stall Owner Predicts Weather With Suspicious Accuracy Using Only His Knees",
+      "lead": "Fourteen correct forecasts in a row and one very confident set of joints.",
+      "body": "A well-known chai vendor claims his knees always know when rain is coming, and neighbours report he has been correct fourteen times in a row. Meteorologists have declined to comment, mostly out of professional embarrassment. The vendor has now begun accepting questions about traffic, cricket and whether customers should call their relatives more often.",
+      "imageKey": "paper_new_delhi_tea_photo",
+      "imageCaption": "The tea stall now considered more reliable than official reports.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Monkey Successfully Negotiates Fair Trade of Banana for Sunglasses",
+      "lead": "Witnesses call the exchange remarkably civil, though the pricing remains unclear.",
+      "body": "A street vendor reports that a local monkey swapped a stolen pair of sunglasses for a banana in what witnesses describe as a surprisingly well-managed transaction. The monkey has not been seen wearing sunglasses since, leading some to believe it may have simply wanted to establish market value.",
+      "imageKey": "paper_new_delhi_monkey_photo",
+      "imageCaption": "The negotiator declined to discuss future business plans.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Entire Street Agrees to Disagree on Best Route to Market",
+      "lead": "Seventeen opinions recorded. None considered optional.",
+      "body": "Residents of a busy market lane have once again failed to agree on the fastest route through the crowd, with seventeen distinct opinions recorded before breakfast. Elders insist this is simply how mornings work. A delivery rider eventually chose a route nobody recommended and arrived first.",
+      "imageKey": "paper_new_delhi_market_photo",
+      "imageCaption": "A route through the market, depending entirely on who you ask.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Driver Promises Shortcut, Passengers Gain Detailed Knowledge of Three Neighborhoods",
+      "lead": "The route was technically faster in at least one philosophical sense.",
+      "body": "Passengers in an afternoon taxi accepted a driver's promise of a quick shortcut and received an unexpected tour of side streets, small shops and one exceptionally determined wedding procession. Everyone arrived eventually, carrying new directions and a broader understanding of the city.",
+      "imageKey": "paper_new_delhi_traffic_photo",
+      "imageCaption": "The shortcut, currently taking the scenic approach.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Office Worker Orders One Snack, Leaves With Full Lunch and Important Life Advice",
+      "lead": "A simple errand becomes a complete professional development session.",
+      "body": "A worker leaving the office for a quick snack returned forty minutes later carrying lunch, tea and advice from a stall owner about career choices. Colleagues accepted the delay immediately after hearing the food recommendation.",
+      "imageKey": "paper_new_delhi_food_stall_photo",
+      "imageCaption": "The snack break that became strategically important.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Local Dog Waits Outside Bakery With Better Discipline Than Entire Office",
+      "body": "A dog has begun arriving outside a bakery shortly before opening each morning. It waits calmly, never checks its phone and has never once complained about the queue. Several nearby workers are taking notes."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Neighbourhood Pigeon Claims It Knows Exactly Which Shop Sells Best Snacks",
+      "body": "A pigeon near a busy market has developed a route so precise that shopkeepers now use it as an unofficial recommendation system. The bird accepts payment in crumbs and refuses to discuss its research methods."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Two Friends Meet for Chai, Accidentally Plan Entire New Business",
+      "body": "A quick tea break became a discussion about branding, logistics, customers and whether the business needed an app. Both friends agreed they would start tomorrow, after another chai."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Traveler With Old Suitcase Asks About Overnight Departures",
+      "body": "Transport staff recall a visitor who asked detailed questions about late flights, railway connections and quieter departure points. The traveler said they were only passing through and paid for tea in cash. Nobody has connected the person to the missing {artifact}, but the suitcase has become a popular subject of conversation."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon Seen Inspecting Poster of Missing {artifact}, Offers No Comment",
+      "body": "A pigeon outside a newsstand spent several minutes standing directly on a photograph of the missing {artifact}. Witnesses say it looked unusually composed. Experts caution that pigeons almost always look as if they know something."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Office Printer Works for Six Hours, Staff Avoid Mentioning It",
+      "body": "Employees at a local office report that their printer completed every requested task without jamming, restarting or displaying an error message. Staff have avoided celebration, concerned that the machine may notice and change its mind."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Hotel Receptionist Remembers Guest Who Requested No Breakfast and No Questions",
+      "body": "A receptionist recalls a quiet guest who paid in cash, checked out before sunrise and left with a single worn suitcase. The guest declined breakfast, a taxi and all small talk, which staff describe as unusually efficient."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Souvenir Seller Receives Sudden Requests for {artifact} Replicas",
+      "body": "A local shopkeeper says visitors have begun asking for small replicas of the missing {artifact}. The shop does not stock them, but one employee has already begun sketching possible designs. 'People like a mystery,' the seller explained."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Visitor From {currentCity} Says New Delhi Is 'Too Busy,' Then Orders Second Tea",
+      "body": "A traveller arriving from {currentCity} described the city as overwhelming before sitting down at a tea stall and remaining there for nearly two hours. Friends say the visitor has become noticeably calmer and significantly more interested in snacks."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Inspector Requests Second Chai Before Reviewing {artifact} Claim",
+      "body": "An insurance representative handling paperwork related to the missing {artifact} requested a quiet chair, a strong tea and several uninterrupted minutes. Staff at {location} supplied all three, plus an additional biscuit for morale."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Man Uses Navigation App, Is Still Given Better Directions by Street Vendor",
+      "body": "A visitor following a navigation app was redirected by a street vendor who suggested a route with less traffic, better shade and one highly recommended snack stop. The visitor arrived early and has stopped trusting technology quite so completely."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Cat Sleeps Through Entire Family Discussion, Is Declared Wisest Member",
+      "body": "A cat resting near an apartment entrance ignored a long conversation about work, travel and household repairs. By the end of the evening, everyone agreed the cat had handled the situation with admirable emotional balance."
+    }
+  ]
+}

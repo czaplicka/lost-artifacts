@@ -1,0 +1,198 @@
+{
+  "title": "Der Tägliche Ganz Normale Kurier",
+  "subtitle": "Berlin Edition",
+
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "{artifact} Vanishes From {location}",
+      "lead": "Berlin wakes up to an empty display case and several deeply suspicious-looking tote bags.",
+      "body": "Police in {city} are investigating the disappearance of the priceless {artifact} from {location}. The object was last seen shortly before closing time, looking exactly like an object that had no intention of disappearing. Investigators have confirmed {clueCount} active leads, while the Mark Agency has reportedly sent an agent with a notebook, a trench coat, and increasingly specific questions.",
+      "imageKey": "paper_berlin_heist_photo",
+      "imageCaption": "The empty display at {location}, now described by visitors as 'boldly minimalist.'",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "No Artifact, No Answers: {artifact} Missing in {city}",
+      "lead": "Authorities call the theft 'highly unusual.' Berlin calls it Tuesday.",
+      "body": "The {artifact} has disappeared from {location}, leaving behind an empty pedestal, several unanswered questions, and one security guard who insists he heard something 'probably artistic.' Police have identified {suspectCount} persons of interest. Most have denied everything. One has denied being asked, which detectives consider technically impressive.",
+      "imageKey": "paper_berlin_heist_photo",
+      "imageCaption": "A formerly occupied space at {location}. The space is currently winning.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "{city} Museum Theft Leaves One Pedestal Feeling Exposed",
+      "lead": "The disappearance of the {artifact} has entered day {day}, and the pedestal is taking it personally.",
+      "body": "The investigation into the theft of the {artifact} from {location} continues as detectives follow {clueCount} clues through Berlin. Museum staff have installed a small rope around the empty display, partly for security and partly because it now receives more attention than the artifact ever did. The Mark Agency has declined to comment, but someone was seen measuring a footprint with great seriousness.",
+      "imageKey": "paper_berlin_heist_photo",
+      "imageCaption": "The display once occupied by the {artifact}. It is now available for contemplative viewing.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Berlin Detectives Pursue Missing {artifact}",
+      "lead": "The search begins with questions, clues, and a surprisingly long debate about coffee.",
+      "body": "A valuable {artifact} has vanished from {location}, prompting an immediate investigation across {city}. Officials say the thief was prepared, precise, and possibly wearing shoes. With {suspectCount} possible suspects and {clueCount} clues under review, authorities urge the public not to touch anything unusual, especially if it looks expensive or mysteriously abandoned near a train station.",
+      "imageKey": "paper_berlin_heist_photo",
+      "imageCaption": "Police outside {location}, professionally looking at things.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    }
+  ],
+
+  "articles": [
+    {
+      "slotId": "lead",
+      "headline": "Man Wins Staring Contest With Statue, Statue Reportedly Unbothered",
+      "lead": "Twenty minutes of intense focus end in a victory only one side noticed.",
+      "body": "A local park visitor claims victory in a twenty-minute staring contest against a bronze statue of a forgotten composer. Bystanders confirm the statue did not blink, move, or acknowledge the challenge in any way, which the man insists 'still counts.' He has since announced plans to challenge a lamppost.",
+      "imageKey": "paper_berlin_statue_photo",
+      "imageCaption": "The statue that refused to participate in the competition.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Local DJ Announces Final Set, Continues Playing for Seven More Hours",
+      "lead": "Witnesses confirm nobody was surprised, including the DJ.",
+      "body": "A Berlin club patron has reported that a DJ declared 'one last track' shortly before midnight, then continued playing until sunrise. The crowd accepted this as legally binding. Experts say the phrase has no known relationship to measurable time.",
+      "imageKey": "paper_berlin_dj_photo",
+      "imageCaption": "The moment everyone realised 'one more track' was not a promise.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Berlin Resident Finally Understands Public Transport Map, Declines to Explain",
+      "lead": "A rare moment of clarity is immediately treated as classified information.",
+      "body": "A resident claims to have understood the full Berlin public transport network after studying a map for forty-seven minutes and missing two trains. When asked how, she stared into the middle distance and whispered, 'You have to stop thinking in lines.' She then boarded the wrong tram anyway.",
+      "imageKey": "paper_berlin_transit_photo",
+      "imageCaption": "The map, reportedly unchanged but now emotionally complicated.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Späti Customer Buys One Bottle of Water, Leaves With a Life Philosophy",
+      "lead": "The transaction took four minutes and changed absolutely everything.",
+      "body": "A customer stopping for water at a late-night kiosk says a brief conversation with the cashier gave him a new perspective on work, relationships, and snacks. 'He just said, “You cannot hurry sparkling water,”' the customer explained. The cashier has denied being a philosopher but accepted the compliment.",
+      "imageKey": "paper_berlin_spaeti_photo",
+      "imageCaption": "The kiosk where hydration and existentialism meet.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+    {
+      "slotId": "lead",
+      "headline": "Dog in Tiny Raincoat Becomes Most Competent Person at Bus Stop",
+      "lead": "Prepared, focused, and unwilling to discuss the weather.",
+      "body": "Commuters waiting through a sudden shower agreed that a dachshund in a yellow raincoat appeared more organised than anyone else present. The dog arrived early, stood calmly under cover, and did not once check a delayed-train app. Several adults have since reconsidered their priorities.",
+      "imageKey": "paper_berlin_dog_raincoat_photo",
+      "imageCaption": "A professional commuter prepares for another difficult morning.",
+      "image": {
+        "x": 760,
+        "y": 245,
+        "width": 300,
+        "height": 190
+      }
+    },
+
+    {
+      "slotId": "secondary_1",
+      "headline": "Neighborhood Cat Achieves Minor Celebrity Status After Napping in Bakery Window",
+      "body": "A grey tabby has become a local fixture after sleeping in the same bakery window every afternoon for weeks. The bakery reports a noticeable increase in customers who 'just want to look at the cat' and, occasionally, buy bread."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Street Musician Plays Same Song for Three Hours, Calls It 'A Study in Persistence'",
+      "body": "A musician near Alexanderplatz has defended repeating the same melody for an entire afternoon, saying the piece explores 'the tension between expectation and disappointment.' Listeners agree that they experienced both."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Man Repairs Bicycle Outside Café, Accidentally Becomes Local Attraction",
+      "body": "What began as a simple chain adjustment turned into a two-hour public performance after passers-by began offering advice, tools, and emotional support. The bicycle remains unrepaired but has gained a small fan club."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Pigeon at {location} Refuses to Confirm or Deny Knowledge of {artifact}",
+      "body": "A pigeon seen near {location} has been behaving with what witnesses describe as 'extreme confidence' since the disappearance of the {artifact}. Investigators attempted to ask questions, but the bird responded by walking in a circle and judging everyone present."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Art Student Calls Empty Bench 'An Exploration of Waiting,' Receives Grant Application",
+      "body": "A student who spent forty minutes observing an empty bench has described the experience as an installation about modern loneliness. The bench has not commented, but appears comfortable with its role."
+    },
+    {
+      "slotId": "secondary_1",
+      "headline": "Kebab Shop Introduces Loyalty Card, Customers Pretend It Is Not the Best Day of Their Lives",
+      "body": "A local late-night kebab shop has introduced a stamp card offering one free döner after ten visits. Regulars describe the scheme as 'dangerously motivating' and have begun comparing progress with the seriousness usually reserved for marathon training."
+    },
+
+    {
+      "slotId": "secondary_2",
+      "headline": "Local Man Insists His Umbrella Is Cursed, Refuses Further Comment",
+      "body": "A resident of Kreuzberg has stopped using his umbrella after it allegedly chose to open indoors on three separate occasions. He now carries it closed under his arm at all times, 'just in case it tries something.'"
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Apartment Intercom Rings Once, Entire Building Enters Defensive Position",
+      "body": "Residents of a Neukölln building report that nobody answered an unfamiliar intercom call on Tuesday, but everyone checked through the curtains. The visitor eventually left. The building considers the situation successfully resolved."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Museum Gift Shop Suddenly Sells Out of {artifact} Postcards",
+      "body": "Since the reported disappearance of the {artifact}, visitors near {location} have been buying every available postcard, magnet and snow globe connected to the missing item. One customer asked whether a replica counted as evidence. Staff said no, but looked unsure."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Berlin Weather Changes Mood Six Times Before Lunch",
+      "body": "Residents experienced sunshine, rain, wind, dramatic clouds, more sunshine and a brief moment of personal reflection before noon. Forecasters describe conditions as 'seasonally Berlin.' Nobody knows what that means, but everyone packed a jacket."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Insurance Inspector Requests Quiet Room After Reviewing {artifact} Paperwork",
+      "body": "An insurance representative assigned to the missing {artifact} case reportedly asked for a chair, a glass of water and 'several uninterrupted minutes.' Staff at {location} provided all three, plus a decorative plant for moral support."
+    },
+    {
+      "slotId": "secondary_2",
+      "headline": "Man Brings Folding Chair to Park, Instantly Becomes Authority Figure",
+      "body": "A man carrying a folding chair into a public park was immediately assumed to be supervising something. Within minutes, strangers asked him for directions, permission to use a path, and an opinion on local zoning. He provided none, but nodded professionally."
+    }
+  ]
+}

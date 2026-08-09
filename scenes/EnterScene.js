@@ -1,143 +1,239 @@
-export class EnterScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'EnterScene' });
+import { supabase } from '../supabase-client.js';
+import { BaseScene } from './BaseScene.js';
+
+export class EnterScene extends BaseScene {
+  constructor() {
+    super({ key: 'EnterScene' });
+
+    this.modalElement = null;
+    this.modalFrame = null;
+    this.currentUser = null;
+    this.onWindowMessage = null;
+  }
+
+  async create() {
+        super.create();
+    const { width, height } = this.scale;
+
+    this.scene.sleep('UIScene');
+
+    const centerX = width * 0.23;
+
+    const bg = this.add.image(width / 2, height / 2, 'enter');
+    const scaleX = width / bg.width;
+    const scaleY = height / bg.height;
+    const scale = Math.max(scaleX, scaleY);
+
+    bg.setScale(scale).setScrollFactor(0);
+
+    const loginBtn = this.add.image(centerX, height * 0.44, 'loginbtn')
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    const registerBtn = this.add.image(centerX, height * 0.64, 'registerbtn')
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    const nextBtn = this.add.image(centerX, height * 0.84, 'next')
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    this.addHoverEffect(loginBtn);
+    this.addHoverEffect(registerBtn);
+    this.addHoverEffect(nextBtn);
+
+    loginBtn.on('pointerdown', () => {
+      this.openModal('login.html');
+    });
+
+    registerBtn.on('pointerdown', () => {
+      this.openModal('register.html');
+    });
+
+    nextBtn.on('pointerdown', () => {
+      const authMode = this.currentUser ? 'account' : 'guest';
+      this.startMenu(authMode);
+    });
+
+    this.onWindowMessage = this.handleWindowMessage.bind(this);
+    window.addEventListener('message', this.onWindowMessage);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
+
+    await this.restoreSavedSession();
+  }
+
+  async restoreSavedSession() {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      console.warn('Nie udało się odczytać zapisanej sesji:', error.message);
+      return;
     }
 
-    preload() {
-        // jeśli już ładujesz to gdzie indziej (PreloaderScene), usuń ten preload
-        this.load.image('loginbtn', 'assets/login.png');
-        this.load.image('registerbtn', 'assets/register.png');
-        this.load.image('next', 'assets/next.png');
-        this.load.image('enter', 'assets/local/enter.jpg');
+    if (!session?.user) {
+      console.log('Tryb gościa: brak aktywnej sesji.');
+      return;
     }
 
-    create() {
-        const { width, height } = this.scale;
+    this.currentUser = session.user;
 
-        // wyłącz HUD
-        this.scene.sleep('UIScene');
+    console.log('Agent rozpoznany:', this.currentUser.email);
 
-        const centerX = width * 0.23;
+    await this.ensurePlayerProfile(this.currentUser);
+  }
 
-        // Tło
-        const bg = this.add.image(width / 2, height / 2, 'enter');
-        const scaleX = width / bg.width;
-        const scaleY = height / bg.height;
-        const scale = Math.max(scaleX, scaleY);
-        bg.setScale(scale).setScrollFactor(0);
-
-        // LOGIN
-        const loginBtn = this.add.image(centerX, height * 0.44, 'loginbtn')
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true });
-
-        // REGISTER
-        const registerBtn = this.add.image(centerX, height * 0.64, 'registerbtn')
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true });
-
-        // NEXT -> MenuScene
-        const nextBtn = this.add.image(centerX, height * 0.84, 'next')
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true });
-
-        // hover na skali obrazka
-        this.addHoverEffect(loginBtn);
-        this.addHoverEffect(registerBtn);
-        this.addHoverEffect(nextBtn);
-
-        loginBtn.on('pointerdown', () => {
-            this.openModal('login.html');
-        });
-
-        registerBtn.on('pointerdown', () => {
-            this.openModal('register.html');
-        });
-
-        nextBtn.on('pointerdown', () => {
-            this.closeModal(); // na wszelki wypadek
-            this.scene.start('MenuScene');
-        });
-
-        // Kontener na modal
-        this.modalElement = null;
-        this.modalDom = null;
+  async handleWindowMessage(event) {
+    if (event.origin !== window.location.origin) {
+      return;
     }
 
-    // UWAGA: teraz to jest hover dla IMAGE, nie TEXT
-    addHoverEffect(button, baseScale = 1, hoverScale = 1.05) {
-        button.setScale(baseScale);
-
-        button.on('pointerover', () => {
-            button.setScale(hoverScale);
-        });
-
-        button.on('pointerout', () => {
-            button.setScale(baseScale);
-        });
+    if (!this.modalFrame || event.source !== this.modalFrame.contentWindow) {
+      return;
     }
 
-    openModal(url) {
-        if (this.modalDom) {
-            this.closeModal();
-        }
+    const message = event.data;
 
-        const { width, height } = this.scale;
-
-        // Tło pod modal (ciemny overlay)
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.left = '0';
-        overlay.style.top = '0';
-        overlay.style.width = '100vw';
-        overlay.style.height = '100vh';
-        overlay.style.background = 'rgba(0,0,0,0.6)';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.zIndex = '9999';
-
-        const frame = document.createElement('iframe');
-        frame.src = url;
-        frame.style.width = '600px';
-        frame.style.maxWidth = '90vw';
-        frame.style.height = '70vh';
-        frame.style.border = '4px solid #000';
-        frame.style.boxShadow = '0 0 20px #000';
-        frame.style.background = '#111';
-
-        // Zamknięcie po kliknięciu w tło
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                this.closeModal();
-            }
-        });
-
-        overlay.appendChild(frame);
-        document.body.appendChild(overlay);
-
-        // Phaser DOMElement tylko po to, żeby posprzątać razem ze sceną
-        this.modalElement = overlay;
-        this.modalDom = this.add.dom(width / 2, height / 2, overlay);
+    if (!message || typeof message !== 'object') {
+      return;
     }
 
-    closeModal() {
-        if (this.modalDom) {
-            this.modalDom.destroy();
-            this.modalDom = null;
-        }
-        if (this.modalElement && this.modalElement.parentNode) {
-            this.modalElement.parentNode.removeChild(this.modalElement);
-            this.modalElement = null;
-        }
+    if (message.type === 'lost-artefacts:auth-registered') {
+      alert(
+        'Konto utworzone. Sprawdź skrzynkę e-mail i potwierdź adres, potem zaloguj się.',
+      );
+      this.closeModal();
+      return;
     }
 
-    shutdown() {
+    if (message.type !== 'lost-artefacts:auth-signed-in') {
+      return;
+    }
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error || !session?.user) {
+      console.error('Sesja po logowaniu nie została znaleziona:', error?.message);
+      return;
+    }
+
+    this.currentUser = session.user;
+
+    await this.ensurePlayerProfile(this.currentUser);
+
+    this.startMenu('account');
+  }
+
+  async ensurePlayerProfile(user) {
+    const displayName = user.user_metadata?.display_name
+      ?? user.email?.split('@')[0]
+      ?? 'Agent';
+
+    const { error } = await supabase
+      .from('player_profiles')
+      .upsert(
+        {
+          id: user.id,
+          display_name: displayName,
+        },
+        {
+          onConflict: 'id',
+        },
+      );
+
+    if (error) {
+      console.warn(
+        'Profil agenta nie został utworzony lub odświeżony:',
+        error.message,
+      );
+    }
+  }
+
+  startMenu(authMode) {
+    this.closeModal();
+
+    this.scene.start('MenuScene', {
+      authMode,
+      playerId: this.currentUser?.id ?? null,
+      playerEmail: this.currentUser?.email ?? null,
+      displayName: this.currentUser?.user_metadata?.display_name
+        ?? this.currentUser?.email?.split('@')[0]
+        ?? 'Gość',
+    });
+  }
+
+  addHoverEffect(button, baseScale = 1, hoverScale = 1.05) {
+    button.setScale(baseScale);
+
+    button.on('pointerover', () => {
+      button.setScale(hoverScale);
+    });
+
+    button.on('pointerout', () => {
+      button.setScale(baseScale);
+    });
+  }
+
+  openModal(url) {
+    this.closeModal();
+
+    const overlay = document.createElement('div');
+
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.background = 'rgba(0, 0, 0, 0.72)';
+    overlay.style.zIndex = '9999';
+
+    const frame = document.createElement('iframe');
+
+    frame.src = url;
+    frame.title = 'Enter Mark Agency HQ';
+    frame.style.width = '600px';
+    frame.style.maxWidth = '90vw';
+    frame.style.height = '70vh';
+    frame.style.maxHeight = '680px';
+    frame.style.border = '4px solid #000';
+    frame.style.boxShadow = '0 0 28px #000';
+    frame.style.background = '#111';
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) {
         this.closeModal();
+      }
+    });
+
+    overlay.appendChild(frame);
+    document.body.appendChild(overlay);
+
+    this.modalElement = overlay;
+    this.modalFrame = frame;
+  }
+
+  closeModal() {
+    if (this.modalElement?.parentNode) {
+      this.modalElement.parentNode.removeChild(this.modalElement);
     }
 
-    destroy() {
-        this.closeModal();
-        super.destroy();
+    this.modalElement = null;
+    this.modalFrame = null;
+  }
+
+  cleanup() {
+    this.closeModal();
+
+    if (this.onWindowMessage) {
+      window.removeEventListener('message', this.onWindowMessage);
+      this.onWindowMessage = null;
     }
+  }
 }

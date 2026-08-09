@@ -3,6 +3,12 @@ import { buildNpcDialogue, buildFalseLeadDialogue } from '../dialogueBuilder.js'
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { getEnergyManager } from '../EnergyManager.js';
+import {
+  resolveCityNpcTheme,
+  getLocationBackgroundCandidates
+} from '../npcThemeHelper.js';
 
 const NPC_DIALOGUE_CACHE_MAP = {
   bankier: 'dialogue_banker',
@@ -36,30 +42,7 @@ const NPC_DIALOGUE_ROOT_MAP = {
   bum: 'bumClues'
 };
 
-const DEFAULT_LOCATION_BACKGROUND_MAP = {
-  hotel: 'hotel_maid',
-  hotel_maid: 'hotel_maid',
-  parking: 'parking_bg',
-  parking_bg: 'parking_bg',
-  garbage: 'garbage'
-};
-
-const NEW_DELHI_CITY_ID = 'new_delhi';
-
-const NEW_DELHI_LOCATION_BACKGROUND_MAP = {
-  bank: 'bankh',
-  alley: 'alleyh',
-  airport: 'airporth',
-  hotel: 'hotel_maidh',
-  hotel_maid: 'hotel_maidh',
-  parking: 'parkingh',
-  parking_bg: 'parkingh',
-  policehq: 'policehqh',
-  restaurant: 'restauranth',
-  garbage: 'garbageh'
-};
-
-export class LocationScene extends Phaser.Scene {
+export class LocationScene extends BaseScene {
   constructor() {
     super({ key: 'LocationScene' });
     this.lines = [];
@@ -139,6 +122,9 @@ export class LocationScene extends Phaser.Scene {
   }
 
   create() {
+        super.create();
+        this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);    
+    this.scene.get('NewsHud').events.emit('setTvVisible', false);
     audioManager.init(this);
     if (!audioManager.isMusicPlaying('themeGame')) audioManager.playMusic('themeGame', { loop: true });
 
@@ -267,15 +253,27 @@ export class LocationScene extends Phaser.Scene {
       ? generatedDialogue.notes.filter(Boolean)
       : [];
 
-    const backgroundKey = this.getLocationBackgroundKey(this.locationId, this.cityId);
+const backgroundKey = this.getLocationBackgroundKey(
+  this.locationId,
+  cityData
+);
 
-    if (backgroundKey && this.textures.exists(backgroundKey)) {
-      this.add.image(width / 2, height / 2, backgroundKey).setDisplaySize(width, height);
-    } else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
-      this.add.image(width / 2, height / 2, cityData.backgroundKey).setDisplaySize(width, height);
-    } else {
-      this.cameras.main.setBackgroundColor('#1a1a1a');
-    }
+if (backgroundKey) {
+  this.add
+    .image(width / 2, height / 2, backgroundKey)
+    .setDisplaySize(width, height);
+} else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
+  this.add
+    .image(width / 2, height / 2, cityData.backgroundKey)
+    .setDisplaySize(width, height);
+} else {
+  console.warn('[LocationScene] Missing location background:', {
+    cityId: this.cityId,
+    locationId: this.locationId
+  });
+
+  this.cameras.main.setBackgroundColor('#1a1a1a');
+}
 
     this.createDialoguePanel(width, height);
     ensureHud(this);
@@ -336,7 +334,15 @@ export class LocationScene extends Phaser.Scene {
       })
       .setDepth(11);
   }
-
+onNpcInteraction(npc) {
+  const energyManager = getEnergyManager();
+  const result = energyManager.consumeInterview('medium');
+  
+  console.log(`💬 ${result.label}`);
+  
+  // Otwórz dialog jak zwykle
+  this.startDialog(npc);
+}
   handleShutdown() {
     this.input.off('pointerdown', this.handlePointerDown, this);
 
@@ -473,19 +479,28 @@ export class LocationScene extends Phaser.Scene {
     return names[npcId] || npcId || 'Unknown witness';
   }
 
-  getLocationBackgroundKey(locationId, cityId = null) {
-    if (cityId === NEW_DELHI_CITY_ID) {
-      const delhiKey = NEW_DELHI_LOCATION_BACKGROUND_MAP[locationId];
-      if (delhiKey && this.textures.exists(delhiKey)) {
-        return delhiKey;
-      }
-      console.warn(
-        `LocationScene: brak tekstury Delhi dla locationId "${locationId}", używam domyślnej.`
-      );
-    }
+getLocationBackgroundKey(locationId, cityData = null) {
+  const themeId = resolveCityNpcTheme(cityData);
 
-    return DEFAULT_LOCATION_BACKGROUND_MAP[locationId] || locationId || null;
+  const candidates = getLocationBackgroundCandidates(locationId, themeId);
+
+  const backgroundKey = candidates.find(textureKey =>
+    this.textures.exists(textureKey)
+  );
+
+  if (backgroundKey) {
+    return backgroundKey;
   }
+
+  console.warn('[LocationScene] No matching location texture found:', {
+    cityId: cityData?.id || this.cityId,
+    npcTheme: themeId,
+    locationId,
+    candidates
+  });
+
+  return null;
+}
 
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
     button.on('pointerover', () => button.setScale(hoverScale));

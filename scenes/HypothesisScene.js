@@ -1,8 +1,10 @@
 import { gameState, saveGameState } from '../GameData.js';
-import { ScoreManager } from '../ScoreManager.js';
+import { getScoreManager } from '../gameSetup.js';
 import { audioManager } from '../AudioManager.js';
+import { BaseScene } from './BaseScene.js';
+import { getEnergyManager } from '../EnergyManager.js';
 
-export default class HypothesisScene extends Phaser.Scene {
+export class HypothesisScene extends BaseScene {
   constructor() {
     super('HypothesisScene');
 
@@ -100,12 +102,13 @@ export default class HypothesisScene extends Phaser.Scene {
     this.handleDragEndBound = null;
     this.handleResizeBound = null;
 
-    this.scoreManager = new ScoreManager();
+    this.scoreManager = getScoreManager();
   }
 
   create() {
+        super.create();
     this.prepareCards();
-
+this.energyManager = getEnergyManager();
     this.input.dragDistanceThreshold = 14;
     this.input.dragTimeThreshold = 120;
 
@@ -986,7 +989,13 @@ export default class HypothesisScene extends Phaser.Scene {
     this.slotFeedback = feedback;
     this.selectedSlotIndex = null;
     this.refreshSlots();
+const result = this.energyManager.consumeActivity('minigame_mastermind');
+console.log(`🧩 ${result.label}`);
 
+if (result.energyReachedZero) {
+  this.scene.stop();
+  return;
+}
     const allGreen = feedback.every(v => v === 'green');
 
     if (allGreen) {
@@ -1045,11 +1054,22 @@ export default class HypothesisScene extends Phaser.Scene {
     this.appendTheoryToNotes(finalText, uniqueSkills, resultLabel);
     this.storeTheorySkills(uniqueSkills);
 
-    gameState.score = (gameState.score || 0) + score;
+if (
+  this.scoreManager &&
+  typeof this.scoreManager.addScoreEvent === 'function'
+) {
+  this.scoreManager.addScoreEvent(
+    score,
+    `Heist theory: ${resultLabel}`
+  );
 
-    if (this.scoreManager && typeof this.scoreManager.addTheoryScore === 'function') {
-      this.scoreManager.addTheoryScore(score, resultLabel);
-    }
+  gameState.score = this.scoreManager.getSessionPoints();
+} else {
+  gameState.score = Math.max(
+    0,
+    (gameState.score || 0) + score
+  );
+}
 
     saveGameState();
     this.showFeedback(`${message} +${score} score`, color);

@@ -202,6 +202,41 @@
           "imageKey": "tabloid_new_york_feature_photo"
         }
       ]
+    },
+    "hq": {
+  "title": "Mark Agency After Hours",
+  "subtitle": "Human Resources, Mild Panic & Office Glamour",
+  "articles": [
+    {
+      "slotId": "hot_issue_left",
+      "headline": "Coffee Machine Promoted to Senior Staff After Solving Three Conflicts",
+      "lead": "It listens, it hums, and unlike management, it never schedules a follow-up meeting.",
+      "body": "The Mark Agency coffee machine has reportedly settled three workplace disputes this week by refusing to dispense espresso until everyone involved agrees to 'use a calmer tone.' Several employees now believe it should be included in strategic planning, while one intern has begun calling it 'ma'am.'",
+      "imageKey": "tabloid_hq_coffee_machine_photo",
+      "imageCaption": "The only employee who delivers under pressure every single morning."
+    },
+    {
+      "slotId": "hot_pick",
+      "headline": "Receptionist's New Stapler Inspires Unexpected Dress Code",
+      "body": "After the front-desk stapler arrived in a suspiciously glamorous shade of metallic gold, staff members began appearing in matching accessories. HR insists there is no official policy, though the office now contains six gold ties, two handbags and one deeply committed pair of shoes.",
+      "imageKey": "tabloid_hq_gold_stapler_photo",
+      "imageCaption": "Administrative power, but make it shiny."
+    },
+    {
+      "slotId": "red_carpet",
+      "headline": "Deputy Director Seen Wearing Sunglasses During Spreadsheet Review",
+      "body": "Witnesses claim the deputy director reviewed quarterly expenses while wearing dark sunglasses indoors and occasionally whispering, 'The numbers know what they did.' Nobody understands the strategy, but the budget was approved eleven minutes early.",
+      "imageKey": "tabloid_hq_sunglasses_photo",
+      "imageCaption": "A financial review with cinematic consequences."
+    },
+    {
+      "slotId": "feature_right",
+      "headline": "Inside Mark Agency’s Quiet Battle for the Best Chair by the Window",
+      "body": "Every great organization has a hidden hierarchy. At Mark Agency, it is not decided by title, salary or detective rank, but by proximity to the radiator and a partial view of the city. The chair by the window has changed owners six times this month, usually after mysterious calendar conflicts, emergency field assignments, or one extremely strategic potted plant.",
+      "imageKey": "tabloid_hq_window_chair_photo",
+      "imageCaption": "The seat that launched a thousand polite office rivalries."
     }
+  ]
+}
   }
 }
