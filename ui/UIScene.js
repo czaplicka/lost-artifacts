@@ -1,655 +1,487 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
-import {
-    getAchievementList,
-    hasAchievement
-} from '../AchievementManager.js';
+import { getEnergyManager } from '../EnergyManager.js';
+import { getAchievementList, hasAchievement } from '../AchievementManager.js';
+
+// ============================================================
+// UIScene.js
+// DOM HUD controller for ui/hud.html + ui/hud.css.
+// ============================================================
+
+const ENERGY_CIRCUMFERENCE = 251.327;
 
 export class UIScene extends BaseScene {
     constructor() {
         super({ key: 'UIScene', active: true });
+
+        this.energyManager = null;
+        this.currentGameDay = 1;
+        this.missionDays = 4;
+        this.startDate = { year: 1938, month: 3, day: 1 };
+        this.dom = {};
+        this._energyLogTimer = null;
+        this._warningTimer = null;
+        this._zeroTimer = null;
     }
 
-    preload() {
-        this.load.image('player', 'assets/player.png');
-        this.load.image('cog', 'assets/cog.png');
-        this.load.image('profile', 'assets/profile.png');
-    }
-
-    create() {
+    async create() {
         super.create();
-        const width = this.cameras.main.width;
-        const paddingRight = 20;
-        const paddingTop = 20;
+        this.energyManager = getEnergyManager();
 
-        const hudWidth = 460;
-        const hudHeight = 210;
-        const hudX = width - paddingRight - hudWidth;
-        const hudY = paddingTop;
-
-        // --- ZEWNĘTRZNA RAMKA KONTENERU ---
-        const outerFrame = this.add.graphics().setDepth(1);
-        outerFrame.fillStyle(0x2b1e16, 1);
-        outerFrame.fillRoundedRect(hudX - 4, hudY - 4, hudWidth + 8, hudHeight + 8, 12);
-        outerFrame.fillStyle(0x4a3525, 1);
-        outerFrame.fillRoundedRect(hudX, hudY, hudWidth, hudHeight, 8);
-        outerFrame.lineStyle(3, 0x8c5e3c, 1);
-        outerFrame.strokeRoundedRect(hudX + 2, hudY + 2, hudWidth - 4, hudHeight - 4, 6);
-
-        // --- TŁO JASNE (Tylko dla górnej części: zegar i score) ---
-        const topSectionHeight = 135;
-        this.add.rectangle(hudX + 8, hudY + 8, hudWidth - 16, topSectionHeight, 0xf4eac1)
-            .setOrigin(0, 0)
-            .setStrokeStyle(2, 0xbc986a)
-            .setDepth(2);
-
-        const textStyle = {
-            fontFamily: 'PressStart2P',
-            fill: '#2b1e16',
-            shadow: { offsetX: 1, offsetY: 1, color: '#e0c9a6', blur: 0, fill: true }
-        };
-
-        // --- ZEGAR I TEKSTY ---
-        const clockX = hudX + 68;
-        const clockY = hudY + 75;
-        const clockRadius = 38;
-
-        const clockGraphics = this.add.graphics().setDepth(3);
-        clockGraphics.fillStyle(0x8f5d26, 1);
-        clockGraphics.fillCircle(clockX, clockY, clockRadius + 4);
-        clockGraphics.fillStyle(0xdda15e, 1);
-        clockGraphics.fillCircle(clockX, clockY, clockRadius + 2);
-        clockGraphics.fillStyle(0xfffcf2, 1);
-        clockGraphics.fillCircle(clockX, clockY, clockRadius);
-        clockGraphics.lineStyle(3, 0x4a3525, 1);
-        clockGraphics.strokeCircle(clockX, clockY, clockRadius);
-        clockGraphics.lineStyle(2, 0x99582a, 1);
-
-        for (let i = 0; i < 12; i++) {
-            const angle = (i * Math.PI) / 6 - Math.PI / 2;
-            const r1 = clockRadius - (i % 3 === 0 ? 10 : 5);
-            const r2 = clockRadius - 2;
-            clockGraphics.lineBetween(
-                clockX + Math.cos(angle) * r1,
-                clockY + Math.sin(angle) * r1,
-                clockX + Math.cos(angle) * r2,
-                clockY + Math.sin(angle) * r2
-            );
-        }
-
-        this.add.circle(clockX, clockY, 4, 0x4a3525).setDepth(5);
-
-        this.hourHand = this.add.graphics().setDepth(4);
-        this.minuteHand = this.add.graphics().setDepth(4);
-        this.clockCenterPos = { x: clockX, y: clockY };
-
-        this.dayText = this.add.text(clockX + 50, clockY - 30, 'DAY 1', {
-            ...textStyle,
-            fontSize: '15px',
-            fill: '#a71c1c'
-        }).setDepth(3);
-
-        this.timeText = this.add.text(clockX + 50, clockY - 5, '08:00', {
-            ...textStyle,
-            fontSize: '17px',
-            fill: '#1b4332'
-        }).setDepth(3);
-
-        this.partOfDayText = this.add.text(clockX + 50, clockY + 22, 'MORNING', {
-            ...textStyle,
-            fontSize: '10px',
-            fill: '#7f5539'
-        }).setDepth(3);
-
-        // --- SCORE ---
-        const scoreX = hudX + hudWidth - 116;
-        const scoreY = hudY + 18;
-        const scoreW = 96;
-        const scoreH = 110;
-
-        const scoreBox = this.add.graphics().setDepth(3);
-        scoreBox.fillStyle(0x2b1e16, 1);
-        scoreBox.fillRoundedRect(scoreX, scoreY, scoreW, scoreH, 6);
-        scoreBox.fillStyle(0x3a2e2b, 1);
-        scoreBox.fillRoundedRect(scoreX + 2, scoreY + 2, scoreW - 4, scoreH - 4, 4);
-
-        this.add.text(scoreX + scoreW / 2, scoreY + 18, 'SCORE', {
-            fontFamily: 'PressStart2P',
-            fontSize: '12px',
-            fill: '#e9d8a6'
-        }).setOrigin(0.5).setDepth(4);
-
-        this.scoreText = this.add.text(scoreX + scoreW / 2, scoreY + 58, `${gameState.score || 0}`, {
-            fontFamily: 'PressStart2P',
-            fontSize: '18px',
-            fill: '#ee9b00',
-            shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 0, fill: true }
-        }).setOrigin(0.5).setDepth(4);
-
-        // --- IKONY W DOLNEJ CZĘŚCI (CIEMNE TŁO) ---
-        const iconY = hudY + 172;
-        const playerX = hudX + hudWidth - 85;
-        const cogX = hudX + hudWidth - 35;
-        const profileX = hudX + hudWidth - 135;
-
-        // Kółka tła pod ikony
-        this.add.circle(playerX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
-        this.add.circle(cogX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
-        this.add.circle(profileX, iconY, 22, 0x2b1e16).setStrokeStyle(2, 0x8c5e3c, 1).setDepth(3);
-
-        // Ikona gracza (Profil)
-        this.playerButton = this.add.image(playerX, iconY, 'player')
-            .setOrigin(0.5)
-            .setDisplaySize(36, 36)
-            .setDepth(5)
-            .setInteractive({ useHandCursor: true });
-
-        // KLIKNIĘCIE W PLAYER: Wczytanie i wyświetlenie profile.html
-        this.playerButton.on('pointerdown', async () => {
-            await this.openProfileModal();
-        });
-
-        // Ikona zębatki (Settings)
-        this.settingsButton = this.add.image(cogX, iconY, 'cog')
-            .setOrigin(0.5)
-            .setDisplaySize(32, 32)
-            .setDepth(5)
-            .setInteractive({ useHandCursor: true });
-
-        this.settingsButton.on('pointerdown', () => {
-            console.log('Kliknięto zębatkę!');
-            if (!this.scene.isActive('SettingsScene')) {
-                this.scene.launch('SettingsScene');
-            }
-            this.scene.bringToTop('SettingsScene');
-        });
-
-        // Ikona profile.png (Agent)
-        this.profileButton = this.add.image(profileX, iconY, 'profile')
-            .setOrigin(0.5)
-            .setDisplaySize(36, 36)
-            .setDepth(5)
-            .setInteractive({ useHandCursor: true });
-
-        // KLIKNIĘCIE W PROFILE: Wczytanie i wyświetlenie agent.html
-        this.profileButton.on('pointerdown', async () => {
-            await this.openAgentModal();
-        });
-
-        this.setClockHands(8, 0);
-        this.updateScore({ total: gameState.score || 0 });
-
-EventBus.on('timeChanged', this.updateHUD, this);
-EventBus.on('scoreChanged', this.updateScore, this);
-EventBus.on('agentStatsChanged', this.refreshOpenAgentModal, this);
-EventBus.on('gameOver', this.showGameOver, this);
-
-this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-    EventBus.off('timeChanged', this.updateHUD, this);
-    EventBus.off('scoreChanged', this.updateScore, this);
-    EventBus.off('agentStatsChanged', this.refreshOpenAgentModal, this);
-    EventBus.off('gameOver', this.showGameOver, this);
-});
-    }
-
-    // --- METODA OBSŁUGUJĄCA OTWARCIE PROFILU ---
-    async openProfileModal() {
-  let modalContainer = document.getElementById('profile-modal');
-
-  if (!modalContainer) {
-    try {
-      const response = await fetch('profile.html');
-
-      if (!response.ok) {
-        throw new Error(
-          `Could not load profile.html: HTTP ${response.status}`
-        );
-      }
-
-      const htmlText = await response.text();
-
-      const parser = new DOMParser();
-
-      const documentFragment = parser.parseFromString(
-        htmlText,
-        'text/html'
-      );
-
-      modalContainer = documentFragment.getElementById(
-        'profile-modal'
-      );
-
-      if (!modalContainer) {
-        throw new Error(
-          'profile.html does not contain an element with id="profile-modal".'
-        );
-      }
-
-      document.body.appendChild(modalContainer);
-
-      this.setupModalEvents(
-        modalContainer,
-        'btn-close-profile'
-      );
-    } catch (error) {
-      console.error(
-        '[UIScene] Failed to load profile.html:',
-        error
-      );
-
-      return;
-    }
-  }
-
-this.populateProfileModal(modalContainer);
-
-modalContainer.style.display = 'flex';
-}
-
-    // --- METODA OBSŁUGUJĄCA OTWARCIE AGENTA ---
-async openAgentModal() {
-    let modalContainer = document.getElementById('agent-modal');
-
-    if (!(modalContainer instanceof HTMLElement)) {
-        try {
-            const response = await fetch('agent.html', {
-                cache: 'no-store'
-            });
-
-            if (!response.ok) {
-                throw new Error(
-                    `Could not load agent.html: HTTP ${response.status}`
-                );
-            }
-
-            const htmlText = await response.text();
-            const parser = new DOMParser();
-            const documentFragment = parser.parseFromString(
-                htmlText,
-                'text/html'
-            );
-
-            modalContainer = documentFragment.getElementById('agent-modal');
-
-            if (!(modalContainer instanceof HTMLElement)) {
-                throw new Error(
-                    'agent.html does not contain an element with id="agent-modal".'
-                );
-            }
-
-            document.body.appendChild(modalContainer);
-
-            this.setupModalEvents(
-                modalContainer,
-                'btn-close-agent'
-            );
-
-            this.setupAgentModalActions(modalContainer);
-        } catch (error) {
-            console.error(
-                '[UIScene] Failed to load agent.html:',
-                error
-            );
-
+        const loaded = await this._loadHudHtml();
+        if (!loaded) {
+            console.error('[UIScene] Could not load ui/hud.html.');
             return;
         }
+
+        this._cacheDomElements();
+        this._bindEvents();
+        this._setupButtonListeners();
+        this._setupTooltipListeners();
+
+        this.updateTime({ day: 1, hour: 8, minute: 0, partOfDay: 'Morning' });
+        this.updateScore({ total: gameState.score || 0 });
+        this.updateCash(gameState.cash ?? 250);
+        this.updateEnergy();
     }
 
-    this.populateAgentModal(modalContainer);
-    modalContainer.style.display = 'flex';
-}
-renderAchievements(modalContainer) {
-    if (!(modalContainer instanceof HTMLElement)) {
-        return;
-    }
+    // ============================================================
+    // HUD loading and DOM cache
+    // ============================================================
 
-    const achievementGrid = modalContainer.querySelector(
-        '#achievement-grid'
-    );
+    async _loadHudHtml() {
+        if (document.getElementById('hud-container')) return true;
 
-    if (!(achievementGrid instanceof HTMLElement)) {
-        return;
-    }
+        try {
+            const response = await fetch('ui/hud.html', { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const visibleSlots = 4;
+            const documentFragment = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const container = documentFragment.getElementById('hud-container');
+            if (!container) throw new Error('ui/hud.html has no #hud-container.');
 
-    const unlockedAchievements = getAchievementList()
-        .filter((achievement) => hasAchievement(achievement.id));
-
-    const lockedAchievements = getAchievementList()
-        .filter((achievement) => !hasAchievement(achievement.id));
-
-    const visibleAchievements = [
-        ...unlockedAchievements,
-        ...lockedAchievements
-    ].slice(0, visibleSlots);
-
-    achievementGrid.replaceChildren();
-
-    for (const achievement of visibleAchievements) {
-        const unlocked = hasAchievement(achievement.id);
-
-        const item = document.createElement('div');
-        item.className = unlocked
-            ? 'achievement-item'
-            : 'achievement-item locked';
-
-        item.title = unlocked
-            ? achievement.description
-            : 'Achievement locked';
-
-        const icon = document.createElement('span');
-        icon.className = 'achievement-icon';
-        icon.textContent = unlocked ? achievement.icon : '🔒';
-
-        const title = document.createElement('span');
-        title.className = 'achievement-title';
-        title.textContent = unlocked
-            ? achievement.title
-            : 'CLASSIFIED';
-
-        item.append(icon, title);
-        achievementGrid.appendChild(item);
-    }
-
-    while (achievementGrid.children.length < visibleSlots) {
-        const emptySlot = document.createElement('div');
-
-        emptySlot.className = 'achievement-item locked';
-        emptySlot.title = 'Achievement locked';
-
-        const icon = document.createElement('span');
-        icon.className = 'achievement-icon';
-        icon.textContent = '🔒';
-
-        const title = document.createElement('span');
-        title.className = 'achievement-title';
-        title.textContent = 'CLASSIFIED';
-
-        emptySlot.append(icon, title);
-        achievementGrid.appendChild(emptySlot);
-    }
-}
-updateProfileDifficulty(modalContainer) {
-    if (!(modalContainer instanceof HTMLElement)) {
-        return;
-    }
-
-    const difficultyLabels = {
-        rookie: {
-            label: 'ROOKIE DETECTIVE',
-            description: 'Extra guidance. More retries. Less paperwork.',
-        },
-        field: {
-            label: 'FIELD AGENT',
-            description: 'Standard Mark Agency field procedure.',
-        },
-        master: {
-            label: 'MASTER SLEUTH',
-            description: 'Fewer second chances. Better coffee not guaranteed.',
-        },
-    };
-
-    const difficulty = this.registry.get('difficulty')
-        || gameState.difficulty
-        || 'field';
-
-    const selectedDifficulty = difficultyLabels[difficulty]
-        || difficultyLabels.field;
-
-    const difficultyElement = modalContainer.querySelector(
-        '#profile-difficulty',
-    );
-
-    const descriptionElement = modalContainer.querySelector(
-        '#profile-difficulty-description',
-    );
-
-    if (difficultyElement) {
-        difficultyElement.textContent = selectedDifficulty.label;
-    }
-
-    if (descriptionElement) {
-        descriptionElement.textContent = selectedDifficulty.description;
-    }
-}
-populateProfileModal(modalContainer) {
-    if (!(modalContainer instanceof HTMLElement)) {
-        return;
-    }
-
-    const aliasElement = modalContainer.querySelector(
-        '#profile-alias',
-    );
-
-    const rankElement = modalContainer.querySelector(
-        '#profile-rank',
-    );
-
-    const pointsElement = modalContainer.querySelector(
-        '#profile-points',
-    );
-
-    const playerName = typeof gameState.playerName === 'string'
-        && gameState.playerName.trim()
-        ? gameState.playerName.trim()
-        : 'Detective';
-
-    const playerRank = typeof gameState.playerRank === 'string'
-        && gameState.playerRank.trim()
-        ? gameState.playerRank.trim()
-        : 'Junior Agent';
-
-    const score = Number.isFinite(gameState.score)
-        ? Math.max(0, Math.floor(gameState.score))
-        : 0;
-
-    if (aliasElement) {
-        aliasElement.textContent = playerName;
-    }
-
-    if (rankElement) {
-        rankElement.textContent = playerRank;
-    }
-
-    if (pointsElement) {
-        pointsElement.textContent = score.toLocaleString('en-US');
-    }
-
-    this.updateProfileDifficulty(modalContainer);
-}
-
-setupAgentModalActions(modalContainer) {
-    if (!(modalContainer instanceof HTMLElement)) {
-        return;
-    }
-
-    if (modalContainer.dataset.agentActionsBound === 'true') {
-        return;
-    }
-
-    const copyButton = modalContainer.querySelector('#btn-copy-link');
-    const toast = modalContainer.querySelector('#toast');
-
-    if (copyButton instanceof HTMLButtonElement && toast instanceof HTMLElement) {
-        copyButton.addEventListener('click', async () => {
-            try {
-                const dossierUrl = new URL(window.location.href);
-
-                dossierUrl.searchParams.set(
-                    'agent',
-                    gameState.playerName ||
-                    gameState.agentName ||
-                    'detective'
-                );
-
-                await navigator.clipboard.writeText(dossierUrl.toString());
-
-                toast.style.display = 'block';
-
-                window.setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 2500);
-            } catch (error) {
-                console.error(
-                    '[UIScene] Could not copy dossier link:',
-                    error
-                );
-            }
-        });
-    }
-
-    modalContainer.dataset.agentActionsBound = 'true';
-}
-
-refreshOpenAgentModal() {
-    const modalContainer = document.getElementById('agent-modal');
-
-    if (
-        modalContainer instanceof HTMLElement &&
-        modalContainer.style.display !== 'none'
-    ) {
-        this.populateAgentModal(modalContainer);
-    }
-}
-    // Podpięcie eventów zamykania i akcji wewnątrz modala
-    setupModalEvents(modalContainer, closeBtnId) {
-    if (!(modalContainer instanceof HTMLElement)) {
-        console.error(
-            '[UIScene] Cannot bind modal events: modal container is invalid.',
-            {
-                modalContainer,
-                closeBtnId
-            }
-        );
-
-        return;
-    }
-
-    if (modalContainer.dataset.eventsBound === 'true') {
-        return;
-    }
-
-    const closeBtn = modalContainer.querySelector(`#${closeBtnId}`);
-
-    if (!closeBtn) {
-        console.warn(
-            `[UIScene] Modal "${modalContainer.id}" has no close button "#${closeBtnId}".`
-        );
-    } else {
-        closeBtn.addEventListener('click', () => {
-            modalContainer.style.display = 'none';
-        });
-    }
-
-    modalContainer.addEventListener('click', (event) => {
-        if (event.target === modalContainer) {
-            modalContainer.style.display = 'none';
+            document.body.appendChild(container);
+            return true;
+        } catch (error) {
+            console.error('[UIScene] HUD loading failed:', error);
+            return false;
         }
+    }
+
+    _cacheDomElements() {
+        this.dom = {
+            container: document.getElementById('hud-container'),
+            time: document.getElementById('clock-time'),
+            partOfDay: document.getElementById('clock-part'),
+            month: document.getElementById('date-month'),
+            day: document.getElementById('date-day'),
+            deadlineValue: document.getElementById('deadline-value'),
+            deadlineProgress: document.getElementById('deadline-progress'),
+            energyTarget: document.getElementById('energy-target'),
+            energyWrapper: document.querySelector('.energy-wrapper'),
+            energyFill: document.getElementById('energy-fill'),
+            energyBolt: document.getElementById('energy-bolt'),
+            score: document.getElementById('hud-score'),
+            cash: document.getElementById('hud-cash'),
+            tooltipBg: document.getElementById('hud-tooltip'),
+            tooltipText: document.getElementById('hud-tooltip-text'),
+            energyLogBg: document.getElementById('hud-energy-log'),
+            energyLogText: document.getElementById('hud-energy-log-text')
+        };
+    }
+
+    // ============================================================
+    // Events and visibility
+    // ============================================================
+
+    _bindEvents() {
+        EventBus.on('timeChanged', this.updateTime, this);
+        EventBus.on('scoreChanged', this.updateScore, this);
+        EventBus.on('cashChanged', this.updateCash, this);
+        EventBus.on('agentStatsChanged', this._refreshOpenAgentModal, this);
+        EventBus.on('gameOver', this._showGameOver, this);
+        EventBus.on('energyInitialized', this._onEnergyChanged, this);
+        EventBus.on('energyChanged', this._onEnergyChanged, this);
+        EventBus.on('energyWarning', this._onEnergyWarning, this);
+        EventBus.on('energyZero', this._onEnergyZero, this);
+        EventBus.on('showHUD', this.showHUD, this);
+        EventBus.on('hideHUD', this.hideHUD, this);
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this._cleanup, this);
+    }
+
+    _cleanup() {
+        EventBus.off('timeChanged', this.updateTime, this);
+        EventBus.off('scoreChanged', this.updateScore, this);
+        EventBus.off('cashChanged', this.updateCash, this);
+        EventBus.off('agentStatsChanged', this._refreshOpenAgentModal, this);
+        EventBus.off('gameOver', this._showGameOver, this);
+        EventBus.off('energyInitialized', this._onEnergyChanged, this);
+        EventBus.off('energyChanged', this._onEnergyChanged, this);
+        EventBus.off('energyWarning', this._onEnergyWarning, this);
+        EventBus.off('energyZero', this._onEnergyZero, this);
+        EventBus.off('showHUD', this.showHUD, this);
+        EventBus.off('hideHUD', this.hideHUD, this);
+
+        if (this._energyLogTimer) clearTimeout(this._energyLogTimer);
+        if (this._warningTimer) clearTimeout(this._warningTimer);
+        if (this._zeroTimer) clearTimeout(this._zeroTimer);
+    }
+
+    showHUD() {
+        if (this.dom.container) this.dom.container.style.display = 'block';
+    }
+
+    hideHUD() {
+        if (this.dom.container) this.dom.container.style.display = 'none';
+    }
+
+    // ============================================================
+    // Controls and one tooltip binding implementation only
+    // ============================================================
+
+    _setupButtonListeners() {
+        document.getElementById('btn-profile')?.addEventListener('click', () => this.openAgentModal());
+        document.getElementById('btn-player')?.addEventListener('click', () => this.openProfileModal());
+        document.getElementById('btn-settings')?.addEventListener('click', () => this.openSettings());
+        this.dom.energyTarget?.addEventListener('click', () => this._toggleEnergyLog());
+    }
+
+_setupTooltipListeners() {
+  const targets = [
+    { id: 'clock-target', content: () => this._getClockTooltip() },
+    { id: 'date-target', content: () => this._getDateTooltip() },
+    { id: 'deadline-target', content: () => this._getDeadlineTooltip() },
+    { id: 'energy-target', content: () => this._getEnergyTooltip() },
+    { id: 'score-target', content: () => 'SCORE\nRewards for good detective work.' },
+    { id: 'cash-target', content: () => 'CASH\n$250 available.\nTemporary value.' }
+  ];
+
+  targets.forEach(({ id, content }) => {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    element.addEventListener('mouseenter', () => {
+      this._showTooltip(content());
     });
 
-    modalContainer.dataset.eventsBound = 'true';
+    element.addEventListener('mouseleave', () => {
+      this._hideTooltip();
+    });
+  });
 }
-populateProfileModal(modalContainer) {
-  if (!(modalContainer instanceof HTMLElement)) {
-    return;
-  }
 
-  const aliasElement = modalContainer.querySelector(
-    '#profile-alias'
-  );
+    // ============================================================
+    // Time, date and deadline
+    // ============================================================
 
-  const rankElement = modalContainer.querySelector(
-    '#profile-rank'
-  );
+    updateTime(data = {}) {
+        this.currentGameDay = Math.max(1, Number(data.day) || 1);
+        const hour = Phaser.Math.Clamp(Number(data.hour) || 0, 0, 23);
+        const minute = Phaser.Math.Clamp(Number(data.minute) || 0, 0, 59);
 
-  const pointsElement = modalContainer.querySelector(
-    '#profile-points'
-  );
+        if (this.dom.time) {
+            this.dom.time.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        }
+        if (this.dom.partOfDay) {
+            this.dom.partOfDay.textContent = String(data.partOfDay || 'Morning').toUpperCase();
+        }
 
-  const playerName = typeof gameState.playerName === 'string' &&
-    gameState.playerName.trim()
-    ? gameState.playerName.trim()
-    : 'Detective';
+        this._updateDateDisplay(this.currentGameDay);
+        this._updateDeadlineDisplay(this.currentGameDay);
+    }
 
-  const playerRank = typeof gameState.playerRank === 'string' &&
-    gameState.playerRank.trim()
-    ? gameState.playerRank.trim()
-    : 'Junior Agent';
-
-  const score = Number.isFinite(gameState.score)
-    ? Math.max(0, Math.floor(gameState.score))
-    : 0;
-
-  if (aliasElement) {
-    aliasElement.textContent = playerName;
-  }
-
-  if (rankElement) {
-    rankElement.textContent = playerRank;
-  }
-
-  if (pointsElement) {
-    pointsElement.textContent = score.toLocaleString('en-US');
-  }
-}
-    setClockHands(hour, minute) {
-        const { x: clockX, y: clockY } = this.clockCenterPos;
-
-        this.hourHand.clear();
-        this.minuteHand.clear();
-
-        const minuteAngle = ((minute / 60) * Math.PI * 2) - Math.PI / 2;
-        const hourAngle = (((hour % 12) / 12) * Math.PI * 2) + ((minute / 60) * (Math.PI * 2 / 12)) - Math.PI / 2;
-
-        this.hourHand.lineStyle(5, 0x2b1e16);
-        this.hourHand.lineBetween(
-            clockX, clockY,
-            clockX + Math.cos(hourAngle) * 20,
-            clockY + Math.sin(hourAngle) * 20
-        );
-
-        this.minuteHand.lineStyle(3, 0xae2012);
-        this.minuteHand.lineBetween(
-            clockX, clockY,
-            clockX + Math.cos(minuteAngle) * 28,
-            clockY + Math.sin(minuteAngle) * 28
+    _calculateDate(gameDay) {
+        return new Date(
+            this.startDate.year,
+            this.startDate.month,
+            this.startDate.day + gameDay - 1
         );
     }
 
-    updateHUD(timeData) {
-        const h = timeData.hour.toString().padStart(2, '0');
-        const m = timeData.minute.toString().padStart(2, '0');
-
-        this.dayText.setText(`DAY ${timeData.day}`);
-        this.timeText.setText(`${h}:${m}`);
-        this.partOfDayText.setText(timeData.partOfDay.toUpperCase());
-
-        this.setClockHands(timeData.hour, timeData.minute);
+    _updateDateDisplay(gameDay) {
+        const date = this._calculateDate(gameDay);
+        if (this.dom.month) {
+            this.dom.month.textContent = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        }
+        if (this.dom.day) {
+            this.dom.day.textContent = String(date.getDate()).padStart(2, '0');
+        }
     }
 
-    updateScore(scoreData) {
-    const total =
-        typeof scoreData === 'number'
-            ? scoreData
-            : scoreData?.total ?? gameState.score ?? 0;
+    _updateDeadlineDisplay(gameDay) {
+        const daysLeft = Math.max(0, this.missionDays - gameDay + 1);
+        const progress = Phaser.Math.Clamp((daysLeft / this.missionDays) * 100, 0, 100);
+        const color = daysLeft <= 1 ? '#ae2012' : daysLeft <= 2 ? '#ee9b00' : '#4caf50';
 
-    const safeTotal = Number.isFinite(total)
-        ? Math.max(0, Math.floor(total))
-        : 0;
-
-    gameState.score = safeTotal;
-
-    if (this.scoreText) {
-        this.scoreText.setText(`${safeTotal}`);
+        if (this.dom.deadlineValue) {
+            this.dom.deadlineValue.textContent = `${daysLeft}D`;
+            this.dom.deadlineValue.style.color = color;
+        }
+        if (this.dom.deadlineProgress) {
+            this.dom.deadlineProgress.style.width = `${progress}%`;
+            this.dom.deadlineProgress.style.backgroundColor = color;
+        }
     }
 
-    this.refreshOpenAgentModal();
-}
+    // ============================================================
+    // Energy — SVG must update stroke and fill, not style.color
+    // ============================================================
 
-    showGameOver(reason) {
+    _onEnergyChanged(data = {}) {
+        this.updateEnergy(data);
+        if (data.lastChange) this._showEnergyLogTemporarily();
+    }
+
+    updateEnergy(data = {}) {
+        const current = Number(data.current ?? this.energyManager.getCurrentEnergy()) || 0;
+        const maximum = Number(data.max ?? this.energyManager.maxEnergy) || 100;
+        const fraction = Phaser.Math.Clamp(current / maximum, 0, 1);
+        const color = this._colorToHex(data.color ?? this.energyManager.getEnergyColor());
+        const offset = ENERGY_CIRCUMFERENCE * (1 - fraction);
+
+        if (this.dom.energyFill) {
+            this.dom.energyFill.style.strokeDasharray = String(ENERGY_CIRCUMFERENCE);
+            this.dom.energyFill.style.strokeDashoffset = String(offset);
+            this.dom.energyFill.style.stroke = color;
+        }
+
+        // SVG path has fill, so setting color never changed its appearance.
+        if (this.dom.energyBolt) {
+            this.dom.energyBolt.style.fill = color;
+        }
+
+        this.dom.energyWrapper?.classList.toggle('low-energy', fraction <= 0.2);
+    }
+
+    _onEnergyWarning() {
+        const wrapper = this.dom.energyWrapper;
+        if (!wrapper) return;
+        wrapper.classList.remove('flash-warning');
+        void wrapper.offsetWidth;
+        wrapper.classList.add('flash-warning');
+        clearTimeout(this._warningTimer);
+        this._warningTimer = setTimeout(() => wrapper.classList.remove('flash-warning'), 1000);
+    }
+
+    _onEnergyZero() {
+        const wrapper = this.dom.energyWrapper;
+        if (!wrapper) return;
+        wrapper.classList.remove('shake-zero');
+        void wrapper.offsetWidth;
+        wrapper.classList.add('shake-zero');
+        clearTimeout(this._zeroTimer);
+        this._zeroTimer = setTimeout(() => wrapper.classList.remove('shake-zero'), 550);
+    }
+
+    // ============================================================
+    // Tooltips and energy log
+    // ============================================================
+
+    _showTooltip(content) {
+        if (!content || !this.dom.tooltipBg || this.dom.energyLogBg?.classList.contains('visible')) return;
+        if (this.dom.tooltipText) this.dom.tooltipText.textContent = content;
+        this.dom.tooltipBg.classList.add('visible');
+    }
+
+    _hideTooltip() {
+        this.dom.tooltipBg?.classList.remove('visible');
+    }
+
+    _setEnergyLogVisible(visible) {
+        if (!this.dom.energyLogBg) return;
+        this._hideTooltip();
+        this.dom.energyLogBg.classList.toggle('visible', visible);
+        if (visible) this._updateEnergyLogText();
+    }
+
+    _toggleEnergyLog() {
+        const visible = !this.dom.energyLogBg?.classList.contains('visible');
+        this._setEnergyLogVisible(visible);
+    }
+
+    _showEnergyLogTemporarily() {
+        clearTimeout(this._energyLogTimer);
+        this._setEnergyLogVisible(true);
+        this._energyLogTimer = setTimeout(() => {
+            this._setEnergyLogVisible(false);
+            this._energyLogTimer = null;
+        }, 4000);
+    }
+
+    _updateEnergyLogText() {
+        if (!this.dom.energyLogText) return;
+        const entries = this.energyManager.getEnergyLog()
+            .slice(-5)
+            .reverse()
+            .map((entry) => entry.label || 'Energy changed.');
+        this.dom.energyLogText.textContent = entries.length
+            ? entries.join('\n')
+            : 'No energy changes recorded.';
+    }
+
+    _getClockTooltip() {
+        return `TIME\n${this.dom.time?.textContent || '--:--'} — ${this.dom.partOfDay?.textContent || ''}\nConversations, travel and tasks move time forward.`;
+    }
+
+    _getDateTooltip() {
+        const date = this._calculateDate(this.currentGameDay);
+        const label = date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        return `CASE DATE\n${label}\nDay ${this.currentGameDay} of the investigation.`;
+    }
+
+    _getDeadlineTooltip() {
+        const daysLeft = Math.max(0, this.missionDays - this.currentGameDay + 1);
+        return `CASE DEADLINE\n${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.\nWhen time runs out, the case is over.`;
+    }
+
+    _getEnergyTooltip() {
+        const manager = this.energyManager;
+        const last = manager.lastEnergyChange?.label;
+        return [
+            `ENERGY: ${manager.getCurrentEnergy()}%`,
+            `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
+            manager.getEnergyTooltip(),
+            last ? `Last: ${last}` : 'Click the bolt for the full energy log.'
+        ].join('\n');
+    }
+
+    // ============================================================
+    // Score, cash and HTML modals
+    // ============================================================
+
+    updateScore(data) {
+        const rawScore = typeof data === 'object' ? data?.total : data;
+        const score = Math.max(0, Math.floor(Number(rawScore ?? gameState.score) || 0));
+        gameState.score = score;
+        if (this.dom.score) this.dom.score.textContent = score.toLocaleString('en-US');
+        this._refreshOpenAgentModal();
+    }
+
+    updateCash(data) {
+        const rawCash = typeof data === 'object' ? data?.total ?? data?.cash : data;
+        const cash = Math.max(0, Math.floor(Number(rawCash ?? 250) || 0));
+        if (this.dom.cash) this.dom.cash.textContent = `$${cash.toLocaleString('en-US')}`;
+    }
+
+    openSettings() {
+        if (!this.scene.isActive('SettingsScene')) this.scene.launch('SettingsScene');
+        this.scene.bringToTop('SettingsScene');
+    }
+
+    async openProfileModal() {
+        const modal = await this._loadHtmlModal('profile.html', 'profile-modal', 'btn-close-profile');
+        if (!modal) return;
+        this._populateProfileModalData(modal);
+        modal.style.display = 'flex';
+    }
+
+    async openAgentModal() {
+        const modal = await this._loadHtmlModal('agent.html', 'agent-modal', 'btn-close-agent');
+        if (!modal) return;
+        this._populateAgentModalData(modal);
+        modal.style.display = 'flex';
+    }
+
+    async _loadHtmlModal(fileName, modalId, closeButtonId) {
+        let modal = document.getElementById(modalId);
+        if (modal instanceof HTMLElement) return modal;
+
+        try {
+            const response = await fetch(fileName, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const fragment = new DOMParser().parseFromString(await response.text(), 'text/html');
+            modal = fragment.getElementById(modalId);
+            if (!(modal instanceof HTMLElement)) throw new Error(`Missing #${modalId} in ${fileName}`);
+            document.body.appendChild(modal);
+            this._setupModalEvents(modal, closeButtonId);
+            return modal;
+        } catch (error) {
+            console.error('[UIScene] Modal load error:', error);
+            return null;
+        }
+    }
+
+    _setupModalEvents(modal, closeButtonId) {
+        if (modal.dataset.eventsBound === 'true') return;
+        modal.querySelector(`#${closeButtonId}`)?.addEventListener('click', () => { modal.style.display = 'none'; });
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) modal.style.display = 'none';
+        });
+        modal.dataset.eventsBound = 'true';
+    }
+
+    _populateProfileModalData(modal) {
+        const difficultyData = {
+            rookie: ['ROOKIE DETECTIVE', 'Extra guidance. More retries. Less paperwork.'],
+            field: ['FIELD AGENT', 'Standard Mark Agency field procedure.'],
+            master: ['MASTER SLEUTH', 'Fewer second chances. Better coffee not guaranteed.']
+        };
+        const currentDifficulty = this.registry.get('difficulty') || gameState.difficulty || 'field';
+        const selected = difficultyData[currentDifficulty] || difficultyData.field;
+        this._setHtmlText(modal, '#profile-alias', gameState.playerName || 'Detective');
+        this._setHtmlText(modal, '#profile-rank', gameState.playerRank || 'Junior Agent');
+        this._setHtmlText(modal, '#profile-points', Number(gameState.score || 0).toLocaleString('en-US'));
+        this._setHtmlText(modal, '#profile-difficulty', selected[0]);
+        this._setHtmlText(modal, '#profile-difficulty-description', selected[1]);
+    }
+
+    _populateAgentModalData(modal) {
+        this._setHtmlText(modal, '#agent-name, #agent-alias', gameState.playerName || gameState.agentName || 'Detective');
+        this._setHtmlText(modal, '#agent-score, #agent-points', Number(gameState.score || 0).toLocaleString('en-US'));
+        this._renderAchievementsGrid(modal);
+    }
+
+    _refreshOpenAgentModal() {
+        const modal = document.getElementById('agent-modal');
+        if (modal instanceof HTMLElement && modal.style.display !== 'none') this._populateAgentModalData(modal);
+    }
+
+    _renderAchievementsGrid(modal) {
+        const grid = modal.querySelector('#achievement-grid');
+        if (!(grid instanceof HTMLElement)) return;
+
+        const achievements = [
+            ...getAchievementList().filter((item) => hasAchievement(item.id)),
+            ...getAchievementList().filter((item) => !hasAchievement(item.id))
+        ].slice(0, 4);
+        grid.replaceChildren();
+
+        achievements.forEach((achievement) => {
+            const unlocked = hasAchievement(achievement.id);
+            const item = document.createElement('div');
+            item.className = unlocked ? 'achievement-item' : 'achievement-item locked';
+            item.title = unlocked ? achievement.description : 'Achievement locked';
+            const icon = document.createElement('span');
+            icon.className = 'achievement-icon';
+            icon.textContent = unlocked ? achievement.icon : '🔒';
+            const title = document.createElement('span');
+            title.className = 'achievement-title';
+            title.textContent = unlocked ? achievement.title : 'CLASSIFIED';
+            item.append(icon, title);
+            grid.appendChild(item);
+        });
+    }
+
+    _setHtmlText(container, selector, text) {
+        const element = container.querySelector(selector);
+        if (element) element.textContent = text;
+    }
+
+    _colorToHex(color) {
+        return `#${Number(color).toString(16).padStart(6, '0')}`;
+    }
+
+    _showGameOver(reason) {
         this.scene.stop();
-        this.scene.start('GameOverScene', { reason: reason });
+        this.scene.start('GameOverScene', { reason });
     }
 }
+
+export default UIScene;

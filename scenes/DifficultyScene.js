@@ -2,6 +2,7 @@ import { setupNewGame } from '../gameSetup.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class DifficultyScene extends BaseScene {
     constructor() {
@@ -181,12 +182,7 @@ this.registry.set('gameState', gameState);
                 structuredClone(locationsData),
             );
 
-            this.scene.wake('UIScene');
-if (this.scene.isSleeping('EnergyHudScene')) {
-    this.scene.wake('EnergyHudScene');
-} else if (!this.scene.isActive('EnergyHudScene')) {
-    this.scene.launch('EnergyHudScene');
-}
+EventBus.emit('hideHUD');
             this.scene.start('GameScene', {
                 fromSave: false,
             });

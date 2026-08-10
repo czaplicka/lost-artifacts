@@ -14,7 +14,6 @@ import { ArrestSelectionScene } from './scenes/ArrestSelectionScene.js';
 import { AgainScene } from './scenes/AgainScene.js';
 import { SuccessScene } from './scenes/SuccessScene.js';
 import { DifficultyScene } from './scenes/DifficultyScene.js';
-import { EnergyHudScene } from './scenes/EnergyHudScene.js';
 import { HotelScene } from './scenes/HotelScene.js';
 
 import { UIScene } from './ui/UIScene.js';
@@ -76,7 +75,6 @@ const config = {
     NewspaperOverlayScene,
     EnterScene,
     TvBroadcastScene,
-    EnergyHudScene,
 
     UIScene,
     NewsHud,

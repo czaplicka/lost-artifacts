@@ -3,20 +3,20 @@ import { gameState } from './GameData.js';
 
 // ============================================================
 // EnergyManager.js
-// Singleton manager systemu energii dla Lost Artifacts
-// - Zarządza poziomem energii gracza (0-100)
-// - Skaluje zużycie energii w zależności od poziomu trudności
-// - Emituje eventy dla UI i logów
-// - Obsługuje zasyspianie na 0% (time penalty)
+// Singleton manager energii. Stan energii jest niezależny od HUD.
+// Przy 0% gracz zasypia na 6 godzin CZASU GRY.
+// GameTimeManager słucha eventu: advanceTime(hours, minutes).
 // ============================================================
 
+const FORCED_SLEEP_HOURS = 6;
+const FORCED_SLEEP_ANIMATION_MS = 2000;
+
 const DIFFICULTY_MULTIPLIERS = {
-  rookie: 0.7,    // -30% zużycia
-  field: 1.0,     // baseline
-  master: 1.4     // +40% zużycia
+  rookie: 0.7,
+  field: 1.0,
+  master: 1.4
 };
 
-// Wartości bazowe (dla difficulty: field)
 const ENERGY_COSTS = {
   travel: {
     taxi: 8,
@@ -39,9 +39,9 @@ const ENERGY_COSTS = {
 };
 
 const ENERGY_RECOVERY = {
-  sleep_short: 40,      // 2h
-  sleep_medium: 60,     // 4h
-  sleep_full: 100,      // 8h+
+  sleep_short: 40,
+  sleep_medium: 60,
+  sleep_full: 100,
   food_cheap: 10,
   food_normal: 15,
   food_expensive: 20,
@@ -51,31 +51,29 @@ const ENERGY_RECOVERY = {
 };
 
 const ENERGY_THRESHOLDS = {
-  fresh: { min: 61, max: 100, status: 'Fresh', color: 0x4CAF50 },
-  tired: { min: 31, max: 60, status: 'Tired', color: 0xFF9800 },
-  exhausted: { min: 0, max: 30, status: 'Exhausted', color: 0xF44336 }
+  fresh: { min: 61, status: 'Fresh', color: 0x4CAF50 },
+  tired: { min: 31, status: 'Tired', color: 0xFF9800 },
+  exhausted: { min: 0, status: 'Exhausted', color: 0xF44336 }
 };
 
 const ENERGY_TOOLTIPS = {
-  '80-100': 'Functioning adult.',
-  '50-79': 'Running on coffee and denial.',
-  '20-49': 'Questionable detective choices ahead.',
-  '0-19': 'Legally too tired to solve crimes.'
+  high: 'Functioning adult.',
+  medium: 'Running on coffee and denial.',
+  low: 'Questionable detective choices ahead.',
+  critical: 'Legally too tired to solve crimes.'
 };
 
 class EnergyManager {
   constructor() {
     this.currentEnergy = 100;
     this.maxEnergy = 100;
-    this.difficulty = 'field'; // rookie, field, master
+    this.difficulty = 'field';
     this.energyLog = [];
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
+    this.forcedSleepTimer = null;
   }
 
-  /**
-   * Inicjalizuje manager na początek gry
-   */
   init(difficulty = 'field') {
     if (!DIFFICULTY_MULTIPLIERS[difficulty]) {
       console.warn(`Unknown difficulty: ${difficulty}, defaulting to field`);
@@ -88,10 +86,12 @@ class EnergyManager {
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
 
-    gameState.energy = this.maxEnergy;
-    gameState.energyLog = [];
-    gameState.difficulty = difficulty;
+    if (this.forcedSleepTimer) {
+      clearTimeout(this.forcedSleepTimer);
+      this.forcedSleepTimer = null;
+    }
 
+    this._syncToGameState();
     EventBus.emit('energyInitialized', {
       energy: this.currentEnergy,
       difficulty: this.difficulty,
@@ -99,97 +99,98 @@ class EnergyManager {
     });
   }
 
-  /**
-   * Pobiera mnożnik trudności
-   */
   getDifficultyMultiplier() {
     return DIFFICULTY_MULTIPLIERS[this.difficulty] || 1.0;
   }
 
-  /**
-   * Pobrania skalowanego kosztu energii
-   */
   scaleCost(baseCost) {
     return Math.ceil(baseCost * this.getDifficultyMultiplier());
   }
 
-  /**
-   * Pobiera status energii (Fresh, Tired, Exhausted)
-   */
   getEnergyStatus() {
-    const energy = this.currentEnergy;
-    if (energy >= ENERGY_THRESHOLDS.fresh.min) {
+    if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.status;
-    } else if (energy >= ENERGY_THRESHOLDS.tired.min) {
+    }
+    if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
       return ENERGY_THRESHOLDS.tired.status;
-    } else {
-      return ENERGY_THRESHOLDS.exhausted.status;
     }
+    return ENERGY_THRESHOLDS.exhausted.status;
   }
 
-  /**
-   * Pobiera kolor statusu energii
-   */
   getEnergyColor() {
-    const energy = this.currentEnergy;
-    if (energy >= ENERGY_THRESHOLDS.fresh.min) {
+    if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.color;
-    } else if (energy >= ENERGY_THRESHOLDS.tired.min) {
-      return ENERGY_THRESHOLDS.tired.color;
-    } else {
-      return ENERGY_THRESHOLDS.exhausted.color;
     }
+    if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
+      return ENERGY_THRESHOLDS.tired.color;
+    }
+    return ENERGY_THRESHOLDS.exhausted.color;
   }
 
-  /**
-   * Pobiera tooltip dla bieżącego poziomu energii
-   */
   getEnergyTooltip() {
-    const energy = this.currentEnergy;
-    if (energy >= 80) return ENERGY_TOOLTIPS['80-100'];
-    if (energy >= 50) return ENERGY_TOOLTIPS['50-79'];
-    if (energy >= 20) return ENERGY_TOOLTIPS['20-49'];
-    return ENERGY_TOOLTIPS['0-19'];
+    if (this.currentEnergy >= 80) return ENERGY_TOOLTIPS.high;
+    if (this.currentEnergy >= 50) return ENERGY_TOOLTIPS.medium;
+    if (this.currentEnergy >= 20) return ENERGY_TOOLTIPS.low;
+    return ENERGY_TOOLTIPS.critical;
   }
 
-  /**
-   * Zużywa energię dla podróży
-   */
   consumeTravel(transportType = 'train') {
     const baseCost = ENERGY_COSTS.travel[transportType] || ENERGY_COSTS.travel.train;
-    const scaledCost = this.scaleCost(baseCost);
-    const label = `Travel (${transportType}): -${scaledCost}`;
-
-    return this._consumeEnergy(scaledCost, label);
+    const cost = this.scaleCost(baseCost);
+    return this._consumeEnergy(cost, `Travel (${transportType}): -${cost}`);
   }
 
-  /**
-   * Zużywa energię dla rozmowy
-   */
   consumeInterview(duration = 'medium') {
-    const baseCost = ENERGY_COSTS.interaction[`interview_${duration}`] || 4;
-    const scaledCost = this.scaleCost(baseCost);
-    const label = `Interview: -${scaledCost}`;
-
-    return this._consumeEnergy(scaledCost, label);
+    const baseCost = ENERGY_COSTS.interaction[`interview_${duration}`] || ENERGY_COSTS.interaction.interview_medium;
+    const cost = this.scaleCost(baseCost);
+    return this._consumeEnergy(cost, `Interview: -${cost}`);
   }
 
-  /**
-   * Zużywa energię dla aktywności
-   */
   consumeActivity(activityType = 'minigame_forensic') {
-    const baseCost = ENERGY_COSTS.activity[activityType] || 8;
-    const scaledCost = this.scaleCost(baseCost);
-    const label = `Activity (${activityType}): -${scaledCost}`;
-
-    return this._consumeEnergy(scaledCost, label);
+    const baseCost = ENERGY_COSTS.activity[activityType] || ENERGY_COSTS.activity.minigame_forensic;
+    const cost = this.scaleCost(baseCost);
+    return this._consumeEnergy(cost, `Activity (${activityType}): -${cost}`);
   }
 
-  /**
-   * Zużywa energię (wewnętrzna metoda)
-   */
-  _consumeEnergy(amount, label = 'Energy consumed') {
+  sleep(sleepHours = 8) {
+    if (sleepHours <= 0) return { success: false, reason: 'invalid_sleep_duration' };
+
+    let recoveryAmount = ENERGY_RECOVERY.sleep_full;
+    let sleepType = 'full';
+
+    if (sleepHours <= 2) {
+      recoveryAmount = ENERGY_RECOVERY.sleep_short;
+      sleepType = 'short';
+    } else if (sleepHours <= 4) {
+      recoveryAmount = ENERGY_RECOVERY.sleep_medium;
+      sleepType = 'medium';
+    }
+
+    if (this.difficulty === 'rookie') {
+      recoveryAmount = Math.ceil(recoveryAmount * 1.15);
+    }
+
+    return this._recoverEnergy(
+      recoveryAmount,
+      `Sleep (${sleepHours}h): +${recoveryAmount}`,
+      'sleep',
+      sleepType
+    );
+  }
+
+  eat(foodQuality = 'normal') {
+    const recovery = ENERGY_RECOVERY[`food_${foodQuality}`] || ENERGY_RECOVERY.food_normal;
+    return this._recoverEnergy(recovery, `Food (${foodQuality}): +${recovery}`, 'food', foodQuality);
+  }
+
+  drink(drinkQuality = 'normal') {
+    const recovery = ENERGY_RECOVERY[`drink_${drinkQuality}`] || ENERGY_RECOVERY.drink_normal;
+    return this._recoverEnergy(recovery, `Drink (${drinkQuality}): +${recovery}`, 'drink', drinkQuality);
+  }
+
+  _consumeEnergy(amount, label) {
     if (amount <= 0) return { success: false, reason: 'invalid_amount' };
+    if (this.isSleepingForced) return { success: false, reason: 'forced_sleep_active' };
 
     const previousEnergy = this.currentEnergy;
     this.currentEnergy = Math.max(0, this.currentEnergy - amount);
@@ -203,11 +204,8 @@ class EnergyManager {
       timestamp: Date.now()
     };
 
-    this._logEnergyChange();
-    this._syncToGameState();
-    this._emitEnergyChanged();
+    this._recordAndEmit();
 
-    // Sprawdzenie czy gracz zapada w sen na stojąco
     if (this.currentEnergy === 0) {
       this._triggerForcedSleep();
       return {
@@ -219,7 +217,6 @@ class EnergyManager {
       };
     }
 
-    // Warning przy 20%
     if (previousEnergy > 20 && this.currentEnergy <= 20) {
       EventBus.emit('energyWarning', {
         energy: this.currentEnergy,
@@ -236,83 +233,26 @@ class EnergyManager {
     };
   }
 
-  /**
-   * Regeneruje energię (spanie)
-   */
-  sleep(sleepHours = 8) {
-    if (sleepHours <= 0) {
-      return { success: false, reason: 'invalid_sleep_duration' };
-    }
-
-    let recoveryAmount;
-    let sleepType;
-
-    if (sleepHours <= 2) {
-      recoveryAmount = ENERGY_RECOVERY.sleep_short;
-      sleepType = 'short';
-    } else if (sleepHours <= 4) {
-      recoveryAmount = ENERGY_RECOVERY.sleep_medium;
-      sleepType = 'medium';
-    } else {
-      recoveryAmount = ENERGY_RECOVERY.sleep_full;
-      sleepType = 'full';
-    }
-
-    // Skalowanie dla trudności (spanie się nie skaluje negatywnie dla Master)
-    // ale zwiększamy regenerację dla Rookie
-    const diffMultiplier = this.difficulty === 'rookie' ? 1.15 : 1.0;
-    recoveryAmount = Math.ceil(recoveryAmount * diffMultiplier);
-
-    const label = `Sleep (${sleepHours}h): +${recoveryAmount}`;
-    return this._recoverEnergy(recoveryAmount, label, sleepType, sleepHours);
-  }
-
-  /**
-   * Regeneruje energię (jedzenie)
-   */
-  eat(foodQuality = 'normal') {
-    const recoveryAmount = ENERGY_RECOVERY[`food_${foodQuality}`] || 15;
-    const label = `Food (${foodQuality}): +${recoveryAmount}`;
-
-    return this._recoverEnergy(recoveryAmount, label, 'food', foodQuality);
-  }
-
-  /**
-   * Regeneruje energię (picie)
-   */
-  drink(drinkQuality = 'normal') {
-    const recoveryAmount = ENERGY_RECOVERY[`drink_${drinkQuality}`] || 8;
-    const label = `Drink (${drinkQuality}): +${recoveryAmount}`;
-
-    return this._recoverEnergy(recoveryAmount, label, 'drink', drinkQuality);
-  }
-
-  /**
-   * Regeneruje energię (wewnętrzna metoda)
-   */
-  _recoverEnergy(amount, label = 'Energy recovered', type = 'unknown', subtype = '') {
+  _recoverEnergy(amount, label, recoveryType = 'unknown', recoverySubtype = '') {
     if (amount <= 0) return { success: false, reason: 'invalid_amount' };
 
     const previousEnergy = this.currentEnergy;
     this.currentEnergy = Math.min(this.maxEnergy, this.currentEnergy + amount);
-
     const actualRecovery = this.currentEnergy - previousEnergy;
 
     this.lastEnergyChange = {
       type: 'recover',
       amount: actualRecovery,
       label,
-      recoveryType: type,
-      recoverySubtype: subtype,
+      recoveryType,
+      recoverySubtype,
       beforeEnergy: previousEnergy,
       afterEnergy: this.currentEnergy,
       timestamp: Date.now()
     };
 
-    this._logEnergyChange();
-    this._syncToGameState();
-    this._emitEnergyChanged();
     this.isSleepingForced = false;
+    this._recordAndEmit();
 
     return {
       success: true,
@@ -322,60 +262,69 @@ class EnergyManager {
     };
   }
 
-  /**
-   * Wewnętrzny handler dla wymuszenia snu na 0% energii
-   */
   _triggerForcedSleep() {
+    if (this.isSleepingForced) return;
+
     this.isSleepingForced = true;
 
     EventBus.emit('energyZero', {
       energy: 0,
       status: 'Exhausted',
-      message: 'You collapse from exhaustion and sleep for 8 hours...'
+      sleepHours: FORCED_SLEEP_HOURS,
+      message: `You collapse from exhaustion and sleep for ${FORCED_SLEEP_HOURS} hours...`
     });
 
-    // Gracz śpi 8 godzin i regeneruje do 100
-    setTimeout(() => {
-      if (this.isSleepingForced) {
-        this.currentEnergy = this.maxEnergy;
-        this._syncToGameState();
-        this._emitEnergyChanged();
-        this.isSleepingForced = false;
+    // GameTimeManager już słucha tego eventu i wykonuje handleAdvanceTime.
+    // 6 godzin może zmienić dzień; wtedy zwykły kalendarz i deadline
+    // zostaną automatycznie zaktualizowane przez timeChanged.
+    EventBus.emit('advanceTime', FORCED_SLEEP_HOURS, 0);
 
-        EventBus.emit('energyRecovered', {
-          energy: this.maxEnergy,
-          reason: 'forced_sleep'
-        });
-      }
-    }, 2000);
+    // Te 2 sekundy są tylko czasem na animację / komunikat dla gracza.
+    this.forcedSleepTimer = setTimeout(() => {
+      if (!this.isSleepingForced) return;
+
+      const previousEnergy = this.currentEnergy;
+      this.currentEnergy = this.maxEnergy;
+      this.lastEnergyChange = {
+        type: 'recover',
+        amount: this.maxEnergy - previousEnergy,
+        label: `Forced sleep (${FORCED_SLEEP_HOURS}h): +${this.maxEnergy - previousEnergy}`,
+        recoveryType: 'forced_sleep',
+        recoverySubtype: 'collapse',
+        beforeEnergy: previousEnergy,
+        afterEnergy: this.currentEnergy,
+        timestamp: Date.now()
+      };
+      this.isSleepingForced = false;
+      this.forcedSleepTimer = null;
+      this._recordAndEmit();
+
+      EventBus.emit('energyRecovered', {
+        energy: this.currentEnergy,
+        sleepHours: FORCED_SLEEP_HOURS,
+        reason: 'forced_sleep'
+      });
+    }, FORCED_SLEEP_ANIMATION_MS);
   }
 
-  /**
-   * Loguje zmianę energii
-   */
+  _recordAndEmit() {
+    this._logEnergyChange();
+    this._syncToGameState();
+    this._emitEnergyChanged();
+  }
+
   _logEnergyChange() {
     if (!this.lastEnergyChange) return;
-
     this.energyLog.push(structuredClone(this.lastEnergyChange));
-
-    // Limit logu do ostatnich 50 wpisów
-    if (this.energyLog.length > 50) {
-      this.energyLog.shift();
-    }
+    if (this.energyLog.length > 50) this.energyLog.shift();
   }
 
-  /**
-   * Synchronizuje do gameState
-   */
   _syncToGameState() {
     gameState.energy = this.currentEnergy;
     gameState.energyLog = [...this.energyLog];
     gameState.difficulty = this.difficulty;
   }
 
-  /**
-   * Emituje event o zmianie energii
-   */
   _emitEnergyChanged() {
     EventBus.emit('energyChanged', {
       current: this.currentEnergy,
@@ -388,30 +337,18 @@ class EnergyManager {
     });
   }
 
-  /**
-   * Pobiera bieżący poziom energii
-   */
   getCurrentEnergy() {
     return this.currentEnergy;
   }
 
-  /**
-   * Pobiera log energii
-   */
   getEnergyLog() {
     return [...this.energyLog];
   }
 
-  /**
-   * Resetuje energię (nowa gra)
-   */
   reset(difficulty = 'field') {
     this.init(difficulty);
   }
 
-  /**
-   * Restoruje energię z savedata
-   */
   restore(data = {}) {
     if (Number.isFinite(data.energy)) {
       this.currentEnergy = Math.max(0, Math.min(this.maxEnergy, data.energy));
@@ -427,9 +364,6 @@ class EnergyManager {
     this._emitEnergyChanged();
   }
 
-  /**
-   * Serializuje do save data
-   */
   serialize() {
     return {
       energy: this.currentEnergy,
@@ -440,7 +374,6 @@ class EnergyManager {
   }
 }
 
-// Singleton instance
 let energyManagerInstance = null;
 
 export function getEnergyManager() {

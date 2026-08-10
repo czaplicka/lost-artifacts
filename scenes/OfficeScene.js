@@ -2,6 +2,7 @@ import { audioManager } from '../AudioManager.js';
 import { OfficeSaveUI } from '../OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class OfficeScene extends BaseScene {
     constructor() {
@@ -38,7 +39,7 @@ init(data = {}) {
         audioManager.init(this);
         audioManager.stopAllVoice();
         audioManager.stopAllSfx();
-
+EventBus.emit('showHUD');
         const { width, height } = this.scale;
                   this.scene.launch('NewsHud');
 this.scene.bringToTop('NewsHud');

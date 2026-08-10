@@ -1,5 +1,6 @@
 import { supabase } from '../supabase-client.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class EnterScene extends BaseScene {
   constructor() {
@@ -15,7 +16,7 @@ export class EnterScene extends BaseScene {
         super.create();
     const { width, height } = this.scale;
 
-    this.scene.sleep('UIScene');
+EventBus.emit('hideHUD');
 
     const centerX = width * 0.23;
 

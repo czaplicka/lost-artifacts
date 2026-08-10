@@ -43,7 +43,7 @@ audioManager.init(this);
 if (!audioManager.isMusicPlaying('themeMusic')) {
     audioManager.playMusic('themeMusic', { loop: true });
 }
-this.scene.wake('UIScene');
+EventBus.emit('hideHUD');
 this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
 this.timeManager = new GameTimeManager();
 

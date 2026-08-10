@@ -1,6 +1,7 @@
 import { loadGameState } from '../GameData.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class BootScene extends BaseScene {
     constructor() {
@@ -14,6 +15,7 @@ export class BootScene extends BaseScene {
 
     create() {
             super.create();
+            EventBus.emit('hideHUD');
         try {
             loadGameState();
         } catch (error) {

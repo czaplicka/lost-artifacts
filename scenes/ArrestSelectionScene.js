@@ -61,7 +61,7 @@ export class ArrestSelectionScene extends BaseScene {
     super.create();
     audioManager.stopSfx();
     audioManager.stopAllMusic();
-    this.scene.sleep('UIScene');
+EventBus.emit('hideHUD');
     this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     ensureHud(this);
     this.closeAllUIPanels();

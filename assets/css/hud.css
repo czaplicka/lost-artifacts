@@ -1,0 +1,403 @@
+#hud-container,
+#hud-container * {
+  box-sizing: border-box;
+}
+
+#hud-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2000;
+  display: block;
+  width: min(calc(100% - 20px), 560px);
+  padding: 8px;
+  color: #2b1e16;
+  background: #2b1e16;
+  border: 3px solid #1a0f0a;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 70%);
+  font-family: 'Courier New', monospace;
+  user-select: none;
+}
+
+.hud-paper-bg {
+  display: grid;
+  grid-template-columns: 1.05fr 0.85fr 1fr 0.8fr;
+  align-items: center;
+  min-height: 72px;
+  padding: 7px 8px;
+  background: #f1e4c3;
+  border: 1px solid #bfa074;
+  border-radius: 4px;
+}
+
+.hud-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 54px;
+  padding: 0 8px;
+  border-right: 1px solid #cfb58d;
+}
+
+.hud-cell:last-child {
+  border-right: 0;
+}
+
+#clock-target,
+#date-target,
+#deadline-target,
+#energy-target,
+#score-target,
+#cash-target {
+  cursor: help;
+}
+
+/* Clock */
+.digital-clock-display {
+  min-width: 76px;
+  padding: 7px 8px 6px;
+  text-align: center;
+  background: #091209;
+  border: 2px solid #2b1e16;
+  border-radius: 4px;
+  box-shadow: inset 0 0 6px rgb(0 0 0 / 90%);
+}
+
+.clock-digital {
+  display: block;
+  color: #53ff53;
+  font-family: 'Courier New', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1;
+  text-shadow: 0 0 4px rgb(83 255 83 / 70%);
+}
+
+.clock-period {
+  display: block;
+  margin-top: 5px;
+  color: #42a842;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+/* Calendar */
+.calendar-card {
+  position: relative;
+  width: 52px;
+  overflow: visible;
+  background: #fffcf2;
+  border: 2px solid #2b1e16;
+  border-radius: 4px;
+  box-shadow: 1px 2px 0 rgb(43 30 22 / 25%);
+}
+
+.calendar-rings {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-around;
+}
+
+.calendar-rings span {
+  width: 6px;
+  height: 8px;
+  background: #1a0f0a;
+  border: 1px solid #f1e4c3;
+  border-radius: 2px;
+}
+
+.date-header {
+  padding: 5px 0 4px;
+  color: #fff7df;
+  background: #a82418;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  text-align: center;
+}
+
+.date-body {
+  padding: 5px 0 4px;
+  color: #2b1e16;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Deadline: hourglass + compact progress */
+.hourglass-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hourglass-icon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  fill: #5a3e2b;
+}
+
+.deadline-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 43px;
+}
+
+.deadline-value {
+  color: #2b1e16;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.deadline-progress-bg {
+  width: 42px;
+  height: 5px;
+  overflow: hidden;
+  background: #d8caad;
+  border: 1px solid #947a58;
+  border-radius: 3px;
+}
+
+.deadline-progress-fill {
+  width: 100%;
+  height: 100%;
+  background: #4caf50;
+  border-radius: 2px;
+  transition: width 280ms ease, background-color 280ms ease;
+}
+
+/* Energy: SVG circle MUST use stroke/fill, not color. */
+.energy-wrapper {
+  position: relative;
+  display: flex;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+}
+
+.energy-circle {
+  width: 48px;
+  height: 48px;
+  overflow: visible;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.energy-bg,
+.energy-fill {
+  fill: none;
+  stroke-width: 8;
+}
+
+.energy-bg {
+  stroke: #d8caad;
+}
+
+.energy-fill {
+  stroke: #4caf50;
+  stroke-dasharray: 251.327;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  transition: stroke 220ms ease, stroke-dashoffset 320ms ease;
+}
+
+.energy-bolt-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.energy-bolt-path {
+  fill: #4caf50;
+  stroke: #2b1e16;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  transition: fill 220ms ease;
+}
+
+.energy-wrapper.low-energy {
+  animation: energy-pulse 760ms ease-in-out infinite;
+}
+
+.energy-wrapper.flash-warning {
+  animation: energy-flash 220ms ease-in-out 3;
+}
+
+.energy-wrapper.shake-zero {
+  animation: energy-shake 70ms linear 6;
+}
+
+@keyframes energy-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+@keyframes energy-flash {
+  50% { opacity: 0.25; }
+}
+
+@keyframes energy-shake {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+/* Bottom row */
+.hud-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 7px 10px;
+  background: #1a0f0a;
+  border-radius: 4px;
+}
+
+.stat-group,
+.hud-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.stat-group {
+  gap: 14px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  min-width: 100px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stat-item .label {
+  color: #a28970;
+}
+
+.stat-item .value {
+  color: #fff7df;
+  font-size: 14px;
+}
+
+.stat-item .value.score {
+  color: #ee9b00;
+}
+
+.stat-item .value.cash {
+  color: #52b788;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 20px;
+  background: #4a3525;
+}
+
+.hud-buttons {
+  gap: 9px;
+}
+
+.hud-icon-btn {
+  width: 29px;
+  height: 29px;
+  padding: 2px;
+  object-fit: contain;
+  cursor: pointer;
+  background: #2b1e16;
+  border: 1px solid #8c684d;
+  border-radius: 50%;
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.hud-icon-btn:hover {
+  background: #4a3525;
+  border-color: #e0bd82;
+  transform: translateY(-1px) scale(1.08);
+}
+
+/* Tooltip and energy log. pointer-events:none stops hover flicker. */
+.hud-tooltip,
+.hud-energy-log {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  left: 0;
+  z-index: 1001;
+  display: none;
+  padding: 11px 14px;
+  color: #f1e4c3;
+  background: #1a0f0a;
+  border: 1px solid #8c684d;
+  border-radius: 6px;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 80%);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+.hud-tooltip.visible,
+.hud-energy-log.visible {
+  display: block;
+}
+
+.hud-energy-log {
+  border-color: #a82418;
+}
+
+@media (max-width: 540px) {
+  #hud-container {
+    right: 6px;
+    width: calc(100% - 12px);
+    padding: 6px;
+  }
+
+  .hud-paper-bg {
+    grid-template-columns: 1fr 0.75fr 0.85fr 0.65fr;
+    padding: 6px 2px;
+  }
+
+  .hud-cell {
+    padding: 0 4px;
+  }
+
+  .digital-clock-display {
+    min-width: 67px;
+  }
+
+  .clock-digital {
+    font-size: 14px;
+  }
+
+  .stat-item {
+    min-width: auto;
+  }
+
+  .stat-group {
+    gap: 8px;
+  }
+}

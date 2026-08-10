@@ -3,6 +3,11 @@
     "id": "london",
     "city": "London",
     "country": "United Kingdom",
+    "travelRegion": "europe",
+    "airport": true,
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
     "background": "london.jpg",
     "npcTheme": "white",
     "map": { "x": 890, "y": 340 },
@@ -22,19 +27,20 @@
       { "id": "london_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "london_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "paris",
     "city": "Paris",
     "country": "France",
+    "travelRegion": "europe",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
     "background": "paris.jpg",
     "npcTheme": "white",
-    "map": { "x": 920, "y": 400 },
+    "map": { "x": 910, "y": 410 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 250, "cityY": 380, "enabled": true },
@@ -50,19 +56,20 @@
       { "id": "paris_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "paris_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "new_delhi",
     "city": "New Delhi",
     "country": "India",
+    "travelRegion": "south_asia",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
     "background": "new_delhi.jpg",
-    "npcTheme": "hindu",
-    "map": { "x": 1290, "y": 480 },
+    "npcTheme": "south_asian",
+    "map": { "x": 1290, "y": 490 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 270, "cityY": 400, "enabled": true },
@@ -79,19 +86,20 @@
       { "id": "new_delhi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "new_delhi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "warsaw",
     "city": "Warsaw",
     "country": "Poland",
+    "travelRegion": "europe",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
     "background": "warsaw.jpg",
     "npcTheme": "white",
-    "map": { "x": 1050, "y": 360 },
+    "map": { "x": 1030, "y": 360 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
@@ -108,16 +116,17 @@
       { "id": "warsaw_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "warsaw_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "new_york_city",
     "city": "New York City",
     "country": "USA",
+    "travelRegion": "north_america",
+    "airport": true,
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
     "background": "new_york_city.jpg",
     "npcTheme": "white",
     "map": { "x": 600, "y": 400 },
@@ -137,16 +146,17 @@
       { "id": "new_york_city_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "new_york_city_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "berlin",
     "city": "Berlin",
     "country": "Germany",
+    "travelRegion": "europe",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
     "background": "berlin.jpg",
     "npcTheme": "white",
     "map": { "x": 985, "y": 335 },
@@ -166,16 +176,17 @@
       { "id": "berlin_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "berlin_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
     "id": "toronto",
     "city": "Toronto",
     "country": "Canada",
+    "travelRegion": "north_america",
+    "airport": true,
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
     "background": "toronto.jpg",
     "npcTheme": "white",
     "map": { "x": 480, "y": 360 },
@@ -195,142 +206,143 @@
       { "id": "toronto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "toronto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": {
-      "count": 3,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
   },
   {
-  "id": "kotto",
-  "city": "Kotto",
-  "country": "Sri Lanka",
-  "background": "kotto.jpg",
-  "npcTheme": "hindu",
-  "map": { "x": 1295, "y": 500  },
-  "isCrimeCity": true,
-  "encounterSlots": [
-    { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
-    { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
-    { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
-  ],
-  "encounterPool": [
-    { "id": "kotto_bankier_bank", "npcId": "bankier", "locationId": "bank" },
-    { "id": "kotto_fence_alley", "npcId": "fence", "locationId": "alley" },
-    { "id": "kotto_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
-    { "id": "kotto_maid_hotel", "npcId": "maid", "locationId": "hotel" },
-    { "id": "kotto_police_policehq", "npcId": "police", "locationId": "policehq" },
-    { "id": "kotto_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-    { "id": "kotto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
-    { "id": "kotto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
-  ],
-  "encounterRules": {
-    "count": 3,
-    "uniqueNpc": true,
-    "uniqueLocation": true
-  }
-},
-{
-  "id": "islamabad",
-  "city": "Islamabad",
-  "country": "Pakistan",
-  "background": "islamabad.jpg",
-  "npcTheme": "hindu",
-  "map": { "x": 1250, "y": 400 },
-  "isCrimeCity": true,
-  "encounterSlots": [
-    { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
-    { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
-    { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
-  ],
-  "encounterPool": [
-    { "id": "islamabad_bankier_bank", "npcId": "bankier", "locationId": "bank" },
-    { "id": "islamabad_fence_alley", "npcId": "fence", "locationId": "alley" },
-    { "id": "islamabad_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
-    { "id": "islamabad_maid_hotel", "npcId": "maid", "locationId": "hotel" },
-    { "id": "islamabad_police_policehq", "npcId": "police", "locationId": "policehq" },
-    { "id": "islamabad_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-    { "id": "islamabad_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
-    { "id": "islamabad_bum_garbage", "npcId": "bum", "locationId": "garbage" }
-  ],
-  "encounterRules": {
-    "count": 3,
-    "uniqueNpc": true,
-    "uniqueLocation": true
-  }
-},
-{
-  "id": "nairobi",
-  "city": "Nairobi",
-  "country": "Kenya",
-  "background": "nairobi.jpg",
-  "npcTheme": "black",
-  "map": { "x": 1080, "y": 500 },
-  "isCrimeCity": true,
-  "encounterSlots": [
-    { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
-    { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
-    { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
-  ],
-  "encounterPool": [
-    { "id": "nairobi_bankier_bank", "npcId": "bankier", "locationId": "bank" },
-    { "id": "nairobi_fence_alley", "npcId": "fence", "locationId": "alley" },
-    { "id": "nairobi_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
-    { "id": "nairobi_maid_hotel", "npcId": "maid", "locationId": "hotel" },
-    { "id": "nairobi_police_policehq", "npcId": "police", "locationId": "policehq" },
-    { "id": "nairobi_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-    { "id": "nairobi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
-    { "id": "nairobi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
-  ],
-  "encounterRules": {
-    "count": 3,
-    "uniqueNpc": true,
-    "uniqueLocation": true
-  }
-},
-{
-  "id": "tokyo",
-  "city": "Tokyo",
-  "country": "Japan",
-  "background": "tokyo.jpg",
-  "npcTheme": "asian",
-  "map": { "x": 1500, "y": 370 },
-  "isCrimeCity": true,
-  "encounterSlots": [
-    { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
-    { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
-    { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
-  ],
-  "encounterPool": [
-    { "id": "tokyo_bankier_bank", "npcId": "bankier", "locationId": "bank" },
-    { "id": "tokyo_fence_alley", "npcId": "fence", "locationId": "alley" },
-    { "id": "tokyo_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
-    { "id": "tokyo_maid_hotel", "npcId": "maid", "locationId": "hotel" },
-    { "id": "tokyo_police_policehq", "npcId": "police", "locationId": "policehq" },
-    { "id": "tokyo_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-    { "id": "tokyo_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
-    { "id": "tokyo_bum_garbage", "npcId": "bum", "locationId": "garbage" }
-  ],
-  "encounterRules": {
-    "count": 3,
-    "uniqueNpc": true,
-    "uniqueLocation": true
-  }
-},
+    "id": "kotto",
+    "city": "Kotto",
+    "country": "Sri Lanka",
+    "travelRegion": "south_asia",
+    "airport": true,
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
+    "background": "kotto.jpg",
+    "npcTheme": "south_asian",
+    "map": { "x": 1325, "y": 570 },
+    "isCrimeCity": true,
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "kotto_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "kotto_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "kotto_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "kotto_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "kotto_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "kotto_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "kotto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "kotto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
+    ],
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+  },
+  {
+    "id": "islamabad",
+    "city": "Islamabad",
+    "country": "Pakistan",
+    "travelRegion": "south_asia",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
+    "background": "islamabad.jpg",
+    "npcTheme": "south_asian",
+    "map": { "x": 1250, "y": 420 },
+    "isCrimeCity": true,
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "islamabad_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "islamabad_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "islamabad_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "islamabad_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "islamabad_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "islamabad_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "islamabad_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "islamabad_bum_garbage", "npcId": "bum", "locationId": "garbage" }
+    ],
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+  },
+  {
+    "id": "nairobi",
+    "city": "Nairobi",
+    "country": "Kenya",
+    "travelRegion": "africa",
+    "airport": true,
+    "harbor": false,
+    "busStation": true,
+    "trainStation": true,
+    "background": "nairobi.jpg",
+    "npcTheme": "black",
+    "map": { "x": 1080, "y": 500 },
+    "isCrimeCity": true,
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "nairobi_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "nairobi_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "nairobi_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "nairobi_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "nairobi_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "nairobi_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "nairobi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "nairobi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
+    ],
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+  },
+  {
+    "id": "tokyo",
+    "city": "Tokyo",
+    "country": "Japan",
+    "travelRegion": "east_asia",
+    "airport": true,
+    "harbor": true,
+    "busStation": true,
+    "trainStation": true,
+    "background": "tokyo.jpg",
+    "npcTheme": "asian",
+    "map": { "x": 1500, "y": 370 },
+    "isCrimeCity": true,
+    "encounterSlots": [
+      { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
+      { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
+      { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
+    ],
+    "encounterPool": [
+      { "id": "tokyo_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "tokyo_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "tokyo_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "tokyo_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "tokyo_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "tokyo_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "tokyo_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "tokyo_bum_garbage", "npcId": "bum", "locationId": "garbage" }
+    ],
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+  },
   {
     "id": "hq",
     "city": "Mark Agency Headquarters",
     "country": "International",
+    "travelRegion": "hq",
+    "airport": true,
+    "harbor": false,
+    "busStation": false,
+    "trainStation": false,
     "background": "start.jpg",
     "npcTheme": "white",
     "map": { "x": 1085, "y": 435 },
     "isCrimeCity": false,
     "encounterSlots": [],
     "encounterPool": [],
-    "encounterRules": {
-      "count": 0,
-      "uniqueNpc": true,
-      "uniqueLocation": true
-    }
+    "encounterRules": { "count": 0, "uniqueNpc": true, "uniqueLocation": true }
   }
 ]

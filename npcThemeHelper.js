@@ -22,7 +22,7 @@ const THEME_SUFFIXES = {
   white: 'w',
   black: 'b',
   asian: 'a',
-  hindu: 'h'
+  south_asia: 'h'
 };
 
 const LOCATION_BACKGROUND_ALIASES = {
@@ -37,14 +37,14 @@ const LOCATION_BACKGROUND_ALIASES = {
 // should expect textures.exists() to return false until art is added —
 // CityScene already falls back to a default texture ('fence') when that
 // happens, so nothing breaks, NPCs just render with a placeholder sprite.
-const THEMES_WITH_ASSETS = ['white', 'hindu', 'black', 'asian'];
+const THEMES_WITH_ASSETS = ['white', 'south_asia', 'black', 'asian'];
 
 // Legacy city -> theme map, kept only as a fallback for cities that don't
 // yet have npcTheme set in locations.json. New cities should always set
 // npcTheme explicitly and this map can eventually be deleted.
 const LEGACY_CITY_THEME_FALLBACK = {
-  new_delhi: 'hindu',
-  newdelhi: 'hindu',
+  new_delhi: 'south_asia',
+  newdelhi: 'south_asia',
   london: 'white',
   paris: 'white',
   warsaw: 'white',

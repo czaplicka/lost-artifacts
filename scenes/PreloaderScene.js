@@ -1,6 +1,7 @@
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { NEWSPAPER_CONFIG } from '../assets/data/newspaperConfig.js';
+import { EventBus } from '../EventBus.js';
 
 export class PreloaderScene extends BaseScene {
     constructor() {
@@ -505,7 +506,7 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
     create() {
         super.create();
         audioManager.init(this);
-    this.scene.sleep('UIScene');
+EventBus.emit('hideHUD');
         const initUi = () => {
             this.uiReady = true;
             this.tryShowStartButton();

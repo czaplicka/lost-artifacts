@@ -26,6 +26,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
 
   create() {
     super.create();
+    EventBus.emit('hideHUD');
   }
 
   getTitle() {

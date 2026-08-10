@@ -26,7 +26,7 @@ export class AgainScene extends BaseScene {
 
   create() {
     super.create();
-    this.scene.wake('UIScene');
+EventBus.emit('hideHUD');
     ensureHud(this);
     this.closeAllUIPanels();
 
