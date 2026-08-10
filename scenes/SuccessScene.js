@@ -14,7 +14,7 @@ export class SuccessScene extends BaseScene {
 
     create() {
         super.create();
-
+EventBus.emit('hideHUD');
         audioManager.init(this);
         audioManager.stopAllMusic();
         audioManager.stopAllAmbient();

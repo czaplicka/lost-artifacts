@@ -1,4 +1,5 @@
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 export class WantedDatabaseScene extends BaseScene {
     constructor() {
         super({ key: 'WantedDatabaseScene' });
@@ -24,9 +25,7 @@ export class WantedDatabaseScene extends BaseScene {
 
     create() {
             super.create();
-        if (this.scene.isActive('UIScene')) {
-            this.scene.sleep('UIScene');
-        }
+EventBus.emit('hideHUD');
 
         const W = this.scale.width;
         const H = this.scale.height;

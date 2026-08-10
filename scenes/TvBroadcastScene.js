@@ -1,6 +1,7 @@
 import { gameState } from '../GameData.js';
 import { getTVBroadcast } from '../tvBroadcastData.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class TvBroadcastScene extends BaseScene {
   constructor() {
@@ -40,7 +41,7 @@ export class TvBroadcastScene extends BaseScene {
 
   create() {
     super.create();
-
+EventBus.emit('hideHUD');
     this.ensureFontsLoaded(() => {
       this.setupSceneState();
       this.createLayout();
@@ -76,42 +77,60 @@ export class TvBroadcastScene extends BaseScene {
   }
 
   setupSceneState() {
-    if (this.pauseBelowScene && this.returnSceneKey) {
-      this.scene.pause(this.returnSceneKey);
-    }
-
-    const { width, height } = this.scale;
-    const sourceImage = this.textures.get('television')?.getSourceImage();
-    const tvWidth = sourceImage ? sourceImage.width : width * 0.8;
-    const tvHeight = sourceImage ? sourceImage.height : height * 0.6;
-
-    this.layout = {
-// Faktyczny otwór kineskopu na grafice television.
-// Bazowe proporcje obliczone dla grafiki 1366 × 768.
-screenWidth: tvWidth * 0.555,
-screenHeight: tvHeight * 0.778,
-
-// Środek transparentnego kineskopu jest lekko w lewo i wyżej.
-screenOffsetX: -tvWidth * 0.04,
-screenOffsetY: -tvHeight * 0.052,
-
-// Proste ścięcia narożników, nie rounded corners.
-screenChamfer: tvWidth * 0.03,
-
-// Tekst nie może wpadać pod ukośne narożniki.
-screenSafeInsetX: tvWidth * 0.035,
-screenSafeInsetTop: tvHeight * 0.055,
-screenSafeInsetBottom: tvHeight * 0.05
-    };
-
-    this.input.keyboard.on('keydown-SPACE', this.onAdvancePressed, this);
-    this.input.keyboard.on('keydown-ENTER', this.onAdvancePressed, this);
-    this.input.keyboard.on('keydown-X', this.onSkipPressed, this);
-    this.input.keyboard.on('keydown-P', this.toggleBroadcastPause, this);
-    this.input.keyboard.on('keydown-ESC', this.onClosePressed, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
+  if (this.pauseBelowScene && this.returnSceneKey) {
+    this.scene.pause(this.returnSceneKey);
   }
 
+  const { width, height } = this.scale;
+
+  const sourceImage = this.textures
+    .get('television')
+    ?.getSourceImage();
+
+  const tvWidth = sourceImage ? sourceImage.width : width * 0.8;
+  const tvHeight = sourceImage ? sourceImage.height : height * 0.6;
+
+  this.layout = {
+    // Te pola są konieczne dla createLayout, backdropu i hotspotów.
+    width,
+    height,
+    centerX: width * 0.5,
+    centerY: height * 0.5,
+
+    // Te pola są konieczne dla pozycji i hotspotów TV.
+    tvWidth,
+    tvHeight,
+
+    // Transparentne okno kineskopu z grafiki:
+    // 1366 px × 768 px → około 758 px × 598 px.
+    screenWidth: tvWidth * 0.555,
+    screenHeight: tvHeight * 0.778,
+
+    // Środek okna kineskopu w grafice TV.
+    screenOffsetX: -tvWidth * 0.04,
+    screenOffsetY: -tvHeight * 0.052,
+
+    // Ścięte rogi kineskopu.
+    screenChamfer: tvWidth * 0.03,
+
+    // Bezpieczny margines dla UI i tekstów.
+    screenSafeInsetX: tvWidth * 0.035,
+    screenSafeInsetTop: tvHeight * 0.055,
+    screenSafeInsetBottom: tvHeight * 0.05
+  };
+
+  this.input.keyboard.on('keydown-SPACE', this.onAdvancePressed, this);
+  this.input.keyboard.on('keydown-ENTER', this.onAdvancePressed, this);
+  this.input.keyboard.on('keydown-X', this.onSkipPressed, this);
+  this.input.keyboard.on('keydown-P', this.toggleBroadcastPause, this);
+  this.input.keyboard.on('keydown-ESC', this.onClosePressed, this);
+
+  this.events.once(
+    Phaser.Scenes.Events.SHUTDOWN,
+    this.handleShutdown,
+    this
+  );
+}
   createLayout() {
     this.ui.root = this.add.container(this.layout.centerX, this.layout.centerY)
       .setAlpha(0)
@@ -131,30 +150,102 @@ screenSafeInsetBottom: tvHeight * 0.05
   }
 
   createTvShell() {
-    const { screenOffsetX, screenOffsetY, screenWidth, screenHeight, screenCornerRadius } = this.layout;
+  const {
+    screenOffsetX,
+    screenOffsetY,
+    screenWidth,
+    screenHeight,
+    screenChamfer
+  } = this.layout;
 
-    // Content is behind the transparent window; the television art overlays it.
-    this.ui.screenContainer = this.add.container(screenOffsetX, screenOffsetY);
-    this.ui.root.add(this.ui.screenContainer);
+  // Treść za transparentnym kineskopem.
+  this.ui.screenContainer = this.add.container(
+    screenOffsetX,
+    screenOffsetY
+  );
 
-    this.ui.screenFrame = this.add.rectangle(0, 0, screenWidth, screenHeight, 0x0b1411);
-    this.ui.screenContainer.add(this.ui.screenFrame);
+  this.ui.root.add(this.ui.screenContainer);
 
-    const maskGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    maskGraphics.fillStyle(0xffffff, 1);
-    maskGraphics.fillRoundedRect(
-      this.layout.centerX + screenOffsetX - screenWidth / 2,
-      this.layout.centerY + screenOffsetY - screenHeight / 2,
-      screenWidth,
-      screenHeight,
-      screenCornerRadius
-    );
-    this.ui.screenMaskGraphics = maskGraphics;
-    this.ui.screenMask = maskGraphics.createGeometryMask();
+  // Jednolite tło. Bez stroke — obramowanie zapewnia PNG television.
+  this.ui.screenFrame = this.add.rectangle(
+    0,
+    0,
+    screenWidth,
+    screenHeight,
+    0x0b1411
+  );
 
-    this.ui.tvSprite = this.add.image(0, 0, 'television').setOrigin(0.5);
-    this.ui.root.add(this.ui.tvSprite);
-  }
+  this.ui.screenContainer.add(this.ui.screenFrame);
+
+  // Maska ośmiokątna: prostokąt ze ściętymi rogami.
+  const centerX = this.layout.centerX + screenOffsetX;
+  const centerY = this.layout.centerY + screenOffsetY;
+  const halfWidth = screenWidth / 2;
+  const halfHeight = screenHeight / 2;
+  const cut = screenChamfer;
+
+  const maskGraphics = this.make.graphics({
+    x: 0,
+    y: 0,
+    add: false
+  });
+
+  maskGraphics.fillStyle(0xffffff, 1);
+  maskGraphics.beginPath();
+
+  maskGraphics.moveTo(
+    centerX - halfWidth + cut,
+    centerY - halfHeight
+  );
+
+  maskGraphics.lineTo(
+    centerX + halfWidth - cut,
+    centerY - halfHeight
+  );
+
+  maskGraphics.lineTo(
+    centerX + halfWidth,
+    centerY - halfHeight + cut
+  );
+
+  maskGraphics.lineTo(
+    centerX + halfWidth,
+    centerY + halfHeight - cut
+  );
+
+  maskGraphics.lineTo(
+    centerX + halfWidth - cut,
+    centerY + halfHeight
+  );
+
+  maskGraphics.lineTo(
+    centerX - halfWidth + cut,
+    centerY + halfHeight
+  );
+
+  maskGraphics.lineTo(
+    centerX - halfWidth,
+    centerY + halfHeight - cut
+  );
+
+  maskGraphics.lineTo(
+    centerX - halfWidth,
+    centerY - halfHeight + cut
+  );
+
+  maskGraphics.closePath();
+  maskGraphics.fillPath();
+
+  this.ui.screenMaskGraphics = maskGraphics;
+  this.ui.screenMask = maskGraphics.createGeometryMask();
+
+  // PNG na wierzchu: przez transparentny kineskop widać screenContainer.
+  this.ui.tvSprite = this.add
+    .image(0, 0, 'television')
+    .setOrigin(0.5);
+
+  this.ui.root.add(this.ui.tvSprite);
+}
 
   createScreenUI() {
     const sw = this.layout.screenWidth;
@@ -182,8 +273,13 @@ screenSafeInsetBottom: tvHeight * 0.05
     this.drawNoise(sw, sh);
 
     this.ui.vignette = this.add.graphics();
-    this.ui.vignette.fillStyle(0x000000, 0.1);
-    this.ui.vignette.fillRoundedRect(-sw / 2, -sh / 2, sw, sh, this.layout.screenCornerRadius);
+this.ui.vignette.fillStyle(0x000000, 0.1);
+this.ui.vignette.fillRect(
+  -sw / 2,
+  -sh / 2,
+  sw,
+  sh
+);
 
     this.ui.labelText = this.add.text(left + 10, top + 6, '', {
       fontFamily: 'Press Start 2P', fontSize: '10px', color: '#f8e7a7'
@@ -505,6 +601,7 @@ screenSafeInsetBottom: tvHeight * 0.05
 
         const hud = this.scene.get('PlayerHudScene');
         if (hud) hud.scene.setVisible(true);
+        EventBus.emit('showHUD');
         this.scene.stop();
       }
     });

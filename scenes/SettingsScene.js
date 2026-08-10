@@ -1,6 +1,7 @@
 import { audioManager } from '../AudioManager.js';
 import { UISlider } from '../ui/UISlider.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class SettingsScene extends BaseScene {
     constructor() {
@@ -13,7 +14,7 @@ export class SettingsScene extends BaseScene {
     create() {
             super.create();
         audioManager.init(this);
-
+EventBus.emit('hideHUD');
         const bg = this.add.image(0, 0, 'backgroundset')
             .setOrigin(0, 0)
             .setDisplaySize(1920, 1080)

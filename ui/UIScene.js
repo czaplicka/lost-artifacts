@@ -18,7 +18,7 @@ export class UIScene extends BaseScene {
         this.energyManager = null;
         this.currentGameDay = 1;
         this.missionDays = 4;
-        this.startDate = { year: 1938, month: 3, day: 1 };
+        this.startDate = { year: 1990, month: 3, day: 1 };
         this.dom = {};
         this._energyLogTimer = null;
         this._warningTimer = null;
@@ -49,25 +49,6 @@ export class UIScene extends BaseScene {
     // ============================================================
     // HUD loading and DOM cache
     // ============================================================
-
-    async _loadHudHtml() {
-        if (document.getElementById('hud-container')) return true;
-
-        try {
-            const response = await fetch('ui/hud.html', { cache: 'no-store' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-            const documentFragment = new DOMParser().parseFromString(await response.text(), 'text/html');
-            const container = documentFragment.getElementById('hud-container');
-            if (!container) throw new Error('ui/hud.html has no #hud-container.');
-
-            document.body.appendChild(container);
-            return true;
-        } catch (error) {
-            console.error('[UIScene] HUD loading failed:', error);
-            return false;
-        }
-    }
 
     _cacheDomElements() {
         this.dom = {
@@ -141,35 +122,53 @@ export class UIScene extends BaseScene {
     // Controls and one tooltip binding implementation only
     // ============================================================
 
-    _setupButtonListeners() {
-        document.getElementById('btn-profile')?.addEventListener('click', () => this.openAgentModal());
-        document.getElementById('btn-player')?.addEventListener('click', () => this.openProfileModal());
-        document.getElementById('btn-settings')?.addEventListener('click', () => this.openSettings());
-        this.dom.energyTarget?.addEventListener('click', () => this._toggleEnergyLog());
-    }
+_setupButtonListeners() {
+    const profileButton = document.getElementById('btn-profile');
+    const playerButton = document.getElementById('btn-player');
+    const settingsButton = document.getElementById('btn-settings');
 
-_setupTooltipListeners() {
-  const targets = [
-    { id: 'clock-target', content: () => this._getClockTooltip() },
-    { id: 'date-target', content: () => this._getDateTooltip() },
-    { id: 'deadline-target', content: () => this._getDeadlineTooltip() },
-    { id: 'energy-target', content: () => this._getEnergyTooltip() },
-    { id: 'score-target', content: () => 'SCORE\nRewards for good detective work.' },
-    { id: 'cash-target', content: () => 'CASH\n$250 available.\nTemporary value.' }
-  ];
+    const bindButton = (button, handler) => {
+        if (!button) {
+            return;
+        }
 
-  targets.forEach(({ id, content }) => {
-    const element = document.getElementById(id);
-    if (!element) return;
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
 
-    element.addEventListener('mouseenter', () => {
-      this._showTooltip(content());
+            try {
+                await handler();
+            } catch (error) {
+                console.error('[UIScene] HUD button failed:', error);
+            }
+        });
+
+        button.addEventListener('touchend', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                await handler();
+            } catch (error) {
+                console.error('[UIScene] HUD touch button failed:', error);
+            }
+        }, { passive: false });
+    };
+
+    // Dossier agenta.
+    bindButton(profileButton, () => this.openAgentModal());
+
+    // Profil detektywa.
+    bindButton(playerButton, () => this.openProfileModal());
+
+    // Settings pozostają sceną Phasera.
+    bindButton(settingsButton, () => this.openSettings());
+
+    this.dom.energyTarget?.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this._toggleEnergyLog();
     });
-
-    element.addEventListener('mouseleave', () => {
-      this._hideTooltip();
-    });
-  });
 }
 
     // ============================================================
@@ -388,25 +387,97 @@ _setupTooltipListeners() {
         this._populateAgentModalData(modal);
         modal.style.display = 'flex';
     }
+async _loadHtmlModal(fileName, modalId, closeButtonId) {
+    let modal = document.getElementById(modalId);
 
-    async _loadHtmlModal(fileName, modalId, closeButtonId) {
-        let modal = document.getElementById(modalId);
-        if (modal instanceof HTMLElement) return modal;
-
-        try {
-            const response = await fetch(fileName, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const fragment = new DOMParser().parseFromString(await response.text(), 'text/html');
-            modal = fragment.getElementById(modalId);
-            if (!(modal instanceof HTMLElement)) throw new Error(`Missing #${modalId} in ${fileName}`);
-            document.body.appendChild(modal);
-            this._setupModalEvents(modal, closeButtonId);
-            return modal;
-        } catch (error) {
-            console.error('[UIScene] Modal load error:', error);
-            return null;
-        }
+    if (modal instanceof HTMLElement) {
+        this._forceModalAboveGame(modal);
+        return modal;
     }
+
+    try {
+        const response = await fetch(fileName, {
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Could not load ${fileName}: HTTP ${response.status}`
+            );
+        }
+
+        const html = await response.text();
+
+        const template = document.createElement('template');
+        template.innerHTML = html.trim();
+
+        modal = template.content.querySelector(`#${modalId}`);
+
+        if (!(modal instanceof HTMLElement)) {
+            throw new Error(
+                `Missing #${modalId} inside ${fileName}`
+            );
+        }
+
+        document.body.appendChild(modal);
+
+        this._forceModalAboveGame(modal);
+        this._setupModalEvents(modal, closeButtonId);
+
+        return modal;
+    } catch (error) {
+        console.error('[UIScene] Modal load error:', {
+            fileName,
+            modalId,
+            error
+        });
+
+        return null;
+    }
+}
+
+
+_forceModalAboveGame(modal) {
+    modal.style.position = 'fixed';
+    modal.style.inset = '0';
+    modal.style.zIndex = '99999';
+    modal.style.pointerEvents = 'auto';
+}
+async _loadHudHtml() {
+    if (document.getElementById('hud-container')) {
+        return true;
+    }
+
+    try {
+        const response = await fetch('ui/hud.template', {
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        const template = document.createElement('template');
+        template.innerHTML = html.trim();
+
+        const container = template.content.querySelector('#hud-container');
+
+        if (!(container instanceof HTMLElement)) {
+            throw new Error(
+                'Missing #hud-container in ui/hud.template.'
+            );
+        }
+
+        document.body.appendChild(container);
+
+        return true;
+    } catch (error) {
+        console.error('[UIScene] HUD loading failed:', error);
+        return false;
+    }
+}
 
     _setupModalEvents(modal, closeButtonId) {
         if (modal.dataset.eventsBound === 'true') return;

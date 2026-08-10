@@ -1,0 +1,234 @@
+/* assets/css/hud-mobile.css
+   Mobile overrides for the Lost Artifacts DOM HUD.
+   Loaded AFTER assets/css/hud.css.
+*/
+
+@media (max-width: 600px) {
+  #hud-container {
+    top: 6px;
+    right: 6px;
+    width: calc(100% - 12px);
+    max-width: none;
+    padding: 5px;
+    border-width: 2px;
+    border-radius: 6px;
+  }
+
+  .hud-paper-bg {
+    display: grid;
+    grid-template-columns: minmax(76px, 1.25fr) minmax(48px, 0.8fr) minmax(64px, 1fr) minmax(48px, 0.75fr);
+    gap: 0;
+    min-height: 62px;
+    padding: 5px 2px;
+  }
+
+  .hud-cell {
+    min-height: 52px;
+    padding: 0 3px;
+  }
+
+  .digital-clock-display {
+    min-width: 70px;
+    padding: 6px 5px 5px;
+  }
+
+  .clock-digital {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+
+  .clock-period {
+    margin-top: 4px;
+    font-size: 8px;
+  }
+
+  .calendar-card {
+    width: 46px;
+  }
+
+  .date-header {
+    padding: 4px 0 3px;
+    font-size: 9px;
+  }
+
+  .date-body {
+    padding: 4px 0 3px;
+    font-size: 18px;
+  }
+
+  .calendar-rings span {
+    width: 5px;
+    height: 7px;
+  }
+
+  .hourglass-wrapper {
+    gap: 4px;
+  }
+
+  .hourglass-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .deadline-info {
+    gap: 4px;
+    min-width: 34px;
+  }
+
+  .deadline-value {
+    font-size: 13px;
+  }
+
+  .deadline-progress-bg {
+    width: 32px;
+    height: 5px;
+  }
+
+  .energy-wrapper {
+    flex-basis: 43px;
+    width: 43px;
+    height: 43px;
+  }
+
+  .energy-circle {
+    width: 43px;
+    height: 43px;
+  }
+
+  .energy-bolt-svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .hud-bottom-bar {
+    min-height: 42px;
+    margin-top: 5px;
+    padding: 5px 6px;
+  }
+
+  .stat-group {
+    gap: 7px;
+  }
+
+  .stat-item {
+    min-width: 0;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .stat-item .value {
+    font-size: 12px;
+  }
+
+  .stat-divider {
+    height: 18px;
+  }
+
+  .hud-buttons {
+    gap: 5px;
+  }
+
+  .hud-icon-btn {
+    width: 31px;
+    height: 31px;
+    padding: 3px;
+  }
+
+  .hud-tooltip,
+  .hud-energy-log {
+    top: calc(100% + 5px);
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+}
+
+/* Small phones: iPhone SE / narrow Androids */
+@media (max-width: 390px) {
+  .hud-paper-bg {
+    grid-template-columns: minmax(68px, 1.2fr) 44px minmax(53px, 0.85fr) 42px;
+  }
+
+  .hud-cell {
+    padding: 0 2px;
+  }
+
+  .digital-clock-display {
+    min-width: 64px;
+    padding: 5px 4px;
+  }
+
+  .clock-digital {
+    font-size: 14px;
+  }
+
+  .clock-period {
+    font-size: 7px;
+  }
+
+  .calendar-card {
+    width: 42px;
+  }
+
+  .date-header {
+    font-size: 8px;
+  }
+
+  .date-body {
+    font-size: 16px;
+  }
+
+  .hourglass-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .deadline-value {
+    font-size: 12px;
+  }
+
+  .deadline-progress-bg {
+    width: 26px;
+  }
+
+  .energy-wrapper,
+  .energy-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .energy-wrapper {
+    flex-basis: 40px;
+  }
+
+  .energy-bolt-svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .hud-bottom-bar {
+    padding: 5px;
+  }
+
+  .stat-group {
+    gap: 5px;
+  }
+
+  .stat-item {
+    gap: 3px;
+    font-size: 9px;
+  }
+
+  .stat-item .value {
+    font-size: 11px;
+  }
+
+  .hud-buttons {
+    gap: 3px;
+  }
+
+  .hud-icon-btn {
+    width: 29px;
+    height: 29px;
+  }
+}

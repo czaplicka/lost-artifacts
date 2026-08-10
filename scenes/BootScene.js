@@ -29,7 +29,21 @@ if (!this.registry.has('difficulty')) {
         const mobileFS = new MobileFullscreen();
         this.registry.set('mobileFS', mobileFS);
     }
-
+if (window.WebFont && typeof window.WebFont.load === 'function') {
+            window.WebFont.load({
+                google: {
+                    families: ['SpecialElite', 'PressStart2P']
+                },
+                active: () => initUi(),
+                inactive: () => {
+                    console.warn('WebFont failed to load, continuing with fallback fonts.');
+                    initUi();
+                }
+            });
+        } else {
+            console.warn('WebFont is not available, continuing with fallback fonts.');
+            initUi();
+        }
     if (this.scene.get('PreloaderScene')) {
         this.scene.start('PreloaderScene');
     } else {

@@ -515,7 +515,7 @@ EventBus.emit('hideHUD');
         if (window.WebFont && typeof window.WebFont.load === 'function') {
             window.WebFont.load({
                 google: {
-                    families: ['Special Elite', 'Press Start 2P']
+                    families: ['SpecialElite', 'PressStart2P']
                 },
                 active: () => initUi(),
                 inactive: () => {

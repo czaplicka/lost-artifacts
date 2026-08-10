@@ -41,7 +41,7 @@ init(data = {}) {
         audioManager.stopAllSfx();
 EventBus.emit('showHUD');
         const { width, height } = this.scale;
-                  this.scene.launch('NewsHud');
+this.scene.launch('NewsHud');
 this.scene.bringToTop('NewsHud');
 this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
 this.registry.set('currentCity', 'hq');

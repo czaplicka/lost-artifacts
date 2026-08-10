@@ -1,4 +1,5 @@
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 export class RecoveredArtifactsScene extends BaseScene {
     constructor() {
         super({ key: 'RecoveredArtifactsScene' });
@@ -19,7 +20,7 @@ export class RecoveredArtifactsScene extends BaseScene {
 
     create() {
             super.create();
-        this.scene.sleep('UIScene');
+EventBus.emit('hideHUD');
         const { width, height } = this.scale;
 
         this._buildOverlay(width, height);

@@ -1,5 +1,6 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 export class TheoryResultCallScene extends BaseScene {
   constructor() {
@@ -55,6 +56,7 @@ export class TheoryResultCallScene extends BaseScene {
 
   create() {
         super.create();
+        EventBus.emit('hideHUD');
     const { width, height } = this.scale;
     const palette = this.getPalette(this.result);
     const lines = this.getDialogue(this.result, this.mode);
