@@ -23,11 +23,40 @@
     },
     "New York City": {
       "stationName": "NYC Late Bulletin"
-    }
+    },
+    "Mark Agency Headquarters": {
+  "stationName": "M.A.N. Internal Evening Briefing"
+}
   },
 
   "pools": {
     "ads": [
+      {
+  "id": "ad-hq-coffee",
+  "type": "ad",
+  "label": "INTERNAL SPONSOR",
+  "badge": "STAFF ONLY",
+  "channel": "M.A.N.-04",
+  "title": "Mark Agency Coffee Substitute",
+  "anchorName": "",
+  "charDelay": 12,
+  "linePause": 180,
+  "hold": 850,
+  "theme": {
+    "screenColor": "#2c251d",
+    "topBarColor": "#59472d",
+    "badgeColor": "#bb7b32",
+    "bottomColor": "#15100b"
+  },
+  "lines": [
+    "It may not be coffee, but it does technically increase alertness.",
+    "Approved for overnight stakeouts, paperwork emergencies and regrettable Monday meetings.",
+    "Mark Agency Coffee Substitute: now with 14 percent less existential dread."
+  ],
+  "cities": ["Mark Agency Headquarters"],
+  "backgroundKey": "tv_ad_hq_coffee",
+  "presenterKey": "tv_coffee_mascot"
+},
       {
         "id": "ad-rope-polish",
         "type": "ad",
@@ -77,29 +106,29 @@
         "cities": ["London", "Berlin", "New York City"]
       },
       {
-        "id": "ad-pan-klucz",
-        "type": "ad",
-        "label": "REKLAMA",
-        "badge": "SPONSOR",
-        "channel": "CH-04",
-        "title": "Pan Klucz – Ślusarz Całodobowy",
-        "anchorName": "",
-        "charDelay": 14,
-        "linePause": 180,
-        "hold": 900,
-        "theme": {
-          "screenColor": "#2b231d",
-          "topBarColor": "#4a3b29",
-          "badgeColor": "#c28b32",
-          "bottomColor": "#17110b"
-        },
-        "lines": [
-          "Zamek się zaciął? Sejf się obraził?",
-          "Pan Klucz: otwieramy wszystko. Oficjalnie – wyłącznie rzeczy legalne.",
-          "Zadzwoń, zanim zaczniesz kombinować z wytrychem."
-        ],
-        "cities": ["Warsaw"]
-      },
+  "id": "ad-pan-klucz",
+  "type": "ad",
+  "label": "ADVERTISEMENT",
+  "badge": "SPONSOR",
+  "channel": "CH-04",
+  "title": "Mr. Key – 24-Hour Locksmith",
+  "anchorName": "",
+  "charDelay": 14,
+  "linePause": 180,
+  "hold": 900,
+  "theme": {
+    "screenColor": "#2b231d",
+    "topBarColor": "#4a3b29",
+    "badgeColor": "#c28b32",
+    "bottomColor": "#17110b"
+  },
+  "lines": [
+    "Lock jammed? Safe feeling temperamental?",
+    "Mr. Key: we open everything. Officially — legal property only.",
+    "Call before you start experimenting with a lockpick."
+  ],
+  "cities": ["Warsaw"]
+},
       {
         "id": "ad-raj-courier",
         "type": "ad",
@@ -152,6 +181,32 @@
 
     "fillers": [
       {
+  "id": "filler-hq-performance-review",
+  "type": "filler",
+  "label": "INTERNAL TRAINING",
+  "badge": "MANDATORY",
+  "channel": "M.A.N.-02",
+  "title": "Performance Review: You Are the Problem",
+  "anchorName": "Human Resources",
+  "charDelay": 14,
+  "linePause": 220,
+  "hold": 900,
+  "theme": {
+    "screenColor": "#20282b",
+    "topBarColor": "#3c5155",
+    "badgeColor": "#9c393f",
+    "bottomColor": "#101416"
+  },
+  "lines": [
+    "Remember: a tidy desk is a tidy mind. A tidy alibi is a tidy career.",
+    "This week's employee of the month is unavailable for comment and possibly in Lisbon.",
+    "Next: how to request a new trench coat without calling it operational equipment."
+  ],
+  "cities": ["Mark Agency Headquarters"],
+  "backgroundKey": "tv_filler_hq_training",
+  "presenterKey": "tv_hr_presenter"
+},
+      {
         "id": "filler-paris-antique-appetite",
         "type": "filler",
         "label": "LIFESTYLE",
@@ -176,29 +231,29 @@
         "cities": ["Paris"]
       },
       {
-        "id": "filler-warsaw-krzyzowka",
-        "type": "filler",
-        "label": "PROGRAM",
-        "badge": "NA ŻYWO",
-        "channel": "CH-09",
-        "title": "Krzyżówka Ekstra",
-        "anchorName": "Pani Halina",
-        "charDelay": 16,
-        "linePause": 220,
-        "hold": 900,
-        "theme": {
-          "screenColor": "#262326",
-          "topBarColor": "#4b404f",
-          "badgeColor": "#a03c54",
-          "bottomColor": "#17141a"
-        },
-        "lines": [
-          "Dzisiejsze hasło główne ma siedem liter i dziwnie pasuje do słowa \"kradzież\".",
-          "Widzowie proszeni są o nie dzwonienie do muzeum w trakcie programu.",
-          "Po przerwie: czy kustosz może być jednocześnie świadkiem i fanem krzyżówek?"
-        ],
-        "cities": ["Warsaw"]
-      },
+  "id": "filler-warsaw-crossword-extra",
+  "type": "filler",
+  "label": "GAME SHOW",
+  "badge": "LIVE",
+  "channel": "CH-09",
+  "title": "Crossword Extra",
+  "anchorName": "Mrs. Halina",
+  "charDelay": 16,
+  "linePause": 220,
+  "hold": 900,
+  "theme": {
+    "screenColor": "#262326",
+    "topBarColor": "#4b404f",
+    "badgeColor": "#a03c54",
+    "bottomColor": "#17141a"
+  },
+  "lines": [
+    "Today's main clue has seven letters and fits the word \"theft\" rather suspiciously well.",
+    "Viewers are kindly asked not to call the museum while the programme is live.",
+    "After the break: can a curator be both a witness and an avid crossword enthusiast?"
+  ],
+  "cities": ["Warsaw"]
+},
       {
         "id": "filler-berlin-bureaucracy",
         "type": "filler",

@@ -263,6 +263,22 @@ EventBus.emit('hideHUD');
     this.ui.screenContainer.add(this.ui.screenInner);
 
     this.ui.screenBg = this.add.rectangle(0, 0, sw, sh, 0x1a2621);
+    this.ui.programBackground = this.add.image(0, 0, 'tv_news_studio')
+  .setOrigin(0.5)
+  .setDisplaySize(sw, sh)
+  .setAlpha(0);
+
+this.ui.anchorPortrait = this.add.image(
+  -sw * 0.24,
+  sh * 0.12,
+  'tv_anchor_generic'
+)
+  .setOrigin(0.5, 1)
+  .setDisplaySize(sw * 0.42, sh * 0.78)
+  .setAlpha(0);
+
+this.ui.screenInner.add(this.ui.programBackground);
+this.ui.screenInner.add(this.ui.anchorPortrait);
     this.ui.screenTopBar = this.add.rectangle(0, top + headerHeight / 2, safeWidth, headerHeight, 0x18221d, 0.92);
     this.ui.screenBottomBar = this.add.rectangle(0, bottom - footerHeight / 2, safeWidth, footerHeight, 0x09100d, 0.9);
 
@@ -312,23 +328,24 @@ this.ui.vignette.fillRect(
       maxLines: Math.max(1, Math.floor(bodyHeight / 34))
     });
 
-    this.ui.screenInner.add([
-      this.ui.screenBg,
-      this.ui.screenTopBar,
-      this.ui.screenBottomBar,
-      this.ui.noise,
-      this.ui.scanlines,
-      this.ui.vignette,
-      this.ui.labelText,
-      this.ui.channelText,
-      this.ui.titleText,
-      this.ui.breakingBadge,
-      this.ui.breakingText,
-      this.ui.anchorText,
-      this.ui.bodyText
-    ]);
+this.ui.screenInner.add([
+  this.ui.screenBg,
+  this.ui.programBackground,
+  this.ui.screenTopBar,
+  this.ui.screenBottomBar,
+  this.ui.noise,
+  this.ui.scanlines,
+  this.ui.vignette,
+  this.ui.anchorPortrait,
+  this.ui.labelText,
+  this.ui.channelText,
+  this.ui.titleText,
+  this.ui.breakingBadge,
+  this.ui.breakingText,
+  this.ui.anchorText,
+  this.ui.bodyText
+]);
   }
-
   createHotspots() {
     const { centerX, centerY, tvHeight } = this.layout;
     const hotspotWidth = 160;
@@ -456,6 +473,7 @@ this.ui.vignette.fillRect(
     this.isTransitioning = false;
 
     const segment = this.currentSegment;
+    this.applySegmentVisuals(segment);
     this.applyVisualTheme(segment.theme || {});
     this.ui.labelText.setText(segment.label || '');
     this.ui.channelText.setText(segment.channel || 'CH-03');
@@ -472,7 +490,39 @@ this.ui.vignette.fillRect(
 
     this.typeNextLine();
   }
+applySegmentVisuals(segment) {
+  const isNews = segment.type === 'news';
 
+  this.ui.programBackground.setVisible(isNews);
+  this.ui.programBackground.setAlpha(isNews ? 0.82 : 0);
+
+  this.ui.anchorPortrait.setVisible(isNews);
+  this.ui.anchorPortrait.setAlpha(isNews ? 1 : 0);
+
+  // Tekst newsów przesuwamy na prawą stronę,
+  // żeby nie zasłaniał prezentera.
+  if (isNews) {
+    const sw = this.layout.screenWidth;
+
+    this.ui.anchorText.setPosition(-sw * 0.03, 12);
+    this.ui.bodyText.setPosition(-sw * 0.03, 52);
+
+    this.ui.bodyText.setWordWrapWidth(sw * 0.43, true);
+  } else {
+    const sw = this.layout.screenWidth;
+    const sh = this.layout.screenHeight;
+    const left = -sw / 2 + this.layout.screenSafeInsetX;
+    const top = -sh / 2 + this.layout.screenSafeInsetTop;
+    const headerHeight = 28;
+
+    this.ui.anchorText.setPosition(left + 4, top + headerHeight + 68);
+    this.ui.bodyText.setPosition(left + 4, top + headerHeight + 106);
+    this.ui.bodyText.setWordWrapWidth(
+      sw - this.layout.screenSafeInsetX * 2 - 8,
+      true
+    );
+  }
+}
   typeNextLine() {
     if (this.isBroadcastPaused || !this.currentSegment || !this.ui.bodyText?.active) return;
 

@@ -1,4 +1,5 @@
 import { saveGameState } from '../GameData.js';
+import { EventBus } from '../EventBus.js';
 
 // Color palette for pencil/crayon tinting (Hex values)
 const PENCIL_COLORS = {
@@ -542,6 +543,7 @@ export class WarrantUI {
     if (!Array.isArray(suspectsData) || suspectsData.length === 0) return;
 
     this.isOpen = true;
+    EventBus.emit('hideHUD');
     this.gameState = gameState || this.gameState;
 
     this.clearAutoCloseTimer();
@@ -738,6 +740,7 @@ export class WarrantUI {
     this.clearTraitSelectors();
     this.clearResults();
     this.container.setVisible(false);
+    EventBus.emit('showHUD');
   }
 
   clearTraitSelectors() {
@@ -779,6 +782,7 @@ export class WarrantUI {
   }
 
   destroy() {
+    EventBus.emit('showHUD');
     this.clearAutoCloseTimer();
 
     if (this.scene.input?.keyboard) {

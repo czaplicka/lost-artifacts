@@ -1,4 +1,5 @@
 import { audioManager } from '../AudioManager.js';
+import { EventBus } from '../EventBus.js';
 
 export class PhonebookUI {
     constructor(scene, gameState = null) {
@@ -439,6 +440,7 @@ export class PhonebookUI {
         if (this.isOpen) return;
 
         this.isOpen = true;
+        EventBus.emit('hideHUD');
         this.overlay.setVisible(true);
         this.container.setVisible(true);
 
@@ -461,6 +463,7 @@ export class PhonebookUI {
         this.statusText.setText('');
 
         this.isCalling = false;
+        EventBus.emit('showHUD');
         this.restoreEntryColors();
         this.entryPairs.forEach(p => {
             p.nameText.setInteractive({ useHandCursor: true });
@@ -515,6 +518,7 @@ export class PhonebookUI {
     }
 
     destroy() {
+        EventBus.emit('showHUD');
         this.close();
 
         if (this.scene.input?.keyboard) {

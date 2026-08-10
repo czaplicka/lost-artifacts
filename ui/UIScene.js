@@ -3,6 +3,7 @@ import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
+import { moneyManager } from '../MoneyManager.js';
 
 // ============================================================
 // UIScene.js
@@ -44,12 +45,31 @@ export class UIScene extends BaseScene {
         this.updateScore({ total: gameState.score || 0 });
         this.updateCash(gameState.cash ?? 250);
         this.updateEnergy();
+        this.refreshMoneyHud();
+
+this.moneyChangeHandler = (event) => {
+  this.refreshMoneyHud(event.detail?.state);
+};
+
+window.addEventListener(
+  'lost-artifacts:money-changed',
+  this.moneyChangeHandler
+);
+
+this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+  window.removeEventListener(
+    'lost-artifacts:money-changed',
+    this.moneyChangeHandler
+  );
+});
     }
 
     // ============================================================
     // HUD loading and DOM cache
     // ============================================================
-
+refreshMoneyHud(state = moneyManager.getState()) {
+  this.updateCash(state.cash);
+}
     _cacheDomElements() {
         this.dom = {
             container: document.getElementById('hud-container'),
@@ -108,6 +128,14 @@ export class UIScene extends BaseScene {
         if (this._energyLogTimer) clearTimeout(this._energyLogTimer);
         if (this._warningTimer) clearTimeout(this._warningTimer);
         if (this._zeroTimer) clearTimeout(this._zeroTimer);
+        if (this.moneyChangeHandler) {
+  window.removeEventListener(
+    'lost-artifacts:money-changed',
+    this.moneyChangeHandler
+  );
+
+  this.moneyChangeHandler = null;
+}
     }
 
     showHUD() {
@@ -170,7 +198,71 @@ _setupButtonListeners() {
         this._toggleEnergyLog();
     });
 }
+_setupTooltipListeners() {
+  const bindings = [
+    {
+      element: this.dom.time,
+      getContent: () => this._getClockTooltip()
+    },
+    {
+      element: this.dom.month,
+      getContent: () => this._getDateTooltip()
+    },
+    {
+      element: this.dom.day,
+      getContent: () => this._getDateTooltip()
+    },
+    {
+      element: this.dom.deadlineValue,
+      getContent: () => this._getDeadlineTooltip()
+    },
+    {
+      element: this.dom.energyTarget,
+      getContent: () => this._getEnergyTooltip()
+    },
+    {
+      element: this.dom.score,
+      getContent: () => (
+        `SCORE\n${Number(gameState.score || 0).toLocaleString('en-US')} points.\nSolve cases, collect clues and make smart arrests.`
+      )
+    },
+    {
+      element: this.dom.cash,
+      getContent: () => {
+        const { cash, agencyBudget, agencyDebt } = moneyManager.getState();
 
+        return [
+          `CASH: $${cash}`,
+          `Agency budget: $${agencyBudget}`,
+          agencyDebt > 0
+            ? `Agency debt: $${agencyDebt}`
+            : 'No agency debt.',
+          'Cash pays for comfort, shortcuts and private detective work.'
+        ].join('\n');
+      }
+    }
+  ];
+
+  bindings.forEach(({ element, getContent }) => {
+    if (!(element instanceof HTMLElement)) return;
+    if (element.dataset.tooltipBound === 'true') return;
+
+    const showTooltip = () => {
+      this._showTooltip(getContent());
+    };
+
+    const hideTooltip = () => {
+      this._hideTooltip();
+    };
+
+    element.addEventListener('mouseenter', showTooltip);
+    element.addEventListener('mouseleave', hideTooltip);
+    element.addEventListener('focus', showTooltip);
+    element.addEventListener('blur', hideTooltip);
+
+    element.dataset.tooltipBound = 'true';
+  });
+}
     // ============================================================
     // Time, date and deadline
     // ============================================================

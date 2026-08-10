@@ -1,3 +1,4 @@
+import { EventBus } from '../EventBus.js';
 export class CaseFileUI {
     constructor(scene) {
         this.scene = scene;
@@ -22,7 +23,6 @@ export class CaseFileUI {
 
     create() {
         const { width, height } = this.scene.scale;
-
         this.overlay = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45)
             .setDepth(20)
             .setAlpha(0)
@@ -228,7 +228,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
 
         this.isAnimating = true;
         this.isOpen = true;
-
+EventBus.emit('hideHUD');
         this.overlay.setVisible(true);
         this.container.setVisible(true);
 
@@ -262,6 +262,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
                 this.overlay.setVisible(false);
                 this.container.setVisible(false);
                 this.isAnimating = false;
+                EventBus.emit('showHUD');
             }
         });
     }
@@ -277,6 +278,7 @@ const fileBg = this.scene.add.image(0, 0, 'file')
     }
 
     destroy() {
+        EventBus.emit('showHUD');
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-F', this.boundToggleHandler);
             this.scene.input.keyboard.removeCapture('F');

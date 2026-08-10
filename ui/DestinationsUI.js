@@ -44,7 +44,10 @@ export class DestinationsUI {
     this.registerKeyboard();
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.destroy());
   }
-
+create () {
+      this.scene.get('NewsHud').events.emit('setNewspaperVisible', false); 
+  this.scene.get('NewsHud').events.emit('setTvVisible', false);
+}
   registerKeyboard() {
     if (!this.scene?.input?.keyboard) return;
     this.scene.input.keyboard.addCapture('T');
@@ -85,6 +88,7 @@ export class DestinationsUI {
   open(gameStateData) {
     if (this.isTransitioning || this.isOpen) return;
     this.isOpen = true;
+    EventBus.emit('hideHUD');
     this.gameState = gameStateData || gameState;
     this.resetSelectionState();
     this.clearPins();
@@ -108,6 +112,7 @@ export class DestinationsUI {
     this.resetSelectionState();
     this.refreshInfoPanel();
     this.setConfirmEnabled(false);
+    EventBus.emit('showHUD');
   }
 
   resetSelectionState() {
@@ -450,6 +455,7 @@ export class DestinationsUI {
   }
 
   destroy() {
+    EventBus.emit('showHUD');
     this.clearPins();
     this.clearTransportButtons();
     if (this.routePreview) this.routePreview.destroy();

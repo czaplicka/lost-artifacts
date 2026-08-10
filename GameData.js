@@ -24,7 +24,6 @@ export const defaultGameState = {
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,
-
   currentCity: null,
   currentCityId: null,
   currentMission: null,
@@ -35,7 +34,6 @@ export const defaultGameState = {
   finalArrestSuspectId: null,
   caseResolved: false,
   caseFailed: false,
-
   arrestWarrantIssued: false,
   warrantSuspectName: null,
   warrantSuspectId: null,
@@ -51,38 +49,44 @@ export const defaultGameState = {
   currentDestinations: [],
   escapeRoute: [],
   routeIndex: -1,
+  routeManager: null,
   nextTargetCity: null,
   nextTargetCityId: null,
   mustIncludeCityId: null,
+  canonicalTravelCityId: null,
+  clueScope: 'crime_scene',
 
-score: 0,
+  score: 0,
+  scoreSaved: false,
+  playerName: 'Detective',
+  playerRank: 'Junior Agent',
+  avatarUrl: 'assets/profiles.png',
+  casesSolved: 0,
+  arrests: 0,
+  achievements: [],
+  completedCaseIds: [],
+  successfulArrestCaseIds: [],
+  isGameActive: false,
+  difficulty: 'field',
 
-playerName: 'Detective',
-playerRank: 'Junior Agent',
-avatarUrl: 'assets/profiles.png',
-
-casesSolved: 0,
-arrests: 0,
-achievements: [],
-completedCaseIds: [],
-successfulArrestCaseIds: [],
-
-isGameActive: false,
-difficulty: 'field',
-  // ===== ENERGY SYSTEM =====
   energy: 100,
   maxEnergy: 100,
   energyLog: [],
 
+  cash: 120,
+  agencyBudget: 0,
+  agencyDebt: 0,
+  moneyLog: [],
+
   timeSpent: 0,
   travelHistory: [],
   lastTravel: null,
+  lastTravelEncounter: null,
 
   cluesCollected: [],
   visitedEncounters: [],
   visitedCities: [],
   playerNotes: '',
-
   encounterMemory: {},
   cityEncounterState: {},
 
@@ -91,11 +95,38 @@ difficulty: 'field',
   pendingPhoneCallCityId: null,
 
   hiddenObjectHistory: [],
-
   reconstructedHeist: createDefaultReconstructedHeist()
 };
 
 export const gameState = structuredClone(defaultGameState);
+
+const VALID_SLOT_FEEDBACK_STATUSES = new Set([
+  'correct',
+  'wrong-position',
+  'absent'
+]);
+
+const VALID_MONEY_SOURCES = new Set(['cash', 'agency']);
+
+const VALID_MONEY_CATEGORIES = new Set([
+  'travel',
+  'hotel',
+  'food',
+  'drink',
+  'newspaper',
+  'phone',
+  'taxi',
+  'informant',
+  'side_case',
+  'mission_reward',
+  'office_upgrade',
+  'item',
+  'agency_advance',
+  'refund'
+]);
+
+const VALID_DIFFICULTIES = new Set(['rookie', 'field', 'master']);
+const VALID_CLUE_SCOPES = new Set(['crime_scene', 'route_leg', 'finale']);
 
 function canUseLocalStorage() {
   try {
@@ -103,7 +134,7 @@ function canUseLocalStorage() {
     localStorage.setItem(testKey, '1');
     localStorage.removeItem(testKey);
     return true;
-  } catch (e) {
+  } catch (error) {
     return false;
   }
 }
@@ -113,16 +144,9 @@ function cloneDefaultState() {
 }
 
 function isPlainObject(value) {
-  return Boolean(
-    value &&
-      typeof value === 'object' &&
-      !Array.isArray(value)
-  );
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
-// NEW: an "id" in this game is always either a string or a number
-// (suspect ids, city ids, card ids, scene ids...). Anything else
-// (object, array, boolean, function-shaped JSON) is rejected as invalid.
 function isValidId(value) {
   return typeof value === 'string' || typeof value === 'number';
 }
@@ -131,28 +155,26 @@ function sanitizeIdOrNull(value) {
   return isValidId(value) ? value : null;
 }
 
-// NEW: strips a raw array down to only the elements that are valid ids,
-// dropping anything malformed instead of blindly trusting "it's an array".
 function sanitizeIdArray(value) {
   return Array.isArray(value) ? value.filter(isValidId) : [];
 }
 
-// NEW: strips a raw array down to only non-empty string elements.
 function sanitizeStringArray(value) {
   return Array.isArray(value)
     ? value.filter(item => typeof item === 'string' && item.length > 0)
     : [];
 }
 
-// NEW: whitelist-based validation of a single "heist card" object, as used
-// by the crime-scene hidden-object minigame and the Mastermind sequencing
-// minigame (allCards / selectedCards / playerOrderedCards). Only known,
-// correctly-typed fields survive; unknown or malformed entries are dropped
-// entirely rather than passed through structuredClone verbatim.
-// NOTE: adjust this whitelist if your actual card schema has more fields.
+function sanitizeArray(value) {
+  return Array.isArray(value) ? structuredClone(value) : [];
+}
+
+function sanitizeObject(value) {
+  return isPlainObject(value) ? structuredClone(value) : {};
+}
+
 function sanitizeHeistCard(card) {
-  if (!isPlainObject(card)) return null;
-  if (!isValidId(card.id)) return null;
+  if (!isPlainObject(card) || !isValidId(card.id)) return null;
 
   return {
     id: card.id,
@@ -167,12 +189,6 @@ function sanitizeHeistCardArray(value) {
     ? value.map(sanitizeHeistCard).filter(Boolean)
     : [];
 }
-
-// NEW: whitelist-based validation of a single Mastermind feedback entry
-// (per-slot "correct / wrong position / not present" style result).
-// Rejects anything with an unexpected status value instead of trusting
-// whatever was in localStorage.
-const VALID_SLOT_FEEDBACK_STATUSES = new Set(['correct', 'wrong-position', 'absent']);
 
 function sanitizeSlotFeedback(entry) {
   if (!isPlainObject(entry)) return null;
@@ -191,9 +207,6 @@ function sanitizeSlotFeedbackArray(value) {
     : [];
 }
 
-// NEW: fully validates reconstructedHeist field-by-field instead of
-// spreading the raw parsed object and only spot-checking a few array
-// fields afterwards. Anything malformed falls back to the safe default.
 function sanitizeReconstructedHeist(data) {
   const defaults = createDefaultReconstructedHeist();
   const safeData = isPlainObject(data) ? data : {};
@@ -203,7 +216,6 @@ function sanitizeReconstructedHeist(data) {
     sceneId: sanitizeIdOrNull(safeData.sceneId),
     thiefId: sanitizeIdOrNull(safeData.thiefId),
     thiefName: typeof safeData.thiefName === 'string' ? safeData.thiefName : null,
-
     thiefSkills: sanitizeStringArray(safeData.thiefSkills),
     allCards: sanitizeHeistCardArray(safeData.allCards),
     correctCardIds: sanitizeIdArray(safeData.correctCardIds),
@@ -211,214 +223,161 @@ function sanitizeReconstructedHeist(data) {
     selectedCards: sanitizeHeistCardArray(safeData.selectedCards),
     playerOrderedCards: sanitizeHeistCardArray(safeData.playerOrderedCards),
     playerOrderedSentences: sanitizeStringArray(safeData.playerOrderedSentences),
-
     playerFinalText: typeof safeData.playerFinalText === 'string'
       ? safeData.playerFinalText
       : defaults.playerFinalText,
-
     playerSkills: sanitizeStringArray(safeData.playerSkills),
-
     playerTheoryScore: Number.isFinite(safeData.playerTheoryScore)
       ? safeData.playerTheoryScore
       : defaults.playerTheoryScore,
-
     playerTheoryResult:
       typeof safeData.playerTheoryResult === 'string' || safeData.playerTheoryResult === null
         ? safeData.playerTheoryResult
         : defaults.playerTheoryResult,
-
     playerSlotFeedback: sanitizeSlotFeedbackArray(safeData.playerSlotFeedback),
-
     playerAttemptsLeft: Number.isInteger(safeData.playerAttemptsLeft)
       ? Phaser.Math.Clamp(safeData.playerAttemptsLeft, 0, 4)
       : defaults.playerAttemptsLeft
   };
 }
 
+function sanitizeMoneyTransaction(entry) {
+  if (!isPlainObject(entry)) return null;
+  if (typeof entry.id !== 'string' || !entry.id.trim()) return null;
+  if (typeof entry.type !== 'string' || !entry.type.trim()) return null;
+  if (!Number.isInteger(entry.amount) || entry.amount < 0) return null;
+
+  return {
+    id: entry.id,
+    type: entry.type,
+    source: VALID_MONEY_SOURCES.has(entry.source) ? entry.source : null,
+    amount: entry.amount,
+    category: VALID_MONEY_CATEGORIES.has(entry.category) ? entry.category : null,
+    description: typeof entry.description === 'string' ? entry.description : '',
+    missionId: sanitizeIdOrNull(entry.missionId),
+    createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : null,
+    metadata: sanitizeObject(entry.metadata)
+  };
+}
+
+function sanitizeMoneyLog(value) {
+  return Array.isArray(value)
+    ? value.map(sanitizeMoneyTransaction).filter(Boolean).slice(-100)
+    : [];
+}
+
 function sanitizeSaveData(data) {
   const clean = cloneDefaultState();
+  const source = isPlainObject(data) ? data : {};
 
-  clean.currentThiefId = data?.currentThiefId ?? null;
-  clean.currentThief = data?.currentThief ? structuredClone(data.currentThief) : null;
-  clean.currentArtifact = data?.currentArtifact ?? null;
+  clean.currentThiefId = sanitizeIdOrNull(source.currentThiefId);
+  clean.currentThief = source.currentThief ? structuredClone(source.currentThief) : null;
+  clean.currentArtifact = source.currentArtifact ?? null;
+  clean.currentCity = source.currentCity ?? null;
+  clean.currentCityId = sanitizeIdOrNull(source.currentCityId);
+  clean.currentMission = source.currentMission ? structuredClone(source.currentMission) : null;
+  clean.currentCityData = source.currentCityData ? structuredClone(source.currentCityData) : null;
+  clean.currentEncounterId = sanitizeIdOrNull(source.currentEncounterId);
 
-  clean.currentCity = data?.currentCity ?? null;
-  clean.currentCityId = data?.currentCityId ?? null;
-  clean.currentMission = data?.currentMission ? structuredClone(data.currentMission) : null;
-  clean.currentCityData = data?.currentCityData ? structuredClone(data.currentCityData) : null;
-  clean.currentEncounterId = data?.currentEncounterId ?? null;
+  clean.finalArrestResult = typeof source.finalArrestResult === 'string' || source.finalArrestResult === null
+    ? source.finalArrestResult
+    : null;
+  clean.finalArrestSuspectId = sanitizeIdOrNull(source.finalArrestSuspectId);
+  clean.caseResolved = typeof source.caseResolved === 'boolean' ? source.caseResolved : false;
+  clean.caseFailed = typeof source.caseFailed === 'boolean' ? source.caseFailed : false;
+  clean.arrestWarrantIssued = typeof source.arrestWarrantIssued === 'boolean'
+    ? source.arrestWarrantIssued
+    : false;
+  clean.warrantSuspectName = typeof source.warrantSuspectName === 'string'
+    ? source.warrantSuspectName
+    : null;
+  clean.warrantSuspectId = sanitizeIdOrNull(source.warrantSuspectId);
+  clean.gameOverReason = typeof source.gameOverReason === 'string' ? source.gameOverReason : '';
 
-  clean.finalArrestResult =
-    typeof data?.finalArrestResult === 'string' || data?.finalArrestResult === null
-      ? data.finalArrestResult
-      : null;
+  clean.crimeCity = source.crimeCity ?? null;
+  clean.crimeCityId = sanitizeIdOrNull(source.crimeCityId);
+  clean.crimeSceneVisited = typeof source.crimeSceneVisited === 'boolean'
+    ? source.crimeSceneVisited
+    : false;
+  clean.specialScenesVisited = sanitizeObject(source.specialScenesVisited);
+  clean.justReachedCorrectCityId = sanitizeIdOrNull(source.justReachedCorrectCityId);
 
-  clean.finalArrestSuspectId = data?.finalArrestSuspectId ?? null;
-  clean.caseResolved = typeof data?.caseResolved === 'boolean' ? data.caseResolved : false;
-  clean.caseFailed = typeof data?.caseFailed === 'boolean' ? data.caseFailed : false;
+  clean.activeLocations = sanitizeArray(source.activeLocations);
+  clean.currentDestinations = sanitizeArray(source.currentDestinations);
+  clean.escapeRoute = sanitizeArray(source.escapeRoute);
+  clean.routeIndex = Number.isInteger(source.routeIndex) ? source.routeIndex : -1;
+  clean.routeManager = sanitizeObject(source.routeManager);
+  clean.nextTargetCity = source.nextTargetCity ?? null;
+  clean.nextTargetCityId = sanitizeIdOrNull(source.nextTargetCityId);
+  clean.mustIncludeCityId = sanitizeIdOrNull(source.mustIncludeCityId);
+  clean.canonicalTravelCityId = sanitizeIdOrNull(source.canonicalTravelCityId);
+  clean.clueScope = VALID_CLUE_SCOPES.has(source.clueScope)
+    ? source.clueScope
+    : 'crime_scene';
 
-  clean.arrestWarrantIssued =
-    typeof data?.arrestWarrantIssued === 'boolean'
-      ? data.arrestWarrantIssued
-      : false;
-
-  clean.warrantSuspectName =
-    typeof data?.warrantSuspectName === 'string'
-      ? data.warrantSuspectName
-      : null;
-
-  clean.warrantSuspectId =
-    typeof data?.warrantSuspectId === 'string' || typeof data?.warrantSuspectId === 'number'
-      ? data.warrantSuspectId
-      : null;
-
-  clean.gameOverReason =
-    typeof data?.gameOverReason === 'string'
-      ? data.gameOverReason
-      : '';
-
-  clean.crimeCity = data?.crimeCity ?? null;
-  clean.crimeCityId = data?.crimeCityId ?? null;
-  clean.crimeSceneVisited =
-    typeof data?.crimeSceneVisited === 'boolean' ? data.crimeSceneVisited : false;
-
-  clean.specialScenesVisited = isPlainObject(data?.specialScenesVisited)
-    ? structuredClone(data.specialScenesVisited)
-    : {};
-
-  clean.justReachedCorrectCityId = data?.justReachedCorrectCityId ?? null;
-
-  clean.activeLocations = Array.isArray(data?.activeLocations)
-    ? structuredClone(data.activeLocations)
-    : [];
-
-  clean.currentDestinations = Array.isArray(data?.currentDestinations)
-    ? structuredClone(data.currentDestinations)
-    : [];
-
-  clean.escapeRoute = Array.isArray(data?.escapeRoute)
-    ? [...data.escapeRoute]
-    : [];
-
-  clean.routeIndex = Number.isInteger(data?.routeIndex) ? data.routeIndex : -1;
-  clean.nextTargetCity = data?.nextTargetCity ?? null;
-  clean.nextTargetCityId = data?.nextTargetCityId ?? null;
-  clean.mustIncludeCityId = data?.mustIncludeCityId ?? null;
-
-clean.score = Number.isFinite(data?.score)
-    ? Math.max(0, Math.floor(data.score))
+  clean.score = Number.isFinite(source.score) ? Math.max(0, Math.floor(source.score)) : 0;
+  clean.scoreSaved = typeof source.scoreSaved === 'boolean' ? source.scoreSaved : false;
+  clean.playerName = typeof source.playerName === 'string' && source.playerName.trim()
+    ? source.playerName.trim()
+    : 'Detective';
+  clean.playerRank = typeof source.playerRank === 'string' && source.playerRank.trim()
+    ? source.playerRank.trim()
+    : 'Junior Agent';
+  clean.avatarUrl = typeof source.avatarUrl === 'string' && source.avatarUrl.trim()
+    ? source.avatarUrl.trim()
+    : 'assets/profiles.png';
+  clean.casesSolved = Number.isFinite(source.casesSolved)
+    ? Math.max(0, Math.floor(source.casesSolved))
     : 0;
-
-clean.playerName =
-    typeof data?.playerName === 'string' && data.playerName.trim()
-        ? data.playerName.trim()
-        : 'Detective';
-
-clean.playerRank =
-    typeof data?.playerRank === 'string' && data.playerRank.trim()
-        ? data.playerRank.trim()
-        : 'Junior Agent';
-
-clean.avatarUrl =
-    typeof data?.avatarUrl === 'string' && data.avatarUrl.trim()
-        ? data.avatarUrl.trim()
-        : 'assets/profiles.png';
-
-clean.casesSolved = Number.isFinite(data?.casesSolved)
-    ? Math.max(0, Math.floor(data.casesSolved))
+  clean.arrests = Number.isFinite(source.arrests)
+    ? Math.max(0, Math.floor(source.arrests))
     : 0;
+  clean.achievements = sanitizeStringArray(source.achievements);
+  clean.completedCaseIds = sanitizeIdArray(source.completedCaseIds);
+  clean.successfulArrestCaseIds = sanitizeIdArray(source.successfulArrestCaseIds);
+  clean.isGameActive = typeof source.isGameActive === 'boolean' ? source.isGameActive : false;
+  clean.difficulty = VALID_DIFFICULTIES.has(source.difficulty) ? source.difficulty : 'field';
 
-clean.arrests = Number.isFinite(data?.arrests)
-    ? Math.max(0, Math.floor(data.arrests))
-    : 0;
-
-clean.achievements = Array.isArray(data?.achievements)
-    ? data.achievements.filter(
-        achievement =>
-            typeof achievement === 'string' &&
-            achievement.trim().length > 0
-    )
-    : [];
-clean.completedCaseIds = Array.isArray(data?.completedCaseIds)
-    ? data.completedCaseIds.filter(isValidId)
-    : [];
-
-clean.successfulArrestCaseIds = Array.isArray(data?.successfulArrestCaseIds)
-    ? data.successfulArrestCaseIds.filter(isValidId)
-    : [];
-clean.isGameActive =
-    typeof data?.isGameActive === 'boolean'
-        ? data.isGameActive
-        : false;
-const validDifficulties = new Set([
-    'rookie',
-    'field',
-    'master',
-]);
-
-clean.difficulty = validDifficulties.has(data?.difficulty)
-    ? data.difficulty
-    : 'field';
-    // ===== ENERGY SYSTEM =====
-  clean.energy = Number.isFinite(data?.energy)
-    ? Phaser.Math.Clamp(data.energy, 0, 100)
+  clean.maxEnergy = Number.isFinite(source.maxEnergy)
+    ? Math.max(1, Math.floor(source.maxEnergy))
     : 100;
+  clean.energy = Number.isFinite(source.energy)
+    ? Phaser.Math.Clamp(Math.floor(source.energy), 0, clean.maxEnergy)
+    : clean.maxEnergy;
+  clean.energyLog = sanitizeArray(source.energyLog);
 
-  clean.maxEnergy = Number.isFinite(data?.maxEnergy)
-    ? Math.max(1, data.maxEnergy)
-    : 100;
+  clean.cash = Number.isFinite(source.cash) ? Math.max(0, Math.floor(source.cash)) : 120;
+  clean.agencyBudget = Number.isFinite(source.agencyBudget)
+    ? Math.max(0, Math.floor(source.agencyBudget))
+    : 0;
+  clean.agencyDebt = Number.isFinite(source.agencyDebt)
+    ? Math.max(0, Math.floor(source.agencyDebt))
+    : 0;
+  clean.moneyLog = sanitizeMoneyLog(source.moneyLog);
 
-  clean.energyLog = Array.isArray(data?.energyLog)
-    ? structuredClone(data.energyLog)
-    : [];
-    
-  clean.timeSpent = Number.isFinite(data?.timeSpent) ? data.timeSpent : 0;
-  clean.travelHistory = Array.isArray(data?.travelHistory)
-    ? structuredClone(data.travelHistory)
-    : [];
-  clean.lastTravel = data?.lastTravel ? structuredClone(data.lastTravel) : null;
+  clean.timeSpent = Number.isFinite(source.timeSpent) ? Math.max(0, source.timeSpent) : 0;
+  clean.travelHistory = sanitizeArray(source.travelHistory);
+  clean.lastTravel = source.lastTravel ? structuredClone(source.lastTravel) : null;
+  clean.lastTravelEncounter = source.lastTravelEncounter
+    ? structuredClone(source.lastTravelEncounter)
+    : null;
 
-  clean.cluesCollected = Array.isArray(data?.cluesCollected)
-    ? structuredClone(data.cluesCollected)
-    : [];
+  clean.cluesCollected = sanitizeArray(source.cluesCollected);
+  clean.visitedEncounters = sanitizeArray(source.visitedEncounters);
+  clean.visitedCities = sanitizeArray(source.visitedCities);
+  clean.playerNotes = typeof source.playerNotes === 'string' ? source.playerNotes : '';
+  clean.encounterMemory = sanitizeObject(source.encounterMemory);
+  clean.cityEncounterState = sanitizeObject(source.cityEncounterState);
 
-  clean.visitedEncounters = Array.isArray(data?.visitedEncounters)
-    ? [...data.visitedEncounters]
-    : [];
-
-  clean.visitedCities = Array.isArray(data?.visitedCities)
-    ? [...data.visitedCities]
-    : [];
-
-  clean.playerNotes = typeof data?.playerNotes === 'string' ? data.playerNotes : '';
-
-  clean.encounterMemory = isPlainObject(data?.encounterMemory)
-    ? structuredClone(data.encounterMemory)
-    : {};
-
-  clean.cityEncounterState = isPlainObject(data?.cityEncounterState)
-    ? structuredClone(data.cityEncounterState)
-    : {};
-
-  clean.storyPhoneCallTriggered =
-    typeof data?.storyPhoneCallTriggered === 'boolean'
-      ? data.storyPhoneCallTriggered
-      : false;
-
-  clean.pendingPhoneCall =
-    typeof data?.pendingPhoneCall === 'boolean'
-      ? data.pendingPhoneCall
-      : false;
-
-  clean.pendingPhoneCallCityId = data?.pendingPhoneCallCityId ?? null;
-
-  clean.hiddenObjectHistory = Array.isArray(data?.hiddenObjectHistory)
-    ? structuredClone(data.hiddenObjectHistory)
-    : [];
-
-  // CHANGED: full field-by-field validation instead of a shallow spread +
-  // spot-checked arrays. See sanitizeReconstructedHeist() above.
-  clean.reconstructedHeist = sanitizeReconstructedHeist(data?.reconstructedHeist);
+  clean.storyPhoneCallTriggered = typeof source.storyPhoneCallTriggered === 'boolean'
+    ? source.storyPhoneCallTriggered
+    : false;
+  clean.pendingPhoneCall = typeof source.pendingPhoneCall === 'boolean'
+    ? source.pendingPhoneCall
+    : false;
+  clean.pendingPhoneCallCityId = sanitizeIdOrNull(source.pendingPhoneCallCityId);
+  clean.hiddenObjectHistory = sanitizeArray(source.hiddenObjectHistory);
+  clean.reconstructedHeist = sanitizeReconstructedHeist(source.reconstructedHeist);
 
   return clean;
 }
@@ -432,7 +391,6 @@ export function resetCaseOutcomeState() {
   gameState.finalArrestSuspectId = null;
   gameState.caseResolved = false;
   gameState.caseFailed = false;
-
   gameState.arrestWarrantIssued = false;
   gameState.warrantSuspectName = null;
   gameState.warrantSuspectId = null;
@@ -453,8 +411,8 @@ export function saveGameState() {
     localStorage.setItem('detectiveSaveData', JSON.stringify(gameState));
     console.log('Gra zapisana automatycznie.');
     return true;
-  } catch (e) {
-    console.error('Błąd zapisu do localStorage:', e);
+  } catch (error) {
+    console.error('Błąd zapisu do localStorage:', error);
     return false;
   }
 }
@@ -468,16 +426,11 @@ export function loadGameState() {
   try {
     const savedData = localStorage.getItem('detectiveSaveData');
     if (!savedData) return false;
-
-    const parsedData = JSON.parse(savedData);
-    const safeData = sanitizeSaveData(parsedData);
-
-    Object.assign(gameState, safeData);
-
+    Object.assign(gameState, sanitizeSaveData(JSON.parse(savedData)));
     console.log('Wczytano zapis gry.');
     return true;
-  } catch (e) {
-    console.error('Błąd odczytu z localStorage:', e);
+  } catch (error) {
+    console.error('Błąd odczytu z localStorage:', error);
     resetGameState();
     return false;
   }
@@ -493,14 +446,12 @@ export function clearSavedGame() {
     localStorage.removeItem('detectiveSaveData');
     console.log('Zapis gry usunięty.');
     return true;
-  } catch (e) {
-    console.error('Błąd usuwania zapisu z localStorage:', e);
+  } catch (error) {
+    console.error('Błąd usuwania zapisu z localStorage:', error);
     return false;
   }
 }
 
-// DELETE BEFORE PRODUCTION
-// TYLKO DO DEBUGOWANIA - usuń przed publikacją
 if (typeof window !== 'undefined') {
   window.gameState = gameState;
 }

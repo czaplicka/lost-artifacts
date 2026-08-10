@@ -10,53 +10,81 @@
 // ─── CITY CONFIG ──────────────────────────────────────────────────────────────
 
 const CITY_CONFIG = {
+  hq: {
+  name: 'Mark Agency Headquarters',
+  channel: 'M.A.N. — Mark Agency Network',
+  landmark: 'the Mark Agency evidence vault',
+  newspaper: 'The Internal Memorandum',
+  anchorName: 'Marvin Bellweather',
+  anchorTitle: 'Director of Internal Communications',
+  backgroundKey: 'tv_news_hq',
+  presenterKey: 'tv_anchor_hq'
+},
+
   paris: {
     name: 'Paris',
     channel: 'Canal Mystère 3',
     landmark: 'the Louvre',
     newspaper: 'Le Détective Quotidien',
     anchorName: 'Jean-Michel Dubois',
-    anchorTitle: 'Correspondent for Cultural Affairs'
+    anchorTitle: 'Correspondent for Cultural Affairs',
+    backgroundKey: 'tv_news_paris',
+    presenterKey: 'tv_anchor_paris'
   },
+
   warsaw: {
     name: 'Warsaw',
     channel: 'TVP Kultura Extra',
     landmark: 'the Royal Castle',
     newspaper: 'Gazeta Śledcza',
     anchorName: 'Katarzyna Wysocka',
-    anchorTitle: 'Senior Cultural Correspondent'
+    anchorTitle: 'Senior Cultural Correspondent',
+    backgroundKey: 'tv_news_warsaw',
+    presenterKey: 'tv_anchor_warsaw'
   },
+
   berlin: {
     name: 'Berlin',
     channel: 'RBB Spezial',
     landmark: 'Museum Island',
     newspaper: 'Berliner Kriminal-Post',
     anchorName: 'Helmut Schreiber',
-    anchorTitle: 'Head of Cultural Heritage Desk'
+    anchorTitle: 'Head of Cultural Heritage Desk',
+    backgroundKey: 'tv_news_berlin',
+    presenterKey: 'tv_anchor_berlin'
   },
+
   london: {
     name: 'London',
     channel: 'BCC World Service',
     landmark: 'the Tower of London',
     newspaper: 'The Evening Standard-Bearer',
     anchorName: 'Nigel Ashworth',
-    anchorTitle: 'Cultural Affairs Editor'
+    anchorTitle: 'Cultural Affairs Editor',
+    backgroundKey: 'tv_news_london',
+    presenterKey: 'tv_anchor_london'
   },
+
   new_delhi: {
     name: 'New Delhi',
     channel: 'DD Heritage Plus',
     landmark: 'the National Museum',
     newspaper: 'Delhi Cultural Times',
     anchorName: 'Priya Sharma',
-    anchorTitle: 'Special Correspondent, Heritage & Arts'
+    anchorTitle: 'Special Correspondent, Heritage & Arts',
+    backgroundKey: 'tv_news_new_delhi',
+    presenterKey: 'tv_anchor_new_delhi'
   },
+
   new_york_city: {
     name: 'New York',
     channel: 'WNYK News 4',
     landmark: 'the Metropolitan Museum',
     newspaper: 'The New York Investigator',
     anchorName: 'Sandra Brooks',
-    anchorTitle: 'Investigative Reporter'
+    anchorTitle: 'Investigative Reporter',
+    backgroundKey: 'tv_news_new_york',
+    presenterKey: 'tv_anchor_new_york'
   }
 };
 
@@ -66,45 +94,73 @@ const DEFAULT_CITY_CONFIG = {
   landmark: 'the museum',
   newspaper: 'The Daily Record',
   anchorName: 'Alex Morgan',
-  anchorTitle: 'Field Correspondent'
+  anchorTitle: 'Field Correspondent',
+  backgroundKey: 'tv_news_generic',
+  presenterKey: 'tv_anchor_generic'
 };
+
+const CRIME_SCENE_LABELS = {
+  louvre: 'the Louvre',
+  tower: 'the Tower of London',
+  castle: 'the Royal Castle',
+  auction_house: 'the Berlin Auction House',
+  havela: 'the Chandni Chowk Haveli',
+  dockyard: 'the Brooklyn Dockyard'
+};
+
+function getCrimeSceneLabel(sceneId) {
+  if (!sceneId) return 'an undisclosed location';
+
+  return CRIME_SCENE_LABELS[sceneId] || String(sceneId)
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+}
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
-function normalizeCrimeCityId(crimeCityId) {
-  if (!crimeCityId) return null;
-  const id = String(crimeCityId).toLowerCase();
-  switch (id) {
-    case 'paris':
-    case 'warsaw':
-    case 'berlin':
-    case 'london':
-    case 'new_delhi':
-    case 'newdelhi':
-    case 'new_york_city':
-    case 'newyorkcity':
-      return id.replace('newdelhi', 'new_delhi').replace('newyorkcity', 'new_york_city');
-    default:
-      return id;
-  }
+function normalizeCrimeCityId(cityId) {
+  if (!cityId) return null;
+
+  const id = String(cityId).trim().toLowerCase();
+
+  const aliases = {
+    hq: 'hq',
+    headquarters: 'hq',
+    mark_agency_headquarters: 'hq',
+
+    paris: 'paris',
+    warsaw: 'warsaw',
+    berlin: 'berlin',
+    london: 'london',
+
+    new_delhi: 'new_delhi',
+    newdelhi: 'new_delhi',
+
+    new_york_city: 'new_york_city',
+    newyorkcity: 'new_york_city'
+  };
+
+  return aliases[id] || id;
 }
 
 function getCityConfig(crimeCityId, tvConfigJson) {
   const normId = normalizeCrimeCityId(crimeCityId);
   const cityCfg = CITY_CONFIG[normId] || DEFAULT_CITY_CONFIG;
 
-  // z tv-config.json mamy stationName per miasto
-  const missionCityName = cityCfg.name;
   const cityConfigs = tvConfigJson?.cityConfigs || {};
-  const cityConfigJson = cityConfigs[missionCityName] || {};
+  const cityConfigJson = cityConfigs[cityCfg.name] || {};
 
   const stationDefaults = tvConfigJson?.meta?.stationDefaults || {};
+
   const reporterName =
-    stationDefaults.reporterName || cityCfg.anchorName || DEFAULT_CITY_CONFIG.anchorName;
+    cityConfigJson.reporterName ||
+    cityCfg.anchorName ||
+    stationDefaults.reporterName ||
+    DEFAULT_CITY_CONFIG.anchorName;
 
   const stationName =
     cityConfigJson.stationName ||
-    `${missionCityName} Night Report`;
+    `${cityCfg.name} Night Report`;
 
   return {
     ...cityCfg,
@@ -130,85 +186,171 @@ function filterPoolByCity(pool, cityName) {
 // ─── NEWS SEGMENT BUILDER (z tv-config.json) ─────────────────────────────────
 
 function buildNewsSegmentFromConfig(cityRuntimeConfig, mission, tvConfigJson) {
-  const template = (tvConfigJson?.storySegments || []).find(seg => seg.id === 'news-main');
+  const template = (tvConfigJson?.storySegments || [])
+    .find(segment => segment.id === 'news-main');
+
   if (!template) {
-    // fallback do starego buildera, jeśli nie ma template'u w JSON
     return buildNewsSegmentLegacy(cityRuntimeConfig, mission);
   }
 
-  const artifact = mission?.artifact || 'a priceless artefact';
-  const crimeCity = mission?.city || cityRuntimeConfig.name;
-  const scene = mission?.scene || 'the museum';
+  const artifact =
+    mission?.artifact ||
+    mission?.artifactName ||
+    'a priceless artefact';
+
+  const crimeCity =
+    mission?.city ||
+    cityRuntimeConfig.name;
+
+  const sceneId = mission?.scene || null;
+
+  const sourceLabel = getCrimeSceneLabel(sceneId);
+
   const significance =
-    mission?.significance || 'of immense historical value';
+    mission?.significance ||
+    mission?.description ||
+    'of immense historical value';
+
+  const publicClue =
+    mission?.clue ||
+    mission?.publicHint ||
+    'an unidentified figure in a pale trench coat';
 
   const stationName = cityRuntimeConfig.stationName;
   const reporterName = cityRuntimeConfig.reporterName;
 
-  const lines = (template.linesTemplate || []).map(line =>
-    line
-      .replaceAll('{city}', crimeCity)
-      .replaceAll('{artifact}', artifact)
-      .replaceAll('{suspectHint}', mission?.suspectHint || 'an unidentified figure in a pale trench coat')
-      .replaceAll('{destinationHint}', mission?.destinationHint || '')
-      .replaceAll('{thiefName}', mission?.thiefName || '')
-      .replaceAll('{reporterName}', reporterName)
-  );
+  const tokenMap = {
+    '{city}': crimeCity,
+    '{artifact}': artifact,
+    '{scene}': sourceLabel,
+    '{sourceLabel}': sourceLabel,
+    '{significance}': significance,
+    '{suspectHint}': publicClue,
+    '{destinationHint}': mission?.destinationHint || '',
+    '{thiefName}': mission?.thiefName || '',
+    '{reporterName}': reporterName,
+    '{stationName}': stationName
+  };
 
-  const theme = template.theme || {};
+  const interpolate = (text = '') => {
+    return Object.entries(tokenMap).reduce(
+      (result, [token, value]) => result.replaceAll(token, value),
+      text
+    );
+  };
+
+  const lines = (template.linesTemplate || []).map(interpolate);
 
   return {
+    id: `${mission?.id || mission?.artifactKey || 'mission'}-news-main`,
     type: template.type || 'news',
-    title: template.titleTemplate
-      ? template.titleTemplate.replaceAll('{stationName}', stationName)
-      : stationName,
-    anchorName: template.anchorNameTemplate
-      ? template.anchorNameTemplate.replaceAll('{reporterName}', reporterName)
-      : reporterName,
+
+    title: interpolate(template.titleTemplate || stationName),
+    anchorName: interpolate(template.anchorNameTemplate || reporterName),
+
     label: template.label || 'BREAKING NEWS',
     badge: template.badge || 'URGENT',
     channel: template.channel || cityRuntimeConfig.channel,
+
     charDelay: template.charDelay || 17,
     linePause: template.linePause || 260,
     hold: template.hold || 1400,
-    theme,
+    theme: template.theme || {},
+
+    // Assety do użycia przez TvBroadcastScene.
+    backgroundKey: cityRuntimeConfig.backgroundKey,
+    presenterKey: cityRuntimeConfig.presenterKey,
+
+    // Dane fabularne — możesz wyświetlić jako lower-third / evidence card.
+    caseFacts: {
+      artifact,
+      artifactKey: mission?.artifactKey || null,
+
+      city: crimeCity,
+      country: mission?.country || null,
+
+      sceneId,
+      sourceLabel,
+      sourceWithCity: `${sourceLabel}, ${crimeCity}`,
+
+      description: mission?.description || null,
+      significance,
+
+      publicClue,
+      missionClue: mission?.clue || null
+    },
+
     lines
   };
 }
 
 // stary fallback (bez JSON-a), jeśli coś pójdzie nie tak
 function buildNewsSegmentLegacy(cityConfig, mission) {
-  const artifact = mission?.artifact || 'a priceless artefact';
+  const artifact =
+    mission?.artifact ||
+    mission?.artifactName ||
+    'a priceless artefact';
+
   const crimeCity = mission?.city || cityConfig.name;
-  const scene = mission?.scene || 'the museum';
-  const significance = mission?.significance || 'of immense historical value';
+  const sceneId = mission?.scene || null;
+  const sourceLabel = getCrimeSceneLabel(sceneId);
+
+  const significance =
+    mission?.significance ||
+    mission?.description ||
+    'of immense historical value';
+
+  const publicClue =
+    mission?.clue ||
+    mission?.publicHint ||
+    'an unidentified figure in a pale trench coat';
 
   return {
+    id: `${mission?.id || mission?.artifactKey || 'mission'}-news-main`,
     type: 'news',
+
     title: `${cityConfig.channel} — Evening Bulletin`,
     anchorName: cityConfig.anchorName,
+
     label: 'BREAKING NEWS',
     badge: 'URGENT',
     channel: cityConfig.channel,
+
     charDelay: 17,
     linePause: 260,
     hold: 1400,
+
+    backgroundKey: cityConfig.backgroundKey,
+    presenterKey: cityConfig.presenterKey,
+
+    caseFacts: {
+      artifact,
+      artifactKey: mission?.artifactKey || null,
+      city: crimeCity,
+      country: mission?.country || null,
+      sceneId,
+      sourceLabel,
+      sourceWithCity: `${sourceLabel}, ${crimeCity}`,
+      description: mission?.description || null,
+      significance,
+      publicClue,
+      missionClue: mission?.clue || null
+    },
+
     theme: {
       screenColor: '#1a2421',
       topBarColor: '#284c46',
       badgeColor: '#9b3043',
       bottomColor: '#09110f'
     },
-    lines: [
-      `Good evening. I'm ${cityConfig.anchorName}, ${cityConfig.anchorTitle}.`,
-      `Breaking news from ${crimeCity}: the ${artifact} has disappeared.`,
-      `The item — ${significance} — was reported missing from ${scene} in the early morning hours.`,
-      `Police confirm the scene shows signs of a highly calculated entry. No suspects have been named. Officially.`,
-      `Interpol called the theft, quote, "troublingly professional."`,
-      `If you have information, contact the ${cityConfig.newspaper} tip line. Anonymity guaranteed. Mostly.`,
-      `In other news: local pigeons continue to cause diplomatic tension near ${cityConfig.landmark}. More at eleven.`,
-      `This has been ${cityConfig.anchorName}. Stay alert, ${crimeCity}. Someone among you knows something.`
-    ]
+
+    "linesTemplate": [
+  "Good evening, {city}. Authorities continue investigating the theft of {artifact}.",
+  "The artefact was taken from {sourceLabel}.",
+  "Experts describe the item as {significance}.",
+  "Witnesses report: {suspectHint}",
+  "Officials have not named a suspect, but several leads remain active."
+]
   };
 }
 
@@ -223,32 +365,42 @@ function buildNewsSegmentLegacy(cityConfig, mission) {
  * @returns {{ channel, cityId, cityName, segments[] }}
  */
 export function getTVBroadcast(gameState, tvConfigJson) {
-  const crimeCityId = gameState?.crimeCityId || null;
-  const normCrimeCityId = normalizeCrimeCityId(crimeCityId);
+  // Miasto, w którym gracz aktualnie ogląda telewizję.
+  // W HQ będzie to "hq".
+  const broadcastCityId =
+    gameState?.currentCityId ||
+    gameState?.crimeCityId ||
+    'hq';
+
+  const normalizedBroadcastCityId = normalizeCrimeCityId(broadcastCityId);
+
+  // Misja dalej określa, o jakim artefakcie mówi news.
   const mission = gameState?.currentMission || null;
 
-  // city runtime config (kanał z CITY_CONFIG + stationName/reporterName z JSON)
-  const cityRuntimeConfig = getCityConfig(normCrimeCityId, tvConfigJson);
+  const cityRuntimeConfig = getCityConfig(
+    normalizedBroadcastCityId,
+    tvConfigJson
+  );
 
-  // wybór ads/fillers z JSON per city
-  const missionCityName = mission?.city || cityRuntimeConfig.name;
+  const broadcastCityName = cityRuntimeConfig.name;
+
   const allAds = tvConfigJson?.pools?.ads || [];
   const allFillers = tvConfigJson?.pools?.fillers || [];
 
-  const cityAds = filterPoolByCity(allAds, missionCityName);
-  const cityFillers = filterPoolByCity(allFillers, missionCityName);
+  // Reklamy i fillery są lokalne dla miejsca, w którym stoi TV.
+  const cityAds = filterPoolByCity(allAds, broadcastCityName);
+  const cityFillers = filterPoolByCity(allFillers, broadcastCityName);
 
-  const adSegment = pickRandom(cityAds);
   const fillerSegment = pickRandom(cityFillers);
+  const adSegment = pickRandom(cityAds);
 
-  // news z template'u JSON
+  // News nadal opisuje crime city i aktualny artefakt misji.
   const newsSegment = buildNewsSegmentFromConfig(
     cityRuntimeConfig,
     mission,
     tvConfigJson
   );
 
-  // jeżeli nie udało się nic dobrać, fallback do defaultowych struktur
   const segments = [];
 
   if (fillerSegment) {
@@ -269,7 +421,7 @@ export function getTVBroadcast(gameState, tvConfigJson) {
 
   return {
     channel: cityRuntimeConfig.channel,
-    cityId: normCrimeCityId,
+    cityId: normalizedBroadcastCityId,
     cityName: cityRuntimeConfig.name,
     segments
   };

@@ -1,4 +1,5 @@
 import { initCrimeBoard } from '../CrimeBoardInit.js';
+import { EventBus } from '../EventBus.js';
 
 export class CrimeBoardUI {
     constructor(scene) {
@@ -98,6 +99,7 @@ export class CrimeBoardUI {
         const state = gameState || this.scene.playerMenu?.gameState || this.scene.gameState || {};
 
         this.isOpen = true;
+        EventBus.emit('hideHUD');
         this.overlay.classList.add('is-open');
         this.disableUnderlyingScenesInput();
 
@@ -138,6 +140,7 @@ export class CrimeBoardUI {
         }
 
         this.isOpen = false;
+        EventBus.emit('showHUD');
         this.overlay.classList.remove('is-open');
 
         this.enableUnderlyingScenesInput();
@@ -220,6 +223,7 @@ export class CrimeBoardUI {
     }
 
     destroy() {
+        EventBus.emit('showHUD');
         document.removeEventListener('keydown', this.boundEscHandler);
 
         if (this.boardApi?.destroy) {

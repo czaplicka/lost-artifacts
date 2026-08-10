@@ -1,4 +1,5 @@
   import { saveGameState } from '../GameData.js';
+  import { EventBus } from '../EventBus.js';
 
   export class NotesUI {
     constructor(scene) {
@@ -282,13 +283,11 @@ buildCluesText(gameState) {
 
     open(gameState) {
       this.isOpen = true;
+      EventBus.emit('hideHUD');
       this.currentGameState = gameState;
       this.overlay.setVisible(true);
       this.container.setVisible(true);
       this.refresh(gameState);
-
-      // Otwieramy notes w trybie podglądu, bez focusa na textarea.
-      // Dzięki temu skróty typu W w innych menu nadal mogą działać.
       this.disableTypingMode();
     }
 
@@ -305,6 +304,7 @@ buildCluesText(gameState) {
       this.isOpen = false;
       this.overlay.setVisible(false);
       this.container.setVisible(false);
+      EventBus.emit('showHUD');
     }
 
     toggle(gameState) {
@@ -312,6 +312,7 @@ buildCluesText(gameState) {
     }
 
     destroy() {
+      EventBus.emit('showHUD');
       if (this.playerInputDOM?.node) {
         if (this.onInput) {
           this.playerInputDOM.node.removeEventListener('input', this.onInput);

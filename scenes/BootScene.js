@@ -14,40 +14,68 @@ export class BootScene extends BaseScene {
     }
 
     create() {
-            super.create();
-            EventBus.emit('hideHUD');
-        try {
-            loadGameState();
-        } catch (error) {
-            console.error('loadGameState failed:', error);
-        }
-if (!this.registry.has('difficulty')) {
-            this.registry.set('difficulty', 'field');
-        }
-    // Inicjalizacja MobileFullscreen — tworzy overlay i listenery
-    if (!this.registry.has('mobileFS')) {
-        const mobileFS = new MobileFullscreen();
-        this.registry.set('mobileFS', mobileFS);
+  super.create();
+EventBus.emit('hideHUD');
+  try {
+    loadGameState();
+  } catch (error) {
+    console.error('[BootScene] loadGameState failed:', error);
+  }
+
+  if (!this.registry.has('difficulty')) {
+    this.registry.set('difficulty', 'field');
+  }
+
+  if (!this.registry.has('mobileFS')) {
+    const mobileFS = new MobileFullscreen();
+    this.registry.set('mobileFS', mobileFS);
+  }
+
+  let hasStartedPreloader = false;
+
+  const startPreloader = () => {
+    if (hasStartedPreloader) return;
+
+    hasStartedPreloader = true;
+
+    if (this.scene.manager.keys.PreloaderScene) {
+      this.scene.start('PreloaderScene');
+      return;
     }
-if (window.WebFont && typeof window.WebFont.load === 'function') {
-            window.WebFont.load({
-                google: {
-                    families: ['SpecialElite', 'PressStart2P']
-                },
-                active: () => initUi(),
-                inactive: () => {
-                    console.warn('WebFont failed to load, continuing with fallback fonts.');
-                    initUi();
-                }
-            });
-        } else {
-            console.warn('WebFont is not available, continuing with fallback fonts.');
-            initUi();
-        }
-    if (this.scene.get('PreloaderScene')) {
-        this.scene.start('PreloaderScene');
-    } else {
-        console.error('PreloaderScene is not registered');
-    }
+
+    console.error('[BootScene] PreloaderScene is not registered.');
+  };
+
+  if (window.WebFont && typeof window.WebFont.load === 'function') {
+    window.WebFont.load({
+      google: {
+        families: [
+          'Special Elite',
+          'Press Start 2P'
+        ]
+      },
+
+      active: () => {
+        console.log('[BootScene] Web fonts loaded.');
+        startPreloader();
+      },
+
+      inactive: () => {
+        console.warn(
+          '[BootScene] Web fonts failed to load. Continuing with fallback fonts.'
+        );
+
+        startPreloader();
+      }
+    });
+
+    return;
+  }
+
+  console.warn(
+    '[BootScene] WebFont is unavailable. Continuing with fallback fonts.'
+  );
+
+  startPreloader();
 }
 }

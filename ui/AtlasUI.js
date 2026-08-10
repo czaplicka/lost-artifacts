@@ -1,4 +1,5 @@
 import { audioManager } from '../AudioManager.js';
+import { EventBus } from '../EventBus.js';
 
 export class AtlasUI {
     constructor(scene, countries = []) {
@@ -486,7 +487,7 @@ export class AtlasUI {
 
         if (this.isOpen) return;
         this.isOpen = true;
-
+EventBus.emit('hideHUD');
         this.overlay.setVisible(true);
         this.book.setVisible(true);
 
@@ -510,6 +511,7 @@ export class AtlasUI {
             onComplete: () => {
                 this.overlay.setVisible(false);
                 this.book.setVisible(false);
+                EventBus.emit('showHUD');
             }
         });
     }
@@ -519,6 +521,7 @@ export class AtlasUI {
     }
 
     destroy() {
+        EventBus.emit('showHUD');
         if (this.scene.input?.keyboard) {
             this.scene.input.keyboard.off('keydown-A', this.boundToggleHandler);
             this.scene.input.keyboard.off('keydown-LEFT', this.boundLeftHandler);

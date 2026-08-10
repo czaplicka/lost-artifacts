@@ -1,6 +1,7 @@
 import { NewspaperLayout } from '../ui/NewspaperUI.js';
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
+import { EventBus } from '../EventBus.js';
 
 export class NewspaperOverlayScene extends BaseScene {
   constructor() {
@@ -338,7 +339,7 @@ resolveCityData(json, cityId, type) {
   openOverlay() {
     this.isAnimating = true;
     this.playRustle(0.24);
-
+EventBus.emit('hideHUD');
     this.dim.setAlpha(0);
     this.paper.setAlpha(0);
     this.paper.setPosition(0, 0);
@@ -364,7 +365,7 @@ resolveCityData(json, cityId, type) {
 
     this.isAnimating = true;
     this.playRustle(0.18);
-
+EventBus.emit('showHUD');
     this.tweens.add({
       targets: [this.dim, this.paper],
       alpha: 0,

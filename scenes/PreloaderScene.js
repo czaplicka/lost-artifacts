@@ -189,6 +189,8 @@ export class PreloaderScene extends BaseScene {
         this.load.image('phonebook', 'assets/phonebook.jpg');
 
         this.load.image('television', 'assets/television.png');
+        this.load.image('tv_news_studio', 'assets/tv/tv_news_studio.png');
+this.load.image('tv_anchor_generic', 'assets/tv/tv_anchor_generic.png');
 
         this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
         this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
