@@ -15,24 +15,23 @@ import { AgainScene } from './scenes/AgainScene.js';
 import { SuccessScene } from './scenes/SuccessScene.js';
 import { DifficultyScene } from './scenes/DifficultyScene.js';
 import { HotelScene } from './scenes/HotelScene.js';
-
+import { CharacterCreationScene } from './scenes/CharacterCreationScene.js';
+import { CrimeCityScene } from './scenes/CrimeCityScene.js';
+import { IntroScene } from './scenes/IntroScene.js';
 import { UIScene } from './ui/UIScene.js';
 import { NewsHud } from './ui/NewsHud.js';
-
 import { HiddenObjectsScene } from './scenes/HiddenObjectsScene.js';
 import { PhoneCallScene } from './scenes/PhoneCallScene.js';
 import { HypothesisScene } from './scenes/HypothesisScene.js';
 import { TheoryResultCallScene } from './scenes/TheoryResultCallScene.js';
 import { WantedDatabaseScene } from './scenes/WantedDatabaseScene.js';
 import { RecoveredArtifactsScene } from './scenes/RecoveredArtifactsScene.js';
-
 import { CrimeLabScene } from './scenes/CSI/CrimeLabScene.js';
 import { HairAnalysisScene } from './scenes/CSI/HairAnalysisScene.js';
 import { ToolmarkAnalysisScene } from './scenes/CSI/ToolmarkAnalysisScene.js';
 import { FiberAnalysisScene } from './scenes/CSI/FiberAnalysisScene.js';
 import { FingerprintScene } from './scenes/CSI/FingerprintScene.js';
 import { ShoeprintScene } from './scenes/CSI/ShoeprintScene.js';
-
 import { NewsstandScene } from './scenes/NewsstandScene.js';
 import { NewspaperOverlayScene } from './scenes/NewspaperOverlayScene.js';
 import { EnterScene } from './scenes/EnterScene.js';
@@ -63,24 +62,22 @@ const config = {
     AgainScene,
     DifficultyScene,
     HotelScene,
-
+    CharacterCreationScene,
+    CrimeCityScene,
+    IntroScene,
     HiddenObjectsScene,
     PhoneCallScene,
     HypothesisScene,
     TheoryResultCallScene,
     WantedDatabaseScene,
     RecoveredArtifactsScene,
-
     NewsstandScene,
     NewspaperOverlayScene,
     EnterScene,
     TvBroadcastScene,
-
     UIScene,
     NewsHud,
-
     CrimeLabScene,
-
     HairAnalysisScene,
     ToolmarkAnalysisScene,
     FiberAnalysisScene,

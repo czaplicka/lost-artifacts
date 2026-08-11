@@ -2,15 +2,9 @@ import { supabase } from '../supabase-client.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 
-const STORAGE_KEYS = {
-  GUEST_LAST_USED_SLOT: 'lost-artefacts:last-used-slot',
-  GUEST_SAVE_PREFIX: 'lost-artefacts:save:',
-  START_NEW_GAME_AFTER_REGISTER: 'lost-artefacts:pending-new-game-after-register',
-};
-
-export class EnterScene extends BaseScene {
+export class CrimeCityScene extends BaseScene {
   constructor() {
-    super({ key: 'EnterScene' });
+    super({ key: 'CrimeCityScene' });
 
     this.modalElement = null;
     this.modalFrame = null;
@@ -19,11 +13,10 @@ export class EnterScene extends BaseScene {
   }
 
   async create() {
-    super.create();
-
+        super.create();
     const { width, height } = this.scale;
 
-    EventBus.emit('hideHUD');
+//EventBus.emit('hideHUD');
 
     const centerX = width * 0.23;
 
@@ -59,7 +52,8 @@ export class EnterScene extends BaseScene {
     });
 
     nextBtn.on('pointerdown', () => {
-      this.handlePrimaryEntry();
+      const authMode = this.currentUser ? 'account' : 'guest';
+      this.startMenu(authMode);
     });
 
     this.onWindowMessage = this.handleWindowMessage.bind(this);
@@ -94,20 +88,6 @@ export class EnterScene extends BaseScene {
     await this.ensurePlayerProfile(this.currentUser);
   }
 
-  handlePrimaryEntry() {
-    if (this.currentUser) {
-      this.startLoadFlow('account');
-      return;
-    }
-
-    if (this.hasGuestSave()) {
-      this.startLoadFlow('guest');
-      return;
-    }
-
-    this.startNewGameFlow('guest');
-  }
-
   async handleWindowMessage(event) {
     if (event.origin !== window.location.origin) {
       return;
@@ -124,14 +104,10 @@ export class EnterScene extends BaseScene {
     }
 
     if (message.type === 'lost-artefacts:auth-registered') {
-      this.rememberNewGameAfterRegistration();
-      this.closeModal();
-
       alert(
-        'Account created. Confirm your e-mail, then log in. ' +
-        'Your brand-new questionable career will be waiting.',
+        'Konto utworzone. Sprawdź skrzynkę e-mail i potwierdź adres, potem zaloguj się.',
       );
-
+      this.closeModal();
       return;
     }
 
@@ -153,13 +129,7 @@ export class EnterScene extends BaseScene {
 
     await this.ensurePlayerProfile(this.currentUser);
 
-    if (this.shouldStartNewGameAfterRegistration()) {
-      this.clearNewGameAfterRegistrationIntent();
-      this.startNewGameFlow('account');
-      return;
-    }
-
-    this.startLoadFlow('account');
+    this.startMenu('account');
   }
 
   async ensurePlayerProfile(user) {
@@ -187,92 +157,17 @@ export class EnterScene extends BaseScene {
     }
   }
 
-  hasGuestSave() {
-    try {
-      const lastUsedSlot = localStorage.getItem(STORAGE_KEYS.GUEST_LAST_USED_SLOT);
-
-      if (!lastUsedSlot) {
-        return false;
-      }
-
-      const saveKey = `${STORAGE_KEYS.GUEST_SAVE_PREFIX}${lastUsedSlot}`;
-      const rawSave = localStorage.getItem(saveKey);
-
-      if (!rawSave) {
-        return false;
-      }
-
-      JSON.parse(rawSave);
-
-      return true;
-    } catch (error) {
-      console.warn('Nie udało się sprawdzić sejwa gościa:', error);
-      return false;
-    }
-  }
-
-  rememberNewGameAfterRegistration() {
-    try {
-      localStorage.setItem(
-        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER,
-        'true',
-      );
-    } catch (error) {
-      console.warn('Nie udało się zapamiętać intencji nowej gry:', error);
-    }
-  }
-
-  shouldStartNewGameAfterRegistration() {
-    try {
-      return localStorage.getItem(
-        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER,
-      ) === 'true';
-    } catch (error) {
-      console.warn('Nie udało się odczytać intencji nowej gry:', error);
-      return false;
-    }
-  }
-
-  clearNewGameAfterRegistrationIntent() {
-    try {
-      localStorage.removeItem(
-        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER,
-      );
-    } catch (error) {
-      console.warn('Nie udało się usunąć intencji nowej gry:', error);
-    }
-  }
-
-  startNewGameFlow(authMode) {
-    this.closeModal();
-
-    this.scene.start('CharacterCreationScene', {
-      authMode,
-      playerId: this.currentUser?.id ?? null,
-      playerEmail: this.currentUser?.email ?? null,
-      displayName: this.getDisplayName(),
-      returnScene: 'DifficultyScene',
-      isNewGame: true,
-    });
-  }
-
-  startLoadFlow(authMode) {
+  startMenu(authMode) {
     this.closeModal();
 
     this.scene.start('MenuScene', {
       authMode,
       playerId: this.currentUser?.id ?? null,
       playerEmail: this.currentUser?.email ?? null,
-      displayName: this.getDisplayName(),
-      entryIntent: 'load',
-      autoContinue: true,
+      displayName: this.currentUser?.user_metadata?.display_name
+        ?? this.currentUser?.email?.split('@')[0]
+        ?? 'Gość',
     });
-  }
-
-  getDisplayName() {
-    return this.currentUser?.user_metadata?.display_name
-      ?? this.currentUser?.email?.split('@')[0]
-      ?? 'Guest';
   }
 
   addHoverEffect(button, baseScale = 1, hoverScale = 1.05) {

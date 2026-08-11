@@ -86,7 +86,7 @@ export class HotelScene extends Phaser.Scene {
 
       this.time.delayedCall(1500, () => {
         this.scene.stop();
-        this.scene.resume('CityScene');
+        this.scene.resume('CrimeCityScene');
       });
     });
   }

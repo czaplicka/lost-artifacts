@@ -27,7 +27,22 @@
       { "id": "london_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "london_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "london_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "paris",
@@ -56,7 +71,22 @@
       { "id": "paris_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "paris_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "paris_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "new_delhi",
@@ -86,7 +116,22 @@
       { "id": "new_delhi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "new_delhi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "new_delhi_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "warsaw",
@@ -116,7 +161,22 @@
       { "id": "warsaw_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "warsaw_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "warsaw_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "new_york_city",
@@ -146,7 +206,22 @@
       { "id": "new_york_city_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "new_york_city_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "new_york_city_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "berlin",
@@ -176,7 +251,22 @@
       { "id": "berlin_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "berlin_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "berlin_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "toronto",
@@ -190,7 +280,7 @@
     "background": "toronto.jpg",
     "npcTheme": "white",
     "map": { "x": 480, "y": 360 },
-    "isCrimeCity": true,
+    "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 250, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 570, "cityY": 480, "enabled": true },
@@ -206,7 +296,22 @@
       { "id": "toronto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "toronto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "toronto_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "kotto",
@@ -220,7 +325,7 @@
     "background": "kotto.jpg",
     "npcTheme": "south_asian",
     "map": { "x": 1325, "y": 570 },
-    "isCrimeCity": true,
+    "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
@@ -236,7 +341,22 @@
       { "id": "kotto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "kotto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "kotto_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "islamabad",
@@ -250,7 +370,7 @@
     "background": "islamabad.jpg",
     "npcTheme": "south_asian",
     "map": { "x": 1250, "y": 420 },
-    "isCrimeCity": true,
+    "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
@@ -266,7 +386,22 @@
       { "id": "islamabad_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "islamabad_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "islamabad_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "nairobi",
@@ -280,7 +415,7 @@
     "background": "nairobi.jpg",
     "npcTheme": "black",
     "map": { "x": 1080, "y": 500 },
-    "isCrimeCity": true,
+    "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
@@ -296,7 +431,22 @@
       { "id": "nairobi_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "nairobi_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "nairobi_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "tokyo",
@@ -310,7 +460,7 @@
     "background": "tokyo.jpg",
     "npcTheme": "asian",
     "map": { "x": 1500, "y": 370 },
-    "isCrimeCity": true,
+    "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },
@@ -326,7 +476,22 @@
       { "id": "tokyo_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
       { "id": "tokyo_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
-    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true }
+    "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
+    "crimeCity": {
+  "backgroundKey": "tokyo_crime",
+  "crimeScene": { "x": 1120, "y": 480 },
+  "crimeLab": { "x": 950, "y": 250 },
+  "hotel": { "x": 145, "y": 460 },
+  "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
+  "suspectSlots": [
+    { "id": "suspect_1", "x": 280, "y": 380 },
+    { "id": "suspect_2", "x": 500, "y": 470 },
+    { "id": "suspect_3", "x": 720, "y": 365 },
+    { "id": "suspect_4", "x": 930, "y": 505 },
+    { "id": "suspect_5", "x": 1135, "y": 345 },
+    { "id": "suspect_6", "x": 1325, "y": 470 }
+  ]
+}
   },
   {
     "id": "hq",
