@@ -1,0 +1,56 @@
+{
+  "reconstructionQuestions": [
+    {
+      "id": "beat_security",
+      "prompt": "HOW DID THEY BEAT SECURITY?"
+    },
+    {
+      "id": "disable_system",
+      "prompt": "HOW DID THEY DISABLE THE SYSTEM?"
+    },
+    {
+      "id": "create_blind_spot",
+      "prompt": "HOW DID THEY CREATE A BLIND SPOT?"
+    },
+    {
+      "id": "move_unnoticed",
+      "prompt": "HOW DID THEY MOVE UNNOTICED?"
+    },
+    {
+      "id": "distract_guards",
+      "prompt": "HOW DID THEY KEEP THE GUARDS BUSY?"
+    },
+    {
+      "id": "remove_artifact",
+      "prompt": "HOW DID THEY TAKE THE ARTIFACT WITHOUT RAISING THE ALARM?"
+    },
+    {
+      "id": "gain_access",
+      "prompt": "HOW DID THEY GET WHERE THEY SHOULDN'T BE?"
+    },
+    {
+      "id": "avoid_attention",
+      "prompt": "HOW DID THEY BLEND IN?"
+    },
+    {
+      "id": "escape_route",
+      "prompt": "HOW DID THEY PLAN TO GET AWAY?"
+    },
+    {
+      "id": "identify_target",
+      "prompt": "HOW DID THEY KNOW WHAT TO TAKE?"
+    },
+    {
+      "id": "hide_theft",
+      "prompt": "HOW DID THEY MAKE THE THEFT LOOK ORDINARY?"
+    },
+    {
+      "id": "reach_target",
+      "prompt": "HOW DID THEY REACH THE TARGET?"
+    },
+    {
+      "id": "overcome_guard",
+      "prompt": "HOW DID THEY CLEAR THE WAY?"
+    }
+  ]
+}

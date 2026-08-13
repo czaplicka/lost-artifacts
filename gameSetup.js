@@ -286,17 +286,47 @@ export function getDestinationPreviewData(locations) {
 
 async function fetchCaseSuspects(thief, crimeCityId) {
   let lastError = null;
-  for (let attempt = 0; attempt <= SUSPECT_FETCH_RETRIES; attempt += 1) {
+
+  for (
+    let attempt = 0;
+    attempt <= SUSPECT_FETCH_RETRIES;
+    attempt += 1
+  ) {
     try {
       const response = await fetch(SUSPECT_DATA_URL);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return new SuspectGenerator(await response.json()).generateCaseSuspects(thief, crimeCityId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const citySuspectsData = await response.json();
+
+      const suspectGenerator = new SuspectGenerator(
+        citySuspectsData
+      );
+
+      const caseData = suspectGenerator.generateCaseSuspects(
+        thief,
+        crimeCityId
+      );
+
+      suspectGenerator.prepareCaseState(caseData);
+
+      return caseData;
     } catch (error) {
       lastError = error;
-      if (attempt < SUSPECT_FETCH_RETRIES) await new Promise(resolve => setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS));
+
+      if (attempt < SUSPECT_FETCH_RETRIES) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS);
+        });
+      }
     }
   }
-  throw new Error(`Failed to load suspects: ${lastError?.message || lastError}`);
+
+  throw new Error(
+    `Failed to load suspects: ${lastError?.message || lastError}`
+  );
 }
 
 export async function setupNewGame(suspectsData, missionsData, locationsData, difficulty = 'field') {
@@ -336,9 +366,7 @@ export async function setupNewGame(suspectsData, missionsData, locationsData, di
     agencyDebt: 0, moneyLog: []
   });
   const caseData = await fetchCaseSuspects(gameState.currentThief, crimeCityId);
-  gameState.caseSuspects = caseData.suspects || [];
-  gameState.identityEvidence = caseData.identity_evidence || null;
-  gameState.traceEvidence = caseData.trace_evidence || [];
+
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
   syncScoreFromManager();

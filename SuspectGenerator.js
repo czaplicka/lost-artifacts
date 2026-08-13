@@ -1,9 +1,4 @@
-// ============================================================
-// SuspectGenerator.js
-// Builds a full 10-person suspect lineup (9 decoys + the case's
-// thief pulled from gameState.currentThief) for a given crime city.
-// Does NOT mutate the supplied thief object.
-// ============================================================
+import { gameState } from './GameData.js';
 
 class SuspectGenerator {
   constructor(citysuspectsData) {
@@ -13,153 +8,314 @@ class SuspectGenerator {
 
     this.citysuspects = citysuspectsData;
 
+    /*
+     * Only one of these becomes the real Crime Lab result for a case.
+     * "race" is intentionally not used as forensic elimination evidence.
+     */
     this.identityEvidencePool = {
-      hair_color: { domain: ['blond', 'black', 'red', 'brown'], k: 4 },
-      blood_type: { domain: ['A', 'B', '0', 'AB'], k: 4 },
-      biological_sex: { domain: ['M', 'F', 'NB'], k: 3, pNonbinary: 0.10 },
-      shoe_size_category: { domain: ['small', 'medium', 'large'], k: 3 },
-      race: {
-        domain: ['White', 'Black', 'Latino', 'American Indian', 'Asian', 'Native Hawaiian'],
-        k: 6
+      hair_color: {
+        domain: ['blond', 'black', 'red', 'brown'],
+        label: 'Hair Analysis',
+        minigame: 'HairAnalysisScene',
+        clueText: 'Hair analysis narrows the suspect list.'
+      },
+      blood_type: {
+        domain: ['A', 'B', '0', 'AB'],
+        label: 'Blood Typing Station',
+        minigame: 'BloodAnalysisScene',
+        clueText: 'Blood typing narrows the suspect list.'
+      },
+      biological_sex: {
+        domain: ['M', 'F', 'NB'],
+        label: 'DNA Profile Station',
+        minigame: 'DNAAnalysisScene',
+        clueText: 'The DNA profile narrows the suspect list.'
+      },
+      shoe_size_category: {
+        domain: ['small', 'medium', 'large'],
+        label: 'Footwear Analysis',
+        minigame: 'ShoeprintScene',
+        clueText: 'Footwear analysis narrows the suspect list.'
       }
     };
 
     this.traceEvidencePool = [
-      { id: 'fingerprint_fragment', label: 'Partial Fingerprint', minigame: 'FingerprintPuzzleScene', possibleThreads: ['alibi', 'timeline'] },
-      { id: 'fabric_fragment', label: 'Fabric Fragment', minigame: 'UVSwatchScene', possibleThreads: ['motive', 'alibi'] },
-      { id: 'cctv_footage', label: 'CCTV Footage Still', minigame: 'CCTVScrubberScene', possibleThreads: ['timeline', 'alibi'] },
-      { id: 'tool_marks', label: 'Tool Marks', minigame: 'ToolMarkOverlayScene', possibleThreads: ['method'] },
-      { id: 'scent_trace_osmology', label: 'Osmology Scent Trace', minigame: 'K9LineupScene', possibleThreads: ['motive', 'method'] },
-      { id: 'glass_shards', label: 'Glass Shards', minigame: 'GlassShardPuzzleScene', possibleThreads: [null] }
+      {
+        id: 'fingerprint_fragment',
+        label: 'Partial Fingerprint',
+        minigame: 'FingerprintScene',
+        possibleThreads: ['alibi', 'timeline']
+      },
+      {
+        id: 'fabric_fragment',
+        label: 'Fabric Fragment',
+        minigame: 'FiberAnalysisScene',
+        possibleThreads: ['motive', 'alibi']
+      },
+      {
+        id: 'tool_marks',
+        label: 'Tool Marks',
+        minigame: 'ToolmarkAnalysisScene',
+        possibleThreads: ['method', 'timeline']
+      },
+      {
+        id: 'shoeprint',
+        label: 'Shoeprint Impression',
+        minigame: 'ShoeprintScene',
+        possibleThreads: ['method', 'timeline']
+      },
+      {
+        id: 'broken_button',
+        label: 'Broken Button',
+        minigame: 'GarmentAnalysisScene',
+        possibleThreads: ['alibi', 'motive']
+      },
+      {
+        id: 'coffee_residue',
+        label: 'Coffee Residue',
+        minigame: 'ChemicalAnalysisScene',
+        possibleThreads: ['timeline', 'motive']
+      }
     ];
 
-    this.P_MATCH = 0.6;
+    this.skillPool = [
+      'Lockpicking',
+      'Acrobatics',
+      'Disguise',
+      'Forgery',
+      'Surveillance',
+      'Climbing',
+      'Safecracking',
+      'Electronics',
+      'Art history',
+      'Museum studies',
+      'Investigation',
+      'Analysis',
+      'Deduction',
+      'Driving',
+      'First aid',
+      'Negotiation',
+      'Sleight of hand',
+      'Problem-solving'
+    ];
   }
 
-  static randomFrom(arr) {
-    if (!Array.isArray(arr) || arr.length === 0) {
-      return null;
-    }
-
-    return arr[Math.floor(Math.random() * arr.length)] ?? null;
+  static randomFrom(items) {
+    if (!Array.isArray(items) || !items.length) return null;
+    return items[Math.floor(Math.random() * items.length)] ?? null;
   }
 
-  static shuffle(arr) {
-    if (!Array.isArray(arr)) {
-      return [];
-    }
+  static randomInt(min, max) {
+    const safeMin = Math.ceil(Math.min(min, max));
+    const safeMax = Math.floor(Math.max(min, max));
+    return Math.floor(Math.random() * (safeMax - safeMin + 1)) + safeMin;
+  }
 
-    const shuffled = [...arr];
+  static shuffle(items) {
+    if (!Array.isArray(items)) return [];
 
-    for (let i = shuffled.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const shuffled = [...items];
+
+    for (let index = shuffled.length - 1; index > 0; index -= 1) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
     }
 
     return shuffled;
   }
 
-  static sampleUnique(arr, count) {
-    if (!Array.isArray(arr) || !Number.isInteger(count) || count <= 0) {
-      return [];
-    }
-
-    return SuspectGenerator.shuffle(arr).slice(0, count);
-  }
-
-  static bernoulli(probability) {
-    const p = Number.isFinite(probability)
-      ? Phaser.Math.Clamp(probability, 0, 1)
-      : 0;
-
-    return Math.random() < p;
+  static sampleUnique(items, count) {
+    if (!Array.isArray(items) || !Number.isInteger(count) || count <= 0) return [];
+    return SuspectGenerator.shuffle(items).slice(0, count);
   }
 
   static validStringArray(value) {
-    return Array.isArray(value)
-      ? value.filter(item => typeof item === 'string' && item.trim().length > 0)
-      : [];
+    if (!Array.isArray(value)) return [];
+
+    return value
+      .filter((item) => typeof item === 'string' && item.trim())
+      .map((item) => item.trim());
+  }
+
+  static normalizeSkill(skill) {
+    return String(skill || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  static parseSkills(value) {
+    if (Array.isArray(value)) {
+      return [...new Set(
+        value
+          .map((skill) => String(skill || '').trim())
+          .filter(Boolean)
+      )];
+    }
+
+    if (typeof value !== 'string') return [];
+
+    return [...new Set(
+      value
+        .split(',')
+        .map((skill) => skill.trim())
+        .filter(Boolean)
+    )];
+  }
+
+  normalizeCityId(cityId) {
+    return String(cityId || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_');
+  }
+
+  normalizeGenderCode(person) {
+    const value = String(person?.gender_code || person?.gender || '')
+      .trim()
+      .toLowerCase();
+
+    if (['f', 'female', 'woman'].includes(value)) return 'f';
+    if (['m', 'male', 'man'].includes(value)) return 'm';
+    if (['nb', 'nonbinary', 'non-binary', 'non binary'].includes(value)) return 'nb';
+
+    return 'nb';
   }
 
   getKnownThiefAttribute(thief, attribute) {
-    const knownAttributes = {
-      hair_color: typeof thief?.hair === 'string'
-        ? thief.hair.toLowerCase()
-        : null,
-      biological_sex: thief?.gender_code === 'f'
+    const nestedAttributes = thief?.attributes || {};
+    const gender = this.normalizeGenderCode(thief);
+
+    const values = {
+      hair_color: thief?.hair
+        || thief?.hair_color
+        || nestedAttributes.hair_color
+        || null,
+
+      blood_type: thief?.blood_type
+        || thief?.bloodType
+        || nestedAttributes.blood_type
+        || null,
+
+      biological_sex: gender === 'f'
         ? 'F'
-        : thief?.gender_code === 'm'
+        : gender === 'm'
           ? 'M'
-          : thief?.gender_code === 'nb'
-            ? 'NB'
-            : null
+          : 'NB',
+
+      shoe_size_category: thief?.shoe_size_category
+        || thief?.shoeSizeCategory
+        || nestedAttributes.shoe_size_category
+        || null
     };
 
-    return knownAttributes[attribute] || null;
+    const rawValue = values[attribute];
+
+    if (typeof rawValue !== 'string') return null;
+
+    if (attribute === 'hair_color') {
+      return rawValue.trim().toLowerCase();
+    }
+
+    return rawValue.trim();
   }
 
-  pickIdentityEvidence(thief, generatedAttrs) {
-    const attributeKeys = Object.keys(this.identityEvidencePool);
-    const selectedAttr = SuspectGenerator.randomFrom(attributeKeys);
+  getThiefSkills(thief) {
+    const directSkills = SuspectGenerator.parseSkills(thief?.skills);
+    const nestedSkills = SuspectGenerator.parseSkills(thief?.attributes?.skills);
+    const mergedSkills = [...new Set([...directSkills, ...nestedSkills])];
 
-    if (!selectedAttr) {
-      throw new Error('SuspectGenerator has no identity evidence attributes configured.');
+    const usableSkills = mergedSkills.filter((skill) => skill.length > 0);
+
+    if (usableSkills.length >= 3) {
+      return SuspectGenerator.sampleUnique(usableSkills, 3);
     }
 
-    const config = this.identityEvidencePool[selectedAttr];
-    const knownValue = this.getKnownThiefAttribute(thief, selectedAttr);
+    const missingCount = 3 - usableSkills.length;
+    const fallbackSkills = SuspectGenerator.sampleUnique(
+      this.skillPool.filter((skill) => !usableSkills.includes(skill)),
+      missingCount
+    );
 
-    let thiefValue = knownValue || generatedAttrs[selectedAttr] || null;
-
-    if (!thiefValue) {
-      thiefValue = SuspectGenerator.randomFrom(config.domain);
-      generatedAttrs[selectedAttr] = thiefValue;
-    }
-
-    if (!thiefValue) {
-      throw new Error(`Could not generate thief value for identity attribute "${selectedAttr}".`);
-    }
-
-    return {
-      attribute: selectedAttr,
-      config,
-      thiefValue
-    };
+    return [...usableSkills, ...fallbackSkills];
   }
 
-  generateIdentityAttributeForSuspect(selectedAttr, config, thiefValue) {
-    if (selectedAttr === 'biological_sex' && SuspectGenerator.bernoulli(config.pNonbinary)) {
-      return 'NB';
+  getVisibleTraits(thief, attributes) {
+    const traits = [];
+
+    if (attributes.hair_color) {
+      traits.push(`${attributes.hair_color[0].toUpperCase()}${attributes.hair_color.slice(1)} hair`);
     }
 
-    if (SuspectGenerator.bernoulli(this.P_MATCH)) {
-      return thiefValue;
+    if (typeof thief?.eyes === 'string' && thief.eyes.trim()) {
+      traits.push(`${thief.eyes.trim()} eyes`);
     }
 
-    const alternatives = config.domain.filter(value => value !== thiefValue);
+    if (typeof thief?.features === 'string' && thief.features.trim()) {
+      traits.push(thief.features.trim());
+    }
 
-    return SuspectGenerator.randomFrom(alternatives) || thiefValue;
+    if (typeof thief?.accent === 'string' && thief.accent.trim()) {
+      traits.push(`${thief.accent.trim()} accent`);
+    }
+
+    return traits.slice(0, 3);
   }
 
   generateCosmeticAttribute(attribute) {
     const config = this.identityEvidencePool[attribute];
 
-    if (!config || !Array.isArray(config.domain) || config.domain.length === 0) {
-      throw new Error(`Missing domain configuration for identity attribute "${attribute}".`);
-    }
-
-    if (attribute === 'biological_sex') {
-      if (SuspectGenerator.bernoulli(config.pNonbinary)) {
-        return 'NB';
-      }
-
-      return SuspectGenerator.randomFrom(['M', 'F']) || 'NB';
+    if (!config?.domain?.length) {
+      throw new Error(`Missing identity evidence configuration for "${attribute}".`);
     }
 
     return SuspectGenerator.randomFrom(config.domain);
   }
 
-  buildDecoyPool(cityId, count) {
+  buildThiefAttributes(thief, identityEvidence, generatedAttributes) {
+    const attributes = {};
+
+    Object.keys(this.identityEvidencePool).forEach((attribute) => {
+      const knownValue = this.getKnownThiefAttribute(thief, attribute);
+
+      if (attribute === identityEvidence.attribute) {
+        attributes[attribute] = identityEvidence.thiefValue;
+        return;
+      }
+
+      attributes[attribute] = knownValue
+        || generatedAttributes[attribute]
+        || this.generateCosmeticAttribute(attribute);
+
+      generatedAttributes[attribute] = attributes[attribute];
+    });
+
+    return attributes;
+  }
+
+  pickIdentityEvidence(thief, generatedAttributes) {
+    const attribute = SuspectGenerator.randomFrom(Object.keys(this.identityEvidencePool));
+
+    if (!attribute) {
+      throw new Error('SuspectGenerator has no identity evidence attributes configured.');
+    }
+
+    const config = this.identityEvidencePool[attribute];
+
+    const thiefValue = this.getKnownThiefAttribute(thief, attribute)
+      || generatedAttributes[attribute]
+      || this.generateCosmeticAttribute(attribute);
+
+    generatedAttributes[attribute] = thiefValue;
+
+    return {
+      attribute,
+      thiefValue,
+      ...config
+    };
+  }
+
+  getNamePools(cityId) {
     const universal = this.citysuspects.universal || {};
     const cityData = this.citysuspects[cityId] || {};
 
@@ -188,80 +344,355 @@ class SuspectGenerator {
       ...SuspectGenerator.validStringArray(universal.occupations)
     ];
 
-    const genderedFirstNames = [
-      ...femaleNames.map(name => ({ name, gender_code: 'f' })),
-      ...maleNames.map(name => ({ name, gender_code: 'm' })),
-      ...neutralNames.map(name => ({ name, gender_code: 'nb' }))
+    return {
+      femaleNames,
+      maleNames,
+      neutralNames,
+      lastNames,
+      occupations
+    };
+  }
+
+  buildFirstNameEntries(namePools) {
+    return [
+      ...namePools.femaleNames.map((name) => ({ name, gender_code: 'f' })),
+      ...namePools.maleNames.map((name) => ({ name, gender_code: 'm' })),
+      ...namePools.neutralNames.map((name) => ({ name, gender_code: 'nb' }))
     ];
+  }
 
-    if (genderedFirstNames.length < count) {
-      throw new Error(`Not enough first names to generate ${count} decoys for city "${cityId}".`);
+  getNamesForGender(namePools, genderCode) {
+    if (genderCode === 'f' && namePools.femaleNames.length) return namePools.femaleNames;
+    if (genderCode === 'm' && namePools.maleNames.length) return namePools.maleNames;
+    if (genderCode === 'nb' && namePools.neutralNames.length) return namePools.neutralNames;
+
+    return [
+      ...namePools.femaleNames,
+      ...namePools.maleNames,
+      ...namePools.neutralNames
+    ];
+  }
+
+  buildCoverIdentity(cityId, thiefGenderCode, namePools, usedNames = new Set()) {
+    const preferredNames = this.getNamesForGender(namePools, thiefGenderCode);
+    const availableFirstNames = preferredNames.filter((name) => !usedNames.has(name));
+    const firstName = SuspectGenerator.randomFrom(availableFirstNames.length ? availableFirstNames : preferredNames);
+    const lastName = SuspectGenerator.randomFrom(namePools.lastNames);
+    const occupation = SuspectGenerator.randomFrom(namePools.occupations);
+
+    if (!firstName || !lastName || !occupation) {
+      throw new Error(`Not enough cover identity data for city "${cityId}".`);
     }
-
-    if (lastNames.length < count) {
-      throw new Error(`Not enough last names to generate ${count} decoys for city "${cityId}".`);
-    }
-
-    if (occupations.length < count + 1) {
-      throw new Error(`Not enough occupations to generate ${count} decoys and one thief occupation for city "${cityId}".`);
-    }
-
-    const sampledFirstNames = SuspectGenerator.sampleUnique(genderedFirstNames, count);
-    const sampledLastNames = SuspectGenerator.sampleUnique(lastNames, count);
-    const sampledOccupations = SuspectGenerator.sampleUnique(occupations, count + 1);
-
-    const decoys = sampledFirstNames.map((firstName, index) => ({
-      id: `decoy_${cityId}_${index}_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      name: `${firstName.name} ${sampledLastNames[index]}`,
-      gender_code: firstName.gender_code,
-      occupation: sampledOccupations[index]
-    }));
 
     return {
-      decoys,
-      thiefOccupation: sampledOccupations[count]
+      name: `${firstName} ${lastName}`,
+      occupation,
+      gender_code: thiefGenderCode
+    };
+  }
+
+  buildDecoyPool(cityId, count, thiefGenderCode) {
+    const namePools = this.getNamePools(cityId);
+    const firstNameEntries = this.buildFirstNameEntries(namePools);
+
+    if (
+      firstNameEntries.length < count
+      || namePools.lastNames.length < count
+      || namePools.occupations.length < count + 1
+    ) {
+      throw new Error(`Not enough suspect data to generate ${count} decoys for city "${cityId}".`);
+    }
+
+    const sampledFirstNames = SuspectGenerator.sampleUnique(firstNameEntries, count);
+    const sampledLastNames = SuspectGenerator.sampleUnique(namePools.lastNames, count);
+    const sampledOccupations = SuspectGenerator.sampleUnique(namePools.occupations, count);
+
+    const usedFirstNames = new Set(sampledFirstNames.map((entry) => entry.name));
+    const thiefCoverIdentity = this.buildCoverIdentity(
+      cityId,
+      thiefGenderCode,
+      namePools,
+      usedFirstNames
+    );
+
+    return {
+      decoys: sampledFirstNames.map((firstName, index) => ({
+        id: `case_${cityId}_decoy_${index + 1}`,
+        name: `${firstName.name} ${sampledLastNames[index]}`,
+        gender_code: firstName.gender_code,
+        occupation: sampledOccupations[index]
+      })),
+      thiefCoverIdentity
     };
   }
 
   pickTraceEvidence() {
-    const selected = SuspectGenerator.sampleUnique(this.traceEvidencePool, 2);
+    const selectedTraces = SuspectGenerator.sampleUnique(this.traceEvidencePool, 2);
 
-    if (selected.length < 2) {
+    if (selectedTraces.length < 2) {
       throw new Error('SuspectGenerator requires at least two trace evidence entries.');
     }
 
-    return selected.map(trace => ({
+    return selectedTraces.map((trace, index) => ({
       id: trace.id,
       label: trace.label,
       minigame: trace.minigame,
-      resolvedThread: SuspectGenerator.randomFrom(trace.possibleThreads)
+      clueType: 'trace',
+      isRedHerring: true,
+      resolvedThread: SuspectGenerator.randomFrom(trace.possibleThreads),
+      clueText: index === 0
+        ? 'This trace may matter, but its relevance is still unclear.'
+        : 'The lab found this trace at the crime scene.'
     }));
   }
 
-  buildThiefAttributes(thief, identityEvidence, generatedAttrs) {
-    const attributes = {};
+  createLabDistribution(decoys, identityEvidence) {
+    /*
+     * Exactly 4–6 of the 10 suspects are removed by the laboratory result.
+     * The thief always matches, therefore 3–5 decoys match the lab trait.
+     */
+    const labEliminations = SuspectGenerator.randomInt(4, 6);
+    const totalLabMatches = 10 - labEliminations;
+    const matchingDecoyCount = totalLabMatches - 1;
 
-    Object.keys(this.identityEvidencePool).forEach(attribute => {
-      if (attribute === identityEvidence.attribute) {
-        attributes[attribute] = identityEvidence.thiefValue;
-        return;
+    const shuffledDecoys = SuspectGenerator.shuffle(decoys);
+    const matchingDecoys = shuffledDecoys.slice(0, matchingDecoyCount);
+    const excludedDecoys = shuffledDecoys.slice(matchingDecoyCount);
+
+    const nonMatchingValues = identityEvidence.domain.filter(
+      (value) => value !== identityEvidence.thiefValue
+    );
+
+    const applyIdentityValue = (decoy, value, expectedLabMatch) => ({
+      ...decoy,
+      attributes: {
+        ...decoy.attributes,
+        [identityEvidence.attribute]: value
+      },
+      hiddenProfile: {
+        ...decoy.hiddenProfile,
+        expectedLabMatch
       }
-
-      const knownValue = this.getKnownThiefAttribute(thief, attribute);
-
-      if (knownValue) {
-        attributes[attribute] = knownValue;
-        return;
-      }
-
-      if (!generatedAttrs[attribute]) {
-        generatedAttrs[attribute] = this.generateCosmeticAttribute(attribute);
-      }
-
-      attributes[attribute] = generatedAttrs[attribute];
     });
 
-    return attributes;
+    return {
+      labEliminations,
+      totalLabMatches,
+      matchingDecoys: matchingDecoys.map((decoy) => (
+        applyIdentityValue(decoy, identityEvidence.thiefValue, true)
+      )),
+      excludedDecoys: excludedDecoys.map((decoy) => (
+        applyIdentityValue(
+          decoy,
+          SuspectGenerator.randomFrom(nonMatchingValues),
+          false
+        )
+      ))
+    };
+  }
+
+  createHypothesisDistribution(labMatchingDecoys, requiredSkills) {
+    /*
+     * After lab, 4–6 suspects remain.
+     * Hypothesis eliminates 2–3 of those and leaves 2–3 candidates.
+     */
+    const labSurvivorCount = labMatchingDecoys.length + 1;
+    const possibleFinalCounts = [2, 3].filter((count) => (
+      count < labSurvivorCount && labSurvivorCount - count >= 2
+    ));
+
+    const finalCandidateCount = SuspectGenerator.randomFrom(possibleFinalCounts)
+      || Math.max(2, labSurvivorCount - 2);
+
+    const matchingDecoyCount = finalCandidateCount - 1;
+    const shuffledDecoys = SuspectGenerator.shuffle(labMatchingDecoys);
+
+    const hypothesisMatches = shuffledDecoys.slice(0, matchingDecoyCount);
+    const hypothesisFailures = shuffledDecoys.slice(matchingDecoyCount);
+
+    const buildMatchingSkills = () => {
+      const extras = SuspectGenerator.sampleUnique(
+        this.skillPool.filter((skill) => !requiredSkills.includes(skill)),
+        2
+      );
+
+      return [...requiredSkills, ...extras];
+    };
+
+    const buildFailingSkills = () => {
+      const retainedSkillCount = SuspectGenerator.randomInt(0, Math.max(0, requiredSkills.length - 1));
+      const retainedSkills = SuspectGenerator.sampleUnique(requiredSkills, retainedSkillCount);
+      const extraSkills = SuspectGenerator.sampleUnique(
+        this.skillPool.filter((skill) => !requiredSkills.includes(skill)),
+        3
+      );
+
+      return [...retainedSkills, ...extraSkills];
+    };
+
+    return {
+      finalCandidateCount,
+      hypothesisEliminations: hypothesisFailures.length,
+
+      hypothesisMatches: hypothesisMatches.map((decoy) => ({
+        ...decoy,
+        skills: buildMatchingSkills(),
+        hiddenProfile: {
+          ...decoy.hiddenProfile,
+          expectedHypothesisMatch: true
+        }
+      })),
+
+      hypothesisFailures: hypothesisFailures.map((decoy) => ({
+        ...decoy,
+        skills: buildFailingSkills(),
+        hiddenProfile: {
+          ...decoy.hiddenProfile,
+          expectedHypothesisMatch: false
+        }
+      }))
+    };
+  }
+
+  createBaseDecoyRecord(decoy, identityEvidence) {
+    const attributes = {};
+
+    Object.keys(this.identityEvidencePool).forEach((attribute) => {
+      attributes[attribute] = attribute === identityEvidence.attribute
+        ? null
+        : this.generateCosmeticAttribute(attribute);
+    });
+
+    const hairColor = attributes.hair_color || 'brown';
+    const visibleTraits = [
+      `${hairColor[0].toUpperCase()}${hairColor.slice(1)} hair`
+    ];
+
+    return {
+      ...decoy,
+      is_thief: false,
+      attributes,
+      skills: [],
+      publicProfile: {
+        name: decoy.name,
+        occupation: decoy.occupation,
+        genderCode: decoy.gender_code,
+        visibleTraits,
+        caseConnection: 'Listed in the local access records.'
+      },
+      restrictedProfile: {
+        unlockedFields: [],
+        forensicAttributes: {}
+      },
+      hiddenProfile: {
+        isThief: false,
+        sourceThiefId: null,
+        expectedLabMatch: null,
+        expectedHypothesisMatch: null,
+        witnessLieTarget: false
+      },
+      deductionState: {
+        labStatus: 'pending',
+        hypothesisStatus: 'pending',
+        interviewStatus: 'locked',
+        alibiStatus: 'locked',
+        eliminated: false,
+        eliminationReasons: [],
+        notesUnlocked: []
+      }
+    };
+  }
+
+  createThiefRecord(thief, coverIdentity, thiefAttributes, thiefSkills, identityEvidence, caseId) {
+    return {
+      id: `case_${caseId}_suspect_thief`,
+      name: coverIdentity.name,
+      occupation: coverIdentity.occupation,
+      gender_code: coverIdentity.gender_code,
+      is_thief: true,
+      attributes: thiefAttributes,
+      skills: thiefSkills,
+
+      publicProfile: {
+        name: coverIdentity.name,
+        occupation: coverIdentity.occupation,
+        genderCode: coverIdentity.gender_code,
+        visibleTraits: this.getVisibleTraits(thief, thiefAttributes),
+        caseConnection: 'Listed in the local access records.'
+      },
+
+      restrictedProfile: {
+        unlockedFields: [],
+        forensicAttributes: {}
+      },
+
+      hiddenProfile: {
+        isThief: true,
+        sourceThiefId: thief.id,
+        realName: thief.name || null,
+        actualSkills: thiefSkills,
+        expectedLabMatch: true,
+        expectedHypothesisMatch: true,
+        witnessLieTarget: true
+      },
+
+      deductionState: {
+        labStatus: 'pending',
+        hypothesisStatus: 'pending',
+        interviewStatus: 'locked',
+        alibiStatus: 'locked',
+        eliminated: false,
+        eliminationReasons: [],
+        notesUnlocked: []
+      }
+    };
+  }
+
+  prepareCaseState(caseData) {
+    if (!caseData || typeof caseData !== 'object') {
+      throw new Error('prepareCaseState requires generated case data.');
+    }
+
+    gameState.caseSuspects = structuredClone(caseData.suspects);
+
+    gameState.identityEvidence = {
+      id: `identity_${caseData.identity_evidence.attribute}`,
+      label: caseData.identity_evidence.label,
+      minigame: caseData.identity_evidence.minigame,
+      attribute: caseData.identity_evidence.attribute,
+      thief_value: caseData.identity_evidence.thief_value,
+      clueType: 'identity',
+      clueText: caseData.identity_evidence.clueText,
+      guaranteedEliminations: caseData.identity_evidence.guaranteedEliminations,
+      resultUnlocked: false
+    };
+
+    gameState.hypothesisEvidence = {
+      id: 'hypothesis_skills',
+      clueType: 'skills',
+      requiredSkills: [...caseData.hypothesis_evidence.requiredSkills],
+      guaranteedEliminations: caseData.hypothesis_evidence.guaranteedEliminations,
+      resultUnlocked: false
+    };
+
+    gameState.traceEvidence = caseData.trace_evidence.map((evidence) => ({ ...evidence }));
+    gameState.identityEvidenceResult = null;
+    gameState.hypothesisEvidenceResult = null;
+    gameState.traceEvidenceResults = [];
+    gameState.forensicResults = [];
+    gameState.csiLabCompleted = false;
+    gameState.excludedSuspects = [];
+    gameState.currentCaseId = caseData.caseId;
+
+    gameState.crimeCityProgress ??= {};
+    gameState.crimeCityProgress[caseData.caseId] = {
+      crimeLabCompleted: false,
+      hypothesisCompleted: false,
+      suspectInterviewsCompleted: false,
+      alibiPhaseUnlocked: false
+    };
+
+    return caseData;
   }
 
   generateCaseSuspects(thief, cityId) {
@@ -273,60 +704,105 @@ class SuspectGenerator {
       throw new Error('SuspectGenerator.generateCaseSuspects requires a valid city id.');
     }
 
-    const normalizedCityId = cityId.trim();
-    const generatedThiefAttrs = {};
-    const identityEvidence = this.pickIdentityEvidence(thief, generatedThiefAttrs);
+    const normalizedCityId = this.normalizeCityId(cityId);
+
+    const caseId = String(
+      gameState.currentMission?.id
+      || gameState.currentMission?.caseId
+      || `${normalizedCityId}_${thief.id}_${Date.now()}`
+    );
+
+    const generatedThiefAttributes = {};
+    const identityEvidence = this.pickIdentityEvidence(thief, generatedThiefAttributes);
+    const thiefAttributes = this.buildThiefAttributes(
+      thief,
+      identityEvidence,
+      generatedThiefAttributes
+    );
+
+    const thiefSkills = this.getThiefSkills(thief);
+    const thiefGenderCode = this.normalizeGenderCode(thief);
+
+    const {
+      decoys,
+      thiefCoverIdentity
+    } = this.buildDecoyPool(normalizedCityId, 9, thiefGenderCode);
+
+    const baseDecoys = decoys.map((decoy) => (
+      this.createBaseDecoyRecord(decoy, identityEvidence)
+    ));
+
+    const labDistribution = this.createLabDistribution(baseDecoys, identityEvidence);
+
+    const hypothesisDistribution = this.createHypothesisDistribution(
+      labDistribution.matchingDecoys,
+      thiefSkills
+    );
+
+    const decoysAfterSkillAssignment = [
+      ...hypothesisDistribution.hypothesisMatches,
+      ...hypothesisDistribution.hypothesisFailures,
+      ...labDistribution.excludedDecoys.map((decoy) => ({
+        ...decoy,
+        skills: SuspectGenerator.sampleUnique(this.skillPool, 4),
+        hiddenProfile: {
+          ...decoy.hiddenProfile,
+          expectedHypothesisMatch: null
+        }
+      }))
+    ];
+
+    const thiefSuspect = this.createThiefRecord(
+      thief,
+      thiefCoverIdentity,
+      thiefAttributes,
+      thiefSkills,
+      identityEvidence,
+      caseId
+    );
+
+    const suspects = SuspectGenerator.shuffle([
+      ...decoysAfterSkillAssignment,
+      thiefSuspect
+    ]);
+
     const traceEvidence = this.pickTraceEvidence();
-    const { decoys, thiefOccupation } = this.buildDecoyPool(normalizedCityId, 9);
-
-    const decoySuspects = decoys.map(decoy => {
-      const attributes = {};
-
-      Object.keys(this.identityEvidencePool).forEach(attribute => {
-        attributes[attribute] = attribute === identityEvidence.attribute
-          ? this.generateIdentityAttributeForSuspect(
-            identityEvidence.attribute,
-            identityEvidence.config,
-            identityEvidence.thiefValue
-          )
-          : this.generateCosmeticAttribute(attribute);
-      });
-
-      return {
-        id: decoy.id,
-        name: decoy.name,
-        occupation: decoy.occupation,
-        gender_code: decoy.gender_code,
-        is_thief: false,
-        attributes
-      };
-    });
-
-    const thiefSuspect = {
-      id: thief.id,
-      name: thief.name || 'Unknown Suspect',
-      occupation: thief.occupation || thiefOccupation,
-      gender_code: thief.gender_code || null,
-      is_thief: true,
-      attributes: this.buildThiefAttributes(
-        thief,
-        identityEvidence,
-        generatedThiefAttrs
-      )
-    };
 
     return {
+      caseId,
       cityId: normalizedCityId,
+
+      trueThief: {
+        sourceThiefId: thief.id,
+        caseSuspectId: thiefSuspect.id
+      },
+
       thief_id: thief.id,
+
       identity_evidence: {
         attribute: identityEvidence.attribute,
-        thief_value: identityEvidence.thiefValue
+        thief_value: identityEvidence.thiefValue,
+        label: identityEvidence.label,
+        minigame: identityEvidence.minigame,
+        clueText: identityEvidence.clueText,
+        guaranteedEliminations: labDistribution.labEliminations
       },
+
+      hypothesis_evidence: {
+        requiredSkills: thiefSkills,
+        guaranteedEliminations: hypothesisDistribution.hypothesisEliminations
+      },
+
       trace_evidence: traceEvidence,
-      suspects: SuspectGenerator.shuffle([
-        ...decoySuspects,
-        thiefSuspect
-      ])
+
+      progression: {
+        initialCount: 10,
+        afterLabCount: labDistribution.totalLabMatches,
+        afterHypothesisCount: hypothesisDistribution.finalCandidateCount,
+        afterInterviewsCount: SuspectGenerator.randomInt(2, 3)
+      },
+
+      suspects
     };
   }
 }

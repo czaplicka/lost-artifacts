@@ -73,7 +73,7 @@ export const defaultGameState = {
   maxEnergy: 100,
   energyLog: [],
 
-  cash: 120,
+  cash: 500,
   agencyBudget: 0,
   agencyDebt: 0,
   moneyLog: [],
@@ -346,7 +346,7 @@ function sanitizeSaveData(data) {
     : clean.maxEnergy;
   clean.energyLog = sanitizeArray(source.energyLog);
 
-  clean.cash = Number.isFinite(source.cash) ? Math.max(0, Math.floor(source.cash)) : 120;
+  clean.cash = Number.isFinite(source.cash) ? Math.max(0, Math.floor(source.cash)) : 500;
   clean.agencyBudget = Number.isFinite(source.agencyBudget)
     ? Math.max(0, Math.floor(source.agencyBudget))
     : 0;

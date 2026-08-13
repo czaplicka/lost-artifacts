@@ -47,7 +47,7 @@
 
       this.container.add(this.gameNotesText);
 
-      this.gameNotesTitleText = this.scene.add.text(width * 0.52, height * 0.14, 'Your notes', {
+      this.gameNotesTitleText = this.scene.add.text(width * 0.52, height * 0.13, 'Your notes', {
         fontFamily: 'Special Elite',
         fontSize: '22px',
         color: '#000000',
@@ -58,7 +58,7 @@
 
       this.container.add(this.gameNotesTitleText);
 
-      this.modeHintText = this.scene.add.text(width * 0.68, height * 0.16, '[ CLICK TO WRITE | ESC TO STOP ]', {
+      this.modeHintText = this.scene.add.text(width * 0.68, height * 0.15, '[ CLICK TO WRITE | ESC TO STOP ]', {
         fontFamily: 'Special Elite',
         fontSize: '16px',
         color: '#333333'
@@ -73,7 +73,7 @@
         [
           'width: 400px',
           'height: 500px',
-          'font-family: "Indie Flower"',
+          'font-family: "IndieFlower"',
           'font-size: 22px',
           'background: transparent',
           'border: none',

@@ -1,4 +1,5 @@
 import { BaseForensicMinigame } from './BaseForensicMinigame.js';
+import { EventBus } from '../../EventBus.js';
 
 export class HairAnalysisScene extends BaseForensicMinigame {
   constructor() {

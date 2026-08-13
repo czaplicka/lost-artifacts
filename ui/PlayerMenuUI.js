@@ -20,7 +20,7 @@ export class PlayerMenuUI {
             height: isMobile ? 145 : 185,
             buttonSize: isMobile ? 52 : 72,
             slotRadius: isMobile ? 28 : 38,
-            fontSize: isMobile ? '9px' : '11px'
+            fontSize: isMobile ? '10px' : '13px'
         };
 
         this.closedY = height;
@@ -195,7 +195,7 @@ export class PlayerMenuUI {
             fontSize = '15px',
             baseColor = '#dcdcdc',
             hotkeyColor = '#ffcc00',
-            fontFamily = 'PressStart2P',
+            fontFamily = 'Press Start 2P',
             align = 'center'
         } = options;
 
@@ -316,8 +316,8 @@ export class PlayerMenuUI {
 
     createToggleButton(screenWidth, screenHeight) {
         const isMobile = !this.scene.sys.game.device.os.desktop;
-        const btnW = isMobile ? 150 : 190;
-        const btnH = isMobile ? 34 : 38;
+const btnW = isMobile ? 170 : 215;
+const btnH = isMobile ? 38 : 44;
 
         this.toggleContainer = this.scene.add.container(screenWidth / 2, screenHeight - (btnH / 2)).setDepth(41);
 
@@ -332,22 +332,22 @@ export class PlayerMenuUI {
         graphics.fillStyle(0x6b2d2d, 1);
         graphics.fillRoundedRect(-btnW / 2 + 5, -btnH / 2 + 5, btnW - 10, btnH - 5, { tl: 4, tr: 4, bl: 0, br: 0 });
 
-        this.toggleText = this.createHotkeyLabel(0, -6, 'MENU', isMobile ? '' : 'M', {
-            fontFamily: 'PressStart2P',
-            fontSize: isMobile ? '11px' : '13px',
+        this.toggleText = this.createHotkeyLabel(0, -8, 'MENU', isMobile ? '' : 'M', {
+            fontFamily: 'Press Start 2P',
+            fontSize: isMobile ? '13px' : '16px',
             baseColor: '#f4eac1',
             hotkeyColor: '#ffcc00'
         });
 
         const arrowSpacing = isMobile ? -38 : -50;
         const arrowLeft = this.scene.add.text(arrowSpacing, 0, '▼', {
-            fontFamily: 'PressStart2P',
+            fontFamily: 'Press Start 2P',
             fontSize: isMobile ? '10px' : '12px',
             color: '#f4eac1'
         }).setOrigin(0.5);
 
         const arrowRight = this.scene.add.text(-arrowSpacing, 0, '▼', {
-            fontFamily: 'PressStart2P',
+            fontFamily: 'Press Start 2P',
             fontSize: isMobile ? '10px' : '12px',
             color: '#f4eac1'
         }).setOrigin(0.5);
@@ -420,7 +420,7 @@ export class PlayerMenuUI {
                 .setDisplaySize(this.config.buttonSize, this.config.buttonSize);
 
             const btnLabel = this.createHotkeyLabel(0, labelY, btn.label, isMobile ? '' : btn.hotkey, {
-                fontFamily: 'PressStart2P',
+                fontFamily: 'Press Start 2P',
                 fontSize: this.config.fontSize,
                 baseColor: '#dcdcdc',
                 hotkeyColor: '#ffcc00'
@@ -602,29 +602,50 @@ export class PlayerMenuUI {
             ease: 'Power2'
         });
     }
+getFirstCaseTutorial() {
+  const sceneManager = this.scene.scene;
 
+  if (!sceneManager?.isActive('OfficeScene')) {
+    return null;
+  }
+
+  const officeScene = sceneManager.get('OfficeScene');
+
+  return officeScene?.firstCaseTutorial ?? null;
+}
     openCasefile() {
-        if (!this.scene.caseFileUI) return;
+  const tutorial = this.getFirstCaseTutorial();
 
-        const mission = this.gameState.currentMission;
-        if (!mission) {
-            console.warn('Brak currentMission — nie otwieram case file.');
-            return;
-        }
+if (tutorial && !tutorial.canUseAction('case_file')) {
+  return;
+}
 
-        this.close();
-        this.scene.closeAllUIPanels();
+  if (!this.scene.caseFileUI) {
+    return;
+  }
 
-        this.scene.caseFileUI.open({
-            artifact: mission.artifact || 'UNKNOWN ARTIFACT',
-            city: mission.city || '',
-            country: mission.country || '',
-            description: mission.description || 'No more data...',
-            significance: mission.significance || '',
-            clue: mission.clue || 'No more clues...',
-            artifactKey: mission.artifactKey || 'artifact_fallback'
-        });
-    }
+  const mission = this.gameState.currentMission;
+
+  if (!mission) {
+    console.warn('Brak currentMission — nie otwieram case file.');
+    return;
+  }
+
+  this.close();
+  this.scene.closeAllUIPanels();
+
+  this.scene.caseFileUI.open({
+    artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+    city: mission.city || '',
+    country: mission.country || '',
+    description: mission.description || 'No more data...',
+    significance: mission.significance || '',
+    clue: mission.clue || 'No more clues...',
+    artifactKey: mission.artifactKey || 'artifact_fallback',
+  });
+
+  tutorial?.onCaseFileOpened();
+}
 
     openNotes() {
         if (this.scene.notesUI) {
@@ -650,11 +671,23 @@ export class PlayerMenuUI {
     }
 
     openDestinations() {
-        if (this.scene.destinationsUI) {
-            this.scene.closeAllUIPanels();
-            this.scene.destinationsUI.open(this.gameState);
-        }
-    }
+  const tutorial = this.getFirstCaseTutorial();
+
+if (tutorial && !tutorial.canUseAction('travel')) {
+  return;
+}
+
+  if (!this.scene.destinationsUI) {
+    return;
+  }
+
+  this.close();
+  this.scene.closeAllUIPanels();
+
+  this.scene.destinationsUI.open(this.gameState);
+
+  tutorial?.onDestinationMapOpened();
+}
 
     openWarrant() {
         if (this.scene.warrantUI) {

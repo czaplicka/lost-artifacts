@@ -44,34 +44,24 @@ if (!audioManager.isMusicPlaying('themeMusic')) {
     audioManager.playMusic('themeMusic', { loop: true });
 }
 EventBus.emit('hideHUD');
-this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+const newsHud = this.scene.get('NewsHud');
+
+if (newsHud?.events) {
+  newsHud.events.emit('setNewspaperVisible', false);
+}
 this.timeManager = new GameTimeManager();
 
         EventBus.emit('advanceTime', 0, 0);
 
         const dialogueData = this.cache.json.get('dialogue');
 
-        if (!gameState.currentMission || !gameState.currentThief) {
-            console.error('GameScene started without initialized gameState.');
-            this.scene.start('MenuScene');
-            this.scene.launch('UIScene');
-            return;
-        }
+if (!gameState.currentMission || !gameState.currentThief) {
+  console.error('GameScene started without initialized gameState.');
+  this.scene.start('EnterScene');
+  return;
+}
 
         this.createBackground();
-
-        const backBtn = this.add.image(200, 70, 'back')
-            .setInteractive({ useHandCursor: true })
-            .setScale(0.5)
-            .setDepth(30);
-
-        this.addHoverEffect(backBtn, 0.5, 0.6);
-        backBtn.on('pointerdown', () => {
-            this.closeAllUIPanels();
-            this.destroyCurrentVideo();
-            audioManager.stopAllVoice();
-            this.scene.start('MenuScene');
-        });
 
         this.createDetectiveSection();
         ensureHud(this);
@@ -459,9 +449,6 @@ finishSequence() {
                     this.typingEvent = null;
                     this.isTypingIntro = false;
                     this.isIntroReady = true;
-                    this.onIntroPointerDown = null;
-this.onIntroSpaceDown = null;
-this._duckTween = null;
                 }
             }
         });
@@ -493,11 +480,14 @@ this._duckTween = null;
 
         this.cameras.main.fadeOut(350, 0, 0, 0);
 
-        this.time.delayedCall(360, () => {
-            this.scene.start('OfficeScene', { gameState });
-        });
+this.time.delayedCall(360, () => {
+  this.scene.start('OfficeScene', {
+    gameState,
+    isNewGame: true,
+    startOnboarding: true,
+  });
+});
     }
-
     addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
         button.on('pointerover', () => button.setScale(hoverScale));
         button.on('pointerout', () => button.setScale(baseScale));

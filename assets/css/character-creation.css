@@ -1,0 +1,1649 @@
+#character-creation-root {
+  --noir-paper-base: #ebd5a3;
+  --noir-paper-dark: #d8be85;
+  --noir-paper-light: #f5e8c7;
+  --noir-ink: #22150f;
+  --noir-ink-muted: #4e3d30;
+  --noir-crimson: #7a1f22;
+  --noir-crimson-bright: #9e2b2f;
+  --noir-crimson-dark: #4d1012;
+  --noir-leather: #422119;
+  --noir-leather-dark: #23100a;
+  --noir-gold: #cfa856;
+  --noir-gold-bright: #f0c868;
+  --noir-green-accent: #2e5228;
+
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  pointer-events: auto;
+  color: var(--noir-ink);
+  font-family: "Special Elite", "Courier New", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+#character-creation-root *,
+#character-creation-root *::before,
+#character-creation-root *::after {
+  box-sizing: border-box;
+}
+
+#character-creation-root button,
+#character-creation-root input,
+#character-creation-root label,
+#character-creation-root fieldset,
+#character-creation-root .character-creation-shell {
+  pointer-events: auto !important;
+}
+
+#character-creation-root button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   1. MAIN DOSSIER SHELL
+   ========================================================================== */
+
+.character-creation-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  border: 6px solid var(--noir-leather);
+  border-radius: 0;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(85, 52, 28, 0.05) 0px,
+      rgba(85, 52, 28, 0.05) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    linear-gradient(135deg, #eee1b8 0%, #d8be87 50%, #cca368 100%);
+
+  box-shadow:
+    inset 0 0 0 2px var(--noir-leather-dark),
+    inset 0 0 80px rgba(70, 40, 20, 0.25);
+
+  contain: layout style;
+}
+
+.character-creation-shell::before {
+  position: absolute;
+  inset: 8px;
+  z-index: 0;
+  border: 1px solid rgba(122, 31, 34, 0.28);
+  border-radius: 2px;
+  content: "";
+  pointer-events: none;
+}
+
+.character-creation-header,
+.character-creation-steps,
+.character-creation-content,
+.character-creation-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   2. HEADER & BRANDING
+   ========================================================================== */
+
+.character-creation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(16px, 2vw, 28px) clamp(24px, 3vw, 48px);
+  border-bottom: 3px double var(--noir-crimson);
+  background: linear-gradient(180deg, rgba(255, 248, 225, 0.45) 0%, rgba(220, 190, 140, 0.25) 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.character-creation-brand {
+  min-width: 0;
+}
+
+.character-creation-brand h1 {
+  margin: 0;
+  color: var(--noir-crimson-dark);
+  font-family: "Special Elite", monospace;
+  font-size: clamp(26px, 2.8vw, 44px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.6);
+}
+
+.character-creation-brand p {
+  margin: 8px 0 0;
+  color: var(--noir-ink-muted);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.7vw, 11px);
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.character-creation-stamp {
+  flex: 0 0 auto;
+  min-width: 150px;
+  padding: 8px 14px;
+  border: 3px dashed var(--noir-crimson-bright);
+  border-radius: 3px;
+  background: rgba(158, 43, 47, 0.06);
+  color: var(--noir-crimson-bright);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.7vw, 10px);
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(-3deg);
+  box-shadow: 0 2px 6px rgba(122, 31, 34, 0.15);
+  opacity: 0.92;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. STEP NAVIGATION TABS
+   ========================================================================== */
+
+.character-creation-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px clamp(24px, 3vw, 48px);
+  border-bottom: 2px solid rgba(66, 33, 25, 0.25);
+  background: rgba(66, 33, 25, 0.06);
+}
+
+.character-step-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(94, 74, 59, 0.3);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--noir-ink-muted);
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(7px, 0.6vw, 9.5px);
+  line-height: 1.2;
+  text-transform: uppercase;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  will-change: transform;
+}
+
+.character-step-marker::before {
+  display: grid;
+  flex: 0 0 auto;
+  width: clamp(22px, 1.6vw, 26px);
+  height: clamp(22px, 1.6vw, 26px);
+  place-items: center;
+  border: 2px solid var(--noir-ink-muted);
+  border-radius: 50%;
+  background: #d4b882;
+  color: var(--noir-ink);
+  content: attr(data-step-number);
+  font-size: clamp(8px, 0.65vw, 11px);
+  font-weight: bold;
+}
+
+.character-step-marker:hover {
+  border-color: var(--noir-crimson);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--noir-crimson);
+  transform: translateY(-1px);
+}
+
+.character-step-marker.is-active {
+  border-color: var(--noir-crimson);
+  background: var(--noir-crimson);
+  color: #fff6df;
+  box-shadow: 0 4px 10px rgba(122, 31, 34, 0.25);
+}
+
+.character-step-marker.is-active::before {
+  border-color: var(--noir-gold-bright);
+  background: #fff6df;
+  color: var(--noir-crimson-dark);
+}
+
+.character-step-marker.is-complete {
+  border-color: var(--noir-green-accent);
+  color: var(--noir-green-accent);
+}
+
+.character-step-marker.is-complete::before {
+  border-color: var(--noir-green-accent);
+  background: var(--noir-green-accent);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   4. CONTENT AREA & PANELS
+   ========================================================================== */
+
+.character-creation-content {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(24px, 3vw, 48px);
+  scrollbar-color: var(--noir-crimson) #c2a875;
+  scrollbar-width: thin;
+}
+
+.character-creation-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.character-creation-content::-webkit-scrollbar-track {
+  background: #c2a875;
+}
+
+.character-creation-content::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: var(--noir-crimson);
+}
+
+.character-step-panel {
+  display: none;
+  min-height: 100%;
+}
+
+.character-step-panel.is-active {
+  display: block;
+  animation: dossier-panel-in 220ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes dossier-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.character-section-title {
+  margin: 0;
+  color: var(--noir-crimson-dark);
+  font-family: "Special Elite", monospace;
+  font-size: clamp(28px, 3vw, 48px);
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.character-section-intro {
+  max-width: 75ch;
+  margin: 12px 0 clamp(24px, 2.5vw, 38px);
+  color: var(--noir-ink-muted);
+  font-size: clamp(16px, 1.3vw, 22px);
+  line-height: 1.35;
+}
+
+/* ==========================================================================
+   5. STEP 1: IDENTITY & APPEARANCE
+   ========================================================================== */
+
+.character-identity-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.45fr);
+  align-items: start;
+  gap: clamp(28px, 3.5vw, 60px);
+}
+
+.character-identity-fields {
+  display: grid;
+  gap: 22px;
+  max-width: 800px;
+}
+
+.character-field {
+  display: grid;
+  gap: 8px;
+}
+
+.character-field label,
+.character-stat-title,
+.character-dossier-label {
+  color: var(--noir-ink);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(9px, 0.72vw, 11px);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.character-field input {
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 2px solid var(--noir-ink-muted);
+  border-radius: 2px;
+  outline: none;
+  background: rgba(255, 248, 225, 0.95);
+  color: var(--noir-ink);
+  font-family: "Special Elite", monospace;
+  font-size: clamp(20px, 1.7vw, 28px);
+  line-height: 1;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.12);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.character-field input::placeholder {
+  color: #786247; /* Wyższy kontrast p/o #a38c6d */
+  opacity: 0.85;
+}
+
+.character-field input:focus {
+  border-color: var(--noir-crimson);
+  background: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(122, 31, 34, 0.18),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+/* Buttons */
+
+.character-button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 2px solid var(--noir-leather);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #d3b477 0%, #b89859 100%);
+  color: var(--noir-leather-dark);
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8.5px, 0.68vw, 11px);
+  font-weight: bold;
+  line-height: 1.2;
+  text-transform: uppercase;
+  box-shadow: 2px 3px 0px rgba(35, 16, 10, 0.4);
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  will-change: transform;
+}
+
+.character-button:hover {
+  background: linear-gradient(180deg, #f0cf87 0%, #d4b062 100%);
+  transform: translateY(-2px);
+  box-shadow: 3px 5px 0px rgba(35, 16, 10, 0.45);
+}
+
+.character-button:active {
+  transform: translateY(1px);
+  box-shadow: 1px 1px 0px rgba(35, 16, 10, 0.4);
+}
+
+.character-button--primary {
+  min-width: min(280px, 100%);
+  border-color: var(--noir-crimson-dark);
+  background: linear-gradient(180deg, var(--noir-crimson-bright) 0%, var(--noir-crimson) 100%);
+  color: #fff2d6;
+  box-shadow: 3px 4px 0px rgba(45, 10, 12, 0.6);
+}
+
+.character-button--primary:hover {
+  background: linear-gradient(180deg, #b8353a 0%, var(--noir-crimson-dark) 100%);
+  color: #ffffff;
+}
+
+.character-button--randomize {
+  width: fit-content;
+  margin-top: 4px;
+}
+
+/* Appearance selectors */
+
+.character-appearance-section {
+  margin-top: 16px;
+  padding-top: 22px;
+  border-top: 2px dashed rgba(66, 33, 25, 0.25);
+}
+
+.character-appearance-title {
+  margin: 0;
+  color: var(--noir-crimson-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(10px, 0.85vw, 13px);
+  line-height: 1.4;
+}
+
+.character-appearance-intro {
+  max-width: 62ch;
+  margin: 8px 0 18px;
+  color: var(--noir-ink-muted);
+  font-size: clamp(15px, 1.05vw, 18px);
+  line-height: 1.3;
+}
+
+.character-appearance-controls {
+  display: grid;
+  gap: 16px;
+}
+
+.appearance-option-group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.appearance-option-group legend {
+  padding: 0;
+  color: var(--noir-ink);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.65vw, 9.5px);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.appearance-option-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.appearance-option {
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid var(--noir-ink-muted);
+  border-radius: 2px;
+  background: rgba(255, 248, 225, 0.6);
+  color: var(--noir-ink);
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(7px, 0.58vw, 8.5px);
+  line-height: 1.4;
+  text-transform: uppercase;
+  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.appearance-option:hover {
+  border-color: var(--noir-crimson);
+  background: #fff4d1;
+  transform: translateY(-1px);
+}
+
+.appearance-option.is-selected {
+  border-color: var(--noir-crimson-dark);
+  background: var(--noir-crimson);
+  color: #fff3d6;
+  box-shadow: 2px 2px 0 rgba(75, 33, 29, 0.35);
+}
+
+/* ==========================================================================
+   6. MARK AGENCY ID CARD & AVATAR
+   ========================================================================== */
+
+.agency-id-card {
+  display: grid;
+  align-self: start;
+  overflow: hidden;
+  gap: 10px;
+  min-width: 0;
+  margin-top: 10px;
+  padding: 16px;
+  border: 3px solid #232c21;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.04) 0px,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 12px
+    ),
+    linear-gradient(180deg, #323e30 0%, #1f271e 100%);
+  box-shadow:
+    6px 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 2px rgba(212, 184, 130, 0.3);
+}
+
+.agency-id-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(212, 184, 130, 0.4);
+  color: #f7e6c4;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(7px, 0.55vw, 8.5px);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.agency-id-card-header span:last-child {
+  color: var(--noir-gold-bright);
+  text-align: right;
+}
+
+.agency-id-avatar {
+  --skin: #e5b68d;
+  --hair: #4a3025;
+  --coat: #8a7351;
+
+  position: relative;
+  width: min(100%, 280px);
+  min-height: 310px;
+  justify-self: center;
+  overflow: hidden;
+  border: 3px solid var(--noir-gold);
+  border-radius: 2px;
+  background: linear-gradient(180deg, #7a888c 0%, #485248 100%);
+  isolation: isolate;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+  transition: transform 180ms ease;
+}
+
+/* Skanowanie / Szum na awatarze */
+.agency-id-avatar::before {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.08) 0,
+    rgba(0, 0, 0, 0.08) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.agency-id-avatar.is-updating {
+  transform: scale(0.97) rotate(-1deg);
+}
+
+/* Avatar Sub-layers — Indeksy z-index zracjonalizowane (max z-index: 10) */
+
+.avatar-coat {
+  position: absolute;
+  z-index: 2;
+  bottom: -18px;
+  left: 50%;
+  width: 230px;
+  height: 160px;
+  border-radius: 58% 58% 0 0;
+  background: var(--coat);
+  transform: translateX(-50%);
+}
+
+.avatar-coat::before {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  width: 100px;
+  height: 118px;
+  border-left: 14px solid rgba(35, 20, 15, 0.65);
+  border-right: 14px solid rgba(35, 20, 15, 0.65);
+  content: "";
+  transform: translateX(-50%);
+}
+
+.avatar-neck {
+  position: absolute;
+  z-index: 3;
+  bottom: 100px;
+  left: 50%;
+  width: 52px;
+  height: 72px;
+  background: var(--skin);
+  transform: translateX(-50%);
+}
+
+.avatar-face {
+  position: absolute;
+  z-index: 4;
+  top: 82px;
+  left: 50%;
+  width: 126px;
+  height: 156px;
+  border-radius: 46% 46% 42% 42%;
+  background: var(--skin);
+  box-shadow: inset -11px -6px 0 rgba(0, 0, 0, 0.12);
+  transform: translateX(-50%);
+}
+
+.avatar-ear {
+  position: absolute;
+  z-index: 3;
+  top: 146px;
+  width: 24px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--skin);
+}
+
+.avatar-ear--left { left: calc(50% - 76px); }
+.avatar-ear--right { right: calc(50% - 76px); }
+
+.avatar-hair {
+  position: absolute;
+  z-index: 6;
+  top: 29px;
+  left: 50%;
+  width: 138px;
+  height: 92px;
+  border-radius: 55% 55% 28% 28%;
+  background: var(--hair);
+  transform: translateX(-50%);
+}
+
+.avatar-eyes {
+  position: absolute;
+  z-index: 5;
+  top: 151px;
+  left: 50%;
+  width: 68px;
+  height: 10px;
+  border-left: 9px solid #1f1412;
+  border-right: 9px solid #1f1412;
+  transform: translateX(-50%);
+}
+
+.avatar-nose {
+  position: absolute;
+  z-index: 5;
+  top: 161px;
+  left: 50%;
+  width: 7px;
+  height: 22px;
+  border-right: 3px solid rgba(50, 25, 20, 0.6);
+  transform: translateX(-50%);
+}
+
+.avatar-mouth {
+  position: absolute;
+  z-index: 5;
+  top: 198px;
+  left: 50%;
+  width: 34px;
+  border-top: 3px solid #6b3331;
+  transform: translateX(-50%);
+}
+
+.avatar-facial-hair,
+.avatar-makeup,
+.avatar-accessory {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Avatar Variants: Skin */
+.agency-id-avatar[data-skin-tone="light"]  { --skin: #e5b68d; }
+.agency-id-avatar[data-skin-tone="warm"]   { --skin: #c98961; }
+.agency-id-avatar[data-skin-tone="golden"] { --skin: #b87442; }
+.agency-id-avatar[data-skin-tone="deep"]   { --skin: #754a38; }
+.agency-id-avatar[data-skin-tone="rich"]   { --skin: #4f3029; }
+
+/* Avatar Variants: Hair Color */
+.agency-id-avatar[data-hair-color="black"]  { --hair: #1c1817; }
+.agency-id-avatar[data-hair-color="brown"]  { --hair: #4a3025; }
+.agency-id-avatar[data-hair-color="blonde"] { --hair: #c79b53; }
+.agency-id-avatar[data-hair-color="red"]    { --hair: #8a402c; }
+.agency-id-avatar[data-hair-color="grey"]   { --hair: #77706c; }
+
+/* Avatar Variants: Hair Styles */
+.agency-id-avatar[data-hair-style="messy"] .avatar-hair {
+  top: 32px; width: 148px; height: 106px;
+  clip-path: polygon(0 22%, 8% 5%, 18% 20%, 30% 0, 43% 16%, 55% 0, 68% 15%, 82% 3%, 100% 24%, 92% 84%, 8% 84%);
+}
+.agency-id-avatar[data-hair-style="bob"] .avatar-hair {
+  top: 48px; width: 164px; height: 160px; border-radius: 48% 48% 28% 28%;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%, 78% 30%, 22% 30%, 22% 100%, 0 100%);
+}
+.agency-id-avatar[data-hair-style="long"] .avatar-hair {
+  top: 38px; width: 154px; height: 196px; border-radius: 48% 48% 20% 20%;
+  clip-path: polygon(0 8%, 100% 8%, 94% 100%, 74% 100%, 74% 42%, 26% 42%, 26% 100%, 6% 100%);
+}
+.agency-id-avatar[data-hair-style="curly"] .avatar-hair {
+  top: 22px; width: 164px; height: 126px; border-radius: 48%;
+  box-shadow: -36px 18px 0 -10px var(--hair), 36px 18px 0 -10px var(--hair), -18px -12px 0 -10px var(--hair), 18px -12px 0 -10px var(--hair);
+}
+.agency-id-avatar[data-hair-style="braids"] .avatar-hair {
+  top: 34px; width: 148px; height: 190px; border-radius: 52% 52% 22% 22%;
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 78% 100%, 72% 40%, 28% 40%, 22% 100%, 8% 100%);
+}
+.agency-id-avatar[data-hair-style="pixie"] .avatar-hair {
+  top: 40px; width: 138px; height: 76px;
+  clip-path: polygon(0 38%, 13% 8%, 27% 25%, 43% 0, 57% 18%, 74% 4%, 100% 35%, 90% 100%, 10% 100%);
+}
+.agency-id-avatar[data-hair-style="shaved"] .avatar-hair {
+  top: 67px; width: 128px; height: 42px; border-radius: 50% 50% 15% 15%;
+}
+.agency-id-avatar[data-hair-style="hat"] .avatar-hair {
+  top: 40px; width: 160px; height: 60px; border-radius: 54% 54% 12% 12%;
+}
+.agency-id-avatar[data-hair-style="hat"] .avatar-hair::after {
+  position: absolute; right: -15px; bottom: -10px; left: -15px; height: 20px; border-radius: 50%; background: inherit; content: "";
+}
+
+/* Avatar Variants: Coats */
+.agency-id-avatar[data-coat="trench"]  { --coat: #8a7351; }
+.agency-id-avatar[data-coat="leather"] { --coat: #2d2423; }
+.agency-id-avatar[data-coat="blazer"]  { --coat: #3d4f63; }
+.agency-id-avatar[data-coat="sweater"] { --coat: #66483d; }
+.agency-id-avatar[data-coat="sweater"] .avatar-coat::before {
+  border-left: 12px solid rgba(255, 239, 195, 0.2);
+  border-right: 12px solid rgba(255, 239, 195, 0.2);
+}
+
+/* Avatar Variants: Facial Hair */
+.agency-id-avatar[data-facial-hair="moustache"] .avatar-facial-hair::before {
+  position: absolute; z-index: 6; top: 188px; left: 50%; width: 44px; height: 13px;
+  border-radius: 45% 45% 55% 55%; background: #3a2720;
+  clip-path: polygon(0 50%, 48% 0, 52% 0, 100% 50%, 78% 100%, 50% 62%, 22% 100%);
+  content: ""; transform: translateX(-50%);
+}
+.agency-id-avatar[data-facial-hair="shortBeard"] .avatar-facial-hair::before {
+  position: absolute; z-index: 5; top: 191px; left: 50%; width: 92px; height: 54px;
+  border-radius: 18% 18% 46% 46%; background: rgba(58, 39, 32, 0.9);
+  clip-path: polygon(0 0, 100% 0, 82% 85%, 50% 100%, 18% 85%);
+  content: ""; transform: translateX(-50%);
+}
+.agency-id-avatar[data-facial-hair="fullBeard"] .avatar-facial-hair::before {
+  position: absolute; z-index: 5; top: 184px; left: 50%; width: 106px; height: 77px;
+  border-radius: 22% 22% 48% 48%; background: #3a2720;
+  clip-path: polygon(0 0, 100% 0, 90% 86%, 50% 100%, 10% 86%);
+  content: ""; transform: translateX(-50%);
+}
+
+/* Avatar Variants: Makeup */
+.agency-id-avatar[data-makeup="natural"] .avatar-mouth { border-top-color: #9d5552; }
+.agency-id-avatar[data-makeup="red"]     .avatar-mouth { width: 42px; border-top-width: 5px; border-top-color: #a32632; }
+.agency-id-avatar[data-makeup="dark"]    .avatar-mouth { width: 42px; border-top-width: 5px; border-top-color: #4e1e35; }
+
+/* Avatar Variants: Accessories */
+.agency-id-avatar[data-accessory="scarf"] .avatar-accessory {
+  z-index: 3; top: auto; right: 0; bottom: 80px; left: 0; height: 86px; background: transparent; transform: none;
+}
+.agency-id-avatar[data-accessory="scarf"] .avatar-accessory::before {
+  position: absolute; bottom: 0; left: 50%; width: 186px; height: 54px; border-radius: 46% 46% 16% 16%;
+  background: #8d3630; clip-path: polygon(0 0, 100% 0, 92% 100%, 62% 76%, 50% 88%, 38% 76%, 8% 100%);
+  content: ""; transform: translateX(-50%);
+}
+.agency-id-avatar[data-accessory="scarf"] .avatar-accessory::after {
+  position: absolute; bottom: 6px; left: calc(50% + 68px); width: 26px; height: 72px;
+  background: #6f2927; clip-path: polygon(0 0, 100% 10%, 74% 100%, 15% 92%); content: "";
+}
+.agency-id-avatar[data-accessory="notebook"] .avatar-accessory::before {
+  position: absolute; z-index: 7; right: 20px; bottom: 22px; width: 42px; height: 62px;
+  border: 3px solid #e7d28d; background: var(--noir-crimson); box-shadow: -5px 4px 0 rgba(0, 0, 0, 0.3); content: "";
+}
+.agency-id-avatar[data-accessory="studs"] .avatar-accessory::before,
+.agency-id-avatar[data-accessory="studs"] .avatar-accessory::after {
+  position: absolute; z-index: 7; top: 178px; width: 9px; height: 9px; border: 2px solid #ffdc82; border-radius: 50%; background: #f2b84b; content: "";
+}
+.agency-id-avatar[data-accessory="studs"] .avatar-accessory::before { left: calc(50% - 79px); }
+.agency-id-avatar[data-accessory="studs"] .avatar-accessory::after  { right: calc(50% - 79px); }
+
+.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::before,
+.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::after {
+  position: absolute; z-index: 7; top: 177px; width: 15px; height: 23px; border: 3px solid #f2b84b; border-radius: 50%; content: "";
+}
+.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::before { left: calc(50% - 84px); }
+.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::after  { right: calc(50% - 84px); }
+
+.agency-id-avatar[data-accessory="glasses"] .avatar-eyes { display: none; }
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory {
+  z-index: 7; top: 143px; right: auto; bottom: auto; left: 50%; width: 22px; height: 4px; background: #241c19; transform: translateX(-50%);
+}
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::before,
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::after {
+  position: absolute; top: -13px; width: 34px; height: 25px; border: 4px solid #241c19; border-radius: 8px;
+  background: radial-gradient(circle at 50% 54%, #261b18 0 4px, transparent 5px), rgba(216, 237, 240, 0.22); content: "";
+}
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::before { right: 11px; }
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::after  { left: 11px; }
+
+/* Agency ID Card Details */
+.agency-id-name {
+  min-height: 22px;
+  color: #fff2d6;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.65vw, 10.5px);
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.agency-id-alias {
+  min-height: 18px;
+  color: var(--noir-gold-bright);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(7px, 0.52vw, 8.5px);
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.agency-id-status {
+  padding-top: 8px;
+  border-top: 1px dashed rgba(212, 184, 130, 0.35);
+  color: #e7d28d;
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(7px, 0.52vw, 8.5px);
+  line-height: 1.4;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   7. STEP 2: PROFILE SELECTION CARDS
+   ========================================================================== */
+
+.character-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 1160px;
+  padding-bottom: 16px;
+}
+
+.character-profile-card {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  gap: 6px 14px;
+  min-height: 125px;
+  padding: 18px;
+  border: 2px solid rgba(85, 52, 28, 0.35);
+  border-radius: 3px;
+  background: rgba(255, 248, 225, 0.55);
+  color: var(--noir-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  will-change: transform;
+}
+
+.character-profile-card:hover {
+  border-color: var(--noir-crimson);
+  background: rgba(255, 248, 225, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(66, 33, 25, 0.15);
+}
+
+.character-profile-card.is-selected {
+  border: 3px solid var(--noir-crimson);
+  background: #f7e6bd;
+  box-shadow: 4px 4px 0px rgba(122, 31, 34, 0.25);
+}
+
+.character-profile-icon {
+  grid-row: span 3;
+  align-self: center;
+  color: var(--noir-crimson-bright);
+  font-family: "Special Elite", monospace;
+  font-size: 40px;
+  text-align: center;
+}
+
+.character-profile-name {
+  color: var(--noir-crimson-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(9.5px, 0.78vw, 12px);
+  line-height: 1.4;
+}
+
+.character-profile-bonus {
+  color: var(--noir-green-accent);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  line-height: 1.4;
+}
+
+.character-profile-description {
+  color: var(--noir-ink-muted);
+  font-size: clamp(15px, 1.05vw, 18px);
+  line-height: 1.25;
+}
+
+/* ==========================================================================
+   8. STEP 3: STAT ALLOCATION
+   ========================================================================== */
+
+.character-points-counter {
+  display: inline-flex;
+  min-width: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 18px auto;
+  padding: 10px 16px;
+  border: 2px dashed var(--noir-crimson);
+  border-radius: 3px;
+  background: rgba(255, 248, 225, 0.7);
+}
+
+.character-points-value {
+  color: var(--noir-crimson-dark);
+  font-family: "Special Elite", monospace;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.character-points-label {
+  margin-top: 6px;
+  color: var(--noir-ink-muted);
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  text-align: center;
+}
+
+.character-stat-list {
+  display: grid;
+  gap: 12px;
+  max-width: 1160px;
+}
+
+.character-stat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 80px;
+  padding: 14px 18px;
+  border: 1px solid rgba(85, 52, 28, 0.3);
+  border-radius: 3px;
+  background: rgba(255, 248, 225, 0.5);
+}
+
+.character-stat-description {
+  margin-top: 6px;
+  color: var(--noir-ink-muted);
+  font-size: clamp(15px, 1.05vw, 18px);
+  line-height: 1.25;
+}
+
+.character-stat-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.character-stat-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 2px solid #0b0b0b;
+  border-radius: 2px;
+  background: #111111;
+  color: #000000;
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.42);
+  transition: transform 120ms ease, background-color 120ms ease;
+}
+
+.character-stat-button:hover:not(:disabled) {
+  background: #000000;
+  transform: scale(1.05);
+}
+
+.character-stat-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.character-stat-value {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--noir-crimson-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   9. STEP 4: DIFFICULTY SELECTION
+   ========================================================================== */
+
+.character-difficulty-list {
+  display: grid;
+  gap: 14px;
+  max-width: 1160px;
+}
+
+.character-difficulty-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 16px;
+  min-height: 110px;
+  padding: 18px 20px;
+  border: 2px solid rgba(85, 52, 28, 0.35);
+  border-radius: 3px;
+  background: rgba(255, 248, 225, 0.5);
+  color: var(--noir-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+
+.character-difficulty-card:hover {
+  border-color: var(--noir-crimson);
+  background: rgba(255, 248, 225, 0.85);
+  transform: translateY(-2px);
+}
+
+.character-difficulty-card.is-selected {
+  border: 3px solid var(--noir-crimson);
+  background: #f7e6bd;
+  box-shadow: 4px 4px 0px rgba(122, 31, 34, 0.25);
+}
+
+.character-difficulty-number {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  grid-row: span 3;
+  place-items: center;
+  border: 2px solid var(--noir-leather);
+  border-radius: 50%;
+  background: #d3b477;
+  color: var(--noir-leather-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: 11px;
+}
+
+.character-difficulty-card.is-selected .character-difficulty-number {
+  border-color: var(--noir-gold-bright);
+  background: var(--noir-crimson);
+  color: #fff2d6;
+}
+
+.character-difficulty-name {
+  color: var(--noir-crimson-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(10px, 0.85vw, 13px);
+  line-height: 1.4;
+}
+
+.character-difficulty-subtitle {
+  color: var(--noir-ink-muted);
+  font-size: clamp(16px, 1.15vw, 20px);
+  line-height: 1.2;
+}
+
+.character-difficulty-details {
+  color: var(--noir-green-accent);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   10. STEP 5: FINAL SUMMARY DOSSIER
+   ========================================================================== */
+
+.character-dossier {
+  display: grid;
+  gap: 18px;
+  max-width: 1100px;
+  padding: clamp(24px, 3vw, 40px);
+  border: 3px double var(--noir-leather);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(85, 52, 28, 0.04) 0px,
+      rgba(85, 52, 28, 0.04) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    rgba(255, 248, 225, 0.75);
+  box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.character-dossier-name {
+  color: var(--noir-crimson-dark);
+  font-family: "Special Elite", monospace;
+  font-size: clamp(30px, 2.8vw, 46px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.character-dossier-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.22fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: baseline;
+  padding-bottom: 8px;
+  border-bottom: 1px dotted rgba(85, 52, 28, 0.35);
+}
+
+.character-dossier-value {
+  color: var(--noir-ink);
+  font-size: clamp(17px, 1.2vw, 21px);
+  line-height: 1.3;
+}
+
+.character-dossier-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+}
+
+.character-dossier-stat {
+  color: var(--noir-ink-muted);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.62vw, 9.5px);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   11. FOOTER & ACTIONS
+   ========================================================================== */
+
+.character-creation-footer {
+  display: flex;
+  min-height: 82px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px clamp(24px, 3vw, 48px);
+  border-top: 3px double var(--noir-crimson);
+  background: rgba(66, 33, 25, 0.08);
+}
+
+.character-footer-hint {
+  max-width: 55ch;
+  color: var(--noir-ink-muted);
+  font-size: clamp(15px, 1.1vw, 19px);
+  line-height: 1.2;
+}
+
+.character-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Validation Feedback */
+
+.character-form-error {
+  display: none;
+  margin: 0 0 18px;
+  padding: 10px 16px;
+  border: 2px solid var(--noir-crimson);
+  border-radius: 2px;
+  background: rgba(158, 43, 47, 0.12);
+  color: var(--noir-crimson-dark);
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(8px, 0.68vw, 10px);
+  line-height: 1.5;
+}
+
+.character-form-error.is-visible {
+  display: block;
+  animation: dossier-error-shake 200ms ease-out;
+}
+
+@keyframes dossier-error-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* Focus States */
+
+.character-button:focus-visible,
+.character-step-marker:focus-visible,
+.character-profile-card:focus-visible,
+.character-difficulty-card:focus-visible,
+.character-stat-button:focus-visible,
+.appearance-option:focus-visible {
+  outline: 3px solid var(--noir-crimson);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   12. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .character-creation-header {
+    padding: 18px 20px 12px;
+  }
+
+  .character-creation-steps {
+    padding: 10px 14px;
+    gap: 6px;
+  }
+
+  .character-step-marker {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 7px;
+  }
+
+  .character-identity-layout {
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 20px;
+  }
+
+  .agency-id-avatar {
+    min-height: 260px;
+  }
+
+  .character-profile-grid {
+    gap: 12px;
+  }
+
+  .character-profile-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+    min-height: 135px;
+    padding: 14px;
+  }
+
+  .character-creation-footer {
+    min-height: 72px;
+  }
+}
+
+@media (max-width: 650px) {
+  #character-creation-root {
+    padding: 6px;
+  }
+
+.character-creation-shell {
+  width: 100%;
+  height: 100%;
+  border-width: 4px;
+}
+
+  .character-creation-header {
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .character-creation-brand h1 {
+    font-size: 24px;
+  }
+
+  .character-creation-brand p {
+    max-width: 30ch;
+    font-size: 7px;
+  }
+
+  .character-creation-stamp {
+    min-width: 80px;
+    padding: 6px;
+    border-width: 2px;
+    font-size: 6px;
+  }
+
+  .character-creation-steps {
+    display: flex;
+    overflow-x: auto;
+    padding: 8px 6px;
+    scrollbar-width: none; /* Ukryj scrollbar nawigacyjny na urządzeniach mobilnych */
+  }
+
+  .character-creation-steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .character-step-marker {
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    font-size: 8px;
+  }
+
+  .character-step-marker::before {
+    width: 20px;
+    height: 20px;
+    font-size: 8px;
+  }
+
+  .character-creation-content {
+    padding: 18px 14px;
+  }
+
+  .character-section-title {
+    font-size: 26px;
+  }
+
+  .character-section-intro {
+    margin: 8px 0 18px;
+    font-size: 15px;
+  }
+
+  .character-identity-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-id-card {
+    width: min(320px, 100%);
+    justify-self: center;
+    margin-top: 0;
+  }
+
+  .agency-id-avatar {
+    min-height: 270px;
+  }
+
+  .character-appearance-controls {
+    gap: 12px;
+  }
+
+  .appearance-option {
+    min-height: 30px;
+    padding: 6px;
+    font-size: 7px;
+  }
+
+  .character-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .character-profile-card {
+    min-height: 105px;
+  }
+
+  .character-stat-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .character-stat-controls {
+    justify-content: flex-end;
+  }
+
+  .character-difficulty-card {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 6px 12px;
+    min-height: 110px;
+    padding: 12px;
+  }
+
+  .character-difficulty-number {
+    width: 28px;
+    height: 28px;
+    font-size: 8px;
+  }
+
+  .character-creation-footer {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .character-footer-hint {
+    order: -1;
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .character-footer-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .character-button {
+    min-height: 42px;
+    padding: 8px 10px;
+    font-size: 7.5px;
+  }
+
+  .character-button--primary {
+    min-width: 0;
+  }
+
+  .character-dossier-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .character-step-panel.is-active,
+  .character-form-error.is-visible {
+    animation: none;
+  }
+
+  .character-button,
+  .character-profile-card,
+  .character-difficulty-card,
+  .character-stat-button,
+  .appearance-option,
+  .agency-id-avatar {
+    transition: none;
+  }
+}
+/* ==========================================================================
+   CHARACTER CREATION — FINAL LAYOUT / AVATAR FIXES
+   Dopisz NA KOŃCU pliku CSS
+   ========================================================================== */
+
+#character-creation-root {
+  position: relative;
+  display: block;
+
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+
+  pointer-events: auto;
+}
+
+.character-creation-shell {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  border-radius: 0;
+}
+
+.character-identity-layout {
+  align-items: start;
+  padding-bottom: 24px;
+}
+
+/*
+  ID card starts beside the randomization button / appearance controls,
+  instead of beside the Name field.
+*/
+.agency-id-card {
+  margin-top: 176px;
+}
+
+/*
+  Mouth was below the beard. It now sits below the nose and is drawn
+  above facial hair so it remains visible.
+*/
+.avatar-mouth {
+  position: absolute;
+  z-index: 7;
+
+  top: 187px;
+  left: 50%;
+
+  width: 34px;
+  height: 8px;
+
+  border-top: 3px solid #6b3331;
+  border-radius: 50%;
+
+  transform: translateX(-50%);
+}
+
+.avatar-facial-hair {
+  z-index: 6;
+}
+
+/*
+  These offsets prevent the beard itself from starting above the lips.
+*/
+.agency-id-avatar[data-facial-hair="moustache"]
+  .avatar-facial-hair::before {
+  top: 188px;
+  z-index: 6;
+}
+
+.agency-id-avatar[data-facial-hair="shortBeard"]
+  .avatar-facial-hair::before {
+  top: 194px;
+  z-index: 6;
+}
+
+.agency-id-avatar[data-facial-hair="fullBeard"]
+  .avatar-facial-hair::before {
+  top: 191px;
+  z-index: 6;
+}
+
+/*
+  The DOM scene preserves the scroll position in JS. This prevents browser
+  anchor / focus behavior from moving the form itself.
+*/
+.character-creation-content {
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+}
+
+/* Tablet: avatar remains beside controls, but needs a shorter offset. */
+@media (max-width: 900px) {
+  .agency-id-card {
+    margin-top: 138px;
+  }
+}
+
+/* Mobile: one column layout, card belongs under all appearance controls. */
+@media (max-width: 650px) {
+  #character-creation-root {
+    padding: 0;
+  }
+
+  .character-creation-shell {
+    width: 100%;
+    height: 100%;
+    border-width: 4px;
+  }
+
+  .agency-id-card {
+    width: min(320px, 100%);
+    margin-top: 0;
+  }
+}
+/* Phaser DOM element owns the available canvas area. */
+#character-creation-root {
+  position: relative;
+  display: block;
+
+  width: 100vw;
+  height: 100vh;
+
+  min-width: 100vw;
+  min-height: 100vh;
+
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.character-creation-shell {
+  width: 100%;
+  height: 100%;
+
+  min-height: 0;
+  min-width: 0;
+}
+
+.character-creation-content {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#character-creation-root button,
+#character-creation-root input,
+#character-creation-root textarea,
+#character-creation-root select {
+  pointer-events: auto;
+}
+#character-creation-root {
+  position: relative !important;
+  display: block !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  min-width: 100% !important;
+  min-height: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.character-creation-shell {
+  width: 100% !important;
+  height: 100% !important;
+
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+.character-button--primary {
+  color: #22150f;
+}
+
+.character-button--primary:hover,
+.character-button--primary:focus-visible {
+  color: #800000;
+}

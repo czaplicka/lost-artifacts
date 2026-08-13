@@ -3,672 +3,1224 @@ import { OfficeSaveUI } from '../OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
+import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
+import { ensureHud } from '../hudHelpers.js';
 
 export class OfficeScene extends BaseScene {
-    constructor() {
-        super('OfficeScene');
+  constructor() {
+    super('OfficeScene');
 
-        this.currentView = 'biuro';
-        this.viewPositions = {};
-        this.hotspots = [];
-        this.debugTexts = [];
-        this.DEBUG_HOTSPOTS = true;
-        this.saveUI = null;
+    this.currentView = 'office';
+    this.viewPositions = {};
+    this.hotspots = [];
+    this.debugTexts = [];
+    this.DEBUG_HOTSPOTS = true;
 
-        this.officeAmbient = null;
-        this.debugGraphics = null;
+    this.saveUI = null;
+    this.officeAmbient = null;
+    this.debugGraphics = null;
 
-        this.leftArrow = null;
-        this.rightArrow = null;
-        this.crimeLabArrow = null;
-        this.navHint = null;
-        this.introHint = null;
+    this.leftArrow = null;
+    this.rightArrow = null;
+    this.crimeLabArrow = null;
+    this.navHint = null;
+    this.introHint = null;
 
-        this.uiLocked = false;
-        this.isOpeningCrimeLab = false;
+    this.uiLocked = false;
+    this.isOpeningCrimeLab = false;
+    this.firstCaseTutorial = null;
+    this.startOnboarding = false;
+
+    this.elevatorBackground = null;
+    this.archiveBackground = null;
+
+    this.onFirstMissionCompletedBound = this.onFirstMissionCompleted.bind(this);
+  }
+
+  init(data = {}) {
+    this.gameState = data.gameState ?? gameState;
+    this.fromSave = data.fromSave ?? false;
+    this.saveSlotKey = data.saveSlotKey ?? null;
+    this.startOnboarding = data.startOnboarding ?? false;
+  }
+
+  create() {
+    super.create();
+ensureHud(this);
+    audioManager.init(this);
+    audioManager.stopAllVoice();
+    audioManager.stopAllSfx();
+
+    EventBus.emit('showHUD');
+
+    const { width, height } = this.scale;
+
+    this.scene.launch('NewsHud');
+    this.scene.bringToTop('NewsHud');
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
+
+    this.registry.set('currentCity', 'hq');
+
+    this.createBackgrounds(width, height);
+    this.createCameraSetup(height);
+    this.createHotspots();
+    this.createNavigationUI();
+    this.createFirstCaseTutorial();
+    this.monologue.startIdle('idle.office');
+
+    try {
+      this.saveUI = new OfficeSaveUI(this, {
+        locationType: 'office',
+        locationCode: 'agency_headquarters',
+        cityCode: 'hq',
+      });
+
+      this.saveUI.createButton();
+    } catch (error) {
+      console.error(
+        '[OfficeScene] Failed to initialize OfficeSaveUI. ' +
+        'The office will continue without save controls.',
+        error,
+      );
+
+      this.saveUI = null;
     }
 
-init(data = {}) {
-  this.gameState = data.gameState ?? gameState;
-  this.fromSave = data.fromSave ?? false;
-  this.saveSlotKey = data.saveSlotKey ?? null;
+    this.setupAudioUnlock();
+    this.createOptionalDebug();
+    this.playOfficeAmbient();
+
+    this.goToView('office', false);
+    this.showIntroHint();
+
+    this.input.keyboard.on('keydown-LEFT', this.moveLeft, this);
+    this.input.keyboard.on('keydown-RIGHT', this.moveRight, this);
+
+    EventBus.on('firstMissionCompleted', this.onFirstMissionCompletedBound);
+
+    this.events.on(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
+    this.events.on(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
+    this.events.on(Phaser.Scenes.Events.SLEEP, this.onSleep, this);
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+  }
+
+  update() {
+    const hud = this.getHudScene();
+
+    const hudPanelOpen = !!(
+      hud
+      && hud.isAnyPanelOpen
+      && hud.isAnyPanelOpen()
+    );
+
+    const savePanelOpen = !!this.saveUI?.isOpen;
+    const shouldLockOffice = hudPanelOpen || savePanelOpen;
+
+    if (shouldLockOffice && !this.uiLocked) {
+      this.applyLock(true);
+    } else if (!shouldLockOffice && this.uiLocked) {
+      this.applyLock(false);
+    }
+  }
+
+  createBackgrounds(gameWidth, gameHeight) {
+  const elevatorTexture = this.hasCompletedFirstMission()
+    ? 'elevator_open'
+    : 'elevator_broken';
+
+  const archiveTexture = this.hasCompletedFirstMission()
+    ? 'archivist'
+    : 'archive';
+
+  const elevatorBg = this.add.image(
+    -gameWidth,
+    0,
+    elevatorTexture,
+  )
+    .setOrigin(0, 0)
+    .setDisplaySize(gameWidth, gameHeight);
+
+  const storageBg = this.add.image(
+    0,
+    0,
+    'backgroundhi',
+  )
+    .setOrigin(0, 0)
+    .setDisplaySize(gameWidth, gameHeight);
+
+  const officeBg = this.add.image(
+    gameWidth,
+    0,
+    'backgroundoff',
+  )
+    .setOrigin(0, 0)
+    .setDisplaySize(gameWidth, gameHeight);
+
+  const cabinetBg = this.add.image(
+    gameWidth * 2,
+    0,
+    'backgroundset',
+  )
+    .setOrigin(0, 0)
+    .setDisplaySize(gameWidth, gameHeight);
+
+  const archiveBg = this.add.image(
+    gameWidth * 3,
+    0,
+    archiveTexture,
+  )
+    .setOrigin(0, 0)
+    .setDisplaySize(gameWidth, gameHeight);
+
+  this.elevatorBackground = elevatorBg;
+  this.archiveBackground = archiveBg;
+
+  this.rooms = {
+    elevator: {
+      key: 'elevator',
+      bg: elevatorBg,
+      x: -gameWidth,
+      width: gameWidth,
+    },
+    storage: {
+      key: 'storage',
+      bg: storageBg,
+      x: 0,
+      width: gameWidth,
+    },
+    office: {
+      key: 'office',
+      bg: officeBg,
+      x: gameWidth,
+      width: gameWidth,
+    },
+    cabinet: {
+      key: 'cabinet',
+      bg: cabinetBg,
+      x: gameWidth * 2,
+      width: gameWidth,
+    },
+    archive: {
+      key: 'archive',
+      bg: archiveBg,
+      x: gameWidth * 3,
+      width: gameWidth,
+    },
+  };
+
+  this.roomOrder = [
+    'elevator',
+    'storage',
+    'office',
+    'cabinet',
+    'archive',
+  ];
+
+  this.totalWidth = gameWidth * 5;
+
+  this.viewPositions = {
+    elevator: this.rooms.elevator.x,
+    storage: this.rooms.storage.x,
+    office: this.rooms.office.x,
+    cabinet: this.rooms.cabinet.x,
+    archive: this.rooms.archive.x,
+  };
 }
 
-    create() {
-            super.create();
-        audioManager.init(this);
-        audioManager.stopAllVoice();
-        audioManager.stopAllSfx();
-EventBus.emit('showHUD');
-        const { width, height } = this.scale;
-this.scene.launch('NewsHud');
-this.scene.bringToTop('NewsHud');
-this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
-this.registry.set('currentCity', 'hq');
+  createCameraSetup(height) {
+    const leftBound = this.rooms.elevator.x;
 
-        this.createBackgrounds(width, height);
-        this.createCameraSetup(height);
-        this.createHotspots();
-this.createNavigationUI();
+    this.cameras.main.setBounds(
+      leftBound,
+      0,
+      this.totalWidth,
+      height,
+    );
+  }
 
-try {
-  this.saveUI = new OfficeSaveUI(this, {
-    locationType: 'office',
-    locationCode: 'agency_headquarters',
-    cityCode: 'hq'
-  });
+  createFirstCaseTutorial() {
+    const shouldStartTutorial = this.startOnboarding
+      && !this.gameState.onboarding?.firstCase?.completed;
 
-  this.saveUI.createButton();
-} catch (error) {
-  console.error(
-    '[OfficeScene] Failed to initialize OfficeSaveUI. ' +
-    'The office will continue without save controls.',
-    error
+    if (!shouldStartTutorial) {
+      return;
+    }
+
+    this.firstCaseTutorial = new FirstCaseTutorial(
+      this,
+      this.gameState,
+    );
+
+    this.hotspots.forEach((zone) => {
+      const hotspotId = zone.hotspotData?.id;
+
+      if (hotspotId) {
+        this.firstCaseTutorial.registerHotspot(hotspotId, zone);
+      }
+    });
+
+    this.firstCaseTutorial.start();
+    this.monologue.say(
+    'Mark Agency. The sort of place that hires you before it tells you what the job is.',
+    {
+        cooldownKey: 'office.firstArrival',
+        cooldownMs: 999999
+    }
+);
+  }
+
+  notifyTutorialOfficeReached() {
+    if (
+      !this.firstCaseTutorial?.isActive()
+      || this.firstCaseTutorial.getStep() !== 'walk_to_case_file'
+    ) {
+      return;
+    }
+
+    const cabinetZone = this.hotspots.find(
+      (zone) => zone.hotspotData?.id === 'cabinet-casefile',
+    );
+
+    if (!cabinetZone?.hotspotData) {
+      return;
+    }
+
+    const data = cabinetZone.hotspotData;
+
+    this.firstCaseTutorial.onPlayerPositionChanged(
+      data.x + data.width / 2,
+      data.y + data.height / 2,
+    );
+  }
+
+  hasCompletedFirstMission() {
+    return !!(
+      this.gameState.firstMissionCompleted
+      || this.gameState.progress?.firstMissionCompleted
+      || this.gameState.story?.firstMissionCompleted
+      || this.gameState.onboarding?.firstCase?.missionCompleted
+    );
+  }
+
+  onFirstMissionCompleted() {
+    if (!this.gameState.progress) {
+      this.gameState.progress = {};
+    }
+
+    this.gameState.progress.firstMissionCompleted = true;
+
+    this.elevatorBackground?.setTexture('elevator_open');
+    this.archiveBackground?.setTexture('archivist');
+
+    this.showOfficeStatusMessage(
+      'The elevator opens. The archive gains an archivist. Both developments are suspicious.',
+    );
+  }
+
+  showOfficeStatusMessage(message) {
+    if (!message) {
+      return;
+    }
+
+    const { width } = this.scale;
+
+    const text = this.add.text(width / 2, 115, message, {
+      fontFamily: 'Special Elite',
+      fontSize: '20px',
+      color: '#f2d477',
+      align: 'center',
+      backgroundColor: '#17110e',
+      padding: {
+        left: 14,
+        right: 14,
+        top: 10,
+        bottom: 10,
+      },
+      wordWrap: {
+        width: Math.min(width - 80, 760),
+      },
+    })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setAlpha(0);
+
+    this.tweens.add({
+      targets: text,
+      alpha: 1,
+      duration: 250,
+      yoyo: true,
+      hold: 2600,
+      ease: 'Sine.easeInOut',
+      onComplete: () => text.destroy(),
+    });
+  }
+
+  getHudScene() {
+    if (this.scene.isActive('PlayerHudScene')) {
+      return this.scene.get('PlayerHudScene');
+    }
+
+    if (this.scene.isActive('UIScene')) {
+      return this.scene.get('UIScene');
+    }
+
+    return null;
+  }
+
+  createHotspots() {
+    const hotspotData = [
+        {
+            id: 'desk',
+            room: 'office',
+            x: this.rooms.office.x + 300,
+            y: 500,
+            width: 720,
+            height: 250,
+            label: 'Desk',
+            monologueKey: 'inspect.desk',
+            action: () => this.openWarrant(),
+        },
+        {
+            id: 'crime-board',
+            room: 'office',
+            x: this.rooms.office.x + 10,
+            y: 10,
+            width: 800,
+            height: 470,
+            label: 'Crime Board',
+            monologueKey: 'inspect.crimeBoard',
+            action: () => this.openCrimeBoard(),
+        },
+        {
+            id: 'globe',
+            room: 'storage',
+            x: this.rooms.storage.x + 1065,
+            y: 490,
+            width: 135,
+            height: 160,
+            label: 'Globe',
+            monologueKey: 'inspect.globe',
+            action: () => this.openDestinations(),
+        },
+        {
+            id: 'cabinet-casefile',
+            room: 'storage',
+            x: this.rooms.storage.x + 1525,
+            y: 480,
+            width: 380,
+            height: 450,
+            label: 'Case File Cabinet',
+            monologueKey: 'inspect.caseFileCabinet',
+            action: () => this.openCasefile(),
+        },
+        {
+            id: 'book-notes',
+            room: 'cabinet',
+            x: this.rooms.cabinet.x + 525,
+            y: 705,
+            width: 190,
+            height: 100,
+            label: 'Book',
+            monologueKey: 'inspect.notesBook',
+            action: () => this.openNotes(),
+        },
+        {
+            id: 'wanted-database',
+            room: 'cabinet',
+            x: this.rooms.cabinet.x + 605,
+            y: 480,
+            width: 130,
+            height: 130,
+            label: 'Wanted Database',
+            monologueKey: 'inspect.wantedDatabase',
+            action: () => this.openWantedDatabase(),
+        },
+        {
+            id: 'recovered-artifacts',
+            room: 'cabinet',
+            x: this.rooms.cabinet.x + 820,
+            y: 150,
+            width: 785,
+            height: 725,
+            label: 'Recovered Artifacts',
+            monologueKey: 'inspect.recoveredArtifacts',
+            action: () => this.openRecoveredArtifacts(),
+        },
+        {
+            id: 'atlas',
+            room: 'cabinet',
+            x: this.rooms.cabinet.x + 280,
+            y: 270,
+            width: 325,
+            height: 270,
+            label: 'Atlas',
+            monologueKey: 'inspect.atlas',
+            action: () => this.openAtlas(),
+        },
+        {
+            id: 'brokenElevator',
+            room: 'elevator',
+            x: this.rooms.elevator.x + 660,
+            y: 200,
+            width: 590,
+            height: 700,
+            label: 'Broken Elevator',
+            monologueKey: 'inspect.brokenElevator',
+        },
+    ];
+
+    hotspotData.forEach((data) => {
+        const zone = this.add.zone(
+            data.x,
+            data.y,
+            data.width,
+            data.height,
+        )
+            .setOrigin(0, 0)
+            .setDepth(50)
+            .setName(`hotspot-${data.id}`)
+            .setInteractive({
+                useHandCursor: true,
+                cursor: 'pointer',
+            });
+
+        zone.hotspotData = data;
+
+        zone.on('pointerover', () => {
+            if (this.uiLocked) {
+                return;
+            }
+
+            this.onHotspotOver(data);
+        });
+
+        zone.on('pointerout', () => {
+            this.onHotspotOut();
+        });
+
+        zone.on('pointerdown', () => {
+            console.log('[OfficeScene] Hotspot clicked:', {
+                id: data.id,
+                room: data.room,
+                currentView: this.currentView,
+                uiLocked: this.uiLocked,
+                zoneInputEnabled: zone.input?.enabled,
+            });
+
+            if (this.uiLocked) {
+                console.warn(
+                    `[OfficeScene] Hotspot "${data.id}" blocked because uiLocked is true.`,
+                );
+                return;
+            }
+
+            const tutorialAllowsInteraction =
+                this.firstCaseTutorial?.canUseHotspot(data.id);
+
+            if (tutorialAllowsInteraction === false) {
+                console.warn(
+                    `[OfficeScene] Hotspot "${data.id}" blocked by tutorial.`,
+                );
+                return;
+            }
+
+            audioManager.playSfx('click_sound');
+
+            try {
+                data.action();
+            } catch (error) {
+                console.error(
+                    `[OfficeScene] Failed to execute hotspot "${data.id}".`,
+                    error,
+                );
+            }
+        });
+
+        this.hotspots.push(zone);
+    });
+
+    console.log(
+        '[OfficeScene] Hotspots created:',
+        this.hotspots.map((zone) => zone.hotspotData.id),
+    );
+}
+
+  applyLock(locked) {
+    this.uiLocked = locked;
+
+    this.hotspots.forEach((zone) => {
+      if (!zone?.scene) {
+        return;
+      }
+
+      if (locked) {
+        zone.disableInteractive();
+      } else {
+        zone.setInteractive({ useHandCursor: true });
+      }
+    });
+
+    [this.leftArrow, this.rightArrow].forEach((arrow) => {
+      if (!arrow) {
+        return;
+      }
+
+      if (locked) {
+        arrow.disableInteractive();
+        arrow.setAlpha(0.35);
+      } else {
+        arrow.setInteractive({ useHandCursor: true });
+        arrow.setAlpha(0.75);
+      }
+    });
+
+    this.saveUI?.setLocked(locked);
+
+    if (locked) {
+      this.hideNavHint();
+    } else {
+      this.updateNavVisibility();
+    }
+  }
+
+  createNavigationUI() {
+  const { width, height } = this.scale;
+
+  const createArrowButton = (x, direction) => {
+    const buttonWidth = 78;
+    const buttonHeight = 96;
+    const isLeft = direction === 'left';
+
+    const graphics = this.add.graphics();
+
+    graphics.fillStyle(0x120f0b, 0.78);
+    graphics.fillRoundedRect(
+      -buttonWidth / 2,
+      -buttonHeight / 2,
+      buttonWidth,
+      buttonHeight,
+      12,
+    );
+
+    graphics.lineStyle(3, 0xf0e6b8, 0.95);
+    graphics.strokeRoundedRect(
+      -buttonWidth / 2,
+      -buttonHeight / 2,
+      buttonWidth,
+      buttonHeight,
+      12,
+    );
+
+    graphics.fillStyle(0xf0e6b8, 1);
+
+    if (isLeft) {
+      graphics.fillTriangle(
+        15,
+        -25,
+        15,
+        25,
+        -22,
+        0,
+      );
+    } else {
+      graphics.fillTriangle(
+        -15,
+        -25,
+        -15,
+        25,
+        22,
+        0,
+      );
+    }
+
+    const button = this.add.container(x, height / 2, [graphics])
+      .setName(`office-navigation-${direction}`)
+      .setSize(buttonWidth, buttonHeight)
+      .setDepth(10000)
+      .setScrollFactor(0)
+      .setAlpha(0.95)
+      .setInteractive({
+        useHandCursor: true,
+        cursor: 'pointer',
+      });
+
+    button.buttonGraphics = graphics;
+
+    return button;
+  };
+
+  this.leftArrow = createArrowButton(54, 'left');
+
+  this.rightArrow = createArrowButton(
+    width - 54,
+    'right',
   );
 
-  this.saveUI = null;
+  this.navHint = this.add.text(width / 2, 84, '', {
+    fontFamily: 'Special Elite',
+    fontSize: '20px',
+    color: '#f0e6b8',
+    backgroundColor: '#000000',
+    padding: {
+      left: 10,
+      right: 10,
+      top: 8,
+      bottom: 8,
+    },
+  })
+    .setOrigin(0.5)
+    .setScrollFactor(0)
+    .setDepth(10001)
+    .setVisible(false);
+
+  this.introHint = this.add.text(
+    width / 2,
+    40,
+    'Explore the office — move left or right',
+    {
+      fontFamily: 'Special Elite',
+      fontSize: '18px',
+      color: '#fff4c7',
+      backgroundColor: '#000000',
+      padding: {
+        left: 12,
+        right: 12,
+        top: 8,
+        bottom: 8,
+      },
+    },
+  )
+    .setOrigin(0.5)
+    .setScrollFactor(0)
+    .setDepth(10001)
+    .setAlpha(0);
+
+  this.leftArrow
+    .on('pointerdown', () => {
+      this.moveLeft();
+    })
+    .on('pointerover', () => {
+      if (this.uiLocked) {
+        return;
+      }
+
+      this.leftArrow.setScale(1.1);
+      this.leftArrow.setAlpha(1);
+      this.showNavHint(this.getLeftRoomLabel());
+    })
+    .on('pointerout', () => {
+      this.leftArrow.setScale(1);
+
+      if (!this.uiLocked) {
+        this.leftArrow.setAlpha(0.95);
+      }
+
+      this.hideNavHint();
+    });
+
+  this.rightArrow
+    .on('pointerdown', () => {
+      this.moveRight();
+    })
+    .on('pointerover', () => {
+      if (this.uiLocked) {
+        return;
+      }
+
+      this.rightArrow.setScale(1.1);
+      this.rightArrow.setAlpha(1);
+      this.showNavHint(this.getRightRoomLabel());
+    })
+    .on('pointerout', () => {
+      this.rightArrow.setScale(1);
+
+      if (!this.uiLocked) {
+        this.rightArrow.setAlpha(0.95);
+      }
+
+      this.hideNavHint();
+    });
+
+  this.tweens.add({
+    targets: [this.leftArrow, this.rightArrow],
+    alpha: {
+      from: 0.72,
+      to: 1,
+    },
+    duration: 850,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut',
+  });
+
+  this.updateNavVisibility();
+
+  console.log('[OfficeScene] Navigation created:', {
+    currentView: this.currentView,
+    currentIndex: this.roomOrder.indexOf(this.currentView),
+    leftVisible: this.leftArrow.visible,
+    rightVisible: this.rightArrow.visible,
+  });
 }
-        this.setupAudioUnlock();
-        this.createOptionalDebug();
 
-        this.playOfficeAmbient();
-
-        this.goToView('biuro', false);
-        this.showIntroHint();
-
-        this.input.keyboard.on('keydown-LEFT', this.moveLeft, this);
-        this.input.keyboard.on('keydown-RIGHT', this.moveRight, this);
-        this.input.keyboard.on('keydown-L', this.openCrimeLabHotkey, this);
-
-        this.events.on(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
-        this.events.on(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
-        this.events.on(Phaser.Scenes.Events.SLEEP, this.onSleep, this);
-        this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+  moveLeft() {
+    if (this.uiLocked) {
+      return;
     }
 
-    onWakeOrResume() {
-        this.isOpeningCrimeLab = false;
-        this.applyLock(false);
-        this.updateNavVisibility();
+    const currentIndex = this.roomOrder.indexOf(this.currentView);
 
-        if (!this.officeAmbient || !this.officeAmbient.isPlaying) {
-            this.playOfficeAmbient();
-        }
+    if (currentIndex <= 0) {
+      return;
     }
 
-    onSleep() {
-        this.hideNavHint();
+    this.goToView(this.roomOrder[currentIndex - 1]);
+  }
 
-        if (this.officeAmbient?.isPlaying) {
-            this.officeAmbient.pause();
-        }
+  moveRight() {
+    if (this.uiLocked) {
+      return;
     }
 
-    openCrimeLabHotkey() {
-        this.openCrimeLab();
+    const currentIndex = this.roomOrder.indexOf(this.currentView);
+
+    if (currentIndex === -1 || currentIndex >= this.roomOrder.length - 1) {
+      return;
     }
 
-    openCrimeLab() {
-        if (this.uiLocked || this.isOpeningCrimeLab) return;
+    this.goToView(this.roomOrder[currentIndex + 1]);
+  }
 
-        this.isOpeningCrimeLab = true;
-        this.hideNavHint();
+  goToView(viewName, animate = true) {
+    const targetX = this.viewPositions[viewName];
 
-        audioManager.playSfx('click_sound');
-
-        this.scene.pause();
-        this.scene.launch('CrimeLabScene', { gameState: this.gameState });
+    if (targetX === undefined) {
+      return;
     }
 
-update() {
+    this.currentView = viewName;
+    this.updateNavVisibility();
+    this.hideNavHint();
+
+    const finishViewChange = () => {
+      if (viewName === 'office') {
+        this.notifyTutorialOfficeReached();
+      }
+    };
+
+    if (!animate) {
+      this.cameras.main.scrollX = targetX;
+      finishViewChange();
+      return;
+    }
+
+    this.tweens.add({
+      targets: this.cameras.main,
+      scrollX: targetX,
+      duration: 550,
+      ease: 'Sine.easeInOut',
+      onComplete: finishViewChange,
+    });
+  }
+
+  updateNavVisibility() {
+    const currentIndex = this.roomOrder.indexOf(this.currentView);
+
+    if (this.leftArrow) {
+      this.leftArrow.setVisible(currentIndex > 0);
+    }
+
+    if (this.rightArrow) {
+      this.rightArrow.setVisible(
+        currentIndex >= 0
+        && currentIndex < this.roomOrder.length - 1,
+      );
+    }
+  }
+
+  getLeftRoomLabel() {
+    const currentIndex = this.roomOrder.indexOf(this.currentView);
+
+    if (currentIndex <= 0) {
+      return '';
+    }
+
+    return `Go to ${this.getRoomLabel(this.roomOrder[currentIndex - 1])}`;
+  }
+
+  getRightRoomLabel() {
+    const currentIndex = this.roomOrder.indexOf(this.currentView);
+
+    if (
+      currentIndex === -1
+      || currentIndex >= this.roomOrder.length - 1
+    ) {
+      return '';
+    }
+
+    return `Go to ${this.getRoomLabel(this.roomOrder[currentIndex + 1])}`;
+  }
+
+  getRoomLabel(roomKey) {
+    const labels = {
+      elevator: 'elevator',
+      storage: 'storage',
+      office: 'main office',
+      cabinet: 'records room',
+      archive: 'archive',
+    };
+
+    return labels[roomKey] ?? roomKey;
+  }
+
+  showIntroHint() {
+    if (!this.introHint) {
+      return;
+    }
+
+    this.tweens.add({
+      targets: this.introHint,
+      alpha: 1,
+      duration: 350,
+      ease: 'Power2',
+    });
+
+    this.time.delayedCall(2800, () => {
+      if (!this.introHint) {
+        return;
+      }
+
+      this.tweens.add({
+        targets: this.introHint,
+        alpha: 0,
+        duration: 500,
+        ease: 'Power2',
+      });
+    });
+  }
+
+  showNavHint(text) {
+    if (!text || !this.navHint) {
+      return;
+    }
+
+    this.navHint.setText(text);
+    this.navHint.setVisible(true);
+  }
+
+  hideNavHint() {
+    if (!this.navHint) {
+      return;
+    }
+
+    this.navHint.setVisible(false);
+  }
+
+onHotspotOver(data) {
+  if (!data || this.uiLocked) {
+    return;
+  }
+
+  if (data.label) {
+    this.showNavHint(data.label);
+  }
+
+  if (data.monologueKey) {
+    this.monologue.sayRandom(data.monologueKey, {
+      cooldownKey: `hotspot-hover:${data.id}`,
+      cooldownMs: 2500,
+      queue: false
+    });
+  }
+}
+
+  onHotspotOut() {
+    this.hideNavHint();
+  }
+
+  setupAudioUnlock() {
+    this.input.once('pointerdown', () => {
+      if (this.sound?.context?.state === 'suspended') {
+        this.sound.context.resume();
+      }
+
+      this.playOfficeAmbient();
+    });
+  }
+
+  playOfficeAmbient() {
+    if (this.officeAmbient?.isPlaying) {
+      return this.officeAmbient;
+    }
+
+    this.officeAmbient = audioManager.playAmbient(
+      'officescenesound',
+      { loop: true },
+    );
+
+    return this.officeAmbient;
+  }
+
+  openCrimeLabHotkey() {
+    this.openCrimeLab();
+  }
+
+  openCrimeLab() {
+    if (this.uiLocked || this.isOpeningCrimeLab) {
+      return;
+    }
+
+    this.isOpeningCrimeLab = true;
+    this.hideNavHint();
+
+    audioManager.playSfx('click_sound');
+
+    this.scene.pause();
+    this.scene.launch('CrimeLabScene', {
+      gameState: this.gameState,
+    });
+  }
+
+  openRecoveredArtifacts() {
+    this.scene.pause();
+    this.scene.launch('RecoveredArtifactsScene', {
+      gameState: this.gameState,
+    });
+  }
+
+  openWantedDatabase() {
+    this.scene.pause();
+    this.scene.launch('WantedDatabaseScene', {
+      gameState: this.gameState,
+    });
+  }
+
+  openCasefile() {
   const hud = this.getHudScene();
 
-  const hudPanelOpen = !!(
-    hud
-    && hud.isAnyPanelOpen
-    && hud.isAnyPanelOpen()
-  );
-
-  const savePanelOpen = !!this.saveUI?.isOpen;
-
-  const shouldLockOffice = hudPanelOpen || savePanelOpen;
-
-  if (shouldLockOffice && !this.uiLocked) {
-    this.applyLock(true);
-  } else if (!shouldLockOffice && this.uiLocked) {
-    this.applyLock(false);
-  }
-}
-
-    applyLock(locked) {
-  this.uiLocked = locked;
-
-  this.hotspots.forEach((zone) => {
-    if (!zone || !zone.scene) return;
-
-    if (locked) {
-      zone.disableInteractive();
-    } else {
-      zone.setInteractive({ useHandCursor: true });
-    }
+  console.log('[OfficeScene] Opening Case File', {
+    hudFound: !!hud,
+    hudSceneKey: hud?.scene?.key,
+    caseFileUIFound: !!hud?.caseFileUI,
+    mission: this.gameState.currentMission,
   });
 
-  if (this.leftArrow) {
-    if (locked) {
-      this.leftArrow.disableInteractive();
-      this.leftArrow.setAlpha(0.35);
-    } else {
-      this.leftArrow.setInteractive({ useHandCursor: true });
-      this.leftArrow.setAlpha(0.75);
-    }
+  if (!hud) {
+    console.error(
+      '[OfficeScene] Cannot open Case File: PlayerHudScene / UIScene is not active.',
+    );
+    return;
   }
 
-  if (this.rightArrow) {
-    if (locked) {
-      this.rightArrow.disableInteractive();
-      this.rightArrow.setAlpha(0.35);
-    } else {
-      this.rightArrow.setInteractive({ useHandCursor: true });
-      this.rightArrow.setAlpha(0.75);
-    }
+  if (!hud.caseFileUI) {
+    console.error(
+      '[OfficeScene] Cannot open Case File: caseFileUI was not created in the HUD scene.',
+    );
+    return;
   }
 
-  this.saveUI?.setLocked(locked);
+  this.closeAllUIPanels();
 
-  if (locked) {
-    this.hideNavHint();
-  } else {
-    this.updateNavVisibility();
-  }
+  const mission = this.gameState.currentMission || {};
+
+  hud.caseFileUI.open({
+    artifact: mission.artifact || 'UNKNOWN ARTIFACT',
+    city: mission.city || 'UNKNOWN CITY',
+    country: mission.country || 'UNKNOWN COUNTRY',
+    description: mission.description || 'No case description available.',
+    significance: mission.significance || '',
+    clue: mission.clue || '',
+    artifactKey: mission.artifactKey || '',
+  });
+
+  this.firstCaseTutorial?.onCaseFileOpened();
 }
-    createBackgrounds(gameWidth, gameHeight) {
-        const leftBg = this.add.image(0, 0, 'backgroundhi').setOrigin(0, 0);
-        const centerBg = this.add.image(gameWidth, 0, 'backgroundoff').setOrigin(0, 0);
-        const rightBg = this.add.image(gameWidth * 2, 0, 'backgroundset').setOrigin(0, 0);
 
-        [leftBg, centerBg, rightBg].forEach(bg => bg.setDisplaySize(gameWidth, gameHeight));
+  openNotes() {
+    const hud = this.getHudScene();
 
-        this.rooms = {
-            office: { key: 'office', bg: leftBg, x: 0, width: gameWidth },
-            biuro: { key: 'biuro', bg: centerBg, x: gameWidth, width: gameWidth },
-            cabinet: { key: 'cabinet', bg: rightBg, x: gameWidth * 2, width: gameWidth }
-        };
-
-        this.totalWidth = gameWidth * 3;
-
-        this.viewPositions = {
-            office: this.rooms.office.x,
-            biuro: this.rooms.biuro.x,
-            cabinet: this.rooms.cabinet.x
-        };
+    if (!hud?.notesUI) {
+      console.warn('[OfficeScene] notesUI not found in HUD scene');
+      return;
     }
 
-    createCameraSetup(height) {
-        this.cameras.main.setBounds(0, 0, this.totalWidth, height);
+    this.closeAllUIPanels();
+    hud.notesUI.open(this.gameState);
+  }
+
+  openDestinations() {
+    const hud = this.getHudScene();
+
+    if (!hud?.destinationsUI) {
+      console.warn('[OfficeScene] destinationsUI not found in HUD scene');
+      return;
     }
 
-    getHudScene() {
-        if (this.scene.isActive('PlayerHudScene')) {
-            return this.scene.get('PlayerHudScene');
-        }
-        if (this.scene.isActive('UIScene')) {
-            return this.scene.get('UIScene');
-        }
-        return null;
+    this.closeAllUIPanels();
+    hud.destinationsUI.open(this.gameState);
+
+    this.firstCaseTutorial?.onDestinationMapOpened();
+  }
+
+  openWarrant() {
+    const hud = this.getHudScene();
+
+    if (!hud?.warrantUI) {
+      console.warn('[OfficeScene] warrantUI not found in HUD scene');
+      return;
     }
 
-    createHotspots() {
-        const hotspotData = [
-            { id: 'desk', room: 'biuro', x: this.rooms.biuro.x + 300, y: 500, width: 720, height: 250, label: 'Desk', action: () => this.openWarrant() },
-            { id: 'crime-board', room: 'biuro', x: this.rooms.biuro.x + 10, y: 10, width: 800, height: 470, label: 'Crime Board', action: () => this.openCrimeBoard() },
-            { id: 'globe', room: 'office', x: this.rooms.office.x + 1065, y: 490, width: 135, height: 160, label: 'Globus', action: () => this.openDestinations() },
-            { id: 'cabinet-casefile', room: 'office', x: this.rooms.office.x + 1525, y: 480, width: 380, height: 450, label: 'Cabinet', action: () => this.openCasefile() },
-            { id: 'book-notes', room: 'cabinet', x: this.rooms.cabinet.x + 525, y: 705, width: 190, height: 100, label: 'Book', action: () => this.openNotes() },
-            { id: 'WantedDatabase', room: 'cabinet', x: this.rooms.cabinet.x + 605, y: 480, width: 130, height: 130, label: 'Wanted Database', action: () => this.openWantedDatabase() },
-            { id: 'recovered-artifacts', room: 'cabinet', x: this.rooms.cabinet.x + 820, y: 150, width: 785, height: 725, label: 'Recovered Artifacts', action: () => this.openRecoveredArtifacts() },
-            { id: 'atlas', room: 'cabinet', x: this.rooms.cabinet.x + 280, y: 270, width: 325, height: 270, label: 'Atlas', action: () => this.openAtlas() }
-        ];
+    this.closeAllUIPanels();
+    hud.warrantUI.open(this.gameState);
+  }
 
-        hotspotData.forEach((data) => {
-            const zone = this.add.zone(data.x, data.y, data.width, data.height)
-                .setOrigin(0, 0)
-                .setDepth(50)
-                .setInteractive({ useHandCursor: true });
+  openCrimeBoard() {
+    const hud = this.getHudScene();
 
-            zone.hotspotData = data;
-
-            zone.on('pointerover', () => this.onHotspotOver(data));
-            zone.on('pointerout', () => this.onHotspotOut());
-            zone.on('pointerdown', (pointer, localX, localY, event) => {
-                if (event) event.stopPropagation();
-                audioManager.playSfx('click_sound');
-                data.action();
-            });
-
-            this.hotspots.push(zone);
-        });
+    if (!hud?.crimeBoardUI) {
+      console.warn('[OfficeScene] crimeBoardUI not found in HUD scene');
+      return;
     }
 
-    openRecoveredArtifacts() {
-        this.scene.pause();
-        this.scene.launch('RecoveredArtifactsScene', { gameState: this.gameState });
+    this.closeAllUIPanels();
+    hud.crimeBoardUI.open(this.gameState);
+  }
+
+  openAtlas() {
+    const hud = this.getHudScene();
+
+    if (!hud?.atlasUI) {
+      console.warn('[OfficeScene] atlasUI not found in HUD scene');
+      return;
     }
 
-    openWantedDatabase() {
-        this.scene.pause();
-        this.scene.launch('WantedDatabaseScene', { gameState: this.gameState });
+    this.closeAllUIPanels();
+
+    const mission = this.gameState.currentMission || {};
+
+    hud.atlasUI.open({
+      country: mission.country || '',
+      city: mission.city || '',
+      artifact: mission.artifact || '',
+      gameState: this.gameState,
+    });
+  }
+
+  closeAllUIPanels() {
+    const hud = this.getHudScene();
+
+    if (hud?.closeAllUIPanels) {
+      hud.closeAllUIPanels();
+    }
+  }
+
+  createOptionalDebug() {
+    if (!this.DEBUG_HOTSPOTS) {
+      return;
     }
 
-    openCasefile() {
-        const hud = this.getHudScene();
-        if (!hud?.caseFileUI) {
-            console.warn('[OfficeScene] caseFileUI not found in HUD scene');
-            return;
-        }
+    this.debugGraphics = this.add.graphics();
+    this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
 
-        this.closeAllUIPanels();
+    this.hotspots.forEach((zone) => {
+      const data = zone.hotspotData;
 
-        const mission = this.gameState.currentMission || {};
-        hud.caseFileUI.open({
-            artifact: mission.artifact,
-            city: mission.city,
-            country: mission.country,
-            description: mission.description,
-            significance: mission.significance,
-            clue: mission.clue,
-            artifactKey: mission.artifactKey
-        });
+      this.debugGraphics.strokeRect(
+        data.x,
+        data.y,
+        data.width,
+        data.height,
+      );
+
+      const label = this.add.text(
+        data.x + 8,
+        data.y + 8,
+        data.id,
+        {
+          fontFamily: 'Arial',
+          fontSize: '16px',
+          color: '#00ffcc',
+          backgroundColor: '#000000',
+          padding: { left: 4, right: 4, top: 2, bottom: 2 },
+        },
+      ).setDepth(999);
+
+      this.debugTexts.push(label);
+    });
+  }
+
+  onWakeOrResume() {
+    this.isOpeningCrimeLab = false;
+    this.applyLock(false);
+    this.updateNavVisibility();
+
+    if (!this.officeAmbient?.isPlaying) {
+      this.playOfficeAmbient();
     }
+  }
 
-    openNotes() {
-        const hud = this.getHudScene();
-        if (!hud?.notesUI) {
-            console.warn('[OfficeScene] notesUI not found in HUD scene');
-            return;
-        }
+  onSleep() {
+    this.hideNavHint();
 
-        this.closeAllUIPanels();
-        hud.notesUI.open(this.gameState);
+    if (this.officeAmbient?.isPlaying) {
+      this.officeAmbient.pause();
     }
+  }
 
-    openDestinations() {
-        const hud = this.getHudScene();
-        if (!hud?.destinationsUI) {
-            console.warn('[OfficeScene] destinationsUI not found in HUD scene');
-            return;
-        }
+  cleanupScene() {
+    EventBus.off('firstMissionCompleted', this.onFirstMissionCompletedBound);
 
-        this.closeAllUIPanels();
-        hud.destinationsUI.open(this.gameState);
+    this.saveUI?.destroy();
+    this.saveUI = null;
+
+    this.firstCaseTutorial?.destroy();
+    this.firstCaseTutorial = null;
+
+    this.input.keyboard?.off('keydown-LEFT', this.moveLeft, this);
+    this.input.keyboard?.off('keydown-RIGHT', this.moveRight, this);
+    this.input.keyboard?.off('keydown-L', this.openCrimeLabHotkey, this);
+
+    this.events.off(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
+    this.events.off(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
+    this.events.off(Phaser.Scenes.Events.SLEEP, this.onSleep, this);
+    this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+
+    this.hotspots.forEach((zone) => {
+      zone?.removeAllListeners();
+      zone?.destroy();
+    });
+
+    this.hotspots = [];
+
+    this.debugGraphics?.destroy();
+    this.debugGraphics = null;
+
+    this.debugTexts.forEach((text) => text?.destroy());
+    this.debugTexts = [];
+
+    [
+      this.leftArrow,
+      this.rightArrow,
+      this.navHint,
+      this.introHint,
+    ].forEach((element) => {
+      element?.removeAllListeners();
+      element?.destroy();
+    });
+
+    this.leftArrow = null;
+    this.rightArrow = null;
+    this.navHint = null;
+    this.introHint = null;
+
+    if (this.officeAmbient) {
+      if (this.officeAmbient.isPlaying) {
+        this.officeAmbient.stop();
+      }
+
+      this.officeAmbient.destroy();
+      this.officeAmbient = null;
     }
-
-    openWarrant() {
-        const hud = this.getHudScene();
-        if (!hud?.warrantUI) {
-            console.warn('[OfficeScene] warrantUI not found in HUD scene');
-            return;
-        }
-
-        this.closeAllUIPanels();
-        hud.warrantUI.open(this.gameState);
-    }
-
-    openCrimeBoard() {
-        const hud = this.getHudScene();
-        if (!hud?.crimeBoardUI) {
-            console.warn('[OfficeScene] crimeBoardUI not found in HUD scene');
-            return;
-        }
-
-        this.closeAllUIPanels();
-        hud.crimeBoardUI.open(this.gameState);
-    }
-
-    openAtlas() {
-        const hud = this.getHudScene();
-        if (!hud?.atlasUI) {
-            console.warn('[OfficeScene] atlasUI not found in HUD scene');
-            return;
-        }
-
-        this.closeAllUIPanels();
-
-        const mission = this.gameState.currentMission || {};
-
-        hud.atlasUI.open({
-            country: mission.country || '',
-            city: mission.city || '',
-            artifact: mission.artifact || '',
-            gameState: this.gameState
-        });
-    }
-
-    createNavigationUI() {
-        const { width, height } = this.scale;
-
-        this.leftArrow = this.add.text(46, height / 2, '◀', {
-            fontFamily: 'Special Elite',
-            fontSize: '54px',
-            color: '#f0e6b8',
-            backgroundColor: 'rgba(0,0,0,0.15)',
-            padding: { left: 8, right: 8, top: 8, bottom: 8 }
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(200).setAlpha(0.75).setInteractive({ useHandCursor: true });
-
-        this.rightArrow = this.add.text(width - 46, height / 2, '▶', {
-            fontFamily: 'Special Elite',
-            fontSize: '54px',
-            color: '#f0e6b8',
-            backgroundColor: 'rgba(0,0,0,0.15)',
-            padding: { left: 8, right: 8, top: 8, bottom: 8 }
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(200).setAlpha(0.75).setInteractive({ useHandCursor: true });
-
-        this.navHint = this.add.text(width / 2, 84, '', {
-            fontFamily: 'Special Elite',
-            fontSize: '20px',
-            color: '#f0e6b8',
-            backgroundColor: '#000000',
-            padding: { left: 10, right: 10, top: 8, bottom: 8 }
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(220).setVisible(false);
-
-        this.introHint = this.add.text(width / 2, 40, 'Explore the office — move left or right', {
-            fontFamily: 'Special Elite',
-            fontSize: '18px',
-            color: '#fff4c7',
-            backgroundColor: '#000000',
-            padding: { left: 12, right: 12, top: 8, bottom: 8 }
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(220).setAlpha(0);
-
-        this.leftArrow
-            .on('pointerdown', () => this.moveLeft())
-            .on('pointerover', () => {
-                if (this.uiLocked) return;
-                this.leftArrow.setScale(1.08);
-                this.leftArrow.setAlpha(1);
-                this.showNavHint(this.getLeftRoomLabel());
-            })
-            .on('pointerout', () => {
-                this.leftArrow.setScale(1);
-                if (!this.uiLocked) this.leftArrow.setAlpha(0.75);
-                this.hideNavHint();
-            });
-
-        this.rightArrow
-            .on('pointerdown', () => this.moveRight())
-            .on('pointerover', () => {
-                if (this.uiLocked) return;
-                this.rightArrow.setScale(1.08);
-                this.rightArrow.setAlpha(1);
-                this.showNavHint(this.getRightRoomLabel());
-            })
-            .on('pointerout', () => {
-                this.rightArrow.setScale(1);
-                if (!this.uiLocked) this.rightArrow.setAlpha(0.75);
-                this.hideNavHint();
-            });
-
-        this.tweens.add({
-            targets: [this.leftArrow, this.rightArrow],
-            alpha: { from: 0.55, to: 0.9 },
-            duration: 900,
-            yoyo: true,
-            repeat: -1,
-            ease: 'Sine.easeInOut'
-        });
-
-        this.updateNavVisibility();
-    }
-
-    showIntroHint() {
-        if (!this.introHint) return;
-
-        this.tweens.add({ targets: this.introHint, alpha: 1, duration: 350, ease: 'Power2' });
-
-        this.time.delayedCall(2800, () => {
-            if (!this.introHint) return;
-            this.tweens.add({ targets: this.introHint, alpha: 0, duration: 500, ease: 'Power2' });
-        });
-    }
-
-    setupAudioUnlock() {
-        this.input.once('pointerdown', () => {
-            if (this.sound?.context?.state === 'suspended') {
-                this.sound.context.resume();
-            }
-            this.playOfficeAmbient();
-        });
-    }
-
-    playOfficeAmbient() {
-        if (this.officeAmbient && this.officeAmbient.isPlaying) return this.officeAmbient;
-        this.officeAmbient = audioManager.playAmbient('officescenesound', { loop: true });
-        return this.officeAmbient;
-    }
-
-    moveLeft() {
-        if (this.uiLocked) return;
-        if (this.currentView === 'biuro') {
-            this.goToView('office');
-        } else if (this.currentView === 'cabinet') {
-            this.goToView('biuro');
-        }
-    }
-
-    moveRight() {
-        if (this.uiLocked) return;
-        if (this.currentView === 'office') {
-            this.goToView('biuro');
-        } else if (this.currentView === 'biuro') {
-            this.goToView('cabinet');
-        }
-    }
-
-    goToView(viewName, animate = true) {
-        const targetX = this.viewPositions[viewName];
-        if (targetX === undefined) return;
-
-        this.currentView = viewName;
-        this.updateNavVisibility();
-        this.hideNavHint();
-
-        if (!animate) {
-            this.cameras.main.scrollX = targetX;
-            return;
-        }
-
-        this.tweens.add({
-            targets: this.cameras.main,
-            scrollX: targetX,
-            duration: 550,
-            ease: 'Sine.easeInOut'
-        });
-    }
-
-    updateNavVisibility() {
-        if (this.leftArrow) this.leftArrow.setVisible(this.currentView !== 'office');
-        if (this.rightArrow) this.rightArrow.setVisible(this.currentView !== 'cabinet');
-    }
-
-    getLeftRoomLabel() {
-        if (this.currentView === 'biuro') return 'Go to office';
-        if (this.currentView === 'cabinet') return 'Go to biuro';
-        return '';
-    }
-
-    getRightRoomLabel() {
-        if (this.currentView === 'office') return 'Go to biuro';
-        if (this.currentView === 'biuro') return 'Go to cabinet';
-        return '';
-    }
-
-    showNavHint(text) {
-        if (!text || !this.navHint) return;
-        this.navHint.setText(text);
-        this.navHint.setVisible(true);
-    }
-
-    hideNavHint() {
-        if (!this.navHint) return;
-        this.navHint.setVisible(false);
-    }
-
-    onHotspotOver(data) {
-        if (!data?.label || this.uiLocked) return;
-        this.showNavHint(data.label);
-    }
-
-    onHotspotOut() {
-        this.hideNavHint();
-    }
-
-    closeAllUIPanels() {
-        const hud = this.getHudScene();
-        if (hud?.closeAllUIPanels) {
-            hud.closeAllUIPanels();
-        }
-    }
-
-    createOptionalDebug() {
-        if (!this.DEBUG_HOTSPOTS) return;
-
-        this.debugGraphics = this.add.graphics();
-        this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
-
-        this.hotspots.forEach((zone) => {
-            const d = zone.hotspotData;
-            this.debugGraphics.strokeRect(d.x, d.y, d.width, d.height);
-
-            const label = this.add.text(d.x + 8, d.y + 8, d.id, {
-                fontFamily: 'Arial',
-                fontSize: '16px',
-                color: '#00ffcc',
-                backgroundColor: '#000000',
-                padding: { left: 4, right: 4, top: 2, bottom: 2 }
-            }).setDepth(999);
-
-            this.debugTexts.push(label);
-        });
-    }
-
-    cleanupScene() {
-        this.saveUI?.destroy();
-this.saveUI = null;
-        if (this.input?.keyboard) {
-            this.input.keyboard.off('keydown-LEFT', this.moveLeft, this);
-            this.input.keyboard.off('keydown-RIGHT', this.moveRight, this);
-            this.input.keyboard.off('keydown-L', this.openCrimeLabHotkey, this);
-        }
-
-        this.events.off(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
-        this.events.off(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
-        this.events.off(Phaser.Scenes.Events.SLEEP, this.onSleep, this);
-        this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
-
-        if (this.input) {
-            this.input.enabled = false;
-        }
-
-        this.hotspots.forEach(zone => {
-            if (!zone) return;
-            try {
-                zone.removeAllListeners();
-                if (zone.active && zone.scene) {
-                    zone.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] hotspot cleanup failed:', error);
-            }
-        });
-        this.hotspots = [];
-
-        if (this.debugGraphics) {
-            try {
-                this.debugGraphics.destroy();
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] debugGraphics cleanup failed:', error);
-            }
-            this.debugGraphics = null;
-        }
-
-        this.debugTexts.forEach(text => {
-            if (!text) return;
-            try {
-                if (text.active && text.scene) {
-                    text.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] debugText cleanup failed:', error);
-            }
-        });
-        this.debugTexts = [];
-
-        if (this.leftArrow) {
-            try {
-                this.leftArrow.removeAllListeners();
-                if (this.leftArrow.active && this.leftArrow.scene) {
-                    this.leftArrow.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] leftArrow cleanup failed:', error);
-            }
-            this.leftArrow = null;
-        }
-
-        if (this.rightArrow) {
-            try {
-                this.rightArrow.removeAllListeners();
-                if (this.rightArrow.active && this.rightArrow.scene) {
-                    this.rightArrow.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] rightArrow cleanup failed:', error);
-            }
-            this.rightArrow = null;
-        }
-
-        if (this.crimeLabArrow) {
-            try {
-                this.crimeLabArrow.removeAllListeners();
-                if (this.crimeLabArrow.active && this.crimeLabArrow.scene) {
-                    this.crimeLabArrow.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] crimeLabArrow cleanup failed:', error);
-            }
-            this.crimeLabArrow = null;
-        }
-
-        if (this.navHint) {
-            try {
-                if (this.navHint.active && this.navHint.scene) {
-                    this.navHint.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] navHint cleanup failed:', error);
-            }
-            this.navHint = null;
-        }
-
-        if (this.introHint) {
-            try {
-                if (this.introHint.active && this.introHint.scene) {
-                    this.introHint.destroy();
-                }
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] introHint cleanup failed:', error);
-            }
-            this.introHint = null;
-        }
-
-        if (this.officeAmbient) {
-            try {
-                if (this.officeAmbient.isPlaying) {
-                    this.officeAmbient.stop();
-                }
-                this.officeAmbient.destroy();
-            } catch (error) {
-                console.warn('[OfficeScene.cleanupScene] officeAmbient cleanup failed:', error);
-            }
-            this.officeAmbient = null;
-        }
-    }
+  }
 }

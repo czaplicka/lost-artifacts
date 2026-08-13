@@ -36,6 +36,7 @@ import { NewsstandScene } from './scenes/NewsstandScene.js';
 import { NewspaperOverlayScene } from './scenes/NewspaperOverlayScene.js';
 import { EnterScene } from './scenes/EnterScene.js';
 import { TvBroadcastScene } from './scenes/TvBroadcastScene.js';
+import { SuspectsScene } from './scenes/SuspectsScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -82,7 +83,8 @@ const config = {
     ToolmarkAnalysisScene,
     FiberAnalysisScene,
     FingerprintScene,
-    ShoeprintScene
+    ShoeprintScene,
+    SuspectsScene
   ],
 
   dom: {

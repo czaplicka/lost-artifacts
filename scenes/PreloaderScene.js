@@ -11,7 +11,6 @@ export class PreloaderScene extends BaseScene {
         this.tipTimer = null;
         this.dotsTimer = null;
         this.loadingReady = false;
-        this.uiReady = false;
         this.audioArmed = false;
         this.startBtn = null;
     }
@@ -33,7 +32,8 @@ export class PreloaderScene extends BaseScene {
 
         this.createCoffeeTextures();
         this.preloadNewspapers();
-
+    
+        this.load.image('intro', 'assets/intro.jpg');
         this.load.image('background', 'assets/start_1.jpg');
         this.load.image('background2', 'assets/start_2.jpg');
         this.load.image('backgroundset', 'assets/local/cabinet.jpg');
@@ -46,6 +46,13 @@ export class PreloaderScene extends BaseScene {
         this.load.image('backgroundoff', 'assets/local/biuro.jpg');
         this.load.image('dossier', 'assets/dossier.png');
         this.load.image('hotel', 'assets/local/hotel.jpg');
+        this.load.image('elevator_open', 'assets/local/elevator_open.jpg');
+        this.load.image('elevator_close', 'assets/local/elevator_close.jpg');
+        this.load.image('elevator_broken', 'assets/local/elevator_broken.jpg');
+        this.load.image('HR', 'assets/local/HR.jpg');
+        this.load.image('HRs', 'assets/local/HRs.jpg');
+        this.load.image('archivist', 'assets/local/archivist.jpg');
+        this.load.image('premium_office', 'assets/local/premium_office.jpg');
         this.load.image('crimelab_left', 'assets/local/crimelab_left.jpg');
         this.load.image('crimelab_center', 'assets/local/crimelab_center.jpg');
         this.load.image('crimelab_right', 'assets/local/crimelab_right.jpg');
@@ -80,12 +87,12 @@ export class PreloaderScene extends BaseScene {
         this.load.image('kotto', 'assets/cities/Kotto.jpg');
         this.load.image('tokyo', 'assets/cities/Tokyo.jpg');
 
-        this.load.image('ber', 'assets/maps/ber.jpg');
-        this.load.image('lnd', 'assets/maps/lnd.jpg');
-        this.load.image('ndh', 'assets/maps/ndh.jpg');
-        this.load.image('nyc', 'assets/maps/nyc.jpg');
-        this.load.image('prs', 'assets/maps/prs.jpg');
-        this.load.image('waw', 'assets/maps/waw.jpg');
+        this.load.image('berlin_crime', 'assets/maps/ber.jpg');
+        this.load.image('london_crime', 'assets/maps/lnd.jpg');
+        this.load.image('new_delhi_crime', 'assets/maps/ndh.jpg');
+        this.load.image('new_york_city_crime', 'assets/maps/nyc.jpg');
+        this.load.image('paris_crime', 'assets/maps/prs.jpg');
+        this.load.image('warsaw_crime', 'assets/maps/waw.jpg');
 
         this.load.image('atlas_poland', 'assets/atlas/poland.png');
         this.load.image('atlas_germany', 'assets/atlas/germany.png');
@@ -150,6 +157,9 @@ export class PreloaderScene extends BaseScene {
         this.load.image('destination', 'assets/destination.png');
         this.load.image('plane', 'assets/plane.png');
         this.load.image('search', 'assets/search.png');
+        this.load.image('policja', 'assets/policja.png');
+        this.load.image('hotel_icon', 'assets/hotel_icon.png');
+        this.load.image('crime_lab', 'assets/crime_lab.png');
         this.load.image('filebutt', 'assets/filebutt.png');
         this.load.image('telephone', 'assets/telephone.png');
         this.load.image('crime_board', 'assets/crime_board.png');
@@ -190,8 +200,8 @@ export class PreloaderScene extends BaseScene {
 
         this.load.image('television', 'assets/television.png');
         this.load.image('tv_news_studio', 'assets/tv/tv_news_studio.jpg');
-this.load.image('tv_anchor_generic', 'assets/tv/tv_anchor_generic.jpg');
-this.load.image('tv_anchor_genericf', 'assets/tv/tv_anchor_genericf.jpg');
+        this.load.image('tv_anchor_generic', 'assets/tv/tv_anchor_generic.jpg');
+        this.load.image('tv_anchor_genericf', 'assets/tv/tv_anchor_genericf.jpg');
 
         this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
         this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
@@ -210,9 +220,9 @@ this.load.image('tv_anchor_genericf', 'assets/tv/tv_anchor_genericf.jpg');
         this.load.image('paper_hq_case_briefing_photo', 'assets/newspapers/paper_hq_case_briefing_photo.jpg');
 
         this.load.image(  'tabloid_hq_coffee_machine_photo',  'assets/newspapers/tabloid/hq_coffee_machine_photo.jpg');
-this.load.image(  'tabloid_hq_gold_stapler_photo',  'assets/newspapers/tabloid/hq_gold_stapler_photo.jpg');
-this.load.image(  'tabloid_hq_sunglasses_photo',  'assets/newspapers/tabloid/hq_sunglasses_photo.jpg');
-this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/hq_window_chair_photo.jpg');
+        this.load.image(  'tabloid_hq_gold_stapler_photo',  'assets/newspapers/tabloid/hq_gold_stapler_photo.jpg');
+        this.load.image(  'tabloid_hq_sunglasses_photo',  'assets/newspapers/tabloid/hq_sunglasses_photo.jpg');
+        this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/hq_window_chair_photo.jpg');
 
         this.load.image('unknown', 'assets/suspects/unknown.jpg');
         this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
@@ -366,8 +376,10 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
         this.load.json('dialog_police-station', 'assets/data/dialogue/police-station.json');
         this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
         this.load.json('dialog_home', 'assets/data/dialogue/home.json')
-    this.load.json('tv-config', 'assets/data/tv-config.json');
-
+        this.load.json('tv-config', 'assets/data/tv-config.json');
+        this.load.json('reconstruction_questions', 'assets/data/reconstruction_questions.json');
+        this.load.json('monologues', 'assets/data/monologues.json');
+    
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
         this.load.image('tower_bg', 'assets/crimes/tower.jpg');
@@ -380,6 +392,8 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
         this.load.tilemapTiledJSON('auction_house', 'assets/crimes/auction_house.json');
         this.load.image('havela_bg', 'assets/crimes/havela.jpg');
         this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
+
+        this.load.html('character-creation-template','ui/character-creation.template',);
 
 
 
@@ -406,8 +420,16 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
         }
         scanlineOverlay.setAlpha(0.22);
 
-        this.add.image(cupX, cupY, 'cup_outline');
-        this.fullCupImage = this.add.image(cupX, cupY, 'cup_coffee');
+        const cupOffsetX = 20;
+        const cupOffsetY = 10;
+
+this.add.image(cupX + cupOffsetX, cupY + cupOffsetY, 'cup_outline');
+
+this.fullCupImage = this.add.image(
+  cupX + cupOffsetX,
+  cupY + cupOffsetY,
+  'cup_coffee',
+);
 
         this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
         this.coffeeMask.fillStyle(0xffffff, 1);
@@ -417,43 +439,50 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
         this.fullCupImage.setMask(mask);
 
         const titleText = this.add.text(centerX, centerY - 145, 'MAKING COFFEE 0%', {
-            fontFamily: 'PressStart2P',
-            fontSize: '20px',
+            fontFamily: '"Press Start 2P", monospace',
+            fontSize: '28px',
             color: '#f4ebd9',
             align: 'center'
         }).setOrigin(0.5);
 
-        const tipText = this.add.text(centerX, centerY + 452, this.getNextTip(tips), {
-            fontFamily: 'PressStart2P',
-            fontSize: '25px',
-            color: '#f4ebd9',
-            align: 'center',
-            wordWrap: { width: width * 0.72 }
-        }).setOrigin(0.5);
+const tipText = this.add.text(
+    centerX,
+    centerY + 450,
+    this.getNextTip(tips),
+    {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '24px',
+        color: '#f4ebd9',
+        align: 'center',
+        wordWrap: { width: width * 0.72 },
+        lineSpacing: 8
+    }
+).setOrigin(0.5);
+const tipY = tipText.y;
+this.tipTimer = this.time.addEvent({
+    delay: 3200,
+    loop: true,
+    callback: () => {
+        this.tweens.add({
+            targets: tipText,
+            alpha: 0,
+            y: tipY - 8,
+            duration: 180,
+            onComplete: () => {
+                tipText.setText(this.getNextTip(tips));
+                tipText.setY(tipY + 8);
 
-        this.tipTimer = this.time.addEvent({
-            delay: 3200,
-            loop: true,
-            callback: () => {
                 this.tweens.add({
                     targets: tipText,
-                    alpha: 0,
-                    y: tipText.y - 8,
-                    duration: 180,
-                    onComplete: () => {
-                        tipText.setText(this.getNextTip(tips));
-                        tipText.setY(centerY + 230);
-                        this.tweens.add({
-                            targets: tipText,
-                            alpha: 1,
-                            y: centerY + 222,
-                            duration: 220,
-                            ease: 'Quad.out'
-                        });
-                    }
+                    alpha: 1,
+                    y: tipY,
+                    duration: 220,
+                    ease: 'Quad.out'
                 });
             }
         });
+    }
+});
 
         let dots = '';
         this.dotsTimer = this.time.addEvent({
@@ -510,26 +539,6 @@ this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/h
         super.create();
         audioManager.init(this);
 EventBus.emit('hideHUD');
-        const initUi = () => {
-            this.uiReady = true;
-            this.tryShowStartButton();
-        };
-
-        if (window.WebFont && typeof window.WebFont.load === 'function') {
-            window.WebFont.load({
-                google: {
-                    families: ['SpecialElite', 'PressStart2P']
-                },
-                active: () => initUi(),
-                inactive: () => {
-                    console.warn('WebFont failed to load, continuing with fallback fonts.');
-                    initUi();
-                }
-            });
-        } else {
-            console.warn('WebFont is not available, continuing with fallback fonts.');
-            initUi();
-        }
 
         const bootAudio = () => {
             if (this.audioArmed) return;
@@ -546,7 +555,7 @@ EventBus.emit('hideHUD');
     }
 
     tryShowStartButton() {
-        if (!this.loadingReady || !this.uiReady || this.startBtn) return;
+if (!this.loadingReady || this.startBtn) return;
 
         const { width, height } = this.scale;
         this.startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')

@@ -1,31 +1,44 @@
 import { audioManager } from '../../AudioManager.js';
 import { gameState, saveGameState } from '../../GameData.js';
 import { BaseScene } from '../BaseScene.js';
-import { getEnergyManager } from '../../EnergyManager.js';
+import { EventBus } from '../../EventBus.js';
+import {
+  applyIdentityEvidence,
+  getActiveSuspects,
+  getSuspectCaseSummary
+} from '../../suspectUtils.js';
 
 export class CrimeLabScene extends BaseScene {
   constructor() {
     super('CrimeLabScene');
 
+    this.gameState = gameState;
+    this.cityId = null;
+    this.returnScene = 'CityScene';
+    this.returnData = {};
+    this.isCrimeCityFlow = false;
+
     this.currentView = 'lab_b';
     this.viewPositions = {};
+    this.rooms = {};
+    this.totalWidth = 0;
+
     this.hotspots = [];
     this.debugTexts = [];
-    this.DEBUG_HOTSPOTS = true;
-
-    this.labAmbient = null;
+    this.DEBUG_HOTSPOTS = false;
     this.debugGraphics = null;
 
+    this.labAmbient = null;
     this.leftArrow = null;
     this.rightArrow = null;
     this.officeArrow = null;
     this.navHint = null;
     this.introHint = null;
+    this.proceedHotspot = null;
 
     this.uiLocked = false;
     this.completedCount = 0;
     this.totalStations = 3;
-    this.proceedHotspot = null;
 
     this.boundMoveLeft = this.moveLeft.bind(this);
     this.boundMoveRight = this.moveRight.bind(this);
@@ -36,11 +49,36 @@ export class CrimeLabScene extends BaseScene {
 
   init(data = {}) {
     this.gameState = data.gameState || gameState;
+
+    this.cityId =
+      data.cityId ||
+      this.gameState.currentMission?.city ||
+      this.gameState.crimeCityId ||
+      'paris';
+
+    this.returnScene =
+      typeof data.returnScene === 'string' && data.returnScene.trim()
+        ? data.returnScene.trim()
+        : 'CityScene';
+
+    this.returnData = {
+      cityId: this.cityId,
+      ...(data.returnData || {})
+    };
+
+    this.isCrimeCityFlow = this.returnScene === 'CrimeCityScene';
+    this.currentView = 'lab_b';
+    this.hotspots = [];
+    this.debugTexts = [];
+    this.uiLocked = false;
+    this.completedCount = 0;
+
+    this.ensureCaseForensics();
   }
 
   create() {
     super.create();
-this.energyManager = getEnergyManager();
+
     audioManager.init(this);
 
     const newsHud = this.scene.manager.keys.NewsHud;
@@ -67,14 +105,61 @@ this.energyManager = getEnergyManager();
 
     this.events.on(Phaser.Scenes.Events.WAKE, this.boundForceUnlock);
     this.events.on(Phaser.Scenes.Events.RESUME, this.boundForceUnlock);
-    this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.boundCleanupScene);
-    this.events.on(Phaser.Scenes.Events.SLEEP, this.boundCleanupScene);
-    this.events.on('resume', this.boundCheckMiniGameResults);
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.boundCheckMiniGameResults
+    );
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundCleanupScene
+    );
   }
 
-  // ----------------------------------------------------------
-  // Evidence configuration
-  // ----------------------------------------------------------
+  getCaseKey() {
+    const mission = this.gameState.currentMission || {};
+
+    return String(
+      mission.id ||
+      mission.caseId ||
+      `${this.cityId}_${mission.artifact || 'default'}`
+    );
+  }
+
+  ensureCaseForensics() {
+    const caseKey = this.getCaseKey();
+
+    this.gameState.caseForensics ??= {};
+
+    this.gameState.caseForensics[caseKey] ??= {
+      identityEvidenceResult: null,
+      traceEvidenceResults: [],
+      forensicResults: []
+    };
+
+    this.gameState.caseForensics[caseKey].traceEvidenceResults ??= [];
+    this.gameState.caseForensics[caseKey].forensicResults ??= [];
+
+    return this.gameState.caseForensics[caseKey];
+  }
+
+  getCaseForensics() {
+    return this.ensureCaseForensics();
+  }
+
+  markCrimeLabCompleted() {
+    const caseKey = this.getCaseKey();
+
+    this.gameState.crimeCityProgress ??= {};
+    this.gameState.crimeCityProgress[caseKey] ??= {};
+
+    this.gameState.crimeCityProgress[caseKey].crimeLabCompleted = true;
+    this.gameState.crimeCityProgress[caseKey].crimeLabCompletedAt = Date.now();
+
+    this.gameState.csiLabCompleted = true;
+
+    saveGameState();
+  }
 
   getIdentityEvidenceConfig() {
     const identityEvidence = this.gameState.identityEvidence || {};
@@ -86,8 +171,9 @@ this.energyManager = getEnergyManager();
       evidenceType: identityEvidence.attribute || 'hair_color',
       correctValue: identityEvidence.thief_value || 'unknown',
       clueType: identityEvidence.clueType || 'identity',
-      clueText: identityEvidence.clueText
-        || 'Identity evidence has been added to the case file.'
+      clueText:
+        identityEvidence.clueText ||
+        'Identity evidence has been added to the case file.'
     };
   }
 
@@ -103,7 +189,8 @@ this.energyManager = getEnergyManager();
         evidenceType: 'toolmark_profile',
         correctValue: 'triple_rake_left_handed',
         clueType: 'means',
-        clueText: 'The museum lock was picked by a skilled, left-handed intruder using a triple-rake pick.'
+        clueText:
+          'The museum lock was picked by a skilled, left-handed intruder using a triple-rake pick.'
       },
       {
         id: 'cctv_footage',
@@ -112,7 +199,8 @@ this.energyManager = getEnergyManager();
         evidenceType: 'cctv',
         correctValue: null,
         clueType: 'opportunity',
-        clueText: 'The footage may reveal when the intruder entered or left the museum.'
+        clueText:
+          'The footage may reveal when the intruder entered or left the museum.'
       }
     ];
 
@@ -122,24 +210,18 @@ this.energyManager = getEnergyManager();
     };
   }
 
-  // ----------------------------------------------------------
-  // Lab rooms
-  // ----------------------------------------------------------
-
   createBackgrounds(gameWidth, gameHeight) {
-    const leftBg = this.add.image(0, 0, 'crimelab_left').setOrigin(0, 0);
+    const leftBg = this.add
+      .image(0, 0, 'crimelab_left')
+      .setOrigin(0, 0);
 
-    const centerBg = this.add.image(
-      gameWidth,
-      0,
-      'crimelab_center'
-    ).setOrigin(0, 0);
+    const centerBg = this.add
+      .image(gameWidth, 0, 'crimelab_center')
+      .setOrigin(0, 0);
 
-    const rightBg = this.add.image(
-      gameWidth * 2,
-      0,
-      'crimelab_right'
-    ).setOrigin(0, 0);
+    const rightBg = this.add
+      .image(gameWidth * 2, 0, 'crimelab_right')
+      .setOrigin(0, 0);
 
     [leftBg, centerBg, rightBg].forEach((background) => {
       background.setDisplaySize(gameWidth, gameHeight);
@@ -179,12 +261,9 @@ this.energyManager = getEnergyManager();
     this.cameras.main.setBounds(0, 0, this.totalWidth, height);
   }
 
-  // ----------------------------------------------------------
-  // Station hotspots
-  // ----------------------------------------------------------
-
   createHotspots() {
-    const W = this.scale.width;
+    const gameWidth = this.scale.width;
+    const caseForensics = this.getCaseForensics();
 
     const identityEvidence = this.getIdentityEvidenceConfig();
     const trace0 = this.getTraceEvidenceConfig(0);
@@ -199,19 +278,20 @@ this.energyManager = getEnergyManager();
         width: 250,
         height: 320,
         label: identityEvidence.label,
-        completed: !!this.gameState.identityEvidenceResult,
-        action: () => this.enterMiniGame(
-          identityEvidence.minigame,
-          {
-            evidenceConfig: identityEvidence,
-            evidenceIndex: null,
-            evidenceType: identityEvidence.evidenceType,
-            correctValue: identityEvidence.correctValue,
-            clueType: identityEvidence.clueType,
-            clueText: identityEvidence.clueText
-          },
-          'identity'
-        )
+        completed: Boolean(caseForensics.identityEvidenceResult),
+        action: () =>
+          this.enterMiniGame(
+            identityEvidence.minigame,
+            {
+              evidenceConfig: identityEvidence,
+              evidenceIndex: null,
+              evidenceType: identityEvidence.evidenceType,
+              correctValue: identityEvidence.correctValue,
+              clueType: identityEvidence.clueType,
+              clueText: identityEvidence.clueText
+            },
+            'identity'
+          )
       },
       {
         id: 'trace_a_station',
@@ -221,19 +301,20 @@ this.energyManager = getEnergyManager();
         width: 350,
         height: 300,
         label: trace0.label,
-        completed: !!this.gameState.traceEvidenceResults?.[0],
-        action: () => this.enterMiniGame(
-          trace0.minigame,
-          {
-            evidenceConfig: trace0,
-            evidenceIndex: 0,
-            evidenceType: trace0.evidenceType,
-            correctValue: trace0.correctValue,
-            clueType: trace0.clueType,
-            clueText: trace0.clueText
-          },
-          'trace_0'
-        )
+        completed: Boolean(caseForensics.traceEvidenceResults[0]),
+        action: () =>
+          this.enterMiniGame(
+            trace0.minigame,
+            {
+              evidenceConfig: trace0,
+              evidenceIndex: 0,
+              evidenceType: trace0.evidenceType,
+              correctValue: trace0.correctValue,
+              clueType: trace0.clueType,
+              clueText: trace0.clueText
+            },
+            'trace_0'
+          )
       },
       {
         id: 'trace_b_station',
@@ -243,19 +324,20 @@ this.energyManager = getEnergyManager();
         width: 350,
         height: 300,
         label: trace1.label,
-        completed: !!this.gameState.traceEvidenceResults?.[1],
-        action: () => this.enterMiniGame(
-          trace1.minigame,
-          {
-            evidenceConfig: trace1,
-            evidenceIndex: 1,
-            evidenceType: trace1.evidenceType,
-            correctValue: trace1.correctValue,
-            clueType: trace1.clueType,
-            clueText: trace1.clueText
-          },
-          'trace_1'
-        )
+        completed: Boolean(caseForensics.traceEvidenceResults[1]),
+        action: () =>
+          this.enterMiniGame(
+            trace1.minigame,
+            {
+              evidenceConfig: trace1,
+              evidenceIndex: 1,
+              evidenceType: trace1.evidenceType,
+              correctValue: trace1.correctValue,
+              clueType: trace1.clueType,
+              clueText: trace1.clueText
+            },
+            'trace_1'
+          )
       },
       {
         id: 'exit_lab',
@@ -275,12 +357,8 @@ this.energyManager = getEnergyManager();
     ).length;
 
     hotspotData.forEach((data) => {
-      const zone = this.add.zone(
-        data.x,
-        data.y,
-        data.width,
-        data.height
-      )
+      const zone = this.add
+        .zone(data.x, data.y, data.width, data.height)
         .setOrigin(0, 0)
         .setDepth(50)
         .setInteractive({ useHandCursor: true });
@@ -288,11 +366,12 @@ this.energyManager = getEnergyManager();
       zone.hotspotData = data;
 
       if (data.id === 'exit_lab') {
-        const exitBtn = this.add.image(
-          data.x + data.width / 2,
-          data.y + data.height / 2,
-          'btnExit'
-        )
+        const exitBtn = this.add
+          .image(
+            data.x + data.width / 2,
+            data.y + data.height / 2,
+            'btnExit'
+          )
           .setScale(0.5)
           .setOrigin(0.5)
           .setDepth(55)
@@ -321,7 +400,6 @@ this.energyManager = getEnergyManager();
       }
 
       zone.on('pointerover', () => this.onHotspotOver(data));
-
       zone.on('pointerout', () => this.onHotspotOut());
 
       zone.on('pointerdown', () => {
@@ -335,24 +413,17 @@ this.energyManager = getEnergyManager();
       this.hotspots.push(zone);
 
       if (!data.alwaysVisible) {
-        const statusText = data.completed
-          ? '[ COMPLETE ]'
-          : '[ ANALYZE ]';
-
-        const statusColor = data.completed
-          ? '#00ff00'
-          : '#ffcc00';
-
-        const label = this.add.text(
-          data.x + data.width / 2,
-          data.y + data.height + 10,
-          statusText,
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: statusColor
-          }
-        )
+        const label = this.add
+          .text(
+            data.x + data.width / 2,
+            data.y + data.height + 10,
+            data.completed ? '[ COMPLETE ]' : '[ ANALYZE ]',
+            {
+              fontFamily: 'PressStart2P',
+              fontSize: '8px',
+              color: data.completed ? '#00ff00' : '#ffcc00'
+            }
+          )
           .setOrigin(0.5)
           .setDepth(60);
 
@@ -360,52 +431,49 @@ this.energyManager = getEnergyManager();
       }
     });
 
-    this.proceedHotspot = this.add.text(
-      this.rooms.lab_b.x + W / 2,
-      50,
-      '',
-      {
-        fontFamily: 'PressStart2P',
-        fontSize: '12px',
-        color: '#39ff14',
-        backgroundColor: '#000000',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 8,
-          bottom: 8
+    this.proceedHotspot = this.add
+      .text(
+        this.rooms.lab_b.x + gameWidth / 2,
+        50,
+        '',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '12px',
+          color: '#39ff14',
+          backgroundColor: '#000000',
+          padding: {
+            left: 12,
+            right: 12,
+            top: 8,
+            bottom: 8
+          }
         }
-      }
-    )
+      )
       .setOrigin(0.5)
       .setDepth(80)
       .setInteractive({ useHandCursor: true });
 
-    this.proceedHotspot.on('pointerdown', () => {
-      this.goToSuspectBoard();
-    });
+    this.proceedHotspot.on('pointerdown', () => this.goToSuspectBoard());
 
     this.updateProceedVisibility();
   }
 
-  // ----------------------------------------------------------
-  // Minigame communication
-  // ----------------------------------------------------------
-
   enterMiniGame(sceneKey, sceneData, stationId) {
     if (this.uiLocked) return;
 
+    if (!this.scene.manager.keys[sceneKey]) {
+      console.error('[CrimeLabScene] Unknown minigame scene.', {
+        sceneKey,
+        stationId
+      });
+
+      this.showNavHint(`Missing minigame: ${sceneKey}`);
+      return;
+    }
+
     this.uiLocked = true;
     this.applyLock(true);
-const result = this.energyManager.consumeActivity('csi_lab');
-console.log(`🔬 ${result.label}`);
 
-if (result.energyReachedZero) {
-  // Nie można kontynuować
-  return;
-}
-
-// Uruchom mini-grę...
     const fullData = {
       ...sceneData,
       gameState: this.gameState,
@@ -436,243 +504,277 @@ if (result.energyReachedZero) {
   }
 
   onMiniGameComplete(stationId, result = {}) {
-    const score = result.score ?? 0;
-    const value = result.value ?? null;
-    const evidenceType = result.evidenceType || 'generic';
-    const mistakes = result.mistakes ?? 0;
-    const secondsElapsed = result.secondsElapsed ?? 0;
+  const caseForensics = this.getCaseForensics();
 
-    let wasCompleted = false;
-    let clueType = 'trace';
-    let clueText = 'Forensic evidence has been analyzed.';
-    let evidenceId = stationId;
+  const score = result.score ?? 0;
+  const mistakes = result.mistakes ?? 0;
+  const secondsElapsed = result.secondsElapsed ?? 0;
 
-    const baseResult = {
+  let value = result.value ?? null;
+  let wasCompleted = false;
+  let clueType = 'trace';
+  let clueText = 'Forensic evidence has been analyzed.';
+  let evidenceId = stationId;
+  let suspectFilterResult = null;
+
+  if (stationId === 'identity') {
+    const identityEvidence = this.getIdentityEvidenceConfig();
+
+    /*
+     * The minigame can return a cosmetic/display value, but the case
+     * generator already owns the actual forensic result.
+     */
+    value = identityEvidence.correctValue;
+
+    /*
+     * This is the key connection:
+     * - reveals the lab result,
+     * - compares every case suspect to the real trait,
+     * - eliminates exactly the suspects generated as mismatches,
+     * - updates gameState.caseSuspects,
+     * - rebuilds gameState.excludedSuspects.
+     */
+    suspectFilterResult = applyIdentityEvidence({
+      attribute: identityEvidence.evidenceType,
+      value: identityEvidence.correctValue,
+      source: identityEvidence.id,
+      label: identityEvidence.label,
+      clueText: identityEvidence.clueText
+    });
+
+    wasCompleted = Boolean(caseForensics.identityEvidenceResult);
+    clueType = identityEvidence.clueType;
+    clueText = identityEvidence.clueText;
+    evidenceId = identityEvidence.id;
+
+    caseForensics.identityEvidenceResult = {
       stationId,
-      evidenceType,
+      evidenceId,
+      evidenceType: identityEvidence.evidenceType,
       value,
       score,
       mistakes,
       secondsElapsed,
       completed: true,
-      completedAt: Date.now()
-    };
-
-    if (stationId === 'identity') {
-      const identityEvidence = this.getIdentityEvidenceConfig();
-
-      wasCompleted = !!this.gameState.identityEvidenceResult;
-      clueType = identityEvidence.clueType;
-      clueText = identityEvidence.clueText;
-      evidenceId = identityEvidence.id;
-
-      this.gameState.identityEvidenceResult = {
-        ...baseResult,
-        evidenceId,
-        clueType,
-        clueText
-      };
-    } else {
-      const traceIndex = stationId === 'trace_0' ? 0 : 1;
-      const traceEvidence = this.getTraceEvidenceConfig(traceIndex);
-
-      if (!this.gameState.traceEvidenceResults) {
-        this.gameState.traceEvidenceResults = [];
-      }
-
-      wasCompleted = !!this.gameState.traceEvidenceResults[traceIndex];
-      clueType = traceEvidence.clueType;
-      clueText = traceEvidence.clueText;
-      evidenceId = traceEvidence.id;
-
-      this.gameState.traceEvidenceResults[traceIndex] = {
-        ...baseResult,
-        evidenceId,
-        clueType,
-        clueText
-      };
-    }
-
-    this.gameState.forensicResults ??= [];
-
-    const forensicResult = {
-      ...baseResult,
-      evidenceId,
+      completedAt: Date.now(),
       clueType,
-      clueText
-    };
+      clueText,
 
-    const existingResultIndex = this.gameState.forensicResults.findIndex(
-      (storedResult) => storedResult.stationId === stationId
+      /*
+       * Useful for SuspectBoardScene, case file and debug console.
+       */
+      excludedSuspectIds: suspectFilterResult.excludedSuspectIds,
+      matchedSuspectIds: suspectFilterResult.matchedSuspectIds,
+      remainingSuspectIds: suspectFilterResult.remainingSuspects
+    };
+  } else {
+    const traceIndex = stationId === 'trace_0' ? 0 : 1;
+    const traceEvidence = this.getTraceEvidenceConfig(traceIndex);
+
+    wasCompleted = Boolean(
+      caseForensics.traceEvidenceResults[traceIndex]
     );
 
-    if (existingResultIndex >= 0) {
-      this.gameState.forensicResults[existingResultIndex] = forensicResult;
-    } else {
-      this.gameState.forensicResults.push(forensicResult);
-    }
+    clueType = traceEvidence.clueType;
+    clueText = traceEvidence.clueText;
+    evidenceId = traceEvidence.id;
 
-    // Punkty globalne przyznajemy tylko przy pierwszym ukończeniu stacji.
-    if (!wasCompleted) {
-      this.completedCount += 1;
-      this.gameState.score = (this.gameState.score || 0) + score;
-    }
+    caseForensics.traceEvidenceResults[traceIndex] = {
+      stationId,
+      evidenceId,
+      evidenceType: traceEvidence.evidenceType,
+      value,
+      score,
+      mistakes,
+      secondsElapsed,
+      completed: true,
+      completedAt: Date.now(),
+      clueType,
+      clueText,
 
-    const hotspotIdMap = {
-      identity: 'identity_station',
-      trace_0: 'trace_a_station',
-      trace_1: 'trace_b_station'
+      /*
+       * Trace evidence is not an immediate suspect filter.
+       * It becomes useful later for motive, timeline, method or alibi.
+       */
+      isRedHerring: Boolean(traceEvidence.isRedHerring),
+      resolvedThread: traceEvidence.resolvedThread || null
     };
-
-    const hotspot = this.hotspots.find(
-      (hotspotZone) => (
-        hotspotZone.hotspotData.id === hotspotIdMap[stationId]
-      )
-    );
-
-    if (hotspot) {
-      hotspot.hotspotData.completed = true;
-
-      if (hotspot.statusLabel) {
-        hotspot.statusLabel.setText('[ COMPLETE ]');
-        hotspot.statusLabel.setColor('#00ff00');
-      }
-    }
-
-    saveGameState();
-    this.updateProceedVisibility();
-    this.forceUnlock();
   }
 
+  const forensicResult = {
+    stationId,
+    evidenceId,
+    evidenceType:
+      stationId === 'identity'
+        ? this.getIdentityEvidenceConfig().evidenceType
+        : result.evidenceType || 'generic',
+    value,
+    score,
+    mistakes,
+    secondsElapsed,
+    completed: true,
+    completedAt: Date.now(),
+    clueType,
+    clueText,
+
+    excludedSuspectIds: suspectFilterResult?.excludedSuspectIds || [],
+    matchedSuspectIds: suspectFilterResult?.matchedSuspectIds || []
+  };
+
+  const existingIndex = caseForensics.forensicResults.findIndex(
+    (storedResult) => storedResult.stationId === stationId
+  );
+
+  if (existingIndex >= 0) {
+    caseForensics.forensicResults[existingIndex] = forensicResult;
+  } else {
+    caseForensics.forensicResults.push(forensicResult);
+  }
+
+  if (!wasCompleted) {
+    this.completedCount += 1;
+    this.gameState.score = (this.gameState.score || 0) + score;
+  }
+
+  const hotspotIdMap = {
+    identity: 'identity_station',
+    trace_0: 'trace_a_station',
+    trace_1: 'trace_b_station'
+  };
+
+  const hotspot = this.hotspots.find(
+    (hotspotZone) =>
+      hotspotZone.hotspotData.id === hotspotIdMap[stationId]
+  );
+
+  if (hotspot) {
+    hotspot.hotspotData.completed = true;
+    hotspot.statusLabel?.setText('[ COMPLETE ]');
+    hotspot.statusLabel?.setColor('#00ff00');
+  }
+
+  /*
+   * This summary is optional now, but will be useful for:
+   * - SuspectBoardScene header,
+   * - Case File UI,
+   * - detective notebook,
+   * - debugging the deduction funnel.
+   */
+  this.gameState.suspectCaseSummary = getSuspectCaseSummary();
+
+  saveGameState();
+  this.updateProceedVisibility();
+  this.forceUnlock();
+}
+
   checkMiniGameResults() {
-    let count = 0;
+    const caseForensics = this.getCaseForensics();
 
-    if (this.gameState.identityEvidenceResult) {
-      count += 1;
-    }
+    this.completedCount = [
+      caseForensics.identityEvidenceResult,
+      caseForensics.traceEvidenceResults[0],
+      caseForensics.traceEvidenceResults[1]
+    ].filter(Boolean).length;
 
-    if (this.gameState.traceEvidenceResults?.[0]) {
-      count += 1;
-    }
-
-    if (this.gameState.traceEvidenceResults?.[1]) {
-      count += 1;
-    }
-
-    this.completedCount = count;
     this.updateProceedVisibility();
   }
 
   updateProceedVisibility() {
     if (!this.proceedHotspot) return;
 
-    const allStationsComplete = this.completedCount >= this.totalStations;
+    const allStationsComplete =
+      this.completedCount >= this.totalStations;
 
     if (allStationsComplete) {
-      this.proceedHotspot.setText('[ PROCEED TO SUSPECT BOARD ]');
-      this.proceedHotspot.setVisible(true);
+      this.proceedHotspot
+        .setText(
+          this.isCrimeCityFlow
+            ? '[ RETURN TO CITY LEADS ]'
+            : '[ PROCEED TO SUSPECT BOARD ]'
+        )
+        .setVisible(true)
+        .setInteractive({ useHandCursor: true });
+
       return;
     }
 
-    this.proceedHotspot.setText('');
-    this.proceedHotspot.setVisible(false);
+    this.proceedHotspot
+      .setText('')
+      .setVisible(false)
+      .disableInteractive();
   }
-
-  // ----------------------------------------------------------
-  // Navigation
-  // ----------------------------------------------------------
 
   createNavigationUI() {
     const { width, height } = this.scale;
 
-    this.leftArrow = this.add.text(46, height / 2, '\u25C0', {
-      fontFamily: 'Special Elite',
-      fontSize: '54px',
-      color: '#39ff14',
-      backgroundColor: 'rgba(0,0,0,0.15)',
-      padding: {
-        left: 8,
-        right: 8,
-        top: 8,
-        bottom: 8
-      }
-    })
+    this.leftArrow = this.add
+      .text(46, height / 2, '◀', {
+        fontFamily: 'Special Elite',
+        fontSize: '54px',
+        color: '#39ff14',
+        backgroundColor: 'rgba(0,0,0,0.15)',
+        padding: { left: 8, right: 8, top: 8, bottom: 8 }
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(200)
       .setAlpha(0.75)
       .setInteractive({ useHandCursor: true });
 
-    this.officeArrow = this.add.text(width / 2, height - 42, '\u2191', {
-      fontFamily: 'Special Elite',
-      fontSize: '42px',
-      color: '#7df9ff',
-      backgroundColor: 'rgba(0,0,0,0.15)',
-      padding: {
-        left: 10,
-        right: 10,
-        top: 8,
-        bottom: 8
-      }
-    })
+    this.officeArrow = this.add
+      .text(width / 2, height - 42, '↑', {
+        fontFamily: 'Special Elite',
+        fontSize: '42px',
+        color: '#7df9ff',
+        backgroundColor: 'rgba(0,0,0,0.15)',
+        padding: { left: 10, right: 10, top: 8, bottom: 8 }
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(200)
       .setAlpha(0.75)
       .setInteractive({ useHandCursor: true });
 
-    this.rightArrow = this.add.text(width - 46, height / 2, '\u25B6', {
-      fontFamily: 'Special Elite',
-      fontSize: '54px',
-      color: '#39ff14',
-      backgroundColor: 'rgba(0,0,0,0.15)',
-      padding: {
-        left: 8,
-        right: 8,
-        top: 8,
-        bottom: 8
-      }
-    })
+    this.rightArrow = this.add
+      .text(width - 46, height / 2, '▶', {
+        fontFamily: 'Special Elite',
+        fontSize: '54px',
+        color: '#39ff14',
+        backgroundColor: 'rgba(0,0,0,0.15)',
+        padding: { left: 8, right: 8, top: 8, bottom: 8 }
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(200)
       .setAlpha(0.75)
       .setInteractive({ useHandCursor: true });
 
-    this.navHint = this.add.text(width / 2, 84, '', {
-      fontFamily: 'Special Elite',
-      fontSize: '20px',
-      color: '#39ff14',
-      backgroundColor: '#000000',
-      padding: {
-        left: 10,
-        right: 10,
-        top: 8,
-        bottom: 8
-      }
-    })
+    this.navHint = this.add
+      .text(width / 2, 84, '', {
+        fontFamily: 'Special Elite',
+        fontSize: '20px',
+        color: '#39ff14',
+        backgroundColor: '#000000',
+        padding: { left: 10, right: 10, top: 8, bottom: 8 }
+      })
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(220)
       .setVisible(false);
 
-    this.introHint = this.add.text(
-      width / 2,
-      40,
-      'Welcome to the Crime Lab — move left or right',
-      {
-        fontFamily: 'Special Elite',
-        fontSize: '18px',
-        color: '#fff4c7',
-        backgroundColor: '#000000',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 8,
-          bottom: 8
+    this.introHint = this.add
+      .text(
+        width / 2,
+        40,
+        'Welcome to the Crime Lab — move left or right',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '18px',
+          color: '#fff4c7',
+          backgroundColor: '#000000',
+          padding: { left: 12, right: 12, top: 8, bottom: 8 }
         }
-      }
-    )
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(220)
@@ -719,7 +821,7 @@ if (result.energyReachedZero) {
     this.officeArrow
       .on('pointerdown', () => this.goToOfficeScene())
       .on('pointerover', () => {
-        if (this.uiLocked) return;
+        if (this.uiLocked || this.isCrimeCityFlow) return;
 
         this.officeArrow.setScale(1.08);
         this.officeArrow.setAlpha(1);
@@ -741,10 +843,7 @@ if (result.energyReachedZero) {
         this.rightArrow,
         this.officeArrow
       ],
-      alpha: {
-        from: 0.55,
-        to: 0.9
-      },
+      alpha: { from: 0.55, to: 0.9 },
       duration: 900,
       yoyo: true,
       repeat: -1,
@@ -797,39 +896,21 @@ if (result.energyReachedZero) {
   }
 
   updateNavVisibility() {
-    if (this.leftArrow) {
-      this.leftArrow.setVisible(this.currentView !== 'lab_a');
-    }
-
-    if (this.rightArrow) {
-      this.rightArrow.setVisible(this.currentView !== 'lab_c');
-    }
-
-    if (this.officeArrow) {
-      this.officeArrow.setVisible(true);
-    }
+    this.leftArrow?.setVisible(this.currentView !== 'lab_a');
+    this.rightArrow?.setVisible(this.currentView !== 'lab_c');
+    this.officeArrow?.setVisible(!this.isCrimeCityFlow);
   }
 
   getLeftRoomLabel() {
-    if (this.currentView === 'lab_b') {
-      return 'Identity Lab';
-    }
-
-    if (this.currentView === 'lab_c') {
-      return 'Toolmark Analysis';
-    }
+    if (this.currentView === 'lab_b') return 'Identity Lab';
+    if (this.currentView === 'lab_c') return 'Toolmark Analysis';
 
     return '';
   }
 
   getRightRoomLabel() {
-    if (this.currentView === 'lab_a') {
-      return 'Toolmark Analysis';
-    }
-
-    if (this.currentView === 'lab_b') {
-      return 'CCTV Reconstruction';
-    }
+    if (this.currentView === 'lab_a') return 'Toolmark Analysis';
+    if (this.currentView === 'lab_b') return 'CCTV Reconstruction';
 
     return '';
   }
@@ -854,9 +935,7 @@ if (result.energyReachedZero) {
   }
 
   hideNavHint() {
-    if (!this.navHint) return;
-
-    this.navHint.setVisible(false);
+    this.navHint?.setVisible(false);
   }
 
   onHotspotOver(data) {
@@ -891,10 +970,6 @@ if (result.energyReachedZero) {
     });
   }
 
-  // ----------------------------------------------------------
-  // Audio
-  // ----------------------------------------------------------
-
   setupAudioUnlock() {
     this.input.once('pointerdown', () => {
       if (this.sound?.context?.state === 'suspended') {
@@ -908,10 +983,9 @@ if (result.energyReachedZero) {
   playLabAmbient() {
     if (this.labAmbient) return;
 
-    this.labAmbient = audioManager.playSfx(
-      'crimelab_ambient',
-      { loop: true }
-    );
+    this.labAmbient = audioManager.playSfx('crimelab_ambient', {
+      loop: true
+    });
   }
 
   stopLabAmbient() {
@@ -922,18 +996,9 @@ if (result.energyReachedZero) {
     this.labAmbient = null;
   }
 
-  // ----------------------------------------------------------
-  // UI lock
-  // ----------------------------------------------------------
-
   update() {
     const hud = this.getHudScene();
-
-    const panelOpen = !!(
-      hud
-      && hud.isAnyPanelOpen
-      && hud.isAnyPanelOpen()
-    );
+    const panelOpen = Boolean(hud?.isAnyPanelOpen?.());
 
     if (panelOpen && !this.uiLocked) {
       this.applyLock(true);
@@ -948,71 +1013,43 @@ if (result.energyReachedZero) {
     this.hotspots.forEach((zone) => {
       if (locked) {
         zone.disableInteractive();
-
-        if (zone.exitBtn) {
-          zone.exitBtn.disableInteractive();
-        }
-
+        zone.exitBtn?.disableInteractive();
         return;
       }
 
       zone.setInteractive({ useHandCursor: true });
-
-      if (zone.exitBtn) {
-        zone.exitBtn.setInteractive({ useHandCursor: true });
-      }
+      zone.exitBtn?.setInteractive({ useHandCursor: true });
     });
 
     if (this.proceedHotspot) {
       if (locked) {
         this.proceedHotspot.disableInteractive();
-      } else {
-        this.proceedHotspot.setInteractive({
-          useHandCursor: true
-        });
+      } else if (this.completedCount >= this.totalStations) {
+        this.proceedHotspot.setInteractive({ useHandCursor: true });
       }
     }
 
-    if (this.leftArrow) {
-      if (locked) {
-        this.leftArrow.disableInteractive();
-        this.leftArrow.setAlpha(0.35);
-      } else {
-        this.leftArrow.setInteractive({
-          useHandCursor: true
-        });
-        this.leftArrow.setAlpha(0.75);
-      }
-    }
+    [
+      this.leftArrow,
+      this.rightArrow,
+      this.officeArrow
+    ].forEach((arrow) => {
+      if (!arrow) return;
 
-    if (this.rightArrow) {
       if (locked) {
-        this.rightArrow.disableInteractive();
-        this.rightArrow.setAlpha(0.35);
+        arrow.disableInteractive();
+        arrow.setAlpha(0.35);
       } else {
-        this.rightArrow.setInteractive({
-          useHandCursor: true
-        });
-        this.rightArrow.setAlpha(0.75);
+        arrow.setInteractive({ useHandCursor: true });
+        arrow.setAlpha(0.75);
       }
-    }
-
-    if (this.officeArrow) {
-      if (locked) {
-        this.officeArrow.disableInteractive();
-        this.officeArrow.setAlpha(0.35);
-      } else {
-        this.officeArrow.setInteractive({
-          useHandCursor: true
-        });
-        this.officeArrow.setAlpha(0.75);
-      }
-    }
+    });
 
     if (locked) {
       this.hideNavHint();
     } else {
       this.updateNavVisibility();
+      this.updateProceedVisibility();
     }
   }
 
@@ -1020,42 +1057,160 @@ if (result.energyReachedZero) {
     this.applyLock(false);
   }
 
-  // ----------------------------------------------------------
-  // Leaving the laboratory
-  // ----------------------------------------------------------
-
   exitLab() {
     if (this.uiLocked) return;
 
+    this.uiLocked = true;
+    this.applyLock(true);
     this.stopLabAmbient();
 
-    this.scene.start('CityScene', {
-      gameState: this.gameState
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start(this.returnScene, {
+        ...this.returnData,
+        cityId: this.cityId,
+        crimeLabCompleted:
+          this.completedCount >= this.totalStations
+      });
     });
   }
+
+  getCaseSuspects() {
+    const mission = this.gameState.currentMission || {};
+
+    if (
+      Array.isArray(mission.suspectPool) &&
+      mission.suspectPool.length > 0
+    ) {
+      return mission.suspectPool;
+    }
+
+    if (
+      Array.isArray(this.gameState.caseSuspects) &&
+      this.gameState.caseSuspects.length > 0
+    ) {
+      return this.gameState.caseSuspects;
+    }
+
+    if (
+      Array.isArray(this.gameState.suspectPool) &&
+      this.gameState.suspectPool.length > 0
+    ) {
+      return this.gameState.suspectPool;
+    }
+
+    return [];
+  }
+
+  createCrimeCityAlibiEncounters() {
+  const caseKey = this.getCaseKey();
+
+  this.gameState.crimeCityEncounterState ??= {};
+
+  if (Array.isArray(this.gameState.crimeCityEncounterState[caseKey])) {
+    return this.gameState.crimeCityEncounterState[caseKey];
+  }
+
+  /*
+   * Important:
+   * Never use .slice(0, 6) from the original full suspect pool.
+   * This method must use suspects that are still active after:
+   * 1. Crime Lab identity filter,
+   * 2. Hypothesis skill filter,
+   * 3. any earlier interview exclusions.
+   */
+  const activeSuspects = getActiveSuspects()
+    .filter((suspect) => suspect?.id)
+    .filter((suspect) => !suspect.deductionState?.eliminated);
+
+  if (!activeSuspects.length) {
+    console.error(
+      '[CrimeLabScene] Cannot create alibi encounters: no active suspects remain.',
+      {
+        caseKey,
+        caseSuspects: this.gameState.caseSuspects,
+        excludedSuspects: this.gameState.excludedSuspects
+      }
+    );
+
+    return [];
+  }
+
+  const encounters = activeSuspects.map((suspect, index) => ({
+    id: `${caseKey}_alibi_${suspect.id}`,
+    npcId: suspect.npcId || suspect.id,
+    suspectId: suspect.id,
+
+    label:
+      suspect.publicProfile?.name ||
+      suspect.alias ||
+      suspect.name ||
+      suspect.role ||
+      `Lead ${index + 1}`,
+
+    locationId: 'alibi_contact',
+    textureKey: suspect.textureKey || null,
+    enabled: true,
+
+    dialogueSet: 'alibi',
+    evidenceStage: 'post_hypothesis',
+
+    suspectRole:
+      suspect.publicProfile?.occupation ||
+      suspect.occupation ||
+      suspect.role ||
+      'unknown'
+  }));
+
+  this.gameState.crimeCityEncounterState[caseKey] = encounters;
+
+  return encounters;
+}
 
   goToSuspectBoard() {
     if (this.uiLocked) return;
     if (this.completedCount < this.totalStations) return;
 
     this.uiLocked = true;
-    this.gameState.csiLabCompleted = true;
+    this.applyLock(true);
+
+    const caseForensics = this.getCaseForensics();
+
+    this.markCrimeLabCompleted();
 
     saveGameState();
     this.stopLabAmbient();
 
+    if (this.isCrimeCityFlow) {
+      this.cameras.main.fadeOut(350, 0, 0, 0);
+
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.scene.start(this.returnScene, {
+          ...this.returnData,
+          cityId: this.cityId,
+          crimeLabCompleted: true
+        });
+      });
+
+      return;
+    }
+
     this.scene.start('SuspectBoardScene', {
-      caseSuspects: this.gameState.caseSuspects,
-      identityEvidence: this.gameState.identityEvidence,
-      identityEvidenceResult: this.gameState.identityEvidenceResult,
-      traceEvidenceResults: this.gameState.traceEvidenceResults,
-      forensicResults: this.gameState.forensicResults,
-      gameState: this.gameState
-    });
+  caseSuspects: this.getCaseSuspects(),
+  identityEvidence: this.gameState.identityEvidence,
+  identityEvidenceResult:
+    caseForensics.identityEvidenceResult,
+  traceEvidenceResults:
+    caseForensics.traceEvidenceResults,
+  forensicResults: caseForensics.forensicResults,
+  suspectCaseSummary: getSuspectCaseSummary(),
+  gameState: this.gameState
+});
   }
 
   goToOfficeScene() {
-    if (this.uiLocked) return;
+    if (this.uiLocked || this.isCrimeCityFlow) return;
 
     this.uiLocked = true;
     this.stopLabAmbient();
@@ -1066,10 +1221,6 @@ if (result.energyReachedZero) {
       });
     });
   }
-
-  // ----------------------------------------------------------
-  // Debug
-  // ----------------------------------------------------------
 
   createOptionalDebug() {
     if (!this.DEBUG_HOTSPOTS) return;
@@ -1087,49 +1238,43 @@ if (result.energyReachedZero) {
         data.height
       );
 
-      const label = this.add.text(
-        data.x + 8,
-        data.y + 8,
-        data.id,
-        {
+      const label = this.add
+        .text(data.x + 8, data.y + 8, data.id, {
           fontFamily: 'Arial',
           fontSize: '16px',
           color: '#00ffcc',
           backgroundColor: '#000000',
-          padding: {
-            left: 4,
-            right: 4,
-            top: 2,
-            bottom: 2
-          }
-        }
-      ).setDepth(999);
+          padding: { left: 4, right: 4, top: 2, bottom: 2 }
+        })
+        .setDepth(999);
 
       this.debugTexts.push(label);
     });
   }
 
-  // ----------------------------------------------------------
-  // Cleanup
-  // ----------------------------------------------------------
-
   cleanupScene() {
     this.input.keyboard.off('keydown-LEFT', this.boundMoveLeft);
     this.input.keyboard.off('keydown-RIGHT', this.boundMoveRight);
 
-    this.events.off(Phaser.Scenes.Events.WAKE, this.boundForceUnlock);
-    this.events.off(Phaser.Scenes.Events.RESUME, this.boundForceUnlock);
-    this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.boundCleanupScene);
-    this.events.off(Phaser.Scenes.Events.SLEEP, this.boundCleanupScene);
-    this.events.off('resume', this.boundCheckMiniGameResults);
+    this.events.off(
+      Phaser.Scenes.Events.WAKE,
+      this.boundForceUnlock
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.RESUME,
+      this.boundForceUnlock
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.RESUME,
+      this.boundCheckMiniGameResults
+    );
 
     this.hotspots.forEach((zone) => {
       zone.removeAllListeners();
       zone.disableInteractive();
-
-      if (zone.statusLabel) {
-        zone.statusLabel.destroy();
-      }
+      zone.statusLabel?.destroy();
 
       if (zone.exitBtn) {
         zone.exitBtn.removeAllListeners();
@@ -1141,50 +1286,26 @@ if (result.energyReachedZero) {
 
     this.hotspots = [];
 
-    if (this.debugGraphics) {
-      this.debugGraphics.destroy();
-      this.debugGraphics = null;
-    }
+    this.debugGraphics?.destroy();
+    this.debugGraphics = null;
 
-    this.debugTexts.forEach((text) => {
-      text.destroy();
-    });
-
+    this.debugTexts.forEach((text) => text.destroy());
     this.debugTexts = [];
 
-    if (this.leftArrow) {
-      this.leftArrow.removeAllListeners();
-      this.leftArrow.destroy();
-      this.leftArrow = null;
-    }
+    [
+      'leftArrow',
+      'rightArrow',
+      'officeArrow',
+      'navHint',
+      'introHint',
+      'proceedHotspot'
+    ].forEach((property) => {
+      if (!this[property]) return;
 
-    if (this.rightArrow) {
-      this.rightArrow.removeAllListeners();
-      this.rightArrow.destroy();
-      this.rightArrow = null;
-    }
-
-    if (this.officeArrow) {
-      this.officeArrow.removeAllListeners();
-      this.officeArrow.destroy();
-      this.officeArrow = null;
-    }
-
-    if (this.navHint) {
-      this.navHint.destroy();
-      this.navHint = null;
-    }
-
-    if (this.introHint) {
-      this.introHint.destroy();
-      this.introHint = null;
-    }
-
-    if (this.proceedHotspot) {
-      this.proceedHotspot.removeAllListeners();
-      this.proceedHotspot.destroy();
-      this.proceedHotspot = null;
-    }
+      this[property].removeAllListeners?.();
+      this[property].destroy();
+      this[property] = null;
+    });
 
     this.stopLabAmbient();
   }

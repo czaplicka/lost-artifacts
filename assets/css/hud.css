@@ -4,7 +4,7 @@
 }
 
 #hud-container {
-  position: absolute;
+  position: fixed;
   top: 10px;
   right: 10px;
   z-index: 2000;
@@ -343,21 +343,46 @@
 .hud-tooltip,
 .hud-energy-log {
   position: absolute;
-  top: calc(100% + 7px);
+  top: calc(100% + 10px);
   right: 0;
-  left: 0;
-  z-index: 1001;
+  z-index: 2100;
+
   display: none;
-  padding: 11px 14px;
+
+  width: min(680px, calc(100vw - 20px));
+  min-width: min(480px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+
+  padding: 14px 18px;
+
   color: #f1e4c3;
   background: #1a0f0a;
   border: 1px solid #8c684d;
   border-radius: 6px;
-  box-shadow: 0 6px 14px rgb(0 0 0 / 80%);
-  font-size: 12px;
-  line-height: 1.35;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 80%);
+
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.15px;
   white-space: pre-line;
+
   pointer-events: none;
+}
+
+.hud-tooltip.visible,
+.hud-energy-log.visible {
+  display: block;
+}
+
+.hud-tooltip {
+  border-color: #8c684d;
+}
+
+.hud-energy-log {
+  color: #fff1d3;
+  border-color: #a82418;
+  background: #2a120d;
 }
 
 .hud-tooltip.visible,
@@ -400,4 +425,81 @@
   .stat-group {
     gap: 8px;
   }
+}
+/* Styling dla ikony otwarcia (zwiniętego panelu) */
+.hud-expand-btn {
+  display: none;
+  width: 42px;
+  height: 42px;
+  background: #2b1e16;
+  border: 2px solid #8c684d;
+  border-radius: 8px;
+  color: #f1e4c3;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.hud-expand-btn:hover {
+  background: #4a3525;
+  border-color: #e0bd82;
+  transform: scale(1.05);
+}
+
+/* Przycisk zwijania wewnątrz dolnego paska */
+.hud-collapse-btn {
+  width: 29px;
+  height: 29px;
+  background: #2b1e16;
+  border: 1px solid #8c684d;
+  border-radius: 50%;
+  color: #f1e4c3;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.hud-collapse-btn:hover {
+  background: #a82418;
+  border-color: #e0bd82;
+}
+
+/* Stan zwinięty (COLLAPSED) */
+#hud-container.collapsed {
+  width: auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+#hud-container.collapsed .hud-content {
+  display: none !important;
+}
+
+#hud-container.collapsed .hud-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#hud-container.collapsed .hud-tooltip,
+#hud-container.collapsed .hud-energy-log {
+  display: none !important;
+}
+.hud-tooltip-title {
+  margin-bottom: 7px;
+  color: #ffd166;
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#hud-tooltip-text {
+  color: #f1e4c3;
 }

@@ -1,8 +1,13 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { getScoreManager } from '../gameSetup.js';
-import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { getEnergyManager } from '../EnergyManager.js';
+import { HypothesisEvaluator } from '../HypothesisEvaluator.js';
+import { SlotView } from '../SlotView.js';
+import {
+  applyHypothesisSkills,
+  getSuspectCaseSummary
+} from '../suspectUtils.js';
 
 export class HypothesisScene extends BaseScene {
   constructor() {
@@ -19,7 +24,6 @@ export class HypothesisScene extends BaseScene {
     this.feedbackText = null;
     this.attemptsText = null;
     this.legendText = null;
-    this.mobileHintText = null;
 
     this.closeButton = null;
     this.confirmButton = null;
@@ -32,27 +36,22 @@ export class HypothesisScene extends BaseScene {
     this.placedCards = [null, null, null];
     this.slotFeedback = ['neutral', 'neutral', 'neutral'];
     this.attemptsLeft = 3;
+    this.lockedSlots = new Set();
 
     this.correctCards = [];
     this.distractorCards = [];
 
-    this._listenersBound = false;
     this._resizeBound = false;
     this.layout = null;
 
-    this.isDraggingCard = false;
     this.isMobileUI = false;
     this.selectedSlotIndex = null;
     this.uiLocked = false;
 
-    this.handleDragStartBound = null;
-    this.handleDragBound = null;
-    this.handleDropBound = null;
-    this.handleDragEndBound = null;
     this.handleResizeBound = null;
-
     this.scoreManager = null;
     this.activeSlotCount = 3;
+    this.slotLabels = [...HypothesisEvaluator.SLOT_LABELS];
   }
 
   init(data = {}) {
@@ -60,6 +59,9 @@ export class HypothesisScene extends BaseScene {
     this.cityId = data.cityId || gameState.currentCityId || gameState.crimeCityId || gameState.reconstructedHeist?.cityId || null;
     this.sceneId = data.sceneId || gameState.reconstructedHeist?.sceneId || null;
     this.activeSlotCount = Number.isInteger(data.activeSlotCount) ? Phaser.Math.Clamp(data.activeSlotCount, 1, 3) : 3;
+    this.slotLabels = Array.isArray(data.slotLabels) && data.slotLabels.length >= this.activeSlotCount
+      ? data.slotLabels.slice(0, this.activeSlotCount)
+      : [...HypothesisEvaluator.SLOT_LABELS].slice(0, this.activeSlotCount);
 
     this.overlay = null;
     this.panel = null;
@@ -68,7 +70,6 @@ export class HypothesisScene extends BaseScene {
     this.feedbackText = null;
     this.attemptsText = null;
     this.legendText = null;
-    this.mobileHintText = null;
 
     this.closeButton = null;
     this.confirmButton = null;
@@ -80,8 +81,9 @@ export class HypothesisScene extends BaseScene {
 
     this.placedCards = new Array(this.activeSlotCount).fill(null);
     this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
-
     this.attemptsLeft = 3;
+    this.lockedSlots = new Set();
+
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
       gameState.reconstructedHeist = {};
     }
@@ -91,26 +93,18 @@ export class HypothesisScene extends BaseScene {
     this.distractorCards = [];
     this.layout = null;
 
-    this.isDraggingCard = false;
     this.isMobileUI = false;
     this.selectedSlotIndex = null;
     this.uiLocked = false;
 
-    this.handleDragStartBound = null;
-    this.handleDragBound = null;
-    this.handleDropBound = null;
-    this.handleDragEndBound = null;
     this.handleResizeBound = null;
-
     this.scoreManager = getScoreManager();
   }
 
   create() {
-        super.create();
+    super.create();
     this.prepareCards();
-this.energyManager = getEnergyManager();
-    this.input.dragDistanceThreshold = 14;
-    this.input.dragTimeThreshold = 120;
+    this.energyManager = getEnergyManager();
 
     this.isMobileUI = !!this.sys.game.device.input.touch || this.scale.width <= 900;
 
@@ -132,11 +126,8 @@ this.energyManager = getEnergyManager();
       align: 'center'
     }).setOrigin(0.5).setDepth(3002);
 
-    const subtitle = this.isMobileUI
-      ? 'Tap clue cards to place them. Tap X to remove a card. You have 3 attempts.'
-      : 'Drag 3 clue cards into the timeline. You have 3 attempts.';
-
-    this.subtitleText = this.add.text(width / 2, 0, subtitle, {
+    this.subtitleText = this.add.text(width / 2, 0,
+      'Tap a card, then tap a panel. Tap X to remove. You have 3 attempts.', {
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#e8d7a8',
@@ -155,14 +146,8 @@ this.energyManager = getEnergyManager();
     this.createCardTray();
     this.createButtons();
 
-    this.mobileHintText = this.add.text(width / 2, 0, 'Tap card to auto-place. Tap X to remove.', {
-      fontFamily: 'Special Elite',
-      fontSize: '18px',
-      color: '#f0ddb0',
-      align: 'center'
-    }).setOrigin(0.5).setDepth(3002).setVisible(this.isMobileUI);
-
-    this.legendText = this.add.text(width / 2, 0, 'Green = exact, yellow = misplaced, red = absent', {
+    this.legendText = this.add.text(width / 2, 0,
+      'Green = locked in, yellow = right card wrong step, red = not part of the heist', {
       fontFamily: 'Special Elite',
       fontSize: '18px',
       color: '#ccb98c',
@@ -173,10 +158,10 @@ this.energyManager = getEnergyManager();
       fontFamily: 'Special Elite',
       fontSize: '22px',
       color: '#ffd966',
-      align: 'center'
+      align: 'center',
+      wordWrap: { width: 600, useAdvancedWrap: true }
     }).setOrigin(0.5).setDepth(3002);
 
-    this.bindDragEvents();
     this.bindResize();
     this.applyResponsiveLayout();
     this.refreshUI();
@@ -185,54 +170,15 @@ this.energyManager = getEnergyManager();
   }
 
   prepareCards() {
-    const reconstruction = gameState.reconstructedHeist;
-    const allCards = Array.isArray(reconstruction?.allCards) ? reconstruction.allCards : [];
+    const { correctCards, distractorCards, availableCards } = HypothesisEvaluator.prepareCards(
+      gameState.reconstructedHeist,
+      this.sceneId,
+      this.cityId
+    );
 
-    let sourceCards = allCards
-      .filter(card => !this.sceneId || card.scene === this.sceneId)
-      .filter(card => !this.cityId || card.cityId === this.cityId);
-
-    if (sourceCards.length === 0) sourceCards = allCards;
-
-    const uniqueCards = [];
-    const seen = new Set();
-
-    sourceCards.forEach((card, index) => {
-      const key = `${card.id || card.item || index}_${card.scene || ''}_${card.cityId || ''}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-
-      uniqueCards.push({
-        id: card.id || `card_${index}`,
-        item: card.item || `Clue ${index + 1}`,
-        text: card.text || card.item || `Clue ${index + 1}`,
-        skills: Array.isArray(card.skills) ? [...card.skills] : [],
-        scene: card.scene || this.sceneId,
-        cityId: card.cityId || this.cityId,
-        correctOrder: Number.isInteger(card.correctOrder) ? card.correctOrder : -1,
-        isCorrect: !!card.isCorrect,
-        clueType: card.clueType || 'soft_clue',
-        heistExplanation: card.heistExplanation || '',
-        trueExplanation: card.trueExplanation || '',
-        isRedHerring: !!card.isRedHerring
-      });
-    });
-
-    this.correctCards = uniqueCards.filter(card => card.isCorrect).sort((a, b) => a.correctOrder - b.correctOrder).slice(0, 3);
-    this.distractorCards = uniqueCards.filter(card => !card.isCorrect).slice(0, 3);
-
-    this.availableCards = Phaser.Utils.Array.Shuffle([
-      ...this.correctCards.slice(0, 3),
-      ...this.distractorCards.slice(0, 3)
-    ]);
-
-    while (this.availableCards.length < 6) {
-      const missing = uniqueCards.find(card => !this.availableCards.some(existing => existing.id === card.id));
-      if (!missing) break;
-      this.availableCards.push({ ...missing });
-    }
-
-    this.availableCards = Phaser.Utils.Array.Shuffle(this.availableCards.slice(0, 6));
+    this.correctCards = correctCards;
+    this.distractorCards = distractorCards;
+    this.availableCards = availableCards;
   }
 
   getLayout() {
@@ -255,15 +201,18 @@ this.energyManager = getEnergyManager();
     const slotHeight = isMobile ? 110 : 150;
 
     const slotGap = isMobile ? 40 : 60;
-    const totalSlotWidth = 3 * slotWidth + 2 * slotGap;
+    const totalSlotWidth = this.activeSlotCount * slotWidth + (this.activeSlotCount - 1) * slotGap;
     const slotStartX = width / 2 - totalSlotWidth / 2 + slotWidth / 2;
     const slotsBaseY = attemptsY + (isMobile ? 120 : 140);
 
-    const slotPositions = [
-      { x: slotStartX, y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) },
-      { x: slotStartX + slotWidth + slotGap, y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) },
-      { x: slotStartX + 2 * (slotWidth + slotGap), y: slotsBaseY, labelY: slotsBaseY - (isMobile ? 60 : 80) }
-    ];
+    const slotPositions = [];
+    for (let i = 0; i < this.activeSlotCount; i++) {
+      slotPositions.push({
+        x: slotStartX + i * (slotWidth + slotGap),
+        y: slotsBaseY,
+        labelY: slotsBaseY - (isMobile ? 60 : 80)
+      });
+    }
 
     const gridTopY = slotsBaseY + (isMobile ? 150 : 180);
     const cardWidth = isMobile ? Math.min((panelWidth - 80) / 3, 220) : 260;
@@ -290,28 +239,11 @@ this.energyManager = getEnergyManager();
     const feedbackY = buttonsY + 40;
 
     return {
-      width,
-      height,
-      isMobile,
-      panelWidth,
-      panelHeight,
-      panelX,
-      panelY,
-      panelTop,
-      panelBottom,
-      titleY,
-      subtitleY,
-      attemptsY,
-      gridTopY,
-      buttonsY,
-      legendY,
-      feedbackY,
-      slotWidth,
-      slotHeight,
-      slotPositions,
-      cardWidth,
-      cardHeight,
-      trayPositions,
+      width, height, isMobile,
+      panelWidth, panelHeight, panelX, panelY, panelTop, panelBottom,
+      titleY, subtitleY, attemptsY, gridTopY, buttonsY, legendY, feedbackY,
+      slotWidth, slotHeight, slotPositions,
+      cardWidth, cardHeight, trayPositions,
       wrapTitle: Math.max(540, panelWidth - 200),
       wrapSubtitle: Math.max(540, panelWidth - 260),
       wrapFeedback: Math.max(540, panelWidth - 260),
@@ -342,12 +274,6 @@ this.energyManager = getEnergyManager();
     this.attemptsText.setPosition(L.width / 2, L.attemptsY);
     this.attemptsText.setFontSize(L.isMobile ? '20px' : '24px');
 
-    if (this.mobileHintText) {
-      this.mobileHintText.setVisible(this.isMobileUI);
-      this.mobileHintText.setPosition(L.width / 2, L.gridTopY - 42);
-      this.mobileHintText.setFontSize(L.isMobile ? '16px' : '18px');
-    }
-
     this.legendText.setPosition(L.width / 2, L.legendY);
     this.legendText.setFontSize(L.isMobile ? '15px' : '18px');
     this.legendText.setWordWrapWidth(L.wrapFeedback, true);
@@ -358,33 +284,7 @@ this.energyManager = getEnergyManager();
 
     this.slotViews.forEach((slotView, index) => {
       const pos = L.slotPositions[index];
-      if (!pos) return;
-
-      slotView.label.setPosition(pos.x, pos.labelY);
-      slotView.label.setFontSize(L.isMobile ? '12px' : '14px');
-      slotView.label.setWordWrapWidth(L.wrapSlot, true);
-
-      slotView.box.setPosition(pos.x, pos.y);
-      slotView.box.setSize(L.slotWidth, L.slotHeight);
-      slotView.box.input.hitArea.setTo(
-        -L.slotWidth / 2,
-        -L.slotHeight / 2,
-        L.slotWidth,
-        L.slotHeight
-      );
-
-      slotView.dropZone.setPosition(pos.x, pos.y);
-      slotView.dropZone.setSize(L.slotWidth, L.slotHeight);
-      slotView.dropZone.setRectangleDropZone(L.slotWidth, L.slotHeight);
-
-      slotView.text.setPosition(pos.x, pos.y);
-      slotView.text.setFontSize(L.isMobile ? '20px' : '24px');
-      slotView.text.setWordWrapWidth(L.wrapSlot, true);
-
-      if (slotView.removeButton) {
-        slotView.removeButton.setPosition(pos.x + L.slotWidth / 2 - 24, pos.y - L.slotHeight / 2 + 20);
-        slotView.removeButton.setFontSize(L.isMobile ? '14px' : '16px');
-      }
+      slotView.updateLayout(pos, L);
     });
 
     this.cardViews.forEach((view, index) => {
@@ -438,45 +338,15 @@ this.energyManager = getEnergyManager();
   }
 
   createSlots() {
-    for (let i = 0; i < this.activeSlotCount; i += 1) {
-      const label = this.add.text(0, 0, `STEP ${i + 1}`, {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#f0ddb0'
-      }).setOrigin(0.5).setDepth(3002);
+    for (let i = 0; i < this.activeSlotCount; i++) {
+      const slotView = new SlotView(this, i, {
+        label: this.slotLabels[i] || `STEP ${i + 1}`,
+        onClick: (index) => this.handleSlotClick(index),
+        onRemove: (index) => this.handleSlotRemove(index)
+      });
 
-      const box = this.add.rectangle(0, 0, 420, 150, 0x241c16, 0.98)
-        .setStrokeStyle(3, 0xc8a75a, 0.8)
-        .setDepth(3002)
-        .setInteractive(new Phaser.Geom.Rectangle(-210, -75, 420, 150), Phaser.Geom.Rectangle.Contains);
-
-      const dropZone = this.add.zone(0, 0, 420, 150)
-        .setRectangleDropZone(420, 150)
-        .setData('slotIndex', i)
-        .setDepth(3003);
-
-      const text = this.add.text(0, 0, '[ empty ]', {
-        fontFamily: 'Special Elite',
-        fontSize: '24px',
-        color: '#8d8577',
-        align: 'center',
-        wordWrap: { width: 300, useAdvancedWrap: true },
-        lineSpacing: 4
-      }).setOrigin(0.5).setDepth(3003);
-
-      const removeButton = this.add.text(0, 0, 'X', {
-        fontFamily: 'PressStart2P',
-        fontSize: '16px',
-        color: '#ffffff',
-        backgroundColor: '#7a1f1f',
-        padding: { left: 7, right: 7, top: 5, bottom: 5 }
-      }).setOrigin(0.5).setDepth(3004).setInteractive({ useHandCursor: true });
-
-      removeButton.on('pointerup', () => this.handleSlotRemove(i));
-      box.on('pointerup', () => this.handleSlotClick(i));
-
-      this.slotViews.push({ label, box, text, dropZone, removeButton });
-      this.dropZones.push(dropZone);
+      this.slotViews.push(slotView);
+      this.dropZones.push(slotView.dropZone);
     }
   }
 
@@ -506,73 +376,31 @@ this.energyManager = getEnergyManager();
 
       container.add([bg, title, tag]);
 
-      if (!this.isMobileUI) {
-        this.input.setDraggable(bg);
-      }
-
-      bg.cardIndex = index;
-      bg.parentCardContainer = container;
-      bg.pointerDownX = 0;
-      bg.pointerDownY = 0;
-      bg.pointerDownTime = 0;
-      bg.dragStarted = false;
-      bg.justDragged = false;
-
       container.cardIndex = index;
       container.homeX = 0;
       container.homeY = 0;
       container.currentSlot = null;
 
-      bg.on('pointerdown', pointer => {
-        if (this.isMobileUI || this.uiLocked) return;
-        bg.pointerDownX = pointer.x;
-        bg.pointerDownY = pointer.y;
-        bg.pointerDownTime = this.time.now;
-        bg.dragStarted = false;
-        bg.justDragged = false;
+      bg.on('pointerdown', () => {
+        if (this.uiLocked) return;
         this.tweens.killTweensOf(container);
-        container.setScale(0.98);
+        container.setScale(0.96);
       });
 
-      bg.on('pointerup', pointer => {
+      bg.on('pointerup', () => {
         if (this.uiLocked) return;
-
-        if (this.isMobileUI) {
-          this.handleCardTap(index);
-          return;
-        }
-
         container.setScale(1);
-
-        const movedDistance = Phaser.Math.Distance.Between(
-          bg.pointerDownX,
-          bg.pointerDownY,
-          pointer.x,
-          pointer.y
-        );
-
-        const heldFor = this.time.now - bg.pointerDownTime;
-        const isTap = !bg.dragStarted && !bg.justDragged && movedDistance < 10 && heldFor < 320;
-
-        if (isTap) {
-          this.handleCardClick(index);
-        }
+        this.handleCardTap(index);
       });
 
       bg.on('pointerout', () => {
-        if (!bg.dragStarted) {
-          container.setScale(1);
-        }
+        container.setScale(1);
       });
 
       this.cardViews.push({
-        bg,
-        title,
-        tag,
-        container,
+        bg, title, tag, container,
         currentSlot: null,
-        homeX: 0,
-        homeY: 0
+        homeX: 0, homeY: 0
       });
     });
   }
@@ -613,57 +441,8 @@ this.energyManager = getEnergyManager();
 
   handleResize() {
     this.isMobileUI = !!this.sys.game.device.input.touch || this.scale.width <= 900;
-    if (this.mobileHintText) this.mobileHintText.setVisible(this.isMobileUI);
     this.applyResponsiveLayout();
     this.refreshUI();
-  }
-
-  bindDragEvents() {
-    if (this._listenersBound) return;
-    this._listenersBound = true;
-
-    this.handleDragStartBound = (pointer, gameObject) => {
-      if (this.isMobileUI || this.uiLocked) return;
-      const container = gameObject.parentCardContainer;
-      this.isDraggingCard = true;
-      gameObject.dragStarted = true;
-      gameObject.justDragged = false;
-      container.setScale(1);
-      container.setDepth(3100);
-      this.tweens.killTweensOf(container);
-    };
-
-    this.handleDragBound = (pointer, gameObject, dragX, dragY) => {
-      if (this.isMobileUI || this.uiLocked) return;
-      const container = gameObject.parentCardContainer;
-      gameObject.justDragged = true;
-      this.setCardPositionByIndex(container.cardIndex, dragX, dragY);
-    };
-
-    this.handleDropBound = (pointer, gameObject, dropZone) => {
-      if (this.isMobileUI || this.uiLocked) return;
-      const container = gameObject.parentCardContainer;
-      const slotIndex = dropZone.getData('slotIndex');
-      this.placeCardInSlotByIndex(container.cardIndex, slotIndex);
-    };
-
-    this.handleDragEndBound = (pointer, gameObject, dropped) => {
-      if (this.isMobileUI || this.uiLocked) return;
-      const container = gameObject.parentCardContainer;
-      this.isDraggingCard = false;
-      container.setScale(1);
-      if (!dropped) this.returnCardHomeByIndex(container.cardIndex);
-      this.time.delayedCall(100, () => {
-        gameObject.justDragged = false;
-        gameObject.dragStarted = false;
-        container.setDepth(3004);
-      });
-    };
-
-    this.input.on('dragstart', this.handleDragStartBound);
-    this.input.on('drag', this.handleDragBound);
-    this.input.on('drop', this.handleDropBound);
-    this.input.on('dragend', this.handleDragEndBound);
   }
 
   buildSkillPreview(skills = []) {
@@ -695,31 +474,16 @@ this.energyManager = getEnergyManager();
     this.setCardPosition(cardView, x, y);
   }
 
-  flashSlot(slotIndex) {
-    const slotView = this.slotViews[slotIndex];
-    if (!slotView?.box) return;
-    const box = slotView.box;
-    const originalLineWidth = box.lineWidth || 3;
-    this.tweens.killTweensOf(box);
-    box.setStrokeStyle(5, 0xfff2a8, 1);
-    this.tweens.add({
-      targets: box,
-      alpha: { from: 1, to: 0.86 },
-      yoyo: true,
-      duration: 90,
-      repeat: 1,
-      onComplete: () => {
-        box.setAlpha(1);
-        this.refreshSlots();
-        if (box.active) box.setLineWidth?.(originalLineWidth);
-      }
-    });
-  }
-
   handleCardTap(cardIndex) {
     if (this.uiLocked) return;
     const card = this.availableCards[cardIndex];
     if (!card) return;
+
+    const currentSlot = this.placedCards.indexOf(cardIndex);
+    if (currentSlot !== -1 && this.lockedSlots.has(currentSlot)) {
+      this.showFeedback('This step is confirmed. The clue fits.', '#7CFC00');
+      return;
+    }
 
     const alreadyPlaced = this.placedCards.includes(cardIndex);
     if (alreadyPlaced) {
@@ -731,10 +495,6 @@ this.energyManager = getEnergyManager();
 
     if (targetSlot === null || targetSlot === undefined) {
       targetSlot = this.placedCards.findIndex(v => v === null);
-      if (targetSlot !== -1) {
-        this.selectedSlotIndex = targetSlot;
-        this.refreshUI();
-      }
     }
 
     if (targetSlot === -1 || targetSlot === null || targetSlot === undefined) {
@@ -742,51 +502,41 @@ this.energyManager = getEnergyManager();
       return;
     }
 
-    if (this.placedCards[targetSlot] !== null) {
-      const emptySlot = this.placedCards.findIndex(v => v === null);
+    if (this.lockedSlots.has(targetSlot)) {
+      const emptySlot = this.placedCards.findIndex((v, i) => v === null && !this.lockedSlots.has(i));
       if (emptySlot !== -1) {
         targetSlot = emptySlot;
-        this.selectedSlotIndex = emptySlot;
-        this.refreshUI();
+      } else {
+        this.showFeedback('That step is locked. Find another empty slot.', '#ffb347');
+        return;
+      }
+    }
+
+    if (this.placedCards[targetSlot] !== null) {
+      const emptySlot = this.placedCards.findIndex((v, i) => v === null && !this.lockedSlots.has(i));
+      if (emptySlot !== -1) {
+        targetSlot = emptySlot;
       } else {
         this.showFeedback('Selected step is occupied. Remove that card first.', '#ffb347');
         return;
       }
     }
 
-    this.placeCardInSlotByIndex(cardIndex, targetSlot);
     this.selectedSlotIndex = null;
-    this.refreshUI();
-  }
-
-  handleCardClick(cardIndex) {
-    if (this.uiLocked) return;
-    const card = this.availableCards[cardIndex];
-    if (!card) return;
-
-    const alreadyPlaced = this.placedCards.includes(cardIndex);
-    if (alreadyPlaced) {
-      this.showFeedback('This card is already in the timeline.', '#ffb347');
-      return;
-    }
-
-    const emptySlot = this.placedCards.findIndex(v => v === null);
-    if (emptySlot === -1) {
-      this.showFeedback('All slots are full. Use X to remove one.', '#ffb347');
-      return;
-    }
-
-    this.placeCardInSlotByIndex(cardIndex, emptySlot);
+    this.placeCardInSlotByIndex(cardIndex, targetSlot);
   }
 
   handleSlotClick(slotIndex) {
-    if (this.uiLocked) return;
+    if (this.uiLocked || this.lockedSlots.has(slotIndex)) return;
     const cardIndex = this.placedCards[slotIndex];
 
-    if (cardIndex === null) {
+    if (cardIndex === null || cardIndex === undefined) {
       this.selectedSlotIndex = this.selectedSlotIndex === slotIndex ? null : slotIndex;
       this.refreshUI();
-      this.showFeedback(this.selectedSlotIndex === null ? 'Step selection cleared.' : `Step ${slotIndex + 1} selected. Now tap a clue card.`, this.selectedSlotIndex === null ? '#ccb98c' : '#ffd966');
+      this.showFeedback(
+        this.selectedSlotIndex === null ? 'Step selection cleared.' : `${this.slotLabels[slotIndex]} selected. Now tap a clue card.`,
+        this.selectedSlotIndex === null ? '#ccb98c' : '#ffd966'
+      );
       return;
     }
 
@@ -794,21 +544,26 @@ this.energyManager = getEnergyManager();
   }
 
   handleSlotRemove(slotIndex) {
-    if (this.uiLocked) return;
+    if (this.uiLocked || this.lockedSlots.has(slotIndex)) return;
     const cardIndex = this.placedCards[slotIndex];
-    if (cardIndex === null) {
+    if (cardIndex === null || cardIndex === undefined) {
       this.showFeedback('Nothing to remove there.', '#ffb347');
       return;
     }
 
     this.returnCardHomeByIndex(cardIndex, true);
-    this.flashSlot(slotIndex);
+
+    const slotView = this.slotViews[slotIndex];
+    if (slotView) slotView.flash();
+
     this.selectedSlotIndex = null;
     this.refreshUI();
-    this.showFeedback(`Card removed from step ${slotIndex + 1}.`, '#f0ddb0');
+    this.showFeedback(`Card removed from ${this.slotLabels[slotIndex]}.`, '#f0ddb0');
   }
 
   placeCardInSlotByIndex(cardIndex, slotIndex) {
+    if (this.lockedSlots.has(slotIndex)) return;
+
     const draggedCard = this.getCardView(cardIndex);
     if (!draggedCard) return;
 
@@ -822,7 +577,7 @@ this.energyManager = getEnergyManager();
       return;
     }
 
-    if (targetCard && fromSlot !== null) {
+    if (targetCard && fromSlot !== null && !this.lockedSlots.has(fromSlot)) {
       this.placedCards[fromSlot] = targetCardIndex;
       targetCard.currentSlot = fromSlot;
       targetCard.container.currentSlot = fromSlot;
@@ -834,7 +589,7 @@ this.energyManager = getEnergyManager();
       this.setCardPosition(targetCard, targetCard.homeX, targetCard.homeY);
     }
 
-    if (fromSlot !== null && this.placedCards[fromSlot] === cardIndex) {
+    if (fromSlot !== null && !this.lockedSlots.has(fromSlot) && this.placedCards[fromSlot] === cardIndex) {
       this.placedCards[fromSlot] = null;
     }
 
@@ -845,13 +600,17 @@ this.energyManager = getEnergyManager();
     const slot = this.slotViews[slotIndex];
     if (slot) this.setCardPosition(draggedCard, slot.box.x, slot.box.y);
 
-    this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
+    this.slotFeedback = this.slotFeedback.map((_, i) =>
+      this.lockedSlots.has(i) ? 'green' : 'neutral'
+    );
     this.refreshUI();
   }
 
   returnCardHomeByIndex(cardIndex, animate = true) {
     const cardView = this.getCardView(cardIndex);
     if (!cardView) return;
+
+    if (cardView.currentSlot !== null && this.lockedSlots.has(cardView.currentSlot)) return;
 
     if (cardView.currentSlot !== null && this.placedCards[cardView.currentSlot] === cardIndex) {
       this.placedCards[cardView.currentSlot] = null;
@@ -887,50 +646,27 @@ this.energyManager = getEnergyManager();
   }
 
   refreshSlots() {
-    const colorMap = {
-      neutral: { fill: 0x241c16, stroke: 0xc8a75a, text: '#8d8577', width: 3 },
-      selected: { fill: 0x2c2614, stroke: 0xffd966, text: '#f7f1dc', width: 4 },
-      green: { fill: 0x24331f, stroke: 0x3ddb6b, text: '#f7f1dc', width: 3 },
-      yellow: { fill: 0x3a3216, stroke: 0xf1c232, text: '#f7f1dc', width: 3 },
-      red: { fill: 0x331d1d, stroke: 0xe06666, text: '#f7f1dc', width: 3 }
-    };
-
     this.slotViews.forEach((slotView, index) => {
       const cardIndex = this.placedCards[index];
-      const isSelected = this.isMobileUI && this.selectedSlotIndex === index && cardIndex === null;
-      const status = isSelected ? 'selected' : (this.slotFeedback[index] || 'neutral');
-      const colors = colorMap[status] || colorMap.neutral;
+      const card = cardIndex !== null ? this.availableCards[cardIndex] : null;
+      const isSelected = this.selectedSlotIndex === index && cardIndex === null;
+      const isLocked = this.lockedSlots.has(index);
+      const status = isLocked ? 'locked' : this.slotFeedback[index];
 
-      slotView.box.setFillStyle(colors.fill, 0.98);
-      slotView.box.setStrokeStyle(colors.width, colors.stroke, 0.95);
-
-      if (slotView.removeButton) {
-        const active = cardIndex !== null;
-        slotView.removeButton.setAlpha(active ? 1 : 0.22);
-        slotView.removeButton.setVisible(true);
-        slotView.removeButton.setText('X');
-      }
-
-      if (cardIndex === null) {
-        slotView.text.setText(isSelected ? '[ selected ]' : '[ empty ]');
-        slotView.text.setColor(colors.text);
-        return;
-      }
-
-      const card = this.availableCards[cardIndex];
-      slotView.text.setText(card?.item || '[ clue ]');
-      slotView.text.setColor(colors.text);
+      slotView.refresh(card, status, isSelected);
     });
   }
 
   refreshCards() {
     this.cardViews.forEach((view, index) => {
       const isPlaced = this.placedCards.includes(index);
+      const currentSlot = this.placedCards.indexOf(index);
+      const isLocked = currentSlot !== -1 && this.lockedSlots.has(currentSlot);
 
       if (isPlaced) {
-        view.bg.setAlpha(0.35);
-        view.title.setAlpha(0.35);
-        view.tag.setAlpha(0.35);
+        view.bg.setAlpha(isLocked ? 0.25 : 0.35);
+        view.title.setAlpha(isLocked ? 0.25 : 0.35);
+        view.tag.setAlpha(isLocked ? 0.25 : 0.35);
         view.bg.setStrokeStyle(2, 0x9a9a9a, 0.3);
       } else {
         view.bg.setAlpha(1);
@@ -950,78 +686,67 @@ this.energyManager = getEnergyManager();
     return this.placedCards.every(cardIndex => cardIndex !== null);
   }
 
-  evaluateGuess(orderedCards) {
-    const result = new Array(this.activeSlotCount).fill('red');
-    const solutionUsed = new Array(this.activeSlotCount).fill(false);
-    const guessUsed = new Array(this.activeSlotCount).fill(false);
-
-    for (let i = 0; i < this.activeSlotCount; i += 1) {
-      const card = orderedCards[i];
-      if (card?.isCorrect && card.correctOrder === i) {
-        result[i] = 'green';
-        solutionUsed[i] = true;
-        guessUsed[i] = true;
-      }
-    }
-
-    for (let i = 0; i < this.activeSlotCount; i += 1) {
-      if (guessUsed[i]) continue;
-      const card = orderedCards[i];
-      if (!card?.isCorrect) continue;
-
-      for (let j = 0; j < this.activeSlotCount; j += 1) {
-        if (solutionUsed[j]) continue;
-        if (card.correctOrder === j) {
-          result[i] = 'yellow';
-          solutionUsed[j] = true;
-          guessUsed[i] = true;
-          break;
-        }
-      }
-    }
-
-    return result;
-  }
-
   confirmTheory() {
-    const orderedCards = this.placedCards.map(cardIndex => this.availableCards[cardIndex]).filter(Boolean);
-    const feedback = this.evaluateGuess(orderedCards);
+    const orderedCards = this.placedCards
+      .map(cardIndex => this.availableCards[cardIndex])
+      .filter(Boolean);
+
+    const feedback = HypothesisEvaluator.evaluateGuess(orderedCards, this.activeSlotCount);
+
     this.slotFeedback = feedback;
     this.selectedSlotIndex = null;
+
+    let newGreenCount = 0;
+    feedback.forEach((status, i) => {
+      if (status === 'green' && !this.lockedSlots.has(i)) {
+        this.lockedSlots.add(i);
+        newGreenCount++;
+
+        const card = orderedCards[i];
+        if (card?.heistExplanation) {
+          this.time.delayedCall(newGreenCount * 500, () => {
+            this.slotViews[i]?.showNarrative(card.heistExplanation);
+          });
+        }
+      }
+    });
+
     this.refreshSlots();
-const result = this.energyManager.consumeActivity('minigame_mastermind');
-console.log(`🧩 ${result.label}`);
 
-if (result.energyReachedZero) {
-  this.scene.stop();
-  return;
-}
-    const allGreen = feedback.every(v => v === 'green');
+    const result = this.energyManager.consumeActivity('minigame_mastermind');
 
-    if (allGreen) {
-      this.finalizeTheory(orderedCards, 'exact', 60, 'Excellent reconstruction. You nailed the sequence.', '#7CFC00');
+    if (result.energyReachedZero) {
+      this.scene.stop();
       return;
     }
 
-    this.attemptsLeft -= 1;
-    if (gameState.reconstructedHeist) {
-      gameState.reconstructedHeist.playerAttemptsLeft = this.attemptsLeft;
-    }
-    this.refreshUI();
+    const evaluation = HypothesisEvaluator.determineResult(feedback, this.attemptsLeft - 1);
 
-    if (this.attemptsLeft > 0) {
-      this.showFeedback('Not quite. Adjust the timeline and try again.', '#ffd966');
+    if (!evaluation.isFinal) {
+      this.attemptsLeft -= 1;
+      if (gameState.reconstructedHeist) {
+        gameState.reconstructedHeist.playerAttemptsLeft = this.attemptsLeft;
+      }
+
+      let msg = evaluation.message;
+      const redHerringCard = orderedCards.find((card, i) =>
+        feedback[i] === 'red' && card?.isRedHerring
+      );
+      if (redHerringCard) {
+        const funnyLine = HypothesisEvaluator.getFunnyLine(redHerringCard);
+        msg += `\n\n${funnyLine}`;
+      }
+
+      this.refreshUI();
+      this.showFeedback(msg, evaluation.color);
       return;
     }
 
-    const greenCount = feedback.filter(v => v === 'green').length;
-    const yellowCount = feedback.filter(v => v === 'yellow').length;
-
-    if (greenCount + yellowCount >= 2) {
-      this.finalizeTheory(orderedCards, 'partial', 25, 'Promising lead. Part of the sequence fits.', '#ffcf66');
-    } else {
-      this.finalizeTheory(orderedCards, 'weak', 10, 'Theory recorded, but the sequence still needs work.', '#ff9f80');
+    if (evaluation.resultLabel !== 'exact') {
+      this.attemptsLeft -= 1;
     }
+
+    this.finalizeTheory(orderedCards, evaluation.resultLabel, evaluation.score, evaluation.message, evaluation.color);
   }
 
   finalizeTheory(orderedCards, resultLabel, score, message, color) {
@@ -1032,81 +757,146 @@ if (result.energyReachedZero) {
       text: card.item,
       skills: Array.isArray(card.skills) ? [...card.skills] : [],
       isCorrect: !!card.isCorrect,
-      correctOrder: card.correctOrder
+      correctOrder: card.correctOrder,
+      heistExplanation: card.heistExplanation || '',
+      trueExplanation: card.trueExplanation || ''
     }));
 
     const finalText = orderedSentences.join(' → ');
-    const uniqueSkills = this.collectUniqueSkills(orderedCards);
+    const uniqueSkills = HypothesisEvaluator.collectUniqueSkills(orderedCards);
+    const narrativeLines = HypothesisEvaluator.buildNarrative(orderedCards);
 
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
       gameState.reconstructedHeist = {};
     }
 
-    gameState.reconstructedHeist.playerOrderedCards = orderedItems;
-    gameState.reconstructedHeist.playerOrderedSentences = orderedSentences;
-    gameState.reconstructedHeist.playerFinalText = finalText;
-    gameState.reconstructedHeist.playerSkills = uniqueSkills;
-    gameState.reconstructedHeist.playerTheoryScore = score;
-    gameState.reconstructedHeist.playerTheoryResult = resultLabel;
-    gameState.reconstructedHeist.playerSlotFeedback = [...this.slotFeedback];
-    gameState.reconstructedHeist.playerAttemptsLeft = this.attemptsLeft;
+gameState.reconstructedHeist.playerOrderedCards = orderedItems;
+gameState.reconstructedHeist.playerOrderedSentences = orderedSentences;
+gameState.reconstructedHeist.playerFinalText = finalText;
+gameState.reconstructedHeist.playerSkills = uniqueSkills;
+gameState.reconstructedHeist.playerTheoryScore = score;
+gameState.reconstructedHeist.playerTheoryResult = resultLabel;
+gameState.reconstructedHeist.playerSlotFeedback = [...this.slotFeedback];
+gameState.reconstructedHeist.playerAttemptsLeft = this.attemptsLeft;
+gameState.reconstructedHeist.playerNarrative = narrativeLines;
 
-    this.appendTheoryToNotes(finalText, uniqueSkills, resultLabel);
-    this.storeTheorySkills(uniqueSkills);
+/*
+ * These are the actual three skills generated for the thief.
+ * Do not use collectUniqueSkills(orderedCards) for elimination:
+ * one object may have many broad tags such as Analysis or Investigation.
+ */
+const confirmedSkills = Array.isArray(
+  gameState.hypothesisEvidence?.requiredSkills
+)
+  ? [...gameState.hypothesisEvidence.requiredSkills]
+  : [];
 
-if (
-  this.scoreManager &&
-  typeof this.scoreManager.addScoreEvent === 'function'
-) {
-  this.scoreManager.addScoreEvent(
-    score,
-    `Heist theory: ${resultLabel}`
-  );
+/*
+ * A correct reconstruction reveals the thief's method.
+ * It does not automatically eliminate suspects unless the Crime Lab
+ * has already applied its first hard filter.
+ */
+gameState.reconstructedHeist.confirmedSkills = [];
+gameState.reconstructedHeist.hypothesisConfirmed = false;
+gameState.reconstructedHeist.hypothesisSuspectFilterResult = null;
 
-  gameState.score = this.scoreManager.getSessionPoints();
-} else {
-  gameState.score = Math.max(
-    0,
-    (gameState.score || 0) + score
-  );
+if (resultLabel === 'exact') {
+  if (confirmedSkills.length !== 3) {
+    console.error(
+      '[HypothesisScene] Exact theory completed, but requiredSkills are missing.',
+      {
+        hypothesisEvidence: gameState.hypothesisEvidence,
+        reconstructedHeist: gameState.reconstructedHeist
+      }
+    );
+  } else {
+    gameState.reconstructedHeist.confirmedSkills = confirmedSkills;
+    gameState.reconstructedHeist.hypothesisConfirmed = true;
+    gameState.reconstructedHeist.hypothesisCompletedAt = Date.now();
+
+    /*
+     * Correct order:
+     * 1. Crime Lab eliminates 4–6 people.
+     * 2. Hypothesis removes 2–3 more from those remaining.
+     *
+     * If Crime Lab was completed earlier, apply the skill filter now.
+     * If not, we save the confirmed skills and CrimeLabScene applies
+     * the pending skill filter immediately after its identity filter.
+     */
+    if (gameState.csiLabCompleted) {
+      const suspectFilterResult = applyHypothesisSkills(confirmedSkills);
+
+      gameState.reconstructedHeist.hypothesisSuspectFilterResult = {
+        ...suspectFilterResult,
+        appliedAt: Date.now()
+      };
+
+      gameState.suspectCaseSummary = getSuspectCaseSummary();
+
+      console.log('[HypothesisScene] Skill filter applied.', {
+        confirmedSkills,
+        excludedSuspectIds: suspectFilterResult.excludedSuspectIds,
+        remainingSuspects: suspectFilterResult.remainingSuspects
+      });
+    } else {
+      console.log(
+        '[HypothesisScene] Correct skills saved. Skill filter will run after Crime Lab.',
+        {
+          confirmedSkills
+        }
+      );
+    }
+  }
 }
 
+this.appendTheoryToNotes(
+  finalText,
+  resultLabel === 'exact' ? confirmedSkills : uniqueSkills,
+  resultLabel,
+  narrativeLines
+);
+
+this.storeTheorySkills(
+  resultLabel === 'exact' ? confirmedSkills : uniqueSkills
+);
+
+    if (this.scoreManager && typeof this.scoreManager.addScoreEvent === 'function') {
+      this.scoreManager.addScoreEvent(score, `Heist theory: ${resultLabel}`);
+      gameState.score = this.scoreManager.getSessionPoints();
+    } else {
+      gameState.score = Math.max(0, (gameState.score || 0) + score);
+    }
+
     saveGameState();
-    this.showFeedback(`${message} +${score} score`, color);
     this.uiLocked = true;
 
-    this.time.delayedCall(900, () => {
-      this.launchResultCommentScene();
-    });
-  }
-
-  collectUniqueSkills(cards) {
-    const uniqueSkills = [];
-
-    cards.forEach(card => {
-      const skills = Array.isArray(card.skills) ? card.skills : [];
-      skills.forEach(skill => {
-        const normalized = String(skill).trim();
-        if (!normalized) return;
-        const exists = uniqueSkills.some(existing => existing.toLowerCase() === normalized.toLowerCase());
-        if (!exists) uniqueSkills.push(normalized);
+    if (resultLabel === 'exact' && narrativeLines.length > 0) {
+      this.showFeedback(message, color);
+      this.time.delayedCall(900, () => {
+        this.launchResultCommentScene();
       });
-    });
-
-    return uniqueSkills;
+    } else {
+      this.showFeedback(`${message} +${score} score`, color);
+      this.time.delayedCall(900, () => {
+        this.launchResultCommentScene();
+      });
+    }
   }
 
-  appendTheoryToNotes(finalText, uniqueSkills, resultLabel) {
+  appendTheoryToNotes(finalText, uniqueSkills, resultLabel, narrativeLines = []) {
     const headerMap = {
-      exact: 'Heist hypothesis:',
-      close: 'Working hypothesis:',
+      exact: 'Heist reconstruction:',
       partial: 'Partial heist theory:',
       weak: 'Uncertain heist theory:'
     };
 
     const header = headerMap[resultLabel] || 'Heist hypothesis:';
     const skillLine = uniqueSkills.length > 0 ? `\nLikely skills: ${uniqueSkills.join(', ')}.` : '';
-    const noteBlock = `${header}\n${finalText}${skillLine}`;
+    const storyLine = narrativeLines.length > 0
+      ? `\n\n${narrativeLines.map((line, i) => `${i + 1}. ${line}`).join('\n')}`
+      : '';
+    const noteBlock = `${header}${storyLine}${skillLine}`;
+
     const existingNotes = typeof gameState.playerNotes === 'string' ? gameState.playerNotes : '';
 
     if (!existingNotes.includes(finalText)) {
@@ -1202,11 +992,7 @@ if (
   }
 
   onShutdown() {
-    if (this.handleDragStartBound) this.input.off('dragstart', this.handleDragStartBound);
-    if (this.handleDragBound) this.input.off('drag', this.handleDragBound);
-    if (this.handleDropBound) this.input.off('drop', this.handleDropBound);
-    if (this.handleDragEndBound) this.input.off('dragend', this.handleDragEndBound);
-    if (this.handleResizeBound) this.scale.off('resize', this.handleResizeBound, this);
+    if (this.handleResizeBound) this.scale.off('resize', this.handleResizeBound);
 
     this.cardViews.forEach(view => {
       [view.bg, view.title, view.tag, view.container].forEach(item => {
@@ -1215,24 +1001,12 @@ if (
       });
     });
 
-    this.slotViews.forEach(v => {
-      [v.label, v.box, v.text, v.dropZone, v.removeButton].forEach(item => {
-        if (item?.removeAllListeners) item.removeAllListeners();
-        if (item?.destroy) item.destroy();
-      });
-    });
+    this.slotViews.forEach(v => v.destroy?.());
 
     [
-      this.overlay,
-      this.panel,
-      this.titleText,
-      this.subtitleText,
-      this.feedbackText,
-      this.attemptsText,
-      this.legendText,
-      this.mobileHintText,
-      this.closeButton,
-      this.confirmButton
+      this.overlay, this.panel, this.titleText, this.subtitleText,
+      this.feedbackText, this.attemptsText, this.legendText,
+      this.closeButton, this.confirmButton
     ].forEach(item => {
       if (item?.removeAllListeners) item.removeAllListeners();
       if (item?.destroy) item.destroy();
@@ -1244,10 +1018,9 @@ if (
     this.dropZones = [];
     this.placedCards = new Array(this.activeSlotCount).fill(null);
     this.slotFeedback = new Array(this.activeSlotCount).fill('neutral');
+    this.lockedSlots = new Set();
     this.selectedSlotIndex = null;
-    this._listenersBound = false;
     this._resizeBound = false;
-    this.isDraggingCard = false;
     this.uiLocked = false;
   }
 }

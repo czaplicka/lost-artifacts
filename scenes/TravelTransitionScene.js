@@ -79,19 +79,24 @@ export class TravelTransitionScene extends BaseScene {
     this._travelSfx = null;
   }
 
-  init(data) {
-    this.transitionData = data || {};
-    this.canContinue = false;
-    this.isLeaving = false;
-    this.shouldShowPhoneCall = false;
+  init(data = {}) {
+  this.transitionData = {
+    destinationScene: 'CityScene',
+    isCrimeSceneArrival: false,
+    ...data
+  };
 
-    this.effectObjects = [];
-    this.routeGraphics = null;
-    this.routeTween = null;
-    this.baseRoutePoints = null;
+  this.canContinue = false;
+  this.isLeaving = false;
+  this.shouldShowPhoneCall = false;
 
-    this._travelSfx = null;
-  }
+  this.effectObjects = [];
+  this.routeGraphics = null;
+  this.routeTween = null;
+  this.baseRoutePoints = null;
+
+  this._travelSfx = null;
+}
 
   create() {
     super.create();
@@ -362,20 +367,36 @@ export class TravelTransitionScene extends BaseScene {
   }
 
   leaveScene() {
-    if (this.isLeaving) return;
+  if (this.isLeaving) return;
 
-    this.isLeaving = true;
+  this.isLeaving = true;
 
-    const { status, cityId, toCityId } = this.transitionData;
-    const targetCityId = cityId || toCityId || null;
-    const camera = this.cameras.main;
+  const {
+    status,
+    cityId,
+    toCityId,
+    destinationScene,
+    isCrimeSceneArrival
+  } = this.transitionData;
 
-    camera.fadeOut(450, 0, 0, 0);
+  const targetCityId = cityId || toCityId || null;
 
-    camera.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+  const targetScene =
+    destinationScene ||
+    (isCrimeSceneArrival
+      ? 'CrimeCityScene'
+      : 'CityScene');
+
+  const camera = this.cameras.main;
+
+  camera.fadeOut(450, 0, 0, 0);
+
+  camera.once(
+    Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+    () => {
       if (!targetCityId) {
         console.error(
-          'TravelTransitionScene: missing target city id',
+          '[TravelTransitionScene] Missing target city id.',
           this.transitionData
         );
 
@@ -387,19 +408,29 @@ export class TravelTransitionScene extends BaseScene {
         this.scene.start('ArrestSelectionScene', {
           cityId: targetCityId
         });
+
         return;
       }
 
-      this.scene.start('CityScene', {
+      this.scene.start(targetScene, {
         cityId: targetCityId,
         investigationStatus: status,
         isFinalShowdown: false,
+        isCrimeSceneArrival: Boolean(isCrimeSceneArrival),
+        fromTravel: true,
+        transportType: this.transitionData.transportType,
+        transportLabel: this.transitionData.transportLabel,
+        travelHours: this.transitionData.travelHours,
+        moneySpent: this.transitionData.moneySpent,
+        energyChange: this.transitionData.energyChange,
         pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
         pendingPhoneCallCityId:
-          gameState.pendingPhoneCallCityId || targetCityId
+          gameState.pendingPhoneCallCityId ||
+          targetCityId
       });
-    });
-  }
+    }
+  );
+}
 
   drawTravelLine(width, height, transport) {
     const startX = width * 0.22;

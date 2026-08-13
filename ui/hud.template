@@ -1,97 +1,157 @@
 <div id="hud-container">
-  <!-- GÓRNY PASEK -->
-  <div class="hud-paper-bg">
-    
-    <!-- Zegar -->
-    <div class="hud-cell" id="clock-target">
-      <div class="digital-clock-display">
-        <span class="clock-digital" id="clock-time">08:00</span>
-        <span class="clock-period" id="clock-part">MORNING</span>
-      </div>
-    </div>
+  <!-- Widoczny wyłącznie po zwinięciu HUD -->
+  <button
+    id="btn-hud-expand"
+    class="hud-expand-btn"
+    type="button"
+    title="Open HUD"
+    aria-label="Open HUD"
+  >
+    🕵️‍♂️
+  </button>
 
-    <!-- Kalendarz -->
-    <div class="hud-cell" id="date-target">
-      <div class="calendar-card">
-        <div class="calendar-rings"><span></span><span></span></div>
-        <div class="date-header" id="date-month">APR</div>
-        <div class="date-body" id="date-day">01</div>
+  <!-- Zawartość chowana w stanie .collapsed -->
+  <div class="hud-content">
+    <!-- GÓRNY PASEK -->
+    <div class="hud-paper-bg">
+      <!-- Zegar -->
+      <div class="hud-cell" id="clock-target">
+        <div class="digital-clock-display">
+          <span class="clock-digital" id="clock-time">08:00</span>
+          <span class="clock-period" id="clock-part">MORNING</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Klepsydra / Deadline -->
-    <div class="hud-cell" id="deadline-target">
-      <div class="hourglass-wrapper">
-        <svg class="hourglass-icon" viewBox="0 0 24 24">
-          <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z"/>
-        </svg>
-        <div class="deadline-info">
-          <span class="deadline-value" id="deadline-value">4D</span>
-          <div class="deadline-progress-bg">
-            <div class="deadline-progress-fill" id="deadline-progress"></div>
+      <!-- Kalendarz -->
+      <div class="hud-cell" id="date-target">
+        <div class="calendar-card">
+          <div class="calendar-rings">
+            <span></span>
+            <span></span>
           </div>
+
+          <div class="date-header" id="date-month">APR</div>
+          <div class="date-body" id="date-day">01</div>
+        </div>
+      </div>
+
+      <!-- Deadline -->
+      <div class="hud-cell" id="deadline-target">
+        <div class="hourglass-wrapper">
+          <svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z" />
+          </svg>
+
+          <div class="deadline-info">
+            <span class="deadline-value" id="deadline-value">4D</span>
+
+            <div class="deadline-progress-bg">
+              <div
+                class="deadline-progress-fill"
+                id="deadline-progress"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Energia -->
+      <div class="hud-cell" id="energy-target">
+        <div class="energy-wrapper">
+          <svg class="energy-circle" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="energy-bg" cx="50" cy="50" r="40"></circle>
+
+            <circle
+              class="energy-fill"
+              id="energy-fill"
+              cx="50"
+              cy="50"
+              r="40"
+              stroke="#4caf50"
+              stroke-width="8"
+              stroke-dasharray="251.327"
+              stroke-dashoffset="0"
+              fill="none"
+            ></circle>
+          </svg>
+
+          <svg
+            class="energy-bolt-svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              id="energy-bolt"
+              class="energy-bolt-path"
+              fill="#4caf50"
+              d="M11 21l-1-7H5l7-12v7h5l-6 12z"
+            ></path>
+          </svg>
         </div>
       </div>
     </div>
 
-    <!-- Koło Energii + Piorun -->
-    <div class="hud-cell" id="energy-target">
-      <div class="energy-wrapper">
-        <svg class="energy-circle" viewBox="0 0 100 100">
-          <circle class="energy-bg" cx="50" cy="50" r="40" />
-          <circle
-  class="energy-fill"
-  id="energy-fill"
-  cx="50"
-  cy="50"
-  r="40"
-  stroke="#4caf50"
-  stroke-width="8"
-  stroke-dasharray="251.327"
-  stroke-dashoffset="0"
-  fill="none"
-/>
-        </svg>
-        <svg class="energy-bolt-svg" viewBox="0 0 24 24">
-          <path
-  id="energy-bolt"
-  class="energy-bolt-path"
-  fill="#4caf50"
-  d="M11 21l-1-7H5l7-12v7h5l-6 12z"
-/>
-        </svg>
+    <!-- DOLNY PASEK -->
+    <div class="hud-bottom-bar">
+      <div class="stat-group">
+        <div class="stat-item" id="score-target">
+          <span class="label">SCORE</span>
+          <span class="value score" id="hud-score">0</span>
+        </div>
+
+        <div class="stat-divider"></div>
+
+        <div class="stat-item" id="cash-target">
+          <span class="label">CASH</span>
+          <span class="value cash" id="hud-cash">$250</span>
+        </div>
+      </div>
+
+      <div class="hud-buttons">
+        <img
+          src="assets/player.png"
+          id="btn-profile"
+          class="hud-icon-btn"
+          alt="Agent"
+          title="AGENT DOSSIER"
+        />
+
+        <img
+          src="assets/profile.png"
+          id="btn-player"
+          class="hud-icon-btn"
+          alt="Profile"
+          title="DETECTIVE PROFILE"
+        />
+
+        <img
+          src="assets/cog.png"
+          id="btn-settings"
+          class="hud-icon-btn"
+          alt="Settings"
+          title="SETTINGS"
+        />
+
+        <button
+          id="btn-hud-collapse"
+          class="hud-collapse-btn"
+          type="button"
+          title="Collapse HUD"
+          aria-label="Collapse HUD"
+        >
+          ━
+        </button>
       </div>
     </div>
-
   </div>
 
-  <!-- DOLNY PASEK (SCORE, CASH, IKONY) -->
-  <div class="hud-bottom-bar">
-    <div class="stat-group">
-      <div class="stat-item" id="score-target">
-        <span class="label">SCORE</span> 
-        <span class="value score" id="hud-score">0</span>
-      </div>
-      
-      <div class="stat-divider"></div>
-      
-      <div class="stat-item" id="cash-target">
-        <span class="label">CASH</span> 
-        <span class="value cash" id="hud-cash">$250</span>
-      </div>
-    </div>
+  <!-- Elementy HUD zostają poza .hud-content,
+       aby można było pokazać tooltip także po zwinięciu -->
+<div class="hud-tooltip" id="hud-tooltip">
+  <div class="hud-tooltip-title" id="hud-tooltip-title"></div>
+  <div id="hud-tooltip-text"></div>
+</div>
 
-    <div class="hud-buttons">
-      <img src="assets/player.png" id="btn-profile" class="hud-icon-btn" alt="Agent" title="AGENT DOSSIER" />
-      <img src="assets/profile.png" id="btn-player" class="hud-icon-btn" alt="Profile" title="DETECTIVE PROFILE" />
-      <img src="assets/cog.png" id="btn-settings" class="hud-icon-btn" alt="Settings" title="SETTINGS" />
-    </div>
-  </div>
-
-  <!-- TOOLTIPY I LOGI -->
-  <div class="hud-tooltip" id="hud-tooltip">
-    <div id="hud-tooltip-text"></div>
-  </div>
   <div class="hud-energy-log" id="hud-energy-log">
     <div id="hud-energy-log-text"></div>
   </div>

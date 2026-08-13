@@ -1,0 +1,71 @@
+{
+  "idle": {
+    "office": [
+      "I should probably focus. Right after this dramatic pause.",
+    "This office smells like dust, secrets, and coffee that lost its will to live.",
+      "A private detective's greatest weapon is observation. The second greatest is a receipt for expenses.",
+      "I should look busy. In this business, looking busy is half the investigation.",
+      "Somewhere out there, a criminal is making a mistake. Ideally one involving paperwork."
+    ],
+    "lab": [
+      "Nothing says justice like fluorescent lighting.",
+      "If this machine explodes, I am blaming science."
+    ]
+  },
+  "inspect": {
+    "lockedDrawer": [
+      "Locked. Which is rude, but informative.",
+      "Someone really didn’t want visitors."
+    ],
+    "desk": [
+      "A desk. The natural habitat of unpaid invoices.",
+      "Nothing suspicious here. Which is, frankly, suspicious.",
+      "Three drawers. All of them judging me.",
+            "The desk is clean. That is either professionalism or an alibi.",
+      "A warrant board, three cold coffees, and no assistant. The detective lifestyle."
+    ],
+        "globe": [
+      "A globe. Proof that trouble can be geographically ambitious.",
+      "So many cities. So little budget for taxis.",
+      "Spin the globe, pick a city, ruin a criminal's afternoon."
+    ],
+    "fakePainting": [
+      "A fake. And not even an ambitious one."
+    ],
+    "crimeBoard": [
+      "The crime board: string, pins, and the fragile illusion that I know what I am doing.",
+      "Every clue has a place. Usually directly under another clue I forgot to read.",
+      "The board is ready. Now I only need facts, motive, opportunity, and several miracles."
+    ],
+    "caseFileCabinet": [
+      "Case files: the place where every mystery begins with too much paperwork.",
+      "Some detectives trust instinct. I trust folders labelled 'URGENT'.",
+      "A filing cabinet. The natural predator of forgotten leads."
+    ],
+    "notesBook": [
+      "My notes. Written in a code known only to me and future forensic linguists.",
+      "If I cannot read my own handwriting, neither can the criminals.",
+      "A good detective keeps notes. A great detective remembers where they put them."
+    ],
+    "wantedDatabase": [
+      "Wanted suspects. Mostly terrible people with surprisingly good cheekbones.",
+      "A database full of faces. One of them is probably about to make my day worse.",
+      "Criminal records: social media, but with more warrants."
+    ],
+    "recoveredArtifacts": [
+      "Recovered artefacts. History has a habit of getting stolen by people with poor taste.",
+      "Every artefact has survived centuries. Then someone tried to sell it online.",
+      "A shelf of treasures, each with a story and an insurance claim."
+    ],
+    "atlas": [
+      "An atlas. Because criminals insist on fleeing somewhere picturesque.",
+      "Maps never show the queues, the jet lag, or the suspiciously expensive airport sandwiches.",
+      "The world is large. Fortunately, criminals are fond of leaving clues."
+    ],
+    "brokenElevator": [
+      "Out of order. A bold career choice for an elevator.",
+      "The elevator is dead. It had a good run. Mostly between floors.",
+      "A sign says 'Out of Order.' At least someone here is being honest."
+    ]
+  }
+}

@@ -76,7 +76,6 @@
     width: 10.6%;
     height: 24.1%;
     display: block;
-    object-fit: cover;
     object-position: center;
     background: #202020;
     border: 0;
@@ -295,4 +294,111 @@
         min-height: 22px;
         padding: 3px 6px;
     }
+}
+/* CSS avatar fitted precisely into dossier photo field. */
+#agent-modal .agent-avatar.agency-id-avatar {
+  position: absolute;
+
+  top: 24.1%;
+  left: 34.7%;
+
+  width: 10.6%;
+  height: 24.1%;
+  min-width: 0;
+  min-height: 0;
+
+  margin: 0;
+
+  overflow: hidden;
+  transform: none;
+  transform-origin: top left;
+
+  background: #202020;
+  border: 0;
+}
+
+/*
+  Original creation avatar is designed at 280 × 310.
+  Here the dossier photo field is roughly 145 × 185px.
+  These rules scale its internal geometry to the photo box.
+*/
+#agent-modal .agent-avatar .avatar-coat {
+  bottom: -11%;
+  width: 82%;
+  height: 52%;
+}
+
+#agent-modal .agent-avatar .avatar-neck {
+  bottom: 31%;
+  width: 19%;
+  height: 23%;
+}
+
+#agent-modal .agent-avatar .avatar-face {
+  top: 26%;
+  width: 45%;
+  height: 50%;
+}
+
+#agent-modal .agent-avatar .avatar-ear {
+  top: 46%;
+  width: 9%;
+  height: 12%;
+}
+
+#agent-modal .agent-avatar .avatar-ear--left {
+  left: 23%;
+}
+
+#agent-modal .agent-avatar .avatar-ear--right {
+  right: 23%;
+}
+
+#agent-modal .agent-avatar .avatar-hair {
+  top: 9%;
+  width: 49%;
+  height: 30%;
+}
+
+#agent-modal .agent-avatar .avatar-eyes {
+  top: 48%;
+  width: 24%;
+  height: 3%;
+  border-left-width: 3px;
+  border-right-width: 3px;
+}
+
+#agent-modal .agent-avatar .avatar-nose {
+  top: 52%;
+  width: 3%;
+  height: 7%;
+  border-right-width: 2px;
+}
+
+#agent-modal .agent-avatar .avatar-mouth {
+  top: 64%;
+  width: 13%;
+  height: 4%;
+  border-top-width: 2px;
+}
+
+#agent-modal .agent-avatar[data-facial-hair="moustache"]
+  .avatar-facial-hair::before {
+  top: 60%;
+  width: 16%;
+  height: 5%;
+}
+
+#agent-modal .agent-avatar[data-facial-hair="shortBeard"]
+  .avatar-facial-hair::before {
+  top: 61%;
+  width: 33%;
+  height: 17%;
+}
+
+#agent-modal .agent-avatar[data-facial-hair="fullBeard"]
+  .avatar-facial-hair::before {
+  top: 59%;
+  width: 38%;
+  height: 24%;
 }

@@ -132,5 +132,6 @@ if (this.musicSlider?.setValue) {
         btn.on('pointerover', () => btn.setScale(1.1));
         btn.on('pointerout', () => btn.setScale(1.0));
         btn.on('pointerdown', callback);
+        EventBus.emit('showHUD');
     }
 }

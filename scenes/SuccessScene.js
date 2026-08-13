@@ -28,6 +28,7 @@ EventBus.emit('hideHUD');
         this.scoreManager = new ScoreManager();
 
         this.registerCaseSuccess();
+        this.unlockOfficeAfterFirstMission();
 
         if (!gameState.scoreSaved) {
             const playerName =
@@ -245,7 +246,25 @@ if (newlyUnlocked.length > 0) {
             });
         }
     }
+unlockOfficeAfterFirstMission() {
+  if (!gameState.progress) {
+    gameState.progress = {};
+  }
 
+  if (gameState.progress.firstMissionCompleted) {
+    return;
+  }
+
+  gameState.progress.firstMissionCompleted = true;
+
+  saveGameState();
+
+  EventBus.emit('firstMissionCompleted');
+
+  console.log(
+    '[SuccessScene] First mission completed: elevator and archive unlocked.',
+  );
+}
     getCurrentCaseId() {
         const missionId =
             gameState.currentMission?.id ||

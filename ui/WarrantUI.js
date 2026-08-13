@@ -61,7 +61,7 @@ const HAIR_COLORED_FEATURES = [
 
 const NOTEBOOK_CONFIG = {
   DEPTH: 30,
-  FONT_HAND: 'Indie Flower',
+  FONT_HAND: 'IndieFlower',
   PENCIL_DARK: '#2b2b2b',
   INK_RED: '#a92a2a',
   INK_BLUE: '#1e3d59',

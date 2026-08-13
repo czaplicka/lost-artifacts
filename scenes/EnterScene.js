@@ -49,7 +49,46 @@ export class EnterScene extends BaseScene {
     this.addHoverEffect(loginBtn);
     this.addHoverEffect(registerBtn);
     this.addHoverEffect(nextBtn);
+const testStartBtn = this.add.text(
+  centerX,
+  height * 0.93,
+  '[ TEST: START NEW GAME ]',
+  {
+    fontFamily: '"Press Start 2P"',
+    fontSize: '11px',
+    color: '#ffe66d',
+    backgroundColor: '#3b1111',
+    padding: {
+      left: 12,
+      right: 12,
+      top: 9,
+      bottom: 9,
+    },
+  },
+)
+  .setOrigin(0.5)
+  .setDepth(10)
+  .setInteractive({ useHandCursor: true });
 
+testStartBtn.on('pointerover', () => {
+  testStartBtn.setColor('#ffffff');
+  testStartBtn.setScale(1.05);
+});
+
+testStartBtn.on('pointerout', () => {
+  testStartBtn.setColor('#ffe66d');
+  testStartBtn.setScale(1);
+});
+
+testStartBtn.on('pointerdown', () => {
+  const authMode = this.currentUser ? 'account' : 'guest';
+
+  console.warn(
+    '[EnterScene] Test button: forcing New Game flow.',
+  );
+
+  this.startNewGameFlow(authMode);
+});
     loginBtn.on('pointerdown', () => {
       this.openModal('login.html');
     });
@@ -189,7 +228,9 @@ export class EnterScene extends BaseScene {
 
   hasGuestSave() {
     try {
-      const lastUsedSlot = localStorage.getItem(STORAGE_KEYS.GUEST_LAST_USED_SLOT);
+      const lastUsedSlot = localStorage.getItem(
+        STORAGE_KEYS.GUEST_LAST_USED_SLOT,
+      );
 
       if (!lastUsedSlot) {
         return false;
@@ -246,12 +287,11 @@ export class EnterScene extends BaseScene {
   startNewGameFlow(authMode) {
     this.closeModal();
 
-    this.scene.start('CharacterCreationScene', {
+    this.scene.start('IntroScene', {
       authMode,
       playerId: this.currentUser?.id ?? null,
       playerEmail: this.currentUser?.email ?? null,
       displayName: this.getDisplayName(),
-      returnScene: 'DifficultyScene',
       isNewGame: true,
     });
   }
@@ -259,13 +299,12 @@ export class EnterScene extends BaseScene {
   startLoadFlow(authMode) {
     this.closeModal();
 
-    this.scene.start('MenuScene', {
+    this.scene.start('OfficeScene', {
       authMode,
       playerId: this.currentUser?.id ?? null,
       playerEmail: this.currentUser?.email ?? null,
       displayName: this.getDisplayName(),
-      entryIntent: 'load',
-      autoContinue: true,
+      isLoadedGame: true,
     });
   }
 

@@ -5,646 +5,555 @@ import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
 
-// ============================================================
-// UIScene.js
-// DOM HUD controller for ui/hud.html + ui/hud.css.
-// ============================================================
-
 const ENERGY_CIRCUMFERENCE = 251.327;
 
 export class UIScene extends BaseScene {
-    constructor() {
-        super({ key: 'UIScene', active: true });
+  constructor() {
+    super({ key: 'UIScene', active: true });
+    this.energyManager = null;
+    this.currentGameDay = 1;
+    this.missionDays = 4;
+    this.startDate = { year: 1990, month: 3, day: 1 };
+    this.dom = {};
+    this._energyLogTimer = null;
+    this._warningTimer = null;
+    this._zeroTimer = null;
+    this.domAbortController = null;
+    this.moneyChangeHandler = null;
+  }
 
-        this.energyManager = null;
-        this.currentGameDay = 1;
-        this.missionDays = 4;
-        this.startDate = { year: 1990, month: 3, day: 1 };
-        this.dom = {};
-        this._energyLogTimer = null;
-        this._warningTimer = null;
-        this._zeroTimer = null;
+  async create() {
+    super.create();
+    this.energyManager = getEnergyManager();
+
+    const loaded = await this._loadHudHtml();
+    if (!loaded) {
+      console.error('[UIScene] Could not load ui/hud.template.');
+      return;
     }
 
-    async create() {
-        super.create();
-        this.energyManager = getEnergyManager();
+    this._cacheDomElements();
+    this._removeDomListeners();
+    this._bindEvents();
+    this._setupButtonListeners();
+    this._setupTooltipListeners();
 
-        const loaded = await this._loadHudHtml();
-        if (!loaded) {
-            console.error('[UIScene] Could not load ui/hud.html.');
-            return;
-        }
+    this.updateTime({
+      day: gameState.currentDay || gameState.day || 1,
+      hour: gameState.currentHour ?? gameState.hour ?? 8,
+      minute: gameState.currentMinute ?? gameState.minute ?? 0,
+      partOfDay: gameState.currentPartOfDay || gameState.partOfDay || 'Morning'
+    });
+    this.updateScore({ total: gameState.score || 0 });
+    this.refreshMoneyHud();
+    this.updateEnergy();
 
-        this._cacheDomElements();
-        this._bindEvents();
-        this._setupButtonListeners();
-        this._setupTooltipListeners();
-
-        this.updateTime({ day: 1, hour: 8, minute: 0, partOfDay: 'Morning' });
-        this.updateScore({ total: gameState.score || 0 });
-        this.updateCash(gameState.cash ?? 250);
-        this.updateEnergy();
-        this.refreshMoneyHud();
-
-this.moneyChangeHandler = (event) => {
-  this.refreshMoneyHud(event.detail?.state);
-};
-
-window.addEventListener(
-  'lost-artifacts:money-changed',
-  this.moneyChangeHandler
-);
-
-this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-  window.removeEventListener(
-    'lost-artifacts:money-changed',
-    this.moneyChangeHandler
-  );
-});
-    }
-
-    // ============================================================
-    // HUD loading and DOM cache
-    // ============================================================
-refreshMoneyHud(state = moneyManager.getState()) {
-  this.updateCash(state.cash);
-}
-    _cacheDomElements() {
-        this.dom = {
-            container: document.getElementById('hud-container'),
-            time: document.getElementById('clock-time'),
-            partOfDay: document.getElementById('clock-part'),
-            month: document.getElementById('date-month'),
-            day: document.getElementById('date-day'),
-            deadlineValue: document.getElementById('deadline-value'),
-            deadlineProgress: document.getElementById('deadline-progress'),
-            energyTarget: document.getElementById('energy-target'),
-            energyWrapper: document.querySelector('.energy-wrapper'),
-            energyFill: document.getElementById('energy-fill'),
-            energyBolt: document.getElementById('energy-bolt'),
-            score: document.getElementById('hud-score'),
-            cash: document.getElementById('hud-cash'),
-            tooltipBg: document.getElementById('hud-tooltip'),
-            tooltipText: document.getElementById('hud-tooltip-text'),
-            energyLogBg: document.getElementById('hud-energy-log'),
-            energyLogText: document.getElementById('hud-energy-log-text')
-        };
-    }
-
-    // ============================================================
-    // Events and visibility
-    // ============================================================
-
-    _bindEvents() {
-        EventBus.on('timeChanged', this.updateTime, this);
-        EventBus.on('scoreChanged', this.updateScore, this);
-        EventBus.on('cashChanged', this.updateCash, this);
-        EventBus.on('agentStatsChanged', this._refreshOpenAgentModal, this);
-        EventBus.on('gameOver', this._showGameOver, this);
-        EventBus.on('energyInitialized', this._onEnergyChanged, this);
-        EventBus.on('energyChanged', this._onEnergyChanged, this);
-        EventBus.on('energyWarning', this._onEnergyWarning, this);
-        EventBus.on('energyZero', this._onEnergyZero, this);
-        EventBus.on('showHUD', this.showHUD, this);
-        EventBus.on('hideHUD', this.hideHUD, this);
-
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, this._cleanup, this);
-    }
-
-    _cleanup() {
-        EventBus.off('timeChanged', this.updateTime, this);
-        EventBus.off('scoreChanged', this.updateScore, this);
-        EventBus.off('cashChanged', this.updateCash, this);
-        EventBus.off('agentStatsChanged', this._refreshOpenAgentModal, this);
-        EventBus.off('gameOver', this._showGameOver, this);
-        EventBus.off('energyInitialized', this._onEnergyChanged, this);
-        EventBus.off('energyChanged', this._onEnergyChanged, this);
-        EventBus.off('energyWarning', this._onEnergyWarning, this);
-        EventBus.off('energyZero', this._onEnergyZero, this);
-        EventBus.off('showHUD', this.showHUD, this);
-        EventBus.off('hideHUD', this.hideHUD, this);
-
-        if (this._energyLogTimer) clearTimeout(this._energyLogTimer);
-        if (this._warningTimer) clearTimeout(this._warningTimer);
-        if (this._zeroTimer) clearTimeout(this._zeroTimer);
-        if (this.moneyChangeHandler) {
-  window.removeEventListener(
-    'lost-artifacts:money-changed',
-    this.moneyChangeHandler
-  );
-
-  this.moneyChangeHandler = null;
-}
-    }
-
-    showHUD() {
-        if (this.dom.container) this.dom.container.style.display = 'block';
-    }
-
-    hideHUD() {
-        if (this.dom.container) this.dom.container.style.display = 'none';
-    }
-
-    // ============================================================
-    // Controls and one tooltip binding implementation only
-    // ============================================================
-
-_setupButtonListeners() {
-    const profileButton = document.getElementById('btn-profile');
-    const playerButton = document.getElementById('btn-player');
-    const settingsButton = document.getElementById('btn-settings');
-
-    const bindButton = (button, handler) => {
-        if (!button) {
-            return;
-        }
-
-        button.addEventListener('click', async (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            try {
-                await handler();
-            } catch (error) {
-                console.error('[UIScene] HUD button failed:', error);
-            }
-        });
-
-        button.addEventListener('touchend', async (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            try {
-                await handler();
-            } catch (error) {
-                console.error('[UIScene] HUD touch button failed:', error);
-            }
-        }, { passive: false });
+    this.moneyChangeHandler = (event) => {
+      this.refreshMoneyHud(event.detail?.state);
     };
 
-    // Dossier agenta.
-    bindButton(profileButton, () => this.openAgentModal());
+    window.addEventListener('lost-artifacts:money-changed', this.moneyChangeHandler);
+  }
 
-    // Profil detektywa.
-    bindButton(playerButton, () => this.openProfileModal());
+  _removeDomListeners() {
+    this.domAbortController?.abort();
+    this.domAbortController = new AbortController();
+  }
 
-    // Settings pozostają sceną Phasera.
-    bindButton(settingsButton, () => this.openSettings());
+  getDomListenerOptions() {
+    return { signal: this.domAbortController.signal };
+  }
 
-    this.dom.energyTarget?.addEventListener('click', (event) => {
+  _cacheDomElements() {
+    const container = document.getElementById('hud-container');
+    this.dom = {
+      container,
+      time: document.getElementById('clock-time'),
+      partOfDay: document.getElementById('clock-part'),
+      month: document.getElementById('date-month'),
+      day: document.getElementById('date-day'),
+      deadlineValue: document.getElementById('deadline-value'),
+      deadlineProgress: document.getElementById('deadline-progress'),
+      energyTarget: document.getElementById('energy-target'),
+      energyWrapper: container?.querySelector('.energy-wrapper') || null,
+      energyFill: document.getElementById('energy-fill'),
+      energyBolt: document.getElementById('energy-bolt'),
+      score: document.getElementById('hud-score'),
+      cash: document.getElementById('hud-cash'),
+      tooltipBg: document.getElementById('hud-tooltip'),
+      tooltipText: document.getElementById('hud-tooltip-text'),
+      energyLogBg: document.getElementById('hud-energy-log'),
+      energyLogText: document.getElementById('hud-energy-log-text')
+    };
+  }
+
+  _bindEvents() {
+    EventBus.on('timeChanged', this.updateTime, this);
+    EventBus.on('scoreChanged', this.updateScore, this);
+    EventBus.on('cashChanged', this.updateCash, this);
+    EventBus.on('agentStatsChanged', this._refreshOpenAgentModal, this);
+    EventBus.on('gameOver', this._showGameOver, this);
+    EventBus.on('energyInitialized', this._onEnergyChanged, this);
+    EventBus.on('energyChanged', this._onEnergyChanged, this);
+    EventBus.on('energyWarning', this._onEnergyWarning, this);
+    EventBus.on('energyZero', this._onEnergyZero, this);
+    EventBus.on('showHUD', this.showHUD, this);
+    EventBus.on('hideHUD', this.hideHUD, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this._cleanup, this);
+  }
+
+  _cleanup() {
+    EventBus.off('timeChanged', this.updateTime, this);
+    EventBus.off('scoreChanged', this.updateScore, this);
+    EventBus.off('cashChanged', this.updateCash, this);
+    EventBus.off('agentStatsChanged', this._refreshOpenAgentModal, this);
+    EventBus.off('gameOver', this._showGameOver, this);
+    EventBus.off('energyInitialized', this._onEnergyChanged, this);
+    EventBus.off('energyChanged', this._onEnergyChanged, this);
+    EventBus.off('energyWarning', this._onEnergyWarning, this);
+    EventBus.off('energyZero', this._onEnergyZero, this);
+    EventBus.off('showHUD', this.showHUD, this);
+    EventBus.off('hideHUD', this.hideHUD, this);
+
+    clearTimeout(this._energyLogTimer);
+    clearTimeout(this._warningTimer);
+    clearTimeout(this._zeroTimer);
+    this._energyLogTimer = null;
+    this._warningTimer = null;
+    this._zeroTimer = null;
+
+    if (this.moneyChangeHandler) {
+      window.removeEventListener('lost-artifacts:money-changed', this.moneyChangeHandler);
+      this.moneyChangeHandler = null;
+    }
+
+    this.domAbortController?.abort();
+    this.domAbortController = null;
+    this.dom = {};
+  }
+
+  showHUD() {
+    if (this.dom.container) this.dom.container.style.display = 'block';
+  }
+
+  hideHUD() {
+    this._hideTooltip();
+    this._setEnergyLogVisible(false);
+    if (this.dom.container) this.dom.container.style.display = 'none';
+  }
+
+  _setupButtonListeners() {
+    const options = this.getDomListenerOptions();
+    const bindButton = (button, handler) => {
+      if (!(button instanceof HTMLElement)) return;
+      button.addEventListener('click', async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        this._toggleEnergyLog();
+        try {
+          await handler();
+        } catch (error) {
+          console.error('[UIScene] HUD button failed:', error);
+        }
+      }, options);
+    };
+
+    bindButton(document.getElementById('btn-hud-expand'), () => {
+      this.dom.container?.classList.remove('collapsed');
     });
-}
-_setupTooltipListeners() {
-  const bindings = [
-    {
-      element: this.dom.time,
-      getContent: () => this._getClockTooltip()
-    },
-    {
-      element: this.dom.month,
-      getContent: () => this._getDateTooltip()
-    },
-    {
-      element: this.dom.day,
-      getContent: () => this._getDateTooltip()
-    },
-    {
-      element: this.dom.deadlineValue,
-      getContent: () => this._getDeadlineTooltip()
-    },
-    {
-      element: this.dom.energyTarget,
-      getContent: () => this._getEnergyTooltip()
-    },
-    {
-      element: this.dom.score,
-      getContent: () => (
-        `SCORE\n${Number(gameState.score || 0).toLocaleString('en-US')} points.\nSolve cases, collect clues and make smart arrests.`
-      )
-    },
-    {
-      element: this.dom.cash,
-      getContent: () => {
-        const { cash, agencyBudget, agencyDebt } = moneyManager.getState();
-
-        return [
-          `CASH: $${cash}`,
-          `Agency budget: $${agencyBudget}`,
-          agencyDebt > 0
-            ? `Agency debt: $${agencyDebt}`
-            : 'No agency debt.',
-          'Cash pays for comfort, shortcuts and private detective work.'
-        ].join('\n');
-      }
-    }
-  ];
-
-  bindings.forEach(({ element, getContent }) => {
-    if (!(element instanceof HTMLElement)) return;
-    if (element.dataset.tooltipBound === 'true') return;
-
-    const showTooltip = () => {
-      this._showTooltip(getContent());
-    };
-
-    const hideTooltip = () => {
+    bindButton(document.getElementById('btn-hud-collapse'), () => {
       this._hideTooltip();
-    };
+      this._setEnergyLogVisible(false);
+      this.dom.container?.classList.add('collapsed');
+    });
+    bindButton(document.getElementById('btn-profile'), () => this.openAgentModal());
+    bindButton(document.getElementById('btn-player'), () => this.openProfileModal());
+    bindButton(document.getElementById('btn-settings'), () => this.openSettings());
 
-    element.addEventListener('mouseenter', showTooltip);
-    element.addEventListener('mouseleave', hideTooltip);
-    element.addEventListener('focus', showTooltip);
-    element.addEventListener('blur', hideTooltip);
+    this.dom.energyTarget?.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this._toggleEnergyLog();
+    }, options);
+  }
 
-    element.dataset.tooltipBound = 'true';
-  });
-}
-    // ============================================================
-    // Time, date and deadline
-    // ============================================================
+  _setupTooltipListeners() {
+    const options = this.getDomListenerOptions();
+    const bindings = [
+      { element: this.dom.time, getContent: () => this._getClockTooltip() },
+      { element: this.dom.month, getContent: () => this._getDateTooltip() },
+      { element: this.dom.day, getContent: () => this._getDateTooltip() },
+      { element: this.dom.deadlineValue, getContent: () => this._getDeadlineTooltip() },
+      { element: this.dom.energyTarget, getContent: () => this._getEnergyTooltip() },
+      { element: this.dom.score, getContent: () => `SCORE\n${Number(gameState.score || 0).toLocaleString('en-US')} points.\nSolve cases, collect clues and make smart arrests.` },
+      { element: this.dom.cash, getContent: () => this._getCashTooltip() }
+    ];
 
-    updateTime(data = {}) {
-        this.currentGameDay = Math.max(1, Number(data.day) || 1);
-        const hour = Phaser.Math.Clamp(Number(data.hour) || 0, 0, 23);
-        const minute = Phaser.Math.Clamp(Number(data.minute) || 0, 0, 59);
+    bindings.forEach(({ element, getContent }) => {
+      if (!(element instanceof HTMLElement)) return;
+      const show = () => {
+        if (!this.dom.container?.classList.contains('collapsed')) this._showTooltip(getContent());
+      };
+      element.addEventListener('mouseenter', show, options);
+      element.addEventListener('mouseleave', () => this._hideTooltip(), options);
+      element.addEventListener('focus', show, options);
+      element.addEventListener('blur', () => this._hideTooltip(), options);
+    });
+  }
 
-        if (this.dom.time) {
-            this.dom.time.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-        }
-        if (this.dom.partOfDay) {
-            this.dom.partOfDay.textContent = String(data.partOfDay || 'Morning').toUpperCase();
-        }
+  _getCashTooltip() {
+    const { cash, agencyBudget, agencyDebt } = moneyManager.getState();
+    return [
+      `CASH: $${cash}`,
+      `Agency budget: $${agencyBudget}`,
+      agencyDebt > 0 ? `Agency debt: $${agencyDebt}` : 'No agency debt.',
+      'Cash pays for comfort, shortcuts and private detective work.'
+    ].join('\n');
+  }
 
-        this._updateDateDisplay(this.currentGameDay);
-        this._updateDeadlineDisplay(this.currentGameDay);
+  updateTime(data = {}) {
+    this.currentGameDay = Math.max(1, Number(data.day) || 1);
+    const hour = Phaser.Math.Clamp(Number(data.hour) || 0, 0, 23);
+    const minute = Phaser.Math.Clamp(Number(data.minute) || 0, 0, 59);
+    if (this.dom.time) this.dom.time.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    if (this.dom.partOfDay) this.dom.partOfDay.textContent = String(data.partOfDay || 'Morning').toUpperCase();
+    this._updateDateDisplay(this.currentGameDay);
+    this._updateDeadlineDisplay(this.currentGameDay);
+  }
+
+  _calculateDate(gameDay) {
+    return new Date(this.startDate.year, this.startDate.month, this.startDate.day + gameDay - 1);
+  }
+
+  _updateDateDisplay(gameDay) {
+    const date = this._calculateDate(gameDay);
+    if (this.dom.month) this.dom.month.textContent = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    if (this.dom.day) this.dom.day.textContent = String(date.getDate()).padStart(2, '0');
+  }
+
+  _updateDeadlineDisplay(gameDay) {
+    const daysLeft = Math.max(0, this.missionDays - gameDay + 1);
+    const progress = Phaser.Math.Clamp((daysLeft / this.missionDays) * 100, 0, 100);
+    const color = daysLeft <= 1 ? '#ae2012' : daysLeft <= 2 ? '#ee9b00' : '#4caf50';
+    if (this.dom.deadlineValue) {
+      this.dom.deadlineValue.textContent = `${daysLeft}D`;
+      this.dom.deadlineValue.style.color = color;
     }
-
-    _calculateDate(gameDay) {
-        return new Date(
-            this.startDate.year,
-            this.startDate.month,
-            this.startDate.day + gameDay - 1
-        );
+    if (this.dom.deadlineProgress) {
+      this.dom.deadlineProgress.style.width = `${progress}%`;
+      this.dom.deadlineProgress.style.backgroundColor = color;
     }
+  }
 
-    _updateDateDisplay(gameDay) {
-        const date = this._calculateDate(gameDay);
-        if (this.dom.month) {
-            this.dom.month.textContent = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-        }
-        if (this.dom.day) {
-            this.dom.day.textContent = String(date.getDate()).padStart(2, '0');
-        }
+  _onEnergyChanged(data = {}) {
+    this.updateEnergy(data);
+    if (data.lastChange) this._showEnergyLogTemporarily();
+  }
+
+  updateEnergy(data = {}) {
+    const current = Number(data.current ?? this.energyManager?.getCurrentEnergy()) || 0;
+    const maximum = Number(data.max ?? this.energyManager?.maxEnergy) || 100;
+    const fraction = Phaser.Math.Clamp(current / maximum, 0, 1);
+    const color = this._colorToHex(data.color ?? this.energyManager?.getEnergyColor());
+    const offset = ENERGY_CIRCUMFERENCE * (1 - fraction);
+    if (this.dom.energyFill) {
+      this.dom.energyFill.style.strokeDasharray = String(ENERGY_CIRCUMFERENCE);
+      this.dom.energyFill.style.strokeDashoffset = String(offset);
+      this.dom.energyFill.style.stroke = color;
     }
+    if (this.dom.energyBolt) this.dom.energyBolt.style.fill = color;
+    this.dom.energyWrapper?.classList.toggle('low-energy', fraction <= 0.2);
+  }
 
-    _updateDeadlineDisplay(gameDay) {
-        const daysLeft = Math.max(0, this.missionDays - gameDay + 1);
-        const progress = Phaser.Math.Clamp((daysLeft / this.missionDays) * 100, 0, 100);
-        const color = daysLeft <= 1 ? '#ae2012' : daysLeft <= 2 ? '#ee9b00' : '#4caf50';
+  _onEnergyWarning() {
+    const wrapper = this.dom.energyWrapper;
+    if (!wrapper) return;
+    wrapper.classList.remove('flash-warning');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('flash-warning');
+    clearTimeout(this._warningTimer);
+    this._warningTimer = setTimeout(() => wrapper.classList.remove('flash-warning'), 1000);
+  }
 
-        if (this.dom.deadlineValue) {
-            this.dom.deadlineValue.textContent = `${daysLeft}D`;
-            this.dom.deadlineValue.style.color = color;
-        }
-        if (this.dom.deadlineProgress) {
-            this.dom.deadlineProgress.style.width = `${progress}%`;
-            this.dom.deadlineProgress.style.backgroundColor = color;
-        }
-    }
+  _onEnergyZero() {
+    const wrapper = this.dom.energyWrapper;
+    if (!wrapper) return;
+    wrapper.classList.remove('shake-zero');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('shake-zero');
+    clearTimeout(this._zeroTimer);
+    this._zeroTimer = setTimeout(() => wrapper.classList.remove('shake-zero'), 550);
+  }
 
-    // ============================================================
-    // Energy — SVG must update stroke and fill, not style.color
-    // ============================================================
+  _showTooltip(content) {
+    if (!content || !this.dom.tooltipBg || this.dom.energyLogBg?.classList.contains('visible')) return;
+    if (this.dom.tooltipText) this.dom.tooltipText.textContent = content;
+    this.dom.tooltipBg.classList.add('visible');
+  }
 
-    _onEnergyChanged(data = {}) {
-        this.updateEnergy(data);
-        if (data.lastChange) this._showEnergyLogTemporarily();
-    }
+  _hideTooltip() {
+    this.dom.tooltipBg?.classList.remove('visible');
+  }
 
-    updateEnergy(data = {}) {
-        const current = Number(data.current ?? this.energyManager.getCurrentEnergy()) || 0;
-        const maximum = Number(data.max ?? this.energyManager.maxEnergy) || 100;
-        const fraction = Phaser.Math.Clamp(current / maximum, 0, 1);
-        const color = this._colorToHex(data.color ?? this.energyManager.getEnergyColor());
-        const offset = ENERGY_CIRCUMFERENCE * (1 - fraction);
+  _setEnergyLogVisible(visible) {
+    if (!this.dom.energyLogBg) return;
+    this._hideTooltip();
+    this.dom.energyLogBg.classList.toggle('visible', visible);
+    if (visible) this._updateEnergyLogText();
+  }
 
-        if (this.dom.energyFill) {
-            this.dom.energyFill.style.strokeDasharray = String(ENERGY_CIRCUMFERENCE);
-            this.dom.energyFill.style.strokeDashoffset = String(offset);
-            this.dom.energyFill.style.stroke = color;
-        }
+  _toggleEnergyLog() {
+    this._setEnergyLogVisible(!this.dom.energyLogBg?.classList.contains('visible'));
+  }
 
-        // SVG path has fill, so setting color never changed its appearance.
-        if (this.dom.energyBolt) {
-            this.dom.energyBolt.style.fill = color;
-        }
+  _showEnergyLogTemporarily() {
+    clearTimeout(this._energyLogTimer);
+    this._setEnergyLogVisible(true);
+    this._energyLogTimer = setTimeout(() => {
+      this._setEnergyLogVisible(false);
+      this._energyLogTimer = null;
+    }, 4000);
+  }
 
-        this.dom.energyWrapper?.classList.toggle('low-energy', fraction <= 0.2);
-    }
+  _updateEnergyLogText() {
+    if (!this.dom.energyLogText || !this.energyManager) return;
+    const entries = this.energyManager.getEnergyLog().slice(-5).reverse().map((entry) => entry.label || 'Energy changed.');
+    this.dom.energyLogText.textContent = entries.length ? entries.join('\n') : 'No energy changes recorded.';
+  }
 
-    _onEnergyWarning() {
-        const wrapper = this.dom.energyWrapper;
-        if (!wrapper) return;
-        wrapper.classList.remove('flash-warning');
-        void wrapper.offsetWidth;
-        wrapper.classList.add('flash-warning');
-        clearTimeout(this._warningTimer);
-        this._warningTimer = setTimeout(() => wrapper.classList.remove('flash-warning'), 1000);
-    }
+  _getClockTooltip() {
+    return `TIME\n${this.dom.time?.textContent || '--:--'} — ${this.dom.partOfDay?.textContent || ''}\nConversations, travel and tasks move time forward.`;
+  }
 
-    _onEnergyZero() {
-        const wrapper = this.dom.energyWrapper;
-        if (!wrapper) return;
-        wrapper.classList.remove('shake-zero');
-        void wrapper.offsetWidth;
-        wrapper.classList.add('shake-zero');
-        clearTimeout(this._zeroTimer);
-        this._zeroTimer = setTimeout(() => wrapper.classList.remove('shake-zero'), 550);
-    }
+  _getDateTooltip() {
+    const label = this._calculateDate(this.currentGameDay).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    return `CASE DATE\n${label}\nDay ${this.currentGameDay} of the investigation.`;
+  }
 
-    // ============================================================
-    // Tooltips and energy log
-    // ============================================================
+  _getDeadlineTooltip() {
+    const daysLeft = Math.max(0, this.missionDays - this.currentGameDay + 1);
+    return `CASE DEADLINE\n${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.\nWhen time runs out, the case is over.`;
+  }
 
-    _showTooltip(content) {
-        if (!content || !this.dom.tooltipBg || this.dom.energyLogBg?.classList.contains('visible')) return;
-        if (this.dom.tooltipText) this.dom.tooltipText.textContent = content;
-        this.dom.tooltipBg.classList.add('visible');
-    }
+  _getEnergyTooltip() {
+    const manager = this.energyManager;
+    if (!manager) return 'ENERGY\nEnergy monitor unavailable.';
+    const last = manager.lastEnergyChange?.label;
+    return [
+      `ENERGY: ${manager.getCurrentEnergy()}%`,
+      `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
+      manager.getEnergyTooltip(),
+      last ? `Last: ${last}` : 'Click the bolt for the full energy log.'
+    ].join('\n');
+  }
 
-    _hideTooltip() {
-        this.dom.tooltipBg?.classList.remove('visible');
-    }
+  updateScore(data) {
+    const rawScore = typeof data === 'object' ? data?.total : data;
+    const score = Math.max(0, Math.floor(Number(rawScore ?? gameState.score) || 0));
+    gameState.score = score;
+    if (this.dom.score) this.dom.score.textContent = score.toLocaleString('en-US');
+    this._refreshOpenAgentModal();
+  }
 
-    _setEnergyLogVisible(visible) {
-        if (!this.dom.energyLogBg) return;
-        this._hideTooltip();
-        this.dom.energyLogBg.classList.toggle('visible', visible);
-        if (visible) this._updateEnergyLogText();
-    }
+  updateCash(data) {
+    const rawCash = typeof data === 'object' ? data?.total ?? data?.cash : data;
+    const cash = Math.max(0, Math.floor(Number(rawCash ?? 250) || 0));
+    if (this.dom.cash) this.dom.cash.textContent = `$${cash.toLocaleString('en-US')}`;
+  }
 
-    _toggleEnergyLog() {
-        const visible = !this.dom.energyLogBg?.classList.contains('visible');
-        this._setEnergyLogVisible(visible);
-    }
+  refreshMoneyHud(state = moneyManager.getState()) {
+    this.updateCash(state.cash);
+  }
 
-    _showEnergyLogTemporarily() {
-        clearTimeout(this._energyLogTimer);
-        this._setEnergyLogVisible(true);
-        this._energyLogTimer = setTimeout(() => {
-            this._setEnergyLogVisible(false);
-            this._energyLogTimer = null;
-        }, 4000);
-    }
+  openSettings() {
+    if (!this.scene.isActive('SettingsScene')) this.scene.launch('SettingsScene');
+    this.scene.bringToTop('SettingsScene');
+  }
 
-    _updateEnergyLogText() {
-        if (!this.dom.energyLogText) return;
-        const entries = this.energyManager.getEnergyLog()
-            .slice(-5)
-            .reverse()
-            .map((entry) => entry.label || 'Energy changed.');
-        this.dom.energyLogText.textContent = entries.length
-            ? entries.join('\n')
-            : 'No energy changes recorded.';
-    }
+  async openProfileModal() {
+    const modal = await this._loadHtmlModal('profile.html', 'profile-modal', 'btn-close-profile');
+    if (!modal) return;
+    this._populateProfileModalData(modal);
+    modal.style.display = 'flex';
+  }
 
-    _getClockTooltip() {
-        return `TIME\n${this.dom.time?.textContent || '--:--'} — ${this.dom.partOfDay?.textContent || ''}\nConversations, travel and tasks move time forward.`;
-    }
+  async openAgentModal() {
+    const modal = await this._loadHtmlModal('agent.html', 'agent-modal', 'btn-close-agent');
+    if (!modal) return;
+    this._populateAgentModalData(modal);
+    modal.style.display = 'flex';
+  }
 
-    _getDateTooltip() {
-        const date = this._calculateDate(this.currentGameDay);
-        const label = date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric'
-        });
-        return `CASE DATE\n${label}\nDay ${this.currentGameDay} of the investigation.`;
-    }
-
-    _getDeadlineTooltip() {
-        const daysLeft = Math.max(0, this.missionDays - this.currentGameDay + 1);
-        return `CASE DEADLINE\n${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.\nWhen time runs out, the case is over.`;
-    }
-
-    _getEnergyTooltip() {
-        const manager = this.energyManager;
-        const last = manager.lastEnergyChange?.label;
-        return [
-            `ENERGY: ${manager.getCurrentEnergy()}%`,
-            `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
-            manager.getEnergyTooltip(),
-            last ? `Last: ${last}` : 'Click the bolt for the full energy log.'
-        ].join('\n');
-    }
-
-    // ============================================================
-    // Score, cash and HTML modals
-    // ============================================================
-
-    updateScore(data) {
-        const rawScore = typeof data === 'object' ? data?.total : data;
-        const score = Math.max(0, Math.floor(Number(rawScore ?? gameState.score) || 0));
-        gameState.score = score;
-        if (this.dom.score) this.dom.score.textContent = score.toLocaleString('en-US');
-        this._refreshOpenAgentModal();
-    }
-
-    updateCash(data) {
-        const rawCash = typeof data === 'object' ? data?.total ?? data?.cash : data;
-        const cash = Math.max(0, Math.floor(Number(rawCash ?? 250) || 0));
-        if (this.dom.cash) this.dom.cash.textContent = `$${cash.toLocaleString('en-US')}`;
-    }
-
-    openSettings() {
-        if (!this.scene.isActive('SettingsScene')) this.scene.launch('SettingsScene');
-        this.scene.bringToTop('SettingsScene');
-    }
-
-    async openProfileModal() {
-        const modal = await this._loadHtmlModal('profile.html', 'profile-modal', 'btn-close-profile');
-        if (!modal) return;
-        this._populateProfileModalData(modal);
-        modal.style.display = 'flex';
-    }
-
-    async openAgentModal() {
-        const modal = await this._loadHtmlModal('agent.html', 'agent-modal', 'btn-close-agent');
-        if (!modal) return;
-        this._populateAgentModalData(modal);
-        modal.style.display = 'flex';
-    }
-async _loadHtmlModal(fileName, modalId, closeButtonId) {
+  async _loadHtmlModal(fileName, modalId, closeButtonId) {
     let modal = document.getElementById(modalId);
-
     if (modal instanceof HTMLElement) {
-        this._forceModalAboveGame(modal);
-        return modal;
+      this._forceModalAboveGame(modal);
+      return modal;
     }
-
     try {
-        const response = await fetch(fileName, {
-            cache: 'no-store'
-        });
-
-        if (!response.ok) {
-            throw new Error(
-                `Could not load ${fileName}: HTTP ${response.status}`
-            );
-        }
-
-        const html = await response.text();
-
-        const template = document.createElement('template');
-        template.innerHTML = html.trim();
-
-        modal = template.content.querySelector(`#${modalId}`);
-
-        if (!(modal instanceof HTMLElement)) {
-            throw new Error(
-                `Missing #${modalId} inside ${fileName}`
-            );
-        }
-
-        document.body.appendChild(modal);
-
-        this._forceModalAboveGame(modal);
-        this._setupModalEvents(modal, closeButtonId);
-
-        return modal;
+      const response = await fetch(fileName, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Could not load ${fileName}: HTTP ${response.status}`);
+      const template = document.createElement('template');
+      template.innerHTML = (await response.text()).trim();
+      modal = template.content.querySelector(`#${modalId}`);
+      if (!(modal instanceof HTMLElement)) throw new Error(`Missing #${modalId} inside ${fileName}`);
+      document.body.appendChild(modal);
+      this._forceModalAboveGame(modal);
+      this._setupModalEvents(modal, closeButtonId);
+      return modal;
     } catch (error) {
-        console.error('[UIScene] Modal load error:', {
-            fileName,
-            modalId,
-            error
-        });
-
-        return null;
+      console.error('[UIScene] Modal load error:', { fileName, modalId, error });
+      return null;
     }
-}
+  }
 
-
-_forceModalAboveGame(modal) {
+  _forceModalAboveGame(modal) {
     modal.style.position = 'fixed';
     modal.style.inset = '0';
     modal.style.zIndex = '99999';
     modal.style.pointerEvents = 'auto';
-}
-async _loadHudHtml() {
-    if (document.getElementById('hud-container')) {
-        return true;
-    }
+  }
 
+  async _loadHudHtml() {
+    if (document.getElementById('hud-container')) return true;
     try {
-        const response = await fetch('ui/hud.template', {
-            cache: 'no-store'
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        const html = await response.text();
-
-        const template = document.createElement('template');
-        template.innerHTML = html.trim();
-
-        const container = template.content.querySelector('#hud-container');
-
-        if (!(container instanceof HTMLElement)) {
-            throw new Error(
-                'Missing #hud-container in ui/hud.template.'
-            );
-        }
-
-        document.body.appendChild(container);
-
-        return true;
+      const response = await fetch('ui/hud.template', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const template = document.createElement('template');
+      template.innerHTML = (await response.text()).trim();
+      const container = template.content.querySelector('#hud-container');
+      if (!(container instanceof HTMLElement)) throw new Error('Missing #hud-container in ui/hud.template.');
+      document.body.appendChild(container);
+      return true;
     } catch (error) {
-        console.error('[UIScene] HUD loading failed:', error);
-        return false;
+      console.error('[UIScene] HUD loading failed:', error);
+      return false;
     }
+  }
+
+  _setupModalEvents(modal, closeButtonId) {
+    if (modal.dataset.eventsBound === 'true') return;
+    modal.querySelector(`#${closeButtonId}`)?.addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) modal.style.display = 'none';
+    });
+    modal.dataset.eventsBound = 'true';
+  }
+
+  _populateProfileModalData(modal) {
+    const difficultyData = {
+      rookie: ['ROOKIE DETECTIVE', 'Extra guidance. More retries. Less paperwork.'],
+      field: ['FIELD AGENT', 'Standard Mark Agency field procedure.'],
+      master: ['MASTER SLEUTH', 'Fewer second chances. Better coffee not guaranteed.']
+    };
+    const currentDifficulty = this.registry.get('difficulty') || gameState.difficulty || 'field';
+    const selected = difficultyData[currentDifficulty] || difficultyData.field;
+    this._setHtmlText(modal, '#profile-alias', gameState.playerName || 'Detective');
+    this._setHtmlText(modal, '#profile-rank', gameState.playerRank || 'Junior Agent');
+    this._setHtmlText(modal, '#profile-points', Number(gameState.score || 0).toLocaleString('en-US'));
+    this._setHtmlText(modal, '#profile-difficulty', selected[0]);
+    this._setHtmlText(modal, '#profile-difficulty-description', selected[1]);
+  }
+
+_populateAgentModalData(modal) {
+  const playerName =
+    gameState.playerName
+    || gameState.agentName
+    || 'Detective';
+
+  this._setHtmlText(
+    modal,
+    '#agent-name, #agent-alias, #pub-alias',
+    playerName,
+  );
+
+  this._setHtmlText(
+    modal,
+    '#agent-score, #agent-points, #pub-points',
+    Number(gameState.score || 0).toLocaleString('en-US'),
+  );
+
+  this._setHtmlText(
+    modal,
+    '#pub-rank',
+    gameState.playerRank || 'Junior Agent',
+  );
+
+  const avatar = modal.querySelector('#pub-avatar');
+
+  const appearance = {
+    skinTone: 'light',
+    hairStyle: 'neat',
+    hairColor: 'brown',
+    coat: 'trench',
+    facialHair: 'none',
+    makeup: 'none',
+    accessory: 'none',
+    ...(gameState.appearance || {}),
+  };
+
+  if (avatar instanceof HTMLElement) {
+    avatar.dataset.skinTone = appearance.skinTone;
+    avatar.dataset.hairStyle = appearance.hairStyle;
+    avatar.dataset.hairColor = appearance.hairColor;
+    avatar.dataset.coat = appearance.coat;
+    avatar.dataset.facialHair = appearance.facialHair;
+    avatar.dataset.makeup = appearance.makeup;
+    avatar.dataset.accessory = appearance.accessory;
+
+    avatar.setAttribute(
+      'aria-label',
+      `${playerName}'s agent portrait`,
+    );
+  }
+
+  this._renderAchievementsGrid(modal);
 }
 
-    _setupModalEvents(modal, closeButtonId) {
-        if (modal.dataset.eventsBound === 'true') return;
-        modal.querySelector(`#${closeButtonId}`)?.addEventListener('click', () => { modal.style.display = 'none'; });
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) modal.style.display = 'none';
-        });
-        modal.dataset.eventsBound = 'true';
-    }
+  _refreshOpenAgentModal() {
+    const modal = document.getElementById('agent-modal');
+    if (modal instanceof HTMLElement && modal.style.display !== 'none') this._populateAgentModalData(modal);
+  }
 
-    _populateProfileModalData(modal) {
-        const difficultyData = {
-            rookie: ['ROOKIE DETECTIVE', 'Extra guidance. More retries. Less paperwork.'],
-            field: ['FIELD AGENT', 'Standard Mark Agency field procedure.'],
-            master: ['MASTER SLEUTH', 'Fewer second chances. Better coffee not guaranteed.']
-        };
-        const currentDifficulty = this.registry.get('difficulty') || gameState.difficulty || 'field';
-        const selected = difficultyData[currentDifficulty] || difficultyData.field;
-        this._setHtmlText(modal, '#profile-alias', gameState.playerName || 'Detective');
-        this._setHtmlText(modal, '#profile-rank', gameState.playerRank || 'Junior Agent');
-        this._setHtmlText(modal, '#profile-points', Number(gameState.score || 0).toLocaleString('en-US'));
-        this._setHtmlText(modal, '#profile-difficulty', selected[0]);
-        this._setHtmlText(modal, '#profile-difficulty-description', selected[1]);
-    }
+  _renderAchievementsGrid(modal) {
+    const grid = modal.querySelector('#achievement-grid');
+    if (!(grid instanceof HTMLElement)) return;
+    const achievements = [
+      ...getAchievementList().filter((item) => hasAchievement(item.id)),
+      ...getAchievementList().filter((item) => !hasAchievement(item.id))
+    ].slice(0, 4);
+    grid.replaceChildren();
+    achievements.forEach((achievement) => {
+      const unlocked = hasAchievement(achievement.id);
+      const item = document.createElement('div');
+      item.className = unlocked ? 'achievement-item' : 'achievement-item locked';
+      item.title = unlocked ? achievement.description : 'Achievement locked';
+      const icon = document.createElement('span');
+      icon.className = 'achievement-icon';
+      icon.textContent = unlocked ? achievement.icon : '🔒';
+      const title = document.createElement('span');
+      title.className = 'achievement-title';
+      title.textContent = unlocked ? achievement.title : 'CLASSIFIED';
+      item.append(icon, title);
+      grid.appendChild(item);
+    });
+  }
 
-    _populateAgentModalData(modal) {
-        this._setHtmlText(modal, '#agent-name, #agent-alias', gameState.playerName || gameState.agentName || 'Detective');
-        this._setHtmlText(modal, '#agent-score, #agent-points', Number(gameState.score || 0).toLocaleString('en-US'));
-        this._renderAchievementsGrid(modal);
-    }
+  _setHtmlText(container, selector, text) {
+    container.querySelectorAll(selector).forEach((element) => {
+      element.textContent = text;
+    });
+  }
 
-    _refreshOpenAgentModal() {
-        const modal = document.getElementById('agent-modal');
-        if (modal instanceof HTMLElement && modal.style.display !== 'none') this._populateAgentModalData(modal);
-    }
+  _colorToHex(color) {
+    if (typeof color === 'string') return color.startsWith('#') ? color : `#${color}`;
+    const numericColor = Number(color);
+    return Number.isFinite(numericColor) ? `#${numericColor.toString(16).padStart(6, '0')}` : '#4caf50';
+  }
 
-    _renderAchievementsGrid(modal) {
-        const grid = modal.querySelector('#achievement-grid');
-        if (!(grid instanceof HTMLElement)) return;
-
-        const achievements = [
-            ...getAchievementList().filter((item) => hasAchievement(item.id)),
-            ...getAchievementList().filter((item) => !hasAchievement(item.id))
-        ].slice(0, 4);
-        grid.replaceChildren();
-
-        achievements.forEach((achievement) => {
-            const unlocked = hasAchievement(achievement.id);
-            const item = document.createElement('div');
-            item.className = unlocked ? 'achievement-item' : 'achievement-item locked';
-            item.title = unlocked ? achievement.description : 'Achievement locked';
-            const icon = document.createElement('span');
-            icon.className = 'achievement-icon';
-            icon.textContent = unlocked ? achievement.icon : '🔒';
-            const title = document.createElement('span');
-            title.className = 'achievement-title';
-            title.textContent = unlocked ? achievement.title : 'CLASSIFIED';
-            item.append(icon, title);
-            grid.appendChild(item);
-        });
-    }
-
-    _setHtmlText(container, selector, text) {
-        const element = container.querySelector(selector);
-        if (element) element.textContent = text;
-    }
-
-    _colorToHex(color) {
-        return `#${Number(color).toString(16).padStart(6, '0')}`;
-    }
-
-    _showGameOver(reason) {
-        this.scene.stop();
-        this.scene.start('GameOverScene', { reason });
-    }
+  _showGameOver(reason) {
+    this.scene.stop();
+    this.scene.start('GameOverScene', { reason });
+  }
 }
 
 export default UIScene;
