@@ -1,13 +1,22 @@
 import { DialogUI } from './ui/DialogUI.js';
+import { EventBus } from './EventBus.js';
+import { moneyManager, ECONOMY_CATEGORY } from './MoneyManager.js';
 
 const DIALOG_CACHE_PREFIX = 'dialog_';
 
-// Used only as a last-resort fallback if the JSON cache doesn't support key
-// introspection, and as a set of "core" contacts we always expect to exist
-// (so we can warn loudly if one of them fails to load). This list no longer
-// drives what actually gets loaded - the real source of truth is whatever
-// dialog_*.json files are present in scene.cache.json.
-const EXPECTED_CONTACT_KEYS = ['csi', 'informant', 'watson', 'holmes', 'police-station', 'hq', 'home'];
+const EXPECTED_CONTACT_KEYS = [
+    'csi',
+    'informant',
+    'watson',
+    'holmes',
+    'police-station',
+    'hq',
+    'home',
+    'accounting'
+];
+
+const ACCOUNTING_LOAN_AMOUNT = 75;
+const ACCOUNTING_MAX_LOANS = 3;
 
 export class DialogManager {
     constructor(scene, gameState) {
@@ -34,18 +43,18 @@ export class DialogManager {
         if (!this.gameState.dialogVariants) {
             this.gameState.dialogVariants = {};
         }
+
+        this.ensureAccountingState();
     }
 
-    // Auto-discovers every "dialog_*" entry actually present in Phaser's
-    // JSON cache, so contactKeys can never silently drift from what was
-    // really loaded by the preloader. Falls back to the static expected
-    // list only if the cache doesn't expose getKeys() (defensive - should
-    // not normally happen with a standard Phaser JSON cache).
     discoverContactKeys() {
         const jsonCache = this.scene?.cache?.json;
 
         if (!jsonCache || typeof jsonCache.getKeys !== 'function') {
-            console.warn('[DialogManager] JSON cache introspection unavailable, falling back to static contact list.');
+            console.warn(
+                '[DialogManager] JSON cache introspection unavailable, falling back to static contact list.'
+            );
+
             return [...EXPECTED_CONTACT_KEYS];
         }
 
@@ -54,13 +63,13 @@ export class DialogManager {
             .map(cacheKey => cacheKey.slice(DIALOG_CACHE_PREFIX.length));
 
         if (discovered.length === 0) {
-            console.warn('[DialogManager] No dialog_*.json files found in cache, falling back to static contact list.');
+            console.warn(
+                '[DialogManager] No dialog_*.json files found in cache, falling back to static contact list.'
+            );
+
             return [...EXPECTED_CONTACT_KEYS];
         }
 
-        // Warn individually about any "core" contact that was expected but
-        // never actually loaded, instead of only discovering the problem
-        // later when a player tries to talk to them in-game.
         EXPECTED_CONTACT_KEYS.forEach(expectedKey => {
             if (!discovered.includes(expectedKey)) {
                 console.warn(
@@ -73,8 +82,23 @@ export class DialogManager {
         return discovered;
     }
 
+ensureAccountingState() {
+    if (!this.gameState.accounting) {
+        this.gameState.accounting = {
+            loansTaken: 0
+        };
+    }
+
+    if (typeof this.gameState.accounting.loansTaken !== 'number') {
+        this.gameState.accounting.loansTaken = 0;
+    }
+}
+
     hasContact(key) {
-        return Boolean(this.data[key] && Object.keys(this.data[key]).length > 0);
+        return Boolean(
+            this.data[key] &&
+            Object.keys(this.data[key]).length > 0
+        );
     }
 
     getAvailableContacts() {
@@ -89,14 +113,15 @@ export class DialogManager {
             );
         }
 
+        if (key === 'accounting') {
+            this.startAccountingDialog(contact);
+            return;
+        }
+
         const entry = this.resolveEntry(key, contact);
 
         if (!entry) {
-            this.dialogUI.open({
-                speaker: contact?.name || 'Unknown',
-                portraitKey: 'portrait_fallback',
-                lines: ['...', 'No response.']
-            });
+            this.openDialogOrFallback(null, contact);
             return;
         }
 
@@ -104,9 +129,143 @@ export class DialogManager {
         this.applyDialogEffects(key, entry);
     }
 
+    startAccountingDialog(contact) {
+        this.ensureAccountingState();
+
+        const accounting = this.gameState.accounting;
+
+        if (accounting.loansTaken >= ACCOUNTING_MAX_LOANS) {
+            const entry = this.resolveCustomEntry(
+                'accounting',
+                'loan_limit_reached'
+            );
+
+            this.openDialogOrFallback(entry, contact);
+            return;
+        }
+
+        const entry = this.resolveEntry('accounting', contact);
+
+        if (!entry) {
+            this.openDialogOrFallback(null, contact);
+            return;
+        }
+
+        this.dialogUI.open(entry, {
+            choices: [
+                {
+                    text: `TAKE $${ACCOUNTING_LOAN_AMOUNT} LOAN`,
+                    callback: () => this.grantAccountingLoan(contact)
+                },
+                {
+                    text: 'NEVER MIND',
+                    callback: () => this.showAccountingExit(contact)
+                }
+            ]
+        });
+    }
+
+    grantAccountingLoan(contact) {
+    this.ensureAccountingState();
+
+    const accounting = this.gameState.accounting;
+
+    if (accounting.loansTaken >= ACCOUNTING_MAX_LOANS) {
+        const entry = this.resolveCustomEntry(
+            'accounting',
+            'loan_limit_reached'
+        );
+
+        this.openDialogOrFallback(entry, contact);
+        return;
+    }
+
+    const state = moneyManager.addAgencyBudget(
+        ACCOUNTING_LOAN_AMOUNT,
+        {
+            category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
+            description: 'Emergency budget increase from Accounting',
+            missionId: this.gameState.currentMission?.id ?? null,
+            metadata: {
+                contact: 'accounting',
+                loanNumber: accounting.loansTaken + 1
+            }
+        }
+    );
+
+    accounting.loansTaken += 1;
+
+    const approvedEntry = this.resolveCustomEntry(
+        'accounting',
+        'loan_approved'
+    );
+
+    const entry = approvedEntry
+        ? {
+            ...approvedEntry,
+            lines: [
+                ...approvedEntry.lines,
+                `Agency budget available: $${state.agencyBudget}.`
+            ]
+        }
+        : null;
+
+    this.openDialogOrFallback(entry, contact);
+}
+
+    showAccountingExit(contact) {
+        const entry = this.resolveCustomEntry(
+            'accounting',
+            'loan_cancelled'
+        );
+
+        if (entry) {
+            this.dialogUI.open(entry);
+            return;
+        }
+
+        this.dialogUI.open({
+            speaker: 'Ms. Ledger',
+            portraitKey: 'portrait_accounting',
+            lines: [
+                'A wise decision.',
+                'Try not to expense anything that explodes.'
+            ]
+        });
+    }
+
+    openDialogOrFallback(entry, contact) {
+        this.dialogUI.open(
+            entry || {
+                speaker: contact?.name || 'Accounting',
+                portraitKey: 'portrait_fallback',
+                lines: ['...', 'No response.']
+            }
+        );
+    }
+
+    resolveCustomEntry(key, stageKey) {
+        const contactData = this.data[key];
+
+        if (!contactData || Object.keys(contactData).length === 0) {
+            return null;
+        }
+
+        const variants = contactData[stageKey];
+
+        if (!variants || variants.length === 0) {
+            return null;
+        }
+
+        return this.pickVariant(key, stageKey, variants);
+    }
+
     resolveEntry(key, contact) {
         const contactData = this.data[key];
-        if (!contactData || Object.keys(contactData).length === 0) return null;
+
+        if (!contactData || Object.keys(contactData).length === 0) {
+            return null;
+        }
 
         let stageKey;
 
@@ -114,13 +273,17 @@ export class DialogManager {
             stageKey = 'locked';
         } else {
             stageKey = `stage_${this.gameState.currentStage || 1}`;
+
             if (!contactData[stageKey]) {
                 stageKey = 'default';
             }
         }
 
         const variants = contactData[stageKey];
-        if (!variants || variants.length === 0) return null;
+
+        if (!variants || variants.length === 0) {
+            return null;
+        }
 
         return this.pickVariant(key, stageKey, variants);
     }
@@ -130,10 +293,12 @@ export class DialogManager {
 
         if (this.gameState.dialogVariants[variantMapKey] === undefined) {
             const randomIndex = Math.floor(Math.random() * variants.length);
+
             this.gameState.dialogVariants[variantMapKey] = randomIndex;
         }
 
         const chosenIndex = this.gameState.dialogVariants[variantMapKey];
+
         return variants[chosenIndex] || variants[0];
     }
 

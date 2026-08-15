@@ -60,7 +60,23 @@ ensureHud(this);
     this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
 
     this.registry.set('currentCity', 'hq');
+/*
+ * Po wczytaniu sejwa aktywna misja istnieje w gameState,
+ * ale Registry jest czyste lub nadal ma stare wartości z HQ.
+ * Synchronizujemy je, aby mapa pokazała aktywny artefakt.
+ */
+this.registry.set('gameState', this.gameState);
+this.registry.set('activeMission', this.gameState.currentMission || null);
 
+if (this.gameState.currentMission) {
+  this.registry.set(
+    'currentCityId',
+    this.gameState.crimeCityId ||
+      this.gameState.currentCityId ||
+      this.gameState.currentMission.city?.toLowerCase().replace(/\s+/g, '_') ||
+      null
+  );
+}
     this.createBackgrounds(width, height);
     this.createCameraSetup(height);
     this.createHotspots();

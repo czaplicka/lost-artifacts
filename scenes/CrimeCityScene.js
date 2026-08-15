@@ -3,7 +3,6 @@ import { gameState } from '../GameData.js';
 import { getEnergyManager } from '../EnergyManager.js';
 import { audioManager } from '../AudioManager.js';
 import { ReconstructionGenerator } from '../ReconstructionGenerator.js';
-import { EventBus } from '../EventBus.js';
 
 const ENERGY_BASE_COSTS = {
   travel: {
@@ -35,6 +34,7 @@ export class CrimeCityScene extends BaseScene {
 
     this.cityId = this.normalizeCityId(requestedCity);
     this.interactiveObjects = [];
+    this.cityAmbient = null;
   }
 
   normalizeCityId(value) {
@@ -61,10 +61,24 @@ export class CrimeCityScene extends BaseScene {
 
   create() {
     super.create();
-    this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
-    this.scene.get('NewsHud').events.emit('setTvVisible', false);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
 
+    this.scene.get('NewsHud')?.events.emit('setNewspaperVisible', true);
+    this.scene.get('NewsHud')?.events.emit('setTvVisible', false);
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onShutdown,
+      this
+    );
+if (this.scene.isActive('UIScene')) {
+  this.scene.bringToTop('UIScene');
+} else if (this.scene.isSleeping('UIScene')) {
+  this.scene.wake('UIScene');
+  this.scene.bringToTop('UIScene');
+} else {
+  this.scene.launch('UIScene');
+  this.scene.bringToTop('UIScene');
+}
     const locations = this.cache.json.get('locations');
 
     this.cityData = Array.isArray(locations)
@@ -78,7 +92,8 @@ export class CrimeCityScene extends BaseScene {
     if (!this.cityData?.crimeCity) {
       console.error('[CrimeCityScene] Missing city or crimeCity configuration.', {
         cityId: this.cityId,
-        cityData: this.cityData
+        cityData: this.cityData,
+        locations
       });
 
       this.scene.start('MenuScene');
@@ -89,6 +104,7 @@ export class CrimeCityScene extends BaseScene {
 
     gameState.currentCityId = this.cityId;
     gameState.currentCity = this.cityData.city;
+    gameState.currentCountry = this.cityData.country;
 
     if (
       !gameState.crimeCityCurrentNodes ||
@@ -97,8 +113,10 @@ export class CrimeCityScene extends BaseScene {
       gameState.crimeCityCurrentNodes = {};
     }
 
-    if (!gameState.crimeCityCurrentNodes[this.getCaseKey()]) {
-      gameState.crimeCityCurrentNodes[this.getCaseKey()] = 'arrival';
+    const caseKey = this.getCaseKey();
+
+    if (!gameState.crimeCityCurrentNodes[caseKey]) {
+      gameState.crimeCityCurrentNodes[caseKey] = 'arrival';
     }
 
     audioManager.init(this);
@@ -112,12 +130,17 @@ export class CrimeCityScene extends BaseScene {
       loop: true
     });
 
-this.createBackground();
-this.createHeader();
-this.createSuspectsIcon();
-this.createCrimeSceneIcon();
-this.createLabIcon();
-this.createNpcSpots();
+    this.createBackground();
+    this.createHeader();
+
+    if (this.isCrimeSceneCompleted()) {
+      this.createSuspectsIcon();
+    }
+
+    this.createCrimeSceneIcon();
+    this.createHotelIcon();
+    this.createLabIcon();
+    this.createNpcSpots();
 
     this.scene.wake('UIScene');
 
@@ -166,13 +189,12 @@ this.createNpcSpots();
       .setDepth(21);
 
     const artifact = gameState.currentMission?.artifact;
-
     let subtitle = 'Follow the evidence. Ignore the dramatic pigeons.';
 
     if (!this.isCrimeSceneCompleted()) {
       subtitle = artifact
-        ? `Case: ${artifact} — inspect the crime scene.`
-        : 'Start with the crime scene. The pigeons are not witnesses.';
+        ? `Case: ${artifact} — inspect the crime scene before opening suspect files.`
+        : 'Start with the crime scene. Suspect files remain sealed.';
     } else if (!this.isCrimeLabCompleted()) {
       subtitle = 'Evidence collected. Time to visit the Crime Lab.';
     } else {
@@ -187,91 +209,109 @@ this.createNpcSpots();
       })
       .setDepth(21);
   }
-createSuspectsIcon() {
-  /*
-   * Recommended:
-   * Add suspectBoard coordinates to locations.json for every crime city.
-   *
-   * crimeCity: {
-   *   suspectBoard: { x: 1760, y: 850 }
-   * }
-   *
-   * The fallback lets the icon work immediately even before JSON is updated.
-   */
-  const position = this.crimeCityConfig.suspectBoard || {
-    x: this.scale.width - 150,
-    y: this.scale.height - 145
-  };
 
-  const suspectCount = Array.isArray(gameState.caseSuspects)
-    ? gameState.caseSuspects.length
-    : 0;
+  createHotelIcon() {
+    const position = this.crimeCityConfig.hotel || {
+      x: 190,
+      y: this.scale.height - 145
+    };
 
-  const activeCount = Array.isArray(gameState.caseSuspects)
-    ? gameState.caseSuspects.filter(
-      (suspect) => !suspect?.deductionState?.eliminated
-    ).length
-    : 0;
+    this.createMapIcon({
+      x: position.x,
+      y: position.y,
+      textureKey: 'hotel_icon',
+      fallbackColor: 0x6a4c93,
+      fallbackStroke: 0xd6b4ff,
+      label: 'Hotel',
+      completed: false,
+      iconScale: 0.22,
+      hoverScale: 0.25,
+      onClick: () => {
+        this.closeAllUIPanels();
 
-  const label = suspectCount > 0
-    ? `Suspect Files (${activeCount}/${suspectCount})`
-    : 'Suspect Files';
-
-  this.createMapIcon({
-    x: position.x,
-    y: position.y,
-    textureKey: 'policja',
-    fallbackColor: 0x304c73,
-    fallbackStroke: 0x9ac7ff,
-    label,
-
-    /*
-     * This icon is always available.
-     * It is not locked by Hidden Objects, Hypothesis or Crime Lab.
-     */
-    completed: false,
-
-    onClick: () => {
-      if (!Array.isArray(gameState.caseSuspects) || !gameState.caseSuspects.length) {
-        this.showMessage(
-          'The police database has not received the suspect files yet.\nThis is either bureaucratic delay or a pigeon conspiracy.',
-          3000,
-          '#5d2a00'
-        );
-
-        return;
+        this.transitionTo('HotelScene', {
+          cityId: this.cityId,
+          city: this.cityData.city,
+          country: this.cityData.country,
+          returnScene: 'CrimeCityScene',
+          returnData: {
+            cityId: this.cityId
+          },
+          sourceScene: 'CrimeCityScene'
+        });
       }
+    });
+  }
 
-      this.closeAllUIPanels();
+  createSuspectsIcon() {
+    const position = this.crimeCityConfig.suspectBoard || {
+      x: this.scale.width - 150,
+      y: this.scale.height - 145
+    };
 
-      this.transitionTo('SuspectBoardScene', {
-        cityId: this.cityId,
+    const suspectCount = Array.isArray(gameState.caseSuspects)
+      ? gameState.caseSuspects.length
+      : 0;
 
-        /*
-         * Returning from the board must return to the same city map.
-         */
-        returnScene: 'CrimeCityScene',
-        returnData: {
-          cityId: this.cityId
-        },
+    const activeCount = Array.isArray(gameState.caseSuspects)
+      ? gameState.caseSuspects.filter(
+          (suspect) => !suspect?.deductionState?.eliminated
+        ).length
+      : 0;
 
-        sourceScene: 'CrimeCityScene',
+    const label = suspectCount > 0
+      ? `Suspect Files (${activeCount}/${suspectCount})`
+      : 'Suspect Files';
 
-        caseSuspects: gameState.caseSuspects,
-        identityEvidence: gameState.identityEvidence,
-        identityEvidenceResult: gameState.identityEvidenceResult,
-        hypothesisEvidence: gameState.hypothesisEvidence,
-        hypothesisEvidenceResult: gameState.hypothesisEvidenceResult,
-        forensicResults: gameState.forensicResults || [],
-        gameState
-      });
-    }
-  });
-}
+    this.createMapIcon({
+      x: position.x,
+      y: position.y,
+      textureKey: 'policja',
+      fallbackColor: 0x304c73,
+      fallbackStroke: 0x9ac7ff,
+      label,
+      completed: false,
+      iconScale: 0.22,
+      hoverScale: 0.25,
+      onClick: () => {
+        if (!Array.isArray(gameState.caseSuspects) || !gameState.caseSuspects.length) {
+          this.showMessage(
+            'No suspects yet. Check the crime scene.\nThis is either bureaucratic delay or a pigeon conspiracy.',
+            3000,
+            '#5d2a00'
+          );
+          return;
+        }
+
+        this.closeAllUIPanels();
+
+        this.transitionTo('SuspectBoardScene', {
+          cityId: this.cityId,
+          returnScene: 'CrimeCityScene',
+          returnData: {
+            cityId: this.cityId
+          },
+          sourceScene: 'CrimeCityScene',
+          caseSuspects: gameState.caseSuspects,
+          identityEvidence: gameState.identityEvidence,
+          identityEvidenceResult: gameState.identityEvidenceResult,
+          hypothesisEvidence: gameState.hypothesisEvidence,
+          hypothesisEvidenceResult: gameState.hypothesisEvidenceResult,
+          forensicResults: gameState.forensicResults || [],
+          gameState
+        });
+      }
+    });
+  }
+
   createCrimeSceneIcon() {
     const position = this.crimeCityConfig.crimeScene;
 
     if (!position) {
+      console.warn('[CrimeCityScene] Missing crimeScene position.', {
+        cityId: this.cityId,
+        crimeCityConfig: this.crimeCityConfig
+      });
       return;
     }
 
@@ -292,117 +332,109 @@ createSuspectsIcon() {
       fallbackColor: 0xd4af37,
       fallbackStroke: 0xfff1a8,
       label: 'Crime Scene',
+      iconScale: 0.22,
+      hoverScale: 0.25,
       onClick: () => this.openCrimeScene()
     });
   }
 
   openCrimeScene() {
-  const mission = gameState.currentMission;
+    const mission = gameState.currentMission;
 
-  if (!mission?.scene) {
-    this.showMessage(
-      'This case has no crime-scene data yet.\nEven the chalk outline is confused.',
-      2600,
-      '#5d2a00'
-    );
-    return;
+    if (!mission?.scene) {
+      console.error('[CrimeCityScene] Mission has no scene.', { mission });
+
+      this.showMessage(
+        'This case has no crime-scene data yet.\nEven the chalk outline is confused.',
+        2600,
+        '#5d2a00'
+      );
+      return;
+    }
+
+    const reconstruction = this.prepareReconstruction();
+
+    if (!reconstruction) {
+      this.showMessage(
+        'The case reconstruction could not be prepared.\nThe evidence board is having an existential crisis.',
+        3200,
+        '#8b0000'
+      );
+      return;
+    }
+
+    const foundCardIds = reconstruction.foundCardIds || [];
+
+    if (!Array.isArray(foundCardIds) || foundCardIds.length !== 6) {
+      console.error(
+        '[CrimeCityScene] Reconstruction has an invalid hidden-objects set.',
+        {
+          caseKey: this.getCaseKey(),
+          sceneId: mission.scene,
+          foundCardIds,
+          reconstruction
+        }
+      );
+
+      this.showMessage(
+        'The case produced an invalid evidence set.\nCheck the reconstruction generator data.',
+        3200,
+        '#8b0000'
+      );
+      return;
+    }
+
+    console.log('[CrimeCityScene] Reconstruction ready before Hidden Objects.', {
+      caseKey: this.getCaseKey(),
+      sceneId: mission.scene,
+      thiefId: reconstruction.thiefId,
+      thiefSkills: reconstruction.thiefSkills,
+      claims: reconstruction.claims?.map((claim) => ({
+        questionId: claim.questionId,
+        solutionItemId: claim.solutionItemId,
+        thiefSkill: claim.thiefSkill
+      })),
+      foundCardIds
+    });
+
+    if (!this.moveToCrimeCityNode('crime_scene')) {
+      return;
+    }
+
+    if (!this.trySpendEnergy('activity', 'crime_scene')) {
+      return;
+    }
+
+    this.closeAllUIPanels();
+
+    this.transitionTo('HiddenObjectsScene', {
+      sceneId: mission.scene,
+      mapKey: mission.scene,
+      mapPath: `assets/crimes/${mission.scene}.json`,
+      backgroundMode: 'image',
+      backgroundKey: `${mission.scene}_bg`,
+      backgroundPath: `assets/crimes/${mission.scene}.jpg`,
+      objectLayerName: 'HiddenObjects',
+      objectsDataKey: 'objects-data',
+      objectsDataPath: 'assets/data/objects.json',
+      itemSceneKey: mission.scene,
+      activeCount: 6,
+      timeLimit: 120,
+      title: `Crime Scene – ${this.cityData.city}`,
+      returnScene: 'CrimeCityScene',
+      returnData: {
+        cityId: this.cityId
+      },
+      cityId: this.cityId,
+      sourceScene: 'CrimeCityScene',
+      mission
+    });
   }
-
-  /*
-   * Generator musi odpalić PRZED HiddenObjectsScene.
-   * Dzięki temu foundCardIds istnieje, gdy scena HOG wykonuje create().
-   */
-  const reconstruction = this.prepareReconstruction();
-
-  if (!reconstruction) {
-    this.showMessage(
-      'The case reconstruction could not be prepared.\nThe evidence board is having an existential crisis.',
-      3200,
-      '#8b0000'
-    );
-    return;
-  }
-
-  const foundCardIds = reconstruction.foundCardIds || [];
-
-  if (foundCardIds.length !== 6) {
-    console.error(
-      '[CrimeCityScene] Reconstruction has an invalid hidden-objects set.',
-      {
-        caseKey: this.getCaseKey(),
-        sceneId: mission.scene,
-        foundCardIds,
-        reconstruction
-      }
-    );
-
-    this.showMessage(
-      'The case produced an invalid evidence set.\nCheck the reconstruction generator data.',
-      3200,
-      '#8b0000'
-    );
-    return;
-  }
-
-  console.log('[CrimeCityScene] Reconstruction ready before Hidden Objects.', {
-    caseKey: this.getCaseKey(),
-    sceneId: mission.scene,
-    thiefId: reconstruction.thiefId,
-    thiefSkills: reconstruction.thiefSkills,
-    claims: reconstruction.claims?.map(claim => ({
-      questionId: claim.questionId,
-      solutionItemId: claim.solutionItemId,
-      thiefSkill: claim.thiefSkill
-    })),
-    foundCardIds: reconstruction.foundCardIds
-  });
-
-  if (!this.moveToCrimeCityNode('crime_scene')) {
-    return;
-  }
-
-  if (!this.trySpendEnergy('activity', 'crime_scene')) {
-    return;
-  }
-
-  this.closeAllUIPanels();
-
-  this.transitionTo('HiddenObjectsScene', {
-    sceneId: mission.scene,
-    mapKey: mission.scene,
-    mapPath: `assets/crimes/${mission.scene}.json`,
-    backgroundMode: 'image',
-    backgroundKey: `${mission.scene}_bg`,
-    backgroundPath: `assets/crimes/${mission.scene}.jpg`,
-    objectLayerName: 'HiddenObjects',
-    objectsDataKey: 'objects-data',
-    objectsDataPath: 'assets/data/objects.json',
-    itemSceneKey: mission.scene,
-    activeCount: 6,
-    timeLimit: 120,
-    title: `Crime Scene – ${this.cityData.city}`,
-    returnScene: 'CrimeCityScene',
-    returnData: { cityId: this.cityId },
-    cityId: this.cityId,
-    sourceScene: 'CrimeCityScene',
-    mission
-  });
-}
 
   createLabIcon() {
     const position = this.crimeCityConfig.crimeLab;
 
-    if (!position) {
-      return;
-    }
-
-    if (!this.isCrimeSceneCompleted()) {
-      this.createLockedIcon(
-        position.x,
-        position.y,
-        'Crime Lab',
-        'Search the crime scene first.'
-      );
+    if (!position || !this.isCrimeSceneCompleted()) {
       return;
     }
 
@@ -411,11 +443,13 @@ createSuspectsIcon() {
     this.createMapIcon({
       x: position.x,
       y: position.y,
-      textureKey: 'lab_icon',
+      textureKey: 'crime_lab',
       fallbackColor: 0x1565c0,
       fallbackStroke: 0x7fc8f8,
       label: completed ? 'Crime Lab — Analyzed' : 'Crime Lab',
       completed,
+      iconScale: 0.35,
+      hoverScale: 0.39,
       onClick: () => {
         if (completed) {
           this.showMessage(
@@ -440,7 +474,9 @@ createSuspectsIcon() {
           cityId: this.cityId,
           caseKey: this.getCaseKey(),
           returnScene: 'CrimeCityScene',
-          returnData: { cityId: this.cityId },
+          returnData: {
+            cityId: this.cityId
+          },
           sourceScene: 'CrimeCityScene'
         });
       }
@@ -448,21 +484,11 @@ createSuspectsIcon() {
   }
 
   createNpcSpots() {
-    const slots = this.crimeCityConfig.suspectSlots || [];
-
     if (!this.isCrimeLabCompleted()) {
-      slots.forEach((slot) => {
-        this.createLockedIcon(
-          slot.x,
-          slot.y,
-          'Alibi lead',
-          'Analyze the evidence in the Crime Lab first.'
-        );
-      });
-
       return;
     }
 
+    const slots = this.crimeCityConfig.suspectSlots || [];
     const encounters = this.getCrimeCityEncounters();
 
     if (encounters.length === 0) {
@@ -474,14 +500,20 @@ createSuspectsIcon() {
       const slot = slots[index];
 
       if (!slot) {
+        console.warn('[CrimeCityScene] Missing NPC slot for encounter.', {
+          encounter,
+          index,
+          slots
+        });
         return;
       }
 
       const isVisited = this.isEncounterVisited(encounter.id);
       const isExcluded = this.isSuspectExcluded(encounter.suspectId);
+      const textureKey = this.getNpcTextureKey(encounter);
 
       const icon = this.add
-        .image(slot.x, slot.y, this.getNpcTextureKey(encounter))
+        .image(slot.x, slot.y, textureKey)
         .setScale(0.45)
         .setDepth(5)
         .setAlpha(isVisited ? 0.62 : 1)
@@ -501,7 +533,12 @@ createSuspectsIcon() {
             fontSize: '17px',
             color: isVisited ? '#cccccc' : '#ffffff',
             backgroundColor: '#000000aa',
-            padding: { left: 8, right: 8, top: 4, bottom: 4 }
+            padding: {
+              left: 8,
+              right: 8,
+              top: 4,
+              bottom: 4
+            }
           }
         )
         .setOrigin(0.5)
@@ -553,7 +590,9 @@ createSuspectsIcon() {
           isRepeat: isVisited,
           isCrimeCity: true,
           returnScene: 'CrimeCityScene',
-          returnData: { cityId: this.cityId }
+          returnData: {
+            cityId: this.cityId
+          }
         });
       });
 
@@ -561,144 +600,217 @@ createSuspectsIcon() {
     });
   }
 
+  getReconstructionData() {
+    const rawObjectsData = this.cache.json.get('objects-data');
+    const rawQuestionsData = this.cache.json.get('reconstruction_questions');
+
+    const items = Array.isArray(rawObjectsData)
+      ? rawObjectsData
+      : rawObjectsData?.objects ||
+        rawObjectsData?.items ||
+        rawObjectsData?.hiddenObjects ||
+        [];
+
+    const questions = Array.isArray(rawQuestionsData)
+      ? rawQuestionsData
+      : rawQuestionsData?.reconstructionQuestions ||
+        rawQuestionsData?.questions ||
+        [];
+
+    if (!Array.isArray(items) || items.length === 0) {
+      console.error(
+        '[CrimeCityScene] Reconstruction objects data is missing or invalid.',
+        {
+          cacheKey: 'objects-data',
+          rawObjectsData,
+          normalizedItems: items
+        }
+      );
+
+      return null;
+    }
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+      console.error(
+        '[CrimeCityScene] Reconstruction questions data is missing or invalid.',
+        {
+          cacheKey: 'reconstruction-questions',
+          rawQuestionsData,
+          normalizedQuestions: questions
+        }
+      );
+
+      return null;
+    }
+
+    return {
+      items,
+      questions
+    };
+  }
+
   prepareReconstruction() {
-  const caseKey = this.getCaseKey();
+    const caseKey = this.getCaseKey();
 
-  if (!gameState.reconstructedHeists) {
-    gameState.reconstructedHeists = {};
-  }
+    if (
+      !gameState.reconstructedHeists ||
+      typeof gameState.reconstructedHeists !== 'object'
+    ) {
+      gameState.reconstructedHeists = {};
+    }
 
-  const existingReconstruction = gameState.reconstructedHeists[caseKey];
+    const existingReconstruction = gameState.reconstructedHeists[caseKey];
 
-  if (existingReconstruction?.foundCardIds?.length === 6) {
-    gameState.reconstructedHeist = existingReconstruction;
+    if (
+      existingReconstruction &&
+      Array.isArray(existingReconstruction.foundCardIds) &&
+      existingReconstruction.foundCardIds.length === 6
+    ) {
+      gameState.reconstructedHeist = existingReconstruction;
 
-    console.log('[CrimeCityScene] Reusing existing reconstruction.', {
-      caseKey,
-      sceneId: existingReconstruction.sceneId,
-      foundCardIds: existingReconstruction.foundCardIds
-    });
-
-    return existingReconstruction;
-  }
-
-  const mission = gameState.currentMission;
-
-  if (!mission?.scene) {
-    console.error(
-      '[CrimeCityScene] Cannot generate reconstruction: mission or mission.scene is missing.',
-      { mission }
-    );
-
-    return null;
-  }
-
-  const actualThief = this.resolveActualThief();
-
-  if (!actualThief?.id) {
-    console.error(
-      '[CrimeCityScene] Cannot generate reconstruction: actual thief is missing.',
-      {
-        mission,
-        actualThiefId: mission.actualThiefId || mission.thiefId || gameState.actualThiefId,
-        suspectPool: gameState.suspectPool,
-        currentSuspectPool: gameState.currentSuspectPool,
-        thieves: gameState.thieves
-      }
-    );
-
-    return null;
-  }
-
-  const thiefSkills = Array.isArray(actualThief.skills)
-    ? actualThief.skills
-    : [];
-
-  if (thiefSkills.length < 3) {
-    console.error(
-      '[CrimeCityScene] Cannot generate reconstruction: thief has fewer than 3 skills.',
-      {
-        actualThiefId: actualThief.id,
-        thiefSkills
-      }
-    );
-
-    return null;
-  }
-
-  const objectsData = this.cache.json.get('objects-data');
-  const questionsData = this.cache.json.get('reconstruction-questions');
-
-  if (!objectsData || !questionsData) {
-    console.error(
-      '[CrimeCityScene] Cannot generate reconstruction: required JSON data is missing.',
-      {
-        hasObjectsData: Boolean(objectsData),
-        hasQuestionsData: Boolean(questionsData)
-      }
-    );
-
-    return null;
-  }
-
-  try {
-    const reconstructedHeist = ReconstructionGenerator.generate({
-      items: objectsData,
-      questions: questionsData,
-      missionId: mission.id || caseKey,
-      cityId: mission.cityId || mission.city || this.cityId,
-      sceneId: mission.scene,
-      thiefId: actualThief.id,
-      thiefSkills,
-      cardCount: 6,
-      claimCount: 3
-    });
-
-    gameState.reconstructedHeists[caseKey] = reconstructedHeist;
-    gameState.reconstructedHeist = reconstructedHeist;
-
-    console.log('[CrimeCityScene] Reconstruction generated.', {
-      caseKey,
-      sceneId: reconstructedHeist.sceneId,
-      thiefId: reconstructedHeist.thiefId,
-      thiefSkills: reconstructedHeist.thiefSkills,
-      claims: reconstructedHeist.claims.map(claim => ({
-        questionId: claim.questionId,
-        solutionItemId: claim.solutionItemId,
-        thiefSkill: claim.thiefSkill
-      })),
-      foundCardIds: reconstructedHeist.foundCardIds
-    });
-
-    return reconstructedHeist;
-  } catch (error) {
-    console.error(
-      '[CrimeCityScene] ReconstructionGenerator failed.',
-      {
+      console.log('[CrimeCityScene] Reusing existing reconstruction.', {
         caseKey,
+        sceneId: existingReconstruction.sceneId,
+        foundCardIds: existingReconstruction.foundCardIds
+      });
+
+      return existingReconstruction;
+    }
+
+    const mission = gameState.currentMission;
+
+    if (!mission?.scene) {
+      console.error(
+        '[CrimeCityScene] Cannot generate reconstruction: mission or mission.scene is missing.',
+        { mission }
+      );
+      return null;
+    }
+
+    const actualThief = this.resolveActualThief();
+
+    if (!actualThief?.id) {
+      console.error(
+        '[CrimeCityScene] Cannot generate reconstruction: actual thief is missing.',
+        {
+          mission,
+          currentThief: gameState.currentThief,
+          currentThiefId: gameState.currentThiefId,
+          actualThiefId:
+            mission.actualThiefId ||
+            mission.thiefId ||
+            gameState.actualThiefId,
+          suspectPool: gameState.suspectPool,
+          currentSuspectPool: gameState.currentSuspectPool,
+          thieves: gameState.thieves
+        }
+      );
+      return null;
+    }
+
+    const thiefSkills = Array.isArray(actualThief.skills)
+      ? actualThief.skills
+      : typeof actualThief.skills === 'string'
+        ? actualThief.skills
+            .split(',')
+            .map((skill) => skill.trim())
+            .filter(Boolean)
+        : [];
+
+    if (thiefSkills.length < 3) {
+      console.error(
+        '[CrimeCityScene] Cannot generate reconstruction: thief has fewer than 3 skills.',
+        {
+          actualThiefId: actualThief.id,
+          thiefSkills,
+          actualThief
+        }
+      );
+      return null;
+    }
+
+    const reconstructionData = this.getReconstructionData();
+
+    if (!reconstructionData) {
+      return null;
+    }
+
+    try {
+      const reconstructedHeist = ReconstructionGenerator.generate({
+        items: reconstructionData.items,
+        questions: reconstructionData.questions,
+        missionId: mission.id || caseKey,
+        cityId: mission.cityId || mission.city || this.cityId,
         sceneId: mission.scene,
         thiefId: actualThief.id,
         thiefSkills,
-        error
-      }
-    );
+        cardCount: 6,
+        claimCount: 3
+      });
 
-    return null;
+      if (
+        !reconstructedHeist ||
+        !Array.isArray(reconstructedHeist.foundCardIds) ||
+        reconstructedHeist.foundCardIds.length !== 6
+      ) {
+        console.error(
+          '[CrimeCityScene] ReconstructionGenerator returned invalid data.',
+          {
+            caseKey,
+            reconstructedHeist,
+            itemsCount: reconstructionData.items.length,
+            questionsCount: reconstructionData.questions.length
+          }
+        );
+        return null;
+      }
+
+      gameState.reconstructedHeists[caseKey] = reconstructedHeist;
+      gameState.reconstructedHeist = reconstructedHeist;
+
+      console.log('[CrimeCityScene] Reconstruction generated.', {
+        caseKey,
+        sceneId: reconstructedHeist.sceneId,
+        thiefId: reconstructedHeist.thiefId,
+        thiefSkills: reconstructedHeist.thiefSkills,
+        claims: reconstructedHeist.claims?.map((claim) => ({
+          questionId: claim.questionId,
+          solutionItemId: claim.solutionItemId,
+          thiefSkill: claim.thiefSkill
+        })),
+        foundCardIds: reconstructedHeist.foundCardIds
+      });
+
+      return reconstructedHeist;
+    } catch (error) {
+      console.error(
+        '[CrimeCityScene] ReconstructionGenerator failed.',
+        {
+          caseKey,
+          sceneId: mission.scene,
+          thiefId: actualThief.id,
+          thiefSkills,
+          error
+        }
+      );
+
+      return null;
+    }
   }
-}
 
   resolveActualThief() {
     const mission = gameState.currentMission || {};
+
+    if (gameState.currentThief?.id) {
+      return gameState.currentThief;
+    }
 
     if (mission.actualThief?.id) {
       return mission.actualThief;
     }
 
-    if (gameState.actualThief?.id) {
-      return gameState.actualThief;
-    }
-
     const actualThiefId =
+      gameState.currentThiefId ||
       mission.actualThiefId ||
       mission.thiefId ||
       gameState.actualThiefId;
@@ -707,7 +819,8 @@ createSuspectsIcon() {
       mission.suspectPool,
       gameState.suspectPool,
       gameState.currentSuspectPool,
-      gameState.thieves
+      gameState.thieves,
+      gameState.caseSuspects
     ];
 
     for (const pool of possiblePools) {
@@ -733,12 +846,14 @@ createSuspectsIcon() {
     fallbackStroke,
     label,
     completed = false,
+    iconScale = 0.22,
+    hoverScale = 0.25,
     onClick
   }) {
     const hasTexture = this.textures.exists(textureKey);
 
     const icon = hasTexture
-      ? this.add.image(x, y, textureKey).setScale(0.22)
+      ? this.add.image(x, y, textureKey).setScale(iconScale)
       : this.add
           .circle(x, y, 38, fallbackColor, 0.95)
           .setStrokeStyle(3, fallbackStroke);
@@ -751,7 +866,12 @@ createSuspectsIcon() {
         fontSize: '18px',
         color: completed ? '#aaaaaa' : '#ffffff',
         backgroundColor: '#000000aa',
-        padding: { left: 8, right: 8, top: 4, bottom: 4 }
+        padding: {
+          left: 8,
+          right: 8,
+          top: 4,
+          bottom: 4
+        }
       })
       .setOrigin(0.5)
       .setDepth(6);
@@ -763,7 +883,7 @@ createSuspectsIcon() {
 
     icon.on('pointerover', () => {
       if (!completed) {
-        icon.setScale(hasTexture ? 0.25 : 1.1);
+        icon.setScale(hasTexture ? hoverScale : 1.1);
       }
 
       labelObject.setColor(completed ? '#cccccc' : '#ffe066');
@@ -771,7 +891,7 @@ createSuspectsIcon() {
 
     icon.on('pointerout', () => {
       if (!completed) {
-        icon.setScale(hasTexture ? 0.22 : 1);
+        icon.setScale(hasTexture ? iconScale : 1);
       }
 
       labelObject.setColor(completed ? '#aaaaaa' : '#ffffff');
@@ -803,42 +923,18 @@ createSuspectsIcon() {
         fontSize: '18px',
         color: '#aaaaaa',
         backgroundColor: '#000000aa',
-        padding: { left: 8, right: 8, top: 4, bottom: 4 }
+        padding: {
+          left: 8,
+          right: 8,
+          top: 4,
+          bottom: 4
+        }
       })
       .setOrigin(0.5)
       .setDepth(6);
 
     this.createStatusBadge(x, y - 56, status, '#66bb6a');
-
     this.interactiveObjects.push(marker);
-  }
-
-  createLockedIcon(x, y, label, message) {
-    const icon = this.add
-      .circle(x, y, 38, 0x222222, 0.72)
-      .setStrokeStyle(2, 0x555555)
-      .setDepth(5)
-      .setInteractive({ useHandCursor: true });
-
-    this.add
-      .text(x, y, '🔒', { fontSize: '24px' })
-      .setOrigin(0.5)
-      .setDepth(6);
-
-    this.add
-      .text(x, y + 68, label, {
-        fontFamily: 'Special Elite',
-        fontSize: '17px',
-        color: '#777777',
-        backgroundColor: '#000000aa',
-        padding: { left: 8, right: 8, top: 4, bottom: 4 }
-      })
-      .setOrigin(0.5)
-      .setDepth(6);
-
-    icon.on('pointerdown', () => this.showMessage(message, 2200, '#37474f'));
-
-    this.interactiveObjects.push(icon);
   }
 
   createStatusBadge(x, y, text, color) {
@@ -848,7 +944,12 @@ createSuspectsIcon() {
         fontSize: '13px',
         color,
         backgroundColor: '#000000cc',
-        padding: { left: 6, right: 6, top: 3, bottom: 3 }
+        padding: {
+          left: 6,
+          right: 6,
+          top: 3,
+          bottom: 3
+        }
       })
       .setOrigin(0.5)
       .setDepth(7);
@@ -866,7 +967,12 @@ createSuspectsIcon() {
           color: '#f1e6b8',
           align: 'center',
           backgroundColor: '#000000aa',
-          padding: { left: 14, right: 14, top: 10, bottom: 10 }
+          padding: {
+            left: 14,
+            right: 14,
+            top: 10,
+            bottom: 10
+          }
         }
       )
       .setOrigin(0.5)
@@ -900,7 +1006,6 @@ createSuspectsIcon() {
         category,
         key
       });
-
       return false;
     }
 
@@ -922,15 +1027,15 @@ createSuspectsIcon() {
     return true;
   }
 
-getCaseKey() {
-  const mission = gameState.currentMission || {};
+  getCaseKey() {
+    const mission = gameState.currentMission || {};
 
-  return String(
-    mission.id ||
-    mission.caseId ||
-    `${this.cityId}_${mission.artifact || 'default'}`
-  );
-}
+    return String(
+      mission.id ||
+      mission.caseId ||
+      `${this.cityId}_${mission.artifact || 'default'}`
+    );
+  }
 
   getCrimeSceneVisitKey() {
     const mission = gameState.currentMission || {};
@@ -987,19 +1092,19 @@ getCaseKey() {
     );
   }
 
-isSuspectExcluded(suspectId) {
-  if (!suspectId || !Array.isArray(gameState.excludedSuspects)) {
-    return false;
-  }
-
-  return gameState.excludedSuspects.some((entry) => {
-    if (typeof entry === 'string') {
-      return entry === suspectId;
+  isSuspectExcluded(suspectId) {
+    if (!suspectId || !Array.isArray(gameState.excludedSuspects)) {
+      return false;
     }
 
-    return entry?.id === suspectId;
-  });
-}
+    return gameState.excludedSuspects.some((entry) => {
+      if (typeof entry === 'string') {
+        return entry === suspectId;
+      }
+
+      return entry?.id === suspectId;
+    });
+  }
 
   transitionTo(sceneKey, data) {
     this.cameras.main.fadeOut(350, 0, 0, 0);
@@ -1024,7 +1129,10 @@ isSuspectExcluded(suspectId) {
         fontSize: '19px',
         color: '#ffffff',
         backgroundColor: color,
-        padding: { x: 24, y: 16 },
+        padding: {
+          x: 24,
+          y: 16
+        },
         align: 'center'
       })
       .setOrigin(0.5)

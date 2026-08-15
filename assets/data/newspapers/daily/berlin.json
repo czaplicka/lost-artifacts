@@ -11,10 +11,10 @@
       "imageKey": "paper_berlin_heist_photo",
       "imageCaption": "The empty display at {location}, now described by visitors as 'boldly minimalist.'",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_berlin_heist_photo",
       "imageCaption": "A formerly occupied space at {location}. The space is currently winning.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_berlin_heist_photo",
       "imageCaption": "The display once occupied by the {artifact}. It is now available for contemplative viewing.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_berlin_heist_photo",
       "imageCaption": "Police outside {location}, professionally looking at things.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     }
   ],
@@ -70,10 +70,10 @@
       "imageKey": "paper_berlin_statue_photo",
       "imageCaption": "The statue that refused to participate in the competition.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -84,10 +84,10 @@
       "imageKey": "paper_berlin_dj_photo",
       "imageCaption": "The moment everyone realised 'one more track' was not a promise.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -98,10 +98,10 @@
       "imageKey": "paper_berlin_transit_photo",
       "imageCaption": "The map, reportedly unchanged but now emotionally complicated.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -112,10 +112,10 @@
       "imageKey": "paper_berlin_spaeti_photo",
       "imageCaption": "The kiosk where hydration and existentialism meet.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -126,10 +126,10 @@
       "imageKey": "paper_berlin_dog_raincoat_photo",
       "imageCaption": "A professional commuter prepares for another difficult morning.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

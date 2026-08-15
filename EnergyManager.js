@@ -319,11 +319,12 @@ class EnergyManager {
     if (this.energyLog.length > 50) this.energyLog.shift();
   }
 
-  _syncToGameState() {
-    gameState.energy = this.currentEnergy;
-    gameState.energyLog = [...this.energyLog];
-    gameState.difficulty = this.difficulty;
-  }
+_syncToGameState() {
+  gameState.energy = this.currentEnergy;
+  gameState.maxEnergy = this.maxEnergy;
+  gameState.energyLog = [...this.energyLog];
+  gameState.difficulty = this.difficulty;
+}
 
   _emitEnergyChanged() {
     EventBus.emit('energyChanged', {
@@ -349,20 +350,62 @@ class EnergyManager {
     this.init(difficulty);
   }
 
-  restore(data = {}) {
-    if (Number.isFinite(data.energy)) {
-      this.currentEnergy = Math.max(0, Math.min(this.maxEnergy, data.energy));
-    }
-    if (typeof data.difficulty === 'string' && DIFFICULTY_MULTIPLIERS[data.difficulty]) {
-      this.difficulty = data.difficulty;
-    }
-    if (Array.isArray(data.energyLog)) {
-      this.energyLog = structuredClone(data.energyLog);
-    }
+restore(data = {}) {
+  const savedMaxEnergy = Number(data.maxEnergy);
 
-    this._syncToGameState();
-    this._emitEnergyChanged();
+  if (Number.isFinite(savedMaxEnergy) && savedMaxEnergy > 0) {
+    this.maxEnergy = Math.round(savedMaxEnergy);
   }
+
+  const savedEnergy = Number(data.energy);
+
+  if (Number.isFinite(savedEnergy)) {
+    this.currentEnergy = Math.max(
+      0,
+      Math.min(this.maxEnergy, Math.round(savedEnergy))
+    );
+  } else {
+    console.warn(
+      '[EnergyManager] Save has no valid energy value; keeping current energy.',
+      {
+        savedEnergy: data.energy,
+        currentEnergy: this.currentEnergy
+      }
+    );
+  }
+
+  if (
+    typeof data.difficulty === 'string' &&
+    DIFFICULTY_MULTIPLIERS[data.difficulty]
+  ) {
+    this.difficulty = data.difficulty;
+  }
+
+  if (Array.isArray(data.energyLog)) {
+    this.energyLog = structuredClone(data.energyLog);
+  } else {
+    this.energyLog = [];
+  }
+
+  this.lastEnergyChange = null;
+  this.isSleepingForced = false;
+
+  if (this.forcedSleepTimer) {
+    clearTimeout(this.forcedSleepTimer);
+    this.forcedSleepTimer = null;
+  }
+
+  this._syncToGameState();
+  this._emitEnergyChanged();
+
+  console.log('[EnergyManager] Energy restored from save.', {
+    energy: this.currentEnergy,
+    maxEnergy: this.maxEnergy,
+    difficulty: this.difficulty
+  });
+
+  return this.currentEnergy;
+}
 
   serialize() {
     return {

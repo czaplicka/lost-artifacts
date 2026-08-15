@@ -1,7 +1,11 @@
 import { gameState, saveGameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { travelToCity as performTravel } from '../gameSetup.js';
-import { moneyManager, MONEY_SOURCE } from '../MoneyManager.js';
+import {
+  moneyManager,
+  MONEY_SOURCE,
+  ECONOMY_CATEGORY
+} from '../MoneyManager.js';
 
 const TRANSPORT_CONFIG = {
   plane: {
@@ -1031,7 +1035,7 @@ export class DestinationsUI {
       return;
     }
 
-    const cash = this.getAvailableCash();
+const agencyBudget = this.getAvailableAgencyBudget();
 
     const canAfford = this.canAffordTravel(
       preview.moneySpent
@@ -1046,10 +1050,10 @@ export class DestinationsUI {
     );
 
     this.infoTravel.setText(
-      `🎟 ${this.formatMoney(preview.moneySpent)}   ` +
-      `💵 ${this.formatMoney(cash)}   ` +
-      `⚡ ${preview.energyChange}`
-    );
+  `🎟 ${this.formatMoney(preview.moneySpent)}   ` +
+  `🏢 Agency: ${this.formatMoney(agencyBudget)}   ` +
+  `⚡ ${preview.energyChange}`
+);
 
     this.infoHours.setText(
       `Travel time: +${preview.travelHours}h`
@@ -1058,7 +1062,7 @@ export class DestinationsUI {
     this.confirmLabel.setText(
       canAfford
         ? `Go by ${this.selectedTransport.label}`
-        : 'Not enough cash'
+        : 'Agency budget too low'
     );
 
     this.setConfirmEnabled(canAfford);
@@ -1153,27 +1157,27 @@ export class DestinationsUI {
     return `$${safeAmount.toLocaleString('en-US')}`;
   }
 
-  getAvailableCash() {
-    return Math.max(
-      0,
-      Math.floor(
-        Number(
-          moneyManager?.getBalance?.(MONEY_SOURCE.CASH) ??
-          gameState.cash ??
-          0
-        )
+getAvailableAgencyBudget() {
+  return Math.max(
+    0,
+    Math.floor(
+      Number(
+        moneyManager?.getBalance?.(MONEY_SOURCE.AGENCY) ??
+        gameState.agencyBudget ??
+        0
       )
-    );
-  }
+    )
+  );
+}
 
-  canAffordTravel(cost) {
-    const safeCost = Math.max(
-      0,
-      Math.round(Number(cost) || 0)
-    );
+canAffordTravel(cost) {
+  const safeCost = Math.max(
+    0,
+    Math.round(Number(cost) || 0)
+  );
 
-    return this.getAvailableCash() >= safeCost;
-  }
+  return this.getAvailableAgencyBudget() >= safeCost;
+}
 
   showTravelError(message) {
     this.transportPrompt.setColor('#ff6b6b');
@@ -1202,18 +1206,24 @@ export class DestinationsUI {
 
     if (!this.canAffordTravel(cost)) {
       this.showTravelError(
-        `Not enough cash. Need ${this.formatMoney(cost)}.`
+        `Agency budget too low. Need ${this.formatMoney(cost)}.`
       );
 
       return false;
     }
 
-    const payment = moneyManager.spend(cost, {
-      source: MONEY_SOURCE.CASH,
-      label: `${selectedTransport.label} ticket: ${selectedCityData.city}`
-    });
+const payment = moneyManager.spend(cost, {
+  source: MONEY_SOURCE.AGENCY,
+category: ECONOMY_CATEGORY.TRAVEL,
+  description: `${selectedTransport.label} ticket to ${selectedCityData.city}`,
+  metadata: {
+    transportType: selectedTransport.id,
+    destinationCityId: selectedCityData.id,
+    destinationCity: selectedCityData.city
+  }
+});
 
-    if (payment?.success === false) {
+if (!payment.ok) {
       this.showTravelError(
         `Ticket payment failed. Need ${this.formatMoney(cost)}.`
       );
@@ -1282,7 +1292,7 @@ export class DestinationsUI {
 
     if (!this.canAffordTravel(selectedTransport.moneySpent)) {
       this.showTravelError(
-        `Not enough cash. Need ${this.formatMoney(
+        `Agency budget too low. Need ${this.formatMoney(
           selectedTransport.moneySpent
         )}.`
       );

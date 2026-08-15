@@ -1,6 +1,7 @@
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from '../MoneyManager.js';
+import { gameState } from '../GameData.js';
 
 const NEWSPAPER_PRICE = 5;
 const COMIX_PRICE = 1;
@@ -23,9 +24,21 @@ export class NewsstandScene extends BaseScene {
     this.handleEscape = this.handleEscape.bind(this);
   }
 
-  init(data = {}) {
-    this.cityId = data.cityId || this.registry.get('currentCity') || this.registry.get('currentCityId') || 'paris';
-  }
+init(data = {}) {
+  this.cityId =
+    data.cityId ||
+    gameState.currentCityId ||
+    this.registry.get('currentCityId') ||
+    this.registry.get('currentCity') ||
+    'paris';
+
+  console.log('[NewsstandScene] Opened in city:', {
+    receivedCityId: data.cityId,
+    gameStateCityId: gameState.currentCityId,
+    registryCityId: this.registry.get('currentCityId'),
+    resolvedCityId: this.cityId
+  });
+}
 
   create() {
     super.create();
@@ -54,9 +67,15 @@ export class NewsstandScene extends BaseScene {
     this.createComixOverlay();
   }
 
-  getActiveCityId() {
-    return this.registry.get('currentCity') || this.registry.get('currentCityId') || this.cityId || 'paris';
-  }
+getActiveCityId() {
+  return (
+    gameState.currentCityId ||
+    this.cityId ||
+    this.registry.get('currentCityId') ||
+    this.registry.get('currentCity') ||
+    'paris'
+  );
+}
 
   switchToVideoBackground() {
     if (!this.bgVideo || !this.bgImage) return;

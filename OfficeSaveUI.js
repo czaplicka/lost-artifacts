@@ -1,7 +1,8 @@
 import { saveManager } from './saveGameService.js';
 
 export const SAVE_LOCATION_TYPES = Object.freeze([
-  'office'
+  'office',
+  'hotel'
 ]);
 
 function normalizeLocationType(value) {
@@ -47,12 +48,16 @@ export class OfficeSaveUI {
 
     this.locationCode = normalizeSaveCode(
       options.locationCode,
-      'agency_headquarters'
+      locationType === 'hotel'
+        ? 'hotel_room'
+        : 'agency_headquarters'
     );
 
     this.cityCode = normalizeSaveCode(
       options.cityCode,
-      'hq'
+      locationType === 'hotel'
+        ? 'unknown_city'
+        : 'hq'
     );
 
     this.button = null;
@@ -66,17 +71,18 @@ export class OfficeSaveUI {
   }
 
   createButton() {
-    const { height } = this.scene.scale;
+    const { width, height } = this.scene.scale;
 
     /*
-     * Keep the Save button in its current position:
-     * bottom-right area, x = 1780.
+     * Office ma szeroką scenę 1920 px.
+     * Hotel może działać również przy węższym widoku,
+     * dlatego x nie może być zawsze 1780.
      */
-    const buttonX = 1780;
+    const buttonX = Math.min(1780, width - 95);
     const buttonY = height - 66;
 
     const textureCandidates = [
-      'btnSave',
+      'btnSave'
     ];
 
     const textureKey = textureCandidates.find((key) => {
@@ -84,17 +90,14 @@ export class OfficeSaveUI {
     });
 
     if (textureKey) {
-      this.button = this.scene.add.image(
-        buttonX,
-        buttonY,
-        textureKey,
-      )
+      this.button = this.scene.add
+        .image(buttonX, buttonY, textureKey)
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(1000)
         .setScale(0.5)
         .setInteractive({
-          useHandCursor: true,
+          useHandCursor: true
         });
 
       this.button.on('pointerover', () => {
@@ -109,11 +112,8 @@ export class OfficeSaveUI {
         this.button.setScale(0.5);
       });
     } else {
-      this.button = this.scene.add.text(
-        buttonX,
-        buttonY,
-        'SAVE',
-        {
+      this.button = this.scene.add
+        .text(buttonX, buttonY, 'SAVE', {
           fontFamily: 'Special Elite, monospace',
           fontSize: '12px',
           color: '#f1d480',
@@ -124,15 +124,14 @@ export class OfficeSaveUI {
             left: 8,
             right: 8,
             top: 5,
-            bottom: 5,
-          },
-        },
-      )
+            bottom: 5
+          }
+        })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(1000)
         .setInteractive({
-          useHandCursor: true,
+          useHandCursor: true
         });
 
       this.button.on('pointerover', () => {
@@ -171,7 +170,7 @@ export class OfficeSaveUI {
     }
 
     this.button.setInteractive({
-      useHandCursor: true,
+      useHandCursor: true
     });
 
     this.button.setAlpha(1);
@@ -183,80 +182,73 @@ export class OfficeSaveUI {
     }
 
     this.isOpen = true;
-    this.scene.applyLock(true);
+
+    /*
+     * OfficeScene i HotelScene mają tę metodę.
+     * Optional chaining zachowuje kompatybilność,
+     * jeśli kiedyś użyjesz komponentu w innej scenie.
+     */
+    this.scene.applyLock?.(true);
 
     const { width, height } = this.scene.scale;
 
-    /*
-     * No setInteractive() here.
-     * Otherwise the fullscreen backdrop can consume slot clicks.
-     */
-    this.backdrop = this.scene.add.rectangle(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      0x000000,
-      0.78,
-    )
+    this.backdrop = this.scene.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        width,
+        height,
+        0x000000,
+        0.78
+      )
       .setScrollFactor(0)
       .setDepth(1500);
 
-    this.panel = this.scene.add.container(
-      width / 2,
-      height / 2,
-    )
+    this.panel = this.scene.add
+      .container(width / 2, height / 2)
       .setScrollFactor(0)
       .setDepth(1501);
 
-    const panelBg = this.scene.add.rectangle(
-      0,
-      0,
-      560,
-      500,
-      0x17100b,
-      1,
-    )
+    const panelBg = this.scene.add
+      .rectangle(0, 0, 560, 500, 0x17100b, 1)
       .setStrokeStyle(4, 0xc99738, 1);
 
-    const title = this.scene.add.text(
-      0,
-      -205,
-      'AGENCY ARCHIVES',
-      {
+    const titleText = this.locationType === 'hotel'
+      ? 'HOTEL SAFE'
+      : 'AGENCY ARCHIVES';
+
+    const subtitleText = this.locationType === 'hotel'
+      ? 'Choose a case file to save your investigation.'
+      : 'Choose a case file to save your investigation.';
+
+    const title = this.scene.add
+      .text(0, -205, titleText, {
         fontFamily: 'Special Elite, monospace',
         fontSize: '31px',
         color: '#f2d989',
         stroke: '#000000',
-        strokeThickness: 5,
-      },
-    ).setOrigin(0.5);
+        strokeThickness: 5
+      })
+      .setOrigin(0.5);
 
-    const subtitle = this.scene.add.text(
-      0,
-      -163,
-      'Choose a case file to save your investigation.',
-      {
+    const subtitle = this.scene.add
+      .text(0, -163, subtitleText, {
         fontFamily: 'Special Elite, monospace',
         fontSize: '19px',
         color: '#d4c4a6',
-        align: 'center',
-      },
-    ).setOrigin(0.5);
+        align: 'center'
+      })
+      .setOrigin(0.5);
 
-    const closeButton = this.scene.add.text(
-      235,
-      -218,
-      '×',
-      {
+    const closeButton = this.scene.add
+      .text(235, -218, '×', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '40px',
-        color: '#f0c2b6',
-      },
-    )
+        color: '#f0c2b6'
+      })
       .setOrigin(0.5)
       .setInteractive({
-        useHandCursor: true,
+        useHandCursor: true
       });
 
     closeButton.on('pointerdown', () => {
@@ -275,27 +267,24 @@ export class OfficeSaveUI {
       closeButton.setScale(1);
     });
 
-    this.statusText = this.scene.add.text(
-      0,
-      190,
-      'Reading case files...',
-      {
+    this.statusText = this.scene.add
+      .text(0, 190, 'Reading case files...', {
         fontFamily: 'Special Elite, monospace',
         fontSize: '18px',
         color: '#d8c49a',
         align: 'center',
         wordWrap: {
-          width: 470,
-        },
-      },
-    ).setOrigin(0.5);
+          width: 470
+        }
+      })
+      .setOrigin(0.5);
 
     this.panel.add([
       panelBg,
       title,
       subtitle,
       closeButton,
-      this.statusText,
+      this.statusText
     ]);
 
     try {
@@ -309,19 +298,19 @@ export class OfficeSaveUI {
 
       this.setStatus(
         'Choose a save slot.',
-        '#d8c49a',
+        '#d8c49a'
       );
     } catch (error) {
       console.error(
         '[OfficeSaveUI] Failed to read save slots:',
-        error,
+        error
       );
 
       this.createSlotButtons([]);
 
       this.setStatus(
         'Archive unavailable. You may still save locally.',
-        '#ffbbb0',
+        '#ffbbb0'
       );
     }
   }
@@ -335,7 +324,7 @@ export class OfficeSaveUI {
     const slotY = [
       -95,
       5,
-      105,
+      105
     ];
 
     for (let index = 0; index < 3; index += 1) {
@@ -351,39 +340,30 @@ export class OfficeSaveUI {
         ? this.formatSlotLabel(index + 1, meta)
         : `SLOT ${index + 1}\nEmpty case file`;
 
-      /*
-       * Important:
-       * - They are not children of this.panel.
-       * - They use scrollFactor(0), so camera scroll does not move them.
-       * - They are above the panel visually and for pointer input.
-       */
-      const buttonBg = this.scene.add.rectangle(
-        panelX,
-        panelY + slotY[index],
-        470,
-        76,
-        0x24170e,
-        1,
-      )
+      const buttonBg = this.scene.add
+        .rectangle(
+          panelX,
+          panelY + slotY[index],
+          470,
+          76,
+          0x24170e,
+          1
+        )
         .setScrollFactor(0)
         .setDepth(1600)
         .setStrokeStyle(2, 0x8f6b35, 1)
         .setInteractive({
-          useHandCursor: true,
+          useHandCursor: true
         });
 
-      const buttonText = this.scene.add.text(
-        panelX,
-        panelY + slotY[index],
-        label,
-        {
+      const buttonText = this.scene.add
+        .text(panelX, panelY + slotY[index], label, {
           fontFamily: 'Special Elite, monospace',
           fontSize: '18px',
           color: meta ? '#f1deb0' : '#a99a80',
           align: 'center',
-          lineSpacing: 6,
-        },
-      )
+          lineSpacing: 6
+        })
         .setOrigin(0.5)
         .setScrollFactor(0)
         .setDepth(1601);
@@ -411,12 +391,12 @@ export class OfficeSaveUI {
       buttonBg.on('pointerdown', () => {
         console.log(
           '[OfficeSaveUI] Slot clicked:',
-          slotKey,
+          slotKey
         );
 
         this.setStatus(
           `Slot clicked: ${slotKey}`,
-          '#f1d480',
+          '#f1d480'
         );
 
         this.saveToSlot(slotKey);
@@ -424,7 +404,7 @@ export class OfficeSaveUI {
 
       this.slotButtons.push({
         background: buttonBg,
-        text: buttonText,
+        text: buttonText
       });
     }
   }
@@ -455,7 +435,7 @@ export class OfficeSaveUI {
 
     return [
       `SLOT ${slotNumber} — ${city}`,
-      `Day ${day}, ${hour}:00 — ${location}`,
+      `Day ${day}, ${hour}:00 — ${location}`
     ].join('\n');
   }
 
@@ -470,49 +450,43 @@ export class OfficeSaveUI {
 
     this.setStatus(
       'Securing evidence...',
-      '#f1d480',
+      '#f1d480'
     );
 
     try {
-      console.log(
-        '[OfficeSaveUI] Saving to slot:',
-        slotKey,
-      );
-
       const result = await saveManager.save(slotKey, {
         locationType: this.locationType,
         locationCode: this.locationCode,
         cityCode: this.cityCode,
-        sceneKey: this.scene.scene.key,
+        sceneKey: this.scene.scene.key
       });
-
-      console.log(
-        '[OfficeSaveUI] Save result:',
-        result,
-      );
 
       const localSave = saveManager.safeReadLocal(slotKey);
 
       if (!localSave) {
         throw new Error(
-          `Local save verification failed for ${slotKey}.`,
+          `Local save verification failed for ${slotKey}.`
         );
       }
 
+      const slotName = slotKey
+        .replace('_', ' ')
+        .toUpperCase();
+
       if (result.mode === 'cloud+local') {
         this.setStatus(
-          `Slot ${slotKey.replace('_', ' ').toUpperCase()} saved locally and in Agency Archives.`,
-          '#a8e796',
+          `${slotName} saved locally and in Agency Archives.`,
+          '#a8e796'
         );
       } else if (result.mode === 'local-fallback') {
         this.setStatus(
-          `Slot ${slotKey.replace('_', ' ').toUpperCase()} saved locally. Agency Archives are unavailable.`,
-          '#f3d28a',
+          `${slotName} saved locally. Agency Archives are unavailable.`,
+          '#f3d28a'
         );
       } else {
         this.setStatus(
-          `Slot ${slotKey.replace('_', ' ').toUpperCase()} saved locally.`,
-          '#a8e796',
+          `${slotName} saved locally.`,
+          '#a8e796'
         );
       }
 
@@ -522,12 +496,12 @@ export class OfficeSaveUI {
     } catch (error) {
       console.error(
         '[OfficeSaveUI] Save failed:',
-        error,
+        error
       );
 
       this.setStatus(
         `Save failed: ${error.message}`,
-        '#ff9f91',
+        '#ff9f91'
       );
 
       this.isSaving = false;
@@ -543,7 +517,7 @@ export class OfficeSaveUI {
 
       if (enabled) {
         slotButton.background.setInteractive({
-          useHandCursor: true,
+          useHandCursor: true
         });
 
         slotButton.background.setAlpha(1);
@@ -599,7 +573,7 @@ export class OfficeSaveUI {
 
     this.statusText = null;
 
-    this.scene.applyLock(false);
+    this.scene.applyLock?.(false);
   }
 
   destroy() {

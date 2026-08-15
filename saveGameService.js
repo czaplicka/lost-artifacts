@@ -79,7 +79,14 @@ function replaceGameState(savedState) {
    * tylko pola danych, nie zachowuje metod klasy, więc trzeba go odtworzyć.
    */
   gameState.routeManager = createRouteManagerFromSave(safeSavedState);
-
+console.log('[SaveLoad] Restored snapshot:', {
+  currentCityId: gameState.currentCityId,
+  crimeCityId: gameState.crimeCityId,
+  currentMission: gameState.currentMission,
+  visitedCities: gameState.visitedCities,
+  specialScenesCompleted: gameState.specialScenesCompleted,
+  crimeCityProgress: gameState.crimeCityProgress
+});
   return gameState;
 }
 

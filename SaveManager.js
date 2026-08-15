@@ -1,12 +1,14 @@
+import { getEnergyManager } from './EnergyManager.js';
+
 export const SAVE_CONSTANTS = {
   CURRENT_SAVE_VERSION: 1,
   SLOT_KEYS: [
     'slot_1',
     'slot_2',
-    'slot_3',
+    'slot_3'
   ],
   LOCAL_PREFIX: 'lost-artefacts',
-  LOCAL_LAST_USED_SLOT_KEY: 'lost-artefacts:last-used-slot',
+  LOCAL_LAST_USED_SLOT_KEY: 'lost-artefacts:last-used-slot'
 };
 
 function cloneData(value) {
@@ -22,7 +24,7 @@ export class SaveManager {
     supabase,
     getState,
     applyState,
-    gameVersion = '0.1.0',
+    gameVersion = '0.1.0'
   }) {
     this.supabase = supabase;
     this.getState = getState;
@@ -31,8 +33,10 @@ export class SaveManager {
   }
 
   canSave(context = {}) {
-    return context.locationType === 'hotel'
-      || context.locationType === 'office';
+    return (
+      context.locationType === 'hotel' ||
+      context.locationType === 'office'
+    );
   }
 
   validateSlotKey(slotKey) {
@@ -49,21 +53,23 @@ export class SaveManager {
     try {
       localStorage.setItem(
         SAVE_CONSTANTS.LOCAL_LAST_USED_SLOT_KEY,
-        slotKey,
+        slotKey
       );
     } catch (error) {
       console.warn(
         '[SaveManager] Failed to remember last used slot:',
-        error,
+        error
       );
     }
   }
 
   getLastUsedSlot() {
     try {
-      return localStorage.getItem(
-        SAVE_CONSTANTS.LOCAL_LAST_USED_SLOT_KEY,
-      ) || 'slot_1';
+      return (
+        localStorage.getItem(
+          SAVE_CONSTANTS.LOCAL_LAST_USED_SLOT_KEY
+        ) || 'slot_1'
+      );
     } catch {
       return 'slot_1';
     }
@@ -71,6 +77,16 @@ export class SaveManager {
 
   buildSavePayload(slotKey, context = {}) {
     const state = cloneData(this.getState());
+    const energyManager = getEnergyManager();
+
+    /*
+     * Save the source of truth from the singleton manager.
+     * gameState is also updated so the plain save object stays complete.
+     */
+    state.energy = energyManager.getCurrentEnergy();
+    state.maxEnergy = energyManager.maxEnergy;
+    state.energyLog = energyManager.getEnergyLog();
+    state.difficulty = energyManager.difficulty;
 
     return {
       saveVersion: SAVE_CONSTANTS.CURRENT_SAVE_VERSION,
@@ -80,55 +96,60 @@ export class SaveManager {
       meta: {
         savedAt: new Date().toISOString(),
 
-        locationCode: context.locationCode
-          ?? state.location?.code
-          ?? state.currentLocationId
-          ?? 'unknown',
+        locationCode:
+          context.locationCode ??
+          state.location?.code ??
+          state.currentLocationId ??
+          'unknown',
 
-        cityCode: context.cityCode
-          ?? state.location?.cityCode
-          ?? state.currentCityId
-          ?? null,
+        cityCode:
+          context.cityCode ??
+          state.location?.cityCode ??
+          state.currentCityId ??
+          null,
 
-        locationType: context.locationType
-          ?? state.location?.type
-          ?? 'unknown',
+        locationType:
+          context.locationType ??
+          state.location?.type ??
+          'unknown',
 
-        caseId: state.campaign?.currentCaseId
-          ?? state.currentMission?.id
-          ?? state.currentMissionId
-          ?? null,
+        caseId:
+          state.campaign?.currentCaseId ??
+          state.currentMission?.id ??
+          state.currentMissionId ??
+          null,
 
-        caseStage: state.campaign?.currentStage
-          ?? state.currentPhase
-          ?? state.currentStep
-          ?? null,
+        caseStage:
+          state.campaign?.currentStage ??
+          state.currentPhase ??
+          state.currentStep ??
+          null,
 
-        dayNumber: state.time?.dayNumber
-          ?? state.dayNumber
-          ?? state.gameDay
-          ?? state.day
-          ?? 1,
+        dayNumber:
+          state.time?.dayNumber ??
+          state.dayNumber ??
+          state.gameDay ??
+          state.day ??
+          1,
 
-        inGameHour: state.time?.hour
-          ?? state.hour
-          ?? state.gameHour
-          ?? 8,
+        inGameHour:
+          state.time?.hour ??
+          state.hour ??
+          state.gameHour ??
+          8,
 
-        playtimeSec: state.player?.playtimeSec
-          ?? state.playtimeSec
-          ?? 0,
+        playtimeSec:
+          state.player?.playtimeSec ??
+          state.playtimeSec ??
+          0,
 
-        lastSceneKey: context.sceneKey
-          ?? state.scene?.key
-          ?? 'GameScene',
+        lastSceneKey:
+          context.sceneKey ??
+          state.scene?.key ??
+          'GameScene'
       },
 
-      /*
-       * Save the full plain-object gameState.
-       * Do not manually list its properties here.
-       */
-      data: state,
+      data: state
     };
   }
 
@@ -150,7 +171,7 @@ export class SaveManager {
       last_scene_key: payload.meta.lastSceneKey,
 
       is_valid: true,
-      save_data: payload,
+      save_data: payload
     };
   }
 
@@ -169,17 +190,17 @@ export class SaveManager {
   }
 
   migrate(payload) {
-    let save = cloneData(payload);
+    const save = cloneData(payload);
 
     if (save.saveVersion > SAVE_CONSTANTS.CURRENT_SAVE_VERSION) {
       throw new Error(
-        `Save version ${save.saveVersion} is newer than this game version.`,
+        `Save version ${save.saveVersion} is newer than this game version.`
       );
     }
 
     while (save.saveVersion < SAVE_CONSTANTS.CURRENT_SAVE_VERSION) {
       throw new Error(
-        `No migration exists for save version ${save.saveVersion}.`,
+        `No migration exists for save version ${save.saveVersion}.`
       );
     }
 
@@ -189,7 +210,7 @@ export class SaveManager {
   writeLocal(slotKey, payload) {
     localStorage.setItem(
       this.getLocalKey(slotKey),
-      JSON.stringify(payload),
+      JSON.stringify(payload)
     );
 
     this.rememberLastUsedSlot(slotKey);
@@ -211,7 +232,7 @@ export class SaveManager {
     } catch (error) {
       console.warn(
         `[SaveManager] Failed to read local save ${slotKey}:`,
-        error,
+        error
       );
 
       return null;
@@ -220,15 +241,12 @@ export class SaveManager {
 
   async getCurrentSession() {
     try {
-      const {
-        data,
-        error,
-      } = await this.supabase.auth.getSession();
+      const { data, error } = await this.supabase.auth.getSession();
 
       if (error) {
         console.warn(
           '[SaveManager] Session lookup failed:',
-          error.message,
+          error.message
         );
 
         return null;
@@ -238,7 +256,7 @@ export class SaveManager {
     } catch (error) {
       console.warn(
         '[SaveManager] Session lookup failed:',
-        error,
+        error
       );
 
       return null;
@@ -250,92 +268,72 @@ export class SaveManager {
 
     if (!this.canSave(context)) {
       throw new Error(
-        'Saving is only available in hotel or office.',
+        'Saving is only available in hotel or office.'
       );
     }
 
     console.log('[SaveManager] Save requested:', {
       slotKey,
-      context,
+      context
     });
 
-    const payload = this.buildSavePayload(
-      slotKey,
-      context,
-    );
+    const payload = this.buildSavePayload(slotKey, context);
 
-    /*
-     * Local save must always happen first.
-     * Guest mode must never depend on Supabase Auth.
-     */
     try {
       this.writeLocal(slotKey, payload);
 
       console.log(
         '[SaveManager] Local save written:',
-        this.getLocalKey(slotKey),
+        this.getLocalKey(slotKey)
       );
     } catch (error) {
       console.error(
         '[SaveManager] Local save failed:',
-        error,
+        error
       );
 
       throw new Error(
-        `Unable to write local save: ${error.message}`,
+        `Unable to write local save: ${error.message}`
       );
     }
 
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
 
-    /*
-     * Guest Mode:
-     * local save is a valid successful save.
-     */
     if (!user) {
       return {
         ok: true,
         mode: 'local-only',
-        payload,
+        payload
       };
     }
 
-    const dbRow = this.serializeForDatabase(
-      payload,
-      user.id,
-    );
+    const dbRow = this.serializeForDatabase(payload, user.id);
 
     const { error: cloudError } = await this.supabase
       .from('player_saves')
-      .upsert(
-        dbRow,
-        {
-          onConflict: 'user_id,slot_key',
-        },
-      );
+      .upsert(dbRow, {
+        onConflict: 'user_id,slot_key'
+      });
 
-    /*
-     * Cloud failure cannot invalidate local save.
-     */
     if (cloudError) {
       console.warn(
         '[SaveManager] Cloud save failed. Local save remains valid:',
-        cloudError.message,
+        cloudError.message
       );
 
       return {
         ok: true,
         mode: 'local-fallback',
         payload,
-        warning: cloudError.message,
+        warning: cloudError.message
       };
     }
 
     return {
       ok: true,
       mode: 'cloud+local',
-      payload,
+      payload
     };
   }
 
@@ -348,10 +346,7 @@ export class SaveManager {
         return null;
       }
 
-      const {
-        data,
-        error,
-      } = await this.supabase
+      const { data, error } = await this.supabase
         .from('player_saves')
         .select('save_data')
         .eq('user_id', user.id)
@@ -366,14 +361,57 @@ export class SaveManager {
     } catch (error) {
       console.warn(
         `[SaveManager] Failed to read cloud save ${slotKey}:`,
-        error,
+        error
       );
 
       return null;
     }
   }
 
-  async load(slotKey, prefer = 'newest') {
+  restoreEnergyManager(state) {
+    const energyManager = getEnergyManager();
+
+    energyManager.restore({
+      energy: state.energy,
+      maxEnergy: state.maxEnergy,
+      difficulty: state.difficulty,
+      energyLog: state.energyLog
+    });
+
+    console.log('[SaveManager] Energy restored from save.', {
+      energy: energyManager.getCurrentEnergy(),
+      maxEnergy: energyManager.maxEnergy,
+      difficulty: energyManager.difficulty
+    });
+  }
+
+restoreUIScene(scene) {
+  if (!scene?.scene) {
+    console.warn(
+      '[SaveManager] PlayerHudScene was not restored because load() received no Phaser scene.'
+    );
+    return;
+  }
+
+  const sceneManager = scene.scene;
+  const hudKey = 'PlayerHudScene';
+
+  if (sceneManager.isActive(hudKey)) {
+    sceneManager.bringToTop(hudKey);
+    return;
+  }
+
+  if (sceneManager.isSleeping(hudKey)) {
+    sceneManager.wake(hudKey);
+    sceneManager.bringToTop(hudKey);
+    return;
+  }
+
+  sceneManager.launch(hudKey);
+  sceneManager.bringToTop(hudKey);
+}
+
+  async load(slotKey, prefer = 'local', scene = null) {
     this.validateSlotKey(slotKey);
 
     const localSave = this.safeReadLocal(slotKey);
@@ -382,7 +420,7 @@ export class SaveManager {
     const resolvedSave = this.resolvePreferredSave(
       localSave,
       cloudSave,
-      prefer,
+      prefer
     );
 
     if (!resolvedSave) {
@@ -390,29 +428,32 @@ export class SaveManager {
     }
 
     const migratedSave = this.migrate(resolvedSave);
+    const restoredState = cloneData(migratedSave.data);
 
-    this.applyState(
-      cloneData(migratedSave.data),
-    );
+    /*
+     * First restore plain game state,
+     * then restore singleton state used by gameplay and UI.
+     */
+    this.applyState(restoredState);
+    this.restoreEnergyManager(restoredState);
+    this.restoreUIScene(scene);
 
     this.rememberLastUsedSlot(slotKey);
 
     return migratedSave;
   }
 
-  async loadLastUsed(prefer = 'newest') {
+  async loadLastUsed(prefer = 'local', scene = null) {
     const slotKey = this.getLastUsedSlot();
 
-    return this.load(slotKey, prefer);
+    return this.load(slotKey, prefer, scene);
   }
 
   async listSlots() {
-    const localSlots = SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => {
-      return {
-        slotKey,
-        local: this.safeReadLocal(slotKey),
-      };
-    });
+    const localSlots = SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => ({
+      slotKey,
+      local: this.safeReadLocal(slotKey)
+    }));
 
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
@@ -420,14 +461,11 @@ export class SaveManager {
     let cloudRows = [];
 
     if (user) {
-      const {
-        data,
-        error,
-      } = await this.supabase
+      const { data, error } = await this.supabase
         .from('player_save_slots')
         .select('*')
         .order('updated_at', {
-          ascending: false,
+          ascending: false
         });
 
       if (!error) {
@@ -435,19 +473,19 @@ export class SaveManager {
       } else {
         console.warn(
           '[SaveManager] Failed to list cloud save slots:',
-          error.message,
+          error.message
         );
       }
     }
 
     return SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => {
-      const localSave = localSlots.find((item) => {
-        return item.slotKey === slotKey;
-      })?.local ?? null;
+      const localSave = localSlots.find(
+        (item) => item.slotKey === slotKey
+      )?.local ?? null;
 
-      const cloudRow = cloudRows.find((row) => {
-        return row.slot_key === slotKey;
-      }) ?? null;
+      const cloudRow = cloudRows.find(
+        (row) => row.slot_key === slotKey
+      ) ?? null;
 
       return {
         slotKey,
@@ -463,14 +501,14 @@ export class SaveManager {
               caseStage: cloudRow.case_stage,
               dayNumber: cloudRow.day_number,
               inGameHour: cloudRow.in_game_hour,
-              playtimeSec: cloudRow.playtime_sec,
+              playtimeSec: cloudRow.playtime_sec
             }
           : null,
 
         preferredSource: this.pickSource(
           localSave,
-          cloudRow,
-        ),
+          cloudRow
+        )
       };
     });
   }
@@ -478,9 +516,7 @@ export class SaveManager {
   async deleteSlot(slotKey) {
     this.validateSlotKey(slotKey);
 
-    localStorage.removeItem(
-      this.getLocalKey(slotKey),
-    );
+    localStorage.removeItem(this.getLocalKey(slotKey));
 
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
@@ -488,7 +524,7 @@ export class SaveManager {
     if (!user) {
       return {
         ok: true,
-        mode: 'local-only',
+        mode: 'local-only'
       };
     }
 
@@ -504,28 +540,26 @@ export class SaveManager {
 
     return {
       ok: true,
-      mode: 'cloud+local',
+      mode: 'cloud+local'
     };
   }
 
   pickSource(localSave, cloudRow) {
     const localTimestamp = Date.parse(
-      localSave?.meta?.savedAt ?? '',
+      localSave?.meta?.savedAt ?? ''
     ) || 0;
 
     const cloudTimestamp = Date.parse(
-      cloudRow?.updated_at ?? '',
+      cloudRow?.updated_at ?? ''
     ) || 0;
 
     if (!localSave && !cloudRow) {
       return 'none';
     }
 
-    if (cloudTimestamp > localTimestamp) {
-      return 'cloud';
-    }
-
-    return 'local';
+    return cloudTimestamp > localTimestamp
+      ? 'cloud'
+      : 'local';
   }
 
   resolvePreferredSave(localSave, cloudSave, prefer = 'newest') {
@@ -550,11 +584,11 @@ export class SaveManager {
     }
 
     const localTimestamp = Date.parse(
-      localSave?.meta?.savedAt ?? '',
+      localSave?.meta?.savedAt ?? ''
     ) || 0;
 
     const cloudTimestamp = Date.parse(
-      cloudSave?.meta?.savedAt ?? '',
+      cloudSave?.meta?.savedAt ?? ''
     ) || 0;
 
     return cloudTimestamp > localTimestamp

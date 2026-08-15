@@ -159,7 +159,7 @@ export class MoneyManager {
     return this.getBalance(source) >= normalizedAmount;
   }
 
-  reset({ cash = 500, agencyBudget = 0, agencyDebt = 0 } = {}) {
+  reset({ cash = 100, agencyBudget = 500, agencyDebt = 0 } = {}) {
     gameState.cash = normalizeAmount(cash);
     gameState.agencyBudget = normalizeAmount(agencyBudget);
     gameState.agencyDebt = normalizeAmount(agencyDebt);

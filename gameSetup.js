@@ -335,7 +335,12 @@ export async function setupNewGame(suspectsData, missionsData, locationsData, di
   resetGameState();
   resetCaseOutcomeState();
   const energyManager = getEnergyManager();
-  energyManager.init(difficulty);
+energyManager.restore({
+  energy: gameState.energy,
+  maxEnergy: gameState.maxEnergy,
+  difficulty: gameState.difficulty,
+  energyLog: gameState.energyLog
+});
   if (typeof getScoreManager()?.startSession === 'function') getScoreManager().startSession();
   const thief = getRandomItem(suspectsData);
   const crimeCities = locationsData.filter(location => location.isCrimeCity === true);

@@ -1,0 +1,69 @@
+{
+  "default": [
+    {
+      "speaker": "Ms. Ledger",
+      "portraitKey": "portrait_accounting",
+      "lines": [
+        "Mark Agency Accounting Department. State your name, badge number, and regrettable expense.",
+        "If this concerns a fake moustache, we already know."
+      ]
+    },
+    {
+      "speaker": "Ms. Ledger",
+      "portraitKey": "portrait_accounting",
+      "lines": [
+        "Accounting speaking.",
+        "We handle reimbursements, travel costs, and the financial consequences of your detective work."
+      ]
+    }
+  ],
+  "loan_request": [
+    {
+      "speaker": "Detective",
+      "portraitKey": "portrait_detective",
+      "lines": [
+        "I need an emergency advance. For the case."
+      ]
+    },
+    {
+      "speaker": "Ms. Ledger",
+      "portraitKey": "portrait_accounting",
+      "lines": [
+        "Naturally.",
+        "Is this a real emergency, or did a museum gift shop defeat you again?"
+      ]
+    }
+  ],
+  "loan_approved": [
+  {
+    "speaker": "Ms. Ledger",
+    "portraitKey": "portrait_accounting",
+    "lines": [
+      "Approved. Seventy-five dollars have been added to your mission budget.",
+      "Use it on the case, Detective.",
+      "The agency does not reimburse decorative cursed idols."
+    ]
+  }
+  ],
+  "loan_limit_reached": [
+    {
+      "speaker": "Ms. Ledger",
+      "portraitKey": "portrait_accounting",
+      "lines": [
+        "Request denied.",
+        "You have reached the agency's emergency-loan limit.",
+        "Technically, you are now a recurring monthly expense."
+      ]
+    }
+  ],
+  "loan_cancelled": [
+  {
+    "speaker": "Ms. Ledger",
+    "portraitKey": "portrait_accounting",
+    "lines": [
+      "A wise decision.",
+      "Try not to expense anything that explodes."
+    ]
+  }
+]
+}

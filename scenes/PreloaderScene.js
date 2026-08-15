@@ -351,6 +351,7 @@ export class PreloaderScene extends BaseScene {
         this.load.image('portrait_informant', 'assets/portraits/informant.png');
         this.load.image('portrait_police-station', 'assets/portraits/police-station.png');
         this.load.image('portrait_watson', 'assets/portraits/watson.png');
+        this.load.image('portrait_accounting', 'assets/portraits/portrait_accounting.png');
 
         this.load.json('suspects', 'assets/data/suspects.json');
         this.load.json('citysuspects', 'assets/data/citysuspects.json');
@@ -376,8 +377,9 @@ export class PreloaderScene extends BaseScene {
         this.load.json('dialog_police-station', 'assets/data/dialogue/police-station.json');
         this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
         this.load.json('dialog_home', 'assets/data/dialogue/home.json')
+        this.load.json('dialog_accounting', 'assets/data/dialogue/accounting.json')
         this.load.json('tv-config', 'assets/data/tv-config.json');
-        this.load.json('reconstruction_questions', 'assets/data/reconstruction_questions.json');
+        this.load.json(  'reconstruction-questions',  'assets/data/reconstruction_questions.json');
         this.load.json('monologues', 'assets/data/monologues.json');
     
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');

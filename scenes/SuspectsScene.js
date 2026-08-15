@@ -135,6 +135,105 @@ export class SuspectsScene extends BaseScene {
       .setDepth(10);
   }
 
+  createUiButton({
+    x,
+    y,
+    width,
+    height,
+    label,
+    fontSize = '9px',
+    depth = 15,
+    normalFill = 0x2d2118,
+    hoverFill = 0x4b3322,
+    normalColor = '#d8c59b',
+    hoverColor = '#fff4d6',
+    activeFill = 0xd4af37,
+    activeColor = '#17110c',
+    onClick = null
+  }) {
+    const container = this.add.container(x, y).setDepth(depth);
+
+    const background = this.add
+      .rectangle(0, 0, width, height, normalFill, 1)
+      .setStrokeStyle(2, 0x766044, 0.9)
+      .setInteractive({
+        useHandCursor: true
+      });
+
+    const text = this.add
+      .text(0, 0, label, {
+        fontFamily: 'PressStart2P',
+        fontSize,
+        color: normalColor,
+        align: 'center',
+        wordWrap: {
+          width: width - 18,
+          useAdvancedWrap: true
+        }
+      })
+      .setOrigin(0.5);
+
+    container.add([background, text]);
+
+    container.buttonBackground = background;
+    container.buttonText = text;
+    container.buttonLabel = label;
+    container.buttonStyle = {
+      normalFill,
+      hoverFill,
+      normalColor,
+      hoverColor,
+      activeFill,
+      activeColor
+    };
+    container.isActive = false;
+
+    const applyStyle = () => {
+      const style = container.buttonStyle;
+
+      if (container.isActive) {
+        background.setFillStyle(style.activeFill, 1);
+        text.setColor(style.activeColor);
+        background.setStrokeStyle(2, 0xf4d36b, 1);
+        return;
+      }
+
+      background.setFillStyle(style.normalFill, 1);
+      text.setColor(style.normalColor);
+      background.setStrokeStyle(2, 0x766044, 0.9);
+    };
+
+    background.on('pointerover', () => {
+      if (container.isActive) return;
+
+      background.setFillStyle(container.buttonStyle.hoverFill, 1);
+      text.setColor(container.buttonStyle.hoverColor);
+      background.setStrokeStyle(2, 0xd4af37, 1);
+    });
+
+    background.on('pointerout', applyStyle);
+
+    if (typeof onClick === 'function') {
+      background.on('pointerdown', onClick);
+    }
+
+    container.applyStyle = applyStyle;
+
+    return container;
+  }
+
+  setButtonEnabled(button, enabled) {
+    if (!button?.buttonBackground || !button?.buttonText) return;
+
+    button.setAlpha(enabled ? 1 : 0.45);
+
+    if (enabled) {
+      button.buttonBackground.setInteractive({ useHandCursor: true });
+    } else {
+      button.buttonBackground.disableInteractive();
+    }
+  }
+
   createFilters() {
     const { width } = this.scale;
 
@@ -145,51 +244,26 @@ export class SuspectsScene extends BaseScene {
     ];
 
     const gap = 14;
-    const buttonWidth = 142;
+    const buttonWidth = Math.min(150, Math.max(106, (width - 48 - gap * 2) / 3));
+    const buttonHeight = 40;
     const totalWidth = filters.length * buttonWidth + (filters.length - 1) * gap;
     const startX = width / 2 - totalWidth / 2 + buttonWidth / 2;
 
     filters.forEach((filter, index) => {
-      const x = startX + index * (buttonWidth + gap);
-
-      const button = this.add
-        .text(x, 136, filter.label, {
-          fontFamily: 'PressStart2P',
-          fontSize: '9px',
-          color: '#d8c59b',
-          backgroundColor: '#2d2118',
-          padding: {
-            left: 10,
-            right: 10,
-            top: 10,
-            bottom: 10
-          }
-        })
-        .setOrigin(0.5)
-        .setDepth(15)
-        .setInteractive({ useHandCursor: true });
+      const button = this.createUiButton({
+        x: startX + index * (buttonWidth + gap),
+        y: 142,
+        width: buttonWidth,
+        height: buttonHeight,
+        label: filter.label,
+        onClick: () => {
+          this.filterMode = filter.id;
+          this.currentPage = 0;
+          this.refreshBoard();
+        }
+      });
 
       button.filterId = filter.id;
-
-      button.on('pointerover', () => {
-        if (this.filterMode === filter.id) return;
-
-        button.setStyle({
-          color: '#fff4d6',
-          backgroundColor: '#4b3322'
-        });
-      });
-
-      button.on('pointerout', () => {
-        this.updateFilterButtonStyles();
-      });
-
-      button.on('pointerdown', () => {
-        this.filterMode = filter.id;
-        this.currentPage = 0;
-        this.refreshBoard();
-      });
-
       this.filterButtons.push(button);
     });
   }
@@ -213,28 +287,50 @@ export class SuspectsScene extends BaseScene {
   createNavigation() {
     const { width, height } = this.scale;
 
-    this.previousPageButton = this.add
-      .text(50, height - 28, '◀', {
-        fontFamily: 'Special Elite',
-        fontSize: '34px',
-        color: '#d4af37'
-      })
-      .setOrigin(0.5)
-      .setDepth(30)
-      .setInteractive({ useHandCursor: true });
+    this.previousPageButton = this.createUiButton({
+      x: 38,
+      y: height - 28,
+      width: 46,
+      height: 38,
+      label: '◀',
+      fontSize: '22px',
+      depth: 30,
+      normalFill: 0x211711,
+      hoverFill: 0x4b3322,
+      normalColor: '#d4af37',
+      hoverColor: '#fff4d6',
+      onClick: () => {
+        if (this.currentPage <= 0) return;
 
-    this.nextPageButton = this.add
-      .text(120, height - 28, '▶', {
-        fontFamily: 'Special Elite',
-        fontSize: '34px',
-        color: '#d4af37'
-      })
-      .setOrigin(0.5)
-      .setDepth(30)
-      .setInteractive({ useHandCursor: true });
+        this.currentPage -= 1;
+        this.refreshBoard();
+      }
+    });
+
+    this.nextPageButton = this.createUiButton({
+      x: 94,
+      y: height - 28,
+      width: 46,
+      height: 38,
+      label: '▶',
+      fontSize: '22px',
+      depth: 30,
+      normalFill: 0x211711,
+      hoverFill: 0x4b3322,
+      normalColor: '#d4af37',
+      hoverColor: '#fff4d6',
+      onClick: () => {
+        const pageCount = this.getPageCount();
+
+        if (this.currentPage >= pageCount - 1) return;
+
+        this.currentPage += 1;
+        this.refreshBoard();
+      }
+    });
 
     this.pageText = this.add
-      .text(185, height - 28, '', {
+      .text(126, height - 28, '', {
         fontFamily: 'PressStart2P',
         fontSize: '9px',
         color: '#d9c998'
@@ -242,56 +338,24 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0, 0.5)
       .setDepth(30);
 
-    this.closeButton = this.add
-      .text(width - 28, height - 28, '[ RETURN ]', {
-        fontFamily: 'PressStart2P',
-        fontSize: '9px',
-        color: '#f6e7bf',
-        backgroundColor: '#3a201b',
-        padding: {
-          left: 10,
-          right: 10,
-          top: 8,
-          bottom: 8
-        }
-      })
-      .setOrigin(1, 0.5)
-      .setDepth(30)
-      .setInteractive({ useHandCursor: true });
-
-    this.previousPageButton.on('pointerdown', () => {
-      if (this.currentPage <= 0) return;
-
-      this.currentPage -= 1;
-      this.refreshBoard();
+    this.closeButton = this.createUiButton({
+      x: width - 24,
+      y: height - 28,
+      width: 138,
+      height: 38,
+      label: '[ RETURN ]',
+      fontSize: '9px',
+      depth: 30,
+      normalFill: 0x3a201b,
+      hoverFill: 0x6b3328,
+      normalColor: '#f6e7bf',
+      hoverColor: '#ffffff',
+      onClick: () => {
+        this.closeScene();
+      }
     });
 
-    this.nextPageButton.on('pointerdown', () => {
-      const pageCount = this.getPageCount();
-
-      if (this.currentPage >= pageCount - 1) return;
-
-      this.currentPage += 1;
-      this.refreshBoard();
-    });
-
-    this.closeButton.on('pointerover', () => {
-      this.closeButton.setStyle({
-        color: '#ffffff',
-        backgroundColor: '#6b3328'
-      });
-    });
-
-    this.closeButton.on('pointerout', () => {
-      this.closeButton.setStyle({
-        color: '#f6e7bf',
-        backgroundColor: '#3a201b'
-      });
-    });
-
-    this.closeButton.on('pointerdown', () => {
-      this.closeScene();
-    });
+    this.closeButton.setOrigin(0.5);
   }
 
   getAllSuspects() {
@@ -325,9 +389,9 @@ export class SuspectsScene extends BaseScene {
     const { width } = this.scale;
 
     if (width <= 700) return 4;
-    if (width <= 1100) return 6;
+    if (width <= 1100) return 4;
 
-    return 10;
+    return 4;
   }
 
   getPageCount() {
@@ -402,12 +466,8 @@ export class SuspectsScene extends BaseScene {
 
   updateFilterButtonStyles() {
     this.filterButtons.forEach((button) => {
-      const isActive = button.filterId === this.filterMode;
-
-      button.setStyle({
-        color: isActive ? '#17110c' : '#d8c59b',
-        backgroundColor: isActive ? '#d4af37' : '#2d2118'
-      });
+      button.isActive = button.filterId === this.filterMode;
+      button.applyStyle?.();
     });
   }
 
@@ -427,32 +487,36 @@ export class SuspectsScene extends BaseScene {
 
     this.emptyText.setVisible(false);
 
-    const contentTop = 192;
-    const contentBottom = height - 74;
+    const contentTop = 184;
+    const contentBottom = height - 72;
 
-    const detailsWidth = isMobile ? 0 : isTablet ? 310 : 360;
+    const detailsWidth = isMobile ? 0 : isTablet ? 350 : 450;
+    const sidePadding = isMobile ? 18 : 24;
+    const panelGap = isMobile ? 0 : 22;
+
     const cardsAreaWidth = isMobile
-      ? width - 32
-      : width - detailsWidth - 54;
+      ? width - sidePadding * 2
+      : width - detailsWidth - panelGap - sidePadding * 2;
 
     const cardsAreaX = isMobile
       ? width / 2
-      : 24 + cardsAreaWidth / 2;
+      : sidePadding + cardsAreaWidth / 2;
 
-    const columns = isMobile ? 2 : isTablet ? 2 : 5;
+    const columns = isMobile ? 1 : 2;
     const rows = Math.ceil(suspects.length / columns);
 
-    const gapX = isMobile ? 12 : 16;
-    const gapY = isMobile ? 12 : 16;
+    const gapX = isMobile ? 0 : 18;
+    const gapY = 16;
 
     const cardWidth = Math.min(
-      isMobile ? 230 : isTablet ? 270 : 245,
+      isMobile ? width - 36 : 360,
       (cardsAreaWidth - gapX * (columns - 1)) / columns
     );
 
-    const cardHeight = Math.min(
-      isMobile ? 185 : 205,
-      (contentBottom - contentTop - gapY * (rows - 1)) / Math.max(1, rows)
+    const availableHeight = contentBottom - contentTop;
+    const cardHeight = Math.max(
+      142,
+      Math.min(260, (availableHeight - gapY * (rows - 1)) / Math.max(1, rows))
     );
 
     const gridWidth = columns * cardWidth + (columns - 1) * gapX;
@@ -475,10 +539,6 @@ export class SuspectsScene extends BaseScene {
 
       this.cardsContainer.add(card);
     });
-
-    if (!isMobile) {
-      this.renderDetailsPanel();
-    }
   }
 
   createSuspectCard(suspect, x, y, width, height) {
@@ -502,20 +562,14 @@ export class SuspectsScene extends BaseScene {
     const bg = this.add
       .rectangle(0, 0, width, height, backgroundColor, 1)
       .setStrokeStyle(isSelected ? 3 : 2, borderColor, 0.95)
-      .setInteractive(
-        new Phaser.Geom.Rectangle(
-          -width / 2,
-          -height / 2,
-          width,
-          height
-        ),
-        Phaser.Geom.Rectangle.Contains
-      );
+      .setInteractive({
+        useHandCursor: true
+      });
 
     const fileNumber = this.getSuspectFileNumber(suspect.id);
 
     const fileLabel = this.add
-      .text(-width / 2 + 12, -height / 2 + 12, `FILE ${fileNumber}`, {
+      .text(-width / 2 + 14, -height / 2 + 14, `FILE ${fileNumber}`, {
         fontFamily: 'PressStart2P',
         fontSize: '8px',
         color: isEliminated ? '#d07f75' : '#bba276'
@@ -523,26 +577,26 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0, 0);
 
     const name = this.add
-      .text(0, -height / 2 + 34, suspect.name || 'Unknown', {
+      .text(0, -height / 2 + 38, suspect.name || 'Unknown', {
         fontFamily: 'Special Elite',
-        fontSize: width < 210 ? '20px' : '23px',
+        fontSize: width < 230 ? '20px' : '25px',
         color: isEliminated ? '#b8a39d' : '#fff0cd',
         align: 'center',
         wordWrap: {
-          width: width - 24,
+          width: width - 28,
           useAdvancedWrap: true
         }
       })
       .setOrigin(0.5, 0);
 
     const occupation = this.add
-      .text(0, -height / 2 + 82, suspect.occupation || 'Unknown role', {
+      .text(0, -height / 2 + 88, suspect.occupation || 'Unknown role', {
         fontFamily: 'Special Elite',
-        fontSize: '16px',
+        fontSize: '17px',
         color: isEliminated ? '#9a8581' : '#dfca9e',
         align: 'center',
         wordWrap: {
-          width: width - 28,
+          width: width - 30,
           useAdvancedWrap: true
         }
       })
@@ -557,13 +611,13 @@ export class SuspectsScene extends BaseScene {
       : '• No visible notes';
 
     const visibleTraits = this.add
-      .text(-width / 2 + 14, 16, traitsText, {
+      .text(-width / 2 + 16, 18, traitsText, {
         fontFamily: 'Special Elite',
-        fontSize: '14px',
+        fontSize: '15px',
         color: isEliminated ? '#9c8984' : '#e9dbbb',
-        lineSpacing: 3,
+        lineSpacing: 4,
         wordWrap: {
-          width: width - 28,
+          width: width - 32,
           useAdvancedWrap: true
         }
       })
@@ -576,7 +630,11 @@ export class SuspectsScene extends BaseScene {
         fontFamily: 'PressStart2P',
         fontSize: '8px',
         color: status.color,
-        align: 'center'
+        align: 'center',
+        wordWrap: {
+          width: width - 24,
+          useAdvancedWrap: true
+        }
       })
       .setOrigin(0.5);
 
@@ -606,7 +664,7 @@ export class SuspectsScene extends BaseScene {
       const stamp = this.add
         .text(0, 0, 'CLEARED', {
           fontFamily: 'PressStart2P',
-          fontSize: width < 210 ? '15px' : '18px',
+          fontSize: width < 230 ? '15px' : '18px',
           color: '#db5750',
           stroke: '#1f0d0b',
           strokeThickness: 5
@@ -619,13 +677,15 @@ export class SuspectsScene extends BaseScene {
     }
 
     bg.on('pointerover', () => {
-      if (isEliminated) return;
+      if (isEliminated || isSelected) return;
 
       bg.setFillStyle(0x514027, 1);
+      bg.setStrokeStyle(2, 0xd4af37, 1);
     });
 
     bg.on('pointerout', () => {
       bg.setFillStyle(backgroundColor, 1);
+      bg.setStrokeStyle(isSelected ? 3 : 2, borderColor, 0.95);
     });
 
     bg.on('pointerdown', () => {
@@ -709,10 +769,13 @@ export class SuspectsScene extends BaseScene {
       (suspect) => suspect.id === this.selectedSuspectId
     );
 
-    const panelWidth = width <= 1100 ? 286 : 336;
-    const panelX = width - panelWidth / 2 - 18;
-    const panelY = (height - 56 + 170) / 2 + 20;
-    const panelHeight = height - 210;
+    const isTablet = width <= 1100;
+    const panelWidth = isTablet ? 330 : 430;
+    const panelX = width - panelWidth / 2 - 20;
+    const panelTop = 184;
+    const panelBottom = height - 72;
+    const panelHeight = panelBottom - panelTop;
+    const panelY = panelTop + panelHeight / 2;
 
     const panelBg = this.add
       .rectangle(panelX, panelY, panelWidth, panelHeight, 0x211711, 0.98)
@@ -738,7 +801,7 @@ export class SuspectsScene extends BaseScene {
     const details = this.buildDetailsText(selected);
 
     const heading = this.add
-      .text(panelX, panelY - panelHeight / 2 + 18, 'CASE NOTES', {
+      .text(panelX, panelTop + 18, 'CASE NOTES', {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
         color: '#d4af37'
@@ -746,9 +809,9 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0.5, 0);
 
     const suspectName = this.add
-      .text(panelX, panelY - panelHeight / 2 + 48, selected.name, {
+      .text(panelX, panelTop + 48, selected.name, {
         fontFamily: 'Special Elite',
-        fontSize: '26px',
+        fontSize: isTablet ? '25px' : '29px',
         color: isEliminated ? '#b69891' : '#fff0cd',
         align: 'center',
         wordWrap: {
@@ -759,13 +822,13 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0.5, 0);
 
     const body = this.add
-      .text(panelX - panelWidth / 2 + 16, panelY - panelHeight / 2 + 108, details, {
+      .text(panelX - panelWidth / 2 + 18, panelTop + 110, details, {
         fontFamily: 'Special Elite',
-        fontSize: width <= 1100 ? '15px' : '17px',
+        fontSize: isTablet ? '16px' : '18px',
         color: '#e2d1ad',
         lineSpacing: 6,
         wordWrap: {
-          width: panelWidth - 32,
+          width: panelWidth - 36,
           useAdvancedWrap: true
         }
       })
@@ -775,7 +838,7 @@ export class SuspectsScene extends BaseScene {
 
     if (isEliminated) {
       const clearedStamp = this.add
-        .text(panelX, panelY + panelHeight / 2 - 38, 'EXCLUDED FROM CURRENT LEADS', {
+        .text(panelX, panelBottom - 18, 'EXCLUDED FROM CURRENT LEADS', {
           fontFamily: 'PressStart2P',
           fontSize: '8px',
           color: '#ec726a',
@@ -785,7 +848,7 @@ export class SuspectsScene extends BaseScene {
             useAdvancedWrap: true
           }
         })
-        .setOrigin(0.5);
+        .setOrigin(0.5, 1);
 
       this.detailsContainer.add(clearedStamp);
     }
@@ -895,7 +958,8 @@ export class SuspectsScene extends BaseScene {
     const overlay = this.add
       .rectangle(0, 0, width, height, 0x000000, 0.8)
       .setOrigin(0, 0)
-      .setDepth(100);
+      .setDepth(100)
+      .setInteractive();
 
     const panel = this.add
       .rectangle(width / 2, height / 2, width - 36, height - 90, 0x211711, 1)
@@ -930,22 +994,19 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0, 0)
       .setDepth(102);
 
-    const close = this.add
-      .text(width / 2, height - 54, '[ CLOSE FILE ]', {
-        fontFamily: 'PressStart2P',
-        fontSize: '10px',
-        color: '#20150e',
-        backgroundColor: '#d4af37',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 10,
-          bottom: 10
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(102)
-      .setInteractive({ useHandCursor: true });
+    const closeButton = this.createUiButton({
+      x: width / 2,
+      y: height - 54,
+      width: 180,
+      height: 42,
+      label: '[ CLOSE FILE ]',
+      fontSize: '10px',
+      depth: 102,
+      normalFill: 0xd4af37,
+      hoverFill: 0xf0c653,
+      normalColor: '#20150e',
+      hoverColor: '#20150e'
+    });
 
     const closeDetails = () => {
       [
@@ -953,15 +1014,15 @@ export class SuspectsScene extends BaseScene {
         panel,
         title,
         body,
-        close
+        closeButton
       ].forEach((item) => {
         item.removeAllListeners?.();
-        item.destroy();
+        item.destroy?.();
       });
     };
 
     overlay.on('pointerdown', closeDetails);
-    close.on('pointerdown', closeDetails);
+    closeButton.buttonBackground.on('pointerdown', closeDetails);
   }
 
   updatePagination() {
@@ -976,12 +1037,14 @@ export class SuspectsScene extends BaseScene {
 
     this.pageText.setText(`PAGE ${this.currentPage + 1}/${pageCount}`);
 
-    this.previousPageButton.setColor(
-      this.currentPage > 0 ? '#d4af37' : '#604e32'
+    this.setButtonEnabled(
+      this.previousPageButton,
+      this.currentPage > 0
     );
 
-    this.nextPageButton.setColor(
-      this.currentPage < pageCount - 1 ? '#d4af37' : '#604e32'
+    this.setButtonEnabled(
+      this.nextPageButton,
+      this.currentPage < pageCount - 1
     );
   }
 
@@ -1022,20 +1085,28 @@ export class SuspectsScene extends BaseScene {
     this.headerText.setPosition(width / 2, 24);
     this.summaryText.setPosition(width / 2, 70);
 
-    const filters = this.filterButtons;
     const gap = 14;
-    const buttonWidth = 142;
-    const totalWidth = filters.length * buttonWidth + (filters.length - 1) * gap;
+    const buttonWidth = Math.min(
+      150,
+      Math.max(106, (width - 48 - gap * 2) / 3)
+    );
+    const totalWidth = this.filterButtons.length * buttonWidth +
+      (this.filterButtons.length - 1) * gap;
     const startX = width / 2 - totalWidth / 2 + buttonWidth / 2;
 
-    filters.forEach((button, index) => {
-      button.setPosition(startX + index * (buttonWidth + gap), 136);
+    this.filterButtons.forEach((button, index) => {
+      button.setPosition(
+        startX + index * (buttonWidth + gap),
+        142
+      );
+
+      button.buttonBackground.setSize(buttonWidth, 40);
     });
 
-    this.previousPageButton.setPosition(50, height - 28);
-    this.nextPageButton.setPosition(120, height - 28);
-    this.pageText.setPosition(185, height - 28);
-    this.closeButton.setPosition(width - 28, height - 28);
+    this.previousPageButton.setPosition(38, height - 28);
+    this.nextPageButton.setPosition(94, height - 28);
+    this.pageText.setPosition(126, height - 28);
+    this.closeButton.setPosition(width - 94, height - 28);
 
     this.refreshBoard();
   }

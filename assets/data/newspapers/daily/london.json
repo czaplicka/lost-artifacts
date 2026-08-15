@@ -11,10 +11,10 @@
       "imageKey": "paper_london_heist_photo",
       "imageCaption": "The empty display at {location}, now London's least complete attraction.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_london_heist_photo",
       "imageCaption": "Visitors admire the place where the {artifact} was last seen.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_london_heist_photo",
       "imageCaption": "The scene of the crime, looking appropriately dramatic in the rain.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_london_heist_photo",
       "imageCaption": "An empty space at {location}, now receiving more attention than ever.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     }
   ],
@@ -70,10 +70,10 @@
       "imageKey": "paper_london_queue_photo",
       "imageCaption": "The bicycle that briefly became a civic landmark.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -84,10 +84,10 @@
       "imageKey": "paper_london_weather_photo",
       "imageCaption": "The weather, fulfilling its contractual obligations.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -98,10 +98,10 @@
       "imageKey": "paper_london_tube_photo",
       "imageCaption": "The seat was available. Nobody asked why.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -112,10 +112,10 @@
       "imageKey": "paper_london_pigeon_bus_photo",
       "imageCaption": "The passenger declined to tap in.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -126,10 +126,10 @@
       "imageKey": "paper_london_tourist_map_photo",
       "imageCaption": "The map, technically accurate and emotionally unhelpful.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

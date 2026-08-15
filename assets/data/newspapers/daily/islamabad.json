@@ -11,10 +11,10 @@
       "imageKey": "paper_islamabad_hills_photo",
       "imageCaption": "The hills, quietly extending every short walk.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_islamabad_chai_photo",
       "imageCaption": "The tea stall where every cup comes with an unsolicited consultation.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_islamabad_sunset_photo",
       "imageCaption": "A view considered worth at least one forgotten password.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_islamabad_peacock_photo",
       "imageCaption": "A visitor whose authority was never formally established, yet universally accepted.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -67,10 +67,10 @@
       "imageKey": "paper_islamabad_traffic_photo",
       "imageCaption": "A temporary gathering of strangers with increasingly detailed opinions.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

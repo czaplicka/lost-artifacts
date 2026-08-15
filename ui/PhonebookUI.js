@@ -20,7 +20,8 @@ export class PhonebookUI {
             { name: 'CSI', number: '555-0177', key: 'csi', available: true },
             { name: 'INFORMANT', number: '555-0199', key: 'informant', available: true },
             { name: 'INSP. HOLMES', number: '555-0221', key: 'holmes', available: true },
-            { name: 'SGT. WATSON', number: '555-0233', key: 'watson', available: true }
+            { name: 'SGT. WATSON', number: '555-0233', key: 'watson', available: true },
+            { name: 'ACCOUNTING', number: '555-0420', key: 'accounting', available: true }
         ];
 
         this.entryPairs = [];
@@ -117,7 +118,7 @@ export class PhonebookUI {
         }).setOrigin(0.5);
 
         this.statusText = this.scene.add.text(0, 420, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '24px',
             color: '#8a1f1f'
         }).setOrigin(0.5).setAlpha(0);

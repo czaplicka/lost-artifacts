@@ -73,8 +73,8 @@ export const defaultGameState = {
   maxEnergy: 100,
   energyLog: [],
 
-  cash: 500,
-  agencyBudget: 0,
+  cash: 100,
+  agencyBudget: 500,
   agencyDebt: 0,
   moneyLog: [],
 
