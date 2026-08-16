@@ -1,3 +1,4 @@
+import { audioManager } from '../../AudioManager.js';
 import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 
@@ -35,6 +36,10 @@ export class FiberAnalysisScene extends BaseScene {
 
     this.playbackEvent = null;
     this.nextRoundEvent = null;
+
+    this.gameStarted = false;
+    this.readyOverlay = null;
+    this.readyObjects = [];
   }
 
   init(data = {}) {
@@ -42,20 +47,26 @@ export class FiberAnalysisScene extends BaseScene {
 
     this.stationId = data.stationId || 'trace_1';
 
-    this.evidenceType = data.evidenceType
-      || evidenceConfig.evidenceType
-      || 'fiber_profile';
+    this.evidenceType =
+      data.evidenceType ||
+      evidenceConfig.evidenceType ||
+      'fiber_profile';
 
-    this.correctValue = data.correctValue
-      ?? evidenceConfig.correctValue
-      ?? 'blue_cotton_fiber';
+    this.correctValue =
+      data.correctValue ??
+      evidenceConfig.correctValue ??
+      'blue_cotton_fiber';
 
     this.clue = data.clue || {
       id: evidenceConfig.id || 'blue_cotton_fiber',
-      type: data.clueType || evidenceConfig.clueType || 'red_herring',
-      text: data.clueText
-        || evidenceConfig.clueText
-        || 'A blue cotton fiber was recovered from the crime scene.',
+      type:
+        data.clueType ||
+        evidenceConfig.clueType ||
+        'red_herring',
+      text:
+        data.clueText ||
+        evidenceConfig.clueText ||
+        'A blue cotton fiber was recovered from the crime scene.',
       facts: {
         material: 'cotton',
         color: 'blue',
@@ -78,12 +89,14 @@ export class FiberAnalysisScene extends BaseScene {
 
     this.playbackEvent = null;
     this.nextRoundEvent = null;
+
+    this.gameStarted = false;
+    this.readyOverlay = null;
+    this.readyObjects = [];
   }
 
   create() {
     super.create();
-
-    this.startedAt = this.time.now;
 
     this.term = new LabTerminal(this, {
       title: 'SPECTROGRAPH SP-404 // REAGENT SEQUENCER',
@@ -111,25 +124,28 @@ export class FiberAnalysisScene extends BaseScene {
     const centerY = this.term.y + this.term.h - 190;
 
     this.padTexts = PADS.map((pad, index) => {
-      const text = this.add.text(
-        centerX + (index - 1.5) * 150,
-        centerY,
-        ` ${pad.label} `,
-        {
-          fontFamily: '"Press Start 2P"',
-          fontSize: '18px',
-          color: TERM.dark,
-          backgroundColor: pad.color,
-          padding: {
-            x: 14,
-            y: 14
+      const text = this.add
+        .text(
+          centerX + (index - 1.5) * 150,
+          centerY,
+          ` ${pad.label} `,
+          {
+            fontFamily: '"Press Start 2P"',
+            fontSize: '18px',
+            color: TERM.dark,
+            backgroundColor: pad.color,
+            padding: {
+              x: 14,
+              y: 14
+            }
           }
-        }
-      )
+        )
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
 
       text.on('pointerdown', () => {
+        if (!this.gameStarted || this.finished) return;
+
         this.pressPad(index);
       });
 
@@ -151,11 +167,133 @@ export class FiberAnalysisScene extends BaseScene {
       { color: TERM.amber }
     );
 
-    this.startRound();
+    if (!this.finished) {
+      this.showReadyScreen();
+    }
+  }
+
+  showReadyScreen() {
+    const { width, height } = this.scale;
+
+    this.gameStarted = false;
+
+    this.readyOverlay = this.add
+      .rectangle(0, 0, width, height, 0x000000, 0.9)
+      .setOrigin(0, 0)
+      .setDepth(5000)
+      .setInteractive();
+
+    const panel = this.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        Math.min(width - 40, 760),
+        390,
+        0x111827,
+        1
+      )
+      .setStrokeStyle(3, 0x7df9ff)
+      .setDepth(5001);
+
+    const title = this.add
+      .text(
+        width / 2,
+        height / 2 - 130,
+        'FIBER MATCHING PROTOCOL',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '16px',
+          color: '#7df9ff',
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(5002);
+
+    const briefing = this.add
+      .text(
+        width / 2,
+        height / 2 - 20,
+        'Watch the fiber scanner carefully.\n\nRepeat the color sequence exactly.\n\nThe machine is dramatic, impatient,\nand legally classified as a diva.',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '25px',
+          color: '#fff4c7',
+          align: 'center',
+          wordWrap: {
+            width: Math.min(width - 110, 650)
+          }
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(5002);
+
+    const startButton = this.add
+      .text(width / 2, height / 2 + 145, '[ I AM FOCUSED ]', {
+        fontFamily: 'PressStart2P',
+        fontSize: '13px',
+        color: '#39ff14',
+        backgroundColor: '#000000',
+        padding: {
+          left: 16,
+          right: 16,
+          top: 12,
+          bottom: 12
+        }
+      })
+      .setOrigin(0.5)
+      .setDepth(5002)
+      .setInteractive({ useHandCursor: true });
+
+    const startFiberGame = () => {
+      if (this.gameStarted || this.finished) return;
+
+      this.gameStarted = true;
+
+      audioManager.playSfx('click_sound');
+
+      this.readyObjects.forEach((gameObject) => {
+        if (!gameObject?.active) return;
+
+        gameObject.removeAllListeners?.();
+        gameObject.destroy();
+      });
+
+      this.readyObjects = [];
+      this.readyOverlay = null;
+
+      /*
+       * Timer starts only after the player explicitly confirms
+       * that they are ready to watch the sequence.
+       */
+      this.startedAt = this.time.now;
+
+      this.startRound();
+    };
+
+    startButton.on('pointerover', () => {
+      startButton.setScale(1.06);
+      startButton.setColor('#ffffff');
+    });
+
+    startButton.on('pointerout', () => {
+      startButton.setScale(1);
+      startButton.setColor('#39ff14');
+    });
+
+    startButton.on('pointerdown', startFiberGame);
+
+    this.readyObjects = [
+      this.readyOverlay,
+      panel,
+      title,
+      briefing,
+      startButton
+    ];
   }
 
   async startRound() {
-    if (this.finished) return;
+    if (this.finished || !this.gameStarted) return;
 
     this.accepting = false;
     this.inputIndex = 0;
@@ -171,11 +309,11 @@ export class FiberAnalysisScene extends BaseScene {
       `> ROUND ${this.round + 1}/3 — SEQUENCE LENGTH ${sequenceLength}`
     );
 
-    if (this.finished) return;
+    if (this.finished || !this.gameStarted) return;
 
     await this.playSequence();
 
-    if (!this.finished) {
+    if (!this.finished && this.gameStarted) {
       this.accepting = true;
     }
   }
@@ -188,7 +326,7 @@ export class FiberAnalysisScene extends BaseScene {
         delay: 650,
         repeat: this.sequence.length - 1,
         callback: () => {
-          if (this.finished) {
+          if (this.finished || !this.gameStarted) {
             resolve();
             return;
           }
@@ -229,7 +367,13 @@ export class FiberAnalysisScene extends BaseScene {
   }
 
   async pressPad(index) {
-    if (!this.accepting || this.finished) return;
+    if (
+      !this.gameStarted ||
+      !this.accepting ||
+      this.finished
+    ) {
+      return;
+    }
 
     this.flashPad(index);
 
@@ -265,7 +409,7 @@ export class FiberAnalysisScene extends BaseScene {
   }
 
   async handleWrongPad() {
-    if (this.finished) return;
+    if (this.finished || !this.gameStarted) return;
 
     this.accepting = false;
     this.mistakes += 1;
@@ -297,6 +441,10 @@ export class FiberAnalysisScene extends BaseScene {
   }
 
   getSecondsElapsed() {
+    if (!this.startedAt) {
+      return 0;
+    }
+
     return Math.floor(
       (this.time.now - this.startedAt) / 1000
     );
@@ -392,6 +540,7 @@ export class FiberAnalysisScene extends BaseScene {
 
   cleanup() {
     this.accepting = false;
+    this.gameStarted = false;
 
     if (this.playbackEvent) {
       this.playbackEvent.remove();
@@ -402,6 +551,16 @@ export class FiberAnalysisScene extends BaseScene {
       this.nextRoundEvent.remove();
       this.nextRoundEvent = null;
     }
+
+    this.readyObjects.forEach((gameObject) => {
+      if (!gameObject?.active) return;
+
+      gameObject.removeAllListeners?.();
+      gameObject.destroy();
+    });
+
+    this.readyObjects = [];
+    this.readyOverlay = null;
 
     this.padTexts.forEach((padText) => {
       if (!padText) return;

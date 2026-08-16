@@ -379,7 +379,7 @@ export class PreloaderScene extends BaseScene {
         this.load.json('dialog_home', 'assets/data/dialogue/home.json')
         this.load.json('dialog_accounting', 'assets/data/dialogue/accounting.json')
         this.load.json('tv-config', 'assets/data/tv-config.json');
-        this.load.json(  'reconstruction-questions',  'assets/data/reconstruction_questions.json');
+        this.load.json(  'reconstruction_questions',  'assets/data/reconstruction_questions.json');
         this.load.json('monologues', 'assets/data/monologues.json');
     
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');

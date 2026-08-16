@@ -36,70 +36,81 @@ export class ReconstructionGenerator {
     }
 
     if (skills.length < claimCount) {
-      throw new Error(`ReconstructionGenerator: expected at least ${claimCount} thief skills, received ${skills.length}.`);
+      throw new Error(
+        `ReconstructionGenerator: expected at least ${claimCount} thief skills, received ${skills.length}.`
+      );
     }
 
     if (cardCount < claimCount * 2) {
-      throw new Error('ReconstructionGenerator: cardCount must allow one solution and one alternative per claim.');
+      throw new Error(
+        'ReconstructionGenerator: cardCount must allow one solution and one alternative per claim.'
+      );
     }
 
-    const sceneItems = normalizedItems.filter(item =>
-      item.scene.some(scene => this.normalize(scene) === normalizedSceneId)
+    const sceneItems = normalizedItems.filter((item) =>
+      item.scene.some(
+        (scene) => this.normalize(scene) === normalizedSceneId
+      )
     );
 
     if (sceneItems.length === 0) {
-      throw new Error(`ReconstructionGenerator: no items found for scene "${sceneId}".`);
-    }
-
-    const questionMap = new Map(normalizedQuestions.map(question => [question.id, question]));
-    const skillPool = this.shuffle([...skills], rng);
-    const claims = [];
-    const usedQuestionGroups = new Set();
-    const usedItemIds = new Set();
-
-    for (const skill of skillPool) {
-      if (claims.length >= claimCount) break;
-
-      const candidates = this.shuffle(
-        this.findSolutionCandidates(sceneItems, skill, questionMap)
-          .filter(candidate => !usedItemIds.has(candidate.item.id))
-          .filter(candidate => !usedQuestionGroups.has(candidate.question.exclusiveGroup)),
-        rng
-      );
-
-      const chosen = candidates.find(candidate =>
-        this.hasAlternativeForQuestion(sceneItems, candidate.question.id, candidate.item.id)
-      );
-
-      if (!chosen) continue;
-
-      claims.push({
-        id: chosen.question.id,
-        questionId: chosen.question.id,
-        prompt: chosen.question.prompt,
-        phase: chosen.question.phase,
-        exclusiveGroup: chosen.question.exclusiveGroup,
-        solutionItemId: chosen.item.id,
-        solutionUseIndex: chosen.useIndex,
-        solutionExplanation: chosen.use.heistExplanation || chosen.item.heistExplanation || '',
-        revealedSkills: this.uniqueStrings(chosen.use.skills.length > 0 ? chosen.use.skills : [skill]),
-        thiefSkill: skill
-      });
-
-      usedQuestionGroups.add(chosen.question.exclusiveGroup);
-      usedItemIds.add(chosen.item.id);
-    }
-
-    if (claims.length < claimCount) {
-      const found = claims.map(claim => `${claim.thiefSkill} → ${claim.questionId}`).join(', ') || 'none';
       throw new Error(
-        `ReconstructionGenerator: could not build ${claimCount} distinct claims for scene "${sceneId}". Built: ${found}. ` +
-        'Add compatible reconstructionUses or choose a different thief skill combination.'
+        `ReconstructionGenerator: no items found for scene "${sceneId}".`
       );
     }
 
-    const solutionIds = new Set(claims.map(claim => claim.solutionItemId));
-    const alternatives = this.buildAlternatives(sceneItems, claims, solutionIds, rng);
+    const questionMap = new Map(
+      normalizedQuestions.map((question) => [question.id, question])
+    );
+
+    const skillPool = this.shuffle([...skills], rng);
+
+    const candidatesBySkill = skillPool.map((skill) => ({
+      skill,
+      candidates: this.shuffle(
+        this.findSolutionCandidates(sceneItems, skill, questionMap).filter(
+          (candidate) =>
+            this.hasAlternativeForQuestion(
+              sceneItems,
+              candidate.question.id,
+              candidate.item.id
+            )
+        ),
+        rng
+      )
+    }));
+
+    const claims = this.findValidClaims(
+      candidatesBySkill,
+      claimCount
+    );
+
+    if (!claims || claims.length < claimCount) {
+      const candidateSummary = candidatesBySkill
+        .map(
+          ({ skill, candidates }) =>
+            `${skill}: ${candidates.length}`
+        )
+        .join(', ');
+
+      throw new Error(
+        `ReconstructionGenerator: could not build ${claimCount} distinct claims ` +
+        `for scene "${sceneId}". Candidate counts: ${candidateSummary}. ` +
+        'Check skill aliases, question groups, and reconstructionUses.'
+      );
+    }
+
+    const solutionIds = new Set(
+      claims.map((claim) => claim.solutionItemId)
+    );
+
+    const alternatives = this.buildAlternatives(
+      sceneItems,
+      claims,
+      solutionIds,
+      rng
+    );
+
     const requiredAlternatives = cardCount - claims.length;
 
     if (alternatives.length < requiredAlternatives) {
@@ -108,13 +119,30 @@ export class ReconstructionGenerator {
       );
     }
 
-    const chosenAlternatives = this.shuffle(alternatives, rng).slice(0, requiredAlternatives);
-    const foundCardIds = this.shuffle([
-      ...claims.map(claim => claim.solutionItemId),
-      ...chosenAlternatives.map(item => item.id)
-    ], rng);
+    const chosenAlternatives = this.shuffle(
+      alternatives,
+      rng
+    ).slice(0, requiredAlternatives);
 
-    const foundCards = foundCardIds.map(id => this.cloneCard(sceneItems.find(item => item.id === id)));
+    const foundCardIds = this.shuffle(
+      [
+        ...claims.map((claim) => claim.solutionItemId),
+        ...chosenAlternatives.map((item) => item.id)
+      ],
+      rng
+    );
+
+    const foundCards = foundCardIds.map((id) => {
+      const card = sceneItems.find((item) => item.id === id);
+
+      if (!card) {
+        throw new Error(
+          `ReconstructionGenerator: selected card "${id}" was not found in scene "${sceneId}".`
+        );
+      }
+
+      return this.cloneCard(card);
+    });
 
     return {
       missionId,
@@ -123,7 +151,9 @@ export class ReconstructionGenerator {
       thiefId,
       thiefSkills: [...skills],
       claims,
-      solutionCardIds: claims.map(claim => claim.solutionItemId),
+      solutionCardIds: claims.map(
+        (claim) => claim.solutionItemId
+      ),
       foundCardIds,
       foundCards,
       allCards: this.buildHypothesisCards(foundCards, claims),
@@ -134,55 +164,179 @@ export class ReconstructionGenerator {
     };
   }
 
+  static findValidClaims(candidatesBySkill, claimCount) {
+    const search = (
+      skillIndex,
+      claims,
+      usedItemIds,
+      usedQuestionGroups
+    ) => {
+      if (claims.length === claimCount) {
+        return claims;
+      }
+
+      if (skillIndex >= candidatesBySkill.length) {
+        return null;
+      }
+
+      const remainingSkills = candidatesBySkill.length - skillIndex;
+
+      if (claims.length + remainingSkills < claimCount) {
+        return null;
+      }
+
+      const { skill, candidates } = candidatesBySkill[skillIndex];
+
+      for (const candidate of candidates) {
+        const itemId = candidate.item.id;
+        const groupId = candidate.question.exclusiveGroup;
+
+        if (
+          usedItemIds.has(itemId) ||
+          usedQuestionGroups.has(groupId)
+        ) {
+          continue;
+        }
+
+        const claim = {
+          id: candidate.question.id,
+          questionId: candidate.question.id,
+          prompt: candidate.question.prompt,
+          phase: candidate.question.phase,
+          exclusiveGroup: groupId,
+          solutionItemId: itemId,
+          solutionUseIndex: candidate.useIndex,
+          solutionExplanation:
+            candidate.use.heistExplanation ||
+            candidate.item.heistExplanation ||
+            '',
+          revealedSkills: this.uniqueStrings(
+            candidate.use.skills.length > 0
+              ? candidate.use.skills
+              : [skill]
+          ),
+          thiefSkill: skill
+        };
+
+        const nextUsedItemIds = new Set(usedItemIds);
+        nextUsedItemIds.add(itemId);
+
+        const nextUsedQuestionGroups = new Set(
+          usedQuestionGroups
+        );
+        nextUsedQuestionGroups.add(groupId);
+
+        const result = search(
+          skillIndex + 1,
+          [...claims, claim],
+          nextUsedItemIds,
+          nextUsedQuestionGroups
+        );
+
+        if (result) {
+          return result;
+        }
+      }
+
+      return search(
+        skillIndex + 1,
+        claims,
+        usedItemIds,
+        usedQuestionGroups
+      );
+    };
+
+    return search(
+      0,
+      [],
+      new Set(),
+      new Set()
+    );
+  }
+
   static findSolutionCandidates(sceneItems, thiefSkill, questionMap) {
     const normalizedSkill = this.normalize(thiefSkill);
     const candidates = [];
 
-    sceneItems.forEach(item => {
+    sceneItems.forEach((item) => {
       item.reconstructionUses.forEach((use, useIndex) => {
         const question = questionMap.get(use.questionId);
-        if (!question) return;
 
-        const useSkills = use.skills.length > 0 ? use.skills : item.skills;
-        const matchesSkill = useSkills.some(skill => this.normalize(skill) === normalizedSkill);
-        if (!matchesSkill) return;
+        if (!question) {
+          return;
+        }
 
-        candidates.push({ item, use, useIndex, question });
+        const useSkills =
+          use.skills.length > 0
+            ? use.skills
+            : item.skills;
+
+        const matchesSkill = useSkills.some(
+          (skill) => this.normalize(skill) === normalizedSkill
+        );
+
+        if (!matchesSkill) {
+          return;
+        }
+
+        candidates.push({
+          item,
+          use,
+          useIndex,
+          question
+        });
       });
     });
 
     return candidates;
   }
 
-  static hasAlternativeForQuestion(sceneItems, questionId, solutionItemId) {
-    return sceneItems.some(item =>
-      item.id !== solutionItemId && item.reconstructionUses.some(use => use.questionId === questionId)
+  static hasAlternativeForQuestion(
+    sceneItems,
+    questionId,
+    solutionItemId
+  ) {
+    return sceneItems.some(
+      (item) =>
+        item.id !== solutionItemId &&
+        item.reconstructionUses.some(
+          (use) => use.questionId === questionId
+        )
     );
   }
 
   static buildAlternatives(sceneItems, claims, solutionIds, rng) {
     const alternativeMap = new Map();
 
-    claims.forEach(claim => {
+    claims.forEach((claim) => {
       const candidates = this.shuffle(
-        sceneItems.filter(item =>
-          !solutionIds.has(item.id) &&
-          item.reconstructionUses.some(use => use.questionId === claim.questionId)
+        sceneItems.filter(
+          (item) =>
+            !solutionIds.has(item.id) &&
+            item.reconstructionUses.some(
+              (use) => use.questionId === claim.questionId
+            )
         ),
         rng
       );
 
       const first = candidates[0];
-      if (first) alternativeMap.set(first.id, first);
+
+      if (first) {
+        alternativeMap.set(first.id, first);
+      }
     });
 
-    claims.forEach(claim => {
+    claims.forEach((claim) => {
       sceneItems
-        .filter(item =>
-          !solutionIds.has(item.id) &&
-          item.reconstructionUses.some(use => use.questionId === claim.questionId)
+        .filter(
+          (item) =>
+            !solutionIds.has(item.id) &&
+            item.reconstructionUses.some(
+              (use) => use.questionId === claim.questionId
+            )
         )
-        .forEach(item => alternativeMap.set(item.id, item));
+        .forEach((item) => alternativeMap.set(item.id, item));
     });
 
     return [...alternativeMap.values()];
@@ -190,13 +344,19 @@ export class ReconstructionGenerator {
 
   static buildHypothesisCards(foundCards, claims) {
     const solutionByItemId = new Map(
-      claims.map((claim, index) => [claim.solutionItemId, { claim, index }])
+      claims.map((claim, index) => [
+        claim.solutionItemId,
+        { claim, index }
+      ])
     );
 
-    return foundCards.map(card => {
+    return foundCards.map((card) => {
       const solution = solutionByItemId.get(card.id);
+
       const matchingUse = solution
-        ? card.reconstructionUses[solution.claim.solutionUseIndex]
+        ? card.reconstructionUses[
+            solution.claim.solutionUseIndex
+          ]
         : null;
 
       return {
@@ -204,13 +364,21 @@ export class ReconstructionGenerator {
         item: card.item,
         text: card.item,
         skills: [...card.skills],
-        scene: card.scene,
-        isCorrect: !!solution,
+        scene: [...card.scene],
+        isCorrect: Boolean(solution),
         correctOrder: solution ? solution.index : -1,
         questionId: solution?.claim.questionId || null,
-        heistExplanation: matchingUse?.heistExplanation || card.heistExplanation || '',
+        heistExplanation:
+          matchingUse?.heistExplanation ||
+          card.heistExplanation ||
+          '',
         trueExplanation: card.trueExplanation || '',
-        reconstructionUses: card.reconstructionUses.map(use => ({ ...use }))
+        reconstructionUses: card.reconstructionUses.map(
+          (use) => ({
+            ...use,
+            skills: [...use.skills]
+          })
+        )
       };
     });
   }
@@ -223,8 +391,8 @@ export class ReconstructionGenerator {
         : [];
 
     return rawItems
-      .filter(item => item && item.id)
-      .map(item => ({
+      .filter((item) => item && item.id)
+      .map((item) => ({
         id: String(item.id),
         item: String(item.item || item.id),
         skills: this.uniqueStrings(item.skills),
@@ -232,14 +400,18 @@ export class ReconstructionGenerator {
         tags: this.uniqueStrings(item.tags),
         trueExplanation: String(item.trueExplanation || ''),
         heistExplanation: String(item.heistExplanation || ''),
-        reconstructionUses: Array.isArray(item.reconstructionUses)
+        reconstructionUses: Array.isArray(
+          item.reconstructionUses
+        )
           ? item.reconstructionUses
-            .filter(use => use?.questionId)
-            .map(use => ({
-              questionId: String(use.questionId),
-              skills: this.uniqueStrings(use.skills),
-              heistExplanation: String(use.heistExplanation || '')
-            }))
+              .filter((use) => use?.questionId)
+              .map((use) => ({
+                questionId: String(use.questionId),
+                skills: this.uniqueStrings(use.skills),
+                heistExplanation: String(
+                  use.heistExplanation || ''
+                )
+              }))
           : []
       }));
   }
@@ -252,14 +424,24 @@ export class ReconstructionGenerator {
         : [];
 
     return rawQuestions
-      .filter(question => question?.id && question?.prompt)
-      .map(question => {
-        const defaults = DEFAULT_QUESTION_META[question.id] || {};
+      .filter(
+        (question) => question?.id && question?.prompt
+      )
+      .map((question) => {
+        const defaults =
+          DEFAULT_QUESTION_META[question.id] || {};
+
         return {
           id: String(question.id),
           prompt: String(question.prompt),
-          phase: question.phase || defaults.phase || 'execution',
-          exclusiveGroup: question.exclusiveGroup || defaults.exclusiveGroup || question.id
+          phase:
+            question.phase ||
+            defaults.phase ||
+            'execution',
+          exclusiveGroup:
+            question.exclusiveGroup ||
+            defaults.exclusiveGroup ||
+            question.id
         };
       });
   }
@@ -270,10 +452,12 @@ export class ReconstructionGenerator {
       skills: [...card.skills],
       scene: [...card.scene],
       tags: [...card.tags],
-      reconstructionUses: card.reconstructionUses.map(use => ({
-        ...use,
-        skills: [...use.skills]
-      }))
+      reconstructionUses: card.reconstructionUses.map(
+        (use) => ({
+          ...use,
+          skills: [...use.skills]
+        })
+      )
     };
   }
 
@@ -284,23 +468,45 @@ export class ReconstructionGenerator {
     return values.reduce((result, entry) => {
       const text = String(entry || '').trim();
       const key = this.normalize(text);
-      if (!text || seen.has(key)) return result;
+
+      if (!text || seen.has(key)) {
+        return result;
+      }
+
       seen.add(key);
       result.push(text);
+
       return result;
     }, []);
   }
 
   static normalize(value) {
-    return String(value || '').trim().toLowerCase();
+    const normalized = String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    const aliases = {
+      pickpocketing: 'pickpocket',
+      'pick pocketing': 'pickpocket',
+      pickpocket: 'pickpocket'
+    };
+
+    return aliases[normalized] || normalized;
   }
 
   static shuffle(array, rng = Math.random) {
     const result = [...array];
 
     for (let index = result.length - 1; index > 0; index -= 1) {
-      const swapIndex = Math.floor(rng() * (index + 1));
-      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      const swapIndex = Math.floor(
+        rng() * (index + 1)
+      );
+
+      [result[index], result[swapIndex]] = [
+        result[swapIndex],
+        result[index]
+      ];
     }
 
     return result;

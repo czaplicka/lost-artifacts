@@ -29,20 +29,26 @@ export class ShoeprintScene extends BaseScene {
 
     this.stationId = data.stationId || 'trace_1';
 
-    this.evidenceType = data.evidenceType
-      || evidenceConfig.evidenceType
-      || 'shoeprint_profile';
+    this.evidenceType =
+      data.evidenceType ||
+      evidenceConfig.evidenceType ||
+      'shoeprint_profile';
 
-    this.correctValue = data.correctValue
-      ?? evidenceConfig.correctValue
-      ?? 'size_43_vibram_left_heel';
+    this.correctValue =
+      data.correctValue ??
+      evidenceConfig.correctValue ??
+      'size_43_vibram_left_heel';
 
     this.clue = data.clue || {
       id: evidenceConfig.id || 'museum_windowsill_shoeprint',
-      type: data.clueType || evidenceConfig.clueType || 'means',
-      text: data.clueText
-        || evidenceConfig.clueText
-        || 'A size 43 hiking boot with a Vibram sole left a worn mark on the museum windowsill.',
+      type:
+        data.clueType ||
+        evidenceConfig.clueType ||
+        'means',
+      text:
+        data.clueText ||
+        evidenceConfig.clueText ||
+        'A size 43 hiking boot with a Vibram sole left a worn mark on the museum windowsill.',
       facts: {
         size: 43,
         sole: 'Vibram',
@@ -145,22 +151,34 @@ export class ShoeprintScene extends BaseScene {
     );
 
     await terminal.print(
-      `> SIZE: ${this.cast.size}   SOLE: ${this.cast.sole}   WEAR: ${this.cast.wear}`
+      `> SIZE: ${this.cast.size} / SOLE: ${this.cast.sole} / WEAR: ${this.cast.wear}`
     );
 
     await terminal.print(
       '> DATABASE RETURNED 3 RECORDS. PICK THE FULL MATCH.'
     );
 
+    await terminal.print(
+      '> FORMAT: ID | SIZE | SOLE | WEAR.',
+      { color: TERM.amber }
+    );
+
     this.showEntryButtons();
   }
 
   showEntryButtons() {
+    if (!this.term || this.finished) {
+      return;
+    }
+
     this.term.clearButtons();
 
     this.entries.forEach((entry) => {
+      const label =
+        `${entry.id} | ${entry.size} | ${entry.sole} | ${entry.wear}`;
+
       this.term.button(
-        entry.id,
+        label,
         TERM.green,
         () => this.guessEntry(entry)
       );
@@ -168,7 +186,9 @@ export class ShoeprintScene extends BaseScene {
   }
 
   async guessEntry(entry) {
-    if (this.busy || this.finished) return;
+    if (this.busy || this.finished) {
+      return;
+    }
 
     this.busy = true;
 
@@ -177,7 +197,7 @@ export class ShoeprintScene extends BaseScene {
     terminal.clearButtons();
 
     await terminal.print(
-      `> ${entry.id}: SIZE ${entry.size} / SOLE ${entry.sole} / WEAR ${entry.wear}`
+      `> CHECKING ${entry.id}: ${entry.size} / ${entry.sole} / ${entry.wear}`
     );
 
     await terminal.progress(
@@ -245,9 +265,10 @@ export class ShoeprintScene extends BaseScene {
       'size',
       'sole',
       'wear'
-    ].find((property) => {
-      return entry[property] !== this.cast[property];
-    });
+    ].find(
+      (property) =>
+        entry[property] !== this.cast[property]
+    );
 
     await terminal.print(
       `> MISMATCH: ${mismatch.toUpperCase()} DOES NOT FIT. (-15 PTS)`,
@@ -282,7 +303,9 @@ export class ShoeprintScene extends BaseScene {
   }
 
   returnResultToCrimeLab(value) {
-    if (this.returningToLab) return;
+    if (this.returningToLab) {
+      return;
+    }
 
     this.returningToLab = true;
 

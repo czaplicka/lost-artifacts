@@ -339,7 +339,7 @@ export class SuspectsScene extends BaseScene {
       .setDepth(30);
 
     this.closeButton = this.createUiButton({
-      x: width - 24,
+      x: width - 94,
       y: height - 28,
       width: 138,
       height: 38,
@@ -354,8 +354,6 @@ export class SuspectsScene extends BaseScene {
         this.closeScene();
       }
     });
-
-    this.closeButton.setOrigin(0.5);
   }
 
   getAllSuspects() {

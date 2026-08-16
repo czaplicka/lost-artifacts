@@ -79,10 +79,6 @@ export class SaveManager {
     const state = cloneData(this.getState());
     const energyManager = getEnergyManager();
 
-    /*
-     * Save the source of truth from the singleton manager.
-     * gameState is also updated so the plain save object stays complete.
-     */
     state.energy = energyManager.getCurrentEnergy();
     state.maxEnergy = energyManager.maxEnergy;
     state.energyLog = energyManager.getEnergyLog();
@@ -385,33 +381,7 @@ export class SaveManager {
     });
   }
 
-restoreUIScene(scene) {
-  if (!scene?.scene) {
-    console.warn(
-      '[SaveManager] PlayerHudScene was not restored because load() received no Phaser scene.'
-    );
-    return;
-  }
-
-  const sceneManager = scene.scene;
-  const hudKey = 'PlayerHudScene';
-
-  if (sceneManager.isActive(hudKey)) {
-    sceneManager.bringToTop(hudKey);
-    return;
-  }
-
-  if (sceneManager.isSleeping(hudKey)) {
-    sceneManager.wake(hudKey);
-    sceneManager.bringToTop(hudKey);
-    return;
-  }
-
-  sceneManager.launch(hudKey);
-  sceneManager.bringToTop(hudKey);
-}
-
-  async load(slotKey, prefer = 'local', scene = null) {
+  async load(slotKey, prefer = 'local') {
     this.validateSlotKey(slotKey);
 
     const localSave = this.safeReadLocal(slotKey);
@@ -430,23 +400,18 @@ restoreUIScene(scene) {
     const migratedSave = this.migrate(resolvedSave);
     const restoredState = cloneData(migratedSave.data);
 
-    /*
-     * First restore plain game state,
-     * then restore singleton state used by gameplay and UI.
-     */
     this.applyState(restoredState);
     this.restoreEnergyManager(restoredState);
-    this.restoreUIScene(scene);
 
     this.rememberLastUsedSlot(slotKey);
 
     return migratedSave;
   }
 
-  async loadLastUsed(prefer = 'local', scene = null) {
+  async loadLastUsed(prefer = 'local') {
     const slotKey = this.getLastUsedSlot();
 
-    return this.load(slotKey, prefer, scene);
+    return this.load(slotKey, prefer);
   }
 
   async listSlots() {

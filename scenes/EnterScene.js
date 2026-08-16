@@ -595,11 +595,7 @@ export class EnterScene extends BaseScene {
   this.isLoadingSave = true;
 
   try {
-const loadedSave = await saveManager.load(
-  slotKey,
-  'local',
-  this
-);
+const loadedSave = await saveManager.load(slotKey, 'local');
 
     if (!loadedSave) {
       console.warn(
