@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from '../GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { BaseScene } from './BaseScene.js';
 import {
   getPublicSuspectList,
@@ -7,10 +8,6 @@ import {
 
 export class SuspectsScene extends BaseScene {
   constructor() {
-    /*
-     * Keep this key compatible with CrimeLabScene:
-     * this.scene.start('SuspectBoardScene', ...)
-     */
     super('SuspectBoardScene');
 
     this.gameState = gameState;
@@ -84,7 +81,11 @@ export class SuspectsScene extends BaseScene {
 
     this.scale.on('resize', this.resizeHandler);
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.cleanupScene,
+      this
+    );
   }
 
   createBackground() {
@@ -228,7 +229,9 @@ export class SuspectsScene extends BaseScene {
     button.setAlpha(enabled ? 1 : 0.45);
 
     if (enabled) {
-      button.buttonBackground.setInteractive({ useHandCursor: true });
+      button.buttonBackground.setInteractive({
+        useHandCursor: true
+      });
     } else {
       button.buttonBackground.disableInteractive();
     }
@@ -244,10 +247,17 @@ export class SuspectsScene extends BaseScene {
     ];
 
     const gap = 14;
-    const buttonWidth = Math.min(150, Math.max(106, (width - 48 - gap * 2) / 3));
+    const buttonWidth = Math.min(
+      150,
+      Math.max(106, (width - 48 - gap * 2) / 3)
+    );
     const buttonHeight = 40;
-    const totalWidth = filters.length * buttonWidth + (filters.length - 1) * gap;
-    const startX = width / 2 - totalWidth / 2 + buttonWidth / 2;
+    const totalWidth =
+      filters.length * buttonWidth +
+      (filters.length - 1) * gap;
+
+    const startX =
+      width / 2 - totalWidth / 2 + buttonWidth / 2;
 
     filters.forEach((filter, index) => {
       const button = this.createUiButton({
@@ -360,7 +370,11 @@ export class SuspectsScene extends BaseScene {
     try {
       return getPublicSuspectList();
     } catch (error) {
-      console.error('[SuspectsScene] Could not load suspect list.', error);
+      console.error(
+        '[SuspectsScene] Could not load suspect list.',
+        error
+      );
+
       return [];
     }
   }
@@ -384,11 +398,6 @@ export class SuspectsScene extends BaseScene {
   }
 
   getCardsPerPage() {
-    const { width } = this.scale;
-
-    if (width <= 700) return 4;
-    if (width <= 1100) return 4;
-
     return 4;
   }
 
@@ -396,7 +405,10 @@ export class SuspectsScene extends BaseScene {
     const suspects = this.getFilteredSuspects();
     const cardsPerPage = this.getCardsPerPage();
 
-    return Math.max(1, Math.ceil(suspects.length / cardsPerPage));
+    return Math.max(
+      1,
+      Math.ceil(suspects.length / cardsPerPage)
+    );
   }
 
   getVisibleSuspects() {
@@ -422,7 +434,9 @@ export class SuspectsScene extends BaseScene {
 
     if (
       !this.selectedSuspectId ||
-      !allSuspects.some((suspect) => suspect.id === this.selectedSuspectId)
+      !allSuspects.some(
+        (suspect) => suspect.id === this.selectedSuspectId
+      )
     ) {
       this.selectedSuspectId = visibleSuspects[0]?.id || null;
     }
@@ -512,20 +526,31 @@ export class SuspectsScene extends BaseScene {
     );
 
     const availableHeight = contentBottom - contentTop;
+
     const cardHeight = Math.max(
       142,
-      Math.min(260, (availableHeight - gapY * (rows - 1)) / Math.max(1, rows))
+      Math.min(
+        260,
+        (availableHeight - gapY * (rows - 1)) / Math.max(1, rows)
+      )
     );
 
-    const gridWidth = columns * cardWidth + (columns - 1) * gapX;
-    const startX = cardsAreaX - gridWidth / 2 + cardWidth / 2;
+    const gridWidth =
+      columns * cardWidth +
+      (columns - 1) * gapX;
+
+    const startX =
+      cardsAreaX - gridWidth / 2 + cardWidth / 2;
 
     suspects.forEach((suspect, index) => {
       const column = index % columns;
       const row = Math.floor(index / columns);
 
       const x = startX + column * (cardWidth + gapX);
-      const y = contentTop + cardHeight / 2 + row * (cardHeight + gapY);
+      const y =
+        contentTop +
+        cardHeight / 2 +
+        row * (cardHeight + gapY);
 
       const card = this.createSuspectCard(
         suspect,
@@ -541,7 +566,9 @@ export class SuspectsScene extends BaseScene {
 
   createSuspectCard(suspect, x, y, width, height) {
     const isSelected = suspect.id === this.selectedSuspectId;
-    const isEliminated = Boolean(suspect.deductionState?.eliminated);
+    const isEliminated = Boolean(
+      suspect.deductionState?.eliminated
+    );
 
     const card = this.add.container(x, y);
 
@@ -567,11 +594,16 @@ export class SuspectsScene extends BaseScene {
     const fileNumber = this.getSuspectFileNumber(suspect.id);
 
     const fileLabel = this.add
-      .text(-width / 2 + 14, -height / 2 + 14, `FILE ${fileNumber}`, {
-        fontFamily: 'PressStart2P',
-        fontSize: '8px',
-        color: isEliminated ? '#d07f75' : '#bba276'
-      })
+      .text(
+        -width / 2 + 14,
+        -height / 2 + 14,
+        `FILE ${fileNumber}`,
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '8px',
+          color: isEliminated ? '#d07f75' : '#bba276'
+        }
+      )
       .setOrigin(0, 0);
 
     const name = this.add
@@ -588,16 +620,21 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0.5, 0);
 
     const occupation = this.add
-      .text(0, -height / 2 + 88, suspect.occupation || 'Unknown role', {
-        fontFamily: 'Special Elite',
-        fontSize: '17px',
-        color: isEliminated ? '#9a8581' : '#dfca9e',
-        align: 'center',
-        wordWrap: {
-          width: width - 30,
-          useAdvancedWrap: true
+      .text(
+        0,
+        -height / 2 + 88,
+        suspect.occupation || 'Unknown role',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '17px',
+          color: isEliminated ? '#9a8581' : '#dfca9e',
+          align: 'center',
+          wordWrap: {
+            width: width - 30,
+            useAdvancedWrap: true
+          }
         }
-      })
+      )
       .setOrigin(0.5, 0);
 
     const traits = Array.isArray(suspect.visibleTraits)
@@ -683,7 +720,11 @@ export class SuspectsScene extends BaseScene {
 
     bg.on('pointerout', () => {
       bg.setFillStyle(backgroundColor, 1);
-      bg.setStrokeStyle(isSelected ? 3 : 2, borderColor, 0.95);
+      bg.setStrokeStyle(
+        isSelected ? 3 : 2,
+        borderColor,
+        0.95
+      );
     });
 
     bg.on('pointerdown', () => {
@@ -705,7 +746,10 @@ export class SuspectsScene extends BaseScene {
 
   getSuspectFileNumber(suspectId) {
     const allSuspects = this.getAllSuspects();
-    const index = allSuspects.findIndex((suspect) => suspect.id === suspectId);
+
+    const index = allSuspects.findIndex(
+      (suspect) => suspect.id === suspectId
+    );
 
     return String(index + 1).padStart(2, '0');
   }
@@ -776,7 +820,14 @@ export class SuspectsScene extends BaseScene {
     const panelY = panelTop + panelHeight / 2;
 
     const panelBg = this.add
-      .rectangle(panelX, panelY, panelWidth, panelHeight, 0x211711, 0.98)
+      .rectangle(
+        panelX,
+        panelY,
+        panelWidth,
+        panelHeight,
+        0x211711,
+        0.98
+      )
       .setStrokeStyle(2, 0x8b6c38, 0.9);
 
     this.detailsContainer.add(panelBg);
@@ -795,7 +846,10 @@ export class SuspectsScene extends BaseScene {
       return;
     }
 
-    const isEliminated = Boolean(selected.deductionState?.eliminated);
+    const isEliminated = Boolean(
+      selected.deductionState?.eliminated
+    );
+
     const details = this.buildDetailsText(selected);
 
     const heading = this.add
@@ -820,32 +874,46 @@ export class SuspectsScene extends BaseScene {
       .setOrigin(0.5, 0);
 
     const body = this.add
-      .text(panelX - panelWidth / 2 + 18, panelTop + 110, details, {
-        fontFamily: 'Special Elite',
-        fontSize: isTablet ? '16px' : '18px',
-        color: '#e2d1ad',
-        lineSpacing: 6,
-        wordWrap: {
-          width: panelWidth - 36,
-          useAdvancedWrap: true
+      .text(
+        panelX - panelWidth / 2 + 18,
+        panelTop + 110,
+        details,
+        {
+          fontFamily: 'Special Elite',
+          fontSize: isTablet ? '16px' : '18px',
+          color: '#e2d1ad',
+          lineSpacing: 6,
+          wordWrap: {
+            width: panelWidth - 36,
+            useAdvancedWrap: true
+          }
         }
-      })
+      )
       .setOrigin(0, 0);
 
-    this.detailsContainer.add([heading, suspectName, body]);
+    this.detailsContainer.add([
+      heading,
+      suspectName,
+      body
+    ]);
 
     if (isEliminated) {
       const clearedStamp = this.add
-        .text(panelX, panelBottom - 18, 'EXCLUDED FROM CURRENT LEADS', {
-          fontFamily: 'PressStart2P',
-          fontSize: '8px',
-          color: '#ec726a',
-          align: 'center',
-          wordWrap: {
-            width: panelWidth - 30,
-            useAdvancedWrap: true
+        .text(
+          panelX,
+          panelBottom - 18,
+          'EXCLUDED FROM CURRENT LEADS',
+          {
+            fontFamily: 'PressStart2P',
+            fontSize: '8px',
+            color: '#ec726a',
+            align: 'center',
+            wordWrap: {
+              width: panelWidth - 30,
+              useAdvancedWrap: true
+            }
           }
-        })
+        )
         .setOrigin(0.5, 1);
 
       this.detailsContainer.add(clearedStamp);
@@ -854,10 +922,33 @@ export class SuspectsScene extends BaseScene {
 
   buildDetailsText(suspect) {
     const state = suspect.deductionState || {};
-    const forensic = suspect.restrictedProfile?.forensicAttributes || {};
+    const restrictedProfile = suspect.restrictedProfile || {};
+    const forensic = restrictedProfile.forensicAttributes || {};
+
     const visibleTraits = Array.isArray(suspect.visibleTraits)
       ? suspect.visibleTraits
       : [];
+
+    const unlockedFields = Array.isArray(
+      restrictedProfile.unlockedFields
+    )
+      ? restrictedProfile.unlockedFields
+      : [];
+
+    const unlockedFieldSet = new Set(
+      unlockedFields
+        .map((field) => {
+          if (typeof field === 'string') return field;
+
+          return (
+            field?.field ||
+            field?.id ||
+            field?.key ||
+            null
+          );
+        })
+        .filter(Boolean)
+    );
 
     const lines = [];
 
@@ -879,16 +970,22 @@ export class SuspectsScene extends BaseScene {
 
     lines.push('\nForensics:');
 
-    const forensicEntries = Object.entries(forensic);
+    const unlockedForensicEntries = Object.entries(forensic).filter(
+      ([field, data]) => {
+        return Boolean(data?.unlocked) || unlockedFieldSet.has(field);
+      }
+    );
 
-    if (!forensicEntries.length) {
-      lines.push('• Police records pending');
+    if (!unlockedForensicEntries.length) {
+      lines.push('• Lab analysis pending');
     } else {
-      forensicEntries.forEach(([field, data]) => {
+      unlockedForensicEntries.forEach(([field, data]) => {
         const label = this.formatEvidenceField(field);
         const value = data?.value || 'pending';
 
-        lines.push(`• ${label}: ${String(value).toUpperCase()}`);
+        lines.push(
+          `• ${label}: ${String(value).toUpperCase()}`
+        );
       });
     }
 
@@ -898,7 +995,10 @@ export class SuspectsScene extends BaseScene {
     lines.push(`• Interview: ${this.formatStatus(state.interviewStatus)}`);
     lines.push(`• Alibi: ${this.formatStatus(state.alibiStatus)}`);
 
-    if (Array.isArray(state.eliminationReasons) && state.eliminationReasons.length) {
+    if (
+      Array.isArray(state.eliminationReasons) &&
+      state.eliminationReasons.length
+    ) {
       lines.push('\nWhy cleared:');
 
       state.eliminationReasons.forEach((reason) => {
@@ -910,7 +1010,10 @@ export class SuspectsScene extends BaseScene {
       });
     }
 
-    if (Array.isArray(state.notesUnlocked) && state.notesUnlocked.length) {
+    if (
+      Array.isArray(state.notesUnlocked) &&
+      state.notesUnlocked.length
+    ) {
       lines.push('\nInvestigator notes:');
 
       state.notesUnlocked.slice(-3).forEach((note) => {
@@ -924,6 +1027,7 @@ export class SuspectsScene extends BaseScene {
   formatEvidenceField(field) {
     const labels = {
       hair_color: 'Hair result',
+      eye_color: 'Witness description',
       blood_type: 'Blood result',
       biological_sex: 'DNA profile',
       shoe_size_category: 'Footwear result'
@@ -960,7 +1064,14 @@ export class SuspectsScene extends BaseScene {
       .setInteractive();
 
     const panel = this.add
-      .rectangle(width / 2, height / 2, width - 36, height - 90, 0x211711, 1)
+      .rectangle(
+        width / 2,
+        height / 2,
+        width - 36,
+        height - 90,
+        0x211711,
+        1
+      )
       .setStrokeStyle(3, 0xd4af37, 0.9)
       .setDepth(101);
 
@@ -1020,7 +1131,10 @@ export class SuspectsScene extends BaseScene {
     };
 
     overlay.on('pointerdown', closeDetails);
-    closeButton.buttonBackground.on('pointerdown', closeDetails);
+    closeButton.buttonBackground.on(
+      'pointerdown',
+      closeDetails
+    );
   }
 
   updatePagination() {
@@ -1033,7 +1147,9 @@ export class SuspectsScene extends BaseScene {
 
     if (!hasMultiplePages) return;
 
-    this.pageText.setText(`PAGE ${this.currentPage + 1}/${pageCount}`);
+    this.pageText.setText(
+      `PAGE ${this.currentPage + 1}/${pageCount}`
+    );
 
     this.setButtonEnabled(
       this.previousPageButton,
@@ -1084,13 +1200,18 @@ export class SuspectsScene extends BaseScene {
     this.summaryText.setPosition(width / 2, 70);
 
     const gap = 14;
+
     const buttonWidth = Math.min(
       150,
       Math.max(106, (width - 48 - gap * 2) / 3)
     );
-    const totalWidth = this.filterButtons.length * buttonWidth +
+
+    const totalWidth =
+      this.filterButtons.length * buttonWidth +
       (this.filterButtons.length - 1) * gap;
-    const startX = width / 2 - totalWidth / 2 + buttonWidth / 2;
+
+    const startX =
+      width / 2 - totalWidth / 2 + buttonWidth / 2;
 
     this.filterButtons.forEach((button, index) => {
       button.setPosition(

@@ -11,10 +11,10 @@
       "imageKey": "paper_toronto_raccoon_photo",
       "imageCaption": "The visitor declined to sign in at reception.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_toronto_streetcar_photo",
       "imageCaption": "The suspiciously available seat, moments before someone trusted it.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_toronto_path_photo",
       "imageCaption": "A familiar entrance to several possible destinations.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_toronto_dog_park_photo",
       "imageCaption": "A local resident demonstrating advanced leisure skills.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -67,10 +67,10 @@
       "imageKey": "paper_toronto_tower_photo",
       "imageCaption": "The building visible from almost every accidental photo.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

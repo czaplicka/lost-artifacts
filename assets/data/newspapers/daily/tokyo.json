@@ -11,10 +11,10 @@
       "imageKey": "paper_tokyo_train_photo",
       "imageCaption": "The platform where one commuter briefly achieved perfection.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_tokyo_vending_photo",
       "imageCaption": "A public service with better availability than most colleagues.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_tokyo_station_cat_photo",
       "imageCaption": "The inspector remains unavailable for comment or eye contact.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_tokyo_convenience_photo",
       "imageCaption": "A five-minute errand enters its second phase.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -67,10 +67,10 @@
       "imageKey": "paper_tokyo_fuji_photo",
       "imageCaption": "A reminder that not every important thing fits in a calendar invite.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

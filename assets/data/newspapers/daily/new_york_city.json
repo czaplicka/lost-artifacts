@@ -11,10 +11,10 @@
       "imageKey": "paper_new_york_heist_photo",
       "imageCaption": "The empty display at {location}, now New York's most discussed rectangle.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -25,10 +25,10 @@
       "imageKey": "paper_new_york_heist_photo",
       "imageCaption": "Visitors look at the place where the {artifact} was last seen.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -39,10 +39,10 @@
       "imageKey": "paper_new_york_heist_photo",
       "imageCaption": "The scene of the crime, where everyone is now professionally looking at things.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -53,10 +53,10 @@
       "imageKey": "paper_new_york_heist_photo",
       "imageCaption": "An empty spot at {location}, currently more famous than the exhibit beside it.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     }
   ],
@@ -70,10 +70,10 @@
       "imageKey": "paper_new_york_subway_photo",
       "imageCaption": "The carriage where history suddenly happened.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -84,10 +84,10 @@
       "imageKey": "paper_new_york_deli_photo",
       "imageCaption": "Innovation, served on a roll.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -98,10 +98,10 @@
       "imageKey": "paper_new_york_street_photo",
       "imageCaption": "The shortcut, still technically somewhere nearby.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -112,10 +112,10 @@
       "imageKey": "paper_new_york_dog_park_photo",
       "imageCaption": "A New Yorker with no unread emails and excellent weekend plans.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
     {
@@ -126,10 +126,10 @@
       "imageKey": "paper_new_york_taxi_photo",
       "imageCaption": "A ride-share of local knowledge and highly specific opinions.",
       "image": {
-        "x": 760,
-        "y": 245,
-        "width": 300,
-        "height": 190
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
       }
     },
 

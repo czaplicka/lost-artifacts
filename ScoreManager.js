@@ -279,7 +279,7 @@ getDifficultyMultiplier() {
             this._breakdown.length - MAX_SESSION_BREAKDOWN,
         );
     }
-
+gameState.score = this._sessionPoints;
     EventBus.emit('scoreChanged', {
         delta: safeDelta,
         rawDelta,

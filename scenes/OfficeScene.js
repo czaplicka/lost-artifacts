@@ -47,6 +47,7 @@ export class OfficeScene extends BaseScene {
   create() {
     super.create();
 ensureHud(this);
+this.hasMenu = true;
     audioManager.init(this);
     audioManager.stopAllVoice();
     audioManager.stopAllSfx();

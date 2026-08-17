@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from './GameData.js';
+import { gameState } from './GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 
 const MAX_MONEY_LOG_ENTRIES = 100;
 
@@ -22,39 +23,6 @@ export const ECONOMY_CATEGORY = Object.freeze({
   ITEM: 'item',
   AGENCY_ADVANCE: 'agency_advance',
   REFUND: 'refund'
-});
-
-export const TRAVEL_OPTIONS = Object.freeze({
-  agency: {
-    id: 'agency',
-    label: 'Agency Ticket',
-    source: MONEY_SOURCE.AGENCY,
-    cost: 0,
-    timeCost: 8,
-    energyCost: 20,
-    description: 'The agency pays. You pay in patience.'
-  },
-
-  express: {
-    id: 'express',
-    label: 'Express Ticket',
-    source: MONEY_SOURCE.CASH,
-    cost: 40,
-    timeCost: 3,
-    energyCost: 10,
-    description: 'Fast, comfortable, and entirely on your tab.'
-  },
-
-  overnight: {
-    id: 'overnight',
-    label: 'Night Train',
-    source: MONEY_SOURCE.CASH,
-    cost: 55,
-    timeCost: 5,
-    energyCost: 0,
-    energyRestore: 25,
-    description: 'A bed, a train, and at least one suspicious passenger.'
-  }
 });
 
 export const HOTEL_OPTIONS = Object.freeze({
@@ -108,13 +76,18 @@ function normalizeAmount(value) {
 }
 
 function createTransactionId() {
-  const randomPart = Math.random().toString(36).slice(2, 8);
+  const randomPart = Math.random()
+    .toString(36)
+    .slice(2, 8);
 
   return `money-${Date.now()}-${randomPart}`;
 }
 
 function dispatchMoneyChange(reason, transaction = null) {
-  if (typeof window === 'undefined' || typeof window.dispatchEvent !== 'function') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.dispatchEvent !== 'function'
+  ) {
     return;
   }
 
@@ -159,7 +132,11 @@ export class MoneyManager {
     return this.getBalance(source) >= normalizedAmount;
   }
 
-  reset({ cash = 100, agencyBudget = 500, agencyDebt = 0 } = {}) {
+  reset({
+    cash = 100,
+    agencyBudget = 500,
+    agencyDebt = 0
+  } = {}) {
     gameState.cash = normalizeAmount(cash);
     gameState.agencyBudget = normalizeAmount(agencyBudget);
     gameState.agencyDebt = normalizeAmount(agencyDebt);
@@ -177,14 +154,18 @@ export class MoneyManager {
 
   beginMission({
     missionId,
-    agencyAdvance = 0,
+    agencyAdvance = 500,
     description = 'Mark Agency mission advance'
   } = {}) {
     if (!missionId) {
-      throw new Error('MoneyManager.beginMission requires missionId.');
+      throw new Error(
+        'MoneyManager.beginMission requires missionId.'
+      );
     }
 
-    const normalizedAdvance = normalizeAmount(agencyAdvance);
+    const normalizedAdvance = normalizeAmount(
+      agencyAdvance
+    );
 
     gameState.agencyBudget = normalizedAdvance;
 
@@ -212,10 +193,13 @@ export class MoneyManager {
     } = {}
   ) {
     if (!isPositiveInteger(amount)) {
-      throw new Error('MoneyManager.addCash requires a positive integer amount.');
+      throw new Error(
+        'MoneyManager.addCash requires a positive integer amount.'
+      );
     }
 
-    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
+    gameState.cash =
+      this.getBalance(MONEY_SOURCE.CASH) + amount;
 
     const transaction = this.addLogEntry({
       type: 'income',
@@ -247,7 +231,8 @@ export class MoneyManager {
       );
     }
 
-    gameState.agencyBudget = this.getBalance(MONEY_SOURCE.AGENCY) + amount;
+    gameState.agencyBudget =
+      this.getBalance(MONEY_SOURCE.AGENCY) + amount;
 
     const transaction = this.addLogEntry({
       type: 'income',
@@ -275,7 +260,9 @@ export class MoneyManager {
     } = {}
   ) {
     if (!isPositiveInteger(amount)) {
-      throw new Error('MoneyManager.spend requires a positive integer amount.');
+      throw new Error(
+        'MoneyManager.spend requires a positive integer amount.'
+      );
     }
 
     const available = this.getBalance(source);
@@ -318,42 +305,6 @@ export class MoneyManager {
     };
   }
 
-  buyTravel(
-    travelOption,
-    {
-      fromCityId = gameState.currentCityId,
-      toCityId = null,
-      description = null
-    } = {}
-  ) {
-    if (!travelOption?.id) {
-      throw new Error('MoneyManager.buyTravel requires a travel option.');
-    }
-
-    const result = this.spend(travelOption.cost, {
-      source: travelOption.source,
-      category: ECONOMY_CATEGORY.TRAVEL,
-      description: description ?? `Travel: ${travelOption.label}`,
-      metadata: {
-        travelOptionId: travelOption.id,
-        fromCityId,
-        toCityId,
-        timeCost: travelOption.timeCost ?? 0,
-        energyCost: travelOption.energyCost ?? 0,
-        energyRestore: travelOption.energyRestore ?? 0
-      }
-    });
-
-    if (!result.ok) {
-      return result;
-    }
-
-    return {
-      ...result,
-      travelOption
-    };
-  }
-
   buyHotel(
     hotelOption,
     {
@@ -362,20 +313,53 @@ export class MoneyManager {
     } = {}
   ) {
     if (!hotelOption?.id) {
-      throw new Error('MoneyManager.buyHotel requires a hotel option.');
+      throw new Error(
+        'MoneyManager.buyHotel requires a hotel option.'
+      );
     }
 
-    const result = this.spend(hotelOption.cost, {
+    const cost = normalizeAmount(hotelOption.cost);
+
+    const metadata = {
+      hotelOptionId: hotelOption.id,
+      cityId,
+      energyRestore: hotelOption.energyRestore ?? 0,
+      researchBonus: hotelOption.researchBonus ?? 0,
+      contactBonus: hotelOption.contactBonus ?? 0
+    };
+
+    /*
+     * Agency Motel is free. We still log it, but never call
+     * spend(0), because spend intentionally only allows costs > 0.
+     */
+    if (cost === 0) {
+      const transaction = this.addLogEntry({
+        type: 'expense',
+        source: hotelOption.source,
+        amount: 0,
+        category: ECONOMY_CATEGORY.HOTEL,
+        description:
+          description ?? `Hotel: ${hotelOption.label}`,
+        missionId: gameState.currentMission?.id ?? null,
+        metadata
+      });
+
+      this.persist('free_hotel_used', transaction);
+
+      return {
+        ok: true,
+        transaction,
+        hotelOption,
+        state: this.getState()
+      };
+    }
+
+    const result = this.spend(cost, {
       source: hotelOption.source,
       category: ECONOMY_CATEGORY.HOTEL,
-      description: description ?? `Hotel: ${hotelOption.label}`,
-      metadata: {
-        hotelOptionId: hotelOption.id,
-        cityId,
-        energyRestore: hotelOption.energyRestore ?? 0,
-        researchBonus: hotelOption.researchBonus ?? 0,
-        contactBonus: hotelOption.contactBonus ?? 0
-      }
+      description:
+        description ?? `Hotel: ${hotelOption.label}`,
+      metadata
     });
 
     if (!result.ok) {
@@ -401,8 +385,11 @@ export class MoneyManager {
       );
     }
 
-    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
-    gameState.agencyDebt = normalizeAmount(gameState.agencyDebt) + amount;
+    gameState.cash =
+      this.getBalance(MONEY_SOURCE.CASH) + amount;
+
+    gameState.agencyDebt =
+      normalizeAmount(gameState.agencyDebt) + amount;
 
     const transaction = this.addLogEntry({
       type: 'debt',
@@ -427,13 +414,25 @@ export class MoneyManager {
     missionId = gameState.currentMission?.id ?? null
   } = {}) {
     const normalizedReward = normalizeAmount(reward);
-    const debtBeforeSettlement = normalizeAmount(gameState.agencyDebt);
-    const debtPaid = Math.min(normalizedReward, debtBeforeSettlement);
+
+    const debtBeforeSettlement = normalizeAmount(
+      gameState.agencyDebt
+    );
+
+    const debtPaid = Math.min(
+      normalizedReward,
+      debtBeforeSettlement
+    );
+
     const cashPaid = normalizedReward - debtPaid;
 
-    gameState.agencyDebt = debtBeforeSettlement - debtPaid;
-    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + cashPaid;
-    gameState.agencyBudget = 0;
+    gameState.agencyDebt =
+      debtBeforeSettlement - debtPaid;
+
+    gameState.cash =
+      this.getBalance(MONEY_SOURCE.CASH) + cashPaid;
+
+    gameState.agencyBudget = 500;
 
     const transaction = this.addLogEntry({
       type: 'mission_settled',
@@ -470,13 +469,17 @@ export class MoneyManager {
     } = {}
   ) {
     if (!isPositiveInteger(amount)) {
-      throw new Error('MoneyManager.refund requires a positive integer amount.');
+      throw new Error(
+        'MoneyManager.refund requires a positive integer amount.'
+      );
     }
 
     if (source === MONEY_SOURCE.CASH) {
-      gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
+      gameState.cash =
+        this.getBalance(MONEY_SOURCE.CASH) + amount;
     } else if (source === MONEY_SOURCE.AGENCY) {
-      gameState.agencyBudget = this.getBalance(MONEY_SOURCE.AGENCY) + amount;
+      gameState.agencyBudget =
+        this.getBalance(MONEY_SOURCE.AGENCY) + amount;
     } else {
       throw new Error(`Unknown money source: ${source}`);
     }
@@ -497,7 +500,10 @@ export class MoneyManager {
   }
 
   getRecentTransactions(limit = 10) {
-    const normalizedLimit = Math.max(1, Math.floor(limit));
+    const normalizedLimit = Math.max(
+      1,
+      Math.floor(limit)
+    );
 
     return Array.isArray(gameState.moneyLog)
       ? gameState.moneyLog.slice(0, normalizedLimit)
@@ -526,12 +532,14 @@ export class MoneyManager {
       description,
       missionId,
       createdAt: new Date().toISOString(),
-      metadata: metadata && typeof metadata === 'object'
-        ? structuredClone(metadata)
-        : {}
+      metadata:
+        metadata && typeof metadata === 'object'
+          ? structuredClone(metadata)
+          : {}
     };
 
     gameState.moneyLog.unshift(transaction);
+
     gameState.moneyLog.length = Math.min(
       gameState.moneyLog.length,
       MAX_MONEY_LOG_ENTRIES

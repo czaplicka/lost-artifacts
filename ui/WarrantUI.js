@@ -1,4 +1,4 @@
-import { saveGameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 
 // Color palette for pencil/crayon tinting (Hex values)

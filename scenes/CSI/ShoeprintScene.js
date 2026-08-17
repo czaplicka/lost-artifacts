@@ -166,24 +166,27 @@ export class ShoeprintScene extends BaseScene {
     this.showEntryButtons();
   }
 
-  showEntryButtons() {
-    if (!this.term || this.finished) {
-      return;
-    }
-
-    this.term.clearButtons();
-
-    this.entries.forEach((entry) => {
-      const label =
-        `${entry.id} | ${entry.size} | ${entry.sole} | ${entry.wear}`;
-
-      this.term.button(
-        label,
-        TERM.green,
-        () => this.guessEntry(entry)
-      );
-    });
+showEntryButtons() {
+  if (!this.term || this.finished) {
+    return;
   }
+
+  this.term.clearButtons();
+
+  this.entries.forEach((entry) => {
+    this.term.button(
+      `${entry.id}  |  SIZE ${entry.size}`,
+      TERM.green,
+      () => this.guessEntry(entry)
+    );
+
+    this.term.button(
+      `SOLE ${entry.sole}  |  WEAR ${entry.wear}`,
+      TERM.green,
+      () => this.guessEntry(entry)
+    );
+  });
+}
 
   async guessEntry(entry) {
     if (this.busy || this.finished) {

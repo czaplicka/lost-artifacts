@@ -1,77 +1,119 @@
 import { EventBus } from './EventBus.js';
 import { gameState } from './GameData.js';
 
-// Stały klucz właściciela używany w EventBus.on/clearScope. Dzięki niemu
-// możemy jednym wywołaniem usunąć WSZYSTKIE listenery zarejestrowane przez
-// jakąkolwiek wcześniejszą instancję GameTimeManager, zamiast (błędnie)
-// próbować zdjąć listener nowo tworzonej instancji, który jeszcze nigdy
-// nie istniał.
 const OWNER_KEY = 'GameTimeManager';
 
+let timeManagerInstance = null;
+
 export class GameTimeManager {
-    constructor(savedState = null) {
-        // Jeśli ładujemy grę, bierzemy zapisane wartości, jeśli nie - domyślne
-        this.currentDay = savedState?.day || 1;
-        this.currentHour = savedState?.hour || 8;
-        this.currentMinute = savedState?.minute || 0;
-        this.partOfDay = savedState?.partOfDay || 'Morning';
+  constructor(savedState = null) {
+    this.currentDay = Number(savedState?.day) || 1;
+    this.currentHour = Number(savedState?.hour) || 8;
+    this.currentMinute = Number(savedState?.minute) || 0;
+this.partOfDay = savedState?.partOfDay || 'Morning';
+this.updatePartOfDay();
 
-        // CHANGED: poprzednie `EventBus.off('advanceTime', this.handleAdvanceTime, this)`
-        // nigdy nie mogło nic zdjąć, bo `this` jest zawsze nowym obiektem przy
-        // każdej konstrukcji - porównanie (event, fn, context) nigdy się nie
-        // zgadzało z listenerem dodanym przez POPRZEDNIĄ instancję.
-        // clearScope(OWNER_KEY) usuwa listenery wszystkich wcześniejszych
-        // instancji GameTimeManager naraz, niezależnie od ich `this`.
-        EventBus.clearScope(OWNER_KEY);
-        EventBus.on('advanceTime', this.handleAdvanceTime, this, OWNER_KEY);
+    EventBus.clearScope(OWNER_KEY);
+
+    EventBus.on(
+      'advanceTime',
+      this.handleAdvanceTime,
+      this,
+      OWNER_KEY
+    );
+
+    this.syncGameState();
+  }
+
+  syncGameState() {
+    gameState.currentDay = this.currentDay;
+    gameState.currentHour = this.currentHour;
+    gameState.currentMinute = this.currentMinute;
+    gameState.currentPartOfDay = this.partOfDay;
+  }
+
+  handleAdvanceTime(hours = 0, minutes = 0) {
+    const safeHours = Math.max(
+      0,
+      Math.floor(Number(hours) || 0)
+    );
+
+    const safeMinutes = Math.max(
+      0,
+      Math.floor(Number(minutes) || 0)
+    );
+
+    this.currentMinute += safeMinutes;
+
+    if (this.currentMinute >= 60) {
+      this.currentHour += Math.floor(
+        this.currentMinute / 60
+      );
+
+      this.currentMinute %= 60;
     }
 
-    // Wywołaj to jawnie, jeśli GameTimeManager ma zostać porzucony bez
-    // tworzenia od razu nowej instancji (np. pełny reset gry do menu).
-    destroy() {
-        EventBus.clearScope(OWNER_KEY);
+    this.currentHour += safeHours;
+
+    while (this.currentHour >= 24) {
+      this.currentHour -= 24;
+      this.currentDay += 1;
     }
 
-    handleAdvanceTime(hours, minutes) {
-        this.currentMinute += minutes;
-        if (this.currentMinute >= 60) {
-            this.currentHour += Math.floor(this.currentMinute / 60);
-            this.currentMinute = this.currentMinute % 60;
-        }
+    this.updatePartOfDay();
+    this.syncGameState();
 
-        this.currentHour += hours;
+    const payload = {
+      day: this.currentDay,
+      hour: this.currentHour,
+      minute: this.currentMinute,
+      partOfDay: this.partOfDay
+    };
 
-        while (this.currentHour >= 24) {
-            this.currentHour -= 24;
-            this.currentDay += 1;
-        }
+    EventBus.emit('timeChanged', payload);
+    EventBus.emit('saveTimeState', payload);
 
-        this.updatePartOfDay();
+    return payload;
+  }
 
-        gameState.currentPartOfDay = this.partOfDay;
-        gameState.currentHour = this.currentHour;
-
-        // Emitujemy odświeżenie dla UIScene i HUD!
-        EventBus.emit('timeChanged', {
-            day: this.currentDay,
-            hour: this.currentHour,
-            minute: this.currentMinute,
-            partOfDay: this.partOfDay
-        });
-
-        // Ważne - zapisujemy też do globalnego stanu, by przeżyło przeładowania
-        EventBus.emit('saveTimeState', {
-            day: this.currentDay,
-            hour: this.currentHour,
-            minute: this.currentMinute,
-            partOfDay: this.partOfDay
-        });
+  updatePartOfDay() {
+    if (this.currentHour >= 6 && this.currentHour < 12) {
+      this.partOfDay = 'Morning';
+    } else if (
+      this.currentHour >= 12 &&
+      this.currentHour < 18
+    ) {
+      this.partOfDay = 'Afternoon';
+    } else if (
+      this.currentHour >= 18 &&
+      this.currentHour < 22
+    ) {
+      this.partOfDay = 'Evening';
+    } else {
+      this.partOfDay = 'Night';
     }
+  }
 
-    updatePartOfDay() {
-        if (this.currentHour >= 6 && this.currentHour < 12) this.partOfDay = 'Morning';
-        else if (this.currentHour >= 12 && this.currentHour < 18) this.partOfDay = 'Afternoon';
-        else if (this.currentHour >= 18 && this.currentHour < 22) this.partOfDay = 'Evening';
-        else this.partOfDay = 'Night';
+  destroy() {
+    EventBus.clearScope(OWNER_KEY);
+
+    if (timeManagerInstance === this) {
+      timeManagerInstance = null;
     }
+  }
+}
+
+export function getGameTimeManager(savedState = null) {
+  if (!timeManagerInstance) {
+    timeManagerInstance = new GameTimeManager(
+      savedState
+    );
+  }
+
+  return timeManagerInstance;
+}
+
+export function resetGameTimeManager() {
+  timeManagerInstance?.destroy();
+  timeManagerInstance = null;
 }

@@ -1,5 +1,6 @@
-import { gameState, saveGameState } from '../GameData.js';
-import { getScoreManager } from '../gameSetup.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
+import { getScoreManager } from '../InvestigationManager.js';
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { getEnergyManager } from '../EnergyManager.js';
@@ -332,27 +333,45 @@ export class HiddenObjectsScene extends BaseScene {
     return null;
   }
 
-  returnToSafeScene(data = {}) {
-    const targetScene = this.getSafeReturnScene();
-    if (!targetScene) return false;
-    this.scene.start(targetScene, data);
-    return true;
+returnToSafeScene(data = {}) {
+  const targetScene = this.getSafeReturnScene();
+
+  if (!targetScene) {
+    return false;
   }
 
-  handleSceneSetupFailure(message) {
-    console.error('[HiddenObjectsScene] Setup failed:', message, { sceneId: this.sceneId, cityId: this.cityId });
-    this.restoreSourceScene();
-    this.returnToSafeScene({
-      ...this.returnData,
-      hiddenObjectsSetupFailed: true,
-      hiddenObjectsSuccess: false,
-      hiddenObjectsScore: this.score,
-      incorrectClicks: this.incorrectClicks,
-      foundItems: [...this.foundItems],
-      sceneId: this.sceneId,
-      errorMessage: message
-    });
-  }
+  this.forceResetCursor();
+
+  this.scene.start(targetScene, data);
+
+  this.scene.get(targetScene).events.once(
+    Phaser.Scenes.Events.CREATE,
+    () => {
+      this.restoreGameHud();
+      this.restoreNewsHud();
+    },
+  );
+
+  return true;
+}
+
+handleSceneSetupFailure(message) {
+  console.error('[HiddenObjectsScene] Setup failed:', message, {
+    sceneId: this.sceneId,
+    cityId: this.cityId,
+  });
+
+  this.returnToSafeScene({
+    ...this.returnData,
+    hiddenObjectsSetupFailed: true,
+    hiddenObjectsSuccess: false,
+    hiddenObjectsScore: this.score,
+    incorrectClicks: this.incorrectClicks,
+    foundItems: [...this.foundItems],
+    sceneId: this.sceneId,
+    errorMessage: message,
+  });
+}
 
   forceResetCursor() {
     this.input.setDefaultCursor('default');
@@ -378,25 +397,48 @@ export class HiddenObjectsScene extends BaseScene {
       sourceSceneRef.input.setTopOnly(true);
     }
   }
+restoreGameHud() {
+  const uiSceneKey = 'UIScene';
 
-  loadObjectsData() {
-    const rawData = this.cache.json.get(this.objectsDataKey);
-    const rawItems = Array.isArray(rawData) ? rawData : rawData?.items;
-    if (!Array.isArray(rawItems)) {
-      console.error(`[HiddenObjectsScene] Expected an array from "${this.objectsDataKey}" (${this.objectsDataPath}) but got:`, rawData);
-      this.itemsData = [];
-      this.itemsById = {};
-      this.sceneItems = [];
-      return false;
-    }
-    this.itemsData = rawItems;
-    this.itemsById = Object.fromEntries(this.itemsData.filter(item => item?.id !== undefined && item?.id !== null).map(item => [String(item.id), item]));
-    this.sceneItems = this.itemsData.filter(item => {
-      const scenes = Array.isArray(item?.scene) ? item.scene : [item?.scene];
-      return scenes.includes(this.sceneId);
-    });
-    return true;
+  if (!this.scene.manager.keys[uiSceneKey]) {
+    return;
   }
+
+  const wasSleeping = this.scene.isSleeping(uiSceneKey);
+  const wasPaused = this.scene.isPaused(uiSceneKey);
+
+  if (wasSleeping) {
+    this.scene.wake(uiSceneKey);
+  } else if (wasPaused) {
+    this.scene.resume(uiSceneKey);
+  } else if (!this.scene.isActive(uiSceneKey)) {
+    this.scene.launch(uiSceneKey);
+  }
+
+  const refreshHud = () => {
+    EventBus.emit('showHUD');
+    EventBus.emit('scoreChanged', {
+      total: gameState.score || 0,
+      source: 'hidden-objects-return',
+    });
+  };
+
+  if (wasSleeping) {
+    this.scene.get(uiSceneKey).events.once(
+      Phaser.Scenes.Events.WAKE,
+      refreshHud,
+    );
+  } else if (wasPaused) {
+    this.scene.get(uiSceneKey).events.once(
+      Phaser.Scenes.Events.RESUME,
+      refreshHud,
+    );
+  } else {
+    refreshHud();
+  }
+
+  this.scene.bringToTop(uiSceneKey);
+}
 
   computePlayArea() {
     const { width, height } = this.scale;
@@ -571,102 +613,106 @@ storeCollectedCardId(id) {
 
 
   finishScene(success) {
-    if (this.isSceneFinished) return;
+  if (this.isSceneFinished) return;
 
-    this.isSceneFinished = true;
+  this.isSceneFinished = true;
 
-    if (this.timerEvent) {
-      this.timerEvent.remove(false);
-      this.timerEvent = null;
+  if (this.timerEvent) {
+    this.timerEvent.remove(false);
+    this.timerEvent = null;
+  }
+
+  this.hiddenZones.forEach((zone) => {
+    if (zone.input?.enabled) {
+      zone.disableInteractive();
+    }
+  });
+
+  this.stateManager.markSceneVisited(success);
+
+  if (success) {
+    if (gameState.reconstructedHeist) {
+      gameState.reconstructedHeist.hiddenObjectsCompleted = true;
+      gameState.reconstructedHeist.hiddenObjectsCompletedAt = Date.now();
+      gameState.reconstructedHeist.cityId = this.cityId;
+      gameState.reconstructedHeist.sceneId = this.sceneId;
     }
 
-    this.hiddenZones.forEach((zone) => {
-      if (zone.input?.enabled) {
-        zone.disableInteractive();
-      }
-    });
+    gameState.hiddenObjectsProgress ??= {};
 
-    this.stateManager.markSceneVisited(success);
+    const caseId =
+      gameState.currentCaseId ||
+      gameState.currentMission?.id ||
+      gameState.currentMission?.caseId ||
+      `${this.cityId}_${this.sceneId}`;
 
-    if (success) {
-      const timeBonus = this.timeLeft * 2;
-if (success) {
-  if (gameState.reconstructedHeist) {
-    gameState.reconstructedHeist.hiddenObjectsCompleted = true;
-    gameState.reconstructedHeist.hiddenObjectsCompletedAt = Date.now();
-    gameState.reconstructedHeist.cityId = this.cityId;
-    gameState.reconstructedHeist.sceneId = this.sceneId;
+    gameState.hiddenObjectsProgress[caseId] = {
+      completed: true,
+      completedAt: Date.now(),
+      foundCardIds: [...this.foundItems],
+      collectedCardIds: [
+        ...(gameState.reconstructedHeist?.collectedCardIds || []),
+      ],
+      solutionCardIds: [
+        ...(gameState.reconstructedHeist?.solutionCardIds || []),
+      ],
+    };
+
+    const timeBonus = this.timeLeft * 2;
+    this.score = this.scoreManager.addHiddenObjectScore(timeBonus);
+
+    saveGameState();
+
+    this.ui.updateScoreAndMisses(
+      this.score,
+      this.incorrectClicks,
+    );
+
+    this.ui.showMessage(
+      `Crime scene processed. Time bonus +${timeBonus}`,
+      '#7CFC00',
+    );
+
+    this.overlay.showSuccessOverlay();
+    return;
   }
 
-  gameState.hiddenObjectsProgress ??= {};
+  this.playSfx('wrong', { volume: 0.5 });
+  this.flashScreen(0xff4d4d, 0.18, 220);
+  this.ui.showMessage('Time is up. The evidence trail went cold.', '#ff6b6b');
+  this.overlay.showFailureOverlay();
+}
 
-  const caseId =
-    gameState.currentCaseId ||
-    gameState.currentMission?.id ||
-    gameState.currentMission?.caseId ||
-    `${this.cityId}_${this.sceneId}`;
+abandonGame() {
+  if (this.isSceneFinished) {
+    return;
+  }
 
-  gameState.hiddenObjectsProgress[caseId] = {
-    completed: true,
-    completedAt: Date.now(),
-    foundCardIds: [...this.foundItems],
-    collectedCardIds: [
-      ...(gameState.reconstructedHeist?.collectedCardIds || [])
-    ],
-    solutionCardIds: [
-      ...(gameState.reconstructedHeist?.solutionCardIds || [])
-    ]
-  };
+  this.isSceneFinished = true;
 
-  saveGameState();
+  if (this.timerEvent) {
+    this.timerEvent.remove(false);
+    this.timerEvent = null;
+  }
 
-  const timeBonus = this.timeLeft * 2;
-      this.score = this.scoreManager.addHiddenObjectScore(timeBonus);
-
-      this.ui.updateScoreAndMisses(
-        this.score,
-        this.incorrectClicks,
-      );
-
-      this.ui.showMessage(
-        `Crime scene processed. Time bonus +${timeBonus}`,
-        '#7CFC00',
-      );
-
-      this.overlay.showSuccessOverlay();
-      return;
+  this.hiddenZones.forEach((zone) => {
+    if (zone.input?.enabled) {
+      zone.disableInteractive();
     }
+  });
 
-    this.playSfx('wrong', { volume: 0.5 });
-    this.ui.showMessage('Time is up.', '#ff6b6b');
-    this.overlay.showFailureOverlay();
-  }
-  }
+  this.stateManager.markSceneVisited(false);
 
-  abandonGame() {
-    if (this.isSceneFinished) return;
-
-    this.isSceneFinished = true;
-
-    if (this.timerEvent) {
-      this.timerEvent.remove(false);
-      this.timerEvent = null;
-    }
-
-    this.stateManager.markSceneVisited(false);
-    this.restoreSourceScene();
-
-    this.returnToSafeScene({
-      ...this.returnData,
-      hiddenObjectsAborted: true,
-      hiddenObjectsSuccess: false,
-      hiddenObjectsScore: this.score,
-      incorrectClicks: this.incorrectClicks,
-      foundItems: [...this.foundItems],
-      sceneId: this.sceneId,
-    });
-  }
-
+  this.returnToSafeScene({
+    ...this.returnData,
+    hiddenObjectsSuccess: false,
+    hiddenObjectsAbandoned: true,
+    hiddenObjectsScore: this.score,
+    incorrectClicks: this.incorrectClicks,
+    foundItems: Array.from(this.foundItems),
+    sceneId: this.sceneId,
+  });
+}
 
   registerMissDetection() {
     this.input.on('pointerdown', this.handleGlobalPointerDown, this);

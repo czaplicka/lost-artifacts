@@ -22,8 +22,12 @@ const ENERGY_COSTS = {
     taxi: 8,
     train: 12,
     cheap_flight: 20,
-    expensive_flight: 10
-  },
+    expensive_flight: 10,
+  plane: 10,
+  train: 12,
+  bus: 16,
+  ship: 12
+},
   interaction: {
     interview_short: 3,
     interview_medium: 4,
@@ -99,6 +103,35 @@ class EnergyManager {
     });
   }
 
+getTravelCost(transportType = 'train') {
+  const fallbackType = 'train';
+
+  const baseCost =
+    ENERGY_COSTS.travel[transportType] ??
+    ENERGY_COSTS.travel[fallbackType] ??
+    0;
+
+  return this.scaleCost(baseCost);
+}
+
+consumeTravel(transportType = 'train') {
+  const cost = this.getTravelCost(transportType);
+
+  return this._consumeEnergy(
+    cost,
+    `Travel (${transportType}): -${cost}`
+  );
+}
+
+consumeCustom(cost, label = 'Energy changed.') {
+  const safeCost = Math.max(
+    0,
+    Math.round(Number(cost) || 0)
+  );
+
+  return this._consumeEnergy(safeCost, label);
+}
+
   getDifficultyMultiplier() {
     return DIFFICULTY_MULTIPLIERS[this.difficulty] || 1.0;
   }
@@ -132,12 +165,6 @@ class EnergyManager {
     if (this.currentEnergy >= 50) return ENERGY_TOOLTIPS.medium;
     if (this.currentEnergy >= 20) return ENERGY_TOOLTIPS.low;
     return ENERGY_TOOLTIPS.critical;
-  }
-
-  consumeTravel(transportType = 'train') {
-    const baseCost = ENERGY_COSTS.travel[transportType] || ENERGY_COSTS.travel.train;
-    const cost = this.scaleCost(baseCost);
-    return this._consumeEnergy(cost, `Travel (${transportType}): -${cost}`);
   }
 
   consumeInterview(duration = 'medium') {

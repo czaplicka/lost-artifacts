@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from '../GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { travelToCity as performTravel } from '../gameSetup.js';
 import {
@@ -60,29 +61,21 @@ const ROUTE_SHADOW_COLOR = 0x280812;
 export class DestinationsUI {
   constructor(scene) {
     this.scene = scene;
-
     this.isOpen = false;
     this.isTransitioning = false;
     this.canConfirm = false;
-
     this.gameState = null;
-
     this.activePins = [];
     this.transportButtons = [];
-
     this.selectedCity = null;
     this.selectedPin = null;
     this.selectedLabel = null;
     this.selectedTransport = null;
-
     this.routePreview = null;
-
     this.hqButton = null;
     this.hqButtonBg = null;
     this.hqButtonLabel = null;
-
-    this.boundTravelKeyHandler =
-      this.onTravelKeyDown.bind(this);
+    this.boundTravelKeyHandler = this.onTravelKeyDown.bind(this);
 
     const { width, height } = this.scene.scale;
 
@@ -97,7 +90,6 @@ export class DestinationsUI {
       .setInteractive();
 
     this.overlay.on('pointerdown', () => this.close());
-
     this.container.add(this.overlay);
 
     this.mapImage = this.scene.add
@@ -115,7 +107,6 @@ export class DestinationsUI {
       .setInteractive({ useHandCursor: true });
 
     this.closeBtn.on('pointerdown', this.close, this);
-
     this.container.add(this.closeBtn);
 
     this.createInfoPanel(width, height);
@@ -132,7 +123,6 @@ export class DestinationsUI {
     if (!this.scene?.input?.keyboard) return;
 
     this.scene.input.keyboard.addCapture('T');
-
     this.scene.input.keyboard.on(
       'keydown-T',
       this.boundTravelKeyHandler
@@ -141,23 +131,17 @@ export class DestinationsUI {
 
   onTravelKeyDown(event) {
     const activeTag = document.activeElement?.tagName;
-
     const isTyping =
       activeTag === 'INPUT' ||
       activeTag === 'TEXTAREA' ||
       document.activeElement?.isContentEditable;
 
-    if (isTyping || this.isTransitioning) {
-      return;
-    }
+    if (isTyping || this.isTransitioning) return;
 
     event.preventDefault();
 
-    if (this.isOpen) {
-      this.close();
-    } else {
-      this.open(gameState);
-    }
+    if (this.isOpen) this.close();
+    else this.open(gameState);
   }
 
   createInfoPanel(width, height) {
@@ -171,16 +155,11 @@ export class DestinationsUI {
       .setOrigin(0)
       .setStrokeStyle(2, 0xd4af37);
 
-    this.infoTitle = this.scene.add.text(
-      20,
-      16,
-      'Travel dossier',
-      {
-        fontFamily: 'Special Elite',
-        fontSize: '27px',
-        color: '#f4e7c1'
-      }
-    );
+    this.infoTitle = this.scene.add.text(20, 16, 'Travel dossier', {
+      fontFamily: 'Special Elite',
+      fontSize: '27px',
+      color: '#f4e7c1'
+    });
 
     this.infoCity = this.scene.add.text(20, 58, '', {
       fontFamily: 'Special Elite',
@@ -263,7 +242,6 @@ export class DestinationsUI {
     ]);
 
     this.container.add(this.infoPanel);
-
     this.setConfirmEnabled(false);
   }
 
@@ -289,28 +267,21 @@ export class DestinationsUI {
     ]);
 
     this.hqButtonBg.on('pointerover', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
-        return;
-      }
+      if (this.isTransitioning || this.isAtHQ()) return;
 
       this.hqButtonBg.setFillStyle(0x5a1c38, 1);
       this.hqButtonLabel.setColor('#ffb3cc');
     });
 
     this.hqButtonBg.on('pointerout', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
-        return;
-      }
+      if (this.isTransitioning || this.isAtHQ()) return;
 
       this.hqButtonBg.setFillStyle(0x251926, 0.96);
       this.hqButtonLabel.setColor('#fff2f6');
     });
 
     this.hqButtonBg.on('pointerdown', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
-        return;
-      }
-
+      if (this.isTransitioning || this.isAtHQ()) return;
       this.selectHeadquarters();
     });
 
@@ -327,58 +298,43 @@ export class DestinationsUI {
   }
 
   updateHQButton() {
-    if (
-      !this.hqButton ||
-      !this.hqButtonBg ||
-      !this.hqButtonLabel
-    ) {
+    if (!this.hqButton || !this.hqButtonBg || !this.hqButtonLabel) {
       return;
     }
 
     const atHQ = this.isAtHQ();
-
     this.hqButton.setVisible(true);
 
     if (atHQ) {
       this.hqButtonBg.disableInteractive();
       this.hqButtonBg.setFillStyle(0x30343b, 0.9);
       this.hqButtonBg.setStrokeStyle(2, 0x777777);
-
       this.hqButtonLabel.setText('MARK AGENCY HQ');
       this.hqButtonLabel.setColor('#a5a5a5');
-
       this.hqButton.setAlpha(0.8);
-
       return;
     }
 
     this.hqButtonBg.setInteractive({ useHandCursor: true });
     this.hqButtonBg.setFillStyle(0x251926, 0.96);
     this.hqButtonBg.setStrokeStyle(2, 0xff4f81);
-
     this.hqButtonLabel.setText('↩ RETURN TO HQ');
     this.hqButtonLabel.setColor('#fff2f6');
-
     this.hqButton.setAlpha(1);
   }
 
   selectHeadquarters() {
     const locationsData = this.getLocationsData();
-
     const headquarters = locationsData.find(
       location => location.id === 'hq'
     );
 
     if (!headquarters) {
-      console.error(
-        'HQ location was not found in locations.json.'
-      );
+      console.error('HQ location was not found in locations.json.');
       return;
     }
 
-    if (this.isAtHQ()) {
-      return;
-    }
+    if (this.isAtHQ()) return;
 
     if (this.selectedPin) {
       this.selectedPin.setFillStyle(0xffcc00);
@@ -394,28 +350,22 @@ export class DestinationsUI {
     this.selectedLabel = null;
 
     const currentCityData = this.getCurrentCityData();
-
     const options = this.getTransportOptions(
       currentCityData,
       headquarters
     );
 
     this.selectedTransport = options[0] || null;
-
     this.createTransportButtons(options);
     this.refreshInfoPanel(headquarters);
     this.previewRoute(headquarters);
-
     this.setConfirmEnabled(Boolean(this.selectedTransport));
   }
 
   open(gameStateData) {
-    if (this.isTransitioning || this.isOpen) {
-      return;
-    }
+    if (this.isTransitioning || this.isOpen) return;
 
     this.isOpen = true;
-
     EventBus.emit('hideHUD');
 
     const newsHud = this.scene.scene.get('NewsHud');
@@ -426,7 +376,6 @@ export class DestinationsUI {
     }
 
     this.gameState = gameStateData || gameState;
-
     this.resetSelectionState();
     this.clearPins();
     this.refreshInfoPanel();
@@ -446,19 +395,14 @@ export class DestinationsUI {
   }
 
   close() {
-    if (!this.isOpen) {
-      return;
-    }
+    if (!this.isOpen) return;
 
     this.isOpen = false;
-
     this.container.setVisible(false);
-
     this.clearPins();
     this.resetSelectionState();
     this.refreshInfoPanel();
     this.setConfirmEnabled(false);
-
     EventBus.emit('showHUD');
   }
 
@@ -478,9 +422,7 @@ export class DestinationsUI {
   }
 
   normalizeCityId(city) {
-    if (!city) {
-      return null;
-    }
+    if (!city) return null;
 
     const map = {
       London: 'london',
@@ -497,10 +439,7 @@ export class DestinationsUI {
       'Mark Agency Headquarters': 'hq'
     };
 
-    return (
-      map[city] ||
-      city.toLowerCase().replace(/\s+/g, '_')
-    );
+    return map[city] || city.toLowerCase().replace(/\s+/g, '_');
   }
 
   getCityId(cityObj) {
@@ -509,10 +448,7 @@ export class DestinationsUI {
 
   getLocationsData() {
     const data = this.scene.cache.json.get('locations') || [];
-
-    return Array.isArray(data)
-      ? data
-      : data.locations || [];
+    return Array.isArray(data) ? data : data.locations || [];
   }
 
   getCurrentCityData() {
@@ -543,15 +479,12 @@ export class DestinationsUI {
 
     const maxDestinations = 5;
 
-    let result = Array.isArray(
-      this.gameState?.currentDestinations
-    )
+    let result = Array.isArray(this.gameState?.currentDestinations)
       ? [...this.gameState.currentDestinations]
       : [];
 
     result = result.filter(city => {
       const cityId = this.getCityId(city);
-
       return cityId && cityId !== currentCityId;
     });
 
@@ -569,13 +502,10 @@ export class DestinationsUI {
       !alreadyContainsRequiredCity
     ) {
       const requiredCity = locationsData.find(
-        location =>
-          this.getCityId(location) === mustIncludeCityId
+        location => this.getCityId(location) === mustIncludeCityId
       );
 
-      if (requiredCity) {
-        result.unshift(requiredCity);
-      }
+      if (requiredCity) result.unshift(requiredCity);
     } else if (mustIncludeCityId === currentCityId) {
       this.gameState.mustIncludeCityId = null;
     }
@@ -585,12 +515,9 @@ export class DestinationsUI {
     result = result.filter(city => {
       const cityId = this.getCityId(city);
 
-      if (!cityId || seen.has(cityId)) {
-        return false;
-      }
+      if (!cityId || seen.has(cityId)) return false;
 
       seen.add(cityId);
-
       return true;
     });
 
@@ -610,9 +537,7 @@ export class DestinationsUI {
       );
 
       for (const city of filler) {
-        if (result.length >= maxDestinations) {
-          break;
-        }
+        if (result.length >= maxDestinations) break;
 
         result.push(city);
         seen.add(this.getCityId(city));
@@ -642,10 +567,7 @@ export class DestinationsUI {
         cityObj.mapY ??
         this.scene.scale.height / 2;
 
-      const pinContainer = this.scene.add.container(
-        xPos,
-        yPos
-      );
+      const pinContainer = this.scene.add.container(xPos, yPos);
 
       const dot = this.scene.add
         .circle(0, 0, 15, 0xffcc00)
@@ -658,47 +580,30 @@ export class DestinationsUI {
           fontSize: '24px',
           color: '#ffffff',
           backgroundColor: '#000000',
-          padding: {
-            x: 5,
-            y: 5
-          }
+          padding: { x: 5, y: 5 }
         })
         .setOrigin(0.5);
 
       pinContainer.add([dot, label]);
-
       this.container.add(pinContainer);
       this.activePins.push(pinContainer);
 
       dot.on('pointerover', () => {
-        if (
-          this.isTransitioning ||
-          this.selectedPin === dot
-        ) {
-          return;
-        }
+        if (this.isTransitioning || this.selectedPin === dot) return;
 
         dot.setFillStyle(0xffffff);
         label.setColor('#ffcc00');
       });
 
       dot.on('pointerout', () => {
-        if (
-          this.isTransitioning ||
-          this.selectedPin === dot
-        ) {
-          return;
-        }
+        if (this.isTransitioning || this.selectedPin === dot) return;
 
         dot.setFillStyle(0xffcc00);
         label.setColor('#ffffff');
       });
 
       dot.on('pointerdown', () => {
-        if (this.isTransitioning) {
-          return;
-        }
-
+        if (this.isTransitioning) return;
         this.selectCity(cityObj, dot, label);
       });
     });
@@ -712,61 +617,42 @@ export class DestinationsUI {
       this.selectedPin.setScale(1);
     }
 
-    if (
-      this.selectedLabel &&
-      this.selectedLabel !== label
-    ) {
+    if (this.selectedLabel && this.selectedLabel !== label) {
       this.selectedLabel.setColor('#ffffff');
     }
 
     this.selectedPin = dot;
     this.selectedLabel = label;
-
     dot.setFillStyle(0xffffff);
     dot.setScale(1.15);
     label.setColor('#ffcc00');
 
     const currentCityData = this.getCurrentCityData();
-
     const options = this.getTransportOptions(
       currentCityData,
       cityObj
     );
 
     this.selectedTransport = options[0] || null;
-
     this.createTransportButtons(options);
     this.refreshInfoPanel(cityObj);
     this.previewRoute(cityObj);
-
     this.setConfirmEnabled(Boolean(this.selectedTransport));
   }
 
   canTravelByLand(fromCity, toCity) {
-    if (!fromCity || !toCity) {
-      return false;
-    }
-
-    if (fromCity.country === toCity.country) {
-      return true;
-    }
+    if (!fromCity || !toCity) return false;
+    if (fromCity.country === toCity.country) return true;
 
     const region = fromCity.travelRegion;
 
-    if (region !== toCity.travelRegion) {
-      return false;
-    }
+    if (region !== toCity.travelRegion) return false;
 
-    return (
-      region === 'europe' ||
-      region === 'north_america'
-    );
+    return region === 'europe' || region === 'north_america';
   }
 
   getMapDistance(fromCity, toCity) {
-    if (!fromCity?.map || !toCity?.map) {
-      return 250;
-    }
+    if (!fromCity?.map || !toCity?.map) return 250;
 
     return Phaser.Math.Distance.Between(
       fromCity.map.x,
@@ -778,11 +664,7 @@ export class DestinationsUI {
 
   buildTransportOption(transportType, fromCity, toCity) {
     const config = TRANSPORT_CONFIG[transportType];
-
-    const distance = this.getMapDistance(
-      fromCity,
-      toCity
-    );
+    const distance = this.getMapDistance(fromCity, toCity);
 
     const hours = Math.max(
       config.minHours,
@@ -812,19 +694,13 @@ export class DestinationsUI {
   }
 
   getTransportOptions(fromCity, toCity) {
-    if (!fromCity || !toCity) {
-      return [];
-    }
+    if (!fromCity || !toCity) return [];
 
     const options = [];
 
     if (fromCity.airport && toCity.airport) {
       options.push(
-        this.buildTransportOption(
-          'plane',
-          fromCity,
-          toCity
-        )
+        this.buildTransportOption('plane', fromCity, toCity)
       );
     }
 
@@ -834,11 +710,7 @@ export class DestinationsUI {
       this.canTravelByLand(fromCity, toCity)
     ) {
       options.push(
-        this.buildTransportOption(
-          'train',
-          fromCity,
-          toCity
-        )
+        this.buildTransportOption('train', fromCity, toCity)
       );
     }
 
@@ -848,21 +720,13 @@ export class DestinationsUI {
       this.canTravelByLand(fromCity, toCity)
     ) {
       options.push(
-        this.buildTransportOption(
-          'bus',
-          fromCity,
-          toCity
-        )
+        this.buildTransportOption('bus', fromCity, toCity)
       );
     }
 
     if (fromCity.harbor && toCity.harbor) {
       options.push(
-        this.buildTransportOption(
-          'ship',
-          fromCity,
-          toCity
-        )
+        this.buildTransportOption('ship', fromCity, toCity)
       );
     }
 
@@ -880,9 +744,7 @@ export class DestinationsUI {
   createTransportButtons(options) {
     this.clearTransportButtons();
 
-    if (options.length <= 1) {
-      return;
-    }
+    if (options.length <= 1) return;
 
     const totalWidth = 330;
     const gap = 8;
@@ -898,13 +760,9 @@ export class DestinationsUI {
     const startX = 20 + buttonWidth / 2;
 
     options.forEach((option, index) => {
-      const x =
-        startX +
-        index * (buttonWidth + gap);
+      const x = startX + index * (buttonWidth + gap);
 
-      const isSelected =
-        option.id === this.selectedTransport?.id;
-
+      const isSelected = option.id === this.selectedTransport?.id;
       const container = this.scene.add.container(x, 145);
 
       const bg = this.scene.add
@@ -941,16 +799,12 @@ export class DestinationsUI {
       container.add([bg, icon, label]);
 
       bg.on('pointerdown', () => {
-        if (this.isTransitioning) {
-          return;
-        }
+        if (this.isTransitioning) return;
 
         this.selectedTransport = option;
-
         this.createTransportButtons(options);
         this.refreshInfoPanel(this.selectedCity);
         this.previewRoute(this.selectedCity);
-
         this.setConfirmEnabled(true);
       });
 
@@ -987,59 +841,39 @@ export class DestinationsUI {
   refreshInfoPanel(cityObj = null) {
     if (!cityObj) {
       this.infoCity.setText('Choose a city');
-
       this.infoCountry.setText('');
       this.infoCountry.setPosition(20, 61);
-
       this.transportPrompt.setColor('#ffd166');
       this.transportPrompt.setText('');
-
       this.infoTravel.setText('');
       this.infoHours.setText('');
-
       this.confirmLabel.setText('Choose a city');
-
       return;
     }
 
     const preview = this.getTravelPreview(cityObj);
 
-    this.infoCity.setText(
-      cityObj.city || 'Unknown city'
-    );
+    this.infoCity.setText(cityObj.city || 'Unknown city');
 
     const countryText = cityObj.country
       ? `· ${cityObj.country}`
       : '';
 
     this.infoCountry.setText(countryText);
-
-    this.infoCountry.setPosition(
-      28 + this.infoCity.width,
-      61
-    );
+    this.infoCountry.setPosition(28 + this.infoCity.width, 61);
 
     if (!this.selectedTransport) {
       this.transportPrompt.setColor('#ff6b6b');
-
-      this.transportPrompt.setText(
-        'No sensible route is available.'
-      );
-
+      this.transportPrompt.setText('No sensible route is available.');
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.confirmLabel.setText('No route available');
-
       this.setConfirmEnabled(false);
-
       return;
     }
 
-const agencyBudget = this.getAvailableAgencyBudget();
-
-    const canAfford = this.canAffordTravel(
-      preview.moneySpent
-    );
+    const agencyBudget = this.getAvailableAgencyBudget();
+    const canAfford = this.canAffordTravel(preview.moneySpent);
 
     this.transportPrompt.setColor(
       canAfford ? '#ffd166' : '#ff6b6b'
@@ -1050,10 +884,10 @@ const agencyBudget = this.getAvailableAgencyBudget();
     );
 
     this.infoTravel.setText(
-  `🎟 ${this.formatMoney(preview.moneySpent)}   ` +
-  `🏢 Agency: ${this.formatMoney(agencyBudget)}   ` +
-  `⚡ ${preview.energyChange}`
-);
+      `🎟 ${this.formatMoney(preview.moneySpent)}   ` +
+      `🏢 Agency: ${this.formatMoney(agencyBudget)}   ` +
+      `⚡ ${preview.energyChange}`
+    );
 
     this.infoHours.setText(
       `Travel time: +${preview.travelHours}h`
@@ -1076,9 +910,7 @@ const agencyBudget = this.getAvailableAgencyBudget();
 
     const currentCityData = this.getCurrentCityData();
 
-    if (!currentCityData?.map || !cityObj?.map) {
-      return;
-    }
+    if (!currentCityData?.map || !cityObj?.map) return;
 
     this.routePreview = this.scene.add.graphics();
 
@@ -1089,17 +921,11 @@ const agencyBudget = this.getAvailableAgencyBudget();
     );
 
     this.routePreview.beginPath();
-
     this.routePreview.moveTo(
       currentCityData.map.x,
       currentCityData.map.y
     );
-
-    this.routePreview.lineTo(
-      cityObj.map.x,
-      cityObj.map.y
-    );
-
+    this.routePreview.lineTo(cityObj.map.x, cityObj.map.y);
     this.routePreview.strokePath();
 
     this.routePreview.lineStyle(
@@ -1109,33 +935,21 @@ const agencyBudget = this.getAvailableAgencyBudget();
     );
 
     this.routePreview.beginPath();
-
     this.routePreview.moveTo(
       currentCityData.map.x,
       currentCityData.map.y
     );
-
-    this.routePreview.lineTo(
-      cityObj.map.x,
-      cityObj.map.y
-    );
-
+    this.routePreview.lineTo(cityObj.map.x, cityObj.map.y);
     this.routePreview.strokePath();
 
     this.container.add(this.routePreview);
-
-    this.container.moveAbove(
-      this.routePreview,
-      this.mapImage
-    );
+    this.container.moveAbove(this.routePreview, this.mapImage);
   }
 
   setConfirmEnabled(enabled) {
     this.canConfirm = enabled;
 
-    if (!this.confirmButton) {
-      return;
-    }
+    if (!this.confirmButton) return;
 
     if (enabled) {
       this.confirmButton.setFillStyle(0x9b5de5, 1);
@@ -1157,37 +971,34 @@ const agencyBudget = this.getAvailableAgencyBudget();
     return `$${safeAmount.toLocaleString('en-US')}`;
   }
 
-getAvailableAgencyBudget() {
-  return Math.max(
-    0,
-    Math.floor(
-      Number(
-        moneyManager?.getBalance?.(MONEY_SOURCE.AGENCY) ??
-        gameState.agencyBudget ??
-        0
+  getAvailableAgencyBudget() {
+    return Math.max(
+      0,
+      Math.floor(
+        Number(
+          moneyManager?.getBalance?.(MONEY_SOURCE.AGENCY) ??
+          gameState.agencyBudget ??
+          0
+        )
       )
-    )
-  );
-}
+    );
+  }
 
-canAffordTravel(cost) {
-  const safeCost = Math.max(
-    0,
-    Math.round(Number(cost) || 0)
-  );
+  canAffordTravel(cost) {
+    const safeCost = Math.max(
+      0,
+      Math.round(Number(cost) || 0)
+    );
 
-  return this.getAvailableAgencyBudget() >= safeCost;
-}
+    return this.getAvailableAgencyBudget() >= safeCost;
+  }
 
   showTravelError(message) {
     this.transportPrompt.setColor('#ff6b6b');
     this.transportPrompt.setText(message);
 
     this.scene.time.delayedCall(2500, () => {
-      if (!this.isOpen || !this.selectedTransport) {
-        return;
-      }
-
+      if (!this.isOpen || !this.selectedTransport) return;
       this.refreshInfoPanel(this.selectedCity);
     });
   }
@@ -1195,39 +1006,33 @@ canAffordTravel(cost) {
   chargeTravel(selectedCityData, selectedTransport) {
     const cost = Math.max(
       0,
-      Math.round(
-        Number(selectedTransport?.moneySpent) || 0
-      )
+      Math.round(Number(selectedTransport?.moneySpent) || 0)
     );
 
-    if (!cost) {
-      return true;
-    }
+    if (!cost) return true;
 
     if (!this.canAffordTravel(cost)) {
       this.showTravelError(
         `Agency budget too low. Need ${this.formatMoney(cost)}.`
       );
-
       return false;
     }
 
-const payment = moneyManager.spend(cost, {
-  source: MONEY_SOURCE.AGENCY,
-category: ECONOMY_CATEGORY.TRAVEL,
-  description: `${selectedTransport.label} ticket to ${selectedCityData.city}`,
-  metadata: {
-    transportType: selectedTransport.id,
-    destinationCityId: selectedCityData.id,
-    destinationCity: selectedCityData.city
-  }
-});
+    const payment = moneyManager.spend(cost, {
+      source: MONEY_SOURCE.AGENCY,
+      category: ECONOMY_CATEGORY.TRAVEL,
+      description: `${selectedTransport.label} ticket to ${selectedCityData.city}`,
+      metadata: {
+        transportType: selectedTransport.id,
+        destinationCityId: selectedCityData.id,
+        destinationCity: selectedCityData.city
+      }
+    });
 
-if (!payment.ok) {
+    if (!payment.ok) {
       this.showTravelError(
         `Ticket payment failed. Need ${this.formatMoney(cost)}.`
       );
-
       return false;
     }
 
@@ -1251,7 +1056,6 @@ if (!payment.ok) {
 
   cleanupBeforeTravel() {
     this.scene.closeAllUIPanels?.();
-
     this.disableHotspots();
 
     const sceneManager = this.scene.scene;
@@ -1278,15 +1082,12 @@ if (!payment.ok) {
     const locationsData = this.getLocationsData();
 
     const selectedCityData = locationsData.find(
-      location =>
-        location.id === this.getCityId(selectedCity)
+      location => location.id === this.getCityId(selectedCity)
     );
 
     if (!selectedCityData) {
       console.error('City data not found:', selectedCity);
-
       this.setConfirmEnabled(true);
-
       return;
     }
 
@@ -1298,7 +1099,6 @@ if (!payment.ok) {
       );
 
       this.refreshInfoPanel(this.selectedCity);
-
       return;
     }
 
@@ -1313,7 +1113,6 @@ if (!payment.ok) {
       null;
 
     this.isTransitioning = true;
-
     this.setConfirmEnabled(false);
 
     try {
@@ -1324,12 +1123,12 @@ if (!payment.ok) {
 
       if (!wasCharged) {
         this.isTransitioning = false;
-
         this.refreshInfoPanel(this.selectedCity);
-
         return;
       }
 
+      // gameSetup.travelToCity expects a transport TYPE STRING.
+      // Correct values: 'plane', 'train', 'bus', 'ship'.
       const result = performTravel(
         selectedCityData.city,
         locationsData,
@@ -1337,16 +1136,28 @@ if (!payment.ok) {
       );
 
       if (!result) {
-        throw new Error(
-          'performTravel returned no result.'
-        );
+        throw new Error('performTravel returned no result.');
       }
 
-      const travelHours = selectedTransport.travelHours;
+      const travelHours =
+        Number(result.travelHours) ||
+        Number(selectedTransport.travelHours) ||
+        0;
 
       const baseTravelHours =
-        selectedTransport.baseTravelHours;
+        Number(result.baseTravelHours) ||
+        Number(selectedTransport.baseTravelHours) ||
+        travelHours;
 
+      const energyChange = Number.isFinite(Number(result.energyChange))
+        ? Number(result.energyChange)
+        : Number(selectedTransport.energyChange) || 0;
+
+      const moneySpent = Number.isFinite(Number(result.moneySpent))
+        ? Number(result.moneySpent)
+        : Number(selectedTransport.moneySpent) || 0;
+
+      // This is the real game-clock update. GameTimeManager listens to it.
       EventBus.emit('advanceTime', travelHours, 0);
 
       gameState.lastTravel = {
@@ -1358,8 +1169,8 @@ if (!payment.ok) {
         transportLabel: selectedTransport.label,
         travelHours,
         baseTravelHours,
-        moneySpent: selectedTransport.moneySpent,
-        energyChange: selectedTransport.energyChange,
+        moneySpent,
+        energyChange,
         travelEncounter: result.travelEncounter || null,
         wasCorrect: Boolean(result.wasCorrect)
       };
@@ -1371,9 +1182,7 @@ if (!payment.ok) {
         toCityId: selectedCityData.id,
         city: selectedCityData.city,
         transportType: selectedTransport.id,
-        isCrimeSceneArrival: Boolean(
-          result.isCrimeSceneArrival
-        )
+        isCrimeSceneArrival: Boolean(result.isCrimeSceneArrival)
       });
 
       const mission = gameState.currentMission || {};
@@ -1384,8 +1193,7 @@ if (!payment.ok) {
         gameState.crimeCityId
       );
 
-      const selectedCityId =
-        this.getCityId(selectedCityData);
+      const selectedCityId = this.getCityId(selectedCityData);
 
       const isMissionCrimeCity =
         Boolean(selectedCityData.crimeCity) &&
@@ -1412,16 +1220,14 @@ if (!payment.ok) {
         transportLabel: selectedTransport.label,
         travelHours,
         baseTravelHours,
-        moneySpent: selectedTransport.moneySpent,
-        energyChange: selectedTransport.energyChange,
+        moneySpent,
+        energyChange,
 
         travelEncounter: result.travelEncounter || null,
         wasCorrect: Boolean(result.wasCorrect),
         status: result.status,
 
-        pendingPhoneCall: Boolean(
-          gameState.pendingPhoneCall
-        ),
+        pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
 
         pendingPhoneCallCityId:
           gameState.pendingPhoneCallCityId ||
@@ -1452,9 +1258,7 @@ if (!payment.ok) {
       );
     } catch (error) {
       console.error('Travel failed:', error);
-
       this.isTransitioning = false;
-
       this.refreshInfoPanel(this.selectedCity);
       this.setConfirmEnabled(true);
     }
@@ -1472,7 +1276,6 @@ if (!payment.ok) {
     }
 
     this.closeBtn?.off('pointerdown', this.close, this);
-
     this.confirmButton?.removeAllListeners();
     this.overlay?.removeAllListeners();
     this.hqButtonBg?.removeAllListeners();
@@ -1492,14 +1295,11 @@ if (!payment.ok) {
 
     this.activePins = [];
     this.transportButtons = [];
-
     this.gameState = null;
-
     this.selectedCity = null;
     this.selectedPin = null;
     this.selectedLabel = null;
     this.selectedTransport = null;
-
     this.isOpen = false;
     this.isTransitioning = false;
     this.canConfirm = false;

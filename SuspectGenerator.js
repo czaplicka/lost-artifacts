@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from './GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 
 const FIRST_NAMES = {
   female: [
@@ -182,9 +183,11 @@ const VISUAL_TRAIT_TEMPLATES = [
 ];
 
 function capitalize(value = '') {
-  if (!value) return '';
+  const text = String(value || '').trim();
 
-  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+  if (!text) return '';
+
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 }
 
 function randomItem(items = []) {
@@ -215,11 +218,36 @@ function createId(prefix = 'suspect') {
   return `${prefix}_${timePart}_${randomPart}`;
 }
 
+function safeClone(value) {
+  if (value === undefined) return undefined;
+
+  try {
+    return structuredClone(value);
+  } catch (error) {
+    return JSON.parse(JSON.stringify(value));
+  }
+}
+
+function normalizeCityId(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+
+  return value.trim().toLowerCase().replace(/\s+/g, '_');
+}
+
 function getGenderCode() {
   const roll = Math.random();
 
   if (roll < 0.46) return 'female';
   if (roll < 0.92) return 'male';
+
+  return 'nb';
+}
+
+function normalizeGenderCode(value) {
+  const gender = String(value || '').trim().toLowerCase();
+
+  if (['female', 'f', 'woman'].includes(gender)) return 'female';
+  if (['male', 'm', 'man'].includes(gender)) return 'male';
 
   return 'nb';
 }
@@ -264,29 +292,115 @@ function createForensicAttributes(genderCode) {
   };
 }
 
-function createVisibleTraits(forensicAttributes) {
-  const hairColor =
-    forensicAttributes?.hair_color?.value ||
-    'brown';
+function getForensicValue(source, field, fallback) {
+  const value =
+    source?.restrictedProfile?.forensicAttributes?.[field]?.value ??
+    source?.restrictedProfile?.forensicAttributes?.[field] ??
+    source?.forensicAttributes?.[field]?.value ??
+    source?.forensicAttributes?.[field] ??
+    source?.[field];
 
-  const availableTraits = VISUAL_TRAIT_TEMPLATES.map((template) =>
-    template({
-      hairColor
-    })
-  );
-
-  return shuffle(availableTraits).slice(0, 2);
+  return value ?? fallback;
 }
 
-function createDeductionState() {
+function normalizeForensicAttributes(source = {}, genderCode = 'nb') {
   return {
-    eliminated: false,
-    eliminationReasons: [],
-    notesUnlocked: [],
-    labStatus: 'pending',
-    hypothesisStatus: 'pending',
-    interviewStatus: 'pending',
-    alibiStatus: 'pending'
+    hair_color: {
+      value: String(
+        getForensicValue(
+          source,
+          'hair_color',
+          randomItem(HAIR_COLORS)
+        )
+      ).toLowerCase(),
+      unlocked: false
+    },
+    eye_color: {
+      value: String(
+        getForensicValue(
+          source,
+          'eye_color',
+          randomItem(EYE_COLORS)
+        )
+      ).toLowerCase(),
+      unlocked: false
+    },
+    blood_type: {
+      value: String(
+        getForensicValue(
+          source,
+          'blood_type',
+          randomItem(BLOOD_TYPES)
+        )
+      ).toUpperCase(),
+      unlocked: false
+    },
+    biological_sex: {
+      value: String(
+        getForensicValue(
+          source,
+          'biological_sex',
+          getBiologicalSex(genderCode)
+        )
+      ).toLowerCase(),
+      unlocked: false
+    },
+    shoe_size_category: {
+      value: String(
+        getForensicValue(
+          source,
+          'shoe_size_category',
+          randomItem(SHOE_SIZE_CATEGORIES)
+        )
+      ).toLowerCase(),
+      unlocked: false
+    }
+  };
+}
+
+function createVisibleTraits(forensicAttributes, existingTraits = []) {
+  const hairColor = forensicAttributes?.hair_color?.value || 'brown';
+
+  const generatedTraits = VISUAL_TRAIT_TEMPLATES.map((template) =>
+    template({ hairColor })
+  );
+
+  const allTraits = shuffle([
+    ...(Array.isArray(existingTraits) ? existingTraits : []),
+    ...generatedTraits
+  ]);
+
+  const uniqueTraits = [];
+
+  allTraits.forEach((trait) => {
+    if (
+      typeof trait === 'string' &&
+      trait.trim() &&
+      !uniqueTraits.some(
+        (existingTrait) =>
+          existingTrait.toLowerCase() === trait.trim().toLowerCase()
+      )
+    ) {
+      uniqueTraits.push(trait.trim());
+    }
+  });
+
+  return uniqueTraits.slice(0, 2);
+}
+
+function createDeductionState(existingState = {}) {
+  return {
+    eliminated: Boolean(existingState.eliminated),
+    eliminationReasons: Array.isArray(existingState.eliminationReasons)
+      ? safeClone(existingState.eliminationReasons)
+      : [],
+    notesUnlocked: Array.isArray(existingState.notesUnlocked)
+      ? [...existingState.notesUnlocked]
+      : [],
+    labStatus: existingState.labStatus || 'pending',
+    hypothesisStatus: existingState.hypothesisStatus || 'pending',
+    interviewStatus: existingState.interviewStatus || 'pending',
+    alibiStatus: existingState.alibiStatus || 'pending'
   };
 }
 
@@ -313,17 +427,49 @@ function createPublicProfile({
   };
 }
 
-function createDecoySuspect(index = 0) {
-  const genderCode = getGenderCode();
-  const forensicAttributes = createForensicAttributes(genderCode);
-  const name = createFullName(genderCode);
-  const occupation = randomItem(OCCUPATIONS);
-  const caseConnection = randomItem(CASE_CONNECTIONS);
-  const visibleTraits = createVisibleTraits(forensicAttributes);
+function createDecoySuspect(index = 0, source = {}) {
+  const genderCode = normalizeGenderCode(
+    source.gender_code ||
+    source.genderCode ||
+    source.gender ||
+    getGenderCode()
+  );
+
+  const name =
+    source.name ||
+    source.displayName ||
+    source.publicProfile?.displayName ||
+    createFullName(genderCode);
+
+  const occupation =
+    source.occupation ||
+    source.role ||
+    source.publicProfile?.occupation ||
+    randomItem(OCCUPATIONS);
+
+  const forensicAttributes = normalizeForensicAttributes(
+    source,
+    genderCode
+  );
+
+  const existingTraits =
+    source.visibleTraits ||
+    source.publicProfile?.visibleTraits ||
+    [];
+
+  const visibleTraits = createVisibleTraits(
+    forensicAttributes,
+    existingTraits
+  );
+
+  const caseConnection =
+    source.caseConnection ||
+    source.publicProfile?.caseConnection ||
+    randomItem(CASE_CONNECTIONS);
 
   return {
-    id: createId(`suspect_${index + 1}`),
-    type: 'decoy',
+    id: source.id || createId(`suspect_${index + 1}`),
+    type: 'suspect',
     isRealThief: false,
     name,
     occupation,
@@ -336,87 +482,7 @@ function createDecoySuspect(index = 0) {
       caseConnection
     }),
     restrictedProfile: createRestrictedProfile(forensicAttributes),
-    deductionState: createDeductionState()
-  };
-}
-
-function normalizeRealThief(realThief = {}) {
-  const genderCode = realThief.gender_code || realThief.genderCode || 'nb';
-  const name =
-    realThief.name ||
-    realThief.displayName ||
-    createFullName(genderCode);
-
-  const occupation =
-    realThief.occupation ||
-    'Independent Consultant';
-
-  const originalForensics =
-    realThief.restrictedProfile?.forensicAttributes ||
-    realThief.forensicAttributes ||
-    {};
-
-  const forensicAttributes = {
-    hair_color: {
-      value:
-        originalForensics.hair_color?.value ||
-        originalForensics.hair_color ||
-        randomItem(HAIR_COLORS),
-      unlocked: false
-    },
-    eye_color: {
-      value:
-        originalForensics.eye_color?.value ||
-        originalForensics.eye_color ||
-        randomItem(EYE_COLORS),
-      unlocked: false
-    },
-    blood_type: {
-      value:
-        originalForensics.blood_type?.value ||
-        originalForensics.blood_type ||
-        randomItem(BLOOD_TYPES),
-      unlocked: false
-    },
-    biological_sex: {
-      value:
-        originalForensics.biological_sex?.value ||
-        originalForensics.biological_sex ||
-        getBiologicalSex(genderCode),
-      unlocked: false
-    },
-    shoe_size_category: {
-      value:
-        originalForensics.shoe_size_category?.value ||
-        originalForensics.shoe_size_category ||
-        randomItem(SHOE_SIZE_CATEGORIES),
-      unlocked: false
-    }
-  };
-
-  const visibleTraits = createVisibleTraits(forensicAttributes);
-
-  return {
-    id: realThief.id || createId('real_thief'),
-    type: 'real_thief',
-    isRealThief: true,
-    name,
-    occupation,
-    genderCode,
-    publicProfile: createPublicProfile({
-      name,
-      occupation,
-      genderCode,
-      visibleTraits,
-      caseConnection:
-        realThief.publicProfile?.caseConnection ||
-        realThief.caseConnection ||
-        'Listed in the local access records.'
-    }),
-    restrictedProfile: createRestrictedProfile(forensicAttributes),
-    deductionState: createDeductionState(),
-    hiddenIdentity: realThief.hiddenIdentity || null,
-    criminalProfile: realThief.criminalProfile || null
+    deductionState: createDeductionState(source.deductionState)
   };
 }
 
@@ -427,7 +493,10 @@ function ensureUniqueNames(suspects = []) {
     let candidateName = suspect.name;
     let attempts = 0;
 
-    while (usedNames.has(candidateName) && attempts < 30) {
+    while (
+      usedNames.has(candidateName.toLowerCase()) &&
+      attempts < 30
+    ) {
       candidateName = createFullName(suspect.genderCode);
       attempts += 1;
     }
@@ -438,47 +507,240 @@ function ensureUniqueNames(suspects = []) {
       suspect.publicProfile.displayName = candidateName;
     }
 
-    usedNames.add(candidateName);
+    usedNames.add(candidateName.toLowerCase());
   });
 
   return suspects;
+}
+
+function ensureUniqueIds(suspects = []) {
+  const usedIds = new Set();
+
+  suspects.forEach((suspect, index) => {
+    let candidateId = suspect.id || createId(`suspect_${index + 1}`);
+
+    while (usedIds.has(candidateId)) {
+      candidateId = createId(`suspect_${index + 1}`);
+    }
+
+    suspect.id = candidateId;
+    usedIds.add(candidateId);
+  });
+
+  return suspects;
+}
+
+export class SuspectGenerator {
+  constructor(citySuspectsData = {}) {
+    this.citySuspectsData = citySuspectsData;
+  }
+
+  getCitySuspects(crimeCityId) {
+    const normalizedCrimeCityId = normalizeCityId(crimeCityId);
+    const data = this.citySuspectsData;
+
+    if (Array.isArray(data)) {
+      return data.filter((suspect) => {
+        const suspectCityId = normalizeCityId(
+          suspect.cityId ||
+          suspect.city_id ||
+          suspect.city
+        );
+
+        return !suspectCityId || suspectCityId === normalizedCrimeCityId;
+      });
+    }
+
+    if (Array.isArray(data?.suspects)) {
+      return data.suspects.filter((suspect) => {
+        const suspectCityId = normalizeCityId(
+          suspect.cityId ||
+          suspect.city_id ||
+          suspect.city
+        );
+
+        return !suspectCityId || suspectCityId === normalizedCrimeCityId;
+      });
+    }
+
+    if (Array.isArray(data?.cities)) {
+      const cityData = data.cities.find((city) => {
+        const cityId = normalizeCityId(
+          city.id ||
+          city.cityId ||
+          city.city
+        );
+
+        return cityId === normalizedCrimeCityId;
+      });
+
+      if (Array.isArray(cityData?.suspects)) {
+        return cityData.suspects;
+      }
+    }
+
+    if (Array.isArray(data?.[normalizedCrimeCityId])) {
+      return data[normalizedCrimeCityId];
+    }
+
+    return [];
+  }
+
+  generateCaseSuspects(thief, crimeCityId) {
+    const citySuspects = this.getCitySuspects(crimeCityId);
+
+    const decoys = citySuspects.map((source, index) =>
+      createDecoySuspect(index, source)
+    );
+
+    const availableSuspects = decoys.length
+      ? decoys
+      : Array.from(
+        { length: 10 },
+        (_, index) => createDecoySuspect(index)
+      );
+
+    const requestedCount = Math.min(10, availableSuspects.length);
+
+    const suspects = shuffle(availableSuspects)
+      .slice(0, requestedCount)
+      .map((suspect) => ({
+        ...suspect,
+        publicProfile: {
+          ...suspect.publicProfile,
+          visibleTraits: [...suspect.publicProfile.visibleTraits]
+        },
+        restrictedProfile: {
+          ...suspect.restrictedProfile,
+          forensicAttributes: safeClone(
+            suspect.restrictedProfile.forensicAttributes
+          )
+        },
+        deductionState: createDeductionState(
+          suspect.deductionState
+        )
+      }));
+
+    ensureUniqueIds(suspects);
+    ensureUniqueNames(suspects);
+
+    const trueThiefCaseSuspect = randomItem(suspects);
+
+    if (!trueThiefCaseSuspect) {
+      throw new Error(
+        'Could not generate a case suspect list. No suspect personas are available.'
+      );
+    }
+
+    const thiefGenderCode = normalizeGenderCode(
+      thief?.gender_code ||
+      thief?.genderCode ||
+      thief?.gender
+    );
+
+    const thiefForensics = normalizeForensicAttributes(
+      thief || {},
+      thiefGenderCode
+    );
+
+    trueThiefCaseSuspect.type = 'suspect';
+    trueThiefCaseSuspect.isRealThief = false;
+
+    trueThiefCaseSuspect.restrictedProfile = {
+      unlockedFields: [],
+      forensicAttributes: thiefForensics
+    };
+
+    trueThiefCaseSuspect.hiddenCaseData = {
+      isTrueThief: true,
+      realThiefId: thief?.id || null,
+      realThiefName: thief?.name || null,
+      realThiefProfile: safeClone(thief || {})
+    };
+
+    const trueThiefCaseSuspectId = trueThiefCaseSuspect.id;
+
+    return {
+      cityId: normalizeCityId(crimeCityId),
+      suspects,
+      citySuspects: suspects,
+      realThiefId: trueThiefCaseSuspectId,
+      realThiefSuspectId: trueThiefCaseSuspectId,
+      trueThiefCaseSuspectId,
+      actualCriminalId: thief?.id || null,
+      generatedAt: new Date().toISOString()
+    };
+  }
+
+  prepareCaseState(caseData = {}) {
+    const suspects =
+      caseData.suspects ||
+      caseData.citySuspects ||
+      [];
+
+    gameState.caseSuspects = safeClone(suspects);
+    gameState.suspects = safeClone(suspects);
+    gameState.suspectList = safeClone(suspects);
+
+    gameState.realThiefSuspectId =
+      caseData.trueThiefCaseSuspectId ||
+      caseData.realThiefSuspectId ||
+      caseData.realThiefId ||
+      null;
+
+    gameState.trueThiefCaseSuspectId =
+      gameState.realThiefSuspectId;
+
+    gameState.actualCriminalId =
+      caseData.actualCriminalId ||
+      gameState.currentThief?.id ||
+      gameState.currentThiefId ||
+      null;
+
+    gameState.caseSuspectCityId =
+      caseData.cityId ||
+      gameState.crimeCityId ||
+      null;
+
+    gameState.selectedSuspectId =
+      suspects.find(
+        (suspect) => !suspect.deductionState?.eliminated
+      )?.id ||
+      suspects[0]?.id ||
+      null;
+
+    saveGameState();
+
+    return gameState.caseSuspects;
+  }
 }
 
 export function generateSuspects({
   total = 10,
   realThief = null
 } = {}) {
-  const suspectCount = Math.max(2, total);
-  const suspects = [];
+  const generator = new SuspectGenerator([]);
 
-  if (realThief) {
-    suspects.push(normalizeRealThief(realThief));
-  } else {
-    const generatedRealThief = createDecoySuspect(0);
+  const caseData = generator.generateCaseSuspects(
+    realThief,
+    null
+  );
 
-    generatedRealThief.id = createId('real_thief');
-    generatedRealThief.type = 'real_thief';
-    generatedRealThief.isRealThief = true;
-    generatedRealThief.hiddenIdentity = 'Unknown';
-    generatedRealThief.criminalProfile = {};
+  const suspects = [...caseData.suspects];
 
-    suspects.push(generatedRealThief);
-  }
-
-  while (suspects.length < suspectCount) {
+  while (suspects.length < total) {
     suspects.push(createDecoySuspect(suspects.length));
   }
 
+  ensureUniqueIds(suspects);
   ensureUniqueNames(suspects);
 
-  const shuffledSuspects = shuffle(suspects);
-
-  gameState.suspects = shuffledSuspects;
-  gameState.suspectList = shuffledSuspects;
+  gameState.suspects = shuffle(suspects);
+  gameState.suspectList = gameState.suspects;
 
   saveGameState();
 
-  return shuffledSuspects;
+  return gameState.suspects;
 }
 
 export function regenerateSuspects(options = {}) {
@@ -490,10 +752,14 @@ export function getGeneratedSuspects() {
     return gameState.suspects;
   }
 
-  if (Array.isArray(gameState.suspectList) && gameState.suspectList.length) {
+  if (
+    Array.isArray(gameState.suspectList) &&
+    gameState.suspectList.length
+  ) {
     return gameState.suspectList;
   }
 
   return [];
 }
-export default generateSuspects;
+
+export default SuspectGenerator;

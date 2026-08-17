@@ -1,5 +1,6 @@
-import { gameState, saveGameState } from '../GameData.js';
-import { getScoreManager } from '../gameSetup.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
+import { getScoreManager } from '../InvestigationManager.js';
 import { BaseScene } from './BaseScene.js';
 import { getEnergyManager } from '../EnergyManager.js';
 import { HypothesisEvaluator } from '../HypothesisEvaluator.js';

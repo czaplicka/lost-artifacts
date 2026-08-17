@@ -4,6 +4,8 @@ import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
+import { getGameTimeManager } from '../GameTimeManager.js';
+import { getScoreManager } from '../InvestigationManager.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 
@@ -44,7 +46,7 @@ export class UIScene extends BaseScene {
       minute: gameState.currentMinute ?? gameState.minute ?? 0,
       partOfDay: gameState.currentPartOfDay || gameState.partOfDay || 'Morning'
     });
-    this.updateScore({ total: gameState.score || 0 });
+  this.refreshScoreHud();
     this.refreshMoneyHud();
     this.updateEnergy();
 
@@ -53,6 +55,15 @@ export class UIScene extends BaseScene {
     };
 
     window.addEventListener('lost-artifacts:money-changed', this.moneyChangeHandler);
+getGameTimeManager({
+  day: gameState.currentDay || gameState.day || 1,
+  hour: gameState.currentHour ?? gameState.hour ?? 8,
+  minute: gameState.currentMinute ?? gameState.minute ?? 0,
+  partOfDay:
+    gameState.currentPartOfDay ||
+    gameState.partOfDay ||
+    'Morning'
+});
   }
 
   _removeDomListeners() {
@@ -132,9 +143,13 @@ export class UIScene extends BaseScene {
     this.dom = {};
   }
 
-  showHUD() {
-    if (this.dom.container) this.dom.container.style.display = 'block';
+showHUD() {
+  if (this.dom.container) {
+    this.dom.container.style.display = 'block';
   }
+
+  this.refreshScoreHud();
+}
 
   hideHUD() {
     this._hideTooltip();
@@ -345,7 +360,20 @@ export class UIScene extends BaseScene {
       last ? `Last: ${last}` : 'Click the bolt for the full energy log.'
     ].join('\n');
   }
+refreshScoreHud() {
+const scoreManager = getScoreManager();
 
+  const managerScore = scoreManager?.getSessionPoints?.();
+  const stateScore = Number(gameState.score);
+
+  const score = Number.isFinite(managerScore)
+    ? managerScore
+    : Number.isFinite(stateScore)
+      ? stateScore
+      : 0;
+
+  this.updateScore({ total: score });
+}
   updateScore(data) {
     const rawScore = typeof data === 'object' ? data?.total : data;
     const score = Math.max(0, Math.floor(Number(rawScore ?? gameState.score) || 0));

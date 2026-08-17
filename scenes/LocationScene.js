@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from '../GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { buildNpcDialogue, buildFalseLeadDialogue } from '../dialogueBuilder.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';

@@ -1,4 +1,5 @@
-import { gameState, saveGameState } from '../GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 

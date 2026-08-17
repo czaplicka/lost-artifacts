@@ -1,4 +1,4 @@
-import { loadGameState } from '../GameData.js';
+import { loadGameState } from '../GameStatePersistence.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';

@@ -1,5 +1,6 @@
 import { ensureHud } from '../hudHelpers.js';
-import { gameState, saveGameState } from '../GameData.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 

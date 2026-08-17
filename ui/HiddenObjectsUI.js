@@ -100,46 +100,99 @@ export class HiddenObjectsUI {
       })
       .setDepth(1001);
 
-    if (this.scene.textures.exists('back')) {
-      this.backBtn = this.scene.add
-        .image(width - 105, 44, 'back')
-        .setDisplaySize(190, 60)
-        .setInteractive({
-          useHandCursor: true
-        })
-        .setDepth(1001);
-    } else {
-      this.backBtn = this.scene.add
-        .text(width - 155, 24, 'RETURN TO CITY', {
-          fontFamily: 'Press Start 2P, Arial',
-          fontSize: '12px',
-          color: '#ffffff',
-          backgroundColor: '#222222',
-          padding: {
-            left: 16,
-            right: 16,
-            top: 12,
-            bottom: 12
-          }
-        })
-        .setOrigin(0.5, 0)
-        .setInteractive({
-          useHandCursor: true
-        })
-        .setDepth(1001);
-    }
+const returnToCrimeCity = () => {
+  if (this.isReturningToCity) {
+    return;
+  }
 
-    this.backBtn.on('pointerover', () => {
-      this.backBtn.setScale(1.05);
-    });
+  this.isReturningToCity = true;
 
-    this.backBtn.on('pointerout', () => {
-      this.backBtn.setScale(1);
-    });
+  this.scene.tweens.killTweensOf(this.backBtn);
+  this.backBtn.disableInteractive();
 
-    this.backBtn.on('pointerdown', () => {
-      this.scene.abandonGame();
+  this.scene.abandonGame();
+};
+
+if (this.scene.textures.exists('back')) {
+  this.backBtn = this.scene.add
+    .image(width - 125, 46, 'back')
+    .setDisplaySize(190, 60)
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .setDepth(1001);
+
+  const baseWidth = 190;
+  const baseHeight = 60;
+
+  this.backBtn.on('pointerover', () => {
+    this.scene.tweens.killTweensOf(this.backBtn);
+
+    this.scene.tweens.add({
+      targets: this.backBtn,
+      displayWidth: baseWidth * 1.05,
+      displayHeight: baseHeight * 1.05,
+      duration: 100,
+      ease: 'Power1'
     });
+  });
+
+  this.backBtn.on('pointerout', () => {
+    this.scene.tweens.killTweensOf(this.backBtn);
+
+    this.scene.tweens.add({
+      targets: this.backBtn,
+      displayWidth: baseWidth,
+      displayHeight: baseHeight,
+      duration: 100,
+      ease: 'Power1'
+    });
+  });
+} else {
+  this.backBtn = this.scene.add
+    .text(width - 125, 46, 'RETURN TO CITY', {
+      fontFamily: 'Press Start 2P, Arial',
+      fontSize: '12px',
+      color: '#ffffff',
+      backgroundColor: '#222222',
+      padding: {
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: 12
+      }
+    })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .setDepth(1001);
+
+  const baseScale = 1;
+
+  this.backBtn.on('pointerover', () => {
+    this.scene.tweens.killTweensOf(this.backBtn);
+
+    this.scene.tweens.add({
+      targets: this.backBtn,
+      scaleX: baseScale * 1.05,
+      scaleY: baseScale * 1.05,
+      duration: 100,
+      ease: 'Power1'
+    });
+  });
+
+  this.backBtn.on('pointerout', () => {
+    this.scene.tweens.killTweensOf(this.backBtn);
+
+    this.scene.tweens.add({
+      targets: this.backBtn,
+      scaleX: baseScale,
+      scaleY: baseScale,
+      duration: 100,
+      ease: 'Power1'
+    });
+  });
+}
+
+this.backBtn.on('pointerdown', returnToCrimeCity);
   }
 
   buildListText() {
