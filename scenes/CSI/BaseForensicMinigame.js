@@ -6,6 +6,12 @@ export class BaseForensicMinigame extends BaseScene {
 
     this.evidenceType = 'generic';
     this.correctValue = null;
+    this.evidenceConfig = {};
+    this.clueType = 'forensic';
+    this.clueText = '';
+    this.cityId = null;
+    this.caseKey = null;
+
     this.onComplete = null;
     this.onAbort = null;
     this.gameState = null;
@@ -43,8 +49,31 @@ export class BaseForensicMinigame extends BaseScene {
   }
 
   init(data = {}) {
-    this.evidenceType = data.evidenceType || 'generic';
-    this.correctValue = data.correctValue ?? null;
+    this.evidenceConfig = data.evidenceConfig || {};
+
+    this.evidenceType =
+      data.evidenceType ||
+      this.evidenceConfig.evidenceType ||
+      'generic';
+
+    this.correctValue =
+      data.correctValue ??
+      this.evidenceConfig.correctValue ??
+      null;
+
+    this.clueType =
+      data.clueType ||
+      this.evidenceConfig.clueType ||
+      'forensic';
+
+    this.clueText =
+      data.clueText ||
+      this.evidenceConfig.clueText ||
+      '';
+
+    this.cityId = data.cityId || null;
+    this.caseKey = data.caseKey || null;
+
     this.onComplete = data.onComplete || null;
     this.onAbort = data.onAbort || null;
     this.gameState = data.gameState || null;
@@ -69,6 +98,18 @@ export class BaseForensicMinigame extends BaseScene {
     this.instructionsBg = null;
     this.dialogueBg = null;
     this.exitButton = null;
+
+    console.log('[BaseForensicMinigame] Initialized:', {
+      scene: this.scene.key,
+      stationId: this.stationId,
+      cityId: this.cityId,
+      caseKey: this.caseKey,
+      evidenceType: this.evidenceType,
+      correctValue: this.correctValue,
+      clueType: this.clueType,
+      clueText: this.clueText,
+      evidenceConfig: this.evidenceConfig
+    });
   }
 
   create() {
@@ -85,10 +126,6 @@ export class BaseForensicMinigame extends BaseScene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
   }
-
-  // ----------------------------------------------------------
-  // Exit button
-  // ----------------------------------------------------------
 
   createExitButton() {
     const { width } = this.scale;
@@ -137,8 +174,20 @@ export class BaseForensicMinigame extends BaseScene {
 
     const payload = {
       aborted: true,
+      completed: false,
+
       stationId: this.stationId,
+      cityId: this.cityId,
+      caseKey: this.caseKey,
+
+      evidenceConfig: this.evidenceConfig,
       evidenceType: this.evidenceType,
+      correctValue: this.correctValue,
+      clueType: this.clueType,
+      clueText: this.clueText,
+
+      value: this.selectedValue,
+      selectedValue: this.selectedValue,
       score: this.score,
       mistakes: this.mistakes,
       secondsElapsed: this.secondsElapsed
@@ -151,10 +200,6 @@ export class BaseForensicMinigame extends BaseScene {
     this.events.emit('minigame-closed', payload);
     this.scene.stop();
   }
-
-  // ----------------------------------------------------------
-  // Backdrop + permanent HUD
-  // ----------------------------------------------------------
 
   createBackdrop() {
     const { width, height } = this.scale;
@@ -260,11 +305,7 @@ export class BaseForensicMinigame extends BaseScene {
         color: '#b8cfc2'
       }).setOrigin(0.5);
 
-      this.progressNodes.push({
-        circle,
-        label
-      });
-
+      this.progressNodes.push({ circle, label });
       this.progressGroup.add([circle, label]);
 
       if (i < this.totalSteps - 1) {
@@ -359,10 +400,6 @@ export class BaseForensicMinigame extends BaseScene {
     this.setScore(this.score);
   }
 
-  // ----------------------------------------------------------
-  // Timer + flow
-  // ----------------------------------------------------------
-
   startTimer() {
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -389,23 +426,14 @@ export class BaseForensicMinigame extends BaseScene {
     this.setDialogue('Missing minigame implementation.');
   }
 
-  // ----------------------------------------------------------
-  // Stage management
-  // ----------------------------------------------------------
-
   clearStage() {
     this.destroyOptionButtons();
 
     this.stageObjects.forEach((obj) => {
       if (!obj) return;
 
-      if (obj.removeAllListeners) {
-        obj.removeAllListeners();
-      }
-
-      if (obj.destroy) {
-        obj.destroy();
-      }
+      obj.removeAllListeners?.();
+      obj.destroy?.();
     });
 
     this.stageObjects = [];
@@ -415,13 +443,8 @@ export class BaseForensicMinigame extends BaseScene {
     this.optionButtons.forEach((button) => {
       if (!button) return;
 
-      if (button.bg?.removeAllListeners) {
-        button.bg.removeAllListeners();
-      }
-
-      if (button.destroy) {
-        button.destroy();
-      }
+      button.bg?.removeAllListeners?.();
+      button.destroy?.();
     });
 
     this.optionButtons = [];
@@ -473,28 +496,17 @@ export class BaseForensicMinigame extends BaseScene {
     return Phaser.Utils.Array.Shuffle(unique);
   }
 
-  // ----------------------------------------------------------
-  // Text + score helpers
-  // ----------------------------------------------------------
-
   setInstructions(text) {
-    if (this.instructionsText) {
-      this.instructionsText.setText(text);
-    }
+    this.instructionsText?.setText(text);
   }
 
   setDialogue(text) {
-    if (this.dialogueText) {
-      this.dialogueText.setText(text);
-    }
+    this.dialogueText?.setText(text);
   }
 
   setScore(score) {
     this.score = Phaser.Math.Clamp(score, 0, this.maxScore);
-
-    if (this.scoreText) {
-      this.scoreText.setText(`Score: ${this.score}`);
-    }
+    this.scoreText?.setText(`Score: ${this.score}`);
   }
 
   penalize(amount = 10) {
@@ -522,10 +534,6 @@ export class BaseForensicMinigame extends BaseScene {
     return bonus;
   }
 
-  // ----------------------------------------------------------
-  // UI helpers
-  // ----------------------------------------------------------
-
   createButton(x, y, w, h, label, onClick, opts = {}) {
     const bgColor = opts.bgColor ?? 0x22382e;
     const borderColor = opts.borderColor ?? 0x7cc89f;
@@ -549,13 +557,10 @@ export class BaseForensicMinigame extends BaseScene {
       }
     }).setOrigin(0.5);
 
-    bg.setInteractive({
-      useHandCursor: true
-    });
+    bg.setInteractive({ useHandCursor: true });
 
     bg.on('pointerover', () => {
       if (this.resolved && !opts.allowAfterResolve) return;
-
       bg.setFillStyle(0x335244, 1);
     });
 
@@ -565,7 +570,6 @@ export class BaseForensicMinigame extends BaseScene {
 
     bg.on('pointerdown', () => {
       if (this.resolved && !opts.allowAfterResolve) return;
-
       onClick();
     });
 
@@ -594,10 +598,6 @@ export class BaseForensicMinigame extends BaseScene {
 
     return this.addStageObject(tag);
   }
-
-  // ----------------------------------------------------------
-  // Choice resolution
-  // ----------------------------------------------------------
 
   resolveChoice(value, isCorrect, penalty = 10) {
     if (this.resolved) return;
@@ -656,9 +656,9 @@ export class BaseForensicMinigame extends BaseScene {
       const label = button.text?.text;
 
       if (
-        label === this.toDisplayText(value)
-        || label === value
-        || label === this.getSexDisplay(value)
+        label === this.toDisplayText(value) ||
+        label === value ||
+        label === this.getSexDisplay(value)
       ) {
         button.bg.setFillStyle(0x176136, 1);
         button.bg.setStrokeStyle(2, 0x77ffb0, 1);
@@ -673,9 +673,9 @@ export class BaseForensicMinigame extends BaseScene {
       const label = button.text?.text;
 
       return (
-        label === this.toDisplayText(value)
-        || label === value
-        || label === this.getSexDisplay(value)
+        label === this.toDisplayText(value) ||
+        label === value ||
+        label === this.getSexDisplay(value)
       );
     });
 
@@ -694,9 +694,20 @@ export class BaseForensicMinigame extends BaseScene {
     return {
       aborted: false,
       completed: this.resolved,
+
       stationId: this.stationId,
+      cityId: this.cityId,
+      caseKey: this.caseKey,
+
+      evidenceConfig: this.evidenceConfig,
       evidenceType: this.evidenceType,
+      correctValue: this.correctValue,
+      clueType: this.clueType,
+      clueText: this.clueText,
+
       value: this.selectedValue,
+      selectedValue: this.selectedValue,
+
       score: this.score,
       mistakes: this.mistakes,
       secondsElapsed: this.secondsElapsed
@@ -707,6 +718,8 @@ export class BaseForensicMinigame extends BaseScene {
     if (!this.resolved) return;
 
     const payload = this.getResultPayload();
+
+    console.log('[BaseForensicMinigame] Completing:', payload);
 
     if (typeof this.onComplete === 'function') {
       this.onComplete(payload);
@@ -722,64 +735,43 @@ export class BaseForensicMinigame extends BaseScene {
     this.scene.stop();
   }
 
-  // ----------------------------------------------------------
-  // Cleanup
-  // ----------------------------------------------------------
-
   cleanup() {
-    if (this.timerEvent) {
-      this.timerEvent.remove(false);
-      this.timerEvent = null;
-    }
+    this.timerEvent?.remove(false);
+    this.timerEvent = null;
 
     this.destroyOptionButtons();
 
     this.stageObjects.forEach((object) => {
       if (!object) return;
 
-      if (object.removeAllListeners) {
-        object.removeAllListeners();
-      }
-
-      if (object.destroy) {
-        object.destroy();
-      }
+      object.removeAllListeners?.();
+      object.destroy?.();
     });
 
     this.stageObjects = [];
 
-    if (this.exitButton) {
-      this.exitButton.removeAllListeners();
-      this.exitButton.destroy();
-      this.exitButton = null;
-    }
+    this.exitButton?.removeAllListeners?.();
+    this.exitButton?.destroy?.();
+    this.exitButton = null;
 
-    if (this.hudBg) {
-      this.hudBg.destroy();
-      this.hudBg = null;
-    }
+    this.hudBg?.destroy?.();
+    this.hudBg = null;
 
-    if (this.instructionsBg) {
-      this.instructionsBg.destroy();
-      this.instructionsBg = null;
-    }
+    this.instructionsBg?.destroy?.();
+    this.instructionsBg = null;
 
-    if (this.dialogueBg) {
-      this.dialogueBg.destroy();
-      this.dialogueBg = null;
-    }
+    this.dialogueBg?.destroy?.();
+    this.dialogueBg = null;
 
-    if (this.progressGroup) {
-      this.progressGroup.destroy();
-      this.progressGroup = null;
-    }
+    this.progressGroup?.destroy?.();
+    this.progressGroup = null;
 
-    if (this.titleText) this.titleText.destroy();
-    if (this.subtitleText) this.subtitleText.destroy();
-    if (this.instructionsText) this.instructionsText.destroy();
-    if (this.dialogueText) this.dialogueText.destroy();
-    if (this.scoreText) this.scoreText.destroy();
-    if (this.timerText) this.timerText.destroy();
+    this.titleText?.destroy?.();
+    this.subtitleText?.destroy?.();
+    this.instructionsText?.destroy?.();
+    this.dialogueText?.destroy?.();
+    this.scoreText?.destroy?.();
+    this.timerText?.destroy?.();
 
     this.titleText = null;
     this.subtitleText = null;
@@ -788,18 +780,11 @@ export class BaseForensicMinigame extends BaseScene {
     this.scoreText = null;
     this.timerText = null;
 
-    if (this.playArea) {
-      this.playArea.destroy();
-      this.playArea = null;
-    }
-
+    this.playArea?.destroy?.();
+    this.playArea = null;
     this.playAreaBg = null;
     this.progressNodes = [];
   }
-
-  // ----------------------------------------------------------
-  // Defaults — override in child scenes
-  // ----------------------------------------------------------
 
   getTitle() {
     return 'FORENSIC ANALYSIS';

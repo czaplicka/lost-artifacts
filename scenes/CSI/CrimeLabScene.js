@@ -586,8 +586,118 @@ updateProceedVisibility() {
 
     this.scene.pause();
   }
+  getCrimeBoardCase() {
+    const caseKey = this.labManager?.getCaseKey?.() || 'default_case';
 
-  saveMiniGameResult(payload = {}) {
+    this.gameState.crimeBoards ??= {};
+    this.gameState.crimeBoards[caseKey] ??= {
+      caseKey,
+      cityId: this.cityId,
+      forensicEvidence: [],
+      clues: [],
+      updatedAt: null
+    };
+
+    this.gameState.crimeBoards[caseKey].forensicEvidence ??= [];
+    this.gameState.crimeBoards[caseKey].clues ??= [];
+
+    return this.gameState.crimeBoards[caseKey];
+  }
+
+  addForensicResultToCrimeBoard(payload = {}, forensicResult = {}) {
+    const evidenceConfig = payload.evidenceConfig || {};
+    const board = this.getCrimeBoardCase();
+
+    const stationId = payload.stationId || forensicResult.stationId;
+    if (!stationId) return;
+
+    const clue = {
+      id: `forensic_${stationId}`,
+      source: 'crime_lab',
+      stationId,
+      cityId: this.cityId,
+
+      evidenceType:
+        payload.evidenceType ||
+        evidenceConfig.evidenceType ||
+        'unknown_evidence',
+
+      clueType:
+        payload.clueType ||
+        evidenceConfig.clueType ||
+        'forensic',
+
+      title:
+        evidenceConfig.label ||
+        payload.label ||
+        'Crime Lab Result',
+
+      text:
+        payload.clueText ||
+        evidenceConfig.clueText ||
+        forensicResult.clueText ||
+        'The laboratory produced an inconclusive but suspicious result.',
+
+      correctValue:
+        payload.correctValue ??
+        evidenceConfig.correctValue ??
+        forensicResult.correctValue ??
+        null,
+
+      result:
+        payload.result ??
+        payload.selectedValue ??
+        payload.answer ??
+        forensicResult.result ??
+        null,
+
+      isValuable:
+        Boolean(
+          payload.isValuable ??
+          evidenceConfig.isValuable ??
+          evidenceConfig.clueType === 'identity' ??
+          false
+        ),
+
+      completedAt: forensicResult.completedAt || Date.now(),
+      discovered: true,
+      read: false
+    };
+
+    const existingIndex = board.forensicEvidence.findIndex(
+      (item) => item.id === clue.id
+    );
+
+    if (existingIndex >= 0) {
+      board.forensicEvidence[existingIndex] = {
+        ...board.forensicEvidence[existingIndex],
+        ...clue
+      };
+    } else {
+      board.forensicEvidence.push(clue);
+    }
+
+    const clueIndex = board.clues.findIndex(
+      (item) => item.id === clue.id
+    );
+
+    if (clueIndex >= 0) {
+      board.clues[clueIndex] = {
+        ...board.clues[clueIndex],
+        ...clue
+      };
+    } else {
+      board.clues.push(clue);
+    }
+
+    board.updatedAt = Date.now();
+
+    EventBus.emit('crimeBoardClueAdded', {
+      caseKey: board.caseKey,
+      clue
+    });
+  }
+      saveMiniGameResult(payload = {}) {
     const caseForensics = this.labManager.ensureCaseForensics();
 
     if (!payload.completed || payload.aborted) {
@@ -612,8 +722,7 @@ updateProceedVisibility() {
       );
 
       if (Number.isInteger(evidenceIndex) && evidenceIndex >= 0) {
-        caseForensics.traceEvidenceResults[evidenceIndex] =
-          forensicResult;
+        caseForensics.traceEvidenceResults[evidenceIndex] = forensicResult;
       }
     }
 
@@ -622,15 +731,103 @@ updateProceedVisibility() {
     );
 
     if (existingResultIndex >= 0) {
-      caseForensics.forensicResults[existingResultIndex] =
-        forensicResult;
+      caseForensics.forensicResults[existingResultIndex] = forensicResult;
     } else {
       caseForensics.forensicResults.push(forensicResult);
     }
 
+    this.addCrimeLabClueToBoard(payload, forensicResult);
+this.unlockHairEvidenceForSuspects(payload);
     saveGameState();
   }
+  addCrimeLabClueToBoard(payload = {}, forensicResult = {}) {
+    const caseKey = this.labManager?.getCaseKey?.() || 'default_case';
+    const evidence = payload.evidenceConfig || {};
 
+    const clue = {
+      id: `crime_lab_${caseKey}_${payload.stationId}`,
+      stationId: payload.stationId,
+      source: 'crime_lab',
+      cityId: this.cityId,
+
+      title: evidence.label || 'Crime Lab Evidence',
+
+      text:
+        evidence.clueText ||
+        payload.clueText ||
+        'The lab result needs further interpretation.',
+
+      clueText:
+        evidence.clueText ||
+        payload.clueText ||
+        'The lab result needs further interpretation.',
+
+      clueType:
+        evidence.clueType ||
+        payload.clueType ||
+        'forensic',
+
+      evidenceType:
+        evidence.evidenceType ||
+        payload.evidenceType ||
+        'unknown',
+
+      correctValue:
+        evidence.correctValue ??
+        payload.correctValue ??
+        null,
+
+      category: 'forensics',
+      discovered: true,
+      read: false,
+      completedAt: forensicResult.completedAt || Date.now()
+    };
+
+    // Główna pula wskazówek sprawy — to powinien czytać Crime Board.
+    this.gameState.caseClues ??= {};
+    this.gameState.caseClues[caseKey] ??= [];
+
+    const caseClues = this.gameState.caseClues[caseKey];
+
+    const existingIndex = caseClues.findIndex(
+      (item) => item.id === clue.id
+    );
+
+    if (existingIndex >= 0) {
+      caseClues[existingIndex] = {
+        ...caseClues[existingIndex],
+        ...clue
+      };
+    } else {
+      caseClues.push(clue);
+    }
+
+    // Opcjonalny, osobny rejestr wyników Crime Lab.
+    this.gameState.crimeLabClues ??= {};
+    this.gameState.crimeLabClues[caseKey] ??= [];
+
+    const labClues = this.gameState.crimeLabClues[caseKey];
+
+    const labClueIndex = labClues.findIndex(
+      (item) => item.id === clue.id
+    );
+
+    if (labClueIndex >= 0) {
+      labClues[labClueIndex] = {
+        ...labClues[labClueIndex],
+        ...clue
+      };
+    } else {
+      labClues.push(clue);
+    }
+
+    EventBus.emit('crimeBoardClueAdded', {
+      caseKey,
+      clue
+    });
+
+    console.log('[CrimeLabScene] Crime Board clue added:', clue);
+  }
 returnFromMiniGame() {
   if (!this.scene.isPaused(this.scene.key)) {
     return;
@@ -801,7 +998,36 @@ returnFromMiniGame() {
   this.refreshLabHud();
   this.updateProceedVisibility();
 }
+unlockHairEvidenceForSuspects(payload = {}) {
+  if (
+    payload.evidenceType !== 'hair_color' ||
+    !payload.completed ||
+    payload.aborted
+  ) {
+    return;
+  }
 
+  const suspects = Array.isArray(this.gameState.suspects)
+    ? this.gameState.suspects
+    : [];
+
+  suspects.forEach((suspect) => {
+    suspect.restrictedProfile ??= {};
+    suspect.restrictedProfile.unlockedFields ??= [];
+    suspect.restrictedProfile.forensicAttributes ??= {};
+
+    const hairData =
+      suspect.restrictedProfile.forensicAttributes.hair_color;
+
+    if (hairData && typeof hairData === 'object') {
+      hairData.unlocked = true;
+    }
+
+    if (!suspect.restrictedProfile.unlockedFields.includes('hair_color')) {
+      suspect.restrictedProfile.unlockedFields.push('hair_color');
+    }
+  });
+}
   applyLock(locked) {
   this.uiLocked = locked;
  

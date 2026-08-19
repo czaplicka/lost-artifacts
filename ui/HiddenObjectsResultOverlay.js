@@ -268,6 +268,11 @@ export class HiddenObjectsResultOverlay {
     this.autoReturnEvent = null;
   }
 
+  const shouldShowSuspectTutorial = Boolean(
+    success &&
+    this.scene.returnScene === 'CrimeCityScene'
+  );
+
   this.scene.returnToSafeScene({
     ...this.scene.returnData,
     hiddenObjectsSuccess: success,
@@ -276,6 +281,10 @@ export class HiddenObjectsResultOverlay {
     incorrectClicks: this.scene.incorrectClicks,
     foundItems: Array.from(this.scene.foundItems),
     sceneId: this.scene.sceneId,
+
+    // CrimeCityScene odczyta tę flagę w init()
+    // i otworzy tutorial do Suspect Files.
+    showSuspectTutorial: shouldShowSuspectTutorial
   });
 }
 

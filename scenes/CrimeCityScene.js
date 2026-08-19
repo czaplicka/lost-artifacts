@@ -4,6 +4,7 @@ import { getEnergyManager } from '../EnergyManager.js';
 import { audioManager } from '../AudioManager.js';
 import { ReconstructionGenerator } from '../ReconstructionGenerator.js';
 import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
+import { saveGameState } from '../GameStatePersistence.js';
 
 const ENERGY_BASE_COSTS = {
   travel: {
@@ -27,6 +28,8 @@ constructor() {
 
   this.showLabCompletionPhoneCall = false;
   this.phoneCallTimer = null;
+  this.showSuspectTutorial = false;
+this.suspectTutorialTimer = null;
 }
 
 init(data = {}) {
@@ -48,6 +51,10 @@ init(data = {}) {
 
   this.phoneCallTimer?.remove(false);
   this.phoneCallTimer = null;
+  this.showSuspectTutorial = Boolean(data.showSuspectTutorial);
+
+this.suspectTutorialTimer?.remove(false);
+this.suspectTutorialTimer = null;
 }
 
   normalizeCityId(value) {
@@ -195,18 +202,16 @@ init(data = {}) {
 
 const crimeSceneCompleted = this.isCrimeSceneCompleted();
 const crimeLabCompleted = this.isCrimeLabCompleted();
+const gridCompleted = this.isGridCompleted();
 
 if (crimeSceneCompleted) {
   this.createSuspectsIcon();
 }
 
-// Crime Scene jest dostępne wyłącznie przed ukończeniem dochodzenia na miejscu.
 if (!crimeSceneCompleted) {
   this.createCrimeSceneIcon();
 }
 
-// Crime Lab pojawia się po zbadaniu miejsca zbrodni,
-// ale znika po zakończeniu analiz.
 if (crimeSceneCompleted && !crimeLabCompleted) {
   this.createLabIcon();
 }
@@ -217,7 +222,14 @@ if (crimeLabCompleted) {
   ensureAlibiEncounters(this.getCaseKey());
 }
 
-      this.createNpcSpots();
+// Kontakty alibi pojawiają się wyłącznie po ukończeniu Grid / Hypothesis.
+if (crimeLabCompleted && gridCompleted) {
+  this.createNpcSpots();
+}
+
+if (crimeSceneCompleted && !crimeLabCompleted) {
+  this.scheduleSuspectTutorial();
+}
 
       this.scene.wake('UIScene');
 
@@ -269,6 +281,146 @@ scheduleLabCompletionPhoneCall() {
     this.scene.launch('PhoneCallScene', {
       sourceScene: 'CrimeCityScene',
       cityId: this.cityId
+    });
+  });
+}
+scheduleSuspectTutorial() {
+  if (!this.showSuspectTutorial) {
+    return;
+  }
+
+  if (!this.isCrimeSceneCompleted() || this.isCrimeLabCompleted()) {
+    return;
+  }
+
+  this.showSuspectTutorial = false;
+
+  this.suspectTutorialTimer = this.time.delayedCall(700, () => {
+    this.suspectTutorialTimer = null;
+
+    if (!this.scene.isActive('CrimeCityScene')) {
+      return;
+    }
+
+    this.showSuspectFilesTutorial();
+  });
+}
+
+showSuspectFilesTutorial() {
+  const width = this.scale.width;
+  const height = this.scale.height;
+
+  const overlay = this.add
+    .rectangle(width / 2, height / 2, width, height, 0x000000, 0.76)
+    .setDepth(500)
+    .setInteractive();
+
+  const panel = this.add
+    .rectangle(width / 2, height / 2, 720, 330, 0x1d2733, 0.98)
+    .setStrokeStyle(4, 0xd4af37)
+    .setDepth(501);
+
+  const title = this.add
+    .text(width / 2, height / 2 - 120, 'NEW LEAD: SUSPECT FILES', {
+      fontFamily: 'Press Start 2P',
+      fontSize: '20px',
+      color: '#ffe066',
+      align: 'center'
+    })
+    .setOrigin(0.5)
+    .setDepth(502);
+
+  const body = this.add
+    .text(
+      width / 2,
+      height / 2 - 25,
+      [
+        'You found evidence, detective.',
+        '',
+        'Open Suspect Files and remove anyone',
+        'who cannot match the crime-scene evidence.',
+        '',
+        'First trim the list.',
+        'Then let the lab ruin everybody’s afternoon.'
+      ].join('\n'),
+      {
+        fontFamily: 'Special Elite',
+        fontSize: '21px',
+        color: '#ffffff',
+        align: 'center',
+        lineSpacing: 8
+      }
+    )
+    .setOrigin(0.5)
+    .setDepth(502);
+
+  const button = this.add
+    .text(width / 2, height / 2 + 118, 'OPEN SUSPECT FILES', {
+      fontFamily: 'Press Start 2P',
+      fontSize: '14px',
+      color: '#17202a',
+      backgroundColor: '#f1c94b',
+      padding: {
+        left: 20,
+        right: 20,
+        top: 14,
+        bottom: 14
+      }
+    })
+    .setOrigin(0.5)
+    .setDepth(502)
+    .setInteractive({ useHandCursor: true });
+
+  const closeTutorial = () => {
+    overlay.destroy();
+    panel.destroy();
+    title.destroy();
+    body.destroy();
+    button.destroy();
+  };
+
+  button.on('pointerover', () => {
+    button.setStyle({
+      backgroundColor: '#ffe066',
+      color: '#000000'
+    });
+  });
+
+  button.on('pointerout', () => {
+    button.setStyle({
+      backgroundColor: '#f1c94b',
+      color: '#17202a'
+    });
+  });
+
+  button.on('pointerdown', () => {
+    closeTutorial();
+
+    if (!Array.isArray(gameState.caseSuspects) || !gameState.caseSuspects.length) {
+      this.showMessage(
+        'Suspect files are still being assembled.\nBureaucracy has entered its larval stage.',
+        2800,
+        '#5d2a00'
+      );
+      return;
+    }
+
+    this.closeAllUIPanels();
+
+    this.transitionTo('SuspectBoardScene', {
+      cityId: this.cityId,
+      returnScene: 'CrimeCityScene',
+      returnData: {
+        cityId: this.cityId
+      },
+      sourceScene: 'CrimeCityScene',
+      caseSuspects: gameState.caseSuspects,
+      identityEvidence: gameState.identityEvidence,
+      identityEvidenceResult: gameState.identityEvidenceResult,
+      hypothesisEvidence: gameState.hypothesisEvidence,
+      hypothesisEvidenceResult: gameState.hypothesisEvidenceResult,
+      forensicResults: gameState.forensicResults || [],
+      gameState
     });
   });
 }
@@ -543,51 +695,87 @@ scheduleLabCompletionPhoneCall() {
       mission
     });
   }
+  getCrimeCityProgress() {
+    const caseKey = this.getCaseKey();
 
-  createLabIcon() {
-  const position = this.crimeCityConfig.crimeLab;
+    gameState.crimeCityProgress ??= {};
+    gameState.crimeCityProgress[caseKey] ??= {};
 
-  if (!position || !this.isCrimeSceneCompleted()) {
-    return;
+    return gameState.crimeCityProgress[caseKey];
   }
 
-  this.createMapIcon({
-    x: position.x,
-    y: position.y,
-    textureKey: 'crime_lab',
-    fallbackColor: 0x1565c0,
-    fallbackStroke: 0x7fc8f8,
-    label: 'Crime Lab',
-    iconScale: 0.35,
-    hoverScale: 0.39,
-    onClick: () => {
-      if (!this.moveToCrimeCityNode('crime_lab')) {
-        return;
-      }
+  hasPaidCrimeLabEntry() {
+    return Boolean(this.getCrimeCityProgress().crimeLabEntryPaid);
+  }
 
-      if (!this.trySpendEnergy('activity', 'csi_lab')) {
-        return;
-      }
+  payCrimeLabEntryOnce() {
+    const progress = this.getCrimeCityProgress();
 
-      this.closeAllUIPanels();
-
-      this.transitionTo('CrimeLabScene', {
-        cityId: this.cityId,
-        caseKey: this.getCaseKey(),
-        returnScene: 'CrimeCityScene',
-        returnData: {
-          cityId: this.cityId
-        },
-        sourceScene: 'CrimeCityScene'
-      });
+    if (progress.crimeLabEntryPaid) {
+      return true;
     }
-  });
-}
 
-  createNpcSpots() {
-    if (!this.isCrimeLabCompleted()) {
+    const paidSuccessfully = this.trySpendEnergy('activity', 'csi_lab');
+
+    if (!paidSuccessfully) {
+      return false;
+    }
+
+    progress.crimeLabEntryPaid = true;
+    progress.crimeLabEntryPaidAt = Date.now();
+
+    saveGameState();
+
+    return true;
+  }
+    createLabIcon() {
+    const position = this.crimeCityConfig.crimeLab;
+
+    if (!position || !this.isCrimeSceneCompleted()) {
       return;
     }
+
+    const labEntryAlreadyPaid = this.hasPaidCrimeLabEntry();
+
+    this.createMapIcon({
+      x: position.x,
+      y: position.y,
+      textureKey: 'crime_lab',
+      fallbackColor: 0x1565c0,
+      fallbackStroke: 0x7fc8f8,
+      label: labEntryAlreadyPaid
+        ? 'Crime Lab — Analysis in Progress'
+        : 'Crime Lab — 12 Energy',
+      iconScale: 0.35,
+      hoverScale: 0.39,
+      onClick: () => {
+        if (!this.moveToCrimeCityNode('crime_lab')) {
+          return;
+        }
+
+        if (!this.payCrimeLabEntryOnce()) {
+          return;
+        }
+
+        this.closeAllUIPanels();
+
+        this.transitionTo('CrimeLabScene', {
+          cityId: this.cityId,
+          caseKey: this.getCaseKey(),
+          returnScene: 'CrimeCityScene',
+          returnData: {
+            cityId: this.cityId
+          },
+          sourceScene: 'CrimeCityScene'
+        });
+      }
+    });
+  }
+
+createNpcSpots() {
+  if (!this.isCrimeLabCompleted() || !this.isGridCompleted()) {
+    return;
+  }
 
     const slots = this.crimeCityConfig.suspectSlots || [];
     const encounters = this.getCrimeCityEncounters();
@@ -1163,7 +1351,19 @@ scheduleLabCompletionPhoneCall() {
 
     return Boolean(gameState.crimeCityProgress?.[caseKey]?.crimeLabCompleted);
   }
+isGridCompleted() {
+  const caseKey = this.getCaseKey();
 
+  const reconstruction =
+    gameState.reconstructedHeists?.[caseKey] ||
+    gameState.reconstructedHeist;
+
+  return Boolean(
+    reconstruction &&
+    typeof reconstruction.playerTheoryResult === 'string' &&
+    reconstruction.playerTheoryResult.length > 0
+  );
+}
   getCrimeCityEncounters() {
     const caseKey = this.getCaseKey();
     const encounters = gameState.crimeCityEncounterState?.[caseKey];
@@ -1255,6 +1455,9 @@ scheduleLabCompletionPhoneCall() {
   }
 
   onShutdown() {
+    this.suspectTutorialTimer?.remove(false);
+this.suspectTutorialTimer = null;
+this.showSuspectTutorial = false;
     this.phoneCallTimer?.remove(false);
 this.phoneCallTimer = null;
 this.showLabCompletionPhoneCall = false;
