@@ -1187,11 +1187,12 @@ export class DestinationsUI {
 
       const mission = gameState.currentMission || {};
 
-      const missionCityId = this.normalizeCityId(
-        mission.cityId ||
-        mission.city ||
-        gameState.crimeCityId
-      );
+const missionCityId = this.normalizeCityId(
+  gameState.crimeCityId ||
+  mission.cityId ||
+  mission.city ||
+  null
+);
 
       const selectedCityId = this.getCityId(selectedCityData);
 

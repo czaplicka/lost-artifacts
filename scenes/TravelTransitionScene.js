@@ -3,6 +3,7 @@ import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
+import { EventBus } from '../EventBus.js';
 
 const TRANSPORT_VISUALS = {
   plane: {
@@ -103,10 +104,11 @@ export class TravelTransitionScene extends BaseScene {
     super.create();
 
     this.scene.sleep('UIScene');
-
-    const newsHud = this.scene.get('NewsHud');
-    newsHud?.events?.emit('setNewspaperVisible', false);
-    newsHud?.events?.emit('setTvVisible', false);
+this.game.events.emit('setHudVisible', false);
+    EventBus.emit('hideHUD');
+if (this.scene.isActive('PlayerHudScene')) {
+    this.scene.sleep('PlayerHudScene');
+}
 
     audioManager.init(this);
     audioManager.stopAllVoice();
@@ -369,7 +371,8 @@ export class TravelTransitionScene extends BaseScene {
 
   leaveScene() {
   if (this.isLeaving) return;
-
+    this.game.events.emit('setHudVisible', true);
+    EventBus.emit('showHUD');
   this.isLeaving = true;
 
   const {

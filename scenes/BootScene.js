@@ -56,7 +56,6 @@ EventBus.emit('hideHUD');
       },
 
       active: () => {
-        console.log('[BootScene] Web fonts loaded.');
         startPreloader();
       },
 

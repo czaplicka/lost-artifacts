@@ -163,6 +163,7 @@ export class PreloaderScene extends BaseScene {
         this.load.image('btnExit', 'assets/exit.png');
         this.load.image('btnSettings', 'assets/settings.png');
         this.load.image('btnHiscore', 'assets/hiscore.png');
+        this.load.image('new_game', 'assets/new_game.png')
         this.load.image('loginbtn', 'assets/login.png');
         this.load.image('registerbtn', 'assets/register.png');
         this.load.image('atlas', 'assets/atlas.png');
@@ -527,11 +528,6 @@ export class PreloaderScene extends BaseScene {
         )
     ];
 
-    console.log(
-        '[PreloaderScene] Newspaper image keys found:',
-        uniqueKeys
-    );
-
     let queuedAny = false;
 
     uniqueKeys.forEach((key) => {
@@ -541,10 +537,6 @@ export class PreloaderScene extends BaseScene {
         }
 
         const url = `assets/newspapers/newspapers/${key}.jpg`;
-
-        console.log(
-            `[PreloaderScene] Queueing newspaper image: ${key} -> ${url}`
-        );
 
         this.load.image(key, url);
         queuedAny = true;
@@ -562,14 +554,6 @@ export class PreloaderScene extends BaseScene {
     });
 
     this.load.once('complete', () => {
-        console.log(
-            '[PreloaderScene] Newspaper images loaded:',
-            uniqueKeys.map((key) => ({
-                key,
-                loaded: this.textures.exists(key)
-            }))
-        );
-
         this.finishLoading(uiRefs);
     });
 

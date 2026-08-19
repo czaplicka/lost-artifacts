@@ -18,7 +18,6 @@ export class EnterScene extends BaseScene {
     this.modalFrame = null;
     this.currentUser = null;
     this.onWindowMessage = null;
-
     this.saveSlotPicker = null;
     this.isLoadingSave = false;
   }
@@ -40,60 +39,29 @@ export class EnterScene extends BaseScene {
     bg.setScale(scale).setScrollFactor(0);
 
     const loginBtn = this.add
-      .image(centerX, height * 0.44, 'loginbtn')
+      .image(centerX, height * 0.35, 'loginbtn')
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
     const registerBtn = this.add
-      .image(centerX, height * 0.64, 'registerbtn')
+      .image(centerX, height * 0.51, 'registerbtn')
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
     const nextBtn = this.add
-      .image(centerX, height * 0.84, 'next')
+      .image(centerX, height * 0.67, 'btnContinue')
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    const newGameBtn = this.add
+      .image(centerX, height * 0.83, 'new_game')
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
     this.addHoverEffect(loginBtn);
     this.addHoverEffect(registerBtn);
     this.addHoverEffect(nextBtn);
-
-    const testStartBtn = this.add
-      .text(centerX, height * 0.93, '[ TEST: START NEW GAME ]', {
-        fontFamily: '"Press Start 2P"',
-        fontSize: '11px',
-        color: '#ffe66d',
-        backgroundColor: '#3b1111',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 9,
-          bottom: 9
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(10)
-      .setInteractive({ useHandCursor: true });
-
-    testStartBtn.on('pointerover', () => {
-      testStartBtn.setColor('#ffffff');
-      testStartBtn.setScale(1.05);
-    });
-
-    testStartBtn.on('pointerout', () => {
-      testStartBtn.setColor('#ffe66d');
-      testStartBtn.setScale(1);
-    });
-
-    testStartBtn.on('pointerdown', () => {
-      const authMode = this.currentUser ? 'account' : 'guest';
-
-      console.warn(
-        '[EnterScene] Test button: forcing New Game flow.'
-      );
-
-      this.startNewGameFlow(authMode);
-    });
+    this.addHoverEffect(newGameBtn);
 
     loginBtn.on('pointerdown', () => {
       this.openModal('login.html');
@@ -107,20 +75,23 @@ export class EnterScene extends BaseScene {
       this.handlePrimaryEntry();
     });
 
+    newGameBtn.on('pointerdown', () => {
+      const authMode = this.currentUser ? 'account' : 'guest';
+
+      console.log('[EnterScene] New Game button clicked.', {
+        authMode,
+        hasGuestSave: this.hasGuestSave(),
+        hasAccount: Boolean(this.currentUser)
+      });
+
+      this.startNewGameFlow(authMode);
+    });
+
     this.onWindowMessage = this.handleWindowMessage.bind(this);
     window.addEventListener('message', this.onWindowMessage);
 
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.cleanup,
-      this
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this.cleanup,
-      this
-    );
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
 
     await this.restoreSavedSession();
   }
@@ -132,10 +103,7 @@ export class EnterScene extends BaseScene {
     } = await supabase.auth.getSession();
 
     if (error) {
-      console.warn(
-        'Nie udało się odczytać zapisanej sesji:',
-        error.message
-      );
+      console.warn('Nie udało się odczytać zapisanej sesji:', error.message);
       return;
     }
 
@@ -170,10 +138,7 @@ export class EnterScene extends BaseScene {
       return;
     }
 
-    if (
-      !this.modalFrame ||
-      event.source !== this.modalFrame.contentWindow
-    ) {
+    if (!this.modalFrame || event.source !== this.modalFrame.contentWindow) {
       return;
     }
 
@@ -261,9 +226,7 @@ export class EnterScene extends BaseScene {
         return false;
       }
 
-      const saveKey =
-        `${STORAGE_KEYS.GUEST_SAVE_PREFIX}${lastUsedSlot}`;
-
+      const saveKey = `${STORAGE_KEYS.GUEST_SAVE_PREFIX}${lastUsedSlot}`;
       const rawSave = localStorage.getItem(saveKey);
 
       if (!rawSave) {
@@ -271,14 +234,9 @@ export class EnterScene extends BaseScene {
       }
 
       JSON.parse(rawSave);
-
       return true;
     } catch (error) {
-      console.warn(
-        'Nie udało się sprawdzić sejwa gościa:',
-        error
-      );
-
+      console.warn('Nie udało się sprawdzić sejwa gościa:', error);
       return false;
     }
   }
@@ -290,10 +248,7 @@ export class EnterScene extends BaseScene {
         'true'
       );
     } catch (error) {
-      console.warn(
-        'Nie udało się zapamiętać intencji nowej gry:',
-        error
-      );
+      console.warn('Nie udało się zapamiętać intencji nowej gry:', error);
     }
   }
 
@@ -303,11 +258,7 @@ export class EnterScene extends BaseScene {
         STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER
       ) === 'true';
     } catch (error) {
-      console.warn(
-        'Nie udało się odczytać intencji nowej gry:',
-        error
-      );
-
+      console.warn('Nie udało się odczytać intencji nowej gry:', error);
       return false;
     }
   }
@@ -318,22 +269,26 @@ export class EnterScene extends BaseScene {
         STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER
       );
     } catch (error) {
-      console.warn(
-        'Nie udało się usunąć intencji nowej gry:',
-        error
-      );
+      console.warn('Nie udało się usunąć intencji nowej gry:', error);
     }
   }
 
   startNewGameFlow(authMode) {
     this.closeModal();
 
+    console.log('[EnterScene] Starting a new game.', {
+      authMode,
+      playerId: this.currentUser?.id ?? null,
+      displayName: this.getDisplayName()
+    });
+
     this.scene.start('IntroScene', {
       authMode,
       playerId: this.currentUser?.id ?? null,
       playerEmail: this.currentUser?.email ?? null,
       displayName: this.getDisplayName(),
-      isNewGame: true
+      isNewGame: true,
+      startOnboarding: true
     });
   }
 
@@ -349,10 +304,7 @@ export class EnterScene extends BaseScene {
 
     const { width, height } = this.scale;
 
-    const root = this.add
-      .container(0, 0)
-      .setDepth(5000);
-
+    const root = this.add.container(0, 0).setDepth(5000);
     this.saveSlotPicker = root;
 
     const dim = this.add
@@ -422,14 +374,7 @@ export class EnterScene extends BaseScene {
       })
       .setOrigin(0.5);
 
-    root.add([
-      dim,
-      panel,
-      title,
-      subtitle,
-      closeButton,
-      loadingText
-    ]);
+    root.add([dim, panel, title, subtitle, closeButton, loadingText]);
 
     const closePicker = () => {
       if (!this.saveSlotPicker) {
@@ -449,10 +394,7 @@ export class EnterScene extends BaseScene {
     try {
       slots = await saveManager.listSlots();
     } catch (error) {
-      console.error(
-        '[EnterScene] Could not list save slots:',
-        error
-      );
+      console.error('[EnterScene] Could not list save slots:', error);
     }
 
     if (!this.saveSlotPicker) {
@@ -464,17 +406,9 @@ export class EnterScene extends BaseScene {
     const slotKeys = ['slot_1', 'slot_2', 'slot_3'];
 
     slotKeys.forEach((slotKey, index) => {
-      const slotInfo = slots.find(
-        (slot) => slot.slotKey === slotKey
-      );
-
-      /*
-       * Teraz loader wymusza lokalny snapshot,
-       * więc wyświetlamy meta lokalnego sejwa.
-       */
+      const slotInfo = slots.find((slot) => slot.slotKey === slotKey);
       const meta = slotInfo?.localMeta || null;
       const hasSave = Boolean(meta);
-
       const y = height / 2 - 85 + index * 92;
 
       const button = this.add
@@ -486,10 +420,7 @@ export class EnterScene extends BaseScene {
           hasSave ? 0x2b3a32 : 0x353535,
           1
         )
-        .setStrokeStyle(
-          2,
-          hasSave ? 0x8fcf8f : 0x777777
-        );
+        .setStrokeStyle(2, hasSave ? 0x8fcf8f : 0x777777);
 
       const slotTitle = this.add
         .text(
@@ -517,19 +448,13 @@ export class EnterScene extends BaseScene {
         )
         .setOrigin(0, 0.5);
 
-      root.add([
-        button,
-        slotTitle,
-        slotDescription
-      ]);
+      root.add([button, slotTitle, slotDescription]);
 
       if (!hasSave) {
         return;
       }
 
-      button.setInteractive({
-        useHandCursor: true
-      });
+      button.setInteractive({ useHandCursor: true });
 
       button.on('pointerover', () => {
         if (this.isLoadingSave) {
@@ -546,11 +471,7 @@ export class EnterScene extends BaseScene {
       });
 
       button.on('pointerdown', () => {
-        this.loadSelectedSlot(
-          slotKey,
-          authMode,
-          closePicker
-        );
+        this.loadSelectedSlot(slotKey, authMode, closePicker);
       });
     });
 
@@ -572,105 +493,84 @@ export class EnterScene extends BaseScene {
     const location = meta.locationCode || 'Unknown location';
     const city = meta.cityCode || 'Unknown city';
     const day = meta.dayNumber || 1;
-
-    const hour = String(
-      meta.inGameHour ?? 8
-    ).padStart(2, '0');
-
+    const hour = String(meta.inGameHour ?? 8).padStart(2, '0');
     const savedAt = meta.savedAt
       ? new Date(meta.savedAt).toLocaleString()
       : 'Unknown time';
 
-    return (
-      `${location} · ${city} · ` +
-      `Day ${day}, ${hour}:00 · ${savedAt}`
-    );
+    return `${location} · ${city} · Day ${day}, ${hour}:00 · ${savedAt}`;
   }
 
   async loadSelectedSlot(slotKey, authMode, closePicker) {
-  if (this.isLoadingSave) {
-    return;
-  }
-
-  this.isLoadingSave = true;
-
-  try {
-const loadedSave = await saveManager.load(slotKey, 'local');
-
-    if (!loadedSave) {
-      console.warn(
-        `[EnterScene] Slot ${slotKey} does not contain a local save.`
-      );
-
-      this.isLoadingSave = false;
+    if (this.isLoadingSave) {
       return;
     }
 
-    const locationType = loadedSave.meta?.locationType || 'office';
+    this.isLoadingSave = true;
 
-    const cityId =
-      loadedSave.meta?.cityCode ||
-      gameState.currentCityId ||
-      gameState.crimeCityId ||
-      'paris';
+    try {
+      const loadedSave = await saveManager.load(slotKey, 'local');
 
-    const targetScene =
-      locationType === 'hotel'
+      if (!loadedSave) {
+        console.warn(
+          `[EnterScene] Slot ${slotKey} does not contain a local save.`
+        );
+        this.isLoadingSave = false;
+        return;
+      }
+
+      const locationType = loadedSave.meta?.locationType || 'office';
+      const cityId =
+        loadedSave.meta?.cityCode ||
+        gameState.currentCityId ||
+        gameState.crimeCityId ||
+        'paris';
+
+      const targetScene = locationType === 'hotel'
         ? 'HotelScene'
         : 'OfficeScene';
 
-    console.log('[EnterScene] Save restored:', {
-      slotKey,
-      savedAt: loadedSave.meta?.savedAt,
-      locationType,
-      locationCode: loadedSave.meta?.locationCode,
-      cityId,
-      targetScene,
-      currentCityId: gameState.currentCityId,
-      crimeCityId: gameState.crimeCityId,
-      currentMission: gameState.currentMission
-    });
-
-    closePicker();
-
-    if (targetScene === 'HotelScene') {
-      this.scene.start('HotelScene', {
+      console.log('[EnterScene] Save restored:', {
+        slotKey,
+        savedAt: loadedSave.meta?.savedAt,
+        locationType,
+        locationCode: loadedSave.meta?.locationCode,
         cityId,
+        targetScene,
+        currentCityId: gameState.currentCityId,
+        crimeCityId: gameState.crimeCityId,
+        currentMission: gameState.currentMission
+      });
 
-        /*
-         * Po wyjściu z hotelu zawsze wracasz
-         * na mapę crime city właściwego miasta.
-         */
-        returnScene: 'CrimeCityScene',
-        returnData: {
-          cityId
-        },
+      closePicker();
 
+      if (targetScene === 'HotelScene') {
+        this.scene.start('HotelScene', {
+          cityId,
+          returnScene: 'CrimeCityScene',
+          returnData: {
+            cityId
+          },
+          fromSave: true,
+          saveSlotKey: slotKey
+        });
+        return;
+      }
+
+      this.scene.start('OfficeScene', {
+        authMode,
+        playerId: this.currentUser?.id ?? null,
+        playerEmail: this.currentUser?.email ?? null,
+        displayName: this.getDisplayName(),
+        gameState,
         fromSave: true,
         saveSlotKey: slotKey
       });
-
-      return;
+    } catch (error) {
+      console.error(`[EnterScene] Failed to load slot ${slotKey}:`, error);
+      this.isLoadingSave = false;
     }
-
-    this.scene.start('OfficeScene', {
-      authMode,
-      playerId: this.currentUser?.id ?? null,
-      playerEmail: this.currentUser?.email ?? null,
-      displayName: this.getDisplayName(),
-      gameState,
-      fromSave: true,
-      saveSlotKey: slotKey
-    });
-  } catch (error) {
-    console.error(
-      `[EnterScene] Failed to load slot ${slotKey}:`,
-      error
-    );
-
-    this.isLoadingSave = false;
   }
-}
 
   getDisplayName() {
     return (
@@ -732,9 +632,7 @@ const loadedSave = await saveManager.load(slotKey, 'local');
 
   closeModal() {
     if (this.modalElement?.parentNode) {
-      this.modalElement.parentNode.removeChild(
-        this.modalElement
-      );
+      this.modalElement.parentNode.removeChild(this.modalElement);
     }
 
     this.modalElement = null;
@@ -752,11 +650,7 @@ const loadedSave = await saveManager.load(slotKey, 'local');
     this.isLoadingSave = false;
 
     if (this.onWindowMessage) {
-      window.removeEventListener(
-        'message',
-        this.onWindowMessage
-      );
-
+      window.removeEventListener('message', this.onWindowMessage);
       this.onWindowMessage = null;
     }
   }

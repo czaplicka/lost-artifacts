@@ -21,7 +21,6 @@ const STEP_ORDER = [
   'open_case_file',
   'find_route',
   'travel_to_city',
-  'finished',
 ];
 
 const STEP_CONTENT = {
@@ -62,6 +61,8 @@ export class FirstCaseTutorial {
 
     this.active = false;
     this.currentStep = null;
+    this.started = false;
+    this.destroyed = false;
 
     this.hotspots = new Map();
 
@@ -79,6 +80,7 @@ export class FirstCaseTutorial {
     this.highlightTween = null;
     this.feedbackText = null;
     this.feedbackTween = null;
+    this.stepDelay = null;
 
     this.onResizeBound = this.handleResize.bind(this);
     this.onTravelStartedBound = this.onTravelStarted.bind(this);
@@ -91,42 +93,69 @@ export class FirstCaseTutorial {
       this.gameState.onboarding = {};
     }
 
+    const existing = this.gameState.onboarding.firstCase ?? {};
+
     this.gameState.onboarding.firstCase = {
-      active: this.gameState.onboarding.firstCase?.active ?? false,
-      step: this.gameState.onboarding.firstCase?.step ?? null,
-      completed: this.gameState.onboarding.firstCase?.completed ?? false,
-      skipped: this.gameState.onboarding.firstCase?.skipped ?? false,
-      walkedToCaseFile:
-        this.gameState.onboarding.firstCase?.walkedToCaseFile ?? false,
-      caseFileOpened:
-        this.gameState.onboarding.firstCase?.caseFileOpened ?? false,
-      routeOpened:
-        this.gameState.onboarding.firstCase?.routeOpened ?? false,
-      travelStarted:
-        this.gameState.onboarding.firstCase?.travelStarted ?? false,
+      active: existing.active ?? false,
+      step: existing.step ?? null,
+      completed: existing.completed ?? false,
+      skipped: existing.skipped ?? false,
+      walkedToCaseFile: existing.walkedToCaseFile ?? false,
+      caseFileOpened: existing.caseFileOpened ?? false,
+      routeOpened: existing.routeOpened ?? false,
+      travelStarted: existing.travelStarted ?? false,
     };
   }
 
   registerHotspot(id, zone) {
     if (!id || !zone) {
+      console.warn('[FirstCaseTutorial] registerHotspot received invalid data.', {
+        id,
+        zone,
+      });
       return;
     }
+
     this.hotspots.set(id, zone);
+
+    if (
+      this.active &&
+      this.currentStep &&
+      STEP_CONTENT[this.currentStep]?.targetHotspot === id
+    ) {
+      this.highlightHotspot(id);
+    }
+  }
+
+  unregisterHotspot(id) {
+    this.hotspots.delete(id);
   }
 
   start() {
+    if (this.destroyed || !this.scene?.sys?.isActive()) {
+      return;
+    }
+
     const tutorialState = this.gameState.onboarding.firstCase;
 
     if (tutorialState.completed) {
       return;
     }
 
+    if (this.started) {
+      return;
+    }
+
+    this.started = true;
     this.active = true;
     tutorialState.active = true;
 
     this.createOverlay();
 
+    this.scene.scale.off('resize', this.onResizeBound);
     this.scene.scale.on('resize', this.onResizeBound);
+
+    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
     EventBus.on('firstCaseTravelStarted', this.onTravelStartedBound);
 
     const savedStep = tutorialState.step;
@@ -143,6 +172,7 @@ export class FirstCaseTutorial {
     if (this.gameState.onboarding.firstCase.completed) {
       return;
     }
+
     this.start();
   }
 
@@ -159,16 +189,17 @@ export class FirstCaseTutorial {
       return;
     }
 
-    this.currentStep = stepId;
-    this.gameState.onboarding.firstCase.step = stepId;
+    const step = STEP_CONTENT[stepId];
 
-    if (stepId === 'finished') {
-      this.finish();
+    if (!step) {
+      console.warn(`[FirstCaseTutorial] Unknown tutorial step: ${stepId}`);
       return;
     }
 
-    const step = STEP_CONTENT[stepId];
+    this.currentStep = stepId;
+    this.gameState.onboarding.firstCase.step = stepId;
 
+    this.clearStepDelay();
     this.updateOverlay(step);
     this.highlightHotspot(step.targetHotspot);
   }
@@ -185,6 +216,7 @@ export class FirstCaseTutorial {
           'warning',
         );
       }
+
       return true;
     }
 
@@ -195,6 +227,7 @@ export class FirstCaseTutorial {
           'warning',
         );
       }
+
       return true;
     }
 
@@ -210,6 +243,7 @@ export class FirstCaseTutorial {
           'warning',
         );
       }
+
       return true;
     }
 
@@ -228,11 +262,7 @@ export class FirstCaseTutorial {
 
     const hotspotId = actionToHotspot[actionId];
 
-    if (!hotspotId) {
-      return true;
-    }
-
-    return this.canUseHotspot(hotspotId);
+    return !hotspotId || this.canUseHotspot(hotspotId);
   }
 
   onPlayerPositionChanged(playerX, playerY) {
@@ -249,16 +279,11 @@ export class FirstCaseTutorial {
     const data = cabinetZone.hotspotData;
     const reachPadding = 42;
 
-    const left = data.x - reachPadding;
-    const right = data.x + data.width + reachPadding;
-    const top = data.y - reachPadding;
-    const bottom = data.y + data.height + reachPadding;
-
     const isNearCabinet =
-      playerX >= left &&
-      playerX <= right &&
-      playerY >= top &&
-      playerY <= bottom;
+      playerX >= data.x - reachPadding &&
+      playerX <= data.x + data.width + reachPadding &&
+      playerY >= data.y - reachPadding &&
+      playerY <= data.y + data.height + reachPadding;
 
     if (!isNearCabinet) {
       return;
@@ -271,11 +296,10 @@ export class FirstCaseTutorial {
       'success',
     );
 
-    this.scene.time.delayedCall(650, () => {
-      if (!this.active || this.currentStep !== 'walk_to_case_file') {
-        return;
+    this.delayStep(650, () => {
+      if (this.active && this.currentStep === 'walk_to_case_file') {
+        this.setStep('open_case_file');
       }
-      this.setStep('open_case_file');
     });
   }
 
@@ -284,17 +308,14 @@ export class FirstCaseTutorial {
       return;
     }
 
-    if (this.currentStep === 'walk_to_case_file') {
-      this.gameState.onboarding.firstCase.walkedToCaseFile = true;
-    }
-
     if (
-      this.currentStep !== 'open_case_file' &&
-      this.currentStep !== 'walk_to_case_file'
+      this.currentStep !== 'walk_to_case_file' &&
+      this.currentStep !== 'open_case_file'
     ) {
       return;
     }
 
+    this.gameState.onboarding.firstCase.walkedToCaseFile = true;
     this.gameState.onboarding.firstCase.caseFileOpened = true;
 
     this.showFeedback(
@@ -302,11 +323,10 @@ export class FirstCaseTutorial {
       'success',
     );
 
-    this.scene.time.delayedCall(800, () => {
-      if (!this.active) {
-        return;
+    this.delayStep(800, () => {
+      if (this.active) {
+        this.setStep('find_route');
       }
-      this.setStep('find_route');
     });
   }
 
@@ -315,22 +335,18 @@ export class FirstCaseTutorial {
       return;
     }
 
-    if (
-      this.currentStep === 'walk_to_case_file' ||
-      this.currentStep === 'open_case_file'
-    ) {
-      this.gameState.onboarding.firstCase.walkedToCaseFile = true;
-      this.gameState.onboarding.firstCase.caseFileOpened = true;
-    }
+    const validSteps = [
+      'walk_to_case_file',
+      'open_case_file',
+      'find_route',
+    ];
 
-    if (
-      this.currentStep !== 'find_route' &&
-      this.currentStep !== 'walk_to_case_file' &&
-      this.currentStep !== 'open_case_file'
-    ) {
+    if (!validSteps.includes(this.currentStep)) {
       return;
     }
 
+    this.gameState.onboarding.firstCase.walkedToCaseFile = true;
+    this.gameState.onboarding.firstCase.caseFileOpened = true;
     this.gameState.onboarding.firstCase.routeOpened = true;
 
     this.showFeedback(
@@ -338,11 +354,10 @@ export class FirstCaseTutorial {
       'success',
     );
 
-    this.scene.time.delayedCall(500, () => {
-      if (!this.active) {
-        return;
+    this.delayStep(500, () => {
+      if (this.active) {
+        this.setStep('travel_to_city');
       }
-      this.setStep('travel_to_city');
     });
   }
 
@@ -352,29 +367,53 @@ export class FirstCaseTutorial {
     }
 
     this.gameState.onboarding.firstCase.travelStarted = true;
-    this.setStep('finished');
+    this.finish(false);
   }
 
   skip() {
     this.gameState.onboarding.firstCase.skipped = true;
-    this.finish();
+    this.finish(true);
+  }
+
+  delayStep(delay, callback) {
+    this.clearStepDelay();
+
+    this.stepDelay = this.scene.time.delayedCall(delay, () => {
+      this.stepDelay = null;
+
+      if (!this.destroyed) {
+        callback();
+      }
+    });
+  }
+
+  clearStepDelay() {
+    if (this.stepDelay) {
+      this.stepDelay.remove(false);
+      this.stepDelay = null;
+    }
   }
 
   showFeedback(message, type = 'warning') {
-    if (!this.active || !this.feedbackText) {
+    if (
+      !this.active ||
+      !this.feedbackText ||
+      !this.feedbackText.scene
+    ) {
       return;
     }
 
     const color = type === 'success' ? '#8fb180' : '#d76d52';
 
+    if (this.feedbackTween) {
+      this.feedbackTween.stop();
+      this.feedbackTween = null;
+    }
+
     this.feedbackText.setText(message);
     this.feedbackText.setColor(color);
     this.feedbackText.setAlpha(0);
     this.feedbackText.setVisible(true);
-
-    if (this.feedbackTween) {
-      this.feedbackTween.stop();
-    }
 
     this.feedbackTween = this.scene.tweens.add({
       targets: this.feedbackText,
@@ -384,20 +423,22 @@ export class FirstCaseTutorial {
       hold: 2200,
       ease: 'Sine.easeOut',
       onComplete: () => {
-        if (this.feedbackText) {
+        if (this.feedbackText?.scene) {
           this.feedbackText.setVisible(false);
         }
+
+        this.feedbackTween = null;
       },
     });
   }
 
   createOverlay() {
-    if (this.overlay) {
+    if (this.overlay?.scene) {
       return;
     }
 
     const { width, height } = this.scene.scale;
-    const panelWidth = Math.min(width - 48, 860);
+    const panelWidth = Math.min(Math.max(width - 48, 320), 860);
     const panelHeight = 140;
     const panelLeft = width / 2 - panelWidth / 2;
     const panelCenterY = height - 80;
@@ -406,9 +447,11 @@ export class FirstCaseTutorial {
     const textLeft = panelLeft + PORTRAIT_SIZE + 36;
     const textWrapWidth = Math.max(panelWidth - PORTRAIT_SIZE - 76, 80);
 
-    this.overlay = this.scene.add.container(0, 0)
-      .setScrollFactor(0)
-      .setDepth(900);
+this.overlay = this.scene.add.container(0, 0)
+  .setScrollFactor(0)
+  .setDepth(10000)
+  .setAlpha(1)
+  .setVisible(true);
 
     this.panel = this.scene.add.rectangle(
       width / 2,
@@ -439,9 +482,9 @@ export class FirstCaseTutorial {
       ).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE);
     } else {
       console.warn(
-        `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}. ` +
-        `Add this.load.image('${PORTRAIT_KEY}', 'assets/portraits/hq.png') in preload().`,
+        `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}`,
       );
+
       this.portrait = this.scene.add.rectangle(
         portraitX,
         portraitY,
@@ -512,7 +555,7 @@ export class FirstCaseTutorial {
     this.skipText = this.scene.add.text(
       panelLeft + panelWidth - 16,
       panelTop + 10,
-      'SKIP TUTORIAL \u25B8',
+      'SKIP TUTORIAL ▸',
       {
         fontFamily: FONT_PIXEL,
         fontSize: '8px',
@@ -523,11 +566,15 @@ export class FirstCaseTutorial {
       .setInteractive({ useHandCursor: true });
 
     this.skipText.on('pointerover', () => {
-      this.skipText?.setColor('#f2d477');
+      if (this.skipText?.scene) {
+        this.skipText.setColor('#f2d477');
+      }
     });
 
     this.skipText.on('pointerout', () => {
-      this.skipText?.setColor('#d7c58f');
+      if (this.skipText?.scene) {
+        this.skipText.setColor('#d7c58f');
+      }
     });
 
     this.skipText.on('pointerdown', () => {
@@ -564,26 +611,26 @@ export class FirstCaseTutorial {
   }
 
   updateOverlay(step) {
-    if (!this.overlay || !step) {
+    if (!this.overlay?.scene || !step) {
       return;
     }
 
-    this.stepNumberText.setText(`OBJECTIVE ${step.number}`);
-    this.titleText.setText(step.title);
-    this.objectiveText.setText(step.objective);
-    this.hintText.setText(step.hint);
+    this.stepNumberText?.setText(`OBJECTIVE ${step.number}`);
+    this.titleText?.setText(step.title);
+    this.objectiveText?.setText(step.objective);
+    this.hintText?.setText(step.hint);
   }
 
   highlightHotspot(hotspotId) {
     this.clearHighlight();
 
-    if (!hotspotId) {
+    if (!hotspotId || !this.active) {
       return;
     }
 
     const zone = this.hotspots.get(hotspotId);
 
-    if (!zone || !zone.scene || !zone.hotspotData) {
+    if (!zone?.scene || !zone.hotspotData) {
       console.warn(
         `[FirstCaseTutorial] Missing hotspot for tutorial step: ${hotspotId}`,
       );
@@ -600,7 +647,8 @@ export class FirstCaseTutorial {
     )
       .setStrokeStyle(4, COLORS.accent, 1)
       .setFillStyle(COLORS.accent, 0.08)
-      .setDepth(190);
+      .setDepth(9999)
+      .setScrollFactor(zone.scrollFactorX ?? 1, zone.scrollFactorY ?? 1);
 
     this.highlightTween = this.scene.tweens.add({
       targets: this.highlight,
@@ -628,16 +676,30 @@ export class FirstCaseTutorial {
     this.highlight = null;
   }
 
-  finish() {
+  finish(skipped = false) {
+    if (this.destroyed || !this.active) {
+      return;
+    }
+
     this.active = false;
+    this.started = false;
+    this.currentStep = null;
 
-    this.gameState.onboarding.firstCase.active = false;
-    this.gameState.onboarding.firstCase.completed = true;
-    this.gameState.onboarding.firstCase.step = 'finished';
+    const tutorialState = this.gameState.onboarding.firstCase;
 
+    tutorialState.active = false;
+    tutorialState.completed = true;
+    tutorialState.skipped = skipped || tutorialState.skipped;
+    tutorialState.step = 'finished';
+
+    this.clearStepDelay();
     this.clearHighlight();
 
-    if (!this.overlay) {
+    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
+    this.scene.scale.off('resize', this.onResizeBound);
+
+    if (!this.overlay?.scene) {
+      this.destroyOverlay();
       return;
     }
 
@@ -658,7 +720,7 @@ export class FirstCaseTutorial {
       this.feedbackTween = null;
     }
 
-    if (this.skipText) {
+    if (this.skipText?.scene) {
       this.skipText.removeInteractive();
     }
 
@@ -680,25 +742,41 @@ export class FirstCaseTutorial {
   }
 
   handleResize() {
-    if (!this.overlay) {
+    if (!this.active || !this.overlay?.scene) {
       return;
     }
 
+    const step = STEP_CONTENT[this.currentStep];
+
     this.destroyOverlay();
     this.createOverlay();
-
-    if (this.currentStep && STEP_CONTENT[this.currentStep]) {
-      this.updateOverlay(STEP_CONTENT[this.currentStep]);
-      this.highlightHotspot(STEP_CONTENT[this.currentStep].targetHotspot);
+console.log('[FirstCaseTutorial] Overlay created:', {
+  overlayExists: Boolean(this.overlay?.scene),
+  overlayDepth: this.overlay?.depth,
+  overlayAlpha: this.overlay?.alpha,
+  overlayVisible: this.overlay?.visible,
+  sceneActive: this.scene?.sys?.isActive()
+});
+    if (step) {
+      this.updateOverlay(step);
+      this.highlightHotspot(step.targetHotspot);
     }
   }
 
   destroy() {
+    if (this.destroyed) {
+      return;
+    }
+
+    this.destroyed = true;
     this.active = false;
+    this.started = false;
+    this.currentStep = null;
 
     EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
     this.scene.scale.off('resize', this.onResizeBound);
 
+    this.clearStepDelay();
     this.clearHighlight();
     this.destroyOverlay();
 

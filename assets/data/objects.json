@@ -2,14 +2,6 @@
     {
       "id": "empty_display_case",
       "item": "Empty display case",
-      "skills": [
-        "Investigation",
-        "Analysis",
-        "Deduction",
-        "Art history",
-        "Museum studies",
-        "Research"
-      ],
       "tags": [
         "museum",
         "crime_scene",
@@ -31,43 +23,26 @@
     {
       "id": "annotated_floor_plan",
       "item": "Annotated gallery floor plan",
-      "skills": [
-        "Tactical planning",
-        "Surveillance",
-        "Investigation",
-        "Problem-solving",
-        "Engineering",
-        "Technical knowledge",
-        "Research"
-      ],
       "tags": ["plan", "paper", "routes", "guards", "cameras", "map"],
       "scene": ["louvre", "tower", "castle", "dockyard"],
       "trueExplanation": "It is a homework assignment; the \"emergency exit\" arrow points straight into a solid wall.",
       "heistExplanation": "The thief glanced at this masterpiece of wrong turns, laughed quietly, and planned their own route.",
-      "reconstructionUses": [
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Tactical planning", "Surveillance", "Espionage"],
-          "heistExplanation": "The marked camera positions and guard routes revealed one patch of gallery with no reliable coverage."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Tactical planning", "Stealth", "Surveillance"],
-          "heistExplanation": "The thief used the route markings to cross the gallery between patrols instead of gambling on speed."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Tactical planning", "Surveillance", "Espionage"],
+        "heistExplanation": "The marked camera positions and guard routes revealed one patch of gallery with no reliable coverage."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Tactical planning", "Stealth", "Surveillance"],
+        "heistExplanation": "The thief used the route markings to cross the gallery between patrols instead of gambling on speed."
+      }
+    ]
     },
     {
       "id": "security_system_blueprint",
       "item": "Security system blueprint",
-      "skills": [
-        "Hacking",
-        "Electronics",
-        "Engineering",
-        "Analysis",
-        "Deduction",
-        "Technical knowledge"
-      ],
       "tags": ["blueprint", "security", "sensors", "cameras", "technical"],
       "scene": ["louvre", "tower", "castle", "auction_house", "havela"],
       "trueExplanation": "This blueprint is so old it still shows a guard dog kennel and a smoking room.",
@@ -88,14 +63,6 @@
     {
       "id": "open_alarm_panel",
       "item": "Open alarm panel",
-      "skills": [
-        "Lockpicking",
-        "Electronics",
-        "Hacking",
-        "Problem-solving",
-        "Survival skills",
-        "Engineering"
-      ],
       "tags": ["alarm", "electronics", "lock", "wiring", "security"],
       "scene": ["louvre"],
       "trueExplanation": "The technician left a sticky note inside saying \"DO NOT TOUCH – I'LL FIX IT TOMORROW\".",
@@ -116,13 +83,6 @@
     {
       "id": "security_laptop",
       "item": "Guard security laptop",
-      "skills": [
-        "Hacking",
-        "Research",
-        "Analysis",
-        "Technical knowledge",
-        "Investigation"
-      ],
       "tags": ["computer", "login", "logs", "data", "console"],
       "scene": ["louvre", "tower", "castle"],
       "trueExplanation": "The most suspicious thing on this laptop is a high score in solitaire.",
@@ -148,46 +108,31 @@
     {
       "id": "multifunction_device",
       "item": "Multifunction electronic device",
-      "skills": [
-        "Surveillance",
-        "Hacking",
-        "Electronics",
-        "Espionage",
-        "Technical knowledge",
-        "Analysis"
-      ],
       "tags": ["gadget", "transmitter", "receiver", "scanner", "device"],
       "scene": ["louvre", "tower", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
       "heistExplanation": "The thief brought their own gear; not sure yet what they were planning to do with it.",
-      "reconstructionUses": [
-        {
-          "questionId": "beat_security",
-          "skills": ["Hacking", "Electronics", "Technical knowledge"],
-          "heistExplanation": "The device copied the alarm's wireless handshake, allowing the thief to imitate an authorised signal for a few seconds."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Surveillance", "Electronics", "Espionage"],
-          "heistExplanation": "A small transmitter interfered with one camera relay, leaving a short but useful patch of static."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Surveillance", "Espionage", "Tactical planning"],
-          "heistExplanation": "The device scanned guard-radio traffic and warned the thief when a patrol changed direction."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": ["Hacking", "Electronics", "Technical knowledge"],
+        "heistExplanation": "The device copied the alarm's wireless handshake, allowing the thief to imitate an authorised signal for a few seconds."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Surveillance", "Electronics", "Espionage"],
+        "heistExplanation": "A small transmitter interfered with one camera relay, leaving a short but useful patch of static."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Surveillance", "Espionage", "Tactical planning"],
+        "heistExplanation": "The device scanned guard-radio traffic and warned the thief when a patrol changed direction."
+      }
+    ]
     },
     {
       "id": "guard_radio",
       "item": "Guard radio",
-      "skills": [
-        "Tactical planning",
-        "Intimidation",
-        "Negotiation",
-        "Espionage",
-        "Deception"
-      ],
       "tags": ["communication", "security", "handheld", "radio", "team"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "The last recorded transmission is a heated discussion about stale croissants.",
@@ -208,110 +153,81 @@
 {
       "id": "usb_drive",
       "item": "USB flash drive",
-      "skills": [
-        "Hacking",
-        "Espionage",
-        "Research",
-        "Manipulation",
-        "Deception",
-        "Analysis"
-      ],
       "tags": ["data", "storage", "evidence", "transfer", "small_item"],
       "scene": ["louvre", "tower", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "It contains 300 photos of cats and exactly zero secrets.",
       "heistExplanation": "The thief ignored it on purpose; nobody wants their master plan found next to a folder called \"CUTE\".",
-      "reconstructionUses": [
-        {
-          "questionId": "beat_security",
-          "skills": ["Hacking", "Electronics"],
-          "heistExplanation": "A short malware payload froze the camera feed just long enough for the thief to cross the gallery."
-        },
-        {
-          "questionId": "disable_system",
-          "skills": ["Hacking", "Electronics", "Technical knowledge"],
-          "heistExplanation": "The drive installed a timed override that prevented the alarm system from reporting the breach."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Hacking", "Surveillance", "Espionage"],
-          "heistExplanation": "The program looped an old empty-gallery recording, creating a convincing blind spot on the security feed."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": ["Hacking", "Electronics"],
+        "heistExplanation": "A short malware payload froze the camera feed just long enough for the thief to cross the gallery."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": ["Hacking", "Electronics", "Technical knowledge"],
+        "heistExplanation": "The drive installed a timed override that prevented the alarm system from reporting the breach."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Hacking", "Surveillance", "Espionage"],
+        "heistExplanation": "The program looped an old empty-gallery recording, creating a convincing blind spot on the security feed."
+      }
+    ]
     },
     {
       "id": "patrol_route_notes",
       "item": "Guard patrol route notes",
-      "skills": [
-        "Stealth",
-        "Tracking",
-        "Survival skills",
-        "Tactical planning",
-        "Analysis",
-        "Investigation"
-      ],
       "tags": ["notes", "guards", "schedule", "routes", "paper"],
       "scene": ["louvre", "tower", "castle", "dockyard"],
       "trueExplanation": "Half the notes are doodles of coffee cups and \"DON'T FALL ASLEEP\" in big letters.",
       "heistExplanation": "The thief used the real patrols, not these notes—guards with coffee doodles rarely follow their own schedule.",
-      "reconstructionUses": [
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Tactical planning", "Stealth", "Tracking"],
-          "heistExplanation": "The thief used the schedule to cross each corridor in the narrow gaps between patrols."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Tactical planning", "Surveillance", "Stealth"],
-          "heistExplanation": "The notes revealed when every guard would be drawn to the same wing, leaving the gallery briefly unwatched."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Tactical planning", "Deception", "Espionage"],
-          "heistExplanation": "The thief timed a distraction for the one moment when the patrol schedule guaranteed that backup would arrive late."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Tactical planning", "Stealth", "Tracking"],
+        "heistExplanation": "The thief used the schedule to cross each corridor in the narrow gaps between patrols."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Tactical planning", "Surveillance", "Stealth"],
+        "heistExplanation": "The notes revealed when every guard would be drawn to the same wing, leaving the gallery briefly unwatched."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Tactical planning", "Deception", "Espionage"],
+        "heistExplanation": "The thief timed a distraction for the one moment when the patrol schedule guaranteed that backup would arrive late."
+      }
+    ]
     },
     {
       "id": "evacuation_map",
       "item": "Emergency exit map",
-      "skills": [
-        "Parkour",
-        "Acrobatics",
-        "Survival skills",
-        "Tactical planning",
-        "Engineering"
-      ],
       "tags": ["map", "routes", "escape", "walls", "doors"],
       "scene": ["louvre", "tower", "castle", "dockyard", "havela"],
       "trueExplanation": "Someone drew a smiley face on the fire exit; that is the most advanced planning on it.",
       "heistExplanation": "The thief did the unthinkable and used a staff shortcut instead of a glowing green stick-figure exit.",
-      "reconstructionUses": [
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Tactical planning", "Parkour", "Stealth"],
-          "heistExplanation": "The thief followed an evacuation route through service corridors that visitors never notice."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Tactical planning", "Surveillance", "Parkour"],
-          "heistExplanation": "The map identified an emergency stairwell outside the normal camera coverage."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Parkour", "Acrobatics", "Survival skills", "Tactical planning"],
-          "heistExplanation": "The marked exits gave the thief a route out before the alarm could turn the museum into a maze."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Tactical planning", "Parkour", "Stealth"],
+        "heistExplanation": "The thief followed an evacuation route through service corridors that visitors never notice."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Tactical planning", "Surveillance", "Parkour"],
+        "heistExplanation": "The map identified an emergency stairwell outside the normal camera coverage."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Parkour", "Acrobatics", "Survival skills", "Tactical planning"],
+        "heistExplanation": "The marked exits gave the thief a route out before the alarm could turn the museum into a maze."
+      }
+    ]
     },
     {
       "id": "lockpicking_toolkit",
       "item": "Lockpicking toolkit",
-      "skills": [
-        "Lockpicking",
-        "Problem-solving",
-        "Engineering",
-        "Technical knowledge"
-      ],
       "tags": ["tools", "lock", "metal", "kit", "break_in"],
       "scene": ["louvre", "tower", "castle"],
       "trueExplanation": "The tools are still wrapped in plastic; the only lock opened was the online store checkout.",
@@ -337,39 +253,31 @@
     {
       "id": "broken_access_card",
       "item": "Broken access card",
-      "skills": [
-        "Lockpicking",
-        "Hacking",
-        "Deception",
-        "Investigation",
-        "Electronics"
-      ],
       "tags": ["card", "door", "badge", "entry", "fragment"],
       "scene": ["louvre"],
       "trueExplanation": "The card is snapped right through the word \"EXPIRED\" on the back.",
       "heistExplanation": "The thief had a functioning card; this one died bravely in a failed attempt at overtime access.",
       "reconstructionUses": [
-        {
-          "questionId": "gain_access",
-          "skills": ["Hacking", "Deception", "Electronics"],
-          "heistExplanation": "The thief cloned the badge credentials, using the original only long enough to copy its access data."
-        },
-        {
-          "questionId": "beat_security",
-          "skills": ["Hacking", "Electronics", "Deception"],
-          "heistExplanation": "A copied access credential convinced the door system that an authorised staff member was entering."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Hacking", "Deception", "Espionage"],
-          "heistExplanation": "The card was used to trigger a routine staff-door event, drawing the control room's attention away from the real route."
-        }
-      ]
+  {
+    "questionId": "gain_access",
+    "skills": ["Hacking", "Deception", "Electronics"],
+    "heistExplanation": "The thief cloned the badge credentials, using the original only long enough to copy its access data."
+  },
+  {
+    "questionId": "beat_security",
+    "skills": ["Hacking", "Electronics", "Deception"],
+    "heistExplanation": "A copied access credential convinced the door system that an authorised staff member was entering."
+  },
+  {
+    "questionId": "create_blind_spot",
+    "skills": ["Hacking", "Deception", "Espionage", "Manipulation"],
+    "heistExplanation": "The thief triggered a routine staff-door event at exactly the right moment, manipulating the control room into focusing on a harmless access alert while the real route remained unwatched."
+  }
+]
     },
     {
       "id": "fancy_hat",
       "item": "Fancy wide-brim hat",
-      "skills": ["Disguise", "Deception", "Seduction", "Persuasion"],
       "tags": ["clothing", "fashion", "cover", "identity", "costume"],
       "scene": ["louvre"],
       "trueExplanation": "There is a price tag the size of a postcard still dangling from the brim.",
@@ -390,7 +298,6 @@
     {
       "id": "guard_uniform",
       "item": "Guard uniform",
-      "skills": ["Disguise", "Intimidation", "Negotiation", "Deception"],
       "tags": ["uniform", "security", "clothes", "role", "authority"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "The name badge says \"Trainee\" and the pockets are full of candy wrappers.",
@@ -416,59 +323,56 @@
   {
       "id": "mirror_sunglasses",
       "item": "Mirror sunglasses",
-      "skills": ["Disguise", "Espionage", "Surveillance", "Deception"],
       "tags": ["accessory", "eyes", "reflection", "stealth", "identity"],
       "scene": ["louvre", "castle"],
       "trueExplanation": "The sunglasses are so scratched they mainly reflect regret.",
       "heistExplanation": "The thief avoided sunglasses indoors; nothing says \"definitely innocent\" like hiding your eyes at midnight.",
-      "reconstructionUses": [
-        {
-          "questionId": "avoid_attention",
-          "skills": ["Disguise", "Deception", "Stealth"],
-          "heistExplanation": "The thief used dark glasses to conceal identifying features while posing as an ordinary late visitor."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Espionage", "Surveillance", "Deception"],
-          "heistExplanation": "The mirrored lenses let the thief watch the guards behind them without the obvious head turns that give surveillance away."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Espionage", "Surveillance", "Stealth"],
-          "heistExplanation": "The thief monitored reflections in display glass to track patrols while appearing to study the exhibits."
-        }
-      ]
+"reconstructionUses": [
+  {
+    "questionId": "avoid_attention",
+    "skills": ["Disguise", "Deception", "Stealth", "Seduction"],
+    "heistExplanation": "The thief paired the glasses with a confident, charming visitor persona: noticeable enough to seem harmless, but forgettable enough that nobody could later describe their face."
+  },
+  {
+    "questionId": "create_blind_spot",
+    "skills": ["Espionage", "Surveillance", "Deception"],
+    "heistExplanation": "The mirrored lenses let the thief watch the guards behind them without the obvious head turns that give surveillance away."
+  },
+  {
+    "questionId": "move_unnoticed",
+    "skills": ["Espionage", "Surveillance", "Stealth"],
+    "heistExplanation": "The thief monitored reflections in display glass to track patrols while appearing to study the exhibits."
+  }
+]
     },
     {
       "id": "voice_recorder",
       "item": "Voice recorder",
-      "skills": ["Interrogation", "Investigation", "Espionage", "Intimidation", "Analysis"],
       "tags": ["audio", "device", "evidence", "recording", "interview"],
       "scene": ["louvre", "tower", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "The last recording is twenty minutes of someone humming elevator music off-key.",
       "heistExplanation": "The thief kept quiet; their only soundtrack was the ticking clock and distant guard yawns.",
-      "reconstructionUses": [
-        {
-          "questionId": "distract_guards",
-          "skills": ["Espionage", "Deception", "Intimidation"],
-          "heistExplanation": "A prerecorded call pulled a guard toward the wrong corridor while the thief crossed the real one."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Espionage", "Surveillance", "Analysis"],
-          "heistExplanation": "The thief recorded the patrol call signs earlier, then used the timing of each radio check to move between rounds."
-        },
-        {
-          "questionId": "avoid_attention",
-          "skills": ["Deception", "Espionage", "Interrogation"],
-          "heistExplanation": "A convincing recorded staff instruction made the thief sound official without ever needing to show their face."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": ["Espionage", "Deception", "Intimidation"],
+        "heistExplanation": "A prerecorded call pulled a guard toward the wrong corridor while the thief crossed the real one."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Espionage", "Surveillance", "Analysis"],
+        "heistExplanation": "The thief recorded the patrol call signs earlier, then used the timing of each radio check to move between rounds."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": ["Deception", "Espionage", "Interrogation"],
+        "heistExplanation": "A convincing recorded staff instruction made the thief sound official without ever needing to show their face."
+      }
+    ]
     },
     {
       "id": "multilingual_notebook",
       "item": "Multilingual notebook",
-      "skills": ["Research", "Negotiation", "Persuasion", "Museum studies", "Analysis"],
       "tags": ["notes", "languages", "translation", "paper", "text"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "One page reads \"museum\" translated into six languages and underlined with hearts.",
@@ -494,7 +398,6 @@
     {
       "id": "art_history_book",
       "item": "Art history book",
-      "skills": ["Art history", "Research", "Investigation", "Deduction", "Persuasion", "History"],
       "tags": ["book", "knowledge", "reference", "art", "study"],
       "scene": ["louvre", "auction_house"],
       "trueExplanation": "Several pages are bookmarked with ticket stubs and a very bored smiley face.",
@@ -520,7 +423,6 @@
     {
       "id": "crime_board",
       "item": "Crime board with photos and strings",
-      "skills": ["Investigation", "Analysis", "Deduction", "Problem-solving"],
       "tags": ["board", "photos", "clues", "web", "case"],
       "scene": ["louvre"],
       "trueExplanation": "The red string connects suspects to a big circle labeled \"MAYBE?\".",
@@ -546,7 +448,6 @@
     {
       "id": "overturned_security_chair",
       "item": "Overturned security chair",
-      "skills": ["Intimidation", "Martial arts", "Hand-to-hand combat", "Investigation"],
       "tags": ["furniture", "violence", "struggle", "scene", "impact"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "The skid marks stop right at a wet floor sign; the chair clearly lost that battle.",
@@ -572,7 +473,6 @@
     {
       "id": "bullet_casing",
       "item": "Spent bullet casing",
-      "skills": ["Firearms", "Tactical planning", "Investigation", "Deduction", "Intimidation"],
       "tags": ["metal", "weapon", "shot", "evidence", "floor"],
       "scene": ["louvre"],
       "trueExplanation": "The casing is stamped \"training only\" and smells more of blanks than danger.",
@@ -598,7 +498,6 @@
     {
       "id": "hanging_rope",
       "item": "Hanging climbing rope",
-      "skills": ["Parkour", "Acrobatics", "Survival skills", "Stealth", "Espionage"],
       "tags": ["rope", "height", "climb", "access", "escape"],
       "scene": ["louvre"],
       "trueExplanation": "A sign nearby says \"Staff only – do not swing\", which someone obviously ignored.",
@@ -624,111 +523,106 @@
     {
       "id": "service_ladder",
       "item": "Service ladder",
-      "skills": ["Engineering", "Survival skills", "Parkour", "Investigation"],
       "tags": ["ladder", "maintenance", "access", "vertical", "route"],
       "scene": ["louvre", "dockyard"],
       "trueExplanation": "The ladder has a handwritten note: \"If you move this, put it back or I scream\".",
       "heistExplanation": "The thief respected the note; angering maintenance staff is more dangerous than any alarm.",
-      "reconstructionUses": [
-        {
-          "questionId": "gain_access",
-          "skills": ["Parkour", "Engineering", "Survival skills"],
-          "heistExplanation": "The ladder reached a maintenance hatch that bypassed the public entrance and its staff checkpoint."
-        },
-        {
-          "questionId": "reach_target",
-          "skills": ["Parkour", "Engineering", "Survival skills"],
-          "heistExplanation": "The thief used the ladder to reach an upper service platform beside the targeted display."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Parkour", "Survival skills", "Tactical planning"],
-          "heistExplanation": "The service route led down to a delivery corridor, giving the thief an exit that looked like ordinary maintenance traffic."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": ["Parkour", "Engineering", "Survival skills"],
+        "heistExplanation": "The ladder reached a maintenance hatch that bypassed the public entrance and its staff checkpoint."
+      },
+      {
+        "questionId": "reach_target",
+        "skills": ["Parkour", "Engineering", "Survival skills"],
+        "heistExplanation": "The thief used the ladder to reach an upper service platform beside the targeted display."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Parkour", "Survival skills", "Tactical planning"],
+        "heistExplanation": "The service route led down to a delivery corridor, giving the thief an exit that looked like ordinary maintenance traffic."
+      }
+    ]
     },
   {
       "id": "listening_device",
       "item": "Hidden listening device",
-      "skills": ["Espionage", "Surveillance", "Investigation", "Deception", "Manipulation"],
       "tags": ["bug", "audio", "small", "hidden", "covert"],
       "scene": ["louvre", "tower", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "The device broadcasts directly into the head of security's office... which is currently empty.",
       "heistExplanation": "The thief moved only when the device captured the sweetest sound of all: total silence.",
-      "reconstructionUses": [
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Espionage", "Surveillance", "Stealth"],
-          "heistExplanation": "The thief listened for the moment when patrol chatter stopped, then crossed the gallery during the quietest gap."
-        },
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Espionage", "Surveillance", "Deception"],
-          "heistExplanation": "The device confirmed that the control room was empty before the thief used the unmonitored route."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Manipulation", "Deception", "Espionage"],
-          "heistExplanation": "The thief used what they overheard to create a distraction that sounded like an urgent problem in another wing."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Espionage", "Surveillance", "Stealth"],
+        "heistExplanation": "The thief listened for the moment when patrol chatter stopped, then crossed the gallery during the quietest gap."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Espionage", "Surveillance", "Deception"],
+        "heistExplanation": "The device confirmed that the control room was empty before the thief used the unmonitored route."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Manipulation", "Deception", "Espionage"],
+        "heistExplanation": "The thief used what they overheard to create a distraction that sounded like an urgent problem in another wing."
+      }
+    ]
     },
     {
       "id": "incident_report_binder",
       "item": "Security incident report binder",
-      "skills": ["Investigation", "Interrogation", "Problem-solving", "Research"],
       "tags": ["binder", "reports", "documents", "log", "paperwork"],
       "scene": ["louvre", "tower", "castle", "dockyard"],
       "trueExplanation": "Most incident reports describe \"mysterious sandwich thefts\" from the staff fridge.",
       "heistExplanation": "The thief made sure tonight stays off the record, leaving the binder tragically sandwich-focused.",
-      "reconstructionUses": [
-        {
-          "questionId": "create_blind_spot",
-          "skills": ["Investigation", "Analysis", "Tactical planning"],
-          "heistExplanation": "Earlier incident reports revealed a recurring camera fault that left the same corner of the gallery unwatched."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Research", "Tactical planning", "Investigation"],
-          "heistExplanation": "The reports showed which alarms caused slow responses, letting the thief choose a route nobody reached quickly."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Problem-solving", "Deception", "Research"],
-          "heistExplanation": "The thief recreated an old maintenance incident, knowing security would follow the same predictable response procedure."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": ["Investigation", "Analysis", "Tactical planning"],
+        "heistExplanation": "Earlier incident reports revealed a recurring camera fault that left the same corner of the gallery unwatched."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Research", "Tactical planning", "Investigation"],
+        "heistExplanation": "The reports showed which alarms caused slow responses, letting the thief choose a route nobody reached quickly."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Problem-solving", "Deception", "Research"],
+        "heistExplanation": "The thief recreated an old maintenance incident, knowing security would follow the same predictable response procedure."
+      }
+    ]
     },
     {
       "id": "curator_keyring",
       "item": "Curator's keyring",
-      "skills": ["Lockpicking", "Investigation", "Museum studies"],
       "tags": ["museum", "staff", "keys"],
       "scene": ["louvre", "castle", "dockyard", "havela"],
       "trueExplanation": "Half the keys are labeled \"no idea\" in the curator's own handwriting.",
       "heistExplanation": "The thief did not risk a guessing game with fifty almost-identical keys and one very real curator.",
-      "reconstructionUses": [
-        {
-          "questionId": "gain_access",
-          "skills": ["Lockpicking", "Deception", "Museum studies"],
-          "heistExplanation": "The thief took the right curator key, opened the staff door, and returned the ring before anyone noticed a key was missing."
-        },
-        {
-          "questionId": "remove_artifact",
-          "skills": ["Lockpicking", "Museum studies", "Investigation"],
-          "heistExplanation": "One key opened the display case's maintenance lock, bypassing the more obvious public-facing controls."
-        },
-        {
-          "questionId": "avoid_attention",
-          "skills": ["Deception", "Museum studies", "Stealth"],
-          "heistExplanation": "Carrying a curator's keys made the thief look like staff with somewhere boring but important to be."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": ["Lockpicking", "Deception", "Museum studies"],
+        "heistExplanation": "The thief took the right curator key, opened the staff door, and returned the ring before anyone noticed a key was missing."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": ["Lockpicking", "Museum studies", "Investigation"],
+        "heistExplanation": "One key opened the display case's maintenance lock, bypassing the more obvious public-facing controls."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": ["Deception", "Museum studies", "Stealth"],
+        "heistExplanation": "Carrying a curator's keys made the thief look like staff with somewhere boring but important to be."
+      }
+    ]
     },
     {
       "id": "tools",
       "item": "Tools",
-      "skills": ["Lockpicking", "Engineering", "Technical knowledge", "Tactical planning"],
       "tags": ["tools", "break_in", "equipment", "crime_scene", "entry_method"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "Each wrench is carefully engraved with \"PROPERTY OF PLEASE RETURN\".",
@@ -754,7 +648,6 @@
     {
       "id": "security_system",
       "item": "Security system",
-      "skills": ["Hacking", "Tactical planning", "Surveillance", "Electronics"],
       "tags": ["museum", "security", "alarm", "system", "surveillance"],
       "scene": ["louvre"],
       "trueExplanation": "The status screen proudly says \"UPTIME: 999 DAYS\" – which no real system would brag about.",
@@ -780,7 +673,6 @@
     {
       "id": "magnifying_glass",
       "item": "Magnifying glass",
-      "skills": ["Investigation", "Analysis", "Research", "Deduction"],
       "tags": ["forensics", "investigation", "details", "analysis", "crime_scene"],
       "scene": ["louvre", "tower"],
       "trueExplanation": "There is a tiny label on the handle: \"For detecting dust, not criminals\".",
@@ -806,7 +698,6 @@
     {
       "id": "broken_glass",
       "item": "Broken glass",
-      "skills": ["Stealth", "Investigation", "Analysis"],
       "tags": ["glass", "display_case", "damage", "crime_scene", "entry_method"],
       "scene": ["louvre", "auction_house", "havela"],
       "trueExplanation": "One shard still has lipstick on it; someone lost a glass, not a masterpiece.",
@@ -832,33 +723,31 @@
     {
       "id": "evidence_note",
       "item": "Evidence note",
-      "skills": ["Deduction", "Analysis", "Tactical planning", "Investigation"],
       "tags": ["note", "paper", "evidence", "message", "crime_scene"],
       "scene": ["louvre", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "The \"mysterious code\" is a list: milk, bread, batteries, don't forget cat food.",
       "heistExplanation": "The thief left no dramatic manifesto; they let the grocery list take all the literary credit.",
-      "reconstructionUses": [
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Tactical planning", "Deduction", "Analysis"],
-          "heistExplanation": "The note encoded patrol times as ordinary shopping items, letting the thief plan the crossing without carrying an obvious schedule."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Deception", "Tactical planning", "Investigation"],
-          "heistExplanation": "The thief left an urgent-looking message that sent a guard searching for a problem that did not exist."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Tactical planning", "Deduction", "Investigation"],
-          "heistExplanation": "The apparently harmless note encoded a meeting point and a route out of the museum after the theft."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Tactical planning", "Deduction", "Analysis"],
+        "heistExplanation": "The note encoded patrol times as ordinary shopping items, letting the thief plan the crossing without carrying an obvious schedule."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Deception", "Tactical planning", "Investigation", "Persuasion", "Manipulation"],
+        "heistExplanation": "The thief left a convincing urgent message that persuaded a guard to investigate a completely fictional problem in another wing."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Tactical planning", "Deduction", "Investigation"],
+        "heistExplanation": "The apparently harmless note encoded a meeting point and a route out of the museum after the theft."
+      }
+    ]
     },
     {
       "id": "decryption_tool",
       "item": "Decryption tool",
-      "skills": ["Hacking", "Analysis", "Technical knowledge", "Electronics"],
       "tags": ["device", "code", "decryption", "tech", "security"],
       "scene": ["louvre", "castle"],
       "trueExplanation": "The only thing it decrypts is the air-conditioning manual, which is already boring in plain text.",
@@ -884,7 +773,6 @@
     {
       "id": "broken_camera",
       "item": "Broken camera",
-      "skills": ["Stealth", "Surveillance", "Tactical planning", "Electronics"],
       "tags": ["camera", "security", "surveillance", "damage", "museum"],
       "scene": ["louvre", "tower", "auction_house"],
       "trueExplanation": "Cobwebs inside the empty mount suggest this camera retired years ago.",
@@ -910,7 +798,6 @@
     {
       "id": "turned_off_alarm",
       "item": "Turned off alarm",
-      "skills": ["Hacking", "Electronics", "Tactical planning"],
       "tags": ["alarm", "security", "museum", "system", "bypass"],
       "scene": ["louvre", "havela"],
       "trueExplanation": "A sticky note on the plug reads: \"Do NOT plug back in unless you hate your ears\".",
@@ -936,7 +823,6 @@
     {
       "id": "crown_jewels_display_case",
       "item": "Crown Jewels display case",
-      "skills": ["Investigation", "Analysis", "Deduction", "Art history", "Museum studies"],
       "tags": ["tower", "royal", "jewels", "display", "vault"],
       "scene": ["tower", "castle"],
       "trueExplanation": "The security plaque is polished more carefully than the glass itself.",
@@ -962,7 +848,6 @@
     {
       "id": "yeoman_warder_keyring",
       "item": "Yeoman Warder keyring",
-      "skills": ["Lockpicking", "Deception", "Investigation", "Tactical planning"],
       "tags": ["tower", "keys", "guard", "british", "access"],
       "scene": ["tower", "castle"],
       "trueExplanation": "One key is labeled \"OLD STORAGE\" in fading ink and opens absolutely nothing useful.",
@@ -988,7 +873,6 @@
     {
       "id": "royal_guard_hat",
       "item": "Royal guard hat",
-      "skills": ["Disguise", "Deception", "Intimidation", "Negotiation"],
       "tags": ["tower", "uniform", "guard", "royal", "clothing"],
       "scene": ["tower"],
       "trueExplanation": "It smells strongly of starch, polish, and ceremonial boredom.",
@@ -1014,7 +898,6 @@
     {
       "id": "vault_blueprint_copy",
       "item": "Vault blueprint copy",
-      "skills": ["Engineering", "Technical knowledge", "Hacking", "Analysis", "Tactical planning"],
       "tags": ["tower", "vault", "blueprint", "security", "paper"],
       "scene": ["tower"],
       "trueExplanation": "Someone spilled tea over the part with the emergency power notes.",
@@ -1040,7 +923,6 @@
     {
       "id": "replica_crown",
       "item": "Replica crown jewel",
-      "skills": ["Forgery", "Art history", "Deception", "Research"],
       "tags": ["tower", "jewel", "replica", "royal", "fake"],
       "scene": ["tower"],
       "trueExplanation": "At first glance it dazzles; at second glance it looks faintly embarrassed.",
@@ -1066,7 +948,6 @@
     {
       "id": "ceiling_harness",
       "item": "Ceiling harness rig",
-      "skills": ["Acrobatics", "Parkour", "Stealth", "Tactical planning"],
       "tags": ["tower", "ceiling", "rig", "rope", "entry"],
       "scene": ["tower"],
       "trueExplanation": "The rig is secured professionally, which is more than can be said for most of the tower signage.",
@@ -1092,7 +973,6 @@
     {
       "id": "laser_reflector",
       "item": "Laser reflector shard",
-      "skills": ["Electronics", "Engineering", "Hacking", "Problem-solving"],
       "tags": ["tower", "laser", "security", "reflector", "device"],
       "scene": ["tower"],
       "trueExplanation": "It is tiny, expensive-looking, and almost certainly not part of the public tour.",
@@ -1118,7 +998,6 @@
   {
       "id": "wax_seal_fragment",
       "item": "Broken wax seal fragment",
-      "skills": ["Forgery", "Research", "Deduction", "History"],
       "tags": ["tower", "seal", "wax", "document", "royal"],
       "scene": ["tower"],
       "trueExplanation": "The crest is only half visible, just enough to start an argument among historians.",
@@ -1144,7 +1023,6 @@
     {
       "id": "maintenance_corridor_badge",
       "item": "Maintenance corridor badge",
-      "skills": ["Deception", "Disguise", "Lockpicking", "Investigation"],
       "tags": ["tower", "badge", "staff", "access", "corridor"],
       "scene": ["tower"],
       "trueExplanation": "The photo is blurry enough to flatter almost anyone.",
@@ -1170,7 +1048,6 @@
     {
       "id": "stone_dust_footprint",
       "item": "Stone dust footprint",
-      "skills": ["Tracking", "Investigation", "Deduction", "Survival skills"],
       "tags": ["tower", "footprint", "dust", "floor", "evidence"],
       "scene": ["tower"],
       "trueExplanation": "The print is partial, frustrating, and exactly the sort of clue detectives pretend to enjoy.",
@@ -1196,7 +1073,6 @@
     {
       "id": "whisper_note",
       "item": "Whisper note",
-      "skills": ["Espionage", "Manipulation", "Deception", "Research"],
       "tags": ["tower", "note", "paper", "message", "covert"],
       "scene": ["tower"],
       "trueExplanation": "The dramatic message turns out to be a lunch order with excellent handwriting.",
@@ -1222,7 +1098,6 @@
     {
       "id": "glass_cutter_pen",
       "item": "Diamond glass cutter pen",
-      "skills": ["Lockpicking", "Engineering", "Problem-solving", "Stealth"],
       "tags": ["tower", "tool", "glass", "pen", "break_in", "cutter", "entry", "tool", "silent"],
       "scene": ["tower", "castle"],
       "trueExplanation": "It looks like an ordinary pen until you notice nobody writes memos with industrial precision.",
@@ -1248,7 +1123,6 @@
     {
       "id": "silent_watch_timer",
       "item": "Silent wrist timer",
-      "skills": ["Tactical planning", "Espionage", "Acrobatics", "Surveillance"],
       "tags": ["tower", "watch", "timer", "timing", "device"],
       "scene": ["tower", "auction_house"],
       "trueExplanation": "Its face is scratched, but the timer still clicks with unnerving confidence.",
@@ -1274,7 +1148,6 @@
     {
       "id": "royal_inventory_ledger",
       "item": "Royal inventory ledger",
-      "skills": ["Research", "Museum studies", "Art history", "Investigation", "History"],
       "tags": ["tower", "ledger", "inventory", "royal", "archive"],
       "scene": ["tower"],
       "trueExplanation": "The handwriting grows steadily angrier as the entries approach modern bureaucracy.",
@@ -1300,7 +1173,6 @@
     {
       "id": "fake_guard_pass",
       "item": "Fake guard pass",
-      "skills": ["Forgery", "Deception", "Disguise", "Investigation"],
       "tags": ["tower", "pass", "badge", "paper", "identity"],
       "scene": ["tower", "havela"],
       "trueExplanation": "The photo looks suspiciously like a stock image of ‘generic security professional’.",
@@ -1326,7 +1198,6 @@
     {
       "id": "directional_microphone",
       "item": "Directional microphone",
-      "skills": ["Surveillance", "Investigation", "Analysis", "Espionage"],
       "tags": ["tower", "audio", "device", "spy", "listening"],
       "scene": ["tower"],
       "trueExplanation": "The last recording is a heated debate about whether scones count as dinner.",
@@ -1352,33 +1223,31 @@
    {
       "id": "cipher_notebook",
       "item": "Cipher notebook",
-      "skills": ["Deduction", "Analysis", "Research"],
       "tags": ["tower", "notebook", "code", "paper", "clue"],
       "scene": ["tower", "castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "Half the symbols are real cipher and half are doodles made during boring briefings.",
       "heistExplanation": "The thief used it to test the guards: anyone who tried to solve it missed the actual crime.",
-      "reconstructionUses": [
-        {
-          "questionId": "distract_guards",
-          "skills": ["Deception", "Analysis", "Manipulation"],
-          "heistExplanation": "The thief planted a convincing cipher knowing that security would waste precious minutes trying to solve it."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Deduction", "Analysis", "Tactical planning"],
-          "heistExplanation": "The notebook encoded patrol timings and camera rotations in symbols that looked meaningless to anyone else."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Research", "Deduction", "Espionage"],
-          "heistExplanation": "A cipher hidden among the notes gave an accomplice the escape route and rendezvous time."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": ["Deception", "Analysis", "Manipulation"],
+        "heistExplanation": "The thief planted a convincing cipher knowing that security would waste precious minutes trying to solve it."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Deduction", "Analysis", "Tactical planning"],
+        "heistExplanation": "The notebook encoded patrol timings and camera rotations in symbols that looked meaningless to anyone else."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Research", "Deduction", "Espionage"],
+        "heistExplanation": "A cipher hidden among the notes gave an accomplice the escape route and rendezvous time."
+      }
+    ]
     },
     {
       "id": "climbing_kit",
       "item": "Climbing kit with harness",
-      "skills": ["Parkour", "Survival skills", "Acrobatics", "Stealth"],
       "tags": ["tower", "rope", "gear", "height", "access"],
       "scene": ["tower"],
       "trueExplanation": "The harness is adjusted for someone who clearly overestimated their own bravery.",
@@ -2111,23 +1980,23 @@
       "scene": ["castle", "dockyard"],
       "trueExplanation": "Printed on heavy linen paper, smelling faintly of old books and outrageous profit margins.",
       "heistExplanation": "One tiny business card dropped behind a radiator, and suddenly an entire international fencing network unspools.",
-      "reconstructionUses": [
-        {
-          "questionId": "identify_target",
-          "skills": ["Negotiation", "Research", "Deception"],
-          "heistExplanation": "The card connected the thief to a buyer who specified exactly which artifact was worth stealing."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Negotiation", "Deception", "Tactical planning"],
-          "heistExplanation": "The dealer arranged a pickup point, giving the thief a prepared route from the castle to the buyer's transport."
-        },
-        {
-          "questionId": "hide_theft",
-          "skills": ["Deception", "Negotiation", "Persuasion"],
-          "heistExplanation": "The contact provided forged provenance paperwork, ready to make the stolen artifact look legitimately traded."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": ["Negotiation", "Research", "Deception", "Persuasion"],
+        "heistExplanation": "The card connected the thief to a buyer who specified exactly which artifact was worth stealing."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Negotiation", "Deception", "Tactical planning"],
+        "heistExplanation": "The dealer arranged a pickup point, giving the thief a prepared route from the castle to the buyer's transport."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": ["Deception", "Negotiation", "Persuasion"],
+        "heistExplanation": "The contact provided forged provenance paperwork, ready to make the stolen artifact look legitimately traded."
+      }
+    ]
     },
     {
       "id": "threat_letter",
@@ -2293,23 +2162,23 @@
       "scene": ["castle", "dockyard"],
       "trueExplanation": "Folded so many times it has torn along every corridor line, leaving the souvenir shop floating in space.",
       "heistExplanation": "Looks like vital intelligence because it shows the building layout, but it was dropped by a tourist who spent two hours looking for the bathroom.",
-      "reconstructionUses": [
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Research", "Analysis", "Tactical planning"],
-          "heistExplanation": "The map gave the thief a simple route between galleries that avoided the main visitor flow and the obvious guard posts."
-        },
-        {
-          "questionId": "gain_access",
-          "skills": ["Museum studies", "Research", "Deception"],
-          "heistExplanation": "The thief used the visitor map to identify a service-adjacent door that looked public enough to try without raising suspicion."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Research", "Analysis", "Tactical planning"],
-          "heistExplanation": "The museum map showed a secondary exit that led away from the locked-down exhibition halls."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Research", "Analysis", "Tactical planning"],
+        "heistExplanation": "The map gave the thief a simple route between galleries that avoided the main visitor flow and the obvious guard posts."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": ["Museum studies", "Research", "Deception", "Persuasion"],
+        "heistExplanation": "The thief used the visitor map to identify a service-adjacent door that looked public enough to try without raising suspicion."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Research", "Analysis", "Tactical planning"],
+        "heistExplanation": "The museum map showed a secondary exit that led away from the locked-down exhibition halls."
+      }
+    ]
     },
     {
       "id": "hand_print",
@@ -2319,23 +2188,23 @@
       "scene": ["castle", "dockyard", "auction_house", "havela"],
       "trueExplanation": "Left by a school kid who ate buttered popcorn right before touching the velvet barrier rope.",
       "heistExplanation": "It looks dramatic and ominous in dusting powder, but in a busy public hall it is just evidence of poor hygiene.",
-      "reconstructionUses": [
-        {
-          "questionId": "gain_access",
-          "skills": ["Investigation", "Deduction", "Stealth"],
-          "heistExplanation": "The thief used a recently printed staff hand mark to identify the hidden release panel beside the restricted door."
-        },
-        {
-          "questionId": "remove_artifact",
-          "skills": ["Analysis", "Deduction", "Technical knowledge"],
-          "heistExplanation": "A hand mark on the display frame revealed the exact spot where staff pressed to release the case mechanism."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Deception", "Investigation", "Analysis"],
-          "heistExplanation": "The thief planted a print where it would make security chase an obvious but false suspect trail."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": ["Investigation", "Deduction", "Stealth"],
+        "heistExplanation": "The thief used a recently printed staff hand mark to identify the hidden release panel beside the restricted door."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": ["Analysis", "Deduction", "Technical knowledge"],
+        "heistExplanation": "A hand mark on the display frame revealed the exact spot where staff pressed to release the case mechanism."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Deception", "Investigation", "Analysis"],
+        "heistExplanation": "The thief planted a print where it would make security chase an obvious but false suspect trail."
+      }
+    ]
     },
     {
       "id": "alarm",
@@ -2397,23 +2266,23 @@
       "scene": ["dockyard", "auction_house"],
       "trueExplanation": "Used by the dock workers to open recalcitrant crate lids full of cheap machine parts.",
       "heistExplanation": "If the vault door refuses to cooperate with subtle tools, mechanical leverage gets very loud, very fast.",
-      "reconstructionUses": [
-        {
-          "questionId": "gain_access",
-          "skills": ["Engineering", "Problem-solving", "Tactical planning"],
-          "heistExplanation": "The thief forced open a loading-bay door that was too old and industrial to have a sophisticated alarm."
-        },
-        {
-          "questionId": "remove_artifact",
-          "skills": ["Engineering", "Problem-solving", "Strength"],
-          "heistExplanation": "The crowbar broke open the shipping crate that concealed the artifact before it could be moved to secure storage."
-        },
-        {
-          "questionId": "distract_guards",
-          "skills": ["Tactical planning", "Deception", "Engineering"],
-          "heistExplanation": "The thief created a loud forced-entry scene at one warehouse door while entering the real target through another route."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": ["Engineering", "Problem-solving", "Tactical planning"],
+        "heistExplanation": "The thief forced open a loading-bay door that was too old and industrial to have a sophisticated alarm."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": ["Engineering", "Problem-solving", "Strength"],
+        "heistExplanation": "The crowbar broke open the shipping crate that concealed the artifact before it could be moved to secure storage."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": ["Tactical planning", "Deception", "Engineering"],
+        "heistExplanation": "The thief created a loud forced-entry scene at one warehouse door while entering the real target through another route."
+      }
+    ]
     },
     {
       "id": "dark_hood",
@@ -2423,23 +2292,23 @@
       "scene": ["dockyard"],
       "trueExplanation": "Smells strongly of salt air and wet wool; left on a mooring post by a chilled dockworker.",
       "heistExplanation": "The most useful gear in a busy industrial dockyard is looking like an anonymous silhouette in the rain.",
-      "reconstructionUses": [
-        {
-          "questionId": "avoid_attention",
-          "skills": ["Disguise", "Stealth", "Deception"],
-          "heistExplanation": "The thief blended into the dockyard's rain-soaked night crews as an unremarkable hooded silhouette."
-        },
-        {
-          "questionId": "move_unnoticed",
-          "skills": ["Stealth", "Surveillance", "Tactical planning"],
-          "heistExplanation": "The dark hood let the thief cross between stacked containers without becoming a recognisable shape on distant cameras."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Stealth", "Disguise", "Survival skills"],
-          "heistExplanation": "Once outside the warehouse, the hood helped the thief merge with workers leaving the docks in bad weather."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": ["Disguise", "Stealth", "Deception"],
+        "heistExplanation": "The thief blended into the dockyard's rain-soaked night crews as an unremarkable hooded silhouette."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": ["Stealth", "Surveillance", "Tactical planning"],
+        "heistExplanation": "The dark hood let the thief cross between stacked containers without becoming a recognisable shape on distant cameras."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Stealth", "Disguise", "Survival skills"],
+        "heistExplanation": "Once outside the warehouse, the hood helped the thief merge with workers leaving the docks in bad weather."
+      }
+    ]
     },
     {
       "id": "copper_dust_glove",
@@ -2449,23 +2318,18 @@
       "scene": ["dockyard"],
       "trueExplanation": "Belongs to a welder who spent the morning grinding copper pipes on barge #4.",
       "heistExplanation": "Hands lie when questioned, but metallic residue under a blacklight usually tells the whole truth.",
-      "reconstructionUses": [
-        {
-          "questionId": "hide_theft",
-          "skills": ["Forgery", "Analysis", "Deception"],
-          "heistExplanation": "The thief used copper dust to imitate the residue left by legitimate dock workers, muddying the forensic trail."
-        },
-        {
-          "questionId": "gain_access",
-          "skills": ["Deception", "Investigation", "Stealth"],
-          "heistExplanation": "Wearing a dust-covered work glove helped the thief pass as a welder allowed into the restricted loading area."
-        },
-        {
-          "questionId": "avoid_attention",
-          "skills": ["Deception", "Analysis", "Stealth"],
-          "heistExplanation": "The thief planted the glove residue along a work route so their own movements blended into ordinary industrial activity."
-        }
-      ]
+"reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": ["Forgery", "Analysis", "Deception"],
+        "heistExplanation": "The thief used copper dust to imitate the residue left by legitimate dock workers, muddying the forensic trail."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": ["Deception", "Investigation", "Stealth"],
+        "heistExplanation": "The glove allowed the thief to enter the working industrial zone disguised as part of the daytime maintenance crew."
+      }
+    ]
     },
     {
       "id": "security_tape_fragment",
@@ -2811,7 +2675,7 @@
       "skills": ["Disguise", "Surveillance", "Interrogation"],
       "tags": ["badge", "guard", "old", "identity", "access"],
       "scene": ["dockyard"],
-      "trueExplanation": "Outdated metal badge retired when the dockyard updated to digital keycards in 2018.",
+      "trueExplanation": "Outdated metal badge retired when the dockyard updated to digital keycards in 1988.",
       "heistExplanation": "Expired authority still flashes impressively enough in a dark alleyway to stall a junior patrolman.",
       "reconstructionUses": [
         {

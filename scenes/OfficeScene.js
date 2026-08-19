@@ -38,11 +38,46 @@ export class OfficeScene extends BaseScene {
   }
 
   init(data = {}) {
-    this.gameState = data.gameState ?? gameState;
-    this.fromSave = data.fromSave ?? false;
-    this.saveSlotKey = data.saveSlotKey ?? null;
-    this.startOnboarding = data.startOnboarding ?? false;
+  this.gameState = data.gameState ?? gameState;
+  this.fromSave = data.fromSave ?? false;
+  this.saveSlotKey = data.saveSlotKey ?? null;
+
+  this.isNewGame = data.isNewGame === true;
+
+  this.startOnboarding =
+    data.startOnboarding === true || this.isNewGame;
+
+  if (!this.gameState) {
+    console.error('[OfficeScene] Missing gameState in init().');
+    return;
   }
+
+  if (this.isNewGame) {
+    this.gameState.onboarding = {
+      firstCase: {
+        active: false,
+        step: null,
+        completed: false,
+        skipped: false,
+        walkedToCaseFile: false,
+        caseFileOpened: false,
+        routeOpened: false,
+        travelStarted: false,
+      },
+    };
+
+    console.log(
+      '[OfficeScene] New Game: first-case tutorial state has been reset.',
+      this.gameState.onboarding.firstCase,
+    );
+  }
+
+  console.log('[OfficeScene] init()', {
+    isNewGame: this.isNewGame,
+    startOnboarding: this.startOnboarding,
+    tutorialState: this.gameState.onboarding?.firstCase,
+  });
+}
 
   create() {
     super.create();
@@ -256,35 +291,79 @@ if (this.gameState.currentMission) {
   }
 
   createFirstCaseTutorial() {
-    const shouldStartTutorial = this.startOnboarding
-      && !this.gameState.onboarding?.firstCase?.completed;
+  const tutorialCompleted =
+    this.gameState?.onboarding?.firstCase?.completed === true;
 
-    if (!shouldStartTutorial) {
+  const shouldStartTutorial =
+    this.startOnboarding === true && !tutorialCompleted;
+
+  console.log('[OfficeScene] Tutorial start check:', {
+    isNewGame: this.isNewGame,
+    startOnboarding: this.startOnboarding,
+    tutorialCompleted,
+    shouldStartTutorial,
+    hotspotCount: this.hotspots.length,
+    onboarding: this.gameState?.onboarding,
+  });
+
+  if (!shouldStartTutorial) {
+    console.warn(
+      '[OfficeScene] First-case tutorial was not started.',
+      {
+        startOnboarding: this.startOnboarding,
+        tutorialCompleted,
+      },
+    );
+    return;
+  }
+
+  this.firstCaseTutorial?.destroy();
+
+  this.firstCaseTutorial = new FirstCaseTutorial(
+    this,
+    this.gameState,
+  );
+
+  this.hotspots.forEach((hotspot) => {
+    const hotspotId = hotspot?.hotspotData?.id;
+
+    if (!hotspotId) {
+      console.warn(
+        '[OfficeScene] Tutorial hotspot has no hotspotData.id:',
+        hotspot,
+      );
       return;
     }
 
-    this.firstCaseTutorial = new FirstCaseTutorial(
-      this,
-      this.gameState,
+    this.firstCaseTutorial.registerHotspot(
+      hotspotId,
+      hotspot,
     );
+  });
 
-    this.hotspots.forEach((zone) => {
-      const hotspotId = zone.hotspotData?.id;
+  console.log(
+    '[OfficeScene] Starting first-case tutorial. Registered hotspot IDs:',
+    this.hotspots.map((hotspot) => hotspot?.hotspotData?.id),
+  );
 
-      if (hotspotId) {
-        this.firstCaseTutorial.registerHotspot(hotspotId, zone);
-      }
-    });
-
-    this.firstCaseTutorial.start();
-    this.monologue.say(
-    'Mark Agency. The sort of place that hires you before it tells you what the job is.',
-    {
-        cooldownKey: 'office.firstArrival',
-        cooldownMs: 999999
-    }
-);
+this.time.delayedCall(100, () => {
+  if (!this.sys.isActive()) {
+    console.warn(
+      '[OfficeScene] Tutorial was not started: OfficeScene is inactive.'
+    );
+    return;
   }
+
+  this.firstCaseTutorial?.start();
+
+  console.log('[OfficeScene] Tutorial start executed:', {
+    tutorialActive: this.firstCaseTutorial?.isActive?.(),
+    tutorialStep: this.firstCaseTutorial?.getStep?.(),
+    overlayExists: Boolean(this.firstCaseTutorial?.overlay?.scene),
+    overlayDepth: this.firstCaseTutorial?.overlay?.depth
+  });
+});
+}
 
   notifyTutorialOfficeReached() {
     if (
@@ -517,13 +596,6 @@ if (this.gameState.currentMission) {
         });
 
         zone.on('pointerdown', () => {
-            console.log('[OfficeScene] Hotspot clicked:', {
-                id: data.id,
-                room: data.room,
-                currentView: this.currentView,
-                uiLocked: this.uiLocked,
-                zoneInputEnabled: zone.input?.enabled,
-            });
 
             if (this.uiLocked) {
                 console.warn(
@@ -557,10 +629,6 @@ if (this.gameState.currentMission) {
         this.hotspots.push(zone);
     });
 
-    console.log(
-        '[OfficeScene] Hotspots created:',
-        this.hotspots.map((zone) => zone.hotspotData.id),
-    );
 }
 
   applyLock(locked) {

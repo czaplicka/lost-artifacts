@@ -429,53 +429,59 @@ this.fitDomInterface();
   }
 
   async startGame() {
-    if (this.isStartingGame || !this.validateCurrentStep()) return;
+  if (this.isStartingGame || !this.validateCurrentStep()) return;
 
-    this.isStartingGame = true;
-    this.clearError();
-    this.refresh();
+  this.isStartingGame = true;
+  this.clearError();
+  this.refresh();
 
-    try {
-      const suspectsData = this.cache.json.get('suspects') || [];
-      const missionsData = this.cache.json.get('missions') || [];
-      const locationsData = this.cache.json.get('locations') || [];
+  try {
+    const suspectsData = this.cache.json.get('suspects') || [];
+    const missionsData = this.cache.json.get('missions') || [];
+    const locationsData = this.cache.json.get('locations') || [];
 
-      await setupNewGame(
-        suspectsData,
-        missionsData,
-        locationsData,
-        this.playerData.difficulty,
-      );
+    await setupNewGame(
+      suspectsData,
+      missionsData,
+      locationsData,
+      this.playerData.difficulty
+    );
 
-      const profile = getProfile(this.playerData.profile);
-      const appearance = { ...this.playerData.appearance };
+    const profile = getProfile(this.playerData.profile);
+    const appearance = { ...this.playerData.appearance };
 
-      Object.assign(gameState, {
-        playerName: this.playerData.name.trim(),
-        agentName: this.playerData.name.trim(),
-        playerAlias: this.playerData.alias.trim(),
-        detectiveProfile: this.playerData.profile,
-        profileBonus: profile.bonus,
-        detectiveStats: { ...this.playerData.stats },
-        appearance,
-        appearanceSummary: getAppearanceSummary(appearance),
-        difficulty: this.playerData.difficulty,
-      });
+    Object.assign(gameState, {
+      playerName: this.playerData.name.trim(),
+      agentName: this.playerData.name.trim(),
+      playerAlias: this.playerData.alias.trim(),
+      detectiveProfile: this.playerData.profile,
+      profileBonus: profile.bonus,
+      detectiveStats: { ...this.playerData.stats },
+      appearance,
+      appearanceSummary: getAppearanceSummary(appearance),
+      difficulty: this.playerData.difficulty
+    });
 
-      saveGameState();
+    saveGameState();
 
-      EventBus.emit('character-created', {
-        name: gameState.playerName,
-        profile: gameState.detectiveProfile,
-        difficulty: gameState.difficulty,
-      });
+    EventBus.emit('character-created', {
+      name: gameState.playerName,
+      profile: gameState.detectiveProfile,
+      difficulty: gameState.difficulty
+    });
 
-      audioManager?.play?.('confirm');
-      this.scene.start('OfficeScene', { fromCharacterCreation: true });
-    } catch (error) {
-      console.error('Unable to create detective:', error);
-      this.isStartingGame = false;
-      this.showError('The agency filing cabinet jammed. Please try again.');
-    }
+    audioManager?.play?.('confirm');
+
+    this.scene.start('OfficeScene', {
+      fromCharacterCreation: true,
+      isNewGame: true,
+      startOnboarding: true
+    });
+  } catch (error) {
+    console.error('Unable to create detective:', error);
+
+    this.isStartingGame = false;
+    this.showError('The agency filing cabinet jammed. Please try again.');
   }
+}
 }

@@ -32,7 +32,7 @@
   "backgroundKey": "london_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -76,7 +76,7 @@
   "backgroundKey": "paris_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -99,7 +99,7 @@
     "trainStation": true,
     "background": "new_delhi.jpg",
     "npcTheme": "south_asian",
-    "map": { "x": 1290, "y": 490 },
+    "map": { "x": 1290, "y": 690 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 270, "cityY": 400, "enabled": true },
@@ -166,7 +166,7 @@
   "backgroundKey": "warsaw_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -211,7 +211,7 @@
   "backgroundKey": "new_york_city_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -301,7 +301,7 @@
   "backgroundKey": "toronto_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -346,7 +346,7 @@
   "backgroundKey": "kotto_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -391,7 +391,7 @@
   "backgroundKey": "islamabad_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -436,7 +436,7 @@
   "backgroundKey": "nairobi_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },
@@ -481,7 +481,7 @@
   "backgroundKey": "tokyo_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },

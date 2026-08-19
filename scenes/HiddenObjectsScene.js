@@ -11,6 +11,7 @@ import { HiddenObjectsUI } from '../ui/HiddenObjectsUI.js';
 import { HiddenObjectsResultOverlay } from '../ui/HiddenObjectsResultOverlay.js';
 import { EventBus } from '../EventBus.js';
 
+
 export class HiddenObjectsScene extends BaseScene {
   constructor() {
     super('HiddenObjectsScene');
@@ -57,10 +58,12 @@ export class HiddenObjectsScene extends BaseScene {
     this.overlay = new HiddenObjectsResultOverlay(this);
   }
 
+
   init(data = {}) {
   const mission = this.resolver.resolveIncomingMission(data);
   const resolvedSceneId = this.resolver.resolveSceneId(data, mission);
   const resolvedCityId = this.resolver.resolveCityId(data, mission);
+
 
   this.sceneId = resolvedSceneId;
   this.mapKey = data.mapKey || this.sceneId;
@@ -71,16 +74,20 @@ export class HiddenObjectsScene extends BaseScene {
   this.objectsDataKey = data.objectsDataKey || 'objects-data';
   this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
 
+
   const difficulty = this.registry.get('difficulty') || gameState.difficulty || 'field';
   const difficultyConfig = getDifficultyConfig(difficulty);
   const baseTimeLimit = Number.isFinite(data.timeLimit) ? data.timeLimit : 120;
 
+
   this.activeCount = difficultyConfig.hiddenObjectCount;
   this.timeLeft = Math.round(baseTimeLimit * difficultyConfig.timerMultiplier);
+
 
   this.returnScene = typeof data.returnScene === 'string' && data.returnScene.trim()
     ? data.returnScene.trim()
     : 'CityScene';
+
 
   this.returnData = data.returnData || { cityId: resolvedCityId };
   this.cityId = resolvedCityId;
@@ -90,6 +97,7 @@ export class HiddenObjectsScene extends BaseScene {
   this.sidebarWidth = data.sidebarWidth || 420;
   this.mapWidth = data.mapWidth || 1920;
   this.mapHeight = data.mapHeight || 1080;
+
 
   this.itemsData = [];
   this.itemsById = {};
@@ -103,15 +111,20 @@ export class HiddenObjectsScene extends BaseScene {
   this.isSceneFinished = false;
   this.incorrectClicks = 0;
 
+
   this.scoreManager = getScoreManager();
 
+
   const currentSessionScore = this.scoreManager.getSessionPoints();
+
 
   this.score = Number.isFinite(currentSessionScore)
     ? currentSessionScore
     : 0;
 
+
   this.stateManager.ensureStateStructure();
+
 
   console.log('[HiddenObjectsScene] init', {
     sceneId: this.sceneId,
@@ -122,11 +135,57 @@ export class HiddenObjectsScene extends BaseScene {
   });
 }
 
+
   preload() {
     if (this.backgroundPath && !this.textures.exists(this.backgroundKey)) this.load.image(this.backgroundKey, this.backgroundPath);
     if (this.mapPath && !this.cache.tilemap.exists(this.mapKey)) this.load.tilemapTiledJSON(this.mapKey, this.mapPath);
     if (this.objectsDataPath && !this.cache.json.exists(this.objectsDataKey)) this.load.json(this.objectsDataKey, this.objectsDataPath);
   }
+
+
+  /**
+   * Loads the shared objects.json catalog from the Phaser JSON cache and
+   * builds the lookup structures used throughout the scene:
+   *  - itemsData: raw array of every object definition in the game
+   *  - itemsById: quick lookup by id (used by pickActiveItems, storeCollectedCardId, createHiddenZones)
+   *  - sceneItems: subset of itemsData whose "scene" array includes this.sceneId
+   *
+   * Returns false if the JSON failed to load or is not a valid array so the
+   * caller can trigger handleSceneSetupFailure().
+   */
+  loadObjectsData() {
+    const rawData = this.cache.json.get(this.objectsDataKey);
+
+    if (!Array.isArray(rawData)) {
+      console.error(
+        `[HiddenObjectsScene] Objects data "${this.objectsDataKey}" is missing or not an array.`,
+        rawData
+      );
+      return false;
+    }
+
+    this.itemsData = rawData;
+    this.itemsById = {};
+
+    rawData.forEach(item => {
+      if (item && item.id !== undefined && item.id !== null) {
+        this.itemsById[String(item.id)] = item;
+      }
+    });
+
+    this.sceneItems = rawData.filter(item =>
+      Array.isArray(item.scene) && item.scene.includes(this.sceneId)
+    );
+
+    console.log('[HiddenObjectsScene] loadObjectsData', {
+      sceneId: this.sceneId,
+      totalItems: this.itemsData.length,
+      sceneItemsCount: this.sceneItems.length
+    });
+
+    return true;
+  }
+
 
   create() {
     super.create();
@@ -136,6 +195,7 @@ export class HiddenObjectsScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#0f0f12');
     this.forceResetCursor();
     this.energyManager = getEnergyManager();
+
 
     if (this.stateManager.isQuestAlreadyDone()) {
       this.restoreSourceScene();
@@ -175,11 +235,13 @@ export class HiddenObjectsScene extends BaseScene {
     });
   }
 
+
   getGeneratedCardIds() {
     const ids = gameState.reconstructedHeist?.foundCardIds;
     if (!Array.isArray(ids)) return [];
     return [...new Set(ids.map(id => String(id).trim()).filter(Boolean))];
   }
+
 
   pickActiveItems(legacyCount = 6) {
     const generatedIds = this.getGeneratedCardIds();
@@ -206,6 +268,7 @@ export class HiddenObjectsScene extends BaseScene {
       return true;
     }
 
+
     console.warn('[HiddenObjectsScene] No generated foundCardIds. Using legacy candidate pool.', {
       sceneId: this.sceneId,
       legacyCount
@@ -220,8 +283,10 @@ export class HiddenObjectsScene extends BaseScene {
     return true;
   }
 
+
   syncGeneratedReconstructionData() {
   const reconstruction = gameState.reconstructedHeist;
+
 
   if (!reconstruction || this.getGeneratedCardIds().length === 0) {
     const legacyData = this.resolver.buildReconstructionCardsFromActiveItems(
@@ -229,6 +294,7 @@ export class HiddenObjectsScene extends BaseScene {
       this.cityId,
       this.sceneId
     );
+
 
     /*
      * SuspectGenerator establishes the actual three thief skills.
@@ -241,26 +307,32 @@ export class HiddenObjectsScene extends BaseScene {
       ? [...gameState.hypothesisEvidence.requiredSkills]
       : [];
 
+
     legacyData.hiddenObjectsCompleted = false;
     legacyData.hiddenObjectsCompletedAt = null;
     legacyData.collectedCardIds = [];
+
 
     this.stateManager.saveReconstructionCards(legacyData);
     return;
   }
 
+
   reconstruction.cityId = reconstruction.cityId || this.cityId;
   reconstruction.sceneId = reconstruction.sceneId || this.sceneId;
+
 
   reconstruction.foundCardIds = this.activeItems.map(
     (item) => String(item.id)
   );
+
 
   reconstruction.solutionCardIds = Array.isArray(
     reconstruction.solutionCardIds
   )
     ? reconstruction.solutionCardIds.map((id) => String(id))
     : [];
+
 
   reconstruction.collectedCardIds = Array.isArray(
     reconstruction.collectedCardIds
@@ -269,6 +341,7 @@ export class HiddenObjectsScene extends BaseScene {
       reconstruction.foundCardIds.includes(String(id))
     ))
     : [];
+
 
   /*
    * This is the bridge between SuspectGenerator and HypothesisScene.
@@ -283,8 +356,10 @@ export class HiddenObjectsScene extends BaseScene {
     ? [...gameState.hypothesisEvidence.requiredSkills]
     : [];
 
+
   reconstruction.hiddenObjectsCompleted ??= false;
   reconstruction.hiddenObjectsCompletedAt ??= null;
+
 
   if (!Array.isArray(reconstruction.allCards) || reconstruction.allCards.length === 0) {
     reconstruction.allCards = this.activeItems.map((item) => ({
@@ -295,6 +370,7 @@ export class HiddenObjectsScene extends BaseScene {
       scene: this.sceneId,
       cityId: this.cityId,
 
+
       /*
        * HypothesisScene uses solutionCardIds and correctOrder.
        * Hidden Objects only reveals every card; it does not say which
@@ -304,8 +380,10 @@ export class HiddenObjectsScene extends BaseScene {
         ? item.correctOrder
         : -1,
 
+
       isCorrect: this.missionRelevantItemIds.has(String(item.id)),
       isRedHerring: Boolean(item.isRedHerring),
+
 
       trueExplanation: item.trueExplanation || '',
       heistExplanation: item.heistExplanation || '',
@@ -315,6 +393,7 @@ export class HiddenObjectsScene extends BaseScene {
     }));
   }
 
+
   console.log('[HiddenObjectsScene] Reconstruction data synchronized.', {
     foundCardIds: reconstruction.foundCardIds,
     solutionCardIds: reconstruction.solutionCardIds,
@@ -322,6 +401,7 @@ export class HiddenObjectsScene extends BaseScene {
     collectedCardIds: reconstruction.collectedCardIds
   });
 }
+
 
   getSafeReturnScene() {
     const requestedScene = typeof this.returnScene === 'string' ? this.returnScene.trim() : '';
@@ -333,33 +413,41 @@ export class HiddenObjectsScene extends BaseScene {
     return null;
   }
 
+
 returnToSafeScene(data = {}) {
   const targetScene = this.getSafeReturnScene();
+
 
   if (!targetScene) {
     return false;
   }
 
+
   this.forceResetCursor();
 
+
   this.scene.start(targetScene, data);
+
 
   this.scene.get(targetScene).events.once(
     Phaser.Scenes.Events.CREATE,
     () => {
       this.restoreGameHud();
-      this.restoreNewsHud();
+this.game.events.emit('setHudVisible', true);
     },
   );
 
+
   return true;
 }
+
 
 handleSceneSetupFailure(message) {
   console.error('[HiddenObjectsScene] Setup failed:', message, {
     sceneId: this.sceneId,
     cityId: this.cityId,
   });
+
 
   this.returnToSafeScene({
     ...this.returnData,
@@ -373,10 +461,12 @@ handleSceneSetupFailure(message) {
   });
 }
 
+
   forceResetCursor() {
     this.input.setDefaultCursor('default');
     if (this.sys.game.canvas) this.sys.game.canvas.style.cursor = 'default';
   }
+
 
   pauseSourceScene() {
     if (!this.sourceScene || this.sourceScene === this.scene.key || !this.scene.manager.keys[this.sourceScene]) return;
@@ -384,6 +474,7 @@ handleSceneSetupFailure(message) {
     if (this.scene.isActive(this.sourceScene)) this.scene.sleep(this.sourceScene);
     if (sourceRef?.input) sourceRef.input.enabled = false;
   }
+
 
   restoreSourceScene() {
     this.forceResetCursor();
@@ -400,12 +491,15 @@ handleSceneSetupFailure(message) {
 restoreGameHud() {
   const uiSceneKey = 'UIScene';
 
+
   if (!this.scene.manager.keys[uiSceneKey]) {
     return;
   }
 
+
   const wasSleeping = this.scene.isSleeping(uiSceneKey);
   const wasPaused = this.scene.isPaused(uiSceneKey);
+
 
   if (wasSleeping) {
     this.scene.wake(uiSceneKey);
@@ -415,6 +509,7 @@ restoreGameHud() {
     this.scene.launch(uiSceneKey);
   }
 
+
   const refreshHud = () => {
     EventBus.emit('showHUD');
     EventBus.emit('scoreChanged', {
@@ -422,6 +517,7 @@ restoreGameHud() {
       source: 'hidden-objects-return',
     });
   };
+
 
   if (wasSleeping) {
     this.scene.get(uiSceneKey).events.once(
@@ -437,8 +533,10 @@ restoreGameHud() {
     refreshHud();
   }
 
+
   this.scene.bringToTop(uiSceneKey);
 }
+
 
   computePlayArea() {
     const { width, height } = this.scale;
@@ -451,7 +549,9 @@ restoreGameHud() {
     this.playOffsetY = (this.playAreaHeight - renderedHeight) / 2;
   }
 
+
   normalizeSkills(value) { return this.resolver.normalizeSkills(value); }
+
 
   createBackground() {
     const { height } = this.scale;
@@ -463,6 +563,7 @@ restoreGameHud() {
     }
     this.add.rectangle(this.sidebarWidth, 0, 2, height, 0xd4af37, 0.45).setOrigin(0, 0).setDepth(900);
   }
+
 
   createHiddenZones() {
     let map;
@@ -509,11 +610,13 @@ restoreGameHud() {
     return this.hiddenZones.length;
   }
 
+
   getObjectBounds(obj) {
     if (obj.polygon?.length) return this.getPolylineBounds(obj.x, obj.y, obj.polygon);
     if (obj.polyline?.length) return this.getPolylineBounds(obj.x, obj.y, obj.polyline);
     return { x: obj.x + obj.width / 2, y: obj.y + obj.height / 2, width: obj.width, height: obj.height };
   }
+
 
   getPolylineBounds(originX, originY, points) {
     const xs = points.map(point => point.x);
@@ -521,6 +624,7 @@ restoreGameHud() {
     const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
     return { x: originX + minX + (maxX - minX) / 2, y: originY + minY + (maxY - minY) / 2, width: Math.max(8, maxX - minX), height: Math.max(8, maxY - minY) };
   }
+
 
   handleHiddenObjectClick(zone) {
     if (!zone || zone.getData('found') || this.isSceneFinished) return;
@@ -552,13 +656,16 @@ this.score = this.scoreManager.addHiddenObjectScore(points);
     if (this.foundItems.size >= this.activeItems.length) this.finishScene(true);
   }
 
+
 storeCollectedCardId(id) {
   if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
     return;
   }
 
+
   const reconstruction = gameState.reconstructedHeist;
   const cardId = String(id);
+
 
   reconstruction.collectedCardIds = Array.isArray(
     reconstruction.collectedCardIds
@@ -566,13 +673,17 @@ storeCollectedCardId(id) {
     ? reconstruction.collectedCardIds
     : [];
 
+
   if (!reconstruction.collectedCardIds.includes(cardId)) {
     reconstruction.collectedCardIds.push(cardId);
   }
 
+
   reconstruction.collectedEvidence ??= {};
 
+
   const foundItem = this.itemsById[cardId];
+
 
   reconstruction.collectedEvidence[cardId] = {
     id: cardId,
@@ -582,6 +693,7 @@ storeCollectedCardId(id) {
     clueType: foundItem?.clueType || 'soft_clue'
   };
 }
+
 
   emitClueFound(itemData) {
     this.events.emit('clue-found', {
@@ -594,6 +706,7 @@ storeCollectedCardId(id) {
     });
   }
 
+
   createTimer() {
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -601,8 +714,10 @@ storeCollectedCardId(id) {
       callback: () => {
         if (this.isSceneFinished) return;
 
+
         this.timeLeft -= 1;
         this.ui.updateTimer(this.timeLeft);
+
 
         if (this.timeLeft <= 0) {
           this.finishScene(false);
@@ -612,15 +727,19 @@ storeCollectedCardId(id) {
   }
 
 
+
   finishScene(success) {
   if (this.isSceneFinished) return;
 
+
   this.isSceneFinished = true;
+
 
   if (this.timerEvent) {
     this.timerEvent.remove(false);
     this.timerEvent = null;
   }
+
 
   this.hiddenZones.forEach((zone) => {
     if (zone.input?.enabled) {
@@ -628,7 +747,9 @@ storeCollectedCardId(id) {
     }
   });
 
+
   this.stateManager.markSceneVisited(success);
+
 
   if (success) {
     if (gameState.reconstructedHeist) {
@@ -638,13 +759,16 @@ storeCollectedCardId(id) {
       gameState.reconstructedHeist.sceneId = this.sceneId;
     }
 
+
     gameState.hiddenObjectsProgress ??= {};
+
 
     const caseId =
       gameState.currentCaseId ||
       gameState.currentMission?.id ||
       gameState.currentMission?.caseId ||
       `${this.cityId}_${this.sceneId}`;
+
 
     gameState.hiddenObjectsProgress[caseId] = {
       completed: true,
@@ -658,24 +782,30 @@ storeCollectedCardId(id) {
       ],
     };
 
+
     const timeBonus = this.timeLeft * 2;
     this.score = this.scoreManager.addHiddenObjectScore(timeBonus);
 
+
     saveGameState();
+
 
     this.ui.updateScoreAndMisses(
       this.score,
       this.incorrectClicks,
     );
 
+
     this.ui.showMessage(
       `Crime scene processed. Time bonus +${timeBonus}`,
       '#7CFC00',
     );
 
+
     this.overlay.showSuccessOverlay();
     return;
   }
+
 
   this.playSfx('wrong', { volume: 0.5 });
   this.flashScreen(0xff4d4d, 0.18, 220);
@@ -683,17 +813,21 @@ storeCollectedCardId(id) {
   this.overlay.showFailureOverlay();
 }
 
+
 abandonGame() {
   if (this.isSceneFinished) {
     return;
   }
 
+
   this.isSceneFinished = true;
+
 
   if (this.timerEvent) {
     this.timerEvent.remove(false);
     this.timerEvent = null;
   }
+
 
   this.hiddenZones.forEach((zone) => {
     if (zone.input?.enabled) {
@@ -701,7 +835,9 @@ abandonGame() {
     }
   });
 
+
   this.stateManager.markSceneVisited(false);
+
 
   this.returnToSafeScene({
     ...this.returnData,
@@ -714,9 +850,11 @@ abandonGame() {
   });
 }
 
+
   registerMissDetection() {
     this.input.on('pointerdown', this.handleGlobalPointerDown, this);
   }
+
 
 
   handleGlobalPointerDown(pointer, currentlyOver) {
@@ -728,19 +866,24 @@ abandonGame() {
       return;
     }
 
+
     this.incorrectClicks += 1;
 
+
     this.score = this.scoreManager.addHiddenObjectScore(-3);
+
 
     this.ui.updateScoreAndMisses(
       this.score,
       this.incorrectClicks,
     );
 
+
     this.playSfx('wrong', { volume: 0.38 });
     this.bumpText(this.ui.missesText);
     this.bumpText(this.ui.scoreText);
     this.flashScreen(0xff4d4d, 0.12, 120);
+
 
     this.ui.showMessage(
       'No useful evidence there. (-3)',
@@ -749,9 +892,11 @@ abandonGame() {
   }
 
 
+
   playSfx(key, config = {}) {
     audioManager.playSfx(key, config);
   }
+
 
 
   flashScreen(color = 0xffffff, alpha = 0.1, duration = 120) {
@@ -767,6 +912,7 @@ abandonGame() {
       .setOrigin(0, 0)
       .setDepth(2500);
 
+
     this.tweens.add({
       targets: flash,
       alpha: 0,
@@ -777,13 +923,17 @@ abandonGame() {
   }
 
 
+
   pulseZone(zone, color = 0x7CFC00) {
     if (!zone) return;
+
 
     const scaleX = zone.scaleX || 1;
     const scaleY = zone.scaleY || 1;
 
+
     zone.setStrokeStyle(3, color, 1);
+
 
     this.tweens.add({
       targets: zone,
@@ -796,11 +946,14 @@ abandonGame() {
   }
 
 
+
   bumpText(target) {
     if (!target) return;
 
+
     this.tweens.killTweensOf(target);
     target.setScale(1);
+
 
     this.tweens.add({
       targets: target,
@@ -812,6 +965,7 @@ abandonGame() {
   }
 
 
+
   handleShutdown() {
     if (this.input) {
       this.input.off(
@@ -821,13 +975,16 @@ abandonGame() {
       );
     }
 
+
     if (this.timerEvent) {
       this.timerEvent.remove(false);
       this.timerEvent = null;
     }
 
+
     this.overlay?.destroy();
   }
+
 
 
   getTiledProperty(obj, propertyName) {
@@ -835,12 +992,15 @@ abandonGame() {
       (property) => property.name === propertyName,
     );
 
+
     return prop ? prop.value : null;
   }
 
 
+
   formatTime(seconds) {
     const safeSeconds = Math.max(0, seconds);
+
 
     return `${Math.floor(safeSeconds / 60)}:${String(
       safeSeconds % 60,
