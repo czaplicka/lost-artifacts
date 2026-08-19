@@ -58,23 +58,78 @@ async function fetchCaseSuspects(thief, crimeCityId) {
   for (let attempt = 0; attempt <= SUSPECT_FETCH_RETRIES; attempt += 1) {
     try {
       const response = await fetch(SUSPECT_DATA_URL);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
       const citySuspectsData = await response.json();
       const suspectGenerator = new SuspectGenerator(citySuspectsData);
-      const caseData = suspectGenerator.generateCaseSuspects(thief, crimeCityId);
+
+      const thiefForensics =
+        thief?.restrictedProfile?.forensicAttributes ||
+        thief?.forensicAttributes ||
+        {};
+
+      const requiredProfile = {
+        hair_color:
+          thiefForensics?.hair_color?.value ||
+          thiefForensics?.hair_color ||
+          'black',
+
+        shoe_size_category:
+          thiefForensics?.shoe_size_category?.value ||
+          thiefForensics?.shoe_size_category ||
+          'large'
+      };
+
+      const hardEvidence = [
+        {
+          id: 'lab_hair_sample',
+          field: 'hair_color',
+          value: requiredProfile.hair_color
+        },
+        {
+          id: 'lab_shoe_print',
+          field: 'shoe_size_category',
+          value: requiredProfile.shoe_size_category
+        }
+      ];
+
+      const caseData = suspectGenerator.generateCaseSuspects(
+        thief,
+        crimeCityId,
+        {
+          total: 10,
+          hardEvidence
+        }
+      );
 
       suspectGenerator.prepareCaseState(caseData);
+
+      gameState.currentMission.forensicHardEvidence = structuredClone(
+        hardEvidence
+      );
+
+      gameState.currentMission.requiredForensicProfile = structuredClone(
+        requiredProfile
+      );
+
       return caseData;
     } catch (error) {
       lastError = error;
+
       if (attempt < SUSPECT_FETCH_RETRIES) {
-        await new Promise((resolve) => setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS));
+        await new Promise((resolve) =>
+          setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS)
+        );
       }
     }
   }
 
-  throw new Error(`Failed to load suspects: ${lastError?.message || lastError}`);
+  throw new Error(
+    `Failed to load suspects: ${lastError?.message || lastError}`
+  );
 }
 
 export async function setupNewGame(suspectsData, missionsData, locationsData, difficulty = 'field') {

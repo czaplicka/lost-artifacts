@@ -131,12 +131,12 @@ export class HiddenObjectsScene extends BaseScene {
   create() {
     super.create();
     EventBus.emit('hideHUD');
+    this.game.events.emit('setHudVisible', false);
     audioManager.init(this);
     this.cameras.main.setBackgroundColor('#0f0f12');
     this.forceResetCursor();
     this.energyManager = getEnergyManager();
-    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
-        this.scene.get('NewsHud').events.emit('setTvVisible', false);
+
     if (this.stateManager.isQuestAlreadyDone()) {
       this.restoreSourceScene();
       this.returnToSafeScene({ ...this.returnData, hiddenObjectsAlreadyCompleted: true, sceneId: this.sceneId });

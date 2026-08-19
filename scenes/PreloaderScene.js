@@ -14,7 +14,11 @@ export class PreloaderScene extends BaseScene {
         this.audioArmed = false;
         this.startBtn = null;
     }
+
     preload() {
+        this.load.once('loaderror', (file) => {
+    console.error(`[PreloaderScene] Nie udało się wczytać grafiki gazety: ${file.key} -> ${file.url}`);
+});
         const { width, height } = this.scale;
         const centerX = width / 2;
         const centerY = height * 0.5;
@@ -139,6 +143,14 @@ export class PreloaderScene extends BaseScene {
         this.load.image('stewardessa_a', 'assets/npc/stewardesa_a.png');
         this.load.image('bum_a', 'assets/npc/bum_a.png');
 
+        this.load.image('npc', 'assets/npc_crime_city/npc.png');
+        this.load.image('npc1', 'assets/npc_crime_city/npc1.png');
+        this.load.image('npc2', 'assets/npc_crime_city/npc2.png');
+        this.load.image('npc3', 'assets/npc_crime_city/npc3.png');
+        this.load.image('npc4', 'assets/npc_crime_city/npc4.png');
+        this.load.image('npc5', 'assets/npc_crime_city/npc5.png');
+        this.load.image('npc6', 'assets/npc_crime_city/npc6.png');
+
         this.load.image('btnRookie', 'assets/rookie.png');
         this.load.image('btnOfficer', 'assets/officer.png');
         this.load.image('btnCaptain', 'assets/captain.png');
@@ -210,14 +222,6 @@ export class PreloaderScene extends BaseScene {
         this.load.image('comix2', 'assets/newspapers/comix2.png');
         this.load.image('newsstand_bg', 'assets/local/newsstand.jpg');
         this.load.image('paper_fallback_blank', 'assets/newspapers/paper_daily_bg_1920x1080.png');
-        this.load.image('paper_hq_crimewave_photo', 'assets/newspapers/paper_hq_crimewave_photo.jpg');
-        this.load.image('paper_warsaw_vending_photo', 'assets/newspapers/paper_warsaw_vending_photo.jpg');
-        this.load.image('paper_berlin_statue_photo', 'assets/newspapers/paper_berlin_statue_photo.jpg');
-        this.load.image('paper_london_queue_photo', 'assets/newspapers/paper_london_queue_photo.jpg');
-        this.load.image('paper_new_delhi_tea_photo', 'assets/newspapers/paper_new_delhi_tea_photo.jpg');
-        this.load.image('paper_new_york_subway_photo', 'assets/newspapers/paper_new_york_subway_photo.jpg');
-        this.load.image('paper_paris_cafe_photo', 'assets/newspapers/paper_paris_cafe_photo.jpg');
-        this.load.image('paper_hq_case_briefing_photo', 'assets/newspapers/paper_hq_case_briefing_photo.jpg');
 
         this.load.image(  'tabloid_hq_coffee_machine_photo',  'assets/newspapers/tabloid/hq_coffee_machine_photo.jpg');
         this.load.image(  'tabloid_hq_gold_stapler_photo',  'assets/newspapers/tabloid/hq_gold_stapler_photo.jpg');
@@ -300,6 +304,9 @@ export class PreloaderScene extends BaseScene {
         this.load.image('hair_strand_black', 'assets/csi/hair_strand_black.png');
         this.load.image('hair_strand_red', 'assets/csi/hair_strand_red.png');
         this.load.image('hair_strand_brown', 'assets/csi/hair_strand_brown.png');
+        this.load.image('hair_strand_auburn', 'assets/csi/hair_strand_auburn.png');
+        this.load.image('hair_strand_grey', 'assets/csi/hair_strand_grey.png');
+        this.load.image('hair_strand_white', 'assets/csi/hair_strand_white.png');
        // this.load.image('microscope_base', 'assets/csi/microscope_base.png');
         this.load.image('step1', 'assets/csi/step1.png');
         this.load.image('step2', 'assets/csi/step2.png');
@@ -379,7 +386,7 @@ export class PreloaderScene extends BaseScene {
         this.load.json('dialog_home', 'assets/data/dialogue/home.json')
         this.load.json('dialog_accounting', 'assets/data/dialogue/accounting.json')
         this.load.json('tv-config', 'assets/data/tv-config.json');
-        this.load.json(  'reconstruction_questions',  'assets/data/reconstruction_questions.json');
+        this.load.json('reconstruction_questions',  'assets/data/reconstruction_questions.json');
         this.load.json('monologues', 'assets/data/monologues.json');
     
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
@@ -397,9 +404,7 @@ export class PreloaderScene extends BaseScene {
 
         this.load.html('character-creation-template','ui/character-creation.template',);
 
-
-
-               const tips = [
+        const tips = [
             'A planted clue usually wants to be found too quickly.',
             'Witness confidence is not the same as witness accuracy.',
             'The best liar often tells mostly true things.',
@@ -425,13 +430,13 @@ export class PreloaderScene extends BaseScene {
         const cupOffsetX = 20;
         const cupOffsetY = 10;
 
-this.add.image(cupX + cupOffsetX, cupY + cupOffsetY, 'cup_outline');
+        this.add.image(cupX + cupOffsetX, cupY + cupOffsetY, 'cup_outline');
 
-this.fullCupImage = this.add.image(
-  cupX + cupOffsetX,
-  cupY + cupOffsetY,
-  'cup_coffee',
-);
+        this.fullCupImage = this.add.image(
+            cupX + cupOffsetX,
+            cupY + cupOffsetY,
+            'cup_coffee'
+        );
 
         this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
         this.coffeeMask.fillStyle(0xffffff, 1);
@@ -447,44 +452,45 @@ this.fullCupImage = this.add.image(
             align: 'center'
         }).setOrigin(0.5);
 
-const tipText = this.add.text(
-    centerX,
-    centerY + 450,
-    this.getNextTip(tips),
-    {
-        fontFamily: '"Press Start 2P", monospace',
-        fontSize: '24px',
-        color: '#f4ebd9',
-        align: 'center',
-        wordWrap: { width: width * 0.72 },
-        lineSpacing: 8
-    }
-).setOrigin(0.5);
-const tipY = tipText.y;
-this.tipTimer = this.time.addEvent({
-    delay: 3200,
-    loop: true,
-    callback: () => {
-        this.tweens.add({
-            targets: tipText,
-            alpha: 0,
-            y: tipY - 8,
-            duration: 180,
-            onComplete: () => {
-                tipText.setText(this.getNextTip(tips));
-                tipText.setY(tipY + 8);
+        const tipText = this.add.text(
+            centerX,
+            centerY + 450,
+            this.getNextTip(tips),
+            {
+                fontFamily: '"Press Start 2P", monospace',
+                fontSize: '24px',
+                color: '#f4ebd9',
+                align: 'center',
+                wordWrap: { width: width * 0.72 },
+                lineSpacing: 8
+            }
+        ).setOrigin(0.5);
+        const tipY = tipText.y;
 
+        this.tipTimer = this.time.addEvent({
+            delay: 3200,
+            loop: true,
+            callback: () => {
                 this.tweens.add({
                     targets: tipText,
-                    alpha: 1,
-                    y: tipY,
-                    duration: 220,
-                    ease: 'Quad.out'
+                    alpha: 0,
+                    y: tipY - 8,
+                    duration: 180,
+                    onComplete: () => {
+                        tipText.setText(this.getNextTip(tips));
+                        tipText.setY(tipY + 8);
+
+                        this.tweens.add({
+                            targets: tipText,
+                            alpha: 1,
+                            y: tipY,
+                            duration: 220,
+                            ease: 'Quad.out'
+                        });
+                    }
                 });
             }
         });
-    }
-});
 
         let dots = '';
         this.dotsTimer = this.time.addEvent({
@@ -504,43 +510,147 @@ this.tipTimer = this.time.addEvent({
             titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
         });
 
-        this.load.once('complete', () => {
-            this.fillingLevel = 1;
-            this.updateCoffeeMask(1);
+        const uiRefs = { titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay };
 
-            if (this.tipTimer) {
-                this.tipTimer.remove(false);
-                this.tipTimer = null;
+        // Stage 1 complete: jsony gazet są już w cache.json -> teraz można je bezpiecznie czytać.
+        this.load.once('complete', () => this.onNewspaperJsonsLoaded(uiRefs));
+    }
+
+    onNewspaperJsonsLoaded(uiRefs) {
+    const allItems = this.collectNewspaperItems();
+
+    const uniqueKeys = [
+        ...new Set(
+            allItems
+                .map((item) => item?.imageKey)
+                .filter(Boolean)
+        )
+    ];
+
+    console.log(
+        '[PreloaderScene] Newspaper image keys found:',
+        uniqueKeys
+    );
+
+    let queuedAny = false;
+
+    uniqueKeys.forEach((key) => {
+        if (this.textures.exists(key)) {
+            console.log(`[PreloaderScene] Already loaded: ${key}`);
+            return;
+        }
+
+        const url = `assets/newspapers/newspapers/${key}.jpg`;
+
+        console.log(
+            `[PreloaderScene] Queueing newspaper image: ${key} -> ${url}`
+        );
+
+        this.load.image(key, url);
+        queuedAny = true;
+    });
+
+    if (!queuedAny) {
+        this.finishLoading(uiRefs);
+        return;
+    }
+
+    this.load.once('loaderror', (file) => {
+        console.error(
+            `[PreloaderScene] Failed to load: ${file.key} -> ${file.url}`
+        );
+    });
+
+    this.load.once('complete', () => {
+        console.log(
+            '[PreloaderScene] Newspaper images loaded:',
+            uniqueKeys.map((key) => ({
+                key,
+                loaded: this.textures.exists(key)
+            }))
+        );
+
+        this.finishLoading(uiRefs);
+    });
+
+    this.time.delayedCall(0, () => {
+        this.load.start();
+    });
+}
+
+    // Bezpiecznie zbiera artykuły ze wszystkich typów/miast zdefiniowanych w NEWSPAPER_CONFIG.
+    // Brakujący plik (np. folder 'time' jeszcze nie istnieje) nie wywala gry - po prostu jest pomijany.
+collectNewspaperItems() {
+    const allItems = [];
+
+    for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
+        for (const cityId of config.cities) {
+            const cacheKey = `newspaper_${type}_${cityId}`;
+            const data = this.cache.json.get(cacheKey);
+
+            if (!data) {
+                console.warn(
+                    `[PreloaderScene] Missing newspaper JSON: ${cacheKey}`
+                );
+                continue;
             }
 
-            if (this.dotsTimer) {
-                this.dotsTimer.remove(false);
-                this.dotsTimer = null;
+            // missionLead w Twoich JSON-ach jest tablicą wariantów.
+            if (Array.isArray(data.missionLead)) {
+                allItems.push(...data.missionLead);
+            } else if (data.missionLead) {
+                // Zabezpieczenie, gdy kiedyś zrobisz pojedynczy lead jako obiekt.
+                allItems.push(data.missionLead);
             }
 
-            this.tweens.add({
-                targets: [titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay],
-                alpha: 0,
-                duration: 650,
-                ease: 'Quad.out',
-                onComplete: () => {
-                    titleText.destroy();
-                    tipText.destroy();
-                    shadow.destroy();
-                    vignetteTop.destroy();
-                    vignetteBottom.destroy();
-                    scanlineOverlay.destroy();
-                    this.loadingReady = true;
-                    this.tryShowStartButton();
-                }
-            });
+            // articles także jest tablicą.
+            if (Array.isArray(data.articles)) {
+                allItems.push(...data.articles);
+            }
+        }
+    }
+
+    return allItems;
+}
+
+    finishLoading(uiRefs) {
+        const { titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay } = uiRefs;
+
+        this.fillingLevel = 1;
+        this.updateCoffeeMask(1);
+
+        if (this.tipTimer) {
+            this.tipTimer.remove(false);
+            this.tipTimer = null;
+        }
+
+        if (this.dotsTimer) {
+            this.dotsTimer.remove(false);
+            this.dotsTimer = null;
+        }
+
+        this.tweens.add({
+            targets: [titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay],
+            alpha: 0,
+            duration: 650,
+            ease: 'Quad.out',
+            onComplete: () => {
+                titleText.destroy();
+                tipText.destroy();
+                shadow.destroy();
+                vignetteTop.destroy();
+                vignetteBottom.destroy();
+                scanlineOverlay.destroy();
+                this.loadingReady = true;
+                this.tryShowStartButton();
+            }
         });
     }
 
     create() {
         super.create();
         audioManager.init(this);
-EventBus.emit('hideHUD');
+        EventBus.emit('hideHUD');
 
         const bootAudio = () => {
             if (this.audioArmed) return;
@@ -557,7 +667,7 @@ EventBus.emit('hideHUD');
     }
 
     tryShowStartButton() {
-if (!this.loadingReady || this.startBtn) return;
+        if (!this.loadingReady || this.startBtn) return;
 
         const { width, height } = this.scale;
         this.startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
@@ -613,16 +723,18 @@ if (!this.loadingReady || this.startBtn) return;
             visibleHeight
         );
     }
-preloadNewspapers() {
-  for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
-    for (const cityId of config.cities) {
-      this.load.json(
-        `newspaper_${type}_${cityId}`,
-        `assets/data/newspapers/${type}/${cityId}.json`
-      );
+
+    preloadNewspapers() {
+        for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
+            for (const cityId of config.cities) {
+                this.load.json(
+                    `newspaper_${type}_${cityId}`,
+                    `assets/data/newspapers/${type}/${cityId}.json`
+                );
+            }
+        }
     }
-  }
-}
+
     createCoffeeTextures() {
         if (this.textures.exists('cup_coffee') && this.textures.exists('cup_outline')) return;
 

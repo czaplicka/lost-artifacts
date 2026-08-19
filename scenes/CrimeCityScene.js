@@ -3,6 +3,7 @@ import { gameState } from '../GameData.js';
 import { getEnergyManager } from '../EnergyManager.js';
 import { audioManager } from '../AudioManager.js';
 import { ReconstructionGenerator } from '../ReconstructionGenerator.js';
+import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
 
 const ENERGY_BASE_COSTS = {
   travel: {
@@ -15,27 +16,39 @@ const ENERGY_BASE_COSTS = {
 };
 
 export class CrimeCityScene extends BaseScene {
-  constructor() {
-    super({ key: 'CrimeCityScene' });
+constructor() {
+  super({ key: 'CrimeCityScene' });
 
-    this.cityId = null;
-    this.cityData = null;
-    this.crimeCityConfig = null;
-    this.interactiveObjects = [];
-    this.cityAmbient = null;
-  }
+  this.cityId = null;
+  this.cityData = null;
+  this.crimeCityConfig = null;
+  this.interactiveObjects = [];
+  this.cityAmbient = null;
 
-  init(data = {}) {
-    const requestedCity =
-      data.cityId ||
-      gameState.crimeCityId ||
-      gameState.currentMission?.city ||
-      'paris';
+  this.showLabCompletionPhoneCall = false;
+  this.phoneCallTimer = null;
+}
 
-    this.cityId = this.normalizeCityId(requestedCity);
-    this.interactiveObjects = [];
-    this.cityAmbient = null;
-  }
+init(data = {}) {
+  const requestedCity =
+    data.cityId ||
+    gameState.crimeCityId ||
+    gameState.currentMission?.city ||
+    'paris';
+
+  this.cityId = this.normalizeCityId(requestedCity);
+  this.interactiveObjects = [];
+  this.cityAmbient = null;
+
+  // True tylko przy powrocie z ukończonego Crime Lab.
+  this.showLabCompletionPhoneCall = Boolean(
+    data.showLabCompletionPhoneCall &&
+    data.crimeLabCompleted
+  );
+
+  this.phoneCallTimer?.remove(false);
+  this.phoneCallTimer = null;
+}
 
   normalizeCityId(value) {
     if (!value) {
@@ -62,93 +75,203 @@ export class CrimeCityScene extends BaseScene {
   create() {
     super.create();
 
-    this.scene.get('NewsHud')?.events.emit('setNewspaperVisible', true);
-    this.scene.get('NewsHud')?.events.emit('setTvVisible', false);
+    console.log('[CrimeCityScene] create started');
 
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.onShutdown,
-      this
-    );
-if (this.scene.isActive('UIScene')) {
-  this.scene.bringToTop('UIScene');
-} else if (this.scene.isSleeping('UIScene')) {
-  this.scene.wake('UIScene');
-  this.scene.bringToTop('UIScene');
-} else {
-  this.scene.launch('UIScene');
-  this.scene.bringToTop('UIScene');
-}
-    const locations = this.cache.json.get('locations');
-
-    this.cityData = Array.isArray(locations)
-      ? locations.find(
-          (location) =>
-            location?.id === this.cityId ||
-            this.normalizeCityId(location?.city) === this.cityId
-        )
-      : null;
-
-    if (!this.cityData?.crimeCity) {
-      console.error('[CrimeCityScene] Missing city or crimeCity configuration.', {
-        cityId: this.cityId,
-        cityData: this.cityData,
-        locations
-      });
-
-      this.scene.start('MenuScene');
+    // SAFE CHECK: Czy to jest prawidłowa scena z sys property?
+    if (!this?.scene?.manager?.keys) {
+      console.error('[CrimeCityScene] Scene manager is not accessible!');
       return;
     }
 
-    this.crimeCityConfig = this.cityData.crimeCity;
-
-    gameState.currentCityId = this.cityId;
-    gameState.currentCity = this.cityData.city;
-    gameState.currentCountry = this.cityData.country;
-
-    if (
-      !gameState.crimeCityCurrentNodes ||
-      typeof gameState.crimeCityCurrentNodes !== 'object'
-    ) {
-      gameState.crimeCityCurrentNodes = {};
-    }
-
-    const caseKey = this.getCaseKey();
-
-    if (!gameState.crimeCityCurrentNodes[caseKey]) {
-      gameState.crimeCityCurrentNodes[caseKey] = 'arrival';
-    }
-
-    audioManager.init(this);
-
-    if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', { loop: true });
-    }
-
-    this.cityAmbient = audioManager.playAmbient('citysound', {
-      volume: 0.22,
-      loop: true
+    console.log('[CrimeCityScene] Scene keys:', {
+      CrimeCityScene: this.scene.manager.keys.CrimeCityScene?.sys?.isActive?.() || 'undefined/inactive',
+      CrimeLabScene: this.scene.manager.keys.CrimeLabScene?.sys?.isActive?.() || 'undefined/inactive',
+      UIScene: this.scene.manager.keys.UIScene?.sys?.isActive?.() || 'undefined/inactive',
+      NewsHud: this.scene.manager.keys.NewsHud?.sys?.isActive?.() || 'undefined/inactive',
+      PlayerHudScene: this.scene.manager.keys.PlayerHudScene?.sys?.isActive?.() || 'undefined/inactive'
     });
 
-    this.createBackground();
-    this.createHeader();
+    this.cameras.main.resetFX();
+    this.cameras.main.setAlpha(1);
+    this.cameras.main.fadeIn(300, 0, 0, 0);
 
-    if (this.isCrimeSceneCompleted()) {
-      this.createSuspectsIcon();
+    // Setup shutdown handler
+    this.boundShutdown = this.onShutdown.bind(this);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundShutdown
+    );
+
+    // === NewsHud setup (safe) ===
+    try {
+      const newsHud = this.scene.manager.keys.NewsHud;
+      
+      if (newsHud && newsHud.sys && newsHud.sys.isActive?.()) {
+        if (newsHud.events) {
+          newsHud.events.emit('setNewspaperVisible', true);
+          newsHud.events.emit('setTvVisible', false);
+        }
+      } else {
+        console.warn('[CrimeCityScene] NewsHud unavailable or not active.');
+      }
+    } catch (err) {
+      console.warn('[CrimeCityScene] NewsHud setup failed:', err.message);
     }
 
-    this.createCrimeSceneIcon();
-    this.createHotelIcon();
-    this.createLabIcon();
-    this.createNpcSpots();
+    // === UIScene setup (safe) ===
+    try {
+      const uiScene = this.scene.manager.keys.UIScene;
 
-    this.scene.wake('UIScene');
+      if (uiScene && uiScene.sys) {
+        if (this.scene.isActive('UIScene')) {
+          this.scene.bringToTop('UIScene');
+        } else if (this.scene.isSleeping('UIScene')) {
+          this.scene.wake('UIScene');
+          this.scene.bringToTop('UIScene');
+        } else if (!this.scene.isActive('UIScene')) {
+          this.scene.launch('UIScene');
+          this.scene.bringToTop('UIScene');
+        }
+      } else {
+        console.warn('[CrimeCityScene] UIScene unavailable.');
+      }
+    } catch (err) {
+      console.warn('[CrimeCityScene] UIScene setup failed:', err.message);
+    }
 
-    const hud = this.scene.get('PlayerHudScene');
-    hud?.closeAllUIPanels?.();
-    hud?.refreshNotebook?.();
+    // === Main scene initialization ===
+    try {
+      const locations = this.cache.json.get('locations');
+
+      this.cityData = Array.isArray(locations)
+        ? locations.find(
+            (location) =>
+              location?.id === this.cityId ||
+              this.normalizeCityId(location?.city) === this.cityId
+          )
+        : null;
+
+      if (!this.cityData?.crimeCity) {
+        console.error('[CrimeCityScene] Missing city or crimeCity configuration.', {
+          cityId: this.cityId,
+          cityData: this.cityData,
+          locations
+        });
+        return;
+      }
+
+      this.crimeCityConfig = this.cityData.crimeCity;
+
+      gameState.currentCityId = this.cityId;
+      gameState.currentCity = this.cityData.city;
+      gameState.currentCountry = this.cityData.country;
+
+      if (
+        !gameState.crimeCityCurrentNodes ||
+        typeof gameState.crimeCityCurrentNodes !== 'object'
+      ) {
+        gameState.crimeCityCurrentNodes = {};
+      }
+
+      const caseKey = this.getCaseKey();
+
+      if (!gameState.crimeCityCurrentNodes[caseKey]) {
+        gameState.crimeCityCurrentNodes[caseKey] = 'arrival';
+      }
+
+      audioManager.init(this);
+
+      if (!audioManager.isMusicPlaying('themeGame')) {
+        audioManager.playMusic('themeGame', { loop: true });
+      }
+
+      this.cityAmbient = audioManager.playAmbient('citysound', {
+        volume: 0.22,
+        loop: true
+      });
+
+      this.createBackground();
+      this.createHeader();
+
+const crimeSceneCompleted = this.isCrimeSceneCompleted();
+const crimeLabCompleted = this.isCrimeLabCompleted();
+
+if (crimeSceneCompleted) {
+  this.createSuspectsIcon();
+}
+
+// Crime Scene jest dostępne wyłącznie przed ukończeniem dochodzenia na miejscu.
+if (!crimeSceneCompleted) {
+  this.createCrimeSceneIcon();
+}
+
+// Crime Lab pojawia się po zbadaniu miejsca zbrodni,
+// ale znika po zakończeniu analiz.
+if (crimeSceneCompleted && !crimeLabCompleted) {
+  this.createLabIcon();
+}
+
+this.createHotelIcon();
+
+if (crimeLabCompleted) {
+  ensureAlibiEncounters(this.getCaseKey());
+}
+
+      this.createNpcSpots();
+
+      this.scene.wake('UIScene');
+
+      const playerHud = this.scene.manager.keys.PlayerHudScene;
+
+      if (playerHud && playerHud.sys) {
+        playerHud.closeAllUIPanels?.();
+        playerHud.refreshNotebook?.();
+      }
+      this.scheduleLabCompletionPhoneCall();
+    } catch (err) {
+      console.error('[CrimeCityScene] Main initialization failed:', err);
+    }
+  }
+scheduleLabCompletionPhoneCall() {
+  if (!this.showLabCompletionPhoneCall) {
+    return;
   }
 
+  if (!this.isCrimeLabCompleted()) {
+    console.warn(
+      '[CrimeCityScene] Phone call skipped: Crime Lab is not marked complete.'
+    );
+    return;
+  }
+
+  if (!this.scene.manager.keys.PhoneCallScene) {
+    console.error(
+      '[CrimeCityScene] PhoneCallScene is not registered in the scene manager.'
+    );
+    return;
+  }
+
+  this.showLabCompletionPhoneCall = false;
+
+  this.phoneCallTimer = this.time.delayedCall(650, () => {
+    this.phoneCallTimer = null;
+
+    if (!this.scene.isActive('CrimeCityScene')) {
+      return;
+    }
+
+    if (this.scene.isActive('PhoneCallScene')) {
+      return;
+    }
+
+    this.closeAllUIPanels();
+
+    this.scene.launch('PhoneCallScene', {
+      sourceScene: 'CrimeCityScene',
+      cityId: this.cityId
+    });
+  });
+}
   createBackground() {
     const configuredKey =
       this.crimeCityConfig.backgroundKey || `${this.cityId}_crime`;
@@ -305,38 +428,28 @@ if (this.scene.isActive('UIScene')) {
   }
 
   createCrimeSceneIcon() {
-    const position = this.crimeCityConfig.crimeScene;
+  const position = this.crimeCityConfig.crimeScene;
 
-    if (!position) {
-      console.warn('[CrimeCityScene] Missing crimeScene position.', {
-        cityId: this.cityId,
-        crimeCityConfig: this.crimeCityConfig
-      });
-      return;
-    }
-
-    if (this.isCrimeSceneCompleted()) {
-      this.createCompletedMarker(
-        position.x,
-        position.y,
-        'Crime Scene',
-        'Investigated'
-      );
-      return;
-    }
-
-    this.createMapIcon({
-      x: position.x,
-      y: position.y,
-      textureKey: 'search',
-      fallbackColor: 0xd4af37,
-      fallbackStroke: 0xfff1a8,
-      label: 'Crime Scene',
-      iconScale: 0.22,
-      hoverScale: 0.25,
-      onClick: () => this.openCrimeScene()
+  if (!position) {
+    console.warn('[CrimeCityScene] Missing crimeScene position.', {
+      cityId: this.cityId,
+      crimeCityConfig: this.crimeCityConfig
     });
+    return;
   }
+
+  this.createMapIcon({
+    x: position.x,
+    y: position.y,
+    textureKey: 'search',
+    fallbackColor: 0xd4af37,
+    fallbackStroke: 0xfff1a8,
+    label: 'Crime Scene',
+    iconScale: 0.22,
+    hoverScale: 0.25,
+    onClick: () => this.openCrimeScene()
+  });
+}
 
   openCrimeScene() {
     const mission = gameState.currentMission;
@@ -432,56 +545,44 @@ if (this.scene.isActive('UIScene')) {
   }
 
   createLabIcon() {
-    const position = this.crimeCityConfig.crimeLab;
+  const position = this.crimeCityConfig.crimeLab;
 
-    if (!position || !this.isCrimeSceneCompleted()) {
-      return;
-    }
-
-    const completed = this.isCrimeLabCompleted();
-
-    this.createMapIcon({
-      x: position.x,
-      y: position.y,
-      textureKey: 'crime_lab',
-      fallbackColor: 0x1565c0,
-      fallbackStroke: 0x7fc8f8,
-      label: completed ? 'Crime Lab — Analyzed' : 'Crime Lab',
-      completed,
-      iconScale: 0.35,
-      hoverScale: 0.39,
-      onClick: () => {
-        if (completed) {
-          this.showMessage(
-            'The lab report is complete.\nThe microscopes demand a coffee break.',
-            2400,
-            '#37474f'
-          );
-          return;
-        }
-
-        if (!this.moveToCrimeCityNode('crime_lab')) {
-          return;
-        }
-
-        if (!this.trySpendEnergy('activity', 'csi_lab')) {
-          return;
-        }
-
-        this.closeAllUIPanels();
-
-        this.transitionTo('CrimeLabScene', {
-          cityId: this.cityId,
-          caseKey: this.getCaseKey(),
-          returnScene: 'CrimeCityScene',
-          returnData: {
-            cityId: this.cityId
-          },
-          sourceScene: 'CrimeCityScene'
-        });
-      }
-    });
+  if (!position || !this.isCrimeSceneCompleted()) {
+    return;
   }
+
+  this.createMapIcon({
+    x: position.x,
+    y: position.y,
+    textureKey: 'crime_lab',
+    fallbackColor: 0x1565c0,
+    fallbackStroke: 0x7fc8f8,
+    label: 'Crime Lab',
+    iconScale: 0.35,
+    hoverScale: 0.39,
+    onClick: () => {
+      if (!this.moveToCrimeCityNode('crime_lab')) {
+        return;
+      }
+
+      if (!this.trySpendEnergy('activity', 'csi_lab')) {
+        return;
+      }
+
+      this.closeAllUIPanels();
+
+      this.transitionTo('CrimeLabScene', {
+        cityId: this.cityId,
+        caseKey: this.getCaseKey(),
+        returnScene: 'CrimeCityScene',
+        returnData: {
+          cityId: this.cityId
+        },
+        sourceScene: 'CrimeCityScene'
+      });
+    }
+  });
+}
 
   createNpcSpots() {
     if (!this.isCrimeLabCompleted()) {
@@ -1142,10 +1243,21 @@ if (this.scene.isActive('UIScene')) {
   }
 
   closeAllUIPanels() {
-    this.scene.get('PlayerHudScene')?.closeAllUIPanels?.();
+    try {
+      const playerHud = this.scene.manager.keys.PlayerHudScene;
+
+      if (playerHud && playerHud.sys) {
+        playerHud.closeAllUIPanels?.();
+      }
+    } catch (err) {
+      console.warn('[CrimeCityScene] closeAllUIPanels failed:', err.message);
+    }
   }
 
   onShutdown() {
+    this.phoneCallTimer?.remove(false);
+this.phoneCallTimer = null;
+this.showLabCompletionPhoneCall = false;
     this.interactiveObjects.forEach((object) => {
       object?.removeAllListeners?.();
     });

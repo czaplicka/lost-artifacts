@@ -19,6 +19,12 @@ export class SuspectsScene extends BaseScene {
     this.filterMode = 'all';
     this.currentPage = 0;
 
+    this.excludeMode = false;
+    this.exclusionFinished = false;
+    this.exclusionButton = null;
+    this.continueButton = null;
+    this.modeHintText = null;
+
     this.headerText = null;
     this.summaryText = null;
     this.filterButtons = [];
@@ -60,10 +66,24 @@ export class SuspectsScene extends BaseScene {
 
     this.filterMode = 'all';
     this.currentPage = 0;
+
+    this.gameState.suspectExclusionState ??= {};
+    this.gameState.suspectExclusionState[this.getCaseKey()] ??= {
+      finished: false
+    };
+
+    this.exclusionFinished = Boolean(
+      this.gameState.suspectExclusionState[this.getCaseKey()].finished
+    );
+
+    this.excludeMode = false;
   }
 
   create() {
     super.create();
+        this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+        this.scene.get('NewsHud').events.emit('setTvVisible', false);
+        this.scene.sleep('PlayerHudScene');
 
     this.cameras.main.setBackgroundColor('#16110d');
 
@@ -72,6 +92,7 @@ export class SuspectsScene extends BaseScene {
     this.createFilters();
     this.createContentContainers();
     this.createNavigation();
+    this.createExclusionControls();
 
     this.refreshBoard();
 
@@ -85,6 +106,16 @@ export class SuspectsScene extends BaseScene {
       Phaser.Scenes.Events.SHUTDOWN,
       this.cleanupScene,
       this
+    );
+  }
+
+  getCaseKey() {
+    const mission = this.gameState.currentMission || {};
+
+    return String(
+      mission.id ||
+      mission.caseId ||
+      `${this.cityId}_${mission.artifact || 'default'}`
     );
   }
 
@@ -116,7 +147,7 @@ export class SuspectsScene extends BaseScene {
     const { width } = this.scale;
 
     this.headerText = this.add
-      .text(width / 2, 24, 'SUSPECT FILES', {
+      .text(width / 2, 18, 'SUSPECT FILES', {
         fontFamily: 'Special Elite',
         fontSize: '34px',
         color: '#f5e7c6',
@@ -126,11 +157,25 @@ export class SuspectsScene extends BaseScene {
       .setDepth(10);
 
     this.summaryText = this.add
-      .text(width / 2, 70, '', {
+      .text(width / 2, 60, '', {
         fontFamily: 'PressStart2P',
-        fontSize: '10px',
+        fontSize: '9px',
         color: '#d9c998',
         align: 'center'
+      })
+      .setOrigin(0.5, 0)
+      .setDepth(10);
+
+    this.modeHintText = this.add
+      .text(width / 2, 88, '', {
+        fontFamily: 'Special Elite',
+        fontSize: '17px',
+        color: '#ffdc73',
+        align: 'center',
+        wordWrap: {
+          width: width - 40,
+          useAdvancedWrap: true
+        }
       })
       .setOrigin(0.5, 0)
       .setDepth(10);
@@ -252,6 +297,7 @@ export class SuspectsScene extends BaseScene {
       Math.max(106, (width - 48 - gap * 2) / 3)
     );
     const buttonHeight = 40;
+
     const totalWidth =
       filters.length * buttonWidth +
       (filters.length - 1) * gap;
@@ -267,6 +313,8 @@ export class SuspectsScene extends BaseScene {
         height: buttonHeight,
         label: filter.label,
         onClick: () => {
+          if (this.excludeMode) return;
+
           this.filterMode = filter.id;
           this.currentPage = 0;
           this.refreshBoard();
@@ -360,10 +408,129 @@ export class SuspectsScene extends BaseScene {
       hoverFill: 0x6b3328,
       normalColor: '#f6e7bf',
       hoverColor: '#ffffff',
-      onClick: () => {
-        this.closeScene();
-      }
+      onClick: () => this.closeScene()
     });
+  }
+
+  createExclusionControls() {
+    const { width, height } = this.scale;
+
+    this.exclusionButton = this.createUiButton({
+      x: width / 2 - 145,
+      y: height - 28,
+      width: 235,
+      height: 38,
+      label: '[ EXCLUDE MODE ]',
+      fontSize: '9px',
+      depth: 30,
+      normalFill: 0x3d261c,
+      hoverFill: 0x6a3928,
+      normalColor: '#ffd09b',
+      hoverColor: '#ffffff',
+      activeFill: 0xa7352c,
+      activeColor: '#fff2dd',
+      onClick: () => this.toggleExcludeMode()
+    });
+
+    this.continueButton = this.createUiButton({
+      x: width / 2 + 145,
+      y: height - 28,
+      width: 250,
+      height: 38,
+      label: '[ EVIDENCE GRID ]',
+      fontSize: '9px',
+      depth: 30,
+      normalFill: 0x25422a,
+      hoverFill: 0x35633c,
+      normalColor: '#d3ffd1',
+      hoverColor: '#ffffff',
+      onClick: () => this.openEvidenceGrid()
+    });
+
+    this.updateExclusionControls();
+  }
+
+  toggleExcludeMode() {
+    if (this.exclusionFinished) return;
+
+    this.excludeMode = !this.excludeMode;
+
+    if (this.excludeMode) {
+      this.filterMode = 'all';
+      this.currentPage = 0;
+    }
+
+    this.updateExclusionControls();
+    this.refreshBoard();
+  }
+
+  finishExcluding() {
+    this.excludeMode = false;
+    this.exclusionFinished = true;
+
+    this.gameState.suspectExclusionState ??= {};
+    this.gameState.suspectExclusionState[this.getCaseKey()] = {
+      finished: true,
+      finishedAt: Date.now()
+    };
+
+    saveGameState();
+
+    this.updateExclusionControls();
+    this.refreshBoard();
+  }
+
+  updateExclusionControls() {
+    if (!this.exclusionButton || !this.continueButton) return;
+
+    if (this.exclusionFinished) {
+      this.exclusionButton.setVisible(false);
+      this.continueButton.setVisible(true);
+      this.modeHintText?.setText(
+        'Preliminary exclusions saved. Continue with the remaining files.'
+      );
+      return;
+    }
+
+    this.continueButton.setVisible(false);
+    this.exclusionButton.setVisible(true);
+
+    if (this.excludeMode) {
+      this.exclusionButton.buttonText.setText('[ FINISH EXCLUDING ]');
+      this.exclusionButton.isActive = true;
+      this.exclusionButton.applyStyle?.();
+
+      this.exclusionButton.buttonBackground.removeAllListeners(
+        'pointerdown'
+      );
+
+      this.exclusionButton.buttonBackground.on(
+        'pointerdown',
+        () => this.finishExcluding()
+      );
+
+      this.modeHintText?.setText(
+        'EXCLUDE MODE: Click suspect files to clear or restore them.'
+      );
+      return;
+    }
+
+    this.exclusionButton.buttonText.setText('[ EXCLUDE MODE ]');
+    this.exclusionButton.isActive = false;
+    this.exclusionButton.applyStyle?.();
+
+    this.exclusionButton.buttonBackground.removeAllListeners(
+      'pointerdown'
+    );
+
+    this.exclusionButton.buttonBackground.on(
+      'pointerdown',
+      () => this.toggleExcludeMode()
+    );
+
+    this.modeHintText?.setText(
+      'Review the lab evidence, then enter Exclude Mode to clear files.'
+    );
   }
 
   getAllSuspects() {
@@ -480,6 +647,8 @@ export class SuspectsScene extends BaseScene {
     this.filterButtons.forEach((button) => {
       button.isActive = button.filterId === this.filterMode;
       button.applyStyle?.();
+
+      this.setButtonEnabled(button, !this.excludeMode);
     });
   }
 
@@ -574,19 +743,27 @@ export class SuspectsScene extends BaseScene {
 
     const backgroundColor = isEliminated
       ? 0x2c211e
-      : isSelected
-        ? 0x4a3520
-        : 0x2a2018;
+      : this.excludeMode
+        ? 0x38251d
+        : isSelected
+          ? 0x4a3520
+          : 0x2a2018;
 
     const borderColor = isEliminated
       ? 0x8e3d34
-      : isSelected
-        ? 0xd4af37
-        : 0x766044;
+      : this.excludeMode
+        ? 0xffb347
+        : isSelected
+          ? 0xd4af37
+          : 0x766044;
 
     const bg = this.add
       .rectangle(0, 0, width, height, backgroundColor, 1)
-      .setStrokeStyle(isSelected ? 3 : 2, borderColor, 0.95)
+      .setStrokeStyle(
+        this.excludeMode || isSelected ? 3 : 2,
+        borderColor,
+        0.95
+      )
       .setInteractive({
         useHandCursor: true
       });
@@ -682,6 +859,26 @@ export class SuspectsScene extends BaseScene {
       statusText
     ]);
 
+    if (this.excludeMode) {
+      const modeText = this.add
+        .text(
+          0,
+          height / 2 - 44,
+          isEliminated
+            ? '[ CLICK TO RESTORE ]'
+            : '[ CLICK TO EXCLUDE ]',
+          {
+            fontFamily: 'PressStart2P',
+            fontSize: '8px',
+            color: isEliminated ? '#ffb5aa' : '#ffdc73',
+            align: 'center'
+          }
+        )
+        .setOrigin(0.5);
+
+      card.add(modeText);
+    }
+
     if (isEliminated) {
       const strike = this.add
         .line(
@@ -712,22 +909,37 @@ export class SuspectsScene extends BaseScene {
     }
 
     bg.on('pointerover', () => {
-      if (isEliminated || isSelected) return;
+      if (isEliminated && !this.excludeMode) return;
+      if (isSelected && !this.excludeMode) return;
 
-      bg.setFillStyle(0x514027, 1);
-      bg.setStrokeStyle(2, 0xd4af37, 1);
+      bg.setFillStyle(
+        this.excludeMode ? 0x5b3224 : 0x514027,
+        1
+      );
+
+      bg.setStrokeStyle(
+        3,
+        this.excludeMode ? 0xffdc73 : 0xd4af37,
+        1
+      );
     });
 
     bg.on('pointerout', () => {
       bg.setFillStyle(backgroundColor, 1);
+
       bg.setStrokeStyle(
-        isSelected ? 3 : 2,
+        this.excludeMode || isSelected ? 3 : 2,
         borderColor,
         0.95
       );
     });
 
     bg.on('pointerdown', () => {
+      if (this.excludeMode) {
+        this.toggleSuspectExclusion(suspect.id);
+        return;
+      }
+
       this.selectedSuspectId = suspect.id;
       this.gameState.selectedSuspectId = suspect.id;
 
@@ -742,6 +954,68 @@ export class SuspectsScene extends BaseScene {
     });
 
     return card;
+  }
+
+  toggleSuspectExclusion(suspectId) {
+    const suspect = this.gameState.suspects?.find(
+      (item) => item.id === suspectId
+    );
+
+    if (!suspect) return;
+
+    suspect.deductionState ??= {};
+    suspect.deductionState.eliminated =
+      !suspect.deductionState.eliminated;
+
+    if (suspect.deductionState.eliminated) {
+      suspect.deductionState.eliminationReasons = [
+        {
+          label: 'Preliminary exclusion',
+          note: 'Removed during initial forensic review.'
+        }
+      ];
+
+      suspect.deductionState.labStatus = 'eliminated';
+    } else {
+      suspect.deductionState.eliminationReasons = [];
+      suspect.deductionState.labStatus = 'pending';
+    }
+
+    saveGameState();
+    this.refreshBoard();
+  }
+
+  openEvidenceGrid() {
+    const remainingSuspects = this.getAllSuspects().filter(
+      (suspect) => !suspect.deductionState?.eliminated
+    );
+
+    this.gameState.suspectGridInput = {
+      cityId: this.cityId,
+      suspectIds: remainingSuspects.map((suspect) => suspect.id),
+      startedAt: Date.now()
+    };
+
+    saveGameState();
+
+    if (this.scene.manager.keys.SuspectGridScene) {
+      this.scene.start('SuspectGridScene', {
+        cityId: this.cityId,
+        gameState: this.gameState,
+        suspectIds: this.gameState.suspectGridInput.suspectIds,
+        returnScene: this.scene.key
+      });
+
+      return;
+    }
+
+    console.warn(
+      '[SuspectsScene] SuspectGridScene is not registered yet.'
+    );
+
+    this.modeHintText?.setText(
+      'Evidence Grid is not installed yet. Your exclusions were saved.'
+    );
   }
 
   getSuspectFileNumber(suspectId) {
@@ -765,6 +1039,13 @@ export class SuspectsScene extends BaseScene {
           ? `CLEARED: ${String(reason.label).toUpperCase()}`
           : 'CLEARED',
         color: '#e6766e'
+      };
+    }
+
+    if (this.excludeMode) {
+      return {
+        label: 'SELECT FOR EXCLUSION',
+        color: '#ffdc73'
       };
     }
 
@@ -805,7 +1086,7 @@ export class SuspectsScene extends BaseScene {
   renderDetailsPanel() {
     const { width, height } = this.scale;
 
-    if (width <= 700) return;
+    if (width <= 700 || this.excludeMode) return;
 
     const selected = this.getAllSuspects().find(
       (suspect) => suspect.id === this.selectedSuspectId
@@ -971,9 +1252,8 @@ export class SuspectsScene extends BaseScene {
     lines.push('\nForensics:');
 
     const unlockedForensicEntries = Object.entries(forensic).filter(
-      ([field, data]) => {
-        return Boolean(data?.unlocked) || unlockedFieldSet.has(field);
-      }
+      ([field, data]) =>
+        Boolean(data?.unlocked) || unlockedFieldSet.has(field)
     );
 
     if (!unlockedForensicEntries.length) {
@@ -1196,8 +1476,9 @@ export class SuspectsScene extends BaseScene {
 
     const { width, height } = this.scale;
 
-    this.headerText.setPosition(width / 2, 24);
-    this.summaryText.setPosition(width / 2, 70);
+    this.headerText.setPosition(width / 2, 18);
+    this.summaryText.setPosition(width / 2, 60);
+    this.modeHintText.setPosition(width / 2, 88);
 
     const gap = 14;
 
@@ -1227,6 +1508,10 @@ export class SuspectsScene extends BaseScene {
     this.pageText.setPosition(126, height - 28);
     this.closeButton.setPosition(width - 94, height - 28);
 
+    this.exclusionButton?.setPosition(width / 2 - 145, height - 28);
+    this.continueButton?.setPosition(width / 2 + 145, height - 28);
+
+    this.updateExclusionControls();
     this.refreshBoard();
   }
 
@@ -1264,10 +1549,18 @@ export class SuspectsScene extends BaseScene {
 
     this.filterButtons = [];
 
-    this.previousPageButton?.removeAllListeners?.();
-    this.nextPageButton?.removeAllListeners?.();
-    this.closeButton?.removeAllListeners?.();
+    [
+      this.previousPageButton,
+      this.nextPageButton,
+      this.closeButton,
+      this.exclusionButton,
+      this.continueButton
+    ].forEach((button) => {
+      button?.removeAllListeners?.();
+      button?.destroy?.();
+    });
 
+    this.modeHintText?.destroy();
     this.cardsContainer?.destroy();
     this.detailsContainer?.destroy();
   }

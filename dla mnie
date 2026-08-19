@@ -1,0 +1,5 @@
+this.game.events.emit('setHudVisible', false);
+    EventBus.emit('hideHUD');
+        if (this.scene.isActive('PlayerHudScene')) {
+      return this.scene.get('PlayerHudScene');
+    }

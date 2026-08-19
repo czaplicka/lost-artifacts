@@ -37,6 +37,7 @@ import { NewspaperOverlayScene } from './scenes/NewspaperOverlayScene.js';
 import { EnterScene } from './scenes/EnterScene.js';
 import { TvBroadcastScene } from './scenes/TvBroadcastScene.js';
 import { SuspectsScene } from './scenes/SuspectsScene.js';
+import { SuspectGridScene } from './scenes/SuspectGridScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -84,7 +85,8 @@ const config = {
     FiberAnalysisScene,
     FingerprintScene,
     ShoeprintScene,
-    SuspectsScene
+    SuspectsScene,
+    SuspectGridScene
   ],
 
   dom: {

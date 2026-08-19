@@ -256,7 +256,7 @@
   "backgroundKey": "berlin_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
-  "hotel": { "x": 145, "y": 460 },
+  "hotel": { "x": 145, "y": 660 },
   "transport": { "x": 80, "y": 650, "modes": ["taxi", "metro"] },
   "suspectSlots": [
     { "id": "suspect_1", "x": 280, "y": 380 },

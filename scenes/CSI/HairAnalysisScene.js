@@ -35,10 +35,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
 
     this.evidenceType = 'hair_color';
 
-    const incoming =
-      data.correctValue ||
-      this.correctValue ||
-      'brown';
+    const incoming = data.correctValue || this.correctValue || 'brown';
 
     this.correctValue = HAIR_COLORS.includes(incoming)
       ? incoming
@@ -138,8 +135,8 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     this.addStageObject(this.tweezers);
     this.input.setDraggable(this.tweezers);
 
-    const tipOffsetX = 10;
-    const tipOffsetY = 60;
+    const tipOffsetX = -45;
+    const tipOffsetY = 50;
 
     this.tweezers.on('drag', (pointer, dragX, dragY) => {
       if (this.resolved || !this.tweezers?.active) return;
@@ -148,10 +145,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       this.tweezers.y = dragY;
       this.tweezers.setAngle(125);
 
-      if (
-        this.hasStrandOnTweezers &&
-        this.preparedStrand?.active
-      ) {
+      if (this.hasStrandOnTweezers && this.preparedStrand?.active) {
         this.preparedStrand.x = dragX + tipOffsetX;
         this.preparedStrand.y = dragY + tipOffsetY;
       }
@@ -167,14 +161,12 @@ export class HairAnalysisScene extends BaseForensicMinigame {
         return;
       }
 
-      const tweezersBounds = this.tweezers.getBounds();
+      const tipX = this.tweezers.x + tipOffsetX;
+      const tipY = this.tweezers.y + tipOffsetY;
 
       if (
         !this.hasStrandOnTweezers &&
-        Phaser.Geom.Intersects.RectangleToRectangle(
-          tweezersBounds,
-          this.bag.getBounds()
-        )
+        this.bag.getBounds().contains(tipX, tipY)
       ) {
         this.hasStrandOnTweezers = true;
 
@@ -183,25 +175,40 @@ export class HairAnalysisScene extends BaseForensicMinigame {
         );
 
         this.preparedStrand = this.add
-          .image(
-            this.tweezers.x + tipOffsetX,
-            this.tweezers.y + tipOffsetY,
-            this.getHairStrandKey()
-          )
+          .image(tipX, tipY, this.getHairStrandKey())
           .setOrigin(0.5)
           .setDisplaySize(200, 150)
           .setDepth(4);
 
         this.addStageObject(this.preparedStrand);
+        const dropTarget = this.add
+  .circle(
+    this.preparedStrand.x,
+    this.preparedStrand.y,
+    75,
+    0x8bd1ff,
+    0.12
+  )
+  .setStrokeStyle(2, 0x8bd1ff, 0.7)
+  .setDepth(3);
+
+this.addStageObject(dropTarget);
+
+this.tweens.add({
+  targets: dropTarget,
+  alpha: { from: 0.08, to: 0.3 },
+  scale: { from: 0.92, to: 1.08 },
+  duration: 650,
+  yoyo: true,
+  repeat: -1,
+  ease: 'Sine.easeInOut'
+});
         return;
       }
 
       if (
         this.hasStrandOnTweezers &&
-        Phaser.Geom.Intersects.RectangleToRectangle(
-          tweezersBounds,
-          this.slide.getBounds()
-        )
+        this.slide.getBounds().contains(tipX, tipY)
       ) {
         this.hasStrandOnTweezers = false;
         this.hasStrandOnSlide = true;
@@ -228,151 +235,206 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     });
   }
 
-  startStep2() {
-    this.clearStage();
+startStep2() {
+  this.clearStage();
 
-    this.bag = null;
-    this.tweezers = null;
-    this.pipette = null;
-    this.preparedStrand = null;
-    this.reagentApplied = false;
+  this.bag = null;
+  this.tweezers = null;
+  this.pipette = null;
+  this.preparedStrand = null;
+  this.reagentApplied = false;
 
-    this.setStep(1);
-    this.setInstructions(
-      'Step 2: Apply the reagent onto the prepared slide.'
-    );
-    this.setDialogue(
-      'Use the pipette to drop reagent onto the hair strand.'
-    );
+  this.setStep(1);
+  this.setInstructions(
+    'Step 2: Apply the reagent onto the prepared slide.'
+  );
+  this.setDialogue(
+    'Match the blue pipette tip marker with the blue circle around the hair.'
+  );
 
-    const { width, height } = this.scale;
+  const { width, height } = this.scale;
 
-    const bg = this.add
-      .image(width / 2, height / 2, 'desk1')
-      .setOrigin(0.5)
-      .setDisplaySize(width, height)
-      .setDepth(0);
+  const bg = this.add
+    .image(width / 2, height / 2, 'desk1')
+    .setOrigin(0.5)
+    .setDisplaySize(width, height)
+    .setDepth(0);
 
-    this.addStageObject(bg);
+  this.addStageObject(bg);
 
-    this.slide = this.add
-      .image(width * 0.4, 670, 'hair_board')
-      .setOrigin(0.5)
-      .setDisplaySize(430, 180)
-      .setDepth(1);
+  this.slide = this.add
+    .image(width * 0.4, 670, 'hair_board')
+    .setOrigin(0.5)
+    .setDisplaySize(430, 180)
+    .setDepth(1);
 
-    this.addStageObject(this.slide);
+  this.addStageObject(this.slide);
 
-    this.preparedStrand = this.add
-      .image(
-        this.slide.x,
-        this.slide.y,
-        this.getHairStrandKey()
-      )
-      .setOrigin(0.5)
-      .setDisplaySize(200, 150)
-      .setDepth(2);
+  this.preparedStrand = this.add
+    .image(this.slide.x, this.slide.y, this.getHairStrandKey())
+    .setOrigin(0.5)
+    .setDisplaySize(200, 150)
+    .setDepth(2);
 
-    this.addStageObject(this.preparedStrand);
+  this.addStageObject(this.preparedStrand);
 
-    this.pipette = this.add
-      .image(width * 0.63, 580, 'pipette')
-      .setOrigin(0.5)
-      .setDisplaySize(280, 280)
-      .setDepth(3)
-      .setInteractive({
-        draggable: true,
-        useHandCursor: true
-      });
+  const hairTargetRadius = 75;
 
-    this.addStageObject(this.pipette);
-    this.input.setDraggable(this.pipette);
+  const dropTarget = this.add
+    .circle(
+      this.preparedStrand.x,
+      this.preparedStrand.y,
+      hairTargetRadius,
+      0x8bd1ff,
+      0.12
+    )
+    .setStrokeStyle(2, 0x8bd1ff, 0.75)
+    .setDepth(3);
 
-    this.pipette.on('drag', (pointer, dragX, dragY) => {
-      if (this.resolved || !this.pipette?.active) return;
+  this.addStageObject(dropTarget);
 
-      this.pipette.x = dragX;
-      this.pipette.y = dragY;
+  this.tweens.add({
+    targets: dropTarget,
+    alpha: { from: 0.08, to: 0.3 },
+    scale: { from: 0.92, to: 1.08 },
+    duration: 650,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+  });
+
+  this.pipette = this.add
+    .image(width * 0.63, 580, 'pipette')
+    //.setOrigin(0.5)
+    //.setDisplaySize(180, 220)
+    .setDepth(4)
+    .setInteractive({
+      draggable: true,
+      useHandCursor: true
     });
 
-    this.pipette.on('dragend', () => {
-      if (
-        this.resolved ||
-        this.reagentApplied ||
-        !this.pipette?.active ||
-        !this.slide?.active
-      ) {
-        return;
-      }
+  this.addStageObject(this.pipette);
+  this.input.setDraggable(this.pipette);
 
-      const pipetteBounds = this.pipette.getBounds();
+  // Dopasuj te offsety do rzeczywistego czubka pipety.
+  const pipetteTipOffsetX = -290;
+  const pipetteTipOffsetY = -10;
 
-      if (
-        Phaser.Geom.Intersects.RectangleToRectangle(
-          pipetteBounds,
-          this.slide.getBounds()
-        )
-      ) {
-        this.reagentApplied = true;
+  // Mały niebieski marker wskazujący faktyczną końcówkę pipety.
+  const pipetteTipMarker = this.add
+    .circle(
+      this.pipette.x + pipetteTipOffsetX,
+      this.pipette.y + pipetteTipOffsetY,
+      11,
+      0x8bd1ff,
+      0.8
+    )
+    .setStrokeStyle(2, 0xe4f8ff, 1)
+    .setDepth(6);
 
-        this.setDialogue(
-          'Reagent applied. The strand is ready for comparison.'
-        );
+  this.addStageObject(pipetteTipMarker);
 
-        const drop = this.add
-          .circle(
-            this.slide.x,
-            this.slide.y,
-            14,
-            0x8bd1ff,
-            0.9
-          )
-          .setDepth(5);
+  this.tweens.add({
+    targets: pipetteTipMarker,
+    alpha: { from: 0.55, to: 1 },
+    scale: { from: 0.85, to: 1.18 },
+    duration: 420,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+  });
 
-        this.addStageObject(drop);
+  this.pipette.on('drag', (pointer, dragX, dragY) => {
+    if (this.resolved || !this.pipette?.active) return;
 
-        this.preparedStrand?.setTint(0xffffff);
-        this.preparedStrand?.setDepth(4);
+    this.pipette.x = dragX;
+    this.pipette.y = dragY;
 
-        this.pipette.disableInteractive();
-        this.pipette.setVisible(false);
+    pipetteTipMarker.x = dragX + pipetteTipOffsetX;
+    pipetteTipMarker.y = dragY + pipetteTipOffsetY;
+  });
 
-        this.time.delayedCall(500, () => {
-          if (!this.resolved) {
-            this.startStep3();
-          }
-        });
+  this.pipette.on('dragend', () => {
+    if (
+      this.resolved ||
+      this.reagentApplied ||
+      !this.pipette?.active ||
+      !this.preparedStrand?.active
+    ) {
+      return;
+    }
 
-        return;
-      }
+    const tipX = this.pipette.x + pipetteTipOffsetX;
+    const tipY = this.pipette.y + pipetteTipOffsetY;
 
-      this.penalize(5);
+    const hitHair = Phaser.Math.Distance.Between(
+      tipX,
+      tipY,
+      this.preparedStrand.x,
+      this.preparedStrand.y
+    ) <= hairTargetRadius;
+
+    if (hitHair) {
+      this.reagentApplied = true;
 
       this.setDialogue(
-        'The reagent missed the slide. Try again.'
+        'Perfect. Reagent applied directly to the strand.'
       );
 
-      this.tweens.add({
-        targets: this.pipette,
-        x: width * 0.63,
-        y: 580,
-        duration: 180,
-        ease: 'Sine.easeOut'
+      const drop = this.add
+        .circle(tipX, tipY, 14, 0x8bd1ff, 0.9)
+        .setDepth(7);
+
+      this.addStageObject(drop);
+
+      dropTarget.destroy();
+      pipetteTipMarker.destroy();
+
+      this.preparedStrand.setTint(0xffffff);
+      this.preparedStrand.setDepth(4);
+
+      this.pipette.disableInteractive();
+      this.pipette.setVisible(false);
+
+      this.time.delayedCall(500, () => {
+        if (!this.resolved) {
+          this.startStep3();
+        }
       });
+
+      return;
+    }
+
+    this.penalize(5);
+
+    this.setDialogue(
+      'The blue markers did not meet. Aim the pipette tip at the hair.'
+    );
+
+    this.tweens.add({
+      targets: [this.pipette, pipetteTipMarker],
+      x: (target) => {
+        return target === this.pipette
+          ? width * 0.63
+          : width * 0.63 + pipetteTipOffsetX;
+      },
+      y: (target) => {
+        return target === this.pipette
+          ? 580
+          : 580 + pipetteTipOffsetY;
+      },
+      duration: 180,
+      ease: 'Sine.easeOut'
     });
-  }
+  });
+}
 
   getHairOptions() {
     const distractors = Phaser.Utils.Array.Shuffle(
-      HAIR_COLORS.filter(
-        (color) => color !== this.correctValue
-      )
+      HAIR_COLORS.filter((color) => color !== this.correctValue)
     ).slice(0, 3);
 
-    return Phaser.Utils.Array.Shuffle([
-      this.correctValue,
-      ...distractors
-    ]);
+    return Phaser.Utils.Array.Shuffle([this.correctValue, ...distractors]);
   }
 
   startStep3() {
@@ -441,30 +503,18 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     const panelY = height * 0.5;
 
     const panelBg = this.add
-      .rectangle(
-        panelX,
-        panelY,
-        320,
-        320,
-        0x0d1713,
-        0.9
-      )
+      .rectangle(panelX, panelY, 380, 420, 0x0d1713, 0.9)
       .setStrokeStyle(2, 0x39ff14, 0.6)
       .setDepth(1);
 
     this.addStageObject(panelBg);
 
     const panelTitle = this.add
-      .text(
-        panelX,
-        panelY - 140,
-        'Reference samples',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '16px',
-          color: '#ffe8a3'
-        }
-      )
+      .text(panelX, panelY - 180, 'Reference samples', {
+        fontFamily: 'SpecialElite',
+        fontSize: '16px',
+        color: '#ffe8a3'
+      })
       .setOrigin(0.5)
       .setDepth(2);
 
@@ -474,34 +524,27 @@ export class HairAnalysisScene extends BaseForensicMinigame {
 
     display.forEach((value, index) => {
       const x = panelX;
-      const y = panelY - 70 + index * 60;
+      const y = panelY - 100 + index * 90;
 
       const swatch = this.add
         .image(x, y, this.getHairStrandKey(value))
         .setOrigin(0.5)
-        .setDisplaySize(220, 60)
+        .setDisplaySize(640, 170)
         .setDepth(2)
-        .setInteractive({
-          useHandCursor: true
-        });
+        .setInteractive({ useHandCursor: true });
 
       this.addStageObject(swatch);
 
       swatch.on('pointerover', () => {
         if (this.resolved) return;
-
         swatch.setTint(0x88ff88);
-
         this.setDialogue(
-          `Sample: ${this.toDisplayText(
-            value
-          )} — click to classify.`
+          `Sample: ${this.toDisplayText(value)} — click to classify.`
         );
       });
 
       swatch.on('pointerout', () => {
         swatch.clearTint();
-
         if (!this.resolved) {
           this.setDialogue(
             'Click the microscope to view the strand, then use the reference panel.'
@@ -511,104 +554,117 @@ export class HairAnalysisScene extends BaseForensicMinigame {
 
       swatch.on('pointerdown', () => {
         if (this.resolved) return;
-
-        this.resolveChoice(
-          value,
-          value === this.correctValue,
-          10
-        );
+        this.resolveChoice(value, value === this.correctValue, 10);
       });
     });
   }
 
   showMicroscopeOverlay() {
-    const { width, height } = this.scale;
-    const centerX = width / 2;
-    const centerY = height / 2;
+  const { width, height } = this.scale;
+  const centerX = width / 2;
+  const centerY = height / 2;
 
-    const overlayBg = this.add
-      .rectangle(
-        centerX,
-        centerY,
-        width,
-        height,
-        0x000000,
-        0.75
-      )
-      .setOrigin(0.5)
-      .setDepth(50);
+  const overlayBg = this.add
+    .rectangle(centerX, centerY, width, height, 0x000000, 0.85)
+    .setOrigin(0.5)
+    .setDepth(50)
+    .setInteractive({ useHandCursor: true });
 
-    const microscopeView = this.add
-      .image(centerX, centerY, 'microscope_look')
-      .setOrigin(0.5)
-      .setDisplaySize(width * 0.7, height * 0.7)
-      .setDepth(51);
+  const microscopeView = this.add
+    .image(centerX, centerY, 'microscope_look')
+    .setOrigin(0.5)
+    .setDisplaySize(width * 0.7, height * 0.7)
+    .setDepth(51);
 
-    const refStrand = this.add
-      .image(
-        centerX,
-        centerY,
-        this.getHairStrandKey()
-      )
-      .setOrigin(0.5)
-      .setDisplaySize(520, 210)
-      .setDepth(52);
+  const vignetteRadiusStart = width * 0.11;
+  const eyeGap = width * 0.09;
 
-    const closeBtn = this.add
-      .text(width - 40, 40, 'X', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#ff6666',
-        backgroundColor: '#200808',
-        padding: {
-          left: 6,
-          right: 6,
-          top: 4,
-          bottom: 4
-        }
-      })
-      .setOrigin(1, 0)
-      .setDepth(53)
-      .setInteractive({
-        useHandCursor: true
-      });
+  const vignetteMask = this.add.graphics().setDepth(52);
 
-    const overlayObjects = [
-      overlayBg,
-      microscopeView,
-      refStrand,
-      closeBtn
-    ];
+  vignetteMask.fillStyle(0x000000, 1);
+  vignetteMask.fillRect(0, 0, width, height);
 
-    this.stageObjects.push(...overlayObjects);
+  const holeShape = this.make.graphics({
+    x: 0,
+    y: 0,
+    add: false
+  });
 
-    closeBtn.on('pointerover', () => {
-      closeBtn.setStyle({
-        color: '#ffaaaa'
-      });
+  holeShape.fillStyle(0xffffff, 1);
+  holeShape.fillCircle(
+    centerX - eyeGap,
+    centerY,
+    vignetteRadiusStart
+  );
+  holeShape.fillCircle(
+    centerX + eyeGap,
+    centerY,
+    vignetteRadiusStart
+  );
+
+  const geoMask = holeShape.createGeometryMask();
+  geoMask.invertAlpha = true;
+
+  vignetteMask.setMask(geoMask);
+  vignetteMask.setAlpha(0.9);
+
+  const refStrand = this.add
+    .image(centerX, centerY, this.getHairStrandKey())
+    .setOrigin(0.5)
+    .setDisplaySize(760, 300)
+    .setDepth(53);
+
+  const hintText = this.add
+    .text(centerX, height - 55, 'CLICK ANYWHERE TO CLOSE', {
+      fontFamily: 'PressStart2P',
+      fontSize: '10px',
+      color: '#ffe8a3',
+      backgroundColor: '#000000',
+      padding: {
+        left: 10,
+        right: 10,
+        top: 7,
+        bottom: 7
+      }
+    })
+    .setOrigin(0.5)
+    .setDepth(54)
+    .setAlpha(0.85);
+
+  const overlayObjects = [
+    overlayBg,
+    microscopeView,
+    vignetteMask,
+    holeShape,
+    refStrand,
+    hintText
+  ];
+
+  this.stageObjects.push(...overlayObjects);
+
+  const closeMicroscope = () => {
+    if (!overlayBg.active) return;
+
+    overlayObjects.forEach((object) => {
+      object.removeAllListeners?.();
+      object.destroy();
     });
 
-    closeBtn.on('pointerout', () => {
-      closeBtn.setStyle({
-        color: '#ff6666'
-      });
-    });
+    this.stageObjects = this.stageObjects.filter(
+      (object) => !overlayObjects.includes(object)
+    );
 
-    closeBtn.on('pointerdown', () => {
-      overlayObjects.forEach((object) => {
-        object.removeAllListeners?.();
-        object.destroy();
-      });
+    this.microscopeOpened = false;
 
-      this.stageObjects = this.stageObjects.filter(
-        (object) => !overlayObjects.includes(object)
-      );
+    this.setDialogue(
+      'Use the reference samples on the desk to classify the strand.'
+    );
+  };
 
-      this.setDialogue(
-        'Use the reference samples on the desk to classify the strand.'
-      );
-    });
-  }
+  overlayBg.on('pointerdown', () => {
+    closeMicroscope();
+  });
+}
 
   onWrongChoice(value) {
     super.onWrongChoice(value);

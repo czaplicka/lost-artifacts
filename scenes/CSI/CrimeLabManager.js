@@ -13,16 +13,49 @@ export class CrimeLabManager {
     return String(mission.id || mission.caseId || `${this.cityId}_${mission.artifact || 'default'}`);
   }
 
-  ensureCaseForensics() {
-    const caseKey = this.getCaseKey();
-    this.gameState.caseForensics ??= {};
-    this.gameState.caseForensics[caseKey] ??= {
-      identityEvidenceResult: null,
-      traceEvidenceResults: [],
-      forensicResults: []
-    };
-    return this.gameState.caseForensics[caseKey];
-  }
+ensureCaseForensics() {
+  const caseKey = this.getCaseKey();
+
+  this.gameState.caseForensics ??= {};
+
+  this.gameState.caseForensics[caseKey] ??= {
+    identityEvidenceResult: null,
+    traceEvidenceResults: [],
+    forensicResults: [],
+
+    suspectGrid: {
+      generated: false,
+      completed: false,
+
+      eliminatedSuspectIds: [],
+      marksBySuspectId: {},
+      clueCards: [],
+
+      score: 0,
+      mistakes: 0,
+      hintsUsed: 0,
+      completedAt: null
+    }
+  };
+
+  const caseForensics = this.gameState.caseForensics[caseKey];
+
+  caseForensics.suspectGrid ??= {
+    generated: false,
+    completed: false,
+
+    eliminatedSuspectIds: [],
+    marksBySuspectId: {},
+    clueCards: [],
+
+    score: 0,
+    mistakes: 0,
+    hintsUsed: 0,
+    completedAt: null
+  };
+
+  return caseForensics;
+}
 
   markCrimeLabCompleted() {
     const caseKey = this.getCaseKey();
@@ -36,7 +69,7 @@ export class CrimeLabManager {
 
   getIdentityEvidenceConfig() {
     const identityEvidence = this.gameState.identityEvidence || {};
-    const allowedHairColors = ['blond', 'black', 'red', 'brown'];
+    const allowedHairColors = ['blonde', 'black', 'red', 'brown', 'grey', 'white', 'auburn'];
     const thiefHairColor = identityEvidence.thief_value || 'black';
     const correctValue = allowedHairColors.includes(thiefHairColor) ? thiefHairColor : 'black';
 

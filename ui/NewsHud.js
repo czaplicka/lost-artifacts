@@ -14,6 +14,8 @@ export class NewsHud extends Phaser.Scene {
     this.isAnimating = false;
     this.panelWidth = 176;
     this.panelY = 0;
+
+    this.hudEnabled = true;
   }
 
   create() {
@@ -42,8 +44,12 @@ export class NewsHud extends Phaser.Scene {
       }
     });
 
+    // Globalny event - inne sceny mogą wywołać to bez referencji do NewsHud
+    this.game.events.on('setHudVisible', this.setHudVisible, this);
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.keyboard?.off('keydown-ESC', this.closeMenu, this);
+      this.game.events.off('setHudVisible', this.setHudVisible, this);
     });
 
     this.input.keyboard?.on('keydown-ESC', this.closeMenu, this);
@@ -54,17 +60,13 @@ export class NewsHud extends Phaser.Scene {
     const hiddenX = -this.panelWidth;
     const visibleX = 0;
 
-    /*
-     * Niewidzialna warstwa zamykająca menu po kliknięciu poza panelem.
-     * Jest aktywowana dopiero po wysunięciu menu.
-     */
     this.menuBlocker = this.add
       .rectangle(0, 0, width, height, 0x000000, 0)
       .setOrigin(0, 0)
       .setDepth(9990)
       .setVisible(false)
       .setInteractive();
-      this.menuBlocker.disableInteractive();
+    this.menuBlocker.disableInteractive();
 
     this.menuBlocker.on('pointerup', () => {
       this.closeMenu();
@@ -144,9 +146,6 @@ export class NewsHud extends Phaser.Scene {
       tvLabel
     ]);
 
-    /*
-     * Zakładka pozostaje widoczna, gdy panel jest schowany.
-     */
     this.menuTab = this.add
       .text(0, this.panelY + 24, 'NEWS\n▶', {
         fontFamily: 'Press Start 2P',
@@ -167,20 +166,20 @@ export class NewsHud extends Phaser.Scene {
     });
 
     this.newspaperButton.on('pointerover', () => {
-  newspaperLabel.setColor('#ffe066');
-});
+      newspaperLabel.setColor('#ffe066');
+    });
 
-this.newspaperButton.on('pointerout', () => {
-  newspaperLabel.setColor('#ffffff');
-});
+    this.newspaperButton.on('pointerout', () => {
+      newspaperLabel.setColor('#ffffff');
+    });
 
-this.tvButton.on('pointerover', () => {
-  tvLabel.setColor('#ffe066');
-});
+    this.tvButton.on('pointerover', () => {
+      tvLabel.setColor('#ffe066');
+    });
 
-this.tvButton.on('pointerout', () => {
-  tvLabel.setColor('#ffffff');
-});
+    this.tvButton.on('pointerout', () => {
+      tvLabel.setColor('#ffffff');
+    });
 
     this.newspaperButton.on('pointerup', () => {
       this.openNewspaper();
@@ -197,6 +196,10 @@ this.tvButton.on('pointerout', () => {
   }
 
   toggleMenu() {
+    if (!this.hudEnabled) {
+      return;
+    }
+
     if (this.menuOpen) {
       this.closeMenu();
       return;
@@ -206,7 +209,7 @@ this.tvButton.on('pointerout', () => {
   }
 
   openMenu() {
-    if (this.menuOpen || this.isAnimating) {
+    if (!this.hudEnabled || this.menuOpen || this.isAnimating) {
       return;
     }
 
@@ -215,9 +218,9 @@ this.tvButton.on('pointerout', () => {
 
     const visibleX = this.menuPanel.getData('visibleX');
 
-this.menuBlocker
-  .setVisible(true)
-  .setInteractive();
+    this.menuBlocker
+      .setVisible(true)
+      .setInteractive();
     this.menuTab.setText('NEWS\n◀');
 
     this.tweens.add({
@@ -249,12 +252,41 @@ this.menuBlocker
       duration: 170,
       ease: 'Cubic.In',
       onComplete: () => {
-this.menuBlocker
-  .disableInteractive()
-  .setVisible(false);
+        this.menuBlocker
+          .disableInteractive()
+          .setVisible(false);
         this.isAnimating = false;
       }
     });
+  }
+
+  /**
+   * Włącza/wyłącza cały panel HUD (zakładka + panel + blocker).
+   * Wywołuj z innych scen tak:
+   *   this.game.events.emit('setHudVisible', false);
+   * lub, jeśli masz referencję do sceny NewsHud:
+   *   this.scene.get('NewsHud').setHudVisible(false);
+   */
+  setHudVisible(visible) {
+    this.hudEnabled = visible;
+
+    if (!visible) {
+      // jeśli panel jest otwarty, zamykamy go natychmiast (bez animacji)
+      if (this.menuOpen) {
+        this.menuOpen = false;
+        this.isAnimating = false;
+        this.tweens.killTweensOf(this.menuPanel);
+        this.menuPanel.x = this.menuPanel.getData('hiddenX');
+        this.menuTab.setText('NEWS\n▶');
+        this.menuBlocker.disableInteractive().setVisible(false);
+      }
+
+      this.menuTab.setVisible(false).disableInteractive();
+      this.menuPanel.setVisible(false);
+    } else {
+      this.menuTab.setVisible(true).setInteractive({ useHandCursor: true });
+      this.menuPanel.setVisible(true);
+    }
   }
 
   openNewspaper() {

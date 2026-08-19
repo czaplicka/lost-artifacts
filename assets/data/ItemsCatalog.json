@@ -1,0 +1,359 @@
+{
+  "clues": {
+    "blackHair": {
+      "id": "clue_black_hair",
+      "name": "Black Hair",
+      "icon": "🧵",
+      "description": "Found at crime scene. Can help narrow down suspects.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high"
+      }
+    },
+    "mudFootprint": {
+      "id": "clue_mud_footprint",
+      "name": "Mud Footprint (Size 10)",
+      "icon": "👟",
+      "description": "Distinctive boot print. Size 10, work boots.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high"
+      }
+    },
+    "fabricFiber": {
+      "id": "clue_fabric_fiber",
+      "name": "Fabric Fiber",
+      "icon": "📄",
+      "description": "Black wool fiber. Could match clothing.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "medium"
+      }
+    },
+    "goldEarring": {
+      "id": "clue_gold_earring",
+      "name": "Gold Earring",
+      "icon": "✨",
+      "description": "Fragment of jewelry. Could belong to suspect.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high"
+      }
+    },
+    "partialFingerprint": {
+      "id": "clue_partial_fingerprint",
+      "name": "Partial Fingerprint",
+      "icon": "👆",
+      "description": "Incomplete print. Red herring.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "low",
+        "isRedHerring": true
+      }
+    },
+    "coin": {
+      "id": "clue_coin",
+      "name": "Antique Coin",
+      "icon": "🪙",
+      "description": "Old currency. Could be red herring.",
+      "type": "clue",
+      "stackable": true,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "low",
+        "isRedHerring": true
+      }
+    },
+    "necklaceFragment": {
+      "id": "clue_necklace_fragment",
+      "name": "Necklace Fragment",
+      "icon": "⛓️",
+      "description": "Broken jewelry piece. May indicate struggle.",
+      "type": "clue",
+      "stackable": false,
+      "metadata": {
+        "source": "crime_scene",
+        "relevance": "high"
+      }
+    }
+  },
+  "evidence": {
+    "lockpick": {
+      "id": "evidence_lockpick",
+      "name": "Lockpick Set",
+      "icon": "🔓",
+      "description": "Professional burglary tools.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "lockpicking",
+        "relevance": "high"
+      }
+    },
+    "disguise": {
+      "id": "evidence_disguise",
+      "name": "Museum Disguise",
+      "icon": "🎭",
+      "description": "Uniform similar to museum staff.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "infiltration",
+        "relevance": "high"
+      }
+    },
+    "rope": {
+      "id": "evidence_rope",
+      "name": "Climbing Rope",
+      "icon": "🧗",
+      "description": "Professional climbing equipment.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "climbing",
+        "relevance": "high"
+      }
+    },
+    "jemmyBar": {
+      "id": "evidence_jemmy_bar",
+      "name": "Crowbar",
+      "icon": "⚒️",
+      "description": "Tool for forcing locks and doors.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "forcing",
+        "relevance": "high"
+      }
+    },
+    "flashlight": {
+      "id": "evidence_flashlight",
+      "name": "Night Vision Flashlight",
+      "icon": "🔦",
+      "description": "High-tech equipment.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "surveillance",
+        "relevance": "medium"
+      }
+    },
+    "lockSmithKit": {
+      "id": "evidence_locksmith_kit",
+      "name": "Locksmith Kit",
+      "icon": "🔧",
+      "description": "Professional lock manipulation tools.",
+      "type": "evidence",
+      "stackable": false,
+      "metadata": {
+        "crimeSkill": "lockpicking",
+        "relevance": "high"
+      }
+    }
+  },
+  "keys": {
+    "museumKey": {
+      "id": "key_museum",
+      "name": "Museum Master Key",
+      "icon": "🔑",
+      "description": "Access to all museum areas.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "museum_all",
+        "unlocksArea": "museum"
+      }
+    },
+    "officeMasterKey": {
+      "id": "key_office_master",
+      "name": "Office Master Key",
+      "icon": "🔑",
+      "description": "Access to all office areas.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "office_all",
+        "unlocksArea": "office"
+      }
+    },
+    "lockboxKey": {
+      "id": "key_lockbox",
+      "name": "Lockbox Key",
+      "icon": "🔑",
+      "description": "Opens suspect's lockbox.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "lockbox",
+        "unlocksArea": "apartment"
+      }
+    },
+    "carKey": {
+      "id": "key_car",
+      "name": "Car Key",
+      "icon": "🚗",
+      "description": "Start and access vehicle.",
+      "type": "key",
+      "stackable": false,
+      "metadata": {
+        "access": "car",
+        "unlocksArea": "travel"
+      }
+    }
+  },
+  "documents": {
+    "planeTicket": {
+      "id": "doc_plane_ticket",
+      "name": "Plane Ticket",
+      "icon": "✈️",
+      "description": "Paris to Cairo. Departure date: Tomorrow.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "travel",
+        "destination": "Cairo"
+      }
+    },
+    "bankStatement": {
+      "id": "doc_bank_statement",
+      "name": "Bank Statement",
+      "icon": "💳",
+      "description": "Large withdrawal 50,000€. Suspicious activity.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "financial",
+        "value": 50000
+      }
+    },
+    "letterFromWife": {
+      "id": "doc_letter_wife",
+      "name": "Letter from Wife",
+      "icon": "💌",
+      "description": "Threatening letter. \"You'll pay for what you did.\"",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "motivation",
+        "reveals": "motive"
+      }
+    },
+    "photograph": {
+      "id": "doc_photograph",
+      "name": "Family Photograph",
+      "icon": "📷",
+      "description": "Couple photo. Recently defaced.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "personal",
+        "relevance": "high"
+      }
+    },
+    "artCertificate": {
+      "id": "doc_art_certificate",
+      "name": "Art Certificate",
+      "icon": "📜",
+      "description": "Authentication for stolen artifact.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "evidence",
+        "value": 1000000
+      }
+    },
+    "hotelReservation": {
+      "id": "doc_hotel_reservation",
+      "name": "Hotel Reservation",
+      "icon": "🏨",
+      "description": "Booking in Vienna under false name.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "travel",
+        "destination": "Vienna"
+      }
+    },
+    "securityKeycard": {
+      "id": "doc_security_card",
+      "name": "Security Keycard",
+      "icon": "🎟️",
+      "description": "Access badge for restricted area.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "infoType": "access",
+        "unlocksArea": "vault"
+      }
+    }
+  },
+  "misc": {
+    "notebook": {
+      "id": "misc_notebook",
+      "name": "Detective's Notebook",
+      "icon": "📓",
+      "description": "Your investigation notes.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "notes",
+        "editable": true
+      }
+    },
+    "photo": {
+      "id": "misc_photo",
+      "name": "Suspect Photo",
+      "icon": "📸",
+      "description": "Picture of main suspect.",
+      "type": "misc",
+      "stackable": true,
+      "metadata": {
+        "purpose": "identification"
+      }
+    },
+    "businessCard": {
+      "id": "misc_business_card",
+      "name": "Business Card",
+      "icon": "🃏",
+      "description": "Contact information.",
+      "type": "misc",
+      "stackable": true,
+      "metadata": {
+        "purpose": "contact"
+      }
+    },
+    "medal": {
+      "id": "misc_medal",
+      "name": "Agency Medal",
+      "icon": "🏆",
+      "description": "Proof of past achievement.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "achievement",
+        "unlocks": "reputation"
+      }
+    },
+    "map": {
+      "id": "misc_map",
+      "name": "City Map",
+      "icon": "🗺️",
+      "description": "Navigate crime scenes.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "navigation"
+      }
+    }
+  }
+}

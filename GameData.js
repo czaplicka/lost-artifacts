@@ -108,8 +108,6 @@ function cloneGameData(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-export const gameState = cloneGameData(defaultGameState);
-
 export function cloneDefaultState() {
   return cloneGameData(defaultGameState);
 }
