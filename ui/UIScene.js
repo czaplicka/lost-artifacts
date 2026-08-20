@@ -5,7 +5,6 @@ import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
 import { getGameTimeManager } from '../GameTimeManager.js';
-import { getScoreManager } from '../InvestigationManager.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 
@@ -361,26 +360,38 @@ showHUD() {
     ].join('\n');
   }
 refreshScoreHud() {
-const scoreManager = getScoreManager();
+  const score = Math.max(
+    0,
+    Math.floor(Number(gameState.score) || 0)
+  );
 
-  const managerScore = scoreManager?.getSessionPoints?.();
-  const stateScore = Number(gameState.score);
-
-  const score = Number.isFinite(managerScore)
-    ? managerScore
-    : Number.isFinite(stateScore)
-      ? stateScore
-      : 0;
-
-  this.updateScore({ total: score });
+  this.updateScore({
+    total: score
+  });
 }
-  updateScore(data) {
-    const rawScore = typeof data === 'object' ? data?.total : data;
-    const score = Math.max(0, Math.floor(Number(rawScore ?? gameState.score) || 0));
-    gameState.score = score;
-    if (this.dom.score) this.dom.score.textContent = score.toLocaleString('en-US');
-    this._refreshOpenAgentModal();
+
+updateScore(data) {
+  const rawScore =
+    typeof data === 'object'
+      ? data?.total
+      : data;
+
+  const score = Math.max(
+    0,
+    Math.floor(
+      Number(rawScore ?? gameState.score) || 0
+    )
+  );
+
+  gameState.score = score;
+
+  if (this.dom.score) {
+    this.dom.score.textContent =
+      score.toLocaleString('en-US');
   }
+
+  this._refreshOpenAgentModal();
+}
 
   updateCash(data) {
     const rawCash = typeof data === 'object' ? data?.total ?? data?.cash : data;

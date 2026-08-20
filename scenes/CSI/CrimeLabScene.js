@@ -1159,6 +1159,7 @@ forceUnlock() {
 
   goToCrimeCity() {
   if (this.uiLocked) return;
+
   if (this.completedCount < this.totalStations) return;
 
   if (!this.scene.manager.keys.CrimeCityScene) {

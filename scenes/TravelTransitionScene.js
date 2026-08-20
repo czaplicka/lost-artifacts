@@ -79,6 +79,7 @@ export class TravelTransitionScene extends BaseScene {
     this.baseRoutePoints = null;
 
     this._travelSfx = null;
+    this._onPointerDown = null;
   }
 
   init(data = {}) {
@@ -98,6 +99,7 @@ export class TravelTransitionScene extends BaseScene {
   this.baseRoutePoints = null;
 
   this._travelSfx = null;
+  this._onPointerDown = null;
 }
 
   create() {

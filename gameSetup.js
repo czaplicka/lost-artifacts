@@ -52,9 +52,11 @@ function getRandomItem(items) {
 
 function syncScoreFromManager() {
   const manager = getScoreManager();
-  if (typeof manager?.getSessionPoints === 'function') {
-    gameState.score = manager.getSessionPoints();
-  }
+if (typeof getScoreManager()?.startSession === 'function') {
+  getScoreManager().startSession({
+    reset: true
+  });
+}
 }
 
 async function fetchCaseSuspects(thief, crimeCityId) {
@@ -151,7 +153,9 @@ export async function setupNewGame(
   });
 
   if (typeof getScoreManager()?.startSession === 'function') {
-    getScoreManager().startSession();
+getScoreManager().startSession({
+  reset: true
+});
   }
 
   const thief = getRandomItem(suspectsData);

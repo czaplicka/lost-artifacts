@@ -5,6 +5,7 @@ import { generateCaseCityState } from '../city-encounter-generator.js';
 import { audioManager } from '../AudioManager.js';
 import { resolveCityNpcTheme, getNpcTextureKey, getNpcLabel } from '../npcThemeHelper.js';
 import { BaseScene } from './BaseScene.js';
+import { addSessionScore } from '../InvestigationManager.js';
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
@@ -259,13 +260,16 @@ export class CityScene extends BaseScene {
     }
   }
 
-  changeScore(points) {
-    const delta = Number.isFinite(points) ? Math.floor(points) : 0;
+changeScore(points, label = 'City investigation') {
+  const delta = Number.isFinite(points)
+    ? Math.floor(points)
+    : 0;
 
-    gameState.score = Math.max(
-      0,
-      (gameState.score || 0) + delta
-    );
+  if (delta === 0) {
+    return gameState.score || 0;
+  }
+
+  addSessionScore(delta, label);
 
     const hud = this.scene.get('PlayerHudScene');
 
@@ -279,6 +283,7 @@ export class CityScene extends BaseScene {
       delta,
       total: gameState.score
     });
+     return gameState.score;
   }
 
   ensureCityEncounterState(locations) {

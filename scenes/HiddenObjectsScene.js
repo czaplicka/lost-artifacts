@@ -110,19 +110,8 @@ export class HiddenObjectsScene extends BaseScene {
   this.timerEvent = null;
   this.isSceneFinished = false;
   this.incorrectClicks = 0;
-
-
-  this.scoreManager = getScoreManager();
-
-
-  const currentSessionScore = this.scoreManager.getSessionPoints();
-
-
-  this.score = Number.isFinite(currentSessionScore)
-    ? currentSessionScore
-    : 0;
-
-
+ this.scoreManager = getScoreManager();
+this.score = this.scoreManager.getSessionPoints();
   this.stateManager.ensureStateStructure();
 
 
@@ -135,24 +124,12 @@ export class HiddenObjectsScene extends BaseScene {
   });
 }
 
-
   preload() {
     if (this.backgroundPath && !this.textures.exists(this.backgroundKey)) this.load.image(this.backgroundKey, this.backgroundPath);
     if (this.mapPath && !this.cache.tilemap.exists(this.mapKey)) this.load.tilemapTiledJSON(this.mapKey, this.mapPath);
     if (this.objectsDataPath && !this.cache.json.exists(this.objectsDataKey)) this.load.json(this.objectsDataKey, this.objectsDataPath);
   }
 
-
-  /**
-   * Loads the shared objects.json catalog from the Phaser JSON cache and
-   * builds the lookup structures used throughout the scene:
-   *  - itemsData: raw array of every object definition in the game
-   *  - itemsById: quick lookup by id (used by pickActiveItems, storeCollectedCardId, createHiddenZones)
-   *  - sceneItems: subset of itemsData whose "scene" array includes this.sceneId
-   *
-   * Returns false if the JSON failed to load or is not a valid array so the
-   * caller can trigger handleSceneSetupFailure().
-   */
   loadObjectsData() {
     const rawData = this.cache.json.get(this.objectsDataKey);
 
@@ -295,12 +272,6 @@ export class HiddenObjectsScene extends BaseScene {
       this.sceneId
     );
 
-
-    /*
-     * SuspectGenerator establishes the actual three thief skills.
-     * Hidden Objects only stores the evidence cards that will later
-     * allow the player to reconstruct those skills in HypothesisScene.
-     */
     legacyData.requiredSkills = Array.isArray(
       gameState.hypothesisEvidence?.requiredSkills
     )
@@ -342,14 +313,6 @@ export class HiddenObjectsScene extends BaseScene {
     ))
     : [];
 
-
-  /*
-   * This is the bridge between SuspectGenerator and HypothesisScene.
-   * Do not calculate these skills from every object's broad "skills" array:
-   * one object can have several tags such as Investigation or Analysis.
-   *
-   * The generator already knows which three skills belong to the thief.
-   */
   reconstruction.requiredSkills = Array.isArray(
     gameState.hypothesisEvidence?.requiredSkills
   )
@@ -370,12 +333,6 @@ export class HiddenObjectsScene extends BaseScene {
       scene: this.sceneId,
       cityId: this.cityId,
 
-
-      /*
-       * HypothesisScene uses solutionCardIds and correctOrder.
-       * Hidden Objects only reveals every card; it does not say which
-       * three are the true crime sequence.
-       */
       correctOrder: Number.isInteger(item.correctOrder)
         ? item.correctOrder
         : -1,
@@ -441,7 +398,6 @@ this.game.events.emit('setHudVisible', true);
   return true;
 }
 
-
 handleSceneSetupFailure(message) {
   console.error('[HiddenObjectsScene] Setup failed:', message, {
     sceneId: this.sceneId,
@@ -461,12 +417,10 @@ handleSceneSetupFailure(message) {
   });
 }
 
-
   forceResetCursor() {
     this.input.setDefaultCursor('default');
     if (this.sys.game.canvas) this.sys.game.canvas.style.cursor = 'default';
   }
-
 
   pauseSourceScene() {
     if (!this.sourceScene || this.sourceScene === this.scene.key || !this.scene.manager.keys[this.sourceScene]) return;
@@ -474,7 +428,6 @@ handleSceneSetupFailure(message) {
     if (this.scene.isActive(this.sourceScene)) this.scene.sleep(this.sourceScene);
     if (sourceRef?.input) sourceRef.input.enabled = false;
   }
-
 
   restoreSourceScene() {
     this.forceResetCursor();
@@ -537,7 +490,6 @@ restoreGameHud() {
   this.scene.bringToTop(uiSceneKey);
 }
 
-
   computePlayArea() {
     const { width, height } = this.scale;
     this.playAreaWidth = Math.max(200, width - this.sidebarWidth);
@@ -549,9 +501,7 @@ restoreGameHud() {
     this.playOffsetY = (this.playAreaHeight - renderedHeight) / 2;
   }
 
-
   normalizeSkills(value) { return this.resolver.normalizeSkills(value); }
-
 
   createBackground() {
     const { height } = this.scale;
@@ -563,7 +513,6 @@ restoreGameHud() {
     }
     this.add.rectangle(this.sidebarWidth, 0, 2, height, 0xd4af37, 0.45).setOrigin(0, 0).setDepth(900);
   }
-
 
   createHiddenZones() {
     let map;

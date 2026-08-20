@@ -11,16 +11,25 @@ export class PhoneCallScene extends BaseScene {
     this.ringTweens = [];
     this.isAnswered = false;
     this.isEnding = false;
+    this.caseKey = null;
+this.returnScene = 'CrimeCityScene';
+this.returnData = {};
   }
 
-  init(data = {}) {
-    this.sourceScene = data.sourceScene || 'CityScene';
-    this.cityId = data.cityId || gameState.currentCityId || null;
-    this.ui = [];
-    this.ringTweens = [];
-    this.isAnswered = false;
-    this.isEnding = false;
-  }
+init(data = {}) {
+  this.sourceScene = data.sourceScene || 'CityScene';
+  this.cityId = data.cityId || gameState.currentCityId || null;
+  this.caseKey = data.caseKey || null;
+  this.returnScene = data.returnScene || 'CrimeCityScene';
+  this.returnData = data.returnData || {
+    cityId: this.cityId
+  };
+
+  this.ui = [];
+  this.ringTweens = [];
+  this.isAnswered = false;
+  this.isEnding = false;
+}
 
   create() {
         super.create();
@@ -152,19 +161,30 @@ export class PhoneCallScene extends BaseScene {
     laterBtn.on('pointerover', () => laterBtn.setStyle({ color: '#9bbc0f', backgroundColor: '#0f380f' }));
     laterBtn.on('pointerout', () => laterBtn.setStyle({ color: '#0f380f', backgroundColor: '#9bbc0f' }));
 
-    answerBtn.on('pointerdown', () => {
-      if (this.isAnswered || this.isEnding) return;
-      this.isAnswered = true;
+answerBtn.on('pointerdown', () => {
+  if (this.isAnswered || this.isEnding) {
+    return;
+  }
 
-      stopRinging();
+  this.isAnswered = true;
+  this.isEnding = true;
 
-      this.scene.launch('HypothesisScene', {
-        sourceScene: this.sourceScene,
-        cityId: this.cityId
-      });
+  stopRinging();
 
-      this.scene.stop();
-    });
+  this.scene.stop();
+
+  this.scene.start('HypothesisScene', {
+    cityId: this.cityId,
+    caseKey: this.caseKey,
+    sourceScene: 'PhoneCallScene',
+    returnScene: this.returnScene,
+    returnData: {
+      ...this.returnData,
+      cityId: this.cityId,
+      showSuspectTutorial: true
+    }
+  });
+});
 
     laterBtn.on('pointerdown', () => {
       if (this.isEnding) return;

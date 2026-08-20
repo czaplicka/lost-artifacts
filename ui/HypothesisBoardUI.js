@@ -15,39 +15,50 @@ export class HypothesisBoardUI {
     this.scene = scene;
     this.state = state;
     this.cards = Array.isArray(cards) ? cards : [];
-    this.slotLabels = Array.isArray(slotLabels) ? slotLabels : [];
+    this.slotLabels = Array.isArray(slotLabels)
+      ? slotLabels
+      : [];
 
-    this.buildSlotSentence = typeof buildSlotSentence === 'function'
-      ? buildSlotSentence
-      : null;
+    this.buildSlotSentence =
+      typeof buildSlotSentence === 'function'
+        ? buildSlotSentence
+        : null;
 
-    this.onCardTap = typeof onCardTap === 'function'
-      ? onCardTap
-      : null;
+    this.onCardTap =
+      typeof onCardTap === 'function'
+        ? onCardTap
+        : null;
 
-    this.onSlotTap = typeof onSlotTap === 'function'
-      ? onSlotTap
-      : null;
+    this.onSlotTap =
+      typeof onSlotTap === 'function'
+        ? onSlotTap
+        : null;
 
-    this.onSlotRemove = typeof onSlotRemove === 'function'
-      ? onSlotRemove
-      : null;
+    this.onSlotRemove =
+      typeof onSlotRemove === 'function'
+        ? onSlotRemove
+        : null;
 
-    this.onConfirm = typeof onConfirm === 'function'
-      ? onConfirm
-      : null;
+    this.onConfirm =
+      typeof onConfirm === 'function'
+        ? onConfirm
+        : null;
 
-    this.onClose = typeof onClose === 'function'
-      ? onClose
-      : null;
+    this.onClose =
+      typeof onClose === 'function'
+        ? onClose
+        : null;
 
     this.overlay = null;
     this.panel = null;
+    this.innerPanel = null;
+
     this.titleText = null;
     this.subtitleText = null;
-    this.feedbackText = null;
     this.attemptsText = null;
     this.legendText = null;
+    this.feedbackText = null;
+
     this.closeButton = null;
     this.confirmButton = null;
 
@@ -55,10 +66,8 @@ export class HypothesisBoardUI {
     this.cardViews = [];
 
     this.layout = null;
-    this.isMobileUI = false;
-    this.handleResizeBound = null;
-    this.resizeBound = false;
     this.isDestroyed = false;
+    this.handleResizeBound = null;
   }
 
   create() {
@@ -66,12 +75,13 @@ export class HypothesisBoardUI {
 
     const { width, height } = this.scene.scale;
 
-    this.isMobileUI =
-      !!this.scene.sys.game.device.input.touch ||
-      width <= 900;
-
+    /*
+     * Ważne:
+     * overlay blokuje kliknięcia w scenę pod spodem,
+     * ale ma niższy depth niż cały panel.
+     */
     this.overlay = this.scene.add
-      .rectangle(0, 0, width, height, 0x000000, 0.82)
+      .rectangle(0, 0, width, height, 0x000000, 0.88)
       .setOrigin(0)
       .setDepth(3000)
       .setInteractive();
@@ -80,107 +90,118 @@ export class HypothesisBoardUI {
       .rectangle(
         width / 2,
         height / 2,
-        width * 0.92,
-        height * 0.88,
-        0x17130f,
-        0.98
+        width - 36,
+        height - 36,
+        0x16110d,
+        0.99
       )
-      .setStrokeStyle(4, 0xd4af37, 0.85)
+      .setStrokeStyle(4, 0xd4af37, 0.9)
       .setDepth(3001);
 
+    this.innerPanel = this.scene.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        width - 58,
+        height - 58,
+        0x2a1d13,
+        0.35
+      )
+      .setStrokeStyle(1, 0x947036, 0.45)
+      .setDepth(3002);
+
     this.titleText = this.scene.add
-      .text(width / 2, 0, 'Reconstruct the heist', {
+      .text(width / 2, 0, 'RECONSTRUCT THE HEIST', {
         fontFamily: 'Special Elite',
-        fontSize: '40px',
-        color: '#f6f1df',
+        fontSize: '38px',
+        color: '#f7f1dc',
         align: 'center'
       })
       .setOrigin(0.5)
-      .setDepth(3002);
+      .setDepth(3010);
 
     this.subtitleText = this.scene.add
       .text(
         width / 2,
         0,
-        'Tap a clue, then tap a question. Tap X to remove. You have 3 attempts.',
+        '1. Select a clue.   2. Select the question it answers.   3. Check your theory.',
         {
           fontFamily: 'Special Elite',
-          fontSize: '22px',
+          fontSize: '19px',
           color: '#e8d7a8',
-          align: 'center',
-          lineSpacing: 6
+          align: 'center'
         }
       )
-      .setOrigin(0.5, 0)
-      .setDepth(3002);
+      .setOrigin(0.5)
+      .setDepth(3010);
 
     this.attemptsText = this.scene.add
       .text(width / 2, 0, '', {
         fontFamily: 'Special Elite',
-        fontSize: '24px',
+        fontSize: '22px',
         color: '#ffd966',
         align: 'center'
       })
       .setOrigin(0.5)
-      .setDepth(3002);
+      .setDepth(3010);
 
     this.createSlots();
-    this.createCardTray();
+    this.createCardGrid();
     this.createButtons();
 
     this.legendText = this.scene.add
       .text(
         width / 2,
         0,
-        'Green = correct answer, yellow = correct clue for another question, red = does not fit',
+        'Green: exact answer   •   Yellow: correct clue, wrong question   •   Red: wrong clue',
         {
           fontFamily: 'Special Elite',
-          fontSize: '18px',
-          color: '#ccb98c',
+          fontSize: '16px',
+          color: '#cbb98e',
           align: 'center'
         }
       )
       .setOrigin(0.5)
-      .setDepth(3002);
+      .setDepth(3010);
 
     this.feedbackText = this.scene.add
       .text(width / 2, 0, '', {
         fontFamily: 'Special Elite',
-        fontSize: '22px',
+        fontSize: '20px',
         color: '#ffd966',
         align: 'center',
+        lineSpacing: 6,
         wordWrap: {
-          width: 600,
+          width: 700,
           useAdvancedWrap: true
         }
       })
       .setOrigin(0.5)
-      .setDepth(3002);
+      .setDepth(3010);
 
     this.bindResize();
-    this.applyResponsiveLayout();
+    this.applyLayout();
     this.refresh();
   }
 
   createSlots() {
-    const activeSlotCount = this.state?.activeSlotCount || 3;
+    const activeSlotCount =
+      this.state?.activeSlotCount || 3;
 
     for (let index = 0; index < activeSlotCount; index++) {
       const slotView = new SlotView(this.scene, index, {
-        label: this.slotLabels[index] || `QUESTION ${index + 1}`,
+        label:
+          this.slotLabels[index] ||
+          `QUESTION ${index + 1}`,
+
         onClick: slotIndex => {
           if (this.state?.uiLocked) return;
-
-          if (this.onSlotTap) {
-            this.onSlotTap(slotIndex);
-          }
+          this.onSlotTap?.(slotIndex);
         },
+
         onRemove: slotIndex => {
           if (this.state?.uiLocked) return;
-
-          if (this.onSlotRemove) {
-            this.onSlotRemove(slotIndex);
-          }
+          this.onSlotRemove?.(slotIndex);
         }
       });
 
@@ -188,123 +209,156 @@ export class HypothesisBoardUI {
     }
   }
 
-  createCardTray() {
+  createCardGrid() {
     this.cards.forEach((card, index) => {
       const container = this.scene.add
         .container(0, 0)
-        .setDepth(3004);
+        .setDepth(3007);
 
       const bg = this.scene.add
-        .rectangle(0, 0, 260, 130, 0xf1e2bf, 1)
-        .setStrokeStyle(3, 0x7a5c2e, 0.85)
-        .setInteractive(
-          new Phaser.Geom.Rectangle(-130, -65, 260, 130),
-          Phaser.Geom.Rectangle.Contains
-        );
+        .rectangle(0, 0, 260, 110, 0xf1e2bf, 1)
+        .setStrokeStyle(3, 0x725022, 0.95);
+
+      const border = this.scene.add
+        .rectangle(0, 0, 248, 98)
+        .setStrokeStyle(1, 0xb98945, 0.7);
 
       const title = this.scene.add
-        .text(0, -18, card.item || `Clue ${index + 1}`, {
+        .text(0, -16, card.item || `CLUE ${index + 1}`, {
           fontFamily: 'Special Elite',
           fontSize: '18px',
-          color: '#3c2200',
+          color: '#3d2409',
           align: 'center',
           wordWrap: {
-            width: 170,
+            width: 210,
             useAdvancedWrap: true
           }
         })
         .setOrigin(0.5);
 
-      const tag = this.scene.add
+      const skill = this.scene.add
         .text(0, 34, this.buildSkillPreview(card.skills), {
           fontFamily: 'Arial',
-          fontSize: '13px',
-          color: '#6b3f00',
-          backgroundColor: '#f7ecd3',
+          fontSize: '12px',
+          color: '#6a4009',
+          backgroundColor: '#f8edcf',
           padding: {
-            left: 8,
-            right: 8,
-            top: 4,
-            bottom: 4
+            left: 7,
+            right: 7,
+            top: 3,
+            bottom: 3
           }
         })
         .setOrigin(0.5);
 
-      container.add([bg, title, tag]);
+      const selectedStamp = this.scene.add
+        .text(0, -43, 'SELECTED', {
+          fontFamily: 'PressStart2P',
+          fontSize: '10px',
+          color: '#2e1b00',
+          backgroundColor: '#ffd966',
+          padding: {
+            left: 5,
+            right: 5,
+            top: 4,
+            bottom: 4
+          }
+        })
+        .setOrigin(0.5)
+        .setVisible(false);
 
-      bg.on('pointerdown', () => {
+      const usedStamp = this.scene.add
+        .text(0, 0, 'USED', {
+          fontFamily: 'PressStart2P',
+          fontSize: '15px',
+          color: '#f1e1b4',
+          backgroundColor: '#3d3025',
+          padding: {
+            left: 8,
+            right: 8,
+            top: 7,
+            bottom: 7
+          }
+        })
+        .setOrigin(0.5)
+        .setVisible(false);
+
+      const hitArea = this.scene.add
+        .zone(0, 0, 260, 110)
+        .setInteractive({
+          useHandCursor: true
+        });
+
+      container.add([
+        bg,
+        border,
+        title,
+        skill,
+        selectedStamp,
+        usedStamp,
+        hitArea
+      ]);
+
+      hitArea.on('pointerover', () => {
+        if (this.isCardUsed(index)) return;
+
+        bg.setFillStyle(0xfff0c9, 1);
+        bg.setStrokeStyle(3, 0xd4af37, 1);
+      });
+
+      hitArea.on('pointerout', () => {
+        if (this.isCardUsed(index)) return;
+
+        this.applyCardStyle(
+          index,
+          false
+        );
+      });
+
+      hitArea.on('pointerdown', () => {
         if (this.state?.uiLocked) return;
+        if (this.isCardUsed(index)) return;
 
-        this.scene.tweens.killTweensOf(container);
         container.setScale(0.96);
       });
 
-      bg.on('pointerup', () => {
+      hitArea.on('pointerup', () => {
         container.setScale(1);
 
         if (this.state?.uiLocked) return;
+        if (this.isCardUsed(index)) return;
 
-        if (this.onCardTap) {
-          this.onCardTap(index);
-        }
-      });
-
-      bg.on('pointerout', () => {
-        container.setScale(1);
+        this.onCardTap?.(index);
       });
 
       this.cardViews.push({
-        cardIndex: index,
+        index,
+        card,
         container,
         bg,
+        border,
         title,
-        tag,
-        homeX: 0,
-        homeY: 0,
-        currentSlot: null
+        skill,
+        selectedStamp,
+        usedStamp,
+        hitArea
       });
     });
   }
 
   createButtons() {
-    this.closeButton = this.scene.add
-      .text(0, 0, '[ CLOSE ]', {
-        fontFamily: 'Special Elite',
-        fontSize: '28px',
-        color: '#d0d0d0',
-        backgroundColor: '#222222',
-        padding: {
-          left: 18,
-          right: 18,
-          top: 10,
-          bottom: 10
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(3003)
-      .setInteractive({ useHandCursor: true });
+    this.closeButton = this.createButton(
+      '[ CLOSE ]',
+      '#d8d0c0'
+    );
 
-    this.confirmButton = this.scene.add
-      .text(0, 0, '[ CHECK ]', {
-        fontFamily: 'Special Elite',
-        fontSize: '28px',
-        color: '#ffd966',
-        backgroundColor: '#222222',
-        padding: {
-          left: 18,
-          right: 18,
-          top: 10,
-          bottom: 10
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(3003)
-      .setInteractive({ useHandCursor: true });
+    this.confirmButton = this.createButton(
+      '[ CHECK THEORY ]',
+      '#ffd966'
+    );
 
     this.closeButton.on('pointerup', () => {
-      if (this.onClose) {
-        this.onClose();
-      }
+      this.onClose?.();
     });
 
     this.confirmButton.on('pointerup', () => {
@@ -315,126 +369,231 @@ export class HypothesisBoardUI {
           `Answer all ${this.state?.activeSlotCount || 3} questions first.`,
           '#ff9f80'
         );
+
         return;
       }
 
-      if (this.onConfirm) {
-        this.onConfirm();
-      }
+      this.onConfirm?.();
     });
+  }
+
+  createButton(text, color) {
+    const button = this.scene.add
+      .text(0, 0, text, {
+        fontFamily: 'Special Elite',
+        fontSize: '24px',
+        color,
+        backgroundColor: '#332519',
+        padding: {
+          left: 18,
+          right: 18,
+          top: 10,
+          bottom: 10
+        }
+      })
+      .setOrigin(0.5)
+      .setDepth(3020)
+      .setInteractive({
+        useHandCursor: true
+      });
+
+    button.on('pointerover', () => {
+      button.setScale(1.04);
+    });
+
+    button.on('pointerout', () => {
+      button.setScale(1);
+    });
+
+    return button;
   }
 
   getLayout() {
     const { width, height } = this.scene.scale;
 
-    const isMobile =
-      this.isMobileUI ||
-      width <= 900;
+    const compact =
+      width < 900 ||
+      height < 760;
 
-    const activeSlotCount = this.state?.activeSlotCount || 3;
+    const activeSlotCount =
+      this.state?.activeSlotCount || 3;
 
-    const panelWidth = isMobile
-      ? Math.min(width - 40, 900)
-      : Math.min(width - 200, 1600);
+    const panelMargin = compact ? 16 : 34;
 
-    const panelHeight = isMobile
-      ? Math.min(height - 60, 900)
-      : Math.min(height - 300, 720);
+    const panelWidth =
+      width - panelMargin * 2;
 
-    const panelX = width / 2;
-    const panelY = height / 2;
-    const panelTop = panelY - panelHeight / 2;
-    const panelBottom = panelY + panelHeight / 2;
+    const panelHeight =
+      height - panelMargin * 2;
 
-    const titleY = panelTop + (isMobile ? 40 : 60);
-    const subtitleY = titleY + (isMobile ? 50 : 60);
-    const attemptsY = subtitleY + (isMobile ? 70 : 60);
+    const panelTop =
+      height / 2 - panelHeight / 2;
 
-    const slotWidth = isMobile
-      ? Math.min(panelWidth - 64, 320)
-      : 420;
+    const panelBottom =
+      height / 2 + panelHeight / 2;
 
-    const slotHeight = isMobile
-      ? 130
-      : 170;
+    const titleY =
+      panelTop + (compact ? 30 : 44);
 
-    const slotGap = isMobile
-      ? 40
-      : 60;
+    const subtitleY =
+      titleY + (compact ? 38 : 48);
 
-    const totalSlotWidth =
-      activeSlotCount * slotWidth +
-      (activeSlotCount - 1) * slotGap;
+    const attemptsY =
+      subtitleY + (compact ? 48 : 58);
 
-    const slotStartX =
-      width / 2 -
-      totalSlotWidth / 2 +
-      slotWidth / 2;
+    /*
+     * Trzy sloty w poziomie tylko na desktopie.
+     * Na telefonie oraz małym ekranie układają się pionowo.
+     */
+    const verticalSlots = width < 860;
 
-    const slotsBaseY =
-      attemptsY +
-      (isMobile ? 130 : 150);
+    const slotWidth = verticalSlots
+      ? Math.min(panelWidth - 52, 620)
+      : Math.min(
+        360,
+        (panelWidth - 100) / activeSlotCount
+      );
+
+    const slotHeight =
+      compact ? 98 : 126;
+
+    const slotGap =
+      verticalSlots
+        ? (compact ? 18 : 24)
+        : 24;
+
+    const slotStartY =
+      attemptsY + (compact ? 76 : 96);
 
     const slotPositions = [];
 
-    for (let index = 0; index < activeSlotCount; index++) {
-      slotPositions.push({
-        x: slotStartX + index * (slotWidth + slotGap),
-        y: slotsBaseY,
-        labelY: slotsBaseY - (isMobile ? 70 : 95)
-      });
+    if (verticalSlots) {
+      for (let index = 0; index < activeSlotCount; index++) {
+        const y =
+          slotStartY +
+          index * (slotHeight + slotGap);
+
+        slotPositions.push({
+          x: width / 2,
+          y,
+          labelY: y - slotHeight / 2 - 20
+        });
+      }
+    } else {
+      const totalWidth =
+        activeSlotCount * slotWidth +
+        (activeSlotCount - 1) * slotGap;
+
+      const startX =
+        width / 2 -
+        totalWidth / 2 +
+        slotWidth / 2;
+
+      for (let index = 0; index < activeSlotCount; index++) {
+        slotPositions.push({
+          x:
+            startX +
+            index * (slotWidth + slotGap),
+          y: slotStartY,
+          labelY:
+            slotStartY -
+            slotHeight / 2 -
+            24
+        });
+      }
     }
 
-    const gridTopY =
-      slotsBaseY +
-      (isMobile ? 160 : 190);
+    const lastSlot =
+      slotPositions[slotPositions.length - 1];
 
-    const cardWidth = isMobile
-      ? Math.min((panelWidth - 80) / 3, 220)
-      : 260;
+    const cardGridTop =
+      verticalSlots
+        ? lastSlot.y + slotHeight / 2 + 72
+        : slotStartY + slotHeight / 2 + 82;
 
-    const cardHeight = isMobile
-      ? 90
-      : 130;
+    /*
+     * Zawsze 3 kolumny na dużym ekranie.
+     * 2 na średnim, 1 na bardzo wąskim.
+     */
+    let columns = 3;
 
-    const cols = 3;
-    const gridGapX = isMobile ? 12 : 18;
-    const gridGapY = isMobile ? 14 : 18;
+    if (width < 470) {
+      columns = 1;
+    } else if (width < 700) {
+      columns = 2;
+    }
+
+    const cardGapX =
+      compact ? 12 : 18;
+
+    const cardGapY =
+      compact ? 12 : 16;
+
+    const cardWidth = Math.min(
+      compact ? 220 : 260,
+      (
+        panelWidth -
+        36 -
+        (columns - 1) * cardGapX
+      ) / columns
+    );
+
+    const cardHeight =
+      compact ? 84 : 110;
 
     const totalGridWidth =
-      cols * cardWidth +
-      (cols - 1) * gridGapX;
+      columns * cardWidth +
+      (columns - 1) * cardGapX;
 
-    const gridStartX =
+    const cardStartX =
       width / 2 -
       totalGridWidth / 2 +
       cardWidth / 2;
 
-    const trayPositions = this.cards.map((_, index) => {
-      const col = index % cols;
-      const row = Math.floor(index / cols);
+    const cardPositions = this.cards.map((_, index) => {
+      const column = index % columns;
+      const row = Math.floor(index / columns);
 
       return {
-        x: gridStartX + col * (cardWidth + gridGapX),
-        y: gridTopY + row * (cardHeight + gridGapY)
+        x:
+          cardStartX +
+          column * (cardWidth + cardGapX),
+
+        y:
+          cardGridTop +
+          row * (cardHeight + cardGapY)
       };
     });
 
-    const buttonsY =
-      panelBottom -
-      (isMobile ? 70 : 80);
+    const rowCount = Math.max(
+      1,
+      Math.ceil(this.cards.length / columns)
+    );
 
-    const buttonGap = isMobile ? 160 : 220;
+    const cardsBottom =
+      cardGridTop +
+      (rowCount - 1) *
+      (cardHeight + cardGapY) +
+      cardHeight / 2;
+
+    const buttonsY = Math.min(
+      panelBottom - (compact ? 36 : 48),
+      cardsBottom + (compact ? 56 : 72)
+    );
+
+    const feedbackY =
+      buttonsY - (compact ? 58 : 70);
+
+    const legendY =
+      feedbackY - (compact ? 42 : 50);
 
     return {
       width,
       height,
-      isMobile,
+      compact,
 
       panelWidth,
       panelHeight,
-      panelX,
-      panelY,
 
       titleY,
       subtitleY,
@@ -446,27 +605,29 @@ export class HypothesisBoardUI {
 
       cardWidth,
       cardHeight,
-      trayPositions,
+      cardPositions,
 
       buttonsY,
-      legendY: buttonsY - 50,
-      feedbackY: buttonsY + 40,
+      feedbackY,
+      legendY,
 
-      wrapTitle: Math.max(540, panelWidth - 200),
-      wrapSubtitle: Math.max(540, panelWidth - 260),
-      wrapFeedback: Math.max(540, panelWidth - 260),
-      wrapSlot: Math.max(260, slotWidth - 48),
-      wrapCardTitle: isMobile
-        ? Math.max(120, cardWidth - 86)
-        : Math.max(170, cardWidth - 100),
+      wrapSlot: Math.max(
+        150,
+        slotWidth - 44
+      ),
 
-      buttonCloseX: width / 2 - buttonGap / 2,
-      buttonConfirmX: width / 2 + buttonGap / 2
+      wrapFeedback: Math.max(
+        250,
+        panelWidth - 80
+      ),
+
+      closeX: width / 2 - (compact ? 108 : 150),
+      confirmX: width / 2 + (compact ? 108 : 150)
     };
   }
 
-  applyResponsiveLayout() {
-    if (!this.overlay || this.isDestroyed) return;
+  applyLayout() {
+    if (this.isDestroyed || !this.overlay) return;
 
     this.layout = this.getLayout();
 
@@ -477,263 +638,198 @@ export class HypothesisBoardUI {
       .setPosition(0, 0);
 
     this.panel
-      .setPosition(L.panelX, L.panelY)
-      .setSize(L.panelWidth, L.panelHeight);
+      .setPosition(
+        L.width / 2,
+        L.height / 2
+      )
+      .setSize(
+        L.panelWidth,
+        L.panelHeight
+      );
+
+    this.innerPanel
+      .setPosition(
+        L.width / 2,
+        L.height / 2
+      )
+      .setSize(
+        L.panelWidth - 18,
+        L.panelHeight - 18
+      );
 
     this.titleText
       .setPosition(L.width / 2, L.titleY)
-      .setFontSize(L.isMobile ? '30px' : '40px')
-      .setWordWrapWidth(L.wrapTitle, true);
+      .setFontSize(
+        L.compact ? '26px' : '38px'
+      );
 
     this.subtitleText
-      .setPosition(L.width / 2, L.subtitleY)
-      .setFontSize(L.isMobile ? '18px' : '22px')
-      .setWordWrapWidth(L.wrapSubtitle, true);
+      .setPosition(
+        L.width / 2,
+        L.subtitleY
+      )
+      .setFontSize(
+        L.compact ? '14px' : '19px'
+      )
+      .setWordWrapWidth(
+        L.wrapFeedback,
+        true
+      );
 
     this.attemptsText
-      .setPosition(L.width / 2, L.attemptsY)
-      .setFontSize(L.isMobile ? '20px' : '24px');
-
-    this.legendText
-      .setPosition(L.width / 2, L.legendY)
-      .setFontSize(L.isMobile ? '15px' : '18px')
-      .setWordWrapWidth(L.wrapFeedback, true);
-
-    this.feedbackText
-      .setPosition(L.width / 2, L.feedbackY)
-      .setFontSize(L.isMobile ? '18px' : '22px')
-      .setWordWrapWidth(L.wrapFeedback, true);
-
-    this.slotViews.forEach((slotView, index) => {
-      slotView.updateLayout(
-        L.slotPositions[index],
-        L
+      .setPosition(
+        L.width / 2,
+        L.attemptsY
+      )
+      .setFontSize(
+        L.compact ? '17px' : '22px'
       );
-    });
+
+    this.slotViews.forEach(
+      (slotView, index) => {
+        slotView.updateLayout(
+          L.slotPositions[index],
+          {
+            ...L,
+            isMobile: L.compact
+          }
+        );
+      }
+    );
 
     this.cardViews.forEach((view, index) => {
-      const position = L.trayPositions[index];
-      const card = this.cards[index];
+      const position =
+        L.cardPositions[index];
 
-      if (!position || !card) return;
+      if (!position) return;
+
+      view.container.setPosition(
+        position.x,
+        position.y
+      );
 
       view.bg.setSize(
         L.cardWidth,
         L.cardHeight
       );
 
-      view.bg.input.hitArea.setTo(
-        -L.cardWidth / 2,
-        -L.cardHeight / 2,
+      view.border.setSize(
+        Math.max(30, L.cardWidth - 12),
+        Math.max(30, L.cardHeight - 12)
+      );
+
+      view.hitArea.setSize(
         L.cardWidth,
         L.cardHeight
       );
 
-      if (L.isMobile) {
-        view.title
-          .setPosition(-L.cardWidth / 2 + 12, -10)
-          .setOrigin(0, 0.5)
-          .setAlign('left')
-          .setFontSize('16px')
-          .setWordWrapWidth(
-            L.wrapCardTitle,
-            true
-          );
+      const compactCard =
+        L.compact ||
+        L.cardWidth < 190;
 
-        view.tag
-          .setPosition(-L.cardWidth / 2 + 12, 26)
-          .setOrigin(0, 0.5)
-          .setFontSize('11px');
-      } else {
-        view.title
-          .setPosition(0, -18)
-          .setOrigin(0.5)
-          .setAlign('center')
-          .setFontSize('18px')
-          .setWordWrapWidth(
-            L.wrapCardTitle,
-            true
-          );
+      view.title
+        .setFontSize(
+          compactCard ? '14px' : '18px'
+        )
+        .setWordWrapWidth(
+          Math.max(
+            90,
+            L.cardWidth - 20
+          ),
+          true
+        )
+        .setPosition(
+          0,
+          compactCard ? -10 : -16
+        );
 
-        view.tag
-          .setPosition(0, 34)
-          .setOrigin(0.5)
-          .setFontSize('13px');
-      }
+      view.skill
+        .setFontSize(
+          compactCard ? '10px' : '12px'
+        )
+        .setPosition(
+          0,
+          compactCard
+            ? L.cardHeight / 2 - 16
+            : 34
+        );
+    });
 
-      view.tag.setText(
-        this.buildSkillPreview(card.skills)
+    this.legendText
+      .setPosition(
+        L.width / 2,
+        L.legendY
+      )
+      .setFontSize(
+        L.compact ? '12px' : '16px'
+      )
+      .setWordWrapWidth(
+        L.wrapFeedback,
+        true
       );
 
-      const slotIndex = this.state?.getCardSlot(index);
-
-      if (
-        slotIndex !== undefined &&
-        slotIndex !== null &&
-        slotIndex !== -1
-      ) {
-        view.currentSlot = slotIndex;
-
-        const slotView = this.slotViews[slotIndex];
-
-        if (slotView) {
-          this.setCardPosition(
-            view,
-            slotView.box.x,
-            slotView.box.y
-          );
-        }
-      } else {
-        view.currentSlot = null;
-        view.homeX = position.x;
-        view.homeY = position.y;
-
-        this.setCardPosition(
-          view,
-          position.x,
-          position.y
-        );
-      }
-    });
+    this.feedbackText
+      .setPosition(
+        L.width / 2,
+        L.feedbackY
+      )
+      .setFontSize(
+        L.compact ? '15px' : '20px'
+      )
+      .setWordWrapWidth(
+        L.wrapFeedback,
+        true
+      );
 
     this.closeButton
       .setPosition(
-        L.buttonCloseX,
+        L.closeX,
         L.buttonsY
       )
       .setFontSize(
-        L.isMobile ? '22px' : '28px'
+        L.compact ? '17px' : '24px'
       );
 
     this.confirmButton
       .setPosition(
-        L.buttonConfirmX,
+        L.confirmX,
         L.buttonsY
       )
       .setFontSize(
-        L.isMobile ? '22px' : '28px'
+        L.compact ? '17px' : '24px'
       );
   }
 
-  syncCardPositions({
-    animate = false,
-    duration = 220
-  } = {}) {
-    if (this.isDestroyed) return;
-
-    this.cardViews.forEach(view => {
-      const slotIndex = this.state?.getCardSlot(
-        view.cardIndex
-      );
-
-      const target = slotIndex !== -1 &&
-        slotIndex !== null &&
-        slotIndex !== undefined
-        ? this.getSlotPosition(slotIndex)
-        : {
-          x: view.homeX,
-          y: view.homeY
-        };
-
-      view.currentSlot = slotIndex !== -1
-        ? slotIndex
-        : null;
-
-      if (!target) return;
-
-      if (animate) {
-        this.scene.tweens.killTweensOf(
-          view.container
-        );
-
-        this.scene.tweens.add({
-          targets: view.container,
-          x: target.x,
-          y: target.y,
-          duration,
-          ease: 'Quad.easeOut'
-        });
-      } else {
-        this.setCardPosition(
-          view,
-          target.x,
-          target.y
-        );
-      }
-    });
-  }
-
-  getSlotPosition(slotIndex) {
-    const slotView = this.slotViews[slotIndex];
-
-    if (!slotView?.box) return null;
-
-    return {
-      x: slotView.box.x,
-      y: slotView.box.y
-    };
-  }
-
-  setCardPosition(view, x, y) {
-    if (!view) return;
-
-    view.container.setPosition(x, y);
-    view.bg.setPosition(0, 0);
-
-    const L = this.layout;
-
-    if (!L) return;
-
-    const titleX = view.title.originX === 0
-      ? -L.cardWidth / 2 + 12
-      : 0;
-
-    const titleY = L.isMobile ? -10 : -18;
-    const tagX = L.isMobile
-      ? -L.cardWidth / 2 + 12
-      : 0;
-
-    const tagY = L.isMobile ? 26 : 34;
-
-    view.title.setPosition(titleX, titleY);
-    view.tag.setPosition(tagX, tagY);
-  }
-
-  refresh({
-    animateCards = false
-  } = {}) {
+  refresh() {
     if (this.isDestroyed) return;
 
     this.refreshSlots();
     this.refreshCards();
+    this.refreshAttempts();
     this.refreshConfirmButton();
-    this.updateAttempts();
-    this.syncCardPositions({
-      animate: animateCards
-    });
   }
 
   refreshSlots() {
-    this.slotViews.forEach((slotView, slotIndex) => {
-      const card = this.state?.getPlacedCard(
-        slotIndex
-      );
+    this.slotViews.forEach((slotView, index) => {
+      const card =
+        this.state?.getPlacedCard(index);
 
       const isSelected =
-        this.state?.selectedSlotIndex === slotIndex &&
-        this.state?.isSlotEmpty(slotIndex);
+        this.state?.selectedSlotIndex === index &&
+        this.state?.isSlotEmpty(index);
 
-      const isLocked = this.state?.isSlotLocked(
-        slotIndex
-      );
+      const isLocked =
+        this.state?.isSlotLocked(index);
 
       const status = isLocked
         ? 'locked'
-        : this.state?.slotFeedback?.[slotIndex] ||
-          'neutral';
+        : (
+          this.state?.slotFeedback?.[index] ||
+          'neutral'
+        );
 
       const sentence = card && !isLocked
-        ? this.getSlotSentence(card, slotIndex)
+        ? this.getSlotSentence(card, index)
         : null;
 
       slotView.refresh(
@@ -747,67 +843,124 @@ export class HypothesisBoardUI {
 
   refreshCards() {
     this.cardViews.forEach(view => {
-      const currentSlot = this.state?.getCardSlot(
-        view.cardIndex
+      const used = this.isCardUsed(view.index);
+
+      const selected =
+        this.state?.selectedCardIndex ===
+        view.index;
+
+      view.usedStamp.setVisible(used);
+      view.selectedStamp.setVisible(
+        selected && !used
       );
 
-      const isPlaced =
-        currentSlot !== -1 &&
-        currentSlot !== null &&
-        currentSlot !== undefined;
+      view.hitArea.setVisible(!used);
 
-      const isLocked = isPlaced &&
-        this.state?.isSlotLocked(currentSlot);
+      if (used) {
+        view.hitArea.disableInteractive();
 
-      if (isPlaced) {
-        view.bg.setAlpha(isLocked ? 0.25 : 0.35);
-        view.title.setAlpha(isLocked ? 0.25 : 0.35);
-        view.tag.setAlpha(isLocked ? 0.25 : 0.35);
-
+        view.container.setAlpha(0.44);
+        view.bg.setFillStyle(0xa79776, 1);
         view.bg.setStrokeStyle(
           2,
-          0x9a9a9a,
-          0.3
+          0x685a47,
+          0.8
         );
-      } else {
-        view.bg.setAlpha(1);
-        view.title.setAlpha(1);
-        view.tag.setAlpha(1);
 
-        view.bg.setStrokeStyle(
-          3,
-          0x7a5c2e,
-          0.85
-        );
+        return;
       }
+
+      view.container.setAlpha(1);
+
+      view.hitArea.setInteractive({
+        useHandCursor: true
+      });
+
+      this.applyCardStyle(
+        view.index,
+        selected
+      );
     });
   }
 
-  refreshConfirmButton() {
-    if (!this.confirmButton) return;
+  applyCardStyle(index, selected = false) {
+    const view = this.cardViews[index];
 
+    if (!view) return;
+
+    if (selected) {
+      view.bg.setFillStyle(0xffedb1, 1);
+      view.bg.setStrokeStyle(
+        4,
+        0xd4af37,
+        1
+      );
+
+      view.border.setStrokeStyle(
+        2,
+        0xfff0a6,
+        1
+      );
+
+      return;
+    }
+
+    view.bg.setFillStyle(0xf1e2bf, 1);
+    view.bg.setStrokeStyle(
+      3,
+      0x725022,
+      0.95
+    );
+
+    view.border.setStrokeStyle(
+      1,
+      0xb98945,
+      0.7
+    );
+  }
+
+  isCardUsed(cardIndex) {
+    const slotIndex =
+      this.state?.getCardSlot(cardIndex);
+
+    return (
+      slotIndex !== -1 &&
+      slotIndex !== null &&
+      slotIndex !== undefined
+    );
+  }
+
+  refreshAttempts() {
+    const attempts =
+      this.state?.attemptsLeft ?? 0;
+
+    this.attemptsText.setText(
+      `ATTEMPTS LEFT: ${attempts}`
+    );
+  }
+
+  refreshConfirmButton() {
     const complete =
       this.state?.isTimelineComplete() &&
       !this.state?.uiLocked;
 
     this.confirmButton.setColor(
-      complete ? '#ffd966' : '#666666'
+      complete ? '#ffd966' : '#747474'
     );
-  }
 
-  updateAttempts() {
-    if (!this.attemptsText) return;
+    this.confirmButton.setBackgroundColor(
+      complete ? '#513c12' : '#2d2822'
+    );
 
-    const attempts =
-      this.state?.attemptsLeft ?? 0;
-
-    this.attemptsText.setText(
-      `Attempts left: ${attempts}`
+    this.confirmButton.setAlpha(
+      complete ? 1 : 0.72
     );
   }
 
   getSlotSentence(card, slotIndex) {
-    if (!card) return null;
+    if (!card) {
+      return '[ empty ]';
+    }
 
     if (this.buildSlotSentence) {
       return this.buildSlotSentence(
@@ -820,22 +973,30 @@ export class HypothesisBoardUI {
   }
 
   buildSkillPreview(skills = []) {
-    if (!Array.isArray(skills) || skills.length === 0) {
-      return 'No skill';
+    if (
+      !Array.isArray(skills) ||
+      skills.length === 0
+    ) {
+      return 'UNKNOWN METHOD';
     }
 
-    return String(skills[0]);
+    return String(skills[0])
+      .replaceAll('_', ' ')
+      .toUpperCase();
   }
 
   showFeedback(
     text,
     color = '#ffd966'
   ) {
-    if (!this.feedbackText || this.isDestroyed) return;
+    if (!this.feedbackText || this.isDestroyed) {
+      return;
+    }
 
-    this.feedbackText.setText(text);
-    this.feedbackText.setColor(color);
-    this.feedbackText.setAlpha(1);
+    this.feedbackText
+      .setText(text)
+      .setColor(color)
+      .setAlpha(1);
 
     this.scene.tweens.killTweensOf(
       this.feedbackText
@@ -856,13 +1017,15 @@ export class HypothesisBoardUI {
   ) {
     if (!text || this.isDestroyed) return;
 
-    this.scene.time.delayedCall(delay, () => {
-      if (this.isDestroyed) return;
+    this.scene.time.delayedCall(
+      delay,
+      () => {
+        if (this.isDestroyed) return;
 
-      this.slotViews[slotIndex]?.showNarrative(
-        text
-      );
-    });
+        this.slotViews[slotIndex]
+          ?.showNarrative(text);
+      }
+    );
   }
 
   flashSlot(slotIndex) {
@@ -870,18 +1033,10 @@ export class HypothesisBoardUI {
   }
 
   bindResize() {
-    if (this.resizeBound) return;
-
-    this.resizeBound = true;
-
     this.handleResizeBound = () => {
       if (this.isDestroyed) return;
 
-      this.isMobileUI =
-        !!this.scene.sys.game.device.input.touch ||
-        this.scene.scale.width <= 900;
-
-      this.applyResponsiveLayout();
+      this.applyLayout();
       this.refresh();
     };
 
@@ -911,39 +1066,34 @@ export class HypothesisBoardUI {
 
     this.cardViews.forEach(view => {
       [
+        view.hitArea,
         view.bg,
+        view.border,
         view.title,
-        view.tag,
+        view.skill,
+        view.selectedStamp,
+        view.usedStamp,
         view.container
       ].forEach(item => {
-        if (item?.removeAllListeners) {
-          item.removeAllListeners();
-        }
-
-        if (item?.destroy) {
-          item.destroy();
-        }
+        item?.removeAllListeners?.();
+        item?.destroy?.();
       });
     });
 
     [
       this.overlay,
       this.panel,
+      this.innerPanel,
       this.titleText,
       this.subtitleText,
-      this.feedbackText,
       this.attemptsText,
       this.legendText,
+      this.feedbackText,
       this.closeButton,
       this.confirmButton
     ].forEach(item => {
-      if (item?.removeAllListeners) {
-        item.removeAllListeners();
-      }
-
-      if (item?.destroy) {
-        item.destroy();
-      }
+      item?.removeAllListeners?.();
+      item?.destroy?.();
     });
 
     this.slotViews = [];
@@ -951,6 +1101,5 @@ export class HypothesisBoardUI {
     this.cards = [];
     this.layout = null;
     this.handleResizeBound = null;
-    this.resizeBound = false;
   }
 }
