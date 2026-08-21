@@ -47,14 +47,57 @@ export function createFullName(genderCode) {
 }
 
 export function getForensicValue(source, field, fallback) {
-  const value =
-    source?.restrictedProfile?.forensicAttributes?.[field]?.value ??
-    source?.restrictedProfile?.forensicAttributes?.[field] ??
-    source?.forensicAttributes?.[field]?.value ??
-    source?.forensicAttributes?.[field] ??
-    source?.[field];
+  const aliases = {
+    hair_color: [
+      'hair_color',
+      'hairColor',
+      'hair'
+    ],
 
-  return value ?? fallback;
+    eye_color: [
+      'eye_color',
+      'eyeColor',
+      'eyes'
+    ],
+
+    blood_type: [
+      'blood_type',
+      'bloodType'
+    ],
+
+    biological_sex: [
+      'biological_sex',
+      'biologicalSex',
+      'sex'
+    ],
+
+    shoe_size_category: [
+      'shoe_size_category',
+      'shoeSizeCategory'
+    ],
+
+    handedness: [
+      'handedness',
+      'dominantHand'
+    ]
+  };
+
+  const candidateFields = aliases[field] || [field];
+
+  for (const candidateField of candidateFields) {
+    const value =
+      source?.restrictedProfile?.forensicAttributes?.[candidateField]?.value ??
+      source?.restrictedProfile?.forensicAttributes?.[candidateField] ??
+      source?.forensicAttributes?.[candidateField]?.value ??
+      source?.forensicAttributes?.[candidateField] ??
+      source?.[candidateField];
+
+    if (value !== undefined && value !== null && value !== '') {
+      return value;
+    }
+  }
+
+  return fallback;
 }
 
 export function normalizeForensicAttributes(source = {}, genderCode = 'nb') {

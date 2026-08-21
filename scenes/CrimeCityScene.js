@@ -293,16 +293,7 @@ export class CrimeCityScene extends BaseScene {
     } else if (!this.scene.isActive('UIScene')) {
       this.scene.launch('UIScene');
     }
-
-    /*
-     * Hidden Objects może skończyć się, gdy HUD był uśpiony.
-     * Po powrocie do Crime City wymuszamy odczyt gameState.score.
-     */
     uiScene.refreshScoreHud?.();
-
-    console.warn('[CrimeCityScene] HUD score refreshed.', {
-      gameStateScore: gameState.score
-    });
   }
 
   const playerHud =

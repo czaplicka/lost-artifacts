@@ -735,5 +735,6 @@ export class HypothesisScene extends BaseScene {
     this.slotQuestionIds = [];
 
     this.shutdownHandler = null;
+    this.game.events.emit('setHudVisible', true);
   }
 }

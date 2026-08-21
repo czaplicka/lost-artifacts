@@ -87,18 +87,40 @@ export class HypothesisResultService {
     reconstruction.hypothesisConfirmed = false;
     reconstruction.hypothesisSuspectFilterResult = null;
 
-    const confirmedSkills = this.getConfirmedSkills();
+    const confirmedSkills = this.getConfirmedSkills(
+  reconstruction
+);
 
-    if (resultLabel === 'exact') {
-      this.applyExactResult({
-        reconstruction,
-        confirmedSkills
-      });
+const hasConfirmedSkills =
+  confirmedSkills.length === 3;
+
+if (resultLabel === 'exact' && hasConfirmedSkills) {
+  this.applyExactResult({
+    reconstruction,
+    confirmedSkills
+  });
+} else if (resultLabel === 'exact') {
+  console.error(
+    '[HypothesisResultService] Exact theory completed, but requiredSkills are missing.',
+    {
+      confirmedSkills,
+      hypothesisEvidence: gameState.hypothesisEvidence,
+      reconstruction
     }
+  );
 
-    const skillsForNotes = resultLabel === 'exact'
-      ? confirmedSkills
-      : playerSkills;
+  /*
+   * Nie ustawiamy hypothesisConfirmed = true,
+   * jeżeli nie mamy kompletu trzech skillów.
+   */
+  reconstruction.confirmedSkills = [];
+  reconstruction.hypothesisConfirmed = false;
+}
+
+const skillsForNotes =
+  resultLabel === 'exact' && hasConfirmedSkills
+    ? confirmedSkills
+    : playerSkills;
 
     this.appendTheoryToNotes(
       finalText,
@@ -124,9 +146,10 @@ export class HypothesisResultService {
       finalText,
       orderedCards: orderedItems,
       playerSkills,
-      confirmedSkills: resultLabel === 'exact'
-        ? confirmedSkills
-        : [],
+confirmedSkills:
+  resultLabel === 'exact' && hasConfirmedSkills
+    ? confirmedSkills
+    : [],
       narrativeLines,
       suspectFilterResult:
         reconstruction.hypothesisSuspectFilterResult
@@ -146,16 +169,63 @@ export class HypothesisResultService {
   }
 
 
-  getConfirmedSkills() {
-    const requiredSkills =
-      gameState.hypothesisEvidence?.requiredSkills;
+getConfirmedSkills(reconstruction = null) {
+  const safeReconstruction =
+    reconstruction &&
+    typeof reconstruction === 'object'
+      ? reconstruction
+      : gameState.reconstructedHeist || {};
 
-    if (!Array.isArray(requiredSkills)) {
-      return [];
-    }
+  const legacySkills =
+    gameState.hypothesisEvidence?.requiredSkills;
 
-    return this.uniqueStrings(requiredSkills);
+  const generatedSkills =
+    safeReconstruction.requiredSkills;
+
+  const thiefSkills =
+    Array.isArray(safeReconstruction.thiefSkills)
+      ? safeReconstruction.thiefSkills
+      : typeof safeReconstruction.thiefSkills === 'string'
+        ? safeReconstruction.thiefSkills
+          .split(',')
+          .map(skill => skill.trim())
+          .filter(Boolean)
+        : [];
+
+  const sourceSkills =
+    Array.isArray(legacySkills) && legacySkills.length > 0
+      ? legacySkills
+      : Array.isArray(generatedSkills) &&
+        generatedSkills.length > 0
+        ? generatedSkills
+        : thiefSkills;
+
+  const confirmedSkills = [
+    ...new Set(
+      sourceSkills
+        .filter(Boolean)
+        .map(skill => String(skill).trim())
+        .filter(Boolean)
+    )
+  ].slice(0, 3);
+
+  /*
+   * Kompatybilność z SuspectUtils i starymi systemami,
+   * które nadal czytają hypothesisEvidence.requiredSkills.
+   */
+  if (confirmedSkills.length === 3) {
+    gameState.hypothesisEvidence = {
+      ...(gameState.hypothesisEvidence || {}),
+      requiredSkills: [...confirmedSkills],
+      missionId: safeReconstruction.missionId || null,
+      cityId: safeReconstruction.cityId || null,
+      sceneId: safeReconstruction.sceneId || null,
+      source: 'hypothesis_reconstruction'
+    };
   }
+
+  return confirmedSkills;
+}
 
 
   applyExactResult({

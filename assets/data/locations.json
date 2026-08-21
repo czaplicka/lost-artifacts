@@ -234,7 +234,7 @@
     "trainStation": true,
     "background": "berlin.jpg",
     "npcTheme": "white",
-    "map": { "x": 985, "y": 335 },
+    "map": { "x": 985, "y": 340 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 240, "cityY": 380, "enabled": true },

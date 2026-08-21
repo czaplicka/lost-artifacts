@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import { getDifficultyConfig } from '../DifficultySettings.js';
+import { getDifficultyConfig } from './DifficultySettings.js';
 
 export class HiddenObjectsResolver {
   /**

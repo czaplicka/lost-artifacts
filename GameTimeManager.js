@@ -1,5 +1,9 @@
 import { EventBus } from './EventBus.js';
 import { gameState } from './GameData.js';
+import {
+  isCaseTimeExpired,
+  refreshCaseDeadline
+} from './CaseTimeHelper.js';
 
 const OWNER_KEY = 'GameTimeManager';
 
@@ -10,8 +14,8 @@ export class GameTimeManager {
     this.currentDay = Number(savedState?.day) || 1;
     this.currentHour = Number(savedState?.hour) || 8;
     this.currentMinute = Number(savedState?.minute) || 0;
-this.partOfDay = savedState?.partOfDay || 'Morning';
-this.updatePartOfDay();
+    this.partOfDay = savedState?.partOfDay || 'Morning';
+    this.updatePartOfDay();
 
     EventBus.clearScope(OWNER_KEY);
 
@@ -43,6 +47,8 @@ this.updatePartOfDay();
       Math.floor(Number(minutes) || 0)
     );
 
+    const spentCaseSeconds = safeHours * 60 * 60 + safeMinutes * 60;
+
     this.currentMinute += safeMinutes;
 
     if (this.currentMinute >= 60) {
@@ -62,13 +68,21 @@ this.updatePartOfDay();
 
     this.updatePartOfDay();
     this.syncGameState();
+    const remainingCaseTime = refreshCaseDeadline(gameState);
+const caseExpired = isCaseTimeExpired(gameState);
 
-    const payload = {
-      day: this.currentDay,
-      hour: this.currentHour,
-      minute: this.currentMinute,
-      partOfDay: this.partOfDay
-    };
+    // Jeden centralny punkt: każde advanceTime obniża deadline sprawy.
+    // Jeśli timer sprawy nie jest aktywny, helper niczego nie zmienia.
+    const remainingCaseTime = spendCaseTime(spentCaseSeconds);
+
+const payload = {
+  day: this.currentDay,
+  hour: this.currentHour,
+  minute: this.currentMinute,
+  partOfDay: this.partOfDay,
+  caseTimeRemaining: remainingCaseTime,
+  caseExpired
+};
 
     EventBus.emit('timeChanged', payload);
     EventBus.emit('saveTimeState', payload);

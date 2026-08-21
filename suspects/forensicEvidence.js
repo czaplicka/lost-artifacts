@@ -1,5 +1,3 @@
-import { getSuspectData } from './suspectDataProvider.js';
-
 import {
   getByPath,
   normalizeString,

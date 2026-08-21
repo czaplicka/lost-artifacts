@@ -1,6 +1,44 @@
 import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 
+const SHOEPRINT_PROFILES = {
+  small: {
+    size: 38,
+    sole: 'RUBBER',
+    wear: 'RIGHT TOE',
+    value: 'small'
+  },
+
+  medium: {
+    size: 41,
+    sole: 'VIBRAM',
+    wear: 'LEFT HEEL',
+    value: 'medium'
+  },
+
+  large: {
+    size: 44,
+    sole: 'LUGGED',
+    wear: 'OUTER EDGE',
+    value: 'large'
+  }
+};
+
+const DEFAULT_EVIDENCE = {
+  id: 'museum_windowsill_shoeprint',
+  slot: 'trace',
+  attribute: 'shoe_size_category',
+  thief_value: 'medium',
+  source: 'footwear_cast',
+  label: 'Footwear Impression',
+  clueText: 'The plaster cast indicates a medium shoe size.',
+  allowedValues: [
+    'small',
+    'medium',
+    'large'
+  ]
+};
+
 export class ShoeprintScene extends BaseScene {
   constructor() {
     super('ShoeprintScene');
@@ -8,8 +46,9 @@ export class ShoeprintScene extends BaseScene {
     this.term = null;
 
     this.stationId = 'trace_1';
-    this.evidenceType = 'shoeprint_profile';
-    this.correctValue = 'size_43_vibram_left_heel';
+    this.evidence = null;
+    this.evidenceType = 'shoe_size_category';
+    this.correctValue = 'medium';
     this.clue = null;
 
     this.cast = null;
@@ -25,34 +64,50 @@ export class ShoeprintScene extends BaseScene {
   }
 
   init(data = {}) {
-    const evidenceConfig = data.evidenceConfig || {};
+    const incomingEvidence =
+      data.evidence ||
+      data.evidenceConfig ||
+      {};
 
-    this.stationId = data.stationId || 'trace_1';
+    this.evidence = {
+      ...DEFAULT_EVIDENCE,
+      ...incomingEvidence
+    };
+
+    this.stationId =
+      data.stationId ||
+      this.evidence.stationId ||
+      'trace_1';
 
     this.evidenceType =
+      this.evidence.attribute ||
       data.evidenceType ||
-      evidenceConfig.evidenceType ||
-      'shoeprint_profile';
+      'shoe_size_category';
 
     this.correctValue =
       data.correctValue ??
-      evidenceConfig.correctValue ??
-      'size_43_vibram_left_heel';
+      this.evidence.thief_value ??
+      'medium';
+
+    if (!SHOEPRINT_PROFILES[this.correctValue]) {
+      this.correctValue = 'medium';
+    }
+
+    const correctProfile =
+      SHOEPRINT_PROFILES[this.correctValue];
 
     this.clue = data.clue || {
-      id: evidenceConfig.id || 'museum_windowsill_shoeprint',
-      type:
-        data.clueType ||
-        evidenceConfig.clueType ||
-        'means',
+      id: this.evidence.id,
+      type: data.clueType || this.evidence.clueType || 'means',
       text:
         data.clueText ||
-        evidenceConfig.clueText ||
-        'A size 43 hiking boot with a Vibram sole left a worn mark on the museum windowsill.',
+        this.evidence.clueText ||
+        `The plaster cast indicates a ${this.correctValue} shoe size.`,
       facts: {
-        size: 43,
-        sole: 'Vibram',
-        wear: 'left heel'
+        shoeSizeCategory: this.correctValue,
+        size: correctProfile.size,
+        sole: correctProfile.sole,
+        wear: correctProfile.wear
       }
     };
 
@@ -95,38 +150,27 @@ export class ShoeprintScene extends BaseScene {
   }
 
   buildPuzzle() {
+    const correctProfile =
+      SHOEPRINT_PROFILES[this.correctValue];
+
     this.cast = {
-      size: 43,
-      sole: 'VIBRAM',
-      wear: 'LEFT HEEL'
+      size: correctProfile.size,
+      sole: correctProfile.sole,
+      wear: correctProfile.wear
     };
 
-    this.entries = Phaser.Utils.Array.Shuffle([
-      {
-        id: 'BOOT-1138',
-        size: 43,
-        sole: 'VIBRAM',
-        wear: 'LEFT HEEL',
-        value: 'size_43_vibram_left_heel',
-        ok: true
-      },
-      {
-        id: 'BOOT-2049',
-        size: 43,
-        sole: 'VIBRAM',
-        wear: 'RIGHT TOE',
-        value: 'size_43_vibram_right_toe',
-        ok: false
-      },
-      {
-        id: 'SHOE-0773',
-        size: 41,
-        sole: 'VIBRAM',
-        wear: 'LEFT HEEL',
-        value: 'size_41_vibram_left_heel',
-        ok: false
-      }
-    ]);
+    this.entries = Phaser.Utils.Array.Shuffle(
+      Object.values(SHOEPRINT_PROFILES).map(
+        (profile, index) => ({
+          id: `BOOT-${String(1138 + index * 911).padStart(4, '0')}`,
+          size: profile.size,
+          sole: profile.sole,
+          wear: profile.wear,
+          value: profile.value,
+          ok: profile.value === this.correctValue
+        })
+      )
+    );
   }
 
   async showIntro() {
@@ -166,27 +210,27 @@ export class ShoeprintScene extends BaseScene {
     this.showEntryButtons();
   }
 
-showEntryButtons() {
-  if (!this.term || this.finished) {
-    return;
+  showEntryButtons() {
+    if (!this.term || this.finished) {
+      return;
+    }
+
+    this.term.clearButtons();
+
+    this.entries.forEach((entry) => {
+      this.term.button(
+        `${entry.id}  |  SIZE ${entry.size}`,
+        TERM.green,
+        () => this.guessEntry(entry)
+      );
+
+      this.term.button(
+        `SOLE ${entry.sole}  |  WEAR ${entry.wear}`,
+        TERM.green,
+        () => this.guessEntry(entry)
+      );
+    });
   }
-
-  this.term.clearButtons();
-
-  this.entries.forEach((entry) => {
-    this.term.button(
-      `${entry.id}  |  SIZE ${entry.size}`,
-      TERM.green,
-      () => this.guessEntry(entry)
-    );
-
-    this.term.button(
-      `SOLE ${entry.sole}  |  WEAR ${entry.wear}`,
-      TERM.green,
-      () => this.guessEntry(entry)
-    );
-  });
-}
 
   async guessEntry(entry) {
     if (this.busy || this.finished) {
@@ -236,7 +280,11 @@ showEntryButtons() {
     );
 
     await terminal.print(
-      '> PROFILE: SIZE 43 / VIBRAM SOLE / LEFT-HEEL WEAR.'
+      `> FORENSIC CATEGORY: ${this.correctValue.toUpperCase()} SHOE SIZE.`
+    );
+
+    await terminal.print(
+      `> PROFILE: SIZE ${entry.size} / ${entry.sole} SOLE / ${entry.wear} WEAR.`
     );
 
     if (timeBonus > 0) {
@@ -254,7 +302,7 @@ showEntryButtons() {
     terminal.button(
       'ADD TO CASE FILE',
       TERM.green,
-      () => this.returnResultToCrimeLab(entry.value)
+      () => this.returnResultToCrimeLab()
     );
   }
 
@@ -305,7 +353,7 @@ showEntryButtons() {
     );
   }
 
-  returnResultToCrimeLab(value) {
+  returnResultToCrimeLab() {
     if (this.returningToLab) {
       return;
     }
@@ -315,21 +363,42 @@ showEntryButtons() {
     const payload = {
       aborted: false,
       completed: true,
+
       stationId: this.stationId,
+
+      evidenceId: this.evidence.id,
       evidenceType: this.evidenceType,
-      value,
+
+      attribute: this.evidence.attribute,
+      value: this.correctValue,
+
+      source: this.evidence.source,
+      label: this.evidence.label,
+      clueText: this.evidence.clueText,
+
+      evidence: {
+        ...this.evidence
+      },
+
       score: this.score,
       mistakes: this.mistakes,
       secondsElapsed: this.getSecondsElapsed(),
+
       clue: this.clue
     };
 
-    this.events.emit('minigame-complete', payload);
-
-    this.events.emit('minigame-closed', {
-      aborted: false,
+    this.events.emit(
+      'minigame-complete',
       payload
-    });
+    );
+
+    this.events.emit(
+      'minigame-closed',
+      {
+        aborted: false,
+        payload
+      }
+    );
 
     this.scene.stop();
   }

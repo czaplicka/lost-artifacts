@@ -63,6 +63,7 @@ function ensureSuspectShape(suspect) {
   suspect.publicProfile ??= {};
   suspect.restrictedProfile ??= {};
   suspect.hiddenProfile ??= {};
+  suspect.hiddenCaseData ??= {};
   suspect.deductionState ??= {};
 
   suspect.restrictedProfile.unlockedFields ??= [];
@@ -83,15 +84,23 @@ function ensureSuspectShape(suspect) {
 function ensureAllSuspectShapes() {
   getSuspects().forEach(ensureSuspectShape);
 }
-
+function getForensicAttributeValue(suspect, field) {
+  return suspect.restrictedProfile
+    ?.forensicAttributes
+    ?.[field]
+    ?.value;
+}
 function getDisplayName(suspect) {
-  return suspect.publicProfile?.name
+  return suspect.publicProfile?.displayName
     || suspect.name
     || 'Unknown Suspect';
 }
 
 function isTrueThief(suspect) {
-  return suspect.hiddenProfile?.isThief === true || suspect.is_thief === true;
+  return suspect.isRealThief === true
+    || suspect.hiddenCaseData?.isTrueThief === true
+    || suspect.hiddenProfile?.isThief === true
+    || suspect.is_thief === true;
 }
 
 function addUniqueNote(suspect, note) {
@@ -168,26 +177,44 @@ function clearElimination(suspect, reasonId = null) {
   return suspect;
 }
 
-function unlockRestrictedField(suspect, field, value, source = 'police_record') {
+function unlockRestrictedField(
+  suspect,
+  field,
+  value,
+  source = 'police_record'
+) {
   ensureSuspectShape(suspect);
 
   if (typeof field !== 'string' || !field.trim()) {
-    throw new Error('SuspectUtils.unlockRestrictedField requires a valid field name.');
+    throw new Error(
+      'SuspectUtils.unlockRestrictedField requires a valid field name.'
+    );
   }
 
   const cleanField = field.trim();
 
-  suspect.restrictedProfile.forensicAttributes[cleanField] = {
-    value,
-    source,
-    unlockedAt: getTimestamp()
-  };
+  const existingAttribute =
+    suspect.restrictedProfile
+      .forensicAttributes
+      [cleanField] || {};
+
+  suspect.restrictedProfile
+    .forensicAttributes
+    [cleanField] = {
+      ...existingAttribute,
+      value,
+      unlocked: true,
+      source,
+      unlockedAt: getTimestamp()
+    };
 
   if (!suspect.restrictedProfile.unlockedFields.includes(cleanField)) {
     suspect.restrictedProfile.unlockedFields.push(cleanField);
   }
 
-  return suspect.restrictedProfile.forensicAttributes[cleanField];
+  return suspect.restrictedProfile
+    .forensicAttributes
+    [cleanField];
 }
 
 function getIdentityEvidence() {
@@ -325,15 +352,20 @@ export function applyIdentityEvidence(options = {}) {
   getSuspects().forEach((suspect) => {
     ensureSuspectShape(suspect);
 
-    const suspectValue = suspect.attributes?.[attribute];
-    const matchesEvidence = normalizeValue(suspectValue) === normalizeValue(value);
+const suspectValue = getForensicAttributeValue(
+  suspect,
+  attribute
+);
 
-    unlockRestrictedField(
-      suspect,
-      attribute,
-      matchesEvidence ? 'consistent' : 'inconsistent',
-      source
-    );
+const matchesEvidence =
+  normalizeValue(suspectValue) === normalizeValue(value);
+
+unlockRestrictedField(
+  suspect,
+  attribute,
+  suspectValue,
+  source
+);
 
     if (matchesEvidence) {
       suspect.deductionState.labStatus = STATUS.MATCH;

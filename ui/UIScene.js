@@ -5,6 +5,10 @@ import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
 import { getGameTimeManager } from '../GameTimeManager.js';
+import {
+  getCaseTimeRemaining,
+  getCaseTimerKey
+} from '../CaseTimeHelper.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 
@@ -21,6 +25,7 @@ export class UIScene extends BaseScene {
     this._zeroTimer = null;
     this.domAbortController = null;
     this.moneyChangeHandler = null;
+    this.caseTimerInitialSeconds = null;
   }
 
   async create() {
@@ -99,6 +104,11 @@ getGameTimeManager({
 
   _bindEvents() {
     EventBus.on('timeChanged', this.updateTime, this);
+    EventBus.on(
+  'caseTimeChanged',
+  this.updateCaseDeadline,
+  this
+);
     EventBus.on('scoreChanged', this.updateScore, this);
     EventBus.on('cashChanged', this.updateCash, this);
     EventBus.on('agentStatsChanged', this._refreshOpenAgentModal, this);
@@ -114,6 +124,11 @@ getGameTimeManager({
 
   _cleanup() {
     EventBus.off('timeChanged', this.updateTime, this);
+    EventBus.off(
+  'caseTimeChanged',
+  this.updateCaseDeadline,
+  this
+);
     EventBus.off('scoreChanged', this.updateScore, this);
     EventBus.off('cashChanged', this.updateCash, this);
     EventBus.off('agentStatsChanged', this._refreshOpenAgentModal, this);
@@ -231,9 +246,88 @@ showHUD() {
     if (this.dom.time) this.dom.time.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     if (this.dom.partOfDay) this.dom.partOfDay.textContent = String(data.partOfDay || 'Morning').toUpperCase();
     this._updateDateDisplay(this.currentGameDay);
+this.updateCaseDeadline();
+  }
+updateCaseDeadline(data = {}) {
+  const remainingSeconds = Number.isFinite(
+    Number(data.remainingSeconds)
+  )
+    ? Math.max(0, Math.floor(Number(data.remainingSeconds)))
+    : getCaseTimeRemaining(gameState);
+
+  if (remainingSeconds === null) {
+    this.caseTimerInitialSeconds = null;
     this._updateDeadlineDisplay(this.currentGameDay);
+    return;
   }
 
+  if (
+    !Number.isFinite(this.caseTimerInitialSeconds) ||
+    remainingSeconds > this.caseTimerInitialSeconds
+  ) {
+    this.caseTimerInitialSeconds = remainingSeconds;
+  }
+
+  const initialSeconds = Math.max(
+    1,
+    this.caseTimerInitialSeconds
+  );
+
+  const progress = Phaser.Math.Clamp(
+    (remainingSeconds / initialSeconds) * 100,
+    0,
+    100
+  );
+
+  const color = remainingSeconds <= 60 * 60
+    ? '#ae2012'
+    : remainingSeconds <= 12 * 60 * 60
+      ? '#ee9b00'
+      : '#4caf50';
+
+  if (this.dom.deadlineValue) {
+    this.dom.deadlineValue.textContent =
+      this._formatCaseDeadline(remainingSeconds);
+
+    this.dom.deadlineValue.style.color = color;
+  }
+
+  if (this.dom.deadlineProgress) {
+    this.dom.deadlineProgress.style.width = `${progress}%`;
+    this.dom.deadlineProgress.style.backgroundColor = color;
+  }
+}
+
+_formatCaseDeadline(seconds) {
+  const safeSeconds = Math.max(
+    0,
+    Math.floor(Number(seconds) || 0)
+  );
+
+  const days = Math.floor(safeSeconds / 86400);
+  const hours = Math.floor((safeSeconds % 86400) / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+
+  if (days > 0) {
+    return `${days}D ${String(hours).padStart(2, '0')}H`;
+  }
+
+  if (hours > 0) {
+    return `${hours}H ${String(minutes).padStart(2, '0')}M`;
+  }
+
+  return `${minutes}M`;
+}
+
+_getCaseDeadlineSeconds() {
+  const key = getCaseTimerKey(gameState);
+
+  if (!key) {
+    return null;
+  }
+
+  return getCaseTimeRemaining(gameState);
+}
   _calculateDate(gameDay) {
     return new Date(this.startDate.year, this.startDate.month, this.startDate.day + gameDay - 1);
   }
@@ -343,10 +437,29 @@ showHUD() {
     return `CASE DATE\n${label}\nDay ${this.currentGameDay} of the investigation.`;
   }
 
-  _getDeadlineTooltip() {
-    const daysLeft = Math.max(0, this.missionDays - this.currentGameDay + 1);
-    return `CASE DEADLINE\n${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.\nWhen time runs out, the case is over.`;
+_getDeadlineTooltip() {
+  const remainingSeconds = this._getCaseDeadlineSeconds();
+
+  if (remainingSeconds !== null) {
+    return [
+      'CASE DEADLINE',
+      `${this._formatCaseDeadline(remainingSeconds)} remaining.`,
+      'Travel, lab work, crime scenes and sleep consume case time.',
+      'When time runs out, the thief disappears.'
+    ].join('\n');
   }
+
+  const daysLeft = Math.max(
+    0,
+    this.missionDays - this.currentGameDay + 1
+  );
+
+  return [
+    'CASE DEADLINE',
+    `${daysLeft} day${daysLeft === 1 ? '' : 's'} remaining.`,
+    'When time runs out, the case is over.'
+  ].join('\n');
+}
 
   _getEnergyTooltip() {
     const manager = this.energyManager;

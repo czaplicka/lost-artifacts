@@ -11,6 +11,13 @@ import { HiddenObjectsUI } from '../ui/HiddenObjectsUI.js';
 import { HiddenObjectsResultOverlay } from '../ui/HiddenObjectsResultOverlay.js';
 import { EventBus } from '../EventBus.js';
 
+const TIME_PASSED_FLAVOR_LINES = [
+  'You spent so long crawling on the floor that a guard asked if you lost a contact lens.',
+  'Four hours of crouching behind statues. Your knees will remember this.',
+  'You examined every dust bunny twice. Thoroughness has a cost: time.',
+  'The museum closed and reopened while you were still under that table.',
+  'You now know this room better than the people who built it. Also, it is evening.',
+];
 
 export class HiddenObjectsScene extends BaseScene {
   constructor() {
@@ -52,6 +59,9 @@ export class HiddenObjectsScene extends BaseScene {
     this.isSceneFinished = false;
     this.scoreManager = null;
     this.incorrectClicks = 0;
+    // Ile godzin CZASU GRY zjada wizyta na scenie zbrodni.
+    this.timeCostHours = 4;
+    this.timeAdvanced = false;
     this.stateManager = new HiddenObjectsState(this);
     this.resolver = new HiddenObjectsResolver(this);
     this.ui = new HiddenObjectsUI(this);
@@ -59,10 +69,12 @@ export class HiddenObjectsScene extends BaseScene {
   }
 
 
+
   init(data = {}) {
   const mission = this.resolver.resolveIncomingMission(data);
   const resolvedSceneId = this.resolver.resolveSceneId(data, mission);
   const resolvedCityId = this.resolver.resolveCityId(data, mission);
+
 
 
   this.sceneId = resolvedSceneId;
@@ -75,18 +87,22 @@ export class HiddenObjectsScene extends BaseScene {
   this.objectsDataPath = data.objectsDataPath || 'assets/data/objects.json';
 
 
+
   const difficulty = this.registry.get('difficulty') || gameState.difficulty || 'field';
   const difficultyConfig = getDifficultyConfig(difficulty);
   const baseTimeLimit = Number.isFinite(data.timeLimit) ? data.timeLimit : 120;
+
 
 
   this.activeCount = difficultyConfig.hiddenObjectCount;
   this.timeLeft = Math.round(baseTimeLimit * difficultyConfig.timerMultiplier);
 
 
+
   this.returnScene = typeof data.returnScene === 'string' && data.returnScene.trim()
     ? data.returnScene.trim()
     : 'CityScene';
+
 
 
   this.returnData = data.returnData || { cityId: resolvedCityId };
@@ -97,6 +113,14 @@ export class HiddenObjectsScene extends BaseScene {
   this.sidebarWidth = data.sidebarWidth || 420;
   this.mapWidth = data.mapWidth || 1920;
   this.mapHeight = data.mapHeight || 1080;
+
+
+
+  // Koszt czasu gry za odwiedzenie tej scenerii zbrodni (domyślnie 4h,
+  // ale można nadpisać per-misja, np. dla mniejszych scen).
+  this.timeCostHours = Number.isFinite(data.timeCostHours) ? data.timeCostHours : 4;
+  this.timeAdvanced = false;
+
 
 
   this.itemsData = [];
@@ -115,14 +139,17 @@ this.score = this.scoreManager.getSessionPoints();
   this.stateManager.ensureStateStructure();
 }
 
+
   preload() {
     if (this.backgroundPath && !this.textures.exists(this.backgroundKey)) this.load.image(this.backgroundKey, this.backgroundPath);
     if (this.mapPath && !this.cache.tilemap.exists(this.mapKey)) this.load.tilemapTiledJSON(this.mapKey, this.mapPath);
     if (this.objectsDataPath && !this.cache.json.exists(this.objectsDataKey)) this.load.json(this.objectsDataKey, this.objectsDataPath);
   }
 
+
   loadObjectsData() {
     const rawData = this.cache.json.get(this.objectsDataKey);
+
 
     if (!Array.isArray(rawData)) {
       console.error(
@@ -132,8 +159,10 @@ this.score = this.scoreManager.getSessionPoints();
       return false;
     }
 
+
     this.itemsData = rawData;
     this.itemsById = {};
+
 
     rawData.forEach(item => {
       if (item && item.id !== undefined && item.id !== null) {
@@ -141,9 +170,11 @@ this.score = this.scoreManager.getSessionPoints();
       }
     });
 
+
     this.sceneItems = rawData.filter(item =>
       Array.isArray(item.scene) && item.scene.includes(this.sceneId)
     );
+
 
     console.log('[HiddenObjectsScene] loadObjectsData', {
       sceneId: this.sceneId,
@@ -151,8 +182,10 @@ this.score = this.scoreManager.getSessionPoints();
       sceneItemsCount: this.sceneItems.length
     });
 
+
     return true;
   }
+
 
 
   create() {
@@ -163,6 +196,7 @@ this.score = this.scoreManager.getSessionPoints();
     this.cameras.main.setBackgroundColor('#0f0f12');
     this.forceResetCursor();
     this.energyManager = getEnergyManager();
+
 
 
     if (this.stateManager.isQuestAlreadyDone()) {
@@ -204,11 +238,13 @@ this.score = this.scoreManager.getSessionPoints();
   }
 
 
+
   getGeneratedCardIds() {
     const ids = gameState.reconstructedHeist?.foundCardIds;
     if (!Array.isArray(ids)) return [];
     return [...new Set(ids.map(id => String(id).trim()).filter(Boolean))];
   }
+
 
 
   pickActiveItems(legacyCount = 6) {
@@ -237,6 +273,7 @@ this.score = this.scoreManager.getSessionPoints();
     }
 
 
+
     console.warn('[HiddenObjectsScene] No generated foundCardIds. Using legacy candidate pool.', {
       sceneId: this.sceneId,
       legacyCount
@@ -252,8 +289,10 @@ this.score = this.scoreManager.getSessionPoints();
   }
 
 
+
   syncGeneratedReconstructionData() {
   const reconstruction = gameState.reconstructedHeist;
+
 
 
   if (!reconstruction || this.getGeneratedCardIds().length === 0) {
@@ -263,6 +302,7 @@ this.score = this.scoreManager.getSessionPoints();
       this.sceneId
     );
 
+
     legacyData.requiredSkills = Array.isArray(
       gameState.hypothesisEvidence?.requiredSkills
     )
@@ -270,9 +310,11 @@ this.score = this.scoreManager.getSessionPoints();
       : [];
 
 
+
     legacyData.hiddenObjectsCompleted = false;
     legacyData.hiddenObjectsCompletedAt = null;
     legacyData.collectedCardIds = [];
+
 
 
     this.stateManager.saveReconstructionCards(legacyData);
@@ -280,8 +322,10 @@ this.score = this.scoreManager.getSessionPoints();
   }
 
 
+
   reconstruction.cityId = reconstruction.cityId || this.cityId;
   reconstruction.sceneId = reconstruction.sceneId || this.sceneId;
+
 
 
   reconstruction.foundCardIds = this.activeItems.map(
@@ -289,11 +333,13 @@ this.score = this.scoreManager.getSessionPoints();
   );
 
 
+
   reconstruction.solutionCardIds = Array.isArray(
     reconstruction.solutionCardIds
   )
     ? reconstruction.solutionCardIds.map((id) => String(id))
     : [];
+
 
 
   reconstruction.collectedCardIds = Array.isArray(
@@ -304,6 +350,7 @@ this.score = this.scoreManager.getSessionPoints();
     ))
     : [];
 
+
   reconstruction.requiredSkills = Array.isArray(
     gameState.hypothesisEvidence?.requiredSkills
   )
@@ -311,8 +358,10 @@ this.score = this.scoreManager.getSessionPoints();
     : [];
 
 
+
   reconstruction.hiddenObjectsCompleted ??= false;
   reconstruction.hiddenObjectsCompletedAt ??= null;
+
 
 
   if (!Array.isArray(reconstruction.allCards) || reconstruction.allCards.length === 0) {
@@ -324,13 +373,16 @@ this.score = this.scoreManager.getSessionPoints();
       scene: this.sceneId,
       cityId: this.cityId,
 
+
       correctOrder: Number.isInteger(item.correctOrder)
         ? item.correctOrder
         : -1,
 
 
+
       isCorrect: this.missionRelevantItemIds.has(String(item.id)),
       isRedHerring: Boolean(item.isRedHerring),
+
 
 
       trueExplanation: item.trueExplanation || '',
@@ -342,6 +394,7 @@ this.score = this.scoreManager.getSessionPoints();
   }
 
 
+
   console.log('[HiddenObjectsScene] Reconstruction data synchronized.', {
     foundCardIds: reconstruction.foundCardIds,
     solutionCardIds: reconstruction.solutionCardIds,
@@ -349,6 +402,7 @@ this.score = this.scoreManager.getSessionPoints();
     collectedCardIds: reconstruction.collectedCardIds
   });
 }
+
 
 
   getSafeReturnScene() {
@@ -362,8 +416,10 @@ this.score = this.scoreManager.getSessionPoints();
   }
 
 
+
 returnToSafeScene(data = {}) {
   const targetScene = this.getSafeReturnScene();
+
 
 
   if (!targetScene) {
@@ -371,10 +427,13 @@ returnToSafeScene(data = {}) {
   }
 
 
+
   this.forceResetCursor();
 
 
+
   this.scene.start(targetScene, data);
+
 
 
   this.scene.get(targetScene).events.once(
@@ -386,14 +445,17 @@ this.game.events.emit('setHudVisible', true);
   );
 
 
+
   return true;
 }
+
 
 handleSceneSetupFailure(message) {
   console.error('[HiddenObjectsScene] Setup failed:', message, {
     sceneId: this.sceneId,
     cityId: this.cityId,
   });
+
 
 
   this.returnToSafeScene({
@@ -408,10 +470,12 @@ handleSceneSetupFailure(message) {
   });
 }
 
+
   forceResetCursor() {
     this.input.setDefaultCursor('default');
     if (this.sys.game.canvas) this.sys.game.canvas.style.cursor = 'default';
   }
+
 
   pauseSourceScene() {
     if (!this.sourceScene || this.sourceScene === this.scene.key || !this.scene.manager.keys[this.sourceScene]) return;
@@ -419,6 +483,7 @@ handleSceneSetupFailure(message) {
     if (this.scene.isActive(this.sourceScene)) this.scene.sleep(this.sourceScene);
     if (sourceRef?.input) sourceRef.input.enabled = false;
   }
+
 
   restoreSourceScene() {
     this.forceResetCursor();
@@ -436,13 +501,16 @@ restoreGameHud() {
   const uiSceneKey = 'UIScene';
 
 
+
   if (!this.scene.manager.keys[uiSceneKey]) {
     return;
   }
 
 
+
   const wasSleeping = this.scene.isSleeping(uiSceneKey);
   const wasPaused = this.scene.isPaused(uiSceneKey);
+
 
 
   if (wasSleeping) {
@@ -454,6 +522,7 @@ restoreGameHud() {
   }
 
 
+
   const refreshHud = () => {
     EventBus.emit('showHUD');
     EventBus.emit('scoreChanged', {
@@ -461,6 +530,7 @@ restoreGameHud() {
       source: 'hidden-objects-return',
     });
   };
+
 
 
   if (wasSleeping) {
@@ -478,8 +548,10 @@ restoreGameHud() {
   }
 
 
+
   this.scene.bringToTop(uiSceneKey);
 }
+
 
   computePlayArea() {
     const { width, height } = this.scale;
@@ -492,7 +564,9 @@ restoreGameHud() {
     this.playOffsetY = (this.playAreaHeight - renderedHeight) / 2;
   }
 
+
   normalizeSkills(value) { return this.resolver.normalizeSkills(value); }
+
 
   createBackground() {
     const { height } = this.scale;
@@ -504,6 +578,7 @@ restoreGameHud() {
     }
     this.add.rectangle(this.sidebarWidth, 0, 2, height, 0xd4af37, 0.45).setOrigin(0, 0).setDepth(900);
   }
+
 
   createHiddenZones() {
     let map;
@@ -551,11 +626,13 @@ restoreGameHud() {
   }
 
 
+
   getObjectBounds(obj) {
     if (obj.polygon?.length) return this.getPolylineBounds(obj.x, obj.y, obj.polygon);
     if (obj.polyline?.length) return this.getPolylineBounds(obj.x, obj.y, obj.polyline);
     return { x: obj.x + obj.width / 2, y: obj.y + obj.height / 2, width: obj.width, height: obj.height };
   }
+
 
 
   getPolylineBounds(originX, originY, points) {
@@ -564,6 +641,7 @@ restoreGameHud() {
     const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
     return { x: originX + minX + (maxX - minX) / 2, y: originY + minY + (maxY - minY) / 2, width: Math.max(8, maxX - minX), height: Math.max(8, maxY - minY) };
   }
+
 
 
   handleHiddenObjectClick(zone) {
@@ -597,14 +675,17 @@ this.score = this.scoreManager.addHiddenObjectScore(points);
   }
 
 
+
 storeCollectedCardId(id) {
   if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
     return;
   }
 
 
+
   const reconstruction = gameState.reconstructedHeist;
   const cardId = String(id);
+
 
 
   reconstruction.collectedCardIds = Array.isArray(
@@ -614,15 +695,19 @@ storeCollectedCardId(id) {
     : [];
 
 
+
   if (!reconstruction.collectedCardIds.includes(cardId)) {
     reconstruction.collectedCardIds.push(cardId);
   }
 
 
+
   reconstruction.collectedEvidence ??= {};
 
 
+
   const foundItem = this.itemsById[cardId];
+
 
 
   reconstruction.collectedEvidence[cardId] = {
@@ -633,6 +718,7 @@ storeCollectedCardId(id) {
     clueType: foundItem?.clueType || 'soft_clue'
   };
 }
+
 
 
   emitClueFound(itemData) {
@@ -647,6 +733,7 @@ storeCollectedCardId(id) {
   }
 
 
+
   createTimer() {
     this.timerEvent = this.time.addEvent({
       delay: 1000,
@@ -655,8 +742,10 @@ storeCollectedCardId(id) {
         if (this.isSceneFinished) return;
 
 
+
         this.timeLeft -= 1;
         this.ui.updateTimer(this.timeLeft);
+
 
 
         if (this.timeLeft <= 0) {
@@ -668,17 +757,66 @@ storeCollectedCardId(id) {
 
 
 
+  // Zjada `timeCostHours` godzin CZASU GRY (domyślnie 4h) za wizytę na scenie
+  // zbrodni. Emitujemy globalny event, dokładnie jak w EnergyManager i
+  // DestinationsUI - GameTimeManager go nasłuchuje i sam robi resztę
+  // (dzień, partOfDay, deadline misji itd.). Zabezpieczone flagą,
+  // żeby nie doliczyć czasu dwa razy (np. finishScene + abandonGame).
+  advanceGameTime() {
+    if (this.timeAdvanced) return;
+    this.timeAdvanced = true;
+
+
+
+    const hours = Number.isFinite(this.timeCostHours) ? this.timeCostHours : 4;
+    if (hours <= 0) return;
+
+
+
+    EventBus.emit('advanceTime', hours, 0);
+
+
+
+    console.log('[HiddenObjectsScene] Game time advanced.', {
+      sceneId: this.sceneId,
+      hours,
+    });
+  }
+
+
+
+  showTimeAdvanceToast() {
+    const hours = Number.isFinite(this.timeCostHours) ? this.timeCostHours : 4;
+    if (hours <= 0) return;
+
+
+
+    const flavor = TIME_PASSED_FLAVOR_LINES[
+      Math.floor(Math.random() * TIME_PASSED_FLAVOR_LINES.length)
+    ];
+
+
+
+    this.ui.showMessage(`${hours}h passed. ${flavor}`, '#9fd3ff');
+  }
+
+
+
+
   finishScene(success) {
   if (this.isSceneFinished) return;
 
 
+
   this.isSceneFinished = true;
+
 
 
   if (this.timerEvent) {
     this.timerEvent.remove(false);
     this.timerEvent = null;
   }
+
 
 
   this.hiddenZones.forEach((zone) => {
@@ -688,7 +826,10 @@ storeCollectedCardId(id) {
   });
 
 
+
   this.stateManager.markSceneVisited(success);
+  this.advanceGameTime();
+
 
 
   if (success) {
@@ -700,7 +841,9 @@ storeCollectedCardId(id) {
     }
 
 
+
     gameState.hiddenObjectsProgress ??= {};
+
 
 
     const caseId =
@@ -708,6 +851,7 @@ storeCollectedCardId(id) {
       gameState.currentMission?.id ||
       gameState.currentMission?.caseId ||
       `${this.cityId}_${this.sceneId}`;
+
 
 
     gameState.hiddenObjectsProgress[caseId] = {
@@ -723,11 +867,14 @@ storeCollectedCardId(id) {
     };
 
 
+
     const timeBonus = this.timeLeft * 2;
     this.score = this.scoreManager.addHiddenObjectScore(timeBonus);
 
 
+
     saveGameState();
+
 
 
     this.ui.updateScoreAndMisses(
@@ -736,22 +883,28 @@ storeCollectedCardId(id) {
     );
 
 
+
     this.ui.showMessage(
       `Crime scene processed. Time bonus +${timeBonus}`,
       '#7CFC00',
     );
 
 
+
+    this.showTimeAdvanceToast();
     this.overlay.showSuccessOverlay();
     return;
   }
 
 
+
   this.playSfx('wrong', { volume: 0.5 });
   this.flashScreen(0xff4d4d, 0.18, 220);
   this.ui.showMessage('Time is up. The evidence trail went cold.', '#ff6b6b');
+  this.showTimeAdvanceToast();
   this.overlay.showFailureOverlay();
 }
+
 
 
 abandonGame() {
@@ -760,13 +913,16 @@ abandonGame() {
   }
 
 
+
   this.isSceneFinished = true;
+
 
 
   if (this.timerEvent) {
     this.timerEvent.remove(false);
     this.timerEvent = null;
   }
+
 
 
   this.hiddenZones.forEach((zone) => {
@@ -776,7 +932,10 @@ abandonGame() {
   });
 
 
+
   this.stateManager.markSceneVisited(false);
+  this.advanceGameTime();
+
 
 
   this.returnToSafeScene({
@@ -791,9 +950,11 @@ abandonGame() {
 }
 
 
+
   registerMissDetection() {
     this.input.on('pointerdown', this.handleGlobalPointerDown, this);
   }
+
 
 
 
@@ -807,10 +968,13 @@ abandonGame() {
     }
 
 
+
     this.incorrectClicks += 1;
 
 
+
     this.score = this.scoreManager.addHiddenObjectScore(-3);
+
 
 
     this.ui.updateScoreAndMisses(
@@ -819,10 +983,12 @@ abandonGame() {
     );
 
 
+
     this.playSfx('wrong', { volume: 0.38 });
     this.bumpText(this.ui.missesText);
     this.bumpText(this.ui.scoreText);
     this.flashScreen(0xff4d4d, 0.12, 120);
+
 
 
     this.ui.showMessage(
@@ -833,9 +999,11 @@ abandonGame() {
 
 
 
+
   playSfx(key, config = {}) {
     audioManager.playSfx(key, config);
   }
+
 
 
 
@@ -853,6 +1021,7 @@ abandonGame() {
       .setDepth(2500);
 
 
+
     this.tweens.add({
       targets: flash,
       alpha: 0,
@@ -864,15 +1033,19 @@ abandonGame() {
 
 
 
+
   pulseZone(zone, color = 0x7CFC00) {
     if (!zone) return;
+
 
 
     const scaleX = zone.scaleX || 1;
     const scaleY = zone.scaleY || 1;
 
 
+
     zone.setStrokeStyle(3, color, 1);
+
 
 
     this.tweens.add({
@@ -887,12 +1060,15 @@ abandonGame() {
 
 
 
+
   bumpText(target) {
     if (!target) return;
 
 
+
     this.tweens.killTweensOf(target);
     target.setScale(1);
+
 
 
     this.tweens.add({
@@ -906,6 +1082,7 @@ abandonGame() {
 
 
 
+
   handleShutdown() {
     if (this.input) {
       this.input.off(
@@ -916,14 +1093,17 @@ abandonGame() {
     }
 
 
+
     if (this.timerEvent) {
       this.timerEvent.remove(false);
       this.timerEvent = null;
     }
 
 
+
     this.overlay?.destroy();
   }
+
 
 
 
@@ -933,13 +1113,16 @@ abandonGame() {
     );
 
 
+
     return prop ? prop.value : null;
   }
 
 
 
+
   formatTime(seconds) {
     const safeSeconds = Math.max(0, seconds);
+
 
 
     return `${Math.floor(safeSeconds / 60)}:${String(

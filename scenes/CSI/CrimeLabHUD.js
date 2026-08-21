@@ -1,4 +1,8 @@
-// CrimeLabHUD.js
+import { EventBus } from '../../EventBus.js';
+import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
+
+const HUD_EVENT_SCOPE = 'CrimeLabHUD';
+
 export class CrimeLabHUD {
   constructor(scene) {
     this.scene = scene;
@@ -6,11 +10,17 @@ export class CrimeLabHUD {
     this.labTimerText = null;
     this.labProgressText = null;
     this.labCaseText = null;
+
+    this.boundCaseTimeChanged = this.handleCaseTimeChanged.bind(this);
   }
 
   create() {
     const { width } = this.scene.scale;
-    this.topHudContainer = this.scene.add.container(0, 0).setScrollFactor(0).setDepth(1000);
+
+    this.topHudContainer = this.scene.add
+      .container(0, 0)
+      .setScrollFactor(0)
+      .setDepth(1000);
 
     const bg = this.scene.add
       .rectangle(width / 2, 0, width, 64, 0x07111b, 0.92)
@@ -56,6 +66,33 @@ export class CrimeLabHUD {
       this.labProgressText,
       this.labTimerText
     ]);
+
+    // Jeden listener na zmianę deadline'u, ze scoped cleanup w destroy().
+    EventBus.clearScope(HUD_EVENT_SCOPE);
+    EventBus.on(
+      'caseTimeChanged',
+      this.boundCaseTimeChanged,
+      this,
+      HUD_EVENT_SCOPE
+    );
+
+    this.refresh(
+      this.scene.completedCount || 0,
+      this.scene.totalStations || 3,
+      getCaseTimeRemaining(this.scene.gameState)
+    );
+  }
+
+  handleCaseTimeChanged({ remainingSeconds } = {}) {
+    const remaining = Number.isFinite(Number(remainingSeconds))
+      ? Math.max(0, Math.floor(Number(remainingSeconds)))
+      : getCaseTimeRemaining(this.scene.gameState);
+
+    this.refresh(
+      this.scene.completedCount || 0,
+      this.scene.totalStations || 3,
+      remaining
+    );
   }
 
   refresh(completedCount, totalStations, remainingSeconds) {
@@ -64,20 +101,41 @@ export class CrimeLabHUD {
 
     this.labCaseText?.setText(String(artifact).toUpperCase());
     this.labProgressText?.setText(`ANALYSES: ${completedCount}/${totalStations}`);
-    
+
     if (remainingSeconds !== null) {
-      const minutes = Math.floor(remainingSeconds / 60);
-      const seconds = remainingSeconds % 60;
-      const formattedTime = `TIME: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-      
+      const safeSeconds = Math.max(0, Math.floor(Number(remainingSeconds)));
+      const hours = Math.floor(safeSeconds / 3600);
+      const minutes = Math.floor((safeSeconds % 3600) / 60);
+      const seconds = safeSeconds % 60;
+
+      const formattedTime = hours > 0
+        ? `TIME: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        : `TIME: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
       this.labTimerText?.setText(formattedTime);
-      this.labTimerText?.setColor(remainingSeconds <= 60 ? '#ff5c5c' : '#ffcc00');
-    } else {
-      this.labTimerText?.setText('TIME: --:--');
+
+      if (safeSeconds <= 60) {
+        this.labTimerText?.setColor('#ff5c5c');
+      } else if (safeSeconds <= 15 * 60) {
+        this.labTimerText?.setColor('#ff9f43');
+      } else {
+        this.labTimerText?.setColor('#ffcc00');
+      }
+
+      return;
     }
+
+    this.labTimerText?.setText('TIME: --:--');
+    this.labTimerText?.setColor('#ffcc00');
   }
 
   destroy() {
+    EventBus.clearScope(HUD_EVENT_SCOPE);
+
     this.topHudContainer?.destroy(true);
+    this.topHudContainer = null;
+    this.labTimerText = null;
+    this.labProgressText = null;
+    this.labCaseText = null;
   }
 }
