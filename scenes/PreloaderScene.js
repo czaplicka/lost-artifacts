@@ -2,6 +2,7 @@ import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { NEWSPAPER_CONFIG } from '../assets/data/newspaperConfig.js';
 import { EventBus } from '../EventBus.js';
+import { loadSuspectData } from '../suspects/suspectDataProvider.js';
 
 export class PreloaderScene extends BaseScene {
     constructor() {
@@ -389,6 +390,7 @@ export class PreloaderScene extends BaseScene {
         this.load.json('tv-config', 'assets/data/tv-config.json');
         this.load.json('reconstruction_questions',  'assets/data/reconstruction_questions.json');
         this.load.json('monologues', 'assets/data/monologues.json');
+        this.load.json('suspectData', 'assets/data/suspectData.json');
     
         this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
         this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
@@ -631,8 +633,9 @@ collectNewspaperItems() {
         });
     }
 
-    create() {
+    async create() {
         super.create();
+        await loadSuspectData('assets/data/suspectData.json');
         audioManager.init(this);
         EventBus.emit('hideHUD');
 

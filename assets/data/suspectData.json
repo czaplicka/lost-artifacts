@@ -1,0 +1,188 @@
+{
+  "firstNames": {
+    "female": [
+      "Amelia",
+      "Beatrice",
+      "Camille",
+      "Daphne",
+      "Elena",
+      "Francesca",
+      "Giulia",
+      "Helena",
+      "Isabelle",
+      "Juliette",
+      "Katarina",
+      "Lucia",
+      "Margot",
+      "Nadia",
+      "Olivia",
+      "Penelope",
+      "Rosa",
+      "Sofia",
+      "Theresa",
+      "Valentina"
+    ],
+    "male": [
+      "Adrian",
+      "Benoit",
+      "Charles",
+      "Damien",
+      "Elias",
+      "Felix",
+      "Gabriel",
+      "Hugo",
+      "Ivan",
+      "Julian",
+      "Konrad",
+      "Leon",
+      "Matteo",
+      "Nicolas",
+      "Oscar",
+      "Pascal",
+      "Quentin",
+      "Rafael",
+      "Sebastian",
+      "Victor"
+    ],
+    "nb": [
+      "Alex",
+      "Avery",
+      "Casey",
+      "Dakota",
+      "Emery",
+      "Harper",
+      "Jamie",
+      "Jordan",
+      "Morgan",
+      "Noel",
+      "Parker",
+      "Quinn",
+      "Reese",
+      "Robin",
+      "Rowan"
+    ]
+  },
+
+  "lastNames": [
+    "Arnaud",
+    "Bianchi",
+    "Blanc",
+    "Carter",
+    "Costa",
+    "Dubois",
+    "Durand",
+    "Evans",
+    "Fournier",
+    "Garcia",
+    "Hughes",
+    "Kowalski",
+    "Lambert",
+    "Martin",
+    "Moreau",
+    "Nowak",
+    "Rossi",
+    "Schmidt",
+    "Silva",
+    "Taylor",
+    "Walker"
+  ],
+
+  "occupations": [
+    "Museum Curator",
+    "Assistant Archaeologist",
+    "Night Security Guard",
+    "Deputy Director",
+    "Archive Clerk",
+    "Exhibition Designer",
+    "Restoration Technician",
+    "Museum Guide",
+    "Insurance Assessor",
+    "Private Collector",
+    "Art Courier",
+    "Gift Shop Manager",
+    "Facilities Supervisor",
+    "Research Fellow",
+    "Volunteer Coordinator"
+  ],
+
+  "caseConnections": [
+    "Listed in the local access records.",
+    "Worked near the artifact wing on the day of the theft.",
+    "Had authorized access to a restricted museum corridor.",
+    "Was seen near the staff entrance before closing time.",
+    "Handled paperwork connected to the exhibition.",
+    "Appears in the museum security roster.",
+    "Visited the museum shortly before the incident.",
+    "Was mentioned by a member of museum staff.",
+    "Had professional contact with the artifact department.",
+    "Was present during preparations for the exhibition."
+  ],
+
+  "forensics": {
+    "hairColors": [
+      "black",
+      "brown",
+      "blonde",
+      "red",
+      "grey",
+      "white",
+      "auburn"
+    ],
+
+    "eyeColors": [
+      "brown",
+      "blue",
+      "green",
+      "grey",
+      "hazel"
+    ],
+
+    "bloodTypes": [
+      "A+",
+      "A-",
+      "B+",
+      "B-",
+      "AB+",
+      "AB-",
+      "O+",
+      "O-"
+    ],
+
+    "shoeSizeCategories": [
+      "small",
+      "medium",
+      "large"
+    ],
+
+    "handedness": [
+      "left",
+      "right"
+    ]
+  },
+
+  "visualTraits": [
+    "Wears round glasses",
+    "Wears square glasses",
+    "No glasses",
+    "Usually wears a hat",
+    "Always carries a notebook",
+    "Wears a long coat",
+    "Wears a bright scarf",
+    "Wears leather gloves",
+    "Carries an old camera",
+    "Wears a wristwatch",
+    "Has a messenger bag",
+    "Wears polished shoes",
+    "Prefers practical boots",
+    "Has a vintage lapel pin",
+    "Often carries an umbrella",
+    "Smells faintly of coffee",
+    "Keeps immaculate clothing",
+    "Wears a slightly rumpled suit",
+    "Has paint on their sleeves",
+    "Carries a folded city map",
+    "Wears an old signet ring",
+    "Always has a fountain pen",
+    "Has a distinctive scarf pin"
+  ]
+}

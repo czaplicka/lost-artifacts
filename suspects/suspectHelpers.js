@@ -1,4 +1,4 @@
-import { gameState } from './GameData.js';
+import { gameState } from '../GameData.js';
 
 function getThiefId() {
   return gameState.currentThief?.id ||

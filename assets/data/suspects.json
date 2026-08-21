@@ -13,7 +13,10 @@
     "habitus": "Smoking, Drinking, Gambling",
     "portraitKey": "garett_gutter",
     "suspectImageKey": "gg",
-    "wantedKey": "1"
+    "wantedKey": "1",
+    "handedness": "right",
+    "bloodType": "O+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "sofia_vargas",
@@ -29,7 +32,10 @@
     "habitus": "Tattoos, Piercings, Reading",
     "portraitKey": "sofia_vargas",
     "suspectImageKey": "sv",
-    "wantedKey": "2"
+    "wantedKey": "2",
+    "handedness": "right",
+    "bloodType": "A+",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "bert_goodman",
@@ -45,7 +51,10 @@
     "habitus": "Gaming, Coding, Watching movies",
     "portraitKey": "bert_goodman",
     "suspectImageKey": "bg",
-    "wantedKey": "3"
+    "wantedKey": "3",
+    "handedness": "left",
+    "bloodType": "B-",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "anne_apple",
@@ -61,7 +70,10 @@
     "habitus": "Yoga, Meditation, Cooking",
     "portraitKey": "anne_apple",
     "suspectImageKey": "aa",
-    "wantedKey": "4"
+    "wantedKey": "4",
+    "handedness": "right",
+    "bloodType": "A-",
+    "shoeSizeCategory": "small"
   },
   {
     "id": "frank_groot",
@@ -77,7 +89,10 @@
     "habitus": "Reading, Journaling, Walking",
     "portraitKey": "frank_groot",
     "suspectImageKey": "fg",
-    "wantedKey": "5"
+    "wantedKey": "5",
+    "handedness": "right",
+    "bloodType": "AB+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "bernard_porter",
@@ -93,7 +108,10 @@
     "habitus": "Joking, Pranks, Flirting",
     "portraitKey": "bernard_porter",
     "suspectImageKey": "bp",
-    "wantedKey": "6"
+    "wantedKey": "6",
+    "handedness": "right",
+    "bloodType": "O-",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "rebecca_muller",
@@ -109,7 +127,10 @@
     "habitus": "Collecting, Painting, Traveling",
     "portraitKey": "rebecca_muller",
     "suspectImageKey": "rm",
-    "wantedKey": "7"
+    "wantedKey": "7",
+    "handedness": "left",
+    "bloodType": "B+",
+    "shoeSizeCategory": "small"
   },
   {
     "id": "jacek_kowalski",
@@ -125,7 +146,10 @@
     "habitus": "Hiking, Camping, Fishing",
     "portraitKey": "jacek_kowalski",
     "suspectImageKey": "jk",
-    "wantedKey": "8"
+    "wantedKey": "8",
+    "handedness": "right",
+    "bloodType": "A+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "pablo_fernandez",
@@ -141,7 +165,10 @@
     "habitus": "Skateboarding, Dancing, Street art",
     "portraitKey": "pablo_fernandez",
     "suspectImageKey": "pf",
-    "wantedKey": "9"
+    "wantedKey": "9",
+    "handedness": "ambidextrous",
+    "bloodType": "O+",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "alexandra_ivanova",
@@ -157,7 +184,10 @@
     "habitus": "Shooting, Hiking, Traveling",
     "portraitKey": "alexandra_ivanova",
     "suspectImageKey": "ai",
-    "wantedKey": "10"
+    "wantedKey": "10",
+    "handedness": "right",
+    "bloodType": "AB-",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "sergei_petrov",
@@ -173,7 +203,10 @@
     "habitus": "Chess, Reading, Traveling",
     "portraitKey": "sergei_petrov",
     "suspectImageKey": "sp",
-    "wantedKey": "11"
+    "wantedKey": "11",
+    "handedness": "right",
+    "bloodType": "B+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "isabella_rossi",
@@ -189,8 +222,11 @@
     "habitus": "Cooking, Wine tasting, Eating out",
     "portraitKey": "isabella_rossi",
     "suspectImageKey": "ir",
-    "wantedKey": "12"
-    },
+    "wantedKey": "12",
+    "handedness": "right",
+    "bloodType": "A-",
+    "shoeSizeCategory": "small"
+  },
   {
     "id": "liam_oconnor",
     "name": "Liam O'Connor",
@@ -205,7 +241,10 @@
     "habitus": "Playing guitar, Drinking, Storytelling",
     "portraitKey": "liam_oconnor",
     "suspectImageKey": "lo",
-    "wantedKey": "13"
+    "wantedKey": "13",
+    "handedness": "left",
+    "bloodType": "O+",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "ava_thompson",
@@ -221,7 +260,10 @@
     "habitus": "Reading, Writing, Gardening",
     "portraitKey": "ava_thompson",
     "suspectImageKey": "at",
-    "wantedKey": "14"
+    "wantedKey": "14",
+    "handedness": "right",
+    "bloodType": "A+",
+    "shoeSizeCategory": "small"
   },
   {
     "id": "maximilian_schmidt",
@@ -237,7 +279,10 @@
     "habitus": "Reading, Building models, Chess",
     "portraitKey": "maximilian_schmidt",
     "suspectImageKey": "ms",
-    "wantedKey": "15"
+    "wantedKey": "15",
+    "handedness": "right",
+    "bloodType": "AB+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "brendan_ross",
@@ -253,7 +298,10 @@
     "habitus": "Running, Hiking, Traveling",
     "portraitKey": "brendan_ross",
     "suspectImageKey": "br",
-    "wantedKey": "16"
+    "wantedKey": "16",
+    "handedness": "left",
+    "bloodType": "O-",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "bai_williams",
@@ -269,7 +317,10 @@
     "habitus": "Swimming, Running, Traveling",
     "portraitKey": "bai_williams",
     "suspectImageKey": "bw",
-    "wantedKey": "17"
+    "wantedKey": "17",
+    "handedness": "right",
+    "bloodType": "B-",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "albert_johnson",
@@ -285,7 +336,10 @@
     "habitus": "Reading, Writing, Traveling",
     "portraitKey": "albert_johnson",
     "suspectImageKey": "aj",
-    "wantedKey": "18"
+    "wantedKey": "18",
+    "handedness": "right",
+    "bloodType": "O+",
+    "shoeSizeCategory": "large"
   },
   {
     "id": "anna_bocian",
@@ -301,7 +355,10 @@
     "habitus": "Exploring, Watching Movies, Eating out",
     "portraitKey": "anna_bocian",
     "suspectImageKey": "ab",
-    "wantedKey": "19"
+    "wantedKey": "19",
+    "handedness": "right",
+    "bloodType": "A+",
+    "shoeSizeCategory": "small"
   },
   {
     "id": "aleksander_petrov",
@@ -317,7 +374,10 @@
     "habitus": "Working out, Chess, Playing video games",
     "portraitKey": "aleksander_petrov",
     "suspectImageKey": "ap",
-    "wantedKey": "20"
+    "wantedKey": "20",
+    "handedness": "left",
+    "bloodType": "B+",
+    "shoeSizeCategory": "medium"
   },
   {
     "id": "marie_dubois",
@@ -333,7 +393,10 @@
     "habitus": "Flirting, Shopping, Stealth",
     "portraitKey": "marie_dubois",
     "suspectImageKey": "md",
-    "wantedKey": "21"
+    "wantedKey": "21",
+    "handedness": "right",
+    "bloodType": "AB-",
+    "shoeSizeCategory": "small"
   },
   {
     "id": "lotte_chantal",
@@ -349,6 +412,9 @@
     "habitus": "Reading, Flirting, Dancing",
     "portraitKey": "lotte_chantal",
     "suspectImageKey": "lc",
-    "wantedKey": "22"
+    "wantedKey": "22",
+    "handedness": "right",
+    "bloodType": "O+",
+    "shoeSizeCategory": "medium"
   }
 ]

@@ -8,7 +8,6 @@ import { HypothesisState } from '../HypothesisState.js';
 import { HypothesisResultService } from '../HypothesisResultService.js';
 import { HypothesisBoardUI } from '../ui/HypothesisBoardUI.js';
 
-
 export class HypothesisScene extends BaseScene {
   constructor() {
     super('HypothesisScene');
@@ -35,7 +34,6 @@ export class HypothesisScene extends BaseScene {
     this.shutdownHandler = null;
   }
 
-
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
 
@@ -59,15 +57,9 @@ export class HypothesisScene extends BaseScene {
       ? gameState.reconstructedHeist.claims
       : [];
 
-    /*
-     * Każda misja ma dokładnie trzy claims:
-     * - każde pytanie odpowiada jednemu skillowi złodzieja,
-     * - każdy claim ma questionId i prompt,
-     * - kolejność claims odpowiada correctOrder kart rozwiązania.
-     */
     if (this.claims.length !== 3) {
       console.warn(
-        '[HypothesisScene] Expected 3 reconstruction claims.',
+        '[HypothesisScene] Expected exactly 3 reconstruction claims.',
         {
           claims: this.claims,
           reconstruction: gameState.reconstructedHeist
@@ -110,6 +102,7 @@ export class HypothesisScene extends BaseScene {
     this.availableCards = [];
     this.correctCards = [];
     this.distractorCards = [];
+
     this.energyManager = null;
     this.boardUI = null;
     this.shutdownHandler = null;
@@ -122,7 +115,6 @@ export class HypothesisScene extends BaseScene {
       slotQuestionIds: this.slotQuestionIds
     });
   }
-
 
   create() {
     super.create();
@@ -144,7 +136,9 @@ export class HypothesisScene extends BaseScene {
       return;
     }
 
-    this.hypothesisState.setCards(this.availableCards);
+    this.hypothesisState.setCards(
+      this.availableCards
+    );
 
     this.boardUI = new HypothesisBoardUI(this, {
       state: this.hypothesisState,
@@ -172,14 +166,15 @@ export class HypothesisScene extends BaseScene {
 
     this.boardUI.create();
 
-    this.shutdownHandler = () => this.onShutdown();
+    this.shutdownHandler = () => {
+      this.onShutdown();
+    };
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.shutdownHandler
     );
   }
-
 
   ensureReconstructionState() {
     if (
@@ -189,7 +184,6 @@ export class HypothesisScene extends BaseScene {
       gameState.reconstructedHeist = {};
     }
   }
-
 
   prepareCards() {
     const {
@@ -213,17 +207,20 @@ export class HypothesisScene extends BaseScene {
     });
   }
 
-
   getQuestionId(slotIndex) {
     return this.slotQuestionIds[slotIndex] || null;
   }
-
 
   getClaim(slotIndex) {
     return this.claims[slotIndex] || null;
   }
 
-
+  /*
+   * Nie używa HypothesisEvaluator.findUseForQuestion(),
+   * ponieważ ta metoda nie istnieje w HypothesisEvaluator.js.
+   *
+   * Szukamy odpowiedniego wpisu bezpośrednio w danych karty.
+   */
   getReconstructionUse(card, slotIndex) {
     const questionId = this.getQuestionId(slotIndex);
 
@@ -231,162 +228,179 @@ export class HypothesisScene extends BaseScene {
       return null;
     }
 
-    return HypothesisEvaluator.findUseForQuestion(
+    const uses = Array.isArray(card.reconstructionUses)
+      ? card.reconstructionUses
+      : [];
+
+    const matchingUse = uses.find(use => {
+      if (!use || typeof use !== 'object') {
+        return false;
+      }
+
+      return use.questionId === questionId;
+    });
+
+    if (matchingUse) {
+      return matchingUse;
+    }
+
+    /*
+     * Kompatybilność ze starszym formatem kart,
+     * w którym pytanie zapisano wprost na karcie.
+     */
+    if (card.questionId === questionId) {
+      return {
+        questionId,
+
+        slotSentence:
+          card.slotSentence ||
+          card.answer ||
+          card.item ||
+          null,
+
+        answer:
+          card.answer ||
+          card.slotSentence ||
+          card.item ||
+          null,
+
+        heistExplanation:
+          card.heistExplanation ||
+          card.trueExplanation ||
+          ''
+      };
+    }
+
+    return null;
+  }
+
+  buildSlotSentence(card, slotIndex) {
+    if (!card) {
+      return '[ empty ]';
+    }
+
+    const use = this.getReconstructionUse(
       card,
-      questionId
+      slotIndex
     );
-  }
 
+    /*
+     * Prawidłowa karta dla konkretnego pytania:
+     * pokazujemy jej odpowiedź kontekstową.
+     */
+    if (use?.slotSentence) {
+      return use.slotSentence;
+    }
 
-buildSlotSentence(card, slotIndex) {
-  if (!card) {
-    return '[ empty ]';
-  }
+    if (use?.answer) {
+      return use.answer;
+    }
 
-  const questionId = this.getQuestionId(slotIndex);
+    if (use?.text) {
+      return use.text;
+    }
 
-  /*
-   * Obsługa starych zapisów oraz kart bez dopasowania do pytania.
-   * Nie wolno tu wywoływać metody, która nie istnieje
-   * w HypothesisEvaluator.
-   */
-  if (!questionId) {
+    if (use?.label) {
+      return use.label;
+    }
+
+    /*
+     * Nieprawidłowa karta nadal może być położona
+     * w slocie. Pokazujemy jej nazwę, aby gracz widział
+     * własną teorię i mógł dostać feedback yellow/red.
+     */
+    if (card.slotSentence) {
+      return card.slotSentence;
+    }
+
+    if (card.answer) {
+      return card.answer;
+    }
+
     return card.item || '[ clue ]';
   }
 
-  const use = this.getReconstructionUse(card, slotIndex);
+  handleCardTap(cardIndex) {
+    if (this.hypothesisState.uiLocked) {
+      return;
+    }
 
-  /*
-   * Najlepszy wariant: konkretna odpowiedź tej karty
-   * na pytanie przypisane do danego slotu.
-   */
-  if (use?.slotSentence) {
-    return use.slotSentence;
+    const result =
+      this.hypothesisState.selectCard(cardIndex);
+
+    if (!result.ok) {
+      this.handleMoveFailure(result);
+      return;
+    }
+
+    const card = this.availableCards[cardIndex];
+
+    this.boardUI.refresh();
+
+    this.boardUI.showFeedback(
+      result.selected
+        ? `"${card?.item || 'Clue'}" selected. Now click a question.`
+        : 'Clue selection cleared.',
+      result.selected
+        ? '#ffd966'
+        : '#ccb98c'
+    );
   }
-
-  if (use?.answer) {
-    return use.answer;
-  }
-
-  if (use?.label) {
-    return use.label;
-  }
-
-  if (use?.text) {
-    return use.text;
-  }
-
-  /*
-   * Fallbacki na różne możliwe struktury danych kart.
-   */
-  if (card.slotSentence) {
-    return card.slotSentence;
-  }
-
-  if (card.answer) {
-    return card.answer;
-  }
-
-  if (card.heistExplanation) {
-    return card.heistExplanation;
-  }
-
-  return card.item || '[ clue ]';
-}
-
-handleCardTap(cardIndex) {
-  if (this.hypothesisState.uiLocked) {
-    return;
-  }
-
-  const result = this.hypothesisState.selectCard(cardIndex);
-
-  if (!result.ok) {
-    this.handleMoveFailure(result);
-    return;
-  }
-
-  this.boardUI.refresh();
-
-  const card = this.availableCards[cardIndex];
-
-  this.boardUI.showFeedback(
-    `"${card?.item || 'Clue'}" selected. Now choose a question.`,
-    '#ffd966'
-  );
-}
-selectCard(cardIndex) {
-  if (this.uiLocked) {
-    return {
-      ok: false,
-      reason: 'ui_locked'
-    };
-  }
-
-  const card = this.cards?.[cardIndex];
-
-  if (!card) {
-    return {
-      ok: false,
-      reason: 'invalid_card'
-    };
-  }
-
-  const currentSlot = this.getCardSlot(cardIndex);
-
-  if (
-    currentSlot !== -1 &&
-    currentSlot !== null &&
-    currentSlot !== undefined
-  ) {
-    return {
-      ok: false,
-      reason: 'card_locked'
-    };
-  }
-
-  if (this.selectedCardIndex === cardIndex) {
-    this.selectedCardIndex = null;
-
-    return {
-      ok: true,
-      selected: false,
-      cardIndex
-    };
-  }
-
-  this.selectedCardIndex = cardIndex;
-
-  return {
-    ok: true,
-    selected: true,
-    cardIndex
-  };
-}
 
   handleSlotTap(slotIndex) {
-  if (this.hypothesisState.uiLocked) {
-    return;
-  }
+    if (this.hypothesisState.uiLocked) {
+      return;
+    }
 
-  const placedCardIndex =
-    this.hypothesisState.getPlacedCardIndex(slotIndex);
+    const cardAlreadyInSlot =
+      this.hypothesisState.getPlacedCardIndex(slotIndex);
 
-  if (placedCardIndex !== null) {
-    this.handleSlotRemove(slotIndex);
-    return;
-  }
+    /*
+     * Kliknięcie slotu z kartą usuwa odpowiedź.
+     */
+    if (cardAlreadyInSlot !== null) {
+      this.handleSlotRemove(slotIndex);
+      return;
+    }
 
-  const selectedCardIndex =
-    this.hypothesisState.selectedCardIndex;
+    const selectedCardIndex =
+      this.hypothesisState.selectedCardIndex;
 
-  if (
-    selectedCardIndex !== null &&
-    selectedCardIndex !== undefined
-  ) {
-    const result = this.hypothesisState.placeSelectedCard(
-      slotIndex
-    );
+    /*
+     * Wybrana karta trafia logicznie do slotu.
+     * BoardUI.refresh() następnie wyświetla tekst
+     * odpowiedzi wewnątrz kwadratu pytania.
+     */
+    if (
+      selectedCardIndex !== null &&
+      selectedCardIndex !== undefined
+    ) {
+      const result =
+        this.hypothesisState.placeSelectedCard(
+          slotIndex
+        );
+
+      if (!result.ok) {
+        this.handleMoveFailure(result);
+        return;
+      }
+
+      this.boardUI.refresh();
+
+      this.boardUI.showFeedback(
+        `"${this.slotLabels[slotIndex]}" answered.`,
+        '#f0ddb0'
+      );
+
+      return;
+    }
+
+    /*
+     * Opcjonalne zaznaczenie pytania, gdy gracz
+     * kliknął je przed wybraniem dowodu.
+     */
+    const result =
+      this.hypothesisState.toggleSelectedSlot(slotIndex);
 
     if (!result.ok) {
       this.handleMoveFailure(result);
@@ -396,32 +410,14 @@ selectCard(cardIndex) {
     this.boardUI.refresh();
 
     this.boardUI.showFeedback(
-      'Clue assigned. Choose another clue or check your theory.',
-      '#f0ddb0'
-    );
-
-    return;
-  }
-
-  const result = this.hypothesisState.toggleSelectedSlot(
-    slotIndex
-  );
-
-  if (!result.ok) {
-    this.handleMoveFailure(result);
-    return;
-  }
-
-  this.boardUI.refresh();
-
-  if (result.selected) {
-    this.boardUI.showFeedback(
-      `"${this.slotLabels[slotIndex]}" selected. Now choose a clue.`,
-      '#ffd966'
+      result.selected
+        ? `"${this.slotLabels[slotIndex]}" selected. Choose a clue below.`
+        : 'Question selection cleared.',
+      result.selected
+        ? '#ffd966'
+        : '#ccb98c'
     );
   }
-}
-
 
   handleSlotRemove(slotIndex) {
     if (this.hypothesisState.uiLocked) {
@@ -448,43 +444,48 @@ selectCard(cardIndex) {
     }
 
     this.boardUI.flashSlot(slotIndex);
-
-    this.boardUI.refresh({
-      animateCards: true
-    });
+    this.boardUI.refresh();
 
     this.boardUI.showFeedback(
-      `Card removed from "${this.slotLabels[slotIndex]}".`,
+      `Answer removed from "${this.slotLabels[slotIndex]}".`,
       '#f0ddb0'
     );
   }
 
-
-  handleMoveFailure(result) {
+  handleMoveFailure(result = {}) {
     const messages = {
       ui_locked:
         'The reconstruction has already been submitted.',
+
       invalid_card:
         'That clue is unavailable.',
+
       no_available_slot:
         'Every question already has an answer. Remove one first.',
+
       target_slot_locked:
         'That answer is confirmed. Choose another question.',
+
       card_locked:
         'This clue is locked into a confirmed answer.',
+
+      card_already_used:
+        'That clue has already been assigned to a question.',
+
+      no_card_selected:
+        'Select a clue from the evidence tray first.',
+
+      slot_occupied:
+        'That question already has an answer. Remove it first.',
+
+      slot_locked:
+        'That answer is confirmed and cannot be changed.',
+
       invalid_slot:
         'That question is unavailable.',
-        card_already_used:
-  'That clue has already been assigned to a question.',
 
-no_card_selected:
-  'Select a clue from the evidence tray first.',
-
-slot_occupied:
-  'That question already has an answer. Remove it first.',
-
-slot_locked:
-  'That answer is confirmed and cannot be changed.',
+      slot_unavailable:
+        'That question is locked or already has an answer.'
     };
 
     this.boardUI.showFeedback(
@@ -493,7 +494,6 @@ slot_locked:
       '#ffb347'
     );
   }
-
 
   confirmTheory() {
     if (
@@ -521,11 +521,6 @@ slot_locked:
 
     this.boardUI.refresh();
 
-    /*
-     * Zielony slot od razu ujawnia właściwe zdanie dla konkretnego pytania.
-     * Dla annotated_floor_plan może to być inne zdanie przy
-     * create_blind_spot i inne przy move_unnoticed.
-     */
     newlyLockedSlots.forEach((slotIndex, index) => {
       const card = orderedCards[slotIndex];
 
@@ -537,6 +532,7 @@ slot_locked:
       const narrative =
         use?.heistExplanation ||
         card?.heistExplanation ||
+        card?.trueExplanation ||
         '';
 
       if (narrative) {
@@ -548,10 +544,6 @@ slot_locked:
       }
     });
 
-    /*
-     * Zużycie energii zostaje w scenie, ponieważ scena decyduje,
-     * kiedy gracz faktycznie wykonał próbę minigry.
-     */
     const energyResult =
       this.energyManager.consumeActivity(
         'minigame_mastermind'
@@ -598,10 +590,6 @@ slot_locked:
       return;
     }
 
-    /*
-     * Ostatnia nieudana próba zużywa próbę,
-     * ale przy exact nie odejmujemy jej po sukcesie.
-     */
     if (evaluation.resultLabel !== 'exact') {
       this.hypothesisState.consumeAttempt();
     }
@@ -612,17 +600,20 @@ slot_locked:
     );
   }
 
-
   finalizeTheory(orderedCards, evaluation) {
     const result =
       this.resultService.finalizeTheory({
         orderedCards,
+
         slotFeedback:
           this.hypothesisState.slotFeedback,
+
         attemptsLeft:
           this.hypothesisState.attemptsLeft,
+
         resultLabel:
           evaluation.resultLabel,
+
         score:
           evaluation.score
       });
@@ -647,7 +638,6 @@ slot_locked:
 
     return result;
   }
-
 
   restoreSourceScene() {
     const source =
@@ -678,13 +668,11 @@ slot_locked:
     }
   }
 
-
   returnToSourceScene() {
     saveGameState();
     this.restoreSourceScene();
     this.scene.stop();
   }
-
 
   launchResultCommentScene() {
     saveGameState();
@@ -702,11 +690,6 @@ slot_locked:
       return;
     }
 
-    /*
-     * TheoryResultCallScene działa nad sceną źródłową.
-     * Najpierw ją budzimy, potem pauzujemy jej logikę,
-     * aby tło było widoczne, ale nieinteraktywne.
-     */
     if (this.scene.isSleeping(source)) {
       this.scene.wake(source);
     }
@@ -721,6 +704,7 @@ slot_locked:
     this.scene.launch('TheoryResultCallScene', {
       sourceScene: source,
       mode: 'hq',
+
       result:
         gameState.reconstructedHeist
           ?.playerTheoryResult ||
@@ -730,11 +714,9 @@ slot_locked:
     this.scene.stop();
   }
 
-
   closeScene() {
     this.returnToSourceScene();
   }
-
 
   onShutdown() {
     this.boardUI?.destroy();

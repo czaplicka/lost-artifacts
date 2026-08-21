@@ -1,4 +1,4 @@
-import { gameState } from '../GameData.js';
+import { gameState } from '../../GameData.js';
 
 export class CrimeCityMapUI {
   constructor(scene) {

@@ -3,11 +3,11 @@ import { gameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
 import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
 
-import { CrimeCityProgressService } from '../crimeCity/CrimeCityProgressService.js';
-import { CrimeCityReconstructionService } from '../crimeCity/CrimeCityReconstructionService.js';
-import { CrimeCityTutorialController } from '../crimeCity/CrimeCityTutorialController.js';
-import { CrimeCityMapUI } from '../crimeCity/CrimeCityMapUI.js';
-import { CrimeCityNpcManager } from '../crimeCity/CrimeCityNpcManager.js';
+import { CrimeCityProgressService } from './crimeCity/CrimeCityProgressService.js';
+import { CrimeCityReconstructionService } from './crimeCity/CrimeCityReconstructionService.js';
+import { CrimeCityTutorialController } from './crimeCity/CrimeCityTutorialController.js';
+import { CrimeCityMapUI } from './crimeCity/CrimeCityMapUI.js';
+import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 
 export class CrimeCityScene extends BaseScene {
   constructor() {
@@ -282,20 +282,37 @@ export class CrimeCityScene extends BaseScene {
   }
 
   refreshPlayerHud() {
+  const uiScene =
+    this.scene.manager.keys.UIScene;
+
+  if (uiScene?.sys) {
     if (this.scene.isSleeping('UIScene')) {
       this.scene.wake('UIScene');
+    } else if (this.scene.isPaused('UIScene')) {
+      this.scene.resume('UIScene');
+    } else if (!this.scene.isActive('UIScene')) {
+      this.scene.launch('UIScene');
     }
 
-    const playerHud =
-      this.scene.manager.keys.PlayerHudScene;
+    /*
+     * Hidden Objects może skończyć się, gdy HUD był uśpiony.
+     * Po powrocie do Crime City wymuszamy odczyt gameState.score.
+     */
+    uiScene.refreshScoreHud?.();
 
-    if (!playerHud?.sys) {
-      return;
-    }
+    console.warn('[CrimeCityScene] HUD score refreshed.', {
+      gameStateScore: gameState.score
+    });
+  }
 
+  const playerHud =
+    this.scene.manager.keys.PlayerHudScene;
+
+  if (playerHud?.sys) {
     playerHud.closeAllUIPanels?.();
     playerHud.refreshNotebook?.();
   }
+}
 
   scheduleStoryEvents() {
     this.tutorialController

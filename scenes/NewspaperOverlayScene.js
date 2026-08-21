@@ -95,42 +95,30 @@ export class NewspaperOverlayScene extends BaseScene {
   }
 buildTemplateContext() {
   const mission = gameState.currentMission || {};
-  const thief = gameState.currentThief || {};
 
-  // "dzień" gazety liczony z czasu gry (timeSpent = godziny)
   const day = Math.floor((gameState.timeSpent || 0) / 24) + 1;
 
   const context = {
-    // --- sprawa ---
     artifact: gameState.currentArtifact || mission.artifact || '',
-    city: gameState.crimeCity || mission.city || '',   // miasto KRADIEŻY, nie bieżące!
+    city: gameState.crimeCity || mission.city || '',
     crimeCity: gameState.crimeCity || '',
-    location: mission.location || mission.museum || '', // sprawdź pola w missions.json!
+    location: mission.location || mission.museum || '',
 
-    // --- gracz / stan gry ---
     currentCity: gameState.currentCity || '',
     rank: gameState.playerRank || 'Junior Agent',
-    score: gameState.score || 0,
     day,
-    hours: gameState.timeSpent || 0,
     clueCount: (gameState.cluesCollected || []).length,
-    visitedCount: (gameState.visitedCities || []).length - 1, // bez HQ
     suspectCount: (gameState.caseSuspects || []).length,
 
-    // --- złodziej (UWAGA: spoilery, patrz niżej) ---
-    thiefName: thief.name || '',
-    thiefAlias: thief.alias || '',
-
-    // dot-path po całym stanie: {gameState.currentMission.artifact}
     gameState
   };
 
-  // aliasy PL
   context.artefakt = context.artifact;
   context.miasto = context.city;
 
   return context;
 }
+
 renderCityContent() {
   this.contentLayer.removeAll(true);
 

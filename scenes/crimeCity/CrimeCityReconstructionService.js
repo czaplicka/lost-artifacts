@@ -1,4 +1,4 @@
-import { ReconstructionGenerator } from '../ReconstructionGenerator.js';
+import { ReconstructionGenerator } from '../../ReconstructionGenerator.js';
 
 export class CrimeCityReconstructionService {
   constructor({

@@ -70,8 +70,13 @@ ensureCaseForensics() {
   getIdentityEvidenceConfig() {
     const identityEvidence = this.gameState.identityEvidence || {};
     const allowedHairColors = ['blonde', 'black', 'red', 'brown', 'grey', 'white', 'auburn'];
-    const thiefHairColor = identityEvidence.thief_value || 'black';
-    const correctValue = allowedHairColors.includes(thiefHairColor) ? thiefHairColor : 'black';
+const thiefHairColor = String(
+  identityEvidence.thief_value || 'brown'
+).trim().toLowerCase();
+
+const correctValue = allowedHairColors.includes(thiefHairColor)
+  ? thiefHairColor
+  : 'brown';
 
     return {
       id: identityEvidence.id || 'hair_identity_sample',

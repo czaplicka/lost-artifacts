@@ -4,7 +4,7 @@ import { getScoreManager } from './InvestigationManager.js';
 import {
   applyHypothesisSkills,
   getSuspectCaseSummary
-} from './suspectUtils.js';
+} from '../ui/suspectUtils.js';
 
 
 export class HypothesisResultService {

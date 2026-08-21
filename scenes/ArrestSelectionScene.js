@@ -7,7 +7,7 @@ import {
   getRandomSuspectLineup,
   isCorrectSuspectChoice,
   getSuspectImageKey
-} from '../suspectHelpers.js';
+} from '../suspects/suspectHelpers.js';
 
 const CORRECT_ARREST_BONUS = 500;
 const WRONG_ARREST_PENALTY = 250;

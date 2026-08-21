@@ -4,7 +4,7 @@ import { BaseScene } from './BaseScene.js';
 import {
   getPublicSuspectList,
   getSuspectCaseSummary
-} from '../suspectUtils.js';
+} from '../ui/suspectUtils.js';
 
 export class SuspectsScene extends BaseScene {
   constructor() {

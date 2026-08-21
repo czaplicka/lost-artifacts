@@ -34,13 +34,16 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     });
 
     this.evidenceType = 'hair_color';
-
-    const incoming = data.correctValue || this.correctValue || 'brown';
-
+  console.log('[HairAnalysisScene] init data:', data);
+  console.log('[HairAnalysisScene] existing correctValue:', this.correctValue);
+const incoming = String(
+  data.correctValue || this.correctValue || 'brown'
+).toLowerCase();
+  
     this.correctValue = HAIR_COLORS.includes(incoming)
       ? incoming
       : 'brown';
-
+  console.log('[HairAnalysisScene] final correctValue:', this.correctValue);
     this.bag = null;
     this.slide = null;
     this.tweezers = null;

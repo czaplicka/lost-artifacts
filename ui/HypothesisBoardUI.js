@@ -1,5 +1,3 @@
-import { SlotView } from './SlotView.js';
-
 export class HypothesisBoardUI {
   constructor(scene, {
     state,
@@ -15,9 +13,7 @@ export class HypothesisBoardUI {
     this.scene = scene;
     this.state = state;
     this.cards = Array.isArray(cards) ? cards : [];
-    this.slotLabels = Array.isArray(slotLabels)
-      ? slotLabels
-      : [];
+    this.slotLabels = Array.isArray(slotLabels) ? slotLabels : [];
 
     this.buildSlotSentence =
       typeof buildSlotSentence === 'function'
@@ -51,7 +47,6 @@ export class HypothesisBoardUI {
 
     this.overlay = null;
     this.panel = null;
-    this.innerPanel = null;
 
     this.titleText = null;
     this.subtitleText = null;
@@ -66,22 +61,23 @@ export class HypothesisBoardUI {
     this.cardViews = [];
 
     this.layout = null;
+    this.resizeHandler = null;
     this.isDestroyed = false;
-    this.handleResizeBound = null;
   }
 
   create() {
-    if (this.isDestroyed) return;
+    if (this.isDestroyed) {
+      return;
+    }
 
     const { width, height } = this.scene.scale;
 
     /*
-     * Ważne:
-     * overlay blokuje kliknięcia w scenę pod spodem,
-     * ale ma niższy depth niż cały panel.
+     * Blokuje kliknięcia w scenę pod spodem.
+     * Wszystkie elementy minigry mają większy depth.
      */
     this.overlay = this.scene.add
-      .rectangle(0, 0, width, height, 0x000000, 0.88)
+      .rectangle(0, 0, width, height, 0x000000, 0.86)
       .setOrigin(0)
       .setDepth(3000)
       .setInteractive();
@@ -92,28 +88,16 @@ export class HypothesisBoardUI {
         height / 2,
         width - 36,
         height - 36,
-        0x16110d,
+        0x17120e,
         0.99
       )
       .setStrokeStyle(4, 0xd4af37, 0.9)
       .setDepth(3001);
 
-    this.innerPanel = this.scene.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width - 58,
-        height - 58,
-        0x2a1d13,
-        0.35
-      )
-      .setStrokeStyle(1, 0x947036, 0.45)
-      .setDepth(3002);
-
     this.titleText = this.scene.add
       .text(width / 2, 0, 'RECONSTRUCT THE HEIST', {
         fontFamily: 'Special Elite',
-        fontSize: '38px',
+        fontSize: '36px',
         color: '#f7f1dc',
         align: 'center'
       })
@@ -124,7 +108,7 @@ export class HypothesisBoardUI {
       .text(
         width / 2,
         0,
-        '1. Select a clue.   2. Select the question it answers.   3. Check your theory.',
+        'Select one clue below, then select the question it answers.',
         {
           fontFamily: 'Special Elite',
           fontSize: '19px',
@@ -138,25 +122,25 @@ export class HypothesisBoardUI {
     this.attemptsText = this.scene.add
       .text(width / 2, 0, '', {
         fontFamily: 'Special Elite',
-        fontSize: '22px',
+        fontSize: '21px',
         color: '#ffd966',
         align: 'center'
       })
       .setOrigin(0.5)
       .setDepth(3010);
 
-    this.createSlots();
-    this.createCardGrid();
+    this.createQuestionSlots();
+    this.createEvidenceCards();
     this.createButtons();
 
     this.legendText = this.scene.add
       .text(
         width / 2,
         0,
-        'Green: exact answer   •   Yellow: correct clue, wrong question   •   Red: wrong clue',
+        'GREEN: correct  •  YELLOW: correct clue, wrong question  •  RED: wrong clue',
         {
           fontFamily: 'Special Elite',
-          fontSize: '16px',
+          fontSize: '15px',
           color: '#cbb98e',
           align: 'center'
         }
@@ -167,10 +151,9 @@ export class HypothesisBoardUI {
     this.feedbackText = this.scene.add
       .text(width / 2, 0, '', {
         fontFamily: 'Special Elite',
-        fontSize: '20px',
+        fontSize: '19px',
         color: '#ffd966',
         align: 'center',
-        lineSpacing: 6,
         wordWrap: {
           width: 700,
           useAdvancedWrap: true
@@ -179,87 +162,150 @@ export class HypothesisBoardUI {
       .setOrigin(0.5)
       .setDepth(3010);
 
-    this.bindResize();
+    this.resizeHandler = () => {
+      if (this.isDestroyed) {
+        return;
+      }
+
+      this.applyLayout();
+      this.refresh();
+    };
+
+    this.scene.scale.on(
+      'resize',
+      this.resizeHandler,
+      this
+    );
+
     this.applyLayout();
     this.refresh();
   }
 
-  createSlots() {
-    const activeSlotCount =
-      this.state?.activeSlotCount || 3;
+  createQuestionSlots() {
+    const count = this.state?.activeSlotCount || 3;
 
-    for (let index = 0; index < activeSlotCount; index++) {
-      const slotView = new SlotView(this.scene, index, {
-        label:
-          this.slotLabels[index] ||
-          `QUESTION ${index + 1}`,
-
-        onClick: slotIndex => {
-          if (this.state?.uiLocked) return;
-          this.onSlotTap?.(slotIndex);
-        },
-
-        onRemove: slotIndex => {
-          if (this.state?.uiLocked) return;
-          this.onSlotRemove?.(slotIndex);
-        }
-      });
-
-      this.slotViews.push(slotView);
-    }
-  }
-
-  createCardGrid() {
-    this.cards.forEach((card, index) => {
+    for (let index = 0; index < count; index++) {
       const container = this.scene.add
         .container(0, 0)
-        .setDepth(3007);
+        .setDepth(3013);
 
-      const bg = this.scene.add
-        .rectangle(0, 0, 260, 110, 0xf1e2bf, 1)
-        .setStrokeStyle(3, 0x725022, 0.95);
+      const box = this.scene.add
+        .rectangle(0, 0, 380, 132, 0x241c16, 1)
+        .setStrokeStyle(3, 0xc8a75a, 0.9)
+        .setInteractive({ useHandCursor: true });
 
-      const border = this.scene.add
-        .rectangle(0, 0, 248, 98)
-        .setStrokeStyle(1, 0xb98945, 0.7);
-
-      const title = this.scene.add
-        .text(0, -16, card.item || `CLUE ${index + 1}`, {
-          fontFamily: 'Special Elite',
-          fontSize: '18px',
-          color: '#3d2409',
+      const label = this.scene.add
+        .text(0, 0, this.slotLabels[index] || `QUESTION ${index + 1}`, {
+          fontFamily: 'PressStart2P',
+          fontSize: '11px',
+          color: '#f0ddb0',
           align: 'center',
           wordWrap: {
-            width: 210,
+            width: 340,
             useAdvancedWrap: true
           }
         })
         .setOrigin(0.5);
 
-      const skill = this.scene.add
-        .text(0, 34, this.buildSkillPreview(card.skills), {
-          fontFamily: 'Arial',
-          fontSize: '12px',
-          color: '#6a4009',
-          backgroundColor: '#f8edcf',
-          padding: {
-            left: 7,
-            right: 7,
-            top: 3,
-            bottom: 3
-          }
+      const answerText = this.scene.add
+        .text(0, 2, '[ empty ]', {
+          fontFamily: 'Special Elite',
+          fontSize: '20px',
+          color: '#8d8577',
+          align: 'center',
+          wordWrap: {
+            width: 320,
+            useAdvancedWrap: true
+          },
+          lineSpacing: 5
         })
         .setOrigin(0.5);
 
-      const selectedStamp = this.scene.add
-        .text(0, -43, 'SELECTED', {
+      const removeButton = this.scene.add
+        .text(0, 0, 'REMOVE', {
           fontFamily: 'PressStart2P',
-          fontSize: '10px',
-          color: '#2e1b00',
+          fontSize: '9px',
+          color: '#ffffff',
+          backgroundColor: '#7a1f1f',
+          padding: {
+            left: 7,
+            right: 7,
+            top: 6,
+            bottom: 6
+          }
+        })
+        .setOrigin(0.5)
+        .setInteractive({ useHandCursor: true })
+        .setVisible(false);
+
+      box.on('pointerup', () => {
+        if (this.state?.uiLocked) {
+          return;
+        }
+
+        this.onSlotTap?.(index);
+      });
+
+      removeButton.on('pointerup', () => {
+        if (this.state?.uiLocked) {
+          return;
+        }
+
+        this.onSlotRemove?.(index);
+      });
+
+      container.add([
+        box,
+        label,
+        answerText,
+        removeButton
+      ]);
+
+      this.slotViews.push({
+        index,
+        container,
+        box,
+        label,
+        answerText,
+        removeButton
+      });
+    }
+  }
+
+  createEvidenceCards() {
+    this.cards.forEach((card, index) => {
+      const container = this.scene.add
+        .container(0, 0)
+        .setDepth(3012);
+
+      const box = this.scene.add
+        .rectangle(0, 0, 230, 102, 0xf1e2bf, 1)
+        .setStrokeStyle(3, 0x725022, 0.95)
+        .setInteractive({ useHandCursor: true });
+
+      const cardTitle = this.scene.add
+        .text(0, 0, card.item || `CLUE ${index + 1}`, {
+          fontFamily: 'Special Elite',
+          fontSize: '18px',
+          color: '#3d2409',
+          align: 'center',
+          wordWrap: {
+            width: 196,
+            useAdvancedWrap: true
+          },
+          lineSpacing: 4
+        })
+        .setOrigin(0.5);
+
+      const selectedMark = this.scene.add
+        .text(0, -39, 'SELECTED', {
+          fontFamily: 'PressStart2P',
+          fontSize: '9px',
+          color: '#251700',
           backgroundColor: '#ffd966',
           padding: {
-            left: 5,
-            right: 5,
+            left: 6,
+            right: 6,
             top: 4,
             bottom: 4
           }
@@ -267,15 +313,15 @@ export class HypothesisBoardUI {
         .setOrigin(0.5)
         .setVisible(false);
 
-      const usedStamp = this.scene.add
+      const usedMark = this.scene.add
         .text(0, 0, 'USED', {
           fontFamily: 'PressStart2P',
-          fontSize: '15px',
-          color: '#f1e1b4',
-          backgroundColor: '#3d3025',
+          fontSize: '14px',
+          color: '#f7e7bd',
+          backgroundColor: '#463a30',
           padding: {
-            left: 8,
-            right: 8,
+            left: 9,
+            right: 9,
             top: 7,
             bottom: 7
           }
@@ -283,65 +329,42 @@ export class HypothesisBoardUI {
         .setOrigin(0.5)
         .setVisible(false);
 
-      const hitArea = this.scene.add
-        .zone(0, 0, 260, 110)
-        .setInteractive({
-          useHandCursor: true
-        });
-
-      container.add([
-        bg,
-        border,
-        title,
-        skill,
-        selectedStamp,
-        usedStamp,
-        hitArea
-      ]);
-
-      hitArea.on('pointerover', () => {
-        if (this.isCardUsed(index)) return;
-
-        bg.setFillStyle(0xfff0c9, 1);
-        bg.setStrokeStyle(3, 0xd4af37, 1);
-      });
-
-      hitArea.on('pointerout', () => {
-        if (this.isCardUsed(index)) return;
-
-        this.applyCardStyle(
-          index,
-          false
-        );
-      });
-
-      hitArea.on('pointerdown', () => {
-        if (this.state?.uiLocked) return;
-        if (this.isCardUsed(index)) return;
+      box.on('pointerdown', () => {
+        if (this.state?.uiLocked || this.isCardUsed(index)) {
+          return;
+        }
 
         container.setScale(0.96);
       });
 
-      hitArea.on('pointerup', () => {
+      box.on('pointerup', () => {
         container.setScale(1);
 
-        if (this.state?.uiLocked) return;
-        if (this.isCardUsed(index)) return;
+        if (this.state?.uiLocked || this.isCardUsed(index)) {
+          return;
+        }
 
         this.onCardTap?.(index);
       });
 
+      box.on('pointerout', () => {
+        container.setScale(1);
+      });
+
+      container.add([
+        box,
+        cardTitle,
+        selectedMark,
+        usedMark
+      ]);
+
       this.cardViews.push({
         index,
-        card,
         container,
-        bg,
-        border,
-        title,
-        skill,
-        selectedStamp,
-        usedStamp,
-        hitArea
+        box,
+        cardTitle,
+        selectedMark,
+        usedMark
       });
     });
   }
@@ -349,7 +372,7 @@ export class HypothesisBoardUI {
   createButtons() {
     this.closeButton = this.createButton(
       '[ CLOSE ]',
-      '#d8d0c0'
+      '#ded6c2'
     );
 
     this.confirmButton = this.createButton(
@@ -362,11 +385,13 @@ export class HypothesisBoardUI {
     });
 
     this.confirmButton.on('pointerup', () => {
-      if (this.state?.uiLocked) return;
+      if (this.state?.uiLocked) {
+        return;
+      }
 
       if (!this.state?.isTimelineComplete()) {
         this.showFeedback(
-          `Answer all ${this.state?.activeSlotCount || 3} questions first.`,
+          `Choose answers for all ${this.state?.activeSlotCount || 3} questions first.`,
           '#ff9f80'
         );
 
@@ -381,7 +406,7 @@ export class HypothesisBoardUI {
     const button = this.scene.add
       .text(0, 0, text, {
         fontFamily: 'Special Elite',
-        fontSize: '24px',
+        fontSize: '23px',
         color,
         backgroundColor: '#332519',
         padding: {
@@ -393,9 +418,7 @@ export class HypothesisBoardUI {
       })
       .setOrigin(0.5)
       .setDepth(3020)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     button.on('pointerover', () => {
       button.setScale(1.04);
@@ -412,180 +435,105 @@ export class HypothesisBoardUI {
     const { width, height } = this.scene.scale;
 
     const compact =
-      width < 900 ||
-      height < 760;
+      height < 780 ||
+      width < 1100;
 
-    const activeSlotCount =
-      this.state?.activeSlotCount || 3;
+    const panelMarginX = compact ? 18 : 38;
+    const panelMarginY = compact ? 14 : 30;
 
-    const panelMargin = compact ? 16 : 34;
+    const panelWidth = width - panelMarginX * 2;
+    const panelHeight = height - panelMarginY * 2;
+    const panelTop = panelMarginY;
+    const panelBottom = height - panelMarginY;
 
-    const panelWidth =
-      width - panelMargin * 2;
-
-    const panelHeight =
-      height - panelMargin * 2;
-
-    const panelTop =
-      height / 2 - panelHeight / 2;
-
-    const panelBottom =
-      height / 2 + panelHeight / 2;
-
-    const titleY =
-      panelTop + (compact ? 30 : 44);
-
-    const subtitleY =
-      titleY + (compact ? 38 : 48);
-
-    const attemptsY =
-      subtitleY + (compact ? 48 : 58);
+    const titleY = panelTop + (compact ? 30 : 44);
+    const subtitleY = titleY + (compact ? 36 : 48);
+    const attemptsY = subtitleY + (compact ? 40 : 54);
 
     /*
-     * Trzy sloty w poziomie tylko na desktopie.
-     * Na telefonie oraz małym ekranie układają się pionowo.
+     * Wyraźna przerwa między ATTEMPTS LEFT a pytaniami.
      */
-    const verticalSlots = width < 860;
+    const slotsY = attemptsY + (compact ? 118 : 148);
 
-    const slotWidth = verticalSlots
-      ? Math.min(panelWidth - 52, 620)
-      : Math.min(
-        360,
-        (panelWidth - 100) / activeSlotCount
-      );
+    const slotGap = compact ? 18 : 30;
 
-    const slotHeight =
-      compact ? 98 : 126;
-
-    const slotGap =
-      verticalSlots
-        ? (compact ? 18 : 24)
-        : 24;
-
-    const slotStartY =
-      attemptsY + (compact ? 76 : 96);
-
-    const slotPositions = [];
-
-    if (verticalSlots) {
-      for (let index = 0; index < activeSlotCount; index++) {
-        const y =
-          slotStartY +
-          index * (slotHeight + slotGap);
-
-        slotPositions.push({
-          x: width / 2,
-          y,
-          labelY: y - slotHeight / 2 - 20
-        });
-      }
-    } else {
-      const totalWidth =
-        activeSlotCount * slotWidth +
-        (activeSlotCount - 1) * slotGap;
-
-      const startX =
-        width / 2 -
-        totalWidth / 2 +
-        slotWidth / 2;
-
-      for (let index = 0; index < activeSlotCount; index++) {
-        slotPositions.push({
-          x:
-            startX +
-            index * (slotWidth + slotGap),
-          y: slotStartY,
-          labelY:
-            slotStartY -
-            slotHeight / 2 -
-            24
-        });
-      }
-    }
-
-    const lastSlot =
-      slotPositions[slotPositions.length - 1];
-
-    const cardGridTop =
-      verticalSlots
-        ? lastSlot.y + slotHeight / 2 + 72
-        : slotStartY + slotHeight / 2 + 82;
-
-    /*
-     * Zawsze 3 kolumny na dużym ekranie.
-     * 2 na średnim, 1 na bardzo wąskim.
-     */
-    let columns = 3;
-
-    if (width < 470) {
-      columns = 1;
-    } else if (width < 700) {
-      columns = 2;
-    }
-
-    const cardGapX =
-      compact ? 12 : 18;
-
-    const cardGapY =
-      compact ? 12 : 16;
-
-    const cardWidth = Math.min(
-      compact ? 220 : 260,
-      (
-        panelWidth -
-        36 -
-        (columns - 1) * cardGapX
-      ) / columns
+    const slotWidth = Math.min(
+      compact ? 270 : 380,
+      (panelWidth - 80 - slotGap * 2) / 3
     );
 
-    const cardHeight =
-      compact ? 84 : 110;
+    const slotHeight = compact ? 94 : 132;
 
-    const totalGridWidth =
-      columns * cardWidth +
-      (columns - 1) * cardGapX;
+    const slotStartX =
+      width / 2 -
+      (slotWidth * 3 + slotGap * 2) / 2 +
+      slotWidth / 2;
+
+    const slotPositions = Array.from(
+      { length: 3 },
+      (_, index) => ({
+        x: slotStartX + index * (slotWidth + slotGap),
+        y: slotsY
+      })
+    );
+
+    /*
+     * ZAWSZE:
+     * 0, 1, 2 = pierwszy rząd
+     * 3, 4, 5 = drugi rząd
+     */
+    const cardColumns = 3;
+    const cardRows = 2;
+
+    const cardsTopY =
+      slotsY +
+      slotHeight / 2 +
+      (compact ? 72 : 92);
+
+    const cardGapX = compact ? 14 : 22;
+    const cardGapY = compact ? 14 : 18;
+
+    const cardWidth = Math.min(
+      compact ? 190 : 230,
+      (
+        panelWidth -
+        90 -
+        cardGapX * (cardColumns - 1)
+      ) / cardColumns
+    );
+
+    const cardHeight = compact ? 78 : 102;
 
     const cardStartX =
       width / 2 -
-      totalGridWidth / 2 +
+      (
+        cardWidth * cardColumns +
+        cardGapX * (cardColumns - 1)
+      ) / 2 +
       cardWidth / 2;
 
     const cardPositions = this.cards.map((_, index) => {
-      const column = index % columns;
-      const row = Math.floor(index / columns);
+      const column = index % cardColumns;
+      const row = Math.floor(index / cardColumns);
 
       return {
-        x:
-          cardStartX +
-          column * (cardWidth + cardGapX),
-
-        y:
-          cardGridTop +
-          row * (cardHeight + cardGapY)
+        x: cardStartX + column * (cardWidth + cardGapX),
+        y: cardsTopY + row * (cardHeight + cardGapY)
       };
     });
 
-    const rowCount = Math.max(
-      1,
-      Math.ceil(this.cards.length / columns)
-    );
-
-    const cardsBottom =
-      cardGridTop +
-      (rowCount - 1) *
-      (cardHeight + cardGapY) +
+    const cardsBottomY =
+      cardsTopY +
+      (cardRows - 1) * (cardHeight + cardGapY) +
       cardHeight / 2;
 
+    const legendY = cardsBottomY + (compact ? 36 : 44);
+    const feedbackY = legendY + (compact ? 30 : 38);
+
     const buttonsY = Math.min(
-      panelBottom - (compact ? 36 : 48),
-      cardsBottom + (compact ? 56 : 72)
+      panelBottom - (compact ? 34 : 44),
+      feedbackY + (compact ? 46 : 58)
     );
-
-    const feedbackY =
-      buttonsY - (compact ? 58 : 70);
-
-    const legendY =
-      feedbackY - (compact ? 42 : 50);
 
     return {
       width,
@@ -607,27 +555,22 @@ export class HypothesisBoardUI {
       cardHeight,
       cardPositions,
 
-      buttonsY,
-      feedbackY,
       legendY,
+      feedbackY,
+      buttonsY,
 
-      wrapSlot: Math.max(
-        150,
-        slotWidth - 44
-      ),
+      closeX: width / 2 - (compact ? 112 : 155),
+      confirmX: width / 2 + (compact ? 112 : 155),
 
-      wrapFeedback: Math.max(
-        250,
-        panelWidth - 80
-      ),
-
-      closeX: width / 2 - (compact ? 108 : 150),
-      confirmX: width / 2 + (compact ? 108 : 150)
+      slotWrapWidth: Math.max(135, slotWidth - 30),
+      feedbackWrapWidth: Math.max(320, panelWidth - 90)
     };
   }
 
   applyLayout() {
-    if (this.isDestroyed || !this.overlay) return;
+    if (!this.overlay || this.isDestroyed) {
+      return;
+    }
 
     this.layout = this.getLayout();
 
@@ -638,170 +581,103 @@ export class HypothesisBoardUI {
       .setPosition(0, 0);
 
     this.panel
-      .setPosition(
-        L.width / 2,
-        L.height / 2
-      )
-      .setSize(
-        L.panelWidth,
-        L.panelHeight
-      );
-
-    this.innerPanel
-      .setPosition(
-        L.width / 2,
-        L.height / 2
-      )
-      .setSize(
-        L.panelWidth - 18,
-        L.panelHeight - 18
-      );
+      .setPosition(L.width / 2, L.height / 2)
+      .setSize(L.panelWidth, L.panelHeight);
 
     this.titleText
       .setPosition(L.width / 2, L.titleY)
-      .setFontSize(
-        L.compact ? '26px' : '38px'
-      );
+      .setFontSize(L.compact ? '26px' : '36px');
 
     this.subtitleText
-      .setPosition(
-        L.width / 2,
-        L.subtitleY
-      )
-      .setFontSize(
-        L.compact ? '14px' : '19px'
-      )
-      .setWordWrapWidth(
-        L.wrapFeedback,
-        true
-      );
+      .setPosition(L.width / 2, L.subtitleY)
+      .setFontSize(L.compact ? '14px' : '19px')
+      .setWordWrapWidth(L.feedbackWrapWidth, true);
 
     this.attemptsText
-      .setPosition(
-        L.width / 2,
-        L.attemptsY
-      )
-      .setFontSize(
-        L.compact ? '17px' : '22px'
+      .setPosition(L.width / 2, L.attemptsY)
+      .setFontSize(L.compact ? '16px' : '21px');
+
+    this.slotViews.forEach((view, index) => {
+      const position = L.slotPositions[index];
+
+      if (!position) {
+        return;
+      }
+
+      view.container.setPosition(position.x, position.y);
+
+      view.box.setSize(
+        L.slotWidth,
+        L.slotHeight
       );
 
-    this.slotViews.forEach(
-      (slotView, index) => {
-        slotView.updateLayout(
-          L.slotPositions[index],
-          {
-            ...L,
-            isMobile: L.compact
-          }
-        );
-      }
-    );
+      /*
+       * Etykieta jest nad ramką pytania,
+       * a nie wewnątrz niej.
+       */
+      view.label
+        .setPosition(0, -L.slotHeight / 2 - 22)
+        .setFontSize(L.compact ? '8px' : '11px')
+        .setWordWrapWidth(L.slotWrapWidth, true);
+
+      view.answerText
+        .setPosition(0, 2)
+        .setFontSize(L.compact ? '15px' : '20px')
+        .setWordWrapWidth(L.slotWrapWidth, true);
+
+      view.removeButton
+        .setPosition(
+          L.slotWidth / 2 - 35,
+          -L.slotHeight / 2 + 17
+        )
+        .setFontSize(L.compact ? '7px' : '9px');
+    });
 
     this.cardViews.forEach((view, index) => {
-      const position =
-        L.cardPositions[index];
+      const position = L.cardPositions[index];
 
-      if (!position) return;
+      if (!position) {
+        return;
+      }
 
-      view.container.setPosition(
-        position.x,
-        position.y
-      );
+      view.container.setPosition(position.x, position.y);
 
-      view.bg.setSize(
+      view.box.setSize(
         L.cardWidth,
         L.cardHeight
       );
 
-      view.border.setSize(
-        Math.max(30, L.cardWidth - 12),
-        Math.max(30, L.cardHeight - 12)
-      );
-
-      view.hitArea.setSize(
-        L.cardWidth,
-        L.cardHeight
-      );
-
-      const compactCard =
-        L.compact ||
-        L.cardWidth < 190;
-
-      view.title
-        .setFontSize(
-          compactCard ? '14px' : '18px'
-        )
+      view.cardTitle
+        .setFontSize(L.compact ? '14px' : '18px')
         .setWordWrapWidth(
-          Math.max(
-            90,
-            L.cardWidth - 20
-          ),
+          Math.max(110, L.cardWidth - 20),
           true
-        )
-        .setPosition(
-          0,
-          compactCard ? -10 : -16
-        );
-
-      view.skill
-        .setFontSize(
-          compactCard ? '10px' : '12px'
-        )
-        .setPosition(
-          0,
-          compactCard
-            ? L.cardHeight / 2 - 16
-            : 34
         );
     });
 
     this.legendText
-      .setPosition(
-        L.width / 2,
-        L.legendY
-      )
-      .setFontSize(
-        L.compact ? '12px' : '16px'
-      )
-      .setWordWrapWidth(
-        L.wrapFeedback,
-        true
-      );
+      .setPosition(L.width / 2, L.legendY)
+      .setFontSize(L.compact ? '11px' : '15px')
+      .setWordWrapWidth(L.feedbackWrapWidth, true);
 
     this.feedbackText
-      .setPosition(
-        L.width / 2,
-        L.feedbackY
-      )
-      .setFontSize(
-        L.compact ? '15px' : '20px'
-      )
-      .setWordWrapWidth(
-        L.wrapFeedback,
-        true
-      );
+      .setPosition(L.width / 2, L.feedbackY)
+      .setFontSize(L.compact ? '14px' : '19px')
+      .setWordWrapWidth(L.feedbackWrapWidth, true);
 
     this.closeButton
-      .setPosition(
-        L.closeX,
-        L.buttonsY
-      )
-      .setFontSize(
-        L.compact ? '17px' : '24px'
-      );
+      .setPosition(L.closeX, L.buttonsY)
+      .setFontSize(L.compact ? '17px' : '23px');
 
     this.confirmButton
-      .setPosition(
-        L.confirmX,
-        L.buttonsY
-      )
-      .setFontSize(
-        L.compact ? '17px' : '24px'
-      );
+      .setPosition(L.confirmX, L.buttonsY)
+      .setFontSize(L.compact ? '17px' : '23px');
   }
 
   refresh() {
-    if (this.isDestroyed) return;
+    if (this.isDestroyed) {
+      return;
+    }
 
     this.refreshSlots();
     this.refreshCards();
@@ -810,33 +686,98 @@ export class HypothesisBoardUI {
   }
 
   refreshSlots() {
-    this.slotViews.forEach((slotView, index) => {
-      const card =
-        this.state?.getPlacedCard(index);
+    this.slotViews.forEach((view, slotIndex) => {
+      /*
+       * Wszystkie zmienne muszą powstać PRZED
+       * pierwszym użyciem isSelected / isLocked.
+       */
+      const card = this.state?.getPlacedCard(slotIndex);
 
       const isSelected =
-        this.state?.selectedSlotIndex === index &&
-        this.state?.isSlotEmpty(index);
+        this.state?.selectedSlotIndex === slotIndex;
 
       const isLocked =
-        this.state?.isSlotLocked(index);
+        this.state?.isSlotLocked(slotIndex);
 
-      const status = isLocked
-        ? 'locked'
-        : (
-          this.state?.slotFeedback?.[index] ||
-          'neutral'
+      const feedback =
+        this.state?.slotFeedback?.[slotIndex] ||
+        'neutral';
+
+      const colors = {
+        neutral: {
+          fill: 0x241c16,
+          stroke: 0xc8a75a,
+          text: '#8d8577'
+        },
+
+        selected: {
+          fill: 0x3a3017,
+          stroke: 0xffd966,
+          text: '#fff0bf'
+        },
+
+        green: {
+          fill: 0x193019,
+          stroke: 0x44d66a,
+          text: '#b9efb9'
+        },
+
+        yellow: {
+          fill: 0x3d3216,
+          stroke: 0xf1c232,
+          text: '#fff0bf'
+        },
+
+        red: {
+          fill: 0x3a1d1d,
+          stroke: 0xe06666,
+          text: '#fff0bf'
+        }
+      };
+
+      let visual = colors[feedback] || colors.neutral;
+
+      if (isSelected && !card) {
+        visual = colors.selected;
+      }
+
+      if (isLocked) {
+        visual = colors.green;
+      }
+
+      view.box.setFillStyle(visual.fill, 1);
+      view.box.setStrokeStyle(
+        isSelected ? 4 : 3,
+        visual.stroke,
+        1
+      );
+
+      if (!card) {
+        view.answerText.setText(
+          isSelected
+            ? '[ now select a clue ]'
+            : '[ empty ]'
         );
 
-      const sentence = card && !isLocked
-        ? this.getSlotSentence(card, index)
-        : null;
+        view.answerText.setColor(visual.text);
+        view.removeButton.setVisible(false);
 
-      slotView.refresh(
-        card,
-        status,
-        isSelected,
-        sentence
+        return;
+      }
+
+      /*
+       * To jest moment, kiedy tekst wybranej wskazówki
+       * trafia do kwadratu pytania.
+       */
+      view.answerText.setText(
+        this.getSlotSentence(card, slotIndex)
+      );
+
+      view.answerText.setColor(visual.text);
+
+      view.removeButton.setVisible(
+        !isLocked &&
+        !this.state?.uiLocked
       );
     });
   }
@@ -846,76 +787,74 @@ export class HypothesisBoardUI {
       const used = this.isCardUsed(view.index);
 
       const selected =
-        this.state?.selectedCardIndex ===
-        view.index;
+        this.state?.selectedCardIndex === view.index;
 
-      view.usedStamp.setVisible(used);
-      view.selectedStamp.setVisible(
-        selected && !used
-      );
-
-      view.hitArea.setVisible(!used);
+      view.usedMark.setVisible(used);
+      view.selectedMark.setVisible(selected && !used);
 
       if (used) {
-        view.hitArea.disableInteractive();
+        view.container.setAlpha(0.38);
 
-        view.container.setAlpha(0.44);
-        view.bg.setFillStyle(0xa79776, 1);
-        view.bg.setStrokeStyle(
+        view.box.setFillStyle(0x95866d, 1);
+        view.box.setStrokeStyle(
           2,
-          0x685a47,
-          0.8
+          0x6c5e4c,
+          0.7
         );
+
+        view.box.disableInteractive();
 
         return;
       }
 
       view.container.setAlpha(1);
 
-      view.hitArea.setInteractive({
+      view.box.setInteractive({
         useHandCursor: true
       });
 
-      this.applyCardStyle(
-        view.index,
-        selected
-      );
+      if (selected) {
+        view.box.setFillStyle(0xffedb1, 1);
+        view.box.setStrokeStyle(
+          4,
+          0xd4af37,
+          1
+        );
+      } else {
+        view.box.setFillStyle(0xf1e2bf, 1);
+        view.box.setStrokeStyle(
+          3,
+          0x725022,
+          0.95
+        );
+      }
     });
   }
 
-  applyCardStyle(index, selected = false) {
-    const view = this.cardViews[index];
+  refreshAttempts() {
+    const attempts =
+      this.state?.attemptsLeft ?? 0;
 
-    if (!view) return;
+    this.attemptsText.setText(
+      `ATTEMPTS LEFT: ${attempts}`
+    );
+  }
 
-    if (selected) {
-      view.bg.setFillStyle(0xffedb1, 1);
-      view.bg.setStrokeStyle(
-        4,
-        0xd4af37,
-        1
-      );
+  refreshConfirmButton() {
+    const isComplete =
+      this.state?.isTimelineComplete() &&
+      !this.state?.uiLocked;
 
-      view.border.setStrokeStyle(
-        2,
-        0xfff0a6,
-        1
-      );
-
-      return;
-    }
-
-    view.bg.setFillStyle(0xf1e2bf, 1);
-    view.bg.setStrokeStyle(
-      3,
-      0x725022,
-      0.95
+    this.confirmButton.setColor(
+      isComplete ? '#ffd966' : '#777777'
     );
 
-    view.border.setStrokeStyle(
-      1,
-      0xb98945,
-      0.7
+    this.confirmButton.setBackgroundColor(
+      isComplete ? '#513c12' : '#2d2822'
+    );
+
+    this.confirmButton.setAlpha(
+      isComplete ? 1 : 0.72
     );
   }
 
@@ -930,65 +869,28 @@ export class HypothesisBoardUI {
     );
   }
 
-  refreshAttempts() {
-    const attempts =
-      this.state?.attemptsLeft ?? 0;
-
-    this.attemptsText.setText(
-      `ATTEMPTS LEFT: ${attempts}`
-    );
-  }
-
-  refreshConfirmButton() {
-    const complete =
-      this.state?.isTimelineComplete() &&
-      !this.state?.uiLocked;
-
-    this.confirmButton.setColor(
-      complete ? '#ffd966' : '#747474'
-    );
-
-    this.confirmButton.setBackgroundColor(
-      complete ? '#513c12' : '#2d2822'
-    );
-
-    this.confirmButton.setAlpha(
-      complete ? 1 : 0.72
-    );
-  }
-
   getSlotSentence(card, slotIndex) {
     if (!card) {
       return '[ empty ]';
     }
 
-    if (this.buildSlotSentence) {
-      return this.buildSlotSentence(
-        card,
-        slotIndex
-      );
-    }
+    /*
+     * To usuwa drugi błąd z Twojego pliku:
+     * `return sentence || ...`, gdy sentence nie istnieje.
+     */
+    const sentence = this.buildSlotSentence?.(
+      card,
+      slotIndex
+    );
 
-    return card.item || '[ clue ]';
+    return (
+      sentence ||
+      card.item ||
+      '[ clue ]'
+    );
   }
 
-  buildSkillPreview(skills = []) {
-    if (
-      !Array.isArray(skills) ||
-      skills.length === 0
-    ) {
-      return 'UNKNOWN METHOD';
-    }
-
-    return String(skills[0])
-      .replaceAll('_', ' ')
-      .toUpperCase();
-  }
-
-  showFeedback(
-    text,
-    color = '#ffd966'
-  ) {
+  showFeedback(text, color = '#ffd966') {
     if (!this.feedbackText || this.isDestroyed) {
       return;
     }
@@ -997,82 +899,89 @@ export class HypothesisBoardUI {
       .setText(text)
       .setColor(color)
       .setAlpha(1);
+  }
 
-    this.scene.tweens.killTweensOf(
-      this.feedbackText
-    );
+  showGreenNarrative(slotIndex, text, delay = 0) {
+    if (!text || this.isDestroyed) {
+      return;
+    }
 
-    this.scene.tweens.add({
-      targets: this.feedbackText,
-      alpha: 0.92,
-      duration: 120,
-      ease: 'Linear'
+    this.scene.time.delayedCall(delay, () => {
+      if (this.isDestroyed) {
+        return;
+      }
+
+      const view = this.slotViews[slotIndex];
+
+      if (!view) {
+        return;
+      }
+
+      view.answerText.setText(text);
+      view.answerText.setColor('#b9efb9');
     });
   }
 
-  showGreenNarrative(
-    slotIndex,
-    text,
-    delay = 0
-  ) {
-    if (!text || this.isDestroyed) return;
-
-    this.scene.time.delayedCall(
-      delay,
-      () => {
-        if (this.isDestroyed) return;
-
-        this.slotViews[slotIndex]
-          ?.showNarrative(text);
-      }
-    );
-  }
-
   flashSlot(slotIndex) {
-    this.slotViews[slotIndex]?.flash();
-  }
+    const view = this.slotViews[slotIndex];
 
-  bindResize() {
-    this.handleResizeBound = () => {
-      if (this.isDestroyed) return;
+    if (!view?.box) {
+      return;
+    }
 
-      this.applyLayout();
-      this.refresh();
-    };
+    this.scene.tweens.killTweensOf(view.box);
 
-    this.scene.scale.on(
-      'resize',
-      this.handleResizeBound,
-      this
-    );
+    this.scene.tweens.add({
+      targets: view.box,
+      alpha: {
+        from: 1,
+        to: 0.7
+      },
+      yoyo: true,
+      duration: 90,
+      repeat: 1,
+      onComplete: () => {
+        if (view.box?.active) {
+          view.box.setAlpha(1);
+        }
+      }
+    });
   }
 
   destroy() {
-    if (this.isDestroyed) return;
+    if (this.isDestroyed) {
+      return;
+    }
 
     this.isDestroyed = true;
 
-    if (this.handleResizeBound) {
+    if (this.resizeHandler) {
       this.scene.scale.off(
         'resize',
-        this.handleResizeBound,
+        this.resizeHandler,
         this
       );
     }
 
-    this.slotViews.forEach(slotView => {
-      slotView?.destroy?.();
+    this.slotViews.forEach(view => {
+      [
+        view.box,
+        view.label,
+        view.answerText,
+        view.removeButton,
+        view.container
+      ].forEach(item => {
+        item?.removeAllListeners?.();
+        item?.destroy?.();
+      });
     });
 
     this.cardViews.forEach(view => {
       [
-        view.hitArea,
-        view.bg,
-        view.border,
-        view.title,
-        view.skill,
-        view.selectedStamp,
-        view.usedStamp,
+        view.box,
+        view.cardTitle,
+        view.selectedMark,
+        view.usedMark,
         view.container
       ].forEach(item => {
         item?.removeAllListeners?.();
@@ -1083,12 +992,11 @@ export class HypothesisBoardUI {
     [
       this.overlay,
       this.panel,
-      this.innerPanel,
       this.titleText,
       this.subtitleText,
       this.attemptsText,
-      this.legendText,
       this.feedbackText,
+      this.legendText,
       this.closeButton,
       this.confirmButton
     ].forEach(item => {
@@ -1100,6 +1008,6 @@ export class HypothesisBoardUI {
     this.cardViews = [];
     this.cards = [];
     this.layout = null;
-    this.handleResizeBound = null;
+    this.resizeHandler = null;
   }
 }

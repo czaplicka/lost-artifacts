@@ -1,8 +1,9 @@
 import { gameState, resetGameState, resetCaseOutcomeState } from '../GameData.js';
 import { saveGameState, clearSavedGame } from '../GameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
-import SuspectGenerator from '../SuspectGenerator.js';
+import SuspectGenerator from '../suspects/SuspectGenerator.js';
 import { getEnergyManager } from '../EnergyManager.js';
+import { prepareCaseSuspectState } from './suspects/SuspectCaseState.js';
 import {
   HQ_CITY,
   HQ_ID,
@@ -111,25 +112,33 @@ async function fetchCaseSuspects(thief, crimeCityId) {
         }
       );
 
+      // Metoda SuspectGenerator przygotowuje stan sprawy.
       suspectGenerator.prepareCaseState(caseData);
 
-      gameState.currentMission.forensicHardEvidence = structuredClone(hardEvidence);
-      gameState.currentMission.requiredForensicProfile = structuredClone(requiredProfile);
+      // Dodatkowo ustawiamy stan globalny, aby sceny laboratoriów
+      // korzystały z identycznych danych co generator podejrzanych.
+      prepareCaseSuspectState(caseData);
+
+      gameState.currentMission.forensicHardEvidence =
+        structuredClone(hardEvidence);
+
+      gameState.currentMission.requiredForensicProfile =
+        structuredClone(requiredProfile);
 
       return caseData;
     } catch (error) {
       lastError = error;
 
       if (attempt < SUSPECT_FETCH_RETRIES) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS)
-        );
+        await new Promise((resolve) => {
+          setTimeout(resolve, SUSPECT_FETCH_RETRY_DELAY_MS);
+        });
       }
     }
   }
 
   throw new Error(
-    `Failed to load suspects: ${lastError?.message || lastError}`
+    `Failed to load suspects: ${lastError?.message || String(lastError)}`
   );
 }
 
@@ -236,9 +245,6 @@ getScoreManager().startSession({
     moneyLog: []
   });
 
-  // Ważne: nie używamy getRouteManager() tutaj. Przed Object.assign()
-  // mógł on odtworzyć manager z poprzedniej sprawy albo z nieaktualnym crimeCityId.
-  // Świeży manager z aktualnym crimeCityId startuje w fazie CRIME_CITY.
   gameState.routeManager = new RouteManager(
     gameState.escapeRoute,
     gameState.crimeCityId

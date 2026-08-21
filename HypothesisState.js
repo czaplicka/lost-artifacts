@@ -26,32 +26,20 @@ export class HypothesisState {
   }
 
   reset() {
-    this.placedCards =
-      new Array(this.activeSlotCount).fill(null);
+  this.placedCards =
+    new Array(this.activeSlotCount).fill(null);
 
-    this.slotFeedback =
-      new Array(this.activeSlotCount).fill('neutral');
+  this.slotFeedback =
+    new Array(this.activeSlotCount).fill('neutral');
 
-    this.attemptsLeft = this.maxAttempts;
-    this.lockedSlots = new Set();
+  this.attemptsLeft = this.maxAttempts;
+  this.lockedSlots = new Set();
+  this.selectedSlotIndex = null;
+  this.selectedCardIndex = null;
+  this.uiLocked = false;
 
-    /*
-     * selectedSlotIndex zostaje dla kompatybilności
-     * z wcześniejszym UI i ewentualnym podświetlaniem pytania.
-     */
-    this.selectedSlotIndex = null;
-
-    /*
-     * Nowy, główny model interakcji:
-     * kliknięcie clue card wybiera kartę,
-     * kliknięcie pytania przypisuje ją do slotu.
-     */
-    this.selectedCardIndex = null;
-
-    this.uiLocked = false;
-
-    this.syncAttemptsToReconstruction();
-  }
+  this.syncAttemptsToReconstruction();
+}
 
   setActiveSlotCount(activeSlotCount) {
     const nextCount = Math.max(
@@ -289,78 +277,6 @@ export class HypothesisState {
       action: 'placed',
       cardIndex,
       slotIndex
-    };
-  }
-
-  /*
-   * Zostawione dla zgodności ze starszym kodem.
-   * Nowy HypothesisBoardUI nie powinien wywoływać tej metody.
-   */
-  placeCard(cardIndex, requestedSlotIndex = null) {
-    if (this.uiLocked) {
-      return {
-        ok: false,
-        reason: 'ui_locked'
-      };
-    }
-
-    if (!this.isValidCard(cardIndex)) {
-      return {
-        ok: false,
-        reason: 'invalid_card'
-      };
-    }
-
-    if (this.isCardPlaced(cardIndex)) {
-      return {
-        ok: false,
-        reason: 'card_already_used',
-        cardIndex,
-        slotIndex: this.getCardSlot(cardIndex)
-      };
-    }
-
-    const targetSlotIndex =
-      requestedSlotIndex ??
-      this.selectedSlotIndex ??
-      this.getFirstAvailableSlot();
-
-    if (!this.isValidSlot(targetSlotIndex)) {
-      return {
-        ok: false,
-        reason: 'no_available_slot'
-      };
-    }
-
-    if (this.isSlotLocked(targetSlotIndex)) {
-      return {
-        ok: false,
-        reason: 'slot_locked',
-        slotIndex: targetSlotIndex
-      };
-    }
-
-    if (!this.isSlotEmpty(targetSlotIndex)) {
-      return {
-        ok: false,
-        reason: 'slot_occupied',
-        slotIndex: targetSlotIndex
-      };
-    }
-
-    this.placedCards[targetSlotIndex] = cardIndex;
-    this.slotFeedback[targetSlotIndex] = 'neutral';
-
-    this.selectedCardIndex = null;
-    this.selectedSlotIndex = null;
-
-    this.resetUnlockedFeedback();
-
-    return {
-      ok: true,
-      action: 'placed',
-      cardIndex,
-      slotIndex: targetSlotIndex
     };
   }
 

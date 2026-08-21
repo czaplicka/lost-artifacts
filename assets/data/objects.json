@@ -197,7 +197,12 @@
         "questionId": "distract_guards",
         "skills": ["Tactical planning", "Deception", "Espionage"],
         "heistExplanation": "The thief timed a distraction for the one moment when the patrol schedule guaranteed that backup would arrive late."
-      }
+      },
+      {
+          "questionId": "distract_guards",
+          "skills": ["Tactical planning", "Deception", "Espionage", "Martial arts", "Firearms"],
+          "heistExplanation": "The thief timed a distraction for the one moment when the patrol schedule guaranteed that backup would arrive late."
+        }
     ]
     },
     {
@@ -590,7 +595,7 @@
       },
       {
         "questionId": "distract_guards",
-        "skills": ["Problem-solving", "Deception", "Research"],
+        "skills": ["Problem-solving", "Deception", "Research", "Martial arts", "Firearms"],
         "heistExplanation": "The thief recreated an old maintenance incident, knowing security would follow the same predictable response procedure."
       }
     ]
@@ -1611,7 +1616,6 @@
     {
       "id": "fake_custodian_pass",
       "item": "Fake conservator pass",
-      "skills": ["Forgery", "Persuasion", "Deception"],
       "tags": ["badge", "pass", "fake_id", "access", "disguise"],
       "scene": ["castle"],
       "trueExplanation": "Printed on a home inkjet printer that was clearly running out of yellow ink.",
@@ -1637,7 +1641,6 @@
     {
       "id": "monitoring_tablet",
       "item": "Tablet with an open surveillance system",
-      "skills": ["Hacking", "Surveillance", "Electronics", "Analysis"],
       "tags": ["tablet", "cctv", "screen", "security", "network"],
       "scene": ["castle"],
       "trueExplanation": "The screen is covered in greasy fingerprints and currently streaming a live feed of the empty janitor's closet.",
@@ -1655,15 +1658,14 @@
         },
         {
           "questionId": "beat_security",
-          "skills": ["Hacking", "Electronics", "Surveillance"],
-          "heistExplanation": "The thief used the tablet's logged-in control session to suppress a camera alert before crossing the protected corridor."
+          "skills": ["Hacking", "Electronics", "Surveillance", "Martial arts", "Firearms"],
+          "heistExplanation": "The thief used the tablet's logged-in control session to suppress a camera alert before crossing the protected corridor and attack."
         }
       ]
     },
     {
       "id": "mini_camera_statue",
       "item": "Mini camera hidden in a statue",
-      "skills": ["Surveillance", "Espionage", "Electronics"],
       "tags": ["camera", "statue", "hidden", "spygear", "recording"],
       "scene": ["castle"],
       "trueExplanation": "The camera lens occupies the statue's left nostril, giving every recording a uniquely unflattering angle.",
@@ -1681,7 +1683,7 @@
         },
         {
           "questionId": "distract_guards",
-          "skills": ["Espionage", "Deception", "Surveillance"],
+          "skills": ["Espionage", "Deception", "Surveillance", "Martial arts", "Firearms"],
           "heistExplanation": "The camera's view let an accomplice create a distraction at the exact moment the nearest guard was most vulnerable to it."
         }
       ]
@@ -1689,7 +1691,6 @@
     {
       "id": "microfiber_gloves",
       "item": "Microfiber gloves",
-      "skills": ["Stealth", "Investigation", "Pickpocket"],
       "tags": ["gloves", "forensics", "clean", "stealth", "trace-free"],
       "scene": ["castle"],
       "trueExplanation": "Originally bought in a 10-pack for cleaning laptop screens and expensive sunglasses.",
@@ -1715,7 +1716,6 @@
   {
       "id": "shoe_print_marble",
       "item": "Shoe print on the polished floor",
-      "skills": ["Tracking", "Investigation", "Deduction"],
       "tags": ["footprint", "floor", "trace", "evidence", "shoe"],
       "scene": ["castle"],
       "trueExplanation": "A tragic reminder that the castle floor was waxed exactly four minutes before the break-in.",
@@ -1871,7 +1871,6 @@
     {
       "id": "old_castle_map",
       "item": "Old map of the castle",
-      "skills": ["History", "Research", "Tracking"],
       "tags": ["map", "ancient", "castle", "route", "archive"],
       "scene": ["castle"],
       "trueExplanation": "Drawn in 1742, meaning half the doors marked on it are now solid stone or gift shops.",

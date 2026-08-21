@@ -10,7 +10,7 @@
     "trainStation": true,
     "background": "london.jpg",
     "npcTheme": "white",
-    "map": { "x": 890, "y": 340 },
+    "map": { "x": 895, "y": 340 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
@@ -99,7 +99,7 @@
     "trainStation": true,
     "background": "new_delhi.jpg",
     "npcTheme": "south_asian",
-    "map": { "x": 1290, "y": 690 },
+    "map": { "x": 1290, "y": 490 },
     "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 270, "cityY": 400, "enabled": true },
@@ -459,7 +459,7 @@
     "trainStation": true,
     "background": "tokyo.jpg",
     "npcTheme": "asian",
-    "map": { "x": 1500, "y": 370 },
+    "map": { "x": 1530, "y": 380 },
     "isCrimeCity": false,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },

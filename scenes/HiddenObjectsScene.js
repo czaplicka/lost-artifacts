@@ -113,15 +113,6 @@ export class HiddenObjectsScene extends BaseScene {
  this.scoreManager = getScoreManager();
 this.score = this.scoreManager.getSessionPoints();
   this.stateManager.ensureStateStructure();
-
-
-  console.log('[HiddenObjectsScene] init', {
-    sceneId: this.sceneId,
-    cityId: this.cityId,
-    visitKey: this.stateManager.getVisitKey(),
-    sessionScore: this.score,
-    generatedCardIds: gameState.reconstructedHeist?.foundCardIds || [],
-  });
 }
 
   preload() {

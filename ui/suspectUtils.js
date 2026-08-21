@@ -1,4 +1,4 @@
-import { gameState } from './GameData.js';
+import { gameState } from '../GameData.js';
 
 const STATUS = {
   PENDING: 'pending',
