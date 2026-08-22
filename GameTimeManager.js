@@ -15,6 +15,7 @@ export class GameTimeManager {
     this.currentHour = Number(savedState?.hour) || 8;
     this.currentMinute = Number(savedState?.minute) || 0;
     this.partOfDay = savedState?.partOfDay || 'Morning';
+
     this.updatePartOfDay();
 
     EventBus.clearScope(OWNER_KEY);
@@ -37,58 +38,57 @@ export class GameTimeManager {
   }
 
   handleAdvanceTime(hours = 0, minutes = 0) {
-    const safeHours = Math.max(
-      0,
-      Math.floor(Number(hours) || 0)
+  const safeHours = Math.max(
+    0,
+    Math.floor(Number(hours) || 0)
+  );
+
+  const safeMinutes = Math.max(
+    0,
+    Math.floor(Number(minutes) || 0)
+  );
+
+  this.currentMinute += safeMinutes;
+
+  if (this.currentMinute >= 60) {
+    this.currentHour += Math.floor(
+      this.currentMinute / 60
     );
 
-    const safeMinutes = Math.max(
-      0,
-      Math.floor(Number(minutes) || 0)
-    );
-
-    const spentCaseSeconds = safeHours * 60 * 60 + safeMinutes * 60;
-
-    this.currentMinute += safeMinutes;
-
-    if (this.currentMinute >= 60) {
-      this.currentHour += Math.floor(
-        this.currentMinute / 60
-      );
-
-      this.currentMinute %= 60;
-    }
-
-    this.currentHour += safeHours;
-
-    while (this.currentHour >= 24) {
-      this.currentHour -= 24;
-      this.currentDay += 1;
-    }
-
-    this.updatePartOfDay();
-    this.syncGameState();
-    const remainingCaseTime = refreshCaseDeadline(gameState);
-const caseExpired = isCaseTimeExpired(gameState);
-
-    // Jeden centralny punkt: każde advanceTime obniża deadline sprawy.
-    // Jeśli timer sprawy nie jest aktywny, helper niczego nie zmienia.
-    const remainingCaseTime = spendCaseTime(spentCaseSeconds);
-
-const payload = {
-  day: this.currentDay,
-  hour: this.currentHour,
-  minute: this.currentMinute,
-  partOfDay: this.partOfDay,
-  caseTimeRemaining: remainingCaseTime,
-  caseExpired
-};
-
-    EventBus.emit('timeChanged', payload);
-    EventBus.emit('saveTimeState', payload);
-
-    return payload;
+    this.currentMinute %= 60;
   }
+
+  this.currentHour += safeHours;
+
+  while (this.currentHour >= 24) {
+    this.currentHour -= 24;
+    this.currentDay += 1;
+  }
+
+  this.updatePartOfDay();
+  this.syncGameState();
+
+  // Deadline nie jest zmieniany bezpośrednio.
+  // Po zmianie czasu gry helper wylicza:
+  // missionDeadline - currentGameTime.
+  const remainingCaseTime = refreshCaseDeadline(gameState);
+
+  const caseExpired = isCaseTimeExpired(gameState);
+
+  const payload = {
+    day: this.currentDay,
+    hour: this.currentHour,
+    minute: this.currentMinute,
+    partOfDay: this.partOfDay,
+    caseTimeRemaining: remainingCaseTime,
+    caseExpired
+  };
+
+  EventBus.emit('timeChanged', payload);
+  EventBus.emit('saveTimeState', payload);
+
+  return payload;
+}
 
   updatePartOfDay() {
     if (this.currentHour >= 6 && this.currentHour < 12) {

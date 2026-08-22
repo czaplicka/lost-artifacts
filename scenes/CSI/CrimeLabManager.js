@@ -1,5 +1,6 @@
 import { saveGameState } from '../../GameStatePersistence.js';
-import { normalizeMiniGameKey } from './CrimeLabConfig.js';
+import { normalizeMiniGameKey, CSI_MAIN_GAME_POOL } from './CrimeLabConfig.js';
+
 
 function cloneEvidence(evidence = {}) {
   try {
@@ -9,6 +10,7 @@ function cloneEvidence(evidence = {}) {
   }
 }
 
+
 function getEvidenceValue(evidence = {}) {
   return (
     evidence.thief_value ??
@@ -17,6 +19,44 @@ function getEvidenceValue(evidence = {}) {
     null
   );
 }
+
+
+function hashString(value) {
+  const text = String(value || 'default');
+  let hash = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash * 31 + text.charCodeAt(i)) >>> 0;
+  }
+
+  return hash;
+}
+
+
+function mapGenderCodeToDnaProfile(genderCode) {
+  const normalized = String(genderCode || '').trim().toLowerCase();
+
+  if (normalized === 'm' || normalized === 'male') return 'XY';
+  if (normalized === 'f' || normalized === 'female') return 'XX';
+
+  return null;
+}
+
+
+/*
+ * Deterministic weighted pick for ridge pattern when the suspect
+ * record does not already carry a fingerprintPattern field.
+ * Loop ~65%, Whorl ~30%, Arch ~5%, matching real population
+ * distribution.
+ */
+function weightedFingerprintPattern(seed) {
+  const roll = (seed % 1000) / 1000;
+
+  if (roll < 0.65) return 'LOOP';
+  if (roll < 0.95) return 'WHORL';
+  return 'ARCH';
+}
+
 
 export class CrimeLabManager {
   constructor(gameState, cityId) {
@@ -32,6 +72,22 @@ export class CrimeLabManager {
       mission.caseId ||
       `${this.cityId}_${mission.artifact || 'default'}`
     );
+  }
+
+  getSuspectData() {
+    const reconstruction = this.gameState.reconstructedHeist || {};
+
+    const selectedThief =
+      this.gameState.selectedThiefProfile ||
+      this.gameState.selectedThief ||
+      this.gameState.currentThief ||
+      this.gameState.thief ||
+      {};
+
+    return {
+      ...selectedThief,
+      ...reconstruction
+    };
   }
 
   ensureCaseForensics() {
@@ -169,18 +225,95 @@ export class CrimeLabManager {
     };
   }
 
-  getIdentityEvidenceConfig() {
-    const identityEvidence =
-      this.gameState.identityEvidence;
+  ensureIdentityEvidence() {
+    const caseKey = this.getCaseKey();
 
+    this.gameState.caseCsiAssignments ??= {};
+
+    const assignment =
+      this.gameState.caseCsiAssignments[caseKey] ?? {};
+
+    const isValidIdentityEvidence = evidence =>
+      evidence &&
+      typeof evidence === 'object' &&
+      typeof evidence.id === 'string' &&
+      evidence.id.length > 0 &&
+      typeof evidence.attribute === 'string' &&
+      evidence.attribute.length > 0 &&
+      getEvidenceValue(evidence) !== null;
+
+    /*
+     * Bieżąca misja ma gotowy ślad.
+     */
     if (
-      !identityEvidence ||
-      typeof identityEvidence !== 'object'
+      isValidIdentityEvidence(
+        this.gameState.identityEvidence
+      )
     ) {
+      assignment.identityEvidence = cloneEvidence(
+        this.gameState.identityEvidence
+      );
+
+      this.gameState.caseCsiAssignments[caseKey] =
+        assignment;
+
+      return this.gameState.identityEvidence;
+    }
+
+    /*
+     * Ślad był już wygenerowany dla tej sprawy,
+     * np. podczas poprzedniej wizyty albo w save game.
+     */
+    if (
+      isValidIdentityEvidence(
+        assignment.identityEvidence
+      )
+    ) {
+      this.gameState.identityEvidence = cloneEvidence(
+        assignment.identityEvidence
+      );
+
+      return this.gameState.identityEvidence;
+    }
+
+    const generatedEvidence =
+      this.buildIdentityEvidenceForCase(caseKey);
+
+    if (!isValidIdentityEvidence(generatedEvidence)) {
+      console.error(
+        '[CrimeLabManager] Identity evidence generation failed.',
+        {
+          caseKey,
+          generatedEvidence,
+          reconstructedHeist:
+            this.gameState.reconstructedHeist
+        }
+      );
+
       throw new Error(
-        'CrimeLabManager: gameState.identityEvidence is missing. Generate and save the primary CSI evidence before entering the Crime Lab.'
+        'CrimeLabManager: could not generate valid identity evidence.'
       );
     }
+
+    this.gameState.identityEvidence = cloneEvidence(
+      generatedEvidence
+    );
+
+    assignment.identityEvidence = cloneEvidence(
+      generatedEvidence
+    );
+
+    this.gameState.caseCsiAssignments[caseKey] =
+      assignment;
+
+    saveGameState();
+
+    return this.gameState.identityEvidence;
+  }
+
+  getIdentityEvidenceConfig() {
+    const identityEvidence =
+      this.ensureIdentityEvidence();
 
     return this.normalizeEvidenceConfig(
       identityEvidence,
@@ -192,59 +325,348 @@ export class CrimeLabManager {
     );
   }
 
+  /*
+   * Builds the ONE main identity clue for this case by picking
+   * one of the four main forensic games (hair / blood / DNA
+   * gender / fingerprint pattern) and deriving its correct value
+   * from the actual thief record. Selection is deterministic per
+   * caseKey, so revisiting the Crime Lab never re-rolls the clue.
+   */
+  buildIdentityEvidenceForCase(caseKey) {
+    const suspectData = this.getSuspectData();
+
+    const suspectSeed = hashString(
+      suspectData.id || suspectData.name || caseKey
+    );
+
+    const templates = CSI_MAIN_GAME_POOL.map(entry => {
+      switch (entry.evidenceType) {
+        case 'hair_color': {
+          const hairValue = suspectData.hair || suspectData.hair_color;
+
+          return {
+            ...entry,
+            id: 'identity_hair_color',
+            thief_value: hairValue || null,
+            allowedValues: [
+              'Black', 'Brown', 'Blond', 'Red', 'Grey', 'White', 'Auburn'
+            ],
+            clueType: 'identity',
+            source: 'crime_lab',
+            clueText: hairValue
+              ? `Microscopic hair analysis indicates a ${hairValue.toLowerCase()} hair strand.`
+              : null
+          };
+        }
+
+        case 'blood_type': {
+          const bloodValue = suspectData.bloodType || suspectData.blood_type;
+
+          return {
+            ...entry,
+            id: 'identity_blood_type',
+            thief_value: bloodValue || null,
+            allowedValues: [
+              'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+            ],
+            clueType: 'identity',
+            source: 'crime_lab',
+            clueText: bloodValue
+              ? `Serological testing confirms a blood type of ${bloodValue}.`
+              : null
+          };
+        }
+
+        case 'dna_gender': {
+          const genderCode =
+            suspectData.gender_code || suspectData.genderCode || suspectData.gender;
+          const dnaProfile = mapGenderCodeToDnaProfile(genderCode);
+
+          return {
+            ...entry,
+            id: 'identity_dna_gender',
+            thief_value: dnaProfile,
+            allowedValues: ['XX', 'XY'],
+            clueType: 'identity',
+            source: 'crime_lab',
+            clueText: dnaProfile
+              ? `DNA amplification reveals a ${dnaProfile === 'XY' ? 'male' : 'female'} genetic profile.`
+              : null
+          };
+        }
+
+        case 'fingerprint_pattern': {
+          const pattern =
+            suspectData.fingerprintPattern ||
+            suspectData.fingerprint_pattern ||
+            weightedFingerprintPattern(suspectSeed);
+
+          return {
+            ...entry,
+            id: 'identity_fingerprint_pattern',
+            thief_value: pattern,
+            allowedValues: ['LOOP', 'WHORL', 'ARCH'],
+            clueType: 'identity',
+            source: 'crime_lab',
+            clueText: pattern
+              ? `Latent print analysis shows a ${pattern.toLowerCase()} ridge pattern.`
+              : null
+          };
+        }
+
+        default:
+          return null;
+      }
+    }).filter(template => template && template.thief_value);
+
+    if (templates.length === 0) {
+      console.error(
+        '[CrimeLabManager] No main identity template could be resolved from suspect data.',
+        { caseKey, suspectData }
+      );
+      return null;
+    }
+
+    const selectionSeed = hashString(`${caseKey}_identity`);
+    const selectedIndex = selectionSeed % templates.length;
+    const selected = templates[selectedIndex];
+
+    return cloneEvidence(selected);
+  }
+
   ensureRandomTraceEvidence() {
     const caseKey = this.getCaseKey();
 
     this.gameState.caseCsiAssignments ??= {};
 
-    const existing =
-      this.gameState.caseCsiAssignments[caseKey];
+    const assignment =
+      this.gameState.caseCsiAssignments[caseKey] ?? {};
 
+    const isValidTraceEvidence = evidence =>
+      evidence &&
+      typeof evidence === 'object' &&
+      typeof evidence.id === 'string' &&
+      typeof evidence.label === 'string' &&
+      typeof evidence.attribute === 'string' &&
+      evidence.attribute.length > 0 &&
+      getEvidenceValue(evidence) !== null;
+
+    const hasExactlyTwoTraceEvidence = evidenceList =>
+      Array.isArray(evidenceList) &&
+      evidenceList.length === 2 &&
+      evidenceList.every(isValidTraceEvidence);
+
+    /*
+     * Aktualna misja już ma poprawnie wygenerowane ślady.
+     */
     if (
-      Array.isArray(existing) &&
-      existing.length === 2
+      hasExactlyTwoTraceEvidence(
+        this.gameState.traceEvidence
+      )
     ) {
-      this.gameState.traceEvidence =
-        cloneEvidence(existing);
+      assignment.traceEvidence = this.gameState.traceEvidence.map(
+        evidence => cloneEvidence(evidence)
+      );
+
+      this.gameState.caseCsiAssignments[caseKey] =
+        assignment;
 
       return this.gameState.traceEvidence;
     }
 
-    const generatedTraceEvidence =
-      this.gameState.traceEvidence;
+    /*
+     * Wróciliśmy do Crime Lab dla tej samej misji
+     * lub załadowaliśmy zapis gry.
+     */
+    if (
+      hasExactlyTwoTraceEvidence(
+        assignment.traceEvidence
+      )
+    ) {
+      this.gameState.traceEvidence =
+        assignment.traceEvidence.map(evidence =>
+          cloneEvidence(evidence)
+        );
+
+      return this.gameState.traceEvidence;
+    }
+
+    const generatedEvidence =
+      this.buildTraceEvidenceForCase(caseKey);
 
     if (
-      !Array.isArray(generatedTraceEvidence) ||
-      generatedTraceEvidence.length !== 2
+      !hasExactlyTwoTraceEvidence(
+        generatedEvidence
+      )
     ) {
+      console.error(
+        '[CrimeLabManager] Trace evidence generation failed.',
+        {
+          caseKey,
+          generatedEvidence,
+          reconstructedHeist:
+            this.gameState.reconstructedHeist
+        }
+      );
+
       throw new Error(
-        'CrimeLabManager: gameState.traceEvidence must contain exactly two evidence objects. Generate them in gameSetup before entering the Crime Lab.'
+        'CrimeLabManager: unable to generate exactly two valid trace evidence objects.'
       );
     }
 
-    const assignments =
-      generatedTraceEvidence.map((evidence, index) => {
-        const config = this.normalizeEvidenceConfig(
-          evidence,
-          {
-            stationId: `trace_${index + 1}`,
-            fallbackLabel: `Trace Evidence ${index + 1}`,
-            fallbackClueType: 'trace'
-          }
-        );
+    this.gameState.traceEvidence =
+      generatedEvidence.map(evidence =>
+        cloneEvidence(evidence)
+      );
 
-        return config.evidence;
-      });
+    assignment.traceEvidence =
+      generatedEvidence.map(evidence =>
+        cloneEvidence(evidence)
+      );
 
     this.gameState.caseCsiAssignments[caseKey] =
-      cloneEvidence(assignments);
-
-    this.gameState.traceEvidence =
-      cloneEvidence(assignments);
+      assignment;
 
     saveGameState();
 
     return this.gameState.traceEvidence;
+  }
+
+  buildTraceEvidenceForCase(caseKey) {
+    const reconstruction =
+      this.gameState.reconstructedHeist || {};
+
+    const selectedThief =
+      this.gameState.selectedThiefProfile ||
+      this.gameState.selectedThief ||
+      this.gameState.currentThief ||
+      this.gameState.thief ||
+      {};
+
+    const suspectData = {
+      ...selectedThief,
+      ...reconstruction
+    };
+
+    const thiefSkills = Array.isArray(
+      reconstruction.thiefSkills
+    )
+      ? reconstruction.thiefSkills
+      : typeof reconstruction.thiefSkills === 'string'
+        ? reconstruction.thiefSkills
+          .split(',')
+          .map(skill => skill.trim())
+          .filter(Boolean)
+        : [];
+
+    const shoeSize =
+      suspectData.shoeSizeCategory ||
+      suspectData.shoe_size_category ||
+      'medium';
+
+    const handedness =
+      suspectData.handedness ||
+      'right';
+
+    const tracePool = [
+      {
+        id: 'trace_shoe_print',
+        label: 'Boot Print Analysis',
+        attribute: 'shoeSizeCategory',
+        thief_value: shoeSize,
+        allowedValues: [
+          'small',
+          'medium',
+          'large'
+        ],
+        minigame: 'shoe_size',
+        clueType: 'trace',
+        source: 'crime_lab',
+        clueText:
+          `The partial boot print indicates ${shoeSize} footwear.`
+      },
+
+      {
+        id: 'trace_hand_smudge',
+        label: 'Cabinet Handle Smudge',
+        attribute: 'handedness',
+        thief_value: handedness,
+        allowedValues: [
+          'left',
+          'right'
+        ],
+        minigame: 'handedness',
+        clueType: 'trace',
+        source: 'crime_lab',
+        clueText:
+          `The smudge pattern indicates a ${handedness}-handed person.`
+      },
+
+      {
+        id: 'trace_fabric_fiber',
+        label: 'Synthetic Fibre Analysis',
+        attribute: 'fabricMaterial',
+        thief_value: 'synthetic',
+        allowedValues: [
+          'synthetic',
+          'cotton',
+          'wool',
+          'silk',
+          'leather'
+        ],
+        minigame: 'fiber',
+        clueType: 'trace',
+        source: 'crime_lab',
+        clueText:
+          'The recovered fibre is a synthetic weave from modern outerwear.'
+      },
+
+      {
+        id: 'trace_tool_residue',
+        label: 'Tool Residue Analysis',
+        attribute: 'primarySkill',
+        thief_value: thiefSkills[0] || 'Stealth',
+        allowedValues: [
+          'Lockpicking',
+          'Disguise',
+          'Stealth',
+          'Espionage',
+          'Surveillance'
+        ],
+        minigame: 'skill',
+        clueType: 'trace',
+        source: 'crime_lab',
+        clueText:
+          `The microscopic residue is consistent with ${
+            thiefSkills[0] || 'Stealth'
+          }.`
+      }
+    ];
+
+    /*
+     * Stabilny wybór dwóch różnych śladów dla danej misji.
+     * Po pierwszym wejściu zapisujemy wynik w
+     * caseCsiAssignments[caseKey], więc nie zmieni się
+     * po wejściu do laboratorium po raz drugi.
+     */
+    const seed = String(caseKey || 'default_case')
+      .split('')
+      .reduce(
+        (sum, character) =>
+          sum + character.charCodeAt(0),
+        0
+      );
+
+    const firstIndex =
+      seed % tracePool.length;
+
+    const secondIndex =
+      (firstIndex + 1) % tracePool.length;
+
+    return [
+      cloneEvidence(tracePool[firstIndex]),
+      cloneEvidence(tracePool[secondIndex])
+    ];
   }
 
   getTraceEvidenceConfig(index) {

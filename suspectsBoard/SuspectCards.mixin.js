@@ -1,7 +1,7 @@
 // Handles suspect card grid rendering (layout, visuals, interactions)
 // and the card status badge logic.
 
-import { saveGameState } from '../../GameStatePersistence.js';
+import { saveGameState } from '../GameStatePersistence.js';
 
 export const SuspectCardsMixin = {
   renderSuspectCards(suspects) {

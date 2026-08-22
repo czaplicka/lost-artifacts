@@ -1,22 +1,30 @@
 // Handles Exclude Mode: toggling, confirmation modal, per-suspect elimination
 // state, forensic hair-evidence lookups, and the hand-off to the Evidence Grid.
 
-import { saveGameState } from '../../GameStatePersistence.js';
+import { saveGameState } from '../GameStatePersistence.js';
 
 export const SuspectExclusionMixin = {
-  toggleExcludeMode() {
-    if (this.exclusionFinished) return;
+toggleExcludeMode() {
+  if (this.exclusionFinished) return;
 
-    this.excludeMode = !this.excludeMode;
+  if (!this.getCrimeLabCompleted()) {
+    this.modeHintText?.setText(
+      'COMPLETE THE CRIME LAB FIRST. Preliminary exclusions require forensic evidence.'
+    );
 
-    if (this.excludeMode) {
-      this.filterMode = 'all';
-      this.currentPage = 0;
-    }
+    return;
+  }
 
-    this.updateExclusionControls();
-    this.refreshBoard();
-  },
+  this.excludeMode = !this.excludeMode;
+
+  if (this.excludeMode) {
+    this.filterMode = 'all';
+    this.currentPage = 0;
+  }
+
+  this.updateExclusionControls();
+  this.refreshBoard();
+},
 
   finishExcluding() {
     this.showFinishExclusionConfirm();
@@ -159,42 +167,43 @@ export const SuspectExclusionMixin = {
   },
 
   updateExclusionControls() {
-    if (!this.exclusionButton || !this.continueButton) return;
+  if (!this.exclusionButton || !this.continueButton) return;
 
-    if (this.exclusionFinished) {
-      this.exclusionButton.setVisible(false);
-      this.continueButton.setVisible(true);
-      this.modeHintText?.setText(
-        'Preliminary exclusions saved. Continue with the remaining files.'
-      );
-      return;
-    }
+  const crimeLabCompleted = this.getCrimeLabCompleted();
 
-    this.continueButton.setVisible(false);
-    this.exclusionButton.setVisible(true);
+  if (this.exclusionFinished) {
+    this.exclusionButton.setVisible(false);
+    this.continueButton.setVisible(true);
 
-    if (this.excludeMode) {
-      this.exclusionButton.buttonText.setText('[ FINISH EXCLUDING ]');
-      this.exclusionButton.isActive = true;
-      this.exclusionButton.applyStyle?.();
+    this.modeHintText?.setText(
+      'Preliminary exclusions saved. Continue with the remaining files.'
+    );
 
-      this.exclusionButton.buttonBackground.removeAllListeners(
-        'pointerdown'
-      );
+    return;
+  }
 
-      this.exclusionButton.buttonBackground.on(
-        'pointerdown',
-        () => this.finishExcluding()
-      );
+  this.continueButton.setVisible(false);
+  this.exclusionButton.setVisible(true);
 
-      this.modeHintText?.setText(
-        'EXCLUDE MODE: Click suspect files to clear or restore them.'
-      );
-      return;
-    }
-
-    this.exclusionButton.buttonText.setText('[ EXCLUDE MODE ]');
+  if (!crimeLabCompleted) {
+    this.exclusionButton.buttonText.setText('[ CRIME LAB REQUIRED ]');
     this.exclusionButton.isActive = false;
+    this.exclusionButton.applyStyle?.();
+
+    this.setButtonEnabled(this.exclusionButton, false);
+
+    this.modeHintText?.setText(
+      'Complete the Crime Lab to unlock preliminary suspect exclusions.'
+    );
+
+    return;
+  }
+
+  this.setButtonEnabled(this.exclusionButton, true);
+
+  if (this.excludeMode) {
+    this.exclusionButton.buttonText.setText('[ FINISH EXCLUDING ]');
+    this.exclusionButton.isActive = true;
     this.exclusionButton.applyStyle?.();
 
     this.exclusionButton.buttonBackground.removeAllListeners(
@@ -203,17 +212,41 @@ export const SuspectExclusionMixin = {
 
     this.exclusionButton.buttonBackground.on(
       'pointerdown',
-      () => this.toggleExcludeMode()
+      () => this.finishExcluding()
     );
 
     const hairEvidence = this.getHairEvidenceValue();
 
     this.modeHintText?.setText(
       hairEvidence
-        ? `LAB EVIDENCE: RECOVERED HAIR — ${hairEvidence.toUpperCase()}`
-        : 'LAB EVIDENCE: Hair analysis not available yet.'
+        ? `EXCLUDE MODE: LAB HAIR = ${hairEvidence.toUpperCase()}. Click files to clear or restore them.`
+        : 'EXCLUDE MODE: Click files to clear or restore them.'
     );
-  },
+
+    return;
+  }
+
+  this.exclusionButton.buttonText.setText('[ EXCLUDE MODE ]');
+  this.exclusionButton.isActive = false;
+  this.exclusionButton.applyStyle?.();
+
+  this.exclusionButton.buttonBackground.removeAllListeners(
+    'pointerdown'
+  );
+
+  this.exclusionButton.buttonBackground.on(
+    'pointerdown',
+    () => this.toggleExcludeMode()
+  );
+
+  const hairEvidence = this.getHairEvidenceValue();
+
+  this.modeHintText?.setText(
+    hairEvidence
+      ? `LAB EVIDENCE: RECOVERED HAIR — ${hairEvidence.toUpperCase()}`
+      : 'LAB COMPLETE: Review the evidence, then enter Exclude Mode.'
+  );
+},
 
   getHairEvidenceValue() {
     const hardEvidence =

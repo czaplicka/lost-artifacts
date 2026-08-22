@@ -38,6 +38,9 @@ import { EnterScene } from './scenes/EnterScene.js';
 import { TvBroadcastScene } from './scenes/TvBroadcastScene.js';
 import { SuspectsScene } from './scenes/SuspectsScene.js';
 import { SuspectGridScene } from './scenes/SuspectGridScene.js';
+import { BloodAnalysisScene } from './scenes/CSI/BloodAnalysisScene.js';
+import { DnaGenderScene } from './scenes/CSI/DnaGenderScene.js';
+import { FingerprintPatternScene } from './scenes/CSI/FingerprintPatternScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -86,7 +89,10 @@ const config = {
     FingerprintScene,
     ShoeprintScene,
     SuspectsScene,
-    SuspectGridScene
+    SuspectGridScene,
+    BloodAnalysisScene,
+    DnaGenderScene,
+    FingerprintPatternScene
   ],
 
   dom: {

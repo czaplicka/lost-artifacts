@@ -1,7 +1,9 @@
 import { EventBus } from '../../EventBus.js';
 import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
 
+
 const HUD_EVENT_SCOPE = 'CrimeLabHUD';
+
 
 export class CrimeLabHUD {
   constructor(scene) {
@@ -11,7 +13,7 @@ export class CrimeLabHUD {
     this.labProgressText = null;
     this.labCaseText = null;
 
-    this.boundCaseTimeChanged = this.handleCaseTimeChanged.bind(this);
+    this.boundTimeChanged = this.handleTimeChanged.bind(this);
   }
 
   create() {
@@ -67,11 +69,14 @@ export class CrimeLabHUD {
       this.labTimerText
     ]);
 
-    // Jeden listener na zmianę deadline'u, ze scoped cleanup w destroy().
+    // GameTimeManager.handleAdvanceTime() emits 'timeChanged' (NOT
+    // 'caseTimeChanged') with the remaining case time under
+    // payload.caseTimeRemaining. This listener now matches that
+    // real contract instead of an event name that was never fired.
     EventBus.clearScope(HUD_EVENT_SCOPE);
     EventBus.on(
-      'caseTimeChanged',
-      this.boundCaseTimeChanged,
+      'timeChanged',
+      this.boundTimeChanged,
       this,
       HUD_EVENT_SCOPE
     );
@@ -83,9 +88,11 @@ export class CrimeLabHUD {
     );
   }
 
-  handleCaseTimeChanged({ remainingSeconds } = {}) {
-    const remaining = Number.isFinite(Number(remainingSeconds))
-      ? Math.max(0, Math.floor(Number(remainingSeconds)))
+  handleTimeChanged(payload = {}) {
+    const parsed = Number(payload.caseTimeRemaining);
+
+    const remaining = Number.isFinite(parsed)
+      ? Math.max(0, Math.floor(parsed))
       : getCaseTimeRemaining(this.scene.gameState);
 
     this.refresh(
@@ -93,6 +100,11 @@ export class CrimeLabHUD {
       this.scene.totalStations || 3,
       remaining
     );
+
+    if (payload.caseExpired) {
+      this.labTimerText?.setColor('#ff2b2b');
+      this.labTimerText?.setText('TIME: EXPIRED');
+    }
   }
 
   refresh(completedCount, totalStations, remainingSeconds) {
@@ -102,8 +114,14 @@ export class CrimeLabHUD {
     this.labCaseText?.setText(String(artifact).toUpperCase());
     this.labProgressText?.setText(`ANALYSES: ${completedCount}/${totalStations}`);
 
-    if (remainingSeconds !== null) {
-      const safeSeconds = Math.max(0, Math.floor(Number(remainingSeconds)));
+    // Loose check on purpose: catches both null AND undefined, plus
+    // guards against non-numeric garbage before formatting.
+    const parsedSeconds = Number(remainingSeconds);
+    const hasValidTime =
+      remainingSeconds != null && Number.isFinite(parsedSeconds);
+
+    if (hasValidTime) {
+      const safeSeconds = Math.max(0, Math.floor(parsedSeconds));
       const hours = Math.floor(safeSeconds / 3600);
       const minutes = Math.floor((safeSeconds % 3600) / 60);
       const seconds = safeSeconds % 60;

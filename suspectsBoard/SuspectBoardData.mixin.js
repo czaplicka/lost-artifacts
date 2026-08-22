@@ -4,7 +4,7 @@
 import {
   getPublicSuspectList,
   getSuspectCaseSummary
-} from '../../ui/suspectUtils.js';
+} from '../ui/suspectUtils.js';
 
 export const SuspectBoardDataMixin = {
   getAllSuspects() {

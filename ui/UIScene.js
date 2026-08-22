@@ -6,8 +6,7 @@ import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
 import { getGameTimeManager } from '../GameTimeManager.js';
 import {
-  getCaseTimeRemaining,
-  getCaseTimerKey
+  getCaseTimeRemaining
 } from '../CaseTimeHelper.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;

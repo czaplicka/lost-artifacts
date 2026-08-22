@@ -6,12 +6,11 @@ import {
   getSuspectCaseSummary
 } from '../ui/suspectUtils.js';
 
-import { SuspectBoardUIMixin } from './suspects/SuspectBoardUI.mixin.js';
-import { SuspectExclusionMixin } from './suspects/SuspectExclusion.mixin.js';
-import { SuspectBoardDataMixin } from './suspects/SuspectBoardData.mixin.js';
-import { SuspectCardsMixin } from './suspects/SuspectCards.mixin.js';
-import { SuspectDetailsMixin } from './suspects/SuspectDetails.mixin.js';
-
+import { SuspectBoardUIMixin } from '../suspectsBoard/SuspectBoardUI.mixin.js';
+import { SuspectExclusionMixin } from '../suspectsBoard/SuspectExclusion.mixin.js';
+import { SuspectBoardDataMixin } from '../suspectsBoard/SuspectBoardData.mixin.js';
+import { SuspectCardsMixin } from '../suspectsBoard/SuspectCards.mixin.js';
+import { SuspectDetailsMixin } from '../suspectsBoard/SuspectDetails.mixin.js';
 export class SuspectsScene extends BaseScene {
   constructor() {
     super('SuspectBoardScene');
