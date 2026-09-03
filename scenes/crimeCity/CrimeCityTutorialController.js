@@ -25,56 +25,64 @@ export class CrimeCityTutorialController {
   }
 
   scheduleLabCompletionPhoneCall() {
-    if (!this.showLabCompletionPhoneCall) {
-      return;
-    }
-
-    if (!this.scene.isCrimeLabCompleted()) {
-      console.warn(
-        '[CrimeCityTutorialController] Phone call skipped: Crime Lab is not marked complete.'
-      );
-
-      return;
-    }
-
-    if (!this.scene.scene.manager.keys.PhoneCallScene) {
-      console.error(
-        '[CrimeCityTutorialController] PhoneCallScene is not registered.'
-      );
-
-      return;
-    }
-
-    this.showLabCompletionPhoneCall = false;
-
-    this.phoneCallTimer = this.scene.time.delayedCall(
-      650,
-      () => {
-        this.phoneCallTimer = null;
-
-        if (!this.scene.scene.isActive('CrimeCityScene')) {
-          return;
-        }
-
-        if (this.scene.scene.isActive('PhoneCallScene')) {
-          return;
-        }
-
-        this.scene.closeAllUIPanels();
-
-        this.scene.scene.launch('PhoneCallScene', {
-          sourceScene: 'CrimeCityScene',
-          cityId: this.scene.cityId,
-          caseKey: this.scene.getCaseKey(),
-          returnScene: 'CrimeCityScene',
-          returnData: {
-            cityId: this.scene.cityId
-          }
-        });
-      }
-    );
+  if (!this.showLabCompletionPhoneCall) {
+    return;
   }
 
+  if (!this.scene.isCrimeLabCompleted()) {
+    console.warn(
+      '[CrimeCityTutorialController] Phone call skipped: Crime Lab is not marked complete.'
+    );
+
+    return;
+  }
+
+  this.showLabCompletionPhoneCall = false;
+
+  this.phoneCallTimer = this.scene.time.delayedCall(
+    650,
+    async () => {
+      this.phoneCallTimer = null;
+
+      if (!this.scene?.scene?.isActive('CrimeCityScene')) {
+        return;
+      }
+
+      try {
+        await this.scene.game.sceneLoader.ensure(
+          'PhoneCallScene'
+        );
+      } catch (error) {
+        console.error(
+          '[CrimeCityTutorialController] Failed to load PhoneCallScene.',
+          error
+        );
+
+        return;
+      }
+
+      if (!this.scene?.scene?.isActive('CrimeCityScene')) {
+        return;
+      }
+
+      if (this.scene.scene.isActive('PhoneCallScene')) {
+        return;
+      }
+
+      this.scene.closeAllUIPanels();
+
+      this.scene.scene.launch('PhoneCallScene', {
+        sourceScene: 'CrimeCityScene',
+        cityId: this.scene.cityId,
+        caseKey: this.scene.getCaseKey(),
+        returnScene: 'CrimeCityScene',
+        returnData: {
+          cityId: this.scene.cityId
+        }
+      });
+    }
+  );
+}
   scheduleSuspectTutorial() {
     if (!this.showSuspectTutorial) {
       return;

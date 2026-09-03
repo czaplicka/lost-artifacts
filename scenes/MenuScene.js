@@ -117,7 +117,7 @@ export class MenuScene extends BaseScene {
         this.addHoverEffect(hiscoreBtn);
 
         hiscoreBtn.on('pointerdown', () => {
-            this.scene.start('HighscoreScene');
+            this.goto('HighscoreScene');
         });
 
         this.menuMessage = this.add.text(
@@ -272,7 +272,7 @@ export class MenuScene extends BaseScene {
             this.scene.launch('EnergyHudScene');
         }
 
-        this.scene.start(sceneToResume, {
+        this.goto(sceneToResume, {
             fromSave: true,
             saveSlotKey: loadedSave.slotKey,
         });
@@ -293,7 +293,7 @@ export class MenuScene extends BaseScene {
     startNewGame() {
         this.input.enabled = false;
 
-        this.scene.start('DifficultyScene', {
+        this.goto('DifficultyScene', {
             authMode: this.authMode,
             playerId: this.playerId,
             playerEmail: this.playerEmail,

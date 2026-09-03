@@ -23,36 +23,7 @@ const STEP_ORDER = [
   'travel_to_city',
 ];
 
-const STEP_CONTENT = {
-  walk_to_case_file: {
-    number: '01',
-    title: 'FIRST DAY, WORST TIMING',
-    objective: 'Walk to the records cabinet.',
-    hint: 'Click near the highlighted cabinet to move Detective Marlowe.',
-    targetHotspot: 'cabinet-casefile',
-  },
-  open_case_file: {
-    number: '02',
-    title: 'PAPERWORK: THE FINAL BOSS',
-    objective: 'Open your case file.',
-    hint: 'Click the highlighted records cabinet.',
-    targetHotspot: 'cabinet-casefile',
-  },
-  find_route: {
-    number: '03',
-    title: 'FOLLOW THE PAPER TRAIL',
-    objective: 'Choose a route to the crime city.',
-    hint: 'Use the globe to find your destination.',
-    targetHotspot: 'globe',
-  },
-  travel_to_city: {
-    number: '04',
-    title: 'LEAVE THE BUILDING',
-    objective: 'Travel to the crime city.',
-    hint: 'Pick the mission destination and start the investigation.',
-    targetHotspot: null,
-  },
-};
+const TUTORIAL_CACHE_KEY = 'csi';
 
 export class FirstCaseTutorial {
   constructor(scene, state) {
@@ -65,6 +36,7 @@ export class FirstCaseTutorial {
     this.destroyed = false;
 
     this.hotspots = new Map();
+    this.stepContent = this.loadStepContent();
 
     this.overlay = null;
     this.panel = null;
@@ -86,6 +58,37 @@ export class FirstCaseTutorial {
     this.onTravelStartedBound = this.onTravelStarted.bind(this);
 
     this.ensureState();
+  }
+
+  loadStepContent() {
+    const json = this.scene?.cache?.json?.get(TUTORIAL_CACHE_KEY);
+
+    if (!json || Object.keys(json).length === 0) {
+      console.warn(
+        `[FirstCaseTutorial] "${TUTORIAL_CACHE_KEY}.json" missing or empty in cache - ` +
+        'falling back to built-in tutorial text. Did you forget to load ' +
+        `assets/data/${TUTORIAL_CACHE_KEY}.json in the preloader?`
+      );
+
+      return FALLBACK_STEP_CONTENT;
+    }
+
+    const merged = {};
+
+    STEP_ORDER.forEach(stepId => {
+      if (json[stepId]) {
+        merged[stepId] = json[stepId];
+      } else {
+        console.warn(
+          `[FirstCaseTutorial] Step "${stepId}" missing from "${TUTORIAL_CACHE_KEY}.json" - ` +
+          'using built-in fallback text for this step.'
+        );
+
+        merged[stepId] = FALLBACK_STEP_CONTENT[stepId];
+      }
+    });
+
+    return merged;
   }
 
   ensureState() {
@@ -121,7 +124,7 @@ export class FirstCaseTutorial {
     if (
       this.active &&
       this.currentStep &&
-      STEP_CONTENT[this.currentStep]?.targetHotspot === id
+      this.stepContent[this.currentStep]?.targetHotspot === id
     ) {
       this.highlightHotspot(id);
     }
@@ -189,7 +192,7 @@ export class FirstCaseTutorial {
       return;
     }
 
-    const step = STEP_CONTENT[stepId];
+    const step = this.stepContent[stepId];
 
     if (!step) {
       console.warn(`[FirstCaseTutorial] Unknown tutorial step: ${stepId}`);
@@ -447,11 +450,11 @@ export class FirstCaseTutorial {
     const textLeft = panelLeft + PORTRAIT_SIZE + 36;
     const textWrapWidth = Math.max(panelWidth - PORTRAIT_SIZE - 76, 80);
 
-this.overlay = this.scene.add.container(0, 0)
-  .setScrollFactor(0)
-  .setDepth(10000)
-  .setAlpha(1)
-  .setVisible(true);
+    this.overlay = this.scene.add.container(0, 0)
+      .setScrollFactor(0)
+      .setDepth(10000)
+      .setAlpha(1)
+      .setVisible(true);
 
     this.panel = this.scene.add.rectangle(
       width / 2,
@@ -746,17 +749,11 @@ this.overlay = this.scene.add.container(0, 0)
       return;
     }
 
-    const step = STEP_CONTENT[this.currentStep];
+    const step = this.stepContent[this.currentStep];
 
     this.destroyOverlay();
     this.createOverlay();
-console.log('[FirstCaseTutorial] Overlay created:', {
-  overlayExists: Boolean(this.overlay?.scene),
-  overlayDepth: this.overlay?.depth,
-  overlayAlpha: this.overlay?.alpha,
-  overlayVisible: this.overlay?.visible,
-  sceneActive: this.scene?.sys?.isActive()
-});
+
     if (step) {
       this.updateOverlay(step);
       this.highlightHotspot(step.targetHotspot);

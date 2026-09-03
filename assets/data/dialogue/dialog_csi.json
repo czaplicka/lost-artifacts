@@ -1,0 +1,49 @@
+{
+  "default": [
+    {
+      "speaker": "CSI Analyst",
+      "portraitKey": "portrait_csi",
+      "lines": [
+        "Forensics here. We just finished sweeping the crime scene.",
+        "We found something. A single black hair near the display case.",
+        "It's not much, but it should narrow down your list of suspects."
+      ]
+    },
+    {
+      "speaker": "CSI Analyst",
+      "portraitKey": "portrait_csi",
+      "lines": [
+        "Lab results are in.",
+        "There's a partial shoe print near the window. Size 43, rubber sole.",
+        "Whoever it was, they came in through there."
+      ]
+    },
+    {
+      "speaker": "CSI Analyst",
+      "portraitKey": "portrait_csi",
+      "lines": [
+        "You'll want to hear this.",
+        "We found an earring fragment under the display case. Cheap metal, not the museum's style.",
+        "Someone lost it in a hurry."
+      ]
+    }
+  ],
+  "stage_2": [
+    {
+      "speaker": "CSI Analyst",
+      "portraitKey": "portrait_csi",
+      "lines": [
+        "Second pass on the evidence is done.",
+        "That fiber you flagged? Dead end. Doesn't match anyone on your list."
+      ]
+    },
+    {
+      "speaker": "CSI Analyst",
+      "portraitKey": "portrait_csi",
+      "lines": [
+        "Ran the numbers again.",
+        "The coin you found is just loose change. Nothing traceable."
+      ]
+    }
+  ]
+}

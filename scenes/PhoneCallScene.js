@@ -171,9 +171,7 @@ answerBtn.on('pointerdown', () => {
 
   stopRinging();
 
-  this.scene.stop();
-
-  this.scene.start('HypothesisScene', {
+  this.goto('HypothesisScene', {
     cityId: this.cityId,
     caseKey: this.caseKey,
     sourceScene: 'PhoneCallScene',

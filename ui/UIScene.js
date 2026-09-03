@@ -5,9 +5,7 @@ import { getEnergyManager } from '../EnergyManager.js';
 import { getAchievementList, hasAchievement } from '../AchievementManager.js';
 import { moneyManager } from '../MoneyManager.js';
 import { getGameTimeManager } from '../GameTimeManager.js';
-import {
-  getCaseTimeRemaining
-} from '../CaseTimeHelper.js';
+import { getCaseTimeRemaining } from '../CaseTimeHelper.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 
@@ -319,12 +317,6 @@ _formatCaseDeadline(seconds) {
 }
 
 _getCaseDeadlineSeconds() {
-  const key = getCaseTimerKey(gameState);
-
-  if (!key) {
-    return null;
-  }
-
   return getCaseTimeRemaining(gameState);
 }
   _calculateDate(gameDay) {

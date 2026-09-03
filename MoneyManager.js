@@ -3,6 +3,12 @@ import { saveGameState } from '../GameStatePersistence.js';
 
 const MAX_MONEY_LOG_ENTRIES = 100;
 
+export const MONEY_DEFAULTS = Object.freeze({
+  cash: 100,
+  agencyBudget: 650,
+  agencyDebt: 0
+});
+
 export const MONEY_SOURCE = Object.freeze({
   CASH: 'cash',
   AGENCY: 'agency'
@@ -83,6 +89,18 @@ function createTransactionId() {
   return `money-${Date.now()}-${randomPart}`;
 }
 
+function cloneMetadata(metadata) {
+  if (!metadata || typeof metadata !== 'object') {
+    return {};
+  }
+
+  if (typeof structuredClone === 'function') {
+    return structuredClone(metadata);
+  }
+
+  return JSON.parse(JSON.stringify(metadata));
+}
+
 function dispatchMoneyChange(reason, transaction = null) {
   if (
     typeof window === 'undefined' ||
@@ -103,24 +121,44 @@ function dispatchMoneyChange(reason, transaction = null) {
 }
 
 export class MoneyManager {
+  ensureState() {
+    gameState.cash = normalizeAmount(
+      gameState.cash ?? MONEY_DEFAULTS.cash
+    );
+
+    gameState.agencyBudget = normalizeAmount(
+      gameState.agencyBudget ?? MONEY_DEFAULTS.agencyBudget
+    );
+
+    gameState.agencyDebt = normalizeAmount(
+      gameState.agencyDebt ?? MONEY_DEFAULTS.agencyDebt
+    );
+
+    if (!Array.isArray(gameState.moneyLog)) {
+      gameState.moneyLog = [];
+    }
+  }
+
   getState() {
+    this.ensureState();
+
     return {
       cash: gameState.cash,
       agencyBudget: gameState.agencyBudget,
       agencyDebt: gameState.agencyDebt,
-      moneyLog: Array.isArray(gameState.moneyLog)
-        ? [...gameState.moneyLog]
-        : []
+      moneyLog: [...gameState.moneyLog]
     };
   }
 
   getBalance(source = MONEY_SOURCE.CASH) {
+    this.ensureState();
+
     if (source === MONEY_SOURCE.CASH) {
-      return normalizeAmount(gameState.cash);
+      return gameState.cash;
     }
 
     if (source === MONEY_SOURCE.AGENCY) {
-      return normalizeAmount(gameState.agencyBudget);
+      return gameState.agencyBudget;
     }
 
     throw new Error(`Unknown money source: ${source}`);
@@ -133,9 +171,9 @@ export class MoneyManager {
   }
 
   reset({
-    cash = 100,
-    agencyBudget = 500,
-    agencyDebt = 0
+    cash = MONEY_DEFAULTS.cash,
+    agencyBudget = MONEY_DEFAULTS.agencyBudget,
+    agencyDebt = MONEY_DEFAULTS.agencyDebt
   } = {}) {
     gameState.cash = normalizeAmount(cash);
     gameState.agencyBudget = normalizeAmount(agencyBudget);
@@ -144,7 +182,12 @@ export class MoneyManager {
 
     const transaction = this.addLogEntry({
       type: 'reset',
-      description: 'New detective account opened.'
+      description: 'New detective account opened.',
+      metadata: {
+        cash: gameState.cash,
+        agencyBudget: gameState.agencyBudget,
+        agencyDebt: gameState.agencyDebt
+      }
     });
 
     this.persist('reset', transaction);
@@ -154,7 +197,7 @@ export class MoneyManager {
 
   beginMission({
     missionId,
-    agencyAdvance = 500,
+    agencyAdvance = MONEY_DEFAULTS.agencyBudget,
     description = 'Mark Agency mission advance'
   } = {}) {
     if (!missionId) {
@@ -163,9 +206,7 @@ export class MoneyManager {
       );
     }
 
-    const normalizedAdvance = normalizeAmount(
-      agencyAdvance
-    );
+    const normalizedAdvance = normalizeAmount(agencyAdvance);
 
     gameState.agencyBudget = normalizedAdvance;
 
@@ -198,8 +239,7 @@ export class MoneyManager {
       );
     }
 
-    gameState.cash =
-      this.getBalance(MONEY_SOURCE.CASH) + amount;
+    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
 
     const transaction = this.addLogEntry({
       type: 'income',
@@ -308,7 +348,7 @@ export class MoneyManager {
   buyHotel(
     hotelOption,
     {
-      cityId = gameState.currentCityId,
+      cityId = gameState.currentCityId ?? null,
       description = null
     } = {}
   ) {
@@ -323,23 +363,18 @@ export class MoneyManager {
     const metadata = {
       hotelOptionId: hotelOption.id,
       cityId,
-      energyRestore: hotelOption.energyRestore ?? 0,
-      researchBonus: hotelOption.researchBonus ?? 0,
-      contactBonus: hotelOption.contactBonus ?? 0
+      energyRestore: normalizeAmount(hotelOption.energyRestore),
+      researchBonus: normalizeAmount(hotelOption.researchBonus),
+      contactBonus: normalizeAmount(hotelOption.contactBonus)
     };
 
-    /*
-     * Agency Motel is free. We still log it, but never call
-     * spend(0), because spend intentionally only allows costs > 0.
-     */
     if (cost === 0) {
       const transaction = this.addLogEntry({
         type: 'expense',
-        source: hotelOption.source,
+        source: hotelOption.source ?? MONEY_SOURCE.AGENCY,
         amount: 0,
         category: ECONOMY_CATEGORY.HOTEL,
-        description:
-          description ?? `Hotel: ${hotelOption.label}`,
+        description: description ?? `Hotel: ${hotelOption.label}`,
         missionId: gameState.currentMission?.id ?? null,
         metadata
       });
@@ -355,10 +390,9 @@ export class MoneyManager {
     }
 
     const result = this.spend(cost, {
-      source: hotelOption.source,
+      source: hotelOption.source ?? MONEY_SOURCE.CASH,
       category: ECONOMY_CATEGORY.HOTEL,
-      description:
-        description ?? `Hotel: ${hotelOption.label}`,
+      description: description ?? `Hotel: ${hotelOption.label}`,
       metadata
     });
 
@@ -385,11 +419,8 @@ export class MoneyManager {
       );
     }
 
-    gameState.cash =
-      this.getBalance(MONEY_SOURCE.CASH) + amount;
-
-    gameState.agencyDebt =
-      normalizeAmount(gameState.agencyDebt) + amount;
+    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
+    gameState.agencyDebt = normalizeAmount(gameState.agencyDebt) + amount;
 
     const transaction = this.addLogEntry({
       type: 'debt',
@@ -410,14 +441,12 @@ export class MoneyManager {
 
   settleMission({
     reward = 0,
+    nextMissionAgencyBudget = MONEY_DEFAULTS.agencyBudget,
     description = 'Mission completed',
     missionId = gameState.currentMission?.id ?? null
   } = {}) {
     const normalizedReward = normalizeAmount(reward);
-
-    const debtBeforeSettlement = normalizeAmount(
-      gameState.agencyDebt
-    );
+    const debtBeforeSettlement = normalizeAmount(gameState.agencyDebt);
 
     const debtPaid = Math.min(
       normalizedReward,
@@ -426,13 +455,9 @@ export class MoneyManager {
 
     const cashPaid = normalizedReward - debtPaid;
 
-    gameState.agencyDebt =
-      debtBeforeSettlement - debtPaid;
-
-    gameState.cash =
-      this.getBalance(MONEY_SOURCE.CASH) + cashPaid;
-
-    gameState.agencyBudget = 500;
+    gameState.agencyDebt = debtBeforeSettlement - debtPaid;
+    gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + cashPaid;
+    gameState.agencyBudget = normalizeAmount(nextMissionAgencyBudget);
 
     const transaction = this.addLogEntry({
       type: 'mission_settled',
@@ -444,7 +469,8 @@ export class MoneyManager {
       metadata: {
         totalReward: normalizedReward,
         debtPaid,
-        remainingDebt: gameState.agencyDebt
+        remainingDebt: gameState.agencyDebt,
+        nextMissionAgencyBudget: gameState.agencyBudget
       }
     });
 
@@ -475,8 +501,7 @@ export class MoneyManager {
     }
 
     if (source === MONEY_SOURCE.CASH) {
-      gameState.cash =
-        this.getBalance(MONEY_SOURCE.CASH) + amount;
+      gameState.cash = this.getBalance(MONEY_SOURCE.CASH) + amount;
     } else if (source === MONEY_SOURCE.AGENCY) {
       gameState.agencyBudget =
         this.getBalance(MONEY_SOURCE.AGENCY) + amount;
@@ -500,14 +525,14 @@ export class MoneyManager {
   }
 
   getRecentTransactions(limit = 10) {
+    this.ensureState();
+
     const normalizedLimit = Math.max(
       1,
-      Math.floor(limit)
+      Math.floor(Number(limit) || 10)
     );
 
-    return Array.isArray(gameState.moneyLog)
-      ? gameState.moneyLog.slice(0, normalizedLimit)
-      : [];
+    return gameState.moneyLog.slice(0, normalizedLimit);
   }
 
   addLogEntry({
@@ -519,9 +544,7 @@ export class MoneyManager {
     missionId = null,
     metadata = {}
   }) {
-    if (!Array.isArray(gameState.moneyLog)) {
-      gameState.moneyLog = [];
-    }
+    this.ensureState();
 
     const transaction = {
       id: createTransactionId(),
@@ -532,10 +555,7 @@ export class MoneyManager {
       description,
       missionId,
       createdAt: new Date().toISOString(),
-      metadata:
-        metadata && typeof metadata === 'object'
-          ? structuredClone(metadata)
-          : {}
+      metadata: cloneMetadata(metadata)
     };
 
     gameState.moneyLog.unshift(transaction);

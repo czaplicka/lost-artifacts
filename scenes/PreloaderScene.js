@@ -7,455 +7,445 @@ import { loadSuspectData } from '../suspects/suspectDataProvider.js';
 export class PreloaderScene extends BaseScene {
     constructor() {
         super({ key: 'PreloaderScene' });
+
         this.fillingLevel = 0;
         this.tipIndex = -1;
+
         this.tipTimer = null;
         this.dotsTimer = null;
+
         this.loadingReady = false;
         this.audioArmed = false;
         this.startBtn = null;
+
+        this.coffeeMask = null;
+        this.fullCupImage = null;
+        this.uiRefs = null;
+
+        this.loadErrors = [];
+        this.newspaperImagesQueued = false;
+        this.loadingStatusText = null;
+this.lastLoadingStatus = '';
+this.loadingStatusQueue = [
+    'Convincing boss this is definitely not our fault...',
+    'Bribing the asset clerk with a biscuit...',
+    'Checking every file for a fake moustache...',
+    'Interrogating suspicious artefacts...',
+    'Locating the missing page from the case file...',
+    'Polishing the magnifying glass...',
+    'Comparing coffee stains to the evidence...',
+    'Asking the intern where the missing sprites went...',
+    'Measuring one suspiciously dramatic footprint...',
+    'Filing paperwork nobody will ever read...',
+    'Teaching the loader basic detective etiquette...'
+];
     }
 
     preload() {
-        this.load.once('loaderror', (file) => {
-    console.error(`[PreloaderScene] Nie udało się wczytać grafiki gazety: ${file.key} -> ${file.url}`);
-});
+        this.load.on('loaderror', (file) => {
+            console.error(
+                `[PreloaderScene] Failed to load: ${file.key} → ${file.url}`
+            );
+
+            this.loadErrors.push({
+                key: file.key,
+                url: file.url
+            });
+        });
+
+        const manifest = this.cache.json.get('assetManifest');
+
+        if (!manifest) {
+            console.error(
+                '[PreloaderScene] assetManifest is missing. ' +
+                'Load assets/data/assetManifest.json in BootScene first.'
+            );
+
+            return;
+        }
+
         const { width, height } = this.scale;
         const centerX = width / 2;
         const centerY = height * 0.5;
         const cupX = centerX - 100;
         const cupY = centerY + 100;
 
+        this._createPreloadBackground(width, height);
+        this.createCoffeeTextures();
+
+        this._loadAssetsFromManifest(manifest);
+        this.preloadNewspapers();
+
+        this._setupLoadingUI(
+            centerX,
+            centerY,
+            cupX,
+            cupY,
+            width,
+            height
+        );
+
+        this.load.once('complete', () => {
+            this.onNewspaperJsonsLoaded();
+        });
+    }
+
+    _createPreloadBackground(width, height) {
         if (this.textures.exists('cozyBackground')) {
             this.add.image(width / 2, height / 2, 'cozyBackground')
                 .setDisplaySize(width, height)
                 .setDepth(-10);
-        } else {
-            console.error('Tło cozyBackground nie zostało znalezione!');
-            this.cameras.main.setBackgroundColor('#101010');
+
+            return;
         }
 
-        this.createCoffeeTextures();
-        this.preloadNewspapers();
-    
-        this.load.image('intro', 'assets/intro.jpg');
-        this.load.image('background', 'assets/start_1.jpg');
-        this.load.image('background2', 'assets/start_2.jpg');
-        this.load.image('backgroundset', 'assets/local/cabinet.jpg');
-        this.load.image('archive', 'assets/local/archive.jpg');
-        this.load.image('enter', 'assets/local/enter.jpg');
-        this.load.image('backgroundgo', 'assets/GameOver.jpg');
-        this.load.image('backgrounds', 'assets/success.jpg');
-        this.load.image('backgroundpc', 'assets/hiscores.png');
-        this.load.image('backgroundhi', 'assets/local/office.jpg');
-        this.load.image('backgroundoff', 'assets/local/biuro.jpg');
-        this.load.image('dossier', 'assets/dossier.png');
-        this.load.image('hotel', 'assets/local/hotel.jpg');
-        this.load.image('elevator_open', 'assets/local/elevator_open.jpg');
-        this.load.image('elevator_close', 'assets/local/elevator_close.jpg');
-        this.load.image('elevator_broken', 'assets/local/elevator_broken.jpg');
-        this.load.image('HR', 'assets/local/HR.jpg');
-        this.load.image('HRs', 'assets/local/HRs.jpg');
-        this.load.image('archivist', 'assets/local/archivist.jpg');
-        this.load.image('premium_office', 'assets/local/premium_office.jpg');
-        this.load.image('crimelab_left', 'assets/local/crimelab_left.jpg');
-        this.load.image('crimelab_center', 'assets/local/crimelab_center.jpg');
-        this.load.image('crimelab_right', 'assets/local/crimelab_right.jpg');
+        this.cameras.main.setBackgroundColor('#101010');
+    }
 
-        this.load.image('bank_w', 'assets/local/bank_w.jpg');
-        this.load.image('alley_w', 'assets/local/alley_w.jpg');
-        this.load.image('airport_w', 'assets/local/airport_w.jpg');
-        this.load.image('hotel_maid_w', 'assets/local/hotel_maid_w.jpg');
-        this.load.image('parking_w', 'assets/local/parking_w.jpg');
-        this.load.image('policehq_w', 'assets/local/police_hq_w.jpg');
-        this.load.image('restaurant_w', 'assets/local/restaurant_w.jpg');
-        this.load.image('garbage_w', 'assets/local/garbage_w.jpg');
+    _loadAssetsFromManifest(manifest) {
+        this._loadImageGroup(manifest.backgrounds);
+        this._loadImageGroup(manifest.npcPortraits);
+        this._loadImageGroup(manifest.ui);
+        this._loadImageGroup(manifest.artifacts);
+        this._loadImageGroup(manifest.newspapers);
+        this._loadImageGroup(manifest.suspects);
+        this._loadImageGroup(manifest.wantedPosters);
+        this._loadImageGroup(manifest.suspectThumbnails);
+        this._loadImageGroup(manifest.csi);
+        this._loadImageGroup(manifest.portraits);
 
-        this.load.image('bank_h', 'assets/local/bank_h.jpg');
-        this.load.image('alley_h', 'assets/local/alley_h.jpg');
-        this.load.image('airport_h', 'assets/local/airport_h.jpg');
-        this.load.image('hotel_maid_h', 'assets/local/hotel_maid_h.jpg');
-        this.load.image('parking_h', 'assets/local/parking_h.jpg');
-        this.load.image('police_hq_h', 'assets/local/police_hq_h.jpg');
-        this.load.image('restaurant_h', 'assets/local/restaurant_h.jpg');
-        this.load.image('garbage_h', 'assets/local/garbage_h.jpg');
+        this._loadAudioGroup(manifest.audio);
+        this._loadJsonGroup(manifest.json);
+        this._loadTilemapGroup(manifest.tilemaps);
+        this._loadVideoGroup(manifest.videos);
+        this._loadCssGroup(manifest.css);
+        this._loadHtmlGroup(manifest.html);
+    }
 
-        this.load.image('berlin', 'assets/cities/Berlin.jpg');
-        this.load.image('london', 'assets/cities/London.jpg');
-        this.load.image('newdelhi', 'assets/cities/NewDelhi.jpg');
-        this.load.image('newyorkcity', 'assets/cities/NYC.jpg');
-        this.load.image('paris', 'assets/cities/Paris.jpg');
-        this.load.image('warsaw', 'assets/cities/Warsaw.jpg');
-        this.load.image('nairobi', 'assets/cities/Nairobi.jpg');
-        this.load.image('islamabad', 'assets/cities/Islamabad.jpg');
-        this.load.image('toronto', 'assets/cities/Toronto.jpg');
-        this.load.image('kotto', 'assets/cities/Kotto.jpg');
-        this.load.image('tokyo', 'assets/cities/Tokyo.jpg');
+    _loadImageGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid image manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.image('berlin_crime', 'assets/maps/ber.jpg');
-        this.load.image('london_crime', 'assets/maps/lnd.jpg');
-        this.load.image('new_delhi_crime', 'assets/maps/ndh.jpg');
-        this.load.image('new_york_city_crime', 'assets/maps/nyc.jpg');
-        this.load.image('paris_crime', 'assets/maps/prs.jpg');
-        this.load.image('warsaw_crime', 'assets/maps/waw.jpg');
+            if (this.textures.exists(key)) {
+                return;
+            }
 
-        this.load.image('atlas_poland', 'assets/atlas/poland.png');
-        this.load.image('atlas_germany', 'assets/atlas/germany.png');
-        this.load.image('atlas_uk', 'assets/atlas/uk.png');
-        this.load.image('atlas_india', 'assets/atlas/india.png');
-        this.load.image('atlas_west_usa', 'assets/atlas/west_usa.png');
-        this.load.image('atlas_east_usa', 'assets/atlas/east_usa.png');
-        this.load.image('atlas_france', 'assets/atlas/france.png');
-        this.load.image('atlas_bg', 'assets/atlas/atlas.png');
+            this.load.image(key, url);
+        });
+    }
 
-        this.load.image('bankier_w', 'assets/npc/bankier_w.png');
-        this.load.image('fence_w', 'assets/npc/fence_w.png');
-        this.load.image('knajpa_w', 'assets/npc/knajpa_w.png');
-        this.load.image('maid_w', 'assets/npc/maid_w.png');
-        this.load.image('parkingowy_w', 'assets/npc/parkingowy_w.png');
-        this.load.image('police_w', 'assets/npc/police_w.png');
-        this.load.image('stewardessa_w', 'assets/npc/stewardesa_w.png');
-        this.load.image('bum_w', 'assets/npc/bum_w.png');
+    _loadAudioGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid audio manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.image('bankier_h', 'assets/npc/bankier_h.png');
-        this.load.image('fence_h', 'assets/npc/fence_h.png');
-        this.load.image('knajpa_h', 'assets/npc/knajpa_h.png');
-        this.load.image('maid_h', 'assets/npc/maid_h.png');
-        this.load.image('parkingowy_h', 'assets/npc/parkingowy_h.png');
-        this.load.image('police_h', 'assets/npc/police_h.png');
-        this.load.image('stewardessa_h', 'assets/npc/stewardesa_h.png');
-        this.load.image('bum_h', 'assets/npc/bum_h.png');
+            if (this.cache.audio.exists(key)) {
+                return;
+            }
 
-        this.load.image('bankier_b', 'assets/npc/bankier_b.png');
-        this.load.image('fence_b', 'assets/npc/fence_b.png');
-        this.load.image('knajpa_b', 'assets/npc/knajpa_b.png');
-        this.load.image('maid_b', 'assets/npc/maid_b.png');
-        this.load.image('parkingowy_b', 'assets/npc/parkingowy_b.png');
-        this.load.image('police_b', 'assets/npc/police_b.png');
-        this.load.image('stewardessa_b', 'assets/npc/stewardesa_b.png');
-        this.load.image('bum_b', 'assets/npc/bum_b.png');
+            this.load.audio(key, url);
+        });
+    }
 
-        this.load.image('bankier_a', 'assets/npc/bankier_a.png');
-        this.load.image('fence_a', 'assets/npc/fence_a.png');
-        this.load.image('knajpa_a', 'assets/npc/knajpa_a.png');
-        this.load.image('maid_a', 'assets/npc/maid_a.png');
-        this.load.image('parkingowy_a', 'assets/npc/parkingowy_a.png');
-        this.load.image('police_a', 'assets/npc/police_a.png');
-        this.load.image('stewardessa_a', 'assets/npc/stewardesa_a.png');
-        this.load.image('bum_a', 'assets/npc/bum_a.png');
+    _loadJsonGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid JSON manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.image('npc', 'assets/npc_crime_city/npc.png');
-        this.load.image('npc1', 'assets/npc_crime_city/npc1.png');
-        this.load.image('npc2', 'assets/npc_crime_city/npc2.png');
-        this.load.image('npc3', 'assets/npc_crime_city/npc3.png');
-        this.load.image('npc4', 'assets/npc_crime_city/npc4.png');
-        this.load.image('npc5', 'assets/npc_crime_city/npc5.png');
-        this.load.image('npc6', 'assets/npc_crime_city/npc6.png');
+            if (this.cache.json.exists(key)) {
+                return;
+            }
 
-        this.load.image('btnRookie', 'assets/rookie.png');
-        this.load.image('btnOfficer', 'assets/officer.png');
-        this.load.image('btnCaptain', 'assets/captain.png');
-        this.load.image('btnStart', 'assets/start.png');
-        this.load.image('back', 'assets/back.png');
-        this.load.image('next', 'assets/next.png');
-        this.load.image('load', 'assets/load.png');
-        this.load.image('btnSave', 'assets/save.png');
-        this.load.image('btnContinue', 'assets/continue.png');
-        this.load.image('btnExit', 'assets/exit.png');
-        this.load.image('btnSettings', 'assets/settings.png');
-        this.load.image('btnHiscore', 'assets/hiscore.png');
-        this.load.image('new_game', 'assets/new_game.png')
-        this.load.image('loginbtn', 'assets/login.png');
-        this.load.image('registerbtn', 'assets/register.png');
-        this.load.image('atlas', 'assets/atlas.png');
-        this.load.image('destination', 'assets/destination.png');
-        this.load.image('plane', 'assets/plane.png');
-        this.load.image('search', 'assets/search.png');
-        this.load.image('policja', 'assets/policja.png');
-        this.load.image('hotel_icon', 'assets/hotel_icon.png');
-        this.load.image('crime_lab', 'assets/crime_lab.png');
-        this.load.image('filebutt', 'assets/filebutt.png');
-        this.load.image('telephone', 'assets/telephone.png');
-        this.load.image('crime_board', 'assets/crime_board.png');
-        this.load.image('note', 'assets/note.png');
-        this.load.image('warrant', 'assets/warrant.png');
-        this.load.image('profile', 'assets/profile.png');
-        this.load.image('news', 'assets/news.png');
-        this.load.image('tv', 'assets/tv.png');
+            this.load.json(key, url);
+        });
+    }
 
-        this.load.image('artifact_crown_jewels', 'assets/artifacts/crown_jewels.png');
-        this.load.image('artifact_amber_necklace', 'assets/artifacts/amber_necklace.png');
-        this.load.image('artifact_liberty_torch', 'assets/artifacts/liberty_torch.png');
-        this.load.image('artifact_mona_lisa', 'assets/artifacts/mona_lisa.png');
-        this.load.image('artifact_mughal_dagger', 'assets/artifacts/mughal_dagger.png');
-        this.load.image('artifact_royal_seal', 'assets/artifacts/royal_seal.png');
-        this.load.image('artifact_fallback', 'assets/artifacts/artifact_unknown.png');
+    _loadTilemapGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid tilemap manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.image('notebook_bg', 'assets/ui/notebook_bg.png');
-        this.load.image('sketch_base', 'assets/ui/sketch_base.png');
-        this.load.image('sketch_eyes', 'assets/ui/sketch_eyes.png');
-        this.load.image('sketch_hair', 'assets/ui/sketch_hair.png');
-        this.load.image('beard', 'assets/ui/beard.png');
-        this.load.image('big_forhead', 'assets/ui/big_forhead.png');
-        this.load.image('earings', 'assets/ui/earings.png');
-        this.load.image('glasses', 'assets/ui/glasses.png');
-        this.load.image('gotee', 'assets/ui/gotee.png');
-        this.load.image('long_hair', 'assets/ui/long_hair.png');
-        this.load.image('moustache', 'assets/ui/moustache.png');
-        this.load.image('neckles', 'assets/ui/neckles.png');
-        this.load.image('rainbow_streak', 'assets/ui/rainbow_streak.png');
-        this.load.image('scar', 'assets/ui/scar.png');
-        this.load.image('tatoo', 'assets/ui/tatoo.png');
+            if (this.cache.tilemap.exists(key)) {
+                return;
+            }
 
-        this.load.image('notes', 'assets/notes.png');
-        this.load.image('file', 'assets/file.png');
-        this.load.image('mapbg', 'assets/map.png');
-        this.load.image('phonebook', 'assets/phonebook.jpg');
+            this.load.tilemapTiledJSON(key, url);
+        });
+    }
 
-        this.load.image('television', 'assets/television.png');
-        this.load.image('tv_news_studio', 'assets/tv/tv_news_studio.jpg');
-        this.load.image('tv_anchor_generic', 'assets/tv/tv_anchor_generic.jpg');
-        this.load.image('tv_anchor_genericf', 'assets/tv/tv_anchor_genericf.jpg');
+    _loadVideoGroup(assets = []) {
+        assets.forEach((video) => {
+            const {
+                key,
+                url,
+                loadEvent,
+                noAudio = false,
+                asBlob = false
+            } = video;
 
-        this.load.image('paper_daily_bg', 'assets/newspapers/paper_daily_bg_1920x1080.png');
-        this.load.image('paper_tabloid_bg', 'assets/newspapers/paper_tabloid_bg_1920x1080.png');
-        this.load.image('paper_time_bg', 'assets/newspapers/paper_time_bg_1920x1080.png');
-        this.load.image('comix1', 'assets/newspapers/comix1.png');
-        this.load.image('comix2', 'assets/newspapers/comix2.png');
-        this.load.image('newsstand_bg', 'assets/local/newsstand.jpg');
-        this.load.image('paper_fallback_blank', 'assets/newspapers/paper_daily_bg_1920x1080.png');
+            if (!key || !url) {
+                console.warn(
+                    '[PreloaderScene] Invalid video manifest entry:',
+                    video
+                );
+                return;
+            }
 
-        this.load.image(  'tabloid_hq_coffee_machine_photo',  'assets/newspapers/tabloid/hq_coffee_machine_photo.jpg');
-        this.load.image(  'tabloid_hq_gold_stapler_photo',  'assets/newspapers/tabloid/hq_gold_stapler_photo.jpg');
-        this.load.image(  'tabloid_hq_sunglasses_photo',  'assets/newspapers/tabloid/hq_sunglasses_photo.jpg');
-        this.load.image(  'tabloid_hq_window_chair_photo',  'assets/newspapers/tabloid/hq_window_chair_photo.jpg');
+            if (this.cache.video.exists(key)) {
+                return;
+            }
 
-        this.load.image('unknown', 'assets/suspects/unknown.jpg');
-        this.load.image('garett_gutter', 'assets/suspects/garett_gutter.jpg');
-        this.load.image('sofia_vargas', 'assets/suspects/sofia_vargas.jpg');
-        this.load.image('bert_goodman', 'assets/suspects/bert_goodman.jpg');
-        this.load.image('anne_apple', 'assets/suspects/anne_apple.jpg');
-        this.load.image('frank_groot', 'assets/suspects/frank_groot.jpg');
-        this.load.image('bernard_porter', 'assets/suspects/bernard_porter.jpg');
-        this.load.image('rebecca_muller', 'assets/suspects/rebecca_muller.jpg');
-        this.load.image('jacek_kowalski', 'assets/suspects/jacek_kowalski.jpg');
-        this.load.image('pablo_fernandez', 'assets/suspects/pablo_fernandez.jpg');
-        this.load.image('alexandra_ivanova', 'assets/suspects/alexandra_ivanova.jpg');
-        this.load.image('sergei_petrov', 'assets/suspects/sergei_petrov.jpg');
-        this.load.image('isabella_rossi', 'assets/suspects/isabella_rossi.jpg');
-        this.load.image('liam_oconnor', 'assets/suspects/liam_oconnor.jpg');
-        this.load.image('ava_thompson', 'assets/suspects/ava_thompson.jpg');
-        this.load.image('maximilian_schmidt', 'assets/suspects/maximilian_schmidt.jpg');
-        this.load.image('brendan_ross', 'assets/suspects/brendan_ross.jpg');
-        this.load.image('bai_williams', 'assets/suspects/bai_williams.jpg');
-        this.load.image('albert_johnson', 'assets/suspects/albert_johnson.jpg');
-        this.load.image('anna_bocian', 'assets/suspects/anna_bocian.jpg');
-        this.load.image('aleksander_petrov', 'assets/suspects/aleksander_petrov.jpg');
-        this.load.image('marie_dubois', 'assets/suspects/marie_dubois.jpg');
-        this.load.image('lotte_chantal', 'assets/suspects/lotte_chantal.jpg');
+            if (loadEvent) {
+                this.load.video(key, url, loadEvent, noAudio, asBlob);
+                return;
+            }
 
-        this.load.image('wanted_garett_gutter', 'assets/suspects/1.jpg');
-        this.load.image('wanted_sofia_vargas', 'assets/suspects/2.jpg');
-        this.load.image('wanted_bert_goodman', 'assets/suspects/3.jpg');
-        this.load.image('wanted_anne_apple', 'assets/suspects/4.jpg');
-        this.load.image('wanted_frank_groot', 'assets/suspects/5.jpg');
-        this.load.image('wanted_bernard_porter', 'assets/suspects/6.jpg');
-        this.load.image('wanted_rebecca_muller', 'assets/suspects/7.jpg');
-        this.load.image('wanted_jacek_kowalski', 'assets/suspects/8.jpg');
-        this.load.image('wanted_pablo_fernandez', 'assets/suspects/9.jpg');
-        this.load.image('wanted_alexandra_ivanova', 'assets/suspects/10.jpg');
-        this.load.image('wanted_sergei_petrov', 'assets/suspects/11.jpg');
-        this.load.image('wanted_isabella_rossi', 'assets/suspects/12.jpg');
-        this.load.image('wanted_liam_oconnor', 'assets/suspects/13.jpg');
-        this.load.image('wanted_ava_thompson', 'assets/suspects/14.jpg');
-        this.load.image('wanted_maximilian_schmidt', 'assets/suspects/15.jpg');
-        this.load.image('wanted_brendan_ross', 'assets/suspects/16.jpg');
-        this.load.image('wanted_bai_williams', 'assets/suspects/17.jpg');
-        this.load.image('wanted_albert_johnson', 'assets/suspects/18.jpg');
-        this.load.image('wanted_anna_bocian', 'assets/suspects/19.jpg');
-        this.load.image('wanted_aleksander_petrov', 'assets/suspects/20.jpg');
-        this.load.image('wanted_marie_dubois', 'assets/suspects/21.jpg');
-        this.load.image('wanted_lotte_chantal', 'assets/suspects/22.jpg');
+            this.load.video(key, url, asBlob);
+        });
+    }
 
-        this.load.image('gg', 'assets/suspects/gg.jpg');
-        this.load.image('sv', 'assets/suspects/sv.jpg');
-        this.load.image('bg', 'assets/suspects/bg.jpg');
-        this.load.image('aa', 'assets/suspects/aa.jpg');
-        this.load.image('fg', 'assets/suspects/fg.jpg');
-        this.load.image('bp', 'assets/suspects/bp.jpg');
-        this.load.image('rm', 'assets/suspects/rm.jpg');
-        this.load.image('jk', 'assets/suspects/jk.jpg');
-        this.load.image('pf', 'assets/suspects/pf.jpg');
-        this.load.image('ai', 'assets/suspects/ai.jpg');
-        this.load.image('sp', 'assets/suspects/sp.jpg');
-        this.load.image('ir', 'assets/suspects/ir.jpg');
-        this.load.image('lo', 'assets/suspects/lo.jpg');
-        this.load.image('at', 'assets/suspects/at.jpg');
-        this.load.image('ms', 'assets/suspects/ms.jpg');
-        this.load.image('br', 'assets/suspects/br.jpg');
-        this.load.image('bw', 'assets/suspects/bw.jpg');
-        this.load.image('aj', 'assets/suspects/aj.jpg');
-        this.load.image('ab', 'assets/suspects/ab.jpg');
-        this.load.image('ap', 'assets/suspects/ap.jpg');
-        this.load.image('md', 'assets/suspects/md.jpg');
-        this.load.image('lc', 'assets/suspects/lc.jpg');
+    _loadCssGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid CSS manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.image('evidence_bag', 'assets/CSI/evidence_bag.png');
-        this.load.image('hair_board', 'assets/CSI/hair_board.png');
-        this.load.image('hair_strand_blond', 'assets/CSI/hair_strand_blond.png');
-        this.load.image('hair_strand_black', 'assets/CSI/hair_strand_black.png');
-        this.load.image('hair_strand_red', 'assets/CSI/hair_strand_red.png');
-        this.load.image('hair_strand_brown', 'assets/CSI/hair_strand_brown.png');
-        this.load.image('hair_strand_auburn', 'assets/CSI/hair_strand_auburn.png');
-        this.load.image('hair_strand_grey', 'assets/CSI/hair_strand_grey.png');
-        this.load.image('hair_strand_white', 'assets/CSI/hair_strand_white.png');
-        this.load.image('tweezers', 'assets/CSI/tweezers.png');
-        this.load.image('microscope_look', 'assets/CSI/microscope_look.png');
-        this.load.image('pipette', 'assets/CSI/pipette.png');
-        this.load.image('blood_evidence_bag', 'assets/CSI/blood_evidence_bag.png');
-this.load.image('blood_microscope_slide', 'assets/CSI/blood_microscope_slide.png');
-this.load.image('blood_reagent_A', 'assets/CSI/blood_reagent_A.png');
-this.load.image('blood_reagent_B', 'assets/CSI/blood_reagent_B.png');
-this.load.image('blood_reagent_Rh', 'assets/CSI/blood_reagent_Rh.png');
-this.load.image('blood_swab', 'assets/CSI/blood_swab.png');
-this.load.image('blood_swab_closed', 'assets/CSI/blood_swab_closed.png');
-this.load.image('blood_type_A', 'assets/CSI/blood_type_A.png');
-this.load.image('blood_type_B', 'assets/CSI/blood_type_B.png');
-this.load.image('blood_type_AB', 'assets/CSI/blood_type_AB.png');
-this.load.image('blood_type_0', 'assets/CSI/blood_type_0.png');
-        this.load.image('desk1', 'assets/CSI/desk1.jpg');
-        this.load.image('desk1', 'assets/CSI/desk2.jpg');
-        this.load.image('dna_swab_closed', 'assets/CSI/dna_swab_closed.png');
-this.load.image('dna_swab_open', 'assets/CSI/dna_swab_open.png');
-this.load.image('dna_swab', 'assets/CSI/dna_swab.png');
-this.load.image('pcr_tube', 'assets/CSI/pcr_tube.png');
-this.load.image('thermocycler', 'assets/CSI/thermocycler.png');
-this.load.image('gel_tray', 'assets/CSI/gel_tray.png');
-this.load.image('tool_brush', 'assets/CSI/tool_brush.png');
-this.load.image('fingerprint_card_sealed', 'assets/CSI/fingerprint_card_sealed.png');
-this.load.image('fingerprint_card_open', 'assets/CSI/fingerprint_card_open.png');
-this.load.image('fingerprint_card_dusted', 'assets/CSI/fingerprint_card_dusted.png');
-this.load.image('fingerprint_card_lifted', 'assets/CSI/fingerprint_card_lifted.png');
-this.load.image('tape', 'assets/CSI/tape.png');
-this.load.image('fingerprint_pattern_loop', 'assets/CSI/fingerprint_pattern_loop.png');
-this.load.image('fingerprint_pattern_whorl', 'assets/CSI/fingerprint_pattern_whorl.png');
-this.load.image('fingerprint_pattern_arch', 'assets/CSI/fingerprint_pattern_arch.png');
+            this.load.css(key, url);
+        });
+    }
 
-        this.load.video('detectiveIntro', 'assets/video/detective-intro.mp4', true);
-        this.load.video('newsstand_video', 'assets/video/newsstand.mp4', 'loadeddata', false, true);
+    _loadHtmlGroup(assets = []) {
+        assets.forEach(({ key, url }) => {
+            if (!key || !url) {
+                console.warn('[PreloaderScene] Invalid HTML manifest entry:', {
+                    key,
+                    url
+                });
+                return;
+            }
 
-        this.load.audio('crimelab_ambient', 'assets/audio/crimelab_ambient.mp3');
-        this.load.audio('alleysound', 'assets/audio/alley.mp3');
-        this.load.audio('arrestsound', 'assets/audio/arrest.mp3');
-        this.load.audio('banksound', 'assets/audio/bank.mp3');
-        this.load.audio('citysound', 'assets/audio/city.mp3');
-        this.load.audio('click_sound', 'assets/audio/click.mp3');
-        this.load.audio('themeGame', 'assets/audio/game.mp3');
-        this.load.audio('game_over', 'assets/audio/game_over.mp3');
-        this.load.audio('hotelsound', 'assets/audio/hotel.mp3');
-        this.load.audio('officescenesound', 'assets/audio/officescene.mp3');
-        this.load.audio('pagesound', 'assets/audio/page.mp3');
-        this.load.audio('parkingsound', 'assets/audio/parking.mp3');
-        this.load.audio('planesound', 'assets/audio/plane.mp3');
-        this.load.audio('policesound', 'assets/audio/police.mp3');
-        this.load.audio('restaurantsound', 'assets/audio/restaurant.mp3');
-        this.load.audio('sfx_dial', 'assets/audio/phone-dial.mp3');
-        this.load.audio('sfx_ring', 'assets/audio/phone-ring.mp3');
-        this.load.audio('sfx_ringing', 'assets/audio/phone-ringing.mp3');
-        this.load.audio('sfx_busy', 'assets/audio/phone-busy.mp3');
-        this.load.audio('sfx_pickup', 'assets/audio/phone-pick.mp3');
-        this.load.audio('wrong', 'assets/audio/wrong.mp3');
-        this.load.audio('correct', 'assets/audio/correct.mp3');
-        this.load.audio('successsound', 'assets/audio/success.mp3');
-        this.load.audio('paper_rustle', 'assets/audio/paper_rustle.mp3');
-        this.load.audio('detective-intro', 'assets/voice/detective-intro.mp3');
+            if (this.cache.html.exists(key)) {
+                return;
+            }
 
-        this.load.css('crime-board-css', 'assets/css/crime-board.css');
-        this.load.css('auth-styles-css', 'assets/css/auth-styles.css');
-        this.load.css('modal-css', 'assets/css/modal.css');
+            this.load.html(key, url);
+        });
+    }
+getLoadingStatus(file) {
+    const key = file?.key || '';
+    const type = file?.type || '';
 
-        this.load.image('portrait_fallback', 'assets/portraits/portrait_fallback.png');
-        this.load.image('portrait_holmes', 'assets/portraits/holmes.png');
-        this.load.image('portrait_CSI', 'assets/portraits/CSI.png');
-        this.load.image('portrait_home', 'assets/portraits/home.png');
-        this.load.image('portrait_hq', 'assets/portraits/hq.png');
-        this.load.image('portrait_informant', 'assets/portraits/informant.png');
-        this.load.image('portrait_police-station', 'assets/portraits/police-station.png');
-        this.load.image('portrait_watson', 'assets/portraits/watson.png');
-        this.load.image('portrait_accounting', 'assets/portraits/portrait_accounting.png');
+    if (key.startsWith('newspaper_')) {
+        return 'Reading tomorrow’s questionable headlines...';
+    }
 
-        this.load.json('suspects', 'assets/data/suspects.json');
-        this.load.json('citysuspects', 'assets/data/citysuspects.json');
-        this.load.json('missions', 'assets/data/missions.json');
-        this.load.json('locations', 'assets/data/locations.json');
-        this.load.json('atlas', 'assets/data/atlas.json');
-        this.load.json('dialogue', 'assets/data/dialogue.json');
-        this.load.json('dialogue_banker', 'assets/data/dialogue/banker.json');
-        this.load.json('dialogue_bum', 'assets/data/dialogue/bum.json');
-        this.load.json('dialogue_maid', 'assets/data/dialogue/maid.json');
-        this.load.json('dialogue_stewardess', 'assets/data/dialogue/stewardess.json');
-        this.load.json('dialogue_police', 'assets/data/dialogue/police.json');
-        this.load.json('dialogue_fence', 'assets/data/dialogue/fence.json');
-        this.load.json('dialogue_knajpa', 'assets/data/dialogue/knajpa.json');
-        this.load.json('dialogue_parkingowy', 'assets/data/dialogue/parkingowy.json');
-        this.load.json('city_clues', 'assets/data/city-clues.json');
-        this.load.json('suspect_clues', 'assets/data/suspect-clues.json');
-        this.load.json('objects-data', 'assets/data/objects.json');
-        this.load.json('dialog_CSI', 'assets/data/dialogue/CSI.json');
-        this.load.json('dialog_informant', 'assets/data/dialogue/informant.json');
-        this.load.json('dialog_watson', 'assets/data/dialogue/watson.json');
-        this.load.json('dialog_holmes', 'assets/data/dialogue/holmes.json');
-        this.load.json('dialog_police-station', 'assets/data/dialogue/police-station.json');
-        this.load.json('dialog_hq', 'assets/data/dialogue/hq.json');
-        this.load.json('dialog_home', 'assets/data/dialogue/home.json')
-        this.load.json('dialog_accounting', 'assets/data/dialogue/accounting.json')
-        this.load.json('tv-config', 'assets/data/tv-config.json');
-        this.load.json('reconstruction_questions',  'assets/data/reconstruction_questions.json');
-        this.load.json('monologues', 'assets/data/monologues.json');
-        this.load.json('suspectData', 'assets/data/suspectData.json');
-    
-        this.load.image('louvre_bg', 'assets/crimes/louvre.jpg');
-        this.load.tilemapTiledJSON('louvre', 'assets/crimes/louvre.json');
-        this.load.image('tower_bg', 'assets/crimes/tower.jpg');
-        this.load.tilemapTiledJSON('tower', 'assets/crimes/tower.json');
-        this.load.image('castle_bg', 'assets/crimes/castle.jpg');
-        this.load.tilemapTiledJSON('castle', 'assets/crimes/castle.json');
-        this.load.image('dockyard_bg', 'assets/crimes/dockyard.jpg');
-        this.load.tilemapTiledJSON('dockyard', 'assets/crimes/dockyard.json');
-        this.load.image('auction_house_bg', 'assets/crimes/auction_house.jpg');
-        this.load.tilemapTiledJSON('auction_house', 'assets/crimes/auction_house.json');
-        this.load.image('havela_bg', 'assets/crimes/havela.jpg');
-        this.load.tilemapTiledJSON('havela', 'assets/crimes/havela.json');
+    if (key.includes('themeMusic') || type === 'audio') {
+        return 'Tuning the office radio to maximum melodrama...';
+    }
 
-        this.load.html('character-creation-template','ui/character-creation.template',);
+    if (type === 'json') {
+        return 'Cross-examining confidential case files...';
+    }
 
+    if (type === 'tilemapTiledJSON') {
+        return 'Drawing a map no detective will fold correctly...';
+    }
+
+    if (type === 'video') {
+        return 'Developing surveillance footage in a dark room...';
+    }
+
+    if (type === 'image') {
+        return 'Developing suspicious photographs...';
+    }
+
+    if (type === 'html' || type === 'css') {
+        return 'Straightening the office wallpaper...';
+    }
+
+    return Phaser.Utils.Array.GetRandom(this.loadingStatusQueue);
+}
+    preloadNewspapers() {
+        for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
+            for (const cityId of config.cities) {
+                const cacheKey = `newspaper_${type}_${cityId}`;
+
+                if (this.cache.json.exists(cacheKey)) {
+                    continue;
+                }
+
+                this.load.json(
+                    cacheKey,
+                    `assets/data/newspapers/${type}/${cityId}.json`
+                );
+            }
+        }
+    }
+
+    onNewspaperJsonsLoaded() {
+        if (this.newspaperImagesQueued) {
+            return;
+        }
+
+        this.newspaperImagesQueued = true;
+
+        const allItems = this.collectNewspaperItems();
+
+        const uniqueItems = [
+            ...new Map(
+                allItems
+                    .filter((item) => item?.imageKey)
+                    .map((item) => [item.imageKey, item])
+            ).values()
+        ];
+
+        let queuedAny = false;
+
+        uniqueItems.forEach((item) => {
+            const key = item.imageKey;
+
+            if (this.textures.exists(key)) {
+                return;
+            }
+
+            // Najlepiej dodawać imageUrl bezpośrednio w JSON-ie artykułu.
+            // Fallback zachowuje obecny model bazujący na imageKey.
+            const url = item.imageUrl ||
+                `assets/newspapers/newspapers/${key}.jpg`;
+
+            this.load.image(key, url);
+            queuedAny = true;
+        });
+
+        if (!queuedAny) {
+            this.finishLoading();
+            return;
+        }
+
+        // Etap 2:
+        // Dynamicznie wykryte zdjęcia prasowe zostały dopiero teraz dodane,
+        // dlatego Loader musi zostać ręcznie uruchomiony.
+        this.load.once('complete', () => {
+            this.finishLoading();
+        });
+
+        this.load.start();
+    }
+
+    collectNewspaperItems() {
+        const allItems = [];
+
+        for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
+            for (const cityId of config.cities) {
+                const cacheKey = `newspaper_${type}_${cityId}`;
+                const data = this.cache.json.get(cacheKey);
+
+                if (!data) {
+                    console.warn(
+                        `[PreloaderScene] Missing newspaper JSON: ${cacheKey}`
+                    );
+                    continue;
+                }
+
+                if (Array.isArray(data.missionLead)) {
+                    allItems.push(...data.missionLead);
+                } else if (data.missionLead) {
+                    allItems.push(data.missionLead);
+                }
+
+                if (Array.isArray(data.articles)) {
+                    allItems.push(...data.articles);
+                }
+            }
+        }
+
+        return allItems;
+    }
+
+    _setupLoadingUI(centerX, centerY, cupX, cupY, width, height) {
         const tips = [
             'A planted clue usually wants to be found too quickly.',
             'Witness confidence is not the same as witness accuracy.',
-            'The best liar often tells mostly true things.',
-            'A perfect alibi that arrives too fast deserves a second look.',
-            'Means without motive is noise. Motive without opportunity is fiction.',
-            'Every suspect has a story. Only one has the timeline.',
-            'Coffee first. Accusations second.',
-            'Interpol uplink unstable. Deduction still operational.',
-            'If everyone sounds innocent, someone rehearsed.'
+            'A suspect with an alibi is not necessarily innocent.',
+            'The loudest witness is often selling the weakest story.',
+            'A good detective checks the timeline twice.',
+            'Every red herring believes it is the main character.',
+            'Follow the evidence, not the dramatic lighting.',
+            'If a clue seems too perfect, it may be wearing a fake moustache.'
         ];
 
-        const shadow = this.add.ellipse(cupX, cupY + 50, 90, 20, 0x000000, 0.28);
-        const vignetteTop = this.add.rectangle(centerX, 0, width, 120, 0x000000, 0.22).setOrigin(0.5, 0);
-        const vignetteBottom = this.add.rectangle(centerX, height, width, 150, 0x000000, 0.24).setOrigin(0.5, 1);
+        const shadow = this.add.ellipse(
+            cupX,
+            cupY + 50,
+            90,
+            20,
+            0x000000,
+            0.28
+        );
+
+        const vignetteTop = this.add.rectangle(
+            centerX,
+            0,
+            width,
+            120,
+            0x000000,
+            0.22
+        )
+            .setOrigin(0.5, 0);
+
+        const vignetteBottom = this.add.rectangle(
+            centerX,
+            height,
+            width,
+            150,
+            0x000000,
+            0.24
+        )
+            .setOrigin(0.5, 1);
 
         const scanlineOverlay = this.add.graphics();
+
         scanlineOverlay.fillStyle(0x000000, 0.05);
+
         for (let y = 0; y < height; y += 4) {
             scanlineOverlay.fillRect(0, y, width, 2);
         }
+
         scanlineOverlay.setAlpha(0.22);
 
         const cupOffsetX = 20;
         const cupOffsetY = 10;
 
-        this.add.image(cupX + cupOffsetX, cupY + cupOffsetY, 'cup_outline');
+        this.add.image(
+            cupX + cupOffsetX,
+            cupY + cupOffsetY,
+            'cup_outline'
+        );
 
         this.fullCupImage = this.add.image(
             cupX + cupOffsetX,
@@ -463,20 +453,65 @@ this.load.image('fingerprint_pattern_arch', 'assets/CSI/fingerprint_pattern_arch
             'cup_coffee'
         );
 
-        this.coffeeMask = this.make.graphics({ x: cupX, y: cupY, add: false });
-        this.coffeeMask.fillStyle(0xffffff, 1);
+        this.coffeeMask = this.make.graphics({
+            x: cupX,
+            y: cupY,
+            add: false
+        });
+
         this.updateCoffeeMask(0);
 
         const mask = this.coffeeMask.createGeometryMask();
         this.fullCupImage.setMask(mask);
 
-        const titleText = this.add.text(centerX, centerY - 145, 'MAKING COFFEE 0%', {
-            fontFamily: '"Press Start 2P", monospace',
-            fontSize: '28px',
-            color: '#f4ebd9',
-            align: 'center'
-        }).setOrigin(0.5);
+        const titleText = this.add.text(
+            centerX,
+            centerY - 145,
+            'MAKING COFFEE 0%',
+            {
+                fontFamily: '"Press Start 2P", monospace',
+                fontSize: '28px',
+                color: '#f4ebd9',
+                align: 'center'
+            }
+        ).setOrigin(0.5);
+const statusPanel = this.add.rectangle(
+    centerX,
+    centerY - 82,
+    Math.min(width * 0.72, 920),
+    66,
+    0x101010,
+    0.72
+)
+    .setStrokeStyle(2, 0xc9aa70, 0.8)
+    .setOrigin(0.5);
 
+const statusLabel = this.add.text(
+    centerX,
+    centerY - 103,
+    'CASE FILE STATUS',
+    {
+        fontFamily: '"Press Start 2P", monospace',
+        fontSize: '12px',
+        color: '#c9aa70',
+        align: 'center'
+    }
+).setOrigin(0.5);
+
+this.loadingStatusText = this.add.text(
+    centerX,
+    centerY - 75,
+    'Opening the case file...',
+    {
+        fontFamily: '"Special Elite", monospace',
+        fontSize: '24px',
+        color: '#f4ebd9',
+        align: 'center',
+        wordWrap: {
+            width: Math.min(width * 0.64, 820)
+        }
+    }
+).setOrigin(0.5);
         const tipText = this.add.text(
             centerX,
             centerY + 450,
@@ -486,223 +521,299 @@ this.load.image('fingerprint_pattern_arch', 'assets/CSI/fingerprint_pattern_arch
                 fontSize: '24px',
                 color: '#f4ebd9',
                 align: 'center',
-                wordWrap: { width: width * 0.72 },
+                wordWrap: {
+                    width: width * 0.72
+                },
                 lineSpacing: 8
             }
         ).setOrigin(0.5);
+
         const tipY = tipText.y;
 
         this.tipTimer = this.time.addEvent({
             delay: 3200,
             loop: true,
             callback: () => {
-                this.tweens.add({
+                if (!tipText.active) {
+                    return;
+                }
+
+                const fadeOutTween = this.tweens.add({
                     targets: tipText,
                     alpha: 0,
                     y: tipY - 8,
                     duration: 180,
                     onComplete: () => {
+                        if (!tipText.active) {
+                            return;
+                        }
+
                         tipText.setText(this.getNextTip(tips));
                         tipText.setY(tipY + 8);
 
-                        this.tweens.add({
+                        const fadeInTween = this.tweens.add({
                             targets: tipText,
                             alpha: 1,
                             y: tipY,
                             duration: 220,
                             ease: 'Quad.out'
                         });
+
+                        this.addTrackedTween(fadeInTween);
                     }
                 });
+
+                this.addTrackedTween(fadeOutTween);
             }
         });
 
         let dots = '';
+
         this.dotsTimer = this.time.addEvent({
             delay: 350,
             loop: true,
             callback: () => {
                 dots = dots.length >= 3 ? '' : `${dots}.`;
+
                 const percent = Math.round(this.fillingLevel * 100);
-                titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
+
+                titleText.setText(
+                    `MAKING COFFEE${dots} ${percent}%`
+                );
             }
         });
-
-        this.load.on('progress', (value) => {
-            this.fillingLevel = value;
-            this.updateCoffeeMask(value);
-            const percent = Math.round(value * 100);
-            titleText.setText(`MAKING COFFEE${dots} ${percent}%`);
-        });
-
-        const uiRefs = { titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay };
-
-        // Stage 1 complete: jsony gazet są już w cache.json -> teraz można je bezpiecznie czytać.
-        this.load.once('complete', () => this.onNewspaperJsonsLoaded(uiRefs));
-    }
-
-    onNewspaperJsonsLoaded(uiRefs) {
-    const allItems = this.collectNewspaperItems();
-
-    const uniqueKeys = [
-        ...new Set(
-            allItems
-                .map((item) => item?.imageKey)
-                .filter(Boolean)
-        )
-    ];
-
-    let queuedAny = false;
-
-    uniqueKeys.forEach((key) => {
-        if (this.textures.exists(key)) {
-            console.log(`[PreloaderScene] Already loaded: ${key}`);
-            return;
-        }
-
-        const url = `assets/newspapers/newspapers/${key}.jpg`;
-
-        this.load.image(key, url);
-        queuedAny = true;
-    });
-
-    if (!queuedAny) {
-        this.finishLoading(uiRefs);
+this.load.on('fileprogress', (file) => {
+    if (!this.loadingStatusText?.active) {
         return;
     }
 
-    this.load.once('loaderror', (file) => {
-        console.error(
-            `[PreloaderScene] Failed to load: ${file.key} -> ${file.url}`
-        );
-    });
+    const nextStatus = this.getLoadingStatus(file);
 
-    this.load.once('complete', () => {
-        this.finishLoading(uiRefs);
-    });
-
-    this.time.delayedCall(0, () => {
-        this.load.start();
-    });
-}
-
-    // Bezpiecznie zbiera artykuły ze wszystkich typów/miast zdefiniowanych w NEWSPAPER_CONFIG.
-    // Brakujący plik (np. folder 'time' jeszcze nie istnieje) nie wywala gry - po prostu jest pomijany.
-collectNewspaperItems() {
-    const allItems = [];
-
-    for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
-        for (const cityId of config.cities) {
-            const cacheKey = `newspaper_${type}_${cityId}`;
-            const data = this.cache.json.get(cacheKey);
-
-            if (!data) {
-                console.warn(
-                    `[PreloaderScene] Missing newspaper JSON: ${cacheKey}`
-                );
-                continue;
-            }
-
-            // missionLead w Twoich JSON-ach jest tablicą wariantów.
-            if (Array.isArray(data.missionLead)) {
-                allItems.push(...data.missionLead);
-            } else if (data.missionLead) {
-                // Zabezpieczenie, gdy kiedyś zrobisz pojedynczy lead jako obiekt.
-                allItems.push(data.missionLead);
-            }
-
-            // articles także jest tablicą.
-            if (Array.isArray(data.articles)) {
-                allItems.push(...data.articles);
-            }
-        }
+    if (nextStatus === this.lastLoadingStatus) {
+        return;
     }
 
-    return allItems;
-}
+    this.lastLoadingStatus = nextStatus;
 
-    finishLoading(uiRefs) {
-        const { titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay } = uiRefs;
+    this.tweens.killTweensOf(this.loadingStatusText);
 
+    this.loadingStatusText
+        .setAlpha(0)
+        .setText(nextStatus);
+
+    const statusTween = this.tweens.add({
+        targets: this.loadingStatusText,
+        alpha: 1,
+        duration: 140,
+        ease: 'Quad.out'
+    });
+
+    this.addTrackedTween(statusTween);
+});
+        this.load.on('progress', (value) => {
+            this.fillingLevel = value;
+            this.updateCoffeeMask(value);
+
+            const percent = Math.round(value * 100);
+
+            if (titleText.active) {
+                titleText.setText(
+                    `MAKING COFFEE${dots} ${percent}%`
+                );
+            }
+        });
+
+this.uiRefs = {
+    titleText,
+    tipText,
+    shadow,
+    vignetteTop,
+    vignetteBottom,
+    scanlineOverlay,
+    statusPanel,
+    statusLabel,
+    loadingStatusText: this.loadingStatusText
+};
+    }
+
+    finishLoading() {
+        if (this.loadingReady) {
+            return;
+        }
+
+        this.loadingReady = true;
         this.fillingLevel = 1;
         this.updateCoffeeMask(1);
+if (this.loadingStatusText?.active) {
+    this.loadingStatusText.setText(
+        'Case file complete. Coffee approved for detective use.'
+    );
+}
+        this._clearLoadingTimers();
 
-        if (this.tipTimer) {
-            this.tipTimer.remove(false);
-            this.tipTimer = null;
+        if (!this.uiRefs) {
+            this.tryShowStartButton();
+            return;
         }
 
-        if (this.dotsTimer) {
-            this.dotsTimer.remove(false);
-            this.dotsTimer = null;
+const {
+    titleText,
+    tipText,
+    shadow,
+    vignetteTop,
+    vignetteBottom,
+    scanlineOverlay,
+    statusPanel,
+    statusLabel,
+    loadingStatusText
+} = this.uiRefs;
+
+const fadeTargets = [
+    titleText,
+    tipText,
+    shadow,
+    vignetteTop,
+    vignetteBottom,
+    scanlineOverlay,
+    statusPanel,
+    statusLabel,
+    loadingStatusText
+].filter((target) => target?.active);
+
+        if (fadeTargets.length === 0) {
+            this.tryShowStartButton();
+            return;
         }
 
-        this.tweens.add({
-            targets: [titleText, tipText, shadow, vignetteTop, vignetteBottom, scanlineOverlay],
+        const fadeTween = this.tweens.add({
+            targets: fadeTargets,
             alpha: 0,
             duration: 650,
             ease: 'Quad.out',
             onComplete: () => {
-                titleText.destroy();
-                tipText.destroy();
-                shadow.destroy();
-                vignetteTop.destroy();
-                vignetteBottom.destroy();
-                scanlineOverlay.destroy();
-                this.loadingReady = true;
+                fadeTargets.forEach((target) => {
+                    if (target?.active) {
+                        target.destroy();
+                    }
+                });
+
                 this.tryShowStartButton();
             }
         });
+
+        this.addTrackedTween(fadeTween);
     }
 
     async create() {
         super.create();
+
+        if (this.loadErrors.length > 0) {
+            console.warn(
+                `[PreloaderScene] ${this.loadErrors.length} asset(s) failed to load.`
+            );
+
+            this.loadErrors.forEach(({ key, url }) => {
+                console.warn(`- ${key}: ${url}`);
+            });
+        }
+
+        // Jeśli provider nie czyta Phaser Cache, ta funkcja może ponownie pobrać JSON.
+        // Docelowo warto zmienić provider, aby przyjmował dane z this.cache.json.
         await loadSuspectData('assets/data/suspectData.json');
+
         audioManager.init(this);
+
         EventBus.emit('hideHUD');
 
-        const bootAudio = () => {
-            if (this.audioArmed) return;
+        this._setupAudioUnlock();
+    }
+
+    _setupAudioUnlock() {
+        if (this.audioArmed) {
+            return;
+        }
+
+        const unlockAudio = () => {
+            if (this.audioArmed) {
+                return;
+            }
+
             this.audioArmed = true;
             this.sound.unlock?.();
         };
 
-        if (this.sound.locked) {
-            this.input.once('pointerdown', bootAudio);
-            this.input.once('keydown', bootAudio);
-        } else {
-            bootAudio();
+        if (!this.sound.locked) {
+            unlockAudio();
+            return;
         }
+
+        const temporaryHandler = () => {
+            unlockAudio();
+
+            this.input.off('pointerdown', temporaryHandler);
+            this.input.off('keydown', temporaryHandler);
+        };
+
+        this.input.on('pointerdown', temporaryHandler);
+        this.input.on('keydown', temporaryHandler);
     }
 
     tryShowStartButton() {
-        if (!this.loadingReady || this.startBtn) return;
+        if (!this.loadingReady || this.startBtn) {
+            return;
+        }
 
         const { width, height } = this.scale;
-        this.startBtn = this.add.image(width / 2, height * 0.8, 'btnStart')
+
+        if (!this.textures.exists('btnStart')) {
+            console.error(
+                '[PreloaderScene] btnStart is missing from the manifest or failed to load.'
+            );
+
+            return;
+        }
+
+        this.startBtn = this.add.image(
+            width / 2,
+            height * 0.8,
+            'btnStart'
+        )
             .setInteractive({ useHandCursor: true })
             .setScale(0.8);
 
         this.addHoverEffect(this.startBtn, 0.8, 0.9);
 
-        this.startBtn.on('pointerdown', async () => {
+        this.startBtn.once('pointerdown', async () => {
+            this.startBtn.disableInteractive();
+
             const mobileFS = this.registry.get('mobileFS');
+
             if (mobileFS) {
                 await mobileFS.enterFullscreenLandscape();
             }
 
             this.startThemeMusic();
-            this.scene.start('EnterScene');
+            this.goto('EnterScene');
         });
     }
 
     startThemeMusic() {
-        if (audioManager.isMusicPlaying('themeMusic')) return;
-        audioManager.fadeInMusic('themeMusic', { loop: true }, 600);
+        // W assetManifest.json klucz pliku musi nazywać się "themeMusic".
+        if (audioManager.isMusicPlaying('themeMusic')) {
+            return;
+        }
+
+        audioManager.fadeInMusic(
+            'themeMusic',
+            { loop: true },
+            600
+        );
     }
 
     getNextTip(tips) {
-        if (!tips || tips.length === 0) return '';
+        if (!tips?.length) {
+            return '';
+        }
 
         let nextIndex = Phaser.Math.Between(0, tips.length - 1);
 
@@ -713,89 +824,151 @@ collectNewspaperItems() {
         }
 
         this.tipIndex = nextIndex;
+
         return tips[nextIndex];
     }
 
     updateCoffeeMask(fillLevel) {
-        if (!this.coffeeMask) return;
+        if (!this.coffeeMask) {
+            return;
+        }
+
+        const safeFillLevel = Phaser.Math.Clamp(fillLevel, 0, 1);
 
         this.coffeeMask.clear();
         this.coffeeMask.fillStyle(0xffffff, 1);
 
+        const cupWidth = 125;
         const totalHeight = 110;
-        const visibleHeight = totalHeight * fillLevel;
+        const visibleHeight = totalHeight * safeFillLevel;
 
         this.coffeeMask.fillRect(
-            -125 * 0.5,
+            -cupWidth * 0.5,
             (totalHeight * 0.5) - visibleHeight,
-            125,
+            cupWidth,
             visibleHeight
         );
     }
 
-    preloadNewspapers() {
-        for (const [type, config] of Object.entries(NEWSPAPER_CONFIG)) {
-            for (const cityId of config.cities) {
-                this.load.json(
-                    `newspaper_${type}_${cityId}`,
-                    `assets/data/newspapers/${type}/${cityId}.json`
-                );
-            }
+    createCoffeeTextures() {
+        if (!this.textures.exists('cup_outline')) {
+            const gOutline = this.make.graphics({
+                x: 0,
+                y: 0,
+                add: false
+            });
+
+            gOutline.fillStyle(0xffffff, 0.08);
+            gOutline.fillRoundedRect(
+                10,
+                10,
+                80,
+                90,
+                { tl: 6, tr: 6, bl: 24, br: 24 }
+            );
+
+            gOutline.lineStyle(4, 0xe2f1f8, 0.5);
+            gOutline.strokeCircle(95, 55, 17);
+
+            gOutline.lineStyle(2, 0xffffff, 0.8);
+            gOutline.strokeCircle(94, 53, 15);
+
+            gOutline.lineStyle(3, 0xd8ecf8, 0.75);
+            gOutline.strokeRoundedRect(
+                10,
+                10,
+                80,
+                90,
+                { tl: 6, tr: 6, bl: 24, br: 24 }
+            );
+
+            gOutline.lineStyle(2, 0xffffff, 0.9);
+            gOutline.strokeRoundedRect(10, 8, 80, 8, 4);
+
+            gOutline.fillStyle(0xffffff, 0.35);
+            gOutline.fillRoundedRect(16, 18, 5, 72, 2);
+
+            gOutline.fillStyle(0xffffff, 0.2);
+            gOutline.fillRoundedRect(82, 60, 3, 30, 1);
+
+            gOutline.generateTexture('cup_outline', 125, 110);
+            gOutline.destroy();
+        }
+
+        if (!this.textures.exists('cup_coffee')) {
+            const gCoffee = this.make.graphics({
+                x: 0,
+                y: 0,
+                add: false
+            });
+
+            gCoffee.fillStyle(0x3d2314, 0.95);
+            gCoffee.fillRoundedRect(
+                14,
+                20,
+                72,
+                78,
+                { tl: 2, tr: 2, bl: 20, br: 20 }
+            );
+
+            gCoffee.fillStyle(0x5a351e, 0.9);
+            gCoffee.fillRect(14, 20, 72, 35);
+
+            gCoffee.fillStyle(0xd7a15c, 1);
+            gCoffee.fillRoundedRect(14, 18, 72, 10, 5);
+
+            gCoffee.fillStyle(0xf7e8d3, 0.9);
+            gCoffee.fillRoundedRect(30, 19, 40, 6, 3);
+
+            gCoffee.fillStyle(0xfff7ed, 1);
+            gCoffee.fillCircle(45, 21, 5);
+            gCoffee.fillCircle(55, 21, 5);
+            gCoffee.fillTriangle(39, 22, 61, 22, 50, 29);
+
+            gCoffee.generateTexture('cup_coffee', 125, 110);
+            gCoffee.destroy();
         }
     }
 
-    createCoffeeTextures() {
-        if (this.textures.exists('cup_coffee') && this.textures.exists('cup_outline')) return;
+    addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
+        button.on('pointerover', () => {
+            if (button.active) {
+                button.setScale(hoverScale);
+            }
+        });
 
-        const gOutline = this.make.graphics({ x: 0, y: 0, add: false });
-
-        gOutline.fillStyle(0xffffff, 0.08);
-        gOutline.fillRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
-
-        gOutline.lineStyle(4, 0xe2f1f8, 0.5);
-        gOutline.strokeCircle(95, 55, 17);
-        gOutline.lineStyle(2, 0xffffff, 0.8);
-        gOutline.strokeCircle(94, 53, 15);
-
-        gOutline.lineStyle(3, 0xd8ecf8, 0.75);
-        gOutline.strokeRoundedRect(10, 10, 80, 90, { tl: 6, tr: 6, bl: 24, br: 24 });
-
-        gOutline.lineStyle(2, 0xffffff, 0.9);
-        gOutline.strokeRoundedRect(10, 8, 80, 8, 4);
-
-        gOutline.fillStyle(0xffffff, 0.35);
-        gOutline.fillRoundedRect(16, 18, 5, 72, 2);
-        gOutline.fillStyle(0xffffff, 0.2);
-        gOutline.fillRoundedRect(82, 60, 3, 30, 1);
-
-        gOutline.generateTexture('cup_outline', 125, 110);
-        gOutline.destroy();
-
-        const gCoffee = this.make.graphics({ x: 0, y: 0, add: false });
-
-        gCoffee.fillStyle(0x3d2314, 0.95);
-        gCoffee.fillRoundedRect(14, 20, 72, 78, { tl: 2, tr: 2, bl: 20, br: 20 });
-
-        gCoffee.fillStyle(0x5a351e, 0.9);
-        gCoffee.fillRect(14, 20, 72, 35);
-
-        gCoffee.fillStyle(0xd7a15c, 1);
-        gCoffee.fillRoundedRect(14, 18, 72, 10, 5);
-
-        gCoffee.fillStyle(0xf7e8d3, 0.9);
-        gCoffee.fillRoundedRect(30, 19, 40, 6, 3);
-
-        gCoffee.fillStyle(0xfff7ed, 1);
-        gCoffee.fillCircle(45, 21, 5);
-        gCoffee.fillCircle(55, 21, 5);
-        gCoffee.fillTriangle(39, 22, 61, 22, 50, 29);
-
-        gCoffee.generateTexture('cup_coffee', 125, 110);
-        gCoffee.destroy();
+        button.on('pointerout', () => {
+            if (button.active) {
+                button.setScale(baseScale);
+            }
+        });
     }
 
-    addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
-        button.on('pointerover', () => button.setScale(hoverScale));
-        button.on('pointerout', () => button.setScale(baseScale));
+    _clearLoadingTimers() {
+        if (this.tipTimer) {
+            this.tipTimer.remove(false);
+            this.tipTimer = null;
+        }
+
+        if (this.dotsTimer) {
+            this.dotsTimer.remove(false);
+            this.dotsTimer = null;
+        }
+    }
+
+    shutdown() {
+        this._clearLoadingTimers();
+
+        if (this.coffeeMask) {
+            this.coffeeMask.destroy();
+            this.coffeeMask = null;
+        }
+
+        this.fullCupImage = null;
+        this.uiRefs = null;
+        this.startBtn = null;
+        this.loadingStatusText = null;
+
+        super.shutdown();
     }
 }

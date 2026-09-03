@@ -446,7 +446,7 @@ showTagline1() {
   }
 
   startCharacterCreation() {
-    this.scene.start('CharacterCreationScene', {
+    this.goto('CharacterCreationScene', {
       authMode: this.authMode,
       playerId: this.playerId,
       playerEmail: this.playerEmail,

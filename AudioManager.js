@@ -49,16 +49,36 @@ class AudioManager {
     this.activeVoice = new Set();
     this.activeOneShots = new Set();
 
-    // NEW: global registry of "who owns this audio key right now".
-    // Prevents the same underlying Phaser Sound instance from being
-    // tracked (and volume-controlled) by two different stores at once,
-    // and prevents stacking duplicate instances of the same key.
+    // Global registry of who owns which key
     this._keyOwner = new Map(); // key -> { store, sound }
+
+    // ✅ Track tweens dla cleanup
+    this._activeTweens = new Set();
+
+    // ✅ Deduplikacja — prevent multiple instances of same key
+    this._playingOneShots = new Map(); // key -> sound (most recent)
+    this._playingSfx = new Map();      // key -> sound (most recent)
   }
 
   init(scene) {
     this.scene = scene;
+    
+    // ✅ Scene lifecycle cleanup
+    if (scene?.events) {
+      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this._sceneShutdown());
+      scene.events.once(Phaser.Scenes.Events.SLEEP, () => this._sceneShutdown());
+    }
+
     this._applyGlobalAudioState();
+  }
+
+  /**
+   * ✅ Clean up all audio when scene shuts down
+   */
+  _sceneShutdown() {
+    this._stopAllTweens();
+    this.stopAllNonMusic();
+    // ← Music typically persists between scenes
   }
 
   _canPlay(key) {
@@ -66,7 +86,7 @@ class AudioManager {
   }
 
   _isValidSound(sound) {
-    return !!(sound && !sound.pendingRemove);
+    return !!(sound && !sound.pendingRemove && sound.scene !== null);
   }
 
   _applySoundState(sound, volume) {
@@ -95,10 +115,6 @@ class AudioManager {
     this._syncSet(this.activeOneShots, this.sfxVolume);
   }
 
-  // NEW: hard-stops and destroys every Phaser sound instance for this key
-  // that Phaser itself knows about, regardless of which (if any) store
-  // was tracking it. Prevents orphaned/duplicate instances of the same
-  // key from ever playing on top of each other.
   _purgeAllInstancesOfKey(key, exceptSound = null) {
     if (!this.scene?.sound?.getAll) return;
 
@@ -111,9 +127,6 @@ class AudioManager {
     });
   }
 
-  // NEW: releases ownership of a key from whichever store currently
-  // holds it, stopping/destroying that instance. Called before a
-  // different store tries to take over the same key.
   _releaseKeyOwnership(key, requestingStore) {
     const owner = this._keyOwner.get(key);
     if (!owner) return;
@@ -134,12 +147,38 @@ class AudioManager {
     this._keyOwner.delete(key);
   }
 
+  /**
+   * ✅ Create tween i track go dla cleanup
+   */
+  _createTrackedTween(tweenConfig) {
+    if (!this.scene?.tweens) return null;
+
+    const tween = this.scene.tweens.addCounter(tweenConfig);
+
+    if (tween) {
+      this._activeTweens.add(tween);
+      tween.once('complete', () => this._activeTweens.delete(tween));
+      tween.once('stop', () => this._activeTweens.delete(tween));
+    }
+
+    return tween;
+  }
+
+  /**
+   * ✅ Stop all active tweens
+   */
+  _stopAllTweens() {
+    this._activeTweens.forEach(tween => {
+      if (tween && !tween.isDestroyed) {
+        tween.stop();
+      }
+    });
+    this._activeTweens.clear();
+  }
+
   _createOrReuse(key, config, store, volume, loop = true) {
     if (!this._canPlay(key)) return null;
 
-    // If another store currently owns this key (e.g. it's playing as
-    // ambient but we now want it as music), evict it first so we never
-    // end up with two maps fighting over the same Sound's volume.
     this._releaseKeyOwnership(key, store);
 
     let sound = store.get(key);
@@ -156,9 +195,6 @@ class AudioManager {
       if (typeof sound.setLoop === 'function') sound.setLoop(loop);
       this._applySoundState(sound, volume);
 
-      // Already playing -> do not call play() again (avoids the
-      // classic "double play = doubled/clashing volume" bug when a
-      // scene calls playMusic/playAmbient repeatedly for a looping track).
       if (!sound.isPlaying && typeof sound.play === 'function') {
         sound.play();
       }
@@ -166,11 +202,6 @@ class AudioManager {
       return sound;
     }
 
-    // Before creating a brand-new instance, make sure there is no
-    // orphaned leftover instance of this key still alive in Phaser's
-    // internal sound list (e.g. left behind by a previous scene). Without
-    // this, a stray old instance could keep playing in parallel with the
-    // new one, stacking volume for the same audio key.
     this._purgeAllInstancesOfKey(key);
 
     sound = this.scene.sound.add(key, {
@@ -192,18 +223,20 @@ class AudioManager {
     return sound;
   }
 
+  /**
+   * ✅ Fade to volume z tracked tweens
+   */
   _fadeTo(sound, targetVolume, duration = 300) {
     if (!this._isValidSound(sound)) return;
 
     const start = typeof sound.volume === 'number' ? sound.volume : 0;
-    const tweenScene = this.scene;
 
-    if (!tweenScene?.tweens) {
+    if (!this.scene?.tweens) {
       if (typeof sound.setVolume === 'function') sound.setVolume(targetVolume);
       return;
     }
 
-    tweenScene.tweens.addCounter({
+    this._createTrackedTween({
       from: start,
       to: targetVolume,
       duration,
@@ -243,6 +276,9 @@ class AudioManager {
   }
 
   playMusic(key, config = {}) {
+    // ✅ Stop ambient jeśli gramy muzykę (prevent overlap w Crime Lab)
+    this.stopAllAmbient();
+
     return this._createOrReuse(
       key,
       {
@@ -278,8 +314,18 @@ class AudioManager {
     return this.playAmbient(key, { ...config, loop: true });
   }
 
+  /**
+   * ✅ Deduplikacja SFX — tylko jeden instance na key
+   */
   playSfx(key, config = {}) {
     if (!this._canPlay(key)) return null;
+
+    // ✅ Stop previous SFX z tym samym key, jeśli gra
+    const prevSound = this._playingSfx.get(key);
+    if (this._isValidSound(prevSound) && prevSound.isPlaying) {
+      prevSound.stop();
+      prevSound.destroy();
+    }
 
     const sound = this.scene.sound.add(key, {
       ...config,
@@ -289,10 +335,14 @@ class AudioManager {
     });
 
     this.activeSfx.add(sound);
+    this._playingSfx.set(key, sound);  // ✅ Track most recent
     sound.play();
 
     const cleanup = () => {
       this.activeSfx.delete(sound);
+      if (this._playingSfx.get(key) === sound) {
+        this._playingSfx.delete(key);
+      }
       if (this._isValidSound(sound)) sound.destroy();
     };
 
@@ -303,8 +353,18 @@ class AudioManager {
     return sound;
   }
 
+  /**
+   * ✅ Deduplikacja one-shots
+   */
   playOneShot(key, config = {}) {
     if (!this._canPlay(key)) return null;
+
+    // ✅ Stop previous one-shot z tym key (prevent stacking)
+    const prevSound = this._playingOneShots.get(key);
+    if (this._isValidSound(prevSound) && prevSound.isPlaying) {
+      prevSound.stop();
+      prevSound.destroy();
+    }
 
     const sound = this.scene.sound.add(key, {
       ...config,
@@ -314,10 +374,14 @@ class AudioManager {
     });
 
     this.activeOneShots.add(sound);
+    this._playingOneShots.set(key, sound);  // ✅ Track most recent
     sound.play();
 
     const cleanup = () => {
       this.activeOneShots.delete(sound);
+      if (this._playingOneShots.get(key) === sound) {
+        this._playingOneShots.delete(key);
+      }
       if (this._isValidSound(sound)) sound.destroy();
     };
 
@@ -365,14 +429,27 @@ class AudioManager {
     return sound;
   }
 
+  /**
+   * ✅ Faster lookup (O(1) instead of O(n))
+   */
   fadeOutAndStop(soundOrKey, duration = 400) {
-    const sound = typeof soundOrKey === 'string'
-      ? this.activeMusic.get(soundOrKey)
+    let sound = null;
+
+    if (typeof soundOrKey === 'string') {
+      // ✅ O(1) direct lookup
+      sound = this.activeMusic.get(soundOrKey)
         || this.activeAmbient.get(soundOrKey)
-        || [...this.activeSfx].find(s => s?.key === soundOrKey)
-        || [...this.activeVoice].find(s => s?.key === soundOrKey)
-        || this.scene?.sound?.get(soundOrKey)
-      : soundOrKey;
+        || this._playingSfx.get(soundOrKey)
+        || this._playingOneShots.get(soundOrKey);
+
+      // Fallback only if not found
+      if (!sound) {
+        sound = [...this.activeVoice].find(s => s?.key === soundOrKey)
+          || this.scene?.sound?.get(soundOrKey);
+      }
+    } else {
+      sound = soundOrKey;
+    }
 
     if (!this._isValidSound(sound)) return;
 
@@ -434,12 +511,12 @@ class AudioManager {
   }
 
   stopSfx(key) {
-    [...this.activeSfx].forEach(sound => {
-      if (sound && sound.key === key) {
-        if (sound.isPlaying) sound.stop();
-        if (this._isValidSound(sound)) sound.destroy();
-      }
-    });
+    const sound = this._playingSfx.get(key);
+    if (sound && sound.key === key) {
+      if (sound.isPlaying) sound.stop();
+      if (this._isValidSound(sound)) sound.destroy();
+      this._playingSfx.delete(key);
+    }
   }
 
   stopVoice(key) {
@@ -453,6 +530,7 @@ class AudioManager {
 
   stopAllSfx() {
     this._stopAllSet(this.activeSfx);
+    this._playingSfx.clear();
   }
 
   stopAllVoice() {
@@ -461,6 +539,7 @@ class AudioManager {
 
   stopAllOneShots() {
     this._stopAllSet(this.activeOneShots);
+    this._playingOneShots.clear();
   }
 
   stopAllNonMusic() {

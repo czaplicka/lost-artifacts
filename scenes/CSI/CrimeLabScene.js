@@ -7,13 +7,11 @@ import { CrimeLabHUD } from './CrimeLabHUD.js';
 import { EventBus } from '../../EventBus.js';
 import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
 
-
 const STATION_TIME_COST_HOURS = {
   identity: 2,
   trace_0: 1,
   trace_1: 1
 };
-
 
 const LAB_TIME_FLAVOR_LINES = [
   'The centrifuge hummed for hours. You are now an expert in staring at spinning tubes.',
@@ -22,7 +20,6 @@ const LAB_TIME_FLAVOR_LINES = [
   'The coffee in the break room went cold twice while you waited for results.',
   'Science is slow. Also, it is later than when you started.'
 ];
-
 
 // Every evidenceType a MAIN identity mini-game can resolve to.
 // Used to unlock the matching field on the suspect grid once the
@@ -34,7 +31,6 @@ const IDENTITY_EVIDENCE_TYPES = [
   'dna_gender',
   'fingerprint_pattern'
 ];
-
 
 export class CrimeLabScene extends BaseScene {
   constructor() {
@@ -577,20 +573,36 @@ export class CrimeLabScene extends BaseScene {
     this.labAmbient = null;
   }
 
-  enterMiniGame(sceneKey, sceneData = {}, stationId = '') {
+  // ------------------------------------------------------------------
+  // FIX: enterMiniGame is now async and uses SceneLoader.ensure() instead
+  // of a synchronous `this.scene.manager.keys[sceneKey]` check. The old
+  // check always failed for Tier-3 CSI scenes (BloodAnalysisScene, etc.)
+  // because they are never in scene.manager.keys until SceneLoader has
+  // dynamically imported and registered them.
+  // ------------------------------------------------------------------
+  async enterMiniGame(sceneKey, sceneData = {}, stationId = '') {
     if (this.uiLocked) return;
 
-    if (!sceneKey || !this.scene.manager.keys[sceneKey]) {
-      console.error(
-        `[CrimeLabScene] Minigame scene "${sceneKey}" is not registered.`
-      );
-
+    if (!sceneKey) {
+      console.error('[CrimeLabScene] enterMiniGame called without a sceneKey.');
       this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       return;
     }
 
     this.uiLocked = true;
     this.applyLock(true);
+
+    try {
+      // Ensures the module is dynamically imported and added to
+      // this.scene.manager if it isn't already (no-op if it's cached).
+      await this.game.sceneLoader.ensure(sceneKey);
+    } catch (err) {
+      console.error(`[CrimeLabScene] Minigame scene "${sceneKey}" failed to load.`, err);
+      this.showNavHint('ANALYSIS STATION UNAVAILABLE');
+      this.uiLocked = false;
+      this.applyLock(false);
+      return;
+    }
 
     const minigameData = {
       ...sceneData,
@@ -1102,17 +1114,16 @@ export class CrimeLabScene extends BaseScene {
     this.applyLock(false);
   }
 
+  // ------------------------------------------------------------------
+  // FIX: removed the premature `this.scene.manager.keys[targetScene]`
+  // guard — CrimeCityScene may simply not be registered YET (if it wasn't
+  // prefetched). this.game.sceneLoader.ensure() below handles that; we
+  // only fall back to an error state if the dynamic import itself fails.
+  // ------------------------------------------------------------------
   exitLab() {
     if (this.uiLocked) return;
 
     const targetScene = 'CrimeCityScene';
-
-    // SAFE: Sprawdzenie czy scena istnieje
-    if (!this.scene?.manager?.keys || !this.scene.manager.keys[targetScene]) {
-      console.error('[CrimeLabScene] CrimeCityScene not registered in scene manager');
-      this.showNavHint('CRIME CITY UNAVAILABLE');
-      return;
-    }
 
     this.uiLocked = true;
     this.applyLock(true);
@@ -1127,69 +1138,97 @@ export class CrimeLabScene extends BaseScene {
       fromCrimeLab: true
     };
 
-    try {
-      this.cameras.main.fadeOut(300, 0, 0, 0);
-
-      this.cameras.main.once(
-        Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-        () => {
-          try {
-            this.scene.start(targetScene, sceneData);
-          } catch (err) {
-            console.error('[CrimeLabScene] Failed to start CrimeCityScene:', err);
-            // Fallback: spróbuj fade in i odblokuj UI
-            this.uiLocked = false;
-            this.applyLock(false);
-            this.cameras.main.fadeIn(300, 0, 0, 0);
-            this.showNavHint('ERROR: Cannot switch scenes');
-          }
-        }
-      );
-    } catch (err) {
-      console.error('[CrimeLabScene] exitLab() failed during transition:', err);
-      this.uiLocked = false;
-      this.applyLock(false);
-      this.showNavHint('EXIT FAILED');
-    }
-  }
-
-  goToCrimeCity() {
-    if (this.uiLocked) return;
-
-    if (this.completedCount < this.totalStations) return;
-
-    if (!this.scene.manager.keys.CrimeCityScene) {
-      this.showNavHint('CRIME CITY UNAVAILABLE');
-      return;
-    }
-
-    this.uiLocked = true;
-    this.applyLock(true);
-
-    this.labManager.markCrimeLabCompleted();
-    saveGameState();
-    this.stopLabAmbient();
-
-    this.cameras.main.fadeOut(350, 0, 0, 0);
+    this.cameras.main.fadeOut(300, 0, 0, 0);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-      () => {
-        this.scene.start('CrimeCityScene', {
-          cityId: this.cityId,
-          caseKey: this.labManager.getCaseKey(),
-          gameState: this.gameState,
-          crimeLabCompleted: true,
-          showLabCompletionPhoneCall: true,
-          returnData: {
-            ...this.returnData,
-            cityId: this.cityId,
-            gameState: this.gameState
-          }
-        });
+      async () => {
+        try {
+          await this.game.sceneLoader.ensure(targetScene);
+          this.goto(targetScene, sceneData);
+        } catch (err) {
+          console.error('[CrimeLabScene] Failed to start CrimeCityScene:', err);
+          this.uiLocked = false;
+          this.applyLock(false);
+          this.cameras.main.fadeIn(300, 0, 0, 0);
+          this.showNavHint('ERROR: Cannot switch scenes');
+        }
       }
     );
   }
+
+  goToCrimeCity() {
+  if (this.uiLocked) {
+    return;
+  }
+
+  if (this.completedCount < this.totalStations) {
+    console.warn(
+      '[CrimeLabScene] Cannot return to Crime City: not all lab stations are complete.',
+      {
+        completedCount: this.completedCount,
+        totalStations: this.totalStations
+      }
+    );
+
+    return;
+  }
+
+  console.log(
+    '[CrimeLabScene] Returning to Crime City after lab completion.',
+    {
+      cityId: this.cityId,
+      caseKey: this.labManager?.getCaseKey?.(),
+      completedCount: this.completedCount
+    }
+  );
+
+  this.uiLocked = true;
+  this.applyLock(true);
+
+  this.labManager.markCrimeLabCompleted();
+  saveGameState();
+
+  this.stopLabAmbient();
+
+  const returnData = {
+    ...this.returnData,
+    cityId: this.cityId,
+    caseKey: this.labManager.getCaseKey(),
+    gameState: this.gameState,
+    crimeLabCompleted: true,
+    showLabCompletionPhoneCall: true,
+    fromCrimeLab: true
+  };
+
+  this.cameras.main.fadeOut(350, 0, 0, 0);
+
+  this.cameras.main.once(
+    Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+    async () => {
+      try {
+        await this.game.sceneLoader.ensure('CrimeCityScene');
+
+  this.game.events.emit('setHudVisible', true);
+  EventBus.emit('showHUD');
+  this.game.events.emit('setHudVisible', true);
+        this.goto('CrimeCityScene', returnData);
+      } catch (error) {
+        console.error(
+          '[CrimeLabScene] Failed to start CrimeCityScene:',
+          error
+        );
+
+        this.uiLocked = false;
+        this.applyLock(false);
+
+        this.cameras.main.fadeIn(350, 0, 0, 0);
+
+        this.showNavHint('CRIME CITY UNAVAILABLE');
+      }
+    }
+  );
+}
 
   createOptionalDebug() {
     if (!this.DEBUG_HOTSPOTS) return;

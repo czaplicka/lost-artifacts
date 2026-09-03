@@ -1312,7 +1312,7 @@ export class SuspectGridScene extends BaseScene {
       this.returnScene !== this.scene.key &&
       this.scene.manager.keys[this.returnScene]
     ) {
-      this.scene.start(this.returnScene, {
+      this.goto(this.returnScene, {
         ...this.returnData,
         cityId: this.cityId,
         evidenceGridClosed: true

@@ -1,46 +1,63 @@
+// main.js
+// Only Tier-0 scenes are imported eagerly. Everything else is registered
+// on demand by SceneLoader the first time a scene calls this.goto('Key').
+
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
-import { GameOverScene } from './scenes/GameOverScene.js';
-import { GameScene } from './scenes/GameScene.js';
-import { OfficeScene } from './scenes/OfficeScene.js';
-import { HighscoreScene } from './scenes/HighscoreScene.js';
-import { CityScene } from './scenes/CityScene.js';
-import { LocationScene } from './scenes/LocationScene.js';
-import { TravelTransitionScene } from './scenes/TravelTransitionScene.js';
+import { EnterScene } from './scenes/EnterScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
-import { ArrestSelectionScene } from './scenes/ArrestSelectionScene.js';
-import { AgainScene } from './scenes/AgainScene.js';
-import { SuccessScene } from './scenes/SuccessScene.js';
-import { DifficultyScene } from './scenes/DifficultyScene.js';
-import { HotelScene } from './scenes/HotelScene.js';
-import { CharacterCreationScene } from './scenes/CharacterCreationScene.js';
-import { CrimeCityScene } from './scenes/CrimeCityScene.js';
-import { IntroScene } from './scenes/IntroScene.js';
 import { UIScene } from './ui/UIScene.js';
 import { NewsHud } from './ui/NewsHud.js';
-import { HiddenObjectsScene } from './scenes/HiddenObjectsScene.js';
-import { PhoneCallScene } from './scenes/PhoneCallScene.js';
-import { HypothesisScene } from './scenes/HypothesisScene.js';
-import { TheoryResultCallScene } from './scenes/TheoryResultCallScene.js';
-import { WantedDatabaseScene } from './scenes/WantedDatabaseScene.js';
-import { RecoveredArtifactsScene } from './scenes/RecoveredArtifactsScene.js';
-import { CrimeLabScene } from './scenes/CSI/CrimeLabScene.js';
-import { HairAnalysisScene } from './scenes/CSI/HairAnalysisScene.js';
-import { ToolmarkAnalysisScene } from './scenes/CSI/ToolmarkAnalysisScene.js';
-import { FiberAnalysisScene } from './scenes/CSI/FiberAnalysisScene.js';
-import { FingerprintScene } from './scenes/CSI/FingerprintScene.js';
-import { ShoeprintScene } from './scenes/CSI/ShoeprintScene.js';
-import { NewsstandScene } from './scenes/NewsstandScene.js';
-import { NewspaperOverlayScene } from './scenes/NewspaperOverlayScene.js';
-import { EnterScene } from './scenes/EnterScene.js';
-import { TvBroadcastScene } from './scenes/TvBroadcastScene.js';
-import { SuspectsScene } from './scenes/SuspectsScene.js';
-import { SuspectGridScene } from './scenes/SuspectGridScene.js';
-import { BloodAnalysisScene } from './scenes/CSI/BloodAnalysisScene.js';
-import { DnaGenderScene } from './scenes/CSI/DnaGenderScene.js';
-import { FingerprintPatternScene } from './scenes/CSI/FingerprintPatternScene.js';
+import { LoadingOverlayScene } from './scenes/LoadingOverlayScene.js';
+
+import { SceneLoader } from './SceneLoader.js';
+import { sceneRegistry } from './sceneRegistry.js';
+
+const BUILD_VERSION = '0.10.0';
+
+// ---------------------------------------------------------------------
+// Scale handling
+// ---------------------------------------------------------------------
+// We keep Phaser.Scale.FIT on purpose: the game is a fixed 1920x1080
+// painted-scene adventure (Indiana Jones-style backgrounds with
+// absolutely positioned hotspots/UI). Phaser.Scale.RESIZE would change
+// the *logical* game dimensions on every viewport change, which breaks
+// every hand-placed hotspot/coordinate in HiddenObjectsScene, CrimeBoard,
+// SuspectGridScene, etc. FIT only applies a CSS transform to the canvas —
+// it does NOT re-render your scene graph, so it isn't the actual cost here.
+//
+// The real mobile cost is usually the ScaleManager recomputing on every
+// 'resize' event — which mobile browsers fire repeatedly while the
+// address bar / virtual keyboard animates in and out. We debounce that.
+
+const RESIZE_DEBOUNCE_MS = 120;
+
+function installResizeDebounce(game) {
+  let timer = null;
+  const scaleManager = game.scale;
+
+  // Phaser already listens on window 'resize' internally; we just make sure
+  // our own downstream layout code (HUD reflow, crime board recenter, etc.)
+  // does not run on every single intermediate event.
+  window.addEventListener('resize', () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      scaleManager.refresh();
+      game.events.emit('game-resize-settled', scaleManager.gameSize);
+    }, RESIZE_DEBOUNCE_MS);
+  }, { passive: true });
+
+  // iOS Safari address bar collapsing fires visualViewport resize, not
+  // window resize, in some versions — cover that too.
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => scaleManager.refresh(), RESIZE_DEBOUNCE_MS);
+    }, { passive: true });
+  }
+}
 
 const config = {
   type: Phaser.AUTO,
@@ -49,50 +66,18 @@ const config = {
   parent: 'game-container',
   backgroundColor: '#000000',
 
+  // Tier 0 only — the boot chain, menu/auth flow and persistent overlays.
+  // Everything else is added at runtime via SceneLoader.ensure().
   scene: [
     BootScene,
     PreloaderScene,
     MenuScene,
     SettingsScene,
-    GameOverScene,
-    GameScene,
-    OfficeScene,
-    HighscoreScene,
-    CityScene,
-    LocationScene,
-    TravelTransitionScene,
-    PlayerHudScene,
-    ArrestSelectionScene,
-    SuccessScene,
-    AgainScene,
-    DifficultyScene,
-    HotelScene,
-    CharacterCreationScene,
-    CrimeCityScene,
-    IntroScene,
-    HiddenObjectsScene,
-    PhoneCallScene,
-    HypothesisScene,
-    TheoryResultCallScene,
-    WantedDatabaseScene,
-    RecoveredArtifactsScene,
-    NewsstandScene,
-    NewspaperOverlayScene,
     EnterScene,
-    TvBroadcastScene,
+    PlayerHudScene,
     UIScene,
     NewsHud,
-    CrimeLabScene,
-    HairAnalysisScene,
-    ToolmarkAnalysisScene,
-    FiberAnalysisScene,
-    FingerprintScene,
-    ShoeprintScene,
-    SuspectsScene,
-    SuspectGridScene,
-    BloodAnalysisScene,
-    DnaGenderScene,
-    FingerprintPatternScene
+    LoadingOverlayScene
   ],
 
   dom: {
@@ -101,7 +86,8 @@ const config = {
 
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true
   },
 
   audio: {
@@ -109,6 +95,22 @@ const config = {
   }
 };
 
-const BUILD_VERSION = '0.9.1';
-
 window.game = new Phaser.Game(config);
+window.game.sceneLoader = new SceneLoader(window.game, sceneRegistry);
+window.game.buildVersion = BUILD_VERSION;
+
+installResizeDebounce(window.game);
+
+// Once the player is past login/character creation, warm the cache for the
+// core office/city loop in the background so the first this.goto('OfficeScene')
+// call resolves instantly instead of showing the loading overlay.
+window.game.events.once('player-authenticated', () => {
+  window.game.sceneLoader.prefetchTier('TIER_1');
+});
+
+// Similarly, once a case reaches the crime-scene stage, warm up the CSI lab
+// bundle while the player is still doing hidden-objects, not when they walk
+// into the lab door.
+window.game.events.once('case-crime-scene-entered', () => {
+  window.game.sceneLoader.prefetchTier('TIER_3');
+});

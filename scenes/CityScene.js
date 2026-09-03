@@ -153,7 +153,7 @@ export class CityScene extends BaseScene {
 
       this.closeAllUIPanels();
 
-      this.scene.start('MenuScene', {
+      this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: 'City data could not be loaded.'
       });
@@ -185,7 +185,7 @@ export class CityScene extends BaseScene {
 
       this.closeAllUIPanels();
 
-      this.scene.start('MenuScene', {
+      this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: `Unknown city: ${this.cityId}`
       });
@@ -519,7 +519,7 @@ changeScore(points, label = 'City investigation') {
           this.changeScore(-NPC_QUESTION_PENALTY);
         }
 
-        this.scene.start('LocationScene', {
+        this.goto('LocationScene', {
           cityId: this.cityId,
           encounterId: encounter.id,
           npcId: encounter.npcId,
@@ -708,7 +708,7 @@ changeScore(points, label = 'City investigation') {
         this.changeScore(-NPC_QUESTION_PENALTY);
       }
 
-      this.scene.start('LocationScene', {
+      this.goto('LocationScene', {
         cityId: this.cityId,
         encounterId: encounterData.id,
         npcId: encounterData.npcId,

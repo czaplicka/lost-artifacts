@@ -1,49 +1,30 @@
 {
-  "default": [
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Forensics here. We just finished sweeping the crime scene.",
-        "We found something. A single black hair near the display case.",
-        "It's not much, but it should narrow down your list of suspects."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Lab results are in.",
-        "There's a partial shoe print near the window. Size 43, rubber sole.",
-        "Whoever it was, they came in through there."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "You'll want to hear this.",
-        "We found an earring fragment under the display case. Cheap metal, not the museum's style.",
-        "Someone lost it in a hurry."
-      ]
-    }
-  ],
-  "stage_2": [
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Second pass on the evidence is done.",
-        "That fiber you flagged? Dead end. Doesn't match anyone on your list."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Ran the numbers again.",
-        "The coin you found is just loose change. Nothing traceable."
-      ]
-    }
-  ]
+  "walk_to_case_file": {
+    "number": "01",
+    "title": "FIRST DAY, WORST TIMING",
+    "objective": "Walk to the records cabinet.",
+    "hint": "Click near the highlighted cabinet to move Detective Marlowe.",
+    "targetHotspot": "cabinet-casefile"
+  },
+  "open_case_file": {
+    "number": "02",
+    "title": "PAPERWORK: THE FINAL BOSS",
+    "objective": "Open your case file.",
+    "hint": "Click the highlighted records cabinet.",
+    "targetHotspot": "cabinet-casefile"
+  },
+  "find_route": {
+    "number": "03",
+    "title": "FOLLOW THE PAPER TRAIL",
+    "objective": "Choose a route to the crime city.",
+    "hint": "Use the globe to find your destination.",
+    "targetHotspot": "globe"
+  },
+  "travel_to_city": {
+    "number": "04",
+    "title": "LEAVE THE BUILDING",
+    "objective": "Travel to the crime city.",
+    "hint": "Pick the mission destination and start the investigation.",
+    "targetHotspot": null
+  }
 }

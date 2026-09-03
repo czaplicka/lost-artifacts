@@ -443,7 +443,7 @@ onNpcInteraction(npc) {
     if (hud?.refreshNotebook) hud.refreshNotebook();
     else if (hud?.refreshUI) hud.refreshUI();
 
-    this.scene.start('CityScene', {
+    this.goto('CityScene', {
       cityId: this.cityId,
       cityCompleted: false,
       investigationStatus: null

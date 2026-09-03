@@ -376,14 +376,6 @@ export class ScoreManager {
       );
     }
 
-    console.log('[ScoreManager] Score changed', {
-      label,
-      currentScore,
-      rawDelta,
-      safeDelta,
-      nextScore
-    });
-
     EventBus.emit('scoreChanged', {
       delta: safeDelta,
       rawDelta,

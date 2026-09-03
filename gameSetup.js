@@ -36,6 +36,7 @@ import {
 } from './InvestigationManager.js';
 import { RouteManager } from './RouteManager.js';
 
+
 function shuffle(items) {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i -= 1) {
@@ -45,20 +46,23 @@ function shuffle(items) {
   return result;
 }
 
+
 function getRandomItem(items) {
   return Array.isArray(items) && items.length
     ? items[Math.floor(Math.random() * items.length)]
     : null;
 }
 
+
 function syncScoreFromManager() {
   const manager = getScoreManager();
-if (typeof getScoreManager()?.startSession === 'function') {
-  getScoreManager().startSession({
-    reset: true
-  });
+  if (typeof getScoreManager()?.startSession === 'function') {
+    getScoreManager().startSession({
+      reset: true
+    });
+  }
 }
-}
+
 
 async function fetchCaseSuspects(thief, crimeCityId) {
   let lastError = null;
@@ -142,6 +146,7 @@ async function fetchCaseSuspects(thief, crimeCityId) {
   );
 }
 
+
 export async function setupNewGame(
   suspectsData,
   missionsData,
@@ -153,18 +158,26 @@ export async function setupNewGame(
   resetGameState();
   resetCaseOutcomeState();
 
+  // ============================================================
+  // POPRAWKA: Nowa gra musi ZAINICJOWAĆ EnergyManager od zera,
+  // a nie "restore'ować" go z gameState.energy — bo gameState.energy
+  // to pole, do którego EnergyManager sam ZAPISUJE swój stan
+  // (_syncToGameState), więc po resecie gry mogło tam wciąż leżeć
+  // stare, "brudne" energy z poprzedniej rozgrywki (resetGameState()
+  // nie zeruje tego pola, bo nie jest częścią domyślnego szablonu
+  // narracyjnego w GameData.js). init(difficulty) ustawia energię
+  // na 100%, czyści energyLog, isSleepingForced, forcedSleepTimer
+  // i poprawnie zapisuje wybrany przez gracza poziom trudności
+  // (wcześniej difficulty było aplikowane do EnergyManager ZA PÓŹNO,
+  // bo dopiero w Object.assign(gameState, {...}) niżej).
+  // ============================================================
   const energyManager = getEnergyManager();
-  energyManager.restore({
-    energy: gameState.energy,
-    maxEnergy: gameState.maxEnergy,
-    difficulty: gameState.difficulty,
-    energyLog: gameState.energyLog
-  });
+  energyManager.init(difficulty);
 
   if (typeof getScoreManager()?.startSession === 'function') {
-getScoreManager().startSession({
-  reset: true
-});
+    getScoreManager().startSession({
+      reset: true
+    });
   }
 
   const thief = getRandomItem(suspectsData);
@@ -263,6 +276,7 @@ getScoreManager().startSession({
   saveGameState();
   return gameState;
 }
+
 
 export function travelToCity(cityName, locations, transportType = 'plane') {
   const previousCity = gameState.currentCity;

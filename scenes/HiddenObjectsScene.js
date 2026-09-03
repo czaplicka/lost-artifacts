@@ -432,7 +432,7 @@ returnToSafeScene(data = {}) {
 
 
 
-  this.scene.start(targetScene, data);
+  this.goto(targetScene, data);
 
 
 

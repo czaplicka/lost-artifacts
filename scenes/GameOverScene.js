@@ -66,7 +66,7 @@ export class GameOverScene extends BaseScene {
     backBtn.on('pointerdown', () => {
       audioManager.stopAllNonMusic();
       audioManager.stopAllMusic();
-      this.scene.start('MenuScene');
+      this.goto('MenuScene');
     });
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {

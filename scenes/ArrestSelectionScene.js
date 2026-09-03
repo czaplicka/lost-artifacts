@@ -78,7 +78,7 @@ EventBus.emit('hideHUD');
       saveGameState();
 
       this.scene.stop('CityScene');
-      this.scene.start('GameOverScene', {
+      this.goto('GameOverScene', {
         title: 'THIEF ESCAPED',
         message:
           'Without a signed warrant, the agency could not act in time. The thief escaped before the arrest team arrived.'
@@ -89,14 +89,14 @@ EventBus.emit('hideHUD');
     const suspectsData = this.cache.json.get('suspects');
     if (!Array.isArray(suspectsData) || suspectsData.length < 5) {
       console.error('suspects.json must contain at least 5 suspects.');
-      this.scene.start('GameScene');
+      this.goto('GameScene');
       return;
     }
 
     const thiefId = gameState.currentThief?.id || gameState.currentThiefId;
     if (!thiefId) {
       console.error('Missing current thief in gameState.');
-      this.scene.start('GameScene');
+      this.goto('GameScene');
       return;
     }
 
@@ -114,7 +114,7 @@ try {
     error
   );
 
-  this.scene.start('GameScene', {
+  this.goto('GameScene', {
     arrestSetupFailed: true,
     errorMessage:
       'The suspect dossier could not be prepared. Return to headquarters and review the case file.'
@@ -955,9 +955,9 @@ try {
       this.scene.stop('CityScene');
 
       if (gameState.finalArrestResult === 'SUCCESS') {
-        this.scene.start('SuccessScene');
+        this.goto('SuccessScene');
       } else {
-        this.scene.start('GameOverScene', {
+        this.goto('GameOverScene', {
           title: this.resultTitle?.text || 'GAME OVER',
           message:
             gameState.gameOverReason ||

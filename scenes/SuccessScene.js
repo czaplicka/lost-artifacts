@@ -175,14 +175,14 @@ EventBus.emit('hideHUD');
 
             if (!againSceneExists) {
                 console.error('AgainScene is not registered in game config.');
-                this.scene.start('MenuScene');
+                this.goto('MenuScene');
                 return;
             }
 
             audioManager.stopAllNonMusic();
             audioManager.stopAllMusic();
 
-            this.scene.start('AgainScene');
+            this.goto('AgainScene');
         });
 
         this.scale.on('resize', this.handleResize, this);

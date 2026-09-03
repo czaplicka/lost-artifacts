@@ -87,7 +87,7 @@ EventBus.emit('hideHUD');
     this.backBtn.on('pointerdown', () => {
       if (this.isStartingNewMission) return;
       this.closeAllUIPanels();
-      this.scene.start('MenuScene');
+      this.goto('MenuScene');
     });
   }
 
@@ -165,7 +165,7 @@ EventBus.emit('hideHUD');
     this.noBtn.on('pointerdown', () => {
       if (this.isStartingNewMission) return;
       this.closeAllUIPanels();
-      this.scene.start('MenuScene');
+      this.goto('MenuScene');
     });
   }
 
@@ -179,7 +179,7 @@ EventBus.emit('hideHUD');
     this.handleEscapeKey = () => {
       if (this.isStartingNewMission) return;
       this.closeAllUIPanels();
-      this.scene.start('MenuScene');
+      this.goto('MenuScene');
     };
 
     this.input.keyboard.on('keydown-ENTER', this.handleEnterKey, this);
@@ -207,7 +207,7 @@ EventBus.emit('hideHUD');
 
     try {
       await setupNewGame(suspectsData, missionsData, locationsData);
-      this.scene.start('OfficeScene');
+      this.goto('OfficeScene');
     } catch (error) {
       console.error('Failed to start a new mission:', error);
 

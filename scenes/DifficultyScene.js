@@ -183,7 +183,7 @@ this.registry.set('gameState', gameState);
             );
 
 EventBus.emit('hideHUD');
-            this.scene.start('GameScene', {
+            this.goto('GameScene', {
                 fromSave: false,
             });
         } catch (error) {

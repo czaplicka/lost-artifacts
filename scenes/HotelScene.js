@@ -725,7 +725,7 @@ export class HotelScene extends BaseScene {
         EventBus.emit('advanceTime', hours, 0);
       }
 
-      this.scene.start(
+      this.goto(
         this.returnScene,
         this.returnData
       );
@@ -752,7 +752,7 @@ export class HotelScene extends BaseScene {
 
     this.isLeaving = true;
 
-    this.scene.start(
+    this.goto(
       this.returnScene,
       this.returnData
     );

@@ -57,7 +57,7 @@ this.timeManager = new GameTimeManager();
 
 if (!gameState.currentMission || !gameState.currentThief) {
   console.error('GameScene started without initialized gameState.');
-  this.scene.start('EnterScene');
+  this.goto('EnterScene');
   return;
 }
 
@@ -481,7 +481,7 @@ finishSequence() {
         this.cameras.main.fadeOut(350, 0, 0, 0);
 
 this.time.delayedCall(360, () => {
-  this.scene.start('OfficeScene', {
+  this.goto('OfficeScene', {
     gameState,
     isNewGame: true,
     startOnboarding: true,

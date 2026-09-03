@@ -25,6 +25,12 @@ const BLOOD_IMAGE_KEY = {
 };
 
 
+const BOTTLE_HIT_RADIUS = 55;
+
+
+const WELL_HIT_RADIUS = 45;
+
+
 export class BloodAnalysisScene extends BaseForensicMinigame {
   constructor() {
     super('BloodAnalysisScene');
@@ -99,20 +105,20 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.evidenceBag = this.add.image(width * 0.80, height * 0.66, 'evidence_bag')
+    this.evidenceBag = this.add.image(width * 0.91, height * 0.77, 'evidence_bag')
       .setOrigin(0.5)
-      .setDisplaySize(320, 270)
+      .setDisplaySize(340, 270)
       .setDepth(2);
     this.addStageObject(this.evidenceBag);
 
-    this.closedSwab = this.add.image(width * 0.80, height * 0.66, 'blood_swab_closed')
+    this.closedSwab = this.add.image(width * 0.85, height * 0.68, 'blood_swab_closed')
       .setOrigin(0.5)
       .setDisplaySize(180, 130)
       .setDepth(3)
       .setVisible(false);
     this.addStageObject(this.closedSwab);
 
-    this.createTweezers(width * 0.48, height * 0.53, (tipX, tipY) => {
+    this.createTweezers(width * 0.58, height * 0.53, (tipX, tipY) => {
       if (!this.evidenceBag.getBounds().contains(tipX, tipY)) {
         this.penalize(3);
         this.setDialogue('The tweezers missed the evidence bag. Try again.');
@@ -120,7 +126,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       }
 
       this.closedSwab.setVisible(true);
-      this.closedSwab.setPosition(this.tweezers.x - 45, this.tweezers.y + 40);
+      this.closedSwab.setPosition(this.tweezers.x - 45, this.tweezers.y + 50);
       this.evidenceBag.setAlpha(0.6);
       this.tweezers.disableInteractive();
 
@@ -141,7 +147,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.closedSwab = this.add.image(width * 0.61, height * 0.62, 'blood_swab_closed')
+    this.closedSwab = this.add.image(width * 0.91, height * 0.77, 'blood_swab_closed')
       .setOrigin(0.5)
       .setDisplaySize(240, 170)
       .setDepth(2);
@@ -161,7 +167,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       repeat: -1
     });
 
-    this.createTweezers(width * 0.34, height * 0.50, (tipX, tipY) => {
+    this.createTweezers(width * 0.58, height * 0.53, (tipX, tipY) => {
       if (!this.closedSwab.getBounds().contains(tipX, tipY)) {
         this.penalize(3);
         this.setDialogue('The tweezers need to grip the sealed swab.');
@@ -171,7 +177,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       targetGlow.destroy();
       this.closedSwab.destroy();
 
-      this.bloodSwab = this.add.image(width * 0.61, height * 0.62, 'blood_swab')
+      this.bloodSwab = this.add.image(width * 0.91, height * 0.77, 'blood_swab')
         .setOrigin(0.5)
         .setDisplaySize(230, 165)
         .setDepth(3);
@@ -197,9 +203,9 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.slide = this.add.image(width * 0.70, height * 0.65, 'hair_board')
+    this.slide = this.add.image(width * 0.39, 670, 'hair_board')
       .setOrigin(0.5)
-      .setDisplaySize(430, 180)
+      .setDisplaySize(630, 180)
       .setDepth(1);
     this.addStageObject(this.slide);
 
@@ -208,7 +214,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       .setDepth(2);
     this.addStageObject(boardGlow);
 
-    this.bloodSwab = this.add.image(width * 0.28, height * 0.58, 'blood_swab')
+    this.bloodSwab = this.add.image(width * 0.91, height * 0.77, 'blood_swab')
       .setOrigin(0.5)
       .setDisplaySize(230, 165)
       .setDepth(4)
@@ -234,7 +240,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       this.bloodSwab.disableInteractive();
       this.bloodSwab.setVisible(false);
       this.slide.setTexture('blood_microscope_slide');
-      this.slide.setDisplaySize(430, 190);
+      this.slide.setDisplaySize(1100, 300);
 
       this.setDialogue('Slide prepared. Apply Anti-A, Anti-B and Anti-Rh reagents.');
 
@@ -253,29 +259,29 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.slide = this.add.image(width * 0.58, height * 0.62, 'blood_microscope_slide')
+    this.slide = this.add.image(width * 0.39, 670, 'blood_microscope_slide')
       .setOrigin(0.5)
-      .setDisplaySize(510, 230)
+      .setDisplaySize(1100, 300)
       .setDepth(1);
     this.addStageObject(this.slide);
 
     const reagentData = [
-      { id: 'A', key: 'blood_reagent_A', x: width * 0.16, y: height * 0.30, color: 0x4d9cff },
-      { id: 'B', key: 'blood_reagent_B', x: width * 0.16, y: height * 0.52, color: 0xffbb3f },
-      { id: 'Rh', key: 'blood_reagent_Rh', x: width * 0.16, y: height * 0.74, color: 0x87d96b }
+      { id: 'A', key: 'blood_reagent_A', x: width * 0.21, y: height * 0.46, color: 0x4d9cff },
+      { id: 'B', key: 'blood_reagent_B', x: width * 0.21, y: height * 0.60, color: 0xffbb3f },
+      { id: 'Rh', key: 'blood_reagent_Rh', x: width * 0.21, y: height * 0.74, color: 0x87d96b }
     ];
 
     this.reagentObjects = reagentData.map(data => {
       const bottle = this.add.image(data.x, data.y, data.key)
         .setOrigin(0.5)
-        .setDisplaySize(150, 120)
+        .setDisplaySize(400, 250)
         .setDepth(3);
       this.addStageObject(bottle);
 
       const label = this.add.text(data.x, data.y + 75, `ANTI-${data.id}`, {
         fontFamily: 'PressStart2P',
         fontSize: '10px',
-        color: '#f4e6cf'
+        color: '#c30000'
       }).setOrigin(0.5).setDepth(4);
       this.addStageObject(label);
 
@@ -299,7 +305,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       const label = this.add.text(x, y + 54, data.id, {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
-        color: '#f4e6cf'
+        color: '#c30000'
       }).setOrigin(0.5).setDepth(4);
       this.addStageObject(label);
 
@@ -319,8 +325,8 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     this.addStageObject(this.tweezers);
     this.input.setDraggable(this.tweezers);
 
-    const tipOffsetX = -45;
-    const tipOffsetY = 50;
+    const tipOffsetX = -50;
+    const tipOffsetY = -50;
 
     this.tweezers.on('drag', (pointer, dragX, dragY) => {
       if (this.resolved || !this.tweezers?.active) return;
@@ -337,17 +343,16 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
   }
 
   createPipette(startX, startY) {
-    this.pipette = this.add.image(startX, startY, 'pipette')
-      .setOrigin(0.5)
+    this.pipette = this.add.image(960, 580, 'pipette')
       .setDepth(6)
       .setInteractive({ draggable: true, useHandCursor: true });
     this.addStageObject(this.pipette);
     this.input.setDraggable(this.pipette);
 
-    const tipOffsetX = -145;
-    const tipOffsetY = 0;
+    const tipOffsetX = -280;
+    const tipOffsetY = -3;
 
-    const marker = this.add.circle(startX + tipOffsetX, startY + tipOffsetY, 10, 0xe7f7ff, 0.9)
+    const marker = this.add.circle(this.pipette.x + tipOffsetX, this.pipette.y + tipOffsetY, 10, 0xe7f7ff, 0.9)
       .setStrokeStyle(2, 0xffffff, 1)
       .setDepth(8);
     this.addStageObject(marker);
@@ -365,7 +370,8 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       const tipY = this.pipette.y + tipOffsetY;
 
       const bottleHit = this.reagentObjects.find(reagent =>
-        !reagent.used && reagent.bottle.getBounds().contains(tipX, tipY)
+        !reagent.used &&
+        Phaser.Math.Distance.Between(tipX, tipY, reagent.bottle.x, reagent.bottle.y) <= BOTTLE_HIT_RADIUS
       );
 
       if (bottleHit) {
@@ -376,7 +382,8 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       }
 
       const usedBottleHit = this.reagentObjects.find(reagent =>
-        reagent.used && reagent.bottle.getBounds().contains(tipX, tipY)
+        reagent.used &&
+        Phaser.Math.Distance.Between(tipX, tipY, reagent.bottle.x, reagent.bottle.y) <= BOTTLE_HIT_RADIUS
       );
       if (usedBottleHit) {
         this.setDialogue(`Anti-${usedBottleHit.id} has already been used.`);
@@ -384,7 +391,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       }
 
       const wellHit = this.wells.find(well =>
-        Phaser.Math.Distance.Between(tipX, tipY, well.circle.x, well.circle.y) <= 45
+        Phaser.Math.Distance.Between(tipX, tipY, well.circle.x, well.circle.y) <= WELL_HIT_RADIUS
       );
 
       if (!wellHit) {
@@ -489,9 +496,6 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     this.createBloodChoicePanel(width * 0.79, height * 0.50);
   }
 
-  // Uses BaseForensicMinigame.createButton() so onCorrectChoice() /
-  // flashWrongSelection() can find and highlight the button — the
-  // button label MUST equal the exact value passed to resolveChoice().
   createBloodChoicePanel(x, y) {
     const baseTypes = Phaser.Utils.Array.Shuffle(['A', 'B', 'AB', 'O']);
 

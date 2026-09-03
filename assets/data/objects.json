@@ -829,7 +829,7 @@
       "id": "crown_jewels_display_case",
       "item": "Crown Jewels display case",
       "tags": ["tower", "royal", "jewels", "display", "vault"],
-      "scene": ["tower", "castle"],
+      "scene": ["tower"],
       "trueExplanation": "The security plaque is polished more carefully than the glass itself.",
       "heistExplanation": "The thief left the case pristine, trusting that perfection often delays suspicion.",
       "reconstructionUses": [

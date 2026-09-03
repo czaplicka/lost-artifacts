@@ -28,7 +28,7 @@ export class OfficeScene extends BaseScene {
 
     this.uiLocked = false;
     this.isOpeningCrimeLab = false;
-    this.firstCaseTutorial = null;
+    //this.firstCaseTutorial = null;
     this.startOnboarding = false;
 
     this.elevatorBackground = null;
@@ -80,29 +80,47 @@ export class OfficeScene extends BaseScene {
 }
 
   create() {
-    super.create();
-ensureHud(this);
-this.hasMenu = true;
+super.create();
+
+    console.log('[OfficeScene] create: started');
+
+    try {
+        ensureHud(this);
+        console.log('[OfficeScene] create: HUD ensured');
+    } catch (error) {
+        console.error('[OfficeScene] ensureHud failed:', error);
+    }
+
+    this.hasMenu = true;
+
+    console.log('[OfficeScene] create: creating office');
+
     audioManager.init(this);
     audioManager.stopAllVoice();
     audioManager.stopAllSfx();
 
+        try {
     EventBus.emit('showHUD');
+    console.log('[OfficeScene] create: HUD2 ensured');
+        } catch (error) {
+                 console.error('[OfficeScene] ensureHud2 failed:', error);
+    }
 
     const { width, height } = this.scale;
 
-    this.scene.launch('NewsHud');
+try {
+this.scene.launch('NewsHud');
     this.scene.bringToTop('NewsHud');
     this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
+    this.scene.get('NewsHud').events.emit('setTvVisible', true);
+        console.log('[OfficeScene] create: News');
+               } catch (error) {
+                 console.error('[OfficeScene] News failed:', error);
+    }
 
     this.registry.set('currentCity', 'hq');
-/*
- * Po wczytaniu sejwa aktywna misja istnieje w gameState,
- * ale Registry jest czyste lub nadal ma stare wartości z HQ.
- * Synchronizujemy je, aby mapa pokazała aktywny artefakt.
- */
-this.registry.set('gameState', this.gameState);
-this.registry.set('activeMission', this.gameState.currentMission || null);
+    this.registry.set('gameState', this.gameState);
+    this.registry.set('activeMission', this.gameState.currentMission || null);
 
 if (this.gameState.currentMission) {
   this.registry.set(
@@ -175,10 +193,27 @@ if (this.gameState.currentMission) {
     }
   }
 
-  createBackgrounds(gameWidth, gameHeight) {
-  const elevatorTexture = this.hasCompletedFirstMission()
-    ? 'elevator_open'
-    : 'elevator_broken';
+createBackgrounds(gameWidth, gameHeight) {
+    const requiredTextures = [
+        'elevator_broken',
+        'elevator_open',
+        'backgroundhi',
+        'backgroundoff',
+        'backgroundset',
+        'archive',
+        'archivist',
+    ];
+
+    requiredTextures.forEach((key) => {
+        console.log(
+            `[OfficeScene] Texture "${key}":`,
+            this.textures.exists(key) ? 'LOADED' : 'MISSING'
+        );
+    });
+
+    const elevatorTexture = this.hasCompletedFirstMission()
+        ? 'elevator_open'
+        : 'elevator_broken';
 
   const archiveTexture = this.hasCompletedFirstMission()
     ? 'archivist'

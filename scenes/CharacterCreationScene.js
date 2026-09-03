@@ -472,7 +472,7 @@ this.fitDomInterface();
 
     audioManager?.play?.('confirm');
 
-    this.scene.start('OfficeScene', {
+    this.goto('OfficeScene', {
       fromCharacterCreation: true,
       isNewGame: true,
       startOnboarding: true

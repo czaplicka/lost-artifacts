@@ -47,7 +47,7 @@ export class HighscoreScene extends BaseScene {
         this.addHoverEffect(backBtn, 0.7, 0.8);
 
         backBtn.on('pointerdown', () => {
-            this.scene.start('MenuScene');
+            this.goto('MenuScene');
         });
     }
 

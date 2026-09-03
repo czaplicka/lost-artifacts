@@ -491,7 +491,7 @@ export class CrimeCityScene extends BaseScene {
     this.cameras.main.once(
       'camerafadeoutcomplete',
       () => {
-        this.scene.start(sceneKey, data);
+        this.goto(sceneKey, data);
       }
     );
   }

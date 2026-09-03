@@ -1,13 +1,49 @@
 class ManagedEventBus {
     constructor() {
         this.emitter = new Phaser.Events.EventEmitter();
-        this.registry = new Map();
+        this.registry = new Map();  // owner → Map(listenerId → listener)
+        this.listenerIdCounter = 0;
 
         this.warnThreshold = 20;
         this.warnedEvents = new Set();
+        this.dedupeCache = new Map();  // owner → Set(eventName+fnHash)
+    }
+
+    /**
+     * ✅ Generate unique ID dla listener (O(1) untrack)
+     */
+    _generateListenerId() {
+        return ++this.listenerIdCounter;
+    }
+
+    /**
+     * ✅ Hash funkcji dla deduplicacji
+     */
+    _hashListener(event, fn, context) {
+        // Prosta deduplikacja: event + fn reference
+        return `${event}:${fn.toString().slice(0, 50)}`;
     }
 
     on(event, fn, context = null, owner = null) {
+        if (!fn || typeof fn !== 'function') {
+            console.warn('[EventBus] on() called with invalid function');
+            return this;
+        }
+
+        // ✅ Deduplikacja — nie dodawaj duplikatu
+        if (owner) {
+            const hash = this._hashListener(event, fn, context);
+            if (!this.dedupeCache.has(owner)) {
+                this.dedupeCache.set(owner, new Set());
+            }
+
+            const ownerCache = this.dedupeCache.get(owner);
+            if (ownerCache.has(hash)) {
+                return this;  // ← Już istnieje, skip
+            }
+            ownerCache.add(hash);
+        }
+
         this.emitter.on(event, fn, context);
         this._track(owner, event, fn, context);
         this._checkListenerCount(event);
@@ -16,13 +52,22 @@ class ManagedEventBus {
     }
 
     once(event, fn, context = null, owner = null) {
+        if (!fn || typeof fn !== 'function') {
+            console.warn('[EventBus] once() called with invalid function');
+            return this;
+        }
+
+        // ✅ Użyj native Phaser once + manual untrack
+        const listenerId = this._generateListenerId();
+        const originalFn = fn;
+
         const wrapped = (...args) => {
-            this._untrack(owner, event, wrapped, context);
-            fn.apply(context, args);
+            this._untrackById(owner, listenerId);
+            originalFn.apply(context, args);
         };
 
         this.emitter.once(event, wrapped, context);
-        this._track(owner, event, wrapped, context);
+        this._track(owner, event, wrapped, context, listenerId);
         this._checkListenerCount(event);
 
         return this;
@@ -30,8 +75,17 @@ class ManagedEventBus {
 
     off(event, fn, context = null, owner = null) {
         this.emitter.off(event, fn, context);
-        this._untrack(owner, event, fn, context);
 
+        // ✅ Deduplikacja cleanup
+        if (owner) {
+            const hash = this._hashListener(event, fn, context);
+            const ownerCache = this.dedupeCache.get(owner);
+            if (ownerCache) {
+                ownerCache.delete(hash);
+            }
+        }
+
+        this._untrack(owner, event, fn, context);
         return this;
     }
 
@@ -47,14 +101,17 @@ class ManagedEventBus {
         const listeners = this.registry.get(owner);
 
         if (!listeners) {
+            this.dedupeCache.delete(owner);
             return;
         }
 
-        for (const { event, fn, context } of listeners) {
+        // ✅ O(1) Map iteration zamiast Set
+        for (const { event, fn, context } of listeners.values()) {
             this.emitter.off(event, fn, context);
         }
 
         this.registry.delete(owner);
+        this.dedupeCache.delete(owner);
     }
 
     bindScene(scene) {
@@ -87,51 +144,63 @@ class ManagedEventBus {
 
             listenerCount: (event) => {
                 return this.listenerCount(event);
+            },
+
+            // ✅ Explicit cleanup method
+            destroy: () => {
+                this.clearScope(owner);
             }
         };
 
-        const cleanup = () => {
-            this.clearScope(owner);
-        };
-
+        // ✅ Cleanup na shutdown i destroy
+        const cleanup = () => this.clearScope(owner);
         scene.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
         scene.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
     }
 
-    _track(owner, event, fn, context) {
-        if (!owner) {
-            return;
-        }
+    /**
+     * ✅ Track listener z optional ID
+     */
+    _track(owner, event, fn, context, listenerId = null) {
+        if (!owner) return;
 
         if (!this.registry.has(owner)) {
-            this.registry.set(owner, new Set());
+            this.registry.set(owner, new Map());
         }
 
-        this.registry.get(owner).add({
-            event,
-            fn,
-            context
-        });
+        const id = listenerId ?? this._generateListenerId();
+        this.registry.get(owner).set(id, { event, fn, context });
     }
 
+    /**
+     * ✅ Untrack by listener reference (O(n) ale rzadkie)
+     */
     _untrack(owner, event, fn, context) {
-        if (!owner || !this.registry.has(owner)) {
-            return;
-        }
+        if (!owner || !this.registry.has(owner)) return;
 
         const listeners = this.registry.get(owner);
 
-        for (const entry of listeners) {
-            const matches =
-                entry.event === event &&
-                entry.fn === fn &&
-                entry.context === context;
-
-            if (matches) {
-                listeners.delete(entry);
+        // ✅ Szukamy entry z dopasowaniem
+        for (const [id, entry] of listeners.entries()) {
+            if (entry.event === event && entry.fn === fn && entry.context === context) {
+                listeners.delete(id);
                 break;
             }
         }
+
+        if (listeners.size === 0) {
+            this.registry.delete(owner);
+        }
+    }
+
+    /**
+     * ✅ Untrack by ID (O(1))
+     */
+    _untrackById(owner, listenerId) {
+        if (!owner || !this.registry.has(owner)) return;
+
+        const listeners = this.registry.get(owner);
+        listeners.delete(listenerId);
 
         if (listeners.size === 0) {
             this.registry.delete(owner);
@@ -157,7 +226,8 @@ class ManagedEventBus {
         for (const [owner, listeners] of this.registry) {
             summary.push({
                 owner: owner.scene?.key || owner.constructor?.name || 'Unknown',
-                listenerCount: listeners.size
+                listenerCount: listeners.size,
+                events: [...new Set([...listeners.values()].map(l => l.event))]
             });
         }
 
@@ -169,9 +239,9 @@ class ManagedEventBus {
 
         if (event) {
             for (const [owner, listeners] of this.registry) {
-                for (const entry of [...listeners]) {
+                for (const [id, entry] of listeners.entries()) {
                     if (entry.event === event) {
-                        listeners.delete(entry);
+                        listeners.delete(id);
                     }
                 }
 
@@ -183,6 +253,7 @@ class ManagedEventBus {
             this.registry.clear();
         }
 
+        this.dedupeCache.clear();
         this.warnedEvents.clear();
     }
 }
