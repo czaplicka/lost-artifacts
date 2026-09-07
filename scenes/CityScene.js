@@ -129,16 +129,9 @@ export class CityScene extends BaseScene {
       loop: true
     });
 
-    if (
-      this.scene.isActive('LocationScene') ||
-      this.scene.isSleeping('LocationScene')
-    ) {
-      this.scene.stop('LocationScene');
-    }
+this.stopSceneIfActive('LocationScene');
 
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
-    }
+this.stopSceneIfActive('ArrestSelectionScene');
 
     this.scene.wake('UIScene');
 
@@ -227,38 +220,37 @@ export class CityScene extends BaseScene {
     }
 
     if (this.isFinalShowdown) {
-      this.time.delayedCall(250, () => {
-        this.closeAllUIPanels();
-      });
+  this.time.delayedCall(250, () => {
+    this.closeAllUIPanels();
+  });
 
-      if (!this.scene.isActive('ArrestSelectionScene')) {
-        this.scene.launch('ArrestSelectionScene');
-      } else {
-        this.scene.bringToTop('ArrestSelectionScene');
-      }
-
-      return;
-    }
-
-    if (this.shouldShowPhoneCallNow()) {
-      this.time.delayedCall(400, () => {
-        this.closeAllUIPanels();
-      });
-
-      if (!this.scene.isActive('PhoneCallScene')) {
-        this.scene.launch('PhoneCallScene', {
-          sourceScene: 'CityScene',
-          cityId: this.cityId
-        });
-      } else {
-        this.scene.bringToTop('PhoneCallScene');
-      }
-    } else if (this.openDestinationsOnCreate) {
-      this.time.delayedCall(150, () => {
-        this.openDestinationsPanel();
-      });
-    }
+  if (this.isSceneActive('ArrestSelectionScene')) {
+    this.scene.bringToTop('ArrestSelectionScene');
+  } else {
+    void this.launchOverlay('ArrestSelectionScene');
   }
+
+  return;
+}
+
+if (this.shouldShowPhoneCallNow()) {
+  this.time.delayedCall(400, () => {
+    this.closeAllUIPanels();
+  });
+
+  if (this.isSceneActive('PhoneCallScene')) {
+    this.scene.bringToTop('PhoneCallScene');
+  } else {
+    void this.launchOverlay('PhoneCallScene', {
+      sourceScene: 'CityScene',
+      cityId: this.cityId
+    });
+  }
+} else if (this.openDestinationsOnCreate) {
+  this.time.delayedCall(150, () => {
+    this.openDestinationsPanel();
+  });
+} }
 
 changeScore(points, label = 'City investigation') {
   const delta = Number.isFinite(points)
@@ -760,17 +752,9 @@ changeScore(points, label = 'City investigation') {
       this.cityAmbient = null;
     }
 
-    if (this.scene.isActive('ArrestSelectionScene')) {
-      this.scene.stop('ArrestSelectionScene');
-    }
-
-    if (this.scene.isActive('PhoneCallScene')) {
-      this.scene.stop('PhoneCallScene');
-    }
-
-    if (this.scene.isActive('HypothesisScene')) {
-      this.scene.stop('HypothesisScene');
-    }
+    this.stopSceneIfActive('ArrestSelectionScene');
+this.stopSceneIfActive('PhoneCallScene');
+this.stopSceneIfActive('HypothesisScene');
   }
 
   isEncounterVisited(encounterId) {

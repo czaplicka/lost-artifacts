@@ -1,0 +1,42 @@
+{
+  "0": {
+    "hiddenObjects": "standard_6",
+    "lab": "call_only",
+    "suspectFiltering": "standard",
+    "interviews": "neutral_tone",
+    "mastermind": "standard_3slot",
+    "apartment": "empty_clues",
+    "travelCities": "quiet_travel",
+    "cityChain": "two_cities"
+  },
+  "1": {
+    "hiddenObjects": "standard_6",
+    "lab": "single_game",
+    "suspectFiltering": "standard",
+    "interviews": "neutral_tone",
+    "mastermind": "standard_3slot",
+    "apartment": "empty_clues",
+    "travelCities": "quiet_travel",
+    "cityChain": "two_cities"
+  },
+  "2": {
+    "hiddenObjects": "witness_addon",
+    "lab": "two_games",
+    "suspectFiltering": "standard",
+    "interviews": "hostile_tone",
+    "mastermind": "standard_3slot",
+    "apartment": "empty_clues",
+    "travelCities": "quiet_travel",
+    "cityChain": "three_cities"
+  },
+  "4": {
+    "hiddenObjects": "unusual_scene",
+    "lab": "two_games",
+    "suspectFiltering": "early_liar",
+    "interviews": "scared_tone",
+    "mastermind": "standard_3slot",
+    "apartment": "fresh_escape",
+    "travelCities": "quiet_travel",
+    "cityChain": "three_cities"
+  }
+}

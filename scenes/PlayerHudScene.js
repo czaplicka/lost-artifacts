@@ -7,6 +7,7 @@ import { DestinationsUI } from '../ui/DestinationsUI.js';
 import { CrimeBoardUI } from '../ui/CrimeBoardUI.js';
 import { AtlasUI } from '../ui/AtlasUI.js';
 import { PhonebookUI } from '../ui/PhonebookUI.js';
+import { PassportUI } from '../ui/PassportUI.js';
 import { DialogManager } from '../DialogManager.js';
 import { BaseScene } from './BaseScene.js';
 
@@ -14,6 +15,7 @@ const HUD_ALLOWED_SCENES = [
   'GameScene',
   'OfficeScene',
   'CityScene',
+  'CrimeCityScene',
   'LocationScene',
   'HiddenObjectsScene',
   'CrimeLabScene',
@@ -39,6 +41,7 @@ export class PlayerHudScene extends BaseScene {
     this.crimeBoardUI = null;
     this.atlasUI = null;
     this.phoneUI = null;
+    this.passportUI = null;
     this.dialogManager = null;
 
     this.isHudReady = false;
@@ -60,6 +63,7 @@ export class PlayerHudScene extends BaseScene {
     this.destinationsUI = new DestinationsUI(this);
     this.atlasUI = new AtlasUI(this, atlasEntries);
     this.phoneUI = new PhonebookUI(this, this.gameState);
+    this.passportUI = new PassportUI(this);
     this.dialogManager = new DialogManager(this, this.gameState);
 
     this.phoneUI.setOnCall((key, contact) => {
@@ -159,6 +163,7 @@ export class PlayerHudScene extends BaseScene {
     this.crimeBoardUI?.destroy?.();
     this.atlasUI?.destroy?.();
     this.phoneUI?.destroy?.();
+    this.passportUI?.destroy?.();
     this.dialogManager?.dialogUI?.destroy?.();
     this.playerMenu?.destroy?.();
 
@@ -169,6 +174,7 @@ export class PlayerHudScene extends BaseScene {
     this.crimeBoardUI = null;
     this.atlasUI = null;
     this.phoneUI = null;
+    this.passportUI = null;
     this.dialogManager = null;
     this.playerMenu = null;
 
@@ -183,6 +189,7 @@ export class PlayerHudScene extends BaseScene {
     this.crimeBoardUI?.close?.();
     this.atlasUI?.close?.();
     this.phoneUI?.close?.();
+    this.passportUI?.close?.();
     this.dialogManager?.dialogUI?.close?.();
   }
 
@@ -211,6 +218,7 @@ export class PlayerHudScene extends BaseScene {
       || this.crimeBoardUI?.isOpen
       || this.atlasUI?.isOpen
       || this.phoneUI?.isOpen
+      || this.passportUI?.isOpen
       || this.dialogManager?.dialogUI?.isOpen
       || this.playerMenu?.isOpen,
     );

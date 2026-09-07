@@ -1,48 +1,85 @@
 {
-  "default": [
+  "_comment": "Każdy wpis w 'leads' odpowiada jednej kategorii dowodu forensycznego (musi zgadzać się z 'field' w gameState.currentMission.forensicHardEvidence). {{value}} jest podstawiane realną wartością z requiredForensicProfile przez CSIDialogBuilder.js. 'redHerrings' to dowody, które NIC nie wnoszą - do wywołania niezależnie od realnego dowodu.",
+  "leads": {
+    "hair_color": [
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "Forensics here. We just finished sweeping the crime scene.",
+          "We found something. A single {{value}} hair near the display case.",
+          "It's not much, but it should narrow down your list of suspects."
+        ]
+      }
+    ],
+    "shoe_size_category": [
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "Lab results are in.",
+          "There's a partial shoe print near the window. Size {{value}}, rubber sole.",
+          "Whoever it was, they came in through there."
+        ]
+      }
+    ],
+    "earring_fragment": [
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "You'll want to hear this.",
+          "We found an earring fragment under the display case. {{value}}, not the museum's style.",
+          "Someone lost it in a hurry."
+        ]
+      }
+    ]
+  },
+  "redHerrings": {
+    "stage_1": [
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "One more thing before I go.",
+          "There's a fiber sample from the scene too, but it's too generic to trace to anyone specific."
+        ]
+      },
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "Also logged a coin found near the entrance.",
+          "Common currency, no markings. Probably not worth chasing."
+        ]
+      }
+    ],
+    "stage_2": [
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "Second pass on the evidence is done.",
+          "That fiber you flagged? Dead end. Doesn't match anyone on your list."
+        ]
+      },
+      {
+        "speaker": "CSI Analyst",
+        "portraitKey": "portrait_csi",
+        "lines": [
+          "Ran the numbers again.",
+          "The coin you found is just loose change. Nothing traceable."
+        ]
+      }
+    ]
+  },
+  "callOnlyIntro": [
     {
       "speaker": "CSI Analyst",
       "portraitKey": "portrait_csi",
       "lines": [
-        "Forensics here. We just finished sweeping the crime scene.",
-        "We found something. A single black hair near the display case.",
-        "It's not much, but it should narrow down your list of suspects."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Lab results are in.",
-        "There's a partial shoe print near the window. Size 43, rubber sole.",
-        "Whoever it was, they came in through there."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "You'll want to hear this.",
-        "We found an earring fragment under the display case. Cheap metal, not the museum's style.",
-        "Someone lost it in a hurry."
-      ]
-    }
-  ],
-  "stage_2": [
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Second pass on the evidence is done.",
-        "That fiber you flagged? Dead end. Doesn't match anyone on your list."
-      ]
-    },
-    {
-      "speaker": "CSI Analyst",
-      "portraitKey": "portrait_csi",
-      "lines": [
-        "Ran the numbers again.",
-        "The coin you found is just loose change. Nothing traceable."
+        "This is forensics. You're new, so I'll walk you through it over the phone instead of dragging you down here.",
+        "Once you make Field Agent, you'll get the full lab tour. For now, here's what we've got."
       ]
     }
   ]

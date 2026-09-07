@@ -1,6 +1,8 @@
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../GameStatePersistence.js';
 import { audioManager } from '../../AudioManager.js';
+import { getLocationById, getLocationByCity } from '../../ui/LocationUI.js';
+import { getPassportManager } from '../../PassportManager.js';
 
 export function playTransportSfx(transport) {
   if (!transport?.sfxKey) return null;
@@ -67,6 +69,30 @@ export function registerVisitedCity(targetCityId) {
 
   saveGameState();
   return shouldShowPhoneCall;
+}
+
+// Stempluje paszport przy przekroczeniu granicy państwa.
+// Podróż w obrębie tego samego kraju (np. pociągiem Paryż -> Lyon) nie generuje pieczątki -
+// to celowe, dla realizmu i bo w innym wypadku paszport zapełniłby się natychmiast.
+export function stampPassportForArrival(scene, fromCity, targetCityId) {
+  if (!targetCityId) return null;
+
+  const locations = scene?.cache?.json?.get('locations') || [];
+  const destination = getLocationById(targetCityId, locations);
+
+  if (!destination) {
+    console.warn('[TravelTransitionScene] Passport stamp skipped, unknown location id:', targetCityId);
+    return null;
+  }
+
+  const origin = getLocationByCity(fromCity, locations);
+  const isDomesticTravel = origin && origin.country === destination.country;
+
+  if (isDomesticTravel) {
+    return null;
+  }
+
+  return getPassportManager().stampLocation(destination);
 }
 
 export function cleanupTravelEffects(scene) {

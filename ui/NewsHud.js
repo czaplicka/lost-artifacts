@@ -16,6 +16,10 @@ export class NewsHud extends Phaser.Scene {
     this.panelY = 0;
 
     this.hudEnabled = true;
+
+    // Chroni przed wielokrotnym kliknięciem przycisku, zanim zakończy się
+    // dynamiczny import sceny przez SceneLoader.
+    this.loadingOverlays = new Set();
   }
 
   create() {
@@ -44,12 +48,16 @@ export class NewsHud extends Phaser.Scene {
       }
     });
 
-    // Globalny event - inne sceny mogą wywołać to bez referencji do NewsHud
     this.game.events.on('setHudVisible', this.setHudVisible, this);
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.input.keyboard?.off('keydown-ESC', this.closeMenu, this);
       this.game.events.off('setHudVisible', this.setHudVisible, this);
+
+      this.loadingOverlays.clear();
+
+      this.tweens.killTweensOf(this.menuPanel);
+      this.tweens.killTweensOf(this.menuTab);
     });
 
     this.input.keyboard?.on('keydown-ESC', this.closeMenu, this);
@@ -66,6 +74,7 @@ export class NewsHud extends Phaser.Scene {
       .setDepth(9990)
       .setVisible(false)
       .setInteractive();
+
     this.menuBlocker.disableInteractive();
 
     this.menuBlocker.on('pointerup', () => {
@@ -152,7 +161,12 @@ export class NewsHud extends Phaser.Scene {
         fontSize: '10px',
         color: '#f6dc8c',
         backgroundColor: '#17120f',
-        padding: { left: 10, right: 9, top: 11, bottom: 11 },
+        padding: {
+          left: 10,
+          right: 9,
+          top: 11,
+          bottom: 11
+        },
         align: 'center',
         stroke: '#000000',
         strokeThickness: 3
@@ -182,11 +196,11 @@ export class NewsHud extends Phaser.Scene {
     });
 
     this.newspaperButton.on('pointerup', () => {
-      this.openNewspaper();
+      void this.openNewspaper();
     });
 
     this.tvButton.on('pointerup', () => {
-      this.openTv();
+      void this.openTv();
     });
 
     this.menuPanel.setData({
@@ -221,6 +235,7 @@ export class NewsHud extends Phaser.Scene {
     this.menuBlocker
       .setVisible(true)
       .setInteractive();
+
     this.menuTab.setText('NEWS\n◀');
 
     this.tweens.add({
@@ -255,45 +270,120 @@ export class NewsHud extends Phaser.Scene {
         this.menuBlocker
           .disableInteractive()
           .setVisible(false);
+
         this.isAnimating = false;
       }
     });
   }
 
-  /**
-   * Włącza/wyłącza cały panel HUD (zakładka + panel + blocker).
-   * Wywołuj z innych scen tak:
-   *   this.game.events.emit('setHudVisible', false);
-   * lub, jeśli masz referencję do sceny NewsHud:
-   *   this.scene.get('NewsHud').setHudVisible(false);
-   */
   setHudVisible(visible) {
     this.hudEnabled = visible;
 
     if (!visible) {
-      // jeśli panel jest otwarty, zamykamy go natychmiast (bez animacji)
       if (this.menuOpen) {
         this.menuOpen = false;
         this.isAnimating = false;
+
         this.tweens.killTweensOf(this.menuPanel);
+
         this.menuPanel.x = this.menuPanel.getData('hiddenX');
+
         this.menuTab.setText('NEWS\n▶');
-        this.menuBlocker.disableInteractive().setVisible(false);
+
+        this.menuBlocker
+          .disableInteractive()
+          .setVisible(false);
       }
 
-      this.menuTab.setVisible(false).disableInteractive();
+      this.menuTab
+        .setVisible(false)
+        .disableInteractive();
+
       this.menuPanel.setVisible(false);
-    } else {
-      this.menuTab.setVisible(true).setInteractive({ useHandCursor: true });
-      this.menuPanel.setVisible(true);
+      return;
+    }
+
+    this.menuTab
+      .setVisible(true)
+      .setInteractive({ useHandCursor: true });
+
+    this.menuPanel.setVisible(true);
+  }
+
+  /**
+   * Bezpiecznie sprawdza stan overlayu.
+   *
+   * Nie wolno wywołać this.scene.isActive(sceneKey), kiedy scena nie została
+   * jeszcze dynamicznie dodana przez SceneLoader — Phaser pokaże wtedy:
+   * "Scene key not found".
+   */
+  isOverlayActive(sceneKey) {
+    const sceneManager = this.scene.manager;
+    const isRegistered = Boolean(sceneManager.keys[sceneKey]);
+
+    return isRegistered && this.scene.isActive(sceneKey);
+  }
+
+  /**
+   * Uruchamia lub zamyka scenę overlayową obsługując lazy-loading.
+   *
+   * Zwraca jeden ze statusów:
+   * - "opened"  — scena została uruchomiona,
+   * - "closed"  — scena była otwarta i została zamknięta,
+   * - "loading" — import tej sceny już trwa,
+   * - "error"   — scena nie mogła zostać uruchomiona.
+   */
+  async toggleLazyOverlay(sceneKey, data = {}) {
+    if (this.isOverlayActive(sceneKey)) {
+      this.scene.stop(sceneKey);
+      return 'closed';
+    }
+
+    if (this.loadingOverlays.has(sceneKey)) {
+      return 'loading';
+    }
+
+    this.loadingOverlays.add(sceneKey);
+
+    try {
+      if (this.game.sceneLoader) {
+        await this.game.sceneLoader.launch(this, sceneKey, data);
+      } else {
+        const sceneManager = this.scene.manager;
+        const isRegistered = Boolean(sceneManager.keys[sceneKey]);
+
+        if (!isRegistered) {
+          console.error(
+            `[NewsHud] Cannot open "${sceneKey}". ` +
+            'The scene is not registered and game.sceneLoader is unavailable.'
+          );
+
+          return 'error';
+        }
+
+        this.scene.launch(sceneKey, data);
+      }
+
+      this.scene.bringToTop('NewsHud');
+
+      return 'opened';
+    } catch (error) {
+      console.error(
+        `[NewsHud] Failed to open lazy overlay "${sceneKey}":`,
+        error
+      );
+
+      return 'error';
+    } finally {
+      this.loadingOverlays.delete(sceneKey);
     }
   }
 
-  openNewspaper() {
-    const isOpen = this.scene.isActive('NewsstandScene');
+  async openNewspaper() {
+    const sceneKey = 'NewsstandScene';
 
-    if (isOpen) {
-      this.scene.stop('NewsstandScene');
+    if (this.isOverlayActive(sceneKey)) {
+      await this.toggleLazyOverlay(sceneKey);
       return;
     }
 
@@ -312,15 +402,29 @@ export class NewsHud extends Phaser.Scene {
 
     this.closeMenu();
 
-    this.scene.launch('NewsstandScene', { cityId });
-    this.scene.bringToTop('NewsHud');
+    const status = await this.toggleLazyOverlay(sceneKey, {
+      cityId
+    });
+
+    if (status === 'error') {
+      console.warn(
+        '[NewsHud] NewsstandScene could not be opened. ' +
+        'Check SceneLoader.js and sceneRegistry.js.'
+      );
+    }
   }
 
-  openTv() {
-    const isOpen = this.scene.isActive('TvBroadcastScene');
+  async openTv() {
+    const sceneKey = 'TvBroadcastScene';
 
-    if (isOpen) {
-      this.scene.stop('TvBroadcastScene');
+    if (this.isOverlayActive(sceneKey)) {
+      const status = await this.toggleLazyOverlay(sceneKey);
+
+      if (status === 'closed') {
+        this.events.emit('setNewspaperVisible', true);
+        this.events.emit('setTvVisible', true);
+      }
+
       return;
     }
 
@@ -333,23 +437,30 @@ export class NewsHud extends Phaser.Scene {
       this.registry.get('activeMission') ||
       {};
 
-    this.events.emit('setNewspaperVisible', false);
-    this.events.emit('setTvVisible', false);
+    const stationCity =
+      mission.city ||
+      gameState.currentCity ||
+      'Global';
 
     this.closeMenu();
 
-    this.scene.launch('TvBroadcastScene', {
+    const status = await this.toggleLazyOverlay(sceneKey, {
       returnSceneKey,
       mission,
       gameState,
       reporterName: 'Colette Duvall',
-      stationName: `${
-        mission.city ||
-        gameState.currentCity ||
-        'Global'
-      } Night Report`
+      stationName: `${stationCity} Night Report`
     });
 
-    this.scene.bringToTop('NewsHud');
+    if (status === 'opened') {
+      this.events.emit('setNewspaperVisible', false);
+      this.events.emit('setTvVisible', false);
+      return;
+    }
+
+    if (status === 'error') {
+      this.events.emit('setNewspaperVisible', true);
+      this.events.emit('setTvVisible', true);
+    }
   }
 }

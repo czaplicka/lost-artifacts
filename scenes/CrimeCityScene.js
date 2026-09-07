@@ -159,38 +159,31 @@ export class CrimeCityScene extends BaseScene {
   }
 
   configureUIScene() {
-    try {
-      const uiScene =
-        this.scene.manager.keys.UIScene;
-
-      if (!uiScene?.sys) {
-        console.warn(
-          '[CrimeCityScene] UIScene unavailable.'
-        );
-
-        return;
-      }
-
-      if (this.scene.isActive('UIScene')) {
-        this.scene.bringToTop('UIScene');
-        return;
-      }
-
-      if (this.scene.isSleeping('UIScene')) {
-        this.scene.wake('UIScene');
-        this.scene.bringToTop('UIScene');
-        return;
-      }
-
-      this.scene.launch('UIScene');
-      this.scene.bringToTop('UIScene');
-    } catch (error) {
-      console.warn(
-        '[CrimeCityScene] UIScene setup failed.',
-        error.message
-      );
+  try {
+    if (!this.hasScene('UIScene')) {
+      void this.launchOverlay('UIScene');
+      return;
     }
+
+    if (this.isSceneActive('UIScene')) {
+      this.scene.bringToTop('UIScene');
+      return;
+    }
+
+    if (this.isSceneSleeping('UIScene')) {
+      this.scene.wake('UIScene');
+      this.scene.bringToTop('UIScene');
+      return;
+    }
+
+    void this.launchOverlay('UIScene');
+  } catch (error) {
+    console.warn(
+      '[CrimeCityScene] UIScene setup failed.',
+      error
+    );
   }
+}
 
   initializeCrimeCity() {
     const locations =
@@ -282,22 +275,25 @@ export class CrimeCityScene extends BaseScene {
   }
 
   refreshPlayerHud() {
-  const uiScene =
-    this.scene.manager.keys.UIScene;
+  const uiScene = this.scene.manager.keys.UIScene;
 
-  if (uiScene?.sys) {
-    if (this.scene.isSleeping('UIScene')) {
-      this.scene.wake('UIScene');
-    } else if (this.scene.isPaused('UIScene')) {
-      this.scene.resume('UIScene');
-    } else if (!this.scene.isActive('UIScene')) {
-      this.scene.launch('UIScene');
-    }
-    uiScene.refreshScoreHud?.();
+  if (!uiScene?.sys) {
+    void this.launchOverlay('UIScene');
+  } else if (this.isSceneSleeping('UIScene')) {
+    this.scene.wake('UIScene');
+    this.scene.bringToTop('UIScene');
+  } else if (this.scene.isPaused('UIScene')) {
+    this.scene.resume('UIScene');
+    this.scene.bringToTop('UIScene');
+  } else if (!this.isSceneActive('UIScene')) {
+    void this.launchOverlay('UIScene');
+  } else {
+    this.scene.bringToTop('UIScene');
   }
 
-  const playerHud =
-    this.scene.manager.keys.PlayerHudScene;
+  uiScene?.refreshScoreHud?.();
+
+  const playerHud = this.scene.manager.keys.PlayerHudScene;
 
   if (playerHud?.sys) {
     playerHud.closeAllUIPanels?.();

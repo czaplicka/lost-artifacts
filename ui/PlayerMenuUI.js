@@ -89,7 +89,7 @@ export class PlayerMenuUI {
     drawDebugHitboxes() {
         this.clearDebugHitboxes();
 
-        const colors = [0xff595e, 0xffca3a, 0x8ac926, 0x1982c4, 0x6a4c93, 0xff924c, 0x52b788];
+        const colors = [0xff595e, 0xffca3a, 0x8ac926, 0x1982c4, 0x6a4c93, 0xff924c, 0x52b788, 0x9d4edd];
 
         this.menuButtons.forEach((btn, index) => {
             const rect = btn.hitAreaObject?.getBounds?.();
@@ -387,7 +387,8 @@ const btnH = isMobile ? 38 : 44;
             { key: 'plane', label: 'Travel', hotkey: 't', action: () => this.openDestinations() },
             { key: 'warrant', label: 'Warrant', hotkey: 'w', action: () => this.openWarrant() },
             { key: 'crime_board', label: 'Crime Board', hotkey: 'c', action: () => this.openCrimeBoard() },
-            { key: 'telephone', label: 'Telephone', hotkey: 'p', action: () => this.openPhone() }
+            { key: 'telephone', label: 'Telephone', hotkey: 'p', action: () => this.openPhone() },
+            { key: 'passport', label: 'Passport', hotkey: 's', action: () => this.openPassport() }
         ];
 
         const isMobile = !this.scene.sys.game.device.os.desktop;
@@ -724,6 +725,17 @@ if (tutorial && !tutorial.canUseAction('travel')) {
         if (this.scene.scene.get('PhoneScene')) {
             this.scene.scene.launch('PhoneScene', { gameState: this.gameState });
         }
+    }
+
+    openPassport() {
+        this.scene.closeAllUIPanels();
+
+        if (this.scene.passportUI) {
+            this.scene.passportUI.open(this.gameState);
+            return;
+        }
+
+        console.warn('[PlayerMenuUI] scene.passportUI nie istnieje — dodaj `this.passportUI = new PassportUI(this);` w konstruktorze sceny hosta (np. PlayerHudScene) i wpisz go do closeAllUIPanels().');
     }
 
     destroy() {

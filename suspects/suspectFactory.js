@@ -1,5 +1,6 @@
 import { getSuspectData } from './suspectDataProvider.js';
 
+
 import {
   capitalize,
   createId,
@@ -9,42 +10,72 @@ import {
   shuffle
 } from './suspectGeneratorUtils.js';
 
+
 function data() {
   return getSuspectData();
 }
 
+
 export function getGenderCode() {
   const roll = Math.random();
+
 
   if (roll < 0.46) return 'female';
   if (roll < 0.92) return 'male';
 
+
   return 'nb';
 }
+
 
 export function normalizeGenderCode(value) {
   const gender = normalizeString(value);
 
+
   if (['female', 'f', 'woman'].includes(gender)) return 'female';
   if (['male', 'm', 'man'].includes(gender)) return 'male';
 
+
   return 'nb';
 }
+
 
 export function getBiologicalSex(genderCode) {
   if (genderCode === 'female') return 'female';
   if (genderCode === 'male') return 'male';
 
+
   return Math.random() < 0.5 ? 'female' : 'male';
 }
+
 
 export function createFullName(genderCode) {
   const firstNames = data().firstNames[genderCode] || data().firstNames.nb;
   const firstName = randomItem(firstNames);
   const lastName = randomItem(data().lastNames);
 
+
   return `${firstName} ${lastName}`;
 }
+
+
+// ============================================================
+// FINGERPRINT PATTERN: LOOP ~65%, WHORL ~30%, ARCH ~5%.
+// Ta sama dystrybucja co weightedFingerprintPattern() w
+// scenes/CSI/CrimeLabManager.js - trzymana tu w jednym miejscu
+// (jako źródło prawdy o podejrzanym), żeby CrimeLabManager mógł
+// po prostu odczytać już wygenerowaną wartość zamiast losować
+// swoją własną, potencjalnie niespójną z hardEvidence.
+// ============================================================
+function weightedFingerprintPattern() {
+  const roll = Math.random();
+
+  if (roll < 0.65) return 'LOOP';
+  if (roll < 0.95) return 'WHORL';
+
+  return 'ARCH';
+}
+
 
 export function getForensicValue(source, field, fallback) {
   const aliases = {
@@ -54,16 +85,19 @@ export function getForensicValue(source, field, fallback) {
       'hair'
     ],
 
+
     eye_color: [
       'eye_color',
       'eyeColor',
       'eyes'
     ],
 
+
     blood_type: [
       'blood_type',
       'bloodType'
     ],
+
 
     biological_sex: [
       'biological_sex',
@@ -71,18 +105,28 @@ export function getForensicValue(source, field, fallback) {
       'sex'
     ],
 
+
     shoe_size_category: [
       'shoe_size_category',
       'shoeSizeCategory'
     ],
 
+
     handedness: [
       'handedness',
       'dominantHand'
+    ],
+
+
+    fingerprint_pattern: [
+      'fingerprint_pattern',
+      'fingerprintPattern'
     ]
   };
 
+
   const candidateFields = aliases[field] || [field];
+
 
   for (const candidateField of candidateFields) {
     const value =
@@ -92,16 +136,20 @@ export function getForensicValue(source, field, fallback) {
       source?.forensicAttributes?.[candidateField] ??
       source?.[candidateField];
 
+
     if (value !== undefined && value !== null && value !== '') {
       return value;
     }
   }
 
+
   return fallback;
 }
 
+
 export function normalizeForensicAttributes(source = {}, genderCode = 'nb') {
   const forensics = data().forensics;
+
 
   return {
     hair_color: {
@@ -127,15 +175,24 @@ export function normalizeForensicAttributes(source = {}, genderCode = 'nb') {
     handedness: {
       value: normalizeString(getForensicValue(source, 'handedness', randomItem(forensics.handedness))),
       unlocked: false
+    },
+    fingerprint_pattern: {
+      value: String(
+        getForensicValue(source, 'fingerprint_pattern', weightedFingerprintPattern())
+      ).toUpperCase(),
+      unlocked: false
     }
   };
 }
 
+
 export function createVisibleTraits(forensicAttributes, existingTraits = []) {
   const hairColor = forensicAttributes?.hair_color?.value || 'brown';
 
+
   const generatedTraits = data().visualTraits;
   const uniqueTraits = [];
+
 
   shuffle([
     ...(Array.isArray(existingTraits) ? existingTraits : []),
@@ -150,11 +207,14 @@ export function createVisibleTraits(forensicAttributes, existingTraits = []) {
       return;
     }
 
+
     uniqueTraits.push(trait.trim());
   });
 
+
   return uniqueTraits.slice(0, 2);
 }
+
 
 export function createDeductionState(existingState = {}) {
   return {
@@ -172,10 +232,12 @@ export function createDeductionState(existingState = {}) {
   };
 }
 
+
 export function createDecoySuspect(index = 0, source = {}) {
   const genderCode = normalizeGenderCode(
     source.gender_code || source.genderCode || source.gender || getGenderCode()
   );
+
 
   const name =
     source.name ||
@@ -183,23 +245,28 @@ export function createDecoySuspect(index = 0, source = {}) {
     source.publicProfile?.displayName ||
     createFullName(genderCode);
 
+
   const occupation =
     source.occupation ||
     source.role ||
     source.publicProfile?.occupation ||
     randomItem(data().occupations);
 
+
   const forensicAttributes = normalizeForensicAttributes(source, genderCode);
+
 
   const visibleTraits = createVisibleTraits(
     forensicAttributes,
     source.visibleTraits || source.publicProfile?.visibleTraits || []
   );
 
+
   const caseConnection =
     source.caseConnection ||
     source.publicProfile?.caseConnection ||
     randomItem(data().caseConnections);
+
 
   return {
     id: source.id || createId(`suspect_${index + 1}`),
@@ -215,27 +282,35 @@ export function createDecoySuspect(index = 0, source = {}) {
   };
 }
 
+
 export function ensureUniqueNames(suspects = []) {
   const usedNames = new Set();
+
 
   suspects.forEach((suspect) => {
     let candidateName = suspect.name;
     let attempts = 0;
+
 
     while (usedNames.has(candidateName.toLowerCase()) && attempts < 30) {
       candidateName = createFullName(suspect.genderCode);
       attempts += 1;
     }
 
+
     suspect.name = candidateName;
     suspect.publicProfile.displayName = candidateName;
     usedNames.add(candidateName.toLowerCase());
   });
 
+
   return suspects;
 }
+
+
 export function getForensicFieldConfig() {
   const forensics = data().forensics;
+
 
   return {
     hair_color: {
@@ -261,22 +336,32 @@ export function getForensicFieldConfig() {
     handedness: {
       values: forensics.handedness,
       path: 'restrictedProfile.forensicAttributes.handedness.value'
+    },
+    fingerprint_pattern: {
+      values: forensics.fingerprintPatterns || ['LOOP', 'WHORL', 'ARCH'],
+      path: 'restrictedProfile.forensicAttributes.fingerprint_pattern.value'
     }
   };
 }
+
+
 export function ensureUniqueIds(suspects = []) {
   const usedIds = new Set();
 
+
   suspects.forEach((suspect, index) => {
     let candidateId = suspect.id || createId(`suspect_${index + 1}`);
+
 
     while (usedIds.has(candidateId)) {
       candidateId = createId(`suspect_${index + 1}`);
     }
 
+
     suspect.id = candidateId;
     usedIds.add(candidateId);
   });
+
 
   return suspects;
 }

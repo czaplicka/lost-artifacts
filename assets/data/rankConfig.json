@@ -1,0 +1,47 @@
+{
+  "_comment": "casesRequired = liczba POPRAWNIE zamkniętych spraw potrzebna do wejścia na dany stopień. Pierwsze 4 rangi pokrywają się z RANK_TO_SCHEDULE_KEY w gameSetup.js - nie zmieniaj tu ich id bez zmiany tam.",
+  "ranks": [
+    {
+      "id": "Junior Agent",
+      "casesRequired": 0,
+      "label": "Junior Agent",
+      "unlockMessage": "Witaj w Mark Agency. Na razie masz dostęp tylko do podstawowego biura.",
+      "unlocks": { "npc": ["office_receptionist"], "areas": ["office_lobby"], "mechanics": [] }
+    },
+    {
+      "id": "Field Agent",
+      "casesRequired": 1,
+      "label": "Field Agent",
+      "unlockMessage": "Awans na Field Agenta. Masz teraz dostęp do pełnego laboratorium i archiwum spraw.",
+      "unlocks": { "npc": ["lab_technician"], "areas": ["forensics_lab"], "mechanics": ["lab_minigames"] }
+    },
+    {
+      "id": "Senior Agent",
+      "casesRequired": 2,
+      "label": "Senior Agent",
+      "unlockMessage": "Awans na Senior Agenta. Możesz teraz prowadzić pełne przesłuchania świadków alibi.",
+      "unlocks": { "npc": ["deputy_director"], "areas": ["interrogation_room"], "mechanics": ["alibi_interviews"] }
+    },
+    {
+      "id": "Lead Investigator",
+      "casesRequired": 4,
+      "label": "Lead Investigator",
+      "unlockMessage": "Awans na Lead Investigatora. Pełny dostęp do wszystkich narzędzi śledczych agencji.",
+      "unlocks": { "npc": ["archivist"], "areas": ["evidence_vault"], "mechanics": ["full_case_variety"] }
+    },
+    {
+      "id": "Chief Investigator",
+      "casesRequired": 8,
+      "label": "Chief Investigator",
+      "unlockMessage": "Awans na Chief Investigatora. Dyrektor agencji zaczyna Ci ufać z trudniejszymi sprawami.",
+      "unlocks": { "npc": ["agency_director"], "areas": ["directors_office"], "mechanics": [] }
+    },
+    {
+      "id": "Special Investigator",
+      "casesRequired": 12,
+      "label": "Special Investigator",
+      "unlockMessage": "Awans na Special Investigatora. Dostajesz dostęp do poufnych akt agencji.",
+      "unlocks": { "npc": ["confidential_informant"], "areas": ["classified_archive"], "mechanics": [] }
+    }
+  ]
+}

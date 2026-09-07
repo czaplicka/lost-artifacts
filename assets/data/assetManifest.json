@@ -139,6 +139,7 @@
     { "key": "hotel_icon", "url": "assets/hotel_icon.png" },
     { "key": "crime_lab", "url": "assets/crime_lab.png" },
     { "key": "filebutt", "url": "assets/filebutt.png" },
+    { "key": "passport", "url": "assets/passport.png" },
     { "key": "telephone", "url": "assets/telephone.png" },
     { "key": "crime_board", "url": "assets/crime_board.png" },
     { "key": "note", "url": "assets/note.png" },

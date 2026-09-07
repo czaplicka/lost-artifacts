@@ -721,25 +721,25 @@ export class CrimeLabManager {
       },
 
       {
-        id: 'trace_tool_residue',
-        label: 'Tool Residue Analysis',
-        attribute: 'primarySkill',
-        thief_value: thiefSkills[0] || 'Stealth',
-        allowedValues: [
-          'Lockpicking',
-          'Disguise',
-          'Stealth',
-          'Espionage',
-          'Surveillance'
-        ],
-        minigame: 'skill',
-        clueType: 'trace',
-        source: 'crime_lab',
-        clueText:
-          `The microscopic residue is consistent with ${
-            thiefSkills[0] || 'Stealth'
-          }.`
-      }
+  id: 'trace_tool_residue',
+  label: 'Tool Residue Analysis',
+  attribute: 'primarySkill',
+  thief_value: thiefSkills[0] || 'Stealth',
+  allowedValues: [
+    'Lockpicking',
+    'Disguise',
+    'Stealth',
+    'Espionage',
+    'Surveillance'
+  ],
+  minigame: 'ToolmarkAnalysisScene',
+  clueType: 'trace',
+  source: 'crime_lab',
+  clueText:
+    `The microscopic residue is consistent with ${
+      thiefSkills[0] || 'Stealth'
+    }.`
+}
     ];
 
     const seed = String(caseKey || 'default_case')

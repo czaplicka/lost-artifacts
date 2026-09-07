@@ -5,9 +5,9 @@ import { EventBus } from '../../EventBus.js';
 const PATTERN_TYPES = ['LOOP', 'WHORL', 'ARCH'];
 
 const PATTERN_RARITY_FLAVOR = {
-  LOOP: 'Loops show up in about 65% of the population. Common, but still evidence.',
-  WHORL: 'Whorls account for roughly 30% of prints. A solid, distinctive mark.',
-  ARCH: 'Arches appear in only about 5% of people. This thief is one in twenty.'
+  LOOP: 'Loop. The beige cardigan of fingerprints: common, reliable, impossible to get excited about.',
+  WHORL: 'Whorl. Fancy little fingerprint tornado. Thirty percent of people enjoy this level of drama.',
+  ARCH: 'Arch. Rare as a quiet press conference. Only about five percent of people have one.'
 };
 
 const PATTERN_IMAGE_KEY = {
@@ -83,20 +83,20 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.evidenceBag = this.add.image(width * 0.80, height * 0.66, 'evidence_bag')
+    this.evidenceBag = this.add.image(width * 0.91, height * 0.77, 'evidence_bag')
       .setOrigin(0.5)
-      .setDisplaySize(320, 270)
+      .setDisplaySize(340, 270)
       .setDepth(2);
     this.addStageObject(this.evidenceBag);
 
-    this.card = this.add.image(width * 0.80, height * 0.66, 'fingerprint_card_sealed')
+    this.card = this.add.image(width * 0.85, height * 0.68, 'fingerprint_card_sealed')
       .setOrigin(0.5)
-      .setDisplaySize(190, 140)
+      .setDisplaySize(180, 130)
       .setDepth(3)
       .setVisible(false);
     this.addStageObject(this.card);
 
-    this.createTweezers(width * 0.48, height * 0.53, (tipX, tipY) => {
+    this.createTweezers(width * 0.58, height * 0.53, (tipX, tipY) => {
       if (!this.evidenceBag.getBounds().contains(tipX, tipY)) {
         this.penalize(3);
         this.setDialogue('The tweezers missed the evidence bag. Try again.');
@@ -125,9 +125,8 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.card = this.add.image(width * 0.55, height * 0.58, 'fingerprint_card_sealed')
-      .setOrigin(0.5)
-      .setDisplaySize(300, 220)
+    this.card = this.add.image(width * 0.91, height * 0.77, 'fingerprint_card_sealed')
+      .setDisplaySize(400, 320)
       .setDepth(2)
       .setInteractive({ useHandCursor: true });
     this.addStageObject(this.card);
@@ -181,30 +180,29 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     const { width, height } = this.scale;
     this.createDesk();
 
-    this.card = this.add.image(width * 0.58, height * 0.58, 'fingerprint_card_open')
-      .setOrigin(0.5)
-      .setDisplaySize(300, 220)
+    this.card = this.add.image(width * 0.91, height * 0.77, 'fingerprint_card_open')
+      .setDisplaySize(400, 320)
       .setDepth(1);
     this.addStageObject(this.card);
 
-    const strokeCounterText = this.add.text(width * 0.58, height * 0.30, `STROKES: 0/${BRUSH_STROKES_REQUIRED}`, {
+    const strokeCounterText = this.add.text(width * 0.48, height * 0.30, `STROKES: 0/${BRUSH_STROKES_REQUIRED}`, {
       fontFamily: 'PressStart2P',
       fontSize: '11px',
-      color: '#ffe8a3'
+      color: '#ff0000'
     }).setOrigin(0.5).setDepth(5);
     this.addStageObject(strokeCounterText);
 
-    this.brush = this.add.image(width * 0.24, height * 0.30, 'tool_brush')
+    this.brush = this.add.image(width * 0.58, height * 0.53, 'tool_brush')
       .setOrigin(0.5)
       .setDisplaySize(220, 90)
-      .setAngle(-20)
+      .setAngle(-40)
       .setDepth(6)
       .setInteractive({ draggable: true, useHandCursor: true });
     this.addStageObject(this.brush);
     this.input.setDraggable(this.brush);
 
-    const homeX = width * 0.24;
-    const homeY = height * 0.30;
+    const homeX = width * 0.58;
+    const homeY = height * 0.53;
 
     this.brush.on('drag', (pointer, dragX, dragY) => {
       if (this.resolved || !this.brush?.active) return;
@@ -217,7 +215,7 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
       if (!this.card.getBounds().contains(this.brush.x, this.brush.y)) {
         this.penalize(2);
         this.setDialogue('Sweep the brush across the card surface, not around it.');
-        this.tweens.add({ targets: this.brush, x: homeX, y: homeY, angle: -20, duration: 250 });
+        this.tweens.add({ targets: this.brush, x: homeX, y: homeY, angle: -40, duration: 250 });
         return;
       }
 
@@ -228,7 +226,7 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
       const speck = this.add.circle(this.brush.x, this.brush.y, 3, 0x3a3a3a, 0.6).setDepth(3);
       this.addStageObject(speck);
 
-      this.tweens.add({ targets: this.brush, x: homeX, y: homeY, angle: -20, duration: 250 });
+      this.tweens.add({ targets: this.brush, x: homeX, y: homeY, angle: -40, duration: 250 });
 
       if (this.brushStrokes >= BRUSH_STROKES_REQUIRED) {
         this.brush.disableInteractive();
@@ -322,13 +320,14 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
     }).setOrigin(0.5).setDepth(5);
     this.addStageObject(hint);
 
-    this.card.on('pointerdown', () => {
-      if (this.resolved || this.magnifierOpened) return;
-      this.magnifierOpened = true;
-      hint.setVisible(false);
-      this.card.disableInteractive();
-      this.showMagnifierOverlay();
-    });
+this.card.on('pointerdown', () => {
+  if (this.resolved) return;
+
+  this.magnifierOpened = true;
+  hint.setVisible(false);
+
+  this.showMagnifierOverlay();
+});
 
     this.createPatternChoicePanel(width * 0.79, height * 0.55);
   }
@@ -364,45 +363,184 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
   // value passed into resolveChoice() ('LOOP' / 'WHORL' / 'ARCH'), so
   // the base class can find and highlight the correct/wrong button.
   createPatternChoicePanel(x, y) {
-    const panel = this.add.rectangle(x, y, 340, 400, 0x0d1713, 0.94)
-      .setStrokeStyle(2, 0x39ff14, 0.6)
-      .setDepth(1);
-    this.addStageObject(panel);
+  const panelWidth = 400;
+  const panelHeight = 440;
+  const buttonWidth = 340;
+  const buttonHeight = 100;
 
-    const title = this.add.text(x, y - 160, 'RIDGE PATTERN', {
-      fontFamily: 'Special Elite',
-      fontSize: '20px',
-      color: '#ffe8a3'
-    }).setOrigin(0.5).setDepth(2);
-    this.addStageObject(title);
+  const panel = this.add.rectangle(x, y, panelWidth, panelHeight, 0x0d1713, 0.94)
+    .setStrokeStyle(2, 0x39ff14, 0.6)
+    .setDepth(1);
+  this.addStageObject(panel);
 
-    PATTERN_TYPES.forEach((pattern, index) => {
-      const optionY = y - 60 + index * 100;
+  const title = this.add.text(x, y - 185, 'RIDGE PATTERN', {
+    fontFamily: 'Special Elite',
+    fontSize: '22px',
+    color: '#ffe8a3'
+  })
+    .setOrigin(0.5)
+    .setDepth(2);
+  this.addStageObject(title);
 
-      this.createButton(
-        x,
-        optionY,
-        260,
-        60,
-        pattern,
-        () => {
-          if (this.resolved) return;
-          if (!this.magnifierOpened) {
-            this.setDialogue('Magnify the print before classifying the pattern.');
-            return;
-          }
-          this.resolveChoice(pattern, pattern === this.correctValue, 10);
-        },
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '14px',
-          bgColor: 0x3a2920,
-          borderColor: 0x7cc89f,
-          depth: 3
+  const subtitle = this.add.text(
+    x,
+    y - 152,
+    'COMPARE THE MAGNIFIED PRINT\nWITH THE REFERENCE CARDS',
+    {
+      fontFamily: 'PressStart2P',
+      fontSize: '8px',
+      color: '#9bcfb0',
+      align: 'center',
+      lineSpacing: 5
+    }
+  )
+    .setOrigin(0.5)
+    .setDepth(2);
+  this.addStageObject(subtitle);
+
+  PATTERN_TYPES.forEach((pattern, index) => {
+    const optionY = y - 75 + index * 118;
+    const imageKey = PATTERN_IMAGE_KEY[pattern];
+
+    const button = this.createButton(
+      x,
+      optionY,
+      buttonWidth,
+      buttonHeight,
+      '',
+      () => {
+        if (this.resolved) return;
+
+        if (!this.magnifierOpened) {
+          this.setDialogue('Magnify the print before classifying the pattern.');
+          return;
         }
-      );
+
+        this.resolveChoice(pattern, pattern === this.correctValue, 10);
+      },
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        bgColor: 0x3a2920,
+        borderColor: 0x7cc89f,
+        depth: 3
+      }
+    );
+
+    /*
+     * Ważne:
+     * BaseForensicMinigame prawdopodobnie porównuje tekst / label
+     * przycisku w resolveChoice(), aby podświetlić dobry i zły wybór.
+     * Dlatego zostawiamy techniczny label równy wartości pattern,
+     * ale wizualnie ukrywamy go pod własnym opisem.
+     */
+    if (button?.label) {
+      button.label.setText(pattern);
+      button.label.setAlpha(0);
+    }
+
+    const referenceImage = this.add.image(
+      x - 125,
+      optionY,
+      imageKey
+    )
+      .setOrigin(0.5)
+      .setDisplaySize(72, 72)
+      .setDepth(5);
+
+    const referenceFrame = this.add.rectangle(
+      x - 125,
+      optionY,
+      82,
+      82,
+      0x07110b,
+      0.92
+    )
+      .setStrokeStyle(2, 0x7cc89f, 0.85)
+      .setDepth(4);
+
+    const patternName = this.add.text(
+      x - 65,
+      optionY - 18,
+      pattern,
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '15px',
+        color: '#ffe8a3'
+      }
+    )
+      .setOrigin(0, 0.5)
+      .setDepth(5);
+
+    const patternDescription = this.add.text(
+      x - 65,
+      optionY + 18,
+      this.getPatternShortDescription(pattern),
+      {
+        fontFamily: 'Special Elite',
+        fontSize: '16px',
+        color: '#c8dfcf',
+        wordWrap: { width: 180 }
+      }
+    )
+      .setOrigin(0, 0.5)
+      .setDepth(5);
+
+    const clickZone = this.add.rectangle(
+      x,
+      optionY,
+      buttonWidth,
+      buttonHeight,
+      0xffffff,
+      0
+    )
+      .setDepth(6)
+      .setInteractive({ useHandCursor: true });
+
+    clickZone.on('pointerover', () => {
+      if (this.resolved) return;
+
+      referenceFrame.setStrokeStyle(3, 0xffd97a, 1);
+      referenceImage.setTint(0xffffcc);
+      patternName.setColor('#ffffff');
     });
-  }
+
+    clickZone.on('pointerout', () => {
+      if (this.resolved) return;
+
+      referenceFrame.setStrokeStyle(2, 0x7cc89f, 0.85);
+      referenceImage.clearTint();
+      patternName.setColor('#ffe8a3');
+    });
+
+    clickZone.on('pointerdown', () => {
+      if (this.resolved) return;
+
+      if (!this.magnifierOpened) {
+        this.setDialogue('Magnify the print before classifying the pattern.');
+        return;
+      }
+
+      this.resolveChoice(pattern, pattern === this.correctValue, 10);
+    });
+
+    this.addStageObject(referenceFrame);
+    this.addStageObject(referenceImage);
+    this.addStageObject(patternName);
+    this.addStageObject(patternDescription);
+    this.addStageObject(clickZone);
+  });
+}
+
+getPatternShortDescription(pattern) {
+  const descriptions = {
+    LOOP: 'Ridges enter, curve around,\nand exit on the same side.',
+    WHORL: 'Ridges form a circular\nor spiral-like centre.',
+    ARCH: 'Ridges rise in the middle\nlike a small hill.'
+  };
+
+  return descriptions[pattern] || '';
+}
 
   showMagnifierOverlay() {
     const { width, height } = this.scale;
@@ -444,7 +582,29 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
       backgroundColor: '#000000',
       padding: { left: 10, right: 10, top: 7, bottom: 7 }
     }).setOrigin(0.5).setDepth(54);
+const recheckButton = this.createButton(
+  this.card.x,
+  this.card.y + 195,
+  250,
+  46,
+  'EXAMINE AGAIN',
+  () => {
+    if (this.resolved) return;
 
+    this.magnifierOpened = true;
+    hint.setVisible(false);
+    this.showMagnifierOverlay();
+  },
+  {
+    fontFamily: 'PressStart2P',
+    fontSize: '9px',
+    bgColor: 0x263d33,
+    borderColor: 0x7cc89f,
+    depth: 5
+  }
+);
+
+this.addStageObject(recheckButton);
     const overlayObjects = [overlay, frame, patternImage, title, flavorText, hint];
     this.stageObjects.push(...overlayObjects);
 
@@ -454,10 +614,11 @@ export class FingerprintPatternScene extends BaseForensicMinigame {
       this.setDialogue('Compare the ridge flow with Loop, Whorl and Arch references.');
     });
   }
+  
 
   createDesk() {
     const { width, height } = this.scale;
-    const background = this.add.image(width / 2, height / 2, 'desk1')
+    const background = this.add.image(width / 2, height / 2, 'desk2')
       .setOrigin(0.5)
       .setDisplaySize(width, height)
       .setDepth(0);

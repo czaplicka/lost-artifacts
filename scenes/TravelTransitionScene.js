@@ -10,7 +10,8 @@ import {
   cleanupTravelEffects,
   getCostAndEnergyText,
   getDetailText,
-  registerVisitedCity
+  registerVisitedCity,
+  stampPassportForArrival
 } from './travel/TravelTransitionHelpers.js';
 import {
   drawTravelLine,
@@ -22,6 +23,7 @@ export class TravelTransitionScene extends BaseScene {
     super({ key: 'TravelTransitionScene' });
 
     this.transitionData = {};
+
     this.canContinue = false;
     this.isLeaving = false;
     this.continueHint = null;
@@ -32,6 +34,9 @@ export class TravelTransitionScene extends BaseScene {
     this.routeTween = null;
     this.baseRoutePoints = null;
     this._travelSfx = null;
+
+    this._continueDelayTimer = null;
+    this._autoContinueTimer = null;
   }
 
   init(data = {}) {
@@ -43,24 +48,27 @@ export class TravelTransitionScene extends BaseScene {
 
     this.canContinue = false;
     this.isLeaving = false;
+    this.continueHint = null;
     this.shouldShowPhoneCall = false;
+
     this.effectObjects = [];
     this.routeGraphics = null;
     this.routeTween = null;
     this.baseRoutePoints = null;
     this._travelSfx = null;
+
+    this._continueDelayTimer = null;
+    this._autoContinueTimer = null;
   }
 
   create() {
     super.create();
 
-    this.scene.sleep('UIScene');
+    this.sleepSceneIfAvailable('UIScene');
+    this.sleepSceneIfAvailable('PlayerHudScene');
+
     this.game.events.emit('setHudVisible', false);
     EventBus.emit('hideHUD');
-
-    if (this.scene.isActive('PlayerHudScene')) {
-      this.scene.sleep('PlayerHudScene');
-    }
 
     audioManager.init(this);
     audioManager.stopAllVoice();
@@ -71,7 +79,9 @@ export class TravelTransitionScene extends BaseScene {
     }
 
     if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', { loop: true });
+      audioManager.playMusic('themeGame', {
+        loop: true
+      });
     }
 
     const {
@@ -93,11 +103,23 @@ export class TravelTransitionScene extends BaseScene {
     const targetCityId = cityId || toCityId || null;
 
     this._travelSfx = playTransportSfx(transport);
+
     this.shouldShowPhoneCall = registerVisitedCity(targetCityId);
+
+    const newStamp = stampPassportForArrival(
+      this,
+      fromCity,
+      targetCityId
+    );
+
+    if (newStamp) {
+      EventBus.emit('passportStampEarned', newStamp);
+    }
 
     ensureHud(this);
 
-    const hud = this.scene.get('PlayerHudScene');
+    const hud = this.getSceneIfRegistered('PlayerHudScene');
+
     hud?.closeAllUIPanels?.();
 
     const { width, height } = this.scale;
@@ -106,6 +128,7 @@ export class TravelTransitionScene extends BaseScene {
     camera.fadeIn(400, 0, 0, 0);
 
     this.createBackground(width, height);
+
     this.createTravelHeader({
       width,
       transport,
@@ -119,24 +142,96 @@ export class TravelTransitionScene extends BaseScene {
       travelEncounter
     });
 
-    drawTravelLine(this, width, height, transport);
-    renderEncounterVisual(this, travelEncounter, width, height, transport);
+    if (newStamp) {
+      this.createPassportStampNotice(width, newStamp);
+    }
+
+    drawTravelLine(
+      this,
+      width,
+      height,
+      transport
+    );
+
+    renderEncounterVisual(
+      this,
+      travelEncounter,
+      width,
+      height,
+      transport
+    );
+
     this.createContinueHint(width, height);
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.input.removeAllListeners();
-      cleanupTravelEffects(this);
-    });
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onSceneShutdown,
+      this
+    );
+  }
+
+  /**
+   * Pomocniczo pobiera scenę tylko wtedy, gdy Phaser zna jej klucz.
+   * Nie używa this.scene.get() na niewczytanej lazy scenie.
+   */
+  getSceneIfRegistered(sceneKey) {
+    if (!this.hasScene(sceneKey)) {
+      return null;
+    }
+
+    return this.scene.manager.keys[sceneKey] || null;
+  }
+
+  /**
+   * Bezpiecznie usypia scenę wyłącznie wtedy, gdy istnieje i jest aktywna.
+   */
+  sleepSceneIfAvailable(sceneKey) {
+    if (!this.isSceneActive(sceneKey)) {
+      return false;
+    }
+
+    this.scene.sleep(sceneKey);
+
+    return true;
   }
 
   createBackground(width, height) {
-    const bg = this.add.rectangle(width / 2, height / 2, width, height, 0x07111a, 1);
-    const vignetteTop = this.add.rectangle(width / 2, 0, width, height * 0.28, 0x000000, 0.18)
+    const bg = this.add.rectangle(
+      width / 2,
+      height / 2,
+      width,
+      height,
+      0x07111a,
+      1
+    );
+
+    const vignetteTop = this.add
+      .rectangle(
+        width / 2,
+        0,
+        width,
+        height * 0.28,
+        0x000000,
+        0.18
+      )
       .setOrigin(0.5, 0);
-    const vignetteBottom = this.add.rectangle(width / 2, height, width, height * 0.28, 0x000000, 0.22)
+
+    const vignetteBottom = this.add
+      .rectangle(
+        width / 2,
+        height,
+        width,
+        height * 0.28,
+        0x000000,
+        0.22
+      )
       .setOrigin(0.5, 1);
 
-    this.effectObjects.push(bg, vignetteTop, vignetteBottom);
+    this.effectObjects.push(
+      bg,
+      vignetteTop,
+      vignetteBottom
+    );
   }
 
   createTravelHeader({
@@ -151,109 +246,221 @@ export class TravelTransitionScene extends BaseScene {
     baseTravelHours,
     travelEncounter
   }) {
-    this.add.text(width / 2, 78, transport.logTitle, {
-      fontFamily: 'PressStart2P',
-      fontSize: '26px',
-      color: transport.color
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, 78, transport.logTitle, {
+        fontFamily: 'PressStart2P',
+        fontSize: '26px',
+        color: transport.color
+      })
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 145, `${fromCity} → ${toCity}`, {
-      fontFamily: 'Special Elite',
-      fontSize: '34px',
-      color: '#ffffff',
-      align: 'center'
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, 145, `${fromCity} → ${toCity}`, {
+        fontFamily: 'Special Elite',
+        fontSize: '34px',
+        color: '#ffffff',
+        align: 'center'
+      })
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 192, `${transport.icon}  ${finalTransportLabel}`, {
-      fontFamily: 'Special Elite',
-      fontSize: '28px',
-      color: transport.color,
-      align: 'center'
-    }).setOrigin(0.5);
+    this.add
+      .text(
+        width / 2,
+        192,
+        `${transport.icon}  ${finalTransportLabel}`,
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '28px',
+          color: transport.color,
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 238, `Travel time: +${travelHours}h`, {
-      fontFamily: 'Special Elite',
-      fontSize: '26px',
-      color: '#ffd166'
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, 238, `Travel time: +${travelHours}h`, {
+        fontFamily: 'Special Elite',
+        fontSize: '26px',
+        color: '#ffd166'
+      })
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 278, getCostAndEnergyText(moneySpent, energyChange), {
-      fontFamily: 'Special Elite',
-      fontSize: '23px',
-      color: '#d6e4f0',
-      align: 'center'
-    }).setOrigin(0.5);
+    this.add
+      .text(
+        width / 2,
+        278,
+        getCostAndEnergyText(
+          moneySpent,
+          energyChange
+        ),
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '23px',
+          color: '#d6e4f0',
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 325, 'Following the trail...', {
-      fontFamily: 'Special Elite',
-      fontSize: '27px',
-      color: '#d6e4f0'
-    }).setOrigin(0.5);
+    this.add
+      .text(width / 2, 325, 'Following the trail...', {
+        fontFamily: 'Special Elite',
+        fontSize: '27px',
+        color: '#d6e4f0'
+      })
+      .setOrigin(0.5);
 
-    this.add.text(width / 2, 382, getDetailText({
-      transport,
-      baseTravelHours,
-      travelHours,
-      travelEncounter
-    }), {
-      fontFamily: 'Special Elite',
-      fontSize: '23px',
-      color: travelEncounter ? '#ffd966' : '#d9d9d9',
-      align: 'center',
-      wordWrap: { width: Math.min(760, width * 0.7) }
-    }).setOrigin(0.5);
+    this.add
+      .text(
+        width / 2,
+        382,
+        getDetailText({
+          transport,
+          baseTravelHours,
+          travelHours,
+          travelEncounter
+        }),
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '23px',
+          color: travelEncounter
+            ? '#ffd966'
+            : '#d9d9d9',
+          align: 'center',
+          wordWrap: {
+            width: Math.min(760, width * 0.7)
+          }
+        }
+      )
+      .setOrigin(0.5);
 
     if (this.shouldShowPhoneCall) {
-      this.add.text(width / 2, 445, 'Your phone starts ringing. Headquarters has thoughts.', {
-        fontFamily: 'Special Elite',
-        fontSize: '23px',
-        color: '#ffd966',
-        align: 'center',
-        wordWrap: { width: Math.min(760, width * 0.7) }
-      }).setOrigin(0.5);
+      this.add
+        .text(
+          width / 2,
+          445,
+          'Your phone starts ringing. Headquarters has thoughts.',
+          {
+            fontFamily: 'Special Elite',
+            fontSize: '23px',
+            color: '#ffd966',
+            align: 'center',
+            wordWrap: {
+              width: Math.min(760, width * 0.7)
+            }
+          }
+        )
+        .setOrigin(0.5);
     }
   }
 
+  createPassportStampNotice(width, stamp) {
+    const notice = this.add
+      .text(
+        width / 2,
+        500,
+        `📘 Passport stamped: ${stamp.country}`,
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '20px',
+          color: '#ffe9a8',
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5)
+      .setAlpha(0);
+
+    this.effectObjects.push(notice);
+
+    this.addTrackedTween(
+      this.tweens.add({
+        targets: notice,
+        alpha: 1,
+        y: 480,
+        duration: 500,
+        ease: 'Back.easeOut',
+        delay: 300
+      })
+    );
+  }
+
   createContinueHint(width, height) {
-    this.continueHint = this.add.text(width / 2, height - 70, 'Please wait...', {
-      fontFamily: 'Special Elite',
-      fontSize: '22px',
-      color: '#9aa6b2'
-    }).setOrigin(0.5);
+    this.continueHint = this.add
+      .text(
+        width / 2,
+        height - 70,
+        'Please wait...',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '22px',
+          color: '#9aa6b2'
+        }
+      )
+      .setOrigin(0.5);
 
-    this.tweens.add({
-      targets: this.continueHint,
-      alpha: { from: 0.35, to: 1 },
-      duration: 900,
-      yoyo: true,
-      repeat: -1
-    });
+    this.addTrackedTween(
+      this.tweens.add({
+        targets: this.continueHint,
+        alpha: {
+          from: 0.35,
+          to: 1
+        },
+        duration: 900,
+        yoyo: true,
+        repeat: -1
+      })
+    );
 
-    this.time.delayedCall(3000, () => {
-      if (this.isLeaving || !this.continueHint) return;
-      this.canContinue = true;
-      this.continueHint.setText('Click to continue');
-      this.continueHint.setColor('#f4e7c1');
-    });
+    this._continueDelayTimer = this.time.delayedCall(
+      3000,
+      () => {
+        if (
+          this.isLeaving ||
+          !this.continueHint ||
+          !this.sys.isActive()
+        ) {
+          return;
+        }
+
+        this.canContinue = true;
+
+        this.continueHint.setText('Click to continue');
+        this.continueHint.setColor('#f4e7c1');
+      }
+    );
 
     this.input.once('pointerdown', () => {
-      if (!this.canContinue || this.isLeaving) return;
+      if (!this.canContinue || this.isLeaving) {
+        return;
+      }
+
       this.leaveScene();
     });
 
-    this.time.delayedCall(6000, () => {
-      if (!this.isLeaving) this.leaveScene();
-    });
+    this._autoContinueTimer = this.time.delayedCall(
+      6000,
+      () => {
+        if (!this.isLeaving && this.sys.isActive()) {
+          this.leaveScene();
+        }
+      }
+    );
   }
 
   getTransportVisual(transportType) {
-    return TRANSPORT_VISUALS[transportType] || TRANSPORT_VISUALS.plane;
+    return (
+      TRANSPORT_VISUALS[transportType] ||
+      TRANSPORT_VISUALS.plane
+    );
   }
 
   leaveScene() {
-    if (this.isLeaving) return;
+    if (this.isLeaving) {
+      return;
+    }
 
     this.isLeaving = true;
+
     this.game.events.emit('setHudVisible', true);
     EventBus.emit('showHUD');
 
@@ -266,35 +473,99 @@ export class TravelTransitionScene extends BaseScene {
     } = this.transitionData;
 
     const targetCityId = cityId || toCityId || null;
-    const targetScene = destinationScene || (isCrimeSceneArrival ? 'CrimeCityScene' : 'CityScene');
+
+    const targetScene =
+      destinationScene ||
+      (
+        isCrimeSceneArrival
+          ? 'CrimeCityScene'
+          : 'CityScene'
+      );
 
     this.cameras.main.fadeOut(450, 0, 0, 0);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      if (!targetCityId) {
-        console.error('[TravelTransitionScene] Missing target city id.', this.transitionData);
-        this.goto('MenuScene');
-        return;
-      }
 
-      if (status === 'FINAL_SHOWDOWN') {
-        this.goto('ArrestSelectionScene', { cityId: targetCityId });
-        return;
-      }
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        if (!this.sys.isActive()) {
+          return;
+        }
 
-      this.goto(targetScene, {
-        cityId: targetCityId,
-        investigationStatus: status,
-        isFinalShowdown: false,
-        isCrimeSceneArrival: Boolean(isCrimeSceneArrival),
-        fromTravel: true,
-        transportType: this.transitionData.transportType,
-        transportLabel: this.transitionData.transportLabel,
-        travelHours: this.transitionData.travelHours,
-        moneySpent: this.transitionData.moneySpent,
-        energyChange: this.transitionData.energyChange,
-        pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
-        pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || targetCityId
-      });
-    });
+        if (!targetCityId) {
+          console.error(
+            '[TravelTransitionScene] Missing target city id.',
+            this.transitionData
+          );
+
+          void this.goto('MenuScene');
+          return;
+        }
+
+        if (status === 'FINAL_SHOWDOWN') {
+          void this.goto('ArrestSelectionScene', {
+            cityId: targetCityId
+          });
+
+          return;
+        }
+
+        void this.goto(targetScene, {
+          cityId: targetCityId,
+          investigationStatus: status,
+          isFinalShowdown: false,
+          isCrimeSceneArrival: Boolean(
+            isCrimeSceneArrival
+          ),
+          fromTravel: true,
+          transportType:
+            this.transitionData.transportType,
+          transportLabel:
+            this.transitionData.transportLabel,
+          travelHours:
+            this.transitionData.travelHours,
+          moneySpent:
+            this.transitionData.moneySpent,
+          energyChange:
+            this.transitionData.energyChange,
+          pendingPhoneCall: Boolean(
+            gameState.pendingPhoneCall
+          ),
+          pendingPhoneCallCityId:
+            gameState.pendingPhoneCallCityId ||
+            targetCityId
+        });
+      }
+    );
+  }
+
+  onSceneShutdown() {
+    this.input.removeAllListeners();
+
+    this._continueDelayTimer?.remove(false);
+    this._autoContinueTimer?.remove(false);
+
+    this._continueDelayTimer = null;
+    this._autoContinueTimer = null;
+
+    cleanupTravelEffects(this);
+
+    if (this._travelSfx?.isPlaying) {
+      this._travelSfx.stop();
+    }
+
+    if (
+      this._travelSfx &&
+      !this._travelSfx.pendingRemove
+    ) {
+      this._travelSfx.destroy();
+    }
+
+    this._travelSfx = null;
+
+    this.continueHint = null;
+    this.effectObjects = [];
+    this.routeGraphics = null;
+    this.routeTween = null;
+    this.baseRoutePoints = null;
   }
 }

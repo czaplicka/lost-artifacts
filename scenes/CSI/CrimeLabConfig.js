@@ -17,7 +17,8 @@ export const CSI_RED_HERRING_POOL = [
     evidenceType: 'fingerprint_partial',
     correctValue: 'partial_loop_left_thumb',
     clueType: 'red_herring',
-    clueText: 'A partial fingerprint was recovered, but too little remains for a reliable match.',
+    clueText:
+      'A partial fingerprint was recovered, but too little remains for a reliable match.',
     isRedHerring: true
   },
 
@@ -28,11 +29,11 @@ export const CSI_RED_HERRING_POOL = [
     evidenceType: 'toolmark_profile',
     correctValue: 'triple_rake_left_handed',
     clueType: 'red_herring',
-    clueText: 'The lock contains several tool marks, but no usable manufacturer profile.',
+    clueText:
+      'The lock contains several tool marks, but no usable manufacturer profile.',
     isRedHerring: true
   }
 ];
-
 
 /*
  * Temporary compatibility export.
@@ -42,7 +43,6 @@ export const CSI_RED_HERRING_POOL = [
  * and gameState.traceEvidence.
  */
 export const CSI_TRACE_GAME_POOL = CSI_RED_HERRING_POOL;
-
 
 /*
  * The four MAIN clue mini-games (identity evidence).
@@ -86,11 +86,7 @@ export const CSI_MAIN_GAME_POOL = [
   }
 ];
 
-
-export function normalizeMiniGameKey(
-  rawKey,
-  evidenceType = ''
-) {
+export function normalizeMiniGameKey(rawKey, evidenceType = '') {
   const key = String(rawKey || '')
     .trim()
     .toLowerCase();
@@ -105,43 +101,6 @@ export function normalizeMiniGameKey(
     hair_analysis: 'HairAnalysisScene',
     hairanalysisscene: 'HairAnalysisScene',
 
-    shoeprint: 'ShoeprintScene',
-    shoe_print: 'ShoeprintScene',
-    shoeprintscene: 'ShoeprintScene',
-    shoeprint_profile: 'ShoeprintScene',
-    shoe_size: 'ShoeprintScene',
-    shoe_size_category: 'ShoeprintScene',
-
-    handedness: 'ToolmarkAnalysisScene',
-    dominant_hand: 'ToolmarkAnalysisScene',
-    toolmark: 'ToolmarkAnalysisScene',
-    toolmarks: 'ToolmarkAnalysisScene',
-    tool_mark: 'ToolmarkAnalysisScene',
-    toolmark_analysis: 'ToolmarkAnalysisScene',
-    toolmarkanalysisscene: 'ToolmarkAnalysisScene',
-    toolmark_profile: 'ToolmarkAnalysisScene',
-
-    // Partial fingerprint stays on the OLD scene — this is the
-    // red herring clue (too little ridge detail for a real match).
-    fingerprint_partial: 'FingerprintScene',
-    partial_fingerprint: 'FingerprintScene',
-
-    // Everything else fingerprint-related is the MAIN pattern game
-    // (Loop / Whorl / Arch classification).
-    fingerprint: 'FingerprintPatternScene',
-    fingerprints: 'FingerprintPatternScene',
-    fingerprint_pattern: 'FingerprintPatternScene',
-    fingerprint_scene: 'FingerprintPatternScene',
-    fingerprintscene: 'FingerprintPatternScene',
-    fingerprintpatternscene: 'FingerprintPatternScene',
-    ridge_pattern: 'FingerprintPatternScene',
-
-    fiber: 'FiberAnalysisScene',
-    fibre: 'FiberAnalysisScene',
-    fiber_analysis: 'FiberAnalysisScene',
-    fiberanalysisscene: 'FiberAnalysisScene',
-    fiber_profile: 'FiberAnalysisScene',
-
     blood: 'BloodAnalysisScene',
     blood_type: 'BloodAnalysisScene',
     bloodtype: 'BloodAnalysisScene',
@@ -153,7 +112,50 @@ export function normalizeMiniGameKey(
     dna_profile: 'DnaGenderScene',
     dna_analysis: 'DnaGenderScene',
     dnagenderscene: 'DnaGenderScene',
-    gender_profile: 'DnaGenderScene'
+    gender_profile: 'DnaGenderScene',
+
+    fingerprint: 'FingerprintPatternScene',
+    fingerprints: 'FingerprintPatternScene',
+    fingerprint_pattern: 'FingerprintPatternScene',
+    fingerprint_scene: 'FingerprintPatternScene',
+    fingerprintscene: 'FingerprintPatternScene',
+    fingerprintpatternscene: 'FingerprintPatternScene',
+    ridge_pattern: 'FingerprintPatternScene',
+
+    fingerprint_partial: 'FingerprintScene',
+    partial_fingerprint: 'FingerprintScene',
+
+    shoeprint: 'ShoeprintScene',
+    shoe_print: 'ShoeprintScene',
+    shoeprintscene: 'ShoeprintScene',
+    shoeprint_profile: 'ShoeprintScene',
+    shoe_size: 'ShoeprintScene',
+    shoe_size_category: 'ShoeprintScene',
+    shoesizecategory: 'ShoeprintScene',
+
+    handedness: 'ToolmarkAnalysisScene',
+    dominant_hand: 'ToolmarkAnalysisScene',
+
+    toolmark: 'ToolmarkAnalysisScene',
+    toolmarks: 'ToolmarkAnalysisScene',
+    tool_mark: 'ToolmarkAnalysisScene',
+    toolmark_analysis: 'ToolmarkAnalysisScene',
+    toolmarkanalysisscene: 'ToolmarkAnalysisScene',
+    toolmark_profile: 'ToolmarkAnalysisScene',
+
+    skill: 'ToolmarkAnalysisScene',
+    skills: 'ToolmarkAnalysisScene',
+    primary_skill: 'ToolmarkAnalysisScene',
+    primaryskill: 'ToolmarkAnalysisScene',
+    skill_analysis: 'ToolmarkAnalysisScene',
+
+    fiber: 'FiberAnalysisScene',
+    fibre: 'FiberAnalysisScene',
+    fiber_analysis: 'FiberAnalysisScene',
+    fiberanalysisscene: 'FiberAnalysisScene',
+    fiber_profile: 'FiberAnalysisScene',
+    fabric_material: 'FiberAnalysisScene',
+    fabricmaterial: 'FiberAnalysisScene'
   };
 
   return aliases[key] || aliases[type] || rawKey || null;

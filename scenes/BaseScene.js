@@ -4,198 +4,785 @@ import { InventoryUI } from '../ui/InventoryUI.js';
 import { inventoryManager } from '../InventoryManager.js';
 
 export class BaseScene extends Phaser.Scene {
-    constructor(config) {
-        super(config);
-        this.inventoryUI = null;
-        this.hasMenu = false;
-        this.activeTweens = [];  // Track tweens dla cleanup
-        this.inputEvents = [];   // Track input listeners
-        this._busListeners = []; // Track EventBus listeners dla scoped cleanup
+  constructor(config) {
+    super(config);
+
+    this.inventoryUI = null;
+    this.hasMenu = false;
+
+    this.activeTweens = [];
+    this.inputEvents = [];
+    this._busListeners = [];
+
+    this._sceneLoaderNavInFlight = false;
+    this._overlayLoadsInFlight = new Set();
+
+    this._cleanupDone = false;
+    this._sleepCleanupDone = false;
+  }
+
+  create() {
+    this._cleanupDone = false;
+    this._sleepCleanupDone = false;
+
+    this._sceneLoaderNavInFlight = false;
+
+    if (!this._overlayLoadsInFlight) {
+      this._overlayLoadsInFlight = new Set();
     }
 
-    create() {
-        // ✅ EventBus.js eksportuje już gotowy singleton (new Events.EventEmitter()),
-        // NIE klasę — więc nie robimy tu `new EventBus()`, tylko podpinamy
-        // się pod globalny bus. Do nasłuchiwania używaj this.onBus(...), które
-        // automatycznie odpina listener przy shutdown/sleep tej sceny.
-        if (!this.eventBus) {
-            this.eventBus = EventBus;
+    if (!this.eventBus) {
+      this.eventBus = EventBus;
+    }
+
+    if (!this.monologue) {
+      const monologues =
+        this.cache.json.get('monologues') ?? {};
+
+      this.monologue = new MonologueManager(this, {
+        dialogues: monologues
+      });
+    }
+
+    if (this.hasMenu && !this.inventoryUI) {
+      this.inventoryUI = new InventoryUI(this);
+      this.inventoryUI.initialize();
+    }
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.cleanup,
+      this
+    );
+
+    this.events.once(
+      Phaser.Scenes.Events.SLEEP,
+      this.handleSleep,
+      this
+    );
+
+    this.events.once(
+      Phaser.Scenes.Events.WAKE,
+      this.handleWake,
+      this
+    );
+  }
+
+  /**
+   * Scoped listener dla globalnego EventBus.
+   *
+   * Używaj:
+   *   this.onBus('eventName', this.someMethod);
+   *
+   * Listener zostanie zdjęty przy SHUTDOWN sceny.
+   */
+  onBus(eventName, callback, context = this) {
+    if (!this.eventBus) {
+      this.eventBus = EventBus;
+    }
+
+    this.eventBus.on(eventName, callback, context);
+
+    this._busListeners.push({
+      eventName,
+      callback,
+      context
+    });
+
+    return callback;
+  }
+
+  /**
+   * Lekki cleanup przy sleep.
+   *
+   * Nie niszczy InventoryUI, nie odpina EventBus i nie usuwa input
+   * listenerów — scena może zostać wybudzona przez scene.wake().
+   */
+  handleSleep() {
+    if (this._sleepCleanupDone || this._cleanupDone) {
+      return;
+    }
+
+    this._sleepCleanupDone = true;
+
+    this.activeTweens.forEach((tween) => {
+      if (!tween || tween.isDestroyed) {
+        return;
+      }
+
+      try {
+        tween.pause();
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Tween sleep pause failed:',
+          error
+        );
+      }
+    });
+
+    this._sceneLoaderNavInFlight = false;
+  }
+
+  /**
+   * Przywraca stan po wybudzeniu sceny.
+   *
+   * Phaser zwykle sam wznawia tweens sceny, ale jawnie wznawiamy
+   * śledzone tweens, aby działało również przy ręcznych pause().
+   */
+  handleWake() {
+    if (this._cleanupDone) {
+      return;
+    }
+
+    this._sleepCleanupDone = false;
+
+    this.activeTweens.forEach((tween) => {
+      if (!tween || tween.isDestroyed) {
+        return;
+      }
+
+      try {
+        tween.resume();
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Tween wake resume failed:',
+          error
+        );
+      }
+    });
+  }
+
+  /**
+   * Pełny cleanup wykonywany wyłącznie podczas SHUTDOWN.
+   *
+   * Jest idempotentny: może zostać wywołany wiele razy bez błędów.
+   */
+  cleanup() {
+    if (this._cleanupDone) {
+      return;
+    }
+
+    this._cleanupDone = true;
+
+    this.activeTweens.forEach((tween) => {
+      if (!tween || tween.isDestroyed) {
+        return;
+      }
+
+      try {
+        tween.stop();
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Tween cleanup failed:',
+          error
+        );
+      }
+    });
+
+    this.activeTweens = [];
+
+    this.inputEvents.forEach((event) => {
+      if (
+        !event?.target ||
+        !event.name ||
+        !event.callback
+      ) {
+        return;
+      }
+
+      try {
+        event.target.removeListener(
+          event.name,
+          event.callback,
+          event.context ?? this
+        );
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Input listener cleanup failed:',
+          error
+        );
+      }
+    });
+
+    this.inputEvents = [];
+
+    if (this.inventoryUI) {
+      try {
+        this.inventoryUI.destroy();
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Inventory cleanup failed:',
+          error
+        );
+      }
+
+      this.inventoryUI = null;
+    }
+
+    if (!this.eventBus) {
+      this.eventBus = EventBus;
+    }
+
+    this._busListeners.forEach(
+      ({ eventName, callback, context }) => {
+        try {
+          this.eventBus.off(
+            eventName,
+            callback,
+            context
+          );
+        } catch (error) {
+          console.warn(
+            `[BaseScene] EventBus cleanup failed for "${eventName}":`,
+            error
+          );
         }
+      }
+    );
 
-        // ✅ Monologue tylko raz
-        if (!this.monologue) {
-            const monologues = this.cache.json.get('monologues') ?? {};
-            this.monologue = new MonologueManager(this, { dialogues: monologues });
+    this._busListeners = [];
+
+    this._sceneLoaderNavInFlight = false;
+
+    this._overlayLoadsInFlight?.clear();
+  }
+
+  /**
+   * Dodaje tween do listy automatycznie sprzątanej przy shutdown sceny.
+   */
+  addTrackedTween(tween) {
+    if (!tween) {
+      return null;
+    }
+
+    this.activeTweens.push(tween);
+
+    const removeTweenFromTracking = () => {
+      this.activeTweens = this.activeTweens.filter(
+        (trackedTween) => trackedTween !== tween
+      );
+    };
+
+    tween.once('complete', removeTweenFromTracking);
+    tween.once('stop', removeTweenFromTracking);
+
+    return tween;
+  }
+
+  /**
+   * Rejestruje input listener do automatycznego cleanupu.
+   *
+   * Przykład:
+   *   this.trackInputEvent(
+   *     this.input.keyboard,
+   *     'keydown-ESC',
+   *     this.handleEscape
+   *   );
+   */
+  trackInputEvent(
+    target,
+    eventName,
+    callback,
+    context = this
+  ) {
+    if (!target?.on || !eventName || !callback) {
+      console.warn(
+        '[BaseScene] trackInputEvent received invalid event data.',
+        {
+          target,
+          eventName,
+          callback
         }
+      );
 
-        // ✅ Inventory initialization bez redundancji
-        if (this.hasMenu && !this.inventoryUI) {
-            this.inventoryUI = new InventoryUI(this);
-            this.inventoryUI.initialize();
-        }
-
-        // ✅ Nasłuchuj na shutdown, żeby posprzątać
-        this.events.once('shutdown', () => this.cleanup());
-        this.events.once('sleep', () => this.cleanup());
+      return null;
     }
 
-    /**
-     * ✅ Scoped nasłuch na globalnym EventBus — zamiast robić
-     * `this.eventBus.on('x', fn)` bezpośrednio (co przecieka między scenami),
-     * używaj tego helpera. Listener jest automatycznie zdejmowany w cleanup().
-     */
-    onBus(eventName, callback, context = this) {
-        this.eventBus.on(eventName, callback, context);
-        this._busListeners.push({ eventName, callback, context });
+    target.on(eventName, callback, context);
+
+    this.inputEvents.push({
+      target,
+      name: eventName,
+      callback,
+      context
+    });
+
+    return callback;
+  }
+
+  // ------------------------------------------------------------------
+  // Inventory helpers
+  // ------------------------------------------------------------------
+
+  addInventoryItem(item) {
+    return inventoryManager.addItem(item);
+  }
+
+  removeInventoryItem(itemId) {
+    return inventoryManager.removeItem(itemId);
+  }
+
+  getInventoryItem(itemId) {
+    return inventoryManager.getItem(itemId);
+  }
+
+  hasInventoryItem(itemId) {
+    return inventoryManager.hasItem(itemId);
+  }
+
+  openInventory() {
+    inventoryManager.open();
+  }
+
+  closeInventory() {
+    inventoryManager.close();
+  }
+
+  getAllInventoryItems() {
+    return inventoryManager.getAllItems();
+  }
+
+  // ------------------------------------------------------------------
+  // Safe Phaser scene helpers
+  // ------------------------------------------------------------------
+
+  /**
+   * Sprawdza, czy scena została dodana do SceneManagera Phaser.
+   *
+   * Nie generuje warningu:
+   *   Scene key not found: SomeScene
+   */
+  hasScene(sceneKey) {
+    return Boolean(
+      sceneKey &&
+      this.scene?.manager?.keys?.[sceneKey]
+    );
+  }
+
+  /**
+   * Zwraca instancję sceny tylko jeśli Phaser ją zna.
+   *
+   * Może zwrócić scenę aktywną, śpiącą, pauzowaną lub nieaktywną.
+   */
+  getRegisteredScene(sceneKey) {
+    if (!this.hasScene(sceneKey)) {
+      return null;
     }
 
-    /**
-     * ✅ Centralized cleanup
-     */
-    cleanup() {
-        // Kill wszystkie tweens
-        this.activeTweens.forEach(tween => {
-            if (tween && !tween.isDestroyed) {
-                tween.stop();
-            }
-        });
-        this.activeTweens = [];
+    return this.scene.manager.keys[sceneKey] || null;
+  }
 
-        // Zdejmij input events
-        this.inputEvents.forEach(event => {
-            if (event && event.target) {
-                event.target.removeListener(event.name, event.callback);
-            }
-        });
-        this.inputEvents = [];
-
-        // Zamknij inventory jeśli otwarte
-        if (this.inventoryUI) {
-            this.inventoryUI.destroy();
-            this.inventoryUI = null;
-        }
-
-        // ✅ Odpięcie TYLKO listenerów zarejestrowanych przez tę scenę
-        // (globalny EventBus jest współdzielony, więc nie robimy tu
-        // generalnego "unbindScene" — to by ucięło innym scenom nasłuchy)
-        this._busListeners.forEach(({ eventName, callback, context }) => {
-            this.eventBus.off(eventName, callback, context);
-        });
-        this._busListeners = [];
-
-        // ✅ Odpięcie ewentualnego spinnera SceneLoadera, jeśli scena
-        // zniknęła w trakcie trwania importu (np. gracz kliknął dwa razy)
-        this._sceneLoaderNavInFlight = false;
+  /**
+   * Zwraca instancję sceny tylko jeśli jest aktywna.
+   */
+  getSceneIfActive(sceneKey) {
+    if (!this.isSceneActive(sceneKey)) {
+      return null;
     }
 
-    /**
-     * ✅ Helper do śledzenia tweenów
-     */
-    addTrackedTween(tween) {
-        if (!tween) return null;
-        this.activeTweens.push(tween);
-        tween.once('complete', () => {
-            this.activeTweens = this.activeTweens.filter(t => t !== tween);
-        });
-        return tween;
+    return this.getRegisteredScene(sceneKey);
+  }
+
+  /**
+   * Bezpieczna wersja this.scene.isActive(sceneKey).
+   */
+  isSceneActive(sceneKey) {
+    return Boolean(
+      this.hasScene(sceneKey) &&
+      this.scene.isActive(sceneKey)
+    );
+  }
+
+  /**
+   * Bezpieczna wersja this.scene.isSleeping(sceneKey).
+   */
+  isSceneSleeping(sceneKey) {
+    return Boolean(
+      this.hasScene(sceneKey) &&
+      this.scene.isSleeping(sceneKey)
+    );
+  }
+
+  /**
+   * Bezpieczna wersja this.scene.isPaused(sceneKey).
+   */
+  isScenePaused(sceneKey) {
+    return Boolean(
+      this.hasScene(sceneKey) &&
+      this.scene.isPaused(sceneKey)
+    );
+  }
+
+  /**
+   * Sprawdza, czy scena jest w jakimkolwiek stanie roboczym:
+   * active, sleeping lub paused.
+   */
+  isSceneRunning(sceneKey) {
+    return (
+      this.isSceneActive(sceneKey) ||
+      this.isSceneSleeping(sceneKey) ||
+      this.isScenePaused(sceneKey)
+    );
+  }
+
+  /**
+   * Bezpiecznie zatrzymuje scenę aktywną, śpiącą albo pauzowaną.
+   */
+  stopSceneIfActive(sceneKey) {
+    if (!this.isSceneRunning(sceneKey)) {
+      return false;
     }
 
-    /**
-     * ✅ Helper do śledzenia input events
-     */
-    trackInputEvent(target, eventName, callback) {
-        this.inputEvents.push({ target, name: eventName, callback });
-        return this.input.on(eventName, callback, this);
+    this.scene.stop(sceneKey);
+
+    return true;
+  }
+
+  /**
+   * Bezpiecznie usypia aktywną scenę.
+   *
+   * Nie używaj dla UIScene, jeśli chcesz, żeby zegar i eventy DOM
+   * aktualizowały się w tle — wtedy ukryj ją EventBus.emit('hideHUD').
+   */
+  sleepSceneIfActive(sceneKey) {
+    if (!this.isSceneActive(sceneKey)) {
+      return false;
     }
 
-    // ✅ Delegate do inventoryManager (pass-through, ale teraz czyste)
-    addInventoryItem(item) {
-        return inventoryManager.addItem(item);
+    this.scene.sleep(sceneKey);
+
+    return true;
+  }
+
+  /**
+   * Bezpiecznie pauzuje aktywną scenę.
+   */
+  pauseSceneIfActive(sceneKey) {
+    if (!this.isSceneActive(sceneKey)) {
+      return false;
     }
 
-    removeInventoryItem(itemId) {
-        return inventoryManager.removeItem(itemId);
+    this.scene.pause(sceneKey);
+
+    return true;
+  }
+
+  /**
+   * Bezpiecznie wybudza scenę śpiącą.
+   */
+  wakeSceneIfSleeping(sceneKey) {
+    if (!this.isSceneSleeping(sceneKey)) {
+      return false;
     }
 
-    getInventoryItem(itemId) {
-        return inventoryManager.getItem(itemId);
+    this.scene.wake(sceneKey);
+
+    return true;
+  }
+
+  /**
+   * Bezpiecznie wznawia scenę zapauzowaną.
+   */
+  resumeSceneIfPaused(sceneKey) {
+    if (!this.isScenePaused(sceneKey)) {
+      return false;
     }
 
-    hasInventoryItem(itemId) {
-        return inventoryManager.hasItem(itemId);
+    this.scene.resume(sceneKey);
+
+    return true;
+  }
+
+  /**
+   * Bezpiecznie wynosi aktywną scenę na wierzch.
+   */
+  bringSceneToTopIfActive(sceneKey) {
+    if (!this.isSceneActive(sceneKey)) {
+      return false;
     }
 
-    openInventory() {
-        inventoryManager.open();
+    this.scene.bringToTop(sceneKey);
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------
+  // Player HUD helpers
+  // ------------------------------------------------------------------
+
+  /**
+   * Zwraca aktywny PlayerHudScene albo null.
+   */
+  getPlayerHudScene() {
+    return this.getSceneIfActive('PlayerHudScene');
+  }
+
+  /**
+   * Zamyka otwarte panele PlayerHudScene i usypia go.
+   *
+   * HTML HUD z UIScene chowaj osobno:
+   *   this.game.events.emit('setHudVisible', false);
+   *   EventBus.emit('hideHUD');
+   */
+  sleepPlayerHud() {
+    const hud = this.getPlayerHudScene();
+
+    hud?.closeAllUIPanels?.();
+
+    return this.sleepSceneIfActive('PlayerHudScene');
+  }
+
+  /**
+   * Zapewnia, że overlay istnieje i jest aktywny:
+   * - wybudza scenę śpiącą,
+   * - wznawia scenę pauzowaną,
+   * - wynosi aktywną na wierzch,
+   * - lazy-loaduje brakującą.
+   *
+   * Zwraca instancję sceny lub null.
+   */
+  async ensureOverlayScene(sceneKey, data = {}) {
+    if (!sceneKey) {
+      console.error(
+        '[BaseScene] ensureOverlayScene() requires a scene key.'
+      );
+
+      return null;
     }
 
-    closeInventory() {
-        inventoryManager.close();
+    if (this.isSceneSleeping(sceneKey)) {
+      this.scene.wake(sceneKey);
+      this.scene.bringToTop(sceneKey);
+
+      return this.getRegisteredScene(sceneKey);
     }
 
-    getAllInventoryItems() {
-        return inventoryManager.getAllItems();
+    if (this.isScenePaused(sceneKey)) {
+      this.scene.resume(sceneKey);
+      this.scene.bringToTop(sceneKey);
+
+      return this.getRegisteredScene(sceneKey);
     }
 
-    // ------------------------------------------------------------------
-    // Lazy scene navigation (SceneLoader integration)
-    // ------------------------------------------------------------------
+    if (this.isSceneActive(sceneKey)) {
+      this.scene.bringToTop(sceneKey);
 
-    /**
-     * Zamiennik `this.scene.start(key, data)`.
-     * Jeśli docelowa scena nie została jeszcze zaimportowana (patrz
-     * sceneRegistry.js / SceneLoader.js), doładowuje ją w tle, opcjonalnie
-     * pokazując LoadingOverlayScene, i dopiero potem startuje.
-     *
-     * Chroni przed race condition: jeśli ta scena zostanie zamknięta
-     * (shutdown/sleep) w trakcie trwania importu — np. gracz kliknął
-     * "Wstecz" zanim import się skończył — nie wywołujemy scene.start()
-     * na martwej scenie.
-     */
-async goto(key, data = {}) {
+      return this.getRegisteredScene(sceneKey);
+    }
+
+    const opened = await this.launchOverlay(
+      sceneKey,
+      data
+    );
+
+    if (!opened) {
+      return null;
+    }
+
+    this.bringSceneToTopIfActive(sceneKey);
+
+    return this.getRegisteredScene(sceneKey);
+  }
+
+  /**
+   * Przywraca PlayerHudScene:
+   * - wybudza go ze sleep,
+   * - wznawia z pause,
+   * - albo lazy-loaduje, jeśli jeszcze nie istnieje.
+   */
+  async restorePlayerHud(data = {}) {
+    const hud = await this.ensureOverlayScene(
+      'PlayerHudScene',
+      data
+    );
+
+    if (!hud) {
+      return null;
+    }
+
+    hud.refreshNotebook?.();
+    hud.refreshUI?.();
+
+    return hud;
+  }
+
+  // ------------------------------------------------------------------
+  // Lazy scene navigation
+  // ------------------------------------------------------------------
+
+  /**
+   * Zamiennik this.scene.start(key, data).
+   *
+   * Dla pełnych scen, np.:
+   * CityScene, LocationScene, CrimeCityScene, HotelScene,
+   * TravelTransitionScene, GameOverScene, MenuScene.
+   */
+  async goto(key, data = {}) {
+    if (!key) {
+      console.error('[BaseScene] goto() requires a scene key.');
+      return false;
+    }
+
     if (this._sceneLoaderNavInFlight) {
-        return false;
-    }
-
-    if (!this.game.sceneLoader) {
-        this.scene.start(key, data);
-        return true;
+      return false;
     }
 
     this._sceneLoaderNavInFlight = true;
 
     try {
-        return await this.game.sceneLoader.goto(this, key, data);
-    } catch (err) {
-        console.error(`BaseScene.goto("${key}") failed:`, err);
+      if (this.game.sceneLoader) {
+        return await this.game.sceneLoader.goto(
+          this,
+          key,
+          data
+        );
+      }
+
+      if (!this.hasScene(key)) {
+        console.error(
+          `[BaseScene] Cannot start "${key}". ` +
+          'The scene is not registered and SceneLoader is unavailable.'
+        );
+
         return false;
+      }
+
+      this.scene.start(key, data);
+
+      return true;
+    } catch (error) {
+      console.error(
+        `[BaseScene] goto("${key}") failed:`,
+        error
+      );
+
+      return false;
     } finally {
-        this._sceneLoaderNavInFlight = false;
+      this._sceneLoaderNavInFlight = false;
     }
-}
+  }
 
-    /**
-     * Zamiennik `this.scene.launch(key, data)` dla scen nakładkowych
-     * (PhoneCallScene, NewspaperOverlayScene itp.), z tym samym leniwym
-     * doładowywaniem co `goto()`.
-     */
-    async launchOverlay(key, data = {}) {
-        if (!this.game.sceneLoader) {
-            this.scene.launch(key, data);
-            return;
+  /**
+   * Zamiennik this.scene.launch(key, data).
+   *
+   * Dla scen nakładkowych, np.:
+   * PhoneCallScene, NewsstandScene, TvBroadcastScene,
+   * SettingsScene, HypothesisScene, NewspaperOverlayScene.
+   *
+   * Jeżeli scena jest śpiąca albo pauzowana, zostaje przywrócona,
+   * a nie uruchomiona drugi raz.
+   */
+  async launchOverlay(key, data = {}) {
+    if (!key) {
+      console.error(
+        '[BaseScene] launchOverlay() requires a scene key.'
+      );
+
+      return false;
+    }
+
+    if (!this._overlayLoadsInFlight) {
+      this._overlayLoadsInFlight = new Set();
+    }
+
+    if (this.isSceneSleeping(key)) {
+      this.scene.wake(key);
+      this.scene.bringToTop(key);
+
+      return true;
+    }
+
+    if (this.isScenePaused(key)) {
+      this.scene.resume(key);
+      this.scene.bringToTop(key);
+
+      return true;
+    }
+
+    if (this.isSceneActive(key)) {
+      this.scene.bringToTop(key);
+
+      return true;
+    }
+
+    if (this._overlayLoadsInFlight.has(key)) {
+      return false;
+    }
+
+    this._overlayLoadsInFlight.add(key);
+
+    try {
+      if (this.game.sceneLoader) {
+        await this.game.sceneLoader.launch(
+          this,
+          key,
+          data
+        );
+      } else {
+        if (!this.hasScene(key)) {
+          console.error(
+            `[BaseScene] Cannot launch "${key}". ` +
+            'The scene is not registered and SceneLoader is unavailable.'
+          );
+
+          return false;
         }
 
-        try {
-            await this.game.sceneLoader.launch(this, key, data);
-        } catch (err) {
-            console.error(`BaseScene.launchOverlay("${key}") failed:`, err);
-        }
+        this.scene.launch(key, data);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(
+        `[BaseScene] launchOverlay("${key}") failed:`,
+        error
+      );
+
+      return false;
+    } finally {
+      this._overlayLoadsInFlight.delete(key);
+    }
+  }
+
+  /**
+   * Otwiera / zamyka overlay.
+   *
+   * Zwraca:
+   * - "opened"
+   * - "closed"
+   * - "loading"
+   * - "error"
+   */
+  async toggleOverlay(key, data = {}) {
+    if (!key) {
+      console.error(
+        '[BaseScene] toggleOverlay() requires a scene key.'
+      );
+
+      return 'error';
     }
 
-    /**
-     * ✅ Proper shutdown
-     */
-    shutdown() {
-        this.cleanup();
+    if (this.isSceneActive(key)) {
+      this.scene.stop(key);
+
+      return 'closed';
     }
+
+    if (this._overlayLoadsInFlight?.has(key)) {
+      return 'loading';
+    }
+
+    const launched = await this.launchOverlay(
+      key,
+      data
+    );
+
+    return launched
+      ? 'opened'
+      : 'error';
+  }
+
+  shutdown() {
+    this.cleanup();
+  }
 }

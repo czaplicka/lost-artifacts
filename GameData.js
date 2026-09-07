@@ -79,6 +79,7 @@ export const defaultGameState = {
   successfulArrestCaseIds: [],
   isGameActive: false,
   difficulty: 'field',
+  passport: null,
 
   energy: 100,
   maxEnergy: 100,

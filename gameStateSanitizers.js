@@ -126,6 +126,49 @@ function sanitizeMoneyLog(value) {
     ? value.map(sanitizeMoneyTransaction).filter(Boolean).slice(-100)
     : [];
 }
+
+// --- Sanitizing paszportu ---
+function sanitizePassportStamp(stamp) {
+  if (!isPlainObject(stamp)) return null;
+  if (typeof stamp.stampId !== 'string' || !stamp.stampId.trim()) return null;
+  if (!isValidId(stamp.locationId)) return null;
+
+  return {
+    stampId: stamp.stampId,
+    locationId: stamp.locationId,
+    city: typeof stamp.city === 'string' ? stamp.city : 'Unknown City',
+    country: typeof stamp.country === 'string' ? stamp.country : 'Unknown Country',
+    travelRegion: typeof stamp.travelRegion === 'string' ? stamp.travelRegion : null,
+    gameDay: Number.isInteger(stamp.gameDay) ? Math.max(1, stamp.gameDay) : 1,
+    dateLabel: typeof stamp.dateLabel === 'string' ? stamp.dateLabel : '',
+    dateShort: typeof stamp.dateShort === 'string' ? stamp.dateShort : '',
+    inkColor: Number.isInteger(stamp.inkColor) ? stamp.inkColor : 0xb5324a,
+    rotationDeg: Number.isFinite(stamp.rotationDeg) ? stamp.rotationDeg : 0,
+    title: typeof stamp.title === 'string' ? stamp.title : 'ENTRY',
+    customsNote: typeof stamp.customsNote === 'string' ? stamp.customsNote : '',
+    visitNumber: Number.isInteger(stamp.visitNumber) ? Math.max(1, stamp.visitNumber) : 1
+  };
+}
+
+function sanitizePassportStampArray(value) {
+  return Array.isArray(value)
+    ? value.map(sanitizePassportStamp).filter(Boolean)
+    : [];
+}
+
+export function sanitizePassport(data) {
+  const safeData = isPlainObject(data) ? data : {};
+
+  return {
+    passportNumber: typeof safeData.passportNumber === 'string' ? safeData.passportNumber : null,
+    holderName: typeof safeData.holderName === 'string' && safeData.holderName.trim()
+      ? safeData.holderName.trim()
+      : 'J. Doe',
+    issuedDayLabel: typeof safeData.issuedDayLabel === 'string' ? safeData.issuedDayLabel : null,
+    stamps: sanitizePassportStampArray(safeData.stamps)
+  };
+}
+
 function cloneDefaultState() {
     return structuredClone(defaultGameState);
 }
@@ -241,6 +284,8 @@ export function sanitizeSaveData(data) {
   clean.pendingPhoneCallCityId = sanitizeIdOrNull(source.pendingPhoneCallCityId);
   clean.hiddenObjectHistory = sanitizeArray(source.hiddenObjectHistory);
   clean.reconstructedHeist = sanitizeReconstructedHeist(source.reconstructedHeist);
+
+  clean.passport = sanitizePassport(source.passport);
 
   return clean;
 }

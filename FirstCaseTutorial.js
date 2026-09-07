@@ -25,6 +25,40 @@ const STEP_ORDER = [
 
 const TUTORIAL_CACHE_KEY = 'csi';
 
+const FALLBACK_STEP_CONTENT = {
+  walk_to_case_file: {
+    number: 1,
+    title: 'FIRST DAY, FIRST DRAWER',
+    objective: 'Walk over to the case-file cabinet.',
+    hint: 'Use the movement controls and approach the cabinet marked by the glowing frame.',
+    targetHotspot: 'cabinet-casefile',
+  },
+
+  open_case_file: {
+    number: 2,
+    title: 'THE CASE FILE',
+    objective: 'Open the case file in the cabinet.',
+    hint: 'Click the cabinet when you are close enough. Bureaucracy has never been this dangerous.',
+    targetHotspot: 'cabinet-casefile',
+  },
+
+  find_route: {
+    number: 3,
+    title: 'FOLLOW THE GLOBE',
+    objective: 'Use the globe to choose your destination.',
+    hint: 'The globe is the agency travel desk, because apparently airports were too expensive.',
+    targetHotspot: 'globe',
+  },
+
+  travel_to_city: {
+    number: 4,
+    title: 'FIELD WORK',
+    objective: 'Travel to the crime city.',
+    hint: 'Choose the destination and begin the investigation before the trail gets cold.',
+    targetHotspot: 'globe',
+  },
+};
+
 export class FirstCaseTutorial {
   constructor(scene, state) {
     this.scene = scene;
