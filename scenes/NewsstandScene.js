@@ -9,6 +9,7 @@ import { gameState } from '../GameData.js';
 
 const NEWSPAPER_PRICE = 5;
 const COMIX_PRICE = 1;
+const DAILY_NEWSPAPER_ACCESS_KEY = 'dailyNewspaperAccess';
 
 export class NewsstandScene extends BaseScene {
   constructor() {
@@ -128,32 +129,6 @@ export class NewsstandScene extends BaseScene {
     this.createComixHotspots();
     this.createSceneCloseButton();
     this.createComixOverlay();
-  }
-
-  getRegisteredScene(sceneKey) {
-    if (!this.hasScene(sceneKey)) {
-      return null;
-    }
-
-    return this.scene.manager.keys[sceneKey] || null;
-  }
-
-  setNewsHudButtonsVisible(visible) {
-    const hud = this.getRegisteredScene('NewsHud');
-
-    if (!hud?.events) {
-      return;
-    }
-
-    hud.events.emit(
-      'setNewspaperVisible',
-      visible
-    );
-
-    hud.events.emit(
-      'setTvVisible',
-      visible
-    );
   }
 
   getActiveCityId() {
@@ -287,28 +262,104 @@ export class NewsstandScene extends BaseScene {
     });
   }
 
+getCurrentGameDay() {
+  return Math.max(
+    1,
+    Number(
+      gameState.currentDay ??
+      gameState.day ??
+      this.registry.get('currentDay') ??
+      this.registry.get('day') ??
+      1
+    ) || 1
+  );
+}
+
+getNewspaperPurchaseKey(cityId, newspaperId) {
+  const safeCityId = String(cityId || 'unknown_city')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+
+  const safeNewspaperId = String(newspaperId || 'daily')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+
+  const gameDay = this.getCurrentGameDay();
+
+  return `${safeCityId}:${gameDay}:${safeNewspaperId}`;
+}
+
+ensureDailyNewspaperAccessState() {
+  if (
+    !gameState[DAILY_NEWSPAPER_ACCESS_KEY] ||
+    typeof gameState[DAILY_NEWSPAPER_ACCESS_KEY] !== 'object' ||
+    Array.isArray(gameState[DAILY_NEWSPAPER_ACCESS_KEY])
+  ) {
+    gameState[DAILY_NEWSPAPER_ACCESS_KEY] = {};
+  }
+
+  return gameState[DAILY_NEWSPAPER_ACCESS_KEY];
+}
+
+hasNewspaperAccessForToday(cityId, newspaperId) {
+  const purchases = this.ensureDailyNewspaperAccessState();
+
+  const purchaseKey = this.getNewspaperPurchaseKey(
+    cityId,
+    newspaperId
+  );
+
+  return purchases[purchaseKey] === true;
+}
+
+markNewspaperAccessForToday(cityId, newspaperId) {
+  const purchases = this.ensureDailyNewspaperAccessState();
+
+  const purchaseKey = this.getNewspaperPurchaseKey(
+    cityId,
+    newspaperId
+  );
+
+  purchases[purchaseKey] = true;
+
+  return purchaseKey;
+}
+
   async buyAndOpenNewspaper(spot) {
-    if (
-      this.isAnimatingOverlay ||
-      this.isOpeningNewspaper
-    ) {
-      return;
-    }
+  if (
+    this.isAnimatingOverlay ||
+    this.isOpeningNewspaper
+  ) {
+    return;
+  }
 
-    this.isOpeningNewspaper = true;
+  this.isOpeningNewspaper = true;
 
-    try {
-      const cityId = this.getActiveCityId();
+  try {
+    const cityId = this.getActiveCityId();
 
+    const alreadyPaidToday =
+      this.hasNewspaperAccessForToday(
+        cityId,
+        spot.id
+      );
+
+    let purchaseId = null;
+
+    if (!alreadyPaidToday) {
       const purchase = moneyManager.spend(spot.price, {
         source: MONEY_SOURCE.CASH,
         category: ECONOMY_CATEGORY.NEWSPAPER,
         description:
-          `Bought ${spot.type} newspaper in ${cityId}`,
+          `Bought ${spot.type} newspaper in ${cityId} ` +
+          `on investigation day ${this.getCurrentGameDay()}`,
         metadata: {
           cityId,
           newspaperId: spot.id,
-          newspaperType: spot.type
+          newspaperType: spot.type,
+          gameDay: this.getCurrentGameDay()
         }
       });
 
@@ -322,40 +373,68 @@ export class NewsstandScene extends BaseScene {
         return;
       }
 
-      this.cityId = cityId;
+      purchaseId = purchase.transaction?.id || null;
 
-      this.stopSceneIfActive('NewspaperOverlayScene');
-
-      const opened = await this.launchOverlay(
-        'NewspaperOverlayScene',
-        {
-          cityId,
-          type: spot.type,
-          jsonKey: spot.jsonKey,
-          backgroundKey: spot.backgroundKey,
-          purchaseId: purchase.transaction?.id || null,
-          sourceScene: 'NewsstandScene'
-        }
+      const accessKey = this.markNewspaperAccessForToday(
+        cityId,
+        spot.id
       );
 
-      if (!opened) {
-        console.error(
-          '[NewsstandScene] Newspaper purchased but NewspaperOverlayScene could not be opened.'
-        );
+      console.log('[NewsstandScene] Newspaper purchased:', {
+        cityId,
+        newspaperId: spot.id,
+        gameDay: this.getCurrentGameDay(),
+        accessKey,
+        purchaseId
+      });
+    } else {
+      console.log(
+        '[NewsstandScene] Newspaper already purchased today; opening free copy.',
+        {
+          cityId,
+          newspaperId: spot.id,
+          gameDay: this.getCurrentGameDay()
+        }
+      );
+    }
 
-        this.showPurchaseErrorMessage();
+    this.cityId = cityId;
+
+    this.stopSceneIfActive(
+      'NewspaperOverlayScene'
+    );
+
+    const opened = await this.launchOverlay(
+      'NewspaperOverlayScene',
+      {
+        cityId,
+        type: spot.type,
+        jsonKey: spot.jsonKey,
+        backgroundKey: spot.backgroundKey,
+        purchaseId,
+        alreadyPaidToday,
+        sourceScene: 'NewsstandScene'
       }
-    } catch (error) {
+    );
+
+    if (!opened) {
       console.error(
-        '[NewsstandScene] Newspaper purchase/open failed:',
-        error
+        '[NewsstandScene] Newspaper access exists, but NewspaperOverlayScene could not be opened.'
       );
 
       this.showPurchaseErrorMessage();
-    } finally {
-      this.isOpeningNewspaper = false;
     }
+  } catch (error) {
+    console.error(
+      '[NewsstandScene] Newspaper purchase/open failed:',
+      error
+    );
+
+    this.showPurchaseErrorMessage();
+  } finally {
+    this.isOpeningNewspaper = false;
   }
+}
 
   createComixHotspots() {
     const hotspots = [
@@ -807,8 +886,6 @@ export class NewsstandScene extends BaseScene {
     this.scale.off('resize', this.handleResize);
 
     this.stopSceneIfActive('NewspaperOverlayScene');
-
-    this.setNewsHudButtonsVisible(true);
 
     EventBus.emit('showHUD');
 

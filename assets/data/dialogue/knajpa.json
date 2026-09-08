@@ -1,15 +1,73 @@
 {
   "knajpaClues": {
     "locationVariants": {
+
+      "default": {
+        "banter": [
+          "Sit anywhere. Order something. Talk while you wait.",
+          "Kitchen's busy, but I've got a minute for questions.",
+          "Everyone who walks in here is hungry or hiding. Sometimes both."
+        ],
+        "topics": {
+          "features": {
+            "Tattoo": ["A tattoo, half-hidden. Kitchen people don't ask, but they notice."],
+            "Glasses": ["Glasses, practical. Not for reading-more for judging."],
+            "Scar": ["A scar. Could be kitchen, could be worse. Either way, not decorative."],
+            "Earrings": ["Earrings, subtle but intentional. Like everything else about them."],
+            "Necklace": ["A necklace that didn't belong in a kitchen. Or maybe that was the point."],
+            "Big forehead": ["Big forehead, the kind that suggests they've sent back a dish just to prove a point."],
+            "Rainbow hair streak": ["A streak of colour in the hair. Memorable, which is more than I can say for their order."],
+            "Moustache": ["A moustache, groomed enough to survive a soup course without incident."],
+            "Beard": ["A beard, tidy enough to pass a health inspection, which is more than I can say for the excuse they gave."],
+            "Long hair": ["Long hair, tied back like they'd worked a kitchen once and never forgot it."],
+            "Goatee": ["A goatee, precise, like they'd practiced looking trustworthy in the bathroom mirror."],
+            "Scarf": ["A scarf, worn indoors, like they didn't plan on staying long enough to need a coat check."]
+          },
+          "accent": {
+            "British": ["British accent, polite on the surface, impatient underneath."],
+            "French": ["French accent, making complaints sound like critique."],
+            "Italian": ["Italian accent, expressive enough to distract from specifics."],
+            "American": ["American accent, confident like they expect service to adapt."],
+            "Polish": ["Polish accent, direct. No wasted words, no wasted time."],
+            "Canadian": ["Canadian accent, polite enough to apologise for sending food back."],
+            "Mexican": ["Mexican accent, warm, though the complaint underneath wasn't."],
+            "Australian": ["Australian accent, blunt about the bill, vague about everything else."],
+            "Dutch": ["Dutch accent, direct, wanted the check before the dessert menu."],
+            "German": ["German accent, precise, treated the reservation like a contract."],
+            "Belarussian": ["Belarussian accent, quiet, ordered the cheapest thing and said nothing else."],
+            "Russian": ["Russian accent, composed, tipped exactly enough to avoid comment."],
+            "Irish": ["Irish accent, chatty with the waiter, vague about everything that mattered."],
+            "Ukrainian": ["Ukrainian accent, careful, watched the door more than the menu."],
+            "Indian": ["Indian accent, quick, negotiating the bill like it was a market stall."],
+            "Belgian": ["Belgian accent, quiet enough that I almost forgot they were even at the table."],
+            "Spanish": ["Spanish accent, fast, in and out before the starters arrived."]
+          },
+          "dish": [
+            "They asked if we served anything with {foodIngredient}.",
+            "They asked about {specialtyDish}, oddly specific for someone just passing through."
+          ]
+        },
+        "repeatLines": [
+          ["We've already been through this.", "I don't repeat myself unless it's on the menu."],
+          ["Back again?", "I hope you ordered something this time."],
+          ["No new info.", "Only new complaints."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city.", "Even my worst waiter could've told you that."],
+          ["That lead didn't hold up.", "Like a bad souffle."],
+          ["Your suspect wasn't there.", "You just wasted a reservation."]
+        ]
+      },
+
       "london": {
         "banter": [
-          "If it’s not overcooked, undercooked or misunderstood, it’s probably not leaving my kitchen.",
+          "If it's not overcooked, undercooked or misunderstood, it's probably not leaving my kitchen.",
           "I run a restaurant, not group therapy. Though the lines blur around lunch.",
           "Reservations lie, chefs improvise, and I fix both."
         ],
         "travelHints": {
           "paris": [
-            "They asked about a city where people argue about butter like it’s politics.",
+            "They asked about a city where people argue about butter like it's politics.",
             "Your suspect wanted to know if service there is rude or just honest.",
             "They mentioned a place where food is art and customers pretend to understand it."
           ],
@@ -24,12 +82,12 @@
             "They talked about a place where everyone is in a hurry, including the lies."
           ],
           "warsaw": [
-            "They asked about a city where people respect food but don’t romanticise it.",
+            "They asked about a city where people respect food but don't romanticise it.",
             "Your suspect mentioned hearty meals and zero tolerance for excuses.",
             "They talked about a place where kitchens are efficient and opinions even more so."
           ],
           "new_delhi": [
-            "They asked about a city where flavour doesn’t ask for permission.",
+            "They asked about a city where flavour doesn't ask for permission.",
             "Your suspect mentioned spices, heat and kitchens that never slow down.",
             "They talked about a place where chaos is part of the recipe."
           ],
@@ -39,107 +97,502 @@
             "They talked about a city where everyone complains but still books a table."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, neat enough to pass inspection. Barely."
-            ],
-            "Brown": [
-              "Brown hair, practical. Like someone who doesn’t have time for mirrors."
-            ],
-            "Blonde": [
-              "Blonde hair, styled like they expected attention—and got too much of it."
-            ],
-            "Red": [
-              "Red hair, hard to miss even during dinner rush."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, scanning like they were reading a menu they didn’t trust."
-            ],
-            "Brown": [
-              "Brown eyes, focused. The kind that notices exits and staff mistakes."
-            ],
-            "Green": [
-              "Green eyes, sharp enough to cut through excuses."
-            ],
-            "Hazel": [
-              "Hazel eyes, restless. Like someone timing everything."
-            ]
-          },
+        "topics": {
           "features": {
-            "Tattoo": [
-              "A tattoo, half-hidden. Kitchen people don’t ask, but they notice."
-            ],
-            "Glasses": [
-              "Glasses, practical. Not for reading—more for judging."
-            ],
-            "Scar": [
-              "A scar. Could be kitchen, could be worse. Either way, not decorative."
-            ],
-            "Earrings": [
-              "Earrings, subtle but intentional. Like everything else about them."
-            ],
-            "Necklace": [
-              "A necklace that didn’t belong in a kitchen. Or maybe that was the point."
-            ]
+            "Tattoo": ["A tattoo, half-hidden. Kitchen people don't ask, but they notice."],
+            "Glasses": ["Glasses, practical. Not for reading-more for judging."],
+            "Scar": ["A scar. Could be kitchen, could be worse. Either way, not decorative."],
+            "Earrings": ["Earrings, subtle but intentional. Like everything else about them."],
+            "Necklace": ["A necklace that didn't belong in a kitchen. Or maybe that was the point."],
+            "Big forehead": ["Big forehead, the kind that suggests they've sent back a dish just to prove a point."],
+            "Rainbow hair streak": ["A streak of colour in the hair. Memorable, which is more than I can say for their order."],
+            "Moustache": ["A moustache, groomed enough to survive a soup course without incident."],
+            "Beard": ["A beard, tidy enough to pass a health inspection, which is more than I can say for the excuse they gave."],
+            "Long hair": ["Long hair, tied back like they'd worked a kitchen once and never forgot it."],
+            "Goatee": ["A goatee, precise, like they'd practiced looking trustworthy in the bathroom mirror."],
+            "Scarf": ["A scarf, worn indoors, like they didn't plan on staying long enough to need a coat check."]
           },
           "accent": {
-            "British": [
-              "British accent, polite on the surface, impatient underneath."
-            ],
-            "French": [
-              "French accent, making complaints sound like critique."
-            ],
-            "Italian": [
-              "Italian accent, expressive enough to distract from specifics."
-            ],
-            "American": [
-              "American accent, confident like they expect service to adapt."
-            ],
-            "Polish": [
-              "Polish accent, direct. No wasted words, no wasted time."
-            ]
+            "British": ["British accent, polite on the surface, impatient underneath."],
+            "French": ["French accent, making complaints sound like critique."],
+            "Italian": ["Italian accent, expressive enough to distract from specifics."],
+            "American": ["American accent, confident like they expect service to adapt."],
+            "Polish": ["Polish accent, direct. No wasted words, no wasted time."],
+            "Canadian": ["Canadian accent, polite enough to apologise for sending food back."],
+            "Mexican": ["Mexican accent, warm, though the complaint underneath wasn't."],
+            "Australian": ["Australian accent, blunt about the bill, vague about everything else."],
+            "Dutch": ["Dutch accent, direct, wanted the check before the dessert menu."],
+            "German": ["German accent, precise, treated the reservation like a contract."],
+            "Belarussian": ["Belarussian accent, quiet, ordered the cheapest thing and said nothing else."],
+            "Russian": ["Russian accent, composed, tipped exactly enough to avoid comment."],
+            "Irish": ["Irish accent, chatty with the waiter, vague about everything that mattered."],
+            "Ukrainian": ["Ukrainian accent, careful, watched the door more than the menu."],
+            "Indian": ["Indian accent, quick, negotiating the bill like it was a market stall."],
+            "Belgian": ["Belgian accent, quiet enough that I almost forgot they were even at the table."],
+            "Spanish": ["Spanish accent, fast, in and out before the starters arrived."]
           },
-          "habitus": {
-            "Smoking": [
-              "Smelled like smoke and stress between shifts."
-            ],
-            "Drinking": [
-              "Moved like someone who closes the bar more often than they admit."
-            ]
-          }
+          "dish": [
+            "They asked if we served anything with {foodIngredient}.",
+            "They asked about {specialtyDish}, oddly specific for someone just passing through."
+          ]
         },
         "repeatLines": [
-          [
-            "We’ve already been through this.",
-            "I don’t repeat myself unless it’s on the menu."
-          ],
-          [
-            "Back again?",
-            "I hope you ordered something this time."
-          ],
-          [
-            "No new info.",
-            "Only new complaints."
-          ]
+          ["We've already been through this.", "I don't repeat myself unless it's on the menu."],
+          ["Back again?", "I hope you ordered something this time."],
+          ["No new info.", "Only new complaints."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Even my worst waiter could’ve told you that."
+          ["Wrong city.", "Even my worst waiter could've told you that."],
+          ["That lead didn't hold up.", "Like a bad souffle."],
+          ["Your suspect wasn't there.", "You just wasted a reservation."]
+        ]
+      },
+
+      "paris": {
+        "banter": [
+          "Here, we don't serve food, we serve opinions with garnish.",
+          "A good meal should make you feel judged. That's how you know it's authentic.",
+          "Reservations are sacred. Punctuality, less so."
+        ],
+        "travelHints": {
+          "london": [
+            "They asked about a city that boils everything and calls it comfort food.",
+            "Your suspect wondered if the tea really fixes as much as the English claim.",
+            "They mentioned a place where the food apologises before you even taste it."
           ],
-          [
-            "That lead didn’t hold up.",
-            "Like a bad soufflé."
+          "berlin": [
+            "They asked about a city where late-night currywurst passes for cuisine.",
+            "Your suspect mentioned kitchens that never really close, just get quieter.",
+            "They wanted to know if anyone there eats sitting down."
           ],
-          [
-            "Your suspect wasn’t there.",
-            "You just wasted a reservation."
+          "new_york_city": [
+            "They asked about a city where bagels are a personality trait.",
+            "Your suspect mentioned portions too large for the manners required here.",
+            "They talked about a place where nobody finishes a meal without checking their phone."
+          ],
+          "warsaw": [
+            "They asked about a city that takes its dumplings more seriously than its traffic laws.",
+            "Your suspect mentioned hearty food and even heartier opinions about it.",
+            "They wondered if flavor there comes from tradition or stubbornness."
+          ],
+          "new_delhi": [
+            "They asked about a city where spice is a philosophy, not a seasoning.",
+            "Your suspect mentioned heat that has nothing to do with the weather.",
+            "They talked about a market where every stall argues with the last one."
+          ],
+          "paris": [
+            "They talked about this city like someone who'd already memorized the wine list.",
+            "They mentioned butter, patience, and the correct way to hold a complaint.",
+            "They described narrow streets and even narrower standards for dinner."
           ]
+        },
+        "topics": {
+          "features": {
+            "Big forehead": ["Big forehead, the sort that critiques the wine before tasting it."],
+            "Tattoo": ["A tattoo, discreet, the way all good secrets should be."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bold enough to distract from the bill."],
+            "Necklace": ["A necklace worth more than the tasting menu, which says something."],
+            "Scar": ["A faint scar, never explained, never questioned. We have manners."],
+            "Moustache": ["A moustache, groomed with the same care as the souffle."],
+            "Glasses": ["Round glasses, intellectual, judging the cutlery arrangement."],
+            "Beard": ["A short beard, deliberately unkempt, the expensive kind."],
+            "Long hair": ["Long hair, loose, like they wanted the wind to finish the look."],
+            "Earrings": ["Earrings that caught the candlelight every time they complained."],
+            "Goatee": ["A goatee, precise, rehearsed for the maitre d'."],
+            "Scarf": ["A scarf worn indoors, purely for effect."]
+          },
+          "accent": {
+            "French": ["French accent, naturally, delivered like a compliment to themselves."],
+            "British": ["A British accent, trying very hard not to be impressed by the menu."],
+            "Italian": ["An Italian accent, turning the wine order into a monologue."],
+            "Spanish": ["A Spanish accent, warm, though the complaint underneath was sharp."],
+            "American": ["An American accent, loud enough to embarrass the sommelier."],
+            "Canadian": ["A Canadian accent, apologizing for sending back the fish."],
+            "Mexican": ["A Mexican accent, warm tone, precise complaint."],
+            "Australian": ["An Australian accent, blunt about the price of water here."],
+            "Dutch": ["A Dutch accent, direct, wanted the bill before dessert."],
+            "German": ["A German accent, precise, treating the menu like a contract."],
+            "Polish": ["A Polish accent, steady, unimpressed by the theatrics."],
+            "Belarussian": ["A Belarussian accent, quiet, ordering the cheapest thing on principle."],
+            "Russian": ["A Russian accent, composed, tipping exactly enough to avoid comment."],
+            "Irish": ["An Irish accent, chatty with the waiter, vague about everything else."],
+            "Ukrainian": ["A Ukrainian accent, careful, watching the door more than the dessert cart."],
+            "Indian": ["An Indian accent, smooth, negotiating the bill like a market stall."],
+            "Belgian": ["A Belgian accent, easy to miss, which is probably the point."]
+          },
+          "dish": [
+            "They asked if we could make {specialtyDish} without the wait.",
+            "They asked about {foodIngredient}, though I doubt they'd ever admit to eating it."
+          ]
+        },
+        "repeatLines": [
+          ["We've already discussed this.", "Nothing's changed except which wine I've opened."],
+          ["Back again?", "Do sit. Don't order the fish."],
+          ["No new information.", "Only new complaints about the bread basket."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city.", "A charming mistake. Still a mistake."],
+          ["That lead was undercooked.", "Send it back."],
+          ["Your suspect never dined here.", "You wasted a very good table."]
+        ]
+      },
+
+      "berlin": {
+        "banter": [
+          "Order fast or don't order. The kitchen doesn't do suspense.",
+          "We don't do small talk here. We do large portions.",
+          "Closing time is a suggestion, not a rule."
+        ],
+        "travelHints": {
+          "london": [
+            "They asked about a city that boils its vegetables into apology.",
+            "Your suspect mentioned tea replacing every meal that went wrong.",
+            "They talked about a place where the food is polite and forgettable."
+          ],
+          "paris": [
+            "They asked about a city where a small plate costs more than a full meal here.",
+            "Your suspect mentioned portions so small they came with an explanation.",
+            "They wanted to know if elegance actually fills you up."
+          ],
+          "new_york_city": [
+            "They asked about a city that never sleeps but somehow still runs out of bagels.",
+            "Your suspect mentioned a kitchen faster than ours and twice as loud.",
+            "They talked about a place where the rush never really stops."
+          ],
+          "warsaw": [
+            "They asked about a city that takes its dumplings as seriously as we take our sausages.",
+            "Your suspect mentioned heavy food and heavier silence.",
+            "They wondered if the cold there improves the appetite or just the patience."
+          ],
+          "new_delhi": [
+            "They asked about a city where the spice level is basically a dare.",
+            "Your suspect mentioned kitchens louder than ours, if that's possible.",
+            "They talked about a market that never really closes."
+          ],
+          "berlin": [
+            "They talked about this place like someone who respects late kitchens and no small talk.",
+            "They mentioned basements, sausages, and a bar that doesn't check the time.",
+            "They described a city that eats standing up and calls it efficient."
+          ]
+        },
+        "topics": {
+          "features": {
+            "Scar": ["A scar, no explanation offered, none needed here."],
+            "Tattoo": ["A tattoo, geometric, looked more like a diagram than decoration."],
+            "Glasses": ["Simple glasses, practical, no wasted sentiment."],
+            "Big forehead": ["Big forehead, calculating the bill before it arrived."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual, though nobody blinked."],
+            "Necklace": ["A plain necklace, functional, like everything else about them."],
+            "Moustache": ["A moustache, trimmed with the same discipline as the order."],
+            "Beard": ["A beard, precise at the edges, budgeted like the tab."],
+            "Long hair": ["Long hair, tied back tight, nothing loose about the whole visit."],
+            "Earrings": ["Small earrings, easy to miss, unlike the bill they left unpaid."],
+            "Goatee": ["A goatee, exact, measured like the portion sizes."],
+            "Scarf": ["A scarf, practical, wrapped like the cold actually mattered."]
+          },
+          "accent": {
+            "German": ["German accent, efficient, ordering like every word cost money."],
+            "Polish": ["Polish accent, practical, unbothered by the noise."],
+            "Russian": ["Russian accent, slow, deliberate, like heavy doors closing."],
+            "Canadian": ["Canadian accent, apologizing for a complaint that wasn't sincere."],
+            "Mexican": ["Mexican accent, casual tone, serious order."],
+            "Australian": ["Australian accent, blunt enough to skip the menu entirely."],
+            "American": ["American accent, loud, negotiating a discount that didn't exist."],
+            "Dutch": ["Dutch accent, matching the directness of the whole place."],
+            "British": ["British accent, polite, though the complaint wasn't."],
+            "Spanish": ["Spanish accent, warm, out of step with how cold the beer was."],
+            "Belarussian": ["Belarussian accent, quiet, exact, answering only what I asked."],
+            "Italian": ["Italian accent, animated enough to turn ordering into theater."],
+            "Irish": ["Irish accent, talkative, vague on what they actually wanted."],
+            "French": ["French accent, amused that Berlin takes its currywurst so seriously."],
+            "Ukrainian": ["Ukrainian accent, alert, counted the change before trusting it."],
+            "Indian": ["Indian accent, adapting fast to the cold and the silence of the place."],
+            "Belgian": ["Belgian accent, easy to miss in this city's noise, but I caught it."]
+          },
+          "dish": [
+            "They asked for {specialtyDish}, no questions about the price.",
+            "They asked if we used {foodIngredient}, like it mattered at this hour."
+          ]
+        },
+        "repeatLines": [
+          ["We already covered this, detective.", "Kitchen's still open, information isn't."],
+          ["Back again?", "Same counter, same silence."],
+          ["No new whispers.", "Just the grill and the regulars."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city.", "Direct, like the people here."],
+          ["That lead's cold.", "Should've eaten it while it was hot."],
+          ["The suspect wasn't at the counter.", "Just regulars and bad decisions."]
+        ]
+      },
+
+      "new_york_city": {
+        "banter": [
+          "Order fast, eat faster, this isn't a sit-down therapy session.",
+          "Everyone's in a rush here, including the ketchup.",
+          "Table's yours for twenty minutes, tops."
+        ],
+        "travelHints": {
+          "london": [
+            "They asked about a city where tea solves everything except the food.",
+            "Your suspect mentioned portions polite enough to apologise for existing.",
+            "They talked about a place where dinner comes with a side of small talk about weather."
+          ],
+          "paris": [
+            "They asked about a city where a sandwich takes an hour and costs a fortune.",
+            "Your suspect mentioned portions too small to justify the wait staff's attitude.",
+            "They wanted to know if anyone there eats standing up. Ever."
+          ],
+          "berlin": [
+            "They asked about a city that eats standing up at 3 AM and calls it dinner.",
+            "Your suspect mentioned basements louder than our kitchen during rush.",
+            "They talked about a place where the night shift never really clocks out."
+          ],
+          "warsaw": [
+            "They asked about a city that takes dumplings more seriously than deadlines.",
+            "Your suspect mentioned heavy meals and heavier patience.",
+            "They wondered if the cold there makes the food taste better or just necessary."
+          ],
+          "new_delhi": [
+            "They asked about a city louder than this one, which is saying something.",
+            "Your suspect mentioned a kitchen that never really stops, same as ours.",
+            "They talked about a market that argues with itself all day."
+          ],
+          "new_york_city": [
+            "They talked about this place like someone who respects fast service and faster opinions.",
+            "They mentioned bagels, rush hours, and tips that decide your whole mood.",
+            "They described a city where brunch is basically a competitive sport."
+          ]
+        },
+        "topics": {
+          "features": {
+            "Tattoo": ["A tattoo visible under the diner lights, bold and unwise."],
+            "Glasses": ["Glasses too expensive for someone claiming to be broke."],
+            "Beard": ["A beard groomed like they had somewhere important to be after breakfast."],
+            "Big forehead": ["Big forehead, already three moves ahead of the order."],
+            "Rainbow hair streak": ["A streak of colour in the hair, loud enough to match the neon sign."],
+            "Necklace": ["A flashy necklace, part of the outfit, not the appetite."],
+            "Scar": ["A scar, no story offered, none needed here."],
+            "Moustache": ["A moustache, ironic enough to be a bit."],
+            "Long hair": ["Long hair, moving fast, like the whole meal."],
+            "Earrings": ["Small earrings, catching light every time they complained."],
+            "Goatee": ["A goatee, sharp-edged, means business or thinks it does."],
+            "Scarf": ["A scarf thrown on fast, more armor than fashion."]
+          },
+          "accent": {
+            "American": ["American accent, obviously, ordering like they own the counter."],
+            "British": ["British accent, wobbling under jet lag and the size of the portions."],
+            "Spanish": ["Spanish accent, fast-paced, keeping pace with the whole kitchen."],
+            "Canadian": ["Canadian accent, polite enough to apologize for a to-go order."],
+            "Mexican": ["Mexican accent, quick, closing the order at the pace of the whole block."],
+            "Australian": ["Australian accent, loud, though this place still out-talks it."],
+            "Dutch": ["Dutch accent, blunt, straight to the order and out the door."],
+            "German": ["German accent, clipped, treating breakfast like an audit."],
+            "Polish": ["Polish accent, steady, unbothered by the noise."],
+            "Belarussian": ["Belarussian accent, guarded, said little beyond the order."],
+            "Russian": ["Russian accent, calm, making the rush around them look worse."],
+            "Italian": ["Italian accent, turning a coffee order into a performance."],
+            "Irish": ["Irish accent, chatty, saying plenty while revealing nothing useful."],
+            "French": ["French accent, cool, amused by how fast this place moves."],
+            "Ukrainian": ["Ukrainian accent, sharp, watching the door as much as the check."],
+            "Indian": ["Indian accent, smooth, ordering like they'd done this a hundred times."],
+            "Belgian": ["Belgian accent, quiet enough to almost get lost in the noise."]
+          },
+          "dish": [
+            "They asked for {specialtyDish}, to go, obviously.",
+            "They asked if we had {foodIngredient}, like that was ever in doubt here."
+          ]
+        },
+        "repeatLines": [
+          ["Yeah, we talked already, detective.", "Still the same rush, still the same answers."],
+          ["Back again?", "Table's free. Clock's still running."],
+          ["No update.", "Kitchen's loud, but none of it was useful."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city, detective.", "Fast mistake, fast regret."],
+          ["That lead's cold.", "Like the coffee you didn't finish."],
+          ["Your suspect wasn't here.", "Just the rush and your bad timing."]
+        ]
+      },
+
+      "warsaw": {
+        "banter": [
+          "Food here is honest. Complaints, less so.",
+          "We don't do fancy. We do full.",
+          "Eat first, talk later. That's the order here."
+        ],
+        "travelHints": {
+          "london": [
+            "They asked about a city that boils everything and calls it tradition.",
+            "Your suspect mentioned tea replacing meals that clearly went wrong.",
+            "They talked about a place where the food apologises before it's even served."
+          ],
+          "paris": [
+            "They asked about a city where a small plate costs more than our whole menu.",
+            "Your suspect mentioned portions too small for real weather.",
+            "They wondered if elegance actually fills you up there."
+          ],
+          "berlin": [
+            "They asked about a city that eats standing up and calls it culture.",
+            "Your suspect mentioned sausages and basements louder than our kitchen.",
+            "They talked about a place where the night shift never really ends."
+          ],
+          "new_york_city": [
+            "They asked about a city that rushes meals like it's a competition.",
+            "Your suspect mentioned bagels and a kitchen faster than ours.",
+            "They talked about a place too busy to sit down properly."
+          ],
+          "new_delhi": [
+            "They asked about a city where spice does the talking.",
+            "Your suspect mentioned heat that has nothing to do with the weather.",
+            "They talked about a market that argues with itself all day long."
+          ],
+          "warsaw": [
+            "They talked about this place like someone who respects a full plate and no nonsense.",
+            "They mentioned dumplings, soup, and portions that don't apologise for existing.",
+            "They described a city that rebuilt its kitchens the same way it rebuilt everything else."
+          ]
+        },
+        "topics": {
+          "features": {
+            "Beard": ["A beard, tidy, the kind that suggests discipline, not vanity."],
+            "Necklace": ["A small necklace, nothing fancy - people here know how to hide value."],
+            "Big forehead": ["Big forehead, the kind that thinks too much over a bowl of soup."],
+            "Tattoo": ["A tattoo, old and faded, outliving whatever it used to mean."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though the young ones are catching on."],
+            "Scar": ["A small scar, old enough for a story, recent enough to matter."],
+            "Moustache": ["A moustache, unremarkable, half the men here have one over dinner."],
+            "Glasses": ["Glasses, slightly scratched, someone who works more than they eat."],
+            "Long hair": ["Long hair, tied back tight against the cold outside."],
+            "Earrings": ["Simple earrings, checked once, like they mattered more than the soup."],
+            "Goatee": ["A goatee, kept out of habit, not fashion."],
+            "Scarf": ["A scarf, wrapped tight, the way everyone here learns eventually."]
+          },
+          "accent": {
+            "Polish": ["Polish accent, grounded, unhurried, like someone who's waited for worse things than food."],
+            "Canadian": ["Canadian accent, polite, slightly out of place at this table."],
+            "Mexican": ["Mexican accent, warm, an odd contrast to the grey outside."],
+            "Australian": ["Australian accent, casual, making our portions look modest."],
+            "American": ["American accent, confident, ordering like they already knew the menu."],
+            "Dutch": ["Dutch accent, direct, which people here actually respect."],
+            "British": ["British accent, formal, until the bill arrived."],
+            "German": ["German accent, precise enough to double-check the receipt."],
+            "Spanish": ["Spanish accent, lively, out of step with the quiet of the room."],
+            "Belarussian": ["Belarussian accent, familiar, careful the way border towns teach you to be."],
+            "Russian": ["Russian accent, softened at the edges, still sharp about the price."],
+            "Italian": ["Italian accent, animated, drawing more attention than the soup needed."],
+            "Irish": ["Irish accent, easygoing, offering stories instead of a straight order."],
+            "French": ["French accent, amused by how seriously we take a bowl of soup."],
+            "Ukrainian": ["Ukrainian accent, careful, used to being asked twice."],
+            "Indian": ["Indian accent, businesslike, adjusting fast to the cold and the menu."],
+            "Belgian": ["Belgian accent, quiet enough that most people miss it."]
+          },
+          "dish": [
+            "They asked if we served {specialtyDish}, and meant it seriously.",
+            "They asked about {foodIngredient}, like they already missed it."
+          ]
+        },
+        "repeatLines": [
+          ["We already talked.", "No new faces, no new orders."],
+          ["Back again?", "You're hungrier than the tram schedule is punctual."],
+          ["Nothing new, detective.", "If something changed, the soup would know first."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city, detective.", "Happens. Eat something, then fix it."],
+          ["That lead was thin.", "Like broth without the meat."],
+          ["The suspect isn't here.", "Just regulars and empty bowls."]
+        ]
+      },
+
+      "new_delhi": {
+        "banter": [
+          "Sit, eat, then ask your questions. Hunger makes bad detectives.",
+          "Spice is not optional here. Neither is patience.",
+          "The kitchen never really stops. Neither does the noise."
+        ],
+        "travelHints": {
+          "london": [
+            "They asked about a city that boils flavor out before it starts.",
+            "Your suspect mentioned food polite enough to apologise for itself.",
+            "They talked about a place where tea replaces a meal, apparently."
+          ],
+          "paris": [
+            "They asked about a city where portions are small and opinions are large.",
+            "Your suspect mentioned food treated like art instead of dinner.",
+            "They wondered if beauty on a plate actually fills you up."
+          ],
+          "berlin": [
+            "They asked about a city that eats standing up and calls it a philosophy.",
+            "Your suspect mentioned sausages and basements louder than our kitchen.",
+            "They talked about a place where the night shift outlasts the day."
+          ],
+          "new_york_city": [
+            "They asked about a city louder than this one somehow, which is a feat.",
+            "Your suspect mentioned a kitchen as fast and loud as ours, maybe faster.",
+            "They talked about a place too busy to enjoy the food properly."
+          ],
+          "warsaw": [
+            "They asked about a city that takes its soup more seriously than its traffic.",
+            "Your suspect mentioned dumplings and portions built for the cold.",
+            "They wondered if the cold there sharpens the appetite or just the mood."
+          ],
+          "new_delhi": [
+            "They talked about this place like someone who understood that chaos and flavor share a kitchen.",
+            "They mentioned spice, heat, and a market that never really quiets down.",
+            "They described a city where the food argues back if you let it."
+          ]
+        },
+        "topics": {
+          "features": {
+            "Necklace": ["A small pendant tapping against their chest every time they ordered more."],
+            "Glasses": ["Glasses fogged from the kitchen heat, sharp eyes behind them regardless."],
+            "Big forehead": ["Big forehead, gleaming under the ceiling fan, still deciding on the order."],
+            "Tattoo": ["A small tattoo, half-faded, like a spice they couldn't quite place."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bright even in this glare."],
+            "Scar": ["A small scar, the kind nobody explains and everybody notices."],
+            "Moustache": ["A neat moustache, half the men in here seem to grow one."],
+            "Beard": ["A short beard, more humidity than fashion by the time the food arrived."],
+            "Long hair": ["Long hair, tied back fast, like the heat mattered more than the style."],
+            "Earrings": ["Small earrings, catching light every time they asked for more spice."],
+            "Goatee": ["A goatee, trimmed despite the heat, which takes real dedication."],
+            "Scarf": ["A light scarf, more for the dust than for style."]
+          },
+          "accent": {
+            "Indian": ["An Indian accent, local, fast, ordering like they'd done it a hundred times."],
+            "British": ["A British accent, melting slightly with the first bite."],
+            "American": ["An American accent, sweating and pretending not to be overwhelmed by the spice."],
+            "Canadian": ["Canadian accent, polite even while sweating through the heat."],
+            "Mexican": ["Mexican accent, warm, right at home with the noise of the kitchen."],
+            "Australian": ["Australian accent, relaxed, though nothing here relaxes for long."],
+            "Dutch": ["Dutch accent, blunt, cutting past the menu straight to the order."],
+            "German": ["German accent, oddly composed given the chaos around the stove."],
+            "Polish": ["Polish accent, steady, unbothered by the heat or the noise."],
+            "Spanish": ["Spanish accent, animated, matching the energy of the kitchen."],
+            "Belarussian": ["Belarussian accent, quiet, watching the food more than speaking."],
+            "Russian": ["Russian accent, measured, unaffected by the general commotion."],
+            "Italian": ["Italian accent, theatrical, turning the order into a small performance."],
+            "Irish": ["Irish accent, friendly, chatting past every interruption without losing their appetite."],
+            "French": ["French accent, cool, unmoved by the heat or the spice level."],
+            "Ukrainian": ["Ukrainian accent, alert, watching the kitchen as much as the stranger."],
+            "Belgian": ["Belgian accent, easy to miss under all this noise. I didn't."]
+          },
+          "dish": [
+            "They asked for {specialtyDish}, extra spicy, like it was a dare.",
+            "They asked about {foodIngredient}, then ordered it twice."
+          ]
+        },
+        "repeatLines": [
+          ["We already spoke, detective.", "Since then only the spice level has changed."],
+          ["Back again?", "You must really like heat and bad odds."],
+          ["No new clue.", "Just the same noise, same orders, different excuses."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city.", "Loud mistake, easy to hear from the kitchen."],
+          ["That lead burned out fast.", "Like a dish with too much chili and no plan."],
+          ["Your suspect is somewhere else.", "You only managed to chase the smell."]
         ]
       }
+
     }
   }
 }

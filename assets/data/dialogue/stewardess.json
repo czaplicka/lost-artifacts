@@ -1,6 +1,64 @@
 {
-  "stewardessClues": {
+  "stewardessaClues": {
     "locationVariants": {
+
+      "default": {
+        "banter": [
+          "Boarding's closed, but I've got a minute for a good story.",
+          "You've got that look. Off-duty and curious, or on the job?",
+          "Every flight has one passenger worth remembering. Yours was memorable."
+        ],
+        "topics": {
+          "features": {
+            "Glasses": ["Travel glasses, the kind people wear when they want to look harmless and stay awake."],
+            "Scarf": ["A scarf used as both fashion statement and portable hiding place."],
+            "Tattoo": ["A small tattoo just visible when they reached for the overhead bin."],
+            "Earrings": ["Simple earrings, chosen to pass security and still catch the light."],
+            "Big forehead": ["Big forehead, calm exterior, definitely rehearsed answers."],
+            "Rainbow hair streak": ["A streak of colour in the hair, hard to miss even under cabin lighting."],
+            "Necklace": ["A necklace that caught the light every time they reached for the call button."],
+            "Scar": ["A scar, never explained, noted anyway."],
+            "Moustache": ["A moustache, groomed enough to survive a full transatlantic flight."],
+            "Beard": ["A beard, tidy, regulation enough to pass boarding without a second look."],
+            "Long hair": ["Long hair, tied back the whole flight, nothing left to chance."],
+            "Goatee": ["A goatee, precise, like it had been trimmed specifically for this trip."]
+          },
+          "accent": {
+            "British": ["British accent, local enough to blend, polished enough to be rehearsed."],
+            "American": ["American accent, trying very hard not to sound impressed by anything."],
+            "Canadian": ["Canadian accent, polite even through turbulence."],
+            "Mexican": ["Mexican accent, warm, though the questions underneath weren't."],
+            "Australian": ["Australian accent, casual, unbothered by the delay."],
+            "Dutch": ["Dutch accent, direct, wanted the details and nothing else."],
+            "German": ["German accent, precise, treated the boarding process like a schedule."],
+            "Polish": ["Polish accent, steady, unbothered by the whole flight."],
+            "Spanish": ["Spanish accent, melodic, wrapped around very careful questions."],
+            "Belarussian": ["Belarussian accent, quiet, guarded the whole way."],
+            "Russian": ["Russian accent, composed, like every word had passed inspection."],
+            "Italian": ["Italian accent, charming enough to almost distract from the odd request."],
+            "Irish": ["Irish accent, chatty, vague on the actual destination."],
+            "French": ["French accent, composed, entirely too aware of itself."],
+            "Ukrainian": ["Ukrainian accent, careful, chose words like they cost extra."],
+            "Indian": ["Indian accent, polished, adapting fast to the cabin crew's questions."],
+            "Belgian": ["Belgian accent, subtle enough that most crew would miss it. I didn't."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
+        },
+        "repeatLines": [
+          ["We already spoke, detective.", "Nothing new has boarded this memory."],
+          ["Back again?", "Still the same passenger, same route, different cloud."],
+          ["No new clues.", "Just the usual mix of delayed tempers and punctual drizzle."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city, detective.", "Very traditional mistake, if that helps."],
+          ["That lead never should have left the gate.", "Next time, check the destination twice."],
+          ["The suspect wasn't there.", "Only umbrellas, apologies, and your missed opportunity."]
+        ]
+      },
+
       "london": {
         "banter": [
           "London flights smell like wet coats, quiet panic, and duty-free optimism.",
@@ -19,7 +77,7 @@
             "They spent half the flight practising bonjour like it was a magic spell that opens bakeries and hearts."
           ],
           "berlin": [
-            "Your suspect asked if the in‑flight playlist had anything as dramatic as the nightlife in that city with the famous gate.",
+            "Your suspect asked if the in-flight playlist had anything as dramatic as the nightlife in that city with the famous gate.",
             "They wanted to know which side of the plane gives the best view of a place that tore down a wall and built clubs instead.",
             "They said they were heading for a city where history weighs heavy and the bass lines do too."
           ],
@@ -31,100 +89,69 @@
           "warsaw": [
             "They traced a finger over the map and stopped at a capital guarded by a mermaid and stitched back together more than once.",
             "When I mentioned the route, they asked if the river there still carries stories and stubbornness in equal measure.",
-            "They said they’d always wanted to land somewhere that rebuilt its old town out of memory and sheer spite."
+            "They said they'd always wanted to land somewhere that rebuilt its old town out of memory and sheer spite."
           ],
           "new_delhi": [
             "Your passenger packed enough spices in their luggage to make the whole cabin hungry, then asked about chai on board.",
             "They wanted to know if we land near a city where traffic is louder than the engines and colours punch straight through jet lag.",
-            "They joked they weren’t afraid of turbulence, only of crossing a street where even cows have more confidence than drivers."
+            "They joked they weren't afraid of turbulence, only of crossing a street where even cows have more confidence than drivers."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, tied back neatly, like they were afraid of being remembered for the wrong thing."
-            ],
-            "Brown": [
-              "Brown hair, practical travel cut, the kind that survives three layovers and one bad plan."
-            ],
-            "Blonde": [
-              "Blonde hair, bright enough to compete with the seatbelt sign."
-            ],
-            "Red": [
-              "Red hair, the kind turbulence notices first."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes that never stopped checking the aisle for witnesses."
-            ],
-            "Brown": [
-              "Brown eyes, tired, careful, tracking exits more than clouds."
-            ],
-            "Green": [
-              "Green eyes that flicked between the window and the emergency exits like it was a hobby."
-            ],
-            "Hazel": [
-              "Hazel eyes, smiling on the surface, boarding something else underneath."
-            ]
-          },
+        "topics": {
           "features": {
-            "Glasses": [
-              "Travel glasses, the kind people wear when they want to look harmless and stay awake."
-            ],
-            "Scarf": [
-              "A scarf used as both fashion statement and portable hiding place."
-            ],
-            "Tattoo": [
-              "A small tattoo just visible when they reached for the overhead bin."
-            ],
-            "Earrings": [
-              "Simple earrings, chosen to pass security and still catch the light."
-            ]
+            "Glasses": ["Travel glasses, the kind people wear when they want to look harmless and stay awake."],
+            "Scarf": ["A scarf used as both fashion statement and portable hiding place."],
+            "Tattoo": ["A small tattoo just visible when they reached for the overhead bin."],
+            "Earrings": ["Simple earrings, chosen to pass security and still catch the light."],
+            "Big forehead": ["Big forehead, calm exterior, definitely rehearsed answers."],
+            "Rainbow hair streak": ["A streak of colour in the hair, hard to miss even under cabin lighting."],
+            "Necklace": ["A necklace that caught the light every time they reached for the call button."],
+            "Scar": ["A scar, never explained, noted anyway."],
+            "Moustache": ["A moustache, groomed enough to survive a full transatlantic flight."],
+            "Beard": ["A beard, tidy, regulation enough to pass boarding without a second look."],
+            "Long hair": ["Long hair, tied back the whole flight, nothing left to chance."],
+            "Goatee": ["A goatee, precise, like it had been trimmed specifically for this trip."]
           },
           "accent": {
-            "British": [
-              "British accent, local enough to blend, polished enough to be rehearsed."
-            ],
-            "American": [
-              "American accent, trying very hard not to sound impressed by anything."
-            ]
-          }
+            "British": ["British accent, local enough to blend, polished enough to be rehearsed."],
+            "American": ["American accent, trying very hard not to sound impressed by anything."],
+            "Canadian": ["Canadian accent, polite even through turbulence."],
+            "Mexican": ["Mexican accent, warm, though the questions underneath weren't."],
+            "Australian": ["Australian accent, casual, unbothered by the delay."],
+            "Dutch": ["Dutch accent, direct, wanted the details and nothing else."],
+            "German": ["German accent, precise, treated the boarding process like a schedule."],
+            "Polish": ["Polish accent, steady, unbothered by the whole flight."],
+            "Spanish": ["Spanish accent, melodic, wrapped around very careful questions."],
+            "Belarussian": ["Belarussian accent, quiet, guarded the whole way."],
+            "Russian": ["Russian accent, composed, like every word had passed inspection."],
+            "Italian": ["Italian accent, charming enough to almost distract from the odd request."],
+            "Irish": ["Irish accent, chatty, vague on the actual destination."],
+            "French": ["French accent, composed, entirely too aware of itself."],
+            "Ukrainian": ["Ukrainian accent, careful, chose words like they cost extra."],
+            "Indian": ["Indian accent, polished, adapting fast to the cabin crew's questions."],
+            "Belgian": ["Belgian accent, subtle enough that most crew would miss it. I didn't."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "Nothing new has boarded this memory."
-          ],
-          [
-            "Back again?",
-            "Still the same passenger, same route, different cloud."
-          ],
-          [
-            "No new clues.",
-            "Just the usual mix of delayed tempers and punctual drizzle."
-          ]
+          ["We already spoke, detective.", "Nothing new has boarded this memory."],
+          ["Back again?", "Still the same passenger, same route, different cloud."],
+          ["No new clues.", "Just the usual mix of delayed tempers and punctual drizzle."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Very traditional mistake, if that helps."
-          ],
-          [
-            "That lead never should have left the gate.",
-            "Next time, check the destination twice."
-          ],
-          [
-            "The suspect wasn’t there.",
-            "Only umbrellas, apologies, and your missed opportunity."
-          ]
+          ["Wrong city, detective.", "Very traditional mistake, if that helps."],
+          ["That lead never should have left the gate.", "Next time, check the destination twice."],
+          ["The suspect wasn't there.", "Only umbrellas, apologies, and your missed opportunity."]
         ]
       },
 
       "paris": {
         "banter": [
-          "Paris‑bound passengers complain about everything except the pastries.",
-          "Half the cabin pretends they live there, the other half pretends they’re not tourists.",
+          "Paris-bound passengers complain about everything except the pastries.",
+          "Half the cabin pretends they live there, the other half pretends they're not tourists.",
           "I can always tell who packed more outfits than answers."
         ],
         "travelHints": {
@@ -139,7 +166,7 @@
             "They spent half the flight practising bonjour like it was a magic spell that opens bakeries and hearts."
           ],
           "berlin": [
-            "They asked if we’d fly over a city that tore down a wall and filled the gap with clubs.",
+            "They asked if we'd fly over a city that tore down a wall and filled the gap with clubs.",
             "Your passenger talked about a famous gate, late nights and early histories.",
             "They seemed very interested in arrival times for both museums and nightlife."
           ],
@@ -156,100 +183,69 @@
           "new_delhi": [
             "They asked if we land near a city where traffic sounds louder than the engines.",
             "Your passenger talked about markets, chai and colours bright enough to fight jet lag.",
-            "They joked they weren’t afraid of turbulence, only of crossing certain streets."
+            "They joked they weren't afraid of turbulence, only of crossing certain streets."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, styled like every corridor is a catwalk."
-            ],
-            "Brown": [
-              "Brown hair, effortlessly arranged in a way that took effort."
-            ],
-            "Blonde": [
-              "Blonde hair, clearly packed as part of the outfit plan."
-            ],
-            "Red": [
-              "Red hair, dramatic enough to need its own boarding pass."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes that judged the coffee and the alibis with equal care."
-            ],
-            "Brown": [
-              "Brown eyes, soft performance, sharp inventory of everyone on board."
-            ],
-            "Green": [
-              "Green eyes, always weighing whether a smile or silence works better."
-            ],
-            "Hazel": [
-              "Hazel eyes, reflecting the window, not the truth."
-            ]
-          },
+        "topics": {
           "features": {
-            "Lipstick": [
-              "Lipstick that stayed perfect through snacks, naps and questions."
-            ],
-            "Scarf": [
-              "A silk scarf tied too perfectly to be accidental."
-            ],
-            "Earrings": [
-              "Earrings that whispered 'I packed a story, not just a suitcase.'"
-            ]
+            "Scarf": ["A silk scarf tied too perfectly to be accidental."],
+            "Earrings": ["Earrings that whispered 'I packed a story, not just a suitcase.'"],
+            "Big forehead": ["Big forehead, worn like part of the boarding pass."],
+            "Tattoo": ["A tattoo, discreetly placed, therefore obviously important."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bold enough to distract from the overhead bin drama."],
+            "Necklace": ["A necklace left glinting every time they reached for the safety card."],
+            "Scar": ["A faint scar, never explained. We don't ask, we notice."],
+            "Moustache": ["A moustache, groomed with more care than the boarding process."],
+            "Glasses": ["Glasses, sharp frames, sharper attention behind them."],
+            "Beard": ["A short beard, deliberately unkempt, the expensive kind."],
+            "Long hair": ["Long hair, left loose, like they wanted the wind to finish the look on arrival."],
+            "Goatee": ["A goatee, trimmed with real precision, unlike their story."]
           },
           "accent": {
-            "French": [
-              "French accent, practiced, charming, allergic to straight answers."
-            ],
-            "Italian": [
-              "Italian accent, turning seat numbers into a performance."
-            ],
-            "Spanish": [
-              "Spanish accent, warm in tone, evasive in content."
-            ]
-          }
+            "French": ["French accent, practiced, charming, allergic to straight answers."],
+            "Italian": ["Italian accent, turning seat numbers into a performance."],
+            "Spanish": ["Spanish accent, warm in tone, evasive in content."],
+            "Canadian": ["Canadian accent, polite even while requesting extra wine."],
+            "Mexican": ["Mexican accent, warm, though the destination request was oddly specific."],
+            "Australian": ["Australian accent, blunt about the seat, careless about the details."],
+            "American": ["American accent, loud enough to be heard over the engines."],
+            "Dutch": ["Dutch accent, direct, wanted the boarding done in one sentence."],
+            "British": ["British accent, polite, though the request wasn't."],
+            "German": ["German accent, precise, treating the flight like an audit."],
+            "Polish": ["Polish accent, steady, unbothered by the delay."],
+            "Belarussian": ["Belarussian accent, quiet, revealed almost nothing."],
+            "Russian": ["Russian accent, composed, tipping the seat back exactly enough to avoid comment."],
+            "Irish": ["Irish accent, chatty with the crew, vague about everything else."],
+            "Ukrainian": ["Ukrainian accent, careful, checked the boarding pass twice before handing it over."],
+            "Indian": ["Indian accent, warm, adjusting fast to unfamiliar seating."],
+            "Belgian": ["Belgian accent, quiet enough that I almost missed they'd boarded at all."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "We already talked, detective.",
-            "No new gossip, just the same story with better lighting."
-          ],
-          [
-            "Back so soon?",
-            "Even Paris takes longer to change than this conversation."
-          ],
-          [
-            "No fresh details.",
-            "Just the same clues, now with slightly more attitude."
-          ]
+          ["We already talked, detective.", "No new gossip, just the same story with better lighting."],
+          ["Back so soon?", "Even Paris takes longer to change than this conversation."],
+          ["No fresh details.", "Just the same clues, now with slightly more attitude."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Charming error, but still an error."
-          ],
-          [
-            "That lead landed in the wrong place.",
-            "At least the view was worth it."
-          ],
-          [
-            "The suspect didn’t choose that runway.",
-            "You just upgraded your disappointment, not your case."
-          ]
+          ["Wrong city.", "Charming error, but still an error."],
+          ["That lead landed in the wrong place.", "At least the view was worth it."],
+          ["The suspect didn't choose that runway.", "You just upgraded your disappointment, not your case."]
         ]
       },
 
       "berlin": {
         "banter": [
-          "Berlin flights are full of people who look like they’re going to a meeting, a museum, or a rave. Sometimes all three.",
-          "I’ve never seen so many black clothes and strong opinions in one cabin.",
+          "Berlin flights are full of people who look like they're going to a meeting, a museum, or a rave. Sometimes all three.",
+          "I've never seen so many black clothes and strong opinions in one cabin.",
           "They read history books during the day and playlists with warning labels at night."
         ],
         "travelHints": {
           "london": [
-            "They asked whether London’s fog looks better from above or just more confusing.",
+            "They asked whether London's fog looks better from above or just more confusing.",
             "Your passenger mentioned guards, palaces and weather that behaves like an interrogation.",
             "They seemed familiar with connecting flights and complicated skylines."
           ],
@@ -259,14 +255,14 @@
             "They liked cities where romance and paperwork collide regularly."
           ],
           "berlin": [
-            "Your suspect asked if the in‑flight playlist had anything as dramatic as the nightlife in that city with the famous gate.",
+            "Your suspect asked if the in-flight playlist had anything as dramatic as the nightlife in that city with the famous gate.",
             "They wanted to know which side of the plane gives the best view of a place that tore down a wall and built clubs instead.",
             "They said they were heading for a city where history weighs heavy and the bass lines do too."
           ],
           "new_york_city": [
             "They asked if New York looks more chaotic from the ground or from approach.",
             "Your passenger mentioned skyscrapers, yellow taxis and one very famous torch.",
-            "They seemed excited about the idea of never‑ending arrival."
+            "They seemed excited about the idea of never-ending arrival."
           ],
           "warsaw": [
             "They traced a route to Warsaw and asked about a capital that knows rebuilding better than rest.",
@@ -279,87 +275,62 @@
             "They carried the sort of tiredness you only get from long haul choices."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, cut as precisely as a boarding time."
-            ],
-            "Brown": [
-              "Brown hair, functional, no nonsense, like their carry‑on."
-            ],
-            "Blonde": [
-              "Blonde hair, tied back like they’re ready for a schedule check."
-            ],
-            "Red": [
-              "Red hair, the only chaotic thing about them on paper."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, analytic, like they were grading the flight manual."
-            ],
-            "Brown": [
-              "Brown eyes, steady and cataloguing seat numbers as they spoke."
-            ],
-            "Green": [
-              "Green eyes, quietly checking every rule and every loophole."
-            ],
-            "Hazel": [
-              "Hazel eyes, taking mental notes instead of photos."
-            ]
-          },
+        "topics": {
           "features": {
-            "Glasses": [
-              "Sharp glasses, sharper look, like they catalogue everyone on board."
-            ],
-            "Tattoo": [
-              "A small geometric tattoo that looked suspiciously like a map only they could read."
-            ]
+            "Glasses": ["Sharp glasses, sharper look, like they catalogue everyone on board."],
+            "Tattoo": ["A small geometric tattoo that looked suspiciously like a map only they could read."],
+            "Big forehead": ["Big forehead, calculating the connecting flight before we'd even landed."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual, though nobody on this route blinks anymore."],
+            "Necklace": ["A plain necklace, functional, like everything else about them."],
+            "Scar": ["A scar, visible and unadvertised. That usually means a backstory."],
+            "Moustache": ["A moustache, trimmed with the same discipline as the boarding queue."],
+            "Beard": ["A beard, precise at the edges, budgeted like the carry-on allowance."],
+            "Long hair": ["Long hair, tied back tight, nothing left loose for the whole flight."],
+            "Earrings": ["Small earrings, left on through security, easy to miss."],
+            "Goatee": ["A goatee, exact, like it had been measured with a ruler."],
+            "Scarf": ["A scarf, practical, wrapped like the cold mattered more than the flight."]
           },
           "accent": {
-            "German": [
-              "German accent, efficient, like they expected the answers to arrive on time."
-            ],
-            "Polish": [
-              "Polish accent, comfortable on this route, far less comfortable with questions."
-            ]
-          }
+            "German": ["German accent, efficient, like they expected the answers to arrive on time."],
+            "Polish": ["Polish accent, comfortable on this route, far less comfortable with questions."],
+            "Canadian": ["Canadian accent, apologizing for a question that needed no apology."],
+            "Mexican": ["Mexican accent, casual tone, careful boarding."],
+            "Australian": ["Australian accent, blunt enough to skip the safety demo entirely."],
+            "American": ["American accent, loud enough to carry over the engines."],
+            "Dutch": ["Dutch accent, matching the directness of the whole flight."],
+            "British": ["British accent, polite, though the request wasn't."],
+            "Spanish": ["Spanish accent, warm, out of step with the cold cabin."],
+            "Belarussian": ["Belarussian accent, quiet, exact, answered only what was asked."],
+            "Italian": ["Italian accent, animated enough that the whole row noticed."],
+            "Irish": ["Irish accent, talkative, vague about the connecting flight."],
+            "French": ["French accent, amused that Berlin's boarding is this efficient."],
+            "Ukrainian": ["Ukrainian accent, alert, checked the overhead bin twice."],
+            "Indian": ["Indian accent, adapting fast to the cold and the silence of the flight."],
+            "Belgian": ["Belgian accent, easy to miss in this cabin's noise, but I caught it."],
+            "Russian": ["A Russian accent, careful and measured, as if every sentence needed internal approval first."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "We already covered this, detective.",
-            "No new turbulence in my memory."
-          ],
-          [
-            "You’re back.",
-            "The facts are still on schedule, even if the flights aren’t."
-          ],
-          [
-            "No additional clues.",
-            "Just the same route, same passenger, same quiet tension."
-          ]
+          ["We already covered this, detective.", "No new turbulence in my memory."],
+          ["You're back.", "The facts are still on schedule, even if the flights aren't."],
+          ["No additional clues.", "Just the same route, same passenger, same quiet tension."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Direct, blunt, and accurate. Unlike the choice you made."
-          ],
-          [
-            "That lead didn’t survive landing.",
-            "Consider it a lesson in better navigation."
-          ],
-          [
-            "The suspect was never on that route.",
-            "You chased contrails instead of evidence."
-          ]
+          ["Wrong city.", "Direct, blunt, and accurate. Unlike the choice you made."],
+          ["That lead didn't survive landing.", "Consider it a lesson in better navigation."],
+          ["The suspect was never on that route.", "You chased contrails instead of evidence."]
         ]
       },
 
       "new_york_city": {
         "banter": [
           "New York flights feel like the cabin is auditioning for something.",
-          "Everyone’s either rehearsing a pitch, a breakup, or a reinvention.",
-          "Half the passengers act like the plane is late even when it’s on time."
+          "Everyone's either rehearsing a pitch, a breakup, or a reinvention.",
+          "Half the passengers act like the plane is late even when it's on time."
         ],
         "travelHints": {
           "london": [
@@ -393,76 +364,54 @@
             "They joked that jet lag is easier to handle than certain intersections."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, styled like they were pitching something to the clouds."
-            ],
-            "Brown": [
-              "Brown hair, city‑casual, suspiciously camera‑ready."
-            ],
-            "Blonde": [
-              "Blonde hair, big‑city bright, no sign of subtlety."
-            ],
-            "Red": [
-              "Red hair, dramatic enough to get its own line in the script."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, scanning the cabin like it was a networking event."
-            ],
-            "Brown": [
-              "Brown eyes, always tracking who’s watching whom."
-            ],
-            "Green": [
-              "Green eyes, restless, already three days ahead of the flight plan."
-            ],
-            "Hazel": [
-              "Hazel eyes, reflective, calculating, never quite still."
-            ]
-          },
+        "topics": {
           "features": {
-            "Headphones": [
-              "Noise‑cancelling headphones that didn’t cancel my questions."
-            ],
-            "Tattoo": [
-              "A small skyline tattoo, like they wanted to carry the city even if they missed the flight."
-            ]
+            "Tattoo": ["A small skyline tattoo, like they wanted to carry the city even if they missed the flight."],
+            "Big forehead": ["Big forehead, already three moves ahead of boarding."],
+            "Rainbow hair streak": ["A streak of colour in the hair, loud enough to match the cabin lights."],
+            "Necklace": ["A flashy necklace, part of the whole performance, not the outfit."],
+            "Scar": ["A scar, no story offered, none needed at cruising altitude."],
+            "Moustache": ["A moustache, ironic enough to be a bit, serious enough to demand upgrade."],
+            "Glasses": ["Glasses with frames expensive enough to double as a boarding upgrade."],
+            "Beard": ["A beard groomed like they had somewhere important to be after landing."],
+            "Long hair": ["Long hair, moving fast, like the whole boarding process."],
+            "Earrings": ["Small earrings, catching light every time they complained about legroom."],
+            "Goatee": ["A goatee, sharp-edged, the sort that means business or thinks it does."],
+            "Scarf": ["A scarf thrown on fast, more armor than fashion."]
           },
           "accent": {
-            "American": [
-              "American accent, loud enough to stake territory on board."
-            ]
-          }
+            "American": ["American accent, loud enough to stake territory on board."],
+            "British": ["British accent, wobbling under jet lag and the size of the fare."],
+            "Spanish": ["Spanish accent, fast-paced, keeping pace with the boarding line."],
+            "Canadian": ["Canadian accent, polite enough to apologize for the overhead bin."],
+            "Mexican": ["Mexican accent, quick, boarded and settled before the announcement finished."],
+            "Australian": ["Australian accent, loud, though this cabin still out-talked it."],
+            "Dutch": ["Dutch accent, blunt, straight to the seat and done."],
+            "German": ["German accent, clipped, treating boarding like an audit."],
+            "Polish": ["Polish accent, steady, unbothered by the noise."],
+            "Belarussian": ["Belarussian accent, guarded, said little beyond the seat number."],
+            "Russian": ["Russian accent, calm, making the boarding chaos look worse by comparison."],
+            "Italian": ["Italian accent, turning a simple boarding pass check into a performance."],
+            "Irish": ["Irish accent, chatty, saying plenty while revealing nothing useful."],
+            "French": ["French accent, cool, amused by how fast this flight fills up."],
+            "Ukrainian": ["Ukrainian accent, sharp, watching the aisle as much as the seat map."],
+            "Indian": ["Indian accent, smooth, negotiating an upgrade like they'd done it before."],
+            "Belgian": ["Belgian accent, quiet enough to almost get lost in the noise."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "Yeah, we already talked, detective.",
-            "Still no new intel, but the cabin drama’s improved."
-          ],
-          [
-            "Back again?",
-            "Welcome to the non‑stop service of asking the same question."
-          ],
-          [
-            "No update.",
-            "This route may be busy, but my story isn’t."
-          ]
+          ["Yeah, we already talked, detective.", "Still no new intel, but the cabin drama's improved."],
+          ["Back again?", "Welcome to the non-stop service of asking the same question."],
+          ["No update.", "This route may be busy, but my story isn't."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Big choice, big miss."
-          ],
-          [
-            "That lead went nowhere.",
-            "Fast, loud, and nowhere."
-          ],
-          [
-            "Your suspect wasn’t on that flight path.",
-            "Just your hopes, and they hit turbulence."
-          ]
+          ["Wrong city, detective.", "Big choice, big miss."],
+          ["That lead went nowhere.", "Fast, loud, and nowhere."],
+          ["Your suspect wasn't on that flight path.", "Just your hopes, and they hit turbulence."]
         ]
       },
 
@@ -474,7 +423,7 @@
         ],
         "travelHints": {
           "london": [
-            "They asked if London’s drizzle feels different when you’re arriving from a stubborn capital.",
+            "They asked if London's drizzle feels different when you're arriving from a stubborn capital.",
             "Your passenger mentioned guards, fog and bridges with more stories than announcements.",
             "They seemed interested in cities that specialise in quiet tension."
           ],
@@ -496,7 +445,7 @@
           "warsaw": [
             "They traced a finger over the map and stopped at a capital guarded by a mermaid and stitched back together more than once.",
             "When I mentioned the route, they asked if the river there still carries stories and stubbornness in equal measure.",
-            "They said they’d always wanted to land somewhere that rebuilt its old town out of memory and sheer spite."
+            "They said they'd always wanted to land somewhere that rebuilt its old town out of memory and sheer spite."
           ],
           "new_delhi": [
             "They asked if landing in New Delhi feels like arriving in the middle of a conversation.",
@@ -504,85 +453,62 @@
             "They liked the idea of cities whose noise refuses to land quietly."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, tied like they’ve run this route more than once."
-            ],
-            "Brown": [
-              "Brown hair, practical, built for delays and detours."
-            ],
-            "Blonde": [
-              "Blonde hair, stands out just enough in the boarding line."
-            ],
-            "Red": [
-              "Red hair, rare enough here to earn a double‑take."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, winter‑sharp even above the clouds."
-            ],
-            "Brown": [
-              "Brown eyes, careful, reading faces the way others read timetables."
-            ],
-            "Green": [
-              "Green eyes that watched the safety demo like it was a test."
-            ],
-            "Hazel": [
-              "Hazel eyes, quiet, but never really resting."
-            ]
-          },
+        "topics": {
           "features": {
-            "Scarf": [
-              "A heavy scarf, as if they didn’t trust the forecast or the welcome."
-            ],
-            "Beard": [
-              "A short beard, trimmed like they still care what the passport photo thinks."
-            ]
+            "Scarf": ["A heavy scarf, as if they didn't trust the forecast or the welcome."],
+            "Beard": ["A short beard, trimmed like they still care what the passport photo thinks."],
+            "Big forehead": ["Big forehead, the kind that suggests they'd thought too much before boarding."],
+            "Tattoo": ["A tattoo, old and faded, outliving whatever it used to mean."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though the young ones are catching on."],
+            "Necklace": ["A simple necklace, worn without much thought, the way most passengers wear jewelry."],
+            "Scar": ["A small scar, old enough for a story, recent enough to matter."],
+            "Moustache": ["A moustache, unremarkable, half the men on this route have one."],
+            "Glasses": ["Glasses, slightly scratched, someone who reads more than they sleep."],
+            "Long hair": ["Long hair, tied back tight against the recycled cabin air."],
+            "Earrings": ["Simple earrings, checked once, like they mattered more than the flight."],
+            "Goatee": ["A goatee, kept out of habit more than fashion."]
           },
           "accent": {
-            "Polish": [
-              "Polish accent, steady and unhurried, like they’ve flown this route more than once."
-            ]
-    
-          }
+            "Polish": ["Polish accent, steady and unhurried, like they've flown this route more than once."],
+            "Canadian": ["Canadian accent, polite, slightly out of place on this route."],
+            "Mexican": ["Mexican accent, warm, an odd contrast to the grey weather ahead."],
+            "Australian": ["Australian accent, casual enough to make the safety briefing look excessive."],
+            "American": ["American accent, confident, boarding like they already knew the gate."],
+            "Dutch": ["Dutch accent, direct, which the crew here actually appreciated."],
+            "British": ["British accent, formal, until the questions got specific."],
+            "German": ["German accent, precise, the kind that double-checks the boarding pass twice."],
+            "Spanish": ["Spanish accent, lively, out of step with the quiet of the cabin."],
+            "Belarussian": ["Belarussian accent, familiar, careful the way border routes teach you to be."],
+            "Russian": ["Russian accent, softened at the edges, still sharp about the seat assignment."],
+            "Italian": ["Italian accent, animated, drawing more attention than the flight needed."],
+            "Irish": ["Irish accent, easygoing, offering stories instead of a straight answer."],
+            "French": ["French accent, faintly amused by how seriously we take the boarding order."],
+            "Ukrainian": ["Ukrainian accent, careful and watchful, like someone used to border questions."],
+            "Indian": ["Indian accent, polite and businesslike, adjusting quickly to the cabin."],
+            "Belgian": ["Belgian accent, quiet enough that most passengers miss it."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "We already talked.",
-            "No new clue boarded after you left."
-          ],
-          [
-            "Back again?",
-            "I still remember the same face and the same destination."
-          ],
-          [
-            "Nothing new.",
-            "If the story had changed, I’d have told you before landing."
-          ]
+          ["We already talked.", "No new clue boarded after you left."],
+          ["Back again?", "I still remember the same face and the same destination."],
+          ["Nothing new.", "If the story had changed, I'd have told you before landing."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Not ideal, but clearer now, yes?"
-          ],
-          [
-            "That was a false lead.",
-            "Better to correct than pretend it was on purpose."
-          ],
-          [
-            "The suspect isn’t there.",
-            "You’ll have to change course, not just seats."
-          ]
+          ["Wrong city, detective.", "Not ideal, but clearer now, yes?"],
+          ["That was a false lead.", "Better to correct than pretend it was on purpose."],
+          ["The suspect isn't there.", "You'll have to change course, not just seats."]
         ]
       },
 
       "new_delhi": {
         "banter": [
           "New Delhi flights smell like spice, jet fuel, and people who underestimated the heat.",
-          "Half the cabin is exhausted. The other half is already arguing with the in‑flight forms.",
-          "I’ve never seen so many stories stuffed into so few suitcases."
+          "Half the cabin is exhausted. The other half is already arguing with the in-flight forms.",
+          "I've never seen so many stories stuffed into so few suitcases."
         ],
         "travelHints": {
           "london": [
@@ -601,7 +527,7 @@
             "They seemed familiar with balancing history and lost sleep."
           ],
           "new_york_city": [
-            "They wanted to know if New York’s lights look different when you’ve taken off from New Delhi’s traffic.",
+            "They wanted to know if New York's lights look different when you've taken off from New Delhi's traffic.",
             "Your passenger mentioned skyscrapers, yellow taxis and rivers of headlights.",
             "They joked that jet lag is easier to manage than certain arrivals."
           ],
@@ -613,78 +539,60 @@
           "new_delhi": [
             "Your passenger packed enough spices in their luggage to make the whole cabin hungry, then asked about chai on board.",
             "They wanted to know if we land near a city where traffic is louder than the engines and colours punch straight through jet lag.",
-            "They joked they weren’t afraid of turbulence, only of crossing a street where even cows have more confidence than drivers."
+            "They joked they weren't afraid of turbulence, only of crossing a street where even cows have more confidence than drivers."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, frizzing at the edges, like even it knew where we were landing."
-            ],
-            "Brown": [
-              "Brown hair, pulled back in a way that said: I’ve done this heat before."
-            ],
-            "Blonde": [
-              "Blonde hair, standing out against the cabin like a misplaced souvenir."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, squinting at the brightness on the flight path map."
-            ],
-            "Brown": [
-              "Brown eyes, wide awake long after they should have been asleep."
-            ],
-            "Hazel": [
-              "Hazel eyes, tracking every announcement like it might be about them."
-            ]
-          },
+        "topics": {
           "features": {
-            "Glasses": [
-              "Glasses fogged once we opened the door. The expression didn’t."
-            ],
-            "Necklace": [
-              "A small charm at their neck, thumbed whenever the engines changed tone."
-            ]
+            "Glasses": ["Glasses fogged once we opened the door. The expression didn't."],
+            "Necklace": ["A small charm at their neck, thumbed whenever the engines changed tone."],
+            "Big forehead": ["Big forehead, gleaming slightly under the cabin lights."],
+            "Tattoo": ["A small tattoo, half-faded, like a promise they almost kept."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bright even under these lights."],
+            "Scar": ["A small scar, the kind nobody explains and everybody notices."],
+            "Moustache": ["A neat moustache, half the men on this route seem to grow one."],
+            "Beard": ["A short beard, more humidity than fashion by the time we landed."],
+            "Long hair": ["Long hair, tied back fast, like the heat outside mattered more than style."],
+            "Earrings": ["Small earrings, catching light every time they leaned forward."],
+            "Goatee": ["A goatee, carefully trimmed despite the climate, which takes real dedication."],
+            "Scarf": ["A light scarf, more for the air conditioning than for style."]
           },
           "accent": {
-            "Indian": [
-              "An Indian accent, local enough to know better than to argue with the seatbelt sign."
-            ],
-            "British": [
-              "A British accent slowly melting into something more tired and honest."
-            ]
-          }
+            "Indian": ["An Indian accent, local enough to know better than to argue with the seatbelt sign."],
+            "British": ["A British accent slowly melting into something more tired and honest."],
+            "Canadian": ["Canadian accent, polite even while sweating through the layover."],
+            "Mexican": ["Mexican accent, warm and quick, right at home with the noise of the gate."],
+            "Australian": ["Australian accent, relaxed, though nothing here relaxes for long."],
+            "Dutch": ["Dutch accent, blunt, cutting straight past the small talk."],
+            "German": ["German accent, oddly composed given the chaos of boarding."],
+            "Polish": ["Polish accent, steady, unbothered by either the heat or the noise."],
+            "Spanish": ["Spanish accent, animated, matching the energy of the gate outside."],
+            "Belarussian": ["Belarussian accent, quiet, watching more than speaking."],
+            "Russian": ["Russian accent, measured, unaffected by the general commotion."],
+            "Italian": ["Italian accent, theatrical, turning a simple boarding call into a performance."],
+            "Irish": ["Irish accent, friendly, chatting past every interruption without losing their seat."],
+            "French": ["French accent, cool and composed, unmoved by the heat or the crowd."],
+            "Ukrainian": ["Ukrainian accent, alert, watching the gate as much as the boarding pass."],
+            "Belgian": ["Belgian accent, easy to miss under all this noise. I didn't."],
+            "American": ["An American accent, trying to pretend the traffic outside was normal."]
+          },
+          "flight": [
+            "They boarded a flight operated by {airlineName}, with a logo featuring {airlineLogoFact}.",
+            "They asked if the flight path passed near {mountainFact}."
+          ]
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "Nothing new has appeared except more noise."
-          ],
-          [
-            "Back again?",
-            "I still have the same details and less patience than the traffic below."
-          ],
-          [
-            "No fresh clues.",
-            "Only the same facts, now slightly stickier."
-          ]
+          ["We already spoke, detective.", "Nothing new has appeared except more noise."],
+          ["Back again?", "I still have the same details and less patience than the traffic below."],
+          ["No fresh clues.", "Only the same facts, now slightly stickier."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Ambitious direction, inaccurate aim."
-          ],
-          [
-            "That lead went nowhere useful.",
-            "Which is rare, considering everything else here goes everywhere at once."
-          ],
-          [
-            "The suspect is somewhere else entirely.",
-            "You just added heat and hours to your case file."
-          ]
+          ["Wrong city.", "Ambitious direction, inaccurate aim."],
+          ["That lead went nowhere useful.", "Which is rare, considering everything else here goes everywhere at once."],
+          ["The suspect is somewhere else entirely.", "You just added heat and hours to your case file."]
         ]
       }
+
     }
   }
 }

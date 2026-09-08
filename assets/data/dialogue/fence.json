@@ -1,6 +1,65 @@
 {
   "fenceClues": {
     "locationVariants": {
+
+      "default": {
+        "banter": [
+          "Nothing moves in this city without me knowing the price of it.",
+          "You want information, detective? Information isn't free, but I'll make an exception for a badge.",
+          "I don't deal in guesses. I deal in things people want gone quietly."
+        ],
+        "topics": {
+          "features": {
+            "Big forehead": ["Big forehead, looked like they'd already priced everything in the room."],
+            "Tattoo": ["A tattoo, half-hidden under a sleeve like it was supposed to mean something to someone."],
+            "Rainbow hair streak": ["A streak of colour in the hair - memorable, which is bad for business."],
+            "Necklace": ["Wore a necklace worth more than their explanation for having it."],
+            "Scar": ["A scar across the knuckles. This wasn't their first negotiation gone wrong."],
+            "Moustache": ["A moustache, groomed enough to suggest they take pride in details, including lies."],
+            "Glasses": ["Glasses, sharp frame, sharper eye for value."],
+            "Beard": ["A beard, trimmed like someone who still cares how they're remembered."],
+            "Long hair": ["Long hair, tied back tight, like they didn't want it grabbed in a hurry."],
+            "Earrings": ["Earrings worth more than the excuse they gave for wearing them."],
+            "Goatee": ["A goatee, precise, like they'd rehearsed looking trustworthy."],
+            "Scarf": ["A scarf pulled up whenever a camera passed. Amateur, but effective."]
+          },
+          "accent": {
+            "British": ["British accent, but rehearsed, like they'd practiced sounding local."],
+            "American": ["American accent, loud enough to be a distraction on purpose."],
+            "French": ["French accent, smooth as the lie that came with it."],
+            "Russian": ["Russian accent, quiet, the kind that makes you lower your price without being asked."],
+            "Canadian": ["Canadian accent, polite enough to make the lowball offer sound reasonable."],
+            "Mexican": ["Mexican accent, warm, but the numbers they quoted were ice cold."],
+            "Australian": ["Australian accent, blunt about the price, vaguer about the source."],
+            "Dutch": ["Dutch accent, direct - wanted a number, not a conversation."],
+            "German": ["German accent, precise, negotiating like every word had a receipt."],
+            "Polish": ["Polish accent, steady, unmoved by my first offer or my second."],
+            "Spanish": ["Spanish accent, fast, wanted the deal closed before I finished counting."],
+            "Belarussian": ["Belarussian accent, quiet, gave away nothing but the item."],
+            "Italian": ["Italian accent, charming enough to almost talk me into a better price."],
+            "Irish": ["Irish accent, chatty, though the details about the item stayed vague."],
+            "Ukrainian": ["Ukrainian accent, careful, counted my offer twice before answering."],
+            "Indian": ["Indian accent, sharp negotiator, knew the item's worth before I said a number."],
+            "Belgian": ["Belgian accent, quiet enough that I almost missed the whole transaction."]
+          },
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
+        },
+        "repeatLines": [
+          ["We already did business, detective.", "Nothing new's crossed my table since."],
+          ["Back again?", "I don't repeat prices and I don't repeat gossip for free."],
+          ["No fresh stock, no fresh leads.", "You're wasting a conversation I could be charging for."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city, detective.", "You paid for a lead I never sold you."],
+          ["That lead's dead weight.", "Should've checked the market before you bought it."],
+          ["Your thief never touched my table here.", "Somebody sold you a bad tip."]
+        ]
+      },
+
       "london": {
         "banter": [
           "Nothing moves in this city without me knowing the price of it.",
@@ -39,36 +98,45 @@
             "They mentioned this city like it was already behind them."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, slicked flat like they'd rehearsed being forgettable."],
-            "Brown": ["Brown hair, the kind that blends into every crowd on purpose."],
-            "Blonde": ["Blonde hair, expensive cut, cheap alibi."],
-            "Red": ["Red hair, hard to forget, which tells me they weren't planning to be seen twice."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, cold enough to negotiate without blinking."],
-            "Brown": ["Brown eyes, doing the math before the handshake was even finished."],
-            "Green": ["Green eyes, greedy in a way that's bad for business and worse for alibis."],
-            "Hazel": ["Hazel eyes, the kind that count exits before they count money."]
-          },
+        "topics": {
           "features": {
             "Tattoo": ["A tattoo, half-hidden under a sleeve like it was supposed to mean something to someone."],
             "Necklace": ["Wore a necklace worth more than their explanation for having it."],
             "Scar": ["A scar across the knuckles. This wasn't their first negotiation gone wrong."],
             "Glasses": ["Glasses, sharp frame, sharper eye for value."],
-            "Beard": ["A beard, trimmed like someone who still cares how they're remembered."]
+            "Beard": ["A beard, trimmed like someone who still cares how they're remembered."],
+            "Big forehead": ["Big forehead, looked like they'd already priced everything in the room."],
+            "Rainbow hair streak": ["A streak of colour in the hair - memorable, which is bad for business."],
+            "Moustache": ["A moustache, groomed enough to suggest they take pride in details, including lies."],
+            "Long hair": ["Long hair, tied back tight, like they didn't want it grabbed in a hurry."],
+            "Earrings": ["Earrings worth more than the excuse they gave for wearing them."],
+            "Goatee": ["A goatee, precise, like they'd rehearsed looking trustworthy."],
+            "Scarf": ["A scarf pulled up whenever a camera passed. Amateur, but effective."]
           },
           "accent": {
             "British": ["British accent, but rehearsed, like they'd practiced sounding local."],
             "American": ["American accent, loud enough to be a distraction on purpose."],
             "French": ["French accent, smooth as the lie that came with it."],
-            "Russian": ["Russian accent, quiet, the kind that makes you lower your price without being asked."]
+            "Russian": ["Russian accent, quiet, the kind that makes you lower your price without being asked."],
+            "Canadian": ["Canadian accent, polite enough to make the lowball offer sound reasonable."],
+            "Mexican": ["Mexican accent, warm, but the numbers they quoted were ice cold."],
+            "Australian": ["Australian accent, blunt about the price, vaguer about the source."],
+            "Dutch": ["Dutch accent, direct - wanted a number, not a conversation."],
+            "German": ["German accent, precise, negotiating like every word had a receipt."],
+            "Polish": ["Polish accent, steady, unmoved by my first offer or my second."],
+            "Spanish": ["Spanish accent, fast, wanted the deal closed before I finished counting."],
+            "Belarussian": ["Belarussian accent, quiet, gave away nothing but the item."],
+            "Italian": ["Italian accent, charming enough to almost talk me into a better price."],
+            "Irish": ["Irish accent, chatty, though the details about the item stayed vague."],
+            "Ukrainian": ["Ukrainian accent, careful, counted my offer twice before answering."],
+            "Indian": ["Indian accent, sharp negotiator, knew the item's worth before I said a number."],
+            "Belgian": ["Belgian accent, quiet enough that I almost missed the whole transaction."]
           },
-          "habitus": {
-            "Smoking": ["Smoked while we talked business, like it steadied the numbers."],
-            "Drinking": ["Ordered a drink they never touched. Nervous, or careful. Same thing, usually."]
-          }
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We already did business, detective.", "Nothing new's crossed my table since."],
@@ -120,33 +188,45 @@
             "They mentioned wanting cash, discretion, and a very short conversation."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, styled to look expensive, priced to look innocent."],
-            "Brown": ["Brown hair, deliberately plain. Cheap disguises are still disguises."],
-            "Blonde": ["Blonde hair, too polished for someone claiming to be broke."],
-            "Red": ["Red hair, memorable, which means they weren't planning to come back."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, calculating the exchange rate on guilt."],
-            "Brown": ["Brown eyes, patient, the kind that wait for a better offer."],
-            "Green": ["Green eyes, greedy enough to overpay for silence."],
-            "Hazel": ["Hazel eyes, watching my hands more than my face."]
-          },
+        "topics": {
           "features": {
             "Earrings": ["Earrings worth more than the story they told about owning them."],
             "Tattoo": ["A tattoo they kept covering, like it was evidence, not decoration."],
-            "Scarf": ["A scarf pulled up whenever a camera passed. Amateur, but effective."]
+            "Scarf": ["A scarf pulled up whenever a camera passed. Amateur, but effective."],
+            "Big forehead": ["Big forehead, looked like they'd already calculated my cut."],
+            "Rainbow hair streak": ["A streak of colour in the hair. Memorable enough to be bad for both of us."],
+            "Necklace": ["A necklace worth more than the story they gave for parting with it."],
+            "Scar": ["A scar on the wrist, the kind you get from a negotiation gone physical."],
+            "Moustache": ["A moustache, groomed carefully, like appearances still mattered mid-crime."],
+            "Glasses": ["Glasses, expensive frame, sharper eye for value underneath."],
+            "Beard": ["A beard, trimmed like they'd dressed up for the occasion of selling something stolen."],
+            "Long hair": ["Long hair, loose, like they wanted to look like they had nothing to hide."],
+            "Goatee": ["A goatee, precise, rehearsed in a mirror before the meeting."]
           },
           "accent": {
             "French": ["French accent, but too careful, like someone who learned it recently and well."],
             "Italian": ["Italian accent, charming enough to negotiate a discount on suspicion."],
-            "Spanish": ["Spanish accent, fast, like they wanted the deal done before questions started."]
+            "Spanish": ["Spanish accent, fast, like they wanted the deal done before questions started."],
+            "Canadian": ["Canadian accent, polite while haggling, which almost worked on me."],
+            "Mexican": ["Mexican accent, warm, though the price they wanted was anything but."],
+            "Australian": ["Australian accent, blunt, straight to the number."],
+            "American": ["American accent, loud, negotiating like volume was a strategy."],
+            "Dutch": ["Dutch accent, direct, wanted the deal done in one sentence."],
+            "British": ["British accent, polite, though the lowball offer wasn't."],
+            "German": ["German accent, precise, treating the sale like an audit."],
+            "Polish": ["Polish accent, steady, unmoved by my first refusal."],
+            "Belarussian": ["Belarussian accent, quiet, gave away nothing but the price they wanted."],
+            "Russian": ["Russian accent, composed, negotiating like patience was a weapon."],
+            "Irish": ["Irish accent, talkative, though the item's history stayed conveniently vague."],
+            "Ukrainian": ["Ukrainian accent, careful, counted the offer twice before agreeing."],
+            "Indian": ["Indian accent, sharp, knew the item's worth before I quoted it."],
+            "Belgian": ["Belgian accent, quiet enough that the whole deal almost slipped past me."]
           },
-          "habitus": {
-            "Smoking": ["Smoked through the whole negotiation without once relaxing."],
-            "Drinking": ["Ordered wine, drank water. Kept their head clear on purpose."]
-          }
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We've already talked business, detective.", "Nothing's changed on my end of the table."],
@@ -198,33 +278,45 @@
             "They mentioned wanting cash and a very short memory from everyone involved."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, severe cut, the kind that means business, not fashion."],
-            "Brown": ["Brown hair, unremarkable, which was clearly the point."],
-            "Blonde": ["Blonde hair, cut for function, not for cameras."],
-            "Red": ["Red hair, the one detail they couldn't disguise, even here."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, calculating value like a machine that doesn't blink."],
-            "Brown": ["Brown eyes, steady, negotiating without a single wasted word."],
-            "Green": ["Green eyes, hungry for a deal that wasn't quite legal."],
-            "Hazel": ["Hazel eyes, watching the door more than the merchandise."]
-          },
+        "topics": {
           "features": {
             "Scar": ["A scar across the jaw. Not their first bad deal, clearly."],
             "Tattoo": ["A tattoo that looked more like a code than a decoration."],
-            "Glasses": ["Simple glasses, sharp mind behind them, no wasted sentiment."]
+            "Glasses": ["Simple glasses, sharp mind behind them, no wasted sentiment."],
+            "Big forehead": ["Big forehead, calculating the risk before I'd even named a price."],
+            "Rainbow hair streak": ["A streak of colour in the hair - unusual here, and unwise for this line of work."],
+            "Necklace": ["A plain necklace, functional, sold like everything else about them."],
+            "Moustache": ["A moustache, trimmed with the same discipline as the deal itself."],
+            "Beard": ["A beard, precise at the edges, like it had been budgeted."],
+            "Long hair": ["Long hair, tied back tight, nothing left loose, including the story."],
+            "Earrings": ["Small earrings, easy to miss, unlike the item they were selling."],
+            "Goatee": ["A goatee, exact, measured like the price they wanted."],
+            "Scarf": ["A scarf, practical, wrapped like the cold mattered more than getting caught."]
           },
           "accent": {
             "German": ["German accent, efficient, negotiating like every word cost money."],
             "Polish": ["Polish accent, practical, trusting handshakes more than paperwork."],
-            "Russian": ["Russian accent, slow, deliberate, the kind that makes you lower your price."]
+            "Russian": ["Russian accent, slow, deliberate, the kind that makes you lower your price."],
+            "Canadian": ["Canadian accent, apologizing for a lowball offer that wasn't sincere."],
+            "Mexican": ["Mexican accent, casual tone, serious number."],
+            "Australian": ["Australian accent, blunt enough to skip the small talk entirely."],
+            "American": ["American accent, loud, negotiating like the room owed them a discount."],
+            "Dutch": ["Dutch accent, matching the directness of the whole transaction."],
+            "British": ["British accent, polite, though the price they wanted wasn't."],
+            "Spanish": ["Spanish accent, warm, out of step with how cold the deal was."],
+            "Belarussian": ["Belarussian accent, quiet, exact, answering only what I asked."],
+            "Italian": ["Italian accent, animated enough to turn a simple sale into theater."],
+            "Irish": ["Irish accent, talkative, vague on where the item actually came from."],
+            "French": ["French accent, amused that Berlin takes its underground so seriously."],
+            "Ukrainian": ["Ukrainian accent, alert, counted my offer before trusting it."],
+            "Indian": ["Indian accent, adapting fast to the cold and the silence of the deal."],
+            "Belgian": ["Belgian accent, easy to miss in this city's noise, but I caught it."]
           },
-          "habitus": {
-            "Smoking": ["Smoked the whole time, steady hands despite the stakes."],
-            "Drinking": ["Ordered something strong, drank it slow. Controlled, not careless."]
-          }
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We already did this, detective.", "Nothing's moved through here since."],
@@ -276,33 +368,45 @@
             "They mentioned wanting cash, speed, and zero sentiment."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, slicked back, dressed for a meeting that wasn't legal."],
-            "Brown": ["Brown hair, deliberately unremarkable in a city that rewards being seen."],
-            "Blonde": ["Blonde hair, expensive, like everything else about the deal."],
-            "Red": ["Red hair, hard to miss even in a crowd built for anonymity."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, calculating value faster than the market opens."],
-            "Brown": ["Brown eyes, sharp, already three moves ahead in the negotiation."],
-            "Green": ["Green eyes, greedy in a way that made the price go up, not down."],
-            "Hazel": ["Hazel eyes, flicking to the exits like habit, not paranoia."]
-          },
+        "topics": {
           "features": {
             "Tattoo": ["A tattoo visible for half a second before the sleeve came down."],
             "Glasses": ["Glasses too expensive for someone claiming to be desperate."],
-            "Beard": ["A beard groomed like they still had somewhere important to be."]
+            "Beard": ["A beard groomed like they still had somewhere important to be."],
+            "Big forehead": ["Big forehead, already three moves ahead in the negotiation."],
+            "Rainbow hair streak": ["A streak of colour in the hair, loud enough to match the whole deal."],
+            "Necklace": ["A flashy necklace, part of the negotiation, not the outfit."],
+            "Scar": ["A scar, no story offered, none needed in this business."],
+            "Moustache": ["A moustache, ironic enough to be a bit, serious enough to mean business."],
+            "Long hair": ["Long hair, moving fast, like the deal itself."],
+            "Earrings": ["Small earrings, catching light every time they lowballed me."],
+            "Goatee": ["A goatee, sharp-edged, the sort that means business or thinks it does."],
+            "Scarf": ["A scarf thrown on fast, more getaway than fashion."]
           },
           "accent": {
             "American": ["American accent, but from somewhere else, trying too hard to sound local."],
             "British": ["British accent, out of place and overpriced, like imported wine."],
-            "Spanish": ["Spanish accent, fast, negotiating like the deal had a countdown."]
+            "Spanish": ["Spanish accent, fast, negotiating like the deal had a countdown."],
+            "Canadian": ["Canadian accent, polite enough to almost apologize for the lowball offer."],
+            "Mexican": ["Mexican accent, quick, closing the deal at the pace of the whole city."],
+            "Australian": ["Australian accent, loud, though New York still out-talked it."],
+            "Dutch": ["Dutch accent, blunt, straight to the number and out the door."],
+            "German": ["German accent, clipped, treating the sale like an audit."],
+            "Polish": ["Polish accent, steady, unbothered by the noise or my counteroffer."],
+            "Belarussian": ["Belarussian accent, guarded, gave away nothing but the item."],
+            "Russian": ["Russian accent, calm, making my rushed offer look worse by comparison."],
+            "Italian": ["Italian accent, turning a simple sale into a full performance."],
+            "Irish": ["Irish accent, chatty, saying plenty while revealing nothing about the item."],
+            "French": ["French accent, cool, amused by how fast this city wants to close."],
+            "Ukrainian": ["Ukrainian accent, sharp, watching the exits as much as the price."],
+            "Indian": ["Indian accent, smooth, negotiating like they'd done this a hundred times."],
+            "Belgian": ["Belgian accent, quiet enough to almost get lost in the noise."]
           },
-          "habitus": {
-            "Smoking": ["Smoked outside so the deal wouldn't smell like nerves."],
-            "Drinking": ["Ordered whiskey, didn't finish it. Business before comfort."]
-          }
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We already talked business, detective.", "Nothing new's moved through since."],
@@ -354,30 +458,45 @@
             "They mentioned wanting cash, quiet, and people who don't ask twice."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, combed carefully, like they still respected the deal."],
-            "Brown": ["Brown hair, plain enough to trust, which made me trust it less."],
-            "Blonde": ["Blonde hair, too neat for someone claiming to be running from something."],
-            "Red": ["Red hair, impossible to forget, which tells me they weren't planning to stay."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, patient, negotiating like time was on their side."],
-            "Brown": ["Brown eyes, steady, the kind that don't blink during a bad offer."],
-            "Green": ["Green eyes, sharp, watching the price more than the person."],
-            "Hazel": ["Hazel eyes, cataloguing risk like a habit they couldn't shake."]
-          },
-          "accent": {
-            "Polish": ["Polish accent, direct, negotiating like every word had weight."]
-          },
+        "topics": {
           "features": {
             "Beard": ["A beard, tidy, the kind that suggests discipline over vanity."],
-            "Necklace": ["A necklace worth more than the explanation they gave for having it."]
+            "Necklace": ["A necklace worth more than the explanation they gave for having it."],
+            "Big forehead": ["Big forehead, the kind that suggests they'd already calculated my cut."],
+            "Tattoo": ["A tattoo, old and faded, outliving whatever it used to mean to them."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though the young ones are catching on."],
+            "Scar": ["A small scar, old enough for a story, recent enough to matter to the deal."],
+            "Moustache": ["A moustache, unremarkable, half the men in this trade have one."],
+            "Glasses": ["Glasses, slightly scratched, someone who reads contracts more than they sleep."],
+            "Long hair": ["Long hair, tied back tight, nothing loose about the whole exchange."],
+            "Earrings": ["Simple earrings, checked once, like they mattered more than the item."],
+            "Goatee": ["A goatee, kept out of habit, not vanity."],
+            "Scarf": ["A scarf, wrapped tight, the way everyone in this business learns eventually."]
           },
-          "habitus": {
-            "Smoking": ["Smoked slow, steady, like the deal wasn't rushing them at all."],
-            "Drinking": ["Didn't drink much. Careful people rarely do during business."]
-          }
+          "accent": {
+            "Polish": ["Polish accent, direct, negotiating like every word had weight."],
+            "Canadian": ["Canadian accent, polite, slightly out of place in this line of work."],
+            "Mexican": ["Mexican accent, warm, an odd contrast to the coldness of the deal."],
+            "Australian": ["Australian accent, casual, making my caution look excessive."],
+            "American": ["American accent, confident, negotiating like they already knew my price."],
+            "Dutch": ["Dutch accent, direct, which I actually respect in this business."],
+            "British": ["British accent, formal, until the numbers got specific."],
+            "German": ["German accent, precise enough to make me check my own math."],
+            "Spanish": ["Spanish accent, lively, out of step with the quiet of the deal."],
+            "Belarussian": ["Belarussian accent, familiar, careful the way border trade teaches you to be."],
+            "Russian": ["Russian accent, softened at the edges, still sharp on price."],
+            "Italian": ["Italian accent, animated, drawing more attention than the deal needed."],
+            "Irish": ["Irish accent, easygoing, offering stories instead of a straight answer."],
+            "French": ["French accent, amused by how seriously we take the paperwork we don't have."],
+            "Ukrainian": ["Ukrainian accent, careful, counted my offer twice before trusting it."],
+            "Indian": ["Indian accent, businesslike, adjusting fast to the room's mood."],
+            "Belgian": ["Belgian accent, quiet enough that most people miss it in this trade."]
+          },
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We already did business.", "Nothing's moved through here since, detective."],
@@ -429,32 +548,45 @@
             "They mentioned wanting cash, speed, and no questions about where things came from."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": ["Black hair, damp with heat, still styled like the deal mattered."],
-            "Brown": ["Brown hair, tied back, practical for someone in a hurry."],
-            "Blonde": ["Blonde hair, out of place here, which made them easy to remember."],
-            "Red": ["Red hair, impossible to lose in a crowd, even this one."]
-          },
-          "eyes": {
-            "Blue": ["Blue eyes, squinting against the heat and the price I quoted."],
-            "Brown": ["Brown eyes, sharp, negotiating like the deal had a deadline."],
-            "Green": ["Green eyes, greedy enough to overpay just to close it fast."],
-            "Hazel": ["Hazel eyes, watching the crowd more than the merchandise."]
-          },
-          "habitus": {
-            "Smoking": ["Smoked through the haggling, steady despite the heat."],
-            "Drinking": ["Drank water constantly, nerves or weather, hard to say which."]
-          },
+        "topics": {
           "features": {
             "Necklace": ["A necklace worth more than the story they gave for selling it."],
-            "Glasses": ["Glasses fogged from heat, sharp eyes behind them regardless."]
+            "Glasses": ["Glasses fogged from heat, sharp eyes behind them regardless."],
+            "Big forehead": ["Big forehead, gleaming under the heat, already pricing the item in their head."],
+            "Tattoo": ["A small tattoo, half-faded, like a deal they almost backed out of."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bright even in this glare."],
+            "Scar": ["A small scar, the kind nobody explains and every trader notices."],
+            "Moustache": ["A neat moustache, half the men in this market seem to grow one."],
+            "Beard": ["A short beard, more humidity than fashion by the time the deal closed."],
+            "Long hair": ["Long hair, tied back fast, like the heat mattered more than the disguise."],
+            "Earrings": ["Small earrings, catching light every time they lowballed me."],
+            "Goatee": ["A goatee, trimmed despite the heat, which takes real dedication to a deal."],
+            "Scarf": ["A light scarf, more for the dust than for style."]
           },
           "accent": {
             "Indian": ["An Indian accent, local, fast, used to negotiating over noise."],
             "British": ["A British accent, out of place and overpriced, like imported goods."],
-            "American": ["An American accent, impatient, wanting the deal done before the heat won."]
-          }
+            "American": ["An American accent, impatient, wanting the deal done before the heat won."],
+            "Canadian": ["Canadian accent, polite even while haggling in this heat."],
+            "Mexican": ["Mexican accent, warm, right at home with the noise of the market."],
+            "Australian": ["Australian accent, relaxed, though nothing here relaxes for long."],
+            "Dutch": ["Dutch accent, blunt, cutting past the small talk straight to price."],
+            "German": ["German accent, oddly composed given the chaos around the stall."],
+            "Polish": ["Polish accent, steady, unbothered by the heat or the haggling."],
+            "Spanish": ["Spanish accent, animated, matching the energy of the whole market."],
+            "Belarussian": ["Belarussian accent, quiet, watching the item more than speaking."],
+            "Russian": ["Russian accent, measured, unaffected by the general commotion."],
+            "Italian": ["Italian accent, theatrical, turning a simple sale into a small performance."],
+            "Irish": ["Irish accent, friendly, chatting past every interruption without losing the price."],
+            "French": ["French accent, cool, unmoved by the heat or the crowd."],
+            "Ukrainian": ["Ukrainian accent, alert, watching the stall as much as the stranger."],
+            "Belgian": ["Belgian accent, easy to miss under all this noise. I didn't."]
+          },
+          "goods": [
+            "They asked what I'd pay for {artStyle}, no questions about where it came from.",
+            "They wanted to know the black-market value of {craftGood}.",
+            "They asked about moving {exportGood} without anyone noticing it was gone."
+          ]
         },
         "repeatLines": [
           ["We already did business, detective.", "Nothing's moved through the market since."],
@@ -467,6 +599,7 @@
           ["Your thief never touched my table.", "You chased noise, not evidence."]
         ]
       }
+
     }
   }
 }

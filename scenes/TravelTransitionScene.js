@@ -1,6 +1,4 @@
-import { ensureHud } from '../hudHelpers.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
 import { audioManager } from '../AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
@@ -37,6 +35,8 @@ export class TravelTransitionScene extends BaseScene {
 
     this._continueDelayTimer = null;
     this._autoContinueTimer = null;
+
+    this._continuePointerHandler = null;
   }
 
   init(data = {}) {
@@ -59,16 +59,13 @@ export class TravelTransitionScene extends BaseScene {
 
     this._continueDelayTimer = null;
     this._autoContinueTimer = null;
+    this._continuePointerHandler = null;
   }
 
   create() {
     super.create();
 
-    this.sleepSceneIfAvailable('UIScene');
-    this.sleepSceneIfAvailable('PlayerHudScene');
-
-    this.game.events.emit('setHudVisible', false);
-    EventBus.emit('hideHUD');
+    this.hideTravelUi();
 
     audioManager.init(this);
     audioManager.stopAllVoice();
@@ -99,12 +96,17 @@ export class TravelTransitionScene extends BaseScene {
     } = this.transitionData;
 
     const transport = this.getTransportVisual(transportType);
-    const finalTransportLabel = transportLabel || transport.label;
-    const targetCityId = cityId || toCityId || null;
+
+    const finalTransportLabel =
+      transportLabel || transport.label;
+
+    const targetCityId =
+      cityId || toCityId || null;
 
     this._travelSfx = playTransportSfx(transport);
 
-    this.shouldShowPhoneCall = registerVisitedCity(targetCityId);
+    this.shouldShowPhoneCall =
+      registerVisitedCity(targetCityId);
 
     const newStamp = stampPassportForArrival(
       this,
@@ -116,16 +118,9 @@ export class TravelTransitionScene extends BaseScene {
       EventBus.emit('passportStampEarned', newStamp);
     }
 
-    ensureHud(this);
-
-    const hud = this.getSceneIfRegistered('PlayerHudScene');
-
-    hud?.closeAllUIPanels?.();
-
     const { width, height } = this.scale;
-    const camera = this.cameras.main;
 
-    camera.fadeIn(400, 0, 0, 0);
+    this.cameras.main.fadeIn(400, 0, 0, 0);
 
     this.createBackground(width, height);
 
@@ -171,28 +166,21 @@ export class TravelTransitionScene extends BaseScene {
   }
 
   /**
-   * Pomocniczo pobiera scenę tylko wtedy, gdy Phaser zna jej klucz.
-   * Nie używa this.scene.get() na niewczytanej lazy scenie.
+   * TravelTransitionScene ma nie pokazywać standardowego UI:
+   *
+   * - UIScene: HTML HUD w prawym górnym rogu;
+   * - PlayerHudScene: dolne menu i panele;
+   * - NewsHud: zakładka NEWS.
+   *
+   * Docelowa CityScene lub CrimeCityScene przywróci je po podróży.
    */
-  getSceneIfRegistered(sceneKey) {
-    if (!this.hasScene(sceneKey)) {
-      return null;
-    }
+  hideTravelUi() {
+    this.game.events.emit('setHudVisible', false);
+    EventBus.emit('hideHUD');
 
-    return this.scene.manager.keys[sceneKey] || null;
-  }
+    this.sleepPlayerHud();
 
-  /**
-   * Bezpiecznie usypia scenę wyłącznie wtedy, gdy istnieje i jest aktywna.
-   */
-  sleepSceneIfAvailable(sceneKey) {
-    if (!this.isSceneActive(sceneKey)) {
-      return false;
-    }
-
-    this.scene.sleep(sceneKey);
-
-    return true;
+    this.sleepSceneIfActive('NewsHud');
   }
 
   createBackground(width, height) {
@@ -278,11 +266,16 @@ export class TravelTransitionScene extends BaseScene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, 238, `Travel time: +${travelHours}h`, {
-        fontFamily: 'Special Elite',
-        fontSize: '26px',
-        color: '#ffd166'
-      })
+      .text(
+        width / 2,
+        238,
+        `Travel time: +${travelHours}h`,
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '26px',
+          color: '#ffd166'
+        }
+      )
       .setOrigin(0.5);
 
     this.add
@@ -303,11 +296,16 @@ export class TravelTransitionScene extends BaseScene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, 325, 'Following the trail...', {
-        fontFamily: 'Special Elite',
-        fontSize: '27px',
-        color: '#d6e4f0'
-      })
+      .text(
+        width / 2,
+        325,
+        'Following the trail...',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '27px',
+          color: '#d6e4f0'
+        }
+      )
       .setOrigin(0.5);
 
     this.add
@@ -407,7 +405,8 @@ export class TravelTransitionScene extends BaseScene {
         },
         duration: 900,
         yoyo: true,
-        repeat: -1
+        repeat: -1,
+        ease: 'Sine.easeInOut'
       })
     );
 
@@ -416,7 +415,7 @@ export class TravelTransitionScene extends BaseScene {
       () => {
         if (
           this.isLeaving ||
-          !this.continueHint ||
+          !this.continueHint?.scene ||
           !this.sys.isActive()
         ) {
           return;
@@ -429,13 +428,19 @@ export class TravelTransitionScene extends BaseScene {
       }
     );
 
-    this.input.once('pointerdown', () => {
+    this._continuePointerHandler = () => {
       if (!this.canContinue || this.isLeaving) {
         return;
       }
 
       this.leaveScene();
-    });
+    };
+
+    this.trackInputEvent(
+      this.input,
+      'pointerdown',
+      this._continuePointerHandler
+    );
 
     this._autoContinueTimer = this.time.delayedCall(
       6000,
@@ -461,9 +466,6 @@ export class TravelTransitionScene extends BaseScene {
 
     this.isLeaving = true;
 
-    this.game.events.emit('setHudVisible', true);
-    EventBus.emit('showHUD');
-
     const {
       status,
       cityId,
@@ -472,7 +474,8 @@ export class TravelTransitionScene extends BaseScene {
       isCrimeSceneArrival
     } = this.transitionData;
 
-    const targetCityId = cityId || toCityId || null;
+    const targetCityId =
+      cityId || toCityId || null;
 
     const targetScene =
       destinationScene ||
@@ -498,6 +501,7 @@ export class TravelTransitionScene extends BaseScene {
           );
 
           void this.goto('MenuScene');
+
           return;
         }
 
@@ -539,13 +543,12 @@ export class TravelTransitionScene extends BaseScene {
   }
 
   onSceneShutdown() {
-    this.input.removeAllListeners();
-
     this._continueDelayTimer?.remove(false);
     this._autoContinueTimer?.remove(false);
 
     this._continueDelayTimer = null;
     this._autoContinueTimer = null;
+    this._continuePointerHandler = null;
 
     cleanupTravelEffects(this);
 
@@ -563,6 +566,7 @@ export class TravelTransitionScene extends BaseScene {
     this._travelSfx = null;
 
     this.continueHint = null;
+
     this.effectObjects = [];
     this.routeGraphics = null;
     this.routeTween = null;

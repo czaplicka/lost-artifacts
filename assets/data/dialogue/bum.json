@@ -1,11 +1,69 @@
 {
   "bumClues": {
     "locationVariants": {
+
+      "default": {
+        "banter": [
+          "Spare a coin, detective? I trade in gossip too.",
+          "Nobody looks twice at a guy on a bench. That's the whole trick.",
+          "I've got nowhere to be, which makes me an excellent witness."
+        ],
+        "topics": {
+          "features": {
+            "Big forehead": ["Big forehead, thoughtful look, bad intentions. Happens."],
+            "Tattoo": ["There was a tattoo, though they wore sleeves like they'd rather it went unnoticed."],
+            "Rainbow hair streak": ["A streak of colour in the hair. Hard to miss, even here."],
+            "Necklace": ["They wore a necklace that caught the light and my attention."],
+            "Scar": ["A scar, old enough to have a story and new enough to still matter."],
+            "Moustache": ["Moustache like they trusted it more than their own name."],
+            "Glasses": ["Glasses, but don't mistake that for softness. They watched everything."],
+            "Beard": ["Beard, trimmed enough to suggest discipline, not comfort."],
+            "Long hair": ["Long hair, tied back like they didn't want it remembered."],
+            "Earrings": ["Earrings, small but deliberate. Not the kind of detail I lose."],
+            "Goatee": ["Goatee. Looked like someone trying to curate mystery."],
+            "Scarf": ["A scarf, worn like they didn't want their face remembered either."]
+          },
+          "accent": {
+            "Canadian": ["Canadian accent. Polite shape, careful edges."],
+            "Mexican": ["Mexican accent, warm enough to distract if you weren't listening closely."],
+            "Australian": ["Australian accent, casual voice, alert hands."],
+            "American": ["American accent, like they expected the room to rearrange itself around them."],
+            "Dutch": ["Dutch accent, neat and clipped, like folded paper."],
+            "British": ["British accent, local enough to blend, polished enough to bother me."],
+            "German": ["German accent, direct, economical, not built for wasting words."],
+            "Polish": ["Polish accent, solid and grounded, like they meant every syllable and trusted none of them."],
+            "Spanish": ["Spanish accent, quick and musical, but the questions underneath were all business."],
+            "Belarussian": ["Belarussian accent, soft voice, armored eyes."],
+            "Russian": ["Russian accent, measured, like every word had already passed inspection."],
+            "Italian": ["Italian accent, all warmth on top and calculation underneath."],
+            "Irish": ["Irish accent, the kind that can sound friendly while hiding the whole map."],
+            "French": ["French accent. Smooth enough to make suspicion sound elegant."],
+            "Ukrainian": ["Ukrainian accent, quiet, careful, the sort that's learned to read a room before speaking in it."],
+            "Indian": ["Indian accent, quick and warm, though the questions underneath were anything but casual."],
+            "Belgian": ["Belgian accent, subtle enough that most people would miss it. I didn't."]
+          },
+          "money": [
+            "They flashed a coin with {coinSymbol} on it, like showing off ammunition.",
+            "They offered me a coin with {coinSymbol} stamped on the back if I forgot I saw them."
+          ]
+        },
+        "repeatLines": [
+          ["We already spoke, detective.", "Nothing's changed since then, only my patience."],
+          ["Back again?", "You must really like benches."],
+          ["No new clues.", "Same street, same silence."]
+        ],
+        "falseLeadLines": [
+          ["Wrong city, detective.", "Happens to the best of us. And to you, apparently."],
+          ["That lead went nowhere.", "Story of my life, honestly."],
+          ["The suspect wasn't here.", "Just me, this bench, and your bad luck."]
+        ]
+      },
+
       "london": {
         "banter": [
-          "London streets drip, mumble and pretend they’ve seen worse.",
+          "London streets drip, mumble and pretend they've seen worse.",
           "I sleep under bridges tourists photograph from a distance.",
-          "Here, even the pigeons look like they’re late for work."
+          "Here, even the pigeons look like they're late for work."
         ],
         "travelHints": {
           "paris": [
@@ -39,167 +97,68 @@
             "They talked about a river city where even the fog minds its own business."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, tidy enough to pass unnoticed if you weren’t paid to notice."
-            ],
-            "Brown": [
-              "Brown hair, ordinary on purpose. That’s usually the trick."
-            ],
-            "Blonde": [
-              "Blonde hair, too bright for this weather and too careful to be natural."
-            ],
-            "Red": [
-              "Red hair. In this fog, that counts as announcing yourself."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, cold as a London morning and twice as careful."
-            ],
-            "Brown": [
-              "Brown eyes, watching doorways more than faces."
-            ],
-            "Green": [
-              "Green eyes, quick and sharp, like they were counting exits."
-            ],
-            "Hazel": [
-              "Hazel eyes, restless in a way honest people rarely are."
-            ]
-          },
+        "topics": {
           "features": {
-            "Big forehead": [
-              "Big forehead, thoughtful look, bad intentions. Happens."
-            ],
-            "Tattoo": [
-              "There was a tattoo, though they wore sleeves like they’d rather the city forgot."
-            ],
-            "Rainbow hair streak": [
-              "A streak of color in the hair. Hard to miss, even in a city built from grey."
-            ],
-            "Necklace": [
-              "They wore a necklace that caught the light and my attention."
-            ],
-            "Scar": [
-              "A scar, old enough to have a story and new enough to still matter."
-            ],
-            "Moustache": [
-              "Moustache like they trusted it more than their own name."
-            ],
-            "Glasses": [
-              "Glasses, but don’t mistake that for softness. They watched everything."
-            ],
-            "Beard": [
-              "Beard, trimmed enough to suggest discipline, not comfort."
-            ],
-            "Long hair": [
-              "Long hair, tied back like they didn’t want it remembered."
-            ],
-            "Earrings": [
-              "Earrings, small but deliberate. Not the kind of detail I lose."
-            ],
-            "Goatee": [
-              "Goatee. Looked like someone trying to curate mystery."
-            ]
+            "Big forehead": ["Big forehead, thoughtful look, bad intentions. Happens."],
+            "Tattoo": ["There was a tattoo, though they wore sleeves like they'd rather the city forgot."],
+            "Rainbow hair streak": ["A streak of color in the hair. Hard to miss, even in a city built from grey."],
+            "Necklace": ["They wore a necklace that caught the light and my attention."],
+            "Scar": ["A scar, old enough to have a story and new enough to still matter."],
+            "Moustache": ["Moustache like they trusted it more than their own name."],
+            "Glasses": ["Glasses, but don't mistake that for softness. They watched everything."],
+            "Beard": ["Beard, trimmed enough to suggest discipline, not comfort."],
+            "Long hair": ["Long hair, tied back like they didn't want it remembered."],
+            "Earrings": ["Earrings, small but deliberate. Not the kind of detail I lose."],
+            "Goatee": ["Goatee. Looked like someone trying to curate mystery."],
+            "Scarf": ["A scarf wound tight, the kind you wear when you don't want your face remembered."]
           },
           "accent": {
-            "Canadian": [
-              "Canadian accent. Polite shape, careful edges."
-            ],
-            "Mexican": [
-              "Mexican accent, warm enough to distract if you weren’t listening closely."
-            ],
-            "Australian": [
-              "Australian accent, casual voice, alert hands."
-            ],
-            "American": [
-              "American accent, like they expected the room to rearrange itself around them."
-            ],
-            "Dutch": [
-              "Dutch accent, neat and clipped, like folded paper."
-            ],
-            "British": [
-              "British accent, local enough to blend, polished enough to bother me."
-            ],
-            "German": [
-              "German accent, direct, economical, not built for wasting words."
-            ],
-            "Polish": [
-              "Polish accent, solid and grounded, like they meant every syllable and trusted none of them."
-            ],
-            "Spanish": [
-              "Spanish accent, quick and musical, but the questions underneath were all business."
-            ],
-            "Belarussian": [
-              "Belarussian accent, soft voice, armored eyes."
-            ],
-            "Russian": [
-              "Russian accent, measured, like every word had already passed inspection."
-            ],
-            "Italian": [
-              "Italian accent, all warmth on top and calculation underneath."
-            ],
-            "Irish": [
-              "Irish accent, the kind that can sound friendly while hiding the whole map."
-            ],
-            "French": [
-              "French accent. Smooth enough to make suspicion sound elegant."
-            ],
-            "Belgian": [
-              "Belgian accent, subtle enough that most people would miss it. I didn’t."
-            ]
+            "Canadian": ["Canadian accent. Polite shape, careful edges."],
+            "Mexican": ["Mexican accent, warm enough to distract if you weren't listening closely."],
+            "Australian": ["Australian accent, casual voice, alert hands."],
+            "American": ["American accent, like they expected the room to rearrange itself around them."],
+            "Dutch": ["Dutch accent, neat and clipped, like folded paper."],
+            "British": ["British accent, local enough to blend, polished enough to bother me."],
+            "German": ["German accent, direct, economical, not built for wasting words."],
+            "Polish": ["Polish accent, solid and grounded, like they meant every syllable and trusted none of them."],
+            "Spanish": ["Spanish accent, quick and musical, but the questions underneath were all business."],
+            "Belarussian": ["Belarussian accent, soft voice, armored eyes."],
+            "Russian": ["Russian accent, measured, like every word had already passed inspection."],
+            "Italian": ["Italian accent, all warmth on top and calculation underneath."],
+            "Irish": ["Irish accent, the kind that can sound friendly while hiding the whole map."],
+            "French": ["French accent. Smooth enough to make suspicion sound elegant."],
+            "Belgian": ["Belgian accent, subtle enough that most people would miss it. I didn't."],
+            "Ukrainian": ["Ukrainian accent, quiet, careful, the sort that's learned to read a room before speaking in it."],
+            "Indian": ["Indian accent, quick and warm, though the questions underneath were anything but casual."]
           },
-          "habitus": {
-            "Smoking": [
-              "Smelled like smoke and hurry."
-            ],
-            "Drinking": [
-              "Carried last night in their posture."
-            ]
-          }
+          "money": [
+            "They flashed a coin with {coinSymbol} on it like it was proof of something.",
+            "They offered me a coin with {coinSymbol} stamped on it if I forgot which way they went."
+          ]
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "The fog hasn’t revealed anything new since."
-          ],
-          [
-            "Back again?",
-            "You must really like damp benches and old stories."
-          ],
-          [
-            "No new clues.",
-            "Just the same river, same stones, and slightly colder hands."
-          ]
+          ["We already spoke, detective.", "The fog hasn't revealed anything new since."],
+          ["Back again?", "You must really like damp benches and old stories."],
+          ["No new clues.", "Just the same river, same stones, and slightly colder hands."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Even the rain knew you were in the wrong place."
-          ],
-          [
-            "That lead washed out.",
-            "London’s good at that."
-          ],
-          [
-            "Your suspect wasn’t there.",
-            "Only your umbrella and your patience got tested."
-          ]
+          ["Wrong city, detective.", "Even the rain knew you were in the wrong place."],
+          ["That lead washed out.", "London's good at that."],
+          ["Your suspect wasn't there.", "Only your umbrella and your patience got tested."]
         ]
       },
 
       "paris": {
         "banter": [
           "In Paris, even the trash has better posture than I do.",
-          "I see more broken hearts than broken bottles here, and that’s saying something.",
-          "The alleyways smell like smoke, perfume and people pretending they’re not lost."
+          "I see more broken hearts than broken bottles here, and that's saying something.",
+          "The alleyways smell like smoke, perfume and people pretending they're not lost."
         ],
         "travelHints": {
           "london": [
             "They asked about a city where umbrellas are practically official documents.",
             "Your suspect mentioned red buses, black cabs and weather with a persecution complex.",
-            "They talked about crossing the Channel like they’d done it before and lied about it after."
+            "They talked about crossing the Channel like they'd done it before and lied about it after."
           ],
           "berlin": [
             "They asked about a city where concrete remembers and the night shift never really ends.",
@@ -208,12 +167,12 @@
           ],
           "new_york_city": [
             "They talked about a place where ambition stands taller than the buildings, which is saying something.",
-            "Your suspect asked if New York really moves that fast or if that’s just the noise.",
+            "Your suspect asked if New York really moves that fast or if that's just the noise.",
             "They mentioned yellow taxis, steel canyons and people too busy to notice a thief."
           ],
           "warsaw": [
             "They asked about a city rebuilt out of ruins and stubbornness.",
-            "Your suspect mentioned a mermaid, a river and people who don’t confuse survival with drama.",
+            "Your suspect mentioned a mermaid, a river and people who don't confuse survival with drama.",
             "They talked about Warsaw like someone who respects cities that have scars."
           ],
           "new_delhi": [
@@ -223,97 +182,58 @@
           ],
           "paris": [
             "Funny thing, they described Paris like someone trying not to admit they missed it.",
-            "They mentioned cafés, smoke and a tower people mistake for romance.",
+            "They mentioned cafes, smoke and a tower people mistake for romance.",
             "They talked about narrow streets and elegant lies."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, styled like they expected witnesses."
-            ],
-            "Brown": [
-              "Brown hair, plain enough to disappear in a crowd of better-dressed lies."
-            ],
-            "Blonde": [
-              "Blonde hair, too deliberate to be innocent."
-            ],
-            "Red": [
-              "Red hair, dramatic even by Paris standards."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes that looked at the city like it was competition."
-            ],
-            "Brown": [
-              "Brown eyes, soft on the surface, calculating underneath."
-            ],
-            "Green": [
-              "Green eyes, amused by everything except questions."
-            ],
-            "Hazel": [
-              "Hazel eyes, lingering a little too long on exits and cameras."
-            ]
-          },
+        "topics": {
           "features": {
-            "Tattoo": [
-              "A small tattoo, perfectly placed to look accidental."
-            ],
-            "Earrings": [
-              "Earrings that caught the streetlight every time they lied."
-            ],
-            "Scarf": [
-              "A scarf worn indoors. That’s fashion or paranoia. Sometimes both."
-            ]
+            "Big forehead": ["Big forehead, the kind Paris would call distinguished if the price was right."],
+            "Tattoo": ["A small tattoo, perfectly placed to look accidental."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bold enough to be a fashion statement or a distraction."],
+            "Necklace": ["A thin necklace, worn like an afterthought that cost more than my whole week."],
+            "Scar": ["A scar they didn't bother explaining. Paris respects a good secret."],
+            "Moustache": ["A moustache groomed like it had somewhere better to be."],
+            "Glasses": ["Glasses, round and intellectual, like they'd read every menu twice before ordering nothing."],
+            "Beard": ["A short beard, expensive-looking even when unkempt, which takes real money."],
+            "Long hair": ["Long hair, loose, like they wanted the wind to do the lying for them."],
+            "Earrings": ["Earrings that caught the streetlight every time they lied."],
+            "Goatee": ["A goatee, trimmed like it was rehearsed in a mirror for an hour."],
+            "Scarf": ["A scarf worn indoors. That's fashion or paranoia. Sometimes both."]
           },
           "accent": {
-            "French": [
-              "French accent, polished enough to make \"no\" sound like a compliment."
-            ],
-            "Italian": [
-              "Italian accent, turning alibis into monologues."
-            ],
-            "Spanish": [
-              "Spanish accent, warm voice, cool intentions."
-            ]
+            "French": ["French accent, polished enough to make \"no\" sound like a compliment."],
+            "Italian": ["Italian accent, turning alibis into monologues."],
+            "Spanish": ["Spanish accent, warm voice, cool intentions."],
+            "Canadian": ["Canadian accent, polite even while lying."],
+            "Mexican": ["Mexican accent, warm tone, sharp eyes."],
+            "Australian": ["Australian accent, blunt in a city built on subtlety."],
+            "American": ["American accent, loud enough to embarrass the wine list."],
+            "Dutch": ["Dutch accent, direct, unimpressed by the chandeliers."],
+            "British": ["British accent, trying not to sound impressed. Failing."],
+            "German": ["German accent, precise, out of place among all this improvisation."],
+            "Polish": ["Polish accent, steady, unbothered by the theatrics."],
+            "Belarussian": ["Belarussian accent, quiet, careful with every word."],
+            "Russian": ["Russian accent, composed, treating the whole city like a calculated risk."],
+            "Irish": ["Irish accent, charming enough to almost make me forget the question."],
+            "Ukrainian": ["Ukrainian accent, alert, watching the door more than the menu."],
+            "Indian": ["Indian accent, smooth, switching charm and formality like a light switch."],
+            "Belgian": ["Belgian accent, easy to miss, which is probably the point."]
           },
-          "habitus": {
-            "Smoking": [
-              "They smoked like they were getting paid for atmosphere."
-            ],
-            "Drinking": [
-              "Wine on their breath, regret carefully edited out."
-            ]
-          }
+          "money": [
+            "They flashed a coin with {coinSymbol} on it, admiring it more than spending it.",
+            "They offered {coinSymbol} coins for silence, like that's a fair exchange rate."
+          ]
         },
         "repeatLines": [
-          [
-            "We already talked, detective.",
-            "The only thing that changed is which café kicked me out."
-          ],
-          [
-            "Back so soon?",
-            "Romance moves faster than clues in this city."
-          ],
-          [
-            "No fresh secrets.",
-            "Just the same shadows and slightly louder arguments."
-          ]
+          ["We already talked, detective.", "The only thing that changed is which cafe kicked me out."],
+          ["Back so soon?", "Romance moves faster than clues in this city."],
+          ["No fresh secrets.", "Just the same shadows and slightly louder arguments."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Pretty mistake, though."
-          ],
-          [
-            "That lead went nowhere, detective.",
-            "You followed the lights and forgot the trail."
-          ],
-          [
-            "Your thief wasn’t here.",
-            "Only tourists, poets, and people lying about both."
-          ]
+          ["Wrong city.", "Pretty mistake, though."],
+          ["That lead went nowhere, detective.", "You followed the lights and forgot the trail."],
+          ["Your thief wasn't here.", "Only tourists, poets, and people lying about both."]
         ]
       },
 
@@ -350,98 +270,59 @@
             "They talked about New Delhi like someone studying motion."
           ],
           "berlin": [
-            "They described Berlin as if they admired cities that don’t bother pretending to be tidy.",
+            "They described Berlin as if they admired cities that don't bother pretending to be tidy.",
             "They mentioned murals, concrete and basements with bad intentions and good sound systems.",
             "They talked about a place where the past stays visible and the night refuses supervision."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, functional, severe, no wasted gesture in it."
-            ],
-            "Brown": [
-              "Brown hair, forgettable in theory, memorable in context."
-            ],
-            "Blonde": [
-              "Blonde hair, cut like they didn’t come here for fun, just for late nights."
-            ],
-            "Red": [
-              "Red hair, the only part of them that still believed in colour."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, cool and pragmatic, like they’d filed the city under \"useful.\""
-            ],
-            "Brown": [
-              "Brown eyes, steady, used to reading people faster than signs."
-            ],
-            "Green": [
-              "Green eyes, watching like they expected the past to walk by at any moment."
-            ],
-            "Hazel": [
-              "Hazel eyes, taking notes without a notebook."
-            ]
-          },
+        "topics": {
           "features": {
-            "Scar": [
-              "A scar, no explanation offered, which is all the explanation you need here."
-            ],
-            "Tattoo": [
-              "A geometric tattoo that looked more like a diagram than decoration."
-            ],
-            "Glasses": [
-              "Simple glasses, practical frame, nothing extra—unlike their stories."
-            ]
+            "Scar": ["A scar, no explanation offered, which is all the explanation you need here."],
+            "Tattoo": ["A geometric tattoo that looked more like a diagram than decoration."],
+            "Glasses": ["Simple glasses, practical frame, nothing extra-unlike their stories."],
+            "Big forehead": ["Big forehead, looked permanently mid-calculation."],
+            "Rainbow hair streak": ["A streak of colour in the hair, loud against all this grey concrete."],
+            "Necklace": ["A plain necklace, functional, like everything else about them."],
+            "Moustache": ["A moustache, trimmed with the same discipline as their footsteps."],
+            "Beard": ["A short beard, precise at the edges, like it had been audited."],
+            "Long hair": ["Long hair, tied back tight, nothing left to chance."],
+            "Earrings": ["Small earrings, easy to miss, which of course I didn't."],
+            "Goatee": ["A goatee, exact, like it had been measured with a ruler."],
+            "Scarf": ["A scarf, practical, wrapped like the cold actually mattered to them."]
           },
           "accent": {
-            "German": [
-              "German accent, words lined up like they were in a queue."
-            ],
-            "Polish": [
-              "Polish accent, comfortable with the cold and the concrete."
-            ],
-            "Russian": [
-              "Russian accent, slow and careful, like heavy doors closing."
-            ]
+            "German": ["German accent, words lined up like they were in a queue."],
+            "Polish": ["Polish accent, comfortable with the cold and the concrete."],
+            "Russian": ["Russian accent, slow and careful, like heavy doors closing."],
+            "Canadian": ["Canadian accent, apologizing for questions that needed no apology."],
+            "Mexican": ["Mexican accent, casual tone, careful questions."],
+            "Australian": ["Australian accent, blunt enough to fit right in."],
+            "American": ["American accent, loud enough to wake the whole block."],
+            "Dutch": ["Dutch accent, matching the city's directness exactly."],
+            "British": ["British accent, polite in a way that sounded like a warning."],
+            "Spanish": ["Spanish accent, warm, out of step with the concrete."],
+            "Belarussian": ["Belarussian accent, quiet, giving away nothing."],
+            "Italian": ["Italian accent, animated enough to startle the pigeons."],
+            "Irish": ["Irish accent, talkative, vague on the details that mattered."],
+            "French": ["French accent, amused by how seriously this city takes its rules."],
+            "Ukrainian": ["Ukrainian accent, alert, economical with trust."],
+            "Indian": ["Indian accent, adapting fast to the cold and the silence."],
+            "Belgian": ["Belgian accent, easy to miss in all this noise, but I caught it."]
           },
-          "habitus": {
-            "Smoking": [
-              "Smelled of cigarettes and the kind of rain that never quite starts."
-            ],
-            "Drinking": [
-              "They wore last night’s bar as a faint halo."
-            ]
-          }
+          "money": [
+            "They smelled of cigarettes and flashed a coin with {coinSymbol} like it was currency for silence.",
+            "They asked what {coinSymbol} was worth here, and if I'd remember they asked."
+          ]
         },
         "repeatLines": [
-          [
-            "We already covered this corner.",
-            "It still remembers more music than crime."
-          ],
-          [
-            "Back again?",
-            "Same graffiti, same faces, same missing thief."
-          ],
-          [
-            "No new whispers, detective.",
-            "Just the echo of bass lines and bad decisions."
-          ]
+          ["We already covered this corner.", "It still remembers more music than crime."],
+          ["Back again?", "Same graffiti, same faces, same missing thief."],
+          ["No new whispers, detective.", "Just the echo of bass lines and bad decisions."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Direct, like the people here."
-          ],
-          [
-            "That lead died on arrival.",
-            "You chased the wrong beat this time."
-          ],
-          [
-            "The suspect wasn’t in that crowd.",
-            "You just danced around the problem."
-          ]
+          ["Wrong city.", "Direct, like the people here."],
+          ["That lead died on arrival.", "You chased the wrong beat this time."],
+          ["The suspect wasn't in that crowd.", "You just danced around the problem."]
         ]
       },
 
@@ -483,93 +364,54 @@
             "They described a city where nobody notices anything unless it slows them down."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, slicked back like they were late for three meetings and one crime."
-            ],
-            "Brown": [
-              "Brown hair, deliberately casual, like everything else about them was over-scheduled."
-            ],
-            "Blonde": [
-              "Blonde hair, visible from across the street and probably from space."
-            ],
-            "Red": [
-              "Red hair, the kind New York either remembers or runs from."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes that scanned the block like it was a balance sheet."
-            ],
-            "Brown": [
-              "Brown eyes, sharp, already calculating the shortest illegal route."
-            ],
-            "Green": [
-              "Green eyes, hungry in a way that had nothing to do with food carts."
-            ],
-            "Hazel": [
-              "Hazel eyes, flicking between cops, cameras and exits like a to-do list."
-            ]
-          },
+        "topics": {
           "features": {
-            "Tattoo": [
-              "A tattoo visible under the streetlamp, something bold and unwise."
-            ],
-            "Glasses": [
-              "Glasses with frames expensive enough to double as an alibi."
-            ],
-            "Beard": [
-              "A beard trimmed like they were networking even while hiding."
-            ]
+            "Tattoo": ["A tattoo visible under the streetlamp, something bold and unwise."],
+            "Glasses": ["Glasses with frames expensive enough to double as an alibi."],
+            "Beard": ["A beard trimmed like they were networking even while hiding."],
+            "Big forehead": ["Big forehead, already three moves ahead of the conversation."],
+            "Rainbow hair streak": ["A streak of colour in the hair, loud enough to match the sirens."],
+            "Necklace": ["A flashy necklace, part of the negotiation, not the outfit."],
+            "Scar": ["A scar, no story offered, none needed."],
+            "Moustache": ["A moustache, ironic enough to be a bit."],
+            "Long hair": ["Long hair, moving faster than the subway doors."],
+            "Earrings": ["Small earrings, catching light every time they lied."],
+            "Goatee": ["A goatee, sharp-edged, means business or thinks it does."],
+            "Scarf": ["A scarf thrown on fast, more armor than fashion."]
           },
           "accent": {
-            "American": [
-              "American accent, but not local—New Yorkers can smell that from a block away."
-            ],
-            "British": [
-              "British accent, wobbling slightly under the weight of jet lag and attitude."
-            ],
-            "Spanish": [
-              "Spanish accent, fast-paced, like they were racing the subway schedule."
-            ]
+            "American": ["American accent, but not local-New Yorkers can smell that from a block away."],
+            "British": ["British accent, wobbling slightly under the weight of jet lag and attitude."],
+            "Spanish": ["Spanish accent, fast-paced, like they were racing the subway schedule."],
+            "Canadian": ["Canadian accent, polite enough to look lost."],
+            "Mexican": ["Mexican accent, quick, keeping pace with the whole block."],
+            "Australian": ["Australian accent, loud, though this city still out-talks it."],
+            "Dutch": ["Dutch accent, blunt, which fits right in here."],
+            "German": ["German accent, clipped, cutting through the noise."],
+            "Polish": ["Polish accent, steady, unbothered by the chaos."],
+            "Belarussian": ["Belarussian accent, guarded, used to being asked twice."],
+            "Russian": ["Russian accent, calm, making the noise around them look worse."],
+            "Italian": ["Italian accent, turning a simple question into a performance."],
+            "Irish": ["Irish accent, chatty, saying a lot while revealing little."],
+            "French": ["French accent, cool, amused by all the hurrying."],
+            "Ukrainian": ["Ukrainian accent, sharp, watching without matching the noise."],
+            "Indian": ["Indian accent, smooth, negotiating like they'd done it before."],
+            "Belgian": ["Belgian accent, quiet enough to get lost in the crowd. Almost."]
           },
-          "habitus": {
-            "Smoking": [
-              "Smelled of stale smoke and hot pavement."
-            ],
-            "Drinking": [
-              "Last night clung to them like steam from a manhole."
-            ]
-          }
+          "money": [
+            "They flashed {coinSymbol} like it was proof they'd been somewhere worth bragging about.",
+            "They offered me a coin with {coinSymbol} on it, like that's a New York bribe."
+          ]
         },
         "repeatLines": [
-          [
-            "Yeah, we already talked, detective.",
-            "Still the same chaos, still the same clue count."
-          ],
-          [
-            "Back again?",
-            "You’re starting to look like part of the scenery."
-          ],
-          [
-            "No update.",
-            "The city shouted a lot, but none of it was useful."
-          ]
+          ["Yeah, we already talked, detective.", "Still the same chaos, still the same clue count."],
+          ["Back again?", "You're starting to look like part of the scenery."],
+          ["No update.", "The city shouted a lot, but none of it was useful."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Big gamble, big miss."
-          ],
-          [
-            "That lead went nowhere.",
-            "Fast, loud, and nowhere."
-          ],
-          [
-            "Your suspect wasn’t there.",
-            "Just a million other problems on different corners."
-          ]
+          ["Wrong city, detective.", "Big gamble, big miss."],
+          ["That lead went nowhere.", "Fast, loud, and nowhere."],
+          ["Your suspect wasn't there.", "Just a million other problems on different corners."]
         ]
       },
 
@@ -587,7 +429,7 @@
           ],
           "paris": [
             "They mentioned Paris with a kind of tired admiration.",
-            "Your thief asked about cafés, towers and people who can argue stylishly.",
+            "Your thief asked about cafes, towers and people who can argue stylishly.",
             "They talked about a city where beauty and nonsense rent the same room."
           ],
           "berlin": [
@@ -608,87 +450,57 @@
           "warsaw": [
             "They described Warsaw like someone who understood why a city keeps getting back up.",
             "They mentioned a river, a mermaid and streets with long memories.",
-            "They talked about old stone, new glass and people who don’t waste resilience."
+            "They talked about old stone, new glass and people who don't waste resilience."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, combed like they still respected mirrors."
-            ],
-            "Brown": [
-              "Brown hair, the sort that disappears in crowds until trouble starts."
-            ],
-            "Blonde": [
-              "Blonde hair, common enough here to be a bad description, unless you look closer."
-            ],
-            "Red": [
-              "Red hair, brighter than the tram lights."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, winter kind. Seen things, won’t say them."
-            ],
-            "Brown": [
-              "Brown eyes, steady like someone who’s stood in a lot of queues."
-            ],
-            "Green": [
-              "Green eyes that kept checking if the city was still standing. It was."
-            ],
-            "Hazel": [
-              "Hazel eyes, cataloguing trouble like a habit."
-            ]
+        "topics": {
+          "features": {
+            "Beard": ["A beard, tidy enough to look deliberate."],
+            "Necklace": ["A small necklace, nothing fancy-people here know how to hide value."],
+            "Big forehead": ["Big forehead, the kind that suggests they've thought too much for their own good."],
+            "Tattoo": ["A tattoo, old and faded, outliving whatever it used to mean."],
+            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though the young ones are catching on."],
+            "Scar": ["A small scar, old enough for a story, recent enough to matter."],
+            "Moustache": ["A moustache, unremarkable, half the men here have one."],
+            "Glasses": ["Glasses, slightly scratched, someone who works more than they sleep."],
+            "Long hair": ["Long hair, tied back tight against the wind."],
+            "Earrings": ["Simple earrings, checked once like they mattered."],
+            "Goatee": ["A goatee, kept out of habit more than fashion."],
+            "Scarf": ["A scarf, wrapped tight, the way everyone learns eventually."]
           },
           "accent": {
-            "Polish": [
-              "Polish accent, flat and practical, like a good tool."
-            ]
+            "Polish": ["Polish accent, flat and practical, like a good tool."],
+            "Canadian": ["Canadian accent, polite, slightly out of place here."],
+            "Mexican": ["Mexican accent, warm, an odd contrast to the grey."],
+            "Australian": ["Australian accent, casual, making our formalities look excessive."],
+            "American": ["American accent, confident, asking like they already knew the answer."],
+            "Dutch": ["Dutch accent, direct, which people here actually respect."],
+            "British": ["British accent, formal until the questions got specific."],
+            "German": ["German accent, precise enough to make you check your own math."],
+            "Spanish": ["Spanish accent, lively, out of step with the quiet."],
+            "Belarussian": ["Belarussian accent, familiar, careful the way border towns teach you to be."],
+            "Russian": ["Russian accent, softened at the edges from time away."],
+            "Italian": ["Italian accent, animated, drawing more attention than they wanted."],
+            "Irish": ["Irish accent, easygoing, offering stories instead of details."],
+            "French": ["French accent, amused by how seriously we take the cold."],
+            "Ukrainian": ["Ukrainian accent, careful, used to border questions."],
+            "Indian": ["Indian accent, businesslike, adjusting fast to the mood."],
+            "Belgian": ["Belgian accent, quiet enough that most people miss it."]
           },
-          "features": {
-            "Beard": [
-              "A beard, tidy enough to look deliberate."
-            ],
-            "Necklace": [
-              "A small necklace, nothing fancy—people here know how to hide value."
-            ]
-          },
-          "habitus": {
-            "Smoking": [
-              "Smelled of cheap cigarettes and cold air by the doorway."
-            ],
-            "Drinking": [
-              "Not drunk, just well acquainted with local vodka."
-            ]
-          }
+          "money": [
+            "Not drunk, just well acquainted with local vodka, and flashing a coin with {coinSymbol} on it.",
+            "They asked what {coinSymbol} was worth if I forgot which tram they took."
+          ]
         },
         "repeatLines": [
-          [
-            "We already talked.",
-            "No new faces, no new trouble on this corner."
-          ],
-          [
-            "Back again?",
-            "You’re more stubborn than the tram schedule."
-          ],
-          [
-            "Nothing new, detective.",
-            "If something shifted, I’d have felt it in the pavement."
-          ]
+          ["We already talked.", "No new faces, no new trouble on this corner."],
+          ["Back again?", "You're more stubborn than the tram schedule."],
+          ["Nothing new, detective.", "If something shifted, I'd have felt it in the pavement."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city, detective.",
-            "Not your first mistake, probably not your last."
-          ],
-          [
-            "That lead was empty.",
-            "Like most promises shouted after midnight."
-          ],
-          [
-            "The suspect isn’t there.",
-            "Just people trying to make rent and sense of things."
-          ]
+          ["Wrong city, detective.", "Not your first mistake, probably not your last."],
+          ["That lead was empty.", "Like most promises shouted after midnight."],
+          ["The suspect isn't there.", "Just people trying to make rent and sense of things."]
         ]
       },
 
@@ -706,7 +518,7 @@
           ],
           "paris": [
             "They asked about Paris like they expected beauty to be useful.",
-            "Your thief mentioned cafés, smoke and a tower everyone photographs instead of understanding.",
+            "Your thief mentioned cafes, smoke and a tower everyone photographs instead of understanding.",
             "They talked about a place where elegance and inconvenience seem happily married."
           ],
           "berlin": [
@@ -730,92 +542,57 @@
             "They talked about a city that never truly clears its throat before speaking."
           ]
         },
-        "suspectCluePool": {
-          "hair": {
-            "Black": [
-              "Black hair, already losing an argument with the humidity."
-            ],
-            "Brown": [
-              "Brown hair, tied back like they’d learned that lesson the hard way."
-            ],
-            "Blonde": [
-              "Blonde hair, catching every speck of dust in a ten-meter radius."
-            ],
-            "Red": [
-              "Red hair, somehow louder than the traffic."
-            ]
-          },
-          "eyes": {
-            "Blue": [
-              "Blue eyes, squinting at the heat and the questions."
-            ],
-            "Brown": [
-              "Brown eyes, reflecting headlights and suspicion."
-            ],
-            "Green": [
-              "Green eyes, tracking movement like they were afraid to blink."
-            ],
-            "Hazel": [
-              "Hazel eyes that treated every shout as possible bad news."
-            ]
-          },
-          "habitus": {
-            "Smoking": [
-              "Even through spice, fuel and dust, the smoke clung to them."
-            ],
-            "Drinking": [
-              "They held their water bottle like a temporary religion."
-            ]
-          },
+        "topics": {
           "features": {
-            "Necklace": [
-              "A small pendant tapping against their chest every time they lied."
-            ],
-            "Glasses": [
-              "Glasses fogged at the edges from heat and bad timing."
-            ]
+            "Necklace": ["A small pendant tapping against their chest every time they lied."],
+            "Glasses": ["Glasses fogged at the edges from heat and bad timing."],
+            "Big forehead": ["Big forehead, gleaming a little under the sun."],
+            "Tattoo": ["A small tattoo, half-faded, like a promise they almost kept."],
+            "Rainbow hair streak": ["A streak of colour in the hair, bright even in this glare."],
+            "Scar": ["A small scar, the kind nobody explains and everybody notices."],
+            "Moustache": ["A neat moustache, half the men here seem to grow one."],
+            "Beard": ["A short beard, more humidity than fashion by evening."],
+            "Long hair": ["Long hair, tied back fast against the heat."],
+            "Earrings": ["Small earrings, catching light every time they leaned in."],
+            "Goatee": ["A goatee, trimmed despite the heat, which takes real effort."],
+            "Scarf": ["A light scarf, more for the dust than for style."]
           },
           "accent": {
-            "Indian": [
-              "An Indian accent, local, quick, used to shouting over traffic."
-            ],
-            "British": [
-              "A British accent melting slightly in this weather."
-            ],
-            "American": [
-              "An American accent pretending not to be overwhelmed."
-            ]
-          }
+            "Indian": ["An Indian accent, local, quick, used to shouting over traffic."],
+            "British": ["A British accent melting slightly in this weather."],
+            "American": ["An American accent pretending not to be overwhelmed."],
+            "Canadian": ["Canadian accent, polite even while sweating."],
+            "Mexican": ["Mexican accent, warm, right at home with the noise."],
+            "Australian": ["Australian accent, relaxed, though nothing here relaxes."],
+            "Dutch": ["Dutch accent, blunt, cutting past the small talk."],
+            "German": ["German accent, oddly composed given the chaos."],
+            "Polish": ["Polish accent, steady, unbothered by the heat or noise."],
+            "Spanish": ["Spanish accent, animated, matching the street outside."],
+            "Belarussian": ["Belarussian accent, quiet, watching more than speaking."],
+            "Russian": ["Russian accent, measured, unaffected by the commotion."],
+            "Italian": ["Italian accent, theatrical, turning small talk into a scene."],
+            "Irish": ["Irish accent, friendly, chatting past every interruption."],
+            "French": ["French accent, cool, unmoved by the heat or the crowd."],
+            "Ukrainian": ["Ukrainian accent, alert, watching the street as much as the stranger."],
+            "Belgian": ["Belgian accent, easy to miss under all this noise. I didn't."]
+          },
+          "money": [
+            "They held their water bottle like a temporary religion, then flashed a coin with {coinSymbol} on it.",
+            "They asked what {coinSymbol} was worth if I forgot which auto-rickshaw they took."
+          ]
         },
         "repeatLines": [
-          [
-            "We already spoke, detective.",
-            "Since then only the dust has moved."
-          ],
-          [
-            "Back again?",
-            "You must really like heat and bad odds."
-          ],
-          [
-            "No new clue.",
-            "Just the same traffic, same shouts and different excuses."
-          ]
+          ["We already spoke, detective.", "Since then only the dust has moved."],
+          ["Back again?", "You must really like heat and bad odds."],
+          ["No new clue.", "Just the same traffic, same shouts and different excuses."]
         ],
         "falseLeadLines": [
-          [
-            "Wrong city.",
-            "Loud mistake, easy to hear from here."
-          ],
-          [
-            "That lead burned out fast.",
-            "Like most cheap lanterns in a long night."
-          ],
-          [
-            "Your suspect is somewhere else.",
-            "You only managed to chase the heat."
-          ]
+          ["Wrong city.", "Loud mistake, easy to hear from here."],
+          ["That lead burned out fast.", "Like most cheap lanterns in a long night."],
+          ["Your suspect is somewhere else.", "You only managed to chase the heat."]
         ]
       }
+
     }
   }
 }

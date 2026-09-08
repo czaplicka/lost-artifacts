@@ -2,6 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../AudioManager.js';
 import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
+import { EventBus } from '../EventBus.js';
 
 import { CrimeCityProgressService } from './crimeCity/CrimeCityProgressService.js';
 import { CrimeCityReconstructionService } from './crimeCity/CrimeCityReconstructionService.js';
@@ -27,6 +28,7 @@ export class CrimeCityScene extends BaseScene {
     this.npcManager = null;
 
     this.boundShutdown = null;
+    this.isSettingUpUi = false;
   }
 
   init(data = {}) {
@@ -40,6 +42,7 @@ export class CrimeCityScene extends BaseScene {
 
     this.interactiveObjects = [];
     this.cityAmbient = null;
+    this.isSettingUpUi = false;
 
     this.destroyControllers();
 
@@ -110,11 +113,11 @@ export class CrimeCityScene extends BaseScene {
     );
 
     try {
-      this.configureNewsHud();
-      this.configureUIScene();
       this.initializeCrimeCity();
       this.createCrimeCityContent();
-      this.refreshPlayerHud();
+
+      void this.setupCrimeCityUi();
+
       this.scheduleStoryEvents();
     } catch (error) {
       console.error(
@@ -124,16 +127,68 @@ export class CrimeCityScene extends BaseScene {
     }
   }
 
-  configureNewsHud() {
-    try {
-      const newsHud =
-        this.scene.manager.keys.NewsHud;
+  /**
+   * Przywraca wszystkie elementy interface po TravelTransitionScene:
+   *
+   * - UIScene: górny HUD HTML
+   * - PlayerHudScene: menu na dole i panele Phaser
+   * - NewsHud: zakładka NEWS; w Crime City gazeta jest dostępna,
+   *   TV jest ukryte
+   */
+  async setupCrimeCityUi() {
+    if (this.isSettingUpUi) {
+      return;
+    }
 
-      if (
-        newsHud &&
-        newsHud.sys &&
-        newsHud.sys.isActive?.()
-      ) {
+    this.isSettingUpUi = true;
+
+    try {
+      const uiScene = await this.ensureOverlayScene(
+        'UIScene'
+      );
+
+      if (uiScene) {
+        this.game.events.emit('setHudVisible', true);
+        EventBus.emit('showHUD');
+
+        uiScene.refreshScoreHud?.();
+        uiScene.refreshMoneyHud?.();
+        uiScene.updateEnergy?.();
+        uiScene.updateTime?.({
+          day: gameState.currentDay || gameState.day || 1,
+          hour: gameState.currentHour ?? gameState.hour ?? 8,
+          minute:
+            gameState.currentMinute ??
+            gameState.minute ??
+            0,
+          partOfDay:
+            gameState.currentPartOfDay ||
+            gameState.partOfDay ||
+            'Morning'
+        });
+      } else {
+        console.warn(
+          '[CrimeCityScene] UIScene could not be restored.'
+        );
+      }
+
+      const playerHud = await this.restorePlayerHud();
+
+      if (playerHud) {
+        playerHud.closeAllUIPanels?.();
+        playerHud.refreshNotebook?.();
+        playerHud.refreshUI?.();
+      } else {
+        console.warn(
+          '[CrimeCityScene] PlayerHudScene could not be restored.'
+        );
+      }
+
+      const newsHud = await this.ensureOverlayScene(
+        'NewsHud'
+      );
+
+      if (newsHud) {
         newsHud.events?.emit(
           'setNewspaperVisible',
           true
@@ -144,50 +199,24 @@ export class CrimeCityScene extends BaseScene {
           false
         );
 
-        return;
+        this.bringSceneToTopIfActive('NewsHud');
+      } else {
+        console.warn(
+          '[CrimeCityScene] NewsHud could not be restored.'
+        );
       }
-
-      console.warn(
-        '[CrimeCityScene] NewsHud unavailable or inactive.'
-      );
     } catch (error) {
-      console.warn(
-        '[CrimeCityScene] NewsHud setup failed.',
-        error.message
+      console.error(
+        '[CrimeCityScene] Failed to restore gameplay UI:',
+        error
       );
+    } finally {
+      this.isSettingUpUi = false;
     }
   }
-
-  configureUIScene() {
-  try {
-    if (!this.hasScene('UIScene')) {
-      void this.launchOverlay('UIScene');
-      return;
-    }
-
-    if (this.isSceneActive('UIScene')) {
-      this.scene.bringToTop('UIScene');
-      return;
-    }
-
-    if (this.isSceneSleeping('UIScene')) {
-      this.scene.wake('UIScene');
-      this.scene.bringToTop('UIScene');
-      return;
-    }
-
-    void this.launchOverlay('UIScene');
-  } catch (error) {
-    console.warn(
-      '[CrimeCityScene] UIScene setup failed.',
-      error
-    );
-  }
-}
 
   initializeCrimeCity() {
-    const locations =
-      this.cache.json.get('locations');
+    const locations = this.cache.json.get('locations');
 
     this.cityData = Array.isArray(locations)
       ? locations.find(
@@ -211,12 +240,14 @@ export class CrimeCityScene extends BaseScene {
       return;
     }
 
-    this.crimeCityConfig =
-      this.cityData.crimeCity;
+    this.crimeCityConfig = this.cityData.crimeCity;
 
     gameState.currentCityId = this.cityId;
     gameState.currentCity = this.cityData.city;
     gameState.currentCountry = this.cityData.country;
+
+    this.registry.set('currentCityId', this.cityId);
+    this.registry.set('currentCity', this.cityData.city);
 
     this.progressService.initializeCurrentNode();
 
@@ -261,9 +292,7 @@ export class CrimeCityScene extends BaseScene {
     });
 
     if (crimeLabCompleted) {
-      ensureAlibiEncounters(
-        this.getCaseKey()
-      );
+      ensureAlibiEncounters(this.getCaseKey());
     }
 
     if (crimeLabCompleted && gridCompleted) {
@@ -274,36 +303,9 @@ export class CrimeCityScene extends BaseScene {
     }
   }
 
-  refreshPlayerHud() {
-  const uiScene = this.scene.manager.keys.UIScene;
-
-  if (!uiScene?.sys) {
-    void this.launchOverlay('UIScene');
-  } else if (this.isSceneSleeping('UIScene')) {
-    this.scene.wake('UIScene');
-    this.scene.bringToTop('UIScene');
-  } else if (this.scene.isPaused('UIScene')) {
-    this.scene.resume('UIScene');
-    this.scene.bringToTop('UIScene');
-  } else if (!this.isSceneActive('UIScene')) {
-    void this.launchOverlay('UIScene');
-  } else {
-    this.scene.bringToTop('UIScene');
-  }
-
-  uiScene?.refreshScoreHud?.();
-
-  const playerHud = this.scene.manager.keys.PlayerHudScene;
-
-  if (playerHud?.sys) {
-    playerHud.closeAllUIPanels?.();
-    playerHud.refreshNotebook?.();
-  }
-}
-
   scheduleStoryEvents() {
     this.tutorialController
-      .scheduleLabCompletionPhoneCall();
+      ?.scheduleLabCompletionPhoneCall();
   }
 
   openCrimeScene() {
@@ -330,8 +332,7 @@ export class CrimeCityScene extends BaseScene {
     }
 
     const reconstruction =
-      this.reconstructionService
-        .prepareReconstruction();
+      this.reconstructionService?.prepareReconstruction();
 
     if (!reconstruction) {
       this.showMessage(
@@ -393,20 +394,11 @@ export class CrimeCityScene extends BaseScene {
       }
     );
 
-    if (
-      !this.moveToCrimeCityNode(
-        'crime_scene'
-      )
-    ) {
+    if (!this.moveToCrimeCityNode('crime_scene')) {
       return;
     }
 
-    if (
-      !this.trySpendEnergy(
-        'activity',
-        'crime_scene'
-      )
-    ) {
+    if (!this.trySpendEnergy('activity', 'crime_scene')) {
       return;
     }
 
@@ -437,57 +429,61 @@ export class CrimeCityScene extends BaseScene {
   }
 
   getCaseKey() {
-    return this.progressService.getCaseKey();
+    return this.progressService?.getCaseKey() || null;
   }
 
   getCrimeCityProgress() {
-    return this.progressService.getCrimeCityProgress();
+    return this.progressService?.getCrimeCityProgress() || null;
   }
 
   hasPaidCrimeLabEntry() {
-    return this.progressService.hasPaidCrimeLabEntry();
+    return this.progressService?.hasPaidCrimeLabEntry() || false;
   }
 
   payCrimeLabEntryOnce() {
-    return this.progressService.payCrimeLabEntryOnce();
+    return this.progressService?.payCrimeLabEntryOnce() || false;
   }
 
   moveToCrimeCityNode(
     targetNodeId,
     transportType = 'taxi'
   ) {
-    return this.progressService.moveToCrimeCityNode(
+    return this.progressService?.moveToCrimeCityNode(
       targetNodeId,
       transportType
-    );
+    ) || false;
   }
 
   trySpendEnergy(category, key) {
-    return this.progressService.trySpendEnergy(
+    return this.progressService?.trySpendEnergy(
       category,
       key
-    );
+    ) || false;
   }
 
   isCrimeSceneCompleted() {
-    return this.progressService.isCrimeSceneCompleted();
+    return this.progressService?.isCrimeSceneCompleted() || false;
   }
 
   isCrimeLabCompleted() {
-    return this.progressService.isCrimeLabCompleted();
+    return this.progressService?.isCrimeLabCompleted() || false;
   }
 
   isGridCompleted() {
-    return this.progressService.isGridCompleted();
+    return this.progressService?.isGridCompleted() || false;
   }
 
   transitionTo(sceneKey, data = {}) {
     this.cameras.main.fadeOut(350, 0, 0, 0);
 
     this.cameras.main.once(
-      'camerafadeoutcomplete',
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
-        this.goto(sceneKey, data);
+        if (!this.sys.isActive()) {
+          return;
+        }
+
+        void this.goto(sceneKey, data);
       }
     );
   }
@@ -528,26 +524,15 @@ export class CrimeCityScene extends BaseScene {
       .setOrigin(0.5)
       .setDepth(200);
 
-    this.time.delayedCall(
-      duration,
-      () => popup?.destroy()
-    );
+    this.time.delayedCall(duration, () => {
+      popup?.destroy();
+    });
   }
 
   closeAllUIPanels() {
-    try {
-      const playerHud =
-        this.scene.manager.keys.PlayerHudScene;
+    const playerHud = this.getPlayerHudScene();
 
-      if (playerHud?.sys) {
-        playerHud.closeAllUIPanels?.();
-      }
-    } catch (error) {
-      console.warn(
-        '[CrimeCityScene] closeAllUIPanels failed.',
-        error.message
-      );
-    }
+    playerHud?.closeAllUIPanels?.();
   }
 
   onShutdown() {
@@ -561,6 +546,7 @@ export class CrimeCityScene extends BaseScene {
     this.destroyControllers();
 
     this.boundShutdown = null;
+    this.isSettingUpUi = false;
   }
 
   stopCityAmbient() {

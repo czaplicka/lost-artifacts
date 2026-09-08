@@ -782,7 +782,7 @@ export class HotelScene extends BaseScene {
 
     hud.closeAllUIPanels?.();
 
-    hud.crimeBoardUI.open(gameState);
+    hud.openCrimeBoard();
   }
 
   async showNewsHud() {

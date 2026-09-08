@@ -1,9 +1,7 @@
 import { EventBus } from '../../EventBus.js';
 import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
 
-
 const HUD_EVENT_SCOPE = 'CrimeLabHUD';
-
 
 export class CrimeLabHUD {
   constructor(scene) {
@@ -69,11 +67,8 @@ export class CrimeLabHUD {
       this.labTimerText
     ]);
 
-    // GameTimeManager.handleAdvanceTime() emits 'timeChanged' (NOT
-    // 'caseTimeChanged') with the remaining case time under
-    // payload.caseTimeRemaining. This listener now matches that
-    // real contract instead of an event name that was never fired.
     EventBus.clearScope(HUD_EVENT_SCOPE);
+
     EventBus.on(
       'timeChanged',
       this.boundTimeChanged,
@@ -81,11 +76,7 @@ export class CrimeLabHUD {
       HUD_EVENT_SCOPE
     );
 
-    this.refresh(
-      this.scene.completedCount || 0,
-      this.scene.totalStations || 3,
-      getCaseTimeRemaining(this.scene.gameState)
-    );
+    this.refreshFromScene();
   }
 
   handleTimeChanged(payload = {}) {
@@ -96,8 +87,8 @@ export class CrimeLabHUD {
       : getCaseTimeRemaining(this.scene.gameState);
 
     this.refresh(
-      this.scene.completedCount || 0,
-      this.scene.totalStations || 3,
+      Number(this.scene.completedCount) || 0,
+      Number(this.scene.totalStations) || 3,
       remaining
     );
 
@@ -107,23 +98,52 @@ export class CrimeLabHUD {
     }
   }
 
+  refreshFromScene() {
+    if (!this.scene) {
+      return;
+    }
+
+    const completedCount = Number(this.scene.completedCount) || 0;
+    const totalStations = Number(this.scene.totalStations) || 3;
+    const remaining = getCaseTimeRemaining(this.scene.gameState);
+
+    this.refresh(
+      completedCount,
+      totalStations,
+      remaining
+    );
+  }
+
   refresh(completedCount, totalStations, remainingSeconds) {
     const mission = this.scene.gameState.currentMission || {};
-    const artifact = mission.artifact || mission.artifactName || 'Active Case';
+
+    const artifact =
+      mission.artifact ||
+      mission.artifactName ||
+      'Active Case';
 
     this.labCaseText?.setText(String(artifact).toUpperCase());
-    this.labProgressText?.setText(`ANALYSES: ${completedCount}/${totalStations}`);
 
-    // Loose check on purpose: catches both null AND undefined, plus
-    // guards against non-numeric garbage before formatting.
+    this.labProgressText?.setText(
+      `ANALYSES: ${completedCount}/${totalStations}`
+    );
+
     const parsedSeconds = Number(remainingSeconds);
+
     const hasValidTime =
-      remainingSeconds != null && Number.isFinite(parsedSeconds);
+      remainingSeconds != null &&
+      Number.isFinite(parsedSeconds);
 
     if (hasValidTime) {
-      const safeSeconds = Math.max(0, Math.floor(parsedSeconds));
+      const safeSeconds = Math.max(
+        0,
+        Math.floor(parsedSeconds)
+      );
+
       const hours = Math.floor(safeSeconds / 3600);
-      const minutes = Math.floor((safeSeconds % 3600) / 60);
+      const minutes = Math.floor(
+        (safeSeconds % 3600) / 60
+      );
       const seconds = safeSeconds % 60;
 
       const formattedTime = hours > 0
@@ -155,5 +175,6 @@ export class CrimeLabHUD {
     this.labTimerText = null;
     this.labProgressText = null;
     this.labCaseText = null;
+    this.scene = null;
   }
 }

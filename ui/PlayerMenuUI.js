@@ -269,7 +269,30 @@ export class PlayerMenuUI {
         (labelContainer.baseParts || []).forEach(part => part.setColor(baseColor));
         (labelContainer.hotkeyParts || []).forEach(part => part.setColor(hotkeyColor));
     }
+setCrimeBoardAvailable(available) {
+  this.crimeBoardAvailable = Boolean(available);
 
+  const crimeBoardButton =
+    this.buttons?.crimeBoard ||
+    this.buttonMap?.get?.('crimeBoard') ||
+    this.crimeBoardButton;
+
+  if (!crimeBoardButton) {
+    return;
+  }
+
+  crimeBoardButton.setVisible(
+    this.crimeBoardAvailable
+  );
+
+  if (this.crimeBoardAvailable) {
+    crimeBoardButton.setInteractive({
+      useHandCursor: true
+    });
+  } else {
+    crimeBoardButton.disableInteractive();
+  }
+}
     createCustomBackground() {
         const w = this.config.width;
         const h = this.config.height;

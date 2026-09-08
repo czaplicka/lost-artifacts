@@ -1,11 +1,11 @@
 import { BaseScene } from '../BaseScene.js';
-import { audioManager } from '../../AudioManager.js';
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../GameStatePersistence.js';
 import { CrimeLabManager } from './CrimeLabManager.js';
 import { CrimeLabHUD } from './CrimeLabHUD.js';
+import { CrimeLabView } from './CrimeLabView.js';
 import { EventBus } from '../../EventBus.js';
-import { getCaseTimeRemaining } from '../../CaseTimeHelper.js';
+import { getLabOnboardingConfig } from './labOnboardingConfig.js';
 
 const STATION_TIME_COST_HOURS = {
   identity: 2,
@@ -21,10 +21,6 @@ const LAB_TIME_FLAVOR_LINES = [
   'Science is slow. Also, it is later than when you started.'
 ];
 
-// Every evidenceType a MAIN identity mini-game can resolve to.
-// Used to unlock the matching field on the suspect grid once the
-// station is completed, regardless of which of the four main
-// games (hair / blood / DNA / fingerprint) was assigned to this case.
 const IDENTITY_EVIDENCE_TYPES = [
   'hair_color',
   'blood_type',
@@ -41,17 +37,19 @@ export class CrimeLabScene extends BaseScene {
     this.returnScene = 'CrimeCityScene';
     this.returnData = {};
 
-    this.currentView = 'lab_b';
+    this.currentView = 'lab_intro';
     this.viewPositions = {};
     this.rooms = {};
     this.totalWidth = 0;
+
+    this.labOnboarding = null;
+    this.assistantHotspot = null;
+    this.labView = null;
 
     this.hotspots = [];
     this.debugTexts = [];
     this.DEBUG_HOTSPOTS = false;
     this.debugGraphics = null;
-
-    this.labAmbient = null;
 
     this.leftArrow = null;
     this.rightArrow = null;
@@ -72,6 +70,7 @@ export class CrimeLabScene extends BaseScene {
 
   init(data = {}) {
     this.gameState = data.gameState || gameState;
+
     this.cityId =
       data.cityId ||
       this.gameState.currentMission?.city ||
@@ -79,6 +78,7 @@ export class CrimeLabScene extends BaseScene {
       'paris';
 
     this.returnScene = 'CrimeCityScene';
+
     this.returnData = {
       ...(data.returnData || {}),
       cityId: this.cityId,
@@ -89,7 +89,9 @@ export class CrimeLabScene extends BaseScene {
     this.labManager.ensureCaseForensics();
     this.labManager.ensureRandomTraceEvidence();
 
-    this.currentView = 'lab_b';
+    this.labOnboarding = this.getLabOnboarding();
+
+    this.currentView = 'lab_intro';
     this.hotspots = [];
     this.debugTexts = [];
     this.uiLocked = false;
@@ -98,54 +100,181 @@ export class CrimeLabScene extends BaseScene {
 
   create() {
     super.create();
+
     this.game.events.emit('setHudVisible', false);
     EventBus.emit('hideHUD');
-    audioManager.init(this);
 
     const { width, height } = this.scale;
 
-    this.createBackgrounds(width, height);
-    this.createCameraSetup(height);
+this.labView = new CrimeLabView(this, {
+  initialView: 'lab_intro',
+  introBackgroundKey: this.getIntroBackgroundKey(),
+  onViewChanged: (viewKey) => {
+    this.currentView = viewKey;
+    this.updateNavVisibility();
+    this.hideNavHint();
+  }
+});
+
+this.labView.create(width, height);
     this.createHotspots();
+    this.createAssistantHotspot();
     this.createNavigationUI();
 
     this.hud = new CrimeLabHUD(this);
     this.hud.create();
 
-    this.setupAudioUnlock();
     this.createOptionalDebug();
 
-    this.goToView('lab_b', false);
+    this.goToView('lab_intro', false);
     this.showIntroHint();
-    this.refreshLabHud();
+    this.hud?.refreshFromScene();
 
     this.input.keyboard.on('keydown-LEFT', this.boundMoveLeft);
     this.input.keyboard.on('keydown-RIGHT', this.boundMoveRight);
 
     this.events.on(Phaser.Scenes.Events.WAKE, this.boundForceUnlock);
     this.events.on(Phaser.Scenes.Events.RESUME, this.boundForceUnlock);
-    this.events.on(Phaser.Scenes.Events.RESUME, this.boundCheckMiniGameResults);
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.boundCheckMiniGameResults
+    );
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.boundCleanupScene);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundCleanupScene
+    );
+  }
+
+  getLabOnboarding() {
+    const mission = this.gameState.currentMission || {};
+
+    const caseIndex = String(
+      mission.caseIndex ??
+      mission.index ??
+      this.gameState.currentCaseIndex ??
+      this.gameState.caseIndex ??
+      0
+    );
+
+    const schedule =
+      mission.onboarding ||
+      this.gameState.currentOnboarding ||
+      this.gameState.onboardingSchedule?.[caseIndex] ||
+      { lab: 'three_games' };
+
+    const labMode = schedule.lab || 'three_games';
+
+    return getLabOnboardingConfig(labMode);
+  }
+
+getIntroBackgroundKey() {
+  return this.labOnboarding?.backgroundKey || 'crimelab_point';
+}
+
+  getPlayerGameCount() {
+    const rawValue = Number(this.labOnboarding?.playerGameCount);
+
+    if (!Number.isFinite(rawValue)) {
+      return 3;
+    }
+
+    return Phaser.Math.Clamp(rawValue, 0, this.totalStations);
+  }
+
+  getAssistantResultCount() {
+    return this.totalStations - this.getPlayerGameCount();
+  }
+
+  getAssistantLine() {
+    if (this.labOnboarding?.assistantLine) {
+      return this.labOnboarding.assistantLine;
+    }
+
+    const playerGameCount = this.getPlayerGameCount();
+
+    if (playerGameCount === 0) {
+      return 'I completed the analyses. Review the evidence terminal and narrow the suspect list.';
+    }
+
+    if (playerGameCount === 1) {
+      return 'I finished two samples. One remains at an active workstation.';
+    }
+
+    if (playerGameCount === 2) {
+      return 'One result is ready. Two samples are waiting at the active workstations.';
+    }
+
+    return 'Lab assistant unavailable. Complete all remaining analyses yourself.';
+  }
+
+  getRemainingAnalysisCount() {
+    const caseForensics = this.labManager.ensureCaseForensics();
+
+    const completedStations = [
+      Boolean(caseForensics.identityEvidenceResult),
+      Boolean(caseForensics.traceEvidenceResults?.[0]),
+      Boolean(caseForensics.traceEvidenceResults?.[1])
+    ].filter(Boolean).length;
+
+    return Math.max(0, this.totalStations - completedStations);
   }
 
   createBackgrounds(gameWidth, gameHeight) {
-    const leftBg = this.add.image(0, 0, 'crimelab_left').setOrigin(0, 0);
-    const centerBg = this.add.image(gameWidth, 0, 'crimelab_center').setOrigin(0, 0);
-    const rightBg = this.add.image(gameWidth * 2, 0, 'crimelab_right').setOrigin(0, 0);
+    const introBackgroundKey = this.getIntroBackgroundKey();
 
-    [leftBg, centerBg, rightBg].forEach((background) => {
+    const introBg = this.add
+      .image(0, 0, introBackgroundKey)
+      .setOrigin(0, 0);
+
+    const leftBg = this.add
+      .image(gameWidth, 0, 'crimelab_left')
+      .setOrigin(0, 0);
+
+    const centerBg = this.add
+      .image(gameWidth * 2, 0, 'crimelab_center')
+      .setOrigin(0, 0);
+
+    const rightBg = this.add
+      .image(gameWidth * 3, 0, 'crimelab_right')
+      .setOrigin(0, 0);
+
+    [introBg, leftBg, centerBg, rightBg].forEach((background) => {
       background.setDisplaySize(gameWidth, gameHeight);
+      background.setDepth(-100);
     });
 
     this.rooms = {
-      lab_a: { key: 'lab_a', bg: leftBg, x: 0, width: gameWidth },
-      lab_b: { key: 'lab_b', bg: centerBg, x: gameWidth, width: gameWidth },
-      lab_c: { key: 'lab_c', bg: rightBg, x: gameWidth * 2, width: gameWidth }
+      lab_intro: {
+        key: 'lab_intro',
+        bg: introBg,
+        x: 0,
+        width: gameWidth
+      },
+      lab_a: {
+        key: 'lab_a',
+        bg: leftBg,
+        x: gameWidth,
+        width: gameWidth
+      },
+      lab_b: {
+        key: 'lab_b',
+        bg: centerBg,
+        x: gameWidth * 2,
+        width: gameWidth
+      },
+      lab_c: {
+        key: 'lab_c',
+        bg: rightBg,
+        x: gameWidth * 3,
+        width: gameWidth
+      }
     };
 
-    this.totalWidth = gameWidth * 3;
+    this.totalWidth = gameWidth * 4;
+
     this.viewPositions = {
+      lab_intro: this.rooms.lab_intro.x,
       lab_a: this.rooms.lab_a.x,
       lab_b: this.rooms.lab_b.x,
       lab_c: this.rooms.lab_c.x
@@ -155,6 +284,85 @@ export class CrimeLabScene extends BaseScene {
   createCameraSetup(height) {
     this.cameras.main.setBounds(0, 0, this.totalWidth, height);
   }
+
+  createAssistantHotspot() {
+    if (!this.labOnboarding?.assistantPresent) {
+      return;
+    }
+
+    /*
+     * Zmień te cztery wartości po pierwszym teście w grze.
+     * Prostokąt ma obejmować TYLKO postać asystenta na grafice
+     * crimelab_point_assistant, nie cały pierwszy ekran.
+     */
+    const assistantX = 220;
+    const assistantY = 340;
+    const assistantWidth = 230;
+    const assistantHeight = 410;
+
+    this.assistantHotspot = this.add
+      .zone(
+        assistantX,
+        assistantY,
+        assistantWidth,
+        assistantHeight
+      )
+      .setOrigin(0, 0)
+      .setDepth(50)
+      .setInteractive({ useHandCursor: true });
+
+    this.assistantHotspot.on('pointerover', () => {
+      if (this.uiLocked) {
+        return;
+      }
+
+      this.showNavHint('Talk to Lab Assistant');
+    });
+
+    this.assistantHotspot.on('pointerout', () => {
+      this.hideNavHint();
+    });
+
+    this.assistantHotspot.on('pointerdown', () => {
+      if (this.uiLocked) {
+        return;
+      }
+
+      this.showAssistantHint();
+    });
+  }
+
+  showAssistantHint() {
+  const remaining = this.getRemainingAnalysisCount();
+  const hintTitle =
+    this.labOnboarding?.hintTitle ||
+    'FORENSIC STATUS';
+
+  const hintText =
+    this.labOnboarding?.hintText ||
+    'Review the available evidence and complete the remaining analyses.';
+
+  const assistantLine = this.getAssistantLine();
+
+  const progressLine =
+    remaining <= 0
+      ? 'ALL FORENSIC RESULTS ARE READY.'
+      : remaining === 1
+        ? 'ONE ANALYSIS REMAINS.'
+        : `${remaining} ANALYSES REMAIN.`;
+
+  this.showNavHint(
+    `${hintTitle}\n\n${hintText}\n\n` +
+    `ASSISTANT: ${assistantLine}\n\n` +
+    progressLine
+  );
+
+  this.time.delayedCall(6200, () => {
+    if (!this.uiLocked) {
+      this.hideNavHint();
+    }
+  });
+}
 
   createHotspots() {
     const gameWidth = this.scale.width;
@@ -239,8 +447,8 @@ export class CrimeLabScene extends BaseScene {
       },
       {
         id: 'exit_lab',
-        room: 'lab_a',
-        x: this.rooms.lab_a.x + 40,
+        room: 'lab_intro',
+        x: this.rooms.lab_intro.x + 40,
         y: 40,
         width: 200,
         height: 60,
@@ -263,14 +471,21 @@ export class CrimeLabScene extends BaseScene {
 
       if (data.id === 'exit_lab') {
         const exitBtn = this.add
-          .image(data.x + data.width / 2, data.y + data.height / 2, 'btnExit')
+          .image(
+            data.x + data.width / 2,
+            data.y + data.height / 2,
+            'btnExit'
+          )
           .setScale(0.5)
           .setOrigin(0.5)
           .setDepth(55)
           .setInteractive({ useHandCursor: true });
 
         exitBtn.on('pointerover', () => {
-          if (this.uiLocked) return;
+          if (this.uiLocked) {
+            return;
+          }
+
           exitBtn.setScale(0.6);
           this.showNavHint(data.label);
         });
@@ -281,8 +496,10 @@ export class CrimeLabScene extends BaseScene {
         });
 
         exitBtn.on('pointerdown', () => {
-          if (this.uiLocked) return;
-          audioManager.playSfx('click_sound');
+          if (this.uiLocked) {
+            return;
+          }
+
           data.action();
         });
 
@@ -290,11 +507,18 @@ export class CrimeLabScene extends BaseScene {
       }
 
       zone.on('pointerover', () => this.onHotspotOver(data));
+
       zone.on('pointerout', () => this.onHotspotOut());
+
       zone.on('pointerdown', () => {
-        if (this.uiLocked) return;
-        if (data.completed && !data.alwaysVisible) return;
-        audioManager.playSfx('click_sound');
+        if (this.uiLocked) {
+          return;
+        }
+
+        if (data.completed && !data.alwaysVisible) {
+          return;
+        }
+
         data.action();
       });
 
@@ -331,9 +555,64 @@ export class CrimeLabScene extends BaseScene {
       .setDepth(80)
       .setInteractive({ useHandCursor: true });
 
-    this.proceedHotspot.on('pointerdown', () => this.goToCrimeCity());
+    this.proceedHotspot.on('pointerdown', () => {
+      this.goToCrimeCity();
+    });
+
     this.updateProceedVisibility();
   }
+
+updateRoomHotspots() {
+  this.hotspots.forEach((zone) => {
+    const room = zone.hotspotData?.room;
+    const isVisible = room === this.currentView;
+
+    zone.setVisible(isVisible);
+
+    if (zone.statusLabel) {
+      zone.statusLabel.setVisible(isVisible);
+    }
+
+    if (zone.exitBtn) {
+      zone.exitBtn.setVisible(isVisible);
+    }
+
+    if (!isVisible || this.uiLocked) {
+      zone.disableInteractive();
+      zone.exitBtn?.disableInteractive();
+      return;
+    }
+
+    const isCompleted =
+      zone.hotspotData?.completed === true;
+
+    if (isCompleted && !zone.hotspotData?.alwaysVisible) {
+      zone.disableInteractive();
+    } else {
+      zone.setInteractive({ useHandCursor: true });
+
+      if (zone.exitBtn) {
+        zone.exitBtn.setInteractive({
+          useHandCursor: true
+        });
+      }
+    }
+  });
+
+  const showProceed =
+    this.currentView === 'lab_b' &&
+    this.completedCount >= this.totalStations;
+
+  this.proceedHotspot?.setVisible(showProceed);
+
+  if (showProceed && !this.uiLocked) {
+    this.proceedHotspot?.setInteractive({
+      useHandCursor: true
+    });
+  } else {
+    this.proceedHotspot?.disableInteractive();
+  }
+}
 
   createNavigationUI() {
     const { width, height } = this.scale;
@@ -372,7 +651,9 @@ export class CrimeLabScene extends BaseScene {
         fontSize: '20px',
         color: '#39ff14',
         backgroundColor: '#000000',
-        padding: { left: 10, right: 10, top: 8, bottom: 8 }
+        padding: { left: 10, right: 10, top: 8, bottom: 8 },
+        wordWrap: { width: width - 140, useAdvancedWrap: true },
+        align: 'center'
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -380,13 +661,20 @@ export class CrimeLabScene extends BaseScene {
       .setVisible(false);
 
     this.introHint = this.add
-      .text(width / 2, 110, 'Welcome to the Crime Lab — move left or right', {
-        fontFamily: 'Special Elite',
-        fontSize: '18px',
-        color: '#fff4c7',
-        backgroundColor: '#000000',
-        padding: { left: 12, right: 12, top: 8, bottom: 8 }
-      })
+      .text(
+        width / 2,
+        110,
+        'Crime Lab — move right to inspect the analysis stations',
+        {
+          fontFamily: 'Special Elite',
+          fontSize: '18px',
+          color: '#fff4c7',
+          backgroundColor: '#000000',
+          padding: { left: 12, right: 12, top: 8, bottom: 8 },
+          wordWrap: { width: width - 120, useAdvancedWrap: true },
+          align: 'center'
+        }
+      )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(220)
@@ -395,26 +683,40 @@ export class CrimeLabScene extends BaseScene {
     this.leftArrow
       .on('pointerdown', () => this.moveLeft())
       .on('pointerover', () => {
-        if (this.uiLocked) return;
+        if (this.uiLocked) {
+          return;
+        }
+
         this.leftArrow.setScale(1.08).setAlpha(1);
         this.showNavHint(this.getLeftRoomLabel());
       })
       .on('pointerout', () => {
         this.leftArrow.setScale(1);
-        if (!this.uiLocked) this.leftArrow.setAlpha(0.75);
+
+        if (!this.uiLocked) {
+          this.leftArrow.setAlpha(0.75);
+        }
+
         this.hideNavHint();
       });
 
     this.rightArrow
       .on('pointerdown', () => this.moveRight())
       .on('pointerover', () => {
-        if (this.uiLocked) return;
+        if (this.uiLocked) {
+          return;
+        }
+
         this.rightArrow.setScale(1.08).setAlpha(1);
         this.showNavHint(this.getRightRoomLabel());
       })
       .on('pointerout', () => {
         this.rightArrow.setScale(1);
-        if (!this.uiLocked) this.rightArrow.setAlpha(0.75);
+
+        if (!this.uiLocked) {
+          this.rightArrow.setAlpha(0.75);
+        }
+
         this.hideNavHint();
       });
 
@@ -431,45 +733,52 @@ export class CrimeLabScene extends BaseScene {
   }
 
   moveLeft() {
-    if (this.uiLocked) return;
-    if (this.currentView === 'lab_b') this.goToView('lab_a');
-    else if (this.currentView === 'lab_c') this.goToView('lab_b');
-  }
-
-  moveRight() {
-    if (this.uiLocked) return;
-    if (this.currentView === 'lab_a') this.goToView('lab_b');
-    else if (this.currentView === 'lab_b') this.goToView('lab_c');
-  }
-
-  goToView(viewName, animate = true) {
-    const targetX = this.viewPositions[viewName];
-    if (targetX === undefined) return;
-
-    this.currentView = viewName;
-    this.updateNavVisibility();
-    this.hideNavHint();
-
-    if (!animate) {
-      this.cameras.main.scrollX = targetX;
+    if (this.uiLocked) {
       return;
     }
 
-    this.tweens.add({
-      targets: this.cameras.main,
-      scrollX: targetX,
-      duration: 550,
-      ease: 'Sine.easeInOut'
-    });
+    if (this.currentView === 'lab_a') {
+      this.goToView('lab_intro');
+    } else if (this.currentView === 'lab_b') {
+      this.goToView('lab_a');
+    } else if (this.currentView === 'lab_c') {
+      this.goToView('lab_b');
+    }
   }
 
+  moveRight() {
+    if (this.uiLocked) {
+      return;
+    }
+
+    if (this.currentView === 'lab_intro') {
+      this.goToView('lab_a');
+    } else if (this.currentView === 'lab_a') {
+      this.goToView('lab_b');
+    } else if (this.currentView === 'lab_b') {
+      this.goToView('lab_c');
+    }
+  }
+
+goToView(viewName) {
+  if (!this.labView?.showView(viewName)) {
+    return;
+  }
+
+  this.currentView = viewName;
+  this.updateNavVisibility();
+  this.hideNavHint();
+}
+
   updateNavVisibility() {
-    this.leftArrow?.setVisible(this.currentView !== 'lab_a');
+    this.leftArrow?.setVisible(this.currentView !== 'lab_intro');
     this.rightArrow?.setVisible(this.currentView !== 'lab_c');
   }
 
   updateProceedVisibility() {
-    if (!this.proceedHotspot) return;
+    if (!this.proceedHotspot) {
+      return;
+    }
 
     const labCompleted =
       this.completedCount >= this.totalStations;
@@ -502,19 +811,42 @@ export class CrimeLabScene extends BaseScene {
   }
 
   getLeftRoomLabel() {
-    if (this.currentView === 'lab_b') return 'Identity Lab';
-    if (this.currentView === 'lab_c') return 'Trace Analysis';
+    if (this.currentView === 'lab_a') {
+      return 'Lab Entrance';
+    }
+
+    if (this.currentView === 'lab_b') {
+      return 'Identity Lab';
+    }
+
+    if (this.currentView === 'lab_c') {
+      return 'Trace Analysis';
+    }
+
     return '';
   }
 
   getRightRoomLabel() {
-    if (this.currentView === 'lab_a') return 'Trace Analysis';
-    if (this.currentView === 'lab_b') return 'Evidence Analysis';
+    if (this.currentView === 'lab_intro') {
+      return 'Identity Lab';
+    }
+
+    if (this.currentView === 'lab_a') {
+      return 'Trace Analysis';
+    }
+
+    if (this.currentView === 'lab_b') {
+      return 'Evidence Analysis';
+    }
+
     return '';
   }
 
   showNavHint(text) {
-    if (!text || !this.navHint) return;
+    if (!text || !this.navHint) {
+      return;
+    }
+
     this.navHint.setText(text).setVisible(true);
   }
 
@@ -523,7 +855,10 @@ export class CrimeLabScene extends BaseScene {
   }
 
   onHotspotOver(data) {
-    if (!data?.label || this.uiLocked) return;
+    if (!data?.label || this.uiLocked) {
+      return;
+    }
+
     this.showNavHint(data.label);
   }
 
@@ -532,7 +867,9 @@ export class CrimeLabScene extends BaseScene {
   }
 
   showIntroHint() {
-    if (!this.introHint) return;
+    if (!this.introHint) {
+      return;
+    }
 
     this.tweens.add({
       targets: this.introHint,
@@ -542,7 +879,10 @@ export class CrimeLabScene extends BaseScene {
     });
 
     this.time.delayedCall(2800, () => {
-      if (!this.introHint) return;
+      if (!this.introHint) {
+        return;
+      }
+
       this.tweens.add({
         targets: this.introHint,
         alpha: 0,
@@ -552,39 +892,16 @@ export class CrimeLabScene extends BaseScene {
     });
   }
 
-  setupAudioUnlock() {
-    this.input.once('pointerdown', () => {
-      if (this.sound?.context?.state === 'suspended') {
-        this.sound.context.resume();
-      }
-      this.playLabAmbient();
-    });
-  }
-
-  playLabAmbient() {
-    if (this.labAmbient) return;
-    this.labAmbient = audioManager.playSfx('crimelab_ambient', { loop: true });
-  }
-
-  stopLabAmbient() {
-    if (!this.labAmbient) return;
-    this.labAmbient.stop();
-    this.labAmbient.destroy();
-    this.labAmbient = null;
-  }
-
-  // ------------------------------------------------------------------
-  // FIX: enterMiniGame is now async and uses SceneLoader.ensure() instead
-  // of a synchronous `this.scene.manager.keys[sceneKey]` check. The old
-  // check always failed for Tier-3 CSI scenes (BloodAnalysisScene, etc.)
-  // because they are never in scene.manager.keys until SceneLoader has
-  // dynamically imported and registered them.
-  // ------------------------------------------------------------------
   async enterMiniGame(sceneKey, sceneData = {}, stationId = '') {
-    if (this.uiLocked) return;
+    if (this.uiLocked) {
+      return;
+    }
 
     if (!sceneKey) {
-      console.error('[CrimeLabScene] enterMiniGame called without a sceneKey.');
+      console.error(
+        '[CrimeLabScene] enterMiniGame called without a sceneKey.'
+      );
+
       this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       return;
     }
@@ -593,11 +910,13 @@ export class CrimeLabScene extends BaseScene {
     this.applyLock(true);
 
     try {
-      // Ensures the module is dynamically imported and added to
-      // this.scene.manager if it isn't already (no-op if it's cached).
       await this.game.sceneLoader.ensure(sceneKey);
     } catch (err) {
-      console.error(`[CrimeLabScene] Minigame scene "${sceneKey}" failed to load.`, err);
+      console.error(
+        `[CrimeLabScene] Minigame scene "${sceneKey}" failed to load.`,
+        err
+      );
+
       this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       this.uiLocked = false;
       this.applyLock(false);
@@ -632,9 +951,12 @@ export class CrimeLabScene extends BaseScene {
   }
 
   getCrimeBoardCase() {
-    const caseKey = this.labManager?.getCaseKey?.() || 'default_case';
+    const caseKey =
+      this.labManager?.getCaseKey?.() ||
+      'default_case';
 
     this.gameState.crimeBoards ??= {};
+
     this.gameState.crimeBoards[caseKey] ??= {
       caseKey,
       cityId: this.cityId,
@@ -653,8 +975,13 @@ export class CrimeLabScene extends BaseScene {
     const evidenceConfig = payload.evidenceConfig || {};
     const board = this.getCrimeBoardCase();
 
-    const stationId = payload.stationId || forensicResult.stationId;
-    if (!stationId) return;
+    const stationId =
+      payload.stationId ||
+      forensicResult.stationId;
+
+    if (!stationId) {
+      return;
+    }
 
     const clue = {
       id: `forensic_${stationId}`,
@@ -743,53 +1070,71 @@ export class CrimeLabScene extends BaseScene {
     });
   }
 
-  // Sprawdza, czy dana stacja MIAŁA JUŻ zapisany wynik PRZED bieżącym
-  // wywołaniem saveMiniGameResult. Trzeba to złapać przed nadpisaniem
-  // caseForensics, inaczej zawsze wyjdzie "już zrobione".
   isStationAlreadyCompleted(stationId, caseForensics) {
     if (stationId === 'identity') {
       return Boolean(caseForensics.identityEvidenceResult);
     }
 
-    if (typeof stationId === 'string' && stationId.startsWith('trace_')) {
-      const evidenceIndex = Number(stationId.replace('trace_', ''));
-      if (Number.isInteger(evidenceIndex) && evidenceIndex >= 0) {
-        return Boolean(caseForensics.traceEvidenceResults[evidenceIndex]);
+    if (
+      typeof stationId === 'string' &&
+      stationId.startsWith('trace_')
+    ) {
+      const evidenceIndex = Number(
+        stationId.replace('trace_', '')
+      );
+
+      if (
+        Number.isInteger(evidenceIndex) &&
+        evidenceIndex >= 0
+      ) {
+        return Boolean(
+          caseForensics.traceEvidenceResults[evidenceIndex]
+        );
       }
     }
 
     return false;
   }
 
-  // Zjada godziny CZASU GRY za zaliczenie stacji analizy. Ten sam wzorzec
-  // EventBus co w EnergyManager / DestinationsUI / HiddenObjectsScene -
-  // GameTimeManager nasłuchuje globalnie i sam aktualizuje dzień/godzinę.
   advanceGameTimeForStation(stationId) {
     const hours = STATION_TIME_COST_HOURS[stationId];
-    if (!Number.isFinite(hours) || hours <= 0) return;
+
+    if (!Number.isFinite(hours) || hours <= 0) {
+      return;
+    }
 
     EventBus.emit('advanceTime', hours, 0);
 
-    console.log('[CrimeLabScene] Game time advanced for station.', {
-      caseKey: this.labManager?.getCaseKey?.(),
-      stationId,
-      hours
-    });
+    console.log(
+      '[CrimeLabScene] Game time advanced for station.',
+      {
+        caseKey: this.labManager?.getCaseKey?.(),
+        stationId,
+        hours
+      }
+    );
 
-    this.showLabTimeToast(hours, stationId);
+    this.showLabTimeToast(hours);
   }
 
-  showLabTimeToast(hours, stationId) {
-    if (!this.navHint) return;
+  showLabTimeToast(hours) {
+    if (!this.navHint) {
+      return;
+    }
 
     const flavor = LAB_TIME_FLAVOR_LINES[
       Math.floor(Math.random() * LAB_TIME_FLAVOR_LINES.length)
     ];
 
-    this.navHint.setText(`+${hours}h — ${flavor}`).setVisible(true);
+    this.navHint
+      .setText(`+${hours}h — ${flavor}`)
+      .setVisible(true);
 
     this.time.delayedCall(3200, () => {
-      if (!this.navHint) return;
+      if (!this.navHint) {
+        return;
+      }
+
       this.navHint.setVisible(false);
     });
   }
@@ -802,39 +1147,47 @@ export class CrimeLabScene extends BaseScene {
     }
 
     const stationId = payload.stationId;
-    const wasAlreadyCompleted = this.isStationAlreadyCompleted(
-      stationId,
-      caseForensics
-    );
+
+    const wasAlreadyCompleted =
+      this.isStationAlreadyCompleted(
+        stationId,
+        caseForensics
+      );
 
     const forensicResult = {
       ...payload,
       completedAt: Date.now()
     };
 
-    if (payload.stationId === 'identity') {
+    if (stationId === 'identity') {
       caseForensics.identityEvidenceResult = forensicResult;
     }
 
     if (
-      typeof payload.stationId === 'string' &&
-      payload.stationId.startsWith('trace_')
+      typeof stationId === 'string' &&
+      stationId.startsWith('trace_')
     ) {
       const evidenceIndex = Number(
-        payload.stationId.replace('trace_', '')
+        stationId.replace('trace_', '')
       );
 
-      if (Number.isInteger(evidenceIndex) && evidenceIndex >= 0) {
-        caseForensics.traceEvidenceResults[evidenceIndex] = forensicResult;
+      if (
+        Number.isInteger(evidenceIndex) &&
+        evidenceIndex >= 0
+      ) {
+        caseForensics.traceEvidenceResults[evidenceIndex] =
+          forensicResult;
       }
     }
 
-    const existingResultIndex = caseForensics.forensicResults.findIndex(
-      (result) => result.stationId === payload.stationId
-    );
+    const existingResultIndex =
+      caseForensics.forensicResults.findIndex(
+        (result) => result.stationId === stationId
+      );
 
     if (existingResultIndex >= 0) {
-      caseForensics.forensicResults[existingResultIndex] = forensicResult;
+      caseForensics.forensicResults[existingResultIndex] =
+        forensicResult;
     } else {
       caseForensics.forensicResults.push(forensicResult);
     }
@@ -850,7 +1203,10 @@ export class CrimeLabScene extends BaseScene {
   }
 
   addCrimeLabClueToBoard(payload = {}, forensicResult = {}) {
-    const caseKey = this.labManager?.getCaseKey?.() || 'default_case';
+    const caseKey =
+      this.labManager?.getCaseKey?.() ||
+      'default_case';
+
     const evidence = payload.evidenceConfig || {};
 
     const clue = {
@@ -892,7 +1248,6 @@ export class CrimeLabScene extends BaseScene {
       completedAt: forensicResult.completedAt || Date.now()
     };
 
-    // Główna pula wskazówek sprawy — to powinien czytać Crime Board.
     this.gameState.caseClues ??= {};
     this.gameState.caseClues[caseKey] ??= [];
 
@@ -911,7 +1266,6 @@ export class CrimeLabScene extends BaseScene {
       caseClues.push(clue);
     }
 
-    // Opcjonalny, osobny rejestr wyników Crime Lab.
     this.gameState.crimeLabClues ??= {};
     this.gameState.crimeLabClues[caseKey] ??= [];
 
@@ -935,7 +1289,10 @@ export class CrimeLabScene extends BaseScene {
       clue
     });
 
-    console.log('[CrimeLabScene] Crime Board clue added:', clue);
+    console.log(
+      '[CrimeLabScene] Crime Board clue added:',
+      clue
+    );
   }
 
   returnFromMiniGame() {
@@ -949,26 +1306,22 @@ export class CrimeLabScene extends BaseScene {
     this.applyLock(false);
 
     this.checkMiniGameResults();
-    this.refreshLabHud();
-  }
-
-  refreshLabHud() {
-    const remaining = getCaseTimeRemaining(this.gameState);
-
-    this.hud?.refresh(
-      this.completedCount,
-      this.totalStations,
-      remaining
-    );
+    this.hud?.refreshFromScene();
   }
 
   checkMiniGameResults() {
     const caseForensics = this.labManager.ensureCaseForensics();
 
     const completedById = {
-      identity_station: Boolean(caseForensics.identityEvidenceResult),
-      trace_a_station: Boolean(caseForensics.traceEvidenceResults[0]),
-      trace_b_station: Boolean(caseForensics.traceEvidenceResults[1]),
+      identity_station: Boolean(
+        caseForensics.identityEvidenceResult
+      ),
+      trace_a_station: Boolean(
+        caseForensics.traceEvidenceResults[0]
+      ),
+      trace_b_station: Boolean(
+        caseForensics.traceEvidenceResults[1]
+      )
     };
 
     this.completedCount = Object.values(completedById)
@@ -987,23 +1340,22 @@ export class CrimeLabScene extends BaseScene {
       data.completed = completed;
 
       zone.statusLabel
-        ?.setText(completed ? '[ COMPLETE ]' : '[ ANALYZE ]')
-        .setColor(completed ? '#00ff00' : '#ffcc00');
+        ?.setText(
+          completed ? '[ COMPLETE ]' : '[ ANALYZE ]'
+        )
+        .setColor(
+          completed ? '#00ff00' : '#ffcc00'
+        );
 
       if (completed) {
         zone.disableInteractive();
       }
     });
 
-    this.refreshLabHud();
+    this.hud?.refreshFromScene();
     this.updateProceedVisibility();
   }
 
-  // Generalized version of the old unlockHairEvidenceForSuspects().
-  // Any of the four MAIN identity games (hair / blood / DNA / fingerprint)
-  // must unlock its matching forensic attribute on every suspect once
-  // completed, otherwise SuspectGridScene can never use that clue to
-  // eliminate anyone except when hair happened to be picked.
   unlockIdentityEvidenceForSuspects(payload = {}) {
     if (!payload.completed || payload.aborted) {
       return;
@@ -1025,14 +1377,22 @@ export class CrimeLabScene extends BaseScene {
       suspect.restrictedProfile.forensicAttributes ??= {};
 
       const attributeData =
-        suspect.restrictedProfile.forensicAttributes[evidenceType];
+        suspect.restrictedProfile.forensicAttributes[
+          evidenceType
+        ];
 
       if (attributeData && typeof attributeData === 'object') {
         attributeData.unlocked = true;
       }
 
-      if (!suspect.restrictedProfile.unlockedFields.includes(evidenceType)) {
-        suspect.restrictedProfile.unlockedFields.push(evidenceType);
+      if (
+        !suspect.restrictedProfile.unlockedFields.includes(
+          evidenceType
+        )
+      ) {
+        suspect.restrictedProfile.unlockedFields.push(
+          evidenceType
+        );
       }
     });
   }
@@ -1041,58 +1401,97 @@ export class CrimeLabScene extends BaseScene {
     this.uiLocked = locked;
 
     this.hotspots?.forEach?.((zone) => {
-      if (!zone || zone.isDestroyed) return;
+      if (!zone || zone.isDestroyed) {
+        return;
+      }
 
       const data = zone.hotspotData;
 
       if (locked) {
-        // SAFE: sprawdzenie przed disable
         if (zone.input && !zone.isDestroyed) {
           zone.disableInteractive?.();
         }
-        if (zone.exitBtn?.input && !zone.exitBtn.isDestroyed) {
+
+        if (
+          zone.exitBtn?.input &&
+          !zone.exitBtn.isDestroyed
+        ) {
           zone.exitBtn.disableInteractive?.();
         }
+
         return;
       }
 
       if (!data?.completed || data.alwaysVisible) {
         if (zone.input && !zone.isDestroyed) {
-          zone.setInteractive?.({ useHandCursor: true });
+          zone.setInteractive?.({
+            useHandCursor: true
+          });
         }
-      } else {
-        if (zone.input && !zone.isDestroyed) {
-          zone.disableInteractive?.();
-        }
+      } else if (zone.input && !zone.isDestroyed) {
+        zone.disableInteractive?.();
       }
 
-      if (zone.exitBtn && zone.exitBtn.input && !zone.exitBtn.isDestroyed) {
-        zone.exitBtn.setInteractive?.({ useHandCursor: true });
+      if (
+        zone.exitBtn &&
+        zone.exitBtn.input &&
+        !zone.exitBtn.isDestroyed
+      ) {
+        zone.exitBtn.setInteractive?.({
+          useHandCursor: true
+        });
       }
     });
 
-    if (this.proceedHotspot && this.proceedHotspot.input && !this.proceedHotspot.isDestroyed) {
+    if (
+      this.assistantHotspot &&
+      !this.assistantHotspot.isDestroyed
+    ) {
+      if (locked) {
+        this.assistantHotspot.disableInteractive?.();
+      } else if (this.labOnboarding?.assistantPresent) {
+        this.assistantHotspot.setInteractive?.({
+          useHandCursor: true
+        });
+      }
+    }
+
+    if (
+      this.proceedHotspot &&
+      this.proceedHotspot.input &&
+      !this.proceedHotspot.isDestroyed
+    ) {
       if (locked) {
         this.proceedHotspot.disableInteractive?.();
-      } else if (this.completedCount >= this.totalStations) {
-        this.proceedHotspot.setInteractive?.({ useHandCursor: true });
+      } else if (
+        this.completedCount >= this.totalStations
+      ) {
+        this.proceedHotspot.setInteractive?.({
+          useHandCursor: true
+        });
       } else {
         this.proceedHotspot.disableInteractive?.();
       }
     }
 
     [this.leftArrow, this.rightArrow].forEach((arrow) => {
-      if (!arrow || arrow.isDestroyed) return;
+      if (!arrow || arrow.isDestroyed) {
+        return;
+      }
 
       if (locked) {
         if (arrow.input && !arrow.isDestroyed) {
           arrow.disableInteractive?.();
         }
+
         arrow.setAlpha?.(0.35);
       } else {
         if (arrow.input && !arrow.isDestroyed) {
-          arrow.setInteractive?.({ useHandCursor: true });
+          arrow.setInteractive?.({
+            useHandCursor: true
+          });
         }
+
         arrow.setAlpha?.(0.75);
       }
     });
@@ -1114,27 +1513,25 @@ export class CrimeLabScene extends BaseScene {
     this.applyLock(false);
   }
 
-  // ------------------------------------------------------------------
-  // FIX: removed the premature `this.scene.manager.keys[targetScene]`
-  // guard — CrimeCityScene may simply not be registered YET (if it wasn't
-  // prefetched). this.game.sceneLoader.ensure() below handles that; we
-  // only fall back to an error state if the dynamic import itself fails.
-  // ------------------------------------------------------------------
   exitLab() {
-    if (this.uiLocked) return;
+    if (this.uiLocked) {
+      return;
+    }
 
     const targetScene = 'CrimeCityScene';
 
     this.uiLocked = true;
     this.applyLock(true);
-    this.stopLabAmbient();
 
     const sceneData = {
       ...(this.returnData || {}),
       cityId: this.cityId,
-      caseKey: this.labManager?.getCaseKey?.() || 'default_case',
+      caseKey:
+        this.labManager?.getCaseKey?.() ||
+        'default_case',
       gameState: this.gameState,
-      crimeLabCompleted: this.completedCount >= this.totalStations,
+      crimeLabCompleted:
+        this.completedCount >= this.totalStations,
       fromCrimeLab: true
     };
 
@@ -1147,9 +1544,14 @@ export class CrimeLabScene extends BaseScene {
           await this.game.sceneLoader.ensure(targetScene);
           this.goto(targetScene, sceneData);
         } catch (err) {
-          console.error('[CrimeLabScene] Failed to start CrimeCityScene:', err);
+          console.error(
+            '[CrimeLabScene] Failed to start CrimeCityScene:',
+            err
+          );
+
           this.uiLocked = false;
           this.applyLock(false);
+
           this.cameras.main.fadeIn(300, 0, 0, 0);
           this.showNavHint('ERROR: Cannot switch scenes');
         }
@@ -1158,80 +1560,81 @@ export class CrimeLabScene extends BaseScene {
   }
 
   goToCrimeCity() {
-  if (this.uiLocked) {
-    return;
-  }
+    if (this.uiLocked) {
+      return;
+    }
 
-  if (this.completedCount < this.totalStations) {
-    console.warn(
-      '[CrimeLabScene] Cannot return to Crime City: not all lab stations are complete.',
+    if (this.completedCount < this.totalStations) {
+      console.warn(
+        '[CrimeLabScene] Cannot return to Crime City: not all lab stations are complete.',
+        {
+          completedCount: this.completedCount,
+          totalStations: this.totalStations
+        }
+      );
+
+      return;
+    }
+
+    console.log(
+      '[CrimeLabScene] Returning to Crime City after lab completion.',
       {
-        completedCount: this.completedCount,
-        totalStations: this.totalStations
+        cityId: this.cityId,
+        caseKey: this.labManager?.getCaseKey?.(),
+        completedCount: this.completedCount
       }
     );
 
-    return;
+    this.uiLocked = true;
+    this.applyLock(true);
+
+    this.labManager.markCrimeLabCompleted();
+    saveGameState();
+
+    const returnData = {
+      ...this.returnData,
+      cityId: this.cityId,
+      caseKey: this.labManager.getCaseKey(),
+      gameState: this.gameState,
+      crimeLabCompleted: true,
+      showLabCompletionPhoneCall: true,
+      fromCrimeLab: true
+    };
+
+    this.cameras.main.fadeOut(350, 0, 0, 0);
+
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      async () => {
+        try {
+          await this.game.sceneLoader.ensure(
+            'CrimeCityScene'
+          );
+
+          this.game.events.emit('setHudVisible', true);
+          EventBus.emit('showHUD');
+
+          this.goto('CrimeCityScene', returnData);
+        } catch (error) {
+          console.error(
+            '[CrimeLabScene] Failed to start CrimeCityScene:',
+            error
+          );
+
+          this.uiLocked = false;
+          this.applyLock(false);
+
+          this.cameras.main.fadeIn(350, 0, 0, 0);
+          this.showNavHint('CRIME CITY UNAVAILABLE');
+        }
+      }
+    );
   }
 
-  console.log(
-    '[CrimeLabScene] Returning to Crime City after lab completion.',
-    {
-      cityId: this.cityId,
-      caseKey: this.labManager?.getCaseKey?.(),
-      completedCount: this.completedCount
-    }
-  );
-
-  this.uiLocked = true;
-  this.applyLock(true);
-
-  this.labManager.markCrimeLabCompleted();
-  saveGameState();
-
-  this.stopLabAmbient();
-
-  const returnData = {
-    ...this.returnData,
-    cityId: this.cityId,
-    caseKey: this.labManager.getCaseKey(),
-    gameState: this.gameState,
-    crimeLabCompleted: true,
-    showLabCompletionPhoneCall: true,
-    fromCrimeLab: true
-  };
-
-  this.cameras.main.fadeOut(350, 0, 0, 0);
-
-  this.cameras.main.once(
-    Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-    async () => {
-      try {
-        await this.game.sceneLoader.ensure('CrimeCityScene');
-
-  this.game.events.emit('setHudVisible', true);
-  EventBus.emit('showHUD');
-  this.game.events.emit('setHudVisible', true);
-        this.goto('CrimeCityScene', returnData);
-      } catch (error) {
-        console.error(
-          '[CrimeLabScene] Failed to start CrimeCityScene:',
-          error
-        );
-
-        this.uiLocked = false;
-        this.applyLock(false);
-
-        this.cameras.main.fadeIn(350, 0, 0, 0);
-
-        this.showNavHint('CRIME CITY UNAVAILABLE');
-      }
-    }
-  );
-}
-
   createOptionalDebug() {
-    if (!this.DEBUG_HOTSPOTS) return;
+    if (!this.DEBUG_HOTSPOTS) {
+      return;
+    }
 
     this.debugGraphics = this.add.graphics();
     this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
@@ -1239,7 +1642,12 @@ export class CrimeLabScene extends BaseScene {
     this.hotspots.forEach((zone) => {
       const data = zone.hotspotData;
 
-      this.debugGraphics.strokeRect(data.x, data.y, data.width, data.height);
+      this.debugGraphics.strokeRect(
+        data.x,
+        data.y,
+        data.width,
+        data.height
+      );
 
       const label = this.add
         .text(data.x + 8, data.y + 8, data.id, {
@@ -1253,32 +1661,75 @@ export class CrimeLabScene extends BaseScene {
 
       this.debugTexts.push(label);
     });
+
+    if (this.assistantHotspot) {
+      const bounds = this.assistantHotspot.getBounds();
+
+      this.debugGraphics.strokeRect(
+        bounds.x,
+        bounds.y,
+        bounds.width,
+        bounds.height
+      );
+
+      const assistantLabel = this.add
+        .text(
+          bounds.x + 8,
+          bounds.y + 8,
+          'assistant_hotspot',
+          {
+            fontFamily: 'Arial',
+            fontSize: '16px',
+            color: '#00ffcc',
+            backgroundColor: '#000000',
+            padding: { left: 4, right: 4, top: 2, bottom: 2 }
+          }
+        )
+        .setDepth(999);
+
+      this.debugTexts.push(assistantLabel);
+    }
   }
 
   cleanupScene() {
     console.log('[CrimeLabScene] Cleanup started');
 
-    // Unbind keyboard
-    this.input.keyboard?.off?.('keydown-LEFT', this.boundMoveLeft);
-    this.input.keyboard?.off?.('keydown-RIGHT', this.boundMoveRight);
+    this.input.keyboard?.off?.(
+      'keydown-LEFT',
+      this.boundMoveLeft
+    );
 
-    // Unbind scene events
-    this.events?.off?.(Phaser.Scenes.Events.WAKE, this.boundForceUnlock);
-    this.events?.off?.(Phaser.Scenes.Events.RESUME, this.boundForceUnlock);
-    this.events?.off?.(Phaser.Scenes.Events.RESUME, this.boundCheckMiniGameResults);
+    this.input.keyboard?.off?.(
+      'keydown-RIGHT',
+      this.boundMoveRight
+    );
 
-    // Clear timer
+    this.events?.off?.(
+      Phaser.Scenes.Events.WAKE,
+      this.boundForceUnlock
+    );
+
+    this.events?.off?.(
+      Phaser.Scenes.Events.RESUME,
+      this.boundForceUnlock
+    );
+
+    this.events?.off?.(
+      Phaser.Scenes.Events.RESUME,
+      this.boundCheckMiniGameResults
+    );
+
     this.timerTickEvent?.remove?.(false);
     this.timerTickEvent = null;
 
-    // Cleanup hotspots - SAFE
     if (Array.isArray(this.hotspots)) {
       this.hotspots.forEach((zone) => {
-        if (!zone) return;
+        if (!zone) {
+          return;
+        }
 
         zone.removeAllListeners?.();
 
-        // SAFE: check czy scene i input istnieją
         if (zone.scene?.sys?.input && !zone.isDestroyed) {
           zone.disableInteractive?.();
         }
@@ -1288,7 +1739,10 @@ export class CrimeLabScene extends BaseScene {
         if (zone.exitBtn) {
           zone.exitBtn.removeAllListeners?.();
 
-          if (zone.exitBtn.scene?.sys?.input && !zone.exitBtn.isDestroyed) {
+          if (
+            zone.exitBtn.scene?.sys?.input &&
+            !zone.exitBtn.isDestroyed
+          ) {
             zone.exitBtn.disableInteractive?.();
           }
 
@@ -1301,7 +1755,20 @@ export class CrimeLabScene extends BaseScene {
 
     this.hotspots = [];
 
-    // Cleanup debug graphics
+    if (this.assistantHotspot) {
+      this.assistantHotspot.removeAllListeners?.();
+
+      if (
+        this.assistantHotspot.scene?.sys?.input &&
+        !this.assistantHotspot.isDestroyed
+      ) {
+        this.assistantHotspot.disableInteractive?.();
+      }
+
+      this.assistantHotspot.destroy?.();
+      this.assistantHotspot = null;
+    }
+
     this.debugGraphics?.destroy?.();
     this.debugGraphics = null;
 
@@ -1313,11 +1780,9 @@ export class CrimeLabScene extends BaseScene {
 
     this.debugTexts = [];
 
-    // Cleanup HUD
     this.hud?.destroy?.();
     this.hud = null;
 
-    // Cleanup UI elements - SAFE
     [
       'leftArrow',
       'rightArrow',
@@ -1326,21 +1791,23 @@ export class CrimeLabScene extends BaseScene {
       'proceedHotspot'
     ].forEach((property) => {
       const element = this[property];
-      if (!element) return;
+
+      if (!element) {
+        return;
+      }
 
       element.removeAllListeners?.();
 
-      // SAFE: check scene przed disableInteractive
-      if (element.scene?.sys?.input && !element.isDestroyed) {
+      if (
+        element.scene?.sys?.input &&
+        !element.isDestroyed
+      ) {
         element.disableInteractive?.();
       }
 
       element.destroy?.();
       this[property] = null;
     });
-
-    // Stop ambient sound
-    this.stopLabAmbient?.();
 
     console.log('[CrimeLabScene] Cleanup complete');
   }

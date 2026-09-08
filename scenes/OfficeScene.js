@@ -804,7 +804,7 @@ export class OfficeScene extends BaseScene {
 
     this.closeAllUIPanels();
 
-    hud.crimeBoardUI.open(this.gameState);
+    hud.openCrimeBoard();
   }
 
   openAtlas() {

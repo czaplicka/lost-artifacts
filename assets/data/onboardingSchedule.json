@@ -1,7 +1,7 @@
 {
   "0": {
     "hiddenObjects": "standard_6",
-    "lab": "call_only",
+    "lab": "assistant_results",
     "suspectFiltering": "standard",
     "interviews": "neutral_tone",
     "mastermind": "standard_3slot",
@@ -26,6 +26,16 @@
     "interviews": "hostile_tone",
     "mastermind": "standard_3slot",
     "apartment": "empty_clues",
+    "travelCities": "quiet_travel",
+    "cityChain": "three_cities"
+  },
+  "3": {
+    "hiddenObjects": "unusual_scene",
+    "lab": "three_games",
+    "suspectFiltering": "early_liar",
+    "interviews": "scared_tone",
+    "mastermind": "standard_3slot",
+    "apartment": "fresh_escape",
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   },

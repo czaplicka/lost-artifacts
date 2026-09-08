@@ -27,6 +27,11 @@ const HUD_OVERLAY_SCENES = [
   'NewsHud',
 ];
 
+const CRIME_BOARD_ALLOWED_SCENES = [
+  'OfficeScene',
+  'HotelScene'
+];
+
 export class PlayerHudScene extends BaseScene {
   constructor() {
     super({ key: 'PlayerHudScene' });
@@ -45,6 +50,7 @@ export class PlayerHudScene extends BaseScene {
     this.dialogManager = null;
 
     this.isHudReady = false;
+    this.currentGameplaySceneKey = null;
 
     this.onGlobalSceneStart = this.onGlobalSceneStart.bind(this);
     this.onGlobalSceneWake = this.onGlobalSceneWake.bind(this);
@@ -104,17 +110,30 @@ export class PlayerHudScene extends BaseScene {
   }
 
   handleSceneChange(sceneKey) {
-    if (HUD_OVERLAY_SCENES.includes(sceneKey)) {
-      return;
-    }
-
-    if (HUD_ALLOWED_SCENES.includes(sceneKey)) {
-      this.showHud();
-      return;
-    }
-
-    this.hideHud();
+  if (HUD_OVERLAY_SCENES.includes(sceneKey)) {
+    return;
   }
+
+  this.currentGameplaySceneKey = sceneKey;
+
+  const crimeBoardAllowed =
+    CRIME_BOARD_ALLOWED_SCENES.includes(sceneKey);
+
+  this.playerMenu?.setCrimeBoardAvailable?.(
+    crimeBoardAllowed
+  );
+
+  if (!crimeBoardAllowed) {
+    this.crimeBoardUI?.close?.();
+  }
+
+  if (HUD_ALLOWED_SCENES.includes(sceneKey)) {
+    this.showHud();
+    return;
+  }
+
+  this.hideHud();
+}
 
   showHud() {
     if (!this.isHudReady) {
@@ -192,6 +211,31 @@ export class PlayerHudScene extends BaseScene {
     this.passportUI?.close?.();
     this.dialogManager?.dialogUI?.close?.();
   }
+
+isCrimeBoardAvailable() {
+  return CRIME_BOARD_ALLOWED_SCENES.includes(
+    this.currentGameplaySceneKey
+  );
+}
+
+openCrimeBoard() {
+  if (!this.isCrimeBoardAvailable()) {
+    console.warn(
+      '[PlayerHudScene] Crime Board is available only in OfficeScene or HotelScene.',
+      {
+        currentScene: this.currentGameplaySceneKey
+      }
+    );
+
+    return false;
+  }
+
+  this.closeAllUIPanels();
+
+  this.crimeBoardUI?.open?.(this.gameState);
+
+  return Boolean(this.crimeBoardUI?.isOpen);
+}
 
   closeAllUIPanelsAndFlushInput() {
     this.closeAllUIPanels();
