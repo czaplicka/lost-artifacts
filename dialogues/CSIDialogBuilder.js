@@ -1,4 +1,4 @@
-import { gameState } from './GameData.js';
+import { gameState } from '../GameData.js';
 import dialogCsi from './dialog_csi.json' assert { type: 'json' };
 
 /**

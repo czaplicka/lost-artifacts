@@ -13,7 +13,7 @@ import { createOfficeHotspotDefinitions } from './office/officeHotspots.js';
 export class OfficeScene extends BaseScene {
   constructor() {
     super({ key: 'OfficeScene' });
-
+this.hasMenu = true;
     this.currentView = 'office';
     this.viewPositions = {};
     this.rooms = {};

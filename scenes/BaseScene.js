@@ -662,6 +662,52 @@ export class BaseScene extends Phaser.Scene {
     }
   }
 
+safeDisableInteractive(gameObject) {
+  if (!gameObject || gameObject.isDestroyed) {
+    return false;
+  }
+
+  const objectScene = gameObject.scene;
+
+  if (
+    !objectScene ||
+    !objectScene.sys ||
+    !objectScene.sys.isActive() ||
+    !objectScene.sys.input
+  ) {
+    return false;
+  }
+
+  if (!gameObject.input || !gameObject.input.enabled) {
+    return false;
+  }
+
+  gameObject.disableInteractive?.();
+
+  return true;
+}
+
+safeSetInteractive(gameObject, config = { useHandCursor: true }) {
+  if (!gameObject || gameObject.isDestroyed) {
+    return false;
+  }
+
+  const objectScene = gameObject.scene;
+
+  if (
+    !objectScene ||
+    !objectScene.sys ||
+    !objectScene.sys.isActive() ||
+    !objectScene.sys.input
+  ) {
+    return false;
+  }
+
+  gameObject.setInteractive?.(config);
+
+  return true;
+}
+
   /**
    * Zamiennik this.scene.launch(key, data).
    *

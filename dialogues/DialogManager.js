@@ -1,6 +1,6 @@
-import { DialogUI } from './ui/DialogUI.js';
-import { EventBus } from './EventBus.js';
-import { moneyManager, ECONOMY_CATEGORY } from './MoneyManager.js';
+import { DialogUI } from '../ui/DialogUI.js';
+import { EventBus } from '../EventBus.js';
+import { moneyManager, ECONOMY_CATEGORY } from '../MoneyManager.js';
 
 const DIALOG_CACHE_PREFIX = 'dialog_';
 

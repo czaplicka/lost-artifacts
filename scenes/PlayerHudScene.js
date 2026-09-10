@@ -8,7 +8,7 @@ import { CrimeBoardUI } from '../ui/CrimeBoardUI.js';
 import { AtlasUI } from '../ui/AtlasUI.js';
 import { PhonebookUI } from '../ui/PhonebookUI.js';
 import { PassportUI } from '../ui/PassportUI.js';
-import { DialogManager } from '../DialogManager.js';
+import { DialogManager } from '../dialogues/DialogManager.js';
 import { BaseScene } from './BaseScene.js';
 
 const HUD_ALLOWED_SCENES = [

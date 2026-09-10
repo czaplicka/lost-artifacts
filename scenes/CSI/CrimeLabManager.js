@@ -4,7 +4,6 @@ import {
   CSI_MAIN_GAME_POOL
 } from './CrimeLabConfig.js';
 
-
 function cloneEvidence(evidence = {}) {
   try {
     return structuredClone(evidence);
@@ -12,7 +11,6 @@ function cloneEvidence(evidence = {}) {
     return JSON.parse(JSON.stringify(evidence));
   }
 }
-
 
 function getEvidenceValue(evidence = {}) {
   return (
@@ -22,7 +20,6 @@ function getEvidenceValue(evidence = {}) {
     null
   );
 }
-
 
 function hashString(value) {
   const text = String(value || 'default');
@@ -34,7 +31,6 @@ function hashString(value) {
 
   return hash;
 }
-
 
 function mapGenderCodeToDnaProfile(genderCode) {
   const normalized = String(genderCode || '')
@@ -52,15 +48,6 @@ function mapGenderCodeToDnaProfile(genderCode) {
   return null;
 }
 
-
-/*
- * Deterministic weighted pick only for the fingerprint pattern
- * of a thief that does not have fingerprintPattern already defined.
- *
- * LOOP  ≈ 65%
- * WHORL ≈ 30%
- * ARCH  ≈ 5%
- */
 function weightedFingerprintPattern(seed) {
   const roll = (seed % 1000) / 1000;
 
@@ -75,13 +62,11 @@ function weightedFingerprintPattern(seed) {
   return 'ARCH';
 }
 
-
 export class CrimeLabManager {
   constructor(gameState, cityId) {
     this.gameState = gameState;
     this.cityId = cityId;
   }
-
 
   getCaseKey() {
     const mission = this.gameState.currentMission || {};
@@ -92,7 +77,6 @@ export class CrimeLabManager {
       `${this.cityId}_${mission.artifact || 'default'}`
     );
   }
-
 
   getSuspectData() {
     const reconstruction = this.gameState.reconstructedHeist || {};
@@ -110,7 +94,6 @@ export class CrimeLabManager {
     };
   }
 
-
   ensureCaseForensics() {
     const caseKey = this.getCaseKey();
 
@@ -120,15 +103,12 @@ export class CrimeLabManager {
       identityEvidenceResult: null,
       traceEvidenceResults: [],
       forensicResults: [],
-
       suspectGrid: {
         generated: false,
         completed: false,
-
         eliminatedSuspectIds: [],
         marksBySuspectId: {},
         clueCards: [],
-
         score: 0,
         mistakes: 0,
         hintsUsed: 0,
@@ -141,15 +121,12 @@ export class CrimeLabManager {
     caseForensics.identityEvidenceResult ??= null;
     caseForensics.traceEvidenceResults ??= [];
     caseForensics.forensicResults ??= [];
-
     caseForensics.suspectGrid ??= {
       generated: false,
       completed: false,
-
       eliminatedSuspectIds: [],
       marksBySuspectId: {},
       clueCards: [],
-
       score: 0,
       mistakes: 0,
       hintsUsed: 0,
@@ -158,7 +135,6 @@ export class CrimeLabManager {
 
     return caseForensics;
   }
-
 
   ensureCaseAssignment() {
     const caseKey = this.getCaseKey();
@@ -173,7 +149,6 @@ export class CrimeLabManager {
     return this.gameState.caseCsiAssignments[caseKey];
   }
 
-
   isValidIdentityEvidence(evidence) {
     return Boolean(
       evidence &&
@@ -185,7 +160,6 @@ export class CrimeLabManager {
       getEvidenceValue(evidence) !== null
     );
   }
-
 
   isValidTraceEvidence(evidence) {
     return Boolean(
@@ -201,6 +175,22 @@ export class CrimeLabManager {
     );
   }
 
+  isStationCompleted(stationId) {
+    const caseForensics = this.ensureCaseForensics();
+
+    if (stationId === 'identity') {
+      return Boolean(caseForensics.identityEvidenceResult);
+    }
+
+    const traceMatch = /^trace_(\d+)$/.exec(String(stationId || ''));
+
+    if (traceMatch) {
+      const index = Number(traceMatch[1]);
+      return Boolean(caseForensics.traceEvidenceResults[index]);
+    }
+
+    return false;
+  }
 
   markCrimeLabCompleted() {
     const caseKey = this.getCaseKey();
@@ -209,15 +199,11 @@ export class CrimeLabManager {
     this.gameState.crimeCityProgress[caseKey] ??= {};
 
     this.gameState.crimeCityProgress[caseKey].crimeLabCompleted = true;
-
-    this.gameState.crimeCityProgress[caseKey].crimeLabCompletedAt =
-      Date.now();
-
+    this.gameState.crimeCityProgress[caseKey].crimeLabCompletedAt = Date.now();
     this.gameState.csiLabCompleted = true;
 
     saveGameState();
   }
-
 
   normalizeEvidenceConfig(
     evidence = {},
@@ -253,30 +239,20 @@ export class CrimeLabManager {
 
     const normalizedEvidence = {
       ...cloneEvidence(evidence),
-
       id: evidence.id || `${attribute}_evidence`,
       stationId: stationId || evidence.stationId || null,
-
       attribute,
       evidenceType: attribute,
-
       thief_value: correctValue,
-
       source: evidence.source || 'crime_lab',
       label: evidence.label || fallbackLabel,
-
-      clueType:
-        evidence.clueType ||
-        fallbackClueType,
-
+      clueType: evidence.clueType || fallbackClueType,
       clueText:
         evidence.clueText ||
         `Laboratory analysis confirms: ${attribute} = ${correctValue}.`,
-
       allowedValues: Array.isArray(evidence.allowedValues)
         ? [...evidence.allowedValues]
         : [],
-
       minigame: normalizeMiniGameKey(
         evidence.minigame,
         attribute
@@ -285,21 +261,11 @@ export class CrimeLabManager {
 
     return {
       ...normalizedEvidence,
-
       correctValue,
-
       evidence: cloneEvidence(normalizedEvidence)
     };
   }
 
-
-  /*
-   * This is the important method.
-   *
-   * The assignment stored under the current caseKey has priority.
-   * gameState.identityEvidence is only a convenience reference to
-   * the CURRENT case — it must never decide the evidence of a new case.
-   */
   ensureIdentityEvidence() {
     const caseKey = this.getCaseKey();
     const assignment = this.ensureCaseAssignment();
@@ -321,8 +287,7 @@ export class CrimeLabManager {
       return evidence;
     }
 
-    const generatedEvidence =
-      this.buildIdentityEvidenceForCase(caseKey);
+    const generatedEvidence = this.buildIdentityEvidenceForCase(caseKey);
 
     if (!this.isValidIdentityEvidence(generatedEvidence)) {
       console.error(
@@ -342,7 +307,6 @@ export class CrimeLabManager {
     const evidence = cloneEvidence(generatedEvidence);
 
     assignment.identityEvidence = cloneEvidence(evidence);
-
     this.gameState.identityEvidence = cloneEvidence(evidence);
 
     saveGameState();
@@ -359,12 +323,9 @@ export class CrimeLabManager {
     return evidence;
   }
 
-
   getIdentityEvidenceConfig() {
-    const identityEvidence = this.ensureIdentityEvidence();
-
     return this.normalizeEvidenceConfig(
-      identityEvidence,
+      this.ensureIdentityEvidence(),
       {
         stationId: 'identity',
         fallbackLabel: 'Identity Evidence Analysis',
@@ -373,18 +334,6 @@ export class CrimeLabManager {
     );
   }
 
-
-  /*
-   * Selects one of the four principal forensic games:
-   *
-   * - hair_color
-   * - blood_type
-   * - dna_gender
-   * - fingerprint_pattern
-   *
-   * The selected evidence is saved immediately by ensureIdentityEvidence(),
-   * so Math.random runs once per case rather than once per lab visit.
-   */
   buildIdentityEvidenceForCase(caseKey) {
     const suspectData = this.getSuspectData();
 
@@ -461,18 +410,14 @@ export class CrimeLabManager {
               suspectData.gender ||
               null;
 
-            const dnaProfile =
-              mapGenderCodeToDnaProfile(genderCode);
+            const dnaProfile = mapGenderCodeToDnaProfile(genderCode);
 
             return {
               ...entry,
               id: 'identity_dna_gender',
               attribute: 'dna_gender',
               thief_value: dnaProfile,
-              allowedValues: [
-                'XX',
-                'XY'
-              ],
+              allowedValues: ['XX', 'XY'],
               clueType: 'identity',
               source: 'crime_lab',
               clueText: dnaProfile
@@ -492,11 +437,7 @@ export class CrimeLabManager {
               id: 'identity_fingerprint_pattern',
               attribute: 'fingerprint_pattern',
               thief_value: pattern,
-              allowedValues: [
-                'LOOP',
-                'WHORL',
-                'ARCH'
-              ],
+              allowedValues: ['LOOP', 'WHORL', 'ARCH'],
               clueType: 'identity',
               source: 'crime_lab',
               clueText:
@@ -508,9 +449,7 @@ export class CrimeLabManager {
             return null;
         }
       })
-      .filter((template) => {
-        return template && template.thief_value;
-      });
+      .filter((template) => template && template.thief_value);
 
     if (templates.length === 0) {
       console.error(
@@ -546,11 +485,6 @@ export class CrimeLabManager {
     return cloneEvidence(selected);
   }
 
-
-  /*
-   * Exactly two side games per case.
-   * Just like identity evidence, they are persisted under the case key.
-   */
   ensureRandomTraceEvidence() {
     const caseKey = this.getCaseKey();
     const assignment = this.ensureCaseAssignment();
@@ -576,17 +510,14 @@ export class CrimeLabManager {
         '[CrimeLabManager] Reusing saved trace evidence:',
         {
           caseKey,
-          traceTypes: evidence.map(
-            (item) => item.attribute
-          )
+          traceTypes: evidence.map((item) => item.attribute)
         }
       );
 
       return evidence;
     }
 
-    const generatedEvidence =
-      this.buildTraceEvidenceForCase(caseKey);
+    const generatedEvidence = this.buildTraceEvidenceForCase(caseKey);
 
     if (!hasExactlyTwoTraceEvidence(generatedEvidence)) {
       console.error(
@@ -621,35 +552,19 @@ export class CrimeLabManager {
       '[CrimeLabManager] New trace evidence assigned:',
       {
         caseKey,
-        traceTypes: evidence.map(
-          (item) => item.attribute
-        )
+        traceTypes: evidence.map((item) => item.attribute)
       }
     );
 
     return evidence;
   }
 
-
   buildTraceEvidenceForCase(caseKey) {
-    const reconstruction =
-      this.gameState.reconstructedHeist || {};
+    const suspectData = this.getSuspectData();
 
-    const selectedThief =
-      this.gameState.selectedThiefProfile ||
-      this.gameState.selectedThief ||
-      this.gameState.currentThief ||
-      this.gameState.thief ||
-      {};
+    const reconstruction = this.gameState.reconstructedHeist || {};
 
-    const suspectData = {
-      ...selectedThief,
-      ...reconstruction
-    };
-
-    const thiefSkills = Array.isArray(
-      reconstruction.thiefSkills
-    )
+    const thiefSkills = Array.isArray(reconstruction.thiefSkills)
       ? reconstruction.thiefSkills
       : typeof reconstruction.thiefSkills === 'string'
         ? reconstruction.thiefSkills
@@ -663,9 +578,28 @@ export class CrimeLabManager {
       suspectData.shoe_size_category ||
       'medium';
 
-    const handedness =
-      suspectData.handedness ||
-      'right';
+    const handedness = suspectData.handedness || 'right';
+
+    const fabricMaterials = [
+      'synthetic',
+      'cotton',
+      'wool',
+      'silk',
+      'leather'
+    ];
+
+    const fabricMaterial =
+      suspectData.fabricMaterial ||
+      suspectData.fabric_material ||
+      fabricMaterials[
+        hashString(
+          suspectData.id ||
+          suspectData.name ||
+          caseKey
+        ) % fabricMaterials.length
+      ];
+
+    const primarySkill = thiefSkills[0] || 'Stealth';
 
     const tracePool = [
       {
@@ -673,88 +607,66 @@ export class CrimeLabManager {
         label: 'Boot Print Analysis',
         attribute: 'shoeSizeCategory',
         thief_value: shoeSize,
-        allowedValues: [
-          'small',
-          'medium',
-          'large'
-        ],
+        allowedValues: ['small', 'medium', 'large'],
         minigame: 'shoe_size',
         clueType: 'trace',
         source: 'crime_lab',
         clueText:
           `The partial boot print indicates ${shoeSize} footwear.`
       },
-
       {
         id: 'trace_hand_smudge',
         label: 'Cabinet Handle Smudge',
         attribute: 'handedness',
         thief_value: handedness,
-        allowedValues: [
-          'left',
-          'right'
-        ],
+        allowedValues: ['left', 'right'],
         minigame: 'handedness',
         clueType: 'trace',
         source: 'crime_lab',
         clueText:
           `The smudge pattern indicates a ${handedness}-handed person.`
       },
-
       {
         id: 'trace_fabric_fiber',
-        label: 'Synthetic Fibre Analysis',
+        label: 'Fabric Fibre Analysis',
         attribute: 'fabricMaterial',
-        thief_value: 'synthetic',
-        allowedValues: [
-          'synthetic',
-          'cotton',
-          'wool',
-          'silk',
-          'leather'
-        ],
+        thief_value: fabricMaterial,
+        allowedValues: fabricMaterials,
         minigame: 'fiber',
         clueType: 'trace',
         source: 'crime_lab',
         clueText:
-          'The recovered fibre is a synthetic weave from modern outerwear.'
+          `The recovered fibre is ${fabricMaterial} and likely came from outerwear.`
       },
-
       {
-  id: 'trace_tool_residue',
-  label: 'Tool Residue Analysis',
-  attribute: 'primarySkill',
-  thief_value: thiefSkills[0] || 'Stealth',
-  allowedValues: [
-    'Lockpicking',
-    'Disguise',
-    'Stealth',
-    'Espionage',
-    'Surveillance'
-  ],
-  minigame: 'ToolmarkAnalysisScene',
-  clueType: 'trace',
-  source: 'crime_lab',
-  clueText:
-    `The microscopic residue is consistent with ${
-      thiefSkills[0] || 'Stealth'
-    }.`
-}
+        id: 'trace_tool_residue',
+        label: 'Tool Residue Analysis',
+        attribute: 'primarySkill',
+        thief_value: primarySkill,
+        allowedValues: [
+          'Lockpicking',
+          'Disguise',
+          'Stealth',
+          'Espionage',
+          'Surveillance'
+        ],
+        minigame: 'toolmark_analysis',
+        clueType: 'trace',
+        source: 'crime_lab',
+        clueText:
+          `The microscopic residue is consistent with ${primarySkill}.`
+      }
     ];
 
     const seed = String(caseKey || 'default_case')
       .split('')
       .reduce(
-        (sum, character) => {
-          return sum + character.charCodeAt(0);
-        },
+        (sum, character) => sum + character.charCodeAt(0),
         0
       );
 
     const firstIndex = seed % tracePool.length;
-
-    const secondIndex =
-      (firstIndex + 1) % tracePool.length;
+    const secondIndex = (firstIndex + 1) % tracePool.length;
 
     return [
       cloneEvidence(tracePool[firstIndex]),
@@ -762,11 +674,8 @@ export class CrimeLabManager {
     ];
   }
 
-
   getTraceEvidenceConfig(index) {
-    const assignedEvidence =
-      this.ensureRandomTraceEvidence();
-
+    const assignedEvidence = this.ensureRandomTraceEvidence();
     const evidence = assignedEvidence[index];
 
     if (!evidence) {
@@ -778,9 +687,6 @@ export class CrimeLabManager {
     return this.normalizeEvidenceConfig(
       evidence,
       {
-        // Spójne z CrimeLabScene:
-        // index 0 -> trace_0
-        // index 1 -> trace_1
         stationId: `trace_${index}`,
         fallbackLabel: `Trace Evidence ${index + 1}`,
         fallbackClueType: 'trace'

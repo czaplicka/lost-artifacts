@@ -340,17 +340,11 @@ export async function setupNewGame(
     traceEvidence: [],
     energy: energyManager.getCurrentEnergy(),
     difficulty,
+    cash: 100,
     agencyBudget: STARTING_AGENCY_BUDGETS[difficulty] ?? STARTING_AGENCY_BUDGETS.field,
     agencyDebt: 0,
     moneyLog: [],
-    // Nowy detektyw = nowy, czysty paszport. Bez tego stare pieczątki z
-    // poprzedniej rozgrywki zostawały przyklejone do gameState (płaska
-    // właściwość instancji), bo resetGameState() czyści tylko gameState.state,
-    // a nie te płaskie pola. PassportManager.ensurePassportState() sam
-    // odtworzy pusty obiekt paszportu przy pierwszym użyciu po null.
     passport: null,
-    // playerRank i rankProgress są już ustawione przez rankManager.init() powyżej -
-    // nie nadpisujemy ich tutaj na sztywno.
     caseDirector,
     caseTemplate: template
   });
