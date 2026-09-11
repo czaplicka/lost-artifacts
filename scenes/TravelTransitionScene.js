@@ -244,7 +244,7 @@ export class TravelTransitionScene extends BaseScene {
 
     this.add
       .text(width / 2, 145, `${fromCity} → ${toCity}`, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '34px',
         color: '#ffffff',
         align: 'center'
@@ -257,7 +257,7 @@ export class TravelTransitionScene extends BaseScene {
         192,
         `${transport.icon}  ${finalTransportLabel}`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '28px',
           color: transport.color,
           align: 'center'
@@ -271,7 +271,7 @@ export class TravelTransitionScene extends BaseScene {
         238,
         `Travel time: +${travelHours}h`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '26px',
           color: '#ffd166'
         }
@@ -287,7 +287,7 @@ export class TravelTransitionScene extends BaseScene {
           energyChange
         ),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '23px',
           color: '#d6e4f0',
           align: 'center'
@@ -301,7 +301,7 @@ export class TravelTransitionScene extends BaseScene {
         325,
         'Following the trail...',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '27px',
           color: '#d6e4f0'
         }
@@ -319,7 +319,7 @@ export class TravelTransitionScene extends BaseScene {
           travelEncounter
         }),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '23px',
           color: travelEncounter
             ? '#ffd966'
@@ -339,7 +339,7 @@ export class TravelTransitionScene extends BaseScene {
           445,
           'Your phone starts ringing. Headquarters has thoughts.',
           {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '23px',
             color: '#ffd966',
             align: 'center',
@@ -359,7 +359,7 @@ export class TravelTransitionScene extends BaseScene {
         500,
         `📘 Passport stamped: ${stamp.country}`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#ffe9a8',
           align: 'center'
@@ -389,7 +389,7 @@ export class TravelTransitionScene extends BaseScene {
         height - 70,
         'Please wait...',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '22px',
           color: '#9aa6b2'
         }

@@ -469,7 +469,7 @@ getLoadingStatus(file) {
             centerY - 145,
             'MAKING COFFEE 0%',
             {
-                fontFamily: '"Press Start 2P", monospace',
+                fontFamily: '"PressStart2P", monospace',
                 fontSize: '28px',
                 color: '#f4ebd9',
                 align: 'center'
@@ -491,7 +491,7 @@ const statusLabel = this.add.text(
     centerY - 103,
     'CASE FILE STATUS',
     {
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: '"PressStart2P", monospace',
         fontSize: '12px',
         color: '#c9aa70',
         align: 'center'
@@ -503,7 +503,7 @@ this.loadingStatusText = this.add.text(
     centerY - 75,
     'Opening the case file...',
     {
-        fontFamily: '"Special Elite", monospace',
+        fontFamily: '"SpecialElite", monospace',
         fontSize: '24px',
         color: '#f4ebd9',
         align: 'center',
@@ -517,7 +517,7 @@ this.loadingStatusText = this.add.text(
             centerY + 450,
             this.getNextTip(tips),
             {
-                fontFamily: '"Press Start 2P", monospace',
+                fontFamily: '"PressStart2P", monospace',
                 fontSize: '24px',
                 color: '#f4ebd9',
                 align: 'center',

@@ -87,7 +87,7 @@ toggleExcludeMode() {
         height / 2 - 40,
         `You cleared ${clearedCount} suspect(s).\n${activeCount} file(s) will move to the Evidence Grid.\n\nYou will not be able to change these exclusions after continuing.`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '21px',
           color: '#f5e7c6',
           align: 'center',

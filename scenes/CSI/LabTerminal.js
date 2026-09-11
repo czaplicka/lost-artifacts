@@ -41,7 +41,7 @@ export class LabTerminal {
     g.fillStyle(0x1f3b26, 1);
     g.fillRect(this.x, this.y, this.w, 34);
     s.add.text(this.x + 12, this.y + 9, title, {
-      fontFamily: '"Press Start 2P"', fontSize: '12px', color: TERM.green
+      fontFamily: '"PressStart2P"', fontSize: '12px', color: TERM.green
     });
     this.buttonRow = s.add.container(this.x + 16, this.y + this.h - 52);
   }
@@ -82,7 +82,7 @@ export class LabTerminal {
   _typeLine(text, opts) {
     return new Promise(resolve => {
       const t = this.scene.add.text(this.x + 16, 0, '', {
-        fontFamily: opts.fontFamily ?? '"Special Elite"',
+        fontFamily: opts.fontFamily ?? '"SpecialElite"',
         fontSize: opts.fontSize ?? '18px',
         color: opts.color ?? TERM.green,
         wordWrap: { width: this.w - 32 }
@@ -143,7 +143,7 @@ export class LabTerminal {
 
   button(label, color, onClick) {
     const t = this.scene.add.text(this._btnX, 0, ` ${label} `, {
-      fontFamily: '"Press Start 2P"',
+      fontFamily: '"PressStart2P"',
       fontSize: '12px',
       color: TERM.dark,
       backgroundColor: color,

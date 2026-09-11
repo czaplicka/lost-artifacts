@@ -31,7 +31,7 @@ export const SuspectBoardUIMixin = {
 
     this.headerText = this.add
       .text(width / 2, 18, 'SUSPECT FILES', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '34px',
         color: '#f5e7c6',
         align: 'center'
@@ -51,7 +51,7 @@ export const SuspectBoardUIMixin = {
 
     this.modeHintText = this.add
       .text(width / 2, 88, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '17px',
         color: '#ffdc73',
         align: 'center',
@@ -215,7 +215,7 @@ export const SuspectBoardUIMixin = {
 
     this.emptyText = this.add
       .text(0, 0, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#d9c998',
         align: 'center'
@@ -343,7 +343,7 @@ export const SuspectBoardUIMixin = {
 
     this.emptyText = this.add
       .text(0, 0, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#d9c998',
         align: 'center'

@@ -8,6 +8,12 @@ const IDENTITY_EVIDENCE_TYPES = [
   'fingerprint_pattern'
 ];
 
+const STATION_IDS = [
+  'identity',
+  'trace_0',
+  'trace_1'
+];
+
 export class CrimeLabEvidenceService {
   constructor(gameState, labManager, cityId) {
     this.gameState = gameState;
@@ -52,6 +58,174 @@ export class CrimeLabEvidenceService {
     return board;
   }
 
+  getStationEvidenceConfig(stationId) {
+    if (stationId === 'identity') {
+      return this.labManager?.getIdentityEvidenceConfig?.() || null;
+    }
+
+    const traceMatch = /^trace_(\d+)$/.exec(
+      String(stationId || '')
+    );
+
+    if (!traceMatch) {
+      return null;
+    }
+
+    const evidenceIndex = Number(traceMatch[1]);
+
+    if (!Number.isInteger(evidenceIndex) || evidenceIndex < 0) {
+      return null;
+    }
+
+    return this.labManager?.getTraceEvidenceConfig?.(evidenceIndex) || null;
+  }
+
+  getStationPayload(stationId, source = 'player') {
+    const evidenceConfig = this.getStationEvidenceConfig(stationId);
+
+    if (!evidenceConfig) {
+      console.warn(
+        '[CrimeLabEvidenceService] Missing evidence configuration.',
+        { stationId, source }
+      );
+
+      return null;
+    }
+
+    const traceMatch = /^trace_(\d+)$/.exec(
+      String(stationId || '')
+    );
+
+    const evidenceIndex = traceMatch
+      ? Number(traceMatch[1])
+      : null;
+
+    return {
+      completed: true,
+      aborted: false,
+      stationId,
+      source,
+      evidenceConfig,
+      evidenceIndex,
+      evidenceType: evidenceConfig.evidenceType,
+      correctValue: evidenceConfig.correctValue,
+      clueType: evidenceConfig.clueType,
+      clueText: evidenceConfig.clueText,
+      label: evidenceConfig.label,
+
+      // Wynik kontrolowany przez dane case'u, nie przez kliknięcie gracza.
+      result: evidenceConfig.correctValue,
+      selectedValue: evidenceConfig.correctValue,
+
+      isValuable: Boolean(
+        evidenceConfig.isValuable ??
+        evidenceConfig.clueType === 'identity'
+      )
+    };
+  }
+
+  ensureAssistantResults(playerGameCount = 3) {
+    const safePlayerGameCount = Phaser.Math.Clamp(
+      Number(playerGameCount) || 0,
+      0,
+      STATION_IDS.length
+    );
+
+    const assistantStationIds = STATION_IDS.slice(
+      safePlayerGameCount
+    );
+
+    if (assistantStationIds.length === 0) {
+      return {
+        added: [],
+        completedCount: this.getCompletedStationCount()
+      };
+    }
+
+    const caseForensics = this.getCaseForensics();
+    const added = [];
+
+    assistantStationIds.forEach((stationId) => {
+      if (this.isStationCompleted(stationId, caseForensics)) {
+        return;
+      }
+
+      const payload = this.getStationPayload(
+        stationId,
+        'lab_assistant'
+      );
+
+      if (!payload) {
+        return;
+      }
+
+      const forensicResult = {
+        ...payload,
+        completedAt: Date.now(),
+        completedBy: 'lab_assistant',
+        assistantProvided: true
+      };
+
+      this.storeStationResult(
+        stationId,
+        forensicResult,
+        caseForensics
+      );
+
+      this.upsertForensicResult(
+        forensicResult,
+        caseForensics
+      );
+
+      this.addForensicResultToCrimeBoard(
+        payload,
+        forensicResult
+      );
+
+      this.addCrimeLabClueToBoard(
+        payload,
+        forensicResult
+      );
+
+      this.unlockIdentityEvidenceForSuspects(payload);
+
+      added.push(stationId);
+
+      EventBus.emit('crimeLabResultSaved', {
+        caseKey: this.getCaseKey(),
+        stationId,
+        forensicResult,
+        wasAlreadyCompleted: false,
+        completedCount: this.getCompletedStationCount()
+      });
+    });
+
+    if (added.length > 0) {
+      saveGameState();
+
+      EventBus.emit('crimeLabAssistantResultsReady', {
+        caseKey: this.getCaseKey(),
+        cityId: this.cityId,
+        stationIds: added,
+        completedCount: this.getCompletedStationCount()
+      });
+
+      console.log(
+        '[CrimeLabEvidenceService] Assistant results prepared:',
+        {
+          caseKey: this.getCaseKey(),
+          playerGameCount: safePlayerGameCount,
+          stationIds: added
+        }
+      );
+    }
+
+    return {
+      added,
+      completedCount: this.getCompletedStationCount()
+    };
+  }
+
   isStationCompleted(stationId, caseForensics = this.getCaseForensics()) {
     if (this.labManager?.isStationCompleted) {
       return this.labManager.isStationCompleted(stationId);
@@ -61,11 +235,16 @@ export class CrimeLabEvidenceService {
       return Boolean(caseForensics.identityEvidenceResult);
     }
 
-    const traceMatch = /^trace_(\d+)$/.exec(String(stationId || ''));
+    const traceMatch = /^trace_(\d+)$/.exec(
+      String(stationId || '')
+    );
 
     if (traceMatch) {
       const index = Number(traceMatch[1]);
-      return Boolean(caseForensics.traceEvidenceResults?.[index]);
+
+      return Boolean(
+        caseForensics.traceEvidenceResults?.[index]
+      );
     }
 
     return false;
@@ -74,11 +253,12 @@ export class CrimeLabEvidenceService {
   getCompletedStationCount() {
     const caseForensics = this.getCaseForensics();
 
-    return [
-      this.isStationCompleted('identity', caseForensics),
-      this.isStationCompleted('trace_0', caseForensics),
-      this.isStationCompleted('trace_1', caseForensics)
-    ].filter(Boolean).length;
+    return STATION_IDS.filter((stationId) => {
+      return this.isStationCompleted(
+        stationId,
+        caseForensics
+      );
+    }).length;
   }
 
   saveMiniGameResult(payload = {}) {
@@ -106,6 +286,7 @@ export class CrimeLabEvidenceService {
     }
 
     const caseForensics = this.getCaseForensics();
+
     const wasAlreadyCompleted = this.isStationCompleted(
       stationId,
       caseForensics
@@ -113,6 +294,8 @@ export class CrimeLabEvidenceService {
 
     const forensicResult = {
       ...payload,
+      source: payload.source || 'player',
+      completedBy: payload.completedBy || 'player',
       completedAt: Date.now()
     };
 
@@ -122,9 +305,21 @@ export class CrimeLabEvidenceService {
       caseForensics
     );
 
-    this.upsertForensicResult(forensicResult, caseForensics);
-    this.addForensicResultToCrimeBoard(payload, forensicResult);
-    this.addCrimeLabClueToBoard(payload, forensicResult);
+    this.upsertForensicResult(
+      forensicResult,
+      caseForensics
+    );
+
+    this.addForensicResultToCrimeBoard(
+      payload,
+      forensicResult
+    );
+
+    this.addCrimeLabClueToBoard(
+      payload,
+      forensicResult
+    );
+
     this.unlockIdentityEvidenceForSuspects(payload);
 
     saveGameState();
@@ -148,13 +343,19 @@ export class CrimeLabEvidenceService {
     };
   }
 
-  storeStationResult(stationId, forensicResult, caseForensics) {
+  storeStationResult(
+    stationId,
+    forensicResult,
+    caseForensics
+  ) {
     if (stationId === 'identity') {
       caseForensics.identityEvidenceResult = forensicResult;
       return;
     }
 
-    const traceMatch = /^trace_(\d+)$/.exec(String(stationId || ''));
+    const traceMatch = /^trace_(\d+)$/.exec(
+      String(stationId || '')
+    );
 
     if (!traceMatch) {
       console.warn(
@@ -177,9 +378,10 @@ export class CrimeLabEvidenceService {
   upsertForensicResult(forensicResult, caseForensics) {
     caseForensics.forensicResults ??= [];
 
-    const existingResultIndex = caseForensics.forensicResults.findIndex(
-      (result) => result.stationId === forensicResult.stationId
-    );
+    const existingResultIndex =
+      caseForensics.forensicResults.findIndex((result) => {
+        return result.stationId === forensicResult.stationId;
+      });
 
     if (existingResultIndex >= 0) {
       caseForensics.forensicResults[existingResultIndex] = forensicResult;
@@ -189,11 +391,16 @@ export class CrimeLabEvidenceService {
     caseForensics.forensicResults.push(forensicResult);
   }
 
-  addForensicResultToCrimeBoard(payload = {}, forensicResult = {}) {
+  addForensicResultToCrimeBoard(
+    payload = {},
+    forensicResult = {}
+  ) {
     const evidenceConfig = payload.evidenceConfig || {};
     const board = this.getCrimeBoardCase();
 
-    const stationId = payload.stationId || forensicResult.stationId;
+    const stationId =
+      payload.stationId ||
+      forensicResult.stationId;
 
     if (!stationId) {
       return null;
@@ -211,7 +418,17 @@ export class CrimeLabEvidenceService {
 
     const clue = {
       id: `forensic_${stationId}`,
-      source: 'crime_lab',
+      source:
+        forensicResult.source ||
+        payload.source ||
+        'crime_lab',
+      completedBy:
+        forensicResult.completedBy ||
+        payload.completedBy ||
+        'player',
+      assistantProvided: Boolean(
+        forensicResult.assistantProvided
+      ),
       stationId,
       cityId: this.cityId,
       evidenceType,
@@ -239,7 +456,7 @@ export class CrimeLabEvidenceService {
       isValuable: Boolean(
         payload.isValuable ??
         evidenceConfig.isValuable ??
-        (clueType === 'identity')
+        clueType === 'identity'
       ),
       completedAt: forensicResult.completedAt || Date.now(),
       discovered: true,
@@ -259,10 +476,16 @@ export class CrimeLabEvidenceService {
     return clue;
   }
 
-  addCrimeLabClueToBoard(payload = {}, forensicResult = {}) {
+  addCrimeLabClueToBoard(
+    payload = {},
+    forensicResult = {}
+  ) {
     const caseKey = this.getCaseKey();
     const evidence = payload.evidenceConfig || {};
-    const stationId = payload.stationId || forensicResult.stationId;
+
+    const stationId =
+      payload.stationId ||
+      forensicResult.stationId;
 
     if (!stationId) {
       return null;
@@ -271,9 +494,22 @@ export class CrimeLabEvidenceService {
     const clue = {
       id: `crime_lab_${caseKey}_${stationId}`,
       stationId,
-      source: 'crime_lab',
+      source:
+        forensicResult.source ||
+        payload.source ||
+        'crime_lab',
+      completedBy:
+        forensicResult.completedBy ||
+        payload.completedBy ||
+        'player',
+      assistantProvided: Boolean(
+        forensicResult.assistantProvided
+      ),
       cityId: this.cityId,
-      title: evidence.label || 'Crime Lab Evidence',
+      title:
+        evidence.label ||
+        payload.label ||
+        'Crime Lab Evidence',
       text:
         evidence.clueText ||
         payload.clueText ||
@@ -303,11 +539,19 @@ export class CrimeLabEvidenceService {
 
     this.gameState.caseClues ??= {};
     this.gameState.caseClues[caseKey] ??= [];
-    this.upsertById(this.gameState.caseClues[caseKey], clue);
+
+    this.upsertById(
+      this.gameState.caseClues[caseKey],
+      clue
+    );
 
     this.gameState.crimeLabClues ??= {};
     this.gameState.crimeLabClues[caseKey] ??= [];
-    this.upsertById(this.gameState.crimeLabClues[caseKey], clue);
+
+    this.upsertById(
+      this.gameState.crimeLabClues[caseKey],
+      clue
+    );
 
     EventBus.emit('crimeBoardClueAdded', {
       caseKey,
@@ -345,14 +589,22 @@ export class CrimeLabEvidenceService {
       suspect.restrictedProfile.forensicAttributes ??= {};
 
       const attributeData =
-        suspect.restrictedProfile.forensicAttributes[evidenceType];
+        suspect.restrictedProfile.forensicAttributes[
+          evidenceType
+        ];
 
       if (attributeData && typeof attributeData === 'object') {
         attributeData.unlocked = true;
       }
 
-      if (!suspect.restrictedProfile.unlockedFields.includes(evidenceType)) {
-        suspect.restrictedProfile.unlockedFields.push(evidenceType);
+      if (
+        !suspect.restrictedProfile.unlockedFields.includes(
+          evidenceType
+        )
+      ) {
+        suspect.restrictedProfile.unlockedFields.push(
+          evidenceType
+        );
       }
     });
 
@@ -369,9 +621,9 @@ export class CrimeLabEvidenceService {
       return false;
     }
 
-    const existingIndex = collection.findIndex(
-      (item) => item?.id === entry.id
-    );
+    const existingIndex = collection.findIndex((item) => {
+      return item?.id === entry.id;
+    });
 
     if (existingIndex >= 0) {
       collection[existingIndex] = {

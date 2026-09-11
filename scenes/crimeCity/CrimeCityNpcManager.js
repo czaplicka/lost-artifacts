@@ -86,7 +86,7 @@ export class CrimeCityNpcManager {
         slot.y + 88,
         labelText,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '17px',
           color: isVisited
             ? '#cccccc'
@@ -299,7 +299,7 @@ export class CrimeCityNpcManager {
           'Crime Lab must create crimeCityEncounterState for this case.'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '16px',
           color: '#f1e6b8',
           align: 'center',

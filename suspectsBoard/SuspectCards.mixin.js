@@ -137,7 +137,7 @@ export const SuspectCardsMixin = {
 
     const name = this.add
       .text(0, -height / 2 + 38, suspect.name || 'Unknown', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: width < 230 ? '20px' : '25px',
         color: isEliminated ? '#b8a39d' : '#fff0cd',
         align: 'center',
@@ -154,7 +154,7 @@ export const SuspectCardsMixin = {
         -height / 2 + 88,
         suspect.occupation || 'Unknown role',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '17px',
           color: isEliminated ? '#9a8581' : '#dfca9e',
           align: 'center',
@@ -188,7 +188,7 @@ export const SuspectCardsMixin = {
 
     const visibleTraits = this.add
       .text(-width / 2 + 16, 18, traitsText, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '15px',
         color: isEliminated ? '#9c8984' : '#e9dbbb',
         lineSpacing: 4,

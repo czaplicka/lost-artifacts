@@ -3,7 +3,11 @@ import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { generateCaseCityState } from '../city-encounter-generator.js';
 import { audioManager } from '../AudioManager.js';
-import { resolveCityNpcTheme, getNpcTextureKey, getNpcLabel } from '../npcThemeHelper.js';
+import {
+  resolveCityNpcTheme,
+  getNpcTextureKey,
+  getNpcLabel
+} from '../npcThemeHelper.js';
 import { BaseScene } from './BaseScene.js';
 import { addSessionScore } from '../InvestigationManager.js';
 
@@ -35,6 +39,14 @@ export class CityScene extends BaseScene {
     this.pendingPhoneCallCityId = null;
     this.cityAmbient = null;
     this.npcTheme = 'default';
+
+    this.isSettingUpUi = false;
+    this.isTransitioning = false;
+    this.activePopup = null;
+
+    this.boundCleanupScene = this.cleanupScene.bind(this);
+    this.boundWakeOrResume = this.onWakeOrResume.bind(this);
+    this.boundSleep = this.onSleep.bind(this);
   }
 
   init(data = {}) {
@@ -45,7 +57,9 @@ export class CityScene extends BaseScene {
       'warsaw';
 
     this.cityCompleted = Boolean(data.cityCompleted);
-    this.investigationStatus = data.investigationStatus ?? null;
+
+    this.investigationStatus =
+      data.investigationStatus ?? null;
 
     this.isFinalShowdown = Boolean(
       data.isFinalShowdown ||
@@ -71,7 +85,14 @@ export class CityScene extends BaseScene {
       )
     );
 
+    this.city = null;
     this.interactiveObjects = [];
+    this.cityAmbient = null;
+    this.npcTheme = 'default';
+
+    this.isSettingUpUi = false;
+    this.isTransitioning = false;
+    this.activePopup = null;
 
     if (!Array.isArray(gameState.visitedEncounters)) {
       gameState.visitedEncounters = [];
@@ -111,29 +132,36 @@ export class CityScene extends BaseScene {
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      this.onSceneShutdown,
-      this
+      this.boundCleanupScene
     );
 
-    this.scene.get('NewsHud').events.emit('setNewspaperVisible', true);
-    this.scene.get('NewsHud').events.emit('setTvVisible', false);
+    this.events.on(
+      Phaser.Scenes.Events.WAKE,
+      this.boundWakeOrResume
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.boundWakeOrResume
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.SLEEP,
+      this.boundSleep
+    );
+
+    this.stopSceneIfActive('LocationScene');
+    this.stopSceneIfActive('ArrestSelectionScene');
 
     audioManager.init(this);
 
     if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', { loop: true });
+      audioManager.playMusic('themeGame', {
+        loop: true
+      });
     }
 
-    this.cityAmbient = audioManager.playAmbient('citysound', {
-      volume: 0.22,
-      loop: true
-    });
-
-this.stopSceneIfActive('LocationScene');
-
-this.stopSceneIfActive('ArrestSelectionScene');
-
-    this.scene.wake('UIScene');
+    this.playCityAmbient();
 
     const rawLocations = this.cache.json.get('locations');
 
@@ -146,7 +174,7 @@ this.stopSceneIfActive('ArrestSelectionScene');
 
       this.closeAllUIPanels();
 
-      this.goto('MenuScene', {
+      void this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: 'City data could not be loaded.'
       });
@@ -154,9 +182,7 @@ this.stopSceneIfActive('ArrestSelectionScene');
       return;
     }
 
-    const locations = rawLocations;
-
-    const city = locations.find((entry) => {
+    const city = rawLocations.find((entry) => {
       return (
         entry &&
         typeof entry === 'object' &&
@@ -169,7 +195,7 @@ this.stopSceneIfActive('ArrestSelectionScene');
         '[CityScene] Requested city was not found in locations data.',
         {
           cityId: this.cityId,
-          availableCityIds: locations
+          availableCityIds: rawLocations
             .filter((entry) => entry && typeof entry === 'object')
             .map((entry) => entry.id)
             .filter(Boolean)
@@ -178,7 +204,7 @@ this.stopSceneIfActive('ArrestSelectionScene');
 
       this.closeAllUIPanels();
 
-      this.goto('MenuScene', {
+      void this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: `Unknown city: ${this.cityId}`
       });
@@ -194,9 +220,12 @@ this.stopSceneIfActive('ArrestSelectionScene');
     gameState.currentCityData = structuredClone(city);
 
     this.registry.set('currentCityId', this.cityId);
-    this.registry.set('investigationStatus', this.investigationStatus);
+    this.registry.set(
+      'investigationStatus',
+      this.investigationStatus
+    );
 
-    this.ensureCityEncounterState(locations);
+    this.ensureCityEncounterState(rawLocations);
 
     this.createBackground(city);
     this.createHeader(city);
@@ -205,77 +234,258 @@ this.stopSceneIfActive('ArrestSelectionScene');
       this.createEncounters();
     }
 
-    ensureHud(this);
-
-    const hud = this.scene.get('PlayerHudScene');
-
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
+    try {
+      ensureHud(this);
+    } catch (error) {
+      console.error('[CityScene] ensureHud failed:', error);
     }
 
-    if (hud?.refreshNotebook) {
-      hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
+    void this.setupCityUi();
+    this.openInitialOverlayIfNeeded();
+  }
+
+  async setupCityUi() {
+    if (
+      this.isSettingUpUi ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return;
+    }
+
+    this.isSettingUpUi = true;
+
+    try {
+      const uiScene = await this.ensureOverlayScene('UIScene');
+
+      if (
+        this._cleanupDone ||
+        !this.sys.isActive()
+      ) {
+        return;
+      }
+
+      if (uiScene) {
+        this.game.events.emit('setHudVisible', true);
+        EventBus.emit('showHUD');
+
+        uiScene.refreshScoreHud?.();
+        uiScene.refreshMoneyHud?.();
+        uiScene.updateEnergy?.();
+        uiScene.updateTime?.({
+          day: gameState.currentDay || gameState.day || 1,
+          hour: gameState.currentHour ?? gameState.hour ?? 8,
+          minute:
+            gameState.currentMinute ??
+            gameState.minute ??
+            0,
+          partOfDay:
+            gameState.currentPartOfDay ||
+            gameState.partOfDay ||
+            'Morning'
+        });
+      }
+
+      const playerHud = await this.restorePlayerHud();
+
+      if (
+        this._cleanupDone ||
+        !this.sys.isActive()
+      ) {
+        return;
+      }
+
+      if (playerHud) {
+        playerHud.closeAllUIPanels?.();
+        playerHud.refreshNotebook?.();
+        playerHud.refreshUI?.();
+      }
+
+      const newsHud = await this.ensureOverlayScene('NewsHud');
+
+      if (
+        this._cleanupDone ||
+        !this.sys.isActive()
+      ) {
+        return;
+      }
+
+      if (newsHud) {
+        newsHud.events?.emit(
+          'setNewspaperVisible',
+          true
+        );
+
+        newsHud.events?.emit(
+          'setTvVisible',
+          false
+        );
+
+        this.bringSceneToTopIfActive('NewsHud');
+      }
+    } catch (error) {
+      if (!this._cleanupDone) {
+        console.error(
+          '[CityScene] Failed to restore city UI:',
+          error
+        );
+      }
+    } finally {
+      this.isSettingUpUi = false;
+    }
+  }
+
+  openInitialOverlayIfNeeded() {
+    if (
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return;
     }
 
     if (this.isFinalShowdown) {
-  this.time.delayedCall(250, () => {
-    this.closeAllUIPanels();
-  });
+      this.time.delayedCall(250, () => {
+        if (
+          this._cleanupDone ||
+          !this.sys.isActive()
+        ) {
+          return;
+        }
 
-  if (this.isSceneActive('ArrestSelectionScene')) {
-    this.scene.bringToTop('ArrestSelectionScene');
-  } else {
-    void this.launchOverlay('ArrestSelectionScene');
-  }
+        this.closeAllUIPanels();
 
-  return;
-}
+        if (this.isSceneActive('ArrestSelectionScene')) {
+          this.scene.bringToTop('ArrestSelectionScene');
+          return;
+        }
 
-if (this.shouldShowPhoneCallNow()) {
-  this.time.delayedCall(400, () => {
-    this.closeAllUIPanels();
-  });
+        void this.launchOverlay('ArrestSelectionScene');
+      });
 
-  if (this.isSceneActive('PhoneCallScene')) {
-    this.scene.bringToTop('PhoneCallScene');
-  } else {
-    void this.launchOverlay('PhoneCallScene', {
-      sourceScene: 'CityScene',
-      cityId: this.cityId
-    });
-  }
-} else if (this.openDestinationsOnCreate) {
-  this.time.delayedCall(150, () => {
-    this.openDestinationsPanel();
-  });
-} }
-
-changeScore(points, label = 'City investigation') {
-  const delta = Number.isFinite(points)
-    ? Math.floor(points)
-    : 0;
-
-  if (delta === 0) {
-    return gameState.score || 0;
-  }
-
-  addSessionScore(delta, label);
-
-    const hud = this.scene.get('PlayerHudScene');
-
-    if (hud?.refreshNotebook) {
-      hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
+      return;
     }
+
+    if (this.shouldShowPhoneCallNow()) {
+      this.time.delayedCall(400, () => {
+        if (
+          this._cleanupDone ||
+          !this.sys.isActive()
+        ) {
+          return;
+        }
+
+        this.closeAllUIPanels();
+
+        if (this.isSceneActive('PhoneCallScene')) {
+          this.scene.bringToTop('PhoneCallScene');
+          return;
+        }
+
+        void this.launchOverlay('PhoneCallScene', {
+          sourceScene: 'CityScene',
+          cityId: this.cityId
+        });
+      });
+
+      return;
+    }
+
+    if (this.openDestinationsOnCreate) {
+      this.time.delayedCall(150, () => {
+        if (
+          this._cleanupDone ||
+          !this.sys.isActive()
+        ) {
+          return;
+        }
+
+        this.openDestinationsPanel();
+      });
+    }
+  }
+
+  playCityAmbient() {
+    if (this.cityAmbient?.isPlaying) {
+      return this.cityAmbient;
+    }
+
+    this.cityAmbient = audioManager.playAmbient('citysound', {
+      volume: 0.22,
+      loop: true
+    });
+
+    return this.cityAmbient;
+  }
+
+  pauseCityAmbient() {
+    if (this.cityAmbient?.isPlaying) {
+      this.cityAmbient.pause();
+    }
+  }
+
+  stopCityAmbient() {
+    if (!this.cityAmbient) {
+      return;
+    }
+
+    try {
+      if (this.cityAmbient.isPlaying) {
+        this.cityAmbient.stop();
+      }
+
+      if (!this.cityAmbient.pendingRemove) {
+        this.cityAmbient.destroy();
+      }
+    } catch (error) {
+      console.warn(
+        '[CityScene] city ambient cleanup failed:',
+        error
+      );
+    }
+
+    this.cityAmbient = null;
+  }
+
+  onWakeOrResume() {
+    if (this._cleanupDone) {
+      return;
+    }
+
+    this.isTransitioning = false;
+
+    if (!this.cityAmbient?.isPlaying) {
+      this.playCityAmbient();
+    }
+
+    void this.setupCityUi();
+  }
+
+  onSleep() {
+    this.pauseCityAmbient();
+  }
+
+  changeScore(points, label = 'City investigation') {
+    const delta = Number.isFinite(points)
+      ? Math.floor(points)
+      : 0;
+
+    if (delta === 0) {
+      return gameState.score || 0;
+    }
+
+    addSessionScore(delta, label);
+
+    const hud = this.getPlayerHudScene();
+
+    hud?.refreshNotebook?.();
+    hud?.refreshUI?.();
 
     EventBus.emit('scoreChanged', {
       delta,
       total: gameState.score
     });
-     return gameState.score;
+
+    return gameState.score;
   }
 
   ensureCityEncounterState(locations) {
@@ -326,11 +536,13 @@ changeScore(points, label = 'City investigation') {
   }
 
   openDestinationsPanel() {
-    const hud = this.scene.get('PlayerHudScene');
-
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
+    if (this._cleanupDone) {
+      return false;
     }
+
+    const hud = this.getPlayerHudScene();
+
+    hud?.closeAllUIPanels?.();
 
     if (hud?.openDestinationsPanel) {
       return hud.openDestinationsPanel();
@@ -341,10 +553,14 @@ changeScore(points, label = 'City investigation') {
     }
 
     EventBus.emit('openDestinations');
+
+    return true;
   }
 
   createBackground(city) {
-    const backgroundKey = city.backgroundKey || this.getCityBackgroundKey(city);
+    const backgroundKey =
+      city.backgroundKey ||
+      this.getCityBackgroundKey(city);
 
     if (this.textures.exists(backgroundKey)) {
       this.add
@@ -369,7 +585,7 @@ changeScore(points, label = 'City investigation') {
       .setOrigin(0, 0);
 
     this.add.text(40, 24, `${city.city}, ${city.country}`, {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '28px',
       color: '#ffffff'
     });
@@ -387,7 +603,7 @@ changeScore(points, label = 'City investigation') {
     }
 
     this.add.text(40, 54, subtitle, {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '18px',
       color: '#f1e6b8'
     });
@@ -425,7 +641,7 @@ changeScore(points, label = 'City investigation') {
 
       const nameLabel = this.add
         .text(x, y + 88, getNpcLabel(encounter.npcId), {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '18px',
           color: isVisited ? '#d0d0d0' : '#ffffff',
           backgroundColor: '#000000aa',
@@ -446,7 +662,7 @@ changeScore(points, label = 'City investigation') {
 
         this.add
           .text(x, y - 82, statusText, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '14px',
             color: '#f1e6b8',
             backgroundColor: '#000000cc',
@@ -461,6 +677,10 @@ changeScore(points, label = 'City investigation') {
       }
 
       icon.on('pointerover', () => {
+        if (this.isTransitioning) {
+          return;
+        }
+
         icon.setScale(0.5);
 
         if (isVisited) {
@@ -482,6 +702,14 @@ changeScore(points, label = 'City investigation') {
       });
 
       icon.on('pointerdown', () => {
+        if (
+          this.isTransitioning ||
+          this._cleanupDone ||
+          !this.sys.isActive()
+        ) {
+          return;
+        }
+
         this.closeAllUIPanels();
 
         const locationId = encounter.locationId;
@@ -511,7 +739,7 @@ changeScore(points, label = 'City investigation') {
           this.changeScore(-NPC_QUESTION_PENALTY);
         }
 
-        this.goto('LocationScene', {
+        this.transitionTo('LocationScene', {
           cityId: this.cityId,
           encounterId: encounter.id,
           npcId: encounter.npcId,
@@ -529,11 +757,16 @@ changeScore(points, label = 'City investigation') {
   }
 
   getDialogueTargetCityId(progressFlags = null) {
-    const rm = gameState.routeManager;
-    const flags = progressFlags || this.getCityProgressFlags();
+    const routeManager = gameState.routeManager;
+    const flags =
+      progressFlags ||
+      this.getCityProgressFlags();
 
-    if (rm && typeof rm.getNextExpectedCity === 'function') {
-      return rm.getNextExpectedCity();
+    if (
+      routeManager &&
+      typeof routeManager.getNextExpectedCity === 'function'
+    ) {
+      return routeManager.getNextExpectedCity();
     }
 
     if (flags.isCrimeCity) {
@@ -545,11 +778,12 @@ changeScore(points, label = 'City investigation') {
 
   getCityProgressFlags() {
     const cityId = this.cityId;
-    const rm = gameState.routeManager;
+    const routeManager = gameState.routeManager;
 
     const expectedCityId =
-      rm && typeof rm.getNextExpectedCity === 'function'
-        ? rm.getNextExpectedCity()
+      routeManager &&
+      typeof routeManager.getNextExpectedCity === 'function'
+        ? routeManager.getNextExpectedCity()
         : gameState.nextTargetCityId || null;
 
     const isCrimeCity = Boolean(
@@ -580,13 +814,72 @@ changeScore(points, label = 'City investigation') {
     };
   }
 
+  transitionTo(sceneKey, data = {}) {
+    if (
+      !sceneKey ||
+      this.isTransitioning ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return false;
+    }
+
+    this.isTransitioning = true;
+
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        if (
+          this._cleanupDone ||
+          !this.sys.isActive()
+        ) {
+          this.isTransitioning = false;
+          return;
+        }
+
+        void this.goto(sceneKey, data)
+          .then((started) => {
+            if (!started && !this._cleanupDone) {
+              this.isTransitioning = false;
+              this.cameras.main.fadeIn(200, 0, 0, 0);
+            }
+          })
+          .catch((error) => {
+            if (!this._cleanupDone) {
+              console.error(
+                `[CityScene] Transition to "${sceneKey}" failed:`,
+                error
+              );
+
+              this.isTransitioning = false;
+              this.cameras.main.fadeIn(200, 0, 0, 0);
+            }
+          });
+      }
+    );
+
+    return true;
+  }
+
   showLocationClosedPopup(
     locationId,
     encounterData,
     dialogueTargetCityId = null
   ) {
+    if (
+      this.activePopup ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return;
+    }
+
     const width = this.scale.width;
     const height = this.scale.height;
+
+    const popupObjects = [];
 
     const overlay = this.add
       .rectangle(0, 0, width, height, 0x000000, 0.7)
@@ -606,8 +899,12 @@ changeScore(points, label = 'City investigation') {
       .setStrokeStyle(4, 0xff0000)
       .setDepth(100);
 
-    const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
-    const current = gameState.currentPartOfDay || 'Morning';
+    const allowed = (
+      LOCATION_HOURS[locationId] || []
+    ).join(', ');
+
+    const current =
+      gameState.currentPartOfDay || 'Morning';
 
     const warningText = this.add
       .text(
@@ -615,7 +912,7 @@ changeScore(points, label = 'City investigation') {
         height / 2 - 50,
         `Location is currently closed.\nOpen: ${allowed}\nCurrent: ${current}`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#ffffff',
           align: 'center'
@@ -630,7 +927,7 @@ changeScore(points, label = 'City investigation') {
         height / 2 + 30,
         'Wait until opening',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '22px',
           color: '#ffcc00'
         }
@@ -645,7 +942,7 @@ changeScore(points, label = 'City investigation') {
         height / 2 + 80,
         'Return',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '22px',
           color: '#aaaaaa'
         }
@@ -654,15 +951,41 @@ changeScore(points, label = 'City investigation') {
       .setDepth(101)
       .setInteractive({ useHandCursor: true });
 
+    popupObjects.push(
+      overlay,
+      popupBg,
+      warningText,
+      waitBtn,
+      cancelBtn
+    );
+
     const cleanupPopup = () => {
-      overlay.destroy();
-      popupBg.destroy();
-      warningText.destroy();
-      waitBtn.destroy();
-      cancelBtn.destroy();
+      popupObjects.forEach((object) => {
+        if (object?.active) {
+          object.removeAllListeners?.();
+          object.destroy();
+        }
+      });
+
+      this.activePopup = null;
     };
 
+    this.activePopup = {
+      cleanup: cleanupPopup,
+      objects: popupObjects
+    };
+
+    overlay.on('pointerdown', cleanupPopup);
+    cancelBtn.on('pointerdown', cleanupPopup);
+
     waitBtn.on('pointerdown', () => {
+      if (
+        this.isTransitioning ||
+        this._cleanupDone
+      ) {
+        return;
+      }
+
       let hoursToWait = 0;
       const currentHour = gameState.currentHour || 0;
 
@@ -684,6 +1007,7 @@ changeScore(points, label = 'City investigation') {
       cleanupPopup();
 
       const flags = this.getCityProgressFlags();
+
       const wasVisited = this.isEncounterVisited(
         encounterData.id
       );
@@ -700,7 +1024,7 @@ changeScore(points, label = 'City investigation') {
         this.changeScore(-NPC_QUESTION_PENALTY);
       }
 
-      this.goto('LocationScene', {
+      this.transitionTo('LocationScene', {
         cityId: this.cityId,
         encounterId: encounterData.id,
         npcId: encounterData.npcId,
@@ -712,49 +1036,32 @@ changeScore(points, label = 'City investigation') {
         dialogueTargetCityId
       });
     });
-
-    cancelBtn.on('pointerdown', cleanupPopup);
   }
 
   closeAllUIPanels() {
-    const hud = this.scene.get('PlayerHudScene');
+    const hud = this.getPlayerHudScene();
 
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
+    hud?.closeAllUIPanels?.();
   }
 
-  onSceneShutdown() {
-    this.interactiveObjects.forEach((obj) => {
-      if (obj?.removeAllListeners) {
-        obj.removeAllListeners();
-      }
+  cleanupScene() {
+    this.isSettingUpUi = false;
+    this.isTransitioning = false;
+
+    this.activePopup?.cleanup?.();
+    this.activePopup = null;
+
+    this.interactiveObjects.forEach((object) => {
+      object?.removeAllListeners?.();
     });
 
     this.interactiveObjects = [];
 
-    if (this.cityAmbient) {
-      try {
-        if (this.cityAmbient.isPlaying) {
-          this.cityAmbient.stop();
-        }
-
-        if (!this.cityAmbient.pendingRemove) {
-          this.cityAmbient.destroy();
-        }
-      } catch (error) {
-        console.warn(
-          '[CityScene] city ambient cleanup failed:',
-          error
-        );
-      }
-
-      this.cityAmbient = null;
-    }
+    this.stopCityAmbient();
 
     this.stopSceneIfActive('ArrestSelectionScene');
-this.stopSceneIfActive('PhoneCallScene');
-this.stopSceneIfActive('HypothesisScene');
+    this.stopSceneIfActive('PhoneCallScene');
+    this.stopSceneIfActive('HypothesisScene');
   }
 
   isEncounterVisited(encounterId) {
@@ -792,7 +1099,9 @@ this.stopSceneIfActive('HypothesisScene');
     if (
       gameState.cityEncounterState &&
       typeof gameState.cityEncounterState === 'object' &&
-      Array.isArray(gameState.cityEncounterState[this.cityId])
+      Array.isArray(
+        gameState.cityEncounterState[this.cityId]
+      )
     ) {
       return gameState.cityEncounterState[this.cityId].filter(
         (encounter) => encounter.enabled !== false

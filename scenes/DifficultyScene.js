@@ -45,7 +45,7 @@ export class DifficultyScene extends BaseScene {
             height * 0.12,
             'CLASSIFIED CASE FILE',
             {
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'SpecialElite, monospace',
                 fontSize: '36px',
                 color: '#f3c870',
                 stroke: '#120e08',
@@ -68,7 +68,7 @@ export class DifficultyScene extends BaseScene {
             height * 0.18,
             'SELECT YOUR CLEARANCE LEVEL, DETECTIVE.',
             {
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'SpecialElite, monospace',
                 fontSize: '26px',
                 color: '#e5d4a6',
                 stroke: '#120e08',
@@ -91,7 +91,7 @@ export class DifficultyScene extends BaseScene {
             height * 0.23,
             'Higher clearance means fewer second chances.',
             {
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'SpecialElite, monospace',
                 fontSize: '22px',
                 color: '#c8b98e',
                 stroke: '#120e08',
@@ -135,7 +135,7 @@ export class DifficultyScene extends BaseScene {
             height * 0.30,
             '',
             {
-                fontFamily: 'Special Elite, monospace',
+                fontFamily: 'SpecialElite, monospace',
                 fontSize: '17px',
                 color: '#ff9d78',
                 align: 'center',

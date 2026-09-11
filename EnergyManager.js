@@ -1,6 +1,7 @@
 import { EventBus } from './EventBus.js';
 import { gameState } from './GameData.js';
 
+
 // ============================================================
 // EnergyManager.js
 // Singleton manager energii. Stan energii jest niezależny od HUD.
@@ -8,8 +9,10 @@ import { gameState } from './GameData.js';
 // GameTimeManager słucha eventu: advanceTime(hours, minutes).
 // ============================================================
 
+
 const FORCED_SLEEP_HOURS = 6;
 const FORCED_SLEEP_ANIMATION_MS = 2000;
+
 
 const DIFFICULTY_MULTIPLIERS = {
   rookie: 0.7,
@@ -17,17 +20,17 @@ const DIFFICULTY_MULTIPLIERS = {
   master: 1.4
 };
 
+
 const ENERGY_COSTS = {
   travel: {
     taxi: 8,
     train: 12,
     cheap_flight: 20,
     expensive_flight: 10,
-  plane: 10,
-  train: 12,
-  bus: 16,
-  ship: 12
-},
+    plane: 10,
+    bus: 16,
+    ship: 12
+  },
   interaction: {
     interview_short: 3,
     interview_medium: 4,
@@ -42,6 +45,7 @@ const ENERGY_COSTS = {
   }
 };
 
+
 const ENERGY_RECOVERY = {
   sleep_short: 40,
   sleep_medium: 60,
@@ -54,11 +58,13 @@ const ENERGY_RECOVERY = {
   drink_expensive: 10
 };
 
+
 const ENERGY_THRESHOLDS = {
   fresh: { min: 61, status: 'Fresh', color: 0x4CAF50 },
   tired: { min: 31, status: 'Tired', color: 0xFF9800 },
   exhausted: { min: 0, status: 'Exhausted', color: 0xF44336 }
 };
+
 
 const ENERGY_TOOLTIPS = {
   high: 'Functioning adult.',
@@ -66,6 +72,20 @@ const ENERGY_TOOLTIPS = {
   low: 'Questionable detective choices ahead.',
   critical: 'Legally too tired to solve crimes.'
 };
+
+
+function cloneData(data) {
+  if (data === undefined || data === null) {
+    return data;
+  }
+
+  if (typeof globalThis.structuredClone === 'function') {
+    return globalThis.structuredClone(data);
+  }
+
+  return JSON.parse(JSON.stringify(data));
+}
+
 
 class EnergyManager {
   constructor() {
@@ -77,6 +97,7 @@ class EnergyManager {
     this.isSleepingForced = false;
     this.forcedSleepTimer = null;
   }
+
 
   init(difficulty = 'field') {
     if (!DIFFICULTY_MULTIPLIERS[difficulty]) {
@@ -96,6 +117,7 @@ class EnergyManager {
     }
 
     this._syncToGameState();
+
     EventBus.emit('energyInitialized', {
       energy: this.currentEnergy,
       difficulty: this.difficulty,
@@ -103,84 +125,113 @@ class EnergyManager {
     });
   }
 
-getTravelCost(transportType = 'train') {
-  const fallbackType = 'train';
 
-  const baseCost =
-    ENERGY_COSTS.travel[transportType] ??
-    ENERGY_COSTS.travel[fallbackType] ??
-    0;
+  getTravelCost(transportType = 'train') {
+    const fallbackType = 'train';
 
-  return this.scaleCost(baseCost);
-}
+    const baseCost =
+      ENERGY_COSTS.travel[transportType] ??
+      ENERGY_COSTS.travel[fallbackType] ??
+      0;
 
-consumeTravel(transportType = 'train') {
-  const cost = this.getTravelCost(transportType);
+    return this.scaleCost(baseCost);
+  }
 
-  return this._consumeEnergy(
-    cost,
-    `Travel (${transportType}): -${cost}`
-  );
-}
 
-consumeCustom(cost, label = 'Energy changed.') {
-  const safeCost = Math.max(
-    0,
-    Math.round(Number(cost) || 0)
-  );
+  consumeTravel(transportType = 'train') {
+    const cost = this.getTravelCost(transportType);
 
-  return this._consumeEnergy(safeCost, label);
-}
+    return this._consumeEnergy(
+      cost,
+      `Travel (${transportType}): -${cost}`
+    );
+  }
+
+
+  consumeCustom(cost, label = 'Energy changed.') {
+    const safeCost = Math.max(
+      0,
+      Math.round(Number(cost) || 0)
+    );
+
+    return this._consumeEnergy(safeCost, label);
+  }
+
 
   getDifficultyMultiplier() {
     return DIFFICULTY_MULTIPLIERS[this.difficulty] || 1.0;
   }
 
+
   scaleCost(baseCost) {
     return Math.ceil(baseCost * this.getDifficultyMultiplier());
   }
+
 
   getEnergyStatus() {
     if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.status;
     }
+
     if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
       return ENERGY_THRESHOLDS.tired.status;
     }
+
     return ENERGY_THRESHOLDS.exhausted.status;
   }
+
 
   getEnergyColor() {
     if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.color;
     }
+
     if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
       return ENERGY_THRESHOLDS.tired.color;
     }
+
     return ENERGY_THRESHOLDS.exhausted.color;
   }
+
 
   getEnergyTooltip() {
     if (this.currentEnergy >= 80) return ENERGY_TOOLTIPS.high;
     if (this.currentEnergy >= 50) return ENERGY_TOOLTIPS.medium;
     if (this.currentEnergy >= 20) return ENERGY_TOOLTIPS.low;
+
     return ENERGY_TOOLTIPS.critical;
   }
 
+
   consumeInterview(duration = 'medium') {
-    const baseCost = ENERGY_COSTS.interaction[`interview_${duration}`] || ENERGY_COSTS.interaction.interview_medium;
+    const baseCost =
+      ENERGY_COSTS.interaction[`interview_${duration}`] ||
+      ENERGY_COSTS.interaction.interview_medium;
+
     const cost = this.scaleCost(baseCost);
+
     return this._consumeEnergy(cost, `Interview: -${cost}`);
   }
 
+
   consumeActivity(activityType = 'minigame_forensic') {
-    const baseCost = ENERGY_COSTS.activity[activityType] || ENERGY_COSTS.activity.minigame_forensic;
+    const baseCost =
+      ENERGY_COSTS.activity[activityType] ||
+      ENERGY_COSTS.activity.minigame_forensic;
+
     const cost = this.scaleCost(baseCost);
-    return this._consumeEnergy(cost, `Activity (${activityType}): -${cost}`);
+
+    return this._consumeEnergy(
+      cost,
+      `Activity (${activityType}): -${cost}`
+    );
   }
 
+
   sleep(sleepHours = 8) {
-    if (sleepHours <= 0) return { success: false, reason: 'invalid_sleep_duration' };
+    if (sleepHours <= 0) {
+      return { success: false, reason: 'invalid_sleep_duration' };
+    }
 
     let recoveryAmount = ENERGY_RECOVERY.sleep_full;
     let sleepType = 'full';
@@ -205,19 +256,43 @@ consumeCustom(cost, label = 'Energy changed.') {
     );
   }
 
+
   eat(foodQuality = 'normal') {
-    const recovery = ENERGY_RECOVERY[`food_${foodQuality}`] || ENERGY_RECOVERY.food_normal;
-    return this._recoverEnergy(recovery, `Food (${foodQuality}): +${recovery}`, 'food', foodQuality);
+    const recovery =
+      ENERGY_RECOVERY[`food_${foodQuality}`] ||
+      ENERGY_RECOVERY.food_normal;
+
+    return this._recoverEnergy(
+      recovery,
+      `Food (${foodQuality}): +${recovery}`,
+      'food',
+      foodQuality
+    );
   }
+
 
   drink(drinkQuality = 'normal') {
-    const recovery = ENERGY_RECOVERY[`drink_${drinkQuality}`] || ENERGY_RECOVERY.drink_normal;
-    return this._recoverEnergy(recovery, `Drink (${drinkQuality}): +${recovery}`, 'drink', drinkQuality);
+    const recovery =
+      ENERGY_RECOVERY[`drink_${drinkQuality}`] ||
+      ENERGY_RECOVERY.drink_normal;
+
+    return this._recoverEnergy(
+      recovery,
+      `Drink (${drinkQuality}): +${recovery}`,
+      'drink',
+      drinkQuality
+    );
   }
 
+
   _consumeEnergy(amount, label) {
-    if (amount <= 0) return { success: false, reason: 'invalid_amount' };
-    if (this.isSleepingForced) return { success: false, reason: 'forced_sleep_active' };
+    if (amount <= 0) {
+      return { success: false, reason: 'invalid_amount' };
+    }
+
+    if (this.isSleepingForced) {
+      return { success: false, reason: 'forced_sleep_active' };
+    }
 
     const previousEnergy = this.currentEnergy;
     this.currentEnergy = Math.max(0, this.currentEnergy - amount);
@@ -235,6 +310,7 @@ consumeCustom(cost, label = 'Energy changed.') {
 
     if (this.currentEnergy === 0) {
       this._triggerForcedSleep();
+
       return {
         success: true,
         amount,
@@ -260,11 +336,15 @@ consumeCustom(cost, label = 'Energy changed.') {
     };
   }
 
+
   _recoverEnergy(amount, label, recoveryType = 'unknown', recoverySubtype = '') {
-    if (amount <= 0) return { success: false, reason: 'invalid_amount' };
+    if (amount <= 0) {
+      return { success: false, reason: 'invalid_amount' };
+    }
 
     const previousEnergy = this.currentEnergy;
     this.currentEnergy = Math.min(this.maxEnergy, this.currentEnergy + amount);
+
     const actualRecovery = this.currentEnergy - previousEnergy;
 
     this.lastEnergyChange = {
@@ -289,6 +369,7 @@ consumeCustom(cost, label = 'Energy changed.') {
     };
   }
 
+
   _triggerForcedSleep() {
     if (this.isSleepingForced) return;
 
@@ -312,6 +393,7 @@ consumeCustom(cost, label = 'Energy changed.') {
 
       const previousEnergy = this.currentEnergy;
       this.currentEnergy = this.maxEnergy;
+
       this.lastEnergyChange = {
         type: 'recover',
         amount: this.maxEnergy - previousEnergy,
@@ -322,6 +404,7 @@ consumeCustom(cost, label = 'Energy changed.') {
         afterEnergy: this.currentEnergy,
         timestamp: Date.now()
       };
+
       this.isSleepingForced = false;
       this.forcedSleepTimer = null;
       this._recordAndEmit();
@@ -334,24 +417,32 @@ consumeCustom(cost, label = 'Energy changed.') {
     }, FORCED_SLEEP_ANIMATION_MS);
   }
 
+
   _recordAndEmit() {
     this._logEnergyChange();
     this._syncToGameState();
     this._emitEnergyChanged();
   }
 
+
   _logEnergyChange() {
     if (!this.lastEnergyChange) return;
-    this.energyLog.push(structuredClone(this.lastEnergyChange));
-    if (this.energyLog.length > 50) this.energyLog.shift();
+
+    this.energyLog.push(cloneData(this.lastEnergyChange));
+
+    if (this.energyLog.length > 50) {
+      this.energyLog.shift();
+    }
   }
 
-_syncToGameState() {
-  gameState.energy = this.currentEnergy;
-  gameState.maxEnergy = this.maxEnergy;
-  gameState.energyLog = [...this.energyLog];
-  gameState.difficulty = this.difficulty;
-}
+
+  _syncToGameState() {
+    gameState.energy = this.currentEnergy;
+    gameState.maxEnergy = this.maxEnergy;
+    gameState.energyLog = cloneData(this.energyLog);
+    gameState.difficulty = this.difficulty;
+  }
+
 
   _emitEnergyChanged() {
     EventBus.emit('energyChanged', {
@@ -361,101 +452,112 @@ _syncToGameState() {
       status: this.getEnergyStatus(),
       color: this.getEnergyColor(),
       tooltip: this.getEnergyTooltip(),
-      lastChange: this.lastEnergyChange
+      lastChange: cloneData(this.lastEnergyChange)
     });
   }
+
 
   getCurrentEnergy() {
     return this.currentEnergy;
   }
 
+
   getEnergyLog() {
-    return [...this.energyLog];
+    return cloneData(this.energyLog);
   }
+
 
   reset(difficulty = 'field') {
     this.init(difficulty);
   }
 
-restore(data = {}) {
-  const savedMaxEnergy = Number(data.maxEnergy);
 
-  if (Number.isFinite(savedMaxEnergy) && savedMaxEnergy > 0) {
-    this.maxEnergy = Math.round(savedMaxEnergy);
+  restore(data = {}) {
+    const savedMaxEnergy = Number(data.maxEnergy);
+
+    if (Number.isFinite(savedMaxEnergy) && savedMaxEnergy > 0) {
+      this.maxEnergy = Math.round(savedMaxEnergy);
+    }
+
+    const savedEnergy = Number(data.energy);
+
+    if (Number.isFinite(savedEnergy)) {
+      this.currentEnergy = Math.max(
+        0,
+        Math.min(this.maxEnergy, Math.round(savedEnergy))
+      );
+    } else {
+      console.warn(
+        '[EnergyManager] Save has no valid energy value; keeping current energy.',
+        {
+          savedEnergy: data.energy,
+          currentEnergy: this.currentEnergy
+        }
+      );
+    }
+
+    if (
+      typeof data.difficulty === 'string' &&
+      DIFFICULTY_MULTIPLIERS[data.difficulty]
+    ) {
+      this.difficulty = data.difficulty;
+    }
+
+    if (Array.isArray(data.energyLog)) {
+      this.energyLog = cloneData(data.energyLog).slice(-50);
+    } else {
+      this.energyLog = [];
+    }
+
+    this.lastEnergyChange = null;
+    this.isSleepingForced = false;
+
+    if (this.forcedSleepTimer) {
+      clearTimeout(this.forcedSleepTimer);
+      this.forcedSleepTimer = null;
+    }
+
+    this._syncToGameState();
+    this._emitEnergyChanged();
+
+    console.log('[EnergyManager] Energy restored from save.', {
+      energy: this.currentEnergy,
+      maxEnergy: this.maxEnergy,
+      difficulty: this.difficulty
+    });
+
+    return this.currentEnergy;
   }
 
-  const savedEnergy = Number(data.energy);
-
-  if (Number.isFinite(savedEnergy)) {
-    this.currentEnergy = Math.max(
-      0,
-      Math.min(this.maxEnergy, Math.round(savedEnergy))
-    );
-  } else {
-    console.warn(
-      '[EnergyManager] Save has no valid energy value; keeping current energy.',
-      {
-        savedEnergy: data.energy,
-        currentEnergy: this.currentEnergy
-      }
-    );
-  }
-
-  if (
-    typeof data.difficulty === 'string' &&
-    DIFFICULTY_MULTIPLIERS[data.difficulty]
-  ) {
-    this.difficulty = data.difficulty;
-  }
-
-  if (Array.isArray(data.energyLog)) {
-    this.energyLog = structuredClone(data.energyLog);
-  } else {
-    this.energyLog = [];
-  }
-
-  this.lastEnergyChange = null;
-  this.isSleepingForced = false;
-
-  if (this.forcedSleepTimer) {
-    clearTimeout(this.forcedSleepTimer);
-    this.forcedSleepTimer = null;
-  }
-
-  this._syncToGameState();
-  this._emitEnergyChanged();
-
-  console.log('[EnergyManager] Energy restored from save.', {
-    energy: this.currentEnergy,
-    maxEnergy: this.maxEnergy,
-    difficulty: this.difficulty
-  });
-
-  return this.currentEnergy;
-}
 
   serialize() {
     return {
       energy: this.currentEnergy,
       maxEnergy: this.maxEnergy,
       difficulty: this.difficulty,
-      energyLog: structuredClone(this.energyLog)
+      energyLog: cloneData(this.energyLog)
     };
   }
 }
 
+
 let energyManagerInstance = null;
+
 
 export function getEnergyManager() {
   if (!energyManagerInstance) {
     energyManagerInstance = new EnergyManager();
   }
+
   return energyManagerInstance;
 }
 
+
 export function createEnergyManager() {
   energyManagerInstance = new EnergyManager();
+
   return energyManagerInstance;
 }
+
 
 export default EnergyManager;

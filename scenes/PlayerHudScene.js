@@ -10,6 +10,7 @@ import { PhonebookUI } from '../ui/PhonebookUI.js';
 import { PassportUI } from '../ui/PassportUI.js';
 import { DialogManager } from '../dialogues/DialogManager.js';
 import { BaseScene } from './BaseScene.js';
+import { InventoryPanelUI } from '../ui/InventoryPanelUI.js';
 
 const HUD_ALLOWED_SCENES = [
   'GameScene',
@@ -48,6 +49,7 @@ export class PlayerHudScene extends BaseScene {
     this.phoneUI = null;
     this.passportUI = null;
     this.dialogManager = null;
+    this.inventoryUI = null;  
 
     this.isHudReady = false;
     this.currentGameplaySceneKey = null;
@@ -78,11 +80,13 @@ export class PlayerHudScene extends BaseScene {
 
     this.playerMenu = new PlayerMenuUI(this, this.gameState);
     this.crimeBoardUI = new CrimeBoardUI(this);
-
+this.inventoryUI = new InventoryPanelUI(this);
+this.inventoryUI.create();
     this.isHudReady = true;
 
     this.scene.bringToTop();
     this.scene.setVisible(true);
+    
 
     if (this.game?.events) {
       this.game.events.on(
@@ -185,7 +189,7 @@ export class PlayerHudScene extends BaseScene {
     this.passportUI?.destroy?.();
     this.dialogManager?.dialogUI?.destroy?.();
     this.playerMenu?.destroy?.();
-
+this.inventoryUI?.destroy?.();
     this.caseFileUI = null;
     this.notesUI = null;
     this.warrantUI = null;
@@ -196,7 +200,7 @@ export class PlayerHudScene extends BaseScene {
     this.passportUI = null;
     this.dialogManager = null;
     this.playerMenu = null;
-
+this.inventoryUI = null;
     this.isHudReady = false;
   }
 
@@ -210,6 +214,7 @@ export class PlayerHudScene extends BaseScene {
     this.phoneUI?.close?.();
     this.passportUI?.close?.();
     this.dialogManager?.dialogUI?.close?.();
+    this.inventoryUI?.close?.();
   }
 
 isCrimeBoardAvailable() {
@@ -217,7 +222,13 @@ isCrimeBoardAvailable() {
     this.currentGameplaySceneKey
   );
 }
+openInventory() {
+    this.closeAllUIPanels();
 
+    this.inventoryUI?.open?.();
+
+    return Boolean(this.inventoryUI?.isOpen);
+}
 openCrimeBoard() {
   if (!this.isCrimeBoardAvailable()) {
     console.warn(
@@ -264,7 +275,8 @@ openCrimeBoard() {
       || this.phoneUI?.isOpen
       || this.passportUI?.isOpen
       || this.dialogManager?.dialogUI?.isOpen
-      || this.playerMenu?.isOpen,
+      || this.playerMenu?.isOpen
+      || this.inventoryUI?.isOpen
     );
   }
 }

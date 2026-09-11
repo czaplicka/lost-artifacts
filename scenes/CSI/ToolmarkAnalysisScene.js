@@ -141,7 +141,7 @@ export class ToolmarkAnalysisScene extends BaseScene {
       this.term.y + this.term.h - 118,
       '',
       {
-        fontFamily: '"Press Start 2P"',
+        fontFamily: '"PressStart2P"',
         fontSize: '12px',
         color: TERM.amber
       }

@@ -35,7 +35,7 @@ export const SuspectDetailsMixin = {
     if (!selected) {
       const noSelection = this.add
         .text(panelX, panelY, 'Select a suspect file.', {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#dcc99e',
           align: 'center'
@@ -62,7 +62,7 @@ export const SuspectDetailsMixin = {
 
     const suspectName = this.add
       .text(panelX, panelTop + 48, selected.name, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: isTablet ? '25px' : '29px',
         color: isEliminated ? '#b69891' : '#fff0cd',
         align: 'center',
@@ -79,7 +79,7 @@ export const SuspectDetailsMixin = {
         panelTop + 110,
         details,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: isTablet ? '16px' : '18px',
           color: '#e2d1ad',
           lineSpacing: 6,
@@ -276,7 +276,7 @@ export const SuspectDetailsMixin = {
 
     const title = this.add
       .text(width / 2, 72, suspect.name, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '28px',
         color: '#fff0cd',
         align: 'center',
@@ -290,7 +290,7 @@ export const SuspectDetailsMixin = {
 
     const body = this.add
       .text(34, 126, this.buildDetailsText(suspect), {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '17px',
         color: '#e2d1ad',
         lineSpacing: 5,

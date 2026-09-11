@@ -37,7 +37,7 @@ export class CrimeLabHUD {
 
     this.labCaseText = this.scene.add
       .text(width / 2, 11, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '21px',
         color: '#fff4c7'
       })

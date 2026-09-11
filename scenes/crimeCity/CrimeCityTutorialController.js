@@ -144,7 +144,7 @@ export class CrimeCityTutorialController {
         height / 2 - 120,
         'NEW LEAD: SUSPECT FILES',
         {
-          fontFamily: 'Press Start 2P',
+          fontFamily: 'PressStart2P',
           fontSize: '20px',
           color: '#ffe066',
           align: 'center'
@@ -168,7 +168,7 @@ export class CrimeCityTutorialController {
           'Now make the suspects uncomfortable.'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '21px',
           color: '#ffffff',
           align: 'center',
@@ -184,7 +184,7 @@ export class CrimeCityTutorialController {
         height / 2 + 118,
         'OPEN SUSPECT FILES',
         {
-          fontFamily: 'Press Start 2P',
+          fontFamily: 'PressStart2P',
           fontSize: '14px',
           color: '#17202a',
           backgroundColor: '#f1c94b',

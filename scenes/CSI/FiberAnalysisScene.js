@@ -130,7 +130,7 @@ export class FiberAnalysisScene extends BaseScene {
           centerY,
           ` ${pad.label} `,
           {
-            fontFamily: '"Press Start 2P"',
+            fontFamily: '"PressStart2P"',
             fontSize: '18px',
             color: TERM.dark,
             backgroundColor: pad.color,
@@ -216,7 +216,7 @@ export class FiberAnalysisScene extends BaseScene {
         height / 2 - 20,
         'Watch the fiber scanner carefully.\n\nRepeat the color sequence exactly.\n\nThe machine is dramatic, impatient,\nand legally classified as a diva.',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '25px',
           color: '#fff4c7',
           align: 'center',

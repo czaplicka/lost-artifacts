@@ -416,7 +416,7 @@ export class SuspectGridScene extends BaseScene {
 
     this.headerText = this.add
       .text(width / 2, 10, 'EVIDENCE GRID', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '30px',
         color: '#f5e7c6',
         align: 'center'
@@ -430,7 +430,7 @@ export class SuspectGridScene extends BaseScene {
         48,
         'Select a clue, then place it in the correct cell. Your deductions are your own.',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '15px',
           color: '#d9c998',
           align: 'center',
@@ -462,7 +462,7 @@ export class SuspectGridScene extends BaseScene {
 
     this.feedbackText = this.add
       .text(width / 2, height - 30, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '15px',
         color: '#ffdc73',
         align: 'center',
@@ -598,7 +598,7 @@ export class SuspectGridScene extends BaseScene {
     if (!clues.length) {
       const empty = this.add
         .text(width / 2, panelY + 65, 'All currently available clue cards are on the board.', {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '17px',
           color: '#c6b58d',
           align: 'center'
@@ -666,7 +666,7 @@ export class SuspectGridScene extends BaseScene {
 
       const text = this.add
         .text(10, 26, clue.text, {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '12px',
           color: selected ? '#21160c' : '#f1e2c0',
           wordWrap: {
@@ -952,7 +952,7 @@ export class SuspectGridScene extends BaseScene {
 
       const headerText = this.add
         .text(x, gridTop + headerHeight / 2, column.name, {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: column.type === 'crime_scene' ? '15px' : '16px',
           color: '#fff0cb',
           align: 'center',
@@ -1069,7 +1069,7 @@ export class SuspectGridScene extends BaseScene {
         y,
         placedClue ? normalize(placedClue.value).toUpperCase() : '?',
         {
-          fontFamily: placedClue ? 'Special Elite' : 'PressStart2P',
+          fontFamily: placedClue ? 'SpecialElite' : 'PressStart2P',
           fontSize: placedClue ? '15px' : '10px',
           color: placedClue ? '#f6dfa3' : '#756351',
           align: 'center',

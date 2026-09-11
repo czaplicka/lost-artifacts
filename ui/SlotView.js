@@ -65,7 +65,7 @@ export class SlotView {
 
     this.text = scene.add
       .text(0, 0, '[ empty ]', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#8d8577',
         align: 'center',

@@ -8,13 +8,13 @@ import {
   createDefaultPlayerData,
   createRandomIdentity,
   getProfile,
-  STAT_IDS,
+  STAT_IDS
 } from '../ui/characterCreation/CharacterCreationData.js';
 import {
-  getAppearanceSummary,
+  getAppearanceSummary
 } from '../ui/characterCreation/AppearanceControls.js';
 import {
-  renderCharacterCreationTemplate,
+  renderCharacterCreationTemplate
 } from '../ui/characterCreation/CharacterCreationTemplate.js';
 
 const STEP_COUNT = 5;
@@ -30,6 +30,13 @@ export class CharacterCreationScene extends BaseScene {
     this.domElement = null;
     this.isStartingGame = false;
     this.errorMessage = '';
+    this.entryData = {};
+
+    this.boundResizeDomInterface = this.fitDomInterface.bind(this);
+    this.boundCleanupScene = this.cleanupScene.bind(this);
+    this.boundHandleDomClick = this.handleClick.bind(this);
+    this.boundHandleDomInput = this.handleInput.bind(this);
+    this.boundPreventDomSubmit = this.preventDomSubmit.bind(this);
   }
 
   init(data = {}) {
@@ -44,124 +51,161 @@ export class CharacterCreationScene extends BaseScene {
     super.create();
 
     this.cameras.main.setBackgroundColor('#17120e');
-    this.createDomInterface();
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      this.destroyDomInterface,
-      this,
+      this.boundCleanupScene
     );
 
-    this.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this.destroyDomInterface,
-      this,
-    );
+    this.createDomInterface();
   }
 
   createDomInterface() {
-  this.destroyDomInterface();
+    this.destroyDomInterface();
 
-  this.domElement = this.add
-    .dom(0, 0)
-    .createFromHTML(this.getTemplate());
+    this.domElement = this.add
+      .dom(0, 0)
+      .createFromHTML(this.getTemplate());
 
-  this.domElement
-    .setOrigin(0, 0)
-    .setScrollFactor(0)
-    .setDepth(1000);
+    this.domElement
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(1000);
 
-  this.domElement.node.style.pointerEvents = 'auto';
-  this.domElement.node.style.overflow = 'hidden';
+    this.domElement.node.style.pointerEvents = 'auto';
+    this.domElement.node.style.overflow = 'hidden';
 
-  this.fitDomInterface();
-  this.bindDomEvents();
+    this.fitDomInterface();
+    this.bindDomEvents();
 
-  this.scale.on(
-    Phaser.Scale.Events.RESIZE,
-    this.fitDomInterface,
-    this,
-  );
-}
-
-destroyDomInterface() {
-  this.scale?.off(
-    Phaser.Scale.Events.RESIZE,
-    this.fitDomInterface,
-    this,
-  );
-
-  if (this.domElement) {
-    this.domElement.destroy();
-    this.domElement = null;
+    this.scale.on(
+      Phaser.Scale.Events.RESIZE,
+      this.boundResizeDomInterface
+    );
   }
-}
 
-fitDomInterface() {
-  if (!this.domElement) return;
-
-  const width = this.scale.width;
-  const height = this.scale.height;
-
-  this.domElement
-    .setPosition(0, 0)
-    .setOrigin(0, 0)
-    .setScale(1);
-
-  Object.assign(this.domElement.node.style, {
-    width: `${width}px`,
-    height: `${height}px`,
-    minWidth: `${width}px`,
-    minHeight: `${height}px`,
-    overflow: 'hidden',
-    pointerEvents: 'auto',
-  });
-
-  const root = this.getRoot();
-
-  if (!root) return;
-
-  Object.assign(root.style, {
-    width: `${width}px`,
-    height: `${height}px`,
-    minWidth: `${width}px`,
-    minHeight: `${height}px`,
-  });
-}
-
-refresh() {
-  if (!this.domElement) return;
-
-  const content = this.getRoot()?.querySelector(
-    '.character-creation-content',
-  );
-
-  const scrollTop = content?.scrollTop ?? 0;
-  const scrollLeft = content?.scrollLeft ?? 0;
-
-  this.domElement.setHTML(this.getTemplate());
-
-  this.domElement
-    .setPosition(0, 0)
-    .setOrigin(0, 0)
-    .setScale(1);
-
-  this.domElement.node.style.pointerEvents = 'auto';
-  this.domElement.node.style.overflow = 'hidden';
-this.fitDomInterface();
-  this.bindDomEvents();
-
-  requestAnimationFrame(() => {
-    const refreshedContent = this.getRoot()?.querySelector(
-      '.character-creation-content',
+  destroyDomInterface() {
+    this.scale?.off(
+      Phaser.Scale.Events.RESIZE,
+      this.boundResizeDomInterface
     );
 
-    if (!refreshedContent) return;
+    const root = this.getRoot();
 
-    refreshedContent.scrollTop = scrollTop;
-    refreshedContent.scrollLeft = scrollLeft;
-  });
-}
+    if (root) {
+      root.removeEventListener('click', this.boundHandleDomClick);
+      root.removeEventListener('input', this.boundHandleDomInput);
+      root.removeEventListener('submit', this.boundPreventDomSubmit);
+    }
+
+    if (this.domElement) {
+      this.domElement.destroy();
+      this.domElement = null;
+    }
+  }
+
+  cleanupScene() {
+    this.isStartingGame = false;
+    this.destroyDomInterface();
+  }
+
+  fitDomInterface() {
+    if (!this.domElement?.node) {
+      return;
+    }
+
+    const width = this.scale.width;
+    const height = this.scale.height;
+
+    this.domElement
+      .setPosition(0, 0)
+      .setOrigin(0, 0)
+      .setScale(1);
+
+    Object.assign(this.domElement.node.style, {
+      width: `${width}px`,
+      height: `${height}px`,
+      minWidth: `${width}px`,
+      minHeight: `${height}px`,
+      overflow: 'hidden',
+      pointerEvents: 'auto'
+    });
+
+    const root = this.getRoot();
+
+    if (!root) {
+      return;
+    }
+
+    Object.assign(root.style, {
+      width: `${width}px`,
+      height: `${height}px`,
+      minWidth: `${width}px`,
+      minHeight: `${height}px`
+    });
+  }
+
+  refresh() {
+    if (
+      !this.domElement?.node ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return;
+    }
+
+    const content = this.getRoot()?.querySelector(
+      '.character-creation-content'
+    );
+
+    const scrollTop = content?.scrollTop ?? 0;
+    const scrollLeft = content?.scrollLeft ?? 0;
+
+    const previousRoot = this.getRoot();
+
+    if (previousRoot) {
+      previousRoot.removeEventListener('click', this.boundHandleDomClick);
+      previousRoot.removeEventListener('input', this.boundHandleDomInput);
+      previousRoot.removeEventListener(
+        'submit',
+        this.boundPreventDomSubmit
+      );
+    }
+
+    this.domElement.setHTML(this.getTemplate());
+
+    this.domElement
+      .setPosition(0, 0)
+      .setOrigin(0, 0)
+      .setScale(1);
+
+    this.domElement.node.style.pointerEvents = 'auto';
+    this.domElement.node.style.overflow = 'hidden';
+
+    this.fitDomInterface();
+    this.bindDomEvents();
+
+    requestAnimationFrame(() => {
+      if (
+        this._cleanupDone ||
+        !this.domElement?.node ||
+        !this.sys.isActive()
+      ) {
+        return;
+      }
+
+      const refreshedContent = this.getRoot()?.querySelector(
+        '.character-creation-content'
+      );
+
+      if (!refreshedContent) {
+        return;
+      }
+
+      refreshedContent.scrollTop = scrollTop;
+      refreshedContent.scrollLeft = scrollLeft;
+    });
+  }
 
   getTemplate() {
     return renderCharacterCreationTemplate({
@@ -169,7 +213,7 @@ this.fitDomInterface();
       remainingPoints: this.getRemainingPoints(),
       playerData: this.playerData,
       isStartingGame: this.isStartingGame,
-      errorMessage: this.errorMessage,
+      errorMessage: this.errorMessage
     });
   }
 
@@ -180,23 +224,38 @@ this.fitDomInterface();
 
   bindDomEvents() {
     const root = this.getRoot();
-    if (!root) return;
 
-    root.addEventListener('click', (event) => this.handleClick(event));
-    root.addEventListener('input', (event) => this.handleInput(event));
-    root.addEventListener('submit', (event) => event.preventDefault());
+    if (!root) {
+      return;
+    }
+
+    root.removeEventListener('click', this.boundHandleDomClick);
+    root.removeEventListener('input', this.boundHandleDomInput);
+    root.removeEventListener('submit', this.boundPreventDomSubmit);
+
+    root.addEventListener('click', this.boundHandleDomClick);
+    root.addEventListener('input', this.boundHandleDomInput);
+    root.addEventListener('submit', this.boundPreventDomSubmit);
 
     this.syncActiveStep();
     this.updateAvatarPreview();
     this.updateIdentityPreview();
   }
 
+  preventDomSubmit(event) {
+    event.preventDefault();
+  }
+
   syncActiveStep() {
     const root = this.getRoot();
-    if (!root) return;
+
+    if (!root) {
+      return;
+    }
 
     root.querySelectorAll('[data-step-panel]').forEach((panel) => {
-      const isActive = Number(panel.dataset.stepPanel) === this.currentStep;
+      const isActive =
+        Number(panel.dataset.stepPanel) === this.currentStep;
 
       panel.classList.toggle('is-active', isActive);
       panel.toggleAttribute('hidden', !isActive);
@@ -204,8 +263,15 @@ this.fitDomInterface();
   }
 
   handleClick(event) {
+    if (this._cleanupDone || this.isStartingGame) {
+      return;
+    }
+
     const button = event.target.closest('button');
-    if (!button || button.disabled) return;
+
+    if (!button || button.disabled) {
+      return;
+    }
 
     const {
       action,
@@ -215,7 +281,7 @@ this.fitDomInterface();
       appearanceCategory,
       appearanceValue,
       statAction,
-      stat,
+      stat
     } = button.dataset;
 
     if (action === 'next') {
@@ -265,6 +331,10 @@ this.fitDomInterface();
   }
 
   handleInput(event) {
+    if (this._cleanupDone || this.isStartingGame) {
+      return;
+    }
+
     const input = event.target;
 
     if (input.matches('[data-character-name]')) {
@@ -282,10 +352,12 @@ this.fitDomInterface();
   }
 
   goNext() {
-    if (!this.validateCurrentStep()) return;
+    if (this.isStartingGame || !this.validateCurrentStep()) {
+      return;
+    }
 
     if (this.currentStep === STEP_COUNT - 1) {
-      this.startGame();
+      void this.startGame();
       return;
     }
 
@@ -295,7 +367,9 @@ this.fitDomInterface();
   }
 
   goBack() {
-    if (this.currentStep === 0 || this.isStartingGame) return;
+    if (this.currentStep === 0 || this.isStartingGame) {
+      return;
+    }
 
     this.currentStep -= 1;
     this.clearError();
@@ -303,12 +377,15 @@ this.fitDomInterface();
   }
 
   goToStep(step) {
-    const invalidStep = !Number.isInteger(step)
-      || step < 0
-      || step >= STEP_COUNT
-      || this.isStartingGame;
+    const invalidStep =
+      !Number.isInteger(step) ||
+      step < 0 ||
+      step >= STEP_COUNT ||
+      this.isStartingGame;
 
-    if (invalidStep) return;
+    if (invalidStep) {
+      return;
+    }
 
     if (step > this.currentStep && !this.validateStepsBefore(step)) {
       return;
@@ -326,6 +403,7 @@ this.fitDomInterface();
       this.currentStep = step;
 
       if (!this.validateCurrentStep()) {
+        this.currentStep = originalStep;
         return false;
       }
     }
@@ -337,15 +415,20 @@ this.fitDomInterface();
   validateCurrentStep() {
     if (this.currentStep === 0 && !this.playerData.name.trim()) {
       this.showError(
-        'Mark Agency needs a name for the paperwork. Even a suspicious one.',
+        'Mark Agency needs a name for the paperwork. Even a suspicious one.'
       );
+
       return false;
     }
 
-    if (this.currentStep === 2 && this.getRemainingPoints() !== 0) {
+    if (
+      this.currentStep === 2 &&
+      this.getRemainingPoints() !== 0
+    ) {
       this.showError(
-        `Assign all ${INITIAL_STAT_POINTS} instinct points before HR loses the form.`,
+        `Assign all ${INITIAL_STAT_POINTS} instinct points before HR loses the form.`
       );
+
       return false;
     }
 
@@ -354,16 +437,21 @@ this.fitDomInterface();
 
   getRemainingPoints() {
     const spentPoints = STAT_IDS.reduce((total, statId) => {
-      return total + Math.max(0, this.playerData.stats[statId] - 1);
+      return total + Math.max(
+        0,
+        (this.playerData.stats[statId] ?? 1) - 1
+      );
     }, 0);
 
     return INITIAL_STAT_POINTS - spentPoints;
   }
 
   changeStat(statId, action) {
-    if (!STAT_IDS.includes(statId)) return;
+    if (!STAT_IDS.includes(statId) || this.isStartingGame) {
+      return;
+    }
 
-    const currentValue = this.playerData.stats[statId];
+    const currentValue = this.playerData.stats[statId] ?? 1;
 
     if (action === 'increase' && this.getRemainingPoints() > 0) {
       this.playerData.stats[statId] = currentValue + 1;
@@ -378,6 +466,10 @@ this.fitDomInterface();
   }
 
   randomizeIdentity() {
+    if (this.isStartingGame) {
+      return;
+    }
+
     const identity = createRandomIdentity();
 
     this.playerData.name = identity.name;
@@ -392,31 +484,41 @@ this.fitDomInterface();
     const avatar = this.getRoot()
       ?.querySelector('[data-avatar-preview]');
 
-    if (!avatar) return;
+    if (!avatar) {
+      return;
+    }
 
     Object.entries(this.playerData.appearance).forEach(
       ([category, value]) => {
         const dataKey = category.replace(
           /[A-Z]/g,
-          (letter) => `-${letter.toLowerCase()}`,
+          (letter) => `-${letter.toLowerCase()}`
         );
 
         avatar.setAttribute(`data-${dataKey}`, value);
-      },
+      }
     );
   }
 
   updateIdentityPreview() {
     const root = this.getRoot();
-    if (!root) return;
+
+    if (!root) {
+      return;
+    }
 
     const name = this.playerData.name.trim() || 'UNNAMED APPLICANT';
     const alias = this.playerData.alias.trim() || 'UNLISTED';
     const avatarName = root.querySelector('[data-avatar-name]');
     const avatarAlias = root.querySelector('[data-avatar-alias]');
 
-    if (avatarName) avatarName.textContent = name.toUpperCase();
-    if (avatarAlias) avatarAlias.textContent = `ALIAS: ${alias.toUpperCase()}`;
+    if (avatarName) {
+      avatarName.textContent = name.toUpperCase();
+    }
+
+    if (avatarAlias) {
+      avatarAlias.textContent = `ALIAS: ${alias.toUpperCase()}`;
+    }
   }
 
   showError(message) {
@@ -429,59 +531,81 @@ this.fitDomInterface();
   }
 
   async startGame() {
-  if (this.isStartingGame || !this.validateCurrentStep()) return;
+    if (
+      this.isStartingGame ||
+      this._cleanupDone ||
+      !this.validateCurrentStep()
+    ) {
+      return;
+    }
 
-  this.isStartingGame = true;
-  this.clearError();
-  this.refresh();
+    this.isStartingGame = true;
+    this.clearError();
+    this.refresh();
 
-  try {
-    const suspectsData = this.cache.json.get('suspects') || [];
-    const missionsData = this.cache.json.get('missions') || [];
-    const locationsData = this.cache.json.get('locations') || [];
+    try {
+      const suspectsData = this.cache.json.get('suspects') || [];
+      const missionsData = this.cache.json.get('missions') || [];
+      const locationsData = this.cache.json.get('locations') || [];
 
-    await setupNewGame(
-      suspectsData,
-      missionsData,
-      locationsData,
-      this.playerData.difficulty
-    );
+      await setupNewGame(
+        suspectsData,
+        missionsData,
+        locationsData,
+        this.playerData.difficulty
+      );
 
-    const profile = getProfile(this.playerData.profile);
-    const appearance = { ...this.playerData.appearance };
+      if (this._cleanupDone) {
+        return;
+      }
 
-    Object.assign(gameState, {
-      playerName: this.playerData.name.trim(),
-      agentName: this.playerData.name.trim(),
-      playerAlias: this.playerData.alias.trim(),
-      detectiveProfile: this.playerData.profile,
-      profileBonus: profile.bonus,
-      detectiveStats: { ...this.playerData.stats },
-      appearance,
-      appearanceSummary: getAppearanceSummary(appearance),
-      difficulty: this.playerData.difficulty
-    });
+      const profile = getProfile(this.playerData.profile);
+      const appearance = { ...this.playerData.appearance };
 
-    saveGameState();
+      Object.assign(gameState, {
+        playerName: this.playerData.name.trim(),
+        agentName: this.playerData.name.trim(),
+        playerAlias: this.playerData.alias.trim(),
+        detectiveProfile: this.playerData.profile,
+        profileBonus: profile?.bonus ?? null,
+        detectiveStats: { ...this.playerData.stats },
+        appearance,
+        appearanceSummary: getAppearanceSummary(appearance),
+        difficulty: this.playerData.difficulty
+      });
 
-    EventBus.emit('character-created', {
-      name: gameState.playerName,
-      profile: gameState.detectiveProfile,
-      difficulty: gameState.difficulty
-    });
+      saveGameState();
 
-    audioManager?.play?.('confirm');
+      EventBus.emit('character-created', {
+        name: gameState.playerName,
+        profile: gameState.detectiveProfile,
+        difficulty: gameState.difficulty
+      });
 
-    this.goto('GameScene', {
-      fromCharacterCreation: true,
-      isNewGame: true,
-      startOnboarding: true
-    });
-  } catch (error) {
-    console.error('Unable to create detective:', error);
+      audioManager?.play?.('confirm');
 
-    this.isStartingGame = false;
-    this.showError('The agency filing cabinet jammed. Please try again.');
+      const started = await this.goto('GameScene', {
+        fromCharacterCreation: true,
+        isNewGame: true,
+        startOnboarding: true,
+        ...this.entryData
+      });
+
+      if (!started && !this._cleanupDone) {
+        this.isStartingGame = false;
+        this.showError(
+          'The agency elevator stalled. Please try again.'
+        );
+      }
+    } catch (error) {
+      if (!this._cleanupDone) {
+        console.error('Unable to create detective:', error);
+
+        this.isStartingGame = false;
+        this.showError(
+          'The agency filing cabinet jammed. Please try again.'
+        );
+      }
+    }
   }
-}
 }

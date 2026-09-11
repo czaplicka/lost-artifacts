@@ -25,7 +25,7 @@ export default class SceneAuth extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.add.text(400, 155, 'DETECTIVE AGENCY ARCHIVES', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '19px',
       color: '#d8c9ae',
       align: 'center',

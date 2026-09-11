@@ -181,13 +181,13 @@ export class PhonebookUI {
             const baseColor = contact.available ? '#0400ff' : '#7a7a7a';
 
             const nameText = this.scene.add.text(-330, rowY, contact.name, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '22px',
                 color: baseColor
             }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
 
             const numberText = this.scene.add.text(100, rowY, contact.number, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '22px',
                 color: baseColor
             }).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });

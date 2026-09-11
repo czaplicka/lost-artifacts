@@ -47,6 +47,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     this.loadedReagent = null;
     this.completedReagents = new Set();
     this.microscopeOpened = false;
+    this.bloodChoicePanel = null;
   }
 
   init(data = {}) {
@@ -73,6 +74,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     this.loadedReagent = null;
     this.completedReagents = new Set();
     this.microscopeOpened = false;
+    this.bloodChoicePanel = null;
   }
 
   create() {
@@ -497,64 +499,72 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
   }
 
   createBloodChoicePanel(x, y) {
-    const baseTypes = Phaser.Utils.Array.Shuffle(['A', 'B', 'AB', 'O']);
+  const baseTypes = Phaser.Utils.Array.Shuffle(['A', 'B', 'AB', 'O']);
 
-    const panel = this.add.rectangle(x, y, 360, 590, 0x0d1713, 0.94)
-      .setStrokeStyle(2, 0x39ff14, 0.6)
-      .setDepth(1);
-    this.addStageObject(panel);
+  this.bloodChoicePanel = this.add.container(0, 0)
+    .setDepth(1)
+    .setVisible(false);
 
-    const title = this.add.text(x, y - 260, 'REFERENCE PROFILES', {
-      fontFamily: 'Special Elite',
-      fontSize: '21px',
-      color: '#ffe8a3'
-    }).setOrigin(0.5).setDepth(2);
-    this.addStageObject(title);
+  const panel = this.add.rectangle(x, y, 360, 590, 0x0d1713, 0.94)
+    .setStrokeStyle(2, 0x39ff14, 0.6);
 
-    baseTypes.forEach((baseType, index) => {
-      const optionY = y - 165 + index * 112;
+  const title = this.add.text(x, y - 260, 'REFERENCE PROFILES', {
+    fontFamily: 'SpecialElite',
+    fontSize: '21px',
+    color: '#ffe8a3'
+  }).setOrigin(0.5);
 
-      const image = this.add.image(x - 100, optionY, BLOOD_IMAGE_KEY[baseType])
-        .setOrigin(0.5)
-        .setDisplaySize(105, 66)
-        .setDepth(3);
-      this.addStageObject(image);
+  this.bloodChoicePanel.add([panel, title]);
 
-      const label = this.add.text(x - 100, optionY + 46, `TYPE ${baseType}`, {
-        fontFamily: 'PressStart2P',
-        fontSize: '9px',
-        color: '#f4e6cf'
-      }).setOrigin(0.5).setDepth(3);
-      this.addStageObject(label);
+  baseTypes.forEach((baseType, index) => {
+    const optionY = y - 165 + index * 112;
 
-      ['+', '-'].forEach((rh, rhIndex) => {
-        const value = `${baseType}${rh}`;
+    const image = this.add.image(x - 100, optionY, BLOOD_IMAGE_KEY[baseType])
+      .setOrigin(0.5)
+      .setDisplaySize(105, 66);
 
-        this.createButton(
-          x + (rhIndex === 0 ? 20 : 100),
-          optionY,
-          72,
-          52,
-          value,
-          () => {
-            if (this.resolved) return;
-            if (!this.microscopeOpened) {
-              this.setDialogue('Look through the microscope before classifying the blood.');
-              return;
-            }
-            this.resolveChoice(value, value === this.correctValue, 10);
-          },
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '12px',
-            bgColor: 0x3a2920,
-            borderColor: 0x7cc89f,
-            depth: 4
+    const label = this.add.text(x - 100, optionY + 46, `TYPE ${baseType}`, {
+      fontFamily: 'PressStart2P',
+      fontSize: '9px',
+      color: '#f4e6cf'
+    }).setOrigin(0.5);
+
+    this.bloodChoicePanel.add([image, label]);
+
+    ['+', '-'].forEach((rh, rhIndex) => {
+      const value = `${baseType}${rh}`;
+
+      const button = this.createButton(
+        x + (rhIndex === 0 ? 20 : 100),
+        optionY,
+        72,
+        52,
+        value,
+        () => {
+          if (this.resolved) return;
+
+          if (!this.microscopeOpened) {
+            this.setDialogue('Look through the microscope before classifying the blood.');
+            return;
           }
-        );
-      });
+
+          this.resolveChoice(value, value === this.correctValue, 10);
+        },
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '12px',
+          bgColor: 0x3a2920,
+          borderColor: 0x7cc89f,
+          depth: 4
+        }
+      );
+
+      this.bloodChoicePanel.add(button);
     });
-  }
+  });
+
+  this.addStageObject(this.bloodChoicePanel);
+}
 
   showMicroscopeOverlay() {
     const { width, height } = this.scale;
@@ -586,7 +596,7 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
       `ANTI-Rh: ${pattern.rh ? 'AGGLUTINATION' : 'NO REACTION'}`,
       `Rh FACTOR: ${rhPositive ? 'POSITIVE' : 'NEGATIVE'}`
     ].join('\n'), {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: '#dff2de',
       align: 'center',
@@ -604,11 +614,17 @@ export class BloodAnalysisScene extends BaseForensicMinigame {
     const overlayObjects = [overlay, frame, bloodImage, title, reactionText, hint];
     this.stageObjects.push(...overlayObjects);
 
-    overlay.on('pointerdown', () => {
-      overlayObjects.forEach(object => object?.destroy?.());
-      this.stageObjects = this.stageObjects.filter(object => !overlayObjects.includes(object));
-      this.setDialogue('Compare the reaction profile with the reference cards.');
-    });
+overlay.on('pointerdown', () => {
+  overlayObjects.forEach(object => object?.destroy?.());
+
+  this.stageObjects = this.stageObjects.filter(
+    object => !overlayObjects.includes(object)
+  );
+
+  this.bloodChoicePanel?.setVisible(true);
+
+  this.setDialogue('Compare the reaction profile with the reference cards.');
+});
   }
 
   createDesk() {

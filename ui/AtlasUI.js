@@ -146,19 +146,19 @@ export class AtlasUI {
 
     createTexts() {
         this.pageLeftNumber = this.scene.add.text(-485, -425, 'PAGE 01', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#5a3922'
         });
 
         this.pageRightLabel = this.scene.add.text(145, -445, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#5a3922'
         });
 
         this.caseStampText = this.scene.add.text(335, -405, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#6a3d24',
             backgroundColor: '#d8b57a',
@@ -167,28 +167,28 @@ export class AtlasUI {
         }).setOrigin(0.5);
 
         this.countryNameText = this.scene.add.text(95, -350, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '34px',
             color: '#2f1d12',
             wordWrap: { width: 470 }
         });
 
         this.capitalText = this.scene.add.text(95, -285, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '21px',
             color: '#3e2a1a',
             wordWrap: { width: 470 }
         });
 
         this.regionText = this.scene.add.text(95, -245, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '20px',
             color: '#5a3922',
             wordWrap: { width: 470 }
         });
 
         this.descriptionText = this.scene.add.text(95, -180, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '19px',
             color: '#2f1d12',
             wordWrap: { width: 480 },
@@ -196,7 +196,7 @@ export class AtlasUI {
         });
 
         this.knownForText = this.scene.add.text(95, 170, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#3e2a1a',
             wordWrap: { width: 470 },
@@ -204,7 +204,7 @@ export class AtlasUI {
         });
 
         this.hintText = this.scene.add.text(95, 360, 'LEFT / RIGHT to turn pages', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '16px',
             color: '#7a5a3e'
         });
@@ -220,7 +220,7 @@ export class AtlasUI {
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         this.prevBtn = this.scene.add.text(-545, 430, '< PREV', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '22px',
             color: '#2f1d12',
             backgroundColor: '#d2b075',
@@ -228,7 +228,7 @@ export class AtlasUI {
         }).setInteractive({ useHandCursor: true });
 
         this.nextBtn = this.scene.add.text(470, 430, 'NEXT >', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '22px',
             color: '#2f1d12',
             backgroundColor: '#d2b075',
@@ -264,7 +264,7 @@ export class AtlasUI {
 
         continents.forEach((continent, index) => {
             const tab = this.scene.add.text(715, startY + index * gap, continent.short, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '18px',
                 color: '#f7e7bf',
                 backgroundColor: '#7b3f22',

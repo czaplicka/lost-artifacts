@@ -227,7 +227,7 @@ try {
 
     this.backBtnLabel = this.add
       .text(baseX + 70, baseY, 'BACK', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#f5e7bf'
       })
@@ -259,7 +259,7 @@ try {
 
     this.add
       .text(width / 2, 108, 'SUSPECT DOSSIER', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '28px',
         color: '#f4ddb2'
       })
@@ -280,7 +280,7 @@ try {
 
     this.statusStampText = this.add
       .text(width - 265, 118, 'TOP PRIORITY', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#6e1f17',
         stroke: '#f7dfb2',
@@ -320,7 +320,7 @@ try {
         y + 46,
         'Review each dossier entry. Use arrows to inspect suspects, click the photograph to enlarge it, and confirm the arrest only when the file matches your evidence.',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '24px',
           color: '#332012',
           wordWrap: { width: 1280 },
@@ -331,7 +331,7 @@ try {
 
     this.bottomNoteText = this.add
       .text(x + w - 34, y + h - 12, 'Cross-check means, motive, and opportunity before arrest.', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: '#6b4d2e'
       })
@@ -379,7 +379,7 @@ try {
           'will close the case.'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '22px',
           color: '#392113',
           lineSpacing: 7,
@@ -409,7 +409,7 @@ try {
           'the investigation.'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '21px',
           color: '#392113',
           lineSpacing: 7,
@@ -421,7 +421,7 @@ try {
 
     this.suspectLabelText = this.add
       .text(20, 220, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '24px',
         color: '#5a3b21',
         align: 'center',
@@ -484,7 +484,7 @@ try {
 
     const stamp = this.add
       .text(500, 282, 'AUTHORIZED SIGN-OFF', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#6f4f30'
       })
@@ -642,7 +642,7 @@ try {
 
     const zoomHint = this.add
       .text(0, 100, 'Click photo to enlarge evidence image', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#68482a'
       })
@@ -658,7 +658,7 @@ try {
 
     const summary = this.add
       .text(0, 182, 'Observe appearance, compare it with witness clues, then decide whether the file justifies an arrest.', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#3c2614',
         align: 'center',
@@ -925,7 +925,7 @@ try {
 
     this.resultText = this.add
       .text(width / 2, height / 2 + 2, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '30px',
         color: '#352113',
         align: 'center',

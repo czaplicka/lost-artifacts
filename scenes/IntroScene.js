@@ -1,8 +1,8 @@
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 
-const FONT_PIXEL = '"Press Start 2P"';
-const FONT_TYPE = '"Special Elite"';
+const FONT_PIXEL = '"PressStart2P"';
+const FONT_TYPE = '"SpecialElite"';
 
 const BEATS = [
   { at: 600, run: 'showLogo' },

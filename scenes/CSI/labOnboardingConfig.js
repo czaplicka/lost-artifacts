@@ -1,5 +1,6 @@
 export const LAB_ONBOARDING_CONFIG = {
   call_only: {
+    mode: 'call_only',
     backgroundKey: 'crimelab_point_assistant',
     playerGameCount: 0,
     assistantResultCount: 3,
@@ -10,6 +11,7 @@ export const LAB_ONBOARDING_CONFIG = {
   },
 
   single_game: {
+    mode: 'single_game',
     backgroundKey: 'crimelab_point_assistant',
     playerGameCount: 1,
     assistantResultCount: 2,
@@ -20,6 +22,7 @@ export const LAB_ONBOARDING_CONFIG = {
   },
 
   two_games: {
+    mode: 'two_games',
     backgroundKey: 'crimelab_point_assistant',
     playerGameCount: 2,
     assistantResultCount: 1,
@@ -30,6 +33,7 @@ export const LAB_ONBOARDING_CONFIG = {
   },
 
   three_games: {
+    mode: 'three_games',
     backgroundKey: 'crimelab_point',
     playerGameCount: 3,
     assistantResultCount: 0,
@@ -40,7 +44,24 @@ export const LAB_ONBOARDING_CONFIG = {
   }
 };
 
+const LAB_MODE_ALIASES = {
+  assistant_results: 'call_only'
+};
+
+const DEFAULT_LAB_MODE = 'call_only';
+
 export function getLabOnboardingConfig(labMode) {
-  return LAB_ONBOARDING_CONFIG[labMode]
-    || LAB_ONBOARDING_CONFIG.three_games;
+  const requestedMode = String(labMode ?? '').trim();
+  const resolvedMode = LAB_MODE_ALIASES[requestedMode] ?? requestedMode;
+
+  if (Object.hasOwn(LAB_ONBOARDING_CONFIG, resolvedMode)) {
+    return LAB_ONBOARDING_CONFIG[resolvedMode];
+  }
+
+  console.warn(
+    `[CrimeLab] Unknown lab onboarding mode "${requestedMode || '(empty)'}". `
+    + `Using "${DEFAULT_LAB_MODE}" instead.`
+  );
+
+  return LAB_ONBOARDING_CONFIG[DEFAULT_LAB_MODE];
 }

@@ -27,7 +27,7 @@ import { saveGameState } from '../GameStatePersistence.js';
       this.container.add(bg);
 
       const closeBtn = this.scene.add.text(width * 0.87, height * 0.03, 'X', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: '#000000'
       })
@@ -37,7 +37,7 @@ import { saveGameState } from '../GameStatePersistence.js';
       this.container.add(closeBtn);
 
       this.gameNotesText = this.scene.add.text(width * 0.17, height * 0.06, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#000000',
         wordWrap: { width: 500 },
@@ -48,7 +48,7 @@ import { saveGameState } from '../GameStatePersistence.js';
       this.container.add(this.gameNotesText);
 
       this.gameNotesTitleText = this.scene.add.text(width * 0.52, height * 0.13, 'Your notes', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#000000',
         wordWrap: { width: 400 },
@@ -59,7 +59,7 @@ import { saveGameState } from '../GameStatePersistence.js';
       this.container.add(this.gameNotesTitleText);
 
       this.modeHintText = this.scene.add.text(width * 0.68, height * 0.15, '[ CLICK TO WRITE | ESC TO STOP ]', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#333333'
       }).setOrigin(0.5);
@@ -110,7 +110,7 @@ import { saveGameState } from '../GameStatePersistence.js';
       this.playerInputDOM.node.addEventListener('blur', this.onTextAreaBlur);
 
       const clearBtn = this.scene.add.text(width * 0.68, height * 0.82, '[ CLEAR NOTES ]', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#8b0000'
       }).setOrigin(0.5).setInteractive({ useHandCursor: true });

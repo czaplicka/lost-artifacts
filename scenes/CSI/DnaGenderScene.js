@@ -549,7 +549,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       const bandCount = lane.isControl ? lane.bands : sampleWell.bands;
       const bars = Array.from({ length: bandCount }, () => '▬▬▬▬').join('\n');
       return this.add.text(width * (0.32 + index * 0.18), height * 0.5, `${lane.label}\n\n${bars}`, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#39ff14',
         align: 'center',
@@ -561,7 +561,7 @@ export class DnaGenderScene extends BaseForensicMinigame {
       `SAMPLE BANDS: ${sampleWell.bands}`,
       sampleWell.bands === 1 ? 'MATCHES CONTROL XX (1 BAND)' : 'MATCHES CONTROL XY (2 BANDS)'
     ].join('\n'), {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '22px',
       color: '#dff2de',
       align: 'center',
@@ -579,63 +579,76 @@ export class DnaGenderScene extends BaseForensicMinigame {
     const overlayObjects = [overlay, frame, title, reactionText, hint, ...laneTexts];
     this.stageObjects.push(...overlayObjects);
 
-    overlay.on('pointerdown', () => {
-      overlayObjects.forEach(object => object?.destroy?.());
-      this.stageObjects = this.stageObjects.filter(object => !overlayObjects.includes(object));
-      this.setDialogue('Compare the band count with the reference ladders, then classify the sample.');
-    });
+overlay.on('pointerdown', () => {
+  overlayObjects.forEach(object => object?.destroy?.());
+
+  this.stageObjects = this.stageObjects.filter(
+    object => !overlayObjects.includes(object)
+  );
+
+  this.genderChoicePanel?.setVisible(true);
+
+  this.setDialogue(
+    'Compare the band count with the reference ladders, then classify the sample.'
+  );
+});
   }
 
-  // Uses BaseForensicMinigame.createButton() with label EQUAL to the
-  // value passed into resolveChoice() ('XX' / 'XY'), so the base
-  // class can find and highlight the correct/wrong button.
   createGenderChoicePanel(x, y) {
-    const panel = this.add.rectangle(x, y, 320, 320, 0x0d1713, 0.94)
-      .setStrokeStyle(2, 0x39ff14, 0.6)
-      .setDepth(1);
-    this.addStageObject(panel);
+  this.genderChoicePanel = this.add.container(0, 0)
+    .setDepth(1)
+    .setVisible(false);
 
-    const title = this.add.text(x, y - 120, 'CLASSIFY PROFILE', {
-      fontFamily: 'Special Elite',
-      fontSize: '20px',
-      color: '#ffe8a3'
-    }).setOrigin(0.5).setDepth(2);
-    this.addStageObject(title);
+  const panel = this.add.rectangle(x, y, 320, 320, 0x0d1713, 0.94)
+    .setStrokeStyle(2, 0x39ff14, 0.6);
 
-    DNA_PROFILES.forEach((profile, index) => {
-      const optionY = y - 30 + index * 100;
+  const title = this.add.text(x, y - 120, 'CLASSIFY PROFILE', {
+    fontFamily: 'SpecialElite',
+    fontSize: '20px',
+    color: '#ffe8a3'
+  }).setOrigin(0.5);
 
-      const subLabel = this.add.text(x, optionY - 36, PROFILE_SUBLABEL[profile], {
-        fontFamily: 'Special Elite',
-        fontSize: '13px',
-        color: '#b8cfc2'
-      }).setOrigin(0.5).setDepth(2);
-      this.addStageObject(subLabel);
+  this.genderChoicePanel.add([panel, title]);
 
-      this.createButton(
-        x,
-        optionY,
-        240,
-        56,
-        profile,
-        () => {
-          if (this.resolved) return;
-          if (!this.gelViewerOpened) {
-            this.setDialogue('Inspect the gel under UV light before classifying the sample.');
-            return;
-          }
-          this.resolveChoice(profile, profile === this.correctValue, 10);
-        },
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '16px',
-          bgColor: 0x3a2920,
-          borderColor: 0x7cc89f,
-          depth: 3
+  DNA_PROFILES.forEach((profile, index) => {
+    const optionY = y - 30 + index * 100;
+
+    const subLabel = this.add.text(x, optionY - 36, PROFILE_SUBLABEL[profile], {
+      fontFamily: 'SpecialElite',
+      fontSize: '13px',
+      color: '#b8cfc2'
+    }).setOrigin(0.5);
+
+    const button = this.createButton(
+      x,
+      optionY,
+      240,
+      56,
+      profile,
+      () => {
+        if (this.resolved) return;
+
+        if (!this.gelViewerOpened) {
+          this.setDialogue('Inspect the gel under UV light before classifying the sample.');
+          return;
         }
-      );
-    });
-  }
+
+        this.resolveChoice(profile, profile === this.correctValue, 10);
+      },
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '16px',
+        bgColor: 0x3a2920,
+        borderColor: 0x7cc89f,
+        depth: 3
+      }
+    );
+
+    this.genderChoicePanel.add([subLabel, button]);
+  });
+
+  this.addStageObject(this.genderChoicePanel);
+}
 
   createDesk() {
     const { width, height } = this.scale;

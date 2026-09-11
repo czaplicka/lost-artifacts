@@ -1,6 +1,6 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
-import { buildNpcDialogue, buildFalseLeadDialogue } from '../dialogueBuilder.js';
+import { NPCController } from '../NPCController.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../AudioManager.js';
@@ -38,6 +38,18 @@ const NPC_DIALOGUE_ROOT_MAP = {
 };
 
 
+const TOPIC_LABELS = {
+  features: 'Features',
+  accent: 'Accent',
+  hair: 'Hair',
+  eyes: 'Eyes',
+  skills: 'Skills',
+  habitus: 'Habits',
+  currency: 'Money',
+  travel: 'Where next?'
+};
+
+
 const TYPEWRITER_CHAR_DELAY = 18;
 
 const PANEL_GOLD = 0xd4af37;
@@ -55,7 +67,6 @@ const NAME_FADE_DELAY = PORTRAIT_ANIM_DELAY + PORTRAIT_ANIM_DURATION - 120;
 export class LocationScene extends BaseScene {
   constructor() {
     super({ key: 'LocationScene' });
-    this.lines = [];
     this.generatedNotes = [];
     this.isRepeat = false;
     this.isFinishing = false;
@@ -67,12 +78,13 @@ export class LocationScene extends BaseScene {
     this.portraitFrame = null;
     this.portraitImage = null;
     this.continueIndicator = null;
+    this.topicButtons = [];
+    this.leaveButton = null;
     this.cityId = null;
     this.encounterId = null;
     this.npcId = null;
     this.locationId = null;
     this.encounterMemory = null;
-    this.isReminder = false;
     this.isCorrectCity = true;
     this.isCrimeCity = false;
     this.isNextTargetCity = false;
@@ -84,6 +96,9 @@ export class LocationScene extends BaseScene {
     this.fullDialogueString = '';
     this.isTyping = false;
     this.typewriterEvent = null;
+    this.npcController = null;
+    this.availableTopics = [];
+    this.askedTopics = new Set();
   }
 
 
@@ -121,7 +136,6 @@ export class LocationScene extends BaseScene {
       Boolean(derivedIsCrimeCity || derivedIsNextTargetCity || derivedJustReached);
 
 
-    this.lines = [];
     this.generatedNotes = [];
     this.isFinishing = false;
     this.dialogueText = null;
@@ -132,8 +146,9 @@ export class LocationScene extends BaseScene {
     this.portraitFrame = null;
     this.portraitImage = null;
     this.continueIndicator = null;
+    this.topicButtons = [];
+    this.leaveButton = null;
     this.encounterMemory = null;
-    this.isReminder = false;
     this.isFalseLead = !this.isCorrectCity;
     this.timeCostApplied = false;
     this.dialogueTargetCityId = data.dialogueTargetCityId || null;
@@ -141,6 +156,9 @@ export class LocationScene extends BaseScene {
     this.fullDialogueString = '';
     this.isTyping = false;
     this.typewriterEvent = null;
+    this.npcController = null;
+    this.availableTopics = [];
+    this.askedTopics = new Set();
 
 
     if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
@@ -156,8 +174,8 @@ export class LocationScene extends BaseScene {
 
 
   create() {
-        super.create();
-        this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);    
+    super.create();
+    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
     this.scene.get('NewsHud').events.emit('setTvVisible', false);
     audioManager.init(this);
     if (!audioManager.isMusicPlaying('themeGame')) audioManager.playMusic('themeGame', { loop: true });
@@ -179,10 +197,7 @@ export class LocationScene extends BaseScene {
 
     const suspects = this.cache.json.get('suspects') || [];
     const locations = this.cache.json.get('locations') || [];
-    const sharedCityCluesFile = this.cache.json.get('city_clues') || {};
-    const sharedCityClues = sharedCityCluesFile.cityClues || {};
-    const sharedSuspectCluesFile = this.cache.json.get('suspect_clues') || {};
-    const sharedSuspectClues = sharedSuspectCluesFile.suspectClues || {};
+    const countryFacts = this.cache.json.get('country_facts') || {};
 
 
     const dialogueCacheKey = NPC_DIALOGUE_KEY_MAP[this.npcId];
@@ -195,6 +210,7 @@ export class LocationScene extends BaseScene {
 
 
     const npcDialogueBlock = rawDialogueFile?.[dialogueRootKey] || {};
+    const npcLocationVariants = npcDialogueBlock.locationVariants || {};
     const cityData = locations.find(city => city.id === this.cityId) || null;
     this.npcTheme = resolveCityNpcTheme(cityData);
 
@@ -215,17 +231,8 @@ export class LocationScene extends BaseScene {
       : null;
 
 
-    const hasMemory = Boolean(this.encounterMemory);
-    const previousNotes = Array.isArray(this.encounterMemory?.notes)
-      ? this.encounterMemory.notes
-      : [];
-
-
-    this.isReminder = Boolean(
-      this.isRepeat &&
-      hasMemory &&
-      this.encounterMemory?.reminderShown === false &&
-      !this.isFalseLead
+    this.askedTopics = new Set(
+      Array.isArray(this.encounterMemory?.askedTopics) ? this.encounterMemory.askedTopics : []
     );
 
 
@@ -236,78 +243,45 @@ export class LocationScene extends BaseScene {
         : gameState.nextTargetCityId || null;
 
 
-    const frozenTargetFromMemory =
+    this.dialogueTargetCityId =
+      this.dialogueTargetCityId ||
+      expectedCityId ||
       this.encounterMemory?.dialogueTargetCityId ||
-      this.encounterMemory?.hintTargetCityId ||
       null;
 
 
-    if (!this.dialogueTargetCityId) {
-      this.dialogueTargetCityId =
-        expectedCityId ||
-        frozenTargetFromMemory ||
-        null;
-    }
-
-
-    if (this.dialogueTargetCityId && this.dialogueTargetCityId === this.cityId) {
+    if (this.dialogueTargetCityId === this.cityId) {
       this.dialogueTargetCityId = expectedCityId || null;
     }
 
 
-    const generatedDialogue = this.isFalseLead
-      ? buildFalseLeadDialogue(npcDialogueBlock, this.cityId)
-      : buildNpcDialogue({
-          npcData: npcDialogueBlock,
-          suspect,
-          cityId: this.cityId,
-          targetCityId: expectedCityId,
-          canonicalTravelCityId: expectedCityId,
-          clueScope: this.isCrimeCity ? 'crime_scene' : 'route_leg',
-          routeIndex: rm?.getCurrentLegIndex?.() ?? 0,
-          allowOnlyCanonicalTravelClue: true,
-          sharedCityClues,
-          sharedSuspectClues,
-          isRepeat: this.isRepeat,
-          previousNotes,
-          isCrimeCity: this.isCrimeCity,
-          isNextTargetCity: this.isNextTargetCity,
+    try {
+      this.npcController = new NPCController(
+        npcLocationVariants,
+        countryFacts,
+        this.cityId,
+        suspect || {},
+        {
+          targetCityId: this.dialogueTargetCityId,
           isCorrectCity: this.isCorrectCity
-        });
-
-
-    const fallbackLines = this.isFalseLead
-      ? [
-          'Wrong city, detective.',
-          'Nobody here gave me anything worth trusting.',
-          'Check the trail before you waste another conversation.'
-        ]
-      : this.isCrimeCity
-      ? [
-          'You are in the crime city, detective.',
-          'People here noticed more than they admit.',
-          'Start with the smallest inconsistency and the trail will open.'
-        ]
-      : [
-          'I saw something strange, detective.',
-          'Something about the suspect stood out, but not enough for amateurs.',
-          'They were asking about another city, and not casually.'
-        ];
-
-
-    this.lines = Array.isArray(generatedDialogue?.lines)
-      ? generatedDialogue.lines.filter(Boolean).slice(0, 3)
-      : [];
-
-
-    while (this.lines.length < 3) {
-      this.lines.push(fallbackLines[this.lines.length]);
+        }
+      );
+    } catch (error) {
+      console.warn('[LocationScene] Failed to build NPCController:', error);
+      this.npcController = null;
     }
 
 
-    this.generatedNotes = Array.isArray(generatedDialogue?.notes)
-      ? generatedDialogue.notes.filter(Boolean)
-      : [];
+    this.availableTopics = this.npcController ? this.npcController.getAvailableTopics() : [];
+
+
+    this.fullDialogueString = this.npcController
+      ? this.isFalseLead
+        ? this.npcController.getFalseLeadLine().text
+        : this.isRepeat
+        ? this.npcController.getRepeatLine()
+        : this.npcController.getBanterLine()
+      : 'There is nobody here who remembers anything useful.';
 
 
 const backgroundKey = this.getLocationBackgroundKey(
@@ -351,7 +325,6 @@ if (backgroundKey) {
     }
 
 
-    this.input.on('pointerdown', this.handlePointerDown, this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleShutdown, this);
     this.events.once(Phaser.Scenes.Events.DESTROY, this.handleShutdown, this);
   }
@@ -368,25 +341,25 @@ if (backgroundKey) {
     const portraitCenterX = portraitX + portraitSize / 2;
     const portraitCenterY = portraitY + portraitSize / 2;
     const nameTargetY = portraitY + portraitSize + 14;
+    const menuWidth = 190;
+    const textEndX = width - menuWidth - 20;
 
 
-    // Base panel: dark leather/parchment fill instead of flat grey.
     this.dialoguePanel = this.add
       .rectangle(0, panelY, width, panelHeight, PANEL_BG, PANEL_BG_ALPHA)
       .setOrigin(0, 0)
       .setDepth(10);
 
 
-    // Decorative double-border, Indiana Jones map-case style.
     this.panelBorder = this.add.graphics().setDepth(10);
     this.panelBorder.lineStyle(4, PANEL_GOLD, 1);
     this.panelBorder.strokeRect(6, panelY + 6, width - 12, panelHeight - 12);
     this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.9);
     this.panelBorder.strokeRect(12, panelY + 12, width - 24, panelHeight - 24);
+    this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.6);
+    this.panelBorder.lineBetween(textEndX, panelY + 16, textEndX, panelY + panelHeight - 16);
 
 
-    // Portrait frame lives in its own Graphics object so it can slide in
-    // together with the portrait image, independent of the main panel.
     this.portraitFrame = this.add.graphics().setDepth(11);
     this.portraitFrame.fillStyle(0x000000, 0.6);
     this.portraitFrame.fillRect(portraitX - 4, portraitY - 4, portraitSize + 8, portraitSize + 8);
@@ -405,7 +378,7 @@ if (backgroundKey) {
     } else {
       this.portraitImage = this.add
         .text(portraitCenterX, portraitCenterY, '?', {
-          fontFamily: 'Press Start 2P',
+          fontFamily: 'PressStart2P',
           fontSize: '48px',
           color: '#d4af37'
         })
@@ -414,10 +387,9 @@ if (backgroundKey) {
     }
 
 
-    // Name plate, tucked under the portrait frame like a museum label.
     this.npcNameText = this.add
       .text(portraitCenterX, nameTargetY, getNpcLabel(this.npcId), {
-        fontFamily: 'Press Start 2P',
+        fontFamily: 'PressStart2P',
         fontSize: '12px',
         color: '#ffd86b',
         align: 'center',
@@ -427,9 +399,6 @@ if (backgroundKey) {
       .setDepth(12);
 
 
-    // --- Portrait entrance animation ---
-    // Frame slides in from the left (translate via the Graphics object's
-    // own x offset, since its shapes are drawn at absolute coordinates).
     this.portraitFrame.x = PORTRAIT_SLIDE_OFFSET;
     this.portraitFrame.alpha = 0;
 
@@ -444,7 +413,6 @@ if (backgroundKey) {
     });
 
 
-    // Portrait image slides in alongside the frame.
     this.portraitImage.x = portraitCenterX + PORTRAIT_SLIDE_OFFSET;
     this.portraitImage.alpha = 0;
 
@@ -459,7 +427,6 @@ if (backgroundKey) {
     });
 
 
-    // Name plate fades in right after the portrait lands.
     this.npcNameText.alpha = 0;
 
 
@@ -471,18 +438,19 @@ if (backgroundKey) {
     });
 
 
-    this.fullDialogueString = this.lines.join('\n\n');
-
-
     this.dialogueText = this.add
       .text(textStartX, panelY + 26, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#f4ecd8',
         lineSpacing: 8,
-        wordWrap: { width: width - textStartX - 40 }
+        wordWrap: { width: textEndX - textStartX - 20 }
       })
-      .setDepth(12);
+      .setDepth(12)
+      .setInteractive()
+      .on('pointerdown', () => {
+        if (this.isTyping) this.completeTypewriter();
+      });
 
 
     const footerText = this.isCrimeCity
@@ -496,23 +464,15 @@ if (backgroundKey) {
 
     this.footerTextObject = this.add
       .text(textStartX, panelY + panelHeight - 30, footerText, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '15px',
         color: '#9a8a63'
       })
       .setDepth(12);
 
 
-    // Blinking "continue" arrow, bottom-right corner of the panel.
     this.continueIndicator = this.add
-      .triangle(
-        width - 40,
-        panelY + panelHeight - 30,
-        0, 0,
-        16, 8,
-        0, 16,
-        PANEL_GOLD
-      )
+      .triangle(textEndX - 24, panelY + panelHeight - 30, 0, 0, 16, 8, 0, 16, PANEL_GOLD)
       .setDepth(12)
       .setVisible(false);
 
@@ -526,7 +486,91 @@ if (backgroundKey) {
     });
 
 
+    this.createTopicMenu(width, panelY, panelHeight, menuWidth);
     this.startTypewriter();
+  }
+
+
+  createTopicMenu(width, panelY, panelHeight, menuWidth) {
+    const menuX = width - menuWidth + 10;
+    let buttonY = panelY + 24;
+    const buttonSpacing = 32;
+
+
+    this.topicButtons.forEach(btn => btn.text?.destroy());
+    this.topicButtons = [];
+
+
+    if (!this.isFalseLead) {
+      this.availableTopics.forEach(topicId => {
+        const label = TOPIC_LABELS[topicId] || topicId;
+        const alreadyAsked = this.askedTopics.has(topicId);
+
+
+        const button = this.add
+          .text(menuX, buttonY, label, {
+            fontFamily: 'SpecialElite',
+            fontSize: '18px',
+            color: alreadyAsked ? '#7a7160' : '#ffd86b'
+          })
+          .setDepth(13)
+          .setInteractive({ useHandCursor: true });
+
+
+        button.on('pointerover', () => button.setColor('#ffffff'));
+        button.on('pointerout', () => {
+          button.setColor(this.askedTopics.has(topicId) ? '#7a7160' : '#ffd86b');
+        });
+        button.on('pointerdown', () => this.handleTopicClick(topicId));
+
+
+        this.topicButtons.push({ topicId, text: button });
+        buttonY += buttonSpacing;
+      });
+    }
+
+
+    this.leaveButton = this.add
+      .text(menuX, panelY + panelHeight - 34, 'Leave', {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#d4af37'
+      })
+      .setDepth(13)
+      .setInteractive({ useHandCursor: true });
+
+
+    this.leaveButton.on('pointerover', () => this.leaveButton.setColor('#ffffff'));
+    this.leaveButton.on('pointerout', () => this.leaveButton.setColor('#d4af37'));
+    this.leaveButton.on('pointerdown', () => this.finishEncounter());
+  }
+
+
+  handleTopicClick(topicId) {
+    if (!this.npcController || this.isFinishing) return;
+    if (this.isTyping) this.completeTypewriter();
+
+
+    const result = this.npcController.askTopic(topicId);
+    const alreadyAsked = this.askedTopics.has(topicId);
+
+
+    if (!alreadyAsked) {
+      const note = this.npcController.toNote(result);
+      if (note && !this.hasClue(note)) {
+        this.generatedNotes.push(note);
+      }
+      this.askedTopics.add(topicId);
+    }
+
+
+    this.fullDialogueString = result.text;
+    this.startTypewriter();
+
+
+    this.topicButtons.forEach(({ topicId: id, text }) => {
+      text.setColor(this.askedTopics.has(id) ? '#7a7160' : '#ffd86b');
+    });
   }
 
 
@@ -537,6 +581,13 @@ if (backgroundKey) {
 
     let charIndex = 0;
     const fullText = this.fullDialogueString;
+    this.dialogueText?.setText('');
+
+
+    if (this.typewriterEvent) {
+      this.typewriterEvent.remove(false);
+      this.typewriterEvent = null;
+    }
 
 
     this.typewriterEvent = this.time.addEvent({
@@ -571,16 +622,10 @@ if (backgroundKey) {
 onNpcInteraction(npc) {
   const energyManager = getEnergyManager();
   const result = energyManager.consumeInterview('medium');
-  
   console.log(`💬 ${result.label}`);
-  
-  // Otwórz dialog jak zwykle
   this.startDialog(npc);
 }
   handleShutdown() {
-    this.input.off('pointerdown', this.handlePointerDown, this);
-
-
     if (this.typewriterEvent) {
       this.typewriterEvent.remove(false);
       this.typewriterEvent = null;
@@ -600,6 +645,8 @@ onNpcInteraction(npc) {
     if (this.portraitFrame) this.portraitFrame.destroy();
     if (this.portraitImage) this.portraitImage.destroy();
     if (this.continueIndicator) this.continueIndicator.destroy();
+    this.topicButtons.forEach(btn => btn.text?.destroy());
+    if (this.leaveButton) this.leaveButton.destroy();
 
 
     this.dialogueText = null;
@@ -610,7 +657,8 @@ onNpcInteraction(npc) {
     this.portraitFrame = null;
     this.portraitImage = null;
     this.continueIndicator = null;
-    this.lines = [];
+    this.topicButtons = [];
+    this.leaveButton = null;
     this.generatedNotes = [];
     this.encounterMemory = null;
     this.isFinishing = false;
@@ -623,35 +671,9 @@ onNpcInteraction(npc) {
   }
 
 
-  handlePointerDown(pointer, currentlyOver, event) {
-    if (event?.stopPropagation) event.stopPropagation();
-    if (this.isFinishing) return;
-    if (this.isAnyUIOpen()) return;
-
-
-    if (this.isTyping) {
-      this.completeTypewriter();
-      return;
-    }
-
-
-    this.finishEncounter();
-  }
-
-
-  isAnyUIOpen() {
-    const hud = this.scene.get('PlayerHudScene');
-    if (hud?.isAnyPanelOpen) return hud.isAnyPanelOpen();
-    return false;
-  }
-
-
   finishEncounter() {
     if (this.isFinishing) return;
     this.isFinishing = true;
-
-
-    this.input.off('pointerdown', this.handlePointerDown, this);
 
 
     if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
@@ -670,7 +692,7 @@ onNpcInteraction(npc) {
     }
 
 
-    if (!this.isRepeat && !this.isFalseLead && this.generatedNotes.length > 0) {
+    if (!this.isFalseLead && this.generatedNotes.length > 0) {
       this.generatedNotes.forEach(note => {
         if (note && !this.hasClue(note)) {
           gameState.cluesCollected.push(note);
@@ -680,29 +702,18 @@ onNpcInteraction(npc) {
 
 
     if (this.encounterId && !this.isFalseLead) {
-      const existingMemory = gameState.encounterMemory[this.encounterId] || null;
+      const existingMemory = gameState.encounterMemory[this.encounterId] || {};
 
 
-      if (!existingMemory && !this.isRepeat) {
-        gameState.encounterMemory[this.encounterId] = {
-          firstDialogueSeen: true,
-          reminderShown: false,
-          notes: [...this.generatedNotes],
-          lines: [...this.lines],
-          isCrimeCity: this.isCrimeCity,
-          isNextTargetCity: this.isNextTargetCity,
-          dialogueTargetCityId: this.dialogueTargetCityId || null
-        };
-      } else if (existingMemory && this.isReminder) {
-        gameState.encounterMemory[this.encounterId] = {
-          ...existingMemory,
-          reminderShown: true,
-          dialogueTargetCityId:
-            existingMemory.dialogueTargetCityId ||
-            this.dialogueTargetCityId ||
-            null
-        };
-      }
+      gameState.encounterMemory[this.encounterId] = {
+        ...existingMemory,
+        firstDialogueSeen: true,
+        askedTopics: Array.from(this.askedTopics),
+        dialogueTargetCityId:
+          existingMemory.dialogueTargetCityId ||
+          this.dialogueTargetCityId ||
+          null
+      };
     }
 
 

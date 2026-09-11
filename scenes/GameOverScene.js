@@ -49,7 +49,7 @@ export class GameOverScene extends BaseScene {
     msgInner.setStrokeStyle(2, 0x7b4a2d, 0.8);
 
     this.add.text(960, 915, this.messageTextValue, {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '30px',
       color: '#f6ead0',
       align: 'center',

@@ -30,7 +30,7 @@
       justify-content: center;
       color: var(--text-main);
       background-color: var(--bg-color);
-      font-family: 'Special Elite', monospace, system-ui;
+      font-family: 'SpecialElite', monospace, system-ui;
     }
 
     .detective-card {
@@ -111,7 +111,7 @@
       border-radius: 6px;
       outline: none;
 
-      font-family: 'Special Elite', monospace;
+      font-family: 'SpecialElite', monospace;
       font-size: 1.05rem;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
@@ -137,7 +137,7 @@
       border-radius: 6px;
       cursor: pointer;
 
-      font-family: 'Special Elite', monospace;
+      font-family: 'SpecialElite', monospace;
       font-size: 1.2rem;
       font-weight: bold;
       letter-spacing: 3px;
@@ -183,7 +183,7 @@
       border-radius: 4px;
       cursor: pointer;
 
-      font-family: 'Special Elite', monospace;
+      font-family: 'SpecialElite', monospace;
       font-size: 0.95rem;
       letter-spacing: 1px;
       text-align: center;

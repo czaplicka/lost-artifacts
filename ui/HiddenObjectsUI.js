@@ -29,7 +29,7 @@ export class HiddenObjectsUI {
 
     this.scene.add
       .text(34, 34, this.scene.title, {
-        fontFamily: 'Special Elite, Arial',
+        fontFamily: 'SpecialElite, Arial',
         fontSize: '26px',
         color: '#ffffff',
         wordWrap: {
@@ -150,7 +150,7 @@ if (this.scene.textures.exists('back')) {
 } else {
   this.backBtn = this.scene.add
     .text(width - 125, 46, 'RETURN TO CITY', {
-      fontFamily: 'Press Start 2P, Arial',
+      fontFamily: 'PressStart2P, Arial',
       fontSize: '12px',
       color: '#ffffff',
       backgroundColor: '#222222',
@@ -278,7 +278,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
 
     const title = this.scene.add
       .text(0, -155, 'Crime Scene Complete', {
-        fontFamily: 'Special Elite, Arial',
+        fontFamily: 'SpecialElite, Arial',
         fontSize: '38px',
         color: '#f8e7b9',
         align: 'center'
@@ -287,7 +287,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
 
     const subtitle = this.scene.add
       .text(0, -104, 'The forensic sweep is finished.', {
-        fontFamily: 'Press Start 2P, Arial',
+        fontFamily: 'PressStart2P, Arial',
         fontSize: '22px',
         color: '#f2f2f2',
         align: 'center'
@@ -306,7 +306,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
           `Final score: ${finalScore}`
         ].join('\n'),
         {
-          fontFamily: 'Press Start 2P, Arial',
+          fontFamily: 'PressStart2P, Arial',
           fontSize: '24px',
           color: '#ffffff',
           align: 'center',
@@ -321,7 +321,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
         112,
         'Evidence logged. Return to the city and continue the investigation.',
         {
-          fontFamily: 'Press Start 2P, Arial',
+          fontFamily: 'PressStart2P, Arial',
           fontSize: '19px',
           color: '#d8d8d8',
           align: 'center',
@@ -353,7 +353,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
 
     const continueBtnText = this.scene.add
       .text(0, continueBtnY, buttonLabel, {
-        fontFamily: 'Press Start 2P, Arial',
+        fontFamily: 'PressStart2P, Arial',
         fontSize: '14px',
         color: '#fff7dc'
       })
@@ -444,7 +444,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
 
     const title = this.scene.add
       .text(0, -95, 'Crime Scene Lost', {
-        fontFamily: 'Special Elite, Arial',
+        fontFamily: 'SpecialElite, Arial',
         fontSize: '36px',
         color: '#ffb3b3'
       })
@@ -495,7 +495,7 @@ this.backBtn.on('pointerdown', returnToCrimeCity);
 
     const btnText = this.scene.add
       .text(0, buttonY, buttonLabel, {
-        fontFamily: 'Press Start 2P, Arial',
+        fontFamily: 'PressStart2P, Arial',
         fontSize: '14px',
         color: '#fff1f1'
       })

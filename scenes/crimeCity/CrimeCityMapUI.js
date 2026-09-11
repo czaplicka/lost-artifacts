@@ -57,7 +57,7 @@ export class CrimeCityMapUI {
         18,
         `${this.scene.cityData.city}, ${this.scene.cityData.country}`,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '28px',
           color: '#ffffff'
         }
@@ -85,7 +85,7 @@ export class CrimeCityMapUI {
 
     this.scene.add
       .text(40, 50, subtitle, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#f1e6b8'
       })
@@ -346,7 +346,7 @@ export class CrimeCityMapUI {
 
     const labelObject = this.scene.add
       .text(x, y + 68, label, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: completed ? '#aaaaaa' : '#ffffff',
         backgroundColor: '#000000aa',
@@ -423,7 +423,7 @@ export class CrimeCityMapUI {
 
     const checkmark = this.scene.add
       .text(x, y, '✓', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '34px',
         color: '#66bb6a'
       })
@@ -432,7 +432,7 @@ export class CrimeCityMapUI {
 
     const labelObject = this.scene.add
       .text(x, y + 68, label, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '18px',
         color: '#aaaaaa',
         backgroundColor: '#000000aa',
@@ -469,7 +469,7 @@ export class CrimeCityMapUI {
   createStatusBadge(x, y, text, color) {
     const badge = this.scene.add
       .text(x, y, text, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '13px',
         color,
         backgroundColor: '#000000cc',

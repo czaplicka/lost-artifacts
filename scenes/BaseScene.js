@@ -1,53 +1,99 @@
 import { EventBus } from '../EventBus.js';
 import { MonologueManager } from '../MonologueManager.js';
-import { InventoryUI } from '../ui/InventoryUI.js';
 import { inventoryManager } from '../InventoryManager.js';
 
 export class BaseScene extends Phaser.Scene {
   constructor(config) {
     super(config);
 
-    this.inventoryUI = null;
-    this.hasMenu = false;
-
     this.activeTweens = [];
     this.inputEvents = [];
     this._busListeners = [];
+
+    this.sceneEvents = null;
 
     this._sceneLoaderNavInFlight = false;
     this._overlayLoadsInFlight = new Set();
 
     this._cleanupDone = false;
     this._sleepCleanupDone = false;
+    this._destroyCleanupDone = false;
   }
 
   create() {
+    const wasCleanedUp = this._cleanupDone;
+
     this._cleanupDone = false;
     this._sleepCleanupDone = false;
-
+    this._destroyCleanupDone = false;
     this._sceneLoaderNavInFlight = false;
+
+    /*
+     * Gdy scena została zatrzymana i później uruchomiona ponownie
+     * na tej samej instancji, nie chcemy przenosić referencji
+     * z poprzedniego cyklu życia sceny.
+     */
+    if (wasCleanedUp) {
+      this.activeTweens = [];
+      this.inputEvents = [];
+      this._busListeners = [];
+    }
+
+    if (!Array.isArray(this.activeTweens)) {
+      this.activeTweens = [];
+    }
+
+    if (!Array.isArray(this.inputEvents)) {
+      this.inputEvents = [];
+    }
+
+    if (!Array.isArray(this._busListeners)) {
+      this._busListeners = [];
+    }
 
     if (!this._overlayLoadsInFlight) {
       this._overlayLoadsInFlight = new Set();
     }
 
-    if (!this.eventBus) {
-      this.eventBus = EventBus;
+    if (!this.sceneEvents) {
+      this.sceneEvents = new Phaser.Events.EventEmitter();
     }
 
     if (!this.monologue) {
-      const monologues =
-        this.cache.json.get('monologues') ?? {};
+      const monologues = this.cache.json.get('monologues') ?? {};
 
       this.monologue = new MonologueManager(this, {
         dialogues: monologues
       });
     }
 
-    if (this.hasMenu && !this.inventoryUI) {
-      this.inventoryUI = new InventoryUI(this);
-      this.inventoryUI.initialize();
-    }
+    /*
+     * Usuwamy wyłącznie listenery należące do BaseScene.
+     * Chroni to przed ich duplikowaniem przy restartach sceny.
+     */
+    this.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.cleanup,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.SLEEP,
+      this.handleSleep,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.WAKE,
+      this.handleWake,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.DESTROY,
+      this.destroyBaseScene,
+      this
+    );
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -55,49 +101,455 @@ export class BaseScene extends Phaser.Scene {
       this
     );
 
-    this.events.once(
+    /*
+     * SLEEP i WAKE mogą wystąpić wielokrotnie
+     * dla tej samej instancji sceny.
+     */
+    this.events.on(
       Phaser.Scenes.Events.SLEEP,
       this.handleSleep,
       this
     );
 
-    this.events.once(
+    this.events.on(
       Phaser.Scenes.Events.WAKE,
       this.handleWake,
       this
     );
+
+    this.events.once(
+      Phaser.Scenes.Events.DESTROY,
+      this.destroyBaseScene,
+      this
+    );
   }
 
-  /**
-   * Scoped listener dla globalnego EventBus.
-   *
-   * Używaj:
-   *   this.onBus('eventName', this.someMethod);
-   *
-   * Listener zostanie zdjęty przy SHUTDOWN sceny.
-   */
+  // ------------------------------------------------------------------
+  // Global EventBus helpers
+  // ------------------------------------------------------------------
+
   onBus(eventName, callback, context = this) {
-    if (!this.eventBus) {
-      this.eventBus = EventBus;
+    if (this._cleanupDone) {
+      console.warn(
+        `[BaseScene] Ignoring EventBus listener after cleanup in "${this.scene.key}".`
+      );
+
+      return null;
     }
 
-    this.eventBus.on(eventName, callback, context);
+    if (!eventName || typeof callback !== 'function') {
+      console.warn(
+        '[BaseScene] onBus() received invalid listener data.',
+        {
+          scene: this.scene.key,
+          eventName,
+          callback
+        }
+      );
+
+      return null;
+    }
+
+    const listenerAlreadyTracked = this._busListeners.some(
+      (listener) =>
+        listener.eventName === eventName &&
+        listener.callback === callback &&
+        listener.context === context &&
+        listener.once === false
+    );
+
+    if (listenerAlreadyTracked) {
+      return callback;
+    }
+
+    EventBus.on(eventName, callback, context);
 
     this._busListeners.push({
       eventName,
       callback,
-      context
+      originalCallback: callback,
+      context,
+      once: false
     });
 
     return callback;
   }
 
-  /**
-   * Lekki cleanup przy sleep.
-   *
-   * Nie niszczy InventoryUI, nie odpina EventBus i nie usuwa input
-   * listenerów — scena może zostać wybudzona przez scene.wake().
-   */
+  onceBus(eventName, callback, context = this) {
+    if (this._cleanupDone) {
+      return null;
+    }
+
+    if (!eventName || typeof callback !== 'function') {
+      console.warn(
+        '[BaseScene] onceBus() received invalid listener data.',
+        {
+          scene: this.scene.key,
+          eventName,
+          callback
+        }
+      );
+
+      return null;
+    }
+
+    const listenerAlreadyTracked = this._busListeners.some(
+      (listener) =>
+        listener.eventName === eventName &&
+        listener.originalCallback === callback &&
+        listener.context === context &&
+        listener.once === true
+    );
+
+    if (listenerAlreadyTracked) {
+      return callback;
+    }
+
+    const wrappedCallback = (...args) => {
+      this.offBus(eventName, wrappedCallback, context);
+      callback.apply(context, args);
+    };
+
+    EventBus.on(eventName, wrappedCallback, context);
+
+    this._busListeners.push({
+      eventName,
+      callback: wrappedCallback,
+      originalCallback: callback,
+      context,
+      once: true
+    });
+
+    return callback;
+  }
+
+  offBus(eventName, callback, context = this) {
+    if (!eventName || typeof callback !== 'function') {
+      return false;
+    }
+
+    const matchingListeners = this._busListeners.filter(
+      (listener) =>
+        listener.eventName === eventName &&
+        listener.context === context &&
+        (
+          listener.callback === callback ||
+          listener.originalCallback === callback
+        )
+    );
+
+    matchingListeners.forEach((listener) => {
+      EventBus.off(
+        listener.eventName,
+        listener.callback,
+        listener.context
+      );
+    });
+
+    /*
+     * Gdy nie mamy wpisu w registry, mimo wszystko próbujemy
+     * odpiąć callback bezpośrednio od EventBus.
+     */
+    if (!matchingListeners.length) {
+      EventBus.off(eventName, callback, context);
+    }
+
+    const initialCount = this._busListeners.length;
+
+    this._busListeners = this._busListeners.filter(
+      (listener) =>
+        !(
+          listener.eventName === eventName &&
+          listener.context === context &&
+          (
+            listener.callback === callback ||
+            listener.originalCallback === callback
+          )
+        )
+    );
+
+    return this._busListeners.length !== initialCount;
+  }
+
+  emitBus(eventName, ...args) {
+    if (!eventName) {
+      return false;
+    }
+
+    EventBus.emit(eventName, ...args);
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------
+  // Scene-local event helpers
+  // ------------------------------------------------------------------
+
+  onSceneEvent(eventName, callback, context = this) {
+    if (this._cleanupDone) {
+      return null;
+    }
+
+    if (!eventName || typeof callback !== 'function') {
+      return null;
+    }
+
+    this.sceneEvents?.on(eventName, callback, context);
+
+    return callback;
+  }
+
+  onceSceneEvent(eventName, callback, context = this) {
+    if (this._cleanupDone) {
+      return null;
+    }
+
+    if (!eventName || typeof callback !== 'function') {
+      return null;
+    }
+
+    this.sceneEvents?.once(eventName, callback, context);
+
+    return callback;
+  }
+
+  offSceneEvent(eventName, callback, context = this) {
+    this.sceneEvents?.off(eventName, callback, context);
+  }
+
+  emitSceneEvent(eventName, ...args) {
+    if (!eventName || this._cleanupDone) {
+      return false;
+    }
+
+    this.sceneEvents?.emit(eventName, ...args);
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------
+  // Tween tracking helpers
+  // ------------------------------------------------------------------
+
+  isDestroyedTween(tween) {
+    return Boolean(
+      !tween ||
+      tween.isDestroyed ||
+      tween.parent === null
+    );
+  }
+
+  isTweenPlaying(tween) {
+    if (this.isDestroyedTween(tween)) {
+      return false;
+    }
+
+    try {
+      if (typeof tween.isPlaying === 'function') {
+        return tween.isPlaying();
+      }
+
+      return Boolean(tween.isPlaying);
+    } catch {
+      return false;
+    }
+  }
+
+  untrackTween(tween) {
+    if (!tween || !Array.isArray(this.activeTweens)) {
+      return false;
+    }
+
+    const previousLength = this.activeTweens.length;
+
+    this.activeTweens = this.activeTweens.filter(
+      (trackedTween) => trackedTween !== tween
+    );
+
+    return this.activeTweens.length !== previousLength;
+  }
+
+  addTrackedTween(tween) {
+    if (!tween || this._cleanupDone) {
+      return null;
+    }
+
+    if (this.activeTweens.includes(tween)) {
+      return tween;
+    }
+
+    this.activeTweens.push(tween);
+
+    const removeTweenFromTracking = () => {
+      this.untrackTween(tween);
+    };
+
+    tween.once?.('complete', removeTweenFromTracking);
+    tween.once?.('stop', removeTweenFromTracking);
+    tween.once?.('remove', removeTweenFromTracking);
+
+    return tween;
+  }
+
+  createTrackedTween(config = {}) {
+    if (
+      this._cleanupDone ||
+      !this.tweens ||
+      typeof this.tweens.add !== 'function' ||
+      !config
+    ) {
+      return null;
+    }
+
+    let tween = null;
+
+    const originalOnComplete = config.onComplete;
+    const originalOnStop = config.onStop;
+    const originalOnRemove = config.onRemove;
+
+    const removeTweenFromTracking = () => {
+      if (tween) {
+        this.untrackTween(tween);
+      }
+    };
+
+    tween = this.tweens.add({
+      ...config,
+
+      onComplete: (...args) => {
+        removeTweenFromTracking();
+        originalOnComplete?.(...args);
+      },
+
+      onStop: (...args) => {
+        removeTweenFromTracking();
+        originalOnStop?.(...args);
+      },
+
+      onRemove: (...args) => {
+        removeTweenFromTracking();
+        originalOnRemove?.(...args);
+      }
+    });
+
+    return this.addTrackedTween(tween);
+  }
+
+  removeTrackedTween(
+    tween,
+    {
+      stop = true,
+      remove = true
+    } = {}
+  ) {
+    if (!tween) {
+      return false;
+    }
+
+    this.untrackTween(tween);
+
+    try {
+      if (stop && this.isTweenPlaying(tween)) {
+        tween.stop();
+      }
+    } catch (error) {
+      console.warn(
+        '[BaseScene] Tracked tween stop failed:',
+        error
+      );
+    }
+
+    try {
+      if (remove && !this.isDestroyedTween(tween)) {
+        tween.remove?.();
+      }
+    } catch (error) {
+      console.warn(
+        '[BaseScene] Tracked tween removal failed:',
+        error
+      );
+    }
+
+    return true;
+  }
+
+  cleanupTrackedTweens() {
+    if (!Array.isArray(this.activeTweens)) {
+      this.activeTweens = [];
+      return;
+    }
+
+    const tweensToCleanup = [...this.activeTweens];
+
+    this.activeTweens = [];
+
+    tweensToCleanup.forEach((tween) => {
+      if (!tween || this.isDestroyedTween(tween)) {
+        return;
+      }
+
+      try {
+        if (this.isTweenPlaying(tween)) {
+          tween.stop();
+        }
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Tween cleanup stop failed:',
+          error
+        );
+      }
+
+      try {
+        tween.remove?.();
+      } catch (error) {
+        console.warn(
+          '[BaseScene] Tween cleanup removal failed:',
+          error
+        );
+      }
+    });
+  }
+
+  killTrackedTweensOf(target) {
+    if (!target) {
+      return false;
+    }
+
+    const trackedTweens = [...this.activeTweens];
+
+    trackedTweens.forEach((tween) => {
+      if (!tween || this.isDestroyedTween(tween)) {
+        this.untrackTween(tween);
+        return;
+      }
+
+      const targets = tween.targets ?? [];
+
+      const hasTarget = Array.isArray(targets)
+        ? targets.includes(target)
+        : false;
+
+      if (hasTarget) {
+        this.removeTrackedTween(tween);
+      }
+    });
+
+    try {
+      this.tweens?.killTweensOf?.(target);
+    } catch (error) {
+      console.warn(
+        '[BaseScene] killTrackedTweensOf() failed:',
+        error
+      );
+    }
+
+    return true;
+  }
+
+  // ------------------------------------------------------------------
+  // Scene lifecycle cleanup
+  // ------------------------------------------------------------------
+
   handleSleep() {
     if (this._sleepCleanupDone || this._cleanupDone) {
       return;
@@ -106,12 +558,13 @@ export class BaseScene extends Phaser.Scene {
     this._sleepCleanupDone = true;
 
     this.activeTweens.forEach((tween) => {
-      if (!tween || tween.isDestroyed) {
+      if (!tween || this.isDestroyedTween(tween)) {
+        this.untrackTween(tween);
         return;
       }
 
       try {
-        tween.pause();
+        tween.pause?.();
       } catch (error) {
         console.warn(
           '[BaseScene] Tween sleep pause failed:',
@@ -123,12 +576,6 @@ export class BaseScene extends Phaser.Scene {
     this._sceneLoaderNavInFlight = false;
   }
 
-  /**
-   * Przywraca stan po wybudzeniu sceny.
-   *
-   * Phaser zwykle sam wznawia tweens sceny, ale jawnie wznawiamy
-   * śledzone tweens, aby działało również przy ręcznych pause().
-   */
   handleWake() {
     if (this._cleanupDone) {
       return;
@@ -137,12 +584,13 @@ export class BaseScene extends Phaser.Scene {
     this._sleepCleanupDone = false;
 
     this.activeTweens.forEach((tween) => {
-      if (!tween || tween.isDestroyed) {
+      if (!tween || this.isDestroyedTween(tween)) {
+        this.untrackTween(tween);
         return;
       }
 
       try {
-        tween.resume();
+        tween.resume?.();
       } catch (error) {
         console.warn(
           '[BaseScene] Tween wake resume failed:',
@@ -152,11 +600,6 @@ export class BaseScene extends Phaser.Scene {
     });
   }
 
-  /**
-   * Pełny cleanup wykonywany wyłącznie podczas SHUTDOWN.
-   *
-   * Jest idempotentny: może zostać wywołany wiele razy bez błędów.
-   */
   cleanup() {
     if (this._cleanupDone) {
       return;
@@ -164,22 +607,7 @@ export class BaseScene extends Phaser.Scene {
 
     this._cleanupDone = true;
 
-    this.activeTweens.forEach((tween) => {
-      if (!tween || tween.isDestroyed) {
-        return;
-      }
-
-      try {
-        tween.stop();
-      } catch (error) {
-        console.warn(
-          '[BaseScene] Tween cleanup failed:',
-          error
-        );
-      }
-    });
-
-    this.activeTweens = [];
+    this.cleanupTrackedTweens();
 
     this.inputEvents.forEach((event) => {
       if (
@@ -206,31 +634,10 @@ export class BaseScene extends Phaser.Scene {
 
     this.inputEvents = [];
 
-    if (this.inventoryUI) {
-      try {
-        this.inventoryUI.destroy();
-      } catch (error) {
-        console.warn(
-          '[BaseScene] Inventory cleanup failed:',
-          error
-        );
-      }
-
-      this.inventoryUI = null;
-    }
-
-    if (!this.eventBus) {
-      this.eventBus = EventBus;
-    }
-
     this._busListeners.forEach(
       ({ eventName, callback, context }) => {
         try {
-          this.eventBus.off(
-            eventName,
-            callback,
-            context
-          );
+          EventBus.off(eventName, callback, context);
         } catch (error) {
           console.warn(
             `[BaseScene] EventBus cleanup failed for "${eventName}":`,
@@ -242,53 +649,70 @@ export class BaseScene extends Phaser.Scene {
 
     this._busListeners = [];
 
-    this._sceneLoaderNavInFlight = false;
+    this.sceneEvents?.removeAllListeners();
 
+    this.events.off(
+      Phaser.Scenes.Events.SLEEP,
+      this.handleSleep,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.WAKE,
+      this.handleWake,
+      this
+    );
+
+    this._sceneLoaderNavInFlight = false;
     this._overlayLoadsInFlight?.clear();
   }
 
-  /**
-   * Dodaje tween do listy automatycznie sprzątanej przy shutdown sceny.
-   */
-  addTrackedTween(tween) {
-    if (!tween) {
-      return null;
+  destroyBaseScene() {
+    if (this._destroyCleanupDone) {
+      return;
     }
 
-    this.activeTweens.push(tween);
+    this._destroyCleanupDone = true;
 
-    const removeTweenFromTracking = () => {
-      this.activeTweens = this.activeTweens.filter(
-        (trackedTween) => trackedTween !== tween
-      );
-    };
+    this.cleanup();
 
-    tween.once('complete', removeTweenFromTracking);
-    tween.once('stop', removeTweenFromTracking);
+    if (this.sceneEvents) {
+      this.sceneEvents.removeAllListeners();
+      this.sceneEvents.destroy();
+      this.sceneEvents = null;
+    }
 
-    return tween;
+    this.monologue?.destroy?.();
+    this.monologue = null;
   }
 
-  /**
-   * Rejestruje input listener do automatycznego cleanupu.
-   *
-   * Przykład:
-   *   this.trackInputEvent(
-   *     this.input.keyboard,
-   *     'keydown-ESC',
-   *     this.handleEscape
-   *   );
-   */
+  // ------------------------------------------------------------------
+  // Input helpers
+  // ------------------------------------------------------------------
+
   trackInputEvent(
     target,
     eventName,
     callback,
     context = this
   ) {
-    if (!target?.on || !eventName || !callback) {
+    if (this._cleanupDone) {
+      console.warn(
+        `[BaseScene] Ignoring input listener after cleanup in "${this.scene.key}".`
+      );
+
+      return null;
+    }
+
+    if (
+      !target?.on ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       console.warn(
         '[BaseScene] trackInputEvent received invalid event data.',
         {
+          scene: this.scene.key,
           target,
           eventName,
           callback
@@ -296,6 +720,18 @@ export class BaseScene extends Phaser.Scene {
       );
 
       return null;
+    }
+
+    const listenerAlreadyTracked = this.inputEvents.some(
+      (listener) =>
+        listener.target === target &&
+        listener.name === eventName &&
+        listener.callback === callback &&
+        listener.context === context
+    );
+
+    if (listenerAlreadyTracked) {
+      return callback;
     }
 
     target.on(eventName, callback, context);
@@ -308,6 +744,48 @@ export class BaseScene extends Phaser.Scene {
     });
 
     return callback;
+  }
+
+  offTrackedInputEvent(
+    target,
+    eventName,
+    callback,
+    context = this
+  ) {
+    if (
+      !target ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
+      return false;
+    }
+
+    try {
+      target.removeListener?.(
+        eventName,
+        callback,
+        context
+      );
+    } catch (error) {
+      console.warn(
+        '[BaseScene] Input listener removal failed:',
+        error
+      );
+    }
+
+    const initialCount = this.inputEvents.length;
+
+    this.inputEvents = this.inputEvents.filter(
+      (listener) =>
+        !(
+          listener.target === target &&
+          listener.name === eventName &&
+          listener.callback === callback &&
+          listener.context === context
+        )
+    );
+
+    return this.inputEvents.length !== initialCount;
   }
 
   // ------------------------------------------------------------------
@@ -346,12 +824,6 @@ export class BaseScene extends Phaser.Scene {
   // Safe Phaser scene helpers
   // ------------------------------------------------------------------
 
-  /**
-   * Sprawdza, czy scena została dodana do SceneManagera Phaser.
-   *
-   * Nie generuje warningu:
-   *   Scene key not found: SomeScene
-   */
   hasScene(sceneKey) {
     return Boolean(
       sceneKey &&
@@ -359,11 +831,6 @@ export class BaseScene extends Phaser.Scene {
     );
   }
 
-  /**
-   * Zwraca instancję sceny tylko jeśli Phaser ją zna.
-   *
-   * Może zwrócić scenę aktywną, śpiącą, pauzowaną lub nieaktywną.
-   */
   getRegisteredScene(sceneKey) {
     if (!this.hasScene(sceneKey)) {
       return null;
@@ -372,9 +839,6 @@ export class BaseScene extends Phaser.Scene {
     return this.scene.manager.keys[sceneKey] || null;
   }
 
-  /**
-   * Zwraca instancję sceny tylko jeśli jest aktywna.
-   */
   getSceneIfActive(sceneKey) {
     if (!this.isSceneActive(sceneKey)) {
       return null;
@@ -383,9 +847,6 @@ export class BaseScene extends Phaser.Scene {
     return this.getRegisteredScene(sceneKey);
   }
 
-  /**
-   * Bezpieczna wersja this.scene.isActive(sceneKey).
-   */
   isSceneActive(sceneKey) {
     return Boolean(
       this.hasScene(sceneKey) &&
@@ -393,9 +854,6 @@ export class BaseScene extends Phaser.Scene {
     );
   }
 
-  /**
-   * Bezpieczna wersja this.scene.isSleeping(sceneKey).
-   */
   isSceneSleeping(sceneKey) {
     return Boolean(
       this.hasScene(sceneKey) &&
@@ -403,9 +861,6 @@ export class BaseScene extends Phaser.Scene {
     );
   }
 
-  /**
-   * Bezpieczna wersja this.scene.isPaused(sceneKey).
-   */
   isScenePaused(sceneKey) {
     return Boolean(
       this.hasScene(sceneKey) &&
@@ -413,10 +868,6 @@ export class BaseScene extends Phaser.Scene {
     );
   }
 
-  /**
-   * Sprawdza, czy scena jest w jakimkolwiek stanie roboczym:
-   * active, sleeping lub paused.
-   */
   isSceneRunning(sceneKey) {
     return (
       this.isSceneActive(sceneKey) ||
@@ -425,9 +876,6 @@ export class BaseScene extends Phaser.Scene {
     );
   }
 
-  /**
-   * Bezpiecznie zatrzymuje scenę aktywną, śpiącą albo pauzowaną.
-   */
   stopSceneIfActive(sceneKey) {
     if (!this.isSceneRunning(sceneKey)) {
       return false;
@@ -438,12 +886,6 @@ export class BaseScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Bezpiecznie usypia aktywną scenę.
-   *
-   * Nie używaj dla UIScene, jeśli chcesz, żeby zegar i eventy DOM
-   * aktualizowały się w tle — wtedy ukryj ją EventBus.emit('hideHUD').
-   */
   sleepSceneIfActive(sceneKey) {
     if (!this.isSceneActive(sceneKey)) {
       return false;
@@ -454,9 +896,6 @@ export class BaseScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Bezpiecznie pauzuje aktywną scenę.
-   */
   pauseSceneIfActive(sceneKey) {
     if (!this.isSceneActive(sceneKey)) {
       return false;
@@ -467,9 +906,6 @@ export class BaseScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Bezpiecznie wybudza scenę śpiącą.
-   */
   wakeSceneIfSleeping(sceneKey) {
     if (!this.isSceneSleeping(sceneKey)) {
       return false;
@@ -480,9 +916,6 @@ export class BaseScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Bezpiecznie wznawia scenę zapauzowaną.
-   */
   resumeSceneIfPaused(sceneKey) {
     if (!this.isScenePaused(sceneKey)) {
       return false;
@@ -493,9 +926,6 @@ export class BaseScene extends Phaser.Scene {
     return true;
   }
 
-  /**
-   * Bezpiecznie wynosi aktywną scenę na wierzch.
-   */
   bringSceneToTopIfActive(sceneKey) {
     if (!this.isSceneActive(sceneKey)) {
       return false;
@@ -510,20 +940,10 @@ export class BaseScene extends Phaser.Scene {
   // Player HUD helpers
   // ------------------------------------------------------------------
 
-  /**
-   * Zwraca aktywny PlayerHudScene albo null.
-   */
   getPlayerHudScene() {
     return this.getSceneIfActive('PlayerHudScene');
   }
 
-  /**
-   * Zamyka otwarte panele PlayerHudScene i usypia go.
-   *
-   * HTML HUD z UIScene chowaj osobno:
-   *   this.game.events.emit('setHudVisible', false);
-   *   EventBus.emit('hideHUD');
-   */
   sleepPlayerHud() {
     const hud = this.getPlayerHudScene();
 
@@ -532,21 +952,8 @@ export class BaseScene extends Phaser.Scene {
     return this.sleepSceneIfActive('PlayerHudScene');
   }
 
-  /**
-   * Zapewnia, że overlay istnieje i jest aktywny:
-   * - wybudza scenę śpiącą,
-   * - wznawia scenę pauzowaną,
-   * - wynosi aktywną na wierzch,
-   * - lazy-loaduje brakującą.
-   *
-   * Zwraca instancję sceny lub null.
-   */
   async ensureOverlayScene(sceneKey, data = {}) {
-    if (!sceneKey) {
-      console.error(
-        '[BaseScene] ensureOverlayScene() requires a scene key.'
-      );
-
+    if (!sceneKey || this._cleanupDone) {
       return null;
     }
 
@@ -575,7 +982,7 @@ export class BaseScene extends Phaser.Scene {
       data
     );
 
-    if (!opened) {
+    if (!opened || this._cleanupDone) {
       return null;
     }
 
@@ -584,19 +991,13 @@ export class BaseScene extends Phaser.Scene {
     return this.getRegisteredScene(sceneKey);
   }
 
-  /**
-   * Przywraca PlayerHudScene:
-   * - wybudza go ze sleep,
-   * - wznawia z pause,
-   * - albo lazy-loaduje, jeśli jeszcze nie istnieje.
-   */
   async restorePlayerHud(data = {}) {
     const hud = await this.ensureOverlayScene(
       'PlayerHudScene',
       data
     );
 
-    if (!hud) {
+    if (!hud || this._cleanupDone) {
       return null;
     }
 
@@ -607,19 +1008,39 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
+  // News HUD helpers
+  // ------------------------------------------------------------------
+
+  getNewsHudScene() {
+    return this.getSceneIfActive('NewsHud');
+  }
+
+  setNewsHudButtonsVisible(visible = true) {
+  const newsHud = this.getNewsHudScene();
+
+  if (!newsHud?.events) {
+    return false;
+  }
+
+  newsHud.events.emit('setButtonsVisible', Boolean(visible));
+
+  return true;
+}
+
+  showNewsHudButtons() {
+    return this.setNewsHudButtonsVisible(true);
+  }
+
+  hideNewsHudButtons() {
+    return this.setNewsHudButtonsVisible(false);
+  }
+
+  // ------------------------------------------------------------------
   // Lazy scene navigation
   // ------------------------------------------------------------------
 
-  /**
-   * Zamiennik this.scene.start(key, data).
-   *
-   * Dla pełnych scen, np.:
-   * CityScene, LocationScene, CrimeCityScene, HotelScene,
-   * TravelTransitionScene, GameOverScene, MenuScene.
-   */
   async goto(key, data = {}) {
-    if (!key) {
-      console.error('[BaseScene] goto() requires a scene key.');
+    if (!key || this._cleanupDone) {
       return false;
     }
 
@@ -662,68 +1083,57 @@ export class BaseScene extends Phaser.Scene {
     }
   }
 
-safeDisableInteractive(gameObject) {
-  if (!gameObject || gameObject.isDestroyed) {
-    return false;
+  safeDisableInteractive(gameObject) {
+    if (!gameObject || gameObject.isDestroyed) {
+      return false;
+    }
+
+    const objectScene = gameObject.scene;
+
+    if (
+      !objectScene ||
+      !objectScene.sys ||
+      !objectScene.sys.isActive() ||
+      !objectScene.sys.input
+    ) {
+      return false;
+    }
+
+    if (!gameObject.input || !gameObject.input.enabled) {
+      return false;
+    }
+
+    gameObject.disableInteractive?.();
+
+    return true;
   }
 
-  const objectScene = gameObject.scene;
-
-  if (
-    !objectScene ||
-    !objectScene.sys ||
-    !objectScene.sys.isActive() ||
-    !objectScene.sys.input
+  safeSetInteractive(
+    gameObject,
+    config = { useHandCursor: true }
   ) {
-    return false;
+    if (!gameObject || gameObject.isDestroyed) {
+      return false;
+    }
+
+    const objectScene = gameObject.scene;
+
+    if (
+      !objectScene ||
+      !objectScene.sys ||
+      !objectScene.sys.isActive() ||
+      !objectScene.sys.input
+    ) {
+      return false;
+    }
+
+    gameObject.setInteractive?.(config);
+
+    return true;
   }
 
-  if (!gameObject.input || !gameObject.input.enabled) {
-    return false;
-  }
-
-  gameObject.disableInteractive?.();
-
-  return true;
-}
-
-safeSetInteractive(gameObject, config = { useHandCursor: true }) {
-  if (!gameObject || gameObject.isDestroyed) {
-    return false;
-  }
-
-  const objectScene = gameObject.scene;
-
-  if (
-    !objectScene ||
-    !objectScene.sys ||
-    !objectScene.sys.isActive() ||
-    !objectScene.sys.input
-  ) {
-    return false;
-  }
-
-  gameObject.setInteractive?.(config);
-
-  return true;
-}
-
-  /**
-   * Zamiennik this.scene.launch(key, data).
-   *
-   * Dla scen nakładkowych, np.:
-   * PhoneCallScene, NewsstandScene, TvBroadcastScene,
-   * SettingsScene, HypothesisScene, NewspaperOverlayScene.
-   *
-   * Jeżeli scena jest śpiąca albo pauzowana, zostaje przywrócona,
-   * a nie uruchomiona drugi raz.
-   */
   async launchOverlay(key, data = {}) {
-    if (!key) {
-      console.error(
-        '[BaseScene] launchOverlay() requires a scene key.'
-      );
-
+    if (!key || this._cleanupDone) {
       return false;
     }
 
@@ -777,7 +1187,7 @@ safeSetInteractive(gameObject, config = { useHandCursor: true }) {
         this.scene.launch(key, data);
       }
 
-      return true;
+      return !this._cleanupDone;
     } catch (error) {
       console.error(
         `[BaseScene] launchOverlay("${key}") failed:`,
@@ -790,21 +1200,8 @@ safeSetInteractive(gameObject, config = { useHandCursor: true }) {
     }
   }
 
-  /**
-   * Otwiera / zamyka overlay.
-   *
-   * Zwraca:
-   * - "opened"
-   * - "closed"
-   * - "loading"
-   * - "error"
-   */
   async toggleOverlay(key, data = {}) {
-    if (!key) {
-      console.error(
-        '[BaseScene] toggleOverlay() requires a scene key.'
-      );
-
+    if (!key || this._cleanupDone) {
       return 'error';
     }
 

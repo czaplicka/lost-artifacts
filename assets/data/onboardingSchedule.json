@@ -1,7 +1,7 @@
 {
   "0": {
     "hiddenObjects": "standard_6",
-    "lab": "assistant_results",
+    "lab": "call_only",
     "suspectFiltering": "standard",
     "interviews": "neutral_tone",
     "mastermind": "standard_3slot",
@@ -9,6 +9,7 @@
     "travelCities": "quiet_travel",
     "cityChain": "two_cities"
   },
+
   "1": {
     "hiddenObjects": "standard_6",
     "lab": "single_game",
@@ -19,6 +20,7 @@
     "travelCities": "quiet_travel",
     "cityChain": "two_cities"
   },
+
   "2": {
     "hiddenObjects": "witness_addon",
     "lab": "two_games",
@@ -29,6 +31,7 @@
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   },
+
   "3": {
     "hiddenObjects": "unusual_scene",
     "lab": "three_games",
@@ -39,6 +42,7 @@
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   },
+
   "4": {
     "hiddenObjects": "unusual_scene",
     "lab": "two_games",

@@ -21,6 +21,8 @@ const LAB_TIME_FLAVOR_LINES = [
   'Science is slow. Also, it is later than when you started.'
 ];
 
+const STATION_IDS = ['identity', 'trace_0', 'trace_1'];
+
 export class CrimeLabScene extends BaseScene {
   constructor() {
     super({ key: 'CrimeLabScene' });
@@ -31,7 +33,7 @@ export class CrimeLabScene extends BaseScene {
     this.returnData = {};
 
     this.currentView = 'lab_intro';
-this.evidenceService = null;
+    this.evidenceService = null;
     this.labOnboarding = null;
     this.assistantHotspot = null;
     this.labView = null;
@@ -59,46 +61,45 @@ this.evidenceService = null;
   }
 
   init(data = {}) {
-  this.gameState = data.gameState || gameState;
+    this.gameState = data.gameState || gameState;
 
-  this.cityId =
-    data.cityId ||
-    this.gameState.currentMission?.city ||
-    this.gameState.crimeCityId ||
-    'paris';
+    this.cityId =
+      data.cityId ||
+      this.gameState.currentMission?.city ||
+      this.gameState.crimeCityId ||
+      'paris';
 
-  this.returnScene = 'CrimeCityScene';
+    this.returnScene = 'CrimeCityScene';
 
-  this.returnData = {
-    ...(data.returnData || {}),
-    cityId: this.cityId,
-    gameState: this.gameState
-  };
+    this.returnData = {
+      ...(data.returnData || {}),
+      cityId: this.cityId,
+      gameState: this.gameState
+    };
 
-  this.labManager = new CrimeLabManager(
-    this.gameState,
-    this.cityId
-  );
+    this.labManager = new CrimeLabManager(this.gameState, this.cityId);
+    this.labManager.ensureCaseForensics();
+    this.labManager.ensureRandomTraceEvidence();
 
-  this.labManager.ensureCaseForensics();
-  this.labManager.ensureRandomTraceEvidence();
+    this.evidenceService = new CrimeLabEvidenceService(
+      this.gameState,
+      this.labManager,
+      this.cityId
+    );
 
-  this.evidenceService = new CrimeLabEvidenceService(
-    this.gameState,
-    this.labManager,
-    this.cityId
-  );
+this.labOnboarding = this.getLabOnboarding();
 
-  this.labOnboarding = this.getLabOnboarding();
+this.evidenceService.ensureAssistantResults(
+  this.labOnboarding.playerGameCount
+);
 
-  this.currentView = 'lab_intro';
-  this.hotspots = [];
-  this.debugTexts = [];
-  this.uiLocked = false;
+this.currentView = 'lab_intro';
+    this.hotspots = [];
+    this.debugTexts = [];
+    this.uiLocked = false;
 
-  this.completedCount =
-    this.evidenceService.getCompletedStationCount();
-}
+    this.completedCount = this.getCompletedRequiredStationCount();
+  }
 
   create() {
     super.create();
@@ -108,25 +109,25 @@ this.evidenceService = null;
 
     const { width, height } = this.scale;
 
-this.labView = new CrimeLabView(this, {
-  initialView: 'lab_intro',
-  introBackgroundKey: this.getIntroBackgroundKey(),
-  onViewChanged: (viewKey) => {
-    this.currentView = viewKey;
+    this.labView = new CrimeLabView(this, {
+      initialView: 'lab_intro',
+      introBackgroundKey: this.getIntroBackgroundKey(),
+      onViewChanged: (viewKey) => {
+        this.currentView = viewKey;
 
-    if (this.leftArrow && this.rightArrow) {
-      this.updateNavVisibility();
-    }
+        if (this.leftArrow && this.rightArrow) {
+          this.updateNavVisibility();
+        }
 
-    if (this.hotspots.length > 0) {
-      this.updateRoomHotspots();
-    }
+        if (this.hotspots.length > 0) {
+          this.updateRoomHotspots();
+        }
 
-    this.hideNavHint();
-  }
-});
+        this.hideNavHint();
+      }
+    });
 
-this.labView.create(width, height);
+    this.labView.create(width, height);
     this.createHotspots();
     this.createAssistantHotspot();
     this.createNavigationUI();
@@ -137,7 +138,7 @@ this.labView.create(width, height);
 
     this.createOptionalDebug();
 
-this.labView.showView('lab_intro');
+    this.labView.showView('lab_intro');
     this.showIntroHint();
     this.hud?.refreshFromScene();
 
@@ -158,39 +159,86 @@ this.labView.showView('lab_intro');
   }
 
   getLabOnboarding() {
-    const mission = this.gameState.currentMission || {};
+    const mission = this.gameState?.currentMission ?? {};
 
-    const caseIndex = String(
+    const rawCaseIndex =
       mission.caseIndex ??
       mission.index ??
-      this.gameState.currentCaseIndex ??
-      this.gameState.caseIndex ??
-      0
-    );
+      this.gameState?.currentCaseIndex ??
+      this.gameState?.caseIndex ??
+      0;
+
+    const caseIndex = String(rawCaseIndex);
 
     const schedule =
-      mission.onboarding ||
-      this.gameState.currentOnboarding ||
-      this.gameState.onboardingSchedule?.[caseIndex] ||
-      { lab: 'three_games' };
+      mission.onboarding ??
+      this.gameState?.currentOnboarding ??
+      this.gameState?.onboardingSchedule?.[caseIndex] ??
+      { lab: 'call_only' };
 
-    const labMode = schedule.lab || 'three_games';
+    const labMode = schedule.lab ?? 'call_only';
+    const config = getLabOnboardingConfig(labMode);
 
-    return getLabOnboardingConfig(labMode);
+    console.log('[CrimeLabScene] Lab onboarding resolved:', {
+      rawCaseIndex,
+      caseIndex,
+      labMode,
+      assistantPresent: config.assistantPresent,
+      playerGameCount: config.playerGameCount,
+      assistantResultCount: config.assistantResultCount
+    });
+
+    return config;
   }
 
-getIntroBackgroundKey() {
-  return this.labOnboarding?.backgroundKey || 'crimelab_point';
-}
+  getIntroBackgroundKey() {
+    return this.labOnboarding?.backgroundKey ?? 'crimelab_point_assistant';
+  }
 
   getPlayerGameCount() {
     const rawValue = Number(this.labOnboarding?.playerGameCount);
 
     if (!Number.isFinite(rawValue)) {
-      return 3;
+      return this.totalStations;
     }
 
     return Phaser.Math.Clamp(rawValue, 0, this.totalStations);
+  }
+
+  getAssistantResultCount() {
+    const rawValue = Number(this.labOnboarding?.assistantResultCount);
+
+    if (!Number.isFinite(rawValue)) {
+      return 0;
+    }
+
+    return Phaser.Math.Clamp(rawValue, 0, this.totalStations);
+  }
+
+  getRequiredStationIds() {
+    const playerGameCount = this.getPlayerGameCount();
+
+    return STATION_IDS.slice(0, playerGameCount);
+  }
+
+  isStationRequired(stationId) {
+    return this.getRequiredStationIds().includes(stationId);
+  }
+
+  getCompletedRequiredStationCount() {
+    return this.getRequiredStationIds().filter((stationId) => {
+      return this.evidenceService?.isStationCompleted(stationId) === true;
+    }).length;
+  }
+
+  isLabComplete() {
+    const requiredStations = this.getRequiredStationIds();
+
+    if (requiredStations.length === 0) {
+      return true;
+    }
+
+    return this.completedCount >= requiredStations.length;
   }
 
   getAssistantLine() {
@@ -215,26 +263,18 @@ getIntroBackgroundKey() {
     return 'Lab assistant unavailable. Complete all remaining analyses yourself.';
   }
 
-getRemainingAnalysisCount() {
-  const completed =
-    this.evidenceService?.getCompletedStationCount() || 0;
-
-  return Math.max(
-    0,
-    this.totalStations - completed
-  );
-}
+  getRemainingAnalysisCount() {
+    return Math.max(
+      0,
+      this.getRequiredStationIds().length - this.completedCount
+    );
+  }
 
   createAssistantHotspot() {
     if (!this.labOnboarding?.assistantPresent) {
       return;
     }
 
-    /*
-     * Zmień te cztery wartości po pierwszym teście w grze.
-     * Prostokąt ma obejmować TYLKO postać asystenta na grafice
-     * crimelab_point_assistant, nie cały pierwszy ekran.
-     */
     const assistantX = 220;
     const assistantY = 340;
     const assistantWidth = 230;
@@ -273,36 +313,36 @@ getRemainingAnalysisCount() {
   }
 
   showAssistantHint() {
-  const remaining = this.getRemainingAnalysisCount();
-  const hintTitle =
-    this.labOnboarding?.hintTitle ||
-    'FORENSIC STATUS';
+    const remaining = this.getRemainingAnalysisCount();
+    const hintTitle =
+      this.labOnboarding?.hintTitle ??
+      'FORENSIC STATUS';
 
-  const hintText =
-    this.labOnboarding?.hintText ||
-    'Review the available evidence and complete the remaining analyses.';
+    const hintText =
+      this.labOnboarding?.hintText ??
+      'Review the available evidence and complete the remaining analyses.';
 
-  const assistantLine = this.getAssistantLine();
+    const assistantLine = this.getAssistantLine();
 
-  const progressLine =
-    remaining <= 0
-      ? 'ALL FORENSIC RESULTS ARE READY.'
-      : remaining === 1
-        ? 'ONE ANALYSIS REMAINS.'
-        : `${remaining} ANALYSES REMAIN.`;
+    const progressLine =
+      remaining <= 0
+        ? 'ALL REQUIRED FORENSIC RESULTS ARE READY.'
+        : remaining === 1
+          ? 'ONE ANALYSIS REMAINS.'
+          : `${remaining} ANALYSES REMAIN.`;
 
-  this.showNavHint(
-    `${hintTitle}\n\n${hintText}\n\n` +
-    `ASSISTANT: ${assistantLine}\n\n` +
-    progressLine
-  );
+    this.showNavHint(
+      `${hintTitle}\n\n${hintText}\n\n` +
+      `ASSISTANT: ${assistantLine}\n\n` +
+      progressLine
+    );
 
-  this.time.delayedCall(6200, () => {
-    if (!this.uiLocked) {
-      this.hideNavHint();
-    }
-  });
-}
+    this.time.delayedCall(6200, () => {
+      if (!this.uiLocked) {
+        this.hideNavHint();
+      }
+    });
+  }
 
   createHotspots() {
     const gameWidth = this.scale.width;
@@ -315,6 +355,7 @@ getRemainingAnalysisCount() {
     const hotspotData = [
       {
         id: 'identity_station',
+        stationId: 'identity',
         room: 'lab_a',
         x: 320,
         y: 490,
@@ -339,6 +380,7 @@ getRemainingAnalysisCount() {
       },
       {
         id: 'trace_a_station',
+        stationId: 'trace_0',
         room: 'lab_b',
         x: 480,
         y: 420,
@@ -363,6 +405,7 @@ getRemainingAnalysisCount() {
       },
       {
         id: 'trace_b_station',
+        stationId: 'trace_1',
         room: 'lab_c',
         x: 480,
         y: 420,
@@ -378,8 +421,7 @@ getRemainingAnalysisCount() {
               evidenceIndex: 1,
               evidenceType: trace1.evidenceType,
               correctValue: trace1.correctValue,
-              clueType: trace1.clueType,
-              clueText: trace1.clueText
+              clueType: trace1.clueType
             },
             'trace_1'
           );
@@ -398,7 +440,7 @@ getRemainingAnalysisCount() {
       }
     ];
 
-    this.completedCount = hotspotData.filter((h) => h.completed).length;
+    this.completedCount = this.getCompletedRequiredStationCount();
 
     hotspotData.forEach((data) => {
       const zone = this.add
@@ -436,26 +478,23 @@ getRemainingAnalysisCount() {
         });
 
         exitBtn.on('pointerdown', () => {
-          if (this.uiLocked) {
-            return;
+          if (!this.uiLocked) {
+            data.action();
           }
-
-          data.action();
         });
 
         zone.exitBtn = exitBtn;
       }
 
       zone.on('pointerover', () => this.onHotspotOver(data));
-
       zone.on('pointerout', () => this.onHotspotOut());
 
       zone.on('pointerdown', () => {
-        if (this.uiLocked) {
-          return;
-        }
-
-        if (data.completed && !data.alwaysVisible) {
+        if (
+          this.uiLocked ||
+          (data.completed && !data.alwaysVisible) ||
+          (data.stationId && !this.isStationRequired(data.stationId))
+        ) {
           return;
         }
 
@@ -465,15 +504,29 @@ getRemainingAnalysisCount() {
       this.hotspots.push(zone);
 
       if (!data.alwaysVisible) {
+        const isRequired = this.isStationRequired(data.stationId);
+
+        const labelText = !isRequired
+          ? '[ ASSISTANT RESULT ]'
+          : data.completed
+            ? '[ COMPLETE ]'
+            : '[ ANALYZE ]';
+
+        const labelColor = !isRequired
+          ? '#39ff14'
+          : data.completed
+            ? '#00ff00'
+            : '#ffcc00';
+
         const label = this.add
           .text(
             data.x + data.width / 2,
             data.y + data.height + 10,
-            data.completed ? '[ COMPLETE ]' : '[ ANALYZE ]',
+            labelText,
             {
               fontFamily: 'PressStart2P',
               fontSize: '8px',
-              color: data.completed ? '#00ff00' : '#ffcc00'
+              color: labelColor
             }
           )
           .setOrigin(0.5)
@@ -501,92 +554,99 @@ getRemainingAnalysisCount() {
 
     this.updateProceedVisibility();
   }
-safeSetInteractive(gameObject) {
-  if (
-    !gameObject ||
-    gameObject.isDestroyed ||
-    !gameObject.scene?.sys?.input
-  ) {
-    return;
-  }
 
-  gameObject.setInteractive?.({
-    useHandCursor: true
-  });
-}
-
-safeDisableInteractive(gameObject) {
-  if (
-    !gameObject ||
-    gameObject.isDestroyed ||
-    !gameObject.input
-  ) {
-    return;
-  }
-
-  gameObject.disableInteractive?.();
-}
-
-updateRoomHotspots() {
-  this.hotspots.forEach((zone) => {
-    if (!zone || zone.isDestroyed) {
+  safeSetInteractive(gameObject) {
+    if (
+      !gameObject ||
+      gameObject.isDestroyed ||
+      !gameObject.scene?.sys?.input
+    ) {
       return;
     }
 
-    const data = zone.hotspotData;
-    const isVisible = data?.room === this.currentView;
-
-    zone.setVisible(isVisible);
-    zone.statusLabel?.setVisible(isVisible);
-    zone.exitBtn?.setVisible(isVisible);
-
-    if (!isVisible || this.uiLocked) {
-      this.safeDisableInteractive(zone);
-      this.safeDisableInteractive(zone.exitBtn);
-      return;
-    }
-
-    const isCompleted = data?.completed === true;
-
-    if (isCompleted && !data?.alwaysVisible) {
-      this.safeDisableInteractive(zone);
-      this.safeDisableInteractive(zone.exitBtn);
-      return;
-    }
-
-    this.safeSetInteractive(zone);
-    this.safeSetInteractive(zone.exitBtn);
-  });
-
-  const labCompleted =
-    this.completedCount >= this.totalStations;
-
-  const canProceed =
-    labCompleted &&
-    !this.uiLocked;
-
-  this.proceedHotspot
-    ?.setText(
-      labCompleted
-        ? '[ RETURN TO CRIME CITY ]'
-        : ''
-    )
-    .setVisible(labCompleted)
-    .setAlpha(canProceed ? 1 : 0.45);
-
-  if (canProceed) {
-    this.safeSetInteractive(this.proceedHotspot);
-  } else {
-    this.safeDisableInteractive(this.proceedHotspot);
+    gameObject.setInteractive?.({
+      useHandCursor: true
+    });
   }
-}
+
+  safeDisableInteractive(gameObject) {
+    if (
+      !gameObject ||
+      gameObject.isDestroyed ||
+      !gameObject.input
+    ) {
+      return;
+    }
+
+    gameObject.disableInteractive?.();
+  }
+
+  updateRoomHotspots() {
+    this.hotspots.forEach((zone) => {
+      if (!zone || zone.isDestroyed) {
+        return;
+      }
+
+      const data = zone.hotspotData;
+      const isVisible = data?.room === this.currentView;
+      const isRequired = !data?.stationId ||
+        this.isStationRequired(data.stationId);
+
+      zone.setVisible(isVisible);
+      zone.statusLabel?.setVisible(isVisible);
+      zone.exitBtn?.setVisible(isVisible);
+
+      if (
+        !isVisible ||
+        this.uiLocked ||
+        !isRequired ||
+        (data?.completed && !data?.alwaysVisible)
+      ) {
+        this.safeDisableInteractive(zone);
+        this.safeDisableInteractive(zone.exitBtn);
+        return;
+      }
+
+      this.safeSetInteractive(zone);
+      this.safeSetInteractive(zone.exitBtn);
+    });
+
+    const labCompleted = this.isLabComplete();
+    const canProceed = labCompleted && !this.uiLocked;
+
+    this.proceedHotspot
+      ?.setText(
+        labCompleted
+          ? '[ RETURN TO CRIME CITY ]'
+          : ''
+      )
+      .setVisible(labCompleted)
+      .setAlpha(canProceed ? 1 : 0.45);
+
+    if (canProceed) {
+      this.safeSetInteractive(this.proceedHotspot);
+    } else {
+      this.safeDisableInteractive(this.proceedHotspot);
+    }
+
+    if (this.assistantHotspot && !this.assistantHotspot.isDestroyed) {
+      const assistantVisible = this.currentView === 'lab_intro';
+      this.assistantHotspot.setVisible(assistantVisible);
+
+      if (assistantVisible && !this.uiLocked) {
+        this.safeSetInteractive(this.assistantHotspot);
+      } else {
+        this.safeDisableInteractive(this.assistantHotspot);
+      }
+    }
+  }
 
   createNavigationUI() {
     const { width, height } = this.scale;
 
     this.leftArrow = this.add
       .text(46, height / 2, '◀', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '54px',
         color: '#39ff14',
         backgroundColor: 'rgba(0,0,0,0.15)',
@@ -600,7 +660,7 @@ updateRoomHotspots() {
 
     this.rightArrow = this.add
       .text(width - 46, height / 2, '▶', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '54px',
         color: '#39ff14',
         backgroundColor: 'rgba(0,0,0,0.15)',
@@ -614,7 +674,7 @@ updateRoomHotspots() {
 
     this.navHint = this.add
       .text(width / 2, 92, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#39ff14',
         backgroundColor: '#000000',
@@ -633,7 +693,7 @@ updateRoomHotspots() {
         110,
         'Crime Lab — move right to inspect the analysis stations',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '18px',
           color: '#fff4c7',
           backgroundColor: '#000000',
@@ -650,12 +710,10 @@ updateRoomHotspots() {
     this.leftArrow
       .on('pointerdown', () => this.moveLeft())
       .on('pointerover', () => {
-        if (this.uiLocked) {
-          return;
+        if (!this.uiLocked) {
+          this.leftArrow.setScale(1.08).setAlpha(1);
+          this.showNavHint(this.getLeftRoomLabel());
         }
-
-        this.leftArrow.setScale(1.08).setAlpha(1);
-        this.showNavHint(this.getLeftRoomLabel());
       })
       .on('pointerout', () => {
         this.leftArrow.setScale(1);
@@ -670,12 +728,10 @@ updateRoomHotspots() {
     this.rightArrow
       .on('pointerdown', () => this.moveRight())
       .on('pointerover', () => {
-        if (this.uiLocked) {
-          return;
+        if (!this.uiLocked) {
+          this.rightArrow.setScale(1.08).setAlpha(1);
+          this.showNavHint(this.getRightRoomLabel());
         }
-
-        this.rightArrow.setScale(1.08).setAlpha(1);
-        this.showNavHint(this.getRightRoomLabel());
       })
       .on('pointerout', () => {
         this.rightArrow.setScale(1);
@@ -727,33 +783,33 @@ updateRoomHotspots() {
     }
   }
 
-goToView(viewName) {
-  this.labView?.showView(viewName);
-}
-
-updateNavVisibility() {
-  const showLeft = this.currentView !== 'lab_intro';
-  const showRight = this.currentView !== 'lab_c';
-
-  this.leftArrow?.setVisible(showLeft);
-  this.rightArrow?.setVisible(showRight);
-
-  if (showLeft && !this.uiLocked) {
-    this.safeSetInteractive(this.leftArrow);
-  } else {
-    this.safeDisableInteractive(this.leftArrow);
+  goToView(viewName) {
+    this.labView?.showView(viewName);
   }
 
-  if (showRight && !this.uiLocked) {
-    this.safeSetInteractive(this.rightArrow);
-  } else {
-    this.safeDisableInteractive(this.rightArrow);
-  }
-}
+  updateNavVisibility() {
+    const showLeft = this.currentView !== 'lab_intro';
+    const showRight = this.currentView !== 'lab_c';
 
-updateProceedVisibility() {
-  this.updateRoomHotspots();
-}
+    this.leftArrow?.setVisible(showLeft);
+    this.rightArrow?.setVisible(showRight);
+
+    if (showLeft && !this.uiLocked) {
+      this.safeSetInteractive(this.leftArrow);
+    } else {
+      this.safeDisableInteractive(this.leftArrow);
+    }
+
+    if (showRight && !this.uiLocked) {
+      this.safeSetInteractive(this.rightArrow);
+    } else {
+      this.safeDisableInteractive(this.rightArrow);
+    }
+  }
+
+  updateProceedVisibility() {
+    this.updateRoomHotspots();
+  }
 
   getLeftRoomLabel() {
     if (this.currentView === 'lab_a') {
@@ -804,6 +860,11 @@ updateProceedVisibility() {
       return;
     }
 
+    if (data.stationId && !this.isStationRequired(data.stationId)) {
+      this.showNavHint('RESULT COMPLETED BY LAB ASSISTANT');
+      return;
+    }
+
     this.showNavHint(data.label);
   }
 
@@ -838,7 +899,10 @@ updateProceedVisibility() {
   }
 
   async enterMiniGame(sceneKey, sceneData = {}, stationId = '') {
-    if (this.uiLocked) {
+    if (
+      this.uiLocked ||
+      !this.isStationRequired(stationId)
+    ) {
       return;
     }
 
@@ -895,21 +959,21 @@ updateProceedVisibility() {
     this.scene.pause();
   }
 
-handleMiniGameComplete(payload = {}) {
-  const result = this.evidenceService?.saveMiniGameResult(payload);
+  handleMiniGameComplete(payload = {}) {
+    const result = this.evidenceService?.saveMiniGameResult(payload);
 
-  if (!result?.saved) {
-    return;
+    if (!result?.saved) {
+      return;
+    }
+
+    if (!result.wasAlreadyCompleted) {
+      this.advanceGameTimeForStation(result.stationId);
+    }
+
+    this.completedCount = this.getCompletedRequiredStationCount();
+    this.hud?.refreshFromScene();
+    this.updateRoomHotspots();
   }
-
-  if (!result.wasAlreadyCompleted) {
-    this.advanceGameTimeForStation(result.stationId);
-  }
-
-  this.completedCount = result.completedCount;
-  this.hud?.refreshFromScene();
-  this.updateRoomHotspots();
-}
 
   advanceGameTimeForStation(stationId) {
     const hours = STATION_TIME_COST_HOURS[stationId];
@@ -946,11 +1010,9 @@ handleMiniGameComplete(payload = {}) {
       .setVisible(true);
 
     this.time.delayedCall(3200, () => {
-      if (!this.navHint) {
-        return;
+      if (this.navHint) {
+        this.navHint.setVisible(false);
       }
-
-      this.navHint.setVisible(false);
     });
   }
 
@@ -969,111 +1031,53 @@ handleMiniGameComplete(payload = {}) {
   }
 
   checkMiniGameResults() {
-  this.completedCount =
-    this.evidenceService?.getCompletedStationCount() || 0;
+    this.completedCount = this.getCompletedRequiredStationCount();
 
-  const stationIdsByHotspotId = {
-    identity_station: 'identity',
-    trace_a_station: 'trace_0',
-    trace_b_station: 'trace_1'
-  };
+    this.hotspots.forEach((zone) => {
+      const data = zone?.hotspotData;
 
-  this.hotspots.forEach((zone) => {
-    const data = zone?.hotspotData;
+      if (!data || data.alwaysVisible || !data.stationId) {
+        return;
+      }
 
-    if (!data || data.alwaysVisible) {
-      return;
-    }
+      data.completed = Boolean(
+        this.evidenceService?.isStationCompleted(data.stationId)
+      );
 
-    const stationId = stationIdsByHotspotId[data.id];
+      const isRequired = this.isStationRequired(data.stationId);
 
-    data.completed = Boolean(
-      stationId &&
-      this.evidenceService?.isStationCompleted(stationId)
-    );
+      zone.statusLabel
+        ?.setText(
+          !isRequired
+            ? '[ ASSISTANT RESULT ]'
+            : data.completed
+              ? '[ COMPLETE ]'
+              : '[ ANALYZE ]'
+        )
+        .setColor(
+          !isRequired
+            ? '#39ff14'
+            : data.completed
+              ? '#00ff00'
+              : '#ffcc00'
+        );
+    });
 
-    zone.statusLabel
-      ?.setText(data.completed ? '[ COMPLETE ]' : '[ ANALYZE ]')
-      .setColor(data.completed ? '#00ff00' : '#ffcc00');
-  });
-
-  this.hud?.refreshFromScene();
-  this.updateRoomHotspots();
-}
+    this.hud?.refreshFromScene();
+    this.updateRoomHotspots();
+  }
 
   applyLock(locked) {
     this.uiLocked = locked;
 
-    this.hotspots?.forEach?.((zone) => {
-      if (!zone || zone.isDestroyed) {
-        return;
-      }
+    this.updateNavVisibility();
+    this.updateRoomHotspots();
 
-      const data = zone.hotspotData;
-
+    if (this.assistantHotspot && !this.assistantHotspot.isDestroyed) {
       if (locked) {
-        if (zone.input && !zone.isDestroyed) {
-          zone.disableInteractive?.();
-        }
-
-        if (
-          zone.exitBtn?.input &&
-          !zone.exitBtn.isDestroyed
-        ) {
-          zone.exitBtn.disableInteractive?.();
-        }
-
-        return;
-      }
-
-      if (!data?.completed || data.alwaysVisible) {
-        if (zone.input && !zone.isDestroyed) {
-          zone.setInteractive?.({
-            useHandCursor: true
-          });
-        }
-      } else if (zone.input && !zone.isDestroyed) {
-        zone.disableInteractive?.();
-      }
-
-      if (
-        zone.exitBtn &&
-        zone.exitBtn.input &&
-        !zone.exitBtn.isDestroyed
-      ) {
-        zone.exitBtn.setInteractive?.({
-          useHandCursor: true
-        });
-      }
-    });
-
-    if (
-      this.assistantHotspot &&
-      !this.assistantHotspot.isDestroyed
-    ) {
-if (locked) {
-  this.hideNavHint();
-}
-
-this.updateNavVisibility();
-this.updateRoomHotspots();
-    }
-
-    if (
-      this.proceedHotspot &&
-      this.proceedHotspot.input &&
-      !this.proceedHotspot.isDestroyed
-    ) {
-      if (locked) {
-        this.proceedHotspot.disableInteractive?.();
-      } else if (
-        this.completedCount >= this.totalStations
-      ) {
-        this.proceedHotspot.setInteractive?.({
-          useHandCursor: true
-        });
-      } else {
-        this.proceedHotspot.disableInteractive?.();
+        this.safeDisableInteractive(this.assistantHotspot);
+      } else if (this.currentView === 'lab_intro') {
+        this.safeSetInteractive(this.assistantHotspot);
       }
     }
 
@@ -1082,28 +1086,11 @@ this.updateRoomHotspots();
         return;
       }
 
-      if (locked) {
-        if (arrow.input && !arrow.isDestroyed) {
-          arrow.disableInteractive?.();
-        }
-
-        arrow.setAlpha?.(0.35);
-      } else {
-        if (arrow.input && !arrow.isDestroyed) {
-          arrow.setInteractive?.({
-            useHandCursor: true
-          });
-        }
-
-        arrow.setAlpha?.(0.75);
-      }
+      arrow.setAlpha?.(locked ? 0.35 : 0.75);
     });
 
     if (locked) {
       this.hideNavHint();
-    } else {
-      this.updateNavVisibility();
-      this.updateProceedVisibility();
     }
   }
 
@@ -1133,8 +1120,7 @@ this.updateRoomHotspots();
         this.labManager?.getCaseKey?.() ||
         'default_case',
       gameState: this.gameState,
-      crimeLabCompleted:
-        this.completedCount >= this.totalStations,
+      crimeLabCompleted: this.isLabComplete(),
       fromCrimeLab: true
     };
 
@@ -1146,7 +1132,7 @@ this.updateRoomHotspots();
         try {
           await this.game.sceneLoader.ensure(targetScene);
           this.game.events.emit('setHudVisible', true);
-EventBus.emit('showHUD');
+          EventBus.emit('showHUD');
           this.goto(targetScene, sceneData);
         } catch (err) {
           console.error(
@@ -1169,26 +1155,17 @@ EventBus.emit('showHUD');
       return;
     }
 
-    if (this.completedCount < this.totalStations) {
+    if (!this.isLabComplete()) {
       console.warn(
-        '[CrimeLabScene] Cannot return to Crime City: not all lab stations are complete.',
+        '[CrimeLabScene] Cannot return to Crime City: required lab stations are incomplete.',
         {
           completedCount: this.completedCount,
-          totalStations: this.totalStations
+          requiredStations: this.getRequiredStationIds()
         }
       );
 
       return;
     }
-
-    console.log(
-      '[CrimeLabScene] Returning to Crime City after lab completion.',
-      {
-        cityId: this.cityId,
-        caseKey: this.labManager?.getCaseKey?.(),
-        completedCount: this.completedCount
-      }
-    );
 
     this.uiLocked = true;
     this.applyLock(true);
@@ -1211,9 +1188,7 @@ EventBus.emit('showHUD');
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       async () => {
         try {
-          await this.game.sceneLoader.ensure(
-            'CrimeCityScene'
-          );
+          await this.game.sceneLoader.ensure('CrimeCityScene');
 
           this.game.events.emit('setHudVisible', true);
           EventBus.emit('showHUD');
@@ -1323,9 +1298,6 @@ EventBus.emit('showHUD');
       this.boundCheckMiniGameResults
     );
 
-    this.timerTickEvent?.remove?.(false);
-    this.timerTickEvent = null;
-
     if (Array.isArray(this.hotspots)) {
       this.hotspots.forEach((zone) => {
         if (!zone) {
@@ -1333,23 +1305,13 @@ EventBus.emit('showHUD');
         }
 
         zone.removeAllListeners?.();
-
-        if (zone.scene?.sys?.input && !zone.isDestroyed) {
-          zone.disableInteractive?.();
-        }
+        this.safeDisableInteractive(zone);
 
         zone.statusLabel?.destroy?.();
 
         if (zone.exitBtn) {
           zone.exitBtn.removeAllListeners?.();
-
-          if (
-            zone.exitBtn.scene?.sys?.input &&
-            !zone.exitBtn.isDestroyed
-          ) {
-            zone.exitBtn.disableInteractive?.();
-          }
-
+          this.safeDisableInteractive(zone.exitBtn);
           zone.exitBtn.destroy?.();
         }
 
@@ -1361,14 +1323,7 @@ EventBus.emit('showHUD');
 
     if (this.assistantHotspot) {
       this.assistantHotspot.removeAllListeners?.();
-
-      if (
-        this.assistantHotspot.scene?.sys?.input &&
-        !this.assistantHotspot.isDestroyed
-      ) {
-        this.assistantHotspot.disableInteractive?.();
-      }
-
+      this.safeDisableInteractive(this.assistantHotspot);
       this.assistantHotspot.destroy?.();
       this.assistantHotspot = null;
     }
@@ -1401,22 +1356,17 @@ EventBus.emit('showHUD');
       }
 
       element.removeAllListeners?.();
-
-      if (
-        element.scene?.sys?.input &&
-        !element.isDestroyed
-      ) {
-        element.disableInteractive?.();
-      }
-
+      this.safeDisableInteractive(element);
       element.destroy?.();
       this[property] = null;
     });
-this.labView?.destroy?.();
-this.labView = null;
 
-this.evidenceService = null;
-this.labManager = null;
+    this.labView?.destroy?.();
+    this.labView = null;
+
+    this.evidenceService = null;
+    this.labManager = null;
+
     console.log('[CrimeLabScene] Cleanup complete');
   }
 }

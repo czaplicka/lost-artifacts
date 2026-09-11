@@ -77,7 +77,7 @@ export class CaseFileUI {
       .setDisplaySize(350, 350);
 
     this.artifactText = this.scene.add.text(-385, 320, '', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: '#000000',
       align: 'center',
@@ -86,14 +86,14 @@ export class CaseFileUI {
     }).setOrigin(0.5, 0);
 
     this.cityText = this.scene.add.text(100, -240, '', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: '#000000',
       wordWrap: { width: 430 },
     }).setOrigin(0, 0);
 
     this.descText = this.scene.add.text(100, -120, '', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: '#000000',
       wordWrap: { width: 500 },
@@ -101,7 +101,7 @@ export class CaseFileUI {
     }).setOrigin(0, 0);
 
     this.significanceText = this.scene.add.text(100, 125, '', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '20px',
       color: '#000000',
       wordWrap: { width: 550 },
@@ -109,7 +109,7 @@ export class CaseFileUI {
     }).setOrigin(0, 0);
 
     this.tiesText = this.scene.add.text(100, 300, '', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '20px',
       color: '#000000',
       wordWrap: { width: 430 },

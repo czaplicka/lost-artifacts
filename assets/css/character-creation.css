@@ -25,7 +25,7 @@
 
   pointer-events: auto;
   color: var(--noir-ink);
-  font-family: "Special Elite", "Courier New", monospace;
+  font-family: "SpecialElite", "Courier New", monospace;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -129,7 +129,7 @@
 .character-creation-brand h1 {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: clamp(26px, 2.8vw, 44px);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -140,7 +140,7 @@
 .character-creation-brand p {
   margin: 8px 0 0;
   color: var(--noir-ink-muted);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.7vw, 11px);
   letter-spacing: 0.05em;
   line-height: 1.5;
@@ -155,7 +155,7 @@
   border-radius: 3px;
   background: rgba(158, 43, 47, 0.06);
   color: var(--noir-crimson-bright);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.7vw, 10px);
   line-height: 1.4;
   text-align: center;
@@ -191,7 +191,7 @@
   background: rgba(255, 255, 255, 0.25);
   color: var(--noir-ink-muted);
   cursor: pointer;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(7px, 0.6vw, 9.5px);
   line-height: 1.2;
   text-transform: uppercase;
@@ -296,7 +296,7 @@
 .character-section-title {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: clamp(28px, 3vw, 48px);
   font-weight: 700;
   line-height: 1;
@@ -337,7 +337,7 @@
 .character-stat-title,
 .character-dossier-label {
   color: var(--noir-ink);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(9px, 0.72vw, 11px);
   line-height: 1.4;
   text-transform: uppercase;
@@ -352,7 +352,7 @@
   outline: none;
   background: rgba(255, 248, 225, 0.95);
   color: var(--noir-ink);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: clamp(20px, 1.7vw, 28px);
   line-height: 1;
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.12);
@@ -386,7 +386,7 @@
   background: linear-gradient(180deg, #d3b477 0%, #b89859 100%);
   color: var(--noir-leather-dark);
   cursor: pointer;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8.5px, 0.68vw, 11px);
   font-weight: bold;
   line-height: 1.2;
@@ -436,7 +436,7 @@
 .character-appearance-title {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(10px, 0.85vw, 13px);
   line-height: 1.4;
 }
@@ -466,7 +466,7 @@
 .appearance-option-group legend {
   padding: 0;
   color: var(--noir-ink);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.65vw, 9.5px);
   line-height: 1.4;
   text-transform: uppercase;
@@ -486,7 +486,7 @@
   background: rgba(255, 248, 225, 0.6);
   color: var(--noir-ink);
   cursor: pointer;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(7px, 0.58vw, 8.5px);
   line-height: 1.4;
   text-transform: uppercase;
@@ -541,7 +541,7 @@
   padding-bottom: 8px;
   border-bottom: 2px solid rgba(212, 184, 130, 0.4);
   color: #f7e6c4;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(7px, 0.55vw, 8.5px);
   line-height: 1.4;
   text-transform: uppercase;
@@ -837,7 +837,7 @@
 .agency-id-name {
   min-height: 22px;
   color: #fff2d6;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.65vw, 10.5px);
   line-height: 1.4;
   text-align: center;
@@ -847,7 +847,7 @@
 .agency-id-alias {
   min-height: 18px;
   color: var(--noir-gold-bright);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(7px, 0.52vw, 8.5px);
   line-height: 1.4;
   text-align: center;
@@ -858,7 +858,7 @@
   padding-top: 8px;
   border-top: 1px dashed rgba(212, 184, 130, 0.35);
   color: #e7d28d;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(7px, 0.52vw, 8.5px);
   line-height: 1.4;
   text-align: center;
@@ -910,21 +910,21 @@
   grid-row: span 3;
   align-self: center;
   color: var(--noir-crimson-bright);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: 40px;
   text-align: center;
 }
 
 .character-profile-name {
   color: var(--noir-crimson-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(9.5px, 0.78vw, 12px);
   line-height: 1.4;
 }
 
 .character-profile-bonus {
   color: var(--noir-green-accent);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.62vw, 9.5px);
   line-height: 1.4;
 }
@@ -954,7 +954,7 @@
 
 .character-points-value {
   color: var(--noir-crimson-dark);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: 38px;
   font-weight: 700;
   line-height: 0.9;
@@ -963,7 +963,7 @@
 .character-points-label {
   margin-top: 6px;
   color: var(--noir-ink-muted);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: 8px;
   text-align: center;
 }
@@ -1009,7 +1009,7 @@
   background: #111111;
   color: #000000;
   cursor: pointer;
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: 18px;
   line-height: 1;
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.42);
@@ -1032,7 +1032,7 @@
   height: 44px;
   place-items: center;
   color: var(--noir-crimson-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: 18px;
   font-weight: bold;
 }
@@ -1084,7 +1084,7 @@
   border-radius: 50%;
   background: #d3b477;
   color: var(--noir-leather-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: 11px;
 }
 
@@ -1096,7 +1096,7 @@
 
 .character-difficulty-name {
   color: var(--noir-crimson-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(10px, 0.85vw, 13px);
   line-height: 1.4;
 }
@@ -1109,7 +1109,7 @@
 
 .character-difficulty-details {
   color: var(--noir-green-accent);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.62vw, 9.5px);
   line-height: 1.4;
 }
@@ -1139,7 +1139,7 @@
 
 .character-dossier-name {
   color: var(--noir-crimson-dark);
-  font-family: "Special Elite", monospace;
+  font-family: "SpecialElite", monospace;
   font-size: clamp(30px, 2.8vw, 46px);
   font-weight: 700;
   line-height: 1;
@@ -1168,7 +1168,7 @@
 
 .character-dossier-stat {
   color: var(--noir-ink-muted);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.62vw, 9.5px);
   line-height: 1.5;
 }
@@ -1211,7 +1211,7 @@
   border-radius: 2px;
   background: rgba(158, 43, 47, 0.12);
   color: var(--noir-crimson-dark);
-  font-family: "Press Start 2P", monospace;
+  font-family: "PressStart2P", monospace;
   font-size: clamp(8px, 0.68vw, 10px);
   line-height: 1.5;
 }

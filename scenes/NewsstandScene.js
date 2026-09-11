@@ -208,7 +208,7 @@ export class NewsstandScene extends BaseScene {
         spot.y + spot.height + 10,
         spot.priceLabel,
         {
-          fontFamily: 'Press Start 2P',
+          fontFamily: 'PressStart2P',
           fontSize: '12px',
           color: '#f6dc8c',
           backgroundColor: '#1a1111',
@@ -522,7 +522,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
           '"Come back when your pockets make noise."'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '28px',
           color: '#f7e6b5',
           backgroundColor: '#1d1511',
@@ -578,7 +578,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
           'Please try again after the next scene reload.'
         ].join('\n'),
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '26px',
           color: '#ffd966',
           backgroundColor: '#2b1711',
@@ -638,7 +638,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
 
     this.comixCloseBtn = this.add
       .text(0, 0, 'X', {
-        fontFamily: 'Press Start 2P',
+        fontFamily: 'PressStart2P',
         fontSize: '12px',
         color: '#ffffff',
         backgroundColor: '#111111',
@@ -818,7 +818,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
   createSceneCloseButton() {
     const button = this.add
       .text(28, 20, 'X', {
-        fontFamily: 'Press Start 2P',
+        fontFamily: 'PressStart2P',
         fontSize: '16px',
         color: '#ffffff',
         backgroundColor: '#111111',

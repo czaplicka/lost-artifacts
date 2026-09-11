@@ -75,7 +75,7 @@ EventBus.emit('hideHUD');
             : `${count} artifact${count !== 1 ? 's' : ''} in the collection`;
 
         this.add.text(width / 2, 102, subtitle, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '16px',
             color: '#a89060'
         }).setOrigin(0.5).setDepth(302);
@@ -166,7 +166,7 @@ EventBus.emit('hideHUD');
         // Miasto / kraj
         const locationStr = [artifactData.city, artifactData.country].filter(Boolean).join(', ');
         const locationText = this.add.text(x + 128, y + 60, `📍 ${locationStr}`, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '13px',
             color: '#a89060'
         }).setDepth(depth + 1);
@@ -176,7 +176,7 @@ EventBus.emit('hideHUD');
         const desc = artifactData.description || '';
         const shortDesc = desc.length > 90 ? desc.substring(0, 87) + '...' : desc;
         const descText = this.add.text(x + 128, y + 82, shortDesc, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '12px',
             color: '#d4c49a',
             wordWrap: { width: w - 148 },
@@ -187,7 +187,7 @@ EventBus.emit('hideHUD');
         // Data odzyskania
         if (artifactData.recoveredAt) {
             const dateText = this.add.text(x + w - 10, y + h - 18, artifactData.recoveredAt, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '11px',
                 color: '#6e5a38'
             }).setOrigin(1, 0.5).setDepth(depth + 1);
@@ -196,7 +196,7 @@ EventBus.emit('hideHUD');
 
         // Interaktywna strefa kliknięcia "szczegóły"
         const detailsBtn = this.add.text(x + w - 10, y + 22, '[ details ]', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '12px',
             color: '#c8a84b'
         }).setOrigin(1, 0).setDepth(depth + 2).setInteractive({ useHandCursor: true });
@@ -248,7 +248,7 @@ EventBus.emit('hideHUD');
         emptyGroup.push(msg1);
 
         const msg2 = this.add.text(width / 2, height / 2 + 56, 'Solve missions to fill your collection!', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#5a4a28'
         }).setOrigin(0.5).setDepth(303);
@@ -282,7 +282,7 @@ EventBus.emit('hideHUD');
         }
 
         const pageInfo = this.add.text(width / 2, y, `${this.currentPage + 1} / ${totalPages}`, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '16px',
             color: '#a89060'
         }).setOrigin(0.5).setDepth(304);
@@ -354,7 +354,7 @@ EventBus.emit('hideHUD');
         // Lokalizacja
         const locationStr = [artifactData.city, artifactData.country].filter(Boolean).join(', ');
         const locText = this.add.text(px + 36, py + 80, `📍 ${locationStr}`, {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '15px',
             color: '#a89060'
         });
@@ -362,7 +362,7 @@ EventBus.emit('hideHUD');
 
         // Opis
         const descText = this.add.text(px + 36, py + 108, artifactData.description || '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '14px',
             color: '#d4c49a',
             wordWrap: { width: pw - 72 },
@@ -380,7 +380,7 @@ EventBus.emit('hideHUD');
             this.detailPanel.add(sigLabel);
 
             const sigText = this.add.text(px + 36, py + ph - 90, artifactData.significance, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '13px',
                 color: '#a89060',
                 wordWrap: { width: pw - 72 },
@@ -392,7 +392,7 @@ EventBus.emit('hideHUD');
         // Data odzyskania
         if (artifactData.recoveredAt) {
             const recText = this.add.text(px + pw - 36, py + ph - 28, `Recovered: ${artifactData.recoveredAt}`, {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '12px',
                 color: '#6e5a38'
             }).setOrigin(1, 0.5);

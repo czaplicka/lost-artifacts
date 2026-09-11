@@ -114,7 +114,7 @@ export class OfficeSaveUI {
     } else {
       this.button = this.scene.add
         .text(buttonX, buttonY, 'SAVE', {
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'SpecialElite, monospace',
           fontSize: '12px',
           color: '#f1d480',
           backgroundColor: '#1c1109',
@@ -223,7 +223,7 @@ export class OfficeSaveUI {
 
     const title = this.scene.add
       .text(0, -205, titleText, {
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'SpecialElite, monospace',
         fontSize: '31px',
         color: '#f2d989',
         stroke: '#000000',
@@ -233,7 +233,7 @@ export class OfficeSaveUI {
 
     const subtitle = this.scene.add
       .text(0, -163, subtitleText, {
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'SpecialElite, monospace',
         fontSize: '19px',
         color: '#d4c4a6',
         align: 'center'
@@ -269,7 +269,7 @@ export class OfficeSaveUI {
 
     this.statusText = this.scene.add
       .text(0, 190, 'Reading case files...', {
-        fontFamily: 'Special Elite, monospace',
+        fontFamily: 'SpecialElite, monospace',
         fontSize: '18px',
         color: '#d8c49a',
         align: 'center',
@@ -358,7 +358,7 @@ export class OfficeSaveUI {
 
       const buttonText = this.scene.add
         .text(panelX, panelY + slotY[index], label, {
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'SpecialElite, monospace',
           fontSize: '18px',
           color: meta ? '#f1deb0' : '#a99a80',
           align: 'center',

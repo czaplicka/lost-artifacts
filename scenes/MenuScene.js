@@ -146,7 +146,7 @@ export class MenuScene extends BaseScene {
         height * 0.94,
         '',
         {
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'SpecialElite, monospace',
           fontSize: '18px',
           color: '#f3c870',
           align: 'left',
@@ -174,7 +174,7 @@ export class MenuScene extends BaseScene {
         height - 20,
         identity,
         {
-          fontFamily: 'Special Elite, monospace',
+          fontFamily: 'SpecialElite, monospace',
           fontSize: '17px',
           color: isAccount ? '#e3c77c' : '#b7b7b7',
           backgroundColor: 'rgba(0, 0, 0, 0.78)',

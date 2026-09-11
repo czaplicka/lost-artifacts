@@ -1,7 +1,39 @@
 /**
- * ✅ VERSIONED DEFAULT STATE — łatwo migrować staże save'y
+ * GameData.js
+ *
+ * Centralny manager stanu gry.
+ *
+ * Zasady:
+ * - this.state jest prywatnym stanem roboczym managera.
+ * - getState() ZAWSZE zwraca read-only snapshot, nigdy referencję do this.state.
+ * - cluesCollected, visitedEncounters i visitedCities zmieniamy wyłącznie
+ *   metodami add/remove managera.
+ * - _clueIndex, _encounterIndex i _cityIndex są cachem pochodnym:
+ *   nie zapisujemy ich do save'a i zawsze odbudowujemy po imporcie.
  */
+
 const GAME_STATE_VERSION = '1.0.0';
+
+const INDEXED_COLLECTIONS = {
+  cluesCollected: {
+    indexKey: '_clueIndex',
+    label: 'clue'
+  },
+  visitedEncounters: {
+    indexKey: '_encounterIndex',
+    label: 'encounter'
+  },
+  visitedCities: {
+    indexKey: '_cityIndex',
+    label: 'city'
+  }
+};
+
+const MANAGED_COLLECTION_KEYS = new Set(Object.keys(INDEXED_COLLECTIONS));
+
+const MANAGED_PRIVATE_KEYS = new Set(
+  Object.values(INDEXED_COLLECTIONS).map(config => config.indexKey)
+);
 
 export function createDefaultReconstructedHeist() {
   return {
@@ -26,7 +58,7 @@ export function createDefaultReconstructedHeist() {
 }
 
 export const defaultGameState = {
-  // ✅ Metadata
+  // Metadata
   _version: GAME_STATE_VERSION,
   _lastSave: null,
   _createdAt: null,
@@ -83,105 +115,263 @@ export const defaultGameState = {
 
   energy: 100,
   maxEnergy: 100,
-  energyLog: [],  // ✅ Limited by _rotateHistoryArrays()
+  energyLog: [],
 
   cash: 100,
   agencyBudget: 500,
   agencyDebt: 0,
-  moneyLog: [],  // ✅ Limited by _rotateHistoryArrays()
+  moneyLog: [],
 
   timeSpent: 0,
-  travelHistory: [],  // ✅ Limited by _rotateHistoryArrays()
+  travelHistory: [],
   lastTravel: null,
   lastTravelEncounter: null,
 
-  // ✅ Changed to Map-like objects for faster lookup
-  cluesCollected: [],  // Keep array for iteration, but add indexing
-  _clueIndex: {},      // Map: clueId → index for O(1) lookup
+  // Kolekcje indeksowane.
+  // Tablice są źródłem prawdy, indeksy są cachem odbudowywanym automatycznie.
+  cluesCollected: [],
+  _clueIndex: {},
 
   visitedEncounters: [],
-  _encounterIndex: {},  // Map: encounterId → index
+  _encounterIndex: {},
 
   visitedCities: [],
-  _cityIndex: {},  // Map: cityId → index
+  _cityIndex: {},
 
   playerNotes: '',
-  encounterMemory: {},  // ✅ Will be limited by garbage collection
-  cityEncounterState: {},  // ✅ Will be limited
+  encounterMemory: {},
+  cityEncounterState: {},
 
   storyPhoneCallTriggered: false,
   pendingPhoneCall: false,
   pendingPhoneCallCityId: null,
 
-  hiddenObjectHistory: [],  // ✅ Limited by _rotateHistoryArrays()
+  hiddenObjectHistory: [],
   reconstructedHeist: createDefaultReconstructedHeist()
 };
 
 /**
- * ✅ BETTER CLONE FALLBACK — Handles more cases than JSON
+ * Głębokie klonowanie danych stanu.
+ * structuredClone obsługuje zwykłe obiekty, tablice, Map/Set itd.
+ * Fallback jest wystarczający dla danych serializowalnych save'a.
  */
 function cloneGameData(value) {
   if (typeof structuredClone === 'function') {
     return structuredClone(value);
   }
 
-  // ✅ Fallback z lepszą obsługą
-  return _deepClone(value);
+  return deepClone(value);
 }
 
-function _deepClone(obj, seen = new WeakSet()) {
-  // Handle primitives
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
+function deepClone(value, seen = new WeakMap()) {
+  if (value === null || typeof value !== 'object') {
+    return value;
   }
 
-  // Handle circular references
-  if (seen.has(obj)) {
-    return undefined;
+  if (seen.has(value)) {
+    return seen.get(value);
   }
 
-  seen.add(obj);
-
-  // Arrays
-  if (Array.isArray(obj)) {
-    return obj.map(item => _deepClone(item, seen));
+  if (value instanceof Date) {
+    return new Date(value.getTime());
   }
 
-  // Objects
-  const cloned = {};
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      cloned[key] = _deepClone(obj[key], seen);
+  if (Array.isArray(value)) {
+    const clonedArray = [];
+    seen.set(value, clonedArray);
+
+    for (const item of value) {
+      clonedArray.push(deepClone(item, seen));
     }
+
+    return clonedArray;
   }
 
-  return cloned;
+  const clonedObject = {};
+  seen.set(value, clonedObject);
+
+  for (const [key, item] of Object.entries(value)) {
+    clonedObject[key] = deepClone(item, seen);
+  }
+
+  return clonedObject;
 }
 
 /**
- * ✅ GAME STATE MANAGER — Kontroluje mutacje i cleanup
+ * Zamraża snapshot rekurencyjnie.
+ *
+ * Object.freeze() nie jest pełnym systemem bezpieczeństwa, ale w module ES
+ * bardzo skutecznie łapie przypadkowe .push(), .splice() i przypisania,
+ * zanim uszkodzą stan gry.
+ */
+function deepFreeze(value, seen = new WeakSet()) {
+  if (value === null || typeof value !== 'object' || seen.has(value)) {
+    return value;
+  }
+
+  seen.add(value);
+
+  for (const key of Reflect.ownKeys(value)) {
+    deepFreeze(value[key], seen);
+  }
+
+  return Object.freeze(value);
+}
+
+/**
+ * Tworzy świeży stan startowy wraz z indeksami pochodnymi.
+ */
+function createInitialState() {
+  const state = cloneGameData(defaultGameState);
+  state._createdAt = Date.now();
+  rebuildStateIndexes(state);
+  return state;
+}
+
+/**
+ * Odbudowuje indeks konkretnej kolekcji.
+ *
+ * Jeśli save zawiera duplikaty ID, zachowujemy pierwsze wystąpienie.
+ * To jest celowe: addClue/addCity/addEncounter również nie dopuszczają
+ * duplikatów, a przy uszkodzonym save nie chcemy zmieniać kolejności danych.
+ */
+function rebuildCollectionIndex(state, collectionKey) {
+  const config = INDEXED_COLLECTIONS[collectionKey];
+
+  if (!config) {
+    console.warn(`[GameState] No index configuration for: ${collectionKey}`);
+    return;
+  }
+
+  const collection = Array.isArray(state[collectionKey])
+    ? state[collectionKey]
+    : [];
+
+  state[collectionKey] = collection;
+
+  const index = {};
+
+  collection.forEach((entry, position) => {
+    const id = entry?.id;
+
+    if (!id) {
+      console.warn(
+        `[GameState] Ignoring ${config.label} without id at ${collectionKey}[${position}]`
+      );
+      return;
+    }
+
+    if (index[id] !== undefined) {
+      console.warn(
+        `[GameState] Duplicate ${config.label} id "${id}" in ${collectionKey}; keeping first occurrence`
+      );
+      return;
+    }
+
+    index[id] = position;
+  });
+
+  state[config.indexKey] = index;
+}
+
+/**
+ * Indeksy są danymi pochodnymi, więc ten helper jest jedynym miejscem,
+ * które je kompletnie odtwarza.
+ */
+function rebuildStateIndexes(state) {
+  for (const collectionKey of Object.keys(INDEXED_COLLECTIONS)) {
+    rebuildCollectionIndex(state, collectionKey);
+  }
+}
+
+/**
+ * Normalizuje importowany stan:
+ * - przywraca brakujące pola z defaultów,
+ * - nie ufa prywatnym indeksom z save'a,
+ * - gwarantuje poprawne typy kolekcji indeksowanych.
+ */
+function normalizeImportedState(saveData) {
+  const state = cloneGameData({
+    ...defaultGameState,
+    ...saveData
+  });
+
+  state.reconstructedHeist = {
+    ...createDefaultReconstructedHeist(),
+    ...(saveData?.reconstructedHeist || {})
+  };
+
+  for (const collectionKey of MANAGED_COLLECTION_KEYS) {
+    if (!Array.isArray(state[collectionKey])) {
+      console.warn(
+        `[GameState] Invalid ${collectionKey} in save; restoring an empty array`
+      );
+      state[collectionKey] = [];
+    }
+  }
+
+  state._version = GAME_STATE_VERSION;
+  rebuildStateIndexes(state);
+
+  return state;
+}
+
+/**
+ * GAME STATE MANAGER
  */
 class GameStateManager {
   constructor() {
-    this.state = cloneGameData(defaultGameState);
+    this.state = createInitialState();
     this.dirty = false;
     this.saveCheckpoint = null;
-    this.historyLimit = 100;  // ← Keep only last 100 entries
-    this.memoryObjectLimit = 500;  // ← Keep only 500 objects w memory
+    this.historyLimit = 100;
+    this.memoryObjectLimit = 500;
   }
 
   /**
-   * ✅ Get copy of state (zabezpieczenie przed mutacją)
+   * Read-only snapshot.
+   *
+   * WAŻNE:
+   * Nie zwracamy this.state, ponieważ wtedy ten kod psujełby indeks:
+   *
+   * gameState.getState().cluesCollected.push(newClue);
+   *
+   * Otrzymany snapshot można bezpiecznie czytać, ale jego mutacja rzuci
+   * błąd w strict mode albo po prostu nie zmieni danych managera.
    */
   getState() {
-    return this.state;
+    return deepFreeze(cloneGameData(this.state));
   }
 
   /**
-   * ✅ Update state z validation
+   * Opcjonalny alias, który lepiej komunikuje przeznaczenie API w scenach.
+   */
+  getSnapshot() {
+    return this.getState();
+  }
+
+  /**
+   * Centralna aktualizacja prostych pól stanu.
+   *
+   * Kolekcje indeksowane mają własne metody API, żeby cache indeksów
+   * pozostawał zawsze spójny.
    */
   updateState(updates) {
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+      console.warn('[GameState] updateState expects a plain object');
+      return false;
+    }
+
+    let changed = false;
+
     for (const [key, value] of Object.entries(updates)) {
+      if (MANAGED_PRIVATE_KEYS.has(key)) {
+        console.warn(
+          `[GameState] "${key}" is a derived index and cannot be set manually`
+        );
+        continue;
+      }
+
       if (key.startsWith('_')) {
         console.warn(`[GameState] Attempt to set private field: ${key}`);
         continue;
@@ -192,166 +382,320 @@ class GameStateManager {
         continue;
       }
 
+      if (MANAGED_COLLECTION_KEYS.has(key)) {
+        console.warn(
+          `[GameState] "${key}" is a managed collection. Use its add/remove/replace API instead.`
+        );
+        continue;
+      }
+
       this.state[key] = value;
+      changed = true;
+    }
+
+    if (changed) {
       this.dirty = true;
     }
+
+    return changed;
   }
 
   /**
-   * ✅ Add clue z auto-indexing
+   * Wymiana całej kolekcji jest dopuszczalna tylko przez jawne API,
+   * np. przy restarcie konkretnego etapu lub kompatybilności scen.
+   */
+  replaceIndexedCollection(collectionKey, entries) {
+    if (!INDEXED_COLLECTIONS[collectionKey]) {
+      console.warn(`[GameState] Unknown indexed collection: ${collectionKey}`);
+      return false;
+    }
+
+    if (!Array.isArray(entries)) {
+      console.warn(
+        `[GameState] replaceIndexedCollection expects an array for ${collectionKey}`
+      );
+      return false;
+    }
+
+    this.state[collectionKey] = cloneGameData(entries);
+    rebuildCollectionIndex(this.state, collectionKey);
+    this.dirty = true;
+
+    return true;
+  }
+
+  /**
+   * Publiczna naprawa indeksów.
+   *
+   * Przydaje się jako bezpiecznik podczas developmentu albo po ręcznej
+   * migracji danych. W prawidłowym kodzie gry nie powinna być potrzebna,
+   * bo publiczne API nie pozwala uszkodzić indeksów.
+   */
+  rebuildIndexes() {
+    rebuildStateIndexes(this.state);
+    this.dirty = true;
+  }
+
+  /**
+   * Weryfikuje, czy mapowanie ID -> pozycja nadal wskazuje poprawny obiekt.
+   * Jeśli nie, naprawia tylko wymagany indeks i próbuje raz jeszcze.
+   */
+  _getIndexedEntry(collectionKey, id) {
+    const config = INDEXED_COLLECTIONS[collectionKey];
+
+    if (!config || !id) {
+      return null;
+    }
+
+    const collection = this.state[collectionKey];
+    const index = this.state[config.indexKey];
+    const position = index?.[id];
+
+    if (
+      position !== undefined &&
+      collection[position] &&
+      collection[position].id === id
+    ) {
+      return collection[position];
+    }
+
+    rebuildCollectionIndex(this.state, collectionKey);
+
+    const repairedPosition = this.state[config.indexKey][id];
+
+    return repairedPosition !== undefined
+      ? this.state[collectionKey][repairedPosition]
+      : null;
+  }
+
+  /**
+   * Dodaje element do indeksowanej kolekcji.
+   */
+  _addIndexedEntry(collectionKey, entry) {
+    const config = INDEXED_COLLECTIONS[collectionKey];
+
+    if (!config || !entry?.id) {
+      console.warn(
+        `[GameState] ${config?.label || 'Indexed entry'} must have a non-empty id`
+      );
+      return false;
+    }
+
+    const existing = this._getIndexedEntry(collectionKey, entry.id);
+
+    if (existing) {
+      return false;
+    }
+
+    const collection = this.state[collectionKey];
+    const position = collection.length;
+
+    collection.push(cloneGameData(entry));
+    this.state[config.indexKey][entry.id] = position;
+    this.dirty = true;
+
+    return true;
+  }
+
+  /**
+   * Usuwa element z indeksowanej kolekcji.
+   */
+  _removeIndexedEntry(collectionKey, id) {
+    const config = INDEXED_COLLECTIONS[collectionKey];
+
+    if (!config || !id) {
+      return false;
+    }
+
+    const entry = this._getIndexedEntry(collectionKey, id);
+
+    if (!entry) {
+      return false;
+    }
+
+    const index = this.state[config.indexKey][id];
+    this.state[collectionKey].splice(index, 1);
+
+    rebuildCollectionIndex(this.state, collectionKey);
+    this.dirty = true;
+
+    return true;
+  }
+
+  /**
+   * Clues
    */
   addClue(clue) {
-    if (!clue?.id) {
-      console.warn('[GameState] Clue must have id');
-      return;
-    }
-
-    // ✅ Check duplikat
-    if (this.state._clueIndex[clue.id] !== undefined) {
-      return;  // Already exists
-    }
-
-    const index = this.state.cluesCollected.length;
-    this.state.cluesCollected.push(clue);
-    this.state._clueIndex[clue.id] = index;
-    this.dirty = true;
+    return this._addIndexedEntry('cluesCollected', clue);
   }
 
-  /**
-   * ✅ Get clue by ID (O(1))
-   */
   getClue(clueId) {
-    const index = this.state._clueIndex[clueId];
-    return index !== undefined ? this.state.cluesCollected[index] : null;
+    const clue = this._getIndexedEntry('cluesCollected', clueId);
+    return clue ? deepFreeze(cloneGameData(clue)) : null;
   }
 
-  /**
-   * ✅ Remove clue by ID
-   */
+  hasClue(clueId) {
+    return this._getIndexedEntry('cluesCollected', clueId) !== null;
+  }
+
   removeClue(clueId) {
-    const index = this.state._clueIndex[clueId];
-    if (index === undefined) return;
+    return this._removeIndexedEntry('cluesCollected', clueId);
+  }
 
-    this.state.cluesCollected.splice(index, 1);
-    delete this.state._clueIndex[clueId];
-
-    // ✅ Re-index all clues after removal
-    for (let i = index; i < this.state.cluesCollected.length; i++) {
-      this.state._clueIndex[this.state.cluesCollected[i].id] = i;
-    }
-
-    this.dirty = true;
+  clearClues() {
+    return this.replaceIndexedCollection('cluesCollected', []);
   }
 
   /**
-   * ✅ Same pattern dla encounters
+   * Encounters
    */
   addEncounter(encounter) {
-    if (!encounter?.id) return;
-    if (this.state._encounterIndex[encounter.id] !== undefined) return;
-
-    const index = this.state.visitedEncounters.length;
-    this.state.visitedEncounters.push(encounter);
-    this.state._encounterIndex[encounter.id] = index;
-    this.dirty = true;
+    return this._addIndexedEntry('visitedEncounters', encounter);
   }
 
   getEncounter(encounterId) {
-    const index = this.state._encounterIndex[encounterId];
-    return index !== undefined ? this.state.visitedEncounters[index] : null;
+    const encounter = this._getIndexedEntry(
+      'visitedEncounters',
+      encounterId
+    );
+
+    return encounter ? deepFreeze(cloneGameData(encounter)) : null;
+  }
+
+  hasEncounter(encounterId) {
+    return this._getIndexedEntry('visitedEncounters', encounterId) !== null;
+  }
+
+  removeEncounter(encounterId) {
+    return this._removeIndexedEntry('visitedEncounters', encounterId);
+  }
+
+  clearEncounters() {
+    return this.replaceIndexedCollection('visitedEncounters', []);
   }
 
   /**
-   * ✅ Add city
+   * Cities
    */
   addCity(city) {
-    if (!city?.id) return;
-    if (this.state._cityIndex[city.id] !== undefined) return;
-
-    const index = this.state.visitedCities.length;
-    this.state.visitedCities.push(city);
-    this.state._cityIndex[city.id] = index;
-    this.dirty = true;
+    return this._addIndexedEntry('visitedCities', city);
   }
 
   getCity(cityId) {
-    const index = this.state._cityIndex[cityId];
-    return index !== undefined ? this.state.visitedCities[index] : null;
+    const city = this._getIndexedEntry('visitedCities', cityId);
+    return city ? deepFreeze(cloneGameData(city)) : null;
+  }
+
+  hasCity(cityId) {
+    return this._getIndexedEntry('visitedCities', cityId) !== null;
+  }
+
+  removeCity(cityId) {
+    return this._removeIndexedEntry('visitedCities', cityId);
+  }
+
+  clearCities() {
+    return this.replaceIndexedCollection('visitedCities', []);
   }
 
   /**
-   * ✅ Log energy change (z limitowaniem)
+   * Historia energii
    */
   addEnergyLog(entry) {
-    this.state.energyLog.push(entry);
+    this.state.energyLog.push(cloneGameData(entry));
     this._rotateHistoryArrays();
+    this.dirty = true;
   }
 
   /**
-   * ✅ Log money change (z limitowaniem)
+   * Historia pieniędzy
    */
   addMoneyLog(entry) {
-    this.state.moneyLog.push(entry);
+    this.state.moneyLog.push(cloneGameData(entry));
     this._rotateHistoryArrays();
+    this.dirty = true;
   }
 
   /**
-   * ✅ Log travel (z limitowaniem)
+   * Historia podróży
    */
   addTravel(travel) {
-    this.state.travelHistory.push(travel);
+    this.state.travelHistory.push(cloneGameData(travel));
     this._rotateHistoryArrays();
+    this.dirty = true;
   }
 
   /**
-   * ✅ Log hidden object attempt
+   * Historia prób hidden-object
    */
   addHiddenObjectAttempt(attempt) {
-    this.state.hiddenObjectHistory.push(attempt);
+    this.state.hiddenObjectHistory.push(cloneGameData(attempt));
     this._rotateHistoryArrays();
+    this.dirty = true;
   }
 
   /**
-   * ✅ Rotate history arrays — keep only last N entries
+   * Zachowuje wyłącznie ostatnie N wpisów historii.
    */
   _rotateHistoryArrays() {
-    const arrays = ['energyLog', 'moneyLog', 'travelHistory', 'hiddenObjectHistory'];
+    const arrays = [
+      'energyLog',
+      'moneyLog',
+      'travelHistory',
+      'hiddenObjectHistory'
+    ];
 
     for (const arrayName of arrays) {
       if (this.state[arrayName].length > this.historyLimit) {
-        this.state[arrayName] = this.state[arrayName].slice(-this.historyLimit);
+        this.state[arrayName] = this.state[arrayName].slice(
+          -this.historyLimit
+        );
       }
     }
   }
 
   /**
-   * ✅ Garbage collect old memory
+   * Usuwa stare wpisy pamięci encounterów i miast.
    */
   garbageCollectMemory() {
-    // Keep only most recent 500 encounter memories
-    const keys = Object.keys(this.state.encounterMemory);
-    if (keys.length > this.memoryObjectLimit) {
-      const toRemove = keys.length - this.memoryObjectLimit;
-      keys.slice(0, toRemove).forEach(key => {
+    let changed = false;
+
+    const encounterKeys = Object.keys(this.state.encounterMemory);
+
+    if (encounterKeys.length > this.memoryObjectLimit) {
+      const countToRemove = encounterKeys.length - this.memoryObjectLimit;
+
+      encounterKeys.slice(0, countToRemove).forEach(key => {
         delete this.state.encounterMemory[key];
       });
+
+      changed = true;
     }
 
-    // Same dla cities
     const cityKeys = Object.keys(this.state.cityEncounterState);
+
     if (cityKeys.length > this.memoryObjectLimit) {
-      const toRemove = cityKeys.length - this.memoryObjectLimit;
-      cityKeys.slice(0, toRemove).forEach(key => {
+      const countToRemove = cityKeys.length - this.memoryObjectLimit;
+
+      cityKeys.slice(0, countToRemove).forEach(key => {
         delete this.state.cityEncounterState[key];
       });
+
+      changed = true;
     }
+
+    if (changed) {
+      this.dirty = true;
+    }
+
+    return changed;
   }
 
   /**
-   * ✅ Reset case outcome
+   * Reset wyniku sprawy.
    */
   resetCaseOutcome() {
-    this.updateState({
+    return this.updateState({
       finalArrestResult: null,
       finalArrestSuspectId: null,
       caseResolved: false,
@@ -364,7 +708,7 @@ class GameStateManager {
   }
 
   /**
-   * ✅ Reset reconstructed heist
+   * Reset minigry reconstruction.
    */
   resetReconstructedHeist() {
     this.state.reconstructedHeist = createDefaultReconstructedHeist();
@@ -372,24 +716,27 @@ class GameStateManager {
   }
 
   /**
-   * ✅ Full reset
+   * Pełny reset gry.
    */
   resetFull() {
-    this.state = cloneGameData(defaultGameState);
-    this.state._createdAt = Date.now();
+    this.state = createInitialState();
     this.dirty = true;
+    this.saveCheckpoint = null;
   }
 
   /**
-   * ✅ Create save checkpoint
+   * Tworzy checkpoint wewnętrznego stanu.
+   * Kopiujemy pełny stan łącznie z indeksami, ale przy odtworzeniu i tak
+   * odtwarzamy cache indeksów z tablic.
    */
   createCheckpoint() {
-    this.saveCheckpoint = cloneGameData(this.state);
     this.state._lastSave = Date.now();
+    this.saveCheckpoint = cloneGameData(this.state);
+    this.dirty = false;
   }
 
   /**
-   * ✅ Restore from checkpoint
+   * Przywraca checkpoint.
    */
   restoreCheckpoint() {
     if (!this.saveCheckpoint) {
@@ -397,27 +744,30 @@ class GameStateManager {
       return false;
     }
 
-    this.state = cloneGameData(this.saveCheckpoint);
+    this.state = normalizeImportedState(this.saveCheckpoint);
     this.dirty = false;
+
     return true;
   }
 
   /**
-   * ✅ Validate save (check corruption)
+   * Walidacja zapisu.
    */
   validateSave(saveData) {
-    if (!saveData || typeof saveData !== 'object') {
+    if (!saveData || typeof saveData !== 'object' || Array.isArray(saveData)) {
       return false;
     }
 
-    // ✅ Check version
-    if (saveData._version !== GAME_STATE_VERSION) {
-      console.warn(`[GameState] Save version mismatch: ${saveData._version} vs ${GAME_STATE_VERSION}`);
+    if (saveData._version && saveData._version !== GAME_STATE_VERSION) {
+      console.warn(
+        `[GameState] Save version mismatch: ${saveData._version} vs ${GAME_STATE_VERSION}`
+      );
+
       return this._migrateFromOldVersion(saveData);
     }
 
-    // ✅ Check required fields
     const requiredFields = ['playerName', 'difficulty', 'score'];
+
     for (const field of requiredFields) {
       if (!(field in saveData)) {
         console.warn(`[GameState] Save missing required field: ${field}`);
@@ -429,66 +779,88 @@ class GameStateManager {
   }
 
   /**
-   * ✅ Migrate old saves (jeśli struktura się zmieni)
+   * Miejsce na przyszłe migracje.
    */
   _migrateFromOldVersion(oldSave) {
     console.log(`[GameState] Migrating from version: ${oldSave._version}`);
 
-    // ✅ Example: Jeśli dodałeś nowe pole w v1.1.0
+    /*
+    Przykład:
     if (oldSave._version === '1.0.0') {
-      // Dodaj nowe pole z defaultem
-      // oldSave.newFieldInV1_1 = defaultGameState.newFieldInV1_1;
+      oldSave.someNewField = defaultGameState.someNewField;
     }
+    */
 
     oldSave._version = GAME_STATE_VERSION;
     return true;
   }
 
   /**
-   * ✅ Export dla save (bez prywatnych pól z _)
+   * Eksport save'a.
+   *
+   * Prywatne pola zaczynające się od "_" nie są zapisywane.
+   * Dotyczy to również cache indeksów, które zostaną odtworzone przy imporcie.
    */
   exportForSave() {
+    this.state._lastSave = Date.now();
+
     const exported = {};
 
     for (const [key, value] of Object.entries(this.state)) {
       if (!key.startsWith('_')) {
-        exported[key] = value;
+        exported[key] = cloneGameData(value);
       }
     }
 
-    return exported;
+    return {
+      _version: GAME_STATE_VERSION,
+      _lastSave: this.state._lastSave,
+      _createdAt: this.state._createdAt,
+      ...exported
+    };
   }
 
   /**
-   * ✅ Import z save
+   * Import save'a.
+   *
+   * Nie importujemy starych _clueIndex / _cityIndex / _encounterIndex:
+   * są one pochodne i zawsze wyliczane od nowa z tablic.
    */
   importFromSave(saveData) {
-    if (!this.validateSave(saveData)) {
+    const importedData = cloneGameData(saveData);
+
+    if (!this.validateSave(importedData)) {
       console.error('[GameState] Save validation failed');
       return false;
     }
 
-    this.state = cloneGameData({ ...defaultGameState, ...saveData });
-    this.state._version = GAME_STATE_VERSION;
+    this.state = normalizeImportedState(importedData);
     this.dirty = false;
 
     return true;
   }
 
   /**
-   * ✅ Debug info
+   * Informacje debugowe bez wystawiania referencji do stanu.
    */
   getDebugInfo() {
     return {
       version: this.state._version,
-      lastSave: new Date(this.state._lastSave),
-      createdAt: new Date(this.state._createdAt),
+      lastSave: this.state._lastSave
+        ? new Date(this.state._lastSave)
+        : null,
+      createdAt: this.state._createdAt
+        ? new Date(this.state._createdAt)
+        : null,
       playerName: this.state.playerName,
       score: this.state.score,
       casesSolved: this.state.casesSolved,
       cluesCount: this.state.cluesCollected.length,
+      clueIndexSize: Object.keys(this.state._clueIndex).length,
       encountersCount: this.state.visitedEncounters.length,
+      encounterIndexSize: Object.keys(this.state._encounterIndex).length,
       citiesCount: this.state.visitedCities.length,
+      cityIndexSize: Object.keys(this.state._cityIndex).length,
       energyLogSize: this.state.energyLog.length,
       moneyLogSize: this.state.moneyLog.length,
       travelHistorySize: this.state.travelHistory.length,
@@ -498,14 +870,8 @@ class GameStateManager {
   }
 }
 
-/**
- * ✅ Singleton instance
- */
 export const gameState = new GameStateManager();
 
-/**
- * ✅ Expose tylko publiczne metody
- */
 export function resetGameState() {
   gameState.resetFull();
 }
@@ -523,18 +889,23 @@ export function cloneDefaultState() {
 }
 
 /**
- * ✅ Debug mode — read-only w konsoli
+ * Debug API.
+ *
+ * Nie wystawiamy gameStateManager jako pełnego managera, bo umożliwiałoby to:
+ * window.gameStateManager.state.cluesCollected.push(...)
+ *
+ * Zamiast tego konsola ma wyłącznie snapshot i statystyki.
  */
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'gameState', {
-    get: () => ({
-      _message: 'Use window.gameStateManager for read-only access',
-      getState: () => gameState.getState(),
-      getDebugInfo: () => gameState.getDebugInfo()
-    }),
+    get: () =>
+      Object.freeze({
+        _message:
+          'Read-only debug API. Use imported gameState methods in game code.',
+        getState: () => gameState.getState(),
+        getDebugInfo: () => gameState.getDebugInfo()
+      }),
     configurable: false,
     enumerable: true
   });
-
-  window.gameStateManager = gameState;  // ← Rzeczywisty manager
 }

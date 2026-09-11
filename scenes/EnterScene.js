@@ -8,10 +8,10 @@ import { audioManager } from '../AudioManager.js';
 const STORAGE_KEYS = {
   GUEST_LAST_USED_SLOT: 'lost-artefacts:last-used-slot',
   GUEST_SAVE_PREFIX: 'lost-artefacts:save:',
-  START_NEW_GAME_AFTER_REGISTER: 'lost-artefacts:pending-new-game-after-register'
+  START_NEW_GAME_AFTER_REGISTER:
+    'lost-artefacts:pending-new-game-after-register'
 };
 
-// ✅ Odstępy między przyciskami
 const BUTTON_Y = {
   LOGIN: 0.28,
   REGISTER: 0.47,
@@ -29,49 +29,53 @@ export class EnterScene extends BaseScene {
     this.onWindowMessage = null;
     this.saveSlotPicker = null;
     this.isLoadingSave = false;
-    this.noticeText = null;  // ✅ Zamiast alert()
+    this.noticeText = null;
+    this.noticeHideTimer = null;
+    this.isEnteringGame = false;
+
+    this.boundCleanupScene = this.cleanupScene.bind(this);
   }
 
   async create() {
     super.create();
+
+    this.isLoadingSave = false;
+    this.isEnteringGame = false;
+    this.noticeHideTimer = null;
+
     audioManager.init(this);
+
     const { width, height } = this.scale;
 
     EventBus.emit('hideHUD');
 
     this._buildBackground(width, height);
     this._buildButtons(width, height);
-    this._buildNoticeArea(width, height);  // ✅ Zamiast alert()
+    this._buildNoticeArea(width, height);
 
-    // ✅ Window message listener z cleanup
     this.onWindowMessage = this.handleWindowMessage.bind(this);
     window.addEventListener('message', this.onWindowMessage);
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
-    this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundCleanupScene
+    );
 
-    // ✅ Error handling na session restore
     try {
       await this.restoreSavedSession();
-    } catch (err) {
-      console.error('[EnterScene] Session restore failed:', err);
-      // ← Continue as guest
+    } catch (error) {
+      console.error('[EnterScene] Session restore failed:', error);
     }
   }
 
-  /**
-   * ✅ Background setup
-   */
   _buildBackground(width, height) {
     const bg = this.add.image(width / 2, height / 2, 'enter');
     const scaleX = width / bg.width;
     const scaleY = height / bg.height;
+
     bg.setScale(Math.max(scaleX, scaleY)).setScrollFactor(0);
   }
 
-  /**
-   * ✅ Buttons z lepszymi odstępami
-   */
   _buildButtons(width, height) {
     const centerX = width * 0.23;
 
@@ -95,63 +99,95 @@ export class EnterScene extends BaseScene {
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
-    [loginBtn, registerBtn, nextBtn, newGameBtn].forEach(btn =>
-      this.addHoverEffect(btn)
-    );
+    [loginBtn, registerBtn, nextBtn, newGameBtn].forEach((button) => {
+      this.addHoverEffect(button);
+    });
 
-    loginBtn.on('pointerdown', () => this.openModal('login.html'));
-    registerBtn.on('pointerdown', () => this.openModal('register.html'));
-    nextBtn.on('pointerdown', () => this.handlePrimaryEntry());
+    loginBtn.on('pointerdown', () => {
+      if (!this.isEnteringGame) {
+        this.openModal('login.html');
+      }
+    });
+
+    registerBtn.on('pointerdown', () => {
+      if (!this.isEnteringGame) {
+        this.openModal('register.html');
+      }
+    });
+
+    nextBtn.on('pointerdown', () => {
+      this.handlePrimaryEntry();
+    });
+
     newGameBtn.on('pointerdown', () => {
+      if (this.isEnteringGame) {
+        return;
+      }
+
       const authMode = this.currentUser ? 'account' : 'guest';
       this.startNewGameFlow(authMode);
     });
   }
 
-  /**
-   * ✅ Notice area — zamiast blokującego alert()
-   */
   _buildNoticeArea(width, height) {
-    this.noticeText = this.add.text(width * 0.5, height * 0.93, '', {
-      fontFamily: 'Special Elite',
-      fontSize: '20px',
-      color: '#ffe066',
-      backgroundColor: '#1a1208',
-      padding: { x: 18, y: 10 },
-      align: 'center',
-      wordWrap: { width: width * 0.55 }
-    })
+    this.noticeText = this.add
+      .text(width * 0.5, height * 0.93, '', {
+        fontFamily: 'SpecialElite',
+        fontSize: '20px',
+        color: '#ffe066',
+        backgroundColor: '#1a1208',
+        padding: { x: 18, y: 10 },
+        align: 'center',
+        wordWrap: { width: width * 0.55 }
+      })
       .setOrigin(0.5)
       .setDepth(6000)
       .setAlpha(0);
   }
 
-  /**
-   * ✅ Show non-blocking notice (zamiast alert)
-   */
   _showNotice(message, duration = 5000) {
-    if (!this.noticeText) return;
+    if (!message || !this.noticeText?.active || this._cleanupDone) {
+      return;
+    }
 
-    this.noticeText.setText(message).setAlpha(1);
+    if (this.noticeHideTimer) {
+      this.noticeHideTimer.remove(false);
+      this.noticeHideTimer = null;
+    }
 
-    // ✅ Auto-hide po duration
-    this.time.delayedCall(duration, () => {
-      if (this.noticeText) {
-        this.addTrackedTween(this.tweens.add({
-          targets: this.noticeText,
-          alpha: 0,
-          duration: 400,
-          ease: 'Quad.out'
-        }));
+    this.killTrackedTweensOf(this.noticeText);
+
+    this.noticeText
+      .setText(message)
+      .setAlpha(1);
+
+    this.noticeHideTimer = this.time.delayedCall(duration, () => {
+      this.noticeHideTimer = null;
+
+      if (!this.noticeText?.active || this._cleanupDone) {
+        return;
       }
+
+      this.createTrackedTween({
+        targets: this.noticeText,
+        alpha: 0,
+        duration: 400,
+        ease: 'Quad.out'
+      });
     });
   }
 
   async restoreSavedSession() {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error
+    } = await supabase.auth.getSession();
 
     if (error) {
-      console.warn('Nie udało się odczytać zapisanej sesji:', error.message);
+      console.warn(
+        'Nie udało się odczytać zapisanej sesji:',
+        error.message
+      );
       return;
     }
 
@@ -167,6 +203,10 @@ export class EnterScene extends BaseScene {
   }
 
   handlePrimaryEntry() {
+    if (this.isEnteringGame) {
+      return;
+    }
+
     if (this.currentUser) {
       this.startLoadFlow('account');
       return;
@@ -181,36 +221,64 @@ export class EnterScene extends BaseScene {
   }
 
   async handleWindowMessage(event) {
-    if (event.origin !== window.location.origin) return;
-    if (!this.modalFrame || event.source !== this.modalFrame.contentWindow) return;
+    if (this._cleanupDone || this.isEnteringGame) {
+      return;
+    }
+
+    if (event.origin !== window.location.origin) {
+      return;
+    }
+
+    if (!this.modalFrame || event.source !== this.modalFrame.contentWindow) {
+      return;
+    }
 
     const message = event.data;
-    if (!message || typeof message !== 'object') return;
+
+    if (!message || typeof message !== 'object') {
+      return;
+    }
 
     if (message.type === 'lost-artefacts:auth-registered') {
       this.rememberNewGameAfterRegistration();
       this.closeModal();
 
-      // ✅ Non-blocking notice zamiast alert()
       this._showNotice(
         'Account created!\nConfirm your e-mail, then log in.\nYour career awaits.',
         6000
       );
+
       return;
     }
 
-    if (message.type !== 'lost-artefacts:auth-signed-in') return;
+    if (message.type !== 'lost-artefacts:auth-signed-in') {
+      return;
+    }
 
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error
+      } = await supabase.auth.getSession();
+
+      if (this._cleanupDone || this.isEnteringGame) {
+        return;
+      }
 
       if (error || !session?.user) {
-        console.error('Sesja po logowaniu nie została znaleziona:', error?.message);
+        console.error(
+          'Sesja po logowaniu nie została znaleziona:',
+          error?.message
+        );
         return;
       }
 
       this.currentUser = session.user;
       await this.ensurePlayerProfile(this.currentUser);
+
+      if (this._cleanupDone || this.isEnteringGame) {
+        return;
+      }
 
       if (this.shouldStartNewGameAfterRegistration()) {
         this.clearNewGameAfterRegistrationIntent();
@@ -219,12 +287,18 @@ export class EnterScene extends BaseScene {
       }
 
       this.startLoadFlow('account');
-    } catch (err) {
-      console.error('[EnterScene] handleWindowMessage failed:', err);
+    } catch (error) {
+      if (!this._cleanupDone) {
+        console.error('[EnterScene] handleWindowMessage failed:', error);
+      }
     }
   }
 
   async ensurePlayerProfile(user) {
+    if (!user?.id) {
+      return false;
+    }
+
     const displayName =
       user.user_metadata?.display_name ??
       user.email?.split('@')[0] ??
@@ -232,27 +306,50 @@ export class EnterScene extends BaseScene {
 
     const { error } = await supabase
       .from('player_profiles')
-      .upsert({ id: user.id, display_name: displayName }, { onConflict: 'id' });
+      .upsert(
+        {
+          id: user.id,
+          display_name: displayName
+        },
+        {
+          onConflict: 'id'
+        }
+      );
 
     if (error) {
-      console.warn('Profil agenta nie został utworzony:', error.message);
+      console.warn(
+        'Profil agenta nie został utworzony:',
+        error.message
+      );
+
+      return false;
     }
+
+    return true;
   }
 
-  /**
-   * ✅ Better hasGuestSave — nie parsuje JSON niepotrzebnie
-   */
   hasGuestSave() {
     try {
-      const lastUsedSlot = localStorage.getItem(STORAGE_KEYS.GUEST_LAST_USED_SLOT);
-      if (!lastUsedSlot) return false;
+      const lastUsedSlot = localStorage.getItem(
+        STORAGE_KEYS.GUEST_LAST_USED_SLOT
+      );
 
-      const saveKey = `${STORAGE_KEYS.GUEST_SAVE_PREFIX}${lastUsedSlot}`;
+      if (!lastUsedSlot) {
+        return false;
+      }
+
+      const saveKey =
+        `${STORAGE_KEYS.GUEST_SAVE_PREFIX}${lastUsedSlot}`;
+
       const rawSave = localStorage.getItem(saveKey);
-      if (!rawSave) return false;
 
-      // ✅ Walidacja czy to valid JSON bez marnowania pamięci
-      return rawSave.trimStart().startsWith('{');
+      if (!rawSave) {
+        return false;
+      }
+
+      JSON.parse(rawSave);
+
+      return true;
     } catch {
       return false;
     }
@@ -260,15 +357,23 @@ export class EnterScene extends BaseScene {
 
   rememberNewGameAfterRegistration() {
     try {
-      localStorage.setItem(STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER, 'true');
+      localStorage.setItem(
+        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER,
+        'true'
+      );
     } catch (error) {
-      console.warn('Nie udało się zapamiętać intencji nowej gry:', error);
+      console.warn(
+        'Nie udało się zapamiętać intencji nowej gry:',
+        error
+      );
     }
   }
 
   shouldStartNewGameAfterRegistration() {
     try {
-      return localStorage.getItem(STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER) === 'true';
+      return localStorage.getItem(
+        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER
+      ) === 'true';
     } catch {
       return false;
     }
@@ -276,32 +381,56 @@ export class EnterScene extends BaseScene {
 
   clearNewGameAfterRegistrationIntent() {
     try {
-      localStorage.removeItem(STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER);
+      localStorage.removeItem(
+        STORAGE_KEYS.START_NEW_GAME_AFTER_REGISTER
+      );
     } catch (error) {
-      console.warn('Nie udało się usunąć intencji nowej gry:', error);
+      console.warn(
+        'Nie udało się usunąć intencji nowej gry:',
+        error
+      );
     }
   }
 
   startNewGameFlow(authMode) {
+    if (this.isEnteringGame || this._cleanupDone) {
+      return;
+    }
+
+    this.isEnteringGame = true;
     this.closeModal();
 
-    this.goto('IntroScene', {
+    void this.goto('IntroScene', {
       authMode,
       playerId: this.currentUser?.id ?? null,
       playerEmail: this.currentUser?.email ?? null,
       displayName: this.getDisplayName(),
       isNewGame: true,
       startOnboarding: true
+    }).then((started) => {
+      if (!started && !this._cleanupDone) {
+        this.isEnteringGame = false;
+        this._showNotice(
+          'Unable to begin a new case. Please try again.',
+          4000
+        );
+      }
     });
   }
 
   startLoadFlow(authMode) {
+    if (this.isEnteringGame || this._cleanupDone) {
+      return;
+    }
+
     this.closeModal();
-    this.openSaveSlotPicker(authMode);
+    void this.openSaveSlotPicker(authMode);
   }
 
   async openSaveSlotPicker(authMode) {
-    if (this.saveSlotPicker) return;
+    if (this.saveSlotPicker || this.isEnteringGame || this._cleanupDone) {
+      return;
+    }
 
     const { width, height } = this.scale;
 
@@ -319,23 +448,35 @@ export class EnterScene extends BaseScene {
       .setInteractive();
 
     const panel = this.add
-      .rectangle(panelCX, panelCY, panelWidth, panelHeight, 0x17110e, 0.98)
+      .rectangle(
+        panelCX,
+        panelCY,
+        panelWidth,
+        panelHeight,
+        0x17110e,
+        0.98
+      )
       .setStrokeStyle(4, 0xd4af37);
 
     const title = this.add
       .text(panelCX, panelCY - 195, 'SELECT CASE FILE', {
-        fontFamily: 'Press Start 2P',
+        fontFamily: 'PressStart2P',
         fontSize: '19px',
         color: '#f6dc8c'
       })
       .setOrigin(0.5);
 
     const subtitle = this.add
-      .text(panelCX, panelCY - 158, 'Choose the save you want to restore.', {
-        fontFamily: 'Special Elite',
-        fontSize: '22px',
-        color: '#f1e6b8'
-      })
+      .text(
+        panelCX,
+        panelCY - 158,
+        'Choose the save you want to restore.',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '22px',
+          color: '#f1e6b8'
+        }
+      )
       .setOrigin(0.5);
 
     const closeButton = this.add
@@ -344,7 +485,7 @@ export class EnterScene extends BaseScene {
         panelCY - panelHeight / 2 + 26,
         'X',
         {
-          fontFamily: 'Press Start 2P',
+          fontFamily: 'PressStart2P',
           fontSize: '16px',
           color: '#ffffff',
           backgroundColor: '#3b1111',
@@ -356,16 +497,27 @@ export class EnterScene extends BaseScene {
 
     const loadingText = this.add
       .text(panelCX, panelCY + 190, 'Reading case files...', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '19px',
         color: '#f1e6b8'
       })
       .setOrigin(0.5);
 
-    root.add([dim, panel, title, subtitle, closeButton, loadingText]);
+    root.add([
+      dim,
+      panel,
+      title,
+      subtitle,
+      closeButton,
+      loadingText
+    ]);
 
     const closePicker = () => {
-      if (!this.saveSlotPicker) return;
+      if (!this.saveSlotPicker) {
+        return;
+      }
+
+      this.killTrackedTweensOf(this.saveSlotPicker);
       this.saveSlotPicker.destroy(true);
       this.saveSlotPicker = null;
       this.isLoadingSave = false;
@@ -374,62 +526,95 @@ export class EnterScene extends BaseScene {
     dim.on('pointerdown', closePicker);
     closeButton.on('pointerdown', closePicker);
 
-    // ✅ Tracked tween
     root.setAlpha(0);
-    this.addTrackedTween(this.tweens.add({
+
+    this.createTrackedTween({
       targets: root,
       alpha: 1,
       duration: 180,
       ease: 'Quad.Out'
-    }));
+    });
 
     let slots = [];
+
     try {
       slots = await saveManager.listSlots();
     } catch (error) {
       console.error('[EnterScene] Could not list save slots:', error);
     }
 
-    if (!this.saveSlotPicker) return;
+    if (
+      this._cleanupDone ||
+      !this.saveSlotPicker ||
+      this.saveSlotPicker !== root ||
+      !root.active
+    ) {
+      return;
+    }
 
     loadingText.destroy();
 
     const slotKeys = ['slot_1', 'slot_2', 'slot_3'];
 
     slotKeys.forEach((slotKey, index) => {
-      const slotInfo = slots.find(s => s.slotKey === slotKey);
+      const slotInfo = slots.find((slot) => slot.slotKey === slotKey);
       const meta = slotInfo?.localMeta || null;
       const hasSave = Boolean(meta);
       const y = panelCY - 85 + index * 92;
 
       const button = this.add
-        .rectangle(panelCX, y, panelWidth - 72, 72, hasSave ? 0x2b3a32 : 0x353535, 1)
-        .setStrokeStyle(2, hasSave ? 0x8fcf8f : 0x777777);
+        .rectangle(
+          panelCX,
+          y,
+          panelWidth - 72,
+          72,
+          hasSave ? 0x2b3a32 : 0x353535,
+          1
+        )
+        .setStrokeStyle(
+          2,
+          hasSave ? 0x8fcf8f : 0x777777
+        );
 
       const slotTitle = this.add
-        .text(panelCX - panelWidth / 2 + 60, y - 16, `CASE FILE ${index + 1}`, {
-          fontFamily: 'Press Start 2P',
-          fontSize: '13px',
-          color: hasSave ? '#ffffff' : '#888888'
-        })
+        .text(
+          panelCX - panelWidth / 2 + 60,
+          y - 16,
+          `CASE FILE ${index + 1}`,
+          {
+            fontFamily: 'PressStart2P',
+            fontSize: '13px',
+            color: hasSave ? '#ffffff' : '#888888'
+          }
+        )
         .setOrigin(0, 0.5);
 
       const slotDescription = this.add
-        .text(panelCX - panelWidth / 2 + 60, y + 17, this.getSaveSlotDescription(meta), {
-          fontFamily: 'Special Elite',
-          fontSize: '18px',
-          color: hasSave ? '#dbead5' : '#999999'
-        })
+        .text(
+          panelCX - panelWidth / 2 + 60,
+          y + 17,
+          this.getSaveSlotDescription(meta),
+          {
+            fontFamily: 'SpecialElite',
+            fontSize: '18px',
+            color: hasSave ? '#dbead5' : '#999999'
+          }
+        )
         .setOrigin(0, 0.5);
 
       root.add([button, slotTitle, slotDescription]);
 
-      if (!hasSave) return;
+      if (!hasSave) {
+        return;
+      }
 
       button.setInteractive({ useHandCursor: true });
 
       button.on('pointerover', () => {
-        if (this.isLoadingSave) return;
+        if (this.isLoadingSave || this.isEnteringGame) {
+          return;
+        }
+
         button.setFillStyle(0x49634b, 1);
         slotTitle.setColor('#ffe066');
       });
@@ -440,18 +625,25 @@ export class EnterScene extends BaseScene {
       });
 
       button.on('pointerdown', () => {
-        this.loadSelectedSlot(slotKey, authMode, closePicker);
+        void this.loadSelectedSlot(
+          slotKey,
+          authMode,
+          closePicker
+        );
       });
     });
   }
 
   getSaveSlotDescription(meta) {
-    if (!meta) return 'EMPTY FILE';
+    if (!meta) {
+      return 'EMPTY FILE';
+    }
 
     const location = meta.locationCode || 'Unknown location';
     const city = meta.cityCode || 'Unknown city';
     const day = meta.dayNumber || 1;
     const hour = String(meta.inGameHour ?? 8).padStart(2, '0');
+
     const savedAt = meta.savedAt
       ? new Date(meta.savedAt).toLocaleString()
       : 'Unknown time';
@@ -460,54 +652,81 @@ export class EnterScene extends BaseScene {
   }
 
   async loadSelectedSlot(slotKey, authMode, closePicker) {
-    if (this.isLoadingSave) return;
+    if (this.isLoadingSave || this.isEnteringGame || this._cleanupDone) {
+      return;
+    }
+
     this.isLoadingSave = true;
 
     try {
       const loadedSave = await saveManager.load(slotKey, 'local');
 
+      if (this._cleanupDone) {
+        return;
+      }
+
       if (!loadedSave) {
         console.warn(`[EnterScene] Slot ${slotKey} is empty.`);
         this.isLoadingSave = false;
+        this._showNotice('This case file is empty.', 3000);
         return;
       }
 
       const locationType = loadedSave.meta?.locationType || 'office';
-
-      // ✅ Safe access do gameState
       const state = gameState.getState?.() ?? gameState;
-      const cityId = loadedSave.meta?.cityCode
-        || state.currentCityId
-        || state.crimeCityId
-        || 'paris';
 
-      const targetScene = locationType === 'hotel' ? 'HotelScene' : 'OfficeScene';
+      const cityId =
+        loadedSave.meta?.cityCode ||
+        state.currentCityId ||
+        state.crimeCityId ||
+        'paris';
 
+      const targetScene =
+        locationType === 'hotel'
+          ? 'HotelScene'
+          : 'OfficeScene';
+
+      this.isEnteringGame = true;
       closePicker();
 
+      let opened = false;
+
       if (targetScene === 'HotelScene') {
-        this.goto('HotelScene', {
+        opened = await this.goto('HotelScene', {
           cityId,
           returnScene: 'CrimeCityScene',
           returnData: { cityId },
           fromSave: true,
           saveSlotKey: slotKey
         });
-        return;
+      } else {
+        opened = await this.goto('OfficeScene', {
+          authMode,
+          playerId: this.currentUser?.id ?? null,
+          playerEmail: this.currentUser?.email ?? null,
+          displayName: this.getDisplayName(),
+          fromSave: true,
+          saveSlotKey: slotKey
+        });
       }
 
-      this.goto('OfficeScene', {
-        authMode,
-        playerId: this.currentUser?.id ?? null,
-        playerEmail: this.currentUser?.email ?? null,
-        displayName: this.getDisplayName(),
-        fromSave: true,
-        saveSlotKey: slotKey
-      });
+      if (!opened && !this._cleanupDone) {
+        this.isEnteringGame = false;
+        this.isLoadingSave = false;
+        this._showNotice('Failed to open this case file. Please try again.', 4000);
+      }
     } catch (error) {
-      console.error(`[EnterScene] Failed to load slot ${slotKey}:`, error);
-      this._showNotice('Failed to load save. Please try again.', 4000);
+      if (!this._cleanupDone) {
+        console.error(
+          `[EnterScene] Failed to load slot ${slotKey}:`,
+          error
+        );
+
+        this._showNotice('Failed to load save. Please try again.', 4000);
+      }
+
       this.isLoadingSave = false;
+      this.isEnteringGame = false;
     }
   }
 
@@ -521,14 +740,27 @@ export class EnterScene extends BaseScene {
 
   addHoverEffect(button, baseScale = 1, hoverScale = 1.05) {
     button.setScale(baseScale);
-    button.on('pointerover', () => button.setScale(hoverScale));
-    button.on('pointerout', () => button.setScale(baseScale));
+
+    button.on('pointerover', () => {
+      if (!this.isEnteringGame) {
+        button.setScale(hoverScale);
+      }
+    });
+
+    button.on('pointerout', () => {
+      button.setScale(baseScale);
+    });
   }
 
   openModal(url) {
+    if (this._cleanupDone || this.isEnteringGame) {
+      return;
+    }
+
     this.closeModal();
 
     const overlay = document.createElement('div');
+
     overlay.style.cssText = `
       position: fixed; inset: 0; display: flex;
       align-items: center; justify-content: center;
@@ -536,6 +768,7 @@ export class EnterScene extends BaseScene {
     `;
 
     const frame = document.createElement('iframe');
+
     frame.src = url;
     frame.title = 'Enter Mark Agency HQ';
     frame.style.cssText = `
@@ -544,12 +777,14 @@ export class EnterScene extends BaseScene {
       box-shadow: 0 0 28px #000; background: #111;
     `;
 
-    // ✅ Use named handler dla cleanup
     const overlayClickHandler = (event) => {
-      if (event.target === overlay) this.closeModal();
+      if (event.target === overlay) {
+        this.closeModal();
+      }
     };
+
     overlay.addEventListener('click', overlayClickHandler);
-    overlay._clickHandler = overlayClickHandler;  // Store reference
+    overlay._clickHandler = overlayClickHandler;
 
     overlay.appendChild(frame);
     document.body.appendChild(overlay);
@@ -560,10 +795,13 @@ export class EnterScene extends BaseScene {
 
   closeModal() {
     if (this.modalElement?.parentNode) {
-      // ✅ Cleanup event listener przed remove
       if (this.modalElement._clickHandler) {
-        this.modalElement.removeEventListener('click', this.modalElement._clickHandler);
+        this.modalElement.removeEventListener(
+          'click',
+          this.modalElement._clickHandler
+        );
       }
+
       this.modalElement.parentNode.removeChild(this.modalElement);
     }
 
@@ -571,19 +809,28 @@ export class EnterScene extends BaseScene {
     this.modalFrame = null;
   }
 
-  cleanup() {
+  cleanupScene() {
     this.closeModal();
 
+    if (this.noticeHideTimer) {
+      this.noticeHideTimer.remove(false);
+      this.noticeHideTimer = null;
+    }
+
     if (this.saveSlotPicker) {
+      this.killTrackedTweensOf(this.saveSlotPicker);
       this.saveSlotPicker.destroy(true);
       this.saveSlotPicker = null;
     }
 
     this.isLoadingSave = false;
+    this.isEnteringGame = false;
 
     if (this.onWindowMessage) {
       window.removeEventListener('message', this.onWindowMessage);
       this.onWindowMessage = null;
     }
+
+    this.noticeText = null;
   }
 }

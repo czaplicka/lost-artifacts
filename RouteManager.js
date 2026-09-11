@@ -1,5 +1,3 @@
-// routeManager.js
-
 const VALID_STATES = new Set([
   'CRIME_CITY',
   'ROUTE',

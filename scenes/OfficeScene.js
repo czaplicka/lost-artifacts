@@ -13,7 +13,7 @@ import { createOfficeHotspotDefinitions } from './office/officeHotspots.js';
 export class OfficeScene extends BaseScene {
   constructor() {
     super({ key: 'OfficeScene' });
-this.hasMenu = true;
+
     this.currentView = 'office';
     this.viewPositions = {};
     this.rooms = {};
@@ -28,9 +28,12 @@ this.hasMenu = true;
     this.officeAmbient = null;
 
     this.uiLocked = false;
+    this.tutorialInputLocked = false;
+
     this.isOpeningCrimeLab = false;
     this.isOpeningRecoveredArtifacts = false;
     this.isOpeningWantedDatabase = false;
+    this.isRestoringOfficeUi = false;
 
     this.startOnboarding = false;
     this.firstCaseTutorial = null;
@@ -40,6 +43,9 @@ this.hasMenu = true;
 
     this.onFirstMissionCompletedBound =
       this.onFirstMissionCompleted.bind(this);
+
+    this.onFirstCaseTutorialFinishedBound =
+      this.onFirstCaseTutorialFinished.bind(this);
   }
 
   init(data = {}) {
@@ -55,10 +61,12 @@ this.hasMenu = true;
 
     this.currentView = 'office';
     this.uiLocked = false;
+    this.tutorialInputLocked = false;
 
     this.isOpeningCrimeLab = false;
     this.isOpeningRecoveredArtifacts = false;
     this.isOpeningWantedDatabase = false;
+    this.isRestoringOfficeUi = false;
 
     this.navigation = null;
     this.hotspotManager = null;
@@ -80,28 +88,24 @@ this.hasMenu = true;
         caseFileOpened: false,
         routeOpened: false,
         travelStarted: false,
-        missionCompleted: false
+        missionCompleted: false,
       };
 
       console.log(
         '[OfficeScene] New Game: first-case tutorial state has been reset.',
-        this.gameState.onboarding.firstCase
+        this.gameState.onboarding.firstCase,
       );
     }
 
     console.log('[OfficeScene] init()', {
       isNewGame: this.isNewGame,
       startOnboarding: this.startOnboarding,
-      tutorialState: this.gameState.onboarding?.firstCase
+      tutorialState: this.gameState.onboarding?.firstCase,
     });
   }
 
   create() {
     super.create();
-
-    console.log('[OfficeScene] create: started');
-
-    this.hasMenu = true;
 
     try {
       ensureHud(this);
@@ -124,7 +128,7 @@ this.hasMenu = true;
     this.registry.set('gameState', this.gameState);
     this.registry.set(
       'activeMission',
-      this.gameState.currentMission || null
+      this.gameState.currentMission || null,
     );
 
     this.createBackgrounds(width, height);
@@ -133,18 +137,20 @@ this.hasMenu = true;
     this.navigation = new OfficeNavigation(this, {
       roomOrder: this.roomOrder,
       viewPositions: this.viewPositions,
-      initialView: 'office'
+      initialView: 'office',
     });
 
     this.navigation.create();
 
     this.hotspotManager = new OfficeHotspotManager(this, {
-      debugEnabled: this.DEBUG_HOTSPOTS
+      debugEnabled: this.DEBUG_HOTSPOTS,
     });
 
     this.hotspotManager.create(
-      createOfficeHotspotDefinitions(this)
+      createOfficeHotspotDefinitions(this),
     );
+
+    this.input.topOnly = true;
 
     this.createFirstCaseTutorial();
 
@@ -160,51 +166,131 @@ this.hasMenu = true;
     this.trackInputEvent(
       this.input.keyboard,
       'keydown-LEFT',
-      () => this.navigation?.moveLeft()
+      () => this.navigation?.moveLeft(),
     );
 
     this.trackInputEvent(
       this.input.keyboard,
       'keydown-RIGHT',
-      () => this.navigation?.moveRight()
+      () => this.navigation?.moveRight(),
     );
 
     this.trackInputEvent(
       this.input.keyboard,
       'keydown-L',
-      this.openCrimeLabHotkey
+      this.openCrimeLabHotkey,
     );
 
     this.onBus(
       'firstMissionCompleted',
-      this.onFirstMissionCompletedBound
+      this.onFirstMissionCompletedBound,
+    );
+
+    /*
+     * Ten event musi zostać wyemitowany przez FirstCaseTutorial.finish().
+     * Jest wywoływany zarówno po Skip Tutorial, jak i przy normalnym
+     * ukończeniu tutorialu.
+     */
+    EventBus.off(
+      'firstCaseTutorialFinished',
+      this.onFirstCaseTutorialFinishedBound,
+    );
+
+    EventBus.on(
+      'firstCaseTutorialFinished',
+      this.onFirstCaseTutorialFinishedBound,
     );
 
     this.events.on(
       Phaser.Scenes.Events.WAKE,
       this.onWakeOrResume,
-      this
+      this,
     );
 
     this.events.on(
       Phaser.Scenes.Events.RESUME,
       this.onWakeOrResume,
-      this
+      this,
     );
 
     this.events.on(
       Phaser.Scenes.Events.SLEEP,
       this.onSleep,
-      this
+      this,
     );
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.cleanupScene,
-      this
+      this,
     );
 
-    void this.setupOfficeUiLayers();
+    /*
+     * Najważniejsza różnica:
+     * Nie twórz warstw UI nad tutorialem. To one prawdopodobnie
+     * przejmowały kliknięcie w "SKIP TUTORIAL".
+     */
+    if (this.firstCaseTutorial?.isActive()) {
+      this.setTutorialInputLock(true);
+
+      console.log(
+        '[OfficeScene] Tutorial is active. Office HUD layers are delayed.',
+      );
+    } else {
+      void this.setupOfficeUiLayers();
+    }
+  }
+
+  /**
+   * Blokuje zwykłe elementy interaktywne biura, ale nie blokuje
+   * samego tutorialu, bo tutorial nie korzysta z OfficeHotspotManager
+   * jako własnego przycisku Skip.
+   */
+  setTutorialInputLock(locked) {
+    this.tutorialInputLocked = locked;
+
+    this.hotspotManager?.setLocked(locked);
+    this.navigation?.setLocked(locked);
+    this.saveUI?.setLocked(locked);
+
+    if (locked) {
+      this.navigation?.hideHint();
+    }
+  }
+
+  /**
+   * Wywoływane po Skip Tutorial oraz po normalnym dojściu do lotu.
+   */
+  onFirstCaseTutorialFinished(payload = {}) {
+    console.log(
+      '[OfficeScene] First-case tutorial finished.',
+      payload,
+    );
+
+    if (!this.sys.isActive()) {
+      return;
+    }
+
+    this.setTutorialInputLock(false);
+    this.applyLock(false);
+    this.navigation?.updateVisibility();
+
+    if (this.isRestoringOfficeUi) {
+      return;
+    }
+
+    this.isRestoringOfficeUi = true;
+
+    void this.setupOfficeUiLayers()
+      .catch((error) => {
+        console.error(
+          '[OfficeScene] Failed to restore HUD after tutorial:',
+          error,
+        );
+      })
+      .finally(() => {
+        this.isRestoringOfficeUi = false;
+      });
   }
 
   /**
@@ -215,9 +301,17 @@ this.hasMenu = true;
    * 3. NewsHud — zakładka news z gazetą i telewizją.
    */
   async setupOfficeUiLayers() {
+    if (this.firstCaseTutorial?.isActive()) {
+      console.log(
+        '[OfficeScene] Skipping HUD restoration because tutorial is active.',
+      );
+
+      return false;
+    }
+
     try {
       const uiScene = await this.ensureOverlayScene(
-        'UIScene'
+        'UIScene',
       );
 
       if (uiScene) {
@@ -225,7 +319,7 @@ this.hasMenu = true;
         this.game.events.emit('setHudVisible', true);
       } else {
         console.warn(
-          '[OfficeScene] UIScene could not be restored.'
+          '[OfficeScene] UIScene could not be restored.',
         );
       }
 
@@ -237,16 +331,20 @@ this.hasMenu = true;
         playerHud.refreshUI?.();
       } else {
         console.warn(
-          '[OfficeScene] PlayerHudScene could not be restored.'
+          '[OfficeScene] PlayerHudScene could not be restored.',
         );
       }
 
       await this.setupNewsHud();
+
+      return true;
     } catch (error) {
       console.error(
         '[OfficeScene] Failed to set up office UI layers:',
-        error
+        error,
       );
+
+      return false;
     }
   }
 
@@ -254,14 +352,18 @@ this.hasMenu = true;
    * Uruchamia lub przywraca zakładkę News.
    */
   async setupNewsHud() {
+    if (this.firstCaseTutorial?.isActive()) {
+      return false;
+    }
+
     try {
       const newsHud = await this.ensureOverlayScene(
-        'NewsHud'
+        'NewsHud',
       );
 
       if (!newsHud) {
         console.warn(
-          '[OfficeScene] NewsHud could not be opened.'
+          '[OfficeScene] NewsHud could not be opened.',
         );
 
         return false;
@@ -269,12 +371,12 @@ this.hasMenu = true;
 
       newsHud.events?.emit(
         'setNewspaperVisible',
-        true
+        true,
       );
 
       newsHud.events?.emit(
         'setTvVisible',
-        true
+        true,
       );
 
       this.bringSceneToTopIfActive('NewsHud');
@@ -283,7 +385,7 @@ this.hasMenu = true;
     } catch (error) {
       console.error(
         '[OfficeScene] NewsHud setup failed:',
-        error
+        error,
       );
 
       return false;
@@ -301,12 +403,16 @@ this.hasMenu = true;
   }
 
   update() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const playerHud = this.getPlayerHud();
 
     const hudPanelOpen = Boolean(
       playerHud &&
       typeof playerHud.isAnyPanelOpen === 'function' &&
-      playerHud.isAnyPanelOpen()
+      playerHud.isAnyPanelOpen(),
     );
 
     const savePanelOpen = Boolean(this.saveUI?.isOpen);
@@ -327,15 +433,19 @@ this.hasMenu = true;
       this.saveUI = new OfficeSaveUI(this, {
         locationType: 'office',
         locationCode: 'agency_headquarters',
-        cityCode: 'hq'
+        cityCode: 'hq',
       });
 
       this.saveUI.createButton();
+
+      if (this.tutorialInputLocked) {
+        this.saveUI.setLocked(true);
+      }
     } catch (error) {
       console.error(
         '[OfficeScene] Failed to initialize OfficeSaveUI. ' +
         'The office will continue without save controls.',
-        error
+        error,
       );
 
       this.saveUI = null;
@@ -350,7 +460,7 @@ this.hasMenu = true;
       'backgroundoff',
       'backgroundset',
       'archive',
-      'archivist'
+      'archivist',
     ];
 
     requiredTextures.forEach((key) => {
@@ -358,7 +468,7 @@ this.hasMenu = true;
         `[OfficeScene] Texture "${key}":`,
         this.textures.exists(key)
           ? 'LOADED'
-          : 'MISSING'
+          : 'MISSING',
       );
     });
 
@@ -403,32 +513,32 @@ this.hasMenu = true;
         key: 'elevator',
         bg: elevatorBg,
         x: -gameWidth,
-        width: gameWidth
+        width: gameWidth,
       },
       storage: {
         key: 'storage',
         bg: storageBg,
         x: 0,
-        width: gameWidth
+        width: gameWidth,
       },
       office: {
         key: 'office',
         bg: officeBg,
         x: gameWidth,
-        width: gameWidth
+        width: gameWidth,
       },
       cabinet: {
         key: 'cabinet',
         bg: cabinetBg,
         x: gameWidth * 2,
-        width: gameWidth
+        width: gameWidth,
       },
       archive: {
         key: 'archive',
         bg: archiveBg,
         x: gameWidth * 3,
-        width: gameWidth
-      }
+        width: gameWidth,
+      },
     };
 
     this.roomOrder = [
@@ -436,7 +546,7 @@ this.hasMenu = true;
       'storage',
       'office',
       'cabinet',
-      'archive'
+      'archive',
     ];
 
     this.totalWidth = gameWidth * 5;
@@ -446,7 +556,7 @@ this.hasMenu = true;
       storage: this.rooms.storage.x,
       office: this.rooms.office.x,
       cabinet: this.rooms.cabinet.x,
-      archive: this.rooms.archive.x
+      archive: this.rooms.archive.x,
     };
   }
 
@@ -455,7 +565,7 @@ this.hasMenu = true;
       this.rooms.elevator.x,
       0,
       this.totalWidth,
-      height
+      height,
     );
   }
 
@@ -475,7 +585,7 @@ this.hasMenu = true;
 
     this.firstCaseTutorial = new FirstCaseTutorial(
       this,
-      this.gameState
+      this.gameState,
     );
 
     const hotspots = this.hotspotManager?.hotspots ?? [];
@@ -489,7 +599,7 @@ this.hasMenu = true;
 
       this.firstCaseTutorial.registerHotspot(
         hotspotId,
-        hotspot
+        hotspot,
       );
     });
 
@@ -499,6 +609,10 @@ this.hasMenu = true;
       }
 
       this.firstCaseTutorial?.start();
+
+      if (this.firstCaseTutorial?.isActive()) {
+        this.setTutorialInputLock(true);
+      }
     });
   }
 
@@ -512,7 +626,7 @@ this.hasMenu = true;
     }
 
     const cabinetZone = this.hotspotManager?.findById(
-      'cabinet-casefile'
+      'cabinet-casefile',
     );
 
     if (!cabinetZone?.hotspotData) {
@@ -523,7 +637,7 @@ this.hasMenu = true;
 
     this.firstCaseTutorial.onPlayerPositionChanged(
       data.x + data.width / 2,
-      data.y + data.height / 2
+      data.y + data.height / 2,
     );
   }
 
@@ -532,7 +646,24 @@ this.hasMenu = true;
       this.gameState.firstMissionCompleted ||
       this.gameState.progress?.firstMissionCompleted ||
       this.gameState.story?.firstMissionCompleted ||
-      this.gameState.onboarding?.firstCase?.missionCompleted
+      this.gameState.onboarding?.firstCase?.missionCompleted,
+    );
+  }
+
+  refreshMissionProgressVisuals() {
+    const firstMissionCompleted =
+      this.hasCompletedFirstMission();
+
+    this.elevatorBackground?.setTexture(
+      firstMissionCompleted
+        ? 'elevator_open'
+        : 'elevator_broken',
+    );
+
+    this.archiveBackground?.setTexture(
+      firstMissionCompleted
+        ? 'archivist'
+        : 'archive',
     );
   }
 
@@ -541,11 +672,14 @@ this.hasMenu = true;
 
     this.gameState.progress.firstMissionCompleted = true;
 
-    this.elevatorBackground?.setTexture('elevator_open');
-    this.archiveBackground?.setTexture('archivist');
+    this.refreshMissionProgressVisuals();
+
+    if (!this.sys.isActive()) {
+      return;
+    }
 
     this.showOfficeStatusMessage(
-      'The elevator opens. The archive gains an archivist. Both developments are suspicious.'
+      'The elevator opens. The archive gains an archivist. Both developments are suspicious.',
     );
   }
 
@@ -558,7 +692,7 @@ this.hasMenu = true;
 
     const text = this.add
       .text(width / 2, 115, message, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#f2d477',
         align: 'center',
@@ -567,11 +701,11 @@ this.hasMenu = true;
           left: 14,
           right: 14,
           top: 10,
-          bottom: 10
+          bottom: 10,
         },
         wordWrap: {
-          width: Math.min(width - 80, 760)
-        }
+          width: Math.min(width - 80, 760),
+        },
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -586,17 +720,29 @@ this.hasMenu = true;
         yoyo: true,
         hold: 2600,
         ease: 'Sine.easeInOut',
-        onComplete: () => text.destroy()
-      })
+        onComplete: () => {
+          if (text?.active) {
+            text.destroy();
+          }
+        },
+      }),
     );
   }
 
   applyLock(locked) {
     this.uiLocked = locked;
 
-    this.hotspotManager?.setLocked(locked);
-    this.navigation?.setLocked(locked);
-    this.saveUI?.setLocked(locked);
+    /*
+     * Tutorial ma własny lock. Zwykłe odblokowanie UI nie może
+     * przypadkiem odblokować hotspotów w czasie aktywnego tutorialu.
+     */
+    const shouldLockOffice =
+      locked ||
+      this.tutorialInputLocked;
+
+    this.hotspotManager?.setLocked(shouldLockOffice);
+    this.navigation?.setLocked(shouldLockOffice);
+    this.saveUI?.setLocked(shouldLockOffice);
   }
 
   setupAudioUnlock() {
@@ -617,8 +763,8 @@ this.hasMenu = true;
     this.officeAmbient = audioManager.playAmbient(
       'officescenesound',
       {
-        loop: true
-      }
+        loop: true,
+      },
     );
 
     return this.officeAmbient;
@@ -631,6 +777,7 @@ this.hasMenu = true;
   async openCrimeLab() {
     if (
       this.uiLocked ||
+      this.tutorialInputLocked ||
       this.isOpeningCrimeLab
     ) {
       return;
@@ -646,8 +793,8 @@ this.hasMenu = true;
       'CrimeLabScene',
       {
         gameState: this.gameState,
-        returnScene: 'OfficeScene'
-      }
+        returnScene: 'OfficeScene',
+      },
     );
 
     if (opened && this.sys.isActive()) {
@@ -660,6 +807,7 @@ this.hasMenu = true;
   async openRecoveredArtifacts() {
     if (
       this.uiLocked ||
+      this.tutorialInputLocked ||
       this.isOpeningRecoveredArtifacts
     ) {
       return;
@@ -673,8 +821,8 @@ this.hasMenu = true;
       'RecoveredArtifactsScene',
       {
         gameState: this.gameState,
-        returnScene: 'OfficeScene'
-      }
+        returnScene: 'OfficeScene',
+      },
     );
 
     if (opened && this.sys.isActive()) {
@@ -687,6 +835,7 @@ this.hasMenu = true;
   async openWantedDatabase() {
     if (
       this.uiLocked ||
+      this.tutorialInputLocked ||
       this.isOpeningWantedDatabase
     ) {
       return;
@@ -700,8 +849,8 @@ this.hasMenu = true;
       'WantedDatabaseScene',
       {
         gameState: this.gameState,
-        returnScene: 'OfficeScene'
-      }
+        returnScene: 'OfficeScene',
+      },
     );
 
     if (opened && this.sys.isActive()) {
@@ -712,11 +861,15 @@ this.hasMenu = true;
   }
 
   openCasefile() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.caseFileUI) {
       console.error(
-        '[OfficeScene] Cannot open Case File: PlayerHudScene or caseFileUI is unavailable.'
+        '[OfficeScene] Cannot open Case File: PlayerHudScene or caseFileUI is unavailable.',
       );
 
       return;
@@ -735,18 +888,22 @@ this.hasMenu = true;
         'No case description available.',
       significance: mission.significance || '',
       clue: mission.clue || '',
-      artifactKey: mission.artifactKey || ''
+      artifactKey: mission.artifactKey || '',
     });
 
     this.firstCaseTutorial?.onCaseFileOpened();
   }
 
   openNotes() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.notesUI) {
       console.warn(
-        '[OfficeScene] PlayerHudScene or notesUI is unavailable.'
+        '[OfficeScene] PlayerHudScene or notesUI is unavailable.',
       );
 
       return;
@@ -758,11 +915,15 @@ this.hasMenu = true;
   }
 
   openDestinations() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.destinationsUI) {
       console.warn(
-        '[OfficeScene] PlayerHudScene or destinationsUI is unavailable.'
+        '[OfficeScene] PlayerHudScene or destinationsUI is unavailable.',
       );
 
       return;
@@ -776,11 +937,15 @@ this.hasMenu = true;
   }
 
   openWarrant() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.warrantUI) {
       console.warn(
-        '[OfficeScene] PlayerHudScene or warrantUI is unavailable.'
+        '[OfficeScene] PlayerHudScene or warrantUI is unavailable.',
       );
 
       return;
@@ -792,11 +957,15 @@ this.hasMenu = true;
   }
 
   openCrimeBoard() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.crimeBoardUI) {
       console.warn(
-        '[OfficeScene] PlayerHudScene or crimeBoardUI is unavailable.'
+        '[OfficeScene] PlayerHudScene or crimeBoardUI is unavailable.',
       );
 
       return;
@@ -808,11 +977,15 @@ this.hasMenu = true;
   }
 
   openAtlas() {
+    if (this.tutorialInputLocked) {
+      return;
+    }
+
     const hud = this.getPlayerHud();
 
     if (!hud?.atlasUI) {
       console.warn(
-        '[OfficeScene] PlayerHudScene or atlasUI is unavailable.'
+        '[OfficeScene] PlayerHudScene or atlasUI is unavailable.',
       );
 
       return;
@@ -826,7 +999,7 @@ this.hasMenu = true;
       country: mission.country || '',
       city: mission.city || '',
       artifact: mission.artifact || '',
-      gameState: this.gameState
+      gameState: this.gameState,
     });
   }
 
@@ -837,18 +1010,47 @@ this.hasMenu = true;
   }
 
   onWakeOrResume() {
+    if (this.isRestoringOfficeUi) {
+      return;
+    }
+
     this.isOpeningCrimeLab = false;
     this.isOpeningRecoveredArtifacts = false;
     this.isOpeningWantedDatabase = false;
 
     this.applyLock(false);
     this.navigation?.updateVisibility();
+    this.refreshMissionProgressVisuals();
 
     if (!this.officeAmbient?.isPlaying) {
       this.playOfficeAmbient();
     }
 
-    void this.setupOfficeUiLayers();
+    /*
+     * Nie uruchamiaj UI nad tutorialem.
+     */
+    if (this.firstCaseTutorial?.isActive()) {
+      this.setTutorialInputLock(true);
+
+      console.log(
+        '[OfficeScene] Wake/resume: tutorial active, HUD restoration skipped.',
+      );
+
+      return;
+    }
+
+    this.isRestoringOfficeUi = true;
+
+    void this.setupOfficeUiLayers()
+      .catch((error) => {
+        console.error(
+          '[OfficeScene] Failed to restore UI after wake/resume:',
+          error,
+        );
+      })
+      .finally(() => {
+        this.isRestoringOfficeUi = false;
+      });
   }
 
   onSleep() {
@@ -860,6 +1062,14 @@ this.hasMenu = true;
   }
 
   cleanupScene() {
+    this.isRestoringOfficeUi = false;
+    this.tutorialInputLocked = false;
+
+    EventBus.off(
+      'firstCaseTutorialFinished',
+      this.onFirstCaseTutorialFinishedBound,
+    );
+
     this.saveUI?.destroy();
     this.saveUI = null;
 
@@ -884,7 +1094,7 @@ this.hasMenu = true;
       } catch (error) {
         console.warn(
           '[OfficeScene] Office ambient cleanup failed:',
-          error
+          error,
         );
       }
 

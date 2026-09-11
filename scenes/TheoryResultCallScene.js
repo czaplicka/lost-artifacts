@@ -72,21 +72,21 @@ export class TheoryResultCallScene extends BaseScene {
       .setDepth(4001);
 
     this.headerText = this.add.text(0, 0, this.mode === 'phone' ? 'Encrypted call' : 'HQ assessment', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '38px',
       color: palette.title,
       align: 'center'
     }).setOrigin(0.5).setDepth(4002);
 
     this.speakerText = this.add.text(0, 0, this.getSpeakerName(this.mode), {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '24px',
       color: palette.accent,
       align: 'center'
     }).setOrigin(0.5).setDepth(4002);
 
     this.bodyText = this.add.text(0, 0, lines.join('\n\n'), {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '28px',
       color: '#f4ead7',
       align: 'center',
@@ -95,7 +95,7 @@ export class TheoryResultCallScene extends BaseScene {
     }).setOrigin(0.5).setDepth(4002);
 
     this.continueBtn = this.add.text(0, 0, '[ CONTINUE ]', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '30px',
       color: palette.buttonText,
       backgroundColor: '#2a221b',
@@ -103,7 +103,7 @@ export class TheoryResultCallScene extends BaseScene {
     }).setOrigin(0.5).setDepth(4002).setInteractive({ useHandCursor: true });
 
     this.hintText = this.add.text(0, 0, 'Tap anywhere or press Enter / Space', {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '16px',
       color: '#ccb98c',
       align: 'center'

@@ -69,13 +69,26 @@ export class CrimeLabManager {
   }
 
   getCaseKey() {
-    const mission = this.gameState.currentMission || {};
+    const mission = this.gameState.currentMission ?? {};
 
-    return String(
-      mission.id ||
-      mission.caseId ||
-      `${this.cityId}_${mission.artifact || 'default'}`
-    );
+    const missionId =
+      mission.id ??
+      mission.caseId ??
+      mission.caseIndex ??
+      null;
+
+    if (
+      missionId !== null &&
+      missionId !== undefined &&
+      missionId !== ''
+    ) {
+      return String(missionId);
+    }
+
+    const cityId = this.cityId ?? 'unknown_city';
+    const artifact = mission.artifact ?? 'default_artifact';
+
+    return `${cityId}_${artifact}`;
   }
 
   getSuspectData() {
@@ -186,6 +199,7 @@ export class CrimeLabManager {
 
     if (traceMatch) {
       const index = Number(traceMatch[1]);
+
       return Boolean(caseForensics.traceEvidenceResults[index]);
     }
 
@@ -240,10 +254,11 @@ export class CrimeLabManager {
     const normalizedEvidence = {
       ...cloneEvidence(evidence),
       id: evidence.id || `${attribute}_evidence`,
-      stationId: stationId || evidence.stationId || null,
+      stationId: stationId ?? evidence.stationId ?? null,
       attribute,
       evidenceType: attribute,
       thief_value: correctValue,
+      correctValue,
       source: evidence.source || 'crime_lab',
       label: evidence.label || fallbackLabel,
       clueType: evidence.clueType || fallbackClueType,
@@ -261,7 +276,6 @@ export class CrimeLabManager {
 
     return {
       ...normalizedEvidence,
-      correctValue,
       evidence: cloneEvidence(normalizedEvidence)
     };
   }
@@ -449,7 +463,9 @@ export class CrimeLabManager {
             return null;
         }
       })
-      .filter((template) => template && template.thief_value);
+      .filter((template) => {
+        return template && template.thief_value;
+      });
 
     if (templates.length === 0) {
       console.error(
@@ -463,14 +479,11 @@ export class CrimeLabManager {
       return null;
     }
 
-    const selectedIndex = Math.floor(
-      Math.random() * templates.length
-    );
-
+    const selectedIndex = suspectSeed % templates.length;
     const selected = templates[selectedIndex];
 
     console.log(
-      '[CrimeLabManager] Rolled main identity minigame:',
+      '[CrimeLabManager] Selected main identity minigame:',
       {
         caseKey,
         selectedIndex,
@@ -561,7 +574,6 @@ export class CrimeLabManager {
 
   buildTraceEvidenceForCase(caseKey) {
     const suspectData = this.getSuspectData();
-
     const reconstruction = this.gameState.reconstructedHeist || {};
 
     const thiefSkills = Array.isArray(reconstruction.thiefSkills)

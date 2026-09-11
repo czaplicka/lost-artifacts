@@ -374,7 +374,7 @@ this.card.on('pointerdown', () => {
   this.addStageObject(panel);
 
   const title = this.add.text(x, y - 185, 'RIDGE PATTERN', {
-    fontFamily: 'Special Elite',
+    fontFamily: 'SpecialElite',
     fontSize: '22px',
     color: '#ffe8a3'
   })
@@ -477,7 +477,7 @@ this.card.on('pointerdown', () => {
       optionY + 18,
       this.getPatternShortDescription(pattern),
       {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#c8dfcf',
         wordWrap: { width: 180 }
@@ -567,7 +567,7 @@ getPatternShortDescription(pattern) {
     }).setOrigin(0.5).setDepth(53);
 
     const flavorText = this.add.text(width / 2, height * 0.76, PATTERN_RARITY_FLAVOR[this.correctValue], {
-      fontFamily: 'Special Elite',
+      fontFamily: 'SpecialElite',
       fontSize: '20px',
       color: '#dff2de',
       align: 'center',

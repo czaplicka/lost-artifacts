@@ -58,7 +58,7 @@ export class MobileFullscreen {
       'flex-direction: column',
       'background: #1a1a2e',
       'color: #e0c068',
-      "font-family: 'Press Start 2P', 'Special Elite', monospace",
+      "font-family: 'PressStart2P', 'SpecialElite', monospace",
       'text-align: center',
       'padding: 40px',
       'user-select: none',

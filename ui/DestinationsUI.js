@@ -100,7 +100,7 @@ export class DestinationsUI {
 
         this.closeBtn = this.scene.add
             .text(width - 170, 100, 'X', {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '55px',
                 color: '#fbff00'
             })
@@ -156,25 +156,25 @@ export class DestinationsUI {
             .setStrokeStyle(2, 0xd4af37);
 
         this.infoTitle = this.scene.add.text(20, 16, 'Travel dossier', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '27px',
             color: '#f4e7c1'
         });
 
         this.infoCity = this.scene.add.text(20, 58, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '23px',
             color: '#ffffff'
         });
 
         this.infoCountry = this.scene.add.text(20, 61, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#c6d7e5'
         });
 
         this.transportPrompt = this.scene.add.text(20, 98, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#ffd166',
             wordWrap: {
@@ -184,7 +184,7 @@ export class DestinationsUI {
         });
 
         this.infoTravel = this.scene.add.text(20, 210, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#d6e4f0',
             wordWrap: {
@@ -194,7 +194,7 @@ export class DestinationsUI {
         });
 
         this.infoHours = this.scene.add.text(20, 258, '', {
-            fontFamily: 'Special Elite',
+            fontFamily: 'SpecialElite',
             fontSize: '19px',
             color: '#ffd166'
         });
@@ -207,7 +207,7 @@ export class DestinationsUI {
 
         this.confirmLabel = this.scene.add
             .text(190, 337, 'Choose a city', {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '18px',
                 color: '#ffffff'
             })
@@ -255,7 +255,7 @@ export class DestinationsUI {
 
         this.hqButtonLabel = this.scene.add
             .text(0, 0, '↩ RETURN TO HQ', {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '18px',
                 color: '#fff2f6'
             })
@@ -579,7 +579,7 @@ export class DestinationsUI {
 
             const label = this.scene.add
                 .text(0, 30, cityObj.city, {
-                    fontFamily: 'Special Elite',
+                    fontFamily: 'SpecialElite',
                     fontSize: '24px',
                     color: '#ffffff',
                     backgroundColor: '#000000',
@@ -785,7 +785,7 @@ export class DestinationsUI {
 
             const icon = this.scene.add
                 .text(0, -9, option.icon, {
-                    fontFamily: 'Special Elite',
+                    fontFamily: 'SpecialElite',
                     fontSize: '21px',
                     color: '#ffffff'
                 })
@@ -793,7 +793,7 @@ export class DestinationsUI {
 
             const label = this.scene.add
                 .text(0, 14, option.label, {
-                    fontFamily: 'Special Elite',
+                    fontFamily: 'SpecialElite',
                     fontSize: '13px',
                     color: '#ffffff'
                 })

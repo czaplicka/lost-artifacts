@@ -1,5 +1,6 @@
 import { EventBus } from './EventBus.js';
 
+
 export class InventoryManager {
     constructor() {
         this.items = [];
@@ -26,6 +27,7 @@ export class InventoryManager {
 
         this.initialize();
     }
+
 
     /**
      * Rejestruje listenery globalnego EventBus tylko raz.
@@ -83,13 +85,15 @@ export class InventoryManager {
         this._initialized = true;
     }
 
+
     /**
      * Dodaje przedmiot do ekwipunku.
      *
-     * W przypadku itemu stackable:
-     * - zwiększa quantity,
-     * - nie zużywa nowego slotu,
-     * - nie emituje itemAdded, bo nie powstaje nowy obiekt.
+     * Zasady:
+     * - ID itemu jest unikalne.
+     * - Ten sam stackable item zwiększa quantity i nie zajmuje nowego slotu.
+     * - Ten sam ID dla non-stackable itemu jest odrzucany.
+     * - Manager nie pozwala stworzyć duplikatu ID w items i _itemMap.
      */
     addItem(item) {
         if (this._destroyed) {
@@ -105,22 +109,71 @@ export class InventoryManager {
             return false;
         }
 
+        const itemId = String(item.id);
         const quantityToAdd = Math.max(1, Number(item.quantity) || 1);
 
-        if (item.stackable) {
-            const existingItem = this._itemMap.get(item.id);
+        // Zawsze szukamy istniejącego itemu, niezależnie od tego,
+        // czy nowy item deklaruje stackable czy nie.
+        const existingItem = this._itemMap.get(itemId) ?? null;
 
-            if (existingItem) {
-                existingItem.quantity += quantityToAdd;
+        if (existingItem) {
+            const canStack =
+                existingItem.stackable === true
+                && item.stackable === true;
 
-                EventBus.emit('inventoryUpdated');
-                EventBus.emit('itemQuantityChanged', {
-                    item: existingItem,
-                    quantity: existingItem.quantity
+            if (!canStack) {
+                console.warn(
+                    `[InventoryManager] Duplicate item id rejected: "${itemId}".`,
+                    {
+                        existingItem,
+                        attemptedItem: item
+                    }
+                );
+
+                EventBus.emit('inventoryDuplicateItem', {
+                    existingItem,
+                    attemptedItem: item
                 });
 
-                return true;
+                return false;
             }
+
+            existingItem.quantity = Math.max(
+                1,
+                Number(existingItem.quantity) || 1
+            ) + quantityToAdd;
+
+            // Normalnie nie jest potrzebne, ponieważ Map i items
+            // trzymają tę samą referencję do obiektu. To jest jednak
+            // zabezpieczenie, gdyby stan został kiedyś uszkodzony
+            // przez kod poza InventoryManagerem.
+            const itemIndex = this.items.findIndex(
+                (inventoryItem) => inventoryItem.id === itemId
+            );
+
+            if (itemIndex === -1) {
+                console.warn(
+                    `[InventoryManager] Repairing missing array item: "${itemId}".`
+                );
+
+                this.items.push(existingItem);
+            } else if (this.items[itemIndex] !== existingItem) {
+                console.warn(
+                    `[InventoryManager] Repairing mismatched item reference: "${itemId}".`
+                );
+
+                this.items[itemIndex] = existingItem;
+            }
+
+            EventBus.emit('inventoryUpdated');
+
+            EventBus.emit('itemQuantityChanged', {
+                item: existingItem,
+                quantity: existingItem.quantity,
+                addedQuantity: quantityToAdd
+            });
+
+            return true;
         }
 
         if (this.items.length >= this.maxSlots) {
@@ -134,17 +187,16 @@ export class InventoryManager {
             return false;
         }
 
-        const newItem = {
-            id: String(item.id),
-            name: String(item.name),
-            icon: item.icon || '📦',
-            description: item.description || '',
-            type: item.type || 'misc',
-            quantity: quantityToAdd,
-            stackable: Boolean(item.stackable),
-            metadata: structuredClone(item.metadata || {}),
-            addedAt: Number(item.addedAt) || Date.now()
-        };
+        const newItem = this.normalizeItem({
+            ...item,
+            id: itemId,
+            quantity: quantityToAdd
+        });
+
+        if (!newItem) {
+            console.warn('[InventoryManager] Could not normalize item.', item);
+            return false;
+        }
 
         this.items.push(newItem);
         this._itemMap.set(newItem.id, newItem);
@@ -155,26 +207,35 @@ export class InventoryManager {
         return true;
     }
 
+
     /**
      * Usuwa cały przedmiot niezależnie od jego quantity.
      *
      * Jeśli usuwany przedmiot był zaznaczony, zaznaczenie również znika.
      */
     removeItem(itemId) {
-        if (this._destroyed || !itemId || !this._itemMap.has(itemId)) {
+        const normalizedItemId = String(itemId);
+
+        if (
+            this._destroyed
+            || !itemId
+            || !this._itemMap.has(normalizedItemId)
+        ) {
             return false;
         }
 
-        const itemIndex = this.items.findIndex((item) => item.id === itemId);
+        const itemIndex = this.items.findIndex(
+            (item) => item.id === normalizedItemId
+        );
 
         if (itemIndex === -1) {
             console.warn(
-                `[InventoryManager] Item "${itemId}" exists in Map but not in items array.`
+                `[InventoryManager] Item "${normalizedItemId}" exists in Map but not in items array.`
             );
 
-            this._itemMap.delete(itemId);
+            this._itemMap.delete(normalizedItemId);
 
-            if (this.selectedItemId === itemId) {
+            if (this.selectedItemId === normalizedItemId) {
                 this._setSelectedItemId(null);
             }
 
@@ -183,9 +244,9 @@ export class InventoryManager {
 
         const removedItem = this.items.splice(itemIndex, 1)[0];
 
-        this._itemMap.delete(itemId);
+        this._itemMap.delete(normalizedItemId);
 
-        if (this.selectedItemId === itemId) {
+        if (this.selectedItemId === normalizedItemId) {
             this._setSelectedItemId(null);
         }
 
@@ -195,20 +256,20 @@ export class InventoryManager {
         return true;
     }
 
+
     /**
      * Usuwa określoną liczbę sztuk itemu stackable.
      *
      * Przykład:
      * inventoryManager.removeQuantity('uv_battery', 1);
-     *
-     * Jeżeli quantity spadnie do zera, usuwa cały item.
      */
     removeQuantity(itemId, quantity = 1) {
-        if (this._destroyed) {
+        if (this._destroyed || !itemId) {
             return false;
         }
 
-        const item = this._itemMap.get(itemId);
+        const normalizedItemId = String(itemId);
+        const item = this._itemMap.get(normalizedItemId);
 
         if (!item) {
             return false;
@@ -217,31 +278,45 @@ export class InventoryManager {
         const quantityToRemove = Math.max(1, Number(quantity) || 1);
 
         if (!item.stackable || item.quantity <= quantityToRemove) {
-            return this.removeItem(itemId);
+            return this.removeItem(normalizedItemId);
         }
 
         item.quantity -= quantityToRemove;
 
         EventBus.emit('inventoryUpdated');
+
         EventBus.emit('itemQuantityChanged', {
             item,
-            quantity: item.quantity
+            quantity: item.quantity,
+            removedQuantity: quantityToRemove
         });
 
         return true;
     }
 
+
     getItem(itemId) {
-        return this._itemMap.get(itemId) ?? null;
+        if (!itemId) {
+            return null;
+        }
+
+        return this._itemMap.get(String(itemId)) ?? null;
     }
 
+
     hasItem(itemId) {
-        return this._itemMap.has(itemId);
+        if (!itemId) {
+            return false;
+        }
+
+        return this._itemMap.has(String(itemId));
     }
+
 
     getItemsByType(type) {
         return this.items.filter((item) => item.type === type);
     }
+
 
     /**
      * Zwraca referencję wyłącznie do renderowania UI.
@@ -251,16 +326,19 @@ export class InventoryManager {
         return this.items;
     }
 
+
     /**
-     * Deep copy do save systemu lub eksportu danych.
+     * Zwraca bezpieczną kopię danych itemów.
      */
     getAllItemsCopy() {
-        return structuredClone(this.items);
+        return this.items.map((item) => this.serializeItem(item));
     }
+
 
     getItemCount() {
         return this.items.length;
     }
+
 
     getCapacity() {
         return {
@@ -269,34 +347,34 @@ export class InventoryManager {
         };
     }
 
+
     /**
      * Zaznacza przedmiot do użycia w hotspotach point-and-click.
-     *
-     * Nie wybieraj itemu bezpośrednio przez this.selectedItemId = ...
-     * Zawsze używaj tej metody, aby UI dostało event odświeżenia.
      */
     selectItem(itemId) {
         if (this._destroyed || !itemId) {
             return false;
         }
 
-        const item = this._itemMap.get(itemId);
+        const normalizedItemId = String(itemId);
+        const item = this._itemMap.get(normalizedItemId);
 
         if (!item) {
             console.warn(
-                `[InventoryManager] Cannot select missing item: "${itemId}".`
+                `[InventoryManager] Cannot select missing item: "${normalizedItemId}".`
             );
             return false;
         }
 
-        if (this.selectedItemId === itemId) {
+        if (this.selectedItemId === normalizedItemId) {
             return true;
         }
 
-        this._setSelectedItemId(itemId);
+        this._setSelectedItemId(normalizedItemId);
 
         return true;
     }
+
 
     /**
      * Czyści zaznaczenie aktualnego itemu.
@@ -311,6 +389,7 @@ export class InventoryManager {
         return true;
     }
 
+
     /**
      * Zwraca aktualnie zaznaczony przedmiot albo null.
      */
@@ -321,7 +400,6 @@ export class InventoryManager {
 
         const selectedItem = this._itemMap.get(this.selectedItemId);
 
-        // Ochrona przed niespójnym stanem przy nietypowym imporcie sejwa.
         if (!selectedItem) {
             this.selectedItemId = null;
             return null;
@@ -330,10 +408,9 @@ export class InventoryManager {
         return selectedItem;
     }
 
+
     /**
      * Wewnętrzna metoda jednocześnie aktualizująca stan i emitująca eventy.
-     *
-     * null oznacza odznaczenie.
      */
     _setSelectedItemId(itemId) {
         const previousItem = this.getSelectedItem();
@@ -358,6 +435,7 @@ export class InventoryManager {
         EventBus.emit('inventoryItemDeselected', previousItem);
     }
 
+
     /**
      * Czyści zawartość inventory i aktywne zaznaczenie.
      */
@@ -366,7 +444,7 @@ export class InventoryManager {
             return;
         }
 
-        const hadSelection = Boolean(this.selectedItemId);
+        const previousSelectedItem = this.getSelectedItem();
 
         this.items = [];
         this._itemMap.clear();
@@ -374,11 +452,15 @@ export class InventoryManager {
 
         EventBus.emit('inventoryUpdated');
 
-        if (hadSelection) {
+        if (previousSelectedItem) {
             EventBus.emit('inventorySelectionChanged', null);
-            EventBus.emit('inventoryItemDeselected', null);
+            EventBus.emit(
+                'inventoryItemDeselected',
+                previousSelectedItem
+            );
         }
     }
+
 
     toggleInventory() {
         if (this._destroyed) {
@@ -390,6 +472,7 @@ export class InventoryManager {
         EventBus.emit('inventoryToggled', this.isOpen);
     }
 
+
     open() {
         if (this._destroyed || this.isOpen) {
             return;
@@ -399,6 +482,7 @@ export class InventoryManager {
 
         EventBus.emit('inventoryToggled', true);
     }
+
 
     close() {
         if (this._destroyed || !this.isOpen) {
@@ -410,12 +494,9 @@ export class InventoryManager {
         EventBus.emit('inventoryToggled', false);
     }
 
+
     /**
      * Ładuje stan ekwipunku z sejwa.
-     *
-     * Celowo nie odtwarza:
-     * - otwartego UI,
-     * - wybranego przedmiotu.
      */
     importState(state) {
         if (this._destroyed) {
@@ -443,7 +524,9 @@ export class InventoryManager {
                 break;
             }
 
-            if (!rawItem?.id || !rawItem?.name) {
+            const normalizedItem = this.normalizeItem(rawItem);
+
+            if (!normalizedItem) {
                 console.warn(
                     '[InventoryManager] Skipping invalid item in save:',
                     rawItem
@@ -451,26 +534,19 @@ export class InventoryManager {
                 continue;
             }
 
-            const itemId = String(rawItem.id);
+            const existingItem = newItemMap.get(normalizedItem.id);
 
-            if (newItemMap.has(itemId)) {
+            if (existingItem) {
+                if (existingItem.stackable && normalizedItem.stackable) {
+                    existingItem.quantity += normalizedItem.quantity;
+                    continue;
+                }
+
                 console.warn(
-                    `[InventoryManager] Skipping duplicate item id in save: "${itemId}".`
+                    `[InventoryManager] Skipping duplicate item id in save: "${normalizedItem.id}".`
                 );
                 continue;
             }
-
-            const normalizedItem = {
-                id: itemId,
-                name: String(rawItem.name),
-                icon: rawItem.icon || '📦',
-                description: rawItem.description || '',
-                type: rawItem.type || 'misc',
-                quantity: Math.max(1, Number(rawItem.quantity) || 1),
-                stackable: Boolean(rawItem.stackable),
-                metadata: structuredClone(rawItem.metadata || {}),
-                addedAt: Number(rawItem.addedAt) || Date.now()
-            };
 
             validItems.push(normalizedItem);
             newItemMap.set(normalizedItem.id, normalizedItem);
@@ -488,31 +564,176 @@ export class InventoryManager {
 
         if (previousSelectedItem) {
             EventBus.emit('inventorySelectionChanged', null);
-            EventBus.emit('inventoryItemDeselected', previousSelectedItem);
+            EventBus.emit(
+                'inventoryItemDeselected',
+                previousSelectedItem
+            );
         }
 
         return true;
     }
 
+
     /**
      * Stan do save systemu.
-     *
-     * Nie zapisujemy selection i otwartego panela:
-     * po loadzie UI ma zacząć w neutralnym stanie.
      */
     exportState() {
         return {
-            items: this.getAllItemsCopy(),
-            isOpen: false,
-            selectedItemId: null
+            version: 1,
+            items: this.getAllItemsCopy()
         };
     }
 
+
     /**
-     * Wywołuj tylko przy trwałym kończeniu gry,
-     * zniszczeniu Phaser.Game albo pełnym resecie aplikacji.
-     *
-     * Nigdy nie wywołuj destroy() przy zmianie pojedynczej sceny.
+     * Buduje runtimeowy, ale save-safe model itemu.
+     */
+    normalizeItem(rawItem) {
+        if (!rawItem?.id || !rawItem?.name) {
+            return null;
+        }
+
+        return {
+            id: String(rawItem.id),
+            name: String(rawItem.name),
+            icon: typeof rawItem.icon === 'string' ? rawItem.icon : '📦',
+            description: typeof rawItem.description === 'string'
+                ? rawItem.description
+                : '',
+            type: typeof rawItem.type === 'string'
+                ? rawItem.type
+                : 'misc',
+            quantity: Math.max(1, Number(rawItem.quantity) || 1),
+            stackable: Boolean(rawItem.stackable),
+            metadata: this.cloneSafeMetadata(rawItem.metadata),
+            addedAt: Number(rawItem.addedAt) || Date.now()
+        };
+    }
+
+
+    /**
+     * Tworzy itemowy snapshot do save systemu.
+     */
+    serializeItem(item) {
+        return {
+            id: String(item.id),
+            name: String(item.name),
+            icon: typeof item.icon === 'string' ? item.icon : '📦',
+            description: typeof item.description === 'string'
+                ? item.description
+                : '',
+            type: typeof item.type === 'string'
+                ? item.type
+                : 'misc',
+            quantity: Math.max(1, Number(item.quantity) || 1),
+            stackable: Boolean(item.stackable),
+            metadata: this.cloneSafeMetadata(item.metadata),
+            addedAt: Number(item.addedAt) || Date.now()
+        };
+    }
+
+
+    cloneSafeMetadata(metadata) {
+        if (metadata === null || metadata === undefined) {
+            return {};
+        }
+
+        return this.sanitizeSaveData(metadata);
+    }
+
+
+    /**
+     * Normalizuje metadata do plain object / array / primitive.
+     */
+    sanitizeSaveData(value, seen = new WeakSet()) {
+        if (value === null) {
+            return null;
+        }
+
+        const valueType = typeof value;
+
+        if (
+            valueType === 'string'
+            || valueType === 'number'
+            || valueType === 'boolean'
+        ) {
+            return value;
+        }
+
+        if (
+            valueType === 'undefined'
+            || valueType === 'function'
+            || valueType === 'symbol'
+            || valueType === 'bigint'
+        ) {
+            return null;
+        }
+
+        if (value instanceof Date) {
+            const time = value.getTime();
+            return Number.isNaN(time) ? null : value.toISOString();
+        }
+
+        if (Array.isArray(value)) {
+            if (seen.has(value)) {
+                console.warn(
+                    '[InventoryManager] Circular array reference removed from item metadata.'
+                );
+                return [];
+            }
+
+            seen.add(value);
+
+            const sanitizedArray = value.map((entry) => {
+                return this.sanitizeSaveData(entry, seen);
+            });
+
+            seen.delete(value);
+
+            return sanitizedArray;
+        }
+
+        if (valueType === 'object') {
+            if (seen.has(value)) {
+                console.warn(
+                    '[InventoryManager] Circular object reference removed from item metadata.'
+                );
+                return null;
+            }
+
+            seen.add(value);
+
+            const sanitizedObject = {};
+
+            for (const [key, nestedValue] of Object.entries(value)) {
+                const nestedType = typeof nestedValue;
+
+                if (
+                    nestedType === 'undefined'
+                    || nestedType === 'function'
+                    || nestedType === 'symbol'
+                    || nestedType === 'bigint'
+                ) {
+                    continue;
+                }
+
+                sanitizedObject[key] = this.sanitizeSaveData(
+                    nestedValue,
+                    seen
+                );
+            }
+
+            seen.delete(value);
+
+            return sanitizedObject;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Wywołuj tylko przy trwałym kończeniu gry albo pełnym resecie.
      */
     destroy() {
         if (this._destroyed) {
@@ -573,5 +794,6 @@ export class InventoryManager {
         this.handleClearInventorySelection = null;
     }
 }
+
 
 export const inventoryManager = new InventoryManager();

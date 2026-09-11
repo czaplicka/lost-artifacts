@@ -1,32 +1,41 @@
 export class OfficeNavigation {
   constructor(scene, options = {}) {
     this.scene = scene;
+
     this.roomOrder = options.roomOrder ?? [];
     this.viewPositions = options.viewPositions ?? {};
 
     this.currentView = options.initialView ?? 'office';
+
     this.isLocked = false;
+    this.isMoving = false;
 
     this.leftArrow = null;
     this.rightArrow = null;
     this.navHint = null;
     this.introHint = null;
+
+    this.cameraTween = null;
   }
 
   create() {
     const { width, height } = this.scene.scale;
 
-    this.leftArrow = this.createArrowButton(54, height / 2, 'left');
+    this.leftArrow = this.createArrowButton(
+      54,
+      height / 2,
+      'left',
+    );
 
     this.rightArrow = this.createArrowButton(
       width - 54,
       height / 2,
-      'right'
+      'right',
     );
 
     this.navHint = this.scene.add
       .text(width / 2, 84, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#f0e6b8',
         backgroundColor: '#000000',
@@ -34,8 +43,8 @@ export class OfficeNavigation {
           left: 10,
           right: 10,
           top: 8,
-          bottom: 8
-        }
+          bottom: 8,
+        },
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -48,7 +57,7 @@ export class OfficeNavigation {
         40,
         'Explore the office — move left or right',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '18px',
           color: '#fff4c7',
           backgroundColor: '#000000',
@@ -56,9 +65,9 @@ export class OfficeNavigation {
             left: 12,
             right: 12,
             top: 8,
-            bottom: 8
-          }
-        }
+            bottom: 8,
+          },
+        },
       )
       .setOrigin(0.5)
       .setScrollFactor(0)
@@ -66,9 +75,15 @@ export class OfficeNavigation {
       .setAlpha(0);
 
     this.leftArrow
-      .on('pointerdown', () => this.moveLeft())
+      .on('pointerdown', (pointer) => {
+        pointer?.event?.stopPropagation?.();
+
+        console.log('[OfficeNavigation] Left arrow clicked.');
+
+        this.moveLeft();
+      })
       .on('pointerover', () => {
-        if (this.isLocked) {
+        if (this.isLocked || this.isMoving) {
           return;
         }
 
@@ -87,9 +102,15 @@ export class OfficeNavigation {
       });
 
     this.rightArrow
-      .on('pointerdown', () => this.moveRight())
+      .on('pointerdown', (pointer) => {
+        pointer?.event?.stopPropagation?.();
+
+        console.log('[OfficeNavigation] Right arrow clicked.');
+
+        this.moveRight();
+      })
       .on('pointerover', () => {
-        if (this.isLocked) {
+        if (this.isLocked || this.isMoving) {
           return;
         }
 
@@ -112,13 +133,13 @@ export class OfficeNavigation {
         targets: [this.leftArrow, this.rightArrow],
         alpha: {
           from: 0.72,
-          to: 1
+          to: 1,
         },
         duration: 850,
         yoyo: true,
         repeat: -1,
-        ease: 'Sine.easeInOut'
-      })
+        ease: 'Sine.easeInOut',
+      }),
     );
 
     this.updateVisibility();
@@ -137,7 +158,7 @@ export class OfficeNavigation {
       -buttonHeight / 2,
       buttonWidth,
       buttonHeight,
-      12
+      12,
     );
 
     graphics.lineStyle(3, 0xf0e6b8, 0.95);
@@ -146,7 +167,7 @@ export class OfficeNavigation {
       -buttonHeight / 2,
       buttonWidth,
       buttonHeight,
-      12
+      12,
     );
 
     graphics.fillStyle(0xf0e6b8, 1);
@@ -166,27 +187,27 @@ export class OfficeNavigation {
       .setAlpha(0.95)
       .setInteractive({
         useHandCursor: true,
-        cursor: 'pointer'
+        cursor: 'pointer',
       });
   }
 
   moveLeft() {
-    if (this.isLocked) {
-      return;
+    if (this.isLocked || this.isMoving) {
+      return false;
     }
 
     const currentIndex = this.roomOrder.indexOf(this.currentView);
 
     if (currentIndex <= 0) {
-      return;
+      return false;
     }
 
-    this.goTo(this.roomOrder[currentIndex - 1]);
+    return this.goTo(this.roomOrder[currentIndex - 1]);
   }
 
   moveRight() {
-    if (this.isLocked) {
-      return;
+    if (this.isLocked || this.isMoving) {
+      return false;
     }
 
     const currentIndex = this.roomOrder.indexOf(this.currentView);
@@ -195,75 +216,152 @@ export class OfficeNavigation {
       currentIndex === -1 ||
       currentIndex >= this.roomOrder.length - 1
     ) {
-      return;
+      return false;
     }
 
-    this.goTo(this.roomOrder[currentIndex + 1]);
+    return this.goTo(this.roomOrder[currentIndex + 1]);
   }
 
   goTo(viewName, animate = true) {
-    const targetX = this.viewPositions[viewName];
-
-    if (targetX === undefined) {
-      return;
+    if (this.isLocked || this.isMoving) {
+      return false;
     }
 
+    const targetX = this.viewPositions[viewName];
+
+    if (!Number.isFinite(targetX)) {
+      console.error(
+        '[OfficeNavigation] Invalid or missing room position:',
+        {
+          viewName,
+          targetX,
+          viewPositions: this.viewPositions,
+        },
+      );
+
+      return false;
+    }
+
+    const camera = this.scene.cameras.main;
+
+    if (!camera) {
+      console.error(
+        '[OfficeNavigation] Main camera is unavailable.',
+      );
+
+      return false;
+    }
+
+    console.log('[OfficeNavigation] Room transition:', {
+      from: this.currentView,
+      to: viewName,
+      currentScrollX: camera.scrollX,
+      targetX,
+      animate,
+      cameraBounds: camera.getBounds(),
+    });
+
     this.currentView = viewName;
+
+    /*
+     * OfficeScene też przechowuje aktualny widok.
+     * To przyda się hotspotom, tutorialowi i ewentualnym zapisom.
+     */
+    this.scene.currentView = viewName;
+
     this.updateVisibility();
     this.hideHint();
 
+    if (this.cameraTween) {
+      this.cameraTween.stop();
+      this.cameraTween.remove();
+      this.cameraTween = null;
+    }
+
     const onComplete = () => {
+      camera.setScroll(targetX, 0);
+
+      this.isMoving = false;
+      this.cameraTween = null;
+
+      this.scene.events.emit('officeRoomChanged', {
+        room: viewName,
+        x: targetX,
+      });
+
+      /*
+       * To jest metoda, którą rzeczywiście masz w OfficeScene.
+       */
       if (viewName === 'office') {
-        this.scene.tutorialController?.notifyOfficeReached();
+        this.scene.notifyTutorialOfficeReached?.();
       }
+
+      this.updateVisibility();
+
+      console.log('[OfficeNavigation] Room reached:', {
+        viewName,
+        finalScrollX: camera.scrollX,
+      });
     };
 
     if (!animate) {
-      this.scene.cameras.main.scrollX = targetX;
+      camera.setScroll(targetX, 0);
       onComplete();
-      return;
+
+      return true;
     }
 
-    this.scene.addTrackedTween(
-      this.scene.tweens.add({
-        targets: this.scene.cameras.main,
-        scrollX: targetX,
-        duration: 550,
-        ease: 'Sine.easeInOut',
-        onComplete
-      })
-    );
+    this.isMoving = true;
+    this.updateVisibility();
+
+    this.cameraTween = this.scene.tweens.add({
+      targets: camera,
+      scrollX: targetX,
+      duration: 550,
+      ease: 'Sine.easeInOut',
+      onComplete,
+    });
+
+    /*
+     * addTrackedTween jest przydatne, jeśli BaseScene sprząta tweens
+     * przy shutdownie. Nie używamy jego wyniku jako tweena, ponieważ
+     * nie wiemy, czy metoda cokolwiek zwraca.
+     */
+    this.scene.addTrackedTween?.(this.cameraTween);
+
+    return true;
   }
 
   setLocked(locked) {
-    this.isLocked = locked;
+    this.isLocked = Boolean(locked);
 
     [this.leftArrow, this.rightArrow].forEach((arrow) => {
       if (!arrow) {
         return;
       }
 
-      if (locked) {
+      if (this.isLocked) {
         arrow.disableInteractive();
         arrow.setAlpha(0.35);
       } else {
         arrow.setInteractive({
           useHandCursor: true,
-          cursor: 'pointer'
+          cursor: 'pointer',
         });
+
         arrow.setAlpha(0.75);
       }
     });
 
-    if (locked) {
+    if (this.isLocked) {
       this.hideHint();
-    } else {
-      this.updateVisibility();
     }
+
+    this.updateVisibility();
   }
 
   showHint(text) {
-    if (!text || !this.navHint) {
+    if (!text || !this.navHint || this.isLocked) {
       return;
     }
 
@@ -278,12 +376,42 @@ export class OfficeNavigation {
   updateVisibility() {
     const currentIndex = this.roomOrder.indexOf(this.currentView);
 
-    this.leftArrow?.setVisible(currentIndex > 0);
+    const canMoveLeft =
+      !this.isLocked &&
+      !this.isMoving &&
+      currentIndex > 0;
 
-    this.rightArrow?.setVisible(
+    const canMoveRight =
+      !this.isLocked &&
+      !this.isMoving &&
       currentIndex >= 0 &&
-      currentIndex < this.roomOrder.length - 1
-    );
+      currentIndex < this.roomOrder.length - 1;
+
+    if (this.leftArrow) {
+      this.leftArrow.setVisible(currentIndex > 0);
+      this.leftArrow.setAlpha(
+        canMoveLeft ? 0.95 : 0.35,
+      );
+
+      if (this.leftArrow.input) {
+        this.leftArrow.input.enabled = canMoveLeft;
+      }
+    }
+
+    if (this.rightArrow) {
+      this.rightArrow.setVisible(
+        currentIndex >= 0 &&
+        currentIndex < this.roomOrder.length - 1,
+      );
+
+      this.rightArrow.setAlpha(
+        canMoveRight ? 0.95 : 0.35,
+      );
+
+      if (this.rightArrow.input) {
+        this.rightArrow.input.enabled = canMoveRight;
+      }
+    }
   }
 
   getLeftRoomLabel() {
@@ -294,7 +422,7 @@ export class OfficeNavigation {
     }
 
     return `Go to ${this.getRoomLabel(
-      this.roomOrder[currentIndex - 1]
+      this.roomOrder[currentIndex - 1],
     )}`;
   }
 
@@ -309,7 +437,7 @@ export class OfficeNavigation {
     }
 
     return `Go to ${this.getRoomLabel(
-      this.roomOrder[currentIndex + 1]
+      this.roomOrder[currentIndex + 1],
     )}`;
   }
 
@@ -319,7 +447,7 @@ export class OfficeNavigation {
       storage: 'storage',
       office: 'main office',
       cabinet: 'records room',
-      archive: 'archive'
+      archive: 'archive',
     };
 
     return labels[roomKey] ?? roomKey;
@@ -335,8 +463,8 @@ export class OfficeNavigation {
         targets: this.introHint,
         alpha: 1,
         duration: 350,
-        ease: 'Power2'
-      })
+        ease: 'Power2',
+      }),
     );
 
     this.scene.time.delayedCall(2800, () => {
@@ -349,18 +477,24 @@ export class OfficeNavigation {
           targets: this.introHint,
           alpha: 0,
           duration: 500,
-          ease: 'Power2'
-        })
+          ease: 'Power2',
+        }),
       );
     });
   }
 
   destroy() {
+    if (this.cameraTween) {
+      this.cameraTween.stop();
+      this.cameraTween.remove();
+      this.cameraTween = null;
+    }
+
     [
       this.leftArrow,
       this.rightArrow,
       this.navHint,
-      this.introHint
+      this.introHint,
     ].forEach((element) => {
       element?.removeAllListeners();
       element?.destroy();

@@ -41,7 +41,7 @@ export class HiddenObjectsResultOverlay {
 
     const title = this.scene.add
       .text(0, -155, 'Crime Scene Complete', {
-        fontFamily: 'Special Elite, Arial',
+        fontFamily: 'SpecialElite, Arial',
         fontSize: '38px',
         color: '#f8e7b9',
         align: 'center',
@@ -161,7 +161,7 @@ export class HiddenObjectsResultOverlay {
 
     const title = this.scene.add
       .text(0, -125, 'Crime Scene Lost', {
-        fontFamily: 'Special Elite, Arial',
+        fontFamily: 'SpecialElite, Arial',
         fontSize: '36px',
         color: '#ffb3b3',
       })

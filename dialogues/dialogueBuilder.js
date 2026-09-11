@@ -51,7 +51,9 @@ export function getSuspectTags(suspect) {
 
 function getLocationVariant(npcData, cityId) {
   if (!npcData || !cityId) return null;
-  return npcData.locationVariants?.[cityId] || null;
+  // Falls back to a "default" variant if this specific city has no
+  // hand-written entry yet (e.g. a newly added escape city).
+  return npcData.locationVariants?.[cityId] || npcData.locationVariants?.default || null;
 }
 
 function mergePools(localPool, globalPool) {
@@ -78,6 +80,35 @@ function normalizeCityId(cityIdOrName) {
   if (map[raw]) return map[raw];
 
   return raw.toLowerCase().replace(/\s+/g, '_');
+}
+
+/**
+ * Fills in {currency.*} placeholders in a topics.currency line using the
+ * real per-city data from countryFacts.json (loaded by the scene and
+ * passed down through buildNpcDialogue -> buildSuspectClueLines).
+ * Supports: {currency.name}, {currency.symbol}, {currency.pennies},
+ * {currency.nickname}, {currency.oldCurrency.name},
+ * {currency.oldCurrency.originFact}.
+ * Falls back gracefully when a city has no oldCurrency (null in the data).
+ */
+function resolveCurrencyTemplate(line, cityId, countryFacts) {
+  if (typeof line !== 'string') return line;
+  if (!line.includes('{currency.')) return line;
+
+  const cityFacts = countryFacts?.[normalizeCityId(cityId)];
+  const currency = cityFacts?.currency;
+  if (!currency) return line;
+
+  const oldCurrencyName = currency.oldCurrency?.name || currency.name;
+  const oldCurrencyFact = currency.oldCurrency?.originFact || '';
+
+  return line
+    .split('{currency.name}').join(currency.name || '')
+    .split('{currency.symbol}').join(currency.symbol || '')
+    .split('{currency.pennies}').join(currency.pennies || '')
+    .split('{currency.nickname}').join(currency.nickname || '')
+    .split('{currency.oldCurrency.name}').join(oldCurrencyName)
+    .split('{currency.oldCurrency.originFact}').join(oldCurrencyFact);
 }
 
 function getSharedCityTravelHints(sharedCityClues, targetCityId) {
@@ -243,13 +274,32 @@ function buildStageAwareBanter(variant, { isCrimeCity = false, isNextTargetCity 
   return 'I run on coffee, suspicion, and professionally managed disappointment.';
 }
 
+/**
+ * Picks one witness-clue line about the suspect. Candidates are:
+ *   - the suspect's physical/behavioural tags (hair, eyes, features,
+ *     accent, skills, habitus) matched against topicsPool[category][key]
+ *   - a "currency" line from topicsPool.currency, which isn't tied to a
+ *     suspect tag at all (it's about the transaction, not the person),
+ *     so it competes in the same random draw instead of requiring one.
+ * Currency lines get their {currency.*} placeholders filled in using
+ * countryFacts data for cityId.
+ */
 export function buildSuspectClueLines(
   suspect,
-  suspectCluePool,
+  topicsPool,
   sharedSuspectClues = null,
-  count = 1
+  count = 1,
+  cityId = null,
+  countryFacts = null
 ) {
-  const allTags = shuffleArray(getSuspectTags(suspect));
+  const suspectTags = getSuspectTags(suspect);
+  const currencyPool = Array.isArray(topicsPool?.currency) ? topicsPool.currency : [];
+
+  const candidateTags = currencyPool.length > 0
+    ? [...suspectTags, { category: 'currency', key: 'transaction' }]
+    : suspectTags;
+
+  const allTags = shuffleArray(candidateTags);
   const lines = [];
   const notes = [];
   const usedKeys = new Set();
@@ -260,21 +310,31 @@ export function buildSuspectClueLines(
     const uniqueId = `${tag.category}:${tag.key}`;
     if (usedKeys.has(uniqueId)) continue;
 
-    const localPool = suspectCluePool?.[tag.category]?.[tag.key] || [];
-    const sharedPool = getSharedSuspectPool(sharedSuspectClues, tag.category, tag.key);
-    const pool = mergePools(localPool, sharedPool);
+    let pool;
+
+    if (tag.category === 'currency') {
+      pool = currencyPool;
+    } else {
+      const localPool = topicsPool?.[tag.category]?.[tag.key] || [];
+      const sharedPool = getSharedSuspectPool(sharedSuspectClues, tag.category, tag.key);
+      pool = mergePools(localPool, sharedPool);
+    }
 
     if (pool.length === 0) continue;
 
-    const line = pickRandom(pool);
-    if (!line) continue;
+    const rawLine = pickRandom(pool);
+    if (!rawLine) continue;
+
+    const line = tag.category === 'currency'
+      ? resolveCurrencyTemplate(rawLine, cityId, countryFacts)
+      : rawLine;
 
     lines.push(line);
     notes.push({
       type: 'suspect',
       category: tag.category,
       key: tag.key,
-      value: tag.key
+      value: tag.category === 'currency' ? normalizeCityId(cityId) : tag.key
     });
 
     usedKeys.add(uniqueId);
@@ -471,6 +531,7 @@ export function buildNpcDialogue({
   allowOnlyCanonicalTravelClue = true,
   sharedCityClues = null,
   sharedSuspectClues = null,
+  countryFacts = null,
   isRepeat = false,
   previousNotes = [],
   isCrimeCity = false,
@@ -507,9 +568,11 @@ export function buildNpcDialogue({
   const suspectClues = suspect
     ? buildSuspectClueLines(
         suspect,
-        variant.suspectCluePool || {},
+        variant.topics || {},
         sharedSuspectClues,
-        1
+        1,
+        cityId,
+        countryFacts
       )
     : { lines: [], notes: [] };
 

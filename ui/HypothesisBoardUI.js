@@ -96,7 +96,7 @@ export class HypothesisBoardUI {
 
     this.titleText = this.scene.add
       .text(width / 2, 0, 'RECONSTRUCT THE HEIST', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '36px',
         color: '#f7f1dc',
         align: 'center'
@@ -110,7 +110,7 @@ export class HypothesisBoardUI {
         0,
         'Select one clue below, then select the question it answers.',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '19px',
           color: '#e8d7a8',
           align: 'center'
@@ -121,7 +121,7 @@ export class HypothesisBoardUI {
 
     this.attemptsText = this.scene.add
       .text(width / 2, 0, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '21px',
         color: '#ffd966',
         align: 'center'
@@ -139,7 +139,7 @@ export class HypothesisBoardUI {
         0,
         'GREEN: correct  •  YELLOW: correct clue, wrong question  •  RED: wrong clue',
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '15px',
           color: '#cbb98e',
           align: 'center'
@@ -150,7 +150,7 @@ export class HypothesisBoardUI {
 
     this.feedbackText = this.scene.add
       .text(width / 2, 0, '', {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '19px',
         color: '#ffd966',
         align: 'center',
@@ -209,7 +209,7 @@ export class HypothesisBoardUI {
 
       const answerText = this.scene.add
         .text(0, 2, '[ empty ]', {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#8d8577',
           align: 'center',
@@ -285,7 +285,7 @@ export class HypothesisBoardUI {
 
       const cardTitle = this.scene.add
         .text(0, 0, card.item || `CLUE ${index + 1}`, {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '18px',
           color: '#3d2409',
           align: 'center',
@@ -405,7 +405,7 @@ export class HypothesisBoardUI {
   createButton(text, color) {
     const button = this.scene.add
       .text(0, 0, text, {
-        fontFamily: 'Special Elite',
+        fontFamily: 'SpecialElite',
         fontSize: '23px',
         color,
         backgroundColor: '#332519',

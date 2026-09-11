@@ -27,8 +27,8 @@ export class CrimeCityScene extends BaseScene {
     this.mapUI = null;
     this.npcManager = null;
 
-    this.boundShutdown = null;
     this.isSettingUpUi = false;
+    this.isTransitioning = false;
   }
 
   init(data = {}) {
@@ -43,6 +43,7 @@ export class CrimeCityScene extends BaseScene {
     this.interactiveObjects = [];
     this.cityAmbient = null;
     this.isSettingUpUi = false;
+    this.isTransitioning = false;
 
     this.destroyControllers();
 
@@ -105,11 +106,28 @@ export class CrimeCityScene extends BaseScene {
     this.cameras.main.setAlpha(1);
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
-    this.boundShutdown = this.onShutdown.bind(this);
+    this.events.on(
+      Phaser.Scenes.Events.WAKE,
+      this.onWakeOrResume,
+      this
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.onWakeOrResume,
+      this
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.SLEEP,
+      this.onSleep,
+      this
+    );
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      this.boundShutdown
+      this.cleanupScene,
+      this
     );
 
     try {
@@ -136,7 +154,7 @@ export class CrimeCityScene extends BaseScene {
    *   TV jest ukryte
    */
   async setupCrimeCityUi() {
-    if (this.isSettingUpUi) {
+    if (this.isSettingUpUi || this._cleanupDone) {
       return;
     }
 
@@ -146,6 +164,10 @@ export class CrimeCityScene extends BaseScene {
       const uiScene = await this.ensureOverlayScene(
         'UIScene'
       );
+
+      if (this._cleanupDone || !this.sys.isActive()) {
+        return;
+      }
 
       if (uiScene) {
         this.game.events.emit('setHudVisible', true);
@@ -174,6 +196,10 @@ export class CrimeCityScene extends BaseScene {
 
       const playerHud = await this.restorePlayerHud();
 
+      if (this._cleanupDone || !this.sys.isActive()) {
+        return;
+      }
+
       if (playerHud) {
         playerHud.closeAllUIPanels?.();
         playerHud.refreshNotebook?.();
@@ -187,6 +213,10 @@ export class CrimeCityScene extends BaseScene {
       const newsHud = await this.ensureOverlayScene(
         'NewsHud'
       );
+
+      if (this._cleanupDone || !this.sys.isActive()) {
+        return;
+      }
 
       if (newsHud) {
         newsHud.events?.emit(
@@ -206,10 +236,12 @@ export class CrimeCityScene extends BaseScene {
         );
       }
     } catch (error) {
-      console.error(
-        '[CrimeCityScene] Failed to restore gameplay UI:',
-        error
-      );
+      if (!this._cleanupDone) {
+        console.error(
+          '[CrimeCityScene] Failed to restore gameplay UI:',
+          error
+        );
+      }
     } finally {
       this.isSettingUpUi = false;
     }
@@ -259,6 +291,14 @@ export class CrimeCityScene extends BaseScene {
       });
     }
 
+    this.playCityAmbient();
+  }
+
+  playCityAmbient() {
+    if (this.cityAmbient?.isPlaying) {
+      return this.cityAmbient;
+    }
+
     this.cityAmbient = audioManager.playAmbient(
       'citysound',
       {
@@ -266,6 +306,8 @@ export class CrimeCityScene extends BaseScene {
         loop: true
       }
     );
+
+    return this.cityAmbient;
   }
 
   createCrimeCityContent() {
@@ -273,8 +315,8 @@ export class CrimeCityScene extends BaseScene {
       return;
     }
 
-    this.mapUI.createBackground();
-    this.mapUI.createHeader();
+    this.mapUI?.createBackground();
+    this.mapUI?.createHeader();
 
     const crimeSceneCompleted =
       this.isCrimeSceneCompleted();
@@ -285,7 +327,7 @@ export class CrimeCityScene extends BaseScene {
     const gridCompleted =
       this.isGridCompleted();
 
-    this.mapUI.createAvailableLocations({
+    this.mapUI?.createAvailableLocations({
       crimeSceneCompleted,
       crimeLabCompleted,
       gridCompleted
@@ -296,10 +338,9 @@ export class CrimeCityScene extends BaseScene {
     }
 
     if (crimeLabCompleted && gridCompleted) {
-      this.npcManager.createNpcSpots();
+      this.npcManager?.createNpcSpots();
 
-      this.tutorialController
-        .scheduleSuspectTutorial();
+      this.tutorialController?.scheduleSuspectTutorial();
     }
   }
 
@@ -309,6 +350,10 @@ export class CrimeCityScene extends BaseScene {
   }
 
   openCrimeScene() {
+    if (this.isTransitioning || this._cleanupDone) {
+      return;
+    }
+
     const mission = gameState.currentMission;
 
     if (!mission?.scene) {
@@ -474,18 +519,40 @@ export class CrimeCityScene extends BaseScene {
   }
 
   transitionTo(sceneKey, data = {}) {
+    if (
+      this.isTransitioning ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return false;
+    }
+
+    this.isTransitioning = true;
+
     this.cameras.main.fadeOut(350, 0, 0, 0);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
-        if (!this.sys.isActive()) {
+        if (!this.sys.isActive() || this._cleanupDone) {
+          this.isTransitioning = false;
           return;
         }
 
-        void this.goto(sceneKey, data);
+        void this.goto(sceneKey, data)
+          .catch((error) => {
+            console.error(
+              `[CrimeCityScene] Transition to "${sceneKey}" failed:`,
+              error
+            );
+          })
+          .finally(() => {
+            this.isTransitioning = false;
+          });
       }
     );
+
+    return true;
   }
 
   showNoEnergyPopup() {
@@ -504,13 +571,17 @@ export class CrimeCityScene extends BaseScene {
     duration = 2200,
     color = '#37474f'
   ) {
+    if (!text || this._cleanupDone || !this.sys.isActive()) {
+      return null;
+    }
+
     const popup = this.add
       .text(
         this.scale.width / 2,
         this.scale.height / 2,
         text,
         {
-          fontFamily: 'Special Elite',
+          fontFamily: 'SpecialElite',
           fontSize: '19px',
           color: '#ffffff',
           backgroundColor: color,
@@ -525,8 +596,12 @@ export class CrimeCityScene extends BaseScene {
       .setDepth(200);
 
     this.time.delayedCall(duration, () => {
-      popup?.destroy();
+      if (popup?.active) {
+        popup.destroy();
+      }
     });
+
+    return popup;
   }
 
   closeAllUIPanels() {
@@ -535,7 +610,30 @@ export class CrimeCityScene extends BaseScene {
     playerHud?.closeAllUIPanels?.();
   }
 
-  onShutdown() {
+  onWakeOrResume() {
+    if (this._cleanupDone) {
+      return;
+    }
+
+    this.isTransitioning = false;
+
+    if (!this.cityAmbient?.isPlaying) {
+      this.playCityAmbient();
+    }
+
+    void this.setupCrimeCityUi();
+  }
+
+  onSleep() {
+    if (this.cityAmbient?.isPlaying) {
+      this.cityAmbient.pause();
+    }
+  }
+
+  cleanupScene() {
+    this.isTransitioning = false;
+    this.isSettingUpUi = false;
+
     this.interactiveObjects.forEach((object) => {
       object?.removeAllListeners?.();
     });
@@ -544,9 +642,6 @@ export class CrimeCityScene extends BaseScene {
 
     this.stopCityAmbient();
     this.destroyControllers();
-
-    this.boundShutdown = null;
-    this.isSettingUpUi = false;
   }
 
   stopCityAmbient() {

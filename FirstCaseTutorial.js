@@ -1,7 +1,7 @@
 import { EventBus } from './EventBus.js';
 
-const FONT_PIXEL = '"Press Start 2P"';
-const FONT_TYPE = '"Special Elite"';
+const FONT_PIXEL = '"PressStart2P"';
+const FONT_TYPE = '"SpecialElite"';
 
 const COLORS = {
   panel: 0x17110e,
@@ -68,6 +68,7 @@ export class FirstCaseTutorial {
     this.currentStep = null;
     this.started = false;
     this.destroyed = false;
+    this.finished = false;
 
     this.hotspots = new Map();
     this.stepContent = this.loadStepContent();
@@ -81,9 +82,14 @@ export class FirstCaseTutorial {
     this.titleText = null;
     this.objectiveText = null;
     this.hintText = null;
+
     this.skipText = null;
+    this.skipButton = null;
+    this.skipButtonBorder = null;
+
     this.highlight = null;
     this.highlightTween = null;
+
     this.feedbackText = null;
     this.feedbackTween = null;
     this.stepDelay = null;
@@ -95,13 +101,15 @@ export class FirstCaseTutorial {
   }
 
   loadStepContent() {
-    const json = this.scene?.cache?.json?.get(TUTORIAL_CACHE_KEY);
+    const json = this.scene?.cache?.json?.get(
+      TUTORIAL_CACHE_KEY,
+    );
 
     if (!json || Object.keys(json).length === 0) {
       console.warn(
         `[FirstCaseTutorial] "${TUTORIAL_CACHE_KEY}.json" missing or empty in cache - ` +
         'falling back to built-in tutorial text. Did you forget to load ' +
-        `assets/data/${TUTORIAL_CACHE_KEY}.json in the preloader?`
+        `assets/data/${TUTORIAL_CACHE_KEY}.json in the preloader?`,
       );
 
       return FALLBACK_STEP_CONTENT;
@@ -109,13 +117,13 @@ export class FirstCaseTutorial {
 
     const merged = {};
 
-    STEP_ORDER.forEach(stepId => {
+    STEP_ORDER.forEach((stepId) => {
       if (json[stepId]) {
         merged[stepId] = json[stepId];
       } else {
         console.warn(
           `[FirstCaseTutorial] Step "${stepId}" missing from "${TUTORIAL_CACHE_KEY}.json" - ` +
-          'using built-in fallback text for this step.'
+          'using built-in fallback text for this step.',
         );
 
         merged[stepId] = FALLBACK_STEP_CONTENT[stepId];
@@ -130,15 +138,18 @@ export class FirstCaseTutorial {
       this.gameState.onboarding = {};
     }
 
-    const existing = this.gameState.onboarding.firstCase ?? {};
+    const existing =
+      this.gameState.onboarding.firstCase ?? {};
 
     this.gameState.onboarding.firstCase = {
       active: existing.active ?? false,
       step: existing.step ?? null,
       completed: existing.completed ?? false,
       skipped: existing.skipped ?? false,
-      walkedToCaseFile: existing.walkedToCaseFile ?? false,
-      caseFileOpened: existing.caseFileOpened ?? false,
+      walkedToCaseFile:
+        existing.walkedToCaseFile ?? false,
+      caseFileOpened:
+        existing.caseFileOpened ?? false,
       routeOpened: existing.routeOpened ?? false,
       travelStarted: existing.travelStarted ?? false,
     };
@@ -146,10 +157,11 @@ export class FirstCaseTutorial {
 
   registerHotspot(id, zone) {
     if (!id || !zone) {
-      console.warn('[FirstCaseTutorial] registerHotspot received invalid data.', {
-        id,
-        zone,
-      });
+      console.warn(
+        '[FirstCaseTutorial] registerHotspot received invalid data.',
+        { id, zone },
+      );
+
       return;
     }
 
@@ -173,27 +185,46 @@ export class FirstCaseTutorial {
       return;
     }
 
-    const tutorialState = this.gameState.onboarding.firstCase;
+    const tutorialState =
+      this.gameState.onboarding.firstCase;
 
-    if (tutorialState.completed) {
+    if (tutorialState.completed || this.started) {
       return;
     }
 
-    if (this.started) {
-      return;
-    }
-
+    this.finished = false;
     this.started = true;
     this.active = true;
     tutorialState.active = true;
 
+    /*
+     * Phaser ma przekazać klik tylko do najwyższego interaktywnego
+     * obiektu w tej scenie. To pozwala skipButton wygrać z elementami
+     * leżącymi pod nim, ale nie tworzy globalnej blokady inputu.
+     */
+    this.scene.input.topOnly = true;
+
     this.createOverlay();
 
-    this.scene.scale.off('resize', this.onResizeBound);
-    this.scene.scale.on('resize', this.onResizeBound);
+    this.scene.scale.off(
+      'resize',
+      this.onResizeBound,
+    );
 
-    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
-    EventBus.on('firstCaseTravelStarted', this.onTravelStartedBound);
+    this.scene.scale.on(
+      'resize',
+      this.onResizeBound,
+    );
+
+    EventBus.off(
+      'firstCaseTravelStarted',
+      this.onTravelStartedBound,
+    );
+
+    EventBus.on(
+      'firstCaseTravelStarted',
+      this.onTravelStartedBound,
+    );
 
     const savedStep = tutorialState.step;
 
@@ -229,7 +260,10 @@ export class FirstCaseTutorial {
     const step = this.stepContent[stepId];
 
     if (!step) {
-      console.warn(`[FirstCaseTutorial] Unknown tutorial step: ${stepId}`);
+      console.warn(
+        `[FirstCaseTutorial] Unknown tutorial step: ${stepId}`,
+      );
+
       return;
     }
 
@@ -303,11 +337,16 @@ export class FirstCaseTutorial {
   }
 
   onPlayerPositionChanged(playerX, playerY) {
-    if (!this.active || this.currentStep !== 'walk_to_case_file') {
+    if (
+      !this.active ||
+      this.currentStep !== 'walk_to_case_file'
+    ) {
       return;
     }
 
-    const cabinetZone = this.hotspots.get('cabinet-casefile');
+    const cabinetZone = this.hotspots.get(
+      'cabinet-casefile',
+    );
 
     if (!cabinetZone?.hotspotData) {
       return;
@@ -334,7 +373,10 @@ export class FirstCaseTutorial {
     );
 
     this.delayStep(650, () => {
-      if (this.active && this.currentStep === 'walk_to_case_file') {
+      if (
+        this.active &&
+        this.currentStep === 'walk_to_case_file'
+      ) {
         this.setStep('open_case_file');
       }
     });
@@ -408,20 +450,34 @@ export class FirstCaseTutorial {
   }
 
   skip() {
-    this.gameState.onboarding.firstCase.skipped = true;
+    if (
+      this.destroyed ||
+      !this.active ||
+      this.finished
+    ) {
+      return;
+    }
+
+    console.log(
+      '[FirstCaseTutorial] Skip Tutorial clicked.',
+    );
+
     this.finish(true);
   }
 
   delayStep(delay, callback) {
     this.clearStepDelay();
 
-    this.stepDelay = this.scene.time.delayedCall(delay, () => {
-      this.stepDelay = null;
+    this.stepDelay = this.scene.time.delayedCall(
+      delay,
+      () => {
+        this.stepDelay = null;
 
-      if (!this.destroyed) {
-        callback();
-      }
-    });
+        if (!this.destroyed) {
+          callback();
+        }
+      },
+    );
   }
 
   clearStepDelay() {
@@ -440,7 +496,10 @@ export class FirstCaseTutorial {
       return;
     }
 
-    const color = type === 'success' ? '#8fb180' : '#d76d52';
+    const color =
+      type === 'success'
+        ? '#8fb180'
+        : '#d76d52';
 
     if (this.feedbackTween) {
       this.feedbackTween.stop();
@@ -475,14 +534,23 @@ export class FirstCaseTutorial {
     }
 
     const { width, height } = this.scene.scale;
-    const panelWidth = Math.min(Math.max(width - 48, 320), 860);
+
+    const panelWidth = Math.min(
+      Math.max(width - 48, 320),
+      860,
+    );
+
     const panelHeight = 140;
     const panelLeft = width / 2 - panelWidth / 2;
     const panelCenterY = height - 80;
     const panelTop = panelCenterY - panelHeight / 2;
 
     const textLeft = panelLeft + PORTRAIT_SIZE + 36;
-    const textWrapWidth = Math.max(panelWidth - PORTRAIT_SIZE - 76, 80);
+
+    const textWrapWidth = Math.max(
+      panelWidth - PORTRAIT_SIZE - 76,
+      80,
+    );
 
     this.overlay = this.scene.add.container(0, 0)
       .setScrollFactor(0)
@@ -497,9 +565,15 @@ export class FirstCaseTutorial {
       panelHeight,
       COLORS.panel,
       0.94,
-    ).setStrokeStyle(3, COLORS.panelBorder, 0.92);
+    )
+      .setScrollFactor(0)
+      .setStrokeStyle(3, COLORS.panelBorder, 0.92);
 
-    const portraitX = panelLeft + 16 + PORTRAIT_SIZE / 2;
+    const portraitX =
+      panelLeft +
+      16 +
+      PORTRAIT_SIZE / 2;
+
     const portraitY = panelCenterY;
 
     this.portraitFrame = this.scene.add.rectangle(
@@ -509,14 +583,21 @@ export class FirstCaseTutorial {
       PORTRAIT_SIZE + 8,
       COLORS.panel,
       0.98,
-    ).setStrokeStyle(2, COLORS.panelBorder, 0.85);
+    )
+      .setScrollFactor(0)
+      .setStrokeStyle(2, COLORS.panelBorder, 0.85);
 
     if (this.scene.textures.exists(PORTRAIT_KEY)) {
       this.portrait = this.scene.add.image(
         portraitX,
         portraitY,
         PORTRAIT_KEY,
-      ).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE);
+      )
+        .setScrollFactor(0)
+        .setDisplaySize(
+          PORTRAIT_SIZE,
+          PORTRAIT_SIZE,
+        );
     } else {
       console.warn(
         `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}`,
@@ -529,7 +610,13 @@ export class FirstCaseTutorial {
         PORTRAIT_SIZE,
         COLORS.muted,
         0.3,
-      ).setStrokeStyle(1, COLORS.accent, 0.5);
+      )
+        .setScrollFactor(0)
+        .setStrokeStyle(
+          1,
+          COLORS.accent,
+          0.5,
+        );
     }
 
     this.nameplate = this.scene.add.text(
@@ -541,7 +628,9 @@ export class FirstCaseTutorial {
         fontSize: '9px',
         color: '#f2d477',
       },
-    ).setOrigin(0.5, 0);
+    )
+      .setScrollFactor(0)
+      .setOrigin(0.5, 0);
 
     this.stepNumberText = this.scene.add.text(
       textLeft,
@@ -552,7 +641,7 @@ export class FirstCaseTutorial {
         fontSize: '9px',
         color: '#f2d477',
       },
-    );
+    ).setScrollFactor(0);
 
     this.titleText = this.scene.add.text(
       textLeft,
@@ -563,7 +652,7 @@ export class FirstCaseTutorial {
         fontSize: '10px',
         color: '#fff4d0',
       },
-    );
+    ).setScrollFactor(0);
 
     this.objectiveText = this.scene.add.text(
       textLeft,
@@ -573,9 +662,11 @@ export class FirstCaseTutorial {
         fontFamily: FONT_TYPE,
         fontSize: '22px',
         color: '#fff4d0',
-        wordWrap: { width: textWrapWidth },
+        wordWrap: {
+          width: textWrapWidth,
+        },
       },
-    );
+    ).setScrollFactor(0);
 
     this.hintText = this.scene.add.text(
       textLeft,
@@ -585,13 +676,56 @@ export class FirstCaseTutorial {
         fontFamily: FONT_TYPE,
         fontSize: '15px',
         color: '#d7c58f',
-        wordWrap: { width: textWrapWidth },
+        wordWrap: {
+          width: textWrapWidth,
+        },
       },
-    );
+    ).setScrollFactor(0);
+
+    const skipTextX = panelLeft + panelWidth - 16;
+    const skipTextY = panelTop + 10;
+    const skipButtonWidth = 180;
+    const skipButtonHeight = 40;
+
+    const skipButtonCenterX =
+      skipTextX -
+      skipButtonWidth / 2 +
+      8;
+
+    const skipButtonCenterY =
+      skipTextY +
+      skipButtonHeight / 2 -
+      1;
+
+    this.skipButtonBorder = this.scene.add.rectangle(
+      skipButtonCenterX,
+      skipButtonCenterY,
+      skipButtonWidth,
+      skipButtonHeight,
+      COLORS.panel,
+      0.18,
+    )
+      .setScrollFactor(0)
+      .setDepth(10001)
+      .setStrokeStyle(1, COLORS.accent, 0.72);
+
+    this.skipButton = this.scene.add.rectangle(
+      skipButtonCenterX,
+      skipButtonCenterY,
+      skipButtonWidth,
+      skipButtonHeight,
+      0x000000,
+      0.001,
+    )
+      .setScrollFactor(0)
+      .setDepth(10002)
+      .setInteractive({
+        useHandCursor: true,
+      });
 
     this.skipText = this.scene.add.text(
-      panelLeft + panelWidth - 16,
-      panelTop + 10,
+      skipTextX,
+      skipTextY,
       'SKIP TUTORIAL ▸',
       {
         fontFamily: FONT_PIXEL,
@@ -599,24 +733,50 @@ export class FirstCaseTutorial {
         color: '#d7c58f',
       },
     )
-      .setOrigin(1, 0)
-      .setInteractive({ useHandCursor: true });
+      .setScrollFactor(0)
+      .setDepth(10003)
+      .setOrigin(1, 0);
 
-    this.skipText.on('pointerover', () => {
+    this.skipButton.on('pointerover', () => {
       if (this.skipText?.scene) {
         this.skipText.setColor('#f2d477');
       }
-    });
 
-    this.skipText.on('pointerout', () => {
-      if (this.skipText?.scene) {
-        this.skipText.setColor('#d7c58f');
+      if (this.skipButtonBorder?.scene) {
+        this.skipButtonBorder.setStrokeStyle(
+          1,
+          COLORS.accent,
+          1,
+        );
       }
     });
 
-    this.skipText.on('pointerdown', () => {
-      this.skip();
+    this.skipButton.on('pointerout', () => {
+      if (this.skipText?.scene) {
+        this.skipText.setColor('#d7c58f');
+      }
+
+      if (this.skipButtonBorder?.scene) {
+        this.skipButtonBorder.setStrokeStyle(
+          1,
+          COLORS.accent,
+          0.72,
+        );
+      }
     });
+
+    this.skipButton.on(
+      'pointerdown',
+      (pointer, localX, localY, event) => {
+        event?.stopPropagation?.();
+
+        console.log(
+          '[FirstCaseTutorial] skipButton pointerdown.',
+        );
+
+        this.skip();
+      },
+    );
 
     this.feedbackText = this.scene.add.text(
       width / 2,
@@ -627,9 +787,13 @@ export class FirstCaseTutorial {
         fontSize: '18px',
         color: '#d76d52',
         align: 'center',
-        wordWrap: { width: Math.min(width - 96, 760) },
+        wordWrap: {
+          width: Math.min(width - 96, 760),
+        },
       },
     )
+      .setScrollFactor(0)
+      .setDepth(10003)
       .setOrigin(0.5)
       .setVisible(false);
 
@@ -642,6 +806,8 @@ export class FirstCaseTutorial {
       this.titleText,
       this.objectiveText,
       this.hintText,
+      this.skipButtonBorder,
+      this.skipButton,
       this.skipText,
       this.feedbackText,
     ]);
@@ -652,7 +818,10 @@ export class FirstCaseTutorial {
       return;
     }
 
-    this.stepNumberText?.setText(`OBJECTIVE ${step.number}`);
+    this.stepNumberText?.setText(
+      `OBJECTIVE ${step.number}`,
+    );
+
     this.titleText?.setText(step.title);
     this.objectiveText?.setText(step.objective);
     this.hintText?.setText(step.hint);
@@ -671,6 +840,7 @@ export class FirstCaseTutorial {
       console.warn(
         `[FirstCaseTutorial] Missing hotspot for tutorial step: ${hotspotId}`,
       );
+
       return;
     }
 
@@ -685,7 +855,10 @@ export class FirstCaseTutorial {
       .setStrokeStyle(4, COLORS.accent, 1)
       .setFillStyle(COLORS.accent, 0.08)
       .setDepth(9999)
-      .setScrollFactor(zone.scrollFactorX ?? 1, zone.scrollFactorY ?? 1);
+      .setScrollFactor(
+        zone.scrollFactorX ?? 1,
+        zone.scrollFactorY ?? 1,
+      );
 
     this.highlightTween = this.scene.tweens.add({
       targets: this.highlight,
@@ -714,26 +887,59 @@ export class FirstCaseTutorial {
   }
 
   finish(skipped = false) {
-    if (this.destroyed || !this.active) {
+    if (
+      this.destroyed ||
+      !this.active ||
+      this.finished
+    ) {
       return;
     }
 
+    this.finished = true;
     this.active = false;
     this.started = false;
     this.currentStep = null;
 
-    const tutorialState = this.gameState.onboarding.firstCase;
+    const tutorialState =
+      this.gameState.onboarding.firstCase;
 
     tutorialState.active = false;
     tutorialState.completed = true;
-    tutorialState.skipped = skipped || tutorialState.skipped;
+
+    tutorialState.skipped =
+      skipped ||
+      tutorialState.skipped;
+
     tutorialState.step = 'finished';
 
     this.clearStepDelay();
     this.clearHighlight();
 
-    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
-    this.scene.scale.off('resize', this.onResizeBound);
+    EventBus.off(
+      'firstCaseTravelStarted',
+      this.onTravelStartedBound,
+    );
+
+    this.scene.scale.off(
+      'resize',
+      this.onResizeBound,
+    );
+
+    EventBus.emit('firstCaseTutorialFinished', {
+      skipped: tutorialState.skipped,
+      completed: tutorialState.completed,
+      tutorialState: {
+        ...tutorialState,
+      },
+    });
+
+    if (tutorialState.skipped) {
+      EventBus.emit('firstCaseTutorialSkipped', {
+        onboarding: {
+          ...tutorialState,
+        },
+      });
+    }
 
     if (!this.overlay?.scene) {
       this.destroyOverlay();
@@ -757,8 +963,8 @@ export class FirstCaseTutorial {
       this.feedbackTween = null;
     }
 
-    if (this.skipText?.scene) {
-      this.skipText.removeInteractive();
+    if (this.skipButton?.scene) {
+      this.skipButton.removeInteractive();
     }
 
     if (this.overlay?.scene) {
@@ -774,7 +980,11 @@ export class FirstCaseTutorial {
     this.titleText = null;
     this.objectiveText = null;
     this.hintText = null;
+
     this.skipText = null;
+    this.skipButton = null;
+    this.skipButtonBorder = null;
+
     this.feedbackText = null;
   }
 
@@ -804,8 +1014,15 @@ export class FirstCaseTutorial {
     this.started = false;
     this.currentStep = null;
 
-    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
-    this.scene.scale.off('resize', this.onResizeBound);
+    EventBus.off(
+      'firstCaseTravelStarted',
+      this.onTravelStartedBound,
+    );
+
+    this.scene.scale.off(
+      'resize',
+      this.onResizeBound,
+    );
 
     this.clearStepDelay();
     this.clearHighlight();

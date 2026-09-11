@@ -1,8 +1,8 @@
 import { getPassportManager } from '../PassportManager.js';
 import { EventBus } from '../EventBus.js';
 
-const FONT_PIXEL = '"Press Start 2P", monospace';
-const FONT_TYPEWRITER = '"Special Elite", monospace';
+const FONT_PIXEL = '"PressStart2P", monospace';
+const FONT_TYPEWRITER = '"SpecialElite", monospace';
 
 const PAGE_WIDTH = 720;
 const PAGE_HEIGHT = 460;

@@ -17,7 +17,7 @@ export function drawTravelLine(scene, width, height, transport) {
   const startPoint = scene.add.circle(startX, y, 10, 0xffffff, 1);
   const endPoint = scene.add.circle(endX, y, 10, transport.routeColor, 1);
   const vehicle = scene.add.text(startX, y + transport.iconOffsetY, transport.icon, {
-    fontFamily: 'Special Elite',
+    fontFamily: 'SpecialElite',
     fontSize: '32px',
     color: transport.color
   }).setOrigin(0.5);

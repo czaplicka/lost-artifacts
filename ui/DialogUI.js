@@ -116,7 +116,7 @@ export class DialogUI {
             -boxHeight / 2 + 65,
             '',
             {
-                fontFamily: 'Special Elite',
+                fontFamily: 'SpecialElite',
                 fontSize: '22px',
                 color: '#1a1a1a',
                 wordWrap: { width: boxWidth - 220 },
