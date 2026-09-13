@@ -1,44 +1,68 @@
-// Handles Exclude Mode: toggling, confirmation modal, per-suspect elimination
-// state, forensic hair-evidence lookups, and the hand-off to the Evidence Grid.
+// Handles the manual Suspect File exclusion stage.
+//
+// Important design rule:
+// - Evidence may suggest a mismatch.
+// - Only a player click in active Exclude Mode can mark a file CLEARED.
+// - Evidence Grid "UNLIKELY" marks never write to deductionState.eliminated.
 
 import { saveGameState } from '../GameStatePersistence.js';
 
+function getCaseThiefSuspectId(gameState) {
+  return (
+    gameState.trueThiefCaseSuspectId ||
+    gameState.realThiefSuspectId ||
+    null
+  );
+}
+
 export const SuspectExclusionMixin = {
-toggleExcludeMode() {
-  if (this.exclusionFinished) return;
+  toggleExcludeMode() {
+    if (this.exclusionFinished) {
+      return;
+    }
 
-  if (!this.getCrimeLabCompleted()) {
-    this.modeHintText?.setText(
-      'COMPLETE THE CRIME LAB FIRST. Preliminary exclusions require forensic evidence.'
-    );
+    if (!this.getCrimeLabCompleted()) {
+      this.modeHintText?.setText(
+        'COMPLETE THE CRIME LAB FIRST. Preliminary exclusions require forensic evidence.'
+      );
 
-    return;
-  }
+      return;
+    }
 
-  this.excludeMode = !this.excludeMode;
+    this.excludeMode = !this.excludeMode;
 
-  if (this.excludeMode) {
-    this.filterMode = 'all';
-    this.currentPage = 0;
-  }
+    if (this.excludeMode) {
+      this.filterMode = 'all';
+      this.currentPage = 0;
 
-  this.updateExclusionControls();
-  this.refreshBoard();
-},
+      this.modeHintText?.setText(
+        'EXCLUDE MODE ACTIVE. Click a file to mark it CLEARED or restore it.'
+      );
+    }
+
+    this.updateExclusionControls();
+    this.refreshBoard();
+  },
 
   finishExcluding() {
+    if (!this.excludeMode || this.exclusionFinished) {
+      return;
+    }
+
     this.showFinishExclusionConfirm();
   },
 
   showFinishExclusionConfirm() {
     const { width, height } = this.scale;
 
-    const activeCount = this.getAllSuspects().filter(
-      (suspect) => !suspect.deductionState?.eliminated
+    const allSuspects = this.getAllSuspects();
+
+    const activeCount = allSuspects.filter(
+      (suspect) => suspect?.deductionState?.eliminated !== true
     ).length;
 
-    const clearedCount = this.getAllSuspects().filter(
-      (suspect) => suspect.deductionState?.eliminated
+    const clearedCount = allSuspects.filter(
+      (suspect) => suspect?.deductionState?.eliminated === true
     ).length;
 
     const overlay = this.add
@@ -85,7 +109,12 @@ toggleExcludeMode() {
       .text(
         width / 2,
         height / 2 - 40,
-        `You cleared ${clearedCount} suspect(s).\n${activeCount} file(s) will move to the Evidence Grid.\n\nYou will not be able to change these exclusions after continuing.`,
+        [
+          `You manually cleared ${clearedCount} suspect(s).`,
+          `${activeCount} file(s) will move to the Evidence Grid.`,
+          '',
+          'You will not be able to change these exclusions after continuing.'
+        ].join('\n'),
         {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
@@ -153,10 +182,23 @@ toggleExcludeMode() {
       this.excludeMode = false;
       this.exclusionFinished = true;
 
+      const caseKey = this.getCaseKey();
+
       this.gameState.suspectExclusionState ??= {};
-      this.gameState.suspectExclusionState[this.getCaseKey()] = {
+      this.gameState.suspectExclusionState[caseKey] ??= {};
+
+      const manuallyClearedIds = this.getAllSuspects()
+        .filter(
+          (suspect) =>
+            suspect?.deductionState?.eliminated === true
+        )
+        .map((suspect) => suspect.id);
+
+      this.gameState.suspectExclusionState[caseKey] = {
+        ...this.gameState.suspectExclusionState[caseKey],
         finished: true,
-        finishedAt: Date.now()
+        finishedAt: Date.now(),
+        manualExclusionIds: manuallyClearedIds
       };
 
       saveGameState();
@@ -167,86 +209,97 @@ toggleExcludeMode() {
   },
 
   updateExclusionControls() {
-  if (!this.exclusionButton || !this.continueButton) return;
+    if (!this.exclusionButton || !this.continueButton) {
+      return;
+    }
 
-  const crimeLabCompleted = this.getCrimeLabCompleted();
+    const crimeLabCompleted = this.getCrimeLabCompleted();
 
-  if (this.exclusionFinished) {
-    this.exclusionButton.setVisible(false);
-    this.continueButton.setVisible(true);
+    if (this.exclusionFinished) {
+      this.exclusionButton.setVisible(false);
+      this.continueButton.setVisible(true);
 
-    this.modeHintText?.setText(
-      'Preliminary exclusions saved. Continue with the remaining files.'
+      this.modeHintText?.setText(
+        'Preliminary exclusions saved. Continue with the remaining files.'
+      );
+
+      return;
+    }
+
+    this.continueButton.setVisible(false);
+    this.exclusionButton.setVisible(true);
+
+    if (!crimeLabCompleted) {
+      this.exclusionButton.buttonText.setText(
+        '[ CRIME LAB REQUIRED ]'
+      );
+
+      this.exclusionButton.isActive = false;
+      this.exclusionButton.applyStyle?.();
+
+      this.setButtonEnabled(this.exclusionButton, false);
+
+      this.modeHintText?.setText(
+        'Complete the Crime Lab to unlock preliminary suspect exclusions.'
+      );
+
+      return;
+    }
+
+    this.setButtonEnabled(this.exclusionButton, true);
+
+    if (this.excludeMode) {
+      this.exclusionButton.buttonText.setText(
+        '[ FINISH EXCLUDING ]'
+      );
+
+      this.exclusionButton.isActive = true;
+      this.exclusionButton.applyStyle?.();
+
+      /**
+       * Handler jest rejestrowany tylko raz dla aktualnego trybu.
+       * Czyścimy jedynie handler kontrolki, nie globalne eventy sceny.
+       */
+      this.exclusionButton.buttonBackground.off('pointerdown');
+
+      this.exclusionButton.buttonBackground.on(
+        'pointerdown',
+        () => this.finishExcluding()
+      );
+
+      const hairEvidence = this.getHairEvidenceValue();
+
+      this.modeHintText?.setText(
+        hairEvidence
+          ? `EXCLUDE MODE: LAB HAIR = ${hairEvidence.toUpperCase()}. Click files to clear or restore them.`
+          : 'EXCLUDE MODE: Click files to clear or restore them.'
+      );
+
+      return;
+    }
+
+    this.exclusionButton.buttonText.setText(
+      '[ EXCLUDE MODE ]'
     );
 
-    return;
-  }
-
-  this.continueButton.setVisible(false);
-  this.exclusionButton.setVisible(true);
-
-  if (!crimeLabCompleted) {
-    this.exclusionButton.buttonText.setText('[ CRIME LAB REQUIRED ]');
-    this.exclusionButton.isActive = false;
-    this.exclusionButton.applyStyle?.();
-
-    this.setButtonEnabled(this.exclusionButton, false);
-
-    this.modeHintText?.setText(
-      'Complete the Crime Lab to unlock preliminary suspect exclusions.'
-    );
-
-    return;
-  }
-
-  this.setButtonEnabled(this.exclusionButton, true);
-
-  if (this.excludeMode) {
-    this.exclusionButton.buttonText.setText('[ FINISH EXCLUDING ]');
     this.exclusionButton.isActive = true;
     this.exclusionButton.applyStyle?.();
 
-    this.exclusionButton.buttonBackground.removeAllListeners(
-      'pointerdown'
-    );
+    this.exclusionButton.buttonBackground.off('pointerdown');
 
     this.exclusionButton.buttonBackground.on(
       'pointerdown',
-      () => this.finishExcluding()
+      () => this.toggleExcludeMode()
     );
 
     const hairEvidence = this.getHairEvidenceValue();
 
     this.modeHintText?.setText(
       hairEvidence
-        ? `EXCLUDE MODE: LAB HAIR = ${hairEvidence.toUpperCase()}. Click files to clear or restore them.`
-        : 'EXCLUDE MODE: Click files to clear or restore them.'
+        ? `LAB EVIDENCE: RECOVERED HAIR — ${hairEvidence.toUpperCase()}`
+        : 'LAB COMPLETE: Review the evidence, then enter Exclude Mode.'
     );
-
-    return;
-  }
-
-  this.exclusionButton.buttonText.setText('[ EXCLUDE MODE ]');
-  this.exclusionButton.isActive = false;
-  this.exclusionButton.applyStyle?.();
-
-  this.exclusionButton.buttonBackground.removeAllListeners(
-    'pointerdown'
-  );
-
-  this.exclusionButton.buttonBackground.on(
-    'pointerdown',
-    () => this.toggleExcludeMode()
-  );
-
-  const hairEvidence = this.getHairEvidenceValue();
-
-  this.modeHintText?.setText(
-    hairEvidence
-      ? `LAB EVIDENCE: RECOVERED HAIR — ${hairEvidence.toUpperCase()}`
-      : 'LAB COMPLETE: Review the evidence, then enter Exclude Mode.'
-  );
-},
+  },
 
   getHairEvidenceValue() {
     const hardEvidence =
@@ -266,7 +319,9 @@ toggleExcludeMode() {
       this.gameState.identityEvidence?.thief_value ??
       null;
 
-    if (!rawValue) return null;
+    if (!rawValue) {
+      return null;
+    }
 
     return String(rawValue)
       .trim()
@@ -280,7 +335,9 @@ toggleExcludeMode() {
       suspect?.restrictedProfile?.forensicAttributes?.hair_color ??
       null;
 
-    if (!rawValue) return null;
+    if (!rawValue) {
+      return null;
+    }
 
     return String(rawValue)
       .trim()
@@ -288,24 +345,30 @@ toggleExcludeMode() {
       .replace(/^blond$/, 'blonde');
   },
 
+  /**
+   * `caseSuspects` jest jedynym źródłem prawdy.
+   *
+   * Aliasowe listy są aktualizowane, aby starsze sceny mogły nadal
+   * je odczytać, ale nie szukamy już w trzech niezależnych klonach.
+   */
   getMutableSuspect(suspectId) {
-    const collections = [
-      this.gameState.suspects,
-      this.gameState.suspectList,
-      this.gameState.caseSuspects
-    ];
+    const suspects = Array.isArray(this.gameState.caseSuspects)
+      ? this.gameState.caseSuspects
+      : Array.isArray(this.gameState.suspects)
+        ? this.gameState.suspects
+        : Array.isArray(this.gameState.suspectList)
+          ? this.gameState.suspectList
+          : [];
 
-    for (const suspects of collections) {
-      if (!Array.isArray(suspects)) continue;
+    this.gameState.caseSuspects = suspects;
+    this.gameState.suspects = suspects;
+    this.gameState.suspectList = suspects;
 
-      const suspect = suspects.find(
-        (item) => item.id === suspectId
-      );
-
-      if (suspect) return suspect;
-    }
-
-    return null;
+    return (
+      suspects.find(
+        (suspect) => suspect?.id === suspectId
+      ) || null
+    );
   },
 
   getCrimeLabCompleted() {
@@ -317,7 +380,64 @@ toggleExcludeMode() {
     );
   },
 
-  toggleSuspectExclusion(suspectId) {
+  /**
+   * Jedyna funkcja w całej grze, która może ustawić
+   * `deductionState.eliminated`.
+   *
+   * Wymaga:
+   * - aktywnego Exclude Mode,
+   * - ukończonego Crime Lab,
+   * - interakcji po kliknięciu karty,
+   * - podejrzanego z aktualnej puli,
+   * - osoby innej niż prawdziwy złodziej.
+   */
+  toggleSuspectExclusion(
+    suspectId,
+    {
+      playerInitiated = false,
+      source = 'unknown'
+    } = {}
+  ) {
+    if (!playerInitiated) {
+      console.warn(
+        '[SuspectsScene] Blocked automatic suspect exclusion.',
+        {
+          suspectId,
+          source,
+          excludeMode: this.excludeMode,
+          crimeLabCompleted: this.getCrimeLabCompleted(),
+          stack: new Error().stack
+        }
+      );
+
+      return false;
+    }
+
+    if (!this.excludeMode) {
+      console.warn(
+        '[SuspectsScene] Blocked exclusion outside Exclude Mode.',
+        {
+          suspectId,
+          source,
+          stack: new Error().stack
+        }
+      );
+
+      return false;
+    }
+
+    if (this.exclusionFinished) {
+      return false;
+    }
+
+    if (!this.getCrimeLabCompleted()) {
+      this.modeHintText?.setText(
+        'Complete the Crime Lab before excluding a suspect.'
+      );
+
+      return false;
+    }
+
     const suspect = this.getMutableSuspect(suspectId);
 
     if (!suspect) {
@@ -326,22 +446,48 @@ toggleExcludeMode() {
         suspectId
       );
 
-      return;
+      return false;
+    }
+
+    const realThiefCaseSuspectId = getCaseThiefSuspectId(
+      this.gameState
+    );
+
+    if (suspect.id === realThiefCaseSuspectId) {
+      this.modeHintText?.setText(
+        'This file remains inconclusive. The evidence is not enough to clear it.'
+      );
+
+      console.warn(
+        '[SuspectsScene] Prevented preliminary exclusion of the true thief.',
+        {
+          suspectId: suspect.id,
+          suspectName: suspect.name
+        }
+      );
+
+      return false;
     }
 
     suspect.deductionState ??= {};
-    suspect.deductionState.eliminated =
-      !Boolean(suspect.deductionState.eliminated);
 
-    if (suspect.deductionState.eliminated) {
+    const becomesEliminated =
+      suspect.deductionState.eliminated !== true;
+
+    suspect.deductionState.eliminated = becomesEliminated;
+
+    if (becomesEliminated) {
       suspect.deductionState.eliminationReasons = [
         {
+          id: 'manual_preliminary_forensic_exclusion',
+          source: 'suspect_file',
           label: 'Preliminary forensic exclusion',
-          note: 'Removed during initial laboratory review.'
+          note: 'Manually cleared during the initial laboratory review.',
+          createdAt: Date.now()
         }
       ];
 
-      suspect.deductionState.labStatus = 'eliminated';
+      suspect.deductionState.labStatus = 'manually_cleared';
     } else {
       suspect.deductionState.eliminationReasons = [];
       suspect.deductionState.labStatus = 'pending';
@@ -349,18 +495,66 @@ toggleExcludeMode() {
 
     this.gameState.selectedSuspectId = suspect.id;
 
+    const caseKey = this.getCaseKey();
+
+    this.gameState.suspectExclusionState ??= {};
+    this.gameState.suspectExclusionState[caseKey] ??= {
+      finished: false,
+      manualExclusionIds: []
+    };
+
+    const manualExclusionIds = new Set(
+      this.gameState.suspectExclusionState[caseKey]
+        .manualExclusionIds || []
+    );
+
+    if (becomesEliminated) {
+      manualExclusionIds.add(suspect.id);
+    } else {
+      manualExclusionIds.delete(suspect.id);
+    }
+
+    this.gameState.suspectExclusionState[caseKey] = {
+      ...this.gameState.suspectExclusionState[caseKey],
+      manualExclusionIds: [...manualExclusionIds],
+      updatedAt: Date.now()
+    };
+
+    console.info(
+      '[SuspectsScene] Manual suspect exclusion changed.',
+      {
+        suspectId: suspect.id,
+        suspectName: suspect.name,
+        eliminated: becomesEliminated,
+        source
+      }
+    );
+
     saveGameState();
     this.refreshBoard();
+
+    return true;
   },
 
   openEvidenceGrid() {
     const remainingSuspects = this.getAllSuspects().filter(
-      (suspect) => !suspect.deductionState?.eliminated
+      (suspect) =>
+        suspect?.deductionState?.eliminated !== true
     );
+
+    if (remainingSuspects.length < 2) {
+      this.modeHintText?.setText(
+        'Keep at least two suspects active before opening the Evidence Grid.'
+      );
+
+      return;
+    }
 
     this.gameState.suspectGridInput = {
       cityId: this.cityId,
-      suspectIds: remainingSuspects.map((suspect) => suspect.id),
+      suspectIds: remainingSuspects.map(
+        (suspect) => suspect.id
+      ),
       startedAt: Date.now()
     };
 

@@ -14,7 +14,7 @@ const COLORS = {
 };
 
 const PORTRAIT_KEY = 'portrait_hq';
-const PORTRAIT_SIZE = 104;
+const PORTRAIT_SIZE = 84;
 
 const STEP_ORDER = [
   'walk_to_case_file',
@@ -86,6 +86,7 @@ export class FirstCaseTutorial {
     this.skipText = null;
     this.skipButton = null;
     this.skipButtonBorder = null;
+this.skipButtonEnabled = true;
 
     this.highlight = null;
     this.highlightTween = null;
@@ -197,13 +198,6 @@ export class FirstCaseTutorial {
     this.active = true;
     tutorialState.active = true;
 
-    /*
-     * Phaser ma przekazać klik tylko do najwyższego interaktywnego
-     * obiektu w tej scenie. To pozwala skipButton wygrać z elementami
-     * leżącymi pod nim, ale nie tworzy globalnej blokady inputu.
-     */
-    this.scene.input.topOnly = true;
-
     this.createOverlay();
 
     this.scene.scale.off(
@@ -251,7 +245,34 @@ export class FirstCaseTutorial {
   getStep() {
     return this.currentStep;
   }
+setSkipButtonEnabled(enabled) {
+  const shouldEnable = Boolean(enabled);
 
+  if (
+    this.skipButtonEnabled === shouldEnable ||
+    !this.skipButton?.scene
+  ) {
+    return;
+  }
+
+  this.skipButtonEnabled = shouldEnable;
+
+  if (shouldEnable) {
+    this.skipButton.setInteractive({
+      useHandCursor: true,
+    });
+
+    this.skipButtonBorder?.setAlpha(1);
+    this.skipText?.setAlpha(1);
+
+    return;
+  }
+
+  this.skipButton.disableInteractive();
+
+  this.skipButtonBorder?.setAlpha(0.45);
+  this.skipText?.setAlpha(0.45);
+}
   setStep(stepId) {
     if (!this.active || !STEP_ORDER.includes(stepId)) {
       return;
@@ -540,15 +561,22 @@ export class FirstCaseTutorial {
       860,
     );
 
-    const panelHeight = 140;
+    const panelHeight = 150;
     const panelLeft = width / 2 - panelWidth / 2;
-    const panelCenterY = height - 80;
+
+    /*
+     * Panel u góry ekranu.
+     *
+     * Dolne strzałki OfficeNavigation pozostają w pełni odkryte,
+     * niezależnie od ich depth i hit area.
+     */
+    const panelCenterY = 92;
     const panelTop = panelCenterY - panelHeight / 2;
 
-    const textLeft = panelLeft + PORTRAIT_SIZE + 36;
+    const textLeft = panelLeft + PORTRAIT_SIZE + 32;
 
     const textWrapWidth = Math.max(
-      panelWidth - PORTRAIT_SIZE - 76,
+      panelWidth - PORTRAIT_SIZE - 72,
       80,
     );
 
@@ -564,7 +592,7 @@ export class FirstCaseTutorial {
       panelWidth,
       panelHeight,
       COLORS.panel,
-      0.94,
+      0.95,
     )
       .setScrollFactor(0)
       .setStrokeStyle(3, COLORS.panelBorder, 0.92);
@@ -574,7 +602,7 @@ export class FirstCaseTutorial {
       16 +
       PORTRAIT_SIZE / 2;
 
-    const portraitY = panelCenterY;
+    const portraitY = panelCenterY + 4;
 
     this.portraitFrame = this.scene.add.rectangle(
       portraitX,
@@ -621,11 +649,11 @@ export class FirstCaseTutorial {
 
     this.nameplate = this.scene.add.text(
       portraitX,
-      portraitY + PORTRAIT_SIZE / 2 + 10,
+      portraitY + PORTRAIT_SIZE / 2 + 7,
       'HQ',
       {
         fontFamily: FONT_PIXEL,
-        fontSize: '9px',
+        fontSize: '8px',
         color: '#f2d477',
       },
     )
@@ -634,33 +662,33 @@ export class FirstCaseTutorial {
 
     this.stepNumberText = this.scene.add.text(
       textLeft,
-      panelTop + 10,
+      panelTop + 12,
       '',
       {
         fontFamily: FONT_PIXEL,
-        fontSize: '9px',
+        fontSize: '8px',
         color: '#f2d477',
       },
     ).setScrollFactor(0);
 
     this.titleText = this.scene.add.text(
       textLeft,
-      panelTop + 26,
+      panelTop + 28,
       '',
       {
         fontFamily: FONT_PIXEL,
-        fontSize: '10px',
+        fontSize: '9px',
         color: '#fff4d0',
       },
     ).setScrollFactor(0);
 
     this.objectiveText = this.scene.add.text(
       textLeft,
-      panelTop + 48,
+      panelTop + 50,
       '',
       {
         fontFamily: FONT_TYPE,
-        fontSize: '22px',
+        fontSize: '20px',
         color: '#fff4d0',
         wordWrap: {
           width: textWrapWidth,
@@ -670,11 +698,11 @@ export class FirstCaseTutorial {
 
     this.hintText = this.scene.add.text(
       textLeft,
-      panelTop + 80,
+      panelTop + 84,
       '',
       {
         fontFamily: FONT_TYPE,
-        fontSize: '15px',
+        fontSize: '14px',
         color: '#d7c58f',
         wordWrap: {
           width: textWrapWidth,
@@ -682,20 +710,16 @@ export class FirstCaseTutorial {
       },
     ).setScrollFactor(0);
 
-    const skipTextX = panelLeft + panelWidth - 16;
-    const skipTextY = panelTop + 10;
-    const skipButtonWidth = 180;
-    const skipButtonHeight = 40;
+    const skipButtonWidth = 136;
+    const skipButtonHeight = 26;
 
     const skipButtonCenterX =
-      skipTextX -
-      skipButtonWidth / 2 +
-      8;
+      panelLeft +
+      panelWidth -
+      skipButtonWidth / 2 -
+      10;
 
-    const skipButtonCenterY =
-      skipTextY +
-      skipButtonHeight / 2 -
-      1;
+    const skipButtonCenterY = panelTop + 14;
 
     this.skipButtonBorder = this.scene.add.rectangle(
       skipButtonCenterX,
@@ -703,10 +727,9 @@ export class FirstCaseTutorial {
       skipButtonWidth,
       skipButtonHeight,
       COLORS.panel,
-      0.18,
+      0.35,
     )
       .setScrollFactor(0)
-      .setDepth(10001)
       .setStrokeStyle(1, COLORS.accent, 0.72);
 
     this.skipButton = this.scene.add.rectangle(
@@ -718,30 +741,28 @@ export class FirstCaseTutorial {
       0.001,
     )
       .setScrollFactor(0)
-      .setDepth(10002)
       .setInteractive({
         useHandCursor: true,
       });
 
     this.skipText = this.scene.add.text(
-      skipTextX,
-      skipTextY,
+      skipButtonCenterX,
+      skipButtonCenterY,
       'SKIP TUTORIAL ▸',
       {
         fontFamily: FONT_PIXEL,
-        fontSize: '8px',
+        fontSize: '7px',
         color: '#d7c58f',
       },
     )
       .setScrollFactor(0)
-      .setDepth(10003)
-      .setOrigin(1, 0);
+      .setOrigin(0.5);
 
     this.skipButton.on('pointerover', () => {
       if (this.skipText?.scene) {
         this.skipText.setColor('#f2d477');
       }
-
+this.skipButtonEnabled = true;
       if (this.skipButtonBorder?.scene) {
         this.skipButtonBorder.setStrokeStyle(
           1,
@@ -771,7 +792,7 @@ export class FirstCaseTutorial {
         event?.stopPropagation?.();
 
         console.log(
-          '[FirstCaseTutorial] skipButton pointerdown.',
+          '[FirstCaseTutorial] Skip Tutorial clicked.',
         );
 
         this.skip();
@@ -780,7 +801,7 @@ export class FirstCaseTutorial {
 
     this.feedbackText = this.scene.add.text(
       width / 2,
-      panelTop - 26,
+      panelCenterY + panelHeight / 2 + 28,
       '',
       {
         fontFamily: FONT_TYPE,
@@ -793,7 +814,6 @@ export class FirstCaseTutorial {
       },
     )
       .setScrollFactor(0)
-      .setDepth(10003)
       .setOrigin(0.5)
       .setVisible(false);
 
@@ -905,7 +925,6 @@ export class FirstCaseTutorial {
 
     tutorialState.active = false;
     tutorialState.completed = true;
-
     tutorialState.skipped =
       skipped ||
       tutorialState.skipped;
@@ -980,11 +999,10 @@ export class FirstCaseTutorial {
     this.titleText = null;
     this.objectiveText = null;
     this.hintText = null;
-
     this.skipText = null;
     this.skipButton = null;
     this.skipButtonBorder = null;
-
+    this.skipButtonEnabled = true;
     this.feedbackText = null;
   }
 

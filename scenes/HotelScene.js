@@ -108,8 +108,6 @@ export class HotelScene extends BaseScene {
 
     this.createSaveControls();
 
-    this.monologue?.startIdle('idle.hotel');
-
     this.createOptionalDebug();
 
     this.trackInputEvent(
@@ -119,8 +117,22 @@ export class HotelScene extends BaseScene {
     );
 
     void this.setupHudScenes();
+    this.events.once(
+  Phaser.Scenes.Events.POST_UPDATE,
+  this.startHotelIdleMonologue,
+  this
+);
+  }
+startHotelIdleMonologue() {
+  if (
+    this._cleanupDone ||
+    !this.sys.isActive()
+  ) {
+    return;
   }
 
+  this.monologue?.startIdle?.('idle.hotel');
+}
   async setupHudScenes() {
     if (
       this.isSettingUpHud ||
@@ -165,27 +177,34 @@ export class HotelScene extends BaseScene {
         });
       }
 
-      const playerHud = await this.ensurePlayerHud();
+const playerHud = await this.ensurePlayerHud();
 
-      if (
-        this._cleanupDone ||
-        !this.sys.isActive()
-      ) {
-        return;
-      }
+if (
+  this._cleanupDone ||
+  !this.sys.isActive()
+) {
+  return;
+}
 
-      if (playerHud) {
-        playerHud.closeAllUIPanels?.();
-        playerHud.refreshNotebook?.();
-        playerHud.refreshUI?.();
+if (playerHud) {
+  /*
+   * Najważniejsza linia:
+   * CrimeCityScene pozostaje pod hotelem, więc HUD nie może
+   * sam ustalić sceny. Hotel musi przekazać swój kontekst jawnie.
+   */
+  playerHud.setCurrentGameplayScene?.('HotelScene');
 
-        this.timeManager =
-          playerHud.timeManager || null;
-      } else {
-        console.warn(
-          '[HotelScene] PlayerHudScene could not be restored.'
-        );
-      }
+  playerHud.closeAllUIPanels?.();
+  playerHud.refreshNotebook?.();
+  playerHud.refreshUI?.();
+
+  this.timeManager =
+    playerHud.timeManager || null;
+} else {
+  console.warn(
+    '[HotelScene] PlayerHudScene could not be restored.'
+  );
+}
 
       await this.showNewsHud();
     } catch (error) {
@@ -1123,23 +1142,31 @@ export class HotelScene extends BaseScene {
     }
   }
 
-  onWakeOrResume() {
-    if (this._cleanupDone) {
-      return;
-    }
-
-    this.isOpeningTv = false;
-
-    if (
-      !this.isLeaving &&
-      !this.isSleeping &&
-      !this.isSleepMenuOpen
-    ) {
-      this.applyLock(false);
-    }
-
-    void this.setupHudScenes();
+onWakeOrResume() {
+  if (this._cleanupDone) {
+    return;
   }
+
+  this.isOpeningTv = false;
+
+  if (
+    !this.isLeaving &&
+    !this.isSleeping &&
+    !this.isSleepMenuOpen
+  ) {
+    this.applyLock(false);
+  }
+
+  this.events.once(
+    Phaser.Scenes.Events.POST_UPDATE,
+    this.startHotelIdleMonologue,
+    this
+  );
+const playerHud = this.getPlayerHudScene?.();
+
+playerHud?.setCurrentGameplayScene?.('HotelScene');
+  void this.setupHudScenes();
+}
 
   onSleep() {
     this.hideHoverHint();

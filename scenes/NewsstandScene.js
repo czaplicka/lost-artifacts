@@ -29,11 +29,11 @@ export class NewsstandScene extends BaseScene {
 
     this.isAnimatingOverlay = false;
     this.isOpeningNewspaper = false;
-
     this.currentMode = 'none';
 
     this.handleResize = this.handleResize.bind(this);
     this.handleEscape = this.handleEscape.bind(this);
+    this.handleShutdown = this.handleShutdown.bind(this);
   }
 
   init(data = {}) {
@@ -59,12 +59,13 @@ export class NewsstandScene extends BaseScene {
   create() {
     super.create();
 
+    console.log('[NewsstandScene] create started');
+
     const { width, height } = this.scale;
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      this.handleShutdown,
-      this
+      this.handleShutdown
     );
 
     this.scale.on('resize', this.handleResize);
@@ -75,49 +76,15 @@ export class NewsstandScene extends BaseScene {
       this.handleEscape
     );
 
-    this.setNewsHudButtonsVisible(false);
+    EventBus.emit('hideHUD');
 
-    this.bgImage = this.add
-      .image(
-        width / 2,
-        height / 2,
-        'newsstand_bg'
-      )
-      .setDepth(0)
-      .setOrigin(0.5);
+    this.createBackground(width, height);
+    this.createSceneDim(width, height);
 
-    this.bgVideo = this.add
-      .video(
-        width / 2,
-        height / 2,
-        'newsstand_video'
-      )
-      .setDepth(0)
-      .setVisible(false)
-      .setOrigin(0.5);
-
-    this.bgVideo.once(
-      'textureready',
-      () => this.resizeVideoCover(this.bgVideo)
-    );
-
-    this.bgVideo.once(
-      'playing',
-      () => this.resizeVideoCover(this.bgVideo)
-    );
-
-    this.sceneDim = this.add
-      .rectangle(
-        0,
-        0,
-        width,
-        height,
-        0x000000,
-        0.42
-      )
-      .setOrigin(0, 0)
-      .setDepth(1)
-      .setInteractive();
+    this.createPaperHotspots();
+    this.createComixHotspots();
+    this.createSceneCloseButton();
+    this.createComixOverlay();
 
     this.time.delayedCall(10000, () => {
       if (this.sys.isActive()) {
@@ -125,10 +92,74 @@ export class NewsstandScene extends BaseScene {
       }
     });
 
-    this.createPaperHotspots();
-    this.createComixHotspots();
-    this.createSceneCloseButton();
-    this.createComixOverlay();
+    console.log('[NewsstandScene] create completed');
+  }
+
+  createBackground(width, height) {
+    if (this.textures.exists('newsstand_bg')) {
+      this.bgImage = this.add
+        .image(width / 2, height / 2, 'newsstand_bg')
+        .setDepth(0)
+        .setOrigin(0.5);
+
+      this.resizeImageCover(this.bgImage);
+    } else {
+      console.error(
+        '[NewsstandScene] Missing texture: newsstand_bg. Check preload/loadAssets.'
+      );
+
+      this.add
+        .rectangle(width / 2, height / 2, width, height, 0x211815, 1)
+        .setDepth(0);
+
+      this.add
+        .text(
+          width / 2,
+          height / 2,
+          [
+            'NEWSSTAND BACKGROUND MISSING',
+            '',
+            'Expected texture key:',
+            'newsstand_bg'
+          ].join('\n'),
+          {
+            fontFamily: 'SpecialElite',
+            fontSize: '28px',
+            color: '#f7e6b5',
+            align: 'center'
+          }
+        )
+        .setOrigin(0.5)
+        .setDepth(100);
+    }
+
+    if (this.cache.video.exists('newsstand_video')) {
+      this.bgVideo = this.add
+        .video(width / 2, height / 2, 'newsstand_video')
+        .setDepth(0)
+        .setVisible(false)
+        .setOrigin(0.5);
+
+      this.bgVideo.once('textureready', () => {
+        this.resizeVideoCover(this.bgVideo);
+      });
+
+      this.bgVideo.once('playing', () => {
+        this.resizeVideoCover(this.bgVideo);
+      });
+    } else {
+      console.warn(
+        '[NewsstandScene] Video not loaded: newsstand_video. Background will remain static.'
+      );
+    }
+  }
+
+  createSceneDim(width, height) {
+    this.sceneDim = this.add
+      .rectangle(0, 0, width, height, 0x000000, 0.42)
+      .setOrigin(0, 0)
+      .setDepth(1)
+      .setInteractive();
   }
 
   getActiveCityId() {
@@ -154,7 +185,6 @@ export class NewsstandScene extends BaseScene {
       .setMute(true);
 
     this.resizeVideoCover(this.bgVideo);
-
     this.bgVideo.play();
 
     this.bgVideo.once(
@@ -171,6 +201,21 @@ export class NewsstandScene extends BaseScene {
     this.bgVideo?.stop();
     this.bgVideo?.setVisible(false);
     this.bgImage?.setVisible(true);
+  }
+
+  resizeImageCover(image) {
+    if (!image?.scene || !image.width || !image.height) {
+      return;
+    }
+
+    const scale = Math.max(
+      this.scale.width / image.width,
+      this.scale.height / image.height
+    );
+
+    image
+      .setPosition(this.scale.width / 2, this.scale.height / 2)
+      .setScale(scale);
   }
 
   resizeVideoCover(video) {
@@ -194,11 +239,27 @@ export class NewsstandScene extends BaseScene {
     );
 
     video
-      .setPosition(
-        this.scale.width / 2,
-        this.scale.height / 2
-      )
+      .setPosition(this.scale.width / 2, this.scale.height / 2)
       .setScale(scale);
+  }
+
+  getHotspotScale() {
+    return Math.min(
+      this.scale.width / 1920,
+      this.scale.height / 1080
+    );
+  }
+
+  getScaledHotspot(spot) {
+    const scale = this.getHotspotScale();
+
+    return {
+      ...spot,
+      x: spot.x * scale,
+      y: spot.y * scale,
+      width: spot.width * scale,
+      height: spot.height * scale
+    };
   }
 
   createPriceLabel(spot) {
@@ -241,7 +302,9 @@ export class NewsstandScene extends BaseScene {
       }
     ];
 
-    hotspots.forEach((spot) => {
+    hotspots.forEach((rawSpot) => {
+      const spot = this.getScaledHotspot(rawSpot);
+
       this.add
         .zone(
           spot.x,
@@ -255,186 +318,166 @@ export class NewsstandScene extends BaseScene {
           useHandCursor: true
         })
         .on('pointerup', () => {
-          void this.buyAndOpenNewspaper(spot);
+          void this.buyAndOpenNewspaper(rawSpot);
         });
 
       this.createPriceLabel(spot);
     });
   }
 
-getCurrentGameDay() {
-  return Math.max(
-    1,
-    Number(
-      gameState.currentDay ??
-      gameState.day ??
-      this.registry.get('currentDay') ??
-      this.registry.get('day') ??
-      1
-    ) || 1
-  );
-}
-
-getNewspaperPurchaseKey(cityId, newspaperId) {
-  const safeCityId = String(cityId || 'unknown_city')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_');
-
-  const safeNewspaperId = String(newspaperId || 'daily')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, '_');
-
-  const gameDay = this.getCurrentGameDay();
-
-  return `${safeCityId}:${gameDay}:${safeNewspaperId}`;
-}
-
-ensureDailyNewspaperAccessState() {
-  if (
-    !gameState[DAILY_NEWSPAPER_ACCESS_KEY] ||
-    typeof gameState[DAILY_NEWSPAPER_ACCESS_KEY] !== 'object' ||
-    Array.isArray(gameState[DAILY_NEWSPAPER_ACCESS_KEY])
-  ) {
-    gameState[DAILY_NEWSPAPER_ACCESS_KEY] = {};
+  getCurrentGameDay() {
+    return Math.max(
+      1,
+      Number(
+        gameState.currentDay ??
+        gameState.day ??
+        this.registry.get('currentDay') ??
+        this.registry.get('day') ??
+        1
+      ) || 1
+    );
   }
 
-  return gameState[DAILY_NEWSPAPER_ACCESS_KEY];
-}
+  getNewspaperPurchaseKey(cityId, newspaperId) {
+    const safeCityId = String(cityId || 'unknown_city')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_');
 
-hasNewspaperAccessForToday(cityId, newspaperId) {
-  const purchases = this.ensureDailyNewspaperAccessState();
+    const safeNewspaperId = String(newspaperId || 'daily')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_');
 
-  const purchaseKey = this.getNewspaperPurchaseKey(
-    cityId,
-    newspaperId
-  );
-
-  return purchases[purchaseKey] === true;
-}
-
-markNewspaperAccessForToday(cityId, newspaperId) {
-  const purchases = this.ensureDailyNewspaperAccessState();
-
-  const purchaseKey = this.getNewspaperPurchaseKey(
-    cityId,
-    newspaperId
-  );
-
-  purchases[purchaseKey] = true;
-
-  return purchaseKey;
-}
-
-  async buyAndOpenNewspaper(spot) {
-  if (
-    this.isAnimatingOverlay ||
-    this.isOpeningNewspaper
-  ) {
-    return;
+    return `${safeCityId}:${this.getCurrentGameDay()}:${safeNewspaperId}`;
   }
 
-  this.isOpeningNewspaper = true;
-
-  try {
-    const cityId = this.getActiveCityId();
-
-    const alreadyPaidToday =
-      this.hasNewspaperAccessForToday(
-        cityId,
-        spot.id
-      );
-
-    let purchaseId = null;
-
-    if (!alreadyPaidToday) {
-      const purchase = moneyManager.spend(spot.price, {
-        source: MONEY_SOURCE.CASH,
-        category: ECONOMY_CATEGORY.NEWSPAPER,
-        description:
-          `Bought ${spot.type} newspaper in ${cityId} ` +
-          `on investigation day ${this.getCurrentGameDay()}`,
-        metadata: {
-          cityId,
-          newspaperId: spot.id,
-          newspaperType: spot.type,
-          gameDay: this.getCurrentGameDay()
-        }
-      });
-
-      if (!purchase.ok) {
-        this.showNotEnoughMoneyMessage(
-          'NEWSPAPER',
-          purchase.required,
-          purchase.available
-        );
-
-        return;
-      }
-
-      purchaseId = purchase.transaction?.id || null;
-
-      const accessKey = this.markNewspaperAccessForToday(
-        cityId,
-        spot.id
-      );
-
-      console.log('[NewsstandScene] Newspaper purchased:', {
-        cityId,
-        newspaperId: spot.id,
-        gameDay: this.getCurrentGameDay(),
-        accessKey,
-        purchaseId
-      });
-    } else {
-      console.log(
-        '[NewsstandScene] Newspaper already purchased today; opening free copy.',
-        {
-          cityId,
-          newspaperId: spot.id,
-          gameDay: this.getCurrentGameDay()
-        }
-      );
+  ensureDailyNewspaperAccessState() {
+    if (
+      !gameState[DAILY_NEWSPAPER_ACCESS_KEY] ||
+      typeof gameState[DAILY_NEWSPAPER_ACCESS_KEY] !== 'object' ||
+      Array.isArray(gameState[DAILY_NEWSPAPER_ACCESS_KEY])
+    ) {
+      gameState[DAILY_NEWSPAPER_ACCESS_KEY] = {};
     }
 
-    this.cityId = cityId;
+    return gameState[DAILY_NEWSPAPER_ACCESS_KEY];
+  }
 
-    this.stopSceneIfActive(
-      'NewspaperOverlayScene'
+  hasNewspaperAccessForToday(cityId, newspaperId) {
+    const purchases = this.ensureDailyNewspaperAccessState();
+
+    return purchases[
+      this.getNewspaperPurchaseKey(cityId, newspaperId)
+    ] === true;
+  }
+
+  markNewspaperAccessForToday(cityId, newspaperId) {
+    const purchases = this.ensureDailyNewspaperAccessState();
+
+    const purchaseKey = this.getNewspaperPurchaseKey(
+      cityId,
+      newspaperId
     );
 
-    const opened = await this.launchOverlay(
-      'NewspaperOverlayScene',
-      {
-        cityId,
-        type: spot.type,
-        jsonKey: spot.jsonKey,
-        backgroundKey: spot.backgroundKey,
-        purchaseId,
-        alreadyPaidToday,
-        sourceScene: 'NewsstandScene'
+    purchases[purchaseKey] = true;
+
+    return purchaseKey;
+  }
+
+  async buyAndOpenNewspaper(spot) {
+    if (
+      this.isAnimatingOverlay ||
+      this.isOpeningNewspaper
+    ) {
+      return;
+    }
+
+    this.isOpeningNewspaper = true;
+
+    try {
+      const cityId = this.getActiveCityId();
+
+      const alreadyPaidToday =
+        this.hasNewspaperAccessForToday(cityId, spot.id);
+
+      let purchaseId = null;
+
+      if (!alreadyPaidToday) {
+        const purchase = moneyManager.spend(spot.price, {
+          source: MONEY_SOURCE.CASH,
+          category: ECONOMY_CATEGORY.NEWSPAPER,
+          description:
+            `Bought ${spot.type} newspaper in ${cityId} ` +
+            `on investigation day ${this.getCurrentGameDay()}`,
+          metadata: {
+            cityId,
+            newspaperId: spot.id,
+            newspaperType: spot.type,
+            gameDay: this.getCurrentGameDay()
+          }
+        });
+
+        if (!purchase.ok) {
+          this.showNotEnoughMoneyMessage(
+            'NEWSPAPER',
+            purchase.required,
+            purchase.available
+          );
+          return;
+        }
+
+        purchaseId = purchase.transaction?.id || null;
+
+        const accessKey = this.markNewspaperAccessForToday(
+          cityId,
+          spot.id
+        );
+
+        console.log('[NewsstandScene] Newspaper purchased:', {
+          cityId,
+          newspaperId: spot.id,
+          gameDay: this.getCurrentGameDay(),
+          accessKey,
+          purchaseId
+        });
       }
-    );
 
-    if (!opened) {
+      this.cityId = cityId;
+
+      this.stopSceneIfActive('NewspaperOverlayScene');
+
+      const opened = await this.launchOverlay(
+        'NewspaperOverlayScene',
+        {
+          cityId,
+          type: spot.type,
+          jsonKey: spot.jsonKey,
+          backgroundKey: spot.backgroundKey,
+          purchaseId,
+          alreadyPaidToday,
+          sourceScene: 'NewsstandScene'
+        }
+      );
+
+      if (!opened) {
+        console.error(
+          '[NewsstandScene] Could not open NewspaperOverlayScene.'
+        );
+
+        this.showPurchaseErrorMessage();
+      }
+    } catch (error) {
       console.error(
-        '[NewsstandScene] Newspaper access exists, but NewspaperOverlayScene could not be opened.'
+        '[NewsstandScene] Newspaper purchase/open failed:',
+        error
       );
 
       this.showPurchaseErrorMessage();
+    } finally {
+      this.isOpeningNewspaper = false;
     }
-  } catch (error) {
-    console.error(
-      '[NewsstandScene] Newspaper purchase/open failed:',
-      error
-    );
-
-    this.showPurchaseErrorMessage();
-  } finally {
-    this.isOpeningNewspaper = false;
   }
-}
 
   createComixHotspots() {
     const hotspots = [
@@ -451,7 +494,9 @@ markNewspaperAccessForToday(cityId, newspaperId) {
       }
     ];
 
-    hotspots.forEach((spot) => {
+    hotspots.forEach((rawSpot) => {
+      const spot = this.getScaledHotspot(rawSpot);
+
       this.add
         .zone(
           spot.x,
@@ -465,7 +510,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
           useHandCursor: true
         })
         .on('pointerup', () => {
-          this.buyAndOpenComix(spot);
+          this.buyAndOpenComix(rawSpot);
         });
 
       this.createPriceLabel(spot);
@@ -474,6 +519,15 @@ markNewspaperAccessForToday(cityId, newspaperId) {
 
   buyAndOpenComix(spot) {
     if (this.isAnimatingOverlay) {
+      return;
+    }
+
+    if (!this.textures.exists(spot.textureKey)) {
+      console.error(
+        `[NewsstandScene] Missing comix texture: ${spot.textureKey}`
+      );
+
+      this.showPurchaseErrorMessage();
       return;
     }
 
@@ -503,11 +557,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
     this.openComixOverlay(spot.textureKey);
   }
 
-  showNotEnoughMoneyMessage(
-    itemName,
-    required,
-    available
-  ) {
+  showNotEnoughMoneyMessage(itemName, required, available) {
     const message = this.add
       .text(
         this.scale.width / 2,
@@ -612,14 +662,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
       .setAlpha(0);
 
     this.overlayBlocker = this.add
-      .rectangle(
-        0,
-        0,
-        width,
-        height,
-        0x000000,
-        0.72
-      )
+      .rectangle(0, 0, width, height, 0x000000, 0.72)
       .setOrigin(0, 0)
       .setInteractive();
 
@@ -632,9 +675,15 @@ markNewspaperAccessForToday(cityId, newspaperId) {
       .setAlpha(0)
       .setScale(0.9);
 
-    this.comixImage = this.add
-      .image(0, 0, 'comix1')
-      .setOrigin(0.5);
+    if (this.textures.exists('comix1')) {
+      this.comixImage = this.add
+        .image(0, 0, 'comix1')
+        .setOrigin(0.5);
+    } else {
+      this.comixImage = this.add
+        .rectangle(0, 0, 500, 650, 0x35241c, 1)
+        .setStrokeStyle(4, 0xf6dc8c);
+    }
 
     this.comixCloseBtn = this.add
       .text(0, 0, 'X', {
@@ -674,11 +723,8 @@ markNewspaperAccessForToday(cityId, newspaperId) {
       return;
     }
 
-    const textureWidth =
-      this.comixImage.width || 1;
-
-    const textureHeight =
-      this.comixImage.height || 1;
+    const textureWidth = this.comixImage.width || 1;
+    const textureHeight = this.comixImage.height || 1;
 
     const imageScale = Math.min(
       (this.scale.width * 0.84) / textureWidth,
@@ -686,11 +732,8 @@ markNewspaperAccessForToday(cityId, newspaperId) {
       1
     );
 
-    const displayWidth =
-      textureWidth * imageScale;
-
-    const displayHeight =
-      textureHeight * imageScale;
+    const displayWidth = textureWidth * imageScale;
+    const displayHeight = textureHeight * imageScale;
 
     this.comixImage.setDisplaySize(
       displayWidth,
@@ -720,11 +763,11 @@ markNewspaperAccessForToday(cityId, newspaperId) {
     this.currentMode = 'comix';
     this.isAnimatingOverlay = true;
 
-    this.comixImage.setTexture(textureKey);
+    if (this.comixImage.setTexture) {
+      this.comixImage.setTexture(textureKey);
+    }
 
     this.layoutComixOverlay();
-
-    EventBus.emit('hideHUD');
 
     this.overlayRoot
       .setVisible(true)
@@ -807,8 +850,6 @@ markNewspaperAccessForToday(cityId, newspaperId) {
           this.currentMode = 'none';
           this.isAnimatingOverlay = false;
 
-          EventBus.emit('showHUD');
-
           onClosed?.();
         }
       })
@@ -858,15 +899,10 @@ markNewspaperAccessForToday(cityId, newspaperId) {
   handleResize() {
     const { width, height } = this.scale;
 
-    this.bgImage?.setPosition(
-      width / 2,
-      height / 2
-    );
-
+    this.resizeImageCover(this.bgImage);
     this.resizeVideoCover(this.bgVideo);
 
     this.sceneDim?.setSize(width, height);
-
     this.overlayBlocker?.setSize(width, height);
 
     this.layoutComixOverlay();
@@ -892,5 +928,7 @@ markNewspaperAccessForToday(cityId, newspaperId) {
     this.isAnimatingOverlay = false;
     this.isOpeningNewspaper = false;
     this.currentMode = 'none';
+
+    console.log('[NewsstandScene] closed');
   }
 }

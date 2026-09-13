@@ -36,16 +36,10 @@ function normalize(value) {
   return String(value);
 }
 
-function getByPath(source, path) {
-  if (!source || !path) return undefined;
-
-  return String(path)
-    .split('.')
-    .reduce((current, key) => current?.[key], source);
-}
-
 function pickRandom(items = []) {
-  if (!Array.isArray(items) || !items.length) return '';
+  if (!Array.isArray(items) || !items.length) {
+    return '';
+  }
 
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -55,6 +49,25 @@ function fillTemplate(template = '', params = {}) {
     /{(\w+)}/g,
     (_, key) => params[key] ?? '???'
   );
+}
+
+/**
+ * Evidence Grid ma osobny status.
+ *
+ * Ten stan NIE jest stanem `deductionState.eliminated`.
+ * `markedUnlikely` oznacza wyłącznie roboczą decyzję gracza na tablicy.
+ */
+function getGridMarkState(rawState = {}) {
+  const currentState =
+    rawState.markedUnlikelyBySuspectId ||
+    rawState.ruledOutBySuspectId ||
+    {};
+
+  if (!currentState || typeof currentState !== 'object') {
+    return {};
+  }
+
+  return { ...currentState };
 }
 
 export class SuspectGridScene extends BaseScene {
@@ -74,7 +87,7 @@ export class SuspectGridScene extends BaseScene {
     this.selectedClueId = null;
 
     this.placedCluesByCell = {};
-    this.ruledOutBySuspectId = {};
+    this.markedUnlikelyBySuspectId = {};
 
     this.gridViewport = null;
     this.gridScrollContainer = null;
@@ -96,6 +109,29 @@ export class SuspectGridScene extends BaseScene {
     this.resizeHandler = null;
   }
 
+  /**
+   * Jedno źródło prawdy dla listy osób w case'ie.
+   * Aliasowe nazwy są tylko fallbackiem dla starych save’ów.
+   */
+  getCaseSuspects() {
+    const suspects =
+      Array.isArray(this.gameState.caseSuspects) &&
+      this.gameState.caseSuspects.length
+        ? this.gameState.caseSuspects
+        : Array.isArray(this.gameState.suspects) &&
+            this.gameState.suspects.length
+          ? this.gameState.suspects
+          : Array.isArray(this.gameState.suspectList)
+            ? this.gameState.suspectList
+            : [];
+
+    this.gameState.caseSuspects = suspects;
+    this.gameState.suspects = suspects;
+    this.gameState.suspectList = suspects;
+
+    return suspects;
+  }
+
   init(data = {}) {
     this.gameState = data.gameState || gameState;
 
@@ -106,8 +142,9 @@ export class SuspectGridScene extends BaseScene {
       'unknown_city';
 
     this.returnScene =
-      typeof data.returnScene === 'string' && data.returnScene.trim()
-        ? data.returnScene
+      typeof data.returnScene === 'string' &&
+      data.returnScene.trim()
+        ? data.returnScene.trim()
         : 'CrimeCityScene';
 
     this.returnData = {
@@ -116,68 +153,54 @@ export class SuspectGridScene extends BaseScene {
       openPanel: data.returnData?.openPanel || 'alibi'
     };
 
-    this.labManager = new CrimeLabManager(this.gameState, this.cityId);
+    this.labManager = new CrimeLabManager(
+      this.gameState,
+      this.cityId
+    );
 
-    const allSuspects = Array.isArray(this.gameState.suspects)
-      ? this.gameState.suspects
-      : [];
+    const allSuspects = this.getCaseSuspects();
 
-    const suspectIds =
+    const requestedSuspectIds =
       data.suspectIds ||
       this.gameState.suspectGridInput?.suspectIds ||
       this.gameState.currentMission?.suspectIds ||
       allSuspects.map((suspect) => suspect.id);
 
-    this.suspects = allSuspects.filter((suspect) =>
-      suspectIds.includes(suspect.id)
+    const validSuspectIds = new Set(
+      Array.isArray(requestedSuspectIds)
+        ? requestedSuspectIds
+        : []
+    );
+
+    this.suspects = allSuspects.filter(
+      (suspect) =>
+        suspect?.id &&
+        validSuspectIds.has(suspect.id)
     );
 
     const caseForensics = this.labManager.ensureCaseForensics();
 
     caseForensics.suspectGrid ??= {};
     caseForensics.suspectGrid.placedCluesByCell ??= {};
-    caseForensics.suspectGrid.ruledOutBySuspectId ??= {};
 
     this.placedCluesByCell = {
       ...caseForensics.suspectGrid.placedCluesByCell
     };
 
-    this.ruledOutBySuspectId = {
-      ...caseForensics.suspectGrid.ruledOutBySuspectId
-    };
+    this.markedUnlikelyBySuspectId = getGridMarkState(
+      caseForensics.suspectGrid
+    );
 
-    this.clueCards = this.buildClueCards(caseForensics, data);
+    this.clueCards = this.buildClueCards(
+      caseForensics,
+      data
+    );
+
     this.rows = this.buildRows();
     this.selectedClueId = null;
     this.gridScrollX = 0;
   }
 
-  /*
-   * Najważniejsze:
-   *
-   * Z CrimeCityScene możesz przekazać własne, konkretne karty:
-   *
-   * gridClues: [
-   *   {
-   *     id: 'nora_shoes_small',
-   *     type: 'suspect_fact',
-   *     suspectId: 'nora_pike',
-   *     field: 'shoeSizeCategory',
-   *     value: 'small',
-   *     text: 'Nora Pike wears small shoes.'
-   *   },
-   *   {
-   *     id: 'scene_shoes_large',
-   *     type: 'crime_scene_fact',
-   *     field: 'shoeSizeCategory',
-   *     value: 'large',
-   *     text: 'The shoeprint at the crime scene is large.'
-   *   }
-   * ]
-   *
-   * suspect_fact wkłada się w konkretną kolumnę podejrzanego.
-   * crime_scene_fact wkłada się do kolumny CRIME SCENE.
-   */
   buildClueCards(caseForensics, data) {
     const explicitCards =
       data.gridClues ||
@@ -187,23 +210,25 @@ export class SuspectGridScene extends BaseScene {
 
     const normalizedExplicitCards = Array.isArray(explicitCards)
       ? explicitCards
-          .map((clue, index) => this.normalizeExplicitClue(clue, index))
+          .map((clue, index) =>
+            this.normalizeExplicitClue(clue, index)
+          )
           .filter(Boolean)
       : [];
 
-    const automaticCrimeSceneCards = this.buildCrimeSceneEvidenceCards(
-      caseForensics
-    );
-
-    const combinedCards = [
-      ...normalizedExplicitCards,
-      ...automaticCrimeSceneCards
-    ];
+    const automaticCrimeSceneCards =
+      this.buildCrimeSceneEvidenceCards(caseForensics);
 
     const uniqueCards = new Map();
 
-    combinedCards.forEach((card) => {
-      if (!card?.id || uniqueCards.has(card.id)) return;
+    [
+      ...normalizedExplicitCards,
+      ...automaticCrimeSceneCards
+    ].forEach((card) => {
+      if (!card?.id || uniqueCards.has(card.id)) {
+        return;
+      }
+
       uniqueCards.set(card.id, card);
     });
 
@@ -211,7 +236,9 @@ export class SuspectGridScene extends BaseScene {
   }
 
   normalizeExplicitClue(clue, index) {
-    if (!clue?.field) return null;
+    if (!clue?.field) {
+      return null;
+    }
 
     const type =
       clue.type === 'crime_scene_fact' ||
@@ -230,6 +257,7 @@ export class SuspectGridScene extends BaseScene {
         '[SuspectGridScene] suspect_fact needs suspectId:',
         clue
       );
+
       return null;
     }
 
@@ -269,21 +297,35 @@ export class SuspectGridScene extends BaseScene {
     rawHardEvidence.forEach((evidence, index) => {
       const field = evidence.field || evidence.forensicField;
 
-      if (!field || alreadyAdded.has(field)) return;
+      if (!field || alreadyAdded.has(field)) {
+        return;
+      }
 
       const entry = DEDUCTION_EVIDENCE_REGISTRY[field];
-      const rawValue = evidence.value ?? evidence.normalizedValue;
+      const rawValue =
+        evidence.value ??
+        evidence.normalizedValue;
+
       const value = entry?.normalizeEvidence
         ? entry.normalizeEvidence(rawValue)
         : rawValue;
 
-      if (value === undefined || value === null || value === '') return;
+      if (
+        value === undefined ||
+        value === null ||
+        value === ''
+      ) {
+        return;
+      }
 
       alreadyAdded.add(field);
 
       const template = pickRandom(entry?.clueTemplates);
+
       const text = template
-        ? fillTemplate(template, { value: normalize(value) })
+        ? fillTemplate(template, {
+            value: normalize(value)
+          })
         : `Crime scene result: ${prettify(field)} is ${normalize(value)}.`;
 
       cards.push({
@@ -304,20 +346,29 @@ export class SuspectGridScene extends BaseScene {
     traceResults.forEach((result, index) => {
       const field = result.evidenceType;
 
-      if (!field || alreadyAdded.has(field)) return;
+      if (!field || alreadyAdded.has(field)) {
+        return;
+      }
 
       const entry = DEDUCTION_EVIDENCE_REGISTRY[field];
       const rawValue = result.value;
 
-      if (rawValue === undefined || rawValue === null || rawValue === '') {
+      if (
+        rawValue === undefined ||
+        rawValue === null ||
+        rawValue === ''
+      ) {
         return;
       }
 
       alreadyAdded.add(field);
 
       const template = pickRandom(entry?.clueTemplates);
+
       const text = template
-        ? fillTemplate(template, { value: normalize(rawValue) })
+        ? fillTemplate(template, {
+            value: normalize(rawValue)
+          })
         : `Lab result: ${prettify(field)} is ${normalize(rawValue)}.`;
 
       cards.push({
@@ -335,23 +386,29 @@ export class SuspectGridScene extends BaseScene {
 
   buildRows() {
     const fieldsInCards = new Set(
-      this.clueCards.map((clue) => clue.field).filter(Boolean)
+      this.clueCards
+        .map((clue) => clue.field)
+        .filter(Boolean)
     );
 
-    const defaultRows = DEFAULT_ROWS.filter((row) =>
-      fieldsInCards.has(row.id)
+    const defaultRows = DEFAULT_ROWS.filter(
+      (row) => fieldsInCards.has(row.id)
     );
 
     const extraRows = [...fieldsInCards]
       .filter(
-        (field) => !DEFAULT_ROWS.some((row) => row.id === field)
+        (field) =>
+          !DEFAULT_ROWS.some((row) => row.id === field)
       )
       .map((field) => ({
         id: field,
         label: prettify(field)
       }));
 
-    const rows = [...defaultRows, ...extraRows];
+    const rows = [
+      ...defaultRows,
+      ...extraRows
+    ];
 
     return rows.length
       ? rows
@@ -377,8 +434,13 @@ export class SuspectGridScene extends BaseScene {
     this.createFooter();
     this.refreshAll();
 
-    this.resizeHandler = () => this.rebuildScene();
-    this.scale.on('resize', this.resizeHandler);
+    this.resizeHandler = () => {
+      if (this.sys.isActive()) {
+        this.rebuildScene();
+      }
+    };
+
+    this.scale.on('resize', this.resizeHandler, this);
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -428,7 +490,7 @@ export class SuspectGridScene extends BaseScene {
       .text(
         width / 2,
         48,
-        'Select a clue, then place it in the correct cell. Your deductions are your own.',
+        'Place evidence. Mark likely mistakes. Your deductions remain your own.',
         {
           fontFamily: 'SpecialElite',
           fontSize: '15px',
@@ -467,7 +529,7 @@ export class SuspectGridScene extends BaseScene {
         color: '#ffdc73',
         align: 'center',
         wordWrap: {
-          width: width - 350,
+          width: Math.max(220, width - 350),
           useAdvancedWrap: true
         }
       })
@@ -556,7 +618,9 @@ export class SuspectGridScene extends BaseScene {
   }
 
   getPlacedClueIds() {
-    return new Set(Object.values(this.placedCluesByCell));
+    return new Set(
+      Object.values(this.placedCluesByCell)
+    );
   }
 
   getUnplacedClues() {
@@ -597,22 +661,27 @@ export class SuspectGridScene extends BaseScene {
 
     if (!clues.length) {
       const empty = this.add
-        .text(width / 2, panelY + 65, 'All currently available clue cards are on the board.', {
-          fontFamily: 'SpecialElite',
-          fontSize: '17px',
-          color: '#c6b58d',
-          align: 'center'
-        })
+        .text(
+          width / 2,
+          panelY + 65,
+          'All currently available clue cards are on the board.',
+          {
+            fontFamily: 'SpecialElite',
+            fontSize: '17px',
+            color: '#c6b58d',
+            align: 'center'
+          }
+        )
         .setOrigin(0.5);
 
       this.clueContainer.add(empty);
+
       return;
     }
 
     const cardWidth = 220;
     const cardHeight = 64;
     const gapX = 12;
-    const gapY = 10;
     const maxColumns = Math.max(
       1,
       Math.floor((width - 46) / (cardWidth + gapX))
@@ -622,10 +691,12 @@ export class SuspectGridScene extends BaseScene {
       const column = index % maxColumns;
       const row = Math.floor(index / maxColumns);
 
-      if (row > 0) return;
+      if (row > 0) {
+        return;
+      }
 
       const x = 27 + column * (cardWidth + gapX);
-      const y = panelY + 36 + row * (cardHeight + gapY);
+      const y = panelY + 36;
 
       const selected = clue.id === this.selectedClueId;
 
@@ -676,13 +747,18 @@ export class SuspectGridScene extends BaseScene {
         })
         .setOrigin(0, 0);
 
-      background.on('pointerdown', () => this.selectClue(clue.id));
+      background.on('pointerdown', () => {
+        this.selectClue(clue.id);
+      });
 
       card.add([background, badge, text]);
       this.clueContainer.add(card);
     });
 
-    const hiddenCount = Math.max(0, clues.length - maxColumns);
+    const hiddenCount = Math.max(
+      0,
+      clues.length - maxColumns
+    );
 
     if (hiddenCount > 0) {
       const more = this.add
@@ -699,9 +775,11 @@ export class SuspectGridScene extends BaseScene {
 
   selectClue(clueId) {
     this.selectedClueId =
-      this.selectedClueId === clueId ? null : clueId;
+      this.selectedClueId === clueId
+        ? null
+        : clueId;
 
-    this.feedbackText.setText(
+    this.feedbackText?.setText(
       this.selectedClueId
         ? 'Now click the correct cell in the evidence grid.'
         : ''
@@ -715,7 +793,10 @@ export class SuspectGridScene extends BaseScene {
 
     const gridTop = 236;
     const gridBottom = height - 76;
-    const viewportHeight = Math.max(160, gridBottom - gridTop);
+    const viewportHeight = Math.max(
+      160,
+      gridBottom - gridTop
+    );
 
     const labelWidth = 154;
     const sceneWidth = 126;
@@ -738,11 +819,16 @@ export class SuspectGridScene extends BaseScene {
     ];
 
     const contentWidth =
-      sceneWidth + this.suspects.length * suspectWidth;
+      sceneWidth +
+      this.suspects.length * suspectWidth;
 
     const viewportWidth = width - labelWidth - 28;
 
-    this.minScrollX = Math.min(0, viewportWidth - contentWidth);
+    this.minScrollX = Math.min(
+      0,
+      viewportWidth - contentWidth
+    );
+
     this.gridScrollX = Phaser.Math.Clamp(
       this.gridScrollX,
       this.minScrollX,
@@ -774,15 +860,23 @@ export class SuspectGridScene extends BaseScene {
       .setStrokeStyle(1, 0x8b704b, 1);
 
     const labelHeaderText = this.add
-      .text(14 + labelWidth / 2, gridTop + headerHeight / 2, 'EVIDENCE', {
-        fontFamily: 'PressStart2P',
-        fontSize: '8px',
-        color: '#ffdc73',
-        align: 'center'
-      })
+      .text(
+        14 + labelWidth / 2,
+        gridTop + headerHeight / 2,
+        'EVIDENCE',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '8px',
+          color: '#ffdc73',
+          align: 'center'
+        }
+      )
       .setOrigin(0.5);
 
-    this.fixedGridContainer.add([labelHeader, labelHeaderText]);
+    this.fixedGridContainer.add([
+      labelHeader,
+      labelHeaderText
+    ]);
 
     this.renderFixedRows({
       gridTop,
@@ -794,7 +888,6 @@ export class SuspectGridScene extends BaseScene {
 
     this.renderScrollableGrid({
       gridTop,
-      viewportHeight,
       labelWidth,
       headerHeight,
       rowHeight,
@@ -823,11 +916,16 @@ export class SuspectGridScene extends BaseScene {
 
     if (this.minScrollX < 0) {
       const help = this.add
-        .text(width - 20, gridTop + 5, '← DRAG TABLE →', {
-          fontFamily: 'PressStart2P',
-          fontSize: '6px',
-          color: '#aa9263'
-        })
+        .text(
+          width - 20,
+          gridTop + 5,
+          '← DRAG TABLE →',
+          {
+            fontFamily: 'PressStart2P',
+            fontSize: '6px',
+            color: '#aa9263'
+          }
+        )
         .setOrigin(1, 0)
         .setDepth(30);
 
@@ -843,7 +941,10 @@ export class SuspectGridScene extends BaseScene {
     labelWidth
   }) {
     this.rows.forEach((row, index) => {
-      const y = gridTop + headerHeight + index * rowHeight;
+      const y =
+        gridTop +
+        headerHeight +
+        index * rowHeight;
 
       const background = this.add
         .rectangle(
@@ -868,11 +969,16 @@ export class SuspectGridScene extends BaseScene {
         })
         .setOrigin(0, 0.5);
 
-      this.fixedGridContainer.add([background, text]);
+      this.fixedGridContainer.add([
+        background,
+        text
+      ]);
     });
 
     const decisionY =
-      gridTop + headerHeight + this.rows.length * rowHeight;
+      gridTop +
+      headerHeight +
+      this.rows.length * rowHeight;
 
     const decisionBackground = this.add
       .rectangle(
@@ -889,7 +995,7 @@ export class SuspectGridScene extends BaseScene {
       .text(
         24,
         decisionY + decisionHeight / 2,
-        'YOUR\nDECISION',
+        'WORKING\nTHEORY',
         {
           fontFamily: 'PressStart2P',
           fontSize: '7px',
@@ -915,7 +1021,10 @@ export class SuspectGridScene extends BaseScene {
     suspectWidth,
     dataColumns
   }) {
-    const startX = labelWidth + 14 + this.gridScrollX;
+    const startX =
+      labelWidth +
+      14 +
+      this.gridScrollX;
 
     dataColumns.forEach((column, columnIndex) => {
       const columnWidth =
@@ -934,10 +1043,15 @@ export class SuspectGridScene extends BaseScene {
           0
         );
 
-      const x = startX + previousWidths + columnWidth / 2;
+      const x =
+        startX +
+        previousWidths +
+        columnWidth / 2;
 
       const headerColor =
-        column.type === 'crime_scene' ? 0x503719 : 0x32251b;
+        column.type === 'crime_scene'
+          ? 0x503719
+          : 0x32251b;
 
       const header = this.add
         .rectangle(
@@ -951,19 +1065,30 @@ export class SuspectGridScene extends BaseScene {
         .setStrokeStyle(1, 0x8b704b, 1);
 
       const headerText = this.add
-        .text(x, gridTop + headerHeight / 2, column.name, {
-          fontFamily: 'SpecialElite',
-          fontSize: column.type === 'crime_scene' ? '15px' : '16px',
-          color: '#fff0cb',
-          align: 'center',
-          wordWrap: {
-            width: columnWidth - 12,
-            useAdvancedWrap: true
+        .text(
+          x,
+          gridTop + headerHeight / 2,
+          column.name,
+          {
+            fontFamily: 'SpecialElite',
+            fontSize:
+              column.type === 'crime_scene'
+                ? '15px'
+                : '16px',
+            color: '#fff0cb',
+            align: 'center',
+            wordWrap: {
+              width: columnWidth - 12,
+              useAdvancedWrap: true
+            }
           }
-        })
+        )
         .setOrigin(0.5);
 
-      this.gridScrollContainer.add([header, headerText]);
+      this.gridScrollContainer.add([
+        header,
+        headerText
+      ]);
 
       this.rows.forEach((row, rowIndex) => {
         const y =
@@ -983,13 +1108,13 @@ export class SuspectGridScene extends BaseScene {
         });
       });
 
-      if (column.type === 'suspect') {
-        const decisionY =
-          gridTop +
-          headerHeight +
-          this.rows.length * rowHeight +
-          decisionHeight / 2;
+      const decisionY =
+        gridTop +
+        headerHeight +
+        this.rows.length * rowHeight +
+        decisionHeight / 2;
 
+      if (column.type === 'suspect') {
         this.createDecisionCell({
           x,
           y: decisionY,
@@ -998,12 +1123,6 @@ export class SuspectGridScene extends BaseScene {
           suspectId: column.id
         });
       } else {
-        const decisionY =
-          gridTop +
-          headerHeight +
-          this.rows.length * rowHeight +
-          decisionHeight / 2;
-
         const empty = this.add
           .rectangle(
             x,
@@ -1034,13 +1153,18 @@ export class SuspectGridScene extends BaseScene {
         column.type === 'crime_scene'
           ? 'crime_scene'
           : 'suspect',
+
       suspectId:
-        column.type === 'suspect' ? column.id : null,
+        column.type === 'suspect'
+          ? column.id
+          : null,
+
       field: row.id
     };
 
     const key = this.getCellKey(target);
     const placedClueId = this.placedCluesByCell[key];
+
     const placedClue = this.clueCards.find(
       (clue) => clue.id === placedClueId
     );
@@ -1057,7 +1181,9 @@ export class SuspectGridScene extends BaseScene {
       .setStrokeStyle(1, 0x604b34, 1)
       .setInteractive({ useHandCursor: true });
 
-    const hasSelectedCard = Boolean(this.selectedClueId);
+    const hasSelectedCard = Boolean(
+      this.selectedClueId
+    );
 
     if (hasSelectedCard && !placedClue) {
       background.setStrokeStyle(2, 0xb28d44, 0.85);
@@ -1067,12 +1193,24 @@ export class SuspectGridScene extends BaseScene {
       .text(
         x,
         y,
-        placedClue ? normalize(placedClue.value).toUpperCase() : '?',
+        placedClue
+          ? normalize(placedClue.value).toUpperCase()
+          : '?',
         {
-          fontFamily: placedClue ? 'SpecialElite' : 'PressStart2P',
-          fontSize: placedClue ? '15px' : '10px',
-          color: placedClue ? '#f6dfa3' : '#756351',
+          fontFamily: placedClue
+            ? 'SpecialElite'
+            : 'PressStart2P',
+
+          fontSize: placedClue
+            ? '15px'
+            : '10px',
+
+          color: placedClue
+            ? '#f6dfa3'
+            : '#756351',
+
           align: 'center',
+
           wordWrap: {
             width: width - 12,
             useAdvancedWrap: true
@@ -1082,7 +1220,9 @@ export class SuspectGridScene extends BaseScene {
       .setOrigin(0.5);
 
     background.on('pointerover', () => {
-      if (placedClue) return;
+      if (placedClue) {
+        return;
+      }
 
       background.setFillStyle(0x3b2b1c, 1);
       background.setStrokeStyle(2, 0xd4af37, 1);
@@ -1093,10 +1233,15 @@ export class SuspectGridScene extends BaseScene {
         alternate ? 0x1d1514 : 0x241a17,
         1
       );
+
       background.setStrokeStyle(
         hasSelectedCard && !placedClue ? 2 : 1,
-        hasSelectedCard && !placedClue ? 0xb28d44 : 0x604b34,
-        hasSelectedCard && !placedClue ? 0.85 : 1
+        hasSelectedCard && !placedClue
+          ? 0xb28d44
+          : 0x604b34,
+        hasSelectedCard && !placedClue
+          ? 0.85
+          : 1
       );
     });
 
@@ -1104,7 +1249,10 @@ export class SuspectGridScene extends BaseScene {
       this.placeSelectedClue(target);
     });
 
-    this.gridScrollContainer.add([background, cellText]);
+    this.gridScrollContainer.add([
+      background,
+      cellText
+    ]);
   }
 
   createDecisionCell({
@@ -1114,12 +1262,24 @@ export class SuspectGridScene extends BaseScene {
     height,
     suspectId
   }) {
-    const ruledOut = this.ruledOutBySuspectId[suspectId] === true;
+    const markedUnlikely =
+      this.markedUnlikelyBySuspectId[suspectId] === true;
 
-    const fill = ruledOut ? 0x632923 : 0x24422a;
-    const border = ruledOut ? 0xdf6559 : 0x65a566;
-    const label = ruledOut ? 'RULED OUT' : 'POSSIBLE';
-    const color = ruledOut ? '#ffd1c8' : '#d5ffd2';
+    const fill = markedUnlikely
+      ? 0x632923
+      : 0x24422a;
+
+    const border = markedUnlikely
+      ? 0xdf6559
+      : 0x65a566;
+
+    const label = markedUnlikely
+      ? 'UNLIKELY'
+      : 'POSSIBLE';
+
+    const color = markedUnlikely
+      ? '#ffd1c8'
+      : '#d5ffd2';
 
     const background = this.add
       .rectangle(x, y, width, height, fill, 1)
@@ -1141,7 +1301,9 @@ export class SuspectGridScene extends BaseScene {
 
     background.on('pointerover', () => {
       background.setFillStyle(
-        ruledOut ? 0x823b31 : 0x35613a,
+        markedUnlikely
+          ? 0x823b31
+          : 0x35613a,
         1
       );
     });
@@ -1154,7 +1316,10 @@ export class SuspectGridScene extends BaseScene {
       this.toggleSuspectMark(suspectId);
     });
 
-    this.gridScrollContainer.add([background, text]);
+    this.gridScrollContainer.add([
+      background,
+      text
+    ]);
   }
 
   getCellKey(target) {
@@ -1172,7 +1337,10 @@ export class SuspectGridScene extends BaseScene {
     );
 
     if (!clue) {
-      this.feedbackText.setText('Choose a clue card first.');
+      this.feedbackText?.setText(
+        'Choose a clue card first.'
+      );
+
       return;
     }
 
@@ -1187,19 +1355,24 @@ export class SuspectGridScene extends BaseScene {
       target.suspectId === clue.suspectId &&
       target.field === clue.field;
 
-    if (!isCorrectCrimeSceneCell && !isCorrectSuspectCell) {
-      this.feedbackText.setText(
+    if (
+      !isCorrectCrimeSceneCell &&
+      !isCorrectSuspectCell
+    ) {
+      this.feedbackText?.setText(
         'That clue does not belong in this cell.'
       );
+
       return;
     }
 
     const key = this.getCellKey(target);
 
     if (this.placedCluesByCell[key]) {
-      this.feedbackText.setText(
+      this.feedbackText?.setText(
         'This cell already contains a clue. Remove it first if you want to change it.'
       );
+
       return;
     }
 
@@ -1208,7 +1381,7 @@ export class SuspectGridScene extends BaseScene {
 
     this.saveGridProgress();
 
-    this.feedbackText.setText(
+    this.feedbackText?.setText(
       `${clue.label}: ${normalize(clue.value)} added to the grid.`
     );
 
@@ -1216,15 +1389,16 @@ export class SuspectGridScene extends BaseScene {
   }
 
   toggleSuspectMark(suspectId) {
-    this.ruledOutBySuspectId[suspectId] =
-      !this.ruledOutBySuspectId[suspectId];
+    this.markedUnlikelyBySuspectId[suspectId] =
+      !this.markedUnlikelyBySuspectId[suspectId];
 
     this.saveGridProgress();
     this.refreshAll();
   }
 
   saveGridProgress() {
-    const caseForensics = this.labManager.ensureCaseForensics();
+    const caseForensics =
+      this.labManager.ensureCaseForensics();
 
     caseForensics.suspectGrid ??= {};
 
@@ -1232,54 +1406,79 @@ export class SuspectGridScene extends BaseScene {
       ...this.placedCluesByCell
     };
 
-    caseForensics.suspectGrid.ruledOutBySuspectId = {
-      ...this.ruledOutBySuspectId
+    /**
+     * To są wyłącznie robocze oznaczenia gracza na planszy.
+     * Nie zapisuj tego jako eliminatedSuspectIds.
+     */
+    caseForensics.suspectGrid.markedUnlikelyBySuspectId = {
+      ...this.markedUnlikelyBySuspectId
     };
 
-    caseForensics.suspectGrid.eliminatedSuspectIds = this.suspects
-      .filter((suspect) => this.ruledOutBySuspectId[suspect.id])
-      .map((suspect) => suspect.id);
+    /**
+     * Usuwamy pole o niebezpiecznej semantyce.
+     * Starszy kod, który widzi `eliminatedSuspectIds`, może automatycznie
+     * ustawić deductionState.eliminated i oznaczyć wszystkich jako CLEARED.
+     */
+    delete caseForensics.suspectGrid.eliminatedSuspectIds;
 
     saveGameState();
   }
 
   finalizeGrid() {
     const remainingSuspects = this.suspects.filter(
-      (suspect) => !this.ruledOutBySuspectId[suspect.id]
+      (suspect) =>
+        !this.markedUnlikelyBySuspectId[suspect.id]
     );
 
     if (remainingSuspects.length < 2) {
-      this.feedbackText.setText(
+      this.feedbackText?.setText(
         'Leave at least two suspects for the alibi investigation.'
       );
+
       return;
     }
 
-    const caseForensics = this.labManager.ensureCaseForensics();
+    const caseForensics =
+      this.labManager.ensureCaseForensics();
 
     caseForensics.suspectGrid ??= {};
+
     caseForensics.suspectGrid.completed = true;
     caseForensics.suspectGrid.completedAt = Date.now();
-    caseForensics.suspectGrid.remainingSuspectIds =
+
+    /**
+     * To jest pula alibi dla następnego etapu.
+     * Nie jest to lista globalnie wykluczonych podejrzanych.
+     */
+    caseForensics.suspectGrid.alibiCandidateSuspectIds =
       remainingSuspects.map((suspect) => suspect.id);
+
+    delete caseForensics.suspectGrid.remainingSuspectIds;
+    delete caseForensics.suspectGrid.eliminatedSuspectIds;
 
     this.gameState.alibiInvestigation = {
       cityId: this.cityId,
-      suspectIds: remainingSuspects.map((suspect) => suspect.id),
+      suspectIds: remainingSuspects.map(
+        (suspect) => suspect.id
+      ),
       unlocked: true
     };
 
     saveGameState();
 
-    this.feedbackText.setText(
+    this.feedbackText?.setText(
       `${remainingSuspects.length} suspects remain. Their alibis are now available in Crime City.`
     );
 
-    this.time.delayedCall(900, () => this.closeScene());
+    this.time.delayedCall(900, () => {
+      this.closeScene();
+    });
   }
 
   startGridDrag(pointer) {
-    if (this.minScrollX === 0) return;
+    if (this.minScrollX === 0) {
+      return;
+    }
 
     this.isDraggingGrid = true;
     this.dragStartX = pointer.x;
@@ -1287,7 +1486,9 @@ export class SuspectGridScene extends BaseScene {
   }
 
   handleGridDrag(pointer) {
-    if (!this.isDraggingGrid) return;
+    if (!this.isDraggingGrid) {
+      return;
+    }
 
     const deltaX = pointer.x - this.dragStartX;
 
@@ -1325,19 +1526,25 @@ export class SuspectGridScene extends BaseScene {
   }
 
   clearContainer(container) {
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     const children = [...container.list];
 
     children.forEach((child) => {
-      child.removeAllListeners?.();
-      child.destroy?.();
+      child?.removeAllListeners?.();
+      child?.destroy?.();
     });
 
     container.removeAll(true);
   }
 
   rebuildScene() {
+    if (!this.sys.isActive()) {
+      return;
+    }
+
     this.createBackground();
     this.refreshAll();
 
@@ -1353,17 +1560,39 @@ export class SuspectGridScene extends BaseScene {
 
   cleanupScene() {
     if (this.resizeHandler) {
-      this.scale.off('resize', this.resizeHandler);
+      this.scale.off('resize', this.resizeHandler, this);
     }
 
-    this.input.off('pointermove', this.handleGridDrag, this);
-    this.input.off('pointerup', this.stopGridDrag, this);
+    this.input.off(
+      'pointermove',
+      this.handleGridDrag,
+      this
+    );
+
+    this.input.off(
+      'pointerup',
+      this.stopGridDrag,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.cleanupScene,
+      this
+    );
 
     this.resizeHandler = null;
+    this.isDraggingGrid = false;
 
     this.clueContainer?.destroy();
     this.gridViewport?.destroy();
     this.fixedGridContainer?.destroy();
+    this.gridScrollContainer?.destroy();
+
+    this.clueContainer = null;
+    this.gridViewport = null;
+    this.fixedGridContainer = null;
+    this.gridScrollContainer = null;
 
     [
       this.headerText,
@@ -1375,5 +1604,11 @@ export class SuspectGridScene extends BaseScene {
       item?.removeAllListeners?.();
       item?.destroy?.();
     });
+
+    this.headerText = null;
+    this.subHeaderText = null;
+    this.feedbackText = null;
+    this.backButton = null;
+    this.finishButton = null;
   }
 }

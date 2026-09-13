@@ -10,6 +10,7 @@ import caseModifiers from './assets/data/caseModifiers.json' with { type: 'json'
 import onboardingSchedule from './assets/data/onboardingSchedule.json' with { type: 'json' };
 import { CrimeLabManager } from './scenes/CSI/CrimeLabManager.js';
 import { mapIdentityEvidenceToHardEvidenceField } from './IdentityEvidenceAdapter.js';
+import { createUnifiedTravelManager } from './UnifiedTravelManager.js';
 import {
   HQ_CITY,
   HQ_ID,
@@ -109,17 +110,9 @@ function syncScoreFromManager() {
   }
 }
 
-
-
-
 async function fetchCaseSuspects(thief, crimeCityId) {
   let lastError = null;
 
-
-  // CrimeLabManager MUSI zostać wywołany PRZED SuspectGenerator, bo to on
-  // jest teraz jedynym źródłem prawdy o tym, jaki dowód zawęża podejrzanych.
-  // Wymaga, żeby gameState.currentThief i gameState.currentMission były już
-  // ustawione (setupNewGame robi to przed wywołaniem fetchCaseSuspects).
   const crimeLabManager = new CrimeLabManager(gameState, crimeCityId);
   const identityEvidence = crimeLabManager.ensureIdentityEvidence();
   const traceEvidence = crimeLabManager.ensureRandomTraceEvidence();
@@ -146,13 +139,6 @@ async function fetchCaseSuspects(thief, crimeCityId) {
       const citySuspectsData = await response.json();
       const suspectGenerator = new SuspectGenerator(citySuspectsData);
 
-
-      // TYLKO 1 pole - dokładnie to, co CrimeLabManager przypisał jako
-      // identityEvidence. To ono zawęża 10 podejrzanych do dokładnie 2
-      // (złodziej + forensyczny bliźniak), zgodnie z pierwotnym briefem
-      // ("główne ślady"). traceEvidence NIE wchodzi tutaj - to są "dodatkowe
-      // ślady", które mogą wykluczyć kilka osób później (rozmowy w mieście),
-      // ale nie są częścią tego twardego filtra.
       const hardEvidence = [
         {
           id: `identity_${mainHardEvidence.field}`,
@@ -208,8 +194,6 @@ async function fetchCaseSuspects(thief, crimeCityId) {
   );
 }
 
-
-
 export async function setupNewGame(
   suspectsData,
   missionsData,
@@ -221,24 +205,11 @@ export async function setupNewGame(
   resetGameState();
   resetCaseOutcomeState();
 
-
-
-  // ============================================================
-  // POPRAWKA: Nowa gra musi ZAINICJOWAĆ EnergyManager od zera,
-  // a nie "restore'ować" go z gameState.energy — bo gameState.energy
-  // to pole, do którego EnergyManager sam ZAPISUJE swój stan
-  // (_syncToGameState), więc po resecie gry mogło tam wciąż leżeć
-  // stare, "brudne" energy z poprzedniej rozgrywki (resetGameState()
-  // nie zeruje tego pola, bo nie jest częścią domyślnego szablonu
-  // narracyjnego w GameData.js). init(difficulty) ustawia energię
-  // na 100%, czyści energyLog, isSleepingForced, forcedSleepTimer
-  // i poprawnie zapisuje wybrany przez gracza poziom trudności
-  // (wcześniej difficulty było aplikowane do EnergyManager ZA PÓŹNO,
-  // bo dopiero w Object.assign(gameState, {...}) niżej).
-  // ============================================================
   const energyManager = getEnergyManager();
   energyManager.init(difficulty);
 
+const travelManager = createUnifiedTravelManager();
+travelManager.init();
 
   // Nowa gra = zerowa progresja rang (0 spraw rozwiązanych, Junior Agent).
   const rankManager = getRankManager();
@@ -386,20 +357,6 @@ export async function setupNewGame(
   return gameState;
 }
 
-
-
-
-// ============================================================
-// Kolejne sprawy w tym samym save'ie (numer sprawy 2, 3...).
-// Nie resetuje gry - działa na istniejącym gameState po zakończeniu
-// poprzedniej sprawy przez CrimeBoard. CrimeBoard MUSI wcześniej wywołać
-// getRankManager().recordCaseOutcome('correct_arrest' | 'wrong_arrest' | ...),
-// żeby ranga (a przez nią wariant CaseDirector) była aktualna, zanim
-// wywołasz advanceToNextCase().
-//
-// UWAGA: celowo NIE resetujemy tu gameState.passport - gracz zachowuje
-// swój paszport i pieczątki między kolejnymi sprawami tej samej rozgrywki.
-// ============================================================
 export async function advanceToNextCase(suspectsData, missionsData, locationsData) {
   resetCaseOutcomeState();
 

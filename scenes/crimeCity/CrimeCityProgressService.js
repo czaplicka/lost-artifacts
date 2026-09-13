@@ -1,10 +1,11 @@
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../EnergyManager.js';
 import { saveGameState } from '../../GameStatePersistence.js';
+import { getUnifiedTravelManager } from '../../UnifiedTravelManager.js';
 
 const ENERGY_BASE_COSTS = {
   travel: {
-    taxi: 8
+    taxi: 3
   },
   activity: {
     crime_scene: 8,
@@ -188,46 +189,50 @@ export class CrimeCityProgressService {
   }
 
   trySpendEnergy(category, key) {
-    const energyManager = getEnergyManager();
+  const energyManager = getEnergyManager();
 
-    const baseCost =
-      ENERGY_BASE_COSTS[category]?.[key];
-
-    if (!Number.isFinite(baseCost)) {
-      console.error(
-        '[CrimeCityProgressService] Unknown energy cost.',
-        {
-          category,
-          key
-        }
-      );
-
+  if (category === 'travel') {
+    const travelManager = getUnifiedTravelManager();
+    const rule = travelManager.getTransportRule(key);
+    
+    if (!rule) {
+      console.error('[CrimeCityProgressService] Unknown transport type for travel energy.', { key });
       return false;
     }
 
-    const cost =
-      energyManager.scaleCost(baseCost);
+    const baseEnergyCost = Math.max(2, Math.round(1 * rule.energyPerHour)); // 1h sample
+    const cost = energyManager.scaleCost(baseEnergyCost);
 
-    if (
-      energyManager.getCurrentEnergy() < cost
-    ) {
+    if (energyManager.getCurrentEnergy() < cost) {
       this.scene.showNoEnergyPopup();
-
       return false;
     }
 
-    if (category === 'travel') {
-      energyManager.consumeTravel(key);
-    }
-
-    if (category === 'activity') {
-      energyManager.consumeActivity(key);
-    }
-
+    energyManager.consumeCustom(cost, `Travel (${key}): -${cost}`);
     saveGameState();
-
     return true;
   }
+
+  if (category === 'activity') {
+    const baseCost = ENERGY_BASE_COSTS[category]?.[key];
+    if (!Number.isFinite(baseCost)) {
+      console.error('[CrimeCityProgressService] Unknown energy cost.', { category, key });
+      return false;
+    }
+
+    const cost = energyManager.scaleCost(baseCost);
+    if (energyManager.getCurrentEnergy() < cost) {
+      this.scene.showNoEnergyPopup();
+      return false;
+    }
+
+    energyManager.consumeActivity(key);
+    saveGameState();
+    return true;
+  }
+
+  return false;
+}
 
   destroy() {
     this.scene = null;

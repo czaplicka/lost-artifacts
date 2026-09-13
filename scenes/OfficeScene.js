@@ -27,8 +27,13 @@ export class OfficeScene extends BaseScene {
     this.saveUI = null;
     this.officeAmbient = null;
 
+    /*
+     * Jedyny lock OfficeScene.
+     *
+     * Ma blokować hotspoty i nawigację tylko wtedy, kiedy normalne
+     * menu / panel jest aktywne. Tutorial nie używa tego locka.
+     */
     this.uiLocked = false;
-    this.tutorialInputLocked = false;
 
     this.isOpeningCrimeLab = false;
     this.isOpeningRecoveredArtifacts = false;
@@ -61,7 +66,6 @@ export class OfficeScene extends BaseScene {
 
     this.currentView = 'office';
     this.uiLocked = false;
-    this.tutorialInputLocked = false;
 
     this.isOpeningCrimeLab = false;
     this.isOpeningRecoveredArtifacts = false;
@@ -150,8 +154,12 @@ export class OfficeScene extends BaseScene {
       createOfficeHotspotDefinitions(this),
     );
 
-    this.input.topOnly = true;
-
+    /*
+     * Nie ustawiaj this.input.topOnly = true.
+     *
+     * Przy wielu warstwach Phaser UI ogranicza to input globalnie
+     * i powoduje, że menu albo strzałki nie otrzymują kliknięć.
+     */
     this.createFirstCaseTutorial();
 
     this.monologue?.startIdle('idle.office');
@@ -186,11 +194,6 @@ export class OfficeScene extends BaseScene {
       this.onFirstMissionCompletedBound,
     );
 
-    /*
-     * Ten event musi zostać wyemitowany przez FirstCaseTutorial.finish().
-     * Jest wywoływany zarówno po Skip Tutorial, jak i przy normalnym
-     * ukończeniu tutorialu.
-     */
     EventBus.off(
       'firstCaseTutorialFinished',
       this.onFirstCaseTutorialFinishedBound,
@@ -226,40 +229,19 @@ export class OfficeScene extends BaseScene {
     );
 
     /*
-     * Najważniejsza różnica:
-     * Nie twórz warstw UI nad tutorialem. To one prawdopodobnie
-     * przejmowały kliknięcie w "SKIP TUTORIAL".
+     * HUD ma działać również w tutorialu.
+     *
+     * Tutorial w aktualnej wersji jest wyżej na ekranie, a jego
+     * jedyny interaktywny obiekt to niewielki Skip button.
      */
-    if (this.firstCaseTutorial?.isActive()) {
-      this.setTutorialInputLock(true);
-
-      console.log(
-        '[OfficeScene] Tutorial is active. Office HUD layers are delayed.',
-      );
-    } else {
-      void this.setupOfficeUiLayers();
-    }
+    void this.setupOfficeUiLayers();
   }
 
   /**
-   * Blokuje zwykłe elementy interaktywne biura, ale nie blokuje
-   * samego tutorialu, bo tutorial nie korzysta z OfficeHotspotManager
-   * jako własnego przycisku Skip.
-   */
-  setTutorialInputLock(locked) {
-    this.tutorialInputLocked = locked;
-
-    this.hotspotManager?.setLocked(locked);
-    this.navigation?.setLocked(locked);
-    this.saveUI?.setLocked(locked);
-
-    if (locked) {
-      this.navigation?.hideHint();
-    }
-  }
-
-  /**
-   * Wywoływane po Skip Tutorial oraz po normalnym dojściu do lotu.
+   * Wywoływane po Skip Tutorial oraz po normalnym ukończeniu tutorialu.
+   *
+   * Nie ma tu już odblokowywania tutorialInputLocked, bo ten stan
+   * został całkowicie usunięty.
    */
   onFirstCaseTutorialFinished(payload = {}) {
     console.log(
@@ -271,7 +253,6 @@ export class OfficeScene extends BaseScene {
       return;
     }
 
-    this.setTutorialInputLock(false);
     this.applyLock(false);
     this.navigation?.updateVisibility();
 
@@ -301,14 +282,6 @@ export class OfficeScene extends BaseScene {
    * 3. NewsHud — zakładka news z gazetą i telewizją.
    */
   async setupOfficeUiLayers() {
-    if (this.firstCaseTutorial?.isActive()) {
-      console.log(
-        '[OfficeScene] Skipping HUD restoration because tutorial is active.',
-      );
-
-      return false;
-    }
-
     try {
       const uiScene = await this.ensureOverlayScene(
         'UIScene',
@@ -326,6 +299,7 @@ export class OfficeScene extends BaseScene {
       const playerHud = await this.restorePlayerHud();
 
       if (playerHud) {
+        playerHud.setCurrentGameplayScene('OfficeScene');
         playerHud.closeAllUIPanels?.();
         playerHud.refreshNotebook?.();
         playerHud.refreshUI?.();
@@ -352,10 +326,6 @@ export class OfficeScene extends BaseScene {
    * Uruchamia lub przywraca zakładkę News.
    */
   async setupNewsHud() {
-    if (this.firstCaseTutorial?.isActive()) {
-      return false;
-    }
-
     try {
       const newsHud = await this.ensureOverlayScene(
         'NewsHud',
@@ -392,21 +362,11 @@ export class OfficeScene extends BaseScene {
     }
   }
 
-  /**
-   * Zwraca wyłącznie dolny Phaserowy HUD.
-   *
-   * UIScene nie jest fallbackiem, ponieważ ma wyłącznie HUD HTML,
-   * a nie caseFileUI / crimeBoardUI / destinationsUI / atlasUI.
-   */
   getPlayerHud() {
     return this.getPlayerHudScene();
   }
 
   update() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const playerHud = this.getPlayerHud();
 
     const hudPanelOpen = Boolean(
@@ -414,18 +374,20 @@ export class OfficeScene extends BaseScene {
       typeof playerHud.isAnyPanelOpen === 'function' &&
       playerHud.isAnyPanelOpen(),
     );
-
+this.firstCaseTutorial?.setSkipButtonEnabled(
+  !hudPanelOpen,
+);
     const savePanelOpen = Boolean(this.saveUI?.isOpen);
 
     const shouldLockOffice =
       hudPanelOpen ||
       savePanelOpen;
 
-    if (shouldLockOffice && !this.uiLocked) {
-      this.applyLock(true);
-    } else if (!shouldLockOffice && this.uiLocked) {
-      this.applyLock(false);
+    if (shouldLockOffice === this.uiLocked) {
+      return;
     }
+
+    this.applyLock(shouldLockOffice);
   }
 
   createSaveControls() {
@@ -437,10 +399,6 @@ export class OfficeScene extends BaseScene {
       });
 
       this.saveUI.createButton();
-
-      if (this.tutorialInputLocked) {
-        this.saveUI.setLocked(true);
-      }
     } catch (error) {
       console.error(
         '[OfficeScene] Failed to initialize OfficeSaveUI. ' +
@@ -609,10 +567,6 @@ export class OfficeScene extends BaseScene {
       }
 
       this.firstCaseTutorial?.start();
-
-      if (this.firstCaseTutorial?.isActive()) {
-        this.setTutorialInputLock(true);
-      }
     });
   }
 
@@ -733,16 +687,12 @@ export class OfficeScene extends BaseScene {
     this.uiLocked = locked;
 
     /*
-     * Tutorial ma własny lock. Zwykłe odblokowanie UI nie może
-     * przypadkiem odblokować hotspotów w czasie aktywnego tutorialu.
+     * Wyłącznie bieżący panel UI decyduje o blokadzie biura.
+     * Tutorial nie jest już częścią tego warunku.
      */
-    const shouldLockOffice =
-      locked ||
-      this.tutorialInputLocked;
-
-    this.hotspotManager?.setLocked(shouldLockOffice);
-    this.navigation?.setLocked(shouldLockOffice);
-    this.saveUI?.setLocked(shouldLockOffice);
+    this.hotspotManager?.setLocked(locked);
+    this.navigation?.setLocked(locked);
+    this.saveUI?.setLocked(locked);
   }
 
   setupAudioUnlock() {
@@ -777,7 +727,6 @@ export class OfficeScene extends BaseScene {
   async openCrimeLab() {
     if (
       this.uiLocked ||
-      this.tutorialInputLocked ||
       this.isOpeningCrimeLab
     ) {
       return;
@@ -807,7 +756,6 @@ export class OfficeScene extends BaseScene {
   async openRecoveredArtifacts() {
     if (
       this.uiLocked ||
-      this.tutorialInputLocked ||
       this.isOpeningRecoveredArtifacts
     ) {
       return;
@@ -835,7 +783,6 @@ export class OfficeScene extends BaseScene {
   async openWantedDatabase() {
     if (
       this.uiLocked ||
-      this.tutorialInputLocked ||
       this.isOpeningWantedDatabase
     ) {
       return;
@@ -861,10 +808,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openCasefile() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.caseFileUI) {
@@ -895,10 +838,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openNotes() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.notesUI) {
@@ -915,10 +854,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openDestinations() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.destinationsUI) {
@@ -937,10 +872,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openWarrant() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.warrantUI) {
@@ -957,10 +888,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openCrimeBoard() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.crimeBoardUI) {
@@ -977,10 +904,6 @@ export class OfficeScene extends BaseScene {
   }
 
   openAtlas() {
-    if (this.tutorialInputLocked) {
-      return;
-    }
-
     const hud = this.getPlayerHud();
 
     if (!hud?.atlasUI) {
@@ -1026,19 +949,6 @@ export class OfficeScene extends BaseScene {
       this.playOfficeAmbient();
     }
 
-    /*
-     * Nie uruchamiaj UI nad tutorialem.
-     */
-    if (this.firstCaseTutorial?.isActive()) {
-      this.setTutorialInputLock(true);
-
-      console.log(
-        '[OfficeScene] Wake/resume: tutorial active, HUD restoration skipped.',
-      );
-
-      return;
-    }
-
     this.isRestoringOfficeUi = true;
 
     void this.setupOfficeUiLayers()
@@ -1063,7 +973,6 @@ export class OfficeScene extends BaseScene {
 
   cleanupScene() {
     this.isRestoringOfficeUi = false;
-    this.tutorialInputLocked = false;
 
     EventBus.off(
       'firstCaseTutorialFinished',

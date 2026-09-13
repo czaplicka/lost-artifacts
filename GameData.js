@@ -147,7 +147,14 @@ export const defaultGameState = {
   pendingPhoneCallCityId: null,
 
   hiddenObjectHistory: [],
-  reconstructedHeist: createDefaultReconstructedHeist()
+  reconstructedHeist: createDefaultReconstructedHeist(),
+  travelHistory: [],
+  lastTravel: null,
+  lastTravelEncounter: null,
+  unifiedTravelManagerState: null,
+crimeCityProgress: {},
+crimeCityCurrentNodes: {},
+  unifiedTravelManagerState: null,
 };
 
 /**

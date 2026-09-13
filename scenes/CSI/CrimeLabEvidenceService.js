@@ -124,107 +124,107 @@ export class CrimeLabEvidenceService {
     };
   }
 
-  ensureAssistantResults(playerGameCount = 3) {
-    const safePlayerGameCount = Phaser.Math.Clamp(
-      Number(playerGameCount) || 0,
-      0,
-      STATION_IDS.length
-    );
+  ensureAssistantResults(assistantStationIds = []) {
+  const safeAssistantStationIds = Array.isArray(
+    assistantStationIds
+  )
+    ? assistantStationIds.filter((stationId) => {
+      return STATION_IDS.includes(stationId);
+    })
+    : [];
 
-    const assistantStationIds = STATION_IDS.slice(
-      safePlayerGameCount
-    );
+  if (safeAssistantStationIds.length === 0) {
+const completedCount = this.getCompletedStationCount();
 
-    if (assistantStationIds.length === 0) {
-      return {
-        added: [],
-        completedCount: this.getCompletedStationCount()
-      };
-    }
+EventBus.emit('crimeLabAssistantResultsReady', {
+  caseKey: this.getCaseKey(),
+  cityId: this.cityId,
+  stationIds: safeAssistantStationIds,
+  addedStationIds: added,
+  completedCount
+});
 
-    const caseForensics = this.getCaseForensics();
-    const added = [];
-
-    assistantStationIds.forEach((stationId) => {
-      if (this.isStationCompleted(stationId, caseForensics)) {
-        return;
-      }
-
-      const payload = this.getStationPayload(
-        stationId,
-        'lab_assistant'
-      );
-
-      if (!payload) {
-        return;
-      }
-
-      const forensicResult = {
-        ...payload,
-        completedAt: Date.now(),
-        completedBy: 'lab_assistant',
-        assistantProvided: true
-      };
-
-      this.storeStationResult(
-        stationId,
-        forensicResult,
-        caseForensics
-      );
-
-      this.upsertForensicResult(
-        forensicResult,
-        caseForensics
-      );
-
-      this.addForensicResultToCrimeBoard(
-        payload,
-        forensicResult
-      );
-
-      this.addCrimeLabClueToBoard(
-        payload,
-        forensicResult
-      );
-
-      this.unlockIdentityEvidenceForSuspects(payload);
-
-      added.push(stationId);
-
-      EventBus.emit('crimeLabResultSaved', {
-        caseKey: this.getCaseKey(),
-        stationId,
-        forensicResult,
-        wasAlreadyCompleted: false,
-        completedCount: this.getCompletedStationCount()
-      });
-    });
-
-    if (added.length > 0) {
-      saveGameState();
-
-      EventBus.emit('crimeLabAssistantResultsReady', {
-        caseKey: this.getCaseKey(),
-        cityId: this.cityId,
-        stationIds: added,
-        completedCount: this.getCompletedStationCount()
-      });
-
-      console.log(
-        '[CrimeLabEvidenceService] Assistant results prepared:',
-        {
-          caseKey: this.getCaseKey(),
-          playerGameCount: safePlayerGameCount,
-          stationIds: added
-        }
-      );
-    }
-
-    return {
-      added,
-      completedCount: this.getCompletedStationCount()
-    };
+return {
+  added,
+  completedCount
+};
   }
+
+  const caseForensics = this.getCaseForensics();
+  const added = [];
+
+  safeAssistantStationIds.forEach((stationId) => {
+    if (this.isStationCompleted(stationId, caseForensics)) {
+      return;
+    }
+
+    const payload = this.getStationPayload(
+      stationId,
+      'lab_assistant'
+    );
+
+    if (!payload) {
+      return;
+    }
+
+    const forensicResult = {
+      ...payload,
+      completedAt: Date.now(),
+      completedBy: 'lab_assistant',
+      assistantProvided: true
+    };
+
+    this.storeStationResult(
+      stationId,
+      forensicResult,
+      caseForensics
+    );
+
+    this.upsertForensicResult(
+      forensicResult,
+      caseForensics
+    );
+
+    this.addForensicResultToCrimeBoard(
+      payload,
+      forensicResult
+    );
+
+    this.addCrimeLabClueToBoard(
+      payload,
+      forensicResult
+    );
+
+    this.unlockIdentityEvidenceForSuspects(payload);
+
+    added.push(stationId);
+
+    EventBus.emit('crimeLabResultSaved', {
+      caseKey: this.getCaseKey(),
+      stationId,
+      forensicResult,
+      wasAlreadyCompleted: false,
+      completedCount: this.getCompletedStationCount()
+    });
+  });
+
+  if (added.length > 0) {
+    saveGameState();
+
+    console.log(
+      '[CrimeLabEvidenceService] Assistant results prepared:',
+      {
+        caseKey: this.getCaseKey(),
+        stationIds: added
+      }
+    );
+  }
+
+  return {
+    added,
+    completedCount: this.getCompletedStationCount()
+  };
+}
 
   isStationCompleted(stationId, caseForensics = this.getCaseForensics()) {
     if (this.labManager?.isStationCompleted) {

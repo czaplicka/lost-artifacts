@@ -6,20 +6,8 @@ import { CrimeLabView } from './CrimeLabView.js';
 import { EventBus } from '../../EventBus.js';
 import { getLabOnboardingConfig } from './labOnboardingConfig.js';
 import { CrimeLabEvidenceService } from './CrimeLabEvidenceService.js';
-
-const STATION_TIME_COST_HOURS = {
-  identity: 2,
-  trace_0: 1,
-  trace_1: 1
-};
-
-const LAB_TIME_FLAVOR_LINES = [
-  'The centrifuge hummed for hours. You are now an expert in staring at spinning tubes.',
-  'Somewhere, a lab tech is annoyed you touched their equipment. Time well spent.',
-  'You filled out three forms in triplicate just to look at a hair under glass.',
-  'The coffee in the break room went cold twice while you waited for results.',
-  'Science is slow. Also, it is later than when you started.'
-];
+import { CrimeLabAssistantDialog } from './CrimeLabAssistantDialog.js';
+import { CrimeLabTimeController } from './CrimeLabTimeController.js';
 
 const STATION_IDS = ['identity', 'trace_0', 'trace_1'];
 
@@ -34,8 +22,10 @@ export class CrimeLabScene extends BaseScene {
 
     this.currentView = 'lab_intro';
     this.evidenceService = null;
+    this.timeController = null;
     this.labOnboarding = null;
     this.assistantHotspot = null;
+    this.assistantDialog = null;
     this.labView = null;
 
     this.hotspots = [];
@@ -86,11 +76,11 @@ export class CrimeLabScene extends BaseScene {
       this.labManager,
       this.cityId
     );
-
+this.timeController = new CrimeLabTimeController(this);
 this.labOnboarding = this.getLabOnboarding();
 
 this.evidenceService.ensureAssistantResults(
-  this.labOnboarding.playerGameCount
+  this.getAssistantStationIds()
 );
 
 this.currentView = 'lab_intro';
@@ -135,12 +125,13 @@ this.currentView = 'lab_intro';
 
     this.hud = new CrimeLabHUD(this);
     this.hud.create();
-
+this.assistantDialog = new CrimeLabAssistantDialog(this);
     this.createOptionalDebug();
 
     this.labView.showView('lab_intro');
     this.showIntroHint();
     this.hud?.refreshFromScene();
+    this.showEntryAssistantBriefing();
 
     this.input.keyboard.on('keydown-LEFT', this.boundMoveLeft);
     this.input.keyboard.on('keydown-RIGHT', this.boundMoveRight);
@@ -196,14 +187,88 @@ this.currentView = 'lab_intro';
   }
 
   getPlayerGameCount() {
-    const rawValue = Number(this.labOnboarding?.playerGameCount);
+  const rawValue = Number(this.labOnboarding?.playerGameCount);
 
-    if (!Number.isFinite(rawValue)) {
-      return this.totalStations;
-    }
-
-    return Phaser.Math.Clamp(rawValue, 0, this.totalStations);
+  if (!Number.isFinite(rawValue)) {
+    return this.totalStations;
   }
+
+  return Phaser.Math.Clamp(
+    Math.floor(rawValue),
+    0,
+    this.totalStations
+  );
+}
+
+getAssistantResultCount() {
+  const rawValue = Number(
+    this.labOnboarding?.assistantResultCount
+  );
+
+  if (!Number.isFinite(rawValue)) {
+    return 0;
+  }
+
+  return Phaser.Math.Clamp(
+    Math.floor(rawValue),
+    0,
+    this.totalStations
+  );
+}
+
+getRequiredStationIds() {
+  const playerGameCount = this.getPlayerGameCount();
+  const assistantResultCount = this.getAssistantResultCount();
+
+  const configuredTotal =
+    playerGameCount + assistantResultCount;
+
+  if (configuredTotal !== this.totalStations) {
+    console.warn(
+      '[CrimeLabScene] Invalid lab onboarding configuration. ' +
+      'playerGameCount + assistantResultCount must equal totalStations.',
+      {
+        playerGameCount,
+        assistantResultCount,
+        totalStations: this.totalStations,
+        mode: this.labOnboarding?.mode
+      }
+    );
+
+    const safePlayerGameCount = Phaser.Math.Clamp(
+      playerGameCount,
+      0,
+      this.totalStations
+    );
+
+    return STATION_IDS.slice(0, safePlayerGameCount);
+  }
+
+  return STATION_IDS.slice(0, playerGameCount);
+}
+
+getAssistantStationIds() {
+  const playerGameCount = this.getPlayerGameCount();
+  const assistantResultCount = this.getAssistantResultCount();
+
+  const configuredTotal =
+    playerGameCount + assistantResultCount;
+
+  if (configuredTotal !== this.totalStations) {
+    const safePlayerGameCount = Phaser.Math.Clamp(
+      playerGameCount,
+      0,
+      this.totalStations
+    );
+
+    return STATION_IDS.slice(safePlayerGameCount);
+  }
+
+  return STATION_IDS.slice(
+    playerGameCount,
+    playerGameCount + assistantResultCount
+  );
+}
 
   getAssistantResultCount() {
     const rawValue = Number(this.labOnboarding?.assistantResultCount);
@@ -269,6 +334,144 @@ this.currentView = 'lab_intro';
       this.getRequiredStationIds().length - this.completedCount
     );
   }
+getEvidenceConfigForStation(stationId) {
+  if (stationId === 'identity') {
+    return this.labManager.getIdentityEvidenceConfig();
+  }
+
+  const traceMatch = /^trace_(\d+)$/.exec(
+    String(stationId || '')
+  );
+
+  if (!traceMatch) {
+    return null;
+  }
+
+  return this.labManager.getTraceEvidenceConfig(
+    Number(traceMatch[1])
+  );
+}
+
+getAssistantResultSummaries() {
+  const requiredStationIds = this.getRequiredStationIds();
+
+  return STATION_IDS
+    .filter((stationId) => {
+      return !requiredStationIds.includes(stationId);
+    })
+    .map((stationId) => {
+      const evidence =
+        this.getEvidenceConfigForStation(stationId);
+
+      return {
+        stationId,
+        label: evidence?.label || 'Forensic Analysis',
+        text:
+          evidence?.clueText ||
+          'The result is ready for review.'
+      };
+    });
+}
+
+buildEntryAssistantBriefingText() {
+  const assistantResults =
+    this.getAssistantResultSummaries();
+
+  const remaining = this.getRemainingAnalysisCount();
+
+  const resultLines = assistantResults.length > 0
+    ? assistantResults
+      .map((result) => {
+        return `• ${result.label}: ${result.text}`;
+      })
+      .join('\n')
+    : '• No pre-processed results. Every sample is waiting for you.';
+
+  let taskLine = '';
+
+  if (remaining <= 0) {
+    taskLine =
+      'Everything is processed. I labelled it all alphabetically, which is how science proves it has won.';
+  } else if (remaining === 1) {
+    taskLine =
+      'I cleared the routine work. One analysis still needs your detective-grade meddling.';
+  } else {
+    taskLine =
+      `I prepared ${assistantResults.length} result${assistantResults.length === 1 ? '' : 's'}. You still have ${remaining} analyses to complete.`;
+  }
+
+  return (
+    'I processed the samples that could be trusted to a professional.\n\n' +
+    `READY RESULTS:\n${resultLines}\n\n` +
+    taskLine
+  );
+}
+
+showEntryAssistantBriefing() {
+  if (
+    !this.labOnboarding?.assistantPresent ||
+    this.assistantDialog?.isOpen()
+  ) {
+    return;
+  }
+
+  const assistantResults =
+    this.getAssistantResultSummaries();
+
+  const resultText = assistantResults.length > 0
+    ? assistantResults
+      .map((result) => {
+        return `${result.label}: ${result.text}`;
+      })
+      .join('\n\n')
+    : 'No samples were pre-processed. The machines are all yours.';
+
+  const remaining =
+    this.getRemainingAnalysisCount();
+
+  const opened = this.assistantDialog?.show({
+    steps: [
+      {
+        speaker: 'LAB ASSISTANT',
+        color: '#39ff14',
+        text:
+          'You are here for the case samples. Good. They were beginning to develop personalities.'
+      },
+      {
+        speaker: 'DETECTIVE',
+        color: '#7df9ff',
+        text:
+          'What have you got for me?'
+      },
+      {
+        speaker: 'LAB ASSISTANT',
+        color: '#39ff14',
+        text:
+          `Here are the results I completed:\n\n${resultText}`
+      },
+      {
+        speaker: 'LAB ASSISTANT',
+        color: '#39ff14',
+        text:
+          remaining <= 0
+            ? 'That completes the forensic profile. Try to look surprised when the suspect runs.'
+            : `There ${remaining === 1 ? 'is' : 'are'} ${remaining} ${remaining === 1 ? 'analysis' : 'analyses'} left for you. Please do not lick the evidence.`
+      }
+    ],
+    onClose: () => {
+      this.uiLocked = false;
+      this.applyLock(false);
+
+      if (this.isLabComplete()) {
+        this.goToCrimeCity();
+      }
+    }
+  });
+
+  if (opened) {
+    this.applyLock(true);
+  }
+}
 
   createAssistantHotspot() {
     if (!this.labOnboarding?.assistantPresent) {
@@ -313,36 +516,47 @@ this.currentView = 'lab_intro';
   }
 
   showAssistantHint() {
-    const remaining = this.getRemainingAnalysisCount();
-    const hintTitle =
-      this.labOnboarding?.hintTitle ??
-      'FORENSIC STATUS';
-
-    const hintText =
-      this.labOnboarding?.hintText ??
-      'Review the available evidence and complete the remaining analyses.';
-
-    const assistantLine = this.getAssistantLine();
-
-    const progressLine =
-      remaining <= 0
-        ? 'ALL REQUIRED FORENSIC RESULTS ARE READY.'
-        : remaining === 1
-          ? 'ONE ANALYSIS REMAINS.'
-          : `${remaining} ANALYSES REMAIN.`;
-
-    this.showNavHint(
-      `${hintTitle}\n\n${hintText}\n\n` +
-      `ASSISTANT: ${assistantLine}\n\n` +
-      progressLine
-    );
-
-    this.time.delayedCall(6200, () => {
-      if (!this.uiLocked) {
-        this.hideNavHint();
-      }
-    });
+  if (
+    this.uiLocked ||
+    this.assistantDialog?.isOpen()
+  ) {
+    return;
   }
+
+  const remaining =
+    this.getRemainingAnalysisCount();
+
+  const status =
+    remaining <= 0
+      ? 'All required analyses are complete. I filed the results under “obvious, eventually.”'
+      : remaining === 1
+        ? 'One analysis remains. The equipment is nervous, but cooperative.'
+        : `${remaining} analyses remain. The equipment is cooperative. The paperwork is not.`;
+
+  const opened = this.assistantDialog?.show({
+    steps: [
+      {
+        speaker: 'DETECTIVE',
+        color: '#7df9ff',
+        text:
+          'Anything else I should know?'
+      },
+      {
+        speaker: 'LAB ASSISTANT',
+        color: '#39ff14',
+        text: status
+      }
+    ],
+    onClose: () => {
+      this.uiLocked = false;
+      this.applyLock(false);
+    }
+  });
+
+  if (opened) {
+    this.applyLock(true);
+  }
+}
 
   createHotspots() {
     const gameWidth = this.scale.width;
@@ -966,54 +1180,15 @@ this.currentView = 'lab_intro';
       return;
     }
 
-    if (!result.wasAlreadyCompleted) {
-      this.advanceGameTimeForStation(result.stationId);
-    }
+if (!result.wasAlreadyCompleted) {
+  this.timeController?.advanceForStation(
+    result.stationId
+  );
+}
 
     this.completedCount = this.getCompletedRequiredStationCount();
     this.hud?.refreshFromScene();
     this.updateRoomHotspots();
-  }
-
-  advanceGameTimeForStation(stationId) {
-    const hours = STATION_TIME_COST_HOURS[stationId];
-
-    if (!Number.isFinite(hours) || hours <= 0) {
-      return;
-    }
-
-    EventBus.emit('advanceTime', hours, 0);
-
-    console.log(
-      '[CrimeLabScene] Game time advanced for station.',
-      {
-        caseKey: this.labManager?.getCaseKey?.(),
-        stationId,
-        hours
-      }
-    );
-
-    this.showLabTimeToast(hours);
-  }
-
-  showLabTimeToast(hours) {
-    if (!this.navHint) {
-      return;
-    }
-
-    const flavor = LAB_TIME_FLAVOR_LINES[
-      Math.floor(Math.random() * LAB_TIME_FLAVOR_LINES.length)
-    ];
-
-    this.navHint
-      .setText(`+${hours}h — ${flavor}`)
-      .setVisible(true);
-
-    this.time.delayedCall(3200, () => {
-      if (this.navHint) {
-        this.navHint.setVisible(false);
-      }
-    });
   }
 
   returnFromMiniGame() {
@@ -1338,7 +1513,10 @@ this.currentView = 'lab_intro';
     }
 
     this.debugTexts = [];
-
+this.assistantDialog?.destroy?.();
+this.assistantDialog = null;
+this.timeController?.destroy?.();
+this.timeController = null;
     this.hud?.destroy?.();
     this.hud = null;
 

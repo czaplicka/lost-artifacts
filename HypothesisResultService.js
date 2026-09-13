@@ -293,33 +293,34 @@ getConfirmedSkills(reconstruction = null) {
 
 
   applyScore(score, resultLabel) {
-    const safeScore = Math.max(
-      0,
-      Math.round(Number(score) || 0)
+  const safeScore = Math.round(
+    Number(score) || 0
+  );
+
+  if (
+    this.scoreManager &&
+    typeof this.scoreManager.addScoreEvent === 'function'
+  ) {
+    this.scoreManager.addScoreEvent(
+      safeScore,
+      `Heist theory: ${resultLabel}`
     );
-
-    if (
-      this.scoreManager &&
-      typeof this.scoreManager.addScoreEvent === 'function'
-    ) {
-      this.scoreManager.addScoreEvent(
-        safeScore,
-        `Heist theory: ${resultLabel}`
-      );
-
-      gameState.score =
-        this.scoreManager.getSessionPoints();
-
-      return gameState.score;
-    }
 
     gameState.score = Math.max(
       0,
-      (Number(gameState.score) || 0) + safeScore
+      this.scoreManager.getSessionPoints()
     );
 
     return gameState.score;
   }
+
+  gameState.score = Math.max(
+    0,
+    (Number(gameState.score) || 0) + safeScore
+  );
+
+  return gameState.score;
+}
 
 
   appendTheoryToNotes(

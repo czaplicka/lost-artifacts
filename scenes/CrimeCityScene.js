@@ -201,6 +201,7 @@ export class CrimeCityScene extends BaseScene {
       }
 
       if (playerHud) {
+        playerHud.setCurrentGameplayScene('CrimeCityScene');
         playerHud.closeAllUIPanels?.();
         playerHud.refreshNotebook?.();
         playerHud.refreshUI?.();

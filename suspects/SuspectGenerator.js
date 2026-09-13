@@ -25,6 +25,74 @@ import {
   prepareCaseSuspectState
 } from './SuspectCaseState.js';
 
+/**
+ * Stan dla świeżo wygenerowanej sprawy.
+ *
+ * To jest drugi bezpiecznik po createDeductionState() z suspectFactory.
+ * Generator ma obowiązek zwrócić podejrzanych aktywnych, nawet gdy źródłowy
+ * rekord JSON lub stary save przypadkiem zawiera deductionState.eliminated.
+ */
+function createFreshDeductionState() {
+  return {
+    eliminated: false,
+    eliminationReasons: [],
+    notesUnlocked: [],
+    labStatus: 'pending',
+    hypothesisStatus: 'pending',
+    interviewStatus: 'pending',
+    alibiStatus: 'pending'
+  };
+}
+
+/**
+ * Czyści postęp śledztwa u jednego podejrzanego.
+ *
+ * Nie zmienia:
+ * - tożsamości,
+ * - profesji,
+ * - ukrytej tożsamości złodzieja,
+ * - atrybutów kryminalistycznych,
+ * - cech wizualnych,
+ * - statusu isRealThief.
+ *
+ * Resetuje wyłącznie stan, który gracz zdobywa w trakcie case'a.
+ */
+function resetGeneratedSuspectProgress(suspect) {
+  if (!suspect || typeof suspect !== 'object') {
+    return suspect;
+  }
+
+  suspect.deductionState = createFreshDeductionState();
+
+  suspect.restrictedProfile ??= {};
+  suspect.restrictedProfile.unlockedFields = [];
+
+  return suspect;
+}
+
+/**
+ * Czyści postęp całej świeżo wygenerowanej puli.
+ *
+ * Wywołujemy po:
+ * - stworzeniu złodzieja,
+ * - stworzeniu tweenu,
+ * - stworzeniu decoyów,
+ * - przetasowaniu,
+ * - normalizacji ID i nazw.
+ *
+ * Dzięki temu nie ma znaczenia, czy dane źródłowe miały kiedyś stare
+ * deductionState albo unlockedFields.
+ */
+function resetGeneratedPoolProgress(suspects = []) {
+  if (!Array.isArray(suspects)) {
+    return [];
+  }
+
+  suspects.forEach(resetGeneratedSuspectProgress);
+
+  return suspects;
+}
+
 function createForensicTwin(
   index,
   hardEvidence,
@@ -52,6 +120,8 @@ function createForensicTwin(
     twin.publicProfile.visibleTraits
   );
 
+  resetGeneratedSuspectProgress(twin);
+
   return twin;
 }
 
@@ -62,8 +132,8 @@ function createTrueThiefCaseSuspect(
 ) {
   const thiefGenderCode = normalizeGenderCode(
     thief?.gender_code ||
-    thief?.genderCode ||
-    thief?.gender
+      thief?.genderCode ||
+      thief?.gender
   );
 
   const thiefForensics = normalizeForensicAttributes(
@@ -72,7 +142,7 @@ function createTrueThiefCaseSuspect(
   );
 
   const suspect = {
-    ...sourceSuspect,
+    ...safeClone(sourceSuspect),
 
     isRealThief: true,
 
@@ -84,9 +154,9 @@ function createTrueThiefCaseSuspect(
     hiddenIdentity: thief?.hiddenIdentity
       ? safeClone(thief.hiddenIdentity)
       : {
-        realName: thief?.realName || thief?.name || null,
-        revealStage: thief?.revealStage || 'identity_reveal'
-      },
+          realName: thief?.realName || thief?.name || null,
+          revealStage: thief?.revealStage || 'identity_reveal'
+        },
 
     hiddenCaseData: {
       isTrueThief: true,
@@ -98,10 +168,14 @@ function createTrueThiefCaseSuspect(
 
   applyHardEvidenceToSuspect(suspect, hardEvidence);
 
+  suspect.publicProfile ??= {};
+
   suspect.publicProfile.visibleTraits = createVisibleTraits(
     suspect.restrictedProfile.forensicAttributes,
     suspect.publicProfile.visibleTraits
   );
+
+  resetGeneratedSuspectProgress(suspect);
 
   return suspect;
 }
@@ -119,8 +193,8 @@ export class SuspectGenerator {
       return data.filter((suspect) => {
         const suspectCityId = normalizeCityId(
           suspect.cityId ||
-          suspect.city_id ||
-          suspect.city
+            suspect.city_id ||
+            suspect.city
         );
 
         return !suspectCityId || suspectCityId === normalizedCrimeCityId;
@@ -131,8 +205,8 @@ export class SuspectGenerator {
       return data.suspects.filter((suspect) => {
         const suspectCityId = normalizeCityId(
           suspect.cityId ||
-          suspect.city_id ||
-          suspect.city
+            suspect.city_id ||
+            suspect.city
         );
 
         return !suspectCityId || suspectCityId === normalizedCrimeCityId;
@@ -143,8 +217,8 @@ export class SuspectGenerator {
       const cityData = data.cities.find((city) => {
         const cityId = normalizeCityId(
           city.id ||
-          city.cityId ||
-          city.city
+            city.cityId ||
+            city.city
         );
 
         return cityId === normalizedCrimeCityId;
@@ -197,7 +271,9 @@ export class SuspectGenerator {
     const citySuspects = this.getCitySuspects(crimeCityId);
 
     const availableDecoys = citySuspects.map((source, index) =>
-      createDecoySuspect(index, source)
+      createDecoySuspect(index, source, {
+        preserveCaseProgress: false
+      })
     );
 
     const fallbackDecoyCount = Math.max(total, 10);
@@ -205,9 +281,12 @@ export class SuspectGenerator {
     const sourceDecoys = availableDecoys.length
       ? availableDecoys
       : Array.from(
-        { length: fallbackDecoyCount },
-        (_, index) => createDecoySuspect(index)
-      );
+          { length: fallbackDecoyCount },
+          (_, index) =>
+            createDecoySuspect(index, {}, {
+              preserveCaseProgress: false
+            })
+        );
 
     const shuffledDecoys = shuffle(sourceDecoys).map((suspect) =>
       safeClone(suspect)
@@ -215,13 +294,19 @@ export class SuspectGenerator {
 
     while (shuffledDecoys.length < total) {
       shuffledDecoys.push(
-        createDecoySuspect(shuffledDecoys.length)
+        createDecoySuspect(
+          shuffledDecoys.length,
+          {},
+          { preserveCaseProgress: false }
+        )
       );
     }
 
     const trueThiefBase =
       shuffledDecoys.shift() ||
-      createDecoySuspect(0);
+      createDecoySuspect(0, {}, {
+        preserveCaseProgress: false
+      });
 
     const trueThiefCaseSuspect = createTrueThiefCaseSuspect(
       trueThiefBase,
@@ -256,10 +341,14 @@ export class SuspectGenerator {
           index
         );
 
+        decoy.publicProfile ??= {};
+
         decoy.publicProfile.visibleTraits = createVisibleTraits(
           decoy.restrictedProfile.forensicAttributes,
           decoy.publicProfile.visibleTraits
         );
+
+        resetGeneratedSuspectProgress(decoy);
 
         return decoy;
       });
@@ -273,10 +362,37 @@ export class SuspectGenerator {
     ensureUniqueIds(suspects);
     ensureUniqueNames(suspects);
 
+    /**
+     * Ostateczny reset po wszystkich transformacjach danych.
+     * To chroni przed funkcją pomocniczą, która przypadkiem zmieni
+     * deductionState albo unlockedFields.
+     */
+    resetGeneratedPoolProgress(suspects);
+
     const validation = validateExactlyTwoForensicCandidates(
       suspects,
       normalizedHardEvidence
     );
+
+    if (validation.survivors.length !== 2) {
+      throw new Error(
+        `Expected exactly 2 forensic candidates, received ${validation.survivors.length}.`
+      );
+    }
+
+    const realThiefCaseSuspect = validation.realThiefCaseSuspect;
+
+    if (!realThiefCaseSuspect) {
+      throw new Error(
+        'The generated case does not contain the real thief.'
+      );
+    }
+
+    if (realThiefCaseSuspect.deductionState?.eliminated) {
+      throw new Error(
+        'The real thief was incorrectly eliminated during case generation.'
+      );
+    }
 
     return {
       cityId: normalizeCityId(crimeCityId),
@@ -284,9 +400,9 @@ export class SuspectGenerator {
       suspects,
       citySuspects: suspects,
 
-      realThiefId: validation.realThiefCaseSuspect.id,
-      realThiefSuspectId: validation.realThiefCaseSuspect.id,
-      trueThiefCaseSuspectId: validation.realThiefCaseSuspect.id,
+      realThiefId: realThiefCaseSuspect.id,
+      realThiefSuspectId: realThiefCaseSuspect.id,
+      trueThiefCaseSuspectId: realThiefCaseSuspect.id,
 
       forensicTwinSuspectId: validation.forensicTwin.id,
 
@@ -297,12 +413,31 @@ export class SuspectGenerator {
       ),
 
       actualCriminalId: thief.id || null,
+
       generatedAt: new Date().toISOString()
     };
   }
 
+  /**
+   * Ten wariant jest przeznaczony dla świeżo wygenerowanej sprawy.
+   *
+   * Nie podawaj preserveCaseProgress: true po generowaniu nowego case'a.
+   * Inaczej przeniesiesz do nowej gry wykluczenia z poprzedniej sprawy.
+   */
   prepareCaseState(caseData = {}) {
-    return prepareCaseSuspectState(caseData);
+    return prepareCaseSuspectState(caseData, {
+      preserveCaseProgress: false
+    });
+  }
+
+  /**
+   * Ten wariant stosuj wyłącznie podczas odtwarzania tej samej,
+   * już rozpoczętej sprawy z localStorage albo Supabase.
+   */
+  restoreSavedCaseState(savedCaseData = {}) {
+    return prepareCaseSuspectState(savedCaseData, {
+      preserveCaseProgress: true
+    });
   }
 }
 

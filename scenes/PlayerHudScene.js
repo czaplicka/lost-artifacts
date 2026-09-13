@@ -21,6 +21,7 @@ const HUD_ALLOWED_SCENES = [
   'HiddenObjectsScene',
   'CrimeLabScene',
   'InventoryScene',
+  'HotelScene',
 ];
 
 const HUD_OVERLAY_SCENES = [
@@ -30,7 +31,7 @@ const HUD_OVERLAY_SCENES = [
 
 const CRIME_BOARD_ALLOWED_SCENES = [
   'OfficeScene',
-  'HotelScene'
+  'HotelScene',
 ];
 
 export class PlayerHudScene extends BaseScene {
@@ -49,9 +50,15 @@ export class PlayerHudScene extends BaseScene {
     this.phoneUI = null;
     this.passportUI = null;
     this.dialogManager = null;
-    this.inventoryUI = null;  
+    this.inventoryUI = null;
 
     this.isHudReady = false;
+
+    /*
+     * To nie jest wykrywane automatycznie przez SceneManager.
+     * CrimeCityScene może pozostawać aktywne pod HotelScene,
+     * więc sceny gameplayowe same ustawiają tę wartość.
+     */
     this.currentGameplaySceneKey = null;
 
     this.onGlobalSceneStart = this.onGlobalSceneStart.bind(this);
@@ -72,21 +79,29 @@ export class PlayerHudScene extends BaseScene {
     this.atlasUI = new AtlasUI(this, atlasEntries);
     this.phoneUI = new PhonebookUI(this, this.gameState);
     this.passportUI = new PassportUI(this);
-    this.dialogManager = new DialogManager(this, this.gameState);
+    this.dialogManager = new DialogManager(
+      this,
+      this.gameState,
+    );
 
     this.phoneUI.setOnCall((key, contact) => {
       this.dialogManager.startDialog(key, contact);
     });
 
-    this.playerMenu = new PlayerMenuUI(this, this.gameState);
+    this.playerMenu = new PlayerMenuUI(
+      this,
+      this.gameState,
+    );
+
     this.crimeBoardUI = new CrimeBoardUI(this);
-this.inventoryUI = new InventoryPanelUI(this);
-this.inventoryUI.create();
+
+    this.inventoryUI = new InventoryPanelUI(this);
+    this.inventoryUI.create();
+
     this.isHudReady = true;
 
-    this.scene.bringToTop();
     this.scene.setVisible(true);
-    
+    this.scene.bringToTop();
 
     if (this.game?.events) {
       this.game.events.on(
@@ -100,44 +115,126 @@ this.inventoryUI.create();
       );
     }
 
-    this.events.on(Phaser.Scenes.Events.WAKE, this.onWake, this);
-    this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
-    this.events.on(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
+    this.events.on(
+      Phaser.Scenes.Events.WAKE,
+      this.onWake,
+      this,
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onShutdown,
+      this,
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.DESTROY,
+      this.onShutdown,
+      this,
+    );
+
+    /*
+     * Gdy HUD zostanie utworzony po scenie gameplayowej,
+     * dana scena musi ponownie wywołać setCurrentGameplayScene()
+     * po await ensurePlayerHud().
+     */
+    this.updateCrimeBoardMenuAvailability();
   }
 
   onGlobalSceneStart(sys) {
-    this.handleSceneChange(sys.settings.key);
+    const sceneKey = sys?.settings?.key;
+
+    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
+      return;
+    }
+
+    /*
+     * Nie zmieniamy tutaj currentGameplaySceneKey.
+     *
+     * START może należeć do sceny pod spodem, do przejścia
+     * albo do pomocniczej sceny. Kontekst gameplayu ustawia
+     * wyłącznie setCurrentGameplayScene(), wywołane przez
+     * OfficeScene / HotelScene / CrimeCityScene itd.
+     */
   }
 
   onGlobalSceneWake(sys) {
-    this.handleSceneChange(sys.settings.key);
+    const sceneKey = sys?.settings?.key;
+
+    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
+      return;
+    }
+
+    /*
+     * Tak samo jak przy START: nie zgadujemy sceny gameplayowej
+     * na podstawie WAKE, ponieważ stos scen może zawierać sceny
+     * pod spodem oraz overlaye.
+     */
   }
 
-  handleSceneChange(sceneKey) {
-  if (HUD_OVERLAY_SCENES.includes(sceneKey)) {
-    return;
+  setCurrentGameplayScene(sceneKey) {
+    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
+      return;
+    }
+
+    this.currentGameplaySceneKey = sceneKey;
+
+    this.updateCrimeBoardMenuAvailability();
+
+    if (HUD_ALLOWED_SCENES.includes(sceneKey)) {
+      this.showHud();
+    } else {
+      this.hideHud();
+    }
+
+    console.log(
+      '[PlayerHudScene] Gameplay scene updated:',
+      this.currentGameplaySceneKey,
+    );
   }
 
-  this.currentGameplaySceneKey = sceneKey;
+  updateCrimeBoardMenuAvailability() {
+    const isAvailable = this.isCrimeBoardAvailable();
 
-  const crimeBoardAllowed =
-    CRIME_BOARD_ALLOWED_SCENES.includes(sceneKey);
+    this.playerMenu?.setCrimeBoardAvailable?.(isAvailable);
 
-  this.playerMenu?.setCrimeBoardAvailable?.(
-    crimeBoardAllowed
-  );
-
-  if (!crimeBoardAllowed) {
-    this.crimeBoardUI?.close?.();
+    if (!isAvailable) {
+      this.crimeBoardUI?.close?.();
+    }
   }
 
-  if (HUD_ALLOWED_SCENES.includes(sceneKey)) {
-    this.showHud();
-    return;
+  isCrimeBoardAvailable() {
+    return CRIME_BOARD_ALLOWED_SCENES.includes(
+      this.currentGameplaySceneKey,
+    );
   }
 
-  this.hideHud();
-}
+  openCrimeBoard() {
+    if (!this.isCrimeBoardAvailable()) {
+      console.warn(
+        '[PlayerHudScene] Crime Board is available only in OfficeScene or HotelScene.',
+        {
+          currentScene: this.currentGameplaySceneKey,
+        },
+      );
+
+      return false;
+    }
+
+    this.closeAllUIPanels();
+
+    this.crimeBoardUI?.open?.(this.gameState);
+
+    return Boolean(this.crimeBoardUI?.isOpen);
+  }
+
+  openInventory() {
+    this.closeAllUIPanels();
+
+    this.inventoryUI?.open?.();
+
+    return Boolean(this.inventoryUI?.isOpen);
+  }
 
   showHud() {
     if (!this.isHudReady) {
@@ -155,53 +252,14 @@ this.inventoryUI.create();
 
     this.closeAllUIPanels();
 
-    if (this.playerMenu?.close) {
-      this.playerMenu.close();
-    }
+    this.playerMenu?.close?.();
 
     this.scene.setVisible(false);
   }
 
   onWake() {
+    this.updateCrimeBoardMenuAvailability();
     this.showHud();
-  }
-
-  onShutdown() {
-    if (this.game?.events) {
-      this.game.events.off(
-        Phaser.Scenes.Events.START,
-        this.onGlobalSceneStart,
-      );
-
-      this.game.events.off(
-        Phaser.Scenes.Events.WAKE,
-        this.onGlobalSceneWake,
-      );
-    }
-
-    this.caseFileUI?.destroy?.();
-    this.notesUI?.destroy?.();
-    this.warrantUI?.destroy?.();
-    this.destinationsUI?.destroy?.();
-    this.crimeBoardUI?.destroy?.();
-    this.atlasUI?.destroy?.();
-    this.phoneUI?.destroy?.();
-    this.passportUI?.destroy?.();
-    this.dialogManager?.dialogUI?.destroy?.();
-    this.playerMenu?.destroy?.();
-this.inventoryUI?.destroy?.();
-    this.caseFileUI = null;
-    this.notesUI = null;
-    this.warrantUI = null;
-    this.destinationsUI = null;
-    this.crimeBoardUI = null;
-    this.atlasUI = null;
-    this.phoneUI = null;
-    this.passportUI = null;
-    this.dialogManager = null;
-    this.playerMenu = null;
-this.inventoryUI = null;
-    this.isHudReady = false;
   }
 
   closeAllUIPanels() {
@@ -216,37 +274,6 @@ this.inventoryUI = null;
     this.dialogManager?.dialogUI?.close?.();
     this.inventoryUI?.close?.();
   }
-
-isCrimeBoardAvailable() {
-  return CRIME_BOARD_ALLOWED_SCENES.includes(
-    this.currentGameplaySceneKey
-  );
-}
-openInventory() {
-    this.closeAllUIPanels();
-
-    this.inventoryUI?.open?.();
-
-    return Boolean(this.inventoryUI?.isOpen);
-}
-openCrimeBoard() {
-  if (!this.isCrimeBoardAvailable()) {
-    console.warn(
-      '[PlayerHudScene] Crime Board is available only in OfficeScene or HotelScene.',
-      {
-        currentScene: this.currentGameplaySceneKey
-      }
-    );
-
-    return false;
-  }
-
-  this.closeAllUIPanels();
-
-  this.crimeBoardUI?.open?.(this.gameState);
-
-  return Boolean(this.crimeBoardUI?.isOpen);
-}
 
   closeAllUIPanelsAndFlushInput() {
     this.closeAllUIPanels();
@@ -276,7 +303,48 @@ openCrimeBoard() {
       || this.passportUI?.isOpen
       || this.dialogManager?.dialogUI?.isOpen
       || this.playerMenu?.isOpen
-      || this.inventoryUI?.isOpen
+      || this.inventoryUI?.isOpen,
     );
+  }
+
+  onShutdown() {
+    if (this.game?.events) {
+      this.game.events.off(
+        Phaser.Scenes.Events.START,
+        this.onGlobalSceneStart,
+      );
+
+      this.game.events.off(
+        Phaser.Scenes.Events.WAKE,
+        this.onGlobalSceneWake,
+      );
+    }
+
+    this.caseFileUI?.destroy?.();
+    this.notesUI?.destroy?.();
+    this.warrantUI?.destroy?.();
+    this.destinationsUI?.destroy?.();
+    this.crimeBoardUI?.destroy?.();
+    this.atlasUI?.destroy?.();
+    this.phoneUI?.destroy?.();
+    this.passportUI?.destroy?.();
+    this.dialogManager?.dialogUI?.destroy?.();
+    this.playerMenu?.destroy?.();
+    this.inventoryUI?.destroy?.();
+
+    this.caseFileUI = null;
+    this.notesUI = null;
+    this.warrantUI = null;
+    this.destinationsUI = null;
+    this.crimeBoardUI = null;
+    this.atlasUI = null;
+    this.phoneUI = null;
+    this.passportUI = null;
+    this.dialogManager = null;
+    this.playerMenu = null;
+    this.inventoryUI = null;
+
+    this.isHudReady = false;
+    this.currentGameplaySceneKey = null;
   }
 }

@@ -4,26 +4,41 @@
 import { saveGameState } from '../GameStatePersistence.js';
 
 export const SuspectCardsMixin = {
-  renderSuspectCards(suspects) {
+  renderSuspectCards(suspects = []) {
     const { width, height } = this.scale;
     const isMobile = width <= 700;
     const isTablet = width > 700 && width <= 1100;
 
+    console.table(
+      suspects.map((suspect) => ({
+        id: suspect?.id,
+        name: suspect?.name,
+        eliminated: suspect?.deductionState?.eliminated === true,
+        reasons: suspect?.deductionState?.eliminationReasons?.length || 0,
+        isRealThief: suspect?.isRealThief === true
+      }))
+    );
+
     if (!suspects.length) {
       this.emptyText
-        .setText('No suspect files match this filter.')
-        .setPosition(width / 2, height / 2)
-        .setVisible(true);
+        ?.setText('No suspect files match this filter.')
+        ?.setPosition(width / 2, height / 2)
+        ?.setVisible(true);
 
       return;
     }
 
-    this.emptyText.setVisible(false);
+    this.emptyText?.setVisible(false);
 
     const contentTop = 184;
     const contentBottom = height - 72;
 
-    const detailsWidth = isMobile ? 0 : isTablet ? 350 : 450;
+    const detailsWidth = isMobile
+      ? 0
+      : isTablet
+        ? 350
+        : 450;
+
     const sidePadding = isMobile ? 18 : 24;
     const panelGap = isMobile ? 0 : 22;
 
@@ -52,7 +67,8 @@ export const SuspectCardsMixin = {
       142,
       Math.min(
         260,
-        (availableHeight - gapY * (rows - 1)) / Math.max(1, rows)
+        (availableHeight - gapY * (rows - 1)) /
+          Math.max(1, rows)
       )
     );
 
@@ -61,13 +77,16 @@ export const SuspectCardsMixin = {
       (columns - 1) * gapX;
 
     const startX =
-      cardsAreaX - gridWidth / 2 + cardWidth / 2;
+      cardsAreaX -
+      gridWidth / 2 +
+      cardWidth / 2;
 
     suspects.forEach((suspect, index) => {
       const column = index % columns;
       const row = Math.floor(index / columns);
 
       const x = startX + column * (cardWidth + gapX);
+
       const y =
         contentTop +
         cardHeight / 2 +
@@ -81,15 +100,16 @@ export const SuspectCardsMixin = {
         cardHeight
       );
 
-      this.cardsContainer.add(card);
+      this.cardsContainer?.add(card);
     });
   },
 
   createSuspectCard(suspect, x, y, width, height) {
-    const isSelected = suspect.id === this.selectedSuspectId;
-    const isEliminated = Boolean(
-      suspect.deductionState?.eliminated
-    );
+    const isSelected =
+      suspect.id === this.selectedSuspectId;
+
+    const isEliminated =
+      suspect.deductionState?.eliminated === true;
 
     const card = this.add.container(x, y);
 
@@ -120,7 +140,9 @@ export const SuspectCardsMixin = {
         useHandCursor: true
       });
 
-    const fileNumber = this.getSuspectFileNumber(suspect.id);
+    const fileNumber = this.getSuspectFileNumber(
+      suspect.id
+    );
 
     const fileLabel = this.add
       .text(
@@ -130,22 +152,31 @@ export const SuspectCardsMixin = {
         {
           fontFamily: 'PressStart2P',
           fontSize: '8px',
-          color: isEliminated ? '#d07f75' : '#bba276'
+          color: isEliminated
+            ? '#d07f75'
+            : '#bba276'
         }
       )
       .setOrigin(0, 0);
 
     const name = this.add
-      .text(0, -height / 2 + 38, suspect.name || 'Unknown', {
-        fontFamily: 'SpecialElite',
-        fontSize: width < 230 ? '20px' : '25px',
-        color: isEliminated ? '#b8a39d' : '#fff0cd',
-        align: 'center',
-        wordWrap: {
-          width: width - 28,
-          useAdvancedWrap: true
+      .text(
+        0,
+        -height / 2 + 38,
+        suspect.name || 'Unknown',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: width < 230 ? '20px' : '25px',
+          color: isEliminated
+            ? '#b8a39d'
+            : '#fff0cd',
+          align: 'center',
+          wordWrap: {
+            width: width - 28,
+            useAdvancedWrap: true
+          }
         }
-      })
+      )
       .setOrigin(0.5, 0);
 
     const occupation = this.add
@@ -156,7 +187,9 @@ export const SuspectCardsMixin = {
         {
           fontFamily: 'SpecialElite',
           fontSize: '17px',
-          color: isEliminated ? '#9a8581' : '#dfca9e',
+          color: isEliminated
+            ? '#9a8581'
+            : '#dfca9e',
           align: 'center',
           wordWrap: {
             width: width - 30,
@@ -166,12 +199,13 @@ export const SuspectCardsMixin = {
       )
       .setOrigin(0.5, 0);
 
-    const traits = Array.isArray(suspect.visibleTraits)
-      ? suspect.visibleTraits.slice(0, 2)
-      : [];
+    const traits =
+      suspect.publicProfile?.visibleTraits ||
+      suspect.visibleTraits ||
+      [];
 
-    const traitLines = traits.length
-      ? traits.map((trait) => `• ${trait}`)
+    const traitLines = Array.isArray(traits) && traits.length
+      ? traits.slice(0, 2).map((trait) => `• ${trait}`)
       : ['• No visible notes'];
 
     if (this.excludeMode) {
@@ -184,34 +218,44 @@ export const SuspectCardsMixin = {
       );
     }
 
-    const traitsText = traitLines.join('\n');
-
     const visibleTraits = this.add
-      .text(-width / 2 + 16, 18, traitsText, {
-        fontFamily: 'SpecialElite',
-        fontSize: '15px',
-        color: isEliminated ? '#9c8984' : '#e9dbbb',
-        lineSpacing: 4,
-        wordWrap: {
-          width: width - 32,
-          useAdvancedWrap: true
+      .text(
+        -width / 2 + 16,
+        18,
+        traitLines.join('\n'),
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '15px',
+          color: isEliminated
+            ? '#9c8984'
+            : '#e9dbbb',
+          lineSpacing: 4,
+          wordWrap: {
+            width: width - 32,
+            useAdvancedWrap: true
+          }
         }
-      })
+      )
       .setOrigin(0, 0);
 
     const status = this.getCardStatus(suspect);
 
     const statusText = this.add
-      .text(0, height / 2 - 22, status.label, {
-        fontFamily: 'PressStart2P',
-        fontSize: '8px',
-        color: status.color,
-        align: 'center',
-        wordWrap: {
-          width: width - 24,
-          useAdvancedWrap: true
+      .text(
+        0,
+        height / 2 - 22,
+        status.label,
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '8px',
+          color: status.color,
+          align: 'center',
+          wordWrap: {
+            width: width - 24,
+            useAdvancedWrap: true
+          }
         }
-      })
+      )
       .setOrigin(0.5);
 
     card.add([
@@ -234,7 +278,9 @@ export const SuspectCardsMixin = {
           {
             fontFamily: 'PressStart2P',
             fontSize: '8px',
-            color: isEliminated ? '#ffb5aa' : '#ffdc73',
+            color: isEliminated
+              ? '#ffb5aa'
+              : '#ffdc73',
             align: 'center'
           }
         )
@@ -273,8 +319,13 @@ export const SuspectCardsMixin = {
     }
 
     bg.on('pointerover', () => {
-      if (isEliminated && !this.excludeMode) return;
-      if (isSelected && !this.excludeMode) return;
+      if (isEliminated && !this.excludeMode) {
+        return;
+      }
+
+      if (isSelected && !this.excludeMode) {
+        return;
+      }
 
       bg.setFillStyle(
         this.excludeMode ? 0x5b3224 : 0x514027,
@@ -300,7 +351,11 @@ export const SuspectCardsMixin = {
 
     bg.on('pointerdown', () => {
       if (this.excludeMode) {
-        this.toggleSuspectExclusion(suspect.id);
+        this.toggleSuspectExclusion(suspect.id, {
+          playerInitiated: true,
+          source: 'suspect_card_pointerdown'
+        });
+
         return;
       }
 
@@ -321,14 +376,16 @@ export const SuspectCardsMixin = {
   },
 
   getCardStatus(suspect) {
-    const state = suspect.deductionState || {};
+    const state = suspect?.deductionState || {};
 
-    if (state.eliminated) {
+    if (state.eliminated === true) {
       const reason = state.eliminationReasons?.[0];
 
       return {
         label: reason?.label
-          ? `CLEARED: ${String(reason.label).toUpperCase()}`
+          ? `CLEARED: ${String(
+              reason.label
+            ).toUpperCase()}`
           : 'CLEARED',
         color: '#e6766e'
       };

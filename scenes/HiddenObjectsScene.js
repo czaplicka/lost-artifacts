@@ -560,6 +560,10 @@ export class HiddenObjectsScene extends BaseScene {
     this.hudWasPaused = false;
   }
 
+    normalizeSkills(value) {
+    return this.resolver.normalizeSkills(value);
+  }
+
   formatTime(seconds) {
     const safeSeconds = Math.max(
       0,

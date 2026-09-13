@@ -1315,9 +1315,7 @@ export class PlayerMenuUI {
 
         this.scene.closeAllUIPanels();
 
-        await this.scene.crimeBoardUI.open(
-            this.gameState
-        );
+this.scene.openCrimeBoard?.();
 
         const boardApi = this.scene.crimeBoardUI.boardApi;
 

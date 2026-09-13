@@ -574,9 +574,11 @@ export class HypothesisScene extends BaseScene {
     );
   }
 
-  finalizeTheory(orderedCards, evaluation) {
-    const result =
-      this.resultService.finalizeTheory({
+finalizeTheory(orderedCards, evaluation) {
+  this.hypothesisState.setUiLocked(true);
+
+  const result =
+    this.resultService.finalizeTheory({
         orderedCards,
         slotFeedback:
           this.hypothesisState.slotFeedback,
@@ -587,8 +589,6 @@ export class HypothesisScene extends BaseScene {
         score:
           evaluation.score
       });
-
-    this.hypothesisState.setUiLocked(true);
 
     this.boardUI?.refresh();
 

@@ -5,19 +5,19 @@ import { BaseScene } from './BaseScene.js';
 
 import {
   createTvBroadcastLayout
-} from '../tv/TvBroadcastLayout.js';
+} from './tv/TvBroadcastLayout.js';
 
 import {
   TvBroadcastEffects
-} from '../tv/TvBroadcastEffects.js';
+} from './tv/TvBroadcastEffects.js';
 
 import {
   TvBroadcastView
-} from '../tv/TvBroadcastView.js';
+} from './tv/TvBroadcastView.js';
 
 import {
   TvBroadcastControls
-} from '../tv/TvBroadcastControls.js';
+} from './tv/TvBroadcastControls.js';
 
 export class TvBroadcastScene extends BaseScene {
   constructor() {
