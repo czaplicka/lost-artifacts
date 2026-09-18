@@ -1,0 +1,371 @@
+{
+  "version": 3,
+  "notes": {
+    "purpose": "Canonical motive pool. gameSetup.js draws ONE motive per case and stores motive.id in gameState.caseData.motiveId. All downstream systems key off motiveId: apartment investigation, city dialogue clues (npcMotiveClues.json), and Crime Board final check against correctMotiveAnswerId.",
+    "canon": "NPC witnesses met the thief ONLY during the escape route. Nothing here describes life before the crime scene.",
+    "saveSafety": "Never store arrays/indices; store motiveId (string) and evidenceIds collected. Labels may change without breaking saves."
+  },
+  "crimeBoardCategories": [
+    { "id": "financial", "label": "Financial pressure" },
+    { "id": "family", "label": "Family or personal obligation" },
+    { "id": "blackmail", "label": "Coercion or blackmail" },
+    { "id": "ideological", "label": "Belief or cause" },
+    { "id": "career", "label": "Career desperation" }
+  ],
+  "motives": [
+    {
+      "id": "gambling_debt",
+      "weight": 20,
+      "crimeBoard": {
+        "category": "financial",
+        "answerId": "gambling_debt",
+        "label": "Gambling debt",
+        "shortLabel": "Debt",
+        "falseOptions": ["greed", "luxury_escape"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect spent beyond their means and feared Fridays more than most people.",
+        "truth": "An escalating gambling debt was bought by a violent collector. The artifact was meant to be the payment.",
+        "revealOrder": [
+          "Reckless spending",
+          "Unexplained withdrawals",
+          "A dangerous creditor",
+          "The artifact as collateral"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "Somewhere along the escape route, someone watched the thief count money like it was about to bite.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_cash_need",
+            "label": "The suspect urgently needed cash",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "bankier", "clueKey": "banker_large_withdrawal" },
+              { "npcId": "maid", "clueKey": "maid_overheard_debt_call" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_impatient_customer" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_creditor_threat",
+            "label": "The debt was owed to a dangerous creditor",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "knajpa", "clueKey": "knajpa_threat_call" },
+              { "npcId": "police", "clueKey": "police_harassment_report" },
+              { "npcId": "bum", "clueKey": "bum_collector_argument" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_gambling_debt_final",
+            "label": "The artifact was meant to settle the gambling debt",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "fence", "clueKey": "fence_artifact_offer" },
+              { "npcId": "stewardessa", "clueKey": "stewardess_debt_confession" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "medical_treatment",
+      "weight": 18,
+      "crimeBoard": {
+        "category": "family",
+        "answerId": "medical_treatment",
+        "label": "Emergency medical treatment",
+        "shortLabel": "Medical costs",
+        "falseOptions": ["funeral_expenses", "personal_luxury"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect was making frantic phone calls and looking for quick money.",
+        "truth": "A close family member needed urgent, costly treatment. The theft was chosen because a lawful way out did not feel available in time.",
+        "revealOrder": [
+          "Financial strain",
+          "Healthcare costs",
+          "A hospitalized loved one",
+          "The artifact as the deposit"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "The thief's route keeps brushing against clinics, pharmacies and people who talk about Fridays like deadlines.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_medical_money_need",
+            "label": "The suspect was funneling money toward medical care",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "maid", "clueKey": "maid_medical_envelope" },
+              { "npcId": "bankier", "clueKey": "banker_clinic_transfer" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_family_urgency",
+            "label": "Someone in the suspect's family needed urgent treatment",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "stewardessa", "clueKey": "stewardess_rebooking_surgery" },
+              { "npcId": "police", "clueKey": "police_clinic_disturbance" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_clinic_rush" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_medical_treatment_final",
+            "label": "The artifact was stolen to pay for the treatment",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "fence", "clueKey": "fence_artifact_for_treatment" },
+              { "npcId": "knajpa", "clueKey": "knajpa_medical_broker_talk" },
+              { "npcId": "bum", "clueKey": "bum_clinic_bench" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "blackmail_secret",
+      "weight": 18,
+      "crimeBoard": {
+        "category": "blackmail",
+        "answerId": "blackmail_secret",
+        "label": "Blackmail over a hidden secret",
+        "shortLabel": "Blackmail",
+        "falseOptions": ["romantic_affair", "false_identity"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect became paranoid about phones, letters and strangers.",
+        "truth": "A blackmailer held a damaging secret and demanded the artifact as the price of silence. The thief was the courier, not the client.",
+        "revealOrder": [
+          "Being watched",
+          "Compromising material",
+          "A secret worth protecting",
+          "The demanded payment: the artifact itself"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "The thief travelled like someone being followed - and people remember travellers like that.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_hidden_silence",
+            "label": "The suspect was paying someone off along the way",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "maid", "clueKey": "maid_burned_letters" },
+              { "npcId": "bankier", "clueKey": "banker_anonymous_payments" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_blackmailer_pressure",
+            "label": "Someone was directing the suspect through threats",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "police", "clueKey": "police_followed_report" },
+              { "npcId": "bum", "clueKey": "bum_black_car_argument" },
+              { "npcId": "knajpa", "clueKey": "knajpa_dead_drop" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_blackmail_secret_final",
+            "label": "The artifact was the blackmailer's price for silence",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "stewardessa", "clueKey": "stewardess_demand_note" },
+              { "npcId": "fence", "clueKey": "fence_blackmail_delivery" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_midnight_pickup" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "repatriation_cause",
+      "weight": 14,
+      "crimeBoard": {
+        "category": "ideological",
+        "answerId": "repatriation_cause",
+        "label": "Artifact repatriation",
+        "shortLabel": "Repatriation",
+        "falseOptions": ["private_collection", "publicity_stunt"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect lectured anyone who would listen about museums that 'collected' history with rifles.",
+        "truth": "The thief believed the artifact was looted and intended to return it to its community of origin through covert routes.",
+        "revealOrder": [
+          "Research into provenance",
+          "A doubtful acquisition file",
+          "Contact with the community",
+          "A covert return route"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "The thief's luggage acted like it had a conscience, and a destination with a flag on it.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_origin_fixation",
+            "label": "The suspect was obsessed with where the artifact belongs",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "maid", "clueKey": "maid_origin_map" },
+              { "npcId": "bankier", "clueKey": "banker_foundation_wire" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_return_contacts",
+            "label": "The suspect contacted people tied to the artifact's homeland",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "police", "clueKey": "police_export_questions" },
+              { "npcId": "knajpa", "clueKey": "knajpa_advocate_meeting" },
+              { "npcId": "bum", "clueKey": "bum_consulate_watch" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_repatriation_cause_final",
+            "label": "The theft was an act of repatriation, not greed",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "stewardessa", "clueKey": "stewardess_restitution_crate" },
+              { "npcId": "fence", "clueKey": "fence_refused_sale" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_border_roads" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "career_coverup",
+      "weight": 15,
+      "crimeBoard": {
+        "category": "career",
+        "answerId": "career_coverup",
+        "label": "Career-ending cover-up",
+        "shortLabel": "Cover-up",
+        "falseOptions": ["promotion_ambition", "fear_of_firing"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect became fixated on audits, missing paperwork and archive access.",
+        "truth": "The artifact's condition or provenance could expose a professional fraud. Stealing it seemed easier than explaining it to the board.",
+        "revealOrder": [
+          "An impending audit",
+          "Connected discrepancies",
+          "The artifact as evidence",
+          "Removal before discovery"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "The thief's trail smells of shredded paper, cold espresso and the word 'audit' said through clenched teeth.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_burning_documents",
+            "label": "The suspect was destroying professional documents while fleeing",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "maid", "clueKey": "maid_shredded_documents" },
+              { "npcId": "bankier", "clueKey": "banker_pension_cashout" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_audit_panic",
+            "label": "An audit was moments away from ending the suspect's career",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "knajpa", "clueKey": "knajpa_audit_rant" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_angry_calls" },
+              { "npcId": "police", "clueKey": "police_archive_trespass" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_career_coverup_final",
+            "label": "The artifact was stolen to remove the evidence of fraud",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "stewardessa", "clueKey": "stewardess_burn_envelope" },
+              { "npcId": "fence", "clueKey": "fence_evidence_for_safekeeping" },
+              { "npcId": "bum", "clueKey": "bum_shredder_dumpster" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "family_heirloom",
+      "weight": 15,
+      "crimeBoard": {
+        "category": "family",
+        "answerId": "family_heirloom",
+        "label": "Recovering a family heirloom",
+        "shortLabel": "Heirloom",
+        "falseOptions": ["jealousy", "family_debt"]
+      },
+      "narrative": {
+        "publicRumor": "The suspect reacted to the artifact with unsettling familiarity.",
+        "truth": "The piece once belonged to the suspect's family and was lost through war, fraud or debt. Partial proof, strong feelings, no legal standing - so they stole it back.",
+        "revealOrder": [
+          "A personal connection",
+          "Family ownership records",
+          "A dubious historic sale",
+          "A reclamation, not a sale"
+        ]
+      },
+      "escapeInvestigation": {
+        "leadText": "The thief keeps showing strangers a very old photograph, and the jewel in it looks uncomfortably familiar.",
+        "clueStages": [
+          {
+            "stage": 1,
+            "evidenceId": "escape_family_traces",
+            "label": "The suspect is chasing a family story, not a paycheck",
+            "motiveStrength": 1,
+            "npcWitnesses": [
+              { "npcId": "maid", "clueKey": "maid_family_portrait" },
+              { "npcId": "bankier", "clueKey": "banker_estate_inquiry" }
+            ]
+          },
+          {
+            "stage": 2,
+            "evidenceId": "escape_heritage_research",
+            "label": "The suspect is retracing how the artifact left the family",
+            "motiveStrength": 2,
+            "npcWitnesses": [
+              { "npcId": "knajpa", "clueKey": "knajpa_portrait_questions" },
+              { "npcId": "parkingowy", "clueKey": "parkingowy_old_estate_trip" },
+              { "npcId": "police", "clueKey": "police_inheritance_claim" },
+              { "npcId": "bum", "clueKey": "bum_cemetery_research" }
+            ]
+          },
+          {
+            "stage": 3,
+            "evidenceId": "motive_family_heirloom_final",
+            "label": "The theft was an attempt to reclaim a stolen heirloom",
+            "motiveStrength": 4,
+            "boardAnswerUnlocked": true,
+            "npcWitnesses": [
+              { "npcId": "stewardessa", "clueKey": "stewardess_heirloom_declaration" },
+              { "npcId": "fence", "clueKey": "fence_not_for_sale" }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

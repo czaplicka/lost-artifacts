@@ -1,4 +1,4 @@
-import { getPassportManager } from '../PassportManager.js';
+import { getPassportManager } from '../managers/PassportManager.js';
 import { EventBus } from '../EventBus.js';
 
 const FONT_PIXEL = '"PressStart2P", monospace';

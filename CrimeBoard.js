@@ -1,12 +1,17 @@
+import { gameState } from '../GameData.js';
+import { isCorrectMotiveAnswer } from '../motiveService.js';
+
 export class CrimeBoard {
   constructor(root, options = {}) {
     this.root = root;
     this.svg = root?.querySelector('.crime-board__strings');
     this.itemsLayer = root?.querySelector('.crime-board__items');
 
+
     if (!this.root || !this.svg || !this.itemsLayer) {
       throw new Error('CrimeBoard requires root with .crime-board__strings and .crime-board__items.');
     }
+
 
     this.options = {
       confirmLinkDeletion: options.confirmLinkDeletion !== false,
@@ -23,8 +28,10 @@ export class CrimeBoard {
       addNoteBtnId: options.addNoteBtnId || 'add-note-btn',
       addEvidenceBtnId: options.addEvidenceBtnId || 'add-evidence-btn',
       linksListId: options.linksListId || 'crime-board-links-list',
-      linksEmptyId: options.linksEmptyId || 'crime-board-links-empty'
+      linksEmptyId: options.linksEmptyId || 'crime-board-links-empty',
+      verifyMotiveBtnId: options.verifyMotiveBtnId || 'crime-board-verify-motive-btn'
     };
+
 
     this.app = this.root.closest('.crime-board-app') || document;
     this.meta = {};
@@ -33,6 +40,7 @@ export class CrimeBoard {
     this.itemElements = new Map();
     this.linkElements = new Map();
 
+
     this.drag = {
       activeId: null,
       offsetX: 0,
@@ -40,15 +48,18 @@ export class CrimeBoard {
       pointerId: null
     };
 
+
     this.connectionMode = {
       active: false,
       fromId: null,
       fromAnchor: null
     };
 
+
     this.tempPath = null;
     this.zCounter = 10;
     this.destroyed = false;
+
 
     this.editor = {
       form: document.getElementById(this.options.formId),
@@ -64,20 +75,25 @@ export class CrimeBoard {
       addNoteBtn: document.getElementById(this.options.addNoteBtnId),
       addEvidenceBtn: document.getElementById(this.options.addEvidenceBtnId),
       linksList: document.getElementById(this.options.linksListId),
-      linksEmpty: document.getElementById(this.options.linksEmptyId)
+      linksEmpty: document.getElementById(this.options.linksEmptyId),
+      verifyMotiveBtn: document.getElementById(this.options.verifyMotiveBtnId)
     };
+
 
     this.sidebar = this.app.querySelector?.('#crime-board-sidebar') || null;
     this.sidebarToggleBtn = this.app.querySelector?.('#crime-board-sidebar-toggle') || null;
     this.sidebarTabBtn = this.app.querySelector?.('#crime-board-sidebar-tab') || null;
+
 
     this.boundResize = this.onResize.bind(this);
     this.boundPointerMove = this.onWindowPointerMove.bind(this);
     this.boundPointerUp = this.onWindowPointerUp.bind(this);
     this.boundRootClick = this.onRootClick.bind(this);
 
+
     this.init();
   }
+
 
   init() {
     window.addEventListener('resize', this.boundResize);
@@ -86,14 +102,17 @@ export class CrimeBoard {
     this.root.addEventListener('click', this.boundRootClick);
   }
 
+
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
+
 
     window.removeEventListener('resize', this.boundResize);
     window.removeEventListener('pointermove', this.boundPointerMove);
     window.removeEventListener('pointerup', this.boundPointerUp);
     this.root.removeEventListener('click', this.boundRootClick);
+
 
     this.resetConnectionMode({ keepListeners: false });
     this.clearDragState();
@@ -102,6 +121,7 @@ export class CrimeBoard {
     this.tempPath?.remove();
     this.tempPath = null;
   }
+
 
   // NEW: single source of truth for "is it safe to touch the DOM/SVG
   // right now". Covers both the destroyed flag AND the case where the
@@ -112,6 +132,7 @@ export class CrimeBoard {
   _isBoardUsable() {
     return !this.destroyed && !!this.svg && !!this.itemsLayer && !!this.root;
   }
+
 
   // NEW: safe wrapper for setting a (possibly namespaced) attribute on
   // this.svg or any svg-owned node. Never throws even if the node is
@@ -131,10 +152,12 @@ export class CrimeBoard {
     }
   }
 
+
   onResize() {
     if (!this._isBoardUsable()) return;
     this.renderLinks();
   }
+
 
   onRootClick(e) {
     if (!this._isBoardUsable()) return;
@@ -145,12 +168,14 @@ export class CrimeBoard {
     }
   }
 
+
   clone(value) {
     if (typeof structuredClone === 'function') {
       return structuredClone(value);
     }
     return JSON.parse(JSON.stringify(value));
   }
+
 
   bindSidebar() {
     if (this.sidebarToggleBtn) {
@@ -163,6 +188,7 @@ export class CrimeBoard {
       });
     }
 
+
     if (this.sidebarTabBtn) {
       this.sidebarTabBtn.addEventListener('click', () => {
         if (this.sidebar?.classList.contains('is-collapsed')) {
@@ -174,21 +200,25 @@ export class CrimeBoard {
     }
   }
 
+
   collapseSidebar() {
     if (!this.sidebar) return;
     this.sidebar.classList.remove('is-open');
     this.sidebar.classList.add('is-collapsed');
     this.app.classList.add('is-sidebar-collapsed');
 
+
     if (this.sidebarToggleBtn) {
       this.sidebarToggleBtn.textContent = 'Show';
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'false');
     }
 
+
     if (this.sidebarTabBtn) {
       this.sidebarTabBtn.setAttribute('aria-expanded', 'false');
     }
   }
+
 
   expandSidebar() {
     if (!this.sidebar) return;
@@ -196,31 +226,37 @@ export class CrimeBoard {
     this.sidebar.classList.add('is-open');
     this.app.classList.remove('is-sidebar-collapsed');
 
+
     if (this.sidebarToggleBtn) {
       this.sidebarToggleBtn.textContent = 'Hide';
       this.sidebarToggleBtn.setAttribute('aria-expanded', 'true');
     }
+
 
     if (this.sidebarTabBtn) {
       this.sidebarTabBtn.setAttribute('aria-expanded', 'true');
     }
   }
 
+
   isPlayerEditableItem(itemId = this.selectedItemId) {
     const item = this.getItemById(itemId);
     return Boolean(item?.editableByPlayer);
   }
+
 
   isPlayerEditableLink(linkId) {
     const link = this.getLinkById(linkId);
     return Boolean(link?.editableByPlayer);
   }
 
+
   canStartLinkFromItem(itemId) {
     const item = this.getItemById(itemId);
     if (!item) return false;
     return Boolean(item.createdByPlayer || item.discovered);
   }
+
 
   bindEditor() {
     if (this.editor.saveBtn) {
@@ -231,6 +267,7 @@ export class CrimeBoard {
       });
     }
 
+
     if (this.editor.loadBtn) {
       this.editor.loadBtn.addEventListener('click', () => {
         const json = this.editor.jsonOutput?.value || '';
@@ -238,12 +275,14 @@ export class CrimeBoard {
       });
     }
 
+
     if (this.editor.applyBtn) {
       this.editor.applyBtn.addEventListener('click', () => {
         if (!this.isPlayerEditableItem()) return;
         this.applyEditorChanges();
       });
     }
+
 
     if (this.editor.deleteBtn) {
       this.editor.deleteBtn.addEventListener('click', () => {
@@ -255,6 +294,7 @@ export class CrimeBoard {
       });
     }
 
+
     if (this.editor.addPhotoBtn) {
       this.editor.addPhotoBtn.addEventListener('click', () => {
         const item = this.addItem(this.createDefaultItem('photo'));
@@ -262,6 +302,7 @@ export class CrimeBoard {
         this.syncJsonOutput();
       });
     }
+
 
     if (this.editor.addNoteBtn) {
       this.editor.addNoteBtn.addEventListener('click', () => {
@@ -271,6 +312,7 @@ export class CrimeBoard {
       });
     }
 
+
     if (this.editor.addEvidenceBtn) {
       this.editor.addEvidenceBtn.addEventListener('click', () => {
         const item = this.addItem(this.createDefaultItem('evidence'));
@@ -278,6 +320,7 @@ export class CrimeBoard {
         this.syncJsonOutput();
       });
     }
+
 
     if (this.editor.form) {
       this.editor.form.addEventListener('change', e => {
@@ -287,7 +330,19 @@ export class CrimeBoard {
         }
       });
     }
+
+
+    // Motive verification button - compares the currently selected
+    // item's clueId (used here as the player's motive guess) against
+    // gameState.caseData.correctMotiveAnswerId via motiveService.
+    if (this.editor.verifyMotiveBtn) {
+      this.editor.verifyMotiveBtn.addEventListener('click', () => {
+        if (!this.selectedItemId) return;
+        this.verifyMotiveGuess(this.selectedItemId);
+      });
+    }
   }
+
 
   createDefaultItem(type) {
     const count = this.state.items.length;
@@ -302,6 +357,7 @@ export class CrimeBoard {
       editableByPlayer: true
     };
 
+
     if (type === 'photo') {
       return {
         ...base,
@@ -311,6 +367,7 @@ export class CrimeBoard {
         meta: ['Lead']
       };
     }
+
 
     if (type === 'evidence') {
       return {
@@ -325,6 +382,7 @@ export class CrimeBoard {
       };
     }
 
+
     return {
       ...base,
       label: 'New note',
@@ -334,8 +392,10 @@ export class CrimeBoard {
     };
   }
 
+
   loadBoard(data) {
     if (!this._isBoardUsable()) return this.getBoardData();
+
 
     const safeData = data && typeof data === 'object' ? data : {};
     this.meta = this.normalizeMeta(safeData.meta || {});
@@ -343,6 +403,7 @@ export class CrimeBoard {
     this.state.links = (safeData.links || [])
       .map((link, index) => this.normalizeLink(link, index))
       .filter(link => this.isValidLinkTarget(link.from, link.to));
+
 
     this.zCounter = this.state.items.reduce((max, item) => Math.max(max, item.z || 1), 10);
     this.selectedItemId = null;
@@ -354,9 +415,11 @@ export class CrimeBoard {
     return this.getBoardData();
   }
 
+
   saveBoard() {
     return JSON.stringify(this.getBoardData(), null, 2);
   }
+
 
   importBoard(jsonString) {
     try {
@@ -368,6 +431,7 @@ export class CrimeBoard {
     }
   }
 
+
   getBoardData() {
     return {
       meta: this.clone(this.meta),
@@ -375,6 +439,7 @@ export class CrimeBoard {
       links: this.clone(this.state.links)
     };
   }
+
 
   normalizeMeta(meta) {
     return {
@@ -385,9 +450,11 @@ export class CrimeBoard {
     };
   }
 
+
   normalizeItem(item, index = 0) {
     const safeItem = item && typeof item === 'object' ? item : {};
     const type = ['photo', 'note', 'evidence'].includes(safeItem.type) ? safeItem.type : 'note';
+
 
     return {
       id: safeItem.id || `item-${crypto.randomUUID()}`,
@@ -398,20 +465,24 @@ export class CrimeBoard {
       rotation: Number.isFinite(safeItem.rotation) ? safeItem.rotation : this.getInitialRotation(index),
       pinned: Boolean(safeItem.pinned),
 
+
       label: safeItem.label || 'Untitled',
       image: safeItem.image || '',
       caption: safeItem.caption || '',
       meta: Array.isArray(safeItem.meta) ? safeItem.meta.filter(Boolean) : [],
 
+
       text: safeItem.text || '',
       metaText: safeItem.metaText || '',
       color: ['yellow', 'blue', 'pink'].includes(safeItem.color) ? safeItem.color : 'yellow',
+
 
       tag: safeItem.tag || 'Evidence',
       body: safeItem.body || '',
       fields: Array.isArray(safeItem.fields)
         ? safeItem.fields.map(row => ({ key: row?.key || '', value: row?.value || '' }))
         : [],
+
 
       suspectId: safeItem.suspectId || null,
       clueId: safeItem.clueId || null,
@@ -421,9 +492,18 @@ export class CrimeBoard {
       tags: Array.isArray(safeItem.tags) ? safeItem.tags.filter(Boolean) : [],
       discovered: safeItem.discovered !== false,
       createdByPlayer: Boolean(safeItem.createdByPlayer),
-      editableByPlayer: Boolean(safeItem.editableByPlayer)
+      editableByPlayer: Boolean(safeItem.editableByPlayer),
+
+
+      // NEW: motive verification result, set only by verifyMotiveGuess().
+      // Not editable by player, purely a rendering/state marker so a
+      // reload / saveBoard cycle preserves the last verdict.
+      motiveVerdict: safeItem.motiveVerdict === 'correct' || safeItem.motiveVerdict === 'incorrect'
+        ? safeItem.motiveVerdict
+        : null
     };
   }
+
 
   normalizeLink(link, index = 0) {
     const safeLink = link && typeof link === 'object' ? link : {};
@@ -439,20 +519,24 @@ export class CrimeBoard {
     };
   }
 
+
   normalizeAnchor(anchor) {
     return ['top', 'right', 'bottom', 'left'].includes(anchor) ? anchor : 'right';
   }
+
 
   getInitialRotation(index) {
     const preset = [-2.4, 1.8, -1.2, 2.1, -0.8, 1.1, -1.7, 2.6];
     return preset[index % preset.length];
   }
 
+
   isValidLinkTarget(fromId, toId) {
     if (!fromId || !toId || fromId === toId) return false;
     return this.state.items.some(item => item.id === fromId) &&
       this.state.items.some(item => item.id === toId);
   }
+
 
   hasLinkBetween(aId, bId) {
     return this.state.links.some(link =>
@@ -461,40 +545,51 @@ export class CrimeBoard {
     );
   }
 
+
   getItemById(id) {
     return this.state.items.find(item => item.id === id) || null;
   }
+
 
   getLinkById(id) {
     return this.state.links.find(link => link.id === id) || null;
   }
 
+
   addItem(item) {
     if (!this._isBoardUsable()) return null;
+
 
     const normalized = this.normalizeItem({
       ...item,
       z: this.nextZ()
     }, this.state.items.length);
 
+
     this.state.items.push(normalized);
+
 
     const el = this.createItemElement(normalized);
     this.itemsLayer.appendChild(el);
     this.itemElements.set(normalized.id, el);
 
+
     this.renderItemPosition(normalized);
     this.renderLinks();
     this.renderLinksPanel();
 
+
     return normalized;
   }
+
 
   updateItem(id, patch = {}) {
     if (!this._isBoardUsable()) return null;
 
+
     const index = this.state.items.findIndex(item => item.id === id);
     if (index === -1) return null;
+
 
     const current = this.state.items[index];
     const next = this.normalizeItem({
@@ -505,13 +600,16 @@ export class CrimeBoard {
       editableByPlayer: current.editableByPlayer
     }, index);
 
+
     this.state.items[index] = next;
     const oldEl = this.itemElements.get(id);
     const newEl = this.createItemElement(next);
 
+
     if (oldEl?.parentNode) {
       oldEl.parentNode.replaceChild(newEl, oldEl);
     }
+
 
     this.itemElements.set(id, newEl);
     this.renderItemPosition(next);
@@ -519,48 +617,63 @@ export class CrimeBoard {
     this.renderSelectionState();
     this.renderLinksPanel();
 
+
     return next;
   }
+
 
   removeItem(id) {
     if (!this._isBoardUsable()) return false;
 
+
     const item = this.getItemById(id);
     if (!item || !item.editableByPlayer) return false;
 
+
     this.state.items = this.state.items.filter(entry => entry.id !== id);
+
 
     const removedLinks = this.state.links
       .filter(link => link.from === id || link.to === id)
       .map(link => link.id);
 
+
     this.state.links = this.state.links.filter(link => link.from !== id && link.to !== id);
+
 
     this.itemElements.get(id)?.remove();
     this.itemElements.delete(id);
+
 
     removedLinks.forEach(linkId => {
       this.linkElements.get(linkId)?.remove();
       this.linkElements.delete(linkId);
     });
 
+
     this.renderLinks();
     this.renderLinksPanel();
+
 
     if (this.selectedItemId === id) {
       this.selectedItemId = null;
     }
 
+
     return true;
   }
+
 
   addLink(link) {
     if (!this._isBoardUsable()) return null;
 
+
     const normalized = this.normalizeLink(link, this.state.links.length);
+
 
     if (!this.isValidLinkTarget(normalized.from, normalized.to)) return null;
     if (this.hasLinkBetween(normalized.from, normalized.to)) return null;
+
 
     this.state.links.push(normalized);
     const el = this.createLinkElement(normalized);
@@ -571,17 +684,21 @@ export class CrimeBoard {
     return normalized;
   }
 
+
   removeLink(id) {
     if (!this._isBoardUsable()) return false;
+
 
     const link = this.getLinkById(id);
     if (!link) return false;
     if (link.editableByPlayer === false) return false;
 
+
     if (this.options.confirmLinkDeletion) {
       const ok = window.confirm('Delete this connection?');
       if (!ok) return false;
     }
+
 
     this.state.links = this.state.links.filter(entry => entry.id !== id);
     this.linkElements.get(id)?.remove();
@@ -591,18 +708,22 @@ export class CrimeBoard {
     return true;
   }
 
+
   nextZ() {
     this.zCounter += 1;
     return this.zCounter;
   }
 
+
   render() {
     if (!this._isBoardUsable()) return;
+
 
     this.itemsLayer.innerHTML = '';
     this.svg.innerHTML = '';
     this.itemElements.clear();
     this.linkElements.clear();
+
 
     this.state.items.forEach(item => {
       const el = this.createItemElement(item);
@@ -610,11 +731,13 @@ export class CrimeBoard {
       this.itemElements.set(item.id, el);
     });
 
+
     this.state.links.forEach(link => {
       const group = this.createLinkElement(link);
       this.svg.appendChild(group);
       this.linkElements.set(link.id, group);
     });
+
 
     this.renderItemPositions();
     this.renderLinks();
@@ -622,25 +745,35 @@ export class CrimeBoard {
     this.renderLinksPanel();
   }
 
+
   createItemElement(item) {
     const el = document.createElement('article');
     el.className = `crime-board__item crime-board__item--${item.type}`;
     el.dataset.id = item.id;
+
 
     if (item.pinned) el.classList.add('is-pinned');
     if (!item.discovered) el.classList.add('is-hidden');
     if (item.createdByPlayer) el.classList.add('is-player-item');
     if (item.editableByPlayer) el.classList.add('is-editable');
 
+
+    if (item.motiveVerdict === 'correct') el.classList.add('is-motive-correct');
+    if (item.motiveVerdict === 'incorrect') el.classList.add('is-motive-incorrect');
+
+
     this.applyTagClasses(el, item);
 
+
     el.innerHTML = this.getItemMarkup(item);
+
 
     el.addEventListener('pointerdown', event => this.onItemPointerDown(event, item.id));
     el.addEventListener('click', event => {
       event.stopPropagation();
       this.selectItem(item.id);
     });
+
 
     el.querySelectorAll('[data-anchor]').forEach(anchor => {
       anchor.addEventListener('click', event => {
@@ -650,12 +783,15 @@ export class CrimeBoard {
       });
     });
 
+
     return el;
   }
+
 
   // NOWE: zamienia item.tags na klasy CSS, np. tag "scene-failed" -> klasa "crime-board__item--tag-scene-failed"
   applyTagClasses(el, item) {
     if (!Array.isArray(item.tags) || !item.tags.length) return;
+
 
     item.tags.forEach(tag => {
       const safeTag = String(tag)
@@ -663,11 +799,13 @@ export class CrimeBoard {
         .replace(/[^a-z0-9-]+/g, '-')
         .replace(/^-+|-+$/g, '');
 
+
       if (safeTag) {
         el.classList.add(`crime-board__item--tag-${safeTag}`);
       }
     });
   }
+
 
   getItemMarkup(item) {
     if (item.type === 'photo') {
@@ -677,6 +815,7 @@ export class CrimeBoard {
           <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
           <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
           <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
+
 
           <div class="crime-board__photo-frame">
             <img src="${this.escapeHtml(item.image || '/assets/ui/placeholder-clue.png')}" alt="${this.escapeHtml(item.label)}" draggable="false">
@@ -688,6 +827,7 @@ export class CrimeBoard {
       `;
     }
 
+
     if (item.type === 'evidence') {
       return `
         <div class="crime-board__card crime-board__card--evidence">
@@ -695,6 +835,7 @@ export class CrimeBoard {
           <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
           <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
           <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
+
 
           <p class="crime-board__tag">${this.escapeHtml(item.tag || 'Evidence')}</p>
           <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
@@ -713,12 +854,14 @@ export class CrimeBoard {
       `;
     }
 
+
     return `
       <div class="crime-board__card crime-board__card--note crime-board__card--${this.escapeHtml(item.color || 'yellow')}">
         <button class="crime-board__anchor crime-board__anchor--top" data-anchor="top" type="button" aria-label="Connect from top"></button>
         <button class="crime-board__anchor crime-board__anchor--right" data-anchor="right" type="button" aria-label="Connect from right"></button>
         <button class="crime-board__anchor crime-board__anchor--bottom" data-anchor="bottom" type="button" aria-label="Connect from bottom"></button>
         <button class="crime-board__anchor crime-board__anchor--left" data-anchor="left" type="button" aria-label="Connect from left"></button>
+
 
         <h3 class="crime-board__label">${this.escapeHtml(item.label)}</h3>
         ${item.text ? `<p class="crime-board__body">${this.escapeHtml(item.text)}</p>` : ''}
@@ -727,10 +870,12 @@ export class CrimeBoard {
     `;
   }
 
+
   createLinkElement(link) {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     group.classList.add('crime-board__link');
     group.dataset.id = link.id;
+
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.classList.add('crime-board__link-path');
@@ -740,7 +885,9 @@ export class CrimeBoard {
     this._setSvgAttr(path, 'stroke-linecap', 'round');
     this._setSvgAttr(path, 'stroke-linejoin', 'round');
 
+
     group.appendChild(path);
+
 
     if (link.editableByPlayer) {
       group.addEventListener('click', event => {
@@ -749,16 +896,20 @@ export class CrimeBoard {
       });
     }
 
+
     return group;
   }
+
 
   renderItemPositions() {
     this.state.items.forEach(item => this.renderItemPosition(item));
   }
 
+
   renderItemPosition(item) {
     const el = this.itemElements.get(item.id);
     if (!el) return;
+
 
     el.style.left = `${item.x}px`;
     el.style.top = `${item.y}px`;
@@ -766,26 +917,32 @@ export class CrimeBoard {
     el.style.transform = `rotate(${item.rotation || 0}deg)`;
   }
 
+
   renderLinks() {
     if (!this._isBoardUsable()) return;
+
 
     this.state.links.forEach(link => {
       const group = this.linkElements.get(link.id);
       const path = group?.querySelector('path');
       if (!path) return;
 
+
       const fromPoint = this.getAnchorPosition(link.from, link.fromAnchor);
       const toPoint = this.getAnchorPosition(link.to, link.toAnchor);
       if (!fromPoint || !toPoint) return;
+
 
       this._setSvgAttr(path, 'd', this.buildLinkPath(fromPoint, toPoint));
       this._setSvgAttr(path, 'stroke', link.color || '#b3131b');
     });
 
+
     if (this.connectionMode.active && this.tempPath) {
       this._setSvgAttr(this.tempPath, 'stroke', '#b3131b');
     }
   }
+
 
   renderSelectionState() {
     this.itemElements.forEach((el, id) => {
@@ -793,30 +950,38 @@ export class CrimeBoard {
     });
   }
 
+
   renderLinksPanel() {
     const list = this.editor.linksList;
     const empty = this.editor.linksEmpty;
     if (!list || !empty) return;
 
+
     list.innerHTML = '';
+
 
     if (!this.state.links.length) {
       empty.hidden = false;
       return;
     }
 
+
     empty.hidden = true;
+
 
     this.state.links.forEach(link => {
       const from = this.getItemById(link.from);
       const to = this.getItemById(link.to);
 
+
       const li = document.createElement('li');
       li.className = 'crime-board-links-list__item';
+
 
       const label = document.createElement('span');
       label.textContent = `${from?.label || link.from} → ${to?.label || link.to}`;
       li.appendChild(label);
+
 
       if (link.editableByPlayer) {
         const btn = document.createElement('button');
@@ -827,23 +992,35 @@ export class CrimeBoard {
         li.appendChild(btn);
       }
 
+
       list.appendChild(li);
     });
   }
+
 
   refreshEditor() {
     const item = this.getItemById(this.selectedItemId);
     const editable = Boolean(item?.editableByPlayer);
 
+
     if (this.editor.emptyState) {
       this.editor.emptyState.hidden = editable;
     }
+
 
     if (this.editor.form) {
       this.editor.form.hidden = !editable;
     }
 
+
+    if (this.editor.verifyMotiveBtn) {
+      this.editor.verifyMotiveBtn.hidden = !item;
+      this.editor.verifyMotiveBtn.disabled = !item;
+    }
+
+
     if (!editable || !item) return;
+
 
     const form = this.editor.form;
     form.elements.type.value = item.type;
@@ -855,12 +1032,15 @@ export class CrimeBoard {
       form.elements.pinned.checked = Boolean(item.pinned);
     }
 
+
     this.renderEditorTypeFields(item.type, item);
   }
+
 
   renderEditorTypeFields(type, item = {}) {
     const wrap = this.editor.dynamicFields;
     if (!wrap) return;
+
 
     if (type === 'photo') {
       wrap.innerHTML = `
@@ -880,6 +1060,7 @@ export class CrimeBoard {
       return;
     }
 
+
     if (type === 'evidence') {
       wrap.innerHTML = `
         <label class="crime-board-field">
@@ -894,9 +1075,14 @@ export class CrimeBoard {
           <span>Fields (one per line: key:value)</span>
           <textarea name="fields" rows="6">${this.escapeHtml((item.fields || []).map(row => `${row.key || ''}:${row.value || ''}`).join('\n'))}</textarea>
         </label>
+        <label class="crime-board-field">
+          <span>Motive guess ID (clueId)</span>
+          <input name="clueId" type="text" value="${this.escapeAttribute(item.clueId || '')}" placeholder="e.g. gambling_debt">
+        </label>
       `;
       return;
     }
+
 
     wrap.innerHTML = `
       <label class="crime-board-field">
@@ -907,12 +1093,18 @@ export class CrimeBoard {
         <span>Meta text</span>
         <input name="metaText" type="text" value="${this.escapeAttribute(item.metaText || '')}">
       </label>
+      <label class="crime-board-field">
+        <span>Motive guess ID (clueId)</span>
+        <input name="clueId" type="text" value="${this.escapeAttribute(item.clueId || '')}" placeholder="e.g. gambling_debt">
+      </label>
     `;
   }
+
 
   applyEditorChanges() {
     const item = this.getItemById(this.selectedItemId);
     if (!item || !item.editableByPlayer || !this.editor.form) return null;
+
 
     const form = this.editor.form;
     const type = form.elements.type.value;
@@ -920,8 +1112,13 @@ export class CrimeBoard {
       type,
       label: form.elements.label.value.trim(),
       pinned: Boolean(form.elements.pinned?.checked),
-      color: form.elements.color?.value || 'yellow'
+      color: form.elements.color?.value || 'yellow',
+      clueId: form.elements.clueId?.value.trim() || null,
+      // Editing the item resets any previous verdict; the player must
+      // press "Verify motive" again after changing their guess.
+      motiveVerdict: null
     };
+
 
     if (type === 'photo') {
       patch.image = form.elements.image?.value.trim() || '';
@@ -955,11 +1152,13 @@ export class CrimeBoard {
       patch.fields = [];
     }
 
+
     const updated = this.updateItem(item.id, patch);
     this.selectItem(item.id);
     this.syncJsonOutput();
     return updated;
   }
+
 
   parseFieldsTextarea(value) {
     return String(value || '')
@@ -976,11 +1175,13 @@ export class CrimeBoard {
       .filter(row => row.key || row.value);
   }
 
+
   syncJsonOutput() {
     if (this.editor.jsonOutput) {
       this.editor.jsonOutput.value = this.saveBoard();
     }
   }
+
 
   selectItem(id) {
     this.selectedItemId = id;
@@ -993,33 +1194,90 @@ export class CrimeBoard {
     this.refreshEditor();
   }
 
+
+  // ============================================================
+  // MOTIVE VERIFICATION
+  // An item's `clueId` field doubles as the player's motive guess
+  // (a motive answerId string, e.g. "gambling_debt"). This method
+  // compares it against gameState.caseData.correctMotiveAnswerId via
+  // motiveService.isCorrectMotiveAnswer, then stores the verdict on
+  // the item itself so it survives saveBoard()/loadBoard() cycles and
+  // renders a visual state (is-motive-correct / is-motive-incorrect).
+  // Does not touch links or other items - one guess, one verdict.
+  // ============================================================
+  verifyMotiveGuess(itemId) {
+    if (!this._isBoardUsable()) return null;
+
+    const item = this.getItemById(itemId);
+    if (!item) return null;
+
+    const guessId = (item.clueId || '').trim();
+    if (!guessId) {
+      this.updateItem(itemId, { motiveVerdict: null });
+      return { verified: false, reason: 'NO_GUESS' };
+    }
+
+    const motiveId = gameState.caseData?.motiveId || null;
+    if (!motiveId) {
+      return { verified: false, reason: 'NO_ACTIVE_MOTIVE' };
+    }
+
+    const isCorrect = isCorrectMotiveAnswer(motiveId, guessId);
+    this.updateItem(itemId, { motiveVerdict: isCorrect ? 'correct' : 'incorrect' });
+    this.syncJsonOutput();
+
+    this.root.dispatchEvent(new CustomEvent('crimeboard:motive-verified', {
+      detail: { itemId, guessId, motiveId, isCorrect },
+      bubbles: true
+    }));
+
+    return { verified: true, isCorrect, motiveId, guessId };
+  }
+
+
+  // Convenience read-only check, e.g. for a "Case Closed" button that
+  // wants to know if ANY item on the board currently holds a correct
+  // motive verdict before allowing the arrest sequence to proceed.
+  hasVerifiedCorrectMotive() {
+    return this.state.items.some(item => item.motiveVerdict === 'correct');
+  }
+
+
   onItemPointerDown(event, itemId) {
     if (event.button !== 0) return;
     if (!this._isBoardUsable()) return;
+
 
     const item = this.getItemById(itemId);
     const el = this.itemElements.get(itemId);
     if (!item || !el) return;
 
+
     const rect = el.getBoundingClientRect();
     const rootRect = this.root.getBoundingClientRect();
+
 
     this.drag.activeId = itemId;
     this.drag.pointerId = event.pointerId;
     this.drag.offsetX = event.clientX - rect.left;
     this.drag.offsetY = event.clientY - rect.top;
 
+
     item.z = this.nextZ();
     this.renderItemPosition(item);
+
 
     window.addEventListener('pointermove', this.boundPointerMove);
     window.addEventListener('pointerup', this.boundPointerUp);
 
+
     el.setPointerCapture?.(event.pointerId);
     event.preventDefault();
 
+
     this.drag.rootRect = rootRect;
   }
+
 
   onWindowPointerMove(event) {
     if (!this.drag.activeId) return;
@@ -1028,22 +1286,27 @@ export class CrimeBoard {
       return;
     }
 
+
     const item = this.getItemById(this.drag.activeId);
     if (!item) return;
+
 
     const rootRect = this.root.getBoundingClientRect();
     item.x = event.clientX - rootRect.left - this.drag.offsetX;
     item.y = event.clientY - rootRect.top - this.drag.offsetY;
 
+
     this.renderItemPosition(item);
     this.renderLinks();
   }
+
 
   onWindowPointerUp() {
     if (!this.drag.activeId) return;
     this.clearDragState();
     this.syncJsonOutput();
   }
+
 
   clearDragState() {
     this.drag.activeId = null;
@@ -1052,19 +1315,23 @@ export class CrimeBoard {
     window.removeEventListener('pointerup', this.boundPointerUp);
   }
 
+
   handleAnchorClick(itemId, anchor) {
     if (!this._isBoardUsable()) return;
     if (!this.canStartLinkFromItem(itemId)) return;
+
 
     if (!this.connectionMode.active) {
       this.startConnectionMode(itemId, anchor);
       return;
     }
 
+
     if (this.connectionMode.fromId === itemId) {
       this.resetConnectionMode();
       return;
     }
+
 
     const fromItem = this.getItemById(this.connectionMode.fromId);
     const toItem = this.getItemById(itemId);
@@ -1073,7 +1340,9 @@ export class CrimeBoard {
       return;
     }
 
+
     const editable = Boolean(fromItem.createdByPlayer || toItem.createdByPlayer);
+
 
     const link = this.addLink({
       from: this.connectionMode.fromId,
@@ -1085,18 +1354,22 @@ export class CrimeBoard {
       editableByPlayer: editable
     });
 
+
     this.resetConnectionMode();
     if (link) {
       this.syncJsonOutput();
     }
   }
 
+
   startConnectionMode(itemId, anchor) {
     if (!this._isBoardUsable()) return;
+
 
     this.connectionMode.active = true;
     this.connectionMode.fromId = itemId;
     this.connectionMode.fromAnchor = anchor || 'right';
+
 
     this.tempPath?.remove();
     this.tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -1107,6 +1380,7 @@ export class CrimeBoard {
     this._setSvgAttr(this.tempPath, 'stroke-dasharray', '8 6');
     this._setSvgAttr(this.tempPath, 'stroke-linecap', 'round');
     this.svg.appendChild(this.tempPath);
+
 
     const moveHandler = event => {
       if (!this.connectionMode.active || !this.tempPath) return;
@@ -1120,30 +1394,37 @@ export class CrimeBoard {
       this._setSvgAttr(this.tempPath, 'd', this.buildLinkPath(start, end));
     };
 
+
     this.boundTempMove = moveHandler;
     window.addEventListener('pointermove', this.boundTempMove);
   }
+
 
   resetConnectionMode({ keepListeners = false } = {}) {
     this.connectionMode.active = false;
     this.connectionMode.fromId = null;
     this.connectionMode.fromAnchor = null;
 
+
     if (!keepListeners && this.boundTempMove) {
       window.removeEventListener('pointermove', this.boundTempMove);
       this.boundTempMove = null;
     }
 
+
     this.tempPath?.remove();
     this.tempPath = null;
   }
+
 
   getAnchorPosition(itemId, anchor = 'right') {
     const el = this.itemElements.get(itemId);
     if (!el || !this.root) return null;
 
+
     const rootRect = this.root.getBoundingClientRect();
     const rect = el.getBoundingClientRect();
+
 
     const positions = {
       top: {
@@ -1164,15 +1445,19 @@ export class CrimeBoard {
       }
     };
 
+
     return positions[anchor] || positions.right;
   }
+
 
   buildLinkPath(from, to) {
     const dx = Math.abs(to.x - from.x);
     const curve = Math.max(40, dx * 0.35);
 
+
     return `M ${from.x} ${from.y} C ${from.x + curve} ${from.y}, ${to.x - curve} ${to.y}, ${to.x} ${to.y}`;
   }
+
 
   escapeHtml(value) {
     return String(value ?? '')
@@ -1182,6 +1467,7 @@ export class CrimeBoard {
       .replaceAll('"', '&quot;')
       .replaceAll("'", '&#39;');
   }
+
 
   escapeAttribute(value) {
     return this.escapeHtml(value);

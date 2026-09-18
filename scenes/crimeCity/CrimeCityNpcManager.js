@@ -1,5 +1,9 @@
 import { gameState } from '../../GameData.js';
 
+const GENERIC_NPC_KEYS = [
+  'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
+];
+
 export class CrimeCityNpcManager {
   constructor(scene) {
     this.scene = scene;
@@ -246,19 +250,46 @@ export class CrimeCityNpcManager {
     );
   }
 
+  /**
+   * Zwraca teksturę ikony mapowej świadka alibi.
+   *
+   * WAŻNE: świadkowie w Crime City są anonimowymi przechodniami wizualnie —
+   * ich zawód/rola (npcId, np. "kustosz", "dozorca", "fence") to WYŁĄCZNIE
+   * dana narracyjna z pliku (AlibiWitnessData.js) i NIE MA żadnego związku
+   * z grafiką. Grafika to zawsze jeden z generycznych sprite'ów puli
+   * npc/npc1..npc6, losowany i zapisany w encounter.portraitKey podczas
+   * generowania encounterów (patrz AlibiEncounterSetup.js).
+   *
+   * Dlatego npcId NIGDY nie może brać udziału w wyborze tekstury — inaczej
+   * rola typu "fence" przypadkiem trafia na istniejący portret dialogowy
+   * pasera i podkrada miejsce właściwej, losowej ikonki przechodnia.
+   */
   getNpcTextureKey(encounter) {
     const candidates = [
+      encounter.portraitKey,
       encounter.textureKey,
-      `${encounter.npcId}_${this.scene.cityData.npcTheme}`,
-      encounter.npcId,
-      'fence_w'
+      'npc'
     ].filter(Boolean);
 
     const validTexture = candidates.find(
-      (key) => this.scene.textures.exists(key)
+      (key) =>
+        GENERIC_NPC_KEYS.includes(key) &&
+        this.scene.textures.exists(key)
     );
 
-    return validTexture || 'fence_w';
+    if (!validTexture) {
+      console.warn(
+        '[CrimeCityNpcManager] No valid generic NPC sprite found for encounter — check portraitKey assignment in AlibiEncounterSetup.js.',
+        {
+          encounterId: encounter.id,
+          npcId: encounter.npcId,
+          portraitKey: encounter.portraitKey,
+          textureKey: encounter.textureKey
+        }
+      );
+    }
+
+    return validTexture || 'npc';
   }
 
   isEncounterVisited(encounterId) {

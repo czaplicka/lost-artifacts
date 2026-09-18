@@ -4,8 +4,15 @@
 // - Evidence may suggest a mismatch.
 // - Only a player click in active Exclude Mode can mark a file CLEARED.
 // - Evidence Grid "UNLIKELY" marks never write to deductionState.eliminated.
+// - The only real CLEARED mutation is delegated to:
+//   manuallyClearSuspect() / restoreManuallyClearedSuspect().
 
 import { saveGameState } from '../GameStatePersistence.js';
+
+import {
+  manuallyClearSuspect,
+  restoreManuallyClearedSuspect
+} from '../ui/suspectUtils.js';
 
 function getCaseThiefSuspectId(gameState) {
   return (
@@ -58,11 +65,13 @@ export const SuspectExclusionMixin = {
     const allSuspects = this.getAllSuspects();
 
     const activeCount = allSuspects.filter(
-      (suspect) => suspect?.deductionState?.eliminated !== true
+      (suspect) =>
+        suspect?.deductionState?.eliminated !== true
     ).length;
 
     const clearedCount = allSuspects.filter(
-      (suspect) => suspect?.deductionState?.eliminated === true
+      (suspect) =>
+        suspect?.deductionState?.eliminated === true
     ).length;
 
     const overlay = this.add
@@ -187,7 +196,7 @@ export const SuspectExclusionMixin = {
       this.gameState.suspectExclusionState ??= {};
       this.gameState.suspectExclusionState[caseKey] ??= {};
 
-      const manuallyClearedIds = this.getAllSuspects()
+      const manualExclusionIds = this.getAllSuspects()
         .filter(
           (suspect) =>
             suspect?.deductionState?.eliminated === true
@@ -198,7 +207,7 @@ export const SuspectExclusionMixin = {
         ...this.gameState.suspectExclusionState[caseKey],
         finished: true,
         finishedAt: Date.now(),
-        manualExclusionIds: manuallyClearedIds
+        manualExclusionIds
       };
 
       saveGameState();
@@ -237,7 +246,10 @@ export const SuspectExclusionMixin = {
       this.exclusionButton.isActive = false;
       this.exclusionButton.applyStyle?.();
 
-      this.setButtonEnabled(this.exclusionButton, false);
+      this.setButtonEnabled(
+        this.exclusionButton,
+        false
+      );
 
       this.modeHintText?.setText(
         'Complete the Crime Lab to unlock preliminary suspect exclusions.'
@@ -246,7 +258,14 @@ export const SuspectExclusionMixin = {
       return;
     }
 
-    this.setButtonEnabled(this.exclusionButton, true);
+    this.setButtonEnabled(
+      this.exclusionButton,
+      true
+    );
+
+    this.exclusionButton.buttonBackground.off(
+      'pointerdown'
+    );
 
     if (this.excludeMode) {
       this.exclusionButton.buttonText.setText(
@@ -255,12 +274,6 @@ export const SuspectExclusionMixin = {
 
       this.exclusionButton.isActive = true;
       this.exclusionButton.applyStyle?.();
-
-      /**
-       * Handler jest rejestrowany tylko raz dla aktualnego trybu.
-       * Czyścimy jedynie handler kontrolki, nie globalne eventy sceny.
-       */
-      this.exclusionButton.buttonBackground.off('pointerdown');
 
       this.exclusionButton.buttonBackground.on(
         'pointerdown',
@@ -284,8 +297,6 @@ export const SuspectExclusionMixin = {
 
     this.exclusionButton.isActive = true;
     this.exclusionButton.applyStyle?.();
-
-    this.exclusionButton.buttonBackground.off('pointerdown');
 
     this.exclusionButton.buttonBackground.on(
       'pointerdown',
@@ -331,8 +342,10 @@ export const SuspectExclusionMixin = {
 
   getSuspectHairValue(suspect) {
     const rawValue =
-      suspect?.restrictedProfile?.forensicAttributes?.hair_color?.value ??
-      suspect?.restrictedProfile?.forensicAttributes?.hair_color ??
+      suspect?.restrictedProfile?.forensicAttributes
+        ?.hair_color?.value ??
+      suspect?.restrictedProfile?.forensicAttributes
+        ?.hair_color ??
       null;
 
     if (!rawValue) {
@@ -346,19 +359,19 @@ export const SuspectExclusionMixin = {
   },
 
   /**
-   * `caseSuspects` jest jedynym źródłem prawdy.
-   *
-   * Aliasowe listy są aktualizowane, aby starsze sceny mogły nadal
-   * je odczytać, ale nie szukamy już w trzech niezależnych klonach.
+   * caseSuspects jest jedynym źródłem prawdy.
    */
   getMutableSuspect(suspectId) {
-    const suspects = Array.isArray(this.gameState.caseSuspects)
-      ? this.gameState.caseSuspects
-      : Array.isArray(this.gameState.suspects)
-        ? this.gameState.suspects
-        : Array.isArray(this.gameState.suspectList)
-          ? this.gameState.suspectList
-          : [];
+    const suspects =
+      Array.isArray(this.gameState.caseSuspects) &&
+      this.gameState.caseSuspects.length
+        ? this.gameState.caseSuspects
+        : Array.isArray(this.gameState.suspects) &&
+            this.gameState.suspects.length
+          ? this.gameState.suspects
+          : Array.isArray(this.gameState.suspectList)
+            ? this.gameState.suspectList
+            : [];
 
     this.gameState.caseSuspects = suspects;
     this.gameState.suspects = suspects;
@@ -375,21 +388,17 @@ export const SuspectExclusionMixin = {
     const caseKey = this.getCaseKey();
 
     return Boolean(
-      this.gameState.crimeCityProgress?.[caseKey]?.crimeLabCompleted ||
+      this.gameState.crimeCityProgress?.[caseKey]
+        ?.crimeLabCompleted ||
       this.gameState.csiLabCompleted
     );
   },
 
   /**
-   * Jedyna funkcja w całej grze, która może ustawić
-   * `deductionState.eliminated`.
+   * Jedyna funkcja sceny do ręcznej zmiany CLEAR/RESTORE.
    *
-   * Wymaga:
-   * - aktywnego Exclude Mode,
-   * - ukończonego Crime Lab,
-   * - interakcji po kliknięciu karty,
-   * - podejrzanego z aktualnej puli,
-   * - osoby innej niż prawdziwy złodziej.
+   * Nie ustawia `deductionState.eliminated` bezpośrednio.
+   * Zmianę wykonują wyłącznie funkcje z suspectUtils.js.
    */
   toggleSuspectExclusion(
     suspectId,
@@ -469,28 +478,26 @@ export const SuspectExclusionMixin = {
       return false;
     }
 
-    suspect.deductionState ??= {};
+    const isCurrentlyCleared =
+      suspect.deductionState?.eliminated === true;
 
-    const becomesEliminated =
-      suspect.deductionState.eliminated !== true;
-
-    suspect.deductionState.eliminated = becomesEliminated;
-
-    if (becomesEliminated) {
-      suspect.deductionState.eliminationReasons = [
-        {
-          id: 'manual_preliminary_forensic_exclusion',
-          source: 'suspect_file',
+    const result = isCurrentlyCleared
+      ? restoreManuallyClearedSuspect(suspect.id)
+      : manuallyClearSuspect(suspect.id, {
+          source,
           label: 'Preliminary forensic exclusion',
-          note: 'Manually cleared during the initial laboratory review.',
-          createdAt: Date.now()
-        }
-      ];
+          note:
+            'Manually cleared during the initial laboratory review.',
+          type: 'manual_forensic_review'
+        });
 
-      suspect.deductionState.labStatus = 'manually_cleared';
-    } else {
-      suspect.deductionState.eliminationReasons = [];
-      suspect.deductionState.labStatus = 'pending';
+    if (!result?.success) {
+      this.modeHintText?.setText(
+        result?.message ||
+          'This file cannot be cleared yet.'
+      );
+
+      return false;
     }
 
     this.gameState.selectedSuspectId = suspect.id;
@@ -508,15 +515,17 @@ export const SuspectExclusionMixin = {
         .manualExclusionIds || []
     );
 
-    if (becomesEliminated) {
-      manualExclusionIds.add(suspect.id);
-    } else {
+    if (isCurrentlyCleared) {
       manualExclusionIds.delete(suspect.id);
+    } else {
+      manualExclusionIds.add(suspect.id);
     }
 
     this.gameState.suspectExclusionState[caseKey] = {
       ...this.gameState.suspectExclusionState[caseKey],
-      manualExclusionIds: [...manualExclusionIds],
+      manualExclusionIds: [
+        ...manualExclusionIds
+      ],
       updatedAt: Date.now()
     };
 
@@ -525,7 +534,7 @@ export const SuspectExclusionMixin = {
       {
         suspectId: suspect.id,
         suspectName: suspect.name,
-        eliminated: becomesEliminated,
+        eliminated: !isCurrentlyCleared,
         source
       }
     );
@@ -564,7 +573,8 @@ export const SuspectExclusionMixin = {
       this.scene.start('SuspectGridScene', {
         cityId: this.cityId,
         gameState: this.gameState,
-        suspectIds: this.gameState.suspectGridInput.suspectIds,
+        suspectIds:
+          this.gameState.suspectGridInput.suspectIds,
         returnScene: this.scene.key
       });
 

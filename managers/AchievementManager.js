@@ -1,4 +1,4 @@
-import { EventBus } from './EventBus.js';
+import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 

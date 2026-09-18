@@ -1,5 +1,5 @@
 import { EventBus } from '../EventBus.js';
-import { inventoryManager } from '../InventoryManager.js';
+import { inventoryManager } from '../managers/InventoryManager.js';
 
 export class InventoryPanelUI {
     constructor(scene) {

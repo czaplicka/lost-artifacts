@@ -7,15 +7,15 @@ export class CrimeLabAssistantDialog {
     this.panel = null;
     this.speakerText = null;
     this.bodyText = null;
-    this.promptText = null;
+    this.choiceObjects = [];
+    this.hintText = null;
 
-    this.steps = [];
-    this.stepIndex = 0;
+    this.dialogue = null;
+    this.currentNodeId = null;
     this.onClose = null;
     this.isClosing = false;
 
-    this.boundAdvance = this.advance.bind(this);
-    this.boundClose = this.close.bind(this);
+    this.boundEscape = this.close.bind(this);
   }
 
   isOpen() {
@@ -26,64 +26,55 @@ export class CrimeLabAssistantDialog {
     );
   }
 
-  show({ steps = [], onClose = null } = {}) {
-    if (
-      this.isOpen() ||
-      !this.scene ||
-      !Array.isArray(steps)
-    ) {
+  open({
+    dialogue,
+    startNodeId = null,
+    onClose = null
+  } = {}) {
+    if (this.isOpen() || !this.scene || !dialogue?.nodes) {
       return false;
     }
 
-    this.steps = this.normalizeSteps(steps);
+    const resolvedStartNodeId =
+      startNodeId ||
+      dialogue.defaultNodeId;
 
-    if (this.steps.length === 0) {
+    if (!resolvedStartNodeId || !dialogue.nodes[resolvedStartNodeId]) {
+      console.warn(
+        '[CrimeLabAssistantDialog] Missing dialogue start node.',
+        {
+          startNodeId: resolvedStartNodeId,
+          dialogueId: dialogue.id
+        }
+      );
+
       return false;
     }
 
-    this.stepIndex = 0;
-    this.isClosing = false;
+    this.dialogue = dialogue;
+    this.currentNodeId = resolvedStartNodeId;
     this.onClose =
       typeof onClose === 'function'
         ? onClose
         : null;
+    this.isClosing = false;
 
     this.createPanel();
-    this.renderStep();
+    this.renderCurrentNode();
 
     return true;
-  }
-
-  normalizeSteps(steps) {
-    return steps
-      .map((step) => {
-        if (typeof step === 'string') {
-          return {
-            speaker: 'LAB ASSISTANT',
-            color: '#39ff14',
-            text: step
-          };
-        }
-
-        return {
-          speaker: step?.speaker || 'LAB ASSISTANT',
-          color: step?.color || '#39ff14',
-          text: String(step?.text || '').trim()
-        };
-      })
-      .filter((step) => step.text.length > 0);
   }
 
   createPanel() {
     const { width, height } = this.scene.scale;
 
     const panelWidth = Math.min(
-      Math.max(320, width - 32),
+      Math.max(330, width - 32),
       940
     );
 
     const panelHeight = Math.min(
-      Math.max(250, Math.floor(height * 0.48)),
+      Math.max(300, Math.floor(height * 0.58)),
       height - 28
     );
 
@@ -97,12 +88,12 @@ export class CrimeLabAssistantDialog {
         width,
         height,
         0x000000,
-        0.48
+        0.5
       )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(2999)
-      .setInteractive({ useHandCursor: true });
+      .setInteractive({ useHandCursor: false });
 
     this.panel = this.scene.add
       .rectangle(
@@ -115,8 +106,7 @@ export class CrimeLabAssistantDialog {
       )
       .setStrokeStyle(3, 0x39ff14, 0.9)
       .setScrollFactor(0)
-      .setDepth(3000)
-      .setInteractive({ useHandCursor: true });
+      .setDepth(3000);
 
     this.speakerText = this.scene.add
       .text(
@@ -136,7 +126,7 @@ export class CrimeLabAssistantDialog {
     this.bodyText = this.scene.add
       .text(
         panelX - panelWidth / 2 + 22,
-        panelY - panelHeight / 2 + 52,
+        panelY - panelHeight / 2 + 50,
         '',
         {
           fontFamily: 'SpecialElite',
@@ -146,18 +136,18 @@ export class CrimeLabAssistantDialog {
             width: panelWidth - 44,
             useAdvancedWrap: true
           },
-          lineSpacing: 7
+          lineSpacing: 6
         }
       )
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(3002);
 
-    this.promptText = this.scene.add
+    this.hintText = this.scene.add
       .text(
         panelX + panelWidth / 2 - 18,
         panelY + panelHeight / 2 - 16,
-        '',
+        '[ ESC: CLOSE ]',
         {
           fontFamily: 'PressStart2P',
           fontSize: '8px',
@@ -173,28 +163,15 @@ export class CrimeLabAssistantDialog {
         this.panel,
         this.speakerText,
         this.bodyText,
-        this.promptText
+        this.hintText
       ])
       .setDepth(3000)
       .setAlpha(0)
       .setScale(0.97);
 
-    this.panel.on('pointerdown', this.boundAdvance);
-    this.overlay.on('pointerdown', this.boundAdvance);
-
-    this.scene.input.keyboard.on(
-      'keydown-SPACE',
-      this.boundAdvance
-    );
-
-    this.scene.input.keyboard.on(
-      'keydown-ENTER',
-      this.boundAdvance
-    );
-
     this.scene.input.keyboard.on(
       'keydown-ESC',
-      this.boundClose
+      this.boundEscape
     );
 
     this.scene.tweens.add({
@@ -213,45 +190,200 @@ export class CrimeLabAssistantDialog {
     });
   }
 
-  renderStep() {
-    const step = this.steps[this.stepIndex];
+  renderCurrentNode() {
+    const node = this.dialogue?.nodes?.[this.currentNodeId];
 
-    if (!step || !this.isOpen()) {
+    if (!node || !this.isOpen()) {
       this.close();
       return;
     }
 
+    this.clearChoices();
+
     this.speakerText
-      ?.setText(step.speaker)
-      .setColor(step.color);
+      ?.setText(node.speaker || 'LAB ASSISTANT')
+      .setColor(node.color || '#39ff14');
 
-    this.bodyText?.setText(step.text);
+    this.bodyText?.setText(this.resolveNodeText(node));
 
-    const isLastStep =
-      this.stepIndex >= this.steps.length - 1;
+    const choices = Array.isArray(node.choices)
+      ? node.choices
+      : [];
 
-    this.promptText?.setText(
-      isLastStep
-        ? '[ CLOSE ]'
-        : '[ CLICK / ENTER ]'
-    );
+    this.createChoices(choices);
   }
 
-  advance() {
+  resolveNodeText(node) {
+    const baseText = String(node.text || '').trim();
+
+    if (!node.dynamic) {
+      return baseText;
+    }
+
+    const dynamicText = this.resolveDynamicText(node.dynamic);
+
+    if (!dynamicText) {
+      return baseText;
+    }
+
+    return baseText
+      ? `${baseText}\n\n${dynamicText}`
+      : dynamicText;
+  }
+
+  resolveDynamicText(dynamicKey) {
+    if (dynamicKey === 'assistant_results') {
+      return this.getAssistantResultsText();
+    }
+
+    if (dynamicKey === 'remaining_work') {
+      return this.getRemainingWorkText();
+    }
+
+    return '';
+  }
+
+  getAssistantResultsText() {
+    const summaries = this.scene?.getAssistantResultSummaries?.() || [];
+
+    if (summaries.length === 0) {
+      return 'No analyses were pre-processed for this case. The machines are all yours.';
+    }
+
+    return summaries
+      .map((summary) => {
+        return `• ${summary.label}: ${summary.text}`;
+      })
+      .join('\n\n');
+  }
+
+  getRemainingWorkText() {
+    const remaining =
+      this.scene?.getRemainingAnalysisCount?.() ?? 0;
+
+    if (remaining <= 0) {
+      return 'All required analyses are complete. The forensic profile is ready for the Crime Board.';
+    }
+
+    if (remaining === 1) {
+      return 'One analysis remains. It is waiting at the active workstation.';
+    }
+
+    return `${remaining} analyses remain. Follow the station labels, and do not let the centrifuge hear you doubt it.`;
+  }
+
+  createChoices(choices) {
+    if (!this.scene || !this.panel || !this.bodyText) {
+      return;
+    }
+
+    const { width, height } = this.scene.scale;
+    const panelWidth = this.panel.width;
+    const panelHeight = this.panel.height;
+    const panelX = width / 2;
+    const panelY = height / 2;
+
+    const choiceStartX = panelX - panelWidth / 2 + 22;
+    const choiceStartY = Math.max(
+      panelY - panelHeight / 2 + 150,
+      this.bodyText.y + this.bodyText.height + 18
+    );
+
+    const choiceWidth = panelWidth - 44;
+    const choiceHeight = 34;
+    const choiceGap = 8;
+    const availableBottom = panelY + panelHeight / 2 - 40;
+
+    choices.slice(0, 4).forEach((choice, index) => {
+      const y = choiceStartY + index * (choiceHeight + choiceGap);
+
+      if (y + choiceHeight > availableBottom) {
+        return;
+      }
+
+      const background = this.scene.add
+        .rectangle(
+          choiceStartX,
+          y,
+          choiceWidth,
+          choiceHeight,
+          0x102632,
+          0.95
+        )
+        .setOrigin(0, 0)
+        .setStrokeStyle(1, 0x7df9ff, 0.7)
+        .setScrollFactor(0)
+        .setDepth(3003)
+        .setInteractive({ useHandCursor: true });
+
+      const label = this.scene.add
+        .text(
+          choiceStartX + 12,
+          y + choiceHeight / 2,
+          `> ${choice.text || 'Continue'}`,
+          {
+            fontFamily: 'PressStart2P',
+            fontSize: '8px',
+            color: '#fff4c7',
+            wordWrap: {
+              width: choiceWidth - 24,
+              useAdvancedWrap: true
+            }
+          }
+        )
+        .setOrigin(0, 0.5)
+        .setScrollFactor(0)
+        .setDepth(3004);
+
+      background.on('pointerover', () => {
+        background.setFillStyle(0x1d4552, 1);
+        background.setStrokeStyle(2, 0x39ff14, 1);
+        label.setColor('#39ff14');
+      });
+
+      background.on('pointerout', () => {
+        background.setFillStyle(0x102632, 0.95);
+        background.setStrokeStyle(1, 0x7df9ff, 0.7);
+        label.setColor('#fff4c7');
+      });
+
+      background.on('pointerdown', () => {
+        this.choose(choice);
+      });
+
+      this.choiceObjects.push(background, label);
+    });
+  }
+
+  choose(choice = {}) {
     if (!this.isOpen() || this.isClosing) {
       return;
     }
 
-    const isLastStep =
-      this.stepIndex >= this.steps.length - 1;
-
-    if (isLastStep) {
+    if (choice.action === 'close') {
       this.close();
       return;
     }
 
-    this.stepIndex += 1;
-    this.renderStep();
+    if (choice.next && this.dialogue?.nodes?.[choice.next]) {
+      this.currentNodeId = choice.next;
+      this.renderCurrentNode();
+      return;
+    }
+
+    console.warn(
+      '[CrimeLabAssistantDialog] Choice has no valid next node or action.',
+      choice
+    );
+  }
+
+  clearChoices() {
+    this.choiceObjects.forEach((object) => {
+      object?.removeAllListeners?.();
+      object?.destroy?.();
+    });
+
+    this.choiceObjects = [];
   }
 
   close() {
@@ -266,6 +398,7 @@ export class CrimeLabAssistantDialog {
 
     this.isClosing = true;
     this.removeInputListeners();
+    this.clearChoices();
 
     const callback = this.onClose;
     this.onClose = null;
@@ -279,9 +412,9 @@ export class CrimeLabAssistantDialog {
       this.panel = null;
       this.speakerText = null;
       this.bodyText = null;
-      this.promptText = null;
-      this.steps = [];
-      this.stepIndex = 0;
+      this.hintText = null;
+      this.dialogue = null;
+      this.currentNodeId = null;
       this.isClosing = false;
 
       callback?.();
@@ -306,6 +439,7 @@ export class CrimeLabAssistantDialog {
     this.onClose = null;
 
     this.removeInputListeners();
+    this.clearChoices();
 
     this.container?.destroy?.(true);
     this.overlay?.destroy?.();
@@ -315,36 +449,24 @@ export class CrimeLabAssistantDialog {
     this.panel = null;
     this.speakerText = null;
     this.bodyText = null;
-    this.promptText = null;
-    this.steps = [];
-    this.stepIndex = 0;
+    this.hintText = null;
+    this.dialogue = null;
+    this.currentNodeId = null;
     this.isClosing = false;
 
     callback?.();
   }
 
   removeInputListeners() {
-    this.panel?.off?.('pointerdown', this.boundAdvance);
-    this.overlay?.off?.('pointerdown', this.boundAdvance);
-
-    this.scene?.input?.keyboard?.off?.(
-      'keydown-SPACE',
-      this.boundAdvance
-    );
-
-    this.scene?.input?.keyboard?.off?.(
-      'keydown-ENTER',
-      this.boundAdvance
-    );
-
     this.scene?.input?.keyboard?.off?.(
       'keydown-ESC',
-      this.boundClose
+      this.boundEscape
     );
   }
 
   destroy() {
     this.removeInputListeners();
+    this.clearChoices();
 
     this.container?.destroy?.(true);
     this.overlay?.destroy?.();
@@ -354,9 +476,9 @@ export class CrimeLabAssistantDialog {
     this.panel = null;
     this.speakerText = null;
     this.bodyText = null;
-    this.promptText = null;
-    this.steps = [];
-    this.stepIndex = 0;
+    this.hintText = null;
+    this.dialogue = null;
+    this.currentNodeId = null;
     this.onClose = null;
     this.isClosing = false;
     this.scene = null;

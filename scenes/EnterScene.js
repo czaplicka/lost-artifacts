@@ -3,7 +3,7 @@ import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { saveManager } from '../saveGameService.js';
 import { gameState } from '../GameData.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 const STORAGE_KEYS = {
   GUEST_LAST_USED_SLOT: 'lost-artefacts:last-used-slot',

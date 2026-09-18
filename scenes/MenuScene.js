@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { saveManager } from '../saveGameService.js';
 import { BaseScene } from './BaseScene.js';
 

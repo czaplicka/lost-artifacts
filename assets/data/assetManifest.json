@@ -365,6 +365,7 @@
     { "key": "dialogue_fence", "url": "assets/data/dialogue/fence.json" },
     { "key": "dialogue_knajpa", "url": "assets/data/dialogue/knajpa.json" },
     { "key": "dialogue_parkingowy", "url": "assets/data/dialogue/parkingowy.json" },
+    { "key": "crime_lab_assistant_dialogues", "url": "assets/data/dialogue/crime_lab_assistant_dialogues.json" },
     { "key": "city_clues", "url": "assets/data/city-clues.json" },
     { "key": "suspect_clues", "url": "assets/data/suspect-clues.json" },
     { "key": "objects-data", "url": "assets/data/objects.json" },

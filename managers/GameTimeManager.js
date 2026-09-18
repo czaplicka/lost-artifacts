@@ -1,9 +1,9 @@
-import { EventBus } from './EventBus.js';
-import { gameState } from './GameData.js';
+import { EventBus } from '../EventBus.js';
+import { gameState } from '../GameData.js';
 import {
   isCaseTimeExpired,
   refreshCaseDeadline
-} from './CaseTimeHelper.js';
+} from '../CaseTimeHelper.js';
 
 const OWNER_KEY = 'GameTimeManager';
 

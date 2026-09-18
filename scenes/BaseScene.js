@@ -1,6 +1,6 @@
 import { EventBus } from '../EventBus.js';
-import { MonologueManager } from '../MonologueManager.js';
-import { inventoryManager } from '../InventoryManager.js';
+import { MonologueManager } from '../managers/MonologueManager.js';
+import { inventoryManager } from '../managers/InventoryManager.js';
 
 export class BaseScene extends Phaser.Scene {
   constructor(config) {

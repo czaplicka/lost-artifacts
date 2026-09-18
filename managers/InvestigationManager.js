@@ -1,18 +1,18 @@
-import { gameState, resetCaseOutcomeState } from './GameData.js';
+import { gameState, resetCaseOutcomeState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
-import { EventBus } from './EventBus.js';
+import { EventBus } from '../EventBus.js';
 import { ScoreManager } from './ScoreManager.js';
 import { RouteManager } from './RouteManager.js';
 import { 
   HQ_ID, 
   MAX_DESTINATIONS, 
   MAX_ENCOUNTERS 
-} from './TransportConfig.js';
+} from '../TransportConfig.js';
 import { 
   getLocationByCity, 
   getLocationById, 
   resolveLocationId 
-} from './ui/LocationUI.js';
+} from '../ui/LocationUI.js';
 
 let scoreManagerInstance = null;
 

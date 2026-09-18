@@ -1,4 +1,4 @@
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { NEWSPAPER_CONFIG } from '../assets/data/newspaperConfig.js';
 import { EventBus } from '../EventBus.js';

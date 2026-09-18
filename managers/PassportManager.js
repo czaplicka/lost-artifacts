@@ -1,9 +1,9 @@
 // PassportManager.js
 // Zarządza paszportem gracza: pieczątki wjazdowe, numer paszportu, statystyki podróży.
 
-import { gameState } from './GameData.js';
-import { saveGameState } from './GameStatePersistence.js';
-import { EventBus } from './EventBus.js';
+import { gameState } from '../GameData.js';
+import { saveGameState } from '../GameStatePersistence.js';
+import { EventBus } from '../EventBus.js';
 
 // Data startu sprawy - MUSI być zgodna z UIScene.js (this.startDate).
 // month: 3 = kwiecień (Date() liczy miesiące od 0), więc to 1 kwietnia 1990.

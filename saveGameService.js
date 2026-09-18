@@ -3,8 +3,8 @@ import {
   gameState,
   defaultGameState
 } from './GameData.js';
-import { createSaveManager } from './SaveManager.js';
-import { RouteManager } from './RouteManager.js';
+import { createSaveManager } from './managers/SaveManager.js';
+import { RouteManager } from './managers/RouteManager.js';
 
 const GAME_VERSION = '0.9.0';
 

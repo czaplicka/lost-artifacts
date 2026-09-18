@@ -46,6 +46,17 @@ export function createOfficeHotspotDefinitions(scene) {
       monologueKey: 'inspect.caseFileCabinet',
       action: () => scene.openCasefile()
     },
+        {
+      id: 'ledger',
+      room: 'storage',
+      x: rooms.storage.x + 1525,
+      y: 280,
+      width: 380,
+      height: 450,
+      label: 'Money Ledger',
+      monologueKey: 'inspect.ledger',
+      action: () => this.agencyLedgerUI.open()
+    },
     {
       id: 'book-notes',
       room: 'cabinet',

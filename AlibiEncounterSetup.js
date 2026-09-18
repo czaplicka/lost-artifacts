@@ -5,10 +5,18 @@
 // - An alibi witness is NOT excluded merely because the player returned
 //   to Crime City or because a legacy visitedEncounters entry exists.
 // - A witness becomes interviewed only after dialogue completion.
-// - Each currently active witness receives a unique portrait key when possible.
+// - Witnesses have NO visual identity of their own: their role/job
+//   (npcId, e.g. "fence", "kustosz") is purely narrative data. The
+//   sprite shown on the map is always one of the generic passer-by
+//   icons (npc, npc1..npc6), assigned uniquely per encounter whenever
+//   possible.
 
 import { gameState } from './GameData.js';
 import { generateAlibiWitnesses } from './AlibiWitnessData.js';
+
+const GENERIC_NPC_KEYS = [
+  'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
+];
 
 function getCaseSuspects() {
   const suspects =
@@ -73,76 +81,42 @@ function getWitnessEncounterId(suspectId, witness, index = 0) {
 }
 
 /**
- * Zwraca potencjalne klucze grafik dla świadka.
+ * Przydziela unikatowy sprite (npc/npc1..npc6) każdemu aktywnemu
+ * encounterowi świadka.
  *
- * Nie zakładamy konkretnego systemu assetów. Funkcja zbiera klucze,
- * które mogą już istnieć w danych witnessa, a następnie wybiera
- * pierwszy nieużywany podczas tworzenia encounterów.
- */
-function getPortraitCandidates(witness = {}) {
-  const candidates = [
-    witness.portraitKey,
-    witness.textureKey,
-    witness.imageKey,
-    witness.npcImageKey,
-    witness.npcId
-  ];
-
-  return [...new Set(
-    candidates.filter(
-      (key) =>
-        typeof key === 'string' &&
-        key.trim().length > 0
-    )
-  )];
-}
-
-/**
- * Przydziela unikatowy portret aktywnym NPC.
+ * Świadomie IGNORUJE dowolne pole związane z rolą/tożsamością (npcId,
+ * role, itd.) — sprite pochodzi wyłącznie z generycznej puli, żeby
+ * grafika nigdy nie "zdradzała" zawodu świadka i nigdy przypadkiem
+ * nie wylosowała portretu dialogowego innej postaci (np. pasera).
  *
- * Jeśli nie ma wystarczającej liczby assetów, nie blokuje gry:
- * pozostawia preferowany obrazek, ale wypisuje ostrzeżenie.
- *
- * To daje Ci prostą informację w konsoli, których grafik brakuje,
- * zamiast po cichu generować klony NPC.
+ * Jeśli aktywnych encounterów jest więcej niż grafik w puli (np. 3
+ * podejrzani x 3 świadków = 9 > 7 sprite'ów), część grafik się
+ * powtórzy — logujemy to jako ostrzeżenie, ale nie blokujemy gry.
  */
 function assignUniquePortraitKeys(encounters = []) {
   const usedKeys = new Set();
 
-  return encounters.map((encounter) => {
-    const candidates = getPortraitCandidates(encounter);
-
-    const uniqueCandidate = candidates.find(
+  return encounters.map((encounter, index) => {
+    const freshKey = GENERIC_NPC_KEYS.find(
       (key) => !usedKeys.has(key)
     );
 
     const selectedKey =
-      uniqueCandidate ||
-      candidates[0] ||
-      null;
+      freshKey ||
+      GENERIC_NPC_KEYS[index % GENERIC_NPC_KEYS.length];
 
-    if (selectedKey) {
-      if (usedKeys.has(selectedKey)) {
-        console.warn(
-          '[AlibiEncounterSetup] Reused witness portrait key.',
-          {
-            encounterId: encounter.id,
-            npcId: encounter.npcId,
-            portraitKey: selectedKey
-          }
-        );
-      }
-
-      usedKeys.add(selectedKey);
-    } else {
+    if (!freshKey) {
       console.warn(
-        '[AlibiEncounterSetup] Witness has no portrait/texture key.',
+        '[AlibiEncounterSetup] Not enough generic NPC sprites for all witnesses — reusing one.',
         {
           encounterId: encounter.id,
-          npcId: encounter.npcId
+          npcId: encounter.npcId,
+          portraitKey: selectedKey
         }
       );
     }
+
+    usedKeys.add(selectedKey);
 
     return {
       ...encounter,
@@ -161,6 +135,10 @@ function assignUniquePortraitKeys(encounters = []) {
  *   renderowany lub istnieje w stanie miasta.
  * - Jeżeli stary save nie ma tych pól, witness wraca jako dostępny,
  *   ale nieprzesłuchany.
+ * - portraitKey/textureKey ze starego save'a NIE są tu ostatecznie
+ *   zaufane (mogły powstać przed poprawką i wskazywać na rolę, np.
+ *   "fence") — assignUniquePortraitKeys zawsze je nadpisze poprawną
+ *   grafiką z generycznej puli po tym kroku.
  */
 function normalizeWitnessEncounter(
   encounter = {},
@@ -193,17 +171,7 @@ function normalizeWitnessEncounter(
         ? false
         : encounter.visited === true,
 
-    alibiWitness: true,
-
-    portraitKey:
-      encounter.portraitKey ||
-      encounter.textureKey ||
-      null,
-
-    textureKey:
-      encounter.textureKey ||
-      encounter.portraitKey ||
-      null
+    alibiWitness: true
   };
 }
 
@@ -243,6 +211,10 @@ function shouldRebuildEncounters(existingEncounters, activeSuspects) {
 
 /**
  * Buduje świeżą listę witnessów dla aktywnych podejrzanych.
+ *
+ * portraitKey/textureKey nie są tu ustawiane na podstawie danych
+ * witnessa — zostają przydzielone jednym krokiem, na końcu, przez
+ * assignUniquePortraitKeys, wyłącznie z generycznej puli sprite'ów.
  */
 function createWitnessEncounters(caseKey, activeSuspects) {
   const encounters = [];
@@ -277,17 +249,7 @@ function createWitnessEncounters(caseKey, activeSuspects) {
         dialogueCompleted: false,
         visited: false,
 
-        alibiWitness: true,
-
-        portraitKey:
-          witness.portraitKey ||
-          witness.textureKey ||
-          null,
-
-        textureKey:
-          witness.textureKey ||
-          witness.portraitKey ||
-          null
+        alibiWitness: true
       });
     });
   });
@@ -299,7 +261,9 @@ function createWitnessEncounters(caseKey, activeSuspects) {
  * Przenosi realny postęp z poprzedniej listy do świeżo zbudowanej.
  *
  * Zachowujemy tylko stan zakończonej rozmowy i nie zmieniamy
- * dostępności nowych NPC.
+ * dostępności nowych NPC. Grafika (portraitKey/textureKey) jest
+ * zawsze przydzielana na nowo przez assignUniquePortraitKeys na
+ * końcu ensureAlibiEncounters, więc tutaj jej nie kopiujemy.
  */
 function mergeExistingWitnessProgress(
   newEncounters = [],
@@ -335,21 +299,7 @@ function mergeExistingWitnessProgress(
        */
       interviewed: existing.interviewed === true,
       dialogueCompleted: existing.dialogueCompleted === true,
-      visited: existing.visited === true,
-
-      /**
-       * Portret zachowujemy, jeśli wcześniej był zapisany.
-       * Dzięki temu nie zmieni się po powrocie do miasta.
-       */
-      portraitKey:
-        existing.portraitKey ||
-        existing.textureKey ||
-        encounter.portraitKey,
-
-      textureKey:
-        existing.textureKey ||
-        existing.portraitKey ||
-        encounter.textureKey
+      visited: existing.visited === true
     };
   });
 }
@@ -384,6 +334,8 @@ export function ensureAlibiEncounters(caseKey) {
   /**
    * Gdy obecna lista nadal pasuje do aktywnej puli, normalizujemy ją,
    * ale nie regenerujemy — dzięki temu rozmowy pozostają zapisane.
+   * Grafika i tak jest przeliczana od nowa przez assignUniquePortraitKeys,
+   * co samo naprawia ewentualne stare, błędne wartości portraitKey.
    */
   if (
     Array.isArray(existingEncounters) &&
@@ -523,19 +475,8 @@ export function getWitnessTestimony(
     role: witness.role,
     tone: witness.tone,
 
-    portraitKey:
-      encounter?.portraitKey ||
-      encounter?.textureKey ||
-      witness.portraitKey ||
-      witness.textureKey ||
-      null,
-
-    textureKey:
-      encounter?.textureKey ||
-      encounter?.portraitKey ||
-      witness.textureKey ||
-      witness.portraitKey ||
-      null,
+    portraitKey: encounter?.portraitKey || 'npc',
+    textureKey: encounter?.textureKey || 'npc',
 
     statement: witness.statement,
     contradictionHint: witness.contradictionHint,

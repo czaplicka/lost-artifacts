@@ -1,6 +1,6 @@
-import { gameState } from './GameData.js';
-import { EventBus } from './EventBus.js';
-import rankConfig from './assets/data/rankConfig.json' with { type: 'json' };
+import { gameState } from '../GameData.js';
+import { EventBus } from '../EventBus.js';
+import rankConfig from '../assets/data/rankConfig.json' with { type: 'json' };
 
 /**
  * RankManager

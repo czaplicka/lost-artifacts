@@ -1,6 +1,6 @@
-import { EventBus } from './EventBus.js';
-import { gameState } from './GameData.js';
-import { getDifficultyConfig } from './DifficultySettings.js';
+import { EventBus } from '../EventBus.js';
+import { gameState } from '../GameData.js';
+import { getDifficultyConfig } from '../DifficultySettings.js';
 
 const MAX_HIGH_SCORES = 10;
 const MAX_SESSION_BREAKDOWN = 200;

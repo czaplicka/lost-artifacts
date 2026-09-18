@@ -1,26 +1,36 @@
+import { getWitnessClue, getClueText } from '../motiveService.js';
+import { gameState } from '../GameData.js';
+
+
 function shuffleArray(arr) {
   const copy = Array.isArray(arr) ? [...arr] : [];
+
 
   for (let i = copy.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
 
+
   return copy;
 }
+
 
 export function pickRandom(arr) {
   if (!Array.isArray(arr) || arr.length === 0) return null;
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+
 export function pickRandomUnique(arr, count = 1) {
   if (!Array.isArray(arr) || arr.length === 0) return [];
   return shuffleArray(arr).slice(0, Math.max(0, count));
 }
 
+
 export function splitTags(value) {
   if (!value || typeof value !== 'string') return [];
+
 
   return value
     .split(',')
@@ -28,26 +38,33 @@ export function splitTags(value) {
     .filter(Boolean);
 }
 
+
 export function getSuspectTags(suspect) {
   if (!suspect) return [];
 
+
   const tags = [];
+
 
   if (suspect.hair) tags.push({ category: 'hair', key: suspect.hair });
   if (suspect.eyes) tags.push({ category: 'eyes', key: suspect.eyes });
   if (suspect.features) tags.push({ category: 'features', key: suspect.features });
   if (suspect.accent) tags.push({ category: 'accent', key: suspect.accent });
 
+
   splitTags(suspect.skills).forEach(skill => {
     tags.push({ category: 'skills', key: skill });
   });
+
 
   splitTags(suspect.habitus).forEach(habit => {
     tags.push({ category: 'habitus', key: habit });
   });
 
+
   return tags;
 }
+
 
 function getLocationVariant(npcData, cityId) {
   if (!npcData || !cityId) return null;
@@ -56,6 +73,7 @@ function getLocationVariant(npcData, cityId) {
   return npcData.locationVariants?.[cityId] || npcData.locationVariants?.default || null;
 }
 
+
 function mergePools(localPool, globalPool) {
   return [
     ...(Array.isArray(localPool) ? localPool : []),
@@ -63,8 +81,10 @@ function mergePools(localPool, globalPool) {
   ];
 }
 
+
 function normalizeCityId(cityIdOrName) {
   if (!cityIdOrName || typeof cityIdOrName !== 'string') return null;
+
 
   const raw = cityIdOrName.trim();
   const map = {
@@ -77,10 +97,13 @@ function normalizeCityId(cityIdOrName) {
     'Mark Agency Headquarters': 'hq'
   };
 
+
   if (map[raw]) return map[raw];
+
 
   return raw.toLowerCase().replace(/\s+/g, '_');
 }
+
 
 /**
  * Fills in {currency.*} placeholders in a topics.currency line using the
@@ -95,12 +118,15 @@ function resolveCurrencyTemplate(line, cityId, countryFacts) {
   if (typeof line !== 'string') return line;
   if (!line.includes('{currency.')) return line;
 
+
   const cityFacts = countryFacts?.[normalizeCityId(cityId)];
   const currency = cityFacts?.currency;
   if (!currency) return line;
 
+
   const oldCurrencyName = currency.oldCurrency?.name || currency.name;
   const oldCurrencyFact = currency.oldCurrency?.originFact || '';
+
 
   return line
     .split('{currency.name}').join(currency.name || '')
@@ -111,16 +137,19 @@ function resolveCurrencyTemplate(line, cityId, countryFacts) {
     .split('{currency.oldCurrency.originFact}').join(oldCurrencyFact);
 }
 
+
 function getSharedCityTravelHints(sharedCityClues, targetCityId) {
   if (!sharedCityClues || !targetCityId) return [];
   const normalizedTargetId = normalizeCityId(targetCityId);
   return sharedCityClues?.[normalizedTargetId]?.travelHints || [];
 }
 
+
 function getSharedSuspectPool(sharedSuspectClues, category, key) {
   if (!sharedSuspectClues || !category || !key) return [];
   return sharedSuspectClues?.[category]?.[key] || [];
 }
+
 
 function ensureThreeLines(lines) {
   const safeLines = (Array.isArray(lines) ? lines : [])
@@ -128,18 +157,22 @@ function ensureThreeLines(lines) {
     .filter(Boolean)
     .slice(0, 3);
 
+
   const fallbackLines = [
     'I run on coffee, suspicion, and professionally managed disappointment.',
     'Something about them stood out, but memory is an unreliable investment.',
     'They mentioned another city, though not with the precision I’d call helpful.'
   ];
 
+
   while (safeLines.length < 3) {
     safeLines.push(fallbackLines[safeLines.length]);
   }
 
+
   return safeLines;
 }
+
 
 function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
   if (!suspect) {
@@ -150,6 +183,7 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
       note: null
     };
   }
+
 
   if (suspect.accent) {
     return {
@@ -165,6 +199,7 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
     };
   }
 
+
   if (suspect.features) {
     return {
       line: isCrimeCity
@@ -178,6 +213,7 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
       }
     };
   }
+
 
   if (suspect.hair) {
     return {
@@ -193,6 +229,7 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
     };
   }
 
+
   if (suspect.eyes) {
     return {
       line: isCrimeCity
@@ -207,6 +244,7 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
     };
   }
 
+
   return {
     line: isCrimeCity
       ? 'People here remember the suspect, but only in fragments.'
@@ -215,11 +253,13 @@ function buildFallbackSuspectLine(suspect, isCrimeCity = false) {
   };
 }
 
+
 function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTargetCity = false) {
   const normalizedTargetId = targetCityId ? normalizeCityId(targetCityId) : null;
   const displayName = normalizedTargetId
     ? normalizedTargetId.replaceAll('_', ' ')
     : null;
+
 
   if (isCrimeCity && normalizedTargetId) {
     return {
@@ -233,6 +273,7 @@ function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTarget
     };
   }
 
+
   if (isNextTargetCity && normalizedTargetId) {
     return {
       line: `You are close, detective. From here, the trail points toward ${displayName}.`,
@@ -245,9 +286,11 @@ function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTarget
     };
   }
 
+
   const line = normalizedTargetId
     ? `They were definitely asking about ${displayName}.`
     : 'They mentioned travel, but not clearly enough to be useful.';
+
 
   return {
     line,
@@ -262,9 +305,11 @@ function buildFallbackTravelLine(targetCityId, isCrimeCity = false, isNextTarget
   };
 }
 
+
 function buildStageAwareBanter(variant, { isCrimeCity = false, isNextTargetCity = false } = {}) {
   const pool = Array.isArray(variant?.banter) ? variant.banter : [];
   const selected = pickRandom(pool);
+
 
   if (selected) return selected;
   if (isCrimeCity) return 'This city still smells like panic and expensive lies.';
@@ -273,6 +318,62 @@ function buildStageAwareBanter(variant, { isCrimeCity = false, isNextTargetCity 
   }
   return 'I run on coffee, suspicion, and professionally managed disappointment.';
 }
+
+
+// ============================================================
+// MOTYW - ŚWIADKOWIE NA TRASIE UCIECZKI
+// Jeśli NPC (npcId) z tego miasta jest świadkiem bieżącego etapu
+// motywu, dokładamy jedną linijkę z npcMotiveClues.json.
+// Side effect: GameState dostaje zaliczony stage + final unlock.
+// ============================================================
+function buildMotiveClue(npcId, isCorrectCity) {
+  if (!isCorrectCity || !npcId) return null;
+  if (!gameState.caseData?.motiveId) return null;
+
+  const alreadyDone = Array.isArray(gameState.caseData.motiveStagesDone)
+    ? gameState.caseData.motiveStagesDone
+    : [];
+
+  const hit = getWitnessClue(
+    gameState.caseData.motiveId,
+    npcId,
+    alreadyDone
+  );
+  if (!hit) return null;
+
+  const text = getClueText(gameState.caseData.motiveId, npcId, hit.clueKey);
+  if (!text) return null;
+
+  // Efekt zaliczenia etapu - zapisujemy od razu, bo buildNpcDialogue
+  // to jedyny moment, w którym faktycznie dochodzi do rozmowy.
+  gameState.caseData.motiveStagesDone = [...alreadyDone, hit.stage.evidenceId];
+
+  if (hit.stage.boardAnswerUnlocked) {
+    gameState.caseData.motiveBoardUnlocked = true;
+  }
+
+  if (Array.isArray(gameState.cluesCollected)) {
+    gameState.cluesCollected.push({
+      id: hit.stage.evidenceId,
+      label: hit.stage.label,
+      type: 'motive',
+      npcId,
+      motiveStrength: hit.stage.motiveStrength
+    });
+  }
+
+  return {
+    line: text,
+    note: {
+      type: 'motive',
+      evidenceId: hit.stage.evidenceId,
+      label: hit.stage.label,
+      npcId,
+      boardAnswerUnlocked: Boolean(hit.stage.boardAnswerUnlocked)
+    }
+  };
+}
+
 
 /**
  * Picks one witness-clue line about the suspect. Candidates are:
@@ -295,22 +396,28 @@ export function buildSuspectClueLines(
   const suspectTags = getSuspectTags(suspect);
   const currencyPool = Array.isArray(topicsPool?.currency) ? topicsPool.currency : [];
 
+
   const candidateTags = currencyPool.length > 0
     ? [...suspectTags, { category: 'currency', key: 'transaction' }]
     : suspectTags;
+
 
   const allTags = shuffleArray(candidateTags);
   const lines = [];
   const notes = [];
   const usedKeys = new Set();
 
+
   for (const tag of allTags) {
     if (lines.length >= count) break;
+
 
     const uniqueId = `${tag.category}:${tag.key}`;
     if (usedKeys.has(uniqueId)) continue;
 
+
     let pool;
+
 
     if (tag.category === 'currency') {
       pool = currencyPool;
@@ -320,14 +427,18 @@ export function buildSuspectClueLines(
       pool = mergePools(localPool, sharedPool);
     }
 
+
     if (pool.length === 0) continue;
+
 
     const rawLine = pickRandom(pool);
     if (!rawLine) continue;
 
+
     const line = tag.category === 'currency'
       ? resolveCurrencyTemplate(rawLine, cityId, countryFacts)
       : rawLine;
+
 
     lines.push(line);
     notes.push({
@@ -337,17 +448,22 @@ export function buildSuspectClueLines(
       value: tag.category === 'currency' ? normalizeCityId(cityId) : tag.key
     });
 
+
     usedKeys.add(uniqueId);
   }
+
 
   return { lines, notes };
 }
 
+
 export function normalizeTravelHint(hint, targetCityId, options = {}) {
   if (!hint) return null;
 
+
   const { allowOnlyCanonicalTravelClue = true } = options;
   const normalizedTargetId = targetCityId ? normalizeCityId(targetCityId) : null;
+
 
   if (typeof hint === 'string') {
     return {
@@ -361,8 +477,10 @@ export function normalizeTravelHint(hint, targetCityId, options = {}) {
     };
   }
 
+
   if (typeof hint === 'object' && hint.text) {
     const normalizedHintCityId = hint.cityId ? normalizeCityId(hint.cityId) : null;
+
 
     if (
       allowOnlyCanonicalTravelClue &&
@@ -372,6 +490,7 @@ export function normalizeTravelHint(hint, targetCityId, options = {}) {
     ) {
       return null;
     }
+
 
     return {
       text: hint.text,
@@ -384,8 +503,10 @@ export function normalizeTravelHint(hint, targetCityId, options = {}) {
     };
   }
 
+
   return null;
 }
+
 
 export function buildTravelClue(
   npcData,
@@ -397,18 +518,23 @@ export function buildTravelClue(
 ) {
   const { allowOnlyCanonicalTravelClue = true } = options;
 
+
   const normalizedCityId = normalizeCityId(cityId);
   const normalizedTargetId = normalizeCityId(targetCityId);
   const variant = getLocationVariant(npcData, normalizedCityId) || {};
+
 
   const localCityPool = variant?.travelHints || {};
   const localTravelHints =
     Array.isArray(localCityPool[normalizedTargetId]) ? localCityPool[normalizedTargetId] : [];
 
+
   const sharedTravelHints = getSharedCityTravelHints(sharedCityClues, normalizedTargetId);
   const hintPool = mergePools(localTravelHints, sharedTravelHints);
 
+
   const selected = pickRandomUnique(hintPool, Math.max(0, count));
+
 
   if (!selected || selected.length === 0) {
     const fallback = buildFallbackTravelLine(normalizedTargetId, false, true);
@@ -418,9 +544,11 @@ export function buildTravelClue(
     };
   }
 
+
   const normalized = selected
     .map(hint => normalizeTravelHint(hint, normalizedTargetId, { allowOnlyCanonicalTravelClue }))
     .filter(Boolean);
+
 
   if (normalized.length === 0) {
     const fallback = buildFallbackTravelLine(normalizedTargetId, false, true);
@@ -430,33 +558,46 @@ export function buildTravelClue(
     };
   }
 
+
   return {
     lines: normalized.map(item => item.text),
     notes: normalized.map(item => item.note).filter(Boolean)
   };
 }
 
+
 function noteToReminderLine(note) {
   if (!note) return null;
+
 
   if (note.type === 'suspect') {
     return `As I told you, one thing stood out: ${String(note.value).toLowerCase()}.`;
   }
 
+
   if (note.type === 'travel' && note.cityId) {
     return `As I told you, they were asking about ${note.cityId.replaceAll('_', ' ')}.`;
   }
 
+
+  if (note.type === 'motive' && note.label) {
+    return `As I said - this visits your case file: ${note.label}.`;
+  }
+
+
   return null;
 }
+
 
 export function buildReminderDialogue(npcData, cityId, previousNotes = []) {
   const variant = getLocationVariant(npcData, normalizeCityId(cityId)) || {};
   const repeatPool = Array.isArray(variant.repeatLines) ? variant.repeatLines : [];
   const selectedPair = pickRandom(repeatPool);
 
+
   const reminderSource = Array.isArray(previousNotes) ? previousNotes[0] : null;
   const reminderLine = noteToReminderLine(reminderSource);
+
 
   return {
     lines: ensureThreeLines([
@@ -468,10 +609,12 @@ export function buildReminderDialogue(npcData, cityId, previousNotes = []) {
   };
 }
 
+
 export function buildRepeatDialogue(npcData, cityId) {
   const variant = getLocationVariant(npcData, normalizeCityId(cityId));
   const repeatPool = Array.isArray(variant?.repeatLines) ? variant.repeatLines : [];
   const selectedPair = pickRandom(repeatPool);
+
 
   if (Array.isArray(selectedPair) && selectedPair.length > 0) {
     return {
@@ -484,6 +627,7 @@ export function buildRepeatDialogue(npcData, cityId) {
     };
   }
 
+
   return {
     lines: ensureThreeLines([
       'We already talked, detective.',
@@ -494,10 +638,12 @@ export function buildRepeatDialogue(npcData, cityId) {
   };
 }
 
+
 export function buildFalseLeadDialogue(npcData, cityId) {
   const variant = getLocationVariant(npcData, normalizeCityId(cityId));
   const falseLeadPool = Array.isArray(variant?.falseLeadLines) ? variant.falseLeadLines : [];
   const selectedPair = pickRandom(falseLeadPool);
+
 
   if (Array.isArray(selectedPair) && selectedPair.length > 0) {
     return {
@@ -510,6 +656,7 @@ export function buildFalseLeadDialogue(npcData, cityId) {
     };
   }
 
+
   return {
     lines: ensureThreeLines([
       'Wrong city, detective.',
@@ -520,8 +667,10 @@ export function buildFalseLeadDialogue(npcData, cityId) {
   };
 }
 
+
 export function buildNpcDialogue({
   npcData,
+  npcId = null,
   suspect,
   cityId,
   targetCityId,
@@ -542,13 +691,16 @@ export function buildNpcDialogue({
     return buildFalseLeadDialogue(npcData, cityId);
   }
 
+
   if (isRepeat) {
     if (Array.isArray(previousNotes) && previousNotes.length > 0) {
       return buildReminderDialogue(npcData, cityId, previousNotes);
     }
 
+
     return buildRepeatDialogue(npcData, cityId);
   }
+
 
   const activeTravelCityId =
     canonicalTravelCityId ||
@@ -556,14 +708,17 @@ export function buildNpcDialogue({
     gameState.nextTargetCityId ||
     null;
 
+
   const safeTargetCityId =
     activeTravelCityId &&
     normalizeCityId(activeTravelCityId) !== normalizeCityId(cityId)
       ? activeTravelCityId
       : null;
 
+
   const variant = getLocationVariant(npcData, normalizeCityId(cityId)) || {};
   const banter = buildStageAwareBanter(variant, { isCrimeCity, isNextTargetCity });
+
 
   const suspectClues = suspect
     ? buildSuspectClueLines(
@@ -575,6 +730,7 @@ export function buildNpcDialogue({
         countryFacts
       )
     : { lines: [], notes: [] };
+
 
   const travel =
     clueScope === 'finale' || !safeTargetCityId
@@ -588,12 +744,14 @@ export function buildNpcDialogue({
           { allowOnlyCanonicalTravelClue, routeIndex }
         );
 
+
   const fallbackSuspect = buildFallbackSuspectLine(suspect, isCrimeCity);
   const fallbackTravel = buildFallbackTravelLine(
     safeTargetCityId,
     isCrimeCity,
     isNextTargetCity
   );
+
 
   const suspectLine = suspectClues.lines[0] || fallbackSuspect.line;
   const suspectNotes =
@@ -603,6 +761,7 @@ export function buildNpcDialogue({
       ? [fallbackSuspect.note]
       : [];
 
+
   const travelLine = travel.lines[0] || fallbackTravel.line;
   const travelNotes =
     travel.notes.length > 0
@@ -611,15 +770,27 @@ export function buildNpcDialogue({
       ? [fallbackTravel.note]
       : [];
 
+
+  // Motyw: jeśli ten NPC jest świadkiem bieżącego etapu, dokładamy
+  // trzeci slot treści. Efekt zaliczenia już zapisany do gameState
+  // w buildMotiveClue (ZANIM render), żeby dialog i stan nie uciekły
+  // się na dwa różne zapisy.
+  const motiveClue = buildMotiveClue(npcId, isCorrectCity);
+  const motiveLine = motiveClue?.line || null;
+  const motiveNotes = motiveClue?.note ? [motiveClue.note] : [];
+
+
+  const lines = motiveLine
+    ? ensureThreeLines([banter, motiveLine, suspectLine])
+    : ensureThreeLines([banter, suspectLine, travelLine]);
+
+
   return {
-    lines: ensureThreeLines([
-      banter,
-      suspectLine,
-      travelLine
-    ]),
+    lines,
     notes: [
+      ...motiveNotes,
       ...suspectNotes,
-      ...travelNotes
+      ...(motiveLine ? [] : travelNotes)
     ]
   };
 }

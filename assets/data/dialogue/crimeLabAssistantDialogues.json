@@ -1,0 +1,83 @@
+{
+  "id": "crime_lab_assistant_dialogues",
+  "version": 1,
+  "defaultNodeId": "greeting",
+  "nodes": {
+    "greeting": {
+      "speaker": "LAB ASSISTANT",
+      "text": "Crime Lab. Please keep your fingerprints off the evidence and your coffee off the microscope.",
+      "choices": [
+        {
+          "id": "case_results",
+          "text": "What results do we have?",
+          "next": "case_results"
+        },
+        {
+          "id": "remaining_work",
+          "text": "What do you need me to do?",
+          "next": "remaining_work"
+        },
+        {
+          "id": "about_lab",
+          "text": "How is the lab holding up?",
+          "next": "about_lab"
+        },
+        {
+          "id": "goodbye",
+          "text": "Thanks. I will get back to the case.",
+          "action": "close"
+        }
+      ]
+    },
+    "case_results": {
+      "speaker": "LAB ASSISTANT",
+      "text": "I prepared the results that were safe to delegate. The others are waiting for your official detective supervision.",
+      "dynamic": "assistant_results",
+      "choices": [
+        {
+          "id": "results_back",
+          "text": "Anything else?",
+          "next": "greeting"
+        },
+        {
+          "id": "results_leave",
+          "text": "I have what I need.",
+          "action": "close"
+        }
+      ]
+    },
+    "remaining_work": {
+      "speaker": "LAB ASSISTANT",
+      "text": "I can tell you exactly how much work remains. I cannot make the paperwork disappear. I have tried.",
+      "dynamic": "remaining_work",
+      "choices": [
+        {
+          "id": "work_back",
+          "text": "Understood. What else?",
+          "next": "greeting"
+        },
+        {
+          "id": "work_leave",
+          "text": "I will handle it.",
+          "action": "close"
+        }
+      ]
+    },
+    "about_lab": {
+      "speaker": "LAB ASSISTANT",
+      "text": "The centrifuge is dramatic, the printer is hostile, and the coffee machine has refused to testify. Standard operating conditions.",
+      "choices": [
+        {
+          "id": "lab_back",
+          "text": "Back to the case.",
+          "next": "greeting"
+        },
+        {
+          "id": "lab_leave",
+          "text": "Good luck with that.",
+          "action": "close"
+        }
+      ]
+    }
+  }
+}

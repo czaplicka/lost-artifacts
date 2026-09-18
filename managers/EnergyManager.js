@@ -1,6 +1,6 @@
 // EnergyManager.js (FULL REPLACEMENT)
-import { EventBus } from './EventBus.js';
-import { gameState } from './GameData.js';
+import { EventBus } from '../EventBus.js';
+import { gameState } from '../GameData.js';
 
 // ============================================================
 // EnergyManager.js

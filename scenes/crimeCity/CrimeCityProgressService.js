@@ -1,7 +1,7 @@
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../EnergyManager.js';
 import { saveGameState } from '../../GameStatePersistence.js';
-import { getUnifiedTravelManager } from '../../UnifiedTravelManager.js';
+import { getUnifiedTravelManager } from '../../managers/UnifiedTravelManager.js';
 
 const ENERGY_BASE_COSTS = {
   travel: {

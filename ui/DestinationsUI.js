@@ -2,57 +2,32 @@ import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { travelToCity as performTravel } from '../gameSetup.js';
+import { getUnifiedTravelManager } from '../managers/UnifiedTravelManager.js';
 import {
     moneyManager,
-    MONEY_SOURCE,
-    ECONOMY_CATEGORY
-} from '../MoneyManager.js';
+    MONEY_SOURCE
+} from '../managers/MoneyManager.js';
 
-const TRANSPORT_CONFIG = {
-    plane: {
-        id: 'plane',
-        icon: '✈',
-        label: 'Plane',
-        color: 0xd9c27a,
-        minHours: 2,
-        hoursPerMapPixel: 0.012,
-        baseCost: 130,
-        costPerHour: 35,
-        energyPerHour: 0.7
-    },
-    train: {
-        id: 'train',
-        icon: '🚆',
-        label: 'Train',
-        color: 0x8fd3ff,
-        minHours: 3,
-        hoursPerMapPixel: 0.045,
-        baseCost: 35,
-        costPerHour: 15,
-        energyPerHour: 1.15
-    },
-    bus: {
-        id: 'bus',
-        icon: '🚌',
-        label: 'Bus',
-        color: 0xffb347,
-        minHours: 4,
-        hoursPerMapPixel: 0.06,
-        baseCost: 18,
-        costPerHour: 9,
-        energyPerHour: 1.7
-    },
-    ship: {
-        id: 'ship',
-        icon: '🚢',
-        label: 'Ship',
-        color: 0x62b6cb,
-        minHours: 6,
-        hoursPerMapPixel: 0.03,
-        baseCost: 45,
-        costPerHour: 12,
-        energyPerHour: 1.25
-    }
+// ============================================================
+// MIGRACJA PODRÓŻY - KROK 2 (2026-09-18)
+// Ten plik NIE liczy już własnej matematyki transportu i NIE płaci
+// za bilet. Cała matematyka (czas/koszt/energia) i cała płatność
+// (cash -> agencyBudget -> agencyDebt) żyje teraz w UnifiedTravelManager,
+// wołanym z gameSetup.js/travelToCity(). Tutaj zostaje tylko:
+// - metadane wizualne transportu (ikona/kolor) - UnifiedTravelManager
+//   nie wie i nie musi wiedzieć, jak coś wygląda na ekranie
+// - podgląd (buildTransportOption) budowany z TYCH SAMYCH liczb, które
+//   policzy UnifiedTravelManager przy realnej podróży - więc podgląd
+//   nigdy nie rozjedzie się z tym, co gracz faktycznie zapłaci
+// - obsługa blokady energetycznej (kasa nigdy nie blokuje - może tylko
+//   pójść w agencyDebt, więc UI nie musi tego już sprawdzać na wejściu)
+// ============================================================
+
+const TRANSPORT_UI_META = {
+    plane: { icon: '✈', color: 0xd9c27a },
+    train: { icon: '🚆', color: 0x8fd3ff },
+    bus: { icon: '🚌', color: 0xffb347 },
+    ship: { icon: '🚢', color: 0x62b6cb }
 };
 
 const ROUTE_LINE_COLOR = 0xff4f81;
@@ -199,6 +174,16 @@ export class DestinationsUI {
             color: '#ffd166'
         });
 
+        this.debtWarning = this.scene.add.text(20, 282, '', {
+            fontFamily: 'SpecialElite',
+            fontSize: '15px',
+            color: '#ff9d6b',
+            wordWrap: {
+                width: 340,
+                useAdvancedWrap: true
+            }
+        });
+
         this.confirmButton = this.scene.add
             .rectangle(190, 315, 245, 44, 0x6c757d, 1)
             .setOrigin(0.5, 0)
@@ -237,6 +222,7 @@ export class DestinationsUI {
             this.transportPrompt,
             this.infoTravel,
             this.infoHours,
+            this.debtWarning,
             this.confirmButton,
             this.confirmLabel
         ]);
@@ -654,45 +640,32 @@ export class DestinationsUI {
         return region === 'europe' || region === 'north_america';
     }
 
-    getMapDistance(fromCity, toCity) {
-        if (!fromCity?.map || !toCity?.map) return 250;
-
-        return Phaser.Math.Distance.Between(
-            fromCity.map.x,
-            fromCity.map.y,
-            toCity.map.x,
-            toCity.map.y
-        );
-    }
-
+    /**
+     * Podgląd transportu - liczy TE SAME wartości, które przy realnej
+     * podróży policzy UnifiedTravelManager.calculateTravelBetweenLocations().
+     * allowEncounter:false, żeby podgląd nie losował encounterów.
+     */
     buildTransportOption(transportType, fromCity, toCity) {
-        const config = TRANSPORT_CONFIG[transportType];
-        const distance = this.getMapDistance(fromCity, toCity);
+        const travelManager = getUnifiedTravelManager();
+        const meta = TRANSPORT_UI_META[transportType] || {};
+        const rule = travelManager.getTransportRule(transportType);
 
-        const hours = Math.max(
-            config.minHours,
-            Math.round(
-                config.minHours +
-                distance * config.hoursPerMapPixel
-            )
-        );
-
-        const cost = Math.round(
-            config.baseCost +
-            hours * config.costPerHour
-        );
-
-        const energyChange = -Math.max(
-            2,
-            Math.round(hours * config.energyPerHour)
+        const travelData = travelManager.calculateTravelBetweenLocations(
+            fromCity,
+            toCity,
+            transportType,
+            { allowEncounter: false }
         );
 
         return {
-            ...config,
-            travelHours: hours,
-            baseTravelHours: hours,
-            moneySpent: cost,
-            energyChange
+            id: transportType,
+            icon: meta.icon || '❔',
+            color: meta.color ?? 0xaaaaaa,
+            label: rule.label,
+            travelHours: travelData.totalTravelHours,
+            baseTravelHours: travelData.baseTravelHours,
+            moneySpent: travelData.moneyCost,
+            energyChange: -travelData.energyCost
         };
     }
 
@@ -850,6 +823,7 @@ export class DestinationsUI {
             this.transportPrompt.setText('');
             this.infoTravel.setText('');
             this.infoHours.setText('');
+            this.debtWarning.setText('');
             this.confirmLabel.setText('Choose a city');
             return;
         }
@@ -870,18 +844,16 @@ export class DestinationsUI {
             this.transportPrompt.setText('No sensible route is available.');
             this.infoTravel.setText('');
             this.infoHours.setText('');
+            this.debtWarning.setText('');
             this.confirmLabel.setText('No route available');
             this.setConfirmEnabled(false);
             return;
         }
 
         const agencyBudget = this.getAvailableAgencyBudget();
-        const canAfford = this.canAffordTravel(preview.moneySpent);
+        const willGoIntoDebt = this.wouldCreateDebt(preview.moneySpent);
 
-        this.transportPrompt.setColor(
-            canAfford ? '#ffd166' : '#ff6b6b'
-        );
-
+        this.transportPrompt.setColor('#ffd166');
         this.transportPrompt.setText(
             `Selected: ${this.selectedTransport.icon} ${this.selectedTransport.label}`
         );
@@ -896,13 +868,14 @@ export class DestinationsUI {
             `Travel time: +${preview.travelHours}h`
         );
 
-        this.confirmLabel.setText(
-            canAfford
-                ? `Go by ${this.selectedTransport.label}`
-                : 'Agency budget too low'
+        this.debtWarning.setText(
+            willGoIntoDebt
+                ? '⚠ Not enough cash + budget - will add to agency debt.'
+                : ''
         );
 
-        this.setConfirmEnabled(canAfford);
+        this.confirmLabel.setText(`Go by ${this.selectedTransport.label}`);
+        this.setConfirmEnabled(true);
     }
 
     previewRoute(cityObj) {
@@ -987,13 +960,18 @@ export class DestinationsUI {
         );
     }
 
-    canAffordTravel(cost) {
-        const safeCost = Math.max(
-            0,
-            Math.round(Number(cost) || 0)
-        );
+    /**
+     * Informacyjne (NIE blokujące) sprawdzenie: czy ten bilet przekroczy
+     * cash + agencyBudget i wpadnie w agencyDebt. Kasa nigdy nie blokuje
+     * podróży - to tylko ostrzeżenie w UI.
+     */
+    wouldCreateDebt(cost) {
+        const safeCost = Math.max(0, Math.round(Number(cost) || 0));
+        const availableFunds =
+            Math.max(0, Math.floor(gameState.cash || 0)) +
+            Math.max(0, Math.floor(gameState.agencyBudget || 0));
 
-        return this.getAvailableAgencyBudget() >= safeCost;
+        return safeCost > availableFunds;
     }
 
     showTravelError(message) {
@@ -1004,49 +982,6 @@ export class DestinationsUI {
             if (!this.isOpen || !this.selectedTransport) return;
             this.refreshInfoPanel(this.selectedCity);
         });
-    }
-
-    chargeTravel(selectedCityData, selectedTransport) {
-        const cost = Math.max(
-            0,
-            Math.round(Number(selectedTransport?.moneySpent) || 0)
-        );
-
-        if (!cost) return true;
-
-        if (!this.canAffordTravel(cost)) {
-            this.showTravelError(
-                `Agency budget too low. Need ${this.formatMoney(cost)}.`
-            );
-            return false;
-        }
-
-        const payment = moneyManager.spend(cost, {
-            source: MONEY_SOURCE.AGENCY,
-            category: ECONOMY_CATEGORY.TRAVEL,
-            description: `${selectedTransport.label} ticket to ${selectedCityData.city}`,
-            metadata: {
-                transportType: selectedTransport.id,
-                destinationCityId: selectedCityData.id,
-                destinationCity: selectedCityData.city
-            }
-        });
-
-        if (!payment.ok) {
-            this.showTravelError(
-                `Ticket payment failed. Need ${this.formatMoney(cost)}.`
-            );
-            return false;
-        }
-
-        EventBus.emit('travelTicketPurchased', {
-            cityId: selectedCityData.id,
-            city: selectedCityData.city,
-            transportType: selectedTransport.id,
-            cost
-        });
-
-        return true;
     }
 
     disableHotspots() {
@@ -1094,17 +1029,6 @@ export class DestinationsUI {
             return false;
         }
 
-        if (!this.canAffordTravel(selectedTransport.moneySpent)) {
-            this.showTravelError(
-                `Agency budget too low. Need ${this.formatMoney(
-                    selectedTransport.moneySpent
-                )}.`
-            );
-
-            this.refreshInfoPanel(this.selectedCity);
-            return false;
-        }
-
         const fromCityId =
             this.gameState?.currentCityId ||
             gameState.currentCityId ||
@@ -1119,17 +1043,9 @@ export class DestinationsUI {
         this.setConfirmEnabled(false);
 
         try {
-            const wasCharged = this.chargeTravel(
-                selectedCityData,
-                selectedTransport
-            );
-
-            if (!wasCharged) {
-                this.isTransitioning = false;
-                this.refreshInfoPanel(this.selectedCity);
-                return false;
-            }
-
+            // Płatność i konsumpcja energii dzieją się TERAZ wewnątrz
+            // performTravel() (gameSetup.js -> UnifiedTravelManager).
+            // Ten plik już nic nie pobiera z konta agencji.
             const result = performTravel(
                 selectedCityData.city,
                 locationsData,
@@ -1140,23 +1056,25 @@ export class DestinationsUI {
                 throw new Error('performTravel returned no result.');
             }
 
-            const travelHours =
-                Number(result.travelHours) ||
-                Number(selectedTransport.travelHours) ||
-                0;
+            if (result.blocked) {
+                this.isTransitioning = false;
 
-            const baseTravelHours =
-                Number(result.baseTravelHours) ||
-                Number(selectedTransport.baseTravelHours) ||
-                travelHours;
+                this.showTravelError(
+                    result.blockReason === 'insufficient_energy'
+                        ? 'Too exhausted to travel. Get some sleep first.'
+                        : 'Travel is currently blocked.'
+                );
 
-            const energyChange = Number.isFinite(Number(result.energyChange))
-                ? Number(result.energyChange)
-                : Number(selectedTransport.energyChange) || 0;
+                this.refreshInfoPanel(this.selectedCity);
+                this.setConfirmEnabled(Boolean(this.selectedTransport));
+                return false;
+            }
 
-            const moneySpent = Number.isFinite(Number(result.moneySpent))
-                ? Number(result.moneySpent)
-                : Number(selectedTransport.moneySpent) || 0;
+            const travelHours = Number(result.travelHours) || 0;
+            const baseTravelHours = Number(result.baseTravelHours) || travelHours;
+            const energyChange = Number(result.energyChange) || 0;
+            const moneySpent = Number(result.moneySpent) || 0;
+            const agencyDebtAdded = Number(result.agencyDebtAdded) || 0;
 
             EventBus.emit('advanceTime', travelHours, 0);
 
@@ -1170,12 +1088,21 @@ export class DestinationsUI {
                 travelHours,
                 baseTravelHours,
                 moneySpent,
+                agencyDebtAdded,
                 energyChange,
                 travelEncounter: result.travelEncounter || null,
                 wasCorrect: Boolean(result.wasCorrect)
             };
 
             saveGameState();
+
+            EventBus.emit('travelTicketPurchased', {
+                cityId: selectedCityData.id,
+                city: selectedCityData.city,
+                transportType: selectedTransport.id,
+                cost: moneySpent,
+                agencyDebtAdded
+            });
 
             EventBus.emit('firstCaseTravelStarted', {
                 fromCityId,
@@ -1220,6 +1147,7 @@ export class DestinationsUI {
                 travelHours,
                 baseTravelHours,
                 moneySpent,
+                agencyDebtAdded,
                 energyChange,
                 travelEncounter: result.travelEncounter || null,
                 wasCorrect: Boolean(result.wasCorrect),

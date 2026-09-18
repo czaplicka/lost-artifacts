@@ -1,6 +1,7 @@
+// scenes/CrimeCityScene.js
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
 import { EventBus } from '../EventBus.js';
 
@@ -29,6 +30,7 @@ export class CrimeCityScene extends BaseScene {
 
     this.isSettingUpUi = false;
     this.isTransitioning = false;
+    this.isVisitingApartment = false;
   }
 
   init(data = {}) {
@@ -44,6 +46,7 @@ export class CrimeCityScene extends BaseScene {
     this.cityAmbient = null;
     this.isSettingUpUi = false;
     this.isTransitioning = false;
+    this.isVisitingApartment = false;
 
     this.destroyControllers();
 
@@ -328,10 +331,16 @@ export class CrimeCityScene extends BaseScene {
     const gridCompleted =
       this.isGridCompleted();
 
+    // Mieszkanie podejrzanego staje się widoczne na mapie tylko wtedy,
+    // gdy przynajmniej jedno alibi zostało obalone w tej sprawie.
+    const apartmentAvailable =
+      this.hasAnyDebunkedAlibi();
+
     this.mapUI?.createAvailableLocations({
       crimeSceneCompleted,
       crimeLabCompleted,
-      gridCompleted
+      gridCompleted,
+      apartmentAvailable
     });
 
     if (crimeLabCompleted) {
@@ -472,6 +481,131 @@ export class CrimeCityScene extends BaseScene {
       sourceScene: 'CrimeCityScene',
       mission
     });
+  }
+
+  /**
+   * Otwiera mieszkanie podejrzanego (point-and-click scena poszukiwania
+   * poszlak). Dostępne tylko, gdy alibi danego podejrzanego zostało już
+   * obalone przez gracza w rozmowach z NPC w mieście.
+   *
+   * @param {string} [suspectId] - id podejrzanego; domyślnie bierze
+   *   aktualnie namierzonego złodzieja z gameState.
+   */
+  visitApartment(suspectId) {
+    if (
+      this.isTransitioning ||
+      this.isVisitingApartment ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return false;
+    }
+
+    const targetSuspectId =
+      suspectId || gameState.currentThiefId;
+
+    if (!targetSuspectId) {
+      console.error(
+        '[CrimeCityScene] visitApartment called without a suspectId and no currentThiefId in gameState.'
+      );
+
+      this.showMessage(
+        [
+          'No suspect selected.',
+          'Pick someone from the board first.'
+        ].join('\n'),
+        2200,
+        '#5d2a00'
+      );
+
+      return false;
+    }
+
+    if (!this.isAlibiDebunked(targetSuspectId)) {
+      this.showMessage(
+        [
+          "This suspect's alibi still holds up.",
+          'No warrant, no keys, no apartment tour.'
+        ].join('\n'),
+        2600,
+        '#5d2a00'
+      );
+
+      return false;
+    }
+
+    if (!this.trySpendEnergy('activity', 'apartment_visit')) {
+      return false;
+    }
+
+    this.closeAllUIPanels();
+
+    this.isTransitioning = true;
+    this.isVisitingApartment = true;
+
+    this.cameras.main.fadeOut(350, 0, 0, 0);
+
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.isTransitioning = false;
+
+        if (!this.sys.isActive() || this._cleanupDone) {
+          this.isVisitingApartment = false;
+          return;
+        }
+
+        this.scene.pause();
+
+        this.scene.launch('ApartmentScene', {
+          suspectId: targetSuspectId,
+          cityId: this.cityId,
+          returnScene: 'CrimeCityScene'
+        });
+      }
+    );
+
+    return true;
+  }
+
+  /**
+   * Sprawdza, czy alibi konkretnego podejrzanego zostało obalone.
+   * Podpięte pod progressService, z fallbackiem na płaską listę w
+   * gameState, na wypadek gdyby ProgressService nie miał jeszcze tej
+   * metody zaimplementowanej.
+   */
+  isAlibiDebunked(suspectId) {
+    if (!suspectId) {
+      return false;
+    }
+
+    if (typeof this.progressService?.isAlibiDebunked === 'function') {
+      return !!this.progressService.isAlibiDebunked(suspectId);
+    }
+
+    const debunked =
+      gameState.debunkedAlibis ||
+      gameState.currentCase?.debunkedAlibis ||
+      [];
+
+    return Array.isArray(debunked) && debunked.includes(suspectId);
+  }
+
+  /**
+   * Czy jakiekolwiek alibi w tej sprawie zostało już obalone
+   * (używane do odkrycia lokacji "Apartment" na mapie miasta).
+   */
+  hasAnyDebunkedAlibi() {
+    if (typeof this.progressService?.hasAnyDebunkedAlibi === 'function') {
+      return !!this.progressService.hasAnyDebunkedAlibi();
+    }
+
+    const debunked =
+      gameState.debunkedAlibis ||
+      gameState.currentCase?.debunkedAlibis ||
+      [];
+
+    return Array.isArray(debunked) && debunked.length > 0;
   }
 
   getCaseKey() {
@@ -617,12 +751,19 @@ export class CrimeCityScene extends BaseScene {
     }
 
     this.isTransitioning = false;
+    this.isVisitingApartment = false;
+
+    this.cameras.main.fadeIn(300, 0, 0, 0);
 
     if (!this.cityAmbient?.isPlaying) {
       this.playCityAmbient();
     }
 
     void this.setupCrimeCityUi();
+
+    // Po powrocie z mieszkania odśwież dostępne lokacje na mapie
+    // (np. gdyby powrót ujawnił nowy trop otwierający kolejne miejsce).
+    this.createCrimeCityContent();
   }
 
   onSleep() {
@@ -634,6 +775,7 @@ export class CrimeCityScene extends BaseScene {
   cleanupScene() {
     this.isTransitioning = false;
     this.isSettingUpUi = false;
+    this.isVisitingApartment = false;
 
     this.interactiveObjects.forEach((object) => {
       object?.removeAllListeners?.();

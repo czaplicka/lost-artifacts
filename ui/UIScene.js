@@ -1,13 +1,13 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
-import { getEnergyManager } from '../EnergyManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import {
   getAchievementList,
   hasAchievement
-} from '../AchievementManager.js';
-import { moneyManager } from '../MoneyManager.js';
-import { getGameTimeManager } from '../GameTimeManager.js';
+} from '../managers/AchievementManager.js';
+import { moneyManager } from '../managers/MoneyManager.js';
+import { getGameTimeManager } from '../managers/GameTimeManager.js';
 import { getCaseTimeRemaining } from '../CaseTimeHelper.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;

@@ -2,16 +2,24 @@
 // ============================================================
 // Singleton manager wszystkich aspektów podróży
 // - Reguły transportu (czas, koszt, energia)
-// - Konsumpcja energii
-// - Historia podróży
-// - Encounter'y
-// - Budżet agencji
+// - Liczenie dystansu z danych lokacji (location.map.x / location.map.y)
+// - Konsumpcja energii (może ZABLOKOWAĆ podróż - energię odzyskuje się snem)
+// - Płatność za bilet przez moneyManager (cash -> agencyBudget), reszta
+//   dopisywana jako dług do agencyDebt - LOGOWANA w tym samym dzienniku
+//   transakcji co każdy inny wydatek w grze (gameState.moneyLog). Podróż
+//   NIGDY nie jest blokowana przez brak kasy - tylko przez brak energii.
+// - Własny dziennik kosztów podróży: gameState.costLedger
+//   (UWAGA: to NIE jest gameState.travelHistory - ten notatnik zostaje
+//   wyłącznie po stronie gameSetup.js/travelToCity, bo tylko tam wiadomo,
+//   czy dane miasto było "poprawne" w śledztwie. costLedger to prywatny
+//   dziennik czasowy tego managera, nie miesza się z niczym.)
 // ============================================================
 
-import { EventBus } from './EventBus.js';
-import { gameState } from './GameData.js';
+import { EventBus } from '../EventBus.js';
+import { gameState } from '../GameData.js';
 import { getEnergyManager } from './EnergyManager.js';
-import { saveGameState } from './GameStatePersistence.js';
+import { saveGameState } from '../GameStatePersistence.js';
+import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from './MoneyManager.js';
 
 export const TRANSPORT_TYPES = Object.freeze({
   PLANE: 'plane',
@@ -151,7 +159,9 @@ class UnifiedTravelManager {
   constructor() {
     this.transportConfig = cloneData(TRANSPORT_RULES);
     this.encountersConfig = cloneData(TRAVEL_ENCOUNTERS);
-    this.travelHistory = [];
+    // Prywatny dziennik kosztów/czasu tego managera. NIE jest to
+    // gameState.travelHistory - patrz komentarz na górze pliku.
+    this.costLedger = [];
     this.lastTravelData = null;
     this.isInitialized = false;
   }
@@ -189,11 +199,26 @@ class UnifiedTravelManager {
   }
 
   // ============================================================
+  // DYSTANS Z DANYCH LOKACJI
+  // Współrzędne mapy żyją pod location.map.x / location.map.y
+  // (patrz locations.json - "map": { "x": 895, "y": 340 }).
+  // ============================================================
+
+  getMapDistance(originLocation, destinationLocation) {
+    const ox = Number(originLocation?.map?.x) || 0;
+    const oy = Number(originLocation?.map?.y) || 0;
+    const dx = Number(destinationLocation?.map?.x) || 0;
+    const dy = Number(destinationLocation?.map?.y) || 0;
+    return Math.hypot(dx - ox, dy - oy);
+  }
+
+  // ============================================================
   // TRAVEL CALCULATION
   // ============================================================
 
   /**
-   * Oblicza parametry podróży między dwoma miastami
+   * Oblicza parametry podróży między dwoma miastami.
+   * Czysta funkcja - nie rusza energii/pieniędzy/stanu.
    * @param {string} fromCity - nazwa miasta startowego
    * @param {string} toCity - nazwa miasta docelowego
    * @param {number} distance - dystans w pikselach mapy
@@ -205,13 +230,11 @@ class UnifiedTravelManager {
     const rule = this.getTransportRule(transportType);
     const energyManager = getEnergyManager();
 
-    // Czas podróży
     const baseTravelHours = Math.max(
       rule.minTravelHours,
       Math.round(rule.minTravelHours + distance * rule.hoursPerMapPixel)
     );
 
-    // Encounter
     const encounter = options.travelEncounter !== undefined
       ? options.travelEncounter
       : (options.allowEncounter && Math.random() < rule.encounterChance)
@@ -220,10 +243,8 @@ class UnifiedTravelManager {
 
     const totalTravelHours = baseTravelHours + (encounter?.timePenalty || 0);
 
-    // Koszt pieniędzy
     const moneyCost = Math.round(rule.baseCost + baseTravelHours * rule.costPerHour);
 
-    // Koszt energii (przed skalowaniem)
     const baseEnergyCost = Math.max(2, Math.round(baseTravelHours * rule.energyPerHour));
     const scaledEnergyCost = energyManager.scaleCost(baseEnergyCost);
 
@@ -243,12 +264,95 @@ class UnifiedTravelManager {
     };
   }
 
+  /**
+   * Wygodny wariant calculateTravel() - liczy dystans sam na podstawie
+   * pełnych obiektów lokacji z locations.json (location.map.x/y).
+   */
+  calculateTravelBetweenLocations(originLocation, destinationLocation, transportType = TRANSPORT_TYPES.PLANE, options = {}) {
+    const distance = this.getMapDistance(originLocation, destinationLocation);
+    return this.calculateTravel(
+      originLocation?.city,
+      destinationLocation?.city,
+      distance,
+      transportType,
+      options
+    );
+  }
+
+  // ============================================================
+  // PŁATNOŚĆ ZA BILET
+  // cash -> agencyBudget przez moneyManager.spend() (LOGOWANE w
+  // gameState.moneyLog, tak jak każdy inny wydatek w grze). Reszta,
+  // której nie pokryje cash+budget, idzie w agencyDebt - też logowana,
+  // ale jako wpis typu 'debt', bez wypłacania dodatkowej kasy (to NIE
+  // jest to samo co moneyManager.takeAgencyAdvance(), który realnie
+  // wypłaca zaliczkę - tu po prostu zostaje niezapłacona reszta rachunku).
+  // Kasa NIGDY nie blokuje podróży.
+  // ============================================================
+
+  payForTravel(amount, { fromCity = '', toCity = '', transportLabel = '' } = {}) {
+    const safeAmount = Math.max(0, Math.round(Number(amount) || 0));
+
+    if (safeAmount === 0) {
+      return { amount: 0, costFromCash: 0, costFromBudget: 0, debtAdded: 0 };
+    }
+
+    const description = `${transportLabel || 'Travel'} ticket: ${fromCity} → ${toCity}`;
+    let remaining = safeAmount;
+
+    const cashAvailable = moneyManager.getBalance(MONEY_SOURCE.CASH);
+    const costFromCash = Math.min(cashAvailable, remaining);
+
+    if (costFromCash > 0) {
+      moneyManager.spend(costFromCash, {
+        source: MONEY_SOURCE.CASH,
+        category: ECONOMY_CATEGORY.TRAVEL,
+        description
+      });
+    }
+
+    remaining -= costFromCash;
+
+    const budgetAvailable = moneyManager.getBalance(MONEY_SOURCE.AGENCY);
+    const costFromBudget = Math.min(budgetAvailable, remaining);
+
+    if (costFromBudget > 0) {
+      moneyManager.spend(costFromBudget, {
+        source: MONEY_SOURCE.AGENCY,
+        category: ECONOMY_CATEGORY.TRAVEL,
+        description
+      });
+    }
+
+    remaining -= costFromBudget;
+
+    const debtAdded = remaining;
+
+    if (debtAdded > 0) {
+      gameState.agencyDebt = Math.max(0, Math.floor(gameState.agencyDebt || 0)) + debtAdded;
+
+      moneyManager.addLogEntry({
+        type: 'debt',
+        source: MONEY_SOURCE.AGENCY,
+        amount: debtAdded,
+        category: ECONOMY_CATEGORY.TRAVEL,
+        description: `${description} (unpaid balance added to agency debt)`,
+        metadata: { debtAfter: gameState.agencyDebt }
+      });
+
+      saveGameState();
+    }
+
+    return { amount: safeAmount, costFromCash, costFromBudget, debtAdded };
+  }
+
   // ============================================================
   // TRAVEL EXECUTION
   // ============================================================
 
   /**
-   * Wykonuje podróż: koszt energii, pieniędzy, czas gry, historia
+   * Wykonuje podróż: koszt energii (może zablokować), płatność (nigdy nie
+   * blokuje), czas gry, własny dziennik kosztów (costLedger).
    * @param {Object} travelData - wynik calculateTravel()
    * @returns {Object} rezultat wykonania podróży
    */
@@ -260,7 +364,8 @@ class UnifiedTravelManager {
     const energyManager = getEnergyManager();
     const currentEnergy = energyManager.getCurrentEnergy();
 
-    // Sprawdzenie energii
+    // Energia MOŻE zablokować podróż - odzyskuje się ją snem, to świadoma
+    // mechanika presji czasowej, nie błąd.
     if (currentEnergy < travelData.energyCost) {
       EventBus.emit('travelFailed', {
         reason: 'insufficient_energy',
@@ -270,19 +375,6 @@ class UnifiedTravelManager {
       return { success: false, reason: 'insufficient_energy' };
     }
 
-    // Sprawdzenie budżetu agencji
-    const state = gameState.getState();
-    const totalBudget = (state.agencyBudget || 0) + (state.cash || 0);
-    if (totalBudget < travelData.moneyCost) {
-      EventBus.emit('travelFailed', {
-        reason: 'insufficient_money',
-        required: travelData.moneyCost,
-        available: totalBudget
-      });
-      return { success: false, reason: 'insufficient_money' };
-    }
-
-    // Konsumpcja energii
     const energyResult = energyManager.consumeCustom(
       travelData.energyCost,
       `Travel ${travelData.transportLabel} (${travelData.fromCity} → ${travelData.toCity}): -${travelData.energyCost}`
@@ -292,24 +384,21 @@ class UnifiedTravelManager {
       return { success: false, reason: 'energy_consumption_failed' };
     }
 
-    // Konsumpcja pieniędzy (budżet agencji + dług jeśli potrzeba)
-    const cashAvailable = Math.max(0, Math.floor(state.cash || 0));
-    const budgetAvailable = Math.max(0, Math.floor(state.agencyBudget || 0));
-    const costFromCash = Math.min(cashAvailable, travelData.moneyCost);
-    const costFromBudget = Math.min(budgetAvailable, travelData.moneyCost - costFromCash);
-    const debtAdded = Math.max(0, travelData.moneyCost - costFromCash - costFromBudget);
-
-    gameState.updateState({
-      cash: cashAvailable - costFromCash,
-      agencyBudget: budgetAvailable - costFromBudget,
-      agencyDebt: (state.agencyDebt || 0) + debtAdded
+    // Kasa NIGDY nie blokuje - brak środków = automatyczny dług,
+    // logowany przez moneyManager tak jak każdy inny wydatek.
+    const payment = this.payForTravel(travelData.moneyCost, {
+      fromCity: travelData.fromCity,
+      toCity: travelData.toCity,
+      transportLabel: travelData.transportLabel
     });
 
     // Advance time gry
     EventBus.emit('advanceTime', travelData.totalTravelHours, 0);
 
-    // Historia
-    const travelRecord = {
+    // Wpis do WŁASNEGO dziennika (costLedger) - nie miesza się z
+    // gameState.travelHistory, który buduje gameSetup.js, i nie miesza
+    // się z gameState.moneyLog, który prowadzi moneyManager.
+    const ledgerEntry = {
       id: `travel_${Date.now()}_${Math.random().toString(16).slice(2)}`,
       fromCity: travelData.fromCity,
       toCity: travelData.toCity,
@@ -317,26 +406,26 @@ class UnifiedTravelManager {
       travelHours: travelData.totalTravelHours,
       energyCost: travelData.energyCost,
       moneyCost: travelData.moneyCost,
+      costFromCash: payment.costFromCash,
+      costFromBudget: payment.costFromBudget,
+      debtAdded: payment.debtAdded,
       encounter: travelData.travelEncounter,
       timestamp: Date.now(),
-      missionId: state.currentMission?.id || null
+      missionId: gameState.currentMission?.id || null
     };
 
-    this.travelHistory.push(cloneData(travelRecord));
+    this.costLedger.push(cloneData(ledgerEntry));
     this.lastTravelData = cloneData(travelData);
 
-    gameState.updateState({
-      travelHistory: this.travelHistory,
-      lastTravel: travelRecord
-    });
+    gameState.costLedger = this.costLedger;
 
     saveGameState();
 
-    // Events
     EventBus.emit('travelCompleted', {
       success: true,
       travelData,
-      travelRecord,
+      ledgerEntry,
+      payment,
       encounter: travelData.travelEncounter
     });
 
@@ -346,8 +435,10 @@ class UnifiedTravelManager {
 
     return {
       success: true,
-      travelRecord,
-      encounter: travelData.travelEncounter
+      ledgerEntry,
+      payment,
+      encounter: travelData.travelEncounter,
+      energyReachedZero: Boolean(energyResult?.energyReachedZero)
     };
   }
 
@@ -355,21 +446,23 @@ class UnifiedTravelManager {
   // CONVENIENCE METHODS
   // ============================================================
 
-  /**
-   * Szybka podróż: calculate + execute w jednym
-   */
   travelTo(fromCity, toCity, distance, transportType = TRANSPORT_TYPES.PLANE, options = {}) {
     const travelData = this.calculateTravel(fromCity, toCity, distance, transportType, options);
     return this.executeTravel(travelData);
   }
 
+  travelBetweenLocations(originLocation, destinationLocation, transportType = TRANSPORT_TYPES.PLANE, options = {}) {
+    const travelData = this.calculateTravelBetweenLocations(originLocation, destinationLocation, transportType, options);
+    return this.executeTravel(travelData);
+  }
+
   /**
-   * Sprawdzenie czy gracz może lecieć danym transportem (energia + budżet)
+   * Sprawdzenie czy gracz może lecieć danym transportem.
+   * Tylko energia może zwrócić false - kasa jest zawsze "OK" (dług).
    */
   canTravelWith(transportType, distance = 1000) {
     const rule = this.getTransportRule(transportType);
     const energyManager = getEnergyManager();
-    const state = gameState.getState();
 
     const baseTravelHours = Math.max(rule.minTravelHours, rule.minTravelHours + distance * rule.hoursPerMapPixel);
     const baseEnergyCost = Math.max(2, Math.round(baseTravelHours * rule.energyPerHour));
@@ -377,26 +470,25 @@ class UnifiedTravelManager {
     const moneyCost = Math.round(rule.baseCost + baseTravelHours * rule.costPerHour);
 
     const hasEnergy = energyManager.getCurrentEnergy() >= scaledEnergyCost;
-    const hasMoneyAndBudget = (state.cash || 0) + (state.agencyBudget || 0) >= moneyCost;
 
-    return { hasEnergy, hasMoneyAndBudget, energyRequired: scaledEnergyCost, moneyRequired: moneyCost };
+    return { hasEnergy, hasMoneyAndBudget: true, energyRequired: scaledEnergyCost, moneyRequired: moneyCost };
   }
 
   // ============================================================
-  // HISTORY & STATE
+  // COST LEDGER & STATE
   // ============================================================
 
-  getTravelHistory() {
-    return cloneData(this.travelHistory);
+  getCostLedger() {
+    return cloneData(this.costLedger);
   }
 
   getLastTravel() {
     return this.lastTravelData ? cloneData(this.lastTravelData) : null;
   }
 
-  clearTravelHistory() {
-    this.travelHistory = [];
-    gameState.updateState({ travelHistory: [] });
+  clearCostLedger() {
+    this.costLedger = [];
+    gameState.costLedger = [];
   }
 
   // ============================================================
@@ -405,20 +497,20 @@ class UnifiedTravelManager {
 
   serialize() {
     return {
-      travelHistory: cloneData(this.travelHistory),
+      costLedger: cloneData(this.costLedger),
       lastTravelData: this.lastTravelData ? cloneData(this.lastTravelData) : null
     };
   }
 
   restore(data = {}) {
-    if (Array.isArray(data.travelHistory)) {
-      this.travelHistory = cloneData(data.travelHistory).slice(-50);
+    if (Array.isArray(data.costLedger)) {
+      this.costLedger = cloneData(data.costLedger).slice(-50);
     } else {
-      this.travelHistory = [];
+      this.costLedger = [];
     }
 
-    if (data.lastTravel) {
-      this.lastTravelData = cloneData(data.lastTravel);
+    if (data.lastTravelData) {
+      this.lastTravelData = cloneData(data.lastTravelData);
     }
   }
 }

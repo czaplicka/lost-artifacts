@@ -1,4 +1,4 @@
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { UISlider } from '../ui/UISlider.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';

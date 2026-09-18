@@ -21,12 +21,16 @@ export class CrimeLabScene extends BaseScene {
     this.returnData = {};
 
     this.currentView = 'lab_intro';
+
+    this.labManager = null;
     this.evidenceService = null;
     this.timeController = null;
     this.labOnboarding = null;
-    this.assistantHotspot = null;
-    this.assistantDialog = null;
+
     this.labView = null;
+    this.hud = null;
+    this.assistantDialog = null;
+    this.assistantHotspot = null;
 
     this.hotspots = [];
     this.debugTexts = [];
@@ -41,12 +45,13 @@ export class CrimeLabScene extends BaseScene {
 
     this.uiLocked = false;
     this.completedCount = 0;
-    this.totalStations = 3;
+    this.totalStations = STATION_IDS.length;
 
     this.boundMoveLeft = this.moveLeft.bind(this);
     this.boundMoveRight = this.moveRight.bind(this);
     this.boundForceUnlock = this.forceUnlock.bind(this);
-    this.boundCheckMiniGameResults = this.checkMiniGameResults.bind(this);
+    this.boundCheckMiniGameResults =
+      this.checkMiniGameResults.bind(this);
     this.boundCleanupScene = this.cleanupScene.bind(this);
   }
 
@@ -67,7 +72,11 @@ export class CrimeLabScene extends BaseScene {
       gameState: this.gameState
     };
 
-    this.labManager = new CrimeLabManager(this.gameState, this.cityId);
+    this.labManager = new CrimeLabManager(
+      this.gameState,
+      this.cityId
+    );
+
     this.labManager.ensureCaseForensics();
     this.labManager.ensureRandomTraceEvidence();
 
@@ -76,19 +85,22 @@ export class CrimeLabScene extends BaseScene {
       this.labManager,
       this.cityId
     );
-this.timeController = new CrimeLabTimeController(this);
-this.labOnboarding = this.getLabOnboarding();
 
-this.evidenceService.ensureAssistantResults(
-  this.getAssistantStationIds()
-);
+    this.timeController = new CrimeLabTimeController(this);
 
-this.currentView = 'lab_intro';
+    this.labOnboarding = this.getLabOnboarding();
+
+    this.evidenceService.ensureAssistantResults(
+      this.getAssistantStationIds()
+    );
+
+    this.currentView = 'lab_intro';
     this.hotspots = [];
     this.debugTexts = [];
     this.uiLocked = false;
 
-    this.completedCount = this.getCompletedRequiredStationCount();
+    this.completedCount =
+      this.getCompletedRequiredStationCount();
   }
 
   create() {
@@ -118,26 +130,54 @@ this.currentView = 'lab_intro';
     });
 
     this.labView.create(width, height);
+
     this.createHotspots();
     this.createAssistantHotspot();
     this.createNavigationUI();
-    this.updateRoomHotspots();
 
     this.hud = new CrimeLabHUD(this);
     this.hud.create();
-this.assistantDialog = new CrimeLabAssistantDialog(this);
+
+    this.assistantDialog = new CrimeLabAssistantDialog(this);
+
     this.createOptionalDebug();
 
-    this.labView.showView('lab_intro');
-    this.showIntroHint();
-    this.hud?.refreshFromScene();
-    this.showEntryAssistantBriefing();
+this.labView.showView('lab_intro');
+this.updateRoomHotspots();
+this.showIntroHint();
+this.hud.refreshFromScene();
 
-    this.input.keyboard.on('keydown-LEFT', this.boundMoveLeft);
-    this.input.keyboard.on('keydown-RIGHT', this.boundMoveRight);
+if (this.labOnboarding?.assistantPresent) {
+  this.time.delayedCall(250, () => {
+    if (
+      !this.uiLocked &&
+      !this.assistantDialog?.isOpen()
+    ) {
+      this.openAssistantDialogue('greeting');
+    }
+  });
+}
 
-    this.events.on(Phaser.Scenes.Events.WAKE, this.boundForceUnlock);
-    this.events.on(Phaser.Scenes.Events.RESUME, this.boundForceUnlock);
+    this.input.keyboard.on(
+      'keydown-LEFT',
+      this.boundMoveLeft
+    );
+
+    this.input.keyboard.on(
+      'keydown-RIGHT',
+      this.boundMoveRight
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.WAKE,
+      this.boundForceUnlock
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.boundForceUnlock
+    );
+
     this.events.on(
       Phaser.Scenes.Events.RESUME,
       this.boundCheckMiniGameResults
@@ -183,107 +223,93 @@ this.assistantDialog = new CrimeLabAssistantDialog(this);
   }
 
   getIntroBackgroundKey() {
-    return this.labOnboarding?.backgroundKey ?? 'crimelab_point_assistant';
+    return (
+      this.labOnboarding?.backgroundKey ||
+      'crimelab_point'
+    );
   }
 
   getPlayerGameCount() {
-  const rawValue = Number(this.labOnboarding?.playerGameCount);
-
-  if (!Number.isFinite(rawValue)) {
-    return this.totalStations;
-  }
-
-  return Phaser.Math.Clamp(
-    Math.floor(rawValue),
-    0,
-    this.totalStations
-  );
-}
-
-getAssistantResultCount() {
-  const rawValue = Number(
-    this.labOnboarding?.assistantResultCount
-  );
-
-  if (!Number.isFinite(rawValue)) {
-    return 0;
-  }
-
-  return Phaser.Math.Clamp(
-    Math.floor(rawValue),
-    0,
-    this.totalStations
-  );
-}
-
-getRequiredStationIds() {
-  const playerGameCount = this.getPlayerGameCount();
-  const assistantResultCount = this.getAssistantResultCount();
-
-  const configuredTotal =
-    playerGameCount + assistantResultCount;
-
-  if (configuredTotal !== this.totalStations) {
-    console.warn(
-      '[CrimeLabScene] Invalid lab onboarding configuration. ' +
-      'playerGameCount + assistantResultCount must equal totalStations.',
-      {
-        playerGameCount,
-        assistantResultCount,
-        totalStations: this.totalStations,
-        mode: this.labOnboarding?.mode
-      }
+    const rawValue = Number(
+      this.labOnboarding?.playerGameCount
     );
 
-    const safePlayerGameCount = Phaser.Math.Clamp(
-      playerGameCount,
+    if (!Number.isFinite(rawValue)) {
+      return this.totalStations;
+    }
+
+    return Phaser.Math.Clamp(
+      Math.floor(rawValue),
       0,
       this.totalStations
     );
-
-    return STATION_IDS.slice(0, safePlayerGameCount);
   }
-
-  return STATION_IDS.slice(0, playerGameCount);
-}
-
-getAssistantStationIds() {
-  const playerGameCount = this.getPlayerGameCount();
-  const assistantResultCount = this.getAssistantResultCount();
-
-  const configuredTotal =
-    playerGameCount + assistantResultCount;
-
-  if (configuredTotal !== this.totalStations) {
-    const safePlayerGameCount = Phaser.Math.Clamp(
-      playerGameCount,
-      0,
-      this.totalStations
-    );
-
-    return STATION_IDS.slice(safePlayerGameCount);
-  }
-
-  return STATION_IDS.slice(
-    playerGameCount,
-    playerGameCount + assistantResultCount
-  );
-}
 
   getAssistantResultCount() {
-    const rawValue = Number(this.labOnboarding?.assistantResultCount);
+    const rawValue = Number(
+      this.labOnboarding?.assistantResultCount
+    );
 
     if (!Number.isFinite(rawValue)) {
       return 0;
     }
 
-    return Phaser.Math.Clamp(rawValue, 0, this.totalStations);
+    return Phaser.Math.Clamp(
+      Math.floor(rawValue),
+      0,
+      this.totalStations
+    );
+  }
+
+  getLabStationAssignment() {
+    const playerGameCount = this.getPlayerGameCount();
+    const assistantResultCount =
+      this.getAssistantResultCount();
+
+    const configuredTotal =
+      playerGameCount + assistantResultCount;
+
+    if (configuredTotal !== this.totalStations) {
+      console.warn(
+        '[CrimeLabScene] Invalid lab onboarding configuration. ' +
+        'playerGameCount + assistantResultCount must equal totalStations.',
+        {
+          playerGameCount,
+          assistantResultCount,
+          totalStations: this.totalStations,
+          mode: this.labOnboarding?.mode
+        }
+      );
+
+      return {
+        playerStationIds: STATION_IDS.slice(
+          0,
+          playerGameCount
+        ),
+        assistantStationIds: STATION_IDS.slice(
+          playerGameCount
+        )
+      };
+    }
+
+    return {
+      playerStationIds: STATION_IDS.slice(
+        0,
+        playerGameCount
+      ),
+      assistantStationIds: STATION_IDS.slice(
+        playerGameCount,
+        playerGameCount + assistantResultCount
+      )
+    };
   }
 
   getRequiredStationIds() {
-    const playerGameCount = this.getPlayerGameCount();
+    return this.getLabStationAssignment().playerStationIds;
+  }
 
-    return STATION_IDS.slice(0, playerGameCount);
+  getAssistantStationIds() {
+    return this.getLabStationAssignment().assistantStationIds;
   }
 
   isStationRequired(stationId) {
@@ -291,9 +317,13 @@ getAssistantStationIds() {
   }
 
   getCompletedRequiredStationCount() {
-    return this.getRequiredStationIds().filter((stationId) => {
-      return this.evidenceService?.isStationCompleted(stationId) === true;
-    }).length;
+    return this.getRequiredStationIds()
+      .filter((stationId) => {
+        return this.evidenceService?.isStationCompleted(
+          stationId
+        ) === true;
+      })
+      .length;
   }
 
   isLabComplete() {
@@ -303,168 +333,92 @@ getAssistantStationIds() {
       return true;
     }
 
-    return this.completedCount >= requiredStations.length;
-  }
-
-  getAssistantLine() {
-    if (this.labOnboarding?.assistantLine) {
-      return this.labOnboarding.assistantLine;
-    }
-
-    const playerGameCount = this.getPlayerGameCount();
-
-    if (playerGameCount === 0) {
-      return 'I completed the analyses. Review the evidence terminal and narrow the suspect list.';
-    }
-
-    if (playerGameCount === 1) {
-      return 'I finished two samples. One remains at an active workstation.';
-    }
-
-    if (playerGameCount === 2) {
-      return 'One result is ready. Two samples are waiting at the active workstations.';
-    }
-
-    return 'Lab assistant unavailable. Complete all remaining analyses yourself.';
+    return (
+      this.completedCount >= requiredStations.length
+    );
   }
 
   getRemainingAnalysisCount() {
     return Math.max(
       0,
-      this.getRequiredStationIds().length - this.completedCount
+      this.getRequiredStationIds().length -
+        this.completedCount
     );
   }
-getEvidenceConfigForStation(stationId) {
-  if (stationId === 'identity') {
-    return this.labManager.getIdentityEvidenceConfig();
+
+  getEvidenceConfigForStation(stationId) {
+    return this.evidenceService?.getStationEvidenceConfig(
+      stationId
+    ) || null;
   }
 
-  const traceMatch = /^trace_(\d+)$/.exec(
-    String(stationId || '')
-  );
+  getAssistantResultSummaries() {
+    return this.getAssistantStationIds()
+      .map((stationId) => {
+        const evidence =
+          this.getEvidenceConfigForStation(stationId);
 
-  if (!traceMatch) {
-    return null;
+        return {
+          stationId,
+          label: evidence?.label || 'Forensic Analysis',
+          text:
+            evidence?.clueText ||
+            'The result is ready for review.'
+        };
+      });
   }
 
-  return this.labManager.getTraceEvidenceConfig(
-    Number(traceMatch[1])
-  );
-}
-
-getAssistantResultSummaries() {
-  const requiredStationIds = this.getRequiredStationIds();
-
-  return STATION_IDS
-    .filter((stationId) => {
-      return !requiredStationIds.includes(stationId);
-    })
-    .map((stationId) => {
-      const evidence =
-        this.getEvidenceConfigForStation(stationId);
-
-      return {
-        stationId,
-        label: evidence?.label || 'Forensic Analysis',
-        text:
-          evidence?.clueText ||
-          'The result is ready for review.'
-      };
-    });
-}
-
-buildEntryAssistantBriefingText() {
-  const assistantResults =
-    this.getAssistantResultSummaries();
-
-  const remaining = this.getRemainingAnalysisCount();
-
-  const resultLines = assistantResults.length > 0
-    ? assistantResults
-      .map((result) => {
-        return `• ${result.label}: ${result.text}`;
-      })
-      .join('\n')
-    : '• No pre-processed results. Every sample is waiting for you.';
-
-  let taskLine = '';
-
-  if (remaining <= 0) {
-    taskLine =
-      'Everything is processed. I labelled it all alphabetically, which is how science proves it has won.';
-  } else if (remaining === 1) {
-    taskLine =
-      'I cleared the routine work. One analysis still needs your detective-grade meddling.';
-  } else {
-    taskLine =
-      `I prepared ${assistantResults.length} result${assistantResults.length === 1 ? '' : 's'}. You still have ${remaining} analyses to complete.`;
-  }
-
-  return (
-    'I processed the samples that could be trusted to a professional.\n\n' +
-    `READY RESULTS:\n${resultLines}\n\n` +
-    taskLine
-  );
-}
-
-showEntryAssistantBriefing() {
+  openAssistantDialogue(startNodeId = 'greeting') {
   if (
+    this.uiLocked ||
     !this.labOnboarding?.assistantPresent ||
     this.assistantDialog?.isOpen()
   ) {
     return;
   }
 
-  const assistantResults =
-    this.getAssistantResultSummaries();
+  const dialogue = this.cache.json.get(
+    'crime_lab_assistant_dialogues'
+  );
 
-  const resultText = assistantResults.length > 0
-    ? assistantResults
-      .map((result) => {
-        return `${result.label}: ${result.text}`;
-      })
-      .join('\n\n')
-    : 'No samples were pre-processed. The machines are all yours.';
+  if (!dialogue?.nodes) {
+    console.error(
+      '[CrimeLabScene] Assistant dialogue JSON is missing or invalid.',
+      dialogue
+    );
 
-  const remaining =
-    this.getRemainingAnalysisCount();
+    this.showNavHint(
+      'LAB ASSISTANT DIALOGUE UNAVAILABLE'
+    );
 
-  const opened = this.assistantDialog?.show({
-    steps: [
+    return;
+  }
+
+  const resolvedNodeId =
+    dialogue.nodes[startNodeId]
+      ? startNodeId
+      : dialogue.defaultNodeId;
+
+  if (!resolvedNodeId || !dialogue.nodes[resolvedNodeId]) {
+    console.error(
+      '[CrimeLabScene] Assistant dialogue has no valid start node.',
       {
-        speaker: 'LAB ASSISTANT',
-        color: '#39ff14',
-        text:
-          'You are here for the case samples. Good. They were beginning to develop personalities.'
-      },
-      {
-        speaker: 'DETECTIVE',
-        color: '#7df9ff',
-        text:
-          'What have you got for me?'
-      },
-      {
-        speaker: 'LAB ASSISTANT',
-        color: '#39ff14',
-        text:
-          `Here are the results I completed:\n\n${resultText}`
-      },
-      {
-        speaker: 'LAB ASSISTANT',
-        color: '#39ff14',
-        text:
-          remaining <= 0
-            ? 'That completes the forensic profile. Try to look surprised when the suspect runs.'
-            : `There ${remaining === 1 ? 'is' : 'are'} ${remaining} ${remaining === 1 ? 'analysis' : 'analyses'} left for you. Please do not lick the evidence.`
+        requestedNodeId: startNodeId,
+        defaultNodeId: dialogue.defaultNodeId,
+        availableNodes: Object.keys(dialogue.nodes)
       }
-    ],
+    );
+
+    this.showNavHint('DIALOGUE NODE MISSING');
+    return;
+  }
+
+  const opened = this.assistantDialog.open({
+    dialogue,
+    startNodeId: resolvedNodeId,
     onClose: () => {
       this.uiLocked = false;
       this.applyLock(false);
-
-      if (this.isLabComplete()) {
-        this.goToCrimeCity();
-      }
     }
   });
 
@@ -495,11 +449,9 @@ showEntryAssistantBriefing() {
       .setInteractive({ useHandCursor: true });
 
     this.assistantHotspot.on('pointerover', () => {
-      if (this.uiLocked) {
-        return;
+      if (!this.uiLocked) {
+        this.showNavHint('Talk to Lab Assistant');
       }
-
-      this.showNavHint('Talk to Lab Assistant');
     });
 
     this.assistantHotspot.on('pointerout', () => {
@@ -507,64 +459,23 @@ showEntryAssistantBriefing() {
     });
 
     this.assistantHotspot.on('pointerdown', () => {
-      if (this.uiLocked) {
-        return;
-      }
-
-      this.showAssistantHint();
+      this.openAssistantDialogue('greeting');
     });
   }
 
-  showAssistantHint() {
-  if (
-    this.uiLocked ||
-    this.assistantDialog?.isOpen()
-  ) {
-    return;
-  }
-
-  const remaining =
-    this.getRemainingAnalysisCount();
-
-  const status =
-    remaining <= 0
-      ? 'All required analyses are complete. I filed the results under “obvious, eventually.”'
-      : remaining === 1
-        ? 'One analysis remains. The equipment is nervous, but cooperative.'
-        : `${remaining} analyses remain. The equipment is cooperative. The paperwork is not.`;
-
-  const opened = this.assistantDialog?.show({
-    steps: [
-      {
-        speaker: 'DETECTIVE',
-        color: '#7df9ff',
-        text:
-          'Anything else I should know?'
-      },
-      {
-        speaker: 'LAB ASSISTANT',
-        color: '#39ff14',
-        text: status
-      }
-    ],
-    onClose: () => {
-      this.uiLocked = false;
-      this.applyLock(false);
-    }
-  });
-
-  if (opened) {
-    this.applyLock(true);
-  }
-}
-
   createHotspots() {
     const gameWidth = this.scale.width;
-    const caseForensics = this.labManager.ensureCaseForensics();
+    const caseForensics =
+      this.labManager.ensureCaseForensics();
 
-    const identityEvidence = this.labManager.getIdentityEvidenceConfig();
-    const trace0 = this.labManager.getTraceEvidenceConfig(0);
-    const trace1 = this.labManager.getTraceEvidenceConfig(1);
+    const identityEvidence =
+      this.labManager.getIdentityEvidenceConfig();
+
+    const trace0 =
+      this.labManager.getTraceEvidenceConfig(0);
+
+    const trace1 =
+      this.labManager.getTraceEvidenceConfig(1);
 
     const hotspotData = [
       {
@@ -576,7 +487,9 @@ showEntryAssistantBriefing() {
         width: 250,
         height: 320,
         label: identityEvidence.label,
-        completed: Boolean(caseForensics.identityEvidenceResult),
+        completed: Boolean(
+          caseForensics.identityEvidenceResult
+        ),
         action: () => {
           this.enterMiniGame(
             identityEvidence.minigame,
@@ -601,7 +514,9 @@ showEntryAssistantBriefing() {
         width: 350,
         height: 300,
         label: trace0.label,
-        completed: Boolean(caseForensics.traceEvidenceResults[0]),
+        completed: Boolean(
+          caseForensics.traceEvidenceResults?.[0]
+        ),
         action: () => {
           this.enterMiniGame(
             trace0.minigame,
@@ -626,7 +541,9 @@ showEntryAssistantBriefing() {
         width: 350,
         height: 300,
         label: trace1.label,
-        completed: Boolean(caseForensics.traceEvidenceResults[1]),
+        completed: Boolean(
+          caseForensics.traceEvidenceResults?.[1]
+        ),
         action: () => {
           this.enterMiniGame(
             trace1.minigame,
@@ -635,7 +552,8 @@ showEntryAssistantBriefing() {
               evidenceIndex: 1,
               evidenceType: trace1.evidenceType,
               correctValue: trace1.correctValue,
-              clueType: trace1.clueType
+              clueType: trace1.clueType,
+              clueText: trace1.clueText
             },
             'trace_1'
           );
@@ -654,7 +572,8 @@ showEntryAssistantBriefing() {
       }
     ];
 
-    this.completedCount = this.getCompletedRequiredStationCount();
+    this.completedCount =
+      this.getCompletedRequiredStationCount();
 
     hotspotData.forEach((data) => {
       const zone = this.add
@@ -707,7 +626,8 @@ showEntryAssistantBriefing() {
         if (
           this.uiLocked ||
           (data.completed && !data.alwaysVisible) ||
-          (data.stationId && !this.isStationRequired(data.stationId))
+          (data.stationId &&
+            !this.isStationRequired(data.stationId))
         ) {
           return;
         }
@@ -718,7 +638,9 @@ showEntryAssistantBriefing() {
       this.hotspots.push(zone);
 
       if (!data.alwaysVisible) {
-        const isRequired = this.isStationRequired(data.stationId);
+        const isRequired = this.isStationRequired(
+          data.stationId
+        );
 
         const labelText = !isRequired
           ? '[ ASSISTANT RESULT ]'
@@ -756,7 +678,12 @@ showEntryAssistantBriefing() {
         fontSize: '11px',
         color: '#39ff14',
         backgroundColor: '#000000',
-        padding: { left: 12, right: 12, top: 8, bottom: 8 }
+        padding: {
+          left: 12,
+          right: 12,
+          top: 8,
+          bottom: 8
+        }
       })
       .setOrigin(0.5)
       .setDepth(80)
@@ -802,8 +729,11 @@ showEntryAssistantBriefing() {
       }
 
       const data = zone.hotspotData;
-      const isVisible = data?.room === this.currentView;
-      const isRequired = !data?.stationId ||
+      const isVisible =
+        data?.room === this.currentView;
+
+      const isRequired =
+        !data?.stationId ||
         this.isStationRequired(data.stationId);
 
       zone.setVisible(isVisible);
@@ -843,8 +773,13 @@ showEntryAssistantBriefing() {
       this.safeDisableInteractive(this.proceedHotspot);
     }
 
-    if (this.assistantHotspot && !this.assistantHotspot.isDestroyed) {
-      const assistantVisible = this.currentView === 'lab_intro';
+    if (
+      this.assistantHotspot &&
+      !this.assistantHotspot.isDestroyed
+    ) {
+      const assistantVisible =
+        this.currentView === 'lab_intro';
+
       this.assistantHotspot.setVisible(assistantVisible);
 
       if (assistantVisible && !this.uiLocked) {
@@ -892,8 +827,16 @@ showEntryAssistantBriefing() {
         fontSize: '20px',
         color: '#39ff14',
         backgroundColor: '#000000',
-        padding: { left: 10, right: 10, top: 8, bottom: 8 },
-        wordWrap: { width: width - 140, useAdvancedWrap: true },
+        padding: {
+          left: 10,
+          right: 10,
+          top: 8,
+          bottom: 8
+        },
+        wordWrap: {
+          width: width - 140,
+          useAdvancedWrap: true
+        },
         align: 'center'
       })
       .setOrigin(0.5)
@@ -911,8 +854,16 @@ showEntryAssistantBriefing() {
           fontSize: '18px',
           color: '#fff4c7',
           backgroundColor: '#000000',
-          padding: { left: 12, right: 12, top: 8, bottom: 8 },
-          wordWrap: { width: width - 120, useAdvancedWrap: true },
+          padding: {
+            left: 12,
+            right: 12,
+            top: 8,
+            bottom: 8
+          },
+          wordWrap: {
+            width: width - 120,
+            useAdvancedWrap: true
+          },
           align: 'center'
         }
       )
@@ -1074,7 +1025,10 @@ showEntryAssistantBriefing() {
       return;
     }
 
-    if (data.stationId && !this.isStationRequired(data.stationId)) {
+    if (
+      data.stationId &&
+      !this.isStationRequired(data.stationId)
+    ) {
       this.showNavHint('RESULT COMPLETED BY LAB ASSISTANT');
       return;
     }
@@ -1112,7 +1066,11 @@ showEntryAssistantBriefing() {
     });
   }
 
-  async enterMiniGame(sceneKey, sceneData = {}, stationId = '') {
+  async enterMiniGame(
+    sceneKey,
+    sceneData = {},
+    stationId = ''
+  ) {
     if (
       this.uiLocked ||
       !this.isStationRequired(stationId)
@@ -1134,15 +1092,15 @@ showEntryAssistantBriefing() {
 
     try {
       await this.game.sceneLoader.ensure(sceneKey);
-    } catch (err) {
+    } catch (error) {
       console.error(
         `[CrimeLabScene] Minigame scene "${sceneKey}" failed to load.`,
-        err
+        error
       );
 
-      this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       this.uiLocked = false;
       this.applyLock(false);
+      this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       return;
     }
 
@@ -1174,19 +1132,22 @@ showEntryAssistantBriefing() {
   }
 
   handleMiniGameComplete(payload = {}) {
-    const result = this.evidenceService?.saveMiniGameResult(payload);
+    const result =
+      this.evidenceService?.saveMiniGameResult(payload);
 
     if (!result?.saved) {
       return;
     }
 
-if (!result.wasAlreadyCompleted) {
-  this.timeController?.advanceForStation(
-    result.stationId
-  );
-}
+    if (!result.wasAlreadyCompleted) {
+      this.timeController?.advanceForStation(
+        result.stationId
+      );
+    }
 
-    this.completedCount = this.getCompletedRequiredStationCount();
+    this.completedCount =
+      this.getCompletedRequiredStationCount();
+
     this.hud?.refreshFromScene();
     this.updateRoomHotspots();
   }
@@ -1206,20 +1167,29 @@ if (!result.wasAlreadyCompleted) {
   }
 
   checkMiniGameResults() {
-    this.completedCount = this.getCompletedRequiredStationCount();
+    this.completedCount =
+      this.getCompletedRequiredStationCount();
 
     this.hotspots.forEach((zone) => {
       const data = zone?.hotspotData;
 
-      if (!data || data.alwaysVisible || !data.stationId) {
+      if (
+        !data ||
+        data.alwaysVisible ||
+        !data.stationId
+      ) {
         return;
       }
 
       data.completed = Boolean(
-        this.evidenceService?.isStationCompleted(data.stationId)
+        this.evidenceService?.isStationCompleted(
+          data.stationId
+        )
       );
 
-      const isRequired = this.isStationRequired(data.stationId);
+      const isRequired = this.isStationRequired(
+        data.stationId
+      );
 
       zone.statusLabel
         ?.setText(
@@ -1248,7 +1218,10 @@ if (!result.wasAlreadyCompleted) {
     this.updateNavVisibility();
     this.updateRoomHotspots();
 
-    if (this.assistantHotspot && !this.assistantHotspot.isDestroyed) {
+    if (
+      this.assistantHotspot &&
+      !this.assistantHotspot.isDestroyed
+    ) {
       if (locked) {
         this.safeDisableInteractive(this.assistantHotspot);
       } else if (this.currentView === 'lab_intro') {
@@ -1306,20 +1279,24 @@ if (!result.wasAlreadyCompleted) {
       async () => {
         try {
           await this.game.sceneLoader.ensure(targetScene);
+
           this.game.events.emit('setHudVisible', true);
           EventBus.emit('showHUD');
+
           this.goto(targetScene, sceneData);
-        } catch (err) {
+        } catch (error) {
           console.error(
             '[CrimeLabScene] Failed to start CrimeCityScene:',
-            err
+            error
           );
 
           this.uiLocked = false;
           this.applyLock(false);
 
           this.cameras.main.fadeIn(300, 0, 0, 0);
-          this.showNavHint('ERROR: Cannot switch scenes');
+          this.showNavHint(
+            'ERROR: Cannot switch scenes'
+          );
         }
       }
     );
@@ -1363,7 +1340,9 @@ if (!result.wasAlreadyCompleted) {
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       async () => {
         try {
-          await this.game.sceneLoader.ensure('CrimeCityScene');
+          await this.game.sceneLoader.ensure(
+            'CrimeCityScene'
+          );
 
           this.game.events.emit('setHudVisible', true);
           EventBus.emit('showHUD');
@@ -1409,7 +1388,12 @@ if (!result.wasAlreadyCompleted) {
           fontSize: '16px',
           color: '#00ffcc',
           backgroundColor: '#000000',
-          padding: { left: 4, right: 4, top: 2, bottom: 2 }
+          padding: {
+            left: 4,
+            right: 4,
+            top: 2,
+            bottom: 2
+          }
         })
         .setDepth(999);
 
@@ -1436,7 +1420,12 @@ if (!result.wasAlreadyCompleted) {
             fontSize: '16px',
             color: '#00ffcc',
             backgroundColor: '#000000',
-            padding: { left: 4, right: 4, top: 2, bottom: 2 }
+            padding: {
+              left: 4,
+              right: 4,
+              top: 2,
+              bottom: 2
+            }
           }
         )
         .setDepth(999);
@@ -1472,6 +1461,12 @@ if (!result.wasAlreadyCompleted) {
       Phaser.Scenes.Events.RESUME,
       this.boundCheckMiniGameResults
     );
+
+    this.assistantDialog?.destroy?.();
+    this.assistantDialog = null;
+
+    this.timeController?.destroy?.();
+    this.timeController = null;
 
     if (Array.isArray(this.hotspots)) {
       this.hotspots.forEach((zone) => {
@@ -1513,10 +1508,7 @@ if (!result.wasAlreadyCompleted) {
     }
 
     this.debugTexts = [];
-this.assistantDialog?.destroy?.();
-this.assistantDialog = null;
-this.timeController?.destroy?.();
-this.timeController = null;
+
     this.hud?.destroy?.();
     this.hud = null;
 

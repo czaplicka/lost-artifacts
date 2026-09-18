@@ -1,18 +1,18 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
-import { EventBus } from './EventBus.js';
+import { EventBus } from '../EventBus.js';
 import { getEnergyManager } from './EnergyManager.js';
 import { 
   TRANSPORT_CONFIG, 
   TRAVEL_ENCOUNTERS, 
   TRAVEL_ENCOUNTER_CHANCE 
-} from './TransportConfig.js';
+} from '../TransportConfig.js';
 import { 
   getLocationByCity, 
   getTravelDistance, 
   isTransportAvailable, 
   resolveLocationId 
-} from './ui/LocationUI.js';
+} from '../ui/LocationUI.js';
 
 function getRandomItem(items) {
   return Array.isArray(items) && items.length ? items[Math.floor(Math.random() * items.length)] : null;

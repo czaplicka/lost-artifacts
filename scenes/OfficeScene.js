@@ -5,7 +5,7 @@ import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
 import { ensureHud } from '../hudHelpers.js';
-
+import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
 import { OfficeNavigation } from './office/OfficeNavigation.js';
 import { OfficeHotspotManager } from './office/OfficeHotspotManager.js';
 import { createOfficeHotspotDefinitions } from './office/officeHotspots.js';
@@ -28,10 +28,12 @@ export class OfficeScene extends BaseScene {
     this.officeAmbient = null;
 
     /*
-     * Jedyny lock OfficeScene.
+     * Blokuje wyłącznie świat OfficeScene:
+     * - hotspoty biura,
+     * - strzałki nawigacji,
+     * - przycisk save.
      *
-     * Ma blokować hotspoty i nawigację tylko wtedy, kiedy normalne
-     * menu / panel jest aktywne. Tutorial nie używa tego locka.
+     * Nie steruje PlayerHudScene ani FirstCaseTutorial.
      */
     this.uiLocked = false;
 
@@ -154,12 +156,6 @@ export class OfficeScene extends BaseScene {
       createOfficeHotspotDefinitions(this),
     );
 
-    /*
-     * Nie ustawiaj this.input.topOnly = true.
-     *
-     * Przy wielu warstwach Phaser UI ogranicza to input globalnie
-     * i powoduje, że menu albo strzałki nie otrzymują kliknięć.
-     */
     this.createFirstCaseTutorial();
 
     this.monologue?.startIdle('idle.office');
@@ -228,21 +224,9 @@ export class OfficeScene extends BaseScene {
       this,
     );
 
-    /*
-     * HUD ma działać również w tutorialu.
-     *
-     * Tutorial w aktualnej wersji jest wyżej na ekranie, a jego
-     * jedyny interaktywny obiekt to niewielki Skip button.
-     */
     void this.setupOfficeUiLayers();
   }
 
-  /**
-   * Wywoływane po Skip Tutorial oraz po normalnym ukończeniu tutorialu.
-   *
-   * Nie ma tu już odblokowywania tutorialInputLocked, bo ten stan
-   * został całkowicie usunięty.
-   */
   onFirstCaseTutorialFinished(payload = {}) {
     console.log(
       '[OfficeScene] First-case tutorial finished.',
@@ -274,13 +258,6 @@ export class OfficeScene extends BaseScene {
       });
   }
 
-  /**
-   * Przywraca wszystkie trzy niezależne warstwy interfejsu:
-   *
-   * 1. UIScene — HTML HUD w prawym górnym rogu.
-   * 2. PlayerHudScene — dolne menu/panele Phaser.
-   * 3. NewsHud — zakładka news z gazetą i telewizją.
-   */
   async setupOfficeUiLayers() {
     try {
       const uiScene = await this.ensureOverlayScene(
@@ -299,7 +276,7 @@ export class OfficeScene extends BaseScene {
       const playerHud = await this.restorePlayerHud();
 
       if (playerHud) {
-        playerHud.setCurrentGameplayScene('OfficeScene');
+        playerHud.setCurrentGameplayScene?.('OfficeScene');
         playerHud.closeAllUIPanels?.();
         playerHud.refreshNotebook?.();
         playerHud.refreshUI?.();
@@ -322,9 +299,6 @@ export class OfficeScene extends BaseScene {
     }
   }
 
-  /**
-   * Uruchamia lub przywraca zakładkę News.
-   */
   async setupNewsHud() {
     try {
       const newsHud = await this.ensureOverlayScene(
@@ -374,20 +348,22 @@ export class OfficeScene extends BaseScene {
       typeof playerHud.isAnyPanelOpen === 'function' &&
       playerHud.isAnyPanelOpen(),
     );
-this.firstCaseTutorial?.setSkipButtonEnabled(
-  !hudPanelOpen,
-);
+
     const savePanelOpen = Boolean(this.saveUI?.isOpen);
 
+    /*
+     * Blokujemy tylko świat biura leżący pod panelem.
+     *
+     * PlayerHudScene zarządza własną interaktywnością; nie próbujemy
+     * jej tutaj modyfikować ani nie dotykamy tutorialowego Skip button.
+     */
     const shouldLockOffice =
       hudPanelOpen ||
       savePanelOpen;
 
-    if (shouldLockOffice === this.uiLocked) {
-      return;
+    if (shouldLockOffice !== this.uiLocked) {
+      this.applyLock(shouldLockOffice);
     }
-
-    this.applyLock(shouldLockOffice);
   }
 
   createSaveControls() {
@@ -687,12 +663,14 @@ this.firstCaseTutorial?.setSkipButtonEnabled(
     this.uiLocked = locked;
 
     /*
-     * Wyłącznie bieżący panel UI decyduje o blokadzie biura.
-     * Tutorial nie jest już częścią tego warunku.
+     * Blokujemy elementy świata pod panelem.
+     *
+     * Nie wywołujemy saveUI.setLocked(locked), bo OfficeSaveUI
+     * jest niezależnym UI i może mieć własny fullscreen overlay.
+     * To mogło blokować PlayerHudScene po otwarciu menu.
      */
     this.hotspotManager?.setLocked(locked);
     this.navigation?.setLocked(locked);
-    this.saveUI?.setLocked(locked);
   }
 
   setupAudioUnlock() {
