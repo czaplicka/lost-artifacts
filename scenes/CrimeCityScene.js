@@ -11,6 +11,16 @@ import { CrimeCityTutorialController } from './crimeCity/CrimeCityTutorialContro
 import { CrimeCityMapUI } from './crimeCity/CrimeCityMapUI.js';
 import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 
+// ------------------------------------------------------------
+// Pozycja pinezki SHOP na mapie miasta.
+// Dopasuj raz w debugu, potem zostaw stałe.
+// ------------------------------------------------------------
+const SHOP_PIN = {
+  x: 0.82,   // ułamek szerokości ekranu (0-1)
+  y: 0.30,   // ułamek wysokości ekranu (0-1)
+  label: 'SHOP'
+};
+
 export class CrimeCityScene extends BaseScene {
   constructor() {
     super({ key: 'CrimeCityScene' });
@@ -343,6 +353,9 @@ export class CrimeCityScene extends BaseScene {
       apartmentAvailable
     });
 
+    // Sklep jest zawsze dostępny w mieście (zakupy, zaopatrzenie detektywa)
+    this.createShopPin();
+
     if (crimeLabCompleted) {
       ensureAlibiEncounters(this.getCaseKey());
     }
@@ -357,6 +370,128 @@ export class CrimeCityScene extends BaseScene {
   scheduleStoryEvents() {
     this.tutorialController
       ?.scheduleLabCompletionPhoneCall();
+  }
+
+  // ------------------------------------------------------------
+  // SKLEP — pinezka na mapie + otwieranie ShopScene
+  // ------------------------------------------------------------
+
+  /**
+   * Tworzy klikalną pinezkę SHOP na mapie miasta.
+   * Pozycja stała (SHOP_PIN na górze pliku) — dopasować raz pod tło mapy.
+   */
+  createShopPin() {
+    // Czyść starą pinezkę przy odświeżeniu zawartości
+    // (createCrimeCityContent jest wołane także przy WAKE/RESUME).
+    if (this.shopPin) {
+      this.shopPin.removeAllListeners();
+      this.shopPin.destroy();
+      this.shopPin = null;
+    }
+    if (this.shopPinGlow?.active) {
+      this.shopPinGlow.destroy();
+      this.shopPinGlow = null;
+    }
+
+    if (!this.sys.isActive() || this._cleanupDone) {
+      return;
+    }
+
+    const { width, height } = this.scale;
+    const x = Math.round(width * SHOP_PIN.x);
+    const y = Math.round(height * SHOP_PIN.y);
+
+    // Pulsujące tło jak przy innych pinach
+    const glow = this.add.circle(x, y, 18, 0xffd166, 0.25)
+      .setDepth(20);
+    this.tweens.add({
+      targets: glow,
+      scaleX: 1.25,
+      scaleY: 1.25,
+      alpha: 0.1,
+      yoyo: true,
+      repeat: -1,
+      duration: 900,
+      ease: 'Sine.easeInOut'
+    });
+
+    const pin = this.add.text(x, y, SHOP_PIN.label, {
+      fontFamily: 'SpecialElite',
+      fontSize: '20px',
+      color: '#ffd166',
+      backgroundColor: '#1a1a2e',
+      padding: { x: 10, y: 6 }
+    })
+      .setOrigin(0.5)
+      .setDepth(21)
+      .setInteractive({ useHandCursor: true });
+
+    pin.on('pointerover', () => {
+      pin.setScale(1.08);
+      pin.setColor('#ffffff');
+    });
+
+    pin.on('pointerout', () => {
+      pin.setScale(1);
+      pin.setColor('#ffd166');
+    });
+
+    pin.on('pointerdown', (pointer) => {
+      if (pointer?.event?.button !== undefined && pointer.event.button !== 0) {
+        return;
+      }
+      this.visitShop();
+    });
+
+    this.shopPin = pin;
+    this.shopPinGlow = glow;
+    this.interactiveObjects.push(pin);
+  }
+
+  /**
+   * Otwiera sklep jako scenę NADRZĘDNĄ (jak ApartmentScene):
+   * mapa miasta pauzuje, sklep leci na wierzch,
+   * a po wyjściu z powrotem wznawiamy CrimeCityScene.
+   *
+   * Brak kosztu energii i nawigacji po nodach — sklep to
+   * udogodnienie, nie etap sprawy.
+   *
+   * @returns {boolean} czy wejście do sklepu ruszyło
+   */
+  visitShop() {
+    if (
+      this.isTransitioning ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return false;
+    }
+
+    this.closeAllUIPanels();
+
+    this.isTransitioning = true;
+
+    this.cameras.main.fadeOut(350, 0, 0, 0);
+
+    this.cameras.main.once(
+      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+      () => {
+        this.isTransitioning = false;
+
+        if (!this.sys.isActive() || this._cleanupDone) {
+          return;
+        }
+
+        this.scene.pause();
+
+        this.scene.launch('ShopScene', {
+          cityId: this.cityId,
+          returnScene: 'CrimeCityScene'
+        });
+      }
+    );
+
+    return true;
   }
 
   openCrimeScene() {
@@ -761,8 +896,7 @@ export class CrimeCityScene extends BaseScene {
 
     void this.setupCrimeCityUi();
 
-    // Po powrocie z mieszkania odśwież dostępne lokacje na mapie
-    // (np. gdyby powrót ujawnił nowy trop otwierający kolejne miejsce).
+    // Po powrocie z mieszkania/sklepu odśwież dostępne lokacje na mapie
     this.createCrimeCityContent();
   }
 
@@ -782,6 +916,12 @@ export class CrimeCityScene extends BaseScene {
     });
 
     this.interactiveObjects = [];
+
+    if (this.shopPinGlow?.active) {
+      this.shopPinGlow.destroy();
+      this.shopPinGlow = null;
+    }
+    this.shopPin = null;
 
     this.stopCityAmbient();
     this.destroyControllers();

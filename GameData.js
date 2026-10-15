@@ -67,6 +67,17 @@ export const defaultGameState = {
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,
+    artifactRecovery: {
+    missionId: null,
+    artifactId: null,
+    recovered: false,
+    recoveredAt: null,
+    recoveredFrom: null,
+    recoveredLocation: null,
+    condition: null
+  },
+
+  recoveredArtifacts: [],
   currentCity: null,
   currentCityId: null,
   currentMission: null,
@@ -126,6 +137,15 @@ export const defaultGameState = {
   travelHistory: [],
   lastTravel: null,
   lastTravelEncounter: null,
+
+investigationPhaseActive: true,
+investigationStartTime: null,
+investigationDeadline: null, // startTime + 96 hours (4 days)
+
+escapePhaseActive: false,
+escapeStartTime: null,
+escapeDeadline: null,
+timeWastedOnMistakes: 0,
 
   // Kolekcje indeksowane.
   // Tablice są źródłem prawdy, indeksy są cachem odbudowywanym automatycznie.
@@ -552,7 +572,184 @@ class GameStateManager {
   clearClues() {
     return this.replaceIndexedCollection('cluesCollected', []);
   }
+  /**
+   * Zapisuje odzyskany artefakt sprawy.
+   *
+   * Jest idempotentne: drugi zapis tego samego missionId albo artifactId
+   * zwraca false i nie dubluje kolekcji.
+   *
+   * Nie używamy updateState(), ponieważ musimy atomowo:
+   * - zaktualizować currentArtifact,
+   * - zaktualizować currentMission,
+   * - ustawić artifactRecovery,
+   * - dodać wpis do recoveredArtifacts.
+   */
+  recoverArtifact(recoveryData = {}) {
+    const missionId =
+      recoveryData.missionId ||
+      this.state.currentMission?.id ||
+      this.state.currentMission?.missionId ||
+      null;
 
+    const artifact = recoveryData.artifact;
+
+    if (!missionId) {
+      console.warn('[GameState] Cannot recover artefact without missionId');
+      return false;
+    }
+
+    if (!artifact?.id) {
+      console.warn('[GameState] Cannot recover artefact without artifact.id');
+      return false;
+    }
+
+    const alreadyRecovered = this.state.recoveredArtifacts.some(
+      entry =>
+        entry.missionId === missionId ||
+        entry.artifactId === artifact.id
+    );
+
+    if (alreadyRecovered) {
+      return false;
+    }
+
+    const recoveredAt =
+      recoveryData.recoveredAt ||
+      artifact.recoveredAt ||
+      new Date().toISOString();
+
+    const recoveredFrom =
+      recoveryData.recoveredFrom ||
+      artifact.recoveredFrom ||
+      'suspect_apartment';
+
+    const recoveredLocation =
+      recoveryData.recoveredLocation ||
+      artifact.recoveredLocation ||
+      'Suspect Apartment';
+
+    const recoveredArtifact = {
+      ...cloneGameData(artifact),
+
+      recovered: true,
+      recoveredAt,
+      recoveredFrom,
+      recoveredLocation,
+
+      condition:
+        recoveryData.condition ||
+        artifact.condition ||
+        'intact'
+    };
+
+    const collectionEntry = {
+      id: `recovered_${missionId}_${artifact.id}`,
+
+      missionId,
+      artifactId: recoveredArtifact.id,
+
+      artifact:
+        recoveredArtifact.label ||
+        recoveredArtifact.name ||
+        'Recovered Artefact',
+
+      city:
+        recoveredArtifact.city ||
+        this.state.crimeCityId ||
+        this.state.currentCityId ||
+        'Unknown City',
+
+      country:
+        recoveredArtifact.country ||
+        'Unknown Country',
+
+      description:
+        recoveredArtifact.description ||
+        'A stolen artefact recovered during the investigation.',
+
+      significance:
+        recoveredArtifact.significance ||
+        'Recovered from the suspect apartment.',
+
+      artifactKey:
+        recoveredArtifact.artifactKey ||
+        recoveredArtifact.id,
+
+      condition: recoveredArtifact.condition,
+
+      recoveredAt,
+      recoveredFrom,
+recoveredLocation,
+    };
+
+    this.state.currentArtifact = cloneGameData(recoveredArtifact);
+
+    this.state.artifactRecovery = {
+      missionId,
+      artifactId: recoveredArtifact.id,
+      recovered: true,
+      recoveredAt,
+      recoveredFrom,
+      recoveredLocation,
+      condition: recoveredArtifact.condition
+    };
+
+    if (this.state.currentMission) {
+      this.state.currentMission = {
+        ...this.state.currentMission,
+
+        artifact: cloneGameData(recoveredArtifact),
+        artifactRecovered: true
+      };
+    }
+
+    this.state.recoveredArtifacts.push(collectionEntry);
+    this.dirty = true;
+
+    return true;
+  }
+
+  /**
+   * Sprawdza, czy artefakt w bieżącej lub wskazanej misji został odzyskany.
+   */
+  hasRecoveredArtifact(missionId = null) {
+    const targetMissionId =
+      missionId ||
+      this.state.currentMission?.id ||
+      this.state.currentMission?.missionId ||
+      null;
+
+    if (!targetMissionId) {
+      return false;
+    }
+
+    return this.state.recoveredArtifacts.some(
+      entry => entry.missionId === targetMissionId
+    );
+  }
+
+  /**
+   * Zwraca bezpieczną kopię wpisu odzyskanego artefaktu.
+   */
+  getRecoveredArtifact(missionId = null) {
+    const targetMissionId =
+      missionId ||
+      this.state.currentMission?.id ||
+      this.state.currentMission?.missionId ||
+      null;
+
+    if (!targetMissionId) {
+      return null;
+    }
+
+    const artifact = this.state.recoveredArtifacts.find(
+      entry => entry.missionId === targetMissionId
+    );
+
+    return artifact
+      ? deepFreeze(cloneGameData(artifact))
+      : null;
+  }
   /**
    * Encounters
    */

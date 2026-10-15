@@ -11,7 +11,7 @@
 //   icons (npc, npc1..npc6), assigned uniquely per encounter whenever
 //   possible.
 
-import { gameState } from './GameData.js';
+import { gameState } from '../GameData.js';
 import { generateAlibiWitnesses } from './AlibiWitnessData.js';
 
 const GENERIC_NPC_KEYS = [

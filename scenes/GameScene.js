@@ -1,8 +1,8 @@
 import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
-import { GameTimeManager } from '../GameTimeManager.js';
+import { GameTimeManager } from '../managers/GameTimeManager.js';
 import { EventBus } from '../EventBus.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
 export class GameScene extends BaseScene {

@@ -1,10 +1,10 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
-import { ScoreManager } from '../ScoreManager.js';
-import { audioManager } from '../AudioManager.js';
+import { ScoreManager } from '../managers/ScoreManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-import { checkAndAwardAchievements } from '../AchievementManager.js';
+import { checkAndAwardAchievements } from '../managers/AchievementManager.js';
 
 export class SuccessScene extends BaseScene {
     constructor() {

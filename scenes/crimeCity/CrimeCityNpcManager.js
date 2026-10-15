@@ -1,30 +1,148 @@
+// scenes/crimeCity/CrimeCityNpcManager.js
+
 import { gameState } from '../../GameData.js';
 
 const GENERIC_NPC_KEYS = [
-  'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
+  'npc',
+  'npc1',
+  'npc2',
+  'npc3',
+  'npc4',
+  'npc5',
+  'npc6'
 ];
 
 export class CrimeCityNpcManager {
   constructor(scene) {
     this.scene = scene;
     this.createdObjects = [];
+    this.isOpeningEncounter = false;
+  }
+
+  getCaseSuspects() {
+    const candidates = [
+      gameState.caseSuspects,
+      gameState.suspects,
+      gameState.suspectList
+    ];
+
+    return candidates.find(
+      (list) => Array.isArray(list) && list.length > 0
+    ) || [];
+  }
+
+  /**
+   * Dostęp do świadków wynika z zatwierdzenia ręcznych
+   * wykluczeń w SuspectBoardScene.
+   *
+   * Nie korzystamy z caseForensics.suspectGrid.completed:
+   * to zapis innej planszy.
+   */
+  getAlibiAccessState() {
+    const lockedState = {
+      unlocked: false,
+      candidateIds: new Set()
+    };
+
+    const scene = this.scene;
+
+    if (!scene || scene._cleanupDone) {
+      return lockedState;
+    }
+
+    const caseKey = scene.getCaseKey();
+
+    const exclusionState =
+      gameState.suspectExclusionState?.[caseKey];
+
+    if (exclusionState?.finished !== true) {
+      return lockedState;
+    }
+
+    const manualExclusionIds = new Set(
+      Array.isArray(exclusionState.manualExclusionIds)
+        ? exclusionState.manualExclusionIds
+        : []
+    );
+
+    const candidateIds = new Set(
+      this.getCaseSuspects()
+        .filter(
+          (suspect) =>
+            suspect?.id &&
+            suspect.deductionState?.eliminated !== true &&
+            !manualExclusionIds.has(suspect.id)
+        )
+        .map((suspect) => suspect.id)
+    );
+
+    // Zachowujemy wymóg minimum dwóch osób,
+    // obecny również w Twoim openEvidenceGrid().
+    if (candidateIds.size < 2) {
+      return lockedState;
+    }
+
+    return {
+      unlocked: true,
+      candidateIds
+    };
+  }
+
+  canAccessAlibiStage() {
+    const scene = this.scene;
+
+    if (
+      !scene ||
+      scene._cleanupDone ||
+      !scene.isCrimeLabCompleted() ||
+      !scene.isGridCompleted()
+    ) {
+      return false;
+    }
+
+    // isGridCompleted() w CrimeCityScene oznacza
+    // rekonstrukcję przestępstwa, nie Evidence Grid.
+    return this.getAlibiAccessState().unlocked;
+  }
+
+  canAccessEncounter(encounter) {
+    if (
+      !encounter ||
+      encounter.enabled === false ||
+      !this.canAccessAlibiStage()
+    ) {
+      return false;
+    }
+
+    return this.getAlibiAccessState()
+      .candidateIds.has(encounter.suspectId);
   }
 
   createNpcSpots() {
-    if (
-      !this.scene.isCrimeLabCompleted() ||
-      !this.scene.isGridCompleted()
-    ) {
+    this.clearCreatedObjects();
+
+    if (!this.canAccessAlibiStage()) {
       return;
     }
 
     const slots =
-      this.scene.crimeCityConfig.suspectSlots || [];
+      this.scene.crimeCityConfig?.suspectSlots || [];
 
-    const encounters =
-      this.getCrimeCityEncounters();
+    const encounters = this.getCrimeCityEncounters();
 
-    if (encounters.length === 0) {
+    console.debug(
+      '[CrimeCityNpcManager] Alibi map refresh:',
+      {
+        caseKey: this.scene.getCaseKey(),
+        candidateIds: [
+          ...this.getAlibiAccessState().candidateIds
+        ],
+        encounterCount: encounters.length,
+        slotCount: slots.length
+      }
+    );
+
+    if (!encounters.length) {
       this.showEmptyLeadHint();
       return;
     }
@@ -36,23 +154,23 @@ export class CrimeCityNpcManager {
         console.warn(
           '[CrimeCityNpcManager] Missing NPC slot for encounter.',
           {
-            encounter,
+            encounterId: encounter.id,
             index,
-            slots
+            slotCount: slots.length
           }
         );
-
         return;
       }
 
-      this.createNpcSpot(
-        encounter,
-        slot
-      );
+      this.createNpcSpot(encounter, slot);
     });
   }
 
   createNpcSpot(encounter, slot) {
+    if (!this.canAccessEncounter(encounter)) {
+      return null;
+    }
+
     const isVisited =
       this.isEncounterVisited(encounter.id);
 
@@ -62,39 +180,39 @@ export class CrimeCityNpcManager {
     const textureKey =
       this.getNpcTextureKey(encounter);
 
+    if (!textureKey) {
+      console.error(
+        '[CrimeCityNpcManager] No loaded generic NPC texture.',
+        { encounterId: encounter.id }
+      );
+      return null;
+    }
+
     const icon = this.scene.add
       .image(slot.x, slot.y, textureKey)
       .setScale(0.45)
       .setDepth(5)
       .setAlpha(isVisited ? 0.62 : 1)
       .setTint(
-        isVisited
-          ? 0xb8b8b8
-          : isExcluded
-            ? 0xff6666
+        isExcluded
+          ? 0xff6666
+          : isVisited
+            ? 0xb8b8b8
             : 0xffffff
       )
-      .setInteractive({
-        useHandCursor: true
-      });
-
-    const labelText =
-      encounter.label ||
-      encounter.npcName ||
-      encounter.npcId ||
-      'Unknown contact';
+      .setInteractive({ useHandCursor: true });
 
     const label = this.scene.add
       .text(
         slot.x,
         slot.y + 88,
-        labelText,
+        encounter.label ||
+          encounter.npcName ||
+          'Unknown contact',
         {
           fontFamily: 'SpecialElite',
           fontSize: '17px',
-          color: isVisited
-            ? '#cccccc'
-            : '#ffffff',
+          color: isVisited ? '#cccccc' : '#ffffff',
           backgroundColor: '#000000aa',
           padding: {
             left: 8,
@@ -106,6 +224,8 @@ export class CrimeCityNpcManager {
       )
       .setOrigin(0.5)
       .setDepth(6);
+
+    this.createdObjects.push(icon, label);
 
     const badge = this.createEncounterBadge(
       slot,
@@ -123,79 +243,71 @@ export class CrimeCityNpcManager {
 
     icon.on('pointerout', () => {
       icon.setScale(0.45);
-
-      label.setColor(
-        isVisited
-          ? '#cccccc'
-          : '#ffffff'
-      );
+      label.setColor(isVisited ? '#cccccc' : '#ffffff');
     });
 
     icon.on('pointerdown', () => {
-      this.openEncounter(
-        encounter,
-        isVisited,
-        isExcluded
-      );
+      void this.openEncounter(encounter);
     });
 
     this.scene.interactiveObjects.push(icon);
 
-    this.createdObjects.push(
-      icon,
-      label,
-      badge
-    );
-
-    return {
-      icon,
-      label,
-      badge
-    };
+    return { icon, label, badge };
   }
 
-  createEncounterBadge(
-    slot,
-    isExcluded,
-    isVisited
-  ) {
-    if (!this.scene.mapUI) {
+  createEncounterBadge(slot, isExcluded, isVisited) {
+    if (!this.scene?.mapUI) {
       return null;
     }
 
-    if (isExcluded) {
-      return this.scene.mapUI.createStatusBadge(
-        slot.x,
-        slot.y - 56,
-        'Excluded',
-        '#ff6666'
-      );
-    }
+    const text = isExcluded
+      ? 'Excluded'
+      : isVisited
+        ? 'Questioned'
+        : 'Alibi';
 
-    if (isVisited) {
-      return this.scene.mapUI.createStatusBadge(
-        slot.x,
-        slot.y - 56,
-        'Questioned',
-        '#f1e6b8'
-      );
-    }
+    const color = isExcluded
+      ? '#ff6666'
+      : isVisited
+        ? '#f1e6b8'
+        : '#8ed1fc';
 
     return this.scene.mapUI.createStatusBadge(
       slot.x,
       slot.y - 56,
-      'Alibi',
-      '#8ed1fc'
+      text,
+      color,
+      this.createdObjects
     );
   }
 
-  openEncounter(
-    encounter,
-    isVisited,
-    isExcluded
-  ) {
-    if (isExcluded) {
-      this.scene.showMessage(
+  async openEncounter(encounter) {
+    const scene = this.scene;
+
+    if (
+      !scene ||
+      scene._cleanupDone ||
+      !scene.sys.isActive() ||
+      scene.isTransitioning ||
+      this.isOpeningEncounter
+    ) {
+      return;
+    }
+
+    if (!this.canAccessEncounter(encounter)) {
+      scene.showMessage(
+        [
+          'Complete and confirm the preliminary suspect review first.',
+          'Only the remaining files can move to alibi interviews.'
+        ].join('\n'),
+        2800,
+        '#5d2a00'
+      );
+      return;
+    }
+
+    if (this.isSuspectExcluded(encounter.suspectId)) {
+      scene.showMessage(
         [
           `${encounter.label || 'This person'} is already excluded.`,
           'Interrogating them again would be rude. And inefficient.'
@@ -203,40 +315,117 @@ export class CrimeCityNpcManager {
         2600,
         '#5d2a00'
       );
-
       return;
     }
+
+    const caseKey = scene.getCaseKey();
 
     if (
-      !this.scene.moveToCrimeCityNode(
-        `npc:${encounter.id}`
-      )
+      !caseKey ||
+      !encounter.id ||
+      !encounter.suspectId ||
+      !encounter.npcId
     ) {
+      console.error(
+        '[CrimeCityNpcManager] Incomplete witness navigation data.',
+        { caseKey, encounter }
+      );
+
+      scene.showMessage(
+        'This witness file is incomplete.',
+        2600,
+        '#8b0000'
+      );
       return;
     }
 
-    this.scene.closeAllUIPanels();
+    this.isOpeningEncounter = true;
 
-    this.scene.transitionTo('LocationScene', {
-      cityId: this.scene.cityId,
-      encounterId: encounter.id,
-      npcId: encounter.npcId,
-      suspectId: encounter.suspectId,
-      locationId:
-        encounter.locationId ||
-        'alibi_contact',
-      isRepeat: isVisited,
-      isCrimeCity: true,
-      returnScene: 'CrimeCityScene',
-      returnData: {
-        cityId: this.scene.cityId
+    try {
+      const loader = scene.game.sceneLoader;
+
+      if (loader) {
+        await loader.ensure('AlibiScene');
+      } else if (!scene.hasScene('AlibiScene')) {
+        throw new Error(
+          'AlibiScene is not registered and SceneLoader is unavailable.'
+        );
       }
-    });
+
+      if (
+        this.scene !== scene ||
+        scene._cleanupDone ||
+        !scene.sys.isActive() ||
+        scene.isTransitioning
+      ) {
+        return;
+      }
+
+      if (
+        scene.getCaseKey() !== caseKey ||
+        !this.canAccessEncounter(encounter) ||
+        this.isSuspectExcluded(encounter.suspectId)
+      ) {
+        return;
+      }
+
+      if (
+        !scene.moveToCrimeCityNode(`npc:${encounter.id}`)
+      ) {
+        return;
+      }
+
+      scene.closeAllUIPanels();
+
+      scene.transitionTo('AlibiScene', {
+        caseKey,
+        cityId: scene.cityId,
+        encounterId: encounter.id,
+        npcId: encounter.npcId,
+        suspectId: encounter.suspectId,
+        isRepeat: this.isEncounterVisited(encounter.id),
+        returnScene: 'CrimeCityScene',
+        returnData: {
+          cityId: scene.cityId
+        }
+      });
+    } catch (error) {
+      console.error(
+        '[CrimeCityNpcManager] Failed to load AlibiScene.',
+        error
+      );
+
+      if (
+        this.scene === scene &&
+        !scene._cleanupDone &&
+        scene.sys.isActive()
+      ) {
+        scene.showMessage(
+          [
+            'The interview room could not be opened.',
+            'Check the AlibiScene loading error in the console.'
+          ].join('\n'),
+          3500,
+          '#8b0000'
+        );
+      }
+    } finally {
+      this.isOpeningEncounter = false;
+    }
   }
 
   getCrimeCityEncounters() {
-    const caseKey =
-      this.scene.getCaseKey();
+    if (!this.scene) {
+      return [];
+    }
+
+    const access = this.getAlibiAccessState();
+
+    if (!access.unlocked) {
+      return [];
+    }
+
+    const caseKey = this.scene.getCaseKey();
 
     const encounters =
       gameState.crimeCityEncounterState?.[caseKey];
@@ -246,58 +435,48 @@ export class CrimeCityNpcManager {
     }
 
     return encounters.filter(
-      (encounter) => encounter?.enabled !== false
+      (encounter) =>
+        encounter &&
+        encounter.enabled !== false &&
+        access.candidateIds.has(encounter.suspectId)
     );
   }
 
-  /**
-   * Zwraca teksturę ikony mapowej świadka alibi.
-   *
-   * WAŻNE: świadkowie w Crime City są anonimowymi przechodniami wizualnie —
-   * ich zawód/rola (npcId, np. "kustosz", "dozorca", "fence") to WYŁĄCZNIE
-   * dana narracyjna z pliku (AlibiWitnessData.js) i NIE MA żadnego związku
-   * z grafiką. Grafika to zawsze jeden z generycznych sprite'ów puli
-   * npc/npc1..npc6, losowany i zapisany w encounter.portraitKey podczas
-   * generowania encounterów (patrz AlibiEncounterSetup.js).
-   *
-   * Dlatego npcId NIGDY nie może brać udziału w wyborze tekstury — inaczej
-   * rola typu "fence" przypadkiem trafia na istniejący portret dialogowy
-   * pasera i podkrada miejsce właściwej, losowej ikonki przechodnia.
-   */
   getNpcTextureKey(encounter) {
     const candidates = [
       encounter.portraitKey,
       encounter.textureKey,
-      'npc'
-    ].filter(Boolean);
+      ...GENERIC_NPC_KEYS
+    ];
 
-    const validTexture = candidates.find(
+    return candidates.find(
       (key) =>
         GENERIC_NPC_KEYS.includes(key) &&
         this.scene.textures.exists(key)
-    );
-
-    if (!validTexture) {
-      console.warn(
-        '[CrimeCityNpcManager] No valid generic NPC sprite found for encounter — check portraitKey assignment in AlibiEncounterSetup.js.',
-        {
-          encounterId: encounter.id,
-          npcId: encounter.npcId,
-          portraitKey: encounter.portraitKey,
-          textureKey: encounter.textureKey
-        }
-      );
-    }
-
-    return validTexture || 'npc';
+    ) || null;
   }
 
   isEncounterVisited(encounterId) {
+    if (!this.scene) {
+      return false;
+    }
+
+    const caseKey = this.scene.getCaseKey();
+
+    const encounters =
+      gameState.crimeCityEncounterState?.[caseKey];
+
+    if (!Array.isArray(encounters)) {
+      return false;
+    }
+
+    const encounter = encounters.find(
+      (entry) => entry?.id === encounterId
+    );
+
     return (
-      Array.isArray(gameState.visitedEncounters) &&
-      gameState.visitedEncounters.includes(
-        encounterId
-      )
+      encounter?.interviewed === true &&
+      encounter?.dialogueCompleted === true
     );
   }
 
@@ -310,13 +489,10 @@ export class CrimeCityNpcManager {
     }
 
     return gameState.excludedSuspects.some(
-      (entry) => {
-        if (typeof entry === 'string') {
-          return entry === suspectId;
-        }
-
-        return entry?.id === suspectId;
-      }
+      (entry) =>
+        typeof entry === 'string'
+          ? entry === suspectId
+          : entry?.id === suspectId
     );
   }
 
@@ -326,8 +502,8 @@ export class CrimeCityNpcManager {
         this.scene.scale.width / 2,
         this.scene.scale.height - 90,
         [
-          'The lab has no alibi contacts yet.',
-          'Crime Lab must create crimeCityEncounterState for this case.'
+          'No alibi contacts are available for the remaining suspects.',
+          'The witness list appears to have taken a personal day.'
         ].join('\n'),
         {
           fontFamily: 'SpecialElite',
@@ -351,17 +527,28 @@ export class CrimeCityNpcManager {
     return hint;
   }
 
-  destroy() {
-    this.createdObjects.forEach((object) => {
-      if (!object || object.destroyed) {
-        return;
-      }
+  clearCreatedObjects() {
+    const objects = new Set(
+      this.createdObjects.filter(Boolean)
+    );
 
+    if (Array.isArray(this.scene?.interactiveObjects)) {
+      this.scene.interactiveObjects =
+        this.scene.interactiveObjects.filter(
+          (object) => !objects.has(object)
+        );
+    }
+
+    objects.forEach((object) => {
       object.removeAllListeners?.();
       object.destroy?.();
     });
 
     this.createdObjects = [];
+  }
+
+  destroy() {
+    this.clearCreatedObjects();
     this.scene = null;
   }
 }

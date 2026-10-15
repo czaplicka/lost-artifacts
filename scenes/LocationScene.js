@@ -3,9 +3,9 @@ import { saveGameState } from '../GameStatePersistence.js';
 import { NPCController } from '../NPCController.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-import { getEnergyManager } from '../EnergyManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import { NPC_DIALOGUE_KEY_MAP } from '../dialogues/dialogueKeys.js';
 import {
   resolveCityNpcTheme,

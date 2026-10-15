@@ -41,9 +41,9 @@ export class CrimeLabScene extends BaseScene {
     this.rightArrow = null;
     this.navHint = null;
     this.introHint = null;
-    this.proceedHotspot = null;
 
     this.uiLocked = false;
+    this.isExitingLab = false;
     this.completedCount = 0;
     this.totalStations = STATION_IDS.length;
 
@@ -87,7 +87,6 @@ export class CrimeLabScene extends BaseScene {
     );
 
     this.timeController = new CrimeLabTimeController(this);
-
     this.labOnboarding = this.getLabOnboarding();
 
     this.evidenceService.ensureAssistantResults(
@@ -98,6 +97,7 @@ export class CrimeLabScene extends BaseScene {
     this.hotspots = [];
     this.debugTexts = [];
     this.uiLocked = false;
+    this.isExitingLab = false;
 
     this.completedCount =
       this.getCompletedRequiredStationCount();
@@ -142,21 +142,22 @@ export class CrimeLabScene extends BaseScene {
 
     this.createOptionalDebug();
 
-this.labView.showView('lab_intro');
-this.updateRoomHotspots();
-this.showIntroHint();
-this.hud.refreshFromScene();
+    this.labView.showView('lab_intro');
+    this.updateRoomHotspots();
+    this.showIntroHint();
+    this.hud.refreshFromScene();
 
-if (this.labOnboarding?.assistantPresent) {
-  this.time.delayedCall(250, () => {
-    if (
-      !this.uiLocked &&
-      !this.assistantDialog?.isOpen()
-    ) {
-      this.openAssistantDialogue('greeting');
+    if (this.labOnboarding?.assistantPresent) {
+      this.time.delayedCall(250, () => {
+        if (
+          !this.uiLocked &&
+          !this.isExitingLab &&
+          !this.assistantDialog?.isOpen()
+        ) {
+          this.openAssistantDialogue('greeting');
+        }
+      });
     }
-  });
-}
 
     this.input.keyboard.on(
       'keydown-LEFT',
@@ -333,9 +334,7 @@ if (this.labOnboarding?.assistantPresent) {
       return true;
     }
 
-    return (
-      this.completedCount >= requiredStations.length
-    );
+    return this.completedCount >= requiredStations.length;
   }
 
   getRemainingAnalysisCount() {
@@ -369,63 +368,63 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   openAssistantDialogue(startNodeId = 'greeting') {
-  if (
-    this.uiLocked ||
-    !this.labOnboarding?.assistantPresent ||
-    this.assistantDialog?.isOpen()
-  ) {
-    return;
-  }
+    if (
+      this.uiLocked ||
+      this.isExitingLab ||
+      !this.labOnboarding?.assistantPresent ||
+      this.assistantDialog?.isOpen()
+    ) {
+      return;
+    }
 
-  const dialogue = this.cache.json.get(
-    'crime_lab_assistant_dialogues'
-  );
-
-  if (!dialogue?.nodes) {
-    console.error(
-      '[CrimeLabScene] Assistant dialogue JSON is missing or invalid.',
-      dialogue
+    const dialogue = this.cache.json.get(
+      'crime_lab_assistant_dialogues'
     );
 
-    this.showNavHint(
-      'LAB ASSISTANT DIALOGUE UNAVAILABLE'
-    );
+    if (!dialogue?.nodes) {
+      console.error(
+        '[CrimeLabScene] Assistant dialogue JSON is missing or invalid.',
+        dialogue
+      );
 
-    return;
-  }
+      this.showNavHint('LAB ASSISTANT DIALOGUE UNAVAILABLE');
+      return;
+    }
 
-  const resolvedNodeId =
-    dialogue.nodes[startNodeId]
+    const resolvedNodeId = dialogue.nodes[startNodeId]
       ? startNodeId
       : dialogue.defaultNodeId;
 
-  if (!resolvedNodeId || !dialogue.nodes[resolvedNodeId]) {
-    console.error(
-      '[CrimeLabScene] Assistant dialogue has no valid start node.',
-      {
-        requestedNodeId: startNodeId,
-        defaultNodeId: dialogue.defaultNodeId,
-        availableNodes: Object.keys(dialogue.nodes)
-      }
-    );
+    if (!resolvedNodeId || !dialogue.nodes[resolvedNodeId]) {
+      console.error(
+        '[CrimeLabScene] Assistant dialogue has no valid start node.',
+        {
+          requestedNodeId: startNodeId,
+          defaultNodeId: dialogue.defaultNodeId,
+          availableNodes: Object.keys(dialogue.nodes)
+        }
+      );
 
-    this.showNavHint('DIALOGUE NODE MISSING');
-    return;
-  }
-
-  const opened = this.assistantDialog.open({
-    dialogue,
-    startNodeId: resolvedNodeId,
-    onClose: () => {
-      this.uiLocked = false;
-      this.applyLock(false);
+      this.showNavHint('DIALOGUE NODE MISSING');
+      return;
     }
-  });
 
-  if (opened) {
-    this.applyLock(true);
+    const opened = this.assistantDialog.open({
+      dialogue,
+      startNodeId: resolvedNodeId,
+      onClose: () => {
+        if (this.isExitingLab) {
+          return;
+        }
+
+        this.applyLock(false);
+      }
+    });
+
+    if (opened) {
+      this.applyLock(true);
+    }
   }
-}
 
   createAssistantHotspot() {
     if (!this.labOnboarding?.assistantPresent) {
@@ -464,7 +463,6 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   createHotspots() {
-    const gameWidth = this.scale.width;
     const caseForensics =
       this.labManager.ensureCaseForensics();
 
@@ -611,7 +609,7 @@ if (this.labOnboarding?.assistantPresent) {
         });
 
         exitBtn.on('pointerdown', () => {
-          if (!this.uiLocked) {
+          if (!this.uiLocked && !this.isExitingLab) {
             data.action();
           }
         });
@@ -625,6 +623,7 @@ if (this.labOnboarding?.assistantPresent) {
       zone.on('pointerdown', () => {
         if (
           this.uiLocked ||
+          this.isExitingLab ||
           (data.completed && !data.alwaysVisible) ||
           (data.stationId &&
             !this.isStationRequired(data.stationId))
@@ -672,28 +671,7 @@ if (this.labOnboarding?.assistantPresent) {
       }
     });
 
-    this.proceedHotspot = this.add
-      .text(gameWidth / 2, 88, '', {
-        fontFamily: 'PressStart2P',
-        fontSize: '11px',
-        color: '#39ff14',
-        backgroundColor: '#000000',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 8,
-          bottom: 8
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(80)
-      .setInteractive({ useHandCursor: true });
-
-    this.proceedHotspot.on('pointerdown', () => {
-      this.goToCrimeCity();
-    });
-
-    this.updateProceedVisibility();
+    this.updateRoomHotspots();
   }
 
   safeSetInteractive(gameObject) {
@@ -729,8 +707,7 @@ if (this.labOnboarding?.assistantPresent) {
       }
 
       const data = zone.hotspotData;
-      const isVisible =
-        data?.room === this.currentView;
+      const isVisible = data?.room === this.currentView;
 
       const isRequired =
         !data?.stationId ||
@@ -743,6 +720,7 @@ if (this.labOnboarding?.assistantPresent) {
       if (
         !isVisible ||
         this.uiLocked ||
+        this.isExitingLab ||
         !isRequired ||
         (data?.completed && !data?.alwaysVisible)
       ) {
@@ -755,24 +733,6 @@ if (this.labOnboarding?.assistantPresent) {
       this.safeSetInteractive(zone.exitBtn);
     });
 
-    const labCompleted = this.isLabComplete();
-    const canProceed = labCompleted && !this.uiLocked;
-
-    this.proceedHotspot
-      ?.setText(
-        labCompleted
-          ? '[ RETURN TO CRIME CITY ]'
-          : ''
-      )
-      .setVisible(labCompleted)
-      .setAlpha(canProceed ? 1 : 0.45);
-
-    if (canProceed) {
-      this.safeSetInteractive(this.proceedHotspot);
-    } else {
-      this.safeDisableInteractive(this.proceedHotspot);
-    }
-
     if (
       this.assistantHotspot &&
       !this.assistantHotspot.isDestroyed
@@ -782,7 +742,11 @@ if (this.labOnboarding?.assistantPresent) {
 
       this.assistantHotspot.setVisible(assistantVisible);
 
-      if (assistantVisible && !this.uiLocked) {
+      if (
+        assistantVisible &&
+        !this.uiLocked &&
+        !this.isExitingLab
+      ) {
         this.safeSetInteractive(this.assistantHotspot);
       } else {
         this.safeDisableInteractive(this.assistantHotspot);
@@ -921,7 +885,7 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   moveLeft() {
-    if (this.uiLocked) {
+    if (this.uiLocked || this.isExitingLab) {
       return;
     }
 
@@ -935,7 +899,7 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   moveRight() {
-    if (this.uiLocked) {
+    if (this.uiLocked || this.isExitingLab) {
       return;
     }
 
@@ -955,17 +919,18 @@ if (this.labOnboarding?.assistantPresent) {
   updateNavVisibility() {
     const showLeft = this.currentView !== 'lab_intro';
     const showRight = this.currentView !== 'lab_c';
+    const canNavigate = !this.uiLocked && !this.isExitingLab;
 
     this.leftArrow?.setVisible(showLeft);
     this.rightArrow?.setVisible(showRight);
 
-    if (showLeft && !this.uiLocked) {
+    if (showLeft && canNavigate) {
       this.safeSetInteractive(this.leftArrow);
     } else {
       this.safeDisableInteractive(this.leftArrow);
     }
 
-    if (showRight && !this.uiLocked) {
+    if (showRight && canNavigate) {
       this.safeSetInteractive(this.rightArrow);
     } else {
       this.safeDisableInteractive(this.rightArrow);
@@ -1073,6 +1038,7 @@ if (this.labOnboarding?.assistantPresent) {
   ) {
     if (
       this.uiLocked ||
+      this.isExitingLab ||
       !this.isStationRequired(stationId)
     ) {
       return;
@@ -1087,7 +1053,6 @@ if (this.labOnboarding?.assistantPresent) {
       return;
     }
 
-    this.uiLocked = true;
     this.applyLock(true);
 
     try {
@@ -1098,7 +1063,6 @@ if (this.labOnboarding?.assistantPresent) {
         error
       );
 
-      this.uiLocked = false;
       this.applyLock(false);
       this.showNavHint('ANALYSIS STATION UNAVAILABLE');
       return;
@@ -1153,13 +1117,14 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   returnFromMiniGame() {
-    if (!this.scene.isPaused(this.scene.key)) {
+    if (
+      this.isExitingLab ||
+      !this.scene.isPaused(this.scene.key)
+    ) {
       return;
     }
 
     this.scene.resume(this.scene.key);
-
-    this.uiLocked = false;
     this.applyLock(false);
 
     this.checkMiniGameResults();
@@ -1222,7 +1187,7 @@ if (this.labOnboarding?.assistantPresent) {
       this.assistantHotspot &&
       !this.assistantHotspot.isDestroyed
     ) {
-      if (locked) {
+      if (locked || this.isExitingLab) {
         this.safeDisableInteractive(this.assistantHotspot);
       } else if (this.currentView === 'lab_intro') {
         this.safeSetInteractive(this.assistantHotspot);
@@ -1243,98 +1208,43 @@ if (this.labOnboarding?.assistantPresent) {
   }
 
   forceUnlock() {
-    if (this.scene.isPaused(this.scene.key)) {
+    if (
+      this.isExitingLab ||
+      this.scene.isPaused(this.scene.key)
+    ) {
       return;
     }
 
-    this.uiLocked = false;
     this.applyLock(false);
   }
 
   exitLab() {
-    if (this.uiLocked) {
+    if (
+      this.uiLocked ||
+      this.isExitingLab ||
+      !this.sys.isActive()
+    ) {
       return;
     }
 
-    const targetScene = 'CrimeCityScene';
+    // Sprawdzamy aktualnie zapisane wyniki przed wyjściem.
+    this.completedCount =
+      this.getCompletedRequiredStationCount();
 
-    this.uiLocked = true;
+    const labCompleted = this.isLabComplete();
+
+    this.isExitingLab = true;
     this.applyLock(true);
-
-    const sceneData = {
-      ...(this.returnData || {}),
-      cityId: this.cityId,
-      caseKey:
-        this.labManager?.getCaseKey?.() ||
-        'default_case',
-      gameState: this.gameState,
-      crimeLabCompleted: this.isLabComplete(),
-      fromCrimeLab: true
-    };
-
-    this.cameras.main.fadeOut(300, 0, 0, 0);
-
-    this.cameras.main.once(
-      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-      async () => {
-        try {
-          await this.game.sceneLoader.ensure(targetScene);
-
-          this.game.events.emit('setHudVisible', true);
-          EventBus.emit('showHUD');
-
-          this.goto(targetScene, sceneData);
-        } catch (error) {
-          console.error(
-            '[CrimeLabScene] Failed to start CrimeCityScene:',
-            error
-          );
-
-          this.uiLocked = false;
-          this.applyLock(false);
-
-          this.cameras.main.fadeIn(300, 0, 0, 0);
-          this.showNavHint(
-            'ERROR: Cannot switch scenes'
-          );
-        }
-      }
-    );
-  }
-
-  goToCrimeCity() {
-    if (this.uiLocked) {
-      return;
-    }
-
-    if (!this.isLabComplete()) {
-      console.warn(
-        '[CrimeLabScene] Cannot return to Crime City: required lab stations are incomplete.',
-        {
-          completedCount: this.completedCount,
-          requiredStations: this.getRequiredStationIds()
-        }
-      );
-
-      return;
-    }
-
-    this.uiLocked = true;
-    this.applyLock(true);
-
-    this.labManager.markCrimeLabCompleted();
 
     const returnData = {
       ...this.returnData,
       cityId: this.cityId,
       caseKey: this.labManager.getCaseKey(),
       gameState: this.gameState,
-      crimeLabCompleted: true,
-      showLabCompletionPhoneCall: true,
+      crimeLabCompleted: labCompleted,
+      showLabCompletionPhoneCall: labCompleted,
       fromCrimeLab: true
     };
-
-    this.cameras.main.fadeOut(350, 0, 0, 0);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -1344,24 +1254,48 @@ if (this.labOnboarding?.assistantPresent) {
             'CrimeCityScene'
           );
 
+          if (!this.sys.isActive()) {
+            return;
+          }
+
+          // Ten zapis był wcześniej tylko w goToCrimeCity().
+          if (labCompleted) {
+            this.labManager.markCrimeLabCompleted();
+          }
+
           this.game.events.emit('setHudVisible', true);
           EventBus.emit('showHUD');
 
-          this.goto('CrimeCityScene', returnData);
+          await this.goto('CrimeCityScene', returnData);
         } catch (error) {
           console.error(
-            '[CrimeLabScene] Failed to start CrimeCityScene:',
+            '[CrimeLabScene] Failed to return to CrimeCityScene:',
             error
           );
 
-          this.uiLocked = false;
+          if (!this.sys.isActive()) {
+            return;
+          }
+
+          this.isExitingLab = false;
           this.applyLock(false);
+
+          this.game.events.emit('setHudVisible', false);
+          EventBus.emit('hideHUD');
 
           this.cameras.main.fadeIn(350, 0, 0, 0);
           this.showNavHint('CRIME CITY UNAVAILABLE');
         }
       }
     );
+
+    this.cameras.main.fadeOut(350, 0, 0, 0);
+  }
+
+  // Zachowane dla ewentualnych wywołań z pozostałych modułów.
+  // Nie tworzy dodatkowego przycisku ani osobnej ścieżki wyjścia.
+  goToCrimeCity() {
+    this.exitLab();
   }
 
   createOptionalDebug() {
@@ -1516,8 +1450,7 @@ if (this.labOnboarding?.assistantPresent) {
       'leftArrow',
       'rightArrow',
       'navHint',
-      'introHint',
-      'proceedHotspot'
+      'introHint'
     ].forEach((property) => {
       const element = this[property];
 

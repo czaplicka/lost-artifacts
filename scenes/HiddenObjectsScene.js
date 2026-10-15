@@ -1,8 +1,8 @@
 import { gameState } from '../GameData.js';
-import { getScoreManager } from '../InvestigationManager.js';
-import { audioManager } from '../AudioManager.js';
+import { getScoreManager } from '../managers/InvestigationManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-import { getEnergyManager } from '../EnergyManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import { getDifficultyConfig } from '../DifficultySettings.js';
 import { HiddenObjectsState } from '../HiddenObjectsState.js';
 import { HiddenObjectsResolver } from '../HiddenObjectsResolver.js';

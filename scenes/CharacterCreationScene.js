@@ -2,7 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 import { setupNewGame } from '../gameSetup.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { EventBus } from '../EventBus.js';
 import {
   createDefaultPlayerData,
@@ -17,20 +17,25 @@ import {
   renderCharacterCreationTemplate
 } from '../ui/characterCreation/CharacterCreationTemplate.js';
 
+
 const STEP_COUNT = 5;
 const INITIAL_STAT_POINTS = 2;
 const MAX_NAME_LENGTH = 28;
+
 
 export class CharacterCreationScene extends BaseScene {
   constructor() {
     super({ key: 'CharacterCreationScene' });
 
+
     this.currentStep = 0;
     this.playerData = createDefaultPlayerData();
     this.domElement = null;
     this.isStartingGame = false;
+    this.isLeavingScene = false;
     this.errorMessage = '';
     this.entryData = {};
+
 
     this.boundResizeDomInterface = this.fitDomInterface.bind(this);
     this.boundCleanupScene = this.cleanupScene.bind(this);
@@ -39,44 +44,56 @@ export class CharacterCreationScene extends BaseScene {
     this.boundPreventDomSubmit = this.preventDomSubmit.bind(this);
   }
 
+
   init(data = {}) {
     this.entryData = data;
     this.currentStep = 0;
     this.playerData = createDefaultPlayerData();
     this.isStartingGame = false;
+    this.isLeavingScene = false;
     this.errorMessage = '';
   }
+
 
   create() {
     super.create();
 
+
     this.cameras.main.setBackgroundColor('#17120e');
+
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.boundCleanupScene
     );
 
+
     this.createDomInterface();
   }
+
 
   createDomInterface() {
     this.destroyDomInterface();
 
+
     this.domElement = this.add
       .dom(0, 0)
       .createFromHTML(this.getTemplate());
+
 
     this.domElement
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(1000);
 
+
     this.domElement.node.style.pointerEvents = 'auto';
     this.domElement.node.style.overflow = 'hidden';
 
+
     this.fitDomInterface();
     this.bindDomEvents();
+
 
     this.scale.on(
       Phaser.Scale.Events.RESIZE,
@@ -84,13 +101,16 @@ export class CharacterCreationScene extends BaseScene {
     );
   }
 
+
   destroyDomInterface() {
     this.scale?.off(
       Phaser.Scale.Events.RESIZE,
       this.boundResizeDomInterface
     );
 
+
     const root = this.getRoot();
+
 
     if (root) {
       root.removeEventListener('click', this.boundHandleDomClick);
@@ -98,29 +118,36 @@ export class CharacterCreationScene extends BaseScene {
       root.removeEventListener('submit', this.boundPreventDomSubmit);
     }
 
+
     if (this.domElement) {
       this.domElement.destroy();
       this.domElement = null;
     }
   }
 
+
   cleanupScene() {
     this.isStartingGame = false;
+    this.isLeavingScene = false;
     this.destroyDomInterface();
   }
+
 
   fitDomInterface() {
     if (!this.domElement?.node) {
       return;
     }
 
+
     const width = this.scale.width;
     const height = this.scale.height;
+
 
     this.domElement
       .setPosition(0, 0)
       .setOrigin(0, 0)
       .setScale(1);
+
 
     Object.assign(this.domElement.node.style, {
       width: `${width}px`,
@@ -131,11 +158,14 @@ export class CharacterCreationScene extends BaseScene {
       pointerEvents: 'auto'
     });
 
+
     const root = this.getRoot();
+
 
     if (!root) {
       return;
     }
+
 
     Object.assign(root.style, {
       width: `${width}px`,
@@ -144,6 +174,7 @@ export class CharacterCreationScene extends BaseScene {
       minHeight: `${height}px`
     });
   }
+
 
   refresh() {
     if (
@@ -154,14 +185,18 @@ export class CharacterCreationScene extends BaseScene {
       return;
     }
 
+
     const content = this.getRoot()?.querySelector(
       '.character-creation-content'
     );
 
+
     const scrollTop = content?.scrollTop ?? 0;
     const scrollLeft = content?.scrollLeft ?? 0;
 
+
     const previousRoot = this.getRoot();
+
 
     if (previousRoot) {
       previousRoot.removeEventListener('click', this.boundHandleDomClick);
@@ -172,18 +207,23 @@ export class CharacterCreationScene extends BaseScene {
       );
     }
 
+
     this.domElement.setHTML(this.getTemplate());
+
 
     this.domElement
       .setPosition(0, 0)
       .setOrigin(0, 0)
       .setScale(1);
 
+
     this.domElement.node.style.pointerEvents = 'auto';
     this.domElement.node.style.overflow = 'hidden';
 
+
     this.fitDomInterface();
     this.bindDomEvents();
+
 
     requestAnimationFrame(() => {
       if (
@@ -194,18 +234,22 @@ export class CharacterCreationScene extends BaseScene {
         return;
       }
 
+
       const refreshedContent = this.getRoot()?.querySelector(
         '.character-creation-content'
       );
+
 
       if (!refreshedContent) {
         return;
       }
 
+
       refreshedContent.scrollTop = scrollTop;
       refreshedContent.scrollLeft = scrollLeft;
     });
   }
+
 
   getTemplate() {
     return renderCharacterCreationTemplate({
@@ -217,61 +261,76 @@ export class CharacterCreationScene extends BaseScene {
     });
   }
 
+
   getRoot() {
     return this.domElement?.node
       ?.querySelector('#character-creation-root') ?? null;
   }
 
+
   bindDomEvents() {
     const root = this.getRoot();
+
 
     if (!root) {
       return;
     }
 
+
     root.removeEventListener('click', this.boundHandleDomClick);
     root.removeEventListener('input', this.boundHandleDomInput);
     root.removeEventListener('submit', this.boundPreventDomSubmit);
 
+
     root.addEventListener('click', this.boundHandleDomClick);
     root.addEventListener('input', this.boundHandleDomInput);
     root.addEventListener('submit', this.boundPreventDomSubmit);
+
 
     this.syncActiveStep();
     this.updateAvatarPreview();
     this.updateIdentityPreview();
   }
 
+
   preventDomSubmit(event) {
     event.preventDefault();
   }
 
+
   syncActiveStep() {
     const root = this.getRoot();
+
 
     if (!root) {
       return;
     }
 
+
     root.querySelectorAll('[data-step-panel]').forEach((panel) => {
       const isActive =
         Number(panel.dataset.stepPanel) === this.currentStep;
+
 
       panel.classList.toggle('is-active', isActive);
       panel.toggleAttribute('hidden', !isActive);
     });
   }
 
+
   handleClick(event) {
-    if (this._cleanupDone || this.isStartingGame) {
+    if (this._cleanupDone || this.isStartingGame || this.isLeavingScene) {
       return;
     }
 
+
     const button = event.target.closest('button');
+
 
     if (!button || button.disabled) {
       return;
     }
+
 
     const {
       action,
@@ -284,25 +343,30 @@ export class CharacterCreationScene extends BaseScene {
       stat
     } = button.dataset;
 
+
     if (action === 'next') {
       this.goNext();
       return;
     }
 
+
     if (action === 'back') {
-      this.goBack();
+      void this.goBack();
       return;
     }
+
 
     if (action === 'randomize') {
       this.randomizeIdentity();
       return;
     }
 
+
     if (step !== undefined) {
       this.goToStep(Number(step));
       return;
     }
+
 
     if (profile) {
       this.playerData.profile = profile;
@@ -311,12 +375,14 @@ export class CharacterCreationScene extends BaseScene {
       return;
     }
 
+
     if (difficulty) {
       this.playerData.difficulty = difficulty;
       this.clearError();
       this.refresh();
       return;
     }
+
 
     if (appearanceCategory && appearanceValue) {
       this.playerData.appearance[appearanceCategory] = appearanceValue;
@@ -325,17 +391,21 @@ export class CharacterCreationScene extends BaseScene {
       return;
     }
 
+
     if (statAction && stat) {
       this.changeStat(stat, statAction);
     }
   }
 
+
   handleInput(event) {
-    if (this._cleanupDone || this.isStartingGame) {
+    if (this._cleanupDone || this.isStartingGame || this.isLeavingScene) {
       return;
     }
 
+
     const input = event.target;
+
 
     if (input.matches('[data-character-name]')) {
       this.playerData.name = input.value.slice(0, MAX_NAME_LENGTH);
@@ -344,6 +414,7 @@ export class CharacterCreationScene extends BaseScene {
       return;
     }
 
+
     if (input.matches('[data-character-alias]')) {
       this.playerData.alias = input.value.slice(0, MAX_NAME_LENGTH);
       this.clearError();
@@ -351,56 +422,106 @@ export class CharacterCreationScene extends BaseScene {
     }
   }
 
+
   goNext() {
-    if (this.isStartingGame || !this.validateCurrentStep()) {
+    if (this.isStartingGame || this.isLeavingScene || !this.validateCurrentStep()) {
       return;
     }
+
 
     if (this.currentStep === STEP_COUNT - 1) {
       void this.startGame();
       return;
     }
 
+
     this.currentStep += 1;
     this.clearError();
     this.refresh();
   }
 
-  goBack() {
-    if (this.currentStep === 0 || this.isStartingGame) {
+
+  /**
+   * Krok wstecz. Jeśli jesteśmy na pierwszym ekranie kreatora (step 0),
+   * cofamy gracza do EnterScene zamiast blokować akcję.
+   */
+  async goBack() {
+    if (this.isStartingGame || this.isLeavingScene) {
       return;
     }
+
+
+    if (this.currentStep === 0) {
+      this.isLeavingScene = true;
+      this.clearError();
+      this.refresh();
+
+
+      try {
+        const left = await this.goto('EnterScene', { ...this.entryData });
+
+
+        if (!left && !this._cleanupDone) {
+          this.isLeavingScene = false;
+          this.showError(
+            'The agency door is stuck. Please try again.'
+          );
+        }
+      } catch (error) {
+        if (!this._cleanupDone) {
+          console.error('Unable to return to EnterScene:', error);
+
+
+          this.isLeavingScene = false;
+          this.showError(
+            'The agency door is stuck. Please try again.'
+          );
+        }
+      }
+
+
+      return;
+    }
+
 
     this.currentStep -= 1;
     this.clearError();
     this.refresh();
   }
 
+
   goToStep(step) {
     const invalidStep =
       !Number.isInteger(step) ||
       step < 0 ||
       step >= STEP_COUNT ||
-      this.isStartingGame;
+      this.isStartingGame ||
+      this.isLeavingScene;
+
 
     if (invalidStep) {
       return;
     }
 
+
     if (step > this.currentStep && !this.validateStepsBefore(step)) {
       return;
     }
+
 
     this.currentStep = step;
     this.clearError();
     this.refresh();
   }
 
+
   validateStepsBefore(targetStep) {
     const originalStep = this.currentStep;
 
+
     for (let step = 0; step < targetStep; step += 1) {
       this.currentStep = step;
+
 
       if (!this.validateCurrentStep()) {
         this.currentStep = originalStep;
@@ -408,9 +529,11 @@ export class CharacterCreationScene extends BaseScene {
       }
     }
 
+
     this.currentStep = originalStep;
     return true;
   }
+
 
   validateCurrentStep() {
     if (this.currentStep === 0 && !this.playerData.name.trim()) {
@@ -418,8 +541,10 @@ export class CharacterCreationScene extends BaseScene {
         'Mark Agency needs a name for the paperwork. Even a suspicious one.'
       );
 
+
       return false;
     }
+
 
     if (
       this.currentStep === 2 &&
@@ -429,11 +554,14 @@ export class CharacterCreationScene extends BaseScene {
         `Assign all ${INITIAL_STAT_POINTS} instinct points before HR loses the form.`
       );
 
+
       return false;
     }
 
+
     return true;
   }
+
 
   getRemainingPoints() {
     const spentPoints = STAT_IDS.reduce((total, statId) => {
@@ -443,50 +571,63 @@ export class CharacterCreationScene extends BaseScene {
       );
     }, 0);
 
+
     return INITIAL_STAT_POINTS - spentPoints;
   }
 
+
   changeStat(statId, action) {
-    if (!STAT_IDS.includes(statId) || this.isStartingGame) {
+    if (!STAT_IDS.includes(statId) || this.isStartingGame || this.isLeavingScene) {
       return;
     }
 
+
     const currentValue = this.playerData.stats[statId] ?? 1;
+
 
     if (action === 'increase' && this.getRemainingPoints() > 0) {
       this.playerData.stats[statId] = currentValue + 1;
     }
 
+
     if (action === 'decrease' && currentValue > 1) {
       this.playerData.stats[statId] = currentValue - 1;
     }
+
 
     this.clearError();
     this.refresh();
   }
 
+
   randomizeIdentity() {
-    if (this.isStartingGame) {
+    if (this.isStartingGame || this.isLeavingScene) {
       return;
     }
 
+
     const identity = createRandomIdentity();
+
 
     this.playerData.name = identity.name;
     this.playerData.alias = identity.alias;
     this.playerData.appearance = { ...identity.appearance };
 
+
     this.clearError();
     this.refresh();
   }
+
 
   updateAvatarPreview() {
     const avatar = this.getRoot()
       ?.querySelector('[data-avatar-preview]');
 
+
     if (!avatar) {
       return;
     }
+
 
     Object.entries(this.playerData.appearance).forEach(
       ([category, value]) => {
@@ -495,58 +636,71 @@ export class CharacterCreationScene extends BaseScene {
           (letter) => `-${letter.toLowerCase()}`
         );
 
+
         avatar.setAttribute(`data-${dataKey}`, value);
       }
     );
   }
 
+
   updateIdentityPreview() {
     const root = this.getRoot();
+
 
     if (!root) {
       return;
     }
+
 
     const name = this.playerData.name.trim() || 'UNNAMED APPLICANT';
     const alias = this.playerData.alias.trim() || 'UNLISTED';
     const avatarName = root.querySelector('[data-avatar-name]');
     const avatarAlias = root.querySelector('[data-avatar-alias]');
 
+
     if (avatarName) {
       avatarName.textContent = name.toUpperCase();
     }
+
 
     if (avatarAlias) {
       avatarAlias.textContent = `ALIAS: ${alias.toUpperCase()}`;
     }
   }
 
+
   showError(message) {
     this.errorMessage = message;
     this.refresh();
   }
 
+
   clearError() {
     this.errorMessage = '';
   }
 
+
   async startGame() {
     if (
       this.isStartingGame ||
+      this.isLeavingScene ||
       this._cleanupDone ||
       !this.validateCurrentStep()
     ) {
       return;
     }
 
+
     this.isStartingGame = true;
     this.clearError();
     this.refresh();
+
 
     try {
       const suspectsData = this.cache.json.get('suspects') || [];
       const missionsData = this.cache.json.get('missions') || [];
       const locationsData = this.cache.json.get('locations') || [];
+
 
       await setupNewGame(
         suspectsData,
@@ -555,12 +709,15 @@ export class CharacterCreationScene extends BaseScene {
         this.playerData.difficulty
       );
 
+
       if (this._cleanupDone) {
         return;
       }
 
+
       const profile = getProfile(this.playerData.profile);
       const appearance = { ...this.playerData.appearance };
+
 
       Object.assign(gameState, {
         playerName: this.playerData.name.trim(),
@@ -574,7 +731,9 @@ export class CharacterCreationScene extends BaseScene {
         difficulty: this.playerData.difficulty
       });
 
+
       saveGameState();
+
 
       EventBus.emit('character-created', {
         name: gameState.playerName,
@@ -582,7 +741,9 @@ export class CharacterCreationScene extends BaseScene {
         difficulty: gameState.difficulty
       });
 
+
       audioManager?.play?.('confirm');
+
 
       const started = await this.goto('GameScene', {
         fromCharacterCreation: true,
@@ -590,6 +751,7 @@ export class CharacterCreationScene extends BaseScene {
         startOnboarding: true,
         ...this.entryData
       });
+
 
       if (!started && !this._cleanupDone) {
         this.isStartingGame = false;
@@ -600,6 +762,7 @@ export class CharacterCreationScene extends BaseScene {
     } catch (error) {
       if (!this._cleanupDone) {
         console.error('Unable to create detective:', error);
+
 
         this.isStartingGame = false;
         this.showError(

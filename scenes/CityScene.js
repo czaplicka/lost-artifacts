@@ -2,14 +2,14 @@ import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { generateCaseCityState } from '../city-encounter-generator.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import {
   resolveCityNpcTheme,
   getNpcTextureKey,
   getNpcLabel
 } from '../npcThemeHelper.js';
 import { BaseScene } from './BaseScene.js';
-import { addSessionScore } from '../InvestigationManager.js';
+import { addSessionScore } from '../managers/InvestigationManager.js';
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],

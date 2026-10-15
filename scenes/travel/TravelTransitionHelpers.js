@@ -1,8 +1,8 @@
 import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../GameStatePersistence.js';
-import { audioManager } from '../../AudioManager.js';
+import { audioManager } from '../../managers/AudioManager.js';
 import { getLocationById, getLocationByCity } from '../../ui/LocationUI.js';
-import { getPassportManager } from '../../PassportManager.js';
+import { getPassportManager } from '../../managers/PassportManager.js';
 
 export function playTransportSfx(transport) {
   if (!transport?.sfxKey) return null;
@@ -21,7 +21,7 @@ export function getCostAndEnergyText(moneySpent, energyChange) {
   const safeMoneySpent = Number(moneySpent) || 0;
   const safeEnergyChange = Number(energyChange) || 0;
 
-  const costText = safeMoneySpent > 0 ? `Cost: £${safeMoneySpent}` : 'Cost: £0';
+  const costText = safeMoneySpent > 0 ? `Cost: $${safeMoneySpent}` : 'Cost: $£0';
   const energyText = safeEnergyChange > 0
     ? `Energy: +${safeEnergyChange}`
     : `Energy: ${safeEnergyChange}`;

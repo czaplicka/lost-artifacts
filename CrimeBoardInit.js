@@ -33,6 +33,21 @@ function normalizeId(value) {
     .replace(/^-+|-+$/g, '');
 }
 
+function normalizeSkill(value) {
+  const key = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+
+  const aliases = {
+    pickpocketing: 'pickpocket',
+    'pick pocketing': 'pickpocket',
+    pickpocket: 'pickpocket'
+  };
+
+  return aliases[key] || key;
+}
+
 function getRotation(index) {
   const preset = [-2.4, 1.8, -1.2, 2.1, -0.8, 1.1, -1.7, 2.6];
   return preset[index % preset.length];
@@ -45,39 +60,17 @@ function cloneData(data) {
 }
 
 function asArray(value) {
-  return Array.isArray(value)
-    ? value
-    : [];
+  return Array.isArray(value) ? value : [];
 }
 
 function asObject(value) {
-  return value && typeof value === 'object'
-    ? value
-    : {};
+  return value && typeof value === 'object' ? value : {};
 }
 
 function asText(value, fallback = '') {
   return typeof value === 'string' && value.trim()
     ? value.trim()
     : fallback;
-}
-
-function uniqueStrings(values = []) {
-  const seen = new Set();
-
-  return asArray(values).reduce((result, value) => {
-    const text = asText(String(value || ''));
-    const normalized = text.toLowerCase();
-
-    if (!text || seen.has(normalized)) {
-      return result;
-    }
-
-    seen.add(normalized);
-    result.push(text);
-
-    return result;
-  }, []);
 }
 
 function resolveArtifactImage(mission = {}) {
@@ -87,11 +80,7 @@ function resolveArtifactImage(mission = {}) {
   if (mission.photo) return mission.photo;
 
   if (mission.artifactKey) {
-    const normalizedKey = mission.artifactKey.replace(
-      /^artifact_/,
-      ''
-    );
-
+    const normalizedKey = mission.artifactKey.replace(/^artifact_/, '');
     return `assets/artifacts/${normalizedKey}.png`;
   }
 
@@ -103,18 +92,6 @@ function buildMissionArtifactItem(mission = {}) {
     mission.artifactKey ||
     slugify(mission.artifact || 'case');
 
-  const image = resolveArtifactImage(mission);
-
-  const meta = [
-    mission.city || 'Unknown city',
-    mission.country || 'Unknown country'
-  ].filter(Boolean);
-
-  const captionParts = [
-    mission.clue || '',
-    mission.description || ''
-  ].filter(Boolean);
-
   return {
     id: `mission-${artifactId}`,
     type: 'photo',
@@ -124,9 +101,15 @@ function buildMissionArtifactItem(mission = {}) {
     rotation: -0.6,
     pinned: true,
     label: mission.artifact || 'Unknown Artifact',
-    image,
-    caption: captionParts.join(' — ') || 'Stolen artifact',
-    meta,
+    image: resolveArtifactImage(mission),
+    caption: [
+      mission.clue || '',
+      mission.description || ''
+    ].filter(Boolean).join(' — ') || 'Stolen artifact',
+    meta: [
+      mission.city || 'Unknown city',
+      mission.country || 'Unknown country'
+    ].filter(Boolean),
     tags: ['mission', 'artifact'],
     clueId: mission.artifactKey || null,
     discovered: true,
@@ -157,11 +140,7 @@ function buildUnknownSuspectItem(currentThiefId = null) {
 }
 
 function buildPlayerNotesItem(playerNotes) {
-  if (
-    !playerNotes ||
-    typeof playerNotes !== 'string' ||
-    !playerNotes.trim()
-  ) {
+  if (typeof playerNotes !== 'string' || !playerNotes.trim()) {
     return null;
   }
 
@@ -185,137 +164,157 @@ function buildPlayerNotesItem(playerNotes) {
 }
 
 function getHypothesisResult(gameState = {}) {
-  const directResult = asObject(
-    gameState.hypothesisEvidenceResult
-  );
-
-  if (Object.keys(directResult).length > 0) {
-    return directResult;
-  }
-
-  const boardData = asObject(gameState.crimeBoardData);
-
-  const boardResult = asObject(
-    boardData.hypothesisEvidenceResult
-  );
-
-  if (Object.keys(boardResult).length > 0) {
-    return boardResult;
-  }
-
-  const legacyEvidence = asObject(
+  const candidates = [
+    gameState.hypothesisEvidenceResult,
+    asObject(gameState.crimeBoardData).hypothesisEvidenceResult,
     gameState.hypothesisEvidence
-  );
+  ];
 
-  return legacyEvidence;
+  return candidates
+    .map(asObject)
+    .find(result => Object.keys(result).length > 0) || {};
 }
 
-function isHypothesisCompleted(hypothesisResult = {}) {
+function isHypothesisCompleted(result = {}) {
   return (
-    hypothesisResult.completed === true ||
-    hypothesisResult.success === true ||
-    hypothesisResult.status === 'completed' ||
-    hypothesisResult.status === 'success' ||
-    hypothesisResult.status === 'solved' ||
-    hypothesisResult.status === 'confirmed'
+    result.completed === true ||
+    result.success === true ||
+    ['completed', 'success', 'solved', 'confirmed'].includes(
+      result.status
+    )
   );
 }
 
-function getConfirmedItemIds(gameState = {}) {
-  const hypothesisResult = getHypothesisResult(gameState);
+function hasFinalizedHypothesis(gameState = {}) {
+  const reconstruction = asObject(gameState.reconstructedHeist);
 
-  const directIds = asArray(
-    hypothesisResult.confirmedItemIds
-  );
-
-  const legacyIds = asArray(
-    asObject(gameState.reconstructedHeist).confirmedItemIds
-  );
-
-  const sourceIds = directIds.length > 0
-    ? directIds
-    : legacyIds;
-
-  return new Set(
-    sourceIds
-      .map(id => normalizeId(id))
-      .filter(Boolean)
-  );
-}
-
-function shouldShowFoundObject(
-  object,
-  hypothesisCompleted,
-  confirmedItemIds
-) {
-  if (!object || typeof object !== 'object') {
-    return false;
-  }
-
-  /*
-   * Przed ukończeniem hipotezy pokazujemy wszystkie znalezione
-   * przedmioty: trzy istotne i trzy red herringi.
-   */
-  if (!hypothesisCompleted) {
+  if (
+    ['exact', 'partial', 'weak'].includes(
+      reconstruction.playerTheoryResult
+    )
+  ) {
     return true;
   }
 
-  /*
-   * Po sukcesie hipotezy każdy red herring znika z Crime Board.
-   */
-  if (object.isRedHerring === true) {
-    return false;
+  return isHypothesisCompleted(getHypothesisResult(gameState));
+}
+
+function getHypothesisSkillEntries(gameState = {}) {
+  if (!hasFinalizedHypothesis(gameState)) {
+    return [];
   }
 
-  /*
-   * Gdy HypothesisResultService zapisał trzy potwierdzone ID,
-   * pokazujemy wyłącznie te trzy właściwe elementy rekonstrukcji.
-   */
-  if (confirmedItemIds.size > 0) {
-    const objectId = normalizeId(
-      object.id ||
-      object.objectId ||
-      object.item
+  const reconstruction = asObject(gameState.reconstructedHeist);
+  const claims = asArray(reconstruction.claims);
+  const cards = asArray(reconstruction.playerOrderedCards);
+  const feedback = asArray(reconstruction.playerSlotFeedback);
+
+  const entries = new Map();
+
+  cards.slice(0, 3).forEach((card, playerSlotIndex) => {
+    if (!card || typeof card !== 'object') {
+      return;
+    }
+
+    const color = asText(feedback[playerSlotIndex]).toLowerCase();
+
+    if (color !== 'green' && color !== 'yellow') {
+      return;
+    }
+
+    // Dopasowujemy po ID przedmiotu, nie po miejscu,
+    // w którym gracz umieścił kartę.
+    const claim = claims.find(candidate =>
+      candidate &&
+      String(candidate.solutionItemId || '').trim() ===
+        String(card.id || '').trim()
     );
 
-    return confirmedItemIds.has(objectId);
-  }
+    const skill = asText(claim?.thiefSkill);
 
-  /*
-   * Fallback dla starych zapisów:
-   * jeżeli gracz ukończył hipotezę, ale save nie ma jeszcze
-   * confirmedItemIds, usuwamy przynajmniej red herringi.
-   */
-  return true;
+    if (!claim || !skill) {
+      console.warn(
+        '[CrimeBoardInit] Cannot resolve a single thief skill for accepted card.',
+        {
+          cardId: card.id,
+          playerSlotIndex,
+          feedback: color,
+          claim
+        }
+      );
+      return;
+    }
+
+    const key = normalizeSkill(skill);
+    const existing = entries.get(key);
+
+    // Jeden skill daje jedną karteczkę.
+    // Potwierdzony wpis ma pierwszeństwo przed niepewnym.
+    if (
+      !existing ||
+      (existing.feedback === 'yellow' && color === 'green')
+    ) {
+      entries.set(key, {
+        skill,
+        feedback: color,
+        claimIndex: claims.indexOf(claim)
+      });
+    }
+  });
+
+  return [...entries.values()].sort(
+    (a, b) => a.claimIndex - b.claimIndex
+  );
+}
+
+function buildHypothesisSkillItems(gameState = {}) {
+  return getHypothesisSkillEntries(gameState).map((entry, index) => {
+    const confirmed = entry.feedback === 'green';
+
+    return {
+      id: `hypothesis-skill-${slugify(entry.skill)}`,
+      type: 'note',
+      x: 520 + ((index % 2) * 250),
+      y: 140 + (Math.floor(index / 2) * 190),
+      z: 4,
+      rotation: getRotation(index + 3),
+      pinned: true,
+      label: confirmed
+        ? entry.skill
+        : `${entry.skill} ?`,
+      text: confirmed
+        ? 'Skill identified from a correctly placed clue.'
+        : 'Possible skill: the clue was relevant, but its place in the sequence was wrong.',
+      metaText: confirmed
+        ? 'Reconstruction: correct answer'
+        : 'Reconstruction: uncertain placement',
+      color: confirmed ? 'blue' : 'yellow',
+      clueId: `hypothesis-skill-${slugify(entry.skill)}`,
+      tags: [
+        'hypothesis',
+        'hypothesis-skill',
+        confirmed ? 'skill-confirmed' : 'skill-uncertain',
+        `feedback-${entry.feedback}`
+      ],
+      discovered: true,
+      createdByPlayer: false,
+      editableByPlayer: false
+    };
+  });
 }
 
 function buildCrimeScenePhotoItems(gameState) {
   const visitedScenes =
     gameState?.crimeBoardData?.visitedCrimeScenes;
 
-  if (
-    !Array.isArray(visitedScenes) ||
-    visitedScenes.length === 0
-  ) {
-    return [];
-  }
-
-  const startX = 80;
-  const startY = 320;
-  const gapX = 150;
-  const gapY = 130;
-  const perRow = 4;
-
-  return visitedScenes.map((scene, index) => {
-    const row = Math.floor(index / perRow);
-    const col = index % perRow;
+  return asArray(visitedScenes).map((scene, index) => {
     const success = scene.success !== false;
 
     return {
       id: `scene-photo-${scene.sceneId || index}`,
       type: 'photo',
-      x: startX + (col * gapX),
-      y: startY + (row * gapY),
+      x: 80 + ((index % 4) * 150),
+      y: 320 + (Math.floor(index / 4) * 130),
       z: 1,
       rotation: getRotation(index),
       pinned: false,
@@ -342,78 +341,40 @@ function buildCrimeScenePhotoItems(gameState) {
 }
 
 function normalizeCollectedClues(clues, objectMap) {
-  if (!Array.isArray(clues)) {
-    return [];
-  }
-
-  return clues.filter(clue => {
+  return asArray(clues).filter(clue => {
     if (!clue || typeof clue !== 'object') {
       return false;
     }
 
-    /*
-     * Skille z hipotezy pokazujemy na osobnej karcie
-     * METHOD PROFILE, a nie jako trzy niezależne dowody.
-     */
     if (clue.category === 'skills') {
       return false;
     }
 
-    const hasObjectMatch =
+    return (
       objectMap.has(clue.objectId) ||
-      objectMap.has(clue.id);
-
-    return hasObjectMatch;
+      objectMap.has(clue.id)
+    );
   });
 }
 
 function buildEvidenceItemsFromFoundObjects(gameState) {
-  const foundObjects =
-    gameState?.crimeBoardData?.sceneFoundObjects;
-
-  if (
-    !Array.isArray(foundObjects) ||
-    foundObjects.length === 0
-  ) {
+  if (hasFinalizedHypothesis(gameState)) {
     return [];
   }
 
-  const hypothesisResult = getHypothesisResult(gameState);
-  const hypothesisCompleted =
-    isHypothesisCompleted(hypothesisResult);
+  const foundObjects = asArray(
+    gameState?.crimeBoardData?.sceneFoundObjects
+  ).filter(obj => obj && typeof obj === 'object');
 
-  const confirmedItemIds = getConfirmedItemIds(gameState);
-
-  const visibleObjects = foundObjects.filter(object =>
-    shouldShowFoundObject(
-      object,
-      hypothesisCompleted,
-      confirmedItemIds
-    )
-  );
-
-  return visibleObjects.map((obj, index) => {
+  return foundObjects.map((obj, index) => {
     const fields = [];
 
     if (obj.sceneId) {
-      fields.push({
-        key: 'Scene',
-        value: obj.sceneId
-      });
+      fields.push({ key: 'Scene', value: obj.sceneId });
     }
 
     if (obj.cityId) {
-      fields.push({
-        key: 'City',
-        value: obj.cityId
-      });
-    }
-
-    if (hypothesisCompleted) {
-      fields.push({
-        key: 'Status',
-        value: 'Confirmed in reconstruction'
-      });
+      fields.push({ key: 'City', value: obj.cityId });
     }
 
     return {
@@ -423,11 +384,9 @@ function buildEvidenceItemsFromFoundObjects(gameState) {
       y: 140 + (Math.floor(index / 2) * 210),
       z: 2,
       rotation: getRotation(index + 3),
-      pinned: hypothesisCompleted,
+      pinned: false,
       label: obj.item || `Object ${index + 1}`,
-      tag: hypothesisCompleted
-        ? 'Confirmed clue'
-        : 'Found at scene',
+      tag: 'Found at scene',
       body: obj.description ||
         obj.heistExplanation ||
         'Recovered during the forensic sweep.',
@@ -436,12 +395,7 @@ function buildEvidenceItemsFromFoundObjects(gameState) {
       isRedHerring: Boolean(obj.isRedHerring),
       heistExplanation: obj.heistExplanation || '',
       trueExplanation: obj.trueExplanation || '',
-      tags: [
-        'found-object',
-        hypothesisCompleted
-          ? 'confirmed-reconstruction'
-          : 'scene-evidence'
-      ],
+      tags: ['found-object', 'scene-evidence'],
       discovered: true,
       createdByPlayer: false,
       editableByPlayer: false
@@ -449,12 +403,9 @@ function buildEvidenceItemsFromFoundObjects(gameState) {
   });
 }
 
-function buildEvidenceItemsFromClues(
-  clues,
-  objectsData = []
-) {
+function buildEvidenceItemsFromClues(clues, objectsData = []) {
   const objectMap = new Map(
-    (Array.isArray(objectsData) ? objectsData : [])
+    asArray(objectsData)
       .filter(obj => obj && obj.id)
       .map(obj => [obj.id, obj])
   );
@@ -465,48 +416,22 @@ function buildEvidenceItemsFromClues(
       objectMap.get(clue.id) ||
       null;
 
-    const title =
-      clue.label ||
-      clue.title ||
-      objectMatch?.item ||
-      `Clue ${index + 1}`;
-
-    const body =
-      clue.text ||
-      clue.description ||
-      clue.content ||
-      objectMatch?.heistExplanation ||
-      objectMatch?.trueExplanation ||
-      'Collected during investigation.';
-
     const fields = [];
 
     if (clue.type) {
-      fields.push({
-        key: 'Type',
-        value: clue.type
-      });
+      fields.push({ key: 'Type', value: clue.type });
     }
 
     if (clue.cityId) {
-      fields.push({
-        key: 'City',
-        value: clue.cityId
-      });
+      fields.push({ key: 'City', value: clue.cityId });
     }
 
     if (objectMatch?.scene) {
-      fields.push({
-        key: 'Scene',
-        value: objectMatch.scene
-      });
+      fields.push({ key: 'Scene', value: objectMatch.scene });
     }
 
     if (objectMatch?.isRedHerring) {
-      fields.push({
-        key: 'Status',
-        value: 'Red herring'
-      });
+      fields.push({ key: 'Status', value: 'Red herring' });
     }
 
     return {
@@ -517,9 +442,17 @@ function buildEvidenceItemsFromClues(
       z: 2,
       rotation: getRotation(index + 3),
       pinned: false,
-      label: title,
+      label: clue.label ||
+        clue.title ||
+        objectMatch?.item ||
+        `Clue ${index + 1}`,
       tag: clue.type || 'Evidence',
-      body,
+      body: clue.text ||
+        clue.description ||
+        clue.content ||
+        objectMatch?.heistExplanation ||
+        objectMatch?.trueExplanation ||
+        'Collected during investigation.',
       fields,
       clueId: clue.id || null,
       isRedHerring: Boolean(objectMatch?.isRedHerring),
@@ -533,68 +466,9 @@ function buildEvidenceItemsFromClues(
   });
 }
 
-function buildMethodProfileItem(gameState) {
-  const hypothesisResult = getHypothesisResult(gameState);
-
-  if (!isHypothesisCompleted(hypothesisResult)) {
-    return null;
-  }
-
-  const reconstruction = asObject(
-    gameState.reconstructedHeist
-  );
-
-  const skills = uniqueStrings([
-    ...asArray(hypothesisResult.requiredSkills),
-    ...asArray(hypothesisResult.skills),
-    ...asArray(reconstruction.confirmedSkills)
-  ]).slice(0, 3);
-
-  if (skills.length === 0) {
-    return null;
-  }
-
-  return {
-    id: 'hypothesis-method-profile',
-    type: 'evidence',
-    x: 1060,
-    y: 120,
-    z: 4,
-    rotation: -1.2,
-    pinned: true,
-    label: 'METHOD PROFILE',
-    tag: 'Confirmed',
-    body: 'The reconstruction reveals the skills needed for this theft.',
-    fields: [
-      {
-        key: 'Status',
-        value: 'Reconstruction confirmed'
-      },
-      {
-        key: 'Skills',
-        value: skills.join(', ')
-      },
-      {
-        key: 'Source',
-        value: 'Crime scene reconstruction'
-      }
-    ],
-    clueId: 'hypothesis-method-profile',
-    tags: ['hypothesis', 'method', 'confirmed'],
-    discovered: true,
-    createdByPlayer: false,
-    editableByPlayer: false
-  };
-}
-
 function getLabResults(gameState = {}) {
-  const crimeBoardData = asObject(
-    gameState.crimeBoardData
-  );
-
-  const crimeLab = asObject(
-    gameState.crimeLab
-  );
+  const crimeBoardData = asObject(gameState.crimeBoardData);
+  const crimeLab = asObject(gameState.crimeLab);
 
   const candidates = [
     gameState.labResults,
@@ -609,8 +483,7 @@ function getLabResults(gameState = {}) {
   ];
 
   const rawResults =
-    candidates.find(candidate => Array.isArray(candidate)) ||
-    [];
+    candidates.find(candidate => Array.isArray(candidate)) || [];
 
   const seen = new Set();
 
@@ -619,16 +492,15 @@ function getLabResults(gameState = {}) {
       return false;
     }
 
-    const isCompleted =
+    const completed =
       result.completed === true ||
       result.success === true ||
       result.unlocked === true ||
-      result.status === 'completed' ||
-      result.status === 'success' ||
-      result.status === 'solved' ||
-      result.status === 'confirmed';
+      ['completed', 'success', 'solved', 'confirmed'].includes(
+        result.status
+      );
 
-    if (!isCompleted) {
+    if (!completed) {
       return false;
     }
 
@@ -650,9 +522,7 @@ function getLabResults(gameState = {}) {
 }
 
 function buildLabResultItems(gameState) {
-  const labResults = getLabResults(gameState);
-
-  return labResults.map((result, index) => {
+  return getLabResults(gameState).map((result, index) => {
     const resultId = normalizeId(
       result.id ||
       result.key ||
@@ -660,14 +530,6 @@ function buildLabResultItems(gameState) {
       result.title ||
       result.label ||
       `result-${index + 1}`
-    );
-
-    const title = asText(
-      result.title ||
-      result.label ||
-      result.name ||
-      result.type,
-      'LAB REPORT'
     );
 
     const value = asText(
@@ -679,21 +541,6 @@ function buildLabResultItems(gameState) {
       'Analysis complete'
     );
 
-    const body = asText(
-      result.description ||
-      result.details ||
-      result.text ||
-      result.body,
-      value
-    );
-
-    const source = asText(
-      result.source ||
-      result.minigame ||
-      result.labGame,
-      'Crime Lab'
-    );
-
     return {
       id: `lab-result-${resultId}`,
       type: 'evidence',
@@ -702,22 +549,33 @@ function buildLabResultItems(gameState) {
       z: 4,
       rotation: getRotation(index + 12),
       pinned: true,
-      label: title,
+      label: asText(
+        result.title ||
+        result.label ||
+        result.name ||
+        result.type,
+        'LAB REPORT'
+      ),
       tag: 'Lab result',
-      body,
+      body: asText(
+        result.description ||
+        result.details ||
+        result.text ||
+        result.body,
+        value
+      ),
       fields: [
-        {
-          key: 'Result',
-          value
-        },
+        { key: 'Result', value },
         {
           key: 'Source',
-          value: source
+          value: asText(
+            result.source ||
+            result.minigame ||
+            result.labGame,
+            'Crime Lab'
+          )
         },
-        {
-          key: 'Status',
-          value: 'Verified'
-        }
+        { key: 'Status', value: 'Verified' }
       ],
       clueId: resultId,
       tags: [
@@ -741,8 +599,9 @@ function buildLinks(items) {
     item => item.tags?.includes('unknown')
   );
 
-  const evidenceItems = items.filter(
-    item => item.type === 'evidence'
+  const evidenceItems = items.filter(item =>
+    item.type === 'evidence' ||
+    item.tags?.includes('hypothesis-skill')
   );
 
   const links = [];
@@ -759,19 +618,17 @@ function buildLinks(items) {
   }
 
   evidenceItems.forEach((item, index) => {
-    if (!suspectItem) {
-      return;
-    }
+    if (!suspectItem) return;
 
     links.push({
-      id: `link-suspect-evidence-${index}`,
+      id: `link-suspect-${item.id}`,
       from: suspectItem.id,
       to: item.id,
-      fromAnchor: index % 2 === 0
-        ? 'right'
-        : 'bottom',
+      fromAnchor: index % 2 === 0 ? 'right' : 'bottom',
       toAnchor: 'left',
-      color: '#b3131b'
+      color: item.tags?.includes('skill-uncertain')
+        ? '#b78a28'
+        : '#b3131b'
     });
   });
 
@@ -786,85 +643,39 @@ function buildBoardLayout(gameState, objectsData = []) {
   }
 
   const mission = gameState.currentMission;
-  const items = [];
+  const finalized = hasFinalizedHypothesis(gameState);
 
-  const objectMap = new Map(
-    (Array.isArray(objectsData) ? objectsData : [])
-      .filter(obj => obj && obj.id)
-      .map(obj => [obj.id, obj])
-  );
-
-  items.push(buildMissionArtifactItem(mission));
-
-  items.push(
+  const items = [
+    buildMissionArtifactItem(mission),
     buildUnknownSuspectItem(
       gameState.currentThief?.id ||
       gameState.currentThiefId ||
       null
-    )
-  );
+    ),
+    ...buildCrimeScenePhotoItems(gameState),
+    ...buildEvidenceItemsFromFoundObjects(gameState),
+    ...buildHypothesisSkillItems(gameState),
+    ...buildLabResultItems(gameState)
+  ];
 
-  const scenePhotoItems =
-    buildCrimeScenePhotoItems(gameState);
+  if (!finalized) {
+    const objectMap = new Map(
+      asArray(objectsData)
+        .filter(obj => obj && obj.id)
+        .map(obj => [obj.id, obj])
+    );
 
-  scenePhotoItems.forEach(item => {
-    items.push(item);
-  });
+    const collectedClues = normalizeCollectedClues(
+      gameState.cluesCollected,
+      objectMap
+    );
 
-  /*
-   * Ta funkcja filtruje red herringi po ukończeniu hipotezy.
-   * Po sukcesie zostają tylko elementy z confirmedItemIds.
-   */
-  const foundObjectItems =
-    buildEvidenceItemsFromFoundObjects(gameState);
-
-  foundObjectItems.forEach(item => {
-    items.push(item);
-  });
-
-  /*
-   * Karta dedukcyjna dodawana po udanej rekonstrukcji.
-   * Nie duplikujemy pojedynczych skillów jako osobnych dowodów.
-   */
-  const methodProfileItem =
-    buildMethodProfileItem(gameState);
-
-  if (methodProfileItem) {
-    items.push(methodProfileItem);
+    items.push(
+      ...buildEvidenceItemsFromClues(collectedClues, objectsData)
+    );
   }
 
-  /*
-   * Wyniki gier laboratoryjnych.
-   * Pokazywane są wyłącznie wyniki oznaczone jako completed/success.
-   */
-  const labResultItems =
-    buildLabResultItems(gameState);
-
-  labResultItems.forEach(item => {
-    items.push(item);
-  });
-
-  /*
-   * Tylko wpisy odpowiadające fizycznym przedmiotom z objects.json.
-   * Skille pomijamy, bo są reprezentowane przez METHOD PROFILE.
-   */
-  const collectedClues = normalizeCollectedClues(
-    gameState.cluesCollected,
-    objectMap
-  );
-
-  const evidenceItems = buildEvidenceItemsFromClues(
-    collectedClues,
-    objectsData
-  );
-
-  evidenceItems.forEach(item => {
-    items.push(item);
-  });
-
-  const playerNotesItem = buildPlayerNotesItem(
-    gameState.playerNotes
-  );
+  const playerNotesItem = buildPlayerNotesItem(gameState.playerNotes);
 
   if (playerNotesItem) {
     items.push(playerNotesItem);
@@ -878,27 +689,21 @@ function buildBoardLayout(gameState, objectsData = []) {
       }`,
       title: mission.artifact || 'Crime Board',
       caseId: mission.artifactKey || '',
-      version: 3,
+      version: 5,
       thiefId: gameState.currentThief?.id ||
         gameState.currentThiefId ||
         null,
-      crimeCity: mission.city ||
-        gameState.crimeCity ||
-        ''
+      crimeCity: mission.city || gameState.crimeCity || ''
     },
     items,
     links: buildLinks(items)
   };
 }
 
-async function getObjectsData(
-  objectsUrl = DEFAULT_OBJECTS_URL
-) {
+async function getObjectsData(objectsUrl = DEFAULT_OBJECTS_URL) {
   try {
     const loaded = await loadJson(objectsUrl);
-    return Array.isArray(loaded)
-      ? loaded
-      : [];
+    return Array.isArray(loaded) ? loaded : [];
   } catch (error) {
     console.warn(
       'Crime board: objects.json unavailable, continuing without object metadata.',
@@ -914,50 +719,63 @@ function mergePlayerItems(baseLayout, savedData) {
     return baseLayout;
   }
 
-  const baseIds = new Set(
-    baseLayout.items.map(item => item.id)
+  const baseIds = new Set(baseLayout.items.map(item => item.id));
+
+  const playerItems = savedData.items.filter(item =>
+    item?.createdByPlayer &&
+    !baseIds.has(item.id)
   );
 
-  const playerItems = savedData.items.filter(
-    item =>
-      item?.createdByPlayer &&
-      !baseIds.has(item.id)
-  );
-
+  // Systemowe karty, w tym stare karteczki skilli, powstają na nowo.
   const mergedItems = [
     ...baseLayout.items,
     ...cloneData(playerItems)
   ];
 
-  const validIds = new Set(
-    mergedItems.map(item => item.id)
+  const validIds = new Set(mergedItems.map(item => item.id));
+  const links = cloneData(baseLayout.links);
+
+  const seenPairs = new Set(
+    links.map(link => [link.from, link.to].sort().join('\u0000'))
   );
 
-  const savedLinks = Array.isArray(savedData.links)
-    ? savedData.links
-    : [];
+  const seenIds = new Set(links.map(link => link.id));
 
-  const playerLinks = savedLinks.filter(
-    link =>
-      validIds.has(link?.from) &&
-      validIds.has(link?.to)
-  );
+  asArray(savedData.links).forEach(link => {
+    if (!link || !(
+      link.createdByPlayer ||
+      link.editableByPlayer
+    )) {
+      return;
+    }
+
+    if (
+      !validIds.has(link.from) ||
+      !validIds.has(link.to) ||
+      link.from === link.to
+    ) {
+      return;
+    }
+
+    const pair = [link.from, link.to].sort().join('\u0000');
+
+    if (seenPairs.has(pair) || seenIds.has(link.id)) {
+      return;
+    }
+
+    seenPairs.add(pair);
+    seenIds.add(link.id);
+    links.push(cloneData(link));
+  });
 
   return {
     meta: cloneData(baseLayout.meta),
     items: mergedItems,
-    links: [
-      ...baseLayout.links,
-      ...cloneData(playerLinks)
-    ]
+    links
   };
 }
 
-function ensureBoardApi(
-  boardInstance,
-  localState,
-  objectsData
-) {
+function ensureBoardApi(boardInstance, localState, objectsData) {
   return {
     board: boardInstance,
 
@@ -967,19 +785,10 @@ function ensureBoardApi(
 
     refresh(nextState = localState) {
       const currentData = boardInstance.getBoardData();
-
-      const baseLayout = buildBoardLayout(
-        nextState,
-        objectsData
-      );
-
-      const mergedLayout = mergePlayerItems(
-        baseLayout,
-        currentData
-      );
+      const baseLayout = buildBoardLayout(nextState, objectsData);
+      const mergedLayout = mergePlayerItems(baseLayout, currentData);
 
       boardInstance.loadBoard(mergedLayout);
-
       localState = nextState;
 
       return mergedLayout;
@@ -998,9 +807,7 @@ export async function initCrimeBoard({
   objectsUrl = DEFAULT_OBJECTS_URL
 } = {}) {
   if (!root) {
-    throw new Error(
-      'CrimeBoardInit: root is required.'
-    );
+    throw new Error('CrimeBoardInit: root is required.');
   }
 
   const boardRoot = root.querySelector('#crime-board');
@@ -1022,29 +829,13 @@ export async function initCrimeBoard({
   const objectsData = await getObjectsData(objectsUrl);
   const board = new CrimeBoard(boardRoot);
 
-  let initialData;
-
-  if (state.currentMission) {
-    const baseLayout = buildBoardLayout(
-      state,
-      objectsData
-    );
-
-    initialData = mergePlayerItems(
-      baseLayout,
-      data
-    );
-  } else {
-    initialData = cloneData(data);
-  }
+  const initialData = state.currentMission
+    ? mergePlayerItems(buildBoardLayout(state, objectsData), data)
+    : cloneData(data);
 
   board.loadBoard(initialData);
 
-  return ensureBoardApi(
-    board,
-    state,
-    objectsData
-  );
+  return ensureBoardApi(board, state, objectsData);
 }
 
 export { buildBoardLayout };

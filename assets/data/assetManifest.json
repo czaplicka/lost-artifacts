@@ -74,7 +74,11 @@
     { "key": "havela_bg", "url": "assets/crimes/havela.jpg" },
     { "key": "newsstand_bg", "url": "assets/local/newsstand.jpg" },
     { "key": "desk1", "url": "assets/CSI/desk1.jpg" },
-    { "key": "desk2", "url": "assets/CSI/desk2.jpg" }
+    { "key": "desk2", "url": "assets/CSI/desk2.jpg" },
+    { "key": "apartment_debt_living_room", "url": "assets/apartments/apartment_debt_living_room.jpg" },
+    { "key": "apartment_debt_kitchen", "url": "assets/apartments/apartment_debt_kitchen.jpg" },
+    { "key": "shop", "url": "assets/local/shop.jpg" }
+    
   ],
   "npcPortraits": [
     { "key": "bankier_w", "url": "assets/npc/bankier_w.png" },
@@ -365,7 +369,7 @@
     { "key": "dialogue_fence", "url": "assets/data/dialogue/fence.json" },
     { "key": "dialogue_knajpa", "url": "assets/data/dialogue/knajpa.json" },
     { "key": "dialogue_parkingowy", "url": "assets/data/dialogue/parkingowy.json" },
-    { "key": "crime_lab_assistant_dialogues", "url": "assets/data/dialogue/crime_lab_assistant_dialogues.json" },
+    { "key": "crime_lab_assistant_dialogues", "url": "assets/data/dialogue/crimeLabAssistantDialogues.json" },
     { "key": "city_clues", "url": "assets/data/city-clues.json" },
     { "key": "suspect_clues", "url": "assets/data/suspect-clues.json" },
     { "key": "objects-data", "url": "assets/data/objects.json" },

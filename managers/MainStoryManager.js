@@ -1,51 +1,87 @@
-// MainStoryManager.js
-// Singleton-manager śledzący postęp wątku głównego (śledztwo o mężu).
-// Wzorowany na EnergyManager.js / MoneyManager.js: statyczny stan modułu,
-// integracja z EventBus (powiadomienia o awansie fabuły) i SaveManager (persist).
+// managers/MainStoryManager.js
+// Stan głównego śledztwa.
+// Zapis i odczyt obsługuje GameStatePersistence.js.
 
 import { EventBus } from '../EventBus.js';
-import { MAIN_STORY_STAGES, getStageById, getStageByIndex, getTotalStages } from '../MainStoryData.js';
+import {
+  MAIN_STORY_STAGES,
+  getStageById,
+  getStageByIndex,
+  getTotalStages
+} from '../MainStoryData.js';
 
-const STORAGE_KEY = 'mainStoryProgress';
+function isRecord(value) {
+  return value !== null &&
+    typeof value === 'object' &&
+    !Array.isArray(value);
+}
+
+function readRecord(value) {
+  return isRecord(value) ? structuredClone(value) : {};
+}
+
+function readIds(value) {
+  return Array.isArray(value)
+    ? value.filter(id => typeof id === 'string')
+    : [];
+}
 
 class MainStoryManagerClass {
   constructor() {
-    this.currentStageId = MAIN_STORY_STAGES[0].id;
-    this.flags = {}; // np. { hired: true, joined_agency: true, red_herring_map_resolved: true }
-    this.sideClues = {}; // dodatkowe fakty poboczne, np. motyw, elementy odkryte po drodze
+    if (!MAIN_STORY_STAGES.length) {
+      throw new Error('MainStoryData must contain at least one stage.');
+    }
+
+    this._initializeState();
+  }
+
+  _initializeState() {
+    const firstStage = MAIN_STORY_STAGES[0];
+
+    this.currentStageId = firstStage.id;
+    this.flags = { [firstStage.id]: true };
+    this.sideClues = {};
     this.unlockedNpcs = new Set();
     this.unlockedLocations = new Set();
+
     this._applyUnlocksUpToCurrentStage();
   }
 
-  // --- Query ---
-
   getCurrentStage() {
-    return getStageById(this.currentStageId);
+    return getStageById(this.currentStageId) || MAIN_STORY_STAGES[0];
   }
 
   getCurrentStageIndex() {
-    const stage = this.getCurrentStage();
-    return stage ? stage.order : 0;
+    return this.getCurrentStage().order;
   }
 
   getProgressPercent() {
-    const total = getTotalStages() - 1; // 'completed' jest ostatnim krokiem
-    return Math.round((this.getCurrentStageIndex() / total) * 100);
+    const total = getTotalStages() - 1;
+
+    if (total <= 0) return 0;
+
+    return Math.min(
+      100,
+      Math.max(
+        0,
+        Math.round((this.getCurrentStageIndex() / total) * 100)
+      )
+    );
   }
 
   hasReachedStage(stageId) {
     const target = getStageById(stageId);
-    if (!target) return false;
-    return this.getCurrentStageIndex() >= target.order;
+
+    return Boolean(target) &&
+      this.getCurrentStageIndex() >= target.order;
   }
 
   hasFlag(flagName) {
-    return !!this.flags[flagName];
+    return Boolean(this.flags[flagName]);
   }
 
   getSideClue(key) {
-    return this.sideClues[key] || null;
+    return this.sideClues[key] ?? null;
   }
 
   isNpcUnlocked(npcId) {
@@ -56,149 +92,179 @@ class MainStoryManagerClass {
     return this.unlockedLocations.has(locationId);
   }
 
-  // --- Mutations ---
-
   setFlag(flagName, value = true) {
+    if (typeof flagName !== 'string' || !flagName) return false;
+
     this.flags[flagName] = value;
+
     EventBus.emit('mainStory:flagSet', { flagName, value });
+    return true;
   }
 
   setSideClue(key, value) {
-    this.sideClues[key] = value;
+    if (typeof key !== 'string' || !key) return false;
+
+    this.sideClues[key] = structuredClone(value);
+
     EventBus.emit('mainStory:sideClueSet', { key, value });
+    return true;
   }
 
-  /**
-   * Przechodzi do konkretnego etapu fabuły (po id), sprawdzając wymagane flagi.
-   * Zwraca true jeśli przejście się powiodło.
-   */
   advanceToStage(stageId, { force = false } = {}) {
     const target = getStageById(stageId);
+
     if (!target) {
-      console.warn(`[MainStoryManager] Nieznany stage: ${stageId}`);
+      console.warn(`[MainStoryManager] Unknown stage: ${stageId}`);
       return false;
     }
 
-    if (!force && target.requiredFlags) {
-      const missing = target.requiredFlags.filter(f => !this.hasFlag(f) && f !== this.currentStageId);
-      // flaga o tej samej nazwie co poprzedni stage jest automatycznie ustawiana przy wejściu,
-      // więc traktujemy "bycie w poprzednim etapie" jako spełnienie warunku.
-      const unmet = target.requiredFlags.filter(f => {
-        if (this.hasFlag(f)) return false;
-        const prevStage = getStageById(f);
-        if (prevStage && this.getCurrentStageIndex() >= prevStage.order) return false;
-        return true;
+    // Powtórne odczytanie tego samego dokumentu nie powtarza zdarzenia.
+    if (target.id === this.currentStageId) return true;
+
+    const currentIndex = this.getCurrentStageIndex();
+
+    if (!force) {
+      if (target.order !== currentIndex + 1) {
+        console.warn(
+          '[MainStoryManager] Only the next story stage can be entered.',
+          {
+            currentStageId: this.currentStageId,
+            requestedStageId: stageId
+          }
+        );
+        return false;
+      }
+
+      const unmet = (target.requiredFlags || []).filter(flagName => {
+        const stageRequirement = getStageById(flagName);
+
+        if (stageRequirement) {
+          return !this.hasReachedStage(flagName);
+        }
+
+        return !this.hasFlag(flagName);
       });
-      if (unmet.length > 0) {
-        console.warn(`[MainStoryManager] Nie można przejść do "${stageId}" - brakujące warunki:`, unmet);
+
+      if (unmet.length) {
+        console.warn(
+          `[MainStoryManager] Missing requirements for "${stageId}":`,
+          unmet
+        );
         return false;
       }
     }
 
     const previousStageId = this.currentStageId;
-    this.currentStageId = stageId;
-    this.setFlag(stageId, true);
-    this._applyUnlocksForStage(target);
+
+    this.currentStageId = target.id;
+    this.flags[target.id] = true;
+
+    this._applyUnlocksUpToCurrentStage();
 
     EventBus.emit('mainStory:stageAdvanced', {
       previousStageId,
-      currentStageId: stageId,
+      currentStageId: target.id,
       stage: target
     });
 
     return true;
   }
 
-  /** Przechodzi do następnego etapu w kolejności (order + 1). */
   advanceToNextStage() {
     const next = getStageByIndex(this.getCurrentStageIndex() + 1);
-    if (!next) {
-      console.warn('[MainStoryManager] Wątek główny jest już zakończony.');
-      return false;
+
+    if (!next) return false;
+
+    return this.advanceToStage(next.id);
+  }
+
+  resetProgress({ silent = false } = {}) {
+    this._initializeState();
+
+    if (!silent) {
+      EventBus.emit('mainStory:reset');
     }
-    return this.advanceToStage(next.id, { force: true });
   }
-
-  resetProgress() {
-    this.currentStageId = MAIN_STORY_STAGES[0].id;
-    this.flags = {};
-    this.sideClues = {};
-    this.unlockedNpcs = new Set();
-    this.unlockedLocations = new Set();
-    this._applyUnlocksUpToCurrentStage();
-    EventBus.emit('mainStory:reset');
-  }
-
-  // --- Internals ---
 
   _applyUnlocksForStage(stage) {
     if (!stage.unlocks) return;
-    (stage.unlocks.npcs || []).forEach(id => this.unlockedNpcs.add(id));
-    (stage.unlocks.locations || []).forEach(id => this.unlockedLocations.add(id));
+
+    (stage.unlocks.npcs || []).forEach(id => {
+      this.unlockedNpcs.add(id);
+    });
+
+    (stage.unlocks.locations || []).forEach(id => {
+      this.unlockedLocations.add(id);
+    });
   }
 
   _applyUnlocksUpToCurrentStage() {
     const currentIndex = this.getCurrentStageIndex();
+
     MAIN_STORY_STAGES
-      .filter(s => s.order <= currentIndex)
-      .forEach(s => this._applyUnlocksForStage(s));
+      .filter(stage => stage.order <= currentIndex)
+      .forEach(stage => this._applyUnlocksForStage(stage));
   }
 
-  // --- Persistence (do integracji z SaveManager) ---
-
   serialize() {
-    return {
+    return structuredClone({
+      version: 1,
       currentStageId: this.currentStageId,
-      flags: { ...this.flags },
-      sideClues: { ...this.sideClues },
+      flags: this.flags,
+      sideClues: this.sideClues,
       unlockedNpcs: Array.from(this.unlockedNpcs),
       unlockedLocations: Array.from(this.unlockedLocations)
-    };
+    });
   }
 
   deserialize(data) {
-    if (!data) return;
-    this.currentStageId = data.currentStageId || MAIN_STORY_STAGES[0].id;
-    this.flags = data.flags || {};
-    this.sideClues = data.sideClues || {};
-    this.unlockedNpcs = new Set(data.unlockedNpcs || []);
-    this.unlockedLocations = new Set(data.unlockedLocations || []);
-  }
+    // Starszy zapis bez historii nie przejmuje stanu poprzedniej sesji.
+    this.resetProgress({ silent: true });
 
-  saveToLocalStorage() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.serialize()));
-    } catch (e) {
-      console.warn('[MainStoryManager] Nie udało się zapisać progresu:', e);
+    if (!isRecord(data)) return false;
+
+    const stage = getStageById(data.currentStageId);
+
+    if (!stage) {
+      console.warn(
+        '[MainStoryManager] Invalid saved stage. Story reset to beginning.'
+      );
+      return false;
     }
-  }
 
-  loadFromLocalStorage() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) this.deserialize(JSON.parse(raw));
-    } catch (e) {
-      console.warn('[MainStoryManager] Nie udało się wczytać progresu:', e);
-    }
-  }
+    this.currentStageId = stage.id;
+    this.flags = readRecord(data.flags);
+    this.flags[stage.id] = true;
+    this.sideClues = readRecord(data.sideClues);
 
-  // --- Debug helper (do szybkiego podglądu w konsoli podczas testów) ---
+    this.unlockedNpcs = new Set(readIds(data.unlockedNpcs));
+    this.unlockedLocations = new Set(readIds(data.unlockedLocations));
+
+    // Przywraca także odblokowania wynikające z definicji etapów.
+    this._applyUnlocksUpToCurrentStage();
+
+    return true;
+  }
 
   debugPrint() {
     const stage = this.getCurrentStage();
+
     console.log(
-      `%c[MainStory] Etap ${this.getCurrentStageIndex()}/${getTotalStages() - 1} (${this.getProgressPercent()}%): ${stage.title}`,
-      'color:#e0c840;font-weight:bold'
+      `[MainStory] ${stage.id} — ${this.getProgressPercent()}%`
     );
-    console.log('Flags:', this.flags);
+    console.log('Stage title:', stage.title);
+    console.log('Flags:', structuredClone(this.flags));
+    console.log('Side clues:', structuredClone(this.sideClues));
     console.log('Unlocked NPCs:', Array.from(this.unlockedNpcs));
-    console.log('Unlocked Locations:', Array.from(this.unlockedLocations));
+    console.log(
+      'Unlocked locations:',
+      Array.from(this.unlockedLocations)
+    );
   }
 }
 
 export const MainStoryManager = new MainStoryManagerClass();
 
-// Ułatwienie do debugowania z konsoli przeglądarki: window.mainStory.debugPrint()
 if (typeof window !== 'undefined') {
   window.mainStory = MainStoryManager;
 }

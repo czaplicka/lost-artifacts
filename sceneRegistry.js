@@ -39,6 +39,7 @@ export const SCENE_TIERS = {
     'IntroScene',
     'PhoneCallScene',
     'NewsstandScene',
+    'ShopScene',
     'NewspaperOverlayScene',
     'TvBroadcastScene',
     'GameOverScene',
@@ -56,6 +57,7 @@ export const SCENE_TIERS = {
     'WantedDatabaseScene',
     'RecoveredArtifactsScene',
     'ArrestSelectionScene',
+    'AlibiScene',
     'ApartmentScene',
     'SuccessScene',
     'AgainScene'
@@ -163,6 +165,8 @@ export const sceneRegistry = {
   NewsstandScene: () =>
     import('./scenes/NewsstandScene.js').then(m => m.NewsstandScene),
 
+ShopScene: () =>
+  import('./scenes/ShopScene.js').then(m => m.ShopScene),
 
   NewspaperOverlayScene: () =>
     import('./scenes/NewspaperOverlayScene.js').then(m => m.NewspaperOverlayScene),
@@ -216,10 +220,11 @@ export const sceneRegistry = {
   ArrestSelectionScene: () =>
     import('./scenes/ArrestSelectionScene.js').then(m => m.ArrestSelectionScene),
 
-
-  // Empty apartment / point-and-click clue search after the warrant raid comes up empty.
   ApartmentScene: () =>
     import('./scenes/ApartmentScene.js').then(m => m.ApartmentScene),
+
+    AlibiScene: () =>
+    import('./scenes/AlibiScene.js').then(m => m.AlibiScene),
 
 
   SuccessScene: () =>

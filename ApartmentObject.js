@@ -1,57 +1,74 @@
 // ApartmentObject.js
 // ============================================================
-// Pojedyncze interaktywne obiekty w mieszkaniu
-// Obsługuje: stan, animacje, klikanie, kombinowanie
+// Pojedynczy interaktywny obiekt w mieszkaniu.
+//
+// Odpowiada wyłącznie za:
+// - rysowanie i interakcję z hotspotem;
+// - stan locked/open;
+// - jednokrotne ujawnienie zawartości;
+// - animację obiektu.
+//
+// Nie zapisuje danych sprawy ani gameState.
+// Każdy znaleziony item przekazuje do:
+// scene.collectApartmentItem(item, sourceObject)
 // ============================================================
 
 export class ApartmentObject {
   constructor(scene, config) {
     this.scene = scene;
     this.config = config;
-    
-    // Stan
+
     this.state = config.state || 'default';
     this.isInteracted = false;
-    this.inventory = []; // Items unlocked z tego obiektu
-    
-    // Graphics
+    this.contentsCollected = false;
+
     this.container = null;
     this.background = null;
     this.label = null;
     this.icon = null;
-    
+
     this.create();
   }
 
   create() {
-    const { position, size, label, icon } = this.config;
-    const { x, y } = position;
-    const { w, h } = size;
+    const {
+      position = { x: 0, y: 0 },
+      size = { w: 80, h: 80 },
+      label = 'Unknown Object'
+    } = this.config;
 
-    // Container
+    const { x = 0, y = 0 } = position;
+    const { w = 80, h = 80 } = size;
+
     this.container = this.scene.add.container(x, y);
     this.container.setDepth(100);
 
-    // Background (proceduralne)
-    this.background = this.scene.add.rectangle(0, 0, w, h, this.getColorForType(), 0.7);
+    this.background = this.scene.add.rectangle(
+      0,
+      0,
+      w,
+      h,
+      this.getColorForType(),
+      0.7
+    );
+
     this.background.setOrigin(0.5);
     this.background.setStrokeStyle(2, this.getStrokeColor());
     this.background.setInteractive({ useHandCursor: true });
-    
+
     this.container.add(this.background);
 
-    // Label
     this.label = this.scene.add.text(0, h / 2 + 10, label, {
       fontFamily: 'SpecialElite',
       fontSize: '14px',
       color: '#ffffff',
       align: 'center',
-      wordWrap: { width: w - 10 }
+      wordWrap: { width: Math.max(30, w - 10) }
     });
+
     this.label.setOrigin(0.5);
     this.container.add(this.label);
 
-    // Events
     this.background.on('pointerover', () => this.onHover());
     this.background.on('pointerout', () => this.onHoverOut());
     this.background.on('pointerdown', () => this.onInteract());
@@ -68,142 +85,266 @@ export class ApartmentObject {
       mirror: 0xc0c0c0,
       default: 0x696969
     };
+
     return typeColors[this.config.type] || typeColors.default;
   }
 
   getStrokeColor() {
-    if (this.isInteracted) return 0x00ff00;
-    if (this.state === 'locked') return 0xff0000;
+    if (this.contentsCollected) {
+      return 0x00ff00;
+    }
+
+    if (this.state === 'locked') {
+      return 0xff0000;
+    }
+
+    if (this.isInteracted) {
+      return 0xffd700;
+    }
+
     return 0xaaaaaa;
   }
 
   updateVisuals() {
-    if (this.background) {
-      this.background.setStrokeStyle(2, this.getStrokeColor());
+    if (!this.background?.active) {
+      return;
+    }
+
+    this.background.setStrokeStyle(2, this.getStrokeColor());
+
+    if (this.contentsCollected) {
+      this.background.setAlpha(0.5);
     }
   }
 
   onHover() {
-    this.background.setFillStyle(this.getColorForType(), 0.9);
-    
-    // Pokaż description
-    if (this.scene.showDescription) {
-      this.scene.showDescription(this.config.description);
+    if (!this.background?.active) {
+      return;
+    }
+
+    this.background.setFillStyle(
+      this.getColorForType(),
+      this.contentsCollected ? 0.65 : 0.9
+    );
+
+    if (this.scene?.showDescription) {
+      this.scene.showDescription(this.getHoverDescription());
     }
   }
 
   onHoverOut() {
-    this.background.setFillStyle(this.getColorForType(), 0.7);
+    if (!this.background?.active) {
+      return;
+    }
+
+    this.background.setFillStyle(
+      this.getColorForType(),
+      this.contentsCollected ? 0.5 : 0.7
+    );
+  }
+
+  getHoverDescription() {
+    if (this.state === 'locked') {
+      return `${this.config.description || this.config.label} Locked.`;
+    }
+
+    if (this.contentsCollected) {
+      return this.config.afterSearchText ||
+        `${this.config.label} has already been searched.`;
+    }
+
+    return this.config.description ||
+      `Search the ${this.config.label}.`;
   }
 
   /**
-   * Gracz kliknął obiekt
+   * Gracz kliknął hotspot.
    */
   onInteract() {
+    if (!this.scene || this.scene.isTransitioning) {
+      return;
+    }
+
     console.log(`[ApartmentObject] Clicked: ${this.config.id}`);
 
-    // Jeśli zamknięty i wymaga klucza
-    if (this.state === 'locked' && this.config.requiresItem) {
-      const playerHasKey = this.scene.playerInventory.hasItem(this.config.requiresItem);
-      
-      if (!playerHasKey) {
-        this.scene.showMessage(
-          `This ${this.config.label} is locked. You need a key.`,
-          2000,
-          '#ff6b6b'
-        );
-        return;
-      }
-
-      // Gracz ma klucz - otwórz!
-      this.unlock();
+    if (this.state === 'locked') {
+      this.handleLockedObject();
       return;
     }
 
-    // Jeśli ma custom interaction (red herring)
-    if (this.config.onInteract && !this.config.unlocks) {
-      this.scene.showMessage(this.config.onInteract.text, 2500);
+    if (this.contentsCollected) {
+      this.showAlreadySearchedMessage();
       return;
     }
 
-    // Jeśli już otwarte - pokaż co jest wewnątrz
-    if (this.isInteracted && this.config.unlocks) {
-      this.showContents();
+    if (this.config.onInteract && !(this.config.unlocks || []).length) {
+      this.scene.showMessage(
+        this.config.onInteract.text ||
+          `Nothing useful in the ${this.config.label}.`,
+        2000,
+        '#37474f'
+      );
+
+      this.isInteracted = true;
+      this.contentsCollected = true;
+      this.updateVisuals();
       return;
     }
 
-    // Normalny click - otwórz
-    if (!this.isInteracted && this.config.unlocks) {
+    if (!this.isInteracted) {
       this.open();
+      return;
     }
+
+    this.showContents();
   }
 
   /**
-   * Otwórz/interactive element
+   * Obsługa obiektu zamkniętego.
+   */
+  handleLockedObject() {
+    const requiredItem = this.config.requiresItem;
+
+    if (!requiredItem) {
+      this.scene.showMessage(
+        `This ${this.config.label} is locked.`,
+        1800,
+        '#ff6b6b'
+      );
+      return;
+    }
+
+    const hasKey = this.scene.playerInventory?.hasItem(requiredItem);
+
+    if (!hasKey) {
+      this.scene.showMessage(
+        `This ${this.config.label} is locked. You need the right key.`,
+        2200,
+        '#ff6b6b'
+      );
+      return;
+    }
+
+    this.unlock();
+  }
+
+  /**
+   * Otwiera obiekt, który nie wymaga klucza.
    */
   open() {
     this.isInteracted = true;
     this.state = 'open';
 
-    // Animacja
-    if (this.config.animation) {
-      this.playAnimation(this.config.animation);
-    }
-
+    this.playConfiguredAnimation();
     this.updateVisuals();
-
-    // Pokaż co jest wewnątrz
     this.showContents();
   }
 
   /**
-   * Odblokuj za pomocą itemów
+   * Otwiera obiekt za pomocą klucza z inventory.
    */
   unlock() {
-    this.isInteracted = true;
-    this.state = 'open';
+    const requiredItem = this.config.requiresItem;
 
-    // Konsumuj klucz (opcjonalnie)
-    if (this.config.requiresItem) {
-      this.scene.playerInventory.removeItem(this.config.requiresItem, 1);
-      this.scene.showMessage('Key used! Drawer opens.', 1500, '#4caf50');
-    }
-
-    // Animacja
-    if (this.config.animation) {
-      this.playAnimation(this.config.animation);
-    }
-
-    this.updateVisuals();
-    this.showContents();
-  }
-
-  /**
-   * Pokaż zawartość obiektu (unlocks items)
-   */
-  showContents() {
-    if (!this.config.unlocks || this.config.unlocks.length === 0) {
+    if (
+      requiredItem &&
+      !this.scene.playerInventory?.removeItem(requiredItem, 1)
+    ) {
+      this.scene.showMessage(
+        'That key does not seem to work.',
+        1800,
+        '#ff6b6b'
+      );
       return;
     }
 
-    for (const item of this.config.unlocks) {
-      // Dodaj do inventory
-      this.scene.playerInventory.addItem(item);
+    this.isInteracted = true;
+    this.state = 'open';
 
-      // Pokaż popup
+    this.scene.showMessage(
+      `${this.config.label} unlocked.`,
+      1300,
+      '#4caf50'
+    );
+
+    this.playConfiguredAnimation();
+    this.updateVisuals();
+    this.showContents();
+  }
+
+  /**
+   * Zbiera zawartość wyłącznie raz.
+   */
+  showContents() {
+    if (this.contentsCollected) {
+      this.showAlreadySearchedMessage();
+      return;
+    }
+
+    const contents = this.config.unlocks || [];
+
+    this.contentsCollected = true;
+    this.isInteracted = true;
+    this.updateVisuals();
+
+    if (contents.length === 0) {
       this.scene.showMessage(
-        `Found: ${item.label}`,
-        2000,
+        this.config.emptySearchText ||
+          `Nothing useful in the ${this.config.label}.`,
+        1600,
+        '#37474f'
+      );
+      return;
+    }
+
+    for (const item of contents) {
+      if (!item) {
+        continue;
+      }
+
+      if (typeof this.scene.collectApartmentItem === 'function') {
+        this.scene.collectApartmentItem(item, this.config);
+        continue;
+      }
+
+      // Bezpieczny fallback, gdy metoda w ApartmentScene nie została
+      // jeszcze dodana: obecna mechanika inventory nadal zadziała.
+      this.scene.playerInventory?.addItem(item);
+
+      this.scene.showMessage(
+        `Found: ${item.label || 'Unknown Item'}`,
+        1800,
         '#4caf50'
       );
     }
   }
 
+  showAlreadySearchedMessage() {
+    this.scene?.showMessage(
+      this.config.afterSearchText ||
+        `You already searched the ${this.config.label}.`,
+      1400,
+      '#37474f'
+    );
+  }
+
+  playConfiguredAnimation() {
+    if (!this.config.animation) {
+      return;
+    }
+
+    this.playAnimation(this.config.animation);
+  }
+
   /**
-   * Animacja otwarcia
+   * Animacja otwarcia / przeszukania.
    */
-  playAnimation(animConfig) {
-    const { type, duration } = animConfig;
+  playAnimation(animConfig = {}) {
+    if (!this.scene?.tweens || !this.background?.active) {
+      return;
+    }
+
+    const { type = 'none', duration = 400 } = animConfig;
 
     switch (type) {
       case 'slide_open_right':
@@ -251,32 +392,63 @@ export class ApartmentObject {
           ease: 'Linear'
         });
         break;
+
+      case 'shake':
+        this.scene.tweens.add({
+          targets: this.container,
+          x: this.container.x + 8,
+          duration: Math.max(60, duration / 6),
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: 3
+        });
+        break;
+
+      case 'none':
+      default:
+        break;
     }
   }
 
   /**
-   * Można użyć tego obiektu na innym obiekcie (klucz na drzwiach)
+   * Pozostawione pod późniejsze używanie inventory na hotspotach.
    */
   canUseItemOn(itemId) {
     return this.config.requiresItem === itemId;
   }
 
   /**
-   * Używanie itemów na obiekcie
+   * Pozostawione pod późniejsze przeciąganie klucza z inventory
+   * na konkretny hotspot.
    */
   useItemOn(itemId) {
-    if (this.state === 'locked' && this.config.requiresItem === itemId) {
+    if (
+      this.state === 'locked' &&
+      this.config.requiresItem === itemId
+    ) {
+      const hasKey = this.scene?.playerInventory?.hasItem(itemId);
+
+      if (!hasKey) {
+        return false;
+      }
+
       this.unlock();
       return true;
     }
+
     return false;
   }
 
   destroy() {
-    if (this.container) {
-      this.container.destroy();
-    }
+    this.background?.removeAllListeners();
+    this.container?.destroy();
+
+    this.container = null;
+    this.background = null;
+    this.label = null;
+    this.icon = null;
     this.scene = null;
+    this.config = null;
   }
 }
 

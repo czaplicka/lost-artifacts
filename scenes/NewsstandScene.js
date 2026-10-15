@@ -4,7 +4,7 @@ import {
   moneyManager,
   MONEY_SOURCE,
   ECONOMY_CATEGORY
-} from '../MoneyManager.js';
+} from '../managers/MoneyManager.js';
 import { gameState } from '../GameData.js';
 
 const NEWSPAPER_PRICE = 5;

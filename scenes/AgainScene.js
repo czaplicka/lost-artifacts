@@ -1,7 +1,7 @@
 import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { setupNewGame } from '../gameSetup.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
 export class AgainScene extends BaseScene {

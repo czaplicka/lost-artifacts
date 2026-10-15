@@ -1,6 +1,6 @@
 import { gameState } from './GameData.js';
 import { saveGameState } from './GameStatePersistence.js';
-import { getScoreManager } from './InvestigationManager.js';
+import { getScoreManager } from './managers/InvestigationManager.js';
 import {
   applyHypothesisSkills,
   getSuspectCaseSummary

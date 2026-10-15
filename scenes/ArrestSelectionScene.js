@@ -1,7 +1,7 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 import { ensureHud } from '../hudHelpers.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import {
   getRandomSuspectLineup,

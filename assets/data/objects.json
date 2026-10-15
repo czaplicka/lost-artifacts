@@ -2697,7 +2697,7 @@
     {
       "id": "event_wristband",
       "item": "Plastic event wristband",
-      "skills": ["Disguise", "Negotiation", "Deduction"],
+      "skills": ["Disguise", "Negotiation", "Deduction", "Seduction"],
       "tags": ["wristband", "event", "gallery", "access", "crowd"],
       "scene": ["dockyard", "auction_house"],
       "trueExplanation": "Neon green VIP wristband from last night's harbor pub crawl.",
@@ -2705,7 +2705,7 @@
       "reconstructionUses": [
         {
           "questionId": "gain_access",
-          "skills": ["Disguise", "Negotiation", "Deception"],
+          "skills": ["Disguise", "Negotiation", "Deception", "Seduction"],
           "heistExplanation": "The wristband let the thief enter a restricted dock event by blending into an invited crowd."
         },
         {
@@ -2879,7 +2879,7 @@
     {
       "id": "pizza_box",
       "item": "Empty pizza box",
-      "skills": ["Analysis", "Deduction", "Investigation"],
+      "skills": ["Analysis", "Deduction", "Investigation", "Seduction"],
       "tags": ["pizza", "box", "food", "city", "comic"],
       "scene": ["dockyard", "auction_house"],
       "trueExplanation": "Left by the night shift watchman, complete with hardened crusts and garlic dip stains.",
@@ -2887,7 +2887,7 @@
       "reconstructionUses": [
         {
           "questionId": "distract_guards",
-          "skills": ["Deception", "Tactical planning", "Analysis"],
+          "skills": ["Deception", "Tactical planning", "Analysis", "Seduction"],
           "heistExplanation": "The thief arranged a fake food delivery at shift change, keeping the guards busy arguing over who ordered extra garlic dip."
         },
         {

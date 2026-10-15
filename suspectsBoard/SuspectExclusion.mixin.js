@@ -1,18 +1,14 @@
-// Handles the manual Suspect File exclusion stage.
-//
-// Important design rule:
-// - Evidence may suggest a mismatch.
-// - Only a player click in active Exclude Mode can mark a file CLEARED.
-// - Evidence Grid "UNLIKELY" marks never write to deductionState.eliminated.
-// - The only real CLEARED mutation is delegated to:
-//   manuallyClearSuspect() / restoreManuallyClearedSuspect().
+// suspectsBoard/SuspectExclusion.mixin.js
 
 import { saveGameState } from '../GameStatePersistence.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 
 import {
   manuallyClearSuspect,
   restoreManuallyClearedSuspect
 } from '../ui/suspectUtils.js';
+
+const EXCLUSION_SESSION_ENERGY_COST = 10;
 
 function getCaseThiefSuspectId(gameState) {
   return (
@@ -23,6 +19,72 @@ function getCaseThiefSuspectId(gameState) {
 }
 
 export const SuspectExclusionMixin = {
+  getExclusionSessionState() {
+    return this.ensureExclusionState();
+  },
+
+  /**
+   * Jedna opłata za rozpoczętą sesję:
+   * od wejścia w Exclude Mode do zatwierdzenia wyników.
+   *
+   * Zapisane energyPaid chroni przed ponowną opłatą
+   * po wyjściu, powrocie albo wczytaniu zapisu.
+   */
+  payForExclusionSession() {
+    const state = this.getExclusionSessionState();
+
+    if (state.finished === true) {
+      return false;
+    }
+
+    if (state.energyPaid === true) {
+      return true;
+    }
+
+    const energyManager = getEnergyManager();
+
+    const affordability = energyManager.canAfford(
+      EXCLUSION_SESSION_ENERGY_COST
+    );
+
+    if (!affordability.ok) {
+      this.modeHintText?.setText(
+        energyManager.getInsufficientEnergyMessage(
+          EXCLUSION_SESSION_ENERGY_COST
+        )
+      );
+
+      return false;
+    }
+
+    const result = energyManager.consumeCustom(
+      EXCLUSION_SESSION_ENERGY_COST,
+      `Suspect review: -${EXCLUSION_SESSION_ENERGY_COST}`,
+      {
+        requireFullAmount: true,
+        activityType: 'suspect_exclusion'
+      }
+    );
+
+    if (!result?.success) {
+      this.modeHintText?.setText(
+        result?.message ||
+        'The suspect review could not be started.'
+      );
+
+      return false;
+    }
+
+    state.energyPaid = true;
+    state.energyCost = EXCLUSION_SESSION_ENERGY_COST;
+    state.energyPaidAt = Date.now();
+    state.sessionStartedAt ??= Date.now();
+
+    saveGameState();
+
+    return true;
+  },
+
   toggleExcludeMode() {
     if (this.exclusionFinished) {
       return;
@@ -36,15 +98,18 @@ export const SuspectExclusionMixin = {
       return;
     }
 
+    if (
+      !this.excludeMode &&
+      !this.payForExclusionSession()
+    ) {
+      return;
+    }
+
     this.excludeMode = !this.excludeMode;
 
     if (this.excludeMode) {
       this.filterMode = 'all';
       this.currentPage = 0;
-
-      this.modeHintText?.setText(
-        'EXCLUDE MODE ACTIVE. Click a file to mark it CLEARED or restore it.'
-      );
     }
 
     this.updateExclusionControls();
@@ -52,7 +117,11 @@ export const SuspectExclusionMixin = {
   },
 
   finishExcluding() {
-    if (!this.excludeMode || this.exclusionFinished) {
+    if (
+      !this.excludeMode ||
+      this.exclusionFinished ||
+      this._finishExclusionModalOpen
+    ) {
       return;
     }
 
@@ -60,7 +129,9 @@ export const SuspectExclusionMixin = {
   },
 
   showFinishExclusionConfirm() {
-    const { width, height } = this.scale;
+    if (this._finishExclusionModalOpen) {
+      return;
+    }
 
     const allSuspects = this.getAllSuspects();
 
@@ -74,8 +145,27 @@ export const SuspectExclusionMixin = {
         suspect?.deductionState?.eliminated === true
     ).length;
 
+    if (activeCount < 2) {
+      this.modeHintText?.setText(
+        'Keep at least two suspects active for the alibi investigation.'
+      );
+
+      return;
+    }
+
+    this._finishExclusionModalOpen = true;
+
+    const { width, height } = this.scale;
+
     const overlay = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.78)
+      .rectangle(
+        0,
+        0,
+        width,
+        height,
+        0x000000,
+        0.78
+      )
       .setOrigin(0, 0)
       .setDepth(1000)
       .setInteractive();
@@ -120,9 +210,9 @@ export const SuspectExclusionMixin = {
         height / 2 - 40,
         [
           `You manually cleared ${clearedCount} suspect(s).`,
-          `${activeCount} file(s) will move to the Evidence Grid.`,
+          `${activeCount} file(s) remain for the alibi investigation.`,
           '',
-          'You will not be able to change these exclusions after continuing.'
+          'You will not be able to change these exclusions after confirming.'
         ].join('\n'),
         {
           fontFamily: 'SpecialElite',
@@ -158,7 +248,7 @@ export const SuspectExclusionMixin = {
       y: height / 2 + 105,
       width: 210,
       height: 46,
-      label: '[ CONTINUE ]',
+      label: '[ CONFIRM ]',
       fontSize: '9px',
       depth: 1002,
       normalFill: 0x25422a,
@@ -167,7 +257,18 @@ export const SuspectExclusionMixin = {
       hoverColor: '#ffffff'
     });
 
+    let modalClosed = false;
+
     const closeModal = () => {
+      if (modalClosed) {
+        return;
+      }
+
+      modalClosed = true;
+      this._finishExclusionModalOpen = false;
+
+      this.events.off('shutdown', closeModal);
+
       [
         overlay,
         panel,
@@ -181,55 +282,77 @@ export const SuspectExclusionMixin = {
       });
     };
 
-    cancelButton.buttonBackground.on('pointerdown', () => {
-      closeModal();
-    });
+    this.events.once('shutdown', closeModal);
 
-    confirmButton.buttonBackground.on('pointerdown', () => {
-      closeModal();
+    cancelButton.buttonBackground.on(
+      'pointerdown',
+      closeModal
+    );
 
-      this.excludeMode = false;
-      this.exclusionFinished = true;
+    confirmButton.buttonBackground.on(
+      'pointerdown',
+      () => {
+        if (modalClosed) {
+          return;
+        }
 
-      const caseKey = this.getCaseKey();
+        closeModal();
 
-      this.gameState.suspectExclusionState ??= {};
-      this.gameState.suspectExclusionState[caseKey] ??= {};
+        const suspects = this.getAllSuspects();
 
-      const manualExclusionIds = this.getAllSuspects()
-        .filter(
+        const remainingSuspects = suspects.filter(
           (suspect) =>
-            suspect?.deductionState?.eliminated === true
-        )
-        .map((suspect) => suspect.id);
+            suspect?.deductionState?.eliminated !== true
+        );
 
-      this.gameState.suspectExclusionState[caseKey] = {
-        ...this.gameState.suspectExclusionState[caseKey],
-        finished: true,
-        finishedAt: Date.now(),
-        manualExclusionIds
-      };
+        if (remainingSuspects.length < 2) {
+          this.modeHintText?.setText(
+            'Keep at least two suspects active for the alibi investigation.'
+          );
 
-      saveGameState();
+          return;
+        }
 
-      this.updateExclusionControls();
-      this.refreshBoard();
-    });
+        this.excludeMode = false;
+        this.exclusionFinished = true;
+
+        const state = this.getExclusionSessionState();
+
+        state.finished = true;
+        state.finishedAt = Date.now();
+
+        state.manualExclusionIds = suspects
+          .filter(
+            (suspect) =>
+              suspect?.deductionState?.eliminated === true
+          )
+          .map((suspect) => suspect.id);
+
+        saveGameState();
+
+        this.updateExclusionControls();
+        this.refreshBoard();
+      }
+    );
   },
 
   updateExclusionControls() {
-    if (!this.exclusionButton || !this.continueButton) {
+    if (
+      !this.exclusionButton ||
+      !this.continueButton
+    ) {
       return;
     }
 
-    const crimeLabCompleted = this.getCrimeLabCompleted();
+    const crimeLabCompleted =
+      this.getCrimeLabCompleted();
 
     if (this.exclusionFinished) {
       this.exclusionButton.setVisible(false);
       this.continueButton.setVisible(true);
 
       this.modeHintText?.setText(
-        'Preliminary exclusions saved. Continue with the remaining files.'
+        'Preliminary exclusions saved. Alibi contacts for the remaining files are now available in Crime City.'
       );
 
       return;
@@ -280,19 +403,23 @@ export const SuspectExclusionMixin = {
         () => this.finishExcluding()
       );
 
-      const hairEvidence = this.getHairEvidenceValue();
-
       this.modeHintText?.setText(
-        hairEvidence
-          ? `EXCLUDE MODE: LAB HAIR = ${hairEvidence.toUpperCase()}. Click files to clear or restore them.`
-          : 'EXCLUDE MODE: Click files to clear or restore them.'
+        'EXCLUDE MODE: Click files to clear or restore them. This review session is already paid.'
       );
 
       return;
     }
 
+    const sessionState =
+      this.getExclusionSessionState();
+
+    const alreadyPaid =
+      sessionState.energyPaid === true;
+
     this.exclusionButton.buttonText.setText(
-      '[ EXCLUDE MODE ]'
+      alreadyPaid
+        ? '[ RESUME EXCLUDING ]'
+        : '[ EXCLUDE MODE ]'
     );
 
     this.exclusionButton.isActive = true;
@@ -303,12 +430,10 @@ export const SuspectExclusionMixin = {
       () => this.toggleExcludeMode()
     );
 
-    const hairEvidence = this.getHairEvidenceValue();
-
     this.modeHintText?.setText(
-      hairEvidence
-        ? `LAB EVIDENCE: RECOVERED HAIR — ${hairEvidence.toUpperCase()}`
-        : 'LAB COMPLETE: Review the evidence, then enter Exclude Mode.'
+      alreadyPaid
+        ? 'Resume your unfinished review. No additional energy cost.'
+        : `Starting the suspect review costs ${EXCLUSION_SESSION_ENERGY_COST} energy. Clearing and restoring files is free.`
     );
   },
 
@@ -324,11 +449,24 @@ export const SuspectExclusionMixin = {
         evidence?.forensicField === 'hair_color'
     );
 
+    // Nie traktujemy wyniku innej analizy, np. krwi,
+    // jako informacji o kolorze włosów.
+    const identityEvidence =
+      this.gameState.identityEvidence;
+
+    const identityField =
+      identityEvidence?.attribute ||
+      identityEvidence?.evidenceType ||
+      identityEvidence?.field;
+
     const rawValue =
       hairEvidence?.value ??
       hairEvidence?.normalizedValue ??
-      this.gameState.identityEvidence?.thief_value ??
-      null;
+      (
+        identityField === 'hair_color'
+          ? identityEvidence?.thief_value
+          : null
+      );
 
     if (!rawValue) {
       return null;
@@ -341,11 +479,13 @@ export const SuspectExclusionMixin = {
   },
 
   getSuspectHairValue(suspect) {
+    const hairAttribute =
+      suspect?.restrictedProfile
+        ?.forensicAttributes?.hair_color;
+
     const rawValue =
-      suspect?.restrictedProfile?.forensicAttributes
-        ?.hair_color?.value ??
-      suspect?.restrictedProfile?.forensicAttributes
-        ?.hair_color ??
+      hairAttribute?.value ??
+      hairAttribute ??
       null;
 
     if (!rawValue) {
@@ -358,9 +498,6 @@ export const SuspectExclusionMixin = {
       .replace(/^blond$/, 'blonde');
   },
 
-  /**
-   * caseSuspects jest jedynym źródłem prawdy.
-   */
   getMutableSuspect(suspectId) {
     const suspects =
       Array.isArray(this.gameState.caseSuspects) &&
@@ -377,11 +514,9 @@ export const SuspectExclusionMixin = {
     this.gameState.suspects = suspects;
     this.gameState.suspectList = suspects;
 
-    return (
-      suspects.find(
-        (suspect) => suspect?.id === suspectId
-      ) || null
-    );
+    return suspects.find(
+      (suspect) => suspect?.id === suspectId
+    ) || null;
   },
 
   getCrimeLabCompleted() {
@@ -394,12 +529,6 @@ export const SuspectExclusionMixin = {
     );
   },
 
-  /**
-   * Jedyna funkcja sceny do ręcznej zmiany CLEAR/RESTORE.
-   *
-   * Nie ustawia `deductionState.eliminated` bezpośrednio.
-   * Zmianę wykonują wyłącznie funkcje z suspectUtils.js.
-   */
   toggleSuspectExclusion(
     suspectId,
     {
@@ -412,30 +541,18 @@ export const SuspectExclusionMixin = {
         '[SuspectsScene] Blocked automatic suspect exclusion.',
         {
           suspectId,
-          source,
-          excludeMode: this.excludeMode,
-          crimeLabCompleted: this.getCrimeLabCompleted(),
-          stack: new Error().stack
+          source
         }
       );
 
       return false;
     }
 
-    if (!this.excludeMode) {
-      console.warn(
-        '[SuspectsScene] Blocked exclusion outside Exclude Mode.',
-        {
-          suspectId,
-          source,
-          stack: new Error().stack
-        }
-      );
-
-      return false;
-    }
-
-    if (this.exclusionFinished) {
+    if (
+      !this.excludeMode ||
+      this.exclusionFinished ||
+      this._finishExclusionModalOpen
+    ) {
       return false;
     }
 
@@ -447,7 +564,16 @@ export const SuspectExclusionMixin = {
       return false;
     }
 
-    const suspect = this.getMutableSuspect(suspectId);
+    if (getEnergyManager().isForcedSleepActive()) {
+      this.modeHintText?.setText(
+        'You are currently asleep. Resume the review after resting.'
+      );
+
+      return false;
+    }
+
+    const suspect =
+      this.getMutableSuspect(suspectId);
 
     if (!suspect) {
       console.error(
@@ -458,21 +584,12 @@ export const SuspectExclusionMixin = {
       return false;
     }
 
-    const realThiefCaseSuspectId = getCaseThiefSuspectId(
-      this.gameState
-    );
+    const realThiefCaseSuspectId =
+      getCaseThiefSuspectId(this.gameState);
 
     if (suspect.id === realThiefCaseSuspectId) {
       this.modeHintText?.setText(
         'This file remains inconclusive. The evidence is not enough to clear it.'
-      );
-
-      console.warn(
-        '[SuspectsScene] Prevented preliminary exclusion of the true thief.',
-        {
-          suspectId: suspect.id,
-          suspectName: suspect.name
-        }
       );
 
       return false;
@@ -494,7 +611,7 @@ export const SuspectExclusionMixin = {
     if (!result?.success) {
       this.modeHintText?.setText(
         result?.message ||
-          'This file cannot be cleared yet.'
+        'This file cannot be cleared yet.'
       );
 
       return false;
@@ -502,17 +619,10 @@ export const SuspectExclusionMixin = {
 
     this.gameState.selectedSuspectId = suspect.id;
 
-    const caseKey = this.getCaseKey();
-
-    this.gameState.suspectExclusionState ??= {};
-    this.gameState.suspectExclusionState[caseKey] ??= {
-      finished: false,
-      manualExclusionIds: []
-    };
+    const state = this.getExclusionSessionState();
 
     const manualExclusionIds = new Set(
-      this.gameState.suspectExclusionState[caseKey]
-        .manualExclusionIds || []
+      state.manualExclusionIds || []
     );
 
     if (isCurrentlyCleared) {
@@ -521,13 +631,11 @@ export const SuspectExclusionMixin = {
       manualExclusionIds.add(suspect.id);
     }
 
-    this.gameState.suspectExclusionState[caseKey] = {
-      ...this.gameState.suspectExclusionState[caseKey],
-      manualExclusionIds: [
-        ...manualExclusionIds
-      ],
-      updatedAt: Date.now()
-    };
+    state.manualExclusionIds = [
+      ...manualExclusionIds
+    ];
+
+    state.updatedAt = Date.now();
 
     console.info(
       '[SuspectsScene] Manual suspect exclusion changed.',
@@ -545,48 +653,114 @@ export const SuspectExclusionMixin = {
     return true;
   },
 
-  openEvidenceGrid() {
-    const remainingSuspects = this.getAllSuspects().filter(
-      (suspect) =>
-        suspect?.deductionState?.eliminated !== true
-    );
+  /**
+   * Osobny Evidence Grid pozostaje dostępny.
+   * Używamy loadera zamiast wymagać wcześniejszej rejestracji.
+   */
+  async openEvidenceGrid() {
+    if (
+      this._openingEvidenceGrid ||
+      this._cleanupDone ||
+      !this.sys.isActive()
+    ) {
+      return false;
+    }
+
+    if (!this.exclusionFinished) {
+      this.modeHintText?.setText(
+        'Finish and confirm the preliminary exclusions first.'
+      );
+
+      return false;
+    }
+
+    const remainingSuspects =
+      this.getAllSuspects().filter(
+        (suspect) =>
+          suspect?.deductionState?.eliminated !== true
+      );
 
     if (remainingSuspects.length < 2) {
       this.modeHintText?.setText(
         'Keep at least two suspects active before opening the Evidence Grid.'
       );
 
-      return;
+      return false;
     }
 
-    this.gameState.suspectGridInput = {
-      cityId: this.cityId,
-      suspectIds: remainingSuspects.map(
+    this._openingEvidenceGrid = true;
+
+    try {
+      const loader = this.game.sceneLoader;
+
+      // Najpierw upewniamy się, że moduł istnieje.
+      // Jeśli import zawiedzie, nie opuszczamy obecnej planszy.
+      if (loader) {
+        await loader.ensure('SuspectGridScene');
+      } else if (!this.hasScene('SuspectGridScene')) {
+        throw new Error(
+          'SuspectGridScene is not registered and SceneLoader is unavailable.'
+        );
+      }
+
+      if (
+        this._cleanupDone ||
+        !this.sys.isActive()
+      ) {
+        return false;
+      }
+
+      const suspectIds = remainingSuspects.map(
         (suspect) => suspect.id
-      ),
-      startedAt: Date.now()
-    };
+      );
 
-    saveGameState();
-
-    if (this.scene.manager.keys.SuspectGridScene) {
-      this.scene.start('SuspectGridScene', {
+      this.gameState.suspectGridInput = {
         cityId: this.cityId,
-        gameState: this.gameState,
-        suspectIds:
-          this.gameState.suspectGridInput.suspectIds,
-        returnScene: this.scene.key
-      });
+        suspectIds,
+        startedAt: Date.now()
+      };
 
-      return;
+      saveGameState();
+
+      const moved = await this.goto(
+        'SuspectGridScene',
+        {
+          cityId: this.cityId,
+          gameState: this.gameState,
+          suspectIds,
+          returnScene: this.scene.key,
+          returnData: {
+            cityId: this.cityId,
+            returnScene: this.returnScene,
+            returnData: {
+              ...this.returnData
+            }
+          }
+        }
+      );
+
+      if (!moved && !this._cleanupDone) {
+        this.modeHintText?.setText(
+          'The Evidence Grid could not be opened. Your exclusions are still saved.'
+        );
+      }
+
+      return Boolean(moved);
+    } catch (error) {
+      console.error(
+        '[SuspectsScene] Could not open Evidence Grid:',
+        error
+      );
+
+      if (!this._cleanupDone) {
+        this.modeHintText?.setText(
+          'The Evidence Grid could not be loaded. Your exclusions are still saved.'
+        );
+      }
+
+      return false;
+    } finally {
+      this._openingEvidenceGrid = false;
     }
-
-    console.warn(
-      '[SuspectsScene] SuspectGridScene is not registered yet.'
-    );
-
-    this.modeHintText?.setText(
-      'Evidence Grid is not installed yet. Your exclusions were saved.'
-    );
   }
 };

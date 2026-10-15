@@ -1,346 +1,201 @@
 // ui/AgencyLedgerUI.js
-// ============================================================
-// "THE BOOKS" - panel księgowości Mark Agency.
-// Czyta gameState.moneyLog (prowadzony przez MoneyManager - patrz
-// MoneyManager.js) i pokazuje bilans + historię transakcji jako
-// stronicowaną listę, w stylu starej księgi rachunkowej.
-//
-// Otwiera się klawiszem 'L' (Ledger) albo wywołaniem open() z UI
-// biura (np. hotspot "biurko / księga" w OfficeScene).
-// ============================================================
-
-import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
-import { moneyManager } from '../MoneyManager.js';
+import { moneyManager } from '../managers/MoneyManager.js';
 
-const CATEGORY_META = {
-    travel: { icon: '✈', label: 'Travel' },
-    hotel: { icon: '🏨', label: 'Hotel' },
-    food: { icon: '🍽', label: 'Food' },
-    drink: { icon: '🍸', label: 'Drink' },
-    newspaper: { icon: '📰', label: 'Newspaper' },
-    phone: { icon: '☎', label: 'Phone' },
-    taxi: { icon: '🚕', label: 'Taxi' },
-    informant: { icon: '🕵', label: 'Informant' },
-    side_case: { icon: '💰', label: 'Side case' },
-    mission_reward: { icon: '🏆', label: 'Mission reward' },
-    office_upgrade: { icon: '🛠', label: 'Office upgrade' },
-    item: { icon: '🎒', label: 'Item' },
-    agency_advance: { icon: '🏦', label: 'Agency advance' },
-    refund: { icon: '💸', label: 'Refund' }
+const PAGE_SIZE = 6;
+const CATEGORIES = {
+  travel: 'Travel', hotel: 'Hotel', food: 'Food', drink: 'Drink',
+  newspaper: 'Newspaper', phone: 'Phone', taxi: 'Taxi', informant: 'Informant',
+  side_case: 'Side case', mission_reward: 'Mission reward',
+  office_upgrade: 'Office upgrade', item: 'Item', agency_advance: 'Agency advance', refund: 'Refund'
 };
 
-const ROWS_PER_PAGE = 8;
-
-// Komentarz "księgowego" skaluje się z długiem agencji. Czysty humor,
-// zero wpływu na mechanikę.
-const DEBT_QUIPS = [
-    { min: 0, max: 0, text: '"The books are balanced." - said no detective agency ever, until now.' },
-    { min: 1, max: 150, text: 'A little red ink never hurt anybody. Probably.' },
-    { min: 151, max: 400, text: 'The accountant has started drinking during work hours.' },
-    { min: 401, max: 900, text: 'Mark Agency Finance has stopped returning your calls.' },
-    { min: 901, max: Infinity, text: 'A man in a cheap suit keeps loitering outside the office.' }
-];
-
 export class AgencyLedgerUI {
-    constructor(scene) {
-        this.scene = scene;
-        this.isOpen = false;
-        this.page = 0;
-        this.rows = [];
-        this.boundKeyHandler = this.onLedgerKeyDown.bind(this);
-
-        const { width, height } = this.scene.scale;
-
-        this.container = this.scene.add
-            .container(0, 0)
-            .setDepth(30)
-            .setVisible(false);
-
-        this.overlay = this.scene.add
-            .rectangle(0, 0, width, height, 0x000000, 0.82)
-            .setOrigin(0)
-            .setInteractive();
-
-        this.overlay.on('pointerdown', () => this.close());
-        this.container.add(this.overlay);
-
-        this.buildPanel(width, height);
-        this.registerKeyboard();
-
-        this.scene.events.once(
-            Phaser.Scenes.Events.SHUTDOWN,
-            () => this.destroy()
-        );
+  constructor(scene) {
+    this.scene = scene;
+    this.isOpen = false;
+    this.destroyed = false;
+    this.page = 0;
+    this.rows = [];
+    this.boundKeyHandler = this.onLedgerKeyDown.bind(this);
+    this.boundShutdown = this.destroy.bind(this);
+    this.boundMoneyChange = () => { if (this.isOpen) this.refresh(); };
+    this.container = scene.add.container(0, 0).setDepth(2000).setVisible(false);
+    this.buildPanel();
+    scene.input.keyboard?.on('keydown-B', this.boundKeyHandler);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.boundShutdown);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('lost-artifacts:money-changed', this.boundMoneyChange);
     }
+  }
 
-    registerKeyboard() {
-        if (!this.scene?.input?.keyboard) return;
+  text(x, y, value, size = 16, color = '#e4dcc7') {
+    return this.scene.add.text(x, y, value, {
+      fontFamily: 'SpecialElite', fontSize: `${size}px`, color
+    });
+  }
 
-        this.scene.input.keyboard.addCapture('L');
-        this.scene.input.keyboard.on('keydown-L', this.boundKeyHandler);
-    }
+  stopPointer(pointer, localX, localY, event) { event?.stopPropagation(); }
 
-    onLedgerKeyDown(event) {
-        const activeTag = document.activeElement?.tagName;
-        const isTyping =
-            activeTag === 'INPUT' ||
-            activeTag === 'TEXTAREA' ||
-            document.activeElement?.isContentEditable;
+  buildPanel() {
+    const { width, height } = this.scene.scale;
+    const w = 760, h = 620;
+    this.overlay = this.scene.add.rectangle(0, 0, width, height, 0x000000, 0.82)
+      .setOrigin(0).setInteractive();
+    this.overlay.on('pointerdown', (pointer, x, y, event) => {
+      event?.stopPropagation();
+      this.close();
+    });
+    this.container.add(this.overlay);
+    this.panel = this.scene.add.container(0, 0);
+    this.panelWidth = w;
+    this.panelHeight = h;
+    const bg = this.scene.add.rectangle(0, 0, w, h, 0x19150e, 1)
+      .setOrigin(0).setStrokeStyle(3, 0xd4af37).setInteractive();
+    bg.on('pointerdown', this.stopPointer);
+    const header = this.scene.add.rectangle(0, 0, w, 68, 0x332514, 1).setOrigin(0);
+    const title = this.scene.add.text(24, 23, 'MARK AGENCY - THE BOOKS', {
+      fontFamily: 'PressStart2P', fontSize: '15px', color: '#f4e7c1'
+    });
+    this.closeBtn = this.text(w - 40, 15, 'X', 30, '#ffd166').setInteractive({ useHandCursor: true });
+    this.closeBtn.on('pointerdown', (p, x, y, event) => { event?.stopPropagation(); this.close(); });
+    this.summaryText = this.text(24, 86, '', 20);
+    this.quipText = this.text(24, 150, '', 16, '#e5ba78');
+    this.quipText.setWordWrapWidth(w - 48, true);
+    const headings = this.text(24, 205, 'DESCRIPTION / ACCOUNT                                      AMOUNT', 14, '#bca36c');
+    this.listContainer = this.scene.add.container(24, 238);
+    this.emptyText = this.text(0, 30, 'No receipts. A suspiciously inexpensive investigation.', 18);
+    this.emptyText.setWordWrapWidth(w - 48, true);
+    this.listContainer.add(this.emptyText);
+    this.pageLabel = this.text(w / 2, h - 47, '', 16).setOrigin(0.5, 0);
+    this.prevBtn = this.text(24, h - 47, '< PREV', 18, '#ffd166').setInteractive({ useHandCursor: true });
+    this.nextBtn = this.text(w - 110, h - 47, 'NEXT >', 18, '#ffd166').setInteractive({ useHandCursor: true });
+    this.prevBtn.on('pointerdown', (p, x, y, event) => { event?.stopPropagation(); this.changePage(-1); });
+    this.nextBtn.on('pointerdown', (p, x, y, event) => { event?.stopPropagation(); this.changePage(1); });
+    this.panel.add([bg, header, title, this.closeBtn, this.summaryText, this.quipText,
+      headings, this.listContainer, this.pageLabel, this.prevBtn, this.nextBtn]);
+    this.container.add(this.panel);
+    this.layout();
+    this.pinToScreen();
+  }
 
-        if (isTyping) return;
+  pinToScreen() {
+    const visit = (object) => {
+      object.setScrollFactor?.(0, 0);
+      if (Array.isArray(object.list)) object.list.forEach(visit);
+    };
+    visit(this.container);
+  }
 
-        event.preventDefault();
+  layout() {
+    const { width, height } = this.scene.scale;
+    const scale = Math.min(1, Math.max(0.1, (width - 32) / this.panelWidth),
+      Math.max(0.1, (height - 32) / this.panelHeight));
+    this.overlay.setSize(width, height);
+    this.panel.setScale(scale).setPosition(
+      (width - this.panelWidth * scale) / 2,
+      (height - this.panelHeight * scale) / 2
+    );
+  }
 
-        if (this.isOpen) this.close();
-        else this.open();
-    }
+  formatMoney(value) {
+    return `$${Math.max(0, Math.floor(Number(value) || 0)).toLocaleString('en-US')}`;
+  }
 
-    buildPanel(width, height) {
-        const panelWidth = 640;
-        const panelHeight = 560;
-        const panelX = (width - panelWidth) / 2;
-        const panelY = (height - panelHeight) / 2;
+  getQuip(debt) {
+    if (!debt) return 'The books are balanced. Finance has requested a second opinion.';
+    if (debt <= 150) return 'A little red ink. We prefer to call it a narrative choice.';
+    if (debt <= 400) return 'Finance has classified your receipts as experimental fiction.';
+    if (debt <= 900) return 'Your expense report now requires its own detective.';
+    return 'The accountant has added your portrait to the wanted database.';
+  }
 
-        this.panel = this.scene.add.container(panelX, panelY);
+  clearRows() {
+    this.rows.forEach(row => { if (row?.scene) row.destroy(true); });
+    this.rows = [];
+  }
 
-        const bg = this.scene.add
-            .rectangle(0, 0, panelWidth, panelHeight, 0x14100a, 0.97)
-            .setOrigin(0)
-            .setStrokeStyle(3, 0xd4af37);
+  refresh() {
+    if (this.destroyed) return;
+    const state = moneyManager.getState();
+    this.summaryText.setText(`Cash: ${this.formatMoney(state.cash)}    Agency: ${this.formatMoney(state.agencyBudget)}\nAgency debt: ${this.formatMoney(state.agencyDebt)}`);
+    this.quipText.setText(this.getQuip(state.agencyDebt));
+    this.refreshList();
+  }
 
-        const headerBg = this.scene.add
-            .rectangle(0, 0, panelWidth, 70, 0x2a1f12, 1)
-            .setOrigin(0)
-            .setStrokeStyle(2, 0xd4af37);
+  refreshList() {
+    this.clearRows();
+    const entries = moneyManager.getRecentTransactions(100);
+    const pages = Math.max(1, Math.ceil(entries.length / PAGE_SIZE));
+    this.page = Math.max(0, Math.min(this.page, pages - 1));
+    this.emptyText.setVisible(entries.length === 0);
+    entries.slice(this.page * PAGE_SIZE, (this.page + 1) * PAGE_SIZE).forEach((entry, index) => {
+      const row = this.scene.add.container(0, index * 52);
+      const category = CATEGORIES[entry.category] || entry.category || 'Administration';
+      const description = String(entry.description || category);
+      const desc = this.text(0, 0, description.length > 66 ? description.slice(0, 63) + '...' : description, 15);
+      const date = new Date(entry.createdAt);
+      const time = Number.isFinite(date.getTime()) ? date.toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+      }) : 'Undated';
+      const account = entry.source === 'agency' ? 'Agency' : entry.source === 'cash' ? 'Cash' : 'Account';
+      const detail = this.text(0, 22, `${category} / ${account} / ${time}`, 13, '#9f947f');
+      const income = ['income', 'refund', 'mission_settled', 'mission_started'].includes(entry.type);
+      const debt = entry.type === 'debt';
+      const prefix = debt ? 'DEBT +' : income ? '+' : entry.type === 'reset' ? '' : '-';
+      const amount = this.text(this.panelWidth - 48, 7, `${prefix}${this.formatMoney(entry.amount)}`,
+        16, debt ? '#ff7979' : income ? '#99dc9b' : '#ffd166').setOrigin(1, 0);
+      row.add([desc, detail, amount]);
+      this.listContainer.add(row);
+      this.rows.push(row);
+    });
+    this.pageLabel.setText(`Page ${this.page + 1} / ${pages}`);
+    this.prevBtn.setAlpha(this.page ? 1 : 0.35);
+    this.nextBtn.setAlpha(this.page < pages - 1 ? 1 : 0.35);
+    this.pinToScreen();
+  }
 
-        const title = this.scene.add.text(24, 22, 'MARK AGENCY \u2014 THE BOOKS', {
-            fontFamily: 'PressStart2P',
-            fontSize: '15px',
-            color: '#f4e7c1'
-        });
+  changePage(direction) { this.page += direction; this.refreshList(); }
 
-        this.closeBtn = this.scene.add
-            .text(panelWidth - 50, 14, 'X', {
-                fontFamily: 'SpecialElite',
-                fontSize: '34px',
-                color: '#fbff00'
-            })
-            .setInteractive({ useHandCursor: true });
+  onLedgerKeyDown(event) {
+    const element = typeof document !== 'undefined' ? document.activeElement : null;
+    if (event?.repeat || element?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element?.tagName)) return;
+    event?.preventDefault();
+    if (this.isOpen) this.close(); else this.open();
+  }
 
-        this.closeBtn.on('pointerdown', () => this.close());
+  open() {
+    if (this.destroyed || this.isOpen || !this.scene.sys.isActive()) return;
+    if (this.scene.uiLocked || this.scene.firstCaseTutorial?.isActive()) return;
+    this.scene.closeAllUIPanels?.();
+    this.page = 0;
+    this.layout();
+    this.refresh();
+    this.isOpen = true;
+    this.container.setVisible(true);
+    this.scene.applyLock?.(true);
+    EventBus.emit('hideHUD');
+    console.debug('[AgencyLedgerUI] Opened', { cameraScrollX: this.scene.cameras.main.scrollX });
+  }
 
-        this.summaryText = this.scene.add.text(24, 92, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '19px',
-            color: '#d6e4f0',
-            lineSpacing: 10
-        });
+  close({ restoreHud = true } = {}) {
+    if (this.destroyed || !this.isOpen) return;
+    this.isOpen = false;
+    this.container.setVisible(false);
+    const hud = this.scene.getPlayerHud?.();
+    this.scene.applyLock?.(Boolean(this.scene.saveUI?.isOpen || hud?.isAnyPanelOpen?.()));
+    if (restoreHud) EventBus.emit('showHUD');
+  }
 
-        this.quipText = this.scene.add.text(24, 168, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '15px',
-            color: '#ff9d6b',
-            wordWrap: { width: panelWidth - 48, useAdvancedWrap: true }
-        });
-
-        const divider = this.scene.add
-            .rectangle(24, 210, panelWidth - 48, 2, 0xd4af37, 0.6)
-            .setOrigin(0);
-
-        this.listContainer = this.scene.add.container(24, 226);
-
-        this.emptyText = this.scene.add
-            .text(0, 30, 'No transactions yet. The agency is (temporarily) solvent.', {
-                fontFamily: 'SpecialElite',
-                fontSize: '16px',
-                color: '#8fa0ad'
-            })
-            .setVisible(false);
-
-        this.listContainer.add(this.emptyText);
-
-        this.pageLabel = this.scene.add
-            .text(panelWidth / 2, panelHeight - 38, '', {
-                fontFamily: 'SpecialElite',
-                fontSize: '15px',
-                color: '#c6d7e5'
-            })
-            .setOrigin(0.5);
-
-        this.prevBtn = this.scene.add
-            .text(40, panelHeight - 42, '\u25c0 PREV', {
-                fontFamily: 'SpecialElite',
-                fontSize: '16px',
-                color: '#ffd166'
-            })
-            .setInteractive({ useHandCursor: true });
-
-        this.prevBtn.on('pointerdown', () => this.changePage(-1));
-
-        this.nextBtn = this.scene.add
-            .text(panelWidth - 132, panelHeight - 42, 'NEXT \u25b6', {
-                fontFamily: 'SpecialElite',
-                fontSize: '16px',
-                color: '#ffd166'
-            })
-            .setInteractive({ useHandCursor: true });
-
-        this.nextBtn.on('pointerdown', () => this.changePage(1));
-
-        this.panel.add([
-            bg,
-            headerBg,
-            title,
-            this.closeBtn,
-            this.summaryText,
-            this.quipText,
-            divider,
-            this.listContainer,
-            this.pageLabel,
-            this.prevBtn,
-            this.nextBtn
-        ]);
-
-        this.container.add(this.panel);
-    }
-
-    getQuip(debt) {
-        const found = DEBT_QUIPS.find((q) => debt >= q.min && debt <= q.max);
-        return found ? found.text : '';
-    }
-
-    formatMoney(amount) {
-        const safe = Math.round(Number(amount) || 0);
-        return `$${safe.toLocaleString('en-US')}`;
-    }
-
-    refreshSummary() {
-        const cash = Math.max(0, Math.floor(gameState.cash || 0));
-        const budget = Math.max(0, Math.floor(gameState.agencyBudget || 0));
-        const debt = Math.max(0, Math.floor(gameState.agencyDebt || 0));
-
-        this.summaryText.setText(
-            `\ud83d\udcb5 Cash: ${this.formatMoney(cash)}     ` +
-            `\ud83c\udfe2 Agency budget: ${this.formatMoney(budget)}\n` +
-            `\ud83d\udcd5 Agency debt: ${this.formatMoney(debt)}`
-        );
-
-        this.summaryText.setColor(debt > 0 ? '#ffd166' : '#d6e4f0');
-        this.quipText.setText(this.getQuip(debt));
-    }
-
-    clearRows() {
-        this.rows.forEach((row) => row?.destroy?.(true));
-        this.rows = [];
-    }
-
-    refreshList() {
-        this.clearRows();
-
-        const allEntries = moneyManager.getRecentTransactions(100);
-        this.emptyText.setVisible(allEntries.length === 0);
-
-        const totalPages = Math.max(1, Math.ceil(allEntries.length / ROWS_PER_PAGE));
-        this.page = Math.min(this.page, totalPages - 1);
-
-        const startIndex = this.page * ROWS_PER_PAGE;
-        const pageEntries = allEntries.slice(startIndex, startIndex + ROWS_PER_PAGE);
-
-        pageEntries.forEach((entry, index) => {
-            const y = 12 + index * 36;
-            const meta = CATEGORY_META[entry.category] || { icon: '\u2754', label: entry.category || 'Other' };
-
-            const isPositive =
-                entry.type === 'income' ||
-                entry.type === 'refund' ||
-                entry.type === 'mission_settled';
-
-            const isDebt = entry.type === 'debt';
-            const sign = isPositive ? '+' : '-';
-            const color = isPositive ? '#8ef29b' : (isDebt ? '#ff6b6b' : '#ffd166');
-
-            const date = entry.createdAt ? new Date(entry.createdAt) : null;
-            const dateLabel = date
-                ? `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-                : '';
-
-            const row = this.scene.add.container(0, y);
-
-            const icon = this.scene.add.text(0, 0, meta.icon, {
-                fontFamily: 'SpecialElite',
-                fontSize: '20px',
-                color: '#ffffff'
-            });
-
-            const desc = this.scene.add.text(34, 3, entry.description || meta.label, {
-                fontFamily: 'SpecialElite',
-                fontSize: '15px',
-                color: '#d6e4f0',
-                wordWrap: { width: 350, useAdvancedWrap: true }
-            });
-
-            const amount = this.scene.add
-                .text(462, 3, `${sign}${this.formatMoney(entry.amount)}`, {
-                    fontFamily: 'SpecialElite',
-                    fontSize: '16px',
-                    color
-                })
-                .setOrigin(0, 0);
-
-            const time = this.scene.add.text(562, 3, dateLabel, {
-                fontFamily: 'SpecialElite',
-                fontSize: '13px',
-                color: '#8fa0ad'
-            });
-
-            row.add([icon, desc, amount, time]);
-            this.listContainer.add(row);
-            this.rows.push(row);
-        });
-
-        this.pageLabel.setText(`Page ${this.page + 1} / ${totalPages}`);
-        this.prevBtn.setAlpha(this.page > 0 ? 1 : 0.4);
-        this.nextBtn.setAlpha(this.page < totalPages - 1 ? 1 : 0.4);
-    }
-
-    changePage(direction) {
-        const next = this.page + direction;
-        if (next < 0) return;
-        this.page = next;
-        this.refreshList();
-    }
-
-    open() {
-        if (this.isOpen) return;
-
-        this.isOpen = true;
-        this.page = 0;
-        EventBus.emit('hideHUD');
-        this.container.setVisible(true);
-        this.refreshSummary();
-        this.refreshList();
-    }
-
-    close() {
-        if (!this.isOpen) return;
-
-        this.isOpen = false;
-        this.container.setVisible(false);
-        EventBus.emit('showHUD');
-    }
-
-    destroy() {
-        this.clearRows();
-
-        this.scene?.input?.keyboard?.off('keydown-L', this.boundKeyHandler);
-        this.closeBtn?.removeAllListeners();
-        this.prevBtn?.removeAllListeners();
-        this.nextBtn?.removeAllListeners();
-        this.overlay?.removeAllListeners();
-
-        this.container?.destroy(true);
-        this.rows = [];
-        this.isOpen = false;
-    }
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.isOpen = false;
+    this.scene.input.keyboard?.off('keydown-B', this.boundKeyHandler);
+    this.scene.events.off(Phaser.Scenes.Events.SHUTDOWN, this.boundShutdown);
+    if (typeof window !== 'undefined') window.removeEventListener('lost-artifacts:money-changed', this.boundMoneyChange);
+    this.clearRows();
+    if (this.container?.scene) this.container.destroy(true);
+    this.container = null;
+  }
 }

@@ -1,44 +1,49 @@
-import { getEnergyManager } from '../EnergyManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
-import { OfficeSaveUI } from '../OfficeSaveUI.js';
+import { OfficeSaveUI } from '../ui/OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
-import { ensureHud } from '../hudHelpers.js';
 import { audioManager } from '../managers/AudioManager.js';
 
 export class HotelScene extends BaseScene {
   constructor() {
     super({ key: 'HotelScene' });
 
-    this.timeManager = null;
-
     this.returnScene = 'CrimeCityScene';
     this.returnData = {};
+
+    this.DEBUG_HOTSPOTS = true;
+
+    this.boundCleanupScene = this.cleanupScene.bind(this);
+    this.boundWakeOrResume = this.onWakeOrResume.bind(this);
+    this.boundSleep = this.onSleep.bind(this);
+
+    this.hudWaitCancels = new Set();
+
+    this.resetHotelState();
+  }
+
+  resetHotelState() {
+    this.timeManager = null;
 
     this.isLeaving = false;
     this.isSleeping = false;
     this.isSleepMenuOpen = false;
     this.uiLocked = false;
 
+    this.isSettingUpHud = false;
+    this.isOpeningTv = false;
+    this.isTransitioning = false;
+
     this.saveUI = null;
     this.hotspots = [];
 
     this.sleepMenu = null;
     this.sleepMenuBlocker = null;
-
     this.hoverHint = null;
 
-    this.DEBUG_HOTSPOTS = true;
     this.debugGraphics = null;
     this.debugTexts = [];
-
-    this.isSettingUpHud = false;
-    this.isOpeningTv = false;
-    this.isTransitioning = false;
-
-    this.boundCleanupScene = this.cleanupScene.bind(this);
-    this.boundWakeOrResume = this.onWakeOrResume.bind(this);
-    this.boundSleep = this.onSleep.bind(this);
   }
 
   init(data = {}) {
@@ -49,25 +54,8 @@ export class HotelScene extends BaseScene {
         ? { ...data.returnData }
         : {};
 
-    this.isLeaving = false;
-    this.isSleeping = false;
-    this.isSleepMenuOpen = false;
-    this.uiLocked = false;
-
-    this.isSettingUpHud = false;
-    this.isOpeningTv = false;
-    this.isTransitioning = false;
-
-    this.timeManager = null;
-    this.saveUI = null;
-    this.hotspots = [];
-
-    this.sleepMenu = null;
-    this.sleepMenuBlocker = null;
-    this.hoverHint = null;
-
-    this.debugGraphics = null;
-    this.debugTexts = [];
+    this.cancelHudWaits();
+    this.resetHotelState();
   }
 
   create() {
@@ -111,12 +99,23 @@ export class HotelScene extends BaseScene {
       this.handleEscape,
     );
 
+    // Nie konfigurujemy HUD-u wewnątrz create().
+    // Pierwszy POST_UPDATE następuje, gdy hotel już działa.
     this.events.once(
       Phaser.Scenes.Events.POST_UPDATE,
-      this.startHotelIdleMonologue,
+      this.onHotelFirstUpdate,
       this,
     );
+  }
 
+  onHotelFirstUpdate() {
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return;
+    }
+
+    console.log('[HotelScene] First update — configuring HUD.');
+
+    this.startHotelIdleMonologue();
     void this.setupHudScenes();
   }
 
@@ -131,13 +130,129 @@ export class HotelScene extends BaseScene {
   setHotelHudContext(playerHud = null) {
     const hud = playerHud || this.getPlayerHudScene();
 
-    if (!hud) {
+    if (!hud?.isHudReady) {
       return false;
     }
 
-    hud.setCurrentGameplayScene?.('HotelScene');
+    hud.setCurrentGameplayScene('HotelScene');
 
     return true;
+  }
+
+  cancelHudWaits() {
+    if (!this.hudWaitCancels) {
+      this.hudWaitCancels = new Set();
+      return;
+    }
+
+    [...this.hudWaitCancels].forEach((cancel) => cancel());
+    this.hudWaitCancels.clear();
+  }
+
+  waitForOverlayReady(sceneKey, timeoutMs = 5000) {
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return Promise.resolve(null);
+    }
+
+    return new Promise((resolve, reject) => {
+      let finished = false;
+      let timeoutId = null;
+
+      const removeListeners = () => {
+        this.events.off(
+          Phaser.Scenes.Events.POST_UPDATE,
+          checkReady,
+        );
+
+        this.hudWaitCancels.delete(cancel);
+
+        if (timeoutId !== null) {
+          window.clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+      };
+
+      const finish = (overlay) => {
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+        removeListeners();
+        resolve(overlay);
+      };
+
+      const cancel = () => finish(null);
+
+      const checkReady = () => {
+        if (this._cleanupDone || !this.sys.isActive()) {
+          finish(null);
+          return;
+        }
+
+        const overlay = this.getRegisteredScene(sceneKey);
+
+        if (!overlay || !this.isSceneActive(sceneKey)) {
+          return;
+        }
+
+        if (
+          sceneKey === 'PlayerHudScene'
+          && !overlay.isHudReady
+        ) {
+          return;
+        }
+
+        finish(overlay);
+      };
+
+      this.hudWaitCancels.add(cancel);
+
+      this.events.on(
+        Phaser.Scenes.Events.POST_UPDATE,
+        checkReady,
+      );
+
+      timeoutId = window.setTimeout(() => {
+        if (finished) {
+          return;
+        }
+
+        finished = true;
+        removeListeners();
+
+        reject(
+          new Error(
+            `[HotelScene] "${sceneKey}" was not ready ` +
+            `within ${timeoutMs} ms.`,
+          ),
+        );
+      }, timeoutMs);
+
+      checkReady();
+    });
+  }
+
+  async ensureReadyOverlay(sceneKey, data = {}) {
+    await this.ensureOverlayScene(sceneKey, data);
+
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return null;
+    }
+
+    return this.waitForOverlayReady(sceneKey);
+  }
+
+  async ensurePlayerHud() {
+    const playerHud = await this.ensureReadyOverlay(
+      'PlayerHudScene',
+    );
+
+    if (playerHud) {
+      this.bringSceneToTopIfActive('PlayerHudScene');
+    }
+
+    return playerHud;
   }
 
   async setupHudScenes() {
@@ -152,30 +267,7 @@ export class HotelScene extends BaseScene {
     this.isSettingUpHud = true;
 
     try {
-      const uiScene = await this.ensureOverlayScene('UIScene');
-
-      if (this._cleanupDone || !this.sys.isActive()) {
-        return;
-      }
-
-      if (uiScene) {
-        this.game.events.emit('setHudVisible', true);
-        EventBus.emit('showHUD');
-
-        uiScene.refreshScoreHud?.();
-        uiScene.refreshMoneyHud?.();
-        uiScene.updateEnergy?.();
-        uiScene.updateTime?.({
-          day: gameState.currentDay || gameState.day || 1,
-          hour: gameState.currentHour ?? gameState.hour ?? 8,
-          minute: gameState.currentMinute ?? gameState.minute ?? 0,
-          partOfDay:
-            gameState.currentPartOfDay
-            || gameState.partOfDay
-            || 'Morning',
-        });
-      }
-
+      // Dolne menu przywracamy jako pierwsze.
       const playerHud = await this.ensurePlayerHud();
 
       if (this._cleanupDone || !this.sys.isActive()) {
@@ -197,6 +289,41 @@ export class HotelScene extends BaseScene {
 
       this.timeManager = playerHud.timeManager || null;
 
+      console.log('[HotelScene] Bottom HUD ready:', {
+        ready: playerHud.isHudReady,
+        active: this.isSceneActive('PlayerHudScene'),
+        visible: playerHud.sys.settings.visible,
+        context: playerHud.currentGameplaySceneKey,
+      });
+
+      const uiScene = await this.ensureReadyOverlay('UIScene');
+
+      if (this._cleanupDone || !this.sys.isActive()) {
+        return;
+      }
+
+      if (uiScene) {
+        this.game.events.emit('setHudVisible', true);
+        EventBus.emit('showHUD');
+
+        uiScene.refreshScoreHud?.();
+        uiScene.refreshMoneyHud?.();
+        uiScene.updateEnergy?.();
+
+        uiScene.updateTime?.({
+          day: gameState.currentDay || gameState.day || 1,
+          hour: gameState.currentHour ?? gameState.hour ?? 8,
+          minute:
+            gameState.currentMinute
+            ?? gameState.minute
+            ?? 0,
+          partOfDay:
+            gameState.currentPartOfDay
+            || gameState.partOfDay
+            || 'Morning',
+        });
+      }
+
       await this.showNewsHud();
 
       if (this._cleanupDone || !this.sys.isActive()) {
@@ -215,27 +342,6 @@ export class HotelScene extends BaseScene {
     } finally {
       this.isSettingUpHud = false;
     }
-  }
-
-  async ensurePlayerHud() {
-    try {
-      ensureHud(this, {
-        throwOnMissing: false,
-      });
-    } catch (error) {
-      console.warn(
-        '[HotelScene] ensureHud() failed:',
-        error,
-      );
-    }
-
-    const playerHud = await this.restorePlayerHud();
-
-    if (playerHud) {
-      this.bringSceneToTopIfActive('PlayerHudScene');
-    }
-
-    return playerHud;
   }
 
   createBackground(width, height) {
@@ -309,10 +415,7 @@ export class HotelScene extends BaseScene {
         color: '#dddddd',
         align: 'center',
         backgroundColor: '#111111aa',
-        padding: {
-          x: 14,
-          y: 10,
-        },
+        padding: { x: 14, y: 10 },
       })
       .setOrigin(0.5)
       .setDepth(10);
@@ -357,8 +460,8 @@ export class HotelScene extends BaseScene {
         fallbackMonologue:
           'A desk. Finally, a horizontal surface for evidence and regret.',
         action: () => {
-  void this.openCrimeBoard();
-}
+          void this.openCrimeBoard();
+        },
       },
       {
         id: 'hotel-window-exit',
@@ -389,13 +492,7 @@ export class HotelScene extends BaseScene {
       zone.hotspotData = data;
 
       zone.on('pointerover', () => {
-        if (
-          this.isLeaving
-          || this.isSleeping
-          || this.isSleepMenuOpen
-          || this.uiLocked
-          || this._cleanupDone
-        ) {
+        if (this.isHotelInteractionBlocked()) {
           return;
         }
 
@@ -408,13 +505,7 @@ export class HotelScene extends BaseScene {
       });
 
       zone.on('pointerdown', () => {
-        if (
-          this.isLeaving
-          || this.isSleeping
-          || this.isSleepMenuOpen
-          || this.uiLocked
-          || this._cleanupDone
-        ) {
+        if (this.isHotelInteractionBlocked()) {
           return;
         }
 
@@ -432,6 +523,16 @@ export class HotelScene extends BaseScene {
 
       this.hotspots.push(zone);
     });
+  }
+
+  isHotelInteractionBlocked() {
+    return (
+      this.isLeaving
+      || this.isSleeping
+      || this.isSleepMenuOpen
+      || this.uiLocked
+      || this._cleanupDone
+    );
   }
 
   createOptionalDebug() {
@@ -480,9 +581,7 @@ export class HotelScene extends BaseScene {
       return;
     }
 
-    this.hoverHint
-      .setText(text)
-      .setVisible(true);
+    this.hoverHint.setText(text).setVisible(true);
   }
 
   hideHoverHint() {
@@ -500,7 +599,6 @@ export class HotelScene extends BaseScene {
         cooldownMs: 2500,
         queue: false,
       });
-
       return;
     }
 
@@ -514,13 +612,7 @@ export class HotelScene extends BaseScene {
   }
 
   openSleepMenu() {
-    if (
-      this.isLeaving
-      || this.isSleeping
-      || this.isSleepMenuOpen
-      || this.uiLocked
-      || this._cleanupDone
-    ) {
+    if (this.isHotelInteractionBlocked()) {
       return;
     }
 
@@ -530,9 +622,7 @@ export class HotelScene extends BaseScene {
     const { width, height } = this.scale;
     const panelWidth = Math.min(760, width * 0.75);
 
-    this.sleepMenu = this.add
-      .container(0, 0)
-      .setDepth(200);
+    this.sleepMenu = this.add.container(0, 0).setDepth(200);
 
     this.sleepMenuBlocker = this.add
       .rectangle(0, 0, width, height, 0x000000, 0.70)
@@ -555,12 +645,17 @@ export class HotelScene extends BaseScene {
       .setStrokeStyle(4, 0xd4af37);
 
     const title = this.add
-      .text(width / 2, height / 2 - 128, 'HOW LONG DO YOU SLEEP?', {
-        fontFamily: 'PressStart2P',
-        fontSize: '16px',
-        color: '#f6dc8c',
-        align: 'center',
-      })
+      .text(
+        width / 2,
+        height / 2 - 128,
+        'HOW LONG DO YOU SLEEP?',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '16px',
+          color: '#f6dc8c',
+          align: 'center',
+        },
+      )
       .setOrigin(0.5);
 
     const subtitle = this.add
@@ -578,20 +673,20 @@ export class HotelScene extends BaseScene {
       .setOrigin(0.5);
 
     const closeButton = this.add
-      .text(width / 2 + panelWidth / 2 - 32, height / 2 - 145, 'X', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#ffffff',
-        backgroundColor: '#3b1111',
-        padding: {
-          x: 10,
-          y: 8,
+      .text(
+        width / 2 + panelWidth / 2 - 32,
+        height / 2 - 145,
+        'X',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '14px',
+          color: '#ffffff',
+          backgroundColor: '#3b1111',
+          padding: { x: 10, y: 8 },
         },
-      })
+      )
       .setOrigin(0.5)
-      .setInteractive({
-        useHandCursor: true,
-      });
+      .setInteractive({ useHandCursor: true });
 
     closeButton.on('pointerdown', () => {
       this.closeSleepMenu();
@@ -647,9 +742,7 @@ export class HotelScene extends BaseScene {
     const button = this.add
       .rectangle(x, y, 170, 106, 0x29211d, 1)
       .setStrokeStyle(2, 0xf1e6b8)
-      .setInteractive({
-        useHandCursor: true,
-      });
+      .setInteractive({ useHandCursor: true });
 
     const titleText = this.add
       .text(x, y - 20, title, {
@@ -748,11 +841,8 @@ export class HotelScene extends BaseScene {
 
   async openHotelTv() {
     if (
-      this.isLeaving
-      || this.isSleeping
-      || this.uiLocked
+      this.isHotelInteractionBlocked()
       || this.isOpeningTv
-      || this._cleanupDone
     ) {
       return;
     }
@@ -769,7 +859,6 @@ export class HotelScene extends BaseScene {
 
         newsHud?.events?.emit('setNewspaperVisible', true);
         newsHud?.events?.emit('setTvVisible', true);
-
         return;
       }
 
@@ -808,80 +897,60 @@ export class HotelScene extends BaseScene {
   }
 
   async openCrimeBoard() {
-  if (
-    this.isLeaving
-    || this.isSleeping
-    || this.uiLocked
-    || this._cleanupDone
-  ) {
-    return false;
-  }
-
-  let hud = this.getPlayerHudScene();
-
-  /*
-   * W hotelu HUD może być jeszcze w trakcie przywracania,
-   * mimo że UI na ekranie wygląda już na gotowe.
-   * Wtedy pobieramy / przywracamy go ponownie.
-   */
-  if (!hud?.crimeBoardUI) {
-    try {
-      hud = await this.ensurePlayerHud();
-    } catch (error) {
-      console.error(
-        '[HotelScene] Could not restore PlayerHudScene for Crime Board:',
-        error,
-      );
-
+    if (this.isHotelInteractionBlocked()) {
       return false;
     }
+
+    let hud = this.getPlayerHudScene();
+
+    if (!hud?.isHudReady || !hud?.crimeBoardUI) {
+      try {
+        hud = await this.ensurePlayerHud();
+      } catch (error) {
+        console.error(
+          '[HotelScene] Could not restore HUD for Crime Board:',
+          error,
+        );
+        return false;
+      }
+    }
+
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return false;
+    }
+
+    if (!hud?.crimeBoardUI) {
+      console.warn(
+        '[HotelScene] Crime Board is unavailable.',
+        {
+          hudFound: Boolean(hud),
+          hudReady: hud?.isHudReady,
+          hudActive: this.isSceneActive('PlayerHudScene'),
+        },
+      );
+      return false;
+    }
+
+    this.setHotelHudContext(hud);
+    hud.closeAllUIPanels();
+
+    const opened = hud.openCrimeBoard() || false;
+
+    console.log('[HotelScene] Crime Board open result:', {
+      opened,
+      hudContext: hud.currentGameplaySceneKey,
+      hudActive: this.isSceneActive('PlayerHudScene'),
+    });
+
+    return opened;
   }
-
-  if (
-    this._cleanupDone
-    || !this.sys.isActive()
-  ) {
-    return false;
-  }
-
-  if (!hud?.crimeBoardUI) {
-    console.warn(
-      '[HotelScene] Crime board is unavailable after HUD restore.',
-      {
-        hudFound: Boolean(hud),
-        hudActive: this.scene.isActive('PlayerHudScene'),
-        crimeBoardFound: Boolean(hud?.crimeBoardUI),
-      },
-    );
-
-    return false;
-  }
-
-  /*
-   * Biurko jest jednoznacznym wejściem w hotelu.
-   * Bezpośrednio przed otwarciem wymuszamy poprawny kontekst.
-   */
-  hud.setCurrentGameplayScene?.('HotelScene');
-
-  hud.closeAllUIPanels?.();
-
-  const opened = hud.openCrimeBoard?.() || false;
-
-  console.log('[HotelScene] Crime Board open result:', {
-    opened,
-    hudContext: hud.currentGameplaySceneKey,
-    hudActive: this.scene.isActive('PlayerHudScene'),
-  });
-
-  return opened;
-}
 
   async showNewsHud() {
-    if (this._cleanupDone) {
+    if (this._cleanupDone || !this.sys.isActive()) {
       return false;
     }
 
-    const newsHud = await this.ensureOverlayScene('NewsHud');
+    const newsHud = await this.ensureReadyOverlay('NewsHud');
 
     if (this._cleanupDone || !this.sys.isActive()) {
       return false;
@@ -944,12 +1013,25 @@ export class HotelScene extends BaseScene {
       this.saveUI.createButton();
     } catch (error) {
       console.error(
-        '[HotelScene] Failed to initialize hotel save controls:',
+        '[HotelScene] Failed to initialize save controls:',
         error,
       );
 
       this.saveUI = null;
     }
+  }
+
+  restoreAfterFailedExit() {
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return;
+    }
+
+    this.isLeaving = false;
+    this.isSleeping = false;
+    this.isTransitioning = false;
+
+    this.applyLock(false);
+    this.cameras.main.fadeIn(220, 0, 0, 0);
   }
 
   doSleep(hours) {
@@ -967,9 +1049,8 @@ export class HotelScene extends BaseScene {
 
     this.applyLock(true);
 
-    const energyManager = getEnergyManager();
-
     try {
+      const energyManager = getEnergyManager();
       const result = energyManager.sleep(hours);
 
       console.log('[HotelScene] Sleep completed:', {
@@ -982,8 +1063,6 @@ export class HotelScene extends BaseScene {
         error,
       );
     }
-
-    this.cameras.main.fadeOut(700, 0, 0, 0);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -1000,13 +1079,8 @@ export class HotelScene extends BaseScene {
 
         void this.goto(this.returnScene, this.returnData)
           .then((moved) => {
-            if (!moved && !this._cleanupDone) {
-              this.isLeaving = false;
-              this.isSleeping = false;
-              this.isTransitioning = false;
-
-              this.applyLock(false);
-              this.cameras.main.fadeIn(220, 0, 0, 0);
+            if (!moved) {
+              this.restoreAfterFailedExit();
             }
           })
           .catch((error) => {
@@ -1015,17 +1089,13 @@ export class HotelScene extends BaseScene {
                 '[HotelScene] Could not return after sleep:',
                 error,
               );
-
-              this.isLeaving = false;
-              this.isSleeping = false;
-              this.isTransitioning = false;
-
-              this.applyLock(false);
-              this.cameras.main.fadeIn(220, 0, 0, 0);
+              this.restoreAfterFailedExit();
             }
           });
       },
     );
+
+    this.cameras.main.fadeOut(700, 0, 0, 0);
   }
 
   handleEscape() {
@@ -1062,11 +1132,8 @@ export class HotelScene extends BaseScene {
         this.returnData,
       );
 
-      if (!moved && !this._cleanupDone) {
-        this.isLeaving = false;
-        this.isTransitioning = false;
-
-        this.applyLock(false);
+      if (!moved) {
+        this.restoreAfterFailedExit();
       }
 
       return moved;
@@ -1077,10 +1144,7 @@ export class HotelScene extends BaseScene {
           error,
         );
 
-        this.isLeaving = false;
-        this.isTransitioning = false;
-
-        this.applyLock(false);
+        this.restoreAfterFailedExit();
       }
 
       return false;
@@ -1102,28 +1166,48 @@ export class HotelScene extends BaseScene {
       this.applyLock(false);
     }
 
-    this.events.once(
+    this.events.off(
       Phaser.Scenes.Events.POST_UPDATE,
-      this.startHotelIdleMonologue,
+      this.onHotelFirstUpdate,
       this,
     );
 
-    this.time.delayedCall(0, () => {
-      if (this._cleanupDone || !this.sys.isActive()) {
-        return;
-      }
-
-      this.setHotelHudContext();
-    });
-
-    void this.setupHudScenes();
+    this.events.once(
+      Phaser.Scenes.Events.POST_UPDATE,
+      this.onHotelFirstUpdate,
+      this,
+    );
   }
 
   onSleep() {
     this.hideHoverHint();
+    this.cancelHudWaits();
   }
 
   cleanupScene() {
+    this.cancelHudWaits();
+
+    this.events.off(
+      Phaser.Scenes.Events.POST_UPDATE,
+      this.onHotelFirstUpdate,
+      this,
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.WAKE,
+      this.boundWakeOrResume,
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.RESUME,
+      this.boundWakeOrResume,
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.SLEEP,
+      this.boundSleep,
+    );
+
     this.destroySleepMenu();
 
     this.saveUI?.destroy();

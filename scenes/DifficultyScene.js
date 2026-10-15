@@ -1,6 +1,6 @@
 import { setupNewGame } from '../gameSetup.js';
 import { gameState } from '../GameData.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 

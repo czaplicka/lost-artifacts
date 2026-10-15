@@ -1,8 +1,8 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
-import { getScoreManager } from '../InvestigationManager.js';
+import { getScoreManager } from '../managers/InvestigationManager.js';
 import { BaseScene } from './BaseScene.js';
-import { getEnergyManager } from '../EnergyManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import { HypothesisEvaluator } from '../HypothesisEvaluator.js';
 import { HypothesisState } from '../HypothesisState.js';
 import { HypothesisResultService } from '../HypothesisResultService.js';
@@ -34,6 +34,7 @@ export class HypothesisScene extends BaseScene {
     this.shutdownHandler = null;
     this.isReturning = false;
     this.isLaunchingResult = false;
+    this.energyConsumed = false;
   }
 
   init(data = {}) {
@@ -53,6 +54,7 @@ export class HypothesisScene extends BaseScene {
 
     this.isReturning = false;
     this.isLaunchingResult = false;
+    this.energyConsumed = false;
 
     this.ensureReconstructionState();
 
@@ -125,7 +127,16 @@ export class HypothesisScene extends BaseScene {
   create() {
     super.create();
 
+    // HypothesisScene zawsze może się uruchomić.
+    // Energia zostanie pobrana dopiero po finalizacji wyniku.
     this.energyManager = getEnergyManager();
+
+    if (!this.energyManager) {
+      console.warn(
+        '[HypothesisScene] EnergyManager is unavailable. ' +
+        'Mastermind will not consume energy.'
+      );
+    }
 
     this.prepareCards();
 
@@ -520,26 +531,21 @@ export class HypothesisScene extends BaseScene {
       }
     });
 
-    const energyResult =
-      this.energyManager?.consumeActivity(
-        'minigame_mastermind'
-      );
+    const isExact = feedback.every(
+      (color) => color === 'green'
+    );
 
-    if (energyResult?.energyReachedZero) {
-      saveGameState();
-      this.returnToSourceScene();
-      return;
+    if (!isExact) {
+      this.hypothesisState.consumeAttempt();
     }
 
     const evaluation =
       HypothesisEvaluator.determineResult(
         feedback,
-        this.hypothesisState.attemptsLeft - 1
+        this.hypothesisState.attemptsLeft
       );
 
     if (!evaluation.isFinal) {
-      this.hypothesisState.consumeAttempt();
-
       const redHerringCard = orderedCards.find(
         (card, index) =>
           feedback[index] === 'red' &&
@@ -564,21 +570,56 @@ export class HypothesisScene extends BaseScene {
       return;
     }
 
-    if (evaluation.resultLabel !== 'exact') {
-      this.hypothesisState.consumeAttempt();
-    }
-
     this.finalizeTheory(
       orderedCards,
       evaluation
     );
   }
 
-finalizeTheory(orderedCards, evaluation) {
-  this.hypothesisState.setUiLocked(true);
+  consumeMastermindEnergy() {
+    if (this.energyConsumed) {
+      return {
+        success: true,
+        skipped: true,
+        reason: 'already_consumed'
+      };
+    }
 
-  const result =
-    this.resultService.finalizeTheory({
+    if (!this.energyManager) {
+      console.warn(
+        '[HypothesisScene] Cannot consume Mastermind energy: ' +
+        'EnergyManager is unavailable.'
+      );
+
+      return {
+        success: false,
+        skipped: true,
+        reason: 'energy_manager_unavailable'
+      };
+    }
+
+    const energyResult =
+      this.energyManager.consumeActivity(
+        'minigame_mastermind'
+      );
+
+    if (energyResult?.success) {
+      this.energyConsumed = true;
+    }
+
+    console.log(
+      '[HypothesisScene] Mastermind energy consumed after theory finalization.',
+      energyResult
+    );
+
+    return energyResult;
+  }
+
+  finalizeTheory(orderedCards, evaluation) {
+    this.hypothesisState.setUiLocked(true);
+
+    const result =
+      this.resultService.finalizeTheory({
         orderedCards,
         slotFeedback:
           this.hypothesisState.slotFeedback,
@@ -590,17 +631,35 @@ finalizeTheory(orderedCards, evaluation) {
           evaluation.score
       });
 
+    // Najpierw zapisujemy wynik śledztwa.
+    // Forced sleep nie może skasować postępu dedukcji.
+    saveGameState();
+
+    // Energia jest kosztem ukończonej minigry, a nie warunkiem wejścia.
+    const energyResult =
+      this.consumeMastermindEnergy();
+
     this.boardUI?.refresh();
 
-    const feedbackMessage =
+    let feedbackMessage =
       evaluation.resultLabel === 'exact'
         ? evaluation.message
         : `${evaluation.message} +${evaluation.score} score`;
+
+    if (energyResult?.energyReachedZero) {
+      feedbackMessage +=
+        '\n\nYou solved the theory, then promptly collapsed ' +
+        'into a very convincing detective-shaped nap.';
+    }
 
     this.boardUI?.showFeedback(
       feedbackMessage,
       evaluation.color
     );
+
+    // Zapisujemy ponownie, bo pierwszy save był przed pobraniem energii.
+    // Dzięki temu save zawiera zarówno wynik teorii, jak i aktualną energię.
+    saveGameState();
 
     this.time.delayedCall(900, () => {
       if (!this.sys.isActive()) {
@@ -738,8 +797,7 @@ finalizeTheory(orderedCards, evaluation) {
     this.slotQuestionIds = [];
 
     this.shutdownHandler = null;
-    this.isReturning = false;
-    this.isLaunchingResult = false;
+    this.energyConsumed = false;
 
     this.game.events.emit('setHudVisible', true);
   }

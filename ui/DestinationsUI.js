@@ -1,37 +1,20 @@
+// DestinationsUI.js
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../GameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { travelToCity as performTravel } from '../gameSetup.js';
-import { getUnifiedTravelManager } from '../managers/UnifiedTravelManager.js';
-import {
-    moneyManager,
-    MONEY_SOURCE
-} from '../managers/MoneyManager.js';
-
-// ============================================================
-// MIGRACJA PODRÓŻY - KROK 2 (2026-09-18)
-// Ten plik NIE liczy już własnej matematyki transportu i NIE płaci
-// za bilet. Cała matematyka (czas/koszt/energia) i cała płatność
-// (cash -> agencyBudget -> agencyDebt) żyje teraz w UnifiedTravelManager,
-// wołanym z gameSetup.js/travelToCity(). Tutaj zostaje tylko:
-// - metadane wizualne transportu (ikona/kolor) - UnifiedTravelManager
-//   nie wie i nie musi wiedzieć, jak coś wygląda na ekranie
-// - podgląd (buildTransportOption) budowany z TYCH SAMYCH liczb, które
-//   policzy UnifiedTravelManager przy realnej podróży - więc podgląd
-//   nigdy nie rozjedzie się z tym, co gracz faktycznie zapłaci
-// - obsługa blokady energetycznej (kasa nigdy nie blokuje - może tylko
-//   pójść w agencyDebt, więc UI nie musi tego już sprawdzać na wejściu)
-// ============================================================
-
-const TRANSPORT_UI_META = {
-    plane: { icon: '✈', color: 0xd9c27a },
-    train: { icon: '🚆', color: 0x8fd3ff },
-    bus: { icon: '🚌', color: 0xffb347 },
-    ship: { icon: '🚢', color: 0x62b6cb }
-};
-
-const ROUTE_LINE_COLOR = 0xff4f81;
-const ROUTE_SHADOW_COLOR = 0x280812;
+import { 
+    ROUTE_LINE_COLOR, 
+    ROUTE_SHADOW_COLOR, 
+    getCityId, 
+    normalizeCityId 
+} from './DestinationMeta.js';
+import { 
+    getTransportOptions, 
+    getAvailableAgencyBudget, 
+    wouldCreateDebt, 
+    formatMoney 
+} from './DestinationCalculator.js';
 
 export class DestinationsUI {
     constructor(scene) {
@@ -39,6 +22,7 @@ export class DestinationsUI {
         this.isOpen = false;
         this.isTransitioning = false;
         this.canConfirm = false;
+        this.isDestroyed = false;
         this.gameState = null;
         this.activePins = [];
         this.transportButtons = [];
@@ -50,6 +34,8 @@ export class DestinationsUI {
         this.hqButton = null;
         this.hqButtonBg = null;
         this.hqButtonLabel = null;
+        this.travelErrorTimer = null;
+
         this.boundTravelKeyHandler = this.onTravelKeyDown.bind(this);
 
         const { width, height } = this.scene.scale;
@@ -81,7 +67,7 @@ export class DestinationsUI {
             })
             .setInteractive({ useHandCursor: true });
 
-        this.closeBtn.on('pointerdown', this.close, this);
+        this.closeBtn.on('pointerdown', () => this.close());
         this.container.add(this.closeBtn);
 
         this.createInfoPanel(width, height);
@@ -96,12 +82,8 @@ export class DestinationsUI {
 
     registerKeyboard() {
         if (!this.scene?.input?.keyboard) return;
-
         this.scene.input.keyboard.addCapture('T');
-        this.scene.input.keyboard.on(
-            'keydown-T',
-            this.boundTravelKeyHandler
-        );
+        this.scene.input.keyboard.on('keydown-T', this.boundTravelKeyHandler);
     }
 
     onTravelKeyDown(event) {
@@ -111,19 +93,17 @@ export class DestinationsUI {
             activeTag === 'TEXTAREA' ||
             document.activeElement?.isContentEditable;
 
-        if (isTyping || this.isTransitioning) return;
+        if (isTyping || this.isTransitioning || this.isDestroyed) {
+            return;
+        }
 
         event.preventDefault();
-
         if (this.isOpen) this.close();
         else this.open(gameState);
     }
 
     createInfoPanel(width, height) {
-        this.infoPanel = this.scene.add.container(
-            width - 405,
-            height - 430
-        );
+        this.infoPanel = this.scene.add.container(width - 405, height - 430);
 
         const bg = this.scene.add
             .rectangle(0, 0, 380, 415, 0x101820, 0.96)
@@ -152,20 +132,14 @@ export class DestinationsUI {
             fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#ffd166',
-            wordWrap: {
-                width: 335,
-                useAdvancedWrap: true
-            }
+            wordWrap: { width: 335, useAdvancedWrap: true }
         });
 
         this.infoTravel = this.scene.add.text(20, 210, '', {
             fontFamily: 'SpecialElite',
             fontSize: '18px',
             color: '#d6e4f0',
-            wordWrap: {
-                width: 340,
-                useAdvancedWrap: true
-            }
+            wordWrap: { width: 340, useAdvancedWrap: true }
         });
 
         this.infoHours = this.scene.add.text(20, 258, '', {
@@ -178,10 +152,7 @@ export class DestinationsUI {
             fontFamily: 'SpecialElite',
             fontSize: '15px',
             color: '#ff9d6b',
-            wordWrap: {
-                width: 340,
-                useAdvancedWrap: true
-            }
+            wordWrap: { width: 340, useAdvancedWrap: true }
         });
 
         this.confirmButton = this.scene.add
@@ -203,15 +174,13 @@ export class DestinationsUI {
                 !this.canConfirm ||
                 !this.selectedCity ||
                 !this.selectedTransport ||
-                this.isTransitioning
+                this.isTransitioning ||
+                this.isDestroyed
             ) {
                 return;
             }
 
-            this.travelToCity(
-                this.selectedCity,
-                this.selectedTransport
-            );
+            void this.travelToCity(this.selectedCity, this.selectedTransport);
         });
 
         this.infoPanel.add([
@@ -247,21 +216,16 @@ export class DestinationsUI {
             })
             .setOrigin(0.5);
 
-        this.hqButton.add([
-            this.hqButtonBg,
-            this.hqButtonLabel
-        ]);
+        this.hqButton.add([this.hqButtonBg, this.hqButtonLabel]);
 
         this.hqButtonBg.on('pointerover', () => {
             if (this.isTransitioning || this.isAtHQ()) return;
-
             this.hqButtonBg.setFillStyle(0x5a1c38, 1);
             this.hqButtonLabel.setColor('#ffb3cc');
         });
 
         this.hqButtonBg.on('pointerout', () => {
             if (this.isTransitioning || this.isAtHQ()) return;
-
             this.hqButtonBg.setFillStyle(0x251926, 0.96);
             this.hqButtonLabel.setColor('#fff2f6');
         });
@@ -279,14 +243,11 @@ export class DestinationsUI {
             this.gameState?.currentCityId ||
             gameState.currentCityId ||
             null;
-
         return currentCityId === 'hq';
     }
 
     updateHQButton() {
-        if (!this.hqButton || !this.hqButtonBg || !this.hqButtonLabel) {
-            return;
-        }
+        if (!this.hqButton || !this.hqButtonBg || !this.hqButtonLabel) return;
 
         const atHQ = this.isAtHQ();
         this.hqButton.setVisible(true);
@@ -311,9 +272,7 @@ export class DestinationsUI {
 
     selectHeadquarters() {
         const locationsData = this.getLocationsData();
-        const headquarters = locationsData.find(
-            (location) => location.id === 'hq'
-        );
+        const headquarters = locationsData.find((loc) => loc.id === 'hq');
 
         if (!headquarters) {
             console.error('HQ location was not found in locations.json.');
@@ -321,6 +280,8 @@ export class DestinationsUI {
         }
 
         if (this.isAtHQ()) return;
+
+        this.clearTravelErrorTimer();
 
         if (this.selectedPin) {
             this.selectedPin.setFillStyle(0xffcc00);
@@ -335,13 +296,9 @@ export class DestinationsUI {
         this.selectedPin = null;
         this.selectedLabel = null;
 
-        const currentCityData = this.getCurrentCityData();
-        const options = this.getTransportOptions(
-            currentCityData,
-            headquarters
-        );
-
+        const options = getTransportOptions(this.getCurrentCityData(), headquarters);
         this.selectedTransport = options[0] || null;
+
         this.createTransportButtons(options);
         this.refreshInfoPanel(headquarters);
         this.previewRoute(headquarters);
@@ -349,13 +306,12 @@ export class DestinationsUI {
     }
 
     open(gameStateData) {
-        if (this.isTransitioning || this.isOpen) return;
+        if (this.isTransitioning || this.isOpen || this.isDestroyed) return;
 
         this.isOpen = true;
         EventBus.emit('hideHUD');
 
         const newsHud = this.scene.scene.get('NewsHud');
-
         if (newsHud?.events) {
             newsHud.events.emit('setNewspaperVisible', false);
             newsHud.events.emit('setTvVisible', false);
@@ -368,7 +324,6 @@ export class DestinationsUI {
         this.setConfirmEnabled(false);
 
         const destinations = this.getDestinationsWithMustInclude();
-
         this.container.setVisible(true);
         this.updateHQButton();
 
@@ -381,7 +336,7 @@ export class DestinationsUI {
     }
 
     close({ restoreHud = true } = {}) {
-        if (!this.isOpen) return;
+        if (!this.isOpen || this.isDestroyed) return;
 
         this.isOpen = false;
         this.container.setVisible(false);
@@ -396,6 +351,7 @@ export class DestinationsUI {
     }
 
     resetSelectionState() {
+        this.clearTravelErrorTimer();
         this.selectedCity = null;
         this.selectedPin = null;
         this.selectedLabel = null;
@@ -410,31 +366,6 @@ export class DestinationsUI {
         }
     }
 
-    normalizeCityId(city) {
-        if (!city) return null;
-
-        const map = {
-            London: 'london',
-            Paris: 'paris',
-            'New Delhi': 'new_delhi',
-            Warsaw: 'warsaw',
-            'New York City': 'new_york_city',
-            Berlin: 'berlin',
-            Toronto: 'toronto',
-            Kotto: 'kotto',
-            Islamabad: 'islamabad',
-            Nairobi: 'nairobi',
-            Tokyo: 'tokyo',
-            'Mark Agency Headquarters': 'hq'
-        };
-
-        return map[city] || city.toLowerCase().replace(/\s+/g, '_');
-    }
-
-    getCityId(cityObj) {
-        return cityObj?.id || this.normalizeCityId(cityObj?.city);
-    }
-
     getLocationsData() {
         const data = this.scene.cache.json.get('locations') || [];
         return Array.isArray(data) ? data : data.locations || [];
@@ -442,30 +373,17 @@ export class DestinationsUI {
 
     getCurrentCityData() {
         const locationsData = this.getLocationsData();
-
-        const currentCityId =
-            this.gameState?.currentCityId ||
-            gameState.currentCityId;
-
-        const currentCity =
-            this.gameState?.currentCity ||
-            gameState.currentCity;
+        const currentCityId = this.gameState?.currentCityId || gameState.currentCityId;
+        const currentCity = this.gameState?.currentCity || gameState.currentCity;
 
         return locationsData.find(
-            (location) =>
-                location.id === currentCityId ||
-                location.city === currentCity
+            (location) => location.id === currentCityId || location.city === currentCity
         ) || null;
     }
 
     getDestinationsWithMustInclude() {
         const locationsData = this.getLocationsData();
-
-        const currentCityId =
-            this.gameState?.currentCityId ||
-            gameState.currentCityId ||
-            null;
-
+        const currentCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
         const maxDestinations = 5;
 
         let result = Array.isArray(this.gameState?.currentDestinations)
@@ -473,39 +391,28 @@ export class DestinationsUI {
             : [];
 
         result = result.filter((city) => {
-            const cityId = this.getCityId(city);
+            const cityId = getCityId(city);
             return cityId && cityId !== currentCityId;
         });
 
-        const mustIncludeCityId =
-            this.gameState?.mustIncludeCityId ||
-            null;
-
+        const mustIncludeCityId = this.gameState?.mustIncludeCityId || null;
         const alreadyContainsRequiredCity = result.some(
-            (city) => this.getCityId(city) === mustIncludeCityId
+            (city) => getCityId(city) === mustIncludeCityId
         );
 
-        if (
-            mustIncludeCityId &&
-            mustIncludeCityId !== currentCityId &&
-            !alreadyContainsRequiredCity
-        ) {
+        if (mustIncludeCityId && mustIncludeCityId !== currentCityId && !alreadyContainsRequiredCity) {
             const requiredCity = locationsData.find(
-                (location) => this.getCityId(location) === mustIncludeCityId
+                (location) => getCityId(location) === mustIncludeCityId
             );
-
             if (requiredCity) result.unshift(requiredCity);
         } else if (mustIncludeCityId === currentCityId) {
             this.gameState.mustIncludeCityId = null;
         }
 
         const seen = new Set();
-
         result = result.filter((city) => {
-            const cityId = this.getCityId(city);
-
+            const cityId = getCityId(city);
             if (!cityId || seen.has(cityId)) return false;
-
             seen.add(cityId);
             return true;
         });
@@ -513,8 +420,7 @@ export class DestinationsUI {
         if (result.length < maxDestinations) {
             const filler = Phaser.Utils.Array.Shuffle(
                 locationsData.filter((location) => {
-                    const locationId = this.getCityId(location);
-
+                    const locationId = getCityId(location);
                     return (
                         location?.city &&
                         locationId &&
@@ -527,9 +433,8 @@ export class DestinationsUI {
 
             for (const city of filler) {
                 if (result.length >= maxDestinations) break;
-
                 result.push(city);
-                seen.add(this.getCityId(city));
+                seen.add(getCityId(city));
             }
         }
 
@@ -537,24 +442,14 @@ export class DestinationsUI {
     }
 
     clearPins() {
-        this.activePins.forEach((pinObject) => {
-            pinObject?.destroy?.(true);
-        });
-
+        this.activePins.forEach((pinObject) => pinObject?.destroy?.(true));
         this.activePins = [];
     }
 
     renderCityPins(citiesDataArray) {
         citiesDataArray.forEach((cityObj) => {
-            const xPos =
-                cityObj.map?.x ??
-                cityObj.mapX ??
-                this.scene.scale.width / 2;
-
-            const yPos =
-                cityObj.map?.y ??
-                cityObj.mapY ??
-                this.scene.scale.height / 2;
+            const xPos = cityObj.map?.x ?? cityObj.mapX ?? this.scene.scale.width / 2;
+            const yPos = cityObj.map?.y ?? cityObj.mapY ?? this.scene.scale.height / 2;
 
             const pinContainer = this.scene.add.container(xPos, yPos);
 
@@ -579,14 +474,12 @@ export class DestinationsUI {
 
             dot.on('pointerover', () => {
                 if (this.isTransitioning || this.selectedPin === dot) return;
-
                 dot.setFillStyle(0xffffff);
                 label.setColor('#ffcc00');
             });
 
             dot.on('pointerout', () => {
                 if (this.isTransitioning || this.selectedPin === dot) return;
-
                 dot.setFillStyle(0xffcc00);
                 label.setColor('#ffffff');
             });
@@ -599,6 +492,7 @@ export class DestinationsUI {
     }
 
     selectCity(cityObj, dot, label) {
+        this.clearTravelErrorTimer();
         this.selectedCity = cityObj;
 
         if (this.selectedPin && this.selectedPin !== dot) {
@@ -612,132 +506,39 @@ export class DestinationsUI {
 
         this.selectedPin = dot;
         this.selectedLabel = label;
+
         dot.setFillStyle(0xffffff);
         dot.setScale(1.15);
         label.setColor('#ffcc00');
 
-        const currentCityData = this.getCurrentCityData();
-        const options = this.getTransportOptions(
-            currentCityData,
-            cityObj
-        );
-
+        const options = getTransportOptions(this.getCurrentCityData(), cityObj);
         this.selectedTransport = options[0] || null;
+
         this.createTransportButtons(options);
         this.refreshInfoPanel(cityObj);
         this.previewRoute(cityObj);
         this.setConfirmEnabled(Boolean(this.selectedTransport));
     }
 
-    canTravelByLand(fromCity, toCity) {
-        if (!fromCity || !toCity) return false;
-        if (fromCity.country === toCity.country) return true;
-
-        const region = fromCity.travelRegion;
-
-        if (region !== toCity.travelRegion) return false;
-
-        return region === 'europe' || region === 'north_america';
-    }
-
-    /**
-     * Podgląd transportu - liczy TE SAME wartości, które przy realnej
-     * podróży policzy UnifiedTravelManager.calculateTravelBetweenLocations().
-     * allowEncounter:false, żeby podgląd nie losował encounterów.
-     */
-    buildTransportOption(transportType, fromCity, toCity) {
-        const travelManager = getUnifiedTravelManager();
-        const meta = TRANSPORT_UI_META[transportType] || {};
-        const rule = travelManager.getTransportRule(transportType);
-
-        const travelData = travelManager.calculateTravelBetweenLocations(
-            fromCity,
-            toCity,
-            transportType,
-            { allowEncounter: false }
-        );
-
-        return {
-            id: transportType,
-            icon: meta.icon || '❔',
-            color: meta.color ?? 0xaaaaaa,
-            label: rule.label,
-            travelHours: travelData.totalTravelHours,
-            baseTravelHours: travelData.baseTravelHours,
-            moneySpent: travelData.moneyCost,
-            energyChange: -travelData.energyCost
-        };
-    }
-
-    getTransportOptions(fromCity, toCity) {
-        if (!fromCity || !toCity) return [];
-
-        const options = [];
-
-        if (fromCity.airport && toCity.airport) {
-            options.push(
-                this.buildTransportOption('plane', fromCity, toCity)
-            );
-        }
-
-        if (
-            fromCity.trainStation &&
-            toCity.trainStation &&
-            this.canTravelByLand(fromCity, toCity)
-        ) {
-            options.push(
-                this.buildTransportOption('train', fromCity, toCity)
-            );
-        }
-
-        if (
-            fromCity.busStation &&
-            toCity.busStation &&
-            this.canTravelByLand(fromCity, toCity)
-        ) {
-            options.push(
-                this.buildTransportOption('bus', fromCity, toCity)
-            );
-        }
-
-        if (fromCity.harbor && toCity.harbor) {
-            options.push(
-                this.buildTransportOption('ship', fromCity, toCity)
-            );
-        }
-
-        return options;
-    }
-
     clearTransportButtons() {
-        this.transportButtons.forEach((button) => {
-            button?.destroy?.(true);
-        });
-
+        this.transportButtons.forEach((button) => button?.destroy?.(true));
         this.transportButtons = [];
     }
 
     createTransportButtons(options) {
         this.clearTransportButtons();
-
         if (options.length <= 1) return;
 
         const totalWidth = 330;
         const gap = 8;
-
         const buttonWidth = Math.min(
             82,
-            Math.floor(
-                (totalWidth - gap * (options.length - 1)) /
-                options.length
-            )
+            Math.floor((totalWidth - gap * (options.length - 1)) / options.length)
         );
-
         const startX = 20 + buttonWidth / 2;
 
         options.forEach((option, index) => {
             const x = startX + index * (buttonWidth + gap);
-
             const isSelected = option.id === this.selectedTransport?.id;
             const container = this.scene.add.container(x, 145);
 
@@ -750,10 +551,7 @@ export class DestinationsUI {
                     isSelected ? option.color : 0x273746,
                     isSelected ? 0.95 : 1
                 )
-                .setStrokeStyle(
-                    2,
-                    isSelected ? 0xffffff : option.color
-                )
+                .setStrokeStyle(2, isSelected ? 0xffffff : option.color)
                 .setInteractive({ useHandCursor: true });
 
             const icon = this.scene.add
@@ -777,7 +575,9 @@ export class DestinationsUI {
             bg.on('pointerdown', () => {
                 if (this.isTransitioning) return;
 
+                this.clearTravelErrorTimer();
                 this.selectedTransport = option;
+
                 this.createTransportButtons(options);
                 this.refreshInfoPanel(this.selectedCity);
                 this.previewRoute(this.selectedCity);
@@ -815,6 +615,8 @@ export class DestinationsUI {
     }
 
     refreshInfoPanel(cityObj = null) {
+        if (this.isDestroyed) return;
+
         if (!cityObj) {
             this.infoCity.setText('Choose a city');
             this.infoCountry.setText('');
@@ -829,13 +631,9 @@ export class DestinationsUI {
         }
 
         const preview = this.getTravelPreview(cityObj);
-
         this.infoCity.setText(cityObj.city || 'Unknown city');
 
-        const countryText = cityObj.country
-            ? `· ${cityObj.country}`
-            : '';
-
+        const countryText = cityObj.country ? `· ${cityObj.country}` : '';
         this.infoCountry.setText(countryText);
         this.infoCountry.setPosition(28 + this.infoCity.width, 61);
 
@@ -850,8 +648,8 @@ export class DestinationsUI {
             return;
         }
 
-        const agencyBudget = this.getAvailableAgencyBudget();
-        const willGoIntoDebt = this.wouldCreateDebt(preview.moneySpent);
+        const agencyBudget = getAvailableAgencyBudget();
+        const willGoIntoDebt = wouldCreateDebt(preview.moneySpent);
 
         this.transportPrompt.setColor('#ffd166');
         this.transportPrompt.setText(
@@ -859,19 +657,14 @@ export class DestinationsUI {
         );
 
         this.infoTravel.setText(
-            `🎟 ${this.formatMoney(preview.moneySpent)}   ` +
-            `🏢 Agency: ${this.formatMoney(agencyBudget)}   ` +
+            `🎟 ${formatMoney(preview.moneySpent)}   ` +
+            `🏢 Agency: ${formatMoney(agencyBudget)}   ` +
             `⚡ ${preview.energyChange}`
         );
 
-        this.infoHours.setText(
-            `Travel time: +${preview.travelHours}h`
-        );
-
+        this.infoHours.setText(`Travel time: +${preview.travelHours}h`);
         this.debtWarning.setText(
-            willGoIntoDebt
-                ? '⚠ Not enough cash + budget - will add to agency debt.'
-                : ''
+            willGoIntoDebt ? '⚠ Not enough cash + budget - will add to agency debt.' : ''
         );
 
         this.confirmLabel.setText(`Go by ${this.selectedTransport.label}`);
@@ -885,36 +678,19 @@ export class DestinationsUI {
         }
 
         const currentCityData = this.getCurrentCityData();
-
         if (!currentCityData?.map || !cityObj?.map) return;
 
         this.routePreview = this.scene.add.graphics();
 
-        this.routePreview.lineStyle(
-            9,
-            ROUTE_SHADOW_COLOR,
-            0.55
-        );
-
+        this.routePreview.lineStyle(9, ROUTE_SHADOW_COLOR, 0.55);
         this.routePreview.beginPath();
-        this.routePreview.moveTo(
-            currentCityData.map.x,
-            currentCityData.map.y
-        );
+        this.routePreview.moveTo(currentCityData.map.x, currentCityData.map.y);
         this.routePreview.lineTo(cityObj.map.x, cityObj.map.y);
         this.routePreview.strokePath();
 
-        this.routePreview.lineStyle(
-            4,
-            ROUTE_LINE_COLOR,
-            0.98
-        );
-
+        this.routePreview.lineStyle(4, ROUTE_LINE_COLOR, 0.98);
         this.routePreview.beginPath();
-        this.routePreview.moveTo(
-            currentCityData.map.x,
-            currentCityData.map.y
-        );
+        this.routePreview.moveTo(currentCityData.map.x, currentCityData.map.y);
         this.routePreview.lineTo(cityObj.map.x, cityObj.map.y);
         this.routePreview.strokePath();
 
@@ -923,11 +699,10 @@ export class DestinationsUI {
     }
 
     setConfirmEnabled(enabled) {
-        this.canConfirm = enabled;
+        this.canConfirm = Boolean(enabled) && !this.isTransitioning && !this.isDestroyed;
+        if (!this.confirmButton || this.isDestroyed) return;
 
-        if (!this.confirmButton) return;
-
-        if (enabled) {
+        if (this.canConfirm) {
             this.confirmButton.setFillStyle(0x9b5de5, 1);
             this.confirmButton.setAlpha(1);
             this.confirmLabel.setAlpha(1);
@@ -938,55 +713,34 @@ export class DestinationsUI {
         }
     }
 
-    formatMoney(amount) {
-        const safeAmount = Math.max(
-            0,
-            Math.round(Number(amount) || 0)
-        );
-
-        return `$${safeAmount.toLocaleString('en-US')}`;
-    }
-
-    getAvailableAgencyBudget() {
-        return Math.max(
-            0,
-            Math.floor(
-                Number(
-                    moneyManager?.getBalance?.(MONEY_SOURCE.AGENCY) ??
-                    gameState.agencyBudget ??
-                    0
-                )
-            )
-        );
-    }
-
-    /**
-     * Informacyjne (NIE blokujące) sprawdzenie: czy ten bilet przekroczy
-     * cash + agencyBudget i wpadnie w agencyDebt. Kasa nigdy nie blokuje
-     * podróży - to tylko ostrzeżenie w UI.
-     */
-    wouldCreateDebt(cost) {
-        const safeCost = Math.max(0, Math.round(Number(cost) || 0));
-        const availableFunds =
-            Math.max(0, Math.floor(gameState.cash || 0)) +
-            Math.max(0, Math.floor(gameState.agencyBudget || 0));
-
-        return safeCost > availableFunds;
+    clearTravelErrorTimer() {
+        this.travelErrorTimer?.remove(false);
+        this.travelErrorTimer = null;
     }
 
     showTravelError(message) {
+        if (this.isDestroyed) return;
+
+        this.clearTravelErrorTimer();
         this.transportPrompt.setColor('#ff6b6b');
         this.transportPrompt.setText(message);
 
-        this.scene.time.delayedCall(2500, () => {
-            if (!this.isOpen || !this.selectedTransport) return;
+        this.travelErrorTimer = this.scene.time.delayedCall(2500, () => {
+            this.travelErrorTimer = null;
+            if (
+                this.isDestroyed ||
+                !this.isOpen ||
+                !this.selectedTransport ||
+                this.isTransitioning
+            ) {
+                return;
+            }
             this.refreshInfoPanel(this.selectedCity);
         });
     }
 
     disableHotspots() {
         this.scene.disableHotspots?.();
-
         this.scene.hotspots?.forEach((hotspot) => {
             hotspot?.disableInteractive?.();
         });
@@ -997,20 +751,18 @@ export class DestinationsUI {
         this.disableHotspots();
 
         const sceneManager = this.scene.scene;
-
         if (
             sceneManager.isActive('PlayerHudScene') ||
             sceneManager.isSleeping('PlayerHudScene')
         ) {
-            sceneManager
-                .get('PlayerHudScene')
-                ?.closeAllUIPanels?.();
+            sceneManager.get('PlayerHudScene')?.closeAllUIPanels?.();
         }
     }
 
     async travelToCity(selectedCity, selectedTransport) {
         if (
             this.isTransitioning ||
+            this.isDestroyed ||
             !selectedCity ||
             !selectedTransport
         ) {
@@ -1018,39 +770,30 @@ export class DestinationsUI {
         }
 
         const locationsData = this.getLocationsData();
-
         const selectedCityData = locationsData.find(
-            (location) => location.id === this.getCityId(selectedCity)
+            (location) => getCityId(location) === getCityId(selectedCity)
         );
 
         if (!selectedCityData) {
             console.error('City data not found:', selectedCity);
             this.setConfirmEnabled(true);
+            this.showTravelError('Destination data is missing.');
             return false;
         }
 
-        const fromCityId =
-            this.gameState?.currentCityId ||
-            gameState.currentCityId ||
-            null;
+        const fromCityId = this.gameState?.currentCityId || gameState.currentCityId || null;
+        const fromCity = this.gameState?.currentCity || gameState.currentCity || null;
+        const transportId = selectedTransport.id;
+        const fallbackTransportLabel = selectedTransport.label;
 
-        const fromCity =
-            this.gameState?.currentCity ||
-            gameState.currentCity ||
-            null;
-
+        this.clearTravelErrorTimer();
         this.isTransitioning = true;
         this.setConfirmEnabled(false);
 
+        let travelCommitted = false;
+
         try {
-            // Płatność i konsumpcja energii dzieją się TERAZ wewnątrz
-            // performTravel() (gameSetup.js -> UnifiedTravelManager).
-            // Ten plik już nic nie pobiera z konta agencji.
-            const result = performTravel(
-                selectedCityData.city,
-                locationsData,
-                selectedTransport.id
-            );
+            const result = performTravel(selectedCityData.city, locationsData, transportId);
 
             if (!result) {
                 throw new Error('performTravel returned no result.');
@@ -1058,33 +801,42 @@ export class DestinationsUI {
 
             if (result.blocked) {
                 this.isTransitioning = false;
-
+                this.refreshInfoPanel(this.selectedCity);
+                this.setConfirmEnabled(Boolean(this.selectedTransport));
                 this.showTravelError(
                     result.blockReason === 'insufficient_energy'
                         ? 'Too exhausted to travel. Get some sleep first.'
                         : 'Travel is currently blocked.'
                 );
-
-                this.refreshInfoPanel(this.selectedCity);
-                this.setConfirmEnabled(Boolean(this.selectedTransport));
                 return false;
             }
+
+            if (result.status === 'ALREADY_HERE') {
+                this.isTransitioning = false;
+                this.refreshInfoPanel(this.selectedCity);
+                this.setConfirmEnabled(Boolean(this.selectedTransport));
+                this.showTravelError('You are already in this city.');
+                return false;
+            }
+
+            travelCommitted = true;
 
             const travelHours = Number(result.travelHours) || 0;
             const baseTravelHours = Number(result.baseTravelHours) || travelHours;
             const energyChange = Number(result.energyChange) || 0;
             const moneySpent = Number(result.moneySpent) || 0;
             const agencyDebtAdded = Number(result.agencyDebtAdded) || 0;
-
-            EventBus.emit('advanceTime', travelHours, 0);
+            const transportLabel = result.transportLabel || fallbackTransportLabel;
+            const selectedCityId = getCityId(selectedCityData);
 
             gameState.lastTravel = {
+                ...(gameState.lastTravel || {}),
                 fromCityId,
                 fromCity,
-                toCityId: selectedCityData.id,
+                toCityId: selectedCityId,
                 toCity: selectedCityData.city,
-                transportType: selectedTransport.id,
-                transportLabel: selectedTransport.label,
+                transportType: transportId,
+                transportLabel,
                 travelHours,
                 baseTravelHours,
                 moneySpent,
@@ -1097,53 +849,44 @@ export class DestinationsUI {
             saveGameState();
 
             EventBus.emit('travelTicketPurchased', {
-                cityId: selectedCityData.id,
+                cityId: selectedCityId,
                 city: selectedCityData.city,
-                transportType: selectedTransport.id,
+                transportType: transportId,
                 cost: moneySpent,
                 agencyDebtAdded
             });
 
-            EventBus.emit('firstCaseTravelStarted', {
-                fromCityId,
-                toCityId: selectedCityData.id,
-                city: selectedCityData.city,
-                transportType: selectedTransport.id,
-                isCrimeSceneArrival: Boolean(result.isCrimeSceneArrival)
-            });
-
             const mission = gameState.currentMission || {};
-
-            const missionCityId = this.normalizeCityId(
-                gameState.crimeCityId ||
-                mission.cityId ||
-                mission.city ||
-                null
+            const missionCityId = normalizeCityId(
+                gameState.crimeCityId || mission.cityId || mission.city || null
             );
 
-            const selectedCityId = this.getCityId(selectedCityData);
-
             const isMissionCrimeCity =
-                Boolean(selectedCityData.crimeCity) &&
+                Boolean(selectedCityData.isCrimeCity || selectedCityData.crimeCity) &&
                 selectedCityId === missionCityId;
 
             const isCrimeSceneArrival =
-                Boolean(result.isCrimeSceneArrival) ||
-                isMissionCrimeCity;
+                Boolean(result.isCrimeSceneArrival) || isMissionCrimeCity;
 
-            const destinationScene = isCrimeSceneArrival
-                ? 'CrimeCityScene'
-                : 'CityScene';
+            EventBus.emit('firstCaseTravelStarted', {
+                fromCityId,
+                toCityId: selectedCityId,
+                city: selectedCityData.city,
+                transportType: transportId,
+                isCrimeSceneArrival
+            });
+
+            const destinationScene = isCrimeSceneArrival ? 'CrimeCityScene' : 'CityScene';
 
             const transitionPayload = {
                 fromCity: result.fromCity || fromCity,
                 toCity: result.toCity || selectedCityData.city,
-                toCityId: selectedCityData.id,
-                cityId: selectedCityData.id,
+                toCityId: selectedCityId,
+                cityId: selectedCityId,
                 destinationScene,
                 isCrimeSceneArrival,
-                transportType: selectedTransport.id,
-                transportLabel: selectedTransport.label,
+                transportType: transportId,
+                transportLabel,
                 travelHours,
                 baseTravelHours,
                 moneySpent,
@@ -1153,25 +896,15 @@ export class DestinationsUI {
                 wasCorrect: Boolean(result.wasCorrect),
                 status: result.status,
                 pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
-                pendingPhoneCallCityId:
-                    gameState.pendingPhoneCallCityId ||
-                    selectedCityData.id
+                pendingPhoneCallCityId: gameState.pendingPhoneCallCityId || selectedCityId
             };
 
             const sceneManager = this.scene.scene;
-
             this.cleanupBeforeTravel();
             this.close({ restoreHud: false });
 
-            [
-                'OfficeScene',
-                'CityScene',
-                'CrimeCityScene'
-            ].forEach((sceneKey) => {
-                if (
-                    sceneManager.isActive(sceneKey) ||
-                    sceneManager.isSleeping(sceneKey)
-                ) {
+            ['OfficeScene', 'CityScene', 'CrimeCityScene'].forEach((sceneKey) => {
+                if (sceneManager.isActive(sceneKey) || sceneManager.isSleeping(sceneKey)) {
                     sceneManager.stop(sceneKey);
                 }
             });
@@ -1182,32 +915,55 @@ export class DestinationsUI {
             );
 
             if (!didStartTransition) {
-                throw new Error(
-                    'TravelTransitionScene could not be started.'
-                );
+                throw new Error('TravelTransitionScene could not be started.');
             }
 
             return true;
         } catch (error) {
-            console.error('Travel failed:', error);
+            console.error('Travel failed:', error, {
+                travelCommitted,
+                fromCityId,
+                toCityId: getCityId(selectedCityData),
+                transportType: transportId
+            });
 
-            this.isTransitioning = false;
-
-            if (!this.scene?.sys?.isActive()) {
+            if (this.isDestroyed || !this.scene?.sys?.isActive()) {
                 return false;
             }
 
-            this.open(this.gameState || gameState);
+            if (travelCommitted) {
+                this.setConfirmEnabled(false);
+                if (this.isOpen) {
+                    this.showTravelError(
+                        'Travel was processed, but the next screen failed to open.'
+                    );
+                }
+                return false;
+            }
+
+            this.isTransitioning = false;
+            if (!this.isOpen) {
+                this.open(this.gameState || gameState);
+            }
+
             this.refreshInfoPanel(this.selectedCity);
             this.setConfirmEnabled(Boolean(this.selectedTransport));
-            EventBus.emit('showHUD');
-
+            this.showTravelError('Travel failed. Check the console for details.');
             return false;
         }
     }
 
     destroy() {
-        EventBus.emit('showHUD');
+        if (this.isDestroyed) return;
+
+        const wasTransitioning = this.isTransitioning;
+        this.isDestroyed = true;
+
+        this.clearTravelErrorTimer();
+
+        if (!wasTransitioning) {
+            EventBus.emit('showHUD');
+        }
 
         this.clearPins();
         this.clearTransportButtons();
@@ -1217,23 +973,19 @@ export class DestinationsUI {
             this.routePreview = null;
         }
 
-        this.closeBtn?.off('pointerdown', this.close, this);
+        this.closeBtn?.removeAllListeners();
         this.confirmButton?.removeAllListeners();
         this.overlay?.removeAllListeners();
         this.hqButtonBg?.removeAllListeners();
 
-        this.scene?.input?.keyboard?.off(
-            'keydown-T',
-            this.boundTravelKeyHandler
-        );
+        this.scene?.input?.keyboard?.off('keydown-T', this.boundTravelKeyHandler);
 
-        this.hqButton?.destroy(true);
+        this.container?.destroy(true);
 
         this.hqButton = null;
         this.hqButtonBg = null;
         this.hqButtonLabel = null;
-
-        this.container?.destroy(true);
+        this.container = null;
 
         this.activePins = [];
         this.transportButtons = [];
@@ -1242,6 +994,7 @@ export class DestinationsUI {
         this.selectedPin = null;
         this.selectedLabel = null;
         this.selectedTransport = null;
+
         this.isOpen = false;
         this.isTransitioning = false;
         this.canConfirm = false;

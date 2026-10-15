@@ -1,8 +1,9 @@
 import { gameState } from '../GameData.js';
-import { audioManager } from '../AudioManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { TRANSPORT_VISUALS } from './travel/TransportVisuals.js';
+
 import {
   playTransportSfx,
   cleanupTravelEffects,
@@ -11,6 +12,7 @@ import {
   registerVisitedCity,
   stampPassportForArrival
 } from './travel/TravelTransitionHelpers.js';
+
 import {
   drawTravelLine,
   renderEncounterVisual
@@ -35,16 +37,21 @@ export class TravelTransitionScene extends BaseScene {
 
     this._continueDelayTimer = null;
     this._autoContinueTimer = null;
-
     this._continuePointerHandler = null;
   }
 
   init(data = {}) {
     this.transitionData = {
-      destinationScene: 'CityScene',
+      destinationScene: null,
       isCrimeSceneArrival: false,
       ...data
     };
+
+    // HQ ma pierwszeństwo przed sceną przekazaną z mapy.
+    if (this.getTargetCityId() === 'hq') {
+      this.transitionData.destinationScene = 'OfficeScene';
+      this.transitionData.isCrimeSceneArrival = false;
+    }
 
     this.canContinue = false;
     this.isLeaving = false;
@@ -60,6 +67,29 @@ export class TravelTransitionScene extends BaseScene {
     this._continueDelayTimer = null;
     this._autoContinueTimer = null;
     this._continuePointerHandler = null;
+  }
+
+  getTargetCityId() {
+    return (
+      this.transitionData.cityId ||
+      this.transitionData.toCityId ||
+      null
+    );
+  }
+
+  getTargetScene() {
+    if (this.getTargetCityId() === 'hq') {
+      return 'OfficeScene';
+    }
+
+    return (
+      this.transitionData.destinationScene ||
+      (
+        this.transitionData.isCrimeSceneArrival
+          ? 'CrimeCityScene'
+          : 'CityScene'
+      )
+    );
   }
 
   create() {
@@ -84,8 +114,6 @@ export class TravelTransitionScene extends BaseScene {
     const {
       fromCity = 'Unknown',
       toCity = 'Unknown',
-      toCityId = null,
-      cityId = null,
       transportType = 'plane',
       transportLabel = null,
       travelHours = 0,
@@ -96,17 +124,12 @@ export class TravelTransitionScene extends BaseScene {
     } = this.transitionData;
 
     const transport = this.getTransportVisual(transportType);
-
-    const finalTransportLabel =
-      transportLabel || transport.label;
-
-    const targetCityId =
-      cityId || toCityId || null;
+    const finalTransportLabel = transportLabel || transport.label;
+    const targetCityId = this.getTargetCityId();
 
     this._travelSfx = playTransportSfx(transport);
 
-    this.shouldShowPhoneCall =
-      registerVisitedCity(targetCityId);
+    this.shouldShowPhoneCall = registerVisitedCity(targetCityId);
 
     const newStamp = stampPassportForArrival(
       this,
@@ -141,12 +164,7 @@ export class TravelTransitionScene extends BaseScene {
       this.createPassportStampNotice(width, newStamp);
     }
 
-    drawTravelLine(
-      this,
-      width,
-      height,
-      transport
-    );
+    drawTravelLine(this, width, height, transport);
 
     renderEncounterVisual(
       this,
@@ -166,20 +184,14 @@ export class TravelTransitionScene extends BaseScene {
   }
 
   /**
-   * TravelTransitionScene ma nie pokazywać standardowego UI:
-   *
-   * - UIScene: HTML HUD w prawym górnym rogu;
-   * - PlayerHudScene: dolne menu i panele;
-   * - NewsHud: zakładka NEWS.
-   *
-   * Docelowa CityScene lub CrimeCityScene przywróci je po podróży.
+   * Standardowy HUD pozostaje ukryty podczas podróży.
+   * Jego przywrócenie pozostaje po stronie sceny docelowej.
    */
   hideTravelUi() {
     this.game.events.emit('setHudVisible', false);
     EventBus.emit('hideHUD');
 
     this.sleepPlayerHud();
-
     this.sleepSceneIfActive('NewsHud');
   }
 
@@ -282,10 +294,7 @@ export class TravelTransitionScene extends BaseScene {
       .text(
         width / 2,
         278,
-        getCostAndEnergyText(
-          moneySpent,
-          energyChange
-        ),
+        getCostAndEnergyText(moneySpent, energyChange),
         {
           fontFamily: 'SpecialElite',
           fontSize: '23px',
@@ -321,9 +330,7 @@ export class TravelTransitionScene extends BaseScene {
         {
           fontFamily: 'SpecialElite',
           fontSize: '23px',
-          color: travelEncounter
-            ? '#ffd966'
-            : '#d9d9d9',
+          color: travelEncounter ? '#ffd966' : '#d9d9d9',
           align: 'center',
           wordWrap: {
             width: Math.min(760, width * 0.7)
@@ -422,7 +429,6 @@ export class TravelTransitionScene extends BaseScene {
         }
 
         this.canContinue = true;
-
         this.continueHint.setText('Click to continue');
         this.continueHint.setColor('#f4e7c1');
       }
@@ -466,24 +472,15 @@ export class TravelTransitionScene extends BaseScene {
 
     this.isLeaving = true;
 
-    const {
-      status,
-      cityId,
-      toCityId,
-      destinationScene,
-      isCrimeSceneArrival
-    } = this.transitionData;
+    const { status } = this.transitionData;
 
-    const targetCityId =
-      cityId || toCityId || null;
+    const targetCityId = this.getTargetCityId();
+    const targetScene = this.getTargetScene();
+    const isHeadquarters = targetCityId === 'hq';
 
-    const targetScene =
-      destinationScene ||
-      (
-        isCrimeSceneArrival
-          ? 'CrimeCityScene'
-          : 'CityScene'
-      );
+    const isCrimeSceneArrival =
+      !isHeadquarters &&
+      Boolean(this.transitionData.isCrimeSceneArrival);
 
     this.cameras.main.fadeOut(450, 0, 0, 0);
 
@@ -501,11 +498,12 @@ export class TravelTransitionScene extends BaseScene {
           );
 
           void this.goto('MenuScene');
-
           return;
         }
 
-        if (status === 'FINAL_SHOWDOWN') {
+        // Powrót do HQ zawsze prowadzi do biura,
+        // niezależnie od statusu przekazanego przez podróż.
+        if (!isHeadquarters && status === 'FINAL_SHOWDOWN') {
           void this.goto('ArrestSelectionScene', {
             cityId: targetCityId
           });
@@ -513,30 +511,27 @@ export class TravelTransitionScene extends BaseScene {
           return;
         }
 
+        console.info('[TravelTransitionScene] Opening destination:', {
+          cityId: targetCityId,
+          targetScene,
+          isHeadquarters,
+          status
+        });
+
         void this.goto(targetScene, {
           cityId: targetCityId,
           investigationStatus: status,
           isFinalShowdown: false,
-          isCrimeSceneArrival: Boolean(
-            isCrimeSceneArrival
-          ),
+          isCrimeSceneArrival,
           fromTravel: true,
-          transportType:
-            this.transitionData.transportType,
-          transportLabel:
-            this.transitionData.transportLabel,
-          travelHours:
-            this.transitionData.travelHours,
-          moneySpent:
-            this.transitionData.moneySpent,
-          energyChange:
-            this.transitionData.energyChange,
-          pendingPhoneCall: Boolean(
-            gameState.pendingPhoneCall
-          ),
+          transportType: this.transitionData.transportType,
+          transportLabel: this.transitionData.transportLabel,
+          travelHours: this.transitionData.travelHours,
+          moneySpent: this.transitionData.moneySpent,
+          energyChange: this.transitionData.energyChange,
+          pendingPhoneCall: Boolean(gameState.pendingPhoneCall),
           pendingPhoneCallCityId:
-            gameState.pendingPhoneCallCityId ||
-            targetCityId
+            gameState.pendingPhoneCallCityId || targetCityId
         });
       }
     );
@@ -564,7 +559,6 @@ export class TravelTransitionScene extends BaseScene {
     }
 
     this._travelSfx = null;
-
     this.continueHint = null;
 
     this.effectObjects = [];

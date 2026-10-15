@@ -290,8 +290,8 @@ export class CrimeLabAssistantDialog {
     );
 
     const choiceWidth = panelWidth - 44;
-    const choiceHeight = 34;
-    const choiceGap = 8;
+    const choiceHeight = 46;
+    const choiceGap = 10
     const availableBottom = panelY + panelHeight / 2 - 40;
 
     choices.slice(0, 4).forEach((choice, index) => {
@@ -318,15 +318,15 @@ export class CrimeLabAssistantDialog {
 
       const label = this.scene.add
         .text(
-          choiceStartX + 12,
+          choiceStartX + 16,
           y + choiceHeight / 2,
           `> ${choice.text || 'Continue'}`,
           {
             fontFamily: 'PressStart2P',
-            fontSize: '8px',
+            fontSize: '11px',
             color: '#fff4c7',
             wordWrap: {
-              width: choiceWidth - 24,
+              width: choiceWidth - 32,
               useAdvancedWrap: true
             }
           }

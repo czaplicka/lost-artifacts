@@ -48,14 +48,14 @@ export function createOfficeHotspotDefinitions(scene) {
     },
         {
       id: 'ledger',
-      room: 'storage',
-      x: rooms.storage.x + 1525,
-      y: 280,
-      width: 380,
-      height: 450,
+      room: 'cabinet',
+      x: rooms.cabinet.x + 290,
+      y: 620,
+      width: 340,
+      height: 150,
       label: 'Money Ledger',
       monologueKey: 'inspect.ledger',
-      action: () => this.agencyLedgerUI.open()
+      action: () => scene.agencyLedgerUI.open()
     },
     {
       id: 'book-notes',

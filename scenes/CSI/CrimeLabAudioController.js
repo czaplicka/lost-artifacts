@@ -1,4 +1,4 @@
-import { audioManager } from '../../AudioManager.js';
+import { audioManager } from '../../managers/AudioManager.js';
 
 export class CrimeLabAudioController {
   constructor(scene) {

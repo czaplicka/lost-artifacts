@@ -2,8 +2,8 @@
 // visible suspect-file data and card status badges.
 //
 // Information rule:
-// - A suspect value is visible only after the player completed
-//   the matching Crime Lab analysis.
+// - A suspect value is visible only after the matching Crime Lab
+//   result is available or the field is explicitly unlocked.
 // - Cards do not compare values with lab evidence.
 // - The player makes the comparison using the separate lab widget.
 // - CLEARED remains a manual action in active Exclude Mode only.
@@ -14,19 +14,12 @@ import { CrimeLabManager } from '../scenes/CSI/CrimeLabManager.js';
 const FILE_DATA_FIELDS = [
   {
     field: 'hair_color',
-    aliases: [
-      'hair_color',
-      'hairColor',
-      'hair'
-    ],
+    aliases: ['hair_color', 'hairColor', 'hair'],
     label: 'HAIR'
   },
   {
     field: 'blood_type',
-    aliases: [
-      'blood_type',
-      'bloodType'
-    ],
+    aliases: ['blood_type', 'bloodType'],
     label: 'BLOOD'
   },
   {
@@ -41,43 +34,27 @@ const FILE_DATA_FIELDS = [
   },
   {
     field: 'fingerprint_pattern',
-    aliases: [
-      'fingerprint_pattern',
-      'fingerprintPattern'
-    ],
+    aliases: ['fingerprint_pattern', 'fingerprintPattern'],
     label: 'PRINT'
   },
   {
     field: 'shoe_size_category',
-    aliases: [
-      'shoe_size_category',
-      'shoeSizeCategory'
-    ],
+    aliases: ['shoe_size_category', 'shoeSizeCategory'],
     label: 'SHOES'
   },
   {
     field: 'handedness',
-    aliases: [
-      'handedness',
-      'dominantHand'
-    ],
+    aliases: ['handedness', 'dominantHand'],
     label: 'HAND'
   },
   {
     field: 'eye_color',
-    aliases: [
-      'eye_color',
-      'eyeColor',
-      'eyes'
-    ],
+    aliases: ['eye_color', 'eyeColor', 'eyes'],
     label: 'EYES'
   },
   {
     field: 'race',
-    aliases: [
-      'race',
-      'ancestry'
-    ],
+    aliases: ['race', 'ancestry'],
     label: 'ANCESTRY'
   }
 ];
@@ -125,11 +102,7 @@ function getAttributeValue(attributes, aliases = []) {
 
   for (const alias of aliases) {
     const entry = attributes[alias];
-
-    const value =
-      entry?.value ??
-      entry ??
-      null;
+    const value = entry?.value ?? entry ?? null;
 
     if (
       value !== undefined &&
@@ -166,30 +139,50 @@ function formatFileValue(value) {
     .toUpperCase();
 }
 
+function isEvidenceObject(rawEvidence) {
+  return (
+    rawEvidence !== null &&
+    typeof rawEvidence === 'object' &&
+    !Array.isArray(rawEvidence)
+  );
+}
+
 function getEvidenceField(rawEvidence = {}) {
+  if (!isEvidenceObject(rawEvidence)) {
+    return '';
+  }
+
   return normalizeFieldKey(
-    rawEvidence.field ||
-      rawEvidence.forensicField ||
-      rawEvidence.attribute ||
-      rawEvidence.evidenceType ||
-      rawEvidence.type ||
+    rawEvidence?.field ||
+      rawEvidence?.forensicField ||
+      rawEvidence?.attribute ||
+      rawEvidence?.evidenceType ||
+      rawEvidence?.type ||
       ''
   );
 }
 
 function getEvidenceValue(rawEvidence = {}) {
+  if (!isEvidenceObject(rawEvidence)) {
+    return null;
+  }
+
   return (
-    rawEvidence.value ??
-    rawEvidence.normalizedValue ??
-    rawEvidence.thiefValue ??
-    rawEvidence.thief_value ??
-    rawEvidence.result ??
-    rawEvidence.resultValue ??
+    rawEvidence?.value ??
+    rawEvidence?.normalizedValue ??
+    rawEvidence?.thiefValue ??
+    rawEvidence?.thief_value ??
+    rawEvidence?.result ??
+    rawEvidence?.resultValue ??
     null
   );
 }
 
 function isEvidenceResultUsable(rawEvidence) {
+  if (!isEvidenceObject(rawEvidence)) {
+    return false;
+  }
+
   const field = getEvidenceField(rawEvidence);
   const value = getEvidenceValue(rawEvidence);
 
@@ -453,22 +446,22 @@ export const SuspectCardsMixin = {
     }
 
     if (isEliminated) {
-  const stamp = this.add
-    .text(0, 0, 'CLEARED', {
-      fontFamily: 'PressStart2P',
-      fontSize: width < 230 ? '15px' : '18px',
-      color: '#db5750',
-      stroke: '#1f0d0b',
-      strokeThickness: 5,
-      align: 'center'
-    })
-    .setOrigin(0.5)
-    .setAngle(-12)
-    .setAlpha(0.9)
-    .setDepth(10);
+      const stamp = this.add
+        .text(0, 0, 'CLEARED', {
+          fontFamily: 'PressStart2P',
+          fontSize: width < 230 ? '15px' : '18px',
+          color: '#db5750',
+          stroke: '#1f0d0b',
+          strokeThickness: 5,
+          align: 'center'
+        })
+        .setOrigin(0.5)
+        .setAngle(-12)
+        .setAlpha(0.9)
+        .setDepth(10);
 
-  card.add(stamp);
-}
+      card.add(stamp);
+    }
 
     bg.on('pointerover', () => {
       if (isEliminated && !this.excludeMode) {
@@ -528,15 +521,11 @@ export const SuspectCardsMixin = {
   },
 
   /**
-   * Returns only the forensic fields that are currently allowed to be
-   * visible to the player.
-   *
    * A field becomes visible only when:
-   * - a matching Crime Lab minigame is completed, OR
-   * - the field was explicitly unlocked in the suspect file by another
-   *   valid gameplay source, such as a police record.
+   * - a matching Crime Lab result is available, OR
+   * - the field was explicitly unlocked by another gameplay source.
    *
-   * Exclude Mode does NOT reveal hidden data by itself.
+   * Exclude Mode does not reveal hidden data.
    */
   getVisibleFileFacts(suspect) {
     const attributes =
@@ -583,15 +572,6 @@ export const SuspectCardsMixin = {
         const isUnlockedByLab =
           completedLabFields.has(definition.field);
 
-        /**
-         * Important:
-         * No result = no suspect value.
-         *
-         * Example:
-         * - no blood test => do not show blood type;
-         * - no fingerprint analysis => do not show fingerprint;
-         * - no shoeprint analysis => do not show shoe size.
-         */
         if (
           !isUnlockedByLab &&
           !isUnlockedByFile
@@ -617,11 +597,8 @@ export const SuspectCardsMixin = {
   },
 
   /**
-   * Builds the list of fields for which the player has a completed
-   * Crime Lab result.
-   *
-   * Reads several existing state formats because your project stores
-   * different minigame results in more than one place.
+   * Reads existing Crime Lab result collections.
+   * Missing, null or non-object entries are ignored.
    */
   getCompletedCrimeLabFields() {
     const fields = new Set();
@@ -634,21 +611,15 @@ export const SuspectCardsMixin = {
       fields.add(getEvidenceField(rawEvidence));
     };
 
-    /**
-     * Main identity-analysis result.
-     */
+    // Main identity-analysis result.
     addEvidence(this.gameState.identityEvidenceResult);
 
-    /**
-     * Global forensic result history.
-     */
+    // Global forensic result history.
     if (Array.isArray(this.gameState.forensicResults)) {
       this.gameState.forensicResults.forEach(addEvidence);
     }
 
-    /**
-     * Per-case CrimeLabManager data.
-     */
+    // Per-case CrimeLabManager data.
     try {
       const cityId =
         this.cityId ||
@@ -678,9 +649,6 @@ export const SuspectCardsMixin = {
         );
       }
 
-      /**
-       * Some scenes may use this alternative collection.
-       */
       if (
         Array.isArray(
           caseForensics?.forensicResults
@@ -701,9 +669,8 @@ export const SuspectCardsMixin = {
   },
 
   /**
-   * Renders only player-visible suspect data.
-   *
-   * No automatic comparison, no red/green verdict and no hidden values.
+   * No automatic comparison, no red/green verdict
+   * and no hidden values.
    */
   createFileDataPanel(
     suspect,
@@ -716,10 +683,6 @@ export const SuspectCardsMixin = {
     const left = -width / 2 + 16;
     const top = -height / 2 + 110;
 
-    /**
-     * Cards are intentionally compact.
-     * The full data set remains available in CASE NOTES.
-     */
     const maxRows = this.excludeMode ? 3 : 2;
 
     const title = this.add

@@ -1,5 +1,5 @@
-import { ScoreManager } from '../ScoreManager.js';
-import { audioManager } from '../AudioManager.js';
+import { ScoreManager } from '../managers/ScoreManager.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
 export class HighscoreScene extends BaseScene {
