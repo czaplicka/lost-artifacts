@@ -1,6 +1,6 @@
 // DestinationsUI.js
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { travelToCity as performTravel } from '../gameSetup.js';
 import { 

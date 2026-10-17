@@ -16,7 +16,7 @@
  *   }
  * }
  *
- * Player-facing topics come from two sources:
+ * Player-facing topics come from three sources:
  *   - "topics" in the JSON, auto-classified by shape:
  *       - a plain object (e.g. { "Scar": [...], "Beard": [...] })  -> trait
  *         lookup, resolved using suspect[topicId] ("features", "accent"...)
@@ -24,11 +24,19 @@
  *         -> filled from countryFacts using the {a.b.c} placeholder syntax
  *   - a synthetic "travel" topic, built from "travelHints[targetCityId]"
  *     when this NPC is asked about the next stop on the suspect's route.
+ *   - a synthetic "motive" topic, available only when this NPC's npcId is
+ *     a witness of the case's CURRENT motive stage (motiveService.js).
+ *     Asking it reveals one line from npcMotiveClues.json and advances
+ *     gameState.caseData.motiveStagesDone - this is the only place the
+ *     escape-route motive investigation actually progresses.
  *
  * If the scene marks this encounter as the wrong city (isCorrectCity:
  * false), the controller has no real topics at all - every question just
  * returns a false-lead line, matching the rest of the escape-city design.
  */
+
+import { gameState } from '../GameData.js';
+import { getWitnessClue, getClueText } from '../motiveService.js';
 
 export class NPCController {
   /**
@@ -41,6 +49,10 @@ export class NPCController {
    * @param {Object} options
    * @param {string|null} options.targetCityId  next city on the escape route, if any
    * @param {boolean} options.isCorrectCity     false if the suspect never passed through here
+   * @param {string|null} options.npcId         the generic NPC type id (e.g. "maid",
+   *                                             "bankier") used to look up motive
+   *                                             witness lines. Without this, the
+   *                                             "motive" topic is never offered.
    */
   constructor(npcData, countryFacts, cityId, suspect, options = {}) {
     this.cityId = cityId;
@@ -51,6 +63,7 @@ export class NPCController {
     this.shownLines = new Set();
     this.targetCityId = options.targetCityId || null;
     this.isCorrectCity = options.isCorrectCity !== false;
+    this.npcId = options.npcId || null;
 
     if (!this.cityData) {
       throw new Error(`No NPC data and no "default" fallback found (city: "${cityId}")`);
@@ -82,6 +95,24 @@ export class NPCController {
     });
   }
 
+  // ============================================================
+  // MOTIVE - current stage witness lookup
+  // Returns { stage, clueKey } if this.npcId is a witness of the
+  // case's current (not-yet-collected) motive stage, else null.
+  // ============================================================
+  _getMotiveWitnessHit() {
+    if (!this.isCorrectCity || !this.npcId) return null;
+
+    const motiveId = gameState.caseData?.motiveId;
+    if (!motiveId) return null;
+
+    const stagesDone = Array.isArray(gameState.caseData.motiveStagesDone)
+      ? gameState.caseData.motiveStagesDone
+      : [];
+
+    return getWitnessClue(motiveId, this.npcId, stagesDone);
+  }
+
   /**
    * List of topics available for this NPC, so the UI can build buttons.
    * Empty when the suspect never actually passed through this city -
@@ -96,15 +127,20 @@ export class NPCController {
       topicKeys.push('travel');
     }
 
+    if (this._getMotiveWitnessHit()) {
+      topicKeys.push('motive');
+    }
+
     return topicKeys;
   }
 
   /**
    * Ask about any topic - the controller figures out whether it's a
    * trait-lookup topic (like "features"/"accent"), a template topic
-   * (like "currency"), or the synthetic "travel" topic, and handles it
-   * accordingly. Returns a plain result object; use toNote() separately
-   * to turn a fresh answer into a crime-board clue.
+   * (like "currency"), the synthetic "travel" topic, or the synthetic
+   * "motive" topic, and handles it accordingly. Returns a plain result
+   * object; use toNote() separately to turn a fresh answer into a
+   * crime-board clue.
    */
   askTopic(topicId) {
     if (!this.isCorrectCity) {
@@ -113,6 +149,10 @@ export class NPCController {
 
     if (topicId === 'travel') {
       return this._askTravelTopic();
+    }
+
+    if (topicId === 'motive') {
+      return this._askMotiveTopic();
     }
 
     const pool = this.cityData.topics?.[topicId];
@@ -184,6 +224,67 @@ export class NPCController {
     };
   }
 
+  // ============================================================
+  // MOTIVE - asking the "motive" button.
+  // Looks up the current stage witness line via motiveService,
+  // then WRITES the progress directly to gameState: adds the
+  // stage's evidenceId to motiveStagesDone, flips motiveBoardUnlocked
+  // on the final stage, and pushes a clue into gameState.cluesCollected.
+  // This write happens here (not in toNote) because the player should
+  // only get credit once, the first time the question is actually asked.
+  // ============================================================
+  _askMotiveTopic() {
+    const hit = this._getMotiveWitnessHit();
+
+    if (!hit) {
+      return {
+        text: 'Nothing comes to mind about that, detective.',
+        isNew: false,
+        topicId: 'motive'
+      };
+    }
+
+    const motiveId = gameState.caseData.motiveId;
+    const text = getClueText(motiveId, this.npcId, hit.clueKey);
+
+    if (!text) {
+      return {
+        text: 'Nothing comes to mind about that, detective.',
+        isNew: false,
+        topicId: 'motive'
+      };
+    }
+
+    const stagesDone = Array.isArray(gameState.caseData.motiveStagesDone)
+      ? gameState.caseData.motiveStagesDone
+      : [];
+
+    gameState.caseData.motiveStagesDone = [...stagesDone, hit.stage.evidenceId];
+
+    if (hit.stage.boardAnswerUnlocked) {
+      gameState.caseData.motiveBoardUnlocked = true;
+    }
+
+    if (Array.isArray(gameState.cluesCollected)) {
+      gameState.cluesCollected.push({
+        type: 'motive',
+        id: hit.stage.evidenceId,
+        label: hit.stage.label,
+        npcId: this.npcId,
+        motiveStrength: hit.stage.motiveStrength
+      });
+    }
+
+    return {
+      text,
+      isNew: true,
+      topicId: 'motive',
+      evidenceId: hit.stage.evidenceId,
+      label: hit.stage.label,
+      boardAnswerUnlocked: Boolean(hit.stage.boardAnswerUnlocked)
+    };
+  }
+
   getFalseLeadLine() {
     const pool = Array.isArray(this.cityData.falseLeadLines) ? this.cityData.falseLeadLines : [];
     const pair = pool[Math.floor(Math.random() * pool.length)];
@@ -212,10 +313,15 @@ export class NPCController {
    * Converts an askTopic() result into the {type, category, key, value}
    * shape the rest of the game (gameState.cluesCollected, crime board)
    * already expects. Returns null for results that aren't real clues
-   * (false leads, repeated/empty answers).
+   * (false leads, repeated/empty answers). Motive results are already
+   * written straight into gameState.cluesCollected inside _askMotiveTopic,
+   * so toNote() intentionally returns null for them to avoid a duplicate
+   * push from LocationScene's generatedNotes flow.
    */
   toNote(result) {
     if (!result || !result.isNew) return null;
+
+    if (result.topicId === 'motive') return null;
 
     if (result.topicId === 'travel') {
       return {

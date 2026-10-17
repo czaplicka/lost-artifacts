@@ -1,22 +1,38 @@
-import { loadGameState } from '../GameStatePersistence.js';
+import { loadGameState } from '../gameStatePersistence.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
+
+const FONT_LOAD_TIMEOUT_MS = 3000;
+
+const STARTUP_FONTS = [
+  'PressStart2P',
+  'SpecialElite'
+];
 
 export class BootScene extends BaseScene {
   constructor() {
     super({ key: 'BootScene' });
 
-    this.webFontTimeout = null;
-    this.webFontAttempted = false;
+    this.fontTimeout = null;
+    this.fontLoadAttempted = false;
     this.isProceedingToPreloader = false;
+    this.fontLoadToken = null;
 
     this.boundCleanupScene = this.cleanupScene.bind(this);
   }
 
   preload() {
-    this.load.audio('themeMusic', './assets/audio/theme.mp3');
-    this.load.image('cozyBackground', 'assets/local/kitchen.jpg');
+    this.load.audio(
+      'themeMusic',
+      './assets/audio/theme.mp3'
+    );
+
+    this.load.image(
+      'cozyBackground',
+      'assets/local/kitchen.jpg'
+    );
+
     this.load.json(
       'assetManifest',
       'assets/data/assetManifest.json'
@@ -26,9 +42,11 @@ export class BootScene extends BaseScene {
   create() {
     super.create();
 
-    this.webFontTimeout = null;
-    this.webFontAttempted = false;
+    this._clearFontTimeout();
+
+    this.fontLoadAttempted = false;
     this.isProceedingToPreloader = false;
+    this.fontLoadToken = null;
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -50,7 +68,7 @@ export class BootScene extends BaseScene {
     this._initializeGameState();
     this._initializeMobileFullscreen();
     this._initializeDifficulty();
-    this._loadWebFonts();
+    this._loadLocalFonts();
   }
 
   _initializeGameState() {
@@ -58,8 +76,15 @@ export class BootScene extends BaseScene {
       loadGameState();
       this.registry.remove('gameStateFailed');
     } catch (error) {
-      console.error('[BootScene] loadGameState failed:', error);
-      console.warn('[BootScene] Falling back to default game state.');
+      console.error(
+        '[BootScene] loadGameState failed:',
+        error
+      );
+
+      console.warn(
+        '[BootScene] Continuing after game state loading failed.'
+      );
+
       this.registry.set('gameStateFailed', true);
     }
   }
@@ -86,69 +111,119 @@ export class BootScene extends BaseScene {
     }
   }
 
-  _loadWebFonts() {
-    if (this.webFontAttempted || this._cleanupDone) {
+  _loadLocalFonts() {
+    if (this.fontLoadAttempted || this._cleanupDone) {
       return;
     }
 
-    this.webFontAttempted = true;
+    this.fontLoadAttempted = true;
 
-    if (!window.WebFont || typeof window.WebFont.load !== 'function') {
+    if (
+      !document.fonts ||
+      typeof document.fonts.load !== 'function'
+    ) {
       console.warn(
-        '[BootScene] WebFont is unavailable. Using fallback fonts.'
+        '[BootScene] Font Loading API is unavailable. ' +
+        'Continuing with fallback fonts.'
       );
 
       this._proceedToPreloader();
       return;
     }
 
-    this.webFontTimeout = this.time.delayedCall(30000, () => {
-      this.webFontTimeout = null;
+    const token = Symbol('boot-font-load');
+    this.fontLoadToken = token;
 
-      if (this._cleanupDone || this.isProceedingToPreloader) {
+    const isCurrentAttempt = () => {
+      return (
+        this.fontLoadToken === token &&
+        !this._cleanupDone &&
+        !this.isProceedingToPreloader
+      );
+    };
+
+    const finish = () => {
+      if (!isCurrentAttempt()) {
+        return;
+      }
+
+      this.fontLoadToken = null;
+      this._clearFontTimeout();
+      this._proceedToPreloader();
+    };
+
+    this.fontTimeout = window.setTimeout(() => {
+      if (!isCurrentAttempt()) {
         return;
       }
 
       console.warn(
-        '[BootScene] WebFont loading timed out. Proceeding with fallback fonts.'
+        `[BootScene] Font loading exceeded ` +
+        `${FONT_LOAD_TIMEOUT_MS} ms. ` +
+        'Continuing without waiting any longer.'
       );
 
-      this._proceedToPreloader();
+      finish();
+    }, FONT_LOAD_TIMEOUT_MS);
+
+    const requests = STARTUP_FONTS.map(async (family) => {
+      const faces = await document.fonts.load(
+        `400 16px "${family}"`,
+        'Mark Agency'
+      );
+
+      if (faces.length === 0) {
+        throw new Error(
+          `No matching @font-face found for "${family}".`
+        );
+      }
+
+      if (faces.some((face) => face.status !== 'loaded')) {
+        throw new Error(
+          `Font "${family}" did not finish loading.`
+        );
+      }
+
+      return family;
     });
 
-    window.WebFont.load({
-      google: {
-        families: [
-          'SpecialElite',
-          'PressStart2P'
-        ]
-      },
+    Promise.allSettled(requests)
+      .then((results) => {
+        if (!isCurrentAttempt()) {
+          return;
+        }
 
-      active: () => {
-        this._onWebFontReady();
-      },
+        results.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.warn(
+              `[BootScene] Could not load font ` +
+              `"${STARTUP_FONTS[index]}":`,
+              result.reason
+            );
+          }
+        });
 
-      inactive: () => {
+        finish();
+      })
+      .catch((error) => {
+        if (!isCurrentAttempt()) {
+          return;
+        }
+
         console.warn(
-          '[BootScene] Web fonts failed to load. Continuing with fallback fonts.'
+          '[BootScene] Unexpected font loading error:',
+          error
         );
 
-        this._onWebFontReady();
-      }
-    });
+        finish();
+      });
   }
 
-  _onWebFontReady() {
-    if (this._cleanupDone || this.isProceedingToPreloader) {
-      return;
+  _clearFontTimeout() {
+    if (this.fontTimeout !== null) {
+      window.clearTimeout(this.fontTimeout);
+      this.fontTimeout = null;
     }
-
-    if (this.webFontTimeout) {
-      this.webFontTimeout.remove(false);
-      this.webFontTimeout = null;
-    }
-
-    this._proceedToPreloader();
   }
 
   _proceedToPreloader() {
@@ -189,11 +264,8 @@ export class BootScene extends BaseScene {
   }
 
   cleanupScene() {
-    if (this.webFontTimeout) {
-      this.webFontTimeout.remove(false);
-      this.webFontTimeout = null;
-    }
-
+    this.fontLoadToken = null;
+    this._clearFontTimeout();
     this.isProceedingToPreloader = false;
   }
 }

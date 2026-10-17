@@ -8,7 +8,7 @@
 // - The player makes the comparison using the separate lab widget.
 // - CLEARED remains a manual action in active Exclude Mode only.
 
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { CrimeLabManager } from '../scenes/CSI/CrimeLabManager.js';
 
 const FILE_DATA_FIELDS = [

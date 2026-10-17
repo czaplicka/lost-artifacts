@@ -14,7 +14,7 @@
 // w ApartmentScene.collectMissionArtifact().
 // ============================================================
 
-import { EventBus } from './EventBus.js';
+import { EventBus } from '../../EventBus.js';
 import { COMBINE_RULES } from './ApartmentObjectsPool.js';
 
 export class ApartmentInventoryUI {

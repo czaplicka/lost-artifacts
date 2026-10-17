@@ -1,5 +1,5 @@
 import { gameState } from '../../GameData.js';
-import { saveGameState } from '../../GameStatePersistence.js';
+import { saveGameState } from '../../gameStatePersistence.js';
 import { audioManager } from '../../managers/AudioManager.js';
 import { getLocationById, getLocationByCity } from '../../ui/LocationUI.js';
 import { getPassportManager } from '../../managers/PassportManager.js';

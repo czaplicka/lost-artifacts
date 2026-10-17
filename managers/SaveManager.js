@@ -1,6 +1,5 @@
 import { getEnergyManager } from './EnergyManager.js';
 
-
 export const SAVE_CONSTANTS = {
   CURRENT_SAVE_VERSION: 1,
   SLOT_KEYS: [
@@ -12,30 +11,20 @@ export const SAVE_CONSTANTS = {
   LOCAL_LAST_USED_SLOT_KEY: 'lost-artefacts:last-used-slot'
 };
 
+const SUPPORTED_PREFERENCES = new Set([
+  'local',
+  'cloud',
+  'newest'
+]);
 
-/**
- * Zamienia dowolny obiekt runtimeowy w dane nadające się do:
- * - structuredClone
- * - JSON.stringify
- * - localStorage
- * - Supabase JSON / JSONB
- *
- * Save powinien zawierać tylko:
- * - string
- * - number
- * - boolean
- * - null
- * - tablice
- * - zwykłe obiekty
- *
- * Pomijamy funkcje, callbacki, EventEmittery, Phaser Scene,
- * DOM nodes, elementy UI, timery oraz referencje cykliczne.
- */
-function sanitizeSaveData(value, path = 'root', seen = new WeakSet()) {
+function sanitizeSaveData(
+  value,
+  path = 'root',
+  seen = new WeakSet()
+) {
   if (value === null) {
     return null;
   }
-
 
   if (
     typeof value === 'string' ||
@@ -44,170 +33,130 @@ function sanitizeSaveData(value, path = 'root', seen = new WeakSet()) {
     return value;
   }
 
-
   if (typeof value === 'number') {
     if (Number.isFinite(value)) {
       return value;
     }
 
-
     console.warn(
-      `[SaveManager] Non-finite number skipped at "${path}".`,
-      value
+      `[SaveManager] Non-finite number replaced with null at "${path}".`
     );
-
 
     return null;
   }
-
 
   if (typeof value === 'undefined') {
     return undefined;
   }
 
-
   if (typeof value === 'function') {
     console.warn(
-      `[SaveManager] Function skipped at "${path}".`,
-      value
+      `[SaveManager] Function skipped at "${path}".`
     );
-
 
     return undefined;
   }
-
 
   if (typeof value === 'symbol') {
     console.warn(
-      `[SaveManager] Symbol skipped at "${path}".`,
-      value
+      `[SaveManager] Symbol skipped at "${path}".`
     );
-
 
     return undefined;
   }
 
-
   if (typeof value === 'bigint') {
     console.warn(
-      `[SaveManager] BigInt converted to string at "${path}".`,
-      value
+      `[SaveManager] BigInt converted to string at "${path}".`
     );
-
 
     return value.toString();
   }
-
 
   if (value instanceof Date) {
     return value.toISOString();
   }
 
-
   if (typeof value !== 'object') {
-    console.warn(
-      `[SaveManager] Unsupported value skipped at "${path}".`,
-      value
-    );
-
-
     return undefined;
   }
-
 
   if (seen.has(value)) {
     console.warn(
       `[SaveManager] Circular reference skipped at "${path}".`
     );
 
-
     return undefined;
   }
 
-
   seen.add(value);
 
-
   if (Array.isArray(value)) {
-    const sanitizedArray = value.map((item, index) => {
-      const sanitizedItem = sanitizeSaveData(
+    const result = value.map((item, index) => {
+      const sanitized = sanitizeSaveData(
         item,
         `${path}[${index}]`,
         seen
       );
 
-
-      /*
-       * undefined nie może istnieć w JSON jako element tablicy.
-       * Zachowujemy indeks elementu przez null.
-       */
-      return typeof sanitizedItem === 'undefined'
-        ? null
-        : sanitizedItem;
+      return sanitized === undefined ? null : sanitized;
     });
 
-
     seen.delete(value);
-
-
-    return sanitizedArray;
+    return result;
   }
 
-
-  const sanitizedObject = {};
-
+  const result = {};
 
   for (const [key, item] of Object.entries(value)) {
-    const sanitizedItem = sanitizeSaveData(
+    const sanitized = sanitizeSaveData(
       item,
       `${path}.${key}`,
       seen
     );
 
-
-    if (typeof sanitizedItem !== 'undefined') {
-      sanitizedObject[key] = sanitizedItem;
+    if (sanitized !== undefined) {
+      result[key] = sanitized;
     }
   }
 
-
   seen.delete(value);
-
-
-  return sanitizedObject;
+  return result;
 }
 
-
-/**
- * Tworzy niezależny, czysty snapshot danych.
- *
- * Nie używamy tu bezpośrednio structuredClone, bo ten rzuca
- * DataCloneError dla funkcji — np. Math.random — zanim moglibyśmy
- * je odfiltrować.
- */
 function cloneData(value) {
   return sanitizeSaveData(value);
 }
 
-
 function isPlainObject(value) {
-  return Boolean(
-    value &&
-    typeof value === 'object' &&
-    !Array.isArray(value)
+  if (
+    value === null ||
+    typeof value !== 'object'
+  ) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+
+  return (
+    prototype === Object.prototype ||
+    prototype === null
   );
 }
-
 
 function getSavedAtTimestamp(save) {
   return Date.parse(save?.meta?.savedAt ?? '') || 0;
 }
 
-
 function getCloudTimestamp(cloudRow) {
   return Date.parse(cloudRow?.updated_at ?? '') || 0;
 }
 
+function getErrorMessage(error) {
+  return typeof error?.message === 'string'
+    ? error.message
+    : String(error);
+}
 
 export class SaveManager {
   constructor({
@@ -222,13 +171,11 @@ export class SaveManager {
       );
     }
 
-
     if (typeof getState !== 'function') {
       throw new Error(
         '[SaveManager] Missing required dependency: getState.'
       );
     }
-
 
     if (typeof applyState !== 'function') {
       throw new Error(
@@ -236,13 +183,11 @@ export class SaveManager {
       );
     }
 
-
     this.supabase = supabase;
     this.getState = getState;
     this.applyState = applyState;
     this.gameVersion = gameVersion;
   }
-
 
   canSave(context = {}) {
     return (
@@ -251,18 +196,26 @@ export class SaveManager {
     );
   }
 
-
   validateSlotKey(slotKey) {
     if (!SAVE_CONSTANTS.SLOT_KEYS.includes(slotKey)) {
-      throw new Error(`Unsupported slot key: ${slotKey}`);
+      throw new Error(
+        `Unsupported slot key: ${slotKey}`
+      );
     }
   }
 
+  validatePreference(prefer) {
+    if (!SUPPORTED_PREFERENCES.has(prefer)) {
+      throw new Error(
+        `[SaveManager] Unsupported save preference: "${prefer}". ` +
+        'Expected "local", "cloud", or "newest".'
+      );
+    }
+  }
 
   getLocalKey(slotKey) {
     return `${SAVE_CONSTANTS.LOCAL_PREFIX}:save:${slotKey}`;
   }
-
 
   rememberLastUsedSlot(slotKey) {
     try {
@@ -278,13 +231,11 @@ export class SaveManager {
     }
   }
 
-
   getLastUsedSlot() {
     try {
       const slotKey = localStorage.getItem(
         SAVE_CONSTANTS.LOCAL_LAST_USED_SLOT_KEY
       );
-
 
       return SAVE_CONSTANTS.SLOT_KEYS.includes(slotKey)
         ? slotKey
@@ -295,20 +246,12 @@ export class SaveManager {
         error
       );
 
-
       return 'slot_1';
     }
   }
 
-
   buildSavePayload(slotKey, context = {}) {
-    /*
-     * getState() może zwrócić obiekt zawierający dane runtimeowe.
-     * cloneData() filtruje funkcje i obiekty niezgodne z JSON.
-     */
-    const rawState = this.getState();
-    const state = cloneData(rawState);
-
+    const state = cloneData(this.getState());
 
     if (!isPlainObject(state)) {
       throw new Error(
@@ -316,25 +259,22 @@ export class SaveManager {
       );
     }
 
-
     const energyManager = getEnergyManager();
-
 
     state.energy = energyManager.getCurrentEnergy();
     state.maxEnergy = energyManager.maxEnergy;
-    state.energyLog = cloneData(energyManager.getEnergyLog());
+    state.energyLog = cloneData(
+      energyManager.getEnergyLog()
+    );
     state.difficulty = energyManager.difficulty;
-
 
     return {
       saveVersion: SAVE_CONSTANTS.CURRENT_SAVE_VERSION,
       gameVersion: this.gameVersion,
       slotKey,
 
-
       meta: {
         savedAt: new Date().toISOString(),
-
 
         locationCode:
           context.locationCode ??
@@ -342,19 +282,16 @@ export class SaveManager {
           state.currentLocationId ??
           'unknown',
 
-
         cityCode:
           context.cityCode ??
           state.location?.cityCode ??
           state.currentCityId ??
           null,
 
-
         locationType:
           context.locationType ??
           state.location?.type ??
           'unknown',
-
 
         caseId:
           state.campaign?.currentCaseId ??
@@ -362,13 +299,11 @@ export class SaveManager {
           state.currentMissionId ??
           null,
 
-
         caseStage:
           state.campaign?.currentStage ??
           state.currentPhase ??
           state.currentStep ??
           null,
-
 
         dayNumber:
           state.time?.dayNumber ??
@@ -377,19 +312,16 @@ export class SaveManager {
           state.day ??
           1,
 
-
         inGameHour:
           state.time?.hour ??
           state.hour ??
           state.gameHour ??
           8,
 
-
         playtimeSec:
           state.player?.playtimeSec ??
           state.playtimeSec ??
           0,
-
 
         lastSceneKey:
           context.sceneKey ??
@@ -397,21 +329,17 @@ export class SaveManager {
           'GameScene'
       },
 
-
       data: state
     };
   }
-
 
   serializeForDatabase(payload, userId) {
     return {
       user_id: userId,
       slot_key: payload.slotKey,
 
-
       save_version: payload.saveVersion,
       game_version: payload.gameVersion,
-
 
       case_id: payload.meta.caseId,
       case_stage: payload.meta.caseStage,
@@ -422,103 +350,101 @@ export class SaveManager {
       playtime_sec: payload.meta.playtimeSec,
       last_scene_key: payload.meta.lastSceneKey,
 
-
       is_valid: true,
       save_data: payload
     };
   }
 
-
   normalizeSave(raw) {
     const payload = raw?.save_data ?? raw;
 
-
-    if (!payload || typeof payload !== 'object') {
-      throw new Error('Save payload is invalid.');
+    if (!isPlainObject(payload)) {
+      throw new Error(
+        'Save payload is invalid.'
+      );
     }
 
-
-    if (!payload.saveVersion) {
-      throw new Error('Save payload is missing saveVersion.');
+    if (
+      !Number.isInteger(payload.saveVersion) ||
+      payload.saveVersion < 1
+    ) {
+      throw new Error(
+        'Save payload has an invalid saveVersion.'
+      );
     }
 
-
-    if (!payload.data || typeof payload.data !== 'object') {
-      throw new Error('Save payload is missing game data.');
+    if (!isPlainObject(payload.data)) {
+      throw new Error(
+        'Save payload is missing valid game data.'
+      );
     }
-
 
     return payload;
   }
 
-
   migrate(payload) {
-    const save = cloneData(payload);
+    const save = this.normalizeSave(
+      cloneData(payload)
+    );
 
-
-    if (!save || typeof save !== 'object') {
+    if (
+      save.saveVersion >
+      SAVE_CONSTANTS.CURRENT_SAVE_VERSION
+    ) {
       throw new Error(
-        '[SaveManager] Unable to migrate invalid save payload.'
+        `Save version ${save.saveVersion} is newer ` +
+        'than this game version.'
       );
     }
 
-
-    if (save.saveVersion > SAVE_CONSTANTS.CURRENT_SAVE_VERSION) {
-      throw new Error(
-        `Save version ${save.saveVersion} is newer than this game version.`
-      );
-    }
-
-
-    while (save.saveVersion < SAVE_CONSTANTS.CURRENT_SAVE_VERSION) {
+    if (
+      save.saveVersion <
+      SAVE_CONSTANTS.CURRENT_SAVE_VERSION
+    ) {
       throw new Error(
         `No migration exists for save version ${save.saveVersion}.`
       );
     }
 
-
     return save;
   }
 
-
   writeLocal(slotKey, payload) {
     try {
-      const serializedPayload = JSON.stringify(payload);
-
-
       localStorage.setItem(
         this.getLocalKey(slotKey),
-        serializedPayload
+        JSON.stringify(payload)
       );
-
 
       this.rememberLastUsedSlot(slotKey);
     } catch (error) {
       throw new Error(
-        `[SaveManager] Failed to write local save "${slotKey}": ${error.message}`
+        `[SaveManager] Failed to write local save "${slotKey}": ` +
+        getErrorMessage(error)
       );
     }
   }
 
-
   readLocal(slotKey) {
     try {
-      const raw = localStorage.getItem(this.getLocalKey(slotKey));
-
+      const raw = localStorage.getItem(
+        this.getLocalKey(slotKey)
+      );
 
       if (!raw) {
         return null;
       }
 
-
-      return this.normalizeSave(JSON.parse(raw));
+      return this.normalizeSave(
+        JSON.parse(raw)
+      );
     } catch (error) {
       throw new Error(
-        `[SaveManager] Failed to parse local save "${slotKey}": ${error.message}`
+        `[SaveManager] Failed to read local save "${slotKey}": ` +
+        getErrorMessage(error)
       );
     }
   }
-
 
   safeReadLocal(slotKey) {
     try {
@@ -529,16 +455,14 @@ export class SaveManager {
         error
       );
 
-
       return null;
     }
   }
 
-
   async getCurrentSession() {
     try {
-      const { data, error } = await this.supabase.auth.getSession();
-
+      const { data, error } =
+        await this.supabase.auth.getSession();
 
       if (error) {
         console.warn(
@@ -546,10 +470,8 @@ export class SaveManager {
           error.message
         );
 
-
         return null;
       }
-
 
       return data?.session ?? null;
     } catch (error) {
@@ -558,15 +480,12 @@ export class SaveManager {
         error
       );
 
-
       return null;
     }
   }
 
-
   async save(slotKey, context = {}) {
     this.validateSlotKey(slotKey);
-
 
     if (!this.canSave(context)) {
       throw new Error(
@@ -574,38 +493,15 @@ export class SaveManager {
       );
     }
 
-
-    console.log('[SaveManager] Save requested:', {
+    const payload = this.buildSavePayload(
       slotKey,
       context
-    });
+    );
 
-
-    const payload = this.buildSavePayload(slotKey, context);
-
-
-    try {
-      this.writeLocal(slotKey, payload);
-
-
-      console.log(
-        '[SaveManager] Local save written:',
-        this.getLocalKey(slotKey)
-      );
-    } catch (error) {
-      console.error(
-        '[SaveManager] Local save failed:',
-        error
-      );
-
-
-      throw error;
-    }
-
+    this.writeLocal(slotKey, payload);
 
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
-
 
     if (!user) {
       return {
@@ -615,57 +511,53 @@ export class SaveManager {
       };
     }
 
-
-    const dbRow = this.serializeForDatabase(payload, user.id);
-
-
-    const { error: cloudError } = await this.supabase
-      .from('player_saves')
-      .upsert(dbRow, {
-        onConflict: 'user_id,slot_key'
-      });
-
-
-    if (cloudError) {
-      console.warn(
-        '[SaveManager] Cloud save failed. Local save remains valid:',
-        cloudError.message
+    try {
+      const dbRow = this.serializeForDatabase(
+        payload,
+        user.id
       );
 
+      const { error } = await this.supabase
+        .from('player_saves')
+        .upsert(dbRow, {
+          onConflict: 'user_id,slot_key'
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      return {
+        ok: true,
+        mode: 'cloud+local',
+        payload
+      };
+    } catch (error) {
+      const warning = getErrorMessage(error);
+
+      console.warn(
+        '[SaveManager] Cloud save failed. ' +
+        'Local save remains valid:',
+        warning
+      );
 
       return {
         ok: true,
         mode: 'local-fallback',
         payload,
-        warning: cloudError.message
+        warning
       };
     }
-
-
-    console.log(
-      '[SaveManager] Cloud save written:',
-      slotKey
-    );
-
-
-    return {
-      ok: true,
-      mode: 'cloud+local',
-      payload
-    };
   }
-
 
   async safeReadCloud(slotKey) {
     try {
       const session = await this.getCurrentSession();
       const user = session?.user ?? null;
 
-
       if (!user) {
         return null;
       }
-
 
       const { data, error } = await this.supabase
         .from('player_saves')
@@ -674,22 +566,18 @@ export class SaveManager {
         .eq('slot_key', slotKey)
         .maybeSingle();
 
-
       if (error) {
         console.warn(
           `[SaveManager] Failed to read cloud save ${slotKey}:`,
           error.message
         );
 
-
         return null;
       }
-
 
       if (!data) {
         return null;
       }
-
 
       return this.normalizeSave(data);
     } catch (error) {
@@ -698,41 +586,38 @@ export class SaveManager {
         error
       );
 
-
       return null;
     }
   }
 
-
   restoreEnergyManager(state) {
     const energyManager = getEnergyManager();
-
 
     energyManager.restore({
       energy: state.energy,
       maxEnergy: state.maxEnergy,
       difficulty: state.difficulty,
+
       energyLog: Array.isArray(state.energyLog)
         ? state.energyLog
         : []
     });
-
-
-    console.log('[SaveManager] Energy restored from save.', {
-      energy: energyManager.getCurrentEnergy(),
-      maxEnergy: energyManager.maxEnergy,
-      difficulty: energyManager.difficulty
-    });
   }
-
 
   async load(slotKey, prefer = 'newest') {
     this.validateSlotKey(slotKey);
+    this.validatePreference(prefer);
 
+    let localSave = null;
+    let cloudSave = null;
 
-    const localSave = this.safeReadLocal(slotKey);
-    const cloudSave = await this.safeReadCloud(slotKey);
+    if (prefer !== 'cloud') {
+      localSave = this.safeReadLocal(slotKey);
+    }
 
+    if (prefer !== 'local') {
+      cloudSave = await this.safeReadCloud(slotKey);
+    }
 
     const resolvedSave = this.resolvePreferredSave(
       localSave,
@@ -740,19 +625,14 @@ export class SaveManager {
       prefer
     );
 
-
-    /*
-     * Pusty slot: nie wywołujemy applyState(), więc aktualny
-     * stan gry nie zostanie ani wyczyszczony, ani nadpisany.
-     */
     if (!resolvedSave) {
       return null;
     }
 
-
     const migratedSave = this.migrate(resolvedSave);
-    const restoredState = cloneData(migratedSave.data);
-
+    const restoredState = cloneData(
+      migratedSave.data
+    );
 
     if (!isPlainObject(restoredState)) {
       throw new Error(
@@ -760,46 +640,39 @@ export class SaveManager {
       );
     }
 
+    const applied = this.applyState(restoredState);
 
-    this.applyState(restoredState);
+    if (applied === false) {
+      throw new Error(
+        '[SaveManager] Applying the restored state failed.'
+      );
+    }
+
     this.restoreEnergyManager(restoredState);
-
-
     this.rememberLastUsedSlot(slotKey);
-
-
-    console.log('[SaveManager] Save loaded:', {
-      slotKey,
-      requestedPreference: prefer,
-      savedAt: migratedSave.meta?.savedAt ?? null
-    });
-
 
     return migratedSave;
   }
 
-
   async loadLastUsed(prefer = 'newest') {
-    const slotKey = this.getLastUsedSlot();
-
-
-    return this.load(slotKey, prefer);
+    return this.load(
+      this.getLastUsedSlot(),
+      prefer
+    );
   }
 
-
   async listSlots() {
-    const localSlots = SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => ({
-      slotKey,
-      local: this.safeReadLocal(slotKey)
-    }));
-
+    const localSaves = new Map(
+      SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => [
+        slotKey,
+        this.safeReadLocal(slotKey)
+      ])
+    );
 
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
 
-
     let cloudRows = [];
-
 
     if (user) {
       const { data, error } = await this.supabase
@@ -821,7 +694,6 @@ export class SaveManager {
           ascending: false
         });
 
-
       if (error) {
         console.warn(
           '[SaveManager] Failed to list cloud save slots:',
@@ -832,24 +704,21 @@ export class SaveManager {
       }
     }
 
+    const cloudSaves = new Map(
+      cloudRows.map((row) => [
+        row.slot_key,
+        row
+      ])
+    );
 
     return SAVE_CONSTANTS.SLOT_KEYS.map((slotKey) => {
-      const localSave = localSlots.find(
-        (item) => item.slotKey === slotKey
-      )?.local ?? null;
-
-
-      const cloudRow = cloudRows.find(
-        (row) => row.slot_key === slotKey
-      ) ?? null;
-
+      const localSave = localSaves.get(slotKey) ?? null;
+      const cloudRow = cloudSaves.get(slotKey) ?? null;
 
       return {
         slotKey,
 
-
         localMeta: localSave?.meta ?? null,
-
 
         cloudMeta: cloudRow
           ? {
@@ -865,7 +734,6 @@ export class SaveManager {
             }
           : null,
 
-
         preferredSource: this.pickSource(
           localSave,
           cloudRow
@@ -874,13 +742,13 @@ export class SaveManager {
     });
   }
 
-
   async deleteSlot(slotKey) {
     this.validateSlotKey(slotKey);
 
-
     try {
-      localStorage.removeItem(this.getLocalKey(slotKey));
+      localStorage.removeItem(
+        this.getLocalKey(slotKey)
+      );
     } catch (error) {
       console.warn(
         `[SaveManager] Failed to delete local save ${slotKey}:`,
@@ -888,10 +756,8 @@ export class SaveManager {
       );
     }
 
-
     const session = await this.getCurrentSession();
     const user = session?.user ?? null;
-
 
     if (!user) {
       return {
@@ -900,13 +766,11 @@ export class SaveManager {
       };
     }
 
-
     const { error } = await this.supabase
       .from('player_saves')
       .delete()
       .eq('user_id', user.id)
       .eq('slot_key', slotKey);
-
 
     if (error) {
       throw new Error(
@@ -914,141 +778,78 @@ export class SaveManager {
       );
     }
 
-
     return {
       ok: true,
       mode: 'cloud+local'
     };
   }
 
-
   pickSource(localSave, cloudRow) {
     if (!localSave && !cloudRow) {
       return 'none';
     }
 
-
     if (!localSave) {
       return 'cloud';
     }
-
 
     if (!cloudRow) {
       return 'local';
     }
 
-
-    const localTimestamp = getSavedAtTimestamp(localSave);
-    const cloudTimestamp = getCloudTimestamp(cloudRow);
-
-
-    return cloudTimestamp > localTimestamp
+    return getCloudTimestamp(cloudRow) >
+      getSavedAtTimestamp(localSave)
       ? 'cloud'
       : 'local';
   }
 
+  resolvePreferredSave(
+    localSave,
+    cloudSave,
+    prefer = 'newest'
+  ) {
+    this.validatePreference(prefer);
 
-  resolvePreferredSave(localSave, cloudSave, prefer = 'newest') {
-    const supportedPreferences = ['local', 'cloud', 'newest'];
-
-
-    if (!supportedPreferences.includes(prefer)) {
-      throw new Error(
-        `[SaveManager] Unsupported save preference: "${prefer}". ` +
-        'Expected "local", "cloud", or "newest".'
-      );
-    }
-
-
-    /*
-     * Pusty slot jest normalną sytuacją.
-     * Zwracamy null, a load() kończy się przed applyState().
-     */
     if (!localSave && !cloudSave) {
-      console.warn(
-        '[SaveManager] No save found in either source.',
-        {
-          prefer,
-          hasLocalSave: false,
-          hasCloudSave: false
-        }
-      );
-
-
       return null;
     }
 
-
-    /*
-     * Local został wybrany celowo:
-     * nie zastępujemy go automatycznie cloud save'em.
-     */
     if (prefer === 'local') {
       if (!localSave) {
         throw new Error(
-          '[SaveManager] Local save was requested, but it does not exist.'
+          '[SaveManager] Local save was requested, ' +
+          'but it does not exist.'
         );
       }
-
 
       return localSave;
     }
 
-
-    /*
-     * Cloud został wybrany celowo:
-     * nie zastępujemy go automatycznie local save'em.
-     */
     if (prefer === 'cloud') {
       if (!cloudSave) {
         throw new Error(
-          '[SaveManager] Cloud save was requested, but it does not exist.'
+          '[SaveManager] Cloud save was requested, ' +
+          'but it does not exist.'
         );
       }
 
-
       return cloudSave;
     }
 
-
-    /*
-     * newest: gdy istnieje tylko jeden save,
-     * używamy jedynego dostępnego źródła.
-     */
     if (!localSave) {
-      console.warn(
-        '[SaveManager] Local save unavailable; using cloud save.'
-      );
-
-
       return cloudSave;
     }
-
 
     if (!cloudSave) {
-      console.warn(
-        '[SaveManager] Cloud save unavailable; using local save.'
-      );
-
-
       return localSave;
     }
 
-
-    /*
-     * Gdy istnieją oba zapisy, wybieramy nowszy.
-     * Przy identycznych datach wybieramy local.
-     */
-    const localTimestamp = getSavedAtTimestamp(localSave);
-    const cloudTimestamp = getSavedAtTimestamp(cloudSave);
-
-
-    return cloudTimestamp > localTimestamp
+    return getSavedAtTimestamp(cloudSave) >
+      getSavedAtTimestamp(localSave)
       ? cloudSave
       : localSave;
   }
 }
-
 
 export function createSaveManager(dependencies) {
   return new SaveManager(dependencies);

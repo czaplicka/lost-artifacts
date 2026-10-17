@@ -1,388 +1,318 @@
-const WITNESS_ROLES = [
-  {
-    id: 'sister',
-    label: 'Sister',
-    tone: 'defensive',
-    trustBias: 0.7
-  },
-  {
-    id: 'boss',
-    label: 'Boss',
-    tone: 'annoyed',
-    trustBias: 0.5
-  },
-  {
-    id: 'neighbor',
-    label: 'Neighbor',
-    tone: 'gossipy',
-    trustBias: 0.4
-  },
-  {
-    id: 'coworker',
-    label: 'Coworker',
-    tone: 'nervous',
-    trustBias: 0.5
-  },
-  {
-    id: 'landlord',
-    label: 'Landlord',
-    tone: 'bored',
-    trustBias: 0.3
-  },
-  {
-    id: 'receptionist',
-    label: 'Receptionist',
-    tone: 'chatty',
-    trustBias: 0.45
-  }
-];
+// AlibiWitnessData.js
+// Pure generator: no gameState access and no save mutations.
 
-/**
- * Shared generic city-NPC portrait pool.
- *
- * Jeśli w jednym momencie pokazujesz więcej niż 5 NPC, duplikaty będą
- * wizualnie nieuniknione bez dodania kolejnych assetów. AlibiEncounterSetup
- * wypisze wtedy warning, aby było jasne, że trzeba powiększyć pulę.
- */
 const WITNESS_TEXTURE_KEYS = [
-  'npc',
-  'npc1',
-  'npc2',
-  'npc3',
-  'npc4',
-  'npc5',
-  'npc6'
+  'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
 
-const TIME_SLOTS = [
-  '18:00',
-  '19:00',
-  '20:00',
-  '21:00',
-  '22:00'
+const WITNESS_ROLES = [
+  { id: 'neighbor', label: 'Neighbor', tone: 'gossipy' },
+  { id: 'coworker', label: 'Coworker', tone: 'matter_of_fact' },
+  { id: 'receptionist', label: 'Receptionist', tone: 'chatty' }
 ];
 
-const LOCATION_TAGS = [
-  'home',
-  'office',
-  'restaurant',
-  'train_station',
-  'gallery_backdoor',
-  'hotel_bar',
-  'parking_lot'
-];
+export const ALIBI_DATA_VERSION = 2;
 
-const MOTIVE_FRAGMENTS = [
-  'money problems that never came up in the interview',
-  'a grudge against the museum board',
-  'a debt to someone dangerous',
-  'a private obsession with the artifact itself',
-  'a promise made to someone who is now missing',
-  'a plan to disappear before the end of the month'
-];
-
-const LIAR_CONTRADICTION_HINTS = [
-  'Their story has no small details — no smells, no sounds, nothing a real memory usually has.',
-  'They answered before you finished the question.',
-  'They avoided your eyes when naming the exact time.',
-  'They used the exact same phrase the suspect used earlier. Rehearsed?'
-];
-
-function pickRandom(items = [], rng = Math.random) {
-  if (!Array.isArray(items) || !items.length) {
-    return null;
+export function formatAlibiTime(minute) {
+  if (!Number.isInteger(minute)) {
+    throw new Error('Alibi time must be an integer minute.');
   }
 
-  return items[Math.floor(rng() * items.length)];
+  const wrapped = ((minute % 1440) + 1440) % 1440;
+  const hours = Math.floor(wrapped / 60);
+  const minutes = wrapped % 60;
+
+  return (
+    String(hours).padStart(2, '0') +
+    ':' +
+    String(minutes).padStart(2, '0')
+  );
 }
 
-function shuffle(items = [], rng = Math.random) {
-  if (!Array.isArray(items)) {
-    return [];
+function validateCrimeWindow(window) {
+  if (
+    !window ||
+    !Number.isInteger(window.day) ||
+    !Number.isInteger(window.startMinute) ||
+    !Number.isInteger(window.endMinute) ||
+    window.startMinute < 30 ||
+    window.endMinute <= window.startMinute ||
+    window.endMinute > 1409
+  ) {
+    throw new Error(
+      'A valid crimeWindow with a 30-minute day margin is required.'
+    );
+  }
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+
+  for (const char of String(value)) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
   }
 
-  const copy = [...items];
+  return hash >>> 0;
+}
 
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const randomIndex = Math.floor(rng() * (index + 1));
+function shuffleSeeded(items, seed) {
+  const result = [...items];
+  let state = seed || 1;
 
-    [copy[index], copy[randomIndex]] = [
-      copy[randomIndex],
-      copy[index]
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+
+    const other = state % (index + 1);
+
+    [result[index], result[other]] = [
+      result[other],
+      result[index]
     ];
   }
 
-  return copy;
+  return result;
 }
 
-function makeSeededRng(seed) {
-  let state = seed % 2147483647;
-
-  if (state <= 0) {
-    state += 2147483646;
-  }
-
-  return function rng() {
-    state = (state * 16807) % 2147483647;
-
-    return (state - 1) / 2147483646;
-  };
-}
-
-function hashString(value = '') {
-  const text = String(value);
-
-  let hash = 0;
-
-  for (let index = 0; index < text.length; index += 1) {
-    hash = (hash << 5) - hash + text.charCodeAt(index);
-    hash |= 0;
-  }
-
-  return Math.abs(hash);
-}
-
-function normalizeLocationLabel(locationTag = '') {
-  return String(locationTag)
-    .replace(/_/g, ' ')
-    .trim();
-}
-
-/**
- * Ustala preferowany portret świadka na podstawie stabilnego seed.
- *
- * To jest tylko preferencja. AlibiEncounterSetup.js może wybrać inny
- * dostępny obrazek, aby zapobiec duplikatom wśród aktualnie aktywnych NPC.
- */
-function getPreferredWitnessTexture(
-  suspectId,
-  roleId,
-  witnessIndex = 0
-) {
-  if (!WITNESS_TEXTURE_KEYS.length) {
-    return null;
-  }
-
-  const seed = hashString(
-    `${suspectId}_${roleId}_${witnessIndex}_portrait`
-  );
-
-  return WITNESS_TEXTURE_KEYS[
-    seed % WITNESS_TEXTURE_KEYS.length
-  ];
-}
-
-/**
- * Rozdziela portrety unikalnie w obrębie trzech świadków jednego podejrzanego.
- *
- * Przy obecnej puli 5 portretów i 3 świadkach zawsze uda się wybrać
- * trzy różne grafiki. Zwrócona tablica zachowuje kolejność roles.
- */
-function assignUniqueWitnessTextures(
-  suspectId,
-  roles = []
-) {
-  const availableKeys = [...WITNESS_TEXTURE_KEYS];
-
-  if (!availableKeys.length) {
-    return roles.map(() => null);
-  }
-
-  const usedKeys = new Set();
-
-  return roles.map((role, index) => {
-    const preferredKey = getPreferredWitnessTexture(
-      suspectId,
-      role?.id || 'witness',
-      index
-    );
-
-    const preferredAvailable =
-      preferredKey &&
-      !usedKeys.has(preferredKey)
-        ? preferredKey
-        : null;
-
-    const firstAvailable = availableKeys.find(
-      (key) => !usedKeys.has(key)
-    );
-
-    const selectedKey =
-      preferredAvailable ||
-      firstAvailable ||
-      preferredKey ||
-      availableKeys[index % availableKeys.length];
-
-    usedKeys.add(selectedKey);
-
-    return selectedKey;
-  });
-}
-
-/**
- * Builds a true crime timeline consisting of exactly three chronological
- * events, plus three red-herring events.
- */
-function buildTrueTimeline(suspect, rng) {
-  const shuffledSlots = shuffle(TIME_SLOTS, rng)
-    .slice(0, 3)
-    .sort();
-
-  const shuffledLocations = shuffle(LOCATION_TAGS, rng);
-
-  const trueEvents = shuffledSlots.map((timeSlot, index) => {
-    const locationTag = shuffledLocations[index];
-
-    return {
-      id: `${suspect.id}_true_${index}`,
-      timeSlot,
-      locationTag,
-      label:
-        `${timeSlot} — seen near ` +
-        `${normalizeLocationLabel(locationTag)}`,
-      isReal: true
-    };
-  });
-
-  const decoyEvents = shuffledLocations
-    .slice(3, 6)
-    .map((locationTag, index) => {
-      const timeSlot = pickRandom(TIME_SLOTS, rng);
-
-      return {
-        id: `${suspect.id}_decoy_${index}`,
-        timeSlot,
-        locationTag,
-        label:
-          `${timeSlot} — claimed to be at ` +
-          `${normalizeLocationLabel(locationTag)}`,
-        isReal: false
-      };
-    });
-
+function makeCard(id, timeSlot, locationTag, label, isReal = true) {
   return {
-    trueEvents,
-    decoyEvents
+    id,
+    timeSlot,
+    locationTag,
+    label,
+    isReal
   };
 }
 
-/**
- * Generates exactly three witnesses for one suspect.
- *
- * Important:
- * - exactly one witness lies;
- * - each witness gets a unique preferred texture inside this trio;
- * - results are deterministic for the same caseSeed + suspect ID;
- * - this function has no side effects and never touches gameState.
- *
- * @param {Object} suspect Case suspect object with at least `id` and `name`
- * @param {string} caseSeed Stable case key / seed
- */
 export function generateAlibiWitnesses(
   suspect,
-  caseSeed = 'default_case'
+  caseSeed = 'default_case',
+  crimeWindow
 ) {
-  if (
-    !suspect ||
-    typeof suspect !== 'object' ||
-    !suspect.id
-  ) {
-    console.warn(
-      '[AlibiWitnessData] Cannot generate witnesses for an invalid suspect.',
-      suspect
-    );
+  if (!suspect?.id) {
+    throw new Error('An alibi suspect with an ID is required.');
+  }
 
-    return {
-      suspectId: null,
-      witnesses: [],
-      trueTimeline: [],
-      boardCards: []
+  validateCrimeWindow(crimeWindow);
+
+  const isThief =
+    suspect.hiddenCaseData?.isTrueThief === true;
+
+  const isTwin =
+    suspect.hiddenCaseData?.isForensicTwin === true;
+
+  if (isThief === isTwin) {
+    throw new Error(
+      'Alibi suspect must be either the real thief or the forensic twin.'
+    );
+  }
+
+  const name = suspect.name || 'The suspect';
+  const { startMinute: start, endMinute: end } = crimeWindow;
+
+  const time = formatAlibiTime;
+  const seed = hashString(
+    `${caseSeed}:${suspect.id}:${crimeWindow.day}:${start}:${end}`
+  );
+
+  const portraits = shuffleSeeded(WITNESS_TEXTURE_KEYS, seed);
+  const id = (suffix) => `${suspect.id}_alibi_${suffix}`;
+
+  let statements;
+  let trueTimeline;
+  let decoys;
+  let contradiction = null;
+
+  if (!isThief) {
+    statements = [
+      `${name} left our building at ${time(start - 25)}. ` +
+      `I walked with them to the television studio and saw them ` +
+      `check in at ${time(start - 15)}. ` +
+      `I stayed in the audience until ${time(end + 10)}. ` +
+      `They were on stage throughout the broadcast. ` +
+      `I was mostly watching them. The host's tie was a distraction.`,
+
+      `I was on stage beside ${name} from ${time(start - 10)} ` +
+      `until ${time(end + 10)}. It was a live broadcast, ` +
+      `with no breaks and no stand-ins. Neither of us left the stage. ` +
+      `Believe me, I tried to escape the cooking segment.`,
+
+      `I handled check-in and watched the live studio feed. ` +
+      `${name} checked in at ${time(start - 15)}. ` +
+      `The uninterrupted broadcast ran from ${time(start - 10)} ` +
+      `to ${time(end + 10)}, and they remained visible on stage. ` +
+      `They checked out at ${time(end + 20)}. ` +
+      `The studio is a different building from the crime scene.`
+    ];
+
+    trueTimeline = [
+      makeCard(
+        id('arrival'),
+        time(start - 15),
+        'television_studio',
+        `${time(start - 15)} — the suspect checks in at the television studio.`
+      ),
+      makeCard(
+        id('broadcast'),
+        time(start - 10),
+        'television_studio',
+        `${time(start - 10)}–${time(end + 10)} — the suspect remains ` +
+        `visible on stage throughout an uninterrupted live broadcast.`
+      ),
+      makeCard(
+        id('departure'),
+        time(end + 20),
+        'television_studio',
+        `${time(end + 20)} — the suspect checks out of the television studio.`
+      )
+    ];
+
+    decoys = [
+      makeCard(
+        id('decoy_1'),
+        time(start + 1),
+        'television_studio',
+        `${time(start + 1)} — the suspect leaves the studio during a break.`,
+        false
+      ),
+      makeCard(
+        id('decoy_2'),
+        time(start - 15),
+        'home',
+        `${time(start - 15)} — the suspect stays at home.`,
+        false
+      ),
+      makeCard(
+        id('decoy_3'),
+        time(end - 1),
+        'television_studio',
+        `${time(end - 1)} — the suspect checks out before the broadcast ends.`,
+        false
+      )
+    ];
+  } else {
+    statements = [
+      `I saw ${name} leave our building alone at ${time(start - 20)}. ` +
+      `They came back at ${time(end + 20)}. ` +
+      `Where they went between those times? No idea. ` +
+      `My window is a window, detective, not a satellite.`,
+
+      `${name} was with me in my apartment from ${time(start - 10)} ` +
+      `until ${time(end + 10)}. We stayed together the entire time. ` +
+      `No interruptions, no visitors, no reason to check that story ` +
+      `with anyone else. That last bit was a suggestion.`,
+
+      `The coworker who says they hosted ${name} was actually ` +
+      `with me at the hotel reception from ${time(start - 15)} ` +
+      `until ${time(end + 15)}. We worked side by side the whole time. ` +
+      `They never left, and ${name} never joined us. ` +
+      `The reception desk is not in that coworker's apartment. ` +
+      `I would remember having a minibar at work.`
+    ];
+
+    trueTimeline = [
+      makeCard(
+        id('departure'),
+        time(start - 20),
+        'home',
+        `${time(start - 20)} — the suspect leaves home alone.`
+      ),
+      makeCard(
+        id('coworker_location'),
+        time(start - 15),
+        'hotel_reception',
+        `${time(start - 15)}–${time(end + 15)} — the coworker ` +
+        `remains at the hotel reception, not in their apartment.`
+      ),
+      makeCard(
+        id('return'),
+        time(end + 20),
+        'home',
+        `${time(end + 20)} — the suspect returns home; ` +
+        `their whereabouts during the theft remain unconfirmed.`
+      )
+    ];
+
+    decoys = [
+      makeCard(
+        id('false_alibi'),
+        time(start - 10),
+        'coworker_apartment',
+        `${time(start - 10)}–${time(end + 10)} — the suspect ` +
+        `and coworker stay together in the coworker's apartment.`,
+        false
+      ),
+      makeCard(
+        id('decoy_2'),
+        time(start + 1),
+        'home',
+        `${time(start + 1)} — the neighbor sees the suspect at home.`,
+        false
+      ),
+      makeCard(
+        id('decoy_3'),
+        time(end - 1),
+        'hotel_reception',
+        `${time(end - 1)} — the receptionist sees the suspect at the hotel.`,
+        false
+      )
+    ];
+
+    contradiction = {
+      witnessRoleId: 'coworker',
+      supportingRoleId: 'receptionist',
+      explanation:
+        'The coworker claims to have stayed with the suspect in their ' +
+        'apartment, but the receptionist places that coworker at the ' +
+        'hotel for the entire claimed interval. The alleged meeting ' +
+        'cannot have happened as described.'
     };
   }
 
-  const rng = makeSeededRng(
-    hashString(`${caseSeed}_${suspect.id}`)
-  );
-
-  const roles = shuffle(WITNESS_ROLES, rng).slice(0, 3);
-
-  const witnessTextures = assignUniqueWitnessTextures(
-    suspect.id,
-    roles
-  );
-
-  const { trueEvents, decoyEvents } = buildTrueTimeline(
-    suspect,
-    rng
-  );
-
-  const liarIndex = Math.floor(rng() * roles.length);
-
-  const motiveFragment = pickRandom(
-    MOTIVE_FRAGMENTS,
-    rng
-  );
-
-  const witnesses = roles.map((role, index) => {
-    const isLiar = index === liarIndex;
-
-    const timelineCard = isLiar
-      ? pickRandom(decoyEvents, rng)
-      : trueEvents[index % trueEvents.length];
-
-    const locationLabel = normalizeLocationLabel(
-      timelineCard.locationTag
-    );
+  const witnesses = WITNESS_ROLES.map((role, index) => {
+    const isLiar = isThief && role.id === 'coworker';
 
     return {
       npcId: `${suspect.id}_witness_${role.id}`,
-
       suspectId: suspect.id,
-
       roleId: role.id,
       role: role.label,
       tone: role.tone,
-      trustBias: role.trustBias,
 
-      /**
-       * Preferred key is deterministic and unique inside this witness trio.
-       * Encounter setup can replace it if it conflicts with another active NPC.
-       */
-      textureKey: witnessTextures[index],
-      portraitKey: witnessTextures[index],
+      portraitKey: portraits[index],
+      textureKey: portraits[index],
 
       isLiar,
-
-      timelineCard,
-
-      motiveFragment: isLiar
-        ? null
-        : motiveFragment,
-
-      statement: isLiar
-        ? `${suspect.name || 'The suspect'} was definitely with me at ${
-            timelineCard.timeSlot
-          }, near the ${locationLabel}. I remember it clearly.`
-        : `${suspect.name || 'The suspect'} mentioned being near the ${
-            locationLabel
-          } around ${timelineCard.timeSlot}. Seemed normal at the time.`,
+      statement: statements[index],
 
       contradictionHint: isLiar
-        ? pickRandom(
-            LIAR_CONTRADICTION_HINTS,
-            rng
-          )
-        : null
+        ? 'Compare the claimed meeting with the receptionist’s account.'
+        : null,
+
+      timelineCard: isLiar
+        ? decoys[0]
+        : trueTimeline[index],
+
+      motiveFragment: null
     };
   });
 
   return {
+    version: ALIBI_DATA_VERSION,
     suspectId: suspect.id,
+    suspectName: name,
+
+    crimeWindow: { ...crimeWindow },
+
+    // Internal solution data: do not display as a player-facing heading.
+    alibiType: isThief ? 'contradicted' : 'confirmed',
+
     witnesses,
-    trueTimeline: trueEvents,
-    boardCards: shuffle(
-      [...trueEvents, ...decoyEvents],
-      rng
+    contradiction,
+    trueTimeline,
+    boardCards: shuffleSeeded(
+      [...trueTimeline, ...decoys],
+      seed ^ 0x9e3779b9
     )
   };
 }
@@ -390,9 +320,6 @@ export function generateAlibiWitnesses(
 export const AlibiWitnessData = {
   WITNESS_ROLES,
   WITNESS_TEXTURE_KEYS,
-  TIME_SLOTS,
-  LOCATION_TAGS,
-  MOTIVE_FRAGMENTS,
-  LIAR_CONTRADICTION_HINTS,
-  generateAlibiWitnesses
+  generateAlibiWitnesses,
+  formatAlibiTime
 };

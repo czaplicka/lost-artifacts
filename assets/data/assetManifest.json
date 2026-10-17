@@ -2,7 +2,7 @@
   "backgrounds": [
     { "key": "intro", "url": "assets/intro.jpg" },
     { "key": "background", "url": "assets/start_1.jpg" },
-    { "key": "background2", "url": "assets/start_2.jpg" },
+    { "key": "start_2", "url": "assets/start_2.jpg" },
     { "key": "backgroundset", "url": "assets/local/cabinet.jpg" },
     { "key": "archive", "url": "assets/local/archive.jpg" },
     { "key": "enter", "url": "assets/local/enter.jpg" },
@@ -77,7 +77,8 @@
     { "key": "desk2", "url": "assets/CSI/desk2.jpg" },
     { "key": "apartment_debt_living_room", "url": "assets/apartments/apartment_debt_living_room.jpg" },
     { "key": "apartment_debt_kitchen", "url": "assets/apartments/apartment_debt_kitchen.jpg" },
-    { "key": "shop", "url": "assets/local/shop.jpg" }
+    { "key": "shop", "url": "assets/local/shop.jpg" },
+    { "key": "holly", "url": "assets/pi/holly.jpg" }
     
   ],
   "npcPortraits": [
@@ -174,9 +175,9 @@
     { "key": "phonebook", "url": "assets/phonebook.jpg" },
     { "key": "television", "url": "assets/television.png" },
     { "key": "television", "url": "assets/television.png" },
-{ "key": "tv_news_studio", "url": "assets/tv/tv_news_studio.jpg" },
-{ "key": "tv_anchor_generic", "url": "assets/tv/tv_anchor_generic.jpg" },
-{ "key": "tv_anchor_genericf", "url": "assets/tv/tv_anchor_genericf.jpg" }
+    { "key": "tv_news_studio", "url": "assets/tv/tv_news_studio.jpg" },
+    { "key": "tv_anchor_generic", "url": "assets/tv/tv_anchor_generic.jpg" },
+    { "key": "tv_anchor_genericf", "url": "assets/tv/tv_anchor_genericf.jpg" }
   ],
   "artifacts": [
     { "key": "artifact_crown_jewels", "url": "assets/artifacts/crown_jewels.png" },
@@ -193,7 +194,7 @@
     { "key": "comix2", "url": "assets/newspapers/comix2.png" },
     { "key": "paper_fallback_blank", "url": "assets/newspapers/paper_daily_bg_1920x1080.png" },
     { "key": "paper_tabloid_bg", "url": "assets/newspapers/paper_tabloid_bg_1920x1080.png" },
-{ "key": "paper_time_bg", "url": "assets/newspapers/paper_time_bg_1920x1080.png" }
+    { "key": "paper_time_bg", "url": "assets/newspapers/paper_time_bg_1920x1080.png" }
   ],
   "suspects": [
     { "key": "unknown", "url": "assets/suspects/unknown.jpg" },
@@ -320,7 +321,9 @@
   ],
   "videos": [
     { "key": "detectiveIntro", "url": "assets/video/detective-intro.mp4", "asBlob": true },
-    { "key": "newsstand_video", "url": "assets/video/newsstand.mp4", "loadEvent": "loadeddata", "noAudio": false, "asBlob": true }
+    { "key": "newsstand_video", "url": "assets/video/newsstand.mp4", "loadEvent": "loadeddata", "noAudio": false, "asBlob": true },
+    { "key": "in", "url": "assets/video/in.mp4", "asBlob": true },
+    { "key": "out", "url": "assets/video/out.mp4", "asBlob": true }
   ],
   "audio": [
     { "key": "crimelab_ambient", "url": "assets/audio/crimelab_ambient.mp3" },

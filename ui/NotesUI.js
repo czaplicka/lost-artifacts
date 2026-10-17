@@ -1,4 +1,4 @@
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
   import { EventBus } from '../EventBus.js';
 
   export class NotesUI {

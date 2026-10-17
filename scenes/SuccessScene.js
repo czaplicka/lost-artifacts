@@ -1,6 +1,6 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { ScoreManager } from '../managers/ScoreManager.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';

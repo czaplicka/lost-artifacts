@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { CrimeLabManager } from './CSI/CrimeLabManager.js';
 import { DEDUCTION_EVIDENCE_REGISTRY } from './CSI/DeductionEvidenceRegistry.js';
 
@@ -422,7 +422,7 @@ export class SuspectGridScene extends BaseScene {
   create() {
     super.create();
 
-    this.scene.stop('NewsHudScene');
+    this.scene.stop('NewsHud');
     this.scene.stop('UIScene');
     this.scene.stop('MenuScene');
 

@@ -1,6 +1,6 @@
 // managers/MainStoryManager.js
 // Stan głównego śledztwa.
-// Zapis i odczyt obsługuje GameStatePersistence.js.
+// Zapis i odczyt obsługuje gameStatePersistence.js.
 
 import { EventBus } from '../EventBus.js';
 import {

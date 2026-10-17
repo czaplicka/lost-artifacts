@@ -1,7 +1,7 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { getEnergyManager } from './EnergyManager.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import {
   moneyManager,
   MONEY_SOURCE,

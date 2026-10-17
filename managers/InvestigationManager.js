@@ -1,5 +1,5 @@
 import { gameState, resetCaseOutcomeState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { ScoreManager } from './ScoreManager.js';
 import { RouteManager } from './RouteManager.js';

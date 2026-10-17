@@ -1,6 +1,6 @@
 // suspectsBoard/SuspectExclusion.mixin.js
 
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 
 import {

@@ -1,6 +1,6 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 
 export const ACHIEVEMENTS = {
     first_case: {

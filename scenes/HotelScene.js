@@ -17,6 +17,7 @@ export class HotelScene extends BaseScene {
     this.boundCleanupScene = this.cleanupScene.bind(this);
     this.boundWakeOrResume = this.onWakeOrResume.bind(this);
     this.boundSleep = this.onSleep.bind(this);
+    this.boundHollySleepFinished = this.onHollySleepFinished.bind(this);
 
     this.hudWaitCancels = new Set();
 
@@ -44,6 +45,8 @@ export class HotelScene extends BaseScene {
 
     this.debugGraphics = null;
     this.debugTexts = [];
+
+    this.pendingSleepHours = null;
   }
 
   init(data = {}) {
@@ -63,22 +66,28 @@ export class HotelScene extends BaseScene {
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      this.boundCleanupScene,
+      this.boundCleanupScene
     );
 
     this.events.on(
       Phaser.Scenes.Events.WAKE,
-      this.boundWakeOrResume,
+      this.boundWakeOrResume
     );
 
     this.events.on(
       Phaser.Scenes.Events.RESUME,
-      this.boundWakeOrResume,
+      this.boundWakeOrResume
     );
 
     this.events.on(
       Phaser.Scenes.Events.SLEEP,
-      this.boundSleep,
+      this.boundSleep
+    );
+
+    EventBus.on(
+      'hollySleepFinished',
+      this.boundHollySleepFinished,
+      this
     );
 
     const { width, height } = this.scale;
@@ -96,15 +105,13 @@ export class HotelScene extends BaseScene {
     this.trackInputEvent(
       this.input.keyboard,
       'keydown-ESC',
-      this.handleEscape,
+      this.handleEscape
     );
 
-    // Nie konfigurujemy HUD-u wewnątrz create().
-    // Pierwszy POST_UPDATE następuje, gdy hotel już działa.
     this.events.once(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
-      this,
+      this
     );
   }
 
@@ -161,7 +168,7 @@ export class HotelScene extends BaseScene {
       const removeListeners = () => {
         this.events.off(
           Phaser.Scenes.Events.POST_UPDATE,
-          checkReady,
+          checkReady
         );
 
         this.hudWaitCancels.delete(cancel);
@@ -197,8 +204,8 @@ export class HotelScene extends BaseScene {
         }
 
         if (
-          sceneKey === 'PlayerHudScene'
-          && !overlay.isHudReady
+          sceneKey === 'PlayerHudScene' &&
+          !overlay.isHudReady
         ) {
           return;
         }
@@ -210,7 +217,7 @@ export class HotelScene extends BaseScene {
 
       this.events.on(
         Phaser.Scenes.Events.POST_UPDATE,
-        checkReady,
+        checkReady
       );
 
       timeoutId = window.setTimeout(() => {
@@ -223,9 +230,8 @@ export class HotelScene extends BaseScene {
 
         reject(
           new Error(
-            `[HotelScene] "${sceneKey}" was not ready ` +
-            `within ${timeoutMs} ms.`,
-          ),
+            `[HotelScene] "${sceneKey}" was not ready within ${timeoutMs} ms.`
+          )
         );
       }, timeoutMs);
 
@@ -245,7 +251,7 @@ export class HotelScene extends BaseScene {
 
   async ensurePlayerHud() {
     const playerHud = await this.ensureReadyOverlay(
-      'PlayerHudScene',
+      'PlayerHudScene'
     );
 
     if (playerHud) {
@@ -257,9 +263,9 @@ export class HotelScene extends BaseScene {
 
   async setupHudScenes() {
     if (
-      this.isSettingUpHud
-      || this._cleanupDone
-      || !this.sys.isActive()
+      this.isSettingUpHud ||
+      this._cleanupDone ||
+      !this.sys.isActive()
     ) {
       return;
     }
@@ -267,7 +273,6 @@ export class HotelScene extends BaseScene {
     this.isSettingUpHud = true;
 
     try {
-      // Dolne menu przywracamy jako pierwsze.
       const playerHud = await this.ensurePlayerHud();
 
       if (this._cleanupDone || !this.sys.isActive()) {
@@ -276,7 +281,7 @@ export class HotelScene extends BaseScene {
 
       if (!playerHud) {
         console.warn(
-          '[HotelScene] PlayerHudScene could not be restored.',
+          '[HotelScene] PlayerHudScene could not be restored.'
         );
         return;
       }
@@ -293,7 +298,7 @@ export class HotelScene extends BaseScene {
         ready: playerHud.isHudReady,
         active: this.isSceneActive('PlayerHudScene'),
         visible: playerHud.sys.settings.visible,
-        context: playerHud.currentGameplaySceneKey,
+        context: playerHud.currentGameplaySceneKey
       });
 
       const uiScene = await this.ensureReadyOverlay('UIScene');
@@ -313,14 +318,11 @@ export class HotelScene extends BaseScene {
         uiScene.updateTime?.({
           day: gameState.currentDay || gameState.day || 1,
           hour: gameState.currentHour ?? gameState.hour ?? 8,
-          minute:
-            gameState.currentMinute
-            ?? gameState.minute
-            ?? 0,
+          minute: gameState.currentMinute ?? gameState.minute ?? 0,
           partOfDay:
-            gameState.currentPartOfDay
-            || gameState.partOfDay
-            || 'Morning',
+            gameState.currentPartOfDay ||
+            gameState.partOfDay ||
+            'Morning'
         });
       }
 
@@ -336,7 +338,7 @@ export class HotelScene extends BaseScene {
       if (!this._cleanupDone) {
         console.error(
           '[HotelScene] Failed to configure HUD scenes:',
-          error,
+          error
         );
       }
     } finally {
@@ -365,7 +367,7 @@ export class HotelScene extends BaseScene {
         color: '#ffffff',
         align: 'center',
         stroke: '#000000',
-        strokeThickness: 5,
+        strokeThickness: 5
       })
       .setOrigin(0.5)
       .setDepth(5);
@@ -381,8 +383,8 @@ export class HotelScene extends BaseScene {
           color: '#f1e6b8',
           align: 'center',
           stroke: '#000000',
-          strokeThickness: 4,
-        },
+          strokeThickness: 4
+        }
       )
       .setOrigin(0.5)
       .setDepth(5);
@@ -399,8 +401,8 @@ export class HotelScene extends BaseScene {
           left: 12,
           right: 12,
           top: 7,
-          bottom: 7,
-        },
+          bottom: 7
+        }
       })
       .setOrigin(0.5)
       .setDepth(50)
@@ -415,7 +417,7 @@ export class HotelScene extends BaseScene {
         color: '#dddddd',
         align: 'center',
         backgroundColor: '#111111aa',
-        padding: { x: 14, y: 10 },
+        padding: { x: 14, y: 10 }
       })
       .setOrigin(0.5)
       .setDepth(10);
@@ -433,7 +435,7 @@ export class HotelScene extends BaseScene {
         monologueKey: 'inspect.hotelBed',
         fallbackMonologue:
           'A bed. A promising development in any investigation.',
-        action: () => this.openSleepMenu(),
+        action: () => this.openSleepMenu()
       },
       {
         id: 'hotel-tv',
@@ -447,7 +449,7 @@ export class HotelScene extends BaseScene {
           'The television is on. Somewhere, a reporter is overreacting.',
         action: () => {
           void this.openHotelTv();
-        },
+        }
       },
       {
         id: 'hotel-desk',
@@ -461,7 +463,7 @@ export class HotelScene extends BaseScene {
           'A desk. Finally, a horizontal surface for evidence and regret.',
         action: () => {
           void this.openCrimeBoard();
-        },
+        }
       },
       {
         id: 'hotel-window-exit',
@@ -475,8 +477,8 @@ export class HotelScene extends BaseScene {
           'The city is out there, full of clues and people pretending not to be suspicious.',
         action: () => {
           void this.leaveHotel();
-        },
-      },
+        }
+      }
     ];
 
     hotspotData.forEach((data) => {
@@ -486,7 +488,7 @@ export class HotelScene extends BaseScene {
         .setDepth(4)
         .setInteractive({
           useHandCursor: true,
-          cursor: 'pointer',
+          cursor: 'pointer'
         });
 
       zone.hotspotData = data;
@@ -516,7 +518,7 @@ export class HotelScene extends BaseScene {
         } catch (error) {
           console.error(
             `[HotelScene] Hotel hotspot failed: ${data.id}`,
-            error,
+            error
           );
         }
       });
@@ -527,11 +529,11 @@ export class HotelScene extends BaseScene {
 
   isHotelInteractionBlocked() {
     return (
-      this.isLeaving
-      || this.isSleeping
-      || this.isSleepMenuOpen
-      || this.uiLocked
-      || this._cleanupDone
+      this.isLeaving ||
+      this.isSleeping ||
+      this.isSleepMenuOpen ||
+      this.uiLocked ||
+      this._cleanupDone
     );
   }
 
@@ -554,7 +556,7 @@ export class HotelScene extends BaseScene {
         data.x,
         data.y,
         data.width,
-        data.height,
+        data.height
       );
 
       const label = this.add
@@ -567,8 +569,8 @@ export class HotelScene extends BaseScene {
             left: 4,
             right: 4,
             top: 2,
-            bottom: 2,
-          },
+            bottom: 2
+          }
         })
         .setDepth(999);
 
@@ -597,7 +599,7 @@ export class HotelScene extends BaseScene {
       this.monologue.sayRandom(data.monologueKey, {
         cooldownKey: `hotel-hover:${data.id}`,
         cooldownMs: 2500,
-        queue: false,
+        queue: false
       });
       return;
     }
@@ -606,7 +608,7 @@ export class HotelScene extends BaseScene {
       this.monologue.say(data.fallbackMonologue, {
         cooldownKey: `hotel-hover-fallback:${data.id}`,
         cooldownMs: 2500,
-        queue: false,
+        queue: false
       });
     }
   }
@@ -640,7 +642,7 @@ export class HotelScene extends BaseScene {
         panelWidth,
         350,
         0x17110e,
-        0.98,
+        0.98
       )
       .setStrokeStyle(4, 0xd4af37);
 
@@ -653,8 +655,8 @@ export class HotelScene extends BaseScene {
           fontFamily: 'PressStart2P',
           fontSize: '16px',
           color: '#f6dc8c',
-          align: 'center',
-        },
+          align: 'center'
+        }
       )
       .setOrigin(0.5);
 
@@ -667,8 +669,8 @@ export class HotelScene extends BaseScene {
           fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#f1e6b8',
-          align: 'center',
-        },
+          align: 'center'
+        }
       )
       .setOrigin(0.5);
 
@@ -682,8 +684,8 @@ export class HotelScene extends BaseScene {
           fontSize: '14px',
           color: '#ffffff',
           backgroundColor: '#3b1111',
-          padding: { x: 10, y: 8 },
-        },
+          padding: { x: 10, y: 8 }
+        }
       )
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -697,7 +699,7 @@ export class HotelScene extends BaseScene {
       panel,
       title,
       subtitle,
-      closeButton,
+      closeButton
     ]);
 
     this.createSleepOption(
@@ -705,7 +707,7 @@ export class HotelScene extends BaseScene {
       height / 2 + 36,
       '2 HOURS',
       '+40 ENERGY',
-      2,
+      2
     );
 
     this.createSleepOption(
@@ -713,7 +715,7 @@ export class HotelScene extends BaseScene {
       height / 2 + 36,
       '4 HOURS',
       '+60 ENERGY',
-      4,
+      4
     );
 
     this.createSleepOption(
@@ -721,7 +723,7 @@ export class HotelScene extends BaseScene {
       height / 2 + 36,
       '8 HOURS',
       '+100 ENERGY',
-      8,
+      8
     );
 
     this.sleepMenu.setAlpha(0);
@@ -730,7 +732,7 @@ export class HotelScene extends BaseScene {
       targets: this.sleepMenu,
       alpha: 1,
       duration: 180,
-      ease: 'Quad.Out',
+      ease: 'Quad.Out'
     });
   }
 
@@ -749,7 +751,7 @@ export class HotelScene extends BaseScene {
         fontFamily: 'PressStart2P',
         fontSize: '11px',
         color: '#ffffff',
-        align: 'center',
+        align: 'center'
       })
       .setOrigin(0.5);
 
@@ -758,7 +760,7 @@ export class HotelScene extends BaseScene {
         fontFamily: 'SpecialElite',
         fontSize: '19px',
         color: '#ffe066',
-        align: 'center',
+        align: 'center'
       })
       .setOrigin(0.5);
 
@@ -778,9 +780,9 @@ export class HotelScene extends BaseScene {
 
     button.on('pointerdown', () => {
       if (
-        this.isSleeping
-        || this.isLeaving
-        || this._cleanupDone
+        this.isSleeping ||
+        this.isLeaving ||
+        this._cleanupDone
       ) {
         return;
       }
@@ -792,7 +794,7 @@ export class HotelScene extends BaseScene {
     this.sleepMenu.add([
       button,
       titleText,
-      descriptionText,
+      descriptionText
     ]);
   }
 
@@ -819,7 +821,7 @@ export class HotelScene extends BaseScene {
         if (menu?.active) {
           menu.destroy(true);
         }
-      },
+      }
     });
   }
 
@@ -841,8 +843,8 @@ export class HotelScene extends BaseScene {
 
   async openHotelTv() {
     if (
-      this.isHotelInteractionBlocked()
-      || this.isOpeningTv
+      this.isHotelInteractionBlocked() ||
+      this.isOpeningTv
     ) {
       return;
     }
@@ -871,7 +873,7 @@ export class HotelScene extends BaseScene {
         reporterName: 'Colette Duvall',
         stationName: `${
           gameState.currentCity || mission.city || 'Local'
-        } Night Report`,
+        } Night Report`
       });
 
       if (this._cleanupDone || status !== 'opened') {
@@ -888,7 +890,7 @@ export class HotelScene extends BaseScene {
       if (!this._cleanupDone) {
         console.error(
           '[HotelScene] Could not open hotel TV:',
-          error,
+          error
         );
       }
     } finally {
@@ -909,7 +911,7 @@ export class HotelScene extends BaseScene {
       } catch (error) {
         console.error(
           '[HotelScene] Could not restore HUD for Crime Board:',
-          error,
+          error
         );
         return false;
       }
@@ -925,8 +927,8 @@ export class HotelScene extends BaseScene {
         {
           hudFound: Boolean(hud),
           hudReady: hud?.isHudReady,
-          hudActive: this.isSceneActive('PlayerHudScene'),
-        },
+          hudActive: this.isSceneActive('PlayerHudScene')
+        }
       );
       return false;
     }
@@ -939,7 +941,7 @@ export class HotelScene extends BaseScene {
     console.log('[HotelScene] Crime Board open result:', {
       opened,
       hudContext: hud.currentGameplaySceneKey,
-      hudActive: this.isSceneActive('PlayerHudScene'),
+      hudActive: this.isSceneActive('PlayerHudScene')
     });
 
     return opened;
@@ -983,13 +985,13 @@ export class HotelScene extends BaseScene {
       }
 
       if (
-        !this.isLeaving
-        && !this.isSleeping
-        && !this.isSleepMenuOpen
+        !this.isLeaving &&
+        !this.isSleeping &&
+        !this.isSleepMenuOpen
       ) {
         hotspot.setInteractive({
           useHandCursor: true,
-          cursor: 'pointer',
+          cursor: 'pointer'
         });
       }
     });
@@ -1005,16 +1007,16 @@ export class HotelScene extends BaseScene {
         locationType: 'hotel',
         locationCode: 'hotel_room',
         cityCode:
-          gameState.currentCityId
-          || this.returnData.cityId
-          || null,
+          gameState.currentCityId ||
+          this.returnData.cityId ||
+          null
       });
 
       this.saveUI.createButton();
     } catch (error) {
       console.error(
         '[HotelScene] Failed to initialize save controls:',
-        error,
+        error
       );
 
       this.saveUI = null;
@@ -1026,9 +1028,14 @@ export class HotelScene extends BaseScene {
       return;
     }
 
+    const energyManager = getEnergyManager();
+
+    energyManager.cancelManualSleep();
+
     this.isLeaving = false;
     this.isSleeping = false;
     this.isTransitioning = false;
+    this.pendingSleepHours = null;
 
     this.applyLock(false);
     this.cameras.main.fadeIn(220, 0, 0, 0);
@@ -1036,9 +1043,22 @@ export class HotelScene extends BaseScene {
 
   doSleep(hours) {
     if (
-      this.isLeaving
-      || this.isSleeping
-      || this._cleanupDone
+      this.isLeaving ||
+      this.isSleeping ||
+      this._cleanupDone
+    ) {
+      return;
+    }
+
+    this.pendingSleepHours = hours;
+    this.beginSleep(hours);
+  }
+
+  beginSleep(hours) {
+    if (
+      this.isLeaving ||
+      this.isSleeping ||
+      this._cleanupDone
     ) {
       return;
     }
@@ -1048,20 +1068,69 @@ export class HotelScene extends BaseScene {
     this.isTransitioning = true;
 
     this.applyLock(true);
+    this.hideHoverHint();
+
+    const energyManager = getEnergyManager();
+    const startResult = energyManager.startManualSleep(hours);
+
+    if (!startResult?.success) {
+      console.warn(
+        '[HotelScene] Could not start manual sleep.',
+        startResult
+      );
+
+      this.pendingSleepHours = null;
+      this.restoreAfterFailedExit();
+      return;
+    }
+
+    const state = gameState.getState
+      ? gameState.getState()
+      : gameState;
+
+    const shouldShowHolly =
+      state.hollyIntroPending === true &&
+      state.hollyIntroSeen !== true;
+
+    if (shouldShowHolly) {
+      this.scene.pause();
+
+      this.scene.launch('HollyIntroScene', {
+        returnScene: 'HotelScene',
+        returnData: {
+          sleepHours: hours
+        }
+      });
+
+      return;
+    }
+
+    this.finishSleep(hours);
+  }
+
+  finishSleep(hours) {
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return;
+    }
+
+    const sleepHours = Number(hours || this.pendingSleepHours || 8);
 
     try {
       const energyManager = getEnergyManager();
-      const result = energyManager.sleep(hours);
+      const result = energyManager.completeManualSleep(sleepHours);
 
       console.log('[HotelScene] Sleep completed:', {
-        hours,
-        result,
+        hours: sleepHours,
+        result
       });
     } catch (error) {
       console.error(
         '[HotelScene] Energy restoration failed:',
-        error,
+        error
       );
+      this.pendingSleepHours = null;
+      this.restoreAfterFailedExit();
+      return;
     }
 
     this.cameras.main.once(
@@ -1071,13 +1140,13 @@ export class HotelScene extends BaseScene {
           return;
         }
 
-        if (this.timeManager?.handleAdvanceTime) {
-          this.timeManager.handleAdvanceTime(hours, 0);
-        } else {
-          EventBus.emit('advanceTime', hours, 0);
-        }
+        this.pendingSleepHours = null;
 
-        void this.goto(this.returnScene, this.returnData)
+        void this.goto(this.returnScene, {
+          ...this.returnData,
+          wokeUp: true,
+          sleptHours: sleepHours
+        })
           .then((moved) => {
             if (!moved) {
               this.restoreAfterFailedExit();
@@ -1087,15 +1156,33 @@ export class HotelScene extends BaseScene {
             if (!this._cleanupDone) {
               console.error(
                 '[HotelScene] Could not return after sleep:',
-                error,
+                error
               );
               this.restoreAfterFailedExit();
             }
           });
-      },
+      }
     );
 
     this.cameras.main.fadeOut(700, 0, 0, 0);
+  }
+
+  onHollySleepFinished(payload = {}) {
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return;
+    }
+
+    const sleepHours = Number(
+      payload.sleepHours || this.pendingSleepHours || 8
+    );
+
+    if (this.isSceneActive('HollyIntroScene')) {
+      this.scene.stop('HollyIntroScene');
+    }
+
+    this.scene.resume();
+
+    this.finishSleep(sleepHours);
   }
 
   handleEscape() {
@@ -1113,9 +1200,9 @@ export class HotelScene extends BaseScene {
 
   async leaveHotel() {
     if (
-      this.isLeaving
-      || this.isSleeping
-      || this._cleanupDone
+      this.isLeaving ||
+      this.isSleeping ||
+      this._cleanupDone
     ) {
       return false;
     }
@@ -1129,7 +1216,7 @@ export class HotelScene extends BaseScene {
     try {
       const moved = await this.goto(
         this.returnScene,
-        this.returnData,
+        this.returnData
       );
 
       if (!moved) {
@@ -1141,7 +1228,7 @@ export class HotelScene extends BaseScene {
       if (!this._cleanupDone) {
         console.error(
           '[HotelScene] Could not leave hotel:',
-          error,
+          error
         );
 
         this.restoreAfterFailedExit();
@@ -1159,9 +1246,9 @@ export class HotelScene extends BaseScene {
     this.isOpeningTv = false;
 
     if (
-      !this.isLeaving
-      && !this.isSleeping
-      && !this.isSleepMenuOpen
+      !this.isLeaving &&
+      !this.isSleeping &&
+      !this.isSleepMenuOpen
     ) {
       this.applyLock(false);
     }
@@ -1169,13 +1256,13 @@ export class HotelScene extends BaseScene {
     this.events.off(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
-      this,
+      this
     );
 
     this.events.once(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
-      this,
+      this
     );
   }
 
@@ -1187,25 +1274,31 @@ export class HotelScene extends BaseScene {
   cleanupScene() {
     this.cancelHudWaits();
 
+    EventBus.off(
+      'hollySleepFinished',
+      this.boundHollySleepFinished,
+      this
+    );
+
     this.events.off(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
-      this,
+      this
     );
 
     this.events.off(
       Phaser.Scenes.Events.WAKE,
-      this.boundWakeOrResume,
+      this.boundWakeOrResume
     );
 
     this.events.off(
       Phaser.Scenes.Events.RESUME,
-      this.boundWakeOrResume,
+      this.boundWakeOrResume
     );
 
     this.events.off(
       Phaser.Scenes.Events.SLEEP,
-      this.boundSleep,
+      this.boundSleep
     );
 
     this.destroySleepMenu();
@@ -1246,5 +1339,6 @@ export class HotelScene extends BaseScene {
     this.isOpeningTv = false;
     this.isSettingUpHud = false;
     this.isTransitioning = false;
+    this.pendingSleepHours = null;
   }
 }

@@ -2,7 +2,7 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../managers/AudioManager.js';
-import { ensureAlibiEncounters } from '../AlibiEncounterSetup.js';
+import { ensureAlibiEncounters } from '../alibi/AlibiEncounterSetup.js';
 import { EventBus } from '../EventBus.js';
 
 import { CrimeCityProgressService } from './crimeCity/CrimeCityProgressService.js';

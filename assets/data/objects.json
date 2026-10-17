@@ -2260,12 +2260,12 @@
     {
       "id": "crowbar",
       "item": "Flat crowbar",
-      "skills": ["Problem-solving", "Engineering", "Tactical planning"],
+      "skills": ["Problem-solving", "Engineering", "Tactical planning", "Hand-to-hand combat"],
       "tags": ["crowbar", "force", "entry", "tool", "break-in"],
       "scene": ["dockyard", "auction_house"],
       "trueExplanation": "Used by the dock workers to open recalcitrant crate lids full of cheap machine parts.",
       "heistExplanation": "If the vault door refuses to cooperate with subtle tools, mechanical leverage gets very loud, very fast.",
-"reconstructionUses": [
+      "reconstructionUses": [
       {
         "questionId": "gain_access",
         "skills": ["Engineering", "Problem-solving", "Tactical planning"],
@@ -2280,18 +2280,23 @@
         "questionId": "distract_guards",
         "skills": ["Tactical planning", "Deception", "Engineering"],
         "heistExplanation": "The thief created a loud forced-entry scene at one warehouse door while entering the real target through another route."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": ["Hand-to-hand combat", "Tactical planning", "Intimidation"],
+        "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
       }
     ]
     },
     {
       "id": "dark_hood",
       "item": "Dark hood",
-      "skills": ["Disguise", "Stealth", "Surveillance"],
+      "skills": ["Disguise", "Stealth", "Surveillance", "Hand-to-hand combat"],
       "tags": ["hood", "cloak", "concealment", "night", "anonymous"],
       "scene": ["dockyard"],
       "trueExplanation": "Smells strongly of salt air and wet wool; left on a mooring post by a chilled dockworker.",
       "heistExplanation": "The most useful gear in a busy industrial dockyard is looking like an anonymous silhouette in the rain.",
-"reconstructionUses": [
+      "reconstructionUses": [
       {
         "questionId": "avoid_attention",
         "skills": ["Disguise", "Stealth", "Deception"],
@@ -2306,6 +2311,11 @@
         "questionId": "escape_route",
         "skills": ["Stealth", "Disguise", "Survival skills"],
         "heistExplanation": "Once outside the warehouse, the hood helped the thief merge with workers leaving the docks in bad weather."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": ["Hand-to-hand combat", "Tactical planning", "Intimidation"],
+        "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
       }
     ]
     },
@@ -2723,27 +2733,27 @@
     {
       "id": "harbor_chain",
       "item": "Cargo chain",
-      "skills": ["Tactical planning", "Engineering"],
+      "skills": ["Tactical planning", "Engineering", "Hand-to-hand combat"],
       "tags": ["chain", "cargo", "dock", "load", "secure"],
       "scene": ["dockyard"],
       "trueExplanation": "Heavy galvanized steel chain used to anchor floating dock platforms.",
       "heistExplanation": "Heavy industrial gear leaves heavy, undeniable evidence when dragged across a quiet pier.",
       "reconstructionUses": [
-        {
-          "questionId": "remove_artifact",
-          "skills": ["Engineering", "Tactical planning", "Strength"],
-          "heistExplanation": "The thief used the chain and a loading hoist to move a heavy artifact crate without needing a crew."
-        },
-        {
-          "questionId": "overcome_guard",
-          "skills": ["Tactical planning", "Engineering", "Intimidation"],
-          "heistExplanation": "The chain secured a warehouse door from the outside, buying the thief time while guards searched for another way in."
-        },
-        {
-          "questionId": "escape_route",
-          "skills": ["Engineering", "Tactical planning", "Survival skills"],
-          "heistExplanation": "The thief used the cargo chain to lower the crate onto a waiting boat below the pier."
-        }
+      {
+        "questionId": "remove_artifact",
+        "skills": ["Engineering", "Tactical planning", "Strength"],
+        "heistExplanation": "The thief used the chain and a loading hoist to move a heavy artifact crate without needing a crew."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": ["Tactical planning", "Engineering", "Intimidation", "Hand-to-hand combat"],
+        "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": ["Engineering", "Tactical planning", "Survival skills"],
+        "heistExplanation": "The thief used the cargo chain to lower the crate onto a waiting boat below the pier."
+      }
       ]
     },
   {

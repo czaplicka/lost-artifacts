@@ -1,14 +1,14 @@
-// GameSetup.js
 import {
   gameState,
   resetGameState,
-  resetCaseOutcomeState
+  resetCaseOutcomeState,
+  createDefaultReconstructedHeist
 } from './GameData.js';
 
 import {
   saveGameState,
   clearSavedGame
-} from './GameStatePersistence.js';
+} from './gameStatePersistence.js';
 
 import { EventBus } from './EventBus.js';
 import SuspectGenerator from './suspects/SuspectGenerator.js';
@@ -74,7 +74,6 @@ const RANK_TO_SCHEDULE_KEY = {
   'Lead Investigator': '4'
 };
 
-// Minutes from midnight in the crime city's local time.
 const CRIME_WINDOW_START_MINUTES = [
   18 * 60,
   19 * 60,
@@ -83,10 +82,10 @@ const CRIME_WINDOW_START_MINUTES = [
 ];
 
 const CRIME_WINDOW_DURATION_MINUTES = 15;
-
-// Case-relative day of the theft, before the investigation starts.
-// This is not gameState.currentDay and does not advance during play.
 const CRIME_DAY = 0;
+
+// Zachowujemy dotychczasową jednostkę czasu śledztwa.
+const INVESTIGATION_DURATION = 4 * 24;
 
 let currentMotive = null;
 
@@ -141,20 +140,14 @@ function getRandomItem(items) {
 }
 
 export function getCurrentMotive() {
-  return currentMotive;
-}
-
-function ensureCaseDataShaped() {
-  if (
-    !gameState.caseData ||
-    typeof gameState.caseData !== 'object'
-  ) {
-    gameState.caseData = {};
-  }
-
-  if (!Array.isArray(gameState.caseData.motiveStagesDone)) {
-    gameState.caseData.motiveStagesDone = [];
-  }
+  // Nie zwracamy motywu poprzedniej sprawy, jeśli bieżący
+  // stan został zresetowany albo zastąpiony zapisem innej sprawy.
+  return (
+    currentMotive &&
+    currentMotive.id === gameState.caseData?.motiveId
+  )
+    ? currentMotive
+    : null;
 }
 
 function createEmptyCaseData() {
@@ -167,10 +160,23 @@ function createEmptyCaseData() {
   };
 }
 
+function ensureCaseDataShaped() {
+  if (
+    !gameState.caseData ||
+    typeof gameState.caseData !== 'object' ||
+    Array.isArray(gameState.caseData)
+  ) {
+    gameState.caseData = createEmptyCaseData();
+  }
+
+  if (!Array.isArray(gameState.caseData.motiveStagesDone)) {
+    gameState.caseData.motiveStagesDone = [];
+  }
+}
+
 function setupCaseCrimeWindow() {
   ensureCaseDataShaped();
 
-  // Do not reroll a window already assigned to this case.
   if (gameState.caseData.crimeWindow != null) {
     return gameState.caseData.crimeWindow;
   }
@@ -180,13 +186,16 @@ function setupCaseCrimeWindow() {
   );
 
   if (!Number.isInteger(startMinute)) {
-    throw new Error('Could not generate the crime time window.');
+    throw new Error(
+      'Could not generate the crime time window.'
+    );
   }
 
   const crimeWindow = {
     day: CRIME_DAY,
     startMinute,
-    endMinute: startMinute + CRIME_WINDOW_DURATION_MINUTES
+    endMinute:
+      startMinute + CRIME_WINDOW_DURATION_MINUTES
   };
 
   gameState.caseData.crimeWindow = crimeWindow;
@@ -195,28 +204,42 @@ function setupCaseCrimeWindow() {
 }
 
 function setupCaseMotive() {
-  currentMotive = drawMotive();
+  const motive = drawMotive();
+
+  if (
+    !motive?.id ||
+    !motive.crimeBoard ||
+    motive.crimeBoard.answerId == null
+  ) {
+    throw new Error(
+      'Could not generate a valid case motive.'
+    );
+  }
+
+  currentMotive = motive;
 
   Object.assign(gameState.caseData, {
-    motiveId: currentMotive.id,
-    correctMotiveAnswerId: currentMotive.crimeBoard.answerId,
+    motiveId: motive.id,
+    correctMotiveAnswerId: motive.crimeBoard.answerId,
     motiveStagesDone: [],
     motiveBoardUnlocked: false
   });
 
-  return currentMotive;
+  return motive;
 }
 
-function syncScoreFromManager() {
+function startScoreSession() {
   const manager = getScoreManager();
 
   if (typeof manager?.startSession === 'function') {
-    manager.startSession({ reset: true });
+    manager.startSession({
+      reset: true
+    });
   }
 }
 
 function resetForensicCaseState() {
-  Object.assign(gameState, {
+  gameState.updateState({
     caseSuspects: [],
     suspects: [],
     suspectList: [],
@@ -237,6 +260,7 @@ function resetForensicCaseState() {
     caseCsiAssignments: {},
     caseForensics: {},
     crimeCityProgress: {},
+    crimeCityCurrentNodes: {},
 
     suspectExclusionState: {},
     suspectGridInput: null,
@@ -244,7 +268,9 @@ function resetForensicCaseState() {
 
     crimeCityEncounterState: {},
     alibiAccusations: {},
-    reconstructedHeist: null,
+
+    reconstructedHeist:
+      createDefaultReconstructedHeist(),
 
     selectedThiefProfile: null,
     selectedThief: null,
@@ -260,343 +286,98 @@ function resetForensicCaseState() {
   });
 }
 
-async function fetchCaseSuspects(thief, crimeCityId) {
-  const lab = new CrimeLabManager(gameState, crimeCityId);
-
-  const identityEvidence = lab.ensureIdentityEvidence();
-  const traceEvidence = lab.ensureRandomTraceEvidence();
-
-  const assigned = [
-    identityEvidence,
-    ...traceEvidence
-  ];
-
-  const normalized = normalizeHardEvidence(assigned);
-
-  if (normalized.length !== 3) {
-    throw new Error(
-      'Case setup requires three usable forensic clues.'
-    );
-  }
-
-  const hardEvidence = normalized.map(
-    ({ matches, ...evidence }) => evidence
-  );
-
-  // Retry downloading only; do not disguise generation errors as fetch errors.
-  let citySuspectsData;
-  let lastError;
-
-  for (
-    let attempt = 0;
-    attempt <= SUSPECT_FETCH_RETRIES;
-    attempt += 1
-  ) {
-    try {
-      const response = await fetch(SUSPECT_DATA_URL);
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      citySuspectsData = await response.json();
-      break;
-    } catch (error) {
-      lastError = error;
-
-      if (attempt < SUSPECT_FETCH_RETRIES) {
-        await new Promise((resolve) => {
-          setTimeout(
-            resolve,
-            SUSPECT_FETCH_RETRY_DELAY_MS
-          );
-        });
-      }
-    }
-  }
-
-  if (citySuspectsData === undefined) {
-    throw new Error(
-      `Failed to load suspects: ${lastError?.message || lastError}`
-    );
-  }
-
-  const generator = new SuspectGenerator(citySuspectsData);
-
-  const caseData = generator.generateCaseSuspects(
-    thief,
-    crimeCityId,
-    {
-      total: 10,
-      hardEvidence
-    }
-  );
-
-  generator.prepareCaseState(caseData);
-
-  gameState.currentMission.forensicHardEvidence =
-    structuredClone(caseData.hardEvidence);
-
-  gameState.currentMission.requiredForensicProfile =
-    Object.fromEntries(
-      caseData.hardEvidence.map((evidence) => [
-        evidence.forensicField,
-        evidence.normalizedValue
-      ])
-    );
-
-  gameState.currentMission.traceEvidence =
-    structuredClone(traceEvidence);
-
-  saveGameState();
-
-  return caseData;
+function resetArtifactRecovery() {
+  gameState.artifactRecovery = {
+    missionId: null,
+    artifactId: null,
+    recovered: false,
+    recoveredAt: null,
+    recoveredFrom: null,
+    recoveredLocation: null,
+    condition: null
+  };
 }
 
-export async function setupNewGame(
-  suspectsData,
-  missionsData,
-  locationsData,
-  difficulty = 'field'
-) {
-  validateSetupData(
-    suspectsData,
-    missionsData,
-    locationsData
-  );
-
-  clearSavedGame();
-  resetGameState();
-  resetCaseOutcomeState();
-
-  const energyManager = getEnergyManager();
-  energyManager.init(difficulty);
-
-  const travelManager = createUnifiedTravelManager();
-  travelManager.init();
-
-  const investigationStartTime =
-    gameState.getState().timeSpent || 0;
+function startInvestigationClock() {
+  const startTime = Number.isFinite(gameState.timeSpent)
+    ? gameState.timeSpent
+    : 0;
 
   gameState.updateState({
     investigationPhaseActive: true,
-    investigationStartTime,
-    investigationDeadline: investigationStartTime + 4 * 24,
-    escapePhaseActive: false
+    investigationStartTime: startTime,
+    investigationDeadline:
+      startTime + INVESTIGATION_DURATION,
+
+    escapePhaseActive: false,
+    escapeStartTime: null,
+    escapeDeadline: null,
+    timeWastedOnMistakes: 0
   });
-
-  getRankManager().init();
-
-  if (typeof getScoreManager()?.startSession === 'function') {
-    getScoreManager().startSession({ reset: true });
-  }
-
-  const thief = getRandomItem(suspectsData);
-
-  const crimeCities = locationsData.filter(
-    (location) => location.isCrimeCity === true
-  );
-
-  const mission = getRandomItem(
-    missionsData.filter((item) =>
-      crimeCities.some((city) => city.city === item.city)
-    )
-  );
-
-  const crimeCityData = crimeCities.find(
-    (city) => city.city === mission?.city
-  );
-
-  const hqData = locationsData.find(
-    (location) =>
-      location.id === HQ_ID ||
-      location.city === HQ_CITY
-  );
-
-  if (!thief || !mission || !crimeCityData || !hqData) {
-    throw new Error('Could not create a valid case.');
-  }
-
-  const crimeCityId = resolveLocationId(
-    crimeCityData,
-    'crime city'
-  );
-
-  const { caseDirector, template } = buildCaseDirector();
-
-  const escapeRouteLength =
-    template.stages.cityChain?.cityCount ??
-    ESCAPE_ROUTE_LENGTH;
-
-  const escapeRoute = shuffle(
-    locationsData
-      .filter((location) => {
-        const id = resolveLocationId(
-          location,
-          'escape route'
-        );
-
-        return (
-          location?.city &&
-          id !== crimeCityId &&
-          id !== HQ_ID
-        );
-      })
-      .map((location) =>
-        resolveLocationId(location, 'escape route')
-      )
-  ).slice(0, escapeRouteLength);
-
-  Object.assign(gameState, {
-    currentThiefId: thief.id ?? null,
-    currentThief: structuredClone(thief),
-    currentMission: structuredClone(mission),
-
-    currentArtifact: mission.artifact ?? null,
-
-    currentCity: hqData.city,
-    currentCityId: hqData.id || HQ_ID,
-    currentCityData: structuredClone(hqData),
-    currentEncounterId: null,
-
-    crimeCity: crimeCityData.city,
-    crimeCityId,
-
-    activeLocations: [],
-    currentDestinations: [],
-    escapeRoute: [...escapeRoute],
-    routeManager: null,
-
-    routeIndex: -1,
-    nextTargetCity: null,
-    nextTargetCityId: null,
-    mustIncludeCityId: null,
-
-    canonicalTravelCityId: null,
-    justReachedCorrectCityId: null,
-    clueScope: 'crime_scene',
-    score: 0,
-
-    isGameActive: true,
-    crimeSceneVisited: false,
-    storyPhoneCallTriggered: false,
-    pendingPhoneCall: false,
-    pendingPhoneCallCityId: null,
-
-    scoreSaved: false,
-    cluesCollected: [],
-    visitedEncounters: [],
-    visitedCities: [hqData.id || HQ_ID],
-
-    playerNotes: '',
-    timeSpent: 0,
-    travelHistory: [],
-    lastTravel: null,
-    lastTravelEncounter: null,
-
-    energy: energyManager.getCurrentEnergy(),
-    difficulty,
-
-    cash: 100,
-    agencyBudget:
-      STARTING_AGENCY_BUDGETS[difficulty] ??
-      STARTING_AGENCY_BUDGETS.field,
-
-    agencyDebt: 0,
-    moneyLog: [],
-    passport: null,
-
-    caseDirector,
-    caseTemplate: template,
-    caseData: createEmptyCaseData()
-  });
-
-  resetForensicCaseState();
-  ensureCaseDataShaped();
-
-  const crimeWindow = setupCaseCrimeWindow();
-  const motive = setupCaseMotive();
-
-  console.log(
-    '[setupNewGame] Crime window created:',
-    crimeWindow
-  );
-
-  console.log(
-    '[setupNewGame] Motive drawn:',
-    motive.id,
-    `(${motive.crimeBoard.label})`
-  );
-
-  gameState.routeManager = new RouteManager(
-    gameState.escapeRoute,
-    gameState.crimeCityId
-  );
-
-  await fetchCaseSuspects(
-    gameState.currentThief,
-    crimeCityId
-  );
-
-  syncInvestigationState(locationsData);
-
-  gameState.currentDestinations =
-    generateDestinationsForCurrentCity(locationsData);
-
-  syncScoreFromManager();
-
-  window.GAMESTATE = gameState;
-
-  saveGameState();
-
-  EventBus.emit('case-simplified-notice', {
-    rank: gameState.playerRank,
-    stages: template.stages
-  });
-
-  return gameState;
 }
 
-export async function advanceToNextCase(
+function selectCase(
   suspectsData,
   missionsData,
   locationsData
 ) {
-  resetCaseOutcomeState();
-
-  const { caseDirector, template } = buildCaseDirector();
   const thief = getRandomItem(suspectsData);
 
   const crimeCities = locationsData.filter(
-    (location) => location.isCrimeCity === true
+    location => location.isCrimeCity === true
   );
 
-  const mission = getRandomItem(
-    missionsData.filter((item) =>
-      crimeCities.some((city) => city.city === item.city)
+  const eligibleMissions = missionsData.filter(
+    mission => crimeCities.some(
+      city => city.city === mission.city
     )
   );
 
+  const mission = getRandomItem(eligibleMissions);
+
   const crimeCityData = crimeCities.find(
-    (city) => city.city === mission?.city
+    city => city.city === mission?.city
   );
 
   if (!thief || !mission || !crimeCityData) {
-    throw new Error('Could not create a valid case.');
+    throw new Error(
+      'Could not create a valid case.'
+    );
   }
 
-  const crimeCityId = resolveLocationId(
+  return {
+    thief,
+    mission,
     crimeCityData,
-    'crime city'
-  );
 
-  const escapeRouteLength =
+    crimeCityId: resolveLocationId(
+      crimeCityData,
+      'crime city'
+    )
+  };
+}
+
+function createEscapeRoute(
+  locationsData,
+  crimeCityId,
+  template
+) {
+  const requestedLength =
     template.stages.cityChain?.cityCount ??
     ESCAPE_ROUTE_LENGTH;
 
-  const escapeRoute = shuffle(
+  if (
+    !Number.isInteger(requestedLength) ||
+    requestedLength < 0
+  ) {
+    throw new Error(
+      'Case template contains an invalid city count.'
+    );
+  }
+
+  return shuffle(
     locationsData
-      .filter((location) => {
+      .filter(location => {
         const id = resolveLocationId(
           location,
           'escape route'
@@ -608,17 +389,36 @@ export async function advanceToNextCase(
           id !== HQ_ID
         );
       })
-      .map((location) =>
-        resolveLocationId(location, 'escape route')
+      .map(location =>
+        resolveLocationId(
+          location,
+          'escape route'
+        )
       )
-  ).slice(0, escapeRouteLength);
+  ).slice(0, requestedLength);
+}
 
-  Object.assign(gameState, {
+function applyCaseConfiguration({
+  selectedCase,
+  caseDirector,
+  template,
+  escapeRoute
+}) {
+  const {
+    thief,
+    mission,
+    crimeCityData,
+    crimeCityId
+  } = selectedCase;
+
+  gameState.updateState({
     currentThiefId: thief.id ?? null,
     currentThief: structuredClone(thief),
     currentMission: structuredClone(mission),
 
-    currentArtifact: mission.artifact ?? null,
+    currentArtifact: mission.artifact
+      ? structuredClone(mission.artifact)
+      : null,
 
     crimeCity: crimeCityData.city,
     crimeCityId,
@@ -646,49 +446,318 @@ export async function advanceToNextCase(
     pendingPhoneCall: false,
     pendingPhoneCallCityId: null,
 
-    cluesCollected: [],
-    visitedEncounters: [],
     lastTravel: null,
     lastTravelEncounter: null,
 
     caseDirector,
-    caseTemplate: template,
+    caseTemplate: structuredClone(template),
     caseData: createEmptyCaseData()
   });
 
+  gameState.clearClues();
+  gameState.clearEncounters();
+
+  resetArtifactRecovery();
   resetForensicCaseState();
-  ensureCaseDataShaped();
 
-  const crimeWindow = setupCaseCrimeWindow();
-  const motive = setupCaseMotive();
+  setupCaseCrimeWindow();
+  setupCaseMotive();
+}
 
-  console.log(
-    '[advanceToNextCase] Crime window created:',
-    crimeWindow
+async function fetchSuspectSource() {
+  let lastError;
+
+  for (
+    let attempt = 0;
+    attempt <= SUSPECT_FETCH_RETRIES;
+    attempt += 1
+  ) {
+    try {
+      const response = await fetch(SUSPECT_DATA_URL);
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP ${response.status}`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < SUSPECT_FETCH_RETRIES) {
+        await new Promise(resolve => {
+          setTimeout(
+            resolve,
+            SUSPECT_FETCH_RETRY_DELAY_MS
+          );
+        });
+      }
+    }
+  }
+
+  throw new Error(
+    'Failed to load suspects: ' +
+    (lastError?.message || String(lastError))
   );
+}
 
-  console.log(
-    '[advanceToNextCase] Motive drawn:',
-    motive.id,
-    `(${motive.crimeBoard.label})`
-  );
-
-  await fetchCaseSuspects(
-    gameState.currentThief,
+async function fetchCaseSuspects(thief, crimeCityId) {
+  const lab = new CrimeLabManager(
+    gameState,
     crimeCityId
   );
 
+  const identityEvidence =
+    lab.ensureIdentityEvidence();
+
+  const traceEvidence =
+    lab.ensureRandomTraceEvidence();
+
+  const normalized = normalizeHardEvidence([
+    identityEvidence,
+    ...traceEvidence
+  ]);
+
+  if (normalized.length !== 3) {
+    throw new Error(
+      'Case setup requires three usable forensic clues.'
+    );
+  }
+
+  const hardEvidence = normalized.map(
+    ({ matches, ...evidence }) => evidence
+  );
+
+  const citySuspectsData =
+    await fetchSuspectSource();
+
+  const generator = new SuspectGenerator(
+    citySuspectsData
+  );
+
+  const generatedCase =
+    generator.generateCaseSuspects(
+      thief,
+      crimeCityId,
+      {
+        total: 10,
+        hardEvidence
+      }
+    );
+
+  generator.prepareCaseState(generatedCase);
+
+  if (!gameState.currentMission) {
+    throw new Error(
+      'Current mission is missing during suspect setup.'
+    );
+  }
+
+  gameState.currentMission = {
+    ...gameState.currentMission,
+
+    forensicHardEvidence:
+      structuredClone(generatedCase.hardEvidence),
+
+    requiredForensicProfile:
+      Object.fromEntries(
+        generatedCase.hardEvidence.map(evidence => [
+          evidence.forensicField,
+          evidence.normalizedValue
+        ])
+      ),
+
+    traceEvidence: structuredClone(traceEvidence)
+  };
+
+  // Nie zapisujemy częściowo skonfigurowanej sprawy.
+  return generatedCase;
+}
+
+function finishCaseSetup(locationsData, template) {
   syncInvestigationState(locationsData);
 
   gameState.currentDestinations =
-    generateDestinationsForCurrentCity(locationsData);
+    generateDestinationsForCurrentCity(
+      locationsData
+    );
 
-  saveGameState();
+  const saved = saveGameState();
+
+  if (!saved) {
+    console.warn(
+      '[GameSetup] Case is ready, but autosave was not written.'
+    );
+  }
 
   EventBus.emit('case-simplified-notice', {
     rank: gameState.playerRank,
     stages: template.stages
   });
+}
+
+export async function setupNewGame(
+  suspectsData,
+  missionsData,
+  locationsData,
+  difficulty = 'field'
+) {
+  validateSetupData(
+    suspectsData,
+    missionsData,
+    locationsData
+  );
+
+  // Podstawowe dane sprawdzamy przed usunięciem autosave.
+  const selectedCase = selectCase(
+    suspectsData,
+    missionsData,
+    locationsData
+  );
+
+  const hqData = locationsData.find(
+    location =>
+      location.id === HQ_ID ||
+      location.city === HQ_CITY
+  );
+
+  if (!hqData) {
+    throw new Error(
+      'Headquarters city data is missing.'
+    );
+  }
+
+  clearSavedGame();
+  resetGameState();
+  resetCaseOutcomeState();
+
+  currentMotive = null;
+
+  const energyManager = getEnergyManager();
+  energyManager.init(difficulty);
+
+  const travelManager =
+    createUnifiedTravelManager();
+
+  travelManager.init();
+
+  getRankManager().init();
+
+  const { caseDirector, template } =
+    buildCaseDirector();
+
+  const escapeRoute = createEscapeRoute(
+    locationsData,
+    selectedCase.crimeCityId,
+    template
+  );
+
+  gameState.updateState({
+    currentCity: hqData.city,
+    currentCityId: hqData.id || HQ_ID,
+    currentCityData: structuredClone(hqData),
+    currentEncounterId: null,
+
+    score: 0,
+    scoreSaved: false,
+
+    playerNotes: '',
+    timeSpent: 0,
+    travelHistory: [],
+    lastTravel: null,
+    lastTravelEncounter: null,
+
+    energy: energyManager.getCurrentEnergy(),
+    difficulty,
+
+    cash: 100,
+
+    agencyBudget:
+      STARTING_AGENCY_BUDGETS[difficulty] ??
+      STARTING_AGENCY_BUDGETS.field,
+
+    agencyDebt: 0,
+    moneyLog: [],
+    passport: null,
+
+    // Aktywujemy grę dopiero po utworzeniu sprawy.
+    isGameActive: false
+  });
+
+  gameState.replaceIndexedCollection(
+    'visitedCities',
+    [hqData.id || HQ_ID]
+  );
+
+  applyCaseConfiguration({
+    selectedCase,
+    caseDirector,
+    template,
+    escapeRoute
+  });
+
+  startInvestigationClock();
+  startScoreSession();
+
+  await fetchCaseSuspects(
+    gameState.currentThief,
+    selectedCase.crimeCityId
+  );
+
+  gameState.isGameActive = true;
+
+  finishCaseSetup(locationsData, template);
+
+  return gameState;
+}
+
+export async function advanceToNextCase(
+  suspectsData,
+  missionsData,
+  locationsData
+) {
+  validateSetupData(
+    suspectsData,
+    missionsData,
+    locationsData
+  );
+
+  const selectedCase = selectCase(
+    suspectsData,
+    missionsData,
+    locationsData
+  );
+
+  const { caseDirector, template } =
+    buildCaseDirector();
+
+  const escapeRoute = createEscapeRoute(
+    locationsData,
+    selectedCase.crimeCityId,
+    template
+  );
+
+  resetCaseOutcomeState();
+  currentMotive = null;
+
+  applyCaseConfiguration({
+    selectedCase,
+    caseDirector,
+    template,
+    escapeRoute
+  });
+
+  // Czas całej kampanii zostaje, ale termin nowej sprawy
+  // liczony jest od aktualnego czasu gry.
+  startInvestigationClock();
+
+  await fetchCaseSuspects(
+    gameState.currentThief,
+    selectedCase.crimeCityId
+  );
+
+  finishCaseSetup(locationsData, template);
 
   return gameState;
 }
@@ -717,9 +786,14 @@ export function travelToCity(
     );
   }
 
-  const travelManager = getUnifiedTravelManager();
+  const travelManager =
+    getUnifiedTravelManager();
 
-  if (!travelManager.isTransportAvailable(transportType)) {
+  if (
+    !travelManager.isTransportAvailable(
+      transportType
+    )
+  ) {
     throw new Error(
       `Unknown transport type: ${transportType}`
     );
@@ -775,7 +849,9 @@ export function travelToCity(
   const routeManager = getRouteManager();
 
   if (!routeManager) {
-    throw new Error('Route manager is missing.');
+    throw new Error(
+      'Route manager is missing.'
+    );
   }
 
   const wasCorrect = routeManager.canEnterCity(
@@ -790,11 +866,14 @@ export function travelToCity(
       origin,
       destination,
       transportType,
-      { allowEncounter: true }
+      {
+        allowEncounter: true
+      }
     );
 
   const energyManager = getEnergyManager();
-  const energyBefore = energyManager.getCurrentEnergy();
+  const energyBefore =
+    energyManager.getCurrentEnergy();
 
   const execution = travelManager.executeTravel(
     travelData
@@ -803,15 +882,18 @@ export function travelToCity(
   if (!execution.success) {
     return {
       blocked: true,
+
       blockReason:
-        execution.reason || 'travel_execution_failed',
+        execution.reason ||
+        'travel_execution_failed',
 
       wasCorrect: false,
       transportType,
       transportLabel: config.label,
 
       travelHours: 0,
-      baseTravelHours: travelData.baseTravelHours,
+      baseTravelHours:
+        travelData.baseTravelHours,
 
       moneySpent: 0,
       agencyDebtAdded: 0,
@@ -828,8 +910,11 @@ export function travelToCity(
     };
   }
 
-  const energyAfter = energyManager.getCurrentEnergy();
-  const energyChange = energyAfter - energyBefore;
+  const energyAfter =
+    energyManager.getCurrentEnergy();
+
+  const energyChange =
+    energyAfter - energyBefore;
 
   gameState.energy = energyAfter;
 
@@ -876,13 +961,11 @@ export function travelToCity(
     travelLabel: travel.travelLabel
   };
 
-  if (!Array.isArray(gameState.travelHistory)) {
-    gameState.travelHistory = [];
-  }
-
   gameState.lastTravel = record;
-  gameState.lastTravelEncounter = travel.travelEncounter;
-  gameState.travelHistory.push(record);
+  gameState.lastTravelEncounter =
+    travel.travelEncounter;
+
+  gameState.addTravel(record);
 
   enterCity(cityName, locations);
   clearTravelCluesForCity(destinationId);
@@ -895,6 +978,7 @@ export function travelToCity(
 
   addSessionScore(
     wasCorrect ? 100 : -25,
+
     wasCorrect
       ? `Correct city: ${cityName}`
       : `False city: ${cityName}`
@@ -935,7 +1019,9 @@ export function travelToCity(
   syncInvestigationState(locations);
 
   gameState.currentDestinations =
-    generateDestinationsForCurrentCity(locations);
+    generateDestinationsForCurrentCity(
+      locations
+    );
 
   saveGameState();
 

@@ -1,28 +1,21 @@
 // scenes/ApartmentScene.js
-// ============================================================
-// Point-and-click investigation in the suspect's apartment.
-//
-// Proceduralna scena generowana z:
-// - suspectId;
-// - motive;
-// - currentMission;
-// - caseModifiers.apartment.
-//
-// Obsługuje:
-// - przeszukiwanie hotspotów;
-// - clue, red herringi i artefakt misji;
-// - inventory oraz kombinowanie itemów;
-// - dowód trasy ucieczki;
-// - zapis odzyskanego artefaktu do gameState.recoveredArtifacts.
-// ============================================================
 
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
-import { ApartmentObject } from '../ApartmentObject.js';
-import { ApartmentInventoryUI } from '../ApartmentInventoryUI.js';
-import { generateApartment } from '../ApartmentGenerator.js';
-import { getEscapePhaseController } from '../EscapePhaseController.js';
+
+import { ApartmentObject } from './apartament/ApartmentObject.js';
+import { ApartmentInventoryUI } from './apartament/ApartmentInventoryUI.js';
+import { generateApartment } from './apartament/ApartmentGenerator.js';
+
+import {
+  getRouteManager,
+  syncInvestigationState,
+  generateDestinationsForCurrentCity
+} from '../managers/InvestigationManager.js';
+
+import { saveGameState } from '../gameStatePersistence.js';
+
 
 const DEFAULT_APARTMENT_MODIFIER = {
   id: 'empty_clues',
@@ -35,6 +28,7 @@ const DEFAULT_APARTMENT_MODIFIER = {
     escapeMethod: 'combined'
   }
 };
+
 
 export class ApartmentScene extends BaseScene {
   constructor() {
@@ -50,7 +44,6 @@ export class ApartmentScene extends BaseScene {
 
     this.apartmentConfig = null;
     this.apartmentObjects = [];
-
     this.playerInventory = null;
 
     this.messageBox = null;
@@ -60,6 +53,9 @@ export class ApartmentScene extends BaseScene {
     this.escapePhaseQueued = false;
     this.escapePhaseStarted = false;
     this.artifactRecovered = false;
+
+    this.escapeTimer = null;
+    this.messageTimer = null;
   }
 
   init(data = {}) {
@@ -76,6 +72,7 @@ export class ApartmentScene extends BaseScene {
     this.motive =
       data.motive ||
       this.mission.motive ||
+      state.caseData?.motiveId ||
       'gambling_debt';
 
     this.apartmentModifier =
@@ -92,15 +89,26 @@ export class ApartmentScene extends BaseScene {
       this.apartmentEffect.clueCount
     );
 
+    const missionId =
+      this.mission.id ||
+      this.mission.missionId;
+
     this.artifactRecovered = Boolean(
       this.mission.artifactRecovered ||
-      this.mission.artifact?.recovered
+      this.mission.artifact?.recovered ||
+      gameState.hasRecoveredArtifact(missionId)
     );
 
     this.isTransitioning = false;
     this.escapePhaseQueued = false;
     this.escapePhaseStarted = false;
+
     this.apartmentObjects = [];
+    this.playerInventory = null;
+    this.messageBox = null;
+    this.descriptionBox = null;
+    this.escapeTimer = null;
+    this.messageTimer = null;
 
     this.apartmentConfig = generateApartment(
       this.suspectId,
@@ -116,8 +124,10 @@ export class ApartmentScene extends BaseScene {
   create() {
     super.create();
 
-    console.log(
-      `[ApartmentScene] Investigating ${this.suspectId}'s apartment (${this.motive})`
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onShutdown,
+      this
     );
 
     this.createBackground();
@@ -128,36 +138,23 @@ export class ApartmentScene extends BaseScene {
     this.createControls();
     this.createApartmentObjects();
 
-    this.events.on(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.onShutdown,
-      this
-    );
-
     EventBus.on('itemCombined', this.onItemCombined, this);
 
     this.cameras.main.fadeIn(400, 0, 0, 0);
   }
 
-  /**
-   * Zwraca aktualny game state niezależnie od tego, czy GameData
-   * udostępnia getState(), czy bezpośredni obiekt.
-   */
   getState() {
-    return gameState.getState?.() || gameState;
+    return gameState.getState();
   }
 
-  /**
-   * Bezpieczne ograniczenie liczby clue.
-   */
   getRequiredClueCount(value) {
-    const clueCount = Number(value);
+    const count = Number(value);
 
-    if (!Number.isFinite(clueCount)) {
+    if (!Number.isFinite(count)) {
       return 3;
     }
 
-    return Math.max(1, Math.min(6, Math.floor(clueCount)));
+    return Math.max(1, Math.min(6, Math.floor(count)));
   }
 
   createBackground() {
@@ -165,31 +162,29 @@ export class ApartmentScene extends BaseScene {
     const config = this.apartmentConfig?.background || {};
 
     if (config.imageKey && this.textures.exists(config.imageKey)) {
-      const background = this.add.image(
-        width / 2,
-        height / 2,
-        config.imageKey
-      );
+      this.add
+        .image(width / 2, height / 2, config.imageKey)
+        .setDisplaySize(width, height)
+        .setDepth(0);
 
-      background.setDisplaySize(width, height);
-      background.setDepth(0);
       return;
     }
 
-    const background = this.add.rectangle(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      config.color || 0x2c2c2c
-    );
-
-    background.setDepth(0);
+    this.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        width,
+        height,
+        config.color ?? 0x2c2c2c
+      )
+      .setDepth(0);
 
     for (let x = 0; x < width; x += 50) {
       for (let y = 0; y < height; y += 50) {
         if ((x + y) % 100 === 0) {
-          this.add.rectangle(x, y, 2, 2, 0x444444, 0.3)
+          this.add
+            .rectangle(x, y, 2, 2, 0x444444, 0.3)
             .setDepth(1);
         }
       }
@@ -200,32 +195,31 @@ export class ApartmentScene extends BaseScene {
     const { width } = this.scale;
     const config = this.apartmentConfig || {};
 
-    this.add.text(20, 20, config.title || 'Apartment', {
-      fontFamily: 'PressStart2P',
-      fontSize: '22px',
-      color: '#ffd700'
-    }).setDepth(10);
+    this.add
+      .text(20, 20, config.title || 'Apartment', {
+        fontFamily: 'PressStart2P',
+        fontSize: '22px',
+        color: '#ffd700'
+      })
+      .setDepth(10);
 
-    this.add.text(20, 52, config.subtitle || 'What can you find?', {
-      fontFamily: 'SpecialElite',
-      fontSize: '16px',
-      color: '#d9d9d9'
-    }).setDepth(10);
+    this.add
+      .text(20, 52, config.subtitle || 'What can you find?', {
+        fontFamily: 'SpecialElite',
+        fontSize: '16px',
+        color: '#d9d9d9'
+      })
+      .setDepth(10);
 
-    const inventoryButton = this.add.text(
-      width - 20,
-      20,
-      '[INVENTORY]',
-      {
+    const inventoryButton = this.add
+      .text(width - 20, 20, '[INVENTORY]', {
         fontFamily: 'SpecialElite',
         fontSize: '14px',
         color: '#4caf50'
-      }
-    );
-
-    inventoryButton.setOrigin(1, 0);
-    inventoryButton.setInteractive({ useHandCursor: true });
-    inventoryButton.setDepth(10);
+      })
+      .setOrigin(1, 0)
+      .setDepth(10)
+      .setInteractive({ useHandCursor: true });
 
     inventoryButton.on('pointerdown', () => {
       if (!this.isTransitioning) {
@@ -233,88 +227,81 @@ export class ApartmentScene extends BaseScene {
       }
     });
 
-    const exitButton = this.add.text(
-      width - 20,
-      55,
-      '[EXIT]',
-      {
+    const exitButton = this.add
+      .text(width - 20, 55, '[EXIT]', {
         fontFamily: 'SpecialElite',
         fontSize: '14px',
         color: '#ff6b6b'
-      }
-    );
-
-    exitButton.setOrigin(1, 0);
-    exitButton.setInteractive({ useHandCursor: true });
-    exitButton.setDepth(10);
+      })
+      .setOrigin(1, 0)
+      .setDepth(10)
+      .setInteractive({ useHandCursor: true });
 
     exitButton.on('pointerdown', () => this.exitApartment());
-  }
-
-  createApartmentObjects() {
-    const objects = this.apartmentConfig?.objects || [];
-
-    for (const objectConfig of objects) {
-      const object = new ApartmentObject(this, objectConfig);
-      this.apartmentObjects.push(object);
-    }
-
-    console.log(
-      `[ApartmentScene] Created ${this.apartmentObjects.length} interactive objects`
-    );
   }
 
   createControls() {
     const { width, height } = this.scale;
 
-    this.descriptionBox = this.add.text(20, height - 60, '', {
-      fontFamily: 'SpecialElite',
-      fontSize: '13px',
-      color: '#d9d9d9',
-      wordWrap: { width: width - 40 }
-    });
-
-    this.descriptionBox.setDepth(10);
+    this.descriptionBox = this.add
+      .text(20, height - 60, '', {
+        fontFamily: 'SpecialElite',
+        fontSize: '13px',
+        color: '#d9d9d9',
+        wordWrap: { width: width - 40 }
+      })
+      .setDepth(10);
   }
 
-  /**
-   * Pokazuje komunikat centralnie na ekranie.
-   */
+  createApartmentObjects() {
+    const objects = this.apartmentConfig?.objects || [];
+
+    for (const config of objects) {
+      this.apartmentObjects.push(
+        new ApartmentObject(this, config)
+      );
+    }
+  }
+
   showMessage(text, duration = 2000, color = '#37474f') {
     if (!text || !this.sys.isActive()) {
       return null;
     }
 
+    this.messageTimer?.remove(false);
+    this.messageTimer = null;
+
     if (this.messageBox?.active) {
       this.messageBox.destroy();
-      this.messageBox = null;
     }
 
     const { width, height } = this.scale;
 
-    const popup = this.add.text(width / 2, height / 2, text, {
-      fontFamily: 'SpecialElite',
-      fontSize: '18px',
-      color: '#ffffff',
-      backgroundColor: color,
-      padding: { x: 20, y: 15 },
-      align: 'center',
-      wordWrap: { width: width - 60 }
-    });
-
-    popup.setOrigin(0.5);
-    popup.setDepth(1000);
+    const popup = this.add
+      .text(width / 2, height / 2, text, {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#ffffff',
+        backgroundColor: color,
+        padding: { x: 20, y: 15 },
+        align: 'center',
+        wordWrap: { width: Math.max(100, width - 60) }
+      })
+      .setOrigin(0.5)
+      .setDepth(1000);
 
     this.messageBox = popup;
 
-    this.time.delayedCall(duration, () => {
-      if (popup?.active) {
+    this.messageTimer = this.time.delayedCall(duration, () => {
+      if (popup.active) {
         popup.destroy();
       }
 
       if (this.messageBox === popup) {
         this.messageBox = null;
       }
+
+      this.messageTimer = null;
     });
 
     return popup;
@@ -326,12 +313,6 @@ export class ApartmentScene extends BaseScene {
     }
   }
 
-  /**
-   * Centralny odbiornik przedmiotów z ApartmentObject.
-   *
-   * ApartmentObject nie zna gameState i nie podejmuje decyzji,
-   * czy item jest artefaktem, clue czy red herringiem.
-   */
   collectApartmentItem(item, sourceObject = {}) {
     if (!item || this.isTransitioning) {
       return;
@@ -344,240 +325,367 @@ export class ApartmentScene extends BaseScene {
 
     this.playerInventory?.addItem(item);
 
-    const popupText = item.isRedHerring
-      ? `Found: ${item.label}\n\nProbably useless. Probably.`
-      : `Found: ${item.label}`;
-
-    const popupColor = item.isRedHerring
-      ? '#607d8b'
-      : '#4caf50';
-
-    this.showMessage(popupText, 2000, popupColor);
-
     if (item.isEscapeClue) {
       this.onEscapeClueFound(item);
+      return;
+    }
+
+    const label = item.label || item.name || 'Unknown item';
+
+    this.showMessage(
+      item.isRedHerring
+        ? `Found: ${label}\n\nProbably useless. Probably.`
+        : `Found: ${label}`,
+      2000,
+      item.isRedHerring ? '#607d8b' : '#4caf50'
+    );
+  }
+
+  collectMissionArtifact(item, sourceObject = {}) {
+    if (this.artifactRecovered) {
+      this.showMessage(
+        'The recovered artefact has already been logged.',
+        1600
+      );
+
+      return;
+    }
+
+    const state = this.getState();
+    const mission = state.currentMission || this.mission || {};
+    const originalArtifact = mission.artifact || {};
+
+    const artifact = {
+      ...originalArtifact,
+      ...item,
+
+      id: item.id || originalArtifact.id,
+      type: 'artifact',
+
+      label:
+        item.label ||
+        originalArtifact.label ||
+        originalArtifact.name ||
+        'Recovered Artefact',
+
+      description:
+        item.description ||
+        originalArtifact.description ||
+        'A stolen artefact recovered from the suspect apartment.',
+
+      significance:
+        item.significance ||
+        originalArtifact.significance ||
+        'Recovered from the suspect apartment.',
+
+      artifactKey:
+        item.artifactKey ||
+        originalArtifact.artifactKey ||
+        item.id ||
+        originalArtifact.id ||
+        'recovered_artefact',
+
+      city:
+        item.city ||
+        originalArtifact.city ||
+        state.crimeCityId ||
+        'Unknown City',
+
+      country:
+        item.country ||
+        originalArtifact.country ||
+        'Unknown Country',
+
+      condition:
+        item.condition ||
+        originalArtifact.condition ||
+        'intact',
+
+      recovered: true,
+      recoveredAt: new Date().toISOString(),
+
+      recoveredFrom:
+        sourceObject.id ||
+        'suspect_apartment',
+
+      recoveredLocation:
+        sourceObject.label ||
+        'Suspect Apartment',
+
+      isArtifact: true,
+      isClue: false,
+      quantity: 1
+    };
+
+    const missionId =
+      mission.id ||
+      mission.missionId ||
+      this.apartmentConfig?.missionId;
+
+    const recovered = gameState.recoverArtifact({
+      missionId,
+      artifact,
+      recoveredAt: artifact.recoveredAt,
+      recoveredFrom: artifact.recoveredFrom,
+      recoveredLocation: artifact.recoveredLocation,
+      condition: artifact.condition
+    });
+
+    if (!recovered) {
+      this.artifactRecovered =
+        gameState.hasRecoveredArtifact(missionId);
+
+      this.showMessage(
+        this.artifactRecovered
+          ? 'The recovered artefact has already been logged.'
+          : 'The artefact could not be logged. Check the case data.',
+        2500,
+        this.artifactRecovered ? '#37474f' : '#ff6b6b'
+      );
+
+      if (this.artifactRecovered && this.escapePhaseQueued) {
+        this.queueEscapeTransition(2800);
+      }
+
+      return;
+    }
+
+    this.mission = this.getState().currentMission;
+    this.artifactRecovered = true;
+
+    this.playerInventory?.addItem(artifact);
+
+    EventBus.emit('artifactRecovered', {
+      missionId,
+      artifact,
+      sourceObject
+    });
+
+    saveGameState();
+
+    this.showMessage(
+      `ARTEFACT RECOVERED!\n\n${artifact.label}\n\n` +
+      `Found inside: ${artifact.recoveredLocation}`,
+      3500,
+      '#6a1b9a'
+    );
+
+    if (this.escapePhaseQueued) {
+      this.queueEscapeTransition(3800);
     }
   }
 
-  /**
-   * Zapisuje artefakt tylko raz.
-   */
-  collectMissionArtifact(item, sourceObject = {}) {
-  if (this.artifactRecovered) {
-    this.showMessage(
-      'The recovered artefact has already been logged.',
-      1600,
-      '#37474f'
-    );
-
-    return;
-  }
-
-  const state = this.getState();
-  const mission = state.currentMission || this.mission || {};
-  const originalArtifact = mission.artifact || {};
-
-  const artifact = {
-    ...originalArtifact,
-    ...item,
-
-    id: item.id || originalArtifact.id,
-    type: 'artifact',
-
-    label:
-      item.label ||
-      originalArtifact.label ||
-      originalArtifact.name ||
-      'Recovered Artefact',
-
-    description:
-      item.description ||
-      originalArtifact.description ||
-      'A stolen artefact recovered from the suspect apartment.',
-
-    significance:
-      item.significance ||
-      originalArtifact.significance ||
-      'Recovered from the suspect apartment.',
-
-    artifactKey:
-      item.artifactKey ||
-      originalArtifact.artifactKey ||
-      item.id ||
-      'recovered_artefact',
-
-    city:
-      item.city ||
-      originalArtifact.city ||
-      state.crimeCityId ||
-      'Unknown City',
-
-    country:
-      item.country ||
-      originalArtifact.country ||
-      'Unknown Country',
-
-    condition:
-      item.condition ||
-      originalArtifact.condition ||
-      'intact',
-
-    recovered: true,
-    recoveredAt: new Date().toISOString(),
-
-    recoveredFrom:
-      sourceObject.id ||
-      'suspect_apartment',
-
-    recoveredLocation:
-      sourceObject.label ||
-      'Suspect Apartment',
-
-    isArtifact: true,
-    isClue: false,
-    quantity: 1
-  };
-
-  const missionId =
-    mission.id ||
-    mission.missionId ||
-    this.apartmentConfig?.missionId;
-
-  const recovered = gameState.recoverArtifact({
-    missionId,
-    artifact,
-    recoveredAt: artifact.recoveredAt,
-    recoveredFrom: artifact.recoveredFrom,
-    recoveredLocation: artifact.recoveredLocation,
-    condition: artifact.condition
-  });
-
-  if (!recovered) {
-    this.artifactRecovered = gameState.hasRecoveredArtifact(missionId);
-
-    this.showMessage(
-      this.artifactRecovered
-        ? 'The recovered artefact has already been logged.'
-        : 'The artefact could not be logged. Check the case data.',
-      2000,
-      '#ff6b6b'
-    );
-
-    return;
-  }
-
-  this.mission = gameState.getState().currentMission;
-  this.artifactRecovered = true;
-
-  this.playerInventory?.addItem(artifact);
-
-  EventBus.emit('artifactRecovered', {
-    missionId,
-    artifact,
-    sourceObject
-  });
-
-  this.showMessage(
-    `ARTEFACT RECOVERED!\n\n${artifact.label}\n\nFound inside: ${artifact.recoveredLocation}`,
-    3500,
-    '#6a1b9a'
-  );
-}
-
-  /**
-   * Odpala się, gdy gracz znalazł bezpośredni trop ucieczki.
-   */
   onEscapeClueFound(item) {
-    if (this.escapePhaseQueued || this.escapePhaseStarted) {
+    if (
+      this.isTransitioning ||
+      this.escapePhaseQueued ||
+      this.escapePhaseStarted
+    ) {
       return;
     }
 
     this.escapePhaseQueued = true;
 
+    const mustRecoverArtifact =
+      this.isArtifactRequiredBeforeExit() &&
+      !this.artifactRecovered;
+
+    const label = item.label || item.name || 'Escape evidence';
+
     this.showMessage(
-      `CRITICAL: ${item.label}\n\nThe suspect has fled!`,
-      3000,
+      mustRecoverArtifact
+        ? `CRITICAL: ${label}\n\nThe suspect has fled!\n` +
+          'Recover the stolen artefact before you leave.'
+        : `CRITICAL: ${label}\n\nThe suspect has fled!\n` +
+          'Choose your next destination on the travel map.',
+      3200,
       '#ff6b6b'
     );
 
-    this.time.delayedCall(3500, () => {
+    if (!mustRecoverArtifact) {
+      this.queueEscapeTransition(3500);
+    }
+  }
+
+  onItemCombined(data = {}) {
+    if (!this.sys.isActive() || this.isTransitioning) {
+      return;
+    }
+
+    if (data.result?.isEscapeClue) {
+      this.onEscapeClueFound(data.result);
+    }
+  }
+
+  queueEscapeTransition(delay = 3500) {
+    this.escapeTimer?.remove(false);
+
+    this.escapeTimer = this.time.delayedCall(delay, () => {
+      this.escapeTimer = null;
       this.triggerEscapePhase();
     });
   }
 
-  /**
-   * Event z ApartmentInventoryUI po udanej kombinacji.
-   */
-  onItemCombined(data = {}) {
-    const result = data.result;
-
-    if (!result?.isEscapeClue) {
-      return;
-    }
-
-    this.onEscapeClueFound(result);
-  }
-
-  /**
-   * Uruchamia fazę ucieczki po znalezieniu poprawnego tropu.
-   */
   triggerEscapePhase() {
     if (
       this.isTransitioning ||
       this.escapePhaseStarted ||
+      !this.escapePhaseQueued ||
       !this.sys.isActive()
     ) {
       return;
     }
 
-    this.isTransitioning = true;
+    if (
+      this.isArtifactRequiredBeforeExit() &&
+      !this.artifactRecovered
+    ) {
+      this.showMessage(
+        'The stolen artefact is still somewhere in this apartment.',
+        2500,
+        '#ff9800'
+      );
+
+      return;
+    }
+
+    const locations = this.cache.json.get('locations');
+    const state = this.getState();
+    const manager = getRouteManager();
+
+    if (!Array.isArray(locations)) {
+      this.showMessage(
+        'Travel data could not be loaded. You can keep searching.',
+        3000,
+        '#ff6b6b'
+      );
+
+      return;
+    }
+
+    const crimeCityId = state.crimeCityId;
+
+    const crimeCity = locations.find(
+      location => location?.id === crimeCityId
+    );
+
+    if (!crimeCity) {
+      this.showMessage(
+        'The crime city is missing from the case data.',
+        3000,
+        '#ff6b6b'
+      );
+
+      return;
+    }
+
+    // Przyjmujemy istniejącą trasę. Nie losujemy nowej.
+    const routeIsValid =
+      manager.route.length > 0 &&
+      manager.route.every(cityId =>
+        cityId !== crimeCityId &&
+        locations.some(location => location?.id === cityId)
+      );
+
+    if (!routeIsValid || manager.isComplete()) {
+      console.error('[ApartmentScene] Invalid escape route.', {
+        route: manager.serialize(),
+        crimeCityId
+      });
+
+      this.showMessage(
+        'The escape route is missing or invalid. Check the case setup.',
+        3500,
+        '#ff6b6b'
+      );
+
+      return;
+    }
+
+    // Kończymy etap miasta zbrodni tylko raz.
+    if (manager.isCrimeCityPhase()) {
+      if (manager.getCrimeCity() !== crimeCityId) {
+        this.showMessage(
+          'The route manager points to a different crime city.',
+          3000,
+          '#ff6b6b'
+        );
+
+        return;
+      }
+
+      const result = manager.enterCity(crimeCityId);
+
+      if (!result.ok) {
+        this.showMessage(
+          'The pursuit could not be started. Check the route data.',
+          3000,
+          '#ff6b6b'
+        );
+
+        return;
+      }
+    }
+
+    const wasEscapeActive = state.escapePhaseActive === true;
+
+    const startTime =
+      wasEscapeActive && Number.isFinite(state.escapeStartTime)
+        ? state.escapeStartTime
+        : Number.isFinite(state.timeSpent)
+          ? state.timeSpent
+          : 0;
+
+    // Zachowujemy istniejący termin pościgu lub termin sprawy.
+    const deadline = Number.isFinite(state.escapeDeadline)
+      ? state.escapeDeadline
+      : Number.isFinite(state.investigationDeadline)
+        ? state.investigationDeadline
+        : null;
+
+    gameState.updateState({
+      escapeRoute: [...manager.route],
+
+      investigationPhaseActive: false,
+      escapePhaseActive: true,
+      escapeStartTime: startTime,
+      escapeDeadline: deadline,
+
+      crimeSceneVisited: true,
+      justReachedCorrectCityId: null,
+
+      currentCityId: crimeCityId,
+      currentCity: crimeCity.city,
+      currentCityData: structuredClone(crimeCity),
+      currentEncounterId: null
+    });
+
+    syncInvestigationState(locations);
+
+    gameState.currentDestinations =
+      generateDestinationsForCurrentCity(locations);
+
+    saveGameState();
+
     this.escapePhaseStarted = true;
 
-    EventBus.emit('thiefEscaped');
+    if (!wasEscapeActive) {
+      EventBus.emit('thiefEscaped');
+    }
 
-    const escapeController = getEscapePhaseController(gameState);
-    escapeController.initializeEscapePhase();
-
-    this.cameras.main.fadeOut(400, 0, 0, 0);
-
-    this.cameras.main.once(
-      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-      () => {
-        const state = this.getState();
-
-        if (Array.isArray(state.escapeRoute) && state.escapeRoute.length > 0) {
-          this.goto('CityScene', {
-            cityId: state.escapeRoute[0],
-            phase: 'escape',
-            fromApartmentEscape: true
-          });
-
-          return;
-        }
-
-        this.goto('GameOverScene', {
-          reason: 'no_escape_route',
-          message: 'The thief escaped, but we have no route to follow them.'
-        });
-      }
-    );
+    this.transitionToScene('CityScene', {
+      cityId: crimeCityId,
+      openDestinations: true,
+      fromApartmentEscape: true
+    });
   }
 
-  /**
-   * Liczy clue w inventory. Artefakt ma isClue: false,
-   * więc automatycznie nie wchodzi do tego licznika.
-   */
   getCollectedClueCount() {
-    return this.playerInventory
-      ?.getItems()
-      .filter(item => item.isClue === true)
-      .length || 0;
+    const items = this.playerInventory?.getItems() || [];
+
+    return items.filter(item => item?.isClue === true).length;
   }
 
-  /**
-   * Czy modifier wymaga fizycznego odzyskania artefaktu
-   * przed opuszczeniem lokalu.
-   */
   isArtifactRequiredBeforeExit() {
     if (this.apartmentEffect.artifactState === 'carried_away') {
       return false;
@@ -589,20 +697,23 @@ export class ApartmentScene extends BaseScene {
     );
   }
 
-  /**
-   * Opuść mieszkanie tylko po zebraniu wymaganych danych.
-   */
   exitApartment() {
-    if (this.isTransitioning || this.escapePhaseQueued) {
+    if (this.isTransitioning || !this.sys.isActive()) {
       return;
     }
 
-    const collectedClueCount = this.getCollectedClueCount();
+    // Odkryty trop uruchamia pościg, a nie zwykły powrót.
+    if (this.escapePhaseQueued || this.escapePhaseStarted) {
+      this.triggerEscapePhase();
+      return;
+    }
 
-    if (collectedClueCount < this.requiredClueCount) {
+    const collected = this.getCollectedClueCount();
+
+    if (collected < this.requiredClueCount) {
       this.showMessage(
-        `You need more evidence before leaving.\n` +
-          `Clues found: ${collectedClueCount}/${this.requiredClueCount}`,
+        'You need more evidence before leaving.\n' +
+        `Clues found: ${collected}/${this.requiredClueCount}`,
         2500,
         '#ff9800'
       );
@@ -623,23 +734,78 @@ export class ApartmentScene extends BaseScene {
       return;
     }
 
+    saveGameState();
+
+    this.transitionToScene('CrimeCityScene', {
+      cityId: this.getState().crimeCityId
+    });
+  }
+
+  transitionToScene(sceneKey, data = {}) {
+    if (this.isTransitioning || !this.sys.isActive()) {
+      return;
+    }
+
     this.isTransitioning = true;
 
-    this.cameras.main.fadeOut(400, 0, 0, 0);
+    this.escapeTimer?.remove(false);
+    this.escapeTimer = null;
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
       () => {
-        const state = this.getState();
+        if (!this.sys.isActive()) {
+          return;
+        }
 
-        this.goto('CrimeCityScene', {
-          cityId: state.crimeCityId
-        });
+        void this.performSceneTransition(sceneKey, data);
       }
+    );
+
+    this.cameras.main.fadeOut(400, 0, 0, 0);
+  }
+
+  async performSceneTransition(sceneKey, data) {
+    try {
+      const started = await this.goto(sceneKey, data);
+
+      if (started === false && this.sys.isActive()) {
+        this.restoreAfterTransitionFailure();
+      }
+    } catch (error) {
+      console.error(
+        `[ApartmentScene] Transition to "${sceneKey}" failed:`,
+        error
+      );
+
+      if (this.sys.isActive()) {
+        this.restoreAfterTransitionFailure();
+      }
+    }
+  }
+
+  restoreAfterTransitionFailure() {
+    this.isTransitioning = false;
+    this.escapePhaseStarted = false;
+
+    this.cameras.main.fadeIn(200, 0, 0, 0);
+
+    this.showMessage(
+      'Could not leave the apartment. Try EXIT again.',
+      2500,
+      '#ff6b6b'
     );
   }
 
   onShutdown() {
+    EventBus.off('itemCombined', this.onItemCombined, this);
+
+    this.escapeTimer?.remove(false);
+    this.messageTimer?.remove(false);
+
+    this.escapeTimer = null;
+    this.messageTimer = null;
+
     this.apartmentObjects.forEach(object => object.destroy());
     this.apartmentObjects = [];
 
@@ -653,12 +819,11 @@ export class ApartmentScene extends BaseScene {
     this.messageBox = null;
     this.descriptionBox = null;
 
-    EventBus.off('itemCombined', this.onItemCombined, this);
-
     this.isTransitioning = false;
     this.escapePhaseQueued = false;
     this.escapePhaseStarted = false;
   }
 }
+
 
 export default ApartmentScene;

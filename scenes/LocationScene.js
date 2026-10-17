@@ -1,6 +1,6 @@
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
-import { NPCController } from '../NPCController.js';
+import { saveGameState } from '../gameStatePersistence.js';
+import { NPCController } from '../dialogues/NPCController.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
@@ -46,7 +46,8 @@ const TOPIC_LABELS = {
   skills: 'Skills',
   habitus: 'Habits',
   currency: 'Money',
-  travel: 'Where next?'
+  travel: 'Where next?',
+  motive: 'What really happened?'
 };
 
 
@@ -256,16 +257,17 @@ export class LocationScene extends BaseScene {
 
 
     try {
-      this.npcController = new NPCController(
-        npcLocationVariants,
-        countryFacts,
-        this.cityId,
-        suspect || {},
-        {
-          targetCityId: this.dialogueTargetCityId,
-          isCorrectCity: this.isCorrectCity
-        }
-      );
+this.npcController = new NPCController(
+  npcLocationVariants,
+  countryFacts,
+  this.cityId,
+  suspect || {},
+  {
+    targetCityId: this.dialogueTargetCityId,
+    isCorrectCity: this.isCorrectCity,
+    npcId: this.npcId
+  }
+);
     } catch (error) {
       console.warn('[LocationScene] Failed to build NPCController:', error);
       this.npcController = null;

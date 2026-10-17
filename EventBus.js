@@ -1,261 +1,512 @@
 class ManagedEventBus {
-    constructor() {
-        this.emitter = new Phaser.Events.EventEmitter();
-        this.registry = new Map();  // owner → Map(listenerId → listener)
-        this.listenerIdCounter = 0;
+  constructor() {
+    this.emitter = new Phaser.Events.EventEmitter();
 
-        this.warnThreshold = 20;
-        this.warnedEvents = new Set();
-        this.dedupeCache = new Map();  // owner → Set(eventName+fnHash)
+    // owner → Map(listenerId → entry)
+    this.registry = new Map();
+
+    // event → Set(entry), obejmuje też listenery bez owner.
+    this.eventRegistry = new Map();
+
+    this.sceneBindings = new WeakMap();
+
+    this.listenerIdCounter = 0;
+    this.warnThreshold = 20;
+    this.warnedEvents = new Set();
+  }
+
+  _generateListenerId() {
+    this.listenerIdCounter += 1;
+    return this.listenerIdCounter;
+  }
+
+  _hasOwner(owner) {
+    return owner !== null && owner !== undefined;
+  }
+
+  _findDuplicate(event, fn, context, owner, once) {
+    if (!this._hasOwner(owner)) {
+      return null;
     }
 
-    /**
-     * ✅ Generate unique ID dla listener (O(1) untrack)
-     */
-    _generateListenerId() {
-        return ++this.listenerIdCounter;
+    const listeners = this.registry.get(owner);
+
+    if (!listeners) {
+      return null;
     }
 
-    /**
-     * ✅ Hash funkcji dla deduplicacji
-     */
-    _hashListener(event, fn, context) {
-        // Prosta deduplikacja: event + fn reference
-        return `${event}:${fn.toString().slice(0, 50)}`;
+    for (const entry of listeners.values()) {
+      if (
+        entry.event === event &&
+        entry.originalFn === fn &&
+        entry.context === context &&
+        entry.once === once
+      ) {
+        return entry;
+      }
     }
 
-    on(event, fn, context = null, owner = null) {
-        if (!fn || typeof fn !== 'function') {
-            console.warn('[EventBus] on() called with invalid function');
-            return this;
+    return null;
+  }
+
+  _track(entry) {
+    if (!this.eventRegistry.has(entry.event)) {
+      this.eventRegistry.set(
+        entry.event,
+        new Set()
+      );
+    }
+
+    this.eventRegistry.get(entry.event).add(entry);
+
+    if (this._hasOwner(entry.owner)) {
+      if (!this.registry.has(entry.owner)) {
+        this.registry.set(
+          entry.owner,
+          new Map()
+        );
+      }
+
+      this.registry
+        .get(entry.owner)
+        .set(entry.id, entry);
+    }
+  }
+
+  _untrack(entry) {
+    const eventEntries =
+      this.eventRegistry.get(entry.event);
+
+    if (eventEntries) {
+      eventEntries.delete(entry);
+
+      if (eventEntries.size === 0) {
+        this.eventRegistry.delete(entry.event);
+      }
+    }
+
+    if (this._hasOwner(entry.owner)) {
+      const ownerEntries =
+        this.registry.get(entry.owner);
+
+      if (ownerEntries) {
+        ownerEntries.delete(entry.id);
+
+        if (ownerEntries.size === 0) {
+          this.registry.delete(entry.owner);
         }
-
-        // ✅ Deduplikacja — nie dodawaj duplikatu
-        if (owner) {
-            const hash = this._hashListener(event, fn, context);
-            if (!this.dedupeCache.has(owner)) {
-                this.dedupeCache.set(owner, new Set());
-            }
-
-            const ownerCache = this.dedupeCache.get(owner);
-            if (ownerCache.has(hash)) {
-                return this;  // ← Już istnieje, skip
-            }
-            ownerCache.add(hash);
-        }
-
-        this.emitter.on(event, fn, context);
-        this._track(owner, event, fn, context);
-        this._checkListenerCount(event);
-
-        return this;
+      }
     }
 
-    once(event, fn, context = null, owner = null) {
-        if (!fn || typeof fn !== 'function') {
-            console.warn('[EventBus] once() called with invalid function');
-            return this;
-        }
+    if (
+      this.emitter.listenerCount(entry.event) <
+      this.warnThreshold
+    ) {
+      this.warnedEvents.delete(entry.event);
+    }
+  }
 
-        // ✅ Użyj native Phaser once + manual untrack
-        const listenerId = this._generateListenerId();
-        const originalFn = fn;
+  _removeEntry(entry) {
+    entry.active = false;
 
-        const wrapped = (...args) => {
-            this._untrackById(owner, listenerId);
-            originalFn.apply(context, args);
-        };
+    this.emitter.off(
+      entry.event,
+      entry.wrapped
+    );
 
-        this.emitter.once(event, wrapped, context);
-        this._track(owner, event, wrapped, context, listenerId);
-        this._checkListenerCount(event);
+    this._untrack(entry);
+  }
 
-        return this;
+  _add(event, fn, context, owner, once) {
+    if (typeof fn !== 'function') {
+      console.warn(
+        `[EventBus] ${once ? 'once' : 'on'}() ` +
+        'called with an invalid function.'
+      );
+
+      return this;
     }
 
-    off(event, fn, context = null, owner = null) {
-        this.emitter.off(event, fn, context);
-
-        // ✅ Deduplikacja cleanup
-        if (owner) {
-            const hash = this._hashListener(event, fn, context);
-            const ownerCache = this.dedupeCache.get(owner);
-            if (ownerCache) {
-                ownerCache.delete(hash);
-            }
-        }
-
-        this._untrack(owner, event, fn, context);
-        return this;
+    if (
+      this._findDuplicate(
+        event,
+        fn,
+        context,
+        owner,
+        once
+      )
+    ) {
+      return this;
     }
 
-    emit(event, ...args) {
-        return this.emitter.emit(event, ...args);
+    const entry = {
+      id: this._generateListenerId(),
+      event,
+      originalFn: fn,
+      context,
+      owner,
+      once,
+      active: true,
+      wrapped: null
+    };
+
+    const bus = this;
+
+    entry.wrapped = function (...args) {
+      // Chroni przed wywołaniem usuniętego listenera,
+      // który mógł pozostać w trwającej iteracji emitera.
+      if (!entry.active) {
+        return;
+      }
+
+      if (entry.once) {
+        // Sprzątamy przed callbackiem, również na wypadek
+        // ponownego emitowania tego samego zdarzenia.
+        bus._removeEntry(entry);
+      }
+
+      const callbackContext =
+        entry.context === null ||
+        entry.context === undefined
+          ? bus.emitter
+          : entry.context;
+
+      return entry.originalFn.apply(
+        callbackContext,
+        args
+      );
+    };
+
+    this._track(entry);
+
+    try {
+      this.emitter.on(
+        event,
+        entry.wrapped
+      );
+    } catch (error) {
+      entry.active = false;
+      this._untrack(entry);
+      throw error;
     }
 
-    listenerCount(event) {
-        return this.emitter.listenerCount(event);
+    this._checkListenerCount(event);
+
+    return this;
+  }
+
+  on(event, fn, context = null, owner = null) {
+    return this._add(
+      event,
+      fn,
+      context,
+      owner,
+      false
+    );
+  }
+
+  once(event, fn, context = null, owner = null) {
+    return this._add(
+      event,
+      fn,
+      context,
+      owner,
+      true
+    );
+  }
+
+  /**
+   * Bez fn usuwa wszystkie pasujące listenery zdarzenia.
+   * Bez context dopasowuje wszystkie konteksty.
+   * Bez owner dopasowuje wszystkich właścicieli.
+   *
+   * Z owner usuwa wyłącznie rejestracje tego właściciela.
+   */
+  off(event, fn, context = null, owner = null) {
+    if (
+      fn !== undefined &&
+      fn !== null &&
+      typeof fn !== 'function'
+    ) {
+      console.warn(
+        '[EventBus] off() called with an invalid function.'
+      );
+
+      return this;
     }
 
-    clearScope(owner) {
-        const listeners = this.registry.get(owner);
+    const entries = this.eventRegistry.get(event);
 
-        if (!listeners) {
-            this.dedupeCache.delete(owner);
-            return;
-        }
-
-        // ✅ O(1) Map iteration zamiast Set
-        for (const { event, fn, context } of listeners.values()) {
-            this.emitter.off(event, fn, context);
-        }
-
-        this.registry.delete(owner);
-        this.dedupeCache.delete(owner);
+    if (!entries) {
+      return this;
     }
 
-    bindScene(scene) {
-        if (!scene?.events) {
-            console.warn('[EventBus] bindScene() received an invalid Phaser scene.');
-            return;
-        }
+    const filterByFunction =
+      typeof fn === 'function';
 
-        const owner = scene;
+    const filterByContext =
+      context !== null &&
+      context !== undefined;
 
-        scene.eventBus = {
-            on: (event, fn, context = scene) => {
-                this.on(event, fn, context, owner);
-                return scene.eventBus;
-            },
+    const filterByOwner =
+      this._hasOwner(owner);
 
-            once: (event, fn, context = scene) => {
-                this.once(event, fn, context, owner);
-                return scene.eventBus;
-            },
+    for (const entry of [...entries]) {
+      if (
+        filterByFunction &&
+        entry.originalFn !== fn &&
+        entry.wrapped !== fn
+      ) {
+        continue;
+      }
 
-            off: (event, fn, context = scene) => {
-                this.off(event, fn, context, owner);
-                return scene.eventBus;
-            },
+      if (
+        filterByContext &&
+        entry.context !== context
+      ) {
+        continue;
+      }
 
-            emit: (event, ...args) => {
-                return this.emit(event, ...args);
-            },
+      if (
+        filterByOwner &&
+        entry.owner !== owner
+      ) {
+        continue;
+      }
 
-            listenerCount: (event) => {
-                return this.listenerCount(event);
-            },
-
-            // ✅ Explicit cleanup method
-            destroy: () => {
-                this.clearScope(owner);
-            }
-        };
-
-        // ✅ Cleanup na shutdown i destroy
-        const cleanup = () => this.clearScope(owner);
-        scene.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
-        scene.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
+      this._removeEntry(entry);
     }
 
-    /**
-     * ✅ Track listener z optional ID
-     */
-    _track(owner, event, fn, context, listenerId = null) {
-        if (!owner) return;
+    return this;
+  }
 
-        if (!this.registry.has(owner)) {
-            this.registry.set(owner, new Map());
-        }
+  emit(event, ...args) {
+    return this.emitter.emit(
+      event,
+      ...args
+    );
+  }
 
-        const id = listenerId ?? this._generateListenerId();
-        this.registry.get(owner).set(id, { event, fn, context });
+  listenerCount(event) {
+    return this.emitter.listenerCount(event);
+  }
+
+  clearScope(owner) {
+    const listeners = this.registry.get(owner);
+
+    if (!listeners) {
+      return this;
     }
 
-    /**
-     * ✅ Untrack by listener reference (O(n) ale rzadkie)
-     */
-    _untrack(owner, event, fn, context) {
-        if (!owner || !this.registry.has(owner)) return;
-
-        const listeners = this.registry.get(owner);
-
-        // ✅ Szukamy entry z dopasowaniem
-        for (const [id, entry] of listeners.entries()) {
-            if (entry.event === event && entry.fn === fn && entry.context === context) {
-                listeners.delete(id);
-                break;
-            }
-        }
-
-        if (listeners.size === 0) {
-            this.registry.delete(owner);
-        }
+    for (const entry of [...listeners.values()]) {
+      this._removeEntry(entry);
     }
 
-    /**
-     * ✅ Untrack by ID (O(1))
-     */
-    _untrackById(owner, listenerId) {
-        if (!owner || !this.registry.has(owner)) return;
+    return this;
+  }
 
-        const listeners = this.registry.get(owner);
-        listeners.delete(listenerId);
+  bindScene(scene) {
+    if (!scene?.events) {
+      console.warn(
+        '[EventBus] bindScene() received an invalid Phaser scene.'
+      );
 
-        if (listeners.size === 0) {
-            this.registry.delete(owner);
-        }
+      return;
     }
 
-    _checkListenerCount(event) {
-        const count = this.emitter.listenerCount(event);
+    const existing = this.sceneBindings.get(scene);
 
-        if (count >= this.warnThreshold && !this.warnedEvents.has(event)) {
-            this.warnedEvents.add(event);
-
-            console.warn(
-                `[EventBus] "${event}" has ${count} listeners. ` +
-                'Check whether a scene or UI component is missing cleanup.'
-            );
-        }
+    if (existing) {
+      scene.eventBus = existing.api;
+      return existing.api;
     }
 
-    debugListenerSummary() {
-        const summary = [];
+    const owner = scene;
+    const bus = this;
 
-        for (const [owner, listeners] of this.registry) {
-            summary.push({
-                owner: owner.scene?.key || owner.constructor?.name || 'Unknown',
-                listenerCount: listeners.size,
-                events: [...new Set([...listeners.values()].map(l => l.event))]
-            });
-        }
+    const shutdownEvent =
+      Phaser.Scenes.Events.SHUTDOWN;
 
-        return summary;
+    const destroyEvent =
+      Phaser.Scenes.Events.DESTROY;
+
+    const cleanup = () => {
+      bus.clearScope(owner);
+    };
+
+    const detach = () => {
+      cleanup();
+
+      scene.events.off(
+        shutdownEvent,
+        cleanup
+      );
+
+      scene.events.off(
+        destroyEvent,
+        detach
+      );
+
+      bus.sceneBindings.delete(scene);
+
+      if (scene.eventBus === api) {
+        delete scene.eventBus;
+      }
+    };
+
+    const api = {
+      on(event, fn, context = scene) {
+        bus.on(
+          event,
+          fn,
+          context,
+          owner
+        );
+
+        return api;
+      },
+
+      once(event, fn, context = scene) {
+        bus.once(
+          event,
+          fn,
+          context,
+          owner
+        );
+
+        return api;
+      },
+
+      off(event, fn, context = scene) {
+        bus.off(
+          event,
+          fn,
+          context,
+          owner
+        );
+
+        return api;
+      },
+
+      emit(event, ...args) {
+        return bus.emit(
+          event,
+          ...args
+        );
+      },
+
+      listenerCount(event) {
+        return bus.listenerCount(event);
+      },
+
+      destroy() {
+        detach();
+      }
+    };
+
+    this.sceneBindings.set(scene, {
+      api,
+      cleanup,
+      detach
+    });
+
+    scene.eventBus = api;
+
+    // Jedna stała rejestracja na scenę:
+    // działa również po jej ponownym uruchomieniu.
+    scene.events.on(
+      shutdownEvent,
+      cleanup
+    );
+
+    scene.events.once(
+      destroyEvent,
+      detach
+    );
+
+    return api;
+  }
+
+  _checkListenerCount(event) {
+    const count =
+      this.emitter.listenerCount(event);
+
+    if (
+      count >= this.warnThreshold &&
+      !this.warnedEvents.has(event)
+    ) {
+      this.warnedEvents.add(event);
+
+      console.warn(
+        `[EventBus] "${String(event)}" has ${count} listeners. ` +
+        'Check whether a scene or UI component is missing cleanup.'
+      );
+    }
+  }
+
+  debugListenerSummary() {
+    const summary = [];
+
+    for (const [owner, listeners] of this.registry) {
+      summary.push({
+        owner:
+          owner?.sys?.settings?.key ||
+          owner?.scene?.key ||
+          owner?.constructor?.name ||
+          String(owner),
+
+        listenerCount: listeners.size,
+
+        events: [
+          ...new Set(
+            [...listeners.values()].map(
+              entry => entry.event
+            )
+          )
+        ]
+      });
     }
 
-    removeAllListeners(event = null) {
-        this.emitter.removeAllListeners(event);
+    return summary;
+  }
 
-        if (event) {
-            for (const [owner, listeners] of this.registry) {
-                for (const [id, entry] of listeners.entries()) {
-                    if (entry.event === event) {
-                        listeners.delete(id);
-                    }
-                }
+  removeAllListeners(event = null) {
+    const removeEverything =
+      event === null ||
+      event === undefined;
 
-                if (listeners.size === 0) {
-                    this.registry.delete(owner);
-                }
-            }
-        } else {
-            this.registry.clear();
+    if (removeEverything) {
+      for (const entries of [
+        ...this.eventRegistry.values()
+      ]) {
+        for (const entry of [...entries]) {
+          this._removeEntry(entry);
         }
+      }
 
-        this.dedupeCache.clear();
-        this.warnedEvents.clear();
+      this.emitter.removeAllListeners();
+
+      this.registry.clear();
+      this.eventRegistry.clear();
+      this.warnedEvents.clear();
+
+      return this;
     }
+
+    const entries =
+      this.eventRegistry.get(event);
+
+    if (entries) {
+      for (const entry of [...entries]) {
+        this._removeEntry(entry);
+      }
+    }
+
+    this.emitter.removeAllListeners(event);
+    this.warnedEvents.delete(event);
+
+    return this;
+  }
 }
 
 const EventBus = new ManagedEventBus();

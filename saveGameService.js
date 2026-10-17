@@ -1,208 +1,198 @@
 import { supabase } from './supabase-client.js';
-import {
-  gameState,
-  defaultGameState
-} from './GameData.js';
+import { gameState } from './GameData.js';
 import { createSaveManager } from './managers/SaveManager.js';
-import { RouteManager } from './managers/RouteManager.js';
+import { MainStoryManager } from './managers/MainStoryManager.js';
 
-const GAME_VERSION = '0.9.0';
+import {
+  createCaseDirectorFromState
+} from './restoreCaseDirector.js';
 
-/**
- * Zwraca dane możliwe do umieszczenia w save:
- * string, number, boolean, null, tablice i zwykłe obiekty.
- *
- * Nie zapisujemy funkcji, Phaser objects, referencji cyklicznych,
- * elementów DOM ani runtimeowych instancji klas.
- */
-function sanitizeSaveData(value, path = 'root', seen = new WeakSet()) {
-  if (
-    value === null ||
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  ) {
-    return value;
-  }
-
-  if (typeof value === 'undefined') {
-    return undefined;
-  }
-
-  if (typeof value === 'function') {
-    console.warn(`[Save] Function skipped at "${path}".`, value);
-    return undefined;
-  }
-
-  if (typeof value === 'symbol' || typeof value === 'bigint') {
-    console.warn(`[Save] Unsupported value skipped at "${path}".`, value);
-    return undefined;
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  if (typeof value !== 'object') {
-    return undefined;
-  }
-
-  if (seen.has(value)) {
-    console.warn(`[Save] Circular reference skipped at "${path}".`);
-    return undefined;
-  }
-
-  seen.add(value);
-
-  if (Array.isArray(value)) {
-    const sanitizedArray = value.map((item, index) => {
-      const sanitizedItem = sanitizeSaveData(
-        item,
-        `${path}[${index}]`,
-        seen
-      );
-
-      /*
-       * JSON nie ma odpowiednika undefined w tablicy.
-       * null zachowuje właściwy układ indeksów.
-       */
-      return typeof sanitizedItem === 'undefined'
-        ? null
-        : sanitizedItem;
-    });
-
-    seen.delete(value);
-    return sanitizedArray;
-  }
-
-  const sanitizedObject = {};
-
-  for (const [key, item] of Object.entries(value)) {
-    const sanitizedItem = sanitizeSaveData(
-      item,
-      `${path}.${key}`,
-      seen
-    );
-
-    if (typeof sanitizedItem !== 'undefined') {
-      sanitizedObject[key] = sanitizedItem;
-    }
-  }
-
-  seen.delete(value);
-  return sanitizedObject;
-}
-
-function cloneData(value) {
-  return sanitizeSaveData(value);
-}
+const GAME_VERSION = '0.10.0';
 
 function isPlainObject(value) {
-  return Boolean(
-    value &&
-    typeof value === 'object' &&
-    !Array.isArray(value)
+  if (
+    value === null ||
+    typeof value !== 'object'
+  ) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+
+  return (
+    prototype === Object.prototype ||
+    prototype === null
   );
 }
 
-function createRouteManagerFromSave(savedState) {
-  const serializedManager = isPlainObject(savedState.routeManager)
-    ? savedState.routeManager
-    : null;
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(
+    object,
+    key
+  );
+}
 
-  const route = Array.isArray(serializedManager?.route)
-    ? serializedManager.route
-    : Array.isArray(savedState.escapeRoute)
-      ? savedState.escapeRoute
-      : [];
-
-  const crimeCityId =
-    serializedManager?.crimeCityId ||
-    savedState.crimeCityId ||
-    null;
-
-  const routeManager = new RouteManager(route, crimeCityId);
-
-  if (serializedManager) {
-    routeManager.restore(serializedManager);
+function getSavedMainStory(savedState) {
+  if (hasOwn(savedState, 'mainStory')) {
+    return savedState.mainStory;
   }
 
-  return routeManager;
+  if (
+    isPlainObject(savedState.state) &&
+    hasOwn(savedState.state, 'mainStory')
+  ) {
+    return savedState.state.mainStory;
+  }
+
+  return undefined;
+}
+
+function buildStateForSave() {
+  gameState.mainStory =
+    MainStoryManager.serialize();
+
+  // Zachowujemy aktualny szablon używany przez dyrektora.
+  const director = gameState.caseDirector;
+
+  if (
+    director &&
+    typeof director.serialize === 'function'
+  ) {
+    const template = director.serialize();
+
+    if (template !== null && template !== undefined) {
+      gameState.caseTemplate =
+        structuredClone(template);
+    }
+  }
+
+  return gameState.exportForSave();
 }
 
 function replaceGameState(savedState) {
   if (!isPlainObject(savedState)) {
     throw new Error(
-      '[saveGameService] Cannot replace game state: save data must be a plain object.'
+      '[saveGameService] Save data must be a plain object.'
     );
   }
 
-  const safeDefaults = cloneData(defaultGameState);
-  const safeSavedState = cloneData(savedState);
+  const savedMainStory =
+    getSavedMainStory(savedState);
 
-  /*
-   * Zachowujemy referencję eksportowanego gameState, ale czyścimy obiekt
-   * przed odtworzeniem stanu z pliku.
-   */
-  Object.keys(gameState).forEach((key) => {
-    delete gameState[key];
-  });
+  const previousState = gameState.getState();
+  const previousMainStory =
+    MainStoryManager.serialize();
 
-  /*
-   * Najpierw nowe domyślne pola z aktualnej wersji gry,
-   * następnie faktyczny stan zapisany przez gracza.
-   */
-  Object.assign(gameState, safeDefaults, safeSavedState);
+  const previousDirty = gameState.dirty;
+  const previousCheckpoint =
+    gameState.saveCheckpoint;
+  const previousCaseDirector =
+    gameState.caseDirector;
 
-  /*
-   * routeManager jest instancją runtimeową, a nie trwałą częścią save'a.
-   * Odtwarzamy obiekt klasy na podstawie jej zserializowanych danych.
-   */
-  gameState.routeManager = createRouteManagerFromSave(safeSavedState);
+  let stateImported = false;
+  let storyRestoreAttempted = false;
 
-  console.log('[SaveLoad] Restored snapshot:', {
-    currentCityId: gameState.currentCityId,
-    crimeCityId: gameState.crimeCityId,
-    currentMission: gameState.currentMission,
-    visitedCities: gameState.visitedCities,
-    specialScenesCompleted: gameState.specialScenesCompleted,
-    crimeCityProgress: gameState.crimeCityProgress
-  });
+  try {
+    if (!gameState.importFromSave(savedState)) {
+      throw new Error(
+        'GameStateManager rejected the saved state.'
+      );
+    }
 
-  return gameState;
+    stateImported = true;
+
+    // Korzystamy ze stanu po normalizacji starszego zapisu.
+    gameState.caseDirector =
+      createCaseDirectorFromState(gameState.state);
+
+    storyRestoreAttempted = true;
+
+    if (
+      savedMainStory === undefined ||
+      savedMainStory === null
+    ) {
+      MainStoryManager.resetProgress({
+        silent: true
+      });
+    } else {
+      const restored =
+        MainStoryManager.deserialize(savedMainStory);
+
+      if (restored !== true) {
+        throw new Error(
+          'MainStoryManager rejected the saved story.'
+        );
+      }
+    }
+
+    gameState.mainStory =
+      MainStoryManager.serialize();
+
+    gameState.dirty = false;
+    gameState.saveCheckpoint = null;
+
+    return gameState;
+  } catch (error) {
+    if (stateImported) {
+      try {
+        const restored =
+          gameState.importFromSave(previousState);
+
+        if (!restored) {
+          throw new Error(
+            'Previous game state was rejected.'
+          );
+        }
+
+        gameState.caseDirector =
+          previousCaseDirector;
+
+        gameState.saveCheckpoint =
+          previousCheckpoint;
+
+        gameState.dirty = previousDirty;
+      } catch (rollbackError) {
+        console.error(
+          '[saveGameService] Game state rollback failed:',
+          rollbackError
+        );
+      }
+    }
+
+    if (storyRestoreAttempted) {
+      try {
+        const restored =
+          MainStoryManager.deserialize(
+            previousMainStory
+          );
+
+        if (restored !== true) {
+          throw new Error(
+            'Previous main story was rejected.'
+          );
+        }
+      } catch (rollbackError) {
+        console.error(
+          '[saveGameService] Main story rollback failed:',
+          rollbackError
+        );
+      }
+    }
+
+    throw new Error(
+      '[saveGameService] Could not restore the save: ' +
+      (
+        typeof error?.message === 'string'
+          ? error.message
+          : String(error)
+      )
+    );
+  }
 }
 
 export const saveManager = createSaveManager({
   supabase,
-
   gameVersion: GAME_VERSION,
-
-  getState: () => {
-    /*
-     * WAŻNE:
-     * Nie wolno klonować gameState razem z RouteManagerem. To instancja
-     * runtimeowa, która może zawierać metody, funkcje RNG, eventy albo
-     * inne dane niemożliwe do zapisu przez structuredClone / JSON.
-     */
-    const {
-      routeManager,
-      ...serializableGameState
-    } = gameState;
-
-    /*
-     * Tu klonujemy już tylko właściwe dane gry.
-     */
-    const state = cloneData(serializableGameState);
-
-    /*
-     * Następnie dokładamy czyste dane trasy, a nie instancję RouteManager.
-     */
-    if (routeManager instanceof RouteManager) {
-      state.routeManager = cloneData(routeManager.serialize());
-    }
-
-    return state;
-  },
-
+  getState: buildStateForSave,
   applyState: replaceGameState
 });

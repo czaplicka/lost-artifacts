@@ -6,11 +6,14 @@ export class BaseScene extends Phaser.Scene {
   constructor(config) {
     super(config);
 
-    this.activeTweens = [];
-    this.inputEvents = [];
-    this._busListeners = [];
+    this.activeTweens = new Set();
+    this._sleepPausedTweens = new Set();
+    this._tweenTrackingCallbacks = new Map();
 
+    this.inputEvents = [];
     this.sceneEvents = null;
+
+    this._monologue = null;
 
     this._sceneLoaderNavInFlight = false;
     this._overlayLoadsInFlight = new Set();
@@ -20,57 +23,85 @@ export class BaseScene extends Phaser.Scene {
     this._destroyCleanupDone = false;
   }
 
-  create() {
-    const wasCleanedUp = this._cleanupDone;
+  // ------------------------------------------------------------------
+  // Lazy monologue
+  // ------------------------------------------------------------------
 
+  get monologue() {
+    if (
+      this._cleanupDone ||
+      this._destroyCleanupDone
+    ) {
+      return null;
+    }
+
+    if (this._monologue?.isDestroyed) {
+      this._monologue = null;
+    }
+
+    if (!this._monologue) {
+      const dialogues =
+        this.cache?.json?.get('monologues') ?? {};
+
+      const manager = new MonologueManager(this, {
+        dialogues
+      });
+
+      if (manager.isDestroyed) {
+        return null;
+      }
+
+      this._monologue = manager;
+    }
+
+    return this._monologue;
+  }
+
+  set monologue(value) {
+    if (value === this._monologue) {
+      return;
+    }
+
+    this._monologue?.destroy?.();
+    this._monologue = value ?? null;
+  }
+
+  // ------------------------------------------------------------------
+  // Scene initialization
+  // ------------------------------------------------------------------
+
+  create() {
     this._cleanupDone = false;
     this._sleepCleanupDone = false;
     this._destroyCleanupDone = false;
+
     this._sceneLoaderNavInFlight = false;
 
-    /*
-     * Gdy scena została zatrzymana i później uruchomiona ponownie
-     * na tej samej instancji, nie chcemy przenosić referencji
-     * z poprzedniego cyklu życia sceny.
-     */
-    if (wasCleanedUp) {
-      this.activeTweens = [];
-      this.inputEvents = [];
-      this._busListeners = [];
+    if (!(this.activeTweens instanceof Set)) {
+      this.activeTweens = new Set(
+        Array.isArray(this.activeTweens)
+          ? this.activeTweens
+          : []
+      );
     }
 
-    if (!Array.isArray(this.activeTweens)) {
-      this.activeTweens = [];
-    }
+    this._sleepPausedTweens ??= new Set();
+    this._tweenTrackingCallbacks ??= new Map();
+    this._overlayLoadsInFlight ??= new Set();
 
     if (!Array.isArray(this.inputEvents)) {
       this.inputEvents = [];
     }
 
-    if (!Array.isArray(this._busListeners)) {
-      this._busListeners = [];
-    }
-
-    if (!this._overlayLoadsInFlight) {
-      this._overlayLoadsInFlight = new Set();
-    }
-
     if (!this.sceneEvents) {
-      this.sceneEvents = new Phaser.Events.EventEmitter();
+      this.sceneEvents =
+        new Phaser.Events.EventEmitter();
     }
 
-    if (!this.monologue) {
-      const monologues = this.cache.json.get('monologues') ?? {};
+    // EventBus przechowuje jeden rejestr i jedną
+    // rejestrację lifecycle dla tej instancji sceny.
+    EventBus.bindScene(this);
 
-      this.monologue = new MonologueManager(this, {
-        dialogues: monologues
-      });
-    }
-
-    /*
-     * Usuwamy wyłącznie listenery należące do BaseScene.
-     * Chroni to przed ich duplikowaniem przy restartach sceny.
-     */
     this.events.off(
       Phaser.Scenes.Events.SHUTDOWN,
       this.cleanup,
@@ -101,10 +132,6 @@ export class BaseScene extends Phaser.Scene {
       this
     );
 
-    /*
-     * SLEEP i WAKE mogą wystąpić wielokrotnie
-     * dla tej samej instancji sceny.
-     */
     this.events.on(
       Phaser.Scenes.Events.SLEEP,
       this.handleSleep,
@@ -129,146 +156,65 @@ export class BaseScene extends Phaser.Scene {
   // ------------------------------------------------------------------
 
   onBus(eventName, callback, context = this) {
-    if (this._cleanupDone) {
-      console.warn(
-        `[BaseScene] Ignoring EventBus listener after cleanup in "${this.scene.key}".`
-      );
-
+    if (
+      this._cleanupDone ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       return null;
     }
 
-    if (!eventName || typeof callback !== 'function') {
-      console.warn(
-        '[BaseScene] onBus() received invalid listener data.',
-        {
-          scene: this.scene.key,
-          eventName,
-          callback
-        }
-      );
-
-      return null;
-    }
-
-    const listenerAlreadyTracked = this._busListeners.some(
-      (listener) =>
-        listener.eventName === eventName &&
-        listener.callback === callback &&
-        listener.context === context &&
-        listener.once === false
-    );
-
-    if (listenerAlreadyTracked) {
-      return callback;
-    }
-
-    EventBus.on(eventName, callback, context);
-
-    this._busListeners.push({
+    EventBus.on(
       eventName,
       callback,
-      originalCallback: callback,
       context,
-      once: false
-    });
+      this
+    );
 
     return callback;
   }
 
   onceBus(eventName, callback, context = this) {
-    if (this._cleanupDone) {
+    if (
+      this._cleanupDone ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       return null;
     }
 
-    if (!eventName || typeof callback !== 'function') {
-      console.warn(
-        '[BaseScene] onceBus() received invalid listener data.',
-        {
-          scene: this.scene.key,
-          eventName,
-          callback
-        }
-      );
-
-      return null;
-    }
-
-    const listenerAlreadyTracked = this._busListeners.some(
-      (listener) =>
-        listener.eventName === eventName &&
-        listener.originalCallback === callback &&
-        listener.context === context &&
-        listener.once === true
-    );
-
-    if (listenerAlreadyTracked) {
-      return callback;
-    }
-
-    const wrappedCallback = (...args) => {
-      this.offBus(eventName, wrappedCallback, context);
-      callback.apply(context, args);
-    };
-
-    EventBus.on(eventName, wrappedCallback, context);
-
-    this._busListeners.push({
+    EventBus.once(
       eventName,
-      callback: wrappedCallback,
-      originalCallback: callback,
+      callback,
       context,
-      once: true
-    });
+      this
+    );
 
     return callback;
   }
 
   offBus(eventName, callback, context = this) {
-    if (!eventName || typeof callback !== 'function') {
+    if (
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       return false;
     }
 
-    const matchingListeners = this._busListeners.filter(
-      (listener) =>
-        listener.eventName === eventName &&
-        listener.context === context &&
-        (
-          listener.callback === callback ||
-          listener.originalCallback === callback
-        )
+    const previousCount =
+      EventBus.listenerCount(eventName);
+
+    EventBus.off(
+      eventName,
+      callback,
+      context,
+      this
     );
 
-    matchingListeners.forEach((listener) => {
-      EventBus.off(
-        listener.eventName,
-        listener.callback,
-        listener.context
-      );
-    });
-
-    /*
-     * Gdy nie mamy wpisu w registry, mimo wszystko próbujemy
-     * odpiąć callback bezpośrednio od EventBus.
-     */
-    if (!matchingListeners.length) {
-      EventBus.off(eventName, callback, context);
-    }
-
-    const initialCount = this._busListeners.length;
-
-    this._busListeners = this._busListeners.filter(
-      (listener) =>
-        !(
-          listener.eventName === eventName &&
-          listener.context === context &&
-          (
-            listener.callback === callback ||
-            listener.originalCallback === callback
-          )
-        )
+    return (
+      EventBus.listenerCount(eventName) <
+      previousCount
     );
-
-    return this._busListeners.length !== initialCount;
   }
 
   emitBus(eventName, ...args) {
@@ -286,35 +232,47 @@ export class BaseScene extends Phaser.Scene {
   // ------------------------------------------------------------------
 
   onSceneEvent(eventName, callback, context = this) {
-    if (this._cleanupDone) {
+    if (
+      this._cleanupDone ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       return null;
     }
 
-    if (!eventName || typeof callback !== 'function') {
-      return null;
-    }
-
-    this.sceneEvents?.on(eventName, callback, context);
+    this.sceneEvents?.on(
+      eventName,
+      callback,
+      context
+    );
 
     return callback;
   }
 
   onceSceneEvent(eventName, callback, context = this) {
-    if (this._cleanupDone) {
+    if (
+      this._cleanupDone ||
+      !eventName ||
+      typeof callback !== 'function'
+    ) {
       return null;
     }
 
-    if (!eventName || typeof callback !== 'function') {
-      return null;
-    }
-
-    this.sceneEvents?.once(eventName, callback, context);
+    this.sceneEvents?.once(
+      eventName,
+      callback,
+      context
+    );
 
     return callback;
   }
 
   offSceneEvent(eventName, callback, context = this) {
-    this.sceneEvents?.off(eventName, callback, context);
+    this.sceneEvents?.off(
+      eventName,
+      callback,
+      context
+    );
   }
 
   emitSceneEvent(eventName, ...args) {
@@ -322,21 +280,30 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    this.sceneEvents?.emit(eventName, ...args);
+    this.sceneEvents?.emit(
+      eventName,
+      ...args
+    );
 
     return true;
   }
 
   // ------------------------------------------------------------------
-  // Tween tracking helpers
+  // Tween tracking
   // ------------------------------------------------------------------
 
   isDestroyedTween(tween) {
-    return Boolean(
-      !tween ||
-      tween.isDestroyed ||
-      tween.parent === null
-    );
+    if (!tween || tween.parent === null) {
+      return true;
+    }
+
+    try {
+      return typeof tween.isDestroyed === 'function'
+        ? Boolean(tween.isDestroyed())
+        : tween.isDestroyed === true;
+    } catch {
+      return true;
+    }
   }
 
   isTweenPlaying(tween) {
@@ -345,48 +312,62 @@ export class BaseScene extends Phaser.Scene {
     }
 
     try {
-      if (typeof tween.isPlaying === 'function') {
-        return tween.isPlaying();
-      }
-
-      return Boolean(tween.isPlaying);
+      return typeof tween.isPlaying === 'function'
+        ? tween.isPlaying()
+        : Boolean(tween.isPlaying);
     } catch {
       return false;
     }
   }
 
   untrackTween(tween) {
-    if (!tween || !Array.isArray(this.activeTweens)) {
+    if (!tween) {
       return false;
     }
 
-    const previousLength = this.activeTweens.length;
+    const callback =
+      this._tweenTrackingCallbacks.get(tween);
 
-    this.activeTweens = this.activeTweens.filter(
-      (trackedTween) => trackedTween !== tween
-    );
+    if (callback) {
+      tween.off?.('complete', callback);
+      tween.off?.('stop', callback);
+      tween.off?.('remove', callback);
 
-    return this.activeTweens.length !== previousLength;
+      this._tweenTrackingCallbacks.delete(tween);
+    }
+
+    this._sleepPausedTweens.delete(tween);
+
+    return this.activeTweens.delete(tween);
   }
 
   addTrackedTween(tween) {
-    if (!tween || this._cleanupDone) {
+    if (
+      !tween ||
+      this._cleanupDone ||
+      this.isDestroyedTween(tween)
+    ) {
       return null;
     }
 
-    if (this.activeTweens.includes(tween)) {
+    if (this.activeTweens.has(tween)) {
       return tween;
     }
 
-    this.activeTweens.push(tween);
+    this.activeTweens.add(tween);
 
-    const removeTweenFromTracking = () => {
+    const untrack = () => {
       this.untrackTween(tween);
     };
 
-    tween.once?.('complete', removeTweenFromTracking);
-    tween.once?.('stop', removeTweenFromTracking);
-    tween.once?.('remove', removeTweenFromTracking);
+    this._tweenTrackingCallbacks.set(
+      tween,
+      untrack
+    );
+
+    tween.once?.('complete', untrack);
+    tween.once?.('stop', untrack);
+    tween.once?.('remove', untrack);
 
     return tween;
   }
@@ -394,43 +375,14 @@ export class BaseScene extends Phaser.Scene {
   createTrackedTween(config = {}) {
     if (
       this._cleanupDone ||
-      !this.tweens ||
-      typeof this.tweens.add !== 'function' ||
-      !config
+      !config ||
+      typeof this.tweens?.add !== 'function'
     ) {
       return null;
     }
 
-    let tween = null;
-
-    const originalOnComplete = config.onComplete;
-    const originalOnStop = config.onStop;
-    const originalOnRemove = config.onRemove;
-
-    const removeTweenFromTracking = () => {
-      if (tween) {
-        this.untrackTween(tween);
-      }
-    };
-
-    tween = this.tweens.add({
-      ...config,
-
-      onComplete: (...args) => {
-        removeTweenFromTracking();
-        originalOnComplete?.(...args);
-      },
-
-      onStop: (...args) => {
-        removeTweenFromTracking();
-        originalOnStop?.(...args);
-      },
-
-      onRemove: (...args) => {
-        removeTweenFromTracking();
-        originalOnRemove?.(...args);
-      }
-    });
+    // Nie zmieniamy callbacków ani callbackScope.
+    const tween = this.tweens.add(config);
 
     return this.addTrackedTween(tween);
   }
@@ -460,7 +412,10 @@ export class BaseScene extends Phaser.Scene {
     }
 
     try {
-      if (remove && !this.isDestroyedTween(tween)) {
+      if (
+        remove &&
+        !this.isDestroyedTween(tween)
+      ) {
         tween.remove?.();
       }
     } catch (error) {
@@ -474,40 +429,13 @@ export class BaseScene extends Phaser.Scene {
   }
 
   cleanupTrackedTweens() {
-    if (!Array.isArray(this.activeTweens)) {
-      this.activeTweens = [];
-      return;
+    for (const tween of [...this.activeTweens]) {
+      this.removeTrackedTween(tween);
     }
 
-    const tweensToCleanup = [...this.activeTweens];
-
-    this.activeTweens = [];
-
-    tweensToCleanup.forEach((tween) => {
-      if (!tween || this.isDestroyedTween(tween)) {
-        return;
-      }
-
-      try {
-        if (this.isTweenPlaying(tween)) {
-          tween.stop();
-        }
-      } catch (error) {
-        console.warn(
-          '[BaseScene] Tween cleanup stop failed:',
-          error
-        );
-      }
-
-      try {
-        tween.remove?.();
-      } catch (error) {
-        console.warn(
-          '[BaseScene] Tween cleanup removal failed:',
-          error
-        );
-      }
-    });
+    this.activeTweens.clear();
+    this._sleepPausedTweens.clear();
+    this._tweenTrackingCallbacks.clear();
   }
 
   killTrackedTweensOf(target) {
@@ -515,24 +443,21 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    const trackedTweens = [...this.activeTweens];
-
-    trackedTweens.forEach((tween) => {
-      if (!tween || this.isDestroyedTween(tween)) {
+    for (const tween of [...this.activeTweens]) {
+      if (this.isDestroyedTween(tween)) {
         this.untrackTween(tween);
-        return;
+        continue;
       }
 
       const targets = tween.targets ?? [];
 
-      const hasTarget = Array.isArray(targets)
-        ? targets.includes(target)
-        : false;
-
-      if (hasTarget) {
+      if (
+        Array.isArray(targets) &&
+        targets.includes(target)
+      ) {
         this.removeTrackedTween(tween);
       }
-    });
+    }
 
     try {
       this.tweens?.killTweensOf?.(target);
@@ -547,31 +472,44 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
-  // Scene lifecycle cleanup
+  // Lifecycle
   // ------------------------------------------------------------------
 
   handleSleep() {
-    if (this._sleepCleanupDone || this._cleanupDone) {
+    if (
+      this._sleepCleanupDone ||
+      this._cleanupDone
+    ) {
       return;
     }
 
     this._sleepCleanupDone = true;
+    this._sleepPausedTweens.clear();
 
-    this.activeTweens.forEach((tween) => {
-      if (!tween || this.isDestroyedTween(tween)) {
+    for (const tween of [...this.activeTweens]) {
+      if (this.isDestroyedTween(tween)) {
         this.untrackTween(tween);
-        return;
+        continue;
+      }
+
+      // Nie wznawiamy później tweenów, które były
+      // celowo zatrzymane przed uśpieniem.
+      if (!this.isTweenPlaying(tween)) {
+        continue;
       }
 
       try {
-        tween.pause?.();
+        if (typeof tween.pause === 'function') {
+          tween.pause();
+          this._sleepPausedTweens.add(tween);
+        }
       } catch (error) {
         console.warn(
           '[BaseScene] Tween sleep pause failed:',
           error
         );
       }
-    });
+    }
 
     this._sceneLoaderNavInFlight = false;
   }
@@ -583,10 +521,19 @@ export class BaseScene extends Phaser.Scene {
 
     this._sleepCleanupDone = false;
 
-    this.activeTweens.forEach((tween) => {
-      if (!tween || this.isDestroyedTween(tween)) {
+    const pausedTweens = [
+      ...this._sleepPausedTweens
+    ];
+
+    this._sleepPausedTweens.clear();
+
+    for (const tween of pausedTweens) {
+      if (
+        !this.activeTweens.has(tween) ||
+        this.isDestroyedTween(tween)
+      ) {
         this.untrackTween(tween);
-        return;
+        continue;
       }
 
       try {
@@ -597,7 +544,7 @@ export class BaseScene extends Phaser.Scene {
           error
         );
       }
-    });
+    }
   }
 
   cleanup() {
@@ -607,22 +554,41 @@ export class BaseScene extends Phaser.Scene {
 
     this._cleanupDone = true;
 
+    // Nie używamy this.monologue: getter mógłby
+    // utworzyć manager wyłącznie po to, by go zniszczyć.
+    const monologue = this._monologue;
+    this._monologue = null;
+
+    try {
+      monologue?.destroy?.();
+    } catch (error) {
+      console.warn(
+        '[BaseScene] Monologue cleanup failed:',
+        error
+      );
+    }
+
     this.cleanupTrackedTweens();
 
-    this.inputEvents.forEach((event) => {
+    for (const event of this.inputEvents) {
       if (
         !event?.target ||
         !event.name ||
-        !event.callback
+        typeof event.callback !== 'function'
       ) {
-        return;
+        continue;
       }
 
       try {
-        event.target.removeListener(
+        const remove =
+          event.target.off ??
+          event.target.removeListener;
+
+        remove?.call(
+          event.target,
           event.name,
           event.callback,
-          event.context ?? this
+          event.context
         );
       } catch (error) {
         console.warn(
@@ -630,26 +596,19 @@ export class BaseScene extends Phaser.Scene {
           error
         );
       }
-    });
+    }
 
     this.inputEvents = [];
 
-    this._busListeners.forEach(
-      ({ eventName, callback, context }) => {
-        try {
-          EventBus.off(eventName, callback, context);
-        } catch (error) {
-          console.warn(
-            `[BaseScene] EventBus cleanup failed for "${eventName}":`,
-            error
-          );
-        }
-      }
-    );
-
-    this._busListeners = [];
+    EventBus.clearScope(this);
 
     this.sceneEvents?.removeAllListeners();
+
+    this.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.cleanup,
+      this
+    );
 
     this.events.off(
       Phaser.Scenes.Events.SLEEP,
@@ -664,7 +623,7 @@ export class BaseScene extends Phaser.Scene {
     );
 
     this._sceneLoaderNavInFlight = false;
-    this._overlayLoadsInFlight?.clear();
+    this._overlayLoadsInFlight.clear();
   }
 
   destroyBaseScene() {
@@ -676,18 +635,22 @@ export class BaseScene extends Phaser.Scene {
 
     this.cleanup();
 
+    this.eventBus?.destroy?.();
+
     if (this.sceneEvents) {
-      this.sceneEvents.removeAllListeners();
       this.sceneEvents.destroy();
       this.sceneEvents = null;
     }
 
-    this.monologue?.destroy?.();
-    this.monologue = null;
+    this.events.off(
+      Phaser.Scenes.Events.DESTROY,
+      this.destroyBaseScene,
+      this
+    );
   }
 
   // ------------------------------------------------------------------
-  // Input helpers
+  // Input
   // ------------------------------------------------------------------
 
   trackInputEvent(
@@ -696,45 +659,32 @@ export class BaseScene extends Phaser.Scene {
     callback,
     context = this
   ) {
-    if (this._cleanupDone) {
-      console.warn(
-        `[BaseScene] Ignoring input listener after cleanup in "${this.scene.key}".`
-      );
-
-      return null;
-    }
-
     if (
-      !target?.on ||
+      this._cleanupDone ||
+      typeof target?.on !== 'function' ||
       !eventName ||
       typeof callback !== 'function'
     ) {
-      console.warn(
-        '[BaseScene] trackInputEvent received invalid event data.',
-        {
-          scene: this.scene.key,
-          target,
-          eventName,
-          callback
-        }
-      );
-
       return null;
     }
 
-    const listenerAlreadyTracked = this.inputEvents.some(
-      (listener) =>
+    const alreadyTracked = this.inputEvents.some(
+      listener =>
         listener.target === target &&
         listener.name === eventName &&
         listener.callback === callback &&
         listener.context === context
     );
 
-    if (listenerAlreadyTracked) {
+    if (alreadyTracked) {
       return callback;
     }
 
-    target.on(eventName, callback, context);
+    target.on(
+      eventName,
+      callback,
+      context
+    );
 
     this.inputEvents.push({
       target,
@@ -761,7 +711,12 @@ export class BaseScene extends Phaser.Scene {
     }
 
     try {
-      target.removeListener?.(
+      const remove =
+        target.off ??
+        target.removeListener;
+
+      remove?.call(
+        target,
         eventName,
         callback,
         context
@@ -773,23 +728,24 @@ export class BaseScene extends Phaser.Scene {
       );
     }
 
-    const initialCount = this.inputEvents.length;
+    const previousCount = this.inputEvents.length;
 
     this.inputEvents = this.inputEvents.filter(
-      (listener) =>
-        !(
-          listener.target === target &&
-          listener.name === eventName &&
-          listener.callback === callback &&
-          listener.context === context
-        )
+      listener => !(
+        listener.target === target &&
+        listener.name === eventName &&
+        listener.callback === callback &&
+        listener.context === context
+      )
     );
 
-    return this.inputEvents.length !== initialCount;
+    return (
+      this.inputEvents.length !== previousCount
+    );
   }
 
   // ------------------------------------------------------------------
-  // Inventory helpers
+  // Inventory
   // ------------------------------------------------------------------
 
   addInventoryItem(item) {
@@ -821,7 +777,7 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
-  // Safe Phaser scene helpers
+  // Safe scene helpers
   // ------------------------------------------------------------------
 
   hasScene(sceneKey) {
@@ -832,19 +788,15 @@ export class BaseScene extends Phaser.Scene {
   }
 
   getRegisteredScene(sceneKey) {
-    if (!this.hasScene(sceneKey)) {
-      return null;
-    }
-
-    return this.scene.manager.keys[sceneKey] || null;
+    return this.hasScene(sceneKey)
+      ? this.scene.manager.keys[sceneKey] || null
+      : null;
   }
 
   getSceneIfActive(sceneKey) {
-    if (!this.isSceneActive(sceneKey)) {
-      return null;
-    }
-
-    return this.getRegisteredScene(sceneKey);
+    return this.isSceneActive(sceneKey)
+      ? this.getRegisteredScene(sceneKey)
+      : null;
   }
 
   isSceneActive(sceneKey) {
@@ -882,7 +834,6 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.stop(sceneKey);
-
     return true;
   }
 
@@ -892,7 +843,6 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.sleep(sceneKey);
-
     return true;
   }
 
@@ -902,7 +852,6 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.pause(sceneKey);
-
     return true;
   }
 
@@ -912,7 +861,6 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.wake(sceneKey);
-
     return true;
   }
 
@@ -922,7 +870,6 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.resume(sceneKey);
-
     return true;
   }
 
@@ -932,24 +879,26 @@ export class BaseScene extends Phaser.Scene {
     }
 
     this.scene.bringToTop(sceneKey);
-
     return true;
   }
 
   // ------------------------------------------------------------------
-  // Player HUD helpers
+  // Player HUD
   // ------------------------------------------------------------------
 
   getPlayerHudScene() {
-    return this.getSceneIfActive('PlayerHudScene');
+    return this.getSceneIfActive(
+      'PlayerHudScene'
+    );
   }
 
   sleepPlayerHud() {
-    const hud = this.getPlayerHudScene();
+    this.getPlayerHudScene()
+      ?.closeAllUIPanels?.();
 
-    hud?.closeAllUIPanels?.();
-
-    return this.sleepSceneIfActive('PlayerHudScene');
+    return this.sleepSceneIfActive(
+      'PlayerHudScene'
+    );
   }
 
   async ensureOverlayScene(sceneKey, data = {}) {
@@ -1008,7 +957,7 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
-  // News HUD helpers
+  // News HUD
   // ------------------------------------------------------------------
 
   getNewsHudScene() {
@@ -1016,16 +965,19 @@ export class BaseScene extends Phaser.Scene {
   }
 
   setNewsHudButtonsVisible(visible = true) {
-  const newsHud = this.getNewsHudScene();
+    const newsHud = this.getNewsHudScene();
 
-  if (!newsHud?.events) {
-    return false;
+    if (!newsHud?.events) {
+      return false;
+    }
+
+    newsHud.events.emit(
+      'setButtonsVisible',
+      Boolean(visible)
+    );
+
+    return true;
   }
-
-  newsHud.events.emit('setButtonsVisible', Boolean(visible));
-
-  return true;
-}
 
   showNewsHudButtons() {
     return this.setNewsHudButtonsVisible(true);
@@ -1036,15 +988,15 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
-  // Lazy scene navigation
+  // Navigation
   // ------------------------------------------------------------------
 
   async goto(key, data = {}) {
-    if (!key || this._cleanupDone) {
-      return false;
-    }
-
-    if (this._sceneLoaderNavInFlight) {
+    if (
+      !key ||
+      this._cleanupDone ||
+      this._sceneLoaderNavInFlight
+    ) {
       return false;
     }
 
@@ -1062,14 +1014,13 @@ export class BaseScene extends Phaser.Scene {
       if (!this.hasScene(key)) {
         console.error(
           `[BaseScene] Cannot start "${key}". ` +
-          'The scene is not registered and SceneLoader is unavailable.'
+          'Scene is not registered and SceneLoader is unavailable.'
         );
 
         return false;
       }
 
       this.scene.start(key, data);
-
       return true;
     } catch (error) {
       console.error(
@@ -1088,23 +1039,18 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    const objectScene = gameObject.scene;
+    const sys = gameObject.scene?.sys;
 
     if (
-      !objectScene ||
-      !objectScene.sys ||
-      !objectScene.sys.isActive() ||
-      !objectScene.sys.input
+      !sys ||
+      !sys.isActive() ||
+      !sys.input ||
+      !gameObject.input?.enabled
     ) {
       return false;
     }
 
-    if (!gameObject.input || !gameObject.input.enabled) {
-      return false;
-    }
-
     gameObject.disableInteractive?.();
-
     return true;
   }
 
@@ -1116,19 +1062,17 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    const objectScene = gameObject.scene;
+    const sys = gameObject.scene?.sys;
 
     if (
-      !objectScene ||
-      !objectScene.sys ||
-      !objectScene.sys.isActive() ||
-      !objectScene.sys.input
+      !sys ||
+      !sys.isActive() ||
+      !sys.input
     ) {
       return false;
     }
 
     gameObject.setInteractive?.(config);
-
     return true;
   }
 
@@ -1137,27 +1081,20 @@ export class BaseScene extends Phaser.Scene {
       return false;
     }
 
-    if (!this._overlayLoadsInFlight) {
-      this._overlayLoadsInFlight = new Set();
-    }
-
     if (this.isSceneSleeping(key)) {
       this.scene.wake(key);
       this.scene.bringToTop(key);
-
       return true;
     }
 
     if (this.isScenePaused(key)) {
       this.scene.resume(key);
       this.scene.bringToTop(key);
-
       return true;
     }
 
     if (this.isSceneActive(key)) {
       this.scene.bringToTop(key);
-
       return true;
     }
 
@@ -1169,16 +1106,21 @@ export class BaseScene extends Phaser.Scene {
 
     try {
       if (this.game.sceneLoader) {
-        await this.game.sceneLoader.launch(
-          this,
-          key,
-          data
-        );
+        const result =
+          await this.game.sceneLoader.launch(
+            this,
+            key,
+            data
+          );
+
+        if (result === false) {
+          return false;
+        }
       } else {
         if (!this.hasScene(key)) {
           console.error(
             `[BaseScene] Cannot launch "${key}". ` +
-            'The scene is not registered and SceneLoader is unavailable.'
+            'Scene is not registered and SceneLoader is unavailable.'
           );
 
           return false;
@@ -1207,11 +1149,10 @@ export class BaseScene extends Phaser.Scene {
 
     if (this.isSceneActive(key)) {
       this.scene.stop(key);
-
       return 'closed';
     }
 
-    if (this._overlayLoadsInFlight?.has(key)) {
+    if (this._overlayLoadsInFlight.has(key)) {
       return 'loading';
     }
 
@@ -1220,9 +1161,7 @@ export class BaseScene extends Phaser.Scene {
       data
     );
 
-    return launched
-      ? 'opened'
-      : 'error';
+    return launched ? 'opened' : 'error';
   }
 
   shutdown() {

@@ -1,5 +1,5 @@
-import { gameState } from '../GameData.js';
-import { isCorrectMotiveAnswer } from '../motiveService.js';
+import { gameState } from './GameData.js';
+import { isCorrectMotiveAnswer } from './motiveService.js';
 
 export class CrimeBoard {
   constructor(root, options = {}) {

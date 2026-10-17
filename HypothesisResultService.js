@@ -1,5 +1,5 @@
 import { gameState } from './GameData.js';
-import { saveGameState } from './GameStatePersistence.js';
+import { saveGameState } from './gameStatePersistence.js';
 import { getScoreManager } from './managers/InvestigationManager.js';
 import {
   applyHypothesisSkills,

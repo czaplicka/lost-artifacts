@@ -1,197 +1,633 @@
 import {
-    tierOf,
-    SCENE_TIERS,
-    sceneRegistry as defaultRegistry
+  tierOf,
+  SCENE_TIERS,
+  sceneRegistry as defaultRegistry
 } from './sceneRegistry.js';
 
 const MIN_SPINNER_DELAY_MS = 150;
 const OVERLAY_KEY = 'LoadingOverlayScene';
 
+const BACKGROUND_CONCURRENCY = 2;
+const IDLE_TIMEOUT_MS = 1500;
+const FALLBACK_DELAY_MS = 100;
+
 export class SceneLoader {
-    constructor(game, registry = defaultRegistry) {
-        this.game = game;
-        this.registry = registry;
-        this._pending = new Map();
-        this._prefetched = new Set();
+  constructor(game, registry = defaultRegistry) {
+    this.game = game;
+    this.registry = registry;
+
+    // key → wspólna obietnica ładowania.
+    this._pending = new Map();
+
+    // key → zadanie oczekujące lub wykonywane.
+    this._tasks = new Map();
+
+    // key → zadanie oczekujące w tle.
+    this._backgroundQueue = new Map();
+
+    this._backgroundActive = 0;
+    this._foregroundActive = 0;
+
+    this._prefetched = new Set();
+
+    this._idleHandle = null;
+    this._fallbackTimer = null;
+
+    this._spinnerTimers = new Set();
+    this._spinnerRequests = new Set();
+    this._overlayOwned = false;
+
+    this._destroyed = false;
+    this._investigationPrefetchRequested = false;
+
+    this._boundDestroy = () => this.destroy();
+
+    this.game.events?.once(
+      'destroy',
+      this._boundDestroy
+    );
+  }
+
+  has(key) {
+    return Boolean(
+      !this._destroyed &&
+      this.game?.scene?.keys?.[key]
+    );
+  }
+
+  get(key) {
+    if (!this.has(key)) {
+      return null;
     }
 
-    has(key) {
-        return Boolean(this.game.scene.keys[key]);
+    return this.game.scene.getScene(key);
+  }
+
+  ensure(key) {
+    if (this._destroyed) {
+      return Promise.reject(
+        new Error('[SceneLoader] Loader has been destroyed.')
+      );
     }
 
-    get(key) {
-        if (!this.has(key)) {
-            return null;
-        }
-
-        return this.game.scene.getScene(key);
+    if (this.has(key)) {
+      return Promise.resolve(this.get(key));
     }
 
-    ensure(key) {
-        if (this.has(key)) {
-            return Promise.resolve(this.get(key));
-        }
+    const existing = this._tasks.get(key);
 
-        if (this._pending.has(key)) {
-            return this._pending.get(key);
-        }
+    if (existing) {
+      if (!existing.started) {
+        // Gracz potrzebuje sceny teraz:
+        // wyjmujemy ją z kolejki tła.
+        this._backgroundQueue.delete(key);
+        this._startTask(existing, false);
+      } else if (existing.background && !existing.promoted) {
+        // Import już trwa. Nie uruchamiamy drugiego,
+        // ale blokujemy start kolejnych zadań w tle.
+        existing.promoted = true;
+        this._foregroundActive += 1;
+      }
 
-        const loader = this.registry[key];
-
-        if (!loader) {
-            return Promise.reject(
-                new Error(
-                    `[SceneLoader] Unknown scene key "${key}". ` +
-                    'Add it to sceneRegistry.js.'
-                )
-            );
-        }
-
-        const promise = Promise.resolve()
-            .then(() => loader())
-            .then((SceneClass) => {
-                if (!SceneClass) {
-                    throw new Error(
-                        `[SceneLoader] Loader for "${key}" did not return a scene class.`
-                    );
-                }
-
-                if (!this.has(key)) {
-                    this.game.scene.add(key, SceneClass, false);
-                }
-
-                return this.get(key);
-            })
-            .catch((error) => {
-                console.error(
-                    `[SceneLoader] Failed to load "${key}".`,
-                    error
-                );
-
-                throw error;
-            })
-            .finally(() => {
-                this._pending.delete(key);
-            });
-
-        this._pending.set(key, promise);
-
-        return promise;
+      return existing.promise;
     }
 
-    async goto(fromScene, key, data = {}, { stopFrom = true } = {}) {
-        const manager = this.game.scene;
-        let overlayShown = false;
+    const task = this._createTask(key);
 
-        const spinnerTimer = window.setTimeout(() => {
-            if (!this.has(OVERLAY_KEY)) {
-                return;
-            }
-
-            overlayShown = true;
-
-            if (!manager.isActive(OVERLAY_KEY)) {
-                manager.run(OVERLAY_KEY);
-            }
-        }, MIN_SPINNER_DELAY_MS);
-
-        try {
-            await this.ensure(key);
-        } finally {
-            window.clearTimeout(spinnerTimer);
-
-            if (
-                overlayShown &&
-                this.has(OVERLAY_KEY) &&
-                manager.isActive(OVERLAY_KEY)
-            ) {
-                manager.stop(OVERLAY_KEY);
-            }
-        }
-
-        if (
-            stopFrom &&
-            (!fromScene || !fromScene.sys || !fromScene.sys.isActive())
-        ) {
-            console.warn(
-                `[SceneLoader] Navigation cancelled: source scene is inactive.`
-            );
-
-            return false;
-        }
-
-        if (stopFrom) {
-            fromScene.scene.start(key, data);
-        } else {
-            manager.start(key, data);
-        }
-
-        return true;
+    if (!task) {
+      return Promise.reject(
+        this._unknownSceneError(key)
+      );
     }
 
-    async launch(fromScene, key, data = {}) {
-        await this.ensure(key);
+    this._startTask(task, false);
 
-        if (!fromScene?.sys?.isActive()) {
-            console.warn(
-                `[SceneLoader] Overlay launch cancelled: source scene is inactive.`
-            );
+    return task.promise;
+  }
 
-            return false;
-        }
+  _unknownSceneError(key) {
+    return new Error(
+      `[SceneLoader] Unknown scene key "${key}". ` +
+      'Add it to sceneRegistry.js.'
+    );
+  }
 
-        fromScene.scene.launch(key, data);
+  _createTask(key) {
+    const loader = this.registry[key];
 
-        return true;
+    if (typeof loader !== 'function') {
+      return null;
     }
 
-    prefetchTier(tierName) {
-        const keys = SCENE_TIERS[tierName];
+    let resolve;
+    let reject;
 
-        if (!keys) {
-            console.warn(`[SceneLoader] Unknown tier "${tierName}".`);
-            return;
-        }
+    const promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
 
-        keys.forEach((key) => this.prefetch(key));
+    const task = {
+      key,
+      loader,
+      promise,
+      resolve,
+      reject,
+
+      started: false,
+      background: false,
+      promoted: false,
+      settled: false
+    };
+
+    this._tasks.set(key, task);
+    this._pending.set(key, promise);
+
+    return task;
+  }
+
+  _startTask(task, background) {
+    if (
+      this._destroyed ||
+      task.started ||
+      task.settled
+    ) {
+      return;
     }
 
-    prefetch(key) {
-        if (this._prefetched.has(key) || this.has(key)) {
-            return;
+    task.started = true;
+    task.background = background;
+
+    if (background) {
+      this._backgroundActive += 1;
+    } else {
+      this._foregroundActive += 1;
+    }
+
+    Promise.resolve()
+      .then(() => {
+        if (this._destroyed) {
+          throw new Error(
+            '[SceneLoader] Loading cancelled: game was destroyed.'
+          );
         }
 
+        return task.loader();
+      })
+      .then(SceneClass => {
+        if (this._destroyed) {
+          throw new Error(
+            '[SceneLoader] Registration cancelled: game was destroyed.'
+          );
+        }
+
+        if (typeof SceneClass !== 'function') {
+          throw new Error(
+            `[SceneLoader] Loader for "${task.key}" ` +
+            'did not return a scene class.'
+          );
+        }
+
+        if (!this.has(task.key)) {
+          this.game.scene.add(
+            task.key,
+            SceneClass,
+            false
+          );
+        }
+
+        this._prefetched.add(task.key);
+
+        this._finishTask(
+          task,
+          null,
+          this.get(task.key)
+        );
+      })
+      .catch(error => {
+        this._prefetched.delete(task.key);
+
+        this._finishTask(
+          task,
+          error
+        );
+      });
+  }
+
+  _finishTask(task, error = null, scene = null) {
+    if (task.settled) {
+      return;
+    }
+
+    task.settled = true;
+
+    if (task.started) {
+      if (task.background) {
+        this._backgroundActive = Math.max(
+          0,
+          this._backgroundActive - 1
+        );
+      } else {
+        this._foregroundActive = Math.max(
+          0,
+          this._foregroundActive - 1
+        );
+      }
+
+      if (task.promoted) {
+        this._foregroundActive = Math.max(
+          0,
+          this._foregroundActive - 1
+        );
+      }
+    }
+
+    if (this._tasks.get(task.key) === task) {
+      this._tasks.delete(task.key);
+      this._pending.delete(task.key);
+      this._backgroundQueue.delete(task.key);
+    }
+
+    if (error) {
+      task.reject(error);
+    } else {
+      task.resolve(scene);
+    }
+
+    this._scheduleBackground();
+  }
+
+  _scheduleBackground() {
+    if (
+      this._destroyed ||
+      this._backgroundQueue.size === 0 ||
+      this._foregroundActive > 0 ||
+      this._backgroundActive >= BACKGROUND_CONCURRENCY ||
+      this._idleHandle !== null ||
+      this._fallbackTimer !== null
+    ) {
+      return;
+    }
+
+    if (
+      typeof window.requestIdleCallback === 'function'
+    ) {
+      this._idleHandle = window.requestIdleCallback(
+        () => {
+          this._idleHandle = null;
+          this._drainBackground();
+        },
+        {
+          timeout: IDLE_TIMEOUT_MS
+        }
+      );
+    } else {
+      this._fallbackTimer = window.setTimeout(
+        () => {
+          this._fallbackTimer = null;
+          this._drainBackground();
+        },
+        FALLBACK_DELAY_MS
+      );
+    }
+  }
+
+  _drainBackground() {
+    if (
+      this._destroyed ||
+      this._foregroundActive > 0
+    ) {
+      return;
+    }
+
+    while (
+      this._backgroundActive < BACKGROUND_CONCURRENCY &&
+      this._foregroundActive === 0 &&
+      this._backgroundQueue.size > 0
+    ) {
+      const [key, task] =
+        this._backgroundQueue.entries().next().value;
+
+      this._backgroundQueue.delete(key);
+
+      if (task.settled || task.started) {
+        continue;
+      }
+
+      if (this.has(key)) {
         this._prefetched.add(key);
 
-        const run = () => {
-            this.ensure(key).catch((error) => {
-                console.warn(
-                    `[SceneLoader] Prefetch failed for "${key}".`,
-                    error
-                );
+        this._finishTask(
+          task,
+          null,
+          this.get(key)
+        );
 
-                this._prefetched.delete(key);
-            });
-        };
+        continue;
+      }
 
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(run, {
-                timeout: 4000
-            });
-        } else {
-            window.setTimeout(run, 300);
-        }
+      this._startTask(task, true);
+    }
+  }
+
+  prefetch(key) {
+    if (this._destroyed) {
+      return Promise.resolve(null);
     }
 
-    prefetchNextTier(key) {
-        const tiers = Object.keys(SCENE_TIERS);
-        const currentTier = tierOf(key);
-        const index = tiers.indexOf(currentTier);
-
-        if (index === -1 || index + 1 >= tiers.length) {
-            return;
-        }
-
-        this.prefetchTier(tiers[index + 1]);
+    if (this.has(key)) {
+      return Promise.resolve(this.get(key));
     }
+
+    let task = this._tasks.get(key);
+
+    if (!task) {
+      task = this._createTask(key);
+
+      if (!task) {
+        console.warn(
+          this._unknownSceneError(key).message
+        );
+
+        return Promise.resolve(null);
+      }
+
+      this._backgroundQueue.set(key, task);
+      this._scheduleBackground();
+    }
+
+    // Prefetch nie powoduje nieobsłużonego odrzucenia.
+    // ensure() nadal otrzymuje oryginalną obietnicę.
+    return task.promise.catch(error => {
+      if (!this._destroyed) {
+        console.warn(
+          `[SceneLoader] Prefetch failed for "${key}".`,
+          error
+        );
+      }
+
+      return null;
+    });
+  }
+
+  prefetchTier(tierName) {
+    const keys = SCENE_TIERS[tierName];
+
+    if (!keys) {
+      console.warn(
+        `[SceneLoader] Unknown tier "${tierName}".`
+      );
+
+      return Promise.resolve([]);
+    }
+
+    return Promise.all(
+      keys.map(key => this.prefetch(key))
+    );
+  }
+
+  prefetchNextTier(key) {
+    const tiers = Object.keys(SCENE_TIERS);
+    const currentTier = tierOf(key);
+    const index = tiers.indexOf(currentTier);
+
+    if (
+      index === -1 ||
+      index + 1 >= tiers.length
+    ) {
+      return Promise.resolve([]);
+    }
+
+    return this.prefetchTier(
+      tiers[index + 1]
+    );
+  }
+
+  _prefetchForDestination(key) {
+    if (
+      this._investigationPrefetchRequested ||
+      (
+        key !== 'CrimeCityScene' &&
+        key !== 'HiddenObjectsScene'
+      )
+    ) {
+      return;
+    }
+
+    this._investigationPrefetchRequested = true;
+
+    void this.prefetchTier('TIER_2');
+  }
+
+  _beginSpinner() {
+    const token = {};
+    let shown = false;
+    let finished = false;
+
+    const timer = window.setTimeout(() => {
+      this._spinnerTimers.delete(timer);
+
+      if (
+        finished ||
+        this._destroyed ||
+        !this.has(OVERLAY_KEY)
+      ) {
+        return;
+      }
+
+      shown = true;
+      this._spinnerRequests.add(token);
+
+      const manager = this.game.scene;
+
+      if (!manager.isActive(OVERLAY_KEY)) {
+        this._overlayOwned = true;
+        manager.run(OVERLAY_KEY);
+      }
+    }, MIN_SPINNER_DELAY_MS);
+
+    this._spinnerTimers.add(timer);
+
+    return () => {
+      if (finished) {
+        return;
+      }
+
+      finished = true;
+
+      window.clearTimeout(timer);
+      this._spinnerTimers.delete(timer);
+
+      if (shown) {
+        this._spinnerRequests.delete(token);
+      }
+
+      if (
+        !this._destroyed &&
+        this._spinnerRequests.size === 0 &&
+        this._overlayOwned
+      ) {
+        this._overlayOwned = false;
+
+        if (this.has(OVERLAY_KEY)) {
+          this.game.scene.stop(OVERLAY_KEY);
+        }
+      }
+    };
+  }
+
+  async goto(
+    fromScene,
+    key,
+    data = {},
+    { stopFrom = true } = {}
+  ) {
+    if (this._destroyed) {
+      return false;
+    }
+
+    const stopSpinner = this._beginSpinner();
+
+    try {
+      await this.ensure(key);
+    } catch (error) {
+      console.error(
+        `[SceneLoader] Failed to load "${key}".`,
+        error
+      );
+
+      throw error;
+    } finally {
+      stopSpinner();
+    }
+
+    if (this._destroyed) {
+      return false;
+    }
+
+    if (
+      stopFrom &&
+      !fromScene?.sys?.isActive?.()
+    ) {
+      console.warn(
+        '[SceneLoader] Navigation cancelled: source scene is inactive.'
+      );
+
+      return false;
+    }
+
+    if (stopFrom) {
+      fromScene.scene.start(key, data);
+    } else {
+      this.game.scene.start(key, data);
+    }
+
+    this._prefetchForDestination(key);
+
+    return true;
+  }
+
+  async launch(fromScene, key, data = {}) {
+    if (this._destroyed) {
+      return false;
+    }
+
+    await this.ensure(key);
+
+    if (
+      this._destroyed ||
+      !fromScene?.sys?.isActive?.()
+    ) {
+      console.warn(
+        '[SceneLoader] Overlay launch cancelled: source scene is inactive.'
+      );
+
+      return false;
+    }
+
+    fromScene.scene.launch(key, data);
+
+    return true;
+  }
+
+  debugStatus() {
+    return {
+      backgroundLimit: BACKGROUND_CONCURRENCY,
+      backgroundActive: this._backgroundActive,
+      foregroundActive: this._foregroundActive,
+
+      queued: [
+        ...this._backgroundQueue.keys()
+      ],
+
+      pending: [
+        ...this._pending.keys()
+      ],
+
+      prefetched: [
+        ...this._prefetched
+      ],
+
+      destroyed: this._destroyed
+    };
+  }
+
+  destroy() {
+    if (this._destroyed) {
+      return;
+    }
+
+    this._destroyed = true;
+
+    if (this._idleHandle !== null) {
+      window.cancelIdleCallback?.(
+        this._idleHandle
+      );
+
+      this._idleHandle = null;
+    }
+
+    if (this._fallbackTimer !== null) {
+      window.clearTimeout(this._fallbackTimer);
+      this._fallbackTimer = null;
+    }
+
+    for (const timer of this._spinnerTimers) {
+      window.clearTimeout(timer);
+    }
+
+    this._spinnerTimers.clear();
+    this._spinnerRequests.clear();
+
+    if (
+      this._overlayOwned &&
+      this.game?.scene?.keys?.[OVERLAY_KEY]
+    ) {
+      try {
+        this.game.scene.stop(OVERLAY_KEY);
+      } catch {
+        // SceneManager może już być niszczony.
+      }
+    }
+
+    this._overlayOwned = false;
+
+    const error = new Error(
+      '[SceneLoader] Loader was destroyed.'
+    );
+
+    for (const task of [...this._tasks.values()]) {
+      this._finishTask(task, error);
+    }
+
+    this._backgroundQueue.clear();
+    this._pending.clear();
+    this._tasks.clear();
+    this._prefetched.clear();
+
+    this.game.events?.off(
+      'destroy',
+      this._boundDestroy
+    );
+  }
 }

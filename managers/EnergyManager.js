@@ -1,20 +1,5 @@
-// EnergyManager.js (FULL REPLACEMENT)
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
-
-// ============================================================
-// EnergyManager.js
-// Singleton manager energii. Stan energii jest niezależny od HUD.
-// Przy 0% gracz zasypia na 6 godzin CZASU GRY.
-// GameTimeManager słucha eventu: advanceTime(hours, minutes).
-//
-// Zasada gameplayowa:
-// - Rozmowy i minigry wymagają pełnego kosztu energii przed startem.
-// - Jeśli energii nie wystarcza, aktywność się nie zaczyna.
-// - Nie przerywamy rozpoczętej minigry forced sleepem.
-// - consumeCustom() może opcjonalnie doprowadzić do 0 energii,
-//   np. dla specjalnych zdarzeń fabularnych.
-// ============================================================
 
 const FORCED_SLEEP_HOURS = 6;
 const FORCED_SLEEP_ANIMATION_MS = 2000;
@@ -25,7 +10,6 @@ const DIFFICULTY_MULTIPLIERS = {
   master: 1.4
 };
 
-// TYLKO activity i interaction — travel obsługuje UnifiedTravelManager!
 const ENERGY_COSTS = {
   interaction: {
     interview_short: 3,
@@ -86,6 +70,7 @@ class EnergyManager {
     this.energyLog = [];
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
+    this.isSleepingManual = false;
     this.forcedSleepTimer = null;
   }
 
@@ -94,7 +79,6 @@ class EnergyManager {
       console.warn(
         `Unknown difficulty: ${difficulty}, defaulting to field`
       );
-
       difficulty = 'field';
     }
 
@@ -103,6 +87,7 @@ class EnergyManager {
     this.energyLog = [];
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
+    this.isSleepingManual = false;
 
     if (this.forcedSleepTimer) {
       clearTimeout(this.forcedSleepTimer);
@@ -118,14 +103,6 @@ class EnergyManager {
     });
   }
 
-  // ============================================================
-  // Travel — deleguje do UnifiedTravelManager!
-  // ============================================================
-
-  /**
-   * DEPRECATED: Travel energy jest obliczana przez UnifiedTravelManager.
-   * Zostawione dla kompatybilności wstecznej.
-   */
   getTravelCost(transportType = 'plane') {
     const approximateHours = {
       plane: 3,
@@ -138,17 +115,11 @@ class EnergyManager {
     };
 
     const hours = approximateHours[transportType] || 3;
-    const baseCost = Math.max(
-      2,
-      Math.round(hours * 0.8)
-    );
+    const baseCost = Math.max(2, Math.round(hours * 0.8));
 
     return this.scaleCost(baseCost);
   }
 
-  /**
-   * DEPRECATED: Używaj UnifiedTravelManager.executeTravel().
-   */
   consumeTravel(transportType = 'plane') {
     const cost = this.getTravelCost(transportType);
 
@@ -157,10 +128,6 @@ class EnergyManager {
       `Travel (${transportType}): -${cost}`
     );
   }
-
-  // ============================================================
-  // Difficulty & Scaling
-  // ============================================================
 
   getDifficultyMultiplier() {
     return DIFFICULTY_MULTIPLIERS[this.difficulty] || 1.0;
@@ -171,10 +138,6 @@ class EnergyManager {
       Number(baseCost || 0) * this.getDifficultyMultiplier()
     );
   }
-
-  // ============================================================
-  // Cost helpers
-  // ============================================================
 
   getActivityCost(activityType = 'minigame_forensic') {
     const baseCost =
@@ -199,7 +162,9 @@ class EnergyManager {
     );
 
     return {
-      ok: !this.isSleepingForced &&
+      ok:
+        !this.isSleepingForced &&
+        !this.isSleepingManual &&
         this.currentEnergy >= safeCost,
       currentEnergy: this.currentEnergy,
       requiredEnergy: safeCost,
@@ -209,9 +174,11 @@ class EnergyManager {
       ),
       reason: this.isSleepingForced
         ? 'forced_sleep_active'
-        : this.currentEnergy >= safeCost
-          ? null
-          : 'insufficient_energy'
+        : this.isSleepingManual
+          ? 'manual_sleep_active'
+          : this.currentEnergy >= safeCost
+            ? null
+            : 'insufficient_energy'
     };
   }
 
@@ -248,7 +215,7 @@ class EnergyManager {
       required - this.currentEnergy
     );
 
-    if (this.isSleepingForced) {
+    if (this.isSleepingForced || this.isSleepingManual) {
       return 'You are currently asleep. Even brilliant deductions can wait.';
     }
 
@@ -262,10 +229,6 @@ class EnergyManager {
       `Rest, eat, or drink first.`
     );
   }
-
-  // ============================================================
-  // Status & Display
-  // ============================================================
 
   getEnergyStatus() {
     if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
@@ -307,10 +270,6 @@ class EnergyManager {
     return ENERGY_TOOLTIPS.critical;
   }
 
-  // ============================================================
-  // Interactions
-  // ============================================================
-
   consumeInterview(duration = 'medium') {
     const cost = this.getInterviewCost(duration);
     const affordability = this.canAfford(cost);
@@ -340,10 +299,6 @@ class EnergyManager {
     );
   }
 
-  // ============================================================
-  // Activities
-  // ============================================================
-
   consumeActivity(activityType = 'minigame_forensic') {
     const cost = this.getActivityCost(activityType);
     const affordability = this.canAfford(cost);
@@ -372,15 +327,7 @@ class EnergyManager {
     );
   }
 
-  // ============================================================
-  // Generic Consumption
-  // ============================================================
-
-  consumeCustom(
-    cost,
-    label = 'Energy changed.',
-    options = {}
-  ) {
+  consumeCustom(cost, label = 'Energy changed.', options = {}) {
     const safeCost = Math.max(
       0,
       Math.round(Number(cost) || 0)
@@ -396,12 +343,36 @@ class EnergyManager {
     );
   }
 
-  // ============================================================
-  // Recovery
-  // ============================================================
-
-  sleep(sleepHours = 8) {
+  startManualSleep(sleepHours = 8) {
     if (sleepHours <= 0) {
+      return {
+        success: false,
+        reason: 'invalid_sleep_duration'
+      };
+    }
+
+    if (this.isSleepingForced || this.isSleepingManual) {
+      return {
+        success: false,
+        reason: 'sleep_already_active'
+      };
+    }
+
+    this.isSleepingManual = true;
+
+    EventBus.emit('manualSleepStarted', {
+      sleepHours
+    });
+
+    return {
+      success: true,
+      sleepHours
+    };
+  }
+
+  completeManualSleep(sleepHours = 8) {
+    if (sleepHours <= 0) {
+      this.isSleepingManual = false;
       return {
         success: false,
         reason: 'invalid_sleep_duration'
@@ -420,17 +391,41 @@ class EnergyManager {
     }
 
     if (this.difficulty === 'rookie') {
-      recoveryAmount = Math.ceil(
-        recoveryAmount * 1.15
-      );
+      recoveryAmount = Math.ceil(recoveryAmount * 1.15);
     }
 
-    return this._recoverEnergy(
+    EventBus.emit('advanceTime', sleepHours, 0);
+
+    const result = this._recoverEnergy(
       recoveryAmount,
       `Sleep (${sleepHours}h): +${recoveryAmount}`,
       'sleep',
       sleepType
     );
+
+    this.isSleepingManual = false;
+
+    EventBus.emit('manualSleepFinished', {
+      sleepHours,
+      recovered: result.amount,
+      energy: this.currentEnergy
+    });
+
+    return result;
+  }
+
+  sleep(sleepHours = 8) {
+    const started = this.startManualSleep(sleepHours);
+
+    if (!started.success) {
+      return started;
+    }
+
+    return this.completeManualSleep(sleepHours);
+  }
+
+  cancelManualSleep() {
+    this.isSleepingManual = false;
   }
 
   eat(foodQuality = 'normal') {
@@ -459,18 +454,13 @@ class EnergyManager {
     );
   }
 
-  // ============================================================
-  // Internal Consumption Logic
-  // ============================================================
-
   _consumeEnergy(amount, label, options = {}) {
     const safeAmount = Math.max(
       0,
       Math.round(Number(amount) || 0)
     );
 
-    const requireFullAmount =
-      Boolean(options.requireFullAmount);
+    const requireFullAmount = Boolean(options.requireFullAmount);
 
     if (safeAmount <= 0) {
       return {
@@ -479,15 +469,15 @@ class EnergyManager {
       };
     }
 
-    if (this.isSleepingForced) {
+    if (this.isSleepingForced || this.isSleepingManual) {
       return {
         success: false,
-        reason: 'forced_sleep_active',
+        reason: this.isSleepingForced
+          ? 'forced_sleep_active'
+          : 'manual_sleep_active',
         amount: safeAmount,
         currentEnergy: this.currentEnergy,
-        message: this.getInsufficientEnergyMessage(
-          safeAmount
-        )
+        message: this.getInsufficientEnergyMessage(safeAmount)
       };
     }
 
@@ -503,9 +493,7 @@ class EnergyManager {
         currentEnergy: this.currentEnergy,
         requiredEnergy: safeAmount,
         missingEnergy: safeAmount - this.currentEnergy,
-        message: this.getInsufficientEnergyMessage(
-          safeAmount
-        )
+        message: this.getInsufficientEnergyMessage(safeAmount)
       };
     }
 
@@ -561,10 +549,6 @@ class EnergyManager {
     };
   }
 
-  // ============================================================
-  // Internal Recovery Logic
-  // ============================================================
-
   _recoverEnergy(
     amount,
     label,
@@ -610,12 +594,8 @@ class EnergyManager {
     };
   }
 
-  // ============================================================
-  // Forced Sleep
-  // ============================================================
-
   _triggerForcedSleep() {
-    if (this.isSleepingForced) {
+    if (this.isSleepingForced || this.isSleepingManual) {
       return;
     }
 
@@ -630,7 +610,6 @@ class EnergyManager {
         `${FORCED_SLEEP_HOURS} hours...`
     });
 
-    // GameTimeManager słucha eventu i wykonuje handleAdvanceTime.
     EventBus.emit(
       'advanceTime',
       FORCED_SLEEP_HOURS,
@@ -671,10 +650,6 @@ class EnergyManager {
       });
     }, FORCED_SLEEP_ANIMATION_MS);
   }
-
-  // ============================================================
-  // Recording & Emission
-  // ============================================================
 
   _recordAndEmit() {
     this._logEnergyChange();
@@ -718,10 +693,6 @@ class EnergyManager {
     });
   }
 
-  // ============================================================
-  // Getters
-  // ============================================================
-
   getCurrentEnergy() {
     return this.currentEnergy;
   }
@@ -738,9 +709,9 @@ class EnergyManager {
     return this.isSleepingForced;
   }
 
-  // ============================================================
-  // Reset & Restore
-  // ============================================================
+  isManualSleepActive() {
+    return this.isSleepingManual;
+  }
 
   reset(difficulty = 'field') {
     this.init(difficulty);
@@ -793,6 +764,7 @@ class EnergyManager {
 
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
+    this.isSleepingManual = false;
 
     if (this.forcedSleepTimer) {
       clearTimeout(this.forcedSleepTimer);
@@ -813,10 +785,6 @@ class EnergyManager {
 
     return this.currentEnergy;
   }
-
-  // ============================================================
-  // Serialization
-  // ============================================================
 
   serialize() {
     return {
@@ -840,7 +808,6 @@ export function getEnergyManager() {
 
 export function createEnergyManager() {
   energyManagerInstance = new EnergyManager();
-
   return energyManagerInstance;
 }
 

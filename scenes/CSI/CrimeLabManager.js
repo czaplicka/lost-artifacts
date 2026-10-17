@@ -1,4 +1,4 @@
-import { saveGameState } from '../../GameStatePersistence.js';
+import { saveGameState } from '../../gameStatePersistence.js';
 import { normalizeMiniGameKey, CSI_MAIN_GAME_POOL } from './CrimeLabConfig.js';
 import { getForensicValue } from '../../suspects/suspectFactory.js';
 

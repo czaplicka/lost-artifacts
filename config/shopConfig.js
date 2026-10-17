@@ -1,12 +1,15 @@
 // config/shopConfig.js
 //
-// Asortyment sklepu i obszary klikania na tle shop.jpg.
-// Ta sama lista zasila hotspoty oraz tablicę TODAY'S STOCK.
+// Lista produktów zasila hotspoty oraz tablicę TODAY'S STOCK.
 //
-// x, y — środek hotspotu.
+// label — nazwa produktu na tablicy sklepu.
+// x, y — środek hotspotu na tle.
 // w, h — szerokość i wysokość hotspotu.
-// price — cena jednego zakupu.
-// item — dane przedmiotu dodawanego do inventory.
+// price — cena jednej transakcji, dodatnia liczba całkowita.
+// item — przedmiot dodawany do inventory.
+//
+// Po dopasowaniu hotspotów w debugowaniu wklej wynik
+// do tablicy hotspots poniżej.
 
 export const SHOP_CONFIG = {
   hotspots: [
@@ -23,10 +26,14 @@ export const SHOP_CONFIG = {
 
       item: {
         id: 'coffee',
+        name: 'Coffee',
+        icon: '☕',
+        description:
+          'Strong coffee. For detectives whose last good night of sleep is now a cold case.',
         type: 'item',
-        label: 'Coffee',
         stackable: true,
-        quantity: 1
+        quantity: 1,
+        metadata: {}
       }
     },
 
@@ -43,10 +50,14 @@ export const SHOP_CONFIG = {
 
       item: {
         id: 'postcard',
+        name: 'Postcard',
+        icon: '✉️',
+        description:
+          'A picturesque postcard. Proof you visited somewhere without enjoying any of it.',
         type: 'item',
-        label: 'Postcard',
         stackable: true,
-        quantity: 1
+        quantity: 1,
+        metadata: {}
       }
     }
   ],

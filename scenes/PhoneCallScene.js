@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../GameStatePersistence.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { BaseScene } from './BaseScene.js';
 
 export class PhoneCallScene extends BaseScene {

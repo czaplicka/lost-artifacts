@@ -10,6 +10,8 @@ const DEFAULTS = {
   MUTED: false
 };
 
+const AUDIO_HOST_KEY = '__LostArtifactsAudioHost';
+
 function safeGet(key) {
   try {
     return localStorage.getItem(key);
@@ -22,284 +24,637 @@ function safeSet(key, value) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    // ignore storage errors
+    // Preferencje audio działają również bez localStorage.
   }
+}
+
+function clamp01(value) {
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? Math.min(1, Math.max(0, number))
+    : 0;
 }
 
 function loadNumber(key, fallback) {
   const raw = safeGet(key);
-  const v = parseFloat(raw);
-  return Number.isNaN(v) ? fallback : v;
+
+  if (raw === null) {
+    return fallback;
+  }
+
+  const number = Number(raw);
+
+  return Number.isFinite(number)
+    ? clamp01(number)
+    : fallback;
 }
 
-function clamp01(value) {
-  return Phaser.Math.Clamp(Number(value) || 0, 0, 1);
+class AudioHostScene extends Phaser.Scene {
+  constructor() {
+    super({
+      key: AUDIO_HOST_KEY
+    });
+  }
 }
 
 class AudioManager {
   constructor() {
     this.scene = null;
-    this.musicVolume = loadNumber(STORAGE.MUSIC, DEFAULTS.MUSIC);
-    this.sfxVolume = loadNumber(STORAGE.SFX, DEFAULTS.SFX);
-    this.muted = safeGet(STORAGE.MUTED) === 'true';
+    this.game = null;
+
+    this.musicVolume = loadNumber(
+      STORAGE.MUSIC,
+      DEFAULTS.MUSIC
+    );
+
+    this.sfxVolume = loadNumber(
+      STORAGE.SFX,
+      DEFAULTS.SFX
+    );
+
+    const savedMute = safeGet(STORAGE.MUTED);
+
+    this.muted = savedMute === null
+      ? DEFAULTS.MUTED
+      : savedMute === 'true';
 
     this.activeMusic = new Map();
     this.activeAmbient = new Map();
+
     this.activeSfx = new Set();
     this.activeVoice = new Set();
     this.activeOneShots = new Set();
 
-    // Global registry of who owns which key
-    this._keyOwner = new Map(); // key -> { store, sound }
+    this._keyOwner = new Map();
 
-    // ✅ Track tweens dla cleanup
     this._activeTweens = new Set();
+    this._fades = new Map();
 
-    // ✅ Deduplikacja — prevent multiple instances of same key
-    this._playingOneShots = new Map(); // key -> sound (most recent)
-    this._playingSfx = new Map();      // key -> sound (most recent)
+    this._playingOneShots = new Map();
+    this._playingSfx = new Map();
+
+    this._sceneBindings = new Map();
+    this._soundOwners = new WeakMap();
+    this._destroyingSounds = new WeakSet();
+
+    this._audioHost = null;
+    this._hostRequested = false;
+
+    this._boundGameDestroy = () => {
+      this._destroyForGame();
+    };
   }
 
   init(scene) {
-    this.scene = scene;
-    
-    // ✅ Scene lifecycle cleanup
-    if (scene?.events) {
-      scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this._sceneShutdown());
-      scene.events.once(Phaser.Scenes.Events.SLEEP, () => this._sceneShutdown());
+    if (!scene?.game) {
+      console.warn(
+        '[AudioManager] init() requires a Phaser scene.'
+      );
+
+      return this;
     }
 
+    if (this.game && this.game !== scene.game) {
+      this._destroyForGame();
+    }
+
+    if (!this.game) {
+      this.game = scene.game;
+
+      this.game.events.once(
+        Phaser.Core.Events.DESTROY,
+        this._boundGameDestroy
+      );
+    }
+
+    this.scene = scene;
+
+    this._bindScene(scene);
+    this._ensureAudioHost();
     this._applyGlobalAudioState();
+
+    return this;
   }
 
-  /**
-   * ✅ Clean up all audio when scene shuts down
-   */
-  _sceneShutdown() {
-    this._stopAllTweens();
-    this.stopAllNonMusic();
-    // ← Music typically persists between scenes
+  _ensureAudioHost() {
+    if (!this.game?.scene) {
+      return null;
+    }
+
+    const manager = this.game.scene;
+    const registered = manager.keys?.[AUDIO_HOST_KEY];
+
+    if (registered) {
+      this._audioHost = registered;
+
+      if (registered.sys?.isSleeping?.()) {
+        registered.scene.wake();
+      } else if (registered.sys?.isPaused?.()) {
+        registered.scene.resume();
+      }
+
+      return registered;
+    }
+
+    if (this._hostRequested) {
+      return this._audioHost;
+    }
+
+    this._hostRequested = true;
+
+    const host = new AudioHostScene();
+    this._audioHost = host;
+
+    try {
+      manager.add(
+        AUDIO_HOST_KEY,
+        host,
+        true
+      );
+    } catch (error) {
+      this._audioHost = null;
+      this._hostRequested = false;
+
+      console.warn(
+        '[AudioManager] Could not create audio host:',
+        error
+      );
+    }
+
+    return this._audioHost;
+  }
+
+  _bindScene(scene) {
+    if (
+      !scene.events ||
+      this._sceneBindings.has(scene)
+    ) {
+      return;
+    }
+
+    const onSleep = () => {
+      this._sceneShutdown(scene);
+    };
+
+    const onShutdown = () => {
+      this._sceneShutdown(scene);
+      this._unbindScene(scene);
+
+      if (this.scene === scene) {
+        this.scene = null;
+      }
+    };
+
+    const onDestroy = () => {
+      this._sceneShutdown(scene);
+      this._unbindScene(scene);
+
+      if (this.scene === scene) {
+        this.scene = null;
+      }
+    };
+
+    this._sceneBindings.set(scene, {
+      onSleep,
+      onShutdown,
+      onDestroy
+    });
+
+    scene.events.on(
+      Phaser.Scenes.Events.SLEEP,
+      onSleep
+    );
+
+    scene.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      onShutdown
+    );
+
+    scene.events.once(
+      Phaser.Scenes.Events.DESTROY,
+      onDestroy
+    );
+  }
+
+  _unbindScene(scene) {
+    const binding = this._sceneBindings.get(scene);
+
+    if (!binding) {
+      return;
+    }
+
+    scene.events.off(
+      Phaser.Scenes.Events.SLEEP,
+      binding.onSleep
+    );
+
+    scene.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      binding.onShutdown
+    );
+
+    scene.events.off(
+      Phaser.Scenes.Events.DESTROY,
+      binding.onDestroy
+    );
+
+    this._sceneBindings.delete(scene);
+  }
+
+  _sceneShutdown(scene = this.scene) {
+    if (!scene) {
+      return;
+    }
+
+    // Muzyka pozostaje globalna.
+    // Pozostałe kanały sprzątamy tylko dla wskazanej sceny.
+    const sounds = [
+      ...this.activeAmbient.values(),
+      ...this.activeSfx,
+      ...this.activeVoice,
+      ...this.activeOneShots
+    ];
+
+    for (const sound of sounds) {
+      if (this._soundOwners.get(sound) === scene) {
+        this._destroySound(sound);
+      }
+    }
   }
 
   _canPlay(key) {
-    return !!(this.scene && this.scene.cache && this.scene.cache.audio && this.scene.cache.audio.exists(key));
+    return Boolean(
+      this.game?.sound &&
+      this.game?.cache?.audio?.exists(key)
+    );
   }
 
   _isValidSound(sound) {
-    return !!(sound && !sound.pendingRemove && sound.scene !== null);
+    return Boolean(
+      sound &&
+      !sound.pendingRemove &&
+      sound.manager
+    );
   }
 
   _applySoundState(sound, volume) {
-    if (!this._isValidSound(sound)) return;
-    if (typeof sound.setMute === 'function') sound.setMute(this.muted);
-    if (typeof sound.setVolume === 'function') sound.setVolume(volume);
-  }
+    if (!this._isValidSound(sound)) {
+      return;
+    }
 
-  _syncMap(map, volume) {
-    map.forEach(sound => this._applySoundState(sound, volume));
-  }
-
-  _syncSet(set, volume) {
-    set.forEach(sound => this._applySoundState(sound, volume));
+    sound.setMute?.(this.muted);
+    sound.setVolume?.(clamp01(volume));
   }
 
   _applyGlobalAudioState() {
-    if (this.scene?.sound) {
-      this.scene.sound.mute = this.muted;
+    if (this.game?.sound) {
+      this.game.sound.mute = this.muted;
     }
 
-    this._syncMap(this.activeMusic, this.musicVolume);
-    this._syncMap(this.activeAmbient, this.sfxVolume);
-    this._syncSet(this.activeSfx, this.sfxVolume);
-    this._syncSet(this.activeVoice, this.sfxVolume);
-    this._syncSet(this.activeOneShots, this.sfxVolume);
+    const sync = (sounds, volume) => {
+      for (const sound of [...sounds]) {
+        if (!this._isValidSound(sound)) {
+          continue;
+        }
+
+        sound.setMute?.(this.muted);
+
+        const fade = this._fades.get(sound);
+
+        if (fade?.stopAfter) {
+          // Zміна налаштувань не скасовує завершення fade-out.
+          continue;
+        }
+
+        this._cancelFade(sound);
+        sound.setVolume?.(volume);
+      }
+    };
+
+    sync(this.activeMusic.values(), this.musicVolume);
+    sync(this.activeAmbient.values(), this.sfxVolume);
+    sync(this.activeSfx, this.sfxVolume);
+    sync(this.activeVoice, this.sfxVolume);
+    sync(this.activeOneShots, this.sfxVolume);
   }
 
-  _purgeAllInstancesOfKey(key, exceptSound = null) {
-    if (!this.scene?.sound?.getAll) return;
+  _cancelFade(sound) {
+    const record = this._fades.get(sound);
 
-    const instances = this.scene.sound.getAll(key) || [];
-    instances.forEach(sound => {
-      if (sound === exceptSound) return;
-      if (!this._isValidSound(sound)) return;
-      if (sound.isPlaying) sound.stop();
-      sound.destroy();
-    });
+    if (!record) {
+      return;
+    }
+
+    this._fades.delete(sound);
+
+    const tween = record.tween;
+
+    if (!tween) {
+      return;
+    }
+
+    this._activeTweens.delete(tween);
+
+    try {
+      tween.stop?.();
+      tween.remove?.();
+    } catch {
+      // Tween mógł zostać usunięty wraz z grą.
+    }
+  }
+
+  _stopAllTweens() {
+    for (const sound of [...this._fades.keys()]) {
+      this._cancelFade(sound);
+    }
+
+    this._activeTweens.clear();
+  }
+
+  _destroySound(sound) {
+    if (
+      !sound ||
+      this._destroyingSounds.has(sound)
+    ) {
+      return;
+    }
+
+    this._destroyingSounds.add(sound);
+
+    this._cancelFade(sound);
+
+    try {
+      if (this._isValidSound(sound)) {
+        sound.stop?.();
+        sound.destroy?.();
+      }
+    } finally {
+      this._destroyingSounds.delete(sound);
+    }
+  }
+
+  _watchSound(sound, store, key = null) {
+    let cleaned = false;
+
+    const cleanup = () => {
+      if (cleaned) {
+        return;
+      }
+
+      cleaned = true;
+
+      this._cancelFade(sound);
+      this._soundOwners.delete(sound);
+
+      if (store instanceof Map) {
+        if (store.get(key) === sound) {
+          store.delete(key);
+        }
+      } else {
+        store.delete(sound);
+      }
+
+      if (this._keyOwner.get(key)?.sound === sound) {
+        this._keyOwner.delete(key);
+      }
+
+      if (this._playingSfx.get(key) === sound) {
+        this._playingSfx.delete(key);
+      }
+
+      if (this._playingOneShots.get(key) === sound) {
+        this._playingOneShots.delete(key);
+      }
+    };
+
+    sound.once('destroy', cleanup);
   }
 
   _releaseKeyOwnership(key, requestingStore) {
     const owner = this._keyOwner.get(key);
-    if (!owner) return;
 
-    if (owner.store === requestingStore) return;
-
-    if (owner.store instanceof Map) {
-      owner.store.delete(key);
-    } else if (owner.store instanceof Set) {
-      owner.store.delete(owner.sound);
+    if (!owner || owner.store === requestingStore) {
+      return;
     }
 
-    if (this._isValidSound(owner.sound)) {
-      if (owner.sound.isPlaying) owner.sound.stop();
-      owner.sound.destroy();
+    this._destroySound(owner.sound);
+  }
+
+  _createOrReuse(
+    key,
+    config,
+    store,
+    volume,
+    loop = true
+  ) {
+    if (!this._canPlay(key)) {
+      return null;
     }
-
-    this._keyOwner.delete(key);
-  }
-
-  /**
-   * ✅ Create tween i track go dla cleanup
-   */
-  _createTrackedTween(tweenConfig) {
-    if (!this.scene?.tweens) return null;
-
-    const tween = this.scene.tweens.addCounter(tweenConfig);
-
-    if (tween) {
-      this._activeTweens.add(tween);
-      tween.once('complete', () => this._activeTweens.delete(tween));
-      tween.once('stop', () => this._activeTweens.delete(tween));
-    }
-
-    return tween;
-  }
-
-  /**
-   * ✅ Stop all active tweens
-   */
-  _stopAllTweens() {
-    this._activeTweens.forEach(tween => {
-      if (tween && !tween.isDestroyed) {
-        tween.stop();
-      }
-    });
-    this._activeTweens.clear();
-  }
-
-  _createOrReuse(key, config, store, volume, loop = true) {
-    if (!this._canPlay(key)) return null;
 
     this._releaseKeyOwnership(key, store);
 
     let sound = store.get(key);
 
     if (!this._isValidSound(sound)) {
-      sound = null;
       store.delete(key);
+      sound = null;
     }
 
-    if (this._isValidSound(sound)) {
-      store.set(key, sound);
-      this._keyOwner.set(key, { store, sound });
+    if (sound) {
+      this._cancelFade(sound);
 
-      if (typeof sound.setLoop === 'function') sound.setLoop(loop);
+      sound.setLoop?.(loop);
       this._applySoundState(sound, volume);
 
-      if (!sound.isPlaying && typeof sound.play === 'function') {
+      this._soundOwners.set(sound, this.scene);
+
+      if (!sound.isPlaying) {
         sound.play();
       }
 
       return sound;
     }
 
-    this._purgeAllInstancesOfKey(key);
-
-    sound = this.scene.sound.add(key, {
+    sound = this.game.sound.add(key, {
       ...config,
       loop,
-      volume,
+      volume: clamp01(volume),
       mute: this.muted
     });
 
     store.set(key, sound);
-    this._keyOwner.set(key, { store, sound });
 
-    sound.once('destroy', () => {
-      if (store.get(key) === sound) store.delete(key);
-      if (this._keyOwner.get(key)?.sound === sound) this._keyOwner.delete(key);
+    this._keyOwner.set(key, {
+      store,
+      sound
     });
 
+    this._soundOwners.set(sound, this.scene);
+    this._watchSound(sound, store, key);
+
     sound.play();
+
     return sound;
   }
 
-  /**
-   * ✅ Fade to volume z tracked tweens
-   */
-  _fadeTo(sound, targetVolume, duration = 300) {
-    if (!this._isValidSound(sound)) return;
-
-    const start = typeof sound.volume === 'number' ? sound.volume : 0;
-
-    if (!this.scene?.tweens) {
-      if (typeof sound.setVolume === 'function') sound.setVolume(targetVolume);
-      return;
+  _fadeTo(
+    sound,
+    targetVolume,
+    duration = 300,
+    stopAfter = false
+  ) {
+    if (!this._isValidSound(sound)) {
+      return null;
     }
 
-    this._createTrackedTween({
-      from: start,
-      to: targetVolume,
-      duration,
-      ease: 'Sine.easeInOut',
-      onUpdate: tween => {
-        if (this._isValidSound(sound) && typeof sound.setVolume === 'function') {
-          sound.setVolume(tween.getValue());
-        }
+    this._cancelFade(sound);
+
+    const target = clamp01(targetVolume);
+    const milliseconds = Math.max(
+      0,
+      Number(duration) || 0
+    );
+
+    const host = this._ensureAudioHost();
+
+    const finishImmediately = () => {
+      if (stopAfter) {
+        this._destroySound(sound);
+      } else {
+        sound.setVolume?.(target);
       }
-    });
+    };
+
+    if (
+      milliseconds === 0 ||
+      !host?.sys?.isActive?.() ||
+      typeof host.tweens?.addCounter !== 'function'
+    ) {
+      finishImmediately();
+      return null;
+    }
+
+    const record = {
+      tween: null,
+      stopAfter
+    };
+
+    this._fades.set(sound, record);
+
+    try {
+      const tween = host.tweens.addCounter({
+        from: Number(sound.volume) || 0,
+        to: target,
+        duration: milliseconds,
+        ease: 'Sine.easeInOut',
+
+        onUpdate: currentTween => {
+          if (
+            this._fades.get(sound) === record &&
+            this._isValidSound(sound)
+          ) {
+            sound.setVolume(
+              currentTween.getValue()
+            );
+          }
+        },
+
+        onComplete: () => {
+          if (this._fades.get(sound) !== record) {
+            return;
+          }
+
+          this._fades.delete(sound);
+          this._activeTweens.delete(record.tween);
+
+          if (stopAfter) {
+            this._destroySound(sound);
+          } else if (this._isValidSound(sound)) {
+            sound.setVolume(target);
+          }
+        }
+      });
+
+      record.tween = tween;
+      this._activeTweens.add(tween);
+
+      return tween;
+    } catch (error) {
+      this._fades.delete(sound);
+
+      console.warn(
+        '[AudioManager] Fade failed:',
+        error
+      );
+
+      finishImmediately();
+      return null;
+    }
   }
 
   setMusicVolume(value) {
     this.musicVolume = clamp01(value);
-    safeSet(STORAGE.MUSIC, String(this.musicVolume));
+
+    safeSet(
+      STORAGE.MUSIC,
+      String(this.musicVolume)
+    );
+
     this._applyGlobalAudioState();
   }
 
   setSfxVolume(value) {
     this.sfxVolume = clamp01(value);
-    safeSet(STORAGE.SFX, String(this.sfxVolume));
+
+    safeSet(
+      STORAGE.SFX,
+      String(this.sfxVolume)
+    );
+
     this._applyGlobalAudioState();
   }
 
   toggleMute() {
-    this.muted = !this.muted;
-    safeSet(STORAGE.MUTED, String(this.muted));
-    this._applyGlobalAudioState();
-    return this.muted;
+    return this.setMute(!this.muted);
   }
 
   setMute(value) {
-    this.muted = !!value;
-    safeSet(STORAGE.MUTED, String(this.muted));
+    this.muted = Boolean(value);
+
+    safeSet(
+      STORAGE.MUTED,
+      String(this.muted)
+    );
+
     this._applyGlobalAudioState();
+
     return this.muted;
   }
 
   playMusic(key, config = {}) {
-    // ✅ Stop ambient jeśli gramy muzykę (prevent overlap w Crime Lab)
-    this.stopAllAmbient();
+    const {
+      stopAmbient = false,
+      ...soundConfig
+    } = config;
+
+    if (stopAmbient) {
+      this.stopAllAmbient();
+    }
 
     return this._createOrReuse(
       key,
-      {
-        ...config,
-        volume: config.volume ?? this.musicVolume,
-        mute: this.muted
-      },
+      soundConfig,
       this.activeMusic,
-      config.volume ?? this.musicVolume,
-      config.loop ?? true
+      soundConfig.volume ?? this.musicVolume,
+      soundConfig.loop ?? true
     );
   }
 
   playAmbient(key, config = {}) {
     return this._createOrReuse(
       key,
-      {
-        ...config,
-        volume: config.volume ?? this.sfxVolume,
-        mute: this.muted
-      },
+      config,
       this.activeAmbient,
       config.volume ?? this.sfxVolume,
       config.loop ?? true
@@ -307,160 +662,164 @@ class AudioManager {
   }
 
   playPersistentLoop(key, config = {}) {
-    return this.playAmbient(key, { ...config, loop: true });
+    return this.playAmbient(key, {
+      ...config,
+      loop: true
+    });
   }
 
   playLoopSfx(key, config = {}) {
-    return this.playAmbient(key, { ...config, loop: true });
+    return this.playAmbient(key, {
+      ...config,
+      loop: true
+    });
   }
 
-  /**
-   * ✅ Deduplikacja SFX — tylko jeden instance na key
-   */
+  _playTemporary(key, config, store, recent = null) {
+    if (!this._canPlay(key)) {
+      return null;
+    }
+
+    if (recent) {
+      this._destroySound(recent.get(key));
+    }
+
+    const sound = this.game.sound.add(key, {
+      ...config,
+      loop: false,
+      volume: clamp01(
+        config.volume ?? this.sfxVolume
+      ),
+      mute: this.muted
+    });
+
+    store.add(sound);
+    recent?.set(key, sound);
+
+    this._soundOwners.set(sound, this.scene);
+    this._watchSound(sound, store, key);
+
+    const finish = () => {
+      this._destroySound(sound);
+    };
+
+    // Rejestrujemy przed play(), aby nie zgubić
+    // zdarzenia bardzo krótkiego dźwięku.
+    sound.once('complete', finish);
+    sound.once('stop', finish);
+
+    sound.play();
+
+    return sound;
+  }
+
   playSfx(key, config = {}) {
-    if (!this._canPlay(key)) return null;
-
-    // ✅ Stop previous SFX z tym samym key, jeśli gra
-    const prevSound = this._playingSfx.get(key);
-    if (this._isValidSound(prevSound) && prevSound.isPlaying) {
-      prevSound.stop();
-      prevSound.destroy();
-    }
-
-    const sound = this.scene.sound.add(key, {
-      ...config,
-      loop: false,
-      volume: config.volume ?? this.sfxVolume,
-      mute: this.muted
-    });
-
-    this.activeSfx.add(sound);
-    this._playingSfx.set(key, sound);  // ✅ Track most recent
-    sound.play();
-
-    const cleanup = () => {
-      this.activeSfx.delete(sound);
-      if (this._playingSfx.get(key) === sound) {
-        this._playingSfx.delete(key);
-      }
-      if (this._isValidSound(sound)) sound.destroy();
-    };
-
-    sound.once('complete', cleanup);
-    sound.once('stop', cleanup);
-    sound.once('destroy', () => this.activeSfx.delete(sound));
-
-    return sound;
+    return this._playTemporary(
+      key,
+      config,
+      this.activeSfx,
+      this._playingSfx
+    );
   }
 
-  /**
-   * ✅ Deduplikacja one-shots
-   */
   playOneShot(key, config = {}) {
-    if (!this._canPlay(key)) return null;
-
-    // ✅ Stop previous one-shot z tym key (prevent stacking)
-    const prevSound = this._playingOneShots.get(key);
-    if (this._isValidSound(prevSound) && prevSound.isPlaying) {
-      prevSound.stop();
-      prevSound.destroy();
-    }
-
-    const sound = this.scene.sound.add(key, {
-      ...config,
-      loop: false,
-      volume: config.volume ?? this.sfxVolume,
-      mute: this.muted
-    });
-
-    this.activeOneShots.add(sound);
-    this._playingOneShots.set(key, sound);  // ✅ Track most recent
-    sound.play();
-
-    const cleanup = () => {
-      this.activeOneShots.delete(sound);
-      if (this._playingOneShots.get(key) === sound) {
-        this._playingOneShots.delete(key);
-      }
-      if (this._isValidSound(sound)) sound.destroy();
-    };
-
-    sound.once('complete', cleanup);
-    sound.once('stop', cleanup);
-    sound.once('destroy', () => this.activeOneShots.delete(sound));
-
-    return sound;
+    return this._playTemporary(
+      key,
+      config,
+      this.activeOneShots,
+      this._playingOneShots
+    );
   }
 
   playVoice(key, config = {}) {
-    if (!this._canPlay(key)) return null;
-
-    const sound = this.scene.sound.add(key, {
-      ...config,
-      loop: false,
-      volume: config.volume ?? this.sfxVolume,
-      mute: this.muted
-    });
-
-    this.activeVoice.add(sound);
-    sound.play();
-
-    const cleanup = () => {
-      this.activeVoice.delete(sound);
-      if (this._isValidSound(sound)) sound.destroy();
-    };
-
-    sound.once('complete', cleanup);
-    sound.once('stop', cleanup);
-    sound.once('destroy', () => this.activeVoice.delete(sound));
-
-    return sound;
+    return this._playTemporary(
+      key,
+      config,
+      this.activeVoice
+    );
   }
 
   fadeInMusic(key, config = {}, duration = 500) {
-    const sound = this.playMusic(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration);
+    const sound = this.playMusic(key, {
+      ...config,
+      volume: 0
+    });
+
+    if (sound) {
+      this._fadeTo(
+        sound,
+        config.volume ?? this.musicVolume,
+        duration
+      );
+    }
+
     return sound;
   }
 
   fadeInAmbient(key, config = {}, duration = 500) {
-    const sound = this.playAmbient(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration);
+    const sound = this.playAmbient(key, {
+      ...config,
+      volume: 0
+    });
+
+    if (sound) {
+      this._fadeTo(
+        sound,
+        config.volume ?? this.sfxVolume,
+        duration
+      );
+    }
+
     return sound;
   }
 
-  /**
-   * ✅ Faster lookup (O(1) instead of O(n))
-   */
   fadeOutAndStop(soundOrKey, duration = 400) {
-    let sound = null;
+    let sound = soundOrKey;
 
     if (typeof soundOrKey === 'string') {
-      // ✅ O(1) direct lookup
-      sound = this.activeMusic.get(soundOrKey)
-        || this.activeAmbient.get(soundOrKey)
-        || this._playingSfx.get(soundOrKey)
-        || this._playingOneShots.get(soundOrKey);
-
-      // Fallback only if not found
-      if (!sound) {
-        sound = [...this.activeVoice].find(s => s?.key === soundOrKey)
-          || this.scene?.sound?.get(soundOrKey);
-      }
-    } else {
-      sound = soundOrKey;
+      sound =
+        this.activeMusic.get(soundOrKey) ||
+        this.activeAmbient.get(soundOrKey) ||
+        this._playingSfx.get(soundOrKey) ||
+        this._playingOneShots.get(soundOrKey) ||
+        [...this.activeVoice].find(
+          item => item.key === soundOrKey
+        );
     }
 
-    if (!this._isValidSound(sound)) return;
+    if (!this._isValidSound(sound)) {
+      return;
+    }
 
-    this._fadeTo(sound, 0, duration);
+    this._fadeTo(
+      sound,
+      0,
+      duration,
+      true
+    );
+  }
 
-    this.scene?.time?.delayedCall(duration + 20, () => {
-      if (this._isValidSound(sound)) {
-        if (sound.isPlaying) sound.stop();
-        sound.destroy();
-      }
-    });
+  _stopStored(store, key) {
+    const sound = store.get(key);
+
+    this._destroySound(sound);
+    store.delete(key);
+  }
+
+  _stopAllStored(store) {
+    for (const sound of [...store.values()]) {
+      this._destroySound(sound);
+    }
+
+    store.clear();
+  }
+
+  _stopAllSet(set) {
+    for (const sound of [...set]) {
+      this._destroySound(sound);
+    }
+
+    set.clear();
   }
 
   stopMusic(key) {
@@ -487,45 +846,20 @@ class AudioManager {
     this.stopAllAmbient();
   }
 
-  _stopStored(store, key) {
-    const sound = store.get(key) || this.scene?.sound?.get(key);
-
-    if (this._isValidSound(sound)) {
-      if (sound.isPlaying) sound.stop();
-      sound.destroy();
-    }
-
-    store.delete(key);
-    if (this._keyOwner.get(key)?.store === store) this._keyOwner.delete(key);
-  }
-
-  _stopAllStored(store) {
-    store.forEach((sound, key) => {
-      if (this._isValidSound(sound)) {
-        if (sound.isPlaying) sound.stop();
-        sound.destroy();
-      }
-      if (this._keyOwner.get(key)?.store === store) this._keyOwner.delete(key);
-    });
-    store.clear();
-  }
-
   stopSfx(key) {
-    const sound = this._playingSfx.get(key);
-    if (sound && sound.key === key) {
-      if (sound.isPlaying) sound.stop();
-      if (this._isValidSound(sound)) sound.destroy();
-      this._playingSfx.delete(key);
-    }
+    this._destroySound(
+      this._playingSfx.get(key)
+    );
+
+    this._playingSfx.delete(key);
   }
 
   stopVoice(key) {
-    [...this.activeVoice].forEach(sound => {
-      if (sound && sound.key === key) {
-        if (sound.isPlaying) sound.stop();
-        if (this._isValidSound(sound)) sound.destroy();
+    for (const sound of [...this.activeVoice]) {
+      if (sound.key === key) {
+        this._destroySound(sound);
       }
-    });
+    }
   }
 
   stopAllSfx() {
@@ -549,23 +883,16 @@ class AudioManager {
     this.stopAllAmbient();
   }
 
-  _stopAllSet(set) {
-    [...set].forEach(sound => {
-      if (!sound) return;
-      if (sound.isPlaying) sound.stop();
-      if (this._isValidSound(sound)) sound.destroy();
-    });
-    set.clear();
-  }
-
   isMusicPlaying(key) {
-    const sound = this.activeMusic.get(key) || this.scene?.sound?.get(key);
-    return !!(sound && sound.isPlaying);
+    return Boolean(
+      this.activeMusic.get(key)?.isPlaying
+    );
   }
 
   isAmbientPlaying(key) {
-    const sound = this.activeAmbient.get(key) || this.scene?.sound?.get(key);
-    return !!(sound && sound.isPlaying);
+    return Boolean(
+      this.activeAmbient.get(key)?.isPlaying
+    );
   }
 
   getMusicVolume() {
@@ -578,6 +905,34 @@ class AudioManager {
 
   getMuted() {
     return this.muted;
+  }
+
+  _destroyForGame() {
+    this._stopAllTweens();
+
+    this.stopAllMusic();
+    this.stopAllNonMusic();
+
+    for (const scene of [
+      ...this._sceneBindings.keys()
+    ]) {
+      this._unbindScene(scene);
+    }
+
+    this.game?.events?.off(
+      Phaser.Core.Events.DESTROY,
+      this._boundGameDestroy
+    );
+
+    this._keyOwner.clear();
+    this._playingSfx.clear();
+    this._playingOneShots.clear();
+
+    this.scene = null;
+    this.game = null;
+
+    this._audioHost = null;
+    this._hostRequested = false;
   }
 }
 

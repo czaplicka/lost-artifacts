@@ -4,7 +4,7 @@ import { gameState } from '../GameData.js';
 import {
   getWitnessTestimony,
   markAlibiWitnessInterviewed
-} from '../AlibiEncounterSetup.js';
+} from '../alibi/AlibiEncounterSetup.js';
 
 const PORTRAIT_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
@@ -36,7 +36,7 @@ export class AlibiScene extends BaseScene {
 
   create() {
     super.create();
-
+    this.scene.stop('NewsHud');
     this.cameras.main.resetFX();
     this.cameras.main.setAlpha(1);
     this.cameras.main.setBackgroundColor('#171b22');
