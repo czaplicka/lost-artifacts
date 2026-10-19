@@ -36,9 +36,11 @@ export class PreloaderScene extends BaseScene {
   _resetLoadingState() {
     this.fillingLevel = 0;
     this.tipIndex = -1;
+    this.statusIndex = -1;
 
     this.tipTimer = null;
     this.dotsTimer = null;
+    this.statusTimer = null;
 
     this.loadingReady = false;
     this.audioArmed = false;
@@ -58,6 +60,7 @@ export class PreloaderScene extends BaseScene {
     this._assetsReady = false;
     this._finishing = false;
     this._manifestMissing = false;
+    this._loadingFailed = false;
 
     this.newspaperImagesQueued = false;
 
@@ -71,29 +74,10 @@ export class PreloaderScene extends BaseScene {
 
     this._removeLoaderListeners();
 
-    this.load.on(
-      'loaderror',
-      this._onLoadError,
-      this
-    );
-
-    this.load.on(
-      'progress',
-      this._onProgress,
-      this
-    );
-
-    this.load.on(
-      'filecomplete',
-      this._onFileComplete,
-      this
-    );
-
-    this.load.on(
-      'complete',
-      this._onLoadComplete,
-      this
-    );
+    this.load.on('loaderror', this._onLoadError, this);
+    this.load.on('progress', this._onProgress, this);
+    this.load.on('filecomplete', this._onFileComplete, this);
+    this.load.on('complete', this._onLoadComplete, this);
 
     this.events.off(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -135,8 +119,7 @@ export class PreloaderScene extends BaseScene {
       height
     );
 
-    const manifest =
-      this.cache.json.get('assetManifest');
+    const manifest = this.cache.json.get('assetManifest');
 
     if (!manifest) {
       this._manifestMissing = true;
@@ -176,11 +159,14 @@ export class PreloaderScene extends BaseScene {
       );
     }
 
+    this._validateLoadingTexts();
+    this._refreshTipFromCache();
+    this._refreshRandomStatus(true);
+
     this.onNewspaperJsonsLoaded();
 
     try {
-      const cached =
-        this.cache.json.get('suspectData');
+      const cached = this.cache.json.get('suspectData');
 
       if (cached !== undefined && cached !== null) {
         setSuspectData(cached);
@@ -190,9 +176,7 @@ export class PreloaderScene extends BaseScene {
           'Trying the provider fallback.'
         );
 
-        await loadSuspectData(
-          'assets/data/suspectData.json'
-        );
+        await loadSuspectData('assets/data/suspectData.json');
       }
 
       if (
@@ -299,8 +283,18 @@ export class PreloaderScene extends BaseScene {
   }
 
   _loadJsonGroup(assets = []) {
+    const priorityKeys = new Set(['tips', 'statuses']);
+
     for (const { key, url } of assets) {
-      this._queueJson(key, url);
+      if (priorityKeys.has(key)) {
+        this._queueJson(key, url);
+      }
+    }
+
+    for (const { key, url } of assets) {
+      if (!priorityKeys.has(key)) {
+        this._queueJson(key, url);
+      }
     }
   }
 
@@ -416,9 +410,7 @@ export class PreloaderScene extends BaseScene {
       NEWSPAPER_CONFIG
     )) {
       for (const cityId of config.cities) {
-        const key =
-          `newspaper_${type}_${cityId}`;
-
+        const key = `newspaper_${type}_${cityId}`;
         const data = this.cache.json.get(key);
 
         if (!data) {
@@ -526,31 +518,23 @@ export class PreloaderScene extends BaseScene {
 
   _onFileComplete(key, type) {
     if (
-      !this.loadingStatusText?.active ||
-      this._finishing
+      this._finishing ||
+      this._loadingFailed ||
+      this._cleanupDone
     ) {
       return;
     }
 
-    const now = this.time.now;
+    if (type === 'json' && key === 'tips') {
+      this._refreshTipFromCache();
+    }
 
-    if (now - this._lastStatusAt < 300) {
+    if (type === 'json' && key === 'statuses') {
+      this._refreshRandomStatus(true);
       return;
     }
 
-    const nextStatus = this.getLoadingStatus({
-      key,
-      type
-    });
-
-    if (nextStatus === this.lastLoadingStatus) {
-      return;
-    }
-
-    this._lastStatusAt = now;
-    this.lastLoadingStatus = nextStatus;
-
-    this.loadingStatusText.setText(nextStatus);
+    this._refreshRandomStatus(false, { key, type });
   }
 
   _onLoadComplete() {
@@ -563,34 +547,122 @@ export class PreloaderScene extends BaseScene {
   }
 
   _removeLoaderListeners() {
-    this.load.off(
-      'loaderror',
-      this._onLoadError,
-      this
-    );
+    this.load.off('loaderror', this._onLoadError, this);
+    this.load.off('progress', this._onProgress, this);
+    this.load.off('filecomplete', this._onFileComplete, this);
+    this.load.off('complete', this._onLoadComplete, this);
+  }
 
-    this.load.off(
-      'progress',
-      this._onProgress,
-      this
-    );
+  _getTextList(cacheKey, property) {
+    const data = this.cache.json.get(cacheKey);
+    const list = data?.[property];
 
-    this.load.off(
-      'filecomplete',
-      this._onFileComplete,
-      this
-    );
+    if (!Array.isArray(list)) {
+      return [];
+    }
 
-    this.load.off(
-      'complete',
-      this._onLoadComplete,
-      this
+    return list.filter(
+      text => typeof text === 'string' && text.trim().length > 0
     );
   }
 
+  _validateLoadingTexts() {
+    if (!this._getTextList('tips', 'tips').length) {
+      console.warn(
+        '[PreloaderScene] Missing or invalid tips data. ' +
+        'Expected cache key "tips" with { "tips": [...] }.'
+      );
+    }
+
+    if (!this._getTextList('statuses', 'statuses').length) {
+      console.warn(
+        '[PreloaderScene] Missing or invalid statuses data. ' +
+        'Expected cache key "statuses" with { "statuses": [...] }.'
+      );
+    }
+  }
+
+  _refreshTipFromCache() {
+    const tipText = this.uiRefs?.tipText;
+
+    if (
+      !tipText?.active ||
+      this._finishing ||
+      this._loadingFailed ||
+      this._cleanupDone
+    ) {
+      return;
+    }
+
+    const tips = this._getTextList('tips', 'tips');
+
+    if (!tips.length) {
+      return;
+    }
+
+    this.killTrackedTweensOf(tipText);
+
+    tipText
+      .setText(this.getNextTip())
+      .setAlpha(1)
+      .setY(this.uiRefs.tipY);
+  }
+
+  _refreshRandomStatus(force = false, file = null) {
+    if (
+      !this.loadingStatusText?.active ||
+      this._finishing ||
+      this._loadingFailed ||
+      this._cleanupDone
+    ) {
+      return;
+    }
+
+    const now = this.time.now;
+
+    if (!force && now - this._lastStatusAt < 2400) {
+      return;
+    }
+
+    const nextStatus = this.getLoadingStatus(file);
+
+    if (nextStatus === this.lastLoadingStatus) {
+      return;
+    }
+
+    this._lastStatusAt = now;
+    this.lastLoadingStatus = nextStatus;
+    this.loadingStatusText.setText(nextStatus);
+  }
+
   getLoadingStatus(file) {
+    const statuses = this._getTextList(
+      'statuses',
+      'statuses'
+    );
+
+    if (statuses.length) {
+      let index = Phaser.Math.Between(
+        0,
+        statuses.length - 1
+      );
+
+      if (
+        statuses.length > 1 &&
+        index === this.statusIndex
+      ) {
+        index = (
+          index +
+          Phaser.Math.Between(1, statuses.length - 1)
+        ) % statuses.length;
+      }
+
+      this.statusIndex = index;
+      return statuses[index];
+    }
+
     const key = String(file?.key || '');
-    const type = file?.type || '';
+    const type = String(file?.type || '');
 
     if (key.startsWith('newspaper_')) {
       return 'Reading tomorrow’s questionable headlines...';
@@ -601,14 +673,10 @@ export class PreloaderScene extends BaseScene {
     }
 
     if (type === 'json') {
-      const statusesJson = this.cache.json.get('statusesData');
-      if (statusesJson && statusesJson.statuses) {
-        return Phaser.Utils.Array.GetRandom(statusesJson.statuses);
-      }
       return 'Cross-examining confidential case files...';
     }
 
-    if (String(type).toLowerCase().includes('tilemap')) {
+    if (type.toLowerCase().includes('tilemap')) {
       return 'Drawing a map no detective will fold correctly...';
     }
 
@@ -624,12 +692,7 @@ export class PreloaderScene extends BaseScene {
       return 'Straightening the office wallpaper...';
     }
 
-    const statusesJson = this.cache.json.get('statusesData');
-    if (statusesJson && statusesJson.statuses) {
-      return Phaser.Utils.Array.GetRandom(statusesJson.statuses);
-    }
-
-    return 'Loading...';
+    return 'Opening the case file...';
   }
 
   _createPreloadBackground(width, height) {
@@ -649,8 +712,7 @@ export class PreloaderScene extends BaseScene {
   }
 
   _createScanlines(width, height) {
-    const key =
-      `preloader_scanlines_${width}_${height}`;
+    const key = `preloader_scanlines_${width}_${height}`;
 
     if (!this.textures.exists(key)) {
       const graphics = this.make.graphics({
@@ -665,12 +727,7 @@ export class PreloaderScene extends BaseScene {
         graphics.fillRect(0, y, width, 2);
       }
 
-      graphics.generateTexture(
-        key,
-        width,
-        height
-      );
-
+      graphics.generateTexture(key, width, height);
       graphics.destroy();
     }
 
@@ -797,9 +854,12 @@ export class PreloaderScene extends BaseScene {
       }
     ).setOrigin(0.5);
 
+    const tipY = tipText.y;
+
     this.uiRefs = {
       titleText,
       tipText,
+      tipY,
       shadow,
       vignetteTop,
       vignetteBottom,
@@ -809,8 +869,6 @@ export class PreloaderScene extends BaseScene {
       loadingStatusText: this.loadingStatusText
     };
 
-    const tipY = tipText.y;
-
     this.tipTimer = this.time.addEvent({
       delay: 3200,
       loop: true,
@@ -819,8 +877,13 @@ export class PreloaderScene extends BaseScene {
         if (
           !tipText.active ||
           this._finishing ||
+          this._loadingFailed ||
           this._cleanupDone
         ) {
+          return;
+        }
+
+        if (!this._getTextList('tips', 'tips').length) {
           return;
         }
 
@@ -834,6 +897,7 @@ export class PreloaderScene extends BaseScene {
             if (
               !tipText.active ||
               this._finishing ||
+              this._loadingFailed ||
               this._cleanupDone
             ) {
               return;
@@ -852,6 +916,15 @@ export class PreloaderScene extends BaseScene {
             });
           }
         });
+      }
+    });
+
+    this.statusTimer = this.time.addEvent({
+      delay: 2600,
+      loop: true,
+
+      callback: () => {
+        this._refreshRandomStatus();
       }
     });
 
@@ -910,6 +983,7 @@ export class PreloaderScene extends BaseScene {
     if (
       this._cleanupDone ||
       this._finishing ||
+      this._loadingFailed ||
       !this._assetsReady ||
       !this._providerReady
     ) {
@@ -970,6 +1044,7 @@ export class PreloaderScene extends BaseScene {
   }
 
   _showLoadingError(message) {
+    this._loadingFailed = true;
     this._clearLoadingTimers();
 
     if (this.loadingStatusText?.active) {
@@ -1070,11 +1145,7 @@ export class PreloaderScene extends BaseScene {
       .setInteractive({ useHandCursor: true })
       .setScale(0.8);
 
-    this.addHoverEffect(
-      this.startBtn,
-      0.8,
-      0.9
-    );
+    this.addHoverEffect(this.startBtn, 0.8, 0.9);
 
     this.startBtn.on(
       'pointerdown',
@@ -1097,7 +1168,6 @@ export class PreloaderScene extends BaseScene {
     const token = this._runToken;
 
     button.disableInteractive();
-
     this.sound.unlock?.();
 
     const mobileFS = this.registry.get('mobileFS');
@@ -1149,10 +1219,9 @@ export class PreloaderScene extends BaseScene {
   }
 
   getNextTip() {
-    const tipsData = this.cache.json.get('tipsData');
-    const tips = tipsData?.tips;
+    const tips = this._getTextList('tips', 'tips');
 
-    if (!tips?.length) {
+    if (!tips.length) {
       return 'Following the evidence...';
     }
 
@@ -1161,14 +1230,14 @@ export class PreloaderScene extends BaseScene {
       tips.length - 1
     );
 
-    while (
+    if (
       tips.length > 1 &&
       index === this.tipIndex
     ) {
-      index = Phaser.Math.Between(
-        0,
-        tips.length - 1
-      );
+      index = (
+        index +
+        Phaser.Math.Between(1, tips.length - 1)
+      ) % tips.length;
     }
 
     this.tipIndex = index;
@@ -1289,9 +1358,11 @@ export class PreloaderScene extends BaseScene {
   _clearLoadingTimers() {
     this.tipTimer?.remove(false);
     this.dotsTimer?.remove(false);
+    this.statusTimer?.remove(false);
 
     this.tipTimer = null;
     this.dotsTimer = null;
+    this.statusTimer = null;
   }
 
   _cleanupPreloader() {

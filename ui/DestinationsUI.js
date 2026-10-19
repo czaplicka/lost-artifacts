@@ -2,7 +2,7 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
-import { travelToCity as performTravel } from '../gameSetup.js';
+import { travelToCity as performTravel } from '../managers/TravelManager.js';
 import { 
     ROUTE_LINE_COLOR, 
     ROUTE_SHADOW_COLOR, 
@@ -648,24 +648,33 @@ export class DestinationsUI {
             return;
         }
 
-        const agencyBudget = getAvailableAgencyBudget();
-        const willGoIntoDebt = wouldCreateDebt(preview.moneySpent);
+const agencyBudget = getAvailableAgencyBudget();
+const freeTransfers = Math.max(0, Number(gameState.freeTransfers) || 0);
+const effectiveMoneySpent = freeTransfers > 0 ? 0 : preview.moneySpent;
+const willGoIntoDebt = effectiveMoneySpent > 0 && wouldCreateDebt(effectiveMoneySpent);
 
-        this.transportPrompt.setColor('#ffd166');
-        this.transportPrompt.setText(
-            `Selected: ${this.selectedTransport.icon} ${this.selectedTransport.label}`
-        );
+this.transportPrompt.setColor('#ffd166');
+this.transportPrompt.setText(
+  `Selected: ${this.selectedTransport.icon} ${this.selectedTransport.label}`
+);
 
-        this.infoTravel.setText(
-            `🎟 ${formatMoney(preview.moneySpent)}   ` +
-            `🏢 Agency: ${formatMoney(agencyBudget)}   ` +
-            `⚡ ${preview.energyChange}`
-        );
+this.infoTravel.setText(
+  `🎟 ${effectiveMoneySpent === 0 ? 'FREE' : formatMoney(effectiveMoneySpent)}   ` +
+  `🏢 Agency: ${formatMoney(agencyBudget)}   ` +
+  `⚡ ${preview.energyChange}`
+);
 
-        this.infoHours.setText(`Travel time: +${preview.travelHours}h`);
-        this.debtWarning.setText(
-            willGoIntoDebt ? '⚠ Not enough cash + budget - will add to agency debt.' : ''
-        );
+this.infoHours.setText(`Travel time: +${preview.travelHours}h`);
+
+if (freeTransfers > 0) {
+  this.debtWarning.setText(
+    `✈ Free transfers available: ${freeTransfers}. This trip will use one.`
+  );
+} else {
+  this.debtWarning.setText(
+    willGoIntoDebt ? '⚠ Not enough cash + budget - will add to agency debt.' : ''
+  );
+}
 
         this.confirmLabel.setText(`Go by ${this.selectedTransport.label}`);
         this.setConfirmEnabled(true);

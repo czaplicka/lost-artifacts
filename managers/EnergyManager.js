@@ -601,13 +601,27 @@ class EnergyManager {
 
     this.isSleepingForced = true;
 
+    const shouldShowHollyIntro =
+      gameState.hollyFirstSleepSeen !== true;
+
+    if (shouldShowHollyIntro) {
+      gameState.hollyFirstSleepSeen = true;
+
+      EventBus.emit('firstForcedSleepStory', {
+        sceneKey: 'HollyIntroScene',
+        sleepHours: FORCED_SLEEP_HOURS,
+        energy: 0
+      });
+    }
+
     EventBus.emit('energyZero', {
       energy: 0,
       status: 'Exhausted',
       sleepHours: FORCED_SLEEP_HOURS,
       message:
         'You collapse from exhaustion and sleep for ' +
-        `${FORCED_SLEEP_HOURS} hours...`
+        `${FORCED_SLEEP_HOURS} hours...`,
+      firstSleepStory: shouldShowHollyIntro
     });
 
     EventBus.emit(

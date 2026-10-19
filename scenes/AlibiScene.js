@@ -1,14 +1,27 @@
 // scenes/AlibiScene.js
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
+
 import {
   getWitnessTestimony,
-  markAlibiWitnessInterviewed
+  markAlibiWitnessInterviewed,
+  allWitnessesVisited
 } from '../alibi/AlibiEncounterSetup.js';
 
 const PORTRAIT_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
+
+const VIEW_WIDTH = 1000;
+const VIEW_HEIGHT = 760;
+
+function formatTime(minute) {
+  return (
+    String(Math.floor(minute / 60)).padStart(2, '0') +
+    ':' +
+    String(minute % 60).padStart(2, '0')
+  );
+}
 
 export class AlibiScene extends BaseScene {
   constructor() {
@@ -30,71 +43,39 @@ export class AlibiScene extends BaseScene {
     this.testimony = null;
     this.encounter = null;
     this.isLeaving = false;
-    this.buttons = [];
+
+    this.root = null;
     this.statusText = null;
   }
 
   create() {
     super.create();
-    this.scene.stop('NewsHud');
+
+    this.stopSceneIfActive('NewsHud');
+    this.getPlayerHudScene()?.closeAllUIPanels?.();
+
     this.cameras.main.resetFX();
     this.cameras.main.setAlpha(1);
     this.cameras.main.setBackgroundColor('#171b22');
 
-    this.getPlayerHudScene()?.closeAllUIPanels?.();
-
-    this.drawLayout();
+    this.trackInputEvent(
+      this.scale,
+      'resize',
+      this.fitView,
+      this
+    );
 
     try {
       this.loadTestimony();
-      this.drawInterview();
+      this.render();
     } catch (error) {
       console.error(
         '[AlibiScene] Cannot open witness interview.',
         error
       );
 
-      this.drawError(
-        'The witness file could not be opened.\n' +
-        'Apparently, even paperwork needs an alibi.'
-      );
+      this.renderError();
     }
-
-    this.cameras.main.fadeIn(200, 0, 0, 0);
-  }
-
-  drawLayout() {
-    const width = this.scale.width;
-    const height = this.scale.height;
-
-    this.panelWidth = Math.min(940, width - 32);
-    this.panelHeight = Math.min(620, height - 100);
-
-    this.panelLeft = (width - this.panelWidth) / 2;
-    this.panelTop = (height - this.panelHeight) / 2;
-
-    this.add.rectangle(
-      width / 2,
-      height / 2,
-      this.panelWidth,
-      this.panelHeight,
-      0xede1c4
-    ).setStrokeStyle(3, 0x8a7350);
-
-    this.add.text(
-      width / 2,
-      this.panelTop + 24,
-      'WITNESS INTERVIEW',
-      {
-        fontFamily: 'PressStart2P',
-        fontSize: '15px',
-        color: '#382e24',
-        align: 'center',
-        wordWrap: {
-          width: this.panelWidth - 40
-        }
-      }
-    ).setOrigin(0.5, 0);
   }
 
   loadTestimony() {
@@ -121,7 +102,7 @@ export class AlibiScene extends BaseScene {
       this.encounter.suspectId !== this.suspectId ||
       this.encounter.npcId !== this.npcId
     ) {
-      throw new Error('Witness encounter does not match this case.');
+      throw new Error('Encounter does not match this witness.');
     }
 
     this.testimony = getWitnessTestimony(
@@ -134,204 +115,292 @@ export class AlibiScene extends BaseScene {
       !this.testimony ||
       this.testimony.encounterId !== this.encounterId
     ) {
-      throw new Error('Witness testimony is missing or mismatched.');
+      throw new Error('Missing or mismatched witness testimony.');
     }
   }
 
+  fitView() {
+    if (!this.root) {
+      return;
+    }
+
+    const scale = Math.min(
+      this.scale.width / VIEW_WIDTH,
+      this.scale.height / VIEW_HEIGHT
+    );
+
+    this.root
+      .setScale(scale)
+      .setPosition(
+        (this.scale.width - VIEW_WIDTH * scale) / 2,
+        (this.scale.height - VIEW_HEIGHT * scale) / 2
+      );
+  }
+
+  createRoot() {
+    this.root?.destroy(true);
+    this.root = this.add.container(0, 0);
+
+    this.fitView();
+
+    this.root.add(
+      this.add.rectangle(
+        VIEW_WIDTH / 2,
+        VIEW_HEIGHT / 2,
+        VIEW_WIDTH - 24,
+        VIEW_HEIGHT - 24,
+        0xede1c4
+      ).setStrokeStyle(3, 0x8a7350)
+    );
+
+    this.text(
+      40,
+      35,
+      'WITNESS INTERVIEW',
+      920,
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '19px'
+      }
+    );
+  }
+
+  text(x, y, content, width, options = {}) {
+    const object = this.add.text(x, y, content, {
+      fontFamily: 'SpecialElite',
+      fontSize: '22px',
+      color: '#382e24',
+      wordWrap: { width },
+      ...options
+    });
+
+    this.root.add(object);
+    return object;
+  }
+
+  button(x, y, width, label, callback) {
+    const background = this.add.rectangle(
+      x + width / 2,
+      y + 27,
+      width,
+      54,
+      0x493d30
+    ).setStrokeStyle(2, 0x9b815b)
+      .setInteractive({ useHandCursor: true });
+
+    this.root.add(background);
+
+    const labelObject = this.text(
+      x + 10,
+      y + 27,
+      label,
+      width - 20,
+      {
+        fontSize: '20px',
+        color: '#fff3d6',
+        align: 'center'
+      }
+    ).setOrigin(0, 0.5);
+
+    labelObject.setFixedSize(width - 20, 0);
+
+    background
+      .on('pointerover', () => {
+        background.setFillStyle(0x65533e);
+      })
+      .on('pointerout', () => {
+        background.setFillStyle(0x493d30);
+      })
+      .on('pointerdown', () => {
+        if (!this.isLeaving) {
+          callback();
+        }
+      });
+  }
+
   getPortraitKey() {
-    const candidates = [
+    return [
       this.encounter?.portraitKey,
       this.encounter?.textureKey,
       this.testimony?.portraitKey,
       this.testimony?.textureKey,
       ...PORTRAIT_KEYS
-    ];
-
-    return candidates.find(
+    ].find(
       (key) =>
         PORTRAIT_KEYS.includes(key) &&
         this.textures.exists(key)
     ) || null;
   }
 
-  drawInterview() {
-    const left = this.panelLeft;
-    const top = this.panelTop;
-    const width = this.panelWidth;
-    const height = this.panelHeight;
-    const compact = width < 650;
+  render() {
+    this.createRoot();
 
-    const portraitX = compact
-      ? left + 65
-      : left + 110;
-
-    const portraitY = top + 143;
     const portraitKey = this.getPortraitKey();
 
     if (portraitKey) {
       const portrait = this.add.image(
-        portraitX,
-        portraitY,
+        120,
+        175,
         portraitKey
       );
 
-      const maxWidth = compact ? 70 : 130;
-      const maxHeight = compact ? 100 : 160;
-
       portrait.setScale(
         Math.min(
-          maxWidth / portrait.width,
-          maxHeight / portrait.height
+          130 / portrait.width,
+          150 / portrait.height
         )
       );
-    } else {
-      this.add.text(
-        portraitX,
-        portraitY,
-        '?',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '64px',
-          color: '#766750'
-        }
-      ).setOrigin(0.5);
 
-      console.warn(
-        '[AlibiScene] No generic witness portrait is loaded.',
-        { encounterId: this.encounterId }
+      this.root.add(portrait);
+    } else {
+      this.text(90, 130, '?', 100, {
+        fontSize: '65px'
+      });
+    }
+
+    this.text(
+      225,
+      105,
+      `${this.testimony.role || 'Witness'} of ` +
+      `${this.testimony.suspectName || 'the suspect'}`,
+      725,
+      { fontSize: '29px' }
+    );
+
+    const window =
+      this.testimony.crimeWindow ||
+      gameState.caseData?.crimeWindow;
+
+    if (window) {
+      this.text(
+        225,
+        185,
+        'Theft window: ' +
+        `${formatTime(window.startMinute)}–` +
+        `${formatTime(window.endMinute)} ` +
+        '(day of the theft)',
+        725,
+        {
+          fontSize: '20px',
+          color: '#84372d'
+        }
       );
     }
 
-    const headingX = compact
-      ? left + 115
-      : left + 210;
-
-    const headingWidth = width - (headingX - left) - 24;
-
-    this.add.text(
-      headingX,
-      top + 85,
-      `${this.testimony.role || 'Witness'} of ` +
-      `${this.testimony.suspectName || 'the suspect'}`,
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: compact ? '19px' : '24px',
-        color: '#382e24',
-        wordWrap: {
-          width: headingWidth
-        }
-      }
-    );
-
-    this.add.text(
-      headingX,
-      top + 155,
+    this.text(
+      45,
+      270,
       'Detective: Tell me what you remember.',
+      910,
       {
-        fontFamily: 'SpecialElite',
-        fontSize: '17px',
-        color: '#665741',
-        wordWrap: {
-          width: headingWidth
-        }
+        fontSize: '20px',
+        color: '#665741'
       }
     );
 
-    this.add.text(
-      left + 28,
-      top + 245,
+    const statement = this.text(
+      45,
+      320,
       `"${this.testimony.statement || 'No statement available.'}"`,
+      910,
       {
-        fontFamily: 'SpecialElite',
-        fontSize: compact ? '18px' : '23px',
-        color: '#29231d',
-        lineSpacing: 8,
-        wordWrap: {
-          width: width - 56
-        }
+        fontSize: '25px',
+        lineSpacing: 9
       }
     );
+
+    while (
+      statement.height > 265 &&
+      parseInt(statement.style.fontSize, 10) > 16
+    ) {
+      statement.setFontSize(
+        parseInt(statement.style.fontSize, 10) - 1
+      );
+    }
 
     const completed =
       this.encounter.interviewed === true &&
       this.encounter.dialogueCompleted === true;
 
-    this.statusText = this.add.text(
-      left + 28,
-      top + height - 140,
-      completed
-        ? 'This interview is already recorded.'
-        : 'Finish the interview to record this testimony.',
+    const boardReady = allWitnessesVisited(
+      this.caseKey,
+      this.suspectId
+    );
+
+    this.statusText = this.text(
+      45,
+      610,
+      boardReady
+        ? 'All three interviews are recorded. The alibi board is ready.'
+        : completed
+          ? 'Interview recorded. Question the other witnesses for this suspect.'
+          : 'Finish the interview to record this testimony.',
+      910,
       {
-        fontFamily: 'SpecialElite',
-        fontSize: '16px',
-        color: '#665741',
-        wordWrap: {
-          width: width - 56
-        }
+        fontSize: '18px',
+        color: '#665741'
       }
     );
 
-    const buttonY = top + height - 58;
-    const buttonWidth = Math.min(250, (width - 60) / 2);
-
-    this.createButton(
-      left + width * 0.26,
-      buttonY,
-      buttonWidth,
-      'Leave',
+    this.button(
+      45,
+      675,
+      310,
+      'Return to city',
       () => {
         void this.returnToCity();
       }
     );
 
-    this.createButton(
-      left + width * 0.74,
-      buttonY,
-      buttonWidth,
-      completed ? 'Return to city' : 'Finish interview',
+    this.button(
+      575,
+      675,
+      380,
+      boardReady
+        ? 'Open alibi board'
+        : completed
+          ? 'Return to city'
+          : 'Finish interview',
       () => {
-        void this.finishInterview();
+        if (boardReady) {
+          void this.openBoard();
+        } else if (completed) {
+          void this.returnToCity();
+        } else {
+          void this.finishInterview();
+        }
       }
     );
   }
 
-  drawError(message) {
-    this.add.text(
-      this.scale.width / 2,
-      this.panelTop + 150,
-      message,
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '21px',
-        color: '#7b3028',
-        align: 'center',
-        lineSpacing: 10,
-        wordWrap: {
-          width: this.panelWidth - 56
-        }
-      }
-    ).setOrigin(0.5, 0);
+  renderError() {
+    this.createRoot();
 
-    this.statusText = this.add.text(
-      this.scale.width / 2,
-      this.panelTop + this.panelHeight - 140,
+    this.text(
+      65,
+      180,
+      'The witness file could not be opened.\n' +
+      'Even paperwork needs an alibi.',
+      870,
+      {
+        fontSize: '29px',
+        color: '#84372d',
+        lineSpacing: 12
+      }
+    );
+
+    this.statusText = this.text(
+      65,
+      550,
       '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '16px',
-        color: '#7b3028',
-        align: 'center',
-        wordWrap: {
-          width: this.panelWidth - 56
-        }
-      }
-    ).setOrigin(0.5, 0);
+      870,
+      { fontSize: '19px' }
+    );
 
-    this.createButton(
-      this.scale.width / 2,
-      this.panelTop + this.panelHeight - 58,
-      Math.min(280, this.panelWidth - 48),
+    this.button(
+      340,
+      675,
+      320,
       'Return to city',
       () => {
         void this.returnToCity();
@@ -339,90 +408,78 @@ export class AlibiScene extends BaseScene {
     );
   }
 
-  createButton(x, y, width, label, callback) {
-    const background = this.add.rectangle(
-      x,
-      y,
-      width,
-      48,
-      0x493d30
-    ).setStrokeStyle(2, 0x9b815b)
-      .setInteractive({ useHandCursor: true });
-
-    this.add.text(
-      x,
-      y,
-      label,
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: width < 180 ? '15px' : '19px',
-        color: '#fff3d6',
-        align: 'center'
-      }
-    ).setOrigin(0.5);
-
-    this.trackInputEvent(
-      background,
-      'pointerover',
-      () => background.setFillStyle(0x65533e)
-    );
-
-    this.trackInputEvent(
-      background,
-      'pointerout',
-      () => background.setFillStyle(0x493d30)
-    );
-
-    this.trackInputEvent(
-      background,
-      'pointerdown',
-      () => {
-        if (!this.isLeaving) {
-          callback();
-        }
-      }
-    );
-
-    this.buttons.push(background);
-  }
-
   async finishInterview() {
     if (this.isLeaving || !this.testimony) {
       return;
     }
 
-    const saved = markAlibiWitnessInterviewed(
-      this.caseKey,
-      this.encounterId
-    );
-
-    if (!saved) {
-      this.statusText?.setText(
-        'The interview could not be recorded. Please try again.'
+    try {
+      const saved = markAlibiWitnessInterviewed(
+        this.caseKey,
+        this.encounterId
       );
+
+      if (!saved) {
+        this.statusText?.setText(
+          'The interview could not be recorded. Please try again.'
+        );
+        return;
+      }
+
+      if (allWitnessesVisited(this.caseKey, this.suspectId)) {
+        this.loadTestimony();
+        this.render();
+        return;
+      }
+
+      await this.returnToCity();
+    } catch (error) {
+      console.error('[AlibiScene] Interview save failed.', error);
+
+      this.statusText?.setText(
+        'The interview could not be saved. Please try again.'
+      );
+    }
+  }
+
+  async openBoard() {
+    if (
+      this.isLeaving ||
+      !allWitnessesVisited(this.caseKey, this.suspectId)
+    ) {
       return;
     }
 
-    await this.returnToCity();
+    await this.navigate('AlibiTimelineScene', {
+      caseKey: this.caseKey,
+      suspectId: this.suspectId,
+      cityId: this.cityId,
+      returnScene: this.returnScene,
+      returnData: this.returnData
+    });
   }
 
   async returnToCity() {
+    await this.navigate(
+      this.returnScene,
+      this.returnData
+    );
+  }
+
+  async navigate(sceneKey, data) {
     if (this.isLeaving || this._cleanupDone) {
       return;
     }
 
     this.isLeaving = true;
 
-    const opened = await this.goto(
-      this.returnScene,
-      this.returnData
-    );
+    const opened = await this.goto(sceneKey, data);
 
     if (!opened && !this._cleanupDone) {
       this.isLeaving = false;
 
       this.statusText?.setText(
-        'Could not return to the city. Please try again.'
+        'The next scene could not be opened. Please try again.'
       );
     }
   }

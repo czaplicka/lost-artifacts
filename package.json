@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "copy:phaser": "node -e \"const fs = require('node:fs'); fs.mkdirSync('assets/vendor/phaser', { recursive: true }); fs.copyFileSync('node_modules/phaser/dist/phaser.min.js', 'assets/vendor/phaser/phaser-3.90.0.min.js'); fs.copyFileSync('node_modules/phaser/LICENSE.md', 'assets/vendor/phaser/LICENSE.md');\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,6 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "phaser": "^4.2.1"
+    "phaser": "3.90.0"
   }
 }

@@ -2,13 +2,22 @@ import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
+
 import {
   getAchievementList,
   hasAchievement
 } from '../managers/AchievementManager.js';
+
 import { moneyManager } from '../managers/MoneyManager.js';
 import { getGameTimeManager } from '../managers/GameTimeManager.js';
 import { getCaseTimeRemaining } from '../CaseTimeHelper.js';
+
+import {
+  STAT_IDS,
+  STAT_NAMES,
+  getProfile,
+  getEffectiveStats
+} from '../ui/characterCreation/CharacterCreationData.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 
@@ -96,7 +105,6 @@ export class UIScene extends BaseScene {
 
   _removeDomListeners() {
     this.domAbortController?.abort();
-
     this.domAbortController = new AbortController();
   }
 
@@ -127,9 +135,7 @@ export class UIScene extends BaseScene {
       tooltipBg: document.getElementById('hud-tooltip'),
       tooltipText: document.getElementById('hud-tooltip-text'),
       energyLogBg: document.getElementById('hud-energy-log'),
-      energyLogText: document.getElementById(
-        'hud-energy-log-text'
-      )
+      energyLogText: document.getElementById('hud-energy-log-text')
     };
   }
 
@@ -138,10 +144,17 @@ export class UIScene extends BaseScene {
     this.onBus('caseTimeChanged', this.updateCaseDeadline);
     this.onBus('scoreChanged', this.updateScore);
     this.onBus('cashChanged', this.updateCash);
+
     this.onBus(
       'agentStatsChanged',
       this._refreshOpenAgentModal
     );
+
+    this.onBus(
+      'character-created',
+      this._refreshOpenAgentModal
+    );
+
     this.onBus('gameOver', this._showGameOver);
     this.onBus('energyInitialized', this._onEnergyChanged);
     this.onBus('energyChanged', this._onEnergyChanged);
@@ -296,14 +309,11 @@ export class UIScene extends BaseScene {
       },
       {
         element: this.dom.score,
-        getContent: () =>
-          [
-            'SCORE',
-            `${Number(gameState.score || 0).toLocaleString(
-              'en-US'
-            )} points.`,
-            'Solve cases, collect clues and make smart arrests.'
-          ].join('\n')
+        getContent: () => [
+          'SCORE',
+          `${Number(gameState.score || 0).toLocaleString('en-US')} points.`,
+          'Solve cases, collect clues and make smart arrests.'
+        ].join('\n')
       },
       {
         element: this.dom.cash,
@@ -325,11 +335,7 @@ export class UIScene extends BaseScene {
         }
       };
 
-      element.addEventListener(
-        'mouseenter',
-        show,
-        options
-      );
+      element.addEventListener('mouseenter', show, options);
 
       element.addEventListener(
         'mouseleave',
@@ -337,11 +343,7 @@ export class UIScene extends BaseScene {
         options
       );
 
-      element.addEventListener(
-        'focus',
-        show,
-        options
-      );
+      element.addEventListener('focus', show, options);
 
       element.addEventListener(
         'blur',
@@ -460,12 +462,8 @@ export class UIScene extends BaseScene {
     );
 
     const days = Math.floor(safeSeconds / 86400);
-    const hours = Math.floor(
-      (safeSeconds % 86400) / 3600
-    );
-    const minutes = Math.floor(
-      (safeSeconds % 3600) / 60
-    );
+    const hours = Math.floor((safeSeconds % 86400) / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
 
     if (days > 0) {
       return `${days}D ${String(hours).padStart(2, '0')}H`;
@@ -495,11 +493,9 @@ export class UIScene extends BaseScene {
 
     if (this.dom.month) {
       this.dom.month.textContent =
-        date
-          .toLocaleDateString('en-US', {
-            month: 'short'
-          })
-          .toUpperCase();
+        date.toLocaleDateString('en-US', {
+          month: 'short'
+        }).toUpperCase();
     }
 
     if (this.dom.day) {
@@ -888,6 +884,7 @@ export class UIScene extends BaseScene {
 
     if (modal instanceof HTMLElement) {
       this._forceModalAboveGame(modal);
+      this._setupModalEvents(modal, closeButtonId);
       return modal;
     }
 
@@ -1028,7 +1025,15 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#profile-alias',
-      gameState.playerName || 'Detective'
+      gameState.playerName ||
+      gameState.agentName ||
+      'Detective'
+    );
+
+    this._setHtmlText(
+      modal,
+      '#profile-codename',
+      gameState.playerAlias || 'UNLISTED'
     );
 
     this._setHtmlText(
@@ -1054,6 +1059,121 @@ export class UIScene extends BaseScene {
       '#profile-difficulty-description',
       selected[1]
     );
+
+    this._renderProfileStats(modal);
+  }
+
+  _renderProfileStats(modal) {
+    const grid = modal.querySelector('#profile-stats');
+
+    if (!(grid instanceof HTMLElement)) {
+      return;
+    }
+
+    grid.replaceChildren();
+
+    const savedStats = gameState.detectiveStats;
+
+    if (
+      !savedStats ||
+      typeof savedStats !== 'object' ||
+      Array.isArray(savedStats) ||
+      !gameState.detectiveProfile
+    ) {
+      this._setHtmlText(
+        modal,
+        '#profile-archetype',
+        'ASSESSMENT UNAVAILABLE'
+      );
+
+      this._setHtmlText(
+        modal,
+        '#profile-bonus',
+        'No character assessment was found in this personnel file.'
+      );
+
+      const note = modal.querySelector('.profile-stats-note');
+
+      if (note) {
+        note.hidden = true;
+      }
+
+      return;
+    }
+
+    const profile = getProfile(gameState.detectiveProfile);
+
+    const baseStats = {};
+
+    for (const statId of STAT_IDS) {
+      const rawValue = savedStats[statId];
+
+      const value =
+        typeof rawValue === 'number' ||
+        typeof rawValue === 'string'
+          ? Number(rawValue)
+          : NaN;
+
+      baseStats[statId] = Number.isFinite(value)
+        ? Math.max(1, Math.floor(value))
+        : 1;
+    }
+
+    const effectiveStats = getEffectiveStats({
+      profile: profile.id,
+      stats: baseStats
+    });
+
+    this._setHtmlText(
+      modal,
+      '#profile-archetype',
+      profile.name
+    );
+
+    this._setHtmlText(
+      modal,
+      '#profile-bonus',
+      `PROFILE BONUS: ${profile.bonus}`
+    );
+
+    const note = modal.querySelector('.profile-stats-note');
+
+    if (note) {
+      note.hidden = false;
+    }
+
+    for (const statId of STAT_IDS) {
+      const baseValue = baseStats[statId];
+      const finalValue = effectiveStats[statId];
+      const bonus = finalValue - baseValue;
+
+      const row = document.createElement('div');
+
+      row.className = bonus > 0
+        ? 'profile-stat has-profile-bonus'
+        : 'profile-stat';
+
+      const name = document.createElement('dt');
+
+      name.className = 'profile-stat-name';
+      name.textContent = STAT_NAMES[statId];
+
+      const value = document.createElement('dd');
+
+      value.className = 'profile-stat-value';
+      value.textContent = String(finalValue);
+
+      const breakdown = document.createElement('dd');
+
+      breakdown.className = 'profile-stat-breakdown';
+
+      breakdown.textContent = bonus > 0
+        ? `Base ${baseValue} + ${bonus} profile bonus`
+        : `Base ${baseValue}`;
+
+      row.append(name, value, breakdown);
+      grid.appendChild(row);
+    }
   }
 
   _populateAgentModalData(modal) {
@@ -1112,13 +1232,22 @@ export class UIScene extends BaseScene {
   }
 
   _refreshOpenAgentModal() {
-    const modal = document.getElementById('agent-modal');
+    const agentModal = document.getElementById('agent-modal');
 
     if (
-      modal instanceof HTMLElement &&
-      modal.style.display !== 'none'
+      agentModal instanceof HTMLElement &&
+      agentModal.style.display !== 'none'
     ) {
-      this._populateAgentModalData(modal);
+      this._populateAgentModalData(agentModal);
+    }
+
+    const profileModal = document.getElementById('profile-modal');
+
+    if (
+      profileModal instanceof HTMLElement &&
+      profileModal.style.display !== 'none'
+    ) {
+      this._populateProfileModalData(profileModal);
     }
   }
 
@@ -1168,7 +1297,6 @@ export class UIScene extends BaseScene {
         : 'CLASSIFIED';
 
       item.append(icon, title);
-
       grid.appendChild(item);
     });
   }
@@ -1189,9 +1317,7 @@ export class UIScene extends BaseScene {
     const numericColor = Number(color);
 
     return Number.isFinite(numericColor)
-      ? `#${numericColor
-        .toString(16)
-        .padStart(6, '0')}`
+      ? `#${numericColor.toString(16).padStart(6, '0')}`
       : '#4caf50';
   }
 

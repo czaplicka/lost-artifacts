@@ -745,6 +745,28 @@ export class BaseScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------------
+  // Holly
+  // ------------------------------------------------------------------
+
+  async launchStoryOverlay(sceneKey, data = {}) {
+    if (!sceneKey || this._cleanupDone) {
+      return false;
+    }
+
+    const hud = this.getPlayerHudScene();
+    hud?.closeAllUIPanels?.();
+
+    const opened = await this.launchOverlay(sceneKey, data);
+
+    if (!opened) {
+      return false;
+    }
+
+    this.bringSceneToTopIfActive(sceneKey);
+    return true;
+  }
+
+  // ------------------------------------------------------------------
   // Inventory
   // ------------------------------------------------------------------
 

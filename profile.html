@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Personnel File — Mark Agency HQ</title>
 
   <link rel="stylesheet" href="./assets/css/profile.css">
@@ -21,8 +22,12 @@
     class="detective-modal-overlay"
     id="profile-modal"
     style="display: none;"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="profile-title"
   >
     <div class="detective-form" id="profile-form">
+
       <button
         class="modal-close"
         id="btn-close-profile"
@@ -33,16 +38,25 @@
         &times;
       </button>
 
-      <h2>Personnel File</h2>
+      <!-- ══════════════ HEADER (spans full width) ══════════════ -->
+
+      <h2 id="profile-title">Personnel File</h2>
+
+      <!-- ══════════════ LEFT COLUMN ══════════════ -->
 
       <p class="profile-info">
         <strong>Agent:</strong>
-        <span id="profile-alias">-</span>
+        <span id="profile-alias">—</span>
+      </p>
+
+      <p class="profile-info">
+        <strong>Alias:</strong>
+        <span id="profile-codename">—</span>
       </p>
 
       <p class="profile-info">
         <strong>Rank:</strong>
-        <span id="profile-rank">-</span>
+        <span id="profile-rank">—</span>
       </p>
 
       <p class="profile-info">
@@ -55,9 +69,34 @@
         <span id="profile-difficulty">FIELD AGENT</span>
       </p>
 
-      <p class="profile-difficulty-description" id="profile-difficulty-description">
+      <p
+        class="profile-difficulty-description"
+        id="profile-difficulty-description"
+      >
         Standard Mark Agency field procedure.
       </p>
+
+      <!-- ══════════════ RIGHT COLUMN — FIELD ASSESSMENT ══════════════ -->
+
+      <section
+        class="profile-stats-section"
+        aria-labelledby="profile-stats-title"
+      >
+        <h3 id="profile-stats-title">Field Assessment</h3>
+
+        <p class="profile-archetype" id="profile-archetype">—</p>
+
+        <p class="profile-bonus" id="profile-bonus">—</p>
+
+        <dl class="profile-stats-grid" id="profile-stats"></dl>
+
+        <p class="profile-stats-note">
+          Final values include your profile bonus.
+          Confidence is not an officially recognised skill.
+        </p>
+      </section>
+
+      <!-- ══════════════ FOOTER — LEFT ══════════════ -->
 
       <button
         class="btn-stamp"
@@ -67,8 +106,10 @@
         LOG OUT
       </button>
 
+      <!-- ══════════════ FOOTER — DANGER ZONE ══════════════ -->
+
       <div class="danger-zone">
-        <h3>⚠️ Danger Zone</h3>
+        <h3>⚠ Danger Zone</h3>
 
         <p class="danger-zone-desc">
           Warning: This action will permanently destroy your file.

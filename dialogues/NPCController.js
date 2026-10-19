@@ -35,8 +35,19 @@
  * returns a false-lead line, matching the rest of the escape-city design.
  */
 
+
 import { gameState } from '../GameData.js';
 import { getWitnessClue, getClueText } from '../motiveService.js';
+
+
+function toSlug(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '') || 'unknown';
+}
+
 
 export class NPCController {
   /**
@@ -65,10 +76,12 @@ export class NPCController {
     this.isCorrectCity = options.isCorrectCity !== false;
     this.npcId = options.npcId || null;
 
+
     if (!this.cityData) {
       throw new Error(`No NPC data and no "default" fallback found (city: "${cityId}")`);
     }
   }
+
 
   static resolvePath(path, data) {
     const parts = path.split(".");
@@ -80,6 +93,7 @@ export class NPCController {
     return value;
   }
 
+
   static canFillTemplate(template, context) {
     const placeholders = template.match(/\{([\w.]+)\}/g) || [];
     return placeholders.every((p) => {
@@ -88,12 +102,14 @@ export class NPCController {
     });
   }
 
+
   static fillTemplate(template, context) {
     return template.replace(/\{([\w.]+)\}/g, (match, path) => {
       const value = NPCController.resolvePath(path, context);
       return value !== undefined && value !== null ? value : match;
     });
   }
+
 
   // ============================================================
   // MOTIVE - current stage witness lookup
@@ -103,15 +119,19 @@ export class NPCController {
   _getMotiveWitnessHit() {
     if (!this.isCorrectCity || !this.npcId) return null;
 
+
     const motiveId = gameState.caseData?.motiveId;
     if (!motiveId) return null;
+
 
     const stagesDone = Array.isArray(gameState.caseData.motiveStagesDone)
       ? gameState.caseData.motiveStagesDone
       : [];
 
+
     return getWitnessClue(motiveId, this.npcId, stagesDone);
   }
+
 
   /**
    * List of topics available for this NPC, so the UI can build buttons.
@@ -121,18 +141,23 @@ export class NPCController {
   getAvailableTopics() {
     if (!this.isCorrectCity) return [];
 
+
     const topicKeys = Object.keys(this.cityData.topics || {});
+
 
     if (this.targetCityId) {
       topicKeys.push('travel');
     }
 
+
     if (this._getMotiveWitnessHit()) {
       topicKeys.push('motive');
     }
 
+
     return topicKeys;
   }
+
 
   /**
    * Ask about any topic - the controller figures out whether it's a
@@ -147,24 +172,29 @@ export class NPCController {
       return this.getFalseLeadLine();
     }
 
+
     if (topicId === 'travel') {
       return this._askTravelTopic();
     }
 
+
     if (topicId === 'motive') {
       return this._askMotiveTopic();
     }
+
 
     const pool = this.cityData.topics?.[topicId];
     if (!pool) {
       throw new Error(`Unknown topic "${topicId}" for this NPC`);
     }
 
+
     if (Array.isArray(pool)) {
       return this._askTemplateTopic(topicId, pool);
     }
     return this._askTraitTopic(topicId, pool);
   }
+
 
   _askTraitTopic(topicId, traitPool) {
     const traitValue = this.suspect[topicId];
@@ -175,15 +205,18 @@ export class NPCController {
     return { text: lines[0], isNew: true, topicId, traitValue };
   }
 
+
   _askTemplateTopic(topicId, templates) {
     if (!this.countryData) {
       return { text: `Nothing worth mentioning on that subject.`, isNew: false, topicId };
     }
 
+
     const fillable = templates.filter((t) =>
       NPCController.canFillTemplate(t, this.countryData)
     );
     const unseen = fillable.filter((t) => !this.shownLines.has(t));
+
 
     if (unseen.length === 0) {
       const repeatPair = Array.isArray(this.cityData.repeatLines) ? this.cityData.repeatLines[0] : null;
@@ -194,15 +227,18 @@ export class NPCController {
       };
     }
 
+
     const template = unseen[Math.floor(Math.random() * unseen.length)];
     this.shownLines.add(template);
     const text = NPCController.fillTemplate(template, this.countryData);
     return { text, isNew: true, topicId };
   }
 
+
   _askTravelTopic() {
     const pool = this.cityData.travelHints?.[this.targetCityId];
     const hints = Array.isArray(pool) ? pool : [];
+
 
     if (hints.length === 0) {
       return {
@@ -213,8 +249,10 @@ export class NPCController {
       };
     }
 
+
     const raw = hints[Math.floor(Math.random() * hints.length)];
     const text = typeof raw === 'string' ? raw : raw?.text;
+
 
     return {
       text: text || 'They mentioned travel, but not clearly enough to be useful.',
@@ -224,17 +262,19 @@ export class NPCController {
     };
   }
 
+
   // ============================================================
   // MOTIVE - asking the "motive" button.
   // Looks up the current stage witness line via motiveService,
   // then WRITES the progress directly to gameState: adds the
   // stage's evidenceId to motiveStagesDone, flips motiveBoardUnlocked
-  // on the final stage, and pushes a clue into gameState.cluesCollected.
+  // on the final stage, and adds a clue to gameState.cluesCollected.
   // This write happens here (not in toNote) because the player should
   // only get credit once, the first time the question is actually asked.
   // ============================================================
   _askMotiveTopic() {
     const hit = this._getMotiveWitnessHit();
+
 
     if (!hit) {
       return {
@@ -244,8 +284,10 @@ export class NPCController {
       };
     }
 
+
     const motiveId = gameState.caseData.motiveId;
     const text = getClueText(motiveId, this.npcId, hit.clueKey);
+
 
     if (!text) {
       return {
@@ -255,25 +297,29 @@ export class NPCController {
       };
     }
 
+
     const stagesDone = Array.isArray(gameState.caseData.motiveStagesDone)
       ? gameState.caseData.motiveStagesDone
       : [];
 
+
     gameState.caseData.motiveStagesDone = [...stagesDone, hit.stage.evidenceId];
+
 
     if (hit.stage.boardAnswerUnlocked) {
       gameState.caseData.motiveBoardUnlocked = true;
     }
 
-    if (Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected.push({
-        type: 'motive',
-        id: hit.stage.evidenceId,
-        label: hit.stage.label,
-        npcId: this.npcId,
-        motiveStrength: hit.stage.motiveStrength
-      });
-    }
+
+    // addClue pilnuje indeksu i duplikatów (id = evidenceId etapu).
+    gameState.addClue({
+      type: 'motive',
+      id: hit.stage.evidenceId,
+      label: hit.stage.label,
+      npcId: this.npcId,
+      motiveStrength: hit.stage.motiveStrength
+    });
+
 
     return {
       text,
@@ -285,9 +331,11 @@ export class NPCController {
     };
   }
 
+
   getFalseLeadLine() {
     const pool = Array.isArray(this.cityData.falseLeadLines) ? this.cityData.falseLeadLines : [];
     const pair = pool[Math.floor(Math.random() * pool.length)];
+
 
     return {
       text: pair ? `${pair[0]} ${pair[1]}` : 'Wrong city, detective. No one matching that trail came through here.',
@@ -296,12 +344,15 @@ export class NPCController {
     };
   }
 
+
   getRepeatLine() {
     const pool = Array.isArray(this.cityData.repeatLines) ? this.cityData.repeatLines : [];
     const pair = pool[Math.floor(Math.random() * pool.length)];
 
+
     return pair ? `${pair[0]} ${pair[1]}` : 'We already talked, detective.';
   }
+
 
   getBanterLine() {
     const pool = Array.isArray(this.cityData.banter) ? this.cityData.banter : [];
@@ -309,22 +360,29 @@ export class NPCController {
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
+
   /**
-   * Converts an askTopic() result into the {type, category, key, value}
+   * Converts an askTopic() result into the {id, type, category, key, value}
    * shape the rest of the game (gameState.cluesCollected, crime board)
    * already expects. Returns null for results that aren't real clues
    * (false leads, repeated/empty answers). Motive results are already
    * written straight into gameState.cluesCollected inside _askMotiveTopic,
    * so toNote() intentionally returns null for them to avoid a duplicate
    * push from LocationScene's generatedNotes flow.
+   *
+   * Every note MUST have an id - clues without an id are dropped when
+   * the game state is saved and loaded.
    */
   toNote(result) {
     if (!result || !result.isNew) return null;
 
+
     if (result.topicId === 'motive') return null;
+
 
     if (result.topicId === 'travel') {
       return {
+        id: `travel_${toSlug(this.cityId)}_${toSlug(result.cityId)}`,
         type: 'travel',
         cityId: result.cityId || null,
         tag: result.text,
@@ -332,10 +390,13 @@ export class NPCController {
       };
     }
 
+
     if (result.topicId === 'falseLead') return null;
+
 
     if (result.traitValue !== undefined) {
       return {
+        id: `suspect_${toSlug(result.topicId)}_${toSlug(result.traitValue)}`,
         type: 'suspect',
         category: result.topicId,
         key: result.traitValue,
@@ -343,7 +404,9 @@ export class NPCController {
       };
     }
 
+
     return {
+      id: `suspect_${toSlug(result.topicId)}_transaction_${toSlug(this.cityId)}`,
       type: 'suspect',
       category: result.topicId,
       key: 'transaction',

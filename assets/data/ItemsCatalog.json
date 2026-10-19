@@ -248,6 +248,19 @@
         "reveals": "motive"
       }
     },
+    "agencyMissionReport": {
+  "id": "agency_mission_report",
+  "name": "Mission Report",
+  "icon": "📄",
+  "description": "A completed Mark Agency mission report. Submit it to Lieutenant Frank Drebin in the archive.",
+  "type": "document",
+  "stackable": false,
+  "metadata": {
+    "source": "office",
+    "purpose": "archive_submission",
+    "recipientNpcId": "archivist_drebin"
+  }
+},
     "photograph": {
       "id": "doc_photograph",
       "name": "Family Photograph",
@@ -354,6 +367,19 @@
       "metadata": {
         "purpose": "navigation"
       }
-    }
+    },
+    "fieldKit":{
+  "id": "misc_field_kit",
+  "name": "Field Kit",
+  "icon": "🧰",
+  "description": "Emergency investigation supplies. Slightly legal.",
+  "type": "tool",
+  "quantity": 2,
+  "stackable": true,
+  "metadata": {
+    "source": "holly_intro_choice",
+    "usableFor": ["crime_scene", "forensics", "investigation"]
+  }
+}
   }
 }

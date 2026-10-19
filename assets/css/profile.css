@@ -1,214 +1,875 @@
-:root {
-  /* Paleta barw Mad TV / Retro Broadcast */
-  --bg-dark: #0a0c14;
-  --card-bg: #141824;
-  --screen-glow: rgba(0, 229, 255, 0.15);
-  --tv-yellow: #ffd000;
-  --tv-cyan: #00e5ff;
-  --tv-magenta: #ff0055;
-  --text-main: #e0e6f0;
-  --border-glow: #2d3854;
-  --font-title: 'PressStart2P', monospace;
-  --font-body: 'VT323', 'Courier New', monospace;
+/* =========================================================
+   MARK AGENCY — PERSONNEL DOSSIER
+   Indiana Jones / Mad TV / Lost Atlantis aesthetic
+   ========================================================= */
+
+/* ─── Google Fonts ─────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Special+Elite&display=swap');
+
+/* ─── Variables ─────────────────────────────────────────── */
+#profile-modal {
+  --pf-leather:        #2b1a0f;
+  --pf-leather-mid:    #3d2512;
+  --pf-leather-rim:    #1a0e07;
+  --pf-leather-shine:  #5c3620;
+
+  --pf-paper:          #f2e8ce;
+  --pf-paper-dark:     #dfd0aa;
+  --pf-paper-line:     rgba(100, 75, 40, 0.16);
+
+  --pf-ink:            #1e130a;
+  --pf-ink-muted:      #5a4530;
+
+  --pf-gold:           #c9970e;
+  --pf-gold-dim:       #7a5a10;
+
+  --pf-crimson:        #7a1f22;
+  --pf-crimson-bright: #a82a2d;
+  --pf-crimson-dark:   #4d1012;
+
+  --pf-danger:         #c0392b;
+  --pf-danger-border:  #8c3030;
+
+  --pf-green:          #2e5a28;
+
+  --pf-title-font: 'Press Start 2P', monospace;
+  --pf-body-font:  'Special Elite', 'Courier New', monospace;
 }
 
-/* Nakładka modalna z subtelnym przyciemnieniem studia */
-.detective-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(6, 8, 15, 0.88);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: center;
+/* ─── Box sizing ────────────────────────────────────────── */
+#profile-modal,
+#profile-modal *,
+#profile-modal *::before,
+#profile-modal *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   OVERLAY
+   ========================================================= */
+
+#profile-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+
+  /* NIE ustawiamy display !important — JS musi móc ustawić display: none */
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+
+  width: 100% !important;
+  height: 100% !important;
+
   padding: 20px;
-  box-sizing: border-box;
-}
 
-/* Obudowa monitora / Panel sterowania stacji */
-.detective-form {
-  position: relative;
-  width: 100%;
-  max-width: 460px;
-  background: var(--card-bg);
-  border: 3px solid var(--tv-cyan);
-  border-radius: 8px;
-  box-shadow: 
-    0 0 20px rgba(0, 229, 255, 0.25),
-    inset 0 0 30px rgba(0, 0, 0, 0.8);
-  padding: 35px 28px 28px;
-  color: var(--text-main);
-  font-family: var(--font-body);
-  box-sizing: border-box;
+  background: rgba(5, 3, 1, 0.92) !important;
+  backdrop-filter: blur(6px);
+
   overflow: hidden;
+  pointer-events: auto !important;
 }
 
-/* Efekt paska telewizyjnego (CRT Scanlines) */
-.detective-form::after {
-  content: " ";
+/* =========================================================
+   DOSSIER PANEL — leather frame + aged paper interior
+   ========================================================= */
+
+#profile-modal .detective-form {
+  position: relative;
+
+  /* 2-column grid: left = agent data, right = stats */
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) minmax(300px, 3fr);
+  grid-template-rows: auto auto auto auto auto auto auto auto auto;
+  /* rows: h2 | info×5 | diff-desc | stats(span) | btn | danger */
+
+  width: 100%;
+  max-width: 1100px;
+  max-height: calc(100vh - 40px);
+  min-height: 0;
+
+  /* Aged paper */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 27px,
+      var(--pf-paper-line) 27px,
+      var(--pf-paper-line) 28px
+    ),
+    linear-gradient(168deg,
+      #faf3dd 0%,
+      var(--pf-paper) 45%,
+      var(--pf-paper-dark) 100%
+    );
+
+  /* Leather frame */
+  border: 7px solid var(--pf-leather-rim);
+  border-top: 10px solid var(--pf-leather-shine);
+  border-radius: 4px;
+
+  box-shadow:
+    0 0 0 2px var(--pf-leather),
+    0 0 0 3px var(--pf-leather-shine),
+    0 28px 80px rgba(0, 0, 0, 0.85),
+    inset 0 0 80px rgba(100, 70, 20, 0.08);
+
+  font-family: var(--pf-body-font);
+  color: var(--pf-ink);
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--pf-leather-shine) var(--pf-leather-rim);
+}
+
+/* Stitching decoration inside the leather border */
+#profile-modal .detective-form::before {
+  content: '';
   position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
-  background-size: 100% 4px;
-  z-index: 2;
+  inset: 8px;
+  border: 1px dashed rgba(200, 160, 80, 0.18);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All direct children above the texture */
+#profile-modal .detective-form > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================================================
+   HEADER (row 1, full width)
+   ========================================================= */
+
+#profile-modal .detective-form h2 {
+  position: relative;
+
+  grid-column: 1 / -1;
+  grid-row: 1;
+
+  margin: 0;
+  padding: 18px 60px 16px 28px;
+
+  color: var(--pf-crimson-dark);
+
+  background: linear-gradient(180deg,
+    rgba(255, 248, 220, 0.65) 0%,
+    rgba(220, 195, 140, 0.25) 100%
+  );
+
+  border-bottom: 3px double var(--pf-crimson);
+  border-radius: 0;
+
+  font-family: var(--pf-body-font);
+  font-size: clamp(20px, 2.4vw, 34px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* Subtitle line above the title */
+#profile-modal .detective-form h2::before {
+  content: 'MARK AGENCY  ·  INTERNAL RECORD  ·  CONFIDENTIAL';
+
+  display: block;
+  margin-bottom: 8px;
+
+  color: var(--pf-ink-muted);
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(6px, 0.6vw, 8px);
+  line-height: 1.6;
+  letter-spacing: 0.09em;
+  text-shadow: none;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+/* Rotated stamp — TOP SECRET */
+#profile-modal .detective-form h2::after {
+  content: 'TOP SECRET';
+
+  position: absolute;
+  top: 20px;
+  right: 62px;
+
+  padding: 4px 9px;
+
+  color: var(--pf-crimson-bright);
+  border: 2px solid var(--pf-crimson-bright);
+  border-radius: 2px;
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(5px, 0.55vw, 7px);
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-shadow: none;
+
+  opacity: 0.78;
+  transform: rotate(2.8deg);
+  transform-origin: center;
+}
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+#profile-modal .modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  padding: 0;
+
+  color: #e8d8b0;
+  background: var(--pf-leather-mid);
+  border: 2px solid var(--pf-leather-shine);
+  border-radius: 3px;
+
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: normal;
+  line-height: 1;
+
+  cursor: pointer;
+  z-index: 10;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+
+  transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+#profile-modal .modal-close:hover {
+  color: #fff8e0;
+  background: var(--pf-crimson);
+  border-color: var(--pf-crimson-bright);
+  transform: scale(1.07);
+}
+
+#profile-modal button:focus-visible {
+  outline: 2px solid var(--pf-gold);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   LEFT COLUMN — profile-info rows
+   ========================================================= */
+
+#profile-modal .profile-info {
+  grid-column: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+
+  min-width: 0;
+  margin: 0;
+  padding: 13px 18px 13px 28px;
+
+  border-bottom: 1px solid rgba(100, 70, 30, 0.18);
+}
+
+#profile-modal .profile-info strong {
+  flex: none;
+  color: var(--pf-ink-muted);
+  font-family: var(--pf-title-font);
+  font-size: clamp(6px, 0.6vw, 8px);
+  font-weight: normal;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+
+#profile-modal .profile-info span {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--pf-ink);
+  font-family: var(--pf-body-font);
+  font-size: clamp(17px, 1.5vw, 22px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+#profile-modal #profile-alias {
+  color: var(--pf-crimson-dark);
+  font-size: clamp(21px, 1.9vw, 28px);
+  font-weight: 700;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+#profile-modal #profile-codename {
+  font-size: clamp(15px, 1.3vw, 19px);
+  font-style: italic;
+}
+
+#profile-modal #profile-rank {
+  color: var(--pf-crimson);
+}
+
+#profile-modal #profile-points {
+  font-family: var(--pf-title-font);
+  font-size: clamp(12px, 1vw, 15px);
+  line-height: 1.9;
+  color: var(--pf-gold-dim);
+}
+
+#profile-modal .profile-difficulty span {
+  color: var(--pf-green);
+  font-size: clamp(13px, 1.1vw, 16px);
+  font-weight: 700;
+}
+
+#profile-modal .profile-difficulty-description {
+  grid-column: 1;
+
+  margin: 0;
+  padding: 10px 18px 14px 28px;
+
+  color: var(--pf-ink-muted);
+  font-family: var(--pf-body-font);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.65;
+}
+
+/* =========================================================
+   RIGHT COLUMN — Field Assessment
+   Darker aged paper insert, spans all data rows
+   ========================================================= */
+
+#profile-modal .profile-stats-section {
+  grid-column: 2;
+  grid-row: 2 / 9;
+
+  align-self: stretch;
+  min-width: 0;
+
+  padding: 20px 28px 20px 22px;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 27px,
+      rgba(100, 70, 30, 0.13) 27px,
+      rgba(100, 70, 30, 0.13) 28px
+    ),
+    linear-gradient(170deg,
+      #ece0bf 0%,
+      #ddd0a8 55%,
+      #d3c390 100%
+    );
+
+  border-left: 3px solid rgba(90, 55, 25, 0.3);
+  box-shadow: inset 4px 0 16px rgba(100, 65, 20, 0.07);
+}
+
+#profile-modal .profile-stats-section h3 {
+  margin: 0 0 16px;
+
+  color: var(--pf-crimson-dark);
+
+  font-family: var(--pf-body-font);
+  font-size: clamp(15px, 1.3vw, 20px);
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+
+  padding-bottom: 10px;
+  border-bottom: 2px double var(--pf-crimson);
+}
+
+#profile-modal .profile-archetype {
+  margin: 0 0 6px;
+
+  color: var(--pf-crimson-dark);
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(7px, 0.7vw, 9px);
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+#profile-modal .profile-bonus {
+  margin: 0 0 18px;
+  padding: 7px 12px;
+
+  color: var(--pf-ink);
+  background: rgba(200, 160, 80, 0.14);
+  border-left: 3px solid var(--pf-gold);
+  border-radius: 0 2px 2px 0;
+
+  font-family: var(--pf-body-font);
+  font-size: clamp(13px, 1.1vw, 16px);
+  line-height: 1.5;
+}
+
+/* =========================================================
+   STAT CARDS
+   ========================================================= */
+
+#profile-modal .profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+#profile-modal .profile-stat {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+
+  min-width: 0;
+  min-height: 130px;
+  padding: 13px 12px;
+
+  background: linear-gradient(145deg,
+    rgba(255, 248, 225, 0.6) 0%,
+    rgba(220, 200, 155, 0.4) 100%
+  );
+
+  border: 1px solid rgba(100, 75, 35, 0.32);
+  border-radius: 3px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 2px 6px rgba(100, 65, 20, 0.09);
+}
+
+/* Paper line texture on card */
+#profile-modal .profile-stat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 17px,
+    rgba(100, 75, 35, 0.07) 17px,
+    rgba(100, 75, 35, 0.07) 18px
+  );
   pointer-events: none;
 }
 
-/* Belka transmisji / Nagłówek kanalu */
-.detective-form::before {
-  content: 'LIVE BROADCAST // CH-04';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: var(--tv-cyan);
-  color: var(--bg-dark);
-  font-family: var(--font-title);
-  font-size: 10px;
-  padding: 4px 12px;
-  font-weight: bold;
-  letter-spacing: 1px;
+#profile-modal .profile-stat.has-profile-bonus {
+  background: linear-gradient(145deg,
+    rgba(255, 245, 200, 0.75) 0%,
+    rgba(220, 185, 100, 0.55) 100%
+  );
+  border-color: var(--pf-gold);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 2px 8px rgba(180, 130, 20, 0.18);
+}
+
+#profile-modal .profile-stat-name {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+
+  color: var(--pf-ink-muted);
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(6px, 0.6vw, 8px);
+  font-weight: normal;
+  line-height: 1.5;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
-/* Przycisk zamknięcia - Retro X */
-.modal-close {
-  position: absolute;
-  top: 16px;
-  right: 15px;
-  background: transparent;
-  border: none;
-  color: var(--tv-magenta);
-  font-family: var(--font-title);
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 3;
-  transition: all 0.2s ease;
+#profile-modal .profile-stat-value {
+  position: relative;
+  z-index: 1;
+  margin: 10px 0 6px;
+
+  color: var(--pf-crimson-dark);
+
+  font-family: var(--pf-body-font);
+  font-size: clamp(32px, 3.2vw, 46px);
+  font-weight: 700;
+  line-height: 1.1;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-.modal-close:hover {
-  color: #fff;
-  text-shadow: 0 0 8px var(--tv-magenta);
-  transform: scale(1.1);
+#profile-modal .has-profile-bonus .profile-stat-value {
+  color: var(--pf-gold-dim);
 }
 
-/* Tytuł nagłówkowy */
-.detective-form h2 {
-  font-family: var(--font-title);
-  font-size: 15px;
-  color: var(--tv-yellow);
-  margin: 15px 0 20px 0;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
-  border-bottom: 2px dashed var(--border-glow);
-  padding-bottom: 12px;
+#profile-modal .profile-stat-breakdown {
+  position: relative;
+  z-index: 1;
+  margin: auto 0 0;
+
+  color: var(--pf-ink-muted);
+
+  font-family: var(--pf-body-font);
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.5;
 }
 
-/* Wiersze statystyk / Dane ekranowe */
-.profile-info {
-  display: flex;
-  justify-content: space-between;
+#profile-modal .has-profile-bonus .profile-stat-breakdown {
+  color: var(--pf-gold-dim);
+}
+
+#profile-modal .profile-stats-note {
+  margin: 14px 0 0;
+  color: var(--pf-ink-muted);
+  font-family: var(--pf-body-font);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+#profile-modal [hidden] {
+  display: none !important;
+}
+
+/* =========================================================
+   LOG OUT BUTTON (row 9, left column)
+   ========================================================= */
+
+#profile-modal .btn-stamp {
+  grid-column: 1;
+  grid-row: 9;
+
+  justify-self: start;
+
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 10px;
-  font-size: 18px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px 10px;
-  border-left: 3px solid var(--tv-cyan);
-}
+  justify-content: center;
+  gap: 8px;
 
-.profile-info strong {
-  color: #8a9bbd;
+  width: auto;
+  min-width: 160px;
+  min-height: 44px;
+
+  margin: 16px 0 16px 28px;
+  padding: 0 24px;
+
+  /* Dark leather look */
+  color: #f0e0b8;
+  background: linear-gradient(180deg,
+    var(--pf-leather-shine) 0%,
+    var(--pf-leather)       55%,
+    var(--pf-leather-rim)   100%
+  );
+
+  border: 2px solid var(--pf-leather-rim);
+  border-top-color: var(--pf-leather-shine);
+  border-radius: 3px;
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(7px, 0.65vw, 9px);
+  line-height: 1.6;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 14px;
-  letter-spacing: 1px;
-}
 
-.profile-info span {
-  color: #fff;
-  font-family: var(--font-title);
-  font-size: 11px;
-  color: var(--tv-yellow);
-}
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 140, 0.1),
+    0 3px 8px rgba(0, 0, 0, 0.4);
 
-/* Przycisk akcji / Zatwierdzenie ramki */
-.btn-stamp {
-  display: block;
-  width: 100%;
-  margin-top: 20px;
-  padding: 12px 15px;
-  background: var(--tv-yellow);
-  border: none;
-  color: var(--bg-dark);
-  font-family: var(--font-title);
-  font-size: 11px;
-  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 0 #b39200;
+
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.15s;
 }
 
-.btn-stamp:hover {
-  background: #ffe047;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #b39200, 0 0 15px rgba(255, 208, 0, 0.4);
+#profile-modal .btn-stamp:hover {
+  background: linear-gradient(180deg,
+    #7a4520 0%,
+    #5a3018 55%,
+    #3a1e0a 100%
+  );
+  border-top-color: var(--pf-gold);
+  border-color: var(--pf-gold-dim);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 140, 0.2),
+    0 5px 12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--pf-gold-dim);
 }
 
-.btn-stamp:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #b39200;
+#profile-modal .btn-stamp:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Strefa ostrzegawcza / Zdjęcie programu z anteny */
-.danger-zone {
-  margin-top: 25px;
-  border: 2px solid var(--tv-magenta);
-  background: rgba(255, 0, 85, 0.08);
-  padding: 15px;
-  border-radius: 4px;
+/* =========================================================
+   DANGER ZONE (row 10, full width)
+   ========================================================= */
+
+#profile-modal .danger-zone {
+  grid-column: 1 / -1;
+  grid-row: 10;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 20px;
+  row-gap: 5px;
+  align-items: center;
+
+  margin: 0;
+  padding: 16px 28px;
+
+  background: rgba(120, 20, 20, 0.05);
+  border-top: 2px dashed rgba(120, 40, 40, 0.3);
 }
 
-.danger-zone h3 {
-  color: var(--tv-magenta);
-  font-family: var(--font-title);
-  font-size: 11px;
-  margin: 0 0 8px 0;
+#profile-modal .danger-zone h3 {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+
+  color: var(--pf-crimson);
+
+  font-family: var(--pf-title-font);
+  font-size: clamp(7px, 0.65vw, 9px);
+  font-weight: normal;
+  line-height: 1.5;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.danger-zone-desc {
-  font-size: 15px;
-  line-height: 1.2;
-  color: #d1a3b2;
-  margin: 0 0 12px 0;
+#profile-modal .danger-zone-desc {
+  grid-column: 1;
+  grid-row: 2;
+  max-width: 560px;
+  margin: 0;
+
+  color: var(--pf-ink-muted);
+
+  font-family: var(--pf-body-font);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.6;
 }
 
-/* Przycisk usunięcia / Anulowanie koncesji */
-.btn-danger {
-  width: 100%;
-  background: var(--tv-magenta);
-  color: #ffffff;
-  border: none;
-  padding: 10px;
+#profile-modal .btn-danger {
+  grid-column: 2;
+  grid-row: 1 / 3;
+
+  padding: 11px 16px;
+
+  color: var(--pf-danger);
+  background: transparent;
+  border: 1px solid var(--pf-danger-border);
+  border-radius: 3px;
+
+  font-family: var(--pf-body-font);
+  font-size: 13px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
   cursor: pointer;
-  font-family: var(--font-title);
-  font-size: 10px;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 0 #990033;
+
+  transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.15s;
 }
 
-.btn-danger:hover {
-  background: #ff2a70;
-  box-shadow: 0 4px 12px rgba(255, 0, 85, 0.5);
+#profile-modal .btn-danger:hover {
+  color: #ffe0d8;
+  background: rgba(120, 30, 30, 0.13);
+  border-color: var(--pf-danger);
+  transform: scale(1.02);
 }
 
-.btn-danger:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #990033;
+#profile-modal .btn-danger:active {
+  background: rgba(120, 30, 30, 0.22);
+  transform: scale(0.99);
+}
+
+/* =========================================================
+   ENTRY ANIMATION
+   ========================================================= */
+
+@keyframes pf-enter {
+  from { opacity: 0; transform: scale(0.97) translateY(14px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+#profile-modal:not([style*="none"]) .detective-form {
+  animation: pf-enter 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET  (≤ 820px)
+   ========================================================= */
+
+@media (max-width: 820px) {
+  #profile-modal {
+    padding: 14px;
+  }
+
+  #profile-modal .detective-form {
+    grid-template-columns: minmax(190px, 1.8fr) minmax(260px, 2.5fr);
+  }
+
+  #profile-modal .detective-form h2 {
+    font-size: clamp(17px, 3.5vw, 24px);
+    padding: 14px 52px 12px 20px;
+  }
+
+  #profile-modal .profile-info {
+    padding-left: 20px;
+    padding-right: 14px;
+  }
+
+  #profile-modal .profile-difficulty-description {
+    padding-left: 20px;
+  }
+
+  #profile-modal .btn-stamp {
+    margin-left: 20px;
+  }
+
+  #profile-modal .profile-stats-section {
+    padding: 16px 20px 16px 16px;
+  }
+
+  #profile-modal .profile-stat {
+    min-height: 120px;
+    padding: 11px 10px;
+  }
+
+  #profile-modal .danger-zone {
+    padding: 14px 20px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE  (≤ 640px)
+   ========================================================= */
+
+@media (max-width: 640px) {
+  #profile-modal {
+    padding: 8px;
+  }
+
+  #profile-modal .detective-form {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 16px);
+  }
+
+  #profile-modal .modal-close {
+    top: 14px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  #profile-modal .detective-form h2 {
+    padding: 13px 46px 12px 16px;
+    font-size: clamp(15px, 4.5vw, 22px);
+  }
+
+  #profile-modal .detective-form h2::after {
+    right: 48px;
+    top: 14px;
+    font-size: 5px;
+  }
+
+  #profile-modal .profile-info {
+    padding: 10px 16px;
+    gap: 5px;
+  }
+
+  #profile-modal .profile-difficulty-description {
+    padding: 8px 16px 12px;
+  }
+
+  #profile-modal .profile-stats-section {
+    border-left: 0;
+    border-top: 3px double var(--pf-crimson);
+    padding: 14px 16px;
+  }
+
+  #profile-modal .profile-stats-grid {
+    gap: 8px;
+  }
+
+  #profile-modal .profile-stat {
+    min-height: 120px;
+    padding: 11px 10px;
+  }
+
+  #profile-modal .profile-stat-value {
+    font-size: clamp(28px, 7vw, 38px);
+  }
+
+  #profile-modal .profile-stat-breakdown {
+    font-size: 10px;
+  }
+
+  #profile-modal .btn-stamp {
+    align-self: stretch;
+    width: calc(100% - 32px);
+    justify-content: center;
+    margin: 14px 16px;
+  }
+
+  #profile-modal .danger-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 13px 16px;
+  }
+
+  #profile-modal .btn-danger {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   VERY NARROW  (≤ 350px)
+   ========================================================= */
+
+@media (max-width: 350px) {
+  #profile-modal .profile-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #profile-modal .profile-stat {
+    min-height: 110px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  #profile-modal .detective-form {
+    animation: none;
+  }
+
+  #profile-modal button {
+    transition: none;
+  }
 }

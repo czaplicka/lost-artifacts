@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "npcs": [
+    {
+      "npcId": "archivist_drebin",
+      "name": "Lieutenant Frank Drebin",
+      "role": "Archivist",
+      "defaultVisible": false
+    },
+    {
+      "npcId": "supervisor_gordon",
+      "name": "Commissioner Gordon",
+      "role": "Supervisor",
+      "defaultVisible": true
+    },
+    {
+      "npcId": "partner_murphy",
+      "name": "Alex Murphy",
+      "role": "Inventory Officer",
+      "defaultVisible": true
+    },
+    {
+      "npcId": "doctor_lecter",
+      "name": "Dr. Hannibal Lecter",
+      "role": "Doctor",
+      "defaultVisible": false
+    },
+    {
+      "npcId": "hr_gunderson",
+      "name": "Marge Gunderson",
+      "role": "Human Resources",
+      "defaultVisible": false
+    }
+  ],
+  "schedule": [
+    {
+      "casesSolved": 1,
+      "changes": [
+        {
+          "npcId": "archivist_drebin",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "casesSolved": 2,
+      "changes": [
+        {
+          "npcId": "archivist_drebin",
+          "visible": false
+        }
+      ]
+    },
+    {
+      "casesSolved": 3,
+      "changes": [
+        {
+          "npcId": "archivist_drebin",
+          "visible": true
+        }
+      ]
+    },
+    {
+      "casesSolved": 4,
+      "changes": []
+    }
+  ]
+}

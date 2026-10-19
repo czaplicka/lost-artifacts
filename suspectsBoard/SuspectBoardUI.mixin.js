@@ -295,30 +295,15 @@ export const SuspectBoardUIMixin = {
     });
   },
 
-  createExclusionControls() {
+    createExclusionControls() {
     const { width, height } = this.scale;
 
-    this.exclusionButton = this.createUiButton({
-      x: width / 2 - 145,
-      y: height - 28,
-      width: 235,
-      height: 38,
-      label: '[ EXCLUDE MODE ]',
-      fontSize: '9px',
-      depth: 30,
-      normalFill: 0x3d261c,
-      hoverFill: 0x6a3928,
-      normalColor: '#ffd09b',
-      hoverColor: '#ffffff',
-      activeFill: 0xa7352c,
-      activeColor: '#fff2dd',
-      onClick: () => this.toggleExcludeMode()
-    });
+    this.exclusionButton = null;
 
     this.continueButton = this.createUiButton({
-      x: width / 2 + 145,
+      x: width / 2,
       y: height - 28,
-      width: 250,
+      width: 300,
       height: 38,
       label: '[ EVIDENCE GRID ]',
       fontSize: '9px',
@@ -386,8 +371,7 @@ export const SuspectBoardUIMixin = {
     this.pageText.setPosition(126, height - 28);
     this.closeButton.setPosition(width - 94, height - 28);
 
-    this.exclusionButton?.setPosition(width / 2 - 145, height - 28);
-    this.continueButton?.setPosition(width / 2 + 145, height - 28);
+    this.continueButton?.setPosition(width / 2, height - 28);
 
     this.updateExclusionControls();
     this.refreshBoard();

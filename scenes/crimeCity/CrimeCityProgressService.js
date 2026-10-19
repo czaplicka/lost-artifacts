@@ -3,6 +3,7 @@ import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { getUnifiedTravelManager } from '../../managers/UnifiedTravelManager.js';
 
+
 const ENERGY_BASE_COSTS = {
   travel: {
     taxi: 3
@@ -13,59 +14,77 @@ const ENERGY_BASE_COSTS = {
   }
 };
 
+
+const ALIBI_DEBUNKED_STATUS = 'contradicted';
+
+
 export class CrimeCityProgressService {
   constructor(scene) {
     this.scene = scene;
   }
 
+
   getCaseKey() {
     const mission =
       gameState.currentMission || {};
 
+
     return String(
       mission.id ||
       mission.caseId ||
-      `${this.scene.cityId}_${mission.artifact || 'default'}`
+      `${this.scene?.cityId}_${mission.artifact || 'default'}`
     );
   }
+
 
   getCrimeSceneVisitKey() {
     const mission =
       gameState.currentMission || {};
 
+
     const sceneId =
       mission.scene || 'unknown_scene';
 
+
     const missionId = mission.id;
+
 
     const missionCity =
       mission.city ||
-      this.scene.cityId ||
+      this.scene?.cityId ||
       'unknown';
+
 
     const artifact =
       mission.artifact ||
       gameState.currentArtifact ||
       'artifact';
 
+
     if (missionId) {
       return `${sceneId}_${missionId}`;
     }
 
+
     return `${sceneId}_${missionCity}_${artifact}`;
   }
+
 
   getCrimeCityProgress() {
     const caseKey = this.getCaseKey();
 
+
     gameState.crimeCityProgress ??= {};
     gameState.crimeCityProgress[caseKey] ??= {};
+
 
     return gameState.crimeCityProgress[caseKey];
   }
 
+
   initializeCurrentNode() {
     const caseKey = this.getCaseKey();
+
 
     if (
       !gameState.crimeCityCurrentNodes ||
@@ -74,21 +93,26 @@ export class CrimeCityProgressService {
       gameState.crimeCityCurrentNodes = {};
     }
 
+
     if (!gameState.crimeCityCurrentNodes[caseKey]) {
       gameState.crimeCityCurrentNodes[caseKey] = 'arrival';
     }
 
+
     return gameState.crimeCityCurrentNodes[caseKey];
   }
 
+
   getCurrentNode() {
     const caseKey = this.getCaseKey();
+
 
     return (
       gameState.crimeCityCurrentNodes?.[caseKey] ||
       'arrival'
     );
   }
+
 
   moveToCrimeCityNode(
     targetNodeId,
@@ -99,14 +123,18 @@ export class CrimeCityProgressService {
         '[CrimeCityProgressService] Missing target node ID.'
       );
 
+
       return false;
     }
 
+
     const caseKey = this.getCaseKey();
+
 
     const currentNodeId =
       gameState.crimeCityCurrentNodes?.[caseKey] ||
       'arrival';
+
 
     /*
      * Remaining in the same location should not cost energy.
@@ -115,19 +143,25 @@ export class CrimeCityProgressService {
       return true;
     }
 
+
     if (!this.trySpendEnergy('travel', transportType)) {
       return false;
     }
 
+
     gameState.crimeCityCurrentNodes ??= {};
+
 
     gameState.crimeCityCurrentNodes[caseKey] =
       targetNodeId;
 
+
     saveGameState();
+
 
     return true;
   }
+
 
   hasPaidCrimeLabEntry() {
     return Boolean(
@@ -135,38 +169,48 @@ export class CrimeCityProgressService {
     );
   }
 
+
   payCrimeLabEntryOnce() {
     const progress = this.getCrimeCityProgress();
+
 
     if (progress.crimeLabEntryPaid) {
       return true;
     }
+
 
     const paidSuccessfully = this.trySpendEnergy(
       'activity',
       'csi_lab'
     );
 
+
     if (!paidSuccessfully) {
       return false;
     }
 
+
     progress.crimeLabEntryPaid = true;
     progress.crimeLabEntryPaidAt = Date.now();
 
+
     saveGameState();
+
 
     return true;
   }
+
 
   isCrimeSceneCompleted() {
     const visitKey =
       this.getCrimeSceneVisitKey();
 
+
     return Boolean(
       gameState.specialScenesCompleted?.[visitKey]
     );
   }
+
 
   isCrimeLabCompleted() {
     return Boolean(
@@ -174,12 +218,15 @@ export class CrimeCityProgressService {
     );
   }
 
+
   isGridCompleted() {
     const caseKey = this.getCaseKey();
+
 
     const reconstruction =
       gameState.reconstructedHeists?.[caseKey] ||
       gameState.reconstructedHeist;
+
 
     return Boolean(
       reconstruction &&
@@ -188,51 +235,124 @@ export class CrimeCityProgressService {
     );
   }
 
+
+  /**
+   * Alibi jest obalone, gdy gracz poprawnie rozwiązał zagadkę osi czasu
+   * (resolveAlibiTimelineSuccess ustawia deductionState.alibiStatus).
+   */
+  isAlibiDebunked(suspectId) {
+    if (!suspectId) {
+      return false;
+    }
+
+
+    const suspects = Array.isArray(gameState.caseSuspects)
+      ? gameState.caseSuspects
+      : [];
+
+
+    const suspect = suspects.find(
+      item => item?.id === suspectId
+    );
+
+
+    return suspect?.deductionState?.alibiStatus === ALIBI_DEBUNKED_STATUS;
+  }
+
+
+  hasAnyDebunkedAlibi() {
+    const suspects = Array.isArray(gameState.caseSuspects)
+      ? gameState.caseSuspects
+      : [];
+
+
+    return suspects.some(
+      suspect =>
+        suspect?.deductionState?.alibiStatus === ALIBI_DEBUNKED_STATUS
+    );
+  }
+
+
   trySpendEnergy(category, key) {
-  const energyManager = getEnergyManager();
+    const energyManager = getEnergyManager();
 
-  if (category === 'travel') {
-    const travelManager = getUnifiedTravelManager();
-    const rule = travelManager.getTransportRule(key);
-    
-    if (!rule) {
-      console.error('[CrimeCityProgressService] Unknown transport type for travel energy.', { key });
-      return false;
+
+    if (category === 'travel') {
+      const travelManager = getUnifiedTravelManager();
+      const rule = travelManager.getTransportRule(key);
+
+
+      if (!rule) {
+        console.error(
+          '[CrimeCityProgressService] Unknown transport type for travel energy.',
+          { key }
+        );
+
+
+        return false;
+      }
+
+
+      // Koszt bazowy to próbka jednej godziny podróży.
+      const baseEnergyCost = Math.max(
+        2,
+        Math.round(1 * rule.energyPerHour)
+      );
+
+
+      const cost = energyManager.scaleCost(baseEnergyCost);
+
+
+      if (energyManager.getCurrentEnergy() < cost) {
+        this.scene?.showNoEnergyPopup();
+        return false;
+      }
+
+
+      energyManager.consumeCustom(
+        cost,
+        `Travel (${key}): -${cost}`
+      );
+
+
+      saveGameState();
+      return true;
     }
 
-    const baseEnergyCost = Math.max(2, Math.round(1 * rule.energyPerHour)); // 1h sample
-    const cost = energyManager.scaleCost(baseEnergyCost);
 
-    if (energyManager.getCurrentEnergy() < cost) {
-      this.scene.showNoEnergyPopup();
-      return false;
+    if (category === 'activity') {
+      const baseCost = ENERGY_BASE_COSTS[category]?.[key];
+
+
+      if (!Number.isFinite(baseCost)) {
+        console.error(
+          '[CrimeCityProgressService] Unknown energy cost.',
+          { category, key }
+        );
+
+
+        return false;
+      }
+
+
+      const cost = energyManager.scaleCost(baseCost);
+
+
+      if (energyManager.getCurrentEnergy() < cost) {
+        this.scene?.showNoEnergyPopup();
+        return false;
+      }
+
+
+      energyManager.consumeActivity(key);
+      saveGameState();
+      return true;
     }
 
-    energyManager.consumeCustom(cost, `Travel (${key}): -${cost}`);
-    saveGameState();
-    return true;
+
+    return false;
   }
 
-  if (category === 'activity') {
-    const baseCost = ENERGY_BASE_COSTS[category]?.[key];
-    if (!Number.isFinite(baseCost)) {
-      console.error('[CrimeCityProgressService] Unknown energy cost.', { category, key });
-      return false;
-    }
-
-    const cost = energyManager.scaleCost(baseCost);
-    if (energyManager.getCurrentEnergy() < cost) {
-      this.scene.showNoEnergyPopup();
-      return false;
-    }
-
-    energyManager.consumeActivity(key);
-    saveGameState();
-    return true;
-  }
-
-  return false;
-}
 
   destroy() {
     this.scene = null;

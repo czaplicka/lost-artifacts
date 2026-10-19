@@ -1,4 +1,5 @@
 import { gameState } from '../GameData.js';
+import { EventBus } from '../EventBus.js';
 import { PlayerMenuUI } from '../ui/PlayerMenuUI.js';
 import { CaseFileUI } from '../ui/CaseFileUI.js';
 import { NotesUI } from '../ui/NotesUI.js';
@@ -9,342 +10,295 @@ import { AtlasUI } from '../ui/AtlasUI.js';
 import { PhonebookUI } from '../ui/PhonebookUI.js';
 import { PassportUI } from '../ui/PassportUI.js';
 import { DialogManager } from '../dialogues/DialogManager.js';
-import { BaseScene } from './BaseScene.js';
 import { InventoryPanelUI } from '../ui/InventoryPanelUI.js';
+import { BaseScene } from './BaseScene.js';
 
-const HUD_ALLOWED_SCENES = [
-  'GameScene',
-  'OfficeScene',
-  'CityScene',
-  'CrimeCityScene',
-  'LocationScene',
-  'HiddenObjectsScene',
-  'CrimeLabScene',
-  'InventoryScene',
-  'HotelScene',
+const HUD_ALLOWED_SCENES = new Set([
+  'GameScene', 'OfficeScene', 'CityScene', 'CrimeCityScene',
+  'LocationScene', 'HiddenObjectsScene', 'CrimeLabScene',
+  'InventoryScene', 'HotelScene', 'ShopScene'
+]);
+const HUD_OVERLAY_SCENES = new Set(['PlayerHudScene', 'NewsHud']);
+const CRIME_BOARD_ALLOWED_SCENES = new Set(['OfficeScene', 'HotelScene']);
+const PANEL_STATE_EVENT = 'hud:panel-state-changed';
+const PANEL_NAMES = [
+  'caseFileUI', 'notesUI', 'warrantUI', 'destinationsUI', 'playerMenu',
+  'crimeBoardUI', 'atlasUI', 'phoneUI', 'passportUI', 'dialogManager', 'inventoryUI'
 ];
-
-const HUD_OVERLAY_SCENES = [
-  'PlayerHudScene',
-  'NewsHud',
-];
-
-const CRIME_BOARD_ALLOWED_SCENES = [
-  'OfficeScene',
-  'HotelScene',
+const HOTKEY_PANELS = [
+  'playerMenu', 'caseFileUI', 'notesUI', 'warrantUI', 'destinationsUI',
+  'crimeBoardUI', 'atlasUI', 'phoneUI', 'inventoryUI'
 ];
 
 export class PlayerHudScene extends BaseScene {
   constructor() {
     super({ key: 'PlayerHudScene' });
-
     this.gameState = gameState;
-
-    this.caseFileUI = null;
-    this.notesUI = null;
-    this.warrantUI = null;
-    this.destinationsUI = null;
-    this.playerMenu = null;
-    this.crimeBoardUI = null;
-    this.atlasUI = null;
-    this.phoneUI = null;
-    this.passportUI = null;
-    this.dialogManager = null;
-    this.inventoryUI = null;
-
     this.isHudReady = false;
-
-    /*
-     * To nie jest wykrywane automatycznie przez SceneManager.
-     * CrimeCityScene może pozostawać aktywne pod HotelScene,
-     * więc sceny gameplayowe same ustawiają tę wartość.
-     */
     this.currentGameplaySceneKey = null;
-
-    this.onGlobalSceneStart = this.onGlobalSceneStart.bind(this);
-    this.onGlobalSceneWake = this.onGlobalSceneWake.bind(this);
+    this._allowPanelCreation = false;
+    this._creatingPanels = new Set();
+    this._panelInstances = new Map();
+    this._observedPanels = new WeakSet();
+    this._propertyRestorers = [];
+    this._fallbackTimer = null;
+    this._lastPanelState = null;
+    this._sleepStoryInFlight = false;
+    for (const name of PANEL_NAMES) {
+      Object.defineProperty(this, name, {
+        configurable: true, enumerable: true, get: () => this._getPanel(name)
+      });
+    }
   }
-
   create() {
     super.create();
-
+    this.gameState = gameState;
+    this.isHudReady = false;
+    this.currentGameplaySceneKey = null;
+    this._lastPanelState = null;
+    this._sleepStoryInFlight = false;
+    this._allowPanelCreation = true;
     this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
-
-    const atlasEntries = this.cache.json.get('atlas') || [];
-
-    this.caseFileUI = new CaseFileUI(this);
-    this.notesUI = new NotesUI(this);
-    this.warrantUI = new WarrantUI(this);
-    this.destinationsUI = new DestinationsUI(this);
-    this.atlasUI = new AtlasUI(this, atlasEntries);
-    this.phoneUI = new PhonebookUI(this, this.gameState);
-    this.passportUI = new PassportUI(this);
-    this.dialogManager = new DialogManager(
-      this,
-      this.gameState,
-    );
-
-    this.phoneUI.setOnCall((key, contact) => {
-      this.dialogManager.startDialog(key, contact);
-    });
-
-    this.playerMenu = new PlayerMenuUI(
-      this,
-      this.gameState,
-    );
-
-    this.crimeBoardUI = new CrimeBoardUI(this);
-
-    this.inventoryUI = new InventoryPanelUI(this);
-    this.inventoryUI.create();
-
+    this.events.off(Phaser.Scenes.Events.WAKE, this.onWake, this);
+    this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+    this.events.off(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
+    this.events.on(Phaser.Scenes.Events.WAKE, this.onWake, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+    this.events.once(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
+    this.onBus('firstForcedSleepStory', this._handleFirstForcedSleepStory, this);
+    for (const name of HOTKEY_PANELS) this._getPanel(name);
     this.isHudReady = true;
-
     this.scene.setVisible(true);
     this.scene.bringToTop();
-
-    if (this.game?.events) {
-      this.game.events.on(
-        Phaser.Scenes.Events.START,
-        this.onGlobalSceneStart,
-      );
-
-      this.game.events.on(
-        Phaser.Scenes.Events.WAKE,
-        this.onGlobalSceneWake,
-      );
-    }
-
-    this.events.on(
-      Phaser.Scenes.Events.WAKE,
-      this.onWake,
-      this,
-    );
-
-    this.events.on(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.onShutdown,
-      this,
-    );
-
-    this.events.on(
-      Phaser.Scenes.Events.DESTROY,
-      this.onShutdown,
-      this,
-    );
-
-    /*
-     * Gdy HUD zostanie utworzony po scenie gameplayowej,
-     * dana scena musi ponownie wywołać setCurrentGameplayScene()
-     * po await ensurePlayerHud().
-     */
     this.updateCrimeBoardMenuAvailability();
+    this._emitPanelStateChanged(true);
+    this.events.emit('hud-ready', this);
   }
-
-  onGlobalSceneStart(sys) {
-    const sceneKey = sys?.settings?.key;
-
-    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
+  async _handleFirstForcedSleepStory(payload = {}) {
+    if (this._cleanupDone || this._sleepStoryInFlight) return;
+    const sceneKey = payload.sceneKey || 'HollyIntroScene';
+    if (!this.hasScene(sceneKey)) {
+      console.warn(`[PlayerHudScene] Story scene "${sceneKey}" is not registered.`);
       return;
     }
-
-    /*
-     * Nie zmieniamy tutaj currentGameplaySceneKey.
-     *
-     * START może należeć do sceny pod spodem, do przejścia
-     * albo do pomocniczej sceny. Kontekst gameplayu ustawia
-     * wyłącznie setCurrentGameplayScene(), wywołane przez
-     * OfficeScene / HotelScene / CrimeCityScene itd.
-     */
-  }
-
-  onGlobalSceneWake(sys) {
-    const sceneKey = sys?.settings?.key;
-
-    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
-      return;
+    if (this.isSceneRunning(sceneKey)) {
+      this.bringSceneToTopIfActive(sceneKey); return;
     }
-
-    /*
-     * Tak samo jak przy START: nie zgadujemy sceny gameplayowej
-     * na podstawie WAKE, ponieważ stos scen może zawierać sceny
-     * pod spodem oraz overlaye.
-     */
+    this._sleepStoryInFlight = true;
+    try {
+      this.closeAllUIPanels();
+      await this.launchStoryOverlay(sceneKey, { ...payload, source: 'forced_sleep' });
+    } catch (error) {
+      console.warn('[PlayerHudScene] Failed to launch sleep story:', error);
+    } finally { this._sleepStoryInFlight = false; }
   }
-
+  _getPanel(name) {
+    if (this._panelInstances.has(name)) return this._panelInstances.get(name);
+    if (!this._allowPanelCreation || this._cleanupDone) return null;
+    if (this._creatingPanels.has(name)) {
+      console.warn(`[PlayerHudScene] Recursive panel construction: "${name}".`);
+      return null;
+    }
+    this._creatingPanels.add(name);
+    try {
+      const panel = this._createPanel(name);
+      if (!panel) return null;
+      this._panelInstances.set(name, panel);
+      if (name === 'dialogManager') this._observeDialogManager(panel);
+      else this._observePanel(panel, name);
+      if (name === 'inventoryUI') panel.create();
+      if (name === 'phoneUI') {
+        panel.setOnCall((key, contact) => this.dialogManager?.startDialog(key, contact));
+      }
+      if (name === 'playerMenu') panel.setCrimeBoardAvailable?.(this.isCrimeBoardAvailable());
+      this._emitPanelStateChanged();
+      return panel;
+    } finally { this._creatingPanels.delete(name); }
+  }
+  _createPanel(name) {
+    switch (name) {
+      case 'caseFileUI': return new CaseFileUI(this);
+      case 'notesUI': return new NotesUI(this);
+      case 'warrantUI': return new WarrantUI(this);
+      case 'destinationsUI': return new DestinationsUI(this);
+      case 'playerMenu': return new PlayerMenuUI(this, this.gameState);
+      case 'crimeBoardUI': return new CrimeBoardUI(this);
+      case 'atlasUI': return new AtlasUI(this, this.cache.json.get('atlas') || []);
+      case 'phoneUI': return new PhonebookUI(this, this.gameState);
+      case 'passportUI': return new PassportUI(this);
+      case 'dialogManager': return new DialogManager(this, this.gameState);
+      case 'inventoryUI': return new InventoryPanelUI(this);
+      default: return null;
+    }
+  }
+  _observeProperty(object, key, onChange) {
+    const descriptor = Object.getOwnPropertyDescriptor(object, key);
+    if (descriptor && (!descriptor.configurable ||
+      !Object.prototype.hasOwnProperty.call(descriptor, 'value') || !descriptor.writable)) return false;
+    if (!descriptor) {
+      let prototype = Object.getPrototypeOf(object);
+      while (prototype) {
+        if (Object.getOwnPropertyDescriptor(prototype, key)) return false;
+        prototype = Object.getPrototypeOf(prototype);
+      }
+    }
+    let value = object[key];
+    Object.defineProperty(object, key, {
+      configurable: true, enumerable: descriptor?.enumerable ?? true,
+      get() { return value; },
+      set(nextValue) {
+        const previous = value; value = nextValue;
+        if (previous !== nextValue) onChange(nextValue, previous);
+      }
+    });
+    this._propertyRestorers.push(() => {
+      Object.defineProperty(object, key, descriptor
+        ? { ...descriptor, value }
+        : { configurable: true, enumerable: true, writable: true, value });
+    });
+    return true;
+  }
+  _observePanel(panel, name) {
+    if (!panel || this._observedPanels.has(panel)) return;
+    this._observedPanels.add(panel);
+    if (!this._observeProperty(panel, 'isOpen', () => this._emitPanelStateChanged())) {
+      console.warn(`[PlayerHudScene] "${name}.isOpen": enabling fallback check.`);
+      this._enableFallbackCheck();
+    }
+  }
+  _observeDialogManager(manager) {
+    const observeDialog = dialog => {
+      if (dialog) this._observePanel(dialog, 'dialogManager.dialogUI');
+      this._emitPanelStateChanged();
+    };
+    observeDialog(manager.dialogUI);
+    if (!this._observeProperty(manager, 'dialogUI', observeDialog)) this._enableFallbackCheck();
+  }
+  _enableFallbackCheck() {
+    if (this._fallbackTimer) return;
+    this._fallbackTimer = this.time.addEvent({
+      delay: 150, loop: true, callback: () => {
+        const manager = this._panelInstances.get('dialogManager');
+        if (manager?.dialogUI) this._observePanel(manager.dialogUI, 'dialogManager.dialogUI');
+        this._emitPanelStateChanged();
+      }
+    });
+  }
+  _emitPanelStateChanged(force = false) {
+    if (!this.isHudReady && !force) return;
+    const state = {
+      gameplaySceneKey: this.currentGameplaySceneKey,
+      anyPanelOpen: this.isAnyPanelOpen(), ready: this.isHudReady
+    };
+    const previous = this._lastPanelState;
+    if (!force && previous && previous.gameplaySceneKey === state.gameplaySceneKey &&
+      previous.anyPanelOpen === state.anyPanelOpen && previous.ready === state.ready) return;
+    this._lastPanelState = state;
+    this.events.emit('panelStateChanged', state);
+    EventBus.emit(PANEL_STATE_EVENT, state);
+  }
   setCurrentGameplayScene(sceneKey) {
-    if (!sceneKey || HUD_OVERLAY_SCENES.includes(sceneKey)) {
-      return;
-    }
-
+    if (!sceneKey || HUD_OVERLAY_SCENES.has(sceneKey)) return;
     this.currentGameplaySceneKey = sceneKey;
-
     this.updateCrimeBoardMenuAvailability();
-
-    if (HUD_ALLOWED_SCENES.includes(sceneKey)) {
-      this.showHud();
-    } else {
-      this.hideHud();
-    }
-
-    console.log(
-      '[PlayerHudScene] Gameplay scene updated:',
-      this.currentGameplaySceneKey,
-    );
+    if (HUD_ALLOWED_SCENES.has(sceneKey)) this.showHud();
+    else this.hideHud();
+    this._emitPanelStateChanged(true);
   }
-
   updateCrimeBoardMenuAvailability() {
-    const isAvailable = this.isCrimeBoardAvailable();
-
-    this.playerMenu?.setCrimeBoardAvailable?.(isAvailable);
-
-    if (!isAvailable) {
-      this.crimeBoardUI?.close?.();
-    }
+    const available = this.isCrimeBoardAvailable();
+    this._panelInstances.get('playerMenu')?.setCrimeBoardAvailable?.(available);
+    if (!available) this._panelInstances.get('crimeBoardUI')?.close?.();
   }
-
   isCrimeBoardAvailable() {
-    return CRIME_BOARD_ALLOWED_SCENES.includes(
-      this.currentGameplaySceneKey,
-    );
+    return CRIME_BOARD_ALLOWED_SCENES.has(this.currentGameplaySceneKey);
   }
-
   openCrimeBoard() {
     if (!this.isCrimeBoardAvailable()) {
-      console.warn(
-        '[PlayerHudScene] Crime Board is available only in OfficeScene or HotelScene.',
-        {
-          currentScene: this.currentGameplaySceneKey,
-        },
-      );
-
+      console.warn('[PlayerHudScene] Crime Board is available only in OfficeScene or HotelScene.');
       return false;
     }
-
     this.closeAllUIPanels();
-
-    this.crimeBoardUI?.open?.(this.gameState);
-
-    return Boolean(this.crimeBoardUI?.isOpen);
+    const panel = this.crimeBoardUI;
+    panel?.open?.(this.gameState);
+    this._emitPanelStateChanged();
+    return Boolean(panel?.isOpen);
   }
-
   openInventory() {
     this.closeAllUIPanels();
-
-    this.inventoryUI?.open?.();
-
-    return Boolean(this.inventoryUI?.isOpen);
+    const panel = this.inventoryUI;
+    panel?.open?.();
+    this._emitPanelStateChanged();
+    return Boolean(panel?.isOpen);
   }
-
   showHud() {
-    if (!this.isHudReady) {
-      return;
-    }
-
+    if (!this.isHudReady) return;
     this.scene.setVisible(true);
     this.scene.bringToTop();
   }
-
   hideHud() {
-    if (!this.isHudReady) {
-      return;
-    }
-
+    if (!this.isHudReady) return;
     this.closeAllUIPanels();
-
-    this.playerMenu?.close?.();
-
+    this._panelInstances.get('playerMenu')?.close?.();
     this.scene.setVisible(false);
+    this._emitPanelStateChanged();
   }
-
   onWake() {
     this.updateCrimeBoardMenuAvailability();
     this.showHud();
+    this._emitPanelStateChanged(true);
   }
-
   closeAllUIPanels() {
-    this.caseFileUI?.close?.();
-    this.notesUI?.close?.();
-    this.destinationsUI?.close?.();
-    this.warrantUI?.close?.();
-    this.crimeBoardUI?.close?.();
-    this.atlasUI?.close?.();
-    this.phoneUI?.close?.();
-    this.passportUI?.close?.();
-    this.dialogManager?.dialogUI?.close?.();
-    this.inventoryUI?.close?.();
+    for (const [name, panel] of this._panelInstances) {
+      if (name === 'playerMenu') continue;
+      if (name === 'dialogManager') panel.dialogUI?.close?.();
+      else panel.close?.();
+    }
+    this._emitPanelStateChanged();
   }
-
   closeAllUIPanelsAndFlushInput() {
     this.closeAllUIPanels();
-
-    const input = this.input;
-
-    if (!input) {
-      return;
-    }
-
-    if (input.manager?.pointer) {
-      input.manager.pointer.cancelled = true;
-    }
-
-    this.playerMenu?.updateMenuInteractivity?.();
+    if (this.input?.manager?.pointer) this.input.manager.pointer.cancelled = true;
+    this._panelInstances.get('playerMenu')?.updateMenuInteractivity?.();
   }
-
   isAnyPanelOpen() {
-    return Boolean(
-      this.caseFileUI?.isOpen
-      || this.notesUI?.isOpen
-      || this.warrantUI?.isOpen
-      || this.destinationsUI?.isOpen
-      || this.crimeBoardUI?.isOpen
-      || this.atlasUI?.isOpen
-      || this.phoneUI?.isOpen
-      || this.passportUI?.isOpen
-      || this.dialogManager?.dialogUI?.isOpen
-      || this.playerMenu?.isOpen
-      || this.inventoryUI?.isOpen,
-    );
-  }
-
-  onShutdown() {
-    if (this.game?.events) {
-      this.game.events.off(
-        Phaser.Scenes.Events.START,
-        this.onGlobalSceneStart,
-      );
-
-      this.game.events.off(
-        Phaser.Scenes.Events.WAKE,
-        this.onGlobalSceneWake,
-      );
+    for (const [name, panel] of this._panelInstances) {
+      if (name === 'dialogManager') { if (panel.dialogUI?.isOpen) return true; }
+      else if (panel.isOpen) return true;
     }
-
-    this.caseFileUI?.destroy?.();
-    this.notesUI?.destroy?.();
-    this.warrantUI?.destroy?.();
-    this.destinationsUI?.destroy?.();
-    this.crimeBoardUI?.destroy?.();
-    this.atlasUI?.destroy?.();
-    this.phoneUI?.destroy?.();
-    this.passportUI?.destroy?.();
-    this.dialogManager?.dialogUI?.destroy?.();
-    this.playerMenu?.destroy?.();
-    this.inventoryUI?.destroy?.();
-
-    this.caseFileUI = null;
-    this.notesUI = null;
-    this.warrantUI = null;
-    this.destinationsUI = null;
-    this.crimeBoardUI = null;
-    this.atlasUI = null;
-    this.phoneUI = null;
-    this.passportUI = null;
-    this.dialogManager = null;
-    this.playerMenu = null;
-    this.inventoryUI = null;
-
+    return false;
+  }
+  debugPanelStatus() {
+    return { ready: this.isHudReady, gameplayScene: this.currentGameplaySceneKey,
+      createdPanels: [...this._panelInstances.keys()], anyPanelOpen: this.isAnyPanelOpen(),
+      fallbackCheckEnabled: Boolean(this._fallbackTimer) };
+  }
+  onShutdown() {
+    if (!this._allowPanelCreation && this._panelInstances.size === 0) return;
+    this._allowPanelCreation = false;
     this.isHudReady = false;
+    this._sleepStoryInFlight = false;
+    this._fallbackTimer?.remove(false);
+    this._fallbackTimer = null;
+    for (const restore of this._propertyRestorers) {
+      try { restore(); } catch (error) { console.warn('[PlayerHudScene] Property cleanup failed:', error); }
+    }
+    this._propertyRestorers = [];
+    for (const [name, panel] of this._panelInstances) {
+      try {
+        if (name === 'dialogManager') {
+          if (typeof panel.destroy === 'function') panel.destroy();
+          else panel.dialogUI?.destroy?.();
+        } else panel.destroy?.();
+      } catch (error) { console.warn(`[PlayerHudScene] Cleanup failed for "${name}":`, error); }
+    }
+    this._panelInstances.clear();
+    this._creatingPanels.clear();
+    this._observedPanels = new WeakSet();
     this.currentGameplaySceneKey = null;
+    this.events.off(Phaser.Scenes.Events.WAKE, this.onWake, this);
+    this.events.off(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+    this.events.off(Phaser.Scenes.Events.DESTROY, this.onShutdown, this);
+    this._emitPanelStateChanged(true);
   }
 }

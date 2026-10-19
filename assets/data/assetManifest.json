@@ -2,7 +2,7 @@
   "backgrounds": [
     { "key": "intro", "url": "assets/intro.jpg" },
     { "key": "background", "url": "assets/start_1.jpg" },
-    { "key": "start_2", "url": "assets/start_2.jpg" },
+    { "key": "background2", "url": "assets/start_2.jpg" },
     { "key": "backgroundset", "url": "assets/local/cabinet.jpg" },
     { "key": "archive", "url": "assets/local/archive.jpg" },
     { "key": "enter", "url": "assets/local/enter.jpg" },
@@ -144,6 +144,8 @@
     { "key": "search", "url": "assets/search.png" },
     { "key": "policja", "url": "assets/policja.png" },
     { "key": "hotel_icon", "url": "assets/hotel_icon.png" },
+        { "key": "shop_icon", "url": "assets/shop.png" },
+            { "key": "apt_icon", "url": "assets/apt.png" },
     { "key": "crime_lab", "url": "assets/crime_lab.png" },
     { "key": "filebutt", "url": "assets/filebutt.png" },
     { "key": "passport", "url": "assets/passport.png" },
@@ -388,7 +390,9 @@
     { "key": "tv-config", "url": "assets/data/tv-config.json" },
     { "key": "reconstruction_questions", "url": "assets/data/reconstruction_questions.json" },
     { "key": "monologues", "url": "assets/data/monologues.json" },
-    { "key": "suspectData", "url": "assets/data/suspectData.json" }
+    { "key": "suspectData", "url": "assets/data/suspectData.json" },
+        { "key": "tips", "url": "assets/data/tips.json" },
+            { "key": "statuses", "url": "assets/data/statuses.json" }
   ],
   "tilemaps": [
     { "key": "louvre", "url": "assets/crimes/louvre.json" },

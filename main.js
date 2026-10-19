@@ -1,73 +1,176 @@
-// main.js
-// Only Tier-0 scenes are imported eagerly. Everything else is registered
-// on demand by SceneLoader the first time a scene calls this.goto('Key').
-
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
 import { EnterScene } from './scenes/EnterScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
+
 import { UIScene } from './ui/UIScene.js';
 import { NewsHud } from './ui/NewsHud.js';
-import { LoadingOverlayScene } from './scenes/LoadingOverlayScene.js';
+
+import {
+  LoadingOverlayScene
+} from './scenes/LoadingOverlayScene.js';
 
 import { SceneLoader } from './SceneLoader.js';
 import { sceneRegistry } from './sceneRegistry.js';
 
 const BUILD_VERSION = '0.10.0';
-
-// ---------------------------------------------------------------------
-// Scale handling
-// ---------------------------------------------------------------------
-// We keep Phaser.Scale.FIT on purpose: the game is a fixed 1920x1080
-// painted-scene adventure (Indiana Jones-style backgrounds with
-// absolutely positioned hotspots/UI). Phaser.Scale.RESIZE would change
-// the *logical* game dimensions on every viewport change, which breaks
-// every hand-placed hotspot/coordinate in HiddenObjectsScene, CrimeBoard,
-// SuspectGridScene, etc. FIT only applies a CSS transform to the canvas —
-// it does NOT re-render your scene graph, so it isn't the actual cost here.
-//
-// The real mobile cost is usually the ScaleManager recomputing on every
-// 'resize' event — which mobile browsers fire repeatedly while the
-// address bar / virtual keyboard animates in and out. We debounce that.
-
 const RESIZE_DEBOUNCE_MS = 120;
 
-function installResizeDebounce(game) {
+/**
+ * Phaser sam obsługuje skalowanie.
+ *
+ * Tutaj jedynie informujemy własne elementy gry,
+ * że seria zmian rozmiaru dobiegła końca.
+ * Nie wywołujemy dodatkowego scale.refresh().
+ */
+function installResizeNotification(game) {
   let timer = null;
-  const scaleManager = game.scale;
+  let disposed = false;
 
-  // Phaser already listens on window 'resize' internally; we just make sure
-  // our own downstream layout code (HUD reflow, crime board recenter, etc.)
-  // does not run on every single intermediate event.
-  window.addEventListener('resize', () => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      scaleManager.refresh();
-      game.events.emit('game-resize-settled', scaleManager.gameSize);
+  const viewport = window.visualViewport;
+
+  const notifyResizeSettled = () => {
+    if (disposed) {
+      return;
+    }
+
+    if (timer !== null) {
+      window.clearTimeout(timer);
+    }
+
+    timer = window.setTimeout(() => {
+      timer = null;
+
+      if (disposed || !game.scale) {
+        return;
+      }
+
+      game.events.emit(
+        'game-resize-settled',
+        game.scale.gameSize
+      );
     }, RESIZE_DEBOUNCE_MS);
-  }, { passive: true });
+  };
 
-  // iOS Safari address bar collapsing fires visualViewport resize, not
-  // window resize, in some versions — cover that too.
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => scaleManager.refresh(), RESIZE_DEBOUNCE_MS);
-    }, { passive: true });
-  }
+  const cleanup = () => {
+    if (disposed) {
+      return;
+    }
+
+    disposed = true;
+
+    if (timer !== null) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+
+    window.removeEventListener(
+      'resize',
+      notifyResizeSettled
+    );
+
+    viewport?.removeEventListener(
+      'resize',
+      notifyResizeSettled
+    );
+
+    game.events.off(
+      Phaser.Core.Events.DESTROY,
+      cleanup
+    );
+  };
+
+  window.addEventListener(
+    'resize',
+    notifyResizeSettled,
+    { passive: true }
+  );
+
+  viewport?.addEventListener(
+    'resize',
+    notifyResizeSettled,
+    { passive: true }
+  );
+
+  game.events.once(
+    Phaser.Core.Events.DESTROY,
+    cleanup
+  );
+
+  return cleanup;
+}
+
+function installScenePrefetch(game) {
+  const prefetch = tier => {
+    if (!game.sceneLoader) {
+      return;
+    }
+
+    void game.sceneLoader
+      .prefetchTier(tier)
+      .catch(error => {
+        console.warn(
+          `[main] Could not prefetch "${tier}".`,
+          error
+        );
+      });
+  };
+
+  const onPlayerAuthenticated = () => {
+    prefetch('TIER_1');
+  };
+
+  const onCrimeSceneEntered = () => {
+    prefetch('TIER_3');
+  };
+
+  const cleanup = () => {
+    game.events.off(
+      'player-authenticated',
+      onPlayerAuthenticated
+    );
+
+    game.events.off(
+      'case-crime-scene-entered',
+      onCrimeSceneEntered
+    );
+
+    game.events.off(
+      Phaser.Core.Events.DESTROY,
+      cleanup
+    );
+  };
+
+  game.events.once(
+    'player-authenticated',
+    onPlayerAuthenticated
+  );
+
+  game.events.once(
+    'case-crime-scene-entered',
+    onCrimeSceneEntered
+  );
+
+  game.events.once(
+    Phaser.Core.Events.DESTROY,
+    cleanup
+  );
+
+  // TIER_2 jest obsługiwany w poprawionym SceneLoader:
+  // po wejściu do CrimeCityScene lub HiddenObjectsScene.
 }
 
 const config = {
   type: Phaser.AUTO,
+
   width: 1920,
   height: 1080,
+
   parent: 'game-container',
   backgroundColor: '#000000',
 
-  // Tier 0 only — the boot chain, menu/auth flow and persistent overlays.
-  // Everything else is added at runtime via SceneLoader.ensure().
   scene: [
     BootScene,
     PreloaderScene,
@@ -95,22 +198,16 @@ const config = {
   }
 };
 
-window.game = new Phaser.Game(config);
-window.game.sceneLoader = new SceneLoader(window.game, sceneRegistry);
-window.game.buildVersion = BUILD_VERSION;
+const game = new Phaser.Game(config);
 
-installResizeDebounce(window.game);
+window.game = game;
 
-// Once the player is past login/character creation, warm the cache for the
-// core office/city loop in the background so the first this.goto('OfficeScene')
-// call resolves instantly instead of showing the loading overlay.
-window.game.events.once('player-authenticated', () => {
-  window.game.sceneLoader.prefetchTier('TIER_1');
-});
+game.sceneLoader = new SceneLoader(
+  game,
+  sceneRegistry
+);
 
-// Similarly, once a case reaches the crime-scene stage, warm up the CSI lab
-// bundle while the player is still doing hidden-objects, not when they walk
-// into the lab door.
-window.game.events.once('case-crime-scene-entered', () => {
-  window.game.sceneLoader.prefetchTier('TIER_3');
-});
+game.buildVersion = BUILD_VERSION;
+
+installResizeNotification(game);
+installScenePrefetch(game);

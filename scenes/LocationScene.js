@@ -5,7 +5,6 @@ import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-import { getEnergyManager } from '../managers/EnergyManager.js';
 import { NPC_DIALOGUE_KEY_MAP } from '../dialogues/dialogueKeys.js';
 import {
   resolveCityNpcTheme,
@@ -53,10 +52,12 @@ const TOPIC_LABELS = {
 
 const TYPEWRITER_CHAR_DELAY = 18;
 
+
 const PANEL_GOLD = 0xd4af37;
 const PANEL_GOLD_DIM = 0x8a6d1f;
 const PANEL_BG = 0x201409;
 const PANEL_BG_ALPHA = 0.92;
+
 
 const PORTRAIT_SLIDE_OFFSET = -90;
 const PORTRAIT_ANIM_DURATION = 480;
@@ -162,8 +163,11 @@ export class LocationScene extends BaseScene {
     this.askedTopics = new Set();
 
 
-    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
-    if (!Array.isArray(gameState.visitedEncounters)) gameState.visitedEncounters = [];
+    this.ensureEncounterMemory();
+  }
+
+
+  ensureEncounterMemory() {
     if (
       !gameState.encounterMemory ||
       typeof gameState.encounterMemory !== 'object' ||
@@ -257,17 +261,17 @@ export class LocationScene extends BaseScene {
 
 
     try {
-this.npcController = new NPCController(
-  npcLocationVariants,
-  countryFacts,
-  this.cityId,
-  suspect || {},
-  {
-    targetCityId: this.dialogueTargetCityId,
-    isCorrectCity: this.isCorrectCity,
-    npcId: this.npcId
-  }
-);
+      this.npcController = new NPCController(
+        npcLocationVariants,
+        countryFacts,
+        this.cityId,
+        suspect || {},
+        {
+          targetCityId: this.dialogueTargetCityId,
+          isCorrectCity: this.isCorrectCity,
+          npcId: this.npcId
+        }
+      );
     } catch (error) {
       console.warn('[LocationScene] Failed to build NPCController:', error);
       this.npcController = null;
@@ -281,34 +285,34 @@ this.npcController = new NPCController(
       ? this.isFalseLead
         ? this.npcController.getFalseLeadLine().text
         : this.isRepeat
-        ? this.npcController.getRepeatLine()
-        : this.npcController.getBanterLine()
+          ? this.npcController.getRepeatLine()
+          : this.npcController.getBanterLine()
       : 'There is nobody here who remembers anything useful.';
 
 
-const backgroundKey = this.getLocationBackgroundKey(
-  this.locationId,
-  cityData
-);
+    const backgroundKey = this.getLocationBackgroundKey(
+      this.locationId,
+      cityData
+    );
 
 
-if (backgroundKey) {
-  this.add
-    .image(width / 2, height / 2, backgroundKey)
-    .setDisplaySize(width, height);
-} else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
-  this.add
-    .image(width / 2, height / 2, cityData.backgroundKey)
-    .setDisplaySize(width, height);
-} else {
-  console.warn('[LocationScene] Missing location background:', {
-    cityId: this.cityId,
-    locationId: this.locationId
-  });
+    if (backgroundKey) {
+      this.add
+        .image(width / 2, height / 2, backgroundKey)
+        .setDisplaySize(width, height);
+    } else if (cityData?.backgroundKey && this.textures.exists(cityData.backgroundKey)) {
+      this.add
+        .image(width / 2, height / 2, cityData.backgroundKey)
+        .setDisplaySize(width, height);
+    } else {
+      console.warn('[LocationScene] Missing location background:', {
+        cityId: this.cityId,
+        locationId: this.locationId
+      });
 
 
-  this.cameras.main.setBackgroundColor('#1a1a1a');
-}
+      this.cameras.main.setBackgroundColor('#1a1a1a');
+    }
 
 
     this.createDialoguePanel(width, height);
@@ -458,10 +462,10 @@ if (backgroundKey) {
     const footerText = this.isCrimeCity
       ? 'Crime city witness'
       : this.isNextTargetCity
-      ? 'Hot trail witness'
-      : this.isFalseLead
-      ? 'Cold lead'
-      : 'Witness statement';
+        ? 'Hot trail witness'
+        : this.isFalseLead
+          ? 'Cold lead'
+          : 'Witness statement';
 
 
     this.footerTextObject = this.add
@@ -621,21 +625,12 @@ if (backgroundKey) {
   }
 
 
-onNpcInteraction(npc) {
-  const energyManager = getEnergyManager();
-  const result = energyManager.consumeInterview('medium');
-  console.log(`💬 ${result.label}`);
-  this.startDialog(npc);
-}
   handleShutdown() {
     if (this.typewriterEvent) {
       this.typewriterEvent.remove(false);
       this.typewriterEvent = null;
     }
 
-
-    if (this.locationAmbient?.isPlaying) this.locationAmbient.stop();
-    if (this.locationAmbient?.destroy) this.locationAmbient.destroy();
     this.locationAmbient = null;
 
 
@@ -678,26 +673,18 @@ onNpcInteraction(npc) {
     this.isFinishing = true;
 
 
-    if (!Array.isArray(gameState.cluesCollected)) gameState.cluesCollected = [];
-    if (!Array.isArray(gameState.visitedEncounters)) gameState.visitedEncounters = [];
-    if (
-      !gameState.encounterMemory ||
-      typeof gameState.encounterMemory !== 'object' ||
-      Array.isArray(gameState.encounterMemory)
-    ) {
-      gameState.encounterMemory = {};
-    }
+    this.ensureEncounterMemory();
 
 
-    if (this.encounterId && !gameState.visitedEncounters.includes(this.encounterId)) {
-      gameState.visitedEncounters.push(this.encounterId);
+    if (this.encounterId) {
+      gameState.addEncounter(this.encounterId);
     }
 
 
     if (!this.isFalseLead && this.generatedNotes.length > 0) {
       this.generatedNotes.forEach(note => {
         if (note && !this.hasClue(note)) {
-          gameState.cluesCollected.push(note);
+          gameState.addClue(note);
         }
       });
     }
@@ -736,49 +723,55 @@ onNpcInteraction(npc) {
 
 
   hasClue(newClue) {
+    if (!newClue) return false;
+
+
     return gameState.cluesCollected.some(existing => {
-      if (!existing || !newClue) return false;
+      if (!existing) return false;
 
 
       return (
-        existing.type === newClue.type &&
-        existing.category === newClue.category &&
-        existing.key === newClue.key &&
-        existing.cityId === newClue.cityId &&
-        existing.tag === newClue.tag &&
-        existing.value === newClue.value
+        (newClue.id !== undefined && existing.id === newClue.id) ||
+        (
+          existing.type === newClue.type &&
+          existing.category === newClue.category &&
+          existing.key === newClue.key &&
+          existing.cityId === newClue.cityId &&
+          existing.tag === newClue.tag &&
+          existing.value === newClue.value
+        )
       );
     });
   }
 
 
-getLocationBackgroundKey(locationId, cityData = null) {
-  const themeId = resolveCityNpcTheme(cityData);
+  getLocationBackgroundKey(locationId, cityData = null) {
+    const themeId = resolveCityNpcTheme(cityData);
 
 
-  const candidates = getLocationBackgroundCandidates(locationId, themeId);
+    const candidates = getLocationBackgroundCandidates(locationId, themeId);
 
 
-  const backgroundKey = candidates.find(textureKey =>
-    this.textures.exists(textureKey)
-  );
+    const backgroundKey = candidates.find(textureKey =>
+      this.textures.exists(textureKey)
+    );
 
 
-  if (backgroundKey) {
-    return backgroundKey;
+    if (backgroundKey) {
+      return backgroundKey;
+    }
+
+
+    console.warn('[LocationScene] No matching location texture found:', {
+      cityId: cityData?.id || this.cityId,
+      npcTheme: themeId,
+      locationId,
+      candidates
+    });
+
+
+    return null;
   }
-
-
-  console.warn('[LocationScene] No matching location texture found:', {
-    cityId: cityData?.id || this.cityId,
-    npcTheme: themeId,
-    locationId,
-    candidates
-  });
-
-
-  return null;
-}
 
 
   addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {

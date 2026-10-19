@@ -1,10 +1,10 @@
-import { gameState } from './GameData.js';
+import { gameState, createDefaultReconstructedHeist } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { getScoreManager } from './managers/InvestigationManager.js';
 import {
   applyHypothesisSkills,
   getSuspectCaseSummary
-} from '../ui/suspectUtils.js';
+} from './ui/suspectUtils.js';
 
 export class HypothesisResultService {
   constructor({
@@ -113,7 +113,9 @@ export class HypothesisResultService {
       this.applyExactResult({
         reconstruction,
         confirmedSkills,
-        confirmedItemIds
+        confirmedItemIds,
+        narrativeLines,
+        finalText
       });
     } else if (isExactTheory) {
       console.error(
@@ -127,14 +129,6 @@ export class HypothesisResultService {
         }
       );
 
-      /*
-       * Nie uznajemy hipotezy za potwierdzoną, jeżeli nie mamy:
-       * - trzech skillów sprawcy,
-       * - trzech ID rzeczywiście użytych przedmiotów.
-       *
-       * Dzięki temu Crime Board nie ukryje dowodów na podstawie
-       * niepełnych danych.
-       */
       reconstruction.confirmedSkills = [];
       reconstruction.confirmedItemIds = [];
       reconstruction.hypothesisConfirmed = false;
@@ -142,18 +136,21 @@ export class HypothesisResultService {
       this.clearConfirmedHypothesisEvidence();
     }
 
-    const skillsForNotes = canConfirmTheory
+    const skillsForClue = canConfirmTheory
       ? confirmedSkills
       : playerSkills;
 
-    this.appendTheoryToNotes(
+    this.storeReconstructionClue({
       finalText,
-      skillsForNotes,
+      skills: skillsForClue,
       resultLabel,
-      narrativeLines
-    );
+      narrativeLines,
+      confirmed: canConfirmTheory,
+      confirmedItemIds: canConfirmTheory ? confirmedItemIds : [],
+      reconstruction
+    });
 
-    this.storeTheorySkills(skillsForNotes);
+    this.storeTheorySkills(skillsForClue);
 
     const finalScore = this.applyScore(
       score,
@@ -187,7 +184,7 @@ export class HypothesisResultService {
       !gameState.reconstructedHeist ||
       typeof gameState.reconstructedHeist !== 'object'
     ) {
-      gameState.reconstructedHeist = {};
+      gameState.reconstructedHeist = createDefaultReconstructedHeist();
     }
 
     return gameState.reconstructedHeist;
@@ -233,11 +230,6 @@ export class HypothesisResultService {
       )
     ].slice(0, 3);
 
-    /*
-     * Kompatybilność ze starszymi systemami:
-     * SuspectUtils i inne sceny mogą nadal czytać
-     * gameState.hypothesisEvidence.requiredSkills.
-     */
     if (confirmedSkills.length === 3) {
       gameState.hypothesisEvidence = {
         ...(gameState.hypothesisEvidence || {}),
@@ -257,10 +249,6 @@ export class HypothesisResultService {
       ? cards.filter(Boolean)
       : [];
 
-    /*
-     * Najpierw próbujemy odczytać ID rozwiązania wygenerowanego
-     * przez ReconstructionGenerator / dane misji.
-     */
     const generatedSolutionIds = [
       ...this.asArray(reconstruction.solutionItemIds),
       ...this.asArray(reconstruction.correctItemIds),
@@ -274,11 +262,6 @@ export class HypothesisResultService {
       return this.uniqueStrings(generatedSolutionIds).slice(0, 3);
     }
 
-    /*
-     * Fallback dla obecnej sceny:
-     * skoro wynik jest "exact", trzy karty w orderedCards są
-     * właściwą sekwencją ENTRY → ACCESS → ESCAPE.
-     */
     const exactCards = safeCards
       .filter(card => {
         if (card.isCorrect === false) {
@@ -296,7 +279,9 @@ export class HypothesisResultService {
   applyExactResult({
     reconstruction,
     confirmedSkills,
-    confirmedItemIds
+    confirmedItemIds,
+    narrativeLines = [],
+    finalText = ''
   }) {
     if (
       confirmedSkills.length !== 3 ||
@@ -322,19 +307,6 @@ export class HypothesisResultService {
     reconstruction.hypothesisConfirmed = true;
     reconstruction.hypothesisCompletedAt = completedAt;
 
-    /*
-     * To jest nowy, trwały wynik używany przez Crime Board.
-     *
-     * buildCrimeBoard.js używa:
-     * - completed,
-     * - confirmedItemIds,
-     * - requiredSkills.
-     *
-     * Dzięki temu po przejściu hipotezy:
-     * - red herringi znikną,
-     * - na tablicy zostaną tylko 3 właściwe dowody,
-     * - pojawi się METHOD PROFILE.
-     */
     gameState.hypothesisEvidenceResult = {
       ...(gameState.hypothesisEvidenceResult || {}),
       id: 'hypothesis-skills',
@@ -345,6 +317,8 @@ export class HypothesisResultService {
       confirmedItemIds: [...confirmedItemIds],
       requiredSkills: [...confirmedSkills],
       skills: [...confirmedSkills],
+      narrative: [...narrativeLines],
+      finalText,
       missionId: reconstruction.missionId || null,
       cityId: reconstruction.cityId || this.cityId || null,
       sceneId: reconstruction.sceneId || this.sceneId || null,
@@ -352,10 +326,6 @@ export class HypothesisResultService {
       completedAt
     };
 
-    /*
-     * Zachowujemy też kompatybilność z kodem, który nadal korzysta
-     * z gameState.hypothesisEvidence.
-     */
     gameState.hypothesisEvidence = {
       ...(gameState.hypothesisEvidence || {}),
       requiredSkills: [...confirmedSkills],
@@ -369,20 +339,7 @@ export class HypothesisResultService {
       completedAt
     };
 
-    /*
-     * Najpierw Crime Lab powinien wykonać swoje wykluczenia.
-     * Jeżeli lab jest już ukończony, umiejętności z rekonstrukcji
-     * eliminują kolejną grupę niepasujących podejrzanych.
-     */
     if (!gameState.csiLabCompleted) {
-      console.log(
-        '[HypothesisResultService] Correct skills and confirmed items stored. Crime Lab will apply skills later.',
-        {
-          confirmedSkills,
-          confirmedItemIds
-        }
-      );
-
       return;
     }
 
@@ -396,18 +353,6 @@ export class HypothesisResultService {
 
     gameState.suspectCaseSummary =
       getSuspectCaseSummary();
-
-    console.log(
-      '[HypothesisResultService] Hypothesis skill filter applied.',
-      {
-        confirmedSkills,
-        confirmedItemIds,
-        excludedSuspectIds:
-          suspectFilterResult.excludedSuspectIds,
-        remainingSuspects:
-          suspectFilterResult.remainingSuspects
-      }
-    );
   }
 
   clearConfirmedHypothesisEvidence() {
@@ -443,10 +388,12 @@ export class HypothesisResultService {
         `Heist theory: ${resultLabel}`
       );
 
-      gameState.score = Math.max(
-        0,
-        this.scoreManager.getSessionPoints()
-      );
+      const sessionPoints =
+        typeof this.scoreManager.getSessionPoints === 'function'
+          ? this.scoreManager.getSessionPoints()
+          : (Number(gameState.score) || 0) + safeScore;
+
+      gameState.score = Math.max(0, sessionPoints);
 
       return gameState.score;
     }
@@ -459,68 +406,73 @@ export class HypothesisResultService {
     return gameState.score;
   }
 
-  appendTheoryToNotes(
-    finalText,
+  storeReconstructionClue({
+    finalText = '',
     skills = [],
     resultLabel = 'weak',
-    narrativeLines = []
-  ) {
-    const headerMap = {
-      exact: 'Heist reconstruction:',
-      partial: 'Partial heist theory:',
-      weak: 'Uncertain heist theory:'
+    narrativeLines = [],
+    confirmed = false,
+    confirmedItemIds = [],
+    reconstruction = {}
+  } = {}) {
+    const titleMap = {
+      exact: 'Heist reconstruction',
+      partial: 'Partial heist theory',
+      weak: 'Uncertain heist theory'
     };
-
-    const header =
-      headerMap[resultLabel] ||
-      'Heist hypothesis:';
 
     const uniqueSkills = this.uniqueStrings(skills);
 
-    const skillLine = uniqueSkills.length > 0
-      ? `\nLikely skills: ${uniqueSkills.join(', ')}.`
-      : '';
+    const sceneId =
+      reconstruction.sceneId || this.sceneId || null;
+    const cityId =
+      reconstruction.cityId || this.cityId || null;
+    const missionId =
+      reconstruction.missionId || null;
 
-    const storyLine = narrativeLines.length > 0
-      ? `\n\n${narrativeLines
-        .map(
-          (line, index) =>
-            `${index + 1}. ${line}`
-        )
-        .join('\n')}`
-      : '';
+    const text = [
+      narrativeLines.length > 0
+        ? narrativeLines
+          .map((line, index) => `${index + 1}. ${line}`)
+          .join('\n')
+        : finalText,
+      uniqueSkills.length > 0
+        ? `Likely skills: ${uniqueSkills.join(', ')}.`
+        : ''
+    ].filter(Boolean).join('\n\n');
 
-    const noteBlock =
-      `${header}${storyLine}${skillLine}`;
+    const clue = {
+      id: `heist_reconstruction_${this.toSlug(missionId || sceneId || cityId || 'case')}`,
+      type: 'reconstruction',
+      category: 'heist',
+      value: resultLabel,
+      title: titleMap[resultLabel] || 'Heist hypothesis',
+      text,
+      finalText,
+      narrative: [...narrativeLines],
+      skills: [...uniqueSkills],
+      confirmed: Boolean(confirmed),
+      confirmedItemIds: [...confirmedItemIds],
+      source: 'heist_hypothesis',
+      missionId,
+      cityId,
+      sceneId
+    };
 
-    const existingNotes =
-      typeof gameState.playerNotes === 'string'
-        ? gameState.playerNotes
-        : '';
+    const existing = Array.isArray(gameState.cluesCollected)
+      ? gameState.cluesCollected.find(entry => entry?.id === clue.id)
+      : null;
 
-    /*
-     * finalText służy wyłącznie jako klucz chroniący przed
-     * powtarzaniem tej samej notatki po wielokrotnym wejściu do sceny.
-     */
-    if (
-      finalText &&
-      existingNotes.includes(finalText)
-    ) {
-      return false;
+    if (existing) {
+      Object.assign(existing, clue);
+      return existing;
     }
 
-    gameState.playerNotes = existingNotes
-      ? `${existingNotes}\n\n${noteBlock}`
-      : noteBlock;
-
-    return true;
+    gameState.addClue(clue);
+    return clue;
   }
 
   storeTheorySkills(skills = []) {
-    if (!Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected = [];
-    }
-
     const uniqueSkills = this.uniqueStrings(skills);
 
     uniqueSkills.forEach(skill => {
@@ -538,7 +490,9 @@ export class HypothesisResultService {
         return;
       }
 
-      gameState.cluesCollected.push({
+      // Wskazówka MUSI mieć id, inaczej zniknie przy zapisie i wczytaniu.
+      gameState.addClue({
+        id: `hypothesis_skill_${this.toSlug(skill)}`,
         type: 'suspect',
         category: 'skills',
         value: skill,
@@ -627,5 +581,13 @@ export class HypothesisResultService {
       .toLowerCase()
       .replace(/[^a-z0-9-_]+/g, '-')
       .replace(/^-+|-+$/g, '');
+  }
+
+  toSlug(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'unknown';
   }
 }

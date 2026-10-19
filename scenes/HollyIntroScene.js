@@ -2,6 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { moneyManager, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
+import hintManager from '../managers/HintManager.js';
 
 const OPENING_LINES = [
   { speaker: 'HOLLY', text: 'Mark Agency says my husband is gone.' },
@@ -39,8 +40,8 @@ const CHOICES = [
   },
   {
     id: 'kit',
-    label: 'Field kit',
-    desc: '+2 investigation assists'
+    label: 'Field support',
+    desc: '+2 free hints'
   },
   {
     id: 'travel',
@@ -51,9 +52,9 @@ const CHOICES = [
 
 export class HollyIntroScene extends BaseScene {
   constructor() {
-    super('HollyIntroScene');
+    super({ key: 'HollyIntroScene' });
 
-    this.returnScene = 'HotelScene';
+    this.returnScene = null;
     this.returnData = {};
 
     this.phase = 'idle';
@@ -64,11 +65,12 @@ export class HollyIntroScene extends BaseScene {
     this.video = null;
     this.hollyPortrait = null;
 
-    this.boundAdvanceDialogue = this.handleDialogueAdvance.bind(this);
+    this.boundAdvanceDialogue =
+      this.handleDialogueAdvance.bind(this);
   }
 
   init(data = {}) {
-    this.returnScene = data.returnScene || 'HotelScene';
+    this.returnScene = data.returnScene || null;
     this.returnData =
       data.returnData && typeof data.returnData === 'object'
         ? { ...data.returnData }
@@ -136,7 +138,9 @@ export class HollyIntroScene extends BaseScene {
 
     this.phase = 'intro-video';
 
-    this.video = this.add.video(width / 2, height / 2, 'in').setDepth(2);
+    this.video = this.add
+      .video(width / 2, height / 2, 'in')
+      .setDepth(2);
 
     this.video.once('complete', () => {
       if (this.video?.active) {
@@ -250,7 +254,7 @@ export class HollyIntroScene extends BaseScene {
 
     this.nameText.setText('HOLLY');
     this.dialogText.setText(
-      'Pick one favor. I can help with money, travel, rest, or field prep.'
+      'Pick one favor. I can help with money, travel, rest, or field support.'
     );
 
     const { width } = this.scale;
@@ -315,67 +319,67 @@ export class HollyIntroScene extends BaseScene {
     this.startDialogueBlock(CLOSING_LINES, 'outro');
   }
 
-applyChoice(choice) {
-  this.grantHollyChoiceReward(choice.id);
+  applyChoice(choice) {
+    this.grantHollyChoiceReward(choice.id);
 
-  gameState.updateState({
-    hollyIntroSeen: true,
-    hollyIntroPending: false,
-    hollyIntroChoice: choice.id,
-    johnCaseAccepted: true,
-    blackLadyCaseAccepted: true
-  });
+    gameState.updateState({
+      hollyIntroSeen: true,
+      hollyIntroPending: false,
+      hollyIntroChoice: choice.id,
+      johnCaseAccepted: true,
+      blackLadyCaseAccepted: true
+    });
 
-  EventBus.emit('hollyIntroChoiceMade', {
-    choice: choice.id
-  });
-}
-
-grantHollyChoiceReward(choiceId) {
-  const fullState = gameState.getState ? gameState.getState() : {};
-
-  switch (choiceId) {
-    case 'cash':
-      moneyManager.addCash(250, {
-        category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
-        description: 'Holly case advance',
-        missionId: 'black-lady-main-case',
-        metadata: {
-          source: 'holly_intro_choice',
-          choiceId
-        }
-      });
-      break;
-
-    case 'rest': {
-      const restVouchers = Number(fullState.restVouchers || 0);
-      gameState.updateState({
-        restVouchers: restVouchers + 2
-      });
-      break;
-    }
-
-    case 'kit': {
-      const investigationAssists = Number(fullState.investigationAssists || 0);
-      gameState.updateState({
-        investigationAssists: investigationAssists + 2
-      });
-      break;
-    }
-
-    case 'travel': {
-      const freeTransfers = Number(fullState.freeTransfers || 0);
-      gameState.updateState({
-        freeTransfers: freeTransfers + 2
-      });
-      break;
-    }
-
-    default:
-      console.warn('[HollyIntroScene] Unknown reward choice:', choiceId);
-      break;
+    EventBus.emit('hollyIntroChoiceMade', {
+      choice: choice.id
+    });
   }
-}
+
+  grantHollyChoiceReward(choiceId) {
+    const fullState =
+      gameState.getState ? gameState.getState() : {};
+
+    switch (choiceId) {
+      case 'cash':
+        moneyManager.addCash(250, {
+          category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
+          description: 'Holly case advance',
+          missionId: 'black-lady-main-case',
+          metadata: {
+            source: 'holly_intro_choice',
+            choiceId
+          }
+        });
+        break;
+
+      case 'rest': {
+        const restVouchers = Number(fullState.restVouchers || 0);
+
+        gameState.updateState({
+          restVouchers: restVouchers + 2
+        });
+        break;
+      }
+
+      case 'kit': {
+        hintManager.grantHollyIntroHints();
+        break;
+      }
+
+      case 'travel': {
+        const freeTransfers = Number(fullState.freeTransfers || 0);
+
+        gameState.updateState({
+          freeTransfers: freeTransfers + 2
+        });
+        break;
+      }
+
+      default:
+        console.warn('[HollyIntroScene] Unknown reward choice:', choiceId);
+        break;
+    }
+  }
 
   playOutroVideo() {
     const { width, height } = this.scale;
@@ -384,7 +388,9 @@ grantHollyChoiceReward(choiceId) {
 
     this.hideDialogueLayout();
 
-    this.video = this.add.video(width / 2, height / 2, 'out').setDepth(2);
+    this.video = this.add
+      .video(width / 2, height / 2, 'out')
+      .setDepth(2);
 
     this.video.once('complete', () => {
       if (this.video?.active) {
@@ -400,21 +406,19 @@ grantHollyChoiceReward(choiceId) {
 
   finishScene() {
     EventBus.emit('hollyIntroFinished', {
-      choice: gameState.getState?.().hollyIntroChoice || null
+      choice: gameState.getState?.().hollyIntroChoice || null,
+      source: 'forced_sleep'
     });
 
-    if (this.returnScene === 'HotelScene') {
-      EventBus.emit('hollySleepFinished', {
-        sleepHours: this.returnData?.sleepHours || 8
-      });
-      return;
-    }
-
-    this.scene.start(this.returnScene, this.returnData);
+    this.scene.stop();
   }
 
-  shutdown() {
-    this.input.off('pointerdown', this.boundAdvanceDialogue);
+  cleanup() {
+    this.input?.off(
+      'pointerdown',
+      this.boundAdvanceDialogue
+    );
+
     this.clearChoices();
 
     if (this.video?.active) {
@@ -422,5 +426,7 @@ grantHollyChoiceReward(choiceId) {
     }
 
     this.video = null;
+
+    super.cleanup();
   }
 }

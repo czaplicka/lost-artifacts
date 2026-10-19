@@ -94,14 +94,6 @@ export class CityScene extends BaseScene {
     this.isTransitioning = false;
     this.activePopup = null;
 
-    if (!Array.isArray(gameState.visitedEncounters)) {
-      gameState.visitedEncounters = [];
-    }
-
-    if (!Array.isArray(gameState.cluesCollected)) {
-      gameState.cluesCollected = [];
-    }
-
     if (
       !gameState.encounterMemory ||
       typeof gameState.encounterMemory !== 'object' ||
@@ -130,25 +122,8 @@ export class CityScene extends BaseScene {
   create() {
     super.create();
 
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.boundCleanupScene
-    );
-
-    this.events.on(
-      Phaser.Scenes.Events.WAKE,
-      this.boundWakeOrResume
-    );
-
-    this.events.on(
-      Phaser.Scenes.Events.RESUME,
-      this.boundWakeOrResume
-    );
-
-    this.events.on(
-      Phaser.Scenes.Events.SLEEP,
-      this.boundSleep
-    );
+    this.unbindLifecycleListeners();
+    this.bindLifecycleListeners();
 
     this.stopSceneIfActive('LocationScene');
     this.stopSceneIfActive('ArrestSelectionScene');
@@ -217,7 +192,10 @@ export class CityScene extends BaseScene {
 
     gameState.currentCityId = this.cityId;
     gameState.currentCity = city.city;
-    gameState.currentCityData = structuredClone(city);
+
+    if (gameState.currentCityData?.id !== city.id) {
+      gameState.currentCityData = structuredClone(city);
+    }
 
     this.registry.set('currentCityId', this.cityId);
     this.registry.set(
@@ -242,6 +220,50 @@ export class CityScene extends BaseScene {
 
     void this.setupCityUi();
     this.openInitialOverlayIfNeeded();
+  }
+
+  bindLifecycleListeners() {
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundCleanupScene
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.WAKE,
+      this.boundWakeOrResume
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.RESUME,
+      this.boundWakeOrResume
+    );
+
+    this.events.on(
+      Phaser.Scenes.Events.SLEEP,
+      this.boundSleep
+    );
+  }
+
+  unbindLifecycleListeners() {
+    this.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundCleanupScene
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.WAKE,
+      this.boundWakeOrResume
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.RESUME,
+      this.boundWakeOrResume
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.SLEEP,
+      this.boundSleep
+    );
   }
 
   async setupCityUi() {
@@ -417,32 +439,12 @@ export class CityScene extends BaseScene {
     return this.cityAmbient;
   }
 
-  pauseCityAmbient() {
-    if (this.cityAmbient?.isPlaying) {
-      this.cityAmbient.pause();
-    }
-  }
-
   stopCityAmbient() {
     if (!this.cityAmbient) {
       return;
     }
 
-    try {
-      if (this.cityAmbient.isPlaying) {
-        this.cityAmbient.stop();
-      }
-
-      if (!this.cityAmbient.pendingRemove) {
-        this.cityAmbient.destroy();
-      }
-    } catch (error) {
-      console.warn(
-        '[CityScene] city ambient cleanup failed:',
-        error
-      );
-    }
-
+    audioManager.releaseSound(this.cityAmbient);
     this.cityAmbient = null;
   }
 
@@ -461,7 +463,7 @@ export class CityScene extends BaseScene {
   }
 
   onSleep() {
-    this.pauseCityAmbient();
+    this.stopCityAmbient();
   }
 
   changeScore(points, label = 'City investigation') {
@@ -489,16 +491,9 @@ export class CityScene extends BaseScene {
   }
 
   ensureCityEncounterState(locations) {
-    const hasCityEncounters =
-      gameState.cityEncounterState &&
-      Array.isArray(gameState.cityEncounterState[this.cityId]) &&
-      gameState.cityEncounterState[this.cityId].length > 0;
+    const existing = gameState.cityEncounterState;
 
-    const hasActiveLocations =
-      Array.isArray(gameState.activeLocations) &&
-      gameState.activeLocations.length > 0;
-
-    if (hasCityEncounters || hasActiveLocations) {
+    if (Array.isArray(existing[this.cityId])) {
       return;
     }
 
@@ -508,21 +503,17 @@ export class CityScene extends BaseScene {
       gameState.currentArtifact ||
       `${this.cityId}-default`;
 
-    gameState.cityEncounterState = generateCaseCityState(
+    const generated = generateCaseCityState(
       locations,
       String(caseId),
       {}
     );
 
+    gameState.cityEncounterState = { ...generated, ...existing };
+
     if (!Array.isArray(gameState.cityEncounterState[this.cityId])) {
       gameState.cityEncounterState[this.cityId] = [];
     }
-
-    console.log(
-      'Generated cityEncounterState for',
-      this.cityId,
-      gameState.cityEncounterState[this.cityId]
-    );
   }
 
   shouldShowPhoneCallNow() {
@@ -1045,6 +1036,8 @@ export class CityScene extends BaseScene {
   }
 
   cleanupScene() {
+    this.unbindLifecycleListeners();
+
     this.isSettingUpUi = false;
     this.isTransitioning = false;
 
@@ -1065,10 +1058,7 @@ export class CityScene extends BaseScene {
   }
 
   isEncounterVisited(encounterId) {
-    return (
-      Array.isArray(gameState.visitedEncounters) &&
-      gameState.visitedEncounters.includes(encounterId)
-    );
+    return gameState.hasEncounter(encounterId);
   }
 
   getEncounterMemory(encounterId) {
@@ -1087,28 +1077,13 @@ export class CityScene extends BaseScene {
   }
 
   getEncounters() {
-    if (
-      Array.isArray(gameState.activeLocations) &&
-      gameState.activeLocations.length > 0
-    ) {
-      return gameState.activeLocations.filter(
-        (encounter) => encounter.enabled !== false
-      );
+    const list = gameState.cityEncounterState?.[this.cityId];
+
+    if (!Array.isArray(list)) {
+      return [];
     }
 
-    if (
-      gameState.cityEncounterState &&
-      typeof gameState.cityEncounterState === 'object' &&
-      Array.isArray(
-        gameState.cityEncounterState[this.cityId]
-      )
-    ) {
-      return gameState.cityEncounterState[this.cityId].filter(
-        (encounter) => encounter.enabled !== false
-      );
-    }
-
-    return [];
+    return list.filter((encounter) => encounter.enabled !== false);
   }
 
   getCityBackgroundKey(city) {

@@ -1,3 +1,5 @@
+// managers/MonologueManager.js
+
 export class MonologueManager {
   constructor(scene, options = {}) {
     this.scene = scene;
@@ -37,17 +39,20 @@ export class MonologueManager {
     this.lastPlayedAtByKey = new Map();
 
     this.isShowing = false;
+    this.isDestroyed = false;
+
     this.currentTimer = null;
     this.idleTimer = null;
     this.currentTween = null;
+
+    this.idleRequest = null;
+    this.idleGeneration = 0;
 
     this.container = null;
     this.panel = null;
     this.border = null;
     this.speakerLabel = null;
     this.textObject = null;
-
-    this.isDestroyed = false;
 
     if (!this.isSceneUsable()) {
       console.error(
@@ -68,67 +73,45 @@ export class MonologueManager {
 
     return Boolean(
       !this.isDestroyed
-      && scene
-      && scene.sys
-      && scene.sys.settings
-      && scene.time
-      && typeof scene.time.delayedCall === 'function'
-      && scene.add
-      && typeof scene.add.container === 'function'
-      && typeof scene.add.rectangle === 'function'
-      && typeof scene.add.text === 'function'
-      && scene.tweens
-      && typeof scene.tweens.add === 'function'
-      && scene.scale
-      && typeof scene.scale.on === 'function'
+      && scene?.sys?.settings
+      && typeof scene.time?.delayedCall === 'function'
+      && typeof scene.add?.container === 'function'
+      && typeof scene.add?.rectangle === 'function'
+      && typeof scene.add?.text === 'function'
+      && typeof scene.tweens?.add === 'function'
+      && typeof scene.scale?.on === 'function'
     );
   }
 
   isSceneActive() {
-    const scene = this.scene;
-    const sys = scene?.sys;
-
     return Boolean(
-      !this.isDestroyed
-      && this.isSceneUsable()
-      && typeof sys?.isActive === 'function'
-      && sys.isActive()
+      this.isSceneUsable()
+      && typeof this.scene.sys.isActive === 'function'
+      && this.scene.sys.isActive()
     );
   }
 
   getPanelLayout(width, height) {
     const o = this.options;
 
-    const panelWidth = Math.max(
-      100,
-      width - (o.panelMarginX * 2)
-    );
-
-    const panelY = Math.max(
-      0,
-      height
-        - o.hudBottomOffset
-        - o.panelMarginBottom
-        - o.panelHeight
-    );
-
     return {
-      panelWidth,
-      panelY
+      panelWidth: Math.max(100, width - o.panelMarginX * 2),
+      panelY: Math.max(
+        0,
+        height
+          - o.hudBottomOffset
+          - o.panelMarginBottom
+          - o.panelHeight
+      )
     };
   }
 
   createUi() {
-    if (!this.isSceneUsable()) {
-      return;
-    }
+    if (!this.isSceneUsable()) return;
 
     const { width, height } = this.scene.scale;
     const o = this.options;
-    const { panelWidth, panelY } = this.getPanelLayout(
-      width,
-      height
-    );
+    const { panelWidth, panelY } = this.getPanelLayout(width, height);
 
     this.container = this.scene.add.container(0, 0)
       .setDepth(o.panelDepth)
@@ -177,10 +160,7 @@ export class MonologueManager {
         fontSize: o.fontSize,
         color: o.textColor,
         wordWrap: {
-          width: Math.max(
-            40,
-            panelWidth - (o.paddingX * 2)
-          )
+          width: Math.max(40, panelWidth - o.paddingX * 2)
         },
         lineSpacing: o.lineSpacing
       }
@@ -193,33 +173,39 @@ export class MonologueManager {
       this.textObject
     ]);
 
-    this.scene.scale.on(
-      'resize',
-      this.handleResize,
-      this
-    );
+    this.scene.scale.on('resize', this.handleResize, this);
   }
 
   bindSceneEvents() {
-    if (
-      !this.isSceneUsable()
-      || !this.scene?.events
-      || typeof this.scene.events.once !== 'function'
-    ) {
-      return;
+    if (!this.isSceneUsable() || !this.scene.events) return;
+
+    const events = this.scene.events;
+    const E = Phaser.Scenes.Events;
+
+    events.on(E.CREATE, this.handleSceneReady, this);
+    events.on(E.WAKE, this.handleSceneReady, this);
+    events.on(E.RESUME, this.handleSceneReady, this);
+
+    events.on(E.PAUSE, this.handleSceneInactive, this);
+    events.on(E.SLEEP, this.handleSceneInactive, this);
+
+    events.once(E.SHUTDOWN, this.destroy, this);
+    events.once(E.DESTROY, this.destroy, this);
+  }
+
+  handleSceneReady() {
+    if (!this.isSceneActive()) return;
+
+    this.scheduleIdle();
+
+    if (!this.isShowing && this.queue.length) {
+      this.showNextFromQueue();
     }
+  }
 
-    this.scene.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.destroy,
-      this
-    );
-
-    this.scene.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this.destroy,
-      this
-    );
+  handleSceneInactive() {
+    // Zachowujemy żądanie idle, usuwamy tylko jego timer.
+    this.cancelIdleTimer();
   }
 
   handleResize(gameSize) {
@@ -237,20 +223,14 @@ export class MonologueManager {
 
     const { width, height } = gameSize;
     const o = this.options;
-    const { panelWidth, panelY } = this.getPanelLayout(
-      width,
-      height
-    );
+    const { panelWidth, panelY } = this.getPanelLayout(width, height);
 
     this.panel
       .setPosition(o.panelMarginX, panelY)
       .setSize(panelWidth, o.panelHeight);
 
     this.border
-      .setPosition(
-        o.panelMarginX + 5,
-        panelY + 5
-      )
+      .setPosition(o.panelMarginX + 5, panelY + 5)
       .setSize(
         Math.max(1, panelWidth - 10),
         Math.max(1, o.panelHeight - 10)
@@ -267,10 +247,7 @@ export class MonologueManager {
     );
 
     this.textObject.setWordWrapWidth(
-      Math.max(
-        40,
-        panelWidth - (o.paddingX * 2)
-      )
+      Math.max(40, panelWidth - o.paddingX * 2)
     );
   }
 
@@ -279,51 +256,36 @@ export class MonologueManager {
   }
 
   createTrackedTween(config) {
-    if (
-      this.isDestroyed
-      || !this.isSceneUsable()
-      || !config
-    ) {
-      return null;
-    }
+    if (!this.isSceneUsable() || !config) return null;
 
     try {
       if (typeof this.scene.createTrackedTween === 'function') {
         return this.scene.createTrackedTween(config);
       }
 
-      if (typeof this.scene.tweens?.add === 'function') {
-        return this.scene.tweens.add(config);
-      }
+      return this.scene.tweens.add(config);
     } catch (error) {
       console.warn(
         '[MonologueManager] Failed to create tween:',
         error
       );
-    }
 
-    return null;
+      return null;
+    }
   }
 
   stopCurrentTween() {
     const tween = this.currentTween;
-
-    if (!tween) {
-      return;
-    }
+    if (!tween) return;
 
     this.currentTween = null;
 
     try {
-      if (
-        this.scene
-        && typeof this.scene.removeTrackedTween === 'function'
-      ) {
+      if (typeof this.scene?.removeTrackedTween === 'function') {
         this.scene.removeTrackedTween(tween, {
           stop: true,
           remove: true
         });
-
         return;
       }
 
@@ -331,10 +293,7 @@ export class MonologueManager {
         ? tween.isPlaying()
         : tween.isPlaying;
 
-      if (isPlaying) {
-        tween.stop?.();
-      }
-
+      if (isPlaying) tween.stop?.();
       tween.remove?.();
     } catch (error) {
       console.warn(
@@ -345,26 +304,17 @@ export class MonologueManager {
   }
 
   killTweensForContainer() {
-    if (!this.container) {
-      return;
-    }
-
     this.stopCurrentTween();
 
+    if (!this.container) return;
+
     try {
-      if (
-        this.scene
-        && typeof this.scene.killTrackedTweensOf === 'function'
-      ) {
+      if (typeof this.scene?.killTrackedTweensOf === 'function') {
         this.scene.killTrackedTweensOf(this.container);
         return;
       }
 
-      if (
-        typeof this.scene?.tweens?.killTweensOf === 'function'
-      ) {
-        this.scene.tweens.killTweensOf(this.container);
-      }
+      this.scene?.tweens?.killTweensOf?.(this.container);
     } catch (error) {
       console.warn(
         '[MonologueManager] Failed to kill container tweens:',
@@ -374,9 +324,7 @@ export class MonologueManager {
   }
 
   removeTimer(timer) {
-    if (!timer) {
-      return;
-    }
+    if (!timer) return;
 
     try {
       timer.remove?.(false);
@@ -390,8 +338,7 @@ export class MonologueManager {
 
   say(text, options = {}) {
     if (
-      this.isDestroyed
-      || !this.isSceneUsable()
+      !this.isSceneUsable()
       || typeof text !== 'string'
       || !text.trim()
     ) {
@@ -409,44 +356,39 @@ export class MonologueManager {
 
     if (
       !settings.force
-      && this.isOnCooldown(
-        settings.cooldownKey,
-        settings.cooldownMs
-      )
+      && this.isOnCooldown(settings.cooldownKey, settings.cooldownMs)
     ) {
       return false;
     }
 
-    if (settings.cooldownKey) {
+    const item = {
+      text: text.trim(),
+      speakerName: settings.speakerName || this.options.speakerName
+    };
+
+    let accepted = false;
+
+    if (this.isShowing) {
+      if (!settings.queue) return false;
+
+      this.queue.push(item);
+      accepted = true;
+    } else {
+      accepted = this.show(item);
+    }
+
+    if (accepted && settings.cooldownKey) {
       this.lastPlayedAtByKey.set(
         settings.cooldownKey,
         this.scene.time.now
       );
     }
 
-    const item = {
-      text: text.trim(),
-      speakerName: settings.speakerName
-        || this.options.speakerName
-    };
-
-    if (this.isShowing) {
-      if (settings.queue) {
-        this.queue.push(item);
-      }
-
-      return true;
-    }
-
-    this.show(item);
-
-    return true;
+    return accepted;
   }
 
   sayRandom(key, options = {}) {
-    if (this.isDestroyed || !this.isSceneUsable()) {
-      return false;
-    }
+    if (!this.isSceneUsable()) return false;
 
     const lines = this.getLines(key);
 
@@ -454,31 +396,24 @@ export class MonologueManager {
       console.warn(
         `[MonologueManager] No lines found for key: "${key}"`
       );
-
       return false;
     }
 
-    const line = this.getRandomLine(key, lines);
-
-    return this.say(line, {
+    return this.say(this.getRandomLine(key, lines), {
       cooldownKey: key,
       ...options
     });
   }
 
   sayAt(key, index, options = {}) {
-    if (this.isDestroyed || !this.isSceneUsable()) {
-      return false;
-    }
+    if (!this.isSceneUsable()) return false;
 
-    const lines = this.getLines(key);
-    const line = lines[index];
+    const line = this.getLines(key)[index];
 
     if (!line) {
       console.warn(
         `[MonologueManager] No line at index ${index} for key: "${key}"`
       );
-
       return false;
     }
 
@@ -498,9 +433,7 @@ export class MonologueManager {
 
     if (Array.isArray(value)) {
       return value.filter(
-        (line) =>
-          typeof line === 'string'
-          && line.trim()
+        line => typeof line === 'string' && line.trim()
       );
     }
 
@@ -512,37 +445,22 @@ export class MonologueManager {
   }
 
   getRandomLine(key, lines) {
-    if (!Array.isArray(lines) || !lines.length) {
-      return '';
-    }
-
-    if (lines.length === 1) {
-      this.lastLineByKey.set(key, lines[0]);
-
-      return lines[0];
-    }
+    if (!Array.isArray(lines) || !lines.length) return '';
 
     const previousLine = this.lastLineByKey.get(key);
-
-    const availableLines = lines.filter(
-      (line) => line !== previousLine
-    );
+    const available = lines.filter(line => line !== previousLine);
 
     const line = Phaser.Utils.Array.GetRandom(
-      availableLines.length
-        ? availableLines
-        : lines
+      available.length ? available : lines
     );
 
     this.lastLineByKey.set(key, line);
-
     return line;
   }
 
   isOnCooldown(key, cooldownMs) {
     if (
-      this.isDestroyed
-      || !this.isSceneUsable()
+      !this.isSceneUsable()
       || !key
       || !Number.isFinite(cooldownMs)
       || cooldownMs <= 0
@@ -552,19 +470,14 @@ export class MonologueManager {
 
     const lastPlayedAt = this.lastPlayedAtByKey.get(key);
 
-    if (lastPlayedAt === undefined) {
-      return false;
-    }
+    if (lastPlayedAt === undefined) return false;
 
-    return (
-      this.scene.time.now - lastPlayedAt
-    ) < cooldownMs;
+    return this.scene.time.now - lastPlayedAt < cooldownMs;
   }
 
   show(item) {
     if (
-      this.isDestroyed
-      || !this.isSceneUsable()
+      !this.isSceneUsable()
       || !item
       || !this.container?.active
       || !this.textObject?.active
@@ -580,10 +493,8 @@ export class MonologueManager {
       item.speakerName || this.options.speakerName
     );
 
-    if (this.currentTimer) {
-      this.removeTimer(this.currentTimer);
-      this.currentTimer = null;
-    }
+    this.removeTimer(this.currentTimer);
+    this.currentTimer = null;
 
     this.killTweensForContainer();
 
@@ -617,9 +528,7 @@ export class MonologueManager {
         () => {
           this.currentTimer = null;
 
-          if (!this.isDestroyed) {
-            this.hide();
-          }
+          if (!this.isDestroyed) this.hide();
         }
       );
     } catch (error) {
@@ -639,73 +548,49 @@ export class MonologueManager {
     this.currentTween = null;
     this.currentTimer = null;
 
-    if (
-      this.isDestroyed
-      || !this.container?.active
-    ) {
-      return;
-    }
+    if (this.isDestroyed || !this.container?.active) return;
 
-    this.container
-      .setAlpha(0)
-      .setVisible(false);
-
+    this.container.setAlpha(0).setVisible(false);
     this.isShowing = false;
 
     this.showNextFromQueue();
   }
 
   hide() {
-    if (
-      this.isDestroyed
-      || !this.container?.active
-    ) {
+    if (this.isDestroyed || !this.container?.active) {
       return false;
     }
 
-    if (this.currentTimer) {
-      this.removeTimer(this.currentTimer);
-      this.currentTimer = null;
-    }
+    this.removeTimer(this.currentTimer);
+    this.currentTimer = null;
 
     this.killTweensForContainer();
-
-    const finish = () => {
-      this.finishHide();
-    };
 
     this.currentTween = this.createTrackedTween({
       targets: this.container,
       alpha: 0,
       duration: this.options.fadeMs,
       ease: 'Sine.easeIn',
-      onComplete: finish
+      onComplete: () => this.finishHide()
     });
 
-    if (!this.currentTween) {
-      finish();
-    }
+    if (!this.currentTween) this.finishHide();
 
     return true;
   }
 
   showNextFromQueue() {
-    if (
-      this.isDestroyed
-      || !this.isSceneUsable()
-    ) {
-      return false;
-    }
+    if (!this.isSceneActive() || this.isShowing) return false;
 
     while (this.queue.length) {
-      const nextItem = this.queue.shift();
+      const item = this.queue.shift();
 
       if (
-        nextItem
-        && typeof nextItem.text === 'string'
-        && nextItem.text.trim()
+        item
+        && typeof item.text === 'string'
+        && item.text.trim()
       ) {
-        return this.show(nextItem);
+        return this.show(item);
       }
     }
 
@@ -719,18 +604,10 @@ export class MonologueManager {
   startIdle(key, options = {}) {
     this.stopIdle();
 
-    if (
-      this.isDestroyed
-      || !this.isSceneActive()
-    ) {
-      console.warn(
-        '[MonologueManager] Cannot start idle monologue: scene is not active.',
-        {
-          key,
-          sceneKey: this.scene?.scene?.key ?? null
-        }
-      );
+    if (!this.isSceneUsable()) return false;
 
+    if (typeof key !== 'string' || !key.trim()) {
+      console.warn('[MonologueManager] Invalid idle key:', key);
       return false;
     }
 
@@ -741,88 +618,120 @@ export class MonologueManager {
       ...options
     };
 
+    const numericMin = Number(settings.minDelay);
+    const numericMax = Number(settings.maxDelay);
+    const numericCooldown = Number(settings.cooldownMs);
+
     const minDelay = Math.max(
       0,
-      Number(settings.minDelay) || 0
+      Number.isFinite(numericMin)
+        ? numericMin
+        : this.options.idleDelayMin
     );
 
     const maxDelay = Math.max(
       minDelay,
-      Number(settings.maxDelay) || minDelay
+      Number.isFinite(numericMax) ? numericMax : minDelay
     );
 
-    const scheduleNext = () => {
-      if (
-        this.isDestroyed
-        || !this.isSceneActive()
-      ) {
-        this.idleTimer = null;
-        return;
-      }
-
-      const delay = Phaser.Math.Between(
-        minDelay,
-        maxDelay
-      );
-
-      try {
-        this.idleTimer = this.scene.time.delayedCall(
-          delay,
-          () => {
-            this.idleTimer = null;
-
-            if (
-              this.isDestroyed
-              || !this.isSceneActive()
-            ) {
-              return;
-            }
-
-            if (!this.isShowing && !this.queue.length) {
-              this.sayRandom(key, {
-                cooldownMs: settings.cooldownMs,
-                queue: false
-              });
-            }
-
-            scheduleNext();
-          }
-        );
-      } catch (error) {
-        console.warn(
-          '[MonologueManager] Failed to schedule idle monologue:',
-          error
-        );
-
-        this.idleTimer = null;
-      }
+    this.idleRequest = {
+      key: key.trim(),
+      minDelay,
+      maxDelay,
+      cooldownMs: Number.isFinite(numericCooldown)
+        ? Math.max(0, numericCooldown)
+        : this.options.idleCooldownMs
     };
 
-    scheduleNext();
+    // W create() zapisujemy żądanie i czekamy na CREATE.
+    // Dla PAUSE/SLEEP czekamy na RESUME/WAKE.
+    this.scheduleIdle();
 
     return true;
   }
 
-  stopIdle() {
-    if (!this.idleTimer) {
-      return;
+  scheduleIdle() {
+    if (
+      !this.isSceneActive()
+      || !this.idleRequest
+      || this.idleTimer
+    ) {
+      return false;
     }
+
+    const request = this.idleRequest;
+    const generation = this.idleGeneration;
+
+    const delay = Phaser.Math.Between(
+      Math.ceil(request.minDelay),
+      Math.max(
+        Math.ceil(request.minDelay),
+        Math.floor(request.maxDelay)
+      )
+    );
+
+    try {
+      this.idleTimer = this.scene.time.delayedCall(delay, () => {
+        if (
+          this.isDestroyed
+          || generation !== this.idleGeneration
+          || this.idleRequest !== request
+        ) {
+          return;
+        }
+
+        this.idleTimer = null;
+
+        if (!this.isSceneActive()) return;
+
+        if (!this.isShowing && !this.queue.length) {
+          this.sayRandom(request.key, {
+            cooldownMs: request.cooldownMs,
+            queue: false
+          });
+        }
+
+        // Nie przywracamy cyklu anulowanego przez stopIdle().
+        if (
+          generation === this.idleGeneration
+          && this.idleRequest === request
+        ) {
+          this.scheduleIdle();
+        }
+      });
+
+      return true;
+    } catch (error) {
+      this.idleTimer = null;
+
+      console.warn(
+        '[MonologueManager] Failed to schedule idle monologue:',
+        error
+      );
+
+      return false;
+    }
+  }
+
+  cancelIdleTimer() {
+    this.idleGeneration += 1;
 
     this.removeTimer(this.idleTimer);
     this.idleTimer = null;
   }
 
+  stopIdle() {
+    this.idleRequest = null;
+    this.cancelIdleTimer();
+  }
+
   destroy() {
-    if (this.isDestroyed) {
-      return;
-    }
+    if (this.isDestroyed) return;
 
     this.stopIdle();
 
-    if (this.currentTimer) {
-      this.removeTimer(this.currentTimer);
-      this.currentTimer = null;
-    }
+    this.removeTimer(this.currentTimer);
+    this.currentTimer = null;
 
     this.killTweensForContainer();
 
@@ -830,33 +739,23 @@ export class MonologueManager {
     this.isShowing = false;
 
     try {
-      this.scene?.scale?.off(
-        'resize',
-        this.handleResize,
-        this
-      );
+      this.scene?.scale?.off('resize', this.handleResize, this);
+
+      const events = this.scene?.events;
+      const E = Phaser.Scenes.Events;
+
+      events?.off(E.CREATE, this.handleSceneReady, this);
+      events?.off(E.WAKE, this.handleSceneReady, this);
+      events?.off(E.RESUME, this.handleSceneReady, this);
+
+      events?.off(E.PAUSE, this.handleSceneInactive, this);
+      events?.off(E.SLEEP, this.handleSceneInactive, this);
+
+      events?.off(E.SHUTDOWN, this.destroy, this);
+      events?.off(E.DESTROY, this.destroy, this);
     } catch (error) {
       console.warn(
-        '[MonologueManager] Failed to remove resize listener:',
-        error
-      );
-    }
-
-    try {
-      this.scene?.events?.off(
-        Phaser.Scenes.Events.SHUTDOWN,
-        this.destroy,
-        this
-      );
-
-      this.scene?.events?.off(
-        Phaser.Scenes.Events.DESTROY,
-        this.destroy,
-        this
-      );
-    } catch (error) {
-      console.warn(
-        '[MonologueManager] Failed to remove scene listeners:',
+        '[MonologueManager] Failed to remove listeners:',
         error
       );
     }

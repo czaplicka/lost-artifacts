@@ -1,370 +1,247 @@
-// ============================================================
-// scenes/ShopScene.js — sklep spożywczy (główne okno)
-// Tło: assets/shop.jpg
-// Hotspoty: kawa, pocztówki — kliknięcie = zakup
-//   (MoneyManager.spend + InventoryManager.addItem przez BaseScene)
-// "TODAY'S STOCK" — klikalna tablica asortymentu,
-//   generowana z SHOP_CONFIG (jedno źródło prawdy)
-// Debug: klawisz D — dopasowanie hotspotów pod tło
-// Wejście z CrimeCityScene.visitShop() (scene.launch, mapa pauzuje)
-// ============================================================
-
 import { BaseScene } from './BaseScene.js';
-import {
-  moneyManager,
-  MONEY_SOURCE,
-  ECONOMY_CATEGORY
-} from '../managers/MoneyManager.js';
-
-// ------------------------------------------------------------
-// KONFIGURACJA HOTSPOTÓW — dopasuj w trybie debug (klawisz D),
-// potem wciśnij C i wklej wynik z konsoli tutaj.
-// x, y = środek prostokąta | w, h = szerokość/wysokość
-// Item musi być zgodny z InventoryManager:
-// unikalne id; stackable: true pozwala piętrzyć quantity.
-// Bedside stock board i etykiety też biorą się z tego configu.
-// ------------------------------------------------------------
+import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
+import { inventoryManager } from '../managers/InventoryManager.js';
+import { saveGameState } from '../gameStatePersistence.js';
 import { SHOP_CONFIG } from '../config/shopConfig.js';
 
 export class ShopScene extends BaseScene {
-  constructor() {
-    super({ key: 'ShopScene' });
+  constructor() { super({ key: 'ShopScene' }); }
+  init(data = {}) {
+    this.returnTo = data.returnScene || data.returnTo || 'CrimeCityScene';
     this.debugMode = false;
     this.selectedIndex = 0;
+    this.buying = false;
+    this.exiting = false;
     this.stockEntries = [];
+    this.hotspots = [];
+    this.products = SHOP_CONFIG.hotspots.map(cfg => ({ ...cfg, item: { ...cfg.item } }));
+    this.stockPage = 0;
+    this.hudPanelOpen = false;
+    this.shopHud = null;
+    this.feedback = null;
   }
-
   preload() {
-    if (!this.textures.exists('shop_bg')) {
-      this.load.image('shop_bg', 'assets/shop.jpg');
-    }
+    if (!this.textures.exists('shop_bg')) this.load.image('shop_bg', 'assets/local/shop.jpg');
   }
-
-  init(data = {}) {
-    // Scena miasta, do której wracamy (parent jest spauzowany)
-    this.returnTo = data.returnScene || data.returnTo || 'CrimeCityScene';
-  }
-
   create() {
     super.create();
-
     const { width, height } = this.scale;
-
-    // --- Tło dopasowane do okna ---
-    const bg = this.add.image(width / 2, height / 2, 'shop_bg');
-    bg.setDisplaySize(width, height);
-
-    // --- HUD z gotówką (CASH; HUD gry i tak się odświeża
-    //     po evencie lost-artifacts:money-changed z MoneyManager) ---
-    this.moneyText = this.add.text(16, 16, '', {
-      fontFamily: 'PressStart2P, monospace',
-      fontSize: '14px',
-      color: '#ffffff',
-      backgroundColor: '#000000aa',
-      padding: { x: 10, y: 6 }
-    }).setDepth(100);
-
-    // --- Tablica asortymentu (generowana z SHOP_CONFIG) ---
+    this.add.image(width / 2, height / 2, 'shop_bg').setDisplaySize(width, height);
+    this.moneyText = this.add.text(16, 16, '', this.style(16)).setDepth(100);
+    this.hotspots = this.products.map((cfg, index) => this.createHotspot(cfg, index));
+    this.boardContainer = this.add.container(0, 0).setDepth(90);
     this.createStockBoard();
-
-    // --- Hotspoty ---
-    this.hotspots = SHOP_CONFIG.hotspots.map((cfg, index) =>
-      this.createHotspot(cfg, index)
-    );
-
-    this.refreshMoneyHUD();
-
-    // --- Wyjście ze sklepu ---
-    this.add.text(width - 20, 16, '[EXIT]', {
-      fontFamily: 'PressStart2P, monospace',
-      fontSize: '14px',
-      color: '#ffd166',
-      backgroundColor: '#000000aa',
-      padding: { x: 10, y: 6 }
-    })
-      .setOrigin(1, 0)
-      .setDepth(100)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerdown', () => this.exitShop());
-    this.input.keyboard.on('keydown-ESC', () => this.exitShop());
-
-    // --- Debug ---
-    this.input.keyboard.on('keydown-D', () => this.toggleDebug());
-    this.input.keyboard.on('keydown-TAB', (e) => {
-      e.preventDefault();
-      if (!this.debugMode) return;
-      this.selectedIndex = (this.selectedIndex + 1) % this.hotspots.length;
-      this.highlightSelected();
-    });
-    this.input.keyboard.on('keydown-C', () => {
-      if (!this.debugMode) return;
-      this.printConfig();
-    });
-
-    // Strzałki = przesuwanie, Shift+strzałki = skalowanie zaznaczonego hotspotu
-    this.input.keyboard.on('keydown', (event) => {
-      if (!this.debugMode) return;
-      const hs = this.hotspots[this.selectedIndex];
-      const step = 5;
-      switch (event.code) {
-        case 'ArrowLeft':
-          event.shiftKey ? hs.resize(-2, 0) : hs.moveBy(-step, 0);
-          break;
-        case 'ArrowRight':
-          event.shiftKey ? hs.resize(2, 0) : hs.moveBy(step, 0);
-          break;
-        case 'ArrowUp':
-          event.shiftKey ? hs.resize(0, -2) : hs.moveBy(0, -step);
-          break;
-        case 'ArrowDown':
-          event.shiftKey ? hs.resize(0, 2) : hs.moveBy(0, step);
-          break;
-      }
-    });
-  }
-
-  // ------------------------------------------------------------
-  // TABLICA „TODAY'S STOCK" — widoczna lista tego, co jest w
-  // sprzedaży. Treść pochodzi wprost z SHOP_CONFIG.hotspots:
-  // zmieniasz config -> zmienia się hotspot I wpis na tablicy.
-  // Klik na pozycje = ten sam buyItem() co klik hotspotu.
-  // ------------------------------------------------------------
-  createStockBoard() {
-    const { x, y } = SHOP_CONFIG.stockBoard;
-    const lineHeight = 26;
-    const boardHeight = 34 + SHOP_CONFIG.hotspots.length * lineHeight + 12;
-    const boardWidth = 240;
-
-    // Tło tablicy (styl: ścienna melamina/kreda)
-    const board = this.add.rectangle(
-      x, y, boardWidth, boardHeight, 0x12150f, 0.88
-    )
-      .setOrigin(0, 0)
-      .setDepth(90);
-    board.setStrokeStyle(2, 0x8a7a4d);
-
-    // Nagłówek
-    this.add.text(x + boardWidth / 2, y + 18, "TODAY'S STOCK", {
-      fontFamily: 'SpecialElite, monospace',
-      fontSize: '15px',
-      color: '#ffd166'
-    }).setOrigin(0.5).setDepth(91);
-
-    // Pozycje — przetrzymuj odniesienia, zeby odswiezac dostepnosc
-    this.stockEntries = SHOP_CONFIG.hotspots.map((cfg, i) => {
-      const entry = this.add.text(
-        x + 14,
-        y + 36 + i * lineHeight,
-        `${cfg.label} . . . $${cfg.price}`,
-        {
-          fontFamily: 'SpecialElite, monospace',
-          fontSize: '15px',
-          color: '#e6e1c5'
-        }
-      )
-        .setDepth(91)
-        .setInteractive({ useHandCursor: true });
-
-      entry.on('pointerover', () => entry.setColor('#ffff88'));
-      entry.on('pointerout', () => this.refreshStockBoard());
-      entry.on('pointerdown', () => this.buyItem(cfg));
-
-      return { cfg, entry };
-    });
-
-    // Wskazówka, ze kliknięte też kupuje
-    this.add.text(
-      x + boardWidth / 2,
-      y + boardHeight - 10,
-      '— tap an item to buy —',
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: '11px',
-        color: '#8a8a7a'
-      }
-    ).setOrigin(0.5).setDepth(91);
-  }
-
-  // Szare, gdy gracza nie stac; normalne kiedy tak
-  refreshStockBoard() {
-    const cash = moneyManager.getBalance(MONEY_SOURCE.CASH) ?? 0;
-    this.stockEntries.forEach(({ cfg, entry }) => {
-      entry.setColor(cash >= cfg.price ? '#e6e1c5' : '#6a6a5a');
-    });
-  }
-
-  // ------------------------------------------------------------
-  // Pojedynczy hotspot (strefa interaktywna + etykieta)
-  // ------------------------------------------------------------
-  createHotspot(cfg, index) {
-    const rect = this.add.rectangle(cfg.x, cfg.y, cfg.w, cfg.h, 0x00ff88, 0)
-      .setStrokeStyle(0)
-      .setInteractive({ useHandCursor: true, draggable: false })
-      .setDepth(10);
-
-    const label = this.add.text(cfg.x, cfg.y - cfg.h / 2 - 22, cfg.label, {
-      fontFamily: 'SpecialElite, monospace',
-      fontSize: '16px',
-      color: '#ffff00',
-      backgroundColor: '#000000aa',
-      padding: { x: 4, y: 2 }
-    }).setOrigin(0.5).setDepth(11).setVisible(false);
-
-    const hs = {
-      cfg, rect, label,
-      moveBy: (dx, dy) => {
-        rect.x += dx; rect.y += dy;
-        label.x = rect.x; label.y = rect.y - rect.height / 2 - 22;
-        hs.syncCfg();
-      },
-      resize: (dw, dh) => {
-        rect.width = Math.max(10, rect.width + dw);
-        rect.height = Math.max(10, rect.height + dh);
-        label.y = rect.y - rect.height / 2 - 22;
-        hs.syncCfg();
-      },
-      syncCfg: () => {
-        cfg.x = Math.round(rect.x); cfg.y = Math.round(rect.y);
-        cfg.w = Math.round(rect.width); cfg.h = Math.round(rect.height);
-      }
+    this.add.text(width - 20, 16, '[EXIT]', this.style(16)).setOrigin(1, 0)
+      .setDepth(100).setInteractive({ useHandCursor: true }).on('pointerdown', () => this.exitShop());
+    this.debugText = this.add.text(16, height - 130, '', this.style(13)).setDepth(200);
+    const keyboard = this.input.keyboard;
+    this.keyHandler = event => this.onKey(event);
+    keyboard?.on('keydown', this.keyHandler);
+    this.moneyHandler = () => this.refreshMoneyHUD();
+    window.addEventListener('lost-artifacts:money-changed', this.moneyHandler);
+    this.panelHandler = state => {
+      this.hudPanelOpen = Boolean(state?.gameplaySceneKey === 'ShopScene' && state.anyPanelOpen);
     };
-
-    // --- Interakcje ---
+    this.events.once('shutdown', () => {
+      keyboard?.off('keydown', this.keyHandler);
+      window.removeEventListener('lost-artifacts:money-changed', this.moneyHandler);
+      this.shopHud?.events.off('panelStateChanged', this.panelHandler);
+      this.shopHud = null;
+    });
+    this.refreshMoneyHUD();
+    void this.setupShopHud();
+  }
+  async setupShopHud() {
+    try {
+      const hud = await this.restorePlayerHud();
+      if (this._cleanupDone || !this.sys.isActive() || this.exiting || !hud) return;
+      this.shopHud = hud;
+      hud.events.on('panelStateChanged', this.panelHandler);
+      hud.closeAllUIPanels();
+      hud.setCurrentGameplayScene('ShopScene');
+      hud.refreshUI?.();
+      hud.showHud();
+      this.hudPanelOpen = hud.isAnyPanelOpen();
+    } catch (error) { console.error('[ShopScene] HUD setup failed:', error); }
+  }
+  style(size = 16) {
+    return { fontFamily: 'SpecialElite, monospace', fontSize: `${size}px`,
+      color: '#fff1ce', backgroundColor: '#191b16', padding: { x: 8, y: 6 } };
+  }
+  createStockBoard() {
+    this.boardContainer.removeAll(true);
+    this.stockEntries = [];
+    const { x, y } = SHOP_CONFIG.stockBoard;
+    const perPage = Math.max(1, Math.floor((this.scale.height - y - 200) / 30));
+    const pages = Math.max(1, Math.ceil(this.products.length / perPage));
+    this.stockPage = Math.min(this.stockPage, pages - 1);
+    const visible = this.products.slice(this.stockPage * perPage, (this.stockPage + 1) * perPage);
+    const panelHeight = 100 + visible.length * 30;
+    const board = this.add.rectangle(x, y, 280, panelHeight, 0x191b16, 0.96)
+      .setOrigin(0).setStrokeStyle(2, 0x8a7a4d).setInteractive();
+    this.boardContainer.add(board);
+    this.boardContainer.add(this.add.text(x + 12, y + 10, "TODAY'S STOCK", this.style(17)));
+    visible.forEach((cfg, i) => {
+      const entry = this.add.text(x + 12, y + 43 + i * 30,
+        `${cfg.label} — $${cfg.price}`, this.style(16)).setInteractive({ useHandCursor: true });
+      entry.on('pointerdown', () => this.buyItem(cfg));
+      this.boardContainer.add(entry);
+      this.stockEntries.push({ cfg, entry });
+    });
+    const footerY = y + panelHeight - 42;
+    this.boardContainer.add(this.add.text(x + 75, footerY, `${this.stockPage + 1}/${pages}`, this.style(14)));
+    for (const [label, offset, delta] of [['<', 12, -1], ['>', 235, 1]]) {
+      const button = this.add.text(x + offset, footerY, label, this.style(16))
+        .setInteractive({ useHandCursor: true });
+      button.on('pointerdown', () => {
+        if (this.hudPanelOpen) return;
+        this.stockPage = (this.stockPage + delta + pages) % pages;
+        this.createStockBoard();
+        this.refreshMoneyHUD();
+      });
+      this.boardContainer.add(button);
+    }
+  }
+  createHotspot(cfg, index) {
+    const rect = this.add.rectangle(cfg.x, cfg.y, cfg.w, cfg.h, 0xffd166, 0)
+      .setDepth(10).setInteractive({ useHandCursor: true });
+    const label = this.add.text(0, 0, '', this.style(16)).setOrigin(0.5, 1)
+      .setDepth(20).setVisible(false);
+    const hs = { cfg, rect, label };
     rect.on('pointerover', () => {
-      if (this.debugMode) return;
-      rect.setFillStyle(0xffff00, 0.15);
+      if (this.debugMode || this.hudPanelOpen) return;
+      rect.setFillStyle(0xffd166, 0.18);
       label.setText(`${cfg.label} — $${cfg.price}`).setVisible(true);
     });
     rect.on('pointerout', () => {
       if (this.debugMode) return;
-      rect.setFillStyle(0x00ff88, 0);
+      rect.setFillStyle(0xffd166, 0);
       label.setVisible(false);
     });
     rect.on('pointerdown', () => {
-      if (this.debugMode) {
-        this.selectedIndex = index;
-        this.highlightSelected();
-        return;
-      }
-      this.buyItem(cfg);
+      if (this.hudPanelOpen) return;
+      if (this.debugMode) { this.selectedIndex = index; this.updateDebug(); }
+      else this.buyItem(cfg);
     });
-
-    // Przeciąganie myszką w trybie debug
-    this.input.setDraggable(rect);
-    rect.on('drag', (pointer, dragX, dragY) => {
-      if (!this.debugMode) return;
-      rect.x = dragX; rect.y = dragY;
-      label.x = rect.x; label.y = rect.y - rect.height / 2 - 22;
-      hs.syncCfg();
+    this.input.setDraggable(rect, false);
+    rect.on('drag', (pointer, x, y) => {
+      if (!this.debugMode || this.hudPanelOpen) return;
+      cfg.x = Math.round(x); cfg.y = Math.round(y);
+      this.syncHotspot(hs);
+      this.updateDebug();
     });
-
+    this.syncHotspot(hs);
     return hs;
   }
-
-  // ------------------------------------------------------------
-  // ZAKUP: MoneyManager.spend + addInventoryItem (helper BaseScene)
-  // ------------------------------------------------------------
+  syncHotspot({ cfg, rect, label }) {
+    rect.setPosition(cfg.x, cfg.y).setSize(cfg.w, cfg.h);
+    rect.input.hitArea.setTo(0, 0, cfg.w, cfg.h);
+    label.setPosition(cfg.x, cfg.y - cfg.h / 2 - 8);
+  }
   buyItem(cfg) {
-    const purchase = moneyManager.spend(cfg.price, {
-      source: MONEY_SOURCE.CASH,
-      category: ECONOMY_CATEGORY.ITEM,
-      label: cfg.label
-    });
-
-    if (!purchase) {
-      this.showFeedback("Not enough money!", '#ff5555');
-      return;
+    if (this.debugMode || this.buying || this.exiting || this.hudPanelOpen) return;
+    if (!Number.isInteger(cfg.price) || cfg.price <= 0 || !cfg.item?.id || !cfg.item?.name) {
+      console.error('[ShopScene] Invalid product:', cfg);
+      this.showFeedback('This item is not ready for sale.'); return;
     }
-
-    // InventoryManager odrzuca duplikat non-stackable ID —
-    // kawa/pocztówki są stackable, więc rośnie tylko quantity.
-    const added = this.addInventoryItem({ ...cfg.item });
-
-    if (added === false) {
-      // Pełne inventory — zwrot gotówki, żeby gracz nie stracił kasy
-      moneyManager.add?.(cfg.price, {
-        source: MONEY_SOURCE.CASH,
-        category: 'item',
-        label: `Refund: ${cfg.label}`
+    const existing = inventoryManager.getItem(cfg.item.id);
+    if (existing && !(existing.stackable === true && cfg.item.stackable === true)) {
+      this.showFeedback('You already own this item.'); return;
+    }
+    const capacity = inventoryManager.getCapacity();
+    if (!existing && capacity.current >= capacity.max) {
+      this.showFeedback('Inventory full. Even detectives need pockets.'); return;
+    }
+    this.buying = true;
+    try {
+      const purchase = moneyManager.spend(cfg.price, {
+        source: MONEY_SOURCE.CASH, category: ECONOMY_CATEGORY.ITEM,
+        description: `Shop: ${cfg.label}`, metadata: { itemId: cfg.item.id }
       });
-      this.showFeedback('Inventory full!', '#ff5555');
-      return;
+      if (!purchase.ok) { this.showFeedback('Not enough money!'); return; }
+      const added = inventoryManager.addItem({ ...cfg.item });
+      if (!added) {
+        moneyManager.refund(cfg.price, {
+          source: MONEY_SOURCE.CASH, description: `Shop refund: ${cfg.label}`,
+          metadata: { itemId: cfg.item.id, purchaseId: purchase.transaction.id }
+        });
+        this.showFeedback('Item could not be added. Payment refunded.'); return;
+      }
+      const saved = saveGameState();
+      this.showFeedback(saved ? `Bought: ${cfg.item.name} (-$${cfg.price})`
+        : 'Bought, but autosave failed. Save your game before leaving.');
+    } catch (error) {
+      console.error('[ShopScene] Purchase failed:', error);
+      this.showFeedback('Purchase error. Check the console before trying again.');
+    } finally {
+      this.buying = false;
+      this.refreshMoneyHUD();
     }
-
-    this.showFeedback(`Bought: ${cfg.label} (-$${cfg.price})`, '#7dff7d');
-    this.refreshMoneyHUD();
-    this.refreshStockBoard();
   }
-
-  // ------------------------------------------------------------
-  // UI / feedback
-  // ------------------------------------------------------------
   refreshMoneyHUD() {
-    const cash = moneyManager.getBalance(MONEY_SOURCE.CASH) ?? 0;
-    this.moneyText.setText(`$ ${cash}`);
-    this.refreshStockBoard();
+    const cash = moneyManager.getBalance(MONEY_SOURCE.CASH);
+    this.moneyText?.setText(`Cash: $${cash}`);
+    this.stockEntries.forEach(({ cfg, entry }) => entry.setColor(cash >= cfg.price ? '#fff1ce' : '#858575'));
   }
-
-  showFeedback(text, color) {
-    const msg = this.add.text(this.scale.width / 2, 60, text, {
-      fontFamily: 'SpecialElite, monospace',
-      fontSize: '22px',
-      color,
-      backgroundColor: '#000000cc',
-      padding: { x: 14, y: 8 }
-    }).setOrigin(0.5).setDepth(200);
-
-    this.tweens.add({
-      targets: msg, alpha: 0, y: 40,
-      delay: 1400, duration: 500,
-      onComplete: () => msg.destroy()
-    });
+  showFeedback(text) {
+    this.feedback?.destroy();
+    const message = this.add.text(this.scale.width / 2, 65, text, {
+      ...this.style(18), wordWrap: { width: Math.max(100, this.scale.width - 60) }, align: 'center'
+    }).setOrigin(0.5, 0).setDepth(250);
+    this.feedback = message;
+    this.time.delayedCall(3500, () => { if (message.active) message.destroy(); });
   }
-
-  // ------------------------------------------------------------
-  // Wyjście: stop tej sceny, wznowienie mapy miasta
-  // (odpowiednik powrotu z ApartmentScene)
-  // ------------------------------------------------------------
-  exitShop() {
-    if (!this.sys.isActive()) return;
-
-    if (this.scene.isSleeping(this.returnTo) || this.scene.isPaused(this.returnTo)) {
-      this.scene.stop();
-      this.scene.resume(this.returnTo);
-    } else {
-      this.scene.start(this.returnTo);
+  onKey(event) {
+    const target = event.target;
+    if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
+    if (this.hudPanelOpen) return;
+    if (event.code === 'Escape') { this.exitShop(); return; }
+    if (event.code === 'KeyD') { this.debugMode = !this.debugMode; this.updateDebug(); return; }
+    if (!this.debugMode || !this.hotspots.length) return;
+    if (event.code === 'KeyC') { this.printConfig(); return; }
+    if (event.code === 'Tab') {
+      event.preventDefault();
+      this.selectedIndex = (this.selectedIndex + 1) % this.hotspots.length;
+      this.updateDebug(); return;
     }
+    if (!event.code.startsWith('Arrow')) return;
+    event.preventDefault();
+    const hs = this.hotspots[this.selectedIndex];
+    const cfg = hs.cfg;
+    const step = event.altKey ? 1 : 5;
+    const horizontal = event.code === 'ArrowLeft' || event.code === 'ArrowRight';
+    const direction = event.code === 'ArrowLeft' || event.code === 'ArrowUp' ? -1 : 1;
+    const key = event.shiftKey ? (horizontal ? 'w' : 'h') : (horizontal ? 'x' : 'y');
+    cfg[key] += direction * step;
+    cfg.w = Math.max(10, cfg.w); cfg.h = Math.max(10, cfg.h);
+    this.syncHotspot(hs);
+    this.updateDebug();
   }
-
-  // ------------------------------------------------------------
-  // TRYB DEBUG — dopasowanie hotspotów pod shop.jpg
-  // ------------------------------------------------------------
-  toggleDebug() {
-    this.debugMode = !this.debugMode;
-    this.hotspots.forEach((hs) => {
-      hs.rect.setStrokeStyle(this.debugMode ? 2 : 0, 0x00ff88);
-      hs.rect.setFillStyle(0x00ff88, this.debugMode ? 0.25 : 0);
-      hs.rect.setDraggable(this.debugMode);
-      hs.label.setVisible(this.debugMode).setText(hs.cfg.label);
-    });
-    if (this.debugMode) this.highlightSelected();
-    console.log(`[ShopScene] Debug: ${this.debugMode ? 'ON' : 'OFF'}`);
-    console.log('Arrows = move | Shift+arrows = resize | Tab = next hotspot | mouse drag | C = print config');
-  }
-
-  highlightSelected() {
+  updateDebug() {
     this.hotspots.forEach((hs, i) => {
-      hs.rect.setStrokeStyle(2, i === this.selectedIndex ? 0xff44ff : 0x00ff88);
+      hs.rect.setFillStyle(0x00ff88, this.debugMode ? 0.2 : 0);
+      hs.rect.setStrokeStyle(this.debugMode ? 2 : 0, i === this.selectedIndex ? 0xff44ff : 0x00ff88);
+      this.input.setDraggable(hs.rect, this.debugMode);
+      hs.label.setText(hs.cfg.label).setVisible(this.debugMode);
     });
+    const cfg = this.hotspots[this.selectedIndex]?.cfg;
+    this.debugText.setText(this.debugMode
+      ? `DEBUG: ${cfg?.id || 'no items'} | x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}\nArrows: move | Shift: resize | Alt: 1px | Tab: next | C: export\nPurchases disabled. D: close debug.` : '');
   }
-
   printConfig() {
-    const out = SHOP_CONFIG.hotspots.map(h => ({
-      id: h.id, label: h.label,
-      x: h.x, y: h.y, w: h.w, h: h.h,
-      price: h.price, item: h.item
-    }));
-    console.log('=== COPY INTO SHOP_CONFIG.hotspots ===');
-    console.log(JSON.stringify(out, null, 2));
+    console.log('COPY INTO config/shopConfig.js -> hotspots:');
+    console.log(JSON.stringify(this.products, null, 2));
+  }
+  exitShop() {
+    if (this.exiting || this.buying || this.hudPanelOpen) return;
+    this.exiting = true;
+    this.shopHud?.closeAllUIPanels();
+    const target = this.returnTo;
+    if (this.scene.isPaused(target)) { this.scene.resume(target); this.scene.stop(); }
+    else if (this.scene.isSleeping(target)) { this.scene.wake(target); this.scene.stop(); }
+    else if (this.scene.isActive(target)) {
+      this.shopHud?.setCurrentGameplayScene(target);
+      this.scene.bringToTop(target); this.scene.stop();
+    } else this.scene.start(target);
   }
 }

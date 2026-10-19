@@ -10,6 +10,14 @@
 // title i description są po angielsku.
 // Opisy zawierają spoilery: nie pokazuj graczowi przyszłych etapów.
 //
+// NPC IDs odpowiadają postaciom z "Mark agency.md":
+//   partner_murphy      -> Partner Johna w Mark Agency: Alex Murphy (inventory)
+//   archivist_drebin     -> Archiwista: Porucznik Frank Drebin
+//   hr_gunderson         -> HR: Marge Gunderson
+//   supervisor_gordon    -> Przełożony: Komisarz Gordon
+//   doctor_lecter        -> Lekarz: dr Hannibal Lecter
+//   informant_underground -> uliczny informator, postać spoza biura Mark Agency
+//
 // Identyfikatory w unlocks pochodzą z dotychczasowej definicji.
 // Same nie tworzą NPC ani lokacji — odpowiednie sceny muszą
 // sprawdzać odblokowania przez MainStoryManager.
@@ -23,7 +31,7 @@ export const MAIN_STORY_STAGES = [
       'You are already working at Mark Agency, investigating what happened to your client’s missing husband.',
     unlocks: {
       locations: ['mark_agency_office'],
-      npcs: ['agency_boss', 'agency_receptionist']
+      npcs: ['partner_murphy', 'archivist_drebin']
     }
   },
   {
@@ -34,7 +42,7 @@ export const MAIN_STORY_STAGES = [
       'You learn that the missing husband reportedly died during an artifact recovery mission.',
     requiredFlags: ['joined_agency'],
     unlocks: {
-      npcs: ['agency_coworker']
+      npcs: ['hr_gunderson']
     }
   },
   {
@@ -43,7 +51,10 @@ export const MAIN_STORY_STAGES = [
     title: 'Something Does Not Add Up',
     description:
       'You discover an inconsistency that casts doubt on the account of his death.',
-    requiredFlags: ['learned_dead']
+    requiredFlags: ['learned_dead'],
+    unlocks: {
+      npcs: ['supervisor_gordon']
+    }
   },
   {
     id: 'confirmed_faked_death',
@@ -62,7 +73,10 @@ export const MAIN_STORY_STAGES = [
     title: 'The Threat at Home',
     description:
       'You discover that your client tried to kill her husband. He faked his death to escape her.',
-    requiredFlags: ['confirmed_faked_death']
+    requiredFlags: ['confirmed_faked_death'],
+    unlocks: {
+      npcs: ['doctor_lecter']
+    }
   },
   {
     id: 'confronted_husband',
