@@ -5,19 +5,40 @@ import { CrimeLabManager } from './CSI/CrimeLabManager.js';
 import { DEDUCTION_EVIDENCE_REGISTRY } from './CSI/DeductionEvidenceRegistry.js';
 import { applyGridExclusions } from '../suspectsBoard/applyGridExclusions.js';
 
-const DEFAULT_ROWS = [
-  { id: 'shoeSizeCategory', label: 'SHOE SIZE' },
-  { id: 'handedness', label: 'HANDEDNESS' },
-  { id: 'hair_color', label: 'HAIR COLOR' },
-  { id: 'bloodType', label: 'BLOOD TYPE' },
-  { id: 'gender', label: 'DNA PROFILE' },
-  { id: 'fingerprintPattern', label: 'FINGERPRINT' },
-  { id: 'race', label: 'ANCESTRY' },
-  { id: 'skills', label: 'CRIMINAL SKILLS' },
-  { id: 'habitus', label: 'HABITS' },
-  { id: 'alibi', label: 'ALIBI' },
-  { id: 'motive', label: 'MOTIVE' }
+const FIELD_DEFS = [
+  { id: 'hair_color', aliases: ['hair', 'hairColor'], label: 'HAIR COLOR' },
+  { id: 'blood_type', aliases: ['bloodType'], label: 'BLOOD TYPE' },
+  {
+    id: 'biological_sex',
+    aliases: ['gender', 'sex', 'biologicalSex'],
+    label: 'DNA PROFILE'
+  },
+  {
+    id: 'fingerprint_pattern',
+    aliases: ['fingerprintPattern'],
+    label: 'FINGERPRINT'
+  },
+  {
+    id: 'shoe_size_category',
+    aliases: ['shoeSizeCategory'],
+    label: 'SHOE SIZE'
+  },
+  { id: 'handedness', aliases: ['dominantHand'], label: 'DOMINANT HAND' },
+  { id: 'eye_color', aliases: ['eyes', 'eyeColor'], label: 'EYE COLOR' },
+  { id: 'race', aliases: ['ancestry'], label: 'ANCESTRY' },
+  { id: 'skills', aliases: [], label: 'CRIMINAL SKILLS' },
+  { id: 'habitus', aliases: [], label: 'HABITS' },
+  { id: 'alibi', aliases: [], label: 'ALIBI' },
+  { id: 'motive', aliases: [], label: 'MOTIVE' }
 ];
+
+const FIELD_BY_ALIAS = new Map();
+
+FIELD_DEFS.forEach((definition) => {
+  [definition.id, ...definition.aliases].forEach((alias) => {
+    FIELD_BY_ALIAS.set(alias, definition);
+  });
+});
 
 const COLORS = {
   bg: 0x110d0e,
@@ -29,6 +50,8 @@ const COLORS = {
   cellB: 0x1d1514,
   cellHover: 0x3b2b1c,
   cellFilled: 0x3a2e1a,
+  cellAuto: 0x2b2a1b,
+  cellWaiting: 0x5a4518,
   line: 0x604b34,
   headerScene: 0x503719,
   headerSuspect: 0x32251b,
@@ -47,6 +70,22 @@ function prettify(value = '') {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function normalizeFieldKey(field = '') {
+  const raw = String(field || '').trim();
+  return FIELD_BY_ALIAS.get(raw)?.id || raw;
+}
+
+function getFieldLabel(field = '') {
+  return (
+    FIELD_BY_ALIAS.get(field)?.label || prettify(field).toUpperCase()
+  );
+}
+
+function getFieldOrder(field = '') {
+  const index = FIELD_DEFS.findIndex((definition) => definition.id === field);
+  return index === -1 ? 999 : index;
+}
+
 function normalize(value) {
   if (Array.isArray(value)) {
     return value.map((item) => String(item).trim()).join(', ');
@@ -55,6 +94,27 @@ function normalize(value) {
     return '?';
   }
   return String(value);
+}
+
+function formatCellValue(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => formatCellValue(item))
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (value === undefined || value === null || value === '') {
+    return '';
+  }
+
+  return String(value)
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/^blond$/, 'blonde')
+    .toUpperCase();
 }
 
 function pickRandom(items = []) {
@@ -71,11 +131,6 @@ function fillTemplate(template = '', params = {}) {
   );
 }
 
-/**
- * Evidence Grid ma osobny status.
- * `markedUnlikely` to wyłącznie robocza decyzja gracza na tablicy,
- * NIE jest to `deductionState.eliminated`.
- */
 function getGridMarkState(rawState = {}) {
   const currentState =
     rawState.markedUnlikelyBySuspectId ||
@@ -102,6 +157,7 @@ export class SuspectGridScene extends BaseScene {
     this.rows = [];
 
     this.clueCards = [];
+    this.revealedFields = new Set();
     this.selectedClueId = null;
 
     this.placedCluesByCell = {};
@@ -113,12 +169,21 @@ export class SuspectGridScene extends BaseScene {
     this.feedbackText = null;
     this.feedbackMessage = '';
 
-    this.regions = { body: null, clueList: null, header: null };
+    this.regions = {
+      body: null,
+      scene: null,
+      header: null,
+      names: null,
+      clueList: null
+    };
+
     this.bodyContainer = null;
     this.headerContainer = null;
-    this.labelContainer = null;
+    this.sceneContainer = null;
+    this.nameContainer = null;
     this.clueListContainer = null;
     this.layout = null;
+    this.gridOrigin = null;
 
     this.scrollX = 0;
     this.scrollY = 0;
@@ -215,6 +280,98 @@ export class SuspectGridScene extends BaseScene {
     this.modalOpen = false;
   }
 
+  /* ------------------------------------------------------------------ */
+  /* DANE PODEJRZANYCH                                                   */
+  /* ------------------------------------------------------------------ */
+
+  getSuspectDisplayName(suspect) {
+    return (
+      suspect?.publicProfile?.displayName || suspect?.name || 'Unknown'
+    );
+  }
+
+  getSuspectOccupation(suspect) {
+    return suspect?.publicProfile?.occupation || suspect?.occupation || '';
+  }
+
+  getSuspectFieldValue(suspect, field) {
+    const attributes = suspect?.restrictedProfile?.forensicAttributes;
+
+    if (!attributes || typeof attributes !== 'object') {
+      return null;
+    }
+
+    const definition = FIELD_BY_ALIAS.get(field);
+    const keys = definition ? [definition.id, ...definition.aliases] : [field];
+
+    for (const key of keys) {
+      const entry = attributes[key];
+      const value = entry?.value ?? entry ?? null;
+
+      if (value === null || value === undefined || value === '') {
+        continue;
+      }
+
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        continue;
+      }
+
+      return value;
+    }
+
+    return null;
+  }
+
+  getSuspectUnlockedFields(suspect) {
+    const fields = new Set();
+
+    (suspect?.restrictedProfile?.unlockedFields || []).forEach((field) => {
+      const key =
+        typeof field === 'string'
+          ? field
+          : field?.field || field?.id || field?.key || '';
+
+      if (key) {
+        fields.add(normalizeFieldKey(key));
+      }
+    });
+
+    const attributes = suspect?.restrictedProfile?.forensicAttributes || {};
+
+    Object.entries(attributes).forEach(([key, entry]) => {
+      if (entry?.unlocked === true) {
+        fields.add(normalizeFieldKey(key));
+      }
+    });
+
+    return fields;
+  }
+
+  /**
+   * Wartość podejrzanego wpisuje się sama, gdy:
+   * - laboratorium dało wynik dla tej cechy (jest karta z miejsca zbrodni), albo
+   * - cecha została odblokowana w aktach podejrzanego.
+   * Tak samo działa FILE DATA na kartach w Boardzie.
+   */
+  getAutoSuspectValue(suspect, field) {
+    const revealed =
+      this.revealedFields.has(field) ||
+      this.getSuspectUnlockedFields(suspect).has(field);
+
+    if (!revealed) {
+      return null;
+    }
+
+    const value = this.getSuspectFieldValue(suspect, field);
+    const formatted = formatCellValue(value);
+
+    return formatted || null;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* KARTY ZE WSKAZÓWKAMI                                                */
+  /* ------------------------------------------------------------------ */
+
   buildClueCards(caseForensics, data) {
     const explicitCards =
       data.gridClues ||
@@ -242,13 +399,33 @@ export class SuspectGridScene extends BaseScene {
       }
     );
 
-    return [...uniqueCards.values()];
+    const merged = [...uniqueCards.values()];
+
+    this.revealedFields = new Set(
+      merged
+        .filter((card) => card.type === 'crime_scene_fact')
+        .map((card) => card.field)
+    );
+
+    return merged.filter((card) => {
+      if (card.type !== 'suspect_fact') {
+        return true;
+      }
+
+      const suspect = this.suspects.find(
+        (item) => item.id === card.suspectId
+      );
+
+      return !suspect || this.getAutoSuspectValue(suspect, card.field) === null;
+    });
   }
 
   normalizeExplicitClue(clue, index) {
     if (!clue?.field) {
       return null;
     }
+
+    const field = normalizeFieldKey(clue.field);
 
     const type =
       clue.type === 'crime_scene_fact' ||
@@ -271,19 +448,19 @@ export class SuspectGridScene extends BaseScene {
     const value = normalize(clue.value);
 
     return {
-      id: clue.id || `grid_clue_${index}_${clue.field}`,
+      id: clue.id || `grid_clue_${index}_${field}`,
       type,
       suspectId,
-      field: clue.field,
+      field,
       value,
-      label: clue.label || prettify(clue.field),
+      label: clue.label || getFieldLabel(field),
       text:
         clue.text ||
         clue.description ||
         (type === 'crime_scene_fact'
-          ? `Crime scene result: ${prettify(clue.field)} is ${value}.`
-          : `${suspect?.name || 'This suspect'}: ${prettify(
-              clue.field
+          ? `Crime scene result: ${getFieldLabel(field)} is ${value}.`
+          : `${this.getSuspectDisplayName(suspect)}: ${getFieldLabel(
+              field
             )} is ${value}.`)
     };
   }
@@ -298,13 +475,16 @@ export class SuspectGridScene extends BaseScene {
       [];
 
     rawHardEvidence.forEach((evidence, index) => {
-      const field = evidence.field || evidence.forensicField;
+      const rawField = evidence.field || evidence.forensicField;
+      const field = normalizeFieldKey(rawField);
 
       if (!field || alreadyAdded.has(field)) {
         return;
       }
 
-      const entry = DEDUCTION_EVIDENCE_REGISTRY[field];
+      const entry =
+        DEDUCTION_EVIDENCE_REGISTRY[rawField] ||
+        DEDUCTION_EVIDENCE_REGISTRY[field];
       const rawValue = evidence.value ?? evidence.normalizedValue;
 
       const value = entry?.normalizeEvidence
@@ -321,14 +501,16 @@ export class SuspectGridScene extends BaseScene {
 
       const text = template
         ? fillTemplate(template, { value: normalize(value) })
-        : `Crime scene result: ${prettify(field)} is ${normalize(value)}.`;
+        : `Crime scene result: ${getFieldLabel(field)} is ${normalize(
+            value
+          )}.`;
 
       cards.push({
-        id: `crime_scene_hard_${field}_${index}`,
+        id: `crime_scene_hard_${rawField}_${index}`,
         type: 'crime_scene_fact',
         field,
         value: normalize(value),
-        label: prettify(field),
+        label: getFieldLabel(field),
         text
       });
     });
@@ -339,13 +521,16 @@ export class SuspectGridScene extends BaseScene {
     ].filter(Boolean);
 
     traceResults.forEach((result, index) => {
-      const field = result.evidenceType;
+      const rawField = result.evidenceType;
+      const field = normalizeFieldKey(rawField);
 
       if (!field || alreadyAdded.has(field)) {
         return;
       }
 
-      const entry = DEDUCTION_EVIDENCE_REGISTRY[field];
+      const entry =
+        DEDUCTION_EVIDENCE_REGISTRY[rawField] ||
+        DEDUCTION_EVIDENCE_REGISTRY[field];
       const rawValue = result.value;
 
       if (rawValue === undefined || rawValue === null || rawValue === '') {
@@ -358,14 +543,14 @@ export class SuspectGridScene extends BaseScene {
 
       const text = template
         ? fillTemplate(template, { value: normalize(rawValue) })
-        : `Lab result: ${prettify(field)} is ${normalize(rawValue)}.`;
+        : `Lab result: ${getFieldLabel(field)} is ${normalize(rawValue)}.`;
 
       cards.push({
-        id: `crime_scene_trace_${field}_${index}`,
+        id: `crime_scene_trace_${rawField}_${index}`,
         type: 'crime_scene_fact',
         field,
         value: normalize(rawValue),
-        label: prettify(field),
+        label: getFieldLabel(field),
         text
       });
     });
@@ -373,27 +558,24 @@ export class SuspectGridScene extends BaseScene {
     return cards;
   }
 
+  /**
+   * Kolumny tabeli = cechy, dla których jest jakakolwiek karta.
+   */
   buildRows() {
-    const fieldsInCards = new Set(
+    const fields = new Set(
       this.clueCards.map((clue) => clue.field).filter(Boolean)
     );
 
-    const defaultRows = DEFAULT_ROWS.filter((row) =>
-      fieldsInCards.has(row.id)
-    );
-
-    const extraRows = [...fieldsInCards]
-      .filter((field) => !DEFAULT_ROWS.some((row) => row.id === field))
-      .map((field) => ({ id: field, label: prettify(field).toUpperCase() }));
-
-    const rows = [...defaultRows, ...extraRows];
+    const rows = [...fields]
+      .sort((a, b) => getFieldOrder(a) - getFieldOrder(b))
+      .map((field) => ({ id: field, label: getFieldLabel(field) }));
 
     return rows.length
       ? rows
       : [
-          { id: 'shoeSizeCategory', label: 'SHOE SIZE' },
-          { id: 'handedness', label: 'HANDEDNESS' },
-          { id: 'bloodType', label: 'BLOOD TYPE' }
+          { id: 'shoe_size_category', label: 'SHOE SIZE' },
+          { id: 'handedness', label: 'DOMINANT HAND' },
+          { id: 'blood_type', label: 'BLOOD TYPE' }
         ];
   }
 
@@ -401,12 +583,25 @@ export class SuspectGridScene extends BaseScene {
   /* CREATE / UI                                                         */
   /* ------------------------------------------------------------------ */
 
+  hideOverlayHuds() {
+    const keys = this.scene.manager.keys;
+    const newsHud = keys.NewsHud;
+
+    if (newsHud?.events) {
+      newsHud.events.emit('setNewspaperVisible', false);
+      newsHud.events.emit('setTvVisible', false);
+    }
+
+    if (keys.PlayerHudScene) {
+      this.scene.sleep('PlayerHudScene');
+    }
+  }
+
   create() {
     super.create();
 
-    this.scene.stop('NewsHud');
-    this.scene.stop('UIScene');
-    this.scene.stop('MenuScene');
+    this.hideOverlayHuds();
+    this.time.delayedCall(150, () => this.hideOverlayHuds());
 
     this.cameras.main.setBackgroundColor('#110d0e');
 
@@ -446,7 +641,7 @@ export class SuspectGridScene extends BaseScene {
 
     const top = 96;
     const bottom = 62;
-    const sidebarW = narrow ? 230 : Math.min(340, Math.floor(width * 0.28));
+    const sidebarW = narrow ? 230 : Math.min(360, Math.floor(width * 0.27));
     const areaH = height - top - bottom - 10;
 
     const sidebar = { x: 12, y: top, w: sidebarW, h: areaH };
@@ -457,22 +652,17 @@ export class SuspectGridScene extends BaseScene {
       h: areaH
     };
 
-    const labelW = narrow ? 112 : 142;
-    const headerH = 84;
-    const rowH = 50;
-    const sceneW = narrow ? 104 : 120;
-    const suspectW = narrow ? 128 : 150;
-
     return {
       width,
       height,
       sidebar,
       grid,
-      labelW,
-      headerH,
-      rowH,
-      sceneW,
-      suspectW
+      nameW: narrow ? 230 : 270,
+      headerH: 56,
+      sceneRowH: 64,
+      rowH: 64,
+      minColW: 120,
+      maxColW: 250
     };
   }
 
@@ -492,7 +682,8 @@ export class SuspectGridScene extends BaseScene {
 
     this.bodyContainer = null;
     this.headerContainer = null;
-    this.labelContainer = null;
+    this.sceneContainer = null;
+    this.nameContainer = null;
     this.clueListContainer = null;
     this.feedbackText = null;
   }
@@ -555,7 +746,7 @@ export class SuspectGridScene extends BaseScene {
       .text(
         width / 2,
         44,
-        'Pick a clue card, then click its cell. Click a placed clue to take it back.',
+        'Pick a clue card, then click the glowing cell. Compare the crime scene row with each suspect.',
         {
           fontFamily: 'SpecialElite',
           fontSize: '14px',
@@ -570,7 +761,7 @@ export class SuspectGridScene extends BaseScene {
       .text(
         width / 2,
         66,
-        `CLUES ${placedCount}/${this.clueCards.length}   ·   POSSIBLE ${possibleCount}   ·   UNLIKELY ${unlikelyCount}`,
+        `CLUES ${placedCount}/${this.clueCards.length + placedCount}   ·   POSSIBLE ${possibleCount}   ·   UNLIKELY ${unlikelyCount}`,
         {
           fontFamily: 'PressStart2P',
           fontSize: '8px',
@@ -616,7 +807,7 @@ export class SuspectGridScene extends BaseScene {
       const empty = this.add
         .text(listW / 2, 30, 'All clue cards are on the board.', {
           fontFamily: 'SpecialElite',
-          fontSize: '14px',
+          fontSize: '16px',
           color: '#c6b58d',
           align: 'center',
           wordWrap: { width: listW - 20, useAdvancedWrap: true }
@@ -666,31 +857,38 @@ export class SuspectGridScene extends BaseScene {
 
     const tag = this.add
       .text(
-        14,
-        8,
+        16,
+        10,
         `${isScene ? 'CRIME SCENE' : 'SUSPECT'} · ${clue.label.toUpperCase()}`,
         {
           fontFamily: 'PressStart2P',
-          fontSize: '6px',
+          fontSize: '7px',
           color: selected ? '#18110b' : isScene ? '#ffdc73' : '#a9d0f5',
-          wordWrap: { width: cardW - 24, useAdvancedWrap: true }
+          wordWrap: { width: cardW - 28, useAdvancedWrap: true }
         }
       )
       .setOrigin(0, 0);
 
     const body = this.add
-      .text(14, tag.y + tag.height + 6, clue.text, {
+      .text(16, tag.y + tag.height + 8, clue.text, {
         fontFamily: 'SpecialElite',
-        fontSize: '13px',
+        fontSize: '15px',
         color: selected ? '#21160c' : '#f1e2c0',
-        wordWrap: { width: cardW - 24, useAdvancedWrap: true }
+        wordWrap: { width: cardW - 28, useAdvancedWrap: true }
       })
       .setOrigin(0, 0);
 
-    const cardH = Math.ceil(body.y + body.height + 10);
+    const cardH = Math.ceil(body.y + body.height + 12);
 
     const bg = this.add
-      .rectangle(cardW / 2, cardH / 2, cardW, cardH, selected ? 0xe3c26a : 0x302217, 1)
+      .rectangle(
+        cardW / 2,
+        cardH / 2,
+        cardW,
+        cardH,
+        selected ? 0xe3c26a : 0x302217,
+        1
+      )
       .setStrokeStyle(selected ? 3 : 2, selected ? 0xfff0b0 : 0x806440, 1)
       .setInteractive({ useHandCursor: true });
 
@@ -719,7 +917,8 @@ export class SuspectGridScene extends BaseScene {
 
   drawGrid(L) {
     const g = L.grid;
-    const { labelW, headerH, rowH, sceneW, suspectW } = L;
+    const { nameW, headerH, sceneRowH, rowH } = L;
+    const fields = this.rows;
 
     this.uiRoot.add(
       this.add
@@ -727,13 +926,20 @@ export class SuspectGridScene extends BaseScene {
         .setStrokeStyle(2, 0x725d40, 1)
     );
 
-    const bodyX = g.x + labelW;
-    const bodyY = g.y + headerH;
-    const bodyW = g.w - labelW;
-    const bodyH = g.h - headerH;
+    const bodyX = g.x + nameW;
+    const bodyW = g.w - nameW;
+    const sceneY = g.y + headerH;
+    const bodyY = sceneY + sceneRowH;
+    const bodyH = g.h - headerH - sceneRowH;
 
-    const contentW = sceneW + this.suspects.length * suspectW;
-    const contentH = this.rows.length * rowH;
+    const colW = Phaser.Math.Clamp(
+      Math.floor(bodyW / Math.max(1, fields.length)),
+      L.minColW,
+      L.maxColW
+    );
+
+    const contentW = fields.length * colW;
+    const contentH = this.suspects.length * rowH;
 
     this.minScrollX = Math.min(0, bodyW - contentW);
     this.minScrollY = Math.min(0, bodyH - contentH);
@@ -741,85 +947,118 @@ export class SuspectGridScene extends BaseScene {
     this.scrollY = Phaser.Math.Clamp(this.scrollY, this.minScrollY, 0);
 
     this.regions.body = { x: bodyX, y: bodyY, w: bodyW, h: bodyH };
+    this.regions.scene = { x: bodyX, y: sceneY, w: bodyW, h: sceneRowH };
     this.regions.header = { x: bodyX, y: g.y, w: bodyW, h: headerH };
-    this.gridOrigin = { bodyX, bodyY, headerY: g.y, labelX: g.x };
+    this.regions.names = { x: g.x, y: bodyY, w: nameW, h: bodyH };
+
+    this.gridOrigin = {
+      bodyX,
+      bodyY,
+      sceneY,
+      headerY: g.y,
+      nameX: g.x
+    };
 
     this.bodyContainer = this.add.container(bodyX, bodyY);
     this.headerContainer = this.add.container(bodyX, g.y);
-    this.labelContainer = this.add.container(g.x, bodyY);
+    this.sceneContainer = this.add.container(bodyX, sceneY);
+    this.nameContainer = this.add.container(g.x, bodyY);
 
     this.bodyContainer.setMask(this.makeMask(bodyX, bodyY, bodyW, bodyH));
     this.headerContainer.setMask(this.makeMask(bodyX, g.y, bodyW, headerH));
-    this.labelContainer.setMask(this.makeMask(g.x, bodyY, labelW, bodyH));
+    this.sceneContainer.setMask(this.makeMask(bodyX, sceneY, bodyW, sceneRowH));
+    this.nameContainer.setMask(this.makeMask(g.x, bodyY, nameW, bodyH));
 
     this.uiRoot.add([
       this.bodyContainer,
       this.headerContainer,
-      this.labelContainer
+      this.sceneContainer,
+      this.nameContainer
     ]);
 
     const corner = this.add
-      .rectangle(g.x + labelW / 2, g.y + headerH / 2, labelW, headerH, 0x38291d, 1)
+      .rectangle(g.x + nameW / 2, g.y + headerH / 2, nameW, headerH, 0x38291d, 1)
       .setStrokeStyle(1, 0x8b704b, 1);
 
     const cornerText = this.add
-      .text(g.x + labelW / 2, g.y + headerH / 2, 'EVIDENCE', {
+      .text(g.x + nameW / 2, g.y + headerH / 2, 'SUSPECTS', {
         fontFamily: 'PressStart2P',
-        fontSize: '8px',
+        fontSize: '9px',
         color: '#ffdc73'
       })
       .setOrigin(0.5);
 
-    this.uiRoot.add([corner, cornerText]);
+    const sceneLabelBg = this.add
+      .rectangle(
+        g.x + nameW / 2,
+        sceneY + sceneRowH / 2,
+        nameW,
+        sceneRowH,
+        COLORS.headerScene,
+        1
+      )
+      .setStrokeStyle(1, 0x8b704b, 1);
 
-    this.rows.forEach((row, index) => {
-      const y = index * rowH;
+    const sceneLabel = this.add
+      .text(g.x + nameW / 2, sceneY + sceneRowH / 2, 'CRIME SCENE', {
+        fontFamily: 'PressStart2P',
+        fontSize: '10px',
+        color: '#ffdc73'
+      })
+      .setOrigin(0.5);
 
-      const bg = this.add
-        .rectangle(labelW / 2, y + rowH / 2, labelW, rowH, index % 2 ? 0x211816 : 0x281d18, 1)
-        .setStrokeStyle(1, COLORS.line, 1);
+    this.uiRoot.add([corner, cornerText, sceneLabelBg, sceneLabel]);
 
-      const text = this.add
-        .text(10, y + rowH / 2, row.label, {
+    fields.forEach((row, index) => {
+      const cx = index * colW + colW / 2;
+
+      const headerBg = this.add
+        .rectangle(cx, headerH / 2, colW, headerH, COLORS.headerSuspect, 1)
+        .setStrokeStyle(1, 0x8b704b, 1);
+
+      const headerText = this.add
+        .text(cx, headerH / 2, row.label, {
           fontFamily: 'PressStart2P',
-          fontSize: '7px',
-          color: '#dfc893',
-          wordWrap: { width: labelW - 16, useAdvancedWrap: true }
+          fontSize: '9px',
+          color: '#f5e7c6',
+          align: 'center',
+          wordWrap: { width: colW - 14, useAdvancedWrap: true }
         })
-        .setOrigin(0, 0.5);
+        .setOrigin(0.5);
 
-      this.labelContainer.add([bg, text]);
+      this.headerContainer.add([headerBg, headerText]);
+
+      this.createEvidenceCell({
+        container: this.sceneContainer,
+        region: this.regions.scene,
+        x: cx,
+        y: sceneRowH / 2,
+        width: colW,
+        height: sceneRowH,
+        field: row.id,
+        suspect: null,
+        alternate: false
+      });
     });
 
-    const columns = [
-      { id: 'crime_scene', type: 'crime_scene', name: 'CRIME SCENE', width: sceneW },
-      ...this.suspects.map((suspect) => ({
-        id: suspect.id,
-        type: 'suspect',
-        name: suspect.name || 'Unknown',
-        width: suspectW
-      }))
-    ];
+    this.suspects.forEach((suspect, rowIndex) => {
+      const y = rowIndex * rowH;
 
-    let offsetX = 0;
+      this.createSuspectNameCell(suspect, y, nameW, rowH, rowIndex);
 
-    columns.forEach((column) => {
-      const cx = offsetX + column.width / 2;
-      this.drawColumnHeader(column, cx, headerH);
-
-      this.rows.forEach((row, rowIndex) => {
+      fields.forEach((row, index) => {
         this.createEvidenceCell({
-          x: cx,
-          y: rowIndex * rowH + rowH / 2,
-          width: column.width,
+          container: this.bodyContainer,
+          region: this.regions.body,
+          x: index * colW + colW / 2,
+          y: y + rowH / 2,
+          width: colW,
           height: rowH,
-          row,
-          column,
+          field: row.id,
+          suspect,
           alternate: rowIndex % 2 === 1
         });
       });
-
-      offsetX += column.width;
     });
 
     if (this.minScrollX < 0 || this.minScrollY < 0) {
@@ -836,47 +1075,58 @@ export class SuspectGridScene extends BaseScene {
     }
   }
 
-  drawColumnHeader(column, cx, headerH) {
-    const isScene = column.type === 'crime_scene';
-    const unlikely =
-      !isScene && this.markedUnlikelyBySuspectId[column.id] === true;
+  createSuspectNameCell(suspect, y, nameW, rowH, rowIndex) {
+    const unlikely = this.markedUnlikelyBySuspectId[suspect.id] === true;
 
     const bg = this.add
       .rectangle(
-        cx,
-        headerH / 2,
-        column.width,
-        headerH,
-        isScene ? COLORS.headerScene : unlikely ? 0x3a1b18 : COLORS.headerSuspect,
+        nameW / 2,
+        y + rowH / 2,
+        nameW,
+        rowH,
+        unlikely ? 0x3a1b18 : rowIndex % 2 ? 0x211816 : 0x281d18,
         1
       )
-      .setStrokeStyle(1, 0x8b704b, 1);
+      .setStrokeStyle(1, COLORS.line, 1);
+
+    const btnW = 92;
+    const textW = nameW - btnW - 30;
 
     const name = this.add
-      .text(cx, isScene ? headerH / 2 : 8, column.name, {
+      .text(10, y + 6, this.getSuspectDisplayName(suspect), {
         fontFamily: 'SpecialElite',
-        fontSize: isScene ? '15px' : '14px',
+        fontSize: '16px',
         color: unlikely ? '#a38b85' : '#fff0cb',
-        align: 'center',
-        wordWrap: { width: column.width - 12, useAdvancedWrap: true }
+        wordWrap: { width: textW, useAdvancedWrap: true }
       })
-      .setOrigin(0.5, isScene ? 0.5 : 0);
+      .setOrigin(0, 0);
 
-    this.headerContainer.add([bg, name]);
+    const occupation = this.add
+      .text(10, name.y + name.height + 1, this.getSuspectOccupation(suspect), {
+        fontFamily: 'SpecialElite',
+        fontSize: '12px',
+        color: unlikely ? '#85726d' : '#b9a57a',
+        wordWrap: { width: textW, useAdvancedWrap: true }
+      })
+      .setOrigin(0, 0);
 
-    if (isScene) return;
-
-    const btnW = column.width - 20;
-    const btnH = 24;
-    const btnY = headerH - btnH / 2 - 8;
+    const btnX = nameW - btnW / 2 - 8;
+    const btnY = y + rowH / 2;
 
     const btn = this.add
-      .rectangle(cx, btnY, btnW, btnH, unlikely ? COLORS.noFill : COLORS.okFill, 1)
+      .rectangle(
+        btnX,
+        btnY,
+        btnW,
+        30,
+        unlikely ? COLORS.noFill : COLORS.okFill,
+        1
+      )
       .setStrokeStyle(2, unlikely ? COLORS.noStroke : COLORS.okStroke, 1)
       .setInteractive({ useHandCursor: true });
 
     const label = this.add
-      .text(cx, btnY, unlikely ? 'UNLIKELY' : 'POSSIBLE', {
+      .text(btnX, btnY, unlikely ? 'UNLIKELY' : 'POSSIBLE', {
         fontFamily: 'PressStart2P',
         fontSize: '7px',
         color: unlikely ? '#ffd1c8' : '#d5ffd2'
@@ -891,53 +1141,111 @@ export class SuspectGridScene extends BaseScene {
     });
     btn.on('pointerup', (pointer) => {
       if (this.modalOpen || this.dragMoved) return;
-      if (!this.inRect(pointer, this.regions.header)) return;
-      this.toggleSuspectMark(column.id);
+      if (!this.inRect(pointer, this.regions.names)) return;
+      this.toggleSuspectMark(suspect.id);
     });
 
-    this.headerContainer.add([btn, label]);
+    this.nameContainer.add([bg, name, occupation, btn, label]);
   }
 
-  createEvidenceCell({ x, y, width, height, row, column, alternate }) {
-    const target = {
-      type: column.type === 'crime_scene' ? 'crime_scene' : 'suspect',
-      suspectId: column.type === 'suspect' ? column.id : null,
-      field: row.id
-    };
+  isTargetForClue(clue, target) {
+    if (!clue) return false;
+
+    if (clue.type === 'crime_scene_fact') {
+      return target.type === 'crime_scene' && target.field === clue.field;
+    }
+
+    return (
+      target.type === 'suspect' &&
+      target.suspectId === clue.suspectId &&
+      target.field === clue.field
+    );
+  }
+
+  createEvidenceCell({
+    container,
+    region,
+    x,
+    y,
+    width,
+    height,
+    field,
+    suspect,
+    alternate
+  }) {
+    const target = suspect
+      ? { type: 'suspect', suspectId: suspect.id, field }
+      : { type: 'crime_scene', suspectId: null, field };
 
     const key = this.getCellKey(target);
-    const placedClueId = this.placedCluesByCell[key];
-    const placedClue = this.clueCards.find((c) => c.id === placedClueId);
+    const placedClue = this.clueCards.find(
+      (c) => c.id === this.placedCluesByCell[key]
+    );
+
+    const autoValue = suspect ? this.getAutoSuspectValue(suspect, field) : null;
+
+    const sceneHasCard =
+      !suspect &&
+      this.clueCards.some(
+        (c) => c.type === 'crime_scene_fact' && c.field === field
+      );
+
+    const noData = !suspect && !sceneHasCard && !placedClue;
 
     const unlikely =
-      column.type === 'suspect' &&
-      this.markedUnlikelyBySuspectId[column.id] === true;
+      Boolean(suspect) &&
+      this.markedUnlikelyBySuspectId[suspect.id] === true;
 
-    const baseFill = placedClue
-      ? COLORS.cellFilled
-      : alternate
-        ? COLORS.cellB
-        : COLORS.cellA;
+    const selectedClue = this.clueCards.find(
+      (c) => c.id === this.selectedClueId
+    );
 
-    const waiting = Boolean(this.selectedClueId) && !placedClue;
+    const waiting =
+      Boolean(selectedClue) &&
+      !placedClue &&
+      autoValue === null &&
+      this.isTargetForClue(selectedClue, target);
+
+    const displayValue =
+      autoValue || (placedClue ? formatCellValue(placedClue.value) : '');
+
+    const clickable = autoValue === null && !noData;
+
+    const baseFill = waiting
+      ? COLORS.cellWaiting
+      : autoValue
+        ? COLORS.cellAuto
+        : placedClue
+          ? COLORS.cellFilled
+          : alternate
+            ? COLORS.cellB
+            : COLORS.cellA;
 
     const bg = this.add
       .rectangle(x, y, width, height, baseFill, 1)
       .setStrokeStyle(
-        waiting ? 2 : 1,
-        waiting ? 0xb28d44 : COLORS.line,
-        waiting ? 0.85 : 1
-      )
-      .setInteractive({ useHandCursor: true });
+        waiting ? 3 : 1,
+        waiting ? COLORS.gold : COLORS.line,
+        1
+      );
+
+    if (clickable) {
+      bg.setInteractive({ useHandCursor: true });
+    }
 
     const text = this.add
-      .text(x, y, placedClue ? normalize(placedClue.value).toUpperCase() : '?', {
-        fontFamily: placedClue ? 'SpecialElite' : 'PressStart2P',
-        fontSize: placedClue ? '15px' : '10px',
-        color: placedClue ? '#f6dfa3' : '#756351',
-        align: 'center',
-        wordWrap: { width: width - 12, useAdvancedWrap: true }
-      })
+      .text(
+        x,
+        y,
+        displayValue || (noData ? '—' : '?'),
+        {
+          fontFamily: displayValue ? 'SpecialElite' : 'PressStart2P',
+          fontSize: displayValue ? '20px' : '14px',
+          color: displayValue ? '#f6dfa3' : '#756351',
+          align: 'center',
+          wordWrap: { width: width - 12, useAdvancedWrap: true }
+        }
+      )
       .setOrigin(0.5);
 
     if (unlikely) {
@@ -945,20 +1253,22 @@ export class SuspectGridScene extends BaseScene {
       text.setAlpha(0.45);
     }
 
-    bg.on('pointerover', () => {
-      if (this.modalOpen) return;
-      bg.setFillStyle(placedClue ? 0x4d3a20 : COLORS.cellHover, 1);
-    });
-    bg.on('pointerout', () => {
-      bg.setFillStyle(baseFill, 1);
-    });
-    bg.on('pointerup', (pointer) => {
-      if (this.modalOpen || this.dragMoved) return;
-      if (!this.inRect(pointer, this.regions.body)) return;
-      this.onCellClick(target, placedClue);
-    });
+    if (clickable) {
+      bg.on('pointerover', () => {
+        if (this.modalOpen) return;
+        bg.setFillStyle(placedClue ? 0x4d3a20 : COLORS.cellHover, 1);
+      });
+      bg.on('pointerout', () => {
+        bg.setFillStyle(baseFill, 1);
+      });
+      bg.on('pointerup', (pointer) => {
+        if (this.modalOpen || this.dragMoved) return;
+        if (!this.inRect(pointer, region)) return;
+        this.onCellClick(target, placedClue);
+      });
+    }
 
-    this.bodyContainer.add([bg, text]);
+    container.add([bg, text]);
   }
 
   /* ------------------------------- FOOTER ---------------------------- */
@@ -1149,14 +1459,27 @@ export class SuspectGridScene extends BaseScene {
     );
   }
 
+  isOverGrid(pointer) {
+    return (
+      this.inRect(pointer, this.regions.body) ||
+      this.inRect(pointer, this.regions.scene) ||
+      this.inRect(pointer, this.regions.header) ||
+      this.inRect(pointer, this.regions.names)
+    );
+  }
+
   applyScroll() {
     if (!this.gridOrigin) return;
 
-    const { bodyX, bodyY, headerY, labelX } = this.gridOrigin;
+    const { bodyX, bodyY, sceneY, headerY, nameX } = this.gridOrigin;
 
-    this.bodyContainer?.setPosition(bodyX + this.scrollX, bodyY + this.scrollY);
+    this.bodyContainer?.setPosition(
+      bodyX + this.scrollX,
+      bodyY + this.scrollY
+    );
     this.headerContainer?.setPosition(bodyX + this.scrollX, headerY);
-    this.labelContainer?.setPosition(labelX, bodyY + this.scrollY);
+    this.sceneContainer?.setPosition(bodyX + this.scrollX, sceneY);
+    this.nameContainer?.setPosition(nameX, bodyY + this.scrollY);
 
     if (this.clueListContainer && this.regions.clueList) {
       this.clueListContainer.setPosition(
@@ -1172,10 +1495,7 @@ export class SuspectGridScene extends BaseScene {
 
     if (this.modalOpen) return;
 
-    if (
-      this.inRect(pointer, this.regions.body) ||
-      this.inRect(pointer, this.regions.header)
-    ) {
+    if (this.isOverGrid(pointer)) {
       this.dragTarget = 'grid';
     } else if (this.inRect(pointer, this.regions.clueList)) {
       this.dragTarget = 'clues';
@@ -1203,8 +1523,16 @@ export class SuspectGridScene extends BaseScene {
     if (!this.dragMoved) return;
 
     if (this.dragTarget === 'grid') {
-      this.scrollX = Phaser.Math.Clamp(this.dragStart.sx + dx, this.minScrollX, 0);
-      this.scrollY = Phaser.Math.Clamp(this.dragStart.sy + dy, this.minScrollY, 0);
+      this.scrollX = Phaser.Math.Clamp(
+        this.dragStart.sx + dx,
+        this.minScrollX,
+        0
+      );
+      this.scrollY = Phaser.Math.Clamp(
+        this.dragStart.sy + dy,
+        this.minScrollY,
+        0
+      );
     } else {
       this.clueScrollY = Phaser.Math.Clamp(
         this.dragStart.cy + dy,
@@ -1233,20 +1561,29 @@ export class SuspectGridScene extends BaseScene {
       return;
     }
 
-    if (
-      this.inRect(pointer, this.regions.body) ||
-      this.inRect(pointer, this.regions.header)
-    ) {
+    if (this.isOverGrid(pointer)) {
       const horizontal =
         pointer.event?.shiftKey || Math.abs(deltaX) > Math.abs(deltaY);
       const amount = horizontal && Math.abs(deltaX) > 0 ? deltaX : deltaY;
 
       if (horizontal) {
-        this.scrollX = Phaser.Math.Clamp(this.scrollX - amount, this.minScrollX, 0);
+        this.scrollX = Phaser.Math.Clamp(
+          this.scrollX - amount,
+          this.minScrollX,
+          0
+        );
       } else if (this.minScrollY < 0) {
-        this.scrollY = Phaser.Math.Clamp(this.scrollY - amount, this.minScrollY, 0);
+        this.scrollY = Phaser.Math.Clamp(
+          this.scrollY - amount,
+          this.minScrollY,
+          0
+        );
       } else {
-        this.scrollX = Phaser.Math.Clamp(this.scrollX - amount, this.minScrollX, 0);
+        this.scrollX = Phaser.Math.Clamp(
+          this.scrollX - amount,
+          this.minScrollX,
+          0
+        );
       }
 
       this.applyScroll();
@@ -1279,7 +1616,7 @@ export class SuspectGridScene extends BaseScene {
     this.selectedClueId = this.selectedClueId === clueId ? null : clueId;
 
     this.setFeedback(
-      this.selectedClueId ? 'Now click the matching cell in the grid.' : ''
+      this.selectedClueId ? 'Now click the glowing cell in the grid.' : ''
     );
 
     this.refreshAll();
@@ -1303,25 +1640,16 @@ export class SuspectGridScene extends BaseScene {
   }
 
   placeSelectedClue(target) {
-    const clue = this.clueCards.find((item) => item.id === this.selectedClueId);
+    const clue = this.clueCards.find(
+      (item) => item.id === this.selectedClueId
+    );
 
     if (!clue) {
       this.setFeedback('Choose a clue card first.');
       return;
     }
 
-    const isCorrectCrimeSceneCell =
-      clue.type === 'crime_scene_fact' &&
-      target.type === 'crime_scene' &&
-      target.field === clue.field;
-
-    const isCorrectSuspectCell =
-      clue.type === 'suspect_fact' &&
-      target.type === 'suspect' &&
-      target.suspectId === clue.suspectId &&
-      target.field === clue.field;
-
-    if (!isCorrectCrimeSceneCell && !isCorrectSuspectCell) {
+    if (!this.isTargetForClue(clue, target)) {
       this.setFeedback('That clue does not belong in this cell.');
       return;
     }
@@ -1337,7 +1665,9 @@ export class SuspectGridScene extends BaseScene {
     this.selectedClueId = null;
 
     this.saveGridProgress();
-    this.setFeedback(`${clue.label}: ${normalize(clue.value)} added to the grid.`);
+    this.setFeedback(
+      `${clue.label}: ${formatCellValue(clue.value)} added to the grid.`
+    );
     this.refreshAll();
   }
 
@@ -1357,10 +1687,6 @@ export class SuspectGridScene extends BaseScene {
       ...this.placedCluesByCell
     };
 
-    /**
-     * Wyłącznie robocze oznaczenia gracza.
-     * Nie zapisujemy tego jako eliminatedSuspectIds.
-     */
     caseForensics.suspectGrid.markedUnlikelyBySuspectId = {
       ...this.markedUnlikelyBySuspectId
     };

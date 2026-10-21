@@ -11,7 +11,107 @@ const WITNESS_ROLES = [
   { id: 'receptionist', label: 'Receptionist', tone: 'chatty' }
 ];
 
-export const ALIBI_DATA_VERSION = 2;
+export const ALIBI_DATA_VERSION = 4;
+
+const OCCUPATION_PROFILES = {
+  'museum curator': {
+    workplace: 'the museum offices',
+    venue: 'the City Library auditorium',
+    activity: 'giving a public lecture on ancient pottery',
+    quip: 'Forty minutes about one vase. I checked my watch twice.'
+  },
+  'assistant archaeologist': {
+    workplace: 'the excavation office',
+    venue: 'the university lab',
+    activity: 'sorting pottery shards at the university lab',
+    quip: 'Nobody sneaks out of a room full of shards. You can hear it.'
+  },
+  'night security guard': {
+    workplace: 'the security office',
+    venue: 'the guard training hall',
+    activity: 'taking a mandatory first-aid course',
+    quip: 'He bandaged a dummy all evening. The dummy looked relieved.'
+  },
+  'deputy director': {
+    workplace: 'the administration wing',
+    venue: 'the Chamber of Commerce',
+    activity: 'chairing a budget meeting',
+    quip: 'Three hours about a stapler budget. We all wanted to leave. Nobody could.'
+  },
+  'archive clerk': {
+    workplace: 'the city archive',
+    venue: 'the municipal records hall',
+    activity: 'stamping forms during a records audit',
+    quip: 'Stamping is loud. A gap in the stamping would have been noticed.'
+  },
+  'exhibition designer': {
+    workplace: 'the design studio',
+    venue: 'the trade fair hall',
+    activity: 'building a display stand at the trade fair',
+    quip: 'The stand collapsed twice. Both times with them under it.'
+  },
+  'restoration technician': {
+    workplace: 'the restoration workshop',
+    venue: 'the conservation lab',
+    activity: 'cleaning an old tapestry at the conservation lab',
+    quip: 'You cannot pause a tapestry bath. Believe me, people have tried.'
+  },
+  'museum guide': {
+    workplace: 'the visitor centre',
+    venue: 'the old town square',
+    activity: 'leading an evening walking tour',
+    quip: 'Twelve tourists with cameras. Best alibi in Europe.'
+  },
+  'insurance assessor': {
+    workplace: 'the insurance office',
+    venue: 'a client warehouse',
+    activity: 'inspecting a damaged shipment',
+    quip: 'Counting crates is not a job anyone abandons halfway.'
+  },
+  'private collector': {
+    workplace: 'the Collectors’ Club',
+    venue: 'the auction house',
+    activity: 'bidding at a charity auction',
+    quip: 'Their paddle went up eleven times. We have the receipts. Painful ones.'
+  },
+  'art courier': {
+    workplace: 'the shipping depot',
+    venue: 'the airport cargo terminal',
+    activity: 'signing for a crate at the cargo terminal',
+    quip: 'The paperwork needs seven stamps. Seven.'
+  },
+  'gift shop manager': {
+    workplace: 'the museum gift shop',
+    venue: 'the wholesale market',
+    activity: 'haggling over souvenir magnets',
+    quip: 'Nobody haggles that hard over a magnet unless they mean it.'
+  },
+  'facilities supervisor': {
+    workplace: 'the facilities office',
+    venue: 'the town hall boiler room',
+    activity: 'fixing a burst pipe at the town hall',
+    quip: 'A burst pipe waits for no one. Neither does the invoice.'
+  },
+  'research fellow': {
+    workplace: 'the research institute',
+    venue: 'the conference centre',
+    activity: 'presenting a poster at a conference',
+    quip: 'Nobody leaves their own poster session. It is the only time anyone visits it.'
+  },
+  'volunteer coordinator': {
+    workplace: 'the volunteer office',
+    venue: 'the community hall',
+    activity: 'running a volunteer training evening',
+    quip: 'Forty volunteers and one flipchart. Chaos is an excellent witness.'
+  }
+};
+
+const DEFAULT_PROFILE = {
+  workplace: 'their workplace',
+  venue: 'the community hall',
+  activity: 'attending an evening event',
+  quip: 'It was dull enough that I remember every minute.'
+};
 
 export function formatAlibiTime(minute) {
   if (!Number.isInteger(minute)) {
@@ -74,14 +174,56 @@ function shuffleSeeded(items, seed) {
   return result;
 }
 
-function makeCard(id, timeSlot, locationTag, label, isReal = true) {
+// Every card belongs to exactly one witness.
+function makeCard(id, minute, locationTag, label, role, isReal = true) {
   return {
     id,
-    timeSlot,
+    minute,
+    timeSlot: formatAlibiTime(minute),
     locationTag,
     label,
+    roleId: role.id,
+    role: role.label,
     isReal
   };
+}
+
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function getOccupation(suspect) {
+  return (
+    suspect.occupation ||
+    suspect.publicProfile?.occupation ||
+    ''
+  );
+}
+
+function getProfile(occupation) {
+  return (
+    OCCUPATION_PROFILES[String(occupation).trim().toLowerCase()] ||
+    DEFAULT_PROFILE
+  );
+}
+
+function getCaseConnection(suspect) {
+  return (
+    suspect.publicProfile?.caseConnection ||
+    suspect.caseConnection ||
+    ''
+  ).trim();
+}
+
+function rumorLine(caseConnection) {
+  if (!caseConnection) {
+    return 'Rumors? I deal in rumors, detective. Fresh daily.';
+  }
+
+  return (
+    `The rumor on our street is: "${caseConnection}" ` +
+    'That is all it is. A rumor. I deal in those.'
+  );
 }
 
 export function generateAlibiWitnesses(
@@ -108,6 +250,10 @@ export function generateAlibiWitnesses(
   }
 
   const name = suspect.name || 'The suspect';
+  const occupation = getOccupation(suspect) || 'staff member';
+  const profile = getProfile(occupation);
+  const rumor = rumorLine(getCaseConnection(suspect));
+
   const { startMinute: start, endMinute: end } = crimeWindow;
 
   const time = formatAlibiTime;
@@ -118,143 +264,102 @@ export function generateAlibiWitnesses(
   const portraits = shuffleSeeded(WITNESS_TEXTURE_KEYS, seed);
   const id = (suffix) => `${suspect.id}_alibi_${suffix}`;
 
+  const [neighborRole, coworkerRole, receptionistRole] = WITNESS_ROLES;
+
   let statements;
-  let trueTimeline;
-  let decoys;
+  let cards;
   let contradiction = null;
 
   if (!isThief) {
     statements = [
-      `${name} left our building at ${time(start - 25)}. ` +
-      `I walked with them to the television studio and saw them ` +
-      `check in at ${time(start - 15)}. ` +
-      `I stayed in the audience until ${time(end + 10)}. ` +
-      `They were on stage throughout the broadcast. ` +
-      `I was mostly watching them. The host's tie was a distraction.`,
+      `${name}, our local ${occupation}? Left the building at ` +
+      `${time(start - 25)}, muttering about ${profile.activity}. ` +
+      `I walked with them to ${profile.venue} and saw them sign in at ` +
+      `${time(start - 15)}. ${rumor}`,
 
-      `I was on stage beside ${name} from ${time(start - 10)} ` +
-      `until ${time(end + 10)}. It was a live broadcast, ` +
-      `with no breaks and no stand-ins. Neither of us left the stage. ` +
-      `Believe me, I tried to escape the cooking segment.`,
+      `I was next to ${name} at ${profile.venue} from ` +
+      `${time(start - 10)} until ${time(end + 10)}. ` +
+      `They were ${profile.activity} the whole time. ` +
+      `Nobody left, nobody swapped places. ${profile.quip}`,
 
-      `I handled check-in and watched the live studio feed. ` +
-      `${name} checked in at ${time(start - 15)}. ` +
-      `The uninterrupted broadcast ran from ${time(start - 10)} ` +
-      `to ${time(end + 10)}, and they remained visible on stage. ` +
-      `They checked out at ${time(end + 20)}. ` +
-      `The studio is a different building from the crime scene.`
+      `I run the front desk at ${profile.venue}. ` +
+      `${name} signed in at ${time(start - 15)} and signed out at ` +
+      `${time(end + 20)}. In between they were visibly busy ` +
+      `${profile.activity}. ${capitalize(profile.venue)} ` +
+      'is nowhere near the crime scene. I checked. Twice.'
     ];
 
-    trueTimeline = [
+    cards = [
       makeCard(
         id('arrival'),
-        time(start - 15),
-        'television_studio',
-        `${time(start - 15)} — the suspect checks in at the television studio.`
+        start - 15,
+        'alibi_venue',
+        `${time(start - 15)} — walked the suspect to ${profile.venue} ` +
+        'and saw them sign in.',
+        neighborRole
       ),
       makeCard(
-        id('broadcast'),
-        time(start - 10),
-        'television_studio',
-        `${time(start - 10)}–${time(end + 10)} — the suspect remains ` +
-        `visible on stage throughout an uninterrupted live broadcast.`
+        id('event'),
+        start - 10,
+        'alibi_venue',
+        `${time(start - 10)}–${time(end + 10)} — stood beside the ` +
+        `suspect, who was ${profile.activity}. No breaks.`,
+        coworkerRole
       ),
       makeCard(
         id('departure'),
-        time(end + 20),
-        'television_studio',
-        `${time(end + 20)} — the suspect checks out of the television studio.`
-      )
-    ];
-
-    decoys = [
-      makeCard(
-        id('decoy_1'),
-        time(start + 1),
-        'television_studio',
-        `${time(start + 1)} — the suspect leaves the studio during a break.`,
-        false
-      ),
-      makeCard(
-        id('decoy_2'),
-        time(start - 15),
-        'home',
-        `${time(start - 15)} — the suspect stays at home.`,
-        false
-      ),
-      makeCard(
-        id('decoy_3'),
-        time(end - 1),
-        'television_studio',
-        `${time(end - 1)} — the suspect checks out before the broadcast ends.`,
-        false
+        end + 20,
+        'alibi_venue',
+        `${time(end + 20)} — the suspect signed out at ` +
+        `${profile.venue}.`,
+        receptionistRole
       )
     ];
   } else {
     statements = [
-      `I saw ${name} leave our building alone at ${time(start - 20)}. ` +
-      `They came back at ${time(end + 20)}. ` +
-      `Where they went between those times? No idea. ` +
-      `My window is a window, detective, not a satellite.`,
+      `I saw ${name}, the ${occupation}, leave our building alone at ` +
+      `${time(start - 20)}. They came back at ${time(end + 20)}. ` +
+      'Where they went in between? No idea. ' +
+      `My window is a window, detective, not a satellite. ${rumor}`,
 
       `${name} was with me in my apartment from ${time(start - 10)} ` +
       `until ${time(end + 10)}. We stayed together the entire time. ` +
-      `No interruptions, no visitors, no reason to check that story ` +
-      `with anyone else. That last bit was a suggestion.`,
+      'No interruptions, no visitors, no reason to check that story ' +
+      'with anyone else. That last bit was a suggestion.',
 
       `The coworker who says they hosted ${name} was actually ` +
-      `with me at the hotel reception from ${time(start - 15)} ` +
-      `until ${time(end + 15)}. We worked side by side the whole time. ` +
-      `They never left, and ${name} never joined us. ` +
-      `The reception desk is not in that coworker's apartment. ` +
-      `I would remember having a minibar at work.`
+      `with me at the front desk of ${profile.workplace} from ` +
+      `${time(start - 15)} until ${time(end + 15)}. ` +
+      'We worked side by side the whole time. They never left, and ' +
+      `${name} never showed up. ${capitalize(profile.workplace)} ` +
+      'is not anyone’s apartment. I would remember having a sofa at work.'
     ];
 
-    trueTimeline = [
+    cards = [
       makeCard(
         id('departure'),
-        time(start - 20),
+        start - 20,
         'home',
-        `${time(start - 20)} — the suspect leaves home alone.`
+        `${time(start - 20)} — saw the suspect leave home alone. ` +
+        `Back at ${time(end + 20)}.`,
+        neighborRole
+      ),
+      makeCard(
+        id('false_alibi'),
+        start - 10,
+        'coworker_apartment',
+        `${time(start - 10)}–${time(end + 10)} — claims the suspect ` +
+        'was with them in their apartment.',
+        coworkerRole,
+        false
       ),
       makeCard(
         id('coworker_location'),
-        time(start - 15),
-        'hotel_reception',
-        `${time(start - 15)}–${time(end + 15)} — the coworker ` +
-        `remains at the hotel reception, not in their apartment.`
-      ),
-      makeCard(
-        id('return'),
-        time(end + 20),
-        'home',
-        `${time(end + 20)} — the suspect returns home; ` +
-        `their whereabouts during the theft remain unconfirmed.`
-      )
-    ];
-
-    decoys = [
-      makeCard(
-        id('false_alibi'),
-        time(start - 10),
-        'coworker_apartment',
-        `${time(start - 10)}–${time(end + 10)} — the suspect ` +
-        `and coworker stay together in the coworker's apartment.`,
-        false
-      ),
-      makeCard(
-        id('decoy_2'),
-        time(start + 1),
-        'home',
-        `${time(start + 1)} — the neighbor sees the suspect at home.`,
-        false
-      ),
-      makeCard(
-        id('decoy_3'),
-        time(end - 1),
-        'hotel_reception',
-        `${time(end - 1)} — the receptionist sees the suspect at the hotel.`,
-        false
+        start - 15,
+        'workplace_reception',
+        `${time(start - 15)}–${time(end + 15)} — says the coworker ` +
+        `never left the front desk of ${profile.workplace}.`,
+        receptionistRole
       )
     ];
 
@@ -263,11 +368,23 @@ export function generateAlibiWitnesses(
       supportingRoleId: 'receptionist',
       explanation:
         'The coworker claims to have stayed with the suspect in their ' +
-        'apartment, but the receptionist places that coworker at the ' +
-        'hotel for the entire claimed interval. The alleged meeting ' +
-        'cannot have happened as described.'
+        'apartment, but the receptionist places that coworker at ' +
+        `${profile.workplace} for the entire claimed interval. ` +
+        'The alleged meeting cannot have happened as described.'
     };
   }
+
+  const minutes = cards.map((card) => card.minute);
+
+  if (new Set(minutes).size !== cards.length) {
+    throw new Error(
+      'Alibi cards must all have different times: ' + minutes.join(', ')
+    );
+  }
+
+  const trueTimeline = [...cards].sort(
+    (a, b) => a.minute - b.minute
+  );
 
   const witnesses = WITNESS_ROLES.map((role, index) => {
     const isLiar = isThief && role.id === 'coworker';
@@ -289,9 +406,7 @@ export function generateAlibiWitnesses(
         ? 'Compare the claimed meeting with the receptionist’s account.'
         : null,
 
-      timelineCard: isLiar
-        ? decoys[0]
-        : trueTimeline[index],
+      timelineCard: cards[index],
 
       motiveFragment: null
     };
@@ -310,10 +425,7 @@ export function generateAlibiWitnesses(
     witnesses,
     contradiction,
     trueTimeline,
-    boardCards: shuffleSeeded(
-      [...trueTimeline, ...decoys],
-      seed ^ 0x9e3779b9
-    )
+    boardCards: shuffleSeeded(cards, seed ^ 0x9e3779b9)
   };
 }
 

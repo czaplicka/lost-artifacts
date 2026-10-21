@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { ScoreManager } from './ScoreManager.js';
 import { RouteManager } from './RouteManager.js';
@@ -13,17 +13,21 @@ import {
   resolveLocationId
 } from '../ui/LocationUI.js';
 
+
 let scoreManagerInstance = null;
+
 
 export function getScoreManager() {
   if (!scoreManagerInstance) scoreManagerInstance = new ScoreManager();
   return scoreManagerInstance;
 }
 
+
 function syncScoreFromManager() {
   const manager = getScoreManager();
   if (typeof manager?.getSessionPoints === 'function') gameState.score = manager.getSessionPoints();
 }
+
 
 export function addSessionScore(points, label) {
   const manager = getScoreManager();
@@ -34,6 +38,7 @@ export function addSessionScore(points, label) {
   EventBus.emit('scoreChanged', { delta: points, total: gameState.score || 0, label });
 }
 
+
 function shuffle(items) {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i -= 1) {
@@ -42,6 +47,7 @@ function shuffle(items) {
   }
   return result;
 }
+
 
 export function getRouteManager() {
   if (gameState.routeManager instanceof RouteManager) return gameState.routeManager;
@@ -55,6 +61,7 @@ export function getRouteManager() {
   gameState.routeManager = manager;
   return manager;
 }
+
 
 export function syncRouteStateFromManager() {
   const manager = getRouteManager();
@@ -75,6 +82,7 @@ export function syncRouteStateFromManager() {
   gameState.canonicalTravelCityId = targetId;
 }
 
+
 export function syncInvestigationState(locations) {
   const manager = getRouteManager();
   syncRouteStateFromManager();
@@ -85,6 +93,7 @@ export function syncInvestigationState(locations) {
   gameState.nextTargetCity = getLocationById(manager.getNextExpectedCity(), locations)?.city || null;
   gameState.clueScope = manager.isCrimeCityPhase() ? 'crime_scene' : 'route_leg';
 }
+
 
 export function ensureMustIncludeDestination(destinations, locations) {
   const result = [];
@@ -100,6 +109,7 @@ export function ensureMustIncludeDestination(destinations, locations) {
   return result.slice(0, MAX_DESTINATIONS);
 }
 
+
 export function generateDestinationsForCurrentCity(locations) {
   const target = getLocationById(gameState.nextTargetCityId, locations);
   const previous = getLocationById(gameState.lastTravel?.fromCityId, locations);
@@ -109,6 +119,7 @@ export function generateDestinationsForCurrentCity(locations) {
   }));
   return ensureMustIncludeDestination([target, previous, ...filler].filter(Boolean), locations);
 }
+
 
 export function clearTravelCluesForCity(cityId) {
   if (!cityId || !Array.isArray(gameState.cluesCollected)) return;
@@ -120,6 +131,7 @@ export function clearTravelCluesForCity(cityId) {
       (clue.cityId !== cityId && clue.value !== cityId)
   );
 }
+
 
 export function enterCity(cityName, locations) {
   const cityData = getLocationByCity(cityName, locations);
@@ -133,14 +145,16 @@ export function enterCity(cityName, locations) {
   return gameState.currentCityData;
 }
 
+
 export function markEncounterVisited(encounterId, clue = null) {
   if (!encounterId) return;
   gameState.addEncounter(encounterId);
   if (clue?.id && gameState.addClue(clue)) {
     addSessionScore(50, `Encounter clue: ${encounterId}`);
   }
-  saveGameState();
+  requestAutosave();
 }
+
 
 export function advanceInvestigation(locations, enteredCityId) {
   const manager = getRouteManager();
@@ -163,6 +177,7 @@ export function advanceInvestigation(locations, enteredCityId) {
   return { success: true, status: result.reason === 'crime_city_accepted' ? 'CRIME_SCENE_REACHED' : 'CONTINUE', result };
 }
 
+
 export function completeCityInvestigation(locations) {
   const manager = getRouteManager();
   if (!gameState.currentCityId) return { success: false, status: 'NO_ACTIVE_TARGET' };
@@ -170,8 +185,10 @@ export function completeCityInvestigation(locations) {
   return advanceInvestigation(locations, gameState.currentCityId);
 }
 
+
 export function resolveFinalArrest(selectedSuspectId) {
   const thiefId = gameState.trueThiefCaseSuspectId || gameState.realThiefSuspectId;
+
 
   const success = Boolean(
     selectedSuspectId &&

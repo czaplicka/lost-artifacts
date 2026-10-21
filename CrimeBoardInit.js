@@ -303,6 +303,48 @@ function buildHypothesisSkillItems(gameState = {}) {
   });
 }
 
+function getReconstructionClues(gameState = {}) {
+  return asArray(gameState.cluesCollected).filter(
+    clue => clue && clue.type === 'reconstruction'
+  );
+}
+
+function buildReconstructionItems(gameState = {}) {
+  return getReconstructionClues(gameState).map((clue, index) => {
+    const confirmed = clue.confirmed === true;
+    const label = asText(clue.title, 'Heist reconstruction');
+
+    const text = asText(
+      clue.text,
+      asText(clue.finalText, 'Reconstruction recorded.')
+    );
+
+    return {
+      id: `reconstruction-${normalizeId(clue.id) || index}`,
+      type: 'note',
+      x: 1040 + ((index % 2) * 40),
+      y: 110 + (index * 40),
+      z: 5,
+      rotation: getRotation(index + 5),
+      pinned: true,
+      label,
+      text,
+      metaText: confirmed
+        ? 'Reconstruction confirmed'
+        : 'Reconstruction: unconfirmed theory',
+      color: confirmed ? 'blue' : 'yellow',
+      clueId: clue.id || null,
+      tags: [
+        'reconstruction',
+        confirmed ? 'reconstruction-confirmed' : 'reconstruction-uncertain'
+      ],
+      discovered: true,
+      createdByPlayer: false,
+      editableByPlayer: false
+    };
+  });
+}
+
 function buildCrimeScenePhotoItems(gameState) {
   const visitedScenes =
     gameState?.crimeBoardData?.visitedCrimeScenes;
@@ -347,6 +389,10 @@ function normalizeCollectedClues(clues, objectMap) {
     }
 
     if (clue.category === 'skills') {
+      return false;
+    }
+
+    if (clue.type === 'reconstruction') {
       return false;
     }
 
@@ -601,7 +647,8 @@ function buildLinks(items) {
 
   const evidenceItems = items.filter(item =>
     item.type === 'evidence' ||
-    item.tags?.includes('hypothesis-skill')
+    item.tags?.includes('hypothesis-skill') ||
+    item.tags?.includes('reconstruction')
   );
 
   const links = [];
@@ -626,7 +673,10 @@ function buildLinks(items) {
       to: item.id,
       fromAnchor: index % 2 === 0 ? 'right' : 'bottom',
       toAnchor: 'left',
-      color: item.tags?.includes('skill-uncertain')
+      color: (
+        item.tags?.includes('skill-uncertain') ||
+        item.tags?.includes('reconstruction-uncertain')
+      )
         ? '#b78a28'
         : '#b3131b'
     });
@@ -655,6 +705,7 @@ function buildBoardLayout(gameState, objectsData = []) {
     ...buildCrimeScenePhotoItems(gameState),
     ...buildEvidenceItemsFromFoundObjects(gameState),
     ...buildHypothesisSkillItems(gameState),
+    ...buildReconstructionItems(gameState),
     ...buildLabResultItems(gameState)
   ];
 
@@ -689,7 +740,7 @@ function buildBoardLayout(gameState, objectsData = []) {
       }`,
       title: mission.artifact || 'Crime Board',
       caseId: mission.artifactKey || '',
-      version: 5,
+      version: 6,
       thiefId: gameState.currentThief?.id ||
         gameState.currentThiefId ||
         null,

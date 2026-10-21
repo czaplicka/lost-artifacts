@@ -1,6 +1,7 @@
 import { EventBus } from '../EventBus.js';
 import { MonologueManager } from '../managers/MonologueManager.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
+import { bindCaseTimeGame } from '../managers/CaseTimeWatcher.js';
 
 export class BaseScene extends Phaser.Scene {
   constructor(config) {
@@ -19,6 +20,7 @@ export class BaseScene extends Phaser.Scene {
     this._overlayLoadsInFlight = new Set();
 
     this._cleanupDone = false;
+    bindCaseTimeGame(this.game);
     this._sleepCleanupDone = false;
     this._destroyCleanupDone = false;
   }

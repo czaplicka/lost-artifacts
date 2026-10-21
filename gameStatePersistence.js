@@ -4,10 +4,15 @@ import { MainStoryManager } from './managers/MainStoryManager.js';
 import { inventoryManager } from './managers/InventoryManager.js';
 import { createCaseDirectorFromState } from './restoreCaseDirector.js';
 
+
 const SAVE_KEY = 'detectiveSaveData';
+const AUTOSAVE_DELAY_MS = 500;
 let persistenceBusy = false;
 let storageAvailable = null;
 let automaticSaveBlocked = false;
+let autosaveTimer = null;
+let autosavePending = false;
+
 
 function isPlainObject(value) {
   if (!value || typeof value !== 'object') return false;
@@ -38,6 +43,13 @@ function syncCaseTemplate() {
   const template = director.serialize();
   if (template != null) gameState.caseTemplate = structuredClone(template);
 }
+function cancelPendingAutosave() {
+  if (autosaveTimer !== null) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  autosavePending = false;
+}
 export function saveGameState() {
   if (persistenceBusy || automaticSaveBlocked || !canUseLocalStorage()) return false;
   persistenceBusy = true;
@@ -52,8 +64,29 @@ export function saveGameState() {
     return false;
   } finally { persistenceBusy = false; }
 }
+export function requestAutosave() {
+  if (automaticSaveBlocked) return;
+  autosavePending = true;
+  if (autosaveTimer !== null) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => {
+    autosaveTimer = null;
+    if (!autosavePending) return;
+    autosavePending = false;
+    saveGameState();
+  }, AUTOSAVE_DELAY_MS);
+}
+export function flushAutosave() {
+  if (autosaveTimer !== null) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  if (!autosavePending) return false;
+  autosavePending = false;
+  return saveGameState();
+}
 export function loadGameState() {
   if (persistenceBusy || !canUseLocalStorage()) return false;
+  cancelPendingAutosave();
   persistenceBusy = true;
   let previous = null;
   let stateImported = false;
@@ -116,6 +149,7 @@ export function loadGameState() {
 }
 export function clearSavedGame() {
   if (persistenceBusy) return false;
+  cancelPendingAutosave();
   persistenceBusy = true;
   try {
     MainStoryManager.resetProgress({ silent: true });
@@ -132,8 +166,13 @@ export function clearSavedGame() {
 function saveAfterMainStoryChange() {
   if (persistenceBusy) return;
   gameState.mainStory = MainStoryManager.serialize();
-  if (gameState.isGameActive && !automaticSaveBlocked) saveGameState();
+  if (gameState.isGameActive && !automaticSaveBlocked) requestAutosave();
 }
 for (const event of ['mainStory:stageAdvanced', 'mainStory:flagSet', 'mainStory:sideClueSet', 'mainStory:reset']) {
   EventBus.on(event, saveAfterMainStoryChange);
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushAutosave();
+  });
 }

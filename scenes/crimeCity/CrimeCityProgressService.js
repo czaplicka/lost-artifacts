@@ -1,7 +1,8 @@
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
-import { saveGameState } from '../../gameStatePersistence.js';
+import { requestAutosave } from '../../gameStatePersistence.js';
 import { getUnifiedTravelManager } from '../../managers/UnifiedTravelManager.js';
+
 
 
 const ENERGY_BASE_COSTS = {
@@ -15,7 +16,9 @@ const ENERGY_BASE_COSTS = {
 };
 
 
+
 const ALIBI_DEBUNKED_STATUS = 'contradicted';
+
 
 
 export class CrimeCityProgressService {
@@ -24,9 +27,11 @@ export class CrimeCityProgressService {
   }
 
 
+
   getCaseKey() {
     const mission =
       gameState.currentMission || {};
+
 
 
     return String(
@@ -37,16 +42,20 @@ export class CrimeCityProgressService {
   }
 
 
+
   getCrimeSceneVisitKey() {
     const mission =
       gameState.currentMission || {};
+
 
 
     const sceneId =
       mission.scene || 'unknown_scene';
 
 
+
     const missionId = mission.id;
+
 
 
     const missionCity =
@@ -55,10 +64,12 @@ export class CrimeCityProgressService {
       'unknown';
 
 
+
     const artifact =
       mission.artifact ||
       gameState.currentArtifact ||
       'artifact';
+
 
 
     if (missionId) {
@@ -66,24 +77,30 @@ export class CrimeCityProgressService {
     }
 
 
+
     return `${sceneId}_${missionCity}_${artifact}`;
   }
+
 
 
   getCrimeCityProgress() {
     const caseKey = this.getCaseKey();
 
 
+
     gameState.crimeCityProgress ??= {};
     gameState.crimeCityProgress[caseKey] ??= {};
+
 
 
     return gameState.crimeCityProgress[caseKey];
   }
 
 
+
   initializeCurrentNode() {
     const caseKey = this.getCaseKey();
+
 
 
     if (
@@ -94,17 +111,21 @@ export class CrimeCityProgressService {
     }
 
 
+
     if (!gameState.crimeCityCurrentNodes[caseKey]) {
       gameState.crimeCityCurrentNodes[caseKey] = 'arrival';
     }
+
 
 
     return gameState.crimeCityCurrentNodes[caseKey];
   }
 
 
+
   getCurrentNode() {
     const caseKey = this.getCaseKey();
+
 
 
     return (
@@ -112,6 +133,7 @@ export class CrimeCityProgressService {
       'arrival'
     );
   }
+
 
 
   moveToCrimeCityNode(
@@ -124,16 +146,20 @@ export class CrimeCityProgressService {
       );
 
 
+
       return false;
     }
+
 
 
     const caseKey = this.getCaseKey();
 
 
+
     const currentNodeId =
       gameState.crimeCityCurrentNodes?.[caseKey] ||
       'arrival';
+
 
 
     /*
@@ -144,23 +170,29 @@ export class CrimeCityProgressService {
     }
 
 
+
     if (!this.trySpendEnergy('travel', transportType)) {
       return false;
     }
 
 
+
     gameState.crimeCityCurrentNodes ??= {};
+
 
 
     gameState.crimeCityCurrentNodes[caseKey] =
       targetNodeId;
 
 
-    saveGameState();
+
+    requestAutosave();
+
 
 
     return true;
   }
+
 
 
   hasPaidCrimeLabEntry() {
@@ -170,13 +202,16 @@ export class CrimeCityProgressService {
   }
 
 
+
   payCrimeLabEntryOnce() {
     const progress = this.getCrimeCityProgress();
+
 
 
     if (progress.crimeLabEntryPaid) {
       return true;
     }
+
 
 
     const paidSuccessfully = this.trySpendEnergy(
@@ -185,20 +220,25 @@ export class CrimeCityProgressService {
     );
 
 
+
     if (!paidSuccessfully) {
       return false;
     }
+
 
 
     progress.crimeLabEntryPaid = true;
     progress.crimeLabEntryPaidAt = Date.now();
 
 
-    saveGameState();
+
+    requestAutosave();
+
 
 
     return true;
   }
+
 
 
   isCrimeSceneCompleted() {
@@ -206,10 +246,12 @@ export class CrimeCityProgressService {
       this.getCrimeSceneVisitKey();
 
 
+
     return Boolean(
       gameState.specialScenesCompleted?.[visitKey]
     );
   }
+
 
 
   isCrimeLabCompleted() {
@@ -219,13 +261,16 @@ export class CrimeCityProgressService {
   }
 
 
+
   isGridCompleted() {
     const caseKey = this.getCaseKey();
+
 
 
     const reconstruction =
       gameState.reconstructedHeists?.[caseKey] ||
       gameState.reconstructedHeist;
+
 
 
     return Boolean(
@@ -234,6 +279,7 @@ export class CrimeCityProgressService {
       reconstruction.playerTheoryResult.length > 0
     );
   }
+
 
 
   /**
@@ -246,9 +292,11 @@ export class CrimeCityProgressService {
     }
 
 
+
     const suspects = Array.isArray(gameState.caseSuspects)
       ? gameState.caseSuspects
       : [];
+
 
 
     const suspect = suspects.find(
@@ -256,14 +304,17 @@ export class CrimeCityProgressService {
     );
 
 
+
     return suspect?.deductionState?.alibiStatus === ALIBI_DEBUNKED_STATUS;
   }
+
 
 
   hasAnyDebunkedAlibi() {
     const suspects = Array.isArray(gameState.caseSuspects)
       ? gameState.caseSuspects
       : [];
+
 
 
     return suspects.some(
@@ -273,13 +324,16 @@ export class CrimeCityProgressService {
   }
 
 
+
   trySpendEnergy(category, key) {
     const energyManager = getEnergyManager();
+
 
 
     if (category === 'travel') {
       const travelManager = getUnifiedTravelManager();
       const rule = travelManager.getTransportRule(key);
+
 
 
       if (!rule) {
@@ -289,8 +343,10 @@ export class CrimeCityProgressService {
         );
 
 
+
         return false;
       }
+
 
 
       // Koszt bazowy to próbka jednej godziny podróży.
@@ -300,7 +356,9 @@ export class CrimeCityProgressService {
       );
 
 
+
       const cost = energyManager.scaleCost(baseEnergyCost);
+
 
 
       if (energyManager.getCurrentEnergy() < cost) {
@@ -309,19 +367,23 @@ export class CrimeCityProgressService {
       }
 
 
+
       energyManager.consumeCustom(
         cost,
         `Travel (${key}): -${cost}`
       );
 
 
-      saveGameState();
+
+      requestAutosave();
       return true;
     }
 
 
+
     if (category === 'activity') {
       const baseCost = ENERGY_BASE_COSTS[category]?.[key];
+
 
 
       if (!Number.isFinite(baseCost)) {
@@ -331,11 +393,14 @@ export class CrimeCityProgressService {
         );
 
 
+
         return false;
       }
 
 
+
       const cost = energyManager.scaleCost(baseCost);
+
 
 
       if (energyManager.getCurrentEnergy() < cost) {
@@ -344,14 +409,17 @@ export class CrimeCityProgressService {
       }
 
 
+
       energyManager.consumeActivity(key);
-      saveGameState();
+      requestAutosave();
       return true;
     }
 
 
+
     return false;
   }
+
 
 
   destroy() {

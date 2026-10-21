@@ -2,21 +2,58 @@ import { gameState } from '../GameData.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
+
+const GAME_OVER_REASONS = {
+  trail_cold: {
+    title: 'The trail has gone cold',
+    message:
+      'The thief used the four days you spent in the crime city to buy a ticket, ' +
+      'a wig and a new personality.\n' +
+      'By the time you looked up, the trail was colder than the coffee at Mark Agency.'
+  },
+  time_expired: {
+    title: 'Time is up',
+    message:
+      'Seven days. That is how long the thief needed to disappear, ' +
+      'and exactly how long you needed to be almost there.\n' +
+      'The artefact is gone. The paperwork, sadly, is not.'
+  }
+};
+
+
 export class GameOverScene extends BaseScene {
   constructor() {
     super({ key: 'GameOverScene' });
+
 
     this.titleTextValue = 'GAME OVER';
     this.messageTextValue = 'The case has been lost.';
   }
 
+
   init(data) {
-    this.titleTextValue = data?.title || 'You have failed the mission';
+    const reason =
+      data?.reason ||
+      gameState.gameOverReason ||
+      null;
+
+
+    const known = reason ? GAME_OVER_REASONS[reason] : null;
+
+
+    this.titleTextValue =
+      data?.title ||
+      known?.title ||
+      'You have failed the mission';
+
+
     this.messageTextValue =
       data?.message ||
-      gameState.gameOverReason ||
+      known?.message ||
+      reason ||
       'The case has been lost.';
   }
+
 
   create() {
     super.create();
@@ -27,11 +64,13 @@ export class GameOverScene extends BaseScene {
     audioManager.stopAllSfx();
     audioManager.playSfx('game_over');
     this.scene.sleep('UIScene');
-    this.scene.get('NewsHud').events.emit('setNewspaperVisible', false);
+    this.scene.get('NewsHud')?.events?.emit('setNewspaperVisible', false);
+
 
     this.add.image(0, 0, 'backgroundgo')
       .setOrigin(0, 0)
       .setDisplaySize(1920, 1080);
+
 
     this.add.text(960, 210, this.titleTextValue, {
       fontFamily: 'PressStart2P',
@@ -39,29 +78,36 @@ export class GameOverScene extends BaseScene {
       color: '#f7dfb2',
       stroke: '#3b1f12',
       strokeThickness: 8,
-      align: 'center'
+      align: 'center',
+      wordWrap: { width: 1500 }
     }).setOrigin(0.5);
+
 
     const msgBg = this.add.rectangle(960, 915, 1180, 170, 0x2a160f, 0.82);
     msgBg.setStrokeStyle(4, 0xf7dfb2, 1);
 
+
     const msgInner = this.add.rectangle(960, 915, 1160, 150, 0x3a2016, 0.35);
     msgInner.setStrokeStyle(2, 0x7b4a2d, 0.8);
 
+
     this.add.text(960, 915, this.messageTextValue, {
       fontFamily: 'SpecialElite',
-      fontSize: '30px',
+      fontSize: '26px',
       color: '#f6ead0',
       align: 'center',
       wordWrap: { width: 1080 },
-      lineSpacing: 10
+      lineSpacing: 8
     }).setOrigin(0.5);
+
 
     const backBtn = this.add.image(200, 930, 'back')
       .setInteractive({ useHandCursor: true })
       .setScale(0.7);
 
+
     this.addHoverEffect(backBtn, 0.7, 0.8);
+
 
     backBtn.on('pointerdown', () => {
       audioManager.stopAllNonMusic();
@@ -69,10 +115,12 @@ export class GameOverScene extends BaseScene {
       this.goto('MenuScene');
     });
 
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       audioManager.stopAllSfx();
     });
   }
+
 
   addHoverEffect(button, baseScale = 0.7, hoverScale = 0.8) {
     button.on('pointerover', () => button.setScale(hoverScale));

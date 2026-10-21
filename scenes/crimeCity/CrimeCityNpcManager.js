@@ -12,6 +12,11 @@ const GENERIC_NPC_KEYS = [
   'npc6'
 ];
 
+// One map slot per suspect, three witnesses side by side inside it.
+const CLUSTER_OFFSETS_X = [-64, 0, 64];
+const NPC_SCALE = 0.3;
+const NPC_SCALE_HOVER = 0.34;
+
 export class CrimeCityNpcManager {
   constructor(scene) {
     this.scene = scene;
@@ -31,12 +36,17 @@ export class CrimeCityNpcManager {
     ) || [];
   }
 
+  getSuspectName(suspectId, fallback = 'Suspect') {
+    const suspect = this.getCaseSuspects().find(
+      (entry) => entry?.id === suspectId
+    );
+
+    return suspect?.name || suspect?.publicProfile?.displayName || fallback;
+  }
+
   /**
    * Dostęp do świadków wynika z zatwierdzenia ręcznych
    * wykluczeń w SuspectBoardScene.
-   *
-   * Nie korzystamy z caseForensics.suspectGrid.completed:
-   * to zapis innej planszy.
    */
   getAlibiAccessState() {
     const lockedState = {
@@ -76,9 +86,8 @@ export class CrimeCityNpcManager {
         .map((suspect) => suspect.id)
     );
 
-    // Zachowujemy wymóg minimum dwóch osób,
-    // obecny również w Twoim openEvidenceGrid().
-    if (candidateIds.size < 2) {
+    // Wystarczy jeden podejrzany: wtedy 3 świadków.
+    if (candidateIds.size < 1) {
       return lockedState;
     }
 
@@ -118,6 +127,23 @@ export class CrimeCityNpcManager {
       .candidateIds.has(encounter.suspectId);
   }
 
+  groupEncountersBySuspect(encounters) {
+    const groups = new Map();
+
+    encounters.forEach((encounter) => {
+      if (!groups.has(encounter.suspectId)) {
+        groups.set(encounter.suspectId, []);
+      }
+
+      groups.get(encounter.suspectId).push(encounter);
+    });
+
+    return [...groups.entries()].map(([suspectId, items]) => ({
+      suspectId,
+      encounters: items
+    }));
+  }
+
   createNpcSpots() {
     this.clearCreatedObjects();
 
@@ -130,39 +156,66 @@ export class CrimeCityNpcManager {
 
     const encounters = this.getCrimeCityEncounters();
 
-    console.debug(
-      '[CrimeCityNpcManager] Alibi map refresh:',
-      {
-        caseKey: this.scene.getCaseKey(),
-        candidateIds: [
-          ...this.getAlibiAccessState().candidateIds
-        ],
-        encounterCount: encounters.length,
-        slotCount: slots.length
-      }
-    );
-
     if (!encounters.length) {
       this.showEmptyLeadHint();
       return;
     }
 
-    encounters.forEach((encounter, index) => {
-      const slot = slots[index];
+    const groups = this.groupEncountersBySuspect(encounters);
+
+    console.debug(
+      '[CrimeCityNpcManager] Alibi map refresh:',
+      {
+        caseKey: this.scene.getCaseKey(),
+        suspects: groups.length,
+        encounterCount: encounters.length,
+        slotCount: slots.length
+      }
+    );
+
+    groups.forEach((group, groupIndex) => {
+      const slot = slots[groupIndex];
 
       if (!slot) {
         console.warn(
-          '[CrimeCityNpcManager] Missing NPC slot for encounter.',
+          '[CrimeCityNpcManager] Missing map slot for suspect.',
           {
-            encounterId: encounter.id,
-            index,
+            suspectId: group.suspectId,
+            groupIndex,
             slotCount: slots.length
           }
         );
         return;
       }
 
-      this.createNpcSpot(encounter, slot);
+      this.createSuspectCluster(group, slot);
+    });
+  }
+
+  createSuspectCluster(group, slot) {
+    const suspectName = this.getSuspectName(
+      group.suspectId,
+      group.encounters[0]?.suspectName
+    );
+
+    const header = this.scene.add
+      .text(slot.x, slot.y - 92, suspectName, {
+        fontFamily: 'SpecialElite',
+        fontSize: '16px',
+        color: '#ffe066',
+        backgroundColor: '#000000aa',
+        padding: { left: 8, right: 8, top: 3, bottom: 3 }
+      })
+      .setOrigin(0.5)
+      .setDepth(6);
+
+    this.createdObjects.push(header);
+
+    group.encounters.forEach((encounter, index) => {
+      this.createNpcSpot(encounter, {
+        x: slot.x + (CLUSTER_OFFSETS_X[index] ?? 0),
+        y: slot.y
+      });
     });
   }
 
@@ -190,7 +243,7 @@ export class CrimeCityNpcManager {
 
     const icon = this.scene.add
       .image(slot.x, slot.y, textureKey)
-      .setScale(0.45)
+      .setScale(NPC_SCALE)
       .setDepth(5)
       .setAlpha(isVisited ? 0.62 : 1)
       .setTint(
@@ -205,20 +258,20 @@ export class CrimeCityNpcManager {
     const label = this.scene.add
       .text(
         slot.x,
-        slot.y + 88,
-        encounter.label ||
+        slot.y + 56,
+        encounter.witnessRole ||
           encounter.npcName ||
-          'Unknown contact',
+          'Contact',
         {
           fontFamily: 'SpecialElite',
-          fontSize: '17px',
+          fontSize: '13px',
           color: isVisited ? '#cccccc' : '#ffffff',
           backgroundColor: '#000000aa',
           padding: {
-            left: 8,
-            right: 8,
-            top: 4,
-            bottom: 4
+            left: 5,
+            right: 5,
+            top: 3,
+            bottom: 3
           }
         }
       )
@@ -235,14 +288,14 @@ export class CrimeCityNpcManager {
 
     icon.on('pointerover', () => {
       if (!isExcluded) {
-        icon.setScale(0.5);
+        icon.setScale(NPC_SCALE_HOVER);
       }
 
       label.setColor('#ffe066');
     });
 
     icon.on('pointerout', () => {
-      icon.setScale(0.45);
+      icon.setScale(NPC_SCALE);
       label.setColor(isVisited ? '#cccccc' : '#ffffff');
     });
 
@@ -261,9 +314,9 @@ export class CrimeCityNpcManager {
     }
 
     const text = isExcluded
-      ? 'Excluded'
+      ? 'Out'
       : isVisited
-        ? 'Questioned'
+        ? 'Done'
         : 'Alibi';
 
     const color = isExcluded
@@ -274,7 +327,7 @@ export class CrimeCityNpcManager {
 
     return this.scene.mapUI.createStatusBadge(
       slot.x,
-      slot.y - 56,
+      slot.y - 50,
       text,
       color,
       this.createdObjects

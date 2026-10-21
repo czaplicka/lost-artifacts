@@ -5,7 +5,7 @@ import {
   createDefaultReconstructedHeist
 } from './GameData.js';
 
-
+import { startCaseClock } from './CaseTimeHelper.js';
 import {
   saveGameState,
   clearSavedGame
@@ -92,11 +92,6 @@ const CRIME_WINDOW_START_MINUTES = [
 
 const CRIME_WINDOW_DURATION_MINUTES = 15;
 const CRIME_DAY = 0;
-
-
-// Zachowujemy dotychczasową jednostkę czasu śledztwa.
-const INVESTIGATION_DURATION = 4 * 24;
-
 
 let currentMotive = null;
 
@@ -361,25 +356,8 @@ function resetArtifactRecovery() {
 
 
 function startInvestigationClock() {
-  const startTime = Number.isFinite(gameState.timeSpent)
-    ? gameState.timeSpent
-    : 0;
-
-
-  gameState.updateState({
-    investigationPhaseActive: true,
-    investigationStartTime: startTime,
-    investigationDeadline:
-      startTime + INVESTIGATION_DURATION,
-
-
-    escapePhaseActive: false,
-    escapeStartTime: null,
-    escapeDeadline: null,
-    timeWastedOnMistakes: 0
-  });
+  startCaseClock(gameState);
 }
-
 
 function selectCase(
   suspectsData,

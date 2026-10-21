@@ -3,24 +3,30 @@ import { audioManager } from '../managers/AudioManager.js';
 import { saveManager } from '../saveGameService.js';
 import { BaseScene } from './BaseScene.js';
 
+
 export class MenuScene extends BaseScene {
   constructor() {
     super({ key: 'MenuScene' });
+
 
     this.authMode = 'guest';
     this.playerId = null;
     this.playerEmail = null;
     this.displayName = 'Guest';
 
+
     this.continueButton = null;
     this.menuMessage = null;
 
+
     this.hasAvailableSave = false;
+
 
     this.isLoadingSave = false;
     this.isStartingNewGame = false;
     this.isOpeningSettings = false;
   }
+
 
   init(data = {}) {
     this.authMode = data.authMode ?? 'guest';
@@ -28,28 +34,35 @@ export class MenuScene extends BaseScene {
     this.playerEmail = data.playerEmail ?? null;
     this.displayName = data.displayName ?? 'Guest';
 
+
     this.isLoadingSave = false;
     this.isStartingNewGame = false;
     this.isOpeningSettings = false;
   }
 
+
   async create() {
     super.create();
 
+
     audioManager.init(this);
+
 
     if (this.isSceneActive('UIScene')) {
       this.scene.sleep('UIScene');
     }
 
+
     const { width, height } = this.scale;
     const centerX = width * 0.73;
+
 
     this.input.once('pointerdown', () => {
       if (this.sound.locked) {
         this.sound.unlock();
       }
     });
+
 
     if (this.textures.exists('background')) {
       this.add
@@ -59,7 +72,9 @@ export class MenuScene extends BaseScene {
       this.cameras.main.setBackgroundColor('#000000');
     }
 
+
     this.showAccountStatus(width, height);
+
 
     const startBtn = this.add
       .image(
@@ -70,11 +85,14 @@ export class MenuScene extends BaseScene {
       .setInteractive({ useHandCursor: true })
       .setScale(0.8);
 
+
     this.addHoverEffect(startBtn);
+
 
     startBtn.on('pointerdown', () => {
       void this.startNewGame();
     });
+
 
     this.continueButton = this.add
       .image(
@@ -86,14 +104,17 @@ export class MenuScene extends BaseScene {
       .setAlpha(0.55)
       .setTint(0x777777);
 
+
     this.continueButton.on('pointerdown', () => {
       if (!this.hasAvailableSave) {
         this.showMessage('No saved case files available.');
         return;
       }
 
+
       void this.continueLastGame();
     });
+
 
     this.continueButton.on('pointerover', () => {
       if (
@@ -103,12 +124,15 @@ export class MenuScene extends BaseScene {
         return;
       }
 
+
       this.continueButton.setScale(0.9);
     });
+
 
     this.continueButton.on('pointerout', () => {
       this.continueButton?.setScale(0.8);
     });
+
 
     const settingsBtn = this.add
       .image(
@@ -119,11 +143,14 @@ export class MenuScene extends BaseScene {
       .setInteractive({ useHandCursor: true })
       .setScale(0.8);
 
+
     this.addHoverEffect(settingsBtn);
+
 
     settingsBtn.on('pointerdown', () => {
       void this.openSettings();
     });
+
 
     const hiscoreBtn = this.add
       .image(
@@ -134,11 +161,14 @@ export class MenuScene extends BaseScene {
       .setInteractive({ useHandCursor: true })
       .setScale(0.8);
 
+
     this.addHoverEffect(hiscoreBtn);
+
 
     hiscoreBtn.on('pointerdown', () => {
       void this.goto('HighscoreScene');
     });
+
 
     this.menuMessage = this.add
       .text(
@@ -158,15 +188,19 @@ export class MenuScene extends BaseScene {
       .setOrigin(0, 0.5)
       .setDepth(100);
 
+
     await this.refreshContinueButton();
   }
+
 
   showAccountStatus(width, height) {
     const isAccount = this.authMode === 'account';
 
+
     const identity = isAccount
       ? `AGENT: ${this.displayName}`
       : 'GUEST MODE — LOCAL SAVES ONLY';
+
 
     this.add
       .text(
@@ -192,13 +226,16 @@ export class MenuScene extends BaseScene {
       .setDepth(200);
   }
 
+
   async refreshContinueButton() {
     try {
       const slots = await saveManager.listSlots();
 
+
       this.hasAvailableSave = slots.some(
         (slot) => slot.preferredSource !== 'none'
       );
+
 
       this.updateContinueButton();
     } catch (error) {
@@ -207,9 +244,12 @@ export class MenuScene extends BaseScene {
         error
       );
 
+
       this.hasAvailableSave = false;
 
+
       this.updateContinueButton();
+
 
       this.showMessage(
         'Archive connection unavailable. Local case files may still be available.'
@@ -217,14 +257,17 @@ export class MenuScene extends BaseScene {
     }
   }
 
+
   updateContinueButton() {
     if (!this.continueButton) {
       return;
     }
 
+
     const canContinue =
       this.hasAvailableSave &&
       !this.isLoadingSave;
+
 
     if (canContinue) {
       this.continueButton
@@ -232,8 +275,10 @@ export class MenuScene extends BaseScene {
         .setAlpha(1)
         .setInteractive({ useHandCursor: true });
 
+
       return;
     }
+
 
     this.continueButton
       .setTint(0x777777)
@@ -242,12 +287,15 @@ export class MenuScene extends BaseScene {
       .disableInteractive();
   }
 
+
   async openSettings() {
     if (this.isOpeningSettings) {
       return;
     }
 
+
     this.isOpeningSettings = true;
+
 
     try {
       if (this.isSceneActive('SettingsScene')) {
@@ -255,12 +303,14 @@ export class MenuScene extends BaseScene {
         return;
       }
 
+
       const opened = await this.launchOverlay(
         'SettingsScene',
         {
           sourceScene: 'MenuScene'
         }
       );
+
 
       if (opened) {
         this.bringSceneToTopIfActive('SettingsScene');
@@ -271,6 +321,7 @@ export class MenuScene extends BaseScene {
         error
       );
 
+
       this.showMessage(
         'The settings file appears to be missing.'
       );
@@ -278,6 +329,7 @@ export class MenuScene extends BaseScene {
       this.isOpeningSettings = false;
     }
   }
+
 
   async continueLastGame() {
     if (
@@ -288,63 +340,83 @@ export class MenuScene extends BaseScene {
         this.showMessage('No saved case files available.');
       }
 
+
       return;
     }
 
+
     this.isLoadingSave = true;
+
 
     this.input.enabled = false;
 
+
     this.updateContinueButton();
+
 
     try {
       const loadedSave = await saveManager.loadLastUsed(
         'newest'
       );
 
+
       if (!loadedSave) {
         this.showMessage('No saved case files available.');
+
 
         this.hasAvailableSave = false;
         this.isLoadingSave = false;
 
+
         this.input.enabled = true;
 
+
         this.updateContinueButton();
+
 
         return;
       }
 
+
       const locationsData =
         this.cache.json.get('locations') || [];
 
+
       this.registry.set('gameState', gameState);
+
 
       this.registry.set(
         'locationsData',
         structuredClone(locationsData)
       );
 
+
       this.registry.set(
         'difficulty',
         gameState.difficulty || 'field'
       );
 
+
       const { getEnergyManager } = await import(
-        '../EnergyManager.js'
+        '../managers/EnergyManager.js'
       );
+
 
       const energyManager = getEnergyManager();
 
+
       energyManager.restore({
         energy: gameState.energy,
+        maxEnergy: gameState.maxEnergy,
         difficulty: gameState.difficulty || 'field',
         energyLog: gameState.energyLog || []
       });
 
+
       const sceneToResume =
         loadedSave.meta?.lastSceneKey ||
         'GameScene';
+
 
       if (this.isSceneSleeping('UIScene')) {
         this.scene.wake('UIScene');
@@ -352,16 +424,19 @@ export class MenuScene extends BaseScene {
         await this.launchOverlay('UIScene');
       }
 
+
       if (this.isSceneSleeping('EnergyHudScene')) {
         this.scene.wake('EnergyHudScene');
       } else if (!this.isSceneActive('EnergyHudScene')) {
         await this.launchOverlay('EnergyHudScene');
       }
 
+
       const moved = await this.goto(sceneToResume, {
         fromSave: true,
         saveSlotKey: loadedSave.slotKey
       });
+
 
       if (!moved) {
         throw new Error(
@@ -374,25 +449,32 @@ export class MenuScene extends BaseScene {
         error
       );
 
+
       this.showMessage(
         'Unable to restore the case file. Please try again.'
       );
 
+
       this.input.enabled = true;
       this.isLoadingSave = false;
+
 
       this.updateContinueButton();
     }
   }
+
 
   async startNewGame() {
     if (this.isStartingNewGame) {
       return;
     }
 
+
     this.isStartingNewGame = true;
 
+
     this.input.enabled = false;
+
 
     const started = await this.goto(
       'DifficultyScene',
@@ -404,9 +486,11 @@ export class MenuScene extends BaseScene {
       }
     );
 
+
     if (!started) {
       this.isStartingNewGame = false;
       this.input.enabled = true;
+
 
       this.showMessage(
         'Could not open the case difficulty selection.'
@@ -414,12 +498,15 @@ export class MenuScene extends BaseScene {
     }
   }
 
+
   showMessage(message) {
     if (!this.menuMessage?.active) {
       return;
     }
 
+
     this.menuMessage.setText(message);
+
 
     this.time.delayedCall(4500, () => {
       if (
@@ -431,12 +518,14 @@ export class MenuScene extends BaseScene {
     });
   }
 
+
   addHoverEffect(button) {
     button.on('pointerover', () => {
       if (button.input?.enabled) {
         button.setScale(0.9);
       }
     });
+
 
     button.on('pointerout', () => {
       button.setScale(0.8);

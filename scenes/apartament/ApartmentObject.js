@@ -11,24 +11,65 @@
 // Nie zapisuje danych sprawy ani gameState.
 // Każdy znaleziony item przekazuje do:
 // scene.collectApartmentItem(item, sourceObject)
+// Zmiany swojego stanu zgłasza do:
+// scene.onObjectStateChanged(id, data)
+// a przy tworzeniu odczytuje je z:
+// scene.getObjectProgress(id)
 // ============================================================
+
 
 export class ApartmentObject {
   constructor(scene, config) {
     this.scene = scene;
     this.config = config;
 
+
     this.state = config.state || 'default';
     this.isInteracted = false;
     this.contentsCollected = false;
+
 
     this.container = null;
     this.background = null;
     this.label = null;
     this.icon = null;
 
+
+    this.restoreProgress();
     this.create();
   }
+
+
+  restoreProgress() {
+    const saved = this.config?.id
+      ? this.scene?.getObjectProgress?.(this.config.id)
+      : null;
+
+
+    if (!saved) {
+      return;
+    }
+
+
+    this.state = saved.state || this.state;
+    this.isInteracted = saved.isInteracted === true;
+    this.contentsCollected = saved.contentsCollected === true;
+  }
+
+
+  saveProgress() {
+    if (!this.config?.id) {
+      return;
+    }
+
+
+    this.scene?.onObjectStateChanged?.(this.config.id, {
+      state: this.state,
+      isInteracted: this.isInteracted,
+      contentsCollected: this.contentsCollected
+    });
+  }
+
 
   create() {
     const {
@@ -37,11 +78,14 @@ export class ApartmentObject {
       label = 'Unknown Object'
     } = this.config;
 
+
     const { x = 0, y = 0 } = position;
     const { w = 80, h = 80 } = size;
 
+
     this.container = this.scene.add.container(x, y);
     this.container.setDepth(100);
+
 
     this.background = this.scene.add.rectangle(
       0,
@@ -49,14 +93,17 @@ export class ApartmentObject {
       w,
       h,
       this.getColorForType(),
-      0.7
+      this.contentsCollected ? 0.5 : 0.7
     );
+
 
     this.background.setOrigin(0.5);
     this.background.setStrokeStyle(2, this.getStrokeColor());
     this.background.setInteractive({ useHandCursor: true });
 
+
     this.container.add(this.background);
+
 
     this.label = this.scene.add.text(0, h / 2 + 10, label, {
       fontFamily: 'SpecialElite',
@@ -66,15 +113,19 @@ export class ApartmentObject {
       wordWrap: { width: Math.max(30, w - 10) }
     });
 
+
     this.label.setOrigin(0.5);
     this.container.add(this.label);
+
 
     this.background.on('pointerover', () => this.onHover());
     this.background.on('pointerout', () => this.onHoverOut());
     this.background.on('pointerdown', () => this.onInteract());
 
+
     this.updateVisuals();
   }
+
 
   getColorForType() {
     const typeColors = {
@@ -86,56 +137,69 @@ export class ApartmentObject {
       default: 0x696969
     };
 
+
     return typeColors[this.config.type] || typeColors.default;
   }
+
 
   getStrokeColor() {
     if (this.contentsCollected) {
       return 0x00ff00;
     }
 
+
     if (this.state === 'locked') {
       return 0xff0000;
     }
+
 
     if (this.isInteracted) {
       return 0xffd700;
     }
 
+
     return 0xaaaaaa;
   }
+
 
   updateVisuals() {
     if (!this.background?.active) {
       return;
     }
 
+
     this.background.setStrokeStyle(2, this.getStrokeColor());
+
 
     if (this.contentsCollected) {
       this.background.setAlpha(0.5);
     }
   }
 
+
   onHover() {
     if (!this.background?.active) {
       return;
     }
+
 
     this.background.setFillStyle(
       this.getColorForType(),
       this.contentsCollected ? 0.65 : 0.9
     );
 
+
     if (this.scene?.showDescription) {
       this.scene.showDescription(this.getHoverDescription());
     }
   }
 
+
   onHoverOut() {
     if (!this.background?.active) {
       return;
     }
+
 
     this.background.setFillStyle(
       this.getColorForType(),
@@ -143,19 +207,23 @@ export class ApartmentObject {
     );
   }
 
+
   getHoverDescription() {
     if (this.state === 'locked') {
       return `${this.config.description || this.config.label} Locked.`;
     }
+
 
     if (this.contentsCollected) {
       return this.config.afterSearchText ||
         `${this.config.label} has already been searched.`;
     }
 
+
     return this.config.description ||
       `Search the ${this.config.label}.`;
   }
+
 
   /**
    * Gracz kliknął hotspot.
@@ -165,17 +233,18 @@ export class ApartmentObject {
       return;
     }
 
-    console.log(`[ApartmentObject] Clicked: ${this.config.id}`);
 
     if (this.state === 'locked') {
       this.handleLockedObject();
       return;
     }
 
+
     if (this.contentsCollected) {
       this.showAlreadySearchedMessage();
       return;
     }
+
 
     if (this.config.onInteract && !(this.config.unlocks || []).length) {
       this.scene.showMessage(
@@ -185,25 +254,31 @@ export class ApartmentObject {
         '#37474f'
       );
 
+
       this.isInteracted = true;
       this.contentsCollected = true;
       this.updateVisuals();
+      this.saveProgress();
       return;
     }
+
 
     if (!this.isInteracted) {
       this.open();
       return;
     }
 
+
     this.showContents();
   }
+
 
   /**
    * Obsługa obiektu zamkniętego.
    */
   handleLockedObject() {
     const requiredItem = this.config.requiresItem;
+
 
     if (!requiredItem) {
       this.scene.showMessage(
@@ -214,7 +289,9 @@ export class ApartmentObject {
       return;
     }
 
+
     const hasKey = this.scene.playerInventory?.hasItem(requiredItem);
+
 
     if (!hasKey) {
       this.scene.showMessage(
@@ -225,8 +302,10 @@ export class ApartmentObject {
       return;
     }
 
+
     this.unlock();
   }
+
 
   /**
    * Otwiera obiekt, który nie wymaga klucza.
@@ -235,16 +314,19 @@ export class ApartmentObject {
     this.isInteracted = true;
     this.state = 'open';
 
+
     this.playConfiguredAnimation();
     this.updateVisuals();
     this.showContents();
   }
+
 
   /**
    * Otwiera obiekt za pomocą klucza z inventory.
    */
   unlock() {
     const requiredItem = this.config.requiresItem;
+
 
     if (
       requiredItem &&
@@ -258,8 +340,11 @@ export class ApartmentObject {
       return;
     }
 
+
     this.isInteracted = true;
     this.state = 'open';
+    this.saveProgress();
+
 
     this.scene.showMessage(
       `${this.config.label} unlocked.`,
@@ -267,10 +352,12 @@ export class ApartmentObject {
       '#4caf50'
     );
 
+
     this.playConfiguredAnimation();
     this.updateVisuals();
     this.showContents();
   }
+
 
   /**
    * Zbiera zawartość wyłącznie raz.
@@ -281,11 +368,15 @@ export class ApartmentObject {
       return;
     }
 
+
     const contents = this.config.unlocks || [];
+
 
     this.contentsCollected = true;
     this.isInteracted = true;
     this.updateVisuals();
+    this.saveProgress();
+
 
     if (contents.length === 0) {
       this.scene.showMessage(
@@ -297,19 +388,21 @@ export class ApartmentObject {
       return;
     }
 
+
     for (const item of contents) {
       if (!item) {
         continue;
       }
+
 
       if (typeof this.scene.collectApartmentItem === 'function') {
         this.scene.collectApartmentItem(item, this.config);
         continue;
       }
 
-      // Bezpieczny fallback, gdy metoda w ApartmentScene nie została
-      // jeszcze dodana: obecna mechanika inventory nadal zadziała.
+
       this.scene.playerInventory?.addItem(item);
+
 
       this.scene.showMessage(
         `Found: ${item.label || 'Unknown Item'}`,
@@ -318,6 +411,7 @@ export class ApartmentObject {
       );
     }
   }
+
 
   showAlreadySearchedMessage() {
     this.scene?.showMessage(
@@ -328,13 +422,16 @@ export class ApartmentObject {
     );
   }
 
+
   playConfiguredAnimation() {
     if (!this.config.animation) {
       return;
     }
 
+
     this.playAnimation(this.config.animation);
   }
+
 
   /**
    * Animacja otwarcia / przeszukania.
@@ -344,7 +441,9 @@ export class ApartmentObject {
       return;
     }
 
+
     const { type = 'none', duration = 400 } = animConfig;
+
 
     switch (type) {
       case 'slide_open_right':
@@ -356,6 +455,7 @@ export class ApartmentObject {
         });
         break;
 
+
       case 'slide_open_down':
         this.scene.tweens.add({
           targets: this.background,
@@ -364,6 +464,7 @@ export class ApartmentObject {
           ease: 'Quad.easeOut'
         });
         break;
+
 
       case 'slide_reveal_left':
         this.scene.tweens.add({
@@ -375,6 +476,7 @@ export class ApartmentObject {
         });
         break;
 
+
       case 'swing_open':
         this.scene.tweens.add({
           targets: this.background,
@@ -384,6 +486,7 @@ export class ApartmentObject {
         });
         break;
 
+
       case 'fade_in':
         this.scene.tweens.add({
           targets: this.background,
@@ -392,6 +495,7 @@ export class ApartmentObject {
           ease: 'Linear'
         });
         break;
+
 
       case 'shake':
         this.scene.tweens.add({
@@ -404,11 +508,13 @@ export class ApartmentObject {
         });
         break;
 
+
       case 'none':
       default:
         break;
     }
   }
+
 
   /**
    * Pozostawione pod późniejsze używanie inventory na hotspotach.
@@ -416,6 +522,7 @@ export class ApartmentObject {
   canUseItemOn(itemId) {
     return this.config.requiresItem === itemId;
   }
+
 
   /**
    * Pozostawione pod późniejsze przeciąganie klucza z inventory
@@ -428,20 +535,25 @@ export class ApartmentObject {
     ) {
       const hasKey = this.scene?.playerInventory?.hasItem(itemId);
 
+
       if (!hasKey) {
         return false;
       }
+
 
       this.unlock();
       return true;
     }
 
+
     return false;
   }
+
 
   destroy() {
     this.background?.removeAllListeners();
     this.container?.destroy();
+
 
     this.container = null;
     this.background = null;
@@ -451,5 +563,6 @@ export class ApartmentObject {
     this.config = null;
   }
 }
+
 
 export default ApartmentObject;

@@ -1,14 +1,17 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 
+
 const FORCED_SLEEP_HOURS = 6;
 const FORCED_SLEEP_ANIMATION_MS = 2000;
+
 
 const DIFFICULTY_MULTIPLIERS = {
   rookie: 0.7,
   field: 1.0,
   master: 1.4
 };
+
 
 const ENERGY_COSTS = {
   interaction: {
@@ -25,6 +28,7 @@ const ENERGY_COSTS = {
   }
 };
 
+
 const ENERGY_RECOVERY = {
   sleep_short: 40,
   sleep_medium: 60,
@@ -37,11 +41,13 @@ const ENERGY_RECOVERY = {
   drink_expensive: 10
 };
 
+
 const ENERGY_THRESHOLDS = {
   fresh: { min: 61, status: 'Fresh', color: 0x4CAF50 },
   tired: { min: 31, status: 'Tired', color: 0xFF9800 },
   exhausted: { min: 0, status: 'Exhausted', color: 0xF44336 }
 };
+
 
 const ENERGY_TOOLTIPS = {
   high: 'Functioning adult.',
@@ -50,17 +56,21 @@ const ENERGY_TOOLTIPS = {
   critical: 'Legally too tired to solve crimes.'
 };
 
+
 function cloneData(data) {
   if (data === undefined || data === null) {
     return data;
   }
 
+
   if (typeof globalThis.structuredClone === 'function') {
     return globalThis.structuredClone(data);
   }
 
+
   return JSON.parse(JSON.stringify(data));
 }
+
 
 class EnergyManager {
   constructor() {
@@ -74,6 +84,7 @@ class EnergyManager {
     this.forcedSleepTimer = null;
   }
 
+
   init(difficulty = 'field') {
     if (!DIFFICULTY_MULTIPLIERS[difficulty]) {
       console.warn(
@@ -82,6 +93,7 @@ class EnergyManager {
       difficulty = 'field';
     }
 
+
     this.difficulty = difficulty;
     this.currentEnergy = this.maxEnergy;
     this.energyLog = [];
@@ -89,12 +101,15 @@ class EnergyManager {
     this.isSleepingForced = false;
     this.isSleepingManual = false;
 
+
     if (this.forcedSleepTimer) {
       clearTimeout(this.forcedSleepTimer);
       this.forcedSleepTimer = null;
     }
 
+
     this._syncToGameState();
+
 
     EventBus.emit('energyInitialized', {
       energy: this.currentEnergy,
@@ -102,6 +117,7 @@ class EnergyManager {
       status: this.getEnergyStatus()
     });
   }
+
 
   getTravelCost(transportType = 'plane') {
     const approximateHours = {
@@ -114,14 +130,18 @@ class EnergyManager {
       expensive_flight: 2
     };
 
+
     const hours = approximateHours[transportType] || 3;
     const baseCost = Math.max(2, Math.round(hours * 0.8));
+
 
     return this.scaleCost(baseCost);
   }
 
+
   consumeTravel(transportType = 'plane') {
     const cost = this.getTravelCost(transportType);
+
 
     return this._consumeEnergy(
       cost,
@@ -129,9 +149,11 @@ class EnergyManager {
     );
   }
 
+
   getDifficultyMultiplier() {
     return DIFFICULTY_MULTIPLIERS[this.difficulty] || 1.0;
   }
+
 
   scaleCost(baseCost) {
     return Math.ceil(
@@ -139,27 +161,33 @@ class EnergyManager {
     );
   }
 
+
   getActivityCost(activityType = 'minigame_forensic') {
     const baseCost =
       ENERGY_COSTS.activity[activityType] ||
       ENERGY_COSTS.activity.minigame_forensic;
 
+
     return this.scaleCost(baseCost);
   }
+
 
   getInterviewCost(duration = 'medium') {
     const baseCost =
       ENERGY_COSTS.interaction[`interview_${duration}`] ||
       ENERGY_COSTS.interaction.interview_medium;
 
+
     return this.scaleCost(baseCost);
   }
+
 
   canAfford(cost) {
     const safeCost = Math.max(
       0,
       Math.round(Number(cost) || 0)
     );
+
 
     return {
       ok:
@@ -182,9 +210,11 @@ class EnergyManager {
     };
   }
 
+
   canPerformActivity(activityType = 'minigame_forensic') {
     const cost = this.getActivityCost(activityType);
     const affordability = this.canAfford(cost);
+
 
     return {
       ...affordability,
@@ -193,9 +223,11 @@ class EnergyManager {
     };
   }
 
+
   canPerformInterview(duration = 'medium') {
     const cost = this.getInterviewCost(duration);
     const affordability = this.canAfford(cost);
+
 
     return {
       ...affordability,
@@ -204,24 +236,29 @@ class EnergyManager {
     };
   }
 
+
   getInsufficientEnergyMessage(requiredEnergy) {
     const required = Math.max(
       0,
       Math.round(Number(requiredEnergy) || 0)
     );
 
+
     const missing = Math.max(
       0,
       required - this.currentEnergy
     );
 
+
     if (this.isSleepingForced || this.isSleepingManual) {
       return 'You are currently asleep. Even brilliant deductions can wait.';
     }
 
+
     if (missing <= 0) {
       return 'You have enough energy for this activity.';
     }
+
 
     return (
       `You need ${required} energy for this activity. ` +
@@ -230,49 +267,61 @@ class EnergyManager {
     );
   }
 
+
   getEnergyStatus() {
     if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.status;
     }
 
+
     if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
       return ENERGY_THRESHOLDS.tired.status;
     }
 
+
     return ENERGY_THRESHOLDS.exhausted.status;
   }
+
 
   getEnergyColor() {
     if (this.currentEnergy >= ENERGY_THRESHOLDS.fresh.min) {
       return ENERGY_THRESHOLDS.fresh.color;
     }
 
+
     if (this.currentEnergy >= ENERGY_THRESHOLDS.tired.min) {
       return ENERGY_THRESHOLDS.tired.color;
     }
 
+
     return ENERGY_THRESHOLDS.exhausted.color;
   }
+
 
   getEnergyTooltip() {
     if (this.currentEnergy >= 80) {
       return ENERGY_TOOLTIPS.high;
     }
 
+
     if (this.currentEnergy >= 50) {
       return ENERGY_TOOLTIPS.medium;
     }
+
 
     if (this.currentEnergy >= 20) {
       return ENERGY_TOOLTIPS.low;
     }
 
+
     return ENERGY_TOOLTIPS.critical;
   }
+
 
   consumeInterview(duration = 'medium') {
     const cost = this.getInterviewCost(duration);
     const affordability = this.canAfford(cost);
+
 
     if (!affordability.ok) {
       return {
@@ -289,6 +338,7 @@ class EnergyManager {
       };
     }
 
+
     return this._consumeEnergy(
       cost,
       `Interview: -${cost}`,
@@ -299,9 +349,11 @@ class EnergyManager {
     );
   }
 
+
   consumeActivity(activityType = 'minigame_forensic') {
     const cost = this.getActivityCost(activityType);
     const affordability = this.canAfford(cost);
+
 
     if (!affordability.ok) {
       return {
@@ -317,6 +369,7 @@ class EnergyManager {
       };
     }
 
+
     return this._consumeEnergy(
       cost,
       `Activity (${activityType}): -${cost}`,
@@ -327,11 +380,13 @@ class EnergyManager {
     );
   }
 
+
   consumeCustom(cost, label = 'Energy changed.', options = {}) {
     const safeCost = Math.max(
       0,
       Math.round(Number(cost) || 0)
     );
+
 
     return this._consumeEnergy(
       safeCost,
@@ -343,6 +398,7 @@ class EnergyManager {
     );
   }
 
+
   startManualSleep(sleepHours = 8) {
     if (sleepHours <= 0) {
       return {
@@ -351,6 +407,7 @@ class EnergyManager {
       };
     }
 
+
     if (this.isSleepingForced || this.isSleepingManual) {
       return {
         success: false,
@@ -358,17 +415,21 @@ class EnergyManager {
       };
     }
 
+
     this.isSleepingManual = true;
+
 
     EventBus.emit('manualSleepStarted', {
       sleepHours
     });
+
 
     return {
       success: true,
       sleepHours
     };
   }
+
 
   completeManualSleep(sleepHours = 8) {
     if (sleepHours <= 0) {
@@ -379,8 +440,10 @@ class EnergyManager {
       };
     }
 
+
     let recoveryAmount = ENERGY_RECOVERY.sleep_full;
     let sleepType = 'full';
+
 
     if (sleepHours <= 2) {
       recoveryAmount = ENERGY_RECOVERY.sleep_short;
@@ -390,11 +453,14 @@ class EnergyManager {
       sleepType = 'medium';
     }
 
+
     if (this.difficulty === 'rookie') {
       recoveryAmount = Math.ceil(recoveryAmount * 1.15);
     }
 
+
     EventBus.emit('advanceTime', sleepHours, 0);
+
 
     const result = this._recoverEnergy(
       recoveryAmount,
@@ -403,7 +469,9 @@ class EnergyManager {
       sleepType
     );
 
+
     this.isSleepingManual = false;
+
 
     EventBus.emit('manualSleepFinished', {
       sleepHours,
@@ -411,27 +479,34 @@ class EnergyManager {
       energy: this.currentEnergy
     });
 
+
     return result;
   }
 
+
   sleep(sleepHours = 8) {
     const started = this.startManualSleep(sleepHours);
+
 
     if (!started.success) {
       return started;
     }
 
+
     return this.completeManualSleep(sleepHours);
   }
+
 
   cancelManualSleep() {
     this.isSleepingManual = false;
   }
 
+
   eat(foodQuality = 'normal') {
     const recovery =
       ENERGY_RECOVERY[`food_${foodQuality}`] ||
       ENERGY_RECOVERY.food_normal;
+
 
     return this._recoverEnergy(
       recovery,
@@ -441,10 +516,12 @@ class EnergyManager {
     );
   }
 
+
   drink(drinkQuality = 'normal') {
     const recovery =
       ENERGY_RECOVERY[`drink_${drinkQuality}`] ||
       ENERGY_RECOVERY.drink_normal;
+
 
     return this._recoverEnergy(
       recovery,
@@ -454,13 +531,20 @@ class EnergyManager {
     );
   }
 
-  _consumeEnergy(amount, label, options = {}) {
+
+  /**
+   * Publiczne odzyskiwanie energii o dowolną wartość.
+   * Używane przez przedmioty z katalogu (metadata.effect.energy).
+   *
+   * options.recoveryType    - np. 'item'
+   * options.recoverySubtype - np. id przedmiotu
+   */
+  recoverCustom(amount, label = 'Energy restored.', options = {}) {
     const safeAmount = Math.max(
       0,
       Math.round(Number(amount) || 0)
     );
 
-    const requireFullAmount = Boolean(options.requireFullAmount);
 
     if (safeAmount <= 0) {
       return {
@@ -468,6 +552,53 @@ class EnergyManager {
         reason: 'invalid_amount'
       };
     }
+
+
+    if (this.isSleepingForced || this.isSleepingManual) {
+      return {
+        success: false,
+        reason: this.isSleepingForced
+          ? 'forced_sleep_active'
+          : 'manual_sleep_active',
+        message: this.getInsufficientEnergyMessage(0)
+      };
+    }
+
+
+    if (this.currentEnergy >= this.maxEnergy) {
+      return {
+        success: false,
+        reason: 'energy_full'
+      };
+    }
+
+
+    return this._recoverEnergy(
+      safeAmount,
+      label,
+      options.recoveryType || 'custom',
+      options.recoverySubtype || ''
+    );
+  }
+
+
+  _consumeEnergy(amount, label, options = {}) {
+    const safeAmount = Math.max(
+      0,
+      Math.round(Number(amount) || 0)
+    );
+
+
+    const requireFullAmount = Boolean(options.requireFullAmount);
+
+
+    if (safeAmount <= 0) {
+      return {
+        success: false,
+        reason: 'invalid_amount'
+      };
+    }
+
 
     if (this.isSleepingForced || this.isSleepingManual) {
       return {
@@ -480,6 +611,7 @@ class EnergyManager {
         message: this.getInsufficientEnergyMessage(safeAmount)
       };
     }
+
 
     if (
       requireFullAmount &&
@@ -497,12 +629,15 @@ class EnergyManager {
       };
     }
 
+
     const previousEnergy = this.currentEnergy;
+
 
     this.currentEnergy = Math.max(
       0,
       this.currentEnergy - safeAmount
     );
+
 
     this.lastEnergyChange = {
       type: 'consume',
@@ -514,10 +649,13 @@ class EnergyManager {
       timestamp: Date.now()
     };
 
+
     this._recordAndEmit();
+
 
     if (this.currentEnergy === 0) {
       this._triggerForcedSleep();
+
 
       return {
         success: true,
@@ -529,6 +667,7 @@ class EnergyManager {
       };
     }
 
+
     if (
       previousEnergy > 20 &&
       this.currentEnergy <= 20
@@ -539,6 +678,7 @@ class EnergyManager {
       });
     }
 
+
     return {
       success: true,
       amount: safeAmount,
@@ -548,6 +688,7 @@ class EnergyManager {
       status: this.getEnergyStatus()
     };
   }
+
 
   _recoverEnergy(
     amount,
@@ -562,15 +703,19 @@ class EnergyManager {
       };
     }
 
+
     const previousEnergy = this.currentEnergy;
+
 
     this.currentEnergy = Math.min(
       this.maxEnergy,
       this.currentEnergy + amount
     );
 
+
     const actualRecovery =
       this.currentEnergy - previousEnergy;
+
 
     this.lastEnergyChange = {
       type: 'recover',
@@ -583,8 +728,10 @@ class EnergyManager {
       timestamp: Date.now()
     };
 
+
     this.isSleepingForced = false;
     this._recordAndEmit();
+
 
     return {
       success: true,
@@ -594,18 +741,23 @@ class EnergyManager {
     };
   }
 
+
   _triggerForcedSleep() {
     if (this.isSleepingForced || this.isSleepingManual) {
       return;
     }
 
+
     this.isSleepingForced = true;
+
 
     const shouldShowHollyIntro =
       gameState.hollyFirstSleepSeen !== true;
 
+
     if (shouldShowHollyIntro) {
       gameState.hollyFirstSleepSeen = true;
+
 
       EventBus.emit('firstForcedSleepStory', {
         sceneKey: 'HollyIntroScene',
@@ -613,6 +765,7 @@ class EnergyManager {
         energy: 0
       });
     }
+
 
     EventBus.emit('energyZero', {
       energy: 0,
@@ -624,20 +777,25 @@ class EnergyManager {
       firstSleepStory: shouldShowHollyIntro
     });
 
+
     EventBus.emit(
       'advanceTime',
       FORCED_SLEEP_HOURS,
       0
     );
 
+
     this.forcedSleepTimer = setTimeout(() => {
       if (!this.isSleepingForced) {
         return;
       }
 
+
       const previousEnergy = this.currentEnergy;
 
+
       this.currentEnergy = this.maxEnergy;
+
 
       this.lastEnergyChange = {
         type: 'recover',
@@ -652,10 +810,13 @@ class EnergyManager {
         timestamp: Date.now()
       };
 
+
       this.isSleepingForced = false;
       this.forcedSleepTimer = null;
 
+
       this._recordAndEmit();
+
 
       EventBus.emit('energyRecovered', {
         energy: this.currentEnergy,
@@ -665,25 +826,30 @@ class EnergyManager {
     }, FORCED_SLEEP_ANIMATION_MS);
   }
 
+
   _recordAndEmit() {
     this._logEnergyChange();
     this._syncToGameState();
     this._emitEnergyChanged();
   }
 
+
   _logEnergyChange() {
     if (!this.lastEnergyChange) {
       return;
     }
 
+
     this.energyLog.push(
       cloneData(this.lastEnergyChange)
     );
+
 
     if (this.energyLog.length > 50) {
       this.energyLog.shift();
     }
   }
+
 
   _syncToGameState() {
     gameState.updateState({
@@ -692,6 +858,7 @@ class EnergyManager {
       difficulty: this.difficulty
     });
   }
+
 
   _emitEnergyChanged() {
     EventBus.emit('energyChanged', {
@@ -707,32 +874,40 @@ class EnergyManager {
     });
   }
 
+
   getCurrentEnergy() {
     return this.currentEnergy;
   }
+
 
   getMaxEnergy() {
     return this.maxEnergy;
   }
 
+
   getEnergyLog() {
     return cloneData(this.energyLog);
   }
+
 
   isForcedSleepActive() {
     return this.isSleepingForced;
   }
 
+
   isManualSleepActive() {
     return this.isSleepingManual;
   }
+
 
   reset(difficulty = 'field') {
     this.init(difficulty);
   }
 
+
   restore(data = {}) {
     const savedMaxEnergy = Number(data.maxEnergy);
+
 
     if (
       Number.isFinite(savedMaxEnergy) &&
@@ -741,7 +916,9 @@ class EnergyManager {
       this.maxEnergy = Math.round(savedMaxEnergy);
     }
 
+
     const savedEnergy = Number(data.energy);
+
 
     if (Number.isFinite(savedEnergy)) {
       this.currentEnergy = Math.max(
@@ -761,12 +938,14 @@ class EnergyManager {
       );
     }
 
+
     if (
       typeof data.difficulty === 'string' &&
       DIFFICULTY_MULTIPLIERS[data.difficulty]
     ) {
       this.difficulty = data.difficulty;
     }
+
 
     if (Array.isArray(data.energyLog)) {
       this.energyLog = cloneData(
@@ -776,17 +955,21 @@ class EnergyManager {
       this.energyLog = [];
     }
 
+
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
     this.isSleepingManual = false;
+
 
     if (this.forcedSleepTimer) {
       clearTimeout(this.forcedSleepTimer);
       this.forcedSleepTimer = null;
     }
 
+
     this._syncToGameState();
     this._emitEnergyChanged();
+
 
     console.log(
       '[EnergyManager] Energy restored from save.',
@@ -797,8 +980,10 @@ class EnergyManager {
       }
     );
 
+
     return this.currentEnergy;
   }
+
 
   serialize() {
     return {
@@ -810,19 +995,24 @@ class EnergyManager {
   }
 }
 
+
 let energyManagerInstance = null;
+
 
 export function getEnergyManager() {
   if (!energyManagerInstance) {
     energyManagerInstance = new EnergyManager();
   }
 
+
   return energyManagerInstance;
 }
+
 
 export function createEnergyManager() {
   energyManagerInstance = new EnergyManager();
   return energyManagerInstance;
 }
+
 
 export default EnergyManager;

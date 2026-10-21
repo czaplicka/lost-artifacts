@@ -1,6 +1,7 @@
 export const GAME_STATE_VERSION = '1.0.0';
 
 
+
 export function createDefaultReconstructedHeist() {
   return {
     cityId: null,
@@ -24,15 +25,18 @@ export function createDefaultReconstructedHeist() {
 }
 
 
+
 export const defaultGameState = {
   _version: GAME_STATE_VERSION,
   _lastSave: null,
   _createdAt: null,
 
 
+
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,
+
 
 
   artifactRecovery: {
@@ -46,7 +50,9 @@ export const defaultGameState = {
   },
 
 
+
   recoveredArtifacts: [],
+
 
 
   currentCity: null,
@@ -57,6 +63,7 @@ export const defaultGameState = {
   currentCaseId: null,
 
 
+
   finalArrestResult: null,
   finalArrestSuspectId: null,
   caseResolved: false,
@@ -65,6 +72,7 @@ export const defaultGameState = {
   warrantSuspectName: null,
   warrantSuspectId: null,
   gameOverReason: '',
+
 
 
   crimeCity: null,
@@ -78,6 +86,12 @@ export const defaultGameState = {
   },
   justReachedCorrectCityId: null,
   hollyFirstSleepSeen: false,
+  hollyIntroPending: true,
+  hollyIntroSeen: false,
+  hollyIntroChoice: null,
+  johnCaseAccepted: false,
+  blackLadyCaseAccepted: false,
+
 
 
   activeLocations: [],
@@ -90,6 +104,7 @@ export const defaultGameState = {
   mustIncludeCityId: null,
   canonicalTravelCityId: null,
   clueScope: 'crime_scene',
+
 
 
   score: 0,
@@ -107,9 +122,11 @@ export const defaultGameState = {
   passport: null,
 
 
+
   energy: 100,
   maxEnergy: 100,
   energyLog: [],
+
 
 
   cash: 100,
@@ -118,15 +135,18 @@ export const defaultGameState = {
   moneyLog: [],
 
 
+
   timeSpent: 0,
   travelHistory: [],
   lastTravel: null,
   lastTravelEncounter: null,
 
 
+
   investigationPhaseActive: true,
   investigationStartTime: null,
   investigationDeadline: null,
+
 
 
   escapePhaseActive: false,
@@ -135,16 +155,21 @@ export const defaultGameState = {
   timeWastedOnMistakes: 0,
 
 
+
   cluesCollected: [],
+  apartmentProgress: {},
   _clueIndex: {},
+
 
 
   visitedEncounters: [],
   _encounterIndex: {},
 
 
+
   visitedCities: [],
   _cityIndex: {},
+
 
 
   playerNotes: '',
@@ -152,13 +177,16 @@ export const defaultGameState = {
   cityEncounterState: {},
 
 
+
   storyPhoneCallTriggered: false,
   pendingPhoneCall: false,
   pendingPhoneCallCityId: null,
 
 
+
   hiddenObjectHistory: [],
   reconstructedHeist: createDefaultReconstructedHeist(),
+
 
 
   unifiedTravelManagerState: null,
@@ -166,8 +194,10 @@ export const defaultGameState = {
   crimeCityCurrentNodes: {},
 
 
+
   caseDirector: null,
   caseTemplate: null,
+
 
 
   caseData: {
@@ -179,10 +209,12 @@ export const defaultGameState = {
   },
 
 
+
   caseSuspects: [],
   suspects: [],
   suspectList: [],
   excludedSuspects: [],
+
 
 
   identityEvidence: null,
@@ -190,9 +222,11 @@ export const defaultGameState = {
   identityEvidenceResult: null,
 
 
+
   hypothesisEvidence: null,
   hypothesisEvidenceResult: null,
   hypothesisAttempts: [],
+
 
 
   forensicResults: [],
@@ -200,8 +234,10 @@ export const defaultGameState = {
   csiLabCompleted: false,
 
 
+
   caseCsiAssignments: {},
   caseForensics: {},
+
 
 
   suspectExclusionState: {},
@@ -209,8 +245,10 @@ export const defaultGameState = {
   alibiInvestigation: null,
 
 
+
   crimeCityEncounterState: {},
   alibiAccusations: {},
+
 
 
   selectedThiefProfile: null,
@@ -218,11 +256,13 @@ export const defaultGameState = {
   thief: null,
 
 
+
   realThiefSuspectId: null,
   trueThiefCaseSuspectId: null,
   forensicTwinSuspectId: null,
   forensicSurvivorIds: [],
   selectedSuspectId: null,
+
 
 
   mainStory: null

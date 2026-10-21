@@ -672,82 +672,75 @@ export const SuspectCardsMixin = {
    * No automatic comparison, no red/green verdict
    * and no hidden values.
    */
-  createFileDataPanel(
-    suspect,
-    width,
-    height,
-    isEliminated
-  ) {
+    createFileDataPanel(suspect, width, height, isEliminated) {
     const facts = this.getVisibleFileFacts(suspect);
 
     const left = -width / 2 + 16;
     const top = -height / 2 + 110;
 
-    const maxRows = this.excludeMode ? 3 : 2;
+    const textColor = isEliminated ? '#9c8984' : '#e9dbbb';
 
     const title = this.add
       .text(left, top, 'FILE DATA', {
         fontFamily: 'PressStart2P',
         fontSize: '7px',
-        color: isEliminated
-          ? '#a58781'
-          : '#c9b785'
+        color: isEliminated ? '#a58781' : '#c9b785'
       })
       .setOrigin(0, 0);
 
     if (!facts.length) {
       const empty = this.add
-        .text(
-          left,
-          top + 17,
-          'No lab-linked data available.',
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '14px',
-            color: isEliminated
-              ? '#9c8984'
-              : '#e9dbbb',
-            wordWrap: {
-              width: width - 32,
-              useAdvancedWrap: true
-            }
+        .text(left, top + 17, 'No lab-linked data available.', {
+          fontFamily: 'SpecialElite',
+          fontSize: '14px',
+          color: textColor,
+          wordWrap: {
+            width: width - 32,
+            useAdvancedWrap: true
           }
-        )
+        })
         .setOrigin(0, 0);
 
       return [title, empty];
     }
 
-    const visibleFacts = facts.slice(0, maxRows);
+    const perLine = width >= 280 ? 2 : 1;
+    const lineHeight = 18;
+    const availableHeight = height / 2 - 30 - (top + 17);
+    const maxLines = Math.max(1, Math.floor(availableHeight / lineHeight));
 
-    const lines = visibleFacts.map(
-      (fact) => `${fact.label}: ${fact.value}`
-    );
+    const allLines = [];
 
-    if (facts.length > visibleFacts.length) {
-      lines.push(
-        `+ ${facts.length - visibleFacts.length} MORE`
+    for (let i = 0; i < facts.length; i += perLine) {
+      allLines.push(
+        facts
+          .slice(i, i + perLine)
+          .map((fact) => `${fact.label}: ${fact.value}`)
+          .join('   ')
       );
     }
 
+    let lines = allLines;
+
+    if (allLines.length > maxLines) {
+      lines = allLines.slice(0, Math.max(0, maxLines - 1));
+
+      const shownFacts = lines.length * perLine;
+
+      lines.push(`+ ${facts.length - shownFacts} MORE`);
+    }
+
     const text = this.add
-      .text(
-        left,
-        top + 17,
-        lines.join('\n'),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '14px',
-          color: isEliminated
-            ? '#9c8984'
-            : '#e9dbbb',
-          lineSpacing: 2,
-          wordWrap: {
-            width: width - 32,
-            useAdvancedWrap: true
-          }
+      .text(left, top + 17, lines.join('\n'), {
+        fontFamily: 'SpecialElite',
+        fontSize: '13px',
+        color: textColor,
+        lineSpacing: 2,
+        wordWrap: {
+          width: width - 32,
+          useAdvancedWrap: true
         }
-      )
+      })
       .setOrigin(0, 0);
 
     return [title, text];

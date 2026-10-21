@@ -1,17 +1,21 @@
 // PassportManager.js
 // Zarządza paszportem gracza: pieczątki wjazdowe, numer paszportu, statystyki podróży.
 
+
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
+
 
 // Data startu sprawy - MUSI być zgodna z UIScene.js (this.startDate).
 // month: 3 = kwiecień (Date() liczy miesiące od 0), więc to 1 kwietnia 1990.
 // Jeśli kiedyś zmienisz startDate w UIScene.js, zmień go też tutaj.
 const CASE_START_DATE = { year: 1990, month: 3, day: 1 };
 
+
 // Kolory tuszu pieczątki - różnicujemy wizualnie wjazd/wylot/regiony.
 const STAMP_INK_COLORS = [0xb5324a, 0x2e4a8f, 0x2f6b3c, 0x7a3fa0, 0x8a5a20];
+
 
 // Żartobliwe dopiski celnika - dodają humoru bez wpływu na gameplay.
 const CUSTOMS_JOKES = [
@@ -32,12 +36,15 @@ const CUSTOMS_JOKES = [
   "Customs officer whistled the theme from a spy movie."
 ];
 
+
 // Tytuły pieczątek - dla różnorodności wizualnej (nie wszystkie mówią "ENTRY").
 const STAMP_TITLES = ['ENTRY', 'ARRIVED', 'INSPECTED', 'CLEARED', 'ADMITTED', 'VISA'];
+
 
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+
 
 // Ta sama matematyka co UIScene._calculateDate() - żeby data na pieczątce
 // pokrywała się z datą wyświetlaną w HUD-zie (data-month / data-day).
@@ -50,13 +57,16 @@ function calculateCalendarDate(gameDay) {
   );
 }
 
+
 function formatStampDate(state = gameState) {
   const gameDay = Math.max(1, Math.floor(Number(state.currentDay) || 1));
   const date = calculateCalendarDate(gameDay);
 
+
   const monthAbbr = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
   const dayOfMonth = String(date.getDate()).padStart(2, '0');
   const year = date.getFullYear();
+
 
   return {
     gameDay,
@@ -64,6 +74,7 @@ function formatStampDate(state = gameState) {
     short: `${dayOfMonth}/${String(date.getMonth() + 1).padStart(2, '0')}`
   };
 }
+
 
 function generatePassportNumber(seedString) {
   let hash = 0;
@@ -75,10 +86,12 @@ function generatePassportNumber(seedString) {
   return `PI-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 9)}`;
 }
 
+
 // WAŻNE: czytamy gameState.passport TYLKO RAZ i trzymamy w zmiennej lokalnej,
 // żeby uniknąć podwójnego odczytu tej samej właściwości z rzędu.
 function ensurePassportState() {
   let passport = gameState.passport;
+
 
   if (!passport || typeof passport !== 'object') {
     passport = {
@@ -90,21 +103,26 @@ function ensurePassportState() {
     gameState.passport = passport;
   }
 
+
   if (!Array.isArray(passport.stamps)) {
     passport.stamps = [];
   }
 
+
   return passport;
 }
+
 
 class PassportManager {
   constructor() {
     ensurePassportState();
 
+
     EventBus.on('passport:stamp', (locationData) => {
       this.stampLocation(locationData);
     });
   }
+
 
   getPassportNumber() {
     const passport = ensurePassportState();
@@ -112,10 +130,11 @@ class PassportManager {
       passport.passportNumber = generatePassportNumber(
         (gameState.playerName || 'detective') + (gameState.saveId || '')
       );
-      saveGameState();
+      requestAutosave();
     }
     return passport.passportNumber;
   }
+
 
   getHolderName() {
     const passport = ensurePassportState();
@@ -125,11 +144,13 @@ class PassportManager {
     return passport.holderName || 'J. Doe';
   }
 
+
   setHolderName(name) {
     const passport = ensurePassportState();
     passport.holderName = name;
     saveGameState();
   }
+
 
   getAlias() {
     return (typeof gameState.playerAlias === 'string' && gameState.playerAlias.trim())
@@ -137,33 +158,40 @@ class PassportManager {
       : null;
   }
 
+
   getPlayerRank() {
     return (typeof gameState.playerRank === 'string' && gameState.playerRank.trim())
       ? gameState.playerRank.trim()
       : 'Junior Agent';
   }
 
+
   getAppearanceSummary() {
     return typeof gameState.appearanceSummary === 'string' ? gameState.appearanceSummary : null;
   }
+
 
   hasVisited(locationId) {
     const passport = ensurePassportState();
     return passport.stamps.some((s) => s.locationId === locationId);
   }
 
+
   getVisitCount(locationId) {
     const passport = ensurePassportState();
     return passport.stamps.filter((s) => s.locationId === locationId).length;
   }
 
+
   getStamps() {
     return ensurePassportState().stamps.slice();
   }
 
+
   getStampCount() {
     return ensurePassportState().stamps.length;
   }
+
 
   getVisitedCountries() {
     const passport = ensurePassportState();
@@ -171,19 +199,24 @@ class PassportManager {
     return Array.from(set);
   }
 
+
   stampLocation(locationData) {
     if (!locationData || !locationData.id) {
       console.warn('[PassportManager] stampLocation: brak poprawnych danych lokacji', locationData);
       return null;
     }
 
+
     const passport = ensurePassportState();
+
 
     if (!passport.passportNumber) {
       this.getPassportNumber();
     }
 
+
     const dateInfo = formatStampDate(gameState);
+
 
     const alreadyStampedToday = passport.stamps.some(
       (s) => s.locationId === locationData.id && s.gameDay === dateInfo.gameDay
@@ -192,9 +225,11 @@ class PassportManager {
       return null;
     }
 
+
     if (!passport.issuedDayLabel) {
       passport.issuedDayLabel = dateInfo.label;
     }
+
 
     const stamp = {
       stampId: `${locationData.id}_${dateInfo.gameDay}_${Date.now()}`,
@@ -212,13 +247,17 @@ class PassportManager {
       visitNumber: this.getVisitCount(locationData.id) + 1
     };
 
+
     passport.stamps.push(stamp);
-    saveGameState();
+    requestAutosave();
+
 
     EventBus.emit('passportStamped', stamp);
 
+
     return stamp;
   }
+
 
   stampLocationById(locationId, allLocations) {
     if (!Array.isArray(allLocations)) return null;
@@ -230,9 +269,11 @@ class PassportManager {
     return this.stampLocation(loc);
   }
 
+
   serialize() {
     return JSON.parse(JSON.stringify(ensurePassportState()));
   }
+
 
   hydrate(savedPassportState) {
     if (!savedPassportState) return;
@@ -245,7 +286,9 @@ class PassportManager {
   }
 }
 
+
 let passportManagerInstance = null;
+
 
 export function getPassportManager() {
   if (!passportManagerInstance) {
@@ -253,5 +296,6 @@ export function getPassportManager() {
   }
   return passportManagerInstance;
 }
+
 
 export { PassportManager, formatStampDate };

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "npcId": "archivist_drebin",
+  "speaker": "Lieutenant Frank Drebin",
+  "portraitKey": "portrait_fallback",
+  "clickReplies": [
+    "Unless you're delivering a report, you're just obstructing a filing cabinet.",
+    "I archive reports. Unscheduled conversation goes straight into the shredder.",
+    "Less hovering. More paperwork."
+  ],
+  "wrongItemReplies": [
+    "That is not a report. I admire your confidence, not your filing skills.",
+    "Wrong department. Try Lost Property. Preferably while lost."
+  ],
+  "alreadySubmittedReplies": [
+    "I have already filed that report. Once was quite enough."
+  ],
+  "reportConversation": {
+    "lines": [
+      "A mission report. Finally, a visitor with supporting documentation.",
+      "You included the attachments. All of them. That is either competence or a cry for help.",
+      "I will file this. Try not to generate another international incident before the ink dries."
+    ]
+  },
+  "submittedMessage": "Mission report submitted to Frank Drebin."
+}

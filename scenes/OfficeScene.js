@@ -5,6 +5,7 @@ import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
 import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
+import { flushAutosave } from '../gameStatePersistence.js';
 
 import {
   OfficeNavigation
@@ -73,6 +74,9 @@ export class OfficeScene extends BaseScene {
 
     this.onFirstCaseTutorialFinishedBound =
       this.onFirstCaseTutorialFinished.bind(this);
+
+    this.onFirstMissionSuccessBound =
+      this.onFirstMissionSuccess.bind(this);
   }
 
   init(data = {}) {
@@ -132,8 +136,12 @@ export class OfficeScene extends BaseScene {
         caseFileOpened: false,
         routeOpened: false,
         travelStarted: false,
-        missionCompleted: false
+        missionCompleted: false,
+        successCount: 0
       };
+
+      this.gameState.progress ??= {};
+      this.gameState.progress.firstMissionSuccess = false;
     }
   }
 
@@ -274,6 +282,11 @@ export class OfficeScene extends BaseScene {
     );
 
     this.onBus(
+      'firstMissionSuccess',
+      this.onFirstMissionSuccessBound
+    );
+
+    this.onBus(
       'firstCaseTutorialFinished',
       this.onFirstCaseTutorialFinishedBound
     );
@@ -351,7 +364,32 @@ export class OfficeScene extends BaseScene {
     );
   }
 
-  createEntranceButton(y, label, action) {
+  hasFirstMissionSuccess() {
+    const firstCase = this.gameState.onboarding?.firstCase;
+
+    return Boolean(
+      this.gameState.firstMissionSuccess ||
+      this.gameState.progress?.firstMissionSuccess ||
+      firstCase?.successCount >= 1 ||
+      firstCase?.successes >= 1
+    );
+  }
+
+  isArchiveBlocked() {
+    return Boolean(
+      this.uiLocked ||
+      this.isOfficeTutorialBlocking()
+    );
+  }
+
+  isStorageBlocked() {
+    return Boolean(
+      this.isArchiveBlocked() ||
+      !this.hasFirstMissionSuccess()
+    );
+  }
+
+  createEntranceButton(y, label, action, isBlocked) {
     const button = this.add
       .text(24, y, label, {
         fontFamily: 'SpecialElite',
@@ -373,10 +411,7 @@ export class OfficeScene extends BaseScene {
       });
 
     button.on('pointerover', () => {
-      if (
-        !this.uiLocked &&
-        !this.isOfficeTutorialBlocking()
-      ) {
+      if (!isBlocked()) {
         button.setColor('#ffffff');
       }
     });
@@ -396,7 +431,8 @@ export class OfficeScene extends BaseScene {
     this.archiveButton = this.createEntranceButton(
       170,
       'ARCHIVE >',
-      () => this.openArchive()
+      () => this.openArchive(),
+      () => this.isArchiveBlocked()
     );
   }
 
@@ -404,27 +440,32 @@ export class OfficeScene extends BaseScene {
     this.storageButton = this.createEntranceButton(
       230,
       'STORAGE >',
-      () => this.openStorage()
+      () => this.openStorage(),
+      () => this.isStorageBlocked()
     );
   }
 
   refreshEntranceButtons() {
-    const blocked =
-      this.uiLocked ||
-      this.isOfficeTutorialBlocking();
+    const archiveBlocked = this.isArchiveBlocked();
+    const storageBlocked = this.isStorageBlocked();
 
-    for (const button of [
-      this.archiveButton,
-      this.storageButton
-    ]) {
-      if (!button?.input) {
-        continue;
-      }
+    if (this.archiveButton?.input) {
+      this.archiveButton.input.enabled = !archiveBlocked;
+      this.archiveButton.setAlpha(
+        archiveBlocked ? 0.45 : 1
+      );
+      this.archiveButton.setColor(
+        archiveBlocked ? '#8b8475' : '#f2d477'
+      );
+    }
 
-      button.input.enabled = !blocked;
-      button.setAlpha(blocked ? 0.45 : 1);
-      button.setColor(
-        blocked ? '#8b8475' : '#f2d477'
+    if (this.storageButton?.input) {
+      this.storageButton.input.enabled = !storageBlocked;
+      this.storageButton.setAlpha(
+        storageBlocked ? 0.45 : 1
+      );
+      this.storageButton.setColor(
+        storageBlocked ? '#8b8475' : '#f2d477'
       );
     }
   }
@@ -447,6 +488,16 @@ export class OfficeScene extends BaseScene {
     if (this.isOfficeTutorialBlocking()) {
       this.showOfficeStatusMessage(
         'Finish your introduction before visiting other rooms.'
+      );
+      return false;
+    }
+
+    if (
+      sceneKey === 'AgencyStorageScene' &&
+      !this.hasFirstMissionSuccess()
+    ) {
+      this.showOfficeStatusMessage(
+        'Storage access requires one successful mission.'
       );
       return false;
     }
@@ -917,6 +968,23 @@ export class OfficeScene extends BaseScene {
     }
   }
 
+  onFirstMissionSuccess() {
+    if (this._cleanupDone) {
+      return;
+    }
+
+    this.gameState.progress ??= {};
+    this.gameState.progress.firstMissionSuccess = true;
+
+    this.refreshEntranceButtons();
+
+    if (this.sys.isActive()) {
+      this.showOfficeStatusMessage(
+        'Storage access granted. Try not to get lost in there.'
+      );
+    }
+  }
+
   showOfficeStatusMessage(message) {
     if (!message || this._cleanupDone) {
       return;
@@ -1263,6 +1331,8 @@ export class OfficeScene extends BaseScene {
   }
 
   onSleep() {
+    flushAutosave();
+
     this.agencyLedgerUI?.close({
       restoreHud: false
     });
@@ -1272,6 +1342,8 @@ export class OfficeScene extends BaseScene {
   }
 
   cleanupScene() {
+    flushAutosave();
+
     this._runToken = null;
 
     this._tutorialStartTimer?.remove(false);

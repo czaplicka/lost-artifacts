@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import dialogCsi from './dialog_csi.json' assert { type: 'json' };
+import dialogCsi from '.assets/data/dialogue/dialog_csi.json' assert { type: 'json' };
 
 /**
  * CSIDialogBuilder

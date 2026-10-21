@@ -15,6 +15,18 @@ import {
 const VIEW_WIDTH = 1100;
 const VIEW_HEIGHT = 900;
 
+const ROLE_COLORS = {
+  neighbor: 0x2f6f8f,
+  coworker: 0xb9772b,
+  receptionist: 0x7a4f9a
+};
+
+const ROLE_CSS = {
+  neighbor: '#2f6f8f',
+  coworker: '#a8651a',
+  receptionist: '#7a4f9a'
+};
+
 function formatTime(minute) {
   const hours = Math.floor(minute / 60);
   const minutes = minute % 60;
@@ -103,7 +115,7 @@ export class AlibiTimelineScene extends BaseScene {
     );
 
     if (
-      data.boardCards?.length !== 6 ||
+      data.boardCards?.length !== 3 ||
       data.trueTimeline?.length !== 3 ||
       !data.crimeWindow
     ) {
@@ -115,7 +127,7 @@ export class AlibiTimelineScene extends BaseScene {
     this.crimeWindow = data.crimeWindow;
 
     if (
-      new Set(this.cards.map((card) => card.id)).size !== 6 ||
+      new Set(this.cards.map((card) => card.id)).size !== 3 ||
       this.solutionIds.some(
         (id) => !this.cards.some((card) => card.id === id)
       )
@@ -239,10 +251,13 @@ export class AlibiTimelineScene extends BaseScene {
     {
       selected = false,
       disabled = false,
-      fontSize = '18px'
+      fontSize = '18px',
+      selectedFill = 0x846a3f,
+      selectedStroke = 0xe2bd71,
+      selectedHover = 0x9a7d4a
     } = {}
   ) {
-    const fill = selected ? 0x846a3f : 0x493d30;
+    const fill = selected ? selectedFill : 0x493d30;
 
     const background = this.add.rectangle(
       x + width / 2,
@@ -250,7 +265,10 @@ export class AlibiTimelineScene extends BaseScene {
       width,
       height,
       fill
-    ).setStrokeStyle(2, selected ? 0xe2bd71 : 0x9b815b);
+    ).setStrokeStyle(
+      selected ? 5 : 2,
+      selected ? selectedStroke : 0x9b815b
+    );
 
     parent.add(background);
 
@@ -262,7 +280,7 @@ export class AlibiTimelineScene extends BaseScene {
       width - 20,
       {
         fontSize,
-        color: '#fff3d6',
+        color: selected ? '#ffffff' : '#fff3d6',
         align: 'center'
       }
     ).setOrigin(0, 0.5);
@@ -278,7 +296,7 @@ export class AlibiTimelineScene extends BaseScene {
     background
       .setInteractive({ useHandCursor: true })
       .on('pointerover', () => {
-        background.setFillStyle(0x705c42);
+        background.setFillStyle(selected ? selectedHover : 0x705c42);
       })
       .on('pointerout', () => {
         background.setFillStyle(fill);
@@ -288,6 +306,23 @@ export class AlibiTimelineScene extends BaseScene {
           callback();
         }
       });
+  }
+
+  getChoices() {
+    return [
+      ...this.witnesses.map((witness) => ({
+        id: witness.npcId,
+        label: `${witness.role} is lying`,
+        pickLabel: `${witness.role} is lying`,
+        liar: true
+      })),
+      {
+        id: NO_ALIBI_LIAR,
+        label: 'Nobody lies: the alibi holds',
+        pickLabel: 'Nobody lies, the alibi holds',
+        liar: false
+      }
+    ];
   }
 
   render() {
@@ -377,9 +412,12 @@ export class AlibiTimelineScene extends BaseScene {
       this.root,
       30,
       126,
-      '1. Reconstruct three supported facts, in chronological order.',
+      '1. Each card is one witness’s account. ' +
+      'Put the three accounts in time order, earliest first.',
       1020
     );
+
+    const slotNames = ['EARLIEST', 'MIDDLE', 'LATEST'];
 
     this.slots.forEach((cardId, index) => {
       const card = this.cards.find(
@@ -388,12 +426,13 @@ export class AlibiTimelineScene extends BaseScene {
 
       this.drawCard(
         30 + index * 355,
-        160,
+        175,
         330,
-        135,
+        150,
+        card ? card.role.toUpperCase() : slotNames[index],
         card
-          ? `${index + 1}. ${card.label}`
-          : `${index + 1}. Click a card below to fill this slot.`,
+          ? card.label
+          : 'Click a card below to place it here.',
         () => {
           if (!cardId) {
             return;
@@ -403,15 +442,15 @@ export class AlibiTimelineScene extends BaseScene {
           this.clearFeedback();
           this.render();
         },
-        { selected: Boolean(cardId) }
+        { selected: Boolean(card), roleId: card?.roleId }
       );
     });
 
     this.text(
       this.root,
       30,
-      310,
-      'Available cards — click a placed card to return it.',
+      345,
+      'Witness cards. Click a placed card to take it back.',
       1020,
       { fontSize: '17px' }
     );
@@ -420,57 +459,78 @@ export class AlibiTimelineScene extends BaseScene {
       const placed = this.slots.includes(card.id);
 
       this.drawCard(
-        30 + (index % 3) * 355,
-        342 + Math.floor(index / 3) * 145,
+        30 + index * 355,
+        380,
         330,
-        135,
-        placed ? 'Placed on the timeline' : card.label,
+        150,
+        card.role.toUpperCase(),
+        placed ? 'Placed on the timeline.' : card.label,
         () => this.placeCard(card.id),
-        { disabled: placed }
+        { disabled: placed, roleId: card.roleId }
       );
     });
 
     this.text(
       this.root,
       30,
-      640,
-      '2. Choose your conclusion.',
-      1000
+      560,
+      '2. Who is lying?',
+      400
     );
 
-    const choices = [
-      ...this.witnesses.map((witness) => ({
-        id: witness.npcId,
-        label: `${witness.role}: false statement`
-      })),
+    const choices = this.getChoices();
+    const picked = choices.find((choice) => choice.id === this.choice);
+
+    this.text(
+      this.root,
+      300,
+      562,
+      picked ? `Your pick: ${picked.pickLabel}` : 'Your pick: none yet',
+      770,
       {
-        id: NO_ALIBI_LIAR,
-        label: 'The alibi holds'
+        fontSize: '19px',
+        color: !picked
+          ? '#594a36'
+          : picked.liar
+            ? '#a8321f'
+            : '#286244'
       }
-    ];
+    );
 
     choices.forEach((choice, index) => {
       this.button(
         this.root,
         30 + (index % 2) * 535,
-        675 + Math.floor(index / 2) * 56,
+        600 + Math.floor(index / 2) * 70,
         510,
-        48,
-        choice.label,
+        58,
+        this.choice === choice.id ? `>> ${choice.label} <<` : choice.label,
         () => {
           this.choice = choice.id;
           this.clearFeedback();
           this.render();
         },
-        { selected: this.choice === choice.id }
+        {
+          selected: this.choice === choice.id,
+          selectedFill: choice.liar ? 0xa8321f : 0x2f7d4f,
+          selectedStroke: 0xffd37a,
+          selectedHover: choice.liar ? 0xc13e27 : 0x3a9962
+        }
       );
     });
 
     this.drawFooter();
   }
 
-  drawCard(x, y, width, height, label, callback, options = {}) {
-    const { selected = false, disabled = false } = options;
+  drawCard(x, y, width, height, title, body, callback, options = {}) {
+    const {
+      selected = false,
+      disabled = false,
+      roleId = null
+    } = options;
+
+    const stripe = ROLE_COLORS[roleId] || 0xa38b63;
+    const titleColor = ROLE_CSS[roleId] || '#594a36';
 
     const background = this.add.rectangle(
       x + width / 2,
@@ -478,16 +538,39 @@ export class AlibiTimelineScene extends BaseScene {
       width,
       height,
       disabled ? 0xd2c5aa : selected ? 0xd7e0c5 : 0xfff5dc
-    ).setStrokeStyle(2, selected ? 0x667846 : 0xa38b63);
+    ).setStrokeStyle(selected ? 4 : 2, selected ? 0x667846 : 0xa38b63);
 
     this.root.add(background);
 
-    const labelObject = this.text(
+    const bar = this.add.rectangle(
+      x + 7,
+      y + height / 2,
+      14,
+      height,
+      stripe
+    );
+
+    this.root.add(bar);
+
+    this.text(
       this.root,
-      x + 12,
-      y + 12,
-      label,
-      width - 24,
+      x + 26,
+      y + 10,
+      title,
+      width - 40,
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '13px',
+        color: titleColor
+      }
+    );
+
+    const bodyObject = this.text(
+      this.root,
+      x + 26,
+      y + 38,
+      body,
+      width - 42,
       {
         fontSize: '18px',
         lineSpacing: 2
@@ -495,11 +578,11 @@ export class AlibiTimelineScene extends BaseScene {
     );
 
     while (
-      labelObject.height > height - 24 &&
-      parseInt(labelObject.style.fontSize, 10) > 13
+      bodyObject.height > height - 50 &&
+      parseInt(bodyObject.style.fontSize, 10) > 13
     ) {
-      labelObject.setFontSize(
-        parseInt(labelObject.style.fontSize, 10) - 1
+      bodyObject.setFontSize(
+        parseInt(bodyObject.style.fontSize, 10) - 1
       );
     }
 

@@ -139,6 +139,7 @@
     { "key": "loginbtn", "url": "assets/login.png" },
     { "key": "registerbtn", "url": "assets/register.png" },
     { "key": "atlas", "url": "assets/atlas.png" },
+        { "key": "inventory_icon", "url": "assets/inventory_icon.png" },
     { "key": "destination", "url": "assets/destination.png" },
     { "key": "plane", "url": "assets/plane.png" },
     { "key": "search", "url": "assets/search.png" },

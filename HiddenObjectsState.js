@@ -1,5 +1,6 @@
-import { gameState, createDefaultReconstructedHeist } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { gameState, createDefaultReconstructedHeist } from './GameData.js';
+import { saveGameState, requestAutosave } from './gameStatePersistence.js';
+
 
 
 function toClueSlug(value) {
@@ -9,8 +10,10 @@ function toClueSlug(value) {
     .replace(/^_+|_+$/g, '');
 
 
+
   return slug || 'unknown';
 }
+
 
 
 export class HiddenObjectsState {
@@ -22,6 +25,7 @@ export class HiddenObjectsState {
   }
 
 
+
   /**
    * Inicjalizuje wymagane struktury w gameState, jeśli jeszcze nie istnieją.
    */
@@ -31,9 +35,11 @@ export class HiddenObjectsState {
     }
 
 
+
     if (!gameState.specialScenesCompleted || typeof gameState.specialScenesCompleted !== 'object') {
       gameState.specialScenesCompleted = {};
     }
+
 
 
     if (!Array.isArray(gameState.hiddenObjectHistory)) {
@@ -41,9 +47,11 @@ export class HiddenObjectsState {
     }
 
 
+
     if (!gameState.crimeBoardData || typeof gameState.crimeBoardData !== 'object') {
       gameState.crimeBoardData = {};
     }
+
 
 
     if (!Array.isArray(gameState.crimeBoardData.visitedCrimeScenes)) {
@@ -51,15 +59,18 @@ export class HiddenObjectsState {
     }
 
 
+
     if (!Array.isArray(gameState.crimeBoardData.sceneFoundObjects)) {
       gameState.crimeBoardData.sceneFoundObjects = [];
     }
+
 
 
     if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
       gameState.reconstructedHeist = createDefaultReconstructedHeist();
     }
   }
+
 
 
   /**
@@ -71,13 +82,16 @@ export class HiddenObjectsState {
     const artifact = gameState.currentMission?.artifact || gameState.currentArtifact || 'artifact';
 
 
+
     if (missionId) {
       return `${this.scene.sceneId}_${missionId}`;
     }
 
 
+
     return `${this.scene.sceneId}_${missionCity}_${artifact}`;
   }
+
 
 
   /**
@@ -89,6 +103,7 @@ export class HiddenObjectsState {
   }
 
 
+
   /**
    * Zapisuje zebraną poszlakę/dowód do gameState.
    */
@@ -96,7 +111,9 @@ export class HiddenObjectsState {
     if (!itemData) return;
 
 
+
     this.ensureStateStructure();
+
 
 
     const alreadyStoredObject = gameState.hiddenObjectHistory.some(
@@ -107,7 +124,9 @@ export class HiddenObjectsState {
     );
 
 
+
     const skills = this.scene.normalizeSkills(itemData.skills);
+
 
 
     if (!alreadyStoredObject) {
@@ -126,9 +145,11 @@ export class HiddenObjectsState {
     }
 
 
+
     skills.forEach((skill) => {
       const normalizedSkill = String(skill).trim();
       if (!normalizedSkill) return;
+
 
 
       const alreadyExists = gameState.cluesCollected.some(
@@ -139,7 +160,9 @@ export class HiddenObjectsState {
       );
 
 
+
       if (alreadyExists) return;
+
 
 
       // Wskazówka MUSI mieć id, inaczej zniknie przy zapisie i wczytaniu.
@@ -156,8 +179,10 @@ export class HiddenObjectsState {
     });
 
 
-    saveGameState();
+
+    requestAutosave();
   }
+
 
 
   /**
@@ -167,12 +192,15 @@ export class HiddenObjectsState {
     this.ensureStateStructure();
 
 
+
     this.scene.foundItems.forEach((itemId) => {
       const itemData = this.scene.itemsById[itemId];
       if (!itemData) return;
 
 
+
       const uniqueKey = `${this.scene.sceneId}_${this.scene.cityId}_${itemId}`;
+
 
 
       const alreadySaved = gameState.crimeBoardData.sceneFoundObjects.some(
@@ -180,7 +208,9 @@ export class HiddenObjectsState {
       );
 
 
+
       if (alreadySaved) return;
+
 
 
       gameState.crimeBoardData.sceneFoundObjects.push({
@@ -199,6 +229,7 @@ export class HiddenObjectsState {
   }
 
 
+
   /**
    * Przypina zdjęcie/wpis miejsca zbrodni do Crime Board.
    */
@@ -206,7 +237,9 @@ export class HiddenObjectsState {
     this.ensureStateStructure();
 
 
+
     const visitKey = this.getVisitKey();
+
 
 
     const alreadyPinned = gameState.crimeBoardData.visitedCrimeScenes.some(
@@ -214,7 +247,9 @@ export class HiddenObjectsState {
     );
 
 
+
     if (alreadyPinned) return;
+
 
 
     gameState.crimeBoardData.visitedCrimeScenes.push({
@@ -231,6 +266,7 @@ export class HiddenObjectsState {
   }
 
 
+
   /**
    * Oznacza scenę jako odwiedzoną / zaliczoną i wywołuje zapis stanu.
    */
@@ -238,8 +274,10 @@ export class HiddenObjectsState {
     this.ensureStateStructure();
 
 
+
     const visitKey = this.getVisitKey();
     gameState.specialScenesVisited[visitKey] = true;
+
 
 
     if (success) {
@@ -247,12 +285,15 @@ export class HiddenObjectsState {
     }
 
 
+
     this.saveCrimeBoardPhoto(success);
     this.saveFoundObjectsToCrimeBoard();
 
 
+
     saveGameState();
   }
+
 
 
   /**

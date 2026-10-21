@@ -1,6 +1,6 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
 import { ScoreManager } from '../managers/ScoreManager.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
@@ -15,7 +15,7 @@ export class SuccessScene extends BaseScene {
 
     create() {
         super.create();
-EventBus.emit('hideHUD');
+        EventBus.emit('hideHUD');
         audioManager.init(this);
         audioManager.stopAllMusic();
         audioManager.stopAllAmbient();
@@ -29,6 +29,7 @@ EventBus.emit('hideHUD');
         this.scoreManager = new ScoreManager();
 
         this.registerCaseSuccess();
+        this.registerFirstMissionSuccess();
         this.unlockOfficeAfterFirstMission();
 
         if (!gameState.scoreSaved) {
@@ -44,8 +45,11 @@ EventBus.emit('hideHUD');
             this.scoreManager.saveScore(playerName, finalScore);
             gameState.scoreSaved = true;
 
-            saveGameState();
+            requestAutosave();
         }
+
+        // Jeden zapis zamiast trzech: statystyki, odblokowanie biura i wynik.
+        flushAutosave();
 
         const { width, height } = this.scale;
         const centerX = width / 2;
@@ -231,15 +235,15 @@ EventBus.emit('hideHUD');
         gameState.finalArrestResult = 'success';
         const newlyUnlocked = checkAndAwardAchievements();
 
-if (newlyUnlocked.length > 0) {
-    console.log(
-        '[Achievements] New badges:',
-        newlyUnlocked.map((achievement) => achievement.title)
-    );
-}
+        if (newlyUnlocked.length > 0) {
+            console.log(
+                '[Achievements] New badges:',
+                newlyUnlocked.map((achievement) => achievement.title)
+            );
+        }
 
         if (statsChanged) {
-            saveGameState();
+            requestAutosave();
 
             EventBus.emit('agentStatsChanged', {
                 casesSolved: gameState.casesSolved,
@@ -247,25 +251,66 @@ if (newlyUnlocked.length > 0) {
             });
         }
     }
-unlockOfficeAfterFirstMission() {
-  if (!gameState.progress) {
-    gameState.progress = {};
-  }
 
-  if (gameState.progress.firstMissionCompleted) {
-    return;
-  }
+    registerFirstMissionSuccess() {
+        if (!gameState.progress) {
+            gameState.progress = {};
+        }
 
-  gameState.progress.firstMissionCompleted = true;
+        if (!gameState.onboarding) {
+            gameState.onboarding = {};
+        }
 
-  saveGameState();
+        if (!gameState.onboarding.firstCase) {
+            gameState.onboarding.firstCase = {};
+        }
 
-  EventBus.emit('firstMissionCompleted');
+        const alreadyRegistered =
+            gameState.progress.firstMissionSuccess === true;
 
-  console.log(
-    '[SuccessScene] First mission completed: elevator and archive unlocked.',
-  );
-}
+        gameState.progress.firstMissionSuccess = true;
+
+        const currentCount = Number.isFinite(
+            gameState.onboarding.firstCase.successCount
+        )
+            ? gameState.onboarding.firstCase.successCount
+            : 0;
+
+        gameState.onboarding.firstCase.successCount = Math.max(1, currentCount);
+
+        if (alreadyRegistered) {
+            return;
+        }
+
+        requestAutosave();
+
+        EventBus.emit('firstMissionSuccess');
+
+        console.log(
+            '[SuccessScene] First mission success registered: storage unlocked.'
+        );
+    }
+
+    unlockOfficeAfterFirstMission() {
+        if (!gameState.progress) {
+            gameState.progress = {};
+        }
+
+        if (gameState.progress.firstMissionCompleted) {
+            return;
+        }
+
+        gameState.progress.firstMissionCompleted = true;
+
+        requestAutosave();
+
+        EventBus.emit('firstMissionCompleted');
+
+        console.log(
+            '[SuccessScene] First mission completed: elevator and archive unlocked.'
+        );
+    }
+
     getCurrentCaseId() {
         const missionId =
             gameState.currentMission?.id ||

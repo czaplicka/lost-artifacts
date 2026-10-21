@@ -1,6 +1,6 @@
 // AlibiEncounterSetup.js
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
 
 
 import {
@@ -12,6 +12,9 @@ import {
 const GENERIC_NPC_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
+
+
+const WITNESSES_PER_SUSPECT = 3;
 
 
 // Use this value when the player concludes that no witness lied.
@@ -52,43 +55,47 @@ function findSuspect(suspectId) {
 }
 
 
-function getAlibiPair() {
-  const suspects = getCaseSuspects();
+// Suspects who stay after the Evidence Grid get witnesses (3 each).
+// Returns null while the Evidence Grid has not been submitted yet.
+function getAlibiSubjects(caseKey) {
+  const state = gameState.suspectExclusionState?.[caseKey];
 
 
-  const thieves = suspects.filter(
-    (suspect) =>
-      suspect?.hiddenCaseData?.isTrueThief === true
-  );
-
-
-  const twins = suspects.filter(
-    (suspect) =>
-      suspect?.hiddenCaseData?.isForensicTwin === true
-  );
-
-
-  if (
-    thieves.length !== 1 ||
-    twins.length !== 1 ||
-    thieves[0].id === twins[0].id
-  ) {
-    throw new Error(
-      'Alibi phase requires exactly one real thief and one forensic twin.'
-    );
+  if (state?.finished !== true) {
+    return null;
   }
 
 
-  // Preserve case-list order rather than putting the thief first.
-  const pairIds = new Set([
-    thieves[0].id,
-    twins[0].id
-  ]);
-
-
-  return suspects.filter(
-    (suspect) => pairIds.has(suspect.id)
+  const manualIds = new Set(
+    Array.isArray(state.manualExclusionIds)
+      ? state.manualExclusionIds
+      : []
   );
+
+
+  return getCaseSuspects().filter(
+    (suspect) =>
+      suspect?.id &&
+      suspect.deductionState?.eliminated !== true &&
+      !manualIds.has(suspect.id)
+  );
+}
+
+
+// The generator accepts only the real thief (contradicted alibi) or a
+// forensic twin (alibi holds). Every non-thief is treated as the latter.
+function toAlibiSubject(suspect) {
+  const isThief = suspect.hiddenCaseData?.isTrueThief === true;
+
+
+  return {
+    ...suspect,
+    hiddenCaseData: {
+      ...(suspect.hiddenCaseData || {}),
+      isTrueThief: isThief,
+      isForensicTwin: !isThief
+    }
+  };
 }
 
 
@@ -116,7 +123,7 @@ function getCrimeWindow() {
 }
 
 
-function getSourceKey(caseKey, pair, crimeWindow) {
+function getSourceKey(caseKey, subjects, crimeWindow) {
   return JSON.stringify({
     version: ALIBI_DATA_VERSION,
     caseKey,
@@ -125,10 +132,14 @@ function getSourceKey(caseKey, pair, crimeWindow) {
       startMinute: crimeWindow.startMinute,
       endMinute: crimeWindow.endMinute
     },
-    suspects: pair.map((suspect) => ({
+    suspects: subjects.map((suspect) => ({
       id: suspect.id,
       name: suspect.name || '',
-      isThief: suspect.hiddenCaseData.isTrueThief === true
+      occupation:
+        suspect.occupation ||
+        suspect.publicProfile?.occupation ||
+        '',
+      isThief: suspect.hiddenCaseData?.isTrueThief === true
     }))
   });
 }
@@ -180,33 +191,34 @@ function getWitnessEncounterId(suspectId, witness, index = 0) {
 }
 
 
-function isValidStoredCase(entry, sourceKey) {
+function isValidStoredCase(entry, sourceKey, expectedSuspects) {
   if (
     entry?.version !== ALIBI_DATA_VERSION ||
     entry.sourceKey !== sourceKey ||
     !Array.isArray(entry.suspects) ||
-    entry.suspects.length !== 2
+    entry.suspects.length !== expectedSuspects
   ) {
     return false;
   }
 
 
+  // One card per witness: 3 witnesses, 3 cards.
   return entry.suspects.every(
     (data) =>
       Array.isArray(data.witnesses) &&
-      data.witnesses.length === 3 &&
+      data.witnesses.length === WITNESSES_PER_SUSPECT &&
       Array.isArray(data.boardCards) &&
-      data.boardCards.length === 6 &&
+      data.boardCards.length === WITNESSES_PER_SUSPECT &&
       Array.isArray(data.trueTimeline) &&
-      data.trueTimeline.length === 3
+      data.trueTimeline.length === WITNESSES_PER_SUSPECT
   );
 }
 
 
-function buildStoredCase(caseKey, pair, crimeWindow, sourceKey) {
-  const suspects = pair.map((suspect) =>
+function buildStoredCase(caseKey, subjects, crimeWindow, sourceKey) {
+  const suspects = subjects.map((suspect) =>
     generateAlibiWitnesses(
-      suspect,
+      toAlibiSubject(suspect),
       caseKey,
       crimeWindow
     )
@@ -222,67 +234,14 @@ function buildStoredCase(caseKey, pair, crimeWindow, sourceKey) {
 }
 
 
-function assignPortraits(encounters, previousEncounters) {
-  const used = new Set();
-
-
-  const previousById = new Map(
-    previousEncounters
-      .filter(Boolean)
-      .map((encounter) => [encounter.id, encounter])
-  );
-
-
-  // First preserve existing valid, unique assignments.
-  const assignments = encounters.map((encounter) => {
-    const previous = previousById.get(encounter.id);
-
-
-    const key = [
-      previous?.portraitKey,
-      previous?.textureKey
-    ].find(
-      (candidate) =>
-        GENERIC_NPC_KEYS.includes(candidate) &&
-        !used.has(candidate)
-    );
-
-
-    if (key) {
-      used.add(key);
-    }
-
-
-    return key || null;
-  });
-
-
-  return encounters.map((encounter, index) => {
-    let key = assignments[index];
-
-
-    if (!key) {
-      key = [
-        encounter.portraitKey,
-        encounter.textureKey,
-        ...GENERIC_NPC_KEYS
-      ].find(
-        (candidate) =>
-          GENERIC_NPC_KEYS.includes(candidate) &&
-          !used.has(candidate)
-      );
-
-
-      used.add(key);
-    }
-
-
-    return {
-      ...encounter,
-      portraitKey: key,
-      textureKey: key
-    };
-  });
+function pickPortrait(previous, witness) {
+  return [
+    previous?.portraitKey,
+    previous?.textureKey,
+    witness.portraitKey,
+    witness.textureKey,
+    GENERIC_NPC_KEYS[0]
+  ].find((key) => GENERIC_NPC_KEYS.includes(key));
 }
 
 
@@ -311,6 +270,9 @@ function buildEncounters(entry, previousEncounters = []) {
         previous?.dialogueCompleted === true;
 
 
+      const portrait = pickPortrait(previous, witness);
+
+
       return {
         id,
         npcId: witness.npcId,
@@ -324,6 +286,7 @@ function buildEncounters(entry, previousEncounters = []) {
 
 
         witnessRole: witness.role || 'Witness',
+        suspectName: data.suspectName || 'suspect',
 
 
         enabled: true,
@@ -334,24 +297,29 @@ function buildEncounters(entry, previousEncounters = []) {
         alibiWitness: true,
 
 
-        portraitKey: witness.portraitKey,
-        textureKey: witness.textureKey
+        portraitKey: portrait,
+        textureKey: portrait
       };
     })
   );
 
 
-  if (encounters.length !== 6) {
-    throw new Error('Expected exactly six alibi encounters.');
+  const expected = entry.suspects.length * WITNESSES_PER_SUSPECT;
+
+
+  if (encounters.length !== expected) {
+    throw new Error(
+      `Expected exactly ${expected} alibi encounters.`
+    );
   }
 
 
-  if (new Set(encounters.map((item) => item.id)).size !== 6) {
+  if (new Set(encounters.map((item) => item.id)).size !== expected) {
     throw new Error('Alibi encounter IDs must be unique.');
   }
 
 
-  return assignPortraits(encounters, previousEncounters);
+  return encounters;
 }
 
 
@@ -368,9 +336,24 @@ export function ensureAlibiEncounters(caseKey) {
     ensureStores();
 
 
-    const pair = getAlibiPair();
+    const subjects = getAlibiSubjects(caseKey);
+
+
+    // The Evidence Grid has not been submitted yet: no witnesses.
+    if (subjects === null) {
+      return [];
+    }
+
+
+    if (!subjects.length) {
+      gameState.crimeCityEncounterState[caseKey] = [];
+      return [];
+    }
+
+
     const crimeWindow = getCrimeWindow();
-    const sourceKey = getSourceKey(caseKey, pair, crimeWindow);
+    const sourceKey = getSourceKey(caseKey, subjects, crimeWindow);
+    const expectedEncounters = subjects.length * WITNESSES_PER_SUSPECT;
 
 
     const existingEntry = getStoredCase(caseKey);
@@ -384,14 +367,15 @@ export function ensureAlibiEncounters(caseKey) {
 
     const reusable = isValidStoredCase(
       existingEntry,
-      sourceKey
+      sourceKey,
+      subjects.length
     );
 
 
-    // Wszystko już przygotowane: nic nie przebudowujemy i nie zapisujemy.
+    // Everything is ready: do not rebuild or save.
     if (
       reusable &&
-      existingEncounters.length === 6 &&
+      existingEncounters.length === expectedEncounters &&
       existingEncounters.every(
         (encounter) => encounter?.alibiWitness === true
       )
@@ -402,12 +386,7 @@ export function ensureAlibiEncounters(caseKey) {
 
     const entry = reusable
       ? existingEntry
-      : buildStoredCase(
-          caseKey,
-          pair,
-          crimeWindow,
-          sourceKey
-        );
+      : buildStoredCase(caseKey, subjects, crimeWindow, sourceKey);
 
 
     const encounters = buildEncounters(
@@ -428,7 +407,7 @@ export function ensureAlibiEncounters(caseKey) {
       delete gameState.alibiAccusations[caseKey];
 
 
-      pair.forEach((suspect) => {
+      subjects.forEach((suspect) => {
         suspect.deductionState ??= {};
         suspect.deductionState.alibiStatus = 'pending';
       });
@@ -462,8 +441,7 @@ export function ensureAlibiEncounters(caseKey) {
 
 
 function getWitnessEncounters(caseKey, suspectId) {
-  const encounters =
-    gameState.crimeCityEncounterState?.[caseKey];
+  const encounters = gameState.crimeCityEncounterState?.[caseKey];
 
 
   if (!Array.isArray(encounters)) {
@@ -479,12 +457,8 @@ function getWitnessEncounters(caseKey, suspectId) {
 }
 
 
-export function markAlibiWitnessInterviewed(
-  caseKey,
-  encounterId
-) {
-  const encounters =
-    gameState.crimeCityEncounterState?.[caseKey];
+export function markAlibiWitnessInterviewed(caseKey, encounterId) {
+  const encounters = gameState.crimeCityEncounterState?.[caseKey];
 
 
   if (!Array.isArray(encounters)) {
@@ -504,10 +478,7 @@ export function markAlibiWitnessInterviewed(
   }
 
 
-  const data = getStoredWitnessData(
-    caseKey,
-    encounter.suspectId
-  );
+  const data = getStoredWitnessData(caseKey, encounter.suspectId);
 
 
   if (!data?.witnesses.some(
@@ -522,18 +493,14 @@ export function markAlibiWitnessInterviewed(
   encounter.visited = true;
 
 
-  saveGameState();
+  requestAutosave();
 
 
   return true;
 }
 
 
-export function getWitnessTestimony(
-  caseKey,
-  suspectId,
-  npcId
-) {
+export function getWitnessTestimony(caseKey, suspectId, npcId) {
   const data = getStoredWitnessData(caseKey, suspectId);
 
 
@@ -542,15 +509,10 @@ export function getWitnessTestimony(
   }
 
 
-  const witness = data.witnesses.find(
-    (item) => item.npcId === npcId
-  );
+  const witness = data.witnesses.find((item) => item.npcId === npcId);
 
 
-  const encounter = getWitnessEncounters(
-    caseKey,
-    suspectId
-  ).find(
+  const encounter = getWitnessEncounters(caseKey, suspectId).find(
     (item) => item.npcId === npcId
   );
 
@@ -568,6 +530,7 @@ export function getWitnessTestimony(
 
     npcId,
     role: witness.role,
+    roleId: witness.roleId,
     tone: witness.tone,
 
 
@@ -594,23 +557,17 @@ export function getWitnessTestimony(
     dialogueCompleted: encounter.dialogueCompleted === true,
 
 
-    allWitnessesVisited: allWitnessesVisited(
-      caseKey,
-      suspectId
-    )
+    allWitnessesVisited: allWitnessesVisited(caseKey, suspectId)
   };
 }
 
 
 export function allWitnessesVisited(caseKey, suspectId) {
-  const encounters = getWitnessEncounters(
-    caseKey,
-    suspectId
-  );
+  const encounters = getWitnessEncounters(caseKey, suspectId);
 
 
   return (
-    encounters.length === 3 &&
+    encounters.length === WITNESSES_PER_SUSPECT &&
     encounters.every(
       (encounter) =>
         encounter.interviewed === true &&
@@ -620,19 +577,12 @@ export function allWitnessesVisited(caseKey, suspectId) {
 }
 
 
-export function recordAlibiAccusation(
-  caseKey,
-  suspectId,
-  npcId
-) {
+export function recordAlibiAccusation(caseKey, suspectId, npcId) {
   const data = getStoredWitnessData(caseKey, suspectId);
 
 
   if (!data || !findSuspect(suspectId)) {
-    return {
-      correct: false,
-      message: 'Unknown suspect.'
-    };
+    return { correct: false, message: 'Unknown suspect.' };
   }
 
 
@@ -650,16 +600,11 @@ export function recordAlibiAccusation(
 
   const witness = noLiar
     ? null
-    : data.witnesses.find(
-        (item) => item.npcId === npcId
-      );
+    : data.witnesses.find((item) => item.npcId === npcId);
 
 
   if (!noLiar && !witness) {
-    return {
-      correct: false,
-      message: 'Unknown witness.'
-    };
+    return { correct: false, message: 'Unknown witness.' };
   }
 
 
@@ -679,7 +624,7 @@ export function recordAlibiAccusation(
   suspect.deductionState.alibiStatus = 'pending';
 
 
-  saveGameState();
+  requestAutosave();
 
 
   return {
@@ -696,19 +641,12 @@ export function recordAlibiAccusation(
 
 
 export function recordAlibiConfirmation(caseKey, suspectId) {
-  return recordAlibiAccusation(
-    caseKey,
-    suspectId,
-    NO_ALIBI_LIAR
-  );
+  return recordAlibiAccusation(caseKey, suspectId, NO_ALIBI_LIAR);
 }
 
 
 export function getAlibiAccusation(caseKey, suspectId) {
-  return (
-    gameState.alibiAccusations?.[caseKey]?.[suspectId] ||
-    null
-  );
+  return gameState.alibiAccusations?.[caseKey]?.[suspectId] || null;
 }
 
 
@@ -727,10 +665,7 @@ export function resolveAlibiTimelineSuccess(caseKey, suspectId) {
   }
 
 
-  const answer = getAlibiAccusation(
-    caseKey,
-    suspectId
-  );
+  const answer = getAlibiAccusation(caseKey, suspectId);
 
 
   let status = 'pending';
@@ -786,8 +721,7 @@ export function getTimelineBoardData(caseKey, suspectId) {
 
 
 export function getAlibiEncounterDebugData(caseKey) {
-  const encounters =
-    gameState.crimeCityEncounterState?.[caseKey];
+  const encounters = gameState.crimeCityEncounterState?.[caseKey];
 
 
   if (!Array.isArray(encounters)) {
