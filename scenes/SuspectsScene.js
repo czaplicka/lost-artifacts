@@ -306,19 +306,18 @@ export class SuspectsScene extends BaseScene {
   startCrimeTutorial() {
     this.destroyCrimeTutorial();
 
-
     const saved = this.gameState.onboarding?.crimeCity;
-
 
     if (!saved || saved.completed || saved.step !== 'suspects') {
       return;
     }
 
-
     this.crimeTutorial = new CrimeCityTutorial(this, this.gameState);
+
+    this.registerEvidenceGridTutorialHotspot();
+
     this.crimeTutorial.start();
   }
-
 
   destroyCrimeTutorial() {
     if (!this.crimeTutorial) {

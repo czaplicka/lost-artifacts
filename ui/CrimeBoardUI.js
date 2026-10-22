@@ -1,25 +1,39 @@
 import { initCrimeBoard } from '../CrimeBoardInit.js';
 import { EventBus } from '../EventBus.js';
 
+const ALLOWED_SCENES = new Set([
+    'OfficeScene',
+    'HotelScene'
+]);
+
 export class CrimeBoardUI {
     constructor(scene) {
         this.scene = scene;
+
         this.isOpen = false;
+        this.isDestroyed = false;
+
         this.overlay = null;
         this.modal = null;
         this.root = null;
         this.closeBtn = null;
+
         this.boardApi = null;
         this.templateHtml = null;
         this.disabledScenesInput = [];
 
+        this._openToken = 0;
+        this._activeGameState = null;
+        this._hudHidden = false;
+
         this.boundEscHandler = this.onKeyDown.bind(this);
-        this.boundToggleHandler = this.onToggleKeyDown.bind(this);
-        this.boundOverlayClickHandler = this.onOverlayClick.bind(this);
+        this.boundOverlayClickHandler =
+            this.onOverlayClick.bind(this);
         this.boundCloseClickHandler = () => this.close();
 
         this.createOverlay();
-        this.bindKeyboardShortcut();
+
+        // Klawisz C obsługuje wyłącznie PlayerMenuUI.
     }
 
     createOverlay() {
@@ -28,19 +42,67 @@ export class CrimeBoardUI {
 
         this.overlay.innerHTML = `
             <div class="crime-board-ui-modal">
-                <button type="button" class="crime-board-ui-close">Close</button>
+                <button
+                    type="button"
+                    class="crime-board-ui-close"
+                >
+                    Close
+                </button>
                 <div class="crime-board-ui-root"></div>
             </div>
         `;
 
         document.body.appendChild(this.overlay);
 
-        this.modal = this.overlay.querySelector('.crime-board-ui-modal');
-        this.root = this.overlay.querySelector('.crime-board-ui-root');
-        this.closeBtn = this.overlay.querySelector('.crime-board-ui-close');
+        this.modal = this.overlay.querySelector(
+            '.crime-board-ui-modal'
+        );
 
-        this.closeBtn.addEventListener('click', this.boundCloseClickHandler);
-        this.overlay.addEventListener('click', this.boundOverlayClickHandler);
+        this.root = this.overlay.querySelector(
+            '.crime-board-ui-root'
+        );
+
+        this.closeBtn = this.overlay.querySelector(
+            '.crime-board-ui-close'
+        );
+
+        this.closeBtn.addEventListener(
+            'click',
+            this.boundCloseClickHandler
+        );
+
+        this.overlay.addEventListener(
+            'click',
+            this.boundOverlayClickHandler
+        );
+    }
+
+    canOpen() {
+        if (this.isDestroyed || !this.scene) {
+            return false;
+        }
+
+        // Panel utworzony przez PlayerHudScene.
+        if (
+            typeof this.scene.isCrimeBoardAvailable === 'function'
+        ) {
+            return this.scene.isCrimeBoardAvailable() === true;
+        }
+
+        // Zabezpieczenie dla panelu utworzonego bezpośrednio
+        // w scenie rozgrywki.
+        return ALLOWED_SCENES.has(this.scene.sys?.settings?.key);
+    }
+
+    isTypingInTextField() {
+        const element = document.activeElement;
+
+        return Boolean(
+            element?.tagName === 'INPUT'
+            || element?.tagName === 'TEXTAREA'
+            || element?.tagName === 'SELECT'
+            || element?.isContentEditable
+        );
     }
 
     onOverlayClick(event) {
@@ -49,147 +111,251 @@ export class CrimeBoardUI {
         }
     }
 
-    bindKeyboardShortcut() {
-        if (!this.scene.input?.keyboard) return;
-
-        this.scene.input.keyboard.addCapture('C');
-        this.scene.input.keyboard.on('keydown-C', this.boundToggleHandler);
-    }
-
-    onToggleKeyDown(event) {
-        const activeTag = document.activeElement?.tagName;
-        const isTyping =
-            activeTag === 'INPUT' ||
-            activeTag === 'TEXTAREA' ||
-            document.activeElement?.isContentEditable;
-
-        if (isTyping) return;
-
-        event.preventDefault();
-        this.toggle();
-    }
-
     async loadTemplate() {
-        if (this.templateHtml) return this.templateHtml;
+        if (this.templateHtml) {
+            return this.templateHtml;
+        }
 
-        const templateUrl = new URL('../crime-board.html', import.meta.url).toString();
-        const response = await fetch(templateUrl, { cache: 'no-store' });
+        const templateUrl = new URL(
+            '../crime-board.html',
+            import.meta.url
+        ).toString();
+
+        const response = await fetch(templateUrl, {
+            cache: 'no-store'
+        });
 
         if (!response.ok) {
-            throw new Error(`Could not load crime-board.html: ${response.status} (${templateUrl})`);
+            throw new Error(
+                `Could not load crime-board.html: `
+                + `${response.status} (${templateUrl})`
+            );
         }
 
         const html = await response.text();
 
         if (!html.includes('id="crime-board"')) {
             console.error(
-                'CrimeBoardUI: fetched template does not contain #crime-board. Raw response:',
+                'CrimeBoardUI: template does not contain '
+                + '#crime-board. Raw response:',
                 html.slice(0, 300)
             );
-            throw new Error('CrimeBoardUI: crime-board.html template is missing #crime-board root element.');
+
+            throw new Error(
+                'CrimeBoardUI: crime-board.html template '
+                + 'is missing #crime-board root element.'
+            );
         }
 
         this.templateHtml = html;
-        return this.templateHtml;
+
+        return html;
     }
 
     async open(gameState = null) {
-        if (this.isOpen) return;
+        if (!this.canOpen()) {
+            return false;
+        }
 
-        const state = gameState || this.scene.playerMenu?.gameState || this.scene.gameState || {};
+        if (this.isOpen) {
+            return true;
+        }
+
+        const token = ++this._openToken;
+
+        this._activeGameState =
+            gameState
+            || this.scene.gameState
+            || this.scene.playerMenu?.gameState
+            || {};
 
         this.isOpen = true;
-        EventBus.emit('hideHUD');
+
         this.overlay.classList.add('is-open');
         this.disableUnderlyingScenesInput();
 
+        document.addEventListener(
+            'keydown',
+            this.boundEscHandler
+        );
+
+        this._hudHidden = true;
+        EventBus.emit('hideHUD');
+
         try {
             const html = await this.loadTemplate();
+
+            if (
+                this.isDestroyed
+                || !this.isOpen
+                || token !== this._openToken
+            ) {
+                return false;
+            }
+
+            if (!this.canOpen()) {
+                this.close();
+                return false;
+            }
+
             this.root.innerHTML = html;
 
-            this.boardApi = await initCrimeBoard({
+            const api = await initCrimeBoard({
                 root: this.root,
-                gameState: state,
-                data: state?.crimeBoardData || null
+                gameState: this._activeGameState,
+                data: this._activeGameState.crimeBoardData || null
             });
 
-            document.addEventListener('keydown', this.boundEscHandler);
+            if (
+                this.isDestroyed
+                || !this.isOpen
+                || token !== this._openToken
+            ) {
+                api?.destroy?.();
+                return false;
+            }
+
+            this.boardApi = api;
+
+            if (!this.canOpen()) {
+                this.close();
+                return false;
+            }
+
+            return true;
         } catch (error) {
-            console.error('CrimeBoardUI open failed:', error);
-            this.root.innerHTML = '';
-            this.overlay.classList.remove('is-open');
-            this.isOpen = false;
-            this.boardApi = null;
-            this.enableUnderlyingScenesInput();
+            if (
+                this.isDestroyed
+                || token !== this._openToken
+            ) {
+                return false;
+            }
+
+            console.error(
+                'CrimeBoardUI open failed:',
+                error
+            );
+
+            this.close();
+
+            return false;
         }
     }
 
     close() {
-        if (!this.isOpen) return;
-
-        this.saveToGameState();
-
-        if (this.boardApi?.destroy) {
-            this.boardApi.destroy();
+        if (!this.isOpen) {
+            return;
         }
 
+        this._openToken++;
+
+        try {
+            this.saveToGameState();
+        } catch (error) {
+            console.error(
+                'CrimeBoardUI save failed:',
+                error
+            );
+        }
+
+        const api = this.boardApi;
         this.boardApi = null;
+
+        try {
+            api?.destroy?.();
+        } catch (error) {
+            console.error(
+                'CrimeBoardUI cleanup failed:',
+                error
+            );
+        }
 
         if (this.root) {
             this.root.innerHTML = '';
         }
 
         this.isOpen = false;
-        EventBus.emit('showHUD');
-        this.overlay.classList.remove('is-open');
+        this._activeGameState = null;
+
+        this.overlay?.classList.remove('is-open');
 
         this.enableUnderlyingScenesInput();
-        document.removeEventListener('keydown', this.boundEscHandler);
+
+        document.removeEventListener(
+            'keydown',
+            this.boundEscHandler
+        );
+
+        if (this._hudHidden) {
+            this._hudHidden = false;
+            EventBus.emit('showHUD');
+        }
     }
 
     toggle(gameState = null) {
-        if (this.isOpen) {
-            this.close();
-            return;
+        if (this.isDestroyed) {
+            return false;
         }
 
-        this.open(gameState);
+        if (this.isOpen) {
+            this.close();
+            return false;
+        }
+
+        return this.open(gameState);
     }
 
     onKeyDown(event) {
-        const activeTag = document.activeElement?.tagName;
-        const isTyping =
-            activeTag === 'INPUT' ||
-            activeTag === 'TEXTAREA' ||
-            document.activeElement?.isContentEditable;
-
-        if (event.key === 'Escape') {
-            if (isTyping) {
-                event.stopPropagation();
-            }
-            this.close();
+        if (
+            event.key !== 'Escape'
+            || !this.isOpen
+            || this.isDestroyed
+        ) {
+            return;
         }
+
+        if (this.isTypingInTextField()) {
+            event.stopPropagation();
+        }
+
+        event.preventDefault();
+        this.close();
     }
 
     saveToGameState() {
-        const targetState = this.scene.playerMenu?.gameState || this.scene.gameState;
-        if (!targetState || !this.boardApi?.getData) return;
+        const targetState =
+            this._activeGameState
+            || this.scene?.gameState
+            || this.scene?.playerMenu?.gameState;
+
+        if (!targetState || !this.boardApi?.getData) {
+            return;
+        }
 
         targetState.crimeBoardData = this.boardApi.getData();
     }
 
     disableUnderlyingScenesInput() {
-        this.disabledScenesInput = [];
+        if (this.disabledScenesInput.length > 0) {
+            return;
+        }
 
-        const activeScenes = this.scene.scene.manager.getScenes(true);
+        const activeScenes =
+            this.scene.scene.manager.getScenes(true);
 
         activeScenes.forEach(scene => {
-            if (scene.scene.key === this.scene.scene.key) return;
+            if (scene === this.scene) {
+                return;
+            }
 
             const record = {
                 scene,
-                inputEnabled: scene.input ? scene.input.enabled : null,
-                keyboardEnabled: scene.input?.keyboard ? scene.input.keyboard.enabled : null
+                inputEnabled: scene.input
+                    ? scene.input.enabled
+                    : null,
+                keyboardEnabled: scene.input?.keyboard
+                    ? scene.input.keyboard.enabled
+                    : null
             };
 
             if (scene.input) {
@@ -205,59 +371,71 @@ export class CrimeBoardUI {
     }
 
     enableUnderlyingScenesInput() {
-        this.disabledScenesInput.forEach(record => {
-            const { scene, inputEnabled, keyboardEnabled } = record;
+        const records = this.disabledScenesInput;
+        this.disabledScenesInput = [];
 
-            if (!scene?.scene?.manager) return;
+        records.forEach(record => {
+            const {
+                scene,
+                inputEnabled,
+                keyboardEnabled
+            } = record;
+
+            if (!scene?.sys || !scene.scene?.manager) {
+                return;
+            }
 
             if (scene.input && inputEnabled !== null) {
                 scene.input.enabled = inputEnabled;
             }
 
-            if (scene.input?.keyboard && keyboardEnabled !== null) {
+            if (
+                scene.input?.keyboard
+                && keyboardEnabled !== null
+            ) {
                 scene.input.keyboard.enabled = keyboardEnabled;
             }
         });
-
-        this.disabledScenesInput = [];
     }
 
     destroy() {
-        EventBus.emit('showHUD');
-        document.removeEventListener('keydown', this.boundEscHandler);
-
-        if (this.boardApi?.destroy) {
-            this.boardApi.destroy();
+        if (this.isDestroyed) {
+            return;
         }
 
-        this.boardApi = null;
+        this.close();
+
+        this.isDestroyed = true;
+        this._openToken++;
+
+        document.removeEventListener(
+            'keydown',
+            this.boundEscHandler
+        );
+
         this.enableUnderlyingScenesInput();
 
-        if (this.scene.input?.keyboard) {
-            this.scene.input.keyboard.off('keydown-C', this.boundToggleHandler);
-        }
+        this.closeBtn?.removeEventListener(
+            'click',
+            this.boundCloseClickHandler
+        );
 
-        if (this.closeBtn) {
-            this.closeBtn.removeEventListener('click', this.boundCloseClickHandler);
-        }
+        this.overlay?.removeEventListener(
+            'click',
+            this.boundOverlayClickHandler
+        );
 
-        if (this.overlay) {
-            this.overlay.removeEventListener('click', this.boundOverlayClickHandler);
-        }
-
-        if (this.overlay?.parentNode) {
-            this.overlay.parentNode.removeChild(this.overlay);
-        }
-
-        if (this.root) {
-            this.root.innerHTML = '';
-        }
+        this.overlay?.remove();
 
         this.overlay = null;
         this.modal = null;
         this.root = null;
         this.closeBtn = null;
+        this.boardApi = null;
+
+        this._activeGameState = null;
         this.disabledScenesInput = [];
         this.isOpen = false;
+        this.scene = null;
     }
 }

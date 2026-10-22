@@ -1,4 +1,3 @@
-// scenes/crimeCity/CrimeCityMapUI.js
 import { gameState } from '../../GameData.js';
 import { getEnergyManager } from '../../managers/EnergyManager.js';
 
@@ -22,16 +21,9 @@ export class CrimeCityMapUI {
 
     this.assetsRequested = false;
     this.assetReadyHandlers = [];
-    this.pendingAssetKeys = new Set();
-
-    this.apartmentRefreshStarted = false;
 
     this.handleShutdown = () => this.destroy();
-    this.handleSceneReturn = () => this.onSceneReturn();
-
     scene.events.once('shutdown', this.handleShutdown);
-    scene.events.on('resume', this.handleSceneReturn);
-    scene.events.on('wake', this.handleSceneReturn);
   }
 
   track(object, collection) {
@@ -41,7 +33,6 @@ export class CrimeCityMapUI {
 
   registerInteractive(object) {
     const scene = this.scene;
-
     if (!scene || !object) return;
 
     if (!Array.isArray(scene.interactiveObjects)) {
@@ -75,14 +66,17 @@ export class CrimeCityMapUI {
     return Boolean(this.scene && !this.scene._cleanupDone);
   }
 
-  onSceneReturn() {
-    if (!this.canRefresh()) return;
+  areSuspectFilesUnlocked() {
+    const caseKey = this.scene?.getCaseKey?.();
 
-    this.flushPendingAssets();
-
-    if (this.apartmentRefreshStarted) {
-      this.refreshApartmentLocation();
+    if (caseKey === null || caseKey === undefined || caseKey === '') {
+      return false;
     }
+
+    const choice =
+      gameState.suspectFilesPhoneDecisions?.[String(caseKey)];
+
+    return choice === 'answer' || choice === 'ignore';
   }
 
   ensureBuildingAssets() {
@@ -104,12 +98,20 @@ export class CrimeCityMapUI {
       const event = `filecomplete-image-${key}`;
 
       const callback = () => {
-        if (!this.canRefresh()) return;
+        this.assetReadyHandlers =
+          this.assetReadyHandlers.filter(
+            handler => handler.callback !== callback
+          );
 
-        this.pendingAssetKeys.add(key);
+        if (!this.canRefresh() || !scene.sys.isActive()) {
+          return;
+        }
 
-        if (scene.sys.isActive()) {
-          this.flushPendingAssets();
+        if (key === 'shop_icon') {
+          this.createShopIcon();
+        } else {
+          this.apartmentSignature = null;
+          this.refreshApartmentLocation();
         }
       };
 
@@ -122,26 +124,6 @@ export class CrimeCityMapUI {
 
     if (queued && !scene.load.isLoading()) {
       scene.load.start();
-    }
-  }
-
-  flushPendingAssets() {
-    if (!this.canRefresh() || !this.pendingAssetKeys.size) {
-      return;
-    }
-
-    const refreshShop = this.pendingAssetKeys.has('shop_icon');
-    const refreshApartment = this.pendingAssetKeys.has('apt_icon');
-
-    this.pendingAssetKeys.clear();
-
-    if (refreshShop) {
-      this.createShopIcon();
-    }
-
-    if (refreshApartment) {
-      this.apartmentSignature = null;
-      this.refreshApartmentLocation();
     }
   }
 
@@ -180,12 +162,7 @@ export class CrimeCityMapUI {
 
     this.track(
       scene.add.rectangle(
-        0,
-        0,
-        scene.scale.width,
-        76,
-        0x000000,
-        0.5
+        0, 0, scene.scale.width, 76, 0x000000, 0.5
       ).setOrigin(0).setDepth(20),
       this.headerObjects
     );
@@ -205,7 +182,6 @@ export class CrimeCityMapUI {
     );
 
     const artifact = gameState.currentMission?.artifact;
-
     let subtitle = 'Theory logged. Question the people with alibis.';
 
     if (!scene.isCrimeSceneCompleted()) {
@@ -214,8 +190,10 @@ export class CrimeCityMapUI {
         : 'Start with the crime scene. Suspect files remain sealed.';
     } else if (!scene.isCrimeLabCompleted()) {
       subtitle = 'Evidence collected. Time to visit the Crime Lab.';
+    } else if (!this.areSuspectFilesUnlocked()) {
+      subtitle = 'Lab report ready. HQ is calling. Suspect files remain sealed.';
     } else if (!scene.isGridCompleted()) {
-      subtitle = 'Lab report ready. Answer HQ and reconstruct the theft.';
+      subtitle = 'Suspect files unlocked. Reconstruct the theft.';
     }
 
     this.track(
@@ -233,17 +211,20 @@ export class CrimeCityMapUI {
     crimeLabCompleted,
     apartmentAvailable
   } = {}) {
-    this.ensureBuildingAssets();
-
     this.destroyObjects(this.locationObjects);
     this.destroyObjects(this.shopObjects);
     this.destroyObjects(this.apartmentObjects);
     this.closeApartmentSelection();
 
-    if (crimeSceneCompleted) {
-      this.createSuspectsIcon();
-    } else {
+    this.apartmentAvailabilityHint = apartmentAvailable === true;
+    this.apartmentSignature = null;
+
+    if (!crimeSceneCompleted) {
       this.createCrimeSceneIcon();
+    }
+
+    if (this.areSuspectFilesUnlocked()) {
+      this.createSuspectsIcon();
     }
 
     if (crimeSceneCompleted && !crimeLabCompleted) {
@@ -252,19 +233,12 @@ export class CrimeCityMapUI {
 
     this.createHotelIcon();
     this.createShopIcon();
-
-    this.apartmentAvailabilityHint = apartmentAvailable === true;
-    this.apartmentSignature = null;
-
     this.refreshApartmentLocation();
+
+    this.ensureBuildingAssets();
   }
 
   startApartmentRefresh() {
-    if (!this.canRefresh() || this.apartmentRefreshStarted) {
-      return;
-    }
-
-    this.apartmentRefreshStarted = true;
     this.refreshApartmentLocation();
   }
 
@@ -570,6 +544,8 @@ export class CrimeCityMapUI {
   }
 
   createSuspectsIcon() {
+    if (!this.areSuspectFilesUnlocked()) return;
+
     const scene = this.scene;
 
     const position = scene.crimeCityConfig.suspectBoard || {
@@ -594,13 +570,15 @@ export class CrimeCityMapUI {
         ? `Suspect Files (${activeCount}/${suspects.length})`
         : 'Suspect Files',
       onClick: () => {
+        if (!this.areSuspectFilesUnlocked()) return;
+
         const currentSuspects = Array.isArray(gameState.caseSuspects)
           ? gameState.caseSuspects
           : [];
 
         if (!currentSuspects.length) {
           scene.showMessage(
-            'No suspects yet. Check the crime scene.\nThis is either bureaucratic delay or a pigeon conspiracy.',
+            'No suspect files available yet.\nThis is either bureaucratic delay or a pigeon conspiracy.',
             3000,
             '#5d2a00'
           );
@@ -791,7 +769,6 @@ export class CrimeCityMapUI {
     }).setOrigin(0.5).setDepth(7);
 
     this.track(badge, collection);
-
     return badge;
   }
 
@@ -801,16 +778,12 @@ export class CrimeCityMapUI {
     const scene = this.scene;
 
     scene.events.off('shutdown', this.handleShutdown);
-    scene.events.off('resume', this.handleSceneReturn);
-    scene.events.off('wake', this.handleSceneReturn);
 
     for (const { event, callback } of this.assetReadyHandlers) {
       scene.load.off(event, callback);
     }
 
     this.assetReadyHandlers = [];
-    this.pendingAssetKeys.clear();
-    this.apartmentRefreshStarted = false;
 
     this.closeApartmentSelection();
     this.destroyObjects(this.apartmentObjects);
@@ -820,7 +793,9 @@ export class CrimeCityMapUI {
 
     this.background?.destroy();
     this.background = null;
+
     this.apartmentSignature = null;
+    this.apartmentAvailabilityHint = false;
     this.scene = null;
   }
 }

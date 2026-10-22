@@ -12,9 +12,9 @@ const NEWSPAPER_PRICE = 5;
 const COMIX_PRICE = 1;
 const DAILY_NEWSPAPER_ACCESS_KEY = 'dailyNewspaperAccess';
 
-const VIDEO_KEY = 'newsstand_video';
 const VIDEO_URL = 'assets/video/newsstand.mp4';
 const VIDEO_DELAY_MS = 10000;
+const VIDEO_CHECK_DELAY_MS = 5000;
 
 export class NewsstandScene extends BaseScene {
   constructor() {
@@ -22,24 +22,10 @@ export class NewsstandScene extends BaseScene {
 
     this.cityId = 'paris';
 
-    this.bgImage = null;
-    this.bgVideo = null;
-    this.sceneDim = null;
-    this.videoTimer = null;
-
-    this.overlayRoot = null;
-    this.overlayBlocker = null;
-    this.comixContainer = null;
-    this.comixImage = null;
-    this.comixCloseBtn = null;
-
-    this.isAnimatingOverlay = false;
-    this.isOpeningNewspaper = false;
-    this.currentMode = 'none';
-
     this.handleResize = this.handleResize.bind(this);
     this.handleEscape = this.handleEscape.bind(this);
     this.handleShutdown = this.handleShutdown.bind(this);
+    this.retryVideoFromPointer = this.retryVideoFromPointer.bind(this);
   }
 
   init(data = {}) {
@@ -58,6 +44,11 @@ export class NewsstandScene extends BaseScene {
     this.bgVideo = null;
     this.sceneDim = null;
     this.videoTimer = null;
+    this.videoCheckTimer = null;
+
+    this.videoRequested = false;
+    this.videoVisible = false;
+    this.videoFinished = false;
 
     this.overlayRoot = null;
     this.overlayBlocker = null;
@@ -67,28 +58,7 @@ export class NewsstandScene extends BaseScene {
   }
 
   preload() {
-    if (this.cache.video.exists(VIDEO_KEY)) {
-      return;
-    }
-
-    const [major = 3, minor = 0] = String(Phaser.VERSION)
-      .split('.')
-      .map(Number);
-
-    const modernVideoLoader =
-      major > 3 || (major === 3 && minor >= 60);
-
-    if (modernVideoLoader) {
-      this.load.video(VIDEO_KEY, VIDEO_URL, false);
-    } else {
-      this.load.video(
-        VIDEO_KEY,
-        VIDEO_URL,
-        'loadeddata',
-        false,
-        true
-      );
-    }
+    // Film ładowany bezpośrednio przez loadURL w createBackground.
   }
 
   create() {
@@ -111,6 +81,8 @@ export class NewsstandScene extends BaseScene {
       );
     }
 
+    this.input.on('pointerdown', this.retryVideoFromPointer);
+
     EventBus.emit('hideHUD');
 
     this.createBackground(width, height);
@@ -120,6 +92,12 @@ export class NewsstandScene extends BaseScene {
     this.createComixHotspots();
     this.createSceneCloseButton();
     this.createComixOverlay();
+
+    console.info('[NewsstandScene] Video scheduled.', {
+      phaser: Phaser.VERSION,
+      url: VIDEO_URL,
+      delay: VIDEO_DELAY_MS
+    });
 
     this.videoTimer = this.time.delayedCall(
       VIDEO_DELAY_MS,
@@ -146,7 +124,7 @@ export class NewsstandScene extends BaseScene {
         '[NewsstandScene] Missing texture: newsstand_bg.'
       );
 
-      this.add
+      this.bgImage = this.add
         .rectangle(
           width / 2,
           height / 2,
@@ -161,12 +139,7 @@ export class NewsstandScene extends BaseScene {
         .text(
           width / 2,
           height / 2,
-          [
-            'NEWSSTAND BACKGROUND MISSING',
-            '',
-            'Expected texture key:',
-            'newsstand_bg'
-          ].join('\n'),
+          'NEWSSTAND BACKGROUND MISSING\n\nnewsstand_bg',
           {
             fontFamily: 'SpecialElite',
             fontSize: '28px',
@@ -178,45 +151,149 @@ export class NewsstandScene extends BaseScene {
         .setDepth(100);
     }
 
-    if (!this.cache.video.exists(VIDEO_KEY)) {
-      console.warn(
-        '[NewsstandScene] Video unavailable. ' +
-        'Background will remain static.'
-      );
-      return;
-    }
-
     this.bgVideo = this.add
-      .video(width / 2, height / 2, VIDEO_KEY)
-      .setDepth(0)
-      .setVisible(false)
+      .video(width / 2, height / 2)
+      .setDepth(0.5)
       .setOrigin(0.5)
-      .setLoop(false)
-      .setMute(true);
+      .setVisible(false);
 
-    this.bgVideo.on('textureready', () => {
-      this.resizeVideoCover(this.bgVideo);
-    });
+    const events = Phaser.GameObjects.Events;
 
-    this.bgVideo.on('playing', () => {
-      if (!this.sys.isActive() || !this.bgVideo?.scene) {
+    const revealVideo = () => {
+      if (
+        !this.sys.isActive() ||
+        !this.videoRequested ||
+        this.videoFinished ||
+        !this.bgVideo?.scene
+      ) {
+        return;
+      }
+
+      const element = this.bgVideo.video;
+
+      if (
+        !element ||
+        element.readyState < 2 ||
+        !element.videoWidth ||
+        !element.videoHeight
+      ) {
         return;
       }
 
       this.resizeVideoCover(this.bgVideo);
+
       this.bgVideo.setVisible(true);
       this.bgImage?.setVisible(false);
-    });
 
-    this.bgVideo.on('complete', () => {
-      if (this.sys.isActive()) {
+      if (!this.videoVisible) {
+        console.info(
+          '[NewsstandScene] Video first frame visible.',
+          {
+            width: element.videoWidth,
+            height: element.videoHeight,
+            currentTime: element.currentTime
+          }
+        );
+      }
+
+      this.videoVisible = true;
+      this.videoCheckTimer?.remove(false);
+      this.videoCheckTimer = null;
+    };
+
+    // VIDEO_PLAY następuje przy dostarczeniu klatki filmu.
+    this.bgVideo.on(events.VIDEO_PLAY || 'play', revealVideo);
+
+    this.bgVideo.on(
+      events.VIDEO_CREATED || 'created',
+      revealVideo
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_TEXTURE || 'textureready',
+      revealVideo
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_PLAYING || 'playing',
+      () => {
+        console.info('[NewsstandScene] Video playing event.');
+
+        // Jeśli tekstura już istnieje, można pokazać film.
+        if (this.bgVideo?.frameReady) {
+          revealVideo();
+        }
+      }
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_COMPLETE || 'complete',
+      () => {
+        console.info('[NewsstandScene] Video completed.');
+        this.videoFinished = true;
         this.switchToImageBackground();
       }
-    });
+    );
 
-    this.bgVideo.on('error', () => {
+    this.bgVideo.on(
+      events.VIDEO_LOCKED || 'locked',
+      () => {
+        console.warn(
+          '[NewsstandScene] Video blocked by browser. ' +
+          'Click inside the game to retry.'
+        );
+
+        this.logVideoStatus();
+      }
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_UNLOCKED || 'unlocked',
+      () => {
+        console.info('[NewsstandScene] Video unlocked.');
+      }
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_UNSUPPORTED || 'unsupported',
+      error => {
+        console.error(
+          '[NewsstandScene] Unsupported video.',
+          error
+        );
+
+        this.logVideoStatus();
+        this.videoFinished = true;
+        this.switchToImageBackground();
+      }
+    );
+
+    this.bgVideo.on(
+      events.VIDEO_ERROR || 'error',
+      error => {
+        console.error('[NewsstandScene] Video error.', error);
+        this.logVideoStatus();
+
+        this.videoFinished = true;
+        this.switchToImageBackground();
+      }
+    );
+
+    try {
+      // true = odtwarzanie bez dźwięku, przyjazne autoplay.
+      // Omija też wcześniej zapisany wpis w cache.
+      this.bgVideo.loadURL(VIDEO_URL, true);
+      this.bgVideo.setMute(true);
+      this.bgVideo.setLoop(false);
+    } catch (error) {
+      console.error(
+        '[NewsstandScene] Video setup failed.',
+        error
+      );
+
+      this.videoFinished = true;
       this.switchToImageBackground();
-    });
+    }
   }
 
   createSceneDim(width, height) {
@@ -227,43 +304,121 @@ export class NewsstandScene extends BaseScene {
       .setInteractive();
   }
 
-  getActiveCityId() {
-    return (
-      gameState.currentCityId ||
-      this.cityId ||
-      this.registry.get('currentCityId') ||
-      this.registry.get('currentCity') ||
-      'paris'
-    );
-  }
-
   switchToVideoBackground() {
-    if (!this.bgVideo?.scene || !this.bgImage?.scene) {
+    if (
+      !this.bgVideo?.scene ||
+      this.videoFinished
+    ) {
       return;
     }
 
-    this.bgVideo
-      .setLoop(false)
-      .setMute(true);
+    this.videoRequested = true;
 
-    this.resizeVideoCover(this.bgVideo);
+    console.info('[NewsstandScene] Starting video.');
 
     try {
-      this.bgVideo.play();
+      const element = this.bgVideo.video;
+
+      if (element) {
+        element.muted = true;
+        element.defaultMuted = true;
+        element.playsInline = true;
+        element.setAttribute('playsinline', '');
+        element.setAttribute('webkit-playsinline', '');
+      }
+
+      this.bgVideo
+        .setMute(true)
+        .setLoop(false);
+
+      this.resizeVideoCover(this.bgVideo);
+      this.bgVideo.play(false);
+
+      this.videoCheckTimer?.remove(false);
+
+      this.videoCheckTimer = this.time.delayedCall(
+        VIDEO_CHECK_DELAY_MS,
+        () => {
+          this.videoCheckTimer = null;
+
+          if (
+            this.sys.isActive() &&
+            !this.videoVisible &&
+            !this.videoFinished
+          ) {
+            console.warn(
+              '[NewsstandScene] Video has not become visible.'
+            );
+
+            this.logVideoStatus();
+          }
+        }
+      );
     } catch (error) {
-      console.warn(
-        '[NewsstandScene] Could not play background video:',
+      console.error(
+        '[NewsstandScene] Could not start video.',
         error
       );
 
+      this.logVideoStatus();
       this.switchToImageBackground();
     }
   }
 
+  retryVideoFromPointer() {
+    if (
+      !this.videoRequested ||
+      this.videoVisible ||
+      this.videoFinished ||
+      !this.bgVideo?.scene
+    ) {
+      return;
+    }
+
+    if (this.bgVideo.touchLocked) {
+      console.info(
+        '[NewsstandScene] Retrying video after interaction.'
+      );
+
+      this.bgVideo.play(false);
+    }
+  }
+
+  logVideoStatus() {
+    const element = this.bgVideo?.video;
+
+    console.info('[NewsstandScene] Video status:', {
+      sceneActive: this.sys.isActive(),
+      scenePaused: this.sys.isPaused(),
+      requested: this.videoRequested,
+      visible: this.videoVisible,
+      finished: this.videoFinished,
+      currentSrc: element?.currentSrc || element?.src || null,
+      readyState: element?.readyState,
+      networkState: element?.networkState,
+      currentTime: element?.currentTime,
+      duration: element?.duration,
+      paused: element?.paused,
+      ended: element?.ended,
+      muted: element?.muted,
+      videoWidth: element?.videoWidth,
+      videoHeight: element?.videoHeight,
+      frameReady: this.bgVideo?.frameReady,
+      touchLocked: this.bgVideo?.touchLocked,
+      mediaErrorCode: element?.error?.code,
+      mediaErrorMessage: element?.error?.message
+    });
+  }
+
   switchToImageBackground() {
+    this.videoCheckTimer?.remove(false);
+    this.videoCheckTimer = null;
+
     this.bgVideo?.stop();
     this.bgVideo?.setVisible(false);
     this.bgImage?.setVisible(true);
+
+    this.videoVisible = false;
   }
 
   resizeImageCover(image) {
@@ -286,13 +441,8 @@ export class NewsstandScene extends BaseScene {
       return;
     }
 
-    const videoWidth =
-      video.video?.videoWidth ||
-      video.width;
-
-    const videoHeight =
-      video.video?.videoHeight ||
-      video.height;
+    const videoWidth = video.video?.videoWidth || video.width;
+    const videoHeight = video.video?.videoHeight || video.height;
 
     if (!videoWidth || !videoHeight) {
       return;
@@ -306,6 +456,16 @@ export class NewsstandScene extends BaseScene {
     video
       .setPosition(this.scale.width / 2, this.scale.height / 2)
       .setScale(scale);
+  }
+
+  getActiveCityId() {
+    return (
+      gameState.currentCityId ||
+      this.cityId ||
+      this.registry.get('currentCityId') ||
+      this.registry.get('currentCity') ||
+      'paris'
+    );
   }
 
   getHotspotScale() {
@@ -436,7 +596,6 @@ export class NewsstandScene extends BaseScene {
     );
 
     purchases[purchaseKey] = true;
-
     requestAutosave();
 
     return purchaseKey;
@@ -486,7 +645,6 @@ export class NewsstandScene extends BaseScene {
         }
 
         purchaseId = purchase.transaction?.id || null;
-
         this.markNewspaperAccessForToday(cityId, spot.id);
       }
 
@@ -953,10 +1111,18 @@ export class NewsstandScene extends BaseScene {
 
   handleShutdown() {
     this.videoTimer?.remove(false);
-    this.videoTimer = null;
+    this.videoCheckTimer?.remove(false);
 
-    this.bgVideo?.stop();
+    this.videoTimer = null;
+    this.videoCheckTimer = null;
+
+    this.input.off(
+      'pointerdown',
+      this.retryVideoFromPointer
+    );
+
     this.bgVideo?.removeAllListeners();
+    this.bgVideo?.stop();
 
     this.scale.off('resize', this.handleResize);
 
@@ -967,6 +1133,10 @@ export class NewsstandScene extends BaseScene {
     this.isAnimatingOverlay = false;
     this.isOpeningNewspaper = false;
     this.currentMode = 'none';
+
+    this.videoRequested = false;
+    this.videoVisible = false;
+    this.videoFinished = false;
 
     this.bgImage = null;
     this.bgVideo = null;

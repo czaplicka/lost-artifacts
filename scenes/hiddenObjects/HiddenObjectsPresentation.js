@@ -1,6 +1,8 @@
 export class HiddenObjectsPresentation {
   constructor(scene) {
     this.scene = scene;
+    this.flashOverlay = null;
+    this.flashTween = null;
   }
 
   computePlayArea() {
@@ -35,7 +37,6 @@ export class HiddenObjectsPresentation {
 
   createBackground() {
     const scene = this.scene;
-    const { height } = scene.scale;
 
     const renderedWidth =
       scene.mapWidth * scene.playScale;
@@ -50,10 +51,7 @@ export class HiddenObjectsPresentation {
           scene.playOffsetY + renderedHeight / 2,
           scene.backgroundKey
         )
-        .setDisplaySize(
-          renderedWidth,
-          renderedHeight
-        )
+        .setDisplaySize(renderedWidth, renderedHeight)
         .setDepth(-10);
     } else {
       console.warn(
@@ -83,7 +81,7 @@ export class HiddenObjectsPresentation {
         scene.sidebarWidth,
         0,
         2,
-        height,
+        scene.scale.height,
         0xd4af37,
         0.45
       )
@@ -98,49 +96,73 @@ export class HiddenObjectsPresentation {
   ) {
     const scene = this.scene;
 
-    const flash = scene.add
-      .rectangle(
-        0,
-        0,
-        scene.scale.width,
-        scene.scale.height,
-        color,
-        alpha
-      )
-      .setOrigin(0, 0)
-      .setDepth(2500);
+    if (!this.flashOverlay?.active) {
+      this.flashOverlay = scene.add
+        .rectangle(
+          0,
+          0,
+          scene.scale.width,
+          scene.scale.height,
+          color,
+          1
+        )
+        .setOrigin(0, 0)
+        .setScrollFactor(0)
+        .setDepth(2500)
+        .setAlpha(0);
+    }
 
-    const tween = scene.tweens.add({
+    const flash = this.flashOverlay;
+
+    this.flashTween?.stop();
+    this.flashTween = null;
+
+    flash
+      .setSize(
+        scene.scale.width,
+        scene.scale.height
+      )
+      .setFillStyle(color, 1)
+      .setAlpha(alpha)
+      .setVisible(true);
+
+    this.flashTween = scene.tweens.add({
       targets: flash,
       alpha: 0,
       duration,
       ease: 'Linear',
       onComplete: () => {
-        flash.destroy();
+        flash.setVisible(false);
+        this.flashTween = null;
       }
     });
-
-    scene.addTrackedTween(tween);
 
     return flash;
   }
 
   pulseZone(zone, color = 0x7cfc00) {
-    if (!zone || !zone.active) {
+    if (!zone?.active) {
+      return;
+    }
+
+    const visual = zone.getData('debugVisual');
+
+    if (!visual?.active) {
       return;
     }
 
     const scene = this.scene;
 
-    const scaleX = zone.scaleX || 1;
-    const scaleY = zone.scaleY || 1;
+    scene.tweens.killTweensOf(visual);
 
-    zone.setStrokeStyle(3, color, 1);
+    visual
+      .setScale(1)
+      .setStrokeStyle(3, color, 1);
 
     const tween = scene.tweens.add({
-      targets: zone,
-      scaleX: scaleX * 1.08,
-      scaleY: scaleY * 1.08,
+      targets: visual,
+      scaleX: 1.08,
+      scaleY: 1.08,
       duration: 90,
       yoyo: true,
       ease: 'Quad.Out'
@@ -150,14 +172,13 @@ export class HiddenObjectsPresentation {
   }
 
   bumpText(target) {
-    if (!target || !target.active) {
+    if (!target?.active) {
       return;
     }
 
     const scene = this.scene;
 
     scene.tweens.killTweensOf(target);
-
     target.setScale(1);
 
     const tween = scene.tweens.add({
@@ -169,5 +190,19 @@ export class HiddenObjectsPresentation {
     });
 
     scene.addTrackedTween(tween);
+  }
+
+  destroy() {
+    const scene = this.scene;
+
+    this.flashTween?.stop();
+    this.flashTween = null;
+
+    if (this.flashOverlay?.active) {
+      scene.tweens.killTweensOf(this.flashOverlay);
+      this.flashOverlay.destroy();
+    }
+
+    this.flashOverlay = null;
   }
 }

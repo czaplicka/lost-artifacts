@@ -72,10 +72,10 @@ const FALLBACK = {
   suspects: {
     number: 5,
     title: 'TEN PEOPLE, ONE THIEF',
-    objective: 'Open Suspect Files and exclude people who do not match the main forensic clue.',
-    hint: 'You decide who to exclude. The agency will not tell you whether you made the right call.',
-    targetHotspot: 'suspects',
-    success: 'Your shortlist is ready. Now test it against the rest of the evidence.',
+    objective: 'Open the Evidence Grid to compare the suspects with the evidence.',
+    hint: 'Use the forensic clues and the reconstruction to narrow down your suspects. You decide who does not fit.',
+    targetHotspot: 'suspect-grid',
+    success: 'The files are open. Time to see whose story survives the evidence.',
   },
   suspect_grid: {
     number: 6,

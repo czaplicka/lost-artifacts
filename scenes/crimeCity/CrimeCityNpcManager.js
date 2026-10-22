@@ -6,11 +6,14 @@ const GENERIC_NPC_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
 
-const MAX_ICON_HEIGHT = 96;
-const MAX_CELL_WIDTH = 150;
-const MIN_CELL_WIDTH = 70;
-const HOVER_MULTIPLIER = 1.1;
+const MAX_ICON_HEIGHT = 180;
+const MAX_CELL_WIDTH = 200;
+const MIN_CELL_WIDTH = 120;
+const HOVER_MULTIPLIER = 1.08;
 const HEADER_BAR_HEIGHT = 80;
+const CLUSTER_WIDTH_RATIO = 0.36;
+const ICON_HORIZONTAL_PADDING = 20;
+const MAP_EDGE_PADDING = 16;
 
 export class CrimeCityNpcManager {
   constructor(scene) {
@@ -148,22 +151,34 @@ export class CrimeCityNpcManager {
   getClusterMetrics(count) {
     const scene = this.scene;
     const columns = Math.max(count, 1);
-
-    const clusterWidth = Math.max(
-      MIN_CELL_WIDTH * columns,
-      scene.scale.width * 0.24
+    const availableWidth = Math.max(
+      1,
+      scene.scale.width - MAP_EDGE_PADDING * 2
     );
 
-    const cellWidth = Phaser.Math.Clamp(
-      clusterWidth / columns,
+    const desiredClusterWidth = Math.max(
+      MIN_CELL_WIDTH * columns,
+      scene.scale.width * CLUSTER_WIDTH_RATIO
+    );
+
+    const desiredCellWidth = Phaser.Math.Clamp(
+      desiredClusterWidth / columns,
       MIN_CELL_WIDTH,
       MAX_CELL_WIDTH
+    );
+
+    const cellWidth = Math.min(
+      desiredCellWidth,
+      availableWidth / columns
     );
 
     return {
       cellWidth,
       totalWidth: cellWidth * columns,
-      iconMaxWidth: cellWidth - 12,
+      iconMaxWidth: Math.max(
+        1,
+        cellWidth - ICON_HORIZONTAL_PADDING
+      ),
       iconMaxHeight: MAX_ICON_HEIGHT
     };
   }
@@ -179,16 +194,32 @@ export class CrimeCityNpcManager {
       group.encounters[0]?.suspectName
     );
 
-    const iconHalf = metrics.iconMaxHeight / 2;
-    const badgeY = slot.y - iconHalf - 14;
-    const headerY = Math.max(
-      badgeY - 24,
-      HEADER_BAR_HEIGHT + 12
+    const halfClusterWidth = metrics.totalWidth / 2;
+
+    const clusterX = Phaser.Math.Clamp(
+      slot.x,
+      MAP_EDGE_PADDING + halfClusterWidth,
+      scene.scale.width - MAP_EDGE_PADDING - halfClusterWidth
     );
 
-    const header = scene.add.text(slot.x, headerY, suspectName, {
+    const hoverHalfHeight =
+      metrics.iconMaxHeight * HOVER_MULTIPLIER / 2;
+
+    const badgeY = Math.max(
+      slot.y - hoverHalfHeight - 16,
+      HEADER_BAR_HEIGHT + 50
+    );
+
+    const headerY = badgeY - 30;
+
+    const iconY = Math.max(
+      slot.y,
+      badgeY + 16 + hoverHalfHeight
+    );
+
+    const header = scene.add.text(clusterX, headerY, suspectName, {
       fontFamily: 'SpecialElite',
-      fontSize: '16px',
+      fontSize: '18px',
       color: '#ffe066',
       backgroundColor: '#000000aa',
       align: 'center',
@@ -207,14 +238,14 @@ export class CrimeCityNpcManager {
     this.createdObjects.push(header);
 
     const startX =
-      slot.x - metrics.totalWidth / 2 + metrics.cellWidth / 2;
+      clusterX - metrics.totalWidth / 2 + metrics.cellWidth / 2;
 
     group.encounters.forEach((encounter, index) => {
       this.createNpcSpot(
         encounter,
         {
           x: Math.round(startX + index * metrics.cellWidth),
-          y: slot.y
+          y: iconY
         },
         metrics,
         badgeY,
@@ -257,7 +288,10 @@ export class CrimeCityNpcManager {
     icon.setScale(baseScale);
     icon.setInteractive({ useHandCursor: true });
 
-    const labelY = slot.y + (icon.height * baseScale) / 2 + 6;
+    const labelY =
+      slot.y +
+      (icon.displayHeight * HOVER_MULTIPLIER) / 2 +
+      10;
 
     const label = this.scene.add.text(
       slot.x,
@@ -265,7 +299,7 @@ export class CrimeCityNpcManager {
       encounter.witnessRole || encounter.npcName || 'Contact',
       {
         fontFamily: 'SpecialElite',
-        fontSize: '12px',
+        fontSize: '16px',
         color: isVisited ? '#cccccc' : '#ffffff',
         backgroundColor: '#000000aa',
         align: 'center',
@@ -276,7 +310,7 @@ export class CrimeCityNpcManager {
           bottom: 3
         },
         wordWrap: {
-          width: metrics.cellWidth - 8,
+          width: Math.max(1, metrics.cellWidth - 12),
           useAdvancedWrap: true
         }
       }

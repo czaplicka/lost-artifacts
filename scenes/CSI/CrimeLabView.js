@@ -1,8 +1,6 @@
 export class CrimeLabView {
   constructor(scene, options = {}) {
     this.scene = scene;
-
-    this.backgrounds = {};
     this.currentView = options.initialView || 'lab_intro';
 
     this.onViewChanged =
@@ -23,6 +21,13 @@ export class CrimeLabView {
       lab_b: 0x102632,
       lab_c: 0x142e37
     };
+
+    this.background = null;
+    this.backgroundKind = null;
+    this.backgrounds = {};
+
+    this.gameWidth = 0;
+    this.gameHeight = 0;
   }
 
   create(gameWidth, gameHeight) {
@@ -32,21 +37,10 @@ export class CrimeLabView {
 
     this.destroyBackgrounds();
 
+    this.gameWidth = gameWidth;
+    this.gameHeight = gameHeight;
+
     this.scene.cameras.main.setBackgroundColor('#07111b');
-
-    Object.entries(this.backgroundKeys).forEach(
-      ([viewKey, textureKey]) => {
-        const background = this.createRoomBackground(
-          viewKey,
-          textureKey,
-          gameWidth,
-          gameHeight
-        );
-
-        this.backgrounds[viewKey] = background;
-      }
-    );
-
     this.showView(this.currentView, false);
   }
 
@@ -56,19 +50,16 @@ export class CrimeLabView {
     gameWidth,
     gameHeight
   ) {
-    const scene = this.scene;
-
-    if (scene.textures.exists(textureKey)) {
-      return scene.add
+    if (this.scene.textures.exists(textureKey)) {
+      return this.scene.add
         .image(0, 0, textureKey)
         .setOrigin(0, 0)
         .setDisplaySize(gameWidth, gameHeight)
         .setScrollFactor(0)
-        .setDepth(-100)
-        .setVisible(false);
+        .setDepth(-100);
     }
 
-    return scene.add
+    return this.scene.add
       .rectangle(
         0,
         0,
@@ -78,12 +69,17 @@ export class CrimeLabView {
       )
       .setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(-100)
-      .setVisible(false);
+      .setDepth(-100);
   }
 
   showView(viewKey, notify = true) {
-    if (!this.backgrounds[viewKey]) {
+    if (
+      !this.scene ||
+      !Object.prototype.hasOwnProperty.call(
+        this.backgroundKeys,
+        viewKey
+      )
+    ) {
       console.warn(
         `[CrimeLabView] Unknown or unavailable view: "${viewKey}".`
       );
@@ -91,16 +87,42 @@ export class CrimeLabView {
       return false;
     }
 
+    const textureKey = this.backgroundKeys[viewKey];
+    const hasTexture = this.scene.textures.exists(textureKey);
+    const kind = hasTexture ? 'image' : 'rectangle';
+
+    if (
+      !this.background ||
+      this.backgroundKind !== kind
+    ) {
+      this.destroyBackgrounds();
+
+      this.background = this.createRoomBackground(
+        viewKey,
+        textureKey,
+        this.gameWidth,
+        this.gameHeight
+      );
+
+      this.backgroundKind = kind;
+    } else if (hasTexture) {
+      this.background
+        .setTexture(textureKey)
+        .setDisplaySize(this.gameWidth, this.gameHeight);
+    } else {
+      this.background.setFillStyle(
+        this.fallbackColors[viewKey] || 0x07111b
+      );
+    }
+
+    this.background.setVisible(true);
     this.currentView = viewKey;
+    this.backgrounds = {
+      [viewKey]: this.background
+    };
 
-    Object.entries(this.backgrounds).forEach(
-      ([key, background]) => {
-        background?.setVisible(key === viewKey);
-      }
-    );
-
-    if (notify && this.onViewChanged) {
-      this.onViewChanged(viewKey);
+    if (notify) {
+      this.onViewChanged?.(viewKey);
     }
 
     return true;
@@ -115,20 +137,15 @@ export class CrimeLabView {
   }
 
   destroyBackgrounds() {
-    const uniqueBackgrounds = new Set(
-      Object.values(this.backgrounds)
-    );
+    this.background?.destroy?.();
 
-    uniqueBackgrounds.forEach((background) => {
-      background?.destroy?.();
-    });
-
+    this.background = null;
+    this.backgroundKind = null;
     this.backgrounds = {};
   }
 
   destroy() {
     this.destroyBackgrounds();
-
     this.onViewChanged = null;
     this.scene = null;
   }

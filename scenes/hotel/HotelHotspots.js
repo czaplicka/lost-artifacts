@@ -57,6 +57,10 @@ export class HotelHotspots {
 
     this.keyHandler = event => this.onKey(event);
     this.keyboard = null;
+
+    this._copyInFlight = false;
+    this._statusText = '';
+    this._generation = 0;
   }
 
   create(width, height, config) {
@@ -70,6 +74,7 @@ export class HotelHotspots {
     this.scene.DEBUG_HOTSPOTS = false;
     this.selectedIndex = 0;
     this.locked = false;
+    this._statusText = '';
 
     this.hoverHint = this.scene.add
       .text(width / 2, 122, '', {
@@ -90,7 +95,7 @@ export class HotelHotspots {
         .setVisible(false);
 
       this.debugText = this.scene.add
-        .text(16, height - 180, '', {
+        .text(16, height - 16, '', {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
           color: '#fff1ce',
@@ -100,6 +105,7 @@ export class HotelHotspots {
             width: Math.max(200, width - 32)
           }
         })
+        .setOrigin(0, 1)
         .setDepth(1000)
         .setVisible(false);
     }
@@ -183,6 +189,7 @@ export class HotelHotspots {
 
       if (LOCAL_DEBUG_ALLOWED && this.debugMode) {
         this.selectedIndex = index;
+        this._statusText = '';
         this.updateDebug();
         return;
       }
@@ -213,6 +220,8 @@ export class HotelHotspots {
         if (!this.debugMode || this.isBlocked()) return;
 
         this.selectedIndex = index;
+        this._statusText = '';
+
         cfg.x = Math.round(x);
         cfg.y = Math.round(y);
 
@@ -237,24 +246,66 @@ export class HotelHotspots {
     );
   }
 
-  onKey(event) {
-    if (!LOCAL_DEBUG_ALLOWED) return;
+  isEditableTarget(event) {
+    return [
+      event?.target,
+      document.activeElement
+    ].some(element => (
+      element?.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(element?.tagName)
+    ));
+  }
 
-    const target = event.target;
+  onKey(event) {
+    if (
+      !LOCAL_DEBUG_ALLOWED ||
+      this.scene._cleanupDone ||
+      !this.scene.sys.isActive() ||
+      this.isEditableTarget(event)
+    ) {
+      return;
+    }
+
+    const commandKey = event.ctrlKey || event.metaKey;
 
     if (
-      target?.isContentEditable ||
-      ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName) ||
-      event.ctrlKey ||
-      event.metaKey
+      this.debugMode &&
+      commandKey &&
+      !event.altKey &&
+      !event.shiftKey &&
+      event.code === 'KeyC'
     ) {
+      // Zaznaczony tekst zachowuje zwykłe kopiowanie.
+      if (window.getSelection()?.toString()) return;
+      if (event.repeat) return;
+
+      event.preventDefault();
+      event.stopPropagation?.();
+
+      void this.copyConfig();
+      return;
+    }
+
+    if (commandKey) return;
+
+    if (
+      this.debugMode &&
+      event.code === 'Escape'
+    ) {
+      event.preventDefault();
+      this.setDebug(false);
       return;
     }
 
     if (this.isBlocked()) return;
 
     if (event.code === 'KeyD') {
-      if (!event.repeat) {
+      if (
+        !event.repeat &&
+        !event.altKey &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
         this.setDebug(!this.debugMode);
       }
 
@@ -262,11 +313,6 @@ export class HotelHotspots {
     }
 
     if (!this.debugMode || !this.zones.length) return;
-
-    if (event.code === 'KeyC') {
-      if (!event.repeat) this.printConfig();
-      return;
-    }
 
     if (event.code === 'Tab') {
       event.preventDefault();
@@ -277,6 +323,7 @@ export class HotelHotspots {
         this.selectedIndex + delta + this.zones.length
       ) % this.zones.length;
 
+      this._statusText = '';
       this.updateDebug();
       return;
     }
@@ -316,6 +363,7 @@ export class HotelHotspots {
     cfg.w = Math.max(10, cfg.w);
     cfg.h = Math.max(10, cfg.h);
 
+    this._statusText = '';
     this.syncHotspot(hotspot);
     this.updateDebug();
   }
@@ -326,6 +374,7 @@ export class HotelHotspots {
       Boolean(enabled);
 
     this.scene.DEBUG_HOTSPOTS = this.debugMode;
+    this._statusText = '';
 
     this.hideHint();
 
@@ -373,24 +422,22 @@ export class HotelHotspots {
 
     const cfg = this.zones[this.selectedIndex]?.cfg;
 
+    const lines = [
+      `LOCAL DEBUG HOTEL: ${this.hotelId} | ${cfg?.id || 'none'}`,
+      `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}`,
+      'Drag / arrows: move | Shift + arrows: resize | Alt: 1px',
+      'Tab / Shift+Tab: select',
+      'Ctrl+C / Cmd+C: copy config | D / Esc: close',
+      'Actions disabled.',
+      this._statusText
+    ].filter(Boolean);
+
     this.debugText
       ?.setVisible(this.debugMode)
-      .setText(
-        this.debugMode
-          ? (
-            `LOCAL DEBUG HOTEL: ${this.hotelId} | ${cfg?.id || 'none'}\n` +
-            `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}\n` +
-            'Drag / arrows: move | Shift + arrows: resize | Alt: 1px\n' +
-            'Tab / Shift+Tab: select | C: export | D / Esc: close\n' +
-            'Actions disabled.'
-          )
-          : ''
-      );
+      .setText(this.debugMode ? lines.join('\n') : '');
   }
 
-  printConfig() {
-    if (!LOCAL_DEBUG_ALLOWED || !this.debugMode) return;
-
+  getConfigText() {
     const round = value => Number(value.toFixed(6));
 
     const hotspots = this.zones.map(({ cfg }) => ({
@@ -401,11 +448,109 @@ export class HotelHotspots {
       h: round(cfg.h / this.height)
     }));
 
+    return JSON.stringify(hotspots, null, 2);
+  }
+
+  printConfig() {
+    if (!LOCAL_DEBUG_ALLOWED || !this.debugMode) return '';
+
+    const text = this.getConfigText();
+
     console.log(
       `COPY INTO config/hotelConfig.js -> ${this.hotelId}.hotspots:`
     );
 
-    console.log(JSON.stringify(hotspots, null, 2));
+    console.log(text);
+
+    return text;
+  }
+
+  async copyConfig() {
+    if (
+      !LOCAL_DEBUG_ALLOWED ||
+      !this.debugMode ||
+      this._copyInFlight ||
+      !this.zones.length
+    ) {
+      return false;
+    }
+
+    const generation = this._generation;
+    const text = this.printConfig();
+
+    this._copyInFlight = true;
+    let copied = false;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        } catch (error) {
+          console.warn(
+            '[HotelHotspots] Clipboard API failed:',
+            error
+          );
+        }
+      }
+
+      if (generation !== this._generation) {
+        return copied;
+      }
+
+      if (!copied) {
+        copied = this.copyWithTextarea(text);
+      }
+
+      this._statusText = copied
+        ? 'Hotel config copied to clipboard.'
+        : 'Copy failed. Config is available in the console.';
+
+      this.updateDebug();
+
+      return copied;
+    } finally {
+      if (generation === this._generation) {
+        this._copyInFlight = false;
+      }
+    }
+  }
+
+  copyWithTextarea(text) {
+    const previousFocus = document.activeElement;
+    const textarea = document.createElement('textarea');
+
+    textarea.value = text;
+    textarea.readOnly = true;
+
+    Object.assign(textarea.style, {
+      position: 'fixed',
+      left: '-10000px',
+      top: '0',
+      opacity: '0'
+    });
+
+    document.body.appendChild(textarea);
+
+    try {
+      textarea.focus();
+      textarea.select();
+
+      return document.execCommand('copy');
+    } catch (error) {
+      console.warn(
+        '[HotelHotspots] Clipboard fallback failed:',
+        error
+      );
+
+      return false;
+    } finally {
+      textarea.remove();
+
+      if (previousFocus?.isConnected) {
+        previousFocus.focus?.({ preventScroll: true });
+      }
+    }
   }
 
   showHint(text) {
@@ -474,6 +619,10 @@ export class HotelHotspots {
   }
 
   destroy() {
+    this._generation++;
+    this._copyInFlight = false;
+    this._statusText = '';
+
     this.keyboard?.off('keydown', this.keyHandler);
     this.keyboard = null;
 

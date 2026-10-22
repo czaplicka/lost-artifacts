@@ -1,6 +1,3 @@
-// Handles static UI construction: background, header, generic buttons,
-// filter bar, navigation controls, exclusion controls and resize rebuild.
-
 export const SuspectBoardUIMixin = {
   createBackground() {
     const { width, height } = this.scale;
@@ -295,7 +292,7 @@ export const SuspectBoardUIMixin = {
     });
   },
 
-    createExclusionControls() {
+  createExclusionControls() {
     const { width, height } = this.scale;
 
     this.exclusionButton = null;
@@ -316,6 +313,27 @@ export const SuspectBoardUIMixin = {
     });
 
     this.updateExclusionControls();
+    this.registerEvidenceGridTutorialHotspot();
+  },
+
+  registerEvidenceGridTutorialHotspot() {
+    const button = this.continueButton;
+    const background = button?.buttonBackground;
+
+    if (!button?.scene || !background?.scene) {
+      return;
+    }
+
+    const bounds = background.getBounds();
+
+    button.hotspotData = {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height
+    };
+
+    this.crimeTutorial?.registerHotspot('suspect-grid', button);
   },
 
   rebuildScene() {
@@ -375,5 +393,6 @@ export const SuspectBoardUIMixin = {
 
     this.updateExclusionControls();
     this.refreshBoard();
+    this.registerEvidenceGridTutorialHotspot();
   }
 };

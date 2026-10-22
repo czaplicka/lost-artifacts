@@ -15,14 +15,27 @@ export function drawTravelLine(scene, width, height, transport) {
   graphics.strokePath();
 
   const startPoint = scene.add.circle(startX, y, 10, 0xffffff, 1);
-  const endPoint = scene.add.circle(endX, y, 10, transport.routeColor, 1);
-  const vehicle = scene.add.text(startX, y + transport.iconOffsetY, transport.icon, {
-    fontFamily: 'SpecialElite',
-    fontSize: '32px',
-    color: transport.color
-  }).setOrigin(0.5);
+  const endPoint = scene.add.circle(
+    endX,
+    y,
+    10,
+    transport.routeColor,
+    1
+  );
+
+  const vehicle = scene.add.text(
+    startX,
+    y + transport.iconOffsetY,
+    transport.icon,
+    {
+      fontFamily: 'SpecialElite',
+      fontSize: '32px',
+      color: transport.color
+    }
+  ).setOrigin(0.5);
 
   animateVehicle(scene, vehicle, startX, endX, y, transport);
+
   scene.effectObjects.push(graphics, startPoint, endPoint, vehicle);
 }
 
@@ -35,13 +48,29 @@ function animateVehicle(scene, vehicle, startX, endX, y, transport) {
   });
 
   const animations = {
-    flight: { offset: -16, duration: 900, repeat: 1, ease: 'Sine.easeInOut' },
-    rail: { offset: -2, duration: 180, repeat: 8, ease: 'Linear' },
-    road: { offset: -6, duration: 220, repeat: 7, ease: 'Sine.easeInOut' }
+    flight: {
+      offset: -16,
+      duration: 900,
+      repeat: 1,
+      ease: 'Sine.easeInOut'
+    },
+    rail: {
+      offset: -2,
+      duration: 180,
+      repeat: 8,
+      ease: 'Linear'
+    },
+    road: {
+      offset: -6,
+      duration: 220,
+      repeat: 7,
+      ease: 'Sine.easeInOut'
+    }
   };
 
   if (animations[transport.animation]) {
     const config = animations[transport.animation];
+
     scene.tweens.add({
       targets: vehicle,
       y: y + transport.iconOffsetY + config.offset,
@@ -50,6 +79,7 @@ function animateVehicle(scene, vehicle, startX, endX, y, transport) {
       repeat: config.repeat,
       ease: config.ease
     });
+
     return;
   }
 
@@ -66,7 +96,13 @@ function animateVehicle(scene, vehicle, startX, endX, y, transport) {
   }
 }
 
-export function renderEncounterVisual(scene, travelEncounter, width, height, transport) {
+export function renderEncounterVisual(
+  scene,
+  travelEncounter,
+  width,
+  height,
+  transport
+) {
   if (!travelEncounter?.id) return;
 
   const renderers = {
@@ -80,12 +116,22 @@ export function renderEncounterVisual(scene, travelEncounter, width, height, tra
 }
 
 function renderStormEffect(scene, width, height) {
-  const overlay = scene.add.rectangle(width / 2, height / 2, width, height, 0x0c1c2c, 0.16);
+  const overlay = scene.add.rectangle(
+    width / 2,
+    height / 2,
+    width,
+    height,
+    0x0c1c2c,
+    0.16
+  );
+
   scene.effectObjects.push(overlay);
 
   const rainKey = 'travel-rain-drop';
+
   if (!scene.textures.exists(rainKey)) {
     const graphics = scene.make.graphics({ x: 0, y: 0, add: false });
+
     graphics.fillStyle(0xb7d8ff, 0.95);
     graphics.fillRect(0, 0, 2, 18);
     graphics.generateTexture(rainKey, 2, 18);
@@ -107,8 +153,14 @@ function renderStormEffect(scene, width, height) {
     blendMode: 'NORMAL'
   });
 
-  const flash = scene.add.rectangle(width / 2, height / 2, width, height, 0xf4f7ff, 0)
-    .setBlendMode(Phaser.BlendModes.SCREEN);
+  const flash = scene.add.rectangle(
+    width / 2,
+    height / 2,
+    width,
+    height,
+    0xf4f7ff,
+    0
+  ).setBlendMode(Phaser.BlendModes.SCREEN);
 
   scene.effectObjects.push(emitter, flash);
 
@@ -117,6 +169,7 @@ function renderStormEffect(scene, width, height) {
 
     scene.tweens.killTweensOf(flash);
     flash.setAlpha(0);
+
     scene.tweens.add({
       targets: flash,
       alpha: 0.45,
@@ -126,7 +179,10 @@ function renderStormEffect(scene, width, height) {
       repeat: Phaser.Math.Between(0, 1),
       onComplete: () => {
         if (!scene.isLeaving) {
-          scene.time.delayedCall(Phaser.Math.Between(700, 1500), triggerFlash);
+          scene.time.delayedCall(
+            Phaser.Math.Between(700, 1500),
+            triggerFlash
+          );
         }
       }
     });
@@ -136,42 +192,133 @@ function renderStormEffect(scene, width, height) {
 }
 
 function renderSecurityDelayEffect(scene, width, height) {
-  const panel = scene.add.rectangle(width / 2, height * 0.65, width * 0.62, 86, 0x102334, 0.45)
-    .setStrokeStyle(2, 0x5fb3ff, 0.5);
-  const label = scene.add.text(width / 2, height * 0.59, 'SECURITY CHECK', {
-    fontFamily: 'PressStart2P', fontSize: '16px', color: '#8fd3ff'
-  }).setOrigin(0.5);
-  const barBg = scene.add.rectangle(width / 2, height * 0.65, width * 0.48, 16, 0x0a1118, 0.9)
-    .setStrokeStyle(1, 0x8fd3ff, 0.6);
-  const scanLine = scene.add.rectangle(width * 0.26, height * 0.65, 18, 30, 0x8fd3ff, 0.55);
-  const glowLine = scene.add.rectangle(width * 0.26, height * 0.65, 48, 30, 0x8fd3ff, 0.12);
+  const panel = scene.add.rectangle(
+    width / 2,
+    height * 0.65,
+    width * 0.62,
+    86,
+    0x102334,
+    0.45
+  ).setStrokeStyle(2, 0x5fb3ff, 0.5);
+
+  const label = scene.add.text(
+    width / 2,
+    height * 0.59,
+    'SECURITY CHECK',
+    {
+      fontFamily: 'PressStart2P',
+      fontSize: '16px',
+      color: '#8fd3ff'
+    }
+  ).setOrigin(0.5);
+
+  const barBg = scene.add.rectangle(
+    width / 2,
+    height * 0.65,
+    width * 0.48,
+    16,
+    0x0a1118,
+    0.9
+  ).setStrokeStyle(1, 0x8fd3ff, 0.6);
+
+  const scanLine = scene.add.rectangle(
+    width * 0.26,
+    height * 0.65,
+    18,
+    30,
+    0x8fd3ff,
+    0.55
+  );
+
+  const glowLine = scene.add.rectangle(
+    width * 0.26,
+    height * 0.65,
+    48,
+    30,
+    0x8fd3ff,
+    0.12
+  );
 
   const warningDots = Array.from({ length: 5 }, (_, index) => {
-    const dot = scene.add.circle(width * 0.34 + index * 36, height * 0.71, 5, 0xffd166, 0.25);
+    const dot = scene.add.circle(
+      width * 0.34 + index * 36,
+      height * 0.71,
+      5,
+      0xffd166,
+      0.25
+    );
+
     scene.tweens.add({
-      targets: dot, alpha: { from: 0.15, to: 0.95 }, duration: 350,
-      yoyo: true, repeat: -1, delay: index * 120
+      targets: dot,
+      alpha: { from: 0.15, to: 0.95 },
+      duration: 350,
+      yoyo: true,
+      repeat: -1,
+      delay: index * 120
     });
+
     return dot;
   });
 
   scene.tweens.add({
-    targets: [scanLine, glowLine], x: width * 0.74, duration: 1200,
-    ease: 'Sine.easeInOut', yoyo: true, repeat: -1
+    targets: [scanLine, glowLine],
+    x: width * 0.74,
+    duration: 1200,
+    ease: 'Sine.easeInOut',
+    yoyo: true,
+    repeat: -1
   });
 
-  scene.effectObjects.push(panel, label, barBg, scanLine, glowLine, ...warningDots);
+  scene.effectObjects.push(
+    panel,
+    label,
+    barBg,
+    scanLine,
+    glowLine,
+    ...warningDots
+  );
 }
 
 function renderBaggageHoldEffect(scene, width, height) {
   const beltY = height * 0.67;
-  const belt = scene.add.rectangle(width / 2, beltY, width * 0.62, 42, 0x1d232b, 0.95)
-    .setStrokeStyle(2, 0x5c5141, 0.75);
-  const beltTop = scene.add.rectangle(width / 2, beltY - 20, width * 0.62, 6, 0x44392d, 0.8);
-  const beltBottom = scene.add.rectangle(width / 2, beltY + 20, width * 0.62, 6, 0x44392d, 0.8);
-  const label = scene.add.text(width / 2, height * 0.59, 'BAGGAGE RECHECK', {
-    fontFamily: 'PressStart2P', fontSize: '16px', color: '#f4d4a2'
-  }).setOrigin(0.5);
+
+  const belt = scene.add.rectangle(
+    width / 2,
+    beltY,
+    width * 0.62,
+    42,
+    0x1d232b,
+    0.95
+  ).setStrokeStyle(2, 0x5c5141, 0.75);
+
+  const beltTop = scene.add.rectangle(
+    width / 2,
+    beltY - 20,
+    width * 0.62,
+    6,
+    0x44392d,
+    0.8
+  );
+
+  const beltBottom = scene.add.rectangle(
+    width / 2,
+    beltY + 20,
+    width * 0.62,
+    6,
+    0x44392d,
+    0.8
+  );
+
+  const label = scene.add.text(
+    width / 2,
+    height * 0.59,
+    'BAGGAGE RECHECK',
+    {
+      fontFamily: 'PressStart2P',
+      fontSize: '16px',
+      color: '#f4d4a2'
+    }
+  ).setOrigin(0.5);
 
   const bagData = [
     { w: 34, h: 22, color: 0x9b5f3f, offset: 0 },
@@ -180,101 +327,231 @@ function renderBaggageHoldEffect(scene, width, height) {
   ];
 
   const bags = bagData.map((bag, index) => {
-    const container = scene.add.container(width * 0.2 - index * 80, beltY - 4);
-    const body = scene.add.rectangle(0, 0, bag.w, bag.h, bag.color, 1)
-      .setStrokeStyle(2, 0xe9d8c1, 0.25);
-    const handle = scene.add.rectangle(0, -bag.h * 0.55, bag.w * 0.35, 4, 0xd9c7a4, 0.9);
+    const container = scene.add.container(
+      width * 0.2 - index * 80,
+      beltY - 4
+    );
+
+    const body = scene.add.rectangle(
+      0,
+      0,
+      bag.w,
+      bag.h,
+      bag.color,
+      1
+    ).setStrokeStyle(2, 0xe9d8c1, 0.25);
+
+    const handle = scene.add.rectangle(
+      0,
+      -bag.h * 0.55,
+      bag.w * 0.35,
+      4,
+      0xd9c7a4,
+      0.9
+    );
+
     container.add([body, handle]);
 
     scene.tweens.add({
-      targets: container, x: width * 0.82, duration: 1800, repeat: -1,
-      delay: bag.offset, ease: 'Linear', onRepeat: () => { container.x = width * 0.18; }
+      targets: container,
+      x: width * 0.82,
+      duration: 1800,
+      repeat: -1,
+      delay: bag.offset,
+      ease: 'Linear',
+      onRepeat: () => {
+        container.x = width * 0.18;
+      }
     });
+
     scene.tweens.add({
-      targets: container, y: beltY - 8, duration: 220, yoyo: true,
-      repeat: -1, ease: 'Sine.easeInOut', delay: bag.offset
+      targets: container,
+      y: beltY - 8,
+      duration: 220,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      delay: bag.offset
     });
+
     return container;
   });
 
-  const stamp = scene.add.text(width * 0.74, beltY - 56, 'RECHECK', {
-    fontFamily: 'PressStart2P', fontSize: '14px', color: '#ff9f68',
-    backgroundColor: '#402114', padding: { left: 8, right: 8, top: 5, bottom: 5 }
-  }).setAngle(-10).setAlpha(0.35);
+  const stamp = scene.add.text(
+    width * 0.74,
+    beltY - 56,
+    'RECHECK',
+    {
+      fontFamily: 'PressStart2P',
+      fontSize: '14px',
+      color: '#ff9f68',
+      backgroundColor: '#402114',
+      padding: { left: 8, right: 8, top: 5, bottom: 5 }
+    }
+  ).setAngle(-10).setAlpha(0.35);
 
   scene.tweens.add({
-    targets: stamp, alpha: { from: 0.15, to: 0.75 }, duration: 500, yoyo: true, repeat: -1
+    targets: stamp,
+    alpha: { from: 0.15, to: 0.75 },
+    duration: 500,
+    yoyo: true,
+    repeat: -1
   });
 
-  scene.effectObjects.push(belt, beltTop, beltBottom, label, stamp, ...bags);
+  scene.effectObjects.push(
+    belt,
+    beltTop,
+    beltBottom,
+    label,
+    stamp,
+    ...bags
+  );
+}
+
+function createRerouteSegments(startX, endX) {
+  const distance = endX - startX;
+
+  if (distance <= 48) return [];
+
+  const cp1x = startX + distance * 0.28;
+  const cp2x = startX + distance * 0.72;
+  const segments = [];
+
+  const createPoint = (positionX) => {
+    const t = (positionX - startX) / distance;
+
+    return {
+      x: Phaser.Math.Interpolation.CubicBezier(
+        t,
+        startX,
+        cp1x,
+        cp2x,
+        endX
+      ),
+      bendFactor: 3 * t * (1 - t)
+    };
+  };
+
+  let drawSegment = true;
+
+  for (
+    let currentX = startX + 24;
+    currentX < endX - 24;
+    currentX += 30
+  ) {
+    if (drawSegment) {
+      const nextX = Math.min(currentX + 18, endX - 24);
+
+      segments.push({
+        start: createPoint(currentX),
+        end: createPoint(nextX)
+      });
+    }
+
+    drawSegment = !drawSegment;
+  }
+
+  return segments;
 }
 
 function renderRerouteEffect(scene, width, height, transport) {
-  if (!scene.baseRoutePoints) return;
+  if (!scene.baseRoutePoints || !scene.routeGraphics) return;
 
   const { startX, endX, y } = scene.baseRoutePoints;
-  scene.routeGraphics?.clear();
+  const graphics = scene.routeGraphics;
 
-  const label = scene.add.text(width / 2, y - 74, transport.rerouteLabel, {
-    fontFamily: 'PressStart2P', fontSize: '16px', color: '#ffd166'
-  }).setOrigin(0.5);
+  scene.routeTween?.remove();
+  scene.routeTween = null;
+
+  // Statyczna trasa bazowa — rysowana tylko raz.
+  graphics.clear();
+  graphics.lineStyle(3, transport.routeColor, 0.35);
+  graphics.beginPath();
+  graphics.moveTo(startX, y);
+  graphics.lineTo(endX, y);
+  graphics.strokePath();
+
+  const label = scene.add.text(
+    width / 2,
+    y - 74,
+    transport.rerouteLabel,
+    {
+      fontFamily: 'PressStart2P',
+      fontSize: '16px',
+      color: '#ffd166'
+    }
+  ).setOrigin(0.5);
+
+  const rerouteGraphics = scene.add.graphics();
+  const segments = createRerouteSegments(startX, endX);
   const routeState = { bend: 0 };
 
+  // Końce trasy nie zmieniają się podczas animacji.
+  const endpoints = scene.add.graphics();
+
+  endpoints.fillStyle(0xffffff, 1);
+  endpoints.fillCircle(startX, y, 10);
+  endpoints.fillStyle(transport.routeColor, 1);
+  endpoints.fillCircle(endX, y, 10);
+
   const drawReroute = () => {
-    if (!scene.routeGraphics) return;
-    const graphics = scene.routeGraphics;
-    graphics.clear();
+    if (scene.isLeaving || !rerouteGraphics.active) return;
 
-    graphics.lineStyle(3, transport.routeColor, 0.35);
-    graphics.beginPath();
-    graphics.moveTo(startX, y);
-    graphics.lineTo(endX, y);
-    graphics.strokePath();
+    rerouteGraphics.clear();
+    rerouteGraphics.lineStyle(4, 0xffd166, 0.95);
+    rerouteGraphics.beginPath();
 
-    const cp1x = startX + (endX - startX) * 0.28;
-    const cp2x = startX + (endX - startX) * 0.72;
-    const curveY = y - routeState.bend;
-    graphics.lineStyle(4, 0xffd166, 0.95);
+    for (let index = 0; index < segments.length; index++) {
+      const segment = segments[index];
 
-    let currentX = startX + 24;
-    let drawSegment = true;
-    while (currentX < endX - 24) {
-      const nextX = Math.min(currentX + 18, endX - 24);
-      const t1 = (currentX - startX) / (endX - startX);
-      const t2 = (nextX - startX) / (endX - startX);
-      const p1 = Phaser.Math.Interpolation.CubicBezier(t1, startX, cp1x, cp2x, endX);
-      const q1 = Phaser.Math.Interpolation.CubicBezier(t1, y, curveY, curveY, y);
-      const p2 = Phaser.Math.Interpolation.CubicBezier(t2, startX, cp1x, cp2x, endX);
-      const q2 = Phaser.Math.Interpolation.CubicBezier(t2, y, curveY, curveY, y);
+      rerouteGraphics.moveTo(
+        segment.start.x,
+        y - routeState.bend * segment.start.bendFactor
+      );
 
-      if (drawSegment) {
-        graphics.beginPath();
-        graphics.moveTo(p1, q1);
-        graphics.lineTo(p2, q2);
-        graphics.strokePath();
-      }
-
-      drawSegment = !drawSegment;
-      currentX += 30;
+      rerouteGraphics.lineTo(
+        segment.end.x,
+        y - routeState.bend * segment.end.bendFactor
+      );
     }
 
-    graphics.fillStyle(0xffffff, 1);
-    graphics.fillCircle(startX, y, 10);
-    graphics.fillStyle(transport.routeColor, 1);
-    graphics.fillCircle(endX, y, 10);
+    rerouteGraphics.strokePath();
   };
 
   drawReroute();
+
   scene.routeTween = scene.tweens.add({
-    targets: routeState, bend: 90, duration: 900, yoyo: true,
-    repeat: -1, ease: 'Sine.easeInOut', onUpdate: drawReroute
+    targets: routeState,
+    bend: 90,
+    duration: 900,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut',
+    onUpdate: drawReroute
   });
 
-  const marker = scene.add.circle((startX + endX) / 2, y - 42, 8, 0xffd166, 0.95);
+  const marker = scene.add.circle(
+    (startX + endX) / 2,
+    y - 42,
+    8,
+    0xffd166,
+    0.95
+  );
+
   scene.tweens.add({
-    targets: marker, y: y - 92, alpha: { from: 0.95, to: 0.25 },
-    duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
+    targets: marker,
+    y: y - 92,
+    alpha: { from: 0.95, to: 0.25 },
+    duration: 900,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
   });
 
-  scene.effectObjects.push(label, marker);
+  scene.effectObjects.push(
+    label,
+    rerouteGraphics,
+    endpoints,
+    marker
+  );
 }
