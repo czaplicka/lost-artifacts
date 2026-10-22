@@ -4,7 +4,7 @@ export const HOTEL_CONFIG = {
     optionId: 'boardingHouse',
     label: 'BOARDING HOUSE',
     tierLabel: 'BUDGET',
-    backgroundKey: 'hotel',
+    backgroundKey: 'hotel_poor',
     recoveryMultiplier: 0.8,
     description: 'A bed, a roof, and several unexplained noises.',
     hotspots: [
@@ -36,7 +36,7 @@ export const HOTEL_CONFIG = {
     optionId: 'grand',
     label: 'GRAND HOTEL',
     tierLabel: 'LUXURY',
-    backgroundKey: 'hotel',
+    backgroundKey: 'hotel_lux',
     recoveryMultiplier: 1.3,
     description: 'Your expense report will require creative writing.',
     hotspots: [

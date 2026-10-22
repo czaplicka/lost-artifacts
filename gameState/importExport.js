@@ -19,43 +19,27 @@ import {
   rebuildStateIndexes
 } from './indexedCollections.js';
 
+import { normalizeCaseSuspects } from '../suspects/CaseSuspects.js';
 
 export function cloneDefaultState() {
-  return cloneGameData(defaultGameState);
+  const state = cloneGameData(defaultGameState);
+  normalizeCaseSuspects(state);
+  // Klon danych publicznych: aliasy runtime nie są częścią szablonu.
+  return cloneGameData(state);
 }
-
 
 export function createInitialState() {
   const state = cloneGameData(defaultGameState);
-
-
+  normalizeCaseSuspects(state);
   state._createdAt = Date.now();
   rebuildStateIndexes(state);
-
-
   return state;
 }
 
-
-/**
- * Starszy zapis mógł mieć dane jednocześnie w "state"
- * oraz bezpośrednio na najwyższym poziomie.
- *
- * Najwyższy poziom ma pierwszeństwo, zgodnie z dotychczasowym setupem.
- */
 export function unwrapImportedState(saveData) {
-  if (!isPlainObject(saveData)) {
-    return null;
-  }
-
-
-  const nested = isPlainObject(saveData.state)
-    ? saveData.state
-    : {};
-
-
+  if (!isPlainObject(saveData)) return null;
+  const nested = isPlainObject(saveData.state) ? saveData.state : {};
   const result = {};
-
 
   for (const source of [nested, saveData]) {
     for (const [key, value] of Object.entries(source)) {
@@ -64,72 +48,37 @@ export function unwrapImportedState(saveData) {
         MANAGED_PRIVATE_KEYS.has(key) ||
         BLOCKED_KEYS.has(key) ||
         RUNTIME_KEYS.has(key)
-      ) {
-        continue;
-      }
-
-
+      ) continue;
       result[key] = value;
     }
   }
-
-
   return result;
 }
 
-
 function restoreRouteManager(serialized) {
-  if (!isPlainObject(serialized)) {
-    return null;
-  }
-
-
-  const manager = new RouteManager(
-    serialized.route,
-    serialized.crimeCityId
-  );
-
-
+  if (!isPlainObject(serialized)) return null;
+  const manager = new RouteManager(serialized.route, serialized.crimeCityId);
   manager.restore(serialized);
   return manager;
 }
 
-
-/**
- * Oczekuje danych, które już zostały sklonowane w importFromSave().
- * Nie klonuje ich ponownie.
- */
 export function normalizeImportedState(source) {
   const defaults = cloneGameData(defaultGameState);
-
-
-  const state = {
-    ...defaults,
-    ...source
-  };
-
+  const state = { ...defaults, ...source };
 
   for (const [key, defaultValue] of Object.entries(defaults)) {
     if (Array.isArray(defaultValue)) {
       if (!Array.isArray(state[key])) {
         state[key] = cloneGameData(defaultValue);
       }
-
-
       continue;
     }
-
-
     if (isPlainObject(defaultValue)) {
       state[key] = isPlainObject(source[key])
-        ? {
-            ...cloneGameData(defaultValue),
-            ...source[key]
-          }
+        ? { ...cloneGameData(defaultValue), ...source[key] }
         : cloneGameData(defaultValue);
     }
   }
-
 
   state.reconstructedHeist = {
     ...createDefaultReconstructedHeist(),
@@ -138,42 +87,12 @@ export function normalizeImportedState(source) {
       : {})
   };
 
-
-  // Zapis tworzy z podejrzanych trzy osobne kopie. Przywracamy
-  // jedną wspólną tablicę, tak jak zakłada logika gry.
-  const sharedSuspects =
-    Array.isArray(state.caseSuspects) && state.caseSuspects.length
-      ? state.caseSuspects
-      : Array.isArray(state.suspects) && state.suspects.length
-        ? state.suspects
-        : Array.isArray(state.suspectList)
-          ? state.suspectList
-          : [];
-
-
-  state.caseSuspects = sharedSuspects;
-  state.suspects = sharedSuspects;
-  state.suspectList = sharedSuspects;
-
-
+  normalizeCaseSuspects(state);
   state.caseDirector = null;
-
-
-  state.routeManager = restoreRouteManager(
-    source.routeManager
-  );
-
-
+  state.routeManager = restoreRouteManager(source.routeManager);
   state._version = GAME_STATE_VERSION;
 
-
-  if (!Number.isFinite(state._createdAt)) {
-    state._createdAt = Date.now();
-  }
-
-
+  if (!Number.isFinite(state._createdAt)) state._createdAt = Date.now();
   rebuildStateIndexes(state);
-
-
   return state;
 }

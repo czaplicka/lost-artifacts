@@ -1,15 +1,9 @@
 // scenes/crimeCity/CrimeCityNpcManager.js
-
 import { gameState } from '../../GameData.js';
+import { getCaseSuspects } from '../../suspects/CaseSuspects.js';
 
 const GENERIC_NPC_KEYS = [
-  'npc',
-  'npc1',
-  'npc2',
-  'npc3',
-  'npc4',
-  'npc5',
-  'npc6'
+  'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
 
 const MAX_ICON_HEIGHT = 96;
@@ -26,15 +20,7 @@ export class CrimeCityNpcManager {
   }
 
   getCaseSuspects() {
-    const candidates = [
-      gameState.caseSuspects,
-      gameState.suspects,
-      gameState.suspectList
-    ];
-
-    return candidates.find(
-      (list) => Array.isArray(list) && list.length > 0
-    ) || [];
+    return getCaseSuspects(gameState);
   }
 
   getSuspectName(suspectId, fallback = 'Suspect') {
@@ -53,18 +39,12 @@ export class CrimeCityNpcManager {
 
     const scene = this.scene;
 
-    if (!scene || scene._cleanupDone) {
-      return lockedState;
-    }
+    if (!scene || scene._cleanupDone) return lockedState;
 
     const caseKey = scene.getCaseKey();
+    const exclusionState = gameState.suspectExclusionState?.[caseKey];
 
-    const exclusionState =
-      gameState.suspectExclusionState?.[caseKey];
-
-    if (exclusionState?.finished !== true) {
-      return lockedState;
-    }
+    if (exclusionState?.finished !== true) return lockedState;
 
     const manualExclusionIds = new Set(
       Array.isArray(exclusionState.manualExclusionIds)
@@ -74,26 +54,20 @@ export class CrimeCityNpcManager {
 
     const candidateIds = new Set(
       this.getCaseSuspects()
-        .filter(
-          (suspect) =>
-            suspect?.id &&
-            suspect.deductionState?.eliminated !== true &&
-            !manualExclusionIds.has(suspect.id)
+        .filter((suspect) =>
+          suspect?.id &&
+          suspect.deductionState?.eliminated !== true &&
+          !manualExclusionIds.has(suspect.id)
         )
         .map((suspect) => suspect.id)
     );
 
-    if (candidateIds.size < 1) {
-      return lockedState;
-    }
+    if (candidateIds.size < 1) return lockedState;
 
-    return {
-      unlocked: true,
-      candidateIds
-    };
+    return { unlocked: true, candidateIds };
   }
 
-  canAccessAlibiStage() {
+  canAccessAlibiStage(access = null) {
     const scene = this.scene;
 
     if (
@@ -105,20 +79,17 @@ export class CrimeCityNpcManager {
       return false;
     }
 
-    return this.getAlibiAccessState().unlocked;
+    return (access ?? this.getAlibiAccessState()).unlocked;
   }
 
-  canAccessEncounter(encounter) {
-    if (
-      !encounter ||
-      encounter.enabled === false ||
-      !this.canAccessAlibiStage()
-    ) {
-      return false;
-    }
+  canAccessEncounter(encounter, access = null) {
+    if (!encounter || encounter.enabled === false) return false;
 
-    return this.getAlibiAccessState()
-      .candidateIds.has(encounter.suspectId);
+    const currentAccess = access ?? this.getAlibiAccessState();
+
+    if (!this.canAccessAlibiStage(currentAccess)) return false;
+
+    return currentAccess.candidateIds.has(encounter.suspectId);
   }
 
   groupEncountersBySuspect(encounters) {
@@ -141,14 +112,12 @@ export class CrimeCityNpcManager {
   createNpcSpots() {
     this.clearCreatedObjects();
 
-    if (!this.canAccessAlibiStage()) {
-      return;
-    }
+    const access = this.getAlibiAccessState();
 
-    const slots =
-      this.scene.crimeCityConfig?.suspectSlots || [];
+    if (!this.canAccessAlibiStage(access)) return;
 
-    const encounters = this.getCrimeCityEncounters();
+    const slots = this.scene.crimeCityConfig?.suspectSlots || [];
+    const encounters = this.getCrimeCityEncounters(access);
 
     if (!encounters.length) {
       this.showEmptyLeadHint();
@@ -156,16 +125,6 @@ export class CrimeCityNpcManager {
     }
 
     const groups = this.groupEncountersBySuspect(encounters);
-
-    console.debug(
-      '[CrimeCityNpcManager] Alibi map refresh:',
-      {
-        caseKey: this.scene.getCaseKey(),
-        suspects: groups.length,
-        encounterCount: encounters.length,
-        slotCount: slots.length
-      }
-    );
 
     groups.forEach((group, groupIndex) => {
       const slot = slots[groupIndex];
@@ -182,7 +141,7 @@ export class CrimeCityNpcManager {
         return;
       }
 
-      this.createSuspectCluster(group, slot);
+      this.createSuspectCluster(group, slot, access);
     });
   }
 
@@ -190,7 +149,6 @@ export class CrimeCityNpcManager {
     const scene = this.scene;
     const columns = Math.max(count, 1);
 
-    // Szerokość jednej "komórki" suspecta to ok. 24% ekranu.
     const clusterWidth = Math.max(
       MIN_CELL_WIDTH * columns,
       scene.scale.width * 0.24
@@ -210,7 +168,8 @@ export class CrimeCityNpcManager {
     };
   }
 
-  createSuspectCluster(group, slot) {
+  createSuspectCluster(group, slot, access = null) {
+    const currentAccess = access ?? this.getAlibiAccessState();
     const scene = this.scene;
     const count = group.encounters.length;
     const metrics = this.getClusterMetrics(count);
@@ -220,34 +179,33 @@ export class CrimeCityNpcManager {
       group.encounters[0]?.suspectName
     );
 
-    // Stały układ pionowy względem slotu (y = środek ikony).
     const iconHalf = metrics.iconMaxHeight / 2;
     const badgeY = slot.y - iconHalf - 14;
-
     const headerY = Math.max(
       badgeY - 24,
       HEADER_BAR_HEIGHT + 12
     );
 
-    const header = scene.add
-      .text(slot.x, headerY, suspectName, {
-        fontFamily: 'SpecialElite',
-        fontSize: '16px',
-        color: '#ffe066',
-        backgroundColor: '#000000aa',
-        align: 'center',
-        padding: { left: 8, right: 8, top: 3, bottom: 3 },
-        wordWrap: {
-          width: Math.max(metrics.totalWidth, 140),
-          useAdvancedWrap: true
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(6);
+    const header = scene.add.text(slot.x, headerY, suspectName, {
+      fontFamily: 'SpecialElite',
+      fontSize: '16px',
+      color: '#ffe066',
+      backgroundColor: '#000000aa',
+      align: 'center',
+      padding: {
+        left: 8,
+        right: 8,
+        top: 3,
+        bottom: 3
+      },
+      wordWrap: {
+        width: Math.max(metrics.totalWidth, 140),
+        useAdvancedWrap: true
+      }
+    }).setOrigin(0.5).setDepth(6);
 
     this.createdObjects.push(header);
 
-    // Wyśrodkowanie całej grupy względem slotu.
     const startX =
       slot.x - metrics.totalWidth / 2 + metrics.cellWidth / 2;
 
@@ -259,24 +217,18 @@ export class CrimeCityNpcManager {
           y: slot.y
         },
         metrics,
-        badgeY
+        badgeY,
+        currentAccess
       );
     });
   }
 
-  createNpcSpot(encounter, slot, metrics, badgeY) {
-    if (!this.canAccessEncounter(encounter)) {
-      return null;
-    }
+  createNpcSpot(encounter, slot, metrics, badgeY, access = null) {
+    if (!this.canAccessEncounter(encounter, access)) return null;
 
-    const isVisited =
-      this.isEncounterVisited(encounter.id);
-
-    const isExcluded =
-      this.isSuspectExcluded(encounter.suspectId);
-
-    const textureKey =
-      this.getNpcTextureKey(encounter);
+    const isVisited = this.isEncounterVisited(encounter.id);
+    const isExcluded = this.isSuspectExcluded(encounter.suspectId);
+    const textureKey = this.getNpcTextureKey(encounter);
 
     if (!textureKey) {
       console.error(
@@ -286,8 +238,7 @@ export class CrimeCityNpcManager {
       return null;
     }
 
-    const icon = this.scene.add
-      .image(slot.x, slot.y, textureKey)
+    const icon = this.scene.add.image(slot.x, slot.y, textureKey)
       .setDepth(5)
       .setAlpha(isVisited ? 0.62 : 1)
       .setTint(
@@ -298,7 +249,6 @@ export class CrimeCityNpcManager {
             : 0xffffff
       );
 
-    // Skala dopasowana do rzeczywistego rozmiaru tekstury.
     const baseScale = Math.min(
       metrics.iconMaxWidth / Math.max(icon.width, 1),
       metrics.iconMaxHeight / Math.max(icon.height, 1)
@@ -307,36 +257,30 @@ export class CrimeCityNpcManager {
     icon.setScale(baseScale);
     icon.setInteractive({ useHandCursor: true });
 
-    const labelY =
-      slot.y + (icon.height * baseScale) / 2 + 6;
+    const labelY = slot.y + (icon.height * baseScale) / 2 + 6;
 
-    const label = this.scene.add
-      .text(
-        slot.x,
-        labelY,
-        encounter.witnessRole ||
-          encounter.npcName ||
-          'Contact',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '12px',
-          color: isVisited ? '#cccccc' : '#ffffff',
-          backgroundColor: '#000000aa',
-          align: 'center',
-          padding: {
-            left: 4,
-            right: 4,
-            top: 3,
-            bottom: 3
-          },
-          wordWrap: {
-            width: metrics.cellWidth - 8,
-            useAdvancedWrap: true
-          }
+    const label = this.scene.add.text(
+      slot.x,
+      labelY,
+      encounter.witnessRole || encounter.npcName || 'Contact',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '12px',
+        color: isVisited ? '#cccccc' : '#ffffff',
+        backgroundColor: '#000000aa',
+        align: 'center',
+        padding: {
+          left: 4,
+          right: 4,
+          top: 3,
+          bottom: 3
+        },
+        wordWrap: {
+          width: metrics.cellWidth - 8,
+          useAdvancedWrap: true
         }
-      )
-      .setOrigin(0.5, 0)
-      .setDepth(6);
+      }
+    ).setOrigin(0.5, 0).setDepth(6);
 
     this.createdObjects.push(icon, label);
 
@@ -369,15 +313,9 @@ export class CrimeCityNpcManager {
   }
 
   createEncounterBadge(position, isExcluded, isVisited) {
-    if (!this.scene?.mapUI) {
-      return null;
-    }
+    if (!this.scene?.mapUI) return null;
 
-    const text = isExcluded
-      ? 'Out'
-      : isVisited
-        ? 'Done'
-        : 'Alibi';
+    const text = isExcluded ? 'Out' : isVisited ? 'Done' : 'Alibi';
 
     const color = isExcluded
       ? '#ff6666'
@@ -408,26 +346,18 @@ export class CrimeCityNpcManager {
     }
 
     if (!this.canAccessEncounter(encounter)) {
-      scene.showMessage(
-        [
-          'Complete and confirm the preliminary suspect review first.',
-          'Only the remaining files can move to alibi interviews.'
-        ].join('\n'),
-        2800,
-        '#5d2a00'
-      );
+      scene.showMessage([
+        'Complete and confirm the preliminary suspect review first.',
+        'Only the remaining files can move to alibi interviews.'
+      ].join('\n'), 2800, '#5d2a00');
       return;
     }
 
     if (this.isSuspectExcluded(encounter.suspectId)) {
-      scene.showMessage(
-        [
-          `${encounter.label || 'This person'} is already excluded.`,
-          'Interrogating them again would be rude. And inefficient.'
-        ].join('\n'),
-        2600,
-        '#5d2a00'
-      );
+      scene.showMessage([
+        `${encounter.label || 'This person'} is already excluded.`,
+        'Interrogating them again would be rude. And inefficient.'
+      ].join('\n'), 2600, '#5d2a00');
       return;
     }
 
@@ -482,11 +412,7 @@ export class CrimeCityNpcManager {
         return;
       }
 
-      if (
-        !scene.moveToCrimeCityNode(`npc:${encounter.id}`)
-      ) {
-        return;
-      }
+      if (!scene.moveToCrimeCityNode(`npc:${encounter.id}`)) return;
 
       scene.closeAllUIPanels();
 
@@ -498,9 +424,7 @@ export class CrimeCityNpcManager {
         suspectId: encounter.suspectId,
         isRepeat: this.isEncounterVisited(encounter.id),
         returnScene: 'CrimeCityScene',
-        returnData: {
-          cityId: scene.cityId
-        }
+        returnData: { cityId: scene.cityId }
       });
     } catch (error) {
       console.error(
@@ -513,45 +437,32 @@ export class CrimeCityNpcManager {
         !scene._cleanupDone &&
         scene.sys.isActive()
       ) {
-        scene.showMessage(
-          [
-            'The interview room could not be opened.',
-            'Check the AlibiScene loading error in the console.'
-          ].join('\n'),
-          3500,
-          '#8b0000'
-        );
+        scene.showMessage([
+          'The interview room could not be opened.',
+          'Check the AlibiScene loading error in the console.'
+        ].join('\n'), 3500, '#8b0000');
       }
     } finally {
       this.isOpeningEncounter = false;
     }
   }
 
-  getCrimeCityEncounters() {
-    if (!this.scene) {
-      return [];
-    }
+  getCrimeCityEncounters(access = null) {
+    if (!this.scene) return [];
 
-    const access = this.getAlibiAccessState();
+    const currentAccess = access ?? this.getAlibiAccessState();
 
-    if (!access.unlocked) {
-      return [];
-    }
+    if (!currentAccess.unlocked) return [];
 
     const caseKey = this.scene.getCaseKey();
+    const encounters = gameState.crimeCityEncounterState?.[caseKey];
 
-    const encounters =
-      gameState.crimeCityEncounterState?.[caseKey];
+    if (!Array.isArray(encounters)) return [];
 
-    if (!Array.isArray(encounters)) {
-      return [];
-    }
-
-    return encounters.filter(
-      (encounter) =>
-        encounter &&
-        encounter.enabled !== false &&
-        access.candidateIds.has(encounter.suspectId)
+    return encounters.filter((encounter) =>
+      encounter &&
+      encounter.enabled !== false &&
+      currentAccess.candidateIds.has(encounter.suspectId)
     );
   }
 
@@ -562,26 +473,19 @@ export class CrimeCityNpcManager {
       ...GENERIC_NPC_KEYS
     ];
 
-    return candidates.find(
-      (key) =>
-        GENERIC_NPC_KEYS.includes(key) &&
-        this.scene.textures.exists(key)
+    return candidates.find((key) =>
+      GENERIC_NPC_KEYS.includes(key) &&
+      this.scene.textures.exists(key)
     ) || null;
   }
 
   isEncounterVisited(encounterId) {
-    if (!this.scene) {
-      return false;
-    }
+    if (!this.scene) return false;
 
     const caseKey = this.scene.getCaseKey();
+    const encounters = gameState.crimeCityEncounterState?.[caseKey];
 
-    const encounters =
-      gameState.crimeCityEncounterState?.[caseKey];
-
-    if (!Array.isArray(encounters)) {
-      return false;
-    }
+    if (!Array.isArray(encounters)) return false;
 
     const encounter = encounters.find(
       (entry) => entry?.id === encounterId
@@ -601,39 +505,35 @@ export class CrimeCityNpcManager {
       return false;
     }
 
-    return gameState.excludedSuspects.some(
-      (entry) =>
-        typeof entry === 'string'
-          ? entry === suspectId
-          : entry?.id === suspectId
+    return gameState.excludedSuspects.some((entry) =>
+      typeof entry === 'string'
+        ? entry === suspectId
+        : entry?.id === suspectId
     );
   }
 
   showEmptyLeadHint() {
-    const hint = this.scene.add
-      .text(
-        this.scene.scale.width / 2,
-        this.scene.scale.height - 90,
-        [
-          'No alibi contacts are available for the remaining suspects.',
-          'The witness list appears to have taken a personal day.'
-        ].join('\n'),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '16px',
-          color: '#f1e6b8',
-          align: 'center',
-          backgroundColor: '#000000aa',
-          padding: {
-            left: 14,
-            right: 14,
-            top: 10,
-            bottom: 10
-          }
+    const hint = this.scene.add.text(
+      this.scene.scale.width / 2,
+      this.scene.scale.height - 90,
+      [
+        'No alibi contacts are available for the remaining suspects.',
+        'The witness list appears to have taken a personal day.'
+      ].join('\n'),
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '16px',
+        color: '#f1e6b8',
+        align: 'center',
+        backgroundColor: '#000000aa',
+        padding: {
+          left: 14,
+          right: 14,
+          top: 10,
+          bottom: 10
         }
-      )
-      .setOrigin(0.5)
-      .setDepth(30);
+      }
+    ).setOrigin(0.5).setDepth(30);
 
     this.createdObjects.push(hint);
 
@@ -641,9 +541,7 @@ export class CrimeCityNpcManager {
   }
 
   clearCreatedObjects() {
-    const objects = new Set(
-      this.createdObjects.filter(Boolean)
-    );
+    const objects = new Set(this.createdObjects.filter(Boolean));
 
     if (Array.isArray(this.scene?.interactiveObjects)) {
       this.scene.interactiveObjects =

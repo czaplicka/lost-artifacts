@@ -1,80 +1,151 @@
-// DestinationCalculator.js
-import { getUnifiedTravelManager } from '../managers/UnifiedTravelManager.js';
-import { moneyManager, MONEY_SOURCE } from '../managers/MoneyManager.js';
-import { getCityId, normalizeCityId, TRANSPORT_UI_META } from './DestinationMeta.js';
+import { gameState } from '../GameData.js';
+
+import {
+  getTravelData
+} from '../managers/TravelManager.js';
+
+import {
+  getEnergyManager
+} from '../managers/EnergyManager.js';
+
+import {
+  moneyManager,
+  MONEY_SOURCE
+} from '../managers/MoneyManager.js';
+
+import {
+  canTravelByLand as canTravelByLandFromLocations,
+  isTransportAvailable
+} from './LocationUI.js';
+
+import {
+  TRANSPORT_UI_META
+} from './DestinationMeta.js';
+
+const MAP_TRANSPORT_TYPES = [
+  'plane',
+  'train',
+  'bus',
+  'ship'
+];
 
 export function canTravelByLand(fromCity, toCity) {
-    if (!fromCity || !toCity) return false;
-    if (fromCity.country === toCity.country) return true;
+  if (!fromCity || !toCity) {
+    return false;
+  }
 
-    const region = fromCity.travelRegion;
-    if (region !== toCity.travelRegion) return false;
-
-    return region === 'europe' || region === 'north_america';
+  return canTravelByLandFromLocations(
+    fromCity,
+    toCity
+  );
 }
 
-export function buildTransportOption(transportType, fromCity, toCity) {
-    const travelManager = getUnifiedTravelManager();
-    const meta = TRANSPORT_UI_META[transportType] || {};
-    const rule = travelManager.getTransportRule(transportType);
+export function buildTransportOption(
+  transportType,
+  fromCity,
+  toCity
+) {
+  if (!fromCity?.city || !toCity?.city) {
+    throw new Error(
+      'Cannot calculate transport without origin and destination.'
+    );
+  }
 
-    const travelData = travelManager.calculateTravelBetweenLocations(
+  const meta = TRANSPORT_UI_META[transportType] || {};
+
+  // Ta sama funkcja, której używa wykonanie podróży.
+  // Podgląd nie losuje zdarzenia i niczego nie pobiera.
+  const travelData = getTravelData(
+    fromCity.city,
+    toCity.city,
+    [fromCity, toCity],
+    {
+      transportType,
+      allowEncounter: false,
+      travelEncounter: null
+    }
+  );
+
+  // Ten sam koszt energii, który sprawdza executeTravel().
+  const energyCost = getEnergyManager()
+    .getTravelCost(transportType);
+
+  return {
+    id: transportType,
+    icon: meta.icon || '❔',
+    color: meta.color ?? 0xaaaaaa,
+    label: travelData.transportLabel,
+
+    travelHours: travelData.travelHours,
+    baseTravelHours: travelData.baseTravelHours,
+
+    moneySpent: travelData.moneySpent,
+    effectiveMoneySpent: travelData.effectiveMoneySpent,
+
+    energyChange: -energyCost,
+    energyCost,
+
+    freeTransferAvailable:
+      travelData.freeTransferAvailable
+  };
+}
+
+export function getTransportOptions(
+  fromCity,
+  toCity
+) {
+  if (!fromCity || !toCity) {
+    return [];
+  }
+
+  return MAP_TRANSPORT_TYPES
+    .filter(transportType =>
+      isTransportAvailable(
         fromCity,
         toCity,
+        transportType
+      )
+    )
+    .map(transportType =>
+      buildTransportOption(
         transportType,
-        { allowEncounter: false }
+        fromCity,
+        toCity
+      )
     );
-
-    return {
-        id: transportType,
-        icon: meta.icon || '❔',
-        color: meta.color ?? 0xaaaaaa,
-        label: rule.label,
-        travelHours: travelData.totalTravelHours,
-        baseTravelHours: travelData.baseTravelHours,
-        moneySpent: travelData.moneyCost,
-        energyChange: -travelData.energyCost
-    };
-}
-
-export function getTransportOptions(fromCity, toCity) {
-    if (!fromCity || !toCity) return [];
-
-    const options = [];
-
-    if (fromCity.airport && toCity.airport) {
-        options.push(buildTransportOption('plane', fromCity, toCity));
-    }
-
-    if (fromCity.trainStation && toCity.trainStation && canTravelByLand(fromCity, toCity)) {
-        options.push(buildTransportOption('train', fromCity, toCity));
-    }
-
-    if (fromCity.busStation && toCity.busStation && canTravelByLand(fromCity, toCity)) {
-        options.push(buildTransportOption('bus', fromCity, toCity));
-    }
-
-    if (fromCity.harbor && toCity.harbor) {
-        options.push(buildTransportOption('ship', fromCity, toCity));
-    }
-
-    return options;
 }
 
 export function getAvailableAgencyBudget() {
-    return moneyManager.getBalance(MONEY_SOURCE.AGENCY);
+  return moneyManager.getBalance(
+    MONEY_SOURCE.AGENCY
+  );
 }
 
 export function wouldCreateDebt(cost) {
-    const safeCost = Math.max(0, Math.round(Number(cost) || 0));
-    const availableFunds =
-        moneyManager.getBalance(MONEY_SOURCE.CASH) +
-        moneyManager.getBalance(MONEY_SOURCE.AGENCY);
+  const safeCost = Math.max(
+    0,
+    Math.round(Number(cost) || 0)
+  );
 
-    return safeCost > availableFunds;
+  const freeTransfers = Math.max(
+    0,
+    Math.floor(Number(gameState.freeTransfers) || 0)
+  );
+
+  if (freeTransfers > 0) {
+    return false;
+  }
+
+  // Bilety są opłacane z budżetu agencji,
+  // a nie z prywatnej gotówki detektywa.
+  return safeCost > getAvailableAgencyBudget();
 }
 
 export function formatMoney(amount) {
-    const safeAmount = Math.max(0, Math.round(Number(amount) || 0));
-    return `$${safeAmount.toLocaleString('en-US')}`;
+  const safeAmount = Math.max(
+    0,
+    Math.round(Number(amount) || 0)
+  );
+
+  return `$${safeAmount.toLocaleString('en-US')}`;
 }

@@ -1,20 +1,28 @@
 import { gameState } from '../GameData.js';
-import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
 import { getEnergyManager } from './EnergyManager.js';
+
+import {
+  moneyManager,
+  MONEY_SOURCE,
+  ECONOMY_CATEGORY
+} from './MoneyManager.js';
+
 import {
   TRANSPORT_CONFIG,
   TRAVEL_ENCOUNTERS,
   TRAVEL_ENCOUNTER_CHANCE
 } from '../TransportConfig.js';
+
 import {
   getLocationByCity,
   getTravelDistance,
   isTransportAvailable,
   resolveLocationId
 } from '../ui/LocationUI.js';
+
 import {
-  getScoreManager,
   getRouteManager,
   syncInvestigationState,
   generateDestinationsForCurrentCity,
@@ -23,6 +31,7 @@ import {
   addSessionScore
 } from './InvestigationManager.js';
 
+let travelExecutionInProgress = false;
 
 function getRandomItem(items) {
   return Array.isArray(items) && items.length
@@ -30,104 +39,98 @@ function getRandomItem(items) {
     : null;
 }
 
-
 function getFreeTransfers() {
-  return Math.max(0, Math.floor(Number(gameState.freeTransfers) || 0));
+  return Math.max(
+    0,
+    Math.floor(Number(gameState.freeTransfers) || 0)
+  );
 }
-
 
 function hasFreeTransfer() {
   return getFreeTransfers() > 0;
 }
 
+function requestTravelAutosave() {
+  if (!gameState.caseFailed) {
+    requestAutosave();
+  }
+}
 
-function buildTravelLogEntry({
-  idPrefix,
-  type,
-  source,
-  amount,
-  category,
-  description,
-  metadata = {}
-}) {
+function capturePaymentState() {
+  const balances = moneyManager.getBalances();
+
   return {
-    id: `${idPrefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-    type,
-    source,
-    amount: Math.max(0, Math.floor(Number(amount) || 0)),
-    category,
-    description,
-    missionId: gameState.currentMission?.id ?? null,
-    createdAt: new Date().toISOString(),
-    metadata: { ...metadata }
+    ...balances,
+    freeTransfers: gameState.freeTransfers,
+    moneyLog: [...gameState.moneyLog]
   };
 }
 
-
-export function getTransportConfig(type) {
-  return TRANSPORT_CONFIG[type] || null;
+function restorePaymentState(snapshot) {
+  gameState.cash = snapshot.cash;
+  gameState.agencyBudget = snapshot.agencyBudget;
+  gameState.agencyDebt = snapshot.agencyDebt;
+  gameState.freeTransfers = snapshot.freeTransfers;
+  gameState.moneyLog = snapshot.moneyLog;
 }
 
-
-export function calculateTravelValues(distance, type) {
-  const config = getTransportConfig(type);
-
-
-  if (!config) {
-    throw new Error(`Unknown transport type: ${type}`);
-  }
-
-
-  const baseTravelHours = Math.max(
-    config.minHours,
-    Math.round(config.minHours + distance * config.hoursPerMapPixel)
+function publishPayment(result, description) {
+  moneyManager.persist(
+    result.usedFreeTransfer
+      ? 'travel_free_transfer_used'
+      : 'travel_paid',
+    result.transaction
   );
 
+  EventBus.emit('moneyChanged', {
+    ...moneyManager.getBalances(),
+    amount: result.amount,
+    category: ECONOMY_CATEGORY.TRAVEL,
+    debtAdded: result.debtAdded,
+    usedFreeTransfer: result.usedFreeTransfer,
+    freeTransfers: getFreeTransfers()
+  });
 
-  return {
-    baseTravelHours,
-    moneySpent: Math.round(
-      config.baseCost + baseTravelHours * config.costPerHour
-    ),
-    estimatedEnergyChange: -Math.max(
-      2,
-      Math.round(baseTravelHours * config.energyPerHour)
-    )
-  };
+  if (result.usedFreeTransfer) {
+    EventBus.emit('freeTransferUsed', {
+      description,
+      freeTransfersBefore: result.freeTransfersBefore,
+      freeTransfersAfter: result.freeTransfersAfter,
+      transaction: result.transaction
+    });
+  }
 }
 
+function prepareAgencyPayment(
+  amount,
+  description,
+  metadata = {}
+) {
+  const safeAmount = Math.max(
+    0,
+    Math.floor(Number(amount) || 0)
+  );
 
-export function rollTravelEncounter(type) {
-  return Math.random() < TRAVEL_ENCOUNTER_CHANCE
-    ? structuredClone(
-        getRandomItem(TRAVEL_ENCOUNTERS[type] || TRAVEL_ENCOUNTERS.plane)
-      )
-    : null;
-}
+  const balances = moneyManager.getBalances();
 
+  const coveredByBudget = Math.min(
+    balances.agencyBudget,
+    safeAmount
+  );
 
-export function spendAgencyBudget(amount, description, metadata = {}) {
-  const safeAmount = Math.max(0, Math.floor(Number(amount) || 0));
-  const availableBudget = Math.max(0, Math.floor(gameState.agencyBudget || 0));
-  const coveredByBudget = Math.min(availableBudget, safeAmount);
   const debtAdded = safeAmount - coveredByBudget;
 
+  gameState.agencyBudget =
+    balances.agencyBudget - coveredByBudget;
 
-  gameState.agencyBudget = availableBudget - coveredByBudget;
-  gameState.agencyDebt = Math.max(0, Math.floor(gameState.agencyDebt || 0)) + debtAdded;
+  gameState.agencyDebt =
+    balances.agencyDebt + debtAdded;
 
-
-  if (!Array.isArray(gameState.moneyLog)) {
-    gameState.moneyLog = [];
-  }
-
-
-  const expenseEntry = buildTravelLogEntry({
-    idPrefix: 'travel',
+  const transaction = moneyManager.addLogEntry({
     type: 'expense',
-    source: 'agency',
+    source: MONEY_SOURCE.AGENCY,
     amount: safeAmount,
-    category: 'travel',
+    category: ECONOMY_CATEGORY.TRAVEL,
     description,
     metadata: {
       ...metadata,
@@ -136,42 +139,18 @@ export function spendAgencyBudget(amount, description, metadata = {}) {
     }
   });
 
-
-  gameState.moneyLog.push(expenseEntry);
-
-
-  let debtEntry = null;
-
+  let debtTransaction = null;
 
   if (debtAdded > 0) {
-    debtEntry = buildTravelLogEntry({
-      idPrefix: 'agency_advance',
+    debtTransaction = moneyManager.addLogEntry({
       type: 'debt',
-      source: 'agency',
+      source: MONEY_SOURCE.AGENCY,
       amount: debtAdded,
-      category: 'agency_advance',
+      category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
       description: `Emergency advance for ${description}`,
       metadata: { ...metadata }
     });
-
-
-    gameState.moneyLog.push(debtEntry);
   }
-
-
-  requestAutosave();
-
-
-  EventBus.emit('moneyChanged', {
-    cash: gameState.cash,
-    agencyBudget: gameState.agencyBudget,
-    agencyDebt: gameState.agencyDebt,
-    amount: safeAmount,
-    category: 'travel',
-    debtAdded,
-    usedFreeTransfer: false
-  });
-
 
   return {
     ok: true,
@@ -183,15 +162,16 @@ export function spendAgencyBudget(amount, description, metadata = {}) {
     debtAdded,
     agencyBudget: gameState.agencyBudget,
     agencyDebt: gameState.agencyDebt,
-    transaction: expenseEntry,
-    debtTransaction: debtEntry
+    transaction,
+    debtTransaction
   };
 }
 
-
-export function consumeFreeTransfer(description, metadata = {}) {
+function prepareFreeTransfer(
+  description,
+  metadata = {}
+) {
   const freeTransfersBefore = getFreeTransfers();
-
 
   if (freeTransfersBefore <= 0) {
     return {
@@ -201,21 +181,13 @@ export function consumeFreeTransfer(description, metadata = {}) {
     };
   }
 
-
   gameState.freeTransfers = freeTransfersBefore - 1;
 
-
-  if (!Array.isArray(gameState.moneyLog)) {
-    gameState.moneyLog = [];
-  }
-
-
-  const transaction = buildTravelLogEntry({
-    idPrefix: 'travel_free',
+  const transaction = moneyManager.addLogEntry({
     type: 'discount',
     source: 'bonus',
     amount: 0,
-    category: 'travel',
+    category: ECONOMY_CATEGORY.TRAVEL,
     description,
     metadata: {
       ...metadata,
@@ -224,33 +196,6 @@ export function consumeFreeTransfer(description, metadata = {}) {
       freeTransfersAfter: gameState.freeTransfers
     }
   });
-
-
-  gameState.moneyLog.push(transaction);
-
-
-  requestAutosave();
-
-
-  EventBus.emit('moneyChanged', {
-    cash: gameState.cash,
-    agencyBudget: gameState.agencyBudget,
-    agencyDebt: gameState.agencyDebt,
-    amount: 0,
-    category: 'travel',
-    debtAdded: 0,
-    usedFreeTransfer: true,
-    freeTransfers: gameState.freeTransfers
-  });
-
-
-  EventBus.emit('freeTransferUsed', {
-    description,
-    freeTransfersBefore,
-    freeTransfersAfter: gameState.freeTransfers,
-    transaction
-  });
-
 
   return {
     ok: true,
@@ -266,40 +211,146 @@ export function consumeFreeTransfer(description, metadata = {}) {
   };
 }
 
-
-export function payForTravel(amount, description, metadata = {}) {
-  const safeAmount = Math.max(0, Math.floor(Number(amount) || 0));
-
-
-  if (hasFreeTransfer()) {
-    return consumeFreeTransfer(description, metadata);
-  }
-
-
-  return spendAgencyBudget(safeAmount, description, metadata);
+function prepareTravelPayment(
+  amount,
+  description,
+  metadata = {}
+) {
+  return hasFreeTransfer()
+    ? prepareFreeTransfer(description, metadata)
+    : prepareAgencyPayment(amount, description, metadata);
 }
 
+function runStandalonePayment(prepare, description) {
+  const snapshot = capturePaymentState();
+  let result;
+
+  try {
+    result = prepare();
+
+    if (!result.ok) {
+      restorePaymentState(snapshot);
+      return result;
+    }
+  } catch (error) {
+    restorePaymentState(snapshot);
+    throw error;
+  }
+
+  publishPayment(result, description);
+
+  return result;
+}
+
+export function getTransportConfig(type) {
+  return TRANSPORT_CONFIG[type] || null;
+}
+
+export function calculateTravelValues(distance, type) {
+  const config = getTransportConfig(type);
+
+  if (!config) {
+    throw new Error(`Unknown transport type: ${type}`);
+  }
+
+  const baseTravelHours = Math.max(
+    config.minHours,
+    Math.round(
+      config.minHours + distance * config.hoursPerMapPixel
+    )
+  );
+
+  return {
+    baseTravelHours,
+    moneySpent: Math.round(
+      config.baseCost + baseTravelHours * config.costPerHour
+    ),
+    estimatedEnergyChange: -Math.max(
+      2,
+      Math.round(baseTravelHours * config.energyPerHour)
+    )
+  };
+}
+
+export function rollTravelEncounter(type) {
+  if (Math.random() >= TRAVEL_ENCOUNTER_CHANCE) {
+    return null;
+  }
+
+  const encounter = getRandomItem(
+    TRAVEL_ENCOUNTERS[type] || TRAVEL_ENCOUNTERS.plane
+  );
+
+  return encounter ? structuredClone(encounter) : null;
+}
+
+export function spendAgencyBudget(
+  amount,
+  description,
+  metadata = {}
+) {
+  return runStandalonePayment(
+    () => prepareAgencyPayment(
+      amount,
+      description,
+      metadata
+    ),
+    description
+  );
+}
+
+export function consumeFreeTransfer(
+  description,
+  metadata = {}
+) {
+  return runStandalonePayment(
+    () => prepareFreeTransfer(description, metadata),
+    description
+  );
+}
+
+export function payForTravel(
+  amount,
+  description,
+  metadata = {}
+) {
+  return runStandalonePayment(
+    () => prepareTravelPayment(
+      amount,
+      description,
+      metadata
+    ),
+    description
+  );
+}
 
 export function getAvailableFreeTransfers() {
   return getFreeTransfers();
 }
 
-
-export function getTravelData(fromCityName, toCityName, locations, options = {}) {
+export function getTravelData(
+  fromCityName,
+  toCityName,
+  locations,
+  options = {}
+) {
   const transportType = options.transportType || 'plane';
   const config = getTransportConfig(transportType);
 
-
   if (!config) {
-    throw new Error(`Unknown transport type: ${transportType}`);
+    throw new Error(
+      `Unknown transport type: ${transportType}`
+    );
   }
 
-
   const values = calculateTravelValues(
-    getTravelDistance(fromCityName, toCityName, locations),
+    getTravelDistance(
+      fromCityName,
+      toCityName,
+      locations
+    ),
     transportType
   );
-
 
   const encounter =
     options.travelEncounter !== undefined
@@ -308,9 +359,7 @@ export function getTravelData(fromCityName, toCityName, locations, options = {})
         ? rollTravelEncounter(transportType)
         : null;
 
-
   const freeTransferAvailable = hasFreeTransfer();
-
 
   return {
     fromCity: fromCityName,
@@ -318,9 +367,11 @@ export function getTravelData(fromCityName, toCityName, locations, options = {})
     transportType,
     transportLabel: config.label,
     baseTravelHours: values.baseTravelHours,
-    travelHours: values.baseTravelHours + (encounter?.timePenalty || 0),
+    travelHours:
+      values.baseTravelHours + (encounter?.timePenalty || 0),
     moneySpent: values.moneySpent,
-    effectiveMoneySpent: freeTransferAvailable ? 0 : values.moneySpent,
+    effectiveMoneySpent:
+      freeTransferAvailable ? 0 : values.moneySpent,
     estimatedEnergyChange: values.estimatedEnergyChange,
     travelEncounter: encounter,
     freeTransferAvailable,
@@ -330,31 +381,38 @@ export function getTravelData(fromCityName, toCityName, locations, options = {})
   };
 }
 
-
 export function getTravelHours(
   fromCityName,
   toCityName,
   locations,
   transportType = 'plane'
 ) {
-  return getTravelData(fromCityName, toCityName, locations, {
-    transportType
-  }).travelHours;
+  return getTravelData(
+    fromCityName,
+    toCityName,
+    locations,
+    { transportType }
+  ).travelHours;
 }
-
 
 export function getDestinationPreviewData(locations) {
-  return (gameState.currentDestinations || []).map((location) => ({
-    ...location,
-    ...getTravelData(gameState.currentCity, location.city, locations, {
-      transportType: 'plane'
-    }),
-    isCorrect:
-      resolveLocationId(location, 'destination preview') ===
-      gameState.nextTargetCityId
-  }));
+  return (gameState.currentDestinations || []).map(
+    location => ({
+      ...location,
+      ...getTravelData(
+        gameState.currentCity,
+        location.city,
+        locations,
+        { transportType: 'plane' }
+      ),
+      isCorrect:
+        resolveLocationId(
+          location,
+          'destination preview'
+        ) === gameState.nextTargetCityId
+    })
+  );
 }
-
 
 export function executeTravel({
   fromCityName,
@@ -365,114 +423,209 @@ export function executeTravel({
   description = null,
   metadata = {}
 }) {
-  const fromLocation = getLocationByCity(fromCityName, locations);
-  const toLocation = getLocationByCity(toCityName, locations);
-
-
-  if (!fromLocation || !toLocation) {
+  if (travelExecutionInProgress) {
     return {
-      ok: false,
-      reason: 'invalid_location',
-      fromCityName,
-      toCityName
+      success: false,
+      reason: 'travel_in_progress'
     };
   }
 
+  travelExecutionInProgress = true;
 
-  if (!isTransportAvailable(fromLocation, toLocation, transportType)) {
-    return {
-      ok: false,
-      reason: 'transport_unavailable',
+  try {
+    const fromLocation = getLocationByCity(
+      fromCityName,
+      locations
+    );
+
+    const toLocation = getLocationByCity(
+      toCityName,
+      locations
+    );
+
+    if (!fromLocation || !toLocation) {
+      return {
+        ok: false,
+        success: false,
+        reason: 'invalid_location',
+        fromCityName,
+        toCityName
+      };
+    }
+
+    if (
+      !isTransportAvailable(
+        fromLocation,
+        toLocation,
+        transportType
+      )
+    ) {
+      return {
+        ok: false,
+        success: false,
+        reason: 'transport_unavailable',
+        fromCityName,
+        toCityName,
+        transportType
+      };
+    }
+
+    const energyManager = getEnergyManager();
+
+    const energyCost =
+      energyManager.getTravelCost(transportType);
+
+    const affordability =
+      energyManager.canAfford(energyCost);
+
+    if (!affordability.ok) {
+      return {
+        success: false,
+        reason:
+          affordability.reason || 'insufficient_energy',
+        payment: null,
+        energy: {
+          success: false,
+          ...affordability,
+          cost: energyCost,
+          message:
+            energyManager.getInsufficientEnergyMessage(
+              energyCost
+            )
+        }
+      };
+    }
+
+    const travelData = getTravelData(
       fromCityName,
       toCityName,
-      transportType
-    };
-  }
+      locations,
+      {
+        transportType,
+        allowEncounter
+      }
+    );
 
+    const destinationId = resolveLocationId(
+      toLocation,
+      'travel destination'
+    );
 
-  const travelData = getTravelData(fromCityName, toCityName, locations, {
-    transportType,
-    allowEncounter
-  });
+    const paymentDescription =
+      description ||
+      `${travelData.transportLabel}: ${fromCityName} → ${toCityName}`;
 
+    const paymentSnapshot = capturePaymentState();
+    let paymentResult;
 
-  const paymentDescription =
-    description ||
-    `${travelData.transportLabel}: ${fromCityName} → ${toCityName}`;
+    // Bez eventów i bez zapisu: płatność jest jeszcze przygotowywana.
+    try {
+      paymentResult = prepareTravelPayment(
+        travelData.moneySpent,
+        paymentDescription,
+        {
+          ...metadata,
+          fromCity: fromCityName,
+          toCity: toCityName,
+          transportType,
+          baseTravelHours: travelData.baseTravelHours,
+          travelHours: travelData.travelHours,
+          encounterId:
+            travelData.travelEncounter?.id ?? null
+        }
+      );
 
+      if (!paymentResult.ok) {
+        restorePaymentState(paymentSnapshot);
 
-  const paymentResult = payForTravel(
-    travelData.moneySpent,
-    paymentDescription,
-    {
-      ...metadata,
+        return {
+          success: false,
+          reason:
+            paymentResult.reason || 'payment_failed',
+          payment: paymentResult
+        };
+      }
+    } catch (error) {
+      restorePaymentState(paymentSnapshot);
+
+      console.error(
+        '[TravelManager] Payment preparation failed:',
+        error
+      );
+
+      return {
+        success: false,
+        reason: 'payment_failed',
+        payment: null
+      };
+    }
+
+    // Koszt pochodzi wyłącznie z EnergyManager.
+    // Ponowne sprawdzenie odbywa się wewnątrz consumeCustom().
+    const energyResult = energyManager.consumeCustom(
+      energyCost,
+      `Travel (${transportType}): -${energyCost}`,
+      {
+        requireFullAmount: true,
+        activityType: `travel_${transportType}`
+      }
+    );
+
+    if (!energyResult?.success) {
+      restorePaymentState(paymentSnapshot);
+
+      return {
+        success: false,
+        reason:
+          energyResult?.reason || 'insufficient_energy',
+        payment: null,
+        energy: energyResult
+      };
+    }
+
+    // Od tego miejsca płatność i zużycie energii są zatwierdzone.
+    publishPayment(paymentResult, paymentDescription);
+
+    EventBus.emit(
+      'advanceTime',
+      travelData.travelHours,
+      0
+    );
+
+    gameState.currentCity = toCityName;
+    gameState.currentCityId =
+      destinationId ?? gameState.currentCityId;
+
+    requestTravelAutosave();
+
+    EventBus.emit('travelCompleted', {
       fromCity: fromCityName,
       toCity: toCityName,
       transportType,
-      baseTravelHours: travelData.baseTravelHours,
-      travelHours: travelData.travelHours,
-      encounterId: travelData.travelEncounter?.id ?? null
-    }
-  );
+      travelData,
+      paymentResult,
+      energyResult,
+      usedFreeTransfer:
+        paymentResult.usedFreeTransfer === true,
+      freeTransfers: getFreeTransfers()
+    });
 
-
-  if (!paymentResult.ok) {
     return {
-      success: false,
-      reason: paymentResult.reason || 'payment_failed',
-      payment: paymentResult
-    };
-  }
-
-
-  const energyManager = getEnergyManager();
-  const energyResult = energyManager.consumeTravel(transportType);
-
-
-  if (!energyResult?.success) {
-    return {
-      success: false,
-      reason: energyResult?.reason || 'insufficient_energy',
+      success: true,
+      travelData,
       payment: paymentResult,
-      energy: energyResult
+      energy: energyResult,
+      usedFreeTransfer:
+        paymentResult.usedFreeTransfer === true,
+      freeTransfers: getFreeTransfers(),
+      energyReachedZero: Boolean(
+        energyResult.energyReachedZero
+      )
     };
+  } finally {
+    travelExecutionInProgress = false;
   }
-
-
-  EventBus.emit('advanceTime', travelData.travelHours, 0);
-
-
-  gameState.currentCity = toCityName;
-  gameState.currentCityId =
-    resolveLocationId(toLocation, 'travel destination') ?? gameState.currentCityId;
-
-
-  requestAutosave();
-
-
-  EventBus.emit('travelCompleted', {
-    fromCity: fromCityName,
-    toCity: toCityName,
-    transportType,
-    travelData,
-    paymentResult,
-    energyResult,
-    usedFreeTransfer: paymentResult.usedFreeTransfer === true,
-    freeTransfers: getFreeTransfers()
-  });
-
-
-  return {
-    success: true,
-    travelData,
-    payment: paymentResult,
-    energy: energyResult,
-    usedFreeTransfer: paymentResult.usedFreeTransfer === true,
-    freeTransfers: getFreeTransfers(),
-    energyReachedZero: Boolean(energyResult.energyReachedZero)
-  };
 }
-
 
 export function travelToCity(
   cityName,
@@ -482,10 +635,15 @@ export function travelToCity(
   const previousCity = gameState.currentCity;
   const previousCityId = gameState.currentCityId;
 
+  const origin = getLocationByCity(
+    previousCity,
+    locations
+  );
 
-  const origin = getLocationByCity(previousCity, locations);
-  const destination = getLocationByCity(cityName, locations);
-
+  const destination = getLocationByCity(
+    cityName,
+    locations
+  );
 
   if (!origin || !destination) {
     throw new Error(
@@ -493,16 +651,13 @@ export function travelToCity(
     );
   }
 
-
   const config = getTransportConfig(transportType);
-
 
   if (!config) {
     throw new Error(
       `Unknown transport type: ${transportType}`
     );
   }
-
 
   if (cityName === previousCity) {
     return {
@@ -529,36 +684,38 @@ export function travelToCity(
     };
   }
 
-
-  if (!isTransportAvailable(origin, destination, transportType)) {
+  if (
+    !isTransportAvailable(
+      origin,
+      destination,
+      transportType
+    )
+  ) {
     throw new Error(
       `${transportType} is unavailable for this route.`
     );
   }
-
 
   const destinationId = resolveLocationId(
     destination,
     'travelToCity'
   );
 
-
   const routeManager = getRouteManager();
-
 
   if (!routeManager) {
     throw new Error('Route manager is missing.');
   }
 
+  const wasCorrect =
+    routeManager.canEnterCity(destinationId);
 
-  const wasCorrect = routeManager.canEnterCity(destinationId);
   const isCrimeSceneArrival =
     destinationId === gameState.crimeCityId;
 
-
   const energyManager = getEnergyManager();
-  const energyBefore = energyManager.getCurrentEnergy();
-
+  const energyBefore =
+    energyManager.getCurrentEnergy();
 
   const execution = executeTravel({
     fromCityName: previousCity,
@@ -567,7 +724,6 @@ export function travelToCity(
     transportType,
     allowEncounter: true
   });
-
 
   if (!execution.success) {
     return {
@@ -591,38 +747,41 @@ export function travelToCity(
       toCity: cityName,
       toCityId: destinationId,
       cityId: destinationId,
-      isCrimeSceneArrival: false
+      isCrimeSceneArrival: false,
+      energy: execution.energy ?? null
     };
   }
 
+  const energyAfter =
+    energyManager.getCurrentEnergy();
 
-  const energyAfter = energyManager.getCurrentEnergy();
   const energyChange = energyAfter - energyBefore;
-
 
   gameState.energy = energyAfter;
 
-
   const { travelData, payment } = execution;
-
 
   const travel = {
     transportType: travelData.transportType,
     transportLabel: travelData.transportLabel,
     travelHours: travelData.travelHours,
     baseTravelHours: travelData.baseTravelHours,
-    moneySpent: Math.max(0, Number(payment.amount) || 0),
-    effectiveMoneySpent: Math.max(0, Number(payment.amount) || 0),
-    costFromCash: Math.max(0, Number(payment.costFromCash) || 0),
-    costFromBudget: Math.max(0, Number(payment.costFromBudget) || 0),
-    agencyDebtAdded: Math.max(0, Number(payment.debtAdded) || 0),
+    moneySpent:
+      Math.max(0, Number(payment.amount) || 0),
+    effectiveMoneySpent:
+      Math.max(0, Number(payment.amount) || 0),
+    costFromCash:
+      Math.max(0, Number(payment.costFromCash) || 0),
+    costFromBudget:
+      Math.max(0, Number(payment.costFromBudget) || 0),
+    agencyDebtAdded:
+      Math.max(0, Number(payment.debtAdded) || 0),
     usedFreeTransfer: Boolean(payment.usedFreeTransfer),
     freeTransfersRemaining: getFreeTransfers(),
     energyChange,
     travelEncounter: travelData.travelEncounter,
     travelLabel: travelData.travelLabel
   };
-
 
   const record = {
     from: previousCity,
@@ -646,22 +805,18 @@ export function travelToCity(
     travelLabel: travel.travelLabel
   };
 
-
   gameState.lastTravel = record;
   gameState.lastTravelEncounter = travel.travelEncounter;
   gameState.addTravel(record);
 
-
   enterCity(cityName, locations);
   clearTravelCluesForCity(destinationId);
-
 
   const isFinalRouteCity =
     wasCorrect &&
     routeManager.isRoutePhase() &&
     routeManager.currentRouteIndex ===
       routeManager.route.length - 1;
-
 
   addSessionScore(
     wasCorrect ? 100 : -25,
@@ -670,19 +825,15 @@ export function travelToCity(
       : `False city: ${cityName}`
   );
 
-
   if (isFinalRouteCity) {
     routeManager.enterCity(destinationId);
     syncInvestigationState(locations);
-
 
     gameState.justReachedCorrectCityId = null;
     gameState.currentDestinations = [];
     gameState.activeLocations = [];
 
-
-    saveGameState();
-
+    requestTravelAutosave();
 
     return {
       blocked: false,
@@ -700,20 +851,15 @@ export function travelToCity(
     };
   }
 
-
   gameState.justReachedCorrectCityId =
     wasCorrect ? destinationId : null;
 
-
   syncInvestigationState(locations);
-
 
   gameState.currentDestinations =
     generateDestinationsForCurrentCity(locations);
 
-
-  saveGameState();
-
+  requestTravelAutosave();
 
   return {
     blocked: false,

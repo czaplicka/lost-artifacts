@@ -6,7 +6,7 @@ import { inventoryManager } from '../managers/InventoryManager.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { isOfficeNpcVisible } from '../officeScheduleService.js';
-import frankDialogue from '../assets/data/archivist.json' with { type: 'json' };
+import frankDialogue from '../assets/data/dialogue/archivist.json' with { type: 'json' };
 
 const ARCHIVE_BACKGROUND_KEYS = ['archive', 'archivist'];
 const REPORT_ITEM_ID = 'agency_mission_report';

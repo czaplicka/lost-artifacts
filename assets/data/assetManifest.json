@@ -13,6 +13,8 @@
     { "key": "backgroundoff", "url": "assets/local/biuro.jpg" },
     { "key": "dossier", "url": "assets/dossier.png" },
     { "key": "hotel", "url": "assets/local/hotel.jpg" },
+    { "key": "hotel_lux", "url": "assets/local/hotel_lux.jpg" },
+    { "key": "hotel_poor", "url": "assets/local/hotel_poor.jpg" },
     { "key": "elevator_open", "url": "assets/local/elevator_open.jpg" },
     { "key": "elevator_close", "url": "assets/local/elevator_close.jpg" },
     { "key": "elevator_broken", "url": "assets/local/elevator_broken.jpg" },

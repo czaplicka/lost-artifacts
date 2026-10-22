@@ -17,10 +17,46 @@ export class OfficeHotspotManager {
     this.debugGraphics = null;
     this.debugTexts = [];
     this.isLocked = false;
+
+    this._destroyed = false;
+    this._debugKeyboard = null;
+
+    this._onDebugKeyDown = event => {
+      if (
+        this._destroyed ||
+        !LOCAL_DEBUG_ALLOWED ||
+        !this.scene?.sys?.isActive() ||
+        event?.repeat
+      ) {
+        return;
+      }
+
+      const target = event?.target;
+      const tagName = target?.tagName?.toLowerCase();
+
+      if (
+        tagName === 'input' ||
+        tagName === 'textarea' ||
+        tagName === 'select' ||
+        target?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (event?.ctrlKey || event?.altKey || event?.metaKey) {
+        return;
+      }
+
+      this.toggleDebug();
+    };
   }
 
   create(definitions = []) {
-    definitions.forEach((data) => {
+    if (this._destroyed) {
+      return [];
+    }
+
+    definitions.forEach(data => {
       const zone = this.scene.add
         .zone(data.x, data.y, data.width, data.height)
         .setOrigin(0, 0)
@@ -52,6 +88,8 @@ export class OfficeHotspotManager {
       this.hotspots.push(zone);
     });
 
+    this.bindDebugKeyboard();
+
     if (this.debugEnabled) {
       this.createDebugOverlay();
     }
@@ -59,8 +97,60 @@ export class OfficeHotspotManager {
     return this.hotspots;
   }
 
+  bindDebugKeyboard() {
+    this.unbindDebugKeyboard();
+
+    if (
+      this._destroyed ||
+      !LOCAL_DEBUG_ALLOWED ||
+      !this.scene?.input?.keyboard
+    ) {
+      return;
+    }
+
+    this._debugKeyboard = this.scene.input.keyboard;
+
+    this._debugKeyboard.on(
+      'keydown-D',
+      this._onDebugKeyDown
+    );
+  }
+
+  unbindDebugKeyboard() {
+    this._debugKeyboard?.off(
+      'keydown-D',
+      this._onDebugKeyDown
+    );
+
+    this._debugKeyboard = null;
+  }
+
+  toggleDebug() {
+    return this.setDebugEnabled(!this.debugEnabled);
+  }
+
+  setDebugEnabled(enabled) {
+    if (this._destroyed) {
+      return false;
+    }
+
+    this.debugEnabled =
+      LOCAL_DEBUG_ALLOWED &&
+      enabled === true;
+
+    this.scene.DEBUG_HOTSPOTS = this.debugEnabled;
+
+    if (this.debugEnabled) {
+      this.createDebugOverlay();
+    } else {
+      this.destroyDebugOverlay();
+    }
+
+    return this.debugEnabled;
+  }
+
   handlePointerOver(data) {
-    if (this.isLocked || !data) {
+    if (this._destroyed || this.isLocked || !data) {
       return;
     }
 
@@ -78,11 +168,15 @@ export class OfficeHotspotManager {
   }
 
   handlePointerOut() {
+    if (this._destroyed) {
+      return;
+    }
+
     this.scene.navigation?.hideHint();
   }
 
   handlePointerDown(data) {
-    if (this.isLocked || !data) {
+    if (this._destroyed || this.isLocked || !data) {
       return;
     }
 
@@ -93,6 +187,7 @@ export class OfficeHotspotManager {
       console.warn(
         `[OfficeHotspotManager] Hotspot "${data.id}" blocked by tutorial.`
       );
+
       return;
     }
 
@@ -109,9 +204,13 @@ export class OfficeHotspotManager {
   }
 
   setLocked(locked) {
+    if (this._destroyed) {
+      return;
+    }
+
     this.isLocked = Boolean(locked);
 
-    this.hotspots.forEach((zone) => {
+    this.hotspots.forEach(zone => {
       if (!zone?.scene) {
         return;
       }
@@ -133,12 +232,16 @@ export class OfficeHotspotManager {
 
   findById(hotspotId) {
     return this.hotspots.find(
-      (zone) => zone?.hotspotData?.id === hotspotId
+      zone => zone?.hotspotData?.id === hotspotId
     );
   }
 
   createDebugOverlay() {
-    if (!LOCAL_DEBUG_ALLOWED || !this.debugEnabled) {
+    if (
+      this._destroyed ||
+      !LOCAL_DEBUG_ALLOWED ||
+      !this.debugEnabled
+    ) {
       return;
     }
 
@@ -148,9 +251,17 @@ export class OfficeHotspotManager {
       .graphics()
       .setDepth(998);
 
-    this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
+    this.debugGraphics.lineStyle(
+      2,
+      0x00ffcc,
+      0.95
+    );
 
-    this.hotspots.forEach((zone) => {
+    this.hotspots.forEach(zone => {
+      if (!zone?.scene) {
+        return;
+      }
+
       const data = zone.hotspotData;
 
       if (!data) {
@@ -187,7 +298,7 @@ export class OfficeHotspotManager {
     this.debugGraphics?.destroy();
     this.debugGraphics = null;
 
-    this.debugTexts.forEach((text) => {
+    this.debugTexts.forEach(text => {
       text?.destroy();
     });
 
@@ -195,13 +306,21 @@ export class OfficeHotspotManager {
   }
 
   destroy() {
-    this.hotspots.forEach((zone) => {
+    if (this._destroyed) {
+      return;
+    }
+
+    this._destroyed = true;
+
+    this.unbindDebugKeyboard();
+    this.destroyDebugOverlay();
+
+    this.hotspots.forEach(zone => {
       zone?.removeAllListeners();
       zone?.destroy();
     });
 
     this.hotspots = [];
-
-    this.destroyDebugOverlay();
+    this.scene = null;
   }
 }
