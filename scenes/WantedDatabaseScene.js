@@ -1,37 +1,52 @@
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
+
 export class WantedDatabaseScene extends BaseScene {
     constructor() {
         super({ key: 'WantedDatabaseScene' });
+
         this.gameState = {};
-        this.suspects = [];
-        this.currentIndex = 0;
-        this.cards = [];
-        this.selectedCard = null;
         this.CARDS_PER_PAGE = 10;
         this.currentPage = 0;
-        this.detailPanel = null;
         this.searchQuery = '';
         this.filterGender = 'all';
-        this.filteredSuspects = [];
-        this.isPaging = false;
-        this.renderToken = 0;
-        this.loadedSuspectTextures = new Set();
     }
 
-    init(data) {
-        this.gameState = data?.gameState || this.gameState || {};
+    init(data = {}) {
+        this.gameState = data.gameState || this.gameState || {};
     }
 
     create() {
-            super.create();
-EventBus.emit('hideHUD');
+        super.create();
+
+        EventBus.emit('hideHUD');
+
+        this.session = { active: true };
+        this.ownedTextures = new Set();
+        this.pendingTextures = new Map();
+
+        this.renderToken = 0;
+        this.detailToken = 0;
+        this.isPaging = false;
+        this.isClosing = false;
+
+        this.cards = [];
+        this.selectedCard = null;
+
+        this.currentPage = 0;
+        this.searchQuery = '';
+        this.filterGender = 'all';
+
+        const cachedSuspects = this.cache.json.get('suspects');
+
+        this.suspects = Array.isArray(cachedSuspects)
+            ? cachedSuspects
+            : [];
+
+        this.filteredSuspects = [...this.suspects];
 
         const W = this.scale.width;
         const H = this.scale.height;
-
-        this.suspects = this.cache.json.get('suspects') || [];
-        this.filteredSuspects = [...this.suspects];
 
         this.createBackground(W, H);
         this.createCRTEffects(W, H);
@@ -40,19 +55,1234 @@ EventBus.emit('hideHUD');
 
         this.cardContainer = this.add.container(0, 0);
 
-        this.preloadAllSuspectTextures(() => {
-            this.renderCards(W, H);
-            this.createNavigation(W, H);
-        });
-
         this.detailPanel = this.createDetailPanel(W, H);
         this.detailPanel.setVisible(false);
 
+        this.createNavigation(W, H);
         this.createBackButton(W, H);
 
-        this.input.keyboard.on('keydown-ESC', this.handleEsc, this);
-        this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene, this);
-        this.events.on(Phaser.Scenes.Events.DESTROY, this.cleanupScene, this);
+        this.input.keyboard?.on(
+            'keydown-ESC',
+            this.handleEsc,
+            this
+        );
+
+        this.events.once(
+            Phaser.Scenes.Events.SHUTDOWN,
+            this.cleanupScene,
+            this
+        );
+
+        this.events.once(
+            Phaser.Scenes.Events.DESTROY,
+            this.cleanupScene,
+            this
+        );
+
+        this.refreshPage();
+    }
+
+    // -------------------- UI HELPERS --------------------
+
+    makeText(x, y, text, size = 14, extra = {}) {
+        return this.add.text(x, y, text, {
+            fontFamily: 'PressStart2P',
+            fontSize: `${size}px`,
+            color: '#00ff66',
+            ...extra
+        });
+    }
+
+    makeRect(
+        x,
+        y,
+        width,
+        height,
+        fill = 0x05100a,
+        alpha = 1,
+        strokeAlpha = 0.5,
+        strokeWidth = 1
+    ) {
+        return this.add
+            .rectangle(x, y, width, height, fill, alpha)
+            .setOrigin(0)
+            .setStrokeStyle(
+                strokeWidth,
+                0x00ff66,
+                strokeAlpha
+            );
+    }
+
+    makeButton(x, y, width, height, label, onClick, size = 13) {
+        const container = this.add.container(x, y);
+
+        const background = this.makeRect(
+            0,
+            0,
+            width,
+            height,
+            0x081a10,
+            1,
+            0.6
+        );
+
+        background.setInteractive({ useHandCursor: true });
+
+        const text = this.makeText(
+            width / 2,
+            height / 2,
+            label,
+            size
+        ).setOrigin(0.5);
+
+        background.on('pointerover', () => {
+            background
+                .setFillStyle(0x103c23, 1)
+                .setStrokeStyle(1, 0x66ffaa, 1);
+        });
+
+        background.on('pointerout', () => {
+            background
+                .setFillStyle(0x081a10, 1)
+                .setStrokeStyle(1, 0x00ff66, 0.6);
+        });
+
+        background.on('pointerdown', () => {
+            if (!this.session?.active || this.isClosing) return;
+            onClick();
+        });
+
+        container.add([background, text]);
+
+        return { container, background, text };
+    }
+
+    // -------------------- BACKGROUND / CRT --------------------
+
+    createBackground(W, H) {
+        this.add
+            .rectangle(0, 0, W, H, 0x050c08)
+            .setOrigin(0);
+
+        this.makeRect(
+            8,
+            8,
+            W - 16,
+            H - 16,
+            0x000000,
+            0,
+            1,
+            16
+        ).setStrokeStyle(16, 0x121c16, 1);
+
+        this.makeRect(
+            20,
+            20,
+            W - 40,
+            H - 40,
+            0x000000,
+            0,
+            0.4,
+            2
+        );
+    }
+
+    createCRTEffects(W, H) {
+        const key = '__wanted_database_scanlines';
+
+        if (!this.textures.exists(key)) {
+            const graphics = this.make.graphics({
+                x: 0,
+                y: 0,
+                add: false
+            });
+
+            graphics.fillStyle(0x00ff66, 1);
+            graphics.fillRect(0, 0, 4, 2);
+            graphics.generateTexture(key, 4, 4);
+            graphics.destroy();
+
+            this.ownedTextures.add(key);
+        }
+
+        this.crtScanlines = this.add
+            .tileSprite(0, 0, W, H, key)
+            .setOrigin(0)
+            .setAlpha(0.03)
+            .setDepth(999);
+
+        this.crtBeam = this.add
+            .rectangle(0, -40, W, 40, 0x00ff66, 0.025)
+            .setOrigin(0)
+            .setDepth(999);
+
+        this.tweens.add({
+            targets: this.crtBeam,
+            y: H,
+            duration: 4000,
+            repeat: -1,
+            ease: 'Linear'
+        });
+    }
+
+    createHeader(W) {
+        this.makeRect(
+            24,
+            24,
+            W - 48,
+            80,
+            0x051a10,
+            0.9,
+            0.8,
+            2
+        );
+
+        this.makeText(
+            50,
+            48,
+            '> INTERPOL_DATABASE_v2.04',
+            16
+        );
+
+        this.makeText(
+            W / 2,
+            64,
+            'MOST WANTED DATABASE',
+            28,
+            {
+                stroke: '#003311',
+                strokeThickness: 4
+            }
+        ).setOrigin(0.5);
+    }
+
+    // -------------------- FILTERS --------------------
+
+    createFilterPanel(W) {
+        const panelY = 135;
+        const panelH = 50;
+
+        this.makeRect(
+            24,
+            panelY,
+            W - 48,
+            panelH,
+            0x05100a,
+            0.9
+        );
+
+        this.makeText(
+            45,
+            panelY + panelH / 2,
+            'FILTER',
+            14,
+            { color: '#00cc55' }
+        ).setOrigin(0, 0.5);
+
+        const filters = [
+            { label: 'ALL', value: 'all' },
+            { label: 'MALE', value: 'm' },
+            { label: 'FEMALE', value: 'f' },
+            { label: 'NON-BINARY', value: 'nb' }
+        ];
+
+        this.filterButtons = [];
+
+        let x = 130;
+
+        for (const filter of filters) {
+            const width = filter.label.length * 10 + 20;
+
+            const button = this.makeButton(
+                x,
+                panelY + 9,
+                width,
+                32,
+                filter.label,
+                () => {
+                    if (this.detailPanel?.visible) return;
+
+                    this.filterGender = filter.value;
+                    this.currentPage = 0;
+
+                    this.applyFilters();
+                    this.refreshFilterButtons();
+                    this.refreshPage();
+                },
+                12
+            );
+
+            this.filterButtons.push({
+                ...button,
+                value: filter.value
+            });
+
+            x += width + 12;
+        }
+
+        this.counterText = this.makeText(
+            W - 45,
+            panelY + panelH / 2,
+            `RECORDS: ${this.filteredSuspects.length}`,
+            14
+        ).setOrigin(1, 0.5);
+
+        this.refreshFilterButtons();
+    }
+
+    refreshFilterButtons() {
+        for (const button of this.filterButtons) {
+            const active = button.value === this.filterGender;
+
+            button.background
+                .setFillStyle(
+                    active ? 0x104c2a : 0x081a10,
+                    1
+                )
+                .setStrokeStyle(
+                    1,
+                    0x00ff66,
+                    active ? 1 : 0.4
+                );
+
+            button.text.setColor(
+                active ? '#00ff66' : '#00aa44'
+            );
+        }
+    }
+
+    applyFilters() {
+        const query = String(this.searchQuery || '')
+            .trim()
+            .toLowerCase();
+
+        this.filteredSuspects = this.suspects.filter((suspect) => {
+            const genderMatch =
+                this.filterGender === 'all' ||
+                suspect.gender_code === this.filterGender;
+
+            const searchMatch =
+                !query ||
+                ['name', 'skills', 'accent'].some((field) =>
+                    String(suspect[field] || '')
+                        .toLowerCase()
+                        .includes(query)
+                );
+
+            return genderMatch && searchMatch;
+        });
+
+        this.counterText?.setText(
+            `RECORDS: ${this.filteredSuspects.length}`
+        );
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(
+                this.filteredSuspects.length /
+                this.CARDS_PER_PAGE
+            )
+        );
+
+        this.currentPage = Phaser.Math.Clamp(
+            this.currentPage,
+            0,
+            totalPages - 1
+        );
+    }
+
+    // -------------------- TEXTURES --------------------
+
+    getTextureSpec(suspect, type) {
+        if (type === 'wanted') {
+            const file = suspect.wantedKey || suspect.id;
+
+            return {
+                sharedKey: `wanted_${suspect.id}`,
+                privateKey: `__wanted_db_poster_${suspect.id}`,
+                url: `assets/suspects/${file}.jpg`
+            };
+        }
+
+        const file = suspect.portraitKey || suspect.id;
+
+        return {
+            sharedKey: String(file),
+            privateKey: `__wanted_db_portrait_${suspect.id}`,
+            url: `assets/suspects/${file}.jpg`
+        };
+    }
+
+    getExistingTextureKey(spec) {
+        if (this.textures.exists(spec.sharedKey)) {
+            return spec.sharedKey;
+        }
+
+        if (this.textures.exists(spec.privateKey)) {
+            return spec.privateKey;
+        }
+
+        return null;
+    }
+
+    ensureSuspectTexture(suspect, type) {
+        const spec = this.getTextureSpec(suspect, type);
+        const existing = this.getExistingTextureKey(spec);
+
+        if (existing) {
+            return Promise.resolve(existing);
+        }
+
+        if (!this.session?.active) {
+            return Promise.resolve(null);
+        }
+
+        const key = spec.privateKey;
+        const pending = this.pendingTextures.get(key);
+
+        if (pending) {
+            return pending.promise;
+        }
+
+        const session = this.session;
+        const completeEvent = `filecomplete-image-${key}`;
+
+        let resolvePromise;
+
+        const promise = new Promise((resolve) => {
+            resolvePromise = resolve;
+        });
+
+        let settled = false;
+
+        const finish = (result) => {
+            if (settled) return;
+            settled = true;
+
+            this.load.off(completeEvent, onComplete);
+            this.load.off(
+                Phaser.Loader.Events.FILE_LOAD_ERROR,
+                onError
+            );
+
+            this.pendingTextures.delete(key);
+            resolvePromise(result);
+        };
+
+        const onComplete = () => {
+            if (!session.active) {
+                finish(null);
+                return;
+            }
+
+            this.ownedTextures.add(key);
+            finish(key);
+        };
+
+        const onError = (file) => {
+            if (file?.key !== key) return;
+
+            console.warn(
+                '[WantedDatabaseScene] Image failed:',
+                spec.url
+            );
+
+            finish(null);
+        };
+
+        this.pendingTextures.set(key, {
+            promise,
+            cancel: () => finish(null)
+        });
+
+        this.load.once(completeEvent, onComplete);
+
+        this.load.on(
+            Phaser.Loader.Events.FILE_LOAD_ERROR,
+            onError
+        );
+
+        this.load.image(key, spec.url);
+
+        if (!this.load.isLoading()) {
+            this.load.start();
+        }
+
+        return promise;
+    }
+
+    // -------------------- PAGES --------------------
+
+    async refreshPage() {
+        if (!this.session?.active) return;
+
+        const session = this.session;
+        const token = ++this.renderToken;
+
+        this.isPaging = true;
+
+        this.closeDetailPanel();
+        this.cardContainer.removeAll(true);
+        this.cards = [];
+
+        this.updateNavButtons();
+
+        const start = this.currentPage * this.CARDS_PER_PAGE;
+
+        const pageSuspects = this.filteredSuspects.slice(
+            start,
+            start + this.CARDS_PER_PAGE
+        );
+
+        this.loadingText = this.makeText(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            'LOADING RECORDS...',
+            16
+        ).setOrigin(0.5);
+
+        this.cardContainer.add(this.loadingText);
+
+        const keys = await Promise.all(
+            pageSuspects.map((suspect) =>
+                this.ensureSuspectTexture(suspect, 'wanted')
+            )
+        );
+
+        if (
+            !session.active ||
+            this.session !== session ||
+            token !== this.renderToken
+        ) {
+            return;
+        }
+
+        this.cardContainer.removeAll(true);
+        this.loadingText = null;
+
+        this.renderCards(
+            this.scale.width,
+            this.scale.height,
+            pageSuspects,
+            keys
+        );
+
+        this.isPaging = false;
+        this.updateNavButtons();
+    }
+
+    renderCards(W, H, pageSuspects, textureKeys) {
+        const COLS = 5;
+        const ROWS = 2;
+
+        const gapX = 32;
+        const gapY = 24;
+
+        const startY = 210;
+
+        const cardW = Math.max(
+            1,
+            Math.min(
+                330,
+                (W - 64 - (COLS - 1) * gapX) / COLS
+            )
+        );
+
+        const cardH = Math.max(
+            1,
+            Math.min(
+                370,
+                (H - startY - 110 - gapY) / ROWS
+            )
+        );
+
+        const totalWidth =
+            COLS * cardW + (COLS - 1) * gapX;
+
+        const startX = (W - totalWidth) / 2;
+
+        for (let i = 0; i < this.CARDS_PER_PAGE; i++) {
+            const x = startX + (i % COLS) * (cardW + gapX);
+            const y = startY + Math.floor(i / COLS) * (cardH + gapY);
+
+            const suspect = pageSuspects[i];
+
+            if (!suspect) {
+                this.cardContainer.add(
+                    this.createEmptySlot(x, y, cardW, cardH)
+                );
+
+                continue;
+            }
+
+            const card = this.createWantedCard(
+                suspect,
+                x,
+                y,
+                cardW,
+                cardH,
+                textureKeys[i]
+            );
+
+            this.cardContainer.add(card.container);
+            this.cards.push(card);
+        }
+    }
+
+    createWantedCard(suspect, x, y, cardW, cardH, textureKey) {
+        const container = this.add.container(x, y);
+
+        const background = this.makeRect(
+            0,
+            0,
+            cardW,
+            cardH,
+            0x05100a,
+            0.9,
+            0.5,
+            2
+        );
+
+        container.add(background);
+
+        const photoW = Math.max(1, cardW - 20);
+        const photoH = Math.max(1, cardH - 20);
+
+        if (textureKey && this.textures.exists(textureKey)) {
+            const image = this.add.image(
+                cardW / 2,
+                cardH / 2,
+                textureKey
+            );
+
+            image.setDisplaySize(photoW, photoH);
+            container.add(image);
+        } else {
+            container.add(
+                this.makeRect(
+                    10,
+                    10,
+                    photoW,
+                    photoH,
+                    0x020805,
+                    1,
+                    0
+                )
+            );
+        }
+
+        container.add(
+            this.makeRect(
+                10,
+                10 + photoH - 46,
+                photoW,
+                46,
+                0x000000,
+                0.8,
+                0
+            )
+        );
+
+        container.add(
+            this.makeRect(
+                10,
+                10,
+                photoW,
+                photoH,
+                0x000000,
+                0,
+                0.6,
+                2
+            )
+        );
+
+        container.add(
+            this.makeText(
+                16,
+                16,
+                `#${String(suspect.wantedKey || 0).padStart(3, '0')}`,
+                12,
+                {
+                    backgroundColor: '#000000',
+                    padding: { x: 4, y: 2 }
+                }
+            )
+        );
+
+        container.add(
+            this.makeText(
+                cardW / 2,
+                10 + photoH - 38,
+                String(suspect.name || '').toUpperCase(),
+                10,
+                {
+                    align: 'center',
+                    wordWrap: { width: photoW - 10 }
+                }
+            ).setOrigin(0.5, 0)
+        );
+
+        if (suspect.accent) {
+            container.add(
+                this.makeText(
+                    cardW / 2,
+                    10 + photoH - 20,
+                    String(suspect.accent).toUpperCase(),
+                    11,
+                    { color: '#00cc55' }
+                ).setOrigin(0.5, 0)
+            );
+        }
+
+        const zone = this.add
+            .zone(0, 0, cardW, cardH)
+            .setOrigin(0)
+            .setInteractive({ useHandCursor: true });
+
+        zone.on('pointerover', () => {
+            background
+                .setFillStyle(0x0a2416, 0.95)
+                .setStrokeStyle(2, 0x66ffaa, 1);
+        });
+
+        zone.on('pointerout', () => {
+            background
+                .setFillStyle(0x05100a, 0.9)
+                .setStrokeStyle(2, 0x00ff66, 0.5);
+        });
+
+        zone.on('pointerdown', () => {
+            if (
+                this.isPaging ||
+                this.isClosing ||
+                this.detailPanel?.visible
+            ) {
+                return;
+            }
+
+            this.showDetailPanel(suspect);
+        });
+
+        container.add(zone);
+
+        return { container, suspect };
+    }
+
+    createEmptySlot(x, y, width, height) {
+        const container = this.add.container(x, y);
+
+        container.add([
+            this.makeRect(
+                0,
+                0,
+                width,
+                height,
+                0x000000,
+                0,
+                0.2
+            ),
+
+            this.makeText(
+                width / 2,
+                height / 2,
+                'NO RECORD',
+                14,
+                { color: '#00aa44' }
+            ).setOrigin(0.5).setAlpha(0.3)
+        ]);
+
+        return container;
+    }
+
+    // -------------------- DETAIL PANEL --------------------
+
+    createDetailPanel(W, H) {
+        const panel = this.add.container(0, 0).setDepth(100);
+
+        const overlay = this.add
+            .rectangle(0, 0, W, H, 0x000000, 0.88)
+            .setOrigin(0)
+            .setInteractive();
+
+        overlay.on('pointerdown', () => {
+            this.closeDetailPanel();
+        });
+
+        panel.add(overlay);
+
+        // Wewnętrzny układ zachowuje rozmiar oryginału.
+        const PW = 1140;
+        const PH = 760;
+
+        const scale = Math.max(
+            0.01,
+            Math.min(1, (W - 40) / PW, (H - 40) / PH)
+        );
+
+        const content = this.add.container(
+            (W - PW * scale) / 2,
+            (H - PH * scale) / 2
+        ).setScale(scale);
+
+        panel.add(content);
+
+        const background = this.makeRect(
+            0,
+            0,
+            PW,
+            PH,
+            0x030a06,
+            0.98,
+            1,
+            2
+        ).setInteractive();
+
+        // Blokuje kliknięcie w przyciemniające tło pod panelem.
+        background.on('pointerdown', (_pointer, _x, _y, event) => {
+            event.stopPropagation();
+        });
+
+        content.add(background);
+
+        content.add(
+            this.makeRect(
+                6,
+                6,
+                PW - 12,
+                PH - 12,
+                0x000000,
+                0,
+                1,
+                2
+            )
+        );
+
+        content.add(
+            this.makeRect(
+                8,
+                8,
+                PW - 16,
+                54,
+                0x082012,
+                1,
+                0.6
+            )
+        );
+
+        content.add(
+            this.makeText(
+                25,
+                26,
+                'CLASSIFIED DOSSIER // INDIVIDUAL PROFILE',
+                18
+            ).setOrigin(0, 0.5)
+        );
+
+        this.detailPhotoBox = {
+            x: 35,
+            y: 85,
+            width: 380,
+            height: 510
+        };
+
+        this.detailPhoto = this.add
+            .image(225, 340, '__DEFAULT')
+            .setVisible(false);
+
+        content.add(this.detailPhoto);
+
+        this.detailPhotoStatus = this.makeText(
+            225,
+            340,
+            '',
+            14,
+            {
+                align: 'center',
+                wordWrap: { width: 340 }
+            }
+        ).setOrigin(0.5);
+
+        content.add(this.detailPhotoStatus);
+
+        content.add(
+            this.makeRect(
+                35,
+                85,
+                380,
+                510,
+                0x000000,
+                0,
+                0.8,
+                2
+            )
+        );
+
+        const infoX = 450;
+        const infoY = 85;
+
+        this.detailName = this.makeText(
+            infoX,
+            infoY,
+            '',
+            24,
+            { wordWrap: { width: PW - 490 } }
+        );
+
+        content.add(this.detailName);
+
+        content.add(
+            this.add
+                .rectangle(
+                    infoX,
+                    infoY + 42,
+                    PW - 35 - infoX,
+                    2,
+                    0x00ff66,
+                    0.6
+                )
+                .setOrigin(0)
+        );
+
+        content.add(
+            this.makeRect(
+                infoX - 10,
+                infoY + 52,
+                PW - 480,
+                230,
+                0x05140b,
+                0.6,
+                0.4
+            )
+        );
+
+        const fields = [
+            'gender',
+            'race',
+            'hair',
+            'eyes',
+            'features',
+            'accent'
+        ];
+
+        this.detailFields = {};
+
+        fields.forEach((field, index) => {
+            const y = infoY + 62 + index * 36;
+
+            content.add(
+                this.makeText(
+                    infoX + 10,
+                    y,
+                    `${field.toUpperCase()}:`,
+                    18,
+                    { color: '#00aa44' }
+                )
+            );
+
+            this.detailFields[field] = this.makeText(
+                infoX + 170,
+                y,
+                '',
+                18,
+                { wordWrap: { width: 440 } }
+            );
+
+            content.add(this.detailFields[field]);
+        });
+
+        const createInfoBox = (y, label) => {
+            content.add(
+                this.makeRect(
+                    infoX - 10,
+                    y,
+                    PW - 480,
+                    110,
+                    0x05140b,
+                    0.8,
+                    0.5
+                )
+            );
+
+            content.add(
+                this.makeText(
+                    infoX + 5,
+                    y + 10,
+                    label,
+                    17,
+                    { color: '#00cc55' }
+                )
+            );
+
+            const value = this.makeText(
+                infoX + 5,
+                y + 38,
+                '',
+                18,
+                { wordWrap: { width: PW - 510 } }
+            );
+
+            content.add(value);
+
+            return value;
+        };
+
+        this.detailSkills = createInfoBox(
+            infoY + 300,
+            'KNOWN SKILLS:'
+        );
+
+        this.detailHabitus = createInfoBox(
+            infoY + 425,
+            'KNOWN HABITS:'
+        );
+
+        this.detailCaseNum = this.makeText(
+            35,
+            PH - 45,
+            '',
+            16,
+            { color: '#00aa44' }
+        );
+
+        content.add(this.detailCaseNum);
+
+        const close = this.makeButton(
+            PW - 45,
+            12,
+            34,
+            34,
+            'X',
+            () => this.closeDetailPanel(),
+            18
+        );
+
+        content.add(close.container);
+
+        return panel;
+    }
+
+    fitDetailPhoto(textureKey) {
+        const box = this.detailPhotoBox;
+        const photo = this.detailPhoto;
+
+        photo.setCrop();
+        photo.setTexture(textureKey);
+
+        const frame = photo.frame;
+        const sourceW = frame.realWidth;
+        const sourceH = frame.realHeight;
+
+        if (!sourceW || !sourceH) {
+            photo.setVisible(false);
+            return;
+        }
+
+        const scale = Math.max(
+            box.width / sourceW,
+            box.height / sourceH
+        );
+
+        const cropW = box.width / scale;
+        const cropH = box.height / scale;
+
+        photo
+            .setOrigin(0.5)
+            .setPosition(
+                box.x + box.width / 2,
+                box.y + box.height / 2
+            )
+            .setScale(scale)
+            .setCrop(
+                (sourceW - cropW) / 2,
+                (sourceH - cropH) / 2,
+                cropW,
+                cropH
+            )
+            .setVisible(true);
+    }
+
+    async showDetailPanel(suspect) {
+        if (!this.session?.active || this.isClosing) return;
+
+        const session = this.session;
+        const token = ++this.detailToken;
+
+        this.selectedCard = suspect;
+
+        this.detailName.setText(
+            String(suspect.name || '').toUpperCase()
+        );
+
+        for (const [field, text] of Object.entries(this.detailFields)) {
+            text.setText(String(suspect[field] || 'UNKNOWN'));
+        }
+
+        this.detailSkills.setText(
+            String(suspect.skills || 'NONE')
+        );
+
+        this.detailHabitus.setText(
+            String(suspect.habitus || 'NONE')
+        );
+
+        this.detailCaseNum.setText(
+            `FILE ID: #${String(suspect.wantedKey || 0).padStart(3, '0')}` +
+            ` // REF: ${String(suspect.id || '').toUpperCase()}`
+        );
+
+        this.detailPhoto.setVisible(false);
+        this.detailPhotoStatus
+            .setText('LOADING PORTRAIT...')
+            .setVisible(true);
+
+        this.tweens.killTweensOf(this.detailPanel);
+
+        this.detailPanel
+            .setVisible(true)
+            .setAlpha(0);
+
+        this.tweens.add({
+            targets: this.detailPanel,
+            alpha: 1,
+            duration: 150,
+            ease: 'Power2'
+        });
+
+        const key = await this.ensureSuspectTexture(
+            suspect,
+            'portrait'
+        );
+
+        if (
+            !session.active ||
+            this.session !== session ||
+            token !== this.detailToken ||
+            !this.detailPanel?.visible
+        ) {
+            return;
+        }
+
+        if (key && this.textures.exists(key)) {
+            this.fitDetailPhoto(key);
+            this.detailPhotoStatus.setVisible(false);
+        } else {
+            this.detailPhotoStatus.setText('PORTRAIT UNAVAILABLE');
+        }
+    }
+
+    closeDetailPanel() {
+        this.detailToken++;
+        this.selectedCard = null;
+
+        if (!this.detailPanel) return;
+
+        this.tweens.killTweensOf(this.detailPanel);
+        this.detailPanel.setVisible(false).setAlpha(1);
+        this.detailPhoto?.setVisible(false);
+    }
+
+    // -------------------- NAVIGATION --------------------
+
+    createNavigation(W, H) {
+        const navY = H - 65;
+
+        this.makeRect(
+            24,
+            navY - 10,
+            W - 48,
+            50,
+            0x05100a,
+            0.9
+        );
+
+        this.prevButton = this.makeButton(
+            45,
+            navY,
+            120,
+            32,
+            '< PREV',
+            () => this.prevPage()
+        );
+
+        this.pageText = this.makeText(
+            W / 2,
+            navY + 16,
+            '',
+            16
+        ).setOrigin(0.5);
+
+        this.nextButton = this.makeButton(
+            W - 165,
+            navY,
+            120,
+            32,
+            'NEXT >',
+            () => this.nextPage()
+        );
+
+        this.updateNavButtons();
+    }
+
+    updateNavButtons() {
+        const totalPages = Math.max(
+            1,
+            Math.ceil(
+                this.filteredSuspects.length /
+                this.CARDS_PER_PAGE
+            )
+        );
+
+        this.pageText?.setText(
+            `PAGE ${this.currentPage + 1} / ${totalPages}`
+        );
+
+        const canPrev =
+            !this.isPaging && this.currentPage > 0;
+
+        const canNext =
+            !this.isPaging &&
+            this.currentPage < totalPages - 1;
+
+        this.prevButton?.container.setAlpha(canPrev ? 1 : 0.3);
+        this.nextButton?.container.setAlpha(canNext ? 1 : 0.3);
+    }
+
+    prevPage() {
+        if (
+            this.isPaging ||
+            this.detailPanel?.visible ||
+            this.currentPage <= 0
+        ) {
+            return;
+        }
+
+        this.currentPage--;
+        this.refreshPage();
+    }
+
+    nextPage() {
+        if (this.isPaging || this.detailPanel?.visible) return;
+
+        const totalPages = Math.ceil(
+            this.filteredSuspects.length / this.CARDS_PER_PAGE
+        );
+
+        if (this.currentPage >= totalPages - 1) return;
+
+        this.currentPage++;
+        this.refreshPage();
+    }
+
+    createBackButton(W, H) {
+        this.makeButton(
+            W - 220,
+            40,
+            180,
+            40,
+            '[ESC] EXIT',
+            () => this.closeAndReturnToOffice(),
+            14
+        );
     }
 
     handleEsc() {
@@ -63,771 +1293,86 @@ EventBus.emit('hideHUD');
         }
     }
 
-    createBackground(W, H) {
-        this.add.rectangle(0, 0, W, H, 0x050c08).setOrigin(0, 0);
-
-        const monitorFrame = this.add.graphics();
-        monitorFrame.lineStyle(16, 0x121c16, 1);
-        monitorFrame.strokeRect(8, 8, W - 16, H - 16);
-        monitorFrame.lineStyle(2, 0x00ff66, 0.4);
-        monitorFrame.strokeRect(20, 20, W - 40, H - 40);
-    }
-
-    createCRTEffects(W, H) {
-        const scanlines = this.add.graphics();
-        scanlines.fillStyle(0x00ff66, 0.03);
-        for (let y = 0; y < H; y += 4) {
-            scanlines.fillRect(0, y, W, 2);
-        }
-        scanlines.setDepth(999);
-
-        const beam = this.add.graphics();
-        beam.fillStyle(0x00ff66, 0.04);
-        beam.fillRect(0, 0, W, 40);
-        beam.setDepth(999);
-
-        this.tweens.add({
-            targets: beam,
-            y: H,
-            duration: 4000,
-            repeat: -1,
-            ease: 'Linear'
-        });
-
-        const crtOverlay = this.add.rectangle(0, 0, W, H, 0x000000, 0).setOrigin(0, 0);
-        crtOverlay.setDepth(998);
-
-        this.crtFlickerEvent = this.time.addEvent({
-            delay: 80,
-            loop: true,
-            callback: () => {
-                crtOverlay.setAlpha(Phaser.Math.FloatBetween(0.01, 0.05));
-            }
-        });
-    }
-
-    createHeader(W) {
-        const headerBg = this.add.graphics();
-        headerBg.fillStyle(0x051a10, 0.9);
-        headerBg.fillRect(24, 24, W - 48, 80);
-        headerBg.lineStyle(2, 0x00ff66, 0.8);
-        headerBg.strokeRect(24, 24, W - 48, 80);
-
-        this.add.text(50, 48, '> INTERPOL_DATABASE_v2.04', {
-            fontFamily: 'PressStart2P',
-            fontSize: '16px',
-            color: '#00ff66'
-        });
-
-        this.add.text(W / 2, 64, 'MOST WANTED DATABASE', {
-            fontFamily: 'PressStart2P',
-            fontSize: '28px',
-            color: '#00ff66',
-            stroke: '#003311',
-            strokeThickness: 4
-        }).setOrigin(0.5, 0.5);
-    }
-
-    createFilterPanel(W) {
-        const panelY = 135;
-        const panelH = 50;
-
-        const filterBg = this.add.graphics();
-        filterBg.fillStyle(0x05100a, 0.9);
-        filterBg.fillRect(24, panelY, W - 48, panelH);
-        filterBg.lineStyle(1, 0x00ff66, 0.5);
-        filterBg.strokeRect(24, panelY, W - 48, panelH);
-
-        this.add.text(45, panelY + panelH / 2, 'FILTER ', {
-            fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#00cc55'
-        }).setOrigin(0, 0.5);
-
-        const filters = [
-            { label: 'ALL', value: 'all' },
-            { label: 'MALE', value: 'm' },
-            { label: 'FEMALE', value: 'f' },
-            { label: 'NON-BINARY', value: 'nb' }
-        ];
-
-        this.filterButtonGraphics = [];
-        this.filterButtonTexts = [];
-        this.filterMeta = filters;
-        this.filterPanelY = panelY;
-
-        let currentX = 130;
-        const gap = 12;
-
-        filters.forEach((f) => {
-            const isActive = this.filterGender === f.value;
-            const btnWidth = f.label.length * 10 + 20;
-
-            const btn = this.add.graphics();
-            btn.fillStyle(isActive ? 0x00ff66 : 0x081a10, isActive ? 0.3 : 0.8);
-            btn.fillRect(currentX, panelY + 9, btnWidth, 32);
-            btn.lineStyle(1, 0x00ff66, isActive ? 1 : 0.4);
-            btn.strokeRect(currentX, panelY + 9, btnWidth, 32);
-
-            const zone = this.add.zone(currentX, panelY + 9, btnWidth, 32).setOrigin(0, 0).setInteractive();
-            const btnText = this.add.text(currentX + btnWidth / 2, panelY + 25, f.label, {
-                fontFamily: 'PressStart2P',
-                fontSize: '12px',
-                color: isActive ? '#00ff66' : '#00aa44'
-            }).setOrigin(0.5, 0.5);
-
-            zone.on('pointerdown', () => {
-                this.filterGender = f.value;
-                this.currentPage = 0;
-                this.applyFilters();
-                this.refreshFilterButtons();
-            });
-            zone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
-            zone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
-
-            this.filterButtonGraphics.push({ btn, btnWidth, x: currentX, f, zone });
-            this.filterButtonTexts.push(btnText);
-
-            currentX += btnWidth + gap;
-        });
-
-        this.counterText = this.add.text(W - 45, panelY + panelH / 2, `RECORDS: ${this.filteredSuspects.length}`, {
-            fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#00ff66'
-        }).setOrigin(1, 0.5);
-    }
-
-    refreshFilterButtons() {
-        const panelY = this.filterPanelY;
-        this.filterButtonGraphics.forEach(({ btn, btnWidth, x, f }, idx) => {
-            const isActive = this.filterGender === f.value;
-            btn.clear();
-            btn.fillStyle(isActive ? 0x00ff66 : 0x081a10, isActive ? 0.3 : 0.8);
-            btn.fillRect(x, panelY + 9, btnWidth, 32);
-            btn.lineStyle(1, 0x00ff66, isActive ? 1 : 0.4);
-            btn.strokeRect(x, panelY + 9, btnWidth, 32);
-            this.filterButtonTexts[idx].setColor(isActive ? '#00ff66' : '#00aa44');
-        });
-        this.refreshPage();
-    }
-
-    applyFilters() {
-        const q = this.searchQuery.trim().toLowerCase();
-
-        this.filteredSuspects = this.suspects.filter(s => {
-            const genderMatch = this.filterGender === 'all' || s.gender_code === this.filterGender;
-            const searchMatch = q === '' ||
-                (s.name || '').toLowerCase().includes(q) ||
-                (s.skills || '').toLowerCase().includes(q) ||
-                (s.accent || '').toLowerCase().includes(q);
-            return genderMatch && searchMatch;
-        });
-
-        if (this.counterText) {
-            this.counterText.setText(`RECORDS: ${this.filteredSuspects.length}`);
-        }
-
-        const totalPages = Math.max(1, Math.ceil(this.filteredSuspects.length / this.CARDS_PER_PAGE));
-        if (this.currentPage >= totalPages) {
-            this.currentPage = totalPages - 1;
-        }
-    }
-
-    preloadAllSuspectTextures(onComplete) {
-        const toLoad = [];
-
-        this.suspects.forEach(suspect => {
-            const wantedFile = suspect.wantedKey || suspect.id;
-            const portraitFile = suspect.portraitKey || suspect.id;
-
-            const wantedKey = `wanted_main_${suspect.id}`;
-            const portraitKey = `suspect_portrait_${suspect.id}`;
-
-            if (!this.textures.exists(wantedKey) && !this.loadedSuspectTextures.has(wantedKey)) {
-                this.loadedSuspectTextures.add(wantedKey);
-                toLoad.push({
-                    key: wantedKey,
-                    url: `assets/suspects/${wantedFile}.jpg`
-                });
-            }
-
-            if (!this.textures.exists(portraitKey) && !this.loadedSuspectTextures.has(portraitKey)) {
-                this.loadedSuspectTextures.add(portraitKey);
-                toLoad.push({
-                    key: portraitKey,
-                    url: `assets/suspects/${portraitFile}.jpg`
-                });
-            }
-        });
-
-        if (toLoad.length === 0) {
-            onComplete?.();
-            return;
-        }
-
-        toLoad.forEach(item => {
-            this.load.image(item.key, item.url);
-        });
-
-        this.load.once(Phaser.Loader.Events.COMPLETE, () => {
-            onComplete?.();
-        });
-
-        if (!this.load.isLoading()) {
-            this.load.start();
-        }
-    }
-
-    refreshPage() {
-        this.isPaging = true;
-        this.renderToken++;
-
-        if (this.cardContainer) {
-            this.cardContainer.removeAll(true);
-        }
-
-        this.time.delayedCall(0, () => {
-            this.renderCards(this.scale.width, this.scale.height, this.renderToken);
-            this.isPaging = false;
-        });
-    }
-
-    renderCards(W, H, token = this.renderToken) {
-        if (!this.cardContainer) return;
-
-        this.cardContainer.removeAll(true);
-        this.cards = [];
-
-        const COLS = 5;
-        const cardW = 330;
-        const cardH = 370;
-        const colGap = 32;
-        const rowGap = 24;
-        const startX = (W - (COLS * cardW + (COLS - 1) * colGap)) / 2;
-        const startY = 210;
-
-        const pageStart = this.currentPage * this.CARDS_PER_PAGE;
-        const pageEnd = Math.min(pageStart + COLS * 2, this.filteredSuspects.length);
-        const pageSuspects = this.filteredSuspects.slice(pageStart, pageEnd);
-
-        pageSuspects.forEach((suspect, i) => {
-            const col = i % COLS;
-            const row = Math.floor(i / COLS);
-            const x = startX + col * (cardW + colGap);
-            const y = startY + row * (cardH + rowGap);
-
-            const card = this.createWantedCard(suspect, x, y, cardW, cardH, token);
-            this.cardContainer.add(card.elements);
-            this.cards.push(card);
-        });
-
-        for (let i = pageSuspects.length; i < COLS * 2; i++) {
-            const col = i % COLS;
-            const row = Math.floor(i / COLS);
-            const x = startX + col * (cardW + colGap);
-            const y = startY + row * (cardH + rowGap);
-            const emptyCard = this.createEmptySlot(x, y, cardW, cardH);
-            this.cardContainer.add(emptyCard);
-        }
-
-        this.updateNavButtons();
-    }
-
-    createWantedCard(suspect, x, y, cardW, cardH, token) {
-        const elements = [];
-
-        const cardBg = this.add.graphics();
-        cardBg.fillStyle(0x05100a, 0.9);
-        cardBg.fillRect(x, y, cardW, cardH);
-        cardBg.lineStyle(2, 0x00ff66, 0.5);
-        cardBg.strokeRect(x, y, cardW, cardH);
-        elements.push(cardBg);
-
-        const wantedFile = suspect.wantedKey || suspect.id;
-        const imgKey = `wanted_main_${suspect.id}`;
-
-        const photoX = x + 10;
-        const photoY = y + 10;
-        const photoW = cardW - 20;
-        const photoH = cardH - 20;
-
-        if (this.textures.exists(imgKey)) {
-            const img = this.add.image(photoX + photoW / 2, photoY + photoH / 2, imgKey);
-            img.setDisplaySize(photoW, photoH);
-            elements.push(img);
-        } else {
-            const placeholder = this.add.graphics();
-            placeholder.fillStyle(0x020805, 1);
-            placeholder.fillRect(photoX, photoY, photoW, photoH);
-            elements.push(placeholder);
-        }
-
-        const overlay = this.add.graphics();
-        overlay.fillStyle(0x000000, 0.8);
-        overlay.fillRect(photoX, photoY + photoH - 46, photoW, 46);
-        elements.push(overlay);
-
-        const photoFrame = this.add.graphics();
-        photoFrame.lineStyle(2, 0x00ff66, 0.6);
-        photoFrame.strokeRect(photoX, photoY, photoW, photoH);
-        elements.push(photoFrame);
-
-        const caseNum = this.add.text(photoX + 6, photoY + 6, `#${String(suspect.wantedKey || 0).padStart(3, '0')}`, {
-            fontFamily: 'PressStart2P',
-            fontSize: '12px',
-            color: '#00ff66',
-            backgroundColor: '#000000',
-            padding: { x: 4, y: 2 }
-        });
-        elements.push(caseNum);
-
-        const nameText = this.add.text(x + cardW / 2, photoY + photoH - 38, (suspect.name || '').toUpperCase(), {
-            fontFamily: 'PressStart2P',
-            fontSize: '10px',
-            color: '#00ff66',
-            align: 'center',
-            wordWrap: { width: photoW - 10 }
-        }).setOrigin(0.5, 0);
-        elements.push(nameText);
-
-        if (suspect.accent) {
-            const accentText = this.add.text(x + cardW / 2, photoY + photoH - 20, suspect.accent.toUpperCase(), {
-                fontFamily: 'PressStart2P',
-                fontSize: '11px',
-                color: '#00cc55',
-                align: 'center'
-            }).setOrigin(0.5, 0);
-            elements.push(accentText);
-        }
-
-        const zone = this.add.zone(x, y, cardW, cardH).setOrigin(0, 0).setInteractive();
-        zone.on('pointerover', () => {
-            cardBg.clear();
-            cardBg.fillStyle(0x0a2416, 0.95);
-            cardBg.fillRect(x, y, cardW, cardH);
-            cardBg.lineStyle(2, 0x66ffaa, 1);
-            cardBg.strokeRect(x, y, cardW, cardH);
-            this.game.canvas.style.cursor = 'pointer';
-        });
-
-        zone.on('pointerout', () => {
-            cardBg.clear();
-            cardBg.fillStyle(0x05100a, 0.9);
-            cardBg.fillRect(x, y, cardW, cardH);
-            cardBg.lineStyle(2, 0x00ff66, 0.5);
-            cardBg.strokeRect(x, y, cardW, cardH);
-            this.game.canvas.style.cursor = 'default';
-        });
-
-        zone.on('pointerdown', () => this.showDetailPanel(suspect));
-        elements.push(zone);
-
-        return { elements, suspect };
-    }
-
-    createEmptySlot(x, y, cardW, cardH) {
-        const g = this.add.graphics();
-        g.lineStyle(1, 0x00ff66, 0.2);
-        g.strokeRect(x, y, cardW, cardH);
-
-        const emptyLabel = this.add.text(x + cardW / 2, y + cardH / 2, 'NO RECORD', {
-            fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#00aa44',
-            align: 'center'
-        }).setOrigin(0.5, 0.5).setAlpha(0.3);
-
-        const container = this.add.container(0, 0);
-        container.add([g, emptyLabel]);
-        return container;
-    }
-
-    createDetailPanel(W, H) {
-        const panel = this.add.container(0, 0);
-        panel.setDepth(100);
-
-        const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.88).setOrigin(0, 0);
-        overlay.setInteractive();
-        overlay.on('pointerdown', () => this.closeDetailPanel());
-        panel.add(overlay);
-
-        const PW = 1140;
-        const PH = 760;
-        const PX = (W - PW) / 2;
-        const PY = (H - PH) / 2;
-
-        const panelBg = this.add.graphics();
-        panelBg.fillStyle(0x030a06, 0.98);
-        panelBg.fillRect(PX, PY, PW, PH);
-        panelBg.lineStyle(2, 0x00ff66, 1);
-        panelBg.strokeRect(PX, PY, PW, PH);
-        panelBg.strokeRect(PX + 6, PY + 6, PW - 12, PH - 12);
-        panel.add(panelBg);
-
-        const detailHeader = this.add.graphics();
-        detailHeader.fillStyle(0x082012, 1);
-        detailHeader.fillRect(PX + 8, PY + 8, PW - 16, 54);
-        detailHeader.lineStyle(1, 0x00ff66, 0.6);
-        detailHeader.strokeRect(PX + 8, PY + 8, PW - 16, 54);
-        panel.add(detailHeader);
-
-        const dossierTitle = this.add.text(PX + 25, PY + 26, '★ CLASSIFIED DOSSIER // INDIVIDUAL PROFILE ★', {
-            fontFamily: 'PressStart2P',
-            fontSize: '18px',
-            color: '#00ff66'
-        }).setOrigin(0, 0.5);
-        panel.add(dossierTitle);
-
-        const photoX = PX + 35;
-        const photoY = PY + 85;
-        const photoW = 380;
-        const photoH = 510;
-
-        const photoMaskShape = this.make.graphics();
-        photoMaskShape.fillStyle(0xffffff);
-        photoMaskShape.fillRect(photoX, photoY, photoW, photoH);
-        const photoMask = photoMaskShape.createGeometryMask();
-
-        this.detailPhoto = this.add.image(photoX + photoW / 2, photoY + photoH / 2, '__DEFAULT').setVisible(false);
-        this.detailPhoto.setMask(photoMask);
-        panel.add(this.detailPhoto);
-
-        const photoFrame = this.add.graphics();
-        photoFrame.lineStyle(2, 0x00ff66, 0.8);
-        photoFrame.strokeRect(photoX, photoY, photoW, photoH);
-        panel.add(photoFrame);
-
-        const infoX = PX + 450;
-        const infoStartY = PY + 85;
-
-        this.detailName = this.add.text(infoX, infoStartY, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '24px',
-            color: '#00ff66',
-            wordWrap: { width: PW - 490 }
-        }).setOrigin(0, 0);
-        panel.add(this.detailName);
-
-        const sep = this.add.graphics();
-        sep.lineStyle(2, 0x00ff66, 0.6);
-        sep.lineBetween(infoX, infoStartY + 42, PX + PW - 35, infoStartY + 42);
-        panel.add(sep);
-
-        const attrBox = this.add.graphics();
-        attrBox.fillStyle(0x05140b, 0.6);
-        attrBox.fillRoundedRect(infoX - 10, infoStartY + 52, PW - 480, 230, 4);
-        attrBox.lineStyle(1, 0x00ff66, 0.4);
-        attrBox.strokeRoundedRect(infoX - 10, infoStartY + 52, PW - 480, 230, 4);
-        panel.add(attrBox);
-
-        const fields = ['gender', 'race', 'hair', 'eyes', 'features', 'accent'];
-        const fieldLabels = ['GENDER', 'RACE', 'HAIR', 'EYES', 'FEATURES', 'ACCENT'];
-        const lineH = 36;
-
-        this.detailFields = {};
-        fields.forEach((field, i) => {
-            const fy = infoStartY + 62 + i * lineH;
-
-            const fieldLabel = this.add.text(infoX + 10, fy, `${fieldLabels[i]}:`, {
-                fontFamily: 'PressStart2P',
-                fontSize: '18px',
-                color: '#00aa44'
-            }).setOrigin(0, 0);
-            panel.add(fieldLabel);
-
-            this.detailFields[field] = this.add.text(infoX + 170, fy, '', {
-                fontFamily: 'PressStart2P',
-                fontSize: '18px',
-                color: '#00ff66'
-            }).setOrigin(0, 0);
-            panel.add(this.detailFields[field]);
-        });
-
-        const skillsY = infoStartY + 300;
-        const skillsBg = this.add.graphics();
-        skillsBg.fillStyle(0x05140b, 0.8);
-        skillsBg.fillRoundedRect(infoX - 10, skillsY, PW - 480, 110, 4);
-        skillsBg.lineStyle(1, 0x00ff66, 0.5);
-        skillsBg.strokeRoundedRect(infoX - 10, skillsY, PW - 480, 110, 4);
-        panel.add(skillsBg);
-
-        const skillsLabel = this.add.text(infoX + 5, skillsY + 10, '▶ KNOWN SKILLS:', {
-            fontFamily: 'PressStart2P',
-            fontSize: '17px',
-            color: '#00cc55'
-        }).setOrigin(0, 0);
-        panel.add(skillsLabel);
-
-        this.detailSkills = this.add.text(infoX + 5, skillsY + 38, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '18px',
-            color: '#00ff66',
-            wordWrap: { width: PW - 510 }
-        }).setOrigin(0, 0);
-        panel.add(this.detailSkills);
-
-        const habitY = skillsY + 125;
-        const habitBg = this.add.graphics();
-        habitBg.fillStyle(0x05140b, 0.8);
-        habitBg.fillRoundedRect(infoX - 10, habitY, PW - 480, 110, 4);
-        habitBg.lineStyle(1, 0x00ff66, 0.5);
-        habitBg.strokeRoundedRect(infoX - 10, habitY, PW - 480, 110, 4);
-        panel.add(habitBg);
-
-        const habitLabel = this.add.text(infoX + 5, habitY + 10, '▶ KNOWN HABITS:', {
-            fontFamily: 'PressStart2P',
-            fontSize: '17px',
-            color: '#00cc55'
-        }).setOrigin(0, 0);
-        panel.add(habitLabel);
-
-        this.detailHabitus = this.add.text(infoX + 5, habitY + 38, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '18px',
-            color: '#00ff66',
-            wordWrap: { width: PW - 510 }
-        }).setOrigin(0, 0);
-        panel.add(this.detailHabitus);
-
-        this.detailCaseNum = this.add.text(PX + 35, PY + PH - 45, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '16px',
-            color: '#00aa44'
-        }).setOrigin(0, 0);
-        panel.add(this.detailCaseNum);
-
-        const closeBtnBg = this.add.graphics();
-        closeBtnBg.fillStyle(0x082012, 1);
-        closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
-        closeBtnBg.lineStyle(1, 0x00ff66, 0.8);
-        closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
-        panel.add(closeBtnBg);
-
-        const closeBtn = this.add.text(PX + PW - 28, PY + 29, '✕', {
-            fontFamily: 'PressStart2P',
-            fontSize: '18px',
-            color: '#00ff66'
-        }).setOrigin(0.5, 0.5);
-        panel.add(closeBtn);
-
-        const closeZone = this.add.zone(PX + PW - 45, PY + 12, 34, 34).setOrigin(0, 0).setInteractive();
-        closeZone.on('pointerdown', () => this.closeDetailPanel());
-        closeZone.on('pointerover', () => {
-            closeBtnBg.clear();
-            closeBtnBg.fillStyle(0x00ff66, 0.3);
-            closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
-            closeBtnBg.lineStyle(1, 0x00ff66, 1);
-            closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
-            this.game.canvas.style.cursor = 'pointer';
-        });
-        closeZone.on('pointerout', () => {
-            closeBtnBg.clear();
-            closeBtnBg.fillStyle(0x082012, 1);
-            closeBtnBg.fillRect(PX + PW - 45, PY + 12, 34, 34);
-            closeBtnBg.lineStyle(1, 0x00ff66, 0.8);
-            closeBtnBg.strokeRect(PX + PW - 45, PY + 12, 34, 34);
-            this.game.canvas.style.cursor = 'default';
-        });
-        panel.add(closeZone);
-
-        return panel;
-    }
-
-    showDetailPanel(suspect) {
-        this.detailName.setText((suspect.name || '').toUpperCase());
-
-        const fields = ['gender', 'race', 'hair', 'eyes', 'features', 'accent'];
-        fields.forEach(f => {
-            if (this.detailFields[f]) {
-                this.detailFields[f].setText(suspect[f] || 'UNKNOWN');
-            }
-        });
-
-        this.detailSkills.setText(suspect.skills || 'NONE');
-        this.detailHabitus.setText(suspect.habitus || 'NONE');
-        this.detailCaseNum.setText(
-            `FILE ID: #${String(suspect.wantedKey || 0).padStart(3, '0')} // REF: ${String(suspect.id || '').toUpperCase()}`
-        );
-
-        const portraitFile = suspect.portraitKey || suspect.id;
-        const portraitImgKey = `suspect_portrait_${suspect.id}`;
-
-        const updatePhotoTexture = () => {
-            if (!this.textures.exists(portraitImgKey)) return;
-            this.detailPhoto.setTexture(portraitImgKey).setVisible(true);
-            const frameW = 380;
-            const frameH = 510;
-            const source = this.textures.get(portraitImgKey).getSourceImage();
-            const scale = Math.max(frameW / source.width, frameH / source.height);
-            this.detailPhoto.setScale(scale);
-        };
-
-        if (this.textures.exists(portraitImgKey)) {
-            updatePhotoTexture();
-        } else {
-            this.detailPhoto.setVisible(false);
-        }
-
-        this.detailPanel.setVisible(true);
-        this.detailPanel.setAlpha(0);
-        this.tweens.add({
-            targets: this.detailPanel,
-            alpha: 1,
-            duration: 150,
-            ease: 'Power2'
-        });
-    }
-
-    closeDetailPanel() {
-        this.tweens.add({
-            targets: this.detailPanel,
-            alpha: 0,
-            duration: 150,
-            ease: 'Power2',
-            onComplete: () => this.detailPanel.setVisible(false)
-        });
-    }
-
-    createNavigation(W, H) {
-        const navY = H - 65;
-
-        const navBg = this.add.graphics();
-        navBg.fillStyle(0x05100a, 0.9);
-        navBg.fillRect(24, navY - 10, W - 48, 50);
-        navBg.lineStyle(1, 0x00ff66, 0.5);
-        navBg.strokeRect(24, navY - 10, W - 48, 50);
-
-        const prevBtnBg = this.add.graphics();
-        prevBtnBg.fillStyle(0x081a10, 1);
-        prevBtnBg.fillRect(45, navY, 120, 32);
-        prevBtnBg.lineStyle(1, 0x00ff66, 0.6);
-        prevBtnBg.strokeRect(45, navY, 120, 32);
-
-        this.prevBtnText = this.add.text(105, navY + 16, '◄ PREV', {
-            fontFamily: 'PressStart2P',
-            fontSize: '13px',
-            color: '#00ff66'
-        }).setOrigin(0.5, 0.5);
-
-        const prevZone = this.add.zone(45, navY, 120, 32).setOrigin(0, 0).setInteractive();
-        prevZone.on('pointerdown', () => this.prevPage());
-        prevZone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
-        prevZone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
-
-        this.pageText = this.add.text(W / 2, navY + 16, '', {
-            fontFamily: 'PressStart2P',
-            fontSize: '16px',
-            color: '#00ff66'
-        }).setOrigin(0.5, 0.5);
-
-        const nextBtnBg = this.add.graphics();
-        nextBtnBg.fillStyle(0x081a10, 1);
-        nextBtnBg.fillRect(W - 165, navY, 120, 32);
-        nextBtnBg.lineStyle(1, 0x00ff66, 0.6);
-        nextBtnBg.strokeRect(W - 165, navY, 120, 32);
-
-        this.nextBtnText = this.add.text(W - 105, navY + 16, 'NEXT ►', {
-            fontFamily: 'PressStart2P',
-            fontSize: '13px',
-            color: '#00ff66'
-        }).setOrigin(0.5, 0.5);
-
-        const nextZone = this.add.zone(W - 165, navY, 120, 32).setOrigin(0, 0).setInteractive();
-        nextZone.on('pointerdown', () => this.nextPage());
-        nextZone.on('pointerover', () => { this.game.canvas.style.cursor = 'pointer'; });
-        nextZone.on('pointerout', () => { this.game.canvas.style.cursor = 'default'; });
-
-        this.updateNavButtons();
-    }
-
-    updateNavButtons() {
-        const total = this.filteredSuspects.length;
-        const totalPages = Math.ceil(total / this.CARDS_PER_PAGE);
-        const currentPage = this.currentPage + 1;
-
-        if (this.pageText) {
-            this.pageText.setText(`PAGE ${currentPage} / ${Math.max(1, totalPages)}`);
-        }
-        if (this.prevBtnText) {
-            this.prevBtnText.setAlpha(this.currentPage > 0 ? 1 : 0.3);
-        }
-        if (this.nextBtnText) {
-            this.nextBtnText.setAlpha(this.currentPage < totalPages - 1 ? 1 : 0.3);
-        }
-    }
-
-    prevPage() {
-        if (this.isPaging) return;
-        if (this.currentPage > 0) {
-            this.currentPage--;
-            this.refreshPage();
-        }
-    }
-
-    nextPage() {
-        if (this.isPaging) return;
-        const totalPages = Math.ceil(this.filteredSuspects.length / this.CARDS_PER_PAGE);
-        if (this.currentPage < totalPages - 1) {
-            this.currentPage++;
-            this.refreshPage();
-        }
-    }
-
-    createBackButton(W, H) {
-        const btnBg = this.add.graphics();
-        btnBg.fillStyle(0x081a10, 1);
-        btnBg.fillRect(W - 220, 40, 180, 40);
-        btnBg.lineStyle(1, 0x00ff66, 0.8);
-        btnBg.strokeRect(W - 220, 40, 180, 40);
-
-        this.add.text(W - 130, 60, '[ESC] EXIT', {
-            fontFamily: 'PressStart2P',
-            fontSize: '14px',
-            color: '#00ff66'
-        }).setOrigin(0.5, 0.5);
-
-        const zone = this.add.zone(W - 220, 40, 180, 40).setOrigin(0, 0).setInteractive();
-        zone.on('pointerdown', () => this.closeAndReturnToOffice());
-        zone.on('pointerover', () => {
-            btnBg.clear();
-            btnBg.fillStyle(0x00ff66, 0.2);
-            btnBg.fillRect(W - 220, 40, 180, 40);
-            btnBg.lineStyle(1, 0x00ff66, 1);
-            btnBg.strokeRect(W - 220, 40, 180, 40);
-            this.game.canvas.style.cursor = 'pointer';
-        });
-        zone.on('pointerout', () => {
-            btnBg.clear();
-            btnBg.fillStyle(0x081a10, 1);
-            btnBg.fillRect(W - 220, 40, 180, 40);
-            btnBg.lineStyle(1, 0x00ff66, 0.8);
-            btnBg.strokeRect(W - 220, 40, 180, 40);
-            this.game.canvas.style.cursor = 'default';
-        });
-    }
-
     closeAndReturnToOffice() {
+        if (this.isClosing) return;
+        this.isClosing = true;
+
         if (this.scene.isSleeping('UIScene')) {
             this.scene.wake('UIScene');
         }
-        this.scene.stop();
+
         this.scene.resume('OfficeScene');
+        this.scene.stop();
     }
 
-    cleanupScene() {
-        this.input.keyboard.off('keydown-ESC', this.handleEsc, this);
+    // -------------------- CLEANUP --------------------
 
-        if (this.crtFlickerEvent) {
-            this.crtFlickerEvent.remove(false);
-            this.crtFlickerEvent = null;
+    cleanupScene() {
+        if (!this.session?.active) return;
+
+        this.session.active = false;
+        this.renderToken++;
+        this.detailToken++;
+
+        this.events.off(
+            Phaser.Scenes.Events.SHUTDOWN,
+            this.cleanupScene,
+            this
+        );
+
+        this.events.off(
+            Phaser.Scenes.Events.DESTROY,
+            this.cleanupScene,
+            this
+        );
+
+        this.input.keyboard?.off(
+            'keydown-ESC',
+            this.handleEsc,
+            this
+        );
+
+        for (const pending of [...this.pendingTextures.values()]) {
+            pending.cancel();
+        }
+
+        this.pendingTextures.clear();
+
+        if (this.detailPanel) {
+            this.tweens.killTweensOf(this.detailPanel);
+            this.detailPanel.destroy(true);
+            this.detailPanel = null;
         }
 
         if (this.cardContainer) {
-            this.cardContainer.removeAll(true);
+            this.cardContainer.destroy(true);
+            this.cardContainer = null;
         }
 
-        this.loadedSuspectTextures.clear();
+        if (this.crtBeam) {
+            this.tweens.killTweensOf(this.crtBeam);
+            this.crtBeam.destroy();
+            this.crtBeam = null;
+        }
+
+        if (this.crtScanlines) {
+            this.crtScanlines.destroy();
+            this.crtScanlines = null;
+        }
+
+        for (const key of this.ownedTextures) {
+            if (this.textures.exists(key)) {
+                this.textures.remove(key);
+            }
+        }
+
+        this.ownedTextures.clear();
+
+        this.cards = [];
+        this.selectedCard = null;
+        this.detailPhoto = null;
+        this.detailPhotoStatus = null;
+        this.loadingText = null;
         this.isPaging = false;
     }
 }

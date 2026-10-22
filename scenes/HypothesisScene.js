@@ -7,6 +7,10 @@ import { HypothesisEvaluator } from '../HypothesisEvaluator.js';
 import { HypothesisState } from '../HypothesisState.js';
 import { HypothesisResultService } from '../HypothesisResultService.js';
 import { HypothesisBoardUI } from '../ui/HypothesisBoardUI.js';
+import {
+  CrimeCityTutorial,
+  advanceCrimeTutorial
+} from '../CrimeCityTutorial.js';
 
 
 export class HypothesisScene extends BaseScene {
@@ -14,9 +18,11 @@ export class HypothesisScene extends BaseScene {
     super({ key: 'HypothesisScene' });
 
 
+
     this.sourceScene = 'CityScene';
     this.cityId = null;
     this.sceneId = null;
+
 
 
     this.claims = [];
@@ -24,18 +30,23 @@ export class HypothesisScene extends BaseScene {
     this.slotQuestionIds = [];
 
 
+
     this.availableCards = [];
     this.correctCards = [];
     this.distractorCards = [];
+
 
 
     this.energyManager = null;
     this.scoreManager = null;
 
 
+
     this.hypothesisState = null;
     this.resultService = null;
     this.boardUI = null;
+    this.crimeTutorial = null;
+
 
 
     this.shutdownHandler = null;
@@ -45,8 +56,14 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   init(data = {}) {
+    this.destroyCrimeTutorial();
+
+
+
     this.sourceScene = data.sourceScene || 'CityScene';
+
 
 
     this.cityId =
@@ -57,10 +74,12 @@ export class HypothesisScene extends BaseScene {
       null;
 
 
+
     this.sceneId =
       data.sceneId ||
       gameState.reconstructedHeist?.sceneId ||
       null;
+
 
 
     this.isReturning = false;
@@ -68,7 +87,9 @@ export class HypothesisScene extends BaseScene {
     this.energyConsumed = false;
 
 
+
     this.ensureReconstructionState();
+
 
 
     this.claims = Array.isArray(
@@ -76,6 +97,7 @@ export class HypothesisScene extends BaseScene {
     )
       ? gameState.reconstructedHeist.claims
       : [];
+
 
 
     if (this.claims.length !== 3) {
@@ -87,6 +109,7 @@ export class HypothesisScene extends BaseScene {
         }
       );
     }
+
 
 
     this.slotLabels = this.claims.length > 0
@@ -103,6 +126,7 @@ export class HypothesisScene extends BaseScene {
       ];
 
 
+
     this.slotQuestionIds = this.claims.length > 0
       ? this.claims.map(
         (claim) => claim.questionId || null
@@ -110,7 +134,9 @@ export class HypothesisScene extends BaseScene {
       : [null, null, null];
 
 
+
     this.scoreManager = getScoreManager();
+
 
 
     this.hypothesisState = new HypothesisState({
@@ -120,6 +146,7 @@ export class HypothesisScene extends BaseScene {
     });
 
 
+
     this.resultService = new HypothesisResultService({
       cityId: this.cityId,
       sceneId: this.sceneId,
@@ -127,14 +154,17 @@ export class HypothesisScene extends BaseScene {
     });
 
 
+
     this.availableCards = [];
     this.correctCards = [];
     this.distractorCards = [];
 
 
+
     this.energyManager = null;
     this.boardUI = null;
     this.shutdownHandler = null;
+
 
 
     console.log('[HypothesisScene] init', {
@@ -147,13 +177,16 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   create() {
     super.create();
+
 
 
     // HypothesisScene zawsze może się uruchomić.
     // Energia zostanie pobrana dopiero po finalizacji wyniku.
     this.energyManager = getEnergyManager();
+
 
 
     if (!this.energyManager) {
@@ -164,7 +197,9 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     this.prepareCards();
+
 
 
     if (this.availableCards.length < 6) {
@@ -177,12 +212,15 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       this.returnToSourceScene();
       return;
     }
 
 
+
     this.hypothesisState.setCards(this.availableCards);
+
 
 
     this.boardUI = new HypothesisBoardUI(this, {
@@ -191,24 +229,30 @@ export class HypothesisScene extends BaseScene {
       slotLabels: this.slotLabels,
 
 
+
       buildSlotSentence: (card, slotIndex) =>
         this.buildSlotSentence(card, slotIndex),
+
 
 
       onCardTap: (cardIndex) =>
         this.handleCardTap(cardIndex),
 
 
+
       onSlotTap: (slotIndex) =>
         this.handleSlotTap(slotIndex),
+
 
 
       onSlotRemove: (slotIndex) =>
         this.handleSlotRemove(slotIndex),
 
 
+
       onConfirm: () =>
         this.confirmTheory(),
+
 
 
       onClose: () =>
@@ -216,7 +260,13 @@ export class HypothesisScene extends BaseScene {
     });
 
 
+
     this.boardUI.create();
+
+
+
+    this.startCrimeTutorial();
+
 
 
     this.shutdownHandler = () => {
@@ -224,11 +274,57 @@ export class HypothesisScene extends BaseScene {
     };
 
 
+
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.shutdownHandler
     );
   }
+
+
+
+  startCrimeTutorial() {
+    this.destroyCrimeTutorial();
+
+
+
+    const saved = gameState.onboarding?.crimeCity;
+
+
+
+    if (!saved || saved.completed || saved.step !== 'hypothesis') {
+      return;
+    }
+
+
+
+    this.crimeTutorial = new CrimeCityTutorial(this, gameState);
+    this.crimeTutorial.start();
+  }
+
+
+
+  destroyCrimeTutorial() {
+    if (!this.crimeTutorial) {
+      return;
+    }
+
+
+
+    try {
+      this.crimeTutorial.destroy();
+    } catch (error) {
+      console.warn(
+        '[HypothesisScene] Tutorial cleanup failed:',
+        error
+      );
+    }
+
+
+
+    this.crimeTutorial = null;
+  }
+
 
 
   ensureReconstructionState() {
@@ -239,6 +335,7 @@ export class HypothesisScene extends BaseScene {
       gameState.reconstructedHeist = {};
     }
   }
+
 
 
   prepareCards() {
@@ -253,9 +350,11 @@ export class HypothesisScene extends BaseScene {
     );
 
 
+
     this.correctCards = correctCards;
     this.distractorCards = distractorCards;
     this.availableCards = availableCards;
+
 
 
     console.log(
@@ -275,9 +374,11 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   getQuestionId(slotIndex) {
     return this.slotQuestionIds[slotIndex] || null;
   }
+
 
 
   getClaim(slotIndex) {
@@ -285,8 +386,10 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   getReconstructionUse(card, slotIndex) {
     const questionId = this.getQuestionId(slotIndex);
+
 
 
     if (!card || !questionId) {
@@ -294,9 +397,11 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const uses = Array.isArray(card.reconstructionUses)
       ? card.reconstructionUses
       : [];
+
 
 
     const matchingUse = uses.find((use) => {
@@ -305,13 +410,16 @@ export class HypothesisScene extends BaseScene {
       }
 
 
+
       return use.questionId === questionId;
     });
+
 
 
     if (matchingUse) {
       return matchingUse;
     }
+
 
 
     if (card.questionId === questionId) {
@@ -335,8 +443,10 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     return null;
   }
+
 
 
   buildSlotSentence(card, slotIndex) {
@@ -345,10 +455,12 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const use = this.getReconstructionUse(
       card,
       slotIndex
     );
+
 
 
     if (use?.slotSentence) {
@@ -356,9 +468,11 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (use?.answer) {
       return use.answer;
     }
+
 
 
     if (use?.text) {
@@ -366,9 +480,11 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (use?.label) {
       return use.label;
     }
+
 
 
     if (card.slotSentence) {
@@ -376,13 +492,16 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (card.answer) {
       return card.answer;
     }
 
 
+
     return card.item || '[ clue ]';
   }
+
 
 
   handleCardTap(cardIndex) {
@@ -391,9 +510,11 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const result = this.hypothesisState.selectCard(
       cardIndex
     );
+
 
 
     if (!result.ok) {
@@ -402,10 +523,13 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const card = this.availableCards[cardIndex];
 
 
+
     this.boardUI?.refresh();
+
 
 
     this.boardUI?.showFeedback(
@@ -419,14 +543,17 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   handleSlotTap(slotIndex) {
     if (this.hypothesisState?.uiLocked) {
       return;
     }
 
 
+
     const cardAlreadyInSlot =
       this.hypothesisState.getPlacedCardIndex(slotIndex);
+
 
 
     if (cardAlreadyInSlot !== null) {
@@ -435,8 +562,10 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const selectedCardIndex =
       this.hypothesisState.selectedCardIndex;
+
 
 
     if (
@@ -447,13 +576,16 @@ export class HypothesisScene extends BaseScene {
         this.hypothesisState.placeSelectedCard(slotIndex);
 
 
+
       if (!result.ok) {
         this.handleMoveFailure(result);
         return;
       }
 
 
+
       this.boardUI?.refresh();
+
 
 
       this.boardUI?.showFeedback(
@@ -462,12 +594,15 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       return;
     }
 
 
+
     const result =
       this.hypothesisState.toggleSelectedSlot(slotIndex);
+
 
 
     if (!result.ok) {
@@ -476,7 +611,9 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     this.boardUI?.refresh();
+
 
 
     this.boardUI?.showFeedback(
@@ -490,14 +627,17 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   handleSlotRemove(slotIndex) {
     if (this.hypothesisState?.uiLocked) {
       return;
     }
 
 
+
     const result =
       this.hypothesisState.removeCard(slotIndex);
+
 
 
     if (!result.ok) {
@@ -514,12 +654,15 @@ export class HypothesisScene extends BaseScene {
       }
 
 
+
       return;
     }
 
 
+
     this.boardUI?.flashSlot(slotIndex);
     this.boardUI?.refresh();
+
 
 
     this.boardUI?.showFeedback(
@@ -529,51 +672,63 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   handleMoveFailure(result = {}) {
     const messages = {
       ui_locked:
         'The reconstruction has already been submitted.',
 
 
+
       invalid_card:
         'That clue is unavailable.',
+
 
 
       no_available_slot:
         'Every question already has an answer. Remove one first.',
 
 
+
       target_slot_locked:
         'That answer is confirmed. Choose another question.',
+
 
 
       card_locked:
         'This clue is locked into a confirmed answer.',
 
 
+
       card_already_used:
         'That clue has already been assigned to a question.',
+
 
 
       no_card_selected:
         'Select a clue from the evidence tray first.',
 
 
+
       slot_occupied:
         'That question already has an answer. Remove it first.',
+
 
 
       slot_locked:
         'That answer is confirmed and cannot be changed.',
 
 
+
       invalid_slot:
         'That question is unavailable.',
+
 
 
       slot_unavailable:
         'That question is locked or already has an answer.'
     };
+
 
 
     this.boardUI?.showFeedback(
@@ -582,6 +737,7 @@ export class HypothesisScene extends BaseScene {
       '#ffb347'
     );
   }
+
 
 
   confirmTheory() {
@@ -593,8 +749,10 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const orderedCards =
       this.hypothesisState.getOrderedCards();
+
 
 
     const feedback =
@@ -604,18 +762,23 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
     this.hypothesisState.setFeedback(feedback);
+
 
 
     const newlyLockedSlots =
       this.hypothesisState.lockGreenSlots(feedback);
 
 
+
     this.boardUI?.refresh();
+
 
 
     newlyLockedSlots.forEach((slotIndex, index) => {
       const card = orderedCards[slotIndex];
+
 
 
       const use = this.getReconstructionUse(
@@ -624,11 +787,13 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       const narrative =
         use?.heistExplanation ||
         card?.heistExplanation ||
         card?.trueExplanation ||
         '';
+
 
 
       if (narrative) {
@@ -641,9 +806,11 @@ export class HypothesisScene extends BaseScene {
     });
 
 
+
     const isExact = feedback.every(
       (color) => color === 'green'
     );
+
 
 
     if (!isExact) {
@@ -651,11 +818,13 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const evaluation =
       HypothesisEvaluator.determineResult(
         feedback,
         this.hypothesisState.attemptsLeft
       );
+
 
 
     if (!evaluation.isFinal) {
@@ -666,7 +835,9 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       let message = evaluation.message;
+
 
 
       if (redHerringCard) {
@@ -676,7 +847,9 @@ export class HypothesisScene extends BaseScene {
       }
 
 
+
       this.boardUI?.refresh();
+
 
 
       this.boardUI?.showFeedback(
@@ -685,8 +858,10 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       return;
     }
+
 
 
     this.finalizeTheory(
@@ -694,6 +869,7 @@ export class HypothesisScene extends BaseScene {
       evaluation
     );
   }
+
 
 
   consumeMastermindEnergy() {
@@ -706,11 +882,13 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (!this.energyManager) {
       console.warn(
         '[HypothesisScene] Cannot consume Mastermind energy: ' +
         'EnergyManager is unavailable.'
       );
+
 
 
       return {
@@ -721,15 +899,18 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     const energyResult =
       this.energyManager.consumeActivity(
         'minigame_mastermind'
       );
 
 
+
     if (energyResult?.success) {
       this.energyConsumed = true;
     }
+
 
 
     console.log(
@@ -738,12 +919,15 @@ export class HypothesisScene extends BaseScene {
     );
 
 
+
     return energyResult;
   }
 
 
+
   finalizeTheory(orderedCards, evaluation) {
     this.hypothesisState.setUiLocked(true);
+
 
 
     // HypothesisResultService.finalizeTheory() sam zapisuje stan,
@@ -763,18 +947,27 @@ export class HypothesisScene extends BaseScene {
       });
 
 
+
     // Energia jest kosztem ukończonej minigry, a nie warunkiem wejścia.
     const energyResult =
       this.consumeMastermindEnergy();
 
 
+
+    this.destroyCrimeTutorial();
+    advanceCrimeTutorial(gameState, 'hypothesis');
+
+
+
     this.boardUI?.refresh();
+
 
 
     let feedbackMessage =
       evaluation.resultLabel === 'exact'
         ? evaluation.message
         : `${evaluation.message} +${evaluation.score} score`;
+
 
 
     if (energyResult?.energyReachedZero) {
@@ -784,15 +977,18 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     this.boardUI?.showFeedback(
       feedbackMessage,
       evaluation.color
     );
 
 
+
     // Zapisujemy ponownie, bo zapis w serwisie był przed pobraniem energii.
     // Dzięki temu save zawiera zarówno wynik teorii, jak i aktualną energię.
     saveGameState();
+
 
 
     this.time.delayedCall(900, () => {
@@ -801,16 +997,20 @@ export class HypothesisScene extends BaseScene {
       }
 
 
+
       void this.launchResultCommentScene();
     });
+
 
 
     return result;
   }
 
 
+
   restoreSourceScene() {
     const source = this.sourceScene || 'CityScene';
+
 
 
     if (!this.hasScene(source)) {
@@ -820,8 +1020,10 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       return false;
     }
+
 
 
     if (this.isSceneSleeping(source)) {
@@ -829,13 +1031,16 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (this.isScenePaused(source)) {
       this.scene.resume(source);
     }
 
 
+
     const sourceSceneRef =
       this.scene.manager.keys[source];
+
 
 
     if (sourceSceneRef?.input) {
@@ -844,8 +1049,10 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     return true;
   }
+
 
 
   returnToSourceScene() {
@@ -854,17 +1061,26 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     this.isReturning = true;
+
+
+
+    this.destroyCrimeTutorial();
+
 
 
     flushAutosave();
 
 
+
     this.restoreSourceScene();
+
 
 
     this.scene.stop();
   }
+
 
 
   async launchResultCommentScene() {
@@ -873,13 +1089,17 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     this.isLaunchingResult = true;
+
 
 
     flushAutosave();
 
 
+
     const source = this.sourceScene || 'CityScene';
+
 
 
     if (!this.hasScene(source)) {
@@ -889,14 +1109,17 @@ export class HypothesisScene extends BaseScene {
       );
 
 
+
       this.scene.stop();
       return;
     }
 
 
+
     if (this.isSceneSleeping(source)) {
       this.scene.wake(source);
     }
+
 
 
     if (
@@ -905,6 +1128,7 @@ export class HypothesisScene extends BaseScene {
     ) {
       this.scene.pause(source);
     }
+
 
 
     const launched = await this.launchOverlay(
@@ -920,10 +1144,12 @@ export class HypothesisScene extends BaseScene {
     );
 
 
+
     if (!launched) {
       console.error(
         '[HypothesisScene] TheoryResultCallScene could not be launched.'
       );
+
 
 
       this.restoreSourceScene();
@@ -932,10 +1158,12 @@ export class HypothesisScene extends BaseScene {
     }
 
 
+
     if (this.sys.isActive()) {
       this.scene.stop();
     }
   }
+
 
 
   closeScene() {
@@ -943,8 +1171,14 @@ export class HypothesisScene extends BaseScene {
   }
 
 
+
   onShutdown() {
+    this.destroyCrimeTutorial();
+
+
+
     this.boardUI?.destroy();
+
 
 
     this.boardUI = null;
@@ -953,9 +1187,11 @@ export class HypothesisScene extends BaseScene {
     this.resultService = null;
 
 
+
     this.availableCards = [];
     this.correctCards = [];
     this.distractorCards = [];
+
 
 
     this.claims = [];
@@ -963,8 +1199,10 @@ export class HypothesisScene extends BaseScene {
     this.slotQuestionIds = [];
 
 
+
     this.shutdownHandler = null;
     this.energyConsumed = false;
+
 
 
     this.game.events.emit('setHudVisible', true);

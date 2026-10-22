@@ -8,14 +8,24 @@ const MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
 const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 const SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
 
-// Zasady czasu sprawy.
 export const CRIME_PHASE_DAYS = 4;
 export const TOTAL_CASE_DAYS = 7;
 
 export function getGameTimeInSeconds(state = gameState) {
-  const day = Math.max(1, Math.floor(Number(state.currentDay) || 1));
-  const hour = Math.max(0, Math.min(23, Math.floor(Number(state.currentHour) || 0)));
-  const minute = Math.max(0, Math.min(59, Math.floor(Number(state.currentMinute) || 0)));
+  const day = Math.max(
+    1,
+    Math.floor(Number(state.currentDay) || 1)
+  );
+
+  const hour = Math.max(
+    0,
+    Math.min(23, Math.floor(Number(state.currentHour) || 0))
+  );
+
+  const minute = Math.max(
+    0,
+    Math.min(59, Math.floor(Number(state.currentMinute) || 0))
+  );
 
   return (
     (day - 1) * SECONDS_PER_DAY +
@@ -31,9 +41,20 @@ export function getMissionDeadlineInSeconds(state = gameState) {
     return null;
   }
 
-  const day = Math.max(1, Math.floor(Number(deadline.day) || 1));
-  const hour = Math.max(0, Math.min(23, Math.floor(Number(deadline.hour) || 0)));
-  const minute = Math.max(0, Math.min(59, Math.floor(Number(deadline.minute) || 0)));
+  const day = Math.max(
+    1,
+    Math.floor(Number(deadline.day) || 1)
+  );
+
+  const hour = Math.max(
+    0,
+    Math.min(23, Math.floor(Number(deadline.hour) || 0))
+  );
+
+  const minute = Math.max(
+    0,
+    Math.min(59, Math.floor(Number(deadline.minute) || 0))
+  );
 
   return (
     (day - 1) * SECONDS_PER_DAY +
@@ -49,7 +70,10 @@ export function getCaseTimeRemaining(state = gameState) {
     return null;
   }
 
-  return Math.max(0, deadlineSeconds - getGameTimeInSeconds(state));
+  return Math.max(
+    0,
+    deadlineSeconds - getGameTimeInSeconds(state)
+  );
 }
 
 export function isCaseTimeExpired(state = gameState) {
@@ -58,39 +82,75 @@ export function isCaseTimeExpired(state = gameState) {
   return remaining !== null && remaining <= 0;
 }
 
-export function refreshCaseDeadline(state = gameState) {
-  const remainingSeconds = getCaseTimeRemaining(state);
-
-  EventBus.emit('caseTimeChanged', {
-    remainingSeconds,
-    expired: remainingSeconds !== null && remainingSeconds <= 0,
-    deadline: state.currentMission?.deadline || null
-  });
-
-  return remainingSeconds;
-}
-
-export function createMissionDeadline(days = 4, state = gameState) {
-  const safeDays = Math.max(1, Math.floor(Number(days) || 4));
+export function getTimeChangedPayload(state = gameState) {
+  const caseTimeRemaining = getCaseTimeRemaining(state);
+  const deadline = state.currentMission?.deadline;
 
   return {
-    day: Math.max(1, Number(state.currentDay) || 1) + safeDays,
-    hour: Math.max(0, Math.min(23, Number(state.currentHour) || 0)),
-    minute: Math.max(0, Math.min(59, Number(state.currentMinute) || 0))
+    day: state.currentDay ?? state.day ?? 1,
+    hour: state.currentHour ?? state.hour ?? 8,
+    minute: state.currentMinute ?? state.minute ?? 0,
+    partOfDay:
+      state.currentPartOfDay ??
+      state.partOfDay ??
+      'Morning',
+
+    caseTimeRemaining,
+    caseExpired:
+      caseTimeRemaining !== null &&
+      caseTimeRemaining <= 0,
+
+    deadline: deadline
+      ? {
+          day: deadline.day,
+          hour: deadline.hour,
+          minute: deadline.minute
+        }
+      : null
   };
 }
 
-// ---------------------------------------------------------------
-// Fazy sprawy: miasto zbrodni (max 4 dni) i pościg (do końca 7 dni).
-// Terminy w stanie gry to bezwzględne minuty zegara gry.
-// ---------------------------------------------------------------
+export function refreshCaseDeadline(state = gameState) {
+  const payload = getTimeChangedPayload(state);
+
+  EventBus.emit('timeChanged', payload);
+
+  return payload.caseTimeRemaining;
+}
+
+export function createMissionDeadline(days = 4, state = gameState) {
+  const safeDays = Math.max(
+    1,
+    Math.floor(Number(days) || 4)
+  );
+
+  return {
+    day: Math.max(1, Number(state.currentDay) || 1) + safeDays,
+    hour: Math.max(
+      0,
+      Math.min(23, Number(state.currentHour) || 0)
+    ),
+    minute: Math.max(
+      0,
+      Math.min(59, Number(state.currentMinute) || 0)
+    )
+  };
+}
+
+// Terminy faz są bezwzględnymi minutami zegara gry.
 
 export function getClockMinutes(state = gameState) {
-  return Math.floor(getGameTimeInSeconds(state) / SECONDS_PER_MINUTE);
+  return Math.floor(
+    getGameTimeInSeconds(state) / SECONDS_PER_MINUTE
+  );
 }
 
 export function minutesToClock(totalMinutes) {
-  const safe = Math.max(0, Math.floor(Number(totalMinutes) || 0));
+  const safe = Math.max(
+    0,
+    Math.floor(Number(totalMinutes) || 0)
+  );
+
   const day = Math.floor(safe / MINUTES_PER_DAY) + 1;
   const withinDay = safe % MINUTES_PER_DAY;
 
@@ -101,8 +161,6 @@ export function minutesToClock(totalMinutes) {
   };
 }
 
-// Termin aktualnej fazy zapisujemy w currentMission.deadline,
-// z którego korzysta HUD i reszta funkcji powyżej.
 export function syncMissionDeadline(state = gameState) {
   const minutes = state.escapePhaseActive
     ? state.escapeDeadline
@@ -131,19 +189,19 @@ export function syncMissionDeadline(state = gameState) {
   return deadline;
 }
 
-// Start sprawy (nowa gra i kolejna sprawa).
 export function startCaseClock(state = gameState) {
   const now = getClockMinutes(state);
 
   state.updateState({
     investigationPhaseActive: true,
     investigationStartTime: now,
-    investigationDeadline: now + CRIME_PHASE_DAYS * MINUTES_PER_DAY,
+    investigationDeadline:
+      now + CRIME_PHASE_DAYS * MINUTES_PER_DAY,
 
     escapePhaseActive: false,
     escapeStartTime: null,
-    // Termin końcowy całej sprawy jest ustalony od razu i się nie przesuwa.
-    escapeDeadline: now + TOTAL_CASE_DAYS * MINUTES_PER_DAY,
+    escapeDeadline:
+      now + TOTAL_CASE_DAYS * MINUTES_PER_DAY,
 
     timeWastedOnMistakes: 0
   });
@@ -151,15 +209,17 @@ export function startCaseClock(state = gameState) {
   return syncMissionDeadline(state);
 }
 
-// Początek pościgu: termin końcowy zostaje ten sam, więc pościg
-// dostaje to, co zostało z 7 dni.
 export function beginEscapePhaseClock(state = gameState) {
   if (!state.escapePhaseActive) {
     const now = getClockMinutes(state);
 
-    const fallbackDeadline = Number.isFinite(state.investigationStartTime)
-      ? state.investigationStartTime + TOTAL_CASE_DAYS * MINUTES_PER_DAY
-      : now + (TOTAL_CASE_DAYS - CRIME_PHASE_DAYS) * MINUTES_PER_DAY;
+    const fallbackDeadline =
+      Number.isFinite(state.investigationStartTime)
+        ? state.investigationStartTime +
+          TOTAL_CASE_DAYS * MINUTES_PER_DAY
+        : now +
+          (TOTAL_CASE_DAYS - CRIME_PHASE_DAYS) *
+            MINUTES_PER_DAY;
 
     state.updateState({
       investigationPhaseActive: false,
@@ -174,7 +234,6 @@ export function beginEscapePhaseClock(state = gameState) {
   return syncMissionDeadline(state);
 }
 
-// Minął limit całej sprawy (7 dni).
 export function isTotalTimeExpired(state = gameState) {
   return (
     Number.isFinite(state.escapeDeadline) &&
@@ -182,7 +241,6 @@ export function isTotalTimeExpired(state = gameState) {
   );
 }
 
-// Minęły 4 dni w mieście zbrodni, a pościg jeszcze się nie zaczął.
 export function isCrimePhaseExpired(state = gameState) {
   return (
     !state.escapePhaseActive &&

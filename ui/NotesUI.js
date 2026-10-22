@@ -1,4 +1,4 @@
-import { saveGameState } from '../gameStatePersistence.js';
+import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
   import { EventBus } from '../EventBus.js';
 
   export class NotesUI {
@@ -195,6 +195,7 @@ import { saveGameState } from '../gameStatePersistence.js';
     updateNotes(newText) {
       if (this.currentGameState) {
         this.currentGameState.playerNotes = newText;
+        requestAutosave();
       }
     }
 

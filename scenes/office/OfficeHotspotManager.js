@@ -1,9 +1,17 @@
 import { audioManager } from '../../managers/AudioManager.js';
 
+const LOCAL_DEBUG_ALLOWED = [
+  'localhost',
+  '127.0.0.1'
+].includes(window.location.hostname);
+
 export class OfficeHotspotManager {
   constructor(scene, options = {}) {
     this.scene = scene;
-    this.debugEnabled = options.debugEnabled === true;
+
+    this.debugEnabled =
+      LOCAL_DEBUG_ALLOWED &&
+      options.debugEnabled === true;
 
     this.hotspots = [];
     this.debugGraphics = null;
@@ -36,6 +44,10 @@ export class OfficeHotspotManager {
       zone.on('pointerdown', () => {
         this.handlePointerDown(data);
       });
+
+      if (this.isLocked) {
+        zone.disableInteractive();
+      }
 
       this.hotspots.push(zone);
     });
@@ -97,14 +109,14 @@ export class OfficeHotspotManager {
   }
 
   setLocked(locked) {
-    this.isLocked = locked;
+    this.isLocked = Boolean(locked);
 
     this.hotspots.forEach((zone) => {
       if (!zone?.scene) {
         return;
       }
 
-      if (locked) {
+      if (this.isLocked) {
         zone.disableInteractive();
       } else {
         zone.setInteractive({
@@ -114,7 +126,7 @@ export class OfficeHotspotManager {
       }
     });
 
-    if (locked) {
+    if (this.isLocked) {
       this.scene.navigation?.hideHint();
     }
   }
@@ -126,7 +138,16 @@ export class OfficeHotspotManager {
   }
 
   createDebugOverlay() {
-    this.debugGraphics = this.scene.add.graphics();
+    if (!LOCAL_DEBUG_ALLOWED || !this.debugEnabled) {
+      return;
+    }
+
+    this.destroyDebugOverlay();
+
+    this.debugGraphics = this.scene.add
+      .graphics()
+      .setDepth(998);
+
     this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
 
     this.hotspots.forEach((zone) => {
@@ -162,14 +183,7 @@ export class OfficeHotspotManager {
     });
   }
 
-  destroy() {
-    this.hotspots.forEach((zone) => {
-      zone?.removeAllListeners();
-      zone?.destroy();
-    });
-
-    this.hotspots = [];
-
+  destroyDebugOverlay() {
     this.debugGraphics?.destroy();
     this.debugGraphics = null;
 
@@ -178,5 +192,16 @@ export class OfficeHotspotManager {
     });
 
     this.debugTexts = [];
+  }
+
+  destroy() {
+    this.hotspots.forEach((zone) => {
+      zone?.removeAllListeners();
+      zone?.destroy();
+    });
+
+    this.hotspots = [];
+
+    this.destroyDebugOverlay();
   }
 }

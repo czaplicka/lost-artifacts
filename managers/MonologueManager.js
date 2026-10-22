@@ -70,10 +70,13 @@ export class MonologueManager {
 
   isSceneUsable() {
     const scene = this.scene;
+    const status = scene?.sys?.settings?.status;
 
     return Boolean(
       !this.isDestroyed
       && scene?.sys?.settings
+      && status !== Phaser.Scenes.SHUTDOWN
+      && status !== Phaser.Scenes.DESTROYED
       && typeof scene.time?.delayedCall === 'function'
       && typeof scene.add?.container === 'function'
       && typeof scene.add?.rectangle === 'function'

@@ -1,6 +1,8 @@
 // scenes/AlibiScene.js
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
+import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+
 
 import {
   getWitnessTestimony,
@@ -8,12 +10,15 @@ import {
   allWitnessesVisited
 } from '../alibi/AlibiEncounterSetup.js';
 
+
 const PORTRAIT_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
 
+
 const VIEW_WIDTH = 1000;
 const VIEW_HEIGHT = 760;
+
 
 function formatTime(minute) {
   return (
@@ -23,10 +28,12 @@ function formatTime(minute) {
   );
 }
 
+
 export class AlibiScene extends BaseScene {
   constructor() {
     super({ key: 'AlibiScene' });
   }
+
 
   init(data = {}) {
     this.caseKey = data.caseKey || null;
@@ -35,28 +42,35 @@ export class AlibiScene extends BaseScene {
     this.npcId = data.npcId || null;
     this.cityId = data.cityId || null;
 
+
     this.returnScene = data.returnScene || 'CrimeCityScene';
     this.returnData = data.returnData || {
       cityId: this.cityId
     };
 
+
     this.testimony = null;
     this.encounter = null;
     this.isLeaving = false;
+
 
     this.root = null;
     this.statusText = null;
   }
 
+
   create() {
     super.create();
+
 
     this.stopSceneIfActive('NewsHud');
     this.getPlayerHudScene()?.closeAllUIPanels?.();
 
+
     this.cameras.main.resetFX();
     this.cameras.main.setAlpha(1);
     this.cameras.main.setBackgroundColor('#171b22');
+
 
     this.trackInputEvent(
       this.scale,
@@ -64,6 +78,7 @@ export class AlibiScene extends BaseScene {
       this.fitView,
       this
     );
+
 
     try {
       this.loadTestimony();
@@ -74,9 +89,11 @@ export class AlibiScene extends BaseScene {
         error
       );
 
+
       this.renderError();
     }
   }
+
 
   loadTestimony() {
     if (
@@ -88,14 +105,17 @@ export class AlibiScene extends BaseScene {
       throw new Error('Missing interview navigation data.');
     }
 
+
     const encounters =
       gameState.crimeCityEncounterState?.[this.caseKey];
+
 
     this.encounter = Array.isArray(encounters)
       ? encounters.find(
           (entry) => entry?.id === this.encounterId
         )
       : null;
+
 
     if (
       !this.encounter ||
@@ -105,11 +125,13 @@ export class AlibiScene extends BaseScene {
       throw new Error('Encounter does not match this witness.');
     }
 
+
     this.testimony = getWitnessTestimony(
       this.caseKey,
       this.suspectId,
       this.npcId
     );
+
 
     if (
       !this.testimony ||
@@ -119,15 +141,18 @@ export class AlibiScene extends BaseScene {
     }
   }
 
+
   fitView() {
     if (!this.root) {
       return;
     }
 
+
     const scale = Math.min(
       this.scale.width / VIEW_WIDTH,
       this.scale.height / VIEW_HEIGHT
     );
+
 
     this.root
       .setScale(scale)
@@ -137,11 +162,14 @@ export class AlibiScene extends BaseScene {
       );
   }
 
+
   createRoot() {
     this.root?.destroy(true);
     this.root = this.add.container(0, 0);
 
+
     this.fitView();
+
 
     this.root.add(
       this.add.rectangle(
@@ -152,6 +180,7 @@ export class AlibiScene extends BaseScene {
         0xede1c4
       ).setStrokeStyle(3, 0x8a7350)
     );
+
 
     this.text(
       40,
@@ -165,6 +194,7 @@ export class AlibiScene extends BaseScene {
     );
   }
 
+
   text(x, y, content, width, options = {}) {
     const object = this.add.text(x, y, content, {
       fontFamily: 'SpecialElite',
@@ -174,9 +204,11 @@ export class AlibiScene extends BaseScene {
       ...options
     });
 
+
     this.root.add(object);
     return object;
   }
+
 
   button(x, y, width, label, callback) {
     const background = this.add.rectangle(
@@ -188,7 +220,9 @@ export class AlibiScene extends BaseScene {
     ).setStrokeStyle(2, 0x9b815b)
       .setInteractive({ useHandCursor: true });
 
+
     this.root.add(background);
+
 
     const labelObject = this.text(
       x + 10,
@@ -202,7 +236,9 @@ export class AlibiScene extends BaseScene {
       }
     ).setOrigin(0, 0.5);
 
+
     labelObject.setFixedSize(width - 20, 0);
+
 
     background
       .on('pointerover', () => {
@@ -218,6 +254,7 @@ export class AlibiScene extends BaseScene {
       });
   }
 
+
   getPortraitKey() {
     return [
       this.encounter?.portraitKey,
@@ -232,10 +269,13 @@ export class AlibiScene extends BaseScene {
     ) || null;
   }
 
+
   render() {
     this.createRoot();
 
+
     const portraitKey = this.getPortraitKey();
+
 
     if (portraitKey) {
       const portrait = this.add.image(
@@ -244,6 +284,7 @@ export class AlibiScene extends BaseScene {
         portraitKey
       );
 
+
       portrait.setScale(
         Math.min(
           130 / portrait.width,
@@ -251,12 +292,14 @@ export class AlibiScene extends BaseScene {
         )
       );
 
+
       this.root.add(portrait);
     } else {
       this.text(90, 130, '?', 100, {
         fontSize: '65px'
       });
     }
+
 
     this.text(
       225,
@@ -267,9 +310,11 @@ export class AlibiScene extends BaseScene {
       { fontSize: '29px' }
     );
 
+
     const window =
       this.testimony.crimeWindow ||
       gameState.caseData?.crimeWindow;
+
 
     if (window) {
       this.text(
@@ -287,6 +332,7 @@ export class AlibiScene extends BaseScene {
       );
     }
 
+
     this.text(
       45,
       270,
@@ -297,6 +343,7 @@ export class AlibiScene extends BaseScene {
         color: '#665741'
       }
     );
+
 
     const statement = this.text(
       45,
@@ -309,6 +356,7 @@ export class AlibiScene extends BaseScene {
       }
     );
 
+
     while (
       statement.height > 265 &&
       parseInt(statement.style.fontSize, 10) > 16
@@ -318,14 +366,17 @@ export class AlibiScene extends BaseScene {
       );
     }
 
+
     const completed =
       this.encounter.interviewed === true &&
       this.encounter.dialogueCompleted === true;
+
 
     const boardReady = allWitnessesVisited(
       this.caseKey,
       this.suspectId
     );
+
 
     this.statusText = this.text(
       45,
@@ -342,6 +393,7 @@ export class AlibiScene extends BaseScene {
       }
     );
 
+
     this.button(
       45,
       675,
@@ -351,6 +403,7 @@ export class AlibiScene extends BaseScene {
         void this.returnToCity();
       }
     );
+
 
     this.button(
       575,
@@ -373,8 +426,10 @@ export class AlibiScene extends BaseScene {
     );
   }
 
+
   renderError() {
     this.createRoot();
+
 
     this.text(
       65,
@@ -389,6 +444,7 @@ export class AlibiScene extends BaseScene {
       }
     );
 
+
     this.statusText = this.text(
       65,
       550,
@@ -396,6 +452,7 @@ export class AlibiScene extends BaseScene {
       870,
       { fontSize: '19px' }
     );
+
 
     this.button(
       340,
@@ -408,16 +465,19 @@ export class AlibiScene extends BaseScene {
     );
   }
 
+
   async finishInterview() {
     if (this.isLeaving || !this.testimony) {
       return;
     }
+
 
     try {
       const saved = markAlibiWitnessInterviewed(
         this.caseKey,
         this.encounterId
       );
+
 
       if (!saved) {
         this.statusText?.setText(
@@ -426,21 +486,28 @@ export class AlibiScene extends BaseScene {
         return;
       }
 
+
+      advanceCrimeTutorial(gameState, 'talk_to_npcs');
+
+
       if (allWitnessesVisited(this.caseKey, this.suspectId)) {
         this.loadTestimony();
         this.render();
         return;
       }
 
+
       await this.returnToCity();
     } catch (error) {
       console.error('[AlibiScene] Interview save failed.', error);
+
 
       this.statusText?.setText(
         'The interview could not be saved. Please try again.'
       );
     }
   }
+
 
   async openBoard() {
     if (
@@ -449,6 +516,7 @@ export class AlibiScene extends BaseScene {
     ) {
       return;
     }
+
 
     await this.navigate('AlibiTimelineScene', {
       caseKey: this.caseKey,
@@ -459,6 +527,7 @@ export class AlibiScene extends BaseScene {
     });
   }
 
+
   async returnToCity() {
     await this.navigate(
       this.returnScene,
@@ -466,17 +535,27 @@ export class AlibiScene extends BaseScene {
     );
   }
 
+
   async navigate(sceneKey, data) {
     if (this.isLeaving || this._cleanupDone) {
       return;
     }
 
+
     this.isLeaving = true;
+
 
     const opened = await this.goto(sceneKey, data);
 
+
+    if (!opened && !this.isLeaving) {
+      return;
+    }
+
+
     if (!opened && !this._cleanupDone) {
       this.isLeaving = false;
+
 
       this.statusText?.setText(
         'The next scene could not be opened. Please try again.'

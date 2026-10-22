@@ -1,7 +1,9 @@
 import { EventBus } from './EventBus.js';
 
+
 const FONT_PIXEL = '"PressStart2P"';
 const FONT_TYPE = '"SpecialElite"';
+
 
 const COLORS = {
   panel: 0x17110e,
@@ -13,8 +15,14 @@ const COLORS = {
   warning: 0xd76d52,
 };
 
+
 const PORTRAIT_KEY = 'portrait_hq';
 const PORTRAIT_SIZE = 84;
+
+
+const PANEL_HEIGHT_EXPANDED = 150;
+const PANEL_HEIGHT_COLLAPSED = 46;
+
 
 const STEP_ORDER = [
   'walk_to_case_file',
@@ -23,7 +31,9 @@ const STEP_ORDER = [
   'travel_to_city',
 ];
 
+
 const TUTORIAL_CACHE_KEY = 'csi';
+
 
 const FALLBACK_STEP_CONTENT = {
   walk_to_case_file: {
@@ -34,6 +44,7 @@ const FALLBACK_STEP_CONTENT = {
     targetHotspot: 'cabinet-casefile',
   },
 
+
   open_case_file: {
     number: 2,
     title: 'THE CASE FILE',
@@ -42,6 +53,7 @@ const FALLBACK_STEP_CONTENT = {
     targetHotspot: 'cabinet-casefile',
   },
 
+
   find_route: {
     number: 3,
     title: 'FOLLOW THE GLOBE',
@@ -49,6 +61,7 @@ const FALLBACK_STEP_CONTENT = {
     hint: 'The globe is the agency travel desk, because apparently airports were too expensive.',
     targetHotspot: 'globe',
   },
+
 
   travel_to_city: {
     number: 4,
@@ -59,10 +72,12 @@ const FALLBACK_STEP_CONTENT = {
   },
 };
 
+
 export class FirstCaseTutorial {
   constructor(scene, state) {
     this.scene = scene;
     this.gameState = state;
+
 
     this.active = false;
     this.currentStep = null;
@@ -70,8 +85,10 @@ export class FirstCaseTutorial {
     this.destroyed = false;
     this.finished = false;
 
+
     this.hotspots = new Map();
     this.stepContent = this.loadStepContent();
+
 
     this.overlay = null;
     this.panel = null;
@@ -83,28 +100,40 @@ export class FirstCaseTutorial {
     this.objectiveText = null;
     this.hintText = null;
 
+
     this.skipText = null;
     this.skipButton = null;
     this.skipButtonBorder = null;
-this.skipButtonEnabled = true;
+    this.skipButtonEnabled = true;
+
+
+    this.toggleText = null;
+    this.toggleButton = null;
+    this.toggleButtonBorder = null;
+
 
     this.highlight = null;
     this.highlightTween = null;
+
 
     this.feedbackText = null;
     this.feedbackTween = null;
     this.stepDelay = null;
 
+
     this.onResizeBound = this.handleResize.bind(this);
     this.onTravelStartedBound = this.onTravelStarted.bind(this);
 
+
     this.ensureState();
   }
+
 
   loadStepContent() {
     const json = this.scene?.cache?.json?.get(
       TUTORIAL_CACHE_KEY,
     );
+
 
     if (!json || Object.keys(json).length === 0) {
       console.warn(
@@ -113,10 +142,13 @@ this.skipButtonEnabled = true;
         `assets/data/${TUTORIAL_CACHE_KEY}.json in the preloader?`,
       );
 
+
       return FALLBACK_STEP_CONTENT;
     }
 
+
     const merged = {};
+
 
     STEP_ORDER.forEach((stepId) => {
       if (json[stepId]) {
@@ -127,26 +159,32 @@ this.skipButtonEnabled = true;
           'using built-in fallback text for this step.',
         );
 
+
         merged[stepId] = FALLBACK_STEP_CONTENT[stepId];
       }
     });
 
+
     return merged;
   }
+
 
   ensureState() {
     if (!this.gameState.onboarding) {
       this.gameState.onboarding = {};
     }
 
+
     const existing =
       this.gameState.onboarding.firstCase ?? {};
+
 
     this.gameState.onboarding.firstCase = {
       active: existing.active ?? false,
       step: existing.step ?? null,
       completed: existing.completed ?? false,
       skipped: existing.skipped ?? false,
+      collapsed: existing.collapsed ?? false,
       walkedToCaseFile:
         existing.walkedToCaseFile ?? false,
       caseFileOpened:
@@ -156,6 +194,48 @@ this.skipButtonEnabled = true;
     };
   }
 
+
+  get collapsed() {
+    return Boolean(
+      this.gameState.onboarding.firstCase.collapsed,
+    );
+  }
+
+
+  toggleCollapsed() {
+    if (!this.active) {
+      return;
+    }
+
+
+    this.gameState.onboarding.firstCase.collapsed =
+      !this.collapsed;
+
+
+    this.rebuildOverlay();
+  }
+
+
+  rebuildOverlay() {
+    if (!this.active) {
+      return;
+    }
+
+
+    const step = this.stepContent[this.currentStep];
+
+
+    this.destroyOverlay();
+    this.createOverlay();
+
+
+    if (step) {
+      this.updateOverlay(step);
+      this.highlightHotspot(step.targetHotspot);
+    }
+  }
+
+
   registerHotspot(id, zone) {
     if (!id || !zone) {
       console.warn(
@@ -163,10 +243,13 @@ this.skipButtonEnabled = true;
         { id, zone },
       );
 
+
       return;
     }
 
+
     this.hotspots.set(id, zone);
+
 
     if (
       this.active &&
@@ -177,129 +260,164 @@ this.skipButtonEnabled = true;
     }
   }
 
+
   unregisterHotspot(id) {
     this.hotspots.delete(id);
   }
+
 
   start() {
     if (this.destroyed || !this.scene?.sys?.isActive()) {
       return;
     }
 
+
     const tutorialState =
       this.gameState.onboarding.firstCase;
+
 
     if (tutorialState.completed || this.started) {
       return;
     }
+
 
     this.finished = false;
     this.started = true;
     this.active = true;
     tutorialState.active = true;
 
+
     this.createOverlay();
+
 
     this.scene.scale.off(
       'resize',
       this.onResizeBound,
     );
 
+
     this.scene.scale.on(
       'resize',
       this.onResizeBound,
     );
+
 
     EventBus.off(
       'firstCaseTravelStarted',
       this.onTravelStartedBound,
     );
 
+
     EventBus.on(
       'firstCaseTravelStarted',
       this.onTravelStartedBound,
     );
 
+
     const savedStep = tutorialState.step;
+
 
     if (savedStep && STEP_ORDER.includes(savedStep)) {
       this.setStep(savedStep);
       return;
     }
 
+
     this.setStep('walk_to_case_file');
   }
+
 
   resume() {
     if (this.gameState.onboarding.firstCase.completed) {
       return;
     }
 
+
     this.start();
   }
+
 
   isActive() {
     return this.active;
   }
 
+
   getStep() {
     return this.currentStep;
   }
-setSkipButtonEnabled(enabled) {
-  const shouldEnable = Boolean(enabled);
 
-  if (
-    this.skipButtonEnabled === shouldEnable ||
-    !this.skipButton?.scene
-  ) {
-    return;
+
+  setSkipButtonEnabled(enabled) {
+    const shouldEnable = Boolean(enabled);
+
+
+    if (
+      this.skipButtonEnabled === shouldEnable ||
+      !this.skipButton?.scene
+    ) {
+      return;
+    }
+
+
+    this.skipButtonEnabled = shouldEnable;
+
+
+    if (shouldEnable) {
+      this.skipButton.setInteractive({
+        useHandCursor: true,
+      });
+
+
+      this.skipButtonBorder?.setAlpha(1);
+      this.skipText?.setAlpha(1);
+
+
+      return;
+    }
+
+
+    this.skipButton.disableInteractive();
+
+
+    this.skipButtonBorder?.setAlpha(0.45);
+    this.skipText?.setAlpha(0.45);
   }
 
-  this.skipButtonEnabled = shouldEnable;
 
-  if (shouldEnable) {
-    this.skipButton.setInteractive({
-      useHandCursor: true,
-    });
-
-    this.skipButtonBorder?.setAlpha(1);
-    this.skipText?.setAlpha(1);
-
-    return;
-  }
-
-  this.skipButton.disableInteractive();
-
-  this.skipButtonBorder?.setAlpha(0.45);
-  this.skipText?.setAlpha(0.45);
-}
   setStep(stepId) {
     if (!this.active || !STEP_ORDER.includes(stepId)) {
       return;
     }
 
+
     const step = this.stepContent[stepId];
+
 
     if (!step) {
       console.warn(
         `[FirstCaseTutorial] Unknown tutorial step: ${stepId}`,
       );
 
+
       return;
     }
 
+
     this.currentStep = stepId;
     this.gameState.onboarding.firstCase.step = stepId;
+
 
     this.clearStepDelay();
     this.updateOverlay(step);
     this.highlightHotspot(step.targetHotspot);
   }
 
+
   canUseHotspot(hotspotId) {
     if (!this.active) {
       return true;
     }
+
 
     if (this.currentStep === 'walk_to_case_file') {
       if (hotspotId !== 'cabinet-casefile') {
@@ -309,8 +427,10 @@ setSkipButtonEnabled(enabled) {
         );
       }
 
+
       return true;
     }
+
 
     if (this.currentStep === 'open_case_file') {
       if (hotspotId !== 'cabinet-casefile') {
@@ -320,8 +440,10 @@ setSkipButtonEnabled(enabled) {
         );
       }
 
+
       return true;
     }
+
 
     if (this.currentStep === 'find_route') {
       if (hotspotId === 'cabinet-casefile') {
@@ -336,26 +458,33 @@ setSkipButtonEnabled(enabled) {
         );
       }
 
+
       return true;
     }
 
+
     return true;
   }
+
 
   canUseAction(actionId) {
     if (!this.active) {
       return true;
     }
 
+
     const actionToHotspot = {
       case_file: 'cabinet-casefile',
       travel: 'globe',
     };
 
+
     const hotspotId = actionToHotspot[actionId];
+
 
     return !hotspotId || this.canUseHotspot(hotspotId);
   }
+
 
   onPlayerPositionChanged(playerX, playerY) {
     if (
@@ -365,16 +494,20 @@ setSkipButtonEnabled(enabled) {
       return;
     }
 
+
     const cabinetZone = this.hotspots.get(
       'cabinet-casefile',
     );
+
 
     if (!cabinetZone?.hotspotData) {
       return;
     }
 
+
     const data = cabinetZone.hotspotData;
     const reachPadding = 42;
+
 
     const isNearCabinet =
       playerX >= data.x - reachPadding &&
@@ -382,16 +515,20 @@ setSkipButtonEnabled(enabled) {
       playerY >= data.y - reachPadding &&
       playerY <= data.y + data.height + reachPadding;
 
+
     if (!isNearCabinet) {
       return;
     }
 
+
     this.gameState.onboarding.firstCase.walkedToCaseFile = true;
+
 
     this.showFeedback(
       'Excellent. You have located a cabinet. Promotion is surely inevitable.',
       'success',
     );
+
 
     this.delayStep(650, () => {
       if (
@@ -403,10 +540,12 @@ setSkipButtonEnabled(enabled) {
     });
   }
 
+
   onCaseFileOpened() {
     if (!this.active) {
       return;
     }
+
 
     if (
       this.currentStep !== 'walk_to_case_file' &&
@@ -415,13 +554,16 @@ setSkipButtonEnabled(enabled) {
       return;
     }
 
+
     this.gameState.onboarding.firstCase.walkedToCaseFile = true;
     this.gameState.onboarding.firstCase.caseFileOpened = true;
+
 
     this.showFeedback(
       'A stolen artefact, four days, and no mention of health insurance.',
       'success',
     );
+
 
     this.delayStep(800, () => {
       if (this.active) {
@@ -430,10 +572,12 @@ setSkipButtonEnabled(enabled) {
     });
   }
 
+
   onDestinationMapOpened() {
     if (!this.active) {
       return;
     }
+
 
     const validSteps = [
       'walk_to_case_file',
@@ -441,18 +585,22 @@ setSkipButtonEnabled(enabled) {
       'find_route',
     ];
 
+
     if (!validSteps.includes(this.currentStep)) {
       return;
     }
+
 
     this.gameState.onboarding.firstCase.walkedToCaseFile = true;
     this.gameState.onboarding.firstCase.caseFileOpened = true;
     this.gameState.onboarding.firstCase.routeOpened = true;
 
+
     this.showFeedback(
       'Good. Now let us inconvenience an international airport.',
       'success',
     );
+
 
     this.delayStep(500, () => {
       if (this.active) {
@@ -461,14 +609,17 @@ setSkipButtonEnabled(enabled) {
     });
   }
 
+
   onTravelStarted() {
     if (!this.active) {
       return;
     }
 
+
     this.gameState.onboarding.firstCase.travelStarted = true;
     this.finish(false);
   }
+
 
   skip() {
     if (
@@ -479,20 +630,25 @@ setSkipButtonEnabled(enabled) {
       return;
     }
 
+
     console.log(
       '[FirstCaseTutorial] Skip Tutorial clicked.',
     );
 
+
     this.finish(true);
   }
 
+
   delayStep(delay, callback) {
     this.clearStepDelay();
+
 
     this.stepDelay = this.scene.time.delayedCall(
       delay,
       () => {
         this.stepDelay = null;
+
 
         if (!this.destroyed) {
           callback();
@@ -501,12 +657,14 @@ setSkipButtonEnabled(enabled) {
     );
   }
 
+
   clearStepDelay() {
     if (this.stepDelay) {
       this.stepDelay.remove(false);
       this.stepDelay = null;
     }
   }
+
 
   showFeedback(message, type = 'warning') {
     if (
@@ -517,20 +675,24 @@ setSkipButtonEnabled(enabled) {
       return;
     }
 
+
     const color =
       type === 'success'
         ? '#8fb180'
         : '#d76d52';
+
 
     if (this.feedbackTween) {
       this.feedbackTween.stop();
       this.feedbackTween = null;
     }
 
+
     this.feedbackText.setText(message);
     this.feedbackText.setColor(color);
     this.feedbackText.setAlpha(0);
     this.feedbackText.setVisible(true);
+
 
     this.feedbackTween = this.scene.tweens.add({
       targets: this.feedbackText,
@@ -544,25 +706,36 @@ setSkipButtonEnabled(enabled) {
           this.feedbackText.setVisible(false);
         }
 
+
         this.feedbackTween = null;
       },
     });
   }
+
 
   createOverlay() {
     if (this.overlay?.scene) {
       return;
     }
 
-    const { width, height } = this.scene.scale;
+
+    const collapsed = this.collapsed;
+    const { width } = this.scene.scale;
+
 
     const panelWidth = Math.min(
       Math.max(width - 48, 320),
       860,
     );
 
-    const panelHeight = 150;
+
+    const panelHeight = collapsed
+      ? PANEL_HEIGHT_COLLAPSED
+      : PANEL_HEIGHT_EXPANDED;
+
+
     const panelLeft = width / 2 - panelWidth / 2;
+
 
     /*
      * Panel u góry ekranu.
@@ -570,21 +743,27 @@ setSkipButtonEnabled(enabled) {
      * Dolne strzałki OfficeNavigation pozostają w pełni odkryte,
      * niezależnie od ich depth i hit area.
      */
-    const panelCenterY = 92;
-    const panelTop = panelCenterY - panelHeight / 2;
+    const panelTop = 20;
+    const panelCenterY = panelTop + panelHeight / 2;
 
-    const textLeft = panelLeft + PORTRAIT_SIZE + 32;
+
+    const textLeft = collapsed
+      ? panelLeft + 16
+      : panelLeft + PORTRAIT_SIZE + 32;
+
 
     const textWrapWidth = Math.max(
       panelWidth - PORTRAIT_SIZE - 72,
       80,
     );
 
+
     this.overlay = this.scene.add.container(0, 0)
       .setScrollFactor(0)
       .setDepth(10000)
       .setAlpha(1)
       .setVisible(true);
+
 
     this.panel = this.scene.add.rectangle(
       width / 2,
@@ -597,72 +776,91 @@ setSkipButtonEnabled(enabled) {
       .setScrollFactor(0)
       .setStrokeStyle(3, COLORS.panelBorder, 0.92);
 
-    const portraitX =
-      panelLeft +
-      16 +
-      PORTRAIT_SIZE / 2;
 
-    const portraitY = panelCenterY + 4;
+    const items = [this.panel];
 
-    this.portraitFrame = this.scene.add.rectangle(
-      portraitX,
-      portraitY,
-      PORTRAIT_SIZE + 8,
-      PORTRAIT_SIZE + 8,
-      COLORS.panel,
-      0.98,
-    )
-      .setScrollFactor(0)
-      .setStrokeStyle(2, COLORS.panelBorder, 0.85);
 
-    if (this.scene.textures.exists(PORTRAIT_KEY)) {
-      this.portrait = this.scene.add.image(
+    if (!collapsed) {
+      const portraitX =
+        panelLeft +
+        16 +
+        PORTRAIT_SIZE / 2;
+
+
+      const portraitY = panelCenterY + 4;
+
+
+      this.portraitFrame = this.scene.add.rectangle(
         portraitX,
         portraitY,
-        PORTRAIT_KEY,
+        PORTRAIT_SIZE + 8,
+        PORTRAIT_SIZE + 8,
+        COLORS.panel,
+        0.98,
       )
         .setScrollFactor(0)
-        .setDisplaySize(
-          PORTRAIT_SIZE,
-          PORTRAIT_SIZE,
+        .setStrokeStyle(2, COLORS.panelBorder, 0.85);
+
+
+      if (this.scene.textures.exists(PORTRAIT_KEY)) {
+        this.portrait = this.scene.add.image(
+          portraitX,
+          portraitY,
+          PORTRAIT_KEY,
+        )
+          .setScrollFactor(0)
+          .setDisplaySize(
+            PORTRAIT_SIZE,
+            PORTRAIT_SIZE,
+          );
+      } else {
+        console.warn(
+          `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}`,
         );
-    } else {
-      console.warn(
-        `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}`,
+
+
+        this.portrait = this.scene.add.rectangle(
+          portraitX,
+          portraitY,
+          PORTRAIT_SIZE,
+          PORTRAIT_SIZE,
+          COLORS.muted,
+          0.3,
+        )
+          .setScrollFactor(0)
+          .setStrokeStyle(
+            1,
+            COLORS.accent,
+            0.5,
+          );
+      }
+
+
+      this.nameplate = this.scene.add.text(
+        portraitX,
+        portraitY + PORTRAIT_SIZE / 2 + 7,
+        'HQ',
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '8px',
+          color: '#f2d477',
+        },
+      )
+        .setScrollFactor(0)
+        .setOrigin(0.5, 0);
+
+
+      items.push(
+        this.portraitFrame,
+        this.portrait,
+        this.nameplate,
       );
-
-      this.portrait = this.scene.add.rectangle(
-        portraitX,
-        portraitY,
-        PORTRAIT_SIZE,
-        PORTRAIT_SIZE,
-        COLORS.muted,
-        0.3,
-      )
-        .setScrollFactor(0)
-        .setStrokeStyle(
-          1,
-          COLORS.accent,
-          0.5,
-        );
     }
 
-    this.nameplate = this.scene.add.text(
-      portraitX,
-      portraitY + PORTRAIT_SIZE / 2 + 7,
-      'HQ',
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: '8px',
-        color: '#f2d477',
-      },
-    )
-      .setScrollFactor(0)
-      .setOrigin(0.5, 0);
 
     this.stepNumberText = this.scene.add.text(
       textLeft,
-      panelTop + 12,
+      panelTop + (collapsed ? 9 : 12),
       '',
       {
         fontFamily: FONT_PIXEL,
@@ -671,9 +869,10 @@ setSkipButtonEnabled(enabled) {
       },
     ).setScrollFactor(0);
 
+
     this.titleText = this.scene.add.text(
       textLeft,
-      panelTop + 28,
+      panelTop + (collapsed ? 26 : 28),
       '',
       {
         fontFamily: FONT_PIXEL,
@@ -682,36 +881,48 @@ setSkipButtonEnabled(enabled) {
       },
     ).setScrollFactor(0);
 
-    this.objectiveText = this.scene.add.text(
-      textLeft,
-      panelTop + 50,
-      '',
-      {
-        fontFamily: FONT_TYPE,
-        fontSize: '20px',
-        color: '#fff4d0',
-        wordWrap: {
-          width: textWrapWidth,
-        },
-      },
-    ).setScrollFactor(0);
 
-    this.hintText = this.scene.add.text(
-      textLeft,
-      panelTop + 84,
-      '',
-      {
-        fontFamily: FONT_TYPE,
-        fontSize: '14px',
-        color: '#d7c58f',
-        wordWrap: {
-          width: textWrapWidth,
+    items.push(this.stepNumberText, this.titleText);
+
+
+    if (!collapsed) {
+      this.objectiveText = this.scene.add.text(
+        textLeft,
+        panelTop + 50,
+        '',
+        {
+          fontFamily: FONT_TYPE,
+          fontSize: '20px',
+          color: '#fff4d0',
+          wordWrap: {
+            width: textWrapWidth,
+          },
         },
-      },
-    ).setScrollFactor(0);
+      ).setScrollFactor(0);
+
+
+      this.hintText = this.scene.add.text(
+        textLeft,
+        panelTop + 84,
+        '',
+        {
+          fontFamily: FONT_TYPE,
+          fontSize: '14px',
+          color: '#d7c58f',
+          wordWrap: {
+            width: textWrapWidth,
+          },
+        },
+      ).setScrollFactor(0);
+
+
+      items.push(this.objectiveText, this.hintText);
+    }
+
 
     const skipButtonWidth = 136;
     const skipButtonHeight = 26;
+
 
     const skipButtonCenterX =
       panelLeft +
@@ -719,7 +930,10 @@ setSkipButtonEnabled(enabled) {
       skipButtonWidth / 2 -
       10;
 
-    const skipButtonCenterY = panelTop + 14;
+
+    const skipButtonCenterY =
+      panelTop + 8 + skipButtonHeight / 2;
+
 
     this.skipButtonBorder = this.scene.add.rectangle(
       skipButtonCenterX,
@@ -731,6 +945,7 @@ setSkipButtonEnabled(enabled) {
     )
       .setScrollFactor(0)
       .setStrokeStyle(1, COLORS.accent, 0.72);
+
 
     this.skipButton = this.scene.add.rectangle(
       skipButtonCenterX,
@@ -745,6 +960,7 @@ setSkipButtonEnabled(enabled) {
         useHandCursor: true,
       });
 
+
     this.skipText = this.scene.add.text(
       skipButtonCenterX,
       skipButtonCenterY,
@@ -758,11 +974,16 @@ setSkipButtonEnabled(enabled) {
       .setScrollFactor(0)
       .setOrigin(0.5);
 
+
     this.skipButton.on('pointerover', () => {
       if (this.skipText?.scene) {
         this.skipText.setColor('#f2d477');
       }
-this.skipButtonEnabled = true;
+
+
+      this.skipButtonEnabled = true;
+
+
       if (this.skipButtonBorder?.scene) {
         this.skipButtonBorder.setStrokeStyle(
           1,
@@ -772,10 +993,12 @@ this.skipButtonEnabled = true;
       }
     });
 
+
     this.skipButton.on('pointerout', () => {
       if (this.skipText?.scene) {
         this.skipText.setColor('#d7c58f');
       }
+
 
       if (this.skipButtonBorder?.scene) {
         this.skipButtonBorder.setStrokeStyle(
@@ -786,22 +1009,98 @@ this.skipButtonEnabled = true;
       }
     });
 
+
     this.skipButton.on(
       'pointerdown',
       (pointer, localX, localY, event) => {
         event?.stopPropagation?.();
 
+
         console.log(
           '[FirstCaseTutorial] Skip Tutorial clicked.',
         );
+
 
         this.skip();
       },
     );
 
+
+    const toggleSize = 26;
+
+
+    const toggleX =
+      skipButtonCenterX -
+      skipButtonWidth / 2 -
+      8 -
+      toggleSize / 2;
+
+
+    const toggleY = skipButtonCenterY;
+
+
+    this.toggleButtonBorder = this.scene.add.rectangle(
+      toggleX,
+      toggleY,
+      toggleSize,
+      toggleSize,
+      COLORS.panel,
+      0.35,
+    )
+      .setScrollFactor(0)
+      .setStrokeStyle(1, COLORS.accent, 0.72);
+
+
+    this.toggleButton = this.scene.add.rectangle(
+      toggleX,
+      toggleY,
+      toggleSize,
+      toggleSize,
+      0x000000,
+      0.001,
+    )
+      .setScrollFactor(0)
+      .setInteractive({
+        useHandCursor: true,
+      });
+
+
+    this.toggleText = this.scene.add.text(
+      toggleX,
+      toggleY,
+      collapsed ? '+' : '–',
+      {
+        fontFamily: FONT_PIXEL,
+        fontSize: '12px',
+        color: '#d7c58f',
+      },
+    )
+      .setScrollFactor(0)
+      .setOrigin(0.5);
+
+
+    this.toggleButton.on('pointerover', () => {
+      this.toggleText?.setColor('#f2d477');
+    });
+
+
+    this.toggleButton.on('pointerout', () => {
+      this.toggleText?.setColor('#d7c58f');
+    });
+
+
+    this.toggleButton.on(
+      'pointerdown',
+      (pointer, localX, localY, event) => {
+        event?.stopPropagation?.();
+        this.toggleCollapsed();
+      },
+    );
+
+
     this.feedbackText = this.scene.add.text(
       width / 2,
-      panelCenterY + panelHeight / 2 + 28,
+      panelTop + panelHeight + 28,
       '',
       {
         fontFamily: FONT_TYPE,
@@ -817,54 +1116,63 @@ this.skipButtonEnabled = true;
       .setOrigin(0.5)
       .setVisible(false);
 
-    this.overlay.add([
-      this.panel,
-      this.portraitFrame,
-      this.portrait,
-      this.nameplate,
-      this.stepNumberText,
-      this.titleText,
-      this.objectiveText,
-      this.hintText,
+
+    items.push(
       this.skipButtonBorder,
       this.skipButton,
       this.skipText,
+      this.toggleButtonBorder,
+      this.toggleButton,
+      this.toggleText,
       this.feedbackText,
-    ]);
+    );
+
+
+    this.overlay.add(items);
   }
+
 
   updateOverlay(step) {
     if (!this.overlay?.scene || !step) {
       return;
     }
 
+
     this.stepNumberText?.setText(
       `OBJECTIVE ${step.number}`,
     );
+
 
     this.titleText?.setText(step.title);
     this.objectiveText?.setText(step.objective);
     this.hintText?.setText(step.hint);
   }
 
+
   highlightHotspot(hotspotId) {
     this.clearHighlight();
+
 
     if (!hotspotId || !this.active) {
       return;
     }
 
+
     const zone = this.hotspots.get(hotspotId);
+
 
     if (!zone?.scene || !zone.hotspotData) {
       console.warn(
         `[FirstCaseTutorial] Missing hotspot for tutorial step: ${hotspotId}`,
       );
 
+
       return;
     }
 
+
     const data = zone.hotspotData;
+
 
     this.highlight = this.scene.add.rectangle(
       data.x + data.width / 2,
@@ -880,6 +1188,7 @@ this.skipButtonEnabled = true;
         zone.scrollFactorY ?? 1,
       );
 
+
     this.highlightTween = this.scene.tweens.add({
       targets: this.highlight,
       alpha: {
@@ -893,18 +1202,22 @@ this.skipButtonEnabled = true;
     });
   }
 
+
   clearHighlight() {
     if (this.highlightTween) {
       this.highlightTween.stop();
       this.highlightTween = null;
     }
 
+
     if (this.highlight?.scene) {
       this.highlight.destroy();
     }
 
+
     this.highlight = null;
   }
+
 
   finish(skipped = false) {
     if (
@@ -915,13 +1228,16 @@ this.skipButtonEnabled = true;
       return;
     }
 
+
     this.finished = true;
     this.active = false;
     this.started = false;
     this.currentStep = null;
 
+
     const tutorialState =
       this.gameState.onboarding.firstCase;
+
 
     tutorialState.active = false;
     tutorialState.completed = true;
@@ -929,20 +1245,25 @@ this.skipButtonEnabled = true;
       skipped ||
       tutorialState.skipped;
 
+
     tutorialState.step = 'finished';
+
 
     this.clearStepDelay();
     this.clearHighlight();
+
 
     EventBus.off(
       'firstCaseTravelStarted',
       this.onTravelStartedBound,
     );
 
+
     this.scene.scale.off(
       'resize',
       this.onResizeBound,
     );
+
 
     EventBus.emit('firstCaseTutorialFinished', {
       skipped: tutorialState.skipped,
@@ -952,6 +1273,7 @@ this.skipButtonEnabled = true;
       },
     });
 
+
     if (tutorialState.skipped) {
       EventBus.emit('firstCaseTutorialSkipped', {
         onboarding: {
@@ -960,10 +1282,12 @@ this.skipButtonEnabled = true;
       });
     }
 
+
     if (!this.overlay?.scene) {
       this.destroyOverlay();
       return;
     }
+
 
     this.scene.tweens.add({
       targets: this.overlay,
@@ -976,19 +1300,28 @@ this.skipButtonEnabled = true;
     });
   }
 
+
   destroyOverlay() {
     if (this.feedbackTween) {
       this.feedbackTween.stop();
       this.feedbackTween = null;
     }
 
+
     if (this.skipButton?.scene) {
       this.skipButton.removeInteractive();
     }
 
+
+    if (this.toggleButton?.scene) {
+      this.toggleButton.removeInteractive();
+    }
+
+
     if (this.overlay?.scene) {
       this.overlay.destroy(true);
     }
+
 
     this.overlay = null;
     this.panel = null;
@@ -1003,48 +1336,46 @@ this.skipButtonEnabled = true;
     this.skipButton = null;
     this.skipButtonBorder = null;
     this.skipButtonEnabled = true;
+    this.toggleText = null;
+    this.toggleButton = null;
+    this.toggleButtonBorder = null;
     this.feedbackText = null;
   }
 
+
   handleResize() {
-    if (!this.active || !this.overlay?.scene) {
-      return;
-    }
-
-    const step = this.stepContent[this.currentStep];
-
-    this.destroyOverlay();
-    this.createOverlay();
-
-    if (step) {
-      this.updateOverlay(step);
-      this.highlightHotspot(step.targetHotspot);
-    }
+    this.rebuildOverlay();
   }
+
 
   destroy() {
     if (this.destroyed) {
       return;
     }
 
+
     this.destroyed = true;
     this.active = false;
     this.started = false;
     this.currentStep = null;
+
 
     EventBus.off(
       'firstCaseTravelStarted',
       this.onTravelStartedBound,
     );
 
+
     this.scene.scale.off(
       'resize',
       this.onResizeBound,
     );
 
+
     this.clearStepDelay();
     this.clearHighlight();
     this.destroyOverlay();
+
 
     this.hotspots.clear();
   }

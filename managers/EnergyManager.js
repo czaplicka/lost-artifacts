@@ -24,7 +24,8 @@ const ENERGY_COSTS = {
     hidden_objects: 10,
     minigame_forensic: 8,
     minigame_mastermind: 6,
-    csi_lab: 12
+    csi_lab: 12,
+    apartment_visit: 6
   }
 };
 
@@ -81,7 +82,31 @@ class EnergyManager {
     this.lastEnergyChange = null;
     this.isSleepingForced = false;
     this.isSleepingManual = false;
+
     this.forcedSleepTimer = null;
+    this.forcedSleepRemainingMs = 0;
+    this.forcedSleepTimerStartedAt = 0;
+
+    this._onVisibilityChange = this._onVisibilityChange.bind(this);
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener(
+        'visibilitychange',
+        this._onVisibilityChange
+      );
+    }
+  }
+
+
+  destroy() {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener(
+        'visibilitychange',
+        this._onVisibilityChange
+      );
+    }
+
+    this._clearForcedSleepTimer();
   }
 
 
@@ -102,10 +127,7 @@ class EnergyManager {
     this.isSleepingManual = false;
 
 
-    if (this.forcedSleepTimer) {
-      clearTimeout(this.forcedSleepTimer);
-      this.forcedSleepTimer = null;
-    }
+    this._clearForcedSleepTimer();
 
 
     this._syncToGameState();
@@ -730,6 +752,7 @@ class EnergyManager {
 
 
     this.isSleepingForced = false;
+    this._clearForcedSleepTimer();
     this._recordAndEmit();
 
 
@@ -785,45 +808,115 @@ class EnergyManager {
     );
 
 
+    this._startForcedSleepTimer(FORCED_SLEEP_ANIMATION_MS);
+  }
+
+
+  _startForcedSleepTimer(durationMs) {
+    this._clearForcedSleepTimer();
+
+    this.forcedSleepRemainingMs = Math.max(0, durationMs);
+
+    if (typeof document !== 'undefined' && document.hidden) {
+      return;
+    }
+
+    this._scheduleForcedSleepTimer();
+  }
+
+
+  _scheduleForcedSleepTimer() {
+    if (this.forcedSleepTimer) {
+      clearTimeout(this.forcedSleepTimer);
+    }
+
+    this.forcedSleepTimerStartedAt = Date.now();
+
     this.forcedSleepTimer = setTimeout(() => {
-      if (!this.isSleepingForced) {
+      this.forcedSleepTimer = null;
+      this.forcedSleepRemainingMs = 0;
+      this._finishForcedSleep();
+    }, this.forcedSleepRemainingMs);
+  }
+
+
+  _clearForcedSleepTimer() {
+    if (this.forcedSleepTimer) {
+      clearTimeout(this.forcedSleepTimer);
+    }
+
+    this.forcedSleepTimer = null;
+    this.forcedSleepRemainingMs = 0;
+    this.forcedSleepTimerStartedAt = 0;
+  }
+
+
+  _onVisibilityChange() {
+    if (!this.isSleepingForced) {
+      return;
+    }
+
+    if (document.hidden) {
+      if (!this.forcedSleepTimer) {
         return;
       }
 
+      const elapsed = Date.now() - this.forcedSleepTimerStartedAt;
 
-      const previousEnergy = this.currentEnergy;
+      this.forcedSleepRemainingMs = Math.max(
+        0,
+        this.forcedSleepRemainingMs - elapsed
+      );
 
-
-      this.currentEnergy = this.maxEnergy;
-
-
-      this.lastEnergyChange = {
-        type: 'recover',
-        amount: this.maxEnergy - previousEnergy,
-        label:
-          `Forced sleep (${FORCED_SLEEP_HOURS}h): ` +
-          `+${this.maxEnergy - previousEnergy}`,
-        recoveryType: 'forced_sleep',
-        recoverySubtype: 'collapse',
-        beforeEnergy: previousEnergy,
-        afterEnergy: this.currentEnergy,
-        timestamp: Date.now()
-      };
-
-
-      this.isSleepingForced = false;
+      clearTimeout(this.forcedSleepTimer);
       this.forcedSleepTimer = null;
 
+      return;
+    }
 
-      this._recordAndEmit();
+    if (!this.forcedSleepTimer) {
+      this._scheduleForcedSleepTimer();
+    }
+  }
 
 
-      EventBus.emit('energyRecovered', {
-        energy: this.currentEnergy,
-        sleepHours: FORCED_SLEEP_HOURS,
-        reason: 'forced_sleep'
-      });
-    }, FORCED_SLEEP_ANIMATION_MS);
+  _finishForcedSleep() {
+    if (!this.isSleepingForced) {
+      return;
+    }
+
+
+    const previousEnergy = this.currentEnergy;
+
+
+    this.currentEnergy = this.maxEnergy;
+
+
+    this.lastEnergyChange = {
+      type: 'recover',
+      amount: this.maxEnergy - previousEnergy,
+      label:
+        `Forced sleep (${FORCED_SLEEP_HOURS}h): ` +
+        `+${this.maxEnergy - previousEnergy}`,
+      recoveryType: 'forced_sleep',
+      recoverySubtype: 'collapse',
+      beforeEnergy: previousEnergy,
+      afterEnergy: this.currentEnergy,
+      timestamp: Date.now()
+    };
+
+
+    this.isSleepingForced = false;
+
+
+    this._recordAndEmit();
+
+
+    EventBus.emit('energyRecovered', {
+      energy: this.currentEnergy,
+      sleepHours: FORCED_SLEEP_HOURS,
+      reason: 'forced_sleep'
+    });
   }
 
 
@@ -870,7 +963,7 @@ class EnergyManager {
       status: this.getEnergyStatus(),
       color: this.getEnergyColor(),
       tooltip: this.getEnergyTooltip(),
-      lastChange: cloneData(this.lastEnergyChange)
+      lastChange: this.getLastEnergyChange()
     });
   }
 
@@ -885,8 +978,30 @@ class EnergyManager {
   }
 
 
-  getEnergyLog() {
-    return cloneData(this.energyLog);
+  /**
+   * Zwraca kopię logu energii.
+   * Bez argumentu: cały log. Z argumentem n: ostatnie n wpisów.
+   */
+  getEnergyLog(limit = null) {
+    if (limit === null || limit === undefined) {
+      return cloneData(this.energyLog);
+    }
+
+    const count = Math.floor(Number(limit));
+
+    if (!Number.isFinite(count) || count <= 0) {
+      return [];
+    }
+
+    return cloneData(this.energyLog.slice(-count));
+  }
+
+
+  /**
+   * Zwraca kopię ostatniej zmiany energii (albo null).
+   */
+  getLastEnergyChange() {
+    return cloneData(this.lastEnergyChange);
   }
 
 
@@ -961,10 +1076,7 @@ class EnergyManager {
     this.isSleepingManual = false;
 
 
-    if (this.forcedSleepTimer) {
-      clearTimeout(this.forcedSleepTimer);
-      this.forcedSleepTimer = null;
-    }
+    this._clearForcedSleepTimer();
 
 
     this._syncToGameState();
@@ -1010,6 +1122,10 @@ export function getEnergyManager() {
 
 
 export function createEnergyManager() {
+  if (energyManagerInstance) {
+    energyManagerInstance.destroy();
+  }
+
   energyManagerInstance = new EnergyManager();
   return energyManagerInstance;
 }

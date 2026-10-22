@@ -7,9 +7,33 @@ export const GridCellsMixin = {
     const { nameW, headerH, sceneRowH, rowH } = L;
     const fields = this.rows;
 
+    this.gridCluesById = new Map();
+    this.gridCrimeSceneFields = new Set();
+
+    for (const clue of this.clueCards) {
+      // Zachowujemy wynik pierwszego dopasowania, jak wcześniej find().
+      if (!this.gridCluesById.has(clue.id)) {
+        this.gridCluesById.set(clue.id, clue);
+      }
+
+      if (clue.type === 'crime_scene_fact') {
+        this.gridCrimeSceneFields.add(clue.field);
+      }
+    }
+
+    this.gridSelectedClue =
+      this.gridCluesById.get(this.selectedClueId) || null;
+
     this.uiRoot.add(
       this.add
-        .rectangle(g.x + g.w / 2, g.y + g.h / 2, g.w, g.h, 0x171112, 1)
+        .rectangle(
+          g.x + g.w / 2,
+          g.y + g.h / 2,
+          g.w,
+          g.h,
+          0x171112,
+          1
+        )
         .setStrokeStyle(2, 0x725d40, 1)
     );
 
@@ -30,13 +54,46 @@ export const GridCellsMixin = {
 
     this.minScrollX = Math.min(0, bodyW - contentW);
     this.minScrollY = Math.min(0, bodyH - contentH);
-    this.scrollX = Phaser.Math.Clamp(this.scrollX, this.minScrollX, 0);
-    this.scrollY = Phaser.Math.Clamp(this.scrollY, this.minScrollY, 0);
 
-    this.regions.body = { x: bodyX, y: bodyY, w: bodyW, h: bodyH };
-    this.regions.scene = { x: bodyX, y: sceneY, w: bodyW, h: sceneRowH };
-    this.regions.header = { x: bodyX, y: g.y, w: bodyW, h: headerH };
-    this.regions.names = { x: g.x, y: bodyY, w: nameW, h: bodyH };
+    this.scrollX = Phaser.Math.Clamp(
+      this.scrollX,
+      this.minScrollX,
+      0
+    );
+
+    this.scrollY = Phaser.Math.Clamp(
+      this.scrollY,
+      this.minScrollY,
+      0
+    );
+
+    this.regions.body = {
+      x: bodyX,
+      y: bodyY,
+      w: bodyW,
+      h: bodyH
+    };
+
+    this.regions.scene = {
+      x: bodyX,
+      y: sceneY,
+      w: bodyW,
+      h: sceneRowH
+    };
+
+    this.regions.header = {
+      x: bodyX,
+      y: g.y,
+      w: bodyW,
+      h: headerH
+    };
+
+    this.regions.names = {
+      x: g.x,
+      y: bodyY,
+      w: nameW,
+      h: bodyH
+    };
 
     this.gridOrigin = {
       bodyX,
@@ -51,10 +108,21 @@ export const GridCellsMixin = {
     this.sceneContainer = this.add.container(bodyX, sceneY);
     this.nameContainer = this.add.container(g.x, bodyY);
 
-    this.bodyContainer.setMask(this.makeMask(bodyX, bodyY, bodyW, bodyH));
-    this.headerContainer.setMask(this.makeMask(bodyX, g.y, bodyW, headerH));
-    this.sceneContainer.setMask(this.makeMask(bodyX, sceneY, bodyW, sceneRowH));
-    this.nameContainer.setMask(this.makeMask(g.x, bodyY, nameW, bodyH));
+    this.bodyContainer.setMask(
+      this.makeMask(bodyX, bodyY, bodyW, bodyH)
+    );
+
+    this.headerContainer.setMask(
+      this.makeMask(bodyX, g.y, bodyW, headerH)
+    );
+
+    this.sceneContainer.setMask(
+      this.makeMask(bodyX, sceneY, bodyW, sceneRowH)
+    );
+
+    this.nameContainer.setMask(
+      this.makeMask(g.x, bodyY, nameW, bodyH)
+    );
 
     this.uiRoot.add([
       this.bodyContainer,
@@ -64,15 +132,27 @@ export const GridCellsMixin = {
     ]);
 
     const corner = this.add
-      .rectangle(g.x + nameW / 2, g.y + headerH / 2, nameW, headerH, 0x38291d, 1)
+      .rectangle(
+        g.x + nameW / 2,
+        g.y + headerH / 2,
+        nameW,
+        headerH,
+        0x38291d,
+        1
+      )
       .setStrokeStyle(1, 0x8b704b, 1);
 
     const cornerText = this.add
-      .text(g.x + nameW / 2, g.y + headerH / 2, 'SUSPECTS', {
-        fontFamily: 'PressStart2P',
-        fontSize: '9px',
-        color: '#ffdc73'
-      })
+      .text(
+        g.x + nameW / 2,
+        g.y + headerH / 2,
+        'SUSPECTS',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '9px',
+          color: '#ffdc73'
+        }
+      )
       .setOrigin(0.5);
 
     const sceneLabelBg = this.add
@@ -87,20 +167,37 @@ export const GridCellsMixin = {
       .setStrokeStyle(1, 0x8b704b, 1);
 
     const sceneLabel = this.add
-      .text(g.x + nameW / 2, sceneY + sceneRowH / 2, 'CRIME SCENE', {
-        fontFamily: 'PressStart2P',
-        fontSize: '10px',
-        color: '#ffdc73'
-      })
+      .text(
+        g.x + nameW / 2,
+        sceneY + sceneRowH / 2,
+        'CRIME SCENE',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '10px',
+          color: '#ffdc73'
+        }
+      )
       .setOrigin(0.5);
 
-    this.uiRoot.add([corner, cornerText, sceneLabelBg, sceneLabel]);
+    this.uiRoot.add([
+      corner,
+      cornerText,
+      sceneLabelBg,
+      sceneLabel
+    ]);
 
     fields.forEach((row, index) => {
       const cx = index * colW + colW / 2;
 
       const headerBg = this.add
-        .rectangle(cx, headerH / 2, colW, headerH, COLORS.headerSuspect, 1)
+        .rectangle(
+          cx,
+          headerH / 2,
+          colW,
+          headerH,
+          COLORS.headerSuspect,
+          1
+        )
         .setStrokeStyle(1, 0x8b704b, 1);
 
       const headerText = this.add
@@ -109,7 +206,10 @@ export const GridCellsMixin = {
           fontSize: '9px',
           color: '#f5e7c6',
           align: 'center',
-          wordWrap: { width: colW - 14, useAdvancedWrap: true }
+          wordWrap: {
+            width: colW - 14,
+            useAdvancedWrap: true
+          }
         })
         .setOrigin(0.5);
 
@@ -131,7 +231,13 @@ export const GridCellsMixin = {
     this.suspects.forEach((suspect, rowIndex) => {
       const y = rowIndex * rowH;
 
-      this.createSuspectNameCell(suspect, y, nameW, rowH, rowIndex);
+      this.createSuspectNameCell(
+        suspect,
+        y,
+        nameW,
+        rowH,
+        rowIndex
+      );
 
       fields.forEach((row, index) => {
         this.createEvidenceCell({
@@ -151,11 +257,16 @@ export const GridCellsMixin = {
     if (this.minScrollX < 0 || this.minScrollY < 0) {
       this.uiRoot.add(
         this.add
-          .text(g.x + g.w - 8, g.y + g.h - 12, 'DRAG OR SCROLL TABLE', {
-            fontFamily: 'PressStart2P',
-            fontSize: '6px',
-            color: '#aa9263'
-          })
+          .text(
+            g.x + g.w - 8,
+            g.y + g.h - 12,
+            'DRAG OR SCROLL TABLE',
+            {
+              fontFamily: 'PressStart2P',
+              fontSize: '6px',
+              color: '#aa9263'
+            }
+          )
           .setOrigin(1, 0.5)
           .setDepth(5)
       );
@@ -163,7 +274,8 @@ export const GridCellsMixin = {
   },
 
   createSuspectNameCell(suspect, y, nameW, rowH, rowIndex) {
-    const unlikely = this.markedUnlikelyBySuspectId[suspect.id] === true;
+    const unlikely =
+      this.markedUnlikelyBySuspectId[suspect.id] === true;
 
     const bg = this.add
       .rectangle(
@@ -171,7 +283,11 @@ export const GridCellsMixin = {
         y + rowH / 2,
         nameW,
         rowH,
-        unlikely ? 0x3a1b18 : rowIndex % 2 ? 0x211816 : 0x281d18,
+        unlikely
+          ? 0x3a1b18
+          : rowIndex % 2
+            ? 0x211816
+            : 0x281d18,
         1
       )
       .setStrokeStyle(1, COLORS.line, 1);
@@ -180,21 +296,37 @@ export const GridCellsMixin = {
     const textW = nameW - btnW - 30;
 
     const name = this.add
-      .text(10, y + 6, this.getSuspectDisplayName(suspect), {
-        fontFamily: 'SpecialElite',
-        fontSize: '16px',
-        color: unlikely ? '#a38b85' : '#fff0cb',
-        wordWrap: { width: textW, useAdvancedWrap: true }
-      })
+      .text(
+        10,
+        y + 6,
+        this.getSuspectDisplayName(suspect),
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '16px',
+          color: unlikely ? '#a38b85' : '#fff0cb',
+          wordWrap: {
+            width: textW,
+            useAdvancedWrap: true
+          }
+        }
+      )
       .setOrigin(0, 0);
 
     const occupation = this.add
-      .text(10, name.y + name.height + 1, this.getSuspectOccupation(suspect), {
-        fontFamily: 'SpecialElite',
-        fontSize: '12px',
-        color: unlikely ? '#85726d' : '#b9a57a',
-        wordWrap: { width: textW, useAdvancedWrap: true }
-      })
+      .text(
+        10,
+        name.y + name.height + 1,
+        this.getSuspectOccupation(suspect),
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '12px',
+          color: unlikely ? '#85726d' : '#b9a57a',
+          wordWrap: {
+            width: textW,
+            useAdvancedWrap: true
+          }
+        }
+      )
       .setOrigin(0, 0);
 
     const btnX = nameW - btnW / 2 - 8;
@@ -209,30 +341,54 @@ export const GridCellsMixin = {
         unlikely ? COLORS.noFill : COLORS.okFill,
         1
       )
-      .setStrokeStyle(2, unlikely ? COLORS.noStroke : COLORS.okStroke, 1)
+      .setStrokeStyle(
+        2,
+        unlikely ? COLORS.noStroke : COLORS.okStroke,
+        1
+      )
       .setInteractive({ useHandCursor: true });
 
     const label = this.add
-      .text(btnX, btnY, unlikely ? 'UNLIKELY' : 'POSSIBLE', {
-        fontFamily: 'PressStart2P',
-        fontSize: '7px',
-        color: unlikely ? '#ffd1c8' : '#d5ffd2'
-      })
+      .text(
+        btnX,
+        btnY,
+        unlikely ? 'UNLIKELY' : 'POSSIBLE',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '7px',
+          color: unlikely ? '#ffd1c8' : '#d5ffd2'
+        }
+      )
       .setOrigin(0.5);
 
     btn.on('pointerover', () => {
-      btn.setFillStyle(unlikely ? 0x823b31 : 0x35613a, 1);
+      btn.setFillStyle(
+        unlikely ? 0x823b31 : 0x35613a,
+        1
+      );
     });
+
     btn.on('pointerout', () => {
-      btn.setFillStyle(unlikely ? COLORS.noFill : COLORS.okFill, 1);
+      btn.setFillStyle(
+        unlikely ? COLORS.noFill : COLORS.okFill,
+        1
+      );
     });
+
     btn.on('pointerup', (pointer) => {
       if (this.modalOpen || this.dragMoved) return;
       if (!this.inRect(pointer, this.regions.names)) return;
+
       this.toggleSuspectMark(suspect.id);
     });
 
-    this.nameContainer.add([bg, name, occupation, btn, label]);
+    this.nameContainer.add([
+      bg,
+      name,
+      occupation,
+      btn,
+      label
+    ]);
   },
 
   createEvidenceCell({
@@ -247,31 +403,38 @@ export const GridCellsMixin = {
     alternate
   }) {
     const target = suspect
-      ? { type: 'suspect', suspectId: suspect.id, field }
-      : { type: 'crime_scene', suspectId: null, field };
+      ? {
+          type: 'suspect',
+          suspectId: suspect.id,
+          field
+        }
+      : {
+          type: 'crime_scene',
+          suspectId: null,
+          field
+        };
 
     const key = this.getCellKey(target);
-    const placedClue = this.clueCards.find(
-      (c) => c.id === this.placedCluesByCell[key]
+
+    const placedClue = this.gridCluesById.get(
+      this.placedCluesByCell[key]
     );
 
-    const autoValue = suspect ? this.getAutoSuspectValue(suspect, field) : null;
+    const autoValue = suspect
+      ? this.getAutoSuspectValue(suspect, field)
+      : null;
 
     const sceneHasCard =
-      !suspect &&
-      this.clueCards.some(
-        (c) => c.type === 'crime_scene_fact' && c.field === field
-      );
+      !suspect && this.gridCrimeSceneFields.has(field);
 
-    const noData = !suspect && !sceneHasCard && !placedClue;
+    const noData =
+      !suspect && !sceneHasCard && !placedClue;
 
     const unlikely =
       Boolean(suspect) &&
       this.markedUnlikelyBySuspectId[suspect.id] === true;
 
-    const selectedClue = this.clueCards.find(
-      (c) => c.id === this.selectedClueId
-    );
+    const selectedClue = this.gridSelectedClue;
 
     const waiting =
       Boolean(selectedClue) &&
@@ -280,7 +443,8 @@ export const GridCellsMixin = {
       this.isTargetForClue(selectedClue, target);
 
     const displayValue =
-      autoValue || (placedClue ? formatCellValue(placedClue.value) : '');
+      autoValue ||
+      (placedClue ? formatCellValue(placedClue.value) : '');
 
     const clickable = autoValue === null && !noData;
 
@@ -312,11 +476,16 @@ export const GridCellsMixin = {
         y,
         displayValue || (noData ? '—' : '?'),
         {
-          fontFamily: displayValue ? 'SpecialElite' : 'PressStart2P',
+          fontFamily: displayValue
+            ? 'SpecialElite'
+            : 'PressStart2P',
           fontSize: displayValue ? '20px' : '14px',
           color: displayValue ? '#f6dfa3' : '#756351',
           align: 'center',
-          wordWrap: { width: width - 12, useAdvancedWrap: true }
+          wordWrap: {
+            width: width - 12,
+            useAdvancedWrap: true
+          }
         }
       )
       .setOrigin(0.5);
@@ -329,14 +498,21 @@ export const GridCellsMixin = {
     if (clickable) {
       bg.on('pointerover', () => {
         if (this.modalOpen) return;
-        bg.setFillStyle(placedClue ? 0x4d3a20 : COLORS.cellHover, 1);
+
+        bg.setFillStyle(
+          placedClue ? 0x4d3a20 : COLORS.cellHover,
+          1
+        );
       });
+
       bg.on('pointerout', () => {
         bg.setFillStyle(baseFill, 1);
       });
+
       bg.on('pointerup', (pointer) => {
         if (this.modalOpen || this.dragMoved) return;
         if (!this.inRect(pointer, region)) return;
+
         this.onCellClick(target, placedClue);
       });
     }

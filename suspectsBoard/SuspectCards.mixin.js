@@ -8,7 +8,7 @@
 // - The player makes the comparison using the separate lab widget.
 // - CLEARED remains a manual action in active Exclude Mode only.
 
-import { saveGameState } from '../gameStatePersistence.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 import { CrimeLabManager } from '../scenes/CSI/CrimeLabManager.js';
 
 const FILE_DATA_FIELDS = [
@@ -507,7 +507,7 @@ export const SuspectCardsMixin = {
       this.selectedSuspectId = suspect.id;
       this.gameState.selectedSuspectId = suspect.id;
 
-      saveGameState();
+      requestAutosave();
 
       if (this.scale.width <= 700) {
         this.showMobileDetails(suspect);

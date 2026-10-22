@@ -12,10 +12,11 @@ const GENERIC_NPC_KEYS = [
   'npc6'
 ];
 
-// One map slot per suspect, three witnesses side by side inside it.
-const CLUSTER_OFFSETS_X = [-64, 0, 64];
-const NPC_SCALE = 0.3;
-const NPC_SCALE_HOVER = 0.34;
+const MAX_ICON_HEIGHT = 96;
+const MAX_CELL_WIDTH = 150;
+const MIN_CELL_WIDTH = 70;
+const HOVER_MULTIPLIER = 1.1;
+const HEADER_BAR_HEIGHT = 80;
 
 export class CrimeCityNpcManager {
   constructor(scene) {
@@ -44,10 +45,6 @@ export class CrimeCityNpcManager {
     return suspect?.name || suspect?.publicProfile?.displayName || fallback;
   }
 
-  /**
-   * Dostęp do świadków wynika z zatwierdzenia ręcznych
-   * wykluczeń w SuspectBoardScene.
-   */
   getAlibiAccessState() {
     const lockedState = {
       unlocked: false,
@@ -86,7 +83,6 @@ export class CrimeCityNpcManager {
         .map((suspect) => suspect.id)
     );
 
-    // Wystarczy jeden podejrzany: wtedy 3 świadków.
     if (candidateIds.size < 1) {
       return lockedState;
     }
@@ -109,8 +105,6 @@ export class CrimeCityNpcManager {
       return false;
     }
 
-    // isGridCompleted() w CrimeCityScene oznacza
-    // rekonstrukcję przestępstwa, nie Evidence Grid.
     return this.getAlibiAccessState().unlocked;
   }
 
@@ -192,34 +186,85 @@ export class CrimeCityNpcManager {
     });
   }
 
+  getClusterMetrics(count) {
+    const scene = this.scene;
+    const columns = Math.max(count, 1);
+
+    // Szerokość jednej "komórki" suspecta to ok. 24% ekranu.
+    const clusterWidth = Math.max(
+      MIN_CELL_WIDTH * columns,
+      scene.scale.width * 0.24
+    );
+
+    const cellWidth = Phaser.Math.Clamp(
+      clusterWidth / columns,
+      MIN_CELL_WIDTH,
+      MAX_CELL_WIDTH
+    );
+
+    return {
+      cellWidth,
+      totalWidth: cellWidth * columns,
+      iconMaxWidth: cellWidth - 12,
+      iconMaxHeight: MAX_ICON_HEIGHT
+    };
+  }
+
   createSuspectCluster(group, slot) {
+    const scene = this.scene;
+    const count = group.encounters.length;
+    const metrics = this.getClusterMetrics(count);
+
     const suspectName = this.getSuspectName(
       group.suspectId,
       group.encounters[0]?.suspectName
     );
 
-    const header = this.scene.add
-      .text(slot.x, slot.y - 92, suspectName, {
+    // Stały układ pionowy względem slotu (y = środek ikony).
+    const iconHalf = metrics.iconMaxHeight / 2;
+    const badgeY = slot.y - iconHalf - 14;
+
+    const headerY = Math.max(
+      badgeY - 24,
+      HEADER_BAR_HEIGHT + 12
+    );
+
+    const header = scene.add
+      .text(slot.x, headerY, suspectName, {
         fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#ffe066',
         backgroundColor: '#000000aa',
-        padding: { left: 8, right: 8, top: 3, bottom: 3 }
+        align: 'center',
+        padding: { left: 8, right: 8, top: 3, bottom: 3 },
+        wordWrap: {
+          width: Math.max(metrics.totalWidth, 140),
+          useAdvancedWrap: true
+        }
       })
       .setOrigin(0.5)
       .setDepth(6);
 
     this.createdObjects.push(header);
 
+    // Wyśrodkowanie całej grupy względem slotu.
+    const startX =
+      slot.x - metrics.totalWidth / 2 + metrics.cellWidth / 2;
+
     group.encounters.forEach((encounter, index) => {
-      this.createNpcSpot(encounter, {
-        x: slot.x + (CLUSTER_OFFSETS_X[index] ?? 0),
-        y: slot.y
-      });
+      this.createNpcSpot(
+        encounter,
+        {
+          x: Math.round(startX + index * metrics.cellWidth),
+          y: slot.y
+        },
+        metrics,
+        badgeY
+      );
     });
   }
 
-  createNpcSpot(encounter, slot) {
+  createNpcSpot(encounter, slot, metrics, badgeY) {
     if (!this.canAccessEncounter(encounter)) {
       return null;
     }
@@ -243,7 +288,6 @@ export class CrimeCityNpcManager {
 
     const icon = this.scene.add
       .image(slot.x, slot.y, textureKey)
-      .setScale(NPC_SCALE)
       .setDepth(5)
       .setAlpha(isVisited ? 0.62 : 1)
       .setTint(
@@ -252,50 +296,66 @@ export class CrimeCityNpcManager {
           : isVisited
             ? 0xb8b8b8
             : 0xffffff
-      )
-      .setInteractive({ useHandCursor: true });
+      );
+
+    // Skala dopasowana do rzeczywistego rozmiaru tekstury.
+    const baseScale = Math.min(
+      metrics.iconMaxWidth / Math.max(icon.width, 1),
+      metrics.iconMaxHeight / Math.max(icon.height, 1)
+    );
+
+    icon.setScale(baseScale);
+    icon.setInteractive({ useHandCursor: true });
+
+    const labelY =
+      slot.y + (icon.height * baseScale) / 2 + 6;
 
     const label = this.scene.add
       .text(
         slot.x,
-        slot.y + 56,
+        labelY,
         encounter.witnessRole ||
           encounter.npcName ||
           'Contact',
         {
           fontFamily: 'SpecialElite',
-          fontSize: '13px',
+          fontSize: '12px',
           color: isVisited ? '#cccccc' : '#ffffff',
           backgroundColor: '#000000aa',
+          align: 'center',
           padding: {
-            left: 5,
-            right: 5,
+            left: 4,
+            right: 4,
             top: 3,
             bottom: 3
+          },
+          wordWrap: {
+            width: metrics.cellWidth - 8,
+            useAdvancedWrap: true
           }
         }
       )
-      .setOrigin(0.5)
+      .setOrigin(0.5, 0)
       .setDepth(6);
 
     this.createdObjects.push(icon, label);
 
     const badge = this.createEncounterBadge(
-      slot,
+      { x: slot.x, y: badgeY },
       isExcluded,
       isVisited
     );
 
     icon.on('pointerover', () => {
       if (!isExcluded) {
-        icon.setScale(NPC_SCALE_HOVER);
+        icon.setScale(baseScale * HOVER_MULTIPLIER);
       }
 
       label.setColor('#ffe066');
     });
 
     icon.on('pointerout', () => {
-      icon.setScale(NPC_SCALE);
+      icon.setScale(baseScale);
       label.setColor(isVisited ? '#cccccc' : '#ffffff');
     });
 
@@ -308,7 +368,7 @@ export class CrimeCityNpcManager {
     return { icon, label, badge };
   }
 
-  createEncounterBadge(slot, isExcluded, isVisited) {
+  createEncounterBadge(position, isExcluded, isVisited) {
     if (!this.scene?.mapUI) {
       return null;
     }
@@ -326,8 +386,8 @@ export class CrimeCityNpcManager {
         : '#8ed1fc';
 
     return this.scene.mapUI.createStatusBadge(
-      slot.x,
-      slot.y - 50,
+      position.x,
+      position.y,
       text,
       color,
       this.createdObjects

@@ -12,8 +12,13 @@ import { CrimeCityTutorialController } from './crimeCity/CrimeCityTutorialContro
 import { CrimeCityMapUI } from './crimeCity/CrimeCityMapUI.js';
 import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 import { buildCrimeCityLayout } from './crimeCity/CrimeCityLayout.js';
+import { CrimeCityTutorial } from '../CrimeCityTutorial.js';
+
+
 
 const SHOP_TAXI_ENERGY = 3;
+
+
 
 export class CrimeCityScene extends BaseScene {
   constructor() {
@@ -22,6 +27,7 @@ export class CrimeCityScene extends BaseScene {
     this.interactiveObjects = []; this.cityAmbient = null;
     this.progressService = null; this.reconstructionService = null;
     this.tutorialController = null; this.mapUI = null; this.npcManager = null;
+    this.crimeTutorial = null;
     this.isSettingUpUi = false; this.isTransitioning = false;
     this.isVisitingApartment = false; this.alibiEncountersEnsuredFor = null;
   }
@@ -57,6 +63,7 @@ export class CrimeCityScene extends BaseScene {
     try {
       this.initializeCrimeCity(); this.createCrimeCityContent();
       void this.setupCrimeCityUi(); this.scheduleStoryEvents();
+      this.startCrimeTutorial();
     } catch (error) { console.error('[CrimeCityScene] Initialization failed.', error); }
   }
   bindLifecycleListeners() {
@@ -137,6 +144,53 @@ export class CrimeCityScene extends BaseScene {
       this.npcManager?.createNpcSpots(); this.tutorialController?.scheduleSuspectTutorial();
     }
   }
+  startCrimeTutorial() {
+    if (this._cleanupDone || !this.cityData?.crimeCity) {
+      console.warn('[CrimeCityScene] Tutorial not started: scene cleaned up or city data missing.', {
+        cleanupDone: this._cleanupDone, hasCityData: Boolean(this.cityData?.crimeCity)
+      });
+      return;
+    }
+    this.crimeTutorial?.destroy();
+    this.crimeTutorial = new CrimeCityTutorial(this, gameState);
+    const state = gameState.onboarding?.crimeCity;
+    console.log('[CrimeCityScene] Tutorial state before start:', JSON.stringify(state));
+    if (state?.completed) {
+      console.warn('[CrimeCityScene] Tutorial not started: already completed or skipped. Reset gameState.onboarding.crimeCity to see it again.');
+    }
+    this.crimeTutorial.start();
+    console.log('[CrimeCityScene] Tutorial active:', this.crimeTutorial.isActive(), 'step:', this.crimeTutorial.getStep());
+    this.syncCrimeTutorial();
+  }
+  syncCrimeTutorial() {
+    const tutorial = this.crimeTutorial;
+    if (!tutorial?.isActive()) return;
+
+
+    const saved = gameState.onboarding?.crimeCity;
+    if (!saved) return;
+
+
+    if (saved.completed || saved.step === 'finished') {
+      tutorial.finish(false);
+      return;
+    }
+
+
+    if (saved.step && saved.step !== tutorial.getStep()) {
+      tutorial.setStep(saved.step);
+    }
+
+
+    const doneByStep = {
+      crime_scene: this.isCrimeSceneCompleted(),
+      crime_lab: this.isCrimeLabCompleted()
+    };
+
+
+    const step = tutorial.getStep();
+    if (doneByStep[step]) tutorial.complete(step);
+  }
   ensureAlibiEncountersOnce() {
     const caseKey = this.getCaseKey();
     if (!caseKey || this.alibiEncountersEnsuredFor === caseKey) return;
@@ -150,6 +204,8 @@ export class CrimeCityScene extends BaseScene {
   scheduleStoryEvents() { this.tutorialController?.scheduleLabCompletionPhoneCall(); }
   createShopPin() { this.mapUI?.createShopIcon(); }
 
+
+
   visitShop() {
     if (this.isTransitioning || this._cleanupDone || !this.sys.isActive()) return false;
     if (getEnergyManager().getCurrentEnergy() < SHOP_TAXI_ENERGY) {
@@ -162,7 +218,6 @@ export class CrimeCityScene extends BaseScene {
   }
   async openShopOverlay() {
     try {
-      // Rejestracja przed ponownym sprawdzeniem energii, bez pauzowania miasta.
       if (this.game.sceneLoader) await this.game.sceneLoader.ensure('ShopScene');
       if (this._cleanupDone || !this.sys.isActive()) return false;
       if (!this.hasScene('ShopScene')) throw new Error('ShopScene is not registered.');
@@ -178,8 +233,6 @@ export class CrimeCityScene extends BaseScene {
         this.showMessage('The shop could not be opened.\nPlease try again.', 2800, '#8b0000');
         return false;
       }
-      // Dokładnie 3, bez scaleCost i bez drugiego kosztu przez moveToCrimeCityNode.
-      // Po await sprawdzamy saldo ponownie, zanim pobierzemy energię.
       if (energy.getCurrentEnergy() < SHOP_TAXI_ENERGY) {
         this.scene.stop('ShopScene');
         this.showNoEnergyPopup();
@@ -229,7 +282,7 @@ export class CrimeCityScene extends BaseScene {
       cityId: this.cityId, sourceScene: 'CrimeCityScene', mission
     });
   }
-  visitApartment(suspectId) {
+    visitApartment(suspectId) {
     if (this.isTransitioning || this.isVisitingApartment || this._cleanupDone || !this.sys.isActive()) return false;
     const targetSuspectId = suspectId || gameState.currentThiefId;
     if (!targetSuspectId) {
@@ -238,8 +291,10 @@ export class CrimeCityScene extends BaseScene {
     if (!this.isAlibiDebunked(targetSuspectId)) {
       this.showMessage("This suspect's alibi still holds up.\nNo warrant, no keys, no apartment tour.", 2600, '#5d2a00'); return false;
     }
+    if (!this.moveToCrimeCityNode('apartment')) return false;
     if (!this.trySpendEnergy('activity', 'apartment_visit')) return false;
     this.closeAllUIPanels(); this.isTransitioning = true; this.isVisitingApartment = true;
+    EventBus.emit('crimeCityTutorialStep', { step: 'search_apartment' });
     this.cameras.main.fadeOut(350, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.isTransitioning = false;
@@ -299,6 +354,8 @@ export class CrimeCityScene extends BaseScene {
     this.cameras.main.fadeIn(300, 0, 0, 0);
     if (!this.cityAmbient?.isPlaying) this.playCityAmbient();
     void this.setupCrimeCityUi(); this.rebuildMapContent();
+    this.crimeTutorial?.resume();
+    this.syncCrimeTutorial();
   }
   onSleep() { this.stopCityAmbient(); }
   cleanupScene() {
@@ -312,6 +369,7 @@ export class CrimeCityScene extends BaseScene {
     audioManager.releaseSound(this.cityAmbient); this.cityAmbient = null;
   }
   destroyControllers() {
+    this.crimeTutorial?.destroy(); this.crimeTutorial = null;
     this.tutorialController?.destroy(); this.tutorialController = null;
     this.npcManager?.destroy(); this.npcManager = null;
     this.mapUI?.destroy(); this.mapUI = null;

@@ -11,7 +11,8 @@ const ENERGY_BASE_COSTS = {
   },
   activity: {
     crime_scene: 8,
-    csi_lab: 12
+    csi_lab: 12,
+    apartment_visit: 6
   }
 };
 
@@ -325,29 +326,20 @@ export class CrimeCityProgressService {
 
 
 
-  trySpendEnergy(category, key) {
+    trySpendEnergy(category, key) {
     const energyManager = getEnergyManager();
-
-
 
     if (category === 'travel') {
       const travelManager = getUnifiedTravelManager();
       const rule = travelManager.getTransportRule(key);
 
-
-
       if (!rule) {
         console.error(
-          '[CrimeCityProgressService] Unknown transport type for travel energy.',
-          { key }
+          `[CrimeCityProgressService] Unknown transport type for travel energy: "${key}"`
         );
-
-
 
         return false;
       }
-
-
 
       // Koszt bazowy to próbka jednej godziny podróży.
       const baseEnergyCost = Math.max(
@@ -355,67 +347,60 @@ export class CrimeCityProgressService {
         Math.round(1 * rule.energyPerHour)
       );
 
-
-
       const cost = energyManager.scaleCost(baseEnergyCost);
-
-
 
       if (energyManager.getCurrentEnergy() < cost) {
         this.scene?.showNoEnergyPopup();
         return false;
       }
 
-
-
-      energyManager.consumeCustom(
+      const travelResult = energyManager.consumeCustom(
         cost,
-        `Travel (${key}): -${cost}`
+        `Travel (${key}): -${cost}`,
+        { requireFullAmount: true, activityType: `travel_${key}` }
       );
 
-
+      if (!travelResult?.success) {
+        this.scene?.showNoEnergyPopup();
+        return false;
+      }
 
       requestAutosave();
       return true;
     }
 
-
-
     if (category === 'activity') {
-      const baseCost = ENERGY_BASE_COSTS[category]?.[key];
-
-
+      const baseCost = ENERGY_BASE_COSTS.activity?.[key];
 
       if (!Number.isFinite(baseCost)) {
         console.error(
-          '[CrimeCityProgressService] Unknown energy cost.',
-          { category, key }
+          `[CrimeCityProgressService] Unknown energy cost: category="${category}", key="${key}". Allowed: ${Object.keys(ENERGY_BASE_COSTS.activity).join(', ')}`
         );
-
-
 
         return false;
       }
 
-
-
       const cost = energyManager.scaleCost(baseCost);
-
-
 
       if (energyManager.getCurrentEnergy() < cost) {
         this.scene?.showNoEnergyPopup();
         return false;
       }
 
+      const result = energyManager.consumeActivity(key);
 
+      if (!result?.success) {
+        this.scene?.showNoEnergyPopup();
+        return false;
+      }
 
-      energyManager.consumeActivity(key);
       requestAutosave();
       return true;
     }
 
-
+    console.error(
+      `[CrimeCityProgressService] Unknown energy category: "${category}"`
+    );
 
     return false;
   }

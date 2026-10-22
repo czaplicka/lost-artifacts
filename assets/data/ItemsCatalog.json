@@ -308,6 +308,105 @@
       "type": "item",
       "stackable": true,
       "metadata": { "souvenir": true, "cityVariant": true }
+    },
+        "parisTower": {
+      "id": "souvenir_paris_tower",
+      "name": "Tiny Iron Tower",
+      "icon": "🗼",
+      "description": "Mini lattice tower. Made somewhere that is definitely not Paris.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "paris" }
+    },
+    "londonGuardHat": {
+      "id": "souvenir_london_guard_hat",
+      "name": "Tiny Guard Hat",
+      "icon": "💂",
+      "description": "Fuzzy hat, no guard inside. Stands perfectly still on your desk, just like the real ones.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "london" }
+    },
+    "berlinWallChunk": {
+      "id": "souvenir_berlin_wall_chunk",
+      "name": "Wall Chunk (Certified*)",
+      "icon": "🧱",
+      "description": "*Certified by a guy named Dieter. Suspiciously similar to a garden brick.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "berlin" }
+    },
+    "nycFoamCrown": {
+      "id": "souvenir_nyc_foam_crown",
+      "name": "Foam Liberty Crown",
+      "icon": "🗽",
+      "description": "Makes you 4% more tourist and 100% easier to tail.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "new_york_city" }
+    },
+    "warsawMermaid": {
+      "id": "souvenir_warsaw_mermaid",
+      "name": "Mermaid Magnet",
+      "icon": "🧜",
+      "description": "She holds a sword and a shield. Your fridge is now safer than your office.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "warsaw" }
+    },
+    "delhiSpiceSachet": {
+      "id": "souvenir_delhi_spice_sachet",
+      "name": "Spice Sachet",
+      "icon": "🌶️",
+      "description": "Smells like an entire market. Your evidence bags will never forget it.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "new_delhi" }
+    },
+        "kottoElephant": {
+      "id": "souvenir_kotto_elephant",
+      "name": "Tiny Wooden Elephant",
+      "icon": "🐘",
+      "description": "Hand-carved. Trunk up for luck, which your case file badly needs.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "kotto" }
+    },
+        "torontoMaple": {
+      "id": "souvenir_toronto_maple",
+      "name": "Maple Syrup Shot",
+      "icon": "🍁",
+      "description": "Sweet, sticky, and extremely sorry about it.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "toronto" }
+    },
+    "nairobiGiraffe": {
+      "id": "souvenir_nairobi_giraffe",
+      "name": "Carved Giraffe",
+      "icon": "🦒",
+      "description": "Tall, silent, sees everything. Excellent witness, terrible at giving statements.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "nairobi" }
+    },
+    "islamabadTruck": {
+      "id": "souvenir_islamabad_truck",
+      "name": "Truck Art Keychain",
+      "icon": "🚚",
+      "description": "Painted brighter than your entire case file. Horn not included.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "islamabad" }
+    },
+    "tokyoLuckyCat": {
+      "id": "souvenir_tokyo_lucky_cat",
+      "name": "Lucky Cat",
+      "icon": "🐱",
+      "description": "Waves at you nonstop. Silently judges your finances.",
+      "type": "item",
+      "stackable": true,
+      "metadata": { "souvenir": true, "city": "tokyo" }
     }
   },
   "oddities": {

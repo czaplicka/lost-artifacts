@@ -1,5 +1,5 @@
 export class PlayerMenuUI {
-    static _registry = new Map();
+    static _registry = new WeakMap();
 
     constructor(scene, gameState) {
         this.scene = scene;
@@ -15,6 +15,7 @@ export class PlayerMenuUI {
         this.boundResizeHandler = this.handleResize.bind(this);
         this.boundDebugHandler = this.onDebugKeyDown.bind(this);
         this.boundInventoryHandler = this.onInventoryKeyDown.bind(this);
+        this.boundSceneEndHandler = () => this.destroy();
 
         const { width, height } = this.scene.scale;
         const isMobile = !this.scene.sys.game.device.os.desktop;
@@ -69,15 +70,8 @@ export class PlayerMenuUI {
             this
         );
 
-        this.scene.events.once(
-            'shutdown',
-            () => this.destroy()
-        );
-
-        this.scene.events.once(
-            'destroy',
-            () => this.destroy()
-        );
+        this.scene.events.once('shutdown', this.boundSceneEndHandler);
+        this.scene.events.once('destroy', this.boundSceneEndHandler);
 
         this.updateMenuInteractivity();
     }
@@ -252,9 +246,10 @@ export class PlayerMenuUI {
     }
 
     handleResize(gameSize) {
-            if (this.isDestroyed || !this.scene || !this.container) {
-        return;
-    }
+        if (this.isDestroyed || !this.scene || !this.container) {
+            return;
+        }
+
         const { width, height } = gameSize;
         const isMobile = !this.scene.sys.game.device.os.desktop;
 
@@ -312,6 +307,12 @@ export class PlayerMenuUI {
 
     destroyMenuButtons() {
         this.menuButtons.forEach((button) => {
+            this.scene?.tweens?.killTweensOf([
+                button?.container,
+                button?.icon,
+                button?.shadow
+            ].filter(Boolean));
+
             button?.hitAreaObject?.removeAllListeners?.();
             button?.hitAreaObject?.destroy?.();
             button?.container?.destroy?.(true);
@@ -345,6 +346,14 @@ export class PlayerMenuUI {
             .toLowerCase()
             .indexOf(normalizedHotkey);
 
+        const shadow = {
+            offsetX: 1,
+            offsetY: 1,
+            color: '#000000',
+            blur: 0,
+            fill: true
+        };
+
         if (hotkeyIndex === -1 || !hotkey) {
             const fallbackText = this.scene.add.text(
                 0,
@@ -355,13 +364,7 @@ export class PlayerMenuUI {
                     fontSize,
                     color: baseColor,
                     align,
-                    shadow: {
-                        offsetX: 1,
-                        offsetY: 1,
-                        color: '#000000',
-                        blur: 0,
-                        fill: true
-                    }
+                    shadow
                 }
             );
 
@@ -388,13 +391,7 @@ export class PlayerMenuUI {
             fontSize,
             color: baseColor,
             align,
-            shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: '#000000',
-                blur: 0,
-                fill: true
-            }
+            shadow
         }).setOrigin(0, 0);
 
         const hotkeyText = this.scene.add.text(0, 0, letter, {
@@ -403,13 +400,7 @@ export class PlayerMenuUI {
             color: hotkeyColor,
             fontStyle: 'bold',
             align,
-            shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: '#000000',
-                blur: 0,
-                fill: true
-            }
+            shadow
         }).setOrigin(0, 0);
 
         const afterText = this.scene.add.text(0, 0, after, {
@@ -417,13 +408,7 @@ export class PlayerMenuUI {
             fontSize,
             color: baseColor,
             align,
-            shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: '#000000',
-                blur: 0,
-                fill: true
-            }
+            shadow
         }).setOrigin(0, 0);
 
         const totalWidth = (
@@ -621,12 +606,7 @@ export class PlayerMenuUI {
             -buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            {
-                tl: 8,
-                tr: 8,
-                bl: 0,
-                br: 0
-            }
+            { tl: 8, tr: 8, bl: 0, br: 0 }
         );
 
         graphics.lineStyle(2, 0xdda15e, 0.9);
@@ -635,12 +615,7 @@ export class PlayerMenuUI {
             -buttonHeight / 2 + 2,
             buttonWidth - 4,
             buttonHeight - 2,
-            {
-                tl: 6,
-                tr: 6,
-                bl: 0,
-                br: 0
-            }
+            { tl: 6, tr: 6, bl: 0, br: 0 }
         );
 
         graphics.fillStyle(0x6b2d2d, 1);
@@ -649,12 +624,7 @@ export class PlayerMenuUI {
             -buttonHeight / 2 + 5,
             buttonWidth - 10,
             buttonHeight - 5,
-            {
-                tl: 4,
-                tr: 4,
-                bl: 0,
-                br: 0
-            }
+            { tl: 4, tr: 4, bl: 0, br: 0 }
         );
 
         this.toggleText = this.createHotkeyLabel(
@@ -816,7 +786,8 @@ export class PlayerMenuUI {
                 key: 'inventory',
                 label: 'Inventory',
                 hotkey: 'i',
-                textIcon: '🎒',
+                iconKey: 'inventory_icon',
+                fallbackIcon: '🎒',
                 action: () => this.openInventory()
             }
         ];
@@ -863,13 +834,22 @@ export class PlayerMenuUI {
                 0.6
             );
 
+            const textureKey = buttonData.iconKey || buttonData.key;
+            const hasTexture = this.scene.textures.exists(textureKey);
+
             let buttonIcon;
 
-            if (buttonData.textIcon) {
+            if (!hasTexture) {
+                if (!buttonData.fallbackIcon) {
+                    console.warn(
+                        `[PlayerMenuUI] Missing texture "${textureKey}" for menu button "${buttonData.key}".`
+                    );
+                }
+
                 buttonIcon = this.scene.add.text(
                     0,
                     iconY,
-                    buttonData.textIcon,
+                    buttonData.fallbackIcon || '❔',
                     {
                         fontSize: isMobile ? '31px' : '42px'
                     }
@@ -880,7 +860,7 @@ export class PlayerMenuUI {
                 buttonIcon = this.scene.add.image(
                     0,
                     iconY,
-                    buttonData.key
+                    textureKey
                 );
 
                 buttonIcon.setDisplaySize(
@@ -890,11 +870,9 @@ export class PlayerMenuUI {
             }
 
             /*
-             * Kluczowa poprawka:
-             * zapamiętujemy skalę po setDisplaySize().
-             *
-             * Nie ustawiamy nigdy scaleX / scaleY na 1,
-             * bo 1 oznacza naturalny rozmiar źródłowego PNG.
+             * Zapamietujemy skale po setDisplaySize().
+             * Nigdy nie ustawiamy scaleX / scaleY na 1,
+             * bo 1 oznacza naturalny rozmiar zrodlowego PNG.
              */
             buttonIcon.baseScaleX = buttonIcon.scaleX;
             buttonIcon.baseScaleY = buttonIcon.scaleY;
@@ -948,13 +926,8 @@ export class PlayerMenuUI {
                 }
 
                 if (this.scene.sys.game.device.os.desktop) {
-                    this.scene.tweens.killTweensOf(
-                        buttonIcon
-                    );
-
-                    this.scene.tweens.killTweensOf(
-                        iconShadow
-                    );
+                    this.scene.tweens.killTweensOf(buttonIcon);
+                    this.scene.tweens.killTweensOf(iconShadow);
 
                     this.scene.tweens.add({
                         targets: buttonIcon,
@@ -988,13 +961,8 @@ export class PlayerMenuUI {
 
             hitArea.on('pointerout', () => {
                 if (this.scene.sys.game.device.os.desktop) {
-                    this.scene.tweens.killTweensOf(
-                        buttonIcon
-                    );
-
-                    this.scene.tweens.killTweensOf(
-                        iconShadow
-                    );
+                    this.scene.tweens.killTweensOf(buttonIcon);
+                    this.scene.tweens.killTweensOf(iconShadow);
 
                     this.scene.tweens.add({
                         targets: buttonIcon,
@@ -1050,6 +1018,10 @@ export class PlayerMenuUI {
                     duration: 60,
                     yoyo: true,
                     onComplete: () => {
+                        if (this.isDestroyed) {
+                            return;
+                        }
+
                         buttonData.action();
                         this.close();
                     }
@@ -1066,6 +1038,7 @@ export class PlayerMenuUI {
                 container: buttonContainer,
                 hitAreaObject: hitArea,
                 icon: buttonIcon,
+                shadow: iconShadow,
                 label: buttonLabel,
                 restricted: Boolean(buttonData.restricted)
             };
@@ -1315,7 +1288,7 @@ export class PlayerMenuUI {
 
         this.scene.closeAllUIPanels();
 
-this.scene.openCrimeBoard?.();
+        this.scene.openCrimeBoard?.();
 
         const boardApi = this.scene.crimeBoardUI.boardApi;
 
@@ -1358,7 +1331,9 @@ this.scene.openCrimeBoard?.();
     }
 
     openInventory() {
-        if (!this.scene.inventoryUI) {
+        const inventoryUI = this.scene.inventoryUI;
+
+        if (!inventoryUI) {
             console.warn(
                 '[PlayerMenuUI] inventoryUI is unavailable in PlayerHudScene.'
             );
@@ -1366,83 +1341,76 @@ this.scene.openCrimeBoard?.();
             return;
         }
 
+        // Klawisz I dziala jak przelacznik: drugie wcisniecie zamyka ekwipunek.
+        if (inventoryUI.isOpen) {
+            inventoryUI.close();
+            return;
+        }
+
         this.scene.openInventory?.();
     }
 
     destroy() {
-    if (this.isDestroyed) {
-        return;
-    }
+        if (this.isDestroyed) {
+            return;
+        }
 
-    this.isDestroyed = true;
+        this.isDestroyed = true;
 
-    const scene = this.scene;
+        const scene = this.scene;
 
-    if (!scene) {
-        return;
-    }
+        if (!scene) {
+            return;
+        }
 
-    if (PlayerMenuUI._registry.get(scene) === this) {
-        PlayerMenuUI._registry.delete(scene);
-    }
+        if (PlayerMenuUI._registry.get(scene) === this) {
+            PlayerMenuUI._registry.delete(scene);
+        }
 
-    scene.scale?.off(
-        'resize',
-        this.boundResizeHandler,
-        this
-    );
-
-    if (scene.input?.keyboard) {
-        scene.input.keyboard.off(
-            'keydown-M',
-            this.boundToggleHandler
+        scene.scale?.off(
+            'resize',
+            this.boundResizeHandler,
+            this
         );
 
-        scene.input.keyboard.off(
-            'keydown-H',
-            this.boundDebugHandler
-        );
+        scene.events?.off('shutdown', this.boundSceneEndHandler);
+        scene.events?.off('destroy', this.boundSceneEndHandler);
 
-        scene.input.keyboard.off(
-            'keydown-I',
-            this.boundInventoryHandler
-        );
+        if (scene.input?.keyboard) {
+            scene.input.keyboard.off('keydown-M', this.boundToggleHandler);
+            scene.input.keyboard.off('keydown-H', this.boundDebugHandler);
+            scene.input.keyboard.off('keydown-I', this.boundInventoryHandler);
 
-        scene.input.keyboard.removeCapture('M');
-        scene.input.keyboard.removeCapture('I');
+            scene.input.keyboard.removeCapture('M');
+            scene.input.keyboard.removeCapture('I');
+        }
+
+        this.clearDebugHitboxes();
+
+        scene.tweens?.killTweensOf(this.container);
+        scene.tweens?.killTweensOf(this.toggleContainer);
+        scene.tweens?.killTweensOf(this.toggleText);
+
+        if (this.toggleArrows) {
+            scene.tweens?.killTweensOf(this.toggleArrows.left);
+            scene.tweens?.killTweensOf(this.toggleArrows.right);
+        }
+
+        this.destroyMenuButtons();
+        this.destroyBackground();
+
+        this.toggleContainer?.destroy?.(true);
+        this.container?.destroy?.(true);
+
+        this.toggleContainer = null;
+        this.container = null;
+        this.toggleText = null;
+        this.toggleArrows = null;
+
+        this.isOpen = false;
+        this.isAnimating = false;
+
+        this.scene = null;
+        this.gameState = null;
     }
-
-    this.clearDebugHitboxes();
-
-    scene.tweens?.killTweensOf(this.container);
-    scene.tweens?.killTweensOf(this.toggleContainer);
-    scene.tweens?.killTweensOf(this.toggleText);
-
-    if (this.toggleArrows) {
-        scene.tweens?.killTweensOf(
-            this.toggleArrows.left
-        );
-
-        scene.tweens?.killTweensOf(
-            this.toggleArrows.right
-        );
-    }
-
-    this.destroyMenuButtons();
-    this.destroyBackground();
-
-    this.toggleContainer?.destroy?.(true);
-    this.container?.destroy?.(true);
-
-    this.toggleContainer = null;
-    this.container = null;
-    this.toggleText = null;
-    this.toggleArrows = null;
-
-    this.isOpen = false;
-    this.isAnimating = false;
-
-    this.scene = null;
-    this.gameState = null;
-}
 }

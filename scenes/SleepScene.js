@@ -10,7 +10,7 @@ export class SleepScene extends BaseScene {
     this.returnScene = 'OfficeScene';
     this.returnData = {};
     this.sleepResolved = false;
-    this.afterHolly = false;
+    this.hollyActive = false;
   }
 
 
@@ -18,8 +18,8 @@ export class SleepScene extends BaseScene {
     this.sleepHours = data.sleepHours || 8;
     this.returnScene = data.returnScene || 'OfficeScene';
     this.returnData = data.returnData || {};
-    this.afterHolly = data.afterHolly === true;
     this.sleepResolved = false;
+    this.hollyActive = false;
   }
 
 
@@ -34,12 +34,6 @@ export class SleepScene extends BaseScene {
 
 
     this.add.rectangle(0, 0, width, height, 0x0b0b12).setOrigin(0);
-
-
-    if (this.afterHolly) {
-      this.finishSleep();
-      return;
-    }
 
 
     this.add.text(width / 2, height / 2 - 60, 'Go to sleep?', {
@@ -62,8 +56,15 @@ export class SleepScene extends BaseScene {
 
 
     this.createButton(width / 2, height / 2 + 150, 280, 54, 'CANCEL', () => {
+      if (this.hollyActive) {
+        return;
+      }
+
       this.scene.start(this.returnScene, this.returnData);
     });
+
+
+    this.onBus('hollySleepFinished', this.onHollySleepFinished, this);
   }
 
 
@@ -90,7 +91,7 @@ export class SleepScene extends BaseScene {
 
 
   handleSleep() {
-    if (this.sleepResolved) {
+    if (this.sleepResolved || this.hollyActive) {
       return;
     }
 
@@ -111,19 +112,59 @@ export class SleepScene extends BaseScene {
 
 
     if (shouldShowHolly) {
-      this.scene.start('HollyIntroScene', {
-        returnScene: 'SleepScene',
-        returnData: {
-          sleepHours: this.sleepHours,
-          returnScene: this.returnScene,
-          returnData: this.returnData,
-          afterHolly: true
-        }
-      });
+      void this.startHollyIntro();
       return;
     }
 
 
+    this.finishSleep();
+  }
+
+
+  async startHollyIntro() {
+    this.hollyActive = true;
+
+
+    const opened = await this.launchOverlay('HollyIntroScene', {
+      returnScene: 'SleepScene',
+      returnData: {
+        sleepHours: this.sleepHours
+      }
+    });
+
+
+    if (this._cleanupDone || !this.sys.isActive()) {
+      return;
+    }
+
+
+    if (!opened) {
+      this.hollyActive = false;
+      this.finishSleep();
+      return;
+    }
+
+
+    this.bringSceneToTopIfActive('HollyIntroScene');
+    this.scene.pause();
+  }
+
+
+  onHollySleepFinished() {
+    if (this._cleanupDone || this.sleepResolved) {
+      return;
+    }
+
+
+    this.hollyActive = false;
+
+
+    if (this.isSceneRunning('HollyIntroScene')) {
+      this.scene.stop('HollyIntroScene');
+    }
+
+
+    this.scene.resume();
     this.finishSleep();
   }
 

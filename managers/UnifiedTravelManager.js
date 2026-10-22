@@ -1,7 +1,7 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { getEnergyManager } from './EnergyManager.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 import {
   moneyManager,
   MONEY_SOURCE,
@@ -558,7 +558,7 @@ class UnifiedTravelManager {
 
     gameState.costLedger = this.costLedger;
 
-    saveGameState();
+    requestAutosave();
 
     EventBus.emit('travelCompleted', {
       success: true,

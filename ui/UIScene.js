@@ -10,7 +10,11 @@ import {
 
 import { moneyManager } from '../managers/MoneyManager.js';
 import { getGameTimeManager } from '../managers/GameTimeManager.js';
-import { getCaseTimeRemaining } from '../CaseTimeHelper.js';
+
+import {
+  getCaseTimeRemaining,
+  getTimeChangedPayload
+} from '../CaseTimeHelper.js';
 
 import {
   STAT_IDS,
@@ -20,6 +24,37 @@ import {
 } from '../ui/characterCreation/CharacterCreationData.js';
 
 const ENERGY_CIRCUMFERENCE = 251.327;
+const MONEY_EVENT = 'lost-artifacts:money-changed';
+
+const IS_LOCAL_DEV = [
+  'localhost',
+  '127.0.0.1',
+  '[::1]'
+].includes(window.location.hostname);
+
+const HTML_FETCH_OPTIONS = {
+  cache: IS_LOCAL_DEV ? 'no-store' : 'default'
+};
+
+const MONTH_FORMAT = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  timeZone: 'UTC'
+});
+
+const FULL_DATE_FORMAT = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC'
+});
+
+const NUMBER_FORMAT = new Intl.NumberFormat('en-US');
+
+const formatNumber = value =>
+  NUMBER_FORMAT.format(
+    Math.max(0, Math.floor(Number(value) || 0))
+  );
 
 export class UIScene extends BaseScene {
   constructor() {
@@ -29,13 +64,12 @@ export class UIScene extends BaseScene {
     });
 
     this.energyManager = null;
-
     this.currentGameDay = 1;
     this.missionDays = 4;
 
     this.startDate = {
       year: 1990,
-      month: 3,
+      monthIndex: 3,
       day: 1
     };
 
@@ -44,9 +78,13 @@ export class UIScene extends BaseScene {
     this._energyLogTimer = null;
     this._warningTimer = null;
     this._zeroTimer = null;
+    this._modalRefreshFrame = null;
 
     this.domAbortController = null;
     this.moneyChangeHandler = null;
+
+    this._isDestroyed = false;
+    this._htmlPromises = new Map();
 
     this.caseTimerInitialSeconds = null;
   }
@@ -54,12 +92,27 @@ export class UIScene extends BaseScene {
   async create() {
     super.create();
 
+    this._isDestroyed = false;
+    this.caseTimerInitialSeconds = null;
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this._cleanup,
+      this
+    );
+
     this.energyManager = getEnergyManager();
 
     const loaded = await this._loadHudHtml();
 
+    if (this._isDestroyed) {
+      return;
+    }
+
     if (!loaded) {
-      console.error('[UIScene] Could not load ui/hud.template.');
+      console.error(
+        '[UIScene] Could not load ui/hud.template.'
+      );
       return;
     }
 
@@ -69,30 +122,25 @@ export class UIScene extends BaseScene {
     this._setupButtonListeners();
     this._setupTooltipListeners();
 
-    this.updateTime({
-      day: gameState.currentDay || gameState.day || 1,
-      hour: gameState.currentHour ?? gameState.hour ?? 8,
-      minute: gameState.currentMinute ?? gameState.minute ?? 0,
-      partOfDay:
-        gameState.currentPartOfDay ||
-        gameState.partOfDay ||
-        'Morning'
-    });
+    getGameTimeManager(this._readTimeFromGameState());
 
+    this.updateTime(getTimeChangedPayload(gameState));
     this.refreshScoreHud();
     this.refreshMoneyHud();
     this.updateEnergy();
 
-    this.moneyChangeHandler = (event) => {
+    this.moneyChangeHandler = event => {
       this.refreshMoneyHud(event.detail?.state);
     };
 
     window.addEventListener(
-      'lost-artifacts:money-changed',
+      MONEY_EVENT,
       this.moneyChangeHandler
     );
+  }
 
-    getGameTimeManager({
+  _readTimeFromGameState() {
+    return {
       day: gameState.currentDay || gameState.day || 1,
       hour: gameState.currentHour ?? gameState.hour ?? 8,
       minute: gameState.currentMinute ?? gameState.minute ?? 0,
@@ -100,7 +148,7 @@ export class UIScene extends BaseScene {
         gameState.currentPartOfDay ||
         gameState.partOfDay ||
         'Morning'
-    });
+    };
   }
 
   _removeDomListeners() {
@@ -141,19 +189,11 @@ export class UIScene extends BaseScene {
 
   _bindEvents() {
     this.onBus('timeChanged', this.updateTime);
-    this.onBus('caseTimeChanged', this.updateCaseDeadline);
     this.onBus('scoreChanged', this.updateScore);
     this.onBus('cashChanged', this.updateCash);
 
-    this.onBus(
-      'agentStatsChanged',
-      this._refreshOpenAgentModal
-    );
-
-    this.onBus(
-      'character-created',
-      this._refreshOpenAgentModal
-    );
+    this.onBus('agentStatsChanged', this._queueModalRefresh);
+    this.onBus('character-created', this._queueModalRefresh);
 
     this.onBus('gameOver', this._showGameOver);
     this.onBus('energyInitialized', this._onEnergyChanged);
@@ -162,15 +202,11 @@ export class UIScene extends BaseScene {
     this.onBus('energyZero', this._onEnergyZero);
     this.onBus('showHUD', this.showHUD);
     this.onBus('hideHUD', this.hideHUD);
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this._cleanup,
-      this
-    );
   }
 
   _cleanup() {
+    this._isDestroyed = true;
+
     clearTimeout(this._energyLogTimer);
     clearTimeout(this._warningTimer);
     clearTimeout(this._zeroTimer);
@@ -179,19 +215,43 @@ export class UIScene extends BaseScene {
     this._warningTimer = null;
     this._zeroTimer = null;
 
+    if (this._modalRefreshFrame !== null) {
+      cancelAnimationFrame(this._modalRefreshFrame);
+      this._modalRefreshFrame = null;
+    }
+
     if (this.moneyChangeHandler) {
       window.removeEventListener(
-        'lost-artifacts:money-changed',
+        MONEY_EVENT,
         this.moneyChangeHandler
       );
-
       this.moneyChangeHandler = null;
     }
 
     this.domAbortController?.abort();
     this.domAbortController = null;
 
+    this._htmlPromises.clear();
     this.dom = {};
+    this.caseTimerInitialSeconds = null;
+  }
+
+  _setDomText(element, value) {
+    if (!element) {
+      return;
+    }
+
+    const text = String(value);
+
+    if (element.textContent !== text) {
+      element.textContent = text;
+    }
+  }
+
+  _setDomStyle(element, property, value) {
+    if (element && element.style[property] !== value) {
+      element.style[property] = value;
+    }
   }
 
   showHUD() {
@@ -199,6 +259,7 @@ export class UIScene extends BaseScene {
       this.dom.container.style.display = 'block';
     }
 
+    this.updateTime(getTimeChangedPayload(gameState));
     this.refreshScoreHud();
     this.refreshMoneyHud();
     this.updateEnergy();
@@ -223,7 +284,7 @@ export class UIScene extends BaseScene {
 
       button.addEventListener(
         'click',
-        async (event) => {
+        async event => {
           event.preventDefault();
           event.stopPropagation();
 
@@ -273,10 +334,9 @@ export class UIScene extends BaseScene {
 
     this.dom.energyTarget?.addEventListener(
       'click',
-      (event) => {
+      event => {
         event.preventDefault();
         event.stopPropagation();
-
         this._toggleEnergyLog();
       },
       options
@@ -311,7 +371,7 @@ export class UIScene extends BaseScene {
         element: this.dom.score,
         getContent: () => [
           'SCORE',
-          `${Number(gameState.score || 0).toLocaleString('en-US')} points.`,
+          `${formatNumber(gameState.score)} points.`,
           'Solve cases, collect clues and make smart arrests.'
         ].join('\n')
       },
@@ -336,15 +396,12 @@ export class UIScene extends BaseScene {
       };
 
       element.addEventListener('mouseenter', show, options);
-
       element.addEventListener(
         'mouseleave',
         () => this._hideTooltip(),
         options
       );
-
       element.addEventListener('focus', show, options);
-
       element.addEventListener(
         'blur',
         () => this._hideTooltip(),
@@ -371,45 +428,57 @@ export class UIScene extends BaseScene {
   }
 
   updateTime(data = {}) {
+    const snapshot = this._readTimeFromGameState();
+
     this.currentGameDay = Math.max(
       1,
-      Number(data.day) || 1
+      Math.floor(Number(data.day ?? snapshot.day) || 1)
     );
 
     const hour = Phaser.Math.Clamp(
-      Number(data.hour) || 0,
+      Math.floor(Number(data.hour ?? snapshot.hour) || 0),
       0,
       23
     );
 
     const minute = Phaser.Math.Clamp(
-      Number(data.minute) || 0,
+      Math.floor(Number(data.minute ?? snapshot.minute) || 0),
       0,
       59
     );
 
-    if (this.dom.time) {
-      this.dom.time.textContent =
-        `${String(hour).padStart(2, '0')}:` +
-        String(minute).padStart(2, '0');
-    }
+    this._setDomText(
+      this.dom.time,
+      `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+    );
 
-    if (this.dom.partOfDay) {
-      this.dom.partOfDay.textContent = String(
-        data.partOfDay || 'Morning'
-      ).toUpperCase();
-    }
+    this._setDomText(
+      this.dom.partOfDay,
+      String(
+        data.partOfDay ?? snapshot.partOfDay
+      ).toUpperCase()
+    );
 
     this._updateDateDisplay(this.currentGameDay);
-    this.updateCaseDeadline();
+    this.updateCaseDeadline(data);
   }
 
   updateCaseDeadline(data = {}) {
-    const providedSeconds = Number(data.remainingSeconds);
+    const hasRemaining = Object.prototype.hasOwnProperty.call(
+      data,
+      'caseTimeRemaining'
+    );
 
-    const remainingSeconds = Number.isFinite(providedSeconds)
-      ? Math.max(0, Math.floor(providedSeconds))
+    const rawSeconds = hasRemaining
+      ? data.caseTimeRemaining
       : getCaseTimeRemaining(gameState);
+
+    const parsedSeconds = Number(rawSeconds);
+
+    const remainingSeconds =
+      rawSeconds != null && Number.isFinite(parsedSeconds)
+        ? Math.max(0, Math.floor(parsedSeconds))
+        : null;
 
     if (remainingSeconds === null) {
       this.caseTimerInitialSeconds = null;
@@ -435,24 +504,34 @@ export class UIScene extends BaseScene {
       100
     );
 
-    const color =
-      remainingSeconds <= 60 * 60
-        ? '#ae2012'
-        : remainingSeconds <= 12 * 60 * 60
-          ? '#ee9b00'
-          : '#4caf50';
+    const color = remainingSeconds <= 60 * 60
+      ? '#ae2012'
+      : remainingSeconds <= 12 * 60 * 60
+        ? '#ee9b00'
+        : '#4caf50';
 
-    if (this.dom.deadlineValue) {
-      this.dom.deadlineValue.textContent =
-        this._formatCaseDeadline(remainingSeconds);
+    this._setDomText(
+      this.dom.deadlineValue,
+      this._formatCaseDeadline(remainingSeconds)
+    );
 
-      this.dom.deadlineValue.style.color = color;
-    }
+    this._setDomStyle(
+      this.dom.deadlineValue,
+      'color',
+      color
+    );
 
-    if (this.dom.deadlineProgress) {
-      this.dom.deadlineProgress.style.width = `${progress}%`;
-      this.dom.deadlineProgress.style.backgroundColor = color;
-    }
+    this._setDomStyle(
+      this.dom.deadlineProgress,
+      'width',
+      `${progress}%`
+    );
+
+    this._setDomStyle(
+      this.dom.deadlineProgress,
+      'backgroundColor',
+      color
+    );
   }
 
   _formatCaseDeadline(seconds) {
@@ -481,28 +560,29 @@ export class UIScene extends BaseScene {
   }
 
   _calculateDate(gameDay) {
+    const { year, monthIndex, day } = this.startDate;
+    const safeDay = Math.max(
+      1,
+      Math.floor(Number(gameDay) || 1)
+    );
+
     return new Date(
-      this.startDate.year,
-      this.startDate.month,
-      this.startDate.day + gameDay - 1
+      Date.UTC(year, monthIndex, day + safeDay - 1)
     );
   }
 
   _updateDateDisplay(gameDay) {
     const date = this._calculateDate(gameDay);
 
-    if (this.dom.month) {
-      this.dom.month.textContent =
-        date.toLocaleDateString('en-US', {
-          month: 'short'
-        }).toUpperCase();
-    }
+    this._setDomText(
+      this.dom.month,
+      MONTH_FORMAT.format(date).toUpperCase()
+    );
 
-    if (this.dom.day) {
-      this.dom.day.textContent = String(
-        date.getDate()
-      ).padStart(2, '0');
-    }
+    this._setDomText(
+      this.dom.day,
+      String(date.getUTCDate()).padStart(2, '0')
+    );
   }
 
   _updateDeadlineDisplay(gameDay) {
@@ -517,22 +597,34 @@ export class UIScene extends BaseScene {
       100
     );
 
-    const color =
-      daysLeft <= 1
-        ? '#ae2012'
-        : daysLeft <= 2
-          ? '#ee9b00'
-          : '#4caf50';
+    const color = daysLeft <= 1
+      ? '#ae2012'
+      : daysLeft <= 2
+        ? '#ee9b00'
+        : '#4caf50';
 
-    if (this.dom.deadlineValue) {
-      this.dom.deadlineValue.textContent = `${daysLeft}D`;
-      this.dom.deadlineValue.style.color = color;
-    }
+    this._setDomText(
+      this.dom.deadlineValue,
+      `${daysLeft}D`
+    );
 
-    if (this.dom.deadlineProgress) {
-      this.dom.deadlineProgress.style.width = `${progress}%`;
-      this.dom.deadlineProgress.style.backgroundColor = color;
-    }
+    this._setDomStyle(
+      this.dom.deadlineValue,
+      'color',
+      color
+    );
+
+    this._setDomStyle(
+      this.dom.deadlineProgress,
+      'width',
+      `${progress}%`
+    );
+
+    this._setDomStyle(
+      this.dom.deadlineProgress,
+      'backgroundColor',
+      color
+    );
   }
 
   _onEnergyChanged(data = {}) {
@@ -544,17 +636,13 @@ export class UIScene extends BaseScene {
   }
 
   updateEnergy(data = {}) {
-    const current =
-      Number(
-        data.current ??
-        this.energyManager?.getCurrentEnergy()
-      ) || 0;
+    const current = Number(
+      data.current ?? this.energyManager?.getCurrentEnergy()
+    ) || 0;
 
-    const maximum =
-      Number(
-        data.max ??
-        this.energyManager?.maxEnergy
-      ) || 100;
+    const maximum = Number(
+      data.max ?? this.energyManager?.maxEnergy
+    ) || 100;
 
     const fraction = Phaser.Math.Clamp(
       current / maximum,
@@ -563,20 +651,16 @@ export class UIScene extends BaseScene {
     );
 
     const color = this._colorToHex(
-      data.color ??
-      this.energyManager?.getEnergyColor()
+      data.color ?? this.energyManager?.getEnergyColor()
     );
 
-    const offset =
-      ENERGY_CIRCUMFERENCE * (1 - fraction);
+    const offset = ENERGY_CIRCUMFERENCE * (1 - fraction);
 
     if (this.dom.energyFill) {
       this.dom.energyFill.style.strokeDasharray =
         String(ENERGY_CIRCUMFERENCE);
-
       this.dom.energyFill.style.strokeDashoffset =
         String(offset);
-
       this.dom.energyFill.style.stroke = color;
     }
 
@@ -598,9 +682,7 @@ export class UIScene extends BaseScene {
     }
 
     wrapper.classList.remove('flash-warning');
-
     void wrapper.offsetWidth;
-
     wrapper.classList.add('flash-warning');
 
     clearTimeout(this._warningTimer);
@@ -618,9 +700,7 @@ export class UIScene extends BaseScene {
     }
 
     wrapper.classList.remove('shake-zero');
-
     void wrapper.offsetWidth;
-
     wrapper.classList.add('shake-zero');
 
     clearTimeout(this._zeroTimer);
@@ -634,11 +714,7 @@ export class UIScene extends BaseScene {
     const isEnergyLogOpen =
       this.dom.energyLogBg?.classList.contains('visible');
 
-    if (
-      !content ||
-      !this.dom.tooltipBg ||
-      isEnergyLogOpen
-    ) {
+    if (!content || !this.dom.tooltipBg || isEnergyLogOpen) {
       return;
     }
 
@@ -659,11 +735,7 @@ export class UIScene extends BaseScene {
     }
 
     this._hideTooltip();
-
-    this.dom.energyLogBg.classList.toggle(
-      'visible',
-      visible
-    );
+    this.dom.energyLogBg.classList.toggle('visible', visible);
 
     if (visible) {
       this._updateEnergyLogText();
@@ -679,7 +751,6 @@ export class UIScene extends BaseScene {
 
   _showEnergyLogTemporarily() {
     clearTimeout(this._energyLogTimer);
-
     this._setEnergyLogVisible(true);
 
     this._energyLogTimer = setTimeout(() => {
@@ -697,7 +768,7 @@ export class UIScene extends BaseScene {
       .getEnergyLog()
       .slice(-5)
       .reverse()
-      .map((entry) => entry.label || 'Energy changed.');
+      .map(entry => entry.label || 'Energy changed.');
 
     this.dom.energyLogText.textContent = entries.length
       ? entries.join('\n')
@@ -707,21 +778,15 @@ export class UIScene extends BaseScene {
   _getClockTooltip() {
     return [
       'TIME',
-      `${this.dom.time?.textContent || '--:--'} — ` +
-        `${this.dom.partOfDay?.textContent || ''}`,
+      `${this.dom.time?.textContent || '--:--'} — ${this.dom.partOfDay?.textContent || ''}`,
       'Conversations, travel and tasks move time forward.'
     ].join('\n');
   }
 
   _getDateTooltip() {
-    const label = this._calculateDate(
-      this.currentGameDay
-    ).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const label = FULL_DATE_FORMAT.format(
+      this._calculateDate(this.currentGameDay)
+    );
 
     return [
       'CASE DATE',
@@ -765,9 +830,7 @@ export class UIScene extends BaseScene {
 
     return [
       `ENERGY: ${manager.getCurrentEnergy()}%`,
-      `STATUS: ${String(
-        manager.getEnergyStatus()
-      ).toUpperCase()}`,
+      `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
       manager.getEnergyTooltip(),
       last
         ? `Last: ${last}`
@@ -776,58 +839,38 @@ export class UIScene extends BaseScene {
   }
 
   refreshScoreHud() {
-    const score = Math.max(
-      0,
-      Math.floor(Number(gameState.score) || 0)
-    );
-
-    this.updateScore({
-      total: score
-    });
+    this._renderScore(gameState.score);
   }
 
   updateScore(data) {
-    const rawScore =
-      typeof data === 'object'
-        ? data?.total
-        : data;
+    const rawScore = typeof data === 'object'
+      ? data?.total
+      : data;
 
-    const score = Math.max(
-      0,
-      Math.floor(
-        Number(rawScore ?? gameState.score) || 0
-      )
-    );
+    this._renderScore(rawScore ?? gameState.score);
+    this._queueModalRefresh();
+  }
 
-    gameState.score = score;
-
+  _renderScore(value) {
     if (this.dom.score) {
-      this.dom.score.textContent =
-        score.toLocaleString('en-US');
+      this.dom.score.textContent = formatNumber(value);
     }
-
-    this._refreshOpenAgentModal();
   }
 
   updateCash(data) {
-    const rawCash =
-      typeof data === 'object'
-        ? data?.total ?? data?.cash
-        : data;
+    const rawCash = typeof data === 'object'
+      ? data?.total ?? data?.cash
+      : data;
 
-    const cash = Math.max(
-      0,
-      Math.floor(Number(rawCash ?? 250) || 0)
-    );
+    const cash = rawCash ?? moneyManager.getState().cash;
 
     if (this.dom.cash) {
-      this.dom.cash.textContent =
-        `$${cash.toLocaleString('en-US')}`;
+      this.dom.cash.textContent = `$${formatNumber(cash)}`;
     }
   }
 
   refreshMoneyHud(state = moneyManager.getState()) {
-    this.updateCash(state.cash);
+    this.updateCash(state?.cash);
   }
 
   async openSettings() {
@@ -838,7 +881,7 @@ export class UIScene extends BaseScene {
 
     const opened = await this.launchOverlay('SettingsScene');
 
-    if (opened) {
+    if (opened && !this._isDestroyed) {
       this.bringSceneToTopIfActive('SettingsScene');
     }
   }
@@ -850,12 +893,11 @@ export class UIScene extends BaseScene {
       'btn-close-profile'
     );
 
-    if (!modal) {
+    if (!modal || this._isDestroyed) {
       return;
     }
 
     this._populateProfileModalData(modal);
-
     modal.style.display = 'flex';
   }
 
@@ -866,69 +908,92 @@ export class UIScene extends BaseScene {
       'btn-close-agent'
     );
 
-    if (!modal) {
+    if (!modal || this._isDestroyed) {
       return;
     }
 
     this._populateAgentModalData(modal);
-
     modal.style.display = 'flex';
   }
 
-  async _loadHtmlModal(
-    fileName,
-    modalId,
-    closeButtonId
-  ) {
-    let modal = document.getElementById(modalId);
+  async _fetchHtmlElement(url, selector) {
+    const cacheKey = `${url}|${selector}`;
 
-    if (modal instanceof HTMLElement) {
-      this._forceModalAboveGame(modal);
-      this._setupModalEvents(modal, closeButtonId);
-      return modal;
+    if (this._htmlPromises.has(cacheKey)) {
+      return this._htmlPromises.get(cacheKey);
     }
 
-    try {
-      const response = await fetch(fileName, {
-        cache: 'no-store'
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Could not load ${fileName}: HTTP ${response.status}`
+    const promise = (async () => {
+      try {
+        const response = await fetch(
+          url,
+          HTML_FETCH_OPTIONS
         );
+
+        if (!response.ok) {
+          throw new Error(
+            `Could not load ${url}: HTTP ${response.status}`
+          );
+        }
+
+        const template = document.createElement('template');
+        template.innerHTML = (await response.text()).trim();
+
+        const element =
+          template.content.querySelector(selector);
+
+        if (!(element instanceof HTMLElement)) {
+          throw new Error(
+            `Missing ${selector} inside ${url}`
+          );
+        }
+
+        return element;
+      } catch (error) {
+        console.error(
+          '[UIScene] HTML load error:',
+          { url, selector, error }
+        );
+        return null;
+      } finally {
+        this._htmlPromises.delete(cacheKey);
       }
+    })();
 
-      const template = document.createElement('template');
+    this._htmlPromises.set(cacheKey, promise);
 
-      template.innerHTML =
-        (await response.text()).trim();
+    return promise;
+  }
 
-      modal = template.content.querySelector(
+  async _loadHtmlModal(fileName, modalId, closeButtonId) {
+    let modal = document.getElementById(modalId);
+
+    if (!(modal instanceof HTMLElement)) {
+      const fetched = await this._fetchHtmlElement(
+        fileName,
         `#${modalId}`
       );
 
-      if (!(modal instanceof HTMLElement)) {
-        throw new Error(
-          `Missing #${modalId} inside ${fileName}`
-        );
+      if (this._isDestroyed) {
+        return null;
       }
 
-      document.body.appendChild(modal);
+      modal = document.getElementById(modalId);
 
-      this._forceModalAboveGame(modal);
-      this._setupModalEvents(modal, closeButtonId);
+      if (!(modal instanceof HTMLElement)) {
+        if (!fetched) {
+          return null;
+        }
 
-      return modal;
-    } catch (error) {
-      console.error('[UIScene] Modal load error:', {
-        fileName,
-        modalId,
-        error
-      });
-
-      return null;
+        document.body.appendChild(fetched);
+        modal = fetched;
+      }
     }
+
+    this._forceModalAboveGame(modal);
+    this._setupModalEvents(modal, closeButtonId);
+
+    return modal;
   }
 
   _forceModalAboveGame(modal) {
@@ -943,38 +1008,26 @@ export class UIScene extends BaseScene {
       return true;
     }
 
-    try {
-      const response = await fetch('ui/hud.template', {
-        cache: 'no-store'
-      });
+    const container = await this._fetchHtmlElement(
+      'ui/hud.template',
+      '#hud-container'
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const template = document.createElement('template');
-
-      template.innerHTML =
-        (await response.text()).trim();
-
-      const container = template.content.querySelector(
-        '#hud-container'
-      );
-
-      if (!(container instanceof HTMLElement)) {
-        throw new Error(
-          'Missing #hud-container in ui/hud.template.'
-        );
-      }
-
-      document.body.appendChild(container);
-
-      return true;
-    } catch (error) {
-      console.error('[UIScene] HUD loading failed:', error);
-
+    if (this._isDestroyed) {
       return false;
     }
+
+    if (document.getElementById('hud-container')) {
+      return true;
+    }
+
+    if (!container) {
+      return false;
+    }
+
+    document.body.appendChild(container);
+
+    return true;
   }
 
   _setupModalEvents(modal, closeButtonId) {
@@ -988,13 +1041,49 @@ export class UIScene extends BaseScene {
         modal.style.display = 'none';
       });
 
-    modal.addEventListener('click', (event) => {
+    modal.addEventListener('click', event => {
       if (event.target === modal) {
         modal.style.display = 'none';
       }
     });
 
     modal.dataset.eventsBound = 'true';
+  }
+
+  _isModalOpen(modal) {
+    return (
+      modal instanceof HTMLElement &&
+      window.getComputedStyle(modal).display !== 'none'
+    );
+  }
+
+  _queueModalRefresh() {
+    if (
+      this._isDestroyed ||
+      this._modalRefreshFrame !== null
+    ) {
+      return;
+    }
+
+    this._modalRefreshFrame = requestAnimationFrame(() => {
+      this._modalRefreshFrame = null;
+      this._refreshOpenAgentModal();
+    });
+  }
+
+  _refreshOpenAgentModal() {
+    const agentModal = document.getElementById('agent-modal');
+
+    if (this._isModalOpen(agentModal)) {
+      this._populateAgentModalData(agentModal);
+    }
+
+    const profileModal =
+      document.getElementById('profile-modal');
+
+    if (this._isModalOpen(profileModal)) {
+      this._populateProfileModalData(profileModal);
+    }
   }
 
   _populateProfileModalData(modal) {
@@ -1026,8 +1115,8 @@ export class UIScene extends BaseScene {
       modal,
       '#profile-alias',
       gameState.playerName ||
-      gameState.agentName ||
-      'Detective'
+        gameState.agentName ||
+        'Detective'
     );
 
     this._setHtmlText(
@@ -1045,7 +1134,7 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#profile-points',
-      Number(gameState.score || 0).toLocaleString('en-US')
+      formatNumber(gameState.score)
     );
 
     this._setHtmlText(
@@ -1102,7 +1191,6 @@ export class UIScene extends BaseScene {
     }
 
     const profile = getProfile(gameState.detectiveProfile);
-
     const baseStats = {};
 
     for (const statId of STAT_IDS) {
@@ -1154,19 +1242,15 @@ export class UIScene extends BaseScene {
         : 'profile-stat';
 
       const name = document.createElement('dt');
-
       name.className = 'profile-stat-name';
       name.textContent = STAT_NAMES[statId];
 
       const value = document.createElement('dd');
-
       value.className = 'profile-stat-value';
       value.textContent = String(finalValue);
 
       const breakdown = document.createElement('dd');
-
       breakdown.className = 'profile-stat-breakdown';
-
       breakdown.textContent = bonus > 0
         ? `Base ${baseValue} + ${bonus} profile bonus`
         : `Base ${baseValue}`;
@@ -1191,7 +1275,7 @@ export class UIScene extends BaseScene {
     this._setHtmlText(
       modal,
       '#agent-score, #agent-points, #pub-points',
-      Number(gameState.score || 0).toLocaleString('en-US')
+      formatNumber(gameState.score)
     );
 
     this._setHtmlText(
@@ -1231,26 +1315,6 @@ export class UIScene extends BaseScene {
     this._renderAchievementsGrid(modal);
   }
 
-  _refreshOpenAgentModal() {
-    const agentModal = document.getElementById('agent-modal');
-
-    if (
-      agentModal instanceof HTMLElement &&
-      agentModal.style.display !== 'none'
-    ) {
-      this._populateAgentModalData(agentModal);
-    }
-
-    const profileModal = document.getElementById('profile-modal');
-
-    if (
-      profileModal instanceof HTMLElement &&
-      profileModal.style.display !== 'none'
-    ) {
-      this._populateProfileModalData(profileModal);
-    }
-  }
-
   _renderAchievementsGrid(modal) {
     const grid = modal.querySelector('#achievement-grid');
 
@@ -1258,18 +1322,16 @@ export class UIScene extends BaseScene {
       return;
     }
 
+    const all = getAchievementList();
+
     const achievements = [
-      ...getAchievementList().filter((item) =>
-        hasAchievement(item.id)
-      ),
-      ...getAchievementList().filter(
-        (item) => !hasAchievement(item.id)
-      )
+      ...all.filter(item => hasAchievement(item.id)),
+      ...all.filter(item => !hasAchievement(item.id))
     ].slice(0, 4);
 
     grid.replaceChildren();
 
-    achievements.forEach((achievement) => {
+    achievements.forEach(achievement => {
       const unlocked = hasAchievement(achievement.id);
 
       const item = document.createElement('div');
@@ -1283,14 +1345,10 @@ export class UIScene extends BaseScene {
         : 'Achievement locked';
 
       const icon = document.createElement('span');
-
       icon.className = 'achievement-icon';
-      icon.textContent = unlocked
-        ? achievement.icon
-        : '🔒';
+      icon.textContent = unlocked ? achievement.icon : '🔒';
 
       const title = document.createElement('span');
-
       title.className = 'achievement-title';
       title.textContent = unlocked
         ? achievement.title
@@ -1302,16 +1360,14 @@ export class UIScene extends BaseScene {
   }
 
   _setHtmlText(container, selector, text) {
-    container.querySelectorAll(selector).forEach((element) => {
+    container.querySelectorAll(selector).forEach(element => {
       element.textContent = text;
     });
   }
 
   _colorToHex(color) {
     if (typeof color === 'string') {
-      return color.startsWith('#')
-        ? color
-        : `#${color}`;
+      return color.startsWith('#') ? color : `#${color}`;
     }
 
     const numericColor = Number(color);
@@ -1322,9 +1378,10 @@ export class UIScene extends BaseScene {
   }
 
   async _showGameOver(reason) {
-    const started = await this.goto('GameOverScene', {
-      reason
-    });
+    const started = await this.goto(
+      'GameOverScene',
+      { reason }
+    );
 
     if (!started) {
       console.error(

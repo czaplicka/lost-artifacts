@@ -2,6 +2,7 @@ import { audioManager } from '../../managers/AudioManager.js';
 import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 
+
 const PADS = [
   { label: 'R-7', color: '#ff5252', freq: 330 },
   { label: 'G-2', color: '#46ff7a', freq: 415 },
@@ -10,6 +11,7 @@ const PADS = [
 ];
 
 const ROUNDS = [3, 4, 5];
+
 
 export class FiberAnalysisScene extends BaseScene {
   constructor() {
@@ -26,7 +28,7 @@ export class FiberAnalysisScene extends BaseScene {
 
     this.score = 100;
     this.mistakes = 0;
-    this.startedAt = 0;
+    this.startedAt = null;
 
     this.round = 0;
     this.inputIndex = 0;
@@ -40,7 +42,17 @@ export class FiberAnalysisScene extends BaseScene {
     this.gameStarted = false;
     this.readyOverlay = null;
     this.readyObjects = [];
+
+    this._fiberDisposed = true;
+    this._fiberSession = 0;
+
+    this._pendingCalls = new Set();
+    this._padResetEvents = new Map();
+    this._playbackResolve = null;
+    this._playbackFinishEvent = null;
+    this._roundStarting = false;
   }
+
 
   init(data = {}) {
     const evidenceConfig = data.evidenceConfig || {};
@@ -74,12 +86,13 @@ export class FiberAnalysisScene extends BaseScene {
       }
     };
 
-    this.score = data.startScore ?? 100;
-    this.mistakes = 0;
-    this.startedAt = 0;
-
+    this.term = null;
     this.padTexts = [];
     this.sequence = [];
+
+    this.score = data.startScore ?? 100;
+    this.mistakes = 0;
+    this.startedAt = null;
 
     this.round = 0;
     this.inputIndex = 0;
@@ -93,58 +106,125 @@ export class FiberAnalysisScene extends BaseScene {
     this.gameStarted = false;
     this.readyOverlay = null;
     this.readyObjects = [];
+
+    this._fiberDisposed = true;
+    this._fiberSession += 1;
+
+    this._pendingCalls = new Set();
+    this._padResetEvents = new Map();
+    this._playbackResolve = null;
+    this._playbackFinishEvent = null;
+    this._roundStarting = false;
   }
+
 
   create() {
     super.create();
+
+    this._fiberDisposed = false;
+    this._fiberSession += 1;
 
     this.term = new LabTerminal(this, {
       title: 'SPECTROGRAPH SP-404 // REAGENT SEQUENCER',
       maxLines: 9
     });
 
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.cleanup,
-      this
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this.cleanup,
-      this
-    );
-
     this.buildPads();
     this.showIntro();
   }
 
+
+  isCurrentSession(session, terminal = this.term) {
+    return (
+      !this._fiberDisposed &&
+      !this._cleanupDone &&
+      !this.returningToLab &&
+      session === this._fiberSession &&
+      terminal === this.term &&
+      Boolean(terminal) &&
+      !terminal.destroyed
+    );
+  }
+
+
+  async terminalAction(session, terminal, action) {
+    if (!this.isCurrentSession(session, terminal)) {
+      return false;
+    }
+
+    const result = await action();
+
+    return (
+      result !== false &&
+      this.isCurrentSession(session, terminal)
+    );
+  }
+
+
+  async printLines(session, terminal, lines) {
+    for (const [text, options = {}] of lines) {
+      const current = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.print(text, options)
+      );
+
+      if (!current) return false;
+    }
+
+    return true;
+  }
+
+
+  later(delay, callback) {
+    const session = this._fiberSession;
+
+    if (!this.isCurrentSession(session)) return null;
+
+    const event = this.time.delayedCall(delay, () => {
+      this._pendingCalls.delete(event);
+
+      if (!this.isCurrentSession(session)) return;
+
+      callback();
+    });
+
+    this._pendingCalls.add(event);
+    return event;
+  }
+
+
+  cancelCall(event) {
+    if (!event) return;
+
+    event.remove(false);
+    this._pendingCalls.delete(event);
+  }
+
+
   buildPads() {
     const centerX = this.term.x + this.term.w / 2;
     const centerY = this.term.y + this.term.h - 190;
+    const session = this._fiberSession;
 
     this.padTexts = PADS.map((pad, index) => {
-      const text = this.add
-        .text(
-          centerX + (index - 1.5) * 150,
-          centerY,
-          ` ${pad.label} `,
-          {
-            fontFamily: '"PressStart2P"',
-            fontSize: '18px',
-            color: TERM.dark,
-            backgroundColor: pad.color,
-            padding: {
-              x: 14,
-              y: 14
-            }
-          }
-        )
+      const text = this.add.text(
+        centerX + (index - 1.5) * 150,
+        centerY,
+        ` ${pad.label} `,
+        {
+          fontFamily: '"PressStart2P"',
+          fontSize: '18px',
+          color: TERM.dark,
+          backgroundColor: pad.color,
+          padding: { x: 14, y: 14 }
+        }
+      )
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
 
       text.on('pointerdown', () => {
-        if (!this.gameStarted || this.finished) return;
+        if (!this.isCurrentSession(session)) return;
 
         this.pressPad(index);
       });
@@ -153,83 +233,123 @@ export class FiberAnalysisScene extends BaseScene {
     });
   }
 
+
   async showIntro() {
-    await this.term.print(
-      '> FIBER SAMPLE LOADED. DO NOT SNEEZE.'
+    const terminal = this.term;
+    const session = this._fiberSession;
+
+    const printed = await this.printLines(
+      session,
+      terminal,
+      [
+        [
+          '> FIBER SAMPLE LOADED. DO NOT SNEEZE.'
+        ],
+        [
+          '> REAGENTS MUST BE ADDED IN THE SHOWN ORDER.'
+        ],
+        [
+          '> WATCH. REMEMBER. REPEAT. LIKE KARAOKE, BUT SCIENCE.',
+          { color: TERM.amber }
+        ]
+      ]
     );
 
-    await this.term.print(
-      '> REAGENTS MUST BE ADDED IN THE SHOWN ORDER.'
-    );
+    if (!printed || this.finished) return;
 
-    await this.term.print(
-      '> WATCH. REMEMBER. REPEAT. LIKE KARAOKE, BUT SCIENCE.',
-      { color: TERM.amber }
-    );
+    this.showReadyScreen();
+  }
 
-    if (!this.finished) {
-      this.showReadyScreen();
+
+  clearReadyScreen() {
+    const objects = this.readyObjects;
+
+    this.readyObjects = [];
+    this.readyOverlay = null;
+
+    for (const object of objects) {
+      object?.removeAllListeners?.();
+      object?.destroy?.();
     }
   }
 
+
   showReadyScreen() {
+    const session = this._fiberSession;
+
+    if (
+      !this.isCurrentSession(session) ||
+      this.finished ||
+      this.gameStarted ||
+      this.readyOverlay
+    ) {
+      return;
+    }
+
     const { width, height } = this.scale;
 
-    this.gameStarted = false;
-
-    this.readyOverlay = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.9)
+    this.readyOverlay = this.add.rectangle(
+      0,
+      0,
+      width,
+      height,
+      0x000000,
+      0.9
+    )
       .setOrigin(0, 0)
       .setDepth(5000)
       .setInteractive();
 
-    const panel = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        Math.min(width - 40, 760),
-        390,
-        0x111827,
-        1
-      )
+    this.readyOverlay.on(
+      'pointerdown',
+      (pointer, x, y, event) => {
+        event?.stopPropagation();
+      }
+    );
+
+    const panel = this.add.rectangle(
+      width / 2,
+      height / 2,
+      Math.min(width - 40, 760),
+      390,
+      0x111827,
+      1
+    )
       .setStrokeStyle(3, 0x7df9ff)
       .setDepth(5001);
 
-    const title = this.add
-      .text(
-        width / 2,
-        height / 2 - 130,
-        'FIBER MATCHING PROTOCOL',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '16px',
-          color: '#7df9ff',
-          align: 'center'
-        }
-      )
-      .setOrigin(0.5)
-      .setDepth(5002);
+    const title = this.add.text(
+      width / 2,
+      height / 2 - 130,
+      'FIBER MATCHING PROTOCOL',
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '16px',
+        color: '#7df9ff',
+        align: 'center'
+      }
+    ).setOrigin(0.5).setDepth(5002);
 
-    const briefing = this.add
-      .text(
-        width / 2,
-        height / 2 - 20,
-        'Watch the fiber scanner carefully.\n\nRepeat the color sequence exactly.\n\nThe machine is dramatic, impatient,\nand legally classified as a diva.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '25px',
-          color: '#fff4c7',
-          align: 'center',
-          wordWrap: {
-            width: Math.min(width - 110, 650)
-          }
+    const briefing = this.add.text(
+      width / 2,
+      height / 2 - 20,
+      'Watch the fiber scanner carefully.\n\nRepeat the color sequence exactly.\n\nThe machine is dramatic, impatient,\nand legally classified as a diva.',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '25px',
+        color: '#fff4c7',
+        align: 'center',
+        wordWrap: {
+          width: Math.min(width - 110, 650)
         }
-      )
-      .setOrigin(0.5)
-      .setDepth(5002);
+      }
+    ).setOrigin(0.5).setDepth(5002);
 
-    const startButton = this.add
-      .text(width / 2, height / 2 + 145, '[ I AM FOCUSED ]', {
+    const startButton = this.add.text(
+      width / 2,
+      height / 2 + 145,
+      '[ I AM FOCUSED ]',
+      {
         fontFamily: 'PressStart2P',
         fontSize: '13px',
         color: '#39ff14',
@@ -240,48 +360,11 @@ export class FiberAnalysisScene extends BaseScene {
           top: 12,
           bottom: 12
         }
-      })
+      }
+    )
       .setOrigin(0.5)
       .setDepth(5002)
       .setInteractive({ useHandCursor: true });
-
-    const startFiberGame = () => {
-      if (this.gameStarted || this.finished) return;
-
-      this.gameStarted = true;
-
-      audioManager.playSfx('click_sound');
-
-      this.readyObjects.forEach((gameObject) => {
-        if (!gameObject?.active) return;
-
-        gameObject.removeAllListeners?.();
-        gameObject.destroy();
-      });
-
-      this.readyObjects = [];
-      this.readyOverlay = null;
-
-      /*
-       * Timer starts only after the player explicitly confirms
-       * that they are ready to watch the sequence.
-       */
-      this.startedAt = this.time.now;
-
-      this.startRound();
-    };
-
-    startButton.on('pointerover', () => {
-      startButton.setScale(1.06);
-      startButton.setColor('#ffffff');
-    });
-
-    startButton.on('pointerout', () => {
-      startButton.setScale(1);
-      startButton.setColor('#39ff14');
-    });
-
-    startButton.on('pointerdown', startFiberGame);
 
     this.readyObjects = [
       this.readyOverlay,
@@ -290,13 +373,61 @@ export class FiberAnalysisScene extends BaseScene {
       briefing,
       startButton
     ];
+
+    startButton.on('pointerover', () => {
+      startButton.setScale(1.06).setColor('#ffffff');
+    });
+
+    startButton.on('pointerout', () => {
+      startButton.setScale(1).setColor('#39ff14');
+    });
+
+    startButton.on('pointerdown', (pointer, x, y, event) => {
+      event?.stopPropagation();
+
+      if (
+        !this.isCurrentSession(session) ||
+        this.gameStarted ||
+        this.finished
+      ) {
+        return;
+      }
+
+      this.gameStarted = true;
+      startButton.disableInteractive();
+
+      audioManager.playSfx('click_sound');
+
+      if (!this.isCurrentSession(session)) return;
+
+      this.clearReadyScreen();
+
+      this.startedAt = this.time.now;
+      this.startRound();
+    });
   }
 
-  async startRound() {
-    if (this.finished || !this.gameStarted) return;
 
+  async startRound() {
+    const terminal = this.term;
+    const session = this._fiberSession;
+
+    if (
+      !this.isCurrentSession(session, terminal) ||
+      this.finished ||
+      !this.gameStarted ||
+      this._roundStarting ||
+      this.round >= ROUNDS.length
+    ) {
+      return;
+    }
+
+    this._roundStarting = true;
     this.accepting = false;
     this.inputIndex = 0;
+
+    this.cancelCall(this.nextRoundEvent);
+    this.nextRoundEvent = null;
 
     const sequenceLength = ROUNDS[this.round];
 
@@ -305,52 +436,122 @@ export class FiberAnalysisScene extends BaseScene {
       () => Phaser.Math.Between(0, PADS.length - 1)
     );
 
-    await this.term.print(
-      `> ROUND ${this.round + 1}/3 — SEQUENCE LENGTH ${sequenceLength}`
-    );
+    try {
+      const printed = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.print(
+          `> ROUND ${this.round + 1}/${ROUNDS.length} — SEQUENCE LENGTH ${sequenceLength}`
+        )
+      );
 
-    if (this.finished || !this.gameStarted) return;
+      if (
+        !printed ||
+        this.finished ||
+        !this.gameStarted
+      ) {
+        return;
+      }
 
-    await this.playSequence();
+      const played = await this.playSequence();
 
-    if (!this.finished && this.gameStarted) {
-      this.accepting = true;
+      if (
+        played &&
+        this.isCurrentSession(session, terminal) &&
+        !this.finished &&
+        this.gameStarted
+      ) {
+        this.accepting = true;
+      }
+    } finally {
+      if (this.isCurrentSession(session, terminal)) {
+        this._roundStarting = false;
+      }
     }
   }
 
+
+  settlePlayback(completed) {
+    const resolve = this._playbackResolve;
+    this._playbackResolve = null;
+
+    this.playbackEvent?.remove(false);
+    this.playbackEvent = null;
+
+    this.cancelCall(this._playbackFinishEvent);
+    this._playbackFinishEvent = null;
+
+    resolve?.(completed);
+  }
+
+
   playSequence() {
-    return new Promise((resolve) => {
+    this.settlePlayback(false);
+
+    const session = this._fiberSession;
+    const sequence = [...this.sequence];
+
+    if (
+      !this.isCurrentSession(session) ||
+      this.finished ||
+      !this.gameStarted ||
+      sequence.length === 0
+    ) {
+      return Promise.resolve(false);
+    }
+
+    return new Promise(resolve => {
+      this._playbackResolve = resolve;
+
       let sequenceIndex = 0;
 
       this.playbackEvent = this.time.addEvent({
         delay: 650,
-        repeat: this.sequence.length - 1,
+        repeat: sequence.length - 1,
         callback: () => {
-          if (this.finished || !this.gameStarted) {
-            resolve();
+          if (
+            !this.isCurrentSession(session) ||
+            this.finished ||
+            !this.gameStarted
+          ) {
+            this.settlePlayback(false);
             return;
           }
 
-          this.flashPad(this.sequence[sequenceIndex]);
+          this.flashPad(sequence[sequenceIndex]);
           sequenceIndex += 1;
 
-          if (sequenceIndex >= this.sequence.length) {
-            this.time.delayedCall(400, () => {
-              resolve();
-            });
+          if (sequenceIndex >= sequence.length) {
+            this._playbackFinishEvent = this.later(
+              400,
+              () => {
+                this._playbackFinishEvent = null;
+                this.settlePlayback(true);
+              }
+            );
           }
         }
       });
     });
   }
 
+
   flashPad(index) {
     const padText = this.padTexts[index];
     const pad = PADS[index];
 
-    if (!padText || !pad) return;
+    if (
+      this._fiberDisposed ||
+      !padText?.active ||
+      !pad
+    ) {
+      return;
+    }
 
-    this.term.blip(
+    this.cancelCall(this._padResetEvents.get(index));
+    this._padResetEvents.delete(index);
+
+    this.term?.blip(
       pad.freq,
       0.18,
       'square',
@@ -359,15 +560,26 @@ export class FiberAnalysisScene extends BaseScene {
 
     padText.setScale(1.25);
 
-    this.time.delayedCall(280, () => {
-      if (padText?.active) {
+    const resetEvent = this.later(280, () => {
+      this._padResetEvents.delete(index);
+
+      if (padText.active) {
         padText.setScale(1);
       }
     });
+
+    if (resetEvent) {
+      this._padResetEvents.set(index, resetEvent);
+    }
   }
 
+
   async pressPad(index) {
+    const terminal = this.term;
+    const session = this._fiberSession;
+
     if (
+      !this.isCurrentSession(session, terminal) ||
       !this.gameStarted ||
       !this.accepting ||
       this.finished
@@ -386,133 +598,201 @@ export class FiberAnalysisScene extends BaseScene {
 
     this.inputIndex += 1;
 
-    if (this.inputIndex < this.sequence.length) {
-      return;
-    }
+    if (this.inputIndex < this.sequence.length) return;
 
     this.accepting = false;
     this.round += 1;
 
     if (this.round >= ROUNDS.length) {
-      this.finishAnalysis();
+      await this.finishAnalysis();
       return;
     }
 
-    await this.term.print(
-      '> SEQUENCE ACCEPTED. THE MACHINE PURRS.'
+    const printed = await this.terminalAction(
+      session,
+      terminal,
+      () => terminal.print(
+        '> SEQUENCE ACCEPTED. THE MACHINE PURRS.'
+      )
     );
 
-    this.nextRoundEvent = this.time.delayedCall(
-      600,
-      () => this.startRound()
-    );
+    if (
+      !printed ||
+      this.finished ||
+      !this.gameStarted
+    ) {
+      return;
+    }
+
+    this.scheduleNextRound(600);
   }
 
+
+  scheduleNextRound(delay) {
+    this.cancelCall(this.nextRoundEvent);
+
+    this.nextRoundEvent = this.later(delay, () => {
+      this.nextRoundEvent = null;
+      this.startRound();
+    });
+  }
+
+
   async handleWrongPad() {
-    if (this.finished || !this.gameStarted) return;
+    const terminal = this.term;
+    const session = this._fiberSession;
+
+    if (
+      !this.isCurrentSession(session, terminal) ||
+      this.finished ||
+      !this.gameStarted ||
+      !this.accepting
+    ) {
+      return;
+    }
 
     this.accepting = false;
     this.mistakes += 1;
     this.score = Math.max(0, this.score - 15);
 
-    await this.term.print(
-      '> WRONG REAGENT. SMALL EXPLOSION. EVERYONE IS FINE. (-15 PTS)',
-      { color: TERM.red }
+    const printed = await this.terminalAction(
+      session,
+      terminal,
+      () => terminal.print(
+        '> WRONG REAGENT. SMALL EXPLOSION. EVERYONE IS FINE. (-15 PTS)',
+        { color: TERM.red }
+      )
     );
 
-    this.nextRoundEvent = this.time.delayedCall(
-      800,
-      () => this.startRound()
-    );
+    if (
+      !printed ||
+      this.finished ||
+      !this.gameStarted
+    ) {
+      return;
+    }
+
+    this.scheduleNextRound(800);
   }
+
 
   getTimeBonus() {
     const secondsElapsed = this.getSecondsElapsed();
 
-    if (secondsElapsed <= 15) {
-      return 20;
-    }
-
-    if (secondsElapsed <= 30) {
-      return 10;
-    }
+    if (secondsElapsed <= 15) return 20;
+    if (secondsElapsed <= 30) return 10;
 
     return 0;
   }
 
+
   getSecondsElapsed() {
-    if (!this.startedAt) {
-      return 0;
-    }
+    if (this.startedAt === null) return 0;
 
     return Math.floor(
       (this.time.now - this.startedAt) / 1000
     );
   }
 
+
   async finishAnalysis() {
-    if (this.finished) return;
+    const terminal = this.term;
+    const session = this._fiberSession;
+
+    if (
+      this.finished ||
+      !this.isCurrentSession(session, terminal)
+    ) {
+      return;
+    }
 
     this.finished = true;
     this.accepting = false;
 
+    this.settlePlayback(false);
+
+    this.cancelCall(this.nextRoundEvent);
+    this.nextRoundEvent = null;
+
     const timeBonus = this.getTimeBonus();
 
-    this.score = Math.min(
-      120,
-      this.score + timeBonus
-    );
+    this.score = Math.min(120, this.score + timeBonus);
 
     this.disablePads();
 
-    await this.term.progress(
-      'SPECTRAL ANALYSIS',
-      1800
+    const analyzed = await this.terminalAction(
+      session,
+      terminal,
+      () => terminal.progress('SPECTRAL ANALYSIS', 1800)
     );
 
-    await this.term.print(
-      '> RESULT: BLUE COTTON FIBER.'
-    );
+    if (!analyzed) return;
 
-    await this.term.print(
-      '> FOUND IN 98% OF ALL CLOTHING. THIS CHANGES NOTHING.',
-      { color: TERM.amber }
-    );
-
-    await this.term.print(
-      '> THE SPECTROGRAPH IS VERY PROUD ANYWAY.'
-    );
+    const lines = [
+      [
+        '> RESULT: BLUE COTTON FIBER.'
+      ],
+      [
+        '> FOUND IN 98% OF ALL CLOTHING. THIS CHANGES NOTHING.',
+        { color: TERM.amber }
+      ],
+      [
+        '> THE SPECTROGRAPH IS VERY PROUD ANYWAY.'
+      ]
+    ];
 
     if (timeBonus > 0) {
-      await this.term.print(
+      lines.push([
         `> SPEED BONUS: +${timeBonus} PTS.`,
         { color: TERM.amber }
-      );
+      ]);
     }
 
-    await this.term.print(
+    lines.push([
       '> CLUE READY FOR CASE FILE.',
       { color: TERM.amber }
+    ]);
+
+    const printed = await this.printLines(
+      session,
+      terminal,
+      lines
     );
 
-    this.term.button(
+    if (!printed) return;
+
+    terminal.button(
       'ADD TO CASE FILE',
       TERM.green,
-      () => this.returnResultToCrimeLab()
+      () => {
+        if (!this.isCurrentSession(session, terminal)) {
+          return;
+        }
+
+        this.returnResultToCrimeLab();
+      }
     );
   }
 
+
   disablePads() {
-    this.padTexts.forEach((padText) => {
-      if (!padText) return;
+    for (const padText of this.padTexts) {
+      if (!padText?.active) continue;
 
       padText.disableInteractive();
       padText.setAlpha(0.55);
-    });
+    }
   }
 
+
   returnResultToCrimeLab() {
-    if (this.returningToLab) return;
+    if (
+      this.returningToLab ||
+      this._fiberDisposed ||
+      !this.finished
+    ) {
+      return;
+    }
 
     this.returningToLab = true;
 
@@ -538,34 +818,49 @@ export class FiberAnalysisScene extends BaseScene {
     this.scene.stop();
   }
 
+
   cleanup() {
+    if (this._fiberDisposed) {
+      super.cleanup();
+      return;
+    }
+
+    this._fiberDisposed = true;
+    this._fiberSession += 1;
+
     this.accepting = false;
     this.gameStarted = false;
+    this.returningToLab = true;
+    this._roundStarting = false;
 
-    if (this.playbackEvent) {
-      this.playbackEvent.remove();
-      this.playbackEvent = null;
-    }
+    const terminal = this.term;
+    this.term = null;
 
-    if (this.nextRoundEvent) {
-      this.nextRoundEvent.remove();
+    try {
+      this.settlePlayback(false);
+
+      for (const event of this._pendingCalls) {
+        event.remove(false);
+      }
+
+      this._pendingCalls.clear();
+      this._padResetEvents.clear();
+
       this.nextRoundEvent = null;
+
+      this.clearReadyScreen();
+
+      for (const padText of this.padTexts) {
+        padText?.removeAllListeners();
+        padText?.destroy();
+      }
+
+      this.padTexts = [];
+      this.sequence = [];
+
+      terminal?.destroy();
+    } finally {
+      super.cleanup();
     }
-
-    this.readyObjects.forEach((gameObject) => {
-      if (!gameObject?.active) return;
-
-      gameObject.removeAllListeners?.();
-      gameObject.destroy();
-    });
-
-    this.readyObjects = [];
-    this.readyOverlay = null;
-
-    this.padTexts.forEach((padText) => {
-      if (!padText) return;
-
-      padText.removeAllListeners();
-    });
   }
 }

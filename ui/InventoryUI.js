@@ -5,6 +5,10 @@ import { useItem, canUseItem } from '../managers/ItemUseService.js';
 import { InventoryView } from './inventory/InventoryView.js';
 import { InventoryDragController } from './inventory/InventoryDragController.js';
 
+const DETECTIVE = 'Detective';
+
+const say = text => EventBus.emit('showDialogue', { speaker: DETECTIVE, text });
+
 export class InventoryUI {
   constructor(scene) {
     this.scene = scene;
@@ -16,6 +20,7 @@ export class InventoryUI {
     this._renderTimer = null;
     this._destroyed = false;
     this._initialized = false;
+
     this.handleInventoryToggled = open => this.handleToggle(open);
     this.handleInventoryUpdated = () => this.scheduleRender();
     this.handleInventorySelectionChanged = item => {
@@ -25,7 +30,9 @@ export class InventoryUI {
     this.handleOutsidePointerDown = pointer => {
       if (this._destroyed || !this.isVisible || this.dragController?.isPending()) return;
       const rect = this.view?.panelRect;
-      if (rect && !Phaser.Geom.Rectangle.Contains(rect, pointer.x, pointer.y)) inventoryManager.close();
+      if (rect && !Phaser.Geom.Rectangle.Contains(rect, pointer.x, pointer.y)) {
+        inventoryManager.close();
+      }
     };
     this.handleKeyI = event => {
       if (this._destroyed || this.isTyping() || event?.repeat) return;
@@ -49,8 +56,31 @@ export class InventoryUI {
   }
 
   initialize() {
-    if (this._initialized || this._destroyed || !this.scene?.sys?.isActive()) return;
+    if (this._initialized || this._destroyed) return;
+
+    if (!this.scene?.sys?.isActive()) {
+      console.warn('[InventoryUI] initialize() skipped: scene is not active.');
+      return;
+    }
+
     this._initialized = true;
+
+    try {
+      this._buildView();
+      this._buildDragController();
+      this._attachListeners();
+    } catch (error) {
+      console.error('[InventoryUI] Initialization failed:', error);
+      this.destroy();
+      return;
+    }
+
+    this.selectedItem = inventoryManager.getSelectedItem();
+    this.render();
+    if (inventoryManager.isOpen) this.show(true);
+  }
+
+  _buildView() {
     this.view = new InventoryView(this.scene, {
       close: () => inventoryManager.close(),
       toggle: () => inventoryManager.toggleInventory(),
@@ -60,23 +90,31 @@ export class InventoryUI {
       isDragging: () => this.dragController?.isDragging() === true
     });
     this.view.create();
+  }
+
+  _buildDragController() {
     this.dragController = new InventoryDragController(this.scene, {
       isVisible: () => this.isVisible,
       clicked: item => {
         if (!this.isVisible || this._destroyed) return;
         this.selectItem(item);
-        this.render();
+        this.scheduleRender();
       },
       dragStarted: () => {
         this.hideTooltip();
         inventoryManager.close();
-        this.view.hide(true);
+        this.view?.hide(true);
       },
       cancelled: reopen => {
-        if (reopen && !this._destroyed && this.scene?.sys?.isActive()) inventoryManager.open();
+        if (reopen && !this._destroyed && this.scene?.sys?.isActive()) {
+          inventoryManager.open();
+        }
       },
       finished: () => this.scheduleRender()
     });
+  }
+
+  _attachListeners() {
     EventBus.on('inventoryToggled', this.handleInventoryToggled, this);
     EventBus.on('inventoryUpdated', this.handleInventoryUpdated, this);
     EventBus.on('inventorySelectionChanged', this.handleInventorySelectionChanged, this);
@@ -87,14 +125,13 @@ export class InventoryUI {
     this.scene.events.on(Phaser.Scenes.Events.PAUSE, this.handleInactive, this);
     this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown, this);
     this.scene.events.once(Phaser.Scenes.Events.DESTROY, this.handleSceneShutdown, this);
-    this.selectedItem = inventoryManager.getSelectedItem();
-    this.render();
-    if (inventoryManager.isOpen) this.show(true);
   }
 
   isTyping() {
     const element = document.activeElement;
-    return element?.tagName === 'INPUT' || element?.tagName === 'TEXTAREA' || element?.isContentEditable;
+    return element?.tagName === 'INPUT'
+      || element?.tagName === 'TEXTAREA'
+      || element?.isContentEditable === true;
   }
 
   attachKeyListener() {
@@ -107,7 +144,9 @@ export class InventoryUI {
     if (open) {
       if (this.dragController?.isPending()) this.dragController.cancel(false);
       this.show();
-    } else this.hide();
+    } else {
+      this.hide();
+    }
   }
 
   show(immediate = false) {
@@ -147,15 +186,27 @@ export class InventoryUI {
     this._renderTimer = this.scene.time.delayedCall(0, () => {
       this._renderPending = false;
       this._renderTimer = null;
-      if (this.isVisible && !this._destroyed && !this.dragController?.isPending()) this.render();
+      if (this.isVisible && !this._destroyed && !this.dragController?.isPending()) {
+        this.render();
+      }
     });
   }
 
   render() {
-    if (this._destroyed || !this.view || !this.scene?.sys?.isActive() || this.dragController?.isPending()) return;
+    if (
+      this._destroyed
+      || !this.view
+      || !this.scene?.sys?.isActive()
+      || this.dragController?.isPending()
+    ) return;
+
     this.selectedItem = inventoryManager.getSelectedItem();
-    this.view.render(inventoryManager.getAllItems(), inventoryManager.getCapacity(),
-      this.selectedItem, canUseItem(this.selectedItem));
+    this.view.render(
+      inventoryManager.getAllItems(),
+      inventoryManager.getCapacity(),
+      this.selectedItem,
+      canUseItem(this.selectedItem)
+    );
   }
 
   useSelectedItem() {
@@ -163,7 +214,7 @@ export class InventoryUI {
     const selected = inventoryManager.getSelectedItem();
     if (!selected || !canUseItem(selected)) return;
     const result = useItem(selected.id);
-    if (result?.message) EventBus.emit('showDialogue', { speaker: 'Detective', text: result.message });
+    if (result?.message) say(result.message);
     this.scheduleRender();
   }
 
@@ -172,10 +223,10 @@ export class InventoryUI {
     const selected = inventoryManager.getSelectedItem();
     if (selected?.id === item.id) {
       inventoryManager.clearSelection();
-      EventBus.emit('showDialogue', { speaker: 'Detective', text: 'Item put away. For now.' });
+      say('Item put away. For now.');
     } else {
       inventoryManager.selectItem(item.id);
-      EventBus.emit('showDialogue', { speaker: 'Detective', text: `${item.name}. Let's see what this helps with.` });
+      say(`${item.name}. Let's see what this helps with.`);
     }
   }
 
@@ -184,7 +235,7 @@ export class InventoryUI {
   _updateUseButton() { this.render(); }
   _getVisibilityTargets() { return this.view?.targets() || []; }
 
-  // Keep read access to the existing UI fields.
+  // Zachowany dostep do odczytu starych pol UI.
   get container() { return this.view?.container ?? null; }
   get panel() { return this.view?.panel ?? null; }
   get titleText() { return this.view?.titleText ?? null; }
@@ -204,28 +255,38 @@ export class InventoryUI {
   destroy() {
     if (this._destroyed) return;
     this._destroyed = true;
+
+    const scene = this.scene;
     const wasVisible = this.isVisible;
+
     this.isVisible = false;
     this._initialized = false;
     this._renderTimer?.remove(false);
     this._renderTimer = null;
     this._renderPending = false;
+
     EventBus.off('inventoryToggled', this.handleInventoryToggled, this);
     EventBus.off('inventoryUpdated', this.handleInventoryUpdated, this);
     EventBus.off('inventorySelectionChanged', this.handleInventorySelectionChanged, this);
-    this.scene.input.off('pointerdown', this.handleOutsidePointerDown, this);
-    this.scene.input.keyboard?.off('keydown-I', this.handleKeyI, this);
-    this.scene.input.keyboard?.off('keydown-ESC', this.handleKeyEsc, this);
-    this.scene.scale.off('resize', this.handleResize, this);
+
+    // Przy DESTROY sceny input / scale / events moga byc juz wyzerowane.
+    scene?.input?.off('pointerdown', this.handleOutsidePointerDown, this);
+    scene?.input?.keyboard?.off('keydown-I', this.handleKeyI, this);
+    scene?.input?.keyboard?.off('keydown-ESC', this.handleKeyEsc, this);
+    scene?.scale?.off('resize', this.handleResize, this);
+
     for (const [event, callback] of [
       [Phaser.Scenes.Events.SLEEP, this.handleInactive],
       [Phaser.Scenes.Events.PAUSE, this.handleInactive],
       [Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown],
       [Phaser.Scenes.Events.DESTROY, this.handleSceneShutdown]
-    ]) this.scene.events.off(event, callback, this);
+    ]) scene?.events?.off(event, callback, this);
+
     this.dragController?.destroy();
     this.dragController = null;
+
     if (wasVisible && inventoryManager.isOpen) inventoryManager.close();
+
     this.view?.destroy();
     this.view = null;
     this.selectedItem = null;

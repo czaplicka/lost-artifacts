@@ -6,10 +6,15 @@ import {
   ECONOMY_CATEGORY
 } from '../managers/MoneyManager.js';
 import { gameState } from '../GameData.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 
 const NEWSPAPER_PRICE = 5;
 const COMIX_PRICE = 1;
 const DAILY_NEWSPAPER_ACCESS_KEY = 'dailyNewspaperAccess';
+
+const VIDEO_KEY = 'newsstand_video';
+const VIDEO_URL = 'assets/video/newsstand.mp4';
+const VIDEO_DELAY_MS = 10000;
 
 export class NewsstandScene extends BaseScene {
   constructor() {
@@ -20,6 +25,7 @@ export class NewsstandScene extends BaseScene {
     this.bgImage = null;
     this.bgVideo = null;
     this.sceneDim = null;
+    this.videoTimer = null;
 
     this.overlayRoot = null;
     this.overlayBlocker = null;
@@ -48,18 +54,45 @@ export class NewsstandScene extends BaseScene {
     this.isOpeningNewspaper = false;
     this.currentMode = 'none';
 
-    console.log('[NewsstandScene] Opened in city:', {
-      receivedCityId: data.cityId,
-      gameStateCityId: gameState.currentCityId,
-      registryCityId: this.registry.get('currentCityId'),
-      resolvedCityId: this.cityId
-    });
+    this.bgImage = null;
+    this.bgVideo = null;
+    this.sceneDim = null;
+    this.videoTimer = null;
+
+    this.overlayRoot = null;
+    this.overlayBlocker = null;
+    this.comixContainer = null;
+    this.comixImage = null;
+    this.comixCloseBtn = null;
+  }
+
+  preload() {
+    if (this.cache.video.exists(VIDEO_KEY)) {
+      return;
+    }
+
+    const [major = 3, minor = 0] = String(Phaser.VERSION)
+      .split('.')
+      .map(Number);
+
+    const modernVideoLoader =
+      major > 3 || (major === 3 && minor >= 60);
+
+    if (modernVideoLoader) {
+      this.load.video(VIDEO_KEY, VIDEO_URL, false);
+    } else {
+      this.load.video(
+        VIDEO_KEY,
+        VIDEO_URL,
+        'loadeddata',
+        false,
+        true
+      );
+    }
   }
 
   create() {
     super.create();
-
-    console.log('[NewsstandScene] create started');
 
     const { width, height } = this.scale;
 
@@ -70,11 +103,13 @@ export class NewsstandScene extends BaseScene {
 
     this.scale.on('resize', this.handleResize);
 
-    this.trackInputEvent(
-      this.input.keyboard,
-      'keydown-ESC',
-      this.handleEscape
-    );
+    if (this.input.keyboard) {
+      this.trackInputEvent(
+        this.input.keyboard,
+        'keydown-ESC',
+        this.handleEscape
+      );
+    }
 
     EventBus.emit('hideHUD');
 
@@ -86,13 +121,16 @@ export class NewsstandScene extends BaseScene {
     this.createSceneCloseButton();
     this.createComixOverlay();
 
-    this.time.delayedCall(10000, () => {
-      if (this.sys.isActive()) {
-        this.switchToVideoBackground();
-      }
-    });
+    this.videoTimer = this.time.delayedCall(
+      VIDEO_DELAY_MS,
+      () => {
+        this.videoTimer = null;
 
-    console.log('[NewsstandScene] create completed');
+        if (this.sys.isActive()) {
+          this.switchToVideoBackground();
+        }
+      }
+    );
   }
 
   createBackground(width, height) {
@@ -105,11 +143,18 @@ export class NewsstandScene extends BaseScene {
       this.resizeImageCover(this.bgImage);
     } else {
       console.error(
-        '[NewsstandScene] Missing texture: newsstand_bg. Check preload/loadAssets.'
+        '[NewsstandScene] Missing texture: newsstand_bg.'
       );
 
       this.add
-        .rectangle(width / 2, height / 2, width, height, 0x211815, 1)
+        .rectangle(
+          width / 2,
+          height / 2,
+          width,
+          height,
+          0x211815,
+          1
+        )
         .setDepth(0);
 
       this.add
@@ -133,25 +178,45 @@ export class NewsstandScene extends BaseScene {
         .setDepth(100);
     }
 
-    if (this.cache.video.exists('newsstand_video')) {
-      this.bgVideo = this.add
-        .video(width / 2, height / 2, 'newsstand_video')
-        .setDepth(0)
-        .setVisible(false)
-        .setOrigin(0.5);
-
-      this.bgVideo.once('textureready', () => {
-        this.resizeVideoCover(this.bgVideo);
-      });
-
-      this.bgVideo.once('playing', () => {
-        this.resizeVideoCover(this.bgVideo);
-      });
-    } else {
+    if (!this.cache.video.exists(VIDEO_KEY)) {
       console.warn(
-        '[NewsstandScene] Video not loaded: newsstand_video. Background will remain static.'
+        '[NewsstandScene] Video unavailable. ' +
+        'Background will remain static.'
       );
+      return;
     }
+
+    this.bgVideo = this.add
+      .video(width / 2, height / 2, VIDEO_KEY)
+      .setDepth(0)
+      .setVisible(false)
+      .setOrigin(0.5)
+      .setLoop(false)
+      .setMute(true);
+
+    this.bgVideo.on('textureready', () => {
+      this.resizeVideoCover(this.bgVideo);
+    });
+
+    this.bgVideo.on('playing', () => {
+      if (!this.sys.isActive() || !this.bgVideo?.scene) {
+        return;
+      }
+
+      this.resizeVideoCover(this.bgVideo);
+      this.bgVideo.setVisible(true);
+      this.bgImage?.setVisible(false);
+    });
+
+    this.bgVideo.on('complete', () => {
+      if (this.sys.isActive()) {
+        this.switchToImageBackground();
+      }
+    });
+
+    this.bgVideo.on('error', () => {
+      this.switchToImageBackground();
+    });
   }
 
   createSceneDim(width, height) {
@@ -173,28 +238,26 @@ export class NewsstandScene extends BaseScene {
   }
 
   switchToVideoBackground() {
-    if (!this.bgVideo || !this.bgImage) {
+    if (!this.bgVideo?.scene || !this.bgImage?.scene) {
       return;
     }
 
-    this.bgImage.setVisible(false);
-
     this.bgVideo
-      .setVisible(true)
       .setLoop(false)
       .setMute(true);
 
     this.resizeVideoCover(this.bgVideo);
-    this.bgVideo.play();
 
-    this.bgVideo.once(
-      Phaser.GameObjects.Events.COMPLETE,
-      () => {
-        if (this.sys.isActive()) {
-          this.switchToImageBackground();
-        }
-      }
-    );
+    try {
+      this.bgVideo.play();
+    } catch (error) {
+      console.warn(
+        '[NewsstandScene] Could not play background video:',
+        error
+      );
+
+      this.switchToImageBackground();
+    }
   }
 
   switchToImageBackground() {
@@ -225,13 +288,15 @@ export class NewsstandScene extends BaseScene {
 
     const videoWidth =
       video.video?.videoWidth ||
-      video.width ||
-      1;
+      video.width;
 
     const videoHeight =
       video.video?.videoHeight ||
-      video.height ||
-      1;
+      video.height;
+
+    if (!videoWidth || !videoHeight) {
+      return;
+    }
 
     const scale = Math.max(
       this.scale.width / videoWidth,
@@ -273,10 +338,7 @@ export class NewsstandScene extends BaseScene {
           fontSize: '12px',
           color: '#f6dc8c',
           backgroundColor: '#1a1111',
-          padding: {
-            x: 8,
-            y: 6
-          },
+          padding: { x: 8, y: 6 },
           stroke: '#000000',
           strokeThickness: 3
         }
@@ -302,21 +364,14 @@ export class NewsstandScene extends BaseScene {
       }
     ];
 
-    hotspots.forEach((rawSpot) => {
+    hotspots.forEach(rawSpot => {
       const spot = this.getScaledHotspot(rawSpot);
 
       this.add
-        .zone(
-          spot.x,
-          spot.y,
-          spot.width,
-          spot.height
-        )
+        .zone(spot.x, spot.y, spot.width, spot.height)
         .setOrigin(0, 0)
         .setDepth(10)
-        .setInteractive({
-          useHandCursor: true
-        })
+        .setInteractive({ useHandCursor: true })
         .on('pointerup', () => {
           void this.buyAndOpenNewspaper(rawSpot);
         });
@@ -382,13 +437,16 @@ export class NewsstandScene extends BaseScene {
 
     purchases[purchaseKey] = true;
 
+    requestAutosave();
+
     return purchaseKey;
   }
 
   async buyAndOpenNewspaper(spot) {
     if (
       this.isAnimatingOverlay ||
-      this.isOpeningNewspaper
+      this.isOpeningNewspaper ||
+      this.currentMode !== 'none'
     ) {
       return;
     }
@@ -429,18 +487,7 @@ export class NewsstandScene extends BaseScene {
 
         purchaseId = purchase.transaction?.id || null;
 
-        const accessKey = this.markNewspaperAccessForToday(
-          cityId,
-          spot.id
-        );
-
-        console.log('[NewsstandScene] Newspaper purchased:', {
-          cityId,
-          newspaperId: spot.id,
-          gameDay: this.getCurrentGameDay(),
-          accessKey,
-          purchaseId
-        });
+        this.markNewspaperAccessForToday(cityId, spot.id);
       }
 
       this.cityId = cityId;
@@ -460,7 +507,7 @@ export class NewsstandScene extends BaseScene {
         }
       );
 
-      if (!opened) {
+      if (!opened && this.sys.isActive()) {
         console.error(
           '[NewsstandScene] Could not open NewspaperOverlayScene.'
         );
@@ -473,7 +520,9 @@ export class NewsstandScene extends BaseScene {
         error
       );
 
-      this.showPurchaseErrorMessage();
+      if (this.sys.isActive()) {
+        this.showPurchaseErrorMessage();
+      }
     } finally {
       this.isOpeningNewspaper = false;
     }
@@ -494,21 +543,14 @@ export class NewsstandScene extends BaseScene {
       }
     ];
 
-    hotspots.forEach((rawSpot) => {
+    hotspots.forEach(rawSpot => {
       const spot = this.getScaledHotspot(rawSpot);
 
       this.add
-        .zone(
-          spot.x,
-          spot.y,
-          spot.width,
-          spot.height
-        )
+        .zone(spot.x, spot.y, spot.width, spot.height)
         .setOrigin(0, 0)
         .setDepth(12)
-        .setInteractive({
-          useHandCursor: true
-        })
+        .setInteractive({ useHandCursor: true })
         .on('pointerup', () => {
           this.buyAndOpenComix(rawSpot);
         });
@@ -518,7 +560,11 @@ export class NewsstandScene extends BaseScene {
   }
 
   buyAndOpenComix(spot) {
-    if (this.isAnimatingOverlay) {
+    if (
+      this.isAnimatingOverlay ||
+      this.isOpeningNewspaper ||
+      this.currentMode !== 'none'
+    ) {
       return;
     }
 
@@ -527,7 +573,14 @@ export class NewsstandScene extends BaseScene {
         `[NewsstandScene] Missing comix texture: ${spot.textureKey}`
       );
 
-      this.showPurchaseErrorMessage();
+      this.showPurchaseErrorMessage(
+        [
+          'COMIX UNAVAILABLE!',
+          '',
+          'The vendor misplaced this issue.',
+          'You have not been charged.'
+        ].join('\n')
+      );
       return;
     }
 
@@ -550,7 +603,6 @@ export class NewsstandScene extends BaseScene {
         purchase.required,
         purchase.available
       );
-
       return;
     }
 
@@ -577,10 +629,7 @@ export class NewsstandScene extends BaseScene {
           color: '#f7e6b5',
           backgroundColor: '#1d1511',
           align: 'center',
-          padding: {
-            x: 28,
-            y: 24
-          },
+          padding: { x: 28, y: 24 },
           stroke: '#000000',
           strokeThickness: 5
         }
@@ -588,9 +637,7 @@ export class NewsstandScene extends BaseScene {
       .setOrigin(0.5)
       .setDepth(500)
       .setAlpha(0)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     this.addTrackedTween(
       this.tweens.add({
@@ -614,18 +661,18 @@ export class NewsstandScene extends BaseScene {
     });
   }
 
-  showPurchaseErrorMessage() {
+  showPurchaseErrorMessage(text = null) {
     const message = this.add
       .text(
         this.scale.width / 2,
         this.scale.height / 2,
-        [
+        text || [
           'THE PRESS STOPPED!',
           '',
-          'Your purchase was recorded,',
-          'but the newspaper could not be opened.',
+          'The newspaper could not be opened.',
+          'If already paid, today’s access remains available.',
           '',
-          'Please try again after the next scene reload.'
+          'Close this message and try again.'
         ].join('\n'),
         {
           fontFamily: 'SpecialElite',
@@ -633,19 +680,14 @@ export class NewsstandScene extends BaseScene {
           color: '#ffd966',
           backgroundColor: '#2b1711',
           align: 'center',
-          padding: {
-            x: 26,
-            y: 22
-          },
+          padding: { x: 26, y: 22 },
           stroke: '#000000',
           strokeThickness: 5
         }
       )
       .setOrigin(0.5)
       .setDepth(501)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     message.once('pointerup', () => {
       message.destroy();
@@ -691,15 +733,10 @@ export class NewsstandScene extends BaseScene {
         fontSize: '12px',
         color: '#ffffff',
         backgroundColor: '#111111',
-        padding: {
-          x: 8,
-          y: 6
-        }
+        padding: { x: 8, y: 6 }
       })
       .setOrigin(1, 0)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     this.comixCloseBtn.on('pointerup', () => {
       this.closeComixOverlay();
@@ -755,7 +792,8 @@ export class NewsstandScene extends BaseScene {
     if (
       !this.overlayRoot ||
       !this.comixImage ||
-      this.isAnimatingOverlay
+      this.isAnimatingOverlay ||
+      this.currentMode !== 'none'
     ) {
       return;
     }
@@ -863,23 +901,17 @@ export class NewsstandScene extends BaseScene {
         fontSize: '16px',
         color: '#ffffff',
         backgroundColor: '#111111',
-        padding: {
-          x: 10,
-          y: 8
-        }
+        padding: { x: 10, y: 8 }
       })
       .setOrigin(0, 0)
       .setDepth(30)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     button.on('pointerup', () => {
       if (this.overlayRoot?.visible) {
         this.closeComixOverlay(() => {
           this.closeScene();
         });
-
         return;
       }
 
@@ -909,7 +941,10 @@ export class NewsstandScene extends BaseScene {
   }
 
   closeScene() {
-    if (this.isAnimatingOverlay) {
+    if (
+      this.isAnimatingOverlay ||
+      this.isOpeningNewspaper
+    ) {
       return;
     }
 
@@ -917,7 +952,11 @@ export class NewsstandScene extends BaseScene {
   }
 
   handleShutdown() {
+    this.videoTimer?.remove(false);
+    this.videoTimer = null;
+
     this.bgVideo?.stop();
+    this.bgVideo?.removeAllListeners();
 
     this.scale.off('resize', this.handleResize);
 
@@ -929,6 +968,14 @@ export class NewsstandScene extends BaseScene {
     this.isOpeningNewspaper = false;
     this.currentMode = 'none';
 
-    console.log('[NewsstandScene] closed');
+    this.bgImage = null;
+    this.bgVideo = null;
+    this.sceneDim = null;
+
+    this.overlayRoot = null;
+    this.overlayBlocker = null;
+    this.comixContainer = null;
+    this.comixImage = null;
+    this.comixCloseBtn = null;
   }
 }

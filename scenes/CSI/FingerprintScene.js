@@ -1,8 +1,10 @@
 import { BaseScene } from '../BaseScene.js';
 import { LabTerminal, TERM } from './LabTerminal.js';
 
+
 const GLYPHS = ['#', '+', ':', '.'];
 const GRID_SIZE = 5;
+
 
 export class FingerprintScene extends BaseScene {
   constructor() {
@@ -26,27 +28,37 @@ export class FingerprintScene extends BaseScene {
     this.finished = false;
     this.returningToLab = false;
     this.busy = false;
+
+    this._fingerprintDisposed = true;
+    this._fingerprintSession = 0;
   }
+
 
   init(data = {}) {
     const evidenceConfig = data.evidenceConfig || {};
 
     this.stationId = data.stationId || 'trace_1';
 
-    this.evidenceType = data.evidenceType
-      || evidenceConfig.evidenceType
-      || 'partial_print';
+    this.evidenceType =
+      data.evidenceType ||
+      evidenceConfig.evidenceType ||
+      'partial_print';
 
-    this.correctValue = data.correctValue
-      ?? evidenceConfig.correctValue
-      ?? 'partial_print_match';
+    this.correctValue =
+      data.correctValue ??
+      evidenceConfig.correctValue ??
+      'partial_print_match';
 
     this.clue = data.clue || {
       id: evidenceConfig.id || 'skylight_partial_print',
-      type: data.clueType || evidenceConfig.clueType || 'opportunity',
-      text: data.clueText
-        || evidenceConfig.clueText
-        || 'A partial fingerprint was recovered from the museum skylight latch.',
+      type:
+        data.clueType ||
+        evidenceConfig.clueType ||
+        'opportunity',
+      text:
+        data.clueText ||
+        evidenceConfig.clueText ||
+        'A partial fingerprint was recovered from the museum skylight latch.',
       facts: {
         certainty: '41%',
         location: 'skylight latch',
@@ -54,6 +66,7 @@ export class FingerprintScene extends BaseScene {
       }
     };
 
+    this.term = null;
     this.grid = [];
     this.partial = [];
     this.candidates = [];
@@ -65,11 +78,17 @@ export class FingerprintScene extends BaseScene {
     this.finished = false;
     this.returningToLab = false;
     this.busy = false;
+
+    this._fingerprintDisposed = true;
+    this._fingerprintSession += 1;
   }
+
 
   create() {
     super.create();
 
+    this._fingerprintDisposed = false;
+    this._fingerprintSession += 1;
     this.startedAt = this.time.now;
 
     this.term = new LabTerminal(this, {
@@ -77,21 +96,33 @@ export class FingerprintScene extends BaseScene {
       maxLines: 12
     });
 
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.cleanup,
-      this
-    );
-
-    this.events.once(
-      Phaser.Scenes.Events.DESTROY,
-      this.cleanup,
-      this
-    );
-
     this.buildPuzzle();
     this.showIntro();
   }
+
+
+  isCurrentSession(session, terminal = this.term) {
+    return (
+      !this._fingerprintDisposed &&
+      !this._cleanupDone &&
+      !this.returningToLab &&
+      session === this._fingerprintSession &&
+      terminal === this.term &&
+      Boolean(terminal)
+    );
+  }
+
+
+  async terminalAction(session, terminal, action) {
+    if (!this.isCurrentSession(session, terminal)) {
+      return false;
+    }
+
+    await action();
+
+    return this.isCurrentSession(session, terminal);
+  }
+
 
   buildPuzzle() {
     this.grid = Array.from(
@@ -102,16 +133,13 @@ export class FingerprintScene extends BaseScene {
       )
     );
 
-    this.partial = this.grid.map((row) => {
-      return row.map((glyph) => {
-        return Math.random() < 0.45 ? '?' : glyph;
-      });
-    });
+    this.partial = this.grid.map(row =>
+      row.map(glyph => Math.random() < 0.45 ? '?' : glyph)
+    );
 
     this.ensureMinimumReadableCells(5);
 
-    const matchGrid = this.grid.map((row) => [...row]);
-
+    const matchGrid = this.grid.map(row => [...row]);
     const wrongGridA = this.createWrongGrid(matchGrid, 2);
     const wrongGridB = this.createWrongGrid(matchGrid, 3);
 
@@ -137,35 +165,30 @@ export class FingerprintScene extends BaseScene {
     ]);
   }
 
+
   ensureMinimumReadableCells(minimum) {
-    const readableCells = [];
+    const readableCells = this.getReadableCells();
+    const target = Phaser.Math.Clamp(
+      minimum,
+      0,
+      GRID_SIZE * GRID_SIZE
+    );
 
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let column = 0; column < GRID_SIZE; column++) {
-        if (this.partial[row][column] !== '?') {
-          readableCells.push({ row, column });
-        }
-      }
-    }
-
-    while (readableCells.length < minimum) {
+    while (readableCells.length < target) {
       const row = Phaser.Math.Between(0, GRID_SIZE - 1);
       const column = Phaser.Math.Between(0, GRID_SIZE - 1);
 
-      const exists = readableCells.some((cell) => {
-        return cell.row === row && cell.column === column;
-      });
+      const exists = readableCells.some(cell =>
+        cell.row === row && cell.column === column
+      );
 
       if (exists) continue;
 
       this.partial[row][column] = this.grid[row][column];
-
-      readableCells.push({
-        row,
-        column
-      });
+      readableCells.push({ row, column });
     }
   }
+
 
   getReadableCells() {
     const cells = [];
@@ -173,10 +196,7 @@ export class FingerprintScene extends BaseScene {
     for (let row = 0; row < GRID_SIZE; row++) {
       for (let column = 0; column < GRID_SIZE; column++) {
         if (this.partial[row][column] !== '?') {
-          cells.push({
-            row,
-            column
-          });
+          cells.push({ row, column });
         }
       }
     }
@@ -184,8 +204,10 @@ export class FingerprintScene extends BaseScene {
     return cells;
   }
 
+
   createWrongGrid(sourceGrid, changesNeeded) {
-    const wrongGrid = sourceGrid.map((row) => [...row]);
+    const wrongGrid = sourceGrid.map(row => [...row]);
+
     const readableCells = Phaser.Utils.Array.Shuffle(
       [...this.getReadableCells()]
     );
@@ -196,42 +218,42 @@ export class FingerprintScene extends BaseScene {
     );
 
     for (let index = 0; index < changes; index++) {
-      const cell = readableCells[index];
-      const currentGlyph = wrongGrid[cell.row][cell.column];
+      const { row, column } = readableCells[index];
+      const currentGlyph = wrongGrid[row][column];
 
-      const possibleGlyphs = GLYPHS.filter((glyph) => {
-        return glyph !== currentGlyph;
-      });
-
-      wrongGrid[cell.row][cell.column] = Phaser.Utils.Array.GetRandom(
-        possibleGlyphs
+      const possibleGlyphs = GLYPHS.filter(
+        glyph => glyph !== currentGlyph
       );
+
+      wrongGrid[row][column] =
+        Phaser.Utils.Array.GetRandom(possibleGlyphs);
     }
 
     return wrongGrid;
   }
 
+
   buildTable() {
     const names = [
       'SAMPLE',
-      ...this.candidates.map((candidate) => candidate.name)
+      ...this.candidates.map(candidate => candidate.name)
     ];
 
     const grids = [
       this.partial,
-      ...this.candidates.map((candidate) => candidate.grid)
+      ...this.candidates.map(candidate => candidate.grid)
     ];
 
-    let output = names.map((name) => {
-      return name.padEnd(14);
-    }).join('');
+    let output = names
+      .map(name => name.padEnd(14))
+      .join('');
 
     output += '\n';
 
     for (let row = 0; row < GRID_SIZE; row++) {
-      output += grids.map((grid) => {
-        return grid[row].join(' ').padEnd(14);
-      }).join('');
+      output += grids
+        .map(grid => grid[row].join(' ').padEnd(14))
+        .join('');
 
       output += '\n';
     }
@@ -239,145 +261,234 @@ export class FingerprintScene extends BaseScene {
     return output;
   }
 
+
   async showIntro() {
     const terminal = this.term;
+    const session = this._fingerprintSession;
 
-    await terminal.print(
-      '> PARTIAL PRINT LIFTED FROM SKYLIGHT LATCH.'
-    );
+    const lines = [
+      [
+        '> PARTIAL PRINT LIFTED FROM SKYLIGHT LATCH.',
+        {}
+      ],
+      [
+        '> AFIS FOUND 3 "CANDIDATES". DEFINE "CANDIDATES".',
+        {}
+      ],
+      [
+        this.buildTable(),
+        {
+          fontFamily: '"Courier New"',
+          fontSize: '16px',
+          charDelay: 2
+        }
+      ],
+      [
+        '> PICK THE RECORD MATCHING EVERY READABLE CELL (? = UNREADABLE).',
+        { color: TERM.amber }
+      ]
+    ];
 
-    await terminal.print(
-      '> AFIS FOUND 3 "CANDIDATES". DEFINE "CANDIDATES".'
-    );
+    for (const [text, options] of lines) {
+      const current = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.print(text, options)
+      );
 
-    await terminal.print(
-      this.buildTable(),
-      {
-        fontFamily: '"Courier New"',
-        fontSize: '16px',
-        charDelay: 2
-      }
-    );
-
-    await terminal.print(
-      '> PICK THE RECORD MATCHING EVERY READABLE CELL (? = UNREADABLE).',
-      { color: TERM.amber }
-    );
+      if (!current) return;
+    }
 
     this.showCandidateButtons();
   }
 
-  showCandidateButtons() {
-    this.term.clearButtons();
 
-    this.candidates.forEach((candidate) => {
-      this.term.button(
+  showCandidateButtons() {
+    const terminal = this.term;
+    const session = this._fingerprintSession;
+
+    if (
+      !this.isCurrentSession(session, terminal) ||
+      this.finished
+    ) {
+      return;
+    }
+
+    terminal.clearButtons();
+
+    this.candidates.forEach(candidate => {
+      terminal.button(
         candidate.name,
         TERM.green,
-        () => this.guessCandidate(candidate)
+        () => {
+          if (!this.isCurrentSession(session, terminal)) {
+            return;
+          }
+
+          this.guessCandidate(candidate);
+        }
       );
     });
   }
 
+
   async guessCandidate(candidate) {
-    if (this.busy || this.finished) return;
-
-    this.busy = true;
-
     const terminal = this.term;
+    const session = this._fingerprintSession;
 
-    terminal.clearButtons();
-
-    await terminal.print(
-      `> CHECKING ${candidate.name} ...`
-    );
-
-    await terminal.progress(
-      'COMPARING RIDGES',
-      1200
-    );
-
-    if (candidate.ok) {
-      await this.handleCorrectCandidate(candidate);
+    if (
+      this.busy ||
+      this.finished ||
+      !this.isCurrentSession(session, terminal)
+    ) {
       return;
     }
 
-    await this.handleWrongCandidate(candidate);
+    this.busy = true;
+    terminal.clearButtons();
 
-    this.busy = false;
+    try {
+      const printed = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.print(
+          `> CHECKING ${candidate.name} ...`
+        )
+      );
+
+      if (!printed) return;
+
+      const compared = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.progress('COMPARING RIDGES', 1200)
+      );
+
+      if (!compared) return;
+
+      if (candidate.ok) {
+        await this.handleCorrectCandidate(
+          candidate,
+          session,
+          terminal
+        );
+      } else {
+        await this.handleWrongCandidate(
+          candidate,
+          session,
+          terminal
+        );
+      }
+    } finally {
+      if (this.isCurrentSession(session, terminal)) {
+        this.busy = false;
+      }
+    }
   }
 
-  async handleCorrectCandidate(candidate) {
-    const terminal = this.term;
+
+  async handleCorrectCandidate(
+    candidate,
+    session = this._fingerprintSession,
+    terminal = this.term
+  ) {
+    if (!this.isCurrentSession(session, terminal)) return;
 
     this.finished = true;
 
     const timeBonus = this.getTimeBonus();
 
-    this.score = Math.min(
-      120,
-      this.score + timeBonus
-    );
+    this.score = Math.min(120, this.score + timeBonus);
 
-    await terminal.print(
-      '> MATCH CONFIRMED. 41% CERTAINTY.',
-      { color: TERM.amber }
-    );
-
-    await terminal.print(
-      '> IN COURT? USELESS. IN OUR CASE FILE? PRICELESS.'
-    );
+    const lines = [
+      [
+        '> MATCH CONFIRMED. 41% CERTAINTY.',
+        { color: TERM.amber }
+      ],
+      [
+        '> IN COURT? USELESS. IN OUR CASE FILE? PRICELESS.',
+        {}
+      ]
+    ];
 
     if (timeBonus > 0) {
-      await terminal.print(
+      lines.push([
         `> SPEED BONUS: +${timeBonus} PTS.`,
         { color: TERM.amber }
-      );
+      ]);
     }
 
-    await terminal.print(
+    lines.push([
       '> CLUE READY FOR CASE FILE.',
       { color: TERM.amber }
-    );
+    ]);
+
+    for (const [text, options] of lines) {
+      const current = await this.terminalAction(
+        session,
+        terminal,
+        () => terminal.print(text, options)
+      );
+
+      if (!current) return;
+    }
 
     terminal.button(
       'ADD TO CASE FILE',
       TERM.green,
-      () => this.returnResultToCrimeLab(candidate.value)
+      () => {
+        if (!this.isCurrentSession(session, terminal)) {
+          return;
+        }
+
+        this.returnResultToCrimeLab(candidate.value);
+      }
     );
   }
 
-  async handleWrongCandidate(candidate) {
-    const terminal = this.term;
+
+  async handleWrongCandidate(
+    candidate,
+    session = this._fingerprintSession,
+    terminal = this.term
+  ) {
+    if (!this.isCurrentSession(session, terminal)) return;
 
     this.mistakes += 1;
     this.score = Math.max(0, this.score - 15);
 
-    await terminal.print(
-      '> MISMATCH. AFIS SUGGESTS GLASSES. (-15 PTS)',
-      { color: TERM.red }
+    const printed = await this.terminalAction(
+      session,
+      terminal,
+      () => terminal.print(
+        '> MISMATCH. AFIS SUGGESTS GLASSES. (-15 PTS)',
+        { color: TERM.red }
+      )
     );
 
-    await terminal.print(
-      '> TRY THE OTHER RECORDS.'
+    if (!printed) return;
+
+    const retryPrinted = await this.terminalAction(
+      session,
+      terminal,
+      () => terminal.print('> TRY THE OTHER RECORDS.')
     );
+
+    if (!retryPrinted) return;
 
     this.showCandidateButtons();
   }
 
+
   getTimeBonus() {
     const secondsElapsed = this.getSecondsElapsed();
 
-    if (secondsElapsed <= 15) {
-      return 20;
-    }
-
-    if (secondsElapsed <= 30) {
-      return 10;
-    }
+    if (secondsElapsed <= 15) return 20;
+    if (secondsElapsed <= 30) return 10;
 
     return 0;
   }
+
 
   getSecondsElapsed() {
     return Math.floor(
@@ -385,8 +496,15 @@ export class FingerprintScene extends BaseScene {
     );
   }
 
+
   returnResultToCrimeLab(value) {
-    if (this.returningToLab) return;
+    if (
+      this.returningToLab ||
+      this._fingerprintDisposed ||
+      !this.finished
+    ) {
+      return;
+    }
 
     this.returningToLab = true;
 
@@ -412,7 +530,23 @@ export class FingerprintScene extends BaseScene {
     this.scene.stop();
   }
 
+
   cleanup() {
+    if (this._fingerprintDisposed) {
+      super.cleanup();
+      return;
+    }
+
+    this._fingerprintDisposed = true;
+    this._fingerprintSession += 1;
+    this.returningToLab = true;
     this.busy = false;
+
+    super.cleanup();
+
+    this.term = null;
+    this.grid = [];
+    this.partial = [];
+    this.candidates = [];
   }
 }

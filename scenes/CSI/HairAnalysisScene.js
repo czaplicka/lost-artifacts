@@ -1,15 +1,17 @@
 import { BaseForensicMinigame } from './BaseForensicMinigame.js';
 import { ForensicHelpController } from './ForensicHelpController.js';
-import { EventBus } from '../../EventBus.js';
 import { gameState } from '../../GameData.js';
 
+
 const HAIR_COLORS = ['black', 'brown', 'blonde', 'red', 'grey', 'white', 'auburn'];
+
 
 export class HairAnalysisScene extends BaseForensicMinigame {
   constructor() {
     super('HairAnalysisScene');
     this.help = null;
   }
+
 
   init(data = {}) {
     super.init({ ...data, totalSteps: 3 });
@@ -31,23 +33,26 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     this.pendingStageCalls = [];
   }
 
+
   create() {
     super.create();
-    EventBus.emit('hideHUD');
     this.help = new ForensicHelpController(this);
     this.help.create();
   }
+
 
   getTitle() { return 'HAIR FIBER ANALYSIS'; }
   getSubtitle() { return 'Microscope strand classification'; }
   getRetryHint() { return 'Compare the strand with the reference samples again.'; }
   createEvidenceFlow() { this.startStep1(); }
 
+
   createDesk() {
     const { width, height } = this.scale;
     this.addStageObject(this.add.image(width / 2, height / 2, 'desk1')
       .setOrigin(0.5).setDisplaySize(width, height).setDepth(0));
   }
+
 
   later(delay, callback) {
     const event = this.time.delayedCall(delay, () => {
@@ -56,6 +61,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     });
     this.pendingStageCalls.push(event);
   }
+
 
   startStep1() {
     this.clearStage();
@@ -100,6 +106,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       }
     });
   }
+
 
   startStep2() {
     this.clearStage();
@@ -147,6 +154,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     });
   }
 
+
   getHairOptions() {
     const receipt = Object.values(gameState.forensicHintReceipts || {}).find(item =>
       item.sceneId === this.scene.key && item.caseKey === this.caseKey &&
@@ -159,6 +167,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       ? [excluded, ...pool.slice(0, 2)] : pool.slice(0, 3);
     return Phaser.Utils.Array.Shuffle([this.correctValue, ...wrong]);
   }
+
 
   startStep3() {
     this.clearStage();
@@ -205,6 +214,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     if (receipt) this.applyForensicHint(receipt);
   }
 
+
   showMicroscopeOverlay() {
     this.microscopeOpened = true;
     this.microscopeExamined = true;
@@ -227,6 +237,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       this.setDialogue('Compare the strand with the reference samples.');
     });
   }
+
 
   getForensicHelp() {
     if (this.resolved || this.stageTransitioning) return null;
@@ -262,6 +273,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     return null;
   }
 
+
   applyForensicHint(receipt) {
     if (!receipt.excludedValue) return;
     const sample = this.sampleViews.find(item => item.value === receipt.excludedValue);
@@ -271,6 +283,17 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     }
   }
 
+
+  flashWrongSelection(value) {
+    const sample = this.sampleViews.find(item => item.value === value);
+    if (!sample?.image?.active) return;
+    sample.image.setTint(0xff6666);
+    this.time.delayedCall(250, () => {
+      if (sample.image?.active && !this.resolved) sample.image.clearTint();
+    });
+  }
+
+
   onCorrectChoice(value) {
     super.onCorrectChoice(value);
     for (const sample of this.sampleViews) {
@@ -278,6 +301,7 @@ export class HairAnalysisScene extends BaseForensicMinigame {
       if (sample.value === value) sample.image.setTint(0x88ff88);
     }
   }
+
 
   getResultPayload() {
     const receipts = this.help?.getReceipts() || [];
@@ -293,13 +317,19 @@ export class HairAnalysisScene extends BaseForensicMinigame {
     };
   }
 
+
   cleanup() {
     this.help?.destroy();
     this.help = null;
     for (const event of this.pendingStageCalls || []) event.remove(false);
     this.pendingStageCalls = [];
     super.cleanup();
+    this.bag = this.slide = this.tweezers = this.pipette = this.preparedStrand = null;
+    this.microscopeHotspot = null;
+    this.sampleViews = [];
+    this.swatchValues = [];
   }
+
 
   getHairStrandKey(value = this.correctValue) {
     const keys = {

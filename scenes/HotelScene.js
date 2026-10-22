@@ -4,108 +4,139 @@ import { EventBus } from '../EventBus.js';
 import { OfficeSaveUI } from '../ui/OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../managers/AudioManager.js';
-import { flushAutosave } from '../gameStatePersistence.js';
+import {
+  flushAutosave,
+  requestAutosave
+} from '../gameStatePersistence.js';
 
+import {
+  moneyManager,
+  MONEY_SOURCE,
+  HOTEL_OPTIONS
+} from '../managers/MoneyManager.js';
+
+import { HOTEL_CONFIG } from '../config/hotelConfig.js';
+import { HotelHud } from './hotel/HotelHud.js';
+import { HotelHotspots } from './hotel/HotelHotspots.js';
+import { HotelSleep } from './hotel/HotelSleep.js';
+
+const CITY_ALIASES = {
+  new_york: 'new_york_city',
+  newyorkcity: 'new_york_city',
+  new_dehli: 'new_delhi',
+  newdelhi: 'new_delhi',
+  kotte: 'kotto',
+  sri_jayawardenepura_kotte: 'kotto'
+};
+
+function normalizeCityId(value) {
+  const id = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+
+  return CITY_ALIASES[id] || id;
+}
 
 export class HotelScene extends BaseScene {
   constructor() {
     super({ key: 'HotelScene' });
 
-
     this.returnScene = 'CrimeCityScene';
     this.returnData = {};
-
-
-    this.DEBUG_HOTSPOTS = true;
-
+    this.DEBUG_HOTSPOTS = false;
 
     this.boundCleanupScene = this.cleanupScene.bind(this);
     this.boundWakeOrResume = this.onWakeOrResume.bind(this);
     this.boundSleep = this.onSleep.bind(this);
-    this.boundHollySleepFinished = this.onHollySleepFinished.bind(this);
+    this.boundHollySleepFinished =
+      this.onHollySleepFinished.bind(this);
 
-
-    this.hudWaitCancels = new Set();
-
+    this.hud = null;
+    this.hotspotUI = null;
+    this.sleepCtl = null;
 
     this.resetHotelState();
   }
 
-
   resetHotelState() {
     this.timeManager = null;
-
-
     this.isLeaving = false;
     this.isSleeping = false;
     this.isSleepMenuOpen = false;
     this.uiLocked = false;
-
-
-    this.isSettingUpHud = false;
     this.isOpeningTv = false;
     this.isTransitioning = false;
 
-
     this.saveUI = null;
-    this.hotspots = [];
-
-
-    this.sleepMenu = null;
-    this.sleepMenuBlocker = null;
-    this.hoverHint = null;
-
-
-    this.debugGraphics = null;
-    this.debugTexts = [];
-
-
-    this.pendingSleepHours = null;
+    this.hotelId = null;
+    this.hotelConfig = null;
+    this.hotelChoice = null;
+    this.hotelChoiceMessage = null;
+    this.isChoosingHotel = false;
+    this.isBookingHotel = false;
+    this.roomBackground = null;
+    this.roomTitle = null;
+    this.roomSubtitle = null;
   }
 
-
   init(data = {}) {
-    this.returnScene = data.returnScene || 'CrimeCityScene';
+    this.hud?.cancelWaits();
+    this.resetHotelState();
 
+    this.DEBUG_HOTSPOTS = false;
+    this.returnScene = data.returnScene || 'CrimeCityScene';
 
     this.returnData =
       data.returnData && typeof data.returnData === 'object'
         ? { ...data.returnData }
         : {};
 
+    this.cityId = normalizeCityId(
+      data.cityId ||
+      this.returnData.cityId ||
+      gameState.currentCityId ||
+      gameState.crimeCityId ||
+      gameState.currentMission?.city
+    );
 
-    this.cancelHudWaits();
-    this.resetHotelState();
+    if (this.cityId) {
+      this.returnData.cityId = this.cityId;
+    }
   }
-
 
   create() {
     super.create();
 
+    this.hud = new HotelHud(this);
+    this.sleepCtl = new HotelSleep(this);
+
+    this.hotspotUI = new HotelHotspots(this, {
+      sleep: () => this.sleepCtl.openMenu(),
+      tv: () => { void this.openHotelTv(); },
+      crimeBoard: () => { void this.openCrimeBoard(); },
+      leave: () => { void this.leaveHotel(); }
+    });
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.boundCleanupScene
     );
 
-
     this.events.on(
       Phaser.Scenes.Events.WAKE,
       this.boundWakeOrResume
     );
-
 
     this.events.on(
       Phaser.Scenes.Events.RESUME,
       this.boundWakeOrResume
     );
 
-
     this.events.on(
       Phaser.Scenes.Events.SLEEP,
       this.boundSleep
     );
-
 
     EventBus.on(
       'hollySleepFinished',
@@ -113,28 +144,30 @@ export class HotelScene extends BaseScene {
       this
     );
 
+    audioManager.init(this);
 
     const { width, height } = this.scale;
 
-
-    audioManager.init(this);
-
-
     this.createBackground(width, height);
     this.createHotelHeader(width);
-    this.createHoverHint(width);
-    this.createHotspots(width, height);
     this.createLeaveHint(width, height);
     this.createSaveControls();
-    this.createOptionalDebug();
 
+    if (this.input.keyboard) {
+      this.trackInputEvent(
+        this.input.keyboard,
+        'keydown-ESC',
+        this.handleEscape
+      );
+    }
 
-    this.trackInputEvent(
-      this.input.keyboard,
-      'keydown-ESC',
-      this.handleEscape
-    );
+    const booking = this.getCurrentBooking();
 
+    if (booking && HOTEL_CONFIG[booking.hotelId]) {
+      this.activateHotel(booking.hotelId);
+    } else {
+      this.openHotelChoice();
+    }
 
     this.events.once(
       Phaser.Scenes.Events.POST_UPDATE,
@@ -143,308 +176,58 @@ export class HotelScene extends BaseScene {
     );
   }
 
-
-  onHotelFirstUpdate() {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return;
-    }
-
-
-    console.log('[HotelScene] First update — configuring HUD.');
-
-
-    this.startHotelIdleMonologue();
-    void this.setupHudScenes();
-  }
-
-
-  startHotelIdleMonologue() {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return;
-    }
-
-
-    this.monologue?.startIdle?.('idle.hotel');
-  }
-
-
-  setHotelHudContext(playerHud = null) {
-    const hud = playerHud || this.getPlayerHudScene();
-
-
-    if (!hud?.isHudReady) {
-      return false;
-    }
-
-
-    hud.setCurrentGameplayScene('HotelScene');
-
-
-    return true;
-  }
-
-
-  cancelHudWaits() {
-    if (!this.hudWaitCancels) {
-      this.hudWaitCancels = new Set();
-      return;
-    }
-
-
-    [...this.hudWaitCancels].forEach((cancel) => cancel());
-    this.hudWaitCancels.clear();
-  }
-
-
-  waitForOverlayReady(sceneKey, timeoutMs = 5000) {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return Promise.resolve(null);
-    }
-
-
-    return new Promise((resolve, reject) => {
-      let finished = false;
-      let timeoutId = null;
-
-
-      const removeListeners = () => {
-        this.events.off(
-          Phaser.Scenes.Events.POST_UPDATE,
-          checkReady
-        );
-
-
-        this.hudWaitCancels.delete(cancel);
-
-
-        if (timeoutId !== null) {
-          window.clearTimeout(timeoutId);
-          timeoutId = null;
-        }
-      };
-
-
-      const finish = (overlay) => {
-        if (finished) {
-          return;
-        }
-
-
-        finished = true;
-        removeListeners();
-        resolve(overlay);
-      };
-
-
-      const cancel = () => finish(null);
-
-
-      const checkReady = () => {
-        if (this._cleanupDone || !this.sys.isActive()) {
-          finish(null);
-          return;
-        }
-
-
-        const overlay = this.getRegisteredScene(sceneKey);
-
-
-        if (!overlay || !this.isSceneActive(sceneKey)) {
-          return;
-        }
-
-
-        if (
-          sceneKey === 'PlayerHudScene' &&
-          !overlay.isHudReady
-        ) {
-          return;
-        }
-
-
-        finish(overlay);
-      };
-
-
-      this.hudWaitCancels.add(cancel);
-
-
-      this.events.on(
-        Phaser.Scenes.Events.POST_UPDATE,
-        checkReady
-      );
-
-
-      timeoutId = window.setTimeout(() => {
-        if (finished) {
-          return;
-        }
-
-
-        finished = true;
-        removeListeners();
-
-
-        reject(
-          new Error(
-            `[HotelScene] "${sceneKey}" was not ready within ${timeoutMs} ms.`
-          )
-        );
-      }, timeoutMs);
-
-
-      checkReady();
-    });
-  }
-
-
-  async ensureReadyOverlay(sceneKey, data = {}) {
-    await this.ensureOverlayScene(sceneKey, data);
-
-
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return null;
-    }
-
-
-    return this.waitForOverlayReady(sceneKey);
-  }
-
-
-  async ensurePlayerHud() {
-    const playerHud = await this.ensureReadyOverlay(
-      'PlayerHudScene'
+  getHotelDay() {
+    const value = Number(
+      gameState.currentDay ?? gameState.day ?? 1
     );
 
-
-    if (playerHud) {
-      this.bringSceneToTopIfActive('PlayerHudScene');
-    }
-
-
-    return playerHud;
+    return Number.isFinite(value)
+      ? Math.max(1, Math.floor(value))
+      : 1;
   }
 
+  getCurrentBooking() {
+    const booking = gameState.hotelBookings?.[this.cityId];
 
-  async setupHudScenes() {
+    return booking?.day === this.getHotelDay()
+      ? booking
+      : null;
+  }
+
+  onHotelFirstUpdate() {
+    if (this._cleanupDone || !this.sys.isActive()) return;
+
+    this.startHotelIdleMonologue();
+    void this.hud.setup();
+  }
+
+  startHotelIdleMonologue() {
     if (
-      this.isSettingUpHud ||
       this._cleanupDone ||
-      !this.sys.isActive()
+      !this.sys.isActive() ||
+      this.isChoosingHotel
     ) {
       return;
     }
 
-
-    this.isSettingUpHud = true;
-
-
-    try {
-      const playerHud = await this.ensurePlayerHud();
-
-
-      if (this._cleanupDone || !this.sys.isActive()) {
-        return;
-      }
-
-
-      if (!playerHud) {
-        console.warn(
-          '[HotelScene] PlayerHudScene could not be restored.'
-        );
-        return;
-      }
-
-
-      this.setHotelHudContext(playerHud);
-
-
-      playerHud.closeAllUIPanels?.();
-      playerHud.refreshNotebook?.();
-      playerHud.refreshUI?.();
-
-
-      this.timeManager = playerHud.timeManager || null;
-
-
-      console.log('[HotelScene] Bottom HUD ready:', {
-        ready: playerHud.isHudReady,
-        active: this.isSceneActive('PlayerHudScene'),
-        visible: playerHud.sys.settings.visible,
-        context: playerHud.currentGameplaySceneKey
-      });
-
-
-      const uiScene = await this.ensureReadyOverlay('UIScene');
-
-
-      if (this._cleanupDone || !this.sys.isActive()) {
-        return;
-      }
-
-
-      if (uiScene) {
-        this.game.events.emit('setHudVisible', true);
-        EventBus.emit('showHUD');
-
-
-        uiScene.refreshScoreHud?.();
-        uiScene.refreshMoneyHud?.();
-        uiScene.updateEnergy?.();
-
-
-        uiScene.updateTime?.({
-          day: gameState.currentDay || gameState.day || 1,
-          hour: gameState.currentHour ?? gameState.hour ?? 8,
-          minute: gameState.currentMinute ?? gameState.minute ?? 0,
-          partOfDay:
-            gameState.currentPartOfDay ||
-            gameState.partOfDay ||
-            'Morning'
-        });
-      }
-
-
-      await this.showNewsHud();
-
-
-      if (this._cleanupDone || !this.sys.isActive()) {
-        return;
-      }
-
-
-      this.setHotelHudContext(playerHud);
-      this.bringSceneToTopIfActive('PlayerHudScene');
-    } catch (error) {
-      if (!this._cleanupDone) {
-        console.error(
-          '[HotelScene] Failed to configure HUD scenes:',
-          error
-        );
-      }
-    } finally {
-      this.isSettingUpHud = false;
-    }
+    this.monologue?.startIdle?.('idle.hotel');
   }
 
-
   createBackground(width, height) {
-    this.add
+    this.roomBackground = this.add
       .image(0, 0, 'hotel')
-      .setOrigin(0, 0)
+      .setOrigin(0)
       .setDisplaySize(width, height)
       .setDepth(0);
 
-
     this.add
       .rectangle(0, 0, width, height, 0x000000, 0.18)
-      .setOrigin(0, 0)
+      .setOrigin(0)
       .setDepth(1);
   }
 
-
   createHotelHeader(width) {
-    this.add
+    this.roomTitle = this.add
       .text(width / 2, 46, 'HOTEL ROOM', {
         fontFamily: 'PressStart2P',
         fontSize: '24px',
@@ -456,8 +239,7 @@ export class HotelScene extends BaseScene {
       .setOrigin(0.5)
       .setDepth(5);
 
-
-    this.add
+    this.roomSubtitle = this.add
       .text(
         width / 2,
         84,
@@ -475,967 +257,452 @@ export class HotelScene extends BaseScene {
       .setDepth(5);
   }
 
-
-  createHoverHint(width) {
-    this.hoverHint = this.add
-      .text(width / 2, 122, '', {
-        fontFamily: 'SpecialElite',
-        fontSize: '19px',
-        color: '#ffe066',
-        backgroundColor: '#111111cc',
-        padding: {
-          left: 12,
-          right: 12,
-          top: 7,
-          bottom: 7
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(50)
-      .setVisible(false);
-  }
-
-
   createLeaveHint(width, height) {
     this.add
-      .text(width / 2, height - 76, '[ ESC TO LEAVE ]', {
-        fontFamily: 'PressStart2P',
-        fontSize: '12px',
-        color: '#dddddd',
-        align: 'center',
-        backgroundColor: '#111111aa',
-        padding: { x: 14, y: 10 }
-      })
+      .text(
+        width / 2,
+        height - 76,
+        '[ ESC TO LEAVE ]',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '12px',
+          color: '#dddddd',
+          align: 'center',
+          backgroundColor: '#111111aa',
+          padding: { x: 14, y: 10 }
+        }
+      )
       .setOrigin(0.5)
       .setDepth(10);
   }
 
+  openHotelChoice() {
+    this.isChoosingHotel = true;
+    this.applyLock(true);
 
-  createHotspots(width, height) {
-    const hotspotData = [
-      {
-        id: 'bed',
-        x: width * 0.31,
-        y: height * 0.47,
-        width: width * 0.45,
-        height: height * 0.39,
-        hoverText: 'Bed — sleep and restore energy',
-        monologueKey: 'inspect.hotelBed',
-        fallbackMonologue:
-          'A bed. A promising development in any investigation.',
-        action: () => this.openSleepMenu()
-      },
-      {
-        id: 'hotel-tv',
-        x: width * 0.83,
-        y: height * 0.31,
-        width: width * 0.17,
-        height: height * 0.28,
-        hoverText: 'Television — local news',
-        monologueKey: 'inspect.hotelTv',
-        fallbackMonologue:
-          'The television is on. Somewhere, a reporter is overreacting.',
-        action: () => {
-          void this.openHotelTv();
-        }
-      },
-      {
-        id: 'hotel-desk',
-        x: 0,
-        y: height * 0.69,
-        width: width * 0.28,
-        height: height * 0.29,
-        hoverText: 'Desk — review the crime board',
-        monologueKey: 'inspect.hotelDesk',
-        fallbackMonologue:
-          'A desk. Finally, a horizontal surface for evidence and regret.',
-        action: () => {
-          void this.openCrimeBoard();
-        }
-      },
-      {
-        id: 'hotel-window-exit',
-        x: width * 0.08,
-        y: height * 0.19,
-        width: width * 0.20,
-        height: height * 0.34,
-        hoverText: 'Window — return to the city',
-        monologueKey: 'inspect.hotelWindow',
-        fallbackMonologue:
-          'The city is out there, full of clues and people pretending not to be suspicious.',
-        action: () => {
-          void this.leaveHotel();
-        }
-      }
-    ];
+    const { width, height } = this.scale;
+    const root = this.add.container(0, 0).setDepth(400);
+    this.hotelChoice = root;
 
+    const blocker = this.add
+      .rectangle(0, 0, width, height, 0x000000, 0.8)
+      .setOrigin(0)
+      .setInteractive();
 
-    hotspotData.forEach((data) => {
-      const zone = this.add
-        .zone(data.x, data.y, data.width, data.height)
-        .setOrigin(0, 0)
-        .setDepth(4)
-        .setInteractive({
-          useHandCursor: true,
-          cursor: 'pointer'
+    const panelW = 1000;
+    const panelH = 530;
+    const scale = Math.max(
+      0.01,
+      Math.min(1, (width - 32) / panelW, (height - 32) / panelH)
+    );
+
+    const content = this.add.container(
+      (width - panelW * scale) / 2,
+      (height - panelH * scale) / 2
+    ).setScale(scale);
+
+    root.add([blocker, content]);
+
+    content.add(
+      this.add
+        .rectangle(0, 0, panelW, panelH, 0x17110e, 1)
+        .setOrigin(0)
+        .setStrokeStyle(3, 0xd4af37)
+    );
+
+    content.add(
+      this.add.text(
+        panelW / 2,
+        34,
+        'CHOOSE YOUR HOTEL',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '20px',
+          color: '#f6dc8c'
+        }
+      ).setOrigin(0.5)
+    );
+
+    content.add(
+      this.add.text(
+        panelW / 2,
+        78,
+        'One charge per city per day. Mark Agency picks up the bill.',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '21px',
+          color: '#f1e6b8'
+        }
+      ).setOrigin(0.5)
+    );
+
+    const balance = moneyManager.getBalance(MONEY_SOURCE.AGENCY);
+
+    content.add(
+      this.add.text(
+        panelW / 2,
+        114,
+        `AGENCY BUDGET: $${balance}`,
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '14px',
+          color: '#ffe066'
+        }
+      ).setOrigin(0.5)
+    );
+
+    Object.values(HOTEL_CONFIG).forEach((config, index) => {
+      const option = HOTEL_OPTIONS[config.optionId];
+      const affordable = balance >= option.cost;
+      const x = 25 + index * 325;
+
+      const card = this.add
+        .rectangle(x, 155, 300, 260, 0x29211d, 1)
+        .setOrigin(0)
+        .setStrokeStyle(2, affordable ? 0xd4af37 : 0x665e50);
+
+      if (affordable && this.cityId) {
+        card.setInteractive({ useHandCursor: true });
+
+        card.on('pointerover', () => {
+          card.setFillStyle(0x59422f);
         });
 
+        card.on('pointerout', () => {
+          card.setFillStyle(0x29211d);
+        });
 
-      zone.hotspotData = data;
+        card.on('pointerdown', () => {
+          this.bookHotel(config.id);
+        });
+      }
 
+      content.add(card);
 
-      zone.on('pointerover', () => {
-        if (this.isHotelInteractionBlocked()) {
-          return;
-        }
+      const addText = (y, text, size, color) => {
+        content.add(
+          this.add.text(x + 150, y, text, {
+            fontFamily: 'SpecialElite',
+            fontSize: `${size}px`,
+            color,
+            align: 'center',
+            wordWrap: { width: 270 }
+          }).setOrigin(0.5, 0)
+        );
+      };
 
+      addText(175, config.tierLabel, 22, '#ffe066');
+      addText(210, option.label, 24, '#ffffff');
+      addText(250, `$${option.cost} / day`, 24, '#f6dc8c');
 
-        this.showHoverHint(data.hoverText);
-        this.sayHotelMonologue(data);
-      });
+      addText(
+        290,
+        `${Math.round(config.recoveryMultiplier * 100)}% sleep recovery`,
+        20,
+        '#f1e6b8'
+      );
 
+      addText(324, config.description, 18, '#cdbf9b');
 
-      zone.on('pointerout', () => {
-        this.hideHoverHint();
-      });
-
-
-      zone.on('pointerdown', () => {
-        if (this.isHotelInteractionBlocked()) {
-          return;
-        }
-
-
-        this.hideHoverHint();
-
-
-        try {
-          data.action?.();
-        } catch (error) {
-          console.error(
-            `[HotelScene] Hotel hotspot failed: ${data.id}`,
-            error
-          );
-        }
-      });
-
-
-      this.hotspots.push(zone);
+      addText(
+        380,
+        affordable ? 'CHECK IN' : 'INSUFFICIENT AGENCY FUNDS',
+        17,
+        affordable ? '#b5ed9d' : '#e89585'
+      );
     });
+
+    this.hotelChoiceMessage = this.add.text(
+      panelW / 2,
+      433,
+      this.cityId ? '' : 'Missing city ID. Hotel booking is unavailable.',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '19px',
+        color: '#ffb6a6',
+        align: 'center',
+        wordWrap: { width: panelW - 50 }
+      }
+    ).setOrigin(0.5, 0);
+
+    const cancel = this.add.text(
+      panelW / 2,
+      490,
+      '[ RETURN TO CITY ]',
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '13px',
+        color: '#f6dc8c'
+      }
+    ).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    cancel.on('pointerdown', () => {
+      void this.leaveHotel();
+    });
+
+    content.add([this.hotelChoiceMessage, cancel]);
   }
 
+  bookHotel(hotelId) {
+    if (
+      this.isBookingHotel ||
+      this.isLeaving ||
+      this._cleanupDone ||
+      !this.cityId
+    ) {
+      return;
+    }
+
+    const config = HOTEL_CONFIG[hotelId];
+    if (!config) return;
+
+    this.isBookingHotel = true;
+
+    try {
+      // Nie pobieramy drugi raz opłaty za aktywną rezerwację.
+      const existing = this.getCurrentBooking();
+
+      if (existing && HOTEL_CONFIG[existing.hotelId]) {
+        this.activateHotel(existing.hotelId);
+        return;
+      }
+
+      const option = {
+        ...HOTEL_OPTIONS[config.optionId],
+        source: MONEY_SOURCE.AGENCY
+      };
+
+      const purchase = moneyManager.buyHotel(option, {
+        cityId: this.cityId,
+        description: `Hotel check-in: ${option.label}`
+      });
+
+      if (!purchase.ok) {
+        this.hotelChoiceMessage?.setText(
+          'Not enough agency funds. The minibar remains a distant dream.'
+        );
+        return;
+      }
+
+      gameState.hotelBookings ??= {};
+
+      gameState.hotelBookings[this.cityId] = {
+        day: this.getHotelDay(),
+        hotelId,
+        optionId: option.id,
+        cost: option.cost,
+        source: MONEY_SOURCE.AGENCY,
+        transactionId: purchase.transaction?.id || null
+      };
+
+      requestAutosave();
+
+      this.activateHotel(hotelId);
+    } catch (error) {
+      console.error('[HotelScene] Hotel check-in failed:', error);
+
+      this.hotelChoiceMessage?.setText(
+        'Check-in failed. Please check the console before trying again.'
+      );
+    } finally {
+      this.isBookingHotel = false;
+    }
+  }
+
+  activateHotel(hotelId) {
+    const config = HOTEL_CONFIG[hotelId];
+    if (!config) return;
+
+    this.hotelId = hotelId;
+    this.hotelConfig = config;
+
+    this.hotelChoice?.destroy(true);
+    this.hotelChoice = null;
+    this.hotelChoiceMessage = null;
+    this.isChoosingHotel = false;
+
+    const background = this.textures.exists(config.backgroundKey)
+      ? config.backgroundKey
+      : 'hotel';
+
+    this.roomBackground.setTexture(background);
+    this.roomBackground.setDisplaySize(
+      this.scale.width,
+      this.scale.height
+    );
+
+    this.roomTitle.setText(config.label);
+    this.roomSubtitle.setText(config.description);
+
+    this.hotspotUI.create(
+      this.scale.width,
+      this.scale.height,
+      config
+    );
+
+    this.applyLock(false);
+    this.startHotelIdleMonologue();
+  }
+
+  hideHoverHint() {
+    this.hotspotUI?.hideHint();
+  }
 
   isHotelInteractionBlocked() {
     return (
       this.isLeaving ||
       this.isSleeping ||
       this.isSleepMenuOpen ||
+      this.isChoosingHotel ||
       this.uiLocked ||
       this._cleanupDone
     );
   }
 
-
-  createOptionalDebug() {
-    if (!this.DEBUG_HOTSPOTS) {
-      return;
-    }
-
-
-    this.debugGraphics = this.add.graphics();
-    this.debugGraphics.lineStyle(2, 0x00ffcc, 0.95);
-
-
-    this.hotspots.forEach((zone) => {
-      const data = zone.hotspotData;
-
-
-      if (!data) {
-        return;
-      }
-
-
-      this.debugGraphics.strokeRect(
-        data.x,
-        data.y,
-        data.width,
-        data.height
-      );
-
-
-      const label = this.add
-        .text(data.x + 8, data.y + 8, data.id, {
-          fontFamily: 'Arial',
-          fontSize: '16px',
-          color: '#00ffcc',
-          backgroundColor: '#000000',
-          padding: {
-            left: 4,
-            right: 4,
-            top: 2,
-            bottom: 2
-          }
-        })
-        .setDepth(999);
-
-
-      this.debugTexts.push(label);
-    });
+  applyLock(locked) {
+    this.uiLocked = locked;
+    this.hotspotUI?.setLocked(locked);
   }
-
-
-  showHoverHint(text) {
-    if (!this.hoverHint?.active || !text || this._cleanupDone) {
-      return;
-    }
-
-
-    this.hoverHint.setText(text).setVisible(true);
-  }
-
-
-  hideHoverHint() {
-    this.hoverHint?.setVisible(false);
-  }
-
-
-  sayHotelMonologue(data) {
-    if (!data || this._cleanupDone) {
-      return;
-    }
-
-
-    if (this.monologue?.sayRandom && data.monologueKey) {
-      this.monologue.sayRandom(data.monologueKey, {
-        cooldownKey: `hotel-hover:${data.id}`,
-        cooldownMs: 2500,
-        queue: false
-      });
-      return;
-    }
-
-
-    if (this.monologue?.say && data.fallbackMonologue) {
-      this.monologue.say(data.fallbackMonologue, {
-        cooldownKey: `hotel-hover-fallback:${data.id}`,
-        cooldownMs: 2500,
-        queue: false
-      });
-    }
-  }
-
-
-  openSleepMenu() {
-    if (this.isHotelInteractionBlocked()) {
-      return;
-    }
-
-
-    this.isSleepMenuOpen = true;
-    this.hideHoverHint();
-
-
-    const { width, height } = this.scale;
-    const panelWidth = Math.min(760, width * 0.75);
-
-
-    this.sleepMenu = this.add.container(0, 0).setDepth(200);
-
-
-    this.sleepMenuBlocker = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.70)
-      .setOrigin(0, 0)
-      .setInteractive();
-
-
-    this.sleepMenuBlocker.on('pointerdown', () => {
-      this.closeSleepMenu();
-    });
-
-
-    const panel = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        panelWidth,
-        350,
-        0x17110e,
-        0.98
-      )
-      .setStrokeStyle(4, 0xd4af37);
-
-
-    const title = this.add
-      .text(
-        width / 2,
-        height / 2 - 128,
-        'HOW LONG DO YOU SLEEP?',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '16px',
-          color: '#f6dc8c',
-          align: 'center'
-        }
-      )
-      .setOrigin(0.5);
-
-
-    const subtitle = this.add
-      .text(
-        width / 2,
-        height / 2 - 90,
-        'The mattress has no questions. Unlike the case.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '20px',
-          color: '#f1e6b8',
-          align: 'center'
-        }
-      )
-      .setOrigin(0.5);
-
-
-    const closeButton = this.add
-      .text(
-        width / 2 + panelWidth / 2 - 32,
-        height / 2 - 145,
-        'X',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '14px',
-          color: '#ffffff',
-          backgroundColor: '#3b1111',
-          padding: { x: 10, y: 8 }
-        }
-      )
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
-
-
-    closeButton.on('pointerdown', () => {
-      this.closeSleepMenu();
-    });
-
-
-    this.sleepMenu.add([
-      this.sleepMenuBlocker,
-      panel,
-      title,
-      subtitle,
-      closeButton
-    ]);
-
-
-    this.createSleepOption(
-      width / 2 - 210,
-      height / 2 + 36,
-      '2 HOURS',
-      '+40 ENERGY',
-      2
-    );
-
-
-    this.createSleepOption(
-      width / 2,
-      height / 2 + 36,
-      '4 HOURS',
-      '+60 ENERGY',
-      4
-    );
-
-
-    this.createSleepOption(
-      width / 2 + 210,
-      height / 2 + 36,
-      '8 HOURS',
-      '+100 ENERGY',
-      8
-    );
-
-
-    this.sleepMenu.setAlpha(0);
-
-
-    this.createTrackedTween({
-      targets: this.sleepMenu,
-      alpha: 1,
-      duration: 180,
-      ease: 'Quad.Out'
-    });
-  }
-
-
-  createSleepOption(x, y, title, description, hours) {
-    if (!this.sleepMenu?.active) {
-      return;
-    }
-
-
-    const button = this.add
-      .rectangle(x, y, 170, 106, 0x29211d, 1)
-      .setStrokeStyle(2, 0xf1e6b8)
-      .setInteractive({ useHandCursor: true });
-
-
-    const titleText = this.add
-      .text(x, y - 20, title, {
-        fontFamily: 'PressStart2P',
-        fontSize: '11px',
-        color: '#ffffff',
-        align: 'center'
-      })
-      .setOrigin(0.5);
-
-
-    const descriptionText = this.add
-      .text(x, y + 18, description, {
-        fontFamily: 'SpecialElite',
-        fontSize: '19px',
-        color: '#ffe066',
-        align: 'center'
-      })
-      .setOrigin(0.5);
-
-
-    button.on('pointerover', () => {
-      if (this.isSleeping || this.isLeaving) {
-        return;
-      }
-
-
-      button.setFillStyle(0x59422f, 1);
-      titleText.setColor('#ffe066');
-    });
-
-
-    button.on('pointerout', () => {
-      button.setFillStyle(0x29211d, 1);
-      titleText.setColor('#ffffff');
-    });
-
-
-    button.on('pointerdown', () => {
-      if (
-        this.isSleeping ||
-        this.isLeaving ||
-        this._cleanupDone
-      ) {
-        return;
-      }
-
-
-      this.destroySleepMenu();
-      this.doSleep(hours);
-    });
-
-
-    this.sleepMenu.add([
-      button,
-      titleText,
-      descriptionText
-    ]);
-  }
-
-
-  closeSleepMenu() {
-    if (!this.isSleepMenuOpen || !this.sleepMenu) {
-      return;
-    }
-
-
-    this.isSleepMenuOpen = false;
-
-
-    const menu = this.sleepMenu;
-
-
-    this.sleepMenu = null;
-    this.sleepMenuBlocker = null;
-
-
-    this.killTrackedTweensOf(menu);
-
-
-    this.createTrackedTween({
-      targets: menu,
-      alpha: 0,
-      duration: 120,
-      ease: 'Quad.In',
-      onComplete: () => {
-        if (menu?.active) {
-          menu.destroy(true);
-        }
-      }
-    });
-  }
-
-
-  destroySleepMenu() {
-    this.isSleepMenuOpen = false;
-
-
-    if (this.sleepMenu) {
-      this.killTrackedTweensOf(this.sleepMenu);
-
-
-      if (this.sleepMenu.active) {
-        this.sleepMenu.destroy(true);
-      }
-
-
-      this.sleepMenu = null;
-    }
-
-
-    this.sleepMenuBlocker = null;
-  }
-
 
   async openHotelTv() {
-    if (
-      this.isHotelInteractionBlocked() ||
-      this.isOpeningTv
-    ) {
-      return;
-    }
-
+    if (this.isHotelInteractionBlocked() || this.isOpeningTv) return;
 
     this.isOpeningTv = true;
-
 
     try {
       const sceneKey = 'TvBroadcastScene';
 
-
       if (this.isSceneActive(sceneKey)) {
         this.stopSceneIfActive(sceneKey);
 
-
         const newsHud = this.getRegisteredScene('NewsHud');
-
-
         newsHud?.events?.emit('setNewspaperVisible', true);
         newsHud?.events?.emit('setTvVisible', true);
         return;
       }
 
-
       const mission = gameState.currentMission || {};
-
 
       const status = await this.toggleOverlay(sceneKey, {
         returnSceneKey: 'HotelScene',
         mission,
         gameState,
         reporterName: 'Colette Duvall',
-        stationName: `${
-          gameState.currentCity || mission.city || 'Local'
-        } Night Report`
+        stationName:
+          `${gameState.currentCity || mission.city || 'Local'} Night Report`
       });
 
-
-      if (this._cleanupDone || status !== 'opened') {
-        return;
-      }
-
+      if (this._cleanupDone || status !== 'opened') return;
 
       const newsHud = this.getRegisteredScene('NewsHud');
-
-
       newsHud?.events?.emit('setNewspaperVisible', false);
       newsHud?.events?.emit('setTvVisible', false);
-
 
       this.bringSceneToTopIfActive('NewsHud');
     } catch (error) {
       if (!this._cleanupDone) {
-        console.error(
-          '[HotelScene] Could not open hotel TV:',
-          error
-        );
+        console.error('[HotelScene] Could not open hotel TV:', error);
       }
     } finally {
       this.isOpeningTv = false;
     }
   }
 
-
   async openCrimeBoard() {
-    if (this.isHotelInteractionBlocked()) {
-      return false;
-    }
-
+    if (this.isHotelInteractionBlocked()) return false;
 
     let hud = this.getPlayerHudScene();
 
-
     if (!hud?.isHudReady || !hud?.crimeBoardUI) {
       try {
-        hud = await this.ensurePlayerHud();
+        hud = await this.hud.ensurePlayerHud();
       } catch (error) {
-        console.error(
-          '[HotelScene] Could not restore HUD for Crime Board:',
-          error
-        );
+        console.error('[HotelScene] Could not restore HUD:', error);
         return false;
       }
     }
 
-
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return false;
-    }
-
+    if (this._cleanupDone || !this.sys.isActive()) return false;
 
     if (!hud?.crimeBoardUI) {
-      console.warn(
-        '[HotelScene] Crime Board is unavailable.',
-        {
-          hudFound: Boolean(hud),
-          hudReady: hud?.isHudReady,
-          hudActive: this.isSceneActive('PlayerHudScene')
-        }
-      );
+      console.warn('[HotelScene] Crime Board is unavailable.');
       return false;
     }
 
-
-    this.setHotelHudContext(hud);
+    this.hud.setContext(hud);
     hud.closeAllUIPanels();
 
-
-    const opened = hud.openCrimeBoard() || false;
-
-
-    console.log('[HotelScene] Crime Board open result:', {
-      opened,
-      hudContext: hud.currentGameplaySceneKey,
-      hudActive: this.isSceneActive('PlayerHudScene')
-    });
-
-
-    return opened;
+    return hud.openCrimeBoard() || false;
   }
-
-
-  async showNewsHud() {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return false;
-    }
-
-
-    const newsHud = await this.ensureReadyOverlay('NewsHud');
-
-
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return false;
-    }
-
-
-    if (!newsHud) {
-      console.warn('[HotelScene] NewsHud could not be opened.');
-      return false;
-    }
-
-
-    newsHud.events?.emit('setNewspaperVisible', true);
-    newsHud.events?.emit('setTvVisible', true);
-
-
-    this.bringSceneToTopIfActive('NewsHud');
-
-
-    return true;
-  }
-
-
-  applyLock(locked) {
-    this.uiLocked = locked;
-
-
-    this.hotspots.forEach((hotspot) => {
-      if (!hotspot?.scene || !hotspot.active) {
-        return;
-      }
-
-
-      if (locked) {
-        hotspot.disableInteractive();
-        return;
-      }
-
-
-      if (
-        !this.isLeaving &&
-        !this.isSleeping &&
-        !this.isSleepMenuOpen
-      ) {
-        hotspot.setInteractive({
-          useHandCursor: true,
-          cursor: 'pointer'
-        });
-      }
-    });
-
-
-    if (locked) {
-      this.hideHoverHint();
-    }
-  }
-
 
   createSaveControls() {
     try {
       this.saveUI = new OfficeSaveUI(this, {
         locationType: 'hotel',
         locationCode: 'hotel_room',
-        cityCode:
-          gameState.currentCityId ||
-          this.returnData.cityId ||
-          null
+        cityCode: this.cityId || null
       });
-
 
       this.saveUI.createButton();
     } catch (error) {
-      console.error(
-        '[HotelScene] Failed to initialize save controls:',
-        error
-      );
-
-
+      console.error('[HotelScene] Save controls failed:', error);
       this.saveUI = null;
     }
   }
 
-
   restoreAfterFailedExit() {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return;
-    }
+    if (this._cleanupDone || !this.sys.isActive()) return;
 
-
-    const energyManager = getEnergyManager();
-
-
-    energyManager.cancelManualSleep();
-
+    getEnergyManager().cancelManualSleep();
 
     this.isLeaving = false;
     this.isSleeping = false;
     this.isTransitioning = false;
-    this.pendingSleepHours = null;
 
+    this.sleepCtl?.clearPending();
 
-    this.applyLock(false);
+    this.applyLock(this.isChoosingHotel);
     this.cameras.main.fadeIn(220, 0, 0, 0);
   }
 
-
-  doSleep(hours) {
-    if (
-      this.isLeaving ||
-      this.isSleeping ||
-      this._cleanupDone
-    ) {
-      return;
-    }
-
-
-    this.pendingSleepHours = hours;
-    this.beginSleep(hours);
-  }
-
-
-  beginSleep(hours) {
-    if (
-      this.isLeaving ||
-      this.isSleeping ||
-      this._cleanupDone
-    ) {
-      return;
-    }
-
-
-    this.isSleeping = true;
-    this.isLeaving = true;
-    this.isTransitioning = true;
-
-
-    this.applyLock(true);
-    this.hideHoverHint();
-
-
-    const energyManager = getEnergyManager();
-    const startResult = energyManager.startManualSleep(hours);
-
-
-    if (!startResult?.success) {
-      console.warn(
-        '[HotelScene] Could not start manual sleep.',
-        startResult
-      );
-
-
-      this.pendingSleepHours = null;
-      this.restoreAfterFailedExit();
-      return;
-    }
-
-
-    const state = gameState.getState
-      ? gameState.getState()
-      : gameState;
-
-
-    const shouldShowHolly =
-      state.hollyIntroPending === true &&
-      state.hollyIntroSeen !== true;
-
-
-    if (shouldShowHolly) {
-      this.scene.pause();
-
-
-      this.scene.launch('HollyIntroScene', {
-        returnScene: 'HotelScene',
-        returnData: {
-          sleepHours: hours
-        }
-      });
-
-
-      return;
-    }
-
-
-    this.finishSleep(hours);
-  }
-
-
-  finishSleep(hours) {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return;
-    }
-
-
-    const sleepHours = Number(hours || this.pendingSleepHours || 8);
-
-
-    try {
-      const energyManager = getEnergyManager();
-      const result = energyManager.completeManualSleep(sleepHours);
-
-
-      console.log('[HotelScene] Sleep completed:', {
-        hours: sleepHours,
-        result
-      });
-    } catch (error) {
-      console.error(
-        '[HotelScene] Energy restoration failed:',
-        error
-      );
-      this.pendingSleepHours = null;
-      this.restoreAfterFailedExit();
-      return;
-    }
-
-
-    this.cameras.main.once(
-      Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-      () => {
-        if (this._cleanupDone || !this.sys.isActive()) {
-          return;
-        }
-
-
-        this.pendingSleepHours = null;
-
-
-        void this.goto(this.returnScene, {
-          ...this.returnData,
-          wokeUp: true,
-          sleptHours: sleepHours
-        })
-          .then((moved) => {
-            if (!moved) {
-              this.restoreAfterFailedExit();
-            }
-          })
-          .catch((error) => {
-            if (!this._cleanupDone) {
-              console.error(
-                '[HotelScene] Could not return after sleep:',
-                error
-              );
-              this.restoreAfterFailedExit();
-            }
-          });
-      }
-    );
-
-
-    this.cameras.main.fadeOut(700, 0, 0, 0);
-  }
-
-
   onHollySleepFinished(payload = {}) {
-    if (this._cleanupDone || !this.sys.isActive()) {
-      return;
-    }
-
-
-    const sleepHours = Number(
-      payload.sleepHours || this.pendingSleepHours || 8
-    );
-
-
-    if (this.isSceneActive('HollyIntroScene')) {
-      this.scene.stop('HollyIntroScene');
-    }
-
-
-    this.scene.resume();
-
-
-    this.finishSleep(sleepHours);
+    this.sleepCtl?.onHollyFinished(payload);
   }
-
 
   handleEscape() {
-    if (this.uiLocked || this._cleanupDone) {
+    if (this._cleanupDone) return;
+
+    if (this.hotspotUI?.debugMode) {
+      this.hotspotUI.setDebug(false);
       return;
     }
 
+    if (this.isChoosingHotel) {
+      void this.leaveHotel();
+      return;
+    }
+
+    if (this.uiLocked) return;
 
     if (this.isSleepMenuOpen) {
-      this.closeSleepMenu();
+      this.sleepCtl.closeMenu();
       return;
     }
-
 
     void this.leaveHotel();
   }
 
-
   async leaveHotel() {
-    if (
-      this.isLeaving ||
-      this.isSleeping ||
-      this._cleanupDone
-    ) {
+    if (this.isLeaving || this.isSleeping || this._cleanupDone) {
       return false;
     }
-
 
     this.isLeaving = true;
     this.isTransitioning = true;
 
-
     this.applyLock(true);
     this.hideHoverHint();
-
+    flushAutosave();
 
     try {
       const moved = await this.goto(
@@ -1443,54 +710,37 @@ export class HotelScene extends BaseScene {
         this.returnData
       );
 
-
-      if (!moved) {
-        this.restoreAfterFailedExit();
-      }
-
+      if (!moved) this.restoreAfterFailedExit();
 
       return moved;
     } catch (error) {
       if (!this._cleanupDone) {
-        console.error(
-          '[HotelScene] Could not leave hotel:',
-          error
-        );
-
-
+        console.error('[HotelScene] Could not leave hotel:', error);
         this.restoreAfterFailedExit();
       }
-
 
       return false;
     }
   }
 
-
   onWakeOrResume() {
-    if (this._cleanupDone) {
-      return;
-    }
-
+    if (this._cleanupDone) return;
 
     this.isOpeningTv = false;
-
 
     if (
       !this.isLeaving &&
       !this.isSleeping &&
       !this.isSleepMenuOpen
     ) {
-      this.applyLock(false);
+      this.applyLock(this.isChoosingHotel);
     }
-
 
     this.events.off(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
       this
     );
-
 
     this.events.once(
       Phaser.Scenes.Events.POST_UPDATE,
@@ -1499,20 +749,14 @@ export class HotelScene extends BaseScene {
     );
   }
 
-
   onSleep() {
     flushAutosave();
     this.hideHoverHint();
-    this.cancelHudWaits();
+    this.hud?.cancelWaits();
   }
-
 
   cleanupScene() {
     flushAutosave();
-
-
-    this.cancelHudWaits();
-
 
     EventBus.off(
       'hollySleepFinished',
@@ -1520,80 +764,47 @@ export class HotelScene extends BaseScene {
       this
     );
 
-
     this.events.off(
       Phaser.Scenes.Events.POST_UPDATE,
       this.onHotelFirstUpdate,
       this
     );
 
-
     this.events.off(
       Phaser.Scenes.Events.WAKE,
       this.boundWakeOrResume
     );
-
 
     this.events.off(
       Phaser.Scenes.Events.RESUME,
       this.boundWakeOrResume
     );
 
-
     this.events.off(
       Phaser.Scenes.Events.SLEEP,
       this.boundSleep
     );
 
+    this.hud?.destroy();
+    this.hud = null;
 
-    this.destroySleepMenu();
+    this.sleepCtl?.destroy();
+    this.sleepCtl = null;
 
+    this.hotspotUI?.destroy();
+    this.hotspotUI = null;
 
     this.saveUI?.destroy();
     this.saveUI = null;
 
+    this.hotelChoice?.destroy(true);
+    this.hotelChoice = null;
 
-    this.hotspots.forEach((hotspot) => {
-      hotspot?.removeAllListeners?.();
-
-
-      if (hotspot?.active) {
-        hotspot.destroy();
-      }
-    });
-
-
-    this.hotspots = [];
-
-
-    this.debugGraphics?.destroy();
-    this.debugGraphics = null;
-
-
-    this.debugTexts.forEach((text) => {
-      if (text?.active) {
-        text.destroy();
-      }
-    });
-
-
-    this.debugTexts = [];
-
-
-    if (this.hoverHint?.active) {
-      this.hoverHint.destroy();
-    }
-
-
-    this.hoverHint = null;
     this.timeManager = null;
-
-
     this.uiLocked = false;
     this.isSleepMenuOpen = false;
+    this.isChoosingHotel = false;
     this.isOpeningTv = false;
-    this.isSettingUpHud = false;
     this.isTransitioning = false;
-    this.pendingSleepHours = null;
   }
 }

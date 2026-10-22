@@ -80,22 +80,25 @@ export class CrimeLabHUD {
   }
 
   handleTimeChanged(payload = {}) {
-    const parsed = Number(payload.caseTimeRemaining);
+    if (!this.scene) {
+      return;
+    }
 
-    const remaining = Number.isFinite(parsed)
-      ? Math.max(0, Math.floor(parsed))
+    const hasRemaining = Object.prototype.hasOwnProperty.call(
+      payload,
+      'caseTimeRemaining'
+    );
+
+    const remaining = hasRemaining
+      ? payload.caseTimeRemaining
       : getCaseTimeRemaining(this.scene.gameState);
 
     this.refresh(
       Number(this.scene.completedCount) || 0,
       Number(this.scene.totalStations) || 3,
-      remaining
+      remaining,
+      payload.caseExpired === true
     );
-
-    if (payload.caseExpired) {
-      this.labTimerText?.setColor('#ff2b2b');
-      this.labTimerText?.setText('TIME: EXPIRED');
-    }
   }
 
   refreshFromScene() {
@@ -103,18 +106,25 @@ export class CrimeLabHUD {
       return;
     }
 
-    const completedCount = Number(this.scene.completedCount) || 0;
-    const totalStations = Number(this.scene.totalStations) || 3;
     const remaining = getCaseTimeRemaining(this.scene.gameState);
 
     this.refresh(
-      completedCount,
-      totalStations,
+      Number(this.scene.completedCount) || 0,
+      Number(this.scene.totalStations) || 3,
       remaining
     );
   }
 
-  refresh(completedCount, totalStations, remainingSeconds) {
+  refresh(
+    completedCount,
+    totalStations,
+    remainingSeconds,
+    expired = false
+  ) {
+    if (!this.scene) {
+      return;
+    }
+
     const mission = this.scene.gameState.currentMission || {};
 
     const artifact =
@@ -122,9 +132,13 @@ export class CrimeLabHUD {
       mission.artifactName ||
       'Active Case';
 
-    this.labCaseText?.setText(String(artifact).toUpperCase());
+    this._setText(
+      this.labCaseText,
+      String(artifact).toUpperCase()
+    );
 
-    this.labProgressText?.setText(
+    this._setText(
+      this.labProgressText,
       `ANALYSES: ${completedCount}/${totalStations}`
     );
 
@@ -134,37 +148,54 @@ export class CrimeLabHUD {
       remainingSeconds != null &&
       Number.isFinite(parsedSeconds);
 
-    if (hasValidTime) {
-      const safeSeconds = Math.max(
-        0,
-        Math.floor(parsedSeconds)
-      );
-
-      const hours = Math.floor(safeSeconds / 3600);
-      const minutes = Math.floor(
-        (safeSeconds % 3600) / 60
-      );
-      const seconds = safeSeconds % 60;
-
-      const formattedTime = hours > 0
-        ? `TIME: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-        : `TIME: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-      this.labTimerText?.setText(formattedTime);
-
-      if (safeSeconds <= 60) {
-        this.labTimerText?.setColor('#ff5c5c');
-      } else if (safeSeconds <= 15 * 60) {
-        this.labTimerText?.setColor('#ff9f43');
-      } else {
-        this.labTimerText?.setColor('#ffcc00');
-      }
-
+    if (!hasValidTime) {
+      this._setText(this.labTimerText, 'TIME: --:--');
+      this._setColor(this.labTimerText, '#ffcc00');
       return;
     }
 
-    this.labTimerText?.setText('TIME: --:--');
-    this.labTimerText?.setColor('#ffcc00');
+    const safeSeconds = Math.max(
+      0,
+      Math.floor(parsedSeconds)
+    );
+
+    if (expired || safeSeconds === 0) {
+      this._setText(this.labTimerText, 'TIME: EXPIRED');
+      this._setColor(this.labTimerText, '#ff2b2b');
+      return;
+    }
+
+    const hours = Math.floor(safeSeconds / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
+    const seconds = safeSeconds % 60;
+
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
+
+    const formattedTime = hours > 0
+      ? `TIME: ${String(hours).padStart(2, '0')}:${paddedMinutes}:${paddedSeconds}`
+      : `TIME: ${paddedMinutes}:${paddedSeconds}`;
+
+    const color = safeSeconds <= 60
+      ? '#ff5c5c'
+      : safeSeconds <= 15 * 60
+        ? '#ff9f43'
+        : '#ffcc00';
+
+    this._setText(this.labTimerText, formattedTime);
+    this._setColor(this.labTimerText, color);
+  }
+
+  _setText(target, value) {
+    if (target && target.text !== value) {
+      target.setText(value);
+    }
+  }
+
+  _setColor(target, color) {
+    if (target && target.style?.color !== color) {
+      target.setColor(color);
+    }
   }
 
   destroy() {

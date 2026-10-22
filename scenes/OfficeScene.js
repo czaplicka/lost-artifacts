@@ -7,14 +7,8 @@ import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
 import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 
-import {
-  OfficeNavigation
-} from './office/OfficeNavigation.js';
-
-import {
-  OfficeHotspotManager
-} from './office/OfficeHotspotManager.js';
-
+import { OfficeNavigation } from './office/OfficeNavigation.js';
+import { OfficeHotspotManager } from './office/OfficeHotspotManager.js';
 import {
   createOfficeHotspotDefinitions
 } from './office/officeHotspots.js';
@@ -26,6 +20,11 @@ const OFFICE_BACKGROUND_KEYS = [
   'backgroundoff',
   'backgroundset'
 ];
+
+const LOCAL_DEBUG_ALLOWED = [
+  'localhost',
+  '127.0.0.1'
+].includes(window.location.hostname);
 
 export class OfficeScene extends BaseScene {
   constructor() {
@@ -119,10 +118,11 @@ export class OfficeScene extends BaseScene {
       window.location.search
     ).get('debug');
 
-    this.DEBUG_HOTSPOTS =
+    this.DEBUG_HOTSPOTS = LOCAL_DEBUG_ALLOWED && (
       debugValue === '' ||
       debugValue === '1' ||
-      debugValue === 'true';
+      debugValue === 'true'
+    );
 
     if (this.isNewGame) {
       this.gameState.onboarding ??= {};
@@ -153,9 +153,7 @@ export class OfficeScene extends BaseScene {
     const manifest = this.cache.json.get('assetManifest');
 
     if (!manifest) {
-      console.error(
-        '[OfficeScene] assetManifest is missing.'
-      );
+      console.error('[OfficeScene] assetManifest is missing.');
       return;
     }
 
@@ -347,8 +345,7 @@ export class OfficeScene extends BaseScene {
   // ------------------------------------------------------------------
 
   isOfficeTutorialBlocking() {
-    const tutorialState =
-      this.gameState.onboarding?.firstCase;
+    const tutorialState = this.gameState.onboarding?.firstCase;
 
     if (
       tutorialState?.completed === true ||
@@ -451,9 +448,7 @@ export class OfficeScene extends BaseScene {
 
     if (this.archiveButton?.input) {
       this.archiveButton.input.enabled = !archiveBlocked;
-      this.archiveButton.setAlpha(
-        archiveBlocked ? 0.45 : 1
-      );
+      this.archiveButton.setAlpha(archiveBlocked ? 0.45 : 1);
       this.archiveButton.setColor(
         archiveBlocked ? '#8b8475' : '#f2d477'
       );
@@ -461,9 +456,7 @@ export class OfficeScene extends BaseScene {
 
     if (this.storageButton?.input) {
       this.storageButton.input.enabled = !storageBlocked;
-      this.storageButton.setAlpha(
-        storageBlocked ? 0.45 : 1
-      );
+      this.storageButton.setAlpha(storageBlocked ? 0.45 : 1);
       this.storageButton.setColor(
         storageBlocked ? '#8b8475' : '#f2d477'
       );
@@ -509,6 +502,8 @@ export class OfficeScene extends BaseScene {
 
     this.navigation?.hideHint();
     audioManager.playSfx('click_sound');
+
+    flushAutosave();
 
     try {
       const result = await this.goto(sceneKey, {
@@ -646,8 +641,7 @@ export class OfficeScene extends BaseScene {
 
     const request = (async () => {
       try {
-        const uiScene =
-          await this.ensureOverlayScene('UIScene');
+        const uiScene = await this.ensureOverlayScene('UIScene');
 
         if (!isCurrent()) {
           return false;
@@ -682,14 +676,9 @@ export class OfficeScene extends BaseScene {
         if (uiScene) {
           const visible = !this.agencyLedgerUI?.isOpen;
 
-          EventBus.emit(
-            visible ? 'showHUD' : 'hideHUD'
-          );
+          EventBus.emit(visible ? 'showHUD' : 'hideHUD');
 
-          this.game.events.emit(
-            'setHudVisible',
-            visible
-          );
+          this.game.events.emit('setHudVisible', visible);
         }
 
         this.refreshPanelLock();
@@ -723,8 +712,7 @@ export class OfficeScene extends BaseScene {
   async setupNewsHud() {
     const token = this._runToken;
 
-    const newsHud =
-      await this.ensureOverlayScene('NewsHud');
+    const newsHud = await this.ensureOverlayScene('NewsHud');
 
     if (
       !newsHud ||
@@ -780,20 +768,9 @@ export class OfficeScene extends BaseScene {
       completed ? 'elevator_open' : 'elevator_broken'
     );
 
-    const storageBg = background(
-      0,
-      'backgroundhi'
-    );
-
-    const officeBg = background(
-      gameWidth,
-      'backgroundoff'
-    );
-
-    const cabinetBg = background(
-      gameWidth * 2,
-      'backgroundset'
-    );
+    const storageBg = background(0, 'backgroundhi');
+    const officeBg = background(gameWidth, 'backgroundoff');
+    const cabinetBg = background(gameWidth * 2, 'backgroundset');
 
     this.elevatorBackground = elevatorBg;
 
@@ -855,8 +832,7 @@ export class OfficeScene extends BaseScene {
   // ------------------------------------------------------------------
 
   createFirstCaseTutorial() {
-    const tutorialState =
-      this.gameState.onboarding?.firstCase;
+    const tutorialState = this.gameState.onboarding?.firstCase;
 
     if (
       !this.startOnboarding ||
@@ -1148,6 +1124,8 @@ export class OfficeScene extends BaseScene {
       audioManager.playSfx('click_sound');
     }
 
+    flushAutosave();
+
     const opened = await this.launchOverlay(
       sceneKey,
       {
@@ -1203,9 +1181,7 @@ export class OfficeScene extends BaseScene {
     const panel = this.getPlayerHud()?.caseFileUI;
 
     if (!panel) {
-      console.warn(
-        '[OfficeScene] Case File is unavailable.'
-      );
+      console.warn('[OfficeScene] Case File is unavailable.');
       return;
     }
 
