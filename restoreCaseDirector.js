@@ -1,8 +1,10 @@
 import { CaseDirector } from './CaseDirector.js';
+import { loadJson } from './config/loadJson.js';
 
-import caseModifiers from './assets/data/caseModifiers.json' with {
-  type: 'json'
-};
+const caseModifiers = await loadJson(
+  './assets/data/caseModifiers.json',
+  import.meta.url
+);
 
 function isPlainObject(value) {
   if (
@@ -20,16 +22,13 @@ function isPlainObject(value) {
   );
 }
 
-/**
- * Odtwarza wyłącznie instancję runtime.
- * Nie losuje nowego szablonu i nie emituje zdarzenia generowania.
- *
- * Starszy zapis bez szablonu zwraca null.
- */
 export function createCaseDirectorFromState(state) {
   const template = state?.caseTemplate;
 
-  if (template === undefined || template === null) {
+  if (
+    template === undefined ||
+    template === null
+  ) {
     return null;
   }
 

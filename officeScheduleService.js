@@ -1,8 +1,9 @@
-// officeScheduleService.js
+import { loadJson } from './config/loadJson.js';
 
-import officeSchedule from './assets/data/officeSchedule.json' with {
-  type: 'json'
-};
+const officeSchedule = await loadJson(
+  './assets/data/officeSchedule.json',
+  import.meta.url
+);
 
 function isRecord(value) {
   return (
@@ -88,8 +89,11 @@ function validateSchedule(data) {
 
     const changedNpcIds = new Set();
 
-    entry.changes.forEach((change) => {
-      if (!isRecord(change) || !npcIds.has(change.npcId)) {
+    entry.changes.forEach(change => {
+      if (
+        !isRecord(change) ||
+        !npcIds.has(change.npcId)
+      ) {
         throw new Error(
           `[officeScheduleService] Unknown NPC in schedule entry ${entry.casesSolved}: "${change?.npcId}".`
         );
@@ -114,7 +118,7 @@ function validateSchedule(data) {
 
 validateSchedule(officeSchedule);
 
-const npcDefinitions = officeSchedule.npcs.map((npc) => ({
+const npcDefinitions = officeSchedule.npcs.map(npc => ({
   npcId: npc.npcId,
   name: npc.name || npc.npcId,
   role: npc.role || '',
@@ -122,14 +126,16 @@ const npcDefinitions = officeSchedule.npcs.map((npc) => ({
 }));
 
 const scheduleEntries = officeSchedule.schedule
-  .map((entry) => ({
+  .map(entry => ({
     casesSolved: entry.casesSolved,
-    changes: entry.changes.map((change) => ({
+    changes: entry.changes.map(change => ({
       npcId: change.npcId,
       visible: change.visible
     }))
   }))
-  .sort((a, b) => a.casesSolved - b.casesSolved);
+  .sort(
+    (a, b) => a.casesSolved - b.casesSolved
+  );
 
 function normalizeCasesSolved(casesSolved) {
   if (
@@ -145,15 +151,11 @@ function normalizeCasesSolved(casesSolved) {
   return Math.floor(casesSolved);
 }
 
-/**
- * Returns all office NPCs, including absent ones.
- * Applies every scheduled change up to the supplied case count.
- */
 export function getOfficeNpcStates(casesSolved = 0) {
   const solved = normalizeCasesSolved(casesSolved);
 
   const states = new Map(
-    npcDefinitions.map((npc) => [
+    npcDefinitions.map(npc => [
       npc.npcId,
       {
         npcId: npc.npcId,
@@ -165,39 +167,41 @@ export function getOfficeNpcStates(casesSolved = 0) {
   );
 
   for (const entry of scheduleEntries) {
-    if (entry.casesSolved > solved) break;
+    if (entry.casesSolved > solved) {
+      break;
+    }
 
     for (const change of entry.changes) {
-      states.get(change.npcId).visible = change.visible;
+      states.get(change.npcId).visible =
+        change.visible;
     }
   }
 
   return Array.from(states.values());
 }
 
-/**
- * Returns only NPCs that should currently appear.
- */
-export function getVisibleOfficeNpcs(casesSolved = 0) {
+export function getVisibleOfficeNpcs(
+  casesSolved = 0
+) {
   return getOfficeNpcStates(casesSolved).filter(
-    (npc) => npc.visible
+    npc => npc.visible
   );
 }
 
-/**
- * Returns one NPC's current state, or null for an unknown ID.
- */
-export function getOfficeNpcState(npcId, casesSolved = 0) {
+export function getOfficeNpcState(
+  npcId,
+  casesSolved = 0
+) {
+  return getOfficeNpcStates(casesSolved).find(
+    npc => npc.npcId === npcId
+  ) || null;
+}
+
+export function isOfficeNpcVisible(
+  npcId,
+  casesSolved = 0
+) {
   return (
-    getOfficeNpcStates(casesSolved).find(
-      (npc) => npc.npcId === npcId
-    ) || null
+    getOfficeNpcState(npcId, casesSolved)?.visible === true
   );
-}
-
-/**
- * Checks whether an NPC should currently appear.
- */
-export function isOfficeNpcVisible(npcId, casesSolved = 0) {
-  return getOfficeNpcState(npcId, casesSolved)?.visible === true;
 }

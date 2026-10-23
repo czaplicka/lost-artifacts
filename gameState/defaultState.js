@@ -1,7 +1,3 @@
-export const GAME_STATE_VERSION = '1.0.0';
-
-
-
 export function createDefaultReconstructedHeist() {
   return {
     cityId: null,
@@ -24,20 +20,14 @@ export function createDefaultReconstructedHeist() {
   };
 }
 
-
-
 export const defaultGameState = {
   _version: GAME_STATE_VERSION,
   _lastSave: null,
   _createdAt: null,
 
-
-
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,
-
-
 
   artifactRecovery: {
     missionId: null,
@@ -49,11 +39,7 @@ export const defaultGameState = {
     condition: null
   },
 
-
-
   recoveredArtifacts: [],
-
-
 
   currentCity: null,
   currentCityId: null,
@@ -61,8 +47,6 @@ export const defaultGameState = {
   currentCityData: null,
   currentEncounterId: null,
   currentCaseId: null,
-
-
 
   finalArrestResult: null,
   finalArrestSuspectId: null,
@@ -73,17 +57,17 @@ export const defaultGameState = {
   warrantSuspectId: null,
   gameOverReason: '',
 
-
-
   crimeCity: null,
   crimeCityId: null,
   crimeSceneVisited: false,
   specialScenesVisited: {},
   specialScenesCompleted: {},
+
   crimeBoardData: {
     visitedCrimeScenes: [],
     sceneFoundObjects: []
   },
+
   justReachedCorrectCityId: null,
   hollyFirstSleepSeen: false,
   hollyIntroPending: true,
@@ -91,8 +75,6 @@ export const defaultGameState = {
   hollyIntroChoice: null,
   johnCaseAccepted: false,
   blackLadyCaseAccepted: false,
-
-
 
   activeLocations: [],
   currentDestinations: [],
@@ -105,8 +87,6 @@ export const defaultGameState = {
   canonicalTravelCityId: null,
   clueScope: 'crime_scene',
 
-
-
   score: 0,
   scoreSaved: false,
   playerName: 'Detective',
@@ -117,88 +97,79 @@ export const defaultGameState = {
   achievements: [],
   completedCaseIds: [],
   successfulArrestCaseIds: [],
+
+  reputationState: {
+    version: 1,
+
+    // Rozpoznawalność: 0–100.
+    fame: 0,
+
+    // Uczciwość: -100–100.
+    // -40 lub mniej: kontakty półświatka.
+    // +40 lub więcej: kontakty policyjne.
+    integrity: 0,
+
+    // Identyfikatory wydarzeń rozliczonych przez system.
+    appliedEventIds: [],
+
+    // Nagłówki związane z działaniami gracza.
+    headlines: []
+  },
+
   isGameActive: false,
   difficulty: 'field',
   passport: null,
 
-
-
   energy: 100,
   maxEnergy: 100,
   energyLog: [],
-
-
 
   cash: 100,
   agencyBudget: 500,
   agencyDebt: 0,
   moneyLog: [],
 
-
-
   timeSpent: 0,
   travelHistory: [],
   lastTravel: null,
   lastTravelEncounter: null,
 
-
-
   investigationPhaseActive: true,
   investigationStartTime: null,
   investigationDeadline: null,
-
-
 
   escapePhaseActive: false,
   escapeStartTime: null,
   escapeDeadline: null,
   timeWastedOnMistakes: 0,
 
-
-
   cluesCollected: [],
   apartmentProgress: {},
   _clueIndex: {},
 
-
-
   visitedEncounters: [],
   _encounterIndex: {},
 
-
-
   visitedCities: [],
   _cityIndex: {},
-
-
 
   playerNotes: '',
   encounterMemory: {},
   cityEncounterState: {},
 
-
-
   storyPhoneCallTriggered: false,
   pendingPhoneCall: false,
   pendingPhoneCallCityId: null,
 
-
-
   hiddenObjectHistory: [],
   reconstructedHeist: createDefaultReconstructedHeist(),
-
-
 
   unifiedTravelManagerState: null,
   crimeCityProgress: {},
   crimeCityCurrentNodes: {},
 
-
-
   caseDirector: null,
   caseTemplate: null,
-
-
 
   caseData: {
     motiveId: null,
@@ -208,62 +179,42 @@ export const defaultGameState = {
     crimeWindow: null
   },
 
-
-
   caseSuspects: [],
   suspects: [],
   suspectList: [],
   excludedSuspects: [],
 
-
-
   identityEvidence: null,
   traceEvidence: [],
   identityEvidenceResult: null,
-
-
 
   hypothesisEvidence: null,
   hypothesisEvidenceResult: null,
   hypothesisAttempts: [],
 
-
-
   forensicResults: [],
   interviewEvidenceResults: [],
   csiLabCompleted: false,
 
-
-
   caseCsiAssignments: {},
   caseForensics: {},
-
-
 
   suspectExclusionState: {},
   suspectGridInput: null,
   alibiInvestigation: null,
 
-
-
   crimeCityEncounterState: {},
   alibiAccusations: {},
-
-
 
   selectedThiefProfile: null,
   selectedThief: null,
   thief: null,
-
-
 
   realThiefSuspectId: null,
   trueThiefCaseSuspectId: null,
   forensicTwinSuspectId: null,
   forensicSurvivorIds: [],
   selectedSuspectId: null,
-
-
 
   mainStory: null
 };

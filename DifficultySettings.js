@@ -1,5 +1,29 @@
 export const DEFAULT_DIFFICULTY = 'field';
 
+const RANDOM_EVENT_SETTINGS = Object.freeze({
+    enabled: true,
+
+    // Losowanie raz przy rozpoczęciu nowego dnia gry.
+    dailyChance: 0.05,
+
+    maxEventsPerCase: 1,
+
+    illness: Object.freeze({
+        workEnergyMultiplier: 2,
+        workDurationHours: 24,
+
+        restHours: 24,
+        recoveryEnergyMultiplier: 0.8,
+        recoveryDurationHours: 12,
+    }),
+
+    bribe: Object.freeze({
+        amount: 300,
+        endsCase: true,
+        requiresConfirmation: true,
+    }),
+});
+
 export const DIFFICULTY = Object.freeze({
     rookie: Object.freeze({
         id: 'rookie',
@@ -15,10 +39,19 @@ export const DIFFICULTY = Object.freeze({
         hintCost: 0,
 
         logicWarnings: true,
-        energyPenaltyMultiplier: 0.75,
-        scoreMultiplier: 1.0,
 
+        // Zwykłe zużycie energii.
+        energyCostMultiplier: 0.7,
+
+        // Zachowane osobno: kary energetyczne.
+        energyPenaltyMultiplier: 0.75,
+
+        sleepRecoveryMultiplier: 1.15,
+
+        scoreMultiplier: 1.0,
         hardOnlyEvidence: false,
+
+        randomEvents: RANDOM_EVENT_SETTINGS,
     }),
 
     field: Object.freeze({
@@ -35,10 +68,15 @@ export const DIFFICULTY = Object.freeze({
         hintCost: 25,
 
         logicWarnings: true,
-        energyPenaltyMultiplier: 1.0,
-        scoreMultiplier: 1.25,
 
+        energyCostMultiplier: 1.0,
+        energyPenaltyMultiplier: 1.0,
+        sleepRecoveryMultiplier: 1.0,
+
+        scoreMultiplier: 1.25,
         hardOnlyEvidence: false,
+
+        randomEvents: RANDOM_EVENT_SETTINGS,
     }),
 
     master: Object.freeze({
@@ -55,10 +93,15 @@ export const DIFFICULTY = Object.freeze({
         hintCost: 75,
 
         logicWarnings: false,
-        energyPenaltyMultiplier: 1.25,
-        scoreMultiplier: 1.6,
 
+        energyCostMultiplier: 1.4,
+        energyPenaltyMultiplier: 1.25,
+        sleepRecoveryMultiplier: 1.0,
+
+        scoreMultiplier: 1.6,
         hardOnlyEvidence: true,
+
+        randomEvents: RANDOM_EVENT_SETTINGS,
     }),
 });
 

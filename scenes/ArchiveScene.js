@@ -6,7 +6,12 @@ import { inventoryManager } from '../managers/InventoryManager.js';
 import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { isOfficeNpcVisible } from '../officeScheduleService.js';
-import frankDialogue from '../assets/data/dialogue/archivist.json' with { type: 'json' };
+import { loadJson } from '../config/loadJson.js';
+
+const frankDialogue = await loadJson(
+  '../assets/data/dialogue/archivist.json',
+  import.meta.url
+);
 
 const ARCHIVE_BACKGROUND_KEYS = ['archive', 'archivist'];
 const REPORT_ITEM_ID = 'agency_mission_report';
@@ -116,7 +121,6 @@ export class ArchiveScene extends BaseScene {
       this.frankLabel.setVisible(false);
       this.drawFrankHighlight(false);
     });
-    // Clicking never submits a selected item.
     this.frankHotspot.on('pointerdown', () => this.interactWithFrank());
   }
 
@@ -164,7 +168,6 @@ export class ArchiveScene extends BaseScene {
         x < b.x || x > b.x + b.width || y < b.y || y > b.y + b.height) return;
     const item = inventoryManager.getItem(drop.itemId);
     if (!item) return;
-    // The drop was handled; this does not mean the item was consumed.
     drop.accepted = true;
     if (item.id !== REPORT_ITEM_ID) {
       this.showStatus(this.pickLine(frankDialogue.wrongItemReplies));
@@ -175,7 +178,6 @@ export class ArchiveScene extends BaseScene {
 
   getReportKey(item) {
     const explicitId = item.metadata?.reportId ?? item.metadata?.caseId;
-    // addedAt is stored by InventoryManager and survives save/load.
     return explicitId != null && String(explicitId).trim()
       ? `report:${String(explicitId)}`
       : `item:${item.id}:${item.addedAt}`;
@@ -337,6 +339,7 @@ export class ArchiveScene extends BaseScene {
   }
 
   handleResize() { this.layoutArchive(); }
+
   onWakeOrResume() {
     if (this._archiveDisposed) return;
     this.isLeaving = false;

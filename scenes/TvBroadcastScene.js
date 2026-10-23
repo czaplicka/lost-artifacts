@@ -54,7 +54,6 @@ export class TvBroadcastScene extends BaseScene {
     this.anchorDisplayName = '';
 
     this.hasPausedReturnScene = false;
-
     this.minimumSegmentHold = 5000;
   }
 
@@ -98,18 +97,10 @@ export class TvBroadcastScene extends BaseScene {
     this.anchorDisplayName = '';
 
     this.hasPausedReturnScene = false;
-
     this.minimumSegmentHold = 5000;
   }
 
   preload() {
-    if (!window.WebFont) {
-      this.load.script(
-        'webfont',
-        'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js'
-      );
-    }
-
     if (!this.cache.json.exists('tv-config')) {
       this.load.json(
         'tv-config',
@@ -129,47 +120,22 @@ export class TvBroadcastScene extends BaseScene {
       this
     );
 
-    this.ensureFontsLoaded(() => {
-      if (!this.sys.isActive()) {
-        return;
-      }
+    this.setupSceneState();
+    this.selectBroadcastAnchor();
+    this.createTvInterface();
+    this.createTvControls();
 
-      this.setupSceneState();
-      this.selectBroadcastAnchor();
-      this.createTvInterface();
-      this.createTvControls();
+    const tvConfigJson =
+      this.cache.json.get('tv-config') || {};
 
-      const tvConfigJson =
-        this.cache.json.get('tv-config') || {};
+    this.segmentQueue =
+      getTVBroadcast(
+        gameState,
+        tvConfigJson
+      ).segments || [];
 
-      this.segmentQueue =
-        getTVBroadcast(
-          gameState,
-          tvConfigJson
-        ).segments || [];
-
-      this.hideUnderlyingHud();
-
-      this.playOpenAnimation();
-    });
-  }
-
-  ensureFontsLoaded(onReady) {
-    if (!window.WebFont) {
-      onReady();
-      return;
-    }
-
-    window.WebFont.load({
-      google: {
-        families: [
-          'PressStart2P',
-          'SpecialElite'
-        ]
-      },
-      active: onReady,
-      inactive: onReady
-    });
+    this.hideUnderlyingHud();
+    this.playOpenAnimation();
   }
 
   setupSceneState() {
@@ -230,14 +196,12 @@ export class TvBroadcastScene extends BaseScene {
 
     this.tvEffects = new TvBroadcastEffects(this);
 
-    const effects =
-      this.tvEffects.create(
-        this.layout.screenWidth,
-        this.layout.screenHeight
-      );
+    const effects = this.tvEffects.create(
+      this.layout.screenWidth,
+      this.layout.screenHeight
+    );
 
     this.tvView.addScreenEffects(effects);
-
     this.tvEffects.start();
   }
 
@@ -444,7 +408,6 @@ export class TvBroadcastScene extends BaseScene {
       );
 
       this.scheduleSegmentAdvance(segment);
-
       return;
     }
 
@@ -578,7 +541,7 @@ export class TvBroadcastScene extends BaseScene {
     }
 
     const newsIndex = this.segmentQueue.findIndex(
-      (segment) => segment.type === 'news'
+      segment => segment.type === 'news'
     );
 
     if (
@@ -799,9 +762,7 @@ export class TvBroadcastScene extends BaseScene {
     this.tvView = null;
 
     this.restoreReturnScene();
-
     this.restoreUnderlyingHud();
-
     this.setNewsHudButtonsVisible(true);
 
     this.layout = null;

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "flu",
+    "title": "The Flu",
+    "text": "You wake up feeling like a suspect's alibi: crooked and unreliable. Detective, you're sick.",
+    "weight": 10,
+    "once": true,
+    "chooses": [
+      { "label": "Work through it (energy x2 until cured)", "effects": [{ "type": "energyMultiplier", "value": 2, "untilCured": true }] },
+      { "label": "Rest for 24h (then energy x0.8 for 3 days)", "effects": [{ "type": "skipHours", "value": 24 }, { "type": "energyMultiplier", "value": 0.8, "durationHours": 72 }] }
+    ]
+  },
+  {
+    "id": "bribe",
+    "title": "Anonymous Letter",
+    "text": "\"Drop the case and $300 is yours. No one will ever know.\" A photo of a stack of bills is attached.",
+    "weight": 5,
+    "once": true,
+    "chooses": [
+      { "label": "I'm not for sale.", "effects": [] },
+      { "label": "Take the money ($300)", "effects": [{ "type": "addMoney", "value": 300 }, { "type": "reputation", "value": -50 }, { "type": "gameOver", "reason": "You took the bribe. The case was buried, the artefact now decorates a yacht in Dubai, and your boss framed your formal reprimand. On your desk. Where everyone can see it." }] }
+    ]
+  },
+  {
+    "id": "wallet",
+    "title": "Lost Wallet",
+    "text": "A fat wallet on the pavement. $80 inside. No ID. Plenty of witnesses, though.",
+    "weight": 8,
+    "once": true,
+    "chooses": [
+      { "label": "Keep it", "effects": [{ "type": "addMoney", "value": 80 }, { "type": "reputation", "value": -10 }] },
+      { "label": "Turn it in to the police", "effects": [{ "type": "reputation", "value": 10 }] }
+    ]
+  },
+  {
+    "id": "pickpocket",
+    "title": "Pickpocket!",
+    "text": "Someone bumps into you on the metro. Your pocket is suddenly $50 lighter. The suspect was faster than your last case.",
+    "weight": 8,
+    "once": false,
+    "chooses": [
+      { "label": "Sigh heavily.", "effects": [{ "type": "addMoney", "value": -50 }] }
+    ]
+  },
+  {
+    "id": "informant",
+    "title": "A Whisper in the Dark",
+    "text": "A man in a trench coat (unsurprisingly) offers to sell you a tip about your current case. $100. Cash only.",
+    "weight": 7,
+    "once": false,
+    "requiresActiveCase": true,
+    "chooses": [
+      { "label": "Pay $100", "effects": [{ "type": "addMoney", "value": -100 }, { "type": "caseTip" }] },
+      { "label": "Refuse", "effects": [] }
+    ]
+  }
+]

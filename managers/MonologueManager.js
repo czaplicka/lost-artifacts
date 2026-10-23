@@ -35,6 +35,7 @@ export class MonologueManager {
 
     this.dialogues = options.dialogues ?? {};
     this.queue = [];
+
     this.lastLineByKey = new Map();
     this.lastPlayedAtByKey = new Map();
 
@@ -68,6 +69,10 @@ export class MonologueManager {
     this.bindSceneEvents();
   }
 
+  // ------------------------------------------------------------------
+  // Scene state
+  // ------------------------------------------------------------------
+
   isSceneUsable() {
     const scene = this.scene;
     const status = scene?.sys?.settings?.status;
@@ -75,6 +80,8 @@ export class MonologueManager {
     return Boolean(
       !this.isDestroyed
       && scene?.sys?.settings
+      && !scene._cleanupDone
+      && !scene._destroyCleanupDone
       && status !== Phaser.Scenes.SHUTDOWN
       && status !== Phaser.Scenes.DESTROYED
       && typeof scene.time?.delayedCall === 'function'
@@ -93,6 +100,10 @@ export class MonologueManager {
       && this.scene.sys.isActive()
     );
   }
+
+  // ------------------------------------------------------------------
+  // UI
+  // ------------------------------------------------------------------
 
   getPanelLayout(width, height) {
     const o = this.options;
@@ -179,41 +190,9 @@ export class MonologueManager {
     this.scene.scale.on('resize', this.handleResize, this);
   }
 
-  bindSceneEvents() {
-    if (!this.isSceneUsable() || !this.scene.events) return;
-
-    const events = this.scene.events;
-    const E = Phaser.Scenes.Events;
-
-    events.on(E.CREATE, this.handleSceneReady, this);
-    events.on(E.WAKE, this.handleSceneReady, this);
-    events.on(E.RESUME, this.handleSceneReady, this);
-
-    events.on(E.PAUSE, this.handleSceneInactive, this);
-    events.on(E.SLEEP, this.handleSceneInactive, this);
-
-    events.once(E.SHUTDOWN, this.destroy, this);
-    events.once(E.DESTROY, this.destroy, this);
-  }
-
-  handleSceneReady() {
-    if (!this.isSceneActive()) return;
-
-    this.scheduleIdle();
-
-    if (!this.isShowing && this.queue.length) {
-      this.showNextFromQueue();
-    }
-  }
-
-  handleSceneInactive() {
-    // Zachowujemy żądanie idle, usuwamy tylko jego timer.
-    this.cancelIdleTimer();
-  }
-
   handleResize(gameSize) {
     if (
-      this.isDestroyed
+      !this.isSceneUsable()
       || !gameSize
       || !this.container?.active
       || !this.panel?.active
@@ -254,12 +233,49 @@ export class MonologueManager {
     );
   }
 
-  setDialogues(dialogues) {
-    this.dialogues = dialogues ?? {};
+  // ------------------------------------------------------------------
+  // Lifecycle
+  // ------------------------------------------------------------------
+
+  bindSceneEvents() {
+    if (!this.isSceneUsable() || !this.scene.events) return;
+
+    const events = this.scene.events;
+    const E = Phaser.Scenes.Events;
+
+    events.on(E.CREATE, this.handleSceneReady, this);
+    events.on(E.WAKE, this.handleSceneReady, this);
+    events.on(E.RESUME, this.handleSceneReady, this);
+
+    events.on(E.PAUSE, this.handleSceneInactive, this);
+    events.on(E.SLEEP, this.handleSceneInactive, this);
+
+    events.once(E.SHUTDOWN, this.destroy, this);
+    events.once(E.DESTROY, this.destroy, this);
   }
 
+  handleSceneReady() {
+    if (!this.isSceneActive()) return;
+
+    this.scheduleIdle();
+
+    if (!this.isShowing && this.queue.length) {
+      this.showNextFromQueue();
+    }
+  }
+
+  handleSceneInactive() {
+    // Trwającej prezentacji nie restartujemy.
+    // Nowe say() może tylko dopisać tekst do kolejki.
+    this.cancelIdleTimer();
+  }
+
+  // ------------------------------------------------------------------
+  // Tweens and timers
+  // ------------------------------------------------------------------
+
   createTrackedTween(config) {
-    if (!this.isSceneUsable() || !config) return null;
+    if (!this.isSceneActive() || !config) return null;
 
     try {
       if (typeof this.scene.createTrackedTween === 'function') {
@@ -289,6 +305,7 @@ export class MonologueManager {
           stop: true,
           remove: true
         });
+
         return;
       }
 
@@ -297,6 +314,7 @@ export class MonologueManager {
         : tween.isPlaying;
 
       if (isPlaying) tween.stop?.();
+
       tween.remove?.();
     } catch (error) {
       console.warn(
@@ -339,6 +357,14 @@ export class MonologueManager {
     }
   }
 
+  // ------------------------------------------------------------------
+  // Dialogue requests
+  // ------------------------------------------------------------------
+
+  setDialogues(dialogues) {
+    this.dialogues = dialogues ?? {};
+  }
+
   say(text, options = {}) {
     if (
       !this.isSceneUsable()
@@ -371,7 +397,7 @@ export class MonologueManager {
 
     let accepted = false;
 
-    if (this.isShowing) {
+    if (!this.isSceneActive() || this.isShowing) {
       if (!settings.queue) return false;
 
       this.queue.push(item);
@@ -399,6 +425,7 @@ export class MonologueManager {
       console.warn(
         `[MonologueManager] No lines found for key: "${key}"`
       );
+
       return false;
     }
 
@@ -417,6 +444,7 @@ export class MonologueManager {
       console.warn(
         `[MonologueManager] No line at index ${index} for key: "${key}"`
       );
+
       return false;
     }
 
@@ -458,6 +486,7 @@ export class MonologueManager {
     );
 
     this.lastLineByKey.set(key, line);
+
     return line;
   }
 
@@ -478,10 +507,16 @@ export class MonologueManager {
     return this.scene.time.now - lastPlayedAt < cooldownMs;
   }
 
+  // ------------------------------------------------------------------
+  // Presentation
+  // ------------------------------------------------------------------
+
   show(item) {
     if (
-      !this.isSceneUsable()
+      !this.isSceneActive()
       || !item
+      || typeof item.text !== 'string'
+      || !item.text.trim()
       || !this.container?.active
       || !this.textObject?.active
       || !this.speakerLabel?.active
@@ -531,7 +566,9 @@ export class MonologueManager {
         () => {
           this.currentTimer = null;
 
-          if (!this.isDestroyed) this.hide();
+          if (!this.isDestroyed) {
+            this.hide();
+          }
         }
       );
     } catch (error) {
@@ -540,7 +577,9 @@ export class MonologueManager {
         error
       );
 
-      this.hide();
+      this.killTweensForContainer();
+      this.finishHide();
+
       return false;
     }
 
@@ -551,9 +590,12 @@ export class MonologueManager {
     this.currentTween = null;
     this.currentTimer = null;
 
-    if (this.isDestroyed || !this.container?.active) return;
+    if (this.isDestroyed) return;
 
-    this.container.setAlpha(0).setVisible(false);
+    if (this.container?.active) {
+      this.container.setAlpha(0).setVisible(false);
+    }
+
     this.isShowing = false;
 
     this.showNextFromQueue();
@@ -569,6 +611,12 @@ export class MonologueManager {
 
     this.killTweensForContainer();
 
+    // Podczas snu/pauzy chowamy od razu, bez nowego tweenu.
+    if (!this.isSceneActive()) {
+      this.finishHide();
+      return true;
+    }
+
     this.currentTween = this.createTrackedTween({
       targets: this.container,
       alpha: 0,
@@ -577,13 +625,17 @@ export class MonologueManager {
       onComplete: () => this.finishHide()
     });
 
-    if (!this.currentTween) this.finishHide();
+    if (!this.currentTween) {
+      this.finishHide();
+    }
 
     return true;
   }
 
   showNextFromQueue() {
-    if (!this.isSceneActive() || this.isShowing) return false;
+    if (!this.isSceneActive() || this.isShowing) {
+      return false;
+    }
 
     while (this.queue.length) {
       const item = this.queue.shift();
@@ -603,6 +655,10 @@ export class MonologueManager {
   clearQueue() {
     this.queue = [];
   }
+
+  // ------------------------------------------------------------------
+  // Idle monologues
+  // ------------------------------------------------------------------
 
   startIdle(key, options = {}) {
     this.stopIdle();
@@ -646,8 +702,6 @@ export class MonologueManager {
         : this.options.idleCooldownMs
     };
 
-    // W create() zapisujemy żądanie i czekamy na CREATE.
-    // Dla PAUSE/SLEEP czekamy na RESUME/WAKE.
     this.scheduleIdle();
 
     return true;
@@ -694,7 +748,6 @@ export class MonologueManager {
           });
         }
 
-        // Nie przywracamy cyklu anulowanego przez stopIdle().
         if (
           generation === this.idleGeneration
           && this.idleRequest === request
@@ -728,8 +781,16 @@ export class MonologueManager {
     this.cancelIdleTimer();
   }
 
+  // ------------------------------------------------------------------
+  // Cleanup
+  // ------------------------------------------------------------------
+
   destroy() {
     if (this.isDestroyed) return;
+
+    // Blokujemy nowe żądania przed rozpoczęciem sprzątania.
+    this.isDestroyed = true;
+    this.isShowing = false;
 
     this.stopIdle();
 
@@ -737,9 +798,6 @@ export class MonologueManager {
     this.currentTimer = null;
 
     this.killTweensForContainer();
-
-    this.isDestroyed = true;
-    this.isShowing = false;
 
     try {
       this.scene?.scale?.off('resize', this.handleResize, this);
@@ -783,7 +841,10 @@ export class MonologueManager {
     this.border = null;
     this.speakerLabel = null;
     this.textObject = null;
+
     this.currentTween = null;
+    this.currentTimer = null;
+    this.idleTimer = null;
     this.scene = null;
   }
 }
