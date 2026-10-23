@@ -24,7 +24,7 @@ export class CrimeCityTutorialController {
       return;
     }
     this.showLabCompletionPhoneCall = false;
-    this.phoneCallTimer = this.scene.time.delayedCall(650, async () => {
+    this.phoneCallTimer = this.scene.time.delayedCall(250, async () => {
       this.phoneCallTimer = null;
       if (!this.scene?.scene?.isActive('CrimeCityScene')) return;
       try {

@@ -1,3 +1,5 @@
+// ui/DestinationsUI.js
+
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
@@ -21,13 +23,22 @@ import {
   formatMoney
 } from './DestinationCalculator.js';
 
+const OVERLAY_SCENES = new Set([
+  'PlayerHudScene',
+  'UIScene',
+  'NewsHud',
+  'LoadingOverlayScene'
+]);
+
 export class DestinationsUI {
   constructor(scene) {
     this.scene = scene;
+
     this.isOpen = false;
     this.isTransitioning = false;
-    this.canConfirm = false;
     this.isDestroyed = false;
+    this.canConfirm = false;
+
     this.gameState = null;
 
     this.activePins = [];
@@ -39,54 +50,66 @@ export class DestinationsUI {
     this.selectedTransport = null;
 
     this.routePreview = null;
+    this.travelErrorTimer = null;
+
+    // A committed journey must not be purchased again
+    // if opening the transition screen fails.
+    this.committedTravelPayload = null;
+
     this.hqButton = null;
     this.hqButtonBg = null;
     this.hqButtonLabel = null;
-    this.travelErrorTimer = null;
+
+    this.officeButton = null;
+    this.officeButtonBg = null;
+    this.officeButtonLabel = null;
+
+    this.newsVisibility = null;
 
     this.boundTravelKeyHandler =
       this.onTravelKeyDown.bind(this);
 
-    const { width, height } = this.scene.scale;
+    this.boundShutdownHandler =
+      this.destroy.bind(this);
 
-    this.container = this.scene.add
+    const { width, height } = scene.scale;
+
+    this.container = scene.add
       .container(0, 0)
-      .setDepth(25)
+      .setDepth(1800)
       .setVisible(false);
 
-    this.overlay = this.scene.add
-      .rectangle(
-        0, 0, width, height,
-        0x000000, 0.8
-      )
+    this.overlay = scene.add
+      .rectangle(0, 0, width, height, 0x000000, 0.8)
       .setOrigin(0)
       .setInteractive();
 
-    this.overlay.on(
-      'pointerdown',
-      () => this.close()
-    );
+    this.overlay.on('pointerdown', () => {
+      this.close();
+    });
 
     this.container.add(this.overlay);
 
-    this.mapImage = this.scene.add
+    this.mapImage = scene.add
       .image(width / 2, height / 2, 'mapbg')
-      .setDisplaySize(width, height);
+      .setDisplaySize(width, height)
+      .setInteractive();
 
+    // The map blocks clicks from reaching the background overlay.
     this.container.add(this.mapImage);
 
-    this.closeBtn = this.scene.add
-      .text(width - 170, 100, 'X', {
+    this.closeBtn = scene.add
+      .text(width - 100, 75, 'X', {
         fontFamily: 'SpecialElite',
-        fontSize: '55px',
+        fontSize: '48px',
         color: '#fbff00'
       })
+      .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
-    this.closeBtn.on(
-      'pointerdown',
-      () => this.close()
-    );
+    this.closeBtn.on('pointerdown', () => {
+      this.close();
+    });
 
     this.container.add(this.closeBtn);
 
@@ -95,35 +118,178 @@ export class DestinationsUI {
     this.createOfficeButton();
     this.registerKeyboard();
 
-    this.scene.events.once(
+    scene.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      () => this.destroy()
+      this.boundShutdownHandler
     );
   }
 
-  registerKeyboard() {
-    if (!this.scene?.input?.keyboard) {
-      return;
+  // ------------------------------------------------------------------
+  // Scene helpers
+  // ------------------------------------------------------------------
+
+  getRegisteredScene(key) {
+    return this.scene?.scene?.manager?.keys?.[key] || null;
+  }
+
+  getNavigationScene() {
+  const owner = this.scene;
+  const manager = owner?.scene?.manager;
+
+  if (!owner?.sys || !manager) {
+    console.error(
+      '[DestinationsUI] Scene owner or scene manager is missing.'
+    );
+
+    return null;
+  }
+
+  const ownerKey = owner.sys.settings.key;
+
+  const overlayKeys = new Set([
+    'PlayerHudScene',
+    'UIScene',
+    'NewsHud',
+    'LoadingOverlayScene'
+  ]);
+
+  const isGameplayScene = scene => {
+    if (!scene?.sys) return false;
+
+    const key = scene.sys.settings.key;
+
+    return (
+      !overlayKeys.has(key) &&
+      (
+        scene.sys.isActive() ||
+        scene.sys.isPaused()
+      )
+    );
+  };
+
+  // A map owned directly by the office or another gameplay scene
+  // must navigate from that scene.
+  if (isGameplayScene(owner)) {
+    return owner;
+  }
+
+  const hud = manager.keys['PlayerHudScene'];
+
+  // PlayerHudScene already tracks the actual gameplay scene here.
+  const preferredKeys = [
+    owner.currentGameplaySceneKey,
+    hud?.currentGameplaySceneKey,
+    owner.registry.get('currentSceneKey')
+  ];
+
+  for (const key of new Set(preferredKeys.filter(Boolean))) {
+    const candidate = manager.keys[key];
+
+    if (isGameplayScene(candidate)) {
+      console.log(
+        '[DestinationsUI] Gameplay scene resolved:',
+        key
+      );
+
+      return candidate;
+    }
+  }
+
+  // Fallback only if exactly one gameplay scene remains.
+  const candidates = manager
+    .getScenes(true)
+    .filter(isGameplayScene);
+
+  if (candidates.length === 1) {
+    return candidates[0];
+  }
+
+  console.error(
+    '[DestinationsUI] Could not resolve gameplay scene.',
+    {
+      ownerScene: ownerKey,
+      ownerGameplaySceneKey:
+        owner.currentGameplaySceneKey,
+      hudGameplaySceneKey:
+        hud?.currentGameplaySceneKey,
+      registrySceneKey:
+        owner.registry.get('currentSceneKey'),
+      candidates: candidates.map(scene => ({
+        key: scene.sys.settings.key,
+        active: scene.sys.isActive(),
+        paused: scene.sys.isPaused()
+      }))
+    }
+  );
+
+  return null;
+}
+
+  // Kept for compatibility with earlier calls.
+  getOfficeNavigationScene() {
+    return this.getNavigationScene();
+  }
+
+  async ensureSceneRegistered(key) {
+    const loader = this.scene?.game?.sceneLoader;
+
+    if (loader) {
+      await loader.ensure(key);
     }
 
-    this.scene.input.keyboard.addCapture('T');
-    this.scene.input.keyboard.on(
+    if (!this.getRegisteredScene(key)) {
+      throw new Error(
+        `${key} is not registered. Check sceneRegistry.js.`
+      );
+    }
+  }
+
+  async navigateFrom(sourceScene, targetKey, data) {
+    if (!sourceScene?.sys) {
+      throw new Error('The source scene is unavailable.');
+    }
+
+    if (typeof sourceScene.goto === 'function') {
+      return sourceScene.goto(targetKey, data);
+    }
+
+    const loader = sourceScene.game?.sceneLoader;
+
+    if (loader) {
+      return loader.goto(sourceScene, targetKey, data);
+    }
+
+    if (!sourceScene.scene.manager.keys[targetKey]) {
+      throw new Error(
+        `Scene "${targetKey}" is not registered.`
+      );
+    }
+
+    sourceScene.scene.start(targetKey, data);
+    return true;
+  }
+
+  // ------------------------------------------------------------------
+  // Keyboard
+  // ------------------------------------------------------------------
+
+  registerKeyboard() {
+    const keyboard = this.scene?.input?.keyboard;
+
+    if (!keyboard) return;
+
+    keyboard.on(
       'keydown-T',
       this.boundTravelKeyHandler
     );
   }
 
   onTravelKeyDown(event) {
-    const activeTag =
-      document.activeElement?.tagName;
-
-    const isTyping =
-      activeTag === 'INPUT' ||
-      activeTag === 'TEXTAREA' ||
-      document.activeElement?.isContentEditable;
+    const active = document.activeElement;
 
     if (
-      isTyping ||
+      active?.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(active?.tagName) ||
       this.isTransitioning ||
       this.isDestroyed
     ) {
@@ -139,6 +305,139 @@ export class DestinationsUI {
     }
   }
 
+  // ------------------------------------------------------------------
+  // Open / close
+  // ------------------------------------------------------------------
+
+  open(gameStateData = gameState) {
+    if (
+      this.isDestroyed ||
+      this.isTransitioning ||
+      this.isOpen
+    ) {
+      return false;
+    }
+
+    this.gameState = gameStateData || gameState;
+
+    this.resetSelectionState();
+    this.clearPins();
+    this.refreshInfoPanel();
+
+    this.isOpen = true;
+    this.container.setVisible(true);
+
+    EventBus.emit('hideHUD');
+
+    const news = this.getRegisteredScene('NewsHud');
+
+    if (news) {
+      this.newsVisibility = {
+        newspaper: news.newspaperButton?.visible !== false,
+        tv: news.tvButton?.visible !== false
+      };
+
+      news.events?.emit('setNewspaperVisible', false);
+      news.events?.emit('setTvVisible', false);
+    }
+
+    this.updateHQButton();
+    this.updateOfficeButton();
+
+    const destinations =
+      this.getDestinationsWithMustInclude();
+
+    this.renderCityPins(destinations);
+
+    for (const object of [
+      this.infoPanel,
+      this.hqButton,
+      this.officeButton,
+      this.closeBtn
+    ]) {
+      if (object) {
+        this.container.bringToTop(object);
+      }
+    }
+
+    this.setConfirmEnabled(false);
+
+    if (this.committedTravelPayload) {
+      this.transportPrompt
+        .setColor('#ff9d6b')
+        .setText(
+          'This journey was already processed, but the travel screen failed to open.'
+        );
+
+      this.confirmLabel.setText('Retry travel screen');
+      this.confirmButton.setFillStyle(0xb57928, 1);
+      this.confirmButton.setAlpha(1);
+      this.confirmLabel.setAlpha(1);
+    }
+
+    return true;
+  }
+
+  close({ restoreHud = true } = {}) {
+    if (!this.isOpen || this.isDestroyed) {
+      return false;
+    }
+
+    // Do not interrupt an in-flight action with a normal close.
+    if (this.isTransitioning && restoreHud) {
+      return false;
+    }
+
+    this.isOpen = false;
+    this.container.setVisible(false);
+
+    this.clearPins();
+    this.resetSelectionState();
+    this.refreshInfoPanel();
+    this.setConfirmEnabled(false);
+
+    if (restoreHud) {
+      EventBus.emit('showHUD');
+
+      const news = this.getRegisteredScene('NewsHud');
+
+      if (news && this.newsVisibility) {
+        news.events?.emit(
+          'setNewspaperVisible',
+          this.newsVisibility.newspaper
+        );
+
+        news.events?.emit(
+          'setTvVisible',
+          this.newsVisibility.tv
+        );
+      }
+    }
+
+    this.newsVisibility = null;
+
+    return true;
+  }
+
+  resetSelectionState() {
+    this.clearTravelErrorTimer();
+
+    this.selectedCity = null;
+    this.selectedPin = null;
+    this.selectedLabel = null;
+    this.selectedTransport = null;
+    this.canConfirm = false;
+
+    this.clearTransportButtons();
+
+    this.routePreview?.destroy();
+    this.routePreview = null;
+  }
+
+  // ------------------------------------------------------------------
+  // Travel information panel
+  // ------------------------------------------------------------------
+
   createInfoPanel(width, height) {
     this.infoPanel = this.scene.add.container(
       width - 405,
@@ -146,115 +445,71 @@ export class DestinationsUI {
     );
 
     const bg = this.scene.add
-      .rectangle(
-        0, 0, 380, 415,
-        0x101820, 0.96
-      )
+      .rectangle(0, 0, 380, 415, 0x101820, 0.96)
       .setOrigin(0)
-      .setStrokeStyle(2, 0xd4af37);
+      .setStrokeStyle(2, 0xd4af37)
+      .setInteractive();
 
-    this.infoTitle = this.scene.add.text(
-      20, 16, 'Travel dossier',
-      {
+    const text = (x, y, value, size, color, wrap = 0) => {
+      return this.scene.add.text(x, y, value, {
         fontFamily: 'SpecialElite',
-        fontSize: '27px',
-        color: '#f4e7c1'
-      }
+        fontSize: `${size}px`,
+        color,
+        wordWrap: wrap
+          ? { width: wrap, useAdvancedWrap: true }
+          : undefined
+      });
+    };
+
+    this.infoTitle = text(
+      20, 16, 'Travel dossier', 27, '#f4e7c1'
     );
 
-    this.infoCity = this.scene.add.text(
-      20, 58, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '23px',
-        color: '#ffffff'
-      }
+    this.infoCity = text(
+      20, 58, '', 23, '#ffffff'
     );
 
-    this.infoCountry = this.scene.add.text(
-      20, 61, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '18px',
-        color: '#c6d7e5'
-      }
+    this.infoCountry = text(
+      20, 86, '', 17, '#c6d7e5', 335
     );
 
-    this.transportPrompt = this.scene.add.text(
-      20, 98, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '18px',
-        color: '#ffd166',
-        wordWrap: {
-          width: 335,
-          useAdvancedWrap: true
-        }
-      }
+    this.transportPrompt = text(
+      20, 113, '', 17, '#ffd166', 335
     );
 
-    this.infoTravel = this.scene.add.text(
-      20, 210, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '18px',
-        color: '#d6e4f0',
-        wordWrap: {
-          width: 340,
-          useAdvancedWrap: true
-        }
-      }
+    this.infoTravel = text(
+      20, 211, '', 17, '#d6e4f0', 340
     );
 
-    this.infoHours = this.scene.add.text(
-      20, 258, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '19px',
-        color: '#ffd166'
-      }
+    this.infoHours = text(
+      20, 257, '', 18, '#ffd166'
     );
 
-    this.debtWarning = this.scene.add.text(
-      20, 282, '',
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '15px',
-        color: '#ff9d6b',
-        wordWrap: {
-          width: 340,
-          useAdvancedWrap: true
-        }
-      }
+    this.debtWarning = text(
+      20, 282, '', 14, '#ff9d6b', 340
     );
 
     this.confirmButton = this.scene.add
-      .rectangle(
-        190, 315, 245, 44,
-        0x6c757d, 1
-      )
-      .setOrigin(0.5, 0)
+      .rectangle(190, 350, 280, 44, 0x6c757d, 1)
       .setStrokeStyle(2, 0xf1f1f1)
       .setInteractive({ useHandCursor: true });
 
-    this.confirmLabel = this.scene.add
-      .text(
-        190, 337, 'Choose a city',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#ffffff'
-        }
-      )
-      .setOrigin(0.5);
+    this.confirmLabel = text(
+      190, 350, 'Choose a city', 17, '#ffffff'
+    ).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
+      if (this.isDestroyed || this.isTransitioning) return;
+
+      if (this.committedTravelPayload) {
+        void this.retryCommittedTravel();
+        return;
+      }
+
       if (
         !this.canConfirm ||
         !this.selectedCity ||
-        !this.selectedTransport ||
-        this.isTransitioning ||
-        this.isDestroyed
+        !this.selectedTransport
       ) {
         return;
       }
@@ -282,27 +537,24 @@ export class DestinationsUI {
     this.setConfirmEnabled(false);
   }
 
+  // ------------------------------------------------------------------
+  // HQ
+  // ------------------------------------------------------------------
+
   createHQButton() {
-    this.hqButton =
-      this.scene.add.container(150, 105);
+    this.hqButton = this.scene.add.container(150, 105);
 
     this.hqButtonBg = this.scene.add
-      .rectangle(
-        0, 0, 220, 44,
-        0x251926, 0.96
-      )
+      .rectangle(0, 0, 220, 44, 0x251926, 0.96)
       .setStrokeStyle(2, 0xff4f81)
       .setInteractive({ useHandCursor: true });
 
     this.hqButtonLabel = this.scene.add
-      .text(
-        0, 0, '↩ RETURN TO HQ',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#fff2f6'
-        }
-      )
+      .text(0, 0, 'RETURN TO HQ', {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#fff2f6'
+      })
       .setOrigin(0.5);
 
     this.hqButton.add([
@@ -311,25 +563,27 @@ export class DestinationsUI {
     ]);
 
     this.hqButtonBg.on('pointerover', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
+      if (
+        this.isTransitioning ||
+        this.isAtHQ() ||
+        this.committedTravelPayload
+      ) {
         return;
       }
 
       this.hqButtonBg.setFillStyle(0x5a1c38, 1);
-      this.hqButtonLabel.setColor('#ffb3cc');
     });
 
     this.hqButtonBg.on('pointerout', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
-        return;
-      }
-
-      this.hqButtonBg.setFillStyle(0x251926, 0.96);
-      this.hqButtonLabel.setColor('#fff2f6');
+      this.updateHQButton();
     });
 
     this.hqButtonBg.on('pointerdown', () => {
-      if (this.isTransitioning || this.isAtHQ()) {
+      if (
+        this.isTransitioning ||
+        this.isAtHQ() ||
+        this.committedTravelPayload
+      ) {
         return;
       }
 
@@ -340,261 +594,276 @@ export class DestinationsUI {
   }
 
   isAtHQ() {
-    const currentCityId =
+    return (
       this.gameState?.currentCityId ||
-      gameState.currentCityId ||
-      null;
-
-    return currentCityId === 'hq';
+      gameState.currentCityId
+    ) === 'hq';
   }
 
   updateHQButton() {
-    if (
-      !this.hqButton ||
-      !this.hqButtonBg ||
-      !this.hqButtonLabel
-    ) {
-      return;
-    }
+    if (!this.hqButtonBg) return;
 
-    const atHQ = this.isAtHQ();
+    const blocked =
+      this.isAtHQ() ||
+      this.isTransitioning ||
+      Boolean(this.committedTravelPayload);
 
     this.hqButton.setVisible(true);
+    this.hqButton.setAlpha(blocked ? 0.6 : 1);
 
-    if (atHQ) {
+    this.hqButtonBg.setFillStyle(
+      blocked ? 0x30343b : 0x251926,
+      0.96
+    );
+
+    this.hqButtonBg.setStrokeStyle(
+      2,
+      blocked ? 0x777777 : 0xff4f81
+    );
+
+    this.hqButtonLabel
+      .setText(
+        this.isAtHQ() ? 'MARK AGENCY HQ' : 'RETURN TO HQ'
+      )
+      .setColor(blocked ? '#a5a5a5' : '#fff2f6');
+
+    if (blocked) {
       this.hqButtonBg.disableInteractive();
-      this.hqButtonBg.setFillStyle(0x30343b, 0.9);
-      this.hqButtonBg.setStrokeStyle(2, 0x777777);
-      this.hqButtonLabel.setText('MARK AGENCY HQ');
-      this.hqButtonLabel.setColor('#a5a5a5');
-      this.hqButton.setAlpha(0.8);
-      return;
+    } else {
+      this.hqButtonBg.setInteractive({
+        useHandCursor: true
+      });
     }
-
-    this.hqButtonBg.setInteractive({
-      useHandCursor: true
-    });
-
-    this.hqButtonBg.setFillStyle(0x251926, 0.96);
-    this.hqButtonBg.setStrokeStyle(2, 0xff4f81);
-    this.hqButtonLabel.setText('↩ RETURN TO HQ');
-    this.hqButtonLabel.setColor('#fff2f6');
-    this.hqButton.setAlpha(1);
   }
 
   selectHeadquarters() {
-    const locationsData = this.getLocationsData();
-
-    const headquarters = locationsData.find(
-      location => location.id === 'hq'
-    );
-
-    if (!headquarters) {
-      console.error(
-        'HQ location was not found in locations.json.'
-      );
-      return;
-    }
-
-    if (this.isAtHQ()) {
-      return;
-    }
-
-    this.clearTravelErrorTimer();
-
-    if (this.selectedPin) {
-      this.selectedPin.setFillStyle(0xffcc00);
-      this.selectedPin.setScale(1);
-    }
-
-    this.selectedLabel?.setColor('#ffffff');
-
-    this.selectedCity = headquarters;
-    this.selectedPin = null;
-    this.selectedLabel = null;
-
-    const options = getTransportOptions(
-      this.getCurrentCityData(),
-      headquarters
-    );
-
-    this.selectedTransport = options[0] || null;
-
-    this.createTransportButtons(options);
-    this.refreshInfoPanel(headquarters);
-    this.previewRoute(headquarters);
-
-    this.setConfirmEnabled(
-      Boolean(this.selectedTransport)
-    );
-  }
-createOfficeButton() {
-    this.officeButton = this.scene.add.container(430, 105);
-
-    this.officeButtonBg = this.scene.add
-        .rectangle(0, 0, 220, 44, 0x1c2a1e, 0.96)
-        .setStrokeStyle(2, 0x6fbf73)
-        .setInteractive({ useHandCursor: true });
-
-    this.officeButtonLabel = this.scene.add
-        .text(0, 0, '🚪 PI OFFICE', {
-            fontFamily: 'SpecialElite',
-            fontSize: '18px',
-            color: '#eaf6ec'
-        })
-        .setOrigin(0.5);
-
-    this.officeButton.add([this.officeButtonBg, this.officeButtonLabel]);
-
-    this.officeButtonBg.on('pointerover', () => {
-        if (this.isTransitioning || this.isAtHQ()) return;
-        this.officeButtonBg.setFillStyle(0x2c4a30, 1);
-        this.officeButtonLabel.setColor('#c9f2cf');
-    });
-
-    this.officeButtonBg.on('pointerout', () => {
-        if (this.isTransitioning || this.isAtHQ()) return;
-        this.officeButtonBg.setFillStyle(0x1c2a1e, 0.96);
-        this.officeButtonLabel.setColor('#eaf6ec');
-    });
-
-    this.officeButtonBg.on('pointerdown', () => {
-        if (this.isTransitioning || this.isAtHQ()) return;
-        void this.enterOffice();
-    });
-
-    this.container.add(this.officeButton);
-}
-
-async enterOffice() {
-    if (this.isTransitioning || this.isDestroyed) return;
-
-    this.isTransitioning = true;
-    this.cleanupBeforeTravel();
-    this.close({ restoreHud: false });
-
-    const scene = this.scene;
-    const opened = await scene.goto('DetectiveOfficeScene', {
-        fromDestinations: true
-    });
-
-    if (!opened) {
-        this.isTransitioning = false;
-        console.error('[DestinationsUI] DetectiveOfficeScene could not be started.');
-    }
-}
-  open(gameStateData) {
     if (
+      this.isAtHQ() ||
       this.isTransitioning ||
-      this.isOpen ||
-      this.isDestroyed
+      this.committedTravelPayload
     ) {
       return;
     }
 
-    this.isOpen = true;
-    EventBus.emit('hideHUD');
-
-    const newsHud =
-      this.scene.scene.get('NewsHud');
-
-    newsHud?.events?.emit(
-      'setNewspaperVisible',
-      false
+    const headquarters = this.getLocationsData().find(
+      location => getCityId(location) === 'hq'
     );
 
-    newsHud?.events?.emit(
-      'setTvVisible',
-      false
-    );
-
-    this.gameState = gameStateData || gameState;
-
-    this.resetSelectionState();
-    this.clearPins();
-    this.refreshInfoPanel();
-    this.setConfirmEnabled(false);
-
-    const destinations =
-      this.getDestinationsWithMustInclude();
-
-    this.container.setVisible(true);
-    this.updateHQButton();
-
-    if (!destinations.length) {
-      console.warn(
-        'No travel destinations are available.'
+    if (!headquarters) {
+      this.showTravelError(
+        'Headquarters is missing from the location data.'
       );
       return;
     }
 
-    this.renderCityPins(destinations);
+    this.selectCity(headquarters);
   }
 
-  close({ restoreHud = true } = {}) {
-    if (!this.isOpen || this.isDestroyed) {
-      return;
+  // ------------------------------------------------------------------
+  // PI Office
+  // ------------------------------------------------------------------
+
+  createOfficeButton() {
+    this.officeButton = this.scene.add.container(430, 105);
+
+    this.officeButtonBg = this.scene.add
+      .rectangle(0, 0, 220, 44, 0x1c2a1e, 0.96)
+      .setStrokeStyle(2, 0x6fbf73)
+      .setInteractive({ useHandCursor: true });
+
+    this.officeButtonLabel = this.scene.add
+      .text(0, 0, 'PI OFFICE', {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#eaf6ec'
+      })
+      .setOrigin(0.5);
+
+    this.officeButton.add([
+      this.officeButtonBg,
+      this.officeButtonLabel
+    ]);
+
+    this.officeButtonBg.on('pointerover', () => {
+      if (
+        this.isTransitioning ||
+        this.committedTravelPayload
+      ) {
+        return;
+      }
+
+      this.officeButtonBg.setFillStyle(0x2c4a30, 1);
+      this.officeButtonLabel.setColor('#c9f2cf');
+    });
+
+    this.officeButtonBg.on('pointerout', () => {
+      this.updateOfficeButton();
+    });
+
+    this.officeButtonBg.on(
+      'pointerdown',
+      (_pointer, _x, _y, event) => {
+        event?.stopPropagation();
+
+        console.log('[DestinationsUI] PI OFFICE clicked', {
+          ownerScene: this.scene.sys.settings.key,
+          currentCityId: gameState.currentCityId
+        });
+
+        void this.enterOffice();
+      }
+    );
+
+    this.container.add(this.officeButton);
+  }
+
+  updateOfficeButton() {
+    if (!this.officeButtonBg) return;
+
+    const blocked =
+      this.isTransitioning ||
+      Boolean(this.committedTravelPayload);
+
+    this.officeButton
+      .setVisible(true)
+      .setAlpha(blocked ? 0.6 : 1);
+
+    this.officeButtonBg.setFillStyle(0x1c2a1e, 0.96);
+    this.officeButtonLabel.setColor('#eaf6ec');
+
+    if (blocked) {
+      this.officeButtonBg.disableInteractive();
+    } else {
+      this.officeButtonBg.setInteractive({
+        useHandCursor: true
+      });
+    }
+  }
+
+  async enterOffice() {
+    if (
+      this.isTransitioning ||
+      this.isDestroyed ||
+      this.committedTravelPayload
+    ) {
+      return false;
     }
 
-    this.isOpen = false;
-    this.container.setVisible(false);
+    const source = this.getNavigationScene();
 
-    this.clearPins();
-    this.resetSelectionState();
-    this.refreshInfoPanel();
+    if (!source) {
+      this.showTravelError(
+        'Could not determine the current location.'
+      );
+      return false;
+    }
+
+    const targetKey = 'DetectiveOfficeScene';
+
+    if (source.sys.settings.key === targetKey) {
+      this.close();
+      return true;
+    }
+
+    this.isTransitioning = true;
     this.setConfirmEnabled(false);
+    this.updateHQButton();
+    this.updateOfficeButton();
 
-    if (restoreHud) {
-      EventBus.emit('showHUD');
+    try {
+      await this.ensureSceneRegistered(targetKey);
+
+      if (this.isDestroyed) return false;
+
+      this.close({ restoreHud: false });
+
+      const opened = await this.navigateFrom(
+        source,
+        targetKey,
+        {
+          entrySource: 'destinations',
+          fromDestinations: true,
+          fromScene: source.sys.settings.key
+        }
+      );
+
+      if (opened === false) {
+        throw new Error('PI office transition returned false.');
+      }
+
+      return true;
+    } catch (error) {
+      console.error(
+        '[DestinationsUI] Failed to enter PI office:',
+        error
+      );
+
+      if (
+        !this.isDestroyed &&
+        this.scene?.sys?.isActive()
+      ) {
+        this.isTransitioning = false;
+
+        if (!this.isOpen) {
+          this.open(this.gameState || gameState);
+        }
+
+        this.showTravelError(
+          'The PI office could not be opened. Check the console.'
+        );
+      }
+
+      return false;
+    } finally {
+      if (!this.isDestroyed) {
+        this.isTransitioning = false;
+        this.updateHQButton();
+        this.updateOfficeButton();
+      }
     }
   }
 
-  resetSelectionState() {
-    this.clearTravelErrorTimer();
-
-    this.selectedCity = null;
-    this.selectedPin = null;
-    this.selectedLabel = null;
-    this.selectedTransport = null;
-    this.canConfirm = false;
-
-    this.clearTransportButtons();
-
-    this.routePreview?.destroy();
-    this.routePreview = null;
-  }
+  // ------------------------------------------------------------------
+  // Location data
+  // ------------------------------------------------------------------
 
   getLocationsData() {
     const data =
       this.scene.cache.json.get('locations') || [];
 
-    return Array.isArray(data)
-      ? data
-      : data.locations || [];
+    if (Array.isArray(data)) return data;
+
+    return Array.isArray(data.locations)
+      ? data.locations
+      : [];
   }
 
   getCurrentCityData() {
-    const locationsData = this.getLocationsData();
+    const locations = this.getLocationsData();
 
-    const currentCityId =
+    const cityId =
       this.gameState?.currentCityId ||
       gameState.currentCityId;
 
-    const currentCity =
+    const cityName =
       this.gameState?.currentCity ||
       gameState.currentCity;
 
-    return locationsData.find(
-      location =>
-        location.id === currentCityId ||
-        location.city === currentCity
-    ) || null;
+    return (
+      locations.find(
+        location => getCityId(location) === cityId
+      ) ||
+      locations.find(
+        location => location.city === cityName
+      ) ||
+      null
+    );
   }
 
   getDestinationsWithMustInclude() {
-    const locationsData = this.getLocationsData();
+    const locations = this.getLocationsData();
 
-    const currentCityId =
+    const currentId =
       this.gameState?.currentCityId ||
       gameState.currentCityId ||
       null;
@@ -607,68 +876,66 @@ async enterOffice() {
       ? [...this.gameState.currentDestinations]
       : [];
 
-    result = result.filter(city => {
-      const cityId = getCityId(city);
+    // Resolve entries against canonical location data.
+    result = result
+      .map(city => {
+        const id = getCityId(city);
 
-      return cityId && cityId !== currentCityId;
-    });
+        return locations.find(
+          location => getCityId(location) === id
+        );
+      })
+      .filter(city => {
+        const id = city ? getCityId(city) : null;
+        return id && id !== currentId && id !== 'hq';
+      });
 
-    const mustIncludeCityId =
+    const requiredId =
       this.gameState?.mustIncludeCityId || null;
 
-    const alreadyContainsRequiredCity = result.some(
-      city => getCityId(city) === mustIncludeCityId
-    );
-
-    if (
-      mustIncludeCityId &&
-      mustIncludeCityId !== currentCityId &&
-      !alreadyContainsRequiredCity
-    ) {
-      const requiredCity = locationsData.find(
-        location =>
-          getCityId(location) === mustIncludeCityId
+    if (requiredId && requiredId !== currentId) {
+      const required = locations.find(
+        location => getCityId(location) === requiredId
       );
 
-      if (requiredCity) {
-        result.unshift(requiredCity);
+      if (required) {
+        result = [
+          required,
+          ...result.filter(
+            city => getCityId(city) !== requiredId
+          )
+        ];
       }
-    } else if (mustIncludeCityId === currentCityId) {
-      this.gameState.mustIncludeCityId = null;
     }
 
     const seen = new Set();
 
     result = result.filter(city => {
-      const cityId = getCityId(city);
+      const id = getCityId(city);
 
-      if (!cityId || seen.has(cityId)) {
-        return false;
-      }
+      if (!id || seen.has(id)) return false;
 
-      seen.add(cityId);
+      seen.add(id);
       return true;
     });
 
     if (result.length < maxDestinations) {
       const filler = Phaser.Utils.Array.Shuffle(
-        locationsData.filter(location => {
-          const locationId = getCityId(location);
+        locations.filter(location => {
+          const id = getCityId(location);
 
           return (
-            location?.city &&
-            locationId &&
-            locationId !== currentCityId &&
-            locationId !== 'hq' &&
-            !seen.has(locationId)
+            location.city &&
+            id &&
+            id !== currentId &&
+            id !== 'hq' &&
+            !seen.has(id)
           );
         })
       );
 
       for (const city of filler) {
-        if (result.length >= maxDestinations) {
-          break;
-        }
+        if (result.length >= maxDestinations) break;
 
         result.push(city);
         seen.add(getCityId(city));
@@ -678,28 +945,31 @@ async enterOffice() {
     return result.slice(0, maxDestinations);
   }
 
+  // ------------------------------------------------------------------
+  // Map pins
+  // ------------------------------------------------------------------
+
   clearPins() {
-    this.activePins.forEach(
-      pinObject => pinObject?.destroy?.(true)
-    );
+    for (const object of this.activePins) {
+      object?.destroy?.(true);
+    }
 
     this.activePins = [];
   }
 
-  renderCityPins(citiesDataArray) {
-    citiesDataArray.forEach(cityObj => {
-      const xPos =
-        cityObj.map?.x ??
-        cityObj.mapX ??
+  renderCityPins(cities) {
+    for (const city of cities) {
+      const x =
+        city.map?.x ??
+        city.mapX ??
         this.scene.scale.width / 2;
 
-      const yPos =
-        cityObj.map?.y ??
-        cityObj.mapY ??
+      const y =
+        city.map?.y ??
+        city.mapY ??
         this.scene.scale.height / 2;
 
-      const pinContainer =
-        this.scene.add.container(xPos, yPos);
+      const pin = this.scene.add.container(x, y);
 
       const dot = this.scene.add
         .circle(0, 0, 15, 0xffcc00)
@@ -707,7 +977,7 @@ async enterOffice() {
         .setInteractive({ useHandCursor: true });
 
       const label = this.scene.add
-        .text(0, 30, cityObj.city, {
+        .text(0, 30, city.city || 'Unknown city', {
           fontFamily: 'SpecialElite',
           fontSize: '24px',
           color: '#ffffff',
@@ -716,13 +986,15 @@ async enterOffice() {
         })
         .setOrigin(0.5);
 
-      pinContainer.add([dot, label]);
-      this.container.add(pinContainer);
-      this.activePins.push(pinContainer);
+      pin.add([dot, label]);
+
+      this.container.add(pin);
+      this.activePins.push(pin);
 
       dot.on('pointerover', () => {
         if (
           this.isTransitioning ||
+          this.committedTravelPayload ||
           this.selectedPin === dot
         ) {
           return;
@@ -733,71 +1005,71 @@ async enterOffice() {
       });
 
       dot.on('pointerout', () => {
-        if (
-          this.isTransitioning ||
-          this.selectedPin === dot
-        ) {
-          return;
-        }
+        if (this.selectedPin === dot) return;
 
         dot.setFillStyle(0xffcc00);
         label.setColor('#ffffff');
       });
 
       dot.on('pointerdown', () => {
-        if (!this.isTransitioning) {
-          this.selectCity(cityObj, dot, label);
+        if (
+          this.isTransitioning ||
+          this.committedTravelPayload
+        ) {
+          return;
         }
+
+        this.selectCity(city, dot, label);
       });
-    });
+    }
   }
 
-  selectCity(cityObj, dot, label) {
+  selectCity(city, dot = null, label = null) {
+    if (
+      this.isTransitioning ||
+      this.committedTravelPayload
+    ) {
+      return;
+    }
+
     this.clearTravelErrorTimer();
-    this.selectedCity = cityObj;
 
-    if (
-      this.selectedPin &&
-      this.selectedPin !== dot
-    ) {
-      this.selectedPin.setFillStyle(0xffcc00);
-      this.selectedPin.setScale(1);
-    }
+    this.selectedPin?.setFillStyle(0xffcc00);
+    this.selectedPin?.setScale(1);
+    this.selectedLabel?.setColor('#ffffff');
 
-    if (
-      this.selectedLabel &&
-      this.selectedLabel !== label
-    ) {
-      this.selectedLabel.setColor('#ffffff');
-    }
-
+    this.selectedCity = city;
     this.selectedPin = dot;
     this.selectedLabel = label;
 
-    dot.setFillStyle(0xffffff);
-    dot.setScale(1.15);
-    label.setColor('#ffcc00');
+    dot?.setFillStyle(0xffffff);
+    dot?.setScale(1.15);
+    label?.setColor('#ffcc00');
 
     const options = getTransportOptions(
       this.getCurrentCityData(),
-      cityObj
-    );
+      city
+    ) || [];
 
     this.selectedTransport = options[0] || null;
 
     this.createTransportButtons(options);
-    this.refreshInfoPanel(cityObj);
-    this.previewRoute(cityObj);
+    this.refreshInfoPanel(city);
+    this.previewRoute(city);
 
     this.setConfirmEnabled(
       Boolean(this.selectedTransport)
     );
   }
 
+  // ------------------------------------------------------------------
+  // Transport
+  // ------------------------------------------------------------------
+
   clearTransportButtons() {
-    this.transportButtons.forEach(
-      button => button?.destroy?.(true)
-    );
+    for (const button of this.transportButtons) {
+      button?.destroy?.(true);
+    }
 
     this.transportButtons = [];
   }
@@ -805,50 +1077,45 @@ async enterOffice() {
   createTransportButtons(options) {
     this.clearTransportButtons();
 
-    if (options.length <= 1) {
-      return;
-    }
+    if (options.length <= 1) return;
 
-    const totalWidth = 330;
     const gap = 8;
 
     const buttonWidth = Math.min(
       82,
       Math.floor(
-        (totalWidth - gap * (options.length - 1)) /
+        (330 - gap * (options.length - 1)) /
         options.length
       )
     );
 
-    const startX = 20 + buttonWidth / 2;
-
     options.forEach((option, index) => {
       const x =
-        startX + index * (buttonWidth + gap);
+        20 +
+        buttonWidth / 2 +
+        index * (buttonWidth + gap);
 
-      const isSelected =
+      const selected =
         option.id === this.selectedTransport?.id;
 
       const container =
-        this.scene.add.container(x, 145);
+        this.scene.add.container(x, 169);
 
       const bg = this.scene.add
         .rectangle(
-          0,
-          0,
-          buttonWidth,
-          48,
-          isSelected ? option.color : 0x273746,
-          isSelected ? 0.95 : 1
+          0, 0,
+          buttonWidth, 48,
+          selected ? option.color : 0x273746,
+          1
         )
         .setStrokeStyle(
           2,
-          isSelected ? 0xffffff : option.color
+          selected ? 0xffffff : option.color
         )
         .setInteractive({ useHandCursor: true });
 
       const icon = this.scene.add
-        .text(0, -9, option.icon, {
+        .text(0, -9, option.icon || '', {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
           color: '#ffffff'
@@ -856,7 +1123,7 @@ async enterOffice() {
         .setOrigin(0.5);
 
       const label = this.scene.add
-        .text(0, 14, option.label, {
+        .text(0, 14, option.label || option.id, {
           fontFamily: 'SpecialElite',
           fontSize: '13px',
           color: '#ffffff'
@@ -866,7 +1133,10 @@ async enterOffice() {
       container.add([bg, icon, label]);
 
       bg.on('pointerdown', () => {
-        if (this.isTransitioning) {
+        if (
+          this.isTransitioning ||
+          this.committedTravelPayload
+        ) {
           return;
         }
 
@@ -876,7 +1146,6 @@ async enterOffice() {
         this.createTransportButtons(options);
         this.refreshInfoPanel(this.selectedCity);
         this.previewRoute(this.selectedCity);
-        this.setConfirmEnabled(true);
       });
 
       this.infoPanel.add(container);
@@ -884,48 +1153,29 @@ async enterOffice() {
     });
   }
 
-  getTravelPreview(cityObj) {
-    const currentCityData =
-      this.getCurrentCityData();
-
+  getTravelPreview(city) {
     const transport = this.selectedTransport;
 
-    if (
-      !currentCityData ||
-      !cityObj ||
-      !transport
-    ) {
-      return {
-        fromCity: currentCityData?.city || '',
-        toCity: cityObj?.city || '',
-        travelHours: null,
-        baseTravelHours: null,
-        moneySpent: 0,
-        energyChange: 0
-      };
-    }
-
     return {
-      fromCity: currentCityData.city,
-      toCity: cityObj.city,
-      travelHours: transport.travelHours,
-      baseTravelHours: transport.baseTravelHours,
-      moneySpent: transport.moneySpent,
-      energyChange: transport.energyChange
+      fromCity: this.getCurrentCityData()?.city || '',
+      toCity: city?.city || '',
+      travelHours: transport?.travelHours ?? 0,
+      baseTravelHours: transport?.baseTravelHours ?? 0,
+      moneySpent: transport?.moneySpent ?? 0,
+      energyChange: transport?.energyChange ?? 0
     };
   }
 
-  refreshInfoPanel(cityObj = null) {
-    if (this.isDestroyed) {
-      return;
-    }
+  refreshInfoPanel(city = null) {
+    if (this.isDestroyed) return;
 
-    if (!cityObj) {
+    if (!city) {
       this.infoCity.setText('Choose a city');
       this.infoCountry.setText('');
-      this.infoCountry.setPosition(20, 61);
-      this.transportPrompt.setColor('#ffd166');
-      this.transportPrompt.setText('');
+      this.transportPrompt
+        .setColor('#ffd166')
+        .setText('');
+
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.debtWarning.setText('');
@@ -933,82 +1183,61 @@ async enterOffice() {
       return;
     }
 
-    const preview = this.getTravelPreview(cityObj);
-
-    this.infoCity.setText(
-      cityObj.city || 'Unknown city'
-    );
-
-    const countryText = cityObj.country
-      ? `· ${cityObj.country}`
-      : '';
-
-    this.infoCountry.setText(countryText);
-    this.infoCountry.setPosition(
-      28 + this.infoCity.width,
-      61
-    );
+    this.infoCity.setText(city.city || 'Unknown city');
+    this.infoCountry.setText(city.country || '');
 
     if (!this.selectedTransport) {
-      this.transportPrompt.setColor('#ff6b6b');
-      this.transportPrompt.setText(
-        'No sensible route is available.'
-      );
+      this.transportPrompt
+        .setColor('#ff6b6b')
+        .setText('No sensible route is available.');
+
       this.infoTravel.setText('');
       this.infoHours.setText('');
       this.debtWarning.setText('');
       this.confirmLabel.setText('No route available');
+
       this.setConfirmEnabled(false);
       return;
     }
 
-    const agencyBudget = getAvailableAgencyBudget();
+    const preview = this.getTravelPreview(city);
+    const budget = getAvailableAgencyBudget();
 
     const freeTransfers = Math.max(
       0,
       Number(gameState.freeTransfers) || 0
     );
 
-    const effectiveMoneySpent = freeTransfers > 0
+    const cost = freeTransfers > 0
       ? 0
       : preview.moneySpent;
 
-    const willGoIntoDebt =
-      effectiveMoneySpent > 0 &&
-      wouldCreateDebt(effectiveMoneySpent);
+    const createsDebt =
+      cost > 0 && wouldCreateDebt(cost);
 
-    this.transportPrompt.setColor('#ffd166');
-    this.transportPrompt.setText(
-      `Selected: ${this.selectedTransport.icon} ` +
-      this.selectedTransport.label
-    );
+    this.transportPrompt
+      .setColor('#ffd166')
+      .setText(
+        `Selected: ${this.selectedTransport.icon || ''} ` +
+        this.selectedTransport.label
+      );
 
     this.infoTravel.setText(
-      `🎟 ${
-        effectiveMoneySpent === 0
-          ? 'FREE'
-          : formatMoney(effectiveMoneySpent)
-      }   ` +
-      `🏢 Agency: ${formatMoney(agencyBudget)}   ` +
-      `⚡ ${preview.energyChange}`
+      `Ticket: ${cost === 0 ? 'FREE' : formatMoney(cost)}\n` +
+      `Agency: ${formatMoney(budget)} | Energy: ${preview.energyChange}`
     );
 
     this.infoHours.setText(
       `Travel time: +${preview.travelHours}h`
     );
 
-    if (freeTransfers > 0) {
-      this.debtWarning.setText(
-        `✈ Free transfers available: ${freeTransfers}. ` +
-        'This trip will use one.'
-      );
-    } else {
-      this.debtWarning.setText(
-        willGoIntoDebt
-          ? '⚠ Not enough agency budget — the balance will become agency debt.'
+    this.debtWarning.setText(
+      freeTransfers > 0
+        ? `Free transfers: ${freeTransfers}. This trip will use one.`
+        : createsDebt
+          ? 'Insufficient agency budget. The balance will become agency debt.'
           : ''
-      );
-    }
+    );
 
     this.confirmLabel.setText(
       `Go by ${this.selectedTransport.label}`
@@ -1017,55 +1246,35 @@ async enterOffice() {
     this.setConfirmEnabled(true);
   }
 
-  previewRoute(cityObj) {
+  previewRoute(city) {
     this.routePreview?.destroy();
     this.routePreview = null;
 
-    const currentCityData =
-      this.getCurrentCityData();
+    const current = this.getCurrentCityData();
 
-    if (!currentCityData?.map || !cityObj?.map) {
-      return;
+    if (!current?.map || !city?.map) return;
+
+    this.routePreview = this.scene.add.graphics();
+
+    for (const [width, color, alpha] of [
+      [9, ROUTE_SHADOW_COLOR, 0.55],
+      [4, ROUTE_LINE_COLOR, 0.98]
+    ]) {
+      this.routePreview.lineStyle(width, color, alpha);
+      this.routePreview.beginPath();
+      this.routePreview.moveTo(
+        current.map.x,
+        current.map.y
+      );
+      this.routePreview.lineTo(
+        city.map.x,
+        city.map.y
+      );
+      this.routePreview.strokePath();
     }
 
-    this.routePreview =
-      this.scene.add.graphics();
-
-    this.routePreview.lineStyle(
-      9,
-      ROUTE_SHADOW_COLOR,
-      0.55
-    );
-
-    this.routePreview.beginPath();
-    this.routePreview.moveTo(
-      currentCityData.map.x,
-      currentCityData.map.y
-    );
-    this.routePreview.lineTo(
-      cityObj.map.x,
-      cityObj.map.y
-    );
-    this.routePreview.strokePath();
-
-    this.routePreview.lineStyle(
-      4,
-      ROUTE_LINE_COLOR,
-      0.98
-    );
-
-    this.routePreview.beginPath();
-    this.routePreview.moveTo(
-      currentCityData.map.x,
-      currentCityData.map.y
-    );
-    this.routePreview.lineTo(
-      cityObj.map.x,
-      cityObj.map.y
-    );
-    this.routePreview.strokePath();
-
     this.container.add(this.routePreview);
+
     this.container.moveAbove(
       this.routePreview,
       this.mapImage
@@ -1073,14 +1282,14 @@ async enterOffice() {
   }
 
   setConfirmEnabled(enabled) {
-    this.canConfirm =
-      Boolean(enabled) &&
+    this.canConfirm = Boolean(
+      enabled &&
       !this.isTransitioning &&
-      !this.isDestroyed;
+      !this.isDestroyed &&
+      !this.committedTravelPayload
+    );
 
-    if (!this.confirmButton || this.isDestroyed) {
-      return;
-    }
+    if (!this.confirmButton || this.isDestroyed) return;
 
     this.confirmButton.setFillStyle(
       this.canConfirm ? 0x9b5de5 : 0x6c757d,
@@ -1093,30 +1302,33 @@ async enterOffice() {
     this.confirmLabel.setAlpha(alpha);
   }
 
+  // ------------------------------------------------------------------
+  // Errors
+  // ------------------------------------------------------------------
+
   clearTravelErrorTimer() {
     this.travelErrorTimer?.remove(false);
     this.travelErrorTimer = null;
   }
 
   showTravelError(message) {
-    if (this.isDestroyed) {
-      return;
-    }
+    if (this.isDestroyed) return;
 
     this.clearTravelErrorTimer();
 
-    this.transportPrompt.setColor('#ff6b6b');
-    this.transportPrompt.setText(message);
+    this.transportPrompt
+      .setColor('#ff6b6b')
+      .setText(message);
 
     this.travelErrorTimer =
-      this.scene.time.delayedCall(2500, () => {
+      this.scene.time.delayedCall(3500, () => {
         this.travelErrorTimer = null;
 
         if (
           this.isDestroyed ||
           !this.isOpen ||
-          !this.selectedTransport ||
-          this.isTransitioning
+          this.isTransitioning ||
+          this.committedTravelPayload
         ) {
           return;
         }
@@ -1125,59 +1337,46 @@ async enterOffice() {
       });
   }
 
-  disableHotspots() {
-    this.scene.disableHotspots?.();
-
-    this.scene.hotspots?.forEach(hotspot => {
-      hotspot?.disableInteractive?.();
-    });
-  }
+  // ------------------------------------------------------------------
+  // Travel
+  // ------------------------------------------------------------------
 
   cleanupBeforeTravel() {
-    this.scene.closeAllUIPanels?.();
-    this.disableHotspots();
+    // Do not close all panels here: on some owners this would
+    // close this map and trigger computer callbacks prematurely.
+    const hud = this.getRegisteredScene('PlayerHudScene');
 
-    const sceneManager = this.scene.scene;
-
-    if (
-      sceneManager.isActive('PlayerHudScene') ||
-      sceneManager.isSleeping('PlayerHudScene')
-    ) {
-      sceneManager
-        .get('PlayerHudScene')
-        ?.closeAllUIPanels?.();
-    }
+    hud?.closeAllUIPanels?.();
   }
 
-  async travelToCity(
-    selectedCity,
-    selectedTransport
-  ) {
+  async travelToCity(selectedCity, selectedTransport) {
     if (
-      this.isTransitioning ||
       this.isDestroyed ||
+      this.isTransitioning ||
+      this.committedTravelPayload ||
       !selectedCity ||
       !selectedTransport
     ) {
       return false;
     }
 
-    const locationsData = this.getLocationsData();
+    const locations = this.getLocationsData();
 
-    const selectedCityData = locationsData.find(
+    const destination = locations.find(
       location =>
         getCityId(location) === getCityId(selectedCity)
     );
 
-    if (!selectedCityData) {
-      console.error(
-        'City data not found:',
-        selectedCity
-      );
+    if (!destination) {
+      this.showTravelError('Destination data is missing.');
+      return false;
+    }
 
-      this.setConfirmEnabled(true);
+    const source = this.getNavigationScene();
+
+    if (!source) {
       this.showTravelError(
-        'Destination data is missing.'
+        'Could not determine the current location.'
       );
       return false;
     }
@@ -1193,19 +1392,26 @@ async enterOffice() {
       null;
 
     const transportId = selectedTransport.id;
-    const fallbackTransportLabel =
-      selectedTransport.label;
 
     this.clearTravelErrorTimer();
     this.isTransitioning = true;
     this.setConfirmEnabled(false);
+    this.updateHQButton();
+    this.updateOfficeButton();
 
-    let travelCommitted = false;
+    let committed = false;
 
     try {
+      // Catch missing transition registration before charging.
+      await this.ensureSceneRegistered(
+        'TravelTransitionScene'
+      );
+
+      if (this.isDestroyed) return false;
+
       const result = performTravel(
-        selectedCityData.city,
-        locationsData,
+        destination.city,
+        locations,
         transportId
       );
 
@@ -1219,15 +1425,12 @@ async enterOffice() {
         this.isTransitioning = false;
         this.refreshInfoPanel(this.selectedCity);
 
-        this.setConfirmEnabled(
-          Boolean(this.selectedTransport)
-        );
-
         this.showTravelError(
           result.blockReason === 'insufficient_energy'
             ? 'Too exhausted to travel. Get some sleep first.'
             : 'Travel is currently blocked.'
         );
+
         return false;
       }
 
@@ -1235,19 +1438,16 @@ async enterOffice() {
         this.isTransitioning = false;
         this.refreshInfoPanel(this.selectedCity);
 
-        this.setConfirmEnabled(
-          Boolean(this.selectedTransport)
-        );
-
         this.showTravelError(
           'You are already in this city.'
         );
+
         return false;
       }
 
-      travelCommitted = true;
+      committed = true;
 
-      advanceCrimeTutorial(gameState, 'pursuit');
+      const toCityId = getCityId(destination);
 
       const travelHours =
         Number(result.travelHours) || 0;
@@ -1266,40 +1466,7 @@ async enterOffice() {
 
       const transportLabel =
         result.transportLabel ||
-        fallbackTransportLabel;
-
-      const selectedCityId =
-        getCityId(selectedCityData);
-
-      gameState.lastTravel = {
-        ...(gameState.lastTravel || {}),
-        fromCityId,
-        fromCity,
-        toCityId: selectedCityId,
-        toCity: selectedCityData.city,
-        transportType: transportId,
-        transportLabel,
-        travelHours,
-        baseTravelHours,
-        moneySpent,
-        agencyDebtAdded,
-        energyChange,
-        travelEncounter:
-          result.travelEncounter || null,
-        wasCorrect: Boolean(result.wasCorrect)
-      };
-
-      if (!gameState.caseFailed) {
-        requestAutosave();
-      }
-
-      EventBus.emit('travelTicketPurchased', {
-        cityId: selectedCityId,
-        city: selectedCityData.city,
-        transportType: transportId,
-        cost: moneySpent,
-        agencyDebtAdded
-      });
+        selectedTransport.label;
 
       const mission = gameState.currentMission || {};
 
@@ -1310,36 +1477,28 @@ async enterOffice() {
         null
       );
 
-      const isMissionCrimeCity =
-        Boolean(
-          selectedCityData.isCrimeCity ||
-          selectedCityData.crimeCity
+      const isMissionCrimeCity = Boolean(
+        (
+          destination.isCrimeCity ||
+          destination.crimeCity
         ) &&
-        selectedCityId === missionCityId;
+        normalizeCityId(toCityId) === missionCityId
+      );
 
       const isCrimeSceneArrival =
         Boolean(result.isCrimeSceneArrival) ||
         isMissionCrimeCity;
 
-      EventBus.emit('firstCaseTravelStarted', {
-        fromCityId,
-        toCityId: selectedCityId,
-        city: selectedCityData.city,
-        transportType: transportId,
-        isCrimeSceneArrival
-      });
-
-      const destinationScene = isCrimeSceneArrival
-        ? 'CrimeCityScene'
-        : 'CityScene';
-
-      const transitionPayload = {
+      const payload = {
         fromCity: result.fromCity || fromCity,
-        toCity:
-          result.toCity || selectedCityData.city,
-        toCityId: selectedCityId,
-        cityId: selectedCityId,
-        destinationScene,
+        toCity: result.toCity || destination.city,
+        toCityId,
+        cityId: toCityId,
+
+        destinationScene: isCrimeSceneArrival
+          ? 'CrimeCityScene'
+          : 'CityScene',
+
         isCrimeSceneArrival,
         transportType: transportId,
         transportLabel,
@@ -1348,76 +1507,79 @@ async enterOffice() {
         moneySpent,
         agencyDebtAdded,
         energyChange,
+
         travelEncounter:
           result.travelEncounter || null,
+
         wasCorrect: Boolean(result.wasCorrect),
         status: result.status,
+
         pendingPhoneCall:
           Boolean(gameState.pendingPhoneCall),
+
         pendingPhoneCallCityId:
           gameState.pendingPhoneCallCityId ||
-          selectedCityId
+          toCityId
       };
 
-      const sceneManager = this.scene.scene;
+      // Save before any subsequent UI operations.
+      this.committedTravelPayload = payload;
 
-      this.cleanupBeforeTravel();
-      this.close({ restoreHud: false });
+      gameState.lastTravel = {
+        ...(gameState.lastTravel || {}),
+        fromCityId,
+        fromCity,
+        toCityId,
+        toCity: destination.city,
+        transportType: transportId,
+        transportLabel,
+        travelHours,
+        baseTravelHours,
+        moneySpent,
+        agencyDebtAdded,
+        energyChange,
+        travelEncounter: payload.travelEncounter,
+        wasCorrect: payload.wasCorrect
+      };
 
-      [
-        'OfficeScene',
-        'CityScene',
-        'CrimeCityScene'
-      ].forEach(sceneKey => {
-        if (
-          sceneManager.isActive(sceneKey) ||
-          sceneManager.isSleeping(sceneKey)
-        ) {
-          sceneManager.stop(sceneKey);
-        }
-      });
+      advanceCrimeTutorial(gameState, 'pursuit');
 
-      const didStartTransition =
-        await this.scene.goto(
-          'TravelTransitionScene',
-          transitionPayload
-        );
-
-      if (!didStartTransition) {
-        throw new Error(
-          'TravelTransitionScene could not be started.'
-        );
+      if (!gameState.caseFailed) {
+        requestAutosave();
       }
 
-      return true;
-    } catch (error) {
-      console.error(
-        'Travel failed:',
-        error,
-        {
-          travelCommitted,
-          fromCityId,
-          toCityId: getCityId(selectedCityData),
-          transportType: transportId
-        }
+      EventBus.emit('travelTicketPurchased', {
+        cityId: toCityId,
+        city: destination.city,
+        transportType: transportId,
+        cost: moneySpent,
+        agencyDebtAdded
+      });
+
+      EventBus.emit('firstCaseTravelStarted', {
+        fromCityId,
+        toCityId,
+        city: destination.city,
+        transportType: transportId,
+        isCrimeSceneArrival
+      });
+
+      return await this.startTravelTransition(
+        source,
+        payload
       );
+    } catch (error) {
+      console.error('[DestinationsUI] Travel failed:', error, {
+        committed,
+        fromCityId,
+        toCityId: getCityId(destination),
+        transportType: transportId
+      });
 
       if (
         this.isDestroyed ||
         !this.scene?.sys?.isActive()
       ) {
-        return false;
-      }
-
-      if (travelCommitted) {
-        this.setConfirmEnabled(false);
-
-        if (this.isOpen) {
-          this.showTravelError(
-            'Travel was processed, but the next screen failed to open.'
-          );
-        }
-
         return false;
       }
 
@@ -1427,33 +1589,152 @@ async enterOffice() {
         this.open(this.gameState || gameState);
       }
 
-      this.refreshInfoPanel(this.selectedCity);
+      if (this.committedTravelPayload) {
+        this.showCommittedTravelRecovery();
+      } else {
+        this.refreshInfoPanel(this.selectedCity);
 
-      this.setConfirmEnabled(
-        Boolean(this.selectedTransport)
-      );
+        this.showTravelError(
+          committed
+            ? 'Travel was processed, but its transition data could not be prepared. Check the console before trying again.'
+            : 'Travel failed. Check the console for details.'
+        );
 
-      this.showTravelError(
-        'Travel failed. Check the console for details.'
-      );
+        if (committed) {
+          this.setConfirmEnabled(false);
+        }
+      }
 
       return false;
+    } finally {
+      if (!this.isDestroyed) {
+        this.isTransitioning = false;
+        this.updateHQButton();
+        this.updateOfficeButton();
+      }
     }
   }
 
-  destroy() {
-    if (this.isDestroyed) {
-      return;
+  async startTravelTransition(source, payload) {
+    this.close({ restoreHud: false });
+
+    const opened = await this.navigateFrom(
+      source,
+      'TravelTransitionScene',
+      payload
+    );
+
+    if (opened === false) {
+      throw new Error(
+        'TravelTransitionScene could not be started.'
+      );
     }
 
-    const wasTransitioning = this.isTransitioning;
+    if (!this.isDestroyed) {
+      this.committedTravelPayload = null;
+    }
 
-    this.isDestroyed = true;
+    return true;
+  }
+
+  showCommittedTravelRecovery() {
     this.clearTravelErrorTimer();
 
-    if (!wasTransitioning) {
-      EventBus.emit('showHUD');
+    this.setConfirmEnabled(false);
+
+    this.transportPrompt
+      .setColor('#ff9d6b')
+      .setText(
+        'Travel was processed. Retry opening the travel screen without paying again.'
+      );
+
+    this.confirmLabel.setText('Retry travel screen');
+    this.confirmButton.setFillStyle(0xb57928, 1);
+    this.confirmButton.setAlpha(1);
+    this.confirmLabel.setAlpha(1);
+
+    this.updateHQButton();
+    this.updateOfficeButton();
+  }
+
+  async retryCommittedTravel() {
+    if (
+      this.isDestroyed ||
+      this.isTransitioning ||
+      !this.committedTravelPayload
+    ) {
+      return false;
     }
+
+    const source = this.getNavigationScene();
+
+    if (!source) {
+      this.showTravelError(
+        'Could not determine the current location.'
+      );
+      return false;
+    }
+
+    this.isTransitioning = true;
+
+    try {
+      await this.ensureSceneRegistered(
+        'TravelTransitionScene'
+      );
+
+      if (this.isDestroyed) return false;
+
+      return await this.startTravelTransition(
+        source,
+        this.committedTravelPayload
+      );
+    } catch (error) {
+      console.error(
+        '[DestinationsUI] Travel transition retry failed:',
+        error
+      );
+
+      if (
+        !this.isDestroyed &&
+        this.scene?.sys?.isActive()
+      ) {
+        this.isTransitioning = false;
+
+        if (!this.isOpen) {
+          this.open(this.gameState || gameState);
+        }
+
+        this.showCommittedTravelRecovery();
+      }
+
+      return false;
+    } finally {
+      if (!this.isDestroyed) {
+        this.isTransitioning = false;
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Cleanup
+  // ------------------------------------------------------------------
+
+  destroy() {
+    if (this.isDestroyed) return;
+
+    this.isDestroyed = true;
+
+    this.clearTravelErrorTimer();
+
+    this.scene?.input?.keyboard?.off(
+      'keydown-T',
+      this.boundTravelKeyHandler
+    );
+
+    this.scene?.events?.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.boundShutdownHandler
+    );
 
     this.clearPins();
     this.clearTransportButtons();
@@ -1461,30 +1742,25 @@ async enterOffice() {
     this.routePreview?.destroy();
     this.routePreview = null;
 
-    this.closeBtn?.removeAllListeners();
-    this.confirmButton?.removeAllListeners();
-    this.overlay?.removeAllListeners();
-    this.hqButtonBg?.removeAllListeners();
-
-    this.scene?.input?.keyboard?.off(
-      'keydown-T',
-      this.boundTravelKeyHandler
-    );
-
     this.container?.destroy(true);
+    this.container = null;
 
     this.hqButton = null;
     this.hqButtonBg = null;
     this.hqButtonLabel = null;
-    this.container = null;
 
-    this.activePins = [];
-    this.transportButtons = [];
-    this.gameState = null;
+    this.officeButton = null;
+    this.officeButtonBg = null;
+    this.officeButtonLabel = null;
+
     this.selectedCity = null;
     this.selectedPin = null;
     this.selectedLabel = null;
     this.selectedTransport = null;
+
+    this.gameState = null;
+    this.newsVisibility = null;
+    this.committedTravelPayload = null;
 
     this.isOpen = false;
     this.isTransitioning = false;

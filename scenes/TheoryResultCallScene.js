@@ -22,6 +22,7 @@ export class TheoryResultCallScene extends BaseScene {
     this.layout = null;
     this._resizeBound = false;
     this._finished = false;
+    this._hudHidden = false;
 
     this.handleResizeBound = null;
     this.handleContinueBound = null;
@@ -32,6 +33,7 @@ export class TheoryResultCallScene extends BaseScene {
   init(data = {}) {
     this.sourceScene = data.sourceScene || 'CityScene';
     this.mode = data.mode || 'hq';
+
     this.result =
       data.result ||
       gameState.reconstructedHeist?.playerTheoryResult ||
@@ -48,6 +50,7 @@ export class TheoryResultCallScene extends BaseScene {
     this.layout = null;
     this._resizeBound = false;
     this._finished = false;
+    this._hudHidden = false;
 
     this.handleResizeBound = null;
     this.handleContinueBound = null;
@@ -56,94 +59,171 @@ export class TheoryResultCallScene extends BaseScene {
   }
 
   create() {
-        super.create();
-        EventBus.emit('hideHUD');
+    super.create();
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onShutdown,
+      this
+    );
+
+    this._hudHidden = true;
+    EventBus.emit('hideHUD');
+
     const { width, height } = this.scale;
     const palette = this.getPalette(this.result);
     const lines = this.getDialogue(this.result, this.mode);
 
-    this.overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.72)
+    this.overlay = this.add
+      .rectangle(0, 0, width, height, 0x000000, 0.72)
       .setOrigin(0, 0)
       .setDepth(4000)
       .setInteractive();
 
-    this.panel = this.add.rectangle(width / 2, height / 2, 960, 520, 0x181411, 0.98)
+    this.panel = this.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        960,
+        520,
+        0x181411,
+        0.98
+      )
       .setStrokeStyle(4, palette.border, 0.9)
       .setDepth(4001);
 
-    this.headerText = this.add.text(0, 0, this.mode === 'phone' ? 'Encrypted call' : 'HQ assessment', {
-      fontFamily: 'SpecialElite',
-      fontSize: '38px',
-      color: palette.title,
-      align: 'center'
-    }).setOrigin(0.5).setDepth(4002);
+    this.headerText = this.add
+      .text(
+        0,
+        0,
+        this.mode === 'phone' ? 'Encrypted call' : 'HQ assessment',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '38px',
+          color: palette.title,
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(4002);
 
-    this.speakerText = this.add.text(0, 0, this.getSpeakerName(this.mode), {
-      fontFamily: 'SpecialElite',
-      fontSize: '24px',
-      color: palette.accent,
-      align: 'center'
-    }).setOrigin(0.5).setDepth(4002);
+    this.speakerText = this.add
+      .text(0, 0, this.getSpeakerName(this.mode), {
+        fontFamily: 'SpecialElite',
+        fontSize: '24px',
+        color: palette.accent,
+        align: 'center'
+      })
+      .setOrigin(0.5)
+      .setDepth(4002);
 
-    this.bodyText = this.add.text(0, 0, lines.join('\n\n'), {
-      fontFamily: 'SpecialElite',
-      fontSize: '28px',
-      color: '#f4ead7',
-      align: 'center',
-      wordWrap: { width: 760, useAdvancedWrap: true },
-      lineSpacing: 10
-    }).setOrigin(0.5).setDepth(4002);
+    this.bodyText = this.add
+      .text(0, 0, lines.join('\n\n'), {
+        fontFamily: 'SpecialElite',
+        fontSize: '28px',
+        color: '#f4ead7',
+        align: 'center',
+        wordWrap: {
+          width: 760,
+          useAdvancedWrap: true
+        },
+        lineSpacing: 10
+      })
+      .setOrigin(0.5)
+      .setDepth(4002);
 
-    this.continueBtn = this.add.text(0, 0, '[ CONTINUE ]', {
-      fontFamily: 'SpecialElite',
-      fontSize: '30px',
-      color: palette.buttonText,
-      backgroundColor: '#2a221b',
-      padding: { left: 18, right: 18, top: 10, bottom: 10 }
-    }).setOrigin(0.5).setDepth(4002).setInteractive({ useHandCursor: true });
+    this.continueBtn = this.add
+      .text(0, 0, '[ CONTINUE ]', {
+        fontFamily: 'SpecialElite',
+        fontSize: '30px',
+        color: palette.buttonText,
+        backgroundColor: '#2a221b',
+        padding: {
+          left: 18,
+          right: 18,
+          top: 10,
+          bottom: 10
+        }
+      })
+      .setOrigin(0.5)
+      .setDepth(4002)
+      .setInteractive({ useHandCursor: true });
 
-    this.hintText = this.add.text(0, 0, 'Tap anywhere or press Enter / Space', {
-      fontFamily: 'SpecialElite',
-      fontSize: '16px',
-      color: '#ccb98c',
-      align: 'center'
-    }).setOrigin(0.5).setDepth(4002);
+    this.hintText = this.add
+      .text(0, 0, 'Tap anywhere or press Enter / Space', {
+        fontFamily: 'SpecialElite',
+        fontSize: '16px',
+        color: '#ccb98c',
+        align: 'center'
+      })
+      .setOrigin(0.5)
+      .setDepth(4002);
 
     this.handleContinueBound = () => this.finishScene();
     this.handleSpaceBound = () => this.finishScene();
     this.handleEnterBound = () => this.finishScene();
 
     this.overlay.on('pointerup', this.handleContinueBound);
-    this.continueBtn.on('pointerover', () => this.continueBtn.setColor('#ffffff'));
-    this.continueBtn.on('pointerout', () => {
-      if (this.continueBtn) {
-        this.continueBtn.setColor(palette.buttonText);
-      }
+
+    this.continueBtn.on('pointerover', () => {
+      this.continueBtn?.setColor('#ffffff');
     });
+
+    this.continueBtn.on('pointerout', () => {
+      this.continueBtn?.setColor(palette.buttonText);
+    });
+
     this.continueBtn.on('pointerup', this.handleContinueBound);
 
-    this.input.keyboard?.once('keydown-SPACE', this.handleSpaceBound);
-    this.input.keyboard?.once('keydown-ENTER', this.handleEnterBound);
+    this.input.keyboard?.once(
+      'keydown-SPACE',
+      this.handleSpaceBound
+    );
+
+    this.input.keyboard?.once(
+      'keydown-ENTER',
+      this.handleEnterBound
+    );
 
     this.bindResize();
     this.applyResponsiveLayout();
 
-    this.tweens.add({
-      targets: [this.panel, this.headerText, this.speakerText, this.bodyText, this.continueBtn, this.hintText],
+    this.createTrackedTween({
+      targets: [
+        this.panel,
+        this.headerText,
+        this.speakerText,
+        this.bodyText,
+        this.continueBtn,
+        this.hintText
+      ],
       alpha: { from: 0, to: 1 },
       duration: 160,
       ease: 'Quad.easeOut'
     });
+  }
 
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+  restoreHud() {
+    if (!this._hudHidden) return;
+
+    this._hudHidden = false;
+    EventBus.emit('showHUD');
   }
 
   getLayout() {
     const { width, height } = this.scale;
     const isMobile = width <= 900;
 
-    const panelWidth = Math.min(width - 28, isMobile ? 700 : 960);
-    const panelHeight = Math.min(height - 28, isMobile ? 700 : 520);
+    const panelWidth = Math.min(
+      width - 28,
+      isMobile ? 700 : 960
+    );
+
+    const panelHeight = Math.min(
+      height - 28,
+      isMobile ? 700 : 520
+    );
+
     const panelX = width / 2;
     const panelY = height / 2;
     const panelTop = panelY - panelHeight / 2;
@@ -172,7 +252,10 @@ export class TheoryResultCallScene extends BaseScene {
       hintY,
       headerWrap: Math.max(220, panelWidth - 70),
       speakerWrap: Math.max(220, panelWidth - 90),
-      bodyWrap: Math.max(220, panelWidth - (isMobile ? 70 : 120))
+      bodyWrap: Math.max(
+        220,
+        panelWidth - (isMobile ? 70 : 120)
+      )
     };
   }
 
@@ -180,8 +263,13 @@ export class TheoryResultCallScene extends BaseScene {
     this.layout = this.getLayout();
     const L = this.layout;
 
-    this.overlay.setSize(L.width, L.height).setPosition(0, 0);
-    this.panel.setPosition(L.panelX, L.panelY).setSize(L.panelWidth, L.panelHeight);
+    this.overlay
+      .setSize(L.width, L.height)
+      .setPosition(0, 0);
+
+    this.panel
+      .setPosition(L.panelX, L.panelY)
+      .setSize(L.panelWidth, L.panelHeight);
 
     this.headerText.setPosition(L.panelX, L.headerY);
     this.headerText.setFontSize(L.isMobile ? '28px' : '38px');
@@ -206,9 +294,10 @@ export class TheoryResultCallScene extends BaseScene {
 
   bindResize() {
     if (this._resizeBound) return;
-    this._resizeBound = true;
 
+    this._resizeBound = true;
     this.handleResizeBound = this.handleResize.bind(this);
+
     this.scale.on('resize', this.handleResizeBound, this);
   }
 
@@ -216,9 +305,11 @@ export class TheoryResultCallScene extends BaseScene {
     this.applyResponsiveLayout();
   }
 
-getSpeakerName(mode) {
-  return mode === 'phone' ? 'Filtered Voice' : 'HQ Assessment';
-}
+  getSpeakerName(mode) {
+    return mode === 'phone'
+      ? 'Filtered Voice'
+      : 'HQ Assessment';
+  }
 
   getPalette(result) {
     const map = {
@@ -296,27 +387,36 @@ getSpeakerName(mode) {
 
   finishScene() {
     if (this._finished) return;
+
     this._finished = true;
 
-    if (!gameState.reconstructedHeist || typeof gameState.reconstructedHeist !== 'object') {
+    if (
+      !gameState.reconstructedHeist ||
+      typeof gameState.reconstructedHeist !== 'object'
+    ) {
       gameState.reconstructedHeist = {};
     }
 
     gameState.reconstructedHeist.resultCommentSeen = true;
     saveGameState();
 
-    if (this.sourceScene && this.scene.isSleeping(this.sourceScene)) {
-      this.scene.wake(this.sourceScene);
+    if (this.hasScene(this.sourceScene)) {
+      if (this.isSceneSleeping(this.sourceScene)) {
+        this.scene.wake(this.sourceScene);
+      }
+
+      if (this.isScenePaused(this.sourceScene)) {
+        this.scene.resume(this.sourceScene);
+      }
     }
 
-    if (this.sourceScene && this.scene.isPaused(this.sourceScene)) {
-      this.scene.resume(this.sourceScene);
-    }
-
+    this.restoreHud();
     this.scene.stop();
   }
 
   onShutdown() {
+    this.restoreHud();
+
     if (this.handleResizeBound) {
       this.scale.off('resize', this.handleResizeBound, this);
     }
@@ -325,16 +425,20 @@ getSpeakerName(mode) {
       this.overlay.off('pointerup', this.handleContinueBound);
     }
 
-    if (this.continueBtn) {
-      this.continueBtn.removeAllListeners();
-    }
+    this.continueBtn?.removeAllListeners();
 
     if (this.input.keyboard && this.handleSpaceBound) {
-      this.input.keyboard.off('keydown-SPACE', this.handleSpaceBound);
+      this.input.keyboard.off(
+        'keydown-SPACE',
+        this.handleSpaceBound
+      );
     }
 
     if (this.input.keyboard && this.handleEnterBound) {
-      this.input.keyboard.off('keydown-ENTER', this.handleEnterBound);
+      this.input.keyboard.off(
+        'keydown-ENTER',
+        this.handleEnterBound
+      );
     }
 
     [
@@ -345,9 +449,9 @@ getSpeakerName(mode) {
       this.bodyText,
       this.continueBtn,
       this.hintText
-    ].forEach(item => {
-      if (item?.removeAllListeners) item.removeAllListeners();
-      if (item?.destroy) item.destroy();
+    ].forEach((item) => {
+      item?.removeAllListeners?.();
+      item?.destroy?.();
     });
 
     this.overlay = null;
@@ -360,5 +464,10 @@ getSpeakerName(mode) {
 
     this.layout = null;
     this._resizeBound = false;
+
+    this.handleResizeBound = null;
+    this.handleContinueBound = null;
+    this.handleSpaceBound = null;
+    this.handleEnterBound = null;
   }
 }

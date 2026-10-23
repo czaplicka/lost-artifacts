@@ -26,7 +26,6 @@ export class GameScene extends BaseScene {
     this.currentVideo = null;
     this.currentVideoKey = null;
     this.currentAudio = null;
-
     this.typingEvent = null;
 
     this.hasStartedOfficeScene = false;
@@ -347,7 +346,7 @@ export class GameScene extends BaseScene {
     }
   }
 
-  createContinueHint(label = 'CLICK / SPACE: SHOW TEXT') {
+  createContinueHint(label = 'CLICK / SPACE: SKIP') {
     if (
       this._cleanupDone ||
       this._introDisposed ||
@@ -558,12 +557,16 @@ export class GameScene extends BaseScene {
       return;
     }
 
+    // Pierwsze kliknięcie podczas pisania pokazuje cały tekst.
     if (this.isTypingIntro) {
       this.finishTypingInstantly();
       return;
     }
 
-    this.checkIntroCompletion();
+    // Następne kliknięcie pomija pozostały film i głos.
+    if (this.isIntroReady) {
+      this.finishSequence({ skip: true });
+    }
   }
 
   stopTyping() {
@@ -585,7 +588,7 @@ export class GameScene extends BaseScene {
     this.isTypingIntro = false;
     this.isIntroReady = true;
 
-    this.removeContinueHint();
+    this.createContinueHint('CLICK / SPACE: SKIP');
     this.markIntroPartComplete('text');
   }
 
@@ -618,7 +621,7 @@ export class GameScene extends BaseScene {
       return;
     }
 
-    this.createContinueHint();
+    this.createContinueHint('CLICK / SPACE: SHOW TEXT');
 
     const token = this._runToken;
     const characters = Array.from(text);
@@ -721,7 +724,7 @@ export class GameScene extends BaseScene {
 
   // Video and voice
 
-  playVideo(videoKey, audioKey, onComplete = null) {
+  playVideo(videoKey, audioKey) {
     if (this._cleanupDone || this._introDisposed) {
       return;
     }
@@ -747,30 +750,8 @@ export class GameScene extends BaseScene {
       this._mediaToken === token
     );
 
-    let videoDone = !hasVideo;
-    let audioDone = !hasAudio;
-    let completionQueued = false;
-
-    const completeMediaIfReady = () => {
-      if (
-        !isCurrent() ||
-        !videoDone ||
-        !audioDone ||
-        completionQueued
-      ) {
-        return;
-      }
-
-      completionQueued = true;
-
-      Promise.resolve().then(() => {
-        if (!isCurrent()) {
-          return;
-        }
-
-        onComplete?.();
-      });
-    };
+    let videoDone = false;
+    let audioDone = false;
 
     const finishVideo = () => {
       if (!isCurrent() || videoDone) {
@@ -778,9 +759,7 @@ export class GameScene extends BaseScene {
       }
 
       videoDone = true;
-
       this.markIntroPartComplete('video');
-      completeMediaIfReady();
     };
 
     const finishAudio = () => {
@@ -789,10 +768,8 @@ export class GameScene extends BaseScene {
       }
 
       audioDone = true;
-
       this.restoreMusic(250);
       this.markIntroPartComplete('audio');
-      completeMediaIfReady();
     };
 
     if (!hasVideo) {
@@ -800,7 +777,7 @@ export class GameScene extends BaseScene {
         `[GameScene] Missing video: ${videoKey}`
       );
 
-      this.markIntroPartComplete('video');
+      finishVideo();
     }
 
     if (!hasAudio) {
@@ -808,7 +785,7 @@ export class GameScene extends BaseScene {
         `[GameScene] Missing audio: ${audioKey}`
       );
 
-      this.markIntroPartComplete('audio');
+      finishAudio();
     }
 
     if (!isCurrent()) {
@@ -846,7 +823,6 @@ export class GameScene extends BaseScene {
 
         video.once('textureready', resize);
         video.once('playing', resize);
-
         video.once('complete', finishVideo);
 
         const handleVideoError = (...details) => {
@@ -913,7 +889,7 @@ export class GameScene extends BaseScene {
 
     if (video?.scene && isCurrent() && !videoDone) {
       try {
-        // Film nie zapętla się, nawet gdy głos nadal trwa.
+        // Bez zapętlania: czekamy na rzeczywisty koniec filmu.
         video.play(false);
         this.resizeVideoCover(video);
       } catch (error) {
@@ -927,7 +903,6 @@ export class GameScene extends BaseScene {
       }
     }
 
-    completeMediaIfReady();
     this.checkIntroCompletion();
   }
 
@@ -999,7 +974,7 @@ export class GameScene extends BaseScene {
 
   // Office transition
 
-  finishSequence() {
+  finishSequence({ skip = false } = {}) {
     if (
       this.sequenceFinished ||
       this.isTransitioning ||
@@ -1011,7 +986,9 @@ export class GameScene extends BaseScene {
 
     const { text, video, audio } = this.introProgress;
 
-    if (!text || !video || !audio) {
+    // Automatycznie czekamy na całość.
+    // Ręczne pominięcie nie musi czekać na film i głos.
+    if (!skip && (!text || !video || !audio)) {
       return;
     }
 
@@ -1024,8 +1001,12 @@ export class GameScene extends BaseScene {
     this.removeIntroInputListeners();
     this.removeContinueHint();
 
-    this.restoreMusic(180);
+    // Przy ręcznym pominięciu od razu zatrzymujemy media.
+    if (skip) {
+      this.destroyCurrentVideo();
+    }
 
+    this.restoreMusic(180);
     this.goToOfficeScene();
   }
 

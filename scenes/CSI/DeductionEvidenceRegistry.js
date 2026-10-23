@@ -36,7 +36,7 @@ export const DEDUCTION_EVIDENCE_REGISTRY = {
 
     clueTemplates: [
       'The recovered hair is {value}. {name} has {suspectValue} hair.',
-      'Microscope result: {value} hair. {name}: {suspectValue}.',
+      'Microscope result: {value} hair.',
       'Hair does not lie. It does, however, clog the drain.'
     ],
 

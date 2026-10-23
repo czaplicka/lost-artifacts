@@ -2,10 +2,6 @@ import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { BaseScene } from './BaseScene.js';
 import { CrimeCityTutorial, advanceCrimeTutorial } from '../CrimeCityTutorial.js';
-import {
-  getPublicSuspectList,
-  getSuspectCaseSummary
-} from '../ui/suspectUtils.js';
 import { SuspectBoardUIMixin } from '../suspectsBoard/SuspectBoardUI.mixin.js';
 import { SuspectExclusionMixin } from '../suspectsBoard/SuspectExclusion.mixin.js';
 import { SuspectBoardDataMixin } from '../suspectsBoard/SuspectBoardData.mixin.js';

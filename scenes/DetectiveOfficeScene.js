@@ -19,6 +19,13 @@ const DATA_FILES = [
   ['piCases', 'assets/data/piCases.json']
 ];
 
+const PHONE_ART = [
+  ['pi_phone_desk', 'assets/ui/pi-phone/desk.jpg'],
+  ['pi_phone_base', 'assets/ui/pi-phone/base.webp'],
+  ['pi_phone_handset', 'assets/ui/pi-phone/handset.webp'],
+  ['pi_phone_dial', 'assets/ui/pi-phone/dial.webp']
+];
+
 export class DetectiveOfficeScene extends BaseScene {
   constructor() {
     super({ key: SCENE_KEY });
@@ -71,6 +78,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
   preload() {
     const key = OFFICE_CONFIG.backgroundKey || 'pi_office_bg';
+
     const url =
       OFFICE_CONFIG.backgroundUrl ||
       'assets/local/pioffice.jpg';
@@ -83,6 +91,19 @@ export class DetectiveOfficeScene extends BaseScene {
       if (!this.cache.json.exists(dataKey)) {
         this.load.json(dataKey, dataUrl);
       }
+    }
+
+    for (const [imageKey, imageUrl] of PHONE_ART) {
+      if (!this.textures.exists(imageKey)) {
+        this.load.image(imageKey, imageUrl);
+      }
+    }
+
+    if (!this.textures.exists('pi_computer_wallpaper')) {
+      this.load.image(
+        'pi_computer_wallpaper',
+        'assets/ui/pi-computer/wallpaper.png'
+      );
     }
   }
 
@@ -475,7 +496,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
     if (moved === false) {
       this.showFeedback(
-        'The city is currently unavailable.'
+        'Too drunk to go to the city.'
       );
     }
 

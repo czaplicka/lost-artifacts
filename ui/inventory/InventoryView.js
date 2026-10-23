@@ -6,345 +6,409 @@ export class InventoryView {
     this.actions = actions;
 
     this.isVisible = false;
+    this.button = null;
 
-    this.slotSize = 70;
-    this.slotPadding = 8;
     this.cols = 4;
     this.rows = 3;
+    this.slotSize = 112;
+    this.slotPadding = 12;
 
-    this.width =
-      (this.slotSize + this.slotPadding) * this.cols + 40;
-
-    this.height =
-      (this.slotSize + this.slotPadding) * this.rows + 135;
+    this.width = 820;
+    this.height = 510;
 
     this.colors = {
       background: '#1a1a2e',
       border: '#d4af37',
-      text: '#eaeaea',
+      text: '#f2eadc',
+      muted: '#bcaeaa',
       hover: '#f4b860',
       selected: '#ffd700',
       slot: '#2a2a3e',
       shadow: '#000000',
-      use: '#7CFC8A'
+      use: '#7cfc8a'
     };
-
-    // Przycisk otwierający inventory znajduje się w PlayerMenuUI.
-    this.button = null;
 
     this._destroyed = false;
     this._usable = false;
+    this._selectedItem = null;
+    this._items = [];
+    this._capacity = { current: 0, max: 12 };
+    this._page = 0;
+
+    this.panelRect = null;
   }
 
   create() {
-    this.createTextures();
-
-    const image = (key, depth) =>
-      this.scene.add
-        .image(0, 0, key)
-        .setOrigin(0, 0)
-        .setDepth(depth)
-        .setScrollFactor(0);
-
     const text = (
       value,
       size,
       color = this.colors.text,
       pixel = false
-    ) =>
-      this.scene.add
-        .text(0, 0, value, {
-          fontFamily: pixel ? 'PressStart2P' : 'SpecialElite',
-          fontSize: size,
-          color
-        })
-        .setDepth(1001)
-        .setScrollFactor(0);
+    ) => this.scene.add.text(0, 0, value, {
+      fontFamily: pixel ? 'PressStart2P' : 'SpecialElite',
+      fontSize: `${size}px`,
+      color
+    }).setScrollFactor(0);
 
-    this.panel = image('inventoryPanel', 1000)
-      .setOrigin(1, 0)
+    this.root = this.scene.add.container(0, 0)
+      .setDepth(1000)
+      .setScrollFactor(0);
+
+    this.panel = this.scene.add.rectangle(
+      0,
+      0,
+      this.width,
+      this.height,
+      0x1a1a2e,
+      0.99
+    )
+      .setOrigin(0)
+      .setStrokeStyle(3, 0xd4af37)
       .setInteractive();
 
-    this.panel.on('pointerdown', (pointer, x, y, event) => {
-      event?.stopPropagation();
-    });
+    for (const eventName of ['pointerdown', 'pointerup']) {
+      this.panel.on(eventName, (pointer, x, y, event) => {
+        event?.stopPropagation();
+      });
+    }
 
-    this.container = this.scene.add
-      .container(0, 0)
-      .setDepth(1001)
-      .setScrollFactor(0);
+    this.container = this.scene.add.container(24, 82);
 
     this.titleText = text(
       'INVENTORY',
-      '16px',
+      20,
       this.colors.border,
       true
-    );
+    ).setPosition(24, 24);
 
-    this.counterText = text('', '12px').setOrigin(1, 0);
+    this.counterText = text('', 20)
+      .setOrigin(1, 0)
+      .setPosition(this.width - 92, 24);
 
     this.closeButton = text(
       '[X]',
-      '12px',
+      18,
       this.colors.border,
       true
     )
       .setOrigin(1, 0)
+      .setPosition(this.width - 24, 24)
       .setInteractive({ useHandCursor: true });
 
-    this.closeButton.on(
-      'pointerup',
-      (pointer, x, y, event) => {
-        event?.stopPropagation();
-        this.actions.close();
-      }
-    );
+    this.closeButton.on('pointerup', (pointer, x, y, event) => {
+      event?.stopPropagation();
+      this.actions.close();
+    });
+
+    this.divider = this.scene.add.rectangle(
+      24,
+      64,
+      this.width - 48,
+      2,
+      0xd4af37,
+      0.6
+    ).setOrigin(0);
+
+    this.detailsDivider = this.scene.add.rectangle(
+      516,
+      82,
+      2,
+      348,
+      0xd4af37,
+      0.35
+    ).setOrigin(0);
 
     this.selectedLabel = text(
-      '',
-      '10px',
+      'SELECT AN ITEM',
+      22,
       this.colors.selected
-    );
+    )
+      .setPosition(540, 86)
+      .setWordWrapWidth(254);
 
-    this.selectedLabel.setWordWrapWidth(this.width - 100);
+    this.tooltip = text('', 18)
+      .setPosition(540, 158)
+      .setWordWrapWidth(254);
+
+    this.hintText = text('', 16, this.colors.muted)
+      .setPosition(540, 330)
+      .setWordWrapWidth(254);
+
+    this.useButtonBg = this.scene.add.rectangle(
+      540,
+      408,
+      254,
+      56,
+      0x353541,
+      1
+    )
+      .setOrigin(0)
+      .setStrokeStyle(2, 0xd4af37)
+      .setInteractive({ useHandCursor: true });
 
     this.useButton = text(
-      '[USE]',
-      '10px',
+      'USE',
+      18,
       this.colors.use,
       true
     )
-      .setOrigin(1, 0)
-      .setDepth(1002)
-      .setInteractive({ useHandCursor: true });
+      .setOrigin(0.5)
+      .setPosition(667, 436);
 
-    this.useButton.on(
+    this.useButtonBg.on(
       'pointerup',
       (pointer, x, y, event) => {
         event?.stopPropagation();
-        this.actions.use();
+
+        if (this._usable) {
+          this.actions.use();
+        }
       }
     );
 
-    this.useButton.on('pointerover', () => {
-      this.useButton.setColor(this.colors.hover);
+    this.useButtonBg.on('pointerover', () => {
+      if (this._usable) {
+        this.useButtonBg.setFillStyle(0x456b42);
+      }
     });
 
-    this.useButton.on('pointerout', () => {
-      this.useButton.setColor(this.colors.use);
+    this.useButtonBg.on('pointerout', () => {
+      this.updateUseButton();
     });
 
-    this.tooltip = text('', '10px');
-    this.tooltip.setWordWrapWidth(this.width - 40);
+    this.previousButton = text(
+      '<',
+      20,
+      this.colors.border,
+      true
+    )
+      .setPosition(24, 464)
+      .setInteractive({ useHandCursor: true });
 
-    // Nie tworzymy osobnej ikony inventory poza dolnym menu.
+    this.pageText = text('', 18, this.colors.muted)
+      .setOrigin(0.5, 0)
+      .setPosition(260, 465);
+
+    this.nextButton = text(
+      '>',
+      20,
+      this.colors.border,
+      true
+    )
+      .setOrigin(1, 0)
+      .setPosition(508, 464)
+      .setInteractive({ useHandCursor: true });
+
+    this.previousButton.on(
+      'pointerup',
+      (pointer, x, y, event) => {
+        event?.stopPropagation();
+        this.changePage(-1);
+      }
+    );
+
+    this.nextButton.on(
+      'pointerup',
+      (pointer, x, y, event) => {
+        event?.stopPropagation();
+        this.changePage(1);
+      }
+    );
+
+    this.root.add([
+      this.panel,
+      this.divider,
+      this.detailsDivider,
+      this.container,
+      this.titleText,
+      this.counterText,
+      this.closeButton,
+      this.selectedLabel,
+      this.tooltip,
+      this.hintText,
+      this.useButtonBg,
+      this.useButton,
+      this.previousButton,
+      this.pageText,
+      this.nextButton
+    ]);
+
     this.layout();
+    this.updateDetails();
     this.setPanelVisible(false);
   }
 
-  createTextures() {
-    const make = (key, width, height, draw) => {
-      if (this.scene.textures.exists(key)) return;
-
-      const graphics = this.scene.make.graphics({
-        x: 0,
-        y: 0,
-        add: false
-      });
-
-      draw(graphics);
-      graphics.generateTexture(key, width, height);
-      graphics.destroy();
-    };
-
-    make(
-      'inventoryPanel',
-      this.width,
-      this.height,
-      graphics => {
-        graphics
-          .fillStyle(0x1a1a2e, 0.95)
-          .fillRect(0, 0, this.width, this.height);
-
-        graphics
-          .lineStyle(3, 0xd4af37)
-          .strokeRect(0, 0, this.width, this.height);
-      }
-    );
-
-    for (const selected of [false, true]) {
-      make(
-        selected ? 'inventorySlotSelected' : 'inventorySlot',
-        this.slotSize,
-        this.slotSize,
-        graphics => {
-          graphics
-            .fillStyle(0x2a2a3e, selected ? 0.95 : 0.7)
-            .fillRect(0, 0, this.slotSize, this.slotSize);
-
-          graphics
-            .lineStyle(
-              selected ? 3 : 2,
-              selected ? 0xffd700 : 0xd4af37
-            )
-            .strokeRect(
-              1,
-              1,
-              this.slotSize - 2,
-              this.slotSize - 2
-            );
-        }
-      );
-    }
-
-    make('itemQtyBadge', 20, 20, graphics => {
-      graphics
-        .fillStyle(0xd4af37, 0.9)
-        .fillCircle(10, 10, 10);
-    });
-  }
-
   layout() {
-    if (this._destroyed) return;
+    if (this._destroyed || !this.root) return;
 
     const { width, height } = this.scene.scale;
 
-    const scale = Math.min(
-      1,
-      Math.max(0.1, (width - 24) / this.width),
-      Math.max(0.1, (height - 84) / this.height)
+    const scale = Math.max(
+      0.01,
+      Math.min(
+        1.2,
+        (width - 32) / this.width,
+        (height - 100) / this.height
+      )
     );
 
-    const panelX = width - 20;
-
-    const panelY = Math.min(
-      60,
-      Math.max(12, height - this.height * scale - 12)
+    const left = (width - this.width * scale) / 2;
+    const top = Math.max(
+      12,
+      (height - this.height * scale) / 2 - 12
     );
 
-    const left = panelX - this.width * scale;
+    this.root.setPosition(left, top).setScale(scale);
 
-    const at = (object, x, y) => {
-      object
-        .setPosition(
-          left + x * scale,
-          panelY + y * scale
-        )
-        .setScale(scale);
-    };
-
-    this.panel.setPosition(panelX, panelY).setScale(scale);
-
-    at(this.container, 20, 50);
-    at(this.titleText, 20, 15);
-    at(this.counterText, this.width - 52, 15);
-    at(this.closeButton, this.width - 18, 15);
-    at(this.selectedLabel, 20, this.height - 53);
-    at(this.useButton, this.width - 18, this.height - 55);
-    at(this.tooltip, 20, this.height - 34);
-
-    this.panelX = panelX;
-    this.panelY = panelY;
+    this.panelX = left + this.width * scale;
+    this.panelY = top;
 
     this.panelRect = new Phaser.Geom.Rectangle(
       left,
-      panelY,
+      top,
       this.width * scale,
       this.height * scale
     );
   }
 
   targets() {
-    return [
-      this.panel,
-      this.container,
-      this.titleText,
-      this.counterText,
-      this.closeButton,
-      this.selectedLabel,
-      this.useButton,
-      this.tooltip
-    ].filter(Boolean);
+    return this.root ? [this.root] : [];
   }
 
   setPanelVisible(visible) {
-    for (const object of this.targets()) {
-      object.setVisible(visible);
-    }
-
-    this.useButton.setVisible(visible && this._usable);
+    this.root?.setVisible(visible);
   }
 
   show(immediate = false) {
     if (this._destroyed) return;
 
     this.isVisible = true;
-
-    const targets = this.targets();
-
-    this.scene.tweens.killTweensOf(targets);
-
     this.layout();
-    this.setPanelVisible(true);
 
-    for (const object of targets) {
-      object.setAlpha(immediate ? 1 : 0);
-    }
+    this.scene.tweens.killTweensOf(this.root);
+    this.root.setVisible(true).setAlpha(immediate ? 1 : 0);
 
     if (!immediate) {
       this.scene.tweens.add({
-        targets,
+        targets: this.root,
         alpha: 1,
-        duration: 200,
+        duration: 150,
         ease: 'Quad.easeOut'
       });
     }
   }
 
-  hide(immediate = false) {
+  hide() {
     if (this._destroyed) return;
 
     this.isVisible = false;
-    this.hideTooltip();
-
-    const targets = this.targets();
-
-    this.scene.tweens.killTweensOf(targets);
-    this.setPanelVisible(false);
-
-    for (const object of targets) {
-      object.setAlpha(0);
-    }
+    this.scene.tweens.killTweensOf(this.root);
+    this.root.setVisible(false).setAlpha(0);
   }
 
   render(items, capacity, selectedItem, usable) {
     if (this._destroyed || !this.container?.active) return;
 
+    this._items = Array.isArray(items) ? items : [];
+    this._capacity = {
+      current: Number(capacity?.current) || 0,
+      max: Math.max(0, Number(capacity?.max) || 0)
+    };
+
+    this._selectedItem = selectedItem || null;
     this._usable = Boolean(usable);
 
+    const pages = this.getPageCount();
+    this._page = Phaser.Math.Clamp(this._page, 0, pages - 1);
+
+    this.renderSlots();
+
+    this.counterText.setText(
+      `${this._capacity.current} / ${this._capacity.max}`
+    );
+
+    this.pageText.setText(`${this._page + 1} / ${pages}`);
+
+    this.previousButton.setAlpha(this._page > 0 ? 1 : 0.3);
+    this.nextButton.setAlpha(
+      this._page < pages - 1 ? 1 : 0.3
+    );
+
+    this.updateDetails();
+    this.updateUseButton();
+  }
+
+  getPageCount() {
+    return Math.max(
+      1,
+      Math.ceil(
+        Math.max(this._capacity.max, this._items.length)
+        / (this.cols * this.rows)
+      )
+    );
+  }
+
+  changePage(direction) {
+    if (!this.isVisible || this.actions.isDragging()) return;
+
+    const nextPage = Phaser.Math.Clamp(
+      this._page + direction,
+      0,
+      this.getPageCount() - 1
+    );
+
+    if (nextPage === this._page) return;
+
+    this._page = nextPage;
+
+    this.render(
+      this._items,
+      this._capacity,
+      this._selectedItem,
+      this._usable
+    );
+  }
+
+  renderSlots() {
     this.container.removeAll(true);
 
-    for (let index = 0; index < capacity.max; index += 1) {
-      const x =
-        (index % this.cols) *
-        (this.slotSize + this.slotPadding);
+    const pageSize = this.cols * this.rows;
+    const firstIndex = this._page * pageSize;
 
-      const y =
-        Math.floor(index / this.cols) *
-        (this.slotSize + this.slotPadding);
+    const totalSlots = Math.max(
+      this._capacity.max,
+      this._items.length
+    );
 
-      const item = items[index];
-      const selected = item && selectedItem?.id === item.id;
+    for (let index = 0; index < pageSize; index += 1) {
+      const itemIndex = firstIndex + index;
 
-      const slot = this.scene.add
-        .image(
-          x,
-          y,
-          selected
-            ? 'inventorySlotSelected'
-            : 'inventorySlot'
-        )
-        .setOrigin(0);
+      if (itemIndex >= totalSlots) break;
+
+      const x = (index % this.cols)
+        * (this.slotSize + this.slotPadding);
+
+      const y = Math.floor(index / this.cols)
+        * (this.slotSize + this.slotPadding);
+
+      const item = this._items[itemIndex];
+      const selected = Boolean(
+        item && this._selectedItem?.id === item.id
+      );
+
+      const slot = this.scene.add.rectangle(
+        x,
+        y,
+        this.slotSize,
+        this.slotSize,
+        selected ? 0x403929 : 0x2a2a3e,
+        1
+      )
+        .setOrigin(0)
+        .setStrokeStyle(
+          selected ? 3 : 2,
+          selected ? 0xffd700 : 0x7e6839
+        );
 
       this.container.add(slot);
 
@@ -352,67 +416,52 @@ export class InventoryView {
         this.renderItem(slot, item, x, y, selected);
       }
     }
-
-    this.counterText.setText(
-      `${capacity.current}/${capacity.max}`
-    );
-
-    this.selectedLabel.setText(
-      selectedItem ? `USING: ${selectedItem.name}` : ''
-    );
-
-    this.useButton.setVisible(
-      this.isVisible && this._usable
-    );
   }
 
   renderItem(slot, item, x, y, selected) {
     const centerX = x + this.slotSize / 2;
 
-    const icon = this.scene.add
-      .text(centerX, y + 20, item.icon || '📦', {
-        fontSize: '32px'
-      })
-      .setOrigin(0.5);
+    const icon = this.scene.add.text(
+      centerX,
+      y + 35,
+      item.icon || '📦',
+      { fontSize: '42px' }
+    ).setOrigin(0.5);
 
-    const name = item.name.length > 10
-      ? `${item.name.slice(0, 9)}…`
-      : item.name;
+    const fullName = String(item.name || 'Unknown item');
 
-    const label = this.scene.add
-      .text(centerX, y + 50, name, {
+    const shortName = fullName.length > 23
+      ? `${fullName.slice(0, 22)}…`
+      : fullName;
+
+    const label = this.scene.add.text(
+      centerX,
+      y + 70,
+      shortName,
+      {
         fontFamily: 'SpecialElite',
-        fontSize: '9px',
+        fontSize: '15px',
         color: this.colors.text,
-        align: 'center'
-      })
-      .setOrigin(0.5);
-
-    const over = () => {
-      if (
-        !this.isVisible
-        || this.actions.isDragging()
-      ) {
-        return;
+        align: 'center',
+        wordWrap: { width: this.slotSize - 10 }
       }
-
-      icon.setTint(0xf4b860);
-      this.actions.tooltip(item);
-    };
-
-    const out = () => {
-      if (selected) {
-        icon.setTint(0xffd700);
-      } else {
-        icon.clearTint();
-      }
-
-      this.hideTooltip();
-    };
+    ).setOrigin(0.5, 0);
 
     if (selected) {
       icon.setTint(0xffd700);
     }
+
+    const over = () => {
+      if (!this.isVisible || this.actions.isDragging()) return;
+
+      slot.setFillStyle(0x403746);
+      this.actions.tooltip(item);
+    };
+
+    const out = () => {
+      slot.setFillStyle(selected ? 0x403929 : 0x2a2a3e);
+      this.hideTooltip();
+    };
 
     for (const object of [slot, icon, label]) {
       object.setInteractive({ useHandCursor: true });
@@ -424,7 +473,10 @@ export class InventoryView {
         'pointerdown',
         (pointer, localX, localY, event) => {
           event?.stopPropagation();
-          this.actions.press(item, pointer);
+
+          if (this.isVisible) {
+            this.actions.press(item, pointer);
+          }
         }
       );
     }
@@ -432,82 +484,123 @@ export class InventoryView {
     this.container.add([icon, label]);
 
     if (item.quantity > 1) {
-      const badgeX = x + this.slotSize - 10;
-      const badgeY = y + this.slotSize - 10;
+      const badgeX = x + this.slotSize - 14;
+      const badgeY = y + 14;
 
-      const badge = this.scene.add.image(
+      const badge = this.scene.add.circle(
         badgeX,
         badgeY,
-        'itemQtyBadge'
+        13,
+        0xd4af37
       );
 
-      const quantityText = this.scene.add
-        .text(
-          badgeX,
-          badgeY,
-          String(item.quantity),
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '10px',
-            color: '#000000'
-          }
-        )
-        .setOrigin(0.5);
+      const quantityText = this.scene.add.text(
+        badgeX,
+        badgeY,
+        String(item.quantity),
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '17px',
+          color: '#17131c'
+        }
+      ).setOrigin(0.5);
 
       this.container.add([badge, quantityText]);
     }
   }
 
-  showTooltip(item, usable) {
-    if (
-      this._destroyed
-      || !this.isVisible
-      || !item
-    ) {
+  updateUseButton() {
+    if (!this.useButton || !this.useButtonBg) return;
+
+    this.useButton.setText('USE');
+    this.useButton.setColor(
+      this._usable ? this.colors.use : '#96909b'
+    );
+
+    this.useButtonBg.setFillStyle(
+      this._usable ? 0x315534 : 0x353541
+    );
+
+    this.useButtonBg.setStrokeStyle(
+      2,
+      this._usable ? 0x7cfc8a : 0x6a6070
+    );
+
+    if (this.useButtonBg.input) {
+      this.useButtonBg.input.cursor = this._usable
+        ? 'pointer'
+        : 'default';
+    }
+  }
+
+  updateDetails(item = this._selectedItem, usable = this._usable) {
+    if (!this.selectedLabel || !this.tooltip) return;
+
+    if (!item) {
+      this.selectedLabel.setText('SELECT AN ITEM');
+      this.tooltip.setText(
+        'Your pockets. Slightly more organised than your life.'
+      );
+      this.hintText.setText(
+        'Select an item to inspect it.\n'
+        + 'Drag an item onto a scene object to use it there.'
+      );
       return;
     }
 
-    let type = (item.type || 'misc').toUpperCase();
+    this.selectedLabel.setText(
+      String(item.name || 'Unknown item')
+    );
 
-    if (
-      usable
-      && item.metadata?.effect?.energy != null
-    ) {
-      type +=
-        ` · +${item.metadata.effect.energy} ENERGY`;
+    let type = String(item.type || 'misc').toUpperCase();
+
+    if (usable && item.metadata?.effect?.energy != null) {
+      type += `\n+${item.metadata.effect.energy} ENERGY`;
     }
 
-    this.tooltip.setText(
-      `${item.name}\n${type}\n${item.description || ''}`
+    const description = String(
+      item.description || 'No description. Suspicious.'
+    );
+
+    const preview = description.length > 210
+      ? `${description.slice(0, 209)}…`
+      : description;
+
+    this.tooltip.setText(`${type}\n\n${preview}`);
+
+    this.hintText.setText(
+      usable
+        ? 'Click USE to consume the selected item.'
+        : 'To use this on something, drag it onto the target.'
     );
   }
 
+  showTooltip(item, usable) {
+    if (this._destroyed || !this.isVisible || !item) return;
+    this.updateDetails(item, Boolean(usable));
+  }
+
   hideTooltip() {
-    this.tooltip?.setText('');
+    if (this._destroyed) return;
+    this.updateDetails();
   }
 
   destroy() {
     if (this._destroyed) return;
 
     this._destroyed = true;
+    this.isVisible = false;
 
-    this.scene.tweens.killTweensOf(this.targets());
-
-    this.container?.destroy(true);
-
-    for (const object of [
-      this.panel,
-      this.titleText,
-      this.counterText,
-      this.closeButton,
-      this.selectedLabel,
-      this.useButton,
-      this.tooltip
-    ]) {
-      object?.destroy();
+    if (this.root) {
+      this.scene?.tweens?.killTweensOf(this.root);
+      this.root.destroy(true);
     }
 
+    this.root = null;
+    this.container = null;
+    this.panel = null;
     this.button = null;
+    this.panelRect = null;
     this.actions = null;
     this.scene = null;
   }

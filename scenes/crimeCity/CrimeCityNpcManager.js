@@ -1,4 +1,3 @@
-// scenes/crimeCity/CrimeCityNpcManager.js
 import { gameState } from '../../GameData.js';
 import { getCaseSuspects } from '../../suspects/CaseSuspects.js';
 
@@ -6,13 +5,13 @@ const GENERIC_NPC_KEYS = [
   'npc', 'npc1', 'npc2', 'npc3', 'npc4', 'npc5', 'npc6'
 ];
 
-const MAX_ICON_HEIGHT = 180;
-const MAX_CELL_WIDTH = 200;
-const MIN_CELL_WIDTH = 120;
-const HOVER_MULTIPLIER = 1.08;
+const MAX_ICON_HEIGHT = 360;
+const MAX_CELL_WIDTH = 260;
+const MIN_CELL_WIDTH = 160;
+const HOVER_MULTIPLIER = 1.1;
 const HEADER_BAR_HEIGHT = 80;
-const CLUSTER_WIDTH_RATIO = 0.36;
-const ICON_HORIZONTAL_PADDING = 20;
+const CLUSTER_WIDTH_RATIO = 0.46;
+const ICON_HORIZONTAL_PADDING = 16;
 const MAP_EDGE_PADDING = 16;
 
 export class CrimeCityNpcManager {
@@ -31,7 +30,69 @@ export class CrimeCityNpcManager {
       (entry) => entry?.id === suspectId
     );
 
-    return suspect?.name || suspect?.publicProfile?.displayName || fallback;
+    return suspect?.name ||
+      suspect?.publicProfile?.displayName ||
+      fallback;
+  }
+
+  hasVisitedApartment() {
+    const mission = gameState.currentMission || {};
+
+    const missionId = String(
+      mission.id ||
+      mission.missionId ||
+      'unknown_mission'
+    );
+
+    const progress = gameState.apartmentProgress?.[missionId];
+
+    return Boolean(
+      progress &&
+      (
+        progress.inventoryVersion === 2 ||
+        progress.updatedAt
+      )
+    );
+  }
+
+  createApartmentEvidenceLab() {
+    const scene = this.scene;
+
+    if (
+      !scene ||
+      scene._cleanupDone ||
+      !scene.mapUI ||
+      !scene.isCrimeSceneCompleted()
+    ) {
+      return;
+    }
+
+    const position = scene.crimeCityConfig?.crimeLab;
+
+    if (!position) {
+      console.warn(
+        '[CrimeCityNpcManager] Missing Crime Lab map position.'
+      );
+      return;
+    }
+
+    scene.mapUI.createMapIcon({
+      ...position,
+      textureKey: 'crime_lab',
+      fallbackColor: 0x1565c0,
+      fallbackStroke: 0x7fc8f8,
+      label: 'Crime Lab — Apartment Evidence',
+      collection: this.createdObjects,
+      onClick: () => scene.openCrimeLab()
+    });
+
+    scene.mapUI.createStatusBadge(
+      position.x,
+      position.y - 84,
+      'Examine apartment clues',
+      '#8ed1fc',
+      this.createdObjects
+    );
   }
 
   getAlibiAccessState() {
@@ -42,10 +103,17 @@ export class CrimeCityNpcManager {
 
     const scene = this.scene;
 
-    if (!scene || scene._cleanupDone) return lockedState;
+    if (
+      !scene ||
+      scene._cleanupDone ||
+      this.hasVisitedApartment()
+    ) {
+      return lockedState;
+    }
 
     const caseKey = scene.getCaseKey();
-    const exclusionState = gameState.suspectExclusionState?.[caseKey];
+    const exclusionState =
+      gameState.suspectExclusionState?.[caseKey];
 
     if (exclusionState?.finished !== true) return lockedState;
 
@@ -76,6 +144,7 @@ export class CrimeCityNpcManager {
     if (
       !scene ||
       scene._cleanupDone ||
+      this.hasVisitedApartment() ||
       !scene.isCrimeLabCompleted() ||
       !scene.isGridCompleted()
     ) {
@@ -115,6 +184,13 @@ export class CrimeCityNpcManager {
   createNpcSpots() {
     this.clearCreatedObjects();
 
+    if (!this.scene || this.scene._cleanupDone) return;
+
+    if (this.hasVisitedApartment()) {
+      this.createApartmentEvidenceLab();
+      return;
+    }
+
     const access = this.getAlibiAccessState();
 
     if (!this.canAccessAlibiStage(access)) return;
@@ -151,6 +227,7 @@ export class CrimeCityNpcManager {
   getClusterMetrics(count) {
     const scene = this.scene;
     const columns = Math.max(count, 1);
+
     const availableWidth = Math.max(
       1,
       scene.scale.width - MAP_EDGE_PADDING * 2
@@ -217,23 +294,28 @@ export class CrimeCityNpcManager {
       badgeY + 16 + hoverHalfHeight
     );
 
-    const header = scene.add.text(clusterX, headerY, suspectName, {
-      fontFamily: 'SpecialElite',
-      fontSize: '18px',
-      color: '#ffe066',
-      backgroundColor: '#000000aa',
-      align: 'center',
-      padding: {
-        left: 8,
-        right: 8,
-        top: 3,
-        bottom: 3
-      },
-      wordWrap: {
-        width: Math.max(metrics.totalWidth, 140),
-        useAdvancedWrap: true
+    const header = scene.add.text(
+      clusterX,
+      headerY,
+      suspectName,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '22px',
+        color: '#ffe066',
+        backgroundColor: '#000000aa',
+        align: 'center',
+        padding: {
+          left: 8,
+          right: 8,
+          top: 3,
+          bottom: 3
+        },
+        wordWrap: {
+          width: Math.max(metrics.totalWidth, 140),
+          useAdvancedWrap: true
+        }
       }
-    }).setOrigin(0.5).setDepth(6);
+    ).setOrigin(0.5).setDepth(6);
 
     this.createdObjects.push(header);
 
@@ -269,7 +351,8 @@ export class CrimeCityNpcManager {
       return null;
     }
 
-    const icon = this.scene.add.image(slot.x, slot.y, textureKey)
+    const icon = this.scene.add
+      .image(slot.x, slot.y, textureKey)
       .setDepth(5)
       .setAlpha(isVisited ? 0.62 : 1)
       .setTint(
@@ -299,7 +382,7 @@ export class CrimeCityNpcManager {
       encounter.witnessRole || encounter.npcName || 'Contact',
       {
         fontFamily: 'SpecialElite',
-        fontSize: '16px',
+        fontSize: '20px',
         color: isVisited ? '#cccccc' : '#ffffff',
         backgroundColor: '#000000aa',
         align: 'center',
@@ -378,6 +461,8 @@ export class CrimeCityNpcManager {
     ) {
       return;
     }
+
+    if (this.hasVisitedApartment()) return;
 
     if (!this.canAccessEncounter(encounter)) {
       scene.showMessage([
@@ -482,7 +567,7 @@ export class CrimeCityNpcManager {
   }
 
   getCrimeCityEncounters(access = null) {
-    if (!this.scene) return [];
+    if (!this.scene || this.hasVisitedApartment()) return [];
 
     const currentAccess = access ?? this.getAlibiAccessState();
 

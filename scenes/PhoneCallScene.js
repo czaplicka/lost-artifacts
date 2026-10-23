@@ -10,13 +10,16 @@ export class PhoneCallScene extends BaseScene {
 
     this.sourceScene = 'CityScene';
     this.cityId = null;
-    this.ui = [];
-    this.ringTweens = [];
-    this.isAnswered = false;
-    this.isEnding = false;
     this.caseKey = null;
     this.returnScene = 'CrimeCityScene';
     this.returnData = {};
+
+    this.ui = [];
+    this.ringTweens = [];
+
+    this.isAnswered = false;
+    this.isEnding = false;
+    this.isShuttingDown = false;
   }
 
   init(data = {}) {
@@ -30,20 +33,19 @@ export class PhoneCallScene extends BaseScene {
 
     this.ui = [];
     this.ringTweens = [];
+
     this.isAnswered = false;
     this.isEnding = false;
+    this.isShuttingDown = false;
   }
 
   getCrimeCityScene() {
-    return this.scene.manager.keys.CrimeCityScene || null;
+    return this.scene?.manager?.keys?.CrimeCityScene || null;
   }
 
   unlockSuspectFiles(choice) {
     const crimeCityScene = this.getCrimeCityScene();
-
-    const caseKey =
-      this.caseKey ||
-      crimeCityScene?.getCaseKey?.();
+    const caseKey = this.caseKey || crimeCityScene?.getCaseKey?.();
 
     if (caseKey === null || caseKey === undefined || caseKey === '') {
       console.error(
@@ -66,11 +68,10 @@ export class PhoneCallScene extends BaseScene {
 
     saveGameState();
 
-    // Mapa może pozostać aktywna pod telefonem.
     if (
       crimeCityScene &&
       !crimeCityScene._cleanupDone &&
-      crimeCityScene.sys.isActive()
+      crimeCityScene.sys?.isActive()
     ) {
       crimeCityScene.mapUI?.createHeader();
 
@@ -84,21 +85,37 @@ export class PhoneCallScene extends BaseScene {
     return true;
   }
 
-  stopRinging() {
-    for (const tween of this.ringTweens) {
-      if (tween?.isPlaying()) tween.stop();
-      tween?.remove();
-    }
+  disablePhoneInput() {
+    for (const object of this.ui) {
+      if (!object?.scene?.sys?.input || !object.input) continue;
 
+      object.disableInteractive();
+    }
+  }
+
+  stopRinging({ disableInput = true } = {}) {
+    const tweens = this.ringTweens;
     this.ringTweens = [];
 
-    for (const object of this.ui) {
-      object?.disableInteractive?.();
+    for (const tween of tweens) {
+      if (!tween?.parent) continue;
+
+      tween.remove();
+    }
+
+    if (disableInput && !this.isShuttingDown) {
+      this.disablePhoneInput();
     }
   }
 
   create() {
     super.create();
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.onShutdown,
+      this
+    );
 
     const { width, height } = this.scale;
     const cx = width / 2;
@@ -225,8 +242,7 @@ export class PhoneCallScene extends BaseScene {
 
     const keypadGroup = this.drawKeypad(cx, cy + 180);
 
-    this.ui.push(
-      overlay,
+    const phoneObjects = [
       phoneBody,
       phoneInnerFrame,
       speaker,
@@ -241,7 +257,9 @@ export class PhoneCallScene extends BaseScene {
       answerBtn,
       laterBtn,
       ...keypadGroup
-    );
+    ];
+
+    this.ui.push(overlay, ...phoneObjects);
 
     const ringTween1 = this.tweens.add({
       targets: [phoneIcon, ringing],
@@ -252,22 +270,7 @@ export class PhoneCallScene extends BaseScene {
     });
 
     const ringTween2 = this.tweens.add({
-      targets: [
-        phoneBody,
-        phoneInnerFrame,
-        speaker,
-        screenBg,
-        screenBorder,
-        signalText,
-        batteryText,
-        title,
-        phoneIcon,
-        caller,
-        ringing,
-        answerBtn,
-        laterBtn,
-        ...keypadGroup
-      ],
+      targets: phoneObjects,
       x: '+=2',
       duration: 50,
       yoyo: true,
@@ -276,36 +279,28 @@ export class PhoneCallScene extends BaseScene {
 
     this.ringTweens.push(ringTween1, ringTween2);
 
-    answerBtn.on('pointerover', () => {
-      answerBtn.setStyle({
-        color: '#9bbc0f',
-        backgroundColor: '#0f380f'
-      });
-    });
+    for (const button of [answerBtn, laterBtn]) {
+      button.on('pointerover', () => {
+        if (this.isEnding || this.isShuttingDown || !button.scene) return;
 
-    answerBtn.on('pointerout', () => {
-      answerBtn.setStyle({
-        color: '#0f380f',
-        backgroundColor: '#9bbc0f'
+        button.setStyle({
+          color: '#9bbc0f',
+          backgroundColor: '#0f380f'
+        });
       });
-    });
 
-    laterBtn.on('pointerover', () => {
-      laterBtn.setStyle({
-        color: '#9bbc0f',
-        backgroundColor: '#0f380f'
-      });
-    });
+      button.on('pointerout', () => {
+        if (this.isEnding || this.isShuttingDown || !button.scene) return;
 
-    laterBtn.on('pointerout', () => {
-      laterBtn.setStyle({
-        color: '#0f380f',
-        backgroundColor: '#9bbc0f'
+        button.setStyle({
+          color: '#0f380f',
+          backgroundColor: '#9bbc0f'
+        });
       });
-    });
+    }
 
     answerBtn.on('pointerdown', () => {
-      if (this.isAnswered || this.isEnding) return;
+      if (this.isAnswered || this.isEnding || this.isShuttingDown) return;
 
       this.isAnswered = true;
       this.isEnding = true;
@@ -335,7 +330,7 @@ export class PhoneCallScene extends BaseScene {
     });
 
     laterBtn.on('pointerdown', () => {
-      if (this.isEnding) return;
+      if (this.isEnding || this.isShuttingDown) return;
 
       this.isEnding = true;
 
@@ -345,12 +340,6 @@ export class PhoneCallScene extends BaseScene {
       saveGameState();
       this.scene.stop();
     });
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.onShutdown,
-      this
-    );
   }
 
   drawKeypad(startX, startY) {
@@ -394,15 +383,21 @@ export class PhoneCallScene extends BaseScene {
   }
 
   onShutdown() {
-    this.stopRinging();
+    if (this.isShuttingDown) return;
 
-    for (const item of this.ui) {
-      item?.removeAllListeners?.();
-      item?.destroy?.();
-    }
+    this.isShuttingDown = true;
+    this.isEnding = true;
 
+    this.stopRinging({ disableInput: false });
+
+    const objects = this.ui;
     this.ui = [];
-    this.isAnswered = false;
-    this.isEnding = false;
+
+    for (const object of objects) {
+      if (!object?.scene) continue;
+
+      object.removeAllListeners?.();
+      object.destroy();
+    }
   }
 }
