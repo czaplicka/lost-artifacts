@@ -1,0 +1,40 @@
+{
+  "advertisements": [
+    {
+      "id": "missing_suitcase",
+      "kind": "pi",
+      "title": "Missing suitcase. No questions.",
+      "contact": "A concerned traveller",
+      "description": "A brown suitcase disappeared from the station lockers.\n\nFind it unopened. If it starts ticking, that is probably the clock.",
+      "reward": 120,
+      "missionId": "pi_missing_suitcase"
+    },
+    {
+      "id": "stolen_alibi",
+      "kind": "pi",
+      "title": "Someone has been using my alibi",
+      "contact": "Box 17",
+      "description": "Three strangers claim they were having dinner with me on Tuesday.\n\nI ate alone. I would like to know why I suddenly have friends.",
+      "reward": 180,
+      "missionId": "pi_stolen_alibi"
+    },
+    {
+      "id": "delayed_mirror",
+      "kind": "oddity",
+      "title": "Mirror for sale. Slight delay.",
+      "contact": "Evenings only",
+      "description": "Excellent condition. Reflection approximately three seconds behind.\n\nBuyer collects. Please do not wave at it after midnight.",
+      "reward": null,
+      "missionId": null
+    },
+    {
+      "id": "discreet_pigeon",
+      "kind": "oddity",
+      "title": "Seeking a discreet pigeon",
+      "contact": "The gentleman by the fountain",
+      "description": "Must be reliable, punctual and unfamiliar with the police.\n\nPrevious courier experience preferred. Breadcrumbs provided.",
+      "reward": null,
+      "missionId": null
+    }
+  ]
+}

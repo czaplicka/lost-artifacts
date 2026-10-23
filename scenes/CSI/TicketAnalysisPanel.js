@@ -1,94 +1,117 @@
+// Compatibility filename/class: this is now a dialogue extension, not a screen button.
 import { EventBus } from '../../EventBus.js';
 import { analyseCaseTicket, findCaseTicket, getTicketAnalysis } from '../../managers/TicketAnalysisService.js';
+import { hasVisitedApartment } from '../../managers/ApartmentVisitRegistry.js';
 
 export class TicketAnalysisPanel {
   constructor(scene) {
     this.scene = scene;
-    this.button = null;
-    this.buttonBg = null;
-    this.buttonLabel = null;
-    this.modal = null;
-    this.isOpen = false;
-    this.previousLock = false;
     this.destroyed = false;
+    this.terminal = null;
     this.handleInventoryChanged = () => this.refresh();
-    this.handleResize = () => this.layout();
   }
+
+  get isOpen() {
+    const dialog = this.scene?.assistantDialog;
+    return Boolean(dialog?.isOpen() && String(dialog.currentNodeId || '').startsWith('__ticket_'));
+  }
+
+  isAvailable() {
+    if (this.destroyed || !this.scene || !hasVisitedApartment(this.scene.gameState)) return false;
+    return getTicketAnalysis(this.scene.gameState)?.completed === true || Boolean(findCaseTicket(this.scene.gameState));
+  }
+
   create() {
-    const scene = this.scene;
-    this.button = scene.add.container(0, 0).setDepth(300);
-    this.buttonBg = scene.add.rectangle(0, 0, 300, 58, 0x173b40)
-      .setStrokeStyle(2, 0x39ff14).setInteractive({ useHandCursor: true });
-    this.buttonLabel = scene.add.text(0, 0, '', {
-      fontFamily: 'SpecialElite', fontSize: '20px', color: '#fff4c7', align: 'center'
-    }).setOrigin(0.5);
-    this.button.add([this.buttonBg, this.buttonLabel]);
-    this.buttonBg.on('pointerdown', () => this.analyse());
-    EventBus.on('inventoryUpdated', this.handleInventoryChanged, this);
-    scene.scale.on('resize', this.handleResize);
-    this.layout(); this.refresh();
-  }
-  layout() {
     if (this.destroyed) return;
-    this.button?.setPosition(this.scene.scale.width / 2, this.scene.scale.height - 120);
-  }
-  refresh() {
-    if (this.destroyed || !this.button) return;
-    const scene = this.scene;
-    const visible = scene.currentView === 'lab_intro';
-    this.button.setVisible(visible);
-    const usable = visible && !scene.uiLocked && !scene.isExitingLab && !this.isOpen;
-    if (this.buttonBg.input) this.buttonBg.input.enabled = usable;
-    const done = getTicketAnalysis(scene.gameState)?.completed === true;
-    const found = Boolean(findCaseTicket(scene.gameState));
-    this.buttonLabel.setText(done ? 'Review ticket analysis' : found ? 'Analyse damaged ticket' : 'Ticket analysis — bring evidence');
-    this.button.setAlpha(usable ? 1 : 0.55);
-  }
-  analyse() {
-    const scene = this.scene;
-    if (this.destroyed || this.isOpen || scene.uiLocked || scene.isExitingLab || !scene.sys.isActive()) return;
-    const response = analyseCaseTicket(scene.cache.json.get('locations'), { state: scene.gameState });
-    scene.hud?.refreshFromScene();
-    this.showResult(response.ok
-      ? `Recovered destination airport code:\n\n${response.result.airportCode}\n\nRecorded in your notebook.\nPursuit unlocked. Choose your journey when ready.`
-      : response.message);
-  }
-  showResult(message) {
-    const scene = this.scene;
-    this.previousLock = scene.uiLocked;
-    this.isOpen = true;
-    scene.applyLock(true);
-    const { width, height } = scene.scale;
-    const w = Math.min(650, width - 30), h = Math.min(390, height - 30);
-    this.modal = scene.add.container(width / 2, height / 2).setDepth(10000);
-    this.modal.add(scene.add.rectangle(0, 0, width, height, 0x000000, 0.8).setInteractive());
-    this.modal.add(scene.add.rectangle(0, 0, w, h, 0x071b25).setStrokeStyle(3, 0x39ff14).setInteractive());
-    this.modal.add(scene.add.text(0, -h / 2 + 24, 'DOCUMENT ANALYSIS', {
-      fontFamily: 'PressStart2P', fontSize: '14px', color: '#39ff14'
-    }).setOrigin(0.5, 0));
-    this.modal.add(scene.add.text(0, -15, message, {
-      fontFamily: 'SpecialElite', fontSize: '22px', color: '#fff4c7',
-      align: 'center', wordWrap: { width: w - 50 }
-    }).setOrigin(0.5));
-    const bg = scene.add.rectangle(0, h / 2 - 40, 230, 46, 0x173b40)
-      .setStrokeStyle(2, 0x39ff14).setInteractive({ useHandCursor: true });
-    this.modal.add([bg, scene.add.text(0, h / 2 - 40, 'Stay in the lab', {
-      fontFamily: 'SpecialElite', fontSize: '21px', color: '#fff4c7'
-    }).setOrigin(0.5)]);
-    bg.on('pointerdown', () => this.close());
-  }
-  close() {
-    this.modal?.destroy(true); this.modal = null; this.isOpen = false;
-    if (!this.destroyed && !this.scene.isExitingLab && this.scene.labRunToken) this.scene.applyLock(this.previousLock);
+    if (this.scene.assistantDialog) this.scene.assistantDialog.extension = this;
+    EventBus.on('inventoryUpdated', this.handleInventoryChanged, this);
     this.refresh();
   }
+
+  augmentChoices(dialog, choices) {
+    if (!this.isAvailable()) return choices;
+    const root = dialog.dialogue?.defaultNodeId;
+    if (dialog.currentNodeId !== root && dialog.currentNodeId !== 'greeting') return choices;
+    const done = getTicketAnalysis(this.scene.gameState)?.completed === true;
+    return [{
+      text: done ? 'What was the code on that ticket again?' : 'I found a damaged ticket in the apartment. Can you examine it?',
+      action: 'analyse_apartment_ticket'
+    }, ...choices];
+  }
+
+  handleChoice(choice, dialog) {
+    if (choice.action !== 'analyse_apartment_ticket') return false;
+    // Recheck eligibility at selection time, not only when drawing choices.
+    if (!this.isAvailable()) { dialog.renderCurrentNode(); return true; }
+    const response = analyseCaseTicket(this.scene.cache.json.get('locations'), { state: this.scene.gameState });
+    this.scene.hud?.refreshFromScene();
+    const returnNode = dialog.currentNodeId;
+    const speaker = this.scene.labOnboarding?.assistantPresent ? 'LAB ASSISTANT' : 'DOCUMENT TERMINAL';
+    const text = response.ok
+      ? `The destination code is ${response.result.airportCode}.\n\n` +
+        'The ink survived. The passenger\'s travel plans did not.\n' +
+        'I have recorded the code in your notebook. You can follow the trail when you are ready.'
+      : response.message;
+    dialog.dialogue.nodes.__ticket_result = {
+      speaker, text, choices: [
+        { text: 'Back to my other questions.', next: returnNode },
+        { text: 'Thanks. I will take it from here.', action: 'close' }
+      ]
+    };
+    dialog.currentNodeId = '__ticket_result';
+    dialog.choicePage = 0;
+    dialog.renderCurrentNode();
+    return true;
+  }
+
+  createTerminal() {
+    if (this.terminal || this.destroyed) return;
+    // When the assistant has disappeared, the same interaction area opens a
+    // document-terminal dialogue. No new visible button, NPC or artwork is added.
+    this.terminal = this.scene.add.zone(220, 340, 230, 410).setOrigin(0, 0)
+      .setDepth(50).setInteractive({ useHandCursor: true });
+    this.terminal.on('pointerover', () => {
+      if (!this.scene.uiLocked) this.scene.showNavHint('Use document terminal');
+    });
+    this.terminal.on('pointerout', () => this.scene.hideNavHint());
+    this.terminal.on('pointerdown', () => this.openTerminalDialogue());
+  }
+
+  openTerminalDialogue() {
+    const scene = this.scene;
+    if (!this.isAvailable() || scene.uiLocked || scene.isExitingLab || scene.assistantDialog?.isOpen() || !scene.sys.isActive()) return;
+    const opened = scene.assistantDialog.open({
+      dialogue: {
+        id: 'document_terminal', defaultNodeId: 'greeting', nodes: {
+          greeting: {
+            speaker: 'DOCUMENT TERMINAL', text: 'Document examination terminal. Coffee stains are not a valid security clearance.',
+            choices: [{ text: 'Leave the terminal.', action: 'close' }]
+          }
+        }
+      },
+      onClose: () => { if (!scene.isExitingLab) scene.applyLock(false); }
+    });
+    if (opened) scene.applyLock(true);
+  }
+
+  refresh() {
+    if (this.destroyed) return;
+    if (this.scene.assistantDialog) this.scene.assistantDialog.extension = this;
+    const needsTerminal = !this.scene.labOnboarding?.assistantPresent && this.isAvailable();
+    if (needsTerminal) this.createTerminal();
+    if (this.terminal) {
+      const visible = needsTerminal && this.scene.currentView === 'lab_intro';
+      this.terminal.setVisible(visible);
+      if (this.terminal.input) this.terminal.input.enabled = visible && !this.scene.uiLocked && !this.scene.isExitingLab;
+    }
+  }
+
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
     EventBus.off('inventoryUpdated', this.handleInventoryChanged, this);
-    this.scene?.scale?.off('resize', this.handleResize);
-    this.modal?.destroy(true); this.button?.destroy(true);
-    this.modal = this.button = this.buttonBg = this.buttonLabel = null;
-    this.isOpen = false; this.scene = null;
+    if (this.scene?.assistantDialog?.extension === this) this.scene.assistantDialog.extension = null;
+    this.terminal?.removeAllListeners(); this.terminal?.destroy();
+    this.terminal = null; this.scene = null;
   }
 }

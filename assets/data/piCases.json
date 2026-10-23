@@ -1,0 +1,28 @@
+{
+  "mainCaseId": "holly_missing_husband",
+  "cases": [
+    {
+      "id": "holly_missing_husband",
+      "kind": "main",
+      "title": "Holly's Missing Husband",
+      "requiresBoard": true,
+      "initialItems": [
+        {
+          "id": "case-summary",
+          "type": "note",
+          "label": "Find Holly's husband",
+          "text": "Locate Holly's missing husband.",
+          "metaText": "Main investigation",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": []
+    }
+  ]
+}

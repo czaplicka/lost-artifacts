@@ -2,6 +2,7 @@ import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
+import { createHudStanding } from '../ui/HudStanding.js';
 
 import {
   getAchievementList,
@@ -74,6 +75,7 @@ export class UIScene extends BaseScene {
     };
 
     this.dom = {};
+    this.hudStanding = null;
 
     this._energyLogTimer = null;
     this._warningTimer = null;
@@ -113,11 +115,23 @@ export class UIScene extends BaseScene {
       console.error(
         '[UIScene] Could not load ui/hud.template.'
       );
+
       return;
     }
 
     this._cacheDomElements();
     this._removeDomListeners();
+
+    this.hudStanding?.destroy();
+
+    this.hudStanding = createHudStanding(
+      this.dom.container,
+      {
+        showTooltip: content => this._showTooltip(content),
+        hideTooltip: () => this._hideTooltip()
+      }
+    );
+
     this._bindEvents();
     this._setupButtonListeners();
     this._setupTooltipListeners();
@@ -128,6 +142,7 @@ export class UIScene extends BaseScene {
     this.refreshScoreHud();
     this.refreshMoneyHud();
     this.updateEnergy();
+    this.hudStanding?.refresh();
 
     this.moneyChangeHandler = event => {
       this.refreshMoneyHud(event.detail?.state);
@@ -144,6 +159,7 @@ export class UIScene extends BaseScene {
       day: gameState.currentDay || gameState.day || 1,
       hour: gameState.currentHour ?? gameState.hour ?? 8,
       minute: gameState.currentMinute ?? gameState.minute ?? 0,
+
       partOfDay:
         gameState.currentPartOfDay ||
         gameState.partOfDay ||
@@ -167,21 +183,30 @@ export class UIScene extends BaseScene {
 
     this.dom = {
       container,
+
       time: document.getElementById('clock-time'),
       partOfDay: document.getElementById('clock-part'),
+
       month: document.getElementById('date-month'),
       day: document.getElementById('date-day'),
+
       deadlineValue: document.getElementById('deadline-value'),
       deadlineProgress: document.getElementById('deadline-progress'),
+
       energyTarget: document.getElementById('energy-target'),
+
       energyWrapper:
         container?.querySelector('.energy-wrapper') || null,
+
       energyFill: document.getElementById('energy-fill'),
       energyBolt: document.getElementById('energy-bolt'),
+
       score: document.getElementById('hud-score'),
       cash: document.getElementById('hud-cash'),
+
       tooltipBg: document.getElementById('hud-tooltip'),
       tooltipText: document.getElementById('hud-tooltip-text'),
+
       energyLogBg: document.getElementById('hud-energy-log'),
       energyLogText: document.getElementById('hud-energy-log-text')
     };
@@ -196,16 +221,21 @@ export class UIScene extends BaseScene {
     this.onBus('character-created', this._queueModalRefresh);
 
     this.onBus('gameOver', this._showGameOver);
+
     this.onBus('energyInitialized', this._onEnergyChanged);
     this.onBus('energyChanged', this._onEnergyChanged);
     this.onBus('energyWarning', this._onEnergyWarning);
     this.onBus('energyZero', this._onEnergyZero);
+
     this.onBus('showHUD', this.showHUD);
     this.onBus('hideHUD', this.hideHUD);
   }
 
   _cleanup() {
     this._isDestroyed = true;
+
+    this.hudStanding?.destroy();
+    this.hudStanding = null;
 
     clearTimeout(this._energyLogTimer);
     clearTimeout(this._warningTimer);
@@ -225,6 +255,7 @@ export class UIScene extends BaseScene {
         MONEY_EVENT,
         this.moneyChangeHandler
       );
+
       this.moneyChangeHandler = null;
     }
 
@@ -263,6 +294,7 @@ export class UIScene extends BaseScene {
     this.refreshScoreHud();
     this.refreshMoneyHud();
     this.updateEnergy();
+    this.hudStanding?.refresh();
   }
 
   hideHUD() {
@@ -305,6 +337,7 @@ export class UIScene extends BaseScene {
       document.getElementById('btn-hud-expand'),
       () => {
         this.dom.container?.classList.remove('collapsed');
+        this.hudStanding?.refresh();
       }
     );
 
@@ -337,6 +370,7 @@ export class UIScene extends BaseScene {
       event => {
         event.preventDefault();
         event.stopPropagation();
+
         this._toggleEnergyLog();
       },
       options
@@ -395,13 +429,24 @@ export class UIScene extends BaseScene {
         }
       };
 
-      element.addEventListener('mouseenter', show, options);
+      element.addEventListener(
+        'mouseenter',
+        show,
+        options
+      );
+
       element.addEventListener(
         'mouseleave',
         () => this._hideTooltip(),
         options
       );
-      element.addEventListener('focus', show, options);
+
+      element.addEventListener(
+        'focus',
+        show,
+        options
+      );
+
       element.addEventListener(
         'blur',
         () => this._hideTooltip(),
@@ -420,9 +465,11 @@ export class UIScene extends BaseScene {
     return [
       `CASH: $${cash}`,
       `Agency budget: $${agencyBudget}`,
+
       agencyDebt > 0
         ? `Agency debt: $${agencyDebt}`
         : 'No agency debt.',
+
       'Cash pays for comfort, shortcuts and private detective work.'
     ].join('\n');
   }
@@ -561,6 +608,7 @@ export class UIScene extends BaseScene {
 
   _calculateDate(gameDay) {
     const { year, monthIndex, day } = this.startDate;
+
     const safeDay = Math.max(
       1,
       Math.floor(Number(gameDay) || 1)
@@ -659,8 +707,10 @@ export class UIScene extends BaseScene {
     if (this.dom.energyFill) {
       this.dom.energyFill.style.strokeDasharray =
         String(ENERGY_CIRCUMFERENCE);
+
       this.dom.energyFill.style.strokeDashoffset =
         String(offset);
+
       this.dom.energyFill.style.stroke = color;
     }
 
@@ -735,7 +785,11 @@ export class UIScene extends BaseScene {
     }
 
     this._hideTooltip();
-    this.dom.energyLogBg.classList.toggle('visible', visible);
+
+    this.dom.energyLogBg.classList.toggle(
+      'visible',
+      visible
+    );
 
     if (visible) {
       this._updateEnergyLogText();
@@ -751,6 +805,7 @@ export class UIScene extends BaseScene {
 
   _showEnergyLogTemporarily() {
     clearTimeout(this._energyLogTimer);
+
     this._setEnergyLogVisible(true);
 
     this._energyLogTimer = setTimeout(() => {
@@ -832,6 +887,7 @@ export class UIScene extends BaseScene {
       `ENERGY: ${manager.getCurrentEnergy()}%`,
       `STATUS: ${String(manager.getEnergyStatus()).toUpperCase()}`,
       manager.getEnergyTooltip(),
+
       last
         ? `Last: ${last}`
         : 'Click the bolt for the full energy log.'
@@ -898,6 +954,7 @@ export class UIScene extends BaseScene {
     }
 
     this._populateProfileModalData(modal);
+
     modal.style.display = 'flex';
   }
 
@@ -913,6 +970,7 @@ export class UIScene extends BaseScene {
     }
 
     this._populateAgentModalData(modal);
+
     modal.style.display = 'flex';
   }
 
@@ -937,6 +995,7 @@ export class UIScene extends BaseScene {
         }
 
         const template = document.createElement('template');
+
         template.innerHTML = (await response.text()).trim();
 
         const element =
@@ -952,8 +1011,13 @@ export class UIScene extends BaseScene {
       } catch (error) {
         console.error(
           '[UIScene] HTML load error:',
-          { url, selector, error }
+          {
+            url,
+            selector,
+            error
+          }
         );
+
         return null;
       } finally {
         this._htmlPromises.delete(cacheKey);
@@ -1092,10 +1156,12 @@ export class UIScene extends BaseScene {
         'ROOKIE DETECTIVE',
         'Extra guidance. More retries. Less paperwork.'
       ],
+
       field: [
         'FIELD AGENT',
         'Standard Mark Agency field procedure.'
       ],
+
       master: [
         'MASTER SLEUTH',
         'Fewer second chances. Better coffee not guaranteed.'
@@ -1242,15 +1308,19 @@ export class UIScene extends BaseScene {
         : 'profile-stat';
 
       const name = document.createElement('dt');
+
       name.className = 'profile-stat-name';
       name.textContent = STAT_NAMES[statId];
 
       const value = document.createElement('dd');
+
       value.className = 'profile-stat-value';
       value.textContent = String(finalValue);
 
       const breakdown = document.createElement('dd');
+
       breakdown.className = 'profile-stat-breakdown';
+
       breakdown.textContent = bonus > 0
         ? `Base ${baseValue} + ${bonus} profile bonus`
         : `Base ${baseValue}`;
@@ -1345,11 +1415,14 @@ export class UIScene extends BaseScene {
         : 'Achievement locked';
 
       const icon = document.createElement('span');
+
       icon.className = 'achievement-icon';
       icon.textContent = unlocked ? achievement.icon : '🔒';
 
       const title = document.createElement('span');
+
       title.className = 'achievement-title';
+
       title.textContent = unlocked
         ? achievement.title
         : 'CLASSIFIED';
@@ -1367,7 +1440,9 @@ export class UIScene extends BaseScene {
 
   _colorToHex(color) {
     if (typeof color === 'string') {
-      return color.startsWith('#') ? color : `#${color}`;
+      return color.startsWith('#')
+        ? color
+        : `#${color}`;
     }
 
     const numericColor = Number(color);

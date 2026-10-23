@@ -1,0 +1,60 @@
+{
+  "dialogues": {
+    "police_front_desk": [
+      {
+        "speaker": "Desk Sergeant",
+        "text": "City Police. If this is about the suspicious pigeon, we already have a description."
+      },
+      {
+        "speaker": "You",
+        "text": "Just checking that this number works."
+      },
+      {
+        "speaker": "Desk Sergeant",
+        "text": "Unfortunately, yes."
+      }
+    ],
+    "spy_shop": [
+      {
+        "speaker": "Shopkeeper",
+        "text": "Discreet Supplies. This conversation is not being recorded by us."
+      },
+      {
+        "speaker": "You",
+        "text": "What do you have in stock?"
+      },
+      {
+        "speaker": "Shopkeeper",
+        "text": "Come by the shop. Describing some of it over the phone would invalidate the warranty."
+      }
+    ],
+    "tavern": [
+      {
+        "speaker": "Bartender",
+        "text": "The tavern. We serve drinks, not alibis."
+      },
+      {
+        "speaker": "You",
+        "text": "Heard anything interesting?"
+      },
+      {
+        "speaker": "Bartender",
+        "text": "Plenty. Come in and order something. Gossip travels badly through copper wire."
+      }
+    ],
+    "unknown_advertiser": [
+      {
+        "speaker": "Unknown Voice",
+        "text": "You found the number."
+      },
+      {
+        "speaker": "You",
+        "text": "It was printed in an advertisement."
+      },
+      {
+        "speaker": "Unknown Voice",
+        "text": "Then our security has been compromised."
+      }
+    ]
+  }
+}

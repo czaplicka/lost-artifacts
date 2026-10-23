@@ -20,15 +20,50 @@
 
     <title>Mark Agency: The Lost Artifacts</title>
 
+    <!-- Style bazowe, lokalne fonty i wspólne elementy interfejsu. -->
     <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="./assets/css/crime-board.css">
     <link rel="stylesheet" href="./assets/css/hud.css">
     <link rel="stylesheet" href="./assets/css/hud-mobile.css">
-    <link rel="stylesheet" href="./assets/css/character-creation.css">
-    <link rel="stylesheet" href="./assets/css/auth-styles.css">
     <link rel="stylesheet" href="./assets/css/modal.css">
-    <link rel="stylesheet" href="./assets/css/agent.css">
-    <link rel="stylesheet" href="./assets/css/profile.css">
+
+    <!--
+        Arkusze dodatkowych ekranów nie blokują pierwszego renderowania.
+        Po zakończeniu pobierania zaczynają działać na ekranie.
+    -->
+    <link
+        rel="stylesheet"
+        href="./assets/css/crime-board.css"
+        media="print"
+        onload="this.onload=null;this.media='all'"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./assets/css/character-creation.css"
+        media="print"
+        onload="this.onload=null;this.media='all'"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./assets/css/auth-styles.css"
+        media="print"
+        onload="this.onload=null;this.media='all'"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./assets/css/agent.css"
+        media="print"
+        onload="this.onload=null;this.media='all'"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./assets/css/profile.css"
+        media="print"
+        onload="this.onload=null;this.media='all'"
+    >
 
     <link
         rel="icon"

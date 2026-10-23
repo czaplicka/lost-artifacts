@@ -36,11 +36,18 @@ export class GameScene extends BaseScene {
     this.isIntroReady = false;
     this.isTransitioning = false;
 
+    this.introProgress = {
+      text: false,
+      video: false,
+      audio: false
+    };
+
     this._runToken = null;
     this._mediaToken = null;
     this._audioCompleteHandler = null;
     this._officeFadeHandler = null;
     this._musicDucked = false;
+    this._introDisposed = true;
 
     this.onIntroPointerDown = null;
     this.onIntroSpaceDown = null;
@@ -110,6 +117,9 @@ export class GameScene extends BaseScene {
   create() {
     super.create();
 
+    this._introDisposed = false;
+    this._runToken = Symbol('game-intro-run');
+
     this.fullIntroText = '';
     this.dialogueText = null;
     this.dialogueBox = null;
@@ -127,6 +137,12 @@ export class GameScene extends BaseScene {
     this.isTypingIntro = false;
     this.isIntroReady = false;
     this.isTransitioning = false;
+
+    this.introProgress = {
+      text: false,
+      video: false,
+      audio: false
+    };
 
     this._mediaToken = null;
     this._audioCompleteHandler = null;
@@ -198,24 +214,17 @@ export class GameScene extends BaseScene {
 
     const dialogueData = this.cache.json.get('dialogue');
 
-    if (!Array.isArray(dialogueData?.gameIntro)) {
+    if (Array.isArray(dialogueData?.gameIntro)) {
+      this.fullIntroText = dialogueData.gameIntro
+        .filter(line => typeof line === 'string')
+        .join('\n');
+    } else {
       console.error('[GameScene] Missing dialogue.gameIntro.');
 
       this.fullIntroText =
         'The case file is missing its introduction.\n' +
         'Even the paperwork has gone rogue.';
-
-      this.dialogueText.setText(this.fullIntroText);
-      this.isIntroReady = true;
-
-      this.createContinueHint();
-      this.bindIntroInputListeners();
-      return;
     }
-
-    this.fullIntroText = dialogueData.gameIntro
-      .filter(line => typeof line === 'string')
-      .join('\n');
 
     this.startIntroSequence();
   }
@@ -338,11 +347,17 @@ export class GameScene extends BaseScene {
     }
   }
 
-  createContinueHint() {
+  createContinueHint(label = 'CLICK / SPACE: SHOW TEXT') {
     if (
-      this.continueText?.active ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed ||
+      this.sequenceFinished
     ) {
+      return;
+    }
+
+    if (this.continueText?.active) {
+      this.continueText.setText(label);
       return;
     }
 
@@ -352,7 +367,7 @@ export class GameScene extends BaseScene {
       .text(
         width - 48,
         height - 30,
-        'CLICK / SPACE',
+        label,
         {
           fontFamily: '"PressStart2P", monospace',
           fontSize: `${
@@ -394,7 +409,7 @@ export class GameScene extends BaseScene {
   }
 
   handleResize() {
-    if (this._cleanupDone) {
+    if (this._cleanupDone || this._introDisposed) {
       return;
     }
 
@@ -406,19 +421,28 @@ export class GameScene extends BaseScene {
     }
   }
 
-  // Text and input
+  // Sequence
 
   startIntroSequence() {
     if (
       this._cleanupDone ||
+      this._introDisposed ||
       this.sequenceFinished ||
       this.isTransitioning
     ) {
       return;
     }
 
-    this.sequenceStage = 'video1';
+    this.sequenceStage = 'intro';
+
+    this.introProgress = {
+      text: false,
+      video: false,
+      audio: false
+    };
+
     this.removeContinueHint();
+    this.bindIntroInputListeners();
 
     this.typeText(
       this.dialogueText,
@@ -427,13 +451,50 @@ export class GameScene extends BaseScene {
       INTRO_CHARACTERS_PER_TICK
     );
 
-    this.bindIntroInputListeners();
-
     this.playVideo(
       'detectiveIntro',
       'detective-intro'
     );
+
+    this.checkIntroCompletion();
   }
+
+  markIntroPartComplete(part) {
+    if (
+      this._cleanupDone ||
+      this._introDisposed ||
+      this.sequenceFinished ||
+      this.isTransitioning ||
+      !Object.prototype.hasOwnProperty.call(
+        this.introProgress,
+        part
+      )
+    ) {
+      return;
+    }
+
+    this.introProgress[part] = true;
+    this.checkIntroCompletion();
+  }
+
+  checkIntroCompletion() {
+    if (
+      this._cleanupDone ||
+      this._introDisposed ||
+      this.sequenceFinished ||
+      this.isTransitioning
+    ) {
+      return;
+    }
+
+    const { text, video, audio } = this.introProgress;
+
+    if (text && video && audio) {
+      this.finishSequence();
+    }
+  }
+
+  // Text and input
 
   bindIntroInputListeners() {
     this.removeIntroInputListeners();
@@ -491,7 +552,8 @@ export class GameScene extends BaseScene {
     if (
       this.sequenceFinished ||
       this.isTransitioning ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed
     ) {
       return;
     }
@@ -501,14 +563,30 @@ export class GameScene extends BaseScene {
       return;
     }
 
-    if (this.isIntroReady) {
-      this.finishSequence();
-    }
+    this.checkIntroCompletion();
   }
 
   stopTyping() {
     this.typingEvent?.remove(false);
     this.typingEvent = null;
+  }
+
+  completeIntroText() {
+    if (
+      this._cleanupDone ||
+      this._introDisposed ||
+      this.sequenceFinished
+    ) {
+      return;
+    }
+
+    this.stopTyping();
+
+    this.isTypingIntro = false;
+    this.isIntroReady = true;
+
+    this.removeContinueHint();
+    this.markIntroPartComplete('text');
   }
 
   typeText(
@@ -520,7 +598,8 @@ export class GameScene extends BaseScene {
     if (
       !target?.active ||
       typeof text !== 'string' ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed
     ) {
       return;
     }
@@ -530,13 +609,16 @@ export class GameScene extends BaseScene {
 
     target.setText('');
 
+    this.introProgress.text = false;
     this.isTypingIntro = text.length > 0;
-    this.isIntroReady = text.length === 0;
+    this.isIntroReady = false;
 
     if (!text.length) {
-      this.createContinueHint();
+      this.completeIntroText();
       return;
     }
+
+    this.createContinueHint();
 
     const token = this._runToken;
     const characters = Array.from(text);
@@ -562,6 +644,7 @@ export class GameScene extends BaseScene {
         if (
           this._runToken !== token ||
           this._cleanupDone ||
+          this._introDisposed ||
           this.sequenceFinished ||
           !target.active
         ) {
@@ -583,12 +666,7 @@ export class GameScene extends BaseScene {
         target.setText(visibleText);
 
         if (index >= characters.length) {
-          this.stopTyping();
-
-          this.isTypingIntro = false;
-          this.isIntroReady = true;
-
-          this.createContinueHint();
+          this.completeIntroText();
         }
       }
     });
@@ -597,19 +675,14 @@ export class GameScene extends BaseScene {
   finishTypingInstantly() {
     if (
       this._cleanupDone ||
+      this._introDisposed ||
       this.sequenceFinished
     ) {
       return;
     }
 
-    this.stopTyping();
-
     this.dialogueText?.setText(this.fullIntroText);
-
-    this.isTypingIntro = false;
-    this.isIntroReady = true;
-
-    this.createContinueHint();
+    this.completeIntroText();
   }
 
   // Music
@@ -649,7 +722,7 @@ export class GameScene extends BaseScene {
   // Video and voice
 
   playVideo(videoKey, audioKey, onComplete = null) {
-    if (this._cleanupDone) {
+    if (this._cleanupDone || this._introDisposed) {
       return;
     }
 
@@ -661,30 +734,30 @@ export class GameScene extends BaseScene {
       Boolean(audioKey) &&
       this.cache.audio.exists(audioKey);
 
-    if (!hasVideo && !hasAudio) {
-      console.warn(
-        `[GameScene] Missing media: ${videoKey} / ${audioKey}`
-      );
-
-      onComplete?.();
-      return;
-    }
+    this.introProgress.video = false;
+    this.introProgress.audio = false;
 
     const token = Symbol('intro-media');
     this._mediaToken = token;
 
     const isCurrent = () => (
       !this._cleanupDone &&
+      !this._introDisposed &&
       !this.sequenceFinished &&
       this._mediaToken === token
     );
 
+    let videoDone = !hasVideo;
+    let audioDone = !hasAudio;
     let completionQueued = false;
-    let voiceStarted = false;
-    let video = null;
 
-    const completeLater = () => {
-      if (completionQueued || !isCurrent()) {
+    const completeMediaIfReady = () => {
+      if (
+        !isCurrent() ||
+        !videoDone ||
+        !audioDone ||
+        completionQueued
+      ) {
         return;
       }
 
@@ -695,102 +768,174 @@ export class GameScene extends BaseScene {
           return;
         }
 
-        this.destroyCurrentVideo();
-        this.restoreMusic(250);
-
         onComplete?.();
       });
     };
 
-    if (hasVideo) {
-      video = this.add
-        .video(
-          this.scale.width / 2,
-          this.scale.height / 2,
-          videoKey
-        )
-        .setOrigin(0.5)
-        .setDepth(5)
-        .setVisible(true)
-        .setAlpha(1);
+    const finishVideo = () => {
+      if (!isCurrent() || videoDone) {
+        return;
+      }
 
-      video.setMute(true);
+      videoDone = true;
 
-      this.currentVideo = video;
-      this.currentVideoKey = videoKey;
+      this.markIntroPartComplete('video');
+      completeMediaIfReady();
+    };
 
-      const resize = () => {
-        if (
-          isCurrent() &&
-          this.currentVideo === video
-        ) {
-          this.resizeVideoCover(video);
-        }
-      };
+    const finishAudio = () => {
+      if (!isCurrent() || audioDone) {
+        return;
+      }
 
-      video.once('textureready', resize);
-      video.once('playing', resize);
+      audioDone = true;
 
-      video.once('complete', () => {
-        if (!voiceStarted) {
-          completeLater();
-        }
-      });
+      this.restoreMusic(250);
+      this.markIntroPartComplete('audio');
+      completeMediaIfReady();
+    };
 
-      const handleVideoError = (...details) => {
-        if (!isCurrent()) {
-          return;
-        }
+    if (!hasVideo) {
+      console.warn(
+        `[GameScene] Missing video: ${videoKey}`
+      );
 
-        console.warn(
-          `[GameScene] Could not play "${videoKey}".`,
-          ...details
-        );
-
-        video.setVisible(false);
-
-        if (!voiceStarted) {
-          completeLater();
-        }
-      };
-
-      video.once('error', handleVideoError);
-      video.once('unsupported', handleVideoError);
+      this.markIntroPartComplete('video');
     }
 
-    if (hasAudio) {
-      const sound = audioManager.playVoice(audioKey);
+    if (!hasAudio) {
+      console.warn(
+        `[GameScene] Missing audio: ${audioKey}`
+      );
 
-      if (
-        sound &&
-        !sound.pendingRemove &&
-        sound.manager &&
-        sound.isPlaying
-      ) {
-        this.currentAudio = sound;
-        this._audioCompleteHandler = completeLater;
+      this.markIntroPartComplete('audio');
+    }
 
-        voiceStarted = true;
+    if (!isCurrent()) {
+      return;
+    }
 
-        sound.once('complete', completeLater);
-        sound.once('stop', completeLater);
+    let video = null;
 
-        this.duckMusic(0.35, 250);
+    if (hasVideo) {
+      try {
+        video = this.add
+          .video(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            videoKey
+          )
+          .setOrigin(0.5)
+          .setDepth(5)
+          .setVisible(true)
+          .setAlpha(1);
+
+        video.setMute(true);
+
+        this.currentVideo = video;
+        this.currentVideoKey = videoKey;
+
+        const resize = () => {
+          if (
+            isCurrent() &&
+            this.currentVideo === video
+          ) {
+            this.resizeVideoCover(video);
+          }
+        };
+
+        video.once('textureready', resize);
+        video.once('playing', resize);
+
+        video.once('complete', finishVideo);
+
+        const handleVideoError = (...details) => {
+          if (!isCurrent() || videoDone) {
+            return;
+          }
+
+          console.warn(
+            `[GameScene] Could not play "${videoKey}".`,
+            ...details
+          );
+
+          if (video?.scene) {
+            video.setVisible(false);
+          }
+
+          finishVideo();
+        };
+
+        video.once('error', handleVideoError);
+        video.once('unsupported', handleVideoError);
+      } catch (error) {
+        console.warn(
+          `[GameScene] Could not create "${videoKey}".`,
+          error
+        );
+
+        finishVideo();
       }
     }
 
-    if (video && isCurrent()) {
-      video.play(voiceStarted);
-      this.resizeVideoCover(video);
-    } else if (!voiceStarted) {
-      completeLater();
+    if (hasAudio && isCurrent()) {
+      try {
+        const sound = audioManager.playVoice(audioKey);
+
+        if (
+          sound &&
+          !sound.pendingRemove &&
+          sound.manager
+        ) {
+          this.currentAudio = sound;
+          this._audioCompleteHandler = finishAudio;
+
+          sound.once('complete', finishAudio);
+          sound.once('stop', finishAudio);
+
+          this.duckMusic(0.35, 250);
+        } else {
+          console.warn(
+            `[GameScene] Could not start voice "${audioKey}".`
+          );
+
+          finishAudio();
+        }
+      } catch (error) {
+        console.warn(
+          `[GameScene] Voice playback failed: "${audioKey}".`,
+          error
+        );
+
+        finishAudio();
+      }
     }
+
+    if (video?.scene && isCurrent() && !videoDone) {
+      try {
+        // Film nie zapętla się, nawet gdy głos nadal trwa.
+        video.play(false);
+        this.resizeVideoCover(video);
+      } catch (error) {
+        console.warn(
+          `[GameScene] Video playback failed: "${videoKey}".`,
+          error
+        );
+
+        video.setVisible(false);
+        finishVideo();
+      }
+    }
+
+    completeMediaIfReady();
+    this.checkIntroCompletion();
   }
 
   resizeVideoCover(video) {
     if (
       !video?.scene ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed
     ) {
       return;
     }
@@ -858,8 +1003,15 @@ export class GameScene extends BaseScene {
     if (
       this.sequenceFinished ||
       this.isTransitioning ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed
     ) {
+      return;
+    }
+
+    const { text, video, audio } = this.introProgress;
+
+    if (!text || !video || !audio) {
       return;
     }
 
@@ -869,10 +1021,9 @@ export class GameScene extends BaseScene {
     this.isIntroReady = false;
 
     this.stopTyping();
-
     this.removeIntroInputListeners();
     this.removeContinueHint();
-    this.destroyCurrentVideo();
+
     this.restoreMusic(180);
 
     this.goToOfficeScene();
@@ -886,7 +1037,8 @@ export class GameScene extends BaseScene {
     if (
       this.hasStartedOfficeScene ||
       this.isTransitioning ||
-      this._cleanupDone
+      this._cleanupDone ||
+      this._introDisposed
     ) {
       return;
     }
@@ -897,7 +1049,6 @@ export class GameScene extends BaseScene {
     this.isTransitioning = true;
 
     this.closeAllUIPanels();
-    this.destroyCurrentVideo();
 
     this._officeFadeHandler = async () => {
       this._officeFadeHandler = null;
@@ -905,24 +1056,35 @@ export class GameScene extends BaseScene {
       if (
         this._runToken !== token ||
         this._cleanupDone ||
+        this._introDisposed ||
         !this.sys.isActive()
       ) {
         return;
       }
 
-      const started = await this.goto(
-        'OfficeScene',
-        {
-          gameState,
-          isNewGame: true,
-          startOnboarding: true
-        }
-      );
+      let started = false;
+
+      try {
+        started = await this.goto(
+          'OfficeScene',
+          {
+            gameState,
+            isNewGame: true,
+            startOnboarding: true
+          }
+        );
+      } catch (error) {
+        console.error(
+          '[GameScene] OfficeScene transition failed:',
+          error
+        );
+      }
 
       if (
         started ||
         this._runToken !== token ||
-        this._cleanupDone
+        this._cleanupDone ||
+        this._introDisposed
       ) {
         return;
       }
@@ -930,12 +1092,13 @@ export class GameScene extends BaseScene {
       this.hasStartedOfficeScene = false;
       this.isTransitioning = false;
       this.sequenceFinished = false;
+      this.sequenceStage = 'ready';
       this.isTypingIntro = false;
       this.isIntroReady = true;
 
       this.cameras.main.fadeIn(200, 0, 0, 0);
 
-      this.createContinueHint();
+      this.createContinueHint('CLICK / SPACE: RETRY');
       this.bindIntroInputListeners();
     };
 
@@ -950,6 +1113,11 @@ export class GameScene extends BaseScene {
   // Cleanup
 
   cleanupScene() {
+    if (this._introDisposed) {
+      return;
+    }
+
+    this._introDisposed = true;
     this._runToken = null;
     this.sequenceFinished = true;
 
@@ -984,8 +1152,7 @@ export class GameScene extends BaseScene {
       this.boundCleanupScene
     );
 
-    // Menedżer czasu należy do całej gry.
-    // Przy zamknięciu intro nie niszczymy singletona.
+    // Singleton czasu należy do całej gry.
     this.timeManager = null;
 
     this.backgroundImage = null;

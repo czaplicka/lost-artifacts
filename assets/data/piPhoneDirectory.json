@@ -1,0 +1,62 @@
+{
+  "numberLength": 3,
+  "ownContactId": "pi_office",
+  "contacts": [
+    {
+      "id": "police_station",
+      "number": "201",
+      "name": "Police Station",
+      "listed": true,
+      "status": "available",
+      "dialogueId": "police_front_desk"
+    },
+    {
+      "id": "spy_shop",
+      "number": "202",
+      "name": "Spy Shop",
+      "listed": true,
+      "status": "available",
+      "dialogueId": "spy_shop"
+    },
+    {
+      "id": "tavern",
+      "number": "203",
+      "name": "Tavern",
+      "listed": true,
+      "status": "available",
+      "dialogueId": "tavern"
+    },
+    {
+      "id": "your_home",
+      "number": "204",
+      "name": "Your Home",
+      "listed": true,
+      "status": "no_answer",
+      "dialogueId": null
+    },
+    {
+      "id": "pi_office",
+      "number": "205",
+      "name": "PI Office",
+      "listed": true,
+      "status": "available",
+      "dialogueId": null
+    },
+    {
+      "id": "building_management",
+      "number": "206",
+      "name": "Building Management",
+      "listed": true,
+      "status": "busy",
+      "dialogueId": null
+    },
+    {
+      "id": "unknown_advertiser",
+      "number": "047",
+      "name": "Unknown Advertiser",
+      "listed": false,
+      "status": "available",
+      "dialogueId": "unknown_advertiser"
+    }
+  ]
+}

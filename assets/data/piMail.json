@@ -1,0 +1,25 @@
+{
+  "messages": [
+    {
+      "id": "holly_welcome",
+      "from": "Holly",
+      "subject": "Your office computer",
+      "date": "Monday, 09:15",
+      "body": "Detective,\n\nYour computer is finally working.\n\nMail is for correspondence. Personal Ledger is for your own money, not the agency budget. Classifieds is where people advertise jobs they would rather not explain to the police.\n\nPlease stop using the keyboard as a coaster.\n\nHolly"
+    },
+    {
+      "id": "building_printer",
+      "from": "Building Management",
+      "subject": "The printer is not haunted",
+      "date": "Monday, 10:40",
+      "body": "Dear tenant,\n\nThe printer is not haunted. It prints at night because somebody keeps sending documents to it.\n\nWe are investigating why those documents are dated next Thursday.\n\nBuilding Management"
+    },
+    {
+      "id": "unknown_invoice",
+      "from": "Unknown Sender",
+      "subject": "An invoice for services not yet rendered",
+      "date": "Monday, 11:02",
+      "body": "Dear Detective,\n\nPlease find no attachment.\n\nYou will understand the amount when the time comes.\n\nDo not pay anyone claiming to be me. Especially me."
+    }
+  ]
+}

@@ -92,6 +92,7 @@ export class DestinationsUI {
 
     this.createInfoPanel(width, height);
     this.createHQButton();
+    this.createOfficeButton();
     this.registerKeyboard();
 
     this.scene.events.once(
@@ -427,7 +428,61 @@ export class DestinationsUI {
       Boolean(this.selectedTransport)
     );
   }
+createOfficeButton() {
+    this.officeButton = this.scene.add.container(430, 105);
 
+    this.officeButtonBg = this.scene.add
+        .rectangle(0, 0, 220, 44, 0x1c2a1e, 0.96)
+        .setStrokeStyle(2, 0x6fbf73)
+        .setInteractive({ useHandCursor: true });
+
+    this.officeButtonLabel = this.scene.add
+        .text(0, 0, '🚪 PI OFFICE', {
+            fontFamily: 'SpecialElite',
+            fontSize: '18px',
+            color: '#eaf6ec'
+        })
+        .setOrigin(0.5);
+
+    this.officeButton.add([this.officeButtonBg, this.officeButtonLabel]);
+
+    this.officeButtonBg.on('pointerover', () => {
+        if (this.isTransitioning || this.isAtHQ()) return;
+        this.officeButtonBg.setFillStyle(0x2c4a30, 1);
+        this.officeButtonLabel.setColor('#c9f2cf');
+    });
+
+    this.officeButtonBg.on('pointerout', () => {
+        if (this.isTransitioning || this.isAtHQ()) return;
+        this.officeButtonBg.setFillStyle(0x1c2a1e, 0.96);
+        this.officeButtonLabel.setColor('#eaf6ec');
+    });
+
+    this.officeButtonBg.on('pointerdown', () => {
+        if (this.isTransitioning || this.isAtHQ()) return;
+        void this.enterOffice();
+    });
+
+    this.container.add(this.officeButton);
+}
+
+async enterOffice() {
+    if (this.isTransitioning || this.isDestroyed) return;
+
+    this.isTransitioning = true;
+    this.cleanupBeforeTravel();
+    this.close({ restoreHud: false });
+
+    const scene = this.scene;
+    const opened = await scene.goto('DetectiveOfficeScene', {
+        fromDestinations: true
+    });
+
+    if (!opened) {
+        this.isTransitioning = false;
+        console.error('[DestinationsUI] DetectiveOfficeScene could not be started.');
+    }
+}
   open(gameStateData) {
     if (
       this.isTransitioning ||

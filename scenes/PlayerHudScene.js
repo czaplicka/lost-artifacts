@@ -1,7 +1,6 @@
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { BaseScene } from './BaseScene.js';
-import { createReputationBars } from '../ui/ReputationBars.js';
 
 const HUD_ALLOWED_SCENES = new Set([
   'GameScene',
@@ -243,13 +242,6 @@ export class PlayerHudScene extends BaseScene {
   _createReputationBars() {
     this.reputationBars?.destroy();
     this.reputationBars = null;
-
-    this.reputationBars = createReputationBars(
-      this,
-      REPUTATION_BARS_LAYOUT
-    );
-
-    this.reputationBars.root.setVisible(false);
   }
 
   _syncReputationBarsVisibility() {

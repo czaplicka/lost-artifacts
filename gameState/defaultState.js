@@ -99,6 +99,12 @@ export const defaultGameState = {
   completedCaseIds: [],
   successfulArrestCaseIds: [],
 
+  piInvestigations: {
+  version: 1,
+  selectedCaseId: null,
+  cases: {}
+},
+
   reputationState: {
     version: 1,
 

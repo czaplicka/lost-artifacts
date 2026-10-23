@@ -89,12 +89,18 @@ export class GameOverScene extends BaseScene {
 
     this.consequencesProcessed = false;
     this.isLeaving = false;
+
+    this.continueBtn = null;
+    this.continueButtonBaseScale = 1;
   }
 
   init(data = {}) {
     this.reasonCode = null;
     this.consequencesProcessed = false;
     this.isLeaving = false;
+
+    this.continueBtn = null;
+    this.continueButtonBaseScale = 1;
 
     this.caseId =
       data.caseId ??
@@ -120,7 +126,6 @@ export class GameOverScene extends BaseScene {
       typeof data.reasonCode === 'string' &&
       data.reasonCode.trim()
     ) {
-      // Zachowujemy także kody nowych przyczyn game over.
       this.reasonCode = data.reasonCode;
     } else if (isKnownReason(incomingReason)) {
       this.reasonCode = incomingReason;
@@ -151,6 +156,15 @@ export class GameOverScene extends BaseScene {
       'The case has been lost.';
   }
 
+  preload() {
+    if (!this.textures.exists('btnContinue')) {
+      this.load.image(
+        'btnContinue',
+        'assets/continue.png'
+      );
+    }
+  }
+
   resolveLegacyReason(reason) {
     if (reason === LEGACY_WRONG_ARREST_MESSAGE) {
       return 'wrong_arrest';
@@ -166,6 +180,8 @@ export class GameOverScene extends BaseScene {
   create() {
     super.create();
 
+    this.hideGameplayInterface();
+
     audioManager.init(this);
     audioManager.stopAllMusic();
     audioManager.stopAllAmbient();
@@ -173,28 +189,69 @@ export class GameOverScene extends BaseScene {
     audioManager.stopAllSfx();
     audioManager.playSfx('game_over');
 
-    if (this.scene.manager.keys.UIScene) {
-      this.scene.sleep('UIScene');
-    }
+    this.applyGameOverConsequences();
 
+    this.createBackground();
+    this.createTitle();
+    this.createMessage();
+    this.createContinueButton();
+
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      () => {
+        audioManager.stopAllSfx();
+        this.continueBtn = null;
+      }
+    );
+  }
+
+  hideGameplayInterface() {
     const hud =
       this.scene.manager.keys.PlayerHudScene;
 
+    hud?.closeAllUIPanels?.();
     hud?.hideHud?.();
 
     const newsHud =
       this.scene.manager.keys.NewsHud;
 
-    newsHud?.events?.emit('setNewspaperVisible', false);
-    newsHud?.events?.emit('setTvVisible', false);
+    newsHud?.events?.emit(
+      'setButtonsVisible',
+      false
+    );
 
-    this.applyGameOverConsequences();
+    newsHud?.events?.emit(
+      'setNewspaperVisible',
+      false
+    );
 
+    newsHud?.events?.emit(
+      'setTvVisible',
+      false
+    );
+
+    const interfaceScenes = [
+      'NewsHud',
+      'PlayerHudScene',
+      'UIScene'
+    ];
+
+    for (const sceneKey of interfaceScenes) {
+      if (!this.hasScene(sceneKey)) continue;
+
+      this.scene.setVisible(false, sceneKey);
+      this.stopSceneIfActive(sceneKey);
+    }
+  }
+
+  createBackground() {
     this.add
       .image(0, 0, 'backgroundgo')
       .setOrigin(0, 0)
       .setDisplaySize(1920, 1080);
+  }
 
+  createTitle() {
     this.add
       .text(
         960,
@@ -213,12 +270,14 @@ export class GameOverScene extends BaseScene {
         }
       )
       .setOrigin(0.5);
+  }
 
+  createMessage() {
     const msgBg = this.add.rectangle(
       960,
-      915,
+      865,
       1180,
-      170,
+      190,
       0x2a160f,
       0.82
     );
@@ -231,9 +290,9 @@ export class GameOverScene extends BaseScene {
 
     const msgInner = this.add.rectangle(
       960,
-      915,
+      865,
       1160,
-      150,
+      170,
       0x3a2016,
       0.35
     );
@@ -247,7 +306,7 @@ export class GameOverScene extends BaseScene {
     this.add
       .text(
         960,
-        915,
+        865,
         this.messageTextValue,
         {
           fontFamily: 'SpecialElite',
@@ -261,40 +320,79 @@ export class GameOverScene extends BaseScene {
         }
       )
       .setOrigin(0.5);
+  }
 
-    const backBtn = this.add
-      .image(200, 930, 'back')
+  createContinueButton() {
+    this.continueBtn = this.add
+      .image(960, 1015, 'btnContinue')
+      .setOrigin(0.5)
+      .setDepth(10);
+
+    const baseScale = Math.min(
+      320 / this.continueBtn.width,
+      80 / this.continueBtn.height
+    );
+
+    this.continueButtonBaseScale = baseScale;
+
+    this.continueBtn
+      .setScale(baseScale)
       .setInteractive({
         useHandCursor: true
-      })
-      .setScale(0.7);
+      });
 
     this.addHoverEffect(
-      backBtn,
-      0.7,
-      0.8
+      this.continueBtn,
+      baseScale,
+      baseScale * 1.08
     );
 
-    backBtn.on('pointerdown', () => {
-      if (this.isLeaving) return;
-
-      this.isLeaving = true;
-      backBtn.disableInteractive();
-
-      saveGameState();
-
-      audioManager.stopAllNonMusic();
-      audioManager.stopAllMusic();
-
-      this.goto('MenuScene');
-    });
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
+    this.continueBtn.on(
+      'pointerdown',
       () => {
-        audioManager.stopAllSfx();
+        void this.continueToAgainScene();
       }
     );
+  }
+
+  async continueToAgainScene() {
+    if (this.isLeaving) return;
+
+    this.isLeaving = true;
+
+    this.continueBtn
+      ?.disableInteractive();
+
+    this.continueBtn
+      ?.setScale(this.continueButtonBaseScale);
+
+    this.continueBtn
+      ?.setAlpha(0.75);
+
+    saveGameState();
+
+    audioManager.stopAllNonMusic();
+    audioManager.stopAllMusic();
+
+    const opened = await this.goto(
+      'AgainScene'
+    );
+
+    if (!opened && !this._cleanupDone) {
+      this.isLeaving = false;
+
+      this.continueBtn
+        ?.setAlpha(1);
+
+      this.continueBtn
+        ?.setInteractive({
+          useHandCursor: true
+        });
+
+      console.error(
+        '[GameOverScene] Could not open AgainScene.'
+      );
+    }
   }
 
   applyGameOverConsequences() {
@@ -306,9 +404,6 @@ export class GameOverScene extends BaseScene {
     gameState.caseFailed = true;
     gameState.isGameActive = false;
 
-    // Znane kody mają własne komunikaty.
-    // Przy nieznanej przyczynie zachowujemy treść,
-    // żeby ponowne wejście nie pokazywało surowego kodu.
     gameState.gameOverReason =
       isKnownReason(this.reasonCode)
         ? this.reasonCode
@@ -324,7 +419,6 @@ export class GameOverScene extends BaseScene {
       return;
     }
 
-    // Jeden game over na sprawę, niezależnie od przyczyny.
     const eventId =
       `case:${this.caseId}:game-over`;
 
@@ -338,7 +432,6 @@ export class GameOverScene extends BaseScene {
     const isWrongArrest =
       this.reasonCode === 'wrong_arrest';
 
-    // Zgodność z poprzednią wersją rozliczenia aresztowania.
     const arrestEventId =
       `case:${this.caseId}:final-arrest`;
 
@@ -351,8 +444,6 @@ export class GameOverScene extends BaseScene {
         ? WRONG_ARREST_INTEGRITY_PENALTY
         : 0;
 
-    // Poprzednia wersja już odejmowała 250 punktów
-    // przy rozliczeniu błędnego aresztowania.
     const scorePenalty = arrestAlreadySettled
       ? 0
       : GAME_OVER_SCORE_PENALTY;
@@ -394,8 +485,6 @@ export class GameOverScene extends BaseScene {
 
     gameState.reputationState = next;
 
-    // Najpierw zapisujemy komplet rozliczenia,
-    // potem powiadamiamy UI.
     this.saveOutcome();
 
     EventBus.emit(REPUTATION_CHANGED, {
@@ -423,11 +512,6 @@ export class GameOverScene extends BaseScene {
         'but saving the game failed.'
       );
     }
-
-    const hud =
-      this.scene.manager.keys.PlayerHudScene;
-
-    hud?.refreshUI?.();
   }
 
   addHoverEffect(
@@ -436,6 +520,8 @@ export class GameOverScene extends BaseScene {
     hoverScale = 0.8
   ) {
     button.on('pointerover', () => {
+      if (this.isLeaving) return;
+
       button.setScale(hoverScale);
     });
 
