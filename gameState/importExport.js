@@ -1,7 +1,6 @@
 import { RouteManager } from '../managers/RouteManager.js';
-
+import { GAME_VERSION } from '../config/gameVersion.js';
 import {
-  GAME_STATE_VERSION,
   defaultGameState,
   createDefaultReconstructedHeist
 } from './defaultState.js';
@@ -90,7 +89,7 @@ export function normalizeImportedState(source) {
   normalizeCaseSuspects(state);
   state.caseDirector = null;
   state.routeManager = restoreRouteManager(source.routeManager);
-  state._version = GAME_STATE_VERSION;
+  state._version = GAME_VERSION;
 
   if (!Number.isFinite(state._createdAt)) state._createdAt = Date.now();
   rebuildStateIndexes(state);

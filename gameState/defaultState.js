@@ -1,3 +1,4 @@
+import { GAME_VERSION } from '../config/gameVersion.js';
 export function createDefaultReconstructedHeist() {
   return {
     cityId: null,
@@ -21,7 +22,7 @@ export function createDefaultReconstructedHeist() {
 }
 
 export const defaultGameState = {
-  _version: GAME_STATE_VERSION,
+  _version: GAME_VERSION,
   _lastSave: null,
   _createdAt: null,
 

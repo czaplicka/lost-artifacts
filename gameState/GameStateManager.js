@@ -1,8 +1,7 @@
 import {
-  GAME_STATE_VERSION,
   createDefaultReconstructedHeist
 } from './defaultState.js';
-
+import { GAME_VERSION } from '../config/gameVersion.js';
 import {
   BLOCKED_KEYS,
   MANAGER_KEYS,
@@ -778,7 +777,7 @@ export class GameStateManager {
 
     if (
       saveData._version &&
-      saveData._version !== GAME_STATE_VERSION
+      saveData._version !== GAME_VERSION
     ) {
       console.warn(
         `[GameState] Unsupported state version: ${saveData._version}.`
@@ -799,7 +798,7 @@ export class GameStateManager {
 
     return {
       ...this._exportData(),
-      _version: GAME_STATE_VERSION,
+      _version: GAME_VERSION,
       _lastSave: this.state._lastSave,
       _createdAt: this.state._createdAt
     };

@@ -6,6 +6,8 @@ import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 import { NPC_DIALOGUE_KEY_MAP } from '../dialogues/dialogueKeys.js';
+import { getNpcAccess } from '../managers/ReputationManager.js';
+
 import {
   resolveCityNpcTheme,
   getLocationBackgroundCandidates,
@@ -57,6 +59,7 @@ const PORTRAIT_SLIDE_OFFSET = -90;
 const PORTRAIT_ANIM_DURATION = 480;
 const PORTRAIT_ANIM_DELAY = 120;
 const NAME_FADE_DURATION = 260;
+
 const NAME_FADE_DELAY =
   PORTRAIT_ANIM_DELAY + PORTRAIT_ANIM_DURATION - 120;
 
@@ -102,6 +105,11 @@ export class LocationScene extends BaseScene {
     this.npcController = null;
     this.availableTopics = [];
     this.askedTopics = new Set();
+
+    this.reputationAccess = {
+      allowed: true,
+      reason: ''
+    };
   }
 
   init(data = {}) {
@@ -132,7 +140,8 @@ export class LocationScene extends BaseScene {
       Boolean(this.cityId) &&
       this.cityId === gameState.justReachedCorrectCityId;
 
-    this.isCrimeCity = data.isCrimeCity ?? derivedIsCrimeCity;
+    this.isCrimeCity =
+      data.isCrimeCity ?? derivedIsCrimeCity;
 
     this.isNextTargetCity =
       data.isNextTargetCity ?? derivedIsNextTargetCity;
@@ -176,6 +185,10 @@ export class LocationScene extends BaseScene {
     this.askedTopics = new Set();
 
     this.ensureEncounterMemory();
+
+    this.reputationAccess = getNpcAccess(this.npcId, {
+      isCrimeCity: this.isCrimeCity
+    });
   }
 
   ensureEncounterMemory() {
@@ -211,7 +224,9 @@ export class LocationScene extends BaseScene {
     audioManager.init(this);
 
     if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', { loop: true });
+      audioManager.playMusic('themeGame', {
+        loop: true
+      });
     }
 
     const locationSoundKey =
@@ -236,6 +251,7 @@ export class LocationScene extends BaseScene {
 
     const suspects = this.cache.json.get('suspects') || [];
     const locations = this.cache.json.get('locations') || [];
+
     const countryFacts =
       this.cache.json.get('country_facts') || {};
 
@@ -298,38 +314,50 @@ export class LocationScene extends BaseScene {
       this.dialogueTargetCityId = expectedCityId || null;
     }
 
-    try {
-      this.npcController = new NPCController(
-        npcLocationVariants,
-        countryFacts,
-        this.cityId,
-        suspect || {},
-        {
-          targetCityId: this.dialogueTargetCityId,
-          isCorrectCity: this.isCorrectCity,
-          npcId: this.npcId
-        }
-      );
-    } catch (error) {
-      console.warn(
-        '[LocationScene] Failed to build NPCController:',
-        error
-      );
+    this.reputationAccess = getNpcAccess(this.npcId, {
+      isCrimeCity: this.isCrimeCity
+    });
 
-      this.npcController = null;
+    this.npcController = null;
+    this.availableTopics = [];
+
+    if (!this.reputationAccess.allowed) {
+      this.fullDialogueString =
+        this.reputationAccess.reason;
+    } else {
+      try {
+        this.npcController = new NPCController(
+          npcLocationVariants,
+          countryFacts,
+          this.cityId,
+          suspect || {},
+          {
+            targetCityId: this.dialogueTargetCityId,
+            isCorrectCity: this.isCorrectCity,
+            npcId: this.npcId
+          }
+        );
+      } catch (error) {
+        console.warn(
+          '[LocationScene] Failed to build NPCController:',
+          error
+        );
+
+        this.npcController = null;
+      }
+
+      this.availableTopics = this.npcController
+        ? this.npcController.getAvailableTopics()
+        : [];
+
+      this.fullDialogueString = this.npcController
+        ? this.isFalseLead
+          ? this.npcController.getFalseLeadLine().text
+          : this.isRepeat
+            ? this.npcController.getRepeatLine()
+            : this.npcController.getBanterLine()
+        : 'There is nobody here who remembers anything useful.';
     }
-
-    this.availableTopics = this.npcController
-      ? this.npcController.getAvailableTopics()
-      : [];
-
-    this.fullDialogueString = this.npcController
-      ? this.isFalseLead
-        ? this.npcController.getFalseLeadLine().text
-        : this.isRepeat
-          ? this.npcController.getRepeatLine()
-          : this.npcController.getBanterLine()
-      : 'There is nobody here who remembers anything useful.';
 
     const backgroundKey = this.getLocationBackgroundKey(
       this.locationId,
@@ -360,6 +388,7 @@ export class LocationScene extends BaseScene {
     }
 
     this.createDialoguePanel(width, height);
+
     ensureHud(this);
 
     const activeHud =
@@ -388,6 +417,7 @@ export class LocationScene extends BaseScene {
     const portraitSize = 150;
     const portraitMargin = 18;
     const portraitX = portraitMargin;
+
     const portraitY =
       panelY + (panelHeight - portraitSize) / 2;
 
@@ -400,7 +430,8 @@ export class LocationScene extends BaseScene {
     const portraitCenterY =
       portraitY + portraitSize / 2;
 
-    const nameTargetY = portraitY + portraitSize + 14;
+    const nameTargetY =
+      portraitY + portraitSize + 14;
 
     const menuWidth = 190;
     const textEndX = width - menuWidth - 20;
@@ -419,7 +450,12 @@ export class LocationScene extends BaseScene {
 
     this.panelBorder = this.add.graphics().setDepth(10);
 
-    this.panelBorder.lineStyle(4, PANEL_GOLD, 1);
+    this.panelBorder.lineStyle(
+      4,
+      PANEL_GOLD,
+      1
+    );
+
     this.panelBorder.strokeRect(
       6,
       panelY + 6,
@@ -427,7 +463,12 @@ export class LocationScene extends BaseScene {
       panelHeight - 12
     );
 
-    this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.9);
+    this.panelBorder.lineStyle(
+      1,
+      PANEL_GOLD_DIM,
+      0.9
+    );
+
     this.panelBorder.strokeRect(
       12,
       panelY + 12,
@@ -435,7 +476,12 @@ export class LocationScene extends BaseScene {
       panelHeight - 24
     );
 
-    this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.6);
+    this.panelBorder.lineStyle(
+      1,
+      PANEL_GOLD_DIM,
+      0.6
+    );
+
     this.panelBorder.lineBetween(
       textEndX,
       panelY + 16,
@@ -443,9 +489,15 @@ export class LocationScene extends BaseScene {
       panelY + panelHeight - 16
     );
 
-    this.portraitFrame = this.add.graphics().setDepth(11);
+    this.portraitFrame = this.add
+      .graphics()
+      .setDepth(11);
 
-    this.portraitFrame.fillStyle(0x000000, 0.6);
+    this.portraitFrame.fillStyle(
+      0x000000,
+      0.6
+    );
+
     this.portraitFrame.fillRect(
       portraitX - 4,
       portraitY - 4,
@@ -453,7 +505,12 @@ export class LocationScene extends BaseScene {
       portraitSize + 8
     );
 
-    this.portraitFrame.lineStyle(3, PANEL_GOLD, 1);
+    this.portraitFrame.lineStyle(
+      3,
+      PANEL_GOLD,
+      1
+    );
+
     this.portraitFrame.strokeRect(
       portraitX - 4,
       portraitY - 4,
@@ -476,7 +533,10 @@ export class LocationScene extends BaseScene {
           portraitCenterY,
           portraitKey
         )
-        .setDisplaySize(portraitSize, portraitSize)
+        .setDisplaySize(
+          portraitSize,
+          portraitSize
+        )
         .setDepth(12);
     } else {
       this.portraitImage = this.add
@@ -504,13 +564,17 @@ export class LocationScene extends BaseScene {
           fontSize: '12px',
           color: '#ffd86b',
           align: 'center',
-          wordWrap: { width: portraitSize + 20 }
+          wordWrap: {
+            width: portraitSize + 20
+          }
         }
       )
       .setOrigin(0.5, 0)
       .setDepth(12);
 
-    this.portraitFrame.x = PORTRAIT_SLIDE_OFFSET;
+    this.portraitFrame.x =
+      PORTRAIT_SLIDE_OFFSET;
+
     this.portraitFrame.alpha = 0;
 
     this.tweens.add({
@@ -546,15 +610,20 @@ export class LocationScene extends BaseScene {
     });
 
     this.dialogueText = this.add
-      .text(textStartX, panelY + 26, '', {
-        fontFamily: 'SpecialElite',
-        fontSize: '22px',
-        color: '#f4ecd8',
-        lineSpacing: 8,
-        wordWrap: {
-          width: textEndX - textStartX - 20
+      .text(
+        textStartX,
+        panelY + 26,
+        '',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '22px',
+          color: '#f4ecd8',
+          lineSpacing: 8,
+          wordWrap: {
+            width: textEndX - textStartX - 20
+          }
         }
-      })
+      )
       .setDepth(12)
       .setInteractive()
       .on('pointerdown', () => {
@@ -563,13 +632,15 @@ export class LocationScene extends BaseScene {
         }
       });
 
-    const footerText = this.isCrimeCity
-      ? 'Crime city witness'
-      : this.isNextTargetCity
-        ? 'Hot trail witness'
-        : this.isFalseLead
-          ? 'Cold lead'
-          : 'Witness statement';
+    const footerText = !this.reputationAccess.allowed
+      ? 'Contact unavailable'
+      : this.isCrimeCity
+        ? 'Crime city witness'
+        : this.isNextTargetCity
+          ? 'Hot trail witness'
+          : this.isFalseLead
+            ? 'Cold lead'
+            : 'Witness statement';
 
     this.footerTextObject = this.add
       .text(
@@ -601,7 +672,10 @@ export class LocationScene extends BaseScene {
 
     this.tweens.add({
       targets: this.continueIndicator,
-      alpha: { from: 1, to: 0.15 },
+      alpha: {
+        from: 1,
+        to: 0.15
+      },
       duration: 550,
       yoyo: true,
       repeat: -1
@@ -617,9 +691,17 @@ export class LocationScene extends BaseScene {
     this.startTypewriter();
   }
 
-  createTopicMenu(width, panelY, panelHeight, menuWidth) {
-    const menuX = width - menuWidth + 10;
-    let buttonY = panelY + 24;
+  createTopicMenu(
+    width,
+    panelY,
+    panelHeight,
+    menuWidth
+  ) {
+    const menuX =
+      width - menuWidth + 10;
+
+    let buttonY =
+      panelY + 24;
 
     const buttonSpacing = 32;
 
@@ -632,19 +714,34 @@ export class LocationScene extends BaseScene {
     this.leaveButton?.destroy();
     this.leaveButton = null;
 
-    if (!this.isFalseLead) {
+    if (
+      !this.isFalseLead &&
+      this.reputationAccess.allowed
+    ) {
       this.availableTopics.forEach(topicId => {
-        const label = TOPIC_LABELS[topicId] || topicId;
-        const alreadyAsked = this.askedTopics.has(topicId);
+        const label =
+          TOPIC_LABELS[topicId] || topicId;
+
+        const alreadyAsked =
+          this.askedTopics.has(topicId);
 
         const button = this.add
-          .text(menuX, buttonY, label, {
-            fontFamily: 'SpecialElite',
-            fontSize: '18px',
-            color: alreadyAsked ? '#7a7160' : '#ffd86b'
-          })
+          .text(
+            menuX,
+            buttonY,
+            label,
+            {
+              fontFamily: 'SpecialElite',
+              fontSize: '18px',
+              color: alreadyAsked
+                ? '#7a7160'
+                : '#ffd86b'
+            }
+          )
           .setDepth(13)
-          .setInteractive({ useHandCursor: true });
+          .setInteractive({
+            useHandCursor: true
+          });
 
         button.on('pointerover', () => {
           button.setColor('#ffffff');
@@ -683,7 +780,9 @@ export class LocationScene extends BaseScene {
         }
       )
       .setDepth(13)
-      .setInteractive({ useHandCursor: true });
+      .setInteractive({
+        useHandCursor: true
+      });
 
     this.leaveButton.on('pointerover', () => {
       this.leaveButton?.setColor('#ffffff');
@@ -699,16 +798,34 @@ export class LocationScene extends BaseScene {
   }
 
   handleTopicClick(topicId) {
-    if (!this.npcController || this.isFinishing) return;
+    if (
+      !this.npcController ||
+      this.isFinishing ||
+      this.isFalseLead ||
+      !this.reputationAccess.allowed
+    ) {
+      return;
+    }
 
-    // Nowa wypowiedź zastępuje poprzednią bez jej dodatkowego renderu.
+    if (!this.availableTopics.includes(topicId)) {
+      return;
+    }
+
     this.stopTypewriter();
 
-    const result = this.npcController.askTopic(topicId);
-    const alreadyAsked = this.askedTopics.has(topicId);
+    const result =
+      this.npcController.askTopic(topicId);
+
+    if (!result) {
+      return;
+    }
+
+    const alreadyAsked =
+      this.askedTopics.has(topicId);
 
     if (!alreadyAsked) {
-      const note = this.npcController.toNote(result);
+      const note =
+        this.npcController.toNote(result);
 
       if (note && !this.hasClue(note)) {
         this.generatedNotes.push(note);
@@ -720,13 +837,15 @@ export class LocationScene extends BaseScene {
     this.fullDialogueString = result.text;
     this.startTypewriter();
 
-    this.topicButtons.forEach(({ topicId: id, text }) => {
-      text.setColor(
-        this.askedTopics.has(id)
-          ? '#7a7160'
-          : '#ffd86b'
-      );
-    });
+    this.topicButtons.forEach(
+      ({ topicId: id, text }) => {
+        text.setColor(
+          this.askedTopics.has(id)
+            ? '#7a7160'
+            : '#ffd86b'
+        );
+      }
+    );
   }
 
   stopTypewriter() {
@@ -749,7 +868,8 @@ export class LocationScene extends BaseScene {
 
     if (!this.dialogueText) return;
 
-    const fullText = this.fullDialogueString;
+    const fullText =
+      this.fullDialogueString;
 
     if (!fullText.length) {
       this.dialogueText.setText('');
@@ -765,8 +885,12 @@ export class LocationScene extends BaseScene {
     this.typewriterEvent = this.time.addEvent({
       delay: TYPEWRITER_TICK_DELAY,
       loop: true,
+
       callback: () => {
-        if (!this.dialogueText || this.isFinishing) {
+        if (
+          !this.dialogueText ||
+          this.isFinishing
+        ) {
           this.stopTypewriter();
           return;
         }
@@ -781,7 +905,6 @@ export class LocationScene extends BaseScene {
         );
 
         if (charIndex >= fullText.length) {
-          // Ostatnia porcja już zawiera cały tekst.
           this.stopTypewriter();
           this.continueIndicator?.setVisible(true);
         }
@@ -792,7 +915,9 @@ export class LocationScene extends BaseScene {
   completeTypewriter() {
     this.stopTypewriter();
 
-    const fullText = String(this.fullDialogueString ?? '');
+    const fullText = String(
+      this.fullDialogueString ?? ''
+    );
 
     if (
       this.dialogueText &&
@@ -819,8 +944,7 @@ export class LocationScene extends BaseScene {
 
     this.stopTypewriter();
 
-    // Zachowujemy dotychczasowe zarządzanie ambientem
-    // przez AudioManager.
+    // Ambient nadal jest zarządzany przez AudioManager.
     this.locationAmbient = null;
 
     const objects = [
@@ -854,16 +978,24 @@ export class LocationScene extends BaseScene {
 
     this.topicButtons = [];
     this.leaveButton = null;
+
     this.generatedNotes = [];
     this.encounterMemory = null;
     this.npcController = null;
     this.availableTopics = [];
+    this.askedTopics = new Set();
+
+    this.reputationAccess = {
+      allowed: true,
+      reason: ''
+    };
 
     this.isFinishing = false;
   }
 
   closeAllUIPanels() {
-    const hud = this.scene.manager.keys.PlayerHudScene;
+    const hud =
+      this.scene.manager.keys.PlayerHudScene;
 
     if (hud?.closeAllUIPanels) {
       hud.closeAllUIPanels();
@@ -876,41 +1008,54 @@ export class LocationScene extends BaseScene {
     this.isFinishing = true;
     this.stopTypewriter();
 
-    this.ensureEncounterMemory();
+    if (this.reputationAccess.allowed) {
+      this.ensureEncounterMemory();
 
-    if (this.encounterId) {
-      gameState.addEncounter(this.encounterId);
+      if (this.encounterId) {
+        gameState.addEncounter(this.encounterId);
+      }
+
+      if (
+        !this.isFalseLead &&
+        this.generatedNotes.length > 0
+      ) {
+        this.generatedNotes.forEach(note => {
+          if (note && !this.hasClue(note)) {
+            gameState.addClue(note);
+          }
+        });
+      }
+
+      if (
+        this.encounterId &&
+        !this.isFalseLead
+      ) {
+        const existingMemory =
+          gameState.encounterMemory[this.encounterId] || {};
+
+        gameState.encounterMemory = {
+          ...gameState.encounterMemory,
+
+          [this.encounterId]: {
+            ...existingMemory,
+            firstDialogueSeen: true,
+            askedTopics: Array.from(this.askedTopics),
+
+            dialogueTargetCityId:
+              existingMemory.dialogueTargetCityId ||
+              this.dialogueTargetCityId ||
+              null
+          }
+        };
+      }
     }
 
-    if (
-      !this.isFalseLead &&
-      this.generatedNotes.length > 0
-    ) {
-      this.generatedNotes.forEach(note => {
-        if (note && !this.hasClue(note)) {
-          gameState.addClue(note);
-        }
-      });
-    }
-
-    if (this.encounterId && !this.isFalseLead) {
-      const existingMemory =
-        gameState.encounterMemory[this.encounterId] || {};
-
-      gameState.encounterMemory[this.encounterId] = {
-        ...existingMemory,
-        firstDialogueSeen: true,
-        askedTopics: Array.from(this.askedTopics),
-        dialogueTargetCityId:
-          existingMemory.dialogueTargetCityId ||
-          this.dialogueTargetCityId ||
-          null
-      };
-    }
-
+    // Odmowa również zapisuje koszt czasu, ale nie oznacza
+    // NPC jako odpytanego i nie zapisuje tematów rozmowy.
     saveGameState();
 
-    const hud = this.scene.manager.keys.PlayerHudScene;
+    const hud =
+      this.scene.manager.keys.PlayerHudScene;
 
     if (hud?.refreshNotebook) {
       hud.refreshNotebook();
@@ -928,9 +1073,10 @@ export class LocationScene extends BaseScene {
   hasClue(newClue) {
     if (!newClue) return false;
 
-    const clues = Array.isArray(gameState.cluesCollected)
-      ? gameState.cluesCollected
-      : [];
+    const clues =
+      Array.isArray(gameState.cluesCollected)
+        ? gameState.cluesCollected
+        : [];
 
     return clues.some(existing => {
       if (!existing) return false;
@@ -952,16 +1098,21 @@ export class LocationScene extends BaseScene {
     });
   }
 
-  getLocationBackgroundKey(locationId, cityData = null) {
-    const themeId = resolveCityNpcTheme(cityData);
+  getLocationBackgroundKey(
+    locationId,
+    cityData = null
+  ) {
+    const themeId =
+      resolveCityNpcTheme(cityData);
 
-    const candidates = getLocationBackgroundCandidates(
-      locationId,
-      themeId
-    );
+    const candidates =
+      getLocationBackgroundCandidates(
+        locationId,
+        themeId
+      );
 
-    const backgroundKey = candidates.find(textureKey =>
-      this.textures.exists(textureKey)
+    const backgroundKey = candidates.find(
+      textureKey => this.textures.exists(textureKey)
     );
 
     if (backgroundKey) {
@@ -981,7 +1132,11 @@ export class LocationScene extends BaseScene {
     return null;
   }
 
-  addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
+  addHoverEffect(
+    button,
+    baseScale = 0.8,
+    hoverScale = 0.9
+  ) {
     button.on('pointerover', () => {
       button.setScale(hoverScale);
     });

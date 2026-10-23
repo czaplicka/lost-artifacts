@@ -1,9 +1,15 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
+
 import {
   getEffectiveStats
 } from '../ui/characterCreation/CharacterCreationData.js';
+
+import {
+  getReputation,
+  REPUTATION_CHANGED
+} from './ReputationManager.js';
 
 const STATE_VERSION = 1;
 
@@ -12,6 +18,13 @@ const EASY_HINT_GRANT = {
   amount: 2,
   label: 'Routine Case starting hints'
 };
+
+const HINT_MORAL_DELTAS = Object.freeze({
+  free_hint: 0,
+  cut_corners: -1,
+  squad_help: 1,
+  cash: 0
+});
 
 function nonNegativeInteger(value) {
   const number = Number(value);
@@ -94,12 +107,72 @@ class HintManager {
     };
   }
 
-  writeState(state) {
-    gameState.updateState({
+  writeState(state, moralEntry = null) {
+    const patch = {
       hintState: copy(state)
-    });
+    };
+
+    let reputationChange = null;
+
+    if (
+      moralEntry &&
+      Number.isFinite(moralEntry.moralDelta) &&
+      moralEntry.moralDelta !== 0
+    ) {
+      const eventId = `hint:${moralEntry.id}`;
+      const before = getReputation();
+
+      if (!before.appliedEventIds.includes(eventId)) {
+        const after = {
+          ...before,
+
+          integrity: Math.max(
+            -100,
+            Math.min(
+              100,
+              before.integrity + moralEntry.moralDelta
+            )
+          ),
+
+          appliedEventIds: [
+            ...before.appliedEventIds,
+            eventId
+          ]
+        };
+
+        patch.reputationState = after;
+
+        reputationChange = {
+          type: 'hint_used',
+          eventId,
+
+          context: {
+            method: moralEntry.method,
+            caseId: moralEntry.caseId,
+            sceneId: moralEntry.sceneId,
+            itemId: moralEntry.itemId,
+            moralDelta: moralEntry.moralDelta,
+            source: 'HintManager'
+          },
+
+          before,
+          after
+        };
+      }
+    }
+
+    // Historia podpowiedzi i zmiana uczciwości
+    // trafiają do stanu przed wspólnym zapisem.
+    gameState.updateState(patch);
 
     const saved = saveGameState();
+
+    if (reputationChange) {
+      EventBus.emit(
+        REPUTATION_CHANGED,
+        reputationChange
+      );
+    }
 
     EventBus.emit(
       'hints:changed',
@@ -255,13 +328,14 @@ class HintManager {
         energy: 0,
         minutes: 0,
         cash: 0,
-        moralDelta: 0
+        moralDelta: HINT_MORAL_DELTAS.free_hint
       }
     );
 
     state.used += 1;
     state.usageHistory.push(entry);
 
+    // Darmowa podpowiedź nie zmienia uczciwości.
     const saved = this.writeState(state);
 
     return {
@@ -292,19 +366,14 @@ class HintManager {
         energy: nonNegativeInteger(costs.energy),
         minutes: nonNegativeInteger(costs.minutes),
         cash: nonNegativeInteger(costs.cash),
-
-        moralDelta:
-          method === 'cut_corners'
-            ? -1
-            : method === 'squad_help'
-              ? 1
-              : 0
+        moralDelta: HINT_MORAL_DELTAS[method]
       }
     );
 
     state.usageHistory.push(entry);
 
-    const saved = this.writeState(state);
+    // Zapis historii i faktyczne rozliczenie uczciwości.
+    const saved = this.writeState(state, entry);
 
     return {
       success: true,
@@ -366,4 +435,5 @@ class HintManager {
 }
 
 export const hintManager = new HintManager();
+
 export default hintManager;
