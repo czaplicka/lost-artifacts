@@ -1,32 +1,39 @@
-// Each entry is a complete living-room + kitchen pack, never a single room.
 export const FALLBACK_APARTMENT_PACK_ID = 'debt';
+
+// A pack may contain any set of rooms. Every room needs a matching layout.
 export const APARTMENT_ROOM_PACKS = [
   {
-    id: 'debt', weight: 1,
+    id: 'debt', weight: 1, layoutId: 'debt',
     rooms: {
-      living_room: { key: 'apartment_debt_living_room', path: 'assets/apartments/apartment_debt_living_room.jpg' },
-      kitchen: { key: 'apartment_debt_kitchen', path: 'assets/apartments/apartment_debt_kitchen.jpg' }
+      living_room: {
+        label: 'Living Room', key: 'apartment_debt_living_room',
+        path: 'assets/apartments/apartment_debt_living_room.jpg'
+      },
+      kitchen: {
+        label: 'Kitchen', key: 'apartment_debt_kitchen',
+        path: 'assets/apartments/apartment_debt_kitchen.jpg'
+      }
     }
   },
   {
-    id: 'research', weight: 1,
+    id: 'research', weight: 0,
     rooms: {
-      living_room: { key: 'apartment_research_living_room', path: null },
-      kitchen: { key: 'apartment_research_kitchen', path: null }
+      living_room: {key:'apartment_research_living_room', path:null},
+      kitchen: {key:'apartment_research_kitchen', path:null}
     }
   },
   {
-    id: 'family', weight: 1,
+    id: 'family', weight: 0,
     rooms: {
-      living_room: { key: 'apartment_family_living_room', path: null },
-      kitchen: { key: 'apartment_family_kitchen', path: null }
+      living_room: {key:'apartment_family_living_room', path:null},
+      kitchen: {key:'apartment_family_kitchen', path:null}
     }
   },
   {
-    id: 'luxury', weight: 1,
+    id: 'luxury', weight: 0,
     rooms: {
-      living_room: { key: 'apartment_luxury_living_room', path: null },
-      kitchen: { key: 'apartment_luxury_kitchen', path: null }
+      living_room: {key:'apartment_luxury_living_room', path:null},
+      kitchen: {key:'apartment_luxury_kitchen', path:null}
     }
   }
 ];
@@ -37,11 +44,11 @@ export function getApartmentRoomPack(id) {
 
 export function drawApartmentRoomPack(random = Math.random) {
   const candidates = APARTMENT_ROOM_PACKS.filter(pack =>
-    Number.isFinite(pack.weight) && pack.weight > 0 &&
-    pack.rooms?.living_room && pack.rooms?.kitchen
+    Number.isFinite(pack.weight) && pack.weight > 0 && pack.layoutId &&
+    Object.keys(pack.rooms || {}).length &&
+    Object.values(pack.rooms).every(room => room.key && room.path)
   );
-  const fallback = getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID);
-  if (!candidates.length) return fallback;
+  if (!candidates.length) return getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID);
   const total = candidates.reduce((sum, pack) => sum + pack.weight, 0);
   const value = Number(random());
   let remaining = Math.max(0, Math.min(1 - Number.EPSILON, Number.isFinite(value) ? value : 0)) * total;

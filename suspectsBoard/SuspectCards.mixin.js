@@ -1,815 +1,207 @@
-// Handles suspect card grid rendering, visuals, interactions,
-// visible suspect-file data and card status badges.
-//
-// Information rule:
-// - A suspect value is visible only after the matching Crime Lab
-//   result is available or the field is explicitly unlocked.
-// - Cards do not compare values with lab evidence.
-// - The player makes the comparison using the separate lab widget.
-// - CLEARED remains a manual action in active Exclude Mode only.
-
-import { requestAutosave } from '../gameStatePersistence.js';
-import { CrimeLabManager } from '../scenes/CSI/CrimeLabManager.js';
+// suspectsBoard/SuspectCards.mixin.js
+// Read-only evidence presentation. No suspect/evidence comparisons here.
+import {requestAutosave} from '../gameStatePersistence.js';
+import {FIELD_BY_ALIAS} from './gridConstants.js';
+import {DEDUCTION_EVIDENCE_REGISTRY} from '../scenes/CSI/DeductionEvidenceRegistry.js';
 
 const FILE_DATA_FIELDS = [
-  {
-    field: 'hair_color',
-    aliases: ['hair_color', 'hairColor', 'hair'],
-    label: 'HAIR'
-  },
-  {
-    field: 'blood_type',
-    aliases: ['blood_type', 'bloodType'],
-    label: 'BLOOD'
-  },
-  {
-    field: 'biological_sex',
-    aliases: [
-      'biological_sex',
-      'biologicalSex',
-      'sex',
-      'gender'
-    ],
-    label: 'DNA'
-  },
-  {
-    field: 'fingerprint_pattern',
-    aliases: ['fingerprint_pattern', 'fingerprintPattern'],
-    label: 'PRINT'
-  },
-  {
-    field: 'shoe_size_category',
-    aliases: ['shoe_size_category', 'shoeSizeCategory'],
-    label: 'SHOES'
-  },
-  {
-    field: 'handedness',
-    aliases: ['handedness', 'dominantHand'],
-    label: 'HAND'
-  },
-  {
-    field: 'eye_color',
-    aliases: ['eye_color', 'eyeColor', 'eyes'],
-    label: 'EYES'
-  },
-  {
-    field: 'race',
-    aliases: ['race', 'ancestry'],
-    label: 'ANCESTRY'
-  }
+  {field:'hair_color',aliases:['hair_color','hairColor','hair'],label:'HAIR'},
+  {field:'blood_type',aliases:['blood_type','bloodType'],label:'BLOOD'},
+  {field:'biological_sex',aliases:['biological_sex','biologicalSex','sex','gender','dna_gender','dna_profile'],label:'DNA'},
+  {field:'fingerprint_pattern',aliases:['fingerprint_pattern','fingerprintPattern'],label:'PRINT'},
+  {field:'shoe_size_category',aliases:['shoe_size_category','shoeSizeCategory'],label:'SHOES'},
+  {field:'handedness',aliases:['handedness','dominantHand','dominant_hand'],label:'HAND'},
+  {field:'eye_color',aliases:['eye_color','eyeColor','eyes'],label:'EYES'},
+  {field:'race',aliases:['race','ancestry'],label:'ANCESTRY'}
 ];
-
-function normalizeFieldKey(field = '') {
-  const raw = String(field || '').trim();
-
-  const aliases = {
-    hair: 'hair_color',
-    hairColor: 'hair_color',
-    hair_color: 'hair_color',
-
-    bloodType: 'blood_type',
-    blood_type: 'blood_type',
-
-    gender: 'biological_sex',
-    sex: 'biological_sex',
-    biologicalSex: 'biological_sex',
-    biological_sex: 'biological_sex',
-
-    fingerprintPattern: 'fingerprint_pattern',
-    fingerprint_pattern: 'fingerprint_pattern',
-
-    shoeSizeCategory: 'shoe_size_category',
-    shoe_size_category: 'shoe_size_category',
-
-    dominantHand: 'handedness',
-    handedness: 'handedness',
-
-    eyeColor: 'eye_color',
-    eye_color: 'eye_color',
-    eyes: 'eye_color',
-
-    ancestry: 'race',
-    race: 'race'
-  };
-
-  return aliases[raw] || raw;
+function fieldKey(value='') {
+  const key=String(value||'').trim();return FIELD_BY_ALIAS.get(key)?.id||key;
 }
-
-function getAttributeValue(attributes, aliases = []) {
-  if (!attributes || typeof attributes !== 'object') {
-    return null;
+function attributeValue(attributes,aliases) {
+  for(const key of aliases) {
+    const entry=attributes[key],value=entry?.value??entry;
+    if(value===undefined||value===null||value==='')continue;
+    if(typeof value==='object'&&!Array.isArray(value))continue;
+    return value;
   }
-
-  for (const alias of aliases) {
-    const entry = attributes[alias];
-    const value = entry?.value ?? entry ?? null;
-
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== ''
-    ) {
-      return value;
-    }
-  }
-
   return null;
 }
-
-function formatFileValue(value) {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => formatFileValue(item))
-      .filter(Boolean)
-      .join(', ');
-  }
-
-  if (
-    value === undefined ||
-    value === null ||
-    value === ''
-  ) {
-    return '';
-  }
-
-  return String(value)
-    .replace(/_/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toUpperCase();
+function formatScalar(field,value) {
+  if(Array.isArray(value))return value.map(v=>formatScalar(field,v)).filter(Boolean).join(', ');
+  if(value==null||value==='')return'';
+  const normalizer=DEDUCTION_EVIDENCE_REGISTRY[field]?.normalizeEvidence;
+  const normalized=normalizer?normalizer(value):value;
+  return String(normalized).replace(/_/g,' ').replace(/\s+/g,' ').trim().toUpperCase();
 }
-
-function isEvidenceObject(rawEvidence) {
-  return (
-    rawEvidence !== null &&
-    typeof rawEvidence === 'object' &&
-    !Array.isArray(rawEvidence)
-  );
-}
-
-function getEvidenceField(rawEvidence = {}) {
-  if (!isEvidenceObject(rawEvidence)) {
-    return '';
-  }
-
-  return normalizeFieldKey(
-    rawEvidence?.field ||
-      rawEvidence?.forensicField ||
-      rawEvidence?.attribute ||
-      rawEvidence?.evidenceType ||
-      rawEvidence?.type ||
-      ''
-  );
-}
-
-function getEvidenceValue(rawEvidence = {}) {
-  if (!isEvidenceObject(rawEvidence)) {
-    return null;
-  }
-
-  return (
-    rawEvidence?.value ??
-    rawEvidence?.normalizedValue ??
-    rawEvidence?.thiefValue ??
-    rawEvidence?.thief_value ??
-    rawEvidence?.result ??
-    rawEvidence?.resultValue ??
-    null
-  );
-}
-
-function isEvidenceResultUsable(rawEvidence) {
-  if (!isEvidenceObject(rawEvidence)) {
-    return false;
-  }
-
-  const field = getEvidenceField(rawEvidence);
-  const value = getEvidenceValue(rawEvidence);
-
-  return Boolean(
-    field &&
-      value !== undefined &&
-      value !== null &&
-      value !== ''
-  );
+function fit(text,width,height) {
+  const scale=Math.min(1,width/Math.max(1,text.width),height/Math.max(1,text.height));
+  text.setScale(scale);return text;
 }
 
 export const SuspectCardsMixin = {
-  renderSuspectCards(suspects = []) {
-    const { width, height } = this.scale;
+  getSuspectCardsLayout() {
+    const {width,height}=this.scale,isMobile=width<=700,isTablet=width>700&&width<=1100;
+    const top=184,bottom=height-72,availableHeight=Math.max(80,bottom-top);
+    const detailsWidth=isMobile?0:isTablet?350:450;
+    const sidePadding=isMobile?18:24,gap=18;
+    const areaWidth=Math.max(120,width-sidePadding*2-detailsWidth-(isMobile?0:22));
+    const columns=!isMobile&&areaWidth>=458?2:1;
+    const rows=Math.max(1,Math.min(isMobile?3:2,Math.floor((availableHeight+16)/206)));
+    const cardWidth=Math.min(isMobile?width-36:360,(areaWidth-gap*(columns-1))/columns);
+    const cardHeight=Math.min(260,(availableHeight-16*(rows-1))/rows);
+    const gridWidth=columns*cardWidth+(columns-1)*gap;
+    return {
+      top,columns,rows,cardWidth,cardHeight,gapX:gap,gapY:16,
+      startX:sidePadding+(areaWidth-gridWidth)/2+cardWidth/2,
+      cardsPerPage:columns*rows,isMobile
+    };
+  },
 
-    const isMobile = width <= 700;
-    const isTablet = width > 700 && width <= 1100;
-
-    if (!suspects.length) {
-      this.emptyText
-        ?.setText('No suspect files match this filter.')
-        ?.setPosition(width / 2, height / 2)
-        ?.setVisible(true);
-
-      return;
+  renderSuspectCards(suspects=[]) {
+    const L=this.getSuspectCardsLayout();
+    if(!suspects.length) {
+      this.emptyText?.setText('No suspect files match this filter.')
+        ?.setPosition(this.scale.width/2,this.scale.height/2)?.setVisible(true);return;
     }
-
     this.emptyText?.setVisible(false);
-
-    const contentTop = 184;
-    const contentBottom = height - 72;
-
-    const detailsWidth = isMobile
-      ? 0
-      : isTablet
-        ? 350
-        : 450;
-
-    const sidePadding = isMobile ? 18 : 24;
-    const panelGap = isMobile ? 0 : 22;
-
-    const cardsAreaWidth = isMobile
-      ? width - sidePadding * 2
-      : width - detailsWidth - panelGap - sidePadding * 2;
-
-    const cardsAreaX = isMobile
-      ? width / 2
-      : sidePadding + cardsAreaWidth / 2;
-
-    const columns = isMobile ? 1 : 2;
-    const rows = Math.ceil(suspects.length / columns);
-
-    const gapX = isMobile ? 0 : 18;
-    const gapY = 16;
-
-    const cardWidth = Math.min(
-      isMobile ? width - 36 : 360,
-      (cardsAreaWidth - gapX * (columns - 1)) / columns
-    );
-
-    const availableHeight = contentBottom - contentTop;
-
-    const cardHeight = Math.max(
-      142,
-      Math.min(
-        260,
-        (availableHeight - gapY * (rows - 1)) /
-          Math.max(1, rows)
-      )
-    );
-
-    const gridWidth =
-      columns * cardWidth +
-      (columns - 1) * gapX;
-
-    const startX =
-      cardsAreaX -
-      gridWidth / 2 +
-      cardWidth / 2;
-
-    suspects.forEach((suspect, index) => {
-      const column = index % columns;
-      const row = Math.floor(index / columns);
-
-      const x =
-        startX +
-        column * (cardWidth + gapX);
-
-      const y =
-        contentTop +
-        cardHeight / 2 +
-        row * (cardHeight + gapY);
-
-      const card = this.createSuspectCard(
-        suspect,
-        x,
-        y,
-        cardWidth,
-        cardHeight
-      );
-
-      this.cardsContainer?.add(card);
+    suspects.forEach((suspect,index)=>{
+      const x=L.startX+(index%L.columns)*(L.cardWidth+L.gapX);
+      const y=L.top+L.cardHeight/2+Math.floor(index/L.columns)*(L.cardHeight+L.gapY);
+      this.cardsContainer?.add(this.createSuspectCard(suspect,x,y,L.cardWidth,L.cardHeight));
     });
   },
 
-  createSuspectCard(suspect, x, y, width, height) {
-    const isSelected =
-      suspect.id === this.selectedSuspectId;
-
-    const isEliminated =
-      suspect.deductionState?.eliminated === true;
-
-    const card = this.add.container(x, y);
-
-    const backgroundColor = isEliminated
-      ? 0x2c211e
-      : this.excludeMode
-        ? 0x38251d
-        : isSelected
-          ? 0x4a3520
-          : 0x2a2018;
-
-    const borderColor = isEliminated
-      ? 0x8e3d34
-      : this.excludeMode
-        ? 0xffb347
-        : isSelected
-          ? 0xd4af37
-          : 0x766044;
-
-    const bg = this.add
-      .rectangle(0, 0, width, height, backgroundColor, 1)
-      .setStrokeStyle(
-        this.excludeMode || isSelected ? 3 : 2,
-        borderColor,
-        0.95
-      )
-      .setInteractive({
-        useHandCursor: true
-      });
-
-    const fileNumber = this.getSuspectFileNumber(
-      suspect.id
-    );
-
-    const fileLabel = this.add
-      .text(
-        -width / 2 + 14,
-        -height / 2 + 12,
-        `FILE ${fileNumber}`,
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '8px',
-          color: isEliminated
-            ? '#d07f75'
-            : '#bba276'
-        }
-      )
-      .setOrigin(0, 0);
-
-    const name = this.add
-      .text(
-        0,
-        -height / 2 + 34,
-        suspect.publicProfile?.displayName ||
-          suspect.name ||
-          'Unknown',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: width < 230 ? '20px' : '25px',
-          color: isEliminated
-            ? '#b8a39d'
-            : '#fff0cd',
-          align: 'center',
-          wordWrap: {
-            width: width - 28,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0.5, 0);
-
-    const occupation = this.add
-      .text(
-        0,
-        -height / 2 + 78,
-        suspect.publicProfile?.occupation ||
-          suspect.occupation ||
-          'Unknown role',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '17px',
-          color: isEliminated
-            ? '#9a8581'
-            : '#dfca9e',
-          align: 'center',
-          wordWrap: {
-            width: width - 30,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0.5, 0);
-
-    const fileData = this.createFileDataPanel(
-      suspect,
-      width,
-      height,
-      isEliminated
-    );
-
-    const status = this.getCardStatus(suspect);
-
-    const statusText = this.add
-      .text(
-        0,
-        height / 2 - 22,
-        status.label,
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '8px',
-          color: status.color,
-          align: 'center',
-          wordWrap: {
-            width: width - 24,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0.5);
-
-    card.add([
-      bg,
-      fileLabel,
-      name,
-      occupation,
-      ...fileData,
-      statusText
-    ]);
-
-    if (this.excludeMode) {
-      const modeText = this.add
-        .text(
-          0,
-          height / 2 - 44,
-          isEliminated
-            ? '[ CLICK TO RESTORE ]'
-            : '[ CLICK TO EXCLUDE ]',
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: isEliminated
-              ? '#ffb5aa'
-              : '#ffdc73',
-            align: 'center'
-          }
-        )
-        .setOrigin(0.5);
-
-      card.add(modeText);
+  getCompletedCrimeLabFields() {
+    if(typeof this.getCompletedCrimeLabResults!=='function') {
+      throw new Error('Install the updated SuspectDetails.mixin.js before SuspectCards.mixin.js.');
     }
+    return new Set(this.getCompletedCrimeLabResults().map(result=>fieldKey(result.field)));
+  },
 
-    if (isEliminated) {
-      const stamp = this.add
-        .text(0, 0, 'CLEARED', {
-          fontFamily: 'PressStart2P',
-          fontSize: width < 230 ? '15px' : '18px',
-          color: '#db5750',
-          stroke: '#1f0d0b',
-          strokeThickness: 5,
-          align: 'center'
-        })
-        .setOrigin(0.5)
-        .setAngle(-12)
-        .setAlpha(0.9)
-        .setDepth(10);
+  getVisibleFileFacts(suspect) {
+    const attributes=suspect?.restrictedProfile?.forensicAttributes||{};
+    const rawUnlocked=suspect?.restrictedProfile?.unlockedFields;
+    const unlocked=new Set((Array.isArray(rawUnlocked)?rawUnlocked:[]).map(value=>fieldKey(
+      typeof value==='string'?value:value?.field||value?.id||value?.key||''
+    )).filter(Boolean));
+    const completed=this.getCompletedCrimeLabFields();
+    const facts=[];
+    for(const definition of FILE_DATA_FIELDS) {
+      const revealed=completed.has(definition.field)||unlocked.has(definition.field)||
+        definition.aliases.some(alias=>attributes[alias]?.unlocked===true);
+      if(!revealed)continue;
+      const value=attributeValue(attributes,definition.aliases);
+      if(value==null||value==='')continue;
+      facts.push({field:definition.field,label:definition.label,value:formatScalar(definition.field,value)});
+    }
+    // Personal notes stay accessible in the full file in every case. Cards
+    // summarize them when that kind of lab evidence is actually available.
+    if(completed.has('dust_profile')||completed.has('material_profile')||
+      unlocked.has('dust_profile')||unlocked.has('material_profile')) {
+      if(typeof this.getSuspectFileSections!=='function')throw new Error('Updated dossier sections are required.');
+      const sections=this.getSuspectFileSections(suspect);
+      if((completed.has('dust_profile')||unlocked.has('dust_profile'))&&sections.hobbies.length) {
+        facts.push({field:'dust_profile',label:'HOBBIES',value:sections.hobbies.join('; ')});
+      }
+      if((completed.has('material_profile')||unlocked.has('material_profile'))&&sections.personal.length) {
+        facts.push({field:'material_profile',label:'PERSONAL',value:sections.personal.join('; ')});
+      }
+    }
+    return facts;
+  },
 
+  createSuspectCard(suspect,x,y,width,height) {
+    const selected=suspect.id===this.selectedSuspectId,cleared=suspect.deductionState?.eliminated===true;
+    const background=cleared?0x2c211e:this.excludeMode?0x38251d:selected?0x4a3520:0x2a2018;
+    const border=cleared?0x8e3d34:this.excludeMode?0xffb347:selected?0xd4af37:0x766044;
+    const card=this.add.container(x,y),top=-height/2;
+    const bg=this.add.rectangle(0,0,width,height,background,1)
+      .setStrokeStyle(this.excludeMode||selected?3:2,border,.95).setInteractive({useHandCursor:true});
+    const file=this.add.text(-width/2+12,top+10,`FILE ${this.getSuspectFileNumber(suspect.id)}`,{
+      fontFamily:'PressStart2P',fontSize:'8px',color:cleared?'#d07f75':'#bba276'
+    }).setOrigin(0,0);
+    const name=this.add.text(0,top+30,suspect.publicProfile?.displayName||suspect.name||'Unknown',{
+      fontFamily:'SpecialElite',fontSize:width<230?'20px':'25px',color:cleared?'#b8a39d':'#fff0cd',
+      align:'center',wordWrap:{width:width-28,useAdvancedWrap:true}
+    }).setOrigin(.5,0);
+    fit(name,width-28,Math.max(22,Math.min(42,height*.22)));
+    const nameBottom=name.y+name.height*(name.scaleY??name.scaleX??1);
+    const occupation=this.add.text(0,nameBottom+5,suspect.publicProfile?.occupation||suspect.occupation||'Unknown role',{
+      fontFamily:'SpecialElite',fontSize:'16px',color:cleared?'#9a8581':'#dfca9e',
+      align:'center',wordWrap:{width:width-30,useAdvancedWrap:true}
+    }).setOrigin(.5,0);
+    fit(occupation,width-30,Math.min(28,height*.14));
+    const dataTop=occupation.y+occupation.height*(occupation.scaleY??occupation.scaleX??1)+8;
+    const data=this.createFileDataPanel(suspect,width,height,cleared,{top:dataTop,bottom:height/2-54});
+    const status=this.getCardStatus(suspect);
+    const statusText=this.add.text(0,height/2-14,status.label,{
+      fontFamily:'PressStart2P',fontSize:'7px',color:status.color,align:'center'
+    }).setOrigin(.5);fit(statusText,width-24,16);
+    const open=this.add.text(0,height/2-36,'[ OPEN FILE ]',{
+      fontFamily:'PressStart2P',fontSize:'7px',color:'#dcc89b',backgroundColor:'#201710',padding:{x:8,y:5}
+    }).setOrigin(.5).setInteractive({useHandCursor:true});
+    card.add([bg,file,name,occupation,...data,statusText,open]);
+    const select=(forceDocument=false)=>{
+      this.selectedSuspectId=suspect.id;this.gameState.selectedSuspectId=suspect.id;requestAutosave();
+      if(forceDocument||this.scale.width<=700)this.showMobileDetails(suspect);else this.refreshBoard();
+    };
+    open.on('pointerdown',(p,px,py,event)=>{event?.stopPropagation();select(true);});
+    bg.on('pointerover',()=>{
+      if((cleared||selected)&&!this.excludeMode)return;
+      bg.setFillStyle(this.excludeMode?0x5b3224:0x514027,1).setStrokeStyle(3,this.excludeMode?0xffdc73:0xd4af37,1);
+    });
+    bg.on('pointerout',()=>bg.setFillStyle(background,1).setStrokeStyle(this.excludeMode||selected?3:2,border,.95));
+    bg.on('pointerdown',()=>{
+      if(this.excludeMode){
+        this.toggleSuspectExclusion(suspect.id,{playerInitiated:true,source:'suspect_card_pointerdown'});return;
+      }
+      select(false);
+    });
+    if(cleared) {
+      const stamp=this.add.text(0,0,'CLEARED',{
+        fontFamily:'PressStart2P',fontSize:width<230?'15px':'18px',color:'#db5750',
+        stroke:'#1f0d0b',strokeThickness:5,align:'center'
+      }).setOrigin(.5).setAngle(-12).setAlpha(.9).setDepth(10);
       card.add(stamp);
     }
-
-    bg.on('pointerover', () => {
-      if (isEliminated && !this.excludeMode) {
-        return;
-      }
-
-      if (isSelected && !this.excludeMode) {
-        return;
-      }
-
-      bg.setFillStyle(
-        this.excludeMode ? 0x5b3224 : 0x514027,
-        1
-      );
-
-      bg.setStrokeStyle(
-        3,
-        this.excludeMode ? 0xffdc73 : 0xd4af37,
-        1
-      );
-    });
-
-    bg.on('pointerout', () => {
-      bg.setFillStyle(backgroundColor, 1);
-
-      bg.setStrokeStyle(
-        this.excludeMode || isSelected ? 3 : 2,
-        borderColor,
-        0.95
-      );
-    });
-
-    bg.on('pointerdown', () => {
-      if (this.excludeMode) {
-        this.toggleSuspectExclusion(suspect.id, {
-          playerInitiated: true,
-          source: 'suspect_card_pointerdown'
-        });
-
-        return;
-      }
-
-      this.selectedSuspectId = suspect.id;
-      this.gameState.selectedSuspectId = suspect.id;
-
-      requestAutosave();
-
-      if (this.scale.width <= 700) {
-        this.showMobileDetails(suspect);
-        return;
-      }
-
-      this.refreshBoard();
-    });
-
     return card;
   },
 
-  /**
-   * A field becomes visible only when:
-   * - a matching Crime Lab result is available, OR
-   * - the field was explicitly unlocked by another gameplay source.
-   *
-   * Exclude Mode does not reveal hidden data.
-   */
-  getVisibleFileFacts(suspect) {
-    const attributes =
-      suspect?.restrictedProfile?.forensicAttributes || {};
-
-    const unlockedFields = new Set(
-      (
-        suspect?.restrictedProfile?.unlockedFields || []
-      )
-        .map((field) => {
-          if (typeof field === 'string') {
-            return normalizeFieldKey(field);
-          }
-
-          return normalizeFieldKey(
-            field?.field ||
-              field?.id ||
-              field?.key ||
-              ''
-          );
-        })
-        .filter(Boolean)
-    );
-
-    const completedLabFields =
-      this.getCompletedCrimeLabFields();
-
-    return FILE_DATA_FIELDS
-      .map((definition) => {
-        const value = getAttributeValue(
-          attributes,
-          definition.aliases
-        );
-
-        const isUnlockedByFile =
-          definition.aliases.some(
-            (alias) =>
-              unlockedFields.has(
-                normalizeFieldKey(alias)
-              ) ||
-              attributes?.[alias]?.unlocked === true
-          );
-
-        const isUnlockedByLab =
-          completedLabFields.has(definition.field);
-
-        if (
-          !isUnlockedByLab &&
-          !isUnlockedByFile
-        ) {
-          return null;
-        }
-
-        if (
-          value === undefined ||
-          value === null ||
-          value === ''
-        ) {
-          return null;
-        }
-
-        return {
-          field: definition.field,
-          label: definition.label,
-          value: formatFileValue(value)
-        };
-      })
-      .filter(Boolean);
-  },
-
-  /**
-   * Reads existing Crime Lab result collections.
-   * Missing, null or non-object entries are ignored.
-   */
-  getCompletedCrimeLabFields() {
-    const fields = new Set();
-
-    const addEvidence = (rawEvidence) => {
-      if (!isEvidenceResultUsable(rawEvidence)) {
-        return;
+  createFileDataPanel(suspect,width,height,isEliminated,layout={}) {
+    const facts=this.getVisibleFileFacts(suspect),left=-width/2+14;
+    const top=layout.top??(-height/2+108),bottom=layout.bottom??(height/2-54);
+    if(bottom-top<26)return[];
+    const title=this.add.text(left,top,'FILE DATA',{
+      fontFamily:'PressStart2P',fontSize:'7px',color:isEliminated?'#a58781':'#c9b785'
+    }).setOrigin(0,0);
+    const available=bottom-top-17;
+    const body=this.add.text(left,top+17,'',{
+      fontFamily:'SpecialElite',fontSize:'13px',color:isEliminated?'#9c8984':'#e9dbbb',lineSpacing:2,
+      wordWrap:{width:width-28,useAdvancedWrap:true}
+    }).setOrigin(0,0);
+    if(!facts.length)body.setText('No lab-linked data available.');
+    else {
+      let shown=facts.length;
+      while(shown>=0) {
+        const lines=facts.slice(0,shown).map(fact=>`${fact.label}: ${fact.value}`);
+        if(shown<facts.length)lines.push(`+ ${facts.length-shown} MORE — OPEN FILE`);
+        body.setText(lines.join('\n'));
+        if(body.height<=available||shown===0)break;
+        shown--;
       }
-
-      fields.add(getEvidenceField(rawEvidence));
-    };
-
-    // Main identity-analysis result.
-    addEvidence(this.gameState.identityEvidenceResult);
-
-    // Global forensic result history.
-    if (Array.isArray(this.gameState.forensicResults)) {
-      this.gameState.forensicResults.forEach(addEvidence);
     }
-
-    // Per-case CrimeLabManager data.
-    try {
-      const cityId =
-        this.cityId ||
-        this.gameState.currentMission?.city ||
-        this.gameState.crimeCityId ||
-        null;
-
-      const labManager = new CrimeLabManager(
-        this.gameState,
-        cityId
-      );
-
-      const caseForensics =
-        labManager.ensureCaseForensics();
-
-      addEvidence(
-        caseForensics?.identityEvidenceResult
-      );
-
-      if (
-        Array.isArray(
-          caseForensics?.traceEvidenceResults
-        )
-      ) {
-        caseForensics.traceEvidenceResults.forEach(
-          addEvidence
-        );
-      }
-
-      if (
-        Array.isArray(
-          caseForensics?.forensicResults
-        )
-      ) {
-        caseForensics.forensicResults.forEach(
-          addEvidence
-        );
-      }
-    } catch (error) {
-      console.warn(
-        '[SuspectCards] Could not read completed Crime Lab fields.',
-        error
-      );
-    }
-
-    return fields;
-  },
-
-  /**
-   * No automatic comparison, no red/green verdict
-   * and no hidden values.
-   */
-    createFileDataPanel(suspect, width, height, isEliminated) {
-    const facts = this.getVisibleFileFacts(suspect);
-
-    const left = -width / 2 + 16;
-    const top = -height / 2 + 110;
-
-    const textColor = isEliminated ? '#9c8984' : '#e9dbbb';
-
-    const title = this.add
-      .text(left, top, 'FILE DATA', {
-        fontFamily: 'PressStart2P',
-        fontSize: '7px',
-        color: isEliminated ? '#a58781' : '#c9b785'
-      })
-      .setOrigin(0, 0);
-
-    if (!facts.length) {
-      const empty = this.add
-        .text(left, top + 17, 'No lab-linked data available.', {
-          fontFamily: 'SpecialElite',
-          fontSize: '14px',
-          color: textColor,
-          wordWrap: {
-            width: width - 32,
-            useAdvancedWrap: true
-          }
-        })
-        .setOrigin(0, 0);
-
-      return [title, empty];
-    }
-
-    const perLine = width >= 280 ? 2 : 1;
-    const lineHeight = 18;
-    const availableHeight = height / 2 - 30 - (top + 17);
-    const maxLines = Math.max(1, Math.floor(availableHeight / lineHeight));
-
-    const allLines = [];
-
-    for (let i = 0; i < facts.length; i += perLine) {
-      allLines.push(
-        facts
-          .slice(i, i + perLine)
-          .map((fact) => `${fact.label}: ${fact.value}`)
-          .join('   ')
-      );
-    }
-
-    let lines = allLines;
-
-    if (allLines.length > maxLines) {
-      lines = allLines.slice(0, Math.max(0, maxLines - 1));
-
-      const shownFacts = lines.length * perLine;
-
-      lines.push(`+ ${facts.length - shownFacts} MORE`);
-    }
-
-    const text = this.add
-      .text(left, top + 17, lines.join('\n'), {
-        fontFamily: 'SpecialElite',
-        fontSize: '13px',
-        color: textColor,
-        lineSpacing: 2,
-        wordWrap: {
-          width: width - 32,
-          useAdvancedWrap: true
-        }
-      })
-      .setOrigin(0, 0);
-
-    return [title, text];
+    fit(body,width-28,available);return[title,body];
   },
 
   getCardStatus(suspect) {
-    const state = suspect?.deductionState || {};
-
-    if (state.eliminated === true) {
-      const reason = state.eliminationReasons?.[0];
-
-      return {
-        label: reason?.label
-          ? `CLEARED: ${String(
-              reason.label
-            ).toUpperCase()}`
-          : 'CLEARED',
-        color: '#e6766e'
-      };
-    }
-
-    if (this.excludeMode) {
-      return {
-        label: 'REVIEW FILE DATA',
-        color: '#ffdc73'
-      };
-    }
-
-    if (state.alibiStatus === 'contradicted') {
-      return {
-        label: 'ALIBI QUESTIONED',
-        color: '#ffb347'
-      };
-    }
-
-    if (state.interviewStatus === 'suspicious') {
-      return {
-        label: 'WITNESS CONCERN',
-        color: '#ffb347'
-      };
-    }
-
-    if (state.hypothesisStatus === 'match') {
-      return {
-        label: 'METHOD MATCH',
-        color: '#ffd966'
-      };
-    }
-
-    if (state.hypothesisStatus === 'mismatch') {
-      return {
-        label: 'METHOD QUESTIONED',
-        color: '#d9b071'
-      };
-    }
-
-    if (
-      state.labStatus === 'match' ||
-      state.labStatus === 'mismatch'
-    ) {
-      return {
-        label: 'LAB DATA AVAILABLE',
-        color: '#f0ddb0'
-      };
-    }
-
-    return {
-      label: 'UNDER REVIEW',
-      color: '#b6aa90'
-    };
+    const state=suspect?.deductionState||{};
+    if(state.eliminated===true)return{label:'CLEARED',color:'#e6766e'};
+    if(this.excludeMode)return{label:'REVIEW FILE DATA',color:'#ffdc73'};
+    if(state.alibiStatus==='contradicted')return{label:'ALIBI QUESTIONED',color:'#ffb347'};
+    if(state.interviewStatus==='suspicious')return{label:'WITNESS CONCERN',color:'#ffb347'};
+    // Availability markers, not a free deduction from internal match flags.
+    if(['match','mismatch'].includes(state.hypothesisStatus))return{label:'METHOD DATA AVAILABLE',color:'#f0ddb0'};
+    if(['match','mismatch'].includes(state.labStatus))return{label:'LAB DATA AVAILABLE',color:'#f0ddb0'};
+    return{label:'UNDER REVIEW',color:'#b6aa90'};
   }
 };

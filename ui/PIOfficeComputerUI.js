@@ -22,6 +22,17 @@ export class PIOfficeComputerUI {
     this.window = null;
     this.content = null;
     this.viewToken = 0;
+
+    // Presentation state
+    this.menuOpen = false;
+    this.booting = false;
+    this.bootStep = 0;
+    this.bootLines = null;
+    this.hasBooted = false;
+    this.powerOn = false;
+    this.jokeIndex = 0;
+    this.fontsChecked = false;
+
     this.root = scene.add.container(0, 0).setDepth(1500).setVisible(false);
 
     this.drawing = new ComputerDrawing(this);
@@ -36,6 +47,9 @@ export class PIOfficeComputerUI {
       if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
       if (event.code !== 'Escape') return;
       event.preventDefault();
+      if (this.booting) { this.monitor.finishBoot(); return; }
+      if (this.menuOpen) { this.menuOpen = false; this.render(); return; }
+      if (this.notice && this.app === 'desktop') { this.notice = ''; this.render(); return; }
       if (this.app !== 'desktop') this.openApp('desktop');
       else this.close();
     };
@@ -56,9 +70,14 @@ export class PIOfficeComputerUI {
     this.listPage = 0;
     this.bodyPage = 0;
     this.notice = '';
+    this.menuOpen = false;
+    this.booting = false;
+    this.powerOn = true;
     this.viewToken += 1;
     this.root.setVisible(true);
     this.options.onOpen?.();
+    this.ensureFonts();
+    if (!this.options.skipBoot) this.monitor.startBoot();
     this.render();
   }
 
@@ -66,6 +85,10 @@ export class PIOfficeComputerUI {
     if (this.destroyed || !this.isOpen || this.suspended) return;
     this.isOpen = false;
     this.suspended = false;
+    this.menuOpen = false;
+    this.booting = false;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
     this.viewToken += 1;
     this.root.setVisible(false);
     this.options.onClose?.();
@@ -74,6 +97,10 @@ export class PIOfficeComputerUI {
   suspend() {
     if (this.destroyed || !this.isOpen) return;
     this.suspended = true;
+    this.menuOpen = false;
+    this.booting = false;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
     this.viewToken += 1;
     this.root.setVisible(false);
   }
@@ -83,6 +110,9 @@ export class PIOfficeComputerUI {
     this.suspended = false;
     this.app = 'desktop';
     this.notice = '';
+    this.menuOpen = false;
+    this.booting = false;
+    this.powerOn = false;
     this.viewToken += 1;
     this.root.setVisible(true);
     this.render();
@@ -90,6 +120,7 @@ export class PIOfficeComputerUI {
 
   openApp(app) {
     if (this.destroyed || !this.isOpen || this.suspended) return;
+    this.menuOpen = false;
     if (app === 'investigations') {
       this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.');
       return;
@@ -130,6 +161,22 @@ export class PIOfficeComputerUI {
     this.render();
   }
 
+  // Webfonts that are declared but not yet loaded would render with the fallback
+  // font on the first frame. Re-render once when they arrive.
+  ensureFonts() {
+    if (this.fontsChecked || typeof document === 'undefined' || !document.fonts) return;
+    this.fontsChecked = true;
+    const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
+    try {
+      if (specs.every(spec => document.fonts.check(spec))) return;
+    } catch (error) {
+      return;
+    }
+    Promise.all(specs.map(spec => document.fonts.load(spec))).then(() => {
+      if (!this.destroyed && this.isOpen && !this.suspended) this.render();
+    }).catch(() => {});
+  }
+
   money(value) {
     if (!Number.isFinite(value)) return 'Unknown';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
@@ -144,6 +191,7 @@ export class PIOfficeComputerUI {
   formatLedgerDate(value) { return this.ledger.formatDate(value); }
   addToContent(object) { return this.drawing.add(object); }
   text(...args) { return this.drawing.text(...args); }
+  pixel(...args) { return this.drawing.pixel(...args); }
   rectangle(...args) { return this.drawing.rectangle(...args); }
   bevel(...args) { return this.drawing.bevel(...args); }
   button(...args) { return this.drawing.button(...args); }
@@ -189,6 +237,8 @@ export class PIOfficeComputerUI {
     this.close();
     this.destroyed = true;
     this.viewToken += 1;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
     this.scene.input.keyboard?.off('keydown', this.onKey);
     this.scene.scale.off('resize', this.onResize);
     this.scene.events.off('shutdown', this.destroy, this);

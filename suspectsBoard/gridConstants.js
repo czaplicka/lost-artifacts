@@ -1,3 +1,5 @@
+// suspectsBoard/gridConstants.js
+
 export const FIELD_DEFS = [
   {
     id: 'hair_color',
@@ -12,11 +14,7 @@ export const FIELD_DEFS = [
   {
     id: 'biological_sex',
     aliases: [
-      'gender',
-      'sex',
-      'biologicalSex',
-      'dna_gender',
-      'dna_profile'
+      'gender', 'sex', 'biologicalSex', 'dna_gender', 'dna_profile'
     ],
     label: 'DNA PROFILE'
   },
@@ -31,9 +29,25 @@ export const FIELD_DEFS = [
     label: 'SHOE SIZE'
   },
   {
+    id: 'dust_profile',
+    aliases: ['dustProfile', 'microtrace', 'microtrace_profile'],
+    label: 'MICROTRACE / HOBBIES'
+  },
+  {
     id: 'handedness',
-    aliases: ['dominantHand'],
+    aliases: ['dominantHand', 'dominant_hand'],
     label: 'DOMINANT HAND'
+  },
+  {
+    id: 'material_profile',
+    aliases: ['materialProfile'],
+    label: 'MATERIAL / FILE NOTES'
+  },
+  {
+    // Legacy only: no automatic conversion to the new material schema.
+    id: 'fiber_profile',
+    aliases: ['fiberProfile'],
+    label: 'FIBER ANALYSIS'
   },
   {
     id: 'eye_color',
@@ -69,8 +83,11 @@ export const FIELD_DEFS = [
 
 export const FIELD_BY_ALIAS = new Map();
 
-FIELD_DEFS.forEach((definition) => {
-  [definition.id, ...definition.aliases].forEach((alias) => {
+FIELD_DEFS.forEach(definition => {
+  [definition.id, ...definition.aliases].forEach(alias => {
+    if (FIELD_BY_ALIAS.has(alias)) {
+      throw new Error(`Duplicate evidence field alias: ${alias}`);
+    }
     FIELD_BY_ALIAS.set(alias, definition);
   });
 });

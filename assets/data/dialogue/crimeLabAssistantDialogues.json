@@ -1,6 +1,6 @@
 {
   "id": "crime_lab_assistant_dialogues",
-  "version": 1,
+  "version": 2,
   "defaultNodeId": "greeting",
   "nodes": {
     "greeting": {
@@ -9,7 +9,7 @@
       "choices": [
         {
           "id": "case_results",
-          "text": "What results do we have?",
+          "text": "What reports are ready?",
           "next": "case_results"
         },
         {
@@ -31,7 +31,7 @@
     },
     "case_results": {
       "speaker": "LAB ASSISTANT",
-      "text": "I prepared the results that were safe to delegate. The others are waiting for your official detective supervision.",
+      "text": "I'll read out the delegated reports that are actually ready. The printer would like credit for its contribution.",
       "dynamic": "assistant_results",
       "choices": [
         {

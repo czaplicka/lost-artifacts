@@ -1,1029 +1,328 @@
-// Handles the desktop details side-panel, the mobile full-screen details
-// modal, the Crime Lab results widget, and shared formatting helpers.
-//
-// Design rule:
-// - CRIME LAB RESULTS contains confirmed evidence from completed minigames.
-// - CASE NOTES contains information about the selected suspect.
-// - The UI does not compare values and does not make deductions for the player.
+// suspectsBoard/SuspectDetails.mixin.js
+// Presentation only: never call matches/evaluate or change suspect status.
+import {CrimeLabManager} from '../scenes/CSI/CrimeLabManager.js';
+import {DEDUCTION_EVIDENCE_REGISTRY} from '../scenes/CSI/DeductionEvidenceRegistry.js';
+import {FIELD_BY_ALIAS,FIELD_DEFS} from './gridConstants.js';
+import {getMaterialDossierNotes} from '../suspects/MaterialEvidence.js';
+import {getDustHobbyLabels,getDustDossierNotes} from '../suspects/DustEvidence.js';
 
-import { CrimeLabManager } from '../scenes/CSI/CrimeLabManager.js';
-import { DEDUCTION_EVIDENCE_REGISTRY } from '../scenes/CSI/DeductionEvidenceRegistry.js';
-
-const DISPLAY_FIELD_ORDER = [
-  'hair_color',
-  'blood_type',
-  'biological_sex',
-  'fingerprint_pattern',
-  'shoe_size_category',
-  'handedness',
-  'eye_color',
-  'race',
-  'skills',
-  'habitus'
-];
-
-function normalizeFieldKey(field = '') {
-  const raw = String(field || '').trim();
-
-  const aliases = {
-    hair: 'hair_color',
-    hairColor: 'hair_color',
-    hair_color: 'hair_color',
-
-    eyes: 'eye_color',
-    eyeColor: 'eye_color',
-    eye_color: 'eye_color',
-
-    bloodType: 'blood_type',
-    blood_type: 'blood_type',
-
-    gender: 'biological_sex',
-    sex: 'biological_sex',
-    biologicalSex: 'biological_sex',
-    biological_sex: 'biological_sex',
-
-    fingerprintPattern: 'fingerprint_pattern',
-    fingerprint_pattern: 'fingerprint_pattern',
-
-    shoeSizeCategory: 'shoe_size_category',
-    shoe_size_category: 'shoe_size_category',
-
-    dominantHand: 'handedness',
-    handedness: 'handedness',
-
-    ancestry: 'race',
-    race: 'race',
-
-    skills: 'skills',
-    habitus: 'habitus'
-  };
-
-  return aliases[raw] || raw;
+function fieldKey(raw='') {
+  const key=String(raw||'').trim();
+  return FIELD_BY_ALIAS.get(key)?.id||key;
 }
-
-function formatFieldLabel(field = '') {
-  const normalizedField = normalizeFieldKey(field);
-
-  const labels = {
-    hair_color: 'HAIR COLOR',
-    eye_color: 'EYE COLOR',
-    blood_type: 'BLOOD TYPE',
-    biological_sex: 'DNA PROFILE',
-    fingerprint_pattern: 'FINGERPRINT',
-    shoe_size_category: 'SHOE SIZE',
-    handedness: 'DOMINANT HAND',
-    race: 'ANCESTRY',
-    skills: 'CRIMINAL SKILLS',
-    habitus: 'HABITS'
-  };
-
-  if (labels[normalizedField]) {
-    return labels[normalizedField];
+function fieldLabel(field) {
+  const key=fieldKey(field);
+  return DEDUCTION_EVIDENCE_REGISTRY[key]?.label||FIELD_BY_ALIAS.get(key)?.label||
+    key.replace(/([a-z])([A-Z])/g,'$1 $2').replace(/_/g,' ').toUpperCase();
+}
+function hasValue(value){return value!==undefined&&value!==null&&String(value).trim()!=='';}
+function evidenceValue(raw={}){
+  return raw.value??raw.result??raw.selectedValue??raw.normalizedValue??
+    raw.correctValue??raw.resultValue??raw.thiefValue??raw.thief_value??
+    raw.evidenceConfig?.correctValue??null;
+}
+function evidenceField(raw={}){
+  return fieldKey(raw.field||raw.forensicField||raw.attribute||raw.evidenceType||raw.evidenceConfig?.evidenceType||raw.type||'');
+}
+function formatted(field,value){
+  if(!hasValue(value))return'UNKNOWN';
+  if(Array.isArray(value))return value.map(v=>formatted(field,v)).join(', ');
+  const entry=DEDUCTION_EVIDENCE_REGISTRY[fieldKey(field)];
+  if(entry?.formatEvidence)return entry.formatEvidence(value);
+  const normalized=entry?.normalizeEvidence?entry.normalizeEvidence(value):value;
+  return String(normalized).replace(/_/g,' ').replace(/\s+/g,' ').trim().toUpperCase();
+}
+function unique(items){
+  const seen=new Set();return items.filter(item=>{
+    if(typeof item!=='string'||!item.trim())return false;
+    const key=item.trim().toLowerCase();if(seen.has(key))return false;seen.add(key);return true;
+  }).map(item=>item.trim());
+}
+function done(raw,trusted=false){
+  if(!raw||typeof raw!=='object'||raw.aborted===true||raw.completed===false||raw.success===false)return false;
+  return raw.completed===true||raw.success===true||Boolean(raw.completedAt)||
+    raw.unlocked===true||raw.resultUnlocked===true||
+    ['completed','success','solved','confirmed'].includes(raw.status)||trusted;
+}
+function fieldOrder(field){const i=FIELD_DEFS.findIndex(d=>d.id===field);return i<0?999:i;}
+function makeButton(scene,parent,x,y,label,onClick,fontSize=8){
+  const text=scene.add.text(x,y,label,{
+    fontFamily:'PressStart2P',fontSize:`${fontSize}px`,color:'#ffe7a2',backgroundColor:'#382a1c',
+    padding:{left:8,right:8,top:8,bottom:8},align:'center'
+  }).setOrigin(.5).setInteractive({useHandCursor:true});
+  text.on('pointerdown',(pointer,px,py,event)=>{event?.stopPropagation();onClick();});
+  parent.add(text);return text;
+}
+function fitText(text,maxWidth,maxHeight){
+  const scale=Math.min(1,maxWidth/Math.max(1,text.width),maxHeight/Math.max(1,text.height));
+  text.setScale(scale);
+}
+function paginate(textObject,content,maxHeight){
+  const tokens=String(content||'').match(/\S+\s*/g)||[];
+  if(!tokens.length)return[''];
+  const pages=[];let start=0;
+  while(start<tokens.length){
+    let low=start+1,high=tokens.length,best=start+1;
+    while(low<=high){
+      const mid=Math.floor((low+high)/2);
+      textObject.setText(tokens.slice(start,mid).join('').trim());
+      if(textObject.height<=maxHeight){best=mid;low=mid+1;}else high=mid-1;
+    }
+    pages.push(tokens.slice(start,best).join('').trim());start=best;
   }
-
-  return String(normalizedField)
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/_/g, ' ')
-    .trim()
-    .toUpperCase();
+  return pages;
 }
-
-function formatValue(value) {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => formatValue(item))
-      .filter(Boolean)
-      .join(', ');
+function pagedText(scene,{x,y,width,height,text,fontSize=17,color='#e2d1ad'}){
+  const container=scene.add.container(x,y),footer=32,bodyHeight=Math.max(20,height-footer-6);
+  const body=scene.add.text(0,0,'',{
+    fontFamily:'SpecialElite',fontSize:`${fontSize}px`,color,lineSpacing:4,
+    wordWrap:{width:Math.max(20,width),useAdvancedWrap:true}
+  }).setOrigin(0,0);
+  container.add(body);
+  const pages=paginate(body,text,bodyHeight);let page=0;
+  const pageText=scene.add.text(width/2,height-15,'',{
+    fontFamily:'PressStart2P',fontSize:'7px',color:'#b8a67e'
+  }).setOrigin(.5);container.add(pageText);
+  const previous=makeButton(scene,container,28,height-15,'<',()=>{if(page>0){page--;render();}});
+  const next=makeButton(scene,container,width-28,height-15,'>',()=>{if(page<pages.length-1){page++;render();}});
+  function render(){
+    body.setScale(1).setText(pages[page]);fitText(body,width,bodyHeight);
+    const multiple=pages.length>1;
+    pageText.setText(`${page+1}/${pages.length}`).setVisible(multiple);
+    previous.setVisible(multiple);next.setVisible(multiple);
+    previous.setAlpha(page>0?1:.35);next.setAlpha(page<pages.length-1?1:.35);
   }
-
-  if (
-    value === undefined ||
-    value === null ||
-    value === ''
-  ) {
-    return 'UNKNOWN';
-  }
-
-  return String(value)
-    .replace(/_/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toUpperCase();
+  render();return{container,pages,body,height};
 }
 
-function getEvidenceValue(rawEvidence = {}) {
-  return (
-    rawEvidence.value ??
-    rawEvidence.normalizedValue ??
-    rawEvidence.thiefValue ??
-    rawEvidence.thief_value ??
-    rawEvidence.result ??
-    rawEvidence.resultValue ??
-    null
-  );
-}
-
-function getEvidenceField(rawEvidence = {}) {
-  return normalizeFieldKey(
-    rawEvidence.field ||
-      rawEvidence.forensicField ||
-      rawEvidence.attribute ||
-      rawEvidence.evidenceType ||
-      rawEvidence.type ||
-      ''
-  );
-}
-
-function isUsableEvidence(rawEvidence) {
-  const field = getEvidenceField(rawEvidence);
-  const value = getEvidenceValue(rawEvidence);
-
-  return Boolean(
-    field &&
-      value !== undefined &&
-      value !== null &&
-      value !== ''
-  );
-}
-
-function sortEvidenceByFieldOrder(evidence = []) {
-  return [...evidence].sort((a, b) => {
-    const aIndex = DISPLAY_FIELD_ORDER.indexOf(a.field);
-    const bIndex = DISPLAY_FIELD_ORDER.indexOf(b.field);
-
-    const normalizedAIndex =
-      aIndex === -1
-        ? DISPLAY_FIELD_ORDER.length + 1
-        : aIndex;
-
-    const normalizedBIndex =
-      bIndex === -1
-        ? DISPLAY_FIELD_ORDER.length + 1
-        : bIndex;
-
-    if (normalizedAIndex !== normalizedBIndex) {
-      return normalizedAIndex - normalizedBIndex;
-    }
-
-    return a.label.localeCompare(b.label);
-  });
-}
-
-export const SuspectDetailsMixin = {
-  renderDetailsPanel() {
-    const { width, height } = this.scale;
-
-    /**
-     * Na mobile szczegóły są otwierane modalem.
-     * W Exclude Mode nie pokazujemy panelu po prawej, bo karty
-     * mają zostać czytelne i gracz korzysta z wyników laboratoryjnych
-     * z dedykowanego widgetu lub otwieranego pliku.
-     */
-    if (width <= 700 ) {
-      return;
-    }
-
-    const selected = this.getAllSuspects().find(
-      (suspect) =>
-        suspect?.id === this.selectedSuspectId
-    );
-
-    const isTablet = width <= 1100;
-
-    const panelWidth = isTablet ? 330 : 430;
-    const panelX = width - panelWidth / 2 - 20;
-
-    const panelTop = 184;
-    const panelBottom = height - 72;
-    const panelHeight = panelBottom - panelTop;
-    const panelY = panelTop + panelHeight / 2;
-
-    const panelBg = this.add
-      .rectangle(
-        panelX,
-        panelY,
-        panelWidth,
-        panelHeight,
-        0x211711,
-        0.98
-      )
-      .setStrokeStyle(2, 0x8b6c38, 0.9);
-
-    this.detailsContainer.add(panelBg);
-
-    /**
-     * Widget z wynikami laboratorum istnieje nawet przed wybraniem osoby.
-     * Dzięki temu gracz może przypomnieć sobie wyniki i dopiero potem
-     * kliknąć aktę.
-     */
-    const labWidget = this.createCrimeLabResultsWidget({
-      x: panelX - panelWidth / 2 + 14,
-      y: panelTop + 14,
-      width: panelWidth - 28,
-      maxHeight: isTablet ? 178 : 206
-    });
-
-    this.detailsContainer.add(labWidget.container);
-
-    if (!selected) {
-      const noSelection = this.add
-        .text(
-          panelX,
-          panelTop + labWidget.height + 60,
-          'Select a suspect file\nto review their notes.',
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '20px',
-            color: '#dcc99e',
-            align: 'center',
-            wordWrap: {
-              width: panelWidth - 34,
-              useAdvancedWrap: true
-            }
-          }
-        )
-        .setOrigin(0.5);
-
-      this.detailsContainer.add(noSelection);
-
-      return;
-    }
-
-    const isEliminated =
-      selected.deductionState?.eliminated === true;
-
-    const details = this.buildDetailsText(selected);
-
-    const notesTop =
-      panelTop +
-      labWidget.height +
-      28;
-
-    const heading = this.add
-      .text(panelX, notesTop, 'CASE NOTES', {
-        fontFamily: 'PressStart2P',
-        fontSize: '10px',
-        color: '#d4af37'
-      })
-      .setOrigin(0.5, 0);
-
-    const suspectName = this.add
-      .text(
-        panelX,
-        notesTop + 28,
-        selected.publicProfile?.displayName ||
-          selected.name ||
-          'Unknown Suspect',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: isTablet ? '25px' : '29px',
-          color: isEliminated
-            ? '#b69891'
-            : '#fff0cd',
-          align: 'center',
-          wordWrap: {
-            width: panelWidth - 34,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0.5, 0);
-
-    const body = this.add
-      .text(
-        panelX - panelWidth / 2 + 18,
-        notesTop + 86,
-        details,
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: isTablet ? '16px' : '18px',
-          color: '#e2d1ad',
-          lineSpacing: 5,
-          wordWrap: {
-            width: panelWidth - 36,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0, 0);
-
-    this.detailsContainer.add([
-      heading,
-      suspectName,
-      body
-    ]);
-
-    if (isEliminated) {
-      const clearedStamp = this.add
-        .text(
-          panelX,
-          panelBottom - 18,
-          'EXCLUDED FROM CURRENT LEADS',
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '8px',
-            color: '#ec726a',
-            align: 'center',
-            wordWrap: {
-              width: panelWidth - 30,
-              useAdvancedWrap: true
-            }
-          }
-        )
-        .setOrigin(0.5, 1);
-
-      this.detailsContainer.add(clearedStamp);
-    }
-  },
-
-  /**
-   * Zbiera WSZYSTKIE dostępne, ukończone wyniki Crime Lab.
-   *
-   * Dane mogą pochodzić z różnych wersji systemu:
-   * - gameState.identityEvidenceResult,
-   * - gameState.forensicResults,
-   * - currentMission.forensicHardEvidence,
-   * - caseForensics.identityEvidenceResult,
-   * - caseForensics.traceEvidenceResults.
-   *
-   * Nie dodajemy hardEvidence „na ślepo”. Jest pokazywane tylko po
-   * ukończeniu Crime Lab albo jeśli istnieje konkretne result object.
-   */
-  getCompletedCrimeLabResults() {
-    const resultsByField = new Map();
-
-    const addResult = (
-      rawResult,
-      fallbackSource = 'Crime Lab',
-      {
-        allowWithoutCompletion = false
-      } = {}
-    ) => {
-      if (
-        !rawResult ||
-        typeof rawResult !== 'object' ||
-        !isUsableEvidence(rawResult)
-      ) {
-        return;
+export const SuspectDetailsMixin={
+  getCompletedCrimeLabResults(){
+    const state=this.gameState||{};
+    const manager=new CrimeLabManager(state,this.cityId);
+    const caseKey=String(manager.getCaseKey());
+    // Reading the panel must not create or reroll a case assignment.
+    const current=state.caseForensics?.[caseKey];
+    const assignment=state.caseCsiAssignments?.[caseKey];
+    const labCompletedForCase=state.crimeCityProgress?.[caseKey]?.crimeLabCompleted===true||
+      current?.completed===true||(!current&&state.csiLabCompleted===true);
+    const byField=new Map();
+    const configFor=station=>station==='identity'?assignment?.identityEvidence:
+      /^trace_[01]$/.test(String(station||''))?assignment?.traceEvidence?.[Number(station.slice(-1))]:null;
+    const add=(raw,priority,{trusted=false,legacy=false}={})=>{
+      if(!done(raw,trusted))return;
+      if(raw.caseKey!=null&&String(raw.caseKey)!==caseKey)return;
+      const config=configFor(raw.stationId);
+      const field=evidenceField(raw),value=evidenceValue(raw);
+      if(!field||!hasValue(value))return;
+      if(config&&field!==fieldKey(config.attribute||config.evidenceType||config.field))return;
+      if(config?.id&&raw.evidenceId&&raw.evidenceId!==config.id)return;
+      // Unscoped global history needs an explicit completion and an active
+      // assignment of the same field. Current-case result slots are trusted.
+      if(!trusted&&!legacy&&raw.caseKey==null){
+        if(!labCompletedForCase)return;
+        const assigned=[assignment?.identityEvidence,...(assignment?.traceEvidence||[])].filter(Boolean);
+        if(assigned.length&&!assigned.some(e=>fieldKey(e.attribute||e.evidenceType||e.field)===field))return;
       }
-
-      const field = getEvidenceField(rawResult);
-
-      const rawValue = getEvidenceValue(rawResult);
-
-      const registryEntry =
-        DEDUCTION_EVIDENCE_REGISTRY?.[field];
-
-      const normalizedValue =
-        registryEntry?.normalizeEvidence
-          ? registryEntry.normalizeEvidence(rawValue)
-          : rawValue;
-
-      if (
-        normalizedValue === undefined ||
-        normalizedValue === null ||
-        normalizedValue === ''
-      ) {
-        return;
-      }
-
-      const existing = resultsByField.get(field);
-
-      /**
-       * Wynik z konkretnej minigry ma pierwszeństwo przed fallbackiem.
-       * To chroni przed nadpisaniem ukończonego wyniku danymi generowanymi
-       * przy starcie case'a.
-       */
-      const incomingIsCompleted =
-        allowWithoutCompletion ||
-        rawResult.completed === true ||
-        rawResult.completedAt ||
-        rawResult.unlocked === true ||
-        rawResult.resultUnlocked === true ||
-        rawResult.source ||
-        rawResult.evidenceType;
-
-      if (
-        existing?.isCompleted &&
-        !incomingIsCompleted
-      ) {
-        return;
-      }
-
-      resultsByField.set(field, {
-        id:
-          rawResult.id ||
-          rawResult.evidenceId ||
-          `${field}_${fallbackSource}`,
-
-        field,
-
-        label:
-          rawResult.label ||
-          registryEntry?.label ||
-          formatFieldLabel(field),
-
-        value: formatValue(normalizedValue),
-
-        source:
-          rawResult.source ||
-          fallbackSource,
-
-        isCompleted: Boolean(incomingIsCompleted)
+      const existing=byField.get(field);if(existing&&existing.priority>=priority)return;
+      const entry=DEDUCTION_EVIDENCE_REGISTRY[field];
+      byField.set(field,{
+        id:raw.id||raw.evidenceId||`${caseKey}_${raw.stationId||field}`,
+        caseKey,stationId:raw.stationId||null,field,
+        label:raw.label||raw.title||entry?.label||fieldLabel(field),
+        value:formatted(field,value),rawValue:value,
+        description:raw.clueText||raw.description||raw.clue?.text||raw.text||config?.clueText||'',
+        source:raw.source||'Crime Lab',sourceConfirmed:raw.sourceConfirmed===true,
+        sourceText:raw.sourceText||raw.evidenceConfig?.sourceText||'',
+        assistantProvided:raw.assistantProvided===true,isCompleted:true,priority
       });
     };
-
-    /**
-     * 1. Główny wynik identyfikacyjny.
-     */
-    addResult(
-      this.gameState.identityEvidenceResult,
-      'Crime Lab',
-      {
-        allowWithoutCompletion: true
-      }
-    );
-
-    /**
-     * 2. Wszystkie wyniki globalne.
-     */
-    if (Array.isArray(this.gameState.forensicResults)) {
-      this.gameState.forensicResults.forEach((result) => {
-        addResult(result, 'Crime Lab', {
-          allowWithoutCompletion: true
-        });
-      });
+    add(state.identityEvidenceResult,10);
+    for(const r of Array.isArray(state.forensicResults)?state.forensicResults:[])add(r,10);
+    for(const r of Array.isArray(state.crimeBoardData?.labResults)?state.crimeBoardData.labResults:[])add(r,15);
+    if(current){
+      add(current.identityEvidenceResult,30,{trusted:true});
+      for(const r of current.traceEvidenceResults||[])add(r,30,{trusted:true});
+      for(const r of current.forensicResults||[])add(r,25,{trusted:true});
     }
-
-    /**
-     * 3. Dane zapisane przez CrimeLabManager w bieżącej sprawie.
-     */
-    let caseForensics = null;
-
-    try {
-      const labManager = new CrimeLabManager(
-        this.gameState,
-        this.cityId
-      );
-
-      caseForensics =
-        labManager.ensureCaseForensics();
-
-      addResult(
-        caseForensics?.identityEvidenceResult,
-        'Crime Lab',
-        {
-          allowWithoutCompletion: true
-        }
-      );
-
-      if (
-        Array.isArray(
-          caseForensics?.traceEvidenceResults
-        )
-      ) {
-        caseForensics.traceEvidenceResults.forEach(
-          (result) => {
-            addResult(result, 'Crime Lab', {
-              allowWithoutCompletion: true
-            });
-          }
-        );
-      }
-    } catch (error) {
-      console.warn(
-        '[SuspectDetails] Could not read case forensic results.',
-        error
-      );
+    // Compatibility only for older completed cases that lack stored results.
+    // Never let generated hardEvidence overwrite an actual lab report.
+    const completed=labCompletedForCase;
+    if(completed&&byField.size===0){
+      const hard=state.currentMission?.forensicHardEvidence||state.hardEvidence||[];
+      if(Array.isArray(hard))for(const e of hard)add({...e,completed:true},1,{legacy:true});
     }
-
-    /**
-     * 4. Fallback do hardEvidence.
-     *
-     * Pokazujemy je dopiero po ukończeniu Crime Lab. Dzięki temu
-     * panel nie zdradza wyniku przed minigrą.
-     */
-    const crimeLabCompleted =
-      this.getCrimeLabCompleted?.() ||
-      this.gameState.csiLabCompleted === true ||
-      caseForensics?.completed === true;
-
-    if (crimeLabCompleted) {
-      const hardEvidence =
-        this.gameState.currentMission?.forensicHardEvidence ||
-        this.gameState.hardEvidence ||
-        [];
-
-      if (Array.isArray(hardEvidence)) {
-        hardEvidence.forEach((evidence) => {
-          addResult(
-            {
-              id: evidence.id,
-              field:
-                evidence.field ||
-                evidence.forensicField,
-
-              value:
-                evidence.value ??
-                evidence.normalizedValue,
-
-              label: evidence.label,
-              source:
-                evidence.source ||
-                'Crime Lab'
-            },
-            'Crime Lab',
-            {
-              allowWithoutCompletion: true
-            }
-          );
-        });
-      }
-    }
-
-    return sortEvidenceByFieldOrder(
-      [...resultsByField.values()]
-    );
+    return[...byField.values()].sort((a,b)=>fieldOrder(a.field)-fieldOrder(b.field)||a.label.localeCompare(b.label))
+      .map(({priority,...result})=>result);
   },
 
-  /**
-   * Wyświetla listę ukończonych analiz w bocznym widgetcie.
-   *
-   * Widget nie porównuje wyniku z wybranym podejrzanym.
-   * Pokazuje tylko informacje, które detektyw już zdobyła.
-   */
-  createCrimeLabResultsWidget({
-    x,
-    y,
-    width,
-    maxHeight = 200
-  }) {
-    const results =
-      this.getCompletedCrimeLabResults();
-
-    const padding = 12;
-    const titleHeight = 20;
-    const rowHeight = 28;
-    const footerHeight = 18;
-
-    const maxRows = Math.max(
-      1,
-      Math.floor(
-        (maxHeight - padding * 2 - titleHeight - footerHeight) /
-          rowHeight
-      )
-    );
-
-    const visibleResults = results.slice(0, maxRows);
-
-    const hasHiddenResults =
-      results.length > visibleResults.length;
-
-    const bodyHeight = visibleResults.length
-      ? visibleResults.length * rowHeight
-      : 42;
-
-    const widgetHeight = Math.min(
-      maxHeight,
-      padding * 2 +
-        titleHeight +
-        bodyHeight +
-        (hasHiddenResults ? footerHeight : 0)
-    );
-
-    const container = this.add.container(x, y);
-
-    const background = this.add
-      .rectangle(
-        width / 2,
-        widgetHeight / 2,
-        width,
-        widgetHeight,
-        0x142022,
-        0.98
-      )
-      .setStrokeStyle(2, 0x668f91, 1);
-
-    const title = this.add
-      .text(
-        padding,
-        padding,
-        'CRIME LAB RESULTS',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '8px',
-          color: '#91d8d9'
-        }
-      )
-      .setOrigin(0, 0);
-
-    container.add([background, title]);
-
-    if (!visibleResults.length) {
-      const empty = this.add
-        .text(
-          padding,
-          padding + titleHeight + 6,
-          'No completed analyses.\nCrime Lab data will appear here.',
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '16px',
-            color: '#b7c8c6',
-            lineSpacing: 3,
-            wordWrap: {
-              width: width - padding * 2,
-              useAdvancedWrap: true
-            }
-          }
-        )
-        .setOrigin(0, 0);
-
-      container.add(empty);
-
-      return {
-        container,
-        height: widgetHeight
-      };
-    }
-
-    visibleResults.forEach((result, index) => {
-      const rowY =
-        padding +
-        titleHeight +
-        index * rowHeight;
-
-      const row = this.add
-        .rectangle(
-          width / 2,
-          rowY + (rowHeight - 2) / 2,
-          width - 16,
-          rowHeight - 3,
-          0x233133,
-          1
-        )
-        .setStrokeStyle(1, 0x45676a, 1);
-
-      const marker = this.add
-        .text(
-          padding,
-          rowY + 4,
-          '✓',
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '18px',
-            color: '#8fe6c4'
-          }
-        )
-        .setOrigin(0, 0);
-
-      const field = this.add
-        .text(
-          padding + 18,
-          rowY + 7,
-          result.label,
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '6px',
-            color: '#a9d5d4',
-            wordWrap: {
-              width: width * 0.52,
-              useAdvancedWrap: true
-            }
-          }
-        )
-        .setOrigin(0, 0);
-
-      const value = this.add
-        .text(
-          width - padding,
-          rowY + 5,
-          result.value,
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '16px',
-            color: '#f4e6b5',
-            align: 'right',
-            wordWrap: {
-              width: width * 0.4,
-              useAdvancedWrap: true
-            }
-          }
-        )
-        .setOrigin(1, 0);
-
-      container.add([
-        row,
-        marker,
-        field,
-        value
-      ]);
-    });
-
-    if (hasHiddenResults) {
-      const more = this.add
-        .text(
-          width - padding,
-          widgetHeight - padding,
-          `+${results.length - visibleResults.length} MORE RESULTS`,
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '6px',
-            color: '#8fa7a5'
-          }
-        )
-        .setOrigin(1, 1);
-
-      container.add(more);
-    }
-
-    return {
-      container,
-      height: widgetHeight
+  getSuspectFileSections(suspect){
+    const all=Array.isArray(this.gameState?.caseSuspects)&&this.gameState.caseSuspects.length
+      ?this.gameState.caseSuspects:Array.isArray(this.gameState?.suspects)?this.gameState.suspects:[];
+    const raw=all.find(s=>s.id===suspect?.id)||suspect||{};
+    const visible=unique(suspect?.publicProfile?.visibleTraits||suspect?.visibleTraits||[]);
+    const personal=getMaterialDossierNotes(raw).map(n=>n.text);
+    const hobbyLabels=getDustHobbyLabels(raw);
+    const copiedHobbyNotes=getDustDossierNotes(raw).map(n=>n.text);
+    const personalKeys=new Set(personal.map(t=>t.toLowerCase()));
+    const copiedKeys=new Set(copiedHobbyNotes.map(t=>t.toLowerCase()));
+    const hobbyFallback=visible.filter(t=>/^hobbies\s*:/i.test(t));
+    return{
+      visible:visible.filter(t=>!personalKeys.has(t.toLowerCase())&&!copiedKeys.has(t.toLowerCase())&&!/^hobbies\s*:/i.test(t)),
+      personal:unique(personal),
+      hobbies:hobbyLabels.length?unique(hobbyLabels):unique(hobbyFallback.map(t=>t.replace(/^hobbies\s*:\s*/i,'').replace(/\.$/,'')))
     };
   },
 
-  buildDetailsText(suspect) {
-    const state =
-      suspect?.deductionState || {};
-
-    const restrictedProfile =
-      suspect?.restrictedProfile || {};
-
-    const forensic =
-      restrictedProfile.forensicAttributes || {};
-
-    const visibleTraits =
-      suspect?.publicProfile?.visibleTraits ||
-      suspect?.visibleTraits ||
-      [];
-
-    const unlockedFields = Array.isArray(
-      restrictedProfile.unlockedFields
-    )
-      ? restrictedProfile.unlockedFields
-      : [];
-
-    const unlockedFieldSet = new Set(
-      unlockedFields
-        .map((field) => {
-          if (typeof field === 'string') {
-            return normalizeFieldKey(field);
-          }
-
-          return normalizeFieldKey(
-            field?.field ||
-              field?.id ||
-              field?.key ||
-              ''
-          );
-        })
-        .filter(Boolean)
-    );
-
-    const lines = [];
-
-    lines.push(
-      `Role: ${
-        suspect?.publicProfile?.occupation ||
-        suspect?.occupation ||
-        'Unknown'
-      }`
-    );
-
-    const caseConnection =
-      suspect?.publicProfile?.caseConnection ||
-      suspect?.caseConnection ||
-      '';
-
-    if (caseConnection) {
-      lines.push('\nConnection:');
-      lines.push(caseConnection);
+  buildDetailsText(suspect){
+    const restricted=suspect?.restrictedProfile||{},forensic=restricted.forensicAttributes||{};
+    const state=suspect?.deductionState||{},sections=this.getSuspectFileSections(suspect);
+    const unlocked=new Set((Array.isArray(restricted.unlockedFields)?restricted.unlockedFields:[])
+      .map(f=>fieldKey(typeof f==='string'?f:f?.field||f?.id||f?.key||'')).filter(Boolean));
+    const revealed=new Set([...unlocked,...this.getCompletedCrimeLabResults().map(r=>r.field)]);
+    const lines=[`Role: ${suspect?.publicProfile?.occupation||suspect?.occupation||'Unknown'}`];
+    const connection=suspect?.publicProfile?.caseConnection||suspect?.caseConnection;
+    if(connection)lines.push('\nConnection:',connection);
+    const addSection=(title,values,empty)=>{
+      lines.push(`\n${title}:`);if(values.length)for(const value of values)lines.push(`• ${value}`);else lines.push(`• ${empty}`);
+    };
+    addSection('Visible notes',sections.visible,'No visible traits recorded');
+    addSection('Personal notes',sections.personal,'No personal notes recorded');
+    addSection('Hobbies',sections.hobbies,'No hobbies recorded');
+    const entries=new Map();
+    Object.entries(forensic).forEach(([key,data])=>{
+      const field=fieldKey(key);if(!(data?.unlocked||revealed.has(field)||revealed.has(key)))return;
+      if(['dust_profile','material_profile'].includes(field))return;
+      const value=data?.value??data;
+      if(!hasValue(value)||(typeof value==='object'&&!Array.isArray(value)))return;
+      entries.set(field,`${fieldLabel(field)}: ${formatted(field,value)}`);
+    });
+    addSection('Verified file data',[...entries].sort((a,b)=>fieldOrder(a[0])-fieldOrder(b[0])).map(([,text])=>text),'No verified forensic data yet');
+    if(Array.isArray(state.eliminationReasons)&&state.eliminationReasons.length){
+      lines.push('\nRecorded clearance:');
+      for(const r of state.eliminationReasons){lines.push(`• ${r?.label||'Manual exclusion'}`);if(r?.note)lines.push(`  ${r.note}`);}
     }
-
-    lines.push('\nVisible notes:');
-
-    if (visibleTraits.length) {
-      visibleTraits.forEach((trait) => {
-        lines.push(`• ${trait}`);
-      });
-    } else {
-      lines.push('• No visible traits recorded');
+    if(Array.isArray(state.notesUnlocked)&&state.notesUnlocked.length){
+      const notes=unique(state.notesUnlocked.filter(n=>typeof n==='string'));
+      if(notes.length)addSection('Investigator notes',notes,'');
     }
-
-    lines.push('\nVerified file data:');
-
-    const unlockedForensicEntries = Object.entries(
-      forensic
-    )
-      .map(([field, data]) => ({
-        originalField: field,
-        field: normalizeFieldKey(field),
-        data
-      }))
-      .filter(({ originalField, field, data }) => {
-        return Boolean(
-          data?.unlocked ||
-            unlockedFieldSet.has(field) ||
-            unlockedFieldSet.has(originalField)
-        );
-      })
-      .sort((a, b) => {
-        const aIndex = DISPLAY_FIELD_ORDER.indexOf(
-          a.field
-        );
-
-        const bIndex = DISPLAY_FIELD_ORDER.indexOf(
-          b.field
-        );
-
-        return (
-          (aIndex === -1 ? 999 : aIndex) -
-          (bIndex === -1 ? 999 : bIndex)
-        );
-      });
-
-    if (!unlockedForensicEntries.length) {
-      lines.push('• No verified forensic data yet');
-    } else {
-      unlockedForensicEntries.forEach(
-        ({ field, data }) => {
-          const value =
-            data?.value ??
-            data ??
-            'pending';
-
-          lines.push(
-            `• ${formatFieldLabel(field)}: ${formatValue(value)}`
-          );
-        }
-      );
-    }
-
-    if (
-      Array.isArray(state.eliminationReasons) &&
-      state.eliminationReasons.length
-    ) {
-      lines.push('\nWhy cleared:');
-
-      state.eliminationReasons.forEach((reason) => {
-        lines.push(
-          `• ${reason?.label || 'Evidence'}`
-        );
-
-        if (reason?.note) {
-          lines.push(`  ${reason.note}`);
-        }
-      });
-    }
-
-    if (
-      Array.isArray(state.notesUnlocked) &&
-      state.notesUnlocked.length
-    ) {
-      lines.push('\nInvestigator notes:');
-
-      state.notesUnlocked
-        .slice(-3)
-        .forEach((note) => {
-          lines.push(`• ${note}`);
-        });
-    }
-
     return lines.join('\n');
   },
 
-  formatEvidenceField(field) {
-    return formatFieldLabel(field);
+  buildCrimeLabReportsText(){
+    const results=this.getCompletedCrimeLabResults();
+    if(!results.length)return'No completed analyses.\nCrime Lab reports will appear here.';
+    return results.map(r=>[
+      r.label.toUpperCase(),`Result: ${r.value}`,r.description,
+      r.sourceText&&!r.description.includes(r.sourceText)?`Sample origin: ${r.sourceText}`:'',
+      r.assistantProvided?'Prepared by: Lab assistant.':'Prepared at: Crime Lab.'
+    ].filter(Boolean).join('\n')).join('\n\n--------------------\n\n');
   },
 
-  formatStatus(status) {
-    const labels = {
-      pending: 'Pending',
-      match: 'Evidence recorded',
-      mismatch: 'Evidence recorded',
-      eliminated: 'Excluded',
-      manually_cleared: 'Cleared',
-      locked: 'Locked',
-      unlocked: 'Available',
-      suspicious: 'Questioned',
-      confirmed: 'Confirmed',
-      not_applicable: 'Not applicable',
-      unverified: 'Unverified',
-      corroborated: 'Corroborated',
-      contradicted: 'Contradicted'
+  openSuspectFileDocument({title,text}){
+    this.closeSuspectFileDocument();
+    const {width,height}=this.scale;
+    const root=this.add.container(0,0).setDepth(50000);
+    let closed=false;
+    const close=()=>{
+      if(closed)return;closed=true;
+      this.events.off('shutdown',close);this.scale.off('resize',close);
+      if(this._suspectFileDocument?.root===root)this._suspectFileDocument=null;
+      root.destroy();
     };
-
-    return labels[status] || 'Pending';
+    const shade=this.add.rectangle(0,0,width,height,0x000000,.9).setOrigin(0,0).setInteractive();
+    shade.on('pointerdown',(p,x,y,event)=>{event?.stopPropagation();close();});
+    const w=Math.max(140,Math.min(width-24,800)),h=Math.max(140,height-24),left=(width-w)/2,top=12;
+    const panel=this.add.rectangle(left,top,w,h,0x211711,1).setOrigin(0,0).setStrokeStyle(2,0xd4af37).setInteractive();
+    panel.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());
+    const heading=this.add.text(width/2,top+18,title,{
+      fontFamily:'SpecialElite',fontSize:'24px',color:'#fff0cd',align:'center',wordWrap:{width:w-32,useAdvancedWrap:true}
+    }).setOrigin(.5,0);fitText(heading,w-32,52);
+    root.add([shade,panel,heading]);
+    const topBody=top+78;
+    const body=pagedText(this,{x:left+18,y:topBody,width:w-36,height:Math.max(40,h-146),text,fontSize:width<=700?17:19});
+    root.add(body.container);
+    makeButton(this,root,width/2,top+h-26,'[ CLOSE FILE ]',close,9);
+    this._suspectFileDocument={root,close};
+    this.events.once('shutdown',close);this.scale.on('resize',close);
+    root.once('destroy',()=>{
+      this.events.off('shutdown',close);this.scale.off('resize',close);
+      if(this._suspectFileDocument?.root===root)this._suspectFileDocument=null;
+      closed=true;
+    });
+    return root;
   },
 
-  showMobileDetails(suspect) {
-    const { width, height } = this.scale;
+  closeSuspectFileDocument(){this._suspectFileDocument?.close();},
 
-    const overlay = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.8)
-      .setOrigin(0, 0)
-      .setDepth(100)
-      .setInteractive();
-
-    const panel = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width - 36,
-        height - 90,
-        0x211711,
-        1
-      )
-      .setStrokeStyle(3, 0xd4af37, 0.9)
-      .setDepth(101);
-
-    const title = this.add
-      .text(
-        width / 2,
-        56,
-        suspect?.publicProfile?.displayName ||
-          suspect?.name ||
-          'Unknown Suspect',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '28px',
-          color: '#fff0cd',
-          align: 'center',
-          wordWrap: {
-            width: width - 70,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0.5)
-      .setDepth(102);
-
-    const labWidget = this.createCrimeLabResultsWidget({
-      x: 34,
-      y: 98,
-      width: width - 68,
-      maxHeight: 200
-    });
-
-    labWidget.container.setDepth(102);
-
-    const detailsTop =
-      98 +
-      labWidget.height +
-      20;
-
-    const body = this.add
-      .text(
-        34,
-        detailsTop,
-        this.buildDetailsText(suspect),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '17px',
-          color: '#e2d1ad',
-          lineSpacing: 5,
-          wordWrap: {
-            width: width - 68,
-            useAdvancedWrap: true
-          }
-        }
-      )
-      .setOrigin(0, 0)
-      .setDepth(102);
-
-    const closeButton = this.createUiButton({
-      x: width / 2,
-      y: height - 54,
-      width: 180,
-      height: 42,
-      label: '[ CLOSE FILE ]',
-      fontSize: '10px',
-      depth: 102,
-      normalFill: 0xd4af37,
-      hoverFill: 0xf0c653,
-      normalColor: '#20150e',
-      hoverColor: '#20150e'
-    });
-
-    const closeDetails = () => {
-      [
-        overlay,
-        panel,
-        title,
-        labWidget.container,
-        body,
-        closeButton
-      ].forEach((item) => {
-        item?.removeAllListeners?.();
-        item?.destroy?.();
+  createCrimeLabResultsWidget({x,y,width,maxHeight=200}){
+    const results=this.getCompletedCrimeLabResults(),container=this.add.container(x,y);
+    const height=Math.max(96,Math.min(maxHeight,results.length?196:118));
+    container.add(this.add.rectangle(0,0,width,height,0x142022,.98).setOrigin(0,0).setStrokeStyle(2,0x668f91));
+    container.add(this.add.text(12,12,'CRIME LAB RESULTS',{fontFamily:'PressStart2P',fontSize:'8px',color:'#91d8d9'}));
+    let page=0;
+    const available=height-72,rows=Math.max(1,Math.floor(available/42));
+    const rowRoot=this.add.container(0,34);container.add(rowRoot);
+    const indicator=this.add.text(width/2,height-18,'',{fontFamily:'PressStart2P',fontSize:'6px',color:'#b7c8c6'}).setOrigin(.5);container.add(indicator);
+    const previous=makeButton(this,container,22,height-18,'<',()=>{if(page>0){page--;render();}},7);
+    const next=makeButton(this,container,width-22,height-18,'>',()=>{if((page+1)*rows<results.length){page++;render();}},7);
+    const open=makeButton(this,container,width/2,height-18,'[ REPORTS ]',()=>this.openSuspectFileDocument({title:'CRIME LAB REPORTS',text:this.buildCrimeLabReportsText()}),7);
+    const render=()=>{
+      rowRoot.removeAll(true);
+      const totalPages=Math.max(1,Math.ceil(results.length/rows));
+      previous.setVisible(totalPages>1);next.setVisible(totalPages>1);
+      previous.setAlpha(page>0?1:.35);next.setAlpha(page<totalPages-1?1:.35);
+      indicator.setVisible(false);open.setVisible(results.length>0);
+      if(!results.length){
+        rowRoot.add(this.add.text(12,0,'No completed analyses.',{fontFamily:'SpecialElite',fontSize:'16px',color:'#b7c8c6',wordWrap:{width:width-24,useAdvancedWrap:true}}));return;
+      }
+      results.slice(page*rows,(page+1)*rows).forEach((r,i)=>{
+        const yy=i*42;
+        const bg=this.add.rectangle(8,yy,width-16,40,0x233133,1).setOrigin(0,0).setInteractive({useHandCursor:true});
+        const label=this.add.text(14,yy+3,r.label.toUpperCase(),{fontFamily:'PressStart2P',fontSize:'6px',color:'#a9d5d4'});
+        fitText(label,width-28,12);
+        const value=this.add.text(14,yy+17,r.value,{fontFamily:'SpecialElite',fontSize:'17px',color:'#f4e6b5'});
+        fitText(value,width-28,21);
+        bg.on('pointerdown',(p,x,y,event)=>{
+          event?.stopPropagation();
+          this.openSuspectFileDocument({title:r.label,text:[`Result: ${r.value}`,r.description,
+            r.sourceText&&!r.description.includes(r.sourceText)?`Sample origin: ${r.sourceText}`:''].filter(Boolean).join('\n\n')});
+        });rowRoot.add([bg,label,value]);
       });
     };
+    render();return{container,height};
+  },
 
-    overlay.on('pointerdown', closeDetails);
+  renderDetailsPanel(){
+    const {width,height}=this.scale;if(width<=700)return;
+    const selected=this.getAllSuspects().find(s=>s.id===this.selectedSuspectId);
+    const panelWidth=width<=1100?330:430,left=width-panelWidth-20,top=184;
+    const panelHeight=Math.max(150,height-top-72);
+    const panel=this.add.container(left,top);this.detailsContainer.add(panel);
+    panel.add(this.add.rectangle(0,0,panelWidth,panelHeight,0x211711,.98).setOrigin(0,0).setStrokeStyle(2,0x8b6c38,.9));
+    const widget=this.createCrimeLabResultsWidget({x:12,y:12,width:panelWidth-24,maxHeight:Math.max(96,Math.min(172,panelHeight*.35))});
+    panel.add(widget.container);
+    const notesY=widget.height+34;
+    const name=selected?.publicProfile?.displayName||selected?.name||'CASE NOTES';
+    const heading=this.add.text(16,notesY,name,{fontFamily:'SpecialElite',fontSize:'24px',color:'#fff0cd'});fitText(heading,panelWidth-32,32);panel.add(heading);
+    const text=selected?this.buildDetailsText(selected):'Select a suspect file to review their notes.';
+    const available=panelHeight-notesY-48;
+    if(available>=85){
+      const body=pagedText(this,{x:16,y:notesY+42,width:panelWidth-32,height:available,text,fontSize:width<=1100?16:18});panel.add(body.container);
+    }else{
+      makeButton(this,panel,panelWidth/2,Math.min(panelHeight-24,notesY+54),'[ OPEN FILE ]',()=>this.openSuspectFileDocument({title:name,text}),8);
+    }
+  },
 
-    closeButton.buttonBackground.on(
-      'pointerdown',
-      closeDetails
-    );
+  showMobileDetails(suspect){
+    const name=suspect?.publicProfile?.displayName||suspect?.name||'Unknown Suspect';
+    return this.openSuspectFileDocument({title:name,text:[
+      this.buildDetailsText(suspect),'\n--------------------\nCRIME LAB REPORTS',this.buildCrimeLabReportsText()
+    ].join('\n\n')});
+  },
+
+  formatEvidenceField(field){return fieldLabel(field);},
+  formatStatus(status){
+    const labels={pending:'Pending',match:'Evidence recorded',mismatch:'Evidence recorded',eliminated:'Excluded',manually_cleared:'Cleared',locked:'Locked',unlocked:'Available',suspicious:'Questioned',confirmed:'Confirmed',not_applicable:'Not applicable',unverified:'Unverified',corroborated:'Corroborated',contradicted:'Contradicted'};
+    return labels[status]||'Pending';
   }
 };

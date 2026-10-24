@@ -1,1081 +1,203 @@
-import { gameState } from '../GameData.js';
+// ui/suspectUtils.js
+import {gameState} from '../GameData.js';
+import {requestAutosave} from '../gameStatePersistence.js';
+import {safeClone} from '../suspects/suspectGeneratorUtils.js';
+import {normalizeForensicField,normalizeForensicValue} from '../suspects/forensicEvidence.js';
+import {getMaterialDossierNotes} from '../suspects/MaterialEvidence.js';
+import {getDustHobbyLabels,getDustDossierNotes} from '../suspects/DustEvidence.js';
+import {CrimeLabManager} from '../scenes/CSI/CrimeLabManager.js';
+import {CrimeLabEvidenceService} from '../scenes/CSI/CrimeLabEvidenceService.js';
 
-const STATUS = {
-  PENDING: 'pending',
-  MATCH: 'match',
-  MISMATCH: 'mismatch',
-  ELIMINATED: 'eliminated',
-  LOCKED: 'locked',
-  UNLOCKED: 'unlocked',
-  SUSPICIOUS: 'suspicious',
-  CONFIRMED: 'confirmed',
-  CONTRADICTED: 'contradicted',
-  NOT_APPLICABLE: 'not_applicable',
-  MANUALLY_CLEARED: 'manually_cleared'
-};
-
-function normalizeValue(value) {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ');
+const STATUS={PENDING:'pending',MATCH:'match',MISMATCH:'mismatch',ELIMINATED:'eliminated',LOCKED:'locked',UNLOCKED:'unlocked',SUSPICIOUS:'suspicious',CONFIRMED:'confirmed',CONTRADICTED:'contradicted',NOT_APPLICABLE:'not_applicable',MANUALLY_CLEARED:'manually_cleared'};
+function normalizeValue(v){return String(v??'').trim().toLowerCase().replace(/\s+/g,' ');}
+function uniqueStrings(values){return[...new Set((Array.isArray(values)?values:typeof values==='string'?values.split(','):[]).filter(v=>typeof v==='string'&&v.trim()).map(v=>v.trim()))];}
+function getTimestamp(){return new Date().toISOString();}
+function getCaseId(){return new CrimeLabManager(gameState,gameState.crimeCityId||gameState.caseSuspectCityId||gameState.crimeCity).getCaseKey();}
+function getSuspects(){
+  const suspects=Array.isArray(gameState.caseSuspects)&&gameState.caseSuspects.length?gameState.caseSuspects:
+    Array.isArray(gameState.suspects)&&gameState.suspects.length?gameState.suspects:Array.isArray(gameState.suspectList)?gameState.suspectList:[];
+  gameState.caseSuspects=suspects;gameState.suspects=suspects;gameState.suspectList=suspects;return suspects;
 }
-
-function uniqueStrings(values) {
-  return [
-    ...new Set(
-      (Array.isArray(values) ? values : [])
-        .filter(
-          value =>
-            typeof value === 'string' &&
-            value.trim()
-        )
-        .map(value => value.trim())
-    )
-  ];
+function getSuspectById(id){
+  if(typeof id!=='string'||!id.trim())throw new Error('SuspectUtils: suspectId must be a valid string.');
+  const s=getSuspects().find(s=>s?.id===id);if(!s)throw new Error(`SuspectUtils: suspect "${id}" was not found in caseSuspects.`);return s;
 }
-
-function getTimestamp() {
-  return new Date().toISOString();
+function ensureSuspectShape(s){
+  if(!s||typeof s!=='object')return null;
+  s.publicProfile??={};s.restrictedProfile??={};s.hiddenProfile??={};s.hiddenCaseData??={};s.deductionState??={};
+  if(!Array.isArray(s.restrictedProfile.unlockedFields))s.restrictedProfile.unlockedFields=[];
+  s.restrictedProfile.forensicAttributes??={};
+  s.deductionState.labStatus??=STATUS.PENDING;s.deductionState.hypothesisStatus??=STATUS.PENDING;
+  s.deductionState.interviewStatus??=STATUS.LOCKED;s.deductionState.alibiStatus??=STATUS.LOCKED;
+  s.deductionState.eliminated=s.deductionState.eliminated===true;
+  for(const key of['eliminationReasons','evidenceMismatches','notesUnlocked'])if(!Array.isArray(s.deductionState[key]))s.deductionState[key]=[];
+  s.attributes??={};s.skills=uniqueStrings(s.skills);return s;
 }
-
-function getCaseId() {
-  return (
-    gameState.currentCaseId ||
-    gameState.currentMission?.id ||
-    gameState.currentMission?.caseId ||
-    null
-  );
+function ensureAllSuspectShapes(){getSuspects().forEach(ensureSuspectShape);}
+function getDisplayName(s){return s?.publicProfile?.displayName||s?.name||'Unknown Suspect';}
+function isTrueThief(s){return s?.isRealThief===true||s?.hiddenCaseData?.isTrueThief===true||s?.hiddenProfile?.isThief===true||s?.is_thief===true;}
+function addUniqueNote(s,note){if(typeof note!=='string'||!note.trim())return;ensureSuspectShape(s);if(!s.deductionState.notesUnlocked.includes(note.trim()))s.deductionState.notesUnlocked.push(note.trim());}
+function addUniqueEvidenceMismatch(s,e={}){
+  ensureSuspectShape(s);const id=String(e.id||`${e.type||'evidence'}_${e.source||'unknown'}_${e.field||'unknown'}`);
+  if(s.deductionState.evidenceMismatches.some(item=>item?.id===id))return;
+  s.deductionState.evidenceMismatches.push({id,type:e.type||'evidence',source:e.source||'unknown',field:e.field||null,
+    label:e.label||'Evidence recorded',note:e.note||'Evidence recorded for review.',timestamp:e.timestamp||getTimestamp()});
 }
-
-// Aliasy wskazują na tę samą tablicę podejrzanych.
-function getSuspects() {
-  const suspects =
-    Array.isArray(gameState.caseSuspects) &&
-    gameState.caseSuspects.length
-      ? gameState.caseSuspects
-      : Array.isArray(gameState.suspects) &&
-          gameState.suspects.length
-        ? gameState.suspects
-        : Array.isArray(gameState.suspectList) &&
-            gameState.suspectList.length
-          ? gameState.suspectList
-          : [];
-
-  gameState.caseSuspects = suspects;
-  gameState.suspects = suspects;
-  gameState.suspectList = suspects;
-
-  return suspects;
+function addEliminationReason(s,reason={}){
+  ensureSuspectShape(s);const id=String(reason.id||`${reason.type||'manual'}_${reason.source||'suspect_file'}`);
+  if(s.deductionState.eliminationReasons.some(r=>r?.id===id))return;
+  s.deductionState.eliminationReasons.push({id,type:reason.type||'manual',source:reason.source||'suspect_file',
+    label:reason.label||'Manual exclusion',note:reason.note||'Cleared by the detective during file review.',timestamp:reason.timestamp||getTimestamp()});
 }
-
-function getSuspectById(suspectId) {
-  if (
-    typeof suspectId !== 'string' ||
-    !suspectId.trim()
-  ) {
-    throw new Error(
-      'SuspectUtils: suspectId must be a valid string.'
-    );
+function syncExcludedSuspects(){
+  ensureAllSuspectShapes();gameState.excludedSuspects=getSuspects().filter(s=>s.deductionState.eliminated).map(s=>({id:s.id,name:getDisplayName(s),reasons:safeClone(s.deductionState.eliminationReasons)}));return gameState.excludedSuspects;
+}
+function markEvidenceMismatch(s,{statusKey='labStatus',status=STATUS.MISMATCH,reason={}}={}){
+  ensureSuspectShape(s);s.deductionState[statusKey]=status;addUniqueEvidenceMismatch(s,reason);
+  // Internal evidence record only: never add an automatic deduction to file notes.
+  return s;
+}
+function registerProgressUpdate(key,value=true){
+  const caseId=getCaseId();if(!caseId)return;gameState.crimeCityProgress??={};gameState.crimeCityProgress[caseId]??={};gameState.crimeCityProgress[caseId][key]=value;
+}
+function unlockRestrictedField(s,field,value,source='police_record'){
+  ensureSuspectShape(s);if(typeof field!=='string'||!field.trim())throw new Error('unlockRestrictedField requires a field name.');
+  const canonical=normalizeForensicField(field.trim());
+  if(canonical==='dust_profile'||canonical==='material_profile'){
+    const profile=safeClone(value);
+    if(!profile||profile.schemaVersion!==1||profile.complete!==true||
+      !Array.isArray(canonical==='dust_profile'?profile.hobbyIds:profile.traitIds))throw new Error('A complete personal profile is required; a lab result is not a suspect profile.');
+    if(canonical==='dust_profile'){getDustHobbyLabels({dustProfile:profile});s.dustProfile=profile;}
+    else{getMaterialDossierNotes({materialProfile:profile});s.materialProfile=profile;}
+    if(!s.restrictedProfile.unlockedFields.includes(canonical))s.restrictedProfile.unlockedFields.push(canonical);
+    return profile;
   }
-
-  const suspect = getSuspects().find(
-    entry => entry?.id === suspectId
-  );
-
-  if (!suspect) {
-    throw new Error(
-      `SuspectUtils: suspect "${suspectId}" was not found in caseSuspects.`
-    );
-  }
-
-  return suspect;
+  const previous=s.restrictedProfile.forensicAttributes[canonical];
+  const previousData=previous&&typeof previous==='object'&&!Array.isArray(previous)?previous:{};
+  s.restrictedProfile.forensicAttributes[canonical]={...previousData,value:normalizeForensicValue(canonical,value),unlocked:true,source,unlockedAt:getTimestamp()};
+  if(!s.restrictedProfile.unlockedFields.includes(canonical))s.restrictedProfile.unlockedFields.push(canonical);
+  return s.restrictedProfile.forensicAttributes[canonical];
+}
+function skillsMatch(available,required){const set=new Set(uniqueStrings(available).map(normalizeValue));return uniqueStrings(required).every(v=>set.has(normalizeValue(v)));}
+function skillListsMatch(a,b){const x=uniqueStrings(a).map(normalizeValue).sort(),y=uniqueStrings(b).map(normalizeValue).sort();return x.length===y.length&&x.every((v,i)=>v===y[i]);}
+function publicNote(note){
+  return typeof note==='string'&&note.trim()&&!/consistent with the forensic result|does not match this suspect|lacks (?:the )?(?:skills|skills required)/i.test(note);
 }
 
-function ensureSuspectShape(suspect) {
-  if (!suspect || typeof suspect !== 'object') {
-    return null;
-  }
+export function getActiveSuspects(){ensureAllSuspectShapes();return getSuspects().filter(s=>!s.deductionState.eliminated);}
+export function manuallyClearSuspect(suspectId,{source='suspect_file',label='Manual exclusion',note='Cleared by the detective during preliminary review.',type='manual'}={}){
+  const s=ensureSuspectShape(getSuspectById(suspectId));
+  // A player may make a wrong decision. Never consult hidden thief flags here.
+  s.deductionState.eliminated=true;
+  if(s.deductionState.labStatus===STATUS.PENDING)s.deductionState.labStatus=STATUS.MANUALLY_CLEARED;
+  addEliminationReason(s,{id:`manual_${source}_${s.id}`,type,source,label,note});syncExcludedSuspects();
+  return{success:true,suspect:getPublicSuspectView(s.id)};
+}
+export function restoreManuallyClearedSuspect(suspectId){
+  const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.eliminated=false;s.deductionState.eliminationReasons=[];
+  if(s.deductionState.labStatus===STATUS.MANUALLY_CLEARED)s.deductionState.labStatus=s.deductionState.evidenceMismatches.length?STATUS.MISMATCH:STATUS.PENDING;
+  syncExcludedSuspects();return{success:true,suspect:getPublicSuspectView(s.id)};
+}
+export function getPublicSuspectView(suspectId){
+  const s=ensureSuspectShape(getSuspectById(suspectId));
+  const personalNotes=getMaterialDossierNotes(s).map(n=>n.text),hobbies=getDustHobbyLabels(s);
+  const visibleTraits=uniqueStrings([...(s.publicProfile.visibleTraits||s.visibleTraits||[]),...personalNotes,...getDustDossierNotes(s).map(n=>n.text)]);
+  const name=getDisplayName(s),occupation=s.publicProfile.occupation||s.occupation||'Unknown occupation';
+  const genderCode=s.publicProfile.genderCode||s.genderCode||s.gender_code||'nb';
+  const caseConnection=s.publicProfile.caseConnection||s.caseConnection||'';
+  return{
+    id:s.id,name,occupation,genderCode,visibleTraits,caseConnection,
+    personalNotes:[...personalNotes],hobbies:[...hobbies],
+    publicProfile:{displayName:name,occupation,genderCode,visibleTraits:[...visibleTraits],caseConnection,personalNotes:[...personalNotes],hobbies:[...hobbies]},
+    restrictedProfile:{unlockedFields:safeClone(s.restrictedProfile.unlockedFields),forensicAttributes:safeClone(s.restrictedProfile.forensicAttributes)},
+    deductionState:{labStatus:s.deductionState.labStatus,hypothesisStatus:s.deductionState.hypothesisStatus,
+      interviewStatus:s.deductionState.interviewStatus,alibiStatus:s.deductionState.alibiStatus,eliminated:s.deductionState.eliminated,
+      eliminationReasons:safeClone(s.deductionState.eliminationReasons),evidenceMismatches:[],
+      notesUnlocked:uniqueStrings(s.deductionState.notesUnlocked.filter(publicNote))}
+  };
+}
+export function getPublicSuspectList(){return getSuspects().map(s=>getPublicSuspectView(s.id));}
 
-  suspect.publicProfile ??= {};
-  suspect.restrictedProfile ??= {};
-  suspect.hiddenProfile ??= {};
-  suspect.hiddenCaseData ??= {};
-  suspect.deductionState ??= {};
-
-  suspect.restrictedProfile.unlockedFields ??= [];
-  suspect.restrictedProfile.forensicAttributes ??= {};
-
-  suspect.deductionState.labStatus ??= STATUS.PENDING;
-  suspect.deductionState.hypothesisStatus ??= STATUS.PENDING;
-  suspect.deductionState.interviewStatus ??= STATUS.LOCKED;
-  suspect.deductionState.alibiStatus ??= STATUS.LOCKED;
-
-  // Tylko ręczna akcja gracza ustawia eliminated na true.
-  suspect.deductionState.eliminated =
-    suspect.deductionState.eliminated === true;
-
-  suspect.deductionState.eliminationReasons =
-    Array.isArray(suspect.deductionState.eliminationReasons)
-      ? suspect.deductionState.eliminationReasons
-      : [];
-
-  suspect.deductionState.evidenceMismatches =
-    Array.isArray(suspect.deductionState.evidenceMismatches)
-      ? suspect.deductionState.evidenceMismatches
-      : [];
-
-  suspect.deductionState.notesUnlocked =
-    Array.isArray(suspect.deductionState.notesUnlocked)
-      ? suspect.deductionState.notesUnlocked
-      : [];
-
-  suspect.attributes ??= {};
-
-  suspect.skills = Array.isArray(suspect.skills)
-    ? suspect.skills
-    : [];
-
-  return suspect;
+export function applyIdentityEvidence(options={}){
+  const manager=new CrimeLabManager(gameState,gameState.crimeCityId||gameState.caseSuspectCityId||gameState.crimeCity);
+  const caseKey=manager.getCaseKey();
+  const assigned=gameState.caseCsiAssignments?.[caseKey]?.identityEvidence||gameState.identityEvidence;
+  if(!assigned)throw new Error('SuspectUtils: identity evidence is missing.');
+  const type=assigned.evidenceType||assigned.attribute||assigned.field;
+  const field=normalizeForensicField(type),value=assigned.correctValue??assigned.thief_value??assigned.value;
+  if(!type||value==null||value==='')throw new Error('SuspectUtils: identity evidence needs type and value.');
+  if(options.attribute&&normalizeForensicField(options.attribute)!==field)throw new Error('Wrong identity evidence field.');
+  if(options.value!=null&&normalizeForensicValue(field,options.value)!==normalizeForensicValue(field,value))throw new Error('Identity answer differs from the assigned case.');
+  const adapter={getCaseKey:()=>caseKey,ensureCaseForensics:()=>manager.ensureCaseForensics(),getIdentityEvidenceConfig:()=>({...assigned,evidenceType:type,correctValue:value,stationId:'identity'})};
+  const service=new CrimeLabEvidenceService(gameState,adapter,gameState.crimeCityId||gameState.caseSuspectCityId||gameState.crimeCity);
+  const result=service.saveMiniGameResult({completed:true,aborted:false,stationId:'identity',caseKey,value,source:options.source||'player'});
+  if(!result.saved)return{success:false,message:result.reason||'Unable to record the identity result.',excludedSuspectIds:[],remainingSuspects:getActiveSuspects().map(s=>s.id)};
+  const record=result.forensicResult;
+  gameState.identityEvidenceResult=safeClone(record);gameState.forensicResults??=[];
+  const index=gameState.forensicResults.findIndex(r=>r.caseKey===caseKey&&r.stationId==='identity');
+  if(index<0)gameState.forensicResults.push(safeClone(record));else gameState.forensicResults[index]=safeClone(record);
+  gameState.identityEvidence={...assigned,resultUnlocked:true};
+  const complete=service.getCompletedStationCount()===3;
+  gameState.csiLabCompleted=complete;registerProgressUpdate('crimeLabCompleted',complete);syncExcludedSuspects();requestAutosave();
+  return{success:true,attribute:field,value,excludedSuspectIds:[],matchedSuspectIds:[],mismatchedSuspectIds:[],remainingSuspects:getActiveSuspects().map(s=>s.id)};
 }
 
-function ensureAllSuspectShapes() {
-  getSuspects().forEach(ensureSuspectShape);
+export function registerHypothesisAttempt(selectedSkills=[]){
+  const required=uniqueStrings(gameState.hypothesisEvidence?.requiredSkills);
+  if(!required.length)throw new Error('SuspectUtils: required hypothesis skills are missing.');
+  gameState.hypothesisAttempts??=[];
+  const attempt={attemptNumber:gameState.hypothesisAttempts.length+1,selectedSkills:uniqueStrings(selectedSkills),isCorrect:skillListsMatch(selectedSkills,required),attemptedAt:getTimestamp()};
+  gameState.hypothesisAttempts.push(attempt);return attempt;
 }
-
-function getForensicAttributeValue(suspect, field) {
-  return (
-    suspect?.restrictedProfile?.forensicAttributes?.[field]?.value ??
-    suspect?.restrictedProfile?.forensicAttributes?.[field] ??
-    null
-  );
-}
-
-function getDisplayName(suspect) {
-  return (
-    suspect?.publicProfile?.displayName ||
-    suspect?.name ||
-    'Unknown Suspect'
-  );
-}
-
-function isTrueThief(suspect) {
-  return (
-    suspect?.isRealThief === true ||
-    suspect?.hiddenCaseData?.isTrueThief === true ||
-    suspect?.hiddenProfile?.isThief === true ||
-    suspect?.is_thief === true
-  );
-}
-
-function addUniqueNote(suspect, note) {
-  if (
-    typeof note !== 'string' ||
-    !note.trim()
-  ) {
-    return;
-  }
-
-  ensureSuspectShape(suspect);
-
-  const cleanedNote = note.trim();
-
-  if (
-    !suspect.deductionState.notesUnlocked.includes(cleanedNote)
-  ) {
-    suspect.deductionState.notesUnlocked.push(cleanedNote);
-  }
-}
-
-function addUniqueEvidenceMismatch(suspect, evidence = {}) {
-  ensureSuspectShape(suspect);
-
-  const mismatchId = String(
-    evidence.id ||
-    `${evidence.type || 'evidence'}_${evidence.source || 'unknown'}_${evidence.field || 'unknown'}`
-  );
-
-  const exists =
-    suspect.deductionState.evidenceMismatches.some(
-      item => item?.id === mismatchId
-    );
-
-  if (exists) {
-    return;
-  }
-
-  suspect.deductionState.evidenceMismatches.push({
-    id: mismatchId,
-    type: evidence.type || 'evidence',
-    source: evidence.source || 'unknown',
-    field: evidence.field || null,
-    label: evidence.label || 'Evidence mismatch',
-    note:
-      evidence.note ||
-      'This evidence does not match the suspect.',
-    timestamp: evidence.timestamp || getTimestamp()
+export function applyHypothesisSkills(selectedSkills=[]){
+  ensureAllSuspectShapes();const required=uniqueStrings(gameState.hypothesisEvidence?.requiredSkills);
+  if(!required.length)throw new Error('SuspectUtils: required hypothesis skills are missing.');
+  const attempt=registerHypothesisAttempt(selectedSkills);
+  if(!attempt.isCorrect)return{success:false,isCorrect:false,attemptNumber:attempt.attemptNumber,message:'The reconstruction does not fit the evidence. No suspects were cleared.',remainingSuspects:getActiveSuspects().map(s=>s.id)};
+  const matched=[],mismatched=[];
+  getActiveSuspects().forEach(s=>{
+    if(skillsMatch(s.skills,required)){s.deductionState.hypothesisStatus=STATUS.MATCH;matched.push(s.id);}
+    else{markEvidenceMismatch(s,{statusKey:'hypothesisStatus',reason:{id:`hypothesis_skills_${s.id}`,type:'method',source:'hypothesis_reconstruction',field:'skills',label:'Crime Reconstruction'}});mismatched.push(s.id);}
   });
+  getSuspects().filter(s=>s.deductionState.labStatus===STATUS.MISMATCH).forEach(s=>{if(s.deductionState.hypothesisStatus===STATUS.PENDING)s.deductionState.hypothesisStatus=STATUS.NOT_APPLICABLE;});
+  gameState.hypothesisEvidenceResult={id:gameState.hypothesisEvidence.id||'hypothesis_skills',requiredSkills:required,completedAt:getTimestamp(),matchedSuspectIds:matched,mismatchedSuspectIds:mismatched};
+  gameState.hypothesisEvidence.resultUnlocked=true;registerProgressUpdate('hypothesisCompleted',true);syncExcludedSuspects();
+  return{success:true,isCorrect:true,attemptNumber:attempt.attemptNumber,requiredSkills:required,excludedSuspectIds:[],matchedSuspectIds:matched,mismatchedSuspectIds:mismatched,remainingSuspects:getActiveSuspects().map(s=>s.id)};
 }
-
-function addEliminationReason(suspect, reason = {}) {
-  ensureSuspectShape(suspect);
-
-  const reasonId = String(
-    reason.id ||
-    `${reason.type || 'manual'}_${reason.source || 'suspect_file'}`
-  );
-
-  const alreadyExists =
-    suspect.deductionState.eliminationReasons.some(
-      existingReason => existingReason?.id === reasonId
-    );
-
-  if (alreadyExists) {
-    return;
-  }
-
-  suspect.deductionState.eliminationReasons.push({
-    id: reasonId,
-    type: reason.type || 'manual',
-    source: reason.source || 'suspect_file',
-    label: reason.label || 'Manual exclusion',
-    note:
-      reason.note ||
-      'Cleared by the detective during file review.',
-    timestamp: reason.timestamp || getTimestamp()
-  });
+export function unlockSuspectData(suspectId,field,value,source='police_database'){
+  unlockRestrictedField(getSuspectById(suspectId),field,value,source);return getPublicSuspectView(suspectId);
 }
-
-function syncExcludedSuspects() {
-  ensureAllSuspectShapes();
-
-  gameState.excludedSuspects = getSuspects()
-    .filter(
-      suspect =>
-        suspect?.deductionState?.eliminated === true
-    )
-    .map(suspect => ({
-      id: suspect.id,
-      name: getDisplayName(suspect),
-      reasons: [
-        ...suspect.deductionState.eliminationReasons
-      ]
-    }));
-
-  return gameState.excludedSuspects;
+export function applyInterviewElimination({suspectId,npcId='unknown_npc',evidenceId='npc_statement',reason='A witness statement supports this suspect’s alibi.',thread='alibi',label='Witness Statement'}={}){
+  const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.interviewStatus=STATUS.CONFIRMED;
+  if(thread==='alibi')s.deductionState.alibiStatus='corroborated';addUniqueNote(s,reason);
+  addUniqueEvidenceMismatch(s,{id:`interview_${evidenceId}_${s.id}`,type:thread,source:npcId,field:'alibi',label,note:reason});
+  gameState.interviewEvidenceResults??=[];gameState.interviewEvidenceResults.push({suspectId:s.id,npcId,evidenceId,reason,thread,label,outcome:'corroborated_not_auto_cleared',completedAt:getTimestamp()});
+  registerProgressUpdate('suspectInterviewsCompleted',true);syncExcludedSuspects();
+  return{success:true,manuallyClearRequired:true,suspect:getPublicSuspectView(s.id),remainingSuspects:getActiveSuspects().map(s=>s.id)};
 }
-
-// Zapisuje niezgodność dowodu, nie wyklucza podejrzanego.
-function markEvidenceMismatch(
-  suspect,
-  {
-    statusKey = 'labStatus',
-    status = STATUS.MISMATCH,
-    reason = {}
-  } = {}
-) {
-  ensureSuspectShape(suspect);
-
-  suspect.deductionState[statusKey] = status;
-
-  addUniqueEvidenceMismatch(suspect, reason);
-
-  addUniqueNote(
-    suspect,
-    reason.note ||
-      `${reason.label || 'Evidence'} does not match this suspect.`
-  );
-
-  return suspect;
+export function flagSuspectFromInterview({suspectId,npcId='unknown_npc',evidenceId='npc_statement',note='The witness statement raises further questions.',thread='alibi',label='Witness Statement'}={}){
+  const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.interviewStatus=STATUS.SUSPICIOUS;if(thread==='alibi')s.deductionState.alibiStatus=STATUS.SUSPICIOUS;addUniqueNote(s,note);
+  gameState.interviewEvidenceResults??=[];gameState.interviewEvidenceResults.push({suspectId:s.id,npcId,evidenceId,note,thread,label,outcome:'suspicious',completedAt:getTimestamp()});
+  return{success:true,suspect:getPublicSuspectView(s.id)};
 }
-
-function unlockRestrictedField(
-  suspect,
-  field,
-  value,
-  source = 'police_record'
-) {
-  ensureSuspectShape(suspect);
-
-  if (
-    typeof field !== 'string' ||
-    !field.trim()
-  ) {
-    throw new Error(
-      'SuspectUtils.unlockRestrictedField requires a valid field name.'
-    );
-  }
-
-  const cleanField = field.trim();
-
-  const existingAttribute =
-    suspect.restrictedProfile.forensicAttributes[cleanField] || {};
-
-  suspect.restrictedProfile.forensicAttributes[cleanField] = {
-    ...existingAttribute,
-    value,
-    unlocked: true,
-    source,
-    unlockedAt: getTimestamp()
-  };
-
-  if (
-    !suspect.restrictedProfile.unlockedFields.includes(cleanField)
-  ) {
-    suspect.restrictedProfile.unlockedFields.push(cleanField);
-  }
-
-  return suspect.restrictedProfile.forensicAttributes[cleanField];
+export function setAlibiStatus(suspectId,status,note=''){
+  if(![STATUS.LOCKED,'unverified','corroborated',STATUS.CONTRADICTED,STATUS.SUSPICIOUS].includes(status))throw new Error(`Unsupported alibi status: ${status}`);
+  const s=ensureSuspectShape(getSuspectById(suspectId));s.deductionState.alibiStatus=status;if(note)addUniqueNote(s,note);
+  if(status!==STATUS.LOCKED)registerProgressUpdate('alibiPhaseUnlocked',true);return getPublicSuspectView(s.id);
 }
-
-function getIdentityEvidence() {
-  if (
-    !gameState.identityEvidence ||
-    typeof gameState.identityEvidence !== 'object'
-  ) {
-    throw new Error(
-      'SuspectUtils: gameState.identityEvidence is missing.'
-    );
-  }
-
-  const attribute = gameState.identityEvidence.attribute;
-  const thiefValue = gameState.identityEvidence.thief_value;
-
-  if (
-    !attribute ||
-    thiefValue === null ||
-    thiefValue === undefined ||
-    thiefValue === ''
-  ) {
-    throw new Error(
-      'SuspectUtils: identityEvidence needs attribute and thief_value.'
-    );
-  }
-
-  return {
-    ...gameState.identityEvidence,
-    attribute,
-    thiefValue
-  };
+export function unlockAlibiPhase(){
+  getActiveSuspects().forEach(s=>{if(s.deductionState.alibiStatus===STATUS.LOCKED)s.deductionState.alibiStatus='unverified';if(s.deductionState.interviewStatus===STATUS.LOCKED)s.deductionState.interviewStatus=STATUS.UNLOCKED;});
+  registerProgressUpdate('alibiPhaseUnlocked',true);return getPublicSuspectList();
 }
-
-function skillsMatch(suspectSkills, requiredSkills) {
-  const suspectSkillSet = new Set(
-    uniqueStrings(suspectSkills).map(normalizeValue)
-  );
-
-  return uniqueStrings(requiredSkills).every(
-    skill => suspectSkillSet.has(normalizeValue(skill))
-  );
+export function getSuspectCaseSummary(){
+  ensureAllSuspectShapes();const suspects=getSuspects(),active=getActiveSuspects(),excluded=suspects.filter(s=>s.deductionState.eliminated),lab=suspects.filter(s=>s.deductionState.labStatus===STATUS.MISMATCH),method=suspects.filter(s=>s.deductionState.hypothesisStatus===STATUS.MISMATCH);
+  return{caseId:getCaseId(),total:suspects.length,active:active.length,eliminated:excluded.length,
+    labMismatchCount:lab.length,hypothesisMismatchCount:method.length,crimeLabCompleted:Boolean(gameState.csiLabCompleted),
+    hypothesisCompleted:Boolean(gameState.hypothesisEvidence?.resultUnlocked),alibiPhaseUnlocked:Boolean(gameState.crimeCityProgress?.[getCaseId()]?.alibiPhaseUnlocked),
+    activeSuspectIds:active.map(s=>s.id),eliminatedSuspectIds:excluded.map(s=>s.id),labMismatchSuspectIds:lab.map(s=>s.id),hypothesisMismatchSuspectIds:method.map(s=>s.id)};
 }
-
-function skillListsMatch(selectedSkills, requiredSkills) {
-  const selected = uniqueStrings(selectedSkills)
-    .map(normalizeValue)
-    .sort();
-
-  const required = uniqueStrings(requiredSkills)
-    .map(normalizeValue)
-    .sort();
-
-  if (selected.length !== required.length) {
-    return false;
-  }
-
-  return selected.every(
-    (skill, index) => skill === required[index]
-  );
+export function getDebugCaseTruth(){
+  return getSuspects().map(s=>({id:s.id,name:getDisplayName(s),isThief:isTrueThief(s),attributes:safeClone(s.attributes||{}),skills:uniqueStrings(s.skills),hiddenProfile:safeClone(s.hiddenProfile||{}),deductionState:safeClone(s.deductionState||{}),dustProfile:safeClone(s.dustProfile),materialProfile:safeClone(s.materialProfile)}));
 }
-
-function registerProgressUpdate(key, value = true) {
-  const caseId = getCaseId();
-
-  if (!caseId) {
-    return;
-  }
-
-  gameState.crimeCityProgress ??= {};
-  gameState.crimeCityProgress[caseId] ??= {};
-  gameState.crimeCityProgress[caseId][key] = value;
-}
-
-// Zwraca osoby, które nie zostały ręcznie wykluczone.
-export function getActiveSuspects() {
-  ensureAllSuspectShapes();
-
-  return getSuspects().filter(
-    suspect =>
-      suspect?.deductionState?.eliminated !== true
-  );
-}
-
-export function manuallyClearSuspect(
-  suspectId,
-  {
-    source = 'suspect_file',
-    label = 'Manual exclusion',
-    note = 'Cleared by the detective during preliminary review.',
-    type = 'manual'
-  } = {}
-) {
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  if (isTrueThief(suspect)) {
-    return {
-      success: false,
-      message:
-        'This file remains inconclusive. The evidence is not enough to clear it.',
-      suspect: getPublicSuspectView(suspect.id)
-    };
-  }
-
-  suspect.deductionState.eliminated = true;
-
-  suspect.deductionState.labStatus =
-    suspect.deductionState.labStatus === STATUS.PENDING
-      ? STATUS.MANUALLY_CLEARED
-      : suspect.deductionState.labStatus;
-
-  addEliminationReason(suspect, {
-    id: `manual_${source}_${suspect.id}`,
-    type,
-    source,
-    label,
-    note
-  });
-
-  syncExcludedSuspects();
-
-  return {
-    success: true,
-    suspect: getPublicSuspectView(suspect.id)
-  };
-}
-
-export function restoreManuallyClearedSuspect(suspectId) {
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  suspect.deductionState.eliminated = false;
-  suspect.deductionState.eliminationReasons = [];
-
-  if (
-    suspect.deductionState.labStatus === STATUS.MANUALLY_CLEARED
-  ) {
-    suspect.deductionState.labStatus =
-      suspect.deductionState.evidenceMismatches.length
-        ? STATUS.MISMATCH
-        : STATUS.PENDING;
-  }
-
-  syncExcludedSuspects();
-
-  return {
-    success: true,
-    suspect: getPublicSuspectView(suspect.id)
-  };
-}
-
-// Widok dla UI nie zawiera ukrytej tożsamości sprawcy.
-export function getPublicSuspectView(suspectId) {
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  return {
-    id: suspect.id,
-    name: getDisplayName(suspect),
-    occupation:
-      suspect.publicProfile.occupation ||
-      suspect.occupation ||
-      'Unknown occupation',
-    genderCode:
-      suspect.publicProfile.genderCode ||
-      suspect.genderCode ||
-      suspect.gender_code ||
-      'nb',
-    visibleTraits: [
-      ...(
-        suspect.publicProfile.visibleTraits ||
-        suspect.visibleTraits ||
-        []
-      )
-    ],
-    caseConnection:
-      suspect.publicProfile.caseConnection ||
-      suspect.caseConnection ||
-      '',
-    restrictedProfile: {
-      unlockedFields: [
-        ...suspect.restrictedProfile.unlockedFields
-      ],
-      forensicAttributes: {
-        ...suspect.restrictedProfile.forensicAttributes
-      }
-    },
-    deductionState: {
-      labStatus: suspect.deductionState.labStatus,
-      hypothesisStatus: suspect.deductionState.hypothesisStatus,
-      interviewStatus: suspect.deductionState.interviewStatus,
-      alibiStatus: suspect.deductionState.alibiStatus,
-      eliminated: suspect.deductionState.eliminated === true,
-      eliminationReasons: [
-        ...suspect.deductionState.eliminationReasons
-      ],
-      evidenceMismatches: [
-        ...suspect.deductionState.evidenceMismatches
-      ],
-      notesUnlocked: [
-        ...suspect.deductionState.notesUnlocked
-      ]
-    }
-  };
-}
-
-export function getPublicSuspectList() {
-  return getSuspects().map(
-    suspect => getPublicSuspectView(suspect.id)
-  );
-}
-
-export function applyIdentityEvidence(options = {}) {
-  ensureAllSuspectShapes();
-
-  const configuredEvidence = getIdentityEvidence();
-
-  const attribute =
-    options.attribute || configuredEvidence.attribute;
-
-  const value =
-    options.value ?? configuredEvidence.thiefValue;
-
-  const source =
-    options.source ||
-    configuredEvidence.id ||
-    'crime_lab';
-
-  const label =
-    options.label ||
-    configuredEvidence.label ||
-    'Crime Lab Result';
-
-  const clueText =
-    options.clueText ||
-    configuredEvidence.clueText ||
-    'Forensic evidence does not match this suspect.';
-
-  if (attribute !== configuredEvidence.attribute) {
-    throw new Error(
-      `SuspectUtils: attempted to apply "${attribute}", but this case requires "${configuredEvidence.attribute}".`
-    );
-  }
-
-  if (
-    normalizeValue(value) !==
-    normalizeValue(configuredEvidence.thiefValue)
-  ) {
-    throw new Error(
-      'SuspectUtils: the supplied identity result does not match the generated case evidence.'
-    );
-  }
-
-  const mismatchedSuspectIds = [];
-  const matchedSuspectIds = [];
-
-  getSuspects().forEach(suspect => {
-    ensureSuspectShape(suspect);
-
-    const suspectValue = getForensicAttributeValue(
-      suspect,
-      attribute
-    );
-
-    const matchesEvidence =
-      normalizeValue(suspectValue) === normalizeValue(value);
-
-    unlockRestrictedField(
-      suspect,
-      attribute,
-      suspectValue,
-      source
-    );
-
-    if (matchesEvidence) {
-      suspect.deductionState.labStatus = STATUS.MATCH;
-
-      addUniqueNote(
-        suspect,
-        `${label}: consistent with the forensic result.`
-      );
-
-      matchedSuspectIds.push(suspect.id);
-      return;
-    }
-
-    markEvidenceMismatch(suspect, {
-      statusKey: 'labStatus',
-      status: STATUS.MISMATCH,
-      reason: {
-        id: `lab_${attribute}_${suspect.id}`,
-        type: 'forensic',
-        source,
-        field: attribute,
-        label,
-        note: clueText
-      }
-    });
-
-    mismatchedSuspectIds.push(suspect.id);
-  });
-
-  gameState.identityEvidenceResult = {
-    id: configuredEvidence.id,
-    attribute,
-    value,
-    source,
-    label,
-    completedAt: getTimestamp(),
-    excludedSuspectIds: [],
-    mismatchedSuspectIds,
-    matchedSuspectIds
-  };
-
-  gameState.forensicResults ??= [];
-  gameState.forensicResults.push({
-    ...gameState.identityEvidenceResult
-  });
-
-  gameState.identityEvidence.resultUnlocked = true;
-  gameState.csiLabCompleted = true;
-
-  registerProgressUpdate('crimeLabCompleted', true);
-  syncExcludedSuspects();
-
-  return {
-    success: true,
-    attribute,
-    value,
-    excludedSuspectIds: [],
-    mismatchedSuspectIds,
-    matchedSuspectIds,
-    remainingSuspects: getActiveSuspects().map(
-      suspect => suspect.id
-    )
-  };
-}
-
-export function registerHypothesisAttempt(selectedSkills = []) {
-  const requiredSkills = uniqueStrings(
-    gameState.hypothesisEvidence?.requiredSkills
-  );
-
-  if (!requiredSkills.length) {
-    throw new Error(
-      'SuspectUtils: gameState.hypothesisEvidence.requiredSkills is missing.'
-    );
-  }
-
-  gameState.hypothesisAttempts ??= [];
-
-  const attempt = {
-    attemptNumber: gameState.hypothesisAttempts.length + 1,
-    selectedSkills: uniqueStrings(selectedSkills),
-    isCorrect: skillListsMatch(
-      selectedSkills,
-      requiredSkills
-    ),
-    attemptedAt: getTimestamp()
-  };
-
-  gameState.hypothesisAttempts.push(attempt);
-
-  return attempt;
-}
-
-export function applyHypothesisSkills(selectedSkills = []) {
-  ensureAllSuspectShapes();
-
-  const requiredSkills = uniqueStrings(
-    gameState.hypothesisEvidence?.requiredSkills
-  );
-
-  if (!requiredSkills.length) {
-    throw new Error(
-      'SuspectUtils: gameState.hypothesisEvidence.requiredSkills is missing.'
-    );
-  }
-
-  const attempt = registerHypothesisAttempt(selectedSkills);
-
-  if (!attempt.isCorrect) {
-    return {
-      success: false,
-      isCorrect: false,
-      attemptNumber: attempt.attemptNumber,
-      message:
-        'The reconstruction does not fit the evidence. No suspects were cleared.',
-      remainingSuspects: getActiveSuspects().map(
-        suspect => suspect.id
-      )
-    };
-  }
-
-  const mismatchedSuspectIds = [];
-  const matchedSuspectIds = [];
-
-  getActiveSuspects().forEach(suspect => {
-    const matchesRequiredSkills = skillsMatch(
-      suspect.skills,
-      requiredSkills
-    );
-
-    if (matchesRequiredSkills) {
-      suspect.deductionState.hypothesisStatus = STATUS.MATCH;
-      matchedSuspectIds.push(suspect.id);
-      return;
-    }
-
-    markEvidenceMismatch(suspect, {
-      statusKey: 'hypothesisStatus',
-      status: STATUS.MISMATCH,
-      reason: {
-        id: `hypothesis_skills_${suspect.id}`,
-        type: 'method',
-        source: 'hypothesis_reconstruction',
-        field: 'skills',
-        label: 'Crime Reconstruction'
-      }
-    });
-
-    mismatchedSuspectIds.push(suspect.id);
-  });
-
-  getSuspects()
-    .filter(
-      suspect =>
-        suspect?.deductionState?.labStatus === STATUS.MISMATCH
-    )
-    .forEach(suspect => {
-      if (
-        suspect.deductionState.hypothesisStatus === STATUS.PENDING
-      ) {
-        suspect.deductionState.hypothesisStatus =
-          STATUS.NOT_APPLICABLE;
-      }
-    });
-
-  gameState.hypothesisEvidenceResult = {
-    id:
-      gameState.hypothesisEvidence?.id ||
-      'hypothesis_skills',
-    requiredSkills,
-    completedAt: getTimestamp(),
-    matchedSuspectIds,
-    mismatchedSuspectIds
-  };
-
-  gameState.hypothesisEvidence.resultUnlocked = true;
-
-  registerProgressUpdate('hypothesisCompleted', true);
-  syncExcludedSuspects();
-
-  return {
-    success: true,
-    isCorrect: true,
-    attemptNumber: attempt.attemptNumber,
-    requiredSkills,
-    excludedSuspectIds: [],
-    mismatchedSuspectIds,
-    matchedSuspectIds,
-    remainingSuspects: getActiveSuspects().map(
-      suspect => suspect.id
-    )
-  };
-}
-
-// Przywrócona funkcja używana również w export default.
-export function unlockSuspectData(
-  suspectId,
-  field,
-  value,
-  source = 'police_database'
-) {
-  const suspect = getSuspectById(suspectId);
-
-  unlockRestrictedField(
-    suspect,
-    field,
-    value,
-    source
-  );
-
-  return getPublicSuspectView(suspectId);
-}
-
-export function applyInterviewElimination({
-  suspectId,
-  npcId = 'unknown_npc',
-  evidenceId = 'npc_statement',
-  reason = 'A witness statement supports this suspect’s alibi.',
-  thread = 'alibi',
-  label = 'Witness Statement'
-} = {}) {
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  if (isTrueThief(suspect)) {
-    console.warn(
-      '[SuspectUtils] Ignored interview clearance for true thief.',
-      {
-        suspectId,
-        npcId,
-        evidenceId
-      }
-    );
-
-    return {
-      success: false,
-      message:
-        'This testimony is inconclusive and cannot clear the suspect.',
-      suspect: getPublicSuspectView(suspect.id)
-    };
-  }
-
-  suspect.deductionState.interviewStatus = STATUS.CONFIRMED;
-
-  if (thread === 'alibi') {
-    suspect.deductionState.alibiStatus = 'corroborated';
-  }
-
-  addUniqueNote(suspect, reason);
-
-  addUniqueEvidenceMismatch(suspect, {
-    id: `interview_${evidenceId}_${suspect.id}`,
-    type: thread,
-    source: npcId,
-    field: 'alibi',
-    label,
-    note: reason
-  });
-
-  gameState.interviewEvidenceResults ??= [];
-  gameState.interviewEvidenceResults.push({
-    suspectId: suspect.id,
-    npcId,
-    evidenceId,
-    reason,
-    thread,
-    label,
-    outcome: 'corroborated_not_auto_cleared',
-    completedAt: getTimestamp()
-  });
-
-  registerProgressUpdate('suspectInterviewsCompleted', true);
-  syncExcludedSuspects();
-
-  return {
-    success: true,
-    manuallyClearRequired: true,
-    suspect: getPublicSuspectView(suspect.id),
-    remainingSuspects: getActiveSuspects().map(
-      entry => entry.id
-    )
-  };
-}
-
-export function flagSuspectFromInterview({
-  suspectId,
-  npcId = 'unknown_npc',
-  evidenceId = 'npc_statement',
-  note = 'The witness statement raises further questions.',
-  thread = 'alibi',
-  label = 'Witness Statement'
-} = {}) {
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  suspect.deductionState.interviewStatus = STATUS.SUSPICIOUS;
-
-  if (thread === 'alibi') {
-    suspect.deductionState.alibiStatus = STATUS.SUSPICIOUS;
-  }
-
-  addUniqueNote(suspect, note);
-
-  gameState.interviewEvidenceResults ??= [];
-  gameState.interviewEvidenceResults.push({
-    suspectId: suspect.id,
-    npcId,
-    evidenceId,
-    note,
-    thread,
-    label,
-    outcome: 'suspicious',
-    completedAt: getTimestamp()
-  });
-
-  return {
-    success: true,
-    suspect: getPublicSuspectView(suspect.id)
-  };
-}
-
-export function setAlibiStatus(
-  suspectId,
-  status,
-  note = ''
-) {
-  const allowedStatuses = [
-    STATUS.LOCKED,
-    'unverified',
-    'corroborated',
-    STATUS.CONTRADICTED,
-    STATUS.SUSPICIOUS
-  ];
-
-  if (!allowedStatuses.includes(status)) {
-    throw new Error(
-      `SuspectUtils: unsupported alibi status "${status}".`
-    );
-  }
-
-  const suspect = getSuspectById(suspectId);
-
-  ensureSuspectShape(suspect);
-
-  suspect.deductionState.alibiStatus = status;
-
-  if (note) {
-    addUniqueNote(suspect, note);
-  }
-
-  if (status !== STATUS.LOCKED) {
-    registerProgressUpdate('alibiPhaseUnlocked', true);
-  }
-
-  return getPublicSuspectView(suspect.id);
-}
-
-export function unlockAlibiPhase() {
-  getActiveSuspects().forEach(suspect => {
-    ensureSuspectShape(suspect);
-
-    if (suspect.deductionState.alibiStatus === STATUS.LOCKED) {
-      suspect.deductionState.alibiStatus = 'unverified';
-    }
-
-    if (
-      suspect.deductionState.interviewStatus === STATUS.LOCKED
-    ) {
-      suspect.deductionState.interviewStatus = STATUS.UNLOCKED;
-    }
-  });
-
-  registerProgressUpdate('alibiPhaseUnlocked', true);
-
-  return getPublicSuspectList();
-}
-
-export function getSuspectCaseSummary() {
-  ensureAllSuspectShapes();
-
-  const suspects = getSuspects();
-  const activeSuspects = getActiveSuspects();
-
-  const eliminatedSuspects = suspects.filter(
-    suspect => suspect?.deductionState?.eliminated === true
-  );
-
-  const labMismatchSuspects = suspects.filter(
-    suspect =>
-      suspect?.deductionState?.labStatus === STATUS.MISMATCH
-  );
-
-  const hypothesisMismatchSuspects = suspects.filter(
-    suspect =>
-      suspect?.deductionState?.hypothesisStatus === STATUS.MISMATCH
-  );
-
-  return {
-    caseId: getCaseId(),
-    total: suspects.length,
-    active: activeSuspects.length,
-    eliminated: eliminatedSuspects.length,
-    labMismatchCount: labMismatchSuspects.length,
-    hypothesisMismatchCount: hypothesisMismatchSuspects.length,
-    crimeLabCompleted: Boolean(gameState.csiLabCompleted),
-    hypothesisCompleted: Boolean(
-      gameState.hypothesisEvidence?.resultUnlocked
-    ),
-    alibiPhaseUnlocked: Boolean(
-      gameState.crimeCityProgress?.[getCaseId()]?.alibiPhaseUnlocked
-    ),
-    activeSuspectIds: activeSuspects.map(
-      suspect => suspect.id
-    ),
-    eliminatedSuspectIds: eliminatedSuspects.map(
-      suspect => suspect.id
-    ),
-    labMismatchSuspectIds: labMismatchSuspects.map(
-      suspect => suspect.id
-    ),
-    hypothesisMismatchSuspectIds: hypothesisMismatchSuspects.map(
-      suspect => suspect.id
-    )
-  };
-}
-
-// Wyłącznie do debugowania — nie pokazuj tych danych graczowi.
-export function getDebugCaseTruth() {
-  return getSuspects().map(suspect => ({
-    id: suspect.id,
-    name: getDisplayName(suspect),
-    isThief: isTrueThief(suspect),
-    attributes: {
-      ...suspect.attributes
-    },
-    skills: [
-      ...(suspect.skills || [])
-    ],
-    hiddenProfile: {
-      ...suspect.hiddenProfile
-    },
-    deductionState: {
-      ...suspect.deductionState
-    }
-  }));
-}
-
-export function rebuildExcludedSuspects() {
-  return syncExcludedSuspects();
-}
-
-export default {
-  getActiveSuspects,
-  getPublicSuspectView,
-  getPublicSuspectList,
-
-  manuallyClearSuspect,
-  restoreManuallyClearedSuspect,
-
-  applyIdentityEvidence,
-  registerHypothesisAttempt,
-  applyHypothesisSkills,
-
-  unlockSuspectData,
-
-  applyInterviewElimination,
-  flagSuspectFromInterview,
-
-  setAlibiStatus,
-  unlockAlibiPhase,
-
-  getSuspectCaseSummary,
-  getDebugCaseTruth,
-  rebuildExcludedSuspects
-};
+export function rebuildExcludedSuspects(){return syncExcludedSuspects();}
+export default{getActiveSuspects,getPublicSuspectView,getPublicSuspectList,manuallyClearSuspect,restoreManuallyClearedSuspect,applyIdentityEvidence,registerHypothesisAttempt,applyHypothesisSkills,unlockSuspectData,applyInterviewElimination,flagSuspectFromInterview,setAlibiStatus,unlockAlibiPhase,getSuspectCaseSummary,getDebugCaseTruth,rebuildExcludedSuspects};
