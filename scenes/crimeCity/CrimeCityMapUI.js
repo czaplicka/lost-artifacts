@@ -118,7 +118,9 @@ export class CrimeCityMapUI {
     ).setDepth(21), this.headerObjects);
     const artifact = gameState.currentMission?.artifact;
     let subtitle = 'Theory logged. Question the people with alibis.';
-    if (!scene.isCrimeSceneCompleted()) {
+    if (scene.hasVisitedApartment()) {
+      subtitle = 'Apartment visited. Take the recovered clues to the Crime Lab.';
+    } else if (!scene.isCrimeSceneCompleted()) {
       subtitle = artifact
         ? `Case: ${artifact} — inspect the crime scene before opening suspect files.`
         : 'Start with the crime scene. Suspect files remain sealed.';
@@ -135,7 +137,10 @@ export class CrimeCityMapUI {
   }
 
   createAvailableLocations({
-    crimeSceneCompleted, crimeLabCompleted, apartmentAvailable
+    crimeSceneCompleted,
+    crimeLabCompleted,
+    apartmentAvailable,
+    apartmentVisited = this.scene.hasVisitedApartment()
   } = {}) {
     this.destroyObjects(this.locationObjects);
     this.destroyObjects(this.shopObjects);
@@ -145,7 +150,9 @@ export class CrimeCityMapUI {
     this.apartmentSignature = null;
     if (!crimeSceneCompleted) this.createCrimeSceneIcon();
     if (this.areSuspectFilesUnlocked()) this.createSuspectsIcon();
-    if (crimeSceneCompleted && !crimeLabCompleted) this.createLabIcon();
+    if (crimeSceneCompleted && (!crimeLabCompleted || apartmentVisited)) {
+      this.createLabIcon({ apartmentEvidence: apartmentVisited });
+    }
     this.createHotelIcon();
     this.createShopIcon();
     this.refreshApartmentLocation();
@@ -349,18 +356,27 @@ export class CrimeCityMapUI {
     });
   }
 
-  createLabIcon() {
+  createLabIcon({ apartmentEvidence = this.scene.hasVisitedApartment() } = {}) {
     const scene = this.scene;
     const position = scene.crimeCityConfig.crimeLab;
     if (!position || !scene.isCrimeSceneCompleted()) return;
     const entryPaid = scene.hasPaidCrimeLabEntry();
     const activityCost = getEnergyManager().getActivityCost('csi_lab');
-    this.createMapIcon({
+    const label = apartmentEvidence
+      ? 'Crime Lab — Apartment Evidence'
+      : entryPaid
+        ? 'Crime Lab — Analysis in Progress'
+        : `Crime Lab — ${activityCost} Energy`;
+    const result = this.createMapIcon({
       ...position, textureKey: 'crime_lab', fallbackColor: 0x1565c0,
-      fallbackStroke: 0x7fc8f8,
-      label: entryPaid ? 'Crime Lab — Analysis in Progress' : `Crime Lab — ${activityCost} Energy`,
+      fallbackStroke: 0x7fc8f8, label,
       onClick: () => scene.openCrimeLab()
     });
+    if (apartmentEvidence) {
+      this.createStatusBadge(position.x, position.y - BADGE_OFFSET,
+        'Examine apartment clues', '#8ed1fc');
+    }
+    return result;
   }
 
   createMapIcon({

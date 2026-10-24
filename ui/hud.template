@@ -109,7 +109,7 @@
 
       <div class="hud-buttons">
         <img
-          src="assets/player.png"
+          src="assets/ico/player.webp"
           id="btn-profile"
           class="hud-icon-btn"
           alt="Agent"
@@ -117,7 +117,7 @@
         />
 
         <img
-          src="assets/profile.png"
+          src="assets/ico/profile.webp"
           id="btn-player"
           class="hud-icon-btn"
           alt="Profile"
@@ -125,7 +125,7 @@
         />
 
         <img
-          src="assets/cog.png"
+          src="assets/ico/cog.webp"
           id="btn-settings"
           class="hud-icon-btn"
           alt="Settings"

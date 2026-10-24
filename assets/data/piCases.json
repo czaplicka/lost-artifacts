@@ -2,21 +2,104 @@
   "mainCaseId": "holly_missing_husband",
   "cases": [
     {
-      "id": "holly_missing_husband",
-      "kind": "main",
-      "title": "Holly's Missing Husband",
+      "id": "pi_missing_suitcase",
+      "kind": "side",
+      "title": "The Missing Suitcase",
+      "description": "Locate the brown suitcase reported missing from the station lockers.",
       "requiresBoard": true,
+      "reward": 120,
+      "objectives": [
+        {
+          "id": "contact_client",
+          "text": "Find a way to contact the advertiser."
+        },
+        {
+          "id": "investigate_disappearance",
+          "text": "Investigate the disappearance of the suitcase."
+        },
+        {
+          "id": "recover_suitcase",
+          "text": "Recover the suitcase and arrange its return."
+        }
+      ],
       "initialItems": [
         {
-          "id": "case-summary",
+          "id": "classified-ad",
           "type": "note",
-          "label": "Find Holly's husband",
-          "text": "Locate Holly's missing husband.",
-          "metaText": "Main investigation",
+          "label": "Missing suitcase. No questions.",
+          "text": "A concerned traveller is offering $120 for the return of a brown suitcase missing from the station lockers. The suitcase must remain unopened.",
+          "metaText": "Source: Classifieds",
           "color": "yellow",
           "x": 100,
           "y": 100,
           "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "client-lead",
+          "type": "note",
+          "label": "Who placed the advertisement?",
+          "text": "The advertiser has not provided a direct telephone number.",
+          "metaText": "Open question",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": false,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": []
+    },
+    {
+      "id": "pi_stolen_alibi",
+      "kind": "side",
+      "title": "The Borrowed Alibi",
+      "description": "Find out why three strangers claim they had dinner with the advertiser.",
+      "requiresBoard": true,
+      "reward": 180,
+      "objectives": [
+        {
+          "id": "contact_client",
+          "text": "Find a way to contact the advertiser at Box 17."
+        },
+        {
+          "id": "identify_strangers",
+          "text": "Identify the people using the client's alibi."
+        },
+        {
+          "id": "establish_truth",
+          "text": "Establish what happened on Tuesday evening."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "classified-ad",
+          "type": "note",
+          "label": "Someone has been using my alibi",
+          "text": "The advertiser claims to have eaten alone on Tuesday. Three strangers reportedly say they were having dinner with the advertiser.",
+          "metaText": "Source: Classifieds — Box 17",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "alibi-question",
+          "type": "note",
+          "label": "Three strangers",
+          "text": "Their identities and reasons for using this alibi are unknown.",
+          "metaText": "Open question",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": false,
           "discovered": true,
           "createdByPlayer": false,
           "editableByPlayer": false

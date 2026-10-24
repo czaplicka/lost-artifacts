@@ -3,7 +3,7 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { OFFICE_CONFIG } from '../config/detectiveOfficeConfig.js';
-
+import {  acceptPIQuestFromAdvert,   getPIQuestStatus } from '../managers/PIQuestManager.js';
 import { PIOfficeComputerUI } from '../ui/PIOfficeComputerUI.js';
 import { PIOfficePhoneUI } from '../ui/PIOfficePhoneUI.js';
 import { PICrimeBoardUI } from '../ui/PICrimeBoardUI.js';
@@ -222,18 +222,33 @@ export class DetectiveOfficeScene extends BaseScene {
   }
 
   createPanels() {
-    this.computerUI = new PIOfficeComputerUI(this, {
-      onOpen: () => this.deviceOpened('computer'),
-      onClose: () => this.deviceClosed('computer'),
+this.computerUI = new PIOfficeComputerUI(this, {
+  wallpaperKey: 'pi_computer_wallpaper',
 
-      onOpenInvestigations: () => {
-        void this.openInvestigations();
-      },
+  onOpen: () => {
+    this.deviceOpened('computer');
+  },
 
-      onOpenWorldTravel: () => {
-        void this.openWorldTravel();
-      }
-    });
+  onClose: () => {
+    this.deviceClosed('computer');
+  },
+
+  onOpenInvestigations: () => {
+    return this.openInvestigations();
+  },
+
+  onOpenWorldTravel: () => {
+    return this.openWorldTravel();
+  },
+
+  onAcceptMission: advert => {
+    return acceptPIQuestFromAdvert(this, advert.id);
+  },
+
+  getMissionStatus: missionId => {
+    return getPIQuestStatus(missionId);
+  }
+});
 
     this.phoneUI = new PIOfficePhoneUI(this, {
       onOpen: () => this.deviceOpened('phone'),

@@ -104,6 +104,10 @@ export const defaultGameState = {
   selectedCaseId: null,
   cases: {}
 },
+piQuests: {
+  version: 1,
+  quests: {}
+},
 
   reputationState: {
     version: 1,

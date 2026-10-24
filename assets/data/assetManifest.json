@@ -29,6 +29,8 @@
     { "key": "crimelab_point", "url": "assets/local/crimelab_point.jpg" },
     { "key": "newsstand_bg", "url": "assets/local/newsstand.jpg" },
     { "key": "shop", "url": "assets/local/shop.jpg" },
+    { "key": "file", "url": "assets/file.png" },
+    { "key": "notes", "url": "assets/notes.png" },
 
     { "key": "bank_w", "url": "assets/local/bank_w.jpg" },
     { "key": "alley_w", "url": "assets/local/alley_w.jpg" },
@@ -174,12 +176,12 @@
     { "key": "registerbtn", "url": "assets/register.png" },
 
     { "key": "atlas", "url": "assets/ico/atlas.webp" },
-    { "key": "inventory_icon", "url": "assets/ico/inventory_icon.webp" },
-    { "key": "destination", "url": "assets/ico/destination.webp" },
+    { "key": "inventory_icon", "url": "assets/ico/inventory.webp" },
+    { "key": "destination", "url": "assets/ico/plane.webp" },
     { "key": "plane", "url": "assets/ico/plane.webp" },
     { "key": "search", "url": "assets/ico/search.webp" },
     { "key": "policja", "url": "assets/ico/policja.webp" },
-    { "key": "hotel_icon", "url": "assets/ico/hotel_icon.webp" },
+    { "key": "hotel_icon", "url": "assets/ico/hotel.webp" },
     { "key": "shop_icon", "url": "assets/ico/shop.webp" },
     { "key": "apt_icon", "url": "assets/ico/apt.webp" },
     { "key": "crime_lab", "url": "assets/ico/crime_lab.webp" },
@@ -192,8 +194,8 @@
     { "key": "profile", "url": "assets/ico/profile.webp" },
     { "key": "news", "url": "assets/ico/news.webp" },
     { "key": "tv", "url": "assets/ico/tv.webp" },
-    { "key": "notes", "url": "assets/ico/notes.webp" },
-    { "key": "file", "url": "assets/ico/file.webp" },
+    { "key": "filebutt", "url": "assets/ico/file.webp" },
+    
 
     { "key": "notebook_bg", "url": "assets/ui/notebook_bg.png" },
     { "key": "sketch_base", "url": "assets/ui/sketch_base.png" },
