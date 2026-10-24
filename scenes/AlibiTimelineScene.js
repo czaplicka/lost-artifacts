@@ -9,9 +9,10 @@ import {
 import {
   getFiledAlibiConclusion, fileAlibiConclusion
 } from '../alibi/AlibiConclusion.js';
+import { AlibiDeductionController } from '../alibi/AlibiDeductionController.js';
 
 const W = 1100;
-const H = 900;
+const H = 1040;
 const time = minute => `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
 
 export class AlibiTimelineScene extends BaseScene {
@@ -35,6 +36,7 @@ export class AlibiTimelineScene extends BaseScene {
     this.result = 'pending';
     this.feedback = '';
     this.feedbackColor = '#594a36';
+    this.deduction = new AlibiDeductionController(this);
   }
 
   create() {
@@ -49,7 +51,7 @@ export class AlibiTimelineScene extends BaseScene {
       console.error('[AlibiTimelineScene] Cannot open board:', error);
       this.createRoot();
       this.text(this.root, 60, 160, 'The alibi board is unavailable. Complete all three interviews first.', 960, { fontSize: '26px' });
-      this.button(this.root, 30, 830, 260, 48, 'Return to city', () => void this.returnToCity());
+      this.button(this.root, 30, 975, 260, 48, 'Return to city', () => void this.returnToCity());
     }
   }
 
@@ -150,21 +152,27 @@ export class AlibiTimelineScene extends BaseScene {
           this.feedback = '';
           this.render();
         });
+      this.button(this.root, 30 + index * 355, 337, 330, 40,
+        this.deduction.label('timeline', index), () => this.deduction.run('timeline', index));
     });
-    this.text(this.root, 30, 345, 'Click a placed card to take it back before filing.', 1020, { fontSize: '17px' });
+    this.text(this.root, 30, 390, 'Click a placed card to take it back before filing.', 1020, { fontSize: '17px' });
     this.cards.forEach((card, index) => {
       const placed = this.slots.includes(card.id);
-      this.drawCard(30 + index * 355, 380, 330, 150, card.role,
+      this.drawCard(30 + index * 355, 420, 330, 150, card.role,
         placed ? 'Placed on the timeline.' : card.label,
         () => this.placeCard(card.id), placed);
     });
-    this.text(this.root, 30, 555, '2. Choose your conclusion.', 1000);
+    this.text(this.root, 30, 595, '2. Choose your conclusion.', 1000);
     this.getChoices().forEach((choice, index) => this.button(this.root,
-      30 + (index % 2) * 535, 600 + Math.floor(index / 2) * 70, 510, 58,
+      30 + (index % 2) * 535, 630 + Math.floor(index / 2) * 70, 510, 58,
       this.choice === choice.id ? `>> ${choice.label} <<` : choice.label,
       () => { if (!this.solved) { this.choice = choice.id; this.feedback = ''; this.render(); } },
       { selected: this.choice === choice.id }));
-    this.text(this.root, 30, 755, 'Filing is final. Your report cannot be changed afterwards.', 1030, { fontSize: '17px' });
+    this.button(this.root, 30, 775, 510, 44, this.deduction.label('conclusion'),
+      () => this.deduction.run('conclusion'));
+    this.text(this.root, 560, 775, 'Checks review the draft. They do not file a report.', 500, { fontSize: '17px' });
+    this.text(this.root, 30, 835, this.deduction.summaryText(), 1030, { fontSize: '17px' });
+    this.text(this.root, 30, 867, 'Filing is final. Your report cannot be changed afterwards.', 1030, { fontSize: '17px' });
     this.drawFooter();
   }
 
@@ -181,13 +189,14 @@ export class AlibiTimelineScene extends BaseScene {
   }
 
   drawFooter() {
-    this.messageText = this.text(this.root, 30, 795, this.feedback, 1030, { fontSize: '17px', color: '#594a36' });
-    this.button(this.root, 30, 841, 245, 42, 'Return to city', () => void this.returnToCity());
+    this.messageText = this.text(this.root, 30, 905, this.feedback, 1030,
+      { fontSize: '17px', color: this.feedbackColor });
+    this.button(this.root, 30, 988, 245, 42, 'Return to city', () => void this.returnToCity());
     if (this.solved) return;
-    this.button(this.root, 425, 841, 180, 42, 'Clear draft', () => {
+    this.button(this.root, 425, 988, 180, 42, 'Clear draft', () => {
       this.slots = [null, null, null]; this.choice = null; this.feedback = ''; this.render();
     });
-    this.button(this.root, 745, 841, 320, 42, 'FILE CONCLUSION', () => this.checkDeduction());
+    this.button(this.root, 745, 988, 320, 42, 'FILE CONCLUSION', () => this.checkDeduction());
   }
 
   placeCard(id) {
@@ -201,7 +210,8 @@ export class AlibiTimelineScene extends BaseScene {
 
   setFeedback(message) {
     this.feedback = message;
-    this.messageText?.setText(message);
+    this.feedbackColor = '#594a36';
+    this.messageText?.setText(message).setColor(this.feedbackColor);
   }
 
   checkDeduction() {
@@ -221,7 +231,6 @@ export class AlibiTimelineScene extends BaseScene {
       this.render();
     } catch (error) {
       console.error('[AlibiTimelineScene] Filing failed:', error);
-      // Recover the lock if persistence threw after the in-memory commit.
       const filed = getFiledAlibiConclusion(this.caseKey, this.suspectId);
       if (filed) { this.result = filed.status; this.solved = true; this.render(); }
       this.setFeedback('The report could not be fully saved. Check the console.');
@@ -239,10 +248,10 @@ export class AlibiTimelineScene extends BaseScene {
     const statement = this.text(this.modal, 65, 180, witness.statement, 970, {
       fontSize: '27px', color: '#fff0ce', lineSpacing: 10
     });
-    while (statement.height > 520 && parseInt(statement.style.fontSize, 10) > 16) statement.setFontSize(parseInt(statement.style.fontSize, 10) - 1);
-    this.button(this.modal, 65, 775, 250, 55, 'Previous', () => this.openStatements((index + 2) % 3));
-    this.button(this.modal, 425, 775, 250, 55, 'Close', () => { this.modal?.destroy(true); this.modal = null; });
-    this.button(this.modal, 785, 775, 250, 55, 'Next', () => this.openStatements((index + 1) % 3));
+    while (statement.height > 640 && parseInt(statement.style.fontSize, 10) > 16) statement.setFontSize(parseInt(statement.style.fontSize, 10) - 1);
+    this.button(this.modal, 65, 915, 250, 55, 'Previous', () => this.openStatements((index + 2) % 3));
+    this.button(this.modal, 425, 915, 250, 55, 'Close', () => { this.modal?.destroy(true); this.modal = null; });
+    this.button(this.modal, 785, 915, 250, 55, 'Next', () => this.openStatements((index + 1) % 3));
   }
 
   async returnToCity() {

@@ -1,268 +1,428 @@
-import { gameState } from './GameData.js';
-import { getDifficultyConfig } from './DifficultySettings.js';
+export class HiddenObjectsResultOverlay {
+  constructor(scene) {
+    this.scene = scene;
 
-export class HiddenObjectsResolver {
-  /**
-   * @param {Object} sceneContext - Odniesienie do instancji HiddenObjectsScene
-   */
-  constructor(sceneContext) {
-    this.scene = sceneContext;
+    this.resultOverlay = null;
+    this.resultContainer = null;
+    this.autoReturnEvent = null;
+
+    this.isReturning = false;
+    this.version = 0;
+
+    this.returnButton = null;
+    this.returnButtonText = null;
+    this.statusText = null;
   }
 
-  /**
-   * Wyciąga aktualną misję z przekazanych danych lub gameState.
-   */
-  resolveIncomingMission(data = {}) {
-    return (
-      data.mission ||
-      data.currentMission ||
-      this.scene.scene?.settings?.data?.mission ||
-      this.scene.scene?.settings?.data?.currentMission ||
-      gameState.currentMission ||
-      null
+  canUseOverlay(version = this.version) {
+    const scene = this.scene;
+
+    return Boolean(
+      version === this.version &&
+      !scene._cleanupDone &&
+      !scene.isShuttingDownHiddenObjects &&
+      scene.sys?.isActive() &&
+      this.resultContainer?.active
     );
   }
 
-  /**
-   * Ustala identyfikator sceny na podstawie danych wejściowych i misji.
-   */
-  resolveSceneId(data = {}, mission = null) {
-    const candidates = [
-      data.sceneId,
-      data.returnData?.sceneId,
-      mission?.scene,
-      gameState.currentMission?.scene,
-      this.getSceneIdFromCity(data.cityId),
-      this.getSceneIdFromCity(data.city),
-      this.getSceneIdFromCity(data.returnData?.cityId),
-      this.getSceneIdFromCity(mission?.cityId),
-      this.getSceneIdFromCity(mission?.city),
-      this.getSceneIdFromCity(gameState.currentMission?.cityId),
-      this.getSceneIdFromCity(gameState.currentMission?.city)
+  showSuccessOverlay() {
+    this.showResult(true);
+  }
+
+  showFailureOverlay() {
+    this.showResult(false);
+  }
+
+  showResult(success) {
+    this.destroy();
+
+    const scene = this.scene;
+
+    if (
+      scene._cleanupDone ||
+      scene.isShuttingDownHiddenObjects
+    ) {
+      return;
+    }
+
+    this.isReturning = false;
+
+    const version = this.version;
+    const { width, height } = scene.scale;
+
+    const availableWidth = Math.max(
+      1,
+      width - scene.sidebarWidth
+    );
+
+    const panelWidth = 700;
+    const panelHeight = 490;
+
+    const centerX =
+      scene.sidebarWidth + availableWidth / 2;
+
+    const centerY = height / 2;
+
+    const panelScale = Math.min(
+      1,
+      Math.max(1, availableWidth - 24) / panelWidth,
+      Math.max(1, height - 24) / panelHeight
+    );
+
+    const finalScore = scene.score;
+    const timeBonus = scene.timeLeft * 2;
+
+    const borderColor = success ? 0xd4af37 : 0xa44a4a;
+    const panelColor = success ? 0x181511 : 0x1c1212;
+
+    const buttonColor = success ? 0x8b6b2f : 0x6b2a2a;
+    const buttonHoverColor = success ? 0xa07a34 : 0x823333;
+
+    this.resultOverlay = scene.add
+      .rectangle(0, 0, width, height, 0x000000, 0.72)
+      .setOrigin(0)
+      .setDepth(3000)
+      .setAlpha(0)
+      .setInteractive();
+
+    this.resultContainer = scene.add
+      .container(centerX, centerY)
+      .setDepth(3001)
+      .setScale(panelScale)
+      .setAlpha(0);
+
+    const panel = scene.add
+      .rectangle(
+        0,
+        0,
+        panelWidth,
+        panelHeight,
+        panelColor,
+        0.98
+      )
+      .setStrokeStyle(3, borderColor, 0.95);
+
+    const title = scene.add
+      .text(
+        0,
+        -190,
+        success
+          ? 'Crime Scene Complete'
+          : 'Crime Scene Lost',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '36px',
+          color: success ? '#f8e7b9' : '#ffb3b3',
+          align: 'center'
+        }
+      )
+      .setOrigin(0.5);
+
+    const subtitle = scene.add
+      .text(
+        0,
+        -140,
+        success
+          ? 'The forensic sweep is finished.'
+          : 'Time ran out before the search was complete.',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '22px',
+          color: '#f2f2f2',
+          align: 'center',
+          wordWrap: { width: panelWidth - 80 }
+        }
+      )
+      .setOrigin(0.5);
+
+    const statLines = [
+      `Objects found: ${scene.foundItems.size}/${scene.activeItems.length}`,
+      `Misses: ${scene.incorrectClicks}`,
+      `Time left: ${scene.formatTime(scene.timeLeft)}`
     ];
 
-    for (const candidate of candidates) {
-      const normalized = this.normalizeSceneId(candidate);
-      if (this.isKnownSceneId(normalized)) {
-        return normalized;
+    if (success) {
+      statLines.push(`Time bonus: +${timeBonus}`);
+    }
+
+    statLines.push(`Final score: ${finalScore}`);
+
+    const stats = scene.add
+      .text(0, -25, statLines.join('\n'), {
+        fontFamily: 'SpecialElite',
+        fontSize: '25px',
+        color: '#ffffff',
+        align: 'center',
+        lineSpacing: 8
+      })
+      .setOrigin(0.5);
+
+    const note = scene.add
+      .text(
+        0,
+        90,
+        success
+          ? 'Evidence logged. Return to the city and continue the investigation.'
+          : 'The evidence trail went cold. Return to the city to continue.',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '20px',
+          color: '#d8d8d8',
+          align: 'center',
+          wordWrap: { width: panelWidth - 80 }
+        }
+      )
+      .setOrigin(0.5);
+
+    this.statusText = scene.add
+      .text(
+        0,
+        145,
+        success
+          ? ''
+          : 'Returning to the city in 3 seconds...',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '18px',
+          color: '#f1d9a1',
+          align: 'center',
+          wordWrap: { width: panelWidth - 60 }
+        }
+      )
+      .setOrigin(0.5);
+
+    this.returnButton = scene.add
+      .rectangle(0, 200, 290, 54, buttonColor, 1)
+      .setStrokeStyle(2, borderColor, 0.95)
+      .setInteractive({ useHandCursor: true });
+
+    this.returnButtonText = scene.add
+      .text(
+        0,
+        200,
+        success ? 'Continue' : 'Return now',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '15px',
+          color: '#fff7dc'
+        }
+      )
+      .setOrigin(0.5);
+
+    const button = this.returnButton;
+
+    button.on('pointerover', () => {
+      if (
+        this.canUseOverlay(version) &&
+        !this.isReturning
+      ) {
+        button.setFillStyle(buttonHoverColor, 1);
+      }
+    });
+
+    button.on('pointerout', () => {
+      if (button.active) {
+        button.setFillStyle(buttonColor, 1);
+      }
+    });
+
+    button.on('pointerdown', (pointer) => {
+      if (
+        pointer?.event?.button !== undefined &&
+        pointer.event.button !== 0
+      ) {
+        return;
+      }
+
+      if (
+        !this.canUseOverlay(version) ||
+        this.isReturning
+      ) {
+        return;
+      }
+
+      if (success) {
+        scene.playSfx('correct', { volume: 0.35 });
+      }
+
+      void this.returnToCity(
+        success,
+        finalScore,
+        !success
+      );
+    });
+
+    this.resultContainer.add([
+      panel,
+      title,
+      subtitle,
+      stats,
+      note,
+      this.statusText,
+      this.returnButton,
+      this.returnButtonText
+    ]);
+
+    this.animateIn(centerY, success ? 320 : 280);
+
+    if (!success) {
+      this.autoReturnEvent = scene.time.delayedCall(
+        3000,
+        () => {
+          if (!this.canUseOverlay(version)) return;
+
+          this.autoReturnEvent = null;
+
+          void this.returnToCity(
+            false,
+            finalScore,
+            true
+          );
+        }
+      );
+    }
+  }
+
+  animateIn(centerY, duration) {
+    if (!this.canUseOverlay()) return;
+
+    this.scene.createTrackedTween({
+      targets: this.resultOverlay,
+      alpha: 1,
+      duration: 220,
+      ease: 'Power2'
+    });
+
+    this.scene.createTrackedTween({
+      targets: this.resultContainer,
+      alpha: 1,
+      y: centerY - 8,
+      duration,
+      ease: 'Back.Out'
+    });
+  }
+
+  setReturnBusy(busy) {
+    if (this.returnButton?.active) {
+      this.returnButton.setAlpha(busy ? 0.55 : 1);
+
+      if (this.returnButton.input) {
+        this.returnButton.input.enabled = !busy;
       }
     }
 
-    return 'louvre';
-  }
-
-  /**
-   * Ustala identyfikator miasta.
-   */
-  resolveCityId(data = {}, mission = null) {
-    return (
-      data.cityId ||
-      data.city ||
-      data.returnData?.cityId ||
-      mission?.cityId ||
-      mission?.city ||
-      gameState.currentMission?.cityId ||
-      gameState.currentMission?.city ||
-      'paris'
-    );
-  }
-
-  /**
-   * Standaryzuje nazwę id sceny (usuwa rozszerzenia, spacje, zamienia na lowercase).
-   */
-  normalizeSceneId(value) {
-    if (!value) return '';
-
-    return String(value)
-      .trim()
-      .toLowerCase()
-      .replace(/\.json$/i, '')
-      .replace(/\.jpg$/i, '')
-      .replace(/\s+/g, '_');
-  }
-
-  /**
-   * Sprawdza, czy id sceny znajduje się na liście znanych scen.
-   */
-  isKnownSceneId(sceneId) {
-    return [
-      'louvre',
-      'tower',
-      'castle',
-      'dockyard',
-      'auction_house',
-      'havela'
-    ].includes(sceneId);
-  }
-
-  /**
-   * Mapuje nazwę miasta na odpowiadające mu id sceny.
-   */
-  getSceneIdFromCity(value) {
-    if (!value) return '';
-
-    const city = String(value).trim().toLowerCase();
-
-    const cityToSceneMap = {
-      'paris': 'louvre',
-      'london': 'tower',
-      'tower of london': 'tower',
-      'warsaw': 'castle',
-      'berlin': 'auction_house',
-      'new york': 'dockyard',
-      'new york city': 'dockyard',
-      'nyc': 'dockyard',
-      'new delhi': 'havela',
-      'new dehli': 'havela',
-      'delhi': 'havela'
-    };
-
-    return cityToSceneMap[city] || '';
-  }
-
-  /**
-   * Standaryzuje umiejętności do postaci tablicy ciągów znaków.
-   */
-  normalizeSkills(value) {
-    if (Array.isArray(value)) {
-      return value.map(skill => String(skill).trim()).filter(Boolean);
+    if (this.returnButtonText?.active) {
+      this.returnButtonText.setText(
+        busy ? 'Returning...' : 'Try again'
+      );
     }
-
-    if (typeof value === 'string') {
-      return value.split(',').map(skill => skill.trim()).filter(Boolean);
-    }
-
-    return [];
   }
 
-  /**
-   * Pobiera listy umiejętności aktualnego podejrzanego/złodzieja z gameState.
-   */
-  getCurrentThiefSkills() {
-    const thiefSkills =
-      gameState.currentThief?.skills ||
-      gameState.currentSuspect?.skills ||
-      gameState.currentCulprit?.skills ||
-      gameState.currentMission?.suspectSkills ||
-      [];
-
-    return this.normalizeSkills(thiefSkills).map(skill => skill.toLowerCase());
-  }
-
-  /**
-   * Sprawdza, czy obiekt posiada przynajmniej jedną umiejętność wspólną ze złodziejem.
-   */
-  hasSharedSkill(itemSkills = [], thiefSkills = []) {
-    const normalizedItemSkills = this.normalizeSkills(itemSkills).map(skill => skill.toLowerCase());
-    const normalizedThiefSkills = this.normalizeSkills(thiefSkills).map(skill => skill.toLowerCase());
-
-    if (!normalizedItemSkills.length || !normalizedThiefSkills.length) {
+  async returnToCity(success, score, timedOut = false) {
+    if (
+      !this.canUseOverlay() ||
+      this.isReturning ||
+      this.scene.isReturning
+    ) {
       return false;
     }
 
-    const thiefSkillSet = new Set(normalizedThiefSkills);
-    return normalizedItemSkills.some(skill => thiefSkillSet.has(skill));
+    const version = this.version;
+    const scene = this.scene;
+
+    this.isReturning = true;
+    this.stopAutoReturn();
+    this.setReturnBusy(true);
+
+    this.statusText?.setText('Opening the city map...');
+
+    const showSuspectTutorial = Boolean(
+      success &&
+      scene.returnScene === 'CrimeCityScene'
+    );
+
+    try {
+      const moved = await scene.returnToSafeScene({
+        ...scene.returnData,
+        hiddenObjectsSuccess: success,
+        hiddenObjectsTimedOut: timedOut,
+        hiddenObjectsScore: score,
+        incorrectClicks: scene.incorrectClicks,
+        foundItems: Array.from(scene.foundItems),
+        sceneId: scene.sceneId,
+        showSuspectTutorial
+      });
+
+      if (!this.canUseOverlay(version)) {
+        return Boolean(moved);
+      }
+
+      if (!moved) {
+        this.recoverReturn(
+          'The city map could not be opened. Please try again.'
+        );
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      if (this.canUseOverlay(version)) {
+        console.error(
+          '[HiddenObjectsResultOverlay] Return failed:',
+          error
+        );
+
+        this.recoverReturn(
+          'The city map could not be opened. Please try again.'
+        );
+      }
+
+      return false;
+    }
   }
 
-  /**
-   * Buduje pulę obiektów – dobiera poprawne poszlaki (pasujące do umiejętności) oraz "myłki" (distractors).
-   */
-  buildCandidatePool(sceneItems, activeCount) {
-    const thiefSkills = this.getCurrentThiefSkills();
+  recoverReturn(message) {
+    this.isReturning = false;
 
-    const pool = sceneItems.map(item => ({
-      ...item,
-      skills: this.normalizeSkills(item.skills),
-    }));
+    // SceneFlow ustawia tę blokadę przed wywołaniem goto().
+    this.scene.isReturning = false;
 
-    const matching = Phaser.Utils.Array.Shuffle(
-      pool.filter(item => this.hasSharedSkill(item.skills, thiefSkills)),
-    );
+    this.setReturnBusy(false);
 
-    const correct = matching.slice(0, 3).map((item, index) => ({
-      ...item,
-      isCorrect: true,
-      correctOrder: index,
-    }));
-
-    const rest = Phaser.Utils.Array.Shuffle(
-      pool.filter(item => !correct.some(card => card.id === item.id)),
-    );
-
-    const distractorCount = Math.max(
-      0,
-      activeCount - correct.length,
-    );
-
-    const distractors = rest.slice(0, distractorCount).map(item => ({
-      ...item,
-      isCorrect: false,
-      correctOrder: -1,
-    }));
-
-    return Phaser.Utils.Array.Shuffle([
-      ...correct,
-      ...distractors,
-    ]);
+    if (this.statusText?.active) {
+      this.statusText.setText(message);
+    }
   }
 
-  /**
-   * Generuje strukturę danych potrzebną do późniejszej rekonstrukcji kradzieży na Crime Boardzie.
-   */
-  buildReconstructionCardsFromActiveItems(activeItems, cityId, sceneId) {
-    const thief = gameState.currentThief || null;
+  stopAutoReturn() {
+    this.autoReturnEvent?.remove(false);
+    this.autoReturnEvent = null;
+  }
 
-    const thiefSkills = this.normalizeSkills(
-      thief?.skills,
-    );
+  destroy() {
+    this.version += 1;
+    this.stopAutoReturn();
 
-    const difficulty = this.scene.registry?.get('difficulty')
-      || gameState.difficulty
-      || 'field';
+    const scene = this.scene;
+    const container = this.resultContainer;
+    const overlay = this.resultOverlay;
 
-    const difficultyConfig = getDifficultyConfig(difficulty);
+    this.resultContainer = null;
+    this.resultOverlay = null;
+    this.returnButton = null;
+    this.returnButtonText = null;
+    this.statusText = null;
+    this.isReturning = false;
 
-    const allCards = activeItems.map((item, index) => ({
-      id: item.id,
-      cardId: `card_${index}`,
-      item: item.item || `Clue ${index + 1}`,
-      text: item.item || `Clue ${index + 1}`,
-      skills: this.normalizeSkills(item.skills),
-      cityId: cityId,
-      scene: sceneId,
-      isCorrect: Boolean(item.isCorrect),
-      correctOrder: Number.isInteger(item.correctOrder)
-        ? item.correctOrder
-        : -1,
-      clueType: item.clueType || 'softclue',
-      heistExplanation: item.heistExplanation || '',
-      trueExplanation: item.trueExplanation || '',
-      isRedHerring: Boolean(item.isRedHerring),
-    }));
+    if (container) {
+      scene.killTrackedTweensOf(container);
+      container.destroy(true);
+    }
 
-    const correctCards = allCards
-      .filter(card => card.isCorrect)
-      .sort((a, b) => a.correctOrder - b.correctOrder)
-      .slice(0, 3);
-
-    return {
-      cityId: cityId,
-      sceneId: sceneId,
-      thiefId: gameState.currentThiefId || thief?.id || null,
-      thiefName: thief?.name || null,
-      thiefSkills,
-      allCards,
-      correctCardIds: correctCards.map(card => card.id),
-      correctSequence: correctCards.map(card => card.id),
-      selectedCards: [],
-      playerOrderedCards: [],
-      playerOrderedSentences: [],
-      playerFinalText: '',
-      playerSkills: [],
-      playerTheoryScore: 0,
-      playerTheoryResult: null,
-      playerSlotFeedback: [],
-      playerAttemptsLeft: difficultyConfig.reconstructionAttempts,
-    };
+    if (overlay) {
+      scene.killTrackedTweensOf(overlay);
+      overlay.destroy();
+    }
   }
 }

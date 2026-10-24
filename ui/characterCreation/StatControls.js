@@ -7,7 +7,7 @@ const STAT_DESCRIPTIONS = {
   observation: 'Spot hidden details and suspiciously placed objects.',
   deduction: 'Connect evidence before it starts connecting itself.',
   rapport: 'Make people talk. Preferably truthfully.',
-  resourcefulness: 'Find shortcuts, favours, and morally flexible solutions.',
+  resourcefulness: 'Spend less energy searching and pay less for local transport.',
 };
 
 function renderStatRow(statId, value, remainingPoints) {

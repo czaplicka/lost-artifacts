@@ -808,7 +808,7 @@ export class ShopScene extends BaseScene {
       const added = inventoryManager.addItem({ ...cfg.item });
 
       if (!added) {
-        moneyManager.refund(cfg.price, {
+        moneyManager.refund(purchase.transaction.amount, {
           source: MONEY_SOURCE.CASH,
           description: `Shop refund: ${cfg.label}`,
           metadata: {

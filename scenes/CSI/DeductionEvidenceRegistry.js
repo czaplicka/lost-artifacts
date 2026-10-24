@@ -21,6 +21,54 @@ function normalizeBloodType(value) {
     .toUpperCase();
 }
 
+function normalizeDnaProfile(value) {
+  const normalized = normalizeText(value);
+
+  if (['xx', 'f', 'female', 'woman'].includes(normalized)) {
+    return 'female';
+  }
+
+  if (['xy', 'm', 'male', 'man'].includes(normalized)) {
+    return 'male';
+  }
+
+  return normalized;
+}
+
+const DNA_PROFILE_EVIDENCE = {
+  role: 'hard_filter',
+
+  suspectField:
+    'restrictedProfile.forensicAttributes.biological_sex.value',
+
+  normalizeEvidence: normalizeDnaProfile,
+
+  matches: (suspectValue, evidenceValue) => {
+    const suspectProfile = normalizeDnaProfile(suspectValue);
+    const evidenceProfile = normalizeDnaProfile(evidenceValue);
+
+    const validProfiles = ['female', 'male'];
+
+    return (
+      validProfiles.includes(suspectProfile) &&
+      validProfiles.includes(evidenceProfile) &&
+      suspectProfile === evidenceProfile
+    );
+  },
+
+  clueTemplates: [
+    'The biological trace indicates a {value} DNA profile.',
+    'The lab isolated a {value} biological profile.',
+    'The DNA profile points to a {value} suspect.'
+  ],
+
+  eliminateTemplates: [
+    '{name} does not match the biological profile.',
+    '{name} is excluded by the DNA result.',
+    'The DNA says this is not {name}. DNA is rarely this blunt.'
+  ]
+};
+
 export const DEDUCTION_EVIDENCE_REGISTRY = {
   hair_color: {
     role: 'hard_filter',
@@ -72,30 +120,11 @@ export const DEDUCTION_EVIDENCE_REGISTRY = {
     ]
   },
 
-  biological_sex: {
-    role: 'hard_filter',
+  biological_sex: DNA_PROFILE_EVIDENCE,
 
-    suspectField:
-      'restrictedProfile.forensicAttributes.biological_sex.value',
+  dna_gender: DNA_PROFILE_EVIDENCE,
 
-    normalizeEvidence: normalizeText,
-
-    matches: (suspectValue, evidenceValue) =>
-      normalizeText(suspectValue) ===
-      normalizeText(evidenceValue),
-
-    clueTemplates: [
-      'The biological trace indicates a {value} DNA profile.',
-      'The lab isolated a {value} biological profile.',
-      'The DNA profile points to a {value} suspect.'
-    ],
-
-    eliminateTemplates: [
-      '{name} does not match the biological profile.',
-      '{name} is excluded by the DNA result.',
-      'The DNA says this is not {name}. DNA is rarely this blunt.'
-    ]
-  },
+  dna_profile: DNA_PROFILE_EVIDENCE,
 
   fingerprint_pattern: {
     role: 'hard_filter',

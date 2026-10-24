@@ -1,9 +1,23 @@
 export const FIELD_DEFS = [
-  { id: 'hair_color', aliases: ['hair', 'hairColor'], label: 'HAIR COLOR' },
-  { id: 'blood_type', aliases: ['bloodType'], label: 'BLOOD TYPE' },
+  {
+    id: 'hair_color',
+    aliases: ['hair', 'hairColor'],
+    label: 'HAIR COLOR'
+  },
+  {
+    id: 'blood_type',
+    aliases: ['bloodType'],
+    label: 'BLOOD TYPE'
+  },
   {
     id: 'biological_sex',
-    aliases: ['gender', 'sex', 'biologicalSex'],
+    aliases: [
+      'gender',
+      'sex',
+      'biologicalSex',
+      'dna_gender',
+      'dna_profile'
+    ],
     label: 'DNA PROFILE'
   },
   {
@@ -16,13 +30,41 @@ export const FIELD_DEFS = [
     aliases: ['shoeSizeCategory'],
     label: 'SHOE SIZE'
   },
-  { id: 'handedness', aliases: ['dominantHand'], label: 'DOMINANT HAND' },
-  { id: 'eye_color', aliases: ['eyes', 'eyeColor'], label: 'EYE COLOR' },
-  { id: 'race', aliases: ['ancestry'], label: 'ANCESTRY' },
-  { id: 'skills', aliases: [], label: 'CRIMINAL SKILLS' },
-  { id: 'habitus', aliases: [], label: 'HABITS' },
-  { id: 'alibi', aliases: [], label: 'ALIBI' },
-  { id: 'motive', aliases: [], label: 'MOTIVE' }
+  {
+    id: 'handedness',
+    aliases: ['dominantHand'],
+    label: 'DOMINANT HAND'
+  },
+  {
+    id: 'eye_color',
+    aliases: ['eyes', 'eyeColor'],
+    label: 'EYE COLOR'
+  },
+  {
+    id: 'race',
+    aliases: ['ancestry'],
+    label: 'ANCESTRY'
+  },
+  {
+    id: 'skills',
+    aliases: [],
+    label: 'CRIMINAL SKILLS'
+  },
+  {
+    id: 'habitus',
+    aliases: [],
+    label: 'HABITS'
+  },
+  {
+    id: 'alibi',
+    aliases: [],
+    label: 'ALIBI'
+  },
+  {
+    id: 'motive',
+    aliases: [],
+    label: 'MOTIVE'
+  }
 ];
 
 export const FIELD_BY_ALIAS = new Map();

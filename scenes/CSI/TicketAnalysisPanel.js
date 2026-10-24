@@ -1,4 +1,4 @@
-// Compatibility filename. Evidence handover to the lab assistant.
+// Evidence handover uses the existing Inventory entry in the bottom player menu.
 import { EventBus } from '../../EventBus.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
 import { analyseEscapeEvidence, getTicketAnalysis, getTicketCaseKey } from '../../managers/TicketAnalysisService.js';
@@ -11,10 +11,8 @@ export class TicketAnalysisPanel {
     this.token = {};
     this.caseKey = getTicketCaseKey(scene.gameState);
     this.hud = null;
-    this.inventoryButton = null;
     this.highlight = null;
     this.dropLabel = null;
-    this.openingInventory = false;
     this.handlingDrop = false;
     this.handleInventoryChanged = () => this.refresh();
     this.handleRequest = request => this.requestDragTarget(request);
@@ -48,7 +46,7 @@ export class TicketAnalysisPanel {
   create() {
     if (this.destroyed) return;
     const scene = this.scene;
-    scene.assistantDialog.extension = this;
+    if (scene.assistantDialog) scene.assistantDialog.extension = this;
     EventBus.on('inventoryUpdated', this.handleInventoryChanged, this);
     EventBus.on('inventory:request-drag-target', this.handleRequest, this);
     EventBus.on('inventory:item-dropped', this.handleDrop, this);
@@ -58,7 +56,6 @@ export class TicketAnalysisPanel {
     scene.events.on('pause', this.handleInactive, this);
     scene.events.on('sleep', this.handleInactive, this);
     if (this.isAvailable()) {
-      // Copy the configuration: never mutate the shared onboarding preset.
       scene.labOnboarding = {
         ...scene.labOnboarding, assistantPresent: true,
         backgroundKey: 'crimelab_point_assistant'
@@ -68,13 +65,13 @@ export class TicketAnalysisPanel {
         scene.labView.showView(scene.currentView);
       }
       if (!scene.assistantHotspot) scene.createAssistantHotspot();
-      this.createControls();
+      this.createDropFeedback();
       void this.ensureInventoryHud();
     }
     this.refresh();
   }
 
-  createControls() {
+  createDropFeedback() {
     const scene = this.scene;
     this.highlight = scene.add.rectangle(0, 0, 230, 410, 0x39ff14, 0.10)
       .setOrigin(0).setStrokeStyle(3, 0x39ff14, 0.9)
@@ -83,21 +80,12 @@ export class TicketAnalysisPanel {
       fontFamily: 'SpecialElite', fontSize: '20px', color: '#b9ff8f',
       backgroundColor: '#07111b', padding: { x: 8, y: 5 }
     }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(66).setVisible(false);
-    this.inventoryButton = scene.add.text(0, 0, '[ EVIDENCE / INVENTORY ]', {
-      fontFamily: 'SpecialElite', fontSize: '20px', color: '#fff4c7',
-      backgroundColor: '#102632', padding: { x: 12, y: 9 }
-    }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(225)
-      .setInteractive({ useHandCursor: true });
-    this.inventoryButton.on('pointerdown', () => { void this.openInventory(); });
-    this.inventoryButton.on('pointerover', () => this.inventoryButton?.setColor('#39ff14'));
-    this.inventoryButton.on('pointerout', () => this.inventoryButton?.setColor('#fff4c7'));
     this.layout();
   }
 
   layout() {
     const scene = this.scene;
     if (!scene || this.destroyed) return;
-    this.inventoryButton?.setPosition(scene.scale.width / 2, scene.scale.height - 18);
     const bounds = scene.assistantHotspot?.getBounds();
     if (bounds) {
       this.highlight?.setPosition(bounds.x, bounds.y).setSize(bounds.width, bounds.height);
@@ -119,23 +107,6 @@ export class TicketAnalysisPanel {
     } catch (error) {
       console.error('[TicketAnalysisPanel] Inventory HUD unavailable.', error);
       return null;
-    }
-  }
-
-  async openInventory() {
-    if (!this.canReceive() || this.openingInventory) return;
-    this.openingInventory = true;
-    try {
-      const hud = this.hud || await this.ensureInventoryHud();
-      if (!this.canReceive() || !hud) return;
-      const inventory = await hud.ensurePanel('inventoryUI');
-      if (!this.canReceive() || !inventory) return;
-      hud.setCurrentGameplayScene('CrimeLabScene');
-      hud.closeAllUIPanels();
-      hud.scene.bringToTop();
-      inventory.open();
-    } finally {
-      this.openingInventory = false;
     }
   }
 
@@ -237,7 +208,7 @@ export class TicketAnalysisPanel {
       ? result.assistantText || (result.airportCode
         ? `The destination code is ${result.airportCode}. It is in your notebook.`
         : result.clueText || 'The finding is in your notebook.')
-      : 'Close this conversation, open EVIDENCE / INVENTORY, and drag the object onto me.\n\nOne object at a time. This is a laboratory, not a clearance sale.';
+      : 'Close this conversation, open Inventory from the bottom menu (or press I), and drag the object onto me.\n\nOne object at a time. This is a laboratory, not a clearance sale.';
     dialog.dialogue.nodes.__evidence_help = {
       speaker: 'LAB ASSISTANT', text, choices: [
         { text: 'Back to my questions.', next: previousNode },
@@ -253,9 +224,6 @@ export class TicketAnalysisPanel {
   refresh() {
     if (this.destroyed || !this.scene) return;
     if (this.scene.assistantDialog) this.scene.assistantDialog.extension = this;
-    const visible = this.isAvailable() && this.scene.currentView === 'lab_intro';
-    this.inventoryButton?.setVisible(visible);
-    if (this.inventoryButton?.input) this.inventoryButton.input.enabled = visible && this.canReceive();
     if (!this.canReceive()) this.hideHighlight();
   }
 
@@ -272,7 +240,7 @@ export class TicketAnalysisPanel {
     this.scene?.events.off('pause', this.handleInactive, this);
     this.scene?.events.off('sleep', this.handleInactive, this);
     if (this.scene?.assistantDialog?.extension === this) this.scene.assistantDialog.extension = null;
-    for (const object of [this.inventoryButton, this.highlight, this.dropLabel]) {
+    for (const object of [this.highlight, this.dropLabel]) {
       object?.removeAllListeners?.();
       object?.destroy();
     }

@@ -13,12 +13,16 @@ export class ForensicHelpController {
   constructor(scene) {
     this.scene = scene;
     this.modal = null;
+    this.body = null;
     this.lock = null;
     this.busy = false;
     this.destroyed = false;
+    this.created = false;
     this.marks = [];
     this.markEvent = null;
     this.buttons = [];
+    this.howButton = null;
+    this.hintButton = null;
     this.boundRefresh = () => this.refresh();
     this.boundUpdate = () => this.update();
     this.boundDestroy = () => this.destroy();
@@ -27,6 +31,8 @@ export class ForensicHelpController {
   }
 
   create() {
+    if (this.destroyed || this.created) return;
+    this.created = true;
     const s = this.scene;
     const y = s.scale.height - 36;
     this.howButton = this.makeButton(s.scale.width / 2 - 120, y,
@@ -37,6 +43,7 @@ export class ForensicHelpController {
     EventBus.on('hints:changed', this.boundRefresh);
     s.events.on('update', this.boundUpdate);
     s.events.once('shutdown', this.boundDestroy);
+    s.events.once('destroy', this.boundDestroy);
     this.refresh();
   }
 
@@ -75,15 +82,18 @@ export class ForensicHelpController {
   }
 
   refresh() {
-    if (!this.hintButton?.active || this.destroyed) return;
+    if (this.destroyed || !this.hintButton?.active) return;
     const definition = this.definition();
     this.hintButton.setText(definition && this.receipt(definition)
       ? 'REVIEW HINT' : `HINT (${hintManager.getAvailableCount()})`);
   }
 
   update() {
+    if (this.destroyed) return;
     const available = !this.scene.resolved && !this.scene.finished;
-    for (const button of this.buttons) button.setVisible(available);
+    for (const button of this.buttons) {
+      if (button.active) button.setVisible(available);
+    }
     if (!available) return;
     const definition = this.definition();
     const key = definition ? this.key(definition) : null;
@@ -95,6 +105,7 @@ export class ForensicHelpController {
   }
 
   pause() {
+    if (this.destroyed || this.lock) return;
     const s = this.scene;
     const objects = [];
     const visit = object => {
@@ -117,19 +128,31 @@ export class ForensicHelpController {
     s.input.setTopOnly(true);
   }
 
+  restoreSceneSettings(lock) {
+    if (!lock) return;
+    const s = this.scene;
+    // Restore configuration only; never resume game objects here.
+    if (s.time) s.time.paused = lock.clockPaused;
+    if (s.input) {
+      s.input.setTopOnly(lock.topOnly);
+      if (s.input.keyboard && lock.keyboardEnabled !== undefined) {
+        s.input.keyboard.enabled = lock.keyboardEnabled;
+      }
+    }
+  }
+
   resume() {
+    if (this.destroyed) return;
     const lock = this.lock;
     this.lock = null;
-    if (!lock || this.destroyed) return;
-    const s = this.scene;
-    s.time.paused = lock.clockPaused;
-    s.input.setTopOnly(lock.topOnly);
-    if (s.input.keyboard) s.input.keyboard.enabled = lock.keyboardEnabled;
+    if (!lock) return;
+    this.restoreSceneSettings(lock);
     for (const { object, enabled } of lock.objects) {
       if (object.active && object.input) object.input.enabled = enabled;
     }
+    const activeTweens = new Set(this.scene.tweens.getTweens());
     for (const tween of lock.tweens) {
-      if (s.tweens.getTweens().includes(tween)) tween.resume();
+      if (activeTweens.has(tween)) tween.resume();
     }
   }
 
@@ -214,7 +237,7 @@ export class ForensicHelpController {
     } else {
       if (!cost || !energy.canAfford(cost.energy).ok) {
         this.busy = false;
-        this.body.setText('Not enough energy. Close this window and rest first.');
+        this.body?.setText('Not enough energy. Close this window and rest first.');
         return;
       }
       const payment = energy.consumeCustom(cost.energy, `Lab assistance (${method})`, {
@@ -222,14 +245,14 @@ export class ForensicHelpController {
       });
       if (!payment.success) {
         this.busy = false;
-        this.body.setText(payment.message || 'Unable to pay for assistance.');
+        this.body?.setText(payment.message || 'Unable to pay for assistance.');
         return;
       }
       result = hintManager.recordPaidHint(method, context, { ...cost, cash: 0 });
     }
     if (!result?.success) {
       this.busy = false;
-      this.body.setText('No free hints remain. Choose another option.');
+      this.body?.setText('No free hints remain. Choose another option.');
       return;
     }
     const receipt = {
@@ -251,8 +274,7 @@ export class ForensicHelpController {
     if (this.destroyed || !s.sys.isActive()) return;
     const display = () => {
       if (this.destroyed || !s.sys.isActive()) return;
-      this.modal?.destroy();
-      this.modal = null;
+      this.disposeModal();
       this.busy = false;
       this.panel('LAB HINT', receipt.text + (saved ? '' :
         '\n\nAutosave failed. Reloading may lose this purchase.'));
@@ -263,19 +285,21 @@ export class ForensicHelpController {
       this.refresh();
     };
     if (energy.isForcedSleepActive()) {
-      this.body.setText('You fell asleep.\nAssistance will be ready when you wake up.');
+      this.body?.setText('You fell asleep.\nAssistance will be ready when you wake up.');
+      this.cancelRecovery();
       this.boundRecovery = () => {
-        EventBus.off('energyRecovered', this.boundRecovery);
-        this.boundRecovery = null;
-        display();
+        this.cancelRecovery();
+        if (!this.destroyed) display();
       };
       EventBus.on('energyRecovered', this.boundRecovery);
     } else display();
   }
 
   showEffect(definition, receipt) {
+    if (this.destroyed) return;
     this.scene.setDialogue(receipt.text);
     this.scene.applyForensicHint?.(receipt);
+    if (this.destroyed) return;
     this.clearMarks();
     for (const target of definition.targets || []) {
       if (!target?.active || !target.visible) continue;
@@ -290,9 +314,23 @@ export class ForensicHelpController {
     this.markEvent = this.scene.time.delayedCall(4500, () => this.clearMarks());
   }
 
-  close() {
-    this.modal?.destroy();
+  cancelRecovery() {
+    if (!this.boundRecovery) return;
+    EventBus.off('energyRecovered', this.boundRecovery);
+    this.boundRecovery = null;
+  }
+
+  disposeModal() {
+    const modal = this.modal;
     this.modal = null;
+    this.body = null;
+    modal?.destroy();
+  }
+
+  close() {
+    if (this.destroyed) return;
+    this.cancelRecovery();
+    this.disposeModal();
     this.busy = false;
     this.resume();
     this.refresh();
@@ -301,11 +339,12 @@ export class ForensicHelpController {
   clearMarks() {
     this.markEvent?.remove(false);
     this.markEvent = null;
-    for (const mark of this.marks) {
+    const marks = this.marks;
+    this.marks = [];
+    for (const mark of marks) {
       this.scene.tweens.killTweensOf(mark);
       mark.destroy();
     }
-    this.marks = [];
   }
 
   getReceipts() {
@@ -318,14 +357,27 @@ export class ForensicHelpController {
 
   destroy() {
     if (this.destroyed) return;
-    this.close();
-    this.clearMarks();
     this.destroyed = true;
+
     EventBus.off('hints:changed', this.boundRefresh);
-    if (this.boundRecovery) EventBus.off('energyRecovered', this.boundRecovery);
+    this.cancelRecovery();
     this.scene.events.off('update', this.boundUpdate);
     this.scene.events.off('shutdown', this.boundDestroy);
-    this.buttons.forEach(button => button.destroy());
+    this.scene.events.off('destroy', this.boundDestroy);
+
+    // Do not call close(): teardown must not resume tweens or object input.
+    const lock = this.lock;
+    this.lock = null;
+    this.restoreSceneSettings(lock);
+    this.disposeModal();
+    this.clearMarks();
+
+    for (const button of this.buttons) button.destroy();
     this.buttons = [];
+    this.howButton = null;
+    this.hintButton = null;
+    this.busy = false;
+    this.created = false;
+    this.lastKey = null;
   }
 }

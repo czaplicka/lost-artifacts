@@ -4,6 +4,7 @@ import { EventBus } from '../EventBus.js';
 import { generateCaseCityState } from '../city-encounter-generator.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
+import { getGameTimeManager } from '../managers/GameTimeManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import {
   resolveCityNpcTheme,
@@ -46,6 +47,7 @@ const NPC_QUESTION_PENALTY = 10;
 const SHOP_TAXI_ENERGY = 3;
 const SHOP_ICON_SIZE = 132;
 const SHOP_LABEL_OFFSET = 82;
+const MINUTES_PER_DAY = 1440;
 
 export class CityScene extends BaseScene {
   constructor() {
@@ -231,14 +233,17 @@ export class CityScene extends BaseScene {
       Phaser.Scenes.Events.SHUTDOWN,
       this.boundCleanupScene
     );
+
     this.events.on(
       Phaser.Scenes.Events.WAKE,
       this.boundWakeOrResume
     );
+
     this.events.on(
       Phaser.Scenes.Events.RESUME,
       this.boundWakeOrResume
     );
+
     this.events.on(
       Phaser.Scenes.Events.SLEEP,
       this.boundSleep
@@ -250,14 +255,17 @@ export class CityScene extends BaseScene {
       Phaser.Scenes.Events.SHUTDOWN,
       this.boundCleanupScene
     );
+
     this.events.off(
       Phaser.Scenes.Events.WAKE,
       this.boundWakeOrResume
     );
+
     this.events.off(
       Phaser.Scenes.Events.RESUME,
       this.boundWakeOrResume
     );
+
     this.events.off(
       Phaser.Scenes.Events.SLEEP,
       this.boundSleep
@@ -269,7 +277,11 @@ export class CityScene extends BaseScene {
   }
 
   canStartInteraction() {
-    return this.canUseCity() && !this.isTransitioning && !this.activePopup;
+    return (
+      this.canUseCity() &&
+      !this.isTransitioning &&
+      !this.activePopup
+    );
   }
 
   async setupCityUi() {
@@ -626,6 +638,90 @@ export class CityScene extends BaseScene {
     });
   }
 
+  getCityClock() {
+    const rawHour = Number(
+      gameState.currentHour ?? gameState.hour ?? 8
+    );
+
+    const rawMinute = Number(
+      gameState.currentMinute ?? gameState.minute ?? 0
+    );
+
+    const hour = Number.isFinite(rawHour)
+      ? Math.max(0, Math.floor(rawHour))
+      : 8;
+
+    const minute = Number.isFinite(rawMinute)
+      ? Math.max(0, Math.floor(rawMinute))
+      : 0;
+
+    const total = (hour * 60 + minute) % MINUTES_PER_DAY;
+
+    return {
+      hour: Math.floor(total / 60),
+      minute: total % 60,
+      totalMinutes: total
+    };
+  }
+
+  getPartOfDayForHour(hour) {
+    if (hour >= 6 && hour < 12) return 'Morning';
+    if (hour >= 12 && hour < 18) return 'Afternoon';
+    if (hour >= 18 && hour < 22) return 'Evening';
+    return 'Night';
+  }
+
+  isLocationOpen(locationId, clock = this.getCityClock()) {
+    const allowed = LOCATION_HOURS[locationId];
+
+    if (!allowed) return true;
+
+    return allowed.includes(
+      this.getPartOfDayForHour(clock.hour)
+    );
+  }
+
+  getMinutesUntilOpening(locationId) {
+    const clock = this.getCityClock();
+
+    if (this.isLocationOpen(locationId, clock)) return 0;
+
+    for (let minutes = 1; minutes <= MINUTES_PER_DAY; minutes += 1) {
+      const total =
+        (clock.totalMinutes + minutes) % MINUTES_PER_DAY;
+
+      const futureClock = {
+        hour: Math.floor(total / 60),
+        minute: total % 60
+      };
+
+      if (this.isLocationOpen(locationId, futureClock)) {
+        return minutes;
+      }
+    }
+
+    return null;
+  }
+
+  formatCityClock(clock) {
+    return (
+      `${String(clock.hour).padStart(2, '0')}:` +
+      `${String(clock.minute).padStart(2, '0')}`
+    );
+  }
+
+  formatWaitDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (hours && remainingMinutes) {
+      return `${hours}h ${remainingMinutes}m`;
+    }
+
+    if (hours) return `${hours}h`;
+    return `${remainingMinutes}m`;
+  }
+
   visitEncounter(encounter) {
     if (!this.canStartInteraction()) return false;
 
@@ -633,10 +729,8 @@ export class CityScene extends BaseScene {
 
     const flags = this.getCityProgressFlags();
     const dialogueTargetCityId = this.getDialogueTargetCityId(flags);
-    const allowedHours = LOCATION_HOURS[encounter.locationId];
-    const currentPartOfDay = gameState.currentPartOfDay || 'Morning';
 
-    if (allowedHours && !allowedHours.includes(currentPartOfDay)) {
+    if (!this.isLocationOpen(encounter.locationId)) {
       this.showLocationClosedPopup(
         encounter.locationId,
         encounter,
@@ -651,6 +745,16 @@ export class CityScene extends BaseScene {
 
   openEncounter(encounter, dialogueTargetCityId) {
     if (!this.canStartInteraction()) return false;
+
+    if (!this.isLocationOpen(encounter.locationId)) {
+      this.showLocationClosedPopup(
+        encounter.locationId,
+        encounter,
+        dialogueTargetCityId
+      );
+
+      return false;
+    }
 
     const status = this.getEncounterStatus(encounter);
     const flags = this.getCityProgressFlags();
@@ -1089,6 +1193,19 @@ export class CityScene extends BaseScene {
     const height = this.scale.height;
     const popupObjects = [];
 
+    const clock = this.getCityClock();
+    const waitMinutes = this.getMinutesUntilOpening(locationId);
+    const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
+
+    const currentPartOfDay =
+      this.getPartOfDayForHour(clock.hour);
+
+    const waitLabel = waitMinutes === null
+      ? 'Opening unavailable'
+      : waitMinutes === 0
+        ? 'Enter now'
+        : `Wait ${this.formatWaitDuration(waitMinutes)}`;
+
     const overlay = this.add
       .rectangle(0, 0, width, height, 0x000000, 0.7)
       .setOrigin(0, 0)
@@ -1098,35 +1215,41 @@ export class CityScene extends BaseScene {
     const popupBg = this.add
       .rectangle(width / 2, height / 2, 500, 300, 0x111111, 0.95)
       .setStrokeStyle(4, 0xff0000)
-      .setDepth(100);
-
-    const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
-    const current = gameState.currentPartOfDay || 'Morning';
+      .setDepth(100)
+      .setInteractive();
 
     const warningText = this.add
       .text(
         width / 2,
         height / 2 - 50,
-        `Location is currently closed.\nOpen: ${allowed}\nCurrent: ${current}`,
+        [
+          'Location is currently closed.',
+          `Open: ${allowed}`,
+          `Current: ${this.formatCityClock(clock)} (${currentPartOfDay})`
+        ].join('\n'),
         {
           fontFamily: 'SpecialElite',
           fontSize: '20px',
           color: '#ffffff',
-          align: 'center'
+          align: 'center',
+          wordWrap: { width: 460 }
         }
       )
       .setOrigin(0.5)
       .setDepth(101);
 
     const waitBtn = this.add
-      .text(width / 2, height / 2 + 30, 'Wait until opening', {
+      .text(width / 2, height / 2 + 30, waitLabel, {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
-        color: '#ffcc00'
+        color: waitMinutes === null ? '#777777' : '#ffcc00'
       })
       .setOrigin(0.5)
-      .setDepth(101)
-      .setInteractive({ useHandCursor: true });
+      .setDepth(101);
+
+    if (waitMinutes !== null) {
+      waitBtn.setInteractive({ useHandCursor: true });
+    }
 
     const cancelBtn = this.add
       .text(width / 2, height / 2 + 80, 'Return', {
@@ -1148,7 +1271,8 @@ export class CityScene extends BaseScene {
 
     const popupState = {
       cleanup: null,
-      objects: popupObjects
+      objects: popupObjects,
+      busy: false
     };
 
     const cleanupPopup = () => {
@@ -1164,35 +1288,87 @@ export class CityScene extends BaseScene {
       }
     };
 
+    const cancelPopup = () => {
+      if (!popupState.busy) cleanupPopup();
+    };
+
     popupState.cleanup = cleanupPopup;
     this.activePopup = popupState;
 
-    overlay.on('pointerdown', cleanupPopup);
-    cancelBtn.on('pointerdown', cleanupPopup);
+    overlay.on('pointerdown', cancelPopup);
+    cancelBtn.on('pointerdown', cancelPopup);
 
-    waitBtn.on('pointerdown', () => {
-      if (this.isTransitioning || !this.canUseCity()) return;
-
-      const currentHour = gameState.currentHour || 0;
-
-      let hoursToWait;
-
-      if (currentHour >= 22) {
-        hoursToWait = 32 - currentHour;
-      } else if (currentHour < 6) {
-        hoursToWait = 8 - currentHour;
-      } else {
-        hoursToWait = 8;
+    waitBtn.on('pointerdown', (pointer) => {
+      if (
+        pointer?.event?.button !== undefined &&
+        pointer.event.button !== 0
+      ) {
+        return;
       }
 
-      EventBus.emit('advanceTime', hoursToWait, 0);
+      if (
+        popupState.busy ||
+        this.activePopup !== popupState ||
+        this.isTransitioning ||
+        !this.canUseCity()
+      ) {
+        return;
+      }
 
-      gameState.currentHour = (currentHour + hoursToWait) % 24;
-      gameState.currentPartOfDay = 'Morning';
+      const minutesToWait = this.getMinutesUntilOpening(locationId);
 
-      cleanupPopup();
+      if (minutesToWait === null) {
+        warningText.setText(
+          'No opening time is available for this location.'
+        );
+        return;
+      }
 
-      this.openEncounter(encounterData, dialogueTargetCityId);
+      popupState.busy = true;
+      waitBtn.disableInteractive();
+      cancelBtn.disableInteractive();
+
+      const wasGameActive = gameState.isGameActive === true;
+
+      try {
+        if (minutesToWait > 0) {
+          getGameTimeManager().handleAdvanceTime(0, minutesToWait);
+        }
+
+        // Zmiana czasu może uruchomić koniec sprawy lub zmianę sceny.
+        if (
+          !this.canUseCity() ||
+          this.activePopup !== popupState
+        ) {
+          return;
+        }
+
+        if (wasGameActive && gameState.isGameActive === false) {
+          cleanupPopup();
+          return;
+        }
+
+        cleanupPopup();
+
+        this.openEncounter(encounterData, dialogueTargetCityId);
+      } catch (error) {
+        console.error('[CityScene] Waiting until opening failed:', error);
+
+        if (
+          this.canUseCity() &&
+          this.activePopup === popupState
+        ) {
+          // Nie ponawiamy automatycznie przesunięcia czasu:
+          // zegar mógł już zostać zmieniony przed wystąpieniem błędu.
+          cleanupPopup();
+
+          this.showMessage(
+            'Waiting could not be completed.\nCheck the clock before trying again.',
+            4000,
+            '#8b0000'
+          );
+        }
+      }
     });
   }
 
