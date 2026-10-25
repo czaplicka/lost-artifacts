@@ -4,42 +4,25 @@ import { ComputerMonitor } from './pi-computer/ComputerMonitor.js';
 import { ComputerDesktop } from './pi-computer/ComputerDesktop.js';
 import { ComputerDocuments } from './pi-computer/ComputerDocuments.js';
 import { ComputerLedger } from './pi-computer/ComputerLedger.js';
+import { ComputerSearch } from './pi-computer/ComputerSearch.js';
 
 export class PIOfficeComputerUI {
   constructor(scene, options = {}) {
-    this.scene = scene;
-    this.options = options;
-    this.isOpen = false;
-    this.suspended = false;
-    this.destroyed = false;
-    this.app = 'desktop';
-    this.selectedId = null;
-    this.listPage = 0;
-    this.bodyPage = 0;
-    this.notice = '';
-    this.accepting = false;
-    this.layout = null;
-    this.window = null;
-    this.content = null;
-    this.viewToken = 0;
-
-    // Presentation state
-    this.menuOpen = false;
-    this.booting = false;
-    this.bootStep = 0;
-    this.bootLines = null;
-    this.hasBooted = false;
-    this.powerOn = false;
-    this.jokeIndex = 0;
-    this.fontsChecked = false;
-
+    Object.assign(this, {
+      scene, options, isOpen: false, suspended: false, destroyed: false,
+      app: 'desktop', selectedId: null, listPage: 0, bodyPage: 0,
+      notice: '', accepting: false, layout: null, window: null,
+      content: null, viewToken: 0, menuOpen: false, booting: false,
+      bootStep: 0, bootLines: null, hasBooted: false, powerOn: false,
+      jokeIndex: 0, fontsChecked: false
+    });
     this.root = scene.add.container(0, 0).setDepth(1500).setVisible(false);
-
     this.drawing = new ComputerDrawing(this);
     this.monitor = new ComputerMonitor(this);
     this.desktop = new ComputerDesktop(this);
     this.documents = new ComputerDocuments(this);
     this.ledger = new ComputerLedger(this);
+    this.search = new ComputerSearch(this);
 
     this.onKey = event => {
       if (this.destroyed || !this.isOpen || this.suspended) return;
@@ -63,16 +46,9 @@ export class PIOfficeComputerUI {
 
   open() {
     if (this.destroyed || this.isOpen) return;
-    this.isOpen = true;
-    this.suspended = false;
-    this.app = 'desktop';
-    this.selectedId = null;
-    this.listPage = 0;
-    this.bodyPage = 0;
-    this.notice = '';
-    this.menuOpen = false;
-    this.booting = false;
-    this.powerOn = true;
+    Object.assign(this, { isOpen: true, suspended: false, app: 'desktop',
+      selectedId: null, listPage: 0, bodyPage: 0, notice: '', menuOpen: false,
+      booting: false, powerOn: true });
     this.viewToken += 1;
     this.root.setVisible(true);
     this.options.onOpen?.();
@@ -80,44 +56,29 @@ export class PIOfficeComputerUI {
     if (!this.options.skipBoot) this.monitor.startBoot();
     this.render();
   }
-
   close() {
     if (this.destroyed || !this.isOpen || this.suspended) return;
-    this.isOpen = false;
-    this.suspended = false;
-    this.menuOpen = false;
-    this.booting = false;
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
+    Object.assign(this, { isOpen: false, suspended: false, menuOpen: false, booting: false });
+    this.monitor.stopBoot(); this.monitor.clearFx();
     this.viewToken += 1;
     this.root.setVisible(false);
     this.options.onClose?.();
   }
-
   suspend() {
     if (this.destroyed || !this.isOpen) return;
-    this.suspended = true;
-    this.menuOpen = false;
-    this.booting = false;
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
+    Object.assign(this, { suspended: true, menuOpen: false, booting: false });
+    this.monitor.stopBoot(); this.monitor.clearFx();
     this.viewToken += 1;
     this.root.setVisible(false);
   }
-
   resume() {
     if (this.destroyed || !this.isOpen) return;
-    this.suspended = false;
-    this.app = 'desktop';
-    this.notice = '';
-    this.menuOpen = false;
-    this.booting = false;
-    this.powerOn = false;
+    Object.assign(this, { suspended: false, app: 'desktop', notice: '', menuOpen: false,
+      booting: false, powerOn: false });
     this.viewToken += 1;
     this.root.setVisible(true);
     this.render();
   }
-
   openApp(app) {
     if (this.destroyed || !this.isOpen || this.suspended) return;
     this.menuOpen = false;
@@ -129,62 +90,42 @@ export class PIOfficeComputerUI {
       this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.');
       return;
     }
-    if (!['desktop', 'mail', 'ledger', 'classifieds'].includes(app)) return;
-    this.app = app;
-    this.selectedId = null;
-    this.listPage = 0;
-    this.bodyPage = 0;
-    this.notice = '';
+    if (!['desktop', 'mail', 'ledger', 'classifieds', 'search'].includes(app)) return;
+    Object.assign(this, { app, selectedId: null, listPage: 0, bodyPage: 0, notice: '' });
     this.viewToken += 1;
     this.render();
+    if (app === 'search') void this.search.load();
   }
-
   launchExternal(callback, unavailableMessage) {
     if (typeof callback !== 'function') {
-      this.notice = unavailableMessage;
-      this.render();
-      return;
+      this.notice = unavailableMessage; this.render(); return;
     }
     try {
       const result = callback();
       if (result?.catch) result.catch(error => this.handleExternalError(error, unavailableMessage));
-    } catch (error) {
-      this.handleExternalError(error, unavailableMessage);
-    }
+    } catch (error) { this.handleExternalError(error, unavailableMessage); }
   }
-
   handleExternalError(error, message) {
     console.error('[PIOfficeComputerUI] Application failed:', error);
     if (this.destroyed || !this.isOpen) return;
     if (this.suspended) this.resume();
-    this.notice = message;
-    this.render();
+    this.notice = message; this.render();
   }
-
-  // Webfonts that are declared but not yet loaded would render with the fallback
-  // font on the first frame. Re-render once when they arrive.
   ensureFonts() {
     if (this.fontsChecked || typeof document === 'undefined' || !document.fonts) return;
     this.fontsChecked = true;
     const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
-    try {
-      if (specs.every(spec => document.fonts.check(spec))) return;
-    } catch (error) {
-      return;
-    }
+    try { if (specs.every(spec => document.fonts.check(spec))) return; }
+    catch (_) { return; }
     Promise.all(specs.map(spec => document.fonts.load(spec))).then(() => {
       if (!this.destroyed && this.isOpen && !this.suspended) this.render();
     }).catch(() => {});
   }
-
   money(value) {
     if (!Number.isFinite(value)) return 'Unknown';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
   }
-
   render() { this.monitor.render(); }
-
-  // Compatibility with the previous public methods.
   getMail() { return this.documents.getMail(); }
   getClassifieds() { return this.documents.getClassifieds(); }
   getLedger() { return this.ledger.getData(); }
@@ -205,20 +146,16 @@ export class PIOfficeComputerUI {
   changeListPage(...args) { return this.documents.changeListPage(...args); }
   renderPagedText(...args) { return this.documents.renderPagedText(...args); }
   renderLedger() { return this.ledger.render(); }
-
   async acceptMission(advert) {
     if (this.accepting || this.destroyed || !this.isOpen || this.suspended ||
         this.app !== 'classifieds' || typeof this.options.onAcceptMission !== 'function' || !advert?.missionId) return;
     const token = this.viewToken;
     const advertId = advert.id;
-    this.accepting = true;
-    this.notice = '';
-    this.render();
+    this.accepting = true; this.notice = ''; this.render();
     let message = '';
     try {
       const result = await this.options.onAcceptMission(advert);
-      message = result?.ok ? result.message || 'Job accepted.'
-        : result?.message || 'This job could not be accepted.';
+      message = result?.ok ? result.message || 'Job accepted.' : result?.message || 'This job could not be accepted.';
     } catch (error) {
       console.error('[PIOfficeComputerUI] Accept job failed:', error);
       message = 'Could not accept this job. Please try again.';
@@ -230,22 +167,16 @@ export class PIOfficeComputerUI {
       }
     }
   }
-
   destroy() {
     if (this.destroyed) return;
-    this.suspended = false;
-    this.close();
-    this.destroyed = true;
+    this.suspended = false; this.close(); this.destroyed = true;
+    this.search.destroy();
     this.viewToken += 1;
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
+    this.monitor.stopBoot(); this.monitor.clearFx();
     this.scene.input.keyboard?.off('keydown', this.onKey);
     this.scene.scale.off('resize', this.onResize);
     this.scene.events.off('shutdown', this.destroy, this);
     this.root?.destroy(true);
-    this.root = null;
-    this.content = null;
-    this.layout = null;
-    this.window = null;
+    this.root = null; this.content = null; this.layout = null; this.window = null;
   }
 }

@@ -1,7 +1,6 @@
 {
   "title": "The Daily Perfectly Reasonable",
   "subtitle": "New Delhi Edition",
-
   "missionLead": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,10 +59,10 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_heist_photo.webp"
     }
   ],
-
   "articles": [
     {
       "slotId": "lead",
@@ -74,7 +76,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_tea_photo.webp"
     },
     {
       "slotId": "lead",
@@ -88,7 +91,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_monkey_photo.webp"
     },
     {
       "slotId": "lead",
@@ -102,7 +106,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_market_photo.webp"
     },
     {
       "slotId": "lead",
@@ -116,7 +121,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_traffic_photo.webp"
     },
     {
       "slotId": "lead",
@@ -130,9 +136,9 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_delhi_food_stall_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Local Dog Waits Outside Bakery With Better Discipline Than Entire Office",
@@ -163,7 +169,6 @@
       "headline": "Office Printer Works for Six Hours, Staff Avoid Mentioning It",
       "body": "Employees at a local office report that their printer completed every requested task without jamming, restarting or displaying an error message. Staff have avoided celebration, concerned that the machine may notice and change its mind."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Hotel Receptionist Remembers Guest Who Requested No Breakfast and No Questions",

@@ -1,7 +1,6 @@
 {
   "title": "The Daily Totally Normal",
   "subtitle": "New York City Edition",
-
   "missionLead": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,10 +59,10 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_heist_photo.webp"
     }
   ],
-
   "articles": [
     {
       "slotId": "lead",
@@ -74,7 +76,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_subway_photo.webp"
     },
     {
       "slotId": "lead",
@@ -88,7 +91,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_deli_photo.webp"
     },
     {
       "slotId": "lead",
@@ -102,7 +106,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_street_photo.webp"
     },
     {
       "slotId": "lead",
@@ -116,7 +121,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_dog_park_photo.webp"
     },
     {
       "slotId": "lead",
@@ -130,9 +136,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_new_york_taxi_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Pigeon Boards Bus, Rides Four Stops, Exits Without Paying Fare",
@@ -163,7 +169,6 @@
       "headline": "Insurance Adjuster Asks for Quiet Room, Coffee and Clarification on {artifact}",
       "body": "An insurance representative reviewing the disappearance of the {artifact} has requested a quiet place to work, a large coffee and someone else to read the paperwork first. Staff at {location} say the request is entirely reasonable."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Hotel Guest Leaves Before Sunrise, Declines Breakfast and All Conversation",

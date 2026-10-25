@@ -7,6 +7,10 @@ export class HiddenObjectsDataLoader {
 
   preloadAssets() {
     const scene = this.scene;
+    if (!scene.objectsDataPath || scene.objectsDataPath === 'assets/data/objects.json') {
+      scene.objectsDataKey = 'objects-data:' + scene.sceneId;
+      scene.objectsDataPath = 'assets/data/objects/' + scene.sceneId + '.json';
+    }
     if (scene.backgroundPath && !scene.textures.exists(scene.backgroundKey)) {
       scene.load.image(scene.backgroundKey, scene.backgroundPath);
     }

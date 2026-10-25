@@ -1,7 +1,6 @@
 {
   "title": "The Islamabad Perfectly Sensible Gazette",
   "subtitle": "Islamabad Edition",
-
   "articles": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_islamabad_hills_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_islamabad_chai_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_islamabad_sunset_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,7 +59,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_islamabad_peacock_photo.webp"
     },
     {
       "slotId": "lead",
@@ -71,9 +74,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_islamabad_traffic_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Local Cat Occupies Best Seat at Café, Refuses to Discuss Reservation Policy",
@@ -104,7 +107,6 @@
       "headline": "Office Printer Works Perfectly for One Day, Staff Hold Small Ceremony",
       "body": "Employees at a local office celebrated after their printer completed an entire afternoon without jamming, flashing an error code or demanding a spiritual sacrifice. Management has called the event 'encouraging but not statistically meaningful.'"
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Family Debate Over Dinner Route Lasts Longer Than Journey Itself",

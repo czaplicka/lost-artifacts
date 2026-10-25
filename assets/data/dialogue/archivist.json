@@ -1,12 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
   "npcId": "archivist_drebin",
   "speaker": "Lieutenant Frank Drebin",
   "portraitKey": "portrait_fallback",
   "clickReplies": [
+    "Report first. Conversation second. It's the only queue in this building that works.",
     "Unless you're delivering a report, you're just obstructing a filing cabinet.",
-    "I archive reports. Unscheduled conversation goes straight into the shredder.",
-    "Less hovering. More paperwork."
+    "I can see the questions forming. Please attach them to a report."
   ],
   "wrongItemReplies": [
     "That is not a report. I admire your confidence, not your filing skills.",
@@ -19,8 +19,19 @@
     "lines": [
       "A mission report. Finally, a visitor with supporting documentation.",
       "You included the attachments. All of them. That is either competence or a cry for help.",
-      "I will file this. Try not to generate another international incident before the ink dries."
+      "Filed. You may now ask questions. Brief ones. The cabinets are listening."
     ]
   },
-  "submittedMessage": "Mission report submitted to Frank Drebin."
+  "afterReportConversation": {
+    "lines": [
+      "Now that the report is filed, I can officially acknowledge your existence.",
+      "People think an archive is where information goes to die. Nonsense. It comes here to be mislabelled.",
+      "Looking for an old file? Bring me a name, a date, or a scandal. Ideally all three.",
+      "When you're ready for more fieldwork, use NEXT MISSION. Until then, try not to alphabetise anything. I have a system."
+    ]
+  },
+  "submittedMessage": "Mission report filed. You can now talk to Frank or select NEXT MISSION.",
+  "inventoryFullMessage": "Your report is waiting. Free one inventory slot, then click Frank to collect it.",
+  "wrongReportMessage": "This report belongs to a different case. Nothing has been filed.",
+  "absentMessage": "The archivist is out. Apparently paperwork also has field assignments."
 }

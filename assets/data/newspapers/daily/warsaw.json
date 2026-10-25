@@ -14,9 +14,10 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_heist_photo.webp"
     },
-{
+    {
       "slotId": "lead",
       "headline": "Heist in {city}: {artifact} Gone",
       "lead": "Daring. Audacious. Really quite rude.",
@@ -28,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -42,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -56,7 +59,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_heist_photo.webp"
     }
   ],
   "articles": [
@@ -72,7 +76,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_vending_photo.webp"
     },
     {
       "slotId": "lead",
@@ -86,7 +91,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_river_photo.webp"
     },
     {
       "slotId": "lead",
@@ -100,7 +106,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_mermaid_photo.webp"
     },
     {
       "slotId": "lead",
@@ -114,7 +121,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_warsaw_palace_photo.webp"
     },
     {
       "slotId": "secondary_1",

@@ -905,7 +905,11 @@ export class EnterScene extends BaseScene {
         saveSlotKey: slotKey
       };
 
-      const opened = locationType === 'hotel'
+      const releaseSavedCity = await this.game.assets.prepareSavedCity(cityId);
+      if (!this.isCurrentRun(runId)) { releaseSavedCity(); return; }
+      let opened;
+      try {
+      opened = locationType === 'hotel'
         ? await this.goto('HotelScene', {
             ...identity,
             cityId,
@@ -913,6 +917,7 @@ export class EnterScene extends BaseScene {
             returnData: { cityId }
           })
         : await this.goto('OfficeScene', identity);
+      } finally { releaseSavedCity(); }
 
       if (!this.isCurrentRun(runId)) return;
 

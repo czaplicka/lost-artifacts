@@ -1,7 +1,6 @@
 {
   "title": "The Toronto Entirely Normal Post",
   "subtitle": "Toronto Edition",
-
   "articles": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_toronto_raccoon_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_toronto_streetcar_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_toronto_path_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,7 +59,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_toronto_dog_park_photo.webp"
     },
     {
       "slotId": "lead",
@@ -71,9 +74,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_toronto_tower_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Coffee Shop Barista Remembers Customer's Order, Customer Feels Seen for First Time in Years",
@@ -104,7 +107,6 @@
       "headline": "Neighborhood Squirrel Steals Granola Bar, Immediately Begins Acting Like Landlord",
       "body": "A squirrel in a downtown park has been observed sitting on a bench with a stolen granola bar and staring at passers-by as if they are behind on rent. Nobody has challenged the claim."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Condo Elevator Stops on Every Floor, Residents Briefly Form Community",

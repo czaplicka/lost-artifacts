@@ -1,7 +1,6 @@
 {
   "title": "Der Tägliche Ganz Normale Kurier",
   "subtitle": "Berlin Edition",
-
   "missionLead": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,10 +59,10 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_heist_photo.webp"
     }
   ],
-
   "articles": [
     {
       "slotId": "lead",
@@ -74,7 +76,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_statue_photo.webp"
     },
     {
       "slotId": "lead",
@@ -88,7 +91,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_dj_photo.webp"
     },
     {
       "slotId": "lead",
@@ -102,7 +106,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_transit_photo.webp"
     },
     {
       "slotId": "lead",
@@ -116,7 +121,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_spaeti_photo.webp"
     },
     {
       "slotId": "lead",
@@ -130,9 +136,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_berlin_dog_raincoat_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Neighborhood Cat Achieves Minor Celebrity Status After Napping in Bakery Window",
@@ -163,7 +169,6 @@
       "headline": "Kebab Shop Introduces Loyalty Card, Customers Pretend It Is Not the Best Day of Their Lives",
       "body": "A local late-night kebab shop has introduced a stamp card offering one free döner after ten visits. Regulars describe the scheme as 'dangerously motivating' and have begun comparing progress with the seriousness usually reserved for marathon training."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Local Man Insists His Umbrella Is Cursed, Refuses Further Comment",

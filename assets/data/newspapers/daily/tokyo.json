@@ -1,7 +1,6 @@
 {
   "title": "The Tokyo Perfectly Ordinary Dispatch",
   "subtitle": "Tokyo Edition",
-
   "articles": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_train_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_vending_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_station_cat_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,7 +59,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_convenience_photo.webp"
     },
     {
       "slotId": "lead",
@@ -71,9 +74,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_fuji_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Local Dog Waits Outside Bakery With Better Time Management Than Most Adults",
@@ -104,7 +107,6 @@
       "headline": "Office Printer Works for Entire Morning, Staff Decline to Mention It Out Loud",
       "body": "Employees at a small office report that their printer completed every request without jamming, flashing errors or demanding a restart. Staff have avoided celebrating, fearing the machine may notice and reconsider."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Tourist Attempts to Photograph Every Neon Sign, Phone Requests Immediate Retirement",

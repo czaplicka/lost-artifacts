@@ -1,7 +1,6 @@
 {
   "title": "The Daily Quite Ordinary",
   "subtitle": "London Edition",
-
   "missionLead": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,10 +59,10 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_heist_photo.webp"
     }
   ],
-
   "articles": [
     {
       "slotId": "lead",
@@ -74,7 +76,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_queue_photo.webp"
     },
     {
       "slotId": "lead",
@@ -88,7 +91,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_weather_photo.webp"
     },
     {
       "slotId": "lead",
@@ -102,7 +106,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_tube_photo.webp"
     },
     {
       "slotId": "lead",
@@ -116,7 +121,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_pigeon_bus_photo.webp"
     },
     {
       "slotId": "lead",
@@ -130,9 +136,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_london_tourist_map_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Local Pub Debates Whether a Dog Should Be Allowed to Vote on Trivia Night",
@@ -163,7 +169,6 @@
       "headline": "Insurance Adjuster Requests Tea, Biscuit and Second Opinion on {artifact} Claim",
       "body": "An insurance representative reviewing the disappearance of the {artifact} has requested a quiet room, tea without judgement and someone else to look at the paperwork first. Staff at {location} say this is entirely understandable."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Local Man Insists Umbrella Is Cursed, Refuses Further Comment",

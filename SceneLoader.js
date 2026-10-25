@@ -278,7 +278,9 @@ export class SceneLoader {
       const loading = this.ensure(key);
       this._notifyPlayerEntry(fromScene, key);
       await loading;
+      await this.game.assets.prepareScene(key, data);
     } catch (error) {
+      this.game.assets.cancelPrepared(key);
       console.error(`[SceneLoader] Failed to load "${key}".`, error);
       throw error;
     } finally {
@@ -286,6 +288,7 @@ export class SceneLoader {
     }
     if (this._destroyed) return false;
     if (stopFrom && !fromScene?.sys?.isActive?.()) {
+      this.game.assets.cancelPrepared(key);
       console.warn('[SceneLoader] Navigation cancelled: source scene is inactive.');
       return false;
     }
@@ -297,14 +300,23 @@ export class SceneLoader {
 
   async launch(fromScene, key, data = {}) {
     if (this._destroyed) return false;
-    await this.ensure(key);
-    if (this._destroyed || !fromScene?.sys?.isActive?.()) {
-      console.warn('[SceneLoader] Overlay launch cancelled: source scene is inactive.');
-      return false;
+    const stopSpinner = this._beginSpinner();
+    try {
+      await this.ensure(key);
+      await this.game.assets.prepareScene(key, data);
+      if (this._destroyed || !fromScene?.sys?.isActive?.()) {
+        this.game.assets.cancelPrepared(key);
+        return false;
+      }
+      fromScene.scene.launch(key, data);
+      this._prefetchForDestination(key);
+      return true;
+    } catch (error) {
+      this.game.assets.cancelPrepared(key);
+      throw error;
+    } finally {
+      stopSpinner();
     }
-    fromScene.scene.launch(key, data);
-    this._prefetchForDestination(key);
-    return true;
   }
 
   debugStatus() {

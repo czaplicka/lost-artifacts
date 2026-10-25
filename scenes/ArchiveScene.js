@@ -3,22 +3,16 @@ import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
-import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
-import { isOfficeNpcVisible } from '../officeScheduleService.js';
 import { loadJson } from '../config/loadJson.js';
+import {
+  REPORT_ITEM_ID, getArchiveCaseId, isArchivistPresent, isReportSubmitted,
+  canRequestNextMission, ensureMissionReport, submitMissionReport
+} from '../archiveReportService.js';
 
-const frankDialogue = await loadJson(
-  '../assets/data/dialogue/archivist.json',
-  import.meta.url
-);
-
+const frankDialogue = await loadJson('../assets/data/dialogue/archivist.json', import.meta.url);
 const ARCHIVE_BACKGROUND_KEYS = ['archive', 'archivist'];
-const REPORT_ITEM_ID = 'agency_mission_report';
-const RECEIPTS_KEY = 'archive_submitted_reports';
-const FRANK_HOTSPOT = {
-  width: 200, height: 200, offsetX: 0, offsetY: 0, highlight: true
-};
+const FRANK_HOTSPOT = { width: 200, height: 200, offsetX: 0, offsetY: 0, highlight: true };
 
 export class ArchiveScene extends BaseScene {
   constructor() {
@@ -27,6 +21,9 @@ export class ArchiveScene extends BaseScene {
     this._archiveRunToken = null;
     this._onDragTarget = request => this.registerDragTarget(request);
     this._onItemDrop = drop => this.handleItemDrop(drop);
+    this._onInventoryUpdated = () => {
+      if (this.isArchiveActive() && !this._conversationOpen) this.refreshArchive();
+    };
   }
 
   init(data = {}) {
@@ -36,10 +33,12 @@ export class ArchiveScene extends BaseScene {
     this.frankHighlight = null;
     this.frankLabel = null;
     this.backButton = null;
+    this.nextMissionButton = null;
     this.statusText = null;
     this.isLeaving = false;
     this.frankPresent = false;
     this._conversationOpen = false;
+    this._refreshing = false;
     this._archiveRunToken = Symbol('archive-run');
     this._archiveDisposed = false;
     this._statusTimer = null;
@@ -68,6 +67,7 @@ export class ArchiveScene extends BaseScene {
     this.refreshArchive();
     EventBus.on('inventory:request-drag-target', this._onDragTarget, this);
     EventBus.on('inventory:item-dropped', this._onItemDrop, this);
+    EventBus.on('inventoryUpdated', this._onInventoryUpdated, this);
     this.scale.on('resize', this.handleResize, this);
     this.events.on(Phaser.Scenes.Events.WAKE, this.onWakeOrResume, this);
     this.events.on(Phaser.Scenes.Events.RESUME, this.onWakeOrResume, this);
@@ -80,27 +80,32 @@ export class ArchiveScene extends BaseScene {
     return !this._archiveDisposed && !this.isLeaving && this.sys.isActive();
   }
 
-  getSolvedCaseCount() {
-    const value = this.gameState?.casesSolved;
-    return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
-  }
-
   refreshArchive() {
-    if (this._archiveDisposed) return;
-    this.frankPresent = isOfficeNpcVisible('archivist_drebin', this.getSolvedCaseCount());
-    const key = this.frankPresent ? 'archivist' : 'archive';
-    if (this.textures.exists(key)) {
-      if (!this.background) this.background = this.add.image(0, 0, key).setOrigin(0).setDepth(0);
-      else this.background.setTexture(key);
-      this.background.setVisible(true);
-    } else {
-      this.background?.setVisible(false);
-      console.error(`[ArchiveScene] Missing background "${key}".`);
-    }
-    this.frankHotspot.setVisible(this.frankPresent);
-    this.frankHotspot.input.enabled = this.frankPresent;
-    this.frankLabel.setVisible(false);
-    this.layoutArchive();
+    if (this._archiveDisposed || this._refreshing) return;
+    this._refreshing = true;
+    try {
+      const report = ensureMissionReport(this.gameState);
+      if (report.changed) saveGameState();
+      this.frankPresent = isArchivistPresent(this.gameState);
+      const key = this.frankPresent ? 'archivist' : 'archive';
+      if (this.textures.exists(key)) {
+        if (!this.background) this.background = this.add.image(0, 0, key).setOrigin(0).setDepth(0);
+        else this.background.setTexture(key);
+        this.background.setVisible(true);
+      } else {
+        this.background?.setVisible(false);
+        console.error(`[ArchiveScene] Missing background "${key}".`);
+      }
+      this.frankHotspot.setVisible(this.frankPresent);
+      this.frankHotspot.input.enabled = this.frankPresent;
+      this.frankLabel.setVisible(false);
+      const nextAvailable = canRequestNextMission(this.gameState);
+      this.nextMissionButton.setVisible(nextAvailable);
+      this.nextMissionButton.input.enabled = nextAvailable;
+      this.layoutArchive();
+      if (report.status === 'full') this.showStatus(frankDialogue.inventoryFullMessage);
+      if (!this.frankPresent) this.showStatus(frankDialogue.absentMessage);
+    } finally { this._refreshing = false; }
   }
 
   createFrankHotspot() {
@@ -147,8 +152,15 @@ export class ArchiveScene extends BaseScene {
   }
 
   interactWithFrank() {
-    if (!this.canInteract() || !this.frankPresent) return;
+    if (!this.canInteract() || !isArchivistPresent(this.gameState)) return;
     audioManager.playSfx('click_sound');
+    const result = ensureMissionReport(this.gameState);
+    if (result.changed) saveGameState();
+    if (result.status === 'full') return this.showStatus(frankDialogue.inventoryFullMessage);
+    if (isReportSubmitted(this.gameState)) {
+      this.openConversation(frankDialogue.afterReportConversation);
+      return;
+    }
     this.showStatus(this.pickLine(frankDialogue.clickReplies));
   }
 
@@ -164,7 +176,7 @@ export class ArchiveScene extends BaseScene {
     const x = drop.xRatio * this.scale.width;
     const y = drop.yRatio * this.scale.height;
     const b = this.getFrankHotspotBounds();
-    if (!this.frankPresent || !Number.isFinite(x) || !Number.isFinite(y) ||
+    if (!isArchivistPresent(this.gameState) || !Number.isFinite(x) || !Number.isFinite(y) ||
         x < b.x || x > b.x + b.width || y < b.y || y > b.y + b.height) return;
     const item = inventoryManager.getItem(drop.itemId);
     if (!item) return;
@@ -176,87 +188,77 @@ export class ArchiveScene extends BaseScene {
     this.startReportConversation(item);
   }
 
-  getReportKey(item) {
-    const explicitId = item.metadata?.reportId ?? item.metadata?.caseId;
-    return explicitId != null && String(explicitId).trim()
-      ? `report:${String(explicitId)}`
-      : `item:${item.id}:${item.addedAt}`;
-  }
-
   startReportConversation(item) {
-    if (!this.canInteract() || this._conversationOpen) return;
-    const reportKey = this.getReportKey(item);
-    const receipts = MainStoryManager.getSideClue(RECEIPTS_KEY) || {};
-    if (Object.prototype.hasOwnProperty.call(receipts, reportKey)) {
+    if (!this.canInteract() || !isArchivistPresent(this.gameState)) return;
+    if (isReportSubmitted(this.gameState)) {
       this.showStatus(this.pickLine(frankDialogue.alreadySubmittedReplies));
       return;
     }
-    const dialog = this.getPlayerHudScene()?.dialogManager?.dialogUI;
-    if (!dialog || dialog.destroyed || dialog.isOpen) {
-      this.showStatus('The conversation could not be opened. Your report is still in your inventory.');
+    const caseId = getArchiveCaseId(this.gameState);
+    if (String(item.metadata?.caseId) !== caseId) {
+      this.showStatus(frankDialogue.wrongReportMessage);
       return;
     }
-    const entry = frankDialogue.reportConversation;
+    const { id, addedAt } = item;
+    this.openConversation(frankDialogue.reportConversation, () => {
+      const result = submitMissionReport(id, addedAt, this.gameState);
+      this.refreshArchive();
+      if (!result.ok) {
+        this.showStatus(result.reason === 'submitted'
+          ? this.pickLine(frankDialogue.alreadySubmittedReplies)
+          : 'Nothing was filed. Check that you still have the report for this case.');
+        return;
+      }
+      this.showStatus(result.saved ? frankDialogue.submittedMessage
+        : `${frankDialogue.submittedMessage} Automatic saving is unavailable; save manually.`);
+    });
+  }
+
+  openConversation(entry, onClose = null) {
+    if (!this.canInteract()) return false;
+    const dialog = this.getPlayerHudScene()?.dialogManager?.dialogUI;
+    if (!dialog || dialog.destroyed || dialog.isOpen || !Array.isArray(entry?.lines)) {
+      this.showStatus('The conversation could not be opened. Please try again.');
+      return false;
+    }
     const token = this._archiveRunToken;
-    const addedAt = item.addedAt;
     this._conversationOpen = true;
     this.statusText?.setVisible(false);
     this.frankLabel?.setVisible(false);
     try {
-      dialog.open({
-        speaker: frankDialogue.speaker,
-        portraitKey: frankDialogue.portraitKey,
-        lines: [...entry.lines]
-      }, {
+      dialog.open({ speaker: frankDialogue.speaker, portraitKey: frankDialogue.portraitKey,
+        lines: [...entry.lines] }, {
         onClose: () => {
-          if (this._archiveDisposed || this._archiveRunToken !== token) return;
+          if (this._archiveDisposed || this._archiveRunToken !== token || !this._conversationOpen) return;
           this._conversationOpen = false;
           if (!this.isArchiveActive()) return;
-          this.acceptReport(item.id, addedAt, reportKey);
+          onClose?.();
         }
       });
+      return true;
     } catch (error) {
       this._conversationOpen = false;
-      console.error('[ArchiveScene] Failed to open report conversation:', error);
-      this.showStatus('The conversation could not be opened. Your report has not been submitted.');
+      console.error('[ArchiveScene] Failed to open conversation:', error);
+      this.showStatus('The conversation could not be opened. Nothing has been filed.');
+      return false;
     }
-  }
-
-  acceptReport(itemId, addedAt, reportKey) {
-    const item = inventoryManager.getItem(itemId);
-    if (!item || item.addedAt !== addedAt) {
-      this.showStatus('The report is no longer in your inventory. Nothing was filed.');
-      return;
-    }
-    const receipts = MainStoryManager.getSideClue(RECEIPTS_KEY) || {};
-    if (Object.prototype.hasOwnProperty.call(receipts, reportKey)) return;
-    const snapshot = inventoryManager.serializeItem(item);
-    if (!inventoryManager.removeItem(itemId)) return;
-    MainStoryManager.setSideClue(RECEIPTS_KEY, {
-      ...receipts,
-      [reportKey]: {
-        npcId: 'archivist_drebin',
-        report: snapshot,
-        submittedAt: Date.now()
-      }
-    });
-    const saved = saveGameState();
-    this.showStatus(saved
-      ? frankDialogue.submittedMessage
-      : `${frankDialogue.submittedMessage} Automatic saving is unavailable; save manually.`);
   }
 
   createInterface() {
-    this.backButton = this.add.text(0, 0, '< BACK TO OFFICE', {
-      fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
-      backgroundColor: '#17110e', padding: { x: 14, y: 10 }
-    }).setOrigin(0, 1).setDepth(100).setInteractive({ useHandCursor: true });
+    const style = { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
+      backgroundColor: '#17110e', padding: { x: 14, y: 10 } };
+    this.backButton = this.add.text(0, 0, '< BACK TO OFFICE', style)
+      .setOrigin(0, 1).setDepth(100).setInteractive({ useHandCursor: true });
     this.backButton.on('pointerdown', () => { void this.returnToOffice(); });
-    this.backButton.on('pointerover', () => this.backButton.setColor('#ffffff'));
-    this.backButton.on('pointerout', () => this.backButton.setColor('#f2d477'));
+    this.nextMissionButton = this.add.text(0, 0, 'NEXT MISSION >', style)
+      .setOrigin(1, 1).setDepth(100).setInteractive({ useHandCursor: true }).setVisible(false);
+    this.nextMissionButton.on('pointerdown', () => { void this.openNextMission(); });
+    for (const button of [this.backButton, this.nextMissionButton]) {
+      button.on('pointerover', () => button.setColor('#ffffff'));
+      button.on('pointerout', () => button.setColor('#f2d477'));
+    }
     this.statusText = this.add.text(0, 0, '', {
-      fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477', align: 'center',
-      backgroundColor: '#17110e', padding: { x: 16, y: 12 }
+      ...style, align: 'center', padding: { x: 16, y: 12 }
     }).setOrigin(0.5, 0).setDepth(110).setVisible(false);
   }
 
@@ -267,7 +269,9 @@ export class ArchiveScene extends BaseScene {
     const b = this.getFrankHotspotBounds();
     this.frankHotspot?.setPosition(b.x, b.y);
     this.frankLabel?.setPosition(b.x + b.width / 2, b.y - 10);
-    this.backButton?.setPosition(24, height - 24);
+    const fontSize = width < 600 ? '14px' : '22px';
+    this.backButton?.setFontSize(fontSize).setPosition(16, height - 24);
+    this.nextMissionButton?.setFontSize(fontSize).setPosition(width - 16, height - (width < 400 ? 82 : 24));
     this.statusText?.setPosition(width / 2, 100);
     this.statusText?.setWordWrapWidth(Math.max(120, Math.min(width - 48, 760)), true);
     this.drawFrankHighlight();
@@ -277,7 +281,7 @@ export class ArchiveScene extends BaseScene {
     if (!message || this._archiveDisposed) return;
     this._statusTimer?.remove(false);
     this.statusText.setText(message).setVisible(true);
-    this._statusTimer = this.time.delayedCall(5000, () => {
+    this._statusTimer = this.time.delayedCall(6500, () => {
       this._statusTimer = null;
       if (!this._archiveDisposed) this.statusText?.setVisible(false);
     });
@@ -288,23 +292,33 @@ export class ArchiveScene extends BaseScene {
       !this.getPlayerHudScene()?.isAnyPanelOpen?.();
   }
 
-  async returnToOffice() {
-    if (!this.canInteract()) return;
+  returnToOffice() { return this.leaveArchive('OfficeScene', { gameState: this.gameState }); }
+
+  openNextMission() {
+    if (!canRequestNextMission(this.gameState)) return Promise.resolve(false);
+    return this.leaveArchive('AgainScene', { afterReport: true });
+  }
+
+  async leaveArchive(sceneKey, data) {
+    if (!this.canInteract()) return false;
     const token = this._archiveRunToken;
     this.isLeaving = true;
     audioManager.playSfx('click_sound');
+    saveGameState();
     try {
-      const result = await this.goto('OfficeScene', { gameState: this.gameState });
+      const result = await this.goto(sceneKey, data);
       if (this._archiveRunToken === token && !this._archiveDisposed && this.sys.isActive()) {
         this.isLeaving = false;
-        if (result === false) this.showStatus('The office could not be opened.');
+        if (result === false) this.showStatus('This screen could not be opened. Please try again.');
       }
+      return result !== false;
     } catch (error) {
       if (this._archiveRunToken === token && !this._archiveDisposed) {
         this.isLeaving = false;
-        this.showStatus('The office could not be opened.');
+        this.showStatus('This screen could not be opened. Please try again.');
       }
-      console.error('[ArchiveScene] Return failed:', error);
+      console.error('[ArchiveScene] Navigation failed:', error);
+      return false;
     }
   }
 
@@ -332,14 +346,11 @@ export class ArchiveScene extends BaseScene {
       }
     })();
     this._uiSetupPromise = request;
-    void request.finally(() => {
-      if (this._uiSetupPromise === request) this._uiSetupPromise = null;
-    });
+    void request.finally(() => { if (this._uiSetupPromise === request) this._uiSetupPromise = null; });
     return request;
   }
 
   handleResize() { this.layoutArchive(); }
-
   onWakeOrResume() {
     if (this._archiveDisposed) return;
     this.isLeaving = false;
@@ -357,6 +368,7 @@ export class ArchiveScene extends BaseScene {
     this._uiSetupPromise = null;
     EventBus.off('inventory:request-drag-target', this._onDragTarget, this);
     EventBus.off('inventory:item-dropped', this._onItemDrop, this);
+    EventBus.off('inventoryUpdated', this._onInventoryUpdated, this);
     this.scale.off('resize', this.handleResize, this);
     for (const [event, callback] of [
       [Phaser.Scenes.Events.WAKE, this.onWakeOrResume],
@@ -366,11 +378,13 @@ export class ArchiveScene extends BaseScene {
     ]) this.events.off(event, callback, this);
     this.frankHotspot?.removeAllListeners();
     this.backButton?.removeAllListeners();
+    this.nextMissionButton?.removeAllListeners();
     this.background = null;
     this.frankHotspot = null;
     this.frankHighlight = null;
     this.frankLabel = null;
     this.backButton = null;
+    this.nextMissionButton = null;
     this.statusText = null;
   }
 }

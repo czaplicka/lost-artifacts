@@ -1,3 +1,4 @@
+import { AssetManager } from './managers/AssetManager.js';
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
@@ -113,6 +114,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 window.game = game;
+game.assets = new AssetManager(game);
 game.sceneLoader = new SceneLoader(game, sceneRegistry);
 game.buildVersion = GAME_VERSION;
 bindCaseTimeGame(game);

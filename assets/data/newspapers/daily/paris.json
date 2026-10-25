@@ -1,7 +1,6 @@
 {
   "title": "Le Journal Tout à Fait Ordinaire",
   "subtitle": "Paris Edition",
-
   "missionLead": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_heist_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,10 +59,10 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_heist_photo.webp"
     }
   ],
-
   "articles": [
     {
       "slotId": "lead",
@@ -74,7 +76,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_cafe_photo.webp"
     },
     {
       "slotId": "lead",
@@ -88,7 +91,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_pigeon_baguette_photo.webp"
     },
     {
       "slotId": "lead",
@@ -102,7 +106,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_beret_photo.webp"
     },
     {
       "slotId": "lead",
@@ -116,7 +121,8 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_metro_photo.webp"
     },
     {
       "slotId": "lead",
@@ -130,9 +136,9 @@
         "y": 640,
         "width": 650,
         "height": 400
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_paris_dog_portrait_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Local Cat Claims Best Window Seat at Bakery, Customers Accept New Management",
@@ -163,7 +169,6 @@
       "headline": "Insurance Adjuster Requests Second Espresso Before Reviewing {artifact} Claim",
       "body": "An insurance representative examining paperwork connected to the missing {artifact} has reportedly asked for a quiet room, a large coffee and an additional coffee for the first coffee. Staff at {location} say this is understandable."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Parisian Dog Refuses to Walk in Rain, Negotiates Indoor Alternative",

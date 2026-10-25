@@ -1,0 +1,385 @@
+{
+  "version": 1,
+  "noResults": "No useful connection found. Try one keyword, or a different pair.",
+  "cases": [
+    {
+      "id": "miramar_demo",
+      "title": "Two Glasses — search prototype",
+      "clouds": [
+        {
+          "id": "place",
+          "title": "WHERE IS DANIEL?"
+        },
+        {
+          "id": "person",
+          "title": "WHO WAS THERE?"
+        }
+      ],
+      "keywords": [
+        {
+          "id": "seahorse_logo",
+          "label": "Seahorse emblem",
+          "cloudId": "place"
+        },
+        {
+          "id": "miramar",
+          "label": "Hotel Miramar",
+          "cloudId": "place"
+        },
+        {
+          "id": "mariner",
+          "label": "The Mariner",
+          "cloudId": "place"
+        },
+        {
+          "id": "coral",
+          "label": "Coral Crown Hotel",
+          "cloudId": "place"
+        },
+        {
+          "id": "swallow_logo",
+          "label": "Swallow emblem",
+          "cloudId": "person"
+        },
+        {
+          "id": "open_skies",
+          "label": "Open Skies Foundation",
+          "cloudId": "person"
+        },
+        {
+          "id": "conference",
+          "label": "New Horizons Conference",
+          "cloudId": "person"
+        },
+        {
+          "id": "checked_jacket",
+          "label": "Green checked jacket",
+          "cloudId": "person"
+        },
+        {
+          "id": "claire",
+          "label": "Claire Sutton",
+          "cloudId": "person"
+        },
+        {
+          "id": "nora",
+          "label": "Nora Bell",
+          "cloudId": "person"
+        },
+        {
+          "id": "office_phone",
+          "label": "Open Skies: 318",
+          "cloudId": "person"
+        }
+      ],
+      "initialKeywords": [
+        "seahorse_logo",
+        "swallow_logo",
+        "checked_jacket"
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "seahorse_logo"
+          ],
+          "pageId": "hotels"
+        },
+        {
+          "terms": [
+            "swallow_logo"
+          ],
+          "pageId": "organisation"
+        },
+        {
+          "terms": [
+            "open_skies"
+          ],
+          "pageId": "events"
+        },
+        {
+          "terms": [
+            "conference"
+          ],
+          "pageId": "events"
+        },
+        {
+          "terms": [
+            "miramar",
+            "open_skies"
+          ],
+          "pageId": "miramar_event"
+        },
+        {
+          "terms": [
+            "miramar",
+            "conference"
+          ],
+          "pageId": "miramar_event"
+        },
+        {
+          "terms": [
+            "mariner",
+            "open_skies"
+          ],
+          "pageId": "mariner_result"
+        },
+        {
+          "terms": [
+            "coral",
+            "open_skies"
+          ],
+          "pageId": "coral_result"
+        },
+        {
+          "terms": [
+            "mariner",
+            "conference"
+          ],
+          "pageId": "mariner_result"
+        },
+        {
+          "terms": [
+            "coral",
+            "conference"
+          ],
+          "pageId": "coral_result"
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "conference"
+          ],
+          "pageId": "gallery"
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "open_skies"
+          ],
+          "pageId": "gallery"
+        },
+        {
+          "terms": [
+            "checked_jacket"
+          ],
+          "pageId": "jacket_generic"
+        },
+        {
+          "terms": [
+            "claire"
+          ],
+          "pageId": "team"
+        },
+        {
+          "terms": [
+            "nora"
+          ],
+          "pageId": "team"
+        }
+      ],
+      "pages": [
+        {
+          "id": "hotels",
+          "title": "A seahorse? That narrows it down. Slightly.",
+          "address": "owl://travel/emblems",
+          "blocks": [
+            [
+              "Three hotels in our directory use a seahorse emblem."
+            ],
+            [
+              {
+                "keywordId": "miramar"
+              },
+              " — a coastal hotel with a terrace."
+            ],
+            [
+              {
+                "keywordId": "mariner"
+              },
+              " — a harbour-side business hotel."
+            ],
+            [
+              {
+                "keywordId": "coral"
+              },
+              " — a resort with aggressively nautical curtains."
+            ],
+            [
+              "The emblem alone does not establish which hotel appears in your photograph. Try connecting a hotel name with another lead."
+            ]
+          ]
+        },
+        {
+          "id": "organisation",
+          "title": "Open Skies Foundation",
+          "address": "owl://openskies/about",
+          "blocks": [
+            [
+              "Our swallow emblem represents new beginnings, shared opportunities and a logo committee that met eleven times."
+            ],
+            [
+              "Welcome to the ",
+              {
+                "keywordId": "open_skies"
+              },
+              "."
+            ],
+            [
+              "Our recent events include the ",
+              {
+                "keywordId": "conference"
+              },
+              ". Click the highlighted words to keep them in your notes."
+            ]
+          ]
+        },
+        {
+          "id": "events",
+          "title": "New Horizons — conference archive",
+          "address": "owl://openskies/new-horizons",
+          "blocks": [
+            [
+              "The ",
+              {
+                "keywordId": "conference"
+              },
+              " is organised by the ",
+              {
+                "keywordId": "open_skies"
+              },
+              "."
+            ],
+            [
+              "Our archive includes regional gatherings and partner events. Search the conference name together with a venue to find a specific event report."
+            ]
+          ]
+        },
+        {
+          "id": "miramar_event",
+          "title": "New Horizons at Hotel Miramar",
+          "address": "owl://openskies/miramar-report",
+          "blocks": [
+            [
+              "The ",
+              {
+                "keywordId": "conference"
+              },
+              " took place at ",
+              {
+                "keywordId": "miramar"
+              },
+              ". The event report shows the same terrace and seahorse table linen as the photograph in your case file."
+            ],
+            [
+              "This confirms the hotel, not the identity of Daniel's companion."
+            ],
+            [
+              "The conference gallery includes a ",
+              {
+                "keywordId": "checked_jacket"
+              },
+              ". Search the jacket together with the event to inspect the relevant photograph."
+            ]
+          ]
+        },
+        {
+          "id": "mariner_result",
+          "title": "The Mariner — partners and events",
+          "address": "owl://mariner/events",
+          "blocks": [
+            [
+              "Our partners include the Harbour Accountants Association. We have no record of hosting the New Horizons Conference."
+            ],
+            [
+              "Please stop asking about the annual pirates' convention. That was a birthday party."
+            ]
+          ]
+        },
+        {
+          "id": "coral_result",
+          "title": "Coral Crown — conference facilities",
+          "address": "owl://coralcrown/meetings",
+          "blocks": [
+            [
+              "Meeting rooms are available for private hire. The Open Skies event archive does not list this hotel as a venue for the conference."
+            ],
+            [
+              "Complimentary pens subject to a refundable deposit."
+            ]
+          ]
+        },
+        {
+          "id": "gallery",
+          "title": "Conference gallery — the borrowed jacket lead",
+          "address": "owl://openskies/gallery/group-photo",
+          "blocks": [
+            [
+              "PHOTO PLACEHOLDER: two women stand together after a conference session. The woman on the right wears the distinctive green checked jacket visible in Daniel's photograph."
+            ],
+            [
+              "Caption, left to right: ",
+              {
+                "keywordId": "claire"
+              },
+              " and ",
+              {
+                "keywordId": "nora"
+              },
+              "."
+            ],
+            [
+              "The caption identifies Nora as the woman wearing the jacket. It does not say who owns it."
+            ],
+            [
+              "Event enquiries: ",
+              {
+                "keywordId": "office_phone"
+              },
+              ". Verify the connection before deciding who was on the terrace."
+            ]
+          ]
+        },
+        {
+          "id": "jacket_generic",
+          "title": "Green checked jackets",
+          "address": "owl://fashion/checks",
+          "blocks": [
+            [
+              "Many manufacturers sell checked jackets. Clothing is not a unique personal identifier."
+            ],
+            [
+              "Try connecting this item with the event where it was photographed."
+            ]
+          ]
+        },
+        {
+          "id": "team",
+          "title": "Open Skies — regional coordinators",
+          "address": "owl://openskies/team",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              " and ",
+              {
+                "keywordId": "nora"
+              },
+              " are regional coordinators."
+            ],
+            [
+              "For questions about the conference photographs, call ",
+              {
+                "keywordId": "office_phone"
+              },
+              "."
+            ],
+            [
+              "Private contact details are not published in this demo. The phone conversation and email step will be added separately."
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

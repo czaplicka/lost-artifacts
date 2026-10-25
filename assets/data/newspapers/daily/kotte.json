@@ -1,7 +1,6 @@
 {
   "title": "The Kotte Entirely Ordinary Chronicle",
   "subtitle": "Sri Jayawardenepura Kotte Edition",
-
   "articles": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_kotte_monitor_lizard_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_kotte_lake_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_kotte_tea_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,7 +59,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_kotte_tuktuk_photo.webp"
     },
     {
       "slotId": "lead",
@@ -71,9 +74,9 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_kotte_pigeon_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Neighborhood Dog Learns Bakery Opening Hours Better Than Entire Street",
@@ -104,7 +107,6 @@
       "headline": "Office Fan Promoted to Essential Staff After Surviving Entire Heatwave",
       "body": "Employees at a local office have begun referring to an old desk fan as 'the most reliable member of the department.' The machine has not requested a raise, but has received a careful dusting and a place near the window."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Family Debate Over Dinner Begins at Four, Dinner Arrives at Nine",

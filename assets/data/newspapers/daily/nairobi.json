@@ -1,7 +1,6 @@
 {
   "title": "The Nairobi Perfectly Reasonable Times",
   "subtitle": "Nairobi Edition",
-
   "articles": [
     {
       "slotId": "lead",
@@ -15,7 +14,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_nairobi_matatu_photo.webp"
     },
     {
       "slotId": "lead",
@@ -29,7 +29,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_nairobi_giraffe_skyline_photo.webp"
     },
     {
       "slotId": "lead",
@@ -43,7 +44,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_nairobi_karura_photo.webp"
     },
     {
       "slotId": "lead",
@@ -57,7 +59,8 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_nairobi_cafe_photo.webp"
     },
     {
       "slotId": "lead",
@@ -71,9 +74,9 @@
         "y": 245,
         "width": 300,
         "height": 190
-      }
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_nairobi_startup_photo.webp"
     },
-
     {
       "slotId": "secondary_1",
       "headline": "Neighborhood Goat Promoted to Unofficial Security Consultant",
@@ -104,7 +107,6 @@
       "headline": "Coworkers Discover Printer Works Better When Complimented",
       "body": "Employees at a local office report that their printer stopped jamming after someone told it, 'You are doing your best.' The machine has since printed forty-seven pages without complaint and is now considered emotionally essential staff."
     },
-
     {
       "slotId": "secondary_2",
       "headline": "Local Dog Waits Outside Butcher Shop With Level of Patience Humans Can Only Study",

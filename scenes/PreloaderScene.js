@@ -135,8 +135,8 @@ export class PreloaderScene extends BaseScene {
       return;
     }
 
-    this._loadAssetsFromManifest(manifest);
-    this.preloadNewspapers();
+    if (!manifest.startup) throw new Error('[PreloaderScene] Missing startup manifest.');
+    this._loadAssetsFromManifest(manifest.startup);
   }
 
   async create() {
@@ -157,6 +157,11 @@ export class PreloaderScene extends BaseScene {
         `[PreloaderScene] ${this.loadErrors.length} asset(s) failed to load.`,
         this.loadErrors
       );
+    }
+
+    if (this.loadErrors.length > 0) {
+      this._showLoadingError('Some files went missing. Please reload the game.');
+      return;
     }
 
     this._validateLoadingTexts();
@@ -324,33 +329,9 @@ export class PreloaderScene extends BaseScene {
   }
 
   _loadVideoGroup(assets = []) {
-    for (const video of assets) {
-      const {
-        key,
-        url,
-        loadEvent,
-        noAudio = false,
-        asBlob = false
-      } = video;
-
-      if (
-        !this._reserveAsset('video', key, url) ||
-        this.cache.video.exists(key)
-      ) {
-        continue;
-      }
-
-      if (loadEvent) {
-        this.load.video(
-          key,
-          url,
-          loadEvent,
-          noAudio,
-          asBlob
-        );
-      } else {
-        this.load.video(key, url, asBlob);
-      }
+    for (const { key, url, noAudio = false } of assets) {
+      if (!this._reserveAsset('video', key, url) || this.cache.video.exists(key)) continue;
+      this.load.video(key, url, noAudio);
     }
   }
 
@@ -437,48 +418,8 @@ export class PreloaderScene extends BaseScene {
   }
 
   onNewspaperJsonsLoaded() {
-    if (this.newspaperImagesQueued) {
-      return;
-    }
-
-    this.newspaperImagesQueued = true;
-
-    const items = [
-      ...new Map(
-        this.collectNewspaperItems()
-          .filter(item => item?.imageKey)
-          .map(item => [item.imageKey, item])
-      ).values()
-    ];
-
-    let queued = false;
-
-    for (const item of items) {
-      const key = item.imageKey;
-
-      const url =
-        item.imageUrl ||
-        `assets/newspapers/newspapers/${key}.jpg`;
-
-      if (
-        !this._reserveAsset('image', key, url) ||
-        this.textures.exists(key)
-      ) {
-        continue;
-      }
-
-      this.load.image(key, url);
-      queued = true;
-    }
-
-    if (!queued) {
-      this._assetsReady = true;
-      this.finishLoading();
-      return;
-    }
-
-    this._phase = 'newspaper-images';
-    this.load.start();
+    this._assetsReady = true;
+    this.finishLoading();
   }
 
   _onLoadError(file) {

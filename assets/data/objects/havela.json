@@ -1,0 +1,2437 @@
+[
+  {
+    "id": "security_system_blueprint",
+    "item": "Security system blueprint",
+    "tags": [
+      "blueprint",
+      "security",
+      "sensors",
+      "cameras",
+      "technical"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "This blueprint is so old it still shows a guard dog kennel and a smoking room.",
+    "heistExplanation": "The thief used it only to confirm one thing: absolutely nobody had updated the system on paper for decades.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief used the old system map to target an overlooked connection instead of attacking the alarms head-on."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Hacking",
+          "Surveillance",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The blueprint showed which camera feeds shared a relay, making one carefully timed interruption enough to hide the crossing."
+      }
+    ]
+  },
+  {
+    "id": "multifunction_device",
+    "item": "Multifunction electronic device",
+    "tags": [
+      "gadget",
+      "transmitter",
+      "receiver",
+      "scanner",
+      "device"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "It proudly boots into a menu that says \"Demo mode\" and nothing else actually works.",
+    "heistExplanation": "The thief brought their own gear; not sure yet what they were planning to do with it.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The device copied the alarm's wireless handshake, allowing the thief to imitate an authorised signal for a few seconds."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "A small transmitter interfered with one camera relay, leaving a short but useful patch of static."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Espionage",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The device scanned guard-radio traffic and warned the thief when a patrol changed direction."
+      }
+    ]
+  },
+  {
+    "id": "usb_drive",
+    "item": "USB flash drive",
+    "tags": [
+      "data",
+      "storage",
+      "evidence",
+      "transfer",
+      "small_item"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "It contains 300 photos of cats and exactly zero secrets.",
+    "heistExplanation": "The thief ignored it on purpose; nobody wants their master plan found next to a folder called \"CUTE\".",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics"
+        ],
+        "heistExplanation": "A short malware payload froze the camera feed just long enough for the thief to cross the gallery."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The drive installed a timed override that prevented the alarm system from reporting the breach."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Hacking",
+          "Surveillance",
+          "Espionage"
+        ],
+        "heistExplanation": "The program looped an old empty-gallery recording, creating a convincing blind spot on the security feed."
+      }
+    ]
+  },
+  {
+    "id": "evacuation_map",
+    "item": "Emergency exit map",
+    "tags": [
+      "map",
+      "routes",
+      "escape",
+      "walls",
+      "doors"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "dockyard",
+      "havela"
+    ],
+    "trueExplanation": "Someone drew a smiley face on the fire exit; that is the most advanced planning on it.",
+    "heistExplanation": "The thief did the unthinkable and used a staff shortcut instead of a glowing green stick-figure exit.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Parkour",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief followed an evacuation route through service corridors that visitors never notice."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Tactical planning",
+          "Surveillance",
+          "Parkour"
+        ],
+        "heistExplanation": "The map identified an emergency stairwell outside the normal camera coverage."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Survival skills",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The marked exits gave the thief a route out before the alarm could turn the museum into a maze."
+      }
+    ]
+  },
+  {
+    "id": "voice_recorder",
+    "item": "Voice recorder",
+    "tags": [
+      "audio",
+      "device",
+      "evidence",
+      "recording",
+      "interview"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "The last recording is twenty minutes of someone humming elevator music off-key.",
+    "heistExplanation": "The thief kept quiet; their only soundtrack was the ticking clock and distant guard yawns.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Intimidation"
+        ],
+        "heistExplanation": "A prerecorded call pulled a guard toward the wrong corridor while the thief crossed the real one."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Espionage",
+          "Surveillance",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief recorded the patrol call signs earlier, then used the timing of each radio check to move between rounds."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Espionage",
+          "Interrogation"
+        ],
+        "heistExplanation": "A convincing recorded staff instruction made the thief sound official without ever needing to show their face."
+      }
+    ]
+  },
+  {
+    "id": "listening_device",
+    "item": "Hidden listening device",
+    "tags": [
+      "bug",
+      "audio",
+      "small",
+      "hidden",
+      "covert"
+    ],
+    "scene": [
+      "louvre",
+      "tower",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "The device broadcasts directly into the head of security's office... which is currently empty.",
+    "heistExplanation": "The thief moved only when the device captured the sweetest sound of all: total silence.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Espionage",
+          "Surveillance",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief listened for the moment when patrol chatter stopped, then crossed the gallery during the quietest gap."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Espionage",
+          "Surveillance",
+          "Deception"
+        ],
+        "heistExplanation": "The device confirmed that the control room was empty before the thief used the unmonitored route."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Manipulation",
+          "Deception",
+          "Espionage"
+        ],
+        "heistExplanation": "The thief used what they overheard to create a distraction that sounded like an urgent problem in another wing."
+      }
+    ]
+  },
+  {
+    "id": "curator_keyring",
+    "item": "Curator's keyring",
+    "tags": [
+      "museum",
+      "staff",
+      "keys"
+    ],
+    "scene": [
+      "louvre",
+      "castle",
+      "dockyard",
+      "havela"
+    ],
+    "trueExplanation": "Half the keys are labeled \"no idea\" in the curator's own handwriting.",
+    "heistExplanation": "The thief did not risk a guessing game with fifty almost-identical keys and one very real curator.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Lockpicking",
+          "Deception",
+          "Museum studies"
+        ],
+        "heistExplanation": "The thief took the right curator key, opened the staff door, and returned the ring before anyone noticed a key was missing."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Museum studies",
+          "Investigation"
+        ],
+        "heistExplanation": "One key opened the display case's maintenance lock, bypassing the more obvious public-facing controls."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Museum studies",
+          "Stealth"
+        ],
+        "heistExplanation": "Carrying a curator's keys made the thief look like staff with somewhere boring but important to be."
+      }
+    ]
+  },
+  {
+    "id": "broken_glass",
+    "item": "Broken glass",
+    "tags": [
+      "glass",
+      "display_case",
+      "damage",
+      "crime_scene",
+      "entry_method"
+    ],
+    "scene": [
+      "louvre",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "One shard still has lipstick on it; someone lost a glass, not a masterpiece.",
+    "heistExplanation": "The thief prefers clean exits; stepping on glass is loud, messy, and terrible for stealth shoes.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Stealth",
+          "Engineering",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief cut a small pane rather than smashing it, creating a quiet route through a side window."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Stealth"
+        ],
+        "heistExplanation": "A broken pane made security search for a noisy forced entry while the thief used an entirely different route."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Analysis",
+          "Deception"
+        ],
+        "heistExplanation": "The thief left broken glass deliberately, planting a dramatic but misleading story for the first guards on scene."
+      }
+    ]
+  },
+  {
+    "id": "evidence_note",
+    "item": "Evidence note",
+    "tags": [
+      "note",
+      "paper",
+      "evidence",
+      "message",
+      "crime_scene"
+    ],
+    "scene": [
+      "louvre",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "The \"mysterious code\" is a list: milk, bread, batteries, don't forget cat food.",
+    "heistExplanation": "The thief left no dramatic manifesto; they let the grocery list take all the literary credit.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Deduction",
+          "Analysis"
+        ],
+        "heistExplanation": "The note encoded patrol times as ordinary shopping items, letting the thief plan the crossing without carrying an obvious schedule."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Investigation",
+          "Persuasion",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief left a convincing urgent message that persuaded a guard to investigate a completely fictional problem in another wing."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tactical planning",
+          "Deduction",
+          "Investigation"
+        ],
+        "heistExplanation": "The apparently harmless note encoded a meeting point and a route out of the museum after the theft."
+      }
+    ]
+  },
+  {
+    "id": "turned_off_alarm",
+    "item": "Turned off alarm",
+    "tags": [
+      "alarm",
+      "security",
+      "museum",
+      "system",
+      "bypass"
+    ],
+    "scene": [
+      "louvre",
+      "havela"
+    ],
+    "trueExplanation": "A sticky note on the plug reads: \"Do NOT plug back in unless you hate your ears\".",
+    "heistExplanation": "The thief silently thanked whoever pulled the plug earlier and decided not to question small miracles.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief took advantage of an alarm already disabled for maintenance and crossed the protected zone without triggering a response."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief switched off the alarm at its local power source instead of trying to defeat the whole security network."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Electronics",
+          "Tactical planning",
+          "Hacking"
+        ],
+        "heistExplanation": "With one alarm zone disabled, the thief created a quiet pocket where a breach could happen without an immediate alert."
+      }
+    ]
+  },
+  {
+    "id": "fake_guard_pass",
+    "item": "Fake guard pass",
+    "tags": [
+      "tower",
+      "pass",
+      "badge",
+      "paper",
+      "identity"
+    ],
+    "scene": [
+      "tower",
+      "havela"
+    ],
+    "trueExplanation": "The photo looks suspiciously like a stock image of ‘generic security professional’.",
+    "heistExplanation": "The thief knew that at 3 a.m. nobody studies faces; they just glance at plastic and sigh.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Disguise"
+        ],
+        "heistExplanation": "The fake pass cleared the checkpoint long enough for the thief to enter the restricted guard corridor."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Forgery"
+        ],
+        "heistExplanation": "The pass gave the thief just enough institutional credibility to look routine instead of suspicious."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Forgery",
+          "Investigation"
+        ],
+        "heistExplanation": "The thief flashed the pass while reporting an invented access problem, sending guards to inspect the wrong checkpoint."
+      }
+    ]
+  },
+  {
+    "id": "cipher_notebook",
+    "item": "Cipher notebook",
+    "tags": [
+      "tower",
+      "notebook",
+      "code",
+      "paper",
+      "clue"
+    ],
+    "scene": [
+      "tower",
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "Half the symbols are real cipher and half are doodles made during boring briefings.",
+    "heistExplanation": "The thief used it to test the guards: anyone who tried to solve it missed the actual crime.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Analysis",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief planted a convincing cipher knowing that security would waste precious minutes trying to solve it."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Deduction",
+          "Analysis",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The notebook encoded patrol timings and camera rotations in symbols that looked meaningless to anyone else."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Research",
+          "Deduction",
+          "Espionage"
+        ],
+        "heistExplanation": "A cipher hidden among the notes gave an accomplice the escape route and rendezvous time."
+      }
+    ]
+  },
+  {
+    "id": "jewel_chest",
+    "item": "Locked jewel chest",
+    "skills": [
+      "Lockpicking",
+      "Problem-solving",
+      "Investigation"
+    ],
+    "tags": [
+      "tower",
+      "chest",
+      "lock",
+      "jewel",
+      "container"
+    ],
+    "scene": [
+      "tower",
+      "havela"
+    ],
+    "trueExplanation": "An old label reads \"Secondary valuables\" with \"no one checks this\" scribbled underneath.",
+    "heistExplanation": "The thief used it as a rehearsal: if you can open the practice chest quietly, the real one never complains.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Problem-solving",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief opened the chest without damaging its lock, taking the valuables before any alarmed staff noticed."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Investigation",
+          "Deduction",
+          "Research"
+        ],
+        "heistExplanation": "The chest's contents and labels showed the thief which jewels were genuine, portable, and worth taking."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Lockpicking",
+          "Deception",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief relocked the chest after removing one piece, making the loss look like an inventory mistake rather than a break-in."
+      }
+    ]
+  },
+  {
+    "id": "hidden_tracker_watch",
+    "item": "Watch with a hidden tracker",
+    "skills": [
+      "Electronics",
+      "Espionage",
+      "Tracking"
+    ],
+    "tags": [
+      "watch",
+      "tracker",
+      "signal",
+      "device",
+      "surveillance"
+    ],
+    "scene": [
+      "castle",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "It ticks loudly enough to annoy an entire quiet reading room.",
+    "heistExplanation": "An elegant wristwatch that counted down the seconds to the heist while secretly broadcasting its owner's exact latitude.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Espionage",
+          "Electronics"
+        ],
+        "heistExplanation": "The tracker let an accomplice monitor the thief's position and bring the getaway vehicle to the correct gate at the correct time."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Espionage",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used tracker signals from an accomplice to avoid patrols converging on the same corridor."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Electronics"
+        ],
+        "heistExplanation": "The tracker was planted on a decoy, sending guards toward a moving signal while the thief stayed hidden."
+      }
+    ]
+  },
+  {
+    "id": "hand_print",
+    "item": "Hand print",
+    "skills": [
+      "Investigation",
+      "Analysis",
+      "Deduction"
+    ],
+    "tags": [
+      "handprint",
+      "trace",
+      "evidence",
+      "surface",
+      "forensics"
+    ],
+    "scene": [
+      "castle",
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "Left by a school kid who ate buttered popcorn right before touching the velvet barrier rope.",
+    "heistExplanation": "It looks dramatic and ominous in dusting powder, but in a busy public hall it is just evidence of poor hygiene.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Investigation",
+          "Deduction",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief used a recently printed staff hand mark to identify the hidden release panel beside the restricted door."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Analysis",
+          "Deduction",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "A hand mark on the display frame revealed the exact spot where staff pressed to release the case mechanism."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Investigation",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief planted a print where it would make security chase an obvious but false suspect trail."
+      }
+    ]
+  },
+  {
+    "id": "cable_ties",
+    "item": "Heavy-duty cable ties",
+    "skills": [
+      "Tactical planning",
+      "Engineering",
+      "Deception"
+    ],
+    "tags": [
+      "ties",
+      "restraint",
+      "tools",
+      "fastening",
+      "control"
+    ],
+    "scene": [
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "Used to secure loose wiring along the dockyard perimeter fence.",
+    "heistExplanation": "When time is short and security is closing in, industrial zip ties solve almost every problem badly and fast.",
+    "reconstructionUses": [
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Tactical planning",
+          "Engineering",
+          "Intimidation"
+        ],
+        "heistExplanation": "The thief restrained a guard long enough to move the artifact through the loading area without interruption."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Engineering",
+          "Tactical planning",
+          "Electronics"
+        ],
+        "heistExplanation": "The ties held a switch or cable in a false position, keeping a security circuit from restoring itself."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Engineering"
+        ],
+        "heistExplanation": "The thief tied together loose equipment at a perimeter gate, creating a convincing maintenance obstruction for guards to investigate."
+      }
+    ]
+  },
+  {
+    "id": "broken_phone",
+    "item": "Broken phone without SIM",
+    "skills": [
+      "Hacking",
+      "Surveillance",
+      "Deception",
+      "Electronics"
+    ],
+    "tags": [
+      "phone",
+      "broken",
+      "sim",
+      "electronics",
+      "disposal"
+    ],
+    "scene": [
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "Dropped off the pier by a tourist and fished out by an optimistic dock kid.",
+    "heistExplanation": "The cleanest communication strategy is the one involving a disposable phone thrown directly into brackish water.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "A disposable phone delivered a false emergency call that pulled guards away from the active loading bay."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Hacking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief coordinated movement with an accomplice using a burner phone, then destroyed the evidence before leaving."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Deception",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The phone gave the getaway driver a final signal to move before the thief discarded it in the harbor."
+      }
+    ]
+  },
+  {
+    "id": "red_fiber",
+    "item": "Red fiber strand",
+    "skills": [
+      "Analysis",
+      "Investigation",
+      "Deduction"
+    ],
+    "tags": [
+      "fiber",
+      "cloth",
+      "trace",
+      "fabric",
+      "evidence"
+    ],
+    "scene": [
+      "dockyard",
+      "auction_house",
+      "havela"
+    ],
+    "trueExplanation": "Snagged off a worker's bright red high-visibility vest on a rusty nail.",
+    "heistExplanation": "Tiny microscopic traces are often the loudest witnesses in an otherwise silent crime scene.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Disguise",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief wore a high-visibility work vest, turning into just another piece of dockyard equipment in the dark."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Investigation"
+        ],
+        "heistExplanation": "A worker's vest and the confidence to wear it got the thief through a restricted loading gate."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Analysis",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief planted red fibers along the crate route to make the theft appear to involve the regular dock crew."
+      }
+    ]
+  },
+  {
+    "id": "hairpin_lockpick",
+    "item": "Gold-plated hairpin lockpick",
+    "skills": [
+      "Lockpicking",
+      "Technical knowledge",
+      "Seduction"
+    ],
+    "tags": [
+      "hairpin",
+      "gold",
+      "curved",
+      "jewelry",
+      "small"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "It fell out of a guest's elaborate updo during a particularly enthusiastic qawwali headbang.",
+    "heistExplanation": "Bent at exactly the angle needed for a Victorian pin-tumbler lock. The 'accidental' scratches on the gate say otherwise.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Lockpicking",
+          "Technical knowledge",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief opened the old side gate with a concealed hairpin, avoiding the guarded front entrance."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Technical knowledge",
+          "Stealth"
+        ],
+        "heistExplanation": "The hairpin lifted the tiny lock on the dagger case without forcing the antique mechanism."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Seduction",
+          "Deception",
+          "Lockpicking"
+        ],
+        "heistExplanation": "Because it looked like jewellery, the tool could pass through a gala security check without attracting suspicion."
+      }
+    ]
+  },
+  {
+    "id": "tailor_disguise_kit",
+    "item": "Wandering tailor's disguise kit",
+    "skills": [
+      "Disguise",
+      "Deception",
+      "Forgery"
+    ],
+    "tags": [
+      "costume",
+      "fabric",
+      "mirror",
+      "needles",
+      "bundle"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Every haveli gala needs a last-minute hem fixed; this kit has saved a hundred sherwanis.",
+    "heistExplanation": "Contains a spare staff turban, fake sideburns, and a badge that says 'Catering' in suspiciously fresh ink.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Forgery"
+        ],
+        "heistExplanation": "Dressed as gala staff, the thief entered through the catering route and moved into the private courtyard."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "A change of turban, beard, and uniform made the thief look like a different staff member after every room."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Manipulation",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief sent an accomplice in a tailor disguise to create an urgent costume crisis near the guards."
+      }
+    ]
+  },
+  {
+    "id": "jharokha_shadow_cloak",
+    "item": "Charcoal-dyed shadow cloak",
+    "skills": [
+      "Stealth",
+      "Survival skills",
+      "Disguise"
+    ],
+    "tags": [
+      "cloak",
+      "dark",
+      "silent",
+      "fabric",
+      "hood"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Left behind by a guest who overestimated how 'mysterious poet' would go over at a family gala.",
+    "heistExplanation": "Blends perfectly into the jharokha screen shadows. Smells faintly of rooftop dust and bad decisions.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Stealth",
+          "Disguise",
+          "Survival skills"
+        ],
+        "heistExplanation": "The thief moved through the jharokha shadows where the courtyard lights could not outline a face or silhouette."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Stealth",
+          "Survival skills",
+          "Parkour"
+        ],
+        "heistExplanation": "The cloak concealed the thief while they crossed the roofline to a balcony above the guarded courtyard."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Stealth",
+          "Survival skills",
+          "Disguise"
+        ],
+        "heistExplanation": "After the theft, the cloak helped the thief disappear into the rooftop shadows instead of using the watched gate."
+      }
+    ]
+  },
+  {
+    "id": "peacock_feather_scope",
+    "item": "Peacock-feather spyglass",
+    "skills": [
+      "Surveillance",
+      "Tracking",
+      "Investigation"
+    ],
+    "tags": [
+      "binoculars",
+      "feather",
+      "brass",
+      "decorative",
+      "lens"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A gaudy souvenir from the gift shop, mostly used to spy on which auntie is gossiping about whom.",
+    "heistExplanation": "Perfectly angled toward the display case window from the garden wall. The feather is just for flair.",
+    "reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Tracking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief watched the guard rotations from the garden wall and identified the moment the display room was briefly unwatched."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Tracking",
+          "Stealth"
+        ],
+        "heistExplanation": "The spyglass let the thief track guards through the courtyard before moving between the screened windows."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Investigation",
+          "Surveillance",
+          "Research"
+        ],
+        "heistExplanation": "From outside, the thief used the scope to confirm which display held the dagger before entering the haveli."
+      }
+    ]
+  },
+  {
+    "id": "moneylenders_ledger",
+    "item": "Moneylender's threatening ledger",
+    "skills": [
+      "Intimidation",
+      "Negotiation",
+      "Research",
+      "Analysis"
+    ],
+    "tags": [
+      "ledger",
+      "debt",
+      "ink",
+      "book",
+      "numbers"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Records unpaid catering bills, in handwriting so aggressive it could intimidate a tax auditor.",
+    "heistExplanation": "One entry is circled three times: 'Collateral: the dagger, if he doesn't pay by Diwali.'",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Research",
+          "Analysis",
+          "Negotiation"
+        ],
+        "heistExplanation": "The ledger revealed that the dagger had been promised as collateral, making it the obvious target for a debt-driven theft."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Intimidation",
+          "Negotiation",
+          "Deception"
+        ],
+        "heistExplanation": "The thief used knowledge of the debt to pressure a household employee into opening the private display room."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Negotiation",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief arranged the disappearance to look like a private debt settlement rather than a break-in."
+      }
+    ]
+  },
+  {
+    "id": "tabla_drum_transmitter",
+    "item": "Modified tabla drum transmitter",
+    "skills": [
+      "Hacking",
+      "Electronics",
+      "Espionage"
+    ],
+    "tags": [
+      "drum",
+      "wires",
+      "signal",
+      "music",
+      "hidden"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "The sound engineer's bass booster, because the tabla player insisted the drum 'wasn't loud enough for his soul.'",
+    "heistExplanation": "That's not a bass booster, that's a Wi-Fi jammer wearing a goatskin costume.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "Hidden inside the music, the transmitter jammed the wireless security alerts without looking like a technical device."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The modified drum disrupted the alarm's communication link while the gala music masked every suspicious sound."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Electronics",
+          "Espionage",
+          "Surveillance"
+        ],
+        "heistExplanation": "Signal interference froze a camera relay during the loudest part of the performance, creating a temporary blind patch."
+      }
+    ]
+  },
+  {
+    "id": "jeweled_bangle_camera",
+    "item": "Jeweled bangle with hidden lens",
+    "skills": [
+      "Electronics",
+      "Surveillance",
+      "Espionage"
+    ],
+    "tags": [
+      "bangle",
+      "lens",
+      "gold",
+      "jewelry",
+      "tiny"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A birthday gift from a nephew who watched one too many spy movies and thought grandma needed 'protection.'",
+    "heistExplanation": "The lens points suspiciously toward the display case, not toward any dance floor selfies.",
+    "reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "The bangle camera recorded guard movement around the display, revealing the short gap in their coverage."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Espionage",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief reviewed the hidden-lens footage to time a route through the dance floor and into the display room."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Surveillance",
+          "Investigation",
+          "Analysis"
+        ],
+        "heistExplanation": "The camera footage showed which dagger case received extra staff attention, marking the genuinely valuable target."
+      }
+    ]
+  },
+  {
+    "id": "silk_glove_thief",
+    "item": "Impossibly soft silk gloves",
+    "skills": [
+      "Pickpocket",
+      "Manipulation",
+      "Stealth"
+    ],
+    "tags": [
+      "gloves",
+      "silk",
+      "fingers",
+      "white",
+      "elegant"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Formal event attire; every well-dressed guest owns a pair for shaking important hands.",
+    "heistExplanation": "So soft the wearer could lift a wallet and a compliment in the same handshake.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Pickpocket",
+          "Stealth",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief lifted a staff key from a host during the greeting line without interrupting a single polite conversation."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Pickpocket",
+          "Stealth",
+          "Deception"
+        ],
+        "heistExplanation": "The gloves let the thief lift the dagger from its display during the crowd's closest, busiest moment."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Manipulation",
+          "Disguise"
+        ],
+        "heistExplanation": "Elegant gloves made the thief look like another overdressed guest rather than someone preparing to steal a historic weapon."
+      }
+    ]
+  },
+  {
+    "id": "forged_wedding_invitation",
+    "item": "Suspiciously crisp wedding invitation",
+    "skills": [
+      "Forgery",
+      "Deception",
+      "Research"
+    ],
+    "tags": [
+      "invitation",
+      "seal",
+      "ink",
+      "paper",
+      "gold-embossed"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A genuine invite, just printed by the cheap press that ran out of the good cardstock halfway through.",
+    "heistExplanation": "The family crest is mirrored backwards. Someone traced this in a hurry, under bad lighting, badly.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The forged invitation got the thief through the gala gate as an expected guest with no reason to be questioned."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Research",
+          "Disguise"
+        ],
+        "heistExplanation": "An invitation and the right family name made the thief look like another late guest rather than an intruder."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief arranged a dispute over a suspicious invitation, keeping gate security busy while an accomplice used another entrance."
+      }
+    ]
+  },
+  {
+    "id": "antique_appraisal_book",
+    "item": "Dog-eared dagger appraisal manual",
+    "skills": [
+      "Art history",
+      "Museum studies",
+      "Research",
+      "History"
+    ],
+    "tags": [
+      "book",
+      "appraisal",
+      "dagger",
+      "notes",
+      "annotated"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Standard reference material; every conservator has one, coffee-stained and beloved.",
+    "heistExplanation": "One page has the resale value circled in red, next to a phone number for a 'private collector, no questions.'",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "Museum studies",
+          "Research"
+        ],
+        "heistExplanation": "The manual identified the dagger variant whose maker marks made it worth far more than the rest of the collection."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Art history",
+          "Research",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief used the appraisal details to choose a plausible substitute dagger and delay recognition of the swap."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Art history",
+          "History",
+          "Analysis"
+        ],
+        "heistExplanation": "The reference book confirmed which dagger was genuine before the thief removed it from the ceremonial display."
+      }
+    ]
+  },
+  {
+    "id": "old_newspaper_clippings",
+    "item": "Yellowed newspaper clippings bundle",
+    "skills": [
+      "Research",
+      "Investigation",
+      "Analysis",
+      "History"
+    ],
+    "tags": [
+      "clippings",
+      "archive",
+      "paper",
+      "scissors",
+      "bundle"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A journalist's research pile for an unrelated puff piece on the family's charity gala history.",
+    "heistExplanation": "Every clipping about the dagger's insurance value is highlighted. The rest is confetti to her.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Research",
+          "Investigation",
+          "History"
+        ],
+        "heistExplanation": "The insurance stories identified which dagger would produce the biggest payoff for the smallest object to carry."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Analysis",
+          "Research"
+        ],
+        "heistExplanation": "The thief used old press coverage to make the disappearance look like a long-running insurance fraud rather than a new theft."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Research",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "Posing as a journalist researching the family archive gave the thief a credible reason to enter the private collection wing."
+      }
+    ]
+  },
+  {
+    "id": "bodyguards_training_manual",
+    "item": "Dented martial arts training manual",
+    "skills": [
+      "Martial arts",
+      "Hand-to-hand combat",
+      "Tactical planning"
+    ],
+    "tags": [
+      "manual",
+      "combat",
+      "book",
+      "worn",
+      "diagrams"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Standard-issue reading for anyone whose job title includes the word 'muscle.'",
+    "heistExplanation": "The chapter on 'silent takedowns' has a bookmark exactly where the guard shift ends.",
+    "reconstructionUses": [
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Martial arts",
+          "Hand-to-hand combat",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used a fast, silent takedown to clear the bodyguard from the display room without disrupting the gala."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Hand-to-hand combat",
+          "Tactical planning",
+          "Deception"
+        ],
+        "heistExplanation": "A staged fight drew the household security team into the courtyard while the thief entered the collection room."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Martial arts",
+          "Stealth",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief neutralised the guard assigned to the private corridor just long enough to pass through."
+      }
+    ]
+  },
+  {
+    "id": "dried_ration_pouch",
+    "item": "Suspiciously well-stocked ration pouch",
+    "skills": [
+      "Survival skills",
+      "Tactical planning"
+    ],
+    "tags": [
+      "rations",
+      "pouch",
+      "dried fruit",
+      "water",
+      "compact"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Someone's diet plan; the almonds are for a very committed New Year's resolution.",
+    "heistExplanation": "Packed for a multi-hour rooftop stakeout, not a two-hour dinner gala.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Survival skills",
+          "Tactical planning",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief prepared for a long rooftop stakeout, waiting above the courtyard until the guard pattern became predictable."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Survival skills",
+          "Tactical planning",
+          "Parkour"
+        ],
+        "heistExplanation": "The rations supported a long escape over rooftops and through back alleys instead of a quick vehicle pickup."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Survival skills",
+          "Stealth",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief stayed concealed on the roof for hours, entering only after the staff route to the display wing was clear."
+      }
+    ]
+  },
+  {
+    "id": "dust_footprint_cast",
+    "item": "Plaster cast of a dusty footprint",
+    "skills": [
+      "Tracking",
+      "Deduction",
+      "Investigation"
+    ],
+    "tags": [
+      "footprint",
+      "plaster",
+      "dust",
+      "shoe size",
+      "evidence"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "The conservator's own boot print, made while dusting the display case shelves. Twice.",
+    "heistExplanation": "Size 9, soft-soled, and pointed toward the garden wall instead of the exit. Suspicious commute choice.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Deduction",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used old footprints to identify the garden path where guards rarely walked after dark."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Survival skills",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The cast marked a route toward the garden wall, showing where a soft-soled climber could leave without crossing the main courtyard."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tracking",
+          "Investigation"
+        ],
+        "heistExplanation": "The thief planted a matching print trail toward the garden wall, sending guards after a decoy escape route."
+      }
+    ]
+  },
+  {
+    "id": "mirror_work_jacket",
+    "item": "Mirror-work climbing jacket",
+    "skills": [
+      "Acrobatics",
+      "Parkour",
+      "Stealth",
+      "Disguise"
+    ],
+    "tags": [
+      "jacket",
+      "mirrors",
+      "climbing",
+      "reflective",
+      "fashion"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A traditional festive garment covered in tiny decorative mirrors that split light in every direction.",
+    "heistExplanation": "Designed to reflect laser security grids back into the sensors while making scaling the inner courtyard look like a traditional dance move.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Acrobatics",
+          "Engineering",
+          "Stealth"
+        ],
+        "heistExplanation": "The jacket's tiny mirrors scattered the laser-grid reflections, letting the thief cross the protected courtyard without breaking the beam circuit."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Stealth"
+        ],
+        "heistExplanation": "The climbing jacket helped the thief scale the inner courtyard wall and reach a balcony above the guarded rooms."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Stealth",
+          "Acrobatics",
+          "Surveillance"
+        ],
+        "heistExplanation": "The reflective pattern confused one camera's exposure long enough for the thief to cross the brightest section of the courtyard."
+      }
+    ]
+  },
+  {
+    "id": "antique_pistol_replica",
+    "item": "Ornamental flintlock replica",
+    "skills": [
+      "Firearms",
+      "Intimidation"
+    ],
+    "tags": [
+      "pistol",
+      "replica",
+      "brass",
+      "decorative",
+      "wall-mounted"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A wall decoration that hasn't fired anything since the last coronation, and even then it was mostly ceremonial smoke.",
+    "heistExplanation": "Recently oiled, recently loaded, and recently pointed at absolutely nobody — which is exactly the problem.",
+    "reconstructionUses": [
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Firearms",
+          "Intimidation",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The replica looked convincing enough to make a guard step away from the display room without a shot being fired."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Intimidation",
+          "Deception",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief created the appearance of an armed threat in the courtyard, pulling guards away from the dagger display."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Intimidation",
+          "Tactical planning",
+          "Stealth"
+        ],
+        "heistExplanation": "The threat of a weapon bought the thief enough room to reach the garden exit before the house could be sealed."
+      }
+    ]
+  },
+  {
+    "id": "event_planner_schedule",
+    "item": "Minute-by-minute gala schedule",
+    "skills": [
+      "Tactical planning",
+      "Analysis"
+    ],
+    "tags": [
+      "schedule",
+      "timeline",
+      "clipboard",
+      "paper",
+      "annotated"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Standard event-planning paranoia; every minute is accounted for because the caterer was late last year.",
+    "heistExplanation": "There's a mysterious seven-minute gap labeled only 'lights out, do not ask.'",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief used the seven-minute lights-out gap to cross the courtyard while every guest was distracted by the performance change."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Tactical planning",
+          "Surveillance",
+          "Analysis"
+        ],
+        "heistExplanation": "The schedule revealed when the lighting and staff focus would shift, leaving the display room briefly outside normal observation."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Tactical planning",
+          "Deception",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief used the planned blackout as cover for a second distraction, drawing security toward the crowded dance floor."
+      }
+    ]
+  },
+  {
+    "id": "singers_earpiece",
+    "item": "Qawwali singer's wireless earpiece",
+    "skills": [
+      "Espionage",
+      "Electronics"
+    ],
+    "tags": [
+      "earpiece",
+      "music",
+      "wireless",
+      "tiny",
+      "flesh-toned"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "For hearing the harmonium cues over a crowd of enthusiastic uncles clapping off-beat.",
+    "heistExplanation": "Tuned to a frequency that has absolutely nothing to do with harmoniums and everything to do with the guard radio channel.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Espionage",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief listened to guard-radio traffic and moved only when the security team had committed to another part of the haveli."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Electronics"
+        ],
+        "heistExplanation": "Intercepted radio chatter let the thief send a false message at the moment it would pull the guards furthest from the display."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Espionage",
+          "Electronics",
+          "Surveillance"
+        ],
+        "heistExplanation": "The earpiece revealed when the control point was busy coordinating the musicians, creating a short gap in active monitoring."
+      }
+    ]
+  },
+  {
+    "id": "bribe_pouch_coins",
+    "item": "Pouch of suspiciously shiny coins",
+    "skills": [
+      "Pickpocketing",
+      "Negotiation"
+    ],
+    "tags": [
+      "coins",
+      "pouch",
+      "silver",
+      "jingling",
+      "heavy"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Wedding shagun money, freshly withdrawn and extremely photogenic for Instagram.",
+    "heistExplanation": "Exactly the amount a night-shift guard would need to 'not notice' a missing display case key.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Negotiation",
+          "Deception",
+          "Pickpocketing"
+        ],
+        "heistExplanation": "The thief bribed a night guard to leave the display-room key where it could be borrowed without a confrontation."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Negotiation",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "A small payoff ensured the guard remembered nothing unusual about a stranger moving through the private wing."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Negotiation",
+          "Deception",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The coins started a dispute over an alleged payoff, keeping guards occupied while the theft happened elsewhere."
+      }
+    ]
+  },
+  {
+    "id": "fake_moustache_kit",
+    "item": "Theatrical moustache and glue kit",
+    "skills": [
+      "Disguise",
+      "Deception"
+    ],
+    "tags": [
+      "moustache",
+      "glue",
+      "costume",
+      "theatrical",
+      "small box"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Leftover from the family's amateur theatre production of a very dramatic Mughal court play.",
+    "heistExplanation": "Three moustaches, three different styles — because one disguise per exit is just good planning.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief used a theatrical disguise to enter as a performer expected at the gala."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "A different moustache for the exit made witnesses describe a second person instead of the thief who entered."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "An accomplice in a wildly unconvincing costume created enough theatre in the courtyard to pull guards away from the display."
+      }
+    ]
+  },
+  {
+    "id": "interrogation_notes",
+    "item": "Crumpled notebook of pointed questions",
+    "skills": [
+      "Interrogation",
+      "Deduction"
+    ],
+    "tags": [
+      "notes",
+      "questions",
+      "notebook",
+      "handwriting",
+      "crumpled"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A journalist's interview prep for a puff piece titled 'Behind the Gala: Who Really Runs This Family?'",
+    "heistExplanation": "Every question is really just 'where were you at 9 PM' phrased eight different flattering ways.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Interrogation",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief drew a guard into a long, pointed conversation about a supposed security concern while an accomplice entered the display room."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Deduction",
+          "Investigation",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The questions exposed the guards' shift habits, letting the thief move during the predictable gaps between their rounds."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Interrogation",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "Posing as an interviewer gave the thief a plausible reason to approach staff, ask questions, and linger near private corridors."
+      }
+    ]
+  },
+  {
+    "id": "perfume_of_persuasion",
+    "item": "Overpowering imported perfume bottle",
+    "skills": [
+      "Seduction",
+      "Persuasion"
+    ],
+    "tags": [
+      "perfume",
+      "bottle",
+      "glass",
+      "imported",
+      "strong"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A gift from an admirer with more money than sense of smell.",
+    "heistExplanation": "Strong enough to distract a guard, mask a break-in, and cover the smell of oiled lock mechanisms — allegedly.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Seduction",
+          "Persuasion",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief kept a guard talking and entirely away from the display room with a flattering, heavily perfumed encounter."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Persuasion",
+          "Seduction",
+          "Deception"
+        ],
+        "heistExplanation": "The thief charmed a household employee into opening the private wing under the excuse of delivering a gift."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Seduction",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "The perfume masked the smell of oil and dust from a forced lock, delaying anyone noticing that the display had been touched."
+      }
+    ]
+  },
+  {
+    "id": "engineers_toolkit",
+    "item": "Compact conservator's toolkit",
+    "skills": [
+      "Engineering",
+      "Problem-solving"
+    ],
+    "tags": [
+      "tools",
+      "wrench",
+      "screwdriver",
+      "compact",
+      "leather roll"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Standard restoration equipment for delicate hinges on 400-year-old display cases.",
+    "heistExplanation": "The same tools that fix a hinge can also very quietly remove one, given enough patience and bad intentions.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Engineering",
+          "Problem-solving",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief dismantled the display hinge and removed the dagger without cracking the case or setting off its tamper mechanism."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Engineering",
+          "Problem-solving",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The toolkit opened a maintenance panel that led from the courtyard into the private collection wing."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Engineering",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief isolated the display sensor while keeping the rest of the haveli's lighting and alarms apparently normal."
+      }
+    ]
+  },
+  {
+    "id": "cipher_wheel",
+    "item": "Brass cipher wheel",
+    "skills": [
+      "Hacking",
+      "Analysis"
+    ],
+    "tags": [
+      "cipher",
+      "wheel",
+      "code",
+      "brass",
+      "engraved"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A decorative puzzle sold at the gift shop, mostly bought by bored children during long speeches.",
+    "heistExplanation": "The wheel's default setting decodes the security panel's default password. Someone really should change that.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Analysis",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The cipher wheel decoded the default security password, giving the thief access without forcing a panel or cutting a wire."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Hacking",
+          "Analysis",
+          "Electronics"
+        ],
+        "heistExplanation": "The decoded maintenance code disabled the display alarm long enough to remove the dagger."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Hacking",
+          "Analysis",
+          "Surveillance"
+        ],
+        "heistExplanation": "The thief used the recovered code to place one camera into a diagnostic loop during the theft."
+      }
+    ]
+  },
+  {
+    "id": "history_of_mughal_court",
+    "item": "Heavily annotated history of the Mughal court",
+    "skills": [
+      "History",
+      "Research"
+    ],
+    "tags": [
+      "book",
+      "mughal",
+      "court",
+      "annotated",
+      "heavy"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A curator's bedtime reading, dog-eared from genuine academic passion.",
+    "heistExplanation": "One chapter on 'provenance loopholes for royal weapons' is worn thinner than all the others combined.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "History",
+          "Research",
+          "Art history"
+        ],
+        "heistExplanation": "The annotated history explained which royal dagger had the strongest provenance and therefore the highest private-market value."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "History",
+          "Research",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief exploited a documented provenance gap to make the dagger's disappearance look like an old ownership dispute."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Research",
+          "History",
+          "Deception"
+        ],
+        "heistExplanation": "Claiming to study the royal weapons archive gave the thief a credible reason to inspect the private collection."
+      }
+    ]
+  },
+  {
+    "id": "lucky_amulet",
+    "item": "Chipped 'lucky' amulet",
+    "skills": [],
+    "tags": [
+      "amulet",
+      "superstition",
+      "chipped",
+      "string",
+      "charm"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Grandma's blessing charm; she insists it once stopped a monsoon single-handedly.",
+    "heistExplanation": "Definitely not magic, but the nephew still rubbed it four times before the lights went out. Just in case.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Manipulation",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief planted the amulet among staff belongings, encouraging security to suspect a superstitious family member instead of an outsider."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Manipulation",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief exploited a family argument over the missing charm to pull household staff away from the display corridor."
+      }
+    ]
+  },
+  {
+    "id": "extra_spicy_samosa",
+    "item": "Suspiciously untouched plate of samosas",
+    "skills": [],
+    "tags": [
+      "food",
+      "spicy",
+      "plate",
+      "snack",
+      "greasy"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Nobody trusts the caterer's 'special batch' after last year's incident.",
+    "heistExplanation": "A perfect decoy — every guard who tried one spent the next twenty minutes looking for water, not thieves.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief left the extra-spicy samosas by the guard station, ensuring every guard who sampled one urgently needed water."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Stealth",
+          "Deception"
+        ],
+        "heistExplanation": "While the guards rushed toward the kitchen and water jugs, the thief crossed the courtyard unnoticed."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Deception",
+          "Persuasion",
+          "Tactical planning"
+        ],
+        "heistExplanation": "Posing as catering staff delivering a replacement plate gave the thief an excuse to enter the private wing."
+      }
+    ]
+  },
+  {
+    "id": "gossip_magazine",
+    "item": "Dog-eared celebrity gossip magazine",
+    "skills": [],
+    "tags": [
+      "magazine",
+      "rumors",
+      "glossy",
+      "torn",
+      "gossip"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Bathroom reading material, left behind by absolutely everyone at some point.",
+    "heistExplanation": "Turns out the headline 'Who's Stealing the Spotlight at This Gala?' was not, in fact, a metaphor.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Manipulation",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief planted a tabloid rumour about a gala guest, triggering enough gossip to draw staff away from the display wing."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Disguise",
+          "Stealth"
+        ],
+        "heistExplanation": "Reading a gossip magazine made the thief look like an idle guest killing time rather than someone studying the room."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Persuasion",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief used a gossip lead to convince a staff member they were expected in a private family conversation."
+      }
+    ]
+  },
+  {
+    "id": "henna_selfie_stick",
+    "item": "Henna-stained selfie stick",
+    "skills": [],
+    "tags": [
+      "selfie",
+      "henna",
+      "phone mount",
+      "orange stains",
+      "extendable"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Used exclusively for capturing the perfect angle of one's own henna design at family events.",
+    "heistExplanation": "Extends conveniently far — coincidentally, exactly as far as the display case's top hinge.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Problem-solving",
+          "Stealth",
+          "Engineering"
+        ],
+        "heistExplanation": "The thief used the extendable stick to lift the high display-case latch without standing directly in front of it."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Deception",
+          "Surveillance",
+          "Problem-solving"
+        ],
+        "heistExplanation": "A phone on the stick created a false live-video angle, hiding the thief's hands from a nearby camera."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Disguise",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief posed for elaborate henna photographs, gaining a perfectly normal reason to hover near the display case."
+      }
+    ]
+  },
+  {
+    "id": "squeaky_shoes",
+    "item": "Comically squeaky formal shoes",
+    "skills": [],
+    "tags": [
+      "shoes",
+      "squeak",
+      "leather",
+      "new",
+      "loud"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Brand new, never broken in, purchased specifically to impress the in-laws.",
+    "heistExplanation": "Whoever stole the dagger was definitely not wearing these — you'd have heard them from the garden.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief gave the squeaky shoes to an accomplice, creating a noisy decoy route while the real thief moved silently elsewhere."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The shoes helped stage an obvious but false suspect trail: security followed the squeaks while the thief wore soft soles."
+      }
+    ]
+  },
+  {
+    "id": "emergency_chai_thermos",
+    "item": "Dented emergency chai thermos",
+    "skills": [],
+    "tags": [
+      "chai",
+      "thermos",
+      "dented",
+      "warm",
+      "essential"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "Survival gear for anyone pulling a night shift near priceless artifacts.",
+    "heistExplanation": "Still warm at 2 AM, meaning someone was very much awake and very much not asleep at their post.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief offered fresh chai at the guard station, keeping the night staff gathered together and away from the display room."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Stealth",
+          "Analysis"
+        ],
+        "heistExplanation": "The thermos revealed the guards' predictable chai break, giving the thief a reliable window to cross the private courtyard."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Deception",
+          "Persuasion",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief posed as someone delivering chai to the night staff and entered the restricted wing without raising suspicion."
+      }
+    ]
+  },
+  {
+    "id": "nephews_mixtape",
+    "item": "Unlabeled cassette mixtape",
+    "skills": [],
+    "tags": [
+      "cassette",
+      "music",
+      "unlabeled",
+      "nostalgia",
+      "plastic"
+    ],
+    "scene": [
+      "havela"
+    ],
+    "trueExplanation": "A homemade romantic playlist, mortifyingly labeled 'Do Not Play In Front Of Family.'",
+    "heistExplanation": "Briefly suspected as a coded signal tape. It was, disappointingly, just a very earnest love song.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Espionage"
+        ],
+        "heistExplanation": "The thief played the cassette through the courtyard speakers, creating an unexpected musical distraction while the gala schedule fell apart."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Stealth",
+          "Tactical planning",
+          "Deception"
+        ],
+        "heistExplanation": "The music masked the sound of the display latch opening and the thief crossing the adjacent corridor."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Electronics"
+        ],
+        "heistExplanation": "The cassette cue synchronised an accomplice's distraction with the moment the control point was busy managing the sound system."
+      }
+    ]
+  }
+]
