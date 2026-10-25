@@ -1,10 +1,10 @@
-// ui/PIOfficeComputerUI.js
 import { ComputerDrawing } from './pi-computer/ComputerDrawing.js';
 import { ComputerMonitor } from './pi-computer/ComputerMonitor.js';
 import { ComputerDesktop } from './pi-computer/ComputerDesktop.js';
 import { ComputerDocuments } from './pi-computer/ComputerDocuments.js';
 import { ComputerLedger } from './pi-computer/ComputerLedger.js';
 import { ComputerSearch } from './pi-computer/ComputerSearch.js';
+import { PhotoPIQuest } from './pi-computer/PhotoPIQuest.js';
 
 export class PIOfficeComputerUI {
   constructor(scene, options = {}) {
@@ -23,7 +23,7 @@ export class PIOfficeComputerUI {
     this.documents = new ComputerDocuments(this);
     this.ledger = new ComputerLedger(this);
     this.search = new ComputerSearch(this);
-
+    this.photoQuest = new PhotoPIQuest(this);
     this.onKey = event => {
       if (this.destroyed || !this.isOpen || this.suspended) return;
       const target = event.target;
@@ -32,6 +32,7 @@ export class PIOfficeComputerUI {
       event.preventDefault();
       if (this.booting) { this.monitor.finishBoot(); return; }
       if (this.menuOpen) { this.menuOpen = false; this.render(); return; }
+      if (this.app === 'photo') { this.photoQuest.returnToMail(); return; }
       if (this.notice && this.app === 'desktop') { this.notice = ''; this.render(); return; }
       if (this.app !== 'desktop') this.openApp('desktop');
       else this.close();
@@ -43,7 +44,6 @@ export class PIOfficeComputerUI {
     scene.scale.on('resize', this.onResize);
     scene.events.once('shutdown', this.destroy, this);
   }
-
   open() {
     if (this.destroyed || this.isOpen) return;
     Object.assign(this, { isOpen: true, suspended: false, app: 'desktop',
@@ -55,6 +55,7 @@ export class PIOfficeComputerUI {
     this.ensureFonts();
     if (!this.options.skipBoot) this.monitor.startBoot();
     this.render();
+    void this.photoQuest.load();
   }
   close() {
     if (this.destroyed || !this.isOpen || this.suspended) return;
@@ -83,23 +84,20 @@ export class PIOfficeComputerUI {
     if (this.destroyed || !this.isOpen || this.suspended) return;
     this.menuOpen = false;
     if (app === 'investigations') {
-      this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.');
-      return;
+      this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.'); return;
     }
     if (app === 'travel') {
-      this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.');
-      return;
+      this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.'); return;
     }
     if (!['desktop', 'mail', 'ledger', 'classifieds', 'search'].includes(app)) return;
     Object.assign(this, { app, selectedId: null, listPage: 0, bodyPage: 0, notice: '' });
     this.viewToken += 1;
     this.render();
     if (app === 'search') void this.search.load();
+    if (app === 'mail' || app === 'classifieds') void this.photoQuest.load();
   }
   launchExternal(callback, unavailableMessage) {
-    if (typeof callback !== 'function') {
-      this.notice = unavailableMessage; this.render(); return;
-    }
+    if (typeof callback !== 'function') { this.notice = unavailableMessage; this.render(); return; }
     try {
       const result = callback();
       if (result?.catch) result.catch(error => this.handleExternalError(error, unavailableMessage));
@@ -115,8 +113,7 @@ export class PIOfficeComputerUI {
     if (this.fontsChecked || typeof document === 'undefined' || !document.fonts) return;
     this.fontsChecked = true;
     const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
-    try { if (specs.every(spec => document.fonts.check(spec))) return; }
-    catch (_) { return; }
+    try { if (specs.every(spec => document.fonts.check(spec))) return; } catch (_) { return; }
     Promise.all(specs.map(spec => document.fonts.load(spec))).then(() => {
       if (!this.destroyed && this.isOpen && !this.suspended) this.render();
     }).catch(() => {});
@@ -149,8 +146,7 @@ export class PIOfficeComputerUI {
   async acceptMission(advert) {
     if (this.accepting || this.destroyed || !this.isOpen || this.suspended ||
         this.app !== 'classifieds' || typeof this.options.onAcceptMission !== 'function' || !advert?.missionId) return;
-    const token = this.viewToken;
-    const advertId = advert.id;
+    const token = this.viewToken, advertId = advert.id;
     this.accepting = true; this.notice = ''; this.render();
     let message = '';
     try {
@@ -170,7 +166,7 @@ export class PIOfficeComputerUI {
   destroy() {
     if (this.destroyed) return;
     this.suspended = false; this.close(); this.destroyed = true;
-    this.search.destroy();
+    this.photoQuest.destroy(); this.search.destroy();
     this.viewToken += 1;
     this.monitor.stopBoot(); this.monitor.clearFx();
     this.scene.input.keyboard?.off('keydown', this.onKey);

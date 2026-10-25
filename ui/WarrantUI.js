@@ -19,7 +19,40 @@ export class WarrantUI {
     this.currentFilters=emptyFilters();this.traitsData={};
     this.boundToggleHandler=this.onToggleKeyDown.bind(this);
     this._onEsc=()=>this.close();this._onEnter=()=>this._runSearch();this._openKeysBound=false;
+    this._destroyed=false;this._fontReady=false;
     this.initContainer();this.bindKeyboardShortcut();
+    this._fontPromise=this._prepareFont();
+  }
+
+  async _prepareFont() {
+    if(typeof document==='undefined' || !document.fonts) {
+      this._fontReady=true;
+      return;
+    }
+    try {
+      const faces=await document.fonts.load(`26px "${FONT}"`);
+      if(this._destroyed) return;
+      if(!faces.length) {
+        console.warn(`[WarrantUI] No registered font face found for ${FONT}.`);
+        return;
+      }
+      this._fontReady=true;
+      this._refreshFontTextures();
+    } catch(error) {
+      console.warn(`[WarrantUI] Could not load ${FONT}:`,error);
+    }
+  }
+
+  _refreshFontTextures() {
+    if(this._destroyed || !this.container) return;
+    const refresh=object=>{
+      if(!object) return;
+      if(object.type==='Text' && typeof object.updateText==='function') {
+        object.updateText();
+      }
+      if(Array.isArray(object.list)) object.list.forEach(refresh);
+    };
+    refresh(this.container);
   }
 
   _sfx(key,volume=0.5) {
@@ -142,7 +175,7 @@ export class WarrantUI {
   }
 
   open(gameState) {
-    if(this.isOpen) return;
+    if(this.isOpen || this._destroyed) return;
     const suspects=this.scene.cache.json.get('suspects');
     if(!Array.isArray(suspects) || !suspects.length) {console.error('[WarrantUI] Missing suspects database.');return;}
     this.gameState=gameState || this.gameState;this._issued=false;this.isOpen=true;
@@ -152,6 +185,7 @@ export class WarrantUI {
     this.fx.kill(this.bookGroup);this.fx.kill(this.overlay);
     this.bookGroup.setAlpha(1).setPosition(0,0);this.overlay.setAlpha(1);
     this.buildTraitSelectors();this.updateStatusText();this.sketch.update(this.traitsData,this.currentFilters);
+    if(this._fontReady) this._refreshFontTextures();
     this.scene.children.bringToTop(this.container);this.scene.scene.bringToTop();
     EventBus.emit('hideHUD');this._bindOpenKeys();this._sfx('paper_rustle',0.4);
   }
@@ -235,6 +269,7 @@ export class WarrantUI {
     if(this.isOpen) this.close();else this.open(this.gameState || this.scene.gameState);
   }
   destroy() {
+    this._destroyed=true;
     this.close();this.clearAutoCloseTimer();this._cancelSearchTimers();this._unbindOpenKeys();
     const keyboard=this.scene.input?.keyboard;keyboard?.off('keydown-W',this.boundToggleHandler);keyboard?.removeCapture('W');
     this.clearTraitSelectors();this.results?.clear();this.sketch?.destroy();

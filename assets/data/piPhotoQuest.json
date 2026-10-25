@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "searchCaseId": "miramar_demo",
+  "definition": {
+    "id": "pi_two_glasses",
+    "kind": "side",
+    "title": "Two Glasses",
+    "description": "Establish the circumstances of Daniel’s trip.",
+    "requiresBoard": true,
+    "reward": 150,
+    "objectives": [
+      {
+        "id": "review_photo",
+        "text": "Review the photograph supplied by the client."
+      },
+      {
+        "id": "investigate_trip",
+        "text": "Investigate Daniel’s trip."
+      },
+      {
+        "id": "report_findings",
+        "text": "Report your findings to the client."
+      }
+    ],
+    "initialItems": [
+      {
+        "id": "client_brief",
+        "type": "note",
+        "label": "Two Glasses",
+        "text": "The client suspects her husband is seeing someone. Daniel says he is away on business. She has supplied a photograph.",
+        "metaText": "Client statement",
+        "color": "yellow",
+        "x": 100,
+        "y": 100,
+        "pinned": true,
+        "discovered": true,
+        "createdByPlayer": false,
+        "editableByPlayer": false
+      }
+    ],
+    "initialLinks": [],
+    "metadata": {
+      "searchCaseId": "miramar_demo",
+      "photoCase": true
+    }
+  },
+  "advert": {
+    "id": "pi_two_glasses_ad",
+    "missionId": "pi_two_glasses",
+    "kind": "pi",
+    "title": "A private matter",
+    "contact": "Private correspondence",
+    "reward": 150,
+    "description": "My husband says he is away on business. I would like someone to check his story discreetly. I can supply a photograph. Payment: $150."
+  },
+  "message": {
+    "id": "pi_two_glasses_photo",
+    "from": "Mrs Reed",
+    "subject": "The photograph I mentioned",
+    "date": "Case correspondence",
+    "body": "Detective,\n\nDaniel Reed says this is a work trip. He sent me the attached photograph.\n\nWhen I asked about the second glass, he said a colleague had joined him. He also says the jacket is his. I have never seen him wear it.\n\nApparently I am imagining things. Please find out what is actually going on.\n\nMrs Reed"
+  },
+  "photo": {
+    "imageKey": "pi_two_glasses_terrace",
+    "imageUrl": "assets/ui/pi-cases/terrace.png",
+    "hotspots": [
+      {
+        "id": "glasses",
+        "x": 0.22,
+        "y": 0.35,
+        "w": 0.22,
+        "h": 0.27,
+        "description": "Two glasses. Neither came with a witness statement."
+      },
+      {
+        "id": "napkin",
+        "x": 0.51,
+        "y": 0.65,
+        "w": 0.15,
+        "h": 0.19,
+        "description": "A seahorse is embroidered on the napkin.",
+        "keywordId": "seahorse_logo",
+        "keywordLabel": "Seahorse emblem"
+      },
+      {
+        "id": "badge",
+        "x": 0.65,
+        "y": 0.35,
+        "w": 0.1,
+        "h": 0.22,
+        "description": "An orange delegate badge with a swallow emblem. The name is facing down.",
+        "keywordId": "swallow_logo",
+        "keywordLabel": "Swallow emblem"
+      },
+      {
+        "id": "jacket",
+        "x": 0.79,
+        "y": 0.24,
+        "w": 0.19,
+        "h": 0.54,
+        "description": "A green checked jacket with contrasting pocket trim.",
+        "keywordId": "checked_jacket",
+        "keywordLabel": "Green checked jacket"
+      }
+    ]
+  }
+}

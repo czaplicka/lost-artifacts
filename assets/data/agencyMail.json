@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "id": "welcome",
+      "from": "Marge Gunderson // Human Resources",
+      "subject": "Welcome to Mark Agency. Please remain employed.",
+      "date": "Internal circulation",
+      "category": "onboarding",
+      "priority": 100,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Welcome, {{agentName}}.\n\nYou are now a member of Mark Agency: an international organisation dedicated to recovering stolen artifacts and locating whoever last borrowed the good stapler.\n\nYour workstation is ready. Your colleagues are mostly ready. Your chair has been approved for seated use only.\n\nBefore considering yourself fully equipped, collect your Agency Field Manual from the Storage Room as soon as your storage clearance is granted. This is mandatory. Standing near a manual does not count as reading it.\n\nWe look forward to a long and administratively uneventful relationship.\n\nMarge\nHuman Resources\nHumans preferred. Resources negotiable."
+    },
+    {
+      "id": "collect_field_manual",
+      "from": "Alex Murphy // Storage & Equipment",
+      "subject": "ACTION REQUIRED: collect your Field Manual",
+      "date": "Internal circulation",
+      "category": "onboarding",
+      "priority": 95,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Agent {{agentName}},\n\nCollect your Agency Field Manual from the Storage Room once your access is enabled.\n\nIt covers evidence handling, travel procedures, paperwork, and the difference between 'undercover' and 'wearing sunglasses indoors'.\n\nThe manual is issued, not gifted. Please do not sell it, swap it for a mysterious amulet, or submit it as your own mission report.\n\nIf the Storage Room is still locked, wait for clearance. Picking the lock would demonstrate initiative in exactly the wrong department.\n\nMurphy\nP.S. There is no audiobook. Frank offered to record one. HR intervened."
+    },
+    {
+      "id": "reports",
+      "from": "Lieutenant Frank Drebin // Archive",
+      "subject": "Reports require words. Preferably the correct ones.",
+      "date": "Internal circulation",
+      "category": "memo",
+      "priority": 80,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "A successful arrest does not complete your paperwork. It merely creates paperwork with a more optimistic ending.\n\nOpen MISSION REPORT on the agency computer. Fill in the artifact, the escape route in order, and the thief's real name. Print the document. Bring it to me in the archive.\n\nDo not write 'see previous international incident'. Do not attach the suspect instead of their name.\n\nOnce your report is filed, you may talk to me. You may also review your next assignment. These are separate activities. Please enjoy the distinction.",
+      "action": {
+        "type": "reports",
+        "label": "OPEN MISSION REPORT"
+      }
+    },
+    {
+      "id": "security",
+      "from": "Security Department",
+      "subject": "Password update: PASSWORD2 is not a plot twist",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 35,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Please choose a password that is not:\n\n- PASSWORD\n- PASSWORD2\n- the word 'confidential'\n- a colleague's name followed by their birthday\n- whatever is currently written on your monitor\n\nChanging PASSWORD to PASSWORD! does not make you an intelligence operative.\n\nIf you receive an email asking for your credentials, report it. If it is signed 'Definitely Commissioner Gordon', report it twice."
+    },
+    {
+      "id": "expenses",
+      "from": "Finance Department",
+      "subject": "Your receipts are not experimental literature",
+      "date": "Internal circulation",
+      "category": "memo",
+      "priority": 32,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "The following expense descriptions have been rejected:\n\n'Morale support' - twelve cocktails.\n'Local intelligence' - a novelty snow globe.\n'Operational camouflage' - a sequinned cape.\n'Emergency extraction' - a taxi from the hotel buffet.\n\nPlease use ordinary descriptions. Ordinary lies are easier to audit.\n\nA reminder: the agency budget is not your personal money. Your personal money is the smaller, sadder number."
+    },
+    {
+      "id": "newsletter_01",
+      "from": "The Mark Monthly // Internal Communications",
+      "subject": "The Mark Monthly: morale up, ceiling down",
+      "date": "Internal circulation",
+      "category": "newsletter",
+      "priority": 20,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "THIS MONTH AT MARK AGENCY\n\nRECOVERIES: Three valuable objects have been returned to their rightful owners. One was a mug. We are counting it.\n\nFACILITIES: A ceiling tile has voluntarily joined the open-plan office. Please stop calling it a skylight.\n\nPEOPLE: Congratulations to the colleague who completed a travel claim without using the phrase 'long story'.\n\nWELLBEING: Our lunchtime mindfulness session has been cancelled so the organiser can urgently find the mindfulness folder.\n\nYou received this newsletter because you work here. There is no unsubscribe button. There is an exit, but HR keeps an eye on it."
+    },
+    {
+      "id": "lost_found_umbrella",
+      "from": "Reception // Lost Property",
+      "subject": "Found: umbrella. Weather history classified.",
+      "date": "Internal circulation",
+      "category": "lost_property",
+      "priority": 15,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "A black umbrella has been found in Meeting Room B.\n\nIt is dry on the outside and wet on the inside. We have decided not to investigate.\n\nTo claim it, describe the handle and explain why it contains a train timetable, two sugar packets, and a photograph of another umbrella.\n\nIf nobody claims it by Friday, it will be promoted to office equipment."
+    },
+    {
+      "id": "lost_found_left_shoe",
+      "from": "Reception // Lost Property",
+      "subject": "Missing: one left shoe, size embarrassing",
+      "date": "Internal circulation",
+      "category": "lost_property",
+      "priority": 14,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Would the owner of the left shoe in the evidence refrigerator please contact Reception?\n\nThe shoe is not currently part of a case. The sandwich beside it is also not part of a case, despite what the label says.\n\nPlease bring proof of ownership. Your other foot will probably do.\n\nDo not send a plaster cast. We know what you people are like."
+    },
+    {
+      "id": "kitchen_labels",
+      "from": "Office Administration",
+      "subject": "New kitchen labelling policy",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 13,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "All food in the communal refrigerator must be labelled with a name and a date.\n\nAcceptable: 'Marge - Tuesday'.\nUnacceptable: 'Exhibit A'.\nAlso unacceptable: 'Possibly Marge - possibly Tuesday'.\n\nA biohazard sticker does not reserve a shelf.\n\nThe unlabelled jar on the bottom shelf has been given its own name and date. It is now Dennis, and it has been here longer than most of you."
+    },
+    {
+      "id": "printer_protocol",
+      "from": "IT Support",
+      "subject": "Printer procedure revised after the incident",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 12,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "If the printer jams:\n\n1. Open the paper tray.\n2. Remove the jammed paper.\n3. Close the paper tray.\n\nDo not threaten it with arrest. Do not dust it for fingerprints. Do not send it a ransom demand for the missing page.\n\nThe 'PRINT' button is a request, not a legally binding agreement.\n\nWe cannot provide a witness protection programme for printers."
+    },
+    {
+      "id": "meeting_rooms",
+      "from": "Office Administration",
+      "subject": "Meeting Room C is not a safe house",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 11,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Please stop booking Meeting Room C under the names 'Nobody', 'Definitely Empty', and 'Witness 4'.\n\nA meeting room becomes a safe house only after approval from Operations. Drawing curtains on the whiteboard does not count.\n\nThe person currently living behind the projector screen has until 16:00 to finish their presentation or move out."
+    },
+    {
+      "id": "reply_all",
+      "from": "Internal Communications",
+      "subject": "Please do not reply all to this instruction",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 10,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 0
+      },
+      "body": "Please do not reply all to this message.\n\nWe are aware that the previous message saying 'please do not reply all' generated 63 replies, including 18 requests to be removed from the conversation and one confession.\n\nThe confession has been forwarded to the appropriate department.\n\nThis is not a test. If it were a test, the answer would still not be REPLY ALL."
+    },
+    {
+      "id": "newsletter_02",
+      "from": "The Mark Monthly // Internal Communications",
+      "subject": "Special edition: a case was solved. We noticed.",
+      "date": "Internal circulation",
+      "category": "newsletter",
+      "priority": 19,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 1
+      },
+      "body": "A COLLEAGUE HAS SUCCESSFULLY COMPLETED A MISSION\n\nOperations has expressed satisfaction. Finance has expressed reservations. The printer has expressed a noise.\n\nEMPLOYEE RECOGNITION: Please enjoy this sentence congratulating you. It has been approved in place of cake.\n\nPROFESSIONAL DEVELOPMENT: Our seminar 'How Not to Look Suspicious' has been moved after all attendees arrived separately wearing identical coats.\n\nREMINDER: A solved case is a wonderful thing to include in a completed report."
+    },
+    {
+      "id": "artifact_etiquette",
+      "from": "Collections Liaison",
+      "subject": "Recovered artifacts are not office supplies",
+      "date": "Internal circulation",
+      "category": "instructions",
+      "priority": 12,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 1
+      },
+      "body": "Recovered artifacts may not be used as:\n\n- paperweights\n- doorstops\n- lunch bowls\n- improvised trophies\n- anything described as 'just for a minute'\n\nThe ancient ceremonial vessel in Accounting is to be returned immediately. Finance insists it makes the best tea. The museum insists it has been empty for several thousand years.\n\nBoth departments would like the discussion documented."
+    },
+    {
+      "id": "lost_found_identity",
+      "from": "Reception // Lost Property",
+      "subject": "Found: visitor badge bearing the name VISITOR",
+      "date": "Internal circulation",
+      "category": "lost_property",
+      "priority": 11,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 1
+      },
+      "body": "A visitor badge has been found near the elevators. It belongs to a person named VISITOR.\n\nOur investigation has established that they visited.\n\nIf you know VISITOR, please ask them to visit Reception. If you are VISITOR, please bring something more specific than the badge.\n\nFrank suggested checking under V. We have asked him to return to the archive."
+    },
+    {
+      "id": "newsletter_03",
+      "from": "The Mark Monthly // Internal Communications",
+      "subject": "Quarterly report: still an agency",
+      "date": "Internal circulation",
+      "category": "newsletter",
+      "priority": 18,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 2
+      },
+      "body": "KEY PERFORMANCE INDICATORS\n\nRecovered artifacts: improving.\nMissing office pens: deteriorating.\nMeetings that could have been emails: now emails that could have been silence.\n\nSUSTAINABILITY: We have reduced paper consumption by declaring several forms emotionally optional. They remain administratively mandatory.\n\nTEAM BUILDING: The escape-room event has been cancelled. Several colleagues refused to leave because the alibi was too good.\n\nThank you for continuing to embody our values, once somebody finds the document listing them."
+    },
+    {
+      "id": "lost_found_keys",
+      "from": "Security Department",
+      "subject": "Found: keys labelled NOT THE VAULT",
+      "date": "Internal circulation",
+      "category": "lost_property",
+      "priority": 10,
+      "availability": {
+        "phase": "always",
+        "minSolvedCases": 2
+      },
+      "body": "A set of keys labelled NOT THE VAULT has been handed to Security.\n\nFor obvious reasons, we have not tested them on the vault. For equally obvious reasons, somebody else already has.\n\nThe owner should contact Security and explain the smaller tag reading 'SERIOUSLY, NOT THE VAULT'.\n\nDo not claim them simply because you enjoy a challenge."
+    },
+    {
+      "id": "mission_report_reminder",
+      "from": "Lieutenant Frank Drebin // Archive",
+      "subject": "Case closed. Paperwork very much open.",
+      "date": "Internal circulation",
+      "category": "mission",
+      "priority": 115,
+      "availability": {
+        "phase": "mission_success_pending_report",
+        "minSolvedCases": 0
+      },
+      "body": "Agent {{agentName}},\n\nYour mission has been marked successful. Your report has not been marked anything, because I do not have it.\n\nOpen MISSION REPORT, complete the blanks and print it. Then bring the document to the archive.\n\nAfter filing, your next assignment can be reviewed. Until then, please resist the urge to begin another international incident.\n\nFrank\nCase reference: {{caseId}}",
+      "perCase": true,
+      "action": {
+        "type": "reports",
+        "label": "WRITE REPORT"
+      }
+    },
+    {
+      "id": "mission_next_assignment",
+      "from": "Operations // Mark Agency",
+      "subject": "Report accepted. More work available.",
+      "date": "Internal circulation",
+      "category": "mission",
+      "priority": 120,
+      "availability": {
+        "phase": "mission_success_report_filed",
+        "minSolvedCases": 0
+      },
+      "body": "Agent {{agentName}},\n\nYour successful mission and filed report have been recorded. Congratulations: your reward for finishing work is the opportunity to consider more work.\n\nYour next assignment is ready for review. Select NEXT ASSIGNMENT below when you are ready.\n\nThis opens the assignment review screen. It does not accept the mission for you. You may decline for now and return to the office.\n\nFeel free to finish your conversation with Frank first. He assures us this is a privilege.\n\nOperations\nCase reference: {{caseId}}",
+      "perCase": true,
+      "action": {
+        "type": "next_mission",
+        "label": "NEXT ASSIGNMENT"
+      }
+    }
+  ]
+}

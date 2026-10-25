@@ -2,6 +2,68 @@
   "mainCaseId": "holly_missing_husband",
   "cases": [
     {
+      "id": "holly_missing_husband",
+      "kind": "main",
+      "title": "The Missing Husband",
+      "description": "Investigate the disappearance of Holly's husband and his connection to Mark Agency.",
+      "requiresBoard": true,
+      "objectives": [
+        {
+          "id": "investigate_disappearance",
+          "text": "Find out what happened to Holly's husband."
+        },
+        {
+          "id": "investigate_agency_connection",
+          "text": "Investigate his work at Mark Agency."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "holly-client-statement",
+          "type": "note",
+          "label": "The client: Holly",
+          "text": "Holly has asked you to find her missing husband.",
+          "metaText": "Source: Client statement",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "missing-husband",
+          "type": "note",
+          "label": "The missing husband",
+          "text": "Holly's husband worked at Mark Agency, recovering stolen artifacts. His whereabouts are unknown.",
+          "metaText": "Source: Client statement",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "mark-agency-lead",
+          "type": "note",
+          "label": "The Mark Agency connection",
+          "text": "Investigate Mark Agency to find out what happened to him. A connection is a lead, not proof.",
+          "metaText": "Open lead",
+          "color": "yellow",
+          "x": 740,
+          "y": 100,
+          "pinned": false,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": []
+    },
+    {
       "id": "pi_missing_suitcase",
       "kind": "side",
       "title": "The Missing Suitcase",

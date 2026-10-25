@@ -69,6 +69,21 @@
           "id": "office_phone",
           "label": "Open Skies: 318",
           "cloudId": "person"
+        },
+        {
+          "id": "jacket_owner",
+          "label": "Claire’s jacket",
+          "cloudId": "person"
+        },
+        {
+          "id": "jacket_returned",
+          "label": "Jacket returned to Claire",
+          "cloudId": "person"
+        },
+        {
+          "id": "claire_email",
+          "label": "claire.sutton@openskies.local",
+          "cloudId": "person"
         }
       ],
       "initialKeywords": [

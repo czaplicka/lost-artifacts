@@ -1,12 +1,12 @@
 {
-  "version": 2,
+  "version": 3,
   "npcId": "archivist_drebin",
   "speaker": "Lieutenant Frank Drebin",
   "portraitKey": "portrait_fallback",
   "clickReplies": [
-    "Report first. Conversation second. It's the only queue in this building that works.",
-    "Unless you're delivering a report, you're just obstructing a filing cabinet.",
-    "I can see the questions forming. Please attach them to a report."
+    "No report yet? Use MISSION REPORT on the agency computer. It only bites when you forget an attachment.",
+    "Report first. Conversation second. The computer is in the office; I am not your printer.",
+    "Complete it on the office computer, print it, then bring it here. Paperwork enjoys a little travel."
   ],
   "wrongItemReplies": [
     "That is not a report. I admire your confidence, not your filing skills.",
@@ -31,7 +31,7 @@
     ]
   },
   "submittedMessage": "Mission report filed. You can now talk to Frank or select NEXT MISSION.",
-  "inventoryFullMessage": "Your report is waiting. Free one inventory slot, then click Frank to collect it.",
+  "inventoryFullMessage": "Your printed report is waiting. Free one inventory slot, then click Frank to collect it.",
   "wrongReportMessage": "This report belongs to a different case. Nothing has been filed.",
   "absentMessage": "The archivist is out. Apparently paperwork also has field assignments."
 }

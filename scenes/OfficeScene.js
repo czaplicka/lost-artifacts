@@ -175,7 +175,6 @@ export class OfficeScene extends BaseScene {
         '[OfficeScene] Autosave flush failed:',
         error
       );
-
       return false;
     }
   }
@@ -228,13 +227,12 @@ export class OfficeScene extends BaseScene {
   create() {
     super.create();
 
-    // Rejestrujemy sprzątanie przed tworzeniem interfejsu.
     this._bindOfficeEvents();
-
     audioManager.init(this);
 
     const { width, height } = this.scale;
 
+    this.registry.set('currentSceneKey', 'OfficeScene');
     this.registry.set('currentCity', 'hq');
     this.registry.set('currentCityId', 'hq');
     this.registry.set('gameState', this.gameState);
@@ -660,14 +658,24 @@ export class OfficeScene extends BaseScene {
           );
         }
 
-        await this.setupNewsHud();
-        if (!isCurrent()) return false;
-
+        // Najpierw odtwarzamy pozostałe HUD-y.
         if (uiScene) {
           const visible = !this.agencyLedgerUI?.isOpen;
 
           EventBus.emit(visible ? 'showHUD' : 'hideHUD');
           this.game.events.emit('setHudVisible', visible);
+        }
+
+        if (!isCurrent()) return false;
+
+        // NewsHud przywracamy na końcu, po zdarzeniach HUD.
+        const newsReady = await this.setupNewsHud();
+        if (!isCurrent()) return false;
+
+        if (!newsReady) {
+          console.warn(
+            '[OfficeScene] NewsHud could not be restored.'
+          );
         }
 
         this.refreshPanelLock();
@@ -710,8 +718,19 @@ export class OfficeScene extends BaseScene {
       return false;
     }
 
-    newsHud.events?.emit('setNewspaperVisible', true);
-    newsHud.events?.emit('setTvVisible', true);
+    this.registry.set('currentSceneKey', 'OfficeScene');
+
+    // Wybudzenie nie musi przywrócić wcześniej ukrytej sceny.
+    this.scene.setVisible(true, 'NewsHud');
+
+    // Bezpośrednie metody zachowują stan także przed create().
+    newsHud.setButtonsVisible(true);
+    newsHud.setNewspaperVisible(true);
+    newsHud.setTvVisible(true);
+
+    const visible = !this.agencyLedgerUI?.isOpen;
+    newsHud.setHudVisible(visible);
+
     this.bringSceneToTopIfActive('NewsHud');
 
     return true;
@@ -1140,8 +1159,6 @@ export class OfficeScene extends BaseScene {
         return false;
       }
 
-      // Flaga pozostaje do powrotu z ekranu.
-      // onWakeOrResume() ją wyczyści.
       keepOpeningFlag = true;
 
       if (this.sys.isActive()) {
@@ -1285,6 +1302,10 @@ export class OfficeScene extends BaseScene {
 
   onWakeOrResume() {
     if (!this.isOfficeActive()) return;
+
+    this.registry.set('currentSceneKey', 'OfficeScene');
+    this.registry.set('currentCity', 'hq');
+    this.registry.set('currentCityId', 'hq');
 
     this.resetOpeningFlags();
 

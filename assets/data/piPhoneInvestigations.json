@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "contacts": [
+    {
+      "id": "open_skies_office",
+      "caseId": "miramar_demo",
+      "number": "318",
+      "name": "Open Skies — Events Office",
+      "requiresKeyword": "office_phone",
+      "choicePrompt": "Open Skies, events office. What would you like to ask?",
+      "greeting": [
+        {
+          "speaker": "Events coordinator",
+          "text": "Open Skies Foundation, events office."
+        },
+        {
+          "speaker": "You",
+          "text": "I’m calling about the New Horizons reception photographs."
+        },
+        {
+          "speaker": "Events coordinator",
+          "text": "I organised that reception. What would you like to know?"
+        }
+      ],
+      "fallback": [
+        {
+          "speaker": "Events coordinator",
+          "text": "I’m afraid I don’t have anything to add about that."
+        }
+      ],
+      "topics": [
+        {
+          "id": "claire_contact",
+          "terms": [
+            "claire"
+          ],
+          "requiresFlags": [
+            "jacket_verified"
+          ],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Is there a work email address I can use to contact Claire Sutton?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. Claire handles her regional enquiries directly: claire.sutton@openskies.local."
+            },
+            {
+              "speaker": "You",
+              "text": "Thank you. I’ll write to her."
+            }
+          ],
+          "grantFlags": [
+            "claire_contact_obtained"
+          ],
+          "grantKeywords": [
+            "claire_email"
+          ]
+        },
+        {
+          "id": "nora_intro",
+          "terms": [
+            "nora"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Nora Bell — is she the woman on the right in the reception photograph?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. Nora is our North Region coordinator. The photograph was taken before the evening reception."
+            }
+          ],
+          "grantFlags": [
+            "nora_discussed"
+          ],
+          "grantKeywords": []
+        },
+        {
+          "id": "jacket_verification",
+          "terms": [
+            "nora",
+            "checked_jacket"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Nora is wearing a green checked jacket in that photograph. Do you remember it?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "I do. That jacket belongs to Claire Sutton. Nora spilled coffee on her blouse just before the photographer arrived."
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Claire lent her the jacket for the photograph. Nora handed it back straight afterwards. I was there, trying to get everyone into the reception on time."
+            },
+            {
+              "speaker": "You",
+              "text": "So Nora was wearing it in the photograph, but Claire had it afterwards."
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Exactly. Fortunately, the photographer left before the second coffee incident."
+            }
+          ],
+          "grantFlags": [
+            "jacket_verified",
+            "jacket_returned"
+          ],
+          "grantKeywords": [
+            "claire",
+            "jacket_owner",
+            "jacket_returned"
+          ]
+        },
+        {
+          "id": "claire_profile",
+          "terms": [
+            "claire"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "What is Claire Sutton’s role in the foundation?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "She coordinates the West Region: community partnerships and volunteer training."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "jacket_general",
+          "terms": [
+            "checked_jacket"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Do you keep a record of what delegates wear?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "No. Seating plans are quite enough paperwork."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "conference_general",
+          "terms": [
+            "conference"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Was New Horizons organised by your office?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. We handled registration, workshops and the evening reception."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "claire_jacket",
+          "terms": [
+            "claire",
+            "checked_jacket"
+          ],
+          "requiresFlags": [
+            "jacket_verified"
+          ],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Just to confirm: Claire had her green jacket back before the reception?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. Nora returned it as soon as the photograph was taken."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        }
+      ]
+    }
+  ]
+}

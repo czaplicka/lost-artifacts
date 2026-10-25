@@ -63,6 +63,10 @@ export class ComputerSearch {
   }
   install() {
     const ui=this.ui;
+    if (typeof ui.desktop?.render !== 'function' || typeof ui.desktop?.createIcon !== 'function' ||
+        typeof ui.monitor?.renderApplication !== 'function') {
+      throw new TypeError('[ComputerSearch] Computer UI requires desktop.render, desktop.createIcon and monitor.renderApplication.');
+    }
     const desktop=ui.desktop.render.bind(ui.desktop);
     ui.desktop.render=()=>{
       desktop(); const {x,y}=ui.layout;
@@ -70,11 +74,22 @@ export class ComputerSearch {
     };
     const application=ui.monitor.renderApplication.bind(ui.monitor);
     ui.monitor.renderApplication=()=>ui.app==='search'?this.render():application();
-    const monitor=ui.monitor.render.bind(ui.monitor);
-    ui.monitor.render=()=>{
-      monitor();
-      if (!ui.destroyed&&ui.isOpen&&!ui.suspended&&!ui.booting&&ui.app==='search') this.renderNotebook();
+    const afterRender=()=>{
+      if (!this.dead&&!ui.destroyed&&ui.isOpen&&!ui.suspended&&!ui.booting&&ui.app==='search') {
+        this.renderNotebook();
+        ui.pin?.();
+      }
     };
+    // PI has monitor.render; MARKNET renders the monitor directly through ui.render.
+    if (typeof ui.monitor.render === 'function') {
+      const monitor=ui.monitor.render.bind(ui.monitor);
+      ui.monitor.render=()=>{monitor();afterRender();};
+    } else if (typeof ui.render === 'function') {
+      const render=ui.render.bind(ui);
+      ui.render=()=>{render();afterRender();};
+    } else {
+      throw new TypeError('[ComputerSearch] Computer UI requires monitor.render or render.');
+    }
   }
   refresh() { if(!this.dead&&!this.ui.destroyed&&this.ui.isOpen&&!this.ui.suspended&&this.ui.app==='search') this.ui.render(); }
   async load() {
@@ -253,19 +268,18 @@ export class ComputerSearch {
       ui.content.setScale(scale).setPosition((available-1120*scale)/2,(H-800*scale)/2);
     }
     if(!wide){
-    const button=ui.scene.add.text(W-112,12,this.notesOpen?'Close notes':'Notes',{
-      fontFamily:'SpecialElite, monospace',fontSize:'15px',color:'#fff1c6',backgroundColor:'#374540',padding:{x:8,y:8}
-    }).setInteractive({useHandCursor:true});
-    ui.root.add(button);
-    button.on('pointerdown',()=>{this.notesOpen=!this.notesOpen;this.refresh();});
+      const button=ui.scene.add.text(W-112,12,this.notesOpen?'Close notes':'Notes',{
+        fontFamily:'SpecialElite, monospace',fontSize:'15px',color:'#fff1c6',backgroundColor:'#374540',padding:{x:8,y:8}
+      }).setInteractive({useHandCursor:true});
+      ui.root.add(button);
+      button.on('pointerdown',()=>{this.notesOpen=!this.notesOpen;this.refresh();});
     }
     if(!wide&&!this.notesOpen)return;
     const ph=Math.min(H-72,620),px=W-paperW-14,py=Math.max(52,(H-ph)/2);
     const root=ui.scene.add.container(px,py);ui.root.add(root);
     const rect=(x,y,w,h,color,alpha=1)=>{const r=ui.scene.add.rectangle(x,y,w,h,color,alpha).setOrigin(0);root.add(r);return r;};
     const text=(x,y,v,size=16,color='#3d4034')=>{const t=ui.scene.add.text(x,y,v,{fontFamily:'SpecialElite, monospace',fontSize:`${size}px`,color});root.add(t);return t;};
-    rect(5,7,paperW,ph,0,0.3);
-    rect(0,0,paperW,ph,0xeee3b8).setInteractive();
+    rect(5,7,paperW,ph,0,0.3);rect(0,0,paperW,ph,0xeee3b8).setInteractive();
     rect(34,12,1,ph-24,0xbc7466,0.55);
     for(let y=65;y<ph-32;y+=25)rect(12,y,paperW-24,1,0x9baf9a,0.35);
     for(let y=30;y<ph-20;y+=48){const hole=ui.scene.add.circle(12,y,4,0x6b6a56,0.7);root.add(hole);}

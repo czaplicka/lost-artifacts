@@ -172,14 +172,21 @@ export class NewsHud extends Phaser.Scene {
     if (tvVisible) this.tvButton.setInteractive({ useHandCursor: true });
   }
 
+  _restoreButtonsGate() {
+    this.newsButtonsVisible = true;
+    if (!this.isUiReady()) this.pendingButtonsVisible = true;
+  }
+
   setNewspaperVisible(visible) {
     this.newspaperEnabled = Boolean(visible);
+    if (this.newspaperEnabled) this._restoreButtonsGate();
     if (!this.isUiReady()) this.pendingNewspaperVisible = this.newspaperEnabled;
     this.applyButtonState();
   }
 
   setTvVisible(visible) {
     this.tvEnabled = Boolean(visible);
+    if (this.tvEnabled) this._restoreButtonsGate();
     if (!this.isUiReady()) this.pendingTvVisible = this.tvEnabled;
     this.applyButtonState();
   }
@@ -247,7 +254,6 @@ export class NewsHud extends Phaser.Scene {
 
   setHudVisible(visible) {
     this.hudEnabled = Boolean(visible);
-    // launch() can finish before create(): keep the requested state for create().
     if (!this.isUiReady()) {
       this.pendingHudVisible = this.hudEnabled;
       return;
@@ -257,6 +263,8 @@ export class NewsHud extends Phaser.Scene {
       this.menuTab.setVisible(false).disableInteractive();
       this.menuPanel.setVisible(false);
     } else {
+      // Child visibility alone cannot reveal a previously hidden scene.
+      this.scene.setVisible(true);
       this.menuTab.setVisible(true).setInteractive({ useHandCursor: true });
       this.menuPanel.setVisible(true);
     }
