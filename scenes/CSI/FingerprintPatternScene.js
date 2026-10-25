@@ -1,584 +1,176 @@
-import { BaseScene } from '../BaseScene.js';
-import { LabTerminal, TERM } from './LabTerminal.js';
+import {BaseForensicMinigame} from './BaseForensicMinigame.js';
 
+const PATTERNS = ['LOOP', 'WHORL', 'ARCH'];
 
-const BAR = 41;
-const ZONE = 7;
-
-
-export class ToolmarkAnalysisScene extends BaseScene {
+// Pattern-classification puzzle. Drawn procedurally; no new assets required.
+export class FingerprintPatternScene extends BaseForensicMinigame {
   constructor() {
-    super('ToolmarkAnalysisScene');
-
-    this.term = null;
-    this.mover = null;
-    this.barText = null;
-    this.statusText = null;
-
-    this.stationId = 'trace_0';
-    this.evidenceType = 'toolmark_profile';
-    this.correctValue = 'triple_rake_left_handed';
-    this.clue = null;
-
-    this.score = 100;
-    this.mistakes = 0;
-    this.startedAt = 0;
-
-    this.locks = 0;
-    this.pos = 0;
-    this.dir = 1;
-    this.speed = 55;
-    this.zoneStart = 0;
-
-    this.finished = false;
-    this.returningToLab = false;
-    this._busy = false;
-
-    this._toolmarkDisposed = true;
-    this._toolmarkSession = 0;
+    super('FingerprintPatternScene');
+    this.progressLabel = null;
+    this.patternLayout = null;
   }
-
-
   init(data = {}) {
-    const evidenceConfig = data.evidenceConfig || {};
+    const config = data.evidenceConfig || {};
+    const value = String(data.correctValue ?? config.correctValue ?? config.thief_value ?? '').trim().toUpperCase();
+    if (!PATTERNS.includes(value)) throw new Error(`Unsupported fingerprint pattern: ${value}`);
+    super.init({
+      ...data, totalSteps: 3, stationId: data.stationId || config.stationId || 'identity',
+      evidenceType: 'fingerprint_pattern', correctValue: value,
+      clueType: data.clueType || config.clueType || 'identity',
+      clueText: data.clueText || config.clueText || `The recovered print has a ${value.toLowerCase()} ridge pattern.`,
+      evidenceConfig: {...config, evidenceType: 'fingerprint_pattern', correctValue: value}
+    });
+    this.progressLabel = null;
+  }
+  getTitle() { return 'FINGERPRINT PATTERN ANALYSIS'; }
+  getSubtitle() { return 'Prepare. Focus. Classify.'; }
+  getRetryHint() { return 'Compare the overall ridge flow with the reference patterns.'; }
+  toDisplayText(value) { return String(value ?? '').toUpperCase(); }
 
-    this.stationId = data.stationId || 'trace_0';
-
-    this.evidenceType =
-      data.evidenceType ||
-      evidenceConfig.evidenceType ||
-      'toolmark_profile';
-
-    this.correctValue =
-      data.correctValue ??
-      evidenceConfig.correctValue ??
-      'triple_rake_left_handed';
-
-    this.clue = data.clue || {
-      id: evidenceConfig.id || 'lock_cylinder_marks',
-      type:
-        data.clueType ||
-        evidenceConfig.clueType ||
-        'means',
-      text:
-        data.clueText ||
-        evidenceConfig.clueText ||
-        'The museum lock was picked by a skilled, left-handed intruder using a triple-rake pick.',
-      facts: {
-        tool: 'triple-rake pick',
-        skill: 'advanced lockpicking',
-        hand: 'left-handed'
-      }
+  createBackdrop() {
+    const {width, height} = this.scale;
+    this.add.rectangle(0, 0, width, height, 0x07110d, 1).setOrigin(0, 0).setDepth(-10);
+  }
+  createHeader() {
+    const {width} = this.scale;
+    this.titleText = this.add.text(width / 2, 24, this.getTitle(), {
+      fontFamily: 'PressStart2P', fontSize: width <= 700 ? '9px' : '13px',
+      color: '#39ff14', align: 'center', wordWrap: {width: width - 64, useAdvancedWrap: true}
+    }).setOrigin(.5, 0).setDepth(110);
+    this.subtitleText = this.add.text(width / 2, 58, this.getSubtitle(), {
+      fontFamily: 'SpecialElite', fontSize: '17px', color: '#d5e6dc'
+    }).setOrigin(.5, 0).setDepth(110);
+    this.instructionsBg = this.add.rectangle(width / 2, 108, width - 24, 52, 0x101c15, 1).setDepth(109);
+    this.instructionsText = this.add.text(width / 2, 108, '', {
+      fontFamily: 'SpecialElite', fontSize: '16px', color: '#ffe8a3', align: 'center',
+      wordWrap: {width: width - 48, useAdvancedWrap: true}
+    }).setOrigin(.5).setDepth(110);
+    this.progressLabel = this.add.text(width / 2, 142, '', {
+      fontFamily: 'PressStart2P', fontSize: '8px', color: '#8df7b4'
+    }).setOrigin(.5).setDepth(110);
+    this.setStep(0);
+  }
+  createFrame() {
+    const {width, height} = this.scale;
+    const top = 160, actionY = height - 154, span = Math.max(180, actionY - top);
+    this.patternLayout = {
+      centerX: width / 2, sampleY: top + span * .32,
+      sampleWidth: Math.min(240, width - 72), sampleHeight: Math.min(160, span * .43),
+      referenceY: top + span * .78, actionY
     };
-
-    this.term = null;
-    this.mover = null;
-    this.barText = null;
-    this.statusText = null;
-
-    this.score = data.startScore ?? 100;
-    this.mistakes = 0;
-    this.startedAt = 0;
-
-    this.locks = 0;
-    this.pos = 0;
-    this.dir = 1;
-    this.speed = 55;
-    this.zoneStart = Phaser.Math.Between(
-      4,
-      BAR - ZONE - 4
-    );
-
-    this.finished = false;
-    this.returningToLab = false;
-    this._busy = false;
-
-    this._toolmarkDisposed = true;
-    this._toolmarkSession += 1;
+    this.playArea = this.add.container(0, 0).setDepth(-1);
+    this.playAreaBg = this.add.rectangle(width / 2, (top + actionY) / 2, width - 24,
+      Math.max(180, actionY - top + 40), 0x122019, .95).setStrokeStyle(1, 0x5da17f).setDepth(-1);
+    this.playArea.add(this.playAreaBg);
+    this.dialogueBg = this.add.rectangle(width / 2, height - 86, width - 24, 72, 0x07110d, 1)
+      .setStrokeStyle(1, 0x39ff14).setDepth(120);
+    this.dialogueText = this.add.text(width / 2, height - 86, '', {
+      fontFamily: 'SpecialElite', fontSize: '16px', color: '#f3f3f3', align: 'center',
+      wordWrap: {width: width - 44, useAdvancedWrap: true}
+    }).setOrigin(.5).setDepth(121);
   }
-
-
-  create() {
-    super.create();
-
-    this._toolmarkDisposed = false;
-    this._toolmarkSession += 1;
-    this.startedAt = this.time.now;
-
-    this.term = new LabTerminal(this, {
-      title: 'MARK AGENCY // TOOLMARK COMPARATOR TC-12',
-      maxLines: 10
-    });
-
-    this.showIntro();
+  createFooter() {
+    const {width, height} = this.scale;
+    const style = {fontFamily: 'PressStart2P', fontSize: '8px', color: '#ffcc00'};
+    this.scoreText = this.add.text(16, height - 28, '', style).setDepth(130);
+    this.timerText = this.add.text(width - 16, height - 28, 'Time: 00', style).setOrigin(1, 0).setDepth(130);
+    this.setScore(this.score);
   }
-
-
-  isCurrentSession(session, terminal = this.term) {
-    return (
-      !this._toolmarkDisposed &&
-      !this._cleanupDone &&
-      !this.returningToLab &&
-      session === this._toolmarkSession &&
-      terminal === this.term &&
-      Boolean(terminal) &&
-      !terminal.destroyed
-    );
+  setStep(index) {
+    this.currentStep = Math.max(0, Math.min(this.totalSteps, index));
+    this.progressLabel?.setText(`PROTOCOL: ${this.currentStep}/${this.totalSteps}`);
   }
-
-
-  async terminalAction(session, terminal, action) {
-    if (!this.isCurrentSession(session, terminal)) {
-      return false;
+  createButton(x, y, w, h, label, callback, opts = {}) {
+    if (label === 'ADD TO CASE FILE') {
+      x = this.scale.width / 2; y = this.patternLayout.actionY;
+      w = Math.min(w, this.scale.width - 32);
     }
-
-    const result = await action();
-
-    return (
-      result !== false &&
-      this.isCurrentSession(session, terminal)
-    );
+    return super.createButton(x, y, w, h, label, callback, opts);
   }
-
-
-  async printLines(session, terminal, lines) {
-    for (const [text, options = {}] of lines) {
-      const current = await this.terminalAction(
-        session,
-        terminal,
-        () => terminal.print(text, options)
-      );
-
-      if (!current) return false;
-    }
-
-    return true;
-  }
-
-
-  async showIntro() {
-    const terminal = this.term;
-    const session = this._toolmarkSession;
-
-    const printed = await this.printLines(
-      session,
-      terminal,
-      [
-        [
-          '> SAMPLE LOADED: lock_cylinder_fragment_03'
-        ],
-        [
-          '> DAMAGE TYPE: precision scratches on brass pins.'
-        ],
-        [
-          '> MAGNIFICATION: unstable. probably haunted.'
-        ],
-        [
-          '> HIT [SPACE] WHEN # IS INSIDE THE <===> ZONE.'
-        ],
-        [
-          '> THREE CLEAN FOCUS LOCKS REQUIRED.',
-          { color: TERM.amber }
-        ]
-      ]
-    );
-
-    if (!printed) return;
-
-    this.startFocusGame();
-  }
-
-
-  startFocusGame() {
-    const terminal = this.term;
-
-    if (
-      !this.isCurrentSession(
-        this._toolmarkSession,
-        terminal
-      ) ||
-      this.finished ||
-      this.mover
-    ) {
-      return;
-    }
-
-    this.barText = this.add.text(
-      terminal.x + 16,
-      terminal.y + terminal.h - 160,
-      '',
-      {
-        fontFamily: '"Courier New"',
-        fontSize: '24px',
-        color: TERM.green
-      }
-    );
-
-    this.statusText = this.add.text(
-      terminal.x + 16,
-      terminal.y + terminal.h - 118,
-      '',
-      {
-        fontFamily: '"PressStart2P"',
-        fontSize: '12px',
-        color: TERM.amber
-      }
-    );
-
-    this.renderFocusBar();
-    this.startMover();
-
-    if (this.input.keyboard) {
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-SPACE',
-        this.tryFocusLock,
-        this
-      );
-    }
-  }
-
-
-  stopMover() {
-    this.mover?.remove(false);
-    this.mover = null;
-  }
-
-
-  startMover() {
-    this.stopMover();
-
-    if (this._toolmarkDisposed || this.finished) {
-      return;
-    }
-
-    const session = this._toolmarkSession;
-
-    this.mover = this.time.addEvent({
-      delay: this.speed,
-      loop: true,
-      callback: () => {
-        if (!this.isCurrentSession(session)) return;
-
-        this.tickFocus();
-      }
-    });
-  }
-
-
-  detachFocusInput() {
-    if (!this.input?.keyboard) return;
-
-    this.offTrackedInputEvent(
-      this.input.keyboard,
-      'keydown-SPACE',
-      this.tryFocusLock,
-      this
-    );
-  }
-
-
-  tickFocus() {
-    if (this._toolmarkDisposed || this.finished) return;
-
-    this.pos += this.dir;
-
-    if (this.pos <= 0) {
-      this.pos = 0;
-      this.dir = 1;
-    } else if (this.pos >= BAR - 1) {
-      this.pos = BAR - 1;
-      this.dir = -1;
-    }
-
-    this.renderFocusBar();
-  }
-
-
-  renderFocusBar() {
-    if (
-      this._toolmarkDisposed ||
-      !this.barText?.scene ||
-      !this.statusText?.scene
-    ) {
-      return;
-    }
-
-    const chars = new Array(BAR).fill('-');
-
-    for (
-      let index = this.zoneStart;
-      index < this.zoneStart + ZONE;
-      index++
-    ) {
-      chars[index] = '=';
-    }
-
-    chars[this.zoneStart] = '<';
-    chars[this.zoneStart + ZONE - 1] = '>';
-    chars[this.pos] = '#';
-
-    this.barText.setText(chars.join(''));
-
-    this.statusText.setText(
-      `FOCUS LOCKS: ${this.locks}/3 | SCORE: ${this.score}`
-    );
-  }
-
-
-  async tryFocusLock() {
-    const terminal = this.term;
-    const session = this._toolmarkSession;
-
-    if (
-      this._busy ||
-      this.finished ||
-      this.locks >= 3 ||
-      !this.isCurrentSession(session, terminal)
-    ) {
-      return;
-    }
-
-    this._busy = true;
-
-    try {
-      const hit = (
-        this.pos >= this.zoneStart &&
-        this.pos < this.zoneStart + ZONE
-      );
-
-      if (!hit) {
-        this.registerMistake();
-
-        await this.terminalAction(
-          session,
-          terminal,
-          () => terminal.print(
-            '> FOCUS LOST. you have identified approximately one blur. (-15 PTS)',
-            { color: TERM.red }
-          )
-        );
-
-        return;
-      }
-
-      this.locks += 1;
-      this.renderFocusBar();
-      terminal.blip(1200, 0.09);
-
-      const printed = await this.terminalAction(
-        session,
-        terminal,
-        () => terminal.print(
-          `> SCRATCH PATTERN LOCKED ${this.locks}/3 ... unusually neat.`
-        )
-      );
-
-      if (!printed) return;
-
-      if (this.locks >= 3) {
-        await this.finishAnalysis();
-        return;
-      }
-
-      this.zoneStart = Phaser.Math.Between(
-        4,
-        BAR - ZONE - 4
-      );
-
-      this.increaseSpeed();
-      this.renderFocusBar();
-    } finally {
-      if (this.isCurrentSession(session, terminal)) {
-        this._busy = false;
-      }
-    }
-  }
-
-
-  registerMistake() {
-    if (this._toolmarkDisposed || this.finished) return;
-
-    this.mistakes += 1;
-    this.score = Math.max(0, this.score - 15);
-
-    this.term?.blip(140, 0.15, 'sawtooth');
-    this.renderFocusBar();
-  }
-
-
-  increaseSpeed() {
-    this.speed = Math.max(25, this.speed - 10);
-    this.startMover();
-  }
-
-
-  getTimeBonus() {
-    const secondsElapsed = this.getSecondsElapsed();
-
-    if (secondsElapsed <= 15) return 20;
-    if (secondsElapsed <= 30) return 10;
-
-    return 0;
-  }
-
-
-  getSecondsElapsed() {
-    return Math.floor(
-      (this.time.now - this.startedAt) / 1000
-    );
-  }
-
-
-  async finishAnalysis() {
-    const terminal = this.term;
-    const session = this._toolmarkSession;
-
-    if (
-      this.finished ||
-      !this.isCurrentSession(session, terminal)
-    ) {
-      return;
-    }
-
-    this.finished = true;
-
-    this.stopMover();
-    this.detachFocusInput();
-
-    this.barText?.setVisible(false);
-    this.statusText?.setVisible(false);
-
-    const timeBonus = this.getTimeBonus();
-
-    this.score = Math.min(120, this.score + timeBonus);
-
-    const compared = await this.terminalAction(
-      session,
-      terminal,
-      () => terminal.progress(
-        'COMPARING MICRO-SCRATCHES',
-        1600
-      )
-    );
-
-    if (!compared) return;
-
-    const lines = [
-      [
-        '> REPORT #6612 — TOOLMARK ANALYSIS'
-      ],
-      [
-        '> ENTRY METHOD: PICKED LOCK'
-      ],
-      [
-        '> TOOL PROFILE: TRIPLE-RAKE PICK'
-      ],
-      [
-        '> OPERATOR: EXPERIENCED'
-      ],
-      [
-        '> ANGLE OF ENTRY: LEFT-HANDED'
-      ],
-      [
-        '> CONCLUSION: not a desperate amateur. a professional with opinions.',
-        { color: TERM.amber }
-      ]
-    ];
-
-    if (timeBonus > 0) {
-      lines.push([
-        `> SPEED BONUS: +${timeBonus} PTS.`,
-        { color: TERM.amber }
-      ]);
-    }
-
-    lines.push([
-      '> CLUE READY FOR CASE FILE.',
-      { color: TERM.amber }
-    ]);
-
-    const printed = await this.printLines(
-      session,
-      terminal,
-      lines
-    );
-
-    if (!printed) return;
-
-    terminal.button(
-      'ADD TO CASE FILE',
-      TERM.green,
-      () => {
-        if (!this.isCurrentSession(session, terminal)) {
-          return;
+  drawPattern(pattern, x, y, width, height, alpha = 1) {
+    const graphics = this.add.graphics().setPosition(x, y).setDepth(151);
+    graphics.lineStyle(2, 0xc5ead1, alpha);
+    for (let ridge = 0; ridge < 8; ridge++) {
+      const rx = width * (.45 - ridge * .04), ry = height * (.45 - ridge * .04);
+      if (pattern === 'WHORL') {
+        graphics.strokeEllipse(0, 0, rx * 2, ry * 2);
+      } else {
+        graphics.beginPath();
+        for (let point = 0; point <= 50; point++) {
+          const t = point / 50;
+          let px, py;
+          if (pattern === 'LOOP') {
+            const angle = -2.75 + t * 5.5;
+            px = Math.cos(angle) * rx + width * .06;
+            py = Math.sin(angle) * ry;
+          } else {
+            px = (t * 2 - 1) * width * .45;
+            py = height * (.35 - ridge * .075) - Math.sin(t * Math.PI) * height * .3;
+          }
+          if (point === 0) graphics.moveTo(px, py); else graphics.lineTo(px, py);
         }
-
-        this.returnResultToCrimeLab();
+        graphics.strokePath();
       }
-    );
-  }
-
-
-  returnResultToCrimeLab() {
-    if (
-      this.returningToLab ||
-      this._toolmarkDisposed ||
-      !this.finished
-    ) {
-      return;
     }
-
-    this.returningToLab = true;
-
-    const payload = {
-      aborted: false,
-      completed: true,
-      stationId: this.stationId,
-      evidenceType: this.evidenceType,
-      value: this.correctValue,
-      score: this.score,
-      mistakes: this.mistakes,
-      secondsElapsed: this.getSecondsElapsed(),
-      clue: this.clue
-    };
-
-    this.events.emit('minigame-complete', payload);
-
-    this.events.emit('minigame-closed', {
-      aborted: false,
-      payload
+    return this.addStageObject(graphics);
+  }
+  showSample(alpha = 1, obscured = false) {
+    const L = this.patternLayout;
+    this.drawPattern(this.correctValue, L.centerX, L.sampleY, L.sampleWidth, L.sampleHeight, alpha);
+    if (obscured) {
+      const cover = this.add.graphics().setDepth(152);
+      cover.lineStyle(5, 0x34463b, .9);
+      for (let i = 0; i < 10; i++) {
+        const yy = L.sampleY - L.sampleHeight / 2 + i * L.sampleHeight / 9;
+        cover.lineBetween(L.centerX - L.sampleWidth / 2, yy, L.centerX + L.sampleWidth / 2, yy + 12);
+      }
+      this.addStageObject(cover);
+    }
+    this.addStageObject(this.add.text(L.centerX, L.sampleY + L.sampleHeight / 2 + 12, 'RECOVERED SAMPLE', {
+      fontFamily: 'PressStart2P', fontSize: '8px', color: '#9db9a7'
+    }).setOrigin(.5).setDepth(153));
+  }
+  createEvidenceFlow() { this.startPreparation(); }
+  startPreparation() {
+    this.clearStage(); this.setStep(0); this.showSample(.35, true);
+    this.setInstructions('Clear the lifted sample before comparing its ridge flow.');
+    this.setDialogue('The print is dirty. Fortunately, dirt is not a personality trait.');
+    this.createButton(this.scale.width / 2, this.patternLayout.actionY, Math.min(300, this.scale.width - 32), 46,
+      'PREPARE SAMPLE', () => this.startFocus(), {fontFamily: 'PressStart2P', fontSize: '10px'});
+  }
+  startFocus() {
+    if (this.resolved || this._minigameClosing) return;
+    this.clearStage(); this.setStep(1); this.showSample(.55);
+    this.setInstructions('Sharpen the image before classifying the pattern.');
+    this.setDialogue('The ridges are there. The microscope is considering cooperation.');
+    this.createButton(this.scale.width / 2, this.patternLayout.actionY, Math.min(300, this.scale.width - 32), 46,
+      'SHARPEN IMAGE', () => this.startClassification(), {fontFamily: 'PressStart2P', fontSize: '10px'});
+  }
+  startClassification() {
+    if (this.resolved || this._minigameClosing) return;
+    this.clearStage(); this.setStep(2); this.showSample(1);
+    this.setInstructions('Select the reference matching the overall ridge pattern.');
+    this.setDialogue('Classify the pattern, not the person. That is your next headache.');
+    const width = this.scale.width, gap = 8, cardWidth = Math.min(170, (width - 32 - gap * 2) / 3);
+    const left = width / 2 - (cardWidth * 3 + gap * 2) / 2 + cardWidth / 2;
+    PATTERNS.forEach((pattern, index) => {
+      const x = left + index * (cardWidth + gap), y = this.patternLayout.referenceY;
+      const button = this.createButton(x, y, cardWidth, 100, pattern,
+        () => this.resolveChoice(pattern, pattern === this.correctValue, 10),
+        {fontFamily: 'PressStart2P', fontSize: '9px'});
+      button.text.setY(33);
+      this.drawPattern(pattern, x, y - 12, cardWidth - 18, 55, .9);
     });
-
-    this.scene.stop();
   }
-
-
+  onCorrectChoice() {
+    this.clearStage(); this.setStep(3); this.showSample(1);
+    this.setInstructions('Classification complete. Add the report to the case file.');
+  }
+  getSuccessMessage(value, bonus = 0) {
+    return `Pattern classified: ${value}.${bonus ? ` Speed bonus: +${bonus}.` : ''} The report is ready to add.`;
+  }
   cleanup() {
-    if (this._toolmarkDisposed) {
-      super.cleanup();
-      return;
-    }
-
-    this._toolmarkDisposed = true;
-    this._toolmarkSession += 1;
-    this.returningToLab = true;
-    this._busy = false;
-
-    const terminal = this.term;
-    this.term = null;
-
-    try {
-      this.stopMover();
-      terminal?.destroy();
-    } finally {
-      super.cleanup();
-
-      this.barText?.destroy();
-      this.statusText?.destroy();
-
-      this.barText = null;
-      this.statusText = null;
-    }
+    this.progressLabel?.destroy(); this.progressLabel = null;
+    super.cleanup();
   }
 }

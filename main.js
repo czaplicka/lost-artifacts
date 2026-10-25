@@ -2,7 +2,7 @@ import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
-import { EnterScene } from './scenes/EnterScene.js';
+import { EnterScene } from './scenes/EnterChaseScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
 import { UIScene } from './ui/UIScene.js';
 import { NewsHud } from './ui/NewsHud.js';
@@ -51,21 +51,16 @@ function installScenePrefetch(game) {
   let disposed = false;
   let subscription = null;
   const requested = new Set();
-
   const prefetch = tier => {
     if (disposed || !game.sceneLoader || requested.has(tier)) return;
     requested.add(tier);
     void game.sceneLoader.prefetchTier(tier).catch(error => {
       requested.delete(tier);
-      if (!disposed) {
-        console.warn(`[main] Could not prefetch "${tier}".`, error);
-      }
+      if (!disposed) console.warn(`[main] Could not prefetch "${tier}".`, error);
     });
   };
-
   const onPlayerReady = () => prefetch('TIER_1');
   const onCrimeSceneEntered = () => prefetch('TIER_3');
-
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
@@ -76,19 +71,15 @@ function installScenePrefetch(game) {
     game.events.off('case-crime-scene-entered', onCrimeSceneEntered);
     game.events.off(Phaser.Core.Events.DESTROY, cleanup);
   };
-
   game.events.on('player-authenticated', onPlayerReady);
   game.events.on('player-entry-started', onPlayerReady);
   game.events.on('case-crime-scene-entered', onCrimeSceneEntered);
   game.events.once(Phaser.Core.Events.DESTROY, cleanup);
-
   try {
     const result = supabase.auth.onAuthStateChange((event, session) => {
       if (disposed || !session?.user) return;
       if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN') return;
-      game.events.emit('player-authenticated', {
-        userId: session.user.id
-      });
+      game.events.emit('player-authenticated', { userId: session.user.id });
     });
     subscription = result.data.subscription;
   } catch (error) {
@@ -104,9 +95,7 @@ function installDevTools(game) {
       installLeakTest(game);
       console.info('[dev] leakTest("SceneKey", { cycles: 10 }) is ready.');
     })
-    .catch(error => {
-      console.warn('[dev] Could not load BaseSceneLeakTest.', error);
-    });
+    .catch(error => console.warn('[dev] Could not load BaseSceneLeakTest.', error));
 }
 
 const config = {
@@ -115,16 +104,10 @@ const config = {
   height: 1080,
   parent: 'game-container',
   backgroundColor: '#000000',
-  scene: [
-    BootScene, PreloaderScene, MenuScene, SettingsScene, EnterScene,
-    PlayerHudScene, UIScene, NewsHud, LoadingOverlayScene
-  ],
+  scene: [BootScene, PreloaderScene, MenuScene, SettingsScene, EnterScene,
+    PlayerHudScene, UIScene, NewsHud, LoadingOverlayScene],
   dom: { createContainer: true },
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    autoRound: true
-  },
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, autoRound: true },
   audio: { disableWebAudio: false }
 };
 
