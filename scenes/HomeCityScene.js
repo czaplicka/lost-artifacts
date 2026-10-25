@@ -10,7 +10,8 @@ const HW = 64;
 const HH = 32;
 const OX = 1600;
 const OY = 240;
-const INSTRUCTION = 'Click or tap to walk. Select a building to enter.';
+const INSTRUCTION = 'Arrow keys or click to walk. Enter at a door to enter.';
+const ARROWS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const BUILDINGS = [
   { id: 'pi-office', name: 'PI Office', x: 4, y: 3, w: 3, h: 3, color: 0xc5ab79, message: '' },
   { id: 'spy-shop', name: 'Spy Shop', x: 12, y: 3, w: 3, h: 3, color: 0x688d8b,
@@ -53,6 +54,8 @@ export class HomeCityScene extends BaseScene {
     this.lastCameraPosition = null;
     this.position = null;
     this.cityArt = null;
+    this.heldArrows = new Set();
+    this.movementMode = 'pointer';
     this.blocked = new Set();
     for (const b of this.buildings) {
       for (let y = b.y; y < b.y + b.h; y++) {
@@ -65,9 +68,17 @@ export class HomeCityScene extends BaseScene {
   create() {
     super.create();
     this.registry.set('currentSceneKey', KEY);
-    for (const key of ['PlayerHudScene', 'UIScene', 'NewsHud']) {
+    for (const key of ['PlayerHudScene', 'UIScene']) {
       if (key === 'PlayerHudScene') this.getRegisteredScene(key)?.closeAllUIPanels?.();
       this.stopSceneIfActive(key);
+    }
+    // Preserve the news objects instead of destroying and immediately relaunching them.
+    const news = this.getRegisteredScene('NewsHud');
+    if (news) {
+      news.setHudVisible?.(false);
+      news.closeMenu?.(true);
+      this.sleepSceneIfActive('NewsHud');
+      this.scene.setVisible(false, 'NewsHud');
     }
     this.cameras.main.setBackgroundColor('#343e34');
     this.cityArt = new HomeCityRenderer(this);
@@ -92,7 +103,11 @@ export class HomeCityScene extends BaseScene {
       camera.setScroll(saved.camera.x, saved.camera.y);
     } else camera.centerOn(this.player.x, this.player.y);
     this.trackInputEvent(this.input, 'pointerdown', this.onPointer);
-    if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown-ESC', this.cancelWalking);
+    if (this.input.keyboard) {
+      this.trackInputEvent(this.input.keyboard, 'keydown', this.onCityKeyDown);
+      this.trackInputEvent(this.input.keyboard, 'keyup', this.onCityKeyUp);
+    }
+    this.trackInputEvent(this.game.events, 'blur', this.onCityBlur);
     this.events.once('shutdown', this.disposeCity, this);
     this.remember();
   }
@@ -147,9 +162,78 @@ export class HomeCityScene extends BaseScene {
     this.feedback = this.add.text(24, 78, INSTRUCTION, {
       ...style, fontSize: '24px', wordWrap: { width: this.scale.width - 100 }
     }).setScrollFactor(0).setDepth(20000);
-    // UI clicks must not issue walk commands to the street underneath.
     this.title.setInteractive().setData('cityUi', true);
     this.feedback.setInteractive().setData('cityUi', true);
+  }
+
+  isTyping(event) {
+    const target = event?.target;
+    const focused = typeof document !== 'undefined' ? document.activeElement : null;
+    return [target, focused].some(el => el?.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(el?.tagName));
+  }
+
+  onCityKeyDown(event) {
+    if (this.disposed || this.navigating || this.isTyping(event)) return;
+    if (ARROWS.has(event.code)) {
+      event.preventDefault();
+      this.heldArrows.add(event.code);
+      if (this.movementMode !== 'keyboard') {
+        // Complete the current safe segment before taking manual control.
+        this.path = this.path.slice(0, 1);
+        this.destinationBuilding = null;
+        this.movementMode = 'keyboard';
+        this.targetMarker.setVisible(false);
+        this.cityArt.clearRoute();
+        this.cityArt.selectBuilding();
+      }
+    } else if (event.code === 'Escape') {
+      event.preventDefault();
+      this.cancelWalking();
+    } else if (event.code === 'Enter' && !event.repeat) {
+      event.preventDefault();
+      this.enterNearbyBuilding();
+    }
+  }
+
+  onCityKeyUp(event) { this.heldArrows.delete(event.code); }
+
+  onCityBlur() {
+    this.heldArrows.clear();
+    if (!this.disposed && !this.navigating) this.cancelWalking();
+  }
+
+  keyboardStep() {
+    const h = Number(this.heldArrows.has('ArrowRight')) - Number(this.heldArrows.has('ArrowLeft'));
+    const v = Number(this.heldArrows.has('ArrowDown')) - Number(this.heldArrows.has('ArrowUp'));
+    if (!h && !v) return null;
+    // Screen directions -> isometric grid. Two held arrows give screen diagonals.
+    const dx = Math.sign(h + v);
+    const dy = Math.sign(v - h);
+    const x = this.position.x + dx;
+    const y = this.position.y + dy;
+    if (!this.walkable(x, y)) return null;
+    // Prevent diagonally cutting through a wall or prop corner.
+    if (dx && dy && (!this.walkable(this.position.x + dx, this.position.y) ||
+      !this.walkable(this.position.x, this.position.y + dy))) return null;
+    return { x, y };
+  }
+
+  enterNearbyBuilding() {
+    if (this.path.length || this.navigating || this.disposed) return;
+    const nearby = this.buildings.find(b =>
+      Math.abs(b.door.x - this.position.x) + Math.abs(b.door.y - this.position.y) <= 1);
+    if (!nearby) { this.say('Move closer to a door, then press Enter.'); return; }
+    this.heldArrows.clear();
+    this.cityArt.selectBuilding(nearby.id);
+    // Finish at the actual door, with the same entry flow as a pointer click.
+    const route = this.findPath(this.position, nearby.door);
+    if (route === null) return;
+    this.movementMode = 'pointer';
+    this.destinationBuilding = nearby;
+    this.path = route;
+    this.cityArt.showRoute(route);
+    if (!route.length) this.arrive();
   }
 
   onPointer(pointer, objects = []) {
@@ -168,6 +252,8 @@ export class HomeCityScene extends BaseScene {
     const anchor = this.path.length ? this.path[0] : this.position;
     const route = this.findPath(anchor, target);
     if (route === null) { this.say('No clear route to that spot.'); return; }
+    this.heldArrows.clear();
+    this.movementMode = 'pointer';
     this.path = this.path.length ? [{ ...anchor }, ...route] : route;
     this.destinationBuilding = building ?? null;
     this.cityArt.selectBuilding(building?.id);
@@ -213,6 +299,7 @@ export class HomeCityScene extends BaseScene {
 
   cancelWalking() {
     if (this.disposed || this.navigating) return;
+    this.heldArrows.clear();
     this.destinationBuilding = null;
     this.path = this.path.slice(0, 1);
     this.targetMarker.setVisible(false);
@@ -222,8 +309,14 @@ export class HomeCityScene extends BaseScene {
 
   update(_time, delta) {
     if (this.disposed || this.navigating || !this.player) return;
+    if (this.isTyping()) this.heldArrows.clear();
     let budget = 280 * Math.min(delta, 100) / 1000;
-    while (budget > 0 && this.path.length && !this.navigating && !this.disposed) {
+    while (budget > 0 && !this.navigating && !this.disposed) {
+      if (!this.path.length && this.movementMode === 'keyboard') {
+        const next = this.keyboardStep();
+        if (next) this.path.push(next);
+      }
+      if (!this.path.length) break;
       const next = this.path[0];
       const goal = this.project(next.x, next.y);
       const distance = Math.hypot(goal.x - this.player.x, goal.y - this.player.y);
@@ -232,7 +325,7 @@ export class HomeCityScene extends BaseScene {
         this.position = { ...next };
         this.path.shift();
         this.placePlayer();
-        this.cityArt.showRoute(this.path);
+        if (this.movementMode === 'pointer') this.cityArt.showRoute(this.path);
         if (!this.path.length) this.arrive();
       } else {
         const ratio = budget / distance;
@@ -249,7 +342,8 @@ export class HomeCityScene extends BaseScene {
   arrive() {
     this.targetMarker.setVisible(false);
     this.cityArt.clearRoute();
-    this.remember();
+    // Avoid resetting the autosave debounce on every manual step.
+    if (this.movementMode !== 'keyboard' || !this.heldArrows.size) this.remember();
     const building = this.destinationBuilding;
     this.destinationBuilding = null;
     if (!building) return;
@@ -260,6 +354,7 @@ export class HomeCityScene extends BaseScene {
   async openOffice() {
     if (this.disposed || this.navigating) return;
     this.navigating = true;
+    this.heldArrows.clear();
     const token = this.runToken;
     this.remember();
     const moved = await this.goto('DetectiveOfficeScene', {
@@ -302,6 +397,7 @@ export class HomeCityScene extends BaseScene {
     if (this.disposed) return;
     this.disposed = true;
     this.runToken = null;
+    this.heldArrows.clear();
     this.remember();
     this.feedbackTimer?.remove(false);
     this.feedbackTimer = null;

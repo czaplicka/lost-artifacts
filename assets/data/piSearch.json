@@ -1,18 +1,17 @@
 {
   "version": 1,
-  "noResults": "No useful connection found. Try one keyword, or a different pair.",
   "cases": [
     {
       "id": "miramar_demo",
-      "title": "Two Glasses — search prototype",
+      "title": "Two Glasses",
       "clouds": [
         {
           "id": "place",
-          "title": "WHERE IS DANIEL?"
+          "title": "THE NAPKIN"
         },
         {
           "id": "person",
-          "title": "WHO WAS THERE?"
+          "title": "THE BADGE / JACKET"
         }
       ],
       "keywords": [
@@ -77,287 +76,350 @@
         "swallow_logo",
         "checked_jacket"
       ],
-      "recipes": [
-        {
-          "terms": [
-            "seahorse_logo"
-          ],
-          "pageId": "hotels"
-        },
-        {
-          "terms": [
-            "swallow_logo"
-          ],
-          "pageId": "organisation"
-        },
-        {
-          "terms": [
-            "open_skies"
-          ],
-          "pageId": "events"
-        },
-        {
-          "terms": [
-            "conference"
-          ],
-          "pageId": "events"
-        },
-        {
-          "terms": [
-            "miramar",
-            "open_skies"
-          ],
-          "pageId": "miramar_event"
-        },
-        {
-          "terms": [
-            "miramar",
-            "conference"
-          ],
-          "pageId": "miramar_event"
-        },
-        {
-          "terms": [
-            "mariner",
-            "open_skies"
-          ],
-          "pageId": "mariner_result"
-        },
-        {
-          "terms": [
-            "coral",
-            "open_skies"
-          ],
-          "pageId": "coral_result"
-        },
-        {
-          "terms": [
-            "mariner",
-            "conference"
-          ],
-          "pageId": "mariner_result"
-        },
-        {
-          "terms": [
-            "coral",
-            "conference"
-          ],
-          "pageId": "coral_result"
-        },
-        {
-          "terms": [
-            "checked_jacket",
-            "conference"
-          ],
-          "pageId": "gallery"
-        },
-        {
-          "terms": [
-            "checked_jacket",
-            "open_skies"
-          ],
-          "pageId": "gallery"
-        },
-        {
-          "terms": [
-            "checked_jacket"
-          ],
-          "pageId": "jacket_generic"
-        },
-        {
-          "terms": [
-            "claire"
-          ],
-          "pageId": "team"
-        },
-        {
-          "terms": [
-            "nora"
-          ],
-          "pageId": "team"
-        }
-      ],
       "pages": [
         {
-          "id": "hotels",
-          "title": "A seahorse? That narrows it down. Slightly.",
-          "address": "owl://travel/emblems",
+          "id": "miramar",
+          "title": "Hotel Miramar | Stay by the sea",
+          "address": "www.miramar.local",
+          "snippet": "Rooms, terrace dining and private events overlooking the coast.",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
           "blocks": [
             [
-              "Three hotels in our directory use a seahorse emblem."
-            ],
-            [
+              "Welcome to ",
               {
                 "keywordId": "miramar"
               },
-              " — a coastal hotel with a terrace."
+              ". Sea air, late breakfasts and no reason to check your watch."
             ],
+            [
+              "Our seahorse crest has welcomed guests for three generations. Terrace service runs from breakfast until eleven in the evening."
+            ],
+            [
+              "Double rooms from £120. Ask about our midweek rates and private dining room."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            }
+          ]
+        },
+        {
+          "id": "mariner",
+          "title": "The Mariner | Harbour accommodation",
+          "address": "www.mariner.local",
+          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
+          "brand": "THE MARINER",
+          "theme": "hotel",
+          "blocks": [
             [
               {
                 "keywordId": "mariner"
               },
-              " — a harbour-side business hotel."
+              " offers comfortable rooms above the old harbour. Our brass seahorse sign marks the entrance on Quay Street."
             ],
             [
+              "Breakfast is served from seven. The residents' lounge is available for small meetings and family celebrations."
+            ],
+            [
+              "Our bar quiz returns on Thursday. The answer is not always \"the harbour\"."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Events",
+              "pageId": "mariner_events"
+            }
+          ]
+        },
+        {
+          "id": "coral",
+          "title": "Coral Crown Hotel | Coast and comfort",
+          "address": "www.coralcrown.local",
+          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
+          "brand": "CORAL CROWN",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Make yourself at home at ",
               {
                 "keywordId": "coral"
               },
-              " — a resort with aggressively nautical curtains."
+              ". Our seahorse crest is a familiar sight on the eastern promenade."
             ],
             [
-              "The emblem alone does not establish which hotel appears in your photograph. Try connecting a hotel name with another lead."
+              "Family suites, indoor swimming pool and private dining. Dogs welcome. Seagulls will be asked to leave."
             ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "coral"
+            },
+            {
+              "label": "Functions",
+              "pageId": "coral_events"
+            }
           ]
         },
         {
           "id": "organisation",
           "title": "Open Skies Foundation",
-          "address": "owl://openskies/about",
+          "address": "www.openskies.local",
+          "snippet": "Regional partnerships, community projects and the New Horizons programme.",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
           "blocks": [
             [
-              "Our swallow emblem represents new beginnings, shared opportunities and a logo committee that met eleven times."
-            ],
-            [
-              "Welcome to the ",
               {
                 "keywordId": "open_skies"
               },
-              "."
+              " supports local projects through training, grants and regional partnerships."
             ],
             [
-              "Our recent events include the ",
+              "The swallow in our emblem represents movement, cooperation and a place to return to."
+            ],
+            [
+              "Registration is open for the next ",
               {
                 "keywordId": "conference"
               },
-              ". Click the highlighted words to keep them in your notes."
+              ". Regional coordinators will meet for workshops and an evening reception."
             ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
           ]
         },
         {
           "id": "events",
-          "title": "New Horizons — conference archive",
-          "address": "owl://openskies/new-horizons",
+          "title": "New Horizons | Open Skies",
+          "address": "www.openskies.local/events/new-horizons",
+          "snippet": "Workshops, regional reports and an evening reception for delegates.",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
           "blocks": [
             [
-              "The ",
               {
                 "keywordId": "conference"
-              },
-              " is organised by the ",
+              }
+            ],
+            [
+              "09:00 Registration and coffee. 10:00 Regional reports. 12:30 Lunch. 14:00 Community funding workshops. 18:30 Coordinators' reception."
+            ],
+            [
+              "Delegates receive orange passes at registration. Speakers and volunteers collect grey passes from the information desk."
+            ],
+            [
+              "The programme is organised by ",
               {
                 "keywordId": "open_skies"
               },
               "."
-            ],
-            [
-              "Our archive includes regional gatherings and partner events. Search the conference name together with a venue to find a specific event report."
             ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
           ]
         },
         {
           "id": "miramar_event",
-          "title": "New Horizons at Hotel Miramar",
-          "address": "owl://openskies/miramar-report",
+          "title": "New Horizons reception | Hotel Miramar",
+          "address": "www.miramar.local/journal/new-horizons",
+          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
           "blocks": [
             [
-              "The ",
+              "We were delighted to welcome the ",
               {
-                "keywordId": "conference"
+                "keywordId": "open_skies"
               },
-              " took place at ",
+              " to ",
               {
                 "keywordId": "miramar"
               },
-              ". The event report shows the same terrace and seahorse table linen as the photograph in your case file."
-            ],
-            [
-              "This confirms the hotel, not the identity of Daniel's companion."
-            ],
-            [
-              "The conference gallery includes a ",
+              " for the ",
               {
-                "keywordId": "checked_jacket"
-              },
-              ". Search the jacket together with the event to inspect the relevant photograph."
-            ]
-          ]
-        },
-        {
-          "id": "mariner_result",
-          "title": "The Mariner — partners and events",
-          "address": "owl://mariner/events",
-          "blocks": [
-            [
-              "Our partners include the Harbour Accountants Association. We have no record of hosting the New Horizons Conference."
-            ],
-            [
-              "Please stop asking about the annual pirates' convention. That was a birthday party."
-            ]
-          ]
-        },
-        {
-          "id": "coral_result",
-          "title": "Coral Crown — conference facilities",
-          "address": "owl://coralcrown/meetings",
-          "blocks": [
-            [
-              "Meeting rooms are available for private hire. The Open Skies event archive does not list this hotel as a venue for the conference."
-            ],
-            [
-              "Complimentary pens subject to a refundable deposit."
-            ]
-          ]
-        },
-        {
-          "id": "gallery",
-          "title": "Conference gallery — the borrowed jacket lead",
-          "address": "owl://openskies/gallery/group-photo",
-          "blocks": [
-            [
-              "PHOTO PLACEHOLDER: two women stand together after a conference session. The woman on the right wears the distinctive green checked jacket visible in Daniel's photograph."
-            ],
-            [
-              "Caption, left to right: ",
-              {
-                "keywordId": "claire"
-              },
-              " and ",
-              {
-                "keywordId": "nora"
+                "keywordId": "conference"
               },
               "."
             ],
             [
-              "The caption identifies Nora as the woman wearing the jacket. It does not say who owns it."
+              "The Bellini Room hosted the afternoon workshops. Dinner was served on the west terrace, with music from the Harbour Quartet."
             ],
             [
-              "Event enquiries: ",
-              {
-                "keywordId": "office_phone"
-              },
-              ". Verify the connection before deciding who was on the terrace."
+              "Thank you to the delegates, speakers and our events team for a memorable evening."
             ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            }
+          ]
+        },
+        {
+          "id": "miramar_meetings",
+          "title": "Meetings & private events | Miramar",
+          "address": "www.miramar.local/meetings",
+          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "The Bellini Room seats eighty delegates. Smaller groups can reserve the library or west terrace."
+            ],
+            [
+              "Recent guests include the ",
+              {
+                "keywordId": "open_skies"
+              },
+              " and the Coastline Business Forum."
+            ],
+            [
+              "Contact our events team for menus, seating plans and group rates."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Journal",
+              "pageId": "miramar_event"
+            }
+          ]
+        },
+        {
+          "id": "mariner_events",
+          "title": "What's on | The Mariner",
+          "address": "www.mariner.local/whats-on",
+          "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
+          "brand": "THE MARINER",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Thursday: Harbour Quiz, 19:30. Friday: acoustic music from the Quay Street Trio."
+            ],
+            [
+              "Saturday afternoon: the Harbour Accountants Association hosts its annual lunch. Please book your place with the association secretary."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "mariner"
+            }
+          ]
+        },
+        {
+          "id": "coral_events",
+          "title": "Functions | Coral Crown",
+          "address": "www.coralcrown.local/functions",
+          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
+          "brand": "CORAL CROWN",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Our ballroom is available for weddings and private functions."
+            ],
+            [
+              "This month we welcome the Coastal Garden Society for its spring dinner and the junior sailing club for its awards ceremony."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "coral"
+            }
           ]
         },
         {
           "id": "jacket_generic",
-          "title": "Green checked jackets",
-          "address": "owl://fashion/checks",
+          "title": "Green checks are having a moment",
+          "address": "www.everydayedit.local/style/green-checks",
+          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
+          "brand": "THE EVERYDAY EDIT",
+          "theme": "magazine",
           "blocks": [
             [
-              "Many manufacturers sell checked jackets. Clothing is not a unique personal identifier."
+              "The return of green checks"
             ],
             [
-              "Try connecting this item with the event where it was photographed."
+              "A ",
+              {
+                "keywordId": "checked_jacket"
+              },
+              " works just as well with a plain white T-shirt as it does with a matching skirt. This season's versions favour a relaxed shoulder and contrasting pocket trim."
+            ],
+            [
+              "Choose one strong pattern and keep the rest simple. For evening wear, add a silk scarf or a narrow belt."
+            ],
+            [
+              "Our editor favours dark green checks with brass buttons. Dry-clean only, unless you were hoping to buy a smaller jacket."
             ]
-          ]
+          ],
+          "links": []
         },
         {
-          "id": "team",
-          "title": "Open Skies — regional coordinators",
-          "address": "owl://openskies/team",
+          "id": "gallery",
+          "title": "New Horizons | Reception photographs",
+          "address": "www.openskies.local/photos/new-horizons",
+          "snippet": "Photographs from the reception at Hotel Miramar.",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
           "blocks": [
             [
+              "Regional coordinators at the evening reception."
+            ],
+            [
+              "Left to right: ",
               {
                 "keywordId": "claire"
               },
@@ -365,18 +427,227 @@
               {
                 "keywordId": "nora"
               },
-              " are regional coordinators."
-            ],
-            [
-              "For questions about the conference photographs, call ",
-              {
-                "keywordId": "office_phone"
-              },
               "."
             ],
             [
-              "Private contact details are not published in this demo. The phone conversation and email step will be added separately."
+              "Photography: Martin Cole. Reproduction by permission of the foundation."
             ]
+          ],
+          "links": [
+            {
+              "label": "Programme",
+              "pageId": "events"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ],
+          "imageKey": "pi_search_reception",
+          "imageUrl": "assets/ui/pi-search/reception.png"
+        },
+        {
+          "id": "team",
+          "title": "Our people | Open Skies",
+          "address": "www.openskies.local/people",
+          "snippet": "Meet our regional coordinators and programme staff.",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              " — West Region. Community partnerships and volunteer training."
+            ],
+            [
+              {
+                "keywordId": "nora"
+              },
+              " — North Region. Small grants and local outreach."
+            ],
+            [
+              "General enquiries are handled by the programme office during business hours."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ]
+        },
+        {
+          "id": "contact",
+          "title": "Contact | Open Skies",
+          "address": "www.openskies.local/contact",
+          "snippet": "Programme enquiries, press requests and event administration.",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Programme office"
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "office_phone",
+                "text": "318"
+              },
+              ". Monday to Friday, 09:00–17:00."
+            ],
+            [
+              "For event photographs and delegate enquiries, ask for the events coordinator."
+            ],
+            [
+              "Press enquiries: press@openskies.local."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            }
+          ]
+        }
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "seahorse_logo"
+          ],
+          "pageIds": [
+            "miramar",
+            "mariner",
+            "coral"
+          ]
+        },
+        {
+          "terms": [
+            "swallow_logo"
+          ],
+          "pageIds": [
+            "organisation"
+          ]
+        },
+        {
+          "terms": [
+            "open_skies"
+          ],
+          "pageIds": [
+            "organisation",
+            "events",
+            "contact"
+          ]
+        },
+        {
+          "terms": [
+            "conference"
+          ],
+          "pageIds": [
+            "events"
+          ]
+        },
+        {
+          "terms": [
+            "miramar"
+          ],
+          "pageIds": [
+            "miramar"
+          ]
+        },
+        {
+          "terms": [
+            "miramar",
+            "open_skies"
+          ],
+          "pageIds": [
+            "miramar_event",
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "miramar",
+            "conference"
+          ],
+          "pageIds": [
+            "miramar_event",
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "mariner"
+          ],
+          "pageIds": [
+            "mariner"
+          ]
+        },
+        {
+          "terms": [
+            "coral"
+          ],
+          "pageIds": [
+            "coral"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket"
+          ],
+          "pageIds": [
+            "jacket_generic"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "open_skies"
+          ],
+          "pageIds": [
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "claire"
+          ],
+          "pageIds": [
+            "team"
+          ]
+        },
+        {
+          "terms": [
+            "nora"
+          ],
+          "pageIds": [
+            "team"
+          ]
+        },
+        {
+          "terms": [
+            "office_phone"
+          ],
+          "pageIds": [
+            "contact"
           ]
         }
       ]

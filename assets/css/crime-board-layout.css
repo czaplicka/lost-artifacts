@@ -1,0 +1,40 @@
+/* Keep deduction controls out of the board/sidebar grid cells. */
+.crime-board-app {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+.crime-board-app > .crime-board-deduction {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+  padding-right: 90px !important;
+}
+.crime-board-app > .crime-board-sidebar {
+  grid-column: 1;
+  grid-row: 2;
+}
+.crime-board-app > .crime-board-shell {
+  grid-column: 2;
+  grid-row: 2;
+  overflow: auto;
+}
+/* Preserve the original card coordinates on smaller viewports. */
+.crime-board-shell > .crime-board {
+  min-width: 1440px;
+  min-height: 1000px;
+}
+.crime-board-ui-root {
+  overflow: auto;
+}
+/* Author display rules must not override the hidden attribute. */
+.crime-board-app [hidden] {
+  display: none !important;
+}
+@media (max-width: 1100px) {
+  .crime-board-app,
+  .crime-board-app.is-sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .crime-board-app > .crime-board-shell {
+    grid-column: 1;
+  }
+}

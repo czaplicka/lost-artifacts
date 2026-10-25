@@ -2,78 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-
-    <meta
-        name="apple-mobile-web-app-status-bar-style"
-        content="black-translucent"
-    >
-
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="./manifest.webmanifest">
-
     <title>Mark Agency: The Lost Artifacts</title>
-
-    <!-- Style bazowe, lokalne fonty i wspólne elementy interfejsu. -->
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="./assets/css/hud.css">
     <link rel="stylesheet" href="./assets/css/hud-mobile.css">
     <link rel="stylesheet" href="./assets/css/modal.css">
-
-    <!--
-        Arkusze dodatkowych ekranów nie blokują pierwszego renderowania.
-        Po zakończeniu pobierania zaczynają działać na ekranie.
-    -->
-    <link
-        rel="stylesheet"
-        href="./assets/css/crime-board.css"
-        media="print"
-        onload="this.onload=null;this.media='all'"
-    >
-
-    <link
-        rel="stylesheet"
-        href="./assets/css/character-creation.css"
-        media="print"
-        onload="this.onload=null;this.media='all'"
-    >
-
-    <link
-        rel="stylesheet"
-        href="./assets/css/auth-styles.css"
-        media="print"
-        onload="this.onload=null;this.media='all'"
-    >
-
-    <link
-        rel="stylesheet"
-        href="./assets/css/agent.css"
-        media="print"
-        onload="this.onload=null;this.media='all'"
-    >
-
-    <link
-        rel="stylesheet"
-        href="./assets/css/profile.css"
-        media="print"
-        onload="this.onload=null;this.media='all'"
-    >
-
-    <link
-        rel="icon"
-        href="./assets/favicon.ico"
-        type="image/x-icon"
-    >
+    <link rel="stylesheet" href="./assets/css/crime-board.css">
+    <link rel="stylesheet" href="./assets/css/crime-board-layout.css">
+    <link rel="stylesheet" href="./assets/css/character-creation.css" media="print" onload="this.onload=null;this.media='all'">
+    <link rel="stylesheet" href="./assets/css/auth-styles.css" media="print" onload="this.onload=null;this.media='all'">
+    <link rel="stylesheet" href="./assets/css/agent.css" media="print" onload="this.onload=null;this.media='all'">
+    <link rel="stylesheet" href="./assets/css/profile.css" media="print" onload="this.onload=null;this.media='all'">
+    <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div id="game-container"></div>
-
     <script src="./assets/vendor/phaser/phaser-3.90.0.min.js"></script>
     <script type="module" src="./main.js"></script>
 </body>
