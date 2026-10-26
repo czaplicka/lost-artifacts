@@ -1,0 +1,540 @@
+{
+  "assets": [
+    {
+      "key": "unknown",
+      "url": "assets/suspects/unknown.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "garett_gutter",
+      "url": "assets/suspects/garett_gutter.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "sofia_vargas",
+      "url": "assets/suspects/sofia_vargas.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "bert_goodman",
+      "url": "assets/suspects/bert_goodman.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "anne_apple",
+      "url": "assets/suspects/anne_apple.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "frank_groot",
+      "url": "assets/suspects/frank_groot.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "bernard_porter",
+      "url": "assets/suspects/bernard_porter.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "rebecca_muller",
+      "url": "assets/suspects/rebecca_muller.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "jacek_kowalski",
+      "url": "assets/suspects/jacek_kowalski.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "pablo_fernandez",
+      "url": "assets/suspects/pablo_fernandez.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "alexandra_ivanova",
+      "url": "assets/suspects/alexandra_ivanova.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "sergei_petrov",
+      "url": "assets/suspects/sergei_petrov.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "isabella_rossi",
+      "url": "assets/suspects/isabella_rossi.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "liam_oconnor",
+      "url": "assets/suspects/liam_oconnor.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "ava_thompson",
+      "url": "assets/suspects/ava_thompson.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "maximilian_schmidt",
+      "url": "assets/suspects/maximilian_schmidt.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "brendan_ross",
+      "url": "assets/suspects/brendan_ross.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "bai_williams",
+      "url": "assets/suspects/bai_williams.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "albert_johnson",
+      "url": "assets/suspects/albert_johnson.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "anna_bocian",
+      "url": "assets/suspects/anna_bocian.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "aleksander_petrov",
+      "url": "assets/suspects/aleksander_petrov.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "marie_dubois",
+      "url": "assets/suspects/marie_dubois.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "lotte_chantal",
+      "url": "assets/suspects/lotte_chantal.jpg",
+      "type": "image",
+      "groups": [
+        "suspects"
+      ]
+    },
+    {
+      "key": "wanted_garett_gutter",
+      "url": "assets/suspects/1.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_sofia_vargas",
+      "url": "assets/suspects/2.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_bert_goodman",
+      "url": "assets/suspects/3.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_anne_apple",
+      "url": "assets/suspects/4.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_frank_groot",
+      "url": "assets/suspects/5.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_bernard_porter",
+      "url": "assets/suspects/6.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_rebecca_muller",
+      "url": "assets/suspects/7.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_jacek_kowalski",
+      "url": "assets/suspects/8.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_pablo_fernandez",
+      "url": "assets/suspects/9.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_alexandra_ivanova",
+      "url": "assets/suspects/10.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_sergei_petrov",
+      "url": "assets/suspects/11.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_isabella_rossi",
+      "url": "assets/suspects/12.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_liam_oconnor",
+      "url": "assets/suspects/13.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_ava_thompson",
+      "url": "assets/suspects/14.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_maximilian_schmidt",
+      "url": "assets/suspects/15.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_brendan_ross",
+      "url": "assets/suspects/16.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_bai_williams",
+      "url": "assets/suspects/17.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_albert_johnson",
+      "url": "assets/suspects/18.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_anna_bocian",
+      "url": "assets/suspects/19.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_aleksander_petrov",
+      "url": "assets/suspects/20.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_marie_dubois",
+      "url": "assets/suspects/21.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "wanted_lotte_chantal",
+      "url": "assets/suspects/22.jpg",
+      "type": "image",
+      "groups": [
+        "wantedPosters"
+      ]
+    },
+    {
+      "key": "gg",
+      "url": "assets/suspects/gg.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "sv",
+      "url": "assets/suspects/sv.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "bg",
+      "url": "assets/suspects/bg.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "aa",
+      "url": "assets/suspects/aa.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "fg",
+      "url": "assets/suspects/fg.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "bp",
+      "url": "assets/suspects/bp.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "rm",
+      "url": "assets/suspects/rm.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "jk",
+      "url": "assets/suspects/jk.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "pf",
+      "url": "assets/suspects/pf.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "ai",
+      "url": "assets/suspects/ai.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "sp",
+      "url": "assets/suspects/sp.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "ir",
+      "url": "assets/suspects/ir.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "lo",
+      "url": "assets/suspects/lo.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "at",
+      "url": "assets/suspects/at.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "ms",
+      "url": "assets/suspects/ms.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "br",
+      "url": "assets/suspects/br.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "bw",
+      "url": "assets/suspects/bw.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "aj",
+      "url": "assets/suspects/aj.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "ab",
+      "url": "assets/suspects/ab.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "ap",
+      "url": "assets/suspects/ap.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "md",
+      "url": "assets/suspects/md.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    },
+    {
+      "key": "lc",
+      "url": "assets/suspects/lc.jpg",
+      "type": "image",
+      "groups": [
+        "suspectThumbnails"
+      ]
+    }
+  ]
+}

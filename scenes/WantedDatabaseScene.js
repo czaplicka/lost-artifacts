@@ -1,5 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
+import { audioManager } from '../managers/AudioManager.js';
 
 /* ============================================================
    CONSTANTS
@@ -7,6 +8,9 @@ import { EventBus } from '../EventBus.js';
 
 const FONT_PIXEL = 'PressStart2P';
 const FONT_TYPE = 'SpecialElite, "Courier New", monospace';
+
+const LS_THEME = 'la_wantedDbTheme';
+const LS_PHOTO = 'la_wantedDbPhoto';
 
 const toCss = (n) => `#${n.toString(16).padStart(6, '0')}`;
 
@@ -63,6 +67,29 @@ function strHash(str) {
 
     return h;
 }
+
+function lsGet(key) {
+    try {
+        return localStorage.getItem(key);
+    } catch (e) {
+        return null;
+    }
+}
+
+function lsSet(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (e) {
+        /* optional */
+    }
+}
+
+const BAYER_4 = [
+    0, 8, 2, 10,
+    12, 4, 14, 6,
+    3, 11, 1, 9,
+    15, 7, 13, 5
+];
 
 const GENDER_FILTERS = [
     { label: 'ALL', value: 'all' },
@@ -139,6 +166,7 @@ export class WantedDatabaseScene extends BaseScene {
 
     init(data = {}) {
         this.gameState = data.gameState || this.gameState || {};
+        this.returnSceneKey = data.returnScene || 'OfficeScene';
         this.restoreUi = data.ui || null;
         this.noBoot = !!data.skipBoot;
     }
@@ -146,7 +174,13 @@ export class WantedDatabaseScene extends BaseScene {
     create() {
         super.create();
 
+        // Ukrywa HUD DOM, zakładkę NEWS i usypia PlayerHudScene,
+        // bo ma globalne skróty M / I / C / H, które kolidują z pisaniem.
         EventBus.emit('hideHUD');
+        this.game.events.emit('setHudVisible', false);
+        this.sleepPlayerHud();
+
+        audioManager.init(this);
 
         this.session = { active: true };
         this.ownedTextures = new Set();
@@ -161,16 +195,14 @@ export class WantedDatabaseScene extends BaseScene {
         this.detailIndex = -1;
 
         this.cards = [];
-        this.cardFilters = [];
-        this.detailFilter = null;
+        this.photoEntries = [];
+        this.detailPhotoEntry = null;
+        this.skillChips = [];
         this.typeTweens = [];
         this.bootEvents = [];
         this.masks = [];
         this.selectedCard = null;
-
-        if (!this.gameState.suspectStatus) {
-            this.gameState.suspectStatus = {};
-        }
+        this.fallbackJsonKey = null;
 
         const ui = this.restoreUi || {};
 
@@ -180,20 +212,28 @@ export class WantedDatabaseScene extends BaseScene {
         this.filterStatus = ui.status || 'all';
         this.sortIndex = ui.sort || 0;
 
-        this.themeKey = this.registry.get('wantedDbTheme') || 'green';
+        this.themeKey =
+            this.registry.get('wantedDbTheme') ||
+            lsGet(LS_THEME) ||
+            'green';
+
         this.th = buildTheme(this.themeKey);
 
+        const savedPhoto =
+            this.registry.get('wantedDbPhotoFilter') ?? lsGet(LS_PHOTO);
+
         this.photoFilterOn =
-            this.registry.get('wantedDbPhotoFilter') !== false;
+            savedPhoto === undefined ||
+            savedPhoto === null ||
+            savedPhoto === true ||
+            savedPhoto === 'true';
 
-        this.fxSupported =
-            this.renderer?.type === Phaser.WEBGL;
+        this.marks = this.readMarks();
 
-        const cachedSuspects = this.cache.json.get('suspects');
-
-        this.suspects = Array.isArray(cachedSuspects)
-            ? cachedSuspects.map((s, i) => ({ ...s, __i: i }))
-            : [];
+        this.suspects = this.resolveSuspects().map((s, i) => ({
+            ...s,
+            __i: i
+        }));
 
         this.filteredSuspects = [...this.suspects];
 
@@ -218,6 +258,8 @@ export class WantedDatabaseScene extends BaseScene {
         this.helpPanel = this.createHelpPanel(W, H);
         this.helpPanel.setVisible(false);
 
+        this.captureKeys = 'TAB,UP,DOWN,LEFT,RIGHT,SPACE,BACKSPACE';
+        this.input.keyboard?.addCapture(this.captureKeys);
         this.input.keyboard?.on('keydown', this.onKeyDown, this);
 
         this.events.once(
@@ -232,8 +274,112 @@ export class WantedDatabaseScene extends BaseScene {
             this
         );
 
-        this.refreshPage();
+        if (this.suspects.length === 0) {
+            this.loadSuspectsFallback();
+        } else {
+            this.refreshPage();
+        }
+
         this.createBootSequence(W, H);
+    }
+
+    /* ========================================================
+       DATA SOURCE
+       ======================================================== */
+
+    resolveSuspects() {
+        for (const key of ['suspects', 'suspectData']) {
+            const data = this.cache.json.get(key);
+
+            const list = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.suspects)
+                    ? data.suspects
+                    : null;
+
+            if (list && list.length && list.every((s) => s && s.name)) {
+                return list;
+            }
+        }
+
+        return [];
+    }
+
+    loadSuspectsFallback() {
+        const session = this.session;
+        const key = '__wdb_suspects_json';
+
+        this.fallbackJsonKey = key;
+        this.updateCounter();
+        this.refreshPage();
+
+        this.load.once(`filecomplete-json-${key}`, () => {
+            if (!session.active || this.session !== session) return;
+
+            const data = this.cache.json.get(key);
+
+            if (Array.isArray(data)) {
+                this.suspects = data.map((s, i) => ({ ...s, __i: i }));
+                this.applyFilters();
+                this.refreshPage();
+            }
+        });
+
+        this.load.json(key, 'assets/data/suspects.json');
+
+        if (!this.load.isLoading()) {
+            this.load.start();
+        }
+    }
+
+    /* ========================================================
+       MARKS (flag / clear) - saved in gameState per case
+       ======================================================== */
+
+    caseKey() {
+        const gs = this.gameState || {};
+        const mission = gs.currentMission || {};
+
+        return String(
+            gs.currentCaseId ?? mission.id ?? mission.missionId ?? 'none'
+        );
+    }
+
+    readMarks() {
+        const wd = this.gameState?.wantedDatabase;
+
+        if (
+            wd &&
+            typeof wd === 'object' &&
+            wd.caseId === this.caseKey() &&
+            wd.marks &&
+            typeof wd.marks === 'object'
+        ) {
+            return { ...wd.marks };
+        }
+
+        return {};
+    }
+
+    writeMarks() {
+        const gs = this.gameState;
+
+        if (!gs) return;
+
+        const next = {
+            caseId: this.caseKey(),
+            marks: { ...this.marks }
+        };
+
+        try {
+            if (typeof gs.updateState === 'function') {
+                gs.updateState({ wantedDatabase: next });
+            } else {
+                gs.wantedDatabase = next;
+            }
+        } catch (error) {
+            console.warn('[WantedDatabaseScene] Could not save marks:', error);
+        }
     }
 
     /* ========================================================
@@ -308,11 +454,9 @@ export class WantedDatabaseScene extends BaseScene {
         g.strokePath();
     }
 
-    playSfx(key, volume = 0.25) {
+    sfx(key) {
         try {
-            if (this.cache.audio.exists(key)) {
-                this.sound.play(key, { volume });
-            }
+            audioManager.playSfx(key);
         } catch (e) {
             /* sound is optional */
         }
@@ -380,7 +524,7 @@ export class WantedDatabaseScene extends BaseScene {
                 return;
             }
 
-            this.playSfx('sfx_click');
+            this.sfx('click_sound');
             onClick();
         });
 
@@ -431,16 +575,7 @@ export class WantedDatabaseScene extends BaseScene {
         g.fillStyle(th.main, 1);
         g.fillCircle(W - 34, H - 7, 3);
 
-        this.makeRect(
-            22,
-            22,
-            W - 44,
-            H - 44,
-            0x000000,
-            0,
-            0.3,
-            2
-        );
+        this.makeRect(22, 22, W - 44, H - 44, 0x000000, 0, 0.3, 2);
     }
 
     createCRTEffects(W, H) {
@@ -502,7 +637,6 @@ export class WantedDatabaseScene extends BaseScene {
             ease: 'Linear'
         });
 
-        // glass reflection
         const glare = this.add.graphics().setDepth(998);
 
         glare.fillStyle(0xffffff, 0.02);
@@ -510,7 +644,6 @@ export class WantedDatabaseScene extends BaseScene {
         glare.fillStyle(0xffffff, 0.012);
         glare.fillTriangle(W * 0.5, 16, W * 0.62, 16, 16, H * 0.62);
 
-        // flicker + static
         this.flickerTimer = this.time.addEvent({
             delay: 80,
             loop: true,
@@ -523,7 +656,6 @@ export class WantedDatabaseScene extends BaseScene {
             }
         });
 
-        // occasional glitch shake
         this.glitchTimer = this.time.addEvent({
             delay: 6500,
             loop: true,
@@ -534,12 +666,12 @@ export class WantedDatabaseScene extends BaseScene {
             }
         });
 
-        // camera vignette (WebGL only)
-        if (this.fxSupported && this.cameras.main.postFX) {
+        // winieta kamery (WebGL, Phaser 3.60+), czysto kosmetyczna
+        if (this.renderer?.type === Phaser.WEBGL && this.cameras.main.postFX) {
             try {
                 this.cameras.main.postFX.addVignette(0.5, 0.5, 0.9, 0.3);
             } catch (e) {
-                /* ignore, purely cosmetic */
+                /* ignore */
             }
         }
     }
@@ -547,6 +679,23 @@ export class WantedDatabaseScene extends BaseScene {
     /* ========================================================
        HEADER
        ======================================================== */
+
+    gameClockText() {
+        const gs = this.gameState || {};
+
+        const day = Math.max(1, Math.floor(Number(gs.currentDay ?? gs.day) || 1));
+        const hour = gs.currentHour ?? gs.hour;
+        const minute = gs.currentMinute ?? gs.minute;
+
+        const p = (n) => String(n).padStart(2, '0');
+
+        if (hour === undefined || hour === null) {
+            const d = new Date();
+            return `${p(d.getHours())}:${p(d.getMinutes())}`;
+        }
+
+        return `DAY ${day}  ${p(Number(hour) || 0)}:${p(Number(minute) || 0)}`;
+    }
 
     createHeader(W) {
         const th = this.th;
@@ -558,17 +707,11 @@ export class WantedDatabaseScene extends BaseScene {
             color: th.sMid
         }).setOrigin(0, 0.5);
 
-        this.linkText = this.makeText(
-            44,
-            68,
-            'LINK: INTERPOL-NET [ONLINE]',
-            9,
-            { color: th.sDim }
-        ).setOrigin(0, 0.5);
+        this.makeText(44, 68, 'LINK: INTERPOL-NET [ONLINE]', 9, {
+            color: th.sDim
+        }).setOrigin(0, 0.5);
 
-        const titleSize = W < 1500 ? 22 : 28;
-
-        this.makeText(W / 2, 62, 'MOST WANTED DATABASE', titleSize, {
+        this.makeText(W / 2, 62, 'MOST WANTED DATABASE', 28, {
             stroke: th.sShadow,
             strokeThickness: 4,
             shadow: this.glow(th.sMain, 12)
@@ -579,12 +722,7 @@ export class WantedDatabaseScene extends BaseScene {
         }).setOrigin(1, 0.5);
 
         const updateClock = () => {
-            const d = new Date();
-            const p = (n) => String(n).padStart(2, '0');
-
-            this.clockText?.setText(
-                `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
-            );
+            this.clockText?.setText(this.gameClockText());
         };
 
         updateClock();
@@ -670,12 +808,10 @@ export class WantedDatabaseScene extends BaseScene {
             11
         );
 
-        this.counterText = this.makeText(
-            W - 44,
-            r1 + 16,
-            '',
-            14
-        ).setOrigin(1, 0.5);
+        this.counterText = this.makeText(W - 44, r1 + 16, '', 14).setOrigin(
+            1,
+            0.5
+        );
 
         this.updateCounter();
 
@@ -685,7 +821,7 @@ export class WantedDatabaseScene extends BaseScene {
 
         const statusLabels = STATUS_FILTERS.map((s) => `STATUS: ${s.label}`);
         const sortLabels = SORT_MODES.map((s) => `SORT: ${s.label}`);
-        const imgLabels = ['IMG: PHOSPHOR', 'IMG: RAW'];
+        const imgLabels = ['IMG: PHOSPHOR', 'IMG: COLOR'];
         const themeLabels = Object.values(THEME_DEFS).map(
             (t) => `THEME: ${t.label}`
         );
@@ -830,24 +966,24 @@ export class WantedDatabaseScene extends BaseScene {
             btn.setActive(btn.value === this.filterGender);
         }
 
-        const status = STATUS_FILTERS.find(
-            (s) => s.value === this.filterStatus
-        ) || STATUS_FILTERS[0];
+        const status =
+            STATUS_FILTERS.find((s) => s.value === this.filterStatus) ||
+            STATUS_FILTERS[0];
 
         this.statusButton.setLabel(`STATUS: ${status.label}`);
         this.statusButton.setActive(this.filterStatus !== 'all');
 
-        this.sortButton.setLabel(
-            `SORT: ${SORT_MODES[this.sortIndex].label}`
-        );
+        this.sortButton.setLabel(`SORT: ${SORT_MODES[this.sortIndex].label}`);
 
         this.imgButton.setLabel(
-            this.photoFilterOn ? 'IMG: PHOSPHOR' : 'IMG: RAW'
+            this.photoFilterOn ? 'IMG: PHOSPHOR' : 'IMG: COLOR'
         );
 
         this.imgButton.setActive(this.photoFilterOn);
 
-        this.themeButton.setLabel(`THEME: ${this.th.key === 'green' ? 'GREEN' : 'AMBER'}`);
+        this.themeButton.setLabel(
+            `THEME: ${this.th.key === 'green' ? 'GREEN' : 'AMBER'}`
+        );
     }
 
     afterFilterChange() {
@@ -858,9 +994,7 @@ export class WantedDatabaseScene extends BaseScene {
     }
 
     cycleGender() {
-        const i = GENDER_FILTERS.findIndex(
-            (g) => g.value === this.filterGender
-        );
+        const i = GENDER_FILTERS.findIndex((g) => g.value === this.filterGender);
 
         this.filterGender =
             GENDER_FILTERS[(i + 1) % GENDER_FILTERS.length].value;
@@ -871,9 +1005,7 @@ export class WantedDatabaseScene extends BaseScene {
     cycleStatus() {
         if (this.browseLocked()) return;
 
-        const i = STATUS_FILTERS.findIndex(
-            (s) => s.value === this.filterStatus
-        );
+        const i = STATUS_FILTERS.findIndex((s) => s.value === this.filterStatus);
 
         this.filterStatus =
             STATUS_FILTERS[(i + 1) % STATUS_FILTERS.length].value;
@@ -890,14 +1022,16 @@ export class WantedDatabaseScene extends BaseScene {
 
     togglePhotoFilter() {
         this.photoFilterOn = !this.photoFilterOn;
-        this.registry.set('wantedDbPhotoFilter', this.photoFilterOn);
 
-        for (const entry of this.cardFilters) {
+        this.registry.set('wantedDbPhotoFilter', this.photoFilterOn);
+        lsSet(LS_PHOTO, String(this.photoFilterOn));
+
+        for (const entry of this.photoEntries) {
             this.applyPhotoMode(entry);
         }
 
-        if (this.detailFilter) {
-            this.applyPhotoMode(this.detailFilter);
+        if (this.detailPhotoEntry) {
+            this.applyPhotoMode(this.detailPhotoEntry);
         }
 
         this.refreshFilterButtons();
@@ -919,9 +1053,11 @@ export class WantedDatabaseScene extends BaseScene {
         const next = this.themeKey === 'green' ? 'amber' : 'green';
 
         this.registry.set('wantedDbTheme', next);
+        lsSet(LS_THEME, next);
 
         this.scene.restart({
             gameState: this.gameState,
+            returnScene: this.returnSceneKey,
             skipBoot: true,
             ui: this.snapshotUi()
         });
@@ -968,7 +1104,7 @@ export class WantedDatabaseScene extends BaseScene {
     }
 
     getStatus(suspect) {
-        return this.gameState.suspectStatus?.[this.statusKey(suspect)] || null;
+        return this.marks[this.statusKey(suspect)] || null;
     }
 
     fileNumber(suspect) {
@@ -976,18 +1112,19 @@ export class WantedDatabaseScene extends BaseScene {
     }
 
     setStatus(suspect, status) {
-        const map = this.gameState.suspectStatus;
         const key = this.statusKey(suspect);
 
-        if (map[key] === status) {
-            delete map[key];
+        if (this.marks[key] === status) {
+            delete this.marks[key];
         } else {
-            map[key] = status;
+            this.marks[key] = status;
         }
+
+        this.writeMarks();
 
         EventBus.emit('suspectStatusChanged', {
             id: suspect.id,
-            status: map[key] || null
+            status: this.marks[key] || null
         });
 
         for (const card of this.cards) {
@@ -995,6 +1132,7 @@ export class WantedDatabaseScene extends BaseScene {
         }
 
         this.updateDetailStatus(suspect);
+        this.updateMarksText();
 
         if (this.filterStatus !== 'all') {
             this.listDirty = true;
@@ -1035,12 +1173,13 @@ export class WantedDatabaseScene extends BaseScene {
             if (this.filterStatus === 'none' && status) return false;
 
             if (tokens.length) {
-                const hay = fields
-                    .map((f) => String(suspect[f] || ''))
-                    .join(' ')
-                    .toLowerCase();
+                const hay =
+                    fields.map((f) => String(suspect[f] || '')).join(' ') +
+                    ` #${this.fileNumber(suspect)}`;
 
-                if (!tokens.every((t) => hay.includes(t))) return false;
+                const lower = hay.toLowerCase();
+
+                if (!tokens.every((t) => lower.includes(t))) return false;
             }
 
             return true;
@@ -1065,18 +1204,14 @@ export class WantedDatabaseScene extends BaseScene {
 
         this.filteredSuspects = list;
 
-        const totalPages = Math.max(
-            1,
-            Math.ceil(list.length / this.CARDS_PER_PAGE)
-        );
-
         this.currentPage = Phaser.Math.Clamp(
             this.currentPage,
             0,
-            totalPages - 1
+            this.totalPages() - 1
         );
 
         this.updateCounter();
+        this.updateMarksText();
     }
 
     /* ========================================================
@@ -1150,10 +1285,7 @@ export class WantedDatabaseScene extends BaseScene {
             settled = true;
 
             this.load.off(completeEvent, onComplete);
-            this.load.off(
-                Phaser.Loader.Events.FILE_LOAD_ERROR,
-                onError
-            );
+            this.load.off(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
 
             this.pendingTextures.delete(key);
             resolvePromise(result);
@@ -1172,10 +1304,7 @@ export class WantedDatabaseScene extends BaseScene {
         const onError = (file) => {
             if (file?.key !== key) return;
 
-            console.warn(
-                '[WantedDatabaseScene] Image failed:',
-                spec.url
-            );
+            console.warn('[WantedDatabaseScene] Image failed:', spec.url);
 
             finish(null);
         };
@@ -1186,11 +1315,7 @@ export class WantedDatabaseScene extends BaseScene {
         });
 
         this.load.once(completeEvent, onComplete);
-
-        this.load.on(
-            Phaser.Loader.Events.FILE_LOAD_ERROR,
-            onError
-        );
+        this.load.on(Phaser.Loader.Events.FILE_LOAD_ERROR, onError);
 
         this.load.image(key, spec.url);
 
@@ -1202,10 +1327,10 @@ export class WantedDatabaseScene extends BaseScene {
     }
 
     /* ========================================================
-       PHOTO FILTER (phosphor monitor look)
+       PHOTO FILTER: baked dithered phosphor texture
        ======================================================== */
 
-    // Crops the image to "cover" the box; focusY biases the crop toward the top (faces).
+    // Raw image cropped to "cover" the box. focusY: 0 = top, 1 = bottom.
     fitCover(image, box, textureKey, focusY = 0.5) {
         image.setCrop();
         image.setTexture(textureKey);
@@ -1230,66 +1355,157 @@ export class WantedDatabaseScene extends BaseScene {
             .setOrigin(0.5)
             .setScale(scale)
             .setPosition(
-                box.x - cx * scale + (sw * scale) / 2,
-                box.y - cy * scale + (sh * scale) / 2
+                box.x + scale * (sw / 2 - cx),
+                box.y + scale * (sh / 2 - cy)
             )
-            .setCrop(cx, cy, cw, ch)
-            .setVisible(true);
+            .setCrop(cx, cy, cw, ch);
 
         return true;
     }
 
-    // Grayscale (WebGL ColorMatrix) + green/amber multiply layer + black-lift layer.
-    createPhotoFilter(parent, image, box) {
+    bakePhoto(srcKey, box, focusY = 0, pixel = 2) {
         const th = this.th;
-        let fx = null;
 
-        if (this.fxSupported && image.postFX) {
-            try {
-                fx = image.postFX.addColorMatrix();
+        const key = `__wdb_bake_${th.key}_${srcKey}_${box.width}x${box.height}_${pixel}`;
 
-                const m = fx.colorMatrix || fx;
+        if (this.textures.exists(key)) return key;
 
-                m.grayscale?.(1, false);
-                m.contrast?.(0.25, true);
-            } catch (e) {
-                fx = null;
+        try {
+            const src = this.textures.get(srcKey).getSourceImage();
+
+            const sw = src.naturalWidth || src.width;
+            const sh = src.naturalHeight || src.height;
+
+            if (!sw || !sh) return null;
+
+            const w = Math.max(8, Math.round(box.width / pixel));
+            const h = Math.max(8, Math.round(box.height / pixel));
+
+            const tex = this.textures.createCanvas(key, w, h);
+            const ctx = tex.getContext();
+
+            const s = Math.max(w / sw, h / sh);
+            const cw = w / s;
+            const ch = h / s;
+            const cx = (sw - cw) / 2;
+            const cy = (sh - ch) * focusY;
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(src, cx, cy, cw, ch, 0, 0, w, h);
+
+            const img = ctx.getImageData(0, 0, w, h);
+            const data = img.data;
+
+            const stops = [th.bg, th.dim, th.mid, th.main, th.hi].map((c) =>
+                Phaser.Display.Color.IntegerToRGB(c)
+            );
+
+            const levels = stops.length;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+
+                    let l =
+                        (0.299 * data[i] +
+                            0.587 * data[i + 1] +
+                            0.114 * data[i + 2]) /
+                        255;
+
+                    l = Phaser.Math.Clamp((l - 0.5) * 1.3 + 0.53, 0, 1);
+
+                    const t = (BAYER_4[(y & 3) * 4 + (x & 3)] + 0.5) / 16 - 0.5;
+
+                    const idx = Phaser.Math.Clamp(
+                        Math.round(l * (levels - 1) + t * 0.95),
+                        0,
+                        levels - 1
+                    );
+
+                    const c = stops[idx];
+
+                    data[i] = c.r;
+                    data[i + 1] = c.g;
+                    data[i + 2] = c.b;
+                    data[i + 3] = 255;
+                }
+            }
+
+            ctx.putImageData(img, 0, 0);
+            tex.refresh();
+            tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
+
+            this.ownedTextures.add(key);
+
+            return key;
+        } catch (error) {
+            // np. tainted canvas przy CDN bez CORS: zostaje oryginał
+            if (this.textures.exists(key)) {
+                this.textures.remove(key);
+            }
+
+            console.warn('[WantedDatabaseScene] Bake failed:', error);
+
+            return null;
+        }
+    }
+
+    createPhotoEntry(parent, box) {
+        const raw = this.add.image(0, 0, '__DEFAULT').setVisible(false);
+        const baked = this.add.image(0, 0, '__DEFAULT').setVisible(false);
+
+        parent.add([raw, baked]);
+
+        return {
+            raw,
+            baked,
+            hasBake: false,
+            loaded: false,
+            box
+        };
+    }
+
+    setEntryPhoto(entry, textureKey, focusY, pixel = 2) {
+        const box = entry.box;
+
+        const ok = this.fitCover(entry.raw, box, textureKey, focusY);
+
+        entry.loaded = ok;
+        entry.hasBake = false;
+
+        if (ok) {
+            const bakedKey = this.bakePhoto(textureKey, box, focusY, pixel);
+
+            if (bakedKey) {
+                entry.baked
+                    .setTexture(bakedKey)
+                    .setOrigin(0.5)
+                    .setScale(1)
+                    .setPosition(
+                        box.x + box.width / 2,
+                        box.y + box.height / 2
+                    )
+                    .setDisplaySize(box.width, box.height);
+
+                entry.hasBake = true;
             }
         }
 
-        const multiply = this.add
-            .rectangle(box.x, box.y, box.width, box.height, th.main, 1)
-            .setOrigin(0)
-            .setBlendMode(Phaser.BlendModes.MULTIPLY);
-
-        const lift = this.add
-            .rectangle(box.x, box.y, box.width, box.height, th.dim, 0.2)
-            .setOrigin(0)
-            .setBlendMode(Phaser.BlendModes.ADD);
-
-        parent.add([multiply, lift]);
-
-        const entry = {
-            fx,
-            overlays: [multiply, lift],
-            enabled: true
-        };
-
         this.applyPhotoMode(entry);
+    }
 
-        return entry;
+    clearEntry(entry) {
+        entry.loaded = false;
+        entry.hasBake = false;
+        this.applyPhotoMode(entry);
     }
 
     applyPhotoMode(entry) {
-        const on = this.photoFilterOn && entry.enabled !== false;
+        const useBake = this.photoFilterOn && entry.hasBake;
 
-        for (const overlay of entry.overlays) {
-            overlay.setVisible(on);
-        }
-
-        if (entry.fx) {
-            entry.fx.active = on;
-        }
+        entry.raw.setVisible(entry.loaded && !useBake);
+        entry.baked.setVisible(entry.loaded && useBake);
     }
 
     /* ========================================================
@@ -1305,7 +1521,7 @@ export class WantedDatabaseScene extends BaseScene {
             .setVisible(false);
 
         const box = this.add
-            .rectangle(0, 0, 10, 10, 0x000000, 0.45)
+            .rectangle(0, 0, 10, 10, 0x000000, 0.55)
             .setStrokeStyle(3, th.alert, 1);
 
         const text = this.makeText(0, 0, '', size, {
@@ -1345,9 +1561,13 @@ export class WantedDatabaseScene extends BaseScene {
        ======================================================== */
 
     clearCards() {
+        for (const card of this.cards) {
+            this.tweens.killTweensOf(card.container);
+        }
+
         this.cardContainer?.removeAll(true);
         this.cards = [];
-        this.cardFilters = [];
+        this.photoEntries = [];
     }
 
     async refreshPage() {
@@ -1430,7 +1650,9 @@ export class WantedDatabaseScene extends BaseScene {
             const msg = this.makeText(
                 W / 2,
                 (startY + endY) / 2,
-                'NO MATCHING RECORDS.\n\nTRY A DIFFERENT QUERY...\nOR CONFESS.',
+                this.suspects.length === 0
+                    ? 'LOADING FELON FILES...\n\nPLEASE WAIT.'
+                    : 'NO MATCHING RECORDS.\n\nTRY A DIFFERENT QUERY...\nOR CONFESS.',
                 18,
                 { align: 'center', lineSpacing: 6 }
             ).setOrigin(0.5);
@@ -1483,7 +1705,6 @@ export class WantedDatabaseScene extends BaseScene {
                 textureKeys[i]
             );
 
-            // staggered "boot-in" animation
             card.container.setAlpha(0);
             card.container.y = y + 14;
 
@@ -1522,8 +1743,10 @@ export class WantedDatabaseScene extends BaseScene {
         container.add(this.makeRect(2, 2, cardW - 4, 24, th.panelAlt, 1, 0));
 
         container.add(
-            this.makeText(10, 14, `#${this.fileNumber(suspect)}`, 11)
-                .setOrigin(0, 0.5)
+            this.makeText(10, 14, `#${this.fileNumber(suspect)}`, 11).setOrigin(
+                0,
+                0.5
+            )
         );
 
         container.add(
@@ -1536,38 +1759,26 @@ export class WantedDatabaseScene extends BaseScene {
             ).setOrigin(1, 0.5)
         );
 
-        // photo box
-        const plateH = 58;
+        // photo box: plakaty są kwadratami, dół to pusty pergamin
+        const plateH = 54;
 
         const box = {
             x: 8,
-            y: 32,
+            y: 30,
             width: cardW - 16,
-            height: Math.max(40, cardH - 32 - 8 - plateH - 4)
+            height: Math.max(40, cardH - 30 - 6 - plateH - 4)
         };
 
         container.add(
-            this.makeRect(
-                box.x,
-                box.y,
-                box.width,
-                box.height,
-                0x020805,
-                1,
-                0
-            )
+            this.makeRect(box.x, box.y, box.width, box.height, 0x020805, 1, 0)
         );
 
-        let image = null;
+        let entry = null;
 
         if (textureKey && this.textures.exists(textureKey)) {
-            image = this.add.image(0, 0, textureKey);
-            container.add(image);
-
-            if (this.fitCover(image, box, textureKey, 0.3)) {
-                const entry = this.createPhotoFilter(container, image, box);
-                this.cardFilters.push(entry);
-            }
+            entry = this.createPhotoEntry(container, box);
+            this.setEntryPhoto(entry, textureKey, 0, 2);
+            this.photoEntries.push(entry);
         } else {
             container.add(
                 this.makeText(
@@ -1580,7 +1791,6 @@ export class WantedDatabaseScene extends BaseScene {
             );
         }
 
-        // photo frame + permanent corner brackets
         container.add(
             this.makeRect(
                 box.x,
@@ -1670,17 +1880,13 @@ export class WantedDatabaseScene extends BaseScene {
 
         container.add(hoverGfx);
 
-        // interaction
         const zone = this.add
             .zone(0, 0, cardW, cardH)
             .setOrigin(0)
             .setInteractive({ useHandCursor: true });
 
         zone.on('pointerover', () => {
-            background
-                .setFillStyle(th.hover, 0.95)
-                .setStrokeStyle(2, th.hi, 1);
-
+            background.setFillStyle(th.hover, 0.95).setStrokeStyle(2, th.hi, 1);
             hoverGfx.setVisible(true);
         });
 
@@ -1703,7 +1909,7 @@ export class WantedDatabaseScene extends BaseScene {
                 return;
             }
 
-            this.playSfx('sfx_click');
+            this.sfx('click_sound');
             this.showDetailPanel(suspect);
         });
 
@@ -1716,7 +1922,13 @@ export class WantedDatabaseScene extends BaseScene {
                 const status = this.getStatus(suspect);
 
                 this.paintStamp(stamp, status);
-                image?.setAlpha(status === 'clear' ? 0.4 : 1);
+
+                const dim = status === 'clear' ? 0.4 : 1;
+
+                if (entry) {
+                    entry.raw.setAlpha(dim);
+                    entry.baked.setAlpha(dim);
+                }
             }
         };
 
@@ -1732,13 +1944,11 @@ export class WantedDatabaseScene extends BaseScene {
         container.add([
             this.makeRect(0, 0, width, height, 0x000000, 0, 0.2),
 
-            this.makeText(
-                width / 2,
-                height / 2,
-                'NO RECORD',
-                12,
-                { color: th.sDim }
-            ).setOrigin(0.5).setAlpha(0.4)
+            this.makeText(width / 2, height / 2, 'NO RECORD', 12, {
+                color: th.sDim
+            })
+                .setOrigin(0.5)
+                .setAlpha(0.4)
         ]);
 
         return container;
@@ -1775,7 +1985,6 @@ export class WantedDatabaseScene extends BaseScene {
 
         panel.add(content);
 
-        // frame
         const background = this.makeRect(
             0,
             0,
@@ -1835,20 +2044,7 @@ export class WantedDatabaseScene extends BaseScene {
             this.makeRect(box.x, box.y, box.width, box.height, 0x020805, 1, 0)
         );
 
-        this.detailPhoto = this.add
-            .image(0, 0, '__DEFAULT')
-            .setVisible(false);
-
-        content.add(this.detailPhoto);
-
-        this.detailFilter = this.createPhotoFilter(
-            content,
-            this.detailPhoto,
-            box
-        );
-
-        this.detailFilter.enabled = false;
-        this.applyPhotoMode(this.detailFilter);
+        this.detailPhotoEntry = this.createPhotoEntry(content, box);
 
         // scan bar
         this.detailScan = this.add.container(box.x, box.y).setVisible(false);
@@ -1958,7 +2154,6 @@ export class WantedDatabaseScene extends BaseScene {
                 .setOrigin(0)
         );
 
-        // stats box
         const statsY = 139;
         const statsH = 236;
 
@@ -1989,26 +2184,39 @@ export class WantedDatabaseScene extends BaseScene {
             content.add(this.detailFields[field]);
         }
 
-        const createInfoBox = (y, h, label) => {
-            content.add(this.makeRect(boxX, y, boxW, h, th.panel, 0.8, 0.5));
+        // skills box (klikalne tagi)
+        this.skillsBox = { x: boxX, y: 387, w: boxW, h: 100 };
 
-            content.add(
-                this.makeText(boxX + 14, y + 10, label, 12, {
-                    color: th.sMid
-                })
-            );
+        content.add(
+            this.makeRect(boxX, 387, boxW, 100, th.panel, 0.8, 0.5)
+        );
 
-            const value = this.makeType(boxX + 14, y + 34, '', 18, {
-                wordWrap: { width: boxW - 28 }
-            });
+        content.add(
+            this.makeText(
+                boxX + 14,
+                397,
+                'KNOWN SKILLS:  (CLICK TO SEARCH)',
+                12,
+                { color: th.sMid }
+            )
+        );
 
-            content.add(value);
+        // habits box
+        content.add(
+            this.makeRect(boxX, 499, boxW, 100, th.panel, 0.8, 0.5)
+        );
 
-            return value;
-        };
+        content.add(
+            this.makeText(boxX + 14, 509, 'KNOWN HABITS:', 12, {
+                color: th.sMid
+            })
+        );
 
-        this.detailSkills = createInfoBox(387, 100, 'KNOWN SKILLS:');
-        this.detailHabitus = createInfoBox(499, 100, 'KNOWN HABITS:');
+        this.detailHabitus = this.makeType(boxX + 14, 533, '', 18, {
+            wordWrap: { width: boxW - 28 }
+        });
+
+        content.add(this.detailHabitus);
 
         // margin note
         content.add(this.makeRect(boxX, 611, boxW, 78, 0x000000, 0.5, 0.35));
@@ -2107,25 +2315,88 @@ export class WantedDatabaseScene extends BaseScene {
         }
     }
 
-    setDetailPhotoState(visible) {
-        this.detailPhoto?.setVisible(visible);
-        this.detailScan?.setVisible(visible);
+    clearSkillChips() {
+        for (const item of this.skillChips) {
+            (item.container ?? item).destroy?.(true);
+        }
 
-        if (this.detailFilter) {
-            this.detailFilter.enabled = visible;
-            this.applyPhotoMode(this.detailFilter);
+        this.skillChips = [];
+    }
+
+    buildSkillChips(skillsText) {
+        this.clearSkillChips();
+
+        const list = String(skillsText || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 8);
+
+        const sb = this.skillsBox;
+
+        if (list.length === 0) {
+            const none = this.makeType(sb.x + 14, sb.y + 40, 'NONE', 18);
+
+            this.detailContent.add(none);
+            this.skillChips.push(none);
+            return;
+        }
+
+        const size = 10;
+        const h = 26;
+        const maxW = sb.w - 28;
+
+        let cx = 0;
+        let cy = 0;
+
+        for (const skill of list) {
+            const w = skill.length * size + 22;
+
+            if (cx + w > maxW) {
+                cx = 0;
+                cy += h + 6;
+            }
+
+            if (cy > h + 6) break;
+
+            const btn = this.makeButton(
+                sb.x + 14 + cx,
+                sb.y + 36 + cy,
+                w,
+                h,
+                skill.toUpperCase(),
+                () => this.searchBySkill(skill),
+                size
+            );
+
+            this.detailContent.add(btn.container);
+            this.skillChips.push(btn);
+
+            cx += w + 8;
         }
     }
 
-    fitDetailPhoto(textureKey) {
-        const ok = this.fitCover(
-            this.detailPhoto,
-            this.detailPhotoBox,
-            textureKey,
-            0.3
-        );
+    searchBySkill(skill) {
+        if (!this.session?.active) return;
 
-        this.setDetailPhotoState(ok);
+        this.hideDetailPanel();
+
+        this.searchQuery = String(skill).toLowerCase().slice(0, this.searchMax);
+        this.updateSearchText();
+
+        this.searchDebounce?.remove();
+
+        this.currentPage = 0;
+        this.applyFilters();
+        this.refreshPage();
+    }
+
+    setDetailPhotoState(visible) {
+        this.detailScan?.setVisible(visible);
+
+        if (!visible && this.detailPhotoEntry) {
+            this.clearEntry(this.detailPhotoEntry);
+        }
     }
 
     stopTypeTweens() {
@@ -2159,7 +2430,6 @@ export class WantedDatabaseScene extends BaseScene {
         this.typeTweens.push(tw);
     }
 
-    // Shrinks the font until the text fits inside maxH.
     fitText(obj, full, maxH, sizes) {
         for (const size of sizes) {
             obj.setFontSize(size);
@@ -2210,15 +2480,17 @@ export class WantedDatabaseScene extends BaseScene {
                 .setText('STATUS: CLEARED (ALIBI OK)')
                 .setColor(th.sMid);
         } else {
-            this.detailStatusText
-                .setText('STATUS: UNSORTED')
-                .setColor(th.sDim);
+            this.detailStatusText.setText('STATUS: UNSORTED').setColor(th.sDim);
         }
 
-        this.flagButton.setLabel(status === 'flag' ? '[F] UNFLAG' : '[F] FLAG SUSPECT');
+        this.flagButton.setLabel(
+            status === 'flag' ? '[F] UNFLAG' : '[F] FLAG SUSPECT'
+        );
         this.flagButton.setActive(status === 'flag');
 
-        this.clearButton.setLabel(status === 'clear' ? '[C] REINSTATE' : '[C] CLEAR SUSPECT');
+        this.clearButton.setLabel(
+            status === 'clear' ? '[C] REINSTATE' : '[C] CLEAR SUSPECT'
+        );
         this.clearButton.setActive(status === 'clear');
     }
 
@@ -2233,7 +2505,6 @@ export class WantedDatabaseScene extends BaseScene {
 
         this.stopTypeTweens();
 
-        // static info
         this.detailRecText.setText(
             `REC ${String(this.detailIndex + 1).padStart(2, '0')}/${String(
                 this.filteredSuspects.length
@@ -2249,7 +2520,6 @@ export class WantedDatabaseScene extends BaseScene {
         this.drawBarcode(`${suspect.id}${suspect.name}`);
         this.updateDetailStatus(suspect);
 
-        // texts: measure with the full text, then type them in
         const values = {};
 
         for (const field of DETAIL_FIELDS) {
@@ -2259,16 +2529,16 @@ export class WantedDatabaseScene extends BaseScene {
         this.layoutDetailFields(values);
 
         const name = String(suspect.name || '').toUpperCase();
-        const skills = String(suspect.skills || 'NONE');
         const habitus = String(suspect.habitus || 'NONE');
         const note =
             MARGIN_NOTES[
                 strHash(suspect.id ?? suspect.name) % MARGIN_NOTES.length
             ];
 
-        this.fitText(this.detailSkills, skills, 58, [18, 16, 14, 12]);
         this.fitText(this.detailHabitus, habitus, 58, [18, 16, 14, 12]);
         this.fitText(this.detailNote, note, 46, [16, 14, 12]);
+
+        this.buildSkillChips(suspect.skills);
 
         this.typeInto(this.detailName, name, 0);
 
@@ -2276,11 +2546,9 @@ export class WantedDatabaseScene extends BaseScene {
             this.typeInto(this.detailFields[field], values[field], 60 + i * 70);
         });
 
-        this.typeInto(this.detailSkills, skills, 520);
         this.typeInto(this.detailHabitus, habitus, 640);
         this.typeInto(this.detailNote, note, 760);
 
-        // photo
         this.setDetailPhotoState(false);
 
         this.detailPhotoStatus
@@ -2310,8 +2578,24 @@ export class WantedDatabaseScene extends BaseScene {
         }
 
         if (key && this.textures.exists(key)) {
-            this.fitDetailPhoto(key);
+            this.setEntryPhoto(this.detailPhotoEntry, key, 0.3, 2);
+
+            this.detailScan.setVisible(this.detailPhotoEntry.loaded);
             this.detailPhotoStatus.setVisible(false);
+
+            // efekt "wywoływania" zdjęcia
+            const e = this.detailPhotoEntry;
+
+            this.tweens.killTweensOf([e.raw, e.baked]);
+            e.raw.setAlpha(0);
+            e.baked.setAlpha(0);
+
+            this.tweens.add({
+                targets: [e.raw, e.baked],
+                alpha: 1,
+                duration: 450,
+                ease: 'Quad.easeOut'
+            });
         } else {
             this.detailPhotoStatus.setText('PORTRAIT\nUNAVAILABLE');
         }
@@ -2382,6 +2666,7 @@ export class WantedDatabaseScene extends BaseScene {
             ['DOWN', 'CYCLE STATUS'],
             ['LEFT/RIGHT', 'PAGE / RECORD'],
             ['CLICK CARD', 'OPEN DOSSIER'],
+            ['CLICK SKILL', 'SEARCH BY SKILL'],
             ['F  (DOSSIER)', 'FLAG SUSPECT'],
             ['C  (DOSSIER)', 'CLEAR SUSPECT'],
             ['ESC', 'BACK / CLEAR / EXIT']
@@ -2391,7 +2676,7 @@ export class WantedDatabaseScene extends BaseScene {
             .map(([k, v]) => `${k.padEnd(13, '.')} ${v}`)
             .join('\n');
 
-        const bw = 700;
+        const bw = 760;
         const bh = 140 + lines.length * 30;
         const bx = (W - bw) / 2;
         const by = (H - bh) / 2;
@@ -2409,9 +2694,7 @@ export class WantedDatabaseScene extends BaseScene {
             }).setOrigin(0, 0.5)
         );
 
-        panel.add(
-            this.makeText(bx + 28, by + 66, text, 12, { lineSpacing: 16 })
-        );
+        panel.add(this.makeText(bx + 28, by + 66, text, 12, { lineSpacing: 16 }));
 
         panel.add(
             this.makeText(
@@ -2453,6 +2736,10 @@ export class WantedDatabaseScene extends BaseScene {
             () => this.prevPage()
         );
 
+        this.marksText = this.makeText(210, navY + 23, '', 11, {
+            color: th.sMid
+        }).setOrigin(0, 0.5);
+
         this.pageText = this.makeText(W / 2, navY + 23, '', 16, {
             shadow: this.glow(th.sMain, 6)
         }).setOrigin(0.5);
@@ -2467,6 +2754,27 @@ export class WantedDatabaseScene extends BaseScene {
         );
 
         this.updateNavButtons();
+        this.updateMarksText();
+    }
+
+    updateMarksText() {
+        if (!this.marksText) return;
+
+        let flag = 0;
+        let clear = 0;
+
+        for (const suspect of this.suspects) {
+            const status = this.getStatus(suspect);
+
+            if (status === 'flag') flag++;
+            else if (status === 'clear') clear++;
+        }
+
+        const open = Math.max(0, this.suspects.length - flag - clear);
+
+        this.marksText.setText(
+            `FLAGGED ${flag}  CLEARED ${clear}  OPEN ${open}`
+        );
     }
 
     totalPages() {
@@ -2479,9 +2787,7 @@ export class WantedDatabaseScene extends BaseScene {
     updateNavButtons() {
         const totalPages = this.totalPages();
 
-        this.pageText?.setText(
-            `PAGE ${this.currentPage + 1} / ${totalPages}`
-        );
+        this.pageText?.setText(`PAGE ${this.currentPage + 1} / ${totalPages}`);
 
         const canPrev = !this.isPaging && this.currentPage > 0;
         const canNext = !this.isPaging && this.currentPage < totalPages - 1;
@@ -2495,6 +2801,7 @@ export class WantedDatabaseScene extends BaseScene {
             return;
         }
 
+        this.sfx('pagesound');
         this.currentPage--;
         this.refreshPage();
     }
@@ -2504,6 +2811,7 @@ export class WantedDatabaseScene extends BaseScene {
 
         if (this.currentPage >= this.totalPages() - 1) return;
 
+        this.sfx('pagesound');
         this.currentPage++;
         this.refreshPage();
     }
@@ -2524,12 +2832,29 @@ export class WantedDatabaseScene extends BaseScene {
         const left = 24 + 92;
         const right = W - 24 - 6;
 
-        const shuffled = [...TICKER_ITEMS].sort(() => Math.random() - 0.5);
+        const items = [...TICKER_ITEMS].sort(() => Math.random() - 0.5);
+
+        const mission = this.gameState?.currentMission;
+
+        if (mission) {
+            const art =
+                typeof mission.artifact === 'string'
+                    ? mission.artifact
+                    : mission.artifact?.label || mission.artifact?.name || '';
+
+            const city = typeof mission.city === 'string' ? mission.city : '';
+
+            if (art && city) {
+                items.unshift(
+                    `ACTIVE CASE: ${art} // ${city}. SUSPECTS: ALL OF YOU`.toUpperCase()
+                );
+            }
+        }
 
         const ticker = this.makeText(
             right,
             y + 13,
-            shuffled.join('   ///   ') + '   ///   ',
+            items.join('   ///   ') + '   ///   ',
             10,
             { color: th.sMid }
         ).setOrigin(0, 0.5);
@@ -2559,14 +2884,16 @@ export class WantedDatabaseScene extends BaseScene {
     }
 
     /* ========================================================
-       BOOT SEQUENCE
+       BOOT SEQUENCE (once per session)
        ======================================================== */
 
     createBootSequence(W, H) {
-        if (this.noBoot) {
+        if (this.noBoot || this.registry.get('wantedDbBooted')) {
             this.booting = false;
             return;
         }
+
+        this.registry.set('wantedDbBooted', true);
 
         const th = this.th;
 
@@ -2579,10 +2906,7 @@ export class WantedDatabaseScene extends BaseScene {
         g.fillStyle(th.bg, 1);
         g.fillRoundedRect(14, 14, W - 28, H - 28, 28);
 
-        const zone = this.add
-            .zone(0, 0, W, H)
-            .setOrigin(0)
-            .setInteractive();
+        const zone = this.add.zone(0, 0, W, H).setOrigin(0).setInteractive();
 
         zone.on('pointerdown', () => this.endBoot());
 
@@ -2680,11 +3004,9 @@ export class WantedDatabaseScene extends BaseScene {
                     this.closeDetailPanel();
                     break;
                 case 'ArrowLeft':
-                    event.preventDefault?.();
                     this.stepDetail(-1);
                     break;
                 case 'ArrowRight':
-                    event.preventDefault?.();
                     this.stepDetail(1);
                     break;
                 case 'f':
@@ -2715,8 +3037,6 @@ export class WantedDatabaseScene extends BaseScene {
                 return;
 
             case 'Backspace':
-                event.preventDefault?.();
-
                 if (this.searchQuery) {
                     this.searchQuery = this.searchQuery.slice(0, -1);
                     this.onSearchChanged();
@@ -2725,27 +3045,22 @@ export class WantedDatabaseScene extends BaseScene {
                 return;
 
             case 'Tab':
-                event.preventDefault?.();
                 this.cycleGender();
                 return;
 
             case 'ArrowUp':
-                event.preventDefault?.();
                 this.cycleSort();
                 return;
 
             case 'ArrowDown':
-                event.preventDefault?.();
                 this.cycleStatus();
                 return;
 
             case 'ArrowLeft':
-                event.preventDefault?.();
                 this.prevPage();
                 return;
 
             case 'ArrowRight':
-                event.preventDefault?.();
                 this.nextPage();
                 return;
 
@@ -2761,8 +3076,6 @@ export class WantedDatabaseScene extends BaseScene {
             /[a-z0-9 '\-.]/i.test(key)
         ) {
             if (key === ' ') {
-                event.preventDefault?.();
-
                 if (!this.searchQuery || this.searchQuery.endsWith(' ')) return;
             }
 
@@ -2781,11 +3094,14 @@ export class WantedDatabaseScene extends BaseScene {
         if (this.isClosing) return;
         this.isClosing = true;
 
+        this.sfx('click_sound');
+
         if (this.scene.isSleeping('UIScene')) {
             this.scene.wake('UIScene');
         }
 
-        this.scene.resume('OfficeScene');
+        // OfficeScene.onWakeOrResume budzi PlayerHudScene, pokazuje HUD i NEWS.
+        this.resumeSceneIfPaused(this.returnSceneKey);
         this.scene.stop();
     }
 
@@ -2804,6 +3120,12 @@ export class WantedDatabaseScene extends BaseScene {
         this.events.off(Phaser.Scenes.Events.DESTROY, this.cleanupScene, this);
 
         this.input.keyboard?.off('keydown', this.onKeyDown, this);
+
+        try {
+            this.input.keyboard?.removeCapture(this.captureKeys);
+        } catch (e) {
+            /* ignore */
+        }
 
         for (const pending of [...this.pendingTextures.values()]) {
             pending.cancel();
@@ -2832,6 +3154,8 @@ export class WantedDatabaseScene extends BaseScene {
         }
 
         this.masks = [];
+
+        this.clearSkillChips();
 
         this.bootLayer?.destroy?.(true);
         this.bootLayer = null;
@@ -2862,11 +3186,17 @@ export class WantedDatabaseScene extends BaseScene {
 
         this.ownedTextures.clear();
 
+        if (
+            this.fallbackJsonKey &&
+            this.cache.json.exists(this.fallbackJsonKey)
+        ) {
+            this.cache.json.remove(this.fallbackJsonKey);
+        }
+
         this.cards = [];
-        this.cardFilters = [];
-        this.detailFilter = null;
+        this.photoEntries = [];
+        this.detailPhotoEntry = null;
         this.selectedCard = null;
-        this.detailPhoto = null;
         this.detailPhotoStatus = null;
         this.isPaging = false;
         this.booting = false;

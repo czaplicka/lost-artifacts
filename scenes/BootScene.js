@@ -2,73 +2,74 @@ import { loadGameState } from '../gameStatePersistence.js';
 import { MobileFullscreen } from '../mobileFullscreen.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
+import { loadSplitManifest } from '../managers/ManifestLoader.js';
 
 const FONT_LOAD_TIMEOUT_MS = 3000;
-
-const STARTUP_FONTS = [
-  'PressStart2P',
-  'SpecialElite'
-];
+const STARTUP_FONTS = ['PressStart2P', 'SpecialElite'];
 
 export class BootScene extends BaseScene {
   constructor() {
     super({ key: 'BootScene' });
-
     this.fontTimeout = null;
     this.fontLoadAttempted = false;
     this.isProceedingToPreloader = false;
     this.fontLoadToken = null;
-
+    this.manifestAbort = null;
+    this.bootToken = null;
+    this.bootErrorText = null;
     this.boundCleanupScene = this.cleanupScene.bind(this);
   }
 
   preload() {
-    this.load.audio(
-      'themeMusic',
-      './assets/audio/theme.mp3'
-    );
-
-    this.load.image(
-      'cozyBackground',
-      'assets/local/kitchen.jpg'
-    );
-
-    this.load.json(
-      'assetManifest',
-      'assets/data/assetManifest.json'
-    );
+    this.load.audio('themeMusic', './assets/audio/theme.mp3');
+    this.load.image('cozyBackground', 'assets/local/kitchen.jpg');
+    this.cache.json.remove('assetManifestIndex');
+    this.load.json('assetManifestIndex', 'assets/manifests/index.json');
   }
 
-  create() {
+  async create() {
     super.create();
-
     this._clearFontTimeout();
-
     this.fontLoadAttempted = false;
     this.isProceedingToPreloader = false;
     this.fontLoadToken = null;
-
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.boundCleanupScene
-    );
-
-    const manifest = this.cache.json.get('assetManifest');
-
-    if (!manifest) {
-      console.error(
-        '[BootScene] assetManifest.json could not be loaded.'
-      );
-
-      return;
-    }
-
+    this.bootErrorText = null;
+    this.manifestAbort?.abort();
+    this.manifestAbort = new AbortController();
+    const token = Symbol('boot-run');
+    this.bootToken = token;
+    this.events.off('shutdown', this.boundCleanupScene);
+    this.events.off('destroy', this.boundCleanupScene);
+    this.events.once('shutdown', this.boundCleanupScene);
+    this.events.once('destroy', this.boundCleanupScene);
     EventBus.emit('hideHUD');
 
-    this._initializeGameState();
-    this._initializeMobileFullscreen();
-    this._initializeDifficulty();
-    this._loadLocalFonts();
+    try {
+      const index = this.cache.json.get('assetManifestIndex');
+      if (!index) throw new Error('Missing assets/manifests/index.json. Run node tools/split-manifest.cjs.');
+      const manifest = await loadSplitManifest(index, this.manifestAbort.signal);
+      if (this.bootToken !== token || this._cleanupDone) return;
+      this.cache.json.remove('assetManifest');
+      this.cache.json.add('assetManifest', manifest);
+      // AssetManager caches its catalog, so discard it after rebuilding the registry.
+      if (this.game.assets) this.game.assets._catalog = null;
+      this.manifestAbort = null;
+      this._initializeGameState();
+      this._initializeMobileFullscreen();
+      this._initializeDifficulty();
+      this._loadLocalFonts();
+    } catch (error) {
+      if (this.bootToken !== token || this._cleanupDone || error.name === 'AbortError') return;
+      this.manifestAbort?.abort();
+      this.manifestAbort = null;
+      console.error('[BootScene] Manifest initialization failed:', error);
+      this.cameras.main.setBackgroundColor('#101010');
+      this.bootErrorText = this.add.text(this.scale.width / 2, this.scale.height / 2,
+        `CASE FILE ERROR\n\n${error.message}\n\nCheck the manifests and reload.`, {
+          fontFamily: 'monospace', fontSize: '20px', color: '#ffb4a2', align: 'center',
+          wordWrap: { width: Math.max(200, this.scale.width - 80) }
+        }).setOrigin(0.5);
+    }
   }
 
   _initializeGameState() {
@@ -76,147 +77,60 @@ export class BootScene extends BaseScene {
       loadGameState();
       this.registry.remove('gameStateFailed');
     } catch (error) {
-      console.error(
-        '[BootScene] loadGameState failed:',
-        error
-      );
-
-      console.warn(
-        '[BootScene] Continuing after game state loading failed.'
-      );
-
+      console.error('[BootScene] loadGameState failed:', error);
       this.registry.set('gameStateFailed', true);
     }
   }
 
   _initializeMobileFullscreen() {
-    if (this.registry.has('mobileFS')) {
-      return;
-    }
-
-    try {
-      const mobileFS = new MobileFullscreen();
-      this.registry.set('mobileFS', mobileFS);
-    } catch (error) {
-      console.warn(
-        '[BootScene] MobileFullscreen initialization failed:',
-        error
-      );
-    }
+    if (this.registry.has('mobileFS')) return;
+    try { this.registry.set('mobileFS', new MobileFullscreen()); }
+    catch (error) { console.warn('[BootScene] MobileFullscreen initialization failed:', error); }
   }
 
   _initializeDifficulty() {
-    if (!this.registry.has('difficulty')) {
-      this.registry.set('difficulty', 'field');
-    }
+    if (!this.registry.has('difficulty')) this.registry.set('difficulty', 'field');
   }
 
   _loadLocalFonts() {
-    if (this.fontLoadAttempted || this._cleanupDone) {
-      return;
-    }
-
+    if (this.fontLoadAttempted || this._cleanupDone) return;
     this.fontLoadAttempted = true;
-
-    if (
-      !document.fonts ||
-      typeof document.fonts.load !== 'function'
-    ) {
-      console.warn(
-        '[BootScene] Font Loading API is unavailable. ' +
-        'Continuing with fallback fonts.'
-      );
-
+    if (!document.fonts || typeof document.fonts.load !== 'function') {
       this._proceedToPreloader();
       return;
     }
-
     const token = Symbol('boot-font-load');
     this.fontLoadToken = token;
-
-    const isCurrentAttempt = () => {
-      return (
-        this.fontLoadToken === token &&
-        !this._cleanupDone &&
-        !this.isProceedingToPreloader
-      );
-    };
-
+    const isCurrent = () => this.fontLoadToken === token && !this._cleanupDone && !this.isProceedingToPreloader;
     const finish = () => {
-      if (!isCurrentAttempt()) {
-        return;
-      }
-
+      if (!isCurrent()) return;
       this.fontLoadToken = null;
       this._clearFontTimeout();
       this._proceedToPreloader();
     };
-
     this.fontTimeout = window.setTimeout(() => {
-      if (!isCurrentAttempt()) {
-        return;
-      }
-
-      console.warn(
-        `[BootScene] Font loading exceeded ` +
-        `${FONT_LOAD_TIMEOUT_MS} ms. ` +
-        'Continuing without waiting any longer.'
-      );
-
+      if (!isCurrent()) return;
+      console.warn('[BootScene] Font loading timed out. Continuing.');
       finish();
     }, FONT_LOAD_TIMEOUT_MS);
-
-    const requests = STARTUP_FONTS.map(async (family) => {
-      const faces = await document.fonts.load(
-        `400 16px "${family}"`,
-        'Mark Agency'
-      );
-
-      if (faces.length === 0) {
-        throw new Error(
-          `No matching @font-face found for "${family}".`
-        );
+    const requests = STARTUP_FONTS.map(async family => {
+      const faces = await document.fonts.load(`400 16px "${family}"`, 'Mark Agency');
+      if (!faces.length || faces.some(face => face.status !== 'loaded')) {
+        throw new Error(`Font ${family} unavailable.`);
       }
-
-      if (faces.some((face) => face.status !== 'loaded')) {
-        throw new Error(
-          `Font "${family}" did not finish loading.`
-        );
-      }
-
       return family;
     });
-
-    Promise.allSettled(requests)
-      .then((results) => {
-        if (!isCurrentAttempt()) {
-          return;
-        }
-
-        results.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.warn(
-              `[BootScene] Could not load font ` +
-              `"${STARTUP_FONTS[index]}":`,
-              result.reason
-            );
-          }
-        });
-
-        finish();
-      })
-      .catch((error) => {
-        if (!isCurrentAttempt()) {
-          return;
-        }
-
-        console.warn(
-          '[BootScene] Unexpected font loading error:',
-          error
-        );
-
-        finish();
+    Promise.allSettled(requests).then(results => {
+      if (!isCurrent()) return;
+      results.forEach((result, i) => {
+        if (result.status === 'rejected') console.warn(`[BootScene] Font ${STARTUP_FONTS[i]}:`, result.reason);
       });
+      finish();
+    }).catch(error => {
+      if (!isCurrent()) return;
+      console.warn('[BootScene] Font loading failed:', error);
+      finish();
+    });
   }
 
   _clearFontTimeout() {
@@ -227,45 +141,33 @@ export class BootScene extends BaseScene {
   }
 
   _proceedToPreloader() {
-    if (this._cleanupDone || this.isProceedingToPreloader) {
-      return;
-    }
-
+    if (this._cleanupDone || this.isProceedingToPreloader) return;
     if (!this.hasScene('PreloaderScene')) {
-      console.error(
-        '[BootScene] PreloaderScene not registered. Aborting boot.'
-      );
-
+      console.error('[BootScene] PreloaderScene is not registered.');
       return;
     }
-
     this.isProceedingToPreloader = true;
-
-    void this.goto('PreloaderScene')
-      .then((started) => {
-        if (!started && !this._cleanupDone) {
-          this.isProceedingToPreloader = false;
-
-          console.error(
-            '[BootScene] Could not start PreloaderScene.'
-          );
-        }
-      })
-      .catch((error) => {
-        if (!this._cleanupDone) {
-          this.isProceedingToPreloader = false;
-
-          console.error(
-            '[BootScene] Transition to PreloaderScene failed:',
-            error
-          );
-        }
-      });
+    void this.goto('PreloaderScene').then(started => {
+      if (!started && !this._cleanupDone) {
+        this.isProceedingToPreloader = false;
+        console.error('[BootScene] Could not start PreloaderScene.');
+      }
+    }).catch(error => {
+      if (!this._cleanupDone) {
+        this.isProceedingToPreloader = false;
+        console.error('[BootScene] Transition failed:', error);
+      }
+    });
   }
 
   cleanupScene() {
+    this.bootToken = null;
+    this.manifestAbort?.abort();
+    this.manifestAbort = null;
     this.fontLoadToken = null;
     this._clearFontTimeout();
     this.isProceedingToPreloader = false;
+    this.events.off('shutdown', this.boundCleanupScene);
+    this.events.off('destroy', this.boundCleanupScene);
   }
 }

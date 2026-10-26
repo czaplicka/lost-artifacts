@@ -1,1412 +1,439 @@
-import { audioManager } from '../managers/AudioManager.js';
-import { OfficeSaveUI } from '../ui/OfficeSaveUI.js';
-import { gameState } from '../GameData.js';
-import { BaseScene } from './BaseScene.js';
-import { EventBus } from '../EventBus.js';
-import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
-import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
-import { flushAutosave } from '../gameStatePersistence.js';
+const STORAGE = {
+  MUSIC: 'la_musicVol',
+  SFX: 'la_sfxVol',
+  MUTED: 'la_muted'
+};
 
-import { OfficeNavigation } from './office/OfficeNavigation.js';
-import { OfficeHotspotManager } from './office/OfficeHotspotManager.js';
-import {
-  createOfficeHotspotDefinitions
-} from './office/officeHotspots.js';
+const DEFAULTS = { MUSIC: 0.2, SFX: 0.8, MUTED: false };
+const AUDIO_HOST_KEY = '__LostArtifactsAudioHost';
 
-const OFFICE_BACKGROUND_KEYS = [
-  'elevator_broken',
-  'elevator_open',
-  'backgroundhi',
-  'backgroundoff',
-  'backgroundset'
-];
+function safeGet(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value); } catch {}
+}
+function clamp01(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.min(1, Math.max(0, number)) : 0;
+}
+function loadNumber(key, fallback) {
+  const raw = safeGet(key);
+  if (raw === null) return fallback;
+  const number = Number(raw);
+  return Number.isFinite(number) ? clamp01(number) : fallback;
+}
 
-const OPENING_FLAGS = [
-  'isOpeningCrimeLab',
-  'isOpeningRecoveredArtifacts',
-  'isOpeningWantedDatabase',
-  'isOpeningArchive',
-  'isOpeningStorage'
-];
+class AudioHostScene extends Phaser.Scene {
+  constructor() { super({ key: AUDIO_HOST_KEY }); }
+}
 
-const LOCAL_DEBUG_ALLOWED = [
-  'localhost',
-  '127.0.0.1'
-].includes(window.location.hostname);
-
-export class OfficeScene extends BaseScene {
+class AudioManager {
   constructor() {
-    super({ key: 'OfficeScene' });
-
-    this.currentView = 'office';
-    this.viewPositions = {};
-    this.rooms = {};
-    this.roomOrder = [];
-    this.totalWidth = 0;
-
-    this.navigation = null;
-    this.hotspotManager = null;
-    this.DEBUG_HOTSPOTS = false;
-
-    this.saveUI = null;
-    this.officeAmbient = null;
-    this.agencyLedgerUI = null;
-    this.archiveButton = null;
-    this.storageButton = null;
-    this.elevatorBackground = null;
-
-    this.uiLocked = false;
-    this.isRestoringOfficeUi = false;
-    this.startOnboarding = false;
-    this.firstCaseTutorial = null;
-
-    this._runToken = null;
-    this._uiLayersPromise = null;
-    this._tutorialStartTimer = null;
-    this._playerHud = null;
-    this._officeDisposed = true;
-
-    this.resetOpeningFlags();
-
-    this.onFirstMissionCompletedBound =
-      this.onFirstMissionCompleted.bind(this);
-
-    this.onFirstCaseTutorialFinishedBound =
-      this.onFirstCaseTutorialFinished.bind(this);
-
-    this.onFirstMissionSuccessBound =
-      this.onFirstMissionSuccess.bind(this);
+    this.scene = null;
+    this.game = null;
+    this.musicVolume = loadNumber(STORAGE.MUSIC, DEFAULTS.MUSIC);
+    this.sfxVolume = loadNumber(STORAGE.SFX, DEFAULTS.SFX);
+    const savedMute = safeGet(STORAGE.MUTED);
+    this.muted = savedMute === null ? DEFAULTS.MUTED : savedMute === 'true';
+    this.activeMusic = new Map();
+    this.activeAmbient = new Map();
+    this.activeSfx = new Set();
+    this.activeVoice = new Set();
+    this.activeOneShots = new Set();
+    this._keyOwner = new Map();
+    this._activeTweens = new Set();
+    this._fades = new Map();
+    this._playingOneShots = new Map();
+    this._playingSfx = new Map();
+    this._sceneBindings = new Map();
+    this._soundOwners = new WeakMap();
+    this._destroyingSounds = new WeakSet();
+    this._audioHost = null;
+    this._hostRequested = false;
+    this._boundGameDestroy = () => this._destroyForGame();
   }
 
-  init(data = {}) {
-    this.gameState = data.gameState ?? gameState;
-    this.fromSave = data.fromSave ?? false;
-    this.saveSlotKey = data.saveSlotKey ?? null;
-    this.isNewGame = data.isNewGame === true;
-
-    this.startOnboarding =
-      data.startOnboarding === true || this.isNewGame;
-
-    this.currentView = 'office';
-    this.uiLocked = false;
-    this.resetOpeningFlags();
-    this.isRestoringOfficeUi = false;
-
-    this.navigation = null;
-    this.hotspotManager = null;
-    this.agencyLedgerUI = null;
-    this.saveUI = null;
-    this.officeAmbient = null;
-    this.firstCaseTutorial = null;
-    this.archiveButton = null;
-    this.storageButton = null;
-    this.elevatorBackground = null;
-
-    this.rooms = {};
-    this.roomOrder = [];
-    this.viewPositions = {};
-    this.totalWidth = 0;
-
-    this._playerHud = null;
-    this._uiLayersPromise = null;
-    this._tutorialStartTimer = null;
-    this._runToken = Symbol('office-run');
-    this._officeDisposed = false;
-
-    const debugValue = new URLSearchParams(
-      window.location.search
-    ).get('debug');
-
-    this.DEBUG_HOTSPOTS = LOCAL_DEBUG_ALLOWED && (
-      debugValue === '' ||
-      debugValue === '1' ||
-      debugValue === 'true'
-    );
-
-    if (this.isNewGame) {
-      this.gameState.onboarding ??= {};
-
-      this.gameState.onboarding.firstCase = {
-        active: false,
-        step: null,
-        completed: false,
-        skipped: false,
-        walkedToCaseFile: false,
-        caseFileOpened: false,
-        routeOpened: false,
-        travelStarted: false,
-        missionCompleted: false,
-        successCount: 0
-      };
-
-      this.gameState.progress ??= {};
-      this.gameState.progress.firstMissionSuccess = false;
+  init(scene) {
+    if (!scene?.game) {
+      console.warn('[AudioManager] init() requires a Phaser scene.');
+      return this;
     }
-  }
-
-  isCurrentOfficeRun(token = this._runToken) {
-    return Boolean(
-      token &&
-      this._runToken === token &&
-      !this._officeDisposed &&
-      !this._cleanupDone
-    );
-  }
-
-  isOfficeActive() {
-    return (
-      this.isCurrentOfficeRun() &&
-      this.sys.isActive()
-    );
-  }
-
-  resetOpeningFlags() {
-    OPENING_FLAGS.forEach((flag) => {
-      this[flag] = false;
-    });
-  }
-
-  async flushOfficeAutosave() {
-    try {
-      await flushAutosave();
-      return true;
-    } catch (error) {
-      console.error(
-        '[OfficeScene] Autosave flush failed:',
-        error
-      );
-      return false;
+    if (this.game && this.game !== scene.game) this._destroyForGame();
+    if (!this.game) {
+      this.game = scene.game;
+      this.game.events.once(Phaser.Core.Events.DESTROY, this._boundGameDestroy);
     }
+    this.scene = scene;
+    this._bindScene(scene);
+    this._ensureAudioHost();
+    // Scene changes must not reset volumes or cancel active fades.
+    this._applyMuteState();
+    return this;
   }
 
-  preload() {
-    const manifest = this.cache.json.get('assetManifest');
-
-    if (!manifest) {
-      console.error('[OfficeScene] assetManifest is missing.');
-      return;
+  _ensureAudioHost() {
+    if (!this.game?.scene) return null;
+    const manager = this.game.scene;
+    const registered = manager.keys?.[AUDIO_HOST_KEY];
+    if (registered) {
+      this._audioHost = registered;
+      if (registered.sys?.isSleeping?.()) registered.scene.wake();
+      else if (registered.sys?.isPaused?.()) registered.scene.resume();
+      return registered;
     }
-
-    for (const key of OFFICE_BACKGROUND_KEYS) {
-      if (this.textures.exists(key)) continue;
-
-      const entry = manifest.backgrounds?.find(
-        (asset) => asset.key === key
-      );
-
-      if (entry?.url) {
-        this.load.image(key, entry.url);
-      } else {
-        console.error(
-          `[OfficeScene] Missing background manifest entry "${key}".`
-        );
-      }
+    if (this._hostRequested) return this._audioHost;
+    this._hostRequested = true;
+    const host = new AudioHostScene();
+    this._audioHost = host;
+    try { manager.add(AUDIO_HOST_KEY, host, true); }
+    catch (error) {
+      this._audioHost = null;
+      this._hostRequested = false;
+      console.warn('[AudioManager] Could not create audio host:', error);
     }
-
-    if (!this.cache.audio.exists('officescenesound')) {
-      const ambient = manifest.audio?.find(
-        (asset) => asset.key === 'officescenesound'
-      );
-
-      if (ambient?.url) {
-        this.load.audio(ambient.key, ambient.url);
-      }
-    }
-
-    if (!this.cache.json.exists('monologues')) {
-      const monologues = manifest.json?.find(
-        (asset) => asset.key === 'monologues'
-      );
-
-      if (monologues?.url) {
-        this.load.json(monologues.key, monologues.url);
-      }
-    }
+    return this._audioHost;
   }
 
-  create() {
-    super.create();
-
-    this._bindOfficeEvents();
-    audioManager.init(this);
-
-    const { width, height } = this.scale;
-
-    this.registry.set('currentSceneKey', 'OfficeScene');
-    this.registry.set('currentCity', 'hq');
-    this.registry.set('currentCityId', 'hq');
-    this.registry.set('gameState', this.gameState);
-    this.registry.set(
-      'activeMission',
-      this.gameState.currentMission || null
-    );
-
-    this.createBackgrounds(width, height);
-    this.createCameraSetup(height);
-
-    this.navigation = new OfficeNavigation(this, {
-      roomOrder: this.roomOrder,
-      viewPositions: this.viewPositions,
-      initialView: 'office'
-    });
-
-    this.navigation.create();
-    this.agencyLedgerUI = new AgencyLedgerUI(this);
-
-    this.hotspotManager = new OfficeHotspotManager(this, {
-      debugEnabled: this.DEBUG_HOTSPOTS
-    });
-
-    this.hotspotManager.create(
-      createOfficeHotspotDefinitions(this)
-    );
-
-    this.createArchiveButton();
-    this.createStorageButton();
-    this.createSaveControls();
-    this.createFirstCaseTutorial();
-
-    this.monologue?.startIdle('idle.office');
-
-    this.setupAudioUnlock();
-    this.playOfficeAmbient();
-
-    this.navigation.goTo('office', false);
-    this.navigation.showIntroHint();
-
-    if (this.input.keyboard) {
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-LEFT',
-        () => {
-          if (
-            this.isOfficeActive() &&
-            !this.uiLocked &&
-            !this.DEBUG_HOTSPOTS
-          ) {
-            this.navigation?.moveLeft();
-          }
-        }
-      );
-
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-RIGHT',
-        () => {
-          if (
-            this.isOfficeActive() &&
-            !this.uiLocked &&
-            !this.DEBUG_HOTSPOTS
-          ) {
-            this.navigation?.moveRight();
-          }
-        }
-      );
-
-      this.trackInputEvent(
-        this.input.keyboard,
-        'keydown-L',
-        (event) => this.openCrimeLabHotkey(event)
-      );
-    }
-
-    this.onBus(
-      'firstMissionCompleted',
-      this.onFirstMissionCompletedBound
-    );
-
-    this.onBus(
-      'firstMissionSuccess',
-      this.onFirstMissionSuccessBound
-    );
-
-    this.onBus(
-      'firstCaseTutorialFinished',
-      this.onFirstCaseTutorialFinishedBound
-    );
-
-    this.onBus(
-      'hud:panel-state-changed',
-      this.onHudPanelStateChanged
-    );
-
-    this.refreshPanelLock();
-
-    void this.setupOfficeUiLayers({
-      closePanels: true
-    });
-  }
-
-  _getOfficeEventBindings() {
-    return [
-      [Phaser.Scenes.Events.WAKE, this.onWakeOrResume],
-      [Phaser.Scenes.Events.RESUME, this.onWakeOrResume],
-      [Phaser.Scenes.Events.SLEEP, this.onSleep],
-      ['ui-panel-state-changed', this.refreshPanelLock]
-    ];
-  }
-
-  _bindOfficeEvents() {
-    for (const [event, callback] of this._getOfficeEventBindings()) {
-      this.events.off(event, callback, this);
-      this.events.on(event, callback, this);
-    }
-
-    for (const event of [
-      Phaser.Scenes.Events.SHUTDOWN,
-      Phaser.Scenes.Events.DESTROY
-    ]) {
-      this.events.off(event, this.cleanupScene, this);
-      this.events.once(event, this.cleanupScene, this);
-    }
-  }
-
-  isOfficeTutorialBlocking() {
-    const tutorialState = this.gameState.onboarding?.firstCase;
-
-    if (
-      tutorialState?.completed === true ||
-      tutorialState?.skipped === true
-    ) {
-      return false;
-    }
-
-    return Boolean(
-      this.startOnboarding ||
-      tutorialState?.active === true ||
-      this.firstCaseTutorial?.isActive()
-    );
-  }
-
-  hasFirstMissionSuccess() {
-    const firstCase = this.gameState.onboarding?.firstCase;
-
-    return Boolean(
-      this.gameState.firstMissionSuccess ||
-      this.gameState.progress?.firstMissionSuccess ||
-      firstCase?.successCount >= 1 ||
-      firstCase?.successes >= 1
-    );
-  }
-
-  isArchiveBlocked() {
-    return Boolean(
-      this.uiLocked ||
-      this.isOfficeTutorialBlocking()
-    );
-  }
-
-  isStorageBlocked() {
-    return Boolean(
-      this.isArchiveBlocked() ||
-      !this.hasFirstMissionSuccess()
-    );
-  }
-
-  createEntranceButton(y, label, action, isBlocked) {
-    const button = this.add
-      .text(24, y, label, {
-        fontFamily: 'SpecialElite',
-        fontSize: '22px',
-        color: '#f2d477',
-        backgroundColor: '#17110e',
-        padding: {
-          left: 14,
-          right: 14,
-          top: 10,
-          bottom: 10
-        }
-      })
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setInteractive({ useHandCursor: true });
-
-    button.on('pointerover', () => {
-      if (this.isOfficeActive() && !isBlocked()) {
-        button.setColor('#ffffff');
-      }
-    });
-
-    button.on('pointerout', () => {
-      if (this.isCurrentOfficeRun()) {
-        this.refreshEntranceButtons();
-      }
-    });
-
-    button.on('pointerdown', (pointer) => {
-      if (
-        pointer?.event?.button !== undefined &&
-        pointer.event.button !== 0
-      ) {
-        return;
-      }
-
-      if (!this.isOfficeActive() || isBlocked()) return;
-
-      void action();
-    });
-
-    return button;
-  }
-
-  createArchiveButton() {
-    this.archiveButton = this.createEntranceButton(
-      170,
-      'ARCHIVE >',
-      () => this.openArchive(),
-      () => this.isArchiveBlocked()
-    );
-  }
-
-  createStorageButton() {
-    this.storageButton = this.createEntranceButton(
-      230,
-      'STORAGE >',
-      () => this.openStorage(),
-      () => this.isStorageBlocked()
-    );
-  }
-
-  refreshEntranceButtons() {
-    const entries = [
-      [this.archiveButton, this.isArchiveBlocked()],
-      [this.storageButton, this.isStorageBlocked()]
-    ];
-
-    entries.forEach(([button, blocked]) => {
-      if (!button?.active || !button.input) return;
-
-      button.input.enabled = !blocked;
-      button.setAlpha(blocked ? 0.45 : 1);
-      button.setColor(blocked ? '#8b8475' : '#f2d477');
-    });
-  }
-
-  async _openOfficeRoom(sceneKey, flagName, roomName) {
-    if (!this.isOfficeActive() || this[flagName]) {
-      return false;
-    }
-
-    this.refreshPanelLock();
-    if (this.uiLocked) return false;
-
-    if (this.isOfficeTutorialBlocking()) {
-      this.showOfficeStatusMessage(
-        'Finish your introduction before visiting other rooms.'
-      );
-      return false;
-    }
-
-    if (
-      sceneKey === 'AgencyStorageScene' &&
-      !this.hasFirstMissionSuccess()
-    ) {
-      this.showOfficeStatusMessage(
-        'Storage access requires one successful mission.'
-      );
-      return false;
-    }
-
-    const token = this._runToken;
-    this[flagName] = true;
-
-    try {
-      this.refreshPanelLock();
-      this.navigation?.hideHint();
-      audioManager.playSfx('click_sound');
-
-      await this.flushOfficeAutosave();
-
-      if (
-        !this.isCurrentOfficeRun(token) ||
-        !this.sys.isActive()
-      ) {
-        return false;
-      }
-
-      const result = await this.goto(sceneKey, {
-        gameState: this.gameState
-      });
-
-      if (
-        result === false &&
-        this.isCurrentOfficeRun(token) &&
-        this.sys.isActive()
-      ) {
-        this.showOfficeStatusMessage(
-          `The ${roomName} could not be opened.`
-        );
-      }
-
-      return result !== false;
-    } catch (error) {
-      if (this.isCurrentOfficeRun(token)) {
-        console.error(
-          `[OfficeScene] Failed to open ${sceneKey}:`,
-          error
-        );
-
-        this.showOfficeStatusMessage(
-          `The ${roomName} could not be opened.`
-        );
-      }
-
-      return false;
-    } finally {
-      if (this.isCurrentOfficeRun(token)) {
-        this[flagName] = false;
-        this.refreshPanelLock();
-      }
-    }
-  }
-
-  openArchive() {
-    return this._openOfficeRoom(
-      'ArchiveScene',
-      'isOpeningArchive',
-      'archive'
-    );
-  }
-
-  openStorage() {
-    return this._openOfficeRoom(
-      'AgencyStorageScene',
-      'isOpeningStorage',
-      'storage room'
-    );
-  }
-
-  onHudPanelStateChanged() {
-    if (this.isCurrentOfficeRun()) {
-      this.refreshPanelLock();
-    }
-  }
-
-  refreshPanelLock() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    const hud = this.getPlayerHud();
-
-    const locked = Boolean(
-      hud?.isAnyPanelOpen?.() ||
-      this.saveUI?.isOpen ||
-      this.agencyLedgerUI?.isOpen ||
-      OPENING_FLAGS.some((flag) => this[flag])
-    );
-
-    this.applyLock(locked);
-  }
-
-  applyLock(locked) {
-    this.uiLocked = Boolean(locked);
-
-    this.hotspotManager?.setLocked(this.uiLocked);
-    this.navigation?.setLocked(this.uiLocked);
-    this.saveUI?.setLocked(this.uiLocked);
-
-    this.refreshEntranceButtons();
-  }
-
-  getPlayerHud() {
-    if (
-      this._playerHud?.isHudReady &&
-      this.isSceneActive('PlayerHudScene')
-    ) {
-      return this._playerHud;
-    }
-
-    this._playerHud = this.getPlayerHudScene();
-    return this._playerHud;
-  }
-
-  setupOfficeUiLayers({ closePanels = false } = {}) {
-    if (!this.isOfficeActive()) {
-      return Promise.resolve(false);
-    }
-
-    if (this._uiLayersPromise) {
-      return this._uiLayersPromise;
-    }
-
-    const token = this._runToken;
-
-    const isCurrent = () => (
-      this.isCurrentOfficeRun(token) &&
-      this.sys.isActive()
-    );
-
-    const request = (async () => {
-      try {
-        const uiScene = await this.ensureOverlayScene('UIScene');
-        if (!isCurrent()) return false;
-
-        const playerHud = await this.restorePlayerHud();
-        if (!isCurrent()) return false;
-
-        if (playerHud) {
-          this._playerHud = playerHud;
-
-          if (closePanels) {
-            playerHud.closeAllUIPanels?.();
-          }
-
-          playerHud.setCurrentGameplayScene?.('OfficeScene');
-        } else {
-          console.warn(
-            '[OfficeScene] PlayerHudScene could not be restored.'
-          );
-        }
-
-        // Najpierw odtwarzamy pozostałe HUD-y.
-        if (uiScene) {
-          const visible = !this.agencyLedgerUI?.isOpen;
-
-          EventBus.emit(visible ? 'showHUD' : 'hideHUD');
-          this.game.events.emit('setHudVisible', visible);
-        }
-
-        if (!isCurrent()) return false;
-
-        // NewsHud przywracamy na końcu, po zdarzeniach HUD.
-        const newsReady = await this.setupNewsHud();
-        if (!isCurrent()) return false;
-
-        if (!newsReady) {
-          console.warn(
-            '[OfficeScene] NewsHud could not be restored.'
-          );
-        }
-
-        this.refreshPanelLock();
-        return true;
-      } catch (error) {
-        if (this.isCurrentOfficeRun(token)) {
-          console.error(
-            '[OfficeScene] Failed to set up UI layers:',
-            error
-          );
-        }
-
-        return false;
-      }
-    })();
-
-    this._uiLayersPromise = request;
-    this.isRestoringOfficeUi = true;
-
-    const releaseRequest = () => {
-      if (this._uiLayersPromise === request) {
-        this._uiLayersPromise = null;
-        this.isRestoringOfficeUi = false;
-      }
+  _bindScene(scene) {
+    if (!scene.events || this._sceneBindings.has(scene)) return;
+    const onSleep = () => this._sceneShutdown(scene);
+    const finish = () => {
+      this._sceneShutdown(scene);
+      this._unbindScene(scene);
+      if (this.scene === scene) this.scene = null;
     };
-
-    void request.then(releaseRequest, releaseRequest);
-    return request;
+    const onShutdown = finish;
+    const onDestroy = finish;
+    this._sceneBindings.set(scene, { onSleep, onShutdown, onDestroy });
+    scene.events.on(Phaser.Scenes.Events.SLEEP, onSleep);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, onShutdown);
+    scene.events.once(Phaser.Scenes.Events.DESTROY, onDestroy);
   }
 
-  async setupNewsHud() {
-    const token = this._runToken;
-    const newsHud = await this.ensureOverlayScene('NewsHud');
-
-    if (
-      !newsHud ||
-      !this.isCurrentOfficeRun(token) ||
-      !this.sys.isActive()
-    ) {
-      return false;
-    }
-
-    this.registry.set('currentSceneKey', 'OfficeScene');
-
-    // Wybudzenie nie musi przywrócić wcześniej ukrytej sceny.
-    this.scene.setVisible(true, 'NewsHud');
-
-    // Bezpośrednie metody zachowują stan także przed create().
-    newsHud.setButtonsVisible(true);
-    newsHud.setNewspaperVisible(true);
-    newsHud.setTvVisible(true);
-
-    const visible = !this.agencyLedgerUI?.isOpen;
-    newsHud.setHudVisible(visible);
-
-    this.bringSceneToTopIfActive('NewsHud');
-
-    return true;
+  _unbindScene(scene) {
+    const binding = this._sceneBindings.get(scene);
+    if (!binding) return;
+    scene.events.off(Phaser.Scenes.Events.SLEEP, binding.onSleep);
+    scene.events.off(Phaser.Scenes.Events.SHUTDOWN, binding.onShutdown);
+    scene.events.off(Phaser.Scenes.Events.DESTROY, binding.onDestroy);
+    this._sceneBindings.delete(scene);
   }
 
-  onFirstCaseTutorialFinished() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    this.startOnboarding = false;
-    this.refreshEntranceButtons();
-
-    if (!this.sys.isActive()) return;
-
-    this.navigation?.updateVisibility();
-    this.refreshMissionProgressVisuals();
-    this.refreshPanelLock();
-
-    void this.setupOfficeUiLayers();
-  }
-
-  createBackgrounds(gameWidth, gameHeight) {
-    const completed = this.hasCompletedFirstMission();
-
-    const background = (x, key) => (
-      this.add
-        .image(x, 0, key)
-        .setOrigin(0, 0)
-        .setDisplaySize(gameWidth, gameHeight)
-    );
-
-    const elevatorBg = background(
-      -gameWidth,
-      completed ? 'elevator_open' : 'elevator_broken'
-    );
-
-    const storageBg = background(0, 'backgroundhi');
-    const officeBg = background(gameWidth, 'backgroundoff');
-    const cabinetBg = background(gameWidth * 2, 'backgroundset');
-
-    this.elevatorBackground = elevatorBg;
-
-    this.rooms = {
-      elevator: {
-        key: 'elevator',
-        bg: elevatorBg,
-        x: -gameWidth,
-        width: gameWidth
-      },
-      storage: {
-        key: 'storage',
-        bg: storageBg,
-        x: 0,
-        width: gameWidth
-      },
-      office: {
-        key: 'office',
-        bg: officeBg,
-        x: gameWidth,
-        width: gameWidth
-      },
-      cabinet: {
-        key: 'cabinet',
-        bg: cabinetBg,
-        x: gameWidth * 2,
-        width: gameWidth
-      }
-    };
-
-    this.roomOrder = [
-      'elevator',
-      'storage',
-      'office',
-      'cabinet'
+  _sceneShutdown(scene = this.scene) {
+    if (!scene) return;
+    const sounds = [
+      ...this.activeAmbient.values(), ...this.activeSfx,
+      ...this.activeVoice, ...this.activeOneShots
     ];
-
-    this.totalWidth = gameWidth * this.roomOrder.length;
-
-    this.viewPositions = Object.fromEntries(
-      this.roomOrder.map((key) => [key, this.rooms[key].x])
-    );
-  }
-
-  createCameraSetup(height) {
-    this.cameras.main.setBounds(
-      this.rooms.elevator.x,
-      0,
-      this.totalWidth,
-      height
-    );
-  }
-
-  createFirstCaseTutorial() {
-    const tutorialState = this.gameState.onboarding?.firstCase;
-
-    if (
-      !this.startOnboarding ||
-      tutorialState?.completed === true ||
-      tutorialState?.skipped === true
-    ) {
-      this.refreshEntranceButtons();
-      return;
-    }
-
-    this._tutorialStartTimer?.remove(false);
-    this._tutorialStartTimer = null;
-    this.firstCaseTutorial?.destroy();
-
-    this.firstCaseTutorial = new FirstCaseTutorial(
-      this,
-      this.gameState
-    );
-
-    for (const hotspot of this.hotspotManager?.hotspots ?? []) {
-      const id = hotspot?.hotspotData?.id;
-
-      if (id) {
-        this.firstCaseTutorial.registerHotspot(id, hotspot);
-      }
-    }
-
-    const token = this._runToken;
-
-    this._tutorialStartTimer = this.time.delayedCall(100, () => {
-      if (!this.isCurrentOfficeRun(token)) return;
-
-      this._tutorialStartTimer = null;
-
-      if (this.sys.isActive()) {
-        this.firstCaseTutorial?.start();
-        this.refreshEntranceButtons();
-      }
-    });
-
-    this.refreshEntranceButtons();
-  }
-
-  notifyTutorialOfficeReached() {
-    if (
-      !this.firstCaseTutorial?.isActive() ||
-      this.firstCaseTutorial.getStep() !== 'walk_to_case_file'
-    ) {
-      return;
-    }
-
-    const data = this.hotspotManager
-      ?.findById('cabinet-casefile')
-      ?.hotspotData;
-
-    if (data) {
-      this.firstCaseTutorial.onPlayerPositionChanged(
-        data.x + data.width / 2,
-        data.y + data.height / 2
-      );
+    for (const sound of sounds) {
+      if (this._soundOwners.get(sound) === scene) this._destroySound(sound);
     }
   }
 
-  hasCompletedFirstMission() {
-    return Boolean(
-      this.gameState.firstMissionCompleted ||
-      this.gameState.progress?.firstMissionCompleted ||
-      this.gameState.story?.firstMissionCompleted ||
-      this.gameState.onboarding?.firstCase?.missionCompleted
-    );
+  _canPlay(key) {
+    return Boolean(this.game?.sound && this.game?.cache?.audio?.exists(key));
+  }
+  _isValidSound(sound) {
+    return Boolean(sound && !sound.pendingRemove && sound.manager);
+  }
+  _applySoundState(sound, volume) {
+    if (!this._isValidSound(sound)) return;
+    sound.setMute?.(this.muted);
+    sound.setVolume?.(clamp01(volume));
   }
 
-  refreshMissionProgressVisuals() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    const elevatorTexture = this.hasCompletedFirstMission()
-      ? 'elevator_open'
-      : 'elevator_broken';
-
-    if (
-      this.elevatorBackground?.active &&
-      this.rooms.elevator &&
-      this.elevatorBackground.texture?.key !== elevatorTexture
-    ) {
-      this.elevatorBackground
-        .setTexture(elevatorTexture)
-        .setDisplaySize(
-          this.rooms.elevator.width,
-          this.scale.height
-        );
-    }
-
-    this.hotspotManager?.refreshAvailability?.();
-    this.refreshEntranceButtons();
-  }
-
-  onFirstMissionCompleted() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    this.gameState.progress ??= {};
-    this.gameState.progress.firstMissionCompleted = true;
-
-    this.refreshMissionProgressVisuals();
-
-    if (this.sys.isActive()) {
-      this.showOfficeStatusMessage(
-        'The elevator opens. An unexpected victory for maintenance.'
-      );
+  _applyMuteState() {
+    if (this.game?.sound) this.game.sound.mute = this.muted;
+    const sounds = [
+      ...this.activeMusic.values(), ...this.activeAmbient.values(),
+      ...this.activeSfx, ...this.activeVoice, ...this.activeOneShots
+    ];
+    for (const sound of sounds) {
+      if (this._isValidSound(sound)) sound.setMute?.(this.muted);
     }
   }
 
-  onFirstMissionSuccess() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    this.gameState.progress ??= {};
-    this.gameState.progress.firstMissionSuccess = true;
-
-    this.refreshEntranceButtons();
-
-    if (this.sys.isActive()) {
-      this.showOfficeStatusMessage(
-        'Storage access granted. Try not to get lost in there.'
-      );
+  _syncChannelVolumes(sounds, volume) {
+    for (const sound of [...sounds]) {
+      if (!this._isValidSound(sound)) continue;
+      if (this._fades.get(sound)?.stopAfter) continue;
+      this._cancelFade(sound);
+      sound.setVolume?.(clamp01(volume));
     }
   }
 
-  showOfficeStatusMessage(message) {
-    if (!message || !this.isOfficeActive()) return;
-
-    const { width } = this.scale;
-
-    const text = this.add
-      .text(width / 2, 115, message, {
-        fontFamily: 'SpecialElite',
-        fontSize: '20px',
-        color: '#f2d477',
-        align: 'center',
-        backgroundColor: '#17110e',
-        padding: {
-          left: 14,
-          right: 14,
-          top: 10,
-          bottom: 10
-        },
-        wordWrap: {
-          width: Math.max(100, Math.min(width - 80, 760))
-        }
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(1000)
-      .setAlpha(0);
-
-    this.createTrackedTween({
-      targets: text,
-      alpha: 1,
-      duration: 250,
-      yoyo: true,
-      hold: 2600,
-      ease: 'Sine.easeInOut',
-      onComplete: () => {
-        if (text.active) text.destroy();
-      }
-    });
+  _applyGlobalAudioState() {
+    this._applyMuteState();
+    this._syncChannelVolumes(this.activeMusic.values(), this.musicVolume);
+    this._syncChannelVolumes(this.activeAmbient.values(), this.sfxVolume);
+    this._syncChannelVolumes(this.activeSfx, this.sfxVolume);
+    this._syncChannelVolumes(this.activeVoice, this.sfxVolume);
+    this._syncChannelVolumes(this.activeOneShots, this.sfxVolume);
   }
 
-  createSaveControls() {
+  _cancelFade(sound) {
+    const record = this._fades.get(sound);
+    if (!record) return;
+    this._fades.delete(sound);
+    const tween = record.tween;
+    if (!tween) return;
+    this._activeTweens.delete(tween);
+    try { tween.stop?.(); tween.remove?.(); } catch {}
+  }
+  _stopAllTweens() {
+    for (const sound of [...this._fades.keys()]) this._cancelFade(sound);
+    this._activeTweens.clear();
+  }
+  _destroySound(sound) {
+    if (!sound || this._destroyingSounds.has(sound)) return;
+    this._destroyingSounds.add(sound);
+    this._cancelFade(sound);
     try {
-      this.saveUI = new OfficeSaveUI(this, {
-        locationType: 'office',
-        locationCode: 'agency_headquarters',
-        cityCode: 'hq'
-      });
-
-      this.saveUI.createButton();
-    } catch (error) {
-      console.error(
-        '[OfficeScene] Save controls could not be created:',
-        error
-      );
-
-      try {
-        this.saveUI?.destroy();
-      } catch (cleanupError) {
-        console.warn(
-          '[OfficeScene] Save controls cleanup failed:',
-          cleanupError
-        );
-      }
-
-      this.saveUI = null;
-    }
+      if (this._isValidSound(sound)) { sound.stop?.(); sound.destroy?.(); }
+    } finally { this._destroyingSounds.delete(sound); }
   }
-
-  setupAudioUnlock() {
-    const token = this._runToken;
-
-    const unlock = () => {
-      this.offTrackedInputEvent(
-        this.input,
-        'pointerdown',
-        unlock
-      );
-
-      if (!this.isCurrentOfficeRun(token)) return;
-
-      try {
-        const resume =
-          this.sound?.context?.state === 'suspended'
-            ? this.sound.context.resume()
-            : null;
-
-        if (resume?.catch) {
-          void resume.catch((error) => {
-            console.warn(
-              '[OfficeScene] Audio unlock failed:',
-              error
-            );
-          });
-        }
-
-        this.playOfficeAmbient();
-      } catch (error) {
-        console.warn(
-          '[OfficeScene] Audio unlock failed:',
-          error
-        );
-      }
+  _watchSound(sound, store, key = null) {
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      this._cancelFade(sound);
+      this._soundOwners.delete(sound);
+      if (store instanceof Map) {
+        if (store.get(key) === sound) store.delete(key);
+      } else store.delete(sound);
+      if (this._keyOwner.get(key)?.sound === sound) this._keyOwner.delete(key);
+      if (this._playingSfx.get(key) === sound) this._playingSfx.delete(key);
+      if (this._playingOneShots.get(key) === sound) this._playingOneShots.delete(key);
     };
-
-    this.trackInputEvent(this.input, 'pointerdown', unlock);
+    sound.once('destroy', cleanup);
   }
-
-  playOfficeAmbient() {
-    if (!this.isOfficeActive()) return null;
-
-    if (this.officeAmbient?.isPlaying) {
-      return this.officeAmbient;
-    }
-
-    audioManager.init(this);
-
-    this.officeAmbient = audioManager.playAmbient(
-      'officescenesound',
-      { loop: true }
-    );
-
-    return this.officeAmbient;
+  _releaseKeyOwnership(key, requestingStore) {
+    const owner = this._keyOwner.get(key);
+    if (owner && owner.store !== requestingStore) this._destroySound(owner.sound);
   }
-
-  _stopOfficeAmbient() {
-    const sound = this.officeAmbient;
-    this.officeAmbient = null;
-
+  _createOrReuse(key, config, store, volume, loop = true) {
+    if (!this._canPlay(key)) return null;
+    this._releaseKeyOwnership(key, store);
+    let sound = store.get(key);
+    if (!this._isValidSound(sound)) { store.delete(key); sound = null; }
     if (sound) {
-      audioManager._destroySound(sound);
+      this._cancelFade(sound);
+      sound.setLoop?.(loop);
+      this._applySoundState(sound, volume);
+      this._soundOwners.set(sound, this.scene);
+      if (!sound.isPlaying) sound.play();
+      return sound;
     }
-  }
-
-  openCrimeLabHotkey(event) {
-    const target = event?.target;
-    const activeElement = document.activeElement;
-
-    const editingText = [target, activeElement].some(
-      (element) => (
-        element?.isContentEditable ||
-        ['INPUT', 'TEXTAREA', 'SELECT'].includes(
-          element?.tagName
-        )
-      )
-    );
-
-    if (
-      editingText ||
-      event?.repeat ||
-      event?.ctrlKey ||
-      event?.metaKey ||
-      event?.altKey ||
-      this.DEBUG_HOTSPOTS
-    ) {
-      return;
-    }
-
-    void this.openCrimeLab();
-  }
-
-  async _openOfficeOverlay(sceneKey, flagName) {
-    if (!this.isOfficeActive() || this[flagName]) {
-      return false;
-    }
-
-    this.refreshPanelLock();
-
-    if (this.uiLocked || this.agencyLedgerUI?.isOpen) {
-      return false;
-    }
-
-    const token = this._runToken;
-    let keepOpeningFlag = false;
-
-    this[flagName] = true;
-
-    try {
-      this.refreshPanelLock();
-      this.navigation?.hideHint();
-
-      if (sceneKey === 'CrimeLabScene') {
-        audioManager.playSfx('click_sound');
-      }
-
-      await this.flushOfficeAutosave();
-
-      if (
-        !this.isCurrentOfficeRun(token) ||
-        !this.sys.isActive()
-      ) {
-        return false;
-      }
-
-      const opened = await this.launchOverlay(sceneKey, {
-        gameState: this.gameState,
-        returnScene: 'OfficeScene'
-      });
-
-      if (!this.isCurrentOfficeRun(token)) {
-        return false;
-      }
-
-      if (!opened) {
-        this.showOfficeStatusMessage(
-          'This screen could not be opened. Please try again.'
-        );
-        return false;
-      }
-
-      keepOpeningFlag = true;
-
-      if (this.sys.isActive()) {
-        this.scene.pause();
-      }
-
-      return true;
-    } catch (error) {
-      if (this.isCurrentOfficeRun(token)) {
-        console.error(
-          `[OfficeScene] Failed to open overlay ${sceneKey}:`,
-          error
-        );
-
-        this.showOfficeStatusMessage(
-          'This screen could not be opened. Please try again.'
-        );
-      }
-
-      return false;
-    } finally {
-      if (
-        this.isCurrentOfficeRun(token) &&
-        !keepOpeningFlag
-      ) {
-        this[flagName] = false;
-        this.refreshPanelLock();
-      }
-    }
-  }
-
-  openCrimeLab() {
-    return this._openOfficeOverlay(
-      'CrimeLabScene',
-      'isOpeningCrimeLab'
-    );
-  }
-
-  openRecoveredArtifacts() {
-    return this._openOfficeOverlay(
-      'RecoveredArtifactsScene',
-      'isOpeningRecoveredArtifacts'
-    );
-  }
-
-  openWantedDatabase() {
-    return this._openOfficeOverlay(
-      'WantedDatabaseScene',
-      'isOpeningWantedDatabase'
-    );
-  }
-
-  openCasefile() {
-    const panel = this.getPlayerHud()?.caseFileUI;
-
-    if (!panel) {
-      console.warn('[OfficeScene] Case File is unavailable.');
-      return;
-    }
-
-    this.closeAllUIPanels();
-
-    const mission = this.gameState.currentMission || {};
-
-    panel.open({
-      artifact: mission.artifact || 'UNKNOWN ARTIFACT',
-      city: mission.city || 'UNKNOWN CITY',
-      country: mission.country || 'UNKNOWN COUNTRY',
-      description:
-        mission.description || 'No case description available.',
-      significance: mission.significance || '',
-      clue: mission.clue || '',
-      artifactKey: mission.artifactKey || ''
+    sound = this.game.sound.add(key, {
+      ...config, loop, volume: clamp01(volume), mute: this.muted
     });
-
-    this.firstCaseTutorial?.onCaseFileOpened();
-    this.refreshPanelLock();
+    store.set(key, sound);
+    this._keyOwner.set(key, { store, sound });
+    this._soundOwners.set(sound, this.scene);
+    this._watchSound(sound, store, key);
+    sound.play();
+    return sound;
   }
 
-  openNotes() {
-    const panel = this.getPlayerHud()?.notesUI;
-    if (!panel) return;
-
-    this.closeAllUIPanels();
-    panel.open(this.gameState);
-    this.refreshPanelLock();
-  }
-
-  openDestinations() {
-    const panel = this.getPlayerHud()?.destinationsUI;
-    if (!panel) return;
-
-    this.closeAllUIPanels();
-    panel.open(this.gameState);
-
-    this.firstCaseTutorial?.onDestinationMapOpened();
-    this.refreshPanelLock();
-  }
-
-  openWarrant() {
-    const panel = this.getPlayerHud()?.warrantUI;
-    if (!panel) return;
-
-    this.closeAllUIPanels();
-    panel.open(this.gameState);
-    this.refreshPanelLock();
-  }
-
-  openCrimeBoard() {
-    const hud = this.getPlayerHud();
-    if (!hud) return;
-
-    this.closeAllUIPanels();
-    hud.openCrimeBoard();
-    this.refreshPanelLock();
-  }
-
-  openAtlas() {
-    const panel = this.getPlayerHud()?.atlasUI;
-    if (!panel) return;
-
-    this.closeAllUIPanels();
-
-    const mission = this.gameState.currentMission || {};
-
-    panel.open({
-      country: mission.country || '',
-      city: mission.city || '',
-      artifact: mission.artifact || '',
-      gameState: this.gameState
-    });
-
-    this.refreshPanelLock();
-  }
-
-  closeAllUIPanels() {
-    this.agencyLedgerUI?.close();
-    this.getPlayerHud()?.closeAllUIPanels?.();
-    this.refreshPanelLock();
-  }
-
-  onWakeOrResume() {
-    if (!this.isOfficeActive()) return;
-
-    this.registry.set('currentSceneKey', 'OfficeScene');
-    this.registry.set('currentCity', 'hq');
-    this.registry.set('currentCityId', 'hq');
-
-    this.resetOpeningFlags();
-
-    this.navigation?.updateVisibility();
-    this.refreshMissionProgressVisuals();
-    this.refreshPanelLock();
-    this.playOfficeAmbient();
-
-    void this.setupOfficeUiLayers();
-  }
-
-  onSleep() {
-    if (!this.isCurrentOfficeRun()) return;
-
-    void this.flushOfficeAutosave();
-
-    try {
-      this.agencyLedgerUI?.close({
-        restoreHud: false
-      });
-    } catch (error) {
-      console.warn(
-        '[OfficeScene] Ledger close failed:',
-        error
-      );
-    }
-
-    this.navigation?.hideHint();
-    this._stopOfficeAmbient();
-  }
-
-  cleanupScene() {
-    if (this._officeDisposed) return;
-
-    this._officeDisposed = true;
-    this._runToken = null;
-
-    void this.flushOfficeAutosave();
-
-    const clean = (label, action) => {
-      try {
-        action();
-      } catch (error) {
-        console.warn(
-          `[OfficeScene] ${label} cleanup failed:`,
-          error
-        );
-      }
+  _fadeTo(sound, targetVolume, duration = 300, stopAfter = false) {
+    if (!this._isValidSound(sound)) return null;
+    this._cancelFade(sound);
+    const target = clamp01(targetVolume);
+    const milliseconds = Math.max(0, Number(duration) || 0);
+    const host = this._ensureAudioHost();
+    const finishImmediately = () => {
+      if (stopAfter) this._destroySound(sound);
+      else sound.setVolume?.(target);
     };
-
-    clean('Tutorial timer', () => {
-      this._tutorialStartTimer?.remove(false);
-    });
-
-    this._tutorialStartTimer = null;
-    this._uiLayersPromise = null;
-    this.isRestoringOfficeUi = false;
-
-    const bindings = [
-      ...this._getOfficeEventBindings(),
-      [Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene],
-      [Phaser.Scenes.Events.DESTROY, this.cleanupScene]
-    ];
-
-    for (const [event, callback] of bindings) {
-      this.events.off(event, callback, this);
+    if (milliseconds === 0 || !host?.sys?.isActive?.() ||
+        typeof host.tweens?.addCounter !== 'function') {
+      finishImmediately();
+      return null;
     }
-
-    for (const key of [
-      'saveUI',
-      'firstCaseTutorial',
-      'hotspotManager',
-      'agencyLedgerUI',
-      'navigation'
-    ]) {
-      const resource = this[key];
-      this[key] = null;
-
-      clean(key, () => resource?.destroy());
-    }
-
-    for (const key of ['archiveButton', 'storageButton']) {
-      const button = this[key];
-      this[key] = null;
-
-      clean(key, () => {
-        button?.removeAllListeners();
-        button?.destroy();
+    const record = { tween: null, stopAfter };
+    this._fades.set(sound, record);
+    try {
+      const tween = host.tweens.addCounter({
+        from: Number(sound.volume) || 0,
+        to: target,
+        duration: milliseconds,
+        ease: 'Sine.easeInOut',
+        onUpdate: currentTween => {
+          if (this._fades.get(sound) === record && this._isValidSound(sound)) {
+            sound.setVolume(currentTween.getValue());
+          }
+        },
+        onComplete: () => {
+          if (this._fades.get(sound) !== record) return;
+          this._fades.delete(sound);
+          this._activeTweens.delete(record.tween);
+          if (stopAfter) this._destroySound(sound);
+          else if (this._isValidSound(sound)) sound.setVolume(target);
+        }
       });
+      record.tween = tween;
+      this._activeTweens.add(tween);
+      return tween;
+    } catch (error) {
+      this._fades.delete(sound);
+      console.warn('[AudioManager] Fade failed:', error);
+      finishImmediately();
+      return null;
     }
+  }
 
-    clean('Ambient', () => this._stopOfficeAmbient());
+  fadeSound(sound, targetVolume, duration = 300, stopAfter = false) {
+    return this._fadeTo(sound, targetVolume, duration, stopAfter);
+  }
+  releaseSound(sound) { this._destroySound(sound); }
 
-    this._playerHud = null;
-    this.elevatorBackground = null;
-    this.rooms = {};
-    this.roomOrder = [];
-    this.viewPositions = {};
-    this.totalWidth = 0;
-    this.uiLocked = false;
+  setMusicVolume(value) {
+    this.musicVolume = clamp01(value);
+    safeSet(STORAGE.MUSIC, String(this.musicVolume));
+    this._applyMuteState();
+    this._syncChannelVolumes(this.activeMusic.values(), this.musicVolume);
+  }
+  setSfxVolume(value) {
+    this.sfxVolume = clamp01(value);
+    safeSet(STORAGE.SFX, String(this.sfxVolume));
+    this._applyMuteState();
+    this._syncChannelVolumes(this.activeAmbient.values(), this.sfxVolume);
+    this._syncChannelVolumes(this.activeSfx, this.sfxVolume);
+    this._syncChannelVolumes(this.activeVoice, this.sfxVolume);
+    this._syncChannelVolumes(this.activeOneShots, this.sfxVolume);
+  }
+  toggleMute() { return this.setMute(!this.muted); }
+  setMute(value) {
+    this.muted = Boolean(value);
+    safeSet(STORAGE.MUTED, String(this.muted));
+    this._applyMuteState();
+    return this.muted;
+  }
 
-    this.resetOpeningFlags();
+  playMusic(key, config = {}) {
+    const { stopAmbient = false, ...soundConfig } = config;
+    if (stopAmbient) this.stopAllAmbient();
+    return this._createOrReuse(key, soundConfig, this.activeMusic,
+      soundConfig.volume ?? this.musicVolume, soundConfig.loop ?? true);
+  }
+  playAmbient(key, config = {}) {
+    return this._createOrReuse(key, config, this.activeAmbient,
+      config.volume ?? this.sfxVolume, config.loop ?? true);
+  }
+  playPersistentLoop(key, config = {}) {
+    return this.playAmbient(key, { ...config, loop: true });
+  }
+  playLoopSfx(key, config = {}) {
+    return this.playAmbient(key, { ...config, loop: true });
+  }
+  _playTemporary(key, config, store, recent = null) {
+    if (!this._canPlay(key)) return null;
+    const { overlap = false, ...soundConfig } = config;
+    const trackRecent = recent && !overlap;
+    if (trackRecent) this._destroySound(recent.get(key));
+    const sound = this.game.sound.add(key, {
+      ...soundConfig, loop: false,
+      volume: clamp01(soundConfig.volume ?? this.sfxVolume), mute: this.muted
+    });
+    store.add(sound);
+    if (trackRecent) recent.set(key, sound);
+    this._soundOwners.set(sound, this.scene);
+    this._watchSound(sound, store, key);
+    const finish = () => this._destroySound(sound);
+    sound.once('complete', finish);
+    sound.once('stop', finish);
+    sound.play();
+    return sound;
+  }
+  playSfx(key, config = {}) {
+    return this._playTemporary(key, config, this.activeSfx, this._playingSfx);
+  }
+  playOneShot(key, config = {}) {
+    return this._playTemporary(key, config, this.activeOneShots, this._playingOneShots);
+  }
+  playVoice(key, config = {}) {
+    return this._playTemporary(key, config, this.activeVoice);
+  }
+  fadeInMusic(key, config = {}, duration = 500) {
+    const sound = this.playMusic(key, { ...config, volume: 0 });
+    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration);
+    return sound;
+  }
+  fadeInAmbient(key, config = {}, duration = 500) {
+    const sound = this.playAmbient(key, { ...config, volume: 0 });
+    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration);
+    return sound;
+  }
+  fadeOutAndStop(soundOrKey, duration = 400) {
+    let sound = soundOrKey;
+    if (typeof soundOrKey === 'string') {
+      sound = this.activeMusic.get(soundOrKey) || this.activeAmbient.get(soundOrKey) ||
+        this._playingSfx.get(soundOrKey) || this._playingOneShots.get(soundOrKey) ||
+        [...this.activeVoice].find(item => item.key === soundOrKey);
+    }
+    if (this._isValidSound(sound)) this._fadeTo(sound, 0, duration, true);
+  }
+  _stopStored(store, key) {
+    this._destroySound(store.get(key));
+    store.delete(key);
+  }
+  _stopAllStored(store) {
+    for (const sound of [...store.values()]) this._destroySound(sound);
+    store.clear();
+  }
+  _stopAllSet(set) {
+    for (const sound of [...set]) this._destroySound(sound);
+    set.clear();
+  }
+  stopMusic(key) { this._stopStored(this.activeMusic, key); }
+  stopAmbient(key) { this._stopStored(this.activeAmbient, key); }
+  stopPersistentLoop(key) { this.stopAmbient(key); }
+  stopAllMusic() { this._stopAllStored(this.activeMusic); }
+  stopAllAmbient() { this._stopAllStored(this.activeAmbient); }
+  stopAllPersistent() { this.stopAllAmbient(); }
+  stopSfx(key) {
+    this._destroySound(this._playingSfx.get(key));
+    this._playingSfx.delete(key);
+  }
+  stopVoice(key) {
+    for (const sound of [...this.activeVoice]) {
+      if (sound.key === key) this._destroySound(sound);
+    }
+  }
+  stopAllSfx() { this._stopAllSet(this.activeSfx); this._playingSfx.clear(); }
+  stopAllVoice() { this._stopAllSet(this.activeVoice); }
+  stopAllOneShots() {
+    this._stopAllSet(this.activeOneShots);
+    this._playingOneShots.clear();
+  }
+  stopAllNonMusic() {
+    this.stopAllSfx();
+    this.stopAllVoice();
+    this.stopAllOneShots();
+    this.stopAllAmbient();
+  }
+  isMusicPlaying(key) { return Boolean(this.activeMusic.get(key)?.isPlaying); }
+  isAmbientPlaying(key) { return Boolean(this.activeAmbient.get(key)?.isPlaying); }
+  getMusicVolume() { return this.musicVolume; }
+  getSfxVolume() { return this.sfxVolume; }
+  getMuted() { return this.muted; }
+
+  _destroyForGame() {
+    this._stopAllTweens();
+    this.stopAllMusic();
+    this.stopAllNonMusic();
+    for (const scene of [...this._sceneBindings.keys()]) this._unbindScene(scene);
+    this.game?.events?.off(Phaser.Core.Events.DESTROY, this._boundGameDestroy);
+    this._keyOwner.clear();
+    this._playingSfx.clear();
+    this._playingOneShots.clear();
+    this.scene = null;
+    this.game = null;
+    this._audioHost = null;
+    this._hostRequested = false;
   }
 }
+
+export const audioManager = new AudioManager();

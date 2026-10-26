@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "questId": "pi_two_glasses",
+  "searchCaseId": "miramar_demo",
+  "subject": "Reed — Final report",
+  "requiredFlags": [
+    "claire_callback_completed",
+    "daniel_relationship_confirmed",
+    "widower_story"
+  ],
+  "requiredObjectives": [
+    "review_photo",
+    "investigate_trip"
+  ],
+  "endings": [
+    {
+      "id": "truth",
+      "label": "FULL TRUTH",
+      "title": "Tell Mrs Reed the truth",
+      "report": "Mrs Reed,\n\nDaniel was staying at Hotel Miramar during the New Horizons conference. The green checked jacket belongs to Claire Sutton. It appeared on Nora Bell in the conference photograph because Nora had borrowed it; she returned it to Claire immediately afterwards.\n\nClaire confirmed that she was at the Miramar with Daniel as his partner. She also said Daniel told her that his wife had died two years ago. I informed her that my client is alive.\n\nThis is Claire’s account, supported by the photographs and the events coordinator’s statement.\n\nDetective",
+      "replySubject": "Re: Your report",
+      "reply": "Detective,\n\nSo I am dead and he is on holiday. At least one of us is getting some rest.\n\nThank you for checking instead of simply telling me I was imagining things. Your agreed fee has been paid. What happens between Daniel and me is now my decision.\n\nMrs Reed",
+      "summary": "The detective disclosed the confirmed trip, Claire’s account and Daniel’s claim that his wife had died.",
+      "consequences": {
+        "clientInformed": true,
+        "concealedEvidence": false,
+        "claireStatementDisclosed": true
+      }
+    },
+    {
+      "id": "withhold",
+      "label": "WITHHOLD",
+      "title": "Withhold the decisive findings",
+      "report": "Mrs Reed,\n\nYour photograph was taken at Hotel Miramar, which hosted the New Horizons conference. I can confirm that the hotel was used for a professional event.\n\nI am closing my inquiry without providing a complete account of Daniel’s private activities.\n\nDetective",
+      "replySubject": "Re: An expensive lack of answers",
+      "reply": "Detective,\n\nI asked you to check his story, not the hotel’s conference facilities.\n\nI have paid the agreed fee, but I do not consider this a satisfactory answer. You have managed to leave me exactly as suspicious as before, only poorer.\n\nMrs Reed",
+      "summary": "The detective knowingly withheld Claire’s statement and Daniel’s false claim about his wife’s death.",
+      "consequences": {
+        "clientInformed": false,
+        "concealedEvidence": true,
+        "claireStatementDisclosed": false
+      }
+    }
+  ]
+}

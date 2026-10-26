@@ -14,10 +14,10 @@ import { GAME_VERSION } from './config/gameVersion.js';
 import { RandomEventScene } from './scenes/RandomEventScene.js';
 import { RandomEventSystem } from './systems/RandomEventSystem.js';
 import { bindCaseTimeGame } from './managers/CaseTimeWatcher.js';
+import { getReedContactService } from './managers/ReedContactService.js';
 import { supabase } from './supabase-client.js';
 
 const RESIZE_DEBOUNCE_MS = 120;
-
 function installResizeNotification(game) {
   let timer = null;
   let disposed = false;
@@ -34,10 +34,7 @@ function installResizeNotification(game) {
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
-    if (timer !== null) {
-      window.clearTimeout(timer);
-      timer = null;
-    }
+    if (timer !== null) { window.clearTimeout(timer); timer = null; }
     window.removeEventListener('resize', notifyResizeSettled);
     viewport?.removeEventListener('resize', notifyResizeSettled);
     game.events.off(Phaser.Core.Events.DESTROY, cleanup);
@@ -47,7 +44,6 @@ function installResizeNotification(game) {
   game.events.once(Phaser.Core.Events.DESTROY, cleanup);
   return cleanup;
 }
-
 function installScenePrefetch(game) {
   let disposed = false;
   let subscription = null;
@@ -83,11 +79,8 @@ function installScenePrefetch(game) {
       game.events.emit('player-authenticated', { userId: session.user.id });
     });
     subscription = result.data.subscription;
-  } catch (error) {
-    console.warn('[main] Auth prefetch listener unavailable.', error);
-  }
+  } catch (error) { console.warn('[main] Auth prefetch listener unavailable.', error); }
 }
-
 function installDevTools(game) {
   const host = window.location.hostname;
   if (host !== 'localhost' && host !== '127.0.0.1') return;
@@ -98,7 +91,6 @@ function installDevTools(game) {
     })
     .catch(error => console.warn('[dev] Could not load BaseSceneLeakTest.', error));
 }
-
 const config = {
   type: Phaser.AUTO,
   width: 1920,
@@ -111,13 +103,13 @@ const config = {
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, autoRound: true },
   audio: { disableWebAudio: false }
 };
-
 const game = new Phaser.Game(config);
 window.game = game;
 game.assets = new AssetManager(game);
 game.sceneLoader = new SceneLoader(game, sceneRegistry);
 game.buildVersion = GAME_VERSION;
 bindCaseTimeGame(game);
+getReedContactService(game);
 RandomEventSystem.install(game, RandomEventScene);
 installResizeNotification(game);
 installScenePrefetch(game);

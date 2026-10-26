@@ -1,0 +1,284 @@
+{
+  "assets": [
+    {
+      "key": "berlin",
+      "url": "assets/cities/Berlin.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "london",
+      "url": "assets/cities/London.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newdelhi",
+      "url": "assets/cities/NewDelhi.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newyorkcity",
+      "url": "assets/cities/NYC.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paris",
+      "url": "assets/cities/Paris.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "warsaw",
+      "url": "assets/cities/Warsaw.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "nairobi",
+      "url": "assets/cities/Nairobi.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "islamabad",
+      "url": "assets/cities/Islamabad.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "toronto",
+      "url": "assets/cities/Toronto.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "kotto",
+      "url": "assets/cities/Kotto.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tokyo",
+      "url": "assets/cities/Tokyo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "berlin_crime",
+      "url": "assets/maps/ber.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "london_crime",
+      "url": "assets/maps/lnd.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "new_delhi_crime",
+      "url": "assets/maps/ndh.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "new_york_city_crime",
+      "url": "assets/maps/nyc.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paris_crime",
+      "url": "assets/maps/prs.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "warsaw_crime",
+      "url": "assets/maps/waw.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "louvre_bg",
+      "url": "assets/crimes/louvre.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tower_bg",
+      "url": "assets/crimes/tower.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "castle_bg",
+      "url": "assets/crimes/castle.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dockyard_bg",
+      "url": "assets/crimes/dockyard.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "auction_house_bg",
+      "url": "assets/crimes/auction_house.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "havela_bg",
+      "url": "assets/crimes/havela.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "louvre",
+      "url": "assets/crimes/louvre.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "key": "tower",
+      "url": "assets/crimes/tower.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "key": "castle",
+      "url": "assets/crimes/castle.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "key": "dockyard",
+      "url": "assets/crimes/dockyard.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "key": "auction_house",
+      "url": "assets/crimes/auction_house.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "key": "havela",
+      "url": "assets/crimes/havela.json",
+      "type": "tilemap",
+      "groups": [
+        "tilemaps"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:louvre",
+      "url": "assets/data/objects/louvre.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:tower",
+      "url": "assets/data/objects/tower.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:castle",
+      "url": "assets/data/objects/castle.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:dockyard",
+      "url": "assets/data/objects/dockyard.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:auction_house",
+      "url": "assets/data/objects/auction_house.json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "type": "json",
+      "key": "objects-data:havela",
+      "url": "assets/data/objects/havela.json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

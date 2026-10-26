@@ -1,0 +1,92 @@
+{
+  "assets": [
+    {
+      "key": "archive",
+      "url": "assets/local/archive.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundhi",
+      "url": "assets/local/office.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel",
+      "url": "assets/local/hotel.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "elevator_open",
+      "url": "assets/local/elevator_open.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "elevator_close",
+      "url": "assets/local/elevator_close.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "elevator_broken",
+      "url": "assets/local/elevator_broken.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "HR",
+      "url": "assets/local/HR.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "HRs",
+      "url": "assets/local/HRs.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "archivist",
+      "url": "assets/local/archivist.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "premium_office",
+      "url": "assets/local/premium_office.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundoff",
+      "url": "assets/local/biuro.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    }
+  ]
+}

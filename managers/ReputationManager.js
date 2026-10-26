@@ -14,7 +14,9 @@ const RULES = Object.freeze({
     fabricated_evidence: { fame: 0, integrity: -15, headline: null },
     framed_innocent: { fame: 0, integrity: -25, headline: null },
     returned_money: { fame: 0, integrity: 5, headline: null },
-    bribe_accepted: { fame: 0, integrity: -50, headline: null }
+    bribe_accepted: { fame: 0, integrity: -50, headline: null },
+    honest_pi_report: { fame: 0, integrity: 5, headline: null },
+    concealed_pi_findings: { fame: 0, integrity: -5, headline: null }
 });
 function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
 function safeNumber(value, fallback = 0) { return Number.isFinite(value) ? value : fallback; }

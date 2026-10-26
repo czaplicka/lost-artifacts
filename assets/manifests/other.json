@@ -1,0 +1,1220 @@
+{
+  "assets": [
+    {
+      "key": "intro",
+      "url": "assets/intro.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "background",
+      "url": "assets/start_1.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "background2",
+      "url": "assets/start_2.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundgo",
+      "url": "assets/GameOver.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgrounds",
+      "url": "assets/success.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundpc",
+      "url": "assets/hiscores.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dossier",
+      "url": "assets/dossier.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundset",
+      "url": "assets/local/cabinet.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "enter",
+      "url": "assets/local/enter.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_lux",
+      "url": "assets/local/hotel_lux.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_poor",
+      "url": "assets/local/hotel_poor.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newsstand_bg",
+      "url": "assets/local/newsstand.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "shop",
+      "url": "assets/local/shop.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "file",
+      "url": "assets/file.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "notes",
+      "url": "assets/notes.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_w",
+      "url": "assets/local/bank_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_w",
+      "url": "assets/local/alley_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "airport_w",
+      "url": "assets/local/airport_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_w",
+      "url": "assets/local/hotel_maid_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_w",
+      "url": "assets/local/parking_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_w",
+      "url": "assets/local/police_hq_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_w",
+      "url": "assets/local/restaurant_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_w",
+      "url": "assets/local/garbage_w.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_h",
+      "url": "assets/local/bank_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_h",
+      "url": "assets/local/alley_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "airport_h",
+      "url": "assets/local/airport_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_h",
+      "url": "assets/local/hotel_maid_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_h",
+      "url": "assets/local/parking_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_h",
+      "url": "assets/local/police_hq_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_h",
+      "url": "assets/local/restaurant_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_h",
+      "url": "assets/local/garbage_h.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_a",
+      "url": "assets/local/bank_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_a",
+      "url": "assets/local/alley_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "airport_a",
+      "url": "assets/local/airport_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_a",
+      "url": "assets/local/hotel_maid_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_a",
+      "url": "assets/local/parking_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_a",
+      "url": "assets/local/police_hq_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_a",
+      "url": "assets/local/restaurant_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_a",
+      "url": "assets/local/garbage_a.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_b",
+      "url": "assets/local/bank_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_b",
+      "url": "assets/local/alley_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "airport_b",
+      "url": "assets/local/airport_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel_maid_b",
+      "url": "assets/local/hotel_maid_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "parking_b",
+      "url": "assets/local/parking_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_b",
+      "url": "assets/local/police_hq_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_b",
+      "url": "assets/local/restaurant_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_b",
+      "url": "assets/local/garbage_b.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_poland",
+      "url": "assets/atlas/poland.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_germany",
+      "url": "assets/atlas/germany.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_uk",
+      "url": "assets/atlas/uk.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_india",
+      "url": "assets/atlas/india.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_west_usa",
+      "url": "assets/atlas/west_usa.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_east_usa",
+      "url": "assets/atlas/east_usa.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_france",
+      "url": "assets/atlas/france.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "atlas_bg",
+      "url": "assets/atlas/atlas.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_debt_living_room",
+      "url": "assets/apartments/apartment_debt_living_room.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_debt_kitchen",
+      "url": "assets/apartments/apartment_debt_kitchen.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "holly",
+      "url": "assets/pi/holly.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_street",
+      "url": "assets/chase/chase_street.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_courtyard",
+      "url": "assets/chase/chase_courtyard.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_stairs",
+      "url": "assets/chase/chase_stairs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_square",
+      "url": "assets/chase/chase_square.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bankier_w",
+      "url": "assets/npc/bankier_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_w",
+      "url": "assets/npc/fence_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "knajpa_w",
+      "url": "assets/npc/knajpa_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "maid_w",
+      "url": "assets/npc/maid_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_w",
+      "url": "assets/npc/parkingowy_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_w",
+      "url": "assets/npc/police_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_w",
+      "url": "assets/npc/stewardesa_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_w",
+      "url": "assets/npc/bum_w.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_h",
+      "url": "assets/npc/bankier_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_h",
+      "url": "assets/npc/fence_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "knajpa_h",
+      "url": "assets/npc/knajpa_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "maid_h",
+      "url": "assets/npc/maid_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_h",
+      "url": "assets/npc/parkingowy_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_h",
+      "url": "assets/npc/police_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_h",
+      "url": "assets/npc/stewardesa_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_h",
+      "url": "assets/npc/bum_h.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_b",
+      "url": "assets/npc/bankier_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_b",
+      "url": "assets/npc/fence_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "knajpa_b",
+      "url": "assets/npc/knajpa_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "maid_b",
+      "url": "assets/npc/maid_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_b",
+      "url": "assets/npc/parkingowy_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_b",
+      "url": "assets/npc/police_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_b",
+      "url": "assets/npc/stewardesa_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_b",
+      "url": "assets/npc/bum_b.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_a",
+      "url": "assets/npc/bankier_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_a",
+      "url": "assets/npc/fence_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "knajpa_a",
+      "url": "assets/npc/knajpa_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "maid_a",
+      "url": "assets/npc/maid_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_a",
+      "url": "assets/npc/parkingowy_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_a",
+      "url": "assets/npc/police_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_a",
+      "url": "assets/npc/stewardesa_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_a",
+      "url": "assets/npc/bum_a.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc",
+      "url": "assets/npc_crime_city/npc.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc1",
+      "url": "assets/npc_crime_city/npc1.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc2",
+      "url": "assets/npc_crime_city/npc2.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc3",
+      "url": "assets/npc_crime_city/npc3.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc4",
+      "url": "assets/npc_crime_city/npc4.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc5",
+      "url": "assets/npc_crime_city/npc5.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "npc6",
+      "url": "assets/npc_crime_city/npc6.png",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "artifact_crown_jewels",
+      "url": "assets/artifacts/crown_jewels.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_amber_necklace",
+      "url": "assets/artifacts/amber_necklace.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_liberty_torch",
+      "url": "assets/artifacts/liberty_torch.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_mona_lisa",
+      "url": "assets/artifacts/mona_lisa.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_mughal_dagger",
+      "url": "assets/artifacts/mughal_dagger.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_royal_seal",
+      "url": "assets/artifacts/royal_seal.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_fallback",
+      "url": "assets/artifacts/artifact_unknown.png",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "portrait_fallback",
+      "url": "assets/portraits/portrait_fallback.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_holmes",
+      "url": "assets/portraits/holmes.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_CSI",
+      "url": "assets/portraits/CSI.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_home",
+      "url": "assets/portraits/home.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_hq",
+      "url": "assets/portraits/hq.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_informant",
+      "url": "assets/portraits/informant.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_police-station",
+      "url": "assets/portraits/police-station.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_watson",
+      "url": "assets/portraits/watson.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_accounting",
+      "url": "assets/portraits/portrait_accounting.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "suspects",
+      "url": "assets/data/suspects.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "citysuspects",
+      "url": "assets/data/citysuspects.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "suspectData",
+      "url": "assets/data/suspectData.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "missions",
+      "url": "assets/data/missions.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "locations",
+      "url": "assets/data/locations.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "country_facts",
+      "url": "assets/data/countryFacts.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "atlas",
+      "url": "assets/data/atlas.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "city_clues",
+      "url": "assets/data/city-clues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "suspect_clues",
+      "url": "assets/data/suspect-clues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "objects-data",
+      "url": "assets/data/objects.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reconstruction_questions",
+      "url": "assets/data/reconstruction_questions.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "monologues",
+      "url": "assets/data/monologues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tips",
+      "url": "assets/data/tips.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "statuses",
+      "url": "assets/data/statuses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "tv-config",
+      "url": "assets/data/tv-config.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "crimeCityTutorial",
+      "url": "assets/data/crime-city-tutorial.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue",
+      "url": "assets/data/dialogue.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_banker",
+      "url": "assets/data/dialogue/banker.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_bum",
+      "url": "assets/data/dialogue/bum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_maid",
+      "url": "assets/data/dialogue/maid.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_stewardess",
+      "url": "assets/data/dialogue/stewardess.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_police",
+      "url": "assets/data/dialogue/police.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_fence",
+      "url": "assets/data/dialogue/fence.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_knajpa",
+      "url": "assets/data/dialogue/knajpa.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_parkingowy",
+      "url": "assets/data/dialogue/parkingowy.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "crime_lab_assistant_dialogues",
+      "url": "assets/data/dialogue/crimeLabAssistantDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "csi",
+      "url": "assets/data/dialogue/csi.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_csi",
+      "url": "assets/data/dialogue/dialog_csi.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_informant",
+      "url": "assets/data/dialogue/informant.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_watson",
+      "url": "assets/data/dialogue/watson.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_holmes",
+      "url": "assets/data/dialogue/holmes.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_police-station",
+      "url": "assets/data/dialogue/police-station.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_hq",
+      "url": "assets/data/dialogue/hq.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_home",
+      "url": "assets/data/dialogue/home.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_accounting",
+      "url": "assets/data/dialogue/accounting.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

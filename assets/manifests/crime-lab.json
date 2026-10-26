@@ -1,0 +1,356 @@
+{
+  "assets": [
+    {
+      "key": "crimelab_left",
+      "url": "assets/local/crimelab_left.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crimelab_center",
+      "url": "assets/local/crimelab_center.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crimelab_right",
+      "url": "assets/local/crimelab_right.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crimelab_point_assistant",
+      "url": "assets/local/crimelab_point_assistant.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crimelab_point",
+      "url": "assets/local/crimelab_point.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "desk1",
+      "url": "assets/CSI/desk1.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "desk2",
+      "url": "assets/CSI/desk2.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "evidence_bag",
+      "url": "assets/CSI/evidence_bag.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_board",
+      "url": "assets/CSI/hair_board.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_blond",
+      "url": "assets/CSI/hair_strand_blond.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_black",
+      "url": "assets/CSI/hair_strand_black.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_red",
+      "url": "assets/CSI/hair_strand_red.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_brown",
+      "url": "assets/CSI/hair_strand_brown.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_auburn",
+      "url": "assets/CSI/hair_strand_auburn.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_grey",
+      "url": "assets/CSI/hair_strand_grey.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "hair_strand_white",
+      "url": "assets/CSI/hair_strand_white.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "tweezers",
+      "url": "assets/CSI/tweezers.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "microscope_look",
+      "url": "assets/CSI/microscope_look.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "pipette",
+      "url": "assets/CSI/pipette.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_evidence_bag",
+      "url": "assets/CSI/blood_evidence_bag.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_microscope_slide",
+      "url": "assets/CSI/blood_microscope_slide.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_reagent_A",
+      "url": "assets/CSI/blood_reagent_A.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_reagent_B",
+      "url": "assets/CSI/blood_reagent_B.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_reagent_Rh",
+      "url": "assets/CSI/blood_reagent_Rh.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_swab",
+      "url": "assets/CSI/blood_swab.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_swab_closed",
+      "url": "assets/CSI/blood_swab_closed.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_type_A",
+      "url": "assets/CSI/blood_type_A.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_type_B",
+      "url": "assets/CSI/blood_type_B.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_type_AB",
+      "url": "assets/CSI/blood_type_AB.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "blood_type_0",
+      "url": "assets/CSI/blood_type_0.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "dna_swab_closed",
+      "url": "assets/CSI/dna_swab_closed.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "dna_swab_open",
+      "url": "assets/CSI/dna_swab_open.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "dna_swab",
+      "url": "assets/CSI/dna_swab.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "pcr_tube",
+      "url": "assets/CSI/pcr_tube.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "thermocycler",
+      "url": "assets/CSI/thermocycler.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "gel_tray",
+      "url": "assets/CSI/gel_tray.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "tool_brush",
+      "url": "assets/CSI/tool_brush.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_card_sealed",
+      "url": "assets/CSI/fingerprint_card_sealed.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_card_open",
+      "url": "assets/CSI/fingerprint_card_open.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_card_dusted",
+      "url": "assets/CSI/fingerprint_card_dusted.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_card_lifted",
+      "url": "assets/CSI/fingerprint_card_lifted.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_pattern_loop",
+      "url": "assets/CSI/fingerprint_pattern_loop.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_pattern_whorl",
+      "url": "assets/CSI/fingerprint_pattern_whorl.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    },
+    {
+      "key": "fingerprint_pattern_arch",
+      "url": "assets/CSI/fingerprint_pattern_arch.png",
+      "type": "image",
+      "groups": [
+        "csi"
+      ]
+    }
+  ]
+}
