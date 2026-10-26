@@ -86,11 +86,7 @@
           "cloudId": "person"
         }
       ],
-      "initialKeywords": [
-        "seahorse_logo",
-        "swallow_logo",
-        "checked_jacket"
-      ],
+      "initialKeywords": [],
       "pages": [
         {
           "id": "miramar",
@@ -458,8 +454,8 @@
               "pageId": "contact"
             }
           ],
-          "imageKey": "pi_search_reception",
-          "imageUrl": "assets/ui/pi-search/reception.png"
+          "imageKey": "Reed_conference",
+          "imageUrl": "assets/side_quests/Reed/conference.webp"
         },
         {
           "id": "team",

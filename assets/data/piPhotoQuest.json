@@ -61,21 +61,21 @@
     "body": "Detective,\n\nDaniel Reed says this is a work trip. He sent me the attached photograph.\n\nWhen I asked about the second glass, he said a colleague had joined him. He also says the jacket is his. I have never seen him wear it.\n\nApparently I am imagining things. Please find out what is actually going on.\n\nMrs Reed"
   },
   "photo": {
-    "imageKey": "pi_two_glasses_terrace",
-    "imageUrl": "assets/ui/pi-cases/terrace.png",
+    "imageKey": "Reed_terrace",
+    "imageUrl": "assets/side_quests/Reed/terrace.webp",
     "hotspots": [
       {
         "id": "glasses",
-        "x": 0.22,
+        "x": 0.32,
         "y": 0.35,
-        "w": 0.22,
-        "h": 0.27,
+        "w": 0.18,
+        "h": 0.38,
         "description": "Two glasses. Neither came with a witness statement."
       },
       {
         "id": "napkin",
-        "x": 0.51,
-        "y": 0.65,
+        "x": 0.505,
+        "y": 0.735,
         "w": 0.15,
         "h": 0.19,
         "description": "A seahorse is embroidered on the napkin.",
@@ -84,20 +84,20 @@
       },
       {
         "id": "badge",
-        "x": 0.65,
-        "y": 0.35,
-        "w": 0.1,
-        "h": 0.22,
+        "x": 0.605,
+        "y": 0.61,
+        "w": 0.11,
+        "h": 0.12,
         "description": "An orange delegate badge with a swallow emblem. The name is facing down.",
         "keywordId": "swallow_logo",
         "keywordLabel": "Swallow emblem"
       },
       {
         "id": "jacket",
-        "x": 0.79,
-        "y": 0.24,
-        "w": 0.19,
-        "h": 0.54,
+        "x": 0.73,
+        "y": 0.19,
+        "w": 0.23,
+        "h": 0.72,
         "description": "A green checked jacket with contrasting pocket trim.",
         "keywordId": "checked_jacket",
         "keywordLabel": "Green checked jacket"

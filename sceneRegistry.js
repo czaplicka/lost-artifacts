@@ -75,7 +75,7 @@ export const sceneRegistry = {
   NewsHud: () => import('./ui/NewsHud.js').then(m => m.NewsHud),
   LoadingOverlayScene: () => import('./scenes/LoadingOverlayScene.js').then(m => m.LoadingOverlayScene),
   GameScene: () => import('./scenes/GameScene.js').then(m => m.GameScene),
-  OfficeScene: () => import('./scenes/OfficeScene.js').then(m => m.OfficeScene),
+  OfficeScene: () => import('./scenes/OfficeSceneWithLamp.js').then(m => m.OfficeScene),
   ArchiveScene: () => import('./scenes/ArchiveScene.js').then(m => m.ArchiveScene),
   AgencyStorageScene: () => import('./scenes/AgencyStorageScene.js').then(m => m.AgencyStorageScene),
   HighscoreScene: () => import('./scenes/HighscoreScene.js').then(m => m.HighscoreScene),

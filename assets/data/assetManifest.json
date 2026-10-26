@@ -1,4 +1,14 @@
 {
+    "sidequests": [
+        {
+      "key": "Reed_conference",
+      "url": "assets/side_quests/Reed/conference.webp"
+    },
+            {
+      "key": "Reed_terrace",
+      "url": "assets/side_quests/Reed/terrace.webp"
+    }
+  ],
   "backgrounds": [
     {
       "key": "intro",
@@ -8,6 +18,10 @@
       "key": "background",
       "url": "assets/start_1.jpg"
     },
+    {
+  "key": "backgroundoff",
+  "url": "assets/local/biuro.webp"
+},
     {
       "key": "background2",
       "url": "assets/start_2.jpg"
@@ -43,10 +57,6 @@
     {
       "key": "backgroundhi",
       "url": "assets/local/office.jpg"
-    },
-    {
-      "key": "backgroundoff",
-      "url": "assets/local/biuro.jpg"
     },
     {
       "key": "hotel",
@@ -1661,11 +1671,6 @@
     {
       "key": "backgroundhi",
       "url": "assets/local/office.jpg",
-      "type": "image"
-    },
-    {
-      "key": "backgroundoff",
-      "url": "assets/local/biuro.jpg",
       "type": "image"
     },
     {
