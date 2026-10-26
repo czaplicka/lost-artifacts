@@ -67,7 +67,6 @@ class AudioManager {
     this.scene = scene;
     this._bindScene(scene);
     this._ensureAudioHost();
-    // Scene changes must not reset volumes or cancel active fades.
     this._applyMuteState();
     return this;
   }
@@ -213,6 +212,20 @@ class AudioManager {
     const owner = this._keyOwner.get(key);
     if (owner && owner.store !== requestingStore) this._destroySound(owner.sound);
   }
+
+  _playConfigured(sound, config, volume, loop) {
+    const playback = {
+      ...config,
+      volume: clamp01(volume),
+      loop,
+      mute: this.muted
+    };
+    this._applySoundState(sound, playback.volume);
+    const started = sound.play(playback);
+    this._applySoundState(sound, playback.volume);
+    return started;
+  }
+
   _createOrReuse(key, config, store, volume, loop = true) {
     if (!this._canPlay(key)) return null;
     this._releaseKeyOwnership(key, store);
@@ -223,7 +236,7 @@ class AudioManager {
       sound.setLoop?.(loop);
       this._applySoundState(sound, volume);
       this._soundOwners.set(sound, this.scene);
-      if (!sound.isPlaying) sound.play();
+      if (!sound.isPlaying) this._playConfigured(sound, config, volume, loop);
       return sound;
     }
     sound = this.game.sound.add(key, {
@@ -233,14 +246,18 @@ class AudioManager {
     this._keyOwner.set(key, { store, sound });
     this._soundOwners.set(sound, this.scene);
     this._watchSound(sound, store, key);
-    sound.play();
+    this._playConfigured(sound, config, volume, loop);
     return sound;
   }
 
-  _fadeTo(sound, targetVolume, duration = 300, stopAfter = false) {
+  _fadeTo(sound, targetVolume, duration = 300, stopAfter = false, startVolume = null) {
     if (!this._isValidSound(sound)) return null;
     this._cancelFade(sound);
     const target = clamp01(targetVolume);
+    const from = startVolume === null
+      ? clamp01(sound.volume)
+      : clamp01(startVolume);
+    sound.setVolume?.(from);
     const milliseconds = Math.max(0, Number(duration) || 0);
     const host = this._ensureAudioHost();
     const finishImmediately = () => {
@@ -256,13 +273,14 @@ class AudioManager {
     this._fades.set(sound, record);
     try {
       const tween = host.tweens.addCounter({
-        from: Number(sound.volume) || 0,
+        from,
         to: target,
         duration: milliseconds,
         ease: 'Sine.easeInOut',
         onUpdate: currentTween => {
           if (this._fades.get(sound) === record && this._isValidSound(sound)) {
-            sound.setVolume(currentTween.getValue());
+            const value = currentTween.getValue();
+            if (Number.isFinite(value)) sound.setVolume(clamp01(value));
           }
         },
         onComplete: () => {
@@ -333,9 +351,9 @@ class AudioManager {
     const { overlap = false, ...soundConfig } = config;
     const trackRecent = recent && !overlap;
     if (trackRecent) this._destroySound(recent.get(key));
+    const volume = clamp01(soundConfig.volume ?? this.sfxVolume);
     const sound = this.game.sound.add(key, {
-      ...soundConfig, loop: false,
-      volume: clamp01(soundConfig.volume ?? this.sfxVolume), mute: this.muted
+      ...soundConfig, loop: false, volume, mute: this.muted
     });
     store.add(sound);
     if (trackRecent) recent.set(key, sound);
@@ -344,7 +362,7 @@ class AudioManager {
     const finish = () => this._destroySound(sound);
     sound.once('complete', finish);
     sound.once('stop', finish);
-    sound.play();
+    this._playConfigured(sound, soundConfig, volume, false);
     return sound;
   }
   playSfx(key, config = {}) {
@@ -358,12 +376,12 @@ class AudioManager {
   }
   fadeInMusic(key, config = {}, duration = 500) {
     const sound = this.playMusic(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration);
+    if (sound) this._fadeTo(sound, config.volume ?? this.musicVolume, duration, false, 0);
     return sound;
   }
   fadeInAmbient(key, config = {}, duration = 500) {
     const sound = this.playAmbient(key, { ...config, volume: 0 });
-    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration);
+    if (sound) this._fadeTo(sound, config.volume ?? this.sfxVolume, duration, false, 0);
     return sound;
   }
   fadeOutAndStop(soundOrKey, duration = 400) {

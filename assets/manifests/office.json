@@ -17,6 +17,22 @@
       ]
     },
     {
+  "key": "agency_storage_room_v2",
+  "url": "assets/local/storage.webp",
+  "type": "image",
+  "groups": [
+    "backgrounds"
+  ]
+},
+{
+  "key": "agency_storage_manager",
+  "url": "assets/local/storage_manager.webp",
+  "type": "image",
+  "groups": [
+    "portraits"
+  ]
+},
+    {
       "key": "hotel",
       "url": "assets/local/hotel.jpg",
       "type": "image",

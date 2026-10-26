@@ -335,6 +335,7 @@
       "audio:sfx_ringing",
       "audio:sfx_busy",
       "audio:sfx_pickup",
+      "audio:new_mail",
       "json:suspects",
       "json:citysuspects",
       "json:missions",
@@ -403,6 +404,10 @@
       "image:archive",
       "image:archivist"
     ],
+    "scene:AgencyStorageScene": [
+  "image:agency_storage_room_v2",
+  "image:agency_storage_manager"
+],
     "scene:HotelScene": [
       "image:hotel",
       "image:hotel_lux",

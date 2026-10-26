@@ -9,34 +9,34 @@ export const OFFICE_CONFIG = {
   citySceneKey: 'HomeCityScene',
 
   hotspots: [
-    {
-      id: 'computer',
-      label: 'Computer',
-      x: 260,
-      y: 430,
-      w: 230,
-      h: 170,
-      action: 'computer'
-    },
-    {
-      id: 'phone',
-      label: 'Phone',
-      x: 640,
-      y: 520,
-      w: 110,
-      h: 130,
-      action: 'phone'
-    },
-    {
-      id: 'city-door',
-      label: 'Go to your city',
-      x: 1300,
-      y: 470,
-      w: 140,
-      h: 420,
-      action: 'city'
-    }
-  ],
+  {
+    "id": "computer",
+    "label": "Computer",
+    "x": 1582,
+    "y": 851,
+    "w": 420,
+    "h": 435,
+    "action": "computer"
+  },
+  {
+    "id": "phone",
+    "label": "Phone",
+    "x": 427,
+    "y": 913,
+    "w": 360,
+    "h": 250,
+    "action": "phone"
+  },
+  {
+    "id": "city-door",
+    "label": "Go to your city",
+    "x": 993,
+    "y": 479,
+    "w": 555,
+    "h": 590,
+    "action": "city"
+  }
+],
 
   newsTicker: {
     y: 0,

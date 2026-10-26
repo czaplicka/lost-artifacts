@@ -5,8 +5,9 @@ import {
 import {createDecoySuspect,createVisibleTraits,ensureUniqueIds,ensureUniqueNames,normalizeForensicAttributes,normalizeGenderCode} from './suspectFactory.js';
 import {normalizeCityId,safeClone,shuffle} from './suspectGeneratorUtils.js';
 import {prepareCaseSuspectState} from './SuspectCaseState.js';
-import {createMaterialProfile,getMaterialDossierNotes} from './MaterialEvidence.js';
-import {createDustProfile,getDustDossierNotes,getDustProfiles} from './DustEvidence.js';
+import {createMaterialProfile} from './MaterialEvidence.js';
+import {createDustProfile,getDustProfiles} from './DustEvidence.js';
+import {getSuspectFileNotes} from './SuspectFileNotes.js';
 function resetProgress(s) {
   s.deductionState={eliminated:false,eliminationReasons:[],evidenceMismatches:[],notesUnlocked:[],labStatus:'pending',hypothesisStatus:'pending',interviewStatus:'pending',alibiStatus:'pending'};
   s.restrictedProfile??={};s.restrictedProfile.unlockedFields=[];
@@ -16,10 +17,8 @@ function resetProgress(s) {
 }
 function refreshTraits(s) {
   s.publicProfile??={};
-  const prev=(s.publicProfile.visibleTraits||[]).filter(t=>!/\bhair\b/i.test(String(t)));
-  const visible=createVisibleTraits(s.restrictedProfile.forensicAttributes,prev);
-  s.publicProfile.visibleTraits=[...new Set([...visible,
-    ...getMaterialDossierNotes(s).map(n=>n.text),...getDustDossierNotes(s).map(n=>n.text)])];
+  const prev=getSuspectFileNotes(s).visible.filter(t=>!/\bhair\b/i.test(String(t)));
+  s.publicProfile.visibleTraits=createVisibleTraits(s.restrictedProfile.forensicAttributes,prev);
 }
 function buildPlan(total) {
   const n=total-2;if(n===8)return[5,2,1];
@@ -36,8 +35,7 @@ export class SuspectGenerator {
     if(Array.isArray(data?.cities)){
       const entry=data.cities.find(e=>normalizeCityId(e.id||e.cityId||e.city)===city);
       return Array.isArray(entry?.suspects)?entry.suspects:[];
-    }
-    return Array.isArray(data?.[city])?data[city]:[];
+    }return Array.isArray(data?.[city])?data[city]:[];
   }
   generateCaseSuspects(thief,crimeCityId,{total=10,hardEvidence=[]}={}) {
     if(!thief||typeof thief!=='object')throw new Error('A real thief profile is required.');
@@ -47,8 +45,9 @@ export class SuspectGenerator {
     if(evidence.length!==3||!['hair_color','blood_type','biological_sex','fingerprint_pattern'].includes(evidence[0].forensicField)||
       !['shoe_size_category','dust_profile'].includes(evidence[1].forensicField)||
       !['handedness','material_profile'].includes(evidence[2].forensicField))throw new Error('Expected identity, footwear/microtrace, handedness/material.');
-    const bases=shuffle(this.getCitySuspects(crimeCityId)).slice(0,total-1).map((source,i)=>createDecoySuspect(i,source,{preserveCaseProgress:false}));
-    while(bases.length<total-1)bases.push(createDecoySuspect(bases.length));
+    const fresh={preserveCaseProgress:false,preservePersonalProfiles:false};
+    const bases=shuffle(this.getCitySuspects(crimeCityId)).slice(0,total-1).map((source,i)=>createDecoySuspect(i,source,fresh));
+    while(bases.length<total-1)bases.push(createDecoySuspect(bases.length,{},fresh));
     const real=safeClone(bases.shift());real.isRealThief=true;
     real.restrictedProfile={unlockedFields:[],forensicAttributes:normalizeForensicAttributes(thief,normalizeGenderCode(thief.gender_code||thief.genderCode||thief.gender))};
     if(thief.materialProfile)real.materialProfile=safeClone(thief.materialProfile);
@@ -56,7 +55,7 @@ export class SuspectGenerator {
     real.hiddenIdentity=thief.hiddenIdentity?safeClone(thief.hiddenIdentity):{realName:thief.realName||thief.name||null,revealStage:thief.revealStage||'identity_reveal'};
     real.hiddenCaseData={isTrueThief:true,realThiefId:thief.id||null,realThiefName:thief.name||null,realThiefProfile:safeClone(thief)};
     applyHardEvidenceToSuspect(real,evidence);
-    const twin=createDecoySuspect(total);twin.isRealThief=false;twin.hiddenIdentity=null;
+    const twin=createDecoySuspect(total,{},fresh);twin.isRealThief=false;twin.hiddenIdentity=null;
     twin.hiddenCaseData={isTrueThief:false,isForensicTwin:true};applyHardEvidenceToSuspect(twin,evidence);
     const ordinary=bases.slice(0,total-2),plan=buildPlan(total);
     ordinary.forEach(s=>{s.isRealThief=false;s.hiddenIdentity=null;s.hiddenCaseData={isTrueThief:false,isForensicTwin:false};applyHardEvidenceToSuspect(s,evidence);});

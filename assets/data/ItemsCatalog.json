@@ -333,6 +333,32 @@
         "unlocksArea": "vault",
         "useMessage": "I hold it authoritatively. Sadly, doors prefer an actual card reader."
       }
+    },
+    "agencyFieldManual": {
+      "id": "agency_field_manual",
+      "name": "Agency Field Manual",
+      "icon": "📕",
+      "description": "The official Mark Agency Field Manual. Covers evidence, travel, paperwork, and other occupational hazards. Also recommended for stabilising wobbly desks.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "source": "agency_storage",
+        "issuedBy": "Alex Murphy",
+        "purpose": "agent_training",
+        "useMessage": "Evidence handling. Travel procedures. Expense claims. Somehow, the chapter on surviving paperwork is the longest."
+      }
+    },
+    "detectiveMonthly": {
+      "id": "detective_monthly",
+      "name": "Detective Monthly",
+      "icon": "📰",
+      "description": "The magazine for private investigators. This month: 'Is Your Alibi Working Hard Enough?' and twelve coats you cannot afford.",
+      "type": "document",
+      "stackable": false,
+      "metadata": {
+        "purpose": "reading",
+        "useMessage": "I turn to 'Ten Signs You Are Being Followed'. Someone has already bookmarked it."
+      }
     }
   },
   "consumables": {
@@ -580,6 +606,18 @@
         "oddity": true,
         "useMessage": "I consider inflating my alibi. It already has more holes than I'd like."
       }
+    },
+    "rubberDuck": {
+      "id": "rubber_duck",
+      "name": "Rubber Duck",
+      "icon": "🦆",
+      "description": "Waterproof. Unflappable. Has never cracked under questioning.",
+      "type": "item",
+      "stackable": false,
+      "metadata": {
+        "oddity": true,
+        "useMessage": "Squeak. Finally, a witness with a consistent story."
+      }
     }
   },
   "misc": {
@@ -662,6 +700,56 @@
         "useMessage": "I'll save the supplies for an actual investigation task. Opening the kit dramatically isn't one."
       },
       "quantity": 2
+    },
+    "piBadge": {
+      "id": "pi_badge",
+      "name": "PI Badge",
+      "icon": "🪪",
+      "description": "A private investigator badge. Looks official. Does not make you the police.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "identification",
+        "useMessage": "Private investigator. Very private. Extremely investigator. Still not the police."
+      }
+    }
+  },
+  "equipment": {
+    "camera": {
+      "id": "camera",
+      "name": "Camera",
+      "icon": "📷",
+      "description": "A compact camera. Captures evidence, awkward moments, and your thumb.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "photography",
+        "useMessage": "A camera needs a subject. My shoes have declined to comment."
+      }
+    },
+    "mobilePhone": {
+      "id": "mobile_phone",
+      "name": "Mobile Phone",
+      "icon": "📱",
+      "description": "A mobile phone. For calls that cannot wait until you get back to the office.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "communication",
+        "useMessage": "I'll need a number and a reason to call. Heavy breathing isn't a business model."
+      }
+    },
+    "coolSpyGadget": {
+      "id": "cool_spy_gadget",
+      "name": "Cool Spy Gadget",
+      "icon": "📡",
+      "description": "A very impressive device with several blinking lights. The manual refers to its function as classified.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "spy_gadget",
+        "useMessage": "I press the impressive-looking button. A light blinks. I feel briefly qualified."
+      }
     }
   }
 }

@@ -522,6 +522,14 @@
         "audio"
       ]
     },
+        {
+      "key": "new_mail",
+      "url": "assets/audio/new_mail.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
     {
       "key": "click_sound",
       "url": "assets/audio/click.mp3",
