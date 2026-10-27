@@ -528,8 +528,8 @@
         "useMessage": "I'll keep it sealed. The case has enough heat without seasoning the evidence."
       }
     },
-    "kottoElephant": {
-      "id": "souvenir_kotto_elephant",
+    "kotteElephant": {
+      "id": "souvenir_kotte_elephant",
       "name": "Tiny Wooden Elephant",
       "icon": "🐘",
       "description": "Hand-carved. Trunk up for luck, which your case file badly needs.",
@@ -537,7 +537,7 @@
       "stackable": true,
       "metadata": {
         "souvenir": true,
-        "city": "kotto",
+        "city": "kotte",
         "useMessage": "I ask it for luck. It maintains a professional silence."
       }
     },
@@ -683,6 +683,18 @@
         "useMessage": "I rotate the map. Now I'm lost in a different direction."
       }
     },
+    "piBadge": {
+      "id": "pi_badge",
+      "name": "PI Badge",
+      "icon": "🪪",
+      "description": "A private investigator badge. Looks official. Does not make you the police.",
+      "type": "misc",
+      "stackable": false,
+      "metadata": {
+        "purpose": "identification",
+        "useMessage": "Private investigator. Very private. Extremely investigator. Still not the police."
+      }
+    },
     "fieldKit": {
       "id": "misc_field_kit",
       "name": "Field Kit",
@@ -700,18 +712,6 @@
         "useMessage": "I'll save the supplies for an actual investigation task. Opening the kit dramatically isn't one."
       },
       "quantity": 2
-    },
-    "piBadge": {
-      "id": "pi_badge",
-      "name": "PI Badge",
-      "icon": "🪪",
-      "description": "A private investigator badge. Looks official. Does not make you the police.",
-      "type": "misc",
-      "stackable": false,
-      "metadata": {
-        "purpose": "identification",
-        "useMessage": "Private investigator. Very private. Extremely investigator. Still not the police."
-      }
     }
   },
   "equipment": {
@@ -749,6 +749,18 @@
       "metadata": {
         "purpose": "spy_gadget",
         "useMessage": "I press the impressive-looking button. A light blinks. I feel briefly qualified."
+      }
+    },
+    "videoCamera": {
+      "id": "video_camera",
+      "name": "Video Camera",
+      "icon": "📹",
+      "description": "A portable video camera. Records moving evidence and remarkably stationary stakeouts.",
+      "type": "tool",
+      "stackable": false,
+      "metadata": {
+        "purpose": "video_recording",
+        "useMessage": "I could film a documentary about this case. So far, it would mostly be waiting."
       }
     }
   }

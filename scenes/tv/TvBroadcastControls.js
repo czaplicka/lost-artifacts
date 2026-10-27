@@ -3,7 +3,7 @@ const LOCAL_DEBUG_ALLOWED = [
   '127.0.0.1'
 ].includes(window.location.hostname);
 
-// Po ustawieniu przycisków skopiuj tutaj wynik z konsoli.
+// Po ustawieniu przycisków skopiuj tutaj wynik z konsoli (klawisz D, potem C).
 // null oznacza domyślne pozycje wyliczane z layoutu.
 const TV_BUTTON_OVERRIDES = null;
 
@@ -14,19 +14,20 @@ export class TvBroadcastControls {
     this.onClose = options.onClose || (() => {});
     this.onSkip = options.onSkip || (() => {});
     this.onNext = options.onNext || (() => {});
+    this.onPauseToggle = options.onPauseToggle || (() => {});
+    this.onVolume = options.onVolume || (() => {});
+    this.onTune = options.onTune || (() => {});
 
-    this.onPauseToggle =
-      options.onPauseToggle || (() => {});
-
-    this.isActionAllowed =
-      options.isActionAllowed || (() => true);
-
-    this.isBroadcastPaused =
-      options.isBroadcastPaused || (() => false);
+    this.isActionAllowed = options.isActionAllowed || (() => true);
+    this.isBroadcastPaused = options.isBroadcastPaused || (() => false);
+    this.getTooltip = options.getTooltip || (() => '');
 
     this.hotspots = [];
     this.debugObjects = [];
     this.entries = [];
+
+    this.tooltip = null;
+    this.hoveredEntry = null;
 
     this.debugText = null;
     this.debugMode = false;
@@ -49,6 +50,7 @@ export class TvBroadcastControls {
     const {
       centerX,
       centerY,
+      tvWidth,
       tvHeight
     } = layout;
 
@@ -69,6 +71,11 @@ export class TvBroadcastControls {
       tvHeight * 0.43 -
       20;
 
+    // Gałki: pozycje przybliżone, skalibruj klawiszem D (lokalnie).
+    const knobY = y - tvHeight * 0.021;
+    const knobDx = tvWidth * 0.3;
+    const knobSize = 130;
+
     const definitions = [
       { id: 'close', action: this.onClose },
       { id: 'skip', action: this.onSkip },
@@ -77,21 +84,49 @@ export class TvBroadcastControls {
     ];
 
     definitions.forEach((definition, index) => {
-      const override = Array.isArray(TV_BUTTON_OVERRIDES)
-        ? TV_BUTTON_OVERRIDES.find(
-          item => item.id === definition.id
-        )
-        : null;
+      const override = this.findOverride(definition.id);
 
       this.createHotspot({
         id: definition.id,
         action: definition.action,
+        shape: 'rect',
         x: override?.x ?? startX + index * (width + gap),
         y: override?.y ?? y,
         w: override?.w ?? width,
         h: override?.h ?? height
       });
     });
+
+    const knobs = [
+      { id: 'volume', action: this.onVolume, x: centerX - knobDx },
+      { id: 'tune', action: this.onTune, x: centerX + knobDx }
+    ];
+
+    knobs.forEach(knob => {
+      const override = this.findOverride(knob.id);
+
+      this.createHotspot({
+        id: knob.id,
+        action: knob.action,
+        shape: 'round',
+        x: override?.x ?? knob.x,
+        y: override?.y ?? knobY,
+        w: override?.w ?? knobSize,
+        h: override?.h ?? knobSize
+      });
+    });
+
+    this.tooltip = this.scene.add
+      .text(0, 0, '', {
+        fontFamily: 'PressStart2P',
+        fontSize: '12px',
+        color: '#f6dc8c',
+        backgroundColor: '#14100c',
+        padding: { x: 8, y: 6 }
+      })
+      .setOrigin(0.5, 1)
+      .setDepth(40)
+      .setVisible(false);
 
     if (LOCAL_DEBUG_ALLOWED) {
       this.debugText = this.scene.add
@@ -123,6 +158,12 @@ export class TvBroadcastControls {
     this.setVisible(this.visible);
   }
 
+  findOverride(id) {
+    return Array.isArray(TV_BUTTON_OVERRIDES)
+      ? TV_BUTTON_OVERRIDES.find(item => item.id === id)
+      : null;
+  }
+
   createHotspot(config) {
     const index = this.entries.length;
 
@@ -141,6 +182,14 @@ export class TvBroadcastControls {
       .setInteractive({
         useHandCursor: true
       });
+
+    const glow = (
+      config.shape === 'round'
+        ? this.scene.add.ellipse(cfg.x, cfg.y, cfg.w, cfg.h, 0xffffff, 0)
+        : this.scene.add.rectangle(cfg.x, cfg.y, cfg.w, cfg.h, 0xffffff, 0)
+    )
+      .setDepth(29)
+      .setBlendMode(Phaser.BlendModes.ADD);
 
     const box = LOCAL_DEBUG_ALLOWED
       ? this.scene.add.graphics()
@@ -164,12 +213,26 @@ export class TvBroadcastControls {
     const entry = {
       cfg,
       zone,
+      glow,
       box,
       label,
       index,
       action: config.action,
-      pressed: false
+      pressed: false,
+      hovered: false
     };
+
+    zone.on('pointerover', () => {
+      if (this.isDestroyed || !this.visible || this.debugMode) {
+        return;
+      }
+
+      entry.hovered = true;
+      this.hoveredEntry = entry;
+
+      this.paintGlow(entry);
+      this.showTooltip(entry);
+    });
 
     zone.on('pointerdown', () => {
       if (this.isDestroyed || !this.visible) {
@@ -184,15 +247,27 @@ export class TvBroadcastControls {
       }
 
       entry.pressed = this.isActionAllowed();
+
+      this.paintGlow(entry);
     });
 
     zone.on('pointerout', () => {
       entry.pressed = false;
+      entry.hovered = false;
+
+      if (this.hoveredEntry === entry) {
+        this.hoveredEntry = null;
+        this.tooltip?.setVisible(false);
+      }
+
+      this.paintGlow(entry);
     });
 
     zone.on('pointerup', () => {
       const wasPressed = entry.pressed;
       entry.pressed = false;
+
+      this.paintGlow(entry);
 
       if (
         this.isDestroyed ||
@@ -205,6 +280,11 @@ export class TvBroadcastControls {
       }
 
       entry.action?.();
+
+      // tooltip może się zmienić po akcji (PAUSE <-> PLAY, głośność)
+      if (this.hoveredEntry === entry) {
+        this.showTooltip(entry);
+      }
     });
 
     if (LOCAL_DEBUG_ALLOWED) {
@@ -229,6 +309,7 @@ export class TvBroadcastControls {
 
     this.entries.push(entry);
     this.hotspots.push(zone);
+    this.debugObjects.push(glow);
 
     if (box) {
       this.debugObjects.push(box);
@@ -241,8 +322,54 @@ export class TvBroadcastControls {
     this.syncHotspot(entry);
   }
 
+  paintGlow(entry) {
+    if (!entry.glow?.active) {
+      return;
+    }
+
+    if (this.debugMode || !this.visible) {
+      entry.glow.setAlpha(0);
+      return;
+    }
+
+    entry.glow.setAlpha(
+      entry.pressed
+        ? 0.34
+        : entry.hovered
+          ? 0.16
+          : 0
+    );
+  }
+
+  showTooltip(entry) {
+    if (!this.tooltip?.active) {
+      return;
+    }
+
+    const text = this.getTooltip(entry.cfg.id);
+
+    if (!text) {
+      this.tooltip.setVisible(false);
+      return;
+    }
+
+    const { cfg } = entry;
+    const width = this.scene.scale.width;
+
+    this.tooltip.setText(text);
+
+    const half = this.tooltip.width / 2;
+
+    this.tooltip
+      .setPosition(
+        Phaser.Math.Clamp(cfg.x, half + 8, width - half - 8),
+        cfg.y - cfg.h / 2 - 6
+      )
+      .setVisible(true);
+  }
+
   syncHotspot(entry) {
-    const { cfg, zone, label } = entry;
+    const { cfg, zone, label, glow } = entry;
 
     zone.setPosition(cfg.x, cfg.y);
     zone.setSize(cfg.w, cfg.h);
@@ -253,6 +380,9 @@ export class TvBroadcastControls {
       cfg.w,
       cfg.h
     );
+
+    glow?.setPosition(cfg.x, cfg.y);
+    glow?.setSize(cfg.w, cfg.h);
 
     label?.setPosition(
       cfg.x,
@@ -322,6 +452,10 @@ export class TvBroadcastControls {
 
     if (entry) {
       this.drawHotspot(entry);
+
+      if (this.hoveredEntry === entry) {
+        this.showTooltip(entry);
+      }
     }
   }
 
@@ -335,8 +469,13 @@ export class TvBroadcastControls {
 
     this.debugMode = Boolean(enabled);
 
+    this.tooltip?.setVisible(false);
+
     this.entries.forEach(entry => {
       entry.pressed = false;
+      entry.hovered = false;
+
+      this.paintGlow(entry);
 
       this.scene.input.setDraggable(
         entry.zone,
@@ -517,11 +656,15 @@ export class TvBroadcastControls {
 
     this.entries.forEach(entry => {
       entry.pressed = false;
+      entry.hovered = false;
+
       entry.zone.setVisible(this.visible);
 
       if (entry.zone.input) {
         entry.zone.input.enabled = this.visible;
       }
+
+      this.paintGlow(entry);
 
       if (LOCAL_DEBUG_ALLOWED) {
         this.scene.input.setDraggable(
@@ -530,6 +673,10 @@ export class TvBroadcastControls {
         );
       }
     });
+
+    if (!this.visible) {
+      this.tooltip?.setVisible(false);
+    }
 
     this.updateDebug();
   }
@@ -544,6 +691,10 @@ export class TvBroadcastControls {
 
     this.debugText?.destroy();
     this.debugText = null;
+
+    this.tooltip?.destroy();
+    this.tooltip = null;
+    this.hoveredEntry = null;
 
     this.debugObjects.forEach(object => {
       object?.destroy?.();
@@ -575,9 +726,12 @@ export class TvBroadcastControls {
     this.onSkip = null;
     this.onNext = null;
     this.onPauseToggle = null;
+    this.onVolume = null;
+    this.onTune = null;
 
     this.isActionAllowed = null;
     this.isBroadcastPaused = null;
+    this.getTooltip = null;
 
     this.scene = null;
   }

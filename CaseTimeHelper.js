@@ -145,7 +145,13 @@ export function startCaseClock(state = gameState) {
     investigationDeadline: now + CRIME_PHASE_DAYS * MINUTES_PER_DAY,
     escapePhaseActive: false, escapeStartTime: null,
     escapeDeadline: now + TOTAL_CASE_DAYS * MINUTES_PER_DAY,
-    timeWastedOnMistakes: 0
+    timeWastedOnMistakes: 0,
+    timeSpent: 0,
+    achievementCase: {
+      version: 1, elapsedSeconds: 0, timingEligible: true,
+      cityIds: state.currentCityId == null ? [] : [state.currentCityId],
+      clueIds: []
+    }
   });
   return syncMissionDeadline(state);
 }

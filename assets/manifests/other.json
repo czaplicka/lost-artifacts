@@ -2,15 +2,7 @@
   "assets": [
     {
       "key": "intro",
-      "url": "assets/intro.jpg",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "background",
-      "url": "assets/start_1.jpg",
+      "url": "assets/intro.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -18,7 +10,7 @@
     },
     {
       "key": "background2",
-      "url": "assets/start_2.jpg",
+      "url": "assets/start_2.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -26,7 +18,7 @@
     },
     {
       "key": "backgroundgo",
-      "url": "assets/GameOver.jpg",
+      "url": "assets/GameOver.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -34,7 +26,7 @@
     },
     {
       "key": "backgrounds",
-      "url": "assets/success.jpg",
+      "url": "assets/success.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -42,7 +34,7 @@
     },
     {
       "key": "backgroundpc",
-      "url": "assets/hiscores.png",
+      "url": "assets/hiscores.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -58,7 +50,7 @@
     },
     {
       "key": "backgroundset",
-      "url": "assets/local/cabinet.jpg",
+      "url": "assets/local/cabinet.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -66,7 +58,7 @@
     },
     {
       "key": "enter",
-      "url": "assets/local/enter.jpg",
+      "url": "assets/local/enter.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -74,7 +66,7 @@
     },
     {
       "key": "hotel_lux",
-      "url": "assets/local/hotel_lux.jpg",
+      "url": "assets/local/hotel_lux.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -82,7 +74,7 @@
     },
     {
       "key": "hotel_poor",
-      "url": "assets/local/hotel_poor.jpg",
+      "url": "assets/local/hotel_poor.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -98,7 +90,7 @@
     },
     {
       "key": "shop",
-      "url": "assets/local/shop.jpg",
+      "url": "assets/local/shop.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -106,7 +98,7 @@
     },
     {
       "key": "file",
-      "url": "assets/file.png",
+      "url": "assets/file.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -114,7 +106,7 @@
     },
     {
       "key": "notes",
-      "url": "assets/notes.png",
+      "url": "assets/notes.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -122,7 +114,7 @@
     },
     {
       "key": "bank_w",
-      "url": "assets/local/bank_w.jpg",
+      "url": "assets/local/bank_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -130,7 +122,7 @@
     },
     {
       "key": "alley_w",
-      "url": "assets/local/alley_w.jpg",
+      "url": "assets/local/alley_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -138,7 +130,7 @@
     },
     {
       "key": "airport_w",
-      "url": "assets/local/airport_w.jpg",
+      "url": "assets/local/airport_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -146,7 +138,7 @@
     },
     {
       "key": "hotel_maid_w",
-      "url": "assets/local/hotel_maid_w.jpg",
+      "url": "assets/local/hotel_maid_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -154,7 +146,7 @@
     },
     {
       "key": "parking_w",
-      "url": "assets/local/parking_w.jpg",
+      "url": "assets/local/parking_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -162,7 +154,7 @@
     },
     {
       "key": "policehq_w",
-      "url": "assets/local/police_hq_w.jpg",
+      "url": "assets/local/police_hq_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -170,7 +162,7 @@
     },
     {
       "key": "restaurant_w",
-      "url": "assets/local/restaurant_w.jpg",
+      "url": "assets/local/restaurant_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -178,7 +170,7 @@
     },
     {
       "key": "garbage_w",
-      "url": "assets/local/garbage_w.jpg",
+      "url": "assets/local/garbage_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -186,7 +178,7 @@
     },
     {
       "key": "bank_h",
-      "url": "assets/local/bank_h.jpg",
+      "url": "assets/local/bank_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -194,7 +186,7 @@
     },
     {
       "key": "alley_h",
-      "url": "assets/local/alley_h.jpg",
+      "url": "assets/local/alley_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -202,7 +194,7 @@
     },
     {
       "key": "airport_h",
-      "url": "assets/local/airport_h.jpg",
+      "url": "assets/local/airport_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -210,7 +202,7 @@
     },
     {
       "key": "hotel_maid_h",
-      "url": "assets/local/hotel_maid_h.jpg",
+      "url": "assets/local/hotel_maid_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -218,7 +210,7 @@
     },
     {
       "key": "parking_h",
-      "url": "assets/local/parking_h.jpg",
+      "url": "assets/local/parking_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -226,7 +218,7 @@
     },
     {
       "key": "policehq_h",
-      "url": "assets/local/police_hq_h.jpg",
+      "url": "assets/local/police_hq_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -234,7 +226,7 @@
     },
     {
       "key": "restaurant_h",
-      "url": "assets/local/restaurant_h.jpg",
+      "url": "assets/local/restaurant_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -242,7 +234,7 @@
     },
     {
       "key": "garbage_h",
-      "url": "assets/local/garbage_h.jpg",
+      "url": "assets/local/garbage_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -250,7 +242,7 @@
     },
     {
       "key": "bank_a",
-      "url": "assets/local/bank_a.jpg",
+      "url": "assets/local/bank_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -258,7 +250,7 @@
     },
     {
       "key": "alley_a",
-      "url": "assets/local/alley_a.jpg",
+      "url": "assets/local/alley_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -266,7 +258,7 @@
     },
     {
       "key": "airport_a",
-      "url": "assets/local/airport_a.jpg",
+      "url": "assets/local/airport_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -274,7 +266,7 @@
     },
     {
       "key": "hotel_maid_a",
-      "url": "assets/local/hotel_maid_a.jpg",
+      "url": "assets/local/hotel_maid_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -282,7 +274,7 @@
     },
     {
       "key": "parking_a",
-      "url": "assets/local/parking_a.jpg",
+      "url": "assets/local/parking_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -290,7 +282,7 @@
     },
     {
       "key": "policehq_a",
-      "url": "assets/local/police_hq_a.jpg",
+      "url": "assets/local/police_hq_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -298,7 +290,7 @@
     },
     {
       "key": "restaurant_a",
-      "url": "assets/local/restaurant_a.jpg",
+      "url": "assets/local/restaurant_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -306,7 +298,7 @@
     },
     {
       "key": "garbage_a",
-      "url": "assets/local/garbage_a.jpg",
+      "url": "assets/local/garbage_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -314,7 +306,7 @@
     },
     {
       "key": "bank_b",
-      "url": "assets/local/bank_b.jpg",
+      "url": "assets/local/bank_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -322,7 +314,7 @@
     },
     {
       "key": "alley_b",
-      "url": "assets/local/alley_b.jpg",
+      "url": "assets/local/alley_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -330,7 +322,7 @@
     },
     {
       "key": "airport_b",
-      "url": "assets/local/airport_b.jpg",
+      "url": "assets/local/airport_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -338,7 +330,7 @@
     },
     {
       "key": "hotel_maid_b",
-      "url": "assets/local/hotel_maid_b.jpg",
+      "url": "assets/local/hotel_maid_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -346,7 +338,7 @@
     },
     {
       "key": "parking_b",
-      "url": "assets/local/parking_b.jpg",
+      "url": "assets/local/parking_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -354,7 +346,7 @@
     },
     {
       "key": "policehq_b",
-      "url": "assets/local/police_hq_b.jpg",
+      "url": "assets/local/police_hq_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -362,7 +354,7 @@
     },
     {
       "key": "restaurant_b",
-      "url": "assets/local/restaurant_b.jpg",
+      "url": "assets/local/restaurant_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -370,71 +362,39 @@
     },
     {
       "key": "garbage_b",
-      "url": "assets/local/garbage_b.jpg",
+      "url": "assets/local/garbage_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
-    {
-      "key": "atlas_poland",
-      "url": "assets/atlas/poland.png",
+        {
+      "key": "harbor_b",
+      "url": "assets/local/harbor_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
-    {
-      "key": "atlas_germany",
-      "url": "assets/atlas/germany.png",
+            {
+      "key": "harbor_a",
+      "url": "assets/local/harbor_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
-    {
-      "key": "atlas_uk",
-      "url": "assets/atlas/uk.png",
+            {
+      "key": "harbor_h",
+      "url": "assets/local/harbor_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
-    {
-      "key": "atlas_india",
-      "url": "assets/atlas/india.png",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "atlas_west_usa",
-      "url": "assets/atlas/west_usa.png",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "atlas_east_usa",
-      "url": "assets/atlas/east_usa.png",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "atlas_france",
-      "url": "assets/atlas/france.png",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "atlas_bg",
-      "url": "assets/atlas/atlas.png",
+            {
+      "key": "harbor_w",
+      "url": "assets/local/harbor_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -442,7 +402,7 @@
     },
     {
       "key": "apartment_debt_living_room",
-      "url": "assets/apartments/apartment_debt_living_room.jpg",
+      "url": "assets/apartments/apartment_debt_living_room.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -450,7 +410,7 @@
     },
     {
       "key": "apartment_debt_kitchen",
-      "url": "assets/apartments/apartment_debt_kitchen.jpg",
+      "url": "assets/apartments/apartment_debt_kitchen.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -458,7 +418,7 @@
     },
     {
       "key": "holly",
-      "url": "assets/pi/holly.jpg",
+      "url": "assets/pi/holly.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -498,7 +458,7 @@
     },
     {
       "key": "bankier_w",
-      "url": "assets/npc/bankier_w.png",
+      "url": "assets/npc/bankier_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -506,7 +466,7 @@
     },
     {
       "key": "fence_w",
-      "url": "assets/npc/fence_w.png",
+      "url": "assets/npc/fence_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -514,7 +474,7 @@
     },
     {
       "key": "knajpa_w",
-      "url": "assets/npc/knajpa_w.png",
+      "url": "assets/npc/knajpa_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -522,7 +482,7 @@
     },
     {
       "key": "maid_w",
-      "url": "assets/npc/maid_w.png",
+      "url": "assets/npc/maid_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -530,7 +490,7 @@
     },
     {
       "key": "parkingowy_w",
-      "url": "assets/npc/parkingowy_w.png",
+      "url": "assets/npc/parkingowy_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -538,7 +498,7 @@
     },
     {
       "key": "police_w",
-      "url": "assets/npc/police_w.png",
+      "url": "assets/npc/police_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -546,7 +506,7 @@
     },
     {
       "key": "stewardessa_w",
-      "url": "assets/npc/stewardesa_w.png",
+      "url": "assets/npc/stewardesa_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -554,7 +514,7 @@
     },
     {
       "key": "bum_w",
-      "url": "assets/npc/bum_w.png",
+      "url": "assets/npc/bum_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -562,7 +522,7 @@
     },
     {
       "key": "bankier_h",
-      "url": "assets/npc/bankier_h.png",
+      "url": "assets/npc/bankier_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -570,7 +530,7 @@
     },
     {
       "key": "fence_h",
-      "url": "assets/npc/fence_h.png",
+      "url": "assets/npc/fence_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -578,7 +538,7 @@
     },
     {
       "key": "knajpa_h",
-      "url": "assets/npc/knajpa_h.png",
+      "url": "assets/npc/knajpa_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -586,7 +546,7 @@
     },
     {
       "key": "maid_h",
-      "url": "assets/npc/maid_h.png",
+      "url": "assets/npc/maid_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -594,7 +554,7 @@
     },
     {
       "key": "parkingowy_h",
-      "url": "assets/npc/parkingowy_h.png",
+      "url": "assets/npc/parkingowy_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -602,7 +562,7 @@
     },
     {
       "key": "police_h",
-      "url": "assets/npc/police_h.png",
+      "url": "assets/npc/police_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -610,7 +570,7 @@
     },
     {
       "key": "stewardessa_h",
-      "url": "assets/npc/stewardesa_h.png",
+      "url": "assets/npc/stewardesa_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -618,7 +578,7 @@
     },
     {
       "key": "bum_h",
-      "url": "assets/npc/bum_h.png",
+      "url": "assets/npc/bum_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -626,7 +586,7 @@
     },
     {
       "key": "bankier_b",
-      "url": "assets/npc/bankier_b.png",
+      "url": "assets/npc/bankier_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -634,7 +594,7 @@
     },
     {
       "key": "fence_b",
-      "url": "assets/npc/fence_b.png",
+      "url": "assets/npc/fence_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -642,7 +602,7 @@
     },
     {
       "key": "knajpa_b",
-      "url": "assets/npc/knajpa_b.png",
+      "url": "assets/npc/knajpa_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -650,7 +610,7 @@
     },
     {
       "key": "maid_b",
-      "url": "assets/npc/maid_b.png",
+      "url": "assets/npc/maid_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -658,7 +618,7 @@
     },
     {
       "key": "parkingowy_b",
-      "url": "assets/npc/parkingowy_b.png",
+      "url": "assets/npc/parkingowy_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -666,7 +626,7 @@
     },
     {
       "key": "police_b",
-      "url": "assets/npc/police_b.png",
+      "url": "assets/npc/police_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -674,7 +634,7 @@
     },
     {
       "key": "stewardessa_b",
-      "url": "assets/npc/stewardesa_b.png",
+      "url": "assets/npc/stewardesa_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -682,7 +642,7 @@
     },
     {
       "key": "bum_b",
-      "url": "assets/npc/bum_b.png",
+      "url": "assets/npc/bum_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -690,7 +650,7 @@
     },
     {
       "key": "bankier_a",
-      "url": "assets/npc/bankier_a.png",
+      "url": "assets/npc/bankier_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -698,7 +658,7 @@
     },
     {
       "key": "fence_a",
-      "url": "assets/npc/fence_a.png",
+      "url": "assets/npc/fence_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -706,7 +666,7 @@
     },
     {
       "key": "knajpa_a",
-      "url": "assets/npc/knajpa_a.png",
+      "url": "assets/npc/knajpa_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -714,7 +674,7 @@
     },
     {
       "key": "maid_a",
-      "url": "assets/npc/maid_a.png",
+      "url": "assets/npc/maid_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -722,7 +682,7 @@
     },
     {
       "key": "parkingowy_a",
-      "url": "assets/npc/parkingowy_a.png",
+      "url": "assets/npc/parkingowy_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -730,7 +690,7 @@
     },
     {
       "key": "police_a",
-      "url": "assets/npc/police_a.png",
+      "url": "assets/npc/police_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -738,7 +698,7 @@
     },
     {
       "key": "stewardessa_a",
-      "url": "assets/npc/stewardesa_a.png",
+      "url": "assets/npc/stewardesa_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -746,7 +706,39 @@
     },
     {
       "key": "bum_a",
-      "url": "assets/npc/bum_a.png",
+      "url": "assets/npc/bum_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+        {
+      "key": "sailor_a",
+      "url": "assets/npc/sailor_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+            {
+      "key": "sailor_b",
+      "url": "assets/npc/sailor_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+            {
+      "key": "sailor_h",
+      "url": "assets/npc/sailor_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+            {
+      "key": "sailor_w",
+      "url": "assets/npc/sailor_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -754,7 +746,7 @@
     },
     {
       "key": "npc",
-      "url": "assets/npc_crime_city/npc.png",
+      "url": "assets/npc_crime_city/npc.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -762,7 +754,7 @@
     },
     {
       "key": "npc1",
-      "url": "assets/npc_crime_city/npc1.png",
+      "url": "assets/npc_crime_city/npc1.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -770,7 +762,7 @@
     },
     {
       "key": "npc2",
-      "url": "assets/npc_crime_city/npc2.png",
+      "url": "assets/npc_crime_city/npc2.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -778,7 +770,7 @@
     },
     {
       "key": "npc3",
-      "url": "assets/npc_crime_city/npc3.png",
+      "url": "assets/npc_crime_city/npc3.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -786,7 +778,7 @@
     },
     {
       "key": "npc4",
-      "url": "assets/npc_crime_city/npc4.png",
+      "url": "assets/npc_crime_city/npc4.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -794,7 +786,7 @@
     },
     {
       "key": "npc5",
-      "url": "assets/npc_crime_city/npc5.png",
+      "url": "assets/npc_crime_city/npc5.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -802,7 +794,7 @@
     },
     {
       "key": "npc6",
-      "url": "assets/npc_crime_city/npc6.png",
+      "url": "assets/npc_crime_city/npc6.webp",
       "type": "image",
       "groups": [
         "npcPortraits"

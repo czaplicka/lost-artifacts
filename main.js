@@ -16,6 +16,7 @@ import { RandomEventSystem } from './systems/RandomEventSystem.js';
 import { bindCaseTimeGame } from './managers/CaseTimeWatcher.js';
 import { getReedContactService } from './managers/ReedContactService.js';
 import { supabase } from './supabase-client.js';
+import { installAchievementSystem } from './managers/AchievementManager.js';
 
 const RESIZE_DEBOUNCE_MS = 120;
 function installResizeNotification(game) {
@@ -111,6 +112,7 @@ game.buildVersion = GAME_VERSION;
 bindCaseTimeGame(game);
 getReedContactService(game);
 RandomEventSystem.install(game, RandomEventScene);
+installAchievementSystem(game);
 installResizeNotification(game);
 installScenePrefetch(game);
 installDevTools(game);

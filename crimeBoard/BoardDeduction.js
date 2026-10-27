@@ -56,21 +56,32 @@ export const BoardDeduction = {
     };
   },
 
-  refreshDeductionPanel() {
-    if (this.destroyed || !this.deductionPanel) return;
-    const summary = deductionManager.getSummary();
-    const request = this.getMotiveDeductionRequest();
-    const cached = summary.unlocked && request && deductionManager.getPreviousCheck(request);
-    const label = !summary.unlocked ? 'CHECK MOTIVE: REQUIRES 3'
-      : cached ? 'REVIEW MOTIVE CHECK: FREE'
+refreshDeductionPanel() {
+  if (this.destroyed || !this.deductionPanel) return;
+
+  const summary = deductionManager.getSummary();
+  const request = this.getMotiveDeductionRequest();
+  const cached = summary.unlocked
+    && request
+    && deductionManager.getPreviousCheck(request);
+
+  const label = !summary.unlocked
+    ? 'CHECK MOTIVE'
+    : cached
+      ? 'REVIEW MOTIVE CHECK: FREE'
       : `CHECK MOTIVE: ${summary.available} LEFT`;
-    this.deductionSummary.textContent = !summary.unlocked
-      ? `Deduction ${summary.deduction}/3 — checks unavailable.`
-      : `Deduction: ${summary.available}/${summary.allowance} checks left for this case. Shared with reconstruction and alibis.`;
-    this.deductionCheckButton.textContent = label;
-    this.deductionCheckButton.disabled = this._deductionBusy;
-    if (this.editor.verifyMotiveBtn) this.editor.verifyMotiveBtn.textContent = label;
-  },
+
+  this.deductionSummary.textContent = !summary.unlocked
+    ? `Deduction ${summary.deduction}/3 — checks unavailable.`
+    : `Deduction: ${summary.available}/${summary.allowance} checks left for this case. Shared with reconstruction and alibis.`;
+
+  this.deductionCheckButton.textContent = label;
+  this.deductionCheckButton.disabled = this._deductionBusy;
+
+  if (this.editor.verifyMotiveBtn) {
+    this.editor.verifyMotiveBtn.textContent = label;
+  }
+},
 
   showDeductionMessage(message, supported = null) {
     if (!this.deductionMessage) return;

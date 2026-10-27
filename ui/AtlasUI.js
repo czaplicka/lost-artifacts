@@ -1,559 +1,516 @@
 import { audioManager } from '../managers/AudioManager.js';
 import { EventBus } from '../EventBus.js';
 
+const MAP_SOURCES = [
+    'assets/data/atlas-boundaries.geojson',
+    'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson'
+];
+const INK = 0x473d2e;
+const PAPER = 0xeee5cf;
+
 export class AtlasUI {
+    static boundariesPromise = null;
+
     constructor(scene, countries = []) {
         this.scene = scene;
         this.countries = Array.isArray(countries) ? countries : [];
-        this.isOpen = false;
+        this.pages = this.countries.flatMap(country => [
+            { type: 'country', country, entry: country },
+            ...(Array.isArray(country.cities) ? country.cities : []).map(city => ({
+                type: 'city', country, entry: city
+            }))
+        ]);
         this.pageIndex = 0;
-
-        this.boundToggleHandler = this.onToggleKeyDown.bind(this);
-        this.boundLeftHandler = this.onLeftKeyDown.bind(this);
-        this.boundRightHandler = this.onRightKeyDown.bind(this);
-        this.boundResizeHandler = this.onResize.bind(this);
-
-        this.overlay = null;
-        this.book = null;
-        this.bookBg = null;
-        this.leftPageImage = null;
-
-        this.pageLeftNumber = null;
-        this.pageRightLabel = null;
-        this.caseStampText = null;
-
-        this.countryNameText = null;
-        this.capitalText = null;
-        this.regionText = null;
-        this.descriptionText = null;
-        this.knownForText = null;
-        this.hintText = null;
-
-        this.prevBtn = null;
-        this.nextBtn = null;
-        this.closeBtn = null;
-
+        this.isOpen = false;
+        this.destroyed = false;
+        this.features = [];
+        this.mapState = 'loading';
         this.tabs = [];
-        this.paperOverlays = [];
-        this.pageSound = null;
-
-        this.leftPageFrame = {
-            x: 0,
-            y: 0,
-            width: 1920,
-            height: 1047
-        };
-
+        this.keyBindings = [];
+        this.boundResize = this.layout.bind(this);
+        this.boundShutdown = this.destroy.bind(this);
         this.create();
-        this.bindKeyboardShortcuts();
-        this.bindResizeHandler();
-        this.createSound();
+        this.bindKeyboard();
+        scene.scale.on('resize', this.boundResize);
+        scene.events.once('shutdown', this.boundShutdown);
+        this.layout();
         this.refreshPage();
+        this.loadBoundaries();
+    }
+
+    add(object) {
+        this.book.add(object);
+        return object;
+    }
+
+    text(x, y, value, size = 20, style = {}) {
+        return this.add(this.scene.add.text(x, y, value, {
+            fontFamily: 'SpecialElite', fontSize: `${size}px`, color: '#473d2e',
+            ...style
+        }));
     }
 
     create() {
         const { width, height } = this.scene.scale;
-
-        this.overlay = this.scene.add
-            .rectangle(width / 2, height / 2, width, height, 0x000000, 0.45)
-            .setDepth(20)
-            .setAlpha(0)
-            .setVisible(false)
-            .setInteractive();
-
+        this.overlay = this.scene.add.rectangle(width / 2, height / 2,
+            width, height, 0x09110f, 0.78)
+            .setDepth(20).setVisible(false).setAlpha(0).setInteractive();
         this.overlay.on('pointerdown', () => this.close());
-
-        this.bookBg = this.scene.add
-            .image(0, 0, 'atlas_bg')
-            .setOrigin(0.5)
-            .setScale(1.0);
-
-        this.leftPageImage = this.scene.add
-            .image(this.leftPageFrame.x, this.leftPageFrame.y, 'atlas_fallback')
-            .setOrigin(0.5);
-
-        this.createPaperWear();
+        this.book = this.scene.add.container(0, 0)
+            .setDepth(21).setVisible(false).setAlpha(0);
+        this.add(this.scene.add.rectangle(0, 0, 1330, 890, 0, 0.001)
+            .setInteractive()).on('pointerdown', (p, x, y, event) => {
+                event?.stopPropagation();
+            });
+        this.bookBg = this.add(this.scene.add.graphics());
+        this.drawBook();
+        this.mapGrid = this.add(this.scene.add.graphics());
+        this.drawMapFrame();
+        this.mapGraphics = this.add(this.scene.add.graphics());
         this.createTexts();
-        this.createButtons();
+        this.prevBtn = this.button(-520, 355, '< PREV', () => this.previousPage());
+        this.nextBtn = this.button(520, 355, 'NEXT >', () => this.nextPage());
+        this.closeBtn = this.button(632, -414, 'X', () => this.close());
+        this.countryBtn = this.button(155, 280, 'COUNTRY', () => {
+            const page = this.getCurrentPage();
+            if (page) this.openToCountry(page.country.id);
+        });
+        this.cityBtn = this.button(430, 280, 'CITY FILES', () => {
+            const page = this.getCurrentPage();
+            if (!page) return;
+            const index = this.pages.findIndex(p =>
+                p.type === 'city' && p.country === page.country);
+            if (index >= 0) this.goToPage(index);
+        });
         this.createTabs();
-
-        this.book = this.scene.add.container(width / 2, height / 2, [
-            this.bookBg,
-            this.leftPageImage,
-            ...this.paperOverlays,
-            this.pageLeftNumber,
-            this.pageRightLabel,
-            this.caseStampText,
-            this.countryNameText,
-            this.capitalText,
-            this.regionText,
-            this.descriptionText,
-            this.knownForText,
-            this.hintText,
-            this.prevBtn,
-            this.nextBtn,
-            this.closeBtn,
-            ...this.tabs
-        ]);
-
-        this.book.setDepth(21);
-        this.book.setScale(1.0);
-        this.book.setAlpha(0);
-        this.book.setVisible(false);
     }
 
-    // Wywoływane w create() oraz przy każdym resize okna/canvasu
-    layout() {
-        const { width, height } = this.scene.scale;
-
-        if (this.overlay) {
-            this.overlay.setPosition(width / 2, height / 2);
-            this.overlay.setSize(width, height);
-            // rectangle interactive hit area trzeba odświeżyć ręcznie
-            this.overlay.input && this.overlay.setInteractive();
+    drawBook() {
+        const g = this.bookBg;
+        g.fillStyle(0, 0.24).fillRoundedRect(-655, -425, 1330, 890, 18);
+        g.fillStyle(0x183e35, 1).fillRoundedRect(-665, -445, 1330, 890, 14);
+        g.lineStyle(2, 0x8e8156, 0.85).strokeRoundedRect(-652, -432, 1304, 864, 10);
+        g.lineStyle(1, 0x8e8156, 0.4).strokeRoundedRect(-644, -424, 1288, 848, 7);
+        for (let i = 4; i >= 0; i--) {
+            g.fillStyle(i % 2 ? 0xbcb094 : 0xd0c4a8, 1);
+            g.fillRect(-625 + i, -408 + i * 3, 1250 - i * 2, 810);
         }
-
-        if (this.book) {
-            this.book.setPosition(width / 2, height / 2);
+        g.fillStyle(PAPER, 1).fillRect(-625, -410, 625, 806);
+        g.fillStyle(0xf3ecd9, 1).fillRect(0, -410, 625, 806);
+        for (let i = 0; i < 24; i++) {
+            g.fillStyle(0x463a28, 0.006 + (24 - i) * 0.0018);
+            g.fillRect(-24 + i, -410, 48 - i * 2, 806);
         }
+        for (let i = 0; i < 750; i++) {
+            const x = -613 + ((i * 173 + 41) % 1226);
+            const y = -398 + ((i * 97 + 19) % 780);
+            if (Math.abs(x) < 27) continue;
+            g.fillStyle(0x887653, 0.035 + (i % 4) * 0.012);
+            g.fillRect(x, y, i % 5 === 0 ? 2 : 1, 1);
+        }
+        g.fillStyle(0x9a7950, 0.035);
+        g.fillEllipse(-540, 300, 110, 48);
+        g.fillEllipse(535, -300, 85, 135);
+        g.lineStyle(1, INK, 0.3);
+        [-1, 1].forEach(side => {
+            g.lineBetween(side * 65, -340, side * 580, -340);
+            g.lineBetween(side * 65, 320, side * 580, 320);
+        });
+        g.lineStyle(4, 0xad9561, 1);
+        [[-650,-430,1,1],[650,-430,-1,1],[-650,430,1,-1],[650,430,-1,-1]]
+            .forEach(([x,y,dx,dy]) => {
+                g.lineBetween(x,y,x+dx*26,y);
+                g.lineBetween(x,y,x,y+dy*26);
+            });
     }
 
-    bindResizeHandler() {
-        this.scene.scale.on('resize', this.boundResizeHandler);
-    }
-
-    onResize() {
-        this.layout();
-    }
-
-    fitImageInBox(image, maxWidth, maxHeight) {
-        if (!image || !image.width || !image.height) return;
-
-        const scaleX = maxWidth / image.width;
-        const scaleY = maxHeight / image.height;
-        const scale = Math.min(scaleX, scaleY);
-
-        image.setScale(scale);
-    }
-
-    createPaperWear() {
-        const rightPageShade = this.scene.add.rectangle(255, 10, 470, 640, 0xd0aa68, 0.03).setAngle(1);
-        const rightPageStain = this.scene.add.ellipse(280, 210, 170, 95, 0xa86e36, 0.04).setAngle(-10);
-        const topPageFade = this.scene.add.rectangle(250, -285, 440, 70, 0xffffff, 0.04);
-
-        this.paperOverlays.push(rightPageShade, rightPageStain, topPageFade);
+    drawMapFrame() {
+        const g = this.mapGrid;
+        g.fillStyle(0xd8dbc0, 0.22).fillRect(-580, -265, 515, 495);
+        g.lineStyle(1, 0x777c61, 0.13);
+        for (let x = -580; x <= -65; x += 33) g.lineBetween(x,-265,x,230);
+        for (let y = -265; y <= 230; y += 33) g.lineBetween(-580,y,-65,y);
+        g.lineStyle(1, INK, 0.35).strokeRect(-580,-265,515,495);
+        g.lineStyle(1, INK, 0.7).strokeCircle(-110,-215,19);
+        g.lineBetween(-135,-215,-85,-215);
+        g.lineBetween(-110,-240,-110,-190);
+        g.fillStyle(INK, 0.85).fillTriangle(-110,-238,-115,-215,-105,-215);
     }
 
     createTexts() {
-        this.pageLeftNumber = this.scene.add.text(-485, -425, 'PAGE 01', {
-            fontFamily: 'SpecialElite',
-            fontSize: '20px',
-            color: '#5a3922'
+        this.text(-580,-383,'MARK AGENCY',13, {
+            fontFamily:'PressStart2P',color:'#52604b'
         });
-
-        this.pageRightLabel = this.scene.add.text(145, -445, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '20px',
-            color: '#5a3922'
-        });
-
-        this.caseStampText = this.scene.add.text(335, -405, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '18px',
-            color: '#6a3d24',
-            backgroundColor: '#d8b57a',
-            padding: { left: 10, right: 10, top: 4, bottom: 4 },
-            align: 'center'
+        this.text(65,-383,'INTERNATIONAL FIELD ATLAS',16,{color:'#69634f'});
+        this.mapTitle = this.text(-580,-315,'',25,{wordWrap:{width:510}});
+        this.text(-116,-257,'N',15);
+        this.mapMessage = this.text(-322,-20,'Loading map...',18,{
+            align:'center',wordWrap:{width:370},color:'#706b55'
         }).setOrigin(0.5);
-
-        this.countryNameText = this.scene.add.text(95, -350, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '34px',
-            color: '#2f1d12',
-            wordWrap: { width: 470 }
+        this.markerLabel = this.text(0,0,'',16,{
+            backgroundColor:'#eee5cf',padding:{left:5,right:5,top:3,bottom:3}
+        }).setVisible(false);
+        this.mapCaption = this.text(-580,252,'',16,{
+            color:'#66664d',wordWrap:{width:510}
         });
-
-        this.capitalText = this.scene.add.text(95, -285, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '21px',
-            color: '#3e2a1a',
-            wordWrap: { width: 470 }
+        this.text(-580,291,'Borders shown. Escape routes sold separately.',14,{
+            color:'#83745c'
         });
-
-        this.regionText = this.scene.add.text(95, -245, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '20px',
-            color: '#5a3922',
-            wordWrap: { width: 470 }
+        this.caseStampText = this.text(65,-310,'',15,{
+            color:'#7c4338',backgroundColor:'#e6d8bc',
+            padding:{left:10,right:10,top:6,bottom:6}
         });
-
-        this.descriptionText = this.scene.add.text(95, -180, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '19px',
-            color: '#2f1d12',
-            wordWrap: { width: 480 },
-            lineSpacing: 8
+        this.countryNameText = this.text(65,-260,'',36,{wordWrap:{width:510}});
+        this.capitalText = this.text(65,-193,'',21,{wordWrap:{width:500}});
+        this.regionText = this.text(65,-155,'',17,{color:'#746a51'});
+        this.descriptionText = this.text(65,-110,'',21,{
+            wordWrap:{width:500},lineSpacing:7
         });
-
-        this.knownForText = this.scene.add.text(95, 170, '', {
-            fontFamily: 'SpecialElite',
-            fontSize: '18px',
-            color: '#3e2a1a',
-            wordWrap: { width: 470 },
-            lineSpacing: 8
+        this.knownForText = this.text(65,205,'',17,{
+            wordWrap:{width:500},lineSpacing:4,color:'#5d6047'
         });
-
-        this.hintText = this.scene.add.text(95, 360, 'LEFT / RIGHT to turn pages', {
-            fontFamily: 'SpecialElite',
-            fontSize: '16px',
-            color: '#7a5a3e'
-        });
+        this.pageLeftNumber = this.text(-322,355,'',15,{
+            color:'#7c725b'
+        }).setOrigin(0.5);
+        this.pageRightLabel = this.text(320,355,'',15,{
+            color:'#7c725b'
+        }).setOrigin(0.5);
+        this.hintText = this.text(0,415,
+            'LEFT / RIGHT: TURN PAGE     A / ESC: CLOSE',13,{
+                color:'#dfd4b4'
+            }).setOrigin(0.5);
     }
 
-    createButtons() {
-        this.closeBtn = this.scene.add.text(675, -445, '×', {
-            fontFamily: 'Arial',
-            fontSize: '34px',
-            color: '#3b2a1d',
-            backgroundColor: '#d9b777',
-            padding: { left: 10, right: 10, top: 6, bottom: 4 }
-        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-        this.prevBtn = this.scene.add.text(-545, 430, '< PREV', {
-            fontFamily: 'SpecialElite',
-            fontSize: '22px',
-            color: '#2f1d12',
-            backgroundColor: '#d2b075',
-            padding: { left: 12, right: 12, top: 6, bottom: 6 }
-        }).setInteractive({ useHandCursor: true });
-
-        this.nextBtn = this.scene.add.text(470, 430, 'NEXT >', {
-            fontFamily: 'SpecialElite',
-            fontSize: '22px',
-            color: '#2f1d12',
-            backgroundColor: '#d2b075',
-            padding: { left: 12, right: 12, top: 6, bottom: 6 }
-        }).setInteractive({ useHandCursor: true });
-
-        this.closeBtn.on('pointerdown', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            this.close();
+    button(x,y,label,callback) {
+        const button = this.text(x,y,label,18,{
+            color:'#eee5cf',backgroundColor:'#284c3d',
+            padding:{left:13,right:13,top:9,bottom:9}
+        }).setOrigin(0.5).setInteractive({useHandCursor:true});
+        button.on('pointerover',()=>button.setStyle({backgroundColor:'#65704b'}));
+        button.on('pointerout',()=>button.setStyle({backgroundColor:'#284c3d'}));
+        button.on('pointerdown',(p,x,y,event)=>{
+            event?.stopPropagation();
+            if (this.isOpen) callback();
         });
-
-        this.prevBtn.on('pointerdown', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            this.previousPage();
-        });
-
-        this.nextBtn.on('pointerdown', (pointer, localX, localY, event) => {
-            if (event) event.stopPropagation();
-            this.nextPage();
-        });
+        return button;
     }
 
     createTabs() {
-        const continents = [
-            { id: 'Western Europe', short: 'WE' },
-            { id: 'Central Europe', short: 'CE' },
-            { id: 'North America', short: 'NA' },
-            { id: 'South Asia', short: 'SA' }
-        ];
-
-        const startY = -280;
-        const gap = 95;
-
-        continents.forEach((continent, index) => {
-            const tab = this.scene.add.text(715, startY + index * gap, continent.short, {
-                fontFamily: 'SpecialElite',
-                fontSize: '18px',
-                color: '#f7e7bf',
-                backgroundColor: '#7b3f22',
-                padding: { left: 10, right: 10, top: 16, bottom: 16 }
-            })
-            .setOrigin(0.5)
-            .setInteractive({ useHandCursor: true });
-
-            tab.continentId = continent.id;
-
-            tab.on('pointerdown', (pointer, localX, localY, event) => {
-                if (event) event.stopPropagation();
-                this.jumpToContinent(continent.id);
+        const regions = [...new Set(this.countries.map(c=>c.region).filter(Boolean))];
+        const colors = ['#754b43','#58654b','#3e5661','#806943'];
+        const gap = Math.min(85,570 / Math.max(1,regions.length));
+        regions.forEach((region,index)=>{
+            const tab = this.text(674,-260+index*gap,
+                region.split(/\s+/).map(word=>word[0]).join(''),17,{
+                    color:'#efe5cc',backgroundColor:colors[index%colors.length],
+                    padding:{left:12,right:12,top:15,bottom:15}
+                }).setOrigin(0.5).setInteractive({useHandCursor:true});
+            tab.continentId = region;
+            tab.baseColor = colors[index%colors.length];
+            tab.on('pointerdown',(p,x,y,event)=>{
+                event?.stopPropagation();
+                if (this.isOpen) this.jumpToContinent(region);
             });
-
             this.tabs.push(tab);
         });
     }
 
-    createSound() {
-        // pagesound handled via audioManager.playSfx in playPageTurnFX()
+    layout() {
+        if (this.destroyed) return;
+        const {width,height} = this.scene.scale;
+        this.overlay.setPosition(width/2,height/2).setSize(width,height);
+        this.overlay.input?.hitArea?.setTo(0,0,width,height);
+        const scale = Math.max(0.05,Math.min((width-24)/1430,(height-24)/930,1));
+        this.book.setPosition(width/2-10*scale,height/2).setScale(scale);
     }
 
-    bindKeyboardShortcuts() {
-        if (!this.scene.input?.keyboard) return;
-
-        this.scene.input.keyboard.addCapture('A,LEFT,RIGHT');
-        this.scene.input.keyboard.on('keydown-A', this.boundToggleHandler);
-        this.scene.input.keyboard.on('keydown-LEFT', this.boundLeftHandler);
-        this.scene.input.keyboard.on('keydown-RIGHT', this.boundRightHandler);
+    async loadBoundaries() {
+        if (!AtlasUI.boundariesPromise) {
+            AtlasUI.boundariesPromise = (async()=>{
+                for (const url of MAP_SOURCES) {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(()=>controller.abort(),15000);
+                    try {
+                        const response = await fetch(url,{signal:controller.signal});
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        const data = await response.json();
+                        if (!Array.isArray(data.features)) throw new Error('Invalid map data');
+                        return data.features;
+                    } catch(error) {
+                        if (url === MAP_SOURCES[MAP_SOURCES.length-1]) throw error;
+                    } finally { clearTimeout(timeout); }
+                }
+                throw new Error('No boundary data');
+            })().catch(error=>{
+                AtlasUI.boundariesPromise = null;
+                throw error;
+            });
+        }
+        try {
+            const features = await AtlasUI.boundariesPromise;
+            if (this.destroyed) return;
+            this.features = features;
+            this.mapState = 'ready';
+        } catch(error) {
+            if (this.destroyed) return;
+            console.warn('[AtlasUI] Boundary loading failed:',error);
+            this.mapState = 'error';
+        }
+        this.drawCountryMap();
     }
 
-    onToggleKeyDown(event) {
-        const activeTag = document.activeElement?.tagName;
-        const isTyping =
-            activeTag === 'INPUT' ||
-            activeTag === 'TEXTAREA' ||
-            document.activeElement?.isContentEditable;
+    normalize(value) { return String(value || '').trim().toLowerCase(); }
 
-        if (isTyping) return;
-
-        event.preventDefault();
-        this.toggle();
+    getCountryFeature(country) {
+        const code = String(country.iso3 || '').toUpperCase();
+        return this.features.find(feature=>{
+            const p = {};
+            Object.entries(feature.properties || {}).forEach(([k,v])=>{
+                p[k.toUpperCase()] = v;
+            });
+            return (code && [p.ADM0_A3,p.ISO_A3,p.ISO_A3_EH].includes(code)) ||
+                [p.ADMIN,p.NAME,p.NAME_LONG,p.NAME_EN].some(name=>
+                    this.normalize(name) === this.normalize(country.name));
+        });
     }
 
-    onLeftKeyDown(event) {
-        if (!this.isOpen) return;
-        event.preventDefault();
-        this.previousPage();
+    getPolygons(country) {
+        const geometry = this.getCountryFeature(country)?.geometry;
+        if (!geometry) return [];
+        let polygons = geometry.type === 'Polygon' ? [geometry.coordinates] :
+            geometry.type === 'MultiPolygon' ? geometry.coordinates : [];
+        const bounds = country.mapBounds;
+        if (Array.isArray(bounds) && bounds.length === 4) {
+            polygons = polygons.filter(polygon=>{
+                const ring = polygon[0] || [];
+                if (!ring.length) return false;
+                const lon = ring.reduce((sum,p)=>sum+p[0],0)/ring.length;
+                const lat = ring.reduce((sum,p)=>sum+p[1],0)/ring.length;
+                return lon>=bounds[0] && lon<=bounds[2] &&
+                    lat>=bounds[1] && lat<=bounds[3];
+            });
+        }
+        return polygons;
     }
 
-    onRightKeyDown(event) {
-        if (!this.isOpen) return;
-        event.preventDefault();
-        this.nextPage();
-    }
-
-    getCurrentCountry() {
-        if (!this.countries.length) return null;
-        return this.countries[this.pageIndex];
-    }
-
-    openToCountry(countryIdOrName) {
-        if (!this.countries?.length) {
-            this.open();
+    drawCountryMap() {
+        const g = this.mapGraphics;
+        const page = this.getCurrentPage();
+        g.clear();
+        this.markerLabel.setVisible(false);
+        if (!page || this.mapState !== 'ready') {
+            this.mapMessage.setVisible(true).setText(!page ? 'No country selected.' :
+                this.mapState === 'error' ?
+                'Map unavailable.\nThe geography department blames the connection.' :
+                'Retrieving cartographic intelligence...');
             return;
         }
-
-        const needle = String(countryIdOrName || '').trim().toLowerCase();
-
-        const index = this.countries.findIndex(country =>
-            String(country.id || '').toLowerCase() === needle ||
-            String(country.name || '').toLowerCase() === needle
-        );
-
-        if (index >= 0) {
-            this.pageIndex = index;
+        const polygons = this.getPolygons(page.country);
+        if (!polygons.length) {
+            this.mapMessage.setVisible(true).setText('No boundary data for this entry.');
+            return;
         }
-
-        this.open();
-    }
-
-    refreshTabs(currentCountry) {
-        this.tabs.forEach(tab => {
-            const isActive = currentCountry && tab.continentId === currentCountry.region;
-
-            tab.setStyle({
-                color: isActive ? '#fff6d6' : '#f0d7a0',
-                backgroundColor: isActive ? '#9a4d28' : '#7b3f22'
+        this.mapMessage.setVisible(false);
+        const points = polygons.flatMap(p=>p[0] || []);
+        const lons = points.map(p=>p[0]);
+        const lats = points.map(p=>p[1]);
+        const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+        const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+        const midLon = (minLon+maxLon)/2, midLat = (minLat+maxLat)/2;
+        const factor = Math.max(0.15,Math.cos(midLat*Math.PI/180));
+        const scale = Math.min(425/Math.max(0.001,(maxLon-minLon)*factor),
+            385/Math.max(0.001,maxLat-minLat));
+        const project = ([lon,lat])=>({
+            x:-322+(lon-midLon)*factor*scale, y:-15-(lat-midLat)*scale
+        });
+        const projected = polygons.map(p=>p.map(ring=>ring.map(project)));
+        projected.forEach(rings=>{
+            g.fillStyle(0x45462e,0.16).fillPoints(
+                rings[0].map(p=>({x:p.x+5,y:p.y+6})),true);
+        });
+        projected.forEach(rings=>{
+            g.fillStyle(0x9b9d70,1).fillPoints(rings[0],true);
+            rings.slice(1).forEach(hole=>g.fillStyle(PAPER,1).fillPoints(hole,true));
+        });
+        g.lineStyle(1,INK,0.12);
+        for (let y=-230;y<=200;y+=9) {
+            projected.forEach(rings=>{
+                const hits=[];
+                rings.forEach(ring=>{
+                    for (let i=0;i<ring.length;i++) {
+                        const a=ring[i], b=ring[(i+1)%ring.length];
+                        if ((a.y>y)===(b.y>y)) continue;
+                        hits.push(a.x+(y-a.y)*(b.x-a.x)/(b.y-a.y));
+                    }
+                });
+                hits.sort((a,b)=>a-b);
+                for(let i=0;i+1<hits.length;i+=2) g.lineBetween(hits[i],y,hits[i+1],y);
             });
-        });
+        }
+        g.lineStyle(2,INK,0.9);
+        projected.forEach(rings=>rings.forEach(ring=>g.strokePoints(ring,true)));
+        const coords = page.type === 'city' ? page.entry.coordinates :
+            page.country.capitalCoordinates;
+        if (!Array.isArray(coords) || coords.length!==2 || !coords.every(Number.isFinite)) return;
+        const point = project(coords);
+        if(point.x < -570 || point.x > -75 || point.y < -255 || point.y > 220) return;
+        g.fillStyle(PAPER,1).fillCircle(point.x,point.y,8);
+        g.lineStyle(2,0x843f34,1).strokeCircle(point.x,point.y,7);
+        g.fillStyle(0x843f34,1).fillCircle(point.x,point.y,3);
+        this.markerLabel.setText(page.type==='city' ? page.entry.name : page.country.capital || '')
+            .setVisible(true);
+        this.markerLabel.setPosition(Math.max(-570,
+            Math.min(point.x+12,-75-this.markerLabel.width)),
+            Math.max(-250,Math.min(point.y-26,195)));
     }
 
-    refreshPaperWear() {
-        this.paperOverlays.forEach((overlay, index) => {
-            overlay.setAlpha(0.025 + ((this.pageIndex + index) % 3) * 0.012);
-            overlay.setAngle((this.pageIndex * 2 + index * 3) % 8 - 4);
-        });
-    }
+    getCurrentPage() { return this.pages[this.pageIndex] || null; }
+    getCurrentCountry() { return this.getCurrentPage()?.country || null; }
 
     refreshPage() {
-        const country = this.getCurrentCountry();
-
-        if (!country) {
-            this.leftPageImage.setTexture('atlas_fallback');
-            this.fitImageInBox(
-                this.leftPageImage,
-                this.leftPageFrame.width,
-                this.leftPageFrame.height
-            );
-            this.leftPageImage.setPosition(this.leftPageFrame.x, this.leftPageFrame.y);
-
-            this.pageLeftNumber.setText('PAGE 00');
-            this.pageRightLabel.setText('');
-            this.caseStampText.setText('NO ENTRY');
-            this.countryNameText.setText('Atlas');
-            this.capitalText.setText('Capital: Unknown');
-            this.regionText.setText('Region: Unknown');
-            this.descriptionText.setText('No countries loaded.');
-            this.knownForText.setText('');
-            this.hintText.setText('LEFT / RIGHT to turn pages');
-            return;
+        if (this.destroyed) return;
+        const page = this.getCurrentPage();
+        const country = page?.country;
+        const entry = page?.entry;
+        const city = page?.type === 'city';
+        const number = String(this.pageIndex+1).padStart(2,'0');
+        this.mapTitle.setText((country?.name || 'WORLD ATLAS').toUpperCase());
+        this.countryNameText.setText(entry?.name || 'Atlas');
+        this.caseStampText.setText(`${city ? 'CITY' : 'COUNTRY'} FILE / ${country?.iso3 || '--'}`);
+        this.countryNameText.setFontSize(36);
+        while(this.countryNameText.height>90 && parseInt(this.countryNameText.style.fontSize)>24) {
+            this.countryNameText.setFontSize(parseInt(this.countryNameText.style.fontSize)-1);
         }
-
-        const mapKey = country.mapKey || 'atlas_fallback';
-
-        if (this.scene.textures.exists(mapKey)) {
-            this.leftPageImage.setTexture(mapKey);
-        } else {
-            this.leftPageImage.setTexture('atlas_fallback');
+        const y = Math.max(-193,this.countryNameText.y+this.countryNameText.height+14);
+        this.capitalText.setY(y).setText(city ? `Country: ${country.name}` :
+            `Capital: ${country?.capital || 'Unknown'}`);
+        this.regionText.setY(y+this.capitalText.height+10)
+            .setText(`Region: ${country?.region || 'Unknown'}`);
+        this.descriptionText.setY(this.regionText.y+this.regionText.height+23)
+            .setFontSize(21).setText(entry?.description || 'No entries loaded.');
+        const space = 185-this.descriptionText.y;
+        for(let size=21;size>14 && this.descriptionText.height>space;size--) {
+            this.descriptionText.setFontSize(size-1);
         }
-
-        this.leftPageImage.setPosition(this.leftPageFrame.x, this.leftPageFrame.y);
-        this.fitImageInBox(
-            this.leftPageImage,
-            this.leftPageFrame.width,
-            this.leftPageFrame.height
-        );
-
-        this.pageLeftNumber.setText(`PAGE ${String(this.pageIndex + 1).padStart(2, '0')}`);
-        this.pageRightLabel.setText('');
-        this.caseStampText.setText(country.region ? country.region.toUpperCase() : 'UNKNOWN REGION');
-
-        this.countryNameText.setText(country.name || 'UNKNOWN COUNTRY');
-        this.capitalText.setText(`Capital: ${country.capital || 'Unknown'}`);
-        this.regionText.setText(`Region: ${country.region || 'Unknown'}`);
-        this.descriptionText.setText(country.description || 'No description available.');
-        this.knownForText.setText(country.knownFor ? `Known for: ${country.knownFor}` : '');
-        this.hintText.setText('LEFT / RIGHT to turn pages');
-
-        this.refreshTabs(country);
-        this.refreshPaperWear();
+        this.knownForText.setText(entry?.knownFor ? `Known for: ${entry.knownFor}` : '');
+        this.mapCaption.setText(city ? `CITY LOCATION: ${entry.name.toUpperCase()}` :
+            `${country?.mapLabel || 'COUNTRY OUTLINE'} / REFERENCE ${number}`);
+        this.pageLeftNumber.setText(page ? `${city?'CITY':'MAP'} ${number}` : 'MAP --');
+        this.pageRightLabel.setText(page ? `${this.pageIndex+1} / ${this.pages.length}` : '--');
+        this.countryBtn.setVisible(!!page && city);
+        this.cityBtn.setVisible(!!country?.cities?.length);
+        this.tabs.forEach(tab=>{
+            const active = tab.continentId === country?.region;
+            tab.setX(active?683:674).setStyle({
+                color:active?'#fff7dd':'#e1d7bd',
+                backgroundColor:active?'#8b7448':tab.baseColor
+            });
+        });
+        this.drawCountryMap();
     }
 
+    goToPage(index, sound = true) {
+        if (!this.pages.length || index < 0 || index >= this.pages.length) return;
+        this.pageIndex=index;
+        this.refreshPage();
+        if(sound && this.isOpen) this.playPageTurnFX();
+    }
+    previousPage() {
+        if(this.pages.length) this.goToPage((this.pageIndex-1+this.pages.length)%this.pages.length);
+    }
+    nextPage() {
+        if(this.pages.length) this.goToPage((this.pageIndex+1)%this.pages.length);
+    }
+    jumpToContinent(region) {
+        const index=this.pages.findIndex(p=>p.type==='country' && p.country.region===region);
+        if(index>=0) this.goToPage(index);
+    }
+    matches(entry,value) {
+        const needle=this.normalize(value);
+        return [entry.id,entry.name,...(entry.aliases || [])]
+            .some(v=>this.normalize(v)===needle);
+    }
+    openToCountry(value) {
+        const index=this.pages.findIndex(p=>p.type==='country' && this.matches(p.country,value));
+        if(index>=0) this.goToPage(index,false);
+        else {
+            const cityIndex=this.pages.findIndex(p=>p.type==='city' && this.matches(p.entry,value));
+            if(cityIndex>=0) this.goToPage(cityIndex,false);
+        }
+        this.open();
+    }
+    openToCity(value,countryId='') {
+        const index=this.pages.findIndex(p=>p.type==='city' && this.matches(p.entry,value) &&
+            (!countryId || this.matches(p.country,countryId)));
+        if(index>=0) this.goToPage(index,false);
+        this.open();
+    }
     playPageTurnFX() {
         audioManager.playSfx('pagesound');
-
-        // Zapisujemy oryginalną pozycję/kąt książki, żeby tween wracał
-        // do właściwego środka nawet po ewentualnym resize w trakcie animacji
-        const baseX = this.book.x;
-        const baseAngle = this.book.angle;
-
-        this.scene.tweens.add({
-            targets: this.book,
-            x: baseX + 10,
-            duration: 70,
-            yoyo: true,
-            ease: 'Sine.easeInOut',
-            onComplete: () => this.book.setX(baseX)
-        });
-
-        this.scene.tweens.add({
-            targets: this.book,
-            angle: baseAngle + 0.6,
-            duration: 60,
-            yoyo: true,
-            ease: 'Sine.easeInOut',
-            onComplete: () => this.book.setAngle(baseAngle)
-        });
-
-        this.scene.tweens.add({
-            targets: this.leftPageImage,
-            alpha: 0.82,
-            duration: 60,
-            yoyo: true,
-            ease: 'Quad.easeOut'
+        this.scene.tweens.killTweensOf(this.mapGraphics);
+        this.mapGraphics.setAlpha(0.5);
+        this.scene.tweens.add({targets:this.mapGraphics,alpha:1,duration:180,ease:'Sine.easeOut'});
+    }
+    bindKeyboard() {
+        const keyboard=this.scene.input?.keyboard;
+        if(!keyboard) return;
+        const bindings=[['keydown-A',()=>this.toggle(),false],
+            ['keydown-LEFT',()=>this.previousPage(),true],
+            ['keydown-RIGHT',()=>this.nextPage(),true],
+            ['keydown-ESC',()=>this.close(),true]];
+        bindings.forEach(([key,action,onlyOpen])=>{
+            const handler=event=>{
+                const el=document.activeElement;
+                if(this.destroyed || event.repeat || el?.isContentEditable ||
+                    ['INPUT','TEXTAREA','SELECT'].includes(el?.tagName) ||
+                    (onlyOpen && !this.isOpen)) return;
+                event.preventDefault();
+                action();
+            };
+            keyboard.on(key,handler);
+            this.keyBindings.push([key,handler]);
         });
     }
-
-    previousPage() {
-        if (!this.countries.length) return;
-
-        this.pageIndex = Phaser.Math.Wrap(this.pageIndex - 1, 0, this.countries.length);
-        this.refreshPage();
-        this.playPageTurnFX();
-    }
-
-    nextPage() {
-        if (!this.countries.length) return;
-
-        this.pageIndex = Phaser.Math.Wrap(this.pageIndex + 1, 0, this.countries.length);
-        this.refreshPage();
-        this.playPageTurnFX();
-    }
-
-    jumpToContinent(regionName) {
-        const foundIndex = this.countries.findIndex(country => country.region === regionName);
-        if (foundIndex === -1) return;
-
-        this.pageIndex = foundIndex;
-        this.refreshPage();
-        this.playPageTurnFX();
-    }
-
     open() {
-        // Zawsze przelicz layout przed pokazaniem — na wypadek gdyby
-        // resize okna nastąpił, gdy atlas był zamknięty
+        if(this.destroyed) return;
         this.layout();
         this.refreshPage();
-
-        if (this.isOpen) return;
-        this.isOpen = true;
-EventBus.emit('hideHUD');
+        if(this.isOpen) return;
+        this.isOpen=true;
+        EventBus.emit('hideHUD');
+        this.scene.tweens.killTweensOf([this.overlay,this.book]);
         this.overlay.setVisible(true);
         this.book.setVisible(true);
-
-        this.scene.tweens.add({
-            targets: [this.overlay, this.book],
-            alpha: 1,
-            duration: 220,
-            ease: 'Power2'
-        });
+        this.scene.tweens.add({targets:[this.overlay,this.book],alpha:1,
+            duration:200,ease:'Sine.easeOut'});
     }
-
     close() {
-        if (!this.isOpen) return;
-        this.isOpen = false;
-
-        this.scene.tweens.add({
-            targets: [this.overlay, this.book],
-            alpha: 0,
-            duration: 180,
-            ease: 'Power2',
-            onComplete: () => {
+        if(this.destroyed || !this.isOpen) return;
+        this.isOpen=false;
+        this.scene.tweens.killTweensOf([this.overlay,this.book]);
+        this.scene.tweens.add({targets:[this.overlay,this.book],alpha:0,
+            duration:150,ease:'Sine.easeIn',onComplete:()=>{
+                if(this.destroyed || this.isOpen) return;
                 this.overlay.setVisible(false);
                 this.book.setVisible(false);
                 EventBus.emit('showHUD');
-            }
-        });
+            }});
     }
-
-    toggle() {
-        this.isOpen ? this.close() : this.open();
-    }
-
+    toggle() { this.isOpen ? this.close() : this.open(); }
     destroy() {
-        EventBus.emit('showHUD');
-        if (this.scene.input?.keyboard) {
-            this.scene.input.keyboard.off('keydown-A', this.boundToggleHandler);
-            this.scene.input.keyboard.off('keydown-LEFT', this.boundLeftHandler);
-            this.scene.input.keyboard.off('keydown-RIGHT', this.boundRightHandler);
-        }
-
-        if (this.scene.scale) {
-            this.scene.scale.off('resize', this.boundResizeHandler);
-        }
-
+        if(this.destroyed) return;
+        const wasOpen=this.isOpen;
+        this.destroyed=true;
+        this.isOpen=false;
+        this.keyBindings.forEach(([key,handler])=>this.scene.input?.keyboard?.off(key,handler));
+        this.scene.scale.off('resize',this.boundResize);
+        this.scene.events.off('shutdown',this.boundShutdown);
+        this.scene.tweens.killTweensOf([this.overlay,this.book,this.mapGraphics]);
         this.book?.destroy(true);
         this.overlay?.destroy();
-
-        this.overlay = null;
-        this.book = null;
-        this.bookBg = null;
-        this.leftPageImage = null;
-        this.pageLeftNumber = null;
-        this.pageRightLabel = null;
-        this.caseStampText = null;
-        this.countryNameText = null;
-        this.capitalText = null;
-        this.regionText = null;
-        this.descriptionText = null;
-        this.knownForText = null;
-        this.hintText = null;
-        this.prevBtn = null;
-        this.nextBtn = null;
-        this.closeBtn = null;
-        this.tabs = [];
-        this.paperOverlays = [];
-        this.pageSound = null;
-        this.isOpen = false;
+        this.keyBindings=[];
+        this.tabs=[];
+        this.features=[];
+        if(wasOpen) EventBus.emit('showHUD');
     }
 }

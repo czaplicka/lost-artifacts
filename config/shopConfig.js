@@ -87,8 +87,8 @@ export const SHOP_CONFIG = {
       ...CITY_SHELF, price: 9, item: fromCatalog('souvenirs', 'delhiSpiceSachet')
     },
         {
-      id: 'souvenir_kotto', type: 'permanent', cities: ['kotto'], label: 'Tiny Wooden Elephant',
-      ...CITY_SHELF, price: 9, item: fromCatalog('souvenirs', 'kottoElephant')
+      id: 'souvenir_kotte', type: 'permanent', cities: ['kotte'], label: 'Tiny Wooden Elephant',
+      ...CITY_SHELF, price: 9, item: fromCatalog('souvenirs', 'kotteElephant')
     },
         {
       id: 'souvenir_toronto', type: 'permanent', cities: ['toronto'], label: 'Maple Syrup Shot',

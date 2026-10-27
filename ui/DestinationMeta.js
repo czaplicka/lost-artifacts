@@ -18,7 +18,7 @@ export const CITY_ID_MAP = {
     'New York City': 'new_york_city',
     Berlin: 'berlin',
     Toronto: 'toronto',
-    Kotto: 'kotto',
+    kotte: 'kotte',
     Islamabad: 'islamabad',
     Nairobi: 'nairobi',
     Tokyo: 'tokyo',

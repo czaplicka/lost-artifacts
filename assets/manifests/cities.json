@@ -2,7 +2,7 @@
   "assets": [
     {
       "key": "berlin",
-      "url": "assets/cities/Berlin.jpg",
+      "url": "assets/cities/Berlin.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -10,7 +10,7 @@
     },
     {
       "key": "london",
-      "url": "assets/cities/London.jpg",
+      "url": "assets/cities/London.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -18,7 +18,7 @@
     },
     {
       "key": "newdelhi",
-      "url": "assets/cities/NewDelhi.jpg",
+      "url": "assets/cities/NewDelhi.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -26,7 +26,7 @@
     },
     {
       "key": "newyorkcity",
-      "url": "assets/cities/NYC.jpg",
+      "url": "assets/cities/NYC.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -34,7 +34,7 @@
     },
     {
       "key": "paris",
-      "url": "assets/cities/Paris.jpg",
+      "url": "assets/cities/Paris.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -42,7 +42,7 @@
     },
     {
       "key": "warsaw",
-      "url": "assets/cities/Warsaw.jpg",
+      "url": "assets/cities/Warsaw.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -50,7 +50,7 @@
     },
     {
       "key": "nairobi",
-      "url": "assets/cities/Nairobi.jpg",
+      "url": "assets/cities/Nairobi.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -58,7 +58,7 @@
     },
     {
       "key": "islamabad",
-      "url": "assets/cities/Islamabad.jpg",
+      "url": "assets/cities/Islamabad.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -66,15 +66,15 @@
     },
     {
       "key": "toronto",
-      "url": "assets/cities/Toronto.jpg",
+      "url": "assets/cities/Toronto.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "kotto",
-      "url": "assets/cities/Kotto.jpg",
+      "key": "kotte",
+      "url": "assets/cities/kotte.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -82,7 +82,7 @@
     },
     {
       "key": "tokyo",
-      "url": "assets/cities/Tokyo.jpg",
+      "url": "assets/cities/Tokyo.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -90,7 +90,7 @@
     },
     {
       "key": "berlin_crime",
-      "url": "assets/maps/ber.jpg",
+      "url": "assets/maps/ber.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -98,7 +98,7 @@
     },
     {
       "key": "london_crime",
-      "url": "assets/maps/lnd.jpg",
+      "url": "assets/maps/lnd.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -106,7 +106,7 @@
     },
     {
       "key": "new_delhi_crime",
-      "url": "assets/maps/ndh.jpg",
+      "url": "assets/maps/ndh.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -114,7 +114,7 @@
     },
     {
       "key": "new_york_city_crime",
-      "url": "assets/maps/nyc.jpg",
+      "url": "assets/maps/nyc.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -122,7 +122,7 @@
     },
     {
       "key": "paris_crime",
-      "url": "assets/maps/prs.jpg",
+      "url": "assets/maps/prs.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -130,7 +130,7 @@
     },
     {
       "key": "warsaw_crime",
-      "url": "assets/maps/waw.jpg",
+      "url": "assets/maps/waw.webp",
       "type": "image",
       "groups": [
         "backgrounds"

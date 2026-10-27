@@ -12,24 +12,37 @@ import {CrimeLabTimeController} from './CrimeLabTimeController.js';
 import {TicketAnalysisPanel} from './TicketAnalysisPanel.js';
 import {advanceCrimeTutorial} from '../../CrimeCityTutorial.js';
 const STATION_IDS=['identity','trace_0','trace_1'];
+const LOCAL_DEBUG_ALLOWED=['127.0.0.1','localhost'].includes(window.location.hostname);
+
+// Coordinates are the TOP-LEFT corner, not the centre.
+const LAB_LAYOUT={
+  identity_station:{x:320,y:490,width:250,height:320},
+  trace_a_station:{x:480,y:420,width:350,height:300},
+  trace_b_station:{x:480,y:420,width:350,height:300},
+  exit_lab:{x:40,y:110,width:200,height:60},
+  assistant_hotspot:{x:220,y:340,width:230,height:410}
+};
 
 export class CrimeLabScene extends BaseScene {
   constructor(){
     super({key:'CrimeLabScene'});this.gameState=gameState;this.cityId=null;this.returnScene='CrimeCityScene';this.returnData={};
     this.currentView='lab_intro';this.labManager=this.evidenceService=this.timeController=this.audioController=null;
     this.labOnboarding=this.labView=this.hud=this.assistantDialog=this.assistantHotspot=null;this.ticketPanel=null;
-    this.hotspots=[];this.debugTexts=[];this.DEBUG_HOTSPOTS=false;this.debugGraphics=null;
+    this.hotspots=[];this.debugTexts=[];this.debugGraphics=null;this.debugText=null;this.debugMode=false;this.selectedIndex=0;
     this.leftArrow=this.rightArrow=this.navHint=this.introHint=null;this.navigationArrowStates=new Map();
     this.introHintTween=this.introHintTimer=this.greetingTimer=null;
     this.uiLocked=false;this.isExitingLab=false;this.completedCount=0;this.totalStations=STATION_IDS.length;
     this.activeMiniGameSession=this.miniGameLoadToken=this.labRunToken=null;this.labCleanupDone=false;
     this.boundMoveLeft=this.moveLeft.bind(this);this.boundMoveRight=this.moveRight.bind(this);
     this.boundForceUnlock=this.forceUnlock.bind(this);this.boundCheckMiniGameResults=this.checkMiniGameResults.bind(this);
-    this.boundCleanupScene=this.cleanupScene.bind(this);
+    this.boundCleanupScene=this.cleanupScene.bind(this);this.boundDebugKey=this.onDebugKey.bind(this);
+    this.boundDebugUpdate=this.updateDebug.bind(this);
   }
   init(data={}){
     this.detachMiniGameListeners();this.ticketPanel?.destroy();this.ticketPanel=null;
     this.labCleanupDone=false;this.labRunToken={};this.miniGameLoadToken=null;
+    this.layout=Object.fromEntries(Object.entries(LAB_LAYOUT).map(([id,cfg])=>[id,{...cfg}]));
+    this.debugMode=false;this.selectedIndex=0;this.debugText=null;this.debugGraphics=null;
     this.gameState=data.gameState||gameState;this.cityId=data.cityId||this.gameState.currentMission?.city||this.gameState.crimeCityId||'paris';
     this.returnScene='CrimeCityScene';this.returnData={...(data.returnData||{}),cityId:this.cityId,gameState:this.gameState};
     this.labManager=new CrimeLabManager(this.gameState,this.cityId);this.labManager.ensureCaseForensics();this.labManager.ensureRandomTraceEvidence();
@@ -46,7 +59,7 @@ export class CrimeLabScene extends BaseScene {
     const{width,height}=this.scale;
     this.labView=new CrimeLabView(this,{initialView:'lab_intro',introBackgroundKey:this.getIntroBackgroundKey(),onViewChanged:view=>{
       this.currentView=view;if(this.leftArrow&&this.rightArrow)this.updateNavVisibility();
-      if(this.hotspots.length)this.updateRoomHotspots();this.ticketPanel?.refresh();this.hideNavHint();
+      if(this.hotspots.length)this.updateRoomHotspots();this.ticketPanel?.refresh();this.hideNavHint();this.updateDebug();
     }});
     this.labView.create(width,height);this.createHotspots();this.createAssistantHotspot();this.createNavigationUI();
     this.hud=new CrimeLabHUD(this);this.hud.create();this.assistantDialog=new CrimeLabAssistantDialog(this);
@@ -55,7 +68,7 @@ export class CrimeLabScene extends BaseScene {
     if(this.labOnboarding?.assistantPresent){
       const token=this.labRunToken;
       this.greetingTimer=this.time.delayedCall(250,()=>{
-        this.greetingTimer=null;if(this.labRunToken===token&&!this.uiLocked&&!this.isExitingLab&&!this.assistantDialog?.isOpen())this.openAssistantDialogue('greeting');
+        this.greetingTimer=null;if(this.labRunToken===token&&!this.uiLocked&&!this.isExitingLab&&!this.debugMode&&!this.assistantDialog?.isOpen())this.openAssistantDialogue('greeting');
       });
     }
     this.input.keyboard?.on('keydown-LEFT',this.boundMoveLeft);this.input.keyboard?.on('keydown-RIGHT',this.boundMoveRight);
@@ -117,7 +130,7 @@ export class CrimeLabScene extends BaseScene {
       color:complete?'#39ff14':'#ffcc00',complete};
   }
   openAssistantDialogue(startNodeId='greeting'){
-    if(this.uiLocked||this.isExitingLab||!this.labOnboarding?.assistantPresent||this.assistantDialog?.isOpen())return;
+    if(this.debugMode||this.uiLocked||this.isExitingLab||!this.labOnboarding?.assistantPresent||this.assistantDialog?.isOpen())return;
     const dialogue=this.cache.json.get('crime_lab_assistant_dialogues');
     if(!dialogue?.nodes){this.showNavHint('LAB ASSISTANT DIALOGUE UNAVAILABLE');return;}
     const resolved=dialogue.nodes[startNodeId]?startNodeId:dialogue.defaultNodeId;
@@ -126,19 +139,23 @@ export class CrimeLabScene extends BaseScene {
     if(opened)this.applyLock(true);
   }
   createAssistantHotspot(){
-    if(!this.labOnboarding?.assistantPresent)return;
-    this.assistantHotspot=this.add.zone(220,340,230,410).setOrigin(0,0).setDepth(50).setInteractive({useHandCursor:true});
-    this.assistantHotspot.on('pointerover',()=>{if(!this.uiLocked)this.showNavHint('Talk to Lab Assistant');});
-    this.assistantHotspot.on('pointerout',()=>this.hideNavHint());this.assistantHotspot.on('pointerdown',()=>this.openAssistantDialogue('greeting'));
+    if(!this.labOnboarding?.assistantPresent||this.assistantHotspot?.scene)return;
+    const cfg=this.layout.assistant_hotspot;
+    this.assistantHotspot=this.add.zone(cfg.x,cfg.y,cfg.width,cfg.height).setOrigin(0,0).setScrollFactor(0).setDepth(50).setInteractive({useHandCursor:true});
+    this.assistantHotspot.hotspotData={id:'assistant_hotspot',room:'lab_intro',label:'Talk to Lab Assistant',...cfg};
+    this.assistantHotspot.on('pointerover',()=>{if(!this.debugMode&&!this.uiLocked)this.showNavHint('Talk to Lab Assistant');});
+    this.assistantHotspot.on('pointerout',()=>this.hideNavHint());
+    this.assistantHotspot.on('pointerdown',()=>{if(!this.debugMode)this.openAssistantDialogue('greeting');});
+    this.prepareDebugZone(this.assistantHotspot);
   }
   createHotspots(){
     const identity=this.labManager.getIdentityEvidenceConfig(),trace0=this.labManager.getTraceEvidenceConfig(0),trace1=this.labManager.getTraceEvidenceConfig(1);
     const action=(e,index,id)=>()=>this.enterMiniGame(e.minigame,{evidenceConfig:e,evidenceIndex:index,evidenceType:e.evidenceType,correctValue:e.correctValue,clueType:e.clueType,clueText:e.clueText},id);
     const list=[
-      {id:'identity_station',stationId:'identity',room:'lab_a',x:320,y:490,width:250,height:320,label:identity.label,action:action(identity,null,'identity')},
-      {id:'trace_a_station',stationId:'trace_0',room:'lab_b',x:480,y:420,width:350,height:300,label:trace0.label,action:action(trace0,0,'trace_0')},
-      {id:'trace_b_station',stationId:'trace_1',room:'lab_c',x:480,y:420,width:350,height:300,label:trace1.label,action:action(trace1,1,'trace_1')},
-      {id:'exit_lab',room:'lab_intro',x:40,y:40,width:200,height:60,label:'Exit Lab',alwaysVisible:true,action:()=>this.exitLab()}
+      {id:'identity_station',stationId:'identity',room:'lab_a',...this.layout.identity_station,label:identity.label,action:action(identity,null,'identity')},
+      {id:'trace_a_station',stationId:'trace_0',room:'lab_b',...this.layout.trace_a_station,label:trace0.label,action:action(trace0,0,'trace_0')},
+      {id:'trace_b_station',stationId:'trace_1',room:'lab_c',...this.layout.trace_b_station,label:trace1.label,action:action(trace1,1,'trace_1')},
+      {id:'exit_lab',room:'lab_intro',...this.layout.exit_lab,label:'Exit Lab',alwaysVisible:true,action:()=>this.exitLab()}
     ];
     this.completedCount=this.getCompletedRequiredStationCount();
     list.forEach(data=>{
@@ -146,14 +163,14 @@ export class CrimeLabScene extends BaseScene {
       const zone=this.add.zone(data.x,data.y,data.width,data.height).setOrigin(0,0).setDepth(50).setInteractive({useHandCursor:true});zone.hotspotData=data;
       if(data.id==='exit_lab'){
         const button=this.add.image(data.x+data.width/2,data.y+data.height/2,'btnExit').setScale(.5).setOrigin(.5).setDepth(55).setInteractive({useHandCursor:true});
-        button.on('pointerover',()=>{if(!this.uiLocked){button.setScale(.6);this.showNavHint(data.label);}});
+        button.on('pointerover',()=>{if(!this.debugMode&&!this.uiLocked){button.setScale(.6);this.showNavHint(data.label);}});
         button.on('pointerout',()=>{button.setScale(.5);this.hideNavHint();});
-        button.on('pointerdown',()=>{if(!this.uiLocked&&!this.isExitingLab)data.action();});zone.exitBtn=button;
+        button.on('pointerdown',()=>{if(!this.debugMode&&!this.uiLocked&&!this.isExitingLab)data.action();});zone.exitBtn=button;
       }
       zone.on('pointerover',()=>this.onHotspotOver(data));zone.on('pointerout',()=>this.onHotspotOut());
       zone.on('pointerdown',()=>{
-        if(this.uiLocked||this.isExitingLab||(data.completed&&!data.alwaysVisible)||(data.stationId&&!this.isStationRequired(data.stationId)))return;data.action();
-      });this.hotspots.push(zone);
+        if(this.debugMode||this.uiLocked||this.isExitingLab||(data.completed&&!data.alwaysVisible)||(data.stationId&&!this.isStationRequired(data.stationId)))return;data.action();
+      });this.hotspots.push(zone);this.prepareDebugZone(zone);
       if(!data.alwaysVisible){
         const status=this.stationStatus(data.stationId);
         zone.statusLabel=this.add.text(data.x+data.width/2,data.y+data.height+10,status.text,{fontFamily:'PressStart2P',fontSize:'8px',color:status.color}).setOrigin(.5).setDepth(60);
@@ -166,13 +183,15 @@ export class CrimeLabScene extends BaseScene {
     this.hotspots.forEach(zone=>{
       if(!zone||zone.isDestroyed)return;const data=zone.hotspotData,visible=data?.room===this.currentView,required=!data?.stationId||this.isStationRequired(data.stationId);
       zone.setVisible(visible);zone.statusLabel?.setVisible(visible);zone.exitBtn?.setVisible(visible);
+      if(visible&&this.debugMode&&!this.uiLocked&&!this.isExitingLab){this.safeSetInteractive(zone);this.safeDisableInteractive(zone.exitBtn);return;}
       if(!visible||this.uiLocked||this.isExitingLab||!required||(data?.completed&&!data?.alwaysVisible)){this.safeDisableInteractive(zone);this.safeDisableInteractive(zone.exitBtn);return;}
       this.safeSetInteractive(zone);this.safeSetInteractive(zone.exitBtn);
     });
     if(this.assistantHotspot&&!this.assistantHotspot.isDestroyed){
-      const visible=this.currentView==='lab_intro';this.assistantHotspot.setVisible(visible);
+      const visible=this.currentView==='lab_intro'&&Boolean(this.labOnboarding?.assistantPresent);this.assistantHotspot.setVisible(visible);
       if(visible&&!this.uiLocked&&!this.isExitingLab)this.safeSetInteractive(this.assistantHotspot);else this.safeDisableInteractive(this.assistantHotspot);
     }
+    this.updateDebug();
   }
   createNavigationUI(){
     const{width,height}=this.scale,style={fontFamily:'SpecialElite',fontSize:'54px',color:'#39ff14',backgroundColor:'rgba(0,0,0,0.15)',padding:{left:8,right:8,top:8,bottom:8}};
@@ -180,8 +199,8 @@ export class CrimeLabScene extends BaseScene {
     this.rightArrow=this.add.text(width-46,height/2,'▶',style).setOrigin(.5).setScrollFactor(0).setDepth(200).setAlpha(.75).setInteractive({useHandCursor:true});
     this.navHint=this.add.text(width/2,92,'',{fontFamily:'SpecialElite',fontSize:'20px',color:'#39ff14',backgroundColor:'#000000',padding:{left:10,right:10,top:8,bottom:8},wordWrap:{width:width-140,useAdvancedWrap:true},align:'center'}).setOrigin(.5).setScrollFactor(0).setDepth(220).setVisible(false);
     this.introHint=this.add.text(width/2,110,'Crime Lab — move right to inspect the analysis stations',{fontFamily:'SpecialElite',fontSize:'18px',color:'#fff4c7',backgroundColor:'#000000',padding:{left:12,right:12,top:8,bottom:8},wordWrap:{width:width-120,useAdvancedWrap:true},align:'center'}).setOrigin(.5).setScrollFactor(0).setDepth(220).setAlpha(0);
-    this.setupNavigationArrow(this.leftArrow,()=>this.moveLeft(),()=>this.getLeftRoomLabel());
-    this.setupNavigationArrow(this.rightArrow,()=>this.moveRight(),()=>this.getRightRoomLabel());this.updateNavVisibility();
+    this.setupNavigationArrow(this.leftArrow,()=>this.moveLeft(true),()=>this.getLeftRoomLabel());
+    this.setupNavigationArrow(this.rightArrow,()=>this.moveRight(true),()=>this.getRightRoomLabel());this.updateNavVisibility();
   }
   setupNavigationArrow(arrow,move,getLabel){
     const tween=this.tweens.add({targets:arrow,alpha:{from:.55,to:.9},duration:900,yoyo:true,repeat:-1,ease:'Sine.easeInOut',paused:true});
@@ -199,9 +218,9 @@ export class CrimeLabScene extends BaseScene {
     arrow.setScale(1);state.tween.resume();
   }
   destroyNavigationTweens(){for(const[arrow,state]of this.navigationArrowStates){state.tween.remove();arrow.setVisible=state.originalSetVisible;}this.navigationArrowStates.clear();}
-  moveLeft(){if(this.uiLocked||this.isExitingLab)return;const target={lab_a:'lab_intro',lab_b:'lab_a',lab_c:'lab_b'}[this.currentView];if(target)this.goToView(target);}
-  moveRight(){if(this.uiLocked||this.isExitingLab)return;const target={lab_intro:'lab_a',lab_a:'lab_b',lab_b:'lab_c'}[this.currentView];if(target)this.goToView(target);}
-  goToView(name){this.labView?.showView(name);}
+  moveLeft(fromPointer=false){if(this.uiLocked||this.isExitingLab||(this.debugMode&&fromPointer!==true))return;const target={lab_a:'lab_intro',lab_b:'lab_a',lab_c:'lab_b'}[this.currentView];if(target)this.goToView(target);}
+  moveRight(fromPointer=false){if(this.uiLocked||this.isExitingLab||(this.debugMode&&fromPointer!==true))return;const target={lab_intro:'lab_a',lab_a:'lab_b',lab_b:'lab_c'}[this.currentView];if(target)this.goToView(target);}
+  goToView(name){this.selectedIndex=0;this.labView?.showView(name);}
   updateNavVisibility(){this.updateNavigationArrow(this.leftArrow,this.currentView!=='lab_intro');this.updateNavigationArrow(this.rightArrow,this.currentView!=='lab_c');}
   updateNavigationArrow(arrow,hasDestination){const state=this.navigationArrowStates.get(arrow);if(!state||!arrow?.scene)return;state.hasDestination=hasDestination;arrow.setVisible(hasDestination);}
   updateProceedVisibility(){this.updateRoomHotspots();}
@@ -210,7 +229,7 @@ export class CrimeLabScene extends BaseScene {
   showNavHint(text){if(text&&this.navHint)this.navHint.setText(text).setVisible(true);}
   hideNavHint(){this.navHint?.setVisible(false);}
   onHotspotOver(data){
-    if(!data?.label||this.uiLocked)return;
+    if(this.debugMode||!data?.label||this.uiLocked)return;
     this.showNavHint(data.stationId&&!this.isStationRequired(data.stationId)?
       (this.getSavedStationResult(data.stationId)?'RESULT COMPLETED BY LAB ASSISTANT':'DELEGATED REPORT PENDING'):data.label);
   }
@@ -238,14 +257,14 @@ export class CrimeLabScene extends BaseScene {
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN,session.onStopped);scene.events.once(Phaser.Scenes.Events.DESTROY,session.onStopped);
   }
   async enterMiniGame(sceneKey,sceneData={},stationId=''){
-    if(this.uiLocked||this.isExitingLab||this.activeMiniGameSession||!this.isStationRequired(stationId))return;
+    if(this.debugMode||this.uiLocked||this.isExitingLab||this.activeMiniGameSession||!this.isStationRequired(stationId))return;
     if(!sceneKey){this.showNavHint('ANALYSIS STATION UNAVAILABLE');return;}
     const loadToken={},runToken=this.labRunToken;this.miniGameLoadToken=loadToken;this.applyLock(true);
     try{
       await this.game.sceneLoader.ensure(sceneKey);
       if(this.miniGameLoadToken!==loadToken||this.labRunToken!==runToken||this.isExitingLab||!this.sys.isActive())return;
       this.miniGameLoadToken=null;const data={...sceneData,stationId,cityId:this.cityId,caseKey:this.labManager.getCaseKey(),gameState:this.gameState};
-      const scene=this.scene.get(sceneKey);if(!scene)throw new Error(`Minigame scene "${sceneKey}" not found.`);
+      const scene=this.scene.get(sceneKey);if(!scene)throw new Error(`Minigame "${sceneKey}" not found.`);
       this.attachMiniGameListeners(scene,sceneKey);this.scene.pause();this.scene.launch(sceneKey,data);
     }catch(error){
       if(this.labRunToken!==runToken||!this.labRunToken)return;
@@ -267,10 +286,13 @@ export class CrimeLabScene extends BaseScene {
       const status=this.stationStatus(data.stationId);data.completed=status.complete;zone.statusLabel?.setText(status.text).setColor(status.color);
     });this.hud?.refreshFromScene();this.updateRoomHotspots();this.ticketPanel?.refresh();
   }
-  applyLock(locked){this.uiLocked=Boolean(locked);this.updateNavVisibility();this.updateRoomHotspots();this.ticketPanel?.refresh();if(this.uiLocked)this.hideNavHint();}
+  applyLock(locked){
+    this.uiLocked=Boolean(locked);if(this.uiLocked&&this.debugMode)this.setDebugMode(false);
+    this.updateNavVisibility();this.updateRoomHotspots();this.ticketPanel?.refresh();if(this.uiLocked)this.hideNavHint();
+  }
   forceUnlock(){if(this.isExitingLab||this.miniGameLoadToken||this.activeMiniGameSession||this.assistantDialog?.isOpen()||this.ticketPanel?.isOpen||this.scene.isPaused(this.scene.key))return;this.applyLock(false);}
   exitLab(){
-    if(this.uiLocked||this.isExitingLab||!this.sys.isActive())return;
+    if(this.debugMode||this.uiLocked||this.isExitingLab||!this.sys.isActive())return;
     this.completedCount=this.getCompletedRequiredStationCount();const complete=this.isLabComplete(),token=this.labRunToken;
     this.isExitingLab=true;this.applyLock(true);
     const data={...this.returnData,cityId:this.cityId,caseKey:this.labManager.getCaseKey(),gameState:this.gameState,crimeLabCompleted:complete,showLabCompletionPhoneCall:complete,fromCrimeLab:true};
@@ -289,14 +311,95 @@ export class CrimeLabScene extends BaseScene {
     });this.cameras.main.fadeOut(350,0,0,0);
   }
   goToCrimeCity(){this.exitLab();}
+  getDebugZones(){return [...this.hotspots,this.assistantHotspot].filter(z=>z?.scene);}
+  getVisibleDebugZones(){return this.getDebugZones().filter(z=>z.hotspotData.room===this.currentView&&z.visible);}
+  debugBlocked(){return this.uiLocked||this.isExitingLab||this.assistantDialog?.isOpen()||Boolean(this.ticketPanel?.hud?.isAnyPanelOpen?.());}
+  prepareDebugZone(zone){
+    if(!LOCAL_DEBUG_ALLOWED)return;
+    zone.on('pointerdown',()=>{
+      if(!this.debugMode||this.debugBlocked())return;
+      this.selectedIndex=Math.max(0,this.getVisibleDebugZones().indexOf(zone));this.updateDebug();
+    });
+    zone.on('drag',(pointer,x,y)=>{
+      if(!this.debugMode||this.debugBlocked())return;
+      const data=zone.hotspotData;data.x=Math.round(x);data.y=Math.round(y);
+      this.selectedIndex=Math.max(0,this.getVisibleDebugZones().indexOf(zone));this.syncDebugZone(zone);this.updateDebug();
+    });
+  }
+  syncDebugZone(zone){
+    const d=zone.hotspotData;
+    zone.setPosition(d.x,d.y).setSize(d.width,d.height);
+    zone.input?.hitArea?.setTo(0,0,d.width,d.height);
+    zone.exitBtn?.setPosition(d.x+d.width/2,d.y+d.height/2);
+    zone.statusLabel?.setPosition(d.x+d.width/2,d.y+d.height+10);
+    this.layout[d.id]={x:d.x,y:d.y,width:d.width,height:d.height};
+    this.ticketPanel?.layout();
+  }
   createOptionalDebug(){
-    if(!this.DEBUG_HOTSPOTS)return;this.debugGraphics=this.add.graphics();this.debugGraphics.lineStyle(2,0x00ffcc,.95);
-    const label=(x,y,text)=>this.debugTexts.push(this.add.text(x+8,y+8,text,{fontFamily:'Arial',fontSize:'16px',color:'#00ffcc',backgroundColor:'#000000',padding:{left:4,right:4,top:2,bottom:2}}).setDepth(999));
-    this.hotspots.forEach(zone=>{const d=zone.hotspotData;this.debugGraphics.strokeRect(d.x,d.y,d.width,d.height);label(d.x,d.y,d.id);});
-    if(this.assistantHotspot){const b=this.assistantHotspot.getBounds();this.debugGraphics.strokeRect(b.x,b.y,b.width,b.height);label(b.x,b.y,'assistant_hotspot');}
+    if(!LOCAL_DEBUG_ALLOWED)return;
+    this.debugGraphics=this.add.graphics().setScrollFactor(0).setDepth(900);
+    this.debugText=this.add.text(16,Math.max(16,this.scale.height-170),'',{
+      fontFamily:'SpecialElite',fontSize:'15px',color:'#fff1ce',backgroundColor:'#191b16',padding:{x:8,y:6},
+      wordWrap:{width:Math.max(100,this.scale.width-32)}
+    }).setScrollFactor(0).setDepth(1000).setVisible(false);
+    this.input.keyboard?.on('keydown',this.boundDebugKey);
+    this.events.on(Phaser.Scenes.Events.UPDATE,this.boundDebugUpdate);
+  }
+  setDebugMode(enabled){
+    if(!LOCAL_DEBUG_ALLOWED)return;
+    this.debugMode=Boolean(enabled)&&!this.debugBlocked();this.hideNavHint();
+    if(this.debugMode){this.greetingTimer?.remove(false);this.greetingTimer=null;this.clearIntroHintAnimation();this.introHint?.setAlpha(0);}
+    this.getDebugZones().forEach(zone=>{this.input.setDraggable(zone,this.debugMode);zone.exitBtn?.setScale(.5);});
+    this.updateRoomHotspots();this.updateDebug();
+  }
+  updateDebug(){
+    if(!LOCAL_DEBUG_ALLOWED||!this.debugGraphics)return;
+    if(this.debugMode&&this.debugBlocked()){this.setDebugMode(false);return;}
+    this.debugGraphics.clear();this.debugTexts.forEach(t=>t.destroy());this.debugTexts=[];
+    this.debugText?.setVisible(this.debugMode);if(!this.debugMode)return;
+    const zones=this.getVisibleDebugZones();this.selectedIndex=Math.max(0,Math.min(this.selectedIndex,zones.length-1));
+    zones.forEach((zone,index)=>{
+      const d=zone.hotspotData,color=index===this.selectedIndex?0xff44ff:0x00ff88;
+      this.debugGraphics.fillStyle(0x00ff88,.18).fillRect(d.x,d.y,d.width,d.height);
+      this.debugGraphics.lineStyle(2,color,1).strokeRect(d.x,d.y,d.width,d.height);
+      this.debugTexts.push(this.add.text(d.x+5,d.y+5,d.id,{fontFamily:'SpecialElite',fontSize:'16px',color:index===this.selectedIndex?'#ff88ff':'#00ff88',backgroundColor:'#07111b',padding:{x:4,y:3}}).setScrollFactor(0).setDepth(950));
+    });
+    const d=zones[this.selectedIndex]?.hotspotData;
+    this.debugText?.setPosition(16,Math.max(16,this.scale.height-170)).setText([
+      `LOCAL DEBUG: ${d?.id||'no hotspots'} | room: ${this.currentView}`,
+      `TOP-LEFT x:${d?.x??'-'} y:${d?.y??'-'} w:${d?.width??'-'} h:${d?.height??'-'}`,
+      'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
+      'Tab / Shift+Tab: select | C: export | D: close',
+      'Click green navigation arrows to change room. Gameplay clicks disabled.'
+    ].join('\n'));
+  }
+  isEditableTarget(event){const t=event.target;return Boolean(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName));}
+  onDebugKey(event){
+    if(!LOCAL_DEBUG_ALLOWED||this.isEditableTarget(event)||this.debugBlocked()||event.ctrlKey||event.metaKey)return;
+    if(event.code==='KeyD'){if(!event.repeat)this.setDebugMode(!this.debugMode);return;}
+    if(!this.debugMode)return;
+    if(event.code==='KeyC'){if(!event.repeat)this.printConfig();return;}
+    const zones=this.getVisibleDebugZones();if(!zones.length)return;
+    if(event.code==='Tab'){
+      event.preventDefault();this.selectedIndex=(this.selectedIndex+(event.shiftKey?-1:1)+zones.length)%zones.length;this.updateDebug();return;
+    }
+    if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.code))return;
+    event.preventDefault();
+    const zone=zones[this.selectedIndex]||zones[0],d=zone.hotspotData,step=event.altKey?1:5;
+    const horizontal=['ArrowLeft','ArrowRight'].includes(event.code),direction=['ArrowLeft','ArrowUp'].includes(event.code)?-1:1;
+    const key=event.shiftKey?(horizontal?'width':'height'):(horizontal?'x':'y');
+    d[key]+=direction*step;d.width=Math.max(10,d.width);d.height=Math.max(10,d.height);
+    this.syncDebugZone(zone);this.updateDebug();
+  }
+  printConfig(){
+    if(!LOCAL_DEBUG_ALLOWED||!this.debugMode)return;
+    console.log('COPY INTO CrimeLabScene.js -> const LAB_LAYOUT =');console.log(JSON.stringify(this.layout,null,2));
+    this.showNavHint('LAYOUT EXPORTED TO CONSOLE — COPY LAB_LAYOUT TO KEEP CHANGES');
   }
   cleanupScene(){
     if(this.labCleanupDone)return;this.labCleanupDone=true;this.labRunToken=null;this.miniGameLoadToken=null;this.isExitingLab=true;
+    this.input?.keyboard?.off('keydown',this.boundDebugKey);this.events.off(Phaser.Scenes.Events.UPDATE,this.boundDebugUpdate);
+    this.debugMode=false;this.debugText?.destroy();this.debugText=null;
     this.greetingTimer?.remove(false);this.greetingTimer=null;this.ticketPanel?.destroy();this.ticketPanel=null;
     this.destroyNavigationTweens();this.clearIntroHintAnimation();
     const key=this.activeMiniGameSession?.sceneKey;this.detachMiniGameListeners();

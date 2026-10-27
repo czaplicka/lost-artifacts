@@ -179,14 +179,10 @@
       "image:policehq_b",
       "image:restaurant_b",
       "image:garbage_b",
-      "image:atlas_poland",
-      "image:atlas_germany",
-      "image:atlas_uk",
-      "image:atlas_india",
-      "image:atlas_west_usa",
-      "image:atlas_east_usa",
-      "image:atlas_france",
-      "image:atlas_bg",
+      "image:harbor_b",
+            "image:harbor_a",
+                  "image:harbor_w",
+                        "image:harbor_h",
       "image:chase_street",
       "image:chase_courtyard",
       "image:chase_stairs",
@@ -223,6 +219,10 @@
       "image:police_a",
       "image:stewardessa_a",
       "image:bum_a",
+      "image:sailor_a",
+      "image:sailor_w",
+      "image:sailor_b",
+      "image:sailor_h",
       "image:npc",
       "image:npc1",
       "image:npc2",
@@ -998,9 +998,6 @@
       "image:paper_toronto_dog_park_photo",
       "image:paper_toronto_tower_photo"
     ],
-    "city:kotto": [
-      "image:kotto"
-    ],
     "city:tokyo": [
       "image:tokyo",
       "json:newspaper_daily_tokyo",
@@ -1025,7 +1022,8 @@
       "image:paper_kotte_lake_photo",
       "image:paper_kotte_tea_photo",
       "image:paper_kotte_tuktuk_photo",
-      "image:paper_kotte_pigeon_photo"
+      "image:paper_kotte_pigeon_photo",
+            "image:kotte"
     ],
     "scene:NewspaperOverlayScene": [
       "image:paper_daily_bg",

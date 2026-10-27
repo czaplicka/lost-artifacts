@@ -29,8 +29,8 @@ const CITY_ALIASES = {
   new_york_city: 'new_york_city',
   new_delhi: 'new_delhi',
   new_dehli: 'new_delhi',
-  kotte: 'kotto',
-  sri_jayawardenepura_kotte: 'kotto'
+  kotte: 'kotte',
+  sri_jayawardenepura_kotte: 'kotte'
 };
 
 function normalizeCityId(value) {

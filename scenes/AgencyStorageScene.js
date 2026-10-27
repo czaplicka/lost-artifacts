@@ -2,10 +2,13 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { ItemsLoader } from '../ItemsLoader.js';
 import { audioManager } from '../managers/AudioManager.js';
-import { saveGameState } from '../gameStatePersistence.js';
+import {
+  saveGameState,
+  requestAutosave
+} from '../gameStatePersistence.js';
 
-const BACKGROUND_KEY = 'agency_storage_room_v2';
-const MANAGER_KEY = 'agency_storage_manager';
+const EMPTY_STORAGE_KEY = 'agency_storage_room_v2';
+const MANAGER_STORAGE_KEY = 'agency_storage_manager';
 
 const INTRO_LINES = [
   'Ah. Fresh cannon fodder. HR calls it recruitment. ' +
@@ -44,15 +47,18 @@ export class AgencyStorageScene extends BaseScene {
     this.backButton = null;
     this.retryButton = null;
     this.statusText = null;
+
     this.manualTemplate = null;
+    this.storageHud = null;
+    this.storageDialog = null;
 
     this.isLeaving = false;
     this._conversationOpen = false;
-    this._uiReady = false;
     this._preparing = false;
 
     this._storageDisposed = false;
     this._storageRunToken = Symbol('storage-run');
+    this._cancelHudWait = null;
   }
 
   create() {
@@ -60,9 +66,11 @@ export class AgencyStorageScene extends BaseScene {
 
     audioManager.init(this);
 
+    this.registry.set('currentSceneKey', 'AgencyStorageScene');
     this.registry.set('currentCity', 'hq');
     this.registry.set('currentCityId', 'hq');
     this.registry.set('gameState', this.gameState);
+
     this.registry.set(
       'activeMission',
       this.gameState.currentMission || null
@@ -70,16 +78,15 @@ export class AgencyStorageScene extends BaseScene {
 
     this.cameras.main.setBackgroundColor('#17110e');
 
-    if (this.textures.exists(BACKGROUND_KEY)) {
+    const initialKey = this.textures.exists(MANAGER_STORAGE_KEY)
+      ? MANAGER_STORAGE_KEY
+      : EMPTY_STORAGE_KEY;
+
+    if (this.textures.exists(initialKey)) {
       this.background = this.add
-        .image(0, 0, BACKGROUND_KEY)
+        .image(0, 0, initialKey)
         .setOrigin(0)
         .setDepth(0);
-    } else {
-      console.error(
-        '[AgencyStorageScene] Missing background. ' +
-        'Check office.json and the scene bundle in index.json.'
-      );
     }
 
     this.createInterface();
@@ -111,15 +118,59 @@ export class AgencyStorageScene extends BaseScene {
       this
     );
 
+    this.completeStorageTutorialVisit();
+
     void this.prepareVisit();
   }
 
+  completeStorageTutorialVisit() {
+    const tutorial = this.gameState.onboarding?.firstCase;
+
+    if (
+      !tutorial ||
+      tutorial.active !== true ||
+      tutorial.completed === true ||
+      tutorial.skipped === true ||
+      tutorial.step !== 'visit_storage'
+    ) {
+      return;
+    }
+
+    tutorial.storageVisited = true;
+    tutorial.step = 'walk_to_case_file';
+
+    requestAutosave();
+  }
+
   isCurrent(token = this._storageRunToken) {
-    return (
+    return Boolean(
       !this._storageDisposed &&
       this._storageRunToken === token &&
+      !this._cleanupDone &&
       this.sys.isActive()
     );
+  }
+
+  showManagerBackground() {
+    if (!this.textures.exists(MANAGER_STORAGE_KEY)) {
+      return false;
+    }
+
+    if (!this.background) {
+      this.background = this.add
+        .image(0, 0, MANAGER_STORAGE_KEY)
+        .setOrigin(0)
+        .setDepth(0);
+    } else {
+      this.background.setTexture(MANAGER_STORAGE_KEY);
+    }
+
+    this.background.setDisplaySize(
+      this.scale.width,
+      this.scale.height
+    );
+
+    return true;
   }
 
   createInterface() {
@@ -149,12 +200,7 @@ export class AgencyStorageScene extends BaseScene {
       .setVisible(false);
 
     this.retryButton.on('pointerdown', () => {
-      if (!this._uiReady || !this.manualTemplate) {
-        void this.prepareVisit();
-        return;
-      }
-
-      this.startConversation();
+      void this.prepareVisit();
     });
 
     for (const button of [this.backButton, this.retryButton]) {
@@ -214,14 +260,44 @@ export class AgencyStorageScene extends BaseScene {
       .setVisible(true);
   }
 
-  canInteract() {
-    return (
-      this.isCurrent() &&
-      !this.isLeaving &&
-      !this._conversationOpen &&
-      !this._preparing &&
-      !this.getPlayerHudScene()?.isAnyPanelOpen?.()
-    );
+  waitForHudReady(hud) {
+    if (hud.isHudReady) {
+      return Promise.resolve(true);
+    }
+
+    return new Promise(resolve => {
+      let settled = false;
+      let timeout = null;
+
+      const finish = ready => {
+        if (settled) return;
+        settled = true;
+
+        hud.events.off('hud-ready', onReady);
+        timeout?.remove(false);
+
+        if (this._cancelHudWait === cancel) {
+          this._cancelHudWait = null;
+        }
+
+        resolve(ready);
+      };
+
+      const onReady = () => finish(true);
+      const cancel = () => finish(false);
+
+      this._cancelHudWait = cancel;
+      hud.events.once('hud-ready', onReady);
+
+      timeout = this.time.delayedCall(
+        10000,
+        () => finish(Boolean(hud.isHudReady))
+      );
+
+      if (hud.isHudReady) {
+        finish(true);
+      }
+    });
   }
 
   async prepareVisit() {
@@ -238,9 +314,17 @@ export class AgencyStorageScene extends BaseScene {
 
     this._preparing = true;
     this.retryButton?.setVisible(false);
-    this.statusText?.setVisible(false);
+
+    this.showStatus('Alex is locating your paperwork...');
 
     try {
+      if (!this.showManagerBackground()) {
+        throw new Error(
+          `Missing image "${MANAGER_STORAGE_KEY}". ` +
+          'Check the office manifest and storage scene bundle.'
+        );
+      }
+
       await ItemsLoader.load();
 
       if (!this.isCurrent(token) || this.isLeaving) return;
@@ -250,21 +334,13 @@ export class AgencyStorageScene extends BaseScene {
         'agencyFieldManual'
       );
 
-      if (!this.manualTemplate?.id || !this.manualTemplate?.name) {
+      if (
+        !this.manualTemplate?.id ||
+        !this.manualTemplate?.name
+      ) {
         throw new Error(
-          'Missing documents.agencyFieldManual in ItemsCatalog.json.'
-        );
-      }
-
-      if (!this.textures.exists(BACKGROUND_KEY)) {
-        throw new Error(
-          `Missing manifest image: ${BACKGROUND_KEY}`
-        );
-      }
-
-      if (!this.textures.exists(MANAGER_KEY)) {
-        throw new Error(
-          `Missing manifest image: ${MANAGER_KEY}`
+          'Missing documents.agencyFieldManual ' +
+          'in assets/data/ItemsCatalog.json.'
         );
       }
 
@@ -277,11 +353,32 @@ export class AgencyStorageScene extends BaseScene {
       if (!this.isCurrent(token) || this.isLeaving) return;
 
       if (!hud) {
-        throw new Error('Player HUD could not be restored.');
+        throw new Error('PlayerHudScene is unavailable.');
+      }
+
+      const ready = await this.waitForHudReady(hud);
+
+      if (!this.isCurrent(token) || this.isLeaving) return;
+
+      if (!ready) {
+        throw new Error(
+          'PlayerHudScene did not finish initialising.'
+        );
       }
 
       hud.closeAllUIPanels?.();
       hud.setCurrentGameplayScene?.('AgencyStorageScene');
+
+      const manager = await hud.ensurePanel('dialogManager');
+
+      if (!this.isCurrent(token) || this.isLeaving) return;
+
+      if (!manager?.dialogUI || manager.dialogUI.destroyed) {
+        throw new Error('DialogUI could not be created.');
+      }
+
+      this.storageHud = hud;
+      this.storageDialog = manager.dialogUI;
 
       const news = await this.ensureOverlayScene('NewsHud');
 
@@ -290,15 +387,18 @@ export class AgencyStorageScene extends BaseScene {
       news?.events?.emit('setNewspaperVisible', false);
       news?.events?.emit('setTvVisible', false);
 
-      this._uiReady = true;
+      hud.showHud();
+      this.scene.setVisible(true, 'PlayerHudScene');
+      this.bringSceneToTopIfActive('PlayerHudScene');
+
+      this.statusText?.setVisible(false);
     } catch (error) {
       if (this.isCurrent(token)) {
-        this._uiReady = false;
         this.retryButton?.setVisible(true);
+        this.backButton?.setVisible(true);
 
         this.showStatus(
-          'Storage could not be prepared. ' +
-          'Check the item catalogue and scene manifests, then try again.'
+          `Storage error: ${error.message || String(error)}`
         );
 
         console.error(
@@ -306,59 +406,70 @@ export class AgencyStorageScene extends BaseScene {
           error
         );
       }
+
+      return;
     } finally {
       if (this._storageRunToken === token) {
         this._preparing = false;
       }
     }
 
-    if (
-      this.isCurrent(token) &&
-      !this.isLeaving &&
-      this._uiReady
-    ) {
+    if (this.isCurrent(token) && !this.isLeaving) {
       this.startConversation();
     }
   }
 
   startConversation() {
     if (
-      !this._uiReady ||
-      !this.manualTemplate ||
-      !this.canInteract()
+      !this.isCurrent() ||
+      this.isLeaving ||
+      this._preparing ||
+      this._conversationOpen ||
+      !this.manualTemplate
     ) {
       return false;
     }
 
-    const dialog =
-      this.getPlayerHudScene()?.dialogManager?.dialogUI;
+    const hud = this.storageHud;
+    const dialog = this.storageDialog;
 
-    if (!dialog || dialog.destroyed || dialog.isOpen) {
+    if (
+      !hud?.isHudReady ||
+      !dialog ||
+      dialog.destroyed ||
+      dialog.isOpen
+    ) {
       this.retryButton?.setVisible(true);
 
       this.showStatus(
-        'The conversation could not be opened. Try TALK TO ALEX.'
+        'The conversation is not ready. Try TALK TO ALEX.'
       );
 
       return false;
     }
 
     const token = this._storageRunToken;
+
     const alreadyHasManual = this.hasInventoryItem(
       this.manualTemplate.id
     );
 
+    this.showManagerBackground();
+
     this._conversationOpen = true;
 
-    this.statusText?.setVisible(false);
-    this.retryButton?.setVisible(false);
     this.backButton?.setVisible(false);
+    this.retryButton?.setVisible(false);
+    this.statusText?.setVisible(false);
 
     try {
+      hud.showHud();
+      this.scene.setVisible(true, 'PlayerHudScene');
+      this.bringSceneToTopIfActive('PlayerHudScene');
+
       dialog.open(
         {
           speaker: 'Alex Murphy',
-          portraitKey: MANAGER_KEY,
           lines: [
             ...(alreadyHasManual ? RETURN_LINES : INTRO_LINES)
           ]
@@ -386,7 +497,7 @@ export class AgencyStorageScene extends BaseScene {
       this.retryButton?.setVisible(true);
 
       this.showStatus(
-        'The conversation could not be opened. Nothing was issued.'
+        `Conversation error: ${error.message || String(error)}`
       );
 
       console.error(
@@ -427,8 +538,7 @@ export class AgencyStorageScene extends BaseScene {
 
     if (!saveGameState()) {
       console.warn(
-        '[AgencyStorageScene] Manual is in inventory, ' +
-        'but automatic saving is unavailable.'
+        '[AgencyStorageScene] Manual added. Automatic save failed.'
       );
     }
 
@@ -436,18 +546,24 @@ export class AgencyStorageScene extends BaseScene {
   }
 
   async returnToOffice() {
-    if (!this.canInteract()) return false;
+    if (
+      !this.isCurrent() ||
+      this.isLeaving ||
+      this._conversationOpen
+    ) {
+      return false;
+    }
 
     const token = this._storageRunToken;
 
     this.isLeaving = true;
+    this._cancelHudWait?.();
 
     this.backButton?.setVisible(false);
     this.retryButton?.setVisible(false);
 
     audioManager.playSfx('click_sound');
-
-    this.getPlayerHudScene()?.closeAllUIPanels?.();
+    this.storageHud?.closeAllUIPanels?.();
 
     const result = await this.goto('OfficeScene', {
       gameState: this.gameState
@@ -463,8 +579,7 @@ export class AgencyStorageScene extends BaseScene {
       this.backButton?.setVisible(true);
 
       this.showStatus(
-        'The office could not be opened. ' +
-        'Try BACK TO OFFICE. Any collected manual remains in inventory.'
+        'The office could not be opened. Try BACK TO OFFICE.'
       );
     }
 
@@ -475,11 +590,16 @@ export class AgencyStorageScene extends BaseScene {
     if (!this.isCurrent()) return;
 
     this.isLeaving = false;
+    this.showManagerBackground();
     this.layoutStorage();
 
-    if (!this._conversationOpen) {
-      void this.prepareVisit();
+    if (this._conversationOpen) {
+      this.storageHud?.showHud?.();
+      this.bringSceneToTopIfActive('PlayerHudScene');
+      return;
     }
+
+    void this.prepareVisit();
   }
 
   cleanupStorage() {
@@ -488,8 +608,10 @@ export class AgencyStorageScene extends BaseScene {
     this._storageDisposed = true;
     this._storageRunToken = null;
     this._conversationOpen = false;
-    this._uiReady = false;
     this._preparing = false;
+
+    this._cancelHudWait?.();
+    this._cancelHudWait = null;
 
     this.scale.off('resize', this.layoutStorage, this);
 
@@ -510,5 +632,7 @@ export class AgencyStorageScene extends BaseScene {
     this.retryButton = null;
     this.statusText = null;
     this.manualTemplate = null;
+    this.storageHud = null;
+    this.storageDialog = null;
   }
 }

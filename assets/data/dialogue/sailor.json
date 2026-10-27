@@ -1,0 +1,133 @@
+{
+  "sailorClues": {
+    "locationVariants": {
+      "default": {
+        "banter": [
+          "Mind the rope. It has already caught two tourists and someone from management.",
+          "If a gull offers you legal advice, keep walking. They're all involved.",
+          "I've survived storms, engine fires, and a company team-building weekend. Only one still gives me nightmares.",
+          "The mug says captain. Payroll prefers a less expensive interpretation.",
+          "You have questions. I have coffee. Let's see which runs out first.",
+          "Don't lean on that crate. It's either expensive equipment or a very confident rat.",
+          "The sea keeps its secrets. This harbor puts them on an invoice.",
+          "I used to trust people. Then someone invented the phrase 'water-resistant luggage'.",
+          "I'm not superstitious. I just respect the possibility that the boat holds grudges.",
+          "If you're here about the missing sandwich, I can identify the gull."
+        ],
+        "topics": {},
+        "travelHints": {
+          "london": [
+            "They asked about meeting someone beside the Thames. I told them to specify a bank. Apparently that was 'unhelpful nautical aggression'.",
+            "They had marked the Thames on a map and asked where to find a quiet stretch in the capital. Then they asked about somewhere near the clock tower. Pick a strategy.",
+            "They wanted a riverside meeting along the Thames, near the buildings where politicians argue. I suggested bringing enough food for a long wait.",
+            "They asked whether the Thames would make a good escape route. I said that depended on the boat. They seemed disappointed that a boat was necessary."
+          ],
+          "paris": [
+            "They were studying bridges over the Seine. Not the architecture. More the number of ways to leave in a hurry.",
+            "They asked about a meeting beside the Seine, with an iron tower somewhere in view. Apparently a normal street corner lacked atmosphere.",
+            "They wanted to know about boats on the Seine. Then they asked whether passengers could keep a large parcel beside them. Romantic, in a customs violation sort of way.",
+            "They mentioned a capital on the Seine and asked if river cruises attracted much attention. Only from everyone holding a camera."
+          ],
+          "berlin": [
+            "They pointed to the Spree and asked about boats in the capital. I said inland water still counts. Some people need that explained.",
+            "They wanted to meet someone beside the Spree, in the city with the famous former Wall. Apparently ordinary walls weren't specific enough.",
+            "They asked about the Spree and the Havel. Two waterways, one very nervous traveler, and absolutely no interest in fishing.",
+            "Their next stop was a capital on the Spree. They asked if arriving by water would look unusual. Less unusual than asking me that four times."
+          ],
+          "new_york_city": [
+            "They asked about the Hudson and a harbor with a woman holding a torch. I said she probably wasn't their contact.",
+            "They wanted the city beside the Hudson, the one with the skyline that looks like a shipping manifest standing on end.",
+            "They asked whether a waterfront meeting near Manhattan would be discreet. I suggested removing the word Manhattan from that plan.",
+            "They had circled the Hudson on their map and drawn a tiny torch beside the harbor. Terrible drawing. Useful directions."
+          ],
+          "warsaw": [
+            "They asked about the capital on the Vistula. I said a river that long deserved a shorter interrogation.",
+            "They wanted a meeting beside the Vistula, in the capital with the mermaid. Finally, directions with someone from my line of work.",
+            "They were heading to a capital on the river called Wisla locally. Wrote down both names, then asked if that counted as two rivers.",
+            "They mentioned the Vistula and a rebuilt old town. Asked if the waterfront was a good place to disappear. I told them to start by not announcing it."
+          ],
+          "new_delhi": [
+            "They asked about the Yamuna in India's capital. I told them a river on a map wasn't a ferry reservation.",
+            "They had marked India's capital and the Yamuna, then asked about a riverside meeting. No fishing rod. Very large suitcase.",
+            "They wanted to know whether the Yamuna went straight to the sea. It joins the Ganges instead. Even rivers sometimes need a connection.",
+            "They mentioned India's capital and the Yamuna, then asked whether I knew anyone there with a boat. Apparently 'sailor' means international boat directory now."
+          ],
+          "toronto": [
+            "They asked about a Canadian city on Lake Ontario. Thought a harbor meant salt water. I nearly confiscated their map.",
+            "They wanted the Canadian lakeside city with the very tall tower. Lake Ontario, not the ocean. The water has enough problems without identity theft.",
+            "They asked about the harbor on Lake Ontario beneath that needle of a tower. I said the tower wasn't a lighthouse, before they could embarrass us both.",
+            "They were heading to a Canadian city on Lake Ontario and asked if the far shore was America. Suddenly geography became very important to them."
+          ],
+          "kotte": [
+            "They asked about Diyawanna Lake, where Sri Lanka keeps its parliament on an island. I respect a country that puts water between itself and a committee.",
+            "They had circled Parliament Lake near Colombo. Wanted to know whether the parliament really stood on an island. Yes. No, I wouldn't lend them a boat.",
+            "They mentioned Sri Lanka's administrative capital and a lake called Diyawanna. Asked for somewhere quiet near parliament. I said to try a day without speeches.",
+            "They wanted to meet someone by the lake surrounding Sri Lanka's parliament. They asked if a briefcase would look suspicious. In that neighborhood? They'd blend in."
+          ],
+          "islamabad": [
+            "They asked about Rawal Lake, the reservoir serving Pakistan's capital and Rawalpindi. Wanted somewhere by the water. Didn't care about the water. Suspicious attitude.",
+            "They had circled Rawal Lake near Pakistan's capital. Asked if it was natural. Artificial reservoir. Their interest in boating sounded artificial too.",
+            "They mentioned a capital near Rawal Lake, with the Margalla Hills nearby. Wanted a peaceful meeting. People only specify peaceful when they've considered the alternative.",
+            "They asked about the Korang River and Rawal reservoir near Pakistan's capital. That's a lot of homework for someone who claimed to hate geography."
+          ],
+          "nairobi": [
+            "They mentioned Kenya's capital and a river with the same name as the city. Convenient. Even I could label that map before coffee.",
+            "They asked about the river running through Kenya's capital. No sea voyage involved. Apparently I also provide inland emotional support.",
+            "Their next stop was Kenya's capital. They asked about its namesake river, then folded the map before I could recommend a perfectly good coastline.",
+            "They wanted a meeting near the river sharing its name with Kenya's capital. I suggested agreeing on a bridge. They said that was too specific. Can't help everyone."
+          ],
+          "tokyo": [
+            "They asked about the Sumida, running through Japan's capital toward the bay. Finally, someone who knew rivers had destinations too.",
+            "They were interested in boats from Asakusa along the Sumida. Said they liked sightseeing. Never asked about a single sight.",
+            "They mentioned the Sumida and a water bus in Japan's capital. I said a bus that floats was a boat with a marketing department.",
+            "They had marked the Sumida and the bay beside Japan's capital. Asked whether a boat ride would clear their head. Depends what was bothering their conscience."
+          ]
+        },
+        "repeatLines": [
+          [
+            "Same question, detective.",
+            "The tide has changed. My answer hasn't."
+          ],
+          [
+            "We've covered this water.",
+            "Going in circles is a boat problem, not an investigation strategy."
+          ],
+          [
+            "Nothing new.",
+            "Unless you're investigating who stole my sandwich. Then arrest the gull."
+          ],
+          [
+            "I remember the traveler.",
+            "Asking again won't make their directions any better."
+          ],
+          [
+            "Still the same story.",
+            "I could add a sea monster, but your paperwork would suffer."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Nobody matching that trail came through here.",
+            "Plenty of suspicious luggage. Wrong suspicious luggage."
+          ],
+          [
+            "You've followed the wrong current.",
+            "It happens. Usually to people who ignore maps."
+          ],
+          [
+            "No, detective. Not here.",
+            "The gulls would have mentioned it. They're dreadful with confidential information."
+          ],
+          [
+            "That traveler wasn't at these docks.",
+            "I'd offer you a lead, but all I've got is rope."
+          ],
+          [
+            "Your trail doesn't reach this harbor.",
+            "On the bright side, you've discovered water."
+          ]
+        ]
+      }
+    }
+  }
+}

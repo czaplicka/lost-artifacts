@@ -1,1382 +1,432 @@
 import { EventBus } from './EventBus.js';
-
-
-const FONT_PIXEL = '"PressStart2P"';
-const FONT_TYPE = '"SpecialElite"';
-
-
-const COLORS = {
-  panel: 0x17110e,
-  panelBorder: 0xf2d477,
-  paper: 0xfff4d0,
-  muted: 0xd7c58f,
-  accent: 0xf2d477,
-  success: 0x8fb180,
-  warning: 0xd76d52,
-};
-
-
-const PORTRAIT_KEY = 'portrait_hq';
-const PORTRAIT_SIZE = 84;
-
-
-const PANEL_HEIGHT_EXPANDED = 150;
-const PANEL_HEIGHT_COLLAPSED = 46;
-
+import { requestAutosave } from './gameStatePersistence.js';
 
 const STEP_ORDER = [
-  'walk_to_case_file',
-  'open_case_file',
-  'find_route',
-  'travel_to_city',
+  'visit_storage', 'walk_to_case_file', 'open_case_file',
+  'find_route', 'travel_to_city'
 ];
-
-
-const TUTORIAL_CACHE_KEY = 'csi';
-
-
 const FALLBACK_STEP_CONTENT = {
+  visit_storage: {
+    title: 'FIRST DAY, FIRST STOP',
+    objective: 'Visit the Storage Room.',
+    hint: 'Click STORAGE on the left. Alex Murphy handles equipment, manuals, and unreasonable requests.',
+    targetHotspot: 'storage-room'
+  },
   walk_to_case_file: {
-    number: 1,
     title: 'FIRST DAY, FIRST DRAWER',
     objective: 'Walk over to the case-file cabinet.',
     hint: 'Use the movement controls and approach the cabinet marked by the glowing frame.',
-    targetHotspot: 'cabinet-casefile',
+    targetHotspot: 'cabinet-casefile'
   },
-
-
   open_case_file: {
-    number: 2,
     title: 'THE CASE FILE',
     objective: 'Open the case file in the cabinet.',
     hint: 'Click the cabinet when you are close enough. Bureaucracy has never been this dangerous.',
-    targetHotspot: 'cabinet-casefile',
+    targetHotspot: 'cabinet-casefile'
   },
-
-
   find_route: {
-    number: 3,
     title: 'FOLLOW THE GLOBE',
     objective: 'Use the globe to choose your destination.',
     hint: 'The globe is the agency travel desk, because apparently airports were too expensive.',
-    targetHotspot: 'globe',
+    targetHotspot: 'globe'
   },
-
-
   travel_to_city: {
-    number: 4,
     title: 'FIELD WORK',
     objective: 'Travel to the crime city.',
     hint: 'Choose the destination and begin the investigation before the trail gets cold.',
-    targetHotspot: 'globe',
-  },
+    targetHotspot: 'globe'
+  }
 };
-
 
 export class FirstCaseTutorial {
   constructor(scene, state) {
     this.scene = scene;
     this.gameState = state;
-
-
     this.active = false;
     this.currentStep = null;
     this.started = false;
     this.destroyed = false;
     this.finished = false;
-
-
     this.hotspots = new Map();
     this.stepContent = this.loadStepContent();
-
-
     this.overlay = null;
-    this.panel = null;
-    this.portrait = null;
-    this.portraitFrame = null;
-    this.nameplate = null;
-    this.stepNumberText = null;
-    this.titleText = null;
-    this.objectiveText = null;
-    this.hintText = null;
-
-
-    this.skipText = null;
-    this.skipButton = null;
-    this.skipButtonBorder = null;
-    this.skipButtonEnabled = true;
-
-
-    this.toggleText = null;
-    this.toggleButton = null;
-    this.toggleButtonBorder = null;
-
-
     this.highlight = null;
     this.highlightTween = null;
-
-
-    this.feedbackText = null;
     this.feedbackTween = null;
+    this.finishTween = null;
     this.stepDelay = null;
-
-
-    this.onResizeBound = this.handleResize.bind(this);
-    this.onTravelStartedBound = this.onTravelStarted.bind(this);
-
-
+    this.skipButtonEnabled = true;
+    this.onResizeBound = () => this.handleResize();
+    this.onTravelStartedBound = () => this.onTravelStarted();
     this.ensureState();
   }
 
-
   loadStepContent() {
-    const json = this.scene?.cache?.json?.get(
-      TUTORIAL_CACHE_KEY,
-    );
-
-
-    if (!json || Object.keys(json).length === 0) {
-      console.warn(
-        `[FirstCaseTutorial] "${TUTORIAL_CACHE_KEY}.json" missing or empty in cache - ` +
-        'falling back to built-in tutorial text. Did you forget to load ' +
-        `assets/data/${TUTORIAL_CACHE_KEY}.json in the preloader?`,
-      );
-
-
-      return FALLBACK_STEP_CONTENT;
-    }
-
-
-    const merged = {};
-
-
-    STEP_ORDER.forEach((stepId) => {
-      if (json[stepId]) {
-        merged[stepId] = json[stepId];
-      } else {
-        console.warn(
-          `[FirstCaseTutorial] Step "${stepId}" missing from "${TUTORIAL_CACHE_KEY}.json" - ` +
-          'using built-in fallback text for this step.',
-        );
-
-
-        merged[stepId] = FALLBACK_STEP_CONTENT[stepId];
-      }
-    });
-
-
-    return merged;
+    const json = this.scene.cache.json.get('csi') || {};
+    return Object.fromEntries(STEP_ORDER.map((id, index) => [id, {
+      ...FALLBACK_STEP_CONTENT[id],
+      ...(json[id] || {}),
+      number: index + 1
+    }]));
   }
 
-
   ensureState() {
-    if (!this.gameState.onboarding) {
-      this.gameState.onboarding = {};
-    }
-
-
-    const existing =
-      this.gameState.onboarding.firstCase ?? {};
-
-
+    this.gameState.onboarding ??= {};
+    const old = this.gameState.onboarding.firstCase || {};
     this.gameState.onboarding.firstCase = {
-      active: existing.active ?? false,
-      step: existing.step ?? null,
-      completed: existing.completed ?? false,
-      skipped: existing.skipped ?? false,
-      collapsed: existing.collapsed ?? false,
-      walkedToCaseFile:
-        existing.walkedToCaseFile ?? false,
-      caseFileOpened:
-        existing.caseFileOpened ?? false,
-      routeOpened: existing.routeOpened ?? false,
-      travelStarted: existing.travelStarted ?? false,
+      ...old,
+      active: old.active ?? false,
+      step: old.step ?? null,
+      completed: old.completed ?? false,
+      skipped: old.skipped ?? false,
+      collapsed: old.collapsed ?? false,
+      storageVisited: old.storageVisited ?? false,
+      walkedToCaseFile: old.walkedToCaseFile ?? false,
+      caseFileOpened: old.caseFileOpened ?? false,
+      routeOpened: old.routeOpened ?? false,
+      travelStarted: old.travelStarted ?? false
     };
   }
 
+  get state() { return this.gameState.onboarding.firstCase; }
+  get collapsed() { return Boolean(this.state.collapsed); }
+  isActive() { return this.active; }
+  getStep() { return this.currentStep; }
 
-  get collapsed() {
-    return Boolean(
-      this.gameState.onboarding.firstCase.collapsed,
-    );
+  registerHotspot(id, zone) {
+    if (!id || !zone) return;
+    this.hotspots.set(id, zone);
+    if (this.active && this.stepContent[this.currentStep]?.targetHotspot === id) {
+      this.highlightHotspot(id);
+    }
   }
 
+  unregisterHotspot(id) {
+    this.hotspots.delete(id);
+    if (this.stepContent[this.currentStep]?.targetHotspot === id) this.clearHighlight();
+  }
+
+  registerStorageButton() {
+    const button = this.scene.storageButton;
+    if (button?.active) this.registerHotspot('storage-room', button);
+  }
+
+  start() {
+    if (this.destroyed || !this.scene.sys.isActive() ||
+        this.state.completed || this.state.skipped || this.started) return;
+    this.finished = false;
+    this.started = true;
+    this.active = true;
+    this.state.active = true;
+    this.registerStorageButton();
+    this.createOverlay();
+    this.scene.scale.off('resize', this.onResizeBound);
+    this.scene.scale.on('resize', this.onResizeBound);
+    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
+    EventBus.on('firstCaseTravelStarted', this.onTravelStartedBound);
+    let step = this.state.step;
+    if (!STEP_ORDER.includes(step)) step = this.state.storageVisited ? 'walk_to_case_file' : 'visit_storage';
+    if (step === 'visit_storage' && this.state.storageVisited) step = 'walk_to_case_file';
+    this.setStep(step);
+  }
+
+  resume() { this.start(); }
+
+  setStep(id) {
+    if (!this.active || !STEP_ORDER.includes(id)) return;
+    this.clearStepDelay();
+    this.currentStep = id;
+    this.state.step = id;
+    this.updateOverlay(this.stepContent[id]);
+    this.highlightHotspot(this.stepContent[id].targetHotspot);
+    requestAutosave();
+  }
 
   toggleCollapsed() {
-    if (!this.active) {
-      return;
-    }
-
-
-    this.gameState.onboarding.firstCase.collapsed =
-      !this.collapsed;
-
-
+    if (!this.active) return;
+    this.state.collapsed = !this.collapsed;
     this.rebuildOverlay();
+    requestAutosave();
   }
 
-
   rebuildOverlay() {
-    if (!this.active) {
-      return;
-    }
-
-
-    const step = this.stepContent[this.currentStep];
-
-
+    if (!this.active) return;
     this.destroyOverlay();
     this.createOverlay();
-
-
+    const step = this.stepContent[this.currentStep];
     if (step) {
       this.updateOverlay(step);
       this.highlightHotspot(step.targetHotspot);
     }
   }
 
-
-  registerHotspot(id, zone) {
-    if (!id || !zone) {
-      console.warn(
-        '[FirstCaseTutorial] registerHotspot received invalid data.',
-        { id, zone },
-      );
-
-
-      return;
-    }
-
-
-    this.hotspots.set(id, zone);
-
-
-    if (
-      this.active &&
-      this.currentStep &&
-      this.stepContent[this.currentStep]?.targetHotspot === id
-    ) {
-      this.highlightHotspot(id);
-    }
-  }
-
-
-  unregisterHotspot(id) {
-    this.hotspots.delete(id);
-  }
-
-
-  start() {
-    if (this.destroyed || !this.scene?.sys?.isActive()) {
-      return;
-    }
-
-
-    const tutorialState =
-      this.gameState.onboarding.firstCase;
-
-
-    if (tutorialState.completed || this.started) {
-      return;
-    }
-
-
-    this.finished = false;
-    this.started = true;
-    this.active = true;
-    tutorialState.active = true;
-
-
-    this.createOverlay();
-
-
-    this.scene.scale.off(
-      'resize',
-      this.onResizeBound,
-    );
-
-
-    this.scene.scale.on(
-      'resize',
-      this.onResizeBound,
-    );
-
-
-    EventBus.off(
-      'firstCaseTravelStarted',
-      this.onTravelStartedBound,
-    );
-
-
-    EventBus.on(
-      'firstCaseTravelStarted',
-      this.onTravelStartedBound,
-    );
-
-
-    const savedStep = tutorialState.step;
-
-
-    if (savedStep && STEP_ORDER.includes(savedStep)) {
-      this.setStep(savedStep);
-      return;
-    }
-
-
-    this.setStep('walk_to_case_file');
-  }
-
-
-  resume() {
-    if (this.gameState.onboarding.firstCase.completed) {
-      return;
-    }
-
-
-    this.start();
-  }
-
-
-  isActive() {
-    return this.active;
-  }
-
-
-  getStep() {
-    return this.currentStep;
-  }
-
-
-  setSkipButtonEnabled(enabled) {
-    const shouldEnable = Boolean(enabled);
-
-
-    if (
-      this.skipButtonEnabled === shouldEnable ||
-      !this.skipButton?.scene
-    ) {
-      return;
-    }
-
-
-    this.skipButtonEnabled = shouldEnable;
-
-
-    if (shouldEnable) {
-      this.skipButton.setInteractive({
-        useHandCursor: true,
-      });
-
-
-      this.skipButtonBorder?.setAlpha(1);
-      this.skipText?.setAlpha(1);
-
-
-      return;
-    }
-
-
-    this.skipButton.disableInteractive();
-
-
-    this.skipButtonBorder?.setAlpha(0.45);
-    this.skipText?.setAlpha(0.45);
-  }
-
-
-  setStep(stepId) {
-    if (!this.active || !STEP_ORDER.includes(stepId)) {
-      return;
-    }
-
-
-    const step = this.stepContent[stepId];
-
-
-    if (!step) {
-      console.warn(
-        `[FirstCaseTutorial] Unknown tutorial step: ${stepId}`,
-      );
-
-
-      return;
-    }
-
-
-    this.currentStep = stepId;
-    this.gameState.onboarding.firstCase.step = stepId;
-
-
-    this.clearStepDelay();
-    this.updateOverlay(step);
-    this.highlightHotspot(step.targetHotspot);
-  }
-
-
-  canUseHotspot(hotspotId) {
-    if (!this.active) {
-      return true;
-    }
-
-
-    if (this.currentStep === 'walk_to_case_file') {
-      if (hotspotId !== 'cabinet-casefile') {
-        this.showFeedback(
-          'Explore freely, detective. But the cabinet over there is where we begin.',
-          'warning',
-        );
+  canUseHotspot(id) {
+    if (!this.active) return true;
+    if (this.currentStep === 'visit_storage') {
+      if (id === 'cabinet-casefile' || id === 'globe') {
+        this.showFeedback('Storage first, detective. Alex has your welcome package. It is mostly paperwork.');
+        return false;
       }
-
-
       return true;
     }
-
-
-    if (this.currentStep === 'open_case_file') {
-      if (hotspotId !== 'cabinet-casefile') {
-        this.showFeedback(
-          'Look around if you like, but the case file will not read itself.',
-          'warning',
-        );
-      }
-
-
-      return true;
-    }
-
-
-    if (this.currentStep === 'find_route') {
-      if (hotspotId === 'cabinet-casefile') {
-        this.showFeedback(
-          'We have the file. Reading it again will not summon a plane.',
-          'warning',
-        );
-      } else if (hotspotId !== 'globe') {
-        this.showFeedback(
-          'Wander all you want, but the globe knows where we are headed.',
-          'warning',
-        );
-      }
-
-
-      return true;
-    }
-
-
+    const target = this.stepContent[this.currentStep]?.targetHotspot;
+    if (id !== target) this.showFeedback('Explore freely, detective. Your next objective is still waiting.');
     return true;
   }
 
-
-  canUseAction(actionId) {
-    if (!this.active) {
-      return true;
-    }
-
-
-    const actionToHotspot = {
-      case_file: 'cabinet-casefile',
-      travel: 'globe',
-    };
-
-
-    const hotspotId = actionToHotspot[actionId];
-
-
-    return !hotspotId || this.canUseHotspot(hotspotId);
+  canUseAction(id) {
+    const targets = { case_file: 'cabinet-casefile', travel: 'globe', storage: 'storage-room' };
+    return !targets[id] || this.canUseHotspot(targets[id]);
   }
 
-
-  onPlayerPositionChanged(playerX, playerY) {
-    if (
-      !this.active ||
-      this.currentStep !== 'walk_to_case_file'
-    ) {
-      return;
-    }
-
-
-    const cabinetZone = this.hotspots.get(
-      'cabinet-casefile',
-    );
-
-
-    if (!cabinetZone?.hotspotData) {
-      return;
-    }
-
-
-    const data = cabinetZone.hotspotData;
-    const reachPadding = 42;
-
-
-    const isNearCabinet =
-      playerX >= data.x - reachPadding &&
-      playerX <= data.x + data.width + reachPadding &&
-      playerY >= data.y - reachPadding &&
-      playerY <= data.y + data.height + reachPadding;
-
-
-    if (!isNearCabinet) {
-      return;
-    }
-
-
-    this.gameState.onboarding.firstCase.walkedToCaseFile = true;
-
-
-    this.showFeedback(
-      'Excellent. You have located a cabinet. Promotion is surely inevitable.',
-      'success',
-    );
-
-
+  onPlayerPositionChanged(x, y) {
+    if (!this.active || this.currentStep !== 'walk_to_case_file' || this.stepDelay) return;
+    const d = this.hotspots.get('cabinet-casefile')?.hotspotData;
+    if (!d || x < d.x - 42 || x > d.x + d.width + 42 ||
+        y < d.y - 42 || y > d.y + d.height + 42) return;
+    this.state.walkedToCaseFile = true;
+    this.showFeedback('Excellent. You have located a cabinet. Promotion is surely inevitable.', 'success');
     this.delayStep(650, () => {
-      if (
-        this.active &&
-        this.currentStep === 'walk_to_case_file'
-      ) {
-        this.setStep('open_case_file');
-      }
+      if (this.active && this.currentStep === 'walk_to_case_file') this.setStep('open_case_file');
     });
   }
-
 
   onCaseFileOpened() {
-    if (!this.active) {
-      return;
-    }
-
-
-    if (
-      this.currentStep !== 'walk_to_case_file' &&
-      this.currentStep !== 'open_case_file'
-    ) {
-      return;
-    }
-
-
-    this.gameState.onboarding.firstCase.walkedToCaseFile = true;
-    this.gameState.onboarding.firstCase.caseFileOpened = true;
-
-
-    this.showFeedback(
-      'A stolen artefact, four days, and no mention of health insurance.',
-      'success',
-    );
-
-
-    this.delayStep(800, () => {
-      if (this.active) {
-        this.setStep('find_route');
-      }
-    });
+    if (!this.active || !['walk_to_case_file', 'open_case_file'].includes(this.currentStep)) return;
+    this.state.walkedToCaseFile = true;
+    this.state.caseFileOpened = true;
+    this.showFeedback('A stolen artefact, four days, and no mention of health insurance.', 'success');
+    this.delayStep(800, () => { if (this.active) this.setStep('find_route'); });
   }
-
 
   onDestinationMapOpened() {
-    if (!this.active) {
-      return;
-    }
-
-
-    const validSteps = [
-      'walk_to_case_file',
-      'open_case_file',
-      'find_route',
-    ];
-
-
-    if (!validSteps.includes(this.currentStep)) {
-      return;
-    }
-
-
-    this.gameState.onboarding.firstCase.walkedToCaseFile = true;
-    this.gameState.onboarding.firstCase.caseFileOpened = true;
-    this.gameState.onboarding.firstCase.routeOpened = true;
-
-
-    this.showFeedback(
-      'Good. Now let us inconvenience an international airport.',
-      'success',
-    );
-
-
-    this.delayStep(500, () => {
-      if (this.active) {
-        this.setStep('travel_to_city');
-      }
-    });
+    if (!this.active || !['walk_to_case_file', 'open_case_file', 'find_route'].includes(this.currentStep)) return;
+    this.state.walkedToCaseFile = true;
+    this.state.caseFileOpened = true;
+    this.state.routeOpened = true;
+    this.showFeedback('Good. Now let us inconvenience an international airport.', 'success');
+    this.delayStep(500, () => { if (this.active) this.setStep('travel_to_city'); });
   }
 
-
   onTravelStarted() {
-    if (!this.active) {
-      return;
-    }
-
-
-    this.gameState.onboarding.firstCase.travelStarted = true;
+    if (!this.active || this.currentStep === 'visit_storage') return;
+    this.state.travelStarted = true;
     this.finish(false);
   }
 
-
-  skip() {
-    if (
-      this.destroyed ||
-      !this.active ||
-      this.finished
-    ) {
-      return;
-    }
-
-
-    console.log(
-      '[FirstCaseTutorial] Skip Tutorial clicked.',
-    );
-
-
-    this.finish(true);
-  }
-
+  skip() { this.finish(true); }
 
   delayStep(delay, callback) {
     this.clearStepDelay();
-
-
-    this.stepDelay = this.scene.time.delayedCall(
-      delay,
-      () => {
-        this.stepDelay = null;
-
-
-        if (!this.destroyed) {
-          callback();
-        }
-      },
-    );
+    this.stepDelay = this.scene.time.delayedCall(delay, () => {
+      this.stepDelay = null;
+      if (!this.destroyed) callback();
+    });
   }
-
 
   clearStepDelay() {
-    if (this.stepDelay) {
-      this.stepDelay.remove(false);
-      this.stepDelay = null;
-    }
+    this.stepDelay?.remove(false);
+    this.stepDelay = null;
   }
-
 
   showFeedback(message, type = 'warning') {
-    if (
-      !this.active ||
-      !this.feedbackText ||
-      !this.feedbackText.scene
-    ) {
-      return;
-    }
-
-
-    const color =
-      type === 'success'
-        ? '#8fb180'
-        : '#d76d52';
-
-
-    if (this.feedbackTween) {
-      this.feedbackTween.stop();
-      this.feedbackTween = null;
-    }
-
-
-    this.feedbackText.setText(message);
-    this.feedbackText.setColor(color);
-    this.feedbackText.setAlpha(0);
-    this.feedbackText.setVisible(true);
-
-
+    if (!this.active || !this.feedbackText?.scene) return;
+    this.feedbackTween?.stop();
+    this.feedbackText.setText(message).setColor(type === 'success' ? '#8fb180' : '#d76d52')
+      .setAlpha(0).setVisible(true);
     this.feedbackTween = this.scene.tweens.add({
-      targets: this.feedbackText,
-      alpha: 1,
-      duration: 160,
-      yoyo: true,
-      hold: 2200,
-      ease: 'Sine.easeOut',
+      targets: this.feedbackText, alpha: 1, duration: 160, yoyo: true, hold: 2200,
       onComplete: () => {
-        if (this.feedbackText?.scene) {
-          this.feedbackText.setVisible(false);
-        }
-
-
+        this.feedbackText?.setVisible(false);
         this.feedbackTween = null;
-      },
+      }
     });
   }
-
 
   createOverlay() {
-    if (this.overlay?.scene) {
-      return;
-    }
-
-
-    const collapsed = this.collapsed;
+    if (this.overlay?.scene) return;
     const { width } = this.scene.scale;
-
-
-    const panelWidth = Math.min(
-      Math.max(width - 48, 320),
-      860,
-    );
-
-
-    const panelHeight = collapsed
-      ? PANEL_HEIGHT_COLLAPSED
-      : PANEL_HEIGHT_EXPANDED;
-
-
-    const panelLeft = width / 2 - panelWidth / 2;
-
-
-    /*
-     * Panel u góry ekranu.
-     *
-     * Dolne strzałki OfficeNavigation pozostają w pełni odkryte,
-     * niezależnie od ich depth i hit area.
-     */
-    const panelTop = 20;
-    const panelCenterY = panelTop + panelHeight / 2;
-
-
-    const textLeft = collapsed
-      ? panelLeft + 16
-      : panelLeft + PORTRAIT_SIZE + 32;
-
-
-    const textWrapWidth = Math.max(
-      panelWidth - PORTRAIT_SIZE - 72,
-      80,
-    );
-
-
-    this.overlay = this.scene.add.container(0, 0)
-      .setScrollFactor(0)
-      .setDepth(10000)
-      .setAlpha(1)
-      .setVisible(true);
-
-
-    this.panel = this.scene.add.rectangle(
-      width / 2,
-      panelCenterY,
-      panelWidth,
-      panelHeight,
-      COLORS.panel,
-      0.95,
-    )
-      .setScrollFactor(0)
-      .setStrokeStyle(3, COLORS.panelBorder, 0.92);
-
-
-    const items = [this.panel];
-
-
-    if (!collapsed) {
-      const portraitX =
-        panelLeft +
-        16 +
-        PORTRAIT_SIZE / 2;
-
-
-      const portraitY = panelCenterY + 4;
-
-
-      this.portraitFrame = this.scene.add.rectangle(
-        portraitX,
-        portraitY,
-        PORTRAIT_SIZE + 8,
-        PORTRAIT_SIZE + 8,
-        COLORS.panel,
-        0.98,
-      )
-        .setScrollFactor(0)
-        .setStrokeStyle(2, COLORS.panelBorder, 0.85);
-
-
-      if (this.scene.textures.exists(PORTRAIT_KEY)) {
-        this.portrait = this.scene.add.image(
-          portraitX,
-          portraitY,
-          PORTRAIT_KEY,
-        )
-          .setScrollFactor(0)
-          .setDisplaySize(
-            PORTRAIT_SIZE,
-            PORTRAIT_SIZE,
-          );
-      } else {
-        console.warn(
-          `[FirstCaseTutorial] Portrait texture not found: ${PORTRAIT_KEY}`,
-        );
-
-
-        this.portrait = this.scene.add.rectangle(
-          portraitX,
-          portraitY,
-          PORTRAIT_SIZE,
-          PORTRAIT_SIZE,
-          COLORS.muted,
-          0.3,
-        )
-          .setScrollFactor(0)
-          .setStrokeStyle(
-            1,
-            COLORS.accent,
-            0.5,
-          );
+    const w = Math.min(860, Math.max(240, width - 32));
+    const compact = w < 580;
+    const collapsed = this.collapsed;
+    const portraitVisible = !collapsed && !compact;
+    const h = collapsed ? 52 : compact ? 206 : 174;
+    const left = (width - w) / 2;
+    const top = 20;
+    this.overlay = this.scene.add.container(0, 0).setScrollFactor(0).setDepth(10000);
+    this.panel = this.scene.add.rectangle(width / 2, top + h / 2, w, h, 0x17110e, .96)
+      .setStrokeStyle(3, 0xf2d477, .92).setScrollFactor(0);
+    this.overlay.add(this.panel);
+    const addText = (x, y, text, style = {}) => {
+      const object = this.scene.add.text(x, y, text, {
+        fontFamily: 'SpecialElite', color: '#fff4d0', ...style
+      }).setScrollFactor(0);
+      this.overlay.add(object);
+      return object;
+    };
+    if (portraitVisible) {
+      this.portraitFrame = this.scene.add.rectangle(left + 58, top + 92, 92, 92, 0x17110e)
+        .setStrokeStyle(2, 0xf2d477).setScrollFactor(0);
+      this.overlay.add(this.portraitFrame);
+      if (this.scene.textures.exists('portrait_hq')) {
+        this.portrait = this.scene.add.image(left + 58, top + 92, 'portrait_hq')
+          .setDisplaySize(84, 84).setScrollFactor(0);
+        this.overlay.add(this.portrait);
       }
-
-
-      this.nameplate = this.scene.add.text(
-        portraitX,
-        portraitY + PORTRAIT_SIZE / 2 + 7,
-        'HQ',
-        {
-          fontFamily: FONT_PIXEL,
-          fontSize: '8px',
-          color: '#f2d477',
-        },
-      )
-        .setScrollFactor(0)
-        .setOrigin(0.5, 0);
-
-
-      items.push(
-        this.portraitFrame,
-        this.portrait,
-        this.nameplate,
-      );
+      this.nameplate = addText(left + 58, top + 144, 'HQ', {
+        fontFamily: 'PressStart2P', fontSize: '8px', color: '#f2d477'
+      }).setOrigin(.5, 0);
     }
-
-
-    this.stepNumberText = this.scene.add.text(
-      textLeft,
-      panelTop + (collapsed ? 9 : 12),
-      '',
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: '8px',
-        color: '#f2d477',
-      },
-    ).setScrollFactor(0);
-
-
-    this.titleText = this.scene.add.text(
-      textLeft,
-      panelTop + (collapsed ? 26 : 28),
-      '',
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: '9px',
-        color: '#fff4d0',
-      },
-    ).setScrollFactor(0);
-
-
-    items.push(this.stepNumberText, this.titleText);
-
-
+    const textX = portraitVisible ? left + 116 : left + 16;
+    const wrap = w - (portraitVisible ? 136 : 32);
+    this.stepNumberText = addText(left + 16, top + 12, '', {
+      fontFamily: 'PressStart2P', fontSize: '8px', color: '#f2d477'
+    });
+    this.titleText = addText(textX, top + (collapsed ? 31 : 43), '', {
+      fontFamily: 'PressStart2P', fontSize: collapsed ? '7px' : '9px',
+      wordWrap: { width: wrap }
+    });
     if (!collapsed) {
-      this.objectiveText = this.scene.add.text(
-        textLeft,
-        panelTop + 50,
-        '',
-        {
-          fontFamily: FONT_TYPE,
-          fontSize: '20px',
-          color: '#fff4d0',
-          wordWrap: {
-            width: textWrapWidth,
-          },
-        },
-      ).setScrollFactor(0);
-
-
-      this.hintText = this.scene.add.text(
-        textLeft,
-        panelTop + 84,
-        '',
-        {
-          fontFamily: FONT_TYPE,
-          fontSize: '14px',
-          color: '#d7c58f',
-          wordWrap: {
-            width: textWrapWidth,
-          },
-        },
-      ).setScrollFactor(0);
-
-
-      items.push(this.objectiveText, this.hintText);
+      this.objectiveText = addText(textX, top + 72, '', {
+        fontSize: compact ? '18px' : '20px', wordWrap: { width: wrap }
+      });
+      this.hintText = addText(textX, top + 106, '', {
+        fontSize: '14px', color: '#d7c58f', wordWrap: { width: wrap }
+      });
     }
-
-
-    const skipButtonWidth = 136;
-    const skipButtonHeight = 26;
-
-
-    const skipButtonCenterX =
-      panelLeft +
-      panelWidth -
-      skipButtonWidth / 2 -
-      10;
-
-
-    const skipButtonCenterY =
-      panelTop + 8 + skipButtonHeight / 2;
-
-
-    this.skipButtonBorder = this.scene.add.rectangle(
-      skipButtonCenterX,
-      skipButtonCenterY,
-      skipButtonWidth,
-      skipButtonHeight,
-      COLORS.panel,
-      0.35,
-    )
-      .setScrollFactor(0)
-      .setStrokeStyle(1, COLORS.accent, 0.72);
-
-
-    this.skipButton = this.scene.add.rectangle(
-      skipButtonCenterX,
-      skipButtonCenterY,
-      skipButtonWidth,
-      skipButtonHeight,
-      0x000000,
-      0.001,
-    )
-      .setScrollFactor(0)
-      .setInteractive({
-        useHandCursor: true,
-      });
-
-
-    this.skipText = this.scene.add.text(
-      skipButtonCenterX,
-      skipButtonCenterY,
-      'SKIP TUTORIAL ▸',
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: '7px',
-        color: '#d7c58f',
-      },
-    )
-      .setScrollFactor(0)
-      .setOrigin(0.5);
-
-
-    this.skipButton.on('pointerover', () => {
-      if (this.skipText?.scene) {
-        this.skipText.setColor('#f2d477');
-      }
-
-
-      this.skipButtonEnabled = true;
-
-
-      if (this.skipButtonBorder?.scene) {
-        this.skipButtonBorder.setStrokeStyle(
-          1,
-          COLORS.accent,
-          1,
-        );
-      }
-    });
-
-
-    this.skipButton.on('pointerout', () => {
-      if (this.skipText?.scene) {
-        this.skipText.setColor('#d7c58f');
-      }
-
-
-      if (this.skipButtonBorder?.scene) {
-        this.skipButtonBorder.setStrokeStyle(
-          1,
-          COLORS.accent,
-          0.72,
-        );
-      }
-    });
-
-
-    this.skipButton.on(
-      'pointerdown',
-      (pointer, localX, localY, event) => {
+    const button = (x, bw, label, action) => {
+      const border = this.scene.add.rectangle(x, top + 19, bw, 26, 0x17110e)
+        .setStrokeStyle(1, 0xf2d477, .72).setScrollFactor(0);
+      const hit = this.scene.add.rectangle(x, top + 19, bw, 26, 0x000000, .001)
+        .setScrollFactor(0).setInteractive({ useHandCursor: true });
+      const text = addText(x, top + 19, label, {
+        fontFamily: 'PressStart2P', fontSize: '7px', color: '#d7c58f'
+      }).setOrigin(.5);
+      this.overlay.add([border, hit, text]);
+      hit.on('pointerdown', (p, lx, ly, event) => {
         event?.stopPropagation?.();
-
-
-        console.log(
-          '[FirstCaseTutorial] Skip Tutorial clicked.',
-        );
-
-
-        this.skip();
-      },
-    );
-
-
-    const toggleSize = 26;
-
-
-    const toggleX =
-      skipButtonCenterX -
-      skipButtonWidth / 2 -
-      8 -
-      toggleSize / 2;
-
-
-    const toggleY = skipButtonCenterY;
-
-
-    this.toggleButtonBorder = this.scene.add.rectangle(
-      toggleX,
-      toggleY,
-      toggleSize,
-      toggleSize,
-      COLORS.panel,
-      0.35,
-    )
-      .setScrollFactor(0)
-      .setStrokeStyle(1, COLORS.accent, 0.72);
-
-
-    this.toggleButton = this.scene.add.rectangle(
-      toggleX,
-      toggleY,
-      toggleSize,
-      toggleSize,
-      0x000000,
-      0.001,
-    )
-      .setScrollFactor(0)
-      .setInteractive({
-        useHandCursor: true,
+        action();
       });
-
-
-    this.toggleText = this.scene.add.text(
-      toggleX,
-      toggleY,
-      collapsed ? '+' : '–',
-      {
-        fontFamily: FONT_PIXEL,
-        fontSize: '12px',
-        color: '#d7c58f',
-      },
-    )
-      .setScrollFactor(0)
-      .setOrigin(0.5);
-
-
-    this.toggleButton.on('pointerover', () => {
-      this.toggleText?.setColor('#f2d477');
+      hit.on('pointerover', () => text.setColor('#f2d477'));
+      hit.on('pointerout', () => text.setColor('#d7c58f'));
+      return { border, hit, text };
+    };
+    const skip = button(left + w - 78, 136, 'SKIP TUTORIAL >', () => {
+      if (this.skipButtonEnabled) this.skip();
     });
-
-
-    this.toggleButton.on('pointerout', () => {
-      this.toggleText?.setColor('#d7c58f');
-    });
-
-
-    this.toggleButton.on(
-      'pointerdown',
-      (pointer, localX, localY, event) => {
-        event?.stopPropagation?.();
-        this.toggleCollapsed();
-      },
-    );
-
-
-    this.feedbackText = this.scene.add.text(
-      width / 2,
-      panelTop + panelHeight + 28,
-      '',
-      {
-        fontFamily: FONT_TYPE,
-        fontSize: '18px',
-        color: '#d76d52',
-        align: 'center',
-        wordWrap: {
-          width: Math.min(width - 96, 760),
-        },
-      },
-    )
-      .setScrollFactor(0)
-      .setOrigin(0.5)
-      .setVisible(false);
-
-
-    items.push(
-      this.skipButtonBorder,
-      this.skipButton,
-      this.skipText,
-      this.toggleButtonBorder,
-      this.toggleButton,
-      this.toggleText,
-      this.feedbackText,
-    );
-
-
-    this.overlay.add(items);
+    this.skipButton = skip.hit;
+    this.skipText = skip.text;
+    this.skipButtonBorder = skip.border;
+    const toggle = button(left + w - 168, 26, collapsed ? '+' : '-', () => this.toggleCollapsed());
+    this.toggleButton = toggle.hit;
+    this.toggleText = toggle.text;
+    this.toggleButtonBorder = toggle.border;
+    this.feedbackText = addText(width / 2, top + h + 14, '', {
+      fontSize: '18px', align: 'center', backgroundColor: '#17110ee6',
+      padding: { x: 8, y: 5 }, wordWrap: { width: Math.max(100, Math.min(width - 64, 760)) }
+    }).setOrigin(.5, 0).setVisible(false);
+    this.setSkipButtonEnabled(this.skipButtonEnabled);
   }
 
+  setSkipButtonEnabled(enabled) {
+    this.skipButtonEnabled = Boolean(enabled);
+    if (!this.skipButton?.scene) return;
+    if (enabled) this.skipButton.setInteractive({ useHandCursor: true });
+    else this.skipButton.disableInteractive();
+    this.skipButtonBorder?.setAlpha(enabled ? 1 : .45);
+    this.skipText?.setAlpha(enabled ? 1 : .45);
+  }
 
   updateOverlay(step) {
-    if (!this.overlay?.scene || !step) {
-      return;
-    }
-
-
-    this.stepNumberText?.setText(
-      `OBJECTIVE ${step.number}`,
-    );
-
-
+    if (!this.overlay?.scene || !step) return;
+    this.stepNumberText?.setText(`OBJECTIVE ${step.number}/${STEP_ORDER.length}`);
     this.titleText?.setText(step.title);
     this.objectiveText?.setText(step.objective);
-    this.hintText?.setText(step.hint);
+    if (this.hintText && this.objectiveText) {
+      this.hintText.setPosition(this.hintText.x, this.objectiveText.y + this.objectiveText.height + 8);
+      this.hintText.setText(step.hint);
+      const available = this.panel.y + this.panel.height / 2 - this.hintText.y - 12;
+      this.hintText.setScale(Math.min(1, Math.max(1, available) / Math.max(1, this.hintText.height)));
+    }
   }
 
-
-  highlightHotspot(hotspotId) {
+  highlightHotspot(id) {
     this.clearHighlight();
-
-
-    if (!hotspotId || !this.active) {
-      return;
+    if (!id || !this.active) return;
+    const zone = this.hotspots.get(id);
+    if (!zone?.scene) return;
+    let d = zone.hotspotData;
+    if (!d && typeof zone.getBounds === 'function') {
+      const b = zone.getBounds();
+      d = { x: b.x, y: b.y, width: b.width, height: b.height };
     }
-
-
-    const zone = this.hotspots.get(hotspotId);
-
-
-    if (!zone?.scene || !zone.hotspotData) {
-      console.warn(
-        `[FirstCaseTutorial] Missing hotspot for tutorial step: ${hotspotId}`,
-      );
-
-
-      return;
-    }
-
-
-    const data = zone.hotspotData;
-
-
+    if (!d) return;
     this.highlight = this.scene.add.rectangle(
-      data.x + data.width / 2,
-      data.y + data.height / 2,
-      data.width + 14,
-      data.height + 14,
-    )
-      .setStrokeStyle(4, COLORS.accent, 1)
-      .setFillStyle(COLORS.accent, 0.08)
-      .setDepth(9999)
-      .setScrollFactor(
-        zone.scrollFactorX ?? 1,
-        zone.scrollFactorY ?? 1,
-      );
-
-
+      d.x + d.width / 2, d.y + d.height / 2, d.width + 14, d.height + 14
+    ).setStrokeStyle(4, 0xf2d477).setFillStyle(0xf2d477, .08).setDepth(9999)
+      .setScrollFactor(zone.scrollFactorX ?? 1, zone.scrollFactorY ?? 1);
     this.highlightTween = this.scene.tweens.add({
-      targets: this.highlight,
-      alpha: {
-        from: 0.28,
-        to: 1,
-      },
-      duration: 700,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
+      targets: this.highlight, alpha: { from: .28, to: 1 },
+      duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut'
     });
   }
 
-
   clearHighlight() {
-    if (this.highlightTween) {
-      this.highlightTween.stop();
-      this.highlightTween = null;
-    }
-
-
-    if (this.highlight?.scene) {
-      this.highlight.destroy();
-    }
-
-
+    this.highlightTween?.stop();
+    this.highlightTween = null;
+    this.highlight?.destroy();
     this.highlight = null;
   }
 
-
   finish(skipped = false) {
-    if (
-      this.destroyed ||
-      !this.active ||
-      this.finished
-    ) {
-      return;
-    }
-
-
+    if (this.destroyed || !this.active || this.finished) return;
     this.finished = true;
     this.active = false;
     this.started = false;
     this.currentStep = null;
-
-
-    const tutorialState =
-      this.gameState.onboarding.firstCase;
-
-
-    tutorialState.active = false;
-    tutorialState.completed = true;
-    tutorialState.skipped =
-      skipped ||
-      tutorialState.skipped;
-
-
-    tutorialState.step = 'finished';
-
-
+    Object.assign(this.state, {
+      active: false, completed: true, skipped: skipped || this.state.skipped, step: 'finished'
+    });
     this.clearStepDelay();
     this.clearHighlight();
-
-
-    EventBus.off(
-      'firstCaseTravelStarted',
-      this.onTravelStartedBound,
-    );
-
-
-    this.scene.scale.off(
-      'resize',
-      this.onResizeBound,
-    );
-
-
+    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
+    this.scene.scale.off('resize', this.onResizeBound);
+    requestAutosave();
     EventBus.emit('firstCaseTutorialFinished', {
-      skipped: tutorialState.skipped,
-      completed: tutorialState.completed,
-      tutorialState: {
-        ...tutorialState,
-      },
+      skipped: this.state.skipped, completed: true, tutorialState: { ...this.state }
     });
-
-
-    if (tutorialState.skipped) {
-      EventBus.emit('firstCaseTutorialSkipped', {
-        onboarding: {
-          ...tutorialState,
-        },
-      });
-    }
-
-
-    if (!this.overlay?.scene) {
-      this.destroyOverlay();
-      return;
-    }
-
-
-    this.scene.tweens.add({
-      targets: this.overlay,
-      alpha: 0,
-      duration: 300,
-      ease: 'Sine.easeOut',
-      onComplete: () => {
-        this.destroyOverlay();
-      },
-    });
+    if (this.state.skipped) EventBus.emit('firstCaseTutorialSkipped', { onboarding: { ...this.state } });
+    this.destroyOverlay();
   }
-
 
   destroyOverlay() {
-    if (this.feedbackTween) {
-      this.feedbackTween.stop();
-      this.feedbackTween = null;
-    }
-
-
-    if (this.skipButton?.scene) {
-      this.skipButton.removeInteractive();
-    }
-
-
-    if (this.toggleButton?.scene) {
-      this.toggleButton.removeInteractive();
-    }
-
-
-    if (this.overlay?.scene) {
-      this.overlay.destroy(true);
-    }
-
-
-    this.overlay = null;
-    this.panel = null;
-    this.portrait = null;
-    this.portraitFrame = null;
-    this.nameplate = null;
-    this.stepNumberText = null;
-    this.titleText = null;
-    this.objectiveText = null;
-    this.hintText = null;
-    this.skipText = null;
-    this.skipButton = null;
-    this.skipButtonBorder = null;
-    this.skipButtonEnabled = true;
-    this.toggleText = null;
-    this.toggleButton = null;
-    this.toggleButtonBorder = null;
-    this.feedbackText = null;
+    this.feedbackTween?.stop();
+    this.feedbackTween = null;
+    this.overlay?.destroy(true);
+    for (const key of [
+      'overlay', 'panel', 'portrait', 'portraitFrame', 'nameplate',
+      'stepNumberText', 'titleText', 'objectiveText', 'hintText',
+      'skipText', 'skipButton', 'skipButtonBorder',
+      'toggleText', 'toggleButton', 'toggleButtonBorder', 'feedbackText'
+    ]) this[key] = null;
   }
 
-
   handleResize() {
+    this.registerStorageButton();
     this.rebuildOverlay();
   }
 
-
   destroy() {
-    if (this.destroyed) {
-      return;
-    }
-
-
+    if (this.destroyed) return;
     this.destroyed = true;
     this.active = false;
     this.started = false;
     this.currentStep = null;
-
-
-    EventBus.off(
-      'firstCaseTravelStarted',
-      this.onTravelStartedBound,
-    );
-
-
-    this.scene.scale.off(
-      'resize',
-      this.onResizeBound,
-    );
-
-
+    EventBus.off('firstCaseTravelStarted', this.onTravelStartedBound);
+    this.scene.scale.off('resize', this.onResizeBound);
     this.clearStepDelay();
     this.clearHighlight();
     this.destroyOverlay();
-
-
     this.hotspots.clear();
   }
 }

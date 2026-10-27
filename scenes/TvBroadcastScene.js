@@ -1,6 +1,8 @@
 import { gameState } from '../GameData.js';
 import { getTVBroadcast } from '../tvBroadcastData.js';
+import { getTimeChangedPayload } from '../CaseTimeHelper.js';
 import { EventBus } from '../EventBus.js';
+import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
 
 import {
@@ -19,10 +21,28 @@ import {
   TvBroadcastControls
 } from './tv/TvBroadcastControls.js';
 
+import {
+  TvBroadcastAudio
+} from './tv/TvBroadcastAudio.js';
+
+const VOLUME_LEVELS = [1, 0.5, 0];
+
+const TUNE_MESSAGES = [
+  'FINE TUNING...',
+  'ADJUSTING ANTENNA...',
+  'HITTING THE TV (IT HELPED)',
+  'RECEPTION: SUSPICIOUS',
+  'SIGNAL: 3 BARS OF 7'
+];
+
 export class TvBroadcastScene extends BaseScene {
   constructor() {
     super({ key: 'TvBroadcastScene' });
 
+    this.resetState();
+  }
+
+  resetState() {
     this.returnSceneKey = null;
     this.pauseBelowScene = true;
     this.onClose = null;
@@ -34,11 +54,16 @@ export class TvBroadcastScene extends BaseScene {
 
     this.typingEvent = null;
     this.advanceEvent = null;
+    this.clockEvent = null;
+    this.startupFallback = null;
+    this.closeFallback = null;
 
     this.isTyping = false;
     this.isTransitioning = false;
     this.isBroadcastPaused = false;
     this.isClosing = false;
+    this.hasStarted = false;
+    this.closeCompleted = false;
 
     this.currentLineFullText = '';
     this.currentLinePrefix = '';
@@ -49,15 +74,21 @@ export class TvBroadcastScene extends BaseScene {
     this.tvView = null;
     this.tvEffects = null;
     this.tvControls = null;
+    this.tvAudio = null;
 
     this.anchorTextureKey = null;
     this.anchorDisplayName = '';
 
     this.hasPausedReturnScene = false;
+    this.hudSleptByTv = false;
     this.minimumSegmentHold = 5000;
+
+    this.volumeIndex = 0;
   }
 
   init(data = {}) {
+    this.resetState();
+
     this.returnSceneKey = data.returnSceneKey || null;
 
     this.pauseBelowScene =
@@ -69,35 +100,6 @@ export class TvBroadcastScene extends BaseScene {
       typeof data.onClose === 'function'
         ? data.onClose
         : null;
-
-    this.segmentQueue = [];
-    this.currentSegmentIndex = 0;
-    this.currentLineIndex = 0;
-    this.currentCharIndex = 0;
-
-    this.typingEvent = null;
-    this.advanceEvent = null;
-
-    this.isTyping = false;
-    this.isTransitioning = false;
-    this.isBroadcastPaused = false;
-    this.isClosing = false;
-
-    this.currentLineFullText = '';
-    this.currentLinePrefix = '';
-    this.currentSegment = null;
-
-    this.layout = null;
-
-    this.tvView = null;
-    this.tvEffects = null;
-    this.tvControls = null;
-
-    this.anchorTextureKey = null;
-    this.anchorDisplayName = '';
-
-    this.hasPausedReturnScene = false;
-    this.minimumSegmentHold = 5000;
   }
 
   preload() {
@@ -114,6 +116,8 @@ export class TvBroadcastScene extends BaseScene {
 
     EventBus.emit('hideHUD');
 
+    audioManager.init(this);
+
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
       this.handleShutdown,
@@ -122,6 +126,9 @@ export class TvBroadcastScene extends BaseScene {
 
     this.setupSceneState();
     this.selectBroadcastAnchor();
+
+    this.tvAudio = new TvBroadcastAudio(this);
+
     this.createTvInterface();
     this.createTvControls();
 
@@ -135,8 +142,23 @@ export class TvBroadcastScene extends BaseScene {
       ).segments || [];
 
     this.hideUnderlyingHud();
+
+    this.tvView.onScreenClick = () => this.onAdvancePressed();
+
+    this.updateClock();
+
+    this.clockEvent = this.time.addEvent({
+      delay: 1000,
+      loop: true,
+      callback: () => this.updateClock()
+    });
+
     this.playOpenAnimation();
   }
+
+  /* ========================================================
+     SETUP
+     ======================================================== */
 
   setupSceneState() {
     if (
@@ -165,6 +187,18 @@ export class TvBroadcastScene extends BaseScene {
       this.input.keyboard,
       'keydown-ENTER',
       this.onAdvancePressed
+    );
+
+    this.trackInputEvent(
+      this.input.keyboard,
+      'keydown-RIGHT',
+      this.onAdvancePressed
+    );
+
+    this.trackInputEvent(
+      this.input.keyboard,
+      'keydown-LEFT',
+      this.onPrevPressed
     );
 
     this.trackInputEvent(
@@ -202,6 +236,7 @@ export class TvBroadcastScene extends BaseScene {
     );
 
     this.tvView.addScreenEffects(effects);
+    this.tvEffects.setJitterTarget(this.tvView.ui.screenInner);
     this.tvEffects.start();
   }
 
@@ -213,26 +248,52 @@ export class TvBroadcastScene extends BaseScene {
         onSkip: () => this.onSkipPressed(),
         onNext: () => this.onAdvancePressed(),
         onPauseToggle: () => this.toggleBroadcastPause(),
+        onVolume: () => this.onVolumeKnob(),
+        onTune: () => this.onTuneKnob(),
 
         isActionAllowed: () =>
           !this.isTransitioning &&
           !this.isClosing,
 
         isBroadcastPaused: () =>
-          this.isBroadcastPaused
+          this.isBroadcastPaused,
+
+        getTooltip: id => this.getControlTooltip(id)
       }
     );
 
     this.tvControls.create(this.layout);
   }
 
-  getRegisteredScene(sceneKey) {
-    if (!this.hasScene(sceneKey)) {
-      return null;
-    }
+  getControlTooltip(id) {
+    switch (id) {
+      case 'close':
+        return '[ESC] EXIT';
+      case 'skip':
+        return '[X] SKIP TO NEWS';
+      case 'next':
+        return '[SPACE] NEXT';
+      case 'pause':
+        return this.isBroadcastPaused
+          ? '[P] PLAY'
+          : '[P] PAUSE';
+      case 'volume': {
+        const level = VOLUME_LEVELS[this.volumeIndex];
 
-    return this.scene.manager.keys[sceneKey] || null;
+        return level === 0
+          ? 'VOLUME: MUTED'
+          : `VOLUME: ${Math.round(level * 100)}%`;
+      }
+      case 'tune':
+        return 'TUNE';
+      default:
+        return '';
+    }
   }
+
+  /* ========================================================
+     HUD
+     ======================================================== */
 
   hideUnderlyingHud() {
     const playerHud = this.getRegisteredScene(
@@ -246,40 +307,33 @@ export class TvBroadcastScene extends BaseScene {
     playerHud.closeAllUIPanels?.();
     playerHud.playerMenu?.close?.();
 
+    // Sen zamiast setVisible(false): PlayerHudScene ma globalne skróty
+    // M / I / C / H, które inaczej działałyby pod włączonym telewizorem.
     if (this.isSceneActive('PlayerHudScene')) {
-      playerHud.scene.setVisible(false);
+      this.scene.sleep('PlayerHudScene');
+      this.hudSleptByTv = true;
     }
   }
 
   restoreUnderlyingHud() {
-    const playerHud = this.getRegisteredScene(
-      'PlayerHudScene'
-    );
+    if (this.hudSleptByTv) {
+      this.hudSleptByTv = false;
 
-    if (playerHud) {
-      playerHud.scene.setVisible(true);
+      if (this.isSceneSleeping('PlayerHudScene')) {
+        this.scene.wake('PlayerHudScene');
+      }
     }
+
+    this.getRegisteredScene('PlayerHudScene')
+      ?.scene
+      ?.setVisible?.(true);
 
     EventBus.emit('showHUD');
   }
 
-  setNewsHudButtonsVisible(visible) {
-    const newsHud = this.getRegisteredScene('NewsHud');
-
-    if (!newsHud?.events) {
-      return;
-    }
-
-    newsHud.events.emit(
-      'setNewspaperVisible',
-      visible
-    );
-
-    newsHud.events.emit(
-      'setTvVisible',
-      visible
-    );
-  }
+  /* ========================================================
+     DATA
+     ======================================================== */
 
   selectBroadcastAnchor() {
     const anchors = [
@@ -303,6 +357,48 @@ export class TvBroadcastScene extends BaseScene {
       selectedAnchor.name;
   }
 
+  getClockText() {
+    try {
+      const p = getTimeChangedPayload(gameState);
+      const pad = n => String(n).padStart(2, '0');
+
+      return `DAY ${p.day}  ${pad(p.hour)}:${pad(p.minute)}`;
+    } catch (error) {
+      return '';
+    }
+  }
+
+  getDeadlineText() {
+    try {
+      const p = getTimeChangedPayload(gameState);
+
+      if (!p.caseClockValid || p.caseTimeRemaining === null) {
+        return null;
+      }
+
+      const minutes = Math.floor(p.caseTimeRemaining / 60);
+
+      if (minutes <= 0) {
+        return 'DETECTIVE ADVISORY: THE CASE CLOCK HAS RUN OUT. AWKWARD';
+      }
+
+      const days = Math.floor(minutes / 1440);
+      const hours = Math.floor((minutes % 1440) / 60);
+
+      return `DETECTIVE ADVISORY: ${days}D ${hours}H LEFT ON THE CASE CLOCK. NO PRESSURE`;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  updateClock() {
+    this.tvView?.setClock(this.getClockText());
+  }
+
+  /* ========================================================
+     OPEN / START
+     ======================================================== */
+
   playOpenAnimation() {
     const {
       root,
@@ -318,21 +414,80 @@ export class TvBroadcastScene extends BaseScene {
       })
     );
 
+    this.isTransitioning = true;
+
     this.addTrackedTween(
       this.tweens.add({
         targets: root,
         alpha: 1,
-        scale: 1,
         duration: 180,
         ease: 'Quad.Out',
-        onComplete: () => {
-          if (this.sys.isActive()) {
-            this.playSegment(0);
-          }
-        }
+        onComplete: () => this.runStartupSequence()
       })
     );
+
+    // zabezpieczenie: jeśli sekwencja startowa by się zawiesiła
+    this.startupFallback = this.time.delayedCall(
+      3000,
+      () => this.startFirstSegment()
+    );
   }
+
+  runStartupSequence() {
+    if (!this.sys.isActive() || this.isClosing) {
+      return;
+    }
+
+    this.tvAudio?.powerOn();
+
+    this.tvEffects?.powerOn(() => {
+      if (!this.sys.isActive() || this.isClosing) {
+        return;
+      }
+
+      this.tvAudio?.beep(1000, 0.28);
+
+      this.tvEffects?.showBars(420, () => {
+        if (!this.sys.isActive() || this.isClosing) {
+          return;
+        }
+
+        this.tvEffects?.burst(160);
+        this.tvAudio?.staticBurst(0.16);
+
+        this.time.delayedCall(140, () => this.startFirstSegment());
+      });
+    });
+  }
+
+  startFirstSegment() {
+    if (
+      this.hasStarted ||
+      !this.sys.isActive() ||
+      this.isClosing
+    ) {
+      return;
+    }
+
+    this.hasStarted = true;
+    this.isTransitioning = false;
+
+    this.startupFallback?.remove?.(false);
+    this.startupFallback = null;
+
+    this.tvAudio?.startHum();
+
+    this.playSegment(0);
+
+    this.tvView?.showHint(
+      'SPACE: NEXT   X: SKIP   P: PAUSE   ESC: EXIT',
+      3200
+    );
+  }
+
+  /* ========================================================
+     SEGMENTS
+     ======================================================== */
 
   getSegmentHoldDuration(segment) {
     return Math.max(
@@ -346,8 +501,12 @@ export class TvBroadcastScene extends BaseScene {
       this.advanceEvent.remove(false);
     }
 
+    const duration = this.getSegmentHoldDuration(segment);
+
+    this.tvView?.startProgress(duration);
+
     this.advanceEvent = this.time.delayedCall(
-      this.getSegmentHoldDuration(segment),
+      duration,
       () => {
         if (
           this.sys.isActive() &&
@@ -358,6 +517,8 @@ export class TvBroadcastScene extends BaseScene {
         }
       }
     );
+
+    this.advanceEvent.paused = this.isBroadcastPaused;
   }
 
   playSegment(index) {
@@ -375,6 +536,7 @@ export class TvBroadcastScene extends BaseScene {
 
     this.isBroadcastPaused = false;
 
+    this.tvView?.setPaused(false);
     this.tvControls?.refreshPauseVisual?.();
 
     this.currentSegmentIndex = index;
@@ -391,13 +553,21 @@ export class TvBroadcastScene extends BaseScene {
 
     const segment = this.currentSegment;
 
+    const deadlineText = this.getDeadlineText();
+
     this.tvView.applySegment(
       segment,
       {
         anchorTextureKey: this.anchorTextureKey,
         anchorDisplayName: this.anchorDisplayName,
-        isFirstSegment: index === 0
+        isFirstSegment: index === 0,
+        tickerExtras: deadlineText ? [deadlineText] : []
       }
+    );
+
+    this.tvView.setSegmentIndicator(
+      index,
+      this.segmentQueue.length
     );
 
     this.tvView.setBodyText('');
@@ -508,6 +678,10 @@ export class TvBroadcastScene extends BaseScene {
     this.typingEvent = typingEvent;
   }
 
+  /* ========================================================
+     INPUT
+     ======================================================== */
+
   onAdvancePressed() {
     if (
       this.isClosing ||
@@ -529,6 +703,19 @@ export class TvBroadcastScene extends BaseScene {
     this.advanceEvent = null;
 
     this.advanceSegment();
+  }
+
+  onPrevPressed() {
+    if (
+      this.isClosing ||
+      this.isTransitioning ||
+      this.isBroadcastPaused ||
+      this.currentSegmentIndex <= 0
+    ) {
+      return;
+    }
+
+    this.transitionToSegment(this.currentSegmentIndex - 1);
   }
 
   onSkipPressed() {
@@ -564,8 +751,37 @@ export class TvBroadcastScene extends BaseScene {
     }
   }
 
+  onVolumeKnob() {
+    this.volumeIndex =
+      (this.volumeIndex + 1) % VOLUME_LEVELS.length;
+
+    const level = VOLUME_LEVELS[this.volumeIndex];
+
+    this.tvAudio?.setLevel(level);
+
+    this.tvAudio?.click();
+
+    this.tvView?.showOsd(
+      level === 0
+        ? 'VOLUME: MUTED'
+        : `VOLUME: ${'|'.repeat(Math.round(level * 10))} ${Math.round(level * 100)}%`
+    );
+  }
+
+  onTuneKnob() {
+    this.tvEffects?.burst(220, 1);
+    this.tvEffects?.glitch();
+
+    this.tvAudio?.staticBurst(0.22, 0.6);
+
+    this.tvView?.showOsd(
+      Phaser.Utils.Array.GetRandom(TUNE_MESSAGES),
+      1600
+    );
+  }
+
   toggleBroadcastPause() {
-    if (this.isClosing) {
+    if (this.isClosing || this.isTransitioning) {
       return;
     }
 
@@ -582,6 +798,9 @@ export class TvBroadcastScene extends BaseScene {
         this.isBroadcastPaused;
     }
 
+    this.tvAudio?.click();
+
+    this.tvView?.setPaused(this.isBroadcastPaused);
     this.tvControls?.refreshPauseVisual?.();
   }
 
@@ -627,6 +846,10 @@ export class TvBroadcastScene extends BaseScene {
     );
   }
 
+  /* ========================================================
+     TRANSITIONS / CLOSE
+     ======================================================== */
+
   advanceSegment() {
     if (
       this.isClosing ||
@@ -658,7 +881,11 @@ export class TvBroadcastScene extends BaseScene {
 
     this.isTransitioning = true;
 
-    this.time.delayedCall(130, () => {
+    // "przełączenie kanału": szum + trzask
+    this.tvEffects?.burst(170, 1);
+    this.tvAudio?.staticBurst(0.16);
+
+    this.time.delayedCall(140, () => {
       if (!this.sys.isActive() || this.isClosing) {
         return;
       }
@@ -678,41 +905,72 @@ export class TvBroadcastScene extends BaseScene {
 
     this.clearTimers();
 
-    const {
-      root,
-      backdrop
-    } = this.tvView.ui;
+    this.tvView?.stopProgress();
+    this.tvAudio?.stopHum();
+    this.tvAudio?.powerOff();
 
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: [
-          root,
-          backdrop
-        ],
-        alpha: 0,
-        duration: 180,
-        ease: 'Quad.In',
-        onComplete: () => {
-          this.restoreReturnScene();
-
-          this.setNewsHudButtonsVisible(true);
-
-          this.onClose?.({
-            missionId:
-              gameState.currentMission?.id || null,
-            watched: true,
-            lastSegmentType:
-              this.currentSegment?.type || null
-          });
-
-          this.restoreUnderlyingHud();
-
-          if (this.sys.isActive()) {
-            this.scene.stop();
-          }
-        }
-      })
+    // zabezpieczenie, gdyby animacja power-off nigdy się nie zakończyła
+    this.closeFallback = this.time.delayedCall(
+      1200,
+      () => this.completeClose()
     );
+
+    const fadeOut = () => {
+      const view = this.tvView;
+
+      if (!view?.ui?.root) {
+        this.completeClose();
+        return;
+      }
+
+      this.addTrackedTween(
+        this.tweens.add({
+          targets: [
+            view.ui.root,
+            view.ui.backdrop
+          ],
+          alpha: 0,
+          duration: 160,
+          ease: 'Quad.In',
+          onComplete: () => this.completeClose()
+        })
+      );
+    };
+
+    if (this.tvEffects) {
+      this.tvEffects.powerOff(fadeOut);
+    } else {
+      fadeOut();
+    }
+  }
+
+  completeClose() {
+    if (this.closeCompleted) {
+      return;
+    }
+
+    this.closeCompleted = true;
+
+    this.closeFallback?.remove?.(false);
+    this.closeFallback = null;
+
+    this.restoreReturnScene();
+
+    this.showNewsHudButtons?.();
+
+    this.onClose?.({
+      missionId:
+        gameState.currentMission?.id || null,
+      watched: true,
+      lastSegmentType:
+        this.currentSegment?.type || null
+    });
+
+    this.restoreUnderlyingHud();
+
+    if (this.sys.isActive()) {
+      this.scene.stop();
+    }
   }
 
   restoreReturnScene() {
@@ -746,11 +1004,22 @@ export class TvBroadcastScene extends BaseScene {
 
     this.advanceEvent = null;
 
+    this.tvView?.stopProgress();
+
     this.isTyping = false;
   }
 
   handleShutdown() {
     this.clearTimers();
+
+    this.clockEvent?.remove?.(false);
+    this.clockEvent = null;
+
+    this.startupFallback?.remove?.(false);
+    this.startupFallback = null;
+
+    this.closeFallback?.remove?.(false);
+    this.closeFallback = null;
 
     this.tvEffects?.destroy?.();
     this.tvEffects = null;
@@ -761,9 +1030,12 @@ export class TvBroadcastScene extends BaseScene {
     this.tvView?.destroy?.();
     this.tvView = null;
 
+    this.tvAudio?.destroy?.();
+    this.tvAudio = null;
+
     this.restoreReturnScene();
     this.restoreUnderlyingHud();
-    this.setNewsHudButtonsVisible(true);
+    this.showNewsHudButtons?.();
 
     this.layout = null;
 

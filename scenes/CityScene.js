@@ -38,7 +38,7 @@ const CITY_BACKGROUND_KEYS = {
   toronto: 'toronto',
   nairobi: 'nairobi',
   islamabad: 'islamabad',
-  kotto: 'kotto',
+  kotte: 'kotte',
   tokyo: 'tokyo',
   hq: 'start'
 };

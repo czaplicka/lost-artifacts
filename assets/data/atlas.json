@@ -1,56 +1,300 @@
 [
   {
     "id": "france",
+    "iso3": "FRA",
     "name": "France",
     "capital": "Paris",
+    "capitalCoordinates": [
+      2.3522,
+      48.8566
+    ],
     "region": "Western Europe",
     "description": "France is where elegance, cheese, and very serious opinions about bread peacefully coexist. Paris is the capital, which means at least half the country is probably pretending not to care about Paris while secretly talking about it all the time. Expect grand boulevards, famous art, and enough cafés to make every detective feel dramatically thoughtful.",
     "knownFor": "Art, fashion, cuisine",
-    "mapKey": "atlas_france"
+    "cities": [
+      {
+        "id": "paris",
+        "name": "Paris",
+        "coordinates": [
+          2.3522,
+          48.8566
+        ],
+        "description": "Paris supplies grand boulevards, cafés, and enough dramatic backdrops to make a routine interview feel like the final scene. Your suspect may be elusive. Your coffee bill will not be.",
+        "knownFor": "Cafés, art, grand boulevards"
+      }
+    ],
+    "mapBounds": [
+      -6,
+      41,
+      11,
+      52
+    ],
+    "mapLabel": "METROPOLITAN FRANCE"
   },
   {
     "id": "uk",
+    "iso3": "GBR",
     "name": "United Kingdom",
     "capital": "London",
+    "capitalCoordinates": [
+      -0.1276,
+      51.5072
+    ],
     "region": "Western Europe",
     "description": "The United Kingdom is a place where history, understatement, and weather reports are treated with equal respect. London is the capital, full of landmarks, double-decker buses, and people who will absolutely queue in a perfectly civilized way while judging your umbrella technique. It is an excellent destination for tea, mystery, and saying 'interesting' when you really mean something else.",
     "knownFor": "Tea, monarchy, rainy charm",
-    "mapKey": "atlas_uk"
+    "cities": [
+      {
+        "id": "london",
+        "name": "London",
+        "coordinates": [
+          -0.1276,
+          51.5072
+        ],
+        "description": "London offers museums, busy streets, and the useful possibility of looking suspicious simply by standing still. Pack an umbrella. It doubles as excellent equipment for pointing at things you have not solved.",
+        "knownFor": "Museums, double-decker buses, city landmarks"
+      }
+    ]
   },
   {
     "id": "poland",
+    "iso3": "POL",
     "name": "Poland",
     "capital": "Warsaw",
+    "capitalCoordinates": [
+      21.0122,
+      52.2297
+    ],
     "region": "Central Europe",
     "description": "Poland sits in the heart of Europe and has mastered the art of being resilient, clever, and suspiciously good at soup. Warsaw is the capital, rebuilt with determination and now busy proving that history and modern life can share the same street. The country offers medieval cities, strong opinions, and enough pierogi to derail even the best detective schedule.",
     "knownFor": "Pierogi, history, bold character",
-    "mapKey": "atlas_poland"
+    "cities": [
+      {
+        "id": "warsaw",
+        "name": "Warsaw",
+        "coordinates": [
+          21.0122,
+          52.2297
+        ],
+        "description": "Warsaw pairs an old-town atmosphere with a skyline that clearly has other plans. Follow the evidence, check the address twice, and do not classify a proper lunch as an optional side quest.",
+        "knownFor": "Old Town, history, modern skyline"
+      }
+    ]
   },
   {
     "id": "germany",
+    "iso3": "DEU",
     "name": "Germany",
     "capital": "Berlin",
+    "capitalCoordinates": [
+      13.405,
+      52.52
+    ],
     "region": "Central Europe",
     "description": "Germany is famous for engineering, efficiency, and the comforting idea that somewhere a train timetable still believes in itself. Berlin is the capital, a city where history, creativity, and excellent nightlife all collided and somehow produced a functioning metropolis. Expect castles, forests, and a national talent for making things work properly, including very serious bread.",
     "knownFor": "Engineering, castles, bread",
-    "mapKey": "atlas_germany"
+    "cities": [
+      {
+        "id": "berlin",
+        "name": "Berlin",
+        "coordinates": [
+          13.405,
+          52.52
+        ],
+        "description": "Berlin has layers of history, a lively arts scene, and enough evening distractions to put a surveillance budget in serious danger. The assignment says follow the suspect, not their entire social calendar.",
+        "knownFor": "History, art, nightlife"
+      }
+    ]
   },
   {
     "id": "usa",
+    "iso3": "USA",
     "name": "United States",
     "capital": "Washington, D.C.",
+    "capitalCoordinates": [
+      -77.0369,
+      38.9072
+    ],
     "region": "North America",
-    "description": "The United States is enormous, energetic, and fully committed to the idea that everything should come in extra large. Washington, D.C. is the capital, where politics, monuments, and people walking very fast create a special kind of national theater. From coast to coast, the country serves up skyscrapers, deserts, diners, and enough variety to make one case feel like six different vacations.",
+    "description": "The United States is enormous, energetic, and fully committed to the idea that everything should come in extra large. Washington, D.C. is the capital, but our current field assignment takes us to New York City. Consult the city entry before booking anything expensive, which in this case means almost anything.",
     "knownFor": "Big cities, highways, pop culture",
-    "mapKey": "atlas_east_usa"
+    "cities": [
+      {
+        "id": "nyc",
+        "name": "New York City",
+        "coordinates": [
+          -74.006,
+          40.7128
+        ],
+        "description": "New York City has five boroughs and very little patience for a detective blocking the pavement. Between the skyline, the subway, and the constant motion, a suspect has plenty of places to disappear. Start with the evidence. Looking meaningfully at tall buildings is not a lead.",
+        "knownFor": "Five boroughs, skyline, subway",
+        "aliases": [
+          "NYC",
+          "New York",
+          "New York City"
+        ]
+      }
+    ],
+    "mapBounds": [
+      -126,
+      24,
+      -66,
+      50
+    ],
+    "mapLabel": "CONTIGUOUS UNITED STATES"
   },
   {
     "id": "india",
+    "iso3": "IND",
     "name": "India",
     "capital": "New Delhi",
+    "capitalCoordinates": [
+      77.209,
+      28.6139
+    ],
     "region": "South Asia",
     "description": "India is vast, vivid, and gloriously impossible to summarize without sounding like you need three more atlases. New Delhi is the capital, where government buildings, endless motion, and daily life all compete for your attention at once. The country is known for deep history, remarkable diversity, unforgettable food, and traffic that appears to run partly on instinct and divine confidence.",
     "knownFor": "Diversity, spices, ancient history",
-    "mapKey": "atlas_india"
+    "cities": [
+      {
+        "id": "new_delhi",
+        "name": "New Delhi",
+        "coordinates": [
+          77.209,
+          28.6139
+        ],
+        "description": "New Delhi is our reference point for the Indian capital. Keep your notes organised: a street name, a meeting place, and a suspiciously vague address are three different things, however confidently your witness delivers them.",
+        "knownFor": "Government buildings, history, city landmarks"
+      }
+    ]
+  },
+  {
+    "id": "kenya",
+    "iso3": "KEN",
+    "name": "Kenya",
+    "capital": "Nairobi",
+    "capitalCoordinates": [
+      36.8219,
+      -1.2921
+    ],
+    "region": "East Africa",
+    "description": "Our Kenya file currently points to Nairobi. As always, a country is rather larger than the one address supplied by a nervous witness. Consult the city page before attempting to search the entire map.",
+    "knownFor": "Nairobi field destination",
+    "cities": [
+      {
+        "id": "nairobi",
+        "name": "Nairobi",
+        "coordinates": [
+          36.8219,
+          -1.2921
+        ],
+        "description": "Nairobi is the capital of Kenya and our current point of interest. Write down the meeting place, confirm who actually saw the suspect, and resist the urge to file every unfamiliar sound under suspicious activity.",
+        "knownFor": "Capital of Kenya"
+      }
+    ]
+  },
+  {
+    "id": "sri_lanka",
+    "iso3": "LKA",
+    "name": "Sri Lanka",
+    "capital": "Sri Jayewardenepura Kotte",
+    "capitalCoordinates": [
+      79.9083,
+      6.9028
+    ],
+    "region": "South Asia",
+    "description": "Our Sri Lanka file currently leads to Kotte. The official name is longer than the agency booking form anticipated. This is a stationery problem, not a reason to abbreviate the investigation.",
+    "knownFor": "Kotte field destination",
+    "cities": [
+      {
+        "id": "kotte",
+        "name": "Kotte",
+        "coordinates": [
+          79.9083,
+          6.9028
+        ],
+        "description": "Sri Jayewardenepura Kotte is Sri Lanka's legislative capital. For the purposes of fitting this file into a normal-sized folder, we use Kotte. Do not confuse a shorter label with a shorter list of questions for your witness.",
+        "knownFor": "Legislative capital of Sri Lanka",
+        "aliases": [
+          "Sri Jayewardenepura Kotte",
+          "Sri Jayawardenepura Kotte"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pakistan",
+    "iso3": "PAK",
+    "name": "Pakistan",
+    "capital": "Islamabad",
+    "capitalCoordinates": [
+      73.0479,
+      33.6844
+    ],
+    "region": "South Asia",
+    "description": "Our Pakistan file currently points to Islamabad. Before departure, check the witness statement, the itinerary, and whether the agency has once again booked a connection that requires professional sprinting.",
+    "knownFor": "Islamabad field destination",
+    "cities": [
+      {
+        "id": "islamabad",
+        "name": "Islamabad",
+        "coordinates": [
+          73.0479,
+          33.6844
+        ],
+        "description": "Islamabad is the capital of Pakistan. Begin with a precise address and a plausible appointment. Wandering around with a notebook and a determined expression remains technically a walk, not an investigation.",
+        "knownFor": "Capital of Pakistan"
+      }
+    ]
+  },
+  {
+    "id": "canada",
+    "iso3": "CAN",
+    "name": "Canada",
+    "capital": "Ottawa",
+    "capitalCoordinates": [
+      -75.6972,
+      45.4215
+    ],
+    "region": "North America",
+    "description": "Our current Canadian assignment leads to Toronto. The capital belongs in the reference file; the destination belongs on the ticket. The agency accounts department would appreciate everyone remembering the difference.",
+    "knownFor": "Toronto field destination",
+    "cities": [
+      {
+        "id": "toronto",
+        "name": "Toronto",
+        "coordinates": [
+          -79.3832,
+          43.6532
+        ],
+        "description": "Toronto is our Canadian field destination. Ottawa remains the national capital; please do not let a suspect's itinerary rewrite the atlas. Keep your appointment details handy and your expense claims considerably less creative than your theories.",
+        "knownFor": "Canadian field destination"
+      }
+    ]
+  },
+  {
+    "id": "japan",
+    "iso3": "JPN",
+    "name": "Japan",
+    "capital": "Tokyo",
+    "capitalCoordinates": [
+      139.6917,
+      35.6895
+    ],
+    "region": "East Asia",
+    "description": "Our Japan file currently leads to Tokyo. Bring a clear itinerary, an organised notebook, and a plan more specific than following whoever looks mysterious. The last method produced seven unrelated lunch receipts.",
+    "knownFor": "Tokyo field destination",
+    "cities": [
+      {
+        "id": "tokyo",
+        "name": "Tokyo",
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "description": "Tokyo is the capital of Japan and the destination in this file. Confirm the meeting point before you travel: a city name is not an address, however helpfully your witness underlines it. The notebook remains cheaper than another missed appointment.",
+        "knownFor": "Capital of Japan"
+      }
+    ]
   }
 ]

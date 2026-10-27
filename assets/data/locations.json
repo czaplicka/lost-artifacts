@@ -314,15 +314,15 @@
 }
   },
   {
-    "id": "kotto",
-    "city": "Kotto",
+    "id": "kotte",
+    "city": "kotte",
     "country": "Sri Lanka",
     "travelRegion": "south_asia",
     "airport": true,
     "harbor": true,
     "busStation": true,
     "trainStation": true,
-    "background": "kotto.jpg",
+    "background": "kotte.jpg",
     "npcTheme": "south_asian",
     "map": { "x": 1325, "y": 570 },
     "isCrimeCity": false,
@@ -332,18 +332,18 @@
       { "id": "slot_3", "cityX": 900, "cityY": 320, "enabled": true }
     ],
     "encounterPool": [
-      { "id": "kotto_bankier_bank", "npcId": "bankier", "locationId": "bank" },
-      { "id": "kotto_fence_alley", "npcId": "fence", "locationId": "alley" },
-      { "id": "kotto_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
-      { "id": "kotto_maid_hotel", "npcId": "maid", "locationId": "hotel" },
-      { "id": "kotto_police_policehq", "npcId": "police", "locationId": "policehq" },
-      { "id": "kotto_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
-      { "id": "kotto_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
-      { "id": "kotto_bum_garbage", "npcId": "bum", "locationId": "garbage" }
+      { "id": "kotte_bankier_bank", "npcId": "bankier", "locationId": "bank" },
+      { "id": "kotte_fence_alley", "npcId": "fence", "locationId": "alley" },
+      { "id": "kotte_stewardessa_airport", "npcId": "stewardessa", "locationId": "airport" },
+      { "id": "kotte_maid_hotel", "npcId": "maid", "locationId": "hotel" },
+      { "id": "kotte_police_policehq", "npcId": "police", "locationId": "policehq" },
+      { "id": "kotte_parkingowy_parking", "npcId": "parkingowy", "locationId": "parking" },
+      { "id": "kotte_knajpa_restaurant", "npcId": "knajpa", "locationId": "restaurant" },
+      { "id": "kotte_bum_garbage", "npcId": "bum", "locationId": "garbage" }
     ],
     "encounterRules": { "count": 3, "uniqueNpc": true, "uniqueLocation": true },
     "crimeCity": {
-  "backgroundKey": "kotto_crime",
+  "backgroundKey": "kotte_crime",
   "crimeScene": { "x": 1120, "y": 480 },
   "crimeLab": { "x": 950, "y": 250 },
   "hotel": { "x": 145, "y": 660 },
