@@ -88,7 +88,7 @@
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(255, 255, 255, 0.03);
-  background: url('/assets/crime-board.jpg') center center / cover no-repeat;
+  background: url('/assets/crime-board.webp') center center / cover no-repeat;
 }
 
 .crime-board-ui-modal::before {

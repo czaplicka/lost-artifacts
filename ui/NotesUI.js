@@ -1,72 +1,158 @@
-import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
-  import { EventBus } from '../EventBus.js';
+import {
+  saveGameState,
+  requestAutosave
+} from '../gameStatePersistence.js';
 
-  export class NotesUI {
-    constructor(scene) {
-      this.scene = scene;
-      this.isOpen = false;
-      this.isTyping = false;
-      this.currentGameState = null;
+import { EventBus } from '../EventBus.js';
 
-      this.boundToggleHandler = this.onToggleKeyDown.bind(this);
-      this.boundGlobalKeyHandler = this.onGlobalKeyDown.bind(this);
+export class NotesUI {
+  constructor(scene) {
+    this.scene = scene;
+    this.isOpen = false;
+    this.isTyping = false;
+    this.currentGameState = null;
 
-      const { width, height } = this.scene.scale;
+    this.cluePages = ['No clues found yet...'];
+    this.cluePageIndex = 0;
+    this.lastCluesText = null;
 
-      this.overlay = this.scene.add
-        .rectangle(width / 2, height / 2, width, height, 0x000000, 0.6)
-        .setInteractive()
-        .setDepth(20)
-        .setVisible(false);
+    this.boundToggleHandler = this.onToggleKeyDown.bind(this);
+    this.boundGlobalKeyHandler = this.onGlobalKeyDown.bind(this);
 
-      this.overlay.on('pointerdown', () => this.close());
+    const { width, height } = this.scene.scale;
 
-      this.container = this.scene.add.container(0, 0).setDepth(21).setVisible(false);
+    this.cluesWidth = Math.min(500, width * 0.29);
+    this.cluesHeight = Math.max(80, height * 0.62);
 
-      const bg = this.scene.add.image(width / 2, height / 2, 'notes').setScale(1.0).setInteractive().setDisplaySize(1920, 1080);
-      this.container.add(bg);
+    this.overlay = this.scene.add
+      .rectangle(
+        width / 2,
+        height / 2,
+        width,
+        height,
+        0x000000,
+        0.6
+      )
+      .setInteractive()
+      .setDepth(20)
+      .setVisible(false);
 
-      const closeBtn = this.scene.add.text(width * 0.87, height * 0.03, 'X', {
+    this.overlay.on('pointerdown', () => this.close());
+
+    this.container = this.scene.add
+      .container(0, 0)
+      .setDepth(21)
+      .setVisible(false);
+
+    const bg = this.scene.add
+      .image(width / 2, height / 2, 'notes')
+      .setDisplaySize(1920, 1080)
+      .setInteractive();
+
+    this.container.add(bg);
+
+    const closeBtn = this.scene.add
+      .text(width * 0.87, height * 0.03, 'X', {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
         color: '#000000'
       })
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.close());
+      .setInteractive({ useHandCursor: true })
+      .on('pointerdown', () => this.close());
 
-      this.container.add(closeBtn);
+    this.container.add(closeBtn);
 
-      this.gameNotesText = this.scene.add.text(width * 0.17, height * 0.06, '', {
+    this.cluesTitleText = this.scene.add.text(
+      width * 0.17,
+      height * 0.06,
+      'Clues',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '26px',
+        color: '#000000'
+      }
+    );
+
+    this.container.add(this.cluesTitleText);
+
+    this.gameNotesText = this.scene.add.text(
+      width * 0.17,
+      height * 0.14,
+      '',
+      {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#000000',
-        wordWrap: { width: 500 },
+        wordWrap: {
+          width: this.cluesWidth,
+          useAdvancedWrap: true
+        },
         lineSpacing: 8,
         padding: { top: 6, bottom: 2 }
-      });
+      }
+    );
 
-      this.container.add(this.gameNotesText);
+    this.container.add(this.gameNotesText);
 
-      this.gameNotesTitleText = this.scene.add.text(width * 0.52, height * 0.13, 'Your notes', {
+    this.prevCluesBtn = this.createPageButton(
+      width * 0.17,
+      height * 0.82,
+      '< PREV',
+      () => this.changeCluePage(-1)
+    );
+
+    this.cluesPageText = this.scene.add
+      .text(width * 0.305, height * 0.82, '', {
+        fontFamily: 'SpecialElite',
+        fontSize: '20px',
+        color: '#333333'
+      })
+      .setOrigin(0.5);
+
+    this.container.add(this.cluesPageText);
+
+    this.nextCluesBtn = this.createPageButton(
+      width * 0.44,
+      height * 0.82,
+      'NEXT >',
+      () => this.changeCluePage(1)
+    );
+
+    this.nextCluesBtn.setOrigin(1, 0.5);
+
+    this.gameNotesTitleText = this.scene.add.text(
+      width * 0.52,
+      height * 0.13,
+      'Your notes',
+      {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#000000',
         wordWrap: { width: 400 },
         lineSpacing: 8,
         padding: { top: 6, bottom: 2 }
-      });
+      }
+    );
 
-      this.container.add(this.gameNotesTitleText);
+    this.container.add(this.gameNotesTitleText);
 
-      this.modeHintText = this.scene.add.text(width * 0.68, height * 0.15, '[ CLICK TO WRITE | ESC TO STOP ]', {
-        fontFamily: 'SpecialElite',
-        fontSize: '16px',
-        color: '#333333'
-      }).setOrigin(0.5);
+    this.modeHintText = this.scene.add
+      .text(
+        width * 0.68,
+        height * 0.15,
+        '[ CLICK TO WRITE | ESC TO STOP ]',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '16px',
+          color: '#333333'
+        }
+      )
+      .setOrigin(0.5);
 
-      this.container.add(this.modeHintText);
+    this.container.add(this.modeHintText);
 
-      this.playerInputDOM = this.scene.add.dom(
+    this.playerInputDOM = this.scene.add
+      .dom(
         width * 0.63,
         height * 0.4,
         'textarea',
@@ -83,255 +169,410 @@ import { saveGameState, requestAutosave } from '../gameStatePersistence.js';
           'pointer-events: auto'
         ].join('; ') + ';',
         ''
-      ).setOrigin(0.5);
+      )
+      .setOrigin(0.5);
 
-      this.container.add(this.playerInputDOM);
+    this.container.add(this.playerInputDOM);
 
-      this.onInput = event => {
-        if (this.isOpen && this.isTyping) {
-          this.updateNotes(event.target.value);
-        }
-      };
+    this.onInput = event => {
+      if (this.isOpen && this.isTyping) {
+        this.updateNotes(event.target.value);
+      }
+    };
 
-      this.onTextAreaFocus = () => {
-        if (this.isOpen) {
-          this.enableTypingMode();
-        }
-      };
+    this.onTextAreaFocus = () => {
+      if (this.isOpen) this.enableTypingMode();
+    };
 
-      this.onTextAreaBlur = () => {
-        if (this.isOpen) {
-          this.disableTypingMode();
-        }
-      };
+    this.onTextAreaBlur = () => {
+      if (this.isOpen) this.disableTypingMode();
+    };
 
-      this.playerInputDOM.node.addEventListener('input', this.onInput);
-      this.playerInputDOM.node.addEventListener('focus', this.onTextAreaFocus);
-      this.playerInputDOM.node.addEventListener('blur', this.onTextAreaBlur);
+    this.playerInputDOM.node.addEventListener('input', this.onInput);
+    this.playerInputDOM.node.addEventListener(
+      'focus',
+      this.onTextAreaFocus
+    );
+    this.playerInputDOM.node.addEventListener(
+      'blur',
+      this.onTextAreaBlur
+    );
 
-      const clearBtn = this.scene.add.text(width * 0.68, height * 0.82, '[ CLEAR NOTES ]', {
+    const clearBtn = this.scene.add
+      .text(width * 0.68, height * 0.82, '[ CLEAR NOTES ]', {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#8b0000'
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
 
-      clearBtn.on('pointerover', () => clearBtn.setColor('#ff0000'));
-      clearBtn.on('pointerout', () => clearBtn.setColor('#8b0000'));
+    clearBtn.on('pointerover', () => clearBtn.setColor('#ff0000'));
+    clearBtn.on('pointerout', () => clearBtn.setColor('#8b0000'));
 
-      clearBtn.on('pointerdown', () => {
-        this.playerInputDOM.node.value = '';
-        this.updateNotes('');
-        saveGameState();
-      });
+    clearBtn.on('pointerdown', () => {
+      this.playerInputDOM.node.value = '';
+      this.updateNotes('');
+      saveGameState();
+    });
 
-      this.container.add(clearBtn);
+    this.container.add(clearBtn);
 
-      this.bindKeyboardShortcut();
-      document.addEventListener('keydown', this.boundGlobalKeyHandler);
-    }
+    this.bindKeyboardShortcut();
+    document.addEventListener('keydown', this.boundGlobalKeyHandler);
+  }
 
-    bindKeyboardShortcut() {
-      if (!this.scene.input?.keyboard) return;
+  createPageButton(x, y, label, callback) {
+    const button = this.scene.add
+      .text(x, y, label, {
+        fontFamily: 'SpecialElite',
+        fontSize: '20px',
+        color: '#352719'
+      })
+      .setOrigin(0, 0.5)
+      .setInteractive({ useHandCursor: true });
 
-      this.scene.input.keyboard.on('keydown-N', this.boundToggleHandler);
-    }
+    button.on('pointerover', () => {
+      if (button.input?.enabled) button.setColor('#8b0000');
+    });
 
-    onToggleKeyDown(event) {
-      const activeTag = document.activeElement?.tagName;
-      const isTypingInAnyField =
-        activeTag === 'INPUT' ||
-        activeTag === 'TEXTAREA' ||
-        document.activeElement?.isContentEditable;
+    button.on('pointerout', () => button.setColor('#352719'));
 
-      if (isTypingInAnyField && !this.isOpen) return;
+    button.on('pointerdown', () => {
+      if (button.input?.enabled) callback();
+    });
 
-      event.preventDefault();
-      this.toggle(this.currentGameState || this.scene.playerMenu?.gameState || this.scene.gameState);
-    }
+    this.container.add(button);
+    return button;
+  }
 
-    onGlobalKeyDown(event) {
-      if (!this.isOpen) return;
+  setPageButtonEnabled(button, enabled) {
+    button.setAlpha(enabled ? 1 : 0.3);
+    button.setColor('#352719');
 
-      if (event.key === 'Escape') {
-        event.preventDefault();
+    if (button.input) button.input.enabled = enabled;
+  }
 
-        if (this.isTyping) {
-          this.disableTypingMode();
+  changeCluePage(direction) {
+    const nextIndex = this.cluePageIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= this.cluePages.length) return;
+
+    this.cluePageIndex = nextIndex;
+    this.renderCluePage();
+  }
+
+  renderCluePage() {
+    this.cluePageIndex = Math.max(
+      0,
+      Math.min(this.cluePageIndex, this.cluePages.length - 1)
+    );
+
+    this.gameNotesText.setText(
+      this.cluePages[this.cluePageIndex] || ''
+    );
+
+    this.cluesPageText.setText(
+      `${this.cluePageIndex + 1} / ${this.cluePages.length}`
+    );
+
+    this.setPageButtonEnabled(
+      this.prevCluesBtn,
+      this.cluePageIndex > 0
+    );
+
+    this.setPageButtonEnabled(
+      this.nextCluesBtn,
+      this.cluePageIndex < this.cluePages.length - 1
+    );
+  }
+
+  buildCluePages(gameState) {
+    const clues = Array.isArray(gameState?.cluesCollected)
+      ? gameState.cluesCollected.filter(
+          clue => clue?.category !== 'skills'
+        )
+      : [];
+
+    if (!clues.length) return ['No clues found yet...'];
+
+    const pages = [];
+    let currentPage = '';
+
+    const fits = text => {
+      this.gameNotesText.setText(text);
+      return this.gameNotesText.height <= this.cluesHeight;
+    };
+
+    const finishPage = () => {
+      if (!currentPage) return;
+
+      pages.push(currentPage);
+      currentPage = '';
+    };
+
+    for (const clue of clues) {
+      const entry = `- ${this.formatClue(clue)}`;
+      const candidate = currentPage
+        ? `${currentPage}\n\n${entry}`
+        : entry;
+
+      if (fits(candidate)) {
+        currentPage = candidate;
+        continue;
+      }
+
+      finishPage();
+
+      if (fits(entry)) {
+        currentPage = entry;
+        continue;
+      }
+
+      // Wyjątkowo długą wskazówkę dzielimy między stronami.
+      let fragment = '';
+
+      for (const character of entry) {
+        const candidateFragment = fragment + character;
+
+        if (fragment && !fits(candidateFragment)) {
+          pages.push(fragment.trimEnd());
+          fragment = character.trimStart();
         } else {
-          this.close();
+          fragment = candidateFragment;
         }
       }
+
+      currentPage = fragment;
     }
 
-    enableTypingMode() {
-      if (this.isTyping) return;
+    finishPage();
 
-      this.isTyping = true;
-      this.modeHintText.setText('[ WRITING... ESC TO STOP ]');
-
-      if (this.scene.input?.keyboard) {
-        this.scene.input.keyboard.enabled = false;
-        this.scene.input.keyboard.disableGlobalCapture();
-      }
-    }
-
-    disableTypingMode() {
-      if (!this.isTyping) return;
-
-      this.isTyping = false;
-      this.modeHintText.setText('[ CLICK TO WRITE | ESC TO STOP ]');
-
-      if (this.scene.input?.keyboard) {
-        this.scene.input.keyboard.enabled = true;
-        this.scene.input.keyboard.enableGlobalCapture();
-        this.scene.input.keyboard.resetKeys();
-      }
-
-      if (document.activeElement === this.playerInputDOM?.node) {
-        this.playerInputDOM.node.blur();
-      }
-    }
-
-    updateNotes(newText) {
-      if (this.currentGameState) {
-        this.currentGameState.playerNotes = newText;
-        requestAutosave();
-      }
-    }
-
-    humanizeCategory(category) {
-      const map = {
-        hair: 'Hair',
-        eyes: 'Eyes',
-        features: 'Feature',
-        accent: 'Accent',
-        skills: 'Skill',
-        habitus: 'Habit'
-      };
-
-      return map[category] || 'Trait';
-    }
-
-    formatSuspectClue(clue) {
-      const label = this.humanizeCategory(clue.category);
-      const value = clue.value || clue.key || 'unknown';
-
-      return `${label}: ${value}`;
-    }
-
-    formatTravelClue(clue) {
-      return clue.tag || clue.text || 'Travel clue recorded.';
-    }
-
-    formatGenericClue(clue) {
-      if (clue.text) return clue.text;
-      if (clue.tag) return clue.tag;
-      if (clue.value) return String(clue.value);
-      if (clue.key) return String(clue.key);
-      return 'Unsorted clue';
-    }
-
-    formatClue(clue) {
-      if (!clue) return 'Unknown clue';
-
-      if (typeof clue === 'string') {
-        return clue;
-      }
-
-      if (clue.type === 'travel') {
-        return this.formatTravelClue(clue);
-      }
-
-      if (clue.type === 'suspect') {
-        return this.formatSuspectClue(clue);
-      }
-
-      if (clue.text) {
-        return clue.text;
-      }
-
-      return this.formatGenericClue(clue);
-    }
-
-buildCluesText(gameState) {
-  let cluesText = 'Clues:\n\n\n';
-
-  const visibleClues = Array.isArray(gameState?.cluesCollected)
-    ? gameState.cluesCollected.filter(clue => clue?.category !== 'skills')
-    : [];
-
-  if (visibleClues.length > 0) {
-    cluesText += visibleClues
-      .map(clue => `- ${this.formatClue(clue)}`)
-      .join('\n');
-  } else {
-    cluesText += 'No clues found yet...';
+    return pages.length ? pages : ['No clues found yet...'];
   }
 
-  return cluesText;
+  bindKeyboardShortcut() {
+    this.scene.input?.keyboard?.on(
+      'keydown-N',
+      this.boundToggleHandler
+    );
+  }
+
+  onToggleKeyDown(event) {
+    const activeElement = document.activeElement;
+    const activeTag = activeElement?.tagName;
+
+    const isTypingInAnyField =
+      activeTag === 'INPUT' ||
+      activeTag === 'TEXTAREA' ||
+      activeElement?.isContentEditable;
+
+    if (isTypingInAnyField) return;
+
+    event.preventDefault();
+
+    this.toggle(
+      this.currentGameState ||
+      this.scene.playerMenu?.gameState ||
+      this.scene.gameState
+    );
+  }
+
+  onGlobalKeyDown(event) {
+    if (!this.isOpen || event.key !== 'Escape') return;
+
+    event.preventDefault();
+
+    if (this.isTyping) {
+      this.disableTypingMode();
+    } else {
+      this.close();
+    }
+  }
+
+  enableTypingMode() {
+    if (this.isTyping) return;
+
+    this.isTyping = true;
+    this.modeHintText.setText('[ WRITING... ESC TO STOP ]');
+
+    if (this.scene.input?.keyboard) {
+      this.scene.input.keyboard.enabled = false;
+      this.scene.input.keyboard.disableGlobalCapture();
+    }
+  }
+
+  disableTypingMode() {
+    if (!this.isTyping) return;
+
+    this.isTyping = false;
+    this.modeHintText.setText('[ CLICK TO WRITE | ESC TO STOP ]');
+
+    if (this.scene.input?.keyboard) {
+      this.scene.input.keyboard.enabled = true;
+      this.scene.input.keyboard.enableGlobalCapture();
+      this.scene.input.keyboard.resetKeys();
+    }
+
+    if (document.activeElement === this.playerInputDOM?.node) {
+      this.playerInputDOM.node.blur();
+    }
+  }
+
+  updateNotes(newText) {
+    if (!this.currentGameState) return;
+
+    this.currentGameState.playerNotes = newText;
+    requestAutosave();
+  }
+
+  humanizeCategory(category) {
+    const map = {
+      hair: 'Hair',
+      eyes: 'Eyes',
+      features: 'Feature',
+      accent: 'Accent',
+      skills: 'Skill',
+      habitus: 'Habit'
+    };
+
+    return map[category] || 'Trait';
+  }
+
+  formatSuspectClue(clue) {
+    const label = this.humanizeCategory(clue.category);
+    const value = clue.value || clue.key || 'unknown';
+
+    return `${label}: ${value}`;
+  }
+
+  formatTravelClue(clue) {
+    return clue.tag || clue.text || 'Travel clue recorded.';
+  }
+
+  formatGenericClue(clue) {
+    if (clue.text) return clue.text;
+    if (clue.tag) return clue.tag;
+    if (clue.value) return String(clue.value);
+    if (clue.key) return String(clue.key);
+
+    return 'Unsorted clue';
+  }
+
+  formatClue(clue) {
+    if (!clue) return 'Unknown clue';
+    if (typeof clue === 'string') return clue;
+
+    if (clue.type === 'travel') {
+      return this.formatTravelClue(clue);
+    }
+
+    if (clue.type === 'suspect') {
+      return this.formatSuspectClue(clue);
+    }
+
+    if (clue.text) return clue.text;
+
+    return this.formatGenericClue(clue);
+  }
+
+  buildCluesText(gameState) {
+    const clues = Array.isArray(gameState?.cluesCollected)
+      ? gameState.cluesCollected.filter(
+          clue => clue?.category !== 'skills'
+        )
+      : [];
+
+    return clues.length
+      ? 'Clues:\n\n' +
+          clues.map(clue => `- ${this.formatClue(clue)}`).join('\n\n')
+      : 'Clues:\n\nNo clues found yet...';
+  }
+
+  refresh(gameState = this.currentGameState) {
+    if (!gameState) return;
+
+    const stateChanged = this.currentGameState !== gameState;
+    this.currentGameState = gameState;
+
+    const cluesText = this.buildCluesText(gameState);
+
+    if (stateChanged || cluesText !== this.lastCluesText) {
+      if (stateChanged) this.cluePageIndex = 0;
+
+      this.cluePages = this.buildCluePages(gameState);
+      this.lastCluesText = cluesText;
+    }
+
+    this.renderCluePage();
+
+    if (this.playerInputDOM?.node && !this.isTyping) {
+      this.playerInputDOM.node.value = gameState.playerNotes || '';
+    }
+  }
+
+  open(gameState) {
+    this.disableTypingMode();
+    this.isOpen = true;
+
+    EventBus.emit('hideHUD');
+
+    this.overlay.setVisible(true);
+    this.container.setVisible(true);
+    this.refresh(gameState || this.currentGameState);
+  }
+
+  close() {
+    if (!this.isOpen) return;
+
+    if (this.currentGameState && this.playerInputDOM?.node) {
+      this.currentGameState.playerNotes =
+        this.playerInputDOM.node.value;
+
+      saveGameState();
+    }
+
+    this.disableTypingMode();
+    this.isOpen = false;
+
+    this.overlay.setVisible(false);
+    this.container.setVisible(false);
+
+    EventBus.emit('showHUD');
+  }
+
+  toggle(gameState) {
+    if (this.isOpen) {
+      this.close();
+    } else {
+      this.open(gameState);
+    }
+  }
+
+  destroy() {
+    if (this.isOpen) this.close();
+
+    this.disableTypingMode();
+
+    const node = this.playerInputDOM?.node;
+
+    if (node) {
+      node.removeEventListener('input', this.onInput);
+      node.removeEventListener('focus', this.onTextAreaFocus);
+      node.removeEventListener('blur', this.onTextAreaBlur);
+    }
+
+    this.scene.input?.keyboard?.off(
+      'keydown-N',
+      this.boundToggleHandler
+    );
+
+    document.removeEventListener(
+      'keydown',
+      this.boundGlobalKeyHandler
+    );
+
+    this.container?.destroy(true);
+    this.overlay?.destroy();
+  }
 }
-
-    refresh(gameState = this.currentGameState) {
-      if (!gameState) return;
-
-      this.currentGameState = gameState;
-      this.gameNotesText.setText(this.buildCluesText(gameState));
-
-      if (this.playerInputDOM?.node) {
-        this.playerInputDOM.node.value = gameState.playerNotes || '';
-      }
-    }
-
-    open(gameState) {
-      this.isOpen = true;
-      EventBus.emit('hideHUD');
-      this.currentGameState = gameState;
-      this.overlay.setVisible(true);
-      this.container.setVisible(true);
-      this.refresh(gameState);
-      this.disableTypingMode();
-    }
-
-    close() {
-      if (!this.isOpen) return;
-
-      if (this.currentGameState && this.playerInputDOM?.node) {
-        this.currentGameState.playerNotes = this.playerInputDOM.node.value;
-        saveGameState();
-      }
-
-      this.disableTypingMode();
-
-      this.isOpen = false;
-      this.overlay.setVisible(false);
-      this.container.setVisible(false);
-      EventBus.emit('showHUD');
-    }
-
-    toggle(gameState) {
-      this.isOpen ? this.close() : this.open(gameState);
-    }
-
-    destroy() {
-      EventBus.emit('showHUD');
-      if (this.playerInputDOM?.node) {
-        if (this.onInput) {
-          this.playerInputDOM.node.removeEventListener('input', this.onInput);
-        }
-
-        if (this.onTextAreaFocus) {
-          this.playerInputDOM.node.removeEventListener('focus', this.onTextAreaFocus);
-        }
-
-        if (this.onTextAreaBlur) {
-          this.playerInputDOM.node.removeEventListener('blur', this.onTextAreaBlur);
-        }
-      }
-
-      if (this.scene.input?.keyboard) {
-        this.scene.input.keyboard.off('keydown-N', this.boundToggleHandler);
-      }
-
-      document.removeEventListener('keydown', this.boundGlobalKeyHandler);
-    }
-  }

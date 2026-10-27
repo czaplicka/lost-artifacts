@@ -8,6 +8,14 @@
         "backgrounds"
       ]
     },
+        {
+      "key": "shopping",
+      "url": "assets/shopping.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
     {
       "key": "background2",
       "url": "assets/start_2.webp",

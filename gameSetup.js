@@ -4,6 +4,7 @@ import {
   resetCaseOutcomeState,
   createDefaultReconstructedHeist
 } from './GameData.js';
+import { debugCaseRoute } from './debugCaseRoute.js';
 import { startCaseClock } from './CaseTimeHelper.js';
 import { saveGameState, clearSavedGame } from './gameStatePersistence.js';
 import { EventBus } from './EventBus.js';
@@ -353,6 +354,7 @@ async function fetchCaseSuspects(thief, crimeCityId) {
 function finishCaseSetup(locationsData, template) {
   syncInvestigationState(locationsData);
   gameState.currentDestinations = generateDestinationsForCurrentCity(locationsData);
+  debugCaseRoute(locationsData, template);
   const saved = saveGameState();
   if (!saved) {
     console.warn('[GameSetup] Case is ready, but autosave was not written.');

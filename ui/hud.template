@@ -1,5 +1,4 @@
 <div id="hud-container">
-  <!-- Widoczny wyłącznie po zwinięciu HUD -->
   <button
     id="btn-hud-expand"
     class="hud-expand-btn"
@@ -10,11 +9,8 @@
     🕵️‍♂️
   </button>
 
-  <!-- Zawartość chowana w stanie .collapsed -->
   <div class="hud-content">
-    <!-- GÓRNY PASEK -->
     <div class="hud-paper-bg">
-      <!-- Zegar -->
       <div class="hud-cell" id="clock-target">
         <div class="digital-clock-display">
           <span class="clock-digital" id="clock-time">08:00</span>
@@ -22,7 +18,6 @@
         </div>
       </div>
 
-      <!-- Kalendarz -->
       <div class="hud-cell" id="date-target">
         <div class="calendar-card">
           <div class="calendar-rings">
@@ -35,11 +30,16 @@
         </div>
       </div>
 
-      <!-- Deadline -->
       <div class="hud-cell" id="deadline-target">
         <div class="hourglass-wrapper">
-          <svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z" />
+          <svg
+            class="hourglass-icon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z"
+            />
           </svg>
 
           <div class="deadline-info">
@@ -55,11 +55,19 @@
         </div>
       </div>
 
-      <!-- Energia -->
       <div class="hud-cell" id="energy-target">
         <div class="energy-wrapper">
-          <svg class="energy-circle" viewBox="0 0 100 100" aria-hidden="true">
-            <circle class="energy-bg" cx="50" cy="50" r="40"></circle>
+          <svg
+            class="energy-circle"
+            viewBox="0 0 100 100"
+            aria-hidden="true"
+          >
+            <circle
+              class="energy-bg"
+              cx="50"
+              cy="50"
+              r="40"
+            ></circle>
 
             <circle
               class="energy-fill"
@@ -91,7 +99,6 @@
       </div>
     </div>
 
-    <!-- DOLNY PASEK -->
     <div class="hud-bottom-bar">
       <div class="stat-group">
         <div class="stat-item" id="score-target">
@@ -124,6 +131,81 @@
           title="DETECTIVE PROFILE"
         />
 
+        <button
+          id="btn-expansion-store"
+          class="hud-icon-btn"
+          type="button"
+          title="EXTRA CASES — ADDITIONAL CONTENT"
+          aria-label="Open additional content store"
+          style="
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px;
+            background: transparent;
+            border: 0;
+            color: #ddc398;
+            cursor: pointer;
+            flex-shrink: 0;
+          "
+          onclick="
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!this.disabled) {
+              this.disabled = true;
+
+              import('./scenes/ExpansionStoreScene.js')
+                .then(module => module.openExpansionStore())
+                .catch(error => {
+                  console.error(
+                    '[Extra Cases] Could not open store:',
+                    error
+                  );
+
+                  window.alert(
+                    'The additional content catalog could not be opened.'
+                  );
+                })
+                .finally(() => {
+                  this.disabled = false;
+                });
+            }
+          "
+        >
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            fill="none"
+            aria-hidden="true"
+            style="
+              display: block;
+              max-width: 100%;
+              max-height: 100%;
+              filter: drop-shadow(1px 2px 1px #201910);
+            "
+          >
+            <path
+              d="M3 10H13L16 13H29V27H3V10Z"
+              fill="#b99257"
+              stroke="#49351f"
+              stroke-width="2"
+            />
+            <path
+              d="M3 10V6H13L16 10H27V13"
+              fill="#dfc28a"
+              stroke="#49351f"
+              stroke-width="2"
+            />
+            <path
+              d="M11 20H21M16 15V25"
+              stroke="#fff0c9"
+              stroke-width="3"
+            />
+          </svg>
+        </button>
+
         <img
           src="assets/ico/cog.webp"
           id="btn-settings"
@@ -145,12 +227,14 @@
     </div>
   </div>
 
-  <!-- Elementy HUD zostają poza .hud-content,
-       aby można było pokazać tooltip także po zwinięciu -->
-<div class="hud-tooltip" id="hud-tooltip">
-  <div class="hud-tooltip-title" id="hud-tooltip-title"></div>
-  <div id="hud-tooltip-text"></div>
-</div>
+  <div class="hud-tooltip" id="hud-tooltip">
+    <div
+      class="hud-tooltip-title"
+      id="hud-tooltip-title"
+    ></div>
+
+    <div id="hud-tooltip-text"></div>
+  </div>
 
   <div class="hud-energy-log" id="hud-energy-log">
     <div id="hud-energy-log-text"></div>

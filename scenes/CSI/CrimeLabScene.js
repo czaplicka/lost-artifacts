@@ -18,7 +18,7 @@ const LOCAL_DEBUG_ALLOWED=['127.0.0.1','localhost'].includes(window.location.hos
 const LAB_LAYOUT={
   identity_station:{x:320,y:490,width:250,height:320},
   trace_a_station:{x:480,y:420,width:350,height:300},
-  trace_b_station:{x:480,y:420,width:350,height:300},
+  trace_b_station:{x:596,y:516,width:350,height:300},
   exit_lab:{x:40,y:110,width:200,height:60},
   assistant_hotspot:{x:701,y:385,width:320,height:410}
 };
