@@ -22,7 +22,7 @@ export class BootScene extends BaseScene {
 
   preload() {
     this.load.audio('themeMusic', './assets/audio/theme.mp3');
-    this.load.image('cozyBackground', 'assets/local/kitchen.jpg');
+    this.load.image('cozyBackground', 'assets/local/kitchen.webp');
     this.cache.json.remove('assetManifestIndex');
     this.load.json('assetManifestIndex', 'assets/manifests/index.json');
   }

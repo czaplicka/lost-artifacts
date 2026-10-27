@@ -2,7 +2,7 @@
   "assets": [
     {
       "key": "archive",
-      "url": "assets/local/archive.jpg",
+      "url": "assets/local/archive.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -10,28 +10,28 @@
     },
     {
       "key": "backgroundhi",
-      "url": "assets/local/office.jpg",
+      "url": "assets/local/office.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-  "key": "agency_storage_room_v2",
-  "url": "assets/local/storage.webp",
-  "type": "image",
-  "groups": [
-    "backgrounds"
-  ]
-},
-{
-  "key": "agency_storage_manager",
-  "url": "assets/local/storage_manager.webp",
-  "type": "image",
-  "groups": [
-    "portraits"
-  ]
-},
+      "key": "agency_storage_room_v2",
+      "url": "assets/local/storage.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "agency_storage_manager",
+      "url": "assets/local/storage_manager.webp",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
     {
       "key": "hotel",
       "url": "assets/local/hotel.jpg",
@@ -42,7 +42,7 @@
     },
     {
       "key": "elevator_open",
-      "url": "assets/local/elevator_open.jpg",
+      "url": "assets/local/elevator_open.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -50,7 +50,7 @@
     },
     {
       "key": "elevator_close",
-      "url": "assets/local/elevator_close.jpg",
+      "url": "assets/local/elevator_close.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -58,7 +58,7 @@
     },
     {
       "key": "elevator_broken",
-      "url": "assets/local/elevator_broken.jpg",
+      "url": "assets/local/elevator_broken.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -66,7 +66,7 @@
     },
     {
       "key": "HR",
-      "url": "assets/local/HR.jpg",
+      "url": "assets/local/HR.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -74,7 +74,7 @@
     },
     {
       "key": "HRs",
-      "url": "assets/local/HRs.jpg",
+      "url": "assets/local/HRs.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -82,7 +82,7 @@
     },
     {
       "key": "archivist",
-      "url": "assets/local/archivist.jpg",
+      "url": "assets/local/archivist.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -90,7 +90,7 @@
     },
     {
       "key": "premium_office",
-      "url": "assets/local/premium_office.jpg",
+      "url": "assets/local/premium_office.webp",
       "type": "image",
       "groups": [
         "backgrounds"

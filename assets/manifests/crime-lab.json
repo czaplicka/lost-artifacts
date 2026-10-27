@@ -2,7 +2,7 @@
   "assets": [
     {
       "key": "crimelab_left",
-      "url": "assets/local/crimelab_left.jpg",
+      "url": "assets/local/crimelab_left.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -10,7 +10,7 @@
     },
     {
       "key": "crimelab_center",
-      "url": "assets/local/crimelab_center.jpg",
+      "url": "assets/local/crimelab_center.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -18,7 +18,7 @@
     },
     {
       "key": "crimelab_right",
-      "url": "assets/local/crimelab_right.jpg",
+      "url": "assets/local/crimelab_right.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -26,7 +26,7 @@
     },
     {
       "key": "crimelab_point_assistant",
-      "url": "assets/local/crimelab_point_assistant.jpg",
+      "url": "assets/local/crimelab_point_assistant.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -34,7 +34,7 @@
     },
     {
       "key": "crimelab_point",
-      "url": "assets/local/crimelab_point.jpg",
+      "url": "assets/local/crimelab_point.webp",
       "type": "image",
       "groups": [
         "backgrounds"

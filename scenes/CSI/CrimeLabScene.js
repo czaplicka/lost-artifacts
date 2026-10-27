@@ -20,7 +20,7 @@ const LAB_LAYOUT={
   trace_a_station:{x:480,y:420,width:350,height:300},
   trace_b_station:{x:480,y:420,width:350,height:300},
   exit_lab:{x:40,y:110,width:200,height:60},
-  assistant_hotspot:{x:220,y:340,width:230,height:410}
+  assistant_hotspot:{x:701,y:385,width:320,height:410}
 };
 
 export class CrimeLabScene extends BaseScene {

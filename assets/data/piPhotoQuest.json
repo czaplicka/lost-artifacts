@@ -66,39 +66,66 @@
     "hotspots": [
       {
         "id": "glasses",
-        "x": 0.32,
-        "y": 0.35,
-        "w": 0.18,
-        "h": 0.38,
-        "description": "Two glasses. Neither came with a witness statement."
+        "x": 0.3,
+        "y": 0.3,
+        "w": 0.2,
+        "h": 0.4,
+        "description": "Two glasses. Neither came with a witness statement.",
+        "fragments": [
+          "Two glasses. Neither came with a witness statement."
+        ]
       },
       {
         "id": "napkin",
-        "x": 0.505,
-        "y": 0.735,
-        "w": 0.15,
-        "h": 0.19,
-        "description": "A seahorse is embroidered on the napkin.",
+        "x": 0.43,
+        "y": 0.64,
+        "w": 0.22,
+        "h": 0.33,
+        "description": "A small seahorse emblem is embroidered on the napkin.",
+        "fragments": [
+          "A small ",
+          {
+            "text": "seahorse emblem",
+            "keywordId": "seahorse_logo"
+          },
+          " is embroidered on the napkin."
+        ],
         "keywordId": "seahorse_logo",
         "keywordLabel": "Seahorse emblem"
       },
       {
         "id": "badge",
-        "x": 0.605,
-        "y": 0.61,
-        "w": 0.11,
-        "h": 0.12,
-        "description": "An orange delegate badge with a swallow emblem. The name is facing down.",
+        "x": 0.61,
+        "y": 0.575,
+        "w": 0.12,
+        "h": 0.135,
+        "description": "An orange delegate badge with a swallow emblem. No name is legible.",
+        "fragments": [
+          "An orange delegate badge with a ",
+          {
+            "text": "swallow emblem",
+            "keywordId": "swallow_logo"
+          },
+          ". No name is legible."
+        ],
         "keywordId": "swallow_logo",
         "keywordLabel": "Swallow emblem"
       },
       {
         "id": "jacket",
-        "x": 0.73,
-        "y": 0.19,
-        "w": 0.23,
-        "h": 0.72,
+        "x": 0.735,
+        "y": 0.125,
+        "w": 0.255,
+        "h": 0.8,
         "description": "A green checked jacket with contrasting pocket trim.",
+        "fragments": [
+          "A ",
+          {
+            "text": "green checked jacket",
+            "keywordId": "checked_jacket"
+          },
+          " with contrasting pocket trim."
+        ],
         "keywordId": "checked_jacket",
         "keywordLabel": "Green checked jacket"
       }

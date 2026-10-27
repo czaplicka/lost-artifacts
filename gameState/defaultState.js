@@ -25,7 +25,8 @@ export const defaultGameState = {
   _version: GAME_VERSION,
   _lastSave: null,
   _createdAt: null,
-
+courtState: null,
+courtMisconductLog: [],
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,

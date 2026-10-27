@@ -434,7 +434,7 @@
     },
     {
       "key": "mapbg",
-      "url": "assets/map.png",
+      "url": "assets/map.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -443,7 +443,7 @@
     },
     {
       "key": "phonebook",
-      "url": "assets/phonebook.jpg",
+      "url": "assets/phonebook.webp",
       "type": "image",
       "groups": [
         "ui",

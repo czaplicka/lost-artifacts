@@ -7,11 +7,11 @@ export const APARTMENT_ROOM_PACKS = [
     rooms: {
       living_room: {
         label: 'Living Room', key: 'apartment_debt_living_room',
-        path: 'assets/apartments/apartment_debt_living_room.jpg'
+        path: 'assets/apartments/apartment_debt_living_room.webp'
       },
       kitchen: {
         label: 'Kitchen', key: 'apartment_debt_kitchen',
-        path: 'assets/apartments/apartment_debt_kitchen.jpg'
+        path: 'assets/apartments/apartment_debt_kitchen.webp'
       }
     }
   },

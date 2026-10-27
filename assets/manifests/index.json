@@ -12,7 +12,6 @@
   ],
   "startup": {
     "backgrounds": [
-      "image:background",
       "image:backgroundset",
       "image:enter",
       "image:btnRookie",
@@ -82,7 +81,6 @@
   },
   "bundles": {
     "startup": [
-      "image:background",
       "image:backgroundset",
       "image:enter",
       "image:btnRookie",
@@ -180,9 +178,9 @@
       "image:restaurant_b",
       "image:garbage_b",
       "image:harbor_b",
-            "image:harbor_a",
-                  "image:harbor_w",
-                        "image:harbor_h",
+      "image:harbor_a",
+      "image:harbor_w",
+      "image:harbor_h",
       "image:chase_street",
       "image:chase_courtyard",
       "image:chase_stairs",
@@ -313,6 +311,7 @@
       "image:portrait_police-station",
       "image:portrait_watson",
       "image:portrait_accounting",
+      "image:portrait_magazine",
       "audio:themeGame",
       "audio:game_over",
       "audio:successsound",
@@ -405,9 +404,9 @@
       "image:archivist"
     ],
     "scene:AgencyStorageScene": [
-  "image:agency_storage_room_v2",
-  "image:agency_storage_manager"
-],
+      "image:agency_storage_room_v2",
+      "image:agency_storage_manager"
+    ],
     "scene:HotelScene": [
       "image:hotel",
       "image:hotel_lux",
@@ -1023,7 +1022,7 @@
       "image:paper_kotte_tea_photo",
       "image:paper_kotte_tuktuk_photo",
       "image:paper_kotte_pigeon_photo",
-            "image:kotte"
+      "image:kotte"
     ],
     "scene:NewspaperOverlayScene": [
       "image:paper_daily_bg",

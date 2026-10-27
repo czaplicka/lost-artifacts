@@ -1,46 +1,70 @@
+/* ============================================================
+   CHARACTER CREATION — MARK AGENCY DOSSIER INTAKE
+   Complete visual overhaul — noir premium edition
+   ============================================================ */
+
+/* ============================================================
+   0. CUSTOM PROPERTIES & RESET
+   ============================================================ */
+
 #character-creation-root {
-  --noir-paper-base: #ebd5a3;
-  --noir-paper-dark: #d8be85;
-  --noir-paper-light: #f5e8c7;
-  --noir-ink: #22150f;
-  --noir-ink-muted: #4e3d30;
-  --noir-crimson: #7a1f22;
-  --noir-crimson-bright: #9e2b2f;
-  --noir-crimson-dark: #4d1012;
-  --noir-leather: #422119;
-  --noir-leather-dark: #23100a;
-  --noir-gold: #cfa856;
-  --noir-gold-bright: #f0c868;
-  --noir-green-accent: #2e5228;
+  /* Colour palette */
+  --noir-paper-base:    #ede0bc;
+  --noir-paper-dark:    #d4bb8a;
+  --noir-paper-light:   #f7edcf;
+  --noir-paper-aged:    #e6d4a2;
+  --noir-ink:           #1e1008;
+  --noir-ink-muted:     #4a3828;
+  --noir-ink-faint:     #7a6244;
+  --noir-crimson:       #7a1f22;
+  --noir-crimson-bright:#a0282d;
+  --noir-crimson-dark:  #4d1012;
+  --noir-crimson-glow:  rgba(122, 31, 34, 0.22);
+  --noir-leather:       #3e1e14;
+  --noir-leather-mid:   #5a2c1e;
+  --noir-leather-dark:  #1e0d08;
+  --noir-gold:          #c9a24e;
+  --noir-gold-bright:   #edbc5a;
+  --noir-gold-faint:    rgba(201, 162, 78, 0.18);
+  --noir-green-accent:  #2a4f25;
+  --noir-green-bright:  #3b6e33;
 
-  position: relative;
-  display: block;
+  /* Typography */
+  --font-title:   "SpecialElite", "Courier New", monospace;
+  --font-pixel:   "PressStart2P", monospace;
+  --font-hand:    "IndieFlower", cursive;
 
-  width: 100%;
-  height: 100%;
+  /* Shadows */
+  --shadow-card:  4px 5px 0 rgba(30, 16, 8, 0.28);
+  --shadow-card-hover: 6px 8px 0 rgba(30, 16, 8, 0.38);
 
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+  /* Sizes */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  position: relative !important;
+  display: block !important;
+
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 
   pointer-events: auto;
   color: var(--noir-ink);
-  font-family: "SpecialElite", "Courier New", monospace;
+  font-family: var(--font-title);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #character-creation-root *,
 #character-creation-root *::before,
 #character-creation-root *::after {
   box-sizing: border-box;
-}
-
-#character-creation-root button,
-#character-creation-root input,
-#character-creation-root label,
-#character-creation-root fieldset,
-#character-creation-root .character-creation-shell {
-  pointer-events: auto !important;
 }
 
 #character-creation-root button {
@@ -51,50 +75,91 @@
   cursor: pointer;
 }
 
-/* ==========================================================================
-   1. MAIN DOSSIER SHELL
-   ========================================================================== */
+/* Ensure all interactive elements work in Phaser DOM */
+#character-creation-root button,
+#character-creation-root input,
+#character-creation-root label,
+#character-creation-root fieldset,
+#character-creation-root select,
+#character-creation-root textarea,
+.character-creation-shell {
+  pointer-events: auto !important;
+}
+
+/* ============================================================
+   1. SHELL — AGED DOSSIER PAPER
+   ============================================================ */
 
 .character-creation-shell {
   position: relative;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
 
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
 
   overflow: hidden;
   border: 6px solid var(--noir-leather);
-  border-radius: 0;
+  border-radius: 0 !important;
 
+  /* Rich layered paper background */
   background:
-    radial-gradient(
-      ellipse at center,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(0, 0, 0, 0.12) 100%
-    ),
+    /* Subtle noise grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+    /* Horizontal lined paper */
     repeating-linear-gradient(
       0deg,
-      rgba(85, 52, 28, 0.05) 0px,
-      rgba(85, 52, 28, 0.05) 1px,
-      transparent 1px,
-      transparent 28px
+      transparent 0px,
+      transparent 27px,
+      rgba(66, 33, 25, 0.055) 27px,
+      rgba(66, 33, 25, 0.055) 28px
     ),
-    linear-gradient(135deg, #eee1b8 0%, #d8be87 50%, #cca368 100%);
+    /* Vignette */
+    radial-gradient(
+      ellipse at 50% 50%,
+      transparent 60%,
+      rgba(30, 10, 0, 0.12) 100%
+    ),
+    /* Base paper gradient */
+    linear-gradient(
+      160deg,
+      #f2e8c6 0%,
+      var(--noir-paper-base) 30%,
+      #d8be87 70%,
+      #c9a86a 100%
+    );
 
   box-shadow:
-    inset 0 0 0 2px var(--noir-leather-dark),
-    inset 0 0 80px rgba(70, 40, 20, 0.25);
+    inset 0 0 0 3px var(--noir-leather-dark),
+    inset 0 0 120px rgba(60, 30, 10, 0.18);
 
   contain: layout style;
 }
 
+/* Inner ruling border */
 .character-creation-shell::before {
   position: absolute;
-  inset: 8px;
+  inset: 10px;
   z-index: 0;
-  border: 1px solid rgba(122, 31, 34, 0.28);
-  border-radius: 2px;
+  border: 1px solid rgba(122, 31, 34, 0.22);
+  border-radius: 1px;
+  content: "";
+  pointer-events: none;
+}
+
+/* Ink corner flourishes */
+.character-creation-shell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(30, 10, 0, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 100% 0%, rgba(30, 10, 0, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 0% 100%, rgba(30, 10, 0, 0.08) 0%, transparent 25%),
+    radial-gradient(circle at 100% 100%, rgba(30, 10, 0, 0.08) 0%, transparent 25%);
   content: "";
   pointer-events: none;
 }
@@ -107,19 +172,24 @@
   z-index: 1;
 }
 
-/* ==========================================================================
+/* ============================================================
    2. HEADER & BRANDING
-   ========================================================================== */
+   ============================================================ */
 
 .character-creation-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: clamp(16px, 2vw, 28px) clamp(24px, 3vw, 48px);
+  gap: 20px;
+  padding: clamp(14px, 1.8vw, 26px) clamp(20px, 3vw, 48px);
   border-bottom: 3px double var(--noir-crimson);
-  background: linear-gradient(180deg, rgba(255, 248, 225, 0.45) 0%, rgba(220, 190, 140, 0.25) 100%);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 250, 230, 0.55) 0%,
+      rgba(220, 192, 145, 0.28) 100%
+    );
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .character-creation-brand {
@@ -129,103 +199,130 @@
 .character-creation-brand h1 {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "SpecialElite", monospace;
-  font-size: clamp(26px, 2.8vw, 44px);
+  font-family: var(--font-title);
+  font-size: clamp(26px, 2.8vw, 46px);
   font-weight: 700;
   letter-spacing: 0.04em;
   line-height: 0.95;
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.6);
+  /* Embossed ink text */
+  text-shadow:
+    1px 1px 0 rgba(255, 255, 255, 0.55),
+    -1px -1px 0 rgba(30, 8, 4, 0.18);
 }
 
 .character-creation-brand p {
-  margin: 8px 0 0;
+  margin: 7px 0 0;
   color: var(--noir-ink-muted);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.7vw, 11px);
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.65vw, 10.5px);
   letter-spacing: 0.05em;
   line-height: 1.5;
   text-transform: uppercase;
 }
 
+/* Rubber stamp */
 .character-creation-stamp {
   flex: 0 0 auto;
-  min-width: 150px;
+  min-width: 120px;
   padding: 8px 14px;
   border: 3px dashed var(--noir-crimson-bright);
   border-radius: 3px;
-  background: rgba(158, 43, 47, 0.06);
+  background: rgba(160, 40, 45, 0.07);
   color: var(--noir-crimson-bright);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.7vw, 10px);
-  line-height: 1.4;
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.65vw, 9.5px);
+  line-height: 1.5;
   text-align: center;
   text-transform: uppercase;
-  transform: rotate(-3deg);
-  box-shadow: 0 2px 6px rgba(122, 31, 34, 0.15);
-  opacity: 0.92;
+  transform: rotate(-3.5deg);
+  box-shadow:
+    0 1px 5px rgba(122, 31, 34, 0.12),
+    inset 0 0 20px rgba(160, 40, 45, 0.04);
+  opacity: 0.9;
   user-select: none;
+  animation: stamp-wobble 8s ease-in-out infinite;
 }
 
-/* ==========================================================================
-   3. STEP NAVIGATION TABS
-   ========================================================================== */
+@keyframes stamp-wobble {
+  0%, 100% { transform: rotate(-3.5deg); }
+  50%       { transform: rotate(-2.8deg) translateY(-1px); }
+}
+
+/* ============================================================
+   3. STEP NAVIGATION
+   ============================================================ */
 
 .character-creation-steps {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  padding: 12px clamp(24px, 3vw, 48px);
-  border-bottom: 2px solid rgba(66, 33, 25, 0.25);
-  background: rgba(66, 33, 25, 0.06);
+  gap: 8px;
+  padding: 10px clamp(20px, 3vw, 48px);
+  border-bottom: 2px solid rgba(62, 30, 20, 0.2);
+  background: rgba(62, 30, 20, 0.05);
+}
+
+/* Progress bar spanning behind all steps */
+.character-creation-steps::before {
+  display: none; /* cosmetic only; JS handles state */
 }
 
 .character-step-marker {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 9px;
   min-width: 0;
-  padding: 8px 12px;
-  border: 1px solid rgba(94, 74, 59, 0.3);
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.25);
+  padding: 8px 10px;
+  border: 1px solid rgba(90, 60, 40, 0.28);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.22);
   color: var(--noir-ink-muted);
   cursor: pointer;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(7px, 0.6vw, 9.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(6.5px, 0.55vw, 9px);
   line-height: 1.2;
   text-transform: uppercase;
-  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
   will-change: transform;
 }
 
+/* Step number circle */
 .character-step-marker::before {
   display: grid;
   flex: 0 0 auto;
-  width: clamp(22px, 1.6vw, 26px);
-  height: clamp(22px, 1.6vw, 26px);
+  width: clamp(20px, 1.5vw, 25px);
+  height: clamp(20px, 1.5vw, 25px);
   place-items: center;
   border: 2px solid var(--noir-ink-muted);
   border-radius: 50%;
-  background: #d4b882;
+  background: var(--noir-paper-dark);
   color: var(--noir-ink);
   content: attr(data-step-number);
-  font-size: clamp(8px, 0.65vw, 11px);
+  font-size: clamp(7px, 0.6vw, 10px);
   font-weight: bold;
+  transition: inherit;
 }
 
 .character-step-marker:hover {
   border-color: var(--noir-crimson);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.52);
   color: var(--noir-crimson);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(122, 31, 34, 0.12);
 }
 
 .character-step-marker.is-active {
   border-color: var(--noir-crimson);
   background: var(--noir-crimson);
   color: #fff6df;
-  box-shadow: 0 4px 10px rgba(122, 31, 34, 0.25);
+  box-shadow:
+    0 4px 12px rgba(122, 31, 34, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .character-step-marker.is-active::before {
@@ -236,6 +333,7 @@
 
 .character-step-marker.is-complete {
   border-color: var(--noir-green-accent);
+  background: rgba(42, 79, 37, 0.08);
   color: var(--noir-green-accent);
 }
 
@@ -243,27 +341,33 @@
   border-color: var(--noir-green-accent);
   background: var(--noir-green-accent);
   color: #ffffff;
+  content: "✓";
 }
 
-/* ==========================================================================
-   4. CONTENT AREA & PANELS
-   ========================================================================== */
+/* ============================================================
+   4. CONTENT AREA & PANEL TRANSITIONS
+   ============================================================ */
 
 .character-creation-content {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: clamp(24px, 3vw, 48px);
-  scrollbar-color: var(--noir-crimson) #c2a875;
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+  padding: clamp(22px, 2.8vw, 46px);
+  -webkit-overflow-scrolling: touch;
+  pointer-events: auto;
+
+  scrollbar-color: var(--noir-crimson) #c5ab7a;
   scrollbar-width: thin;
 }
 
 .character-creation-content::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 .character-creation-content::-webkit-scrollbar-track {
-  background: #c2a875;
+  background: #c5ab7a;
 }
 
 .character-creation-content::-webkit-scrollbar-thumb {
@@ -278,14 +382,14 @@
 
 .character-step-panel.is-active {
   display: block;
-  animation: dossier-panel-in 220ms ease-out forwards;
+  animation: panel-slide-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   will-change: transform, opacity;
 }
 
-@keyframes dossier-panel-in {
+@keyframes panel-slide-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -296,35 +400,38 @@
 .character-section-title {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "SpecialElite", monospace;
-  font-size: clamp(28px, 3vw, 48px);
+  font-family: var(--font-title);
+  font-size: clamp(26px, 2.8vw, 46px);
   font-weight: 700;
   line-height: 1;
-  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+  text-shadow:
+    1px 1px 0 rgba(255, 255, 255, 0.5),
+    0 0 30px rgba(122, 31, 34, 0.08);
 }
 
 .character-section-intro {
-  max-width: 75ch;
-  margin: 12px 0 clamp(24px, 2.5vw, 38px);
+  max-width: 78ch;
+  margin: 12px 0 clamp(22px, 2.5vw, 36px);
   color: var(--noir-ink-muted);
-  font-size: clamp(16px, 1.3vw, 22px);
-  line-height: 1.35;
+  font-size: clamp(15px, 1.2vw, 20px);
+  line-height: 1.4;
 }
 
-/* ==========================================================================
+/* ============================================================
    5. STEP 1: IDENTITY & APPEARANCE
-   ========================================================================== */
+   ============================================================ */
 
 .character-identity-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.45fr);
   align-items: start;
-  gap: clamp(28px, 3.5vw, 60px);
+  gap: clamp(24px, 3.5vw, 56px);
+  padding-bottom: 24px;
 }
 
 .character-identity-fields {
   display: grid;
-  gap: 22px;
+  gap: 20px;
   max-width: 800px;
 }
 
@@ -333,125 +440,156 @@
   gap: 8px;
 }
 
+/* Labels */
 .character-field label,
 .character-stat-title,
 .character-dossier-label {
   color: var(--noir-ink);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(9px, 0.72vw, 11px);
+  font-family: var(--font-pixel);
+  font-size: clamp(8.5px, 0.7vw, 10.5px);
   line-height: 1.4;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
+/* Inputs */
 .character-field input {
   width: 100%;
-  min-height: 52px;
+  min-height: 50px;
   padding: 10px 16px;
-  border: 2px solid var(--noir-ink-muted);
-  border-radius: 2px;
+  border: 2px solid rgba(74, 56, 40, 0.55);
+  border-radius: var(--radius-sm);
   outline: none;
-  background: rgba(255, 248, 225, 0.95);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 225, 0.97) 0%, rgba(248, 238, 210, 0.95) 100%);
   color: var(--noir-ink);
-  font-family: "SpecialElite", monospace;
-  font-size: clamp(20px, 1.7vw, 28px);
+  font-family: var(--font-title);
+  font-size: clamp(18px, 1.6vw, 26px);
   line-height: 1;
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.12);
-  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
 }
 
 .character-field input::placeholder {
-  color: #786247; /* Wyższy kontrast p/o #a38c6d */
-  opacity: 0.85;
+  color: #8a6c4e;
+  opacity: 0.75;
 }
 
 .character-field input:focus {
   border-color: var(--noir-crimson);
-  background: #ffffff;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fff8ec 100%);
   box-shadow:
-    0 0 0 3px rgba(122, 31, 34, 0.18),
-    inset 2px 2px 5px rgba(0, 0, 0, 0.08);
+    0 0 0 3px rgba(122, 31, 34, 0.16),
+    inset 2px 2px 5px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
 }
 
-/* Buttons */
+/* ─── Buttons ─── */
 
 .character-button {
   display: inline-flex;
-  min-height: 46px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
-  border: 2px solid var(--noir-leather);
-  border-radius: 2px;
-  background: linear-gradient(180deg, #d3b477 0%, #b89859 100%);
+  border: 2px solid var(--noir-leather-mid);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, #d8bc7e 0%, #b8965a 100%);
   color: var(--noir-leather-dark);
   cursor: pointer;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8.5px, 0.68vw, 11px);
+  font-family: var(--font-pixel);
+  font-size: clamp(8px, 0.65vw, 10.5px);
   font-weight: bold;
   line-height: 1.2;
   text-transform: uppercase;
-  box-shadow: 2px 3px 0px rgba(35, 16, 10, 0.4);
-  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 110ms ease,
+    background 110ms ease,
+    box-shadow 110ms ease;
   will-change: transform;
 }
 
 .character-button:hover {
-  background: linear-gradient(180deg, #f0cf87 0%, #d4b062 100%);
+  background:
+    linear-gradient(180deg, #f2d490 0%, #d4b062 100%);
   transform: translateY(-2px);
-  box-shadow: 3px 5px 0px rgba(35, 16, 10, 0.45);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .character-button:active {
   transform: translateY(1px);
-  box-shadow: 1px 1px 0px rgba(35, 16, 10, 0.4);
+  box-shadow: 1px 1px 0 rgba(30, 16, 8, 0.4);
+}
+
+.character-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .character-button--primary {
-  min-width: min(280px, 100%);
+  min-width: min(260px, 100%);
   border-color: var(--noir-crimson-dark);
-  background: linear-gradient(180deg, var(--noir-crimson-bright) 0%, var(--noir-crimson) 100%);
-  color: #fff2d6;
-  box-shadow: 3px 4px 0px rgba(45, 10, 12, 0.6);
+  background:
+    linear-gradient(180deg, var(--noir-crimson-bright) 0%, var(--noir-crimson) 100%);
+  color: #fff2d6 !important;
+  letter-spacing: 0.03em;
+  box-shadow:
+    3px 4px 0 rgba(45, 10, 12, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .character-button--primary:hover {
-  background: linear-gradient(180deg, #b8353a 0%, var(--noir-crimson-dark) 100%);
-  color: #ffffff;
+  background:
+    linear-gradient(180deg, #c03238 0%, var(--noir-crimson-dark) 100%);
+  color: #ffffff !important;
+  box-shadow:
+    5px 6px 0 rgba(45, 10, 12, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .character-button--randomize {
   width: fit-content;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
-/* Appearance selectors */
+/* ─── Appearance Selectors ─── */
 
 .character-appearance-section {
-  margin-top: 16px;
-  padding-top: 22px;
-  border-top: 2px dashed rgba(66, 33, 25, 0.25);
+  margin-top: 18px;
+  padding-top: 20px;
+  border-top: 2px dashed rgba(62, 30, 20, 0.22);
 }
 
 .character-appearance-title {
   margin: 0;
   color: var(--noir-crimson-dark);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(10px, 0.85vw, 13px);
+  font-family: var(--font-pixel);
+  font-size: clamp(9px, 0.78vw, 12px);
   line-height: 1.4;
+  letter-spacing: 0.04em;
 }
 
 .character-appearance-intro {
-  max-width: 62ch;
-  margin: 8px 0 18px;
+  max-width: 65ch;
+  margin: 8px 0 16px;
   color: var(--noir-ink-muted);
-  font-size: clamp(15px, 1.05vw, 18px);
-  line-height: 1.3;
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.35;
 }
 
 .character-appearance-controls {
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .appearance-option-group {
@@ -466,49 +604,60 @@
 .appearance-option-group legend {
   padding: 0;
   color: var(--noir-ink);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.65vw, 9.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.62vw, 9px);
   line-height: 1.4;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .appearance-option-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .appearance-option {
-  min-height: 32px;
-  padding: 6px 12px;
-  border: 1px solid var(--noir-ink-muted);
-  border-radius: 2px;
-  background: rgba(255, 248, 225, 0.6);
+  min-height: 30px;
+  padding: 6px 11px;
+  border: 1.5px solid rgba(74, 56, 40, 0.4);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 230, 0.75) 0%, rgba(240, 225, 190, 0.65) 100%);
   color: var(--noir-ink);
   cursor: pointer;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(7px, 0.58vw, 8.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(6.5px, 0.55vw, 8px);
   line-height: 1.4;
   text-transform: uppercase;
-  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+  box-shadow: 1px 1px 0 rgba(30, 16, 8, 0.15);
+  transition:
+    transform 110ms ease,
+    background-color 110ms ease,
+    border-color 110ms ease,
+    box-shadow 110ms ease;
 }
 
 .appearance-option:hover {
   border-color: var(--noir-crimson);
-  background: #fff4d1;
+  background: rgba(255, 248, 225, 0.96);
   transform: translateY(-1px);
+  box-shadow: 2px 2px 0 rgba(122, 31, 34, 0.2);
 }
 
 .appearance-option.is-selected {
   border-color: var(--noir-crimson-dark);
-  background: var(--noir-crimson);
+  background:
+    linear-gradient(180deg, var(--noir-crimson-bright) 0%, var(--noir-crimson) 100%);
   color: #fff3d6;
-  box-shadow: 2px 2px 0 rgba(75, 33, 29, 0.35);
+  box-shadow:
+    2px 2px 0 rgba(75, 16, 18, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* ==========================================================================
-   6. MARK AGENCY ID CARD & AVATAR
-   ========================================================================== */
+/* ============================================================
+   6. ID CARD & CSS AVATAR
+   ============================================================ */
 
 .agency-id-card {
   display: grid;
@@ -516,22 +665,38 @@
   overflow: hidden;
   gap: 10px;
   min-width: 0;
-  margin-top: 10px;
+  margin-top: 176px;
   padding: 16px;
-  border: 3px solid #232c21;
-  border-radius: 4px;
+  border: 3px solid #1e2a1c;
+  border-radius: var(--radius-md);
+
   background:
     repeating-linear-gradient(
       0deg,
-      rgba(255, 255, 255, 0.04) 0px,
-      rgba(255, 255, 255, 0.04) 1px,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
       transparent 1px,
-      transparent 12px
+      transparent 11px
     ),
-    linear-gradient(180deg, #323e30 0%, #1f271e 100%);
+    linear-gradient(175deg, #2e3b2c 0%, #1b2419 55%, #121a11 100%);
+
   box-shadow:
-    6px 8px 18px rgba(0, 0, 0, 0.45),
-    inset 0 0 0 2px rgba(212, 184, 130, 0.3);
+    7px 9px 22px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1.5px rgba(212, 184, 130, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  animation: id-card-appear 400ms 80ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes id-card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .agency-id-card-header {
@@ -539,18 +704,21 @@
   justify-content: space-between;
   gap: 10px;
   padding-bottom: 8px;
-  border-bottom: 2px solid rgba(212, 184, 130, 0.4);
-  color: #f7e6c4;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(7px, 0.55vw, 8.5px);
+  border-bottom: 1.5px solid rgba(212, 184, 130, 0.35);
+  color: #f0e0c2;
+  font-family: var(--font-pixel);
+  font-size: clamp(6.5px, 0.52vw, 8px);
   line-height: 1.4;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .agency-id-card-header span:last-child {
   color: var(--noir-gold-bright);
   text-align: right;
 }
+
+/* ─── The CSS Avatar ─── */
 
 .agency-id-avatar {
   --skin: #e5b68d;
@@ -559,28 +727,45 @@
 
   position: relative;
   width: min(100%, 280px);
-  min-height: 310px;
+  min-height: 308px;
   justify-self: center;
   overflow: hidden;
-  border: 3px solid var(--noir-gold);
-  border-radius: 2px;
-  background: linear-gradient(180deg, #7a888c 0%, #485248 100%);
+  border: 2.5px solid var(--noir-gold);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(170deg, #8a9690 0%, #5e6860 45%, #414e43 100%);
   isolation: isolate;
-  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-  transition: transform 180ms ease;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: transform 200ms ease;
 }
 
-/* Skanowanie / Szum na awatarze */
+/* Scan lines overlay */
 .agency-id-avatar::before {
   position: absolute;
   inset: 0;
   z-index: 10;
   background: repeating-linear-gradient(
     0deg,
-    rgba(0, 0, 0, 0.08) 0,
-    rgba(0, 0, 0, 0.08) 1px,
+    rgba(0, 0, 0, 0.07) 0,
+    rgba(0, 0, 0, 0.07) 1px,
     transparent 1px,
     transparent 4px
+  );
+  content: "";
+  pointer-events: none;
+}
+
+/* Bottom gradient fade */
+.agency-id-avatar::after {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  background: linear-gradient(
+    to bottom,
+    transparent 60%,
+    rgba(0, 0, 0, 0.18) 100%
   );
   content: "";
   pointer-events: none;
@@ -590,7 +775,7 @@
   transform: scale(0.97) rotate(-1deg);
 }
 
-/* Avatar Sub-layers — Indeksy z-index zracjonalizowane (max z-index: 10) */
+/* ── Avatar Body Parts ── */
 
 .avatar-coat {
   position: absolute;
@@ -602,6 +787,7 @@
   border-radius: 58% 58% 0 0;
   background: var(--coat);
   transform: translateX(-50%);
+  box-shadow: inset 0 -8px 20px rgba(0, 0, 0, 0.25);
 }
 
 .avatar-coat::before {
@@ -610,8 +796,8 @@
   left: 50%;
   width: 100px;
   height: 118px;
-  border-left: 14px solid rgba(35, 20, 15, 0.65);
-  border-right: 14px solid rgba(35, 20, 15, 0.65);
+  border-left: 14px solid rgba(30, 15, 10, 0.62);
+  border-right: 14px solid rgba(30, 15, 10, 0.62);
   content: "";
   transform: translateX(-50%);
 }
@@ -636,7 +822,9 @@
   height: 156px;
   border-radius: 46% 46% 42% 42%;
   background: var(--skin);
-  box-shadow: inset -11px -6px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    inset -11px -6px 0 rgba(0, 0, 0, 0.1),
+    inset 5px 5px 12px rgba(255, 255, 255, 0.08);
   transform: translateX(-50%);
 }
 
@@ -650,7 +838,7 @@
   background: var(--skin);
 }
 
-.avatar-ear--left { left: calc(50% - 76px); }
+.avatar-ear--left  { left:  calc(50% - 76px); }
 .avatar-ear--right { right: calc(50% - 76px); }
 
 .avatar-hair {
@@ -672,8 +860,8 @@
   left: 50%;
   width: 68px;
   height: 10px;
-  border-left: 9px solid #1f1412;
-  border-right: 9px solid #1f1412;
+  border-left:  9px solid #1c1210;
+  border-right: 9px solid #1c1210;
   transform: translateX(-50%);
 }
 
@@ -684,17 +872,20 @@
   left: 50%;
   width: 7px;
   height: 22px;
-  border-right: 3px solid rgba(50, 25, 20, 0.6);
+  border-right: 3px solid rgba(48, 22, 16, 0.58);
   transform: translateX(-50%);
 }
 
+/* Mouth — above beard, below hair */
 .avatar-mouth {
   position: absolute;
-  z-index: 5;
-  top: 198px;
+  z-index: 7;
+  top: 187px;
   left: 50%;
   width: 34px;
+  height: 8px;
   border-top: 3px solid #6b3331;
+  border-radius: 50%;
   transform: translateX(-50%);
 }
 
@@ -706,21 +897,23 @@
   pointer-events: none;
 }
 
-/* Avatar Variants: Skin */
+.avatar-facial-hair { z-index: 6; }
+
+/* ── Skin Tones ── */
 .agency-id-avatar[data-skin-tone="light"]  { --skin: #e5b68d; }
 .agency-id-avatar[data-skin-tone="warm"]   { --skin: #c98961; }
 .agency-id-avatar[data-skin-tone="golden"] { --skin: #b87442; }
 .agency-id-avatar[data-skin-tone="deep"]   { --skin: #754a38; }
 .agency-id-avatar[data-skin-tone="rich"]   { --skin: #4f3029; }
 
-/* Avatar Variants: Hair Color */
+/* ── Hair Colours ── */
 .agency-id-avatar[data-hair-color="black"]  { --hair: #1c1817; }
 .agency-id-avatar[data-hair-color="brown"]  { --hair: #4a3025; }
 .agency-id-avatar[data-hair-color="blonde"] { --hair: #c79b53; }
 .agency-id-avatar[data-hair-color="red"]    { --hair: #8a402c; }
 .agency-id-avatar[data-hair-color="grey"]   { --hair: #77706c; }
 
-/* Avatar Variants: Hair Styles */
+/* ── Hair Styles ── */
 .agency-id-avatar[data-hair-style="messy"] .avatar-hair {
   top: 32px; width: 148px; height: 106px;
   clip-path: polygon(0 22%, 8% 5%, 18% 20%, 30% 0, 43% 16%, 55% 0, 68% 15%, 82% 3%, 100% 24%, 92% 84%, 8% 84%);
@@ -752,225 +945,285 @@
   top: 40px; width: 160px; height: 60px; border-radius: 54% 54% 12% 12%;
 }
 .agency-id-avatar[data-hair-style="hat"] .avatar-hair::after {
-  position: absolute; right: -15px; bottom: -10px; left: -15px; height: 20px; border-radius: 50%; background: inherit; content: "";
+  position: absolute; right: -15px; bottom: -10px; left: -15px;
+  height: 20px; border-radius: 50%; background: inherit; content: "";
 }
 
-/* Avatar Variants: Coats */
+/* ── Coats ── */
 .agency-id-avatar[data-coat="trench"]  { --coat: #8a7351; }
 .agency-id-avatar[data-coat="leather"] { --coat: #2d2423; }
 .agency-id-avatar[data-coat="blazer"]  { --coat: #3d4f63; }
 .agency-id-avatar[data-coat="sweater"] { --coat: #66483d; }
 .agency-id-avatar[data-coat="sweater"] .avatar-coat::before {
-  border-left: 12px solid rgba(255, 239, 195, 0.2);
-  border-right: 12px solid rgba(255, 239, 195, 0.2);
+  border-left: 12px solid rgba(255, 240, 200, 0.18);
+  border-right: 12px solid rgba(255, 240, 200, 0.18);
 }
 
-/* Avatar Variants: Facial Hair */
+/* ── Facial Hair ── */
 .agency-id-avatar[data-facial-hair="moustache"] .avatar-facial-hair::before {
-  position: absolute; z-index: 6; top: 188px; left: 50%; width: 44px; height: 13px;
-  border-radius: 45% 45% 55% 55%; background: #3a2720;
+  position: absolute; z-index: 6; top: 188px; left: 50%;
+  width: 44px; height: 13px; border-radius: 45% 45% 55% 55%;
+  background: #3a2720;
   clip-path: polygon(0 50%, 48% 0, 52% 0, 100% 50%, 78% 100%, 50% 62%, 22% 100%);
   content: ""; transform: translateX(-50%);
 }
 .agency-id-avatar[data-facial-hair="shortBeard"] .avatar-facial-hair::before {
-  position: absolute; z-index: 5; top: 191px; left: 50%; width: 92px; height: 54px;
-  border-radius: 18% 18% 46% 46%; background: rgba(58, 39, 32, 0.9);
+  position: absolute; z-index: 5; top: 194px; left: 50%;
+  width: 92px; height: 54px; border-radius: 18% 18% 46% 46%;
+  background: rgba(58, 39, 32, 0.88);
   clip-path: polygon(0 0, 100% 0, 82% 85%, 50% 100%, 18% 85%);
   content: ""; transform: translateX(-50%);
 }
 .agency-id-avatar[data-facial-hair="fullBeard"] .avatar-facial-hair::before {
-  position: absolute; z-index: 5; top: 184px; left: 50%; width: 106px; height: 77px;
-  border-radius: 22% 22% 48% 48%; background: #3a2720;
+  position: absolute; z-index: 5; top: 191px; left: 50%;
+  width: 106px; height: 77px; border-radius: 22% 22% 48% 48%;
+  background: #3a2720;
   clip-path: polygon(0 0, 100% 0, 90% 86%, 50% 100%, 10% 86%);
   content: ""; transform: translateX(-50%);
 }
 
-/* Avatar Variants: Makeup */
+/* ── Makeup ── */
 .agency-id-avatar[data-makeup="natural"] .avatar-mouth { border-top-color: #9d5552; }
 .agency-id-avatar[data-makeup="red"]     .avatar-mouth { width: 42px; border-top-width: 5px; border-top-color: #a32632; }
 .agency-id-avatar[data-makeup="dark"]    .avatar-mouth { width: 42px; border-top-width: 5px; border-top-color: #4e1e35; }
 
-/* Avatar Variants: Accessories */
+/* ── Accessories ── */
 .agency-id-avatar[data-accessory="scarf"] .avatar-accessory {
-  z-index: 3; top: auto; right: 0; bottom: 80px; left: 0; height: 86px; background: transparent; transform: none;
+  z-index: 3; top: auto; right: 0; bottom: 80px; left: 0;
+  height: 86px; background: transparent; transform: none;
 }
 .agency-id-avatar[data-accessory="scarf"] .avatar-accessory::before {
-  position: absolute; bottom: 0; left: 50%; width: 186px; height: 54px; border-radius: 46% 46% 16% 16%;
-  background: #8d3630; clip-path: polygon(0 0, 100% 0, 92% 100%, 62% 76%, 50% 88%, 38% 76%, 8% 100%);
+  position: absolute; bottom: 0; left: 50%;
+  width: 186px; height: 54px; border-radius: 46% 46% 16% 16%;
+  background: #8d3630;
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 62% 76%, 50% 88%, 38% 76%, 8% 100%);
   content: ""; transform: translateX(-50%);
 }
 .agency-id-avatar[data-accessory="scarf"] .avatar-accessory::after {
-  position: absolute; bottom: 6px; left: calc(50% + 68px); width: 26px; height: 72px;
-  background: #6f2927; clip-path: polygon(0 0, 100% 10%, 74% 100%, 15% 92%); content: "";
+  position: absolute; bottom: 6px; left: calc(50% + 68px);
+  width: 26px; height: 72px;
+  background: #6f2927;
+  clip-path: polygon(0 0, 100% 10%, 74% 100%, 15% 92%);
+  content: "";
 }
 .agency-id-avatar[data-accessory="notebook"] .avatar-accessory::before {
-  position: absolute; z-index: 7; right: 20px; bottom: 22px; width: 42px; height: 62px;
-  border: 3px solid #e7d28d; background: var(--noir-crimson); box-shadow: -5px 4px 0 rgba(0, 0, 0, 0.3); content: "";
+  position: absolute; z-index: 7; right: 20px; bottom: 22px;
+  width: 42px; height: 62px;
+  border: 3px solid #e7d28d;
+  background: var(--noir-crimson);
+  box-shadow: -5px 4px 0 rgba(0, 0, 0, 0.3);
+  content: "";
 }
 .agency-id-avatar[data-accessory="studs"] .avatar-accessory::before,
 .agency-id-avatar[data-accessory="studs"] .avatar-accessory::after {
-  position: absolute; z-index: 7; top: 178px; width: 9px; height: 9px; border: 2px solid #ffdc82; border-radius: 50%; background: #f2b84b; content: "";
+  position: absolute; z-index: 7; top: 178px;
+  width: 9px; height: 9px;
+  border: 2px solid #ffdc82; border-radius: 50%;
+  background: #f2b84b; content: "";
 }
-.agency-id-avatar[data-accessory="studs"] .avatar-accessory::before { left: calc(50% - 79px); }
+.agency-id-avatar[data-accessory="studs"] .avatar-accessory::before { left:  calc(50% - 79px); }
 .agency-id-avatar[data-accessory="studs"] .avatar-accessory::after  { right: calc(50% - 79px); }
 
 .agency-id-avatar[data-accessory="hoops"] .avatar-accessory::before,
 .agency-id-avatar[data-accessory="hoops"] .avatar-accessory::after {
-  position: absolute; z-index: 7; top: 177px; width: 15px; height: 23px; border: 3px solid #f2b84b; border-radius: 50%; content: "";
+  position: absolute; z-index: 7; top: 177px;
+  width: 15px; height: 23px;
+  border: 3px solid #f2b84b; border-radius: 50%; content: "";
 }
-.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::before { left: calc(50% - 84px); }
+.agency-id-avatar[data-accessory="hoops"] .avatar-accessory::before { left:  calc(50% - 84px); }
 .agency-id-avatar[data-accessory="hoops"] .avatar-accessory::after  { right: calc(50% - 84px); }
 
 .agency-id-avatar[data-accessory="glasses"] .avatar-eyes { display: none; }
 .agency-id-avatar[data-accessory="glasses"] .avatar-accessory {
-  z-index: 7; top: 143px; right: auto; bottom: auto; left: 50%; width: 22px; height: 4px; background: #241c19; transform: translateX(-50%);
+  z-index: 7; top: 143px; right: auto; bottom: auto;
+  left: 50%; width: 22px; height: 4px;
+  background: #241c19; transform: translateX(-50%);
 }
 .agency-id-avatar[data-accessory="glasses"] .avatar-accessory::before,
 .agency-id-avatar[data-accessory="glasses"] .avatar-accessory::after {
-  position: absolute; top: -13px; width: 34px; height: 25px; border: 4px solid #241c19; border-radius: 8px;
-  background: radial-gradient(circle at 50% 54%, #261b18 0 4px, transparent 5px), rgba(216, 237, 240, 0.22); content: "";
+  position: absolute; top: -13px;
+  width: 34px; height: 25px;
+  border: 4px solid #241c19; border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 54%, #261b18 0 4px, transparent 5px),
+    rgba(216, 237, 240, 0.22);
+  content: "";
 }
 .agency-id-avatar[data-accessory="glasses"] .avatar-accessory::before { right: 11px; }
-.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::after  { left: 11px; }
+.agency-id-avatar[data-accessory="glasses"] .avatar-accessory::after  { left:  11px; }
 
-/* Agency ID Card Details */
+/* ── ID Card Labels ── */
+
 .agency-id-name {
-  min-height: 22px;
-  color: #fff2d6;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.65vw, 10.5px);
+  min-height: 20px;
+  color: #f8ecda;
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.6vw, 10px);
   line-height: 1.4;
   text-align: center;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .agency-id-alias {
   min-height: 18px;
   color: var(--noir-gold-bright);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(7px, 0.52vw, 8.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(6.5px, 0.5vw, 8px);
   line-height: 1.4;
   text-align: center;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .agency-id-status {
   padding-top: 8px;
-  border-top: 1px dashed rgba(212, 184, 130, 0.35);
-  color: #e7d28d;
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(7px, 0.52vw, 8.5px);
+  border-top: 1px dashed rgba(212, 184, 130, 0.3);
+  color: #d8c280;
+  font-family: var(--font-pixel);
+  font-size: clamp(6.5px, 0.5vw, 8px);
   line-height: 1.4;
   text-align: center;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  animation: status-pulse 3s ease-in-out infinite;
 }
 
-/* ==========================================================================
-   7. STEP 2: PROFILE SELECTION CARDS
-   ========================================================================== */
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1; }
+}
+
+/* ============================================================
+   7. STEP 2: PROFILE CARDS
+   ============================================================ */
 
 .character-profile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
   max-width: 1160px;
   padding-bottom: 16px;
 }
 
 .character-profile-card {
   display: grid;
-  grid-template-columns: 50px minmax(0, 1fr);
-  gap: 6px 14px;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 5px 14px;
   min-height: 125px;
   padding: 18px;
-  border: 2px solid rgba(85, 52, 28, 0.35);
-  border-radius: 3px;
-  background: rgba(255, 248, 225, 0.55);
+  border: 2px solid rgba(80, 50, 25, 0.28);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(255, 250, 230, 0.65) 0%, rgba(240, 222, 180, 0.5) 100%);
   color: var(--noir-ink);
   cursor: pointer;
   text-align: left;
-  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  box-shadow: 3px 3px 0 rgba(30, 16, 8, 0.12);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
   will-change: transform;
 }
 
 .character-profile-card:hover {
   border-color: var(--noir-crimson);
-  background: rgba(255, 248, 225, 0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(66, 33, 25, 0.15);
+  background:
+    linear-gradient(145deg, rgba(255, 252, 235, 0.92) 0%, rgba(248, 234, 198, 0.9) 100%);
+  transform: translateY(-3px);
+  box-shadow: 5px 6px 0 rgba(30, 16, 8, 0.18), 0 0 0 1px var(--noir-crimson-glow);
 }
 
 .character-profile-card.is-selected {
-  border: 3px solid var(--noir-crimson);
-  background: #f7e6bd;
-  box-shadow: 4px 4px 0px rgba(122, 31, 34, 0.25);
+  border: 2.5px solid var(--noir-crimson);
+  background:
+    linear-gradient(145deg, #faefc8 0%, #f5e0a8 100%);
+  box-shadow:
+    4px 5px 0 rgba(122, 31, 34, 0.28),
+    inset 0 0 20px rgba(122, 31, 34, 0.05),
+    0 0 0 1px rgba(122, 31, 34, 0.15);
 }
 
 .character-profile-icon {
   grid-row: span 3;
   align-self: center;
   color: var(--noir-crimson-bright);
-  font-family: "SpecialElite", monospace;
-  font-size: 40px;
+  font-family: var(--font-title);
+  font-size: 42px;
   text-align: center;
+  text-shadow: 1px 2px 0 rgba(30, 16, 8, 0.18);
+  transition: transform 160ms ease;
+}
+
+.character-profile-card:hover .character-profile-icon,
+.character-profile-card.is-selected .character-profile-icon {
+  transform: scale(1.12);
 }
 
 .character-profile-name {
   color: var(--noir-crimson-dark);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(9.5px, 0.78vw, 12px);
+  font-family: var(--font-pixel);
+  font-size: clamp(9px, 0.75vw, 11.5px);
   line-height: 1.4;
 }
 
 .character-profile-bonus {
   color: var(--noir-green-accent);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.62vw, 9.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.6vw, 9px);
   line-height: 1.4;
 }
 
 .character-profile-description {
   color: var(--noir-ink-muted);
-  font-size: clamp(15px, 1.05vw, 18px);
-  line-height: 1.25;
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.3;
 }
 
-/* ==========================================================================
+/* ============================================================
    8. STEP 3: STAT ALLOCATION
-   ========================================================================== */
+   ============================================================ */
 
 .character-points-counter {
   display: inline-flex;
-  min-width: 180px;
+  min-width: 170px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin: 0 0 18px auto;
-  padding: 10px 16px;
+  padding: 10px 18px;
   border: 2px dashed var(--noir-crimson);
-  border-radius: 3px;
-  background: rgba(255, 248, 225, 0.7);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(255, 248, 225, 0.82) 0%, rgba(240, 224, 186, 0.72) 100%);
+  box-shadow: 2px 2px 0 rgba(122, 31, 34, 0.15);
 }
 
 .character-points-value {
   color: var(--noir-crimson-dark);
-  font-family: "SpecialElite", monospace;
-  font-size: 38px;
+  font-family: var(--font-title);
+  font-size: 40px;
   font-weight: 700;
   line-height: 0.9;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .character-points-label {
-  margin-top: 6px;
+  margin-top: 5px;
   color: var(--noir-ink-muted);
-  font-family: "PressStart2P", monospace;
-  font-size: 8px;
+  font-family: var(--font-pixel);
+  font-size: 7.5px;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .character-stat-list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   max-width: 1160px;
 }
 
@@ -981,16 +1234,29 @@
   gap: 16px;
   min-height: 80px;
   padding: 14px 18px;
-  border: 1px solid rgba(85, 52, 28, 0.3);
-  border-radius: 3px;
-  background: rgba(255, 248, 225, 0.5);
+  border: 1.5px solid rgba(80, 50, 25, 0.25);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(255, 250, 228, 0.6) 0%, rgba(240, 222, 178, 0.5) 100%);
+  box-shadow: 2px 2px 0 rgba(30, 16, 8, 0.08);
+  transition:
+    background 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease;
+}
+
+.character-stat-row:hover {
+  border-color: rgba(122, 31, 34, 0.28);
+  background:
+    linear-gradient(145deg, rgba(255, 252, 235, 0.82) 0%, rgba(248, 232, 198, 0.75) 100%);
+  box-shadow: 3px 3px 0 rgba(30, 16, 8, 0.12);
 }
 
 .character-stat-description {
-  margin-top: 6px;
+  margin-top: 5px;
   color: var(--noir-ink-muted);
-  font-size: clamp(15px, 1.05vw, 18px);
-  line-height: 1.25;
+  font-size: clamp(14px, 1vw, 17px);
+  line-height: 1.3;
 }
 
 .character-stat-controls {
@@ -999,31 +1265,44 @@
   gap: 10px;
 }
 
+/* ── FIXED: Stat buttons — were black-on-black ── */
 .character-stat-button {
   display: grid;
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 2px solid #0b0b0b;
-  border-radius: 2px;
-  background: #111111;
-  color: #000000;
+  border: 2px solid var(--noir-leather-mid);
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, #d8bc7e 0%, #b8965a 100%);
+  color: var(--noir-leather-dark);
   cursor: pointer;
-  font-family: "PressStart2P", monospace;
+  font-family: var(--font-pixel);
   font-size: 18px;
+  font-weight: bold;
   line-height: 1;
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.42);
-  transition: transform 120ms ease, background-color 120ms ease;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 110ms ease,
+    background 110ms ease,
+    box-shadow 110ms ease;
 }
 
 .character-stat-button:hover:not(:disabled) {
-  background: #000000;
-  transform: scale(1.05);
+  background:
+    linear-gradient(180deg, #f0d08e 0%, #d0a860 100%);
+  transform: scale(1.08);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.character-stat-button:active:not(:disabled) {
+  transform: scale(0.95);
+  box-shadow: 1px 1px 0 rgba(30, 16, 8, 0.4);
 }
 
 .character-stat-button:disabled {
   cursor: not-allowed;
-  opacity: 0.35;
+  opacity: 0.3;
 }
 
 .character-stat-value {
@@ -1032,167 +1311,197 @@
   height: 44px;
   place-items: center;
   color: var(--noir-crimson-dark);
-  font-family: "PressStart2P", monospace;
-  font-size: 18px;
+  font-family: var(--font-pixel);
+  font-size: 20px;
   font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* ==========================================================================
-   9. STEP 4: DIFFICULTY SELECTION
-   ========================================================================== */
+/* ============================================================
+   9. STEP 4: DIFFICULTY CARDS
+   ============================================================ */
 
 .character-difficulty-list {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   max-width: 1160px;
 }
 
 .character-difficulty-card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px 16px;
-  min-height: 110px;
-  padding: 18px 20px;
-  border: 2px solid rgba(85, 52, 28, 0.35);
-  border-radius: 3px;
-  background: rgba(255, 248, 225, 0.5);
+  gap: 7px 18px;
+  min-height: 108px;
+  padding: 18px 22px;
+  border: 2px solid rgba(80, 50, 25, 0.28);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(255, 250, 230, 0.62) 0%, rgba(238, 218, 172, 0.52) 100%);
   color: var(--noir-ink);
   cursor: pointer;
   text-align: left;
-  transition: transform 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  box-shadow: 3px 3px 0 rgba(30, 16, 8, 0.1);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+  will-change: transform;
 }
 
 .character-difficulty-card:hover {
   border-color: var(--noir-crimson);
-  background: rgba(255, 248, 225, 0.85);
+  background:
+    linear-gradient(145deg, rgba(255, 252, 236, 0.9) 0%, rgba(248, 232, 196, 0.88) 100%);
   transform: translateY(-2px);
+  box-shadow: 5px 5px 0 rgba(30, 16, 8, 0.16);
 }
 
 .character-difficulty-card.is-selected {
-  border: 3px solid var(--noir-crimson);
-  background: #f7e6bd;
-  box-shadow: 4px 4px 0px rgba(122, 31, 34, 0.25);
+  border: 2.5px solid var(--noir-crimson);
+  background:
+    linear-gradient(145deg, #faefc8 0%, #f5e0a8 100%);
+  box-shadow:
+    4px 5px 0 rgba(122, 31, 34, 0.28),
+    0 0 0 1px rgba(122, 31, 34, 0.12);
 }
 
 .character-difficulty-number {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   grid-row: span 3;
   place-items: center;
-  border: 2px solid var(--noir-leather);
+  border: 2px solid var(--noir-leather-mid);
   border-radius: 50%;
-  background: #d3b477;
+  background:
+    linear-gradient(180deg, #d8bc7e 0%, #b89858 100%);
   color: var(--noir-leather-dark);
-  font-family: "PressStart2P", monospace;
+  font-family: var(--font-pixel);
   font-size: 11px;
+  box-shadow: 2px 2px 0 rgba(30, 16, 8, 0.25);
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
 .character-difficulty-card.is-selected .character-difficulty-number {
   border-color: var(--noir-gold-bright);
-  background: var(--noir-crimson);
+  background:
+    linear-gradient(180deg, var(--noir-crimson-bright) 0%, var(--noir-crimson) 100%);
   color: #fff2d6;
+  box-shadow: 2px 2px 0 rgba(45, 10, 12, 0.4);
 }
 
 .character-difficulty-name {
   color: var(--noir-crimson-dark);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(10px, 0.85vw, 13px);
+  font-family: var(--font-pixel);
+  font-size: clamp(9.5px, 0.82vw, 12.5px);
   line-height: 1.4;
 }
 
 .character-difficulty-subtitle {
   color: var(--noir-ink-muted);
-  font-size: clamp(16px, 1.15vw, 20px);
-  line-height: 1.2;
+  font-size: clamp(14px, 1.05vw, 18px);
+  line-height: 1.25;
 }
 
 .character-difficulty-details {
-  color: var(--noir-green-accent);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.62vw, 9.5px);
+  color: var(--noir-green-bright);
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.6vw, 9px);
   line-height: 1.4;
 }
 
-/* ==========================================================================
-   10. STEP 5: FINAL SUMMARY DOSSIER
-   ========================================================================== */
+/* ============================================================
+   10. STEP 5: FINAL DOSSIER
+   ============================================================ */
 
 .character-dossier {
   display: grid;
   gap: 18px;
   max-width: 1100px;
-  padding: clamp(24px, 3vw, 40px);
+  padding: clamp(22px, 3vw, 40px);
   border: 3px double var(--noir-leather);
-  border-radius: 3px;
+  border-radius: var(--radius-md);
+
   background:
     repeating-linear-gradient(
       0deg,
-      rgba(85, 52, 28, 0.04) 0px,
-      rgba(85, 52, 28, 0.04) 1px,
+      rgba(80, 50, 25, 0.04) 0px,
+      rgba(80, 50, 25, 0.04) 1px,
       transparent 1px,
       transparent 28px
     ),
-    rgba(255, 248, 225, 0.75);
-  box-shadow: 4px 6px 15px rgba(0, 0, 0, 0.15);
+    linear-gradient(180deg, rgba(255, 248, 225, 0.85) 0%, rgba(240, 224, 180, 0.75) 100%);
+
+  box-shadow:
+    5px 7px 18px rgba(0, 0, 0, 0.16),
+    inset 0 0 40px rgba(80, 50, 25, 0.03);
 }
 
 .character-dossier-name {
   color: var(--noir-crimson-dark);
-  font-family: "SpecialElite", monospace;
-  font-size: clamp(30px, 2.8vw, 46px);
+  font-family: var(--font-title);
+  font-size: clamp(28px, 2.8vw, 46px);
   font-weight: 700;
   line-height: 1;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .character-dossier-row {
   display: grid;
   grid-template-columns: minmax(140px, 0.22fr) minmax(0, 1fr);
-  gap: 14px;
+  gap: 12px;
   align-items: baseline;
   padding-bottom: 8px;
-  border-bottom: 1px dotted rgba(85, 52, 28, 0.35);
+  border-bottom: 1px dotted rgba(80, 50, 25, 0.3);
 }
 
 .character-dossier-value {
   color: var(--noir-ink);
-  font-size: clamp(17px, 1.2vw, 21px);
+  font-size: clamp(15px, 1.15vw, 20px);
   line-height: 1.3;
 }
 
 .character-dossier-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 20px;
+  gap: 8px 18px;
 }
 
 .character-dossier-stat {
+  padding: 4px 8px;
+  border: 1px solid rgba(80, 50, 25, 0.25);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 248, 225, 0.6);
   color: var(--noir-ink-muted);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.62vw, 9.5px);
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.6vw, 9px);
   line-height: 1.5;
 }
 
-/* ==========================================================================
+/* ============================================================
    11. FOOTER & ACTIONS
-   ========================================================================== */
+   ============================================================ */
 
 .character-creation-footer {
   display: flex;
-  min-height: 82px;
+  min-height: 80px;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  padding: 14px clamp(24px, 3vw, 48px);
+  gap: 16px;
+  padding: 14px clamp(20px, 3vw, 48px);
   border-top: 3px double var(--noir-crimson);
-  background: rgba(66, 33, 25, 0.08);
+  background:
+    linear-gradient(180deg, rgba(220, 190, 145, 0.22) 0%, rgba(200, 170, 120, 0.15) 100%);
 }
 
 .character-footer-hint {
   max-width: 55ch;
+  margin: 0;
   color: var(--noir-ink-muted);
-  font-size: clamp(15px, 1.1vw, 19px);
-  line-height: 1.2;
+  font-size: clamp(14px, 1.05vw, 18px);
+  line-height: 1.25;
+  font-style: italic;
 }
 
 .character-footer-actions {
@@ -1201,33 +1510,40 @@
   gap: 12px;
 }
 
-/* Validation Feedback */
+/* ============================================================
+   12. ERROR / VALIDATION
+   ============================================================ */
 
 .character-form-error {
   display: none;
   margin: 0 0 18px;
   padding: 10px 16px;
   border: 2px solid var(--noir-crimson);
-  border-radius: 2px;
-  background: rgba(158, 43, 47, 0.12);
+  border-radius: var(--radius-sm);
+  background: rgba(160, 40, 45, 0.1);
   color: var(--noir-crimson-dark);
-  font-family: "PressStart2P", monospace;
-  font-size: clamp(8px, 0.68vw, 10px);
-  line-height: 1.5;
+  font-family: var(--font-pixel);
+  font-size: clamp(7.5px, 0.65vw, 9.5px);
+  line-height: 1.6;
+  box-shadow: 2px 2px 0 rgba(122, 31, 34, 0.18);
 }
 
 .character-form-error.is-visible {
   display: block;
-  animation: dossier-error-shake 200ms ease-out;
+  animation: error-shake 220ms ease-out;
 }
 
-@keyframes dossier-error-shake {
+@keyframes error-shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
+  20%       { transform: translateX(-7px); }
+  40%       { transform: translateX(7px); }
+  60%       { transform: translateX(-5px); }
+  80%       { transform: translateX(4px); }
 }
 
-/* Focus States */
+/* ============================================================
+   13. FOCUS STATES (A11Y)
+   ============================================================ */
 
 .character-button:focus-visible,
 .character-step-marker:focus-visible,
@@ -1236,32 +1552,36 @@
 .character-stat-button:focus-visible,
 .appearance-option:focus-visible {
   outline: 3px solid var(--noir-crimson);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* ==========================================================================
-   12. RESPONSIVE BREAKPOINTS
-   ========================================================================== */
+/* ============================================================
+   14. RESPONSIVE — TABLET (≤900px)
+   ============================================================ */
 
 @media (max-width: 900px) {
   .character-creation-header {
-    padding: 18px 20px 12px;
+    padding: 16px 18px 12px;
   }
 
   .character-creation-steps {
-    padding: 10px 14px;
+    padding: 8px 12px;
     gap: 6px;
   }
 
   .character-step-marker {
     flex-direction: column;
     gap: 4px;
-    font-size: 7px;
+    font-size: 6.5px;
   }
 
   .character-identity-layout {
     grid-template-columns: minmax(0, 1fr) 220px;
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .agency-id-card {
+    margin-top: 138px;
   }
 
   .agency-id-avatar {
@@ -1269,48 +1589,50 @@
   }
 
   .character-profile-grid {
-    gap: 12px;
+    gap: 10px;
   }
 
   .character-profile-card {
     grid-template-columns: 38px minmax(0, 1fr);
-    min-height: 135px;
+    min-height: 120px;
     padding: 14px;
   }
 
   .character-creation-footer {
-    min-height: 72px;
+    min-height: 70px;
   }
 }
+
+/* ============================================================
+   15. RESPONSIVE — MOBILE (≤650px)
+   ============================================================ */
 
 @media (max-width: 650px) {
   #character-creation-root {
-    padding: 6px;
+    padding: 0 !important;
   }
 
-.character-creation-shell {
-  width: 100%;
-  height: 100%;
-  border-width: 4px;
-}
+  .character-creation-shell {
+    border-width: 4px !important;
+  }
 
   .character-creation-header {
     align-items: center;
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
 
   .character-creation-brand h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .character-creation-brand p {
-    max-width: 30ch;
-    font-size: 7px;
+    max-width: 28ch;
+    font-size: 6.5px;
   }
 
   .character-creation-stamp {
-    min-width: 80px;
-    padding: 6px;
+    min-width: 76px;
+    padding: 5px 8px;
     border-width: 2px;
     font-size: 6px;
   }
@@ -1318,8 +1640,8 @@
   .character-creation-steps {
     display: flex;
     overflow-x: auto;
-    padding: 8px 6px;
-    scrollbar-width: none; /* Ukryj scrollbar nawigacyjny na urządzeniach mobilnych */
+    padding: 7px 5px;
+    scrollbar-width: none;
   }
 
   .character-creation-steps::-webkit-scrollbar {
@@ -1329,26 +1651,26 @@
   .character-step-marker {
     flex: 0 0 auto;
     padding: 6px 8px;
-    font-size: 8px;
+    font-size: 7.5px;
   }
 
   .character-step-marker::before {
-    width: 20px;
-    height: 20px;
-    font-size: 8px;
+    width: 18px;
+    height: 18px;
+    font-size: 7.5px;
   }
 
   .character-creation-content {
-    padding: 18px 14px;
+    padding: 16px 12px;
   }
 
   .character-section-title {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .character-section-intro {
-    margin: 8px 0 18px;
-    font-size: 15px;
+    margin: 8px 0 16px;
+    font-size: 14px;
   }
 
   .character-identity-layout {
@@ -1357,8 +1679,8 @@
 
   .agency-id-card {
     width: min(320px, 100%);
-    justify-self: center;
     margin-top: 0;
+    justify-self: center;
   }
 
   .agency-id-avatar {
@@ -1366,13 +1688,13 @@
   }
 
   .character-appearance-controls {
-    gap: 12px;
+    gap: 10px;
   }
 
   .appearance-option {
-    min-height: 30px;
-    padding: 6px;
-    font-size: 7px;
+    min-height: 28px;
+    padding: 5px 8px;
+    font-size: 6.5px;
   }
 
   .character-profile-grid {
@@ -1380,12 +1702,12 @@
   }
 
   .character-profile-card {
-    min-height: 105px;
+    min-height: 100px;
   }
 
   .character-stat-row {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .character-stat-controls {
@@ -1394,9 +1716,9 @@
 
   .character-difficulty-card {
     grid-template-columns: 30px minmax(0, 1fr);
-    gap: 6px 12px;
-    min-height: 110px;
-    padding: 12px;
+    gap: 5px 12px;
+    min-height: 100px;
+    padding: 12px 14px;
   }
 
   .character-difficulty-number {
@@ -1415,7 +1737,7 @@
   .character-footer-hint {
     order: -1;
     width: 100%;
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .character-footer-actions {
@@ -1424,9 +1746,9 @@
   }
 
   .character-button {
-    min-height: 42px;
+    min-height: 40px;
     padding: 8px 10px;
-    font-size: 7.5px;
+    font-size: 7px;
   }
 
   .character-button--primary {
@@ -1435,14 +1757,45 @@
 
   .character-dossier-row {
     grid-template-columns: 1fr;
-    gap: 4px;
+    gap: 3px;
   }
 }
 
-/* Accessibility: Reduced Motion */
+/* ============================================================
+   16. STEP ICON STYLES
+   ============================================================ */
+
+.character-step-icon {
+  display: inline-block;
+  font-size: clamp(11px, 1vw, 16px);
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.character-step-marker.is-active .character-step-icon {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.character-step-marker.is-complete .character-step-icon {
+  display: none; /* replaced by ✓ circle via ::before */
+}
+
+/* Visual dot-pips — stat-value position handled in main rule above */
+.character-stat-row {
+  --stat-value: 1;
+}
+
+/* ============================================================
+   18. REDUCED MOTION
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
   .character-step-panel.is-active,
-  .character-form-error.is-visible {
+  .character-form-error.is-visible,
+  .agency-id-card,
+  .character-creation-stamp {
     animation: none;
   }
 
@@ -1451,199 +1804,13 @@
   .character-difficulty-card,
   .character-stat-button,
   .appearance-option,
-  .agency-id-avatar {
+  .agency-id-avatar,
+  .character-step-marker,
+  .character-stat-row {
     transition: none;
   }
-}
-/* ==========================================================================
-   CHARACTER CREATION — FINAL LAYOUT / AVATAR FIXES
-   Dopisz NA KOŃCU pliku CSS
-   ========================================================================== */
 
-#character-creation-root {
-  position: relative;
-  display: block;
-
-  width: 100%;
-  height: 100%;
-  min-width: 100%;
-  min-height: 100%;
-
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-
-  pointer-events: auto;
-}
-
-.character-creation-shell {
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  min-height: 0;
-
-  border-radius: 0;
-}
-
-.character-identity-layout {
-  align-items: start;
-  padding-bottom: 24px;
-}
-
-/*
-  ID card starts beside the randomization button / appearance controls,
-  instead of beside the Name field.
-*/
-.agency-id-card {
-  margin-top: 176px;
-}
-
-/*
-  Mouth was below the beard. It now sits below the nose and is drawn
-  above facial hair so it remains visible.
-*/
-.avatar-mouth {
-  position: absolute;
-  z-index: 7;
-
-  top: 187px;
-  left: 50%;
-
-  width: 34px;
-  height: 8px;
-
-  border-top: 3px solid #6b3331;
-  border-radius: 50%;
-
-  transform: translateX(-50%);
-}
-
-.avatar-facial-hair {
-  z-index: 6;
-}
-
-/*
-  These offsets prevent the beard itself from starting above the lips.
-*/
-.agency-id-avatar[data-facial-hair="moustache"]
-  .avatar-facial-hair::before {
-  top: 188px;
-  z-index: 6;
-}
-
-.agency-id-avatar[data-facial-hair="shortBeard"]
-  .avatar-facial-hair::before {
-  top: 194px;
-  z-index: 6;
-}
-
-.agency-id-avatar[data-facial-hair="fullBeard"]
-  .avatar-facial-hair::before {
-  top: 191px;
-  z-index: 6;
-}
-
-/*
-  The DOM scene preserves the scroll position in JS. This prevents browser
-  anchor / focus behavior from moving the form itself.
-*/
-.character-creation-content {
-  overscroll-behavior: contain;
-  scroll-behavior: auto;
-}
-
-/* Tablet: avatar remains beside controls, but needs a shorter offset. */
-@media (max-width: 900px) {
-  .agency-id-card {
-    margin-top: 138px;
+  .character-step-icon {
+    transition: none;
   }
-}
-
-/* Mobile: one column layout, card belongs under all appearance controls. */
-@media (max-width: 650px) {
-  #character-creation-root {
-    padding: 0;
-  }
-
-  .character-creation-shell {
-    width: 100%;
-    height: 100%;
-    border-width: 4px;
-  }
-
-  .agency-id-card {
-    width: min(320px, 100%);
-    margin-top: 0;
-  }
-}
-/* Phaser DOM element owns the available canvas area. */
-#character-creation-root {
-  position: relative;
-  display: block;
-
-  width: 100vw;
-  height: 100vh;
-
-  min-width: 100vw;
-  min-height: 100vh;
-
-  overflow: hidden;
-  pointer-events: auto;
-}
-
-.character-creation-shell {
-  width: 100%;
-  height: 100%;
-
-  min-height: 0;
-  min-width: 0;
-}
-
-.character-creation-content {
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  pointer-events: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-#character-creation-root button,
-#character-creation-root input,
-#character-creation-root textarea,
-#character-creation-root select {
-  pointer-events: auto;
-}
-#character-creation-root {
-  position: relative !important;
-  display: block !important;
-
-  width: 100% !important;
-  height: 100% !important;
-
-  min-width: 100% !important;
-  min-height: 100% !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-}
-
-.character-creation-shell {
-  width: 100% !important;
-  height: 100% !important;
-
-  min-width: 0 !important;
-  min-height: 0 !important;
-
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-.character-button--primary {
-  color: #22150f;
-}
-
-.character-button--primary:hover,
-.character-button--primary:focus-visible {
-  color: #800000;
 }

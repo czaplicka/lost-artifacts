@@ -5,8 +5,13 @@ import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
 import { BaseScene } from './BaseScene.js';
-import { NPC_DIALOGUE_KEY_MAP } from '../dialogues/dialogueKeys.js';
 import { getNpcAccess } from '../managers/ReputationManager.js';
+
+import {
+  NPC_DIALOGUE_KEY_MAP,
+  NPC_DIALOGUE_ROOT_MAP,
+  NPC_DIALOGUE_FILE_MAP
+} from '../dialogues/dialogueKeys.js';
 
 import {
   resolveCityNpcTheme,
@@ -22,17 +27,6 @@ const LOCATION_SOUND_MAP = {
   parking: 'parkingsound',
   policehq: 'policesound',
   restaurant: 'restaurantsound'
-};
-
-const NPC_DIALOGUE_ROOT_MAP = {
-  bankier: 'bankerClues',
-  stewardessa: 'stewardessClues',
-  knajpa: 'knajpaClues',
-  maid: 'maidClues',
-  police: 'policeClues',
-  fence: 'fenceClues',
-  parkingowy: 'parkingowyClues',
-  bum: 'bumClues'
 };
 
 const TOPIC_LABELS = {
@@ -191,6 +185,19 @@ export class LocationScene extends BaseScene {
     });
   }
 
+  preload() {
+    const cacheKey = NPC_DIALOGUE_KEY_MAP[this.npcId];
+    const filePath = NPC_DIALOGUE_FILE_MAP[this.npcId];
+
+    if (
+      cacheKey &&
+      filePath &&
+      !this.cache.json.exists(cacheKey)
+    ) {
+      this.load.json(cacheKey, filePath);
+    }
+  }
+
   ensureEncounterMemory() {
     if (
       !gameState.encounterMemory ||
@@ -251,7 +258,6 @@ export class LocationScene extends BaseScene {
 
     const suspects = this.cache.json.get('suspects') || [];
     const locations = this.cache.json.get('locations') || [];
-
     const countryFacts =
       this.cache.json.get('country_facts') || {};
 
@@ -322,8 +328,7 @@ export class LocationScene extends BaseScene {
     this.availableTopics = [];
 
     if (!this.reputationAccess.allowed) {
-      this.fullDialogueString =
-        this.reputationAccess.reason;
+      this.fullDialogueString = this.reputationAccess.reason;
     } else {
       try {
         this.npcController = new NPCController(
@@ -390,15 +395,7 @@ export class LocationScene extends BaseScene {
     this.createDialoguePanel(width, height);
 
     ensureHud(this);
-
-    const activeHud =
-      this.scene.manager.keys.PlayerHudScene;
-
-    if (activeHud?.refreshNotebook) {
-      activeHud.refreshNotebook();
-    } else if (activeHud?.refreshUI) {
-      activeHud.refreshUI();
-    }
+    this.refreshNotebook();
 
     if (!this.timeCostApplied) {
       EventBus.emit('advanceTime', 1, 0);
@@ -410,29 +407,28 @@ export class LocationScene extends BaseScene {
     }
   }
 
+  refreshNotebook() {
+    const hud = this.scene.manager.keys.PlayerHudScene;
+
+    if (hud?.refreshNotebook) {
+      hud.refreshNotebook();
+    } else if (hud?.refreshUI) {
+      hud.refreshUI();
+    }
+  }
+
   createDialoguePanel(width, height) {
     const panelHeight = 232;
     const panelY = height - panelHeight;
-
     const portraitSize = 150;
-    const portraitMargin = 18;
-    const portraitX = portraitMargin;
-
+    const portraitX = 18;
     const portraitY =
       panelY + (panelHeight - portraitSize) / 2;
 
-    const textStartX =
-      portraitX + portraitSize + 30;
-
-    const portraitCenterX =
-      portraitX + portraitSize / 2;
-
-    const portraitCenterY =
-      portraitY + portraitSize / 2;
-
-    const nameTargetY =
-      portraitY + portraitSize + 14;
-
+    const textStartX = portraitX + portraitSize + 30;
+    const portraitCenterX = portraitX + portraitSize / 2;
+    const portraitCenterY = portraitY + portraitSize / 2;
+    const nameTargetY = portraitY + portraitSize + 14;
     const menuWidth = 190;
     const textEndX = width - menuWidth - 20;
 
@@ -450,12 +446,7 @@ export class LocationScene extends BaseScene {
 
     this.panelBorder = this.add.graphics().setDepth(10);
 
-    this.panelBorder.lineStyle(
-      4,
-      PANEL_GOLD,
-      1
-    );
-
+    this.panelBorder.lineStyle(4, PANEL_GOLD, 1);
     this.panelBorder.strokeRect(
       6,
       panelY + 6,
@@ -463,12 +454,7 @@ export class LocationScene extends BaseScene {
       panelHeight - 12
     );
 
-    this.panelBorder.lineStyle(
-      1,
-      PANEL_GOLD_DIM,
-      0.9
-    );
-
+    this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.9);
     this.panelBorder.strokeRect(
       12,
       panelY + 12,
@@ -476,12 +462,7 @@ export class LocationScene extends BaseScene {
       panelHeight - 24
     );
 
-    this.panelBorder.lineStyle(
-      1,
-      PANEL_GOLD_DIM,
-      0.6
-    );
-
+    this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.6);
     this.panelBorder.lineBetween(
       textEndX,
       panelY + 16,
@@ -489,15 +470,9 @@ export class LocationScene extends BaseScene {
       panelY + panelHeight - 16
     );
 
-    this.portraitFrame = this.add
-      .graphics()
-      .setDepth(11);
+    this.portraitFrame = this.add.graphics().setDepth(11);
 
-    this.portraitFrame.fillStyle(
-      0x000000,
-      0.6
-    );
-
+    this.portraitFrame.fillStyle(0x000000, 0.6);
     this.portraitFrame.fillRect(
       portraitX - 4,
       portraitY - 4,
@@ -505,12 +480,7 @@ export class LocationScene extends BaseScene {
       portraitSize + 8
     );
 
-    this.portraitFrame.lineStyle(
-      3,
-      PANEL_GOLD,
-      1
-    );
-
+    this.portraitFrame.lineStyle(3, PANEL_GOLD, 1);
     this.portraitFrame.strokeRect(
       portraitX - 4,
       portraitY - 4,
@@ -533,10 +503,7 @@ export class LocationScene extends BaseScene {
           portraitCenterY,
           portraitKey
         )
-        .setDisplaySize(
-          portraitSize,
-          portraitSize
-        )
+        .setDisplaySize(portraitSize, portraitSize)
         .setDepth(12);
     } else {
       this.portraitImage = this.add
@@ -572,9 +539,7 @@ export class LocationScene extends BaseScene {
       .setOrigin(0.5, 0)
       .setDepth(12);
 
-    this.portraitFrame.x =
-      PORTRAIT_SLIDE_OFFSET;
-
+    this.portraitFrame.x = PORTRAIT_SLIDE_OFFSET;
     this.portraitFrame.alpha = 0;
 
     this.tweens.add({
@@ -697,12 +662,8 @@ export class LocationScene extends BaseScene {
     panelHeight,
     menuWidth
   ) {
-    const menuX =
-      width - menuWidth + 10;
-
-    let buttonY =
-      panelY + 24;
-
+    const menuX = width - menuWidth + 10;
+    let buttonY = panelY + 24;
     const buttonSpacing = 32;
 
     this.topicButtons.forEach(button => {
@@ -719,11 +680,8 @@ export class LocationScene extends BaseScene {
       this.reputationAccess.allowed
     ) {
       this.availableTopics.forEach(topicId => {
-        const label =
-          TOPIC_LABELS[topicId] || topicId;
-
-        const alreadyAsked =
-          this.askedTopics.has(topicId);
+        const label = TOPIC_LABELS[topicId] || topicId;
+        const alreadyAsked = this.askedTopics.has(topicId);
 
         const button = this.add
           .text(
@@ -813,19 +771,14 @@ export class LocationScene extends BaseScene {
 
     this.stopTypewriter();
 
-    const result =
-      this.npcController.askTopic(topicId);
+    const result = this.npcController.askTopic(topicId);
 
-    if (!result) {
-      return;
-    }
+    if (!result) return;
 
-    const alreadyAsked =
-      this.askedTopics.has(topicId);
+    const alreadyAsked = this.askedTopics.has(topicId);
 
     if (!alreadyAsked) {
-      const note =
-        this.npcController.toNote(result);
+      const note = this.npcController.toNote(result);
 
       if (note && !this.hasClue(note)) {
         this.generatedNotes.push(note);
@@ -868,8 +821,7 @@ export class LocationScene extends BaseScene {
 
     if (!this.dialogueText) return;
 
-    const fullText =
-      this.fullDialogueString;
+    const fullText = this.fullDialogueString;
 
     if (!fullText.length) {
       this.dialogueText.setText('');
@@ -943,8 +895,6 @@ export class LocationScene extends BaseScene {
     );
 
     this.stopTypewriter();
-
-    // Ambient nadal jest zarządzany przez AudioManager.
     this.locationAmbient = null;
 
     const objects = [
@@ -994,8 +944,7 @@ export class LocationScene extends BaseScene {
   }
 
   closeAllUIPanels() {
-    const hud =
-      this.scene.manager.keys.PlayerHudScene;
+    const hud = this.scene.manager.keys.PlayerHudScene;
 
     if (hud?.closeAllUIPanels) {
       hud.closeAllUIPanels();
@@ -1050,18 +999,8 @@ export class LocationScene extends BaseScene {
       }
     }
 
-    // Odmowa również zapisuje koszt czasu, ale nie oznacza
-    // NPC jako odpytanego i nie zapisuje tematów rozmowy.
     saveGameState();
-
-    const hud =
-      this.scene.manager.keys.PlayerHudScene;
-
-    if (hud?.refreshNotebook) {
-      hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
-    }
+    this.refreshNotebook();
 
     this.goto('CityScene', {
       cityId: this.cityId,
@@ -1073,10 +1012,9 @@ export class LocationScene extends BaseScene {
   hasClue(newClue) {
     if (!newClue) return false;
 
-    const clues =
-      Array.isArray(gameState.cluesCollected)
-        ? gameState.cluesCollected
-        : [];
+    const clues = Array.isArray(gameState.cluesCollected)
+      ? gameState.cluesCollected
+      : [];
 
     return clues.some(existing => {
       if (!existing) return false;
@@ -1102,22 +1040,18 @@ export class LocationScene extends BaseScene {
     locationId,
     cityData = null
   ) {
-    const themeId =
-      resolveCityNpcTheme(cityData);
+    const themeId = resolveCityNpcTheme(cityData);
 
-    const candidates =
-      getLocationBackgroundCandidates(
-        locationId,
-        themeId
-      );
-
-    const backgroundKey = candidates.find(
-      textureKey => this.textures.exists(textureKey)
+    const candidates = getLocationBackgroundCandidates(
+      locationId,
+      themeId
     );
 
-    if (backgroundKey) {
-      return backgroundKey;
-    }
+    const backgroundKey = candidates.find(textureKey => {
+      return this.textures.exists(textureKey);
+    });
+
+    if (backgroundKey) return backgroundKey;
 
     console.warn(
       '[LocationScene] No matching location texture found:',

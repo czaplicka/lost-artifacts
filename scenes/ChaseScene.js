@@ -2,6 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { CHASE_CONFIG as C } from '../config/chaseConfig.js';
 
+
 import {
   applyChoice,
   advanceRound,
@@ -13,7 +14,8 @@ import {
 import {
   currentChase,
   persistChase,
-  terminalData
+  terminalData,
+  chaseFailureCode
 } from '../systems/chasePersistence.js';
 
 import { audioManager } from '../managers/AudioManager.js';
@@ -468,7 +470,10 @@ export class ChaseScene extends BaseScene {
       this.stepsSound = null;
     }
 
-    if (r.phase === 'choice') {
+    if (chaseFailureCode(r)) {
+  this.description.setText(terminalData(r).message);
+  this.singleButton('GAME OVER');
+} else if (r.phase === 'choice') {
       const current = r.plan.rounds[r.round];
 
       this.options = current.flip
@@ -578,8 +583,15 @@ export class ChaseScene extends BaseScene {
     }
 
     if (r.phase === 'settled' && r.arrestOutcome) {
-      return;
-    }
+  const failedWarrant =
+    ['missing_warrant', 'warrant_mismatch'].includes(
+      r.arrestOutcome.code
+    );
+
+  if (!failedWarrant && !chaseFailureCode(r)) {
+    return;
+  }
+}
 
     if (r.phase === 'choice') {
       const before = r.distance;
@@ -721,98 +733,165 @@ export class ChaseScene extends BaseScene {
   }
 
   async finish() {
-    const r = this.record;
+  const r = this.record;
 
-    if (!r || this.leaving) return;
+  if (!r || this.leaving) return;
 
-    if (r.phase === 'settled' && r.arrestOutcome) {
-      this.render();
-      return;
-    }
+  const previousOutcome = r.arrestOutcome;
 
+  const isPreviousWarrantFailure =
+    r.phase === 'settled' &&
+    previousOutcome &&
+    ['missing_warrant', 'warrant_mismatch'].includes(
+      previousOutcome.code
+    );
+
+  if (
+    !['caught', 'review', 'escaped', 'settled']
+      .includes(r.phase)
+  ) {
+    return;
+  }
+
+  this.leaving = true;
+
+  try {
     if (
-      !['caught', 'review', 'escaped', 'settled']
-        .includes(r.phase)
+      !chaseFailureCode(r) &&
+      (
+        ['caught', 'review'].includes(r.phase) ||
+        isPreviousWarrantFailure
+      )
     ) {
-      return;
+      const outcome = isPreviousWarrantFailure
+        ? previousOutcome
+        : this.evaluateArrest();
+
+      r.arrestOutcome = outcome;
+
+      if (outcome.arrested) {
+  r.arrestOutcome = outcome;
+
+  // Nie oznaczamy jeszcze całej sprawy jako zakończonej.
+  r.phase = 'review';
+  r.terminalScene = 'CourtScene';
+
+  this.save();
+
+  const opened = await this.goto('CourtScene', {
+    caseId: r.caseId,
+    suspectId: r.suspectId
+  });
+
+  if (opened) {
+    if (
+      this.sourceKey &&
+      this.sourceKey !== this.sys.settings.key
+    ) {
+      this.scene.stop(this.sourceKey);
     }
 
-    this.leaving = true;
+    this.scene.stop('CityScene');
+  } else if (!this._cleanupDone) {
+    this.leaving = false;
 
-    try {
-      if (['caught', 'review'].includes(r.phase)) {
-        const outcome = this.evaluateArrest();
+    this.saveNotice?.setText(
+      'Could not open the court. Press Enter to retry.'
+    );
+  }
 
-        r.arrestOutcome = outcome;
-        r.phase = 'settled';
-        r.terminalScene = 'ChaseScene';
+  return;
+}
 
-        const saved = this.save();
+      r.failureCode =
+        outcome.code === 'not_caught'
+          ? 'chase_escape'
+          : outcome.code;
 
-        this.leaving = false;
-        this.render();
+      // Porażka nakazu nie oznacza, że podejrzany uciekł.
+      r.phase = r.failureCode === 'chase_escape'
+        ? 'escaped'
+        : 'review';
 
-        if (!saved) {
-          this.saveNotice?.setText(
-            'Result recorded in this session. ' +
-            'Checkpoint unavailable; please keep this tab open.'
-          );
-        }
+      r.terminalScene = 'GameOverScene';
+    }
 
-        return;
-      }
+    if (chaseFailureCode(r)) {
+      this.save();
 
-      let opened = false;
-
-      if (r.phase === 'settled' && r.terminalScene) {
-        if (r.terminalScene === 'ChaseScene') {
-          this.leaving = false;
-          this.render();
-          return;
-        }
-
-        opened = await this.goto(r.terminalScene, {
-          caseId: r.caseId,
-          suspectId: r.suspectId
-        });
-      } else {
-        this.save();
-
-        opened = await this.goto(
-          'GameOverScene',
-          terminalData(r)
-        );
-
-        if (opened) {
-          if (this.sourceKey) {
-            this.scene.stop(this.sourceKey);
-          }
-
-          this.scene.stop('CityScene');
-        }
-      }
+      const opened = await this.goto(
+        'GameOverScene',
+        terminalData(r)
+      );
 
       if (!opened && !this._cleanupDone) {
         this.leaving = false;
 
         this.saveNotice?.setText(
-          'Could not open the result. ' +
-          'Press the button to retry.'
+          'Could not open Game Over. Press Enter to retry.'
         );
-      }
-    } catch (error) {
-      console.error(
-        '[ChaseScene] Could not finish chase:',
-        error
-      );
 
-      if (!this._cleanupDone) {
+        return;
+      }
+
+      if (opened) {
+        if (
+          this.sourceKey &&
+          this.sourceKey !== this.sys.settings.key &&
+          this.sourceKey !== 'GameOverScene'
+        ) {
+          this.scene.stop(this.sourceKey);
+        }
+
+        this.scene.stop('CityScene');
+      }
+
+      return;
+    }
+
+    if (r.phase === 'settled' && r.arrestOutcome) {
+      this.leaving = false;
+      this.render();
+      return;
+    }
+
+    if (r.phase === 'settled' && r.terminalScene) {
+      if (r.terminalScene === 'ChaseScene') {
+        this.leaving = false;
+        this.render();
+        return;
+      }
+
+      const opened = await this.goto(r.terminalScene, {
+        caseId: r.caseId,
+        suspectId: r.suspectId
+      });
+
+      if (!opened && !this._cleanupDone) {
         this.leaving = false;
 
         this.saveNotice?.setText(
-          'Could not finish the pursuit. Please try again.'
+          'Could not open the result. Press Enter to retry.'
         );
       }
+
+      return;
+    }
+
+    this.leaving = false;
+  } catch (error) {
+    console.error(
+      '[ChaseScene] Could not finish chase:',
+      error
+    );
+
+    if (!this._cleanupDone) {
+      this.leaving = false;
+
+      this.saveNotice?.setText(
+        'Could not finish the pursuit. Press Enter to retry.'
+      );
     }
   }
+}
 }

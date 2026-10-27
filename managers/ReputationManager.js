@@ -80,6 +80,29 @@ export function applyReputationEvent(type, { eventId, headline, context = {} } =
             : before.headlines
     };
     gameState.reputationState = next;
+    if (rule.integrity < 0) {
+  const history = Array.isArray(gameState.courtMisconductLog)
+    ? gameState.courtMisconductLog
+    : [];
+
+  const id = `reputation:${eventId}`;
+
+  if (!history.some(entry => entry.id === id)) {
+    gameState.courtMisconductLog = [
+      ...history,
+      {
+        id,
+        type,
+        caseId: context.caseId ?? gameState.currentCaseId,
+        missionId: context.missionId ?? gameState.currentMission?.id,
+        sceneId: context.sceneId ?? null,
+        itemId: context.itemId ?? null,
+        moralDelta: rule.integrity,
+        createdAt: Date.now()
+      }
+    ];
+  }
+}
     EventBus.emit(REPUTATION_CHANGED, { type, eventId, context, before, after: getReputation() });
     return { applied: true, state: getReputation() };
 }

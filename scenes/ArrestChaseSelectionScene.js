@@ -5,7 +5,12 @@ import { saveManager } from '../saveGameService.js';
 import { ChaseScene } from './ChaseScene.js';
 import { CHASE_EVENTS } from '../config/chaseEvents.js';
 import { makeChase } from '../systems/chaseLogic.js';
-import { currentChase, persistChase, terminalData } from '../systems/chasePersistence.js';
+import {
+  currentChase,
+  persistChase,
+  terminalData,
+  chaseFailureCode
+} from '../systems/chasePersistence.js';
 
 export class ArrestSelectionScene extends OriginalArrestSelectionScene {
   init(...args) {
@@ -15,6 +20,16 @@ export class ArrestSelectionScene extends OriginalArrestSelectionScene {
   }
   create() {
     const record = currentChase();
+    if (record && chaseFailureCode(record)) {
+  BaseScene.prototype.create.call(this);
+
+  void this.goto(
+    'GameOverScene',
+    terminalData(record)
+  );
+
+  return;
+}
     if (record && !['caught','review','settled'].includes(record.phase)) {
       BaseScene.prototype.create.call(this);
       void this.goto(record.phase === 'escaped' ? 'GameOverScene' : 'ChaseScene',

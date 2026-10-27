@@ -10,26 +10,64 @@ export function currentChase() {
   return validChase(record, gameState.currentCaseId, gameState._createdAt) ? record : null;
 }
 export function persistChase(record) {
-  if (!validChase(record, gameState.currentCaseId, gameState._createdAt)) return false;
-  record.updatedAt = Date.now();
-  gameState.chaseState = structuredClone(record);
-  if (record.phase === 'escaped') {
+  if (
+    !validChase(
+      record,
+      gameState.currentCaseId,
+      gameState._createdAt
+    )
+  ) {
+    return false;
+  }
+
+  const failureCode = chaseFailureCode(record);
+
+  if (failureCode) {
+    record.failureCode = failureCode;
+    record.terminalScene = 'GameOverScene';
+
     gameState.finalArrestSuspectId = record.suspectId;
     gameState.finalArrestResult = 'FAILURE';
+
     gameState.caseFailed = true;
     gameState.caseResolved = false;
     gameState.isGameActive = false;
-    gameState.gameOverReason = ESCAPE_MESSAGE;
+
+    gameState.gameOverReason =
+      CHASE_FAILURES[failureCode].message;
+  } else if (record.phase === 'caught') {
+    gameState.finalArrestSuspectId = record.suspectId;
   }
-  if (record.phase === 'caught') gameState.finalArrestSuspectId = record.suspectId;
+
+  record.updatedAt = Date.now();
+  gameState.chaseState = structuredClone(record);
+
   saveGameState();
+
   try {
-    const slot = record.slotKey || saveManager.getLastUsedSlot();
+    const slot =
+      record.slotKey || saveManager.getLastUsedSlot();
+
     const data = saveManager.getState();
-    localStorage.setItem(prefix + slot, JSON.stringify({ version: 2, caseId: record.caseId, campaignId: record.campaignId, updatedAt: record.updatedAt, data }));
+
+    localStorage.setItem(
+      prefix + slot,
+      JSON.stringify({
+        version: 2,
+        caseId: record.caseId,
+        campaignId: record.campaignId,
+        updatedAt: record.updatedAt,
+        data
+      })
+    );
+
     return true;
   } catch (error) {
-    console.warn('[Chase] Checkpoint could not be written:', error);
+    console.warn(
+      '[Chase] Checkpoint could not be written:',
+      error
+    );
+
     return false;
   }
 }
@@ -51,7 +89,35 @@ export function restoreLocalChaseCheckpoint(slotKey) {
   }
 }
 export function terminalData(record) {
-  return { title: 'THIEF ESCAPED', reasonCode: 'chase_escape', caseId: record.caseId, suspectId: record.suspectId, message: ESCAPE_MESSAGE };
+  const reasonCode =
+    chaseFailureCode(record) || 'chase_escape';
+
+  const failure = CHASE_FAILURES[reasonCode];
+
+  return {
+    title: failure.title,
+    reasonCode,
+    caseId: record.caseId,
+    suspectId: record.suspectId,
+    message: failure.message
+  };
+}
+
+export function chaseFailureCode(record) {
+  if (!record) return null;
+
+  if (
+    Object.prototype.hasOwnProperty.call(
+      CHASE_FAILURES,
+      record.failureCode
+    )
+  ) {
+    return record.failureCode;
+  }
+
+  return record.phase === 'escaped'
+    ? 'chase_escape'
+    : null;
 }
 export function settleChase(sceneKey) {
   const record = currentChase();

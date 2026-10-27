@@ -62,7 +62,7 @@ export class DetectiveOfficeScene extends BaseScene {
 
   preload() {
     const key = OFFICE_CONFIG.backgroundKey || 'pi_office_bg';
-    const url = OFFICE_CONFIG.backgroundUrl || 'assets/local/pioffice.jpg';
+    const url = OFFICE_CONFIG.backgroundUrl || 'assets/local/pioffice.webp';
     if (!this.textures.exists(key)) this.load.image(key, url);
     for (const [dataKey, dataUrl] of DATA_FILES) {
       if (!this.cache.json.exists(dataKey)) this.load.json(dataKey, dataUrl);

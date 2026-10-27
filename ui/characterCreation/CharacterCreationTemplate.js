@@ -5,11 +5,11 @@ import { renderDifficultyStep } from './DifficultyCards.js';
 import { renderDossierStep } from './DossierView.js';
 
 const STEPS = [
-  'Identity',
-  'Profile',
-  'Instincts',
-  'Case Pressure',
-  'Dossier',
+  { label: 'Identity',      icon: '⊙' },
+  { label: 'Profile',       icon: '◈' },
+  { label: 'Instincts',     icon: '⬡' },
+  { label: 'Case Pressure', icon: '⚑' },
+  { label: 'Dossier',       icon: '▣' },
 ];
 
 function renderStepNavigation(currentStep) {
@@ -18,7 +18,7 @@ function renderStepNavigation(currentStep) {
       class="character-creation-steps"
       aria-label="Character creation steps"
     >
-      ${STEPS.map((label, index) => {
+      ${STEPS.map((step, index) => {
         const active = index === currentStep;
         const complete = index < currentStep;
 
@@ -31,7 +31,7 @@ function renderStepNavigation(currentStep) {
             data-step-number="${index + 1}"
             aria-current="${active ? 'step' : 'false'}"
           >
-            ${label}
+            <span class="character-step-icon" aria-hidden="true">${step.icon}</span>${step.label}
           </button>
         `;
       }).join('')}

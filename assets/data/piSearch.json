@@ -81,6 +81,11 @@
           "cloudId": "person"
         },
         {
+          "id": "work_email",
+          "label": "work email",
+          "cloudId": "person"
+        },
+        {
           "id": "claire_email",
           "label": "claire.sutton@openskies.local",
           "cloudId": "person"
@@ -92,7 +97,6 @@
           "id": "miramar",
           "title": "Hotel Miramar | Stay by the sea",
           "address": "www.miramar.local",
-          "snippet": "Rooms, terrace dining and private events overlooking the coast.",
           "brand": "MIRAMAR",
           "theme": "hotel",
           "blocks": [
@@ -119,13 +123,13 @@
               "label": "Meetings",
               "pageId": "miramar_meetings"
             }
-          ]
+          ],
+          "snippet": "Rooms, terrace dining and private events overlooking the coast."
         },
         {
           "id": "mariner",
           "title": "The Mariner | Harbour accommodation",
           "address": "www.mariner.local",
-          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
           "brand": "THE MARINER",
           "theme": "hotel",
           "blocks": [
@@ -151,13 +155,13 @@
               "label": "Events",
               "pageId": "mariner_events"
             }
-          ]
+          ],
+          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse."
         },
         {
           "id": "coral",
           "title": "Coral Crown Hotel | Coast and comfort",
           "address": "www.coralcrown.local",
-          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
           "brand": "CORAL CROWN",
           "theme": "hotel",
           "blocks": [
@@ -181,13 +185,13 @@
               "label": "Functions",
               "pageId": "coral_events"
             }
-          ]
+          ],
+          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest."
         },
         {
           "id": "organisation",
           "title": "Open Skies Foundation",
           "address": "www.openskies.local",
-          "snippet": "Regional partnerships, community projects and the New Horizons programme.",
           "brand": "OPEN SKIES",
           "theme": "organisation",
           "blocks": [
@@ -225,13 +229,13 @@
               "label": "Contact",
               "pageId": "contact"
             }
-          ]
+          ],
+          "snippet": "Regional partnerships, community projects and the New Horizons programme."
         },
         {
           "id": "events",
           "title": "New Horizons | Open Skies",
           "address": "www.openskies.local/events/new-horizons",
-          "snippet": "Workshops, regional reports and an evening reception for delegates.",
           "brand": "OPEN SKIES",
           "theme": "organisation",
           "blocks": [
@@ -260,6 +264,10 @@
               "pageId": "organisation"
             },
             {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
               "label": "People",
               "pageId": "team"
             },
@@ -267,13 +275,13 @@
               "label": "Contact",
               "pageId": "contact"
             }
-          ]
+          ],
+          "snippet": "Workshops, regional reports and an evening reception for delegates."
         },
         {
           "id": "miramar_event",
           "title": "New Horizons reception | Hotel Miramar",
           "address": "www.miramar.local/journal/new-horizons",
-          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
           "brand": "MIRAMAR",
           "theme": "hotel",
           "blocks": [
@@ -312,13 +320,13 @@
               "label": "Meetings",
               "pageId": "miramar_meetings"
             }
-          ]
+          ],
+          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace."
         },
         {
           "id": "miramar_meetings",
           "title": "Meetings & private events | Miramar",
           "address": "www.miramar.local/meetings",
-          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
           "brand": "MIRAMAR",
           "theme": "hotel",
           "blocks": [
@@ -345,13 +353,13 @@
               "label": "Journal",
               "pageId": "miramar_event"
             }
-          ]
+          ],
+          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests."
         },
         {
           "id": "mariner_events",
           "title": "What's on | The Mariner",
           "address": "www.mariner.local/whats-on",
-          "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
           "brand": "THE MARINER",
           "theme": "hotel",
           "blocks": [
@@ -367,13 +375,13 @@
               "label": "Home",
               "pageId": "mariner"
             }
-          ]
+          ],
+          "snippet": "Quiz nights, harbour history talks and live music in the lounge."
         },
         {
           "id": "coral_events",
           "title": "Functions | Coral Crown",
           "address": "www.coralcrown.local/functions",
-          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
           "brand": "CORAL CROWN",
           "theme": "hotel",
           "blocks": [
@@ -389,13 +397,13 @@
               "label": "Home",
               "pageId": "coral"
             }
-          ]
+          ],
+          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner."
         },
         {
           "id": "jacket_generic",
           "title": "Green checks are having a moment",
           "address": "www.everydayedit.local/style/green-checks",
-          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
           "brand": "THE EVERYDAY EDIT",
           "theme": "magazine",
           "blocks": [
@@ -407,7 +415,7 @@
               {
                 "keywordId": "checked_jacket"
               },
-              " works just as well with a plain white T-shirt as it does with a matching skirt. This season's versions favour a relaxed shoulder and contrasting pocket trim."
+              " works just as well with a plain white T-shirt as it does with a matching skirt. This season’s versions favour a relaxed shoulder and contrasting pocket trim."
             ],
             [
               "Choose one strong pattern and keep the rest simple. For evening wear, add a silk scarf or a narrow belt."
@@ -416,13 +424,13 @@
               "Our editor favours dark green checks with brass buttons. Dry-clean only, unless you were hoping to buy a smaller jacket."
             ]
           ],
-          "links": []
+          "links": [],
+          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories."
         },
         {
           "id": "gallery",
           "title": "New Horizons | Reception photographs",
           "address": "www.openskies.local/photos/new-horizons",
-          "snippet": "Photographs from the reception at Hotel Miramar.",
           "brand": "OPEN SKIES",
           "theme": "organisation",
           "blocks": [
@@ -454,6 +462,7 @@
               "pageId": "contact"
             }
           ],
+          "snippet": "Photographs from the reception at Hotel Miramar.",
           "imageKey": "Reed_conference",
           "imageUrl": "assets/side_quests/Reed/conference.webp"
         },
@@ -461,7 +470,6 @@
           "id": "team",
           "title": "Our people | Open Skies",
           "address": "www.openskies.local/people",
-          "snippet": "Meet our regional coordinators and programme staff.",
           "brand": "OPEN SKIES",
           "theme": "organisation",
           "blocks": [
@@ -490,13 +498,13 @@
               "label": "Contact",
               "pageId": "contact"
             }
-          ]
+          ],
+          "snippet": "Meet our regional coordinators and programme staff."
         },
         {
           "id": "contact",
           "title": "Contact | Open Skies",
           "address": "www.openskies.local/contact",
-          "snippet": "Programme enquiries, press requests and event administration.",
           "brand": "OPEN SKIES",
           "theme": "organisation",
           "blocks": [
@@ -527,7 +535,276 @@
               "label": "People",
               "pageId": "team"
             }
-          ]
+          ],
+          "snippet": "Programme enquiries, press requests and event administration."
+        },
+        {
+          "id": "swallow_birds",
+          "title": "Swallow Watch | Coastal birdwatching club",
+          "address": "www.swallowwatch.local",
+          "brand": "SWALLOW WATCH",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Early starts. Sensible shoes. Unreasonable enthusiasm for distant dots."
+            ],
+            [
+              "Our swallow emblem appears on club badges and the cover of our quarterly field journal."
+            ],
+            [
+              "Saturday walk: meet at the east marsh car park at 06:30. Bring binoculars and a flask. The birds have declined to provide a schedule."
+            ]
+          ],
+          "links": [],
+          "snippet": "Guided walks, migration notes and a swallow badge for members."
+        },
+        {
+          "id": "swallow_couriers",
+          "title": "Swiftwing Couriers | Same-day delivery",
+          "address": "www.swiftwing.local",
+          "brand": "SWIFTWING",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Local parcels, business documents and same-day deliveries."
+            ],
+            [
+              "Look for the blue swallow on our vans. Our refreshed emblem keeps the familiar wings and adds a brighter background."
+            ],
+            [
+              "Please attach a delivery address. “You know, the building near the other building” remains outside our service guarantee."
+            ]
+          ],
+          "links": [],
+          "snippet": "Business deliveries and local parcels. Look for the blue swallow."
+        },
+        {
+          "id": "claire_social",
+          "title": "Claire Sutton | CommonRoom",
+          "address": "www.commonroom.local/claire.sutton",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              " · West Region"
+            ],
+            [
+              "Community partnerships and volunteer training at Open Skies Foundation."
+            ],
+            [
+              "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+            ],
+            [
+              "Posts shared with friends and private photographs are visible to signed-in members only."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Public profile",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Private posts",
+              "pageId": "claire_private"
+            },
+            {
+              "label": "Photos",
+              "pageId": "claire_private"
+            }
+          ],
+          "snippet": "Community partnerships and volunteer training. Public profile and updates."
+        },
+        {
+          "id": "claire_private",
+          "title": "Sign in | CommonRoom",
+          "address": "www.commonroom.local/login?profile=claire",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              "SIGN IN TO COMMONROOM"
+            ],
+            [
+              "Email address: ____________________"
+            ],
+            [
+              "Password: ________________________"
+            ],
+            [
+              "Private posts and photographs are available to signed-in members with permission to view them."
+            ],
+            [
+              "This content is not available in the public view."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "claire_social"
+            }
+          ],
+          "snippet": "Sign in | CommonRoom",
+          "heading": "Members-only content"
+        },
+        {
+          "id": "nora_social",
+          "title": "Nora Bell | CommonRoom",
+          "address": "www.commonroom.local/nora.bell",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              {
+                "keywordId": "nora"
+              },
+              " · North Region"
+            ],
+            [
+              "Small grants and local outreach at Open Skies Foundation."
+            ],
+            [
+              "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+            ],
+            [
+              "Posts shared with friends and private photographs are visible to signed-in members only."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Public profile",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Private posts",
+              "pageId": "nora_private"
+            },
+            {
+              "label": "Photos",
+              "pageId": "nora_private"
+            }
+          ],
+          "snippet": "Small grants and local outreach. Public profile and updates."
+        },
+        {
+          "id": "nora_private",
+          "title": "Sign in | CommonRoom",
+          "address": "www.commonroom.local/login?profile=nora",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              "SIGN IN TO COMMONROOM"
+            ],
+            [
+              "Email address: ____________________"
+            ],
+            [
+              "Password: ________________________"
+            ],
+            [
+              "Private posts and photographs are available to signed-in members with permission to view them."
+            ],
+            [
+              "This content is not available in the public view."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "nora_social"
+            }
+          ],
+          "snippet": "Sign in | CommonRoom",
+          "heading": "Members-only content"
+        },
+        {
+          "id": "claire_work",
+          "title": "Volunteers build stronger local partnerships",
+          "address": "www.communityledger.local/news/volunteer-training",
+          "brand": "COMMUNITY LEDGER",
+          "theme": "magazine",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              ", West Region coordinator at Open Skies, led a workshop on recruiting and supporting community volunteers."
+            ],
+            [
+              "The session covered induction, safeguarding and the mysterious disappearance of every working marker pen."
+            ],
+            [
+              "Local groups can contact the foundation’s programme office for future training dates."
+            ]
+          ],
+          "links": [],
+          "snippet": "Claire Sutton led a practical workshop for local volunteer groups."
+        },
+        {
+          "id": "nora_work",
+          "title": "Small grants, practical results",
+          "address": "www.communityledger.local/news/north-region-grants",
+          "brand": "COMMUNITY LEDGER",
+          "theme": "magazine",
+          "blocks": [
+            [
+              {
+                "keywordId": "nora"
+              },
+              " presented the North Region’s small-grants programme at the community centre."
+            ],
+            [
+              "Projects included a repair café, a neighbourhood garden and new equipment for the youth club."
+            ],
+            [
+              "Applications will be reviewed by the regional panel. Biscuits will be reviewed by everyone."
+            ]
+          ],
+          "links": [],
+          "snippet": "Nora Bell outlined community funding opportunities in the North Region."
+        },
+        {
+          "id": "claire_other",
+          "title": "Clare Sutton | Ceramics and workshops",
+          "address": "www.claresuttonstudio.local",
+          "brand": "CLARE SUTTON STUDIO",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "Clare Sutton makes hand-thrown stoneware from a small studio on Market Lane."
+            ],
+            [
+              "Weekend workshops cover bowls, glazing and accepting that your first mug may resemble an ashtray."
+            ],
+            [
+              "Studio visits by appointment. Wholesale enquiries welcome."
+            ]
+          ],
+          "links": [],
+          "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes."
+        },
+        {
+          "id": "nora_other",
+          "title": "Norah Bell | Piano lessons",
+          "address": "www.norahbellmusic.local",
+          "brand": "NORAH BELL MUSIC",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "Norah Bell offers individual piano lessons for beginners and returning players."
+            ],
+            [
+              "Evening appointments are available at the Riverside teaching studio."
+            ],
+            [
+              "Patient tuition. The metronome is less patient."
+            ]
+          ],
+          "links": [],
+          "snippet": "Norah Bell offers piano tuition and accompaniment services."
         }
       ],
       "recipes": [
@@ -536,9 +813,9 @@
             "seahorse_logo"
           ],
           "pageIds": [
-            "miramar",
             "mariner",
-            "coral"
+            "coral",
+            "miramar"
           ]
         },
         {
@@ -546,7 +823,9 @@
             "swallow_logo"
           ],
           "pageIds": [
-            "organisation"
+            "organisation",
+            "swallow_birds",
+            "swallow_couriers"
           ]
         },
         {
@@ -642,6 +921,9 @@
             "claire"
           ],
           "pageIds": [
+            "claire_social",
+            "claire_work",
+            "claire_other",
             "team"
           ]
         },
@@ -650,6 +932,9 @@
             "nora"
           ],
           "pageIds": [
+            "nora_social",
+            "nora_work",
+            "nora_other",
             "team"
           ]
         },
@@ -659,6 +944,48 @@
           ],
           "pageIds": [
             "contact"
+          ]
+        },
+        {
+          "terms": [
+            "claire",
+            "open_skies"
+          ],
+          "pageIds": [
+            "team",
+            "claire_work",
+            "claire_social"
+          ]
+        },
+        {
+          "terms": [
+            "nora",
+            "open_skies"
+          ],
+          "pageIds": [
+            "team",
+            "nora_work",
+            "nora_social"
+          ]
+        },
+        {
+          "terms": [
+            "claire",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery",
+            "claire_work"
+          ]
+        },
+        {
+          "terms": [
+            "nora",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery",
+            "nora_work"
           ]
         }
       ]

@@ -1,5 +1,5 @@
-// scenes/CSI/CrimeLabConfig.js
-// Scene routing only. CrimeLabManager owns case assignment and random draws.
+// Scene routing only.
+// CrimeLabManager owns case assignment and random draws.
 
 export const CSI_RED_HERRING_POOL = [
   {
@@ -15,7 +15,7 @@ export const CSI_RED_HERRING_POOL = [
   }
 ];
 
-// Compatibility export: not a pool for the three useful case analyses.
+// Compatibility export, not the pool for useful trace analyses.
 export const CSI_TRACE_GAME_POOL = CSI_RED_HERRING_POOL;
 
 export const CSI_MAIN_GAME_POOL = [
@@ -53,14 +53,29 @@ export const CSI_MAIN_GAME_POOL = [
   }
 ];
 
+// Different minigames can examine the same evidence type.
+// The chosen variant is stored with the case assignment.
+export const CSI_DUST_ANALYSIS_VARIANTS = [
+  {
+    minigame: 'ToolmarkAnalysisScene',
+    label: 'Microtrace Analysis'
+  },
+  {
+    minigame: 'ChemicalResidueScene',
+    label: 'Chemical Residue Analysis'
+  }
+];
+
 const ALIASES = new Map();
 
 function register(sceneKey, aliases) {
   for (const alias of aliases) {
     const key = alias.trim().toLowerCase();
+
     if (ALIASES.has(key)) {
       throw new Error(`Duplicate CSI scene alias: ${alias}`);
     }
+
     ALIASES.set(key, sceneKey);
   }
 }
@@ -70,12 +85,14 @@ register('HairAnalysisScene', [
 ]);
 
 register('BloodAnalysisScene', [
-  'blood', 'blood_type', 'bloodtype', 'blood_analysis', 'BloodAnalysisScene'
+  'blood', 'blood_type', 'bloodtype',
+  'blood_analysis', 'BloodAnalysisScene'
 ]);
 
 register('DnaGenderScene', [
-  'dna', 'dna_gender', 'dna_profile', 'dna_analysis', 'DnaGenderScene',
-  'gender_profile', 'biological_sex', 'biologicalSex'
+  'dna', 'dna_gender', 'dna_profile', 'dna_analysis',
+  'DnaGenderScene', 'gender_profile',
+  'biological_sex', 'biologicalSex'
 ]);
 
 register('FingerprintPatternScene', [
@@ -92,11 +109,18 @@ register('ShoeprintScene', [
   'shoe_size', 'shoe_size_category', 'shoeSizeCategory'
 ]);
 
-// Legacy scene name, current analyses: handedness and microtraces.
 register('ToolmarkAnalysisScene', [
-  'handedness', 'dominant_hand', 'dominantHand', 'ToolmarkAnalysisScene',
+  'handedness', 'dominant_hand', 'dominantHand',
+  'ToolmarkAnalysisScene',
   'dust', 'dust_profile', 'dustProfile', 'microtrace',
   'microtrace_profile', 'microtrace_analysis'
+]);
+
+register('ChemicalResidueScene', [
+  'ChemicalResidueScene',
+  'chemical_residue',
+  'chemical_residue_analysis',
+  'chemical_analysis'
 ]);
 
 register('MaterialAnalysisScene', [
@@ -104,32 +128,55 @@ register('MaterialAnalysisScene', [
   'material_analysis', 'MaterialAnalysisScene'
 ]);
 
-// Old fiber values use a different schema. Keep them separate.
-// blue_cotton_fiber is not a valid new material profile.
 register('FiberAnalysisScene', [
   'fiber', 'fibre', 'fiber_analysis', 'FiberAnalysisScene',
   'fiber_profile', 'fiberProfile', 'fabric_material', 'fabricMaterial'
 ]);
 
 const RETIRED_TYPES = new Set([
-  'toolmark', 'toolmarks', 'tool_mark', 'toolmark_analysis', 'toolmark_profile',
+  'toolmark', 'toolmarks', 'tool_mark',
+  'toolmark_analysis', 'toolmark_profile',
   'skill', 'skills', 'primary_skill', 'primaryskill', 'skill_analysis'
 ]);
+
+const DUST_TYPES = new Set([
+  'dust',
+  'dust_profile',
+  'dustprofile',
+  'microtrace',
+  'microtrace_profile',
+  'microtrace_analysis'
+]);
+
+const DUST_SCENES = new Set(
+  CSI_DUST_ANALYSIS_VARIANTS.map(entry => entry.minigame)
+);
 
 export function normalizeMiniGameKey(rawKey, evidenceType = '') {
   const originalKey = String(rawKey ?? '').trim();
   const key = originalKey.toLowerCase();
   const type = String(evidenceType ?? '').trim().toLowerCase();
 
-  // Never send an obsolete tool/skill value to the repurposed focus game.
   if (RETIRED_TYPES.has(type) || (!type && RETIRED_TYPES.has(key))) {
     return null;
   }
 
-  // Recognized evidence semantics take priority over a stale scene name.
+  const explicitScene = ALIASES.get(key);
+
+  // Preserve a supported, explicitly assigned dust-analysis variant.
+  // Without this exception, dust_profile would always route to Toolmark.
+  if (
+    DUST_TYPES.has(type) &&
+    explicitScene &&
+    DUST_SCENES.has(explicitScene)
+  ) {
+    return explicitScene;
+  }
+
+  // Other evidence types retain semantic routing.
   if (type && ALIASES.has(type)) {
     return ALIASES.get(type);
   }
 
-  return ALIASES.get(key) || originalKey || null;
+  return explicitScene || originalKey || null;
 }

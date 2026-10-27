@@ -928,6 +928,14 @@
         "portraits"
       ]
     },
+        {
+      "key": "portrait_magazine",
+      "url": "assets/portraits/magazine_manager.webp",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
     {
       "key": "suspects",
       "url": "assets/data/suspects.json",

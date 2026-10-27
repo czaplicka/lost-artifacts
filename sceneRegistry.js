@@ -48,7 +48,8 @@ export const SCENE_TIERS = {
     "AlibiTimelineScene",
     "ApartmentScene",
     "SuccessScene",
-    "AgainScene"
+    "AgainScene",
+    "CourtScene"
   ],
   "TIER_3": [
     "HiddenObjectsScene",
@@ -61,7 +62,8 @@ export const SCENE_TIERS = {
     "BloodAnalysisScene",
     "DnaGenderScene",
     "FingerprintPatternScene",
-    "MaterialAnalysisScene"
+    "MaterialAnalysisScene",
+    "ChemicalResidueScene"
   ]
 };
 
@@ -106,6 +108,8 @@ export const sceneRegistry = {
   RecoveredArtifactsScene: () => import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
   ArrestSelectionScene: () => import('./scenes/ArrestChaseSelectionScene.js').then(m => m.ArrestSelectionScene),
   ChaseScene: () => import('./scenes/ChaseScene.js').then(m => m.ChaseScene),
+  CourtScene: () =>
+  import('./scenes/CourtScene.js').then(m => m.CourtScene),
   AlibiScene: () => import('./scenes/AlibiScene.js').then(m => m.AlibiScene),
   AlibiTimelineScene: () => import('./scenes/AlibiTimelineScene.js').then(m => m.AlibiTimelineScene),
   ApartmentScene: () => import('./scenes/ApartmentScene.js').then(m => m.ApartmentScene),
@@ -122,6 +126,7 @@ export const sceneRegistry = {
   DnaGenderScene: () => import('./scenes/CSI/DnaGenderScene.js').then(m => m.DnaGenderScene),
   FingerprintPatternScene: () => import('./scenes/CSI/FingerprintPatternScene.js').then(m => m.FingerprintPatternScene),
   MaterialAnalysisScene: () => import('./scenes/CSI/MaterialAnalysisScene.js').then(m => m.MaterialAnalysisScene),
+  ChemicalResidueScene: () => import('./scenes/CSI/ChemicalResidueScene.js').then(m => m.ChemicalResidueScene)
 };
 
 export function tierOf(key) {

@@ -2,7 +2,7 @@
 
 export const OFFICE_CONFIG = {
   backgroundKey: 'pi_office_bg',
-  backgroundUrl: 'assets/local/pioffice.jpg',
+  backgroundUrl: 'assets/local/pioffice.webp',
 
   officeLabel: 'PI OFFICE',
 

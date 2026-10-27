@@ -5,23 +5,33 @@ import { discoverSearchKeywords, getSearchProgress } from './ComputerSearch.js';
 import { ReedGalleryViewer } from './ReedGalleryViewer.js';
 import { PhotoHotspotEditor } from './PhotoHotspotEditor.js';
 import { ReedContactMail } from './ReedContactMail.js';
+import { drawEvidenceText } from './EvidenceText.js';
 const QUEST_ID='pi_two_glasses',SEARCH_ID='miramar_demo',PHOTO_STATE='piPhotoEvidence';
 const clone=v=>JSON.parse(JSON.stringify(v));
 export function preparePhotoSearch(){
-  const s=clone(getSearchProgress());if(!s.cases[SEARCH_ID]){s.cases[SEARCH_ID]={known:[],history:[]};gameState.piKeywordSearch=s;requestAutosave();}
+  const s=clone(getSearchProgress());
+  if(!s.cases[SEARCH_ID]){s.cases[SEARCH_ID]={known:[],history:[]};gameState.piKeywordSearch=s;requestAutosave();}
 }
 export function getPhotoProgress(){return gameState[PHOTO_STATE]?.[QUEST_ID]||{opened:false,inspected:[],selectedId:null};}
 export function updatePhotoProgress(patch){
-  const old=getPhotoProgress(),next={...old,...patch};if(JSON.stringify(old)===JSON.stringify(next))return next;
+  const old=getPhotoProgress(),next={...old,...patch};
+  if(JSON.stringify(old)===JSON.stringify(next))return next;
   gameState[PHOTO_STATE]={...(gameState[PHOTO_STATE]||{}),[QUEST_ID]:next};requestAutosave();return next;
 }
 export function validatePhotoQuest(d){
   if(d?.version!==1||d.definition?.id!==QUEST_ID||d.searchCaseId!==SEARCH_ID||d.advert?.missionId!==QUEST_ID)throw Error('Invalid photo quest IDs');
   if(!d.message?.id||!d.photo?.imageUrl||!Array.isArray(d.photo.hotspots)||d.photo.hotspots.length!==4)throw Error('Incomplete photo quest');
-  const ids=new Set();for(const h of d.photo.hotspots){
+  const ids=new Set();
+  for(const h of d.photo.hotspots){
     if(!h.id||ids.has(h.id)||typeof h.description!=='string'||![h.x,h.y,h.w,h.h].every(Number.isFinite)||h.x<0||h.y<0||h.w<=0||h.h<=0||h.x+h.w>1||h.y+h.h>1)throw Error('Invalid photo hotspot');
-    ids.add(h.id);if(h.keywordId&&typeof h.keywordLabel!=='string')throw Error('Missing keyword label');
-  }return d;
+    ids.add(h.id);
+    if(h.keywordId&&typeof h.keywordLabel!=='string')throw Error('Missing keyword label');
+    if(h.fragments!==undefined){
+      if(!Array.isArray(h.fragments)||h.fragments.some(p=>typeof p!=='string'&&(!p||typeof p.text!=='string'||typeof p.keywordId!=='string')))throw Error('Invalid photo fragments');
+      if(h.fragments.map(p=>typeof p==='string'?p:p.text).join('')!==h.description)throw Error('Photo fragments must match description');
+    }
+  }
+  return d;
 }
 export class PhotoPIQuest{
   constructor(ui){
@@ -63,7 +73,8 @@ export class PhotoPIQuest{
     put('piCases','cases',this.data.definition);put('piOfficeClassifieds','advertisements',this.data.advert);
   }
   loadImage(){
-    if(this.dead||this.image)return;const textures=this.ui.scene.textures,key=this.data.photo.imageKey;if(textures.exists(key))return;
+    if(this.dead||this.image)return;
+    const textures=this.ui.scene.textures,key=this.data.photo.imageKey;if(textures.exists(key))return;
     this.imageFailed=false;const image=new Image();this.image=image;
     image.onload=()=>{if(this.dead||this.ui.destroyed)return;if(!textures.exists(key))textures.addImage(key,image);this.refresh();};
     image.onerror=()=>{if(!this.dead){this.imageFailed=true;this.refresh();}};image.src=this.data.photo.imageUrl;
@@ -84,10 +95,20 @@ export class PhotoPIQuest{
     const h=this.data.photo.hotspots.find(h=>h.id===id);if(!h||!this.accepted)return;
     this.selectedId=id;updatePhotoProgress({selectedId:id,inspected:[...new Set([...getPhotoProgress().inspected,id])]});this.refresh();
   }
-  collect(id){
+  fragments(h){
+    if(h.fragments)return h.fragments;
+    if(!h.keywordId)return [h.description];
+    const index=h.description.toLowerCase().indexOf(h.keywordLabel.toLowerCase());
+    if(index<0)return [h.description];
+    return [h.description.slice(0,index),{text:h.description.slice(index,index+h.keywordLabel.length),keywordId:h.keywordId},h.description.slice(index+h.keywordLabel.length)];
+  }
+  collect(id,keywordId){
     if(this.debugEditor.enabled)return false;
-    const h=this.data.photo.hotspots.find(h=>h.id===id);if(!h?.keywordId||!this.accepted||!getPhotoProgress().inspected.includes(id))return false;
-    discoverSearchKeywords(SEARCH_ID,[h.keywordId]);this.refresh();return true;
+    const h=this.data.photo.hotspots.find(h=>h.id===id);
+    if(!h||!this.accepted||!getPhotoProgress().inspected.includes(id))return false;
+    const wanted=keywordId||h.keywordId;
+    if(!wanted||!this.fragments(h).some(p=>typeof p==='object'&&p.keywordId===wanted))return false;
+    discoverSearchKeywords(SEARCH_ID,[wanted]);this.refresh();return true;
   }
   returnToMail(){
     this.debugEditor.enabled=false;const ui=this.ui;ui.app='mail';ui.menuOpen=false;ui.selectedId=this.data?.message.id||null;ui.listPage=0;ui.bodyPage=0;ui.notice='';ui.viewToken++;this.refresh();
@@ -114,13 +135,11 @@ export class PhotoPIQuest{
     const by=b.y+b.h-120;d.rectangle(b.x+12,by,b.w-24,108,0xeee3c4);
     if(this.debugEditor.enabled){this.debugEditor.drawHelp(b.x+26,by+10,b.w-52);return;}
     const selected=this.data.photo.hotspots.find(h=>h.id===this.selectedId);if(!selected)return;
-    d.text(b.x+26,by+12,selected.description,16,'#343e35',b.w-52);
-    if(selected.keywordId){
-      const known=getSearchProgress().cases[SEARCH_ID]?.known.includes(selected.keywordId);
-      const word=d.text(b.x+26,by+67,selected.keywordLabel,17,known?'#6f6951':'#654b06');
-      const bg=d.rectangle(word.x-4,word.y-2,word.width+8,25,known?0xdcd5ae:0xf4d666);ui.content.moveBelow(bg,word);
-      word.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.collect(selected.id));
-    }
+    drawEvidenceText(ui,{
+      blocks:[this.fragments(selected)],x:b.x+26,y:by+12,width:b.w-52,
+      isKnown:id=>Boolean(getSearchProgress().cases[SEARCH_ID]?.known.includes(id)),
+      onCollect:id=>this.collect(selected.id,id)
+    });
   }
   destroy(){this.dead=true;this.debugEditor.destroy();this.contactMail.destroy();this.galleryViewer.destroy();this.controller?.abort();if(this.image){this.image.onload=null;this.image.onerror=null;}}
 }

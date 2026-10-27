@@ -15,36 +15,100 @@
         },
         {
           "speaker": "You",
-          "text": "I’m calling about the New Horizons reception photographs."
+          "text": "I’m making enquiries about the New Horizons reception."
         },
         {
           "speaker": "Events coordinator",
-          "text": "I organised that reception. What would you like to know?"
+          "text": "I organised it. What would you like to know?"
         }
       ],
       "fallback": [
         {
           "speaker": "Events coordinator",
-          "text": "I’m afraid I don’t have anything to add about that."
+          "text": "I don’t have information that connects those details."
         }
+      ],
+      "fallbackVariants": [
+        [
+          {
+            "speaker": "Events coordinator",
+            "text": "I don’t have information that connects those details."
+          }
+        ],
+        [
+          {
+            "speaker": "Events coordinator",
+            "text": "That is not something I can confirm from the event records."
+          }
+        ],
+        [
+          {
+            "speaker": "Events coordinator",
+            "text": "I’m afraid I can only speak about matters handled by this office."
+          }
+        ],
+        [
+          {
+            "speaker": "Events coordinator",
+            "text": "I don’t have anything further to add on that subject."
+          }
+        ]
       ],
       "topics": [
         {
-          "id": "claire_contact",
+          "id": "claire_phone_request",
           "terms": [
             "claire"
           ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Could you give me Claire Sutton’s telephone number?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "I’m sorry, we do not give out private telephone numbers. You can contact Claire through her work email.",
+              "fragments": [
+                "I’m sorry, we do not give out private telephone numbers. You can contact Claire through her ",
+                {
+                  "keywordId": "work_email",
+                  "text": "work email"
+                },
+                "."
+              ]
+            }
+          ],
+          "grantFlags": [
+            "claire_phone_refused"
+          ],
+          "grantKeywords": []
+        },
+        {
+          "id": "claire_work_email",
+          "terms": [
+            "claire",
+            "work_email"
+          ],
           "requiresFlags": [
-            "jacket_verified"
+            "claire_phone_refused"
           ],
           "lines": [
             {
               "speaker": "You",
-              "text": "Is there a work email address I can use to contact Claire Sutton?"
+              "text": "What is Claire Sutton’s work email address?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "Yes. Claire handles her regional enquiries directly: claire.sutton@openskies.local."
+              "text": "She handles regional enquiries at claire.sutton@openskies.local.",
+              "fragments": [
+                "She handles regional enquiries at ",
+                {
+                  "keywordId": "claire_email",
+                  "text": "claire.sutton@openskies.local"
+                },
+                "."
+              ]
             },
             {
               "speaker": "You",
@@ -54,9 +118,7 @@
           "grantFlags": [
             "claire_contact_obtained"
           ],
-          "grantKeywords": [
-            "claire_email"
-          ]
+          "grantKeywords": []
         },
         {
           "id": "nora_intro",
@@ -67,11 +129,19 @@
           "lines": [
             {
               "speaker": "You",
-              "text": "Nora Bell — is she the woman on the right in the reception photograph?"
+              "text": "Is Nora Bell the woman on the right in the reception photograph?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "Yes. Nora is our North Region coordinator. The photograph was taken before the evening reception."
+              "text": "Yes. Nora Bell coordinates our North Region. That photograph was taken before the evening reception.",
+              "fragments": [
+                "Yes. ",
+                {
+                  "keywordId": "nora",
+                  "text": "Nora Bell"
+                },
+                " coordinates our North Region. That photograph was taken before the evening reception."
+              ]
             }
           ],
           "grantFlags": [
@@ -89,49 +159,166 @@
           "lines": [
             {
               "speaker": "You",
-              "text": "Nora is wearing a green checked jacket in that photograph. Do you remember it?"
+              "text": "Nora is wearing a green checked jacket in the photograph. Do you remember it?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "I do. That jacket belongs to Claire Sutton. Nora spilled coffee on her blouse just before the photographer arrived."
+              "text": "Yes. That is Claire’s jacket. Claire Sutton lent it to Nora after Nora spilled coffee on her blouse.",
+              "fragments": [
+                "Yes. That is ",
+                {
+                  "keywordId": "jacket_owner",
+                  "text": "Claire’s jacket"
+                },
+                ". ",
+                {
+                  "keywordId": "claire",
+                  "text": "Claire Sutton"
+                },
+                " lent it to Nora after Nora spilled coffee on her blouse."
+              ]
             },
             {
               "speaker": "Events coordinator",
-              "text": "Claire lent her the jacket for the photograph. Nora handed it back straight afterwards. I was there, trying to get everyone into the reception on time."
-            },
-            {
-              "speaker": "You",
-              "text": "So Nora was wearing it in the photograph, but Claire had it afterwards."
+              "text": "Nora returned the jacket to Claire immediately after the photograph. I saw her hand it back while I was ushering everyone into the reception.",
+              "fragments": [
+                "Nora ",
+                {
+                  "keywordId": "jacket_returned",
+                  "text": "returned the jacket to Claire"
+                },
+                " immediately after the photograph. I saw her hand it back while I was ushering everyone into the reception."
+              ]
             },
             {
               "speaker": "Events coordinator",
-              "text": "Exactly. Fortunately, the photographer left before the second coffee incident."
+              "text": "Fortunately the photographer left before the second coffee incident."
             }
           ],
           "grantFlags": [
             "jacket_verified",
             "jacket_returned"
           ],
-          "grantKeywords": [
-            "claire",
-            "jacket_owner",
-            "jacket_returned"
-          ]
+          "grantKeywords": []
         },
         {
-          "id": "claire_profile",
+          "id": "claire_jacket",
           "terms": [
-            "claire"
+            "claire",
+            "checked_jacket"
           ],
           "requiresFlags": [],
           "lines": [
             {
               "speaker": "You",
-              "text": "What is Claire Sutton’s role in the foundation?"
+              "text": "What can you tell me about Claire and the green checked jacket?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "She coordinates the West Region: community partnerships and volunteer training."
+              "text": "It belongs to Claire. She lent it to Nora for the photograph. Nora returned the jacket to Claire straight afterwards. I saw the handover.",
+              "fragments": [
+                "It belongs to Claire. She lent it to Nora for the photograph. Nora ",
+                {
+                  "keywordId": "jacket_returned",
+                  "text": "returned the jacket to Claire"
+                },
+                " straight afterwards. I saw the handover."
+              ]
+            }
+          ],
+          "grantFlags": [
+            "jacket_verified",
+            "jacket_returned"
+          ],
+          "grantKeywords": []
+        },
+        {
+          "id": "claire_profile",
+          "terms": [
+            "claire",
+            "open_skies"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "What is Claire Sutton’s role at Open Skies?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Claire Sutton coordinates the West Region: community partnerships and volunteer training.",
+              "fragments": [
+                {
+                  "keywordId": "claire",
+                  "text": "Claire Sutton"
+                },
+                " coordinates the West Region: community partnerships and volunteer training."
+              ]
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "nora_profile",
+          "terms": [
+            "nora",
+            "open_skies"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "What does Nora do at the foundation?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Nora Bell handles small grants and outreach in the North Region. She spends a great deal of time explaining that a grant application is not a shopping list.",
+              "fragments": [
+                {
+                  "keywordId": "nora",
+                  "text": "Nora Bell"
+                },
+                " handles small grants and outreach in the North Region. She spends a great deal of time explaining that a grant application is not a shopping list."
+              ]
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "conference_general",
+          "terms": [
+            "conference"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Did your office organise New Horizons?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. Registration, workshops and the evening reception. Also seventeen seating plans, all apparently final."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "organisation_general",
+          "terms": [
+            "open_skies"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "What does the foundation do?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "We support local projects with grants, training and partnerships. Our events bring the regional teams together."
             }
           ],
           "grantFlags": [],
@@ -150,48 +337,185 @@
             },
             {
               "speaker": "Events coordinator",
-              "text": "No. Seating plans are quite enough paperwork."
+              "text": "No. Seating plans are quite enough paperwork. I only remember clothing if something happened to it."
             }
           ],
           "grantFlags": [],
           "grantKeywords": []
         },
         {
-          "id": "conference_general",
+          "id": "hotel_general",
           "terms": [
+            "miramar"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Was the conference held at Hotel Miramar?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "The workshops were in the Bellini Room and the reception was on the west terrace. I can discuss the event, not the hotel’s guest list."
+            }
+          ],
+          "grantFlags": [
+            "miramar_event_confirmed"
+          ],
+          "grantKeywords": []
+        },
+        {
+          "id": "hotel_conference",
+          "terms": [
+            "miramar",
             "conference"
           ],
           "requiresFlags": [],
           "lines": [
             {
               "speaker": "You",
-              "text": "Was New Horizons organised by your office?"
+              "text": "Did the New Horizons programme include a reception at Miramar?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "Yes. We handled registration, workshops and the evening reception."
+              "text": "Yes. Afternoon workshops in the Bellini Room, then the west terrace. Accommodation bookings were handled separately."
+            }
+          ],
+          "grantFlags": [
+            "miramar_event_confirmed"
+          ],
+          "grantKeywords": []
+        },
+        {
+          "id": "mariner_general",
+          "terms": [
+            "mariner"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Did your office organise an event at The Mariner?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "The event I organised was at Miramar. I do not manage The Mariner’s calendar."
             }
           ],
           "grantFlags": [],
           "grantKeywords": []
         },
         {
-          "id": "claire_jacket",
+          "id": "coral_general",
           "terms": [
-            "claire",
-            "checked_jacket"
+            "coral"
           ],
-          "requiresFlags": [
-            "jacket_verified"
-          ],
+          "requiresFlags": [],
           "lines": [
             {
               "speaker": "You",
-              "text": "Just to confirm: Claire had her green jacket back before the reception?"
+              "text": "Can you tell me about the Coral Crown Hotel?"
             },
             {
               "speaker": "Events coordinator",
-              "text": "Yes. Nora returned it as soon as the photograph was taken."
+              "text": "I do not handle their bookings. My role here is event administration for the foundation."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "photo_general",
+          "terms": [
+            "conference",
+            "open_skies"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Who arranged the reception photographs?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "We commissioned Martin Cole. The public gallery contains the photographs cleared for publication. Private albums are not handled by this office."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "swallow_general",
+          "terms": [
+            "swallow_logo"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Why does the foundation use a swallow emblem?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "It represents movement, cooperation and a place to return to. The designer explained it more elegantly. At considerably greater length."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "privacy_general",
+          "terms": [
+            "work_email"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "What is your policy on work contact details?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "We can provide appropriate work contact information for a named colleague. Private numbers and personal messages remain private."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "phone_general",
+          "terms": [
+            "office_phone"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Have I reached the events office?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Yes. Conference arrangements and public event enquiries. The grant application deadline is still the grant application deadline."
+            }
+          ],
+          "grantFlags": [],
+          "grantKeywords": []
+        },
+        {
+          "id": "badge_conference",
+          "terms": [
+            "conference",
+            "swallow_logo"
+          ],
+          "requiresFlags": [],
+          "lines": [
+            {
+              "speaker": "You",
+              "text": "Were the orange badges used at New Horizons?"
+            },
+            {
+              "speaker": "Events coordinator",
+              "text": "Orange passes were issued to delegates. Speakers and volunteers had grey passes. A badge colour alone does not tell you someone’s name."
             }
           ],
           "grantFlags": [],
