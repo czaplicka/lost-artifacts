@@ -12,7 +12,7 @@ export const NPC_DIALOGUE_KEY_MAP = {
 
 export const NPC_DIALOGUE_ROOT_MAP = {
   bankier: 'bankerClues',
-  stewardessa: 'stewardessClues',
+  stewardessa: 'stewardessaClues',
   knajpa: 'knajpaClues',
   maid: 'maidClues',
   police: 'policeClues',

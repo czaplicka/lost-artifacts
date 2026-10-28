@@ -17,8 +17,9 @@ export class DialogUI {
         this.portraitImage = null;
         this.nextHint = null;
         this.choiceContainer = null;
-
         this.nextHintTween = null;
+
+        this.portraitSize = 140;
 
         this.boundHandleSceneShutdown = this.destroy.bind(this);
 
@@ -77,6 +78,7 @@ export class DialogUI {
         });
 
         const graphics = this.scene.add.graphics();
+
         graphics.fillStyle(0xf0e6d2, 1);
         graphics.fillRoundedRect(
             -boxWidth / 2,
@@ -85,6 +87,7 @@ export class DialogUI {
             boxHeight,
             10
         );
+
         graphics.lineStyle(4, 0x2b1e18, 1);
         graphics.strokeRoundedRect(
             -boxWidth / 2,
@@ -98,7 +101,7 @@ export class DialogUI {
             -boxWidth / 2 + 90,
             0,
             'portrait_fallback'
-        ).setDisplaySize(140, 140);
+        ).setDisplaySize(this.portraitSize, this.portraitSize);
 
         this.speakerText = this.scene.add.text(
             -boxWidth / 2 + 180,
@@ -148,18 +151,56 @@ export class DialogUI {
 
         this.choiceContainer = this.scene.add.container(0, 0);
 
-        this.container = this.scene.add.container(width / 2, height - 220, [
-            graphics,
-            this.portraitImage,
-            this.speakerText,
-            this.bodyText,
-            this.nextHint,
-            this.choiceContainer
-        ]);
+        this.container = this.scene.add.container(
+            width / 2,
+            height - 220,
+            [
+                graphics,
+                this.portraitImage,
+                this.speakerText,
+                this.bodyText,
+                this.nextHint,
+                this.choiceContainer
+            ]
+        );
 
         this.container.setDepth(31);
         this.container.setAlpha(0);
         this.container.setVisible(false);
+    }
+
+    setPortrait(requestedKey) {
+        const key = requestedKey && this.scene.textures.exists(requestedKey)
+            ? requestedKey
+            : 'portrait_fallback';
+
+        const image = this.portraitImage;
+        const size = this.portraitSize;
+
+        image.setCrop();
+        image.setTexture(key);
+        image.setOrigin(0.5);
+
+        if (key !== 'portrait_magazine') {
+            image.setDisplaySize(size, size);
+            return;
+        }
+
+        const frame = image.frame;
+        const sourceWidth = frame.realWidth || frame.width;
+        const sourceHeight = frame.realHeight || frame.height;
+
+        if (!sourceWidth || !sourceHeight) {
+            image.setDisplaySize(size, size);
+            return;
+        }
+
+        const cropSize = Math.min(sourceWidth, sourceHeight);
+        const cropX = (sourceWidth - cropSize) / 2;
+        const cropY = (sourceHeight - cropSize) / 2;
+
+        image.setScale(size / cropSize);
+        image.setCrop(cropX, cropY, cropSize, cropSize);
     }
 
     open(entry, options = {}) {
@@ -175,18 +216,16 @@ export class DialogUI {
             : null;
 
         this.speakerText.setText(entry.speaker || 'Unknown');
-
-        if (entry.portraitKey && this.scene.textures.exists(entry.portraitKey)) {
-            this.portraitImage.setTexture(entry.portraitKey);
-        } else {
-            this.portraitImage.setTexture('portrait_fallback');
-        }
+        this.setPortrait(entry.portraitKey);
 
         this.isOpen = true;
         this.overlay.setVisible(true);
         this.container.setVisible(true);
 
-        this.scene.tweens.killTweensOf([this.overlay, this.container]);
+        this.scene.tweens.killTweensOf([
+            this.overlay,
+            this.container
+        ]);
 
         this.scene.tweens.add({
             targets: [this.overlay, this.container],
@@ -240,14 +279,20 @@ export class DialogUI {
                 }
 
                 visibleText += message[visibleText.length];
-                const remaining = invisiblePad.substring(visibleText.length);
+
+                const remaining = invisiblePad.substring(
+                    visibleText.length
+                );
+
                 this.bodyText.setText(visibleText + remaining);
             }
         });
     }
 
     advance() {
-        if (!this.isOpen || this.choiceContainer.list.length > 0) return;
+        if (!this.isOpen || this.choiceContainer.list.length > 0) {
+            return;
+        }
 
         if (this.isTyping) {
             this.skipTypewriter();
@@ -264,7 +309,10 @@ export class DialogUI {
             this.typewriterTimer = null;
         }
 
-        this.bodyText.setText(this.lines[this.currentLineIndex] || '');
+        this.bodyText.setText(
+            this.lines[this.currentLineIndex] || ''
+        );
+
         this.isTyping = false;
         this.nextHint.setAlpha(1);
     }
@@ -314,11 +362,13 @@ export class DialogUI {
                 buttonBg.setFillStyle(0x2b1e18, 1);
             });
 
-            buttonBg.on('pointerdown', (pointer, localX, localY, event) => {
-                if (event) event.stopPropagation();
-
-                this.selectChoice(choice);
-            });
+            buttonBg.on(
+                'pointerdown',
+                (pointer, localX, localY, event) => {
+                    if (event) event.stopPropagation();
+                    this.selectChoice(choice);
+                }
+            );
 
             this.choiceContainer.add([buttonBg, buttonText]);
         });
@@ -328,6 +378,7 @@ export class DialogUI {
         if (!this.isOpen) return;
 
         const callback = choice?.callback;
+
         this.choices = [];
         this.clearChoices();
         this.close();
@@ -358,7 +409,10 @@ export class DialogUI {
         const callback = this.onClose;
         this.onClose = null;
 
-        this.scene.tweens.killTweensOf([this.overlay, this.container]);
+        this.scene.tweens.killTweensOf([
+            this.overlay,
+            this.container
+        ]);
 
         this.scene.tweens.add({
             targets: [this.overlay, this.container],
@@ -398,9 +452,17 @@ export class DialogUI {
         }
 
         if (this.scene?.tweens) {
-            if (this.overlay) this.scene.tweens.killTweensOf(this.overlay);
-            if (this.container) this.scene.tweens.killTweensOf(this.container);
-            if (this.nextHint) this.scene.tweens.killTweensOf(this.nextHint);
+            if (this.overlay) {
+                this.scene.tweens.killTweensOf(this.overlay);
+            }
+
+            if (this.container) {
+                this.scene.tweens.killTweensOf(this.container);
+            }
+
+            if (this.nextHint) {
+                this.scene.tweens.killTweensOf(this.nextHint);
+            }
         }
 
         this.clearChoices();

@@ -1,0 +1,21 @@
+{
+  "passed": 16,
+  "checks": [
+    "search schema and preservation",
+    "phone schema",
+    "unaccepted quest has no extra mail",
+    "draft available before sending",
+    "send once and keep existing mail",
+    "search case appended without dropping Reed",
+    "fragments preserve complete evidence text",
+    "manual collection persists",
+    "restaurant contact hidden until number collected",
+    "restaurant contact unlocks from web number",
+    "unknown permission rejected",
+    "soup contradiction topic resolves",
+    "receipt not granted by soup enquiry",
+    "receipt delivered once after authorised topic",
+    "save/load retains mail and known terms",
+    "stage two does not complete quest or pay reward"
+  ]
+}

@@ -1,4 +1,7 @@
-import { GAME_VERSION } from '../config/gameVersion.js';
+import {
+  GAME_VERSION
+} from '../config/gameVersion.js';
+
 export function createDefaultReconstructedHeist() {
   return {
     cityId: null,
@@ -6,14 +9,17 @@ export function createDefaultReconstructedHeist() {
     thiefId: null,
     thiefName: null,
     thiefSkills: [],
+
     allCards: [],
     correctCardIds: [],
     correctSequence: [],
     selectedCards: [],
+
     playerOrderedCards: [],
     playerOrderedSentences: [],
     playerFinalText: '',
     playerSkills: [],
+
     playerTheoryScore: 0,
     playerTheoryResult: null,
     playerSlotFeedback: [],
@@ -25,8 +31,14 @@ export const defaultGameState = {
   _version: GAME_VERSION,
   _lastSave: null,
   _createdAt: null,
-courtState: null,
-courtMisconductLog: [],
+
+  // Pościg i rozprawa.
+  chaseState: null,
+  courtState: null,
+
+  // Historia przewinień wykorzystywana przez obronę.
+  courtMisconductLog: [],
+
   currentThiefId: null,
   currentThief: null,
   currentArtifact: null,
@@ -52,16 +64,20 @@ courtMisconductLog: [],
 
   finalArrestResult: null,
   finalArrestSuspectId: null,
+
   caseResolved: false,
   caseFailed: false,
+
   arrestWarrantIssued: false,
   warrantSuspectName: null,
   warrantSuspectId: null,
+
   gameOverReason: '',
 
   crimeCity: null,
   crimeCityId: null,
   crimeSceneVisited: false,
+
   specialScenesVisited: {},
   specialScenesCompleted: {},
 
@@ -71,44 +87,53 @@ courtMisconductLog: [],
   },
 
   justReachedCorrectCityId: null,
+
   hollyFirstSleepSeen: false,
   hollyIntroPending: true,
   hollyIntroSeen: false,
   hollyIntroChoice: null,
+
   johnCaseAccepted: false,
   blackLadyCaseAccepted: false,
 
   activeLocations: [],
   currentDestinations: [],
   escapeRoute: [],
+
   routeIndex: -1,
   routeManager: null,
+
   nextTargetCity: null,
   nextTargetCityId: null,
   mustIncludeCityId: null,
   canonicalTravelCityId: null,
+
   clueScope: 'crime_scene',
 
   score: 0,
   scoreSaved: false,
+
   playerName: 'Detective',
   playerRank: 'Junior Agent',
   avatarUrl: 'assets/profiles.png',
+
   casesSolved: 0,
   arrests: 0,
+
   achievements: [],
   completedCaseIds: [],
   successfulArrestCaseIds: [],
 
   piInvestigations: {
-  version: 1,
-  selectedCaseId: null,
-  cases: {}
-},
-piQuests: {
-  version: 1,
-  quests: {}
-},
+    version: 1,
+    selectedCaseId: null,
+    cases: {}
+  },
+
+  piQuests: {
+    version: 1,
+    quests: {}
+  },
 
   reputationState: {
     version: 1,
@@ -153,6 +178,7 @@ piQuests: {
   escapePhaseActive: false,
   escapeStartTime: null,
   escapeDeadline: null,
+
   timeWastedOnMistakes: 0,
 
   cluesCollected: [],
@@ -174,7 +200,9 @@ piQuests: {
   pendingPhoneCallCityId: null,
 
   hiddenObjectHistory: [],
-  reconstructedHeist: createDefaultReconstructedHeist(),
+
+  reconstructedHeist:
+    createDefaultReconstructedHeist(),
 
   unifiedTravelManagerState: null,
   crimeCityProgress: {},

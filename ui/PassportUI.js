@@ -1,73 +1,95 @@
-// ui/PassportUI.js
 import { getPassportManager } from '../managers/PassportManager.js';
 import { EventBus } from '../EventBus.js';
 
 const FONT_PIXEL = '"PressStart2P", monospace';
-const FONT_TYPEWRITER = '"SpecialElite", monospace';
+const FONT_TYPE = '"SpecialElite", monospace';
 
 const PAGE_WIDTH = 720;
 const PAGE_HEIGHT = 460;
-const STAMPS_PER_PAGE = 2;
 
-const COVER_W = PAGE_WIDTH + 40;
-const COVER_H = PAGE_HEIGHT + 60;
+const COVER_WIDTH = PAGE_WIDTH + 40;
+const COVER_HEIGHT = PAGE_HEIGHT + 60;
 
-const COVER_COLOR = 0x3b2415;
-const COVER_COLOR_DARK = 0x2a1a0d;
-const PAGE_COLOR = 0xf3e6c8;
-const PAGE_COLOR_SHADOW = 0xe4d3a8;
-const INK_LINE_COLOR = 0x2a2118;
-const BRASS = 0xc9a24b;
-const BRASS_DARK = 0x8a6a2a;
-const GUILLOCHE_COLOR = 0x6f7f5f;
-const MRZ_COLOR = 0xdcd0a8;
-const DEFAULT_INK = 0x2e4a8f;
+const STAMPS_PER_PAGE = 4;
 
-// Współrzędne stron względem pagesGroup (która siedzi na y = 10).
-const LEFT_PAGE = { x: -PAGE_WIDTH / 2, y: -PAGE_HEIGHT / 2, w: PAGE_WIDTH / 2 - 4, h: PAGE_HEIGHT };
-const RIGHT_PAGE = { x: 4, y: -PAGE_HEIGHT / 2, w: PAGE_WIDTH / 2 - 4, h: PAGE_HEIGHT };
+const LEFT_PAGE = {
+  x: -360,
+  y: -230,
+  width: 356,
+  height: 460
+};
 
-// ─── Helpery ────────────────────────────────────────────────────────────────
+const RIGHT_PAGE = {
+  x: 4,
+  y: -230,
+  width: 356,
+  height: 460
+};
 
-function hashString(str) {
-  let h = 2166136261 >>> 0;
-  const s = String(str);
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619) >>> 0;
+const COLORS = {
+  cover: 0x3b2415,
+  coverDark: 0x2a1a0d,
+  brass: 0xc9a24b,
+  paper: 0xf3e6c8,
+  paperLeft: 0xe4d3a8,
+  ink: 0x2a2118,
+  defaultStamp: 0x2e4a8f
+};
+
+function hashString(value) {
+  const text = String(value);
+  let hash = 2166136261;
+
+  for (let index = 0; index < text.length; index++) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
-  return h >>> 0;
+
+  return hash >>> 0;
 }
 
-// Deterministyczny PRNG: pieczątka wygląda tak samo przy każdym otwarciu.
-function mulberry32(seed) {
-  let a = seed >>> 0;
-  return function () {
-    a = (a + 0x6D2B79F5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+function seededRandom(seed) {
+  let value = seed >>> 0;
+
+  return () => {
+    value = (value + 0x6D2B79F5) >>> 0;
+
+    let result = value;
+    result = Math.imul(result ^ (result >>> 15), result | 1);
+    result ^= result + Math.imul(
+      result ^ (result >>> 7),
+      result | 61
+    );
+
+    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-function mrzClean(str) {
-  return String(str || '')
+function cleanMrz(value) {
+  return String(value || '')
     .toUpperCase()
     .replace(/[^A-Z0-9 ]/g, '')
     .trim()
     .replace(/\s+/g, '<');
 }
 
-function padMrz(str, len = 44) {
-  return (str + '<'.repeat(len)).slice(0, len);
+function padMrz(value) {
+  return (value + '<'.repeat(44)).slice(0, 44);
 }
 
-function buildMrz(holderName, passportNumber) {
-  const words = mrzClean(holderName).split('<').filter(Boolean);
-  const surname = words.length > 1 ? words[words.length - 1] : (words[0] || 'DOE');
-  const given = words.length > 1 ? words.slice(0, -1).join('<') : '';
-  const digits = String(passportNumber || '').replace(/\D/g, '') || '000000000';
+function buildMrz(name, number) {
+  const words = cleanMrz(name).split('<').filter(Boolean);
+
+  const surname = words.length > 1
+    ? words[words.length - 1]
+    : words[0] || 'DOE';
+
+  const given = words.length > 1
+    ? words.slice(0, -1).join('<')
+    : '';
+
+  const digits = String(number || '')
+    .replace(/\D/g, '') || '000000000';
 
   return [
     padMrz(`P<MRK${surname}<<${given}`),
@@ -78,39 +100,60 @@ function buildMrz(holderName, passportNumber) {
 export class PassportUI {
   constructor(scene) {
     this.scene = scene;
+
     this.container = null;
     this.pagesGroup = null;
     this.prevBtn = null;
     this.nextBtn = null;
     this.pageCounterText = null;
+    this.noticeText = null;
 
     this.isOpen = false;
     this.currentPage = 0;
 
     this.stampObjects = new Map();
     this._rings = new Set();
+
     this._closingContainer = null;
     this._turning = false;
     this._pendingSlamId = null;
     this._unseenStampId = null;
     this._keysBound = false;
+    this._destroyed = false;
 
-    this._onOpenPassportEvent = (payload) => {
-      this.open(payload && typeof payload === 'object' ? payload : {});
+    this._onOpenPassportEvent = payload => {
+      this.open(
+        payload && typeof payload === 'object'
+          ? payload
+          : {}
+      );
     };
 
-    this._onPassportStamped = (stamp) => {
+    this._onPassportStamped = stamp => {
+      if (this._destroyed) return;
+
       const id = stamp?.stampId || null;
 
-      // Pieczątka dostała się do paszportu, gdy był zamknięty:
-      // trzaśniemy nią przy następnym otwarciu.
       if (!this.isOpen) {
         this._unseenStampId = id;
         return;
       }
 
-      this._pendingSlamId = id;
-      this.currentPage = this._lastPageIndex();
+      const stampPage = this._pageOfStamp(id);
+
+      this._kill(this.pagesGroup);
+      this._turning = false;
+
+      this.pagesGroup?.setPosition(0, 10).setAlpha(1);
+
+      this._pendingSlamId = stampPage === this.currentPage
+        ? id
+        : null;
+
+      this._unseenStampId = stampPage === this.currentPage
+        ? null
+        : id;
+
       this._render();
       this._slamPending();
     };
@@ -118,36 +161,40 @@ export class PassportUI {
     this._onEsc = () => this.close();
     this._onLeft = () => this._changePage(-1);
     this._onRight = () => this._changePage(1);
+    this._onResize = () => this._layout();
 
     EventBus.on('ui:openPassport', this._onOpenPassportEvent);
     EventBus.on('passportStamped', this._onPassportStamped);
+
+    this.scene.scale.on('resize', this._onResize);
   }
 
-  // ─── Tweeny (przez BaseScene, jeśli dostępne) ─────────────────────────────
-
   _tween(config) {
-    const s = this.scene;
-    if (!s?.tweens) return null;
-    return typeof s.createTrackedTween === 'function'
-      ? s.createTrackedTween(config)
-      : s.tweens.add(config);
+    if (!this.scene?.tweens || this._destroyed) return null;
+
+    return typeof this.scene.createTrackedTween === 'function'
+      ? this.scene.createTrackedTween(config)
+      : this.scene.tweens.add(config);
   }
 
   _kill(target) {
     if (!target) return;
-    const s = this.scene;
-    if (typeof s?.killTrackedTweensOf === 'function') {
-      s.killTrackedTweensOf(target);
+
+    if (typeof this.scene?.killTrackedTweensOf === 'function') {
+      this.scene.killTrackedTweensOf(target);
     } else {
-      s?.tweens?.killTweensOf(target);
+      this.scene?.tweens?.killTweensOf(target);
     }
   }
 
-  // ─── Paginacja ────────────────────────────────────────────────────────────
-
   _totalPages() {
-    const total = getPassportManager().getStampCount();
-    return Math.max(1, Math.ceil(total / STAMPS_PER_PAGE));
+    return Math.max(
+      1,
+      Math.ceil(
+        getPassportManager().getStampCount() /
+        STAMPS_PER_PAGE
+      )
+    );
   }
 
   _lastPageIndex() {
@@ -156,42 +203,81 @@ export class PassportUI {
 
   _pageOfStamp(stampId) {
     if (!stampId) return null;
-    const idx = getPassportManager().getStamps().findIndex((s) => s.stampId === stampId);
-    return idx < 0 ? null : Math.floor(idx / STAMPS_PER_PAGE);
+
+    const index = getPassportManager()
+      .getStamps()
+      .findIndex(stamp => stamp.stampId === stampId);
+
+    return index < 0
+      ? null
+      : Math.floor(index / STAMPS_PER_PAGE);
   }
 
-  // ─── Otwieranie / zamykanie ───────────────────────────────────────────────
-
-  // options.highlightStampId - pieczątka do efektu "trzask" po otwarciu.
   open(options = {}) {
-    if (this.isOpen || !this.scene?.cameras?.main) return;
+    if (
+      this._destroyed ||
+      this.isOpen ||
+      !this.scene?.cameras?.main
+    ) {
+      return;
+    }
+
+    if (this._closingContainer) {
+      this._kill(this._closingContainer);
+      this._closingContainer.destroy(true);
+      this._closingContainer = null;
+    }
 
     this.isOpen = true;
     this._turning = false;
 
-    this._pendingSlamId = options.highlightStampId || this._unseenStampId || null;
-    this._unseenStampId = null;
+    // Automatic opening starts on the first page.
+    // Only an explicit request selects a particular stamp.
+    const explicitStampId = options.highlightStampId || null;
+    const explicitPage = this._pageOfStamp(explicitStampId);
 
-    const slamPage = this._pageOfStamp(this._pendingSlamId);
-    this.currentPage = slamPage ?? this._lastPageIndex();
+    this.currentPage = explicitPage ?? 0;
+
+    const unseenPage = this._pageOfStamp(this._unseenStampId);
+
+    this._pendingSlamId = explicitStampId || (
+      unseenPage === this.currentPage
+        ? this._unseenStampId
+        : null
+    );
+
+    if (this._pendingSlamId === this._unseenStampId) {
+      this._unseenStampId = null;
+    }
 
     this._buildContainer();
     this._render();
     this._bindKeys();
+    this._layout();
 
-    this.container.setScale(0.85);
-    this.container.setAlpha(0);
+    const target = this.container;
+    const scale = this._bookScale;
 
-    this._tween({
-      targets: this.container,
-      scale: 1,
+    target.setScale(scale * 0.9).setAlpha(0);
+
+    const tween = this._tween({
+      targets: target,
+      scale: scale,
       alpha: 1,
       duration: 220,
       ease: 'Back.easeOut',
+
       onComplete: () => {
-        if (this.isOpen) this._slamPending();
+        if (this.isOpen && this.container === target) {
+          this._slamPending();
+        }
       }
     });
+
+    if (!tween) {
+      target.setScale(scale).setAlpha(1);
+      this._slamPending();
+    }
   }
 
   close() {
@@ -203,10 +289,18 @@ export class PassportUI {
     this.isOpen = false;
     this._turning = false;
     this._pendingSlamId = null;
+
     this._unbindKeys();
     this._clearFx();
 
+    for (const stamp of this.stampObjects.values()) {
+      this._kill(stamp);
+    }
+
+    this.stampObjects.clear();
+
     const target = this.container;
+
     this._kill(target);
     this._kill(this.pagesGroup);
 
@@ -215,18 +309,21 @@ export class PassportUI {
     this.prevBtn = null;
     this.nextBtn = null;
     this.pageCounterText = null;
-    this.stampObjects.clear();
+    this.noticeText = null;
 
     this._closingContainer = target;
 
     const finish = () => {
-      if (this._closingContainer === target) this._closingContainer = null;
+      if (this._closingContainer === target) {
+        this._closingContainer = null;
+      }
+
       if (target.scene) target.destroy(true);
     };
 
     const tween = this._tween({
       targets: target,
-      scale: 0.85,
+      scale: target.scaleX * 0.9,
       alpha: 0,
       duration: 160,
       ease: 'Cubic.easeIn',
@@ -241,626 +338,777 @@ export class PassportUI {
     else this.open();
   }
 
-  destroy() {
-    EventBus.off('ui:openPassport', this._onOpenPassportEvent);
-    EventBus.off('passportStamped', this._onPassportStamped);
-
-    this._unbindKeys();
-    this._clearFx();
-
-    for (const c of this.stampObjects.values()) this._kill(c);
-    this.stampObjects.clear();
-
-    this._kill(this.container);
-    this._kill(this.pagesGroup);
-    this._kill(this._closingContainer);
-
-    if (this.container) {
-      this.container.destroy(true);
-      this.container = null;
-    }
-
-    if (this._closingContainer) {
-      this._closingContainer.destroy(true);
-      this._closingContainer = null;
-    }
-
-    this.pagesGroup = null;
-    this.isOpen = false;
-  }
-
-  // ─── Klawiatura ───────────────────────────────────────────────────────────
-
   _bindKeys() {
-    const kb = this.scene?.input?.keyboard;
-    if (!kb || this._keysBound) return;
-    kb.on('keydown-ESC', this._onEsc);
-    kb.on('keydown-LEFT', this._onLeft);
-    kb.on('keydown-RIGHT', this._onRight);
+    const keyboard = this.scene?.input?.keyboard;
+
+    if (!keyboard || this._keysBound) return;
+
+    keyboard.on('keydown-ESC', this._onEsc);
+    keyboard.on('keydown-LEFT', this._onLeft);
+    keyboard.on('keydown-RIGHT', this._onRight);
+
     this._keysBound = true;
   }
 
   _unbindKeys() {
     if (!this._keysBound) return;
-    const kb = this.scene?.input?.keyboard;
-    kb?.off('keydown-ESC', this._onEsc);
-    kb?.off('keydown-LEFT', this._onLeft);
-    kb?.off('keydown-RIGHT', this._onRight);
+
+    const keyboard = this.scene?.input?.keyboard;
+
+    keyboard?.off('keydown-ESC', this._onEsc);
+    keyboard?.off('keydown-LEFT', this._onLeft);
+    keyboard?.off('keydown-RIGHT', this._onRight);
+
     this._keysBound = false;
   }
 
-  // ─── Budowa kontenera (okładka, przyciski) ────────────────────────────────
+  _layout() {
+    if (!this.container || !this.scene) return;
+
+    const { width, height } = this.scene.scale;
+
+    this._bookScale = Math.max(
+      0.01,
+      Math.min(
+        1,
+        (width - 32) / COVER_WIDTH,
+        (height - 32) / COVER_HEIGHT
+      )
+    );
+
+    this._kill(this.container);
+
+    this.container
+      .setPosition(width / 2, height / 2)
+      .setScale(this._bookScale)
+      .setAlpha(1);
+
+    this.backdrop?.setSize(
+      width / this._bookScale + 100,
+      height / this._bookScale + 100
+    );
+  }
 
   _buildContainer() {
-    const cam = this.scene.cameras.main;
-    const cx = cam.width / 2;
-    const cy = cam.height / 2;
+    this.container = this.scene.add
+      .container(0, 0)
+      .setDepth(10000)
+      .setScrollFactor(0);
 
-    this.container = this.scene.add.container(cx, cy);
-    this.container.setDepth(10000);
+    this.backdrop = this.scene.add
+      .rectangle(0, 0, 3000, 3000, 0x000000, 0.6)
+      .setInteractive();
 
-    const backdrop = this.scene.add.rectangle(0, 0, cam.width * 2, cam.height * 2, 0x000000, 0.6);
-    backdrop.setInteractive();
-    backdrop.on('pointerdown', () => this.close());
-    this.container.add(backdrop);
+    this.backdrop.on('pointerdown', () => this.close());
 
-    // Niewidzialny blocker na obszarze książki: klik w okładkę/stronę
-    // nie spada już na backdrop i nie zamyka paszportu.
-    const bookBlocker = this.scene.add.rectangle(0, 0, COVER_W, COVER_H, 0x000000, 0);
-    bookBlocker.setInteractive();
-    this.container.add(bookBlocker);
+    this.container.add(this.backdrop);
 
-    const bookShadow = this.scene.add.rectangle(6, 10, COVER_W, COVER_H, 0x000000, 0.35);
-    this.container.add(bookShadow);
+    const blocker = this.scene.add
+      .rectangle(
+        0, 0, COVER_WIDTH, COVER_HEIGHT, 0x000000, 0
+      )
+      .setInteractive();
+
+    this.container.add(blocker);
+
+    this.container.add(
+      this.scene.add.rectangle(
+        6, 10, COVER_WIDTH, COVER_HEIGHT, 0x000000, 0.35
+      )
+    );
 
     this._buildCover();
 
-    const title = this.scene.add.text(0, -COVER_H / 2 + 26, 'PASSPORT', {
-      fontFamily: FONT_PIXEL,
-      fontSize: '18px',
-      color: '#d8c48a',
-      stroke: '#1a0e05',
-      strokeThickness: 4
-    }).setOrigin(0.5);
-    this.container.add(title);
+    this.container.add(
+      this.scene.add.text(
+        0,
+        -COVER_HEIGHT / 2 + 26,
+        'PASSPORT',
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '18px',
+          color: '#d8c48a',
+          stroke: '#1a0e05',
+          strokeThickness: 4
+        }
+      ).setOrigin(0.5)
+    );
 
-    const closeBtn = this.scene.add.text(COVER_W / 2 - 26, -COVER_H / 2 + 22, 'X', {
-      fontFamily: FONT_PIXEL,
-      fontSize: '14px',
-      color: '#f3e6c8',
-      backgroundColor: '#5a2f22',
-      padding: { x: 8, y: 6 }
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const close = this.scene.add.text(
+      COVER_WIDTH / 2 - 26,
+      -COVER_HEIGHT / 2 + 22,
+      'X',
+      {
+        fontFamily: FONT_PIXEL,
+        fontSize: '14px',
+        color: '#f3e6c8',
+        backgroundColor: '#5a2f22',
+        padding: { x: 8, y: 6 }
+      }
+    )
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
 
-    closeBtn.on('pointerdown', () => this.close());
-    closeBtn.on('pointerover', () => closeBtn.setStyle({ color: '#ffd76a' }));
-    closeBtn.on('pointerout', () => closeBtn.setStyle({ color: '#f3e6c8' }));
-    this.container.add(closeBtn);
+    close.on('pointerdown', () => this.close());
+    this.container.add(close);
 
     this.pagesGroup = this.scene.add.container(0, 10);
     this.container.add(this.pagesGroup);
 
-    this.prevBtn = this._navButton(-PAGE_WIDTH / 2 + 6, PAGE_HEIGHT / 2 + 16, '‹ PREV', -1);
-    this.nextBtn = this._navButton(PAGE_WIDTH / 2 - 60, PAGE_HEIGHT / 2 + 16, 'NEXT ›', 1);
+    this.prevBtn = this._navButton(-285, 247, '< PREV', -1);
+    this.nextBtn = this._navButton(285, 247, 'NEXT >', 1);
 
-    this.pageCounterText = this.scene.add.text(0, PAGE_HEIGHT / 2 + 16, '', {
-      fontFamily: FONT_PIXEL,
-      fontSize: '11px',
-      color: '#f3e6c8'
-    }).setOrigin(0.5);
+    this.pageCounterText = this.scene.add.text(
+      0, 247, '',
+      {
+        fontFamily: FONT_TYPE,
+        fontSize: '14px',
+        color: '#f3e6c8'
+      }
+    ).setOrigin(0.5);
+
     this.container.add(this.pageCounterText);
   }
 
   _navButton(x, y, label, direction) {
-    const btn = this.scene.add.text(x, y, label, {
+    const button = this.scene.add.text(x, y, label, {
       fontFamily: FONT_PIXEL,
       fontSize: '11px',
-      color: '#f3e6c8'
-    }).setInteractive({ useHandCursor: true });
+      color: '#f3e6c8',
+      backgroundColor: '#24170e',
+      padding: { x: 8, y: 7 }
+    })
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
 
-    btn.on('pointerdown', () => this._changePage(direction));
-    btn.on('pointerover', () => btn.setStyle({ color: '#ffd76a' }));
-    btn.on('pointerout', () => btn.setStyle({ color: '#f3e6c8' }));
+    button.on('pointerdown', () => {
+      this._changePage(direction);
+    });
 
-    this.container.add(btn);
-    return btn;
+    this.container.add(button);
+    return button;
   }
 
   _buildCover() {
-    const g = this.scene.add.graphics();
-    const x0 = -COVER_W / 2;
-    const y0 = -COVER_H / 2;
+    const graphics = this.scene.add.graphics();
 
-    g.fillStyle(COVER_COLOR, 1);
-    g.fillRoundedRect(x0, y0, COVER_W, COVER_H, 14);
-    g.lineStyle(4, COVER_COLOR_DARK, 1);
-    g.strokeRoundedRect(x0, y0, COVER_W, COVER_H, 14);
+    const x = -COVER_WIDTH / 2;
+    const y = -COVER_HEIGHT / 2;
 
-    // Faktura skóry: stałe ziarno (PRNG z ustalonym seedem)
-    const rng = mulberry32(1990);
-    for (let i = 0; i < 260; i++) {
-      const px = x0 + 6 + rng() * (COVER_W - 12);
-      const py = y0 + 6 + rng() * (COVER_H - 12);
-      const size = rng() < 0.6 ? 1 : 2;
-      g.fillStyle(rng() < 0.7 ? 0x000000 : 0xffffff, rng() < 0.7 ? 0.14 : 0.05);
-      g.fillRect(px, py, size, size);
+    graphics.fillStyle(COLORS.cover, 1);
+    graphics.fillRoundedRect(
+      x, y, COVER_WIDTH, COVER_HEIGHT, 14
+    );
+
+    graphics.lineStyle(4, COLORS.coverDark, 1);
+    graphics.strokeRoundedRect(
+      x, y, COVER_WIDTH, COVER_HEIGHT, 14
+    );
+
+    const random = seededRandom(1990);
+
+    for (let index = 0; index < 260; index++) {
+      graphics.fillStyle(
+        random() < 0.7 ? 0x000000 : 0xffffff,
+        0.1
+      );
+
+      graphics.fillRect(
+        x + 6 + random() * (COVER_WIDTH - 12),
+        y + 6 + random() * (COVER_HEIGHT - 12),
+        2,
+        2
+      );
     }
 
-    // Tłoczona złota ramka
-    g.lineStyle(2, BRASS, 0.55);
-    g.strokeRoundedRect(x0 + 7, y0 + 7, COVER_W - 14, COVER_H - 14, 10);
-    g.lineStyle(1, BRASS_DARK, 0.7);
-    g.strokeRoundedRect(x0 + 10, y0 + 10, COVER_W - 20, COVER_H - 20, 8);
+    graphics.lineStyle(2, COLORS.brass, 0.6);
+    graphics.strokeRoundedRect(
+      x + 7,
+      y + 7,
+      COVER_WIDTH - 14,
+      COVER_HEIGHT - 14,
+      10
+    );
 
-    // Przeszycie
-    g.fillStyle(0x6b4a2a, 0.9);
-    for (let x = x0 + 22; x < x0 + COVER_W - 22; x += 9) {
-      g.fillRect(x, y0 + 13, 4, 2);
-      g.fillRect(x, y0 + COVER_H - 15, 4, 2);
-    }
-    for (let y = y0 + 22; y < y0 + COVER_H - 22; y += 9) {
-      g.fillRect(x0 + 13, y, 2, 4);
-      g.fillRect(x0 + COVER_W - 15, y, 2, 4);
-    }
-
-    this.container.add(g);
-
-    this._brassCorner(x0 + 14, y0 + 14);
-    this._brassCorner(-x0 - 14, y0 + 14);
-    this._brassCorner(x0 + 14, -y0 - 14);
-    this._brassCorner(-x0 - 14, -y0 - 14);
+    this.container.add(graphics);
   }
-
-  _brassCorner(x, y) {
-    const corner = this.scene.add.circle(x, y, 6, BRASS);
-    corner.setStrokeStyle(2, BRASS_DARK);
-    this.container.add(corner);
-  }
-
-  // ─── Zmiana strony (animacja kartkowania) ─────────────────────────────────
 
   _changePage(direction) {
-    if (!this.isOpen || this._turning || !this.pagesGroup) return;
+    if (
+      !this.isOpen ||
+      this._turning ||
+      !this.pagesGroup
+    ) {
+      return;
+    }
 
-    const target = this.currentPage + direction;
-    if (target < 0 || target >= this._totalPages()) return;
+    const targetPage = this.currentPage + direction;
+
+    if (
+      targetPage < 0 ||
+      targetPage >= this._totalPages()
+    ) {
+      return;
+    }
 
     this._turning = true;
+    const group = this.pagesGroup;
 
-    const out = this._tween({
-      targets: this.pagesGroup,
+    const applyPage = () => {
+      if (!this.isOpen || this.pagesGroup !== group) {
+        this._turning = false;
+        return;
+      }
+
+      this.currentPage = targetPage;
+
+      if (
+        this._pageOfStamp(this._unseenStampId) === targetPage
+      ) {
+        this._pendingSlamId = this._unseenStampId;
+        this._unseenStampId = null;
+      }
+
+      this._render();
+
+      group.setX(16 * direction);
+
+      const incoming = this._tween({
+        targets: group,
+        alpha: 1,
+        x: 0,
+        duration: 140,
+        ease: 'Sine.easeOut',
+
+        onComplete: () => {
+          this._turning = false;
+          this._slamPending();
+        }
+      });
+
+      if (!incoming) {
+        group.setX(0).setAlpha(1);
+        this._turning = false;
+        this._slamPending();
+      }
+    };
+
+    const outgoing = this._tween({
+      targets: group,
       alpha: 0,
-      x: -20 * direction,
+      x: -16 * direction,
       duration: 100,
       ease: 'Sine.easeIn',
-      onComplete: () => {
-        if (!this.isOpen || !this.pagesGroup?.scene) {
-          this._turning = false;
-          return;
-        }
-
-        this.currentPage = target;
-        this._render();
-        this.pagesGroup.x = 20 * direction;
-
-        const back = this._tween({
-          targets: this.pagesGroup,
-          alpha: 1,
-          x: 0,
-          duration: 140,
-          ease: 'Sine.easeOut',
-          onComplete: () => {
-            this._turning = false;
-          }
-        });
-
-        if (!back) this._turning = false;
-      }
+      onComplete: applyPage
     });
 
-    if (!out) this._turning = false;
+    if (!outgoing) applyPage();
   }
-
-  // ─── Render rozkładówki ───────────────────────────────────────────────────
 
   _clearFx() {
     for (const ring of this._rings) {
       this._kill(ring);
-      if (ring.scene) ring.destroy();
+      ring.destroy();
     }
+
     this._rings.clear();
   }
 
   _render() {
     if (!this.pagesGroup) return;
 
-    for (const c of this.stampObjects.values()) this._kill(c);
+    for (const stamp of this.stampObjects.values()) {
+      this._kill(stamp);
+    }
+
     this.stampObjects.clear();
     this._clearFx();
     this.pagesGroup.removeAll(true);
 
-    const pm = getPassportManager();
-    const stamps = pm.getStamps();
-    const totalPages = Math.max(1, Math.ceil(stamps.length / STAMPS_PER_PAGE));
+    const stamps = getPassportManager().getStamps();
+    const totalPages = Math.max(
+      1,
+      Math.ceil(stamps.length / STAMPS_PER_PAGE)
+    );
 
-    this.currentPage = Math.min(this.currentPage, totalPages - 1);
+    this.currentPage = Phaser.Math.Clamp(
+      this.currentPage,
+      0,
+      totalPages - 1
+    );
 
     this._drawPages();
+    this._renderIdPage();
 
-    this._renderIdPage(LEFT_PAGE.x + 18, LEFT_PAGE.y + 18);
+    const first = this.currentPage * STAMPS_PER_PAGE;
 
-    const pageStamps = stamps.slice(
-      this.currentPage * STAMPS_PER_PAGE,
-      this.currentPage * STAMPS_PER_PAGE + STAMPS_PER_PAGE
+    this._renderStampsPage(
+      stamps.slice(first, first + STAMPS_PER_PAGE)
     );
-    this._renderStampsPage(pageStamps);
+
+    const last = Math.min(
+      first + STAMPS_PER_PAGE,
+      stamps.length
+    );
+
+    const range = stamps.length
+      ? `${first + 1}-${last} of ${stamps.length} stamps`
+      : '0 stamps';
 
     this.pageCounterText.setText(
-      `Page ${this.currentPage + 1} / ${totalPages}  ·  ${stamps.length} stamp${stamps.length === 1 ? '' : 's'}`
+      `Page ${this.currentPage + 1}/${totalPages} · ${range}`
     );
 
-    this.prevBtn.setAlpha(this.currentPage === 0 ? 0.35 : 1);
-    this.nextBtn.setAlpha(this.currentPage >= totalPages - 1 ? 0.35 : 1);
+    this.prevBtn.setAlpha(this.currentPage > 0 ? 1 : 0.3);
+    this.nextBtn.setAlpha(
+      this.currentPage < totalPages - 1 ? 1 : 0.3
+    );
+
+    if (this.prevBtn.input) {
+      this.prevBtn.input.enabled = this.currentPage > 0;
+    }
+
+    if (this.nextBtn.input) {
+      this.nextBtn.input.enabled =
+        this.currentPage < totalPages - 1;
+    }
   }
 
   _drawPages() {
-    const g = this.scene.add.graphics();
+    const graphics = this.scene.add.graphics();
 
-    g.fillStyle(PAGE_COLOR_SHADOW, 1);
-    g.fillRoundedRect(LEFT_PAGE.x, LEFT_PAGE.y, LEFT_PAGE.w, LEFT_PAGE.h, 6);
+    for (const [page, color] of [
+      [LEFT_PAGE, COLORS.paperLeft],
+      [RIGHT_PAGE, COLORS.paper]
+    ]) {
+      graphics.fillStyle(color, 1);
 
-    g.fillStyle(PAGE_COLOR, 1);
-    g.fillRoundedRect(RIGHT_PAGE.x, RIGHT_PAGE.y, RIGHT_PAGE.w, RIGHT_PAGE.h, 6);
+      graphics.fillRoundedRect(
+        page.x,
+        page.y,
+        page.width,
+        page.height,
+        6
+      );
 
-    this._drawGuilloche(g, LEFT_PAGE);
-    this._drawGuilloche(g, RIGHT_PAGE);
+      graphics.lineStyle(1, 0x6f7f5f, 0.12);
 
-    // Cieniowanie przy grzbiecie
-    for (let i = 0; i < 16; i++) {
-      g.fillStyle(0x000000, 0.2 * (1 - i / 16));
-      g.fillRect(RIGHT_PAGE.x + i, RIGHT_PAGE.y + 2, 1, RIGHT_PAGE.h - 4);
-      g.fillRect(LEFT_PAGE.x + LEFT_PAGE.w - 1 - i, LEFT_PAGE.y + 2, 1, LEFT_PAGE.h - 4);
+      for (let line = 0; line < 7; line++) {
+        graphics.beginPath();
+
+        for (let px = 0; px <= page.width; px += 5) {
+          const py =
+            page.y +
+            page.height / 2 +
+            Math.sin(px * 0.035 + line * 0.7) *
+            page.height * 0.38 *
+            Math.cos(px * 0.009 + line * 0.3);
+
+          if (px === 0) {
+            graphics.moveTo(page.x + px, py);
+          } else {
+            graphics.lineTo(page.x + px, py);
+          }
+        }
+
+        graphics.strokePath();
+      }
     }
 
-    // Krawędzie "pliku kartek" po zewnętrznych bokach
-    g.lineStyle(1, 0xb8a678, 0.8);
-    g.lineBetween(LEFT_PAGE.x - 2, LEFT_PAGE.y + 6, LEFT_PAGE.x - 2, LEFT_PAGE.y + LEFT_PAGE.h - 6);
-    g.lineBetween(LEFT_PAGE.x - 4, LEFT_PAGE.y + 10, LEFT_PAGE.x - 4, LEFT_PAGE.y + LEFT_PAGE.h - 10);
-    g.lineBetween(RIGHT_PAGE.x + RIGHT_PAGE.w + 2, RIGHT_PAGE.y + 6, RIGHT_PAGE.x + RIGHT_PAGE.w + 2, RIGHT_PAGE.y + RIGHT_PAGE.h - 6);
-    g.lineBetween(RIGHT_PAGE.x + RIGHT_PAGE.w + 4, RIGHT_PAGE.y + 10, RIGHT_PAGE.x + RIGHT_PAGE.w + 4, RIGHT_PAGE.y + RIGHT_PAGE.h - 10);
+    for (let index = 0; index < 16; index++) {
+      graphics.fillStyle(
+        0x000000,
+        0.2 * (1 - index / 16)
+      );
 
-    this.pagesGroup.add(g);
-  }
-
-  // Delikatny wzór zabezpieczający, jak w prawdziwych paszportach.
-  _drawGuilloche(g, r) {
-    g.lineStyle(1, GUILLOCHE_COLOR, 0.12);
-    const cy = r.y + r.h / 2;
-    const amp = r.h * 0.38;
-
-    for (let k = 0; k < 7; k++) {
-      g.beginPath();
-      for (let px = 0; px <= r.w; px += 5) {
-        const y = cy + Math.sin(px * 0.035 + k * 0.7) * amp * Math.cos(px * 0.009 + k * 0.3);
-        if (px === 0) g.moveTo(r.x + px, y);
-        else g.lineTo(r.x + px, y);
-      }
-      g.strokePath();
+      graphics.fillRect(
+        RIGHT_PAGE.x + index,
+        RIGHT_PAGE.y + 2,
+        1,
+        RIGHT_PAGE.height - 4
+      );
     }
+
+    this.pagesGroup.add(graphics);
   }
 
-  // Zmniejsza tekst skalą, jeśli nie mieści się w maxW.
-  _fitWidth(textObj, maxW) {
-    if (textObj.width > maxW) textObj.setScale(maxW / textObj.width);
-    return textObj;
+  _fitWidth(object, width) {
+    if (object.width > width) {
+      object.setScale(width / object.width);
+    }
+
+    return object;
   }
 
-  // ─── Strona z danymi ──────────────────────────────────────────────────────
-
-  _renderIdPage(x, y) {
-    const pm = getPassportManager();
-    const data = pm.serialize();
-    const holder = pm.getHolderName();
-    const number = pm.getPassportNumber();
-    const pageInnerW = LEFT_PAGE.w - 36;
-
-    const labelStyle = {
-      fontFamily: FONT_TYPEWRITER,
-      fontSize: '13px',
-      color: '#2a2118'
-    };
-
-    const valueStyle = {
-      fontFamily: FONT_TYPEWRITER,
-      fontSize: '15px',
-      color: '#1a1108',
-      fontStyle: 'bold'
-    };
-
-    const add = (obj) => {
-      this.pagesGroup.add(obj);
-      return obj;
-    };
-
-    // Żart na górze strony
-    add(this.scene.add.text(
-      x,
-      y + 2,
-      'ANY PERSON HOLDING THIS DOCUMENT IS\nPROBABLY IN OVER THEIR HEAD.',
-      {
-        fontFamily: FONT_TYPEWRITER,
-        fontSize: '9px',
-        color: '#6b5a3a',
-        align: 'left'
-      }
-    ));
-
-    // Zdjęcie (przesunięte w prawo, jak w Twojej wersji)
-    const photoX = x + 180;
-    const photoY = y + 58;
-    const photoCenterX = photoX + 45;
-    const photoCenterY = photoY + 55;
-
-    add(this.scene.add.rectangle(photoX, photoY, 90, 110, 0xe8e0cc, 1)
-      .setOrigin(0, 0)
-      .setStrokeStyle(2, INK_LINE_COLOR));
-
-    add(this.scene.add.text(photoCenterX, photoCenterY, '🕵', { fontSize: '44px' })
-      .setOrigin(0.5)
-      .setAlpha(0.55));
-
-    // Żart: agencja "zgubiła" fotografię.
-    add(this.scene.add.rectangle(photoCenterX, photoCenterY, 100, 26, 0x1a1108, 0.88)
-      .setAngle(-18));
-
-    add(this.scene.add.text(photoCenterX, photoCenterY, 'REDACTED', {
-      fontFamily: FONT_PIXEL,
-      fontSize: '9px',
-      color: '#e8dcb8'
-    }).setOrigin(0.5).setAngle(-18));
-
-    add(this.scene.add.text(photoCenterX, photoY + 120, 'PHOTO ON FILE', {
-      fontFamily: FONT_TYPEWRITER,
-      fontSize: '9px',
-      color: '#6b5a3a'
-    }).setOrigin(0.5));
-
-    // Mini-pola po lewej od zdjęcia (wcześniej pusto)
-    const countries = pm.getVisitedCountries().filter((c) => c && c !== 'Unknown Country').length;
-    const sideFields = [
-      ['RANK', pm.getPlayerRank()],
-      ['ISSUED', data.issuedDayLabel || 'Not stamped yet'],
-      ['TRIPS', `${pm.getStampCount()} (${countries} ${countries === 1 ? 'country' : 'countries'})`]
-    ];
-
-    let sy = photoY;
-    sideFields.forEach(([label, value]) => {
-      add(this.scene.add.text(x, sy, label, labelStyle));
-      add(this._fitWidth(this.scene.add.text(x, sy + 15, String(value), valueStyle), 150));
-      sy += 40;
+  _addPageText(x, y, value, size = 15, color = '#2a2118') {
+    const text = this.scene.add.text(x, y, String(value), {
+      fontFamily: FONT_TYPE,
+      fontSize: `${size}px`,
+      color
     });
 
-    // Główne pola
-    const rows = [['SURNAME / GIVEN NAME', holder]];
-    const alias = pm.getAlias();
-    if (alias) rows.push(['ALIAS', alias]);
-    rows.push(
+    this.pagesGroup.add(text);
+    return text;
+  }
+
+  _renderIdPage() {
+    const manager = getPassportManager();
+    const number = manager.getPassportNumber();
+    const data = manager.serialize();
+    const holder = manager.getHolderName();
+
+    const x = LEFT_PAGE.x + 18;
+    const y = LEFT_PAGE.y + 18;
+
+    this._addPageText(
+      x, y + 2,
+      'ANY PERSON HOLDING THIS DOCUMENT IS\nPROBABLY IN OVER THEIR HEAD.',
+      9,
+      '#6b5a3a'
+    );
+
+    const photoX = x + 180;
+    const photoY = y + 58;
+
+    this.pagesGroup.add(
+      this.scene.add.rectangle(
+        photoX, photoY, 90, 110, 0xe8e0cc
+      )
+        .setOrigin(0)
+        .setStrokeStyle(2, COLORS.ink)
+    );
+
+    this.pagesGroup.add(
+      this.scene.add.text(
+        photoX + 45, photoY + 55, '🕵',
+        { fontSize: '44px' }
+      ).setOrigin(0.5).setAlpha(0.55)
+    );
+
+    this.pagesGroup.add(
+      this.scene.add.rectangle(
+        photoX + 45, photoY + 55,
+        100, 26, 0x1a1108, 0.88
+      ).setAngle(-18)
+    );
+
+    this.pagesGroup.add(
+      this.scene.add.text(
+        photoX + 45, photoY + 55,
+        'REDACTED',
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '9px',
+          color: '#e8dcb8'
+        }
+      ).setOrigin(0.5).setAngle(-18)
+    );
+
+    const countries = manager.getVisitedCountries().filter(
+      country => country && country !== 'Unknown Country'
+    ).length;
+
+    const sideFields = [
+      ['RANK', manager.getPlayerRank()],
+      ['ISSUED', data.issuedDayLabel || 'Not stamped yet'],
+      ['TRIPS', `${manager.getStampCount()} (${countries} countries)`]
+    ];
+
+    sideFields.forEach(([label, value], index) => {
+      const row = photoY + index * 40;
+
+      this._addPageText(x, row, label, 12);
+
+      this._fitWidth(
+        this._addPageText(x, row + 15, value),
+        150
+      );
+    });
+
+    const fields = [
+      ['SURNAME / GIVEN NAME', holder]
+    ];
+
+    const alias = manager.getAlias();
+
+    if (alias) fields.push(['ALIAS', alias]);
+
+    fields.push(
       ['PASSPORT NO.', number],
       ['AUTHORITY', 'MARK AGENCY']
     );
 
-    let rowY = y + 195;
-    rows.forEach(([label, value]) => {
-      add(this.scene.add.text(x, rowY, label, labelStyle));
-      add(this._fitWidth(this.scene.add.text(x, rowY + 15, String(value), valueStyle), pageInnerW));
-      rowY += 34;
+    fields.forEach(([label, value], index) => {
+      const row = y + 195 + index * 34;
+
+      this._addPageText(x, row, label, 12);
+
+      this._fitWidth(
+        this._addPageText(x, row + 15, value),
+        LEFT_PAGE.width - 36
+      );
     });
 
-    // Pas MRZ na dole strony
-    const mrzY = LEFT_PAGE.y + LEFT_PAGE.h - 70;
-    const strip = this.scene.add.graphics();
-    strip.fillStyle(MRZ_COLOR, 0.9);
-    strip.fillRect(LEFT_PAGE.x + 12, mrzY, LEFT_PAGE.w - 24, 56);
-    strip.lineStyle(1, 0xb8a678, 1);
-    strip.strokeRect(LEFT_PAGE.x + 12, mrzY, LEFT_PAGE.w - 24, 56);
-    add(strip);
+    const mrzY = LEFT_PAGE.y + LEFT_PAGE.height - 70;
 
-    const [mrz1, mrz2] = buildMrz(holder, number);
-    [mrz1, mrz2].forEach((line, i) => {
-      const t = this.scene.add.text(LEFT_PAGE.x + 20, mrzY + 9 + i * 21, line, {
-        fontFamily: FONT_TYPEWRITER,
-        fontSize: '12px',
-        color: '#2a2118'
-      });
-      add(this._fitWidth(t, LEFT_PAGE.w - 40));
+    this.pagesGroup.add(
+      this.scene.add.rectangle(
+        LEFT_PAGE.x + 12,
+        mrzY,
+        LEFT_PAGE.width - 24,
+        56,
+        0xdcd0a8
+      ).setOrigin(0)
+    );
+
+    buildMrz(holder, number).forEach((line, index) => {
+      this._fitWidth(
+        this._addPageText(
+          LEFT_PAGE.x + 20,
+          mrzY + 9 + index * 21,
+          line,
+          12
+        ),
+        LEFT_PAGE.width - 40
+      );
     });
   }
 
-  // ─── Strona z pieczątkami ─────────────────────────────────────────────────
-
-  _renderStampsPage(pageStamps) {
-    const rightPageCenterX = PAGE_WIDTH / 4 + 2;
-    const usableHeight = PAGE_HEIGHT - 40;
-    const cellH = usableHeight / STAMPS_PER_PAGE;
-    const topY = -PAGE_HEIGHT / 2 + 20;
+  _renderStampsPage(stamps) {
+    const centerX = RIGHT_PAGE.x + RIGHT_PAGE.width / 2;
 
     this.pagesGroup.add(
-      this.scene.add.text(rightPageCenterX, -PAGE_HEIGHT / 2 + 6, 'VISAS & ENTRIES', {
-        fontFamily: FONT_PIXEL,
-        fontSize: '8px',
-        color: '#8a7650'
-      }).setOrigin(0.5, 0)
+      this.scene.add.text(
+        centerX,
+        RIGHT_PAGE.y + 10,
+        'VISAS & ENTRIES',
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '9px',
+          color: '#8a7650'
+        }
+      ).setOrigin(0.5, 0)
     );
 
-    if (pageStamps.length === 0) {
+    const unseenPage = this._pageOfStamp(this._unseenStampId);
+
+    const notice = unseenPage !== null &&
+      unseenPage !== this.currentPage
+        ? `New stamp on page ${unseenPage + 1}`
+        : 'Previous stamps stay on earlier pages.';
+
+    this.noticeText = this.scene.add.text(
+      centerX,
+      RIGHT_PAGE.y + 32,
+      notice,
+      {
+        fontFamily: FONT_TYPE,
+        fontSize: '12px',
+        color: '#6b5a3a'
+      }
+    ).setOrigin(0.5, 0);
+
+    this.pagesGroup.add(this.noticeText);
+
+    if (!stamps.length) {
       this.pagesGroup.add(
         this.scene.add.text(
-          rightPageCenterX,
+          centerX,
           0,
           'No stamps yet.\nGo catch a flight, detective.',
           {
-            fontFamily: FONT_TYPEWRITER,
+            fontFamily: FONT_TYPE,
             fontSize: '15px',
             color: '#6b5a3a',
             align: 'center'
           }
         ).setOrigin(0.5)
       );
+
       return;
     }
 
-    pageStamps.forEach((stamp, index) => {
-      const stampY = topY + cellH * index + cellH / 2;
+    stamps.forEach((stamp, index) => {
+      const column = index % 2;
+      const row = Math.floor(index / 2);
 
-      this._renderStamp(stamp, rightPageCenterX, stampY);
+      const x = RIGHT_PAGE.x + 89 + column * 178;
+      const y = RIGHT_PAGE.y + 125 + row * 190;
 
-      if (index < STAMPS_PER_PAGE - 1) {
-        this.pagesGroup.add(
-          this.scene.add.rectangle(
-            rightPageCenterX,
-            topY + cellH * (index + 1),
-            PAGE_WIDTH / 2 - 40,
-            1,
-            INK_LINE_COLOR,
-            0.25
-          )
-        );
-      }
+      this._renderStamp(stamp, x, y);
     });
   }
 
   _renderStamp(stamp, x, y) {
     const radius = 75;
 
-    const seed = hashString(stamp.stampId || `${stamp.city}${stamp.dateLabel}`);
-    const rng = mulberry32(seed);
-    const variant = seed % 3; // 0 = koło, 1 = prostokąt, 2 = elipsa
+    const seed = hashString(
+      stamp.stampId ||
+      `${stamp.city}${stamp.dateLabel}`
+    );
 
-    const color = Number.isFinite(stamp.inkColor) ? stamp.inkColor : DEFAULT_INK;
-    const country = String(stamp.country || 'Unknown Country');
-    const baseAngle = Number(stamp.rotationDeg) || 0;
+    const random = seededRandom(seed);
+    const variant = seed % 3;
 
-    const stampContainer = this.scene.add.container(x, y);
-    stampContainer.setAngle(baseAngle);
-    stampContainer.setData('baseAngle', baseAngle);
-    stampContainer.setData('inkColor', color);
-    this.pagesGroup.add(stampContainer);
+    const color = Number.isFinite(stamp.inkColor)
+      ? stamp.inkColor
+      : COLORS.defaultStamp;
 
-    if (stamp.stampId) this.stampObjects.set(stamp.stampId, stampContainer);
+    const angle = Number(stamp.rotationDeg) || 0;
+    const baseScale = 0.78;
+
+    const container = this.scene.add
+      .container(x, y)
+      .setAngle(angle)
+      .setScale(baseScale);
+
+    container.setData({
+      baseAngle: angle,
+      baseScale,
+      inkColor: color
+    });
+
+    this.pagesGroup.add(container);
+
+    if (stamp.stampId) {
+      this.stampObjects.set(stamp.stampId, container);
+    }
 
     const graphics = this.scene.add.graphics();
 
-    if (variant === 0) {
-      graphics.lineStyle(4, color, 0.85);
-      graphics.strokeCircle(0, 0, radius);
+    graphics.lineStyle(4, color, 0.85);
 
+    if (variant === 0) {
+      graphics.strokeCircle(0, 0, radius);
       graphics.lineStyle(2, color, 0.6);
       graphics.strokeCircle(0, 0, radius - 8);
-
-      for (let i = 0; i < 28; i++) {
-        const a1 = (i / 28) * Math.PI * 2;
-        const a2 = a1 + 0.14;
-
-        graphics.lineStyle(3, color, 0.7);
-        graphics.beginPath();
-        graphics.arc(0, 0, radius, a1, a2, false);
-        graphics.strokePath();
-      }
     } else if (variant === 1) {
-      graphics.lineStyle(4, color, 0.85);
       graphics.strokeRoundedRect(-88, -56, 176, 112, 10);
       graphics.lineStyle(2, color, 0.6);
       graphics.strokeRoundedRect(-80, -48, 160, 96, 6);
     } else {
-      graphics.lineStyle(4, color, 0.85);
       graphics.strokeEllipse(0, 0, 176, 128);
       graphics.lineStyle(2, color, 0.6);
       graphics.strokeEllipse(0, 0, 160, 112);
     }
 
-    stampContainer.add(graphics);
+    container.add(graphics);
 
-    const inkColorCss = Phaser.Display.Color.IntegerToColor(color).rgba;
+    const cssColor = Phaser.Display.Color
+      .IntegerToColor(color)
+      .rgba;
 
-    const addStampText = (ty, str, style) => {
-      const t = this.scene.add.text(0, ty, str, {
-        fontFamily: FONT_TYPEWRITER,
-        color: inkColorCss,
-        ...style
-      }).setOrigin(0.5).setAlpha(0.92);
-      stampContainer.add(t);
-      return t;
+    const addText = (ty, value, size, maxWidth = 145) => {
+      const text = this.scene.add.text(
+        0, ty, String(value),
+        {
+          fontFamily: FONT_TYPE,
+          fontSize: `${size}px`,
+          color: cssColor,
+          align: 'center'
+        }
+      ).setOrigin(0.5).setAlpha(0.92);
+
+      this._fitWidth(text, maxWidth);
+      container.add(text);
+
+      return text;
     };
 
-    addStampText(-34, stamp.title || 'ENTRY', { fontSize: '14px', fontStyle: 'bold' });
+    addText(-34, stamp.title || 'ENTRY', 14);
 
-    addStampText(-8, country.toUpperCase(), {
-      fontSize: country.length > 14 ? '13px' : '16px',
-      fontStyle: 'bold',
-      align: 'center',
-      wordWrap: { width: radius * 2 - 20 }
-    });
+    addText(
+      -8,
+      String(stamp.country || 'Unknown Country').toUpperCase(),
+      16
+    );
 
-    addStampText(22, String(stamp.city || '???'), { fontSize: '12px' });
-    addStampText(42, String(stamp.dateLabel || ''), { fontSize: '13px', fontStyle: 'bold' });
+    addText(22, stamp.city || '???', 13);
+    addText(42, stamp.dateLabel || '', 13);
 
-    // "Zużycie" tuszu: kropki w kolorze papieru nad całością
     const wear = this.scene.add.graphics();
-    wear.fillStyle(PAGE_COLOR, 0.5);
-    for (let i = 0; i < 40; i++) {
-      const wx = (rng() - 0.5) * 2 * radius * 0.95;
-      const wy = (rng() - 0.5) * 2 * radius * 0.8;
-      wear.fillRect(wx, wy, rng() < 0.5 ? 1 : 2, rng() < 0.5 ? 1 : 2);
+    wear.fillStyle(COLORS.paper, 0.5);
+
+    for (let index = 0; index < 40; index++) {
+      wear.fillRect(
+        (random() - 0.5) * 2 * radius * 0.95,
+        (random() - 0.5) * 2 * radius * 0.8,
+        random() < 0.5 ? 1 : 2,
+        random() < 0.5 ? 1 : 2
+      );
     }
-    stampContainer.add(wear);
+
+    container.add(wear);
 
     if (stamp.visitNumber > 1) {
-      const visitBadge = this.scene.add.text(radius - 10, -radius + 10, `x${stamp.visitNumber}`, {
-        fontFamily: FONT_PIXEL,
-        fontSize: '10px',
-        color: '#ffffff',
-        backgroundColor: '#2a2118',
-        padding: { x: 4, y: 3 }
-      }).setOrigin(0.5);
-      stampContainer.add(visitBadge);
+      container.add(
+        this.scene.add.text(
+          radius - 10,
+          -radius + 10,
+          `x${stamp.visitNumber}`,
+          {
+            fontFamily: FONT_PIXEL,
+            fontSize: '10px',
+            color: '#ffffff',
+            backgroundColor: '#2a2118',
+            padding: { x: 4, y: 3 }
+          }
+        ).setOrigin(0.5)
+      );
     }
 
-    const customsText = this.scene.add.text(0, radius + 22, String(stamp.customsNote || ''), {
-      fontFamily: FONT_TYPEWRITER,
-      fontSize: '11px',
-      color: '#5a4a30',
-      align: 'center',
-      wordWrap: { width: PAGE_WIDTH / 2 - 30 },
-      fontStyle: 'italic'
-    }).setOrigin(0.5);
-    stampContainer.add(customsText);
+    const note = this.scene.add.text(
+      0,
+      92,
+      String(stamp.customsNote || ''),
+      {
+        fontFamily: FONT_TYPE,
+        fontSize: '12px',
+        color: '#5a4a30',
+        align: 'center',
+        fontStyle: 'italic',
+        wordWrap: { width: 200, useAdvancedWrap: true }
+      }
+    ).setOrigin(0.5, 0);
 
-    // Interakcja: lekki "przechył" po najechaniu, kołysanie po kliknięciu
-    stampContainer.setSize(radius * 2, radius * 2);
-    stampContainer.setInteractive();
+    if (note.height > 55) {
+      note.setFontSize(10);
+    }
 
-    stampContainer.on('pointerover', () => {
-      this._kill(stampContainer);
-      this._tween({ targets: stampContainer, scale: 1.05, duration: 110, ease: 'Sine.easeOut' });
-    });
+    container.add(note);
+    container.setSize(176, 150).setInteractive();
 
-    stampContainer.on('pointerout', () => {
-      this._kill(stampContainer);
+    container.on('pointerover', () => {
+      this._kill(container);
+
       this._tween({
-        targets: stampContainer,
-        scale: 1,
-        angle: baseAngle,
+        targets: container,
+        scale: baseScale * 1.05,
         duration: 110,
         ease: 'Sine.easeOut'
       });
     });
 
-    stampContainer.on('pointerdown', () => {
-      this._kill(stampContainer);
-      stampContainer.setAngle(baseAngle);
+    container.on('pointerout', () => {
+      this._kill(container);
+
       this._tween({
-        targets: stampContainer,
-        angle: baseAngle + 4,
+        targets: container,
+        scale: baseScale,
+        angle,
+        duration: 110,
+        ease: 'Sine.easeOut'
+      });
+    });
+
+    container.on('pointerdown', () => {
+      this._kill(container);
+
+      container.setAngle(angle);
+
+      this._tween({
+        targets: container,
+        angle: angle + 4,
         duration: 60,
         yoyo: true,
         repeat: 1,
@@ -869,56 +1117,79 @@ export class PassportUI {
     });
   }
 
-  // ─── Efekt "trzask" dla nowej pieczątki ───────────────────────────────────
-
   _slamPending() {
     const id = this._pendingSlamId;
+
     if (!id) return;
+
     this._pendingSlamId = null;
     this._playSlam(this.stampObjects.get(id));
   }
 
-  _playSlam(stampContainer) {
-    if (!stampContainer?.scene || !this.isOpen) return;
+  _playSlam(container) {
+    if (!container?.scene || !this.isOpen) return;
 
-    this._kill(stampContainer);
+    this._kill(container);
 
-    const baseAngle = stampContainer.getData('baseAngle') ?? 0;
-    const ink = stampContainer.getData('inkColor') ?? DEFAULT_INK;
+    const angle = container.getData('baseAngle') ?? 0;
+    const scale = container.getData('baseScale') ?? 0.78;
 
-    stampContainer.setScale(2.6).setAlpha(0).setAngle(baseAngle + 14);
+    container
+      .setScale(scale * 2)
+      .setAlpha(0)
+      .setAngle(angle + 14);
 
     this._tween({
-      targets: stampContainer,
-      scale: 1,
+      targets: container,
+      scale,
       alpha: 1,
-      angle: baseAngle,
+      angle,
       duration: 220,
-      ease: 'Cubic.easeIn',
-      onComplete: () => {
-        if (!this.isOpen || !stampContainer.scene || !this.pagesGroup) return;
-
-        this.scene.cameras.main.shake(110, 0.004);
-
-        const ring = this.scene.add.graphics();
-        ring.lineStyle(3, ink, 0.6);
-        ring.strokeCircle(0, 0, 40);
-        ring.setPosition(stampContainer.x, stampContainer.y);
-        this.pagesGroup.add(ring);
-        this._rings.add(ring);
-
-        this._tween({
-          targets: ring,
-          scale: 2.4,
-          alpha: 0,
-          duration: 380,
-          ease: 'Quad.easeOut',
-          onComplete: () => {
-            this._rings.delete(ring);
-            if (ring.scene) ring.destroy();
-          }
-        });
-      }
+      ease: 'Cubic.easeIn'
     });
+  }
+
+  destroy() {
+    if (this._destroyed) return;
+
+    EventBus.off(
+      'ui:openPassport',
+      this._onOpenPassportEvent
+    );
+
+    EventBus.off(
+      'passportStamped',
+      this._onPassportStamped
+    );
+
+    this.scene?.scale?.off('resize', this._onResize);
+
+    this._unbindKeys();
+    this._clearFx();
+
+    for (const stamp of this.stampObjects.values()) {
+      this._kill(stamp);
+    }
+
+    this.stampObjects.clear();
+
+    this._kill(this.pagesGroup);
+    this._kill(this.container);
+    this._kill(this._closingContainer);
+
+    this.container?.destroy(true);
+    this._closingContainer?.destroy(true);
+
+    this.container = null;
+    this._closingContainer = null;
+    this.pagesGroup = null;
+    this.backdrop = null;
+    this.prevBtn = null;
+    this.nextBtn = null;
+    this.pageCounterText = null;
+    this.noticeText = null;
+
+    this.isOpen = false;
+    this._destroyed = true;
   }
 }

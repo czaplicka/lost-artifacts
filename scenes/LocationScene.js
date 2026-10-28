@@ -4,6 +4,7 @@ import { NPCController } from '../dialogues/NPCController.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
 import { audioManager } from '../managers/AudioManager.js';
+import { getEnergyManager } from '../managers/EnergyManager.js';
 import { BaseScene } from './BaseScene.js';
 import { getNpcAccess } from '../managers/ReputationManager.js';
 
@@ -41,6 +42,8 @@ const TOPIC_LABELS = {
   motive: 'What really happened?'
 };
 
+const INTERVIEW_DURATION = 'medium';
+
 const TYPEWRITER_CHARS_PER_TICK = 3;
 const TYPEWRITER_TICK_DELAY = 54;
 
@@ -61,49 +64,11 @@ export class LocationScene extends BaseScene {
   constructor() {
     super({ key: 'LocationScene' });
 
-    this.generatedNotes = [];
-    this.isRepeat = false;
-    this.isFinishing = false;
-
-    this.dialogueText = null;
-    this.footerTextObject = null;
-    this.npcNameText = null;
-    this.dialoguePanel = null;
-    this.panelBorder = null;
-    this.portraitFrame = null;
-    this.portraitImage = null;
-    this.continueIndicator = null;
     this.topicButtons = [];
-    this.leaveButton = null;
-
-    this.cityId = null;
-    this.encounterId = null;
-    this.npcId = null;
-    this.locationId = null;
-    this.encounterMemory = null;
-
-    this.isCorrectCity = true;
-    this.isCrimeCity = false;
-    this.isNextTargetCity = false;
-    this.isFalseLead = false;
-    this.timeCostApplied = false;
-
-    this.dialogueTargetCityId = null;
-    this.locationAmbient = null;
-    this.npcTheme = 'default';
-
-    this.fullDialogueString = '';
-    this.isTyping = false;
-    this.typewriterEvent = null;
-
-    this.npcController = null;
-    this.availableTopics = [];
+    this.generatedNotes = [];
     this.askedTopics = new Set();
-
-    this.reputationAccess = {
-      allowed: true,
-      reason: ''
-    };
+    this.typewriterEvent = null;
+    this.locationAmbient = null;
   }
 
   init(data = {}) {
@@ -115,41 +80,42 @@ export class LocationScene extends BaseScene {
     this.locationId = data.locationId || null;
     this.isRepeat = Boolean(data.isRepeat);
 
-    const rm = gameState.routeManager;
+    const manager = gameState.routeManager;
 
     const expectedCityId =
-      rm && typeof rm.getNextExpectedCity === 'function'
-        ? rm.getNextExpectedCity()
+      typeof manager?.getNextExpectedCity === 'function'
+        ? manager.getNextExpectedCity()
         : gameState.nextTargetCityId || null;
 
-    const derivedIsCrimeCity =
-      Boolean(this.cityId) &&
-      this.cityId === gameState.crimeCityId;
+    const derivedCrimeCity = Boolean(
+      this.cityId &&
+      this.cityId === gameState.crimeCityId
+    );
 
-    const derivedIsNextTargetCity =
-      Boolean(this.cityId) &&
-      this.cityId === expectedCityId;
+    const derivedTargetCity = Boolean(
+      this.cityId &&
+      this.cityId === expectedCityId
+    );
 
-    const derivedJustReached =
-      Boolean(this.cityId) &&
-      this.cityId === gameState.justReachedCorrectCityId;
+    const derivedJustReached = Boolean(
+      this.cityId &&
+      this.cityId === gameState.justReachedCorrectCityId
+    );
 
-    this.isCrimeCity =
-      data.isCrimeCity ?? derivedIsCrimeCity;
-
+    this.isCrimeCity = data.isCrimeCity ?? derivedCrimeCity;
     this.isNextTargetCity =
-      data.isNextTargetCity ?? derivedIsNextTargetCity;
+      data.isNextTargetCity ?? derivedTargetCity;
 
-    this.isCorrectCity =
-      data.isCorrectCity ??
-      Boolean(
-        derivedIsCrimeCity ||
-        derivedIsNextTargetCity ||
-        derivedJustReached
-      );
+    this.isCorrectCity = data.isCorrectCity ?? Boolean(
+      derivedCrimeCity ||
+      derivedTargetCity ||
+      derivedJustReached
+    );
 
     this.generatedNotes = [];
     this.isFinishing = false;
+    this.isFalseLead = !this.isCorrectCity;
+    this.timeCostApplied = false;
 
     this.dialogueText = null;
     this.footerTextObject = null;
@@ -163,12 +129,7 @@ export class LocationScene extends BaseScene {
     this.leaveButton = null;
 
     this.encounterMemory = null;
-    this.isFalseLead = !this.isCorrectCity;
-    this.timeCostApplied = false;
-
-    this.dialogueTargetCityId =
-      data.dialogueTargetCityId || null;
-
+    this.dialogueTargetCityId = data.dialogueTargetCityId || null;
     this.locationAmbient = null;
     this.npcTheme = 'default';
 
@@ -177,6 +138,10 @@ export class LocationScene extends BaseScene {
     this.npcController = null;
     this.availableTopics = [];
     this.askedTopics = new Set();
+
+    this.entryEnergyPaid = false;
+    this.entryBlocked = false;
+    this.entryEnergyCost = null;
 
     this.ensureEncounterMemory();
 
@@ -208,6 +173,76 @@ export class LocationScene extends BaseScene {
     }
   }
 
+  getEncounterEnergyCost() {
+    const energy = getEnergyManager();
+
+    const taxi = energy.getTravelCost('taxi');
+    const interview = energy.getInterviewCost(
+      INTERVIEW_DURATION
+    );
+
+    return {
+      taxi,
+      interview,
+      total: taxi + interview
+    };
+  }
+
+  payEncounterEnergy() {
+    // Crime-city conversations retain their existing rules.
+    if (this.isCrimeCity) return true;
+
+    if (this.entryEnergyPaid) return true;
+
+    const energy = getEnergyManager();
+    const cost = this.getEncounterEnergyCost();
+
+    this.entryEnergyCost = cost;
+
+    const affordability = energy.canAfford(cost.total);
+
+    if (!affordability.ok) {
+      this.entryBlocked = true;
+
+      this.fullDialogueString = [
+        energy.getInsufficientEnergyMessage(cost.total),
+        '',
+        `Taxi: ${cost.taxi} energy.`,
+        `Conversation: ${cost.interview} energy.`,
+        '',
+        'Return to the city and rest, eat or drink first.'
+      ].join('\n');
+
+      return false;
+    }
+
+    // One atomic payment prevents paying for a taxi
+    // without having enough energy left for the conversation.
+    const result = energy.consumeCustom(
+      cost.total,
+      `NPC visit: taxi -${cost.taxi}, conversation -${cost.interview}`,
+      {
+        requireFullAmount: true,
+        activityType: 'escape_city_npc_visit'
+      }
+    );
+
+    if (!result.success) {
+      this.entryBlocked = true;
+
+      this.fullDialogueString =
+        result.message ||
+        energy.getInsufficientEnergyMessage(cost.total);
+
+      return false;
+    }
+
+    this.entryEnergyPaid = true;
+    saveGameState();
+
+    return true;
+  }
+
   create() {
     super.create();
 
@@ -231,24 +266,15 @@ export class LocationScene extends BaseScene {
     audioManager.init(this);
 
     if (!audioManager.isMusicPlaying('themeGame')) {
-      audioManager.playMusic('themeGame', {
-        loop: true
-      });
+      audioManager.playMusic('themeGame', { loop: true });
     }
 
-    const locationSoundKey =
-      LOCATION_SOUND_MAP[this.locationId];
+    const soundKey = LOCATION_SOUND_MAP[this.locationId];
 
-    if (
-      locationSoundKey &&
-      this.cache.audio.exists(locationSoundKey)
-    ) {
+    if (soundKey && this.cache.audio.exists(soundKey)) {
       this.locationAmbient = audioManager.playAmbient(
-        locationSoundKey,
-        {
-          volume: 0.22,
-          loop: true
-        }
+        soundKey,
+        { volume: 0.22, loop: true }
       );
     }
 
@@ -258,38 +284,31 @@ export class LocationScene extends BaseScene {
 
     const suspects = this.cache.json.get('suspects') || [];
     const locations = this.cache.json.get('locations') || [];
-    const countryFacts =
-      this.cache.json.get('country_facts') || {};
+    const countryFacts = this.cache.json.get('country_facts') || {};
 
-    const dialogueCacheKey =
-      NPC_DIALOGUE_KEY_MAP[this.npcId];
+    const dialogueCacheKey = NPC_DIALOGUE_KEY_MAP[this.npcId];
+    const dialogueRootKey = NPC_DIALOGUE_ROOT_MAP[this.npcId];
 
-    const dialogueRootKey =
-      NPC_DIALOGUE_ROOT_MAP[this.npcId];
-
-    const rawDialogueFile = dialogueCacheKey
+    const rawFile = dialogueCacheKey
       ? this.cache.json.get(dialogueCacheKey)
       : null;
 
-    const npcDialogueBlock =
-      rawDialogueFile?.[dialogueRootKey] || {};
+    const dialogueBlock = rawFile?.[dialogueRootKey] || {};
+    const variants = dialogueBlock.locationVariants || {};
 
-    const npcLocationVariants =
-      npcDialogueBlock.locationVariants || {};
-
-    const cityData =
-      locations.find(city => city.id === this.cityId) || null;
+    const cityData = locations.find(
+      city => city.id === this.cityId
+    ) || null;
 
     this.npcTheme = resolveCityNpcTheme(cityData);
 
-    const suspect =
-      suspects.find(s => s.id === gameState.currentThiefId) ||
-      gameState.currentThief ||
-      null;
+    const suspect = suspects.find(
+      entry => entry.id === gameState.currentThiefId
+    ) || gameState.currentThief || null;
 
     if (!dialogueCacheKey || !dialogueRootKey) {
       console.warn(
-        `LocationScene: unknown npcId "${this.npcId}"`
+        `[LocationScene] Unknown npcId "${this.npcId}".`
       );
     }
 
@@ -303,11 +322,11 @@ export class LocationScene extends BaseScene {
         : []
     );
 
-    const rm = gameState.routeManager;
+    const manager = gameState.routeManager;
 
     const expectedCityId =
-      rm && typeof rm.getNextExpectedCity === 'function'
-        ? rm.getNextExpectedCity()
+      typeof manager?.getNextExpectedCity === 'function'
+        ? manager.getNextExpectedCity()
         : gameState.nextTargetCityId || null;
 
     this.dialogueTargetCityId =
@@ -324,15 +343,12 @@ export class LocationScene extends BaseScene {
       isCrimeCity: this.isCrimeCity
     });
 
-    this.npcController = null;
-    this.availableTopics = [];
-
     if (!this.reputationAccess.allowed) {
       this.fullDialogueString = this.reputationAccess.reason;
     } else {
       try {
         this.npcController = new NPCController(
-          npcLocationVariants,
+          variants,
           countryFacts,
           this.cityId,
           suspect || {},
@@ -345,23 +361,31 @@ export class LocationScene extends BaseScene {
       } catch (error) {
         console.warn(
           '[LocationScene] Failed to build NPCController:',
-          error
+          {
+            npcId: this.npcId,
+            cityId: this.cityId,
+            dialogueCacheKey,
+            dialogueRootKey,
+            error
+          }
         );
 
         this.npcController = null;
       }
 
-      this.availableTopics = this.npcController
-        ? this.npcController.getAvailableTopics()
-        : [];
+      if (!this.npcController) {
+        this.fullDialogueString =
+          'There is nobody here who remembers anything useful.';
+      } else if (this.payEncounterEnergy()) {
+        this.availableTopics =
+          this.npcController.getAvailableTopics();
 
-      this.fullDialogueString = this.npcController
-        ? this.isFalseLead
+        this.fullDialogueString = this.isFalseLead
           ? this.npcController.getFalseLeadLine().text
           : this.isRepeat
             ? this.npcController.getRepeatLine()
-            : this.npcController.getBanterLine()
-        : 'There is nobody here who remembers anything useful.';
+            : this.npcController.getBanterLine();
+      }
     }
 
     const backgroundKey = this.getLocationBackgroundKey(
@@ -370,25 +394,21 @@ export class LocationScene extends BaseScene {
     );
 
     if (backgroundKey) {
-      this.add
-        .image(width / 2, height / 2, backgroundKey)
-        .setDisplaySize(width, height);
+      this.add.image(
+        width / 2,
+        height / 2,
+        backgroundKey
+      ).setDisplaySize(width, height);
     } else if (
       cityData?.backgroundKey &&
       this.textures.exists(cityData.backgroundKey)
     ) {
-      this.add
-        .image(width / 2, height / 2, cityData.backgroundKey)
-        .setDisplaySize(width, height);
+      this.add.image(
+        width / 2,
+        height / 2,
+        cityData.backgroundKey
+      ).setDisplaySize(width, height);
     } else {
-      console.warn(
-        '[LocationScene] Missing location background:',
-        {
-          cityId: this.cityId,
-          locationId: this.locationId
-        }
-      );
-
       this.cameras.main.setBackgroundColor('#1a1a1a');
     }
 
@@ -397,13 +417,12 @@ export class LocationScene extends BaseScene {
     ensureHud(this);
     this.refreshNotebook();
 
-    if (!this.timeCostApplied) {
-      EventBus.emit('advanceTime', 1, 0);
-
-      gameState.timeSpent =
-        (gameState.timeSpent || 0) + 1;
-
+    // A blocked visit does not advance the conversation clock.
+    if (!this.entryBlocked && !this.timeCostApplied) {
       this.timeCostApplied = true;
+
+      EventBus.emit('advanceTime', 1, 0);
+      gameState.timeSpent = (gameState.timeSpent || 0) + 1;
     }
   }
 
@@ -412,14 +431,15 @@ export class LocationScene extends BaseScene {
 
     if (hud?.refreshNotebook) {
       hud.refreshNotebook();
-    } else if (hud?.refreshUI) {
-      hud.refreshUI();
+    } else {
+      hud?.refreshUI?.();
     }
   }
 
   createDialoguePanel(width, height) {
     const panelHeight = 232;
     const panelY = height - panelHeight;
+
     const portraitSize = 150;
     const portraitX = 18;
     const portraitY =
@@ -429,18 +449,18 @@ export class LocationScene extends BaseScene {
     const portraitCenterX = portraitX + portraitSize / 2;
     const portraitCenterY = portraitY + portraitSize / 2;
     const nameTargetY = portraitY + portraitSize + 14;
+
     const menuWidth = 190;
     const textEndX = width - menuWidth - 20;
 
-    this.dialoguePanel = this.add
-      .rectangle(
-        0,
-        panelY,
-        width,
-        panelHeight,
-        PANEL_BG,
-        PANEL_BG_ALPHA
-      )
+    this.dialoguePanel = this.add.rectangle(
+      0,
+      panelY,
+      width,
+      panelHeight,
+      PANEL_BG,
+      PANEL_BG_ALPHA
+    )
       .setOrigin(0)
       .setDepth(10);
 
@@ -448,18 +468,12 @@ export class LocationScene extends BaseScene {
 
     this.panelBorder.lineStyle(4, PANEL_GOLD, 1);
     this.panelBorder.strokeRect(
-      6,
-      panelY + 6,
-      width - 12,
-      panelHeight - 12
+      6, panelY + 6, width - 12, panelHeight - 12
     );
 
     this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.9);
     this.panelBorder.strokeRect(
-      12,
-      panelY + 12,
-      width - 24,
-      panelHeight - 24
+      12, panelY + 12, width - 24, panelHeight - 24
     );
 
     this.panelBorder.lineStyle(1, PANEL_GOLD_DIM, 0.6);
@@ -493,49 +507,41 @@ export class LocationScene extends BaseScene {
       this.npcTheme
     );
 
-    if (
-      portraitKey &&
-      this.textures.exists(portraitKey)
-    ) {
-      this.portraitImage = this.add
-        .image(
-          portraitCenterX,
-          portraitCenterY,
-          portraitKey
-        )
+    if (portraitKey && this.textures.exists(portraitKey)) {
+      this.portraitImage = this.add.image(
+        portraitCenterX,
+        portraitCenterY,
+        portraitKey
+      )
         .setDisplaySize(portraitSize, portraitSize)
         .setDepth(12);
     } else {
-      this.portraitImage = this.add
-        .text(
-          portraitCenterX,
-          portraitCenterY,
-          '?',
-          {
-            fontFamily: 'PressStart2P',
-            fontSize: '48px',
-            color: '#d4af37'
-          }
-        )
+      this.portraitImage = this.add.text(
+        portraitCenterX,
+        portraitCenterY,
+        '?',
+        {
+          fontFamily: 'PressStart2P',
+          fontSize: '48px',
+          color: '#d4af37'
+        }
+      )
         .setOrigin(0.5)
         .setDepth(12);
     }
 
-    this.npcNameText = this.add
-      .text(
-        portraitCenterX,
-        nameTargetY,
-        getNpcLabel(this.npcId),
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '12px',
-          color: '#ffd86b',
-          align: 'center',
-          wordWrap: {
-            width: portraitSize + 20
-          }
-        }
-      )
+    this.npcNameText = this.add.text(
+      portraitCenterX,
+      nameTargetY,
+      getNpcLabel(this.npcId),
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '12px',
+        color: '#ffd86b',
+        align: 'center',
+        wordWrap: { width: portraitSize + 20 }
+      }
+    )
       .setOrigin(0.5, 0)
       .setDepth(12);
 
@@ -574,30 +580,30 @@ export class LocationScene extends BaseScene {
       delay: NAME_FADE_DELAY
     });
 
-    this.dialogueText = this.add
-      .text(
-        textStartX,
-        panelY + 26,
-        '',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '22px',
-          color: '#f4ecd8',
-          lineSpacing: 8,
-          wordWrap: {
-            width: textEndX - textStartX - 20
-          }
+    this.dialogueText = this.add.text(
+      textStartX,
+      panelY + 26,
+      '',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: this.entryBlocked ? '18px' : '22px',
+        color: '#f4ecd8',
+        lineSpacing: this.entryBlocked ? 3 : 8,
+        wordWrap: {
+          width: Math.max(80, textEndX - textStartX - 20)
         }
-      )
+      }
+    )
       .setDepth(12)
-      .setInteractive()
-      .on('pointerdown', () => {
-        if (this.isTyping) {
-          this.completeTypewriter();
-        }
-      });
+      .setInteractive();
 
-    const footerText = !this.reputationAccess.allowed
+    this.dialogueText.on('pointerdown', () => {
+      if (this.isTyping) {
+        this.completeTypewriter();
+      }
+    });
+
+    let footer = !this.reputationAccess.allowed
       ? 'Contact unavailable'
       : this.isCrimeCity
         ? 'Crime city witness'
@@ -607,40 +613,38 @@ export class LocationScene extends BaseScene {
             ? 'Cold lead'
             : 'Witness statement';
 
-    this.footerTextObject = this.add
-      .text(
-        textStartX,
-        panelY + panelHeight - 30,
-        footerText,
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '15px',
-          color: '#9a8a63'
-        }
-      )
-      .setDepth(12);
+    if (this.entryBlocked) {
+      footer = 'Not enough energy · No charge';
+    } else if (this.entryEnergyPaid) {
+      const cost = this.entryEnergyCost;
 
-    this.continueIndicator = this.add
-      .triangle(
-        textEndX - 24,
-        panelY + panelHeight - 30,
-        0,
-        0,
-        16,
-        8,
-        0,
-        16,
-        PANEL_GOLD
-      )
+      footer =
+        `Taxi -${cost.taxi} · Conversation -${cost.interview} energy`;
+    }
+
+    this.footerTextObject = this.add.text(
+      textStartX,
+      panelY + panelHeight - 30,
+      footer,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '15px',
+        color: '#9a8a63'
+      }
+    ).setDepth(12);
+
+    this.continueIndicator = this.add.triangle(
+      textEndX - 24,
+      panelY + panelHeight - 30,
+      0, 0, 16, 8, 0, 16,
+      PANEL_GOLD
+    )
       .setDepth(12)
       .setVisible(false);
 
     this.tweens.add({
       targets: this.continueIndicator,
-      alpha: {
-        from: 1,
-        to: 0.15
-      },
+      alpha: { from: 1, to: 0.15 },
       duration: 550,
       yoyo: true,
       repeat: -1
@@ -656,50 +660,37 @@ export class LocationScene extends BaseScene {
     this.startTypewriter();
   }
 
-  createTopicMenu(
-    width,
-    panelY,
-    panelHeight,
-    menuWidth
-  ) {
+  createTopicMenu(width, panelY, panelHeight, menuWidth) {
     const menuX = width - menuWidth + 10;
     let buttonY = panelY + 24;
-    const buttonSpacing = 32;
 
-    this.topicButtons.forEach(button => {
+    for (const button of this.topicButtons) {
       button.text?.destroy();
-    });
+    }
 
     this.topicButtons = [];
-
     this.leaveButton?.destroy();
-    this.leaveButton = null;
 
     if (
+      !this.entryBlocked &&
       !this.isFalseLead &&
       this.reputationAccess.allowed
     ) {
-      this.availableTopics.forEach(topicId => {
-        const label = TOPIC_LABELS[topicId] || topicId;
-        const alreadyAsked = this.askedTopics.has(topicId);
-
-        const button = this.add
-          .text(
-            menuX,
-            buttonY,
-            label,
-            {
-              fontFamily: 'SpecialElite',
-              fontSize: '18px',
-              color: alreadyAsked
-                ? '#7a7160'
-                : '#ffd86b'
-            }
-          )
+      for (const topicId of this.availableTopics) {
+        const button = this.add.text(
+          menuX,
+          buttonY,
+          TOPIC_LABELS[topicId] || topicId,
+          {
+            fontFamily: 'SpecialElite',
+            fontSize: '18px',
+            color: this.askedTopics.has(topicId)
+              ? '#7a7160'
+              : '#ffd86b'
+          }
+        )
           .setDepth(13)
-          .setInteractive({
-            useHandCursor: true
-          });
+          .setInteractive({ useHandCursor: true });
 
         button.on('pointerover', () => {
           button.setColor('#ffffff');
@@ -722,25 +713,22 @@ export class LocationScene extends BaseScene {
           text: button
         });
 
-        buttonY += buttonSpacing;
-      });
+        buttonY += 32;
+      }
     }
 
-    this.leaveButton = this.add
-      .text(
-        menuX,
-        panelY + panelHeight - 34,
-        'Leave',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#d4af37'
-        }
-      )
+    this.leaveButton = this.add.text(
+      menuX,
+      panelY + panelHeight - 34,
+      'Leave',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#d4af37'
+      }
+    )
       .setDepth(13)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .setInteractive({ useHandCursor: true });
 
     this.leaveButton.on('pointerover', () => {
       this.leaveButton?.setColor('#ffffff');
@@ -751,23 +739,26 @@ export class LocationScene extends BaseScene {
     });
 
     this.leaveButton.on('pointerdown', () => {
-      this.finishEncounter();
+      void this.finishEncounter();
     });
   }
 
   handleTopicClick(topicId) {
+    const energy = getEnergyManager();
+
     if (
       !this.npcController ||
       this.isFinishing ||
+      this.entryBlocked ||
       this.isFalseLead ||
-      !this.reputationAccess.allowed
+      !this.reputationAccess.allowed ||
+      energy.isForcedSleepActive() ||
+      energy.isManualSleepActive()
     ) {
       return;
     }
 
-    if (!this.availableTopics.includes(topicId)) {
-      return;
-    }
+    if (!this.availableTopics.includes(topicId)) return;
 
     this.stopTypewriter();
 
@@ -775,9 +766,7 @@ export class LocationScene extends BaseScene {
 
     if (!result) return;
 
-    const alreadyAsked = this.askedTopics.has(topicId);
-
-    if (!alreadyAsked) {
+    if (!this.askedTopics.has(topicId)) {
       const note = this.npcController.toNote(result);
 
       if (note && !this.hasClue(note)) {
@@ -790,23 +779,18 @@ export class LocationScene extends BaseScene {
     this.fullDialogueString = result.text;
     this.startTypewriter();
 
-    this.topicButtons.forEach(
-      ({ topicId: id, text }) => {
-        text.setColor(
-          this.askedTopics.has(id)
-            ? '#7a7160'
-            : '#ffd86b'
-        );
-      }
-    );
+    for (const { topicId: id, text } of this.topicButtons) {
+      text.setColor(
+        this.askedTopics.has(id)
+          ? '#7a7160'
+          : '#ffd86b'
+      );
+    }
   }
 
   stopTypewriter() {
-    if (this.typewriterEvent) {
-      this.typewriterEvent.remove(false);
-      this.typewriterEvent = null;
-    }
-
+    this.typewriterEvent?.remove(false);
+    this.typewriterEvent = null;
     this.isTyping = false;
   }
 
@@ -829,7 +813,7 @@ export class LocationScene extends BaseScene {
       return;
     }
 
-    let charIndex = 0;
+    let index = 0;
 
     this.isTyping = true;
     this.dialogueText.setText('');
@@ -839,24 +823,21 @@ export class LocationScene extends BaseScene {
       loop: true,
 
       callback: () => {
-        if (
-          !this.dialogueText ||
-          this.isFinishing
-        ) {
+        if (!this.dialogueText || this.isFinishing) {
           this.stopTypewriter();
           return;
         }
 
-        charIndex = Math.min(
-          charIndex + TYPEWRITER_CHARS_PER_TICK,
+        index = Math.min(
+          index + TYPEWRITER_CHARS_PER_TICK,
           fullText.length
         );
 
         this.dialogueText.setText(
-          fullText.slice(0, charIndex)
+          fullText.slice(0, index)
         );
 
-        if (charIndex >= fullText.length) {
+        if (index >= fullText.length) {
           this.stopTypewriter();
           this.continueIndicator?.setVisible(true);
         }
@@ -867,131 +848,59 @@ export class LocationScene extends BaseScene {
   completeTypewriter() {
     this.stopTypewriter();
 
-    const fullText = String(
-      this.fullDialogueString ?? ''
+    this.dialogueText?.setText(
+      String(this.fullDialogueString ?? '')
     );
-
-    if (
-      this.dialogueText &&
-      this.dialogueText.text !== fullText
-    ) {
-      this.dialogueText.setText(fullText);
-    }
 
     this.continueIndicator?.setVisible(true);
   }
 
-  handleShutdown() {
-    this.events.off(
-      Phaser.Scenes.Events.SHUTDOWN,
-      this.handleShutdown,
-      this
-    );
-
-    this.events.off(
-      Phaser.Scenes.Events.DESTROY,
-      this.handleShutdown,
-      this
-    );
-
-    this.stopTypewriter();
-    this.locationAmbient = null;
-
-    const objects = [
-      this.dialogueText,
-      this.footerTextObject,
-      this.npcNameText,
-      this.dialoguePanel,
-      this.panelBorder,
-      this.portraitFrame,
-      this.portraitImage,
-      this.continueIndicator,
-      ...this.topicButtons.map(button => button.text),
-      this.leaveButton
-    ];
-
-    objects.forEach(object => {
-      if (!object) return;
-
-      this.tweens.killTweensOf(object);
-      object.destroy();
-    });
-
-    this.dialogueText = null;
-    this.footerTextObject = null;
-    this.npcNameText = null;
-    this.dialoguePanel = null;
-    this.panelBorder = null;
-    this.portraitFrame = null;
-    this.portraitImage = null;
-    this.continueIndicator = null;
-
-    this.topicButtons = [];
-    this.leaveButton = null;
-
-    this.generatedNotes = [];
-    this.encounterMemory = null;
-    this.npcController = null;
-    this.availableTopics = [];
-    this.askedTopics = new Set();
-
-    this.reputationAccess = {
-      allowed: true,
-      reason: ''
-    };
-
-    this.isFinishing = false;
-  }
-
   closeAllUIPanels() {
-    const hud = this.scene.manager.keys.PlayerHudScene;
-
-    if (hud?.closeAllUIPanels) {
-      hud.closeAllUIPanels();
-    }
+    this.scene.manager.keys.PlayerHudScene
+      ?.closeAllUIPanels?.();
   }
 
-  finishEncounter() {
+  async finishEncounter() {
     if (this.isFinishing) return;
 
     this.isFinishing = true;
-    this.stopTypewriter();
+    this.completeTypewriter();
 
-    if (this.reputationAccess.allowed) {
+    const completedConversation = Boolean(
+      !this.entryBlocked &&
+      this.reputationAccess.allowed &&
+      this.npcController
+    );
+
+    if (completedConversation) {
       this.ensureEncounterMemory();
 
       if (this.encounterId) {
         gameState.addEncounter(this.encounterId);
       }
 
-      if (
-        !this.isFalseLead &&
-        this.generatedNotes.length > 0
-      ) {
-        this.generatedNotes.forEach(note => {
+      if (!this.isFalseLead) {
+        for (const note of this.generatedNotes) {
           if (note && !this.hasClue(note)) {
             gameState.addClue(note);
           }
-        });
+        }
       }
 
-      if (
-        this.encounterId &&
-        !this.isFalseLead
-      ) {
-        const existingMemory =
+      if (this.encounterId && !this.isFalseLead) {
+        const previous =
           gameState.encounterMemory[this.encounterId] || {};
 
         gameState.encounterMemory = {
           ...gameState.encounterMemory,
 
           [this.encounterId]: {
-            ...existingMemory,
+            ...previous,
             firstDialogueSeen: true,
             askedTopics: Array.from(this.askedTopics),
 
             dialogueTargetCityId:
-              existingMemory.dialogueTargetCityId ||
+              previous.dialogueTargetCityId ||
               this.dialogueTargetCityId ||
               null
           }
@@ -1002,11 +911,27 @@ export class LocationScene extends BaseScene {
     saveGameState();
     this.refreshNotebook();
 
-    this.goto('CityScene', {
-      cityId: this.cityId,
-      cityCompleted: false,
-      investigationStatus: null
-    });
+    try {
+      const started = await this.goto('CityScene', {
+        cityId: this.cityId,
+        cityCompleted: false,
+        investigationStatus: null,
+        pendingPhoneCall: false
+      });
+
+      if (!started && !this._cleanupDone) {
+        this.isFinishing = false;
+      }
+    } catch (error) {
+      console.error(
+        '[LocationScene] Return to city failed:',
+        error
+      );
+
+      if (!this._cleanupDone) {
+        this.isFinishing = false;
+      }
+    }
   }
 
   hasClue(newClue) {
@@ -1036,28 +961,24 @@ export class LocationScene extends BaseScene {
     });
   }
 
-  getLocationBackgroundKey(
-    locationId,
-    cityData = null
-  ) {
-    const themeId = resolveCityNpcTheme(cityData);
+  getLocationBackgroundKey(locationId, cityData = null) {
+    const theme = resolveCityNpcTheme(cityData);
 
     const candidates = getLocationBackgroundCandidates(
       locationId,
-      themeId
+      theme
     );
 
-    const backgroundKey = candidates.find(textureKey => {
-      return this.textures.exists(textureKey);
-    });
+    const key = candidates.find(
+      candidate => this.textures.exists(candidate)
+    );
 
-    if (backgroundKey) return backgroundKey;
+    if (key) return key;
 
     console.warn(
-      '[LocationScene] No matching location texture found:',
+      '[LocationScene] No location background:',
       {
-        cityId: cityData?.id || this.cityId,
-        npcTheme: themeId,
+        cityId: this.cityId,
         locationId,
         candidates
       }
@@ -1066,11 +987,7 @@ export class LocationScene extends BaseScene {
     return null;
   }
 
-  addHoverEffect(
-    button,
-    baseScale = 0.8,
-    hoverScale = 0.9
-  ) {
+  addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
     button.on('pointerover', () => {
       button.setScale(hoverScale);
     });
@@ -1078,5 +995,70 @@ export class LocationScene extends BaseScene {
     button.on('pointerout', () => {
       button.setScale(baseScale);
     });
+  }
+
+  handleShutdown() {
+    this.events.off(
+      Phaser.Scenes.Events.SHUTDOWN,
+      this.handleShutdown,
+      this
+    );
+
+    this.events.off(
+      Phaser.Scenes.Events.DESTROY,
+      this.handleShutdown,
+      this
+    );
+
+    this.stopTypewriter();
+
+    if (this.locationAmbient) {
+      audioManager.releaseSound(this.locationAmbient);
+      this.locationAmbient = null;
+    }
+
+    const objects = [
+      this.dialogueText,
+      this.footerTextObject,
+      this.npcNameText,
+      this.dialoguePanel,
+      this.panelBorder,
+      this.portraitFrame,
+      this.portraitImage,
+      this.continueIndicator,
+      ...this.topicButtons.map(button => button.text),
+      this.leaveButton
+    ];
+
+    for (const object of objects) {
+      if (!object) continue;
+
+      this.tweens.killTweensOf(object);
+      object.destroy();
+    }
+
+    this.dialogueText = null;
+    this.footerTextObject = null;
+    this.npcNameText = null;
+    this.dialoguePanel = null;
+    this.panelBorder = null;
+    this.portraitFrame = null;
+    this.portraitImage = null;
+    this.continueIndicator = null;
+    this.leaveButton = null;
+
+    this.topicButtons = [];
+    this.generatedNotes = [];
+    this.encounterMemory = null;
+    this.npcController = null;
+    this.availableTopics = [];
+    this.askedTopics = new Set();
+
+    this.reputationAccess = {
+      allowed: true,
+      reason: ''
+    };
+
+    this.isFinishing = false;
   }
 }

@@ -2,6 +2,7 @@ import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { discoverSearchKeywords, getSearchProgress } from '../pi-computer/ComputerSearch.js';
 import { FONT_TEXT } from './PhoneConfig.js';
+import { mergeAlibiSearch, mergeAlibiPhone } from '../pi-computer/AlibiCaseData.js';
 const KEY='piPhoneInvestigations',clone=v=>JSON.parse(JSON.stringify(v));
 const safe=v=>typeof v==='string'&&/^[a-zA-Z0-9_-]+$/.test(v)&&!['__proto__','constructor','prototype'].includes(v);
 const sig=ids=>[...new Set(ids)].sort().join('|');
@@ -64,7 +65,9 @@ export class PhoneInvestigation{
   if(this.dead||this.data||this.loading)return this.loading;this.error='';this.controller=new AbortController();
   this.loading=(async()=>{try{
    const[r,s]=await Promise.all([fetch('assets/data/piPhoneInvestigations.json',{signal:this.controller.signal}),fetch('assets/data/piSearch.json',{signal:this.controller.signal})]);if(!r.ok||!s.ok)throw Error(`HTTP ${r.status}/${s.status}`);
-   const[data,search]=await Promise.all([r.json(),s.json()]);validatePhoneInvestigation(data,search);if(this.dead)return;this.data=data;this.searchData=search;if(this.phone.isOpen)this.phone.render();
+   const[rawData,rawSearch]=await Promise.all([r.json(),s.json()]);
+   const data=mergeAlibiPhone(rawData),search=mergeAlibiSearch(rawSearch);
+   validatePhoneInvestigation(data,search);if(this.dead)return;this.data=data;this.searchData=search;if(this.phone.isOpen)this.phone.render();
   }catch(e){if(!this.dead&&e.name!=='AbortError'){this.error='Investigation contacts unavailable.';console.error('[PhoneInvestigation]',e);}}finally{this.loading=null;}})();return this.loading;
  }
  play(lines,phase){const p=this.phone;p.cancelActivity();this.phase=phase;p.state='connected';p.lines=clone(lines);p.lineIndex=0;if(phase==='greeting')p.callStart=p.scene.time.now;p.clearLog();p.status='';p.showDialogueLine();}

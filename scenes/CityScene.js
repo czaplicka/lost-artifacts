@@ -1,28 +1,43 @@
 import { gameState } from '../GameData.js';
 import { ensureHud } from '../hudHelpers.js';
 import { EventBus } from '../EventBus.js';
-import { generateCaseCityState } from '../city-encounter-generator.js';
+
+import {
+  generateCaseCityState,
+  buildEncounterId
+} from '../city-encounter-generator.js';
+
 import { audioManager } from '../managers/AudioManager.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { getGameTimeManager } from '../managers/GameTimeManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
+
 import {
   resolveCityNpcTheme,
   getNpcTextureKey,
   getNpcLabel
 } from '../npcThemeHelper.js';
+
 import { BaseScene } from './BaseScene.js';
 import { addSessionScore } from '../managers/InvestigationManager.js';
+
+const ALL_DAY = [
+  'Morning',
+  'Afternoon',
+  'Evening',
+  'Night'
+];
 
 const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
   policehq: ['Morning', 'Afternoon', 'Evening'],
-  hotel: ['Morning', 'Afternoon', 'Evening', 'Night'],
-  airport: ['Morning', 'Afternoon', 'Evening', 'Night'],
-  alley: ['Morning', 'Afternoon', 'Evening', 'Night'],
-  parking: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  hotel: ALL_DAY,
+  airport: ALL_DAY,
+  harbor: ALL_DAY,
+  alley: ALL_DAY,
+  parking: ALL_DAY,
   restaurant: ['Afternoon', 'Evening'],
-  garbage: ['Morning', 'Afternoon', 'Evening', 'Night'],
+  garbage: ALL_DAY,
   shop: ['Morning', 'Afternoon', 'Evening']
 };
 
@@ -44,10 +59,15 @@ const CITY_BACKGROUND_KEYS = {
 };
 
 const NPC_QUESTION_PENALTY = 10;
+const NPC_SCALE = 0.62;
+const NPC_HOVER_SCALE = 0.68;
+
 const SHOP_TAXI_ENERGY = 3;
 const SHOP_ICON_SIZE = 132;
 const SHOP_LABEL_OFFSET = 82;
+
 const MINUTES_PER_DAY = 1440;
+const HUD_READY_TIMEOUT = 15000;
 
 export class CityScene extends BaseScene {
   constructor() {
@@ -55,24 +75,22 @@ export class CityScene extends BaseScene {
 
     this.city = null;
     this.cityId = 'warsaw';
+
     this.interactiveObjects = [];
     this.encounterViews = [];
+    this.shopObjects = [];
+    this.hotelObjects = [];
 
-    this.openDestinationsOnCreate = false;
-    this.cityCompleted = false;
-    this.investigationStatus = null;
-    this.isFinalShowdown = false;
-    this.pendingPhoneCall = false;
-    this.pendingPhoneCallCityId = null;
-
+    this.shopAssetHandler = null;
     this.cityAmbient = null;
-    this.npcTheme = 'default';
-    this.isSettingUpUi = false;
-    this.isTransitioning = false;
     this.activePopup = null;
 
-    this.shopObjects = [];
-    this.shopAssetHandler = null;
+    this._uiPromise = null;
+    this._runToken = null;
+    this._waitCancels = new Set();
+    this._uiLoading = null;
+    this._initialOverlayOpened = false;
+    this.uiReady = false;
 
     this.boundCleanupScene = this.cleanupScene.bind(this);
     this.boundWakeOrResume = this.onWakeOrResume.bind(this);
@@ -80,6 +98,13 @@ export class CityScene extends BaseScene {
   }
 
   init(data = {}) {
+    this.cancelUiWaits();
+
+    this._runToken = Symbol('city-run');
+    this._uiPromise = null;
+    this._initialOverlayOpened = false;
+    this._uiLoading = null;
+
     this.cityId =
       data.cityId ||
       gameState.currentCityId ||
@@ -116,22 +141,30 @@ export class CityScene extends BaseScene {
     this.city = null;
     this.interactiveObjects = [];
     this.encounterViews = [];
+    this.shopObjects = [];
+    this.hotelObjects = [];
+
     this.cityAmbient = null;
     this.npcTheme = 'default';
+
     this.isSettingUpUi = false;
     this.isTransitioning = false;
     this.activePopup = null;
-    this.shopObjects = [];
     this.shopAssetHandler = null;
+    this.uiReady = false;
 
     [
       'encounterMemory',
       'specialScenesVisited',
       'cityEncounterState'
-    ].forEach((key) => {
+    ].forEach(key => {
       const value = gameState[key];
 
-      if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      if (
+        !value ||
+        typeof value !== 'object' ||
+        Array.isArray(value)
+      ) {
         gameState[key] = {};
       }
     });
@@ -139,6 +172,9 @@ export class CityScene extends BaseScene {
 
   create() {
     super.create();
+
+    this.cameras.main.resetFX();
+    this.cameras.main.setAlpha(1);
 
     this.unbindLifecycleListeners();
     this.bindLifecycleListeners();
@@ -157,13 +193,7 @@ export class CityScene extends BaseScene {
     const locations = this.cache.json.get('locations');
 
     if (!Array.isArray(locations)) {
-      console.error('[CityScene] Invalid or missing locations data.', {
-        cacheKey: 'locations',
-        receivedData: locations,
-        cityId: this.cityId
-      });
-
-      this.closeAllUIPanels();
+      console.error('[CityScene] Invalid locations data.', locations);
 
       void this.goto('MenuScene', {
         citySetupFailed: true,
@@ -173,20 +203,10 @@ export class CityScene extends BaseScene {
       return;
     }
 
-    const city = locations.find((entry) => {
-      return entry && typeof entry === 'object' && entry.id === this.cityId;
-    });
+    this.city = locations.find(entry => entry?.id === this.cityId);
 
-    if (!city) {
-      console.error('[CityScene] Requested city was not found.', {
-        cityId: this.cityId,
-        availableCityIds: locations
-          .filter((entry) => entry && typeof entry === 'object')
-          .map((entry) => entry.id)
-          .filter(Boolean)
-      });
-
-      this.closeAllUIPanels();
+    if (!this.city) {
+      console.error('[CityScene] Unknown city:', this.cityId);
 
       void this.goto('MenuScene', {
         citySetupFailed: true,
@@ -196,36 +216,109 @@ export class CityScene extends BaseScene {
       return;
     }
 
-    this.city = city;
-    this.npcTheme = resolveCityNpcTheme(city);
+    this.npcTheme = resolveCityNpcTheme(this.city);
 
     gameState.currentCityId = this.cityId;
-    gameState.currentCity = city.city;
+    gameState.currentCity = this.city.city;
+    gameState.currentCountry = this.city.country;
 
-    if (gameState.currentCityData?.id !== city.id) {
-      gameState.currentCityData = structuredClone(city);
+    if (gameState.currentCityData?.id !== this.city.id) {
+      gameState.currentCityData = structuredClone(this.city);
     }
 
     this.registry.set('currentCityId', this.cityId);
+    this.registry.set('currentCity', this.city.city);
+    this.registry.set('currentSceneKey', 'CityScene');
     this.registry.set('investigationStatus', this.investigationStatus);
 
     this.ensureCityEncounterState(locations);
-    this.createBackground(city);
-    this.createHeader(city);
+    this.ensureHarborEncounter();
+
+    this.createBackground(this.city);
+    this.createHeader(this.city);
 
     if (!this.isFinalShowdown) {
       this.createEncounters();
       this.createShopIcon();
+      this.createHotelIcon();
     }
 
-    try {
-      ensureHud(this);
-    } catch (error) {
-      console.error('[CityScene] ensureHud failed:', error);
+    this.showUiLoading();
+    void this.finishCityStartup();
+  }
+
+  async finishCityStartup() {
+    const token = this._runToken;
+    const ready = await this.setupCityUi();
+
+    if (
+      token !== this._runToken ||
+      !this.canUseCity()
+    ) {
+      return;
     }
 
-    void this.setupCityUi();
+    if (!ready) {
+      this.showUiLoading(
+        'Interface unavailable.\nClick here to retry.',
+        true
+      );
+      return;
+    }
+
+    this.hideUiLoading();
     this.openInitialOverlayIfNeeded();
+  }
+
+  showUiLoading(
+    message = 'Preparing field equipment...',
+    retry = false
+  ) {
+    this.hideUiLoading();
+
+    const { width, height } = this.scale;
+
+    const root = this.add.container(0, 0)
+      .setDepth(9000)
+      .setScrollFactor(0);
+
+    const blocker = this.add.rectangle(
+      0, 0, width, height, 0x000000, 0.24
+    )
+      .setOrigin(0)
+      .setInteractive();
+
+    const label = this.add.text(
+      width / 2,
+      height / 2,
+      message,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '22px',
+        color: '#ffe6a3',
+        backgroundColor: '#17110eee',
+        padding: { x: 24, y: 18 },
+        align: 'center',
+        wordWrap: { width: Math.max(100, width - 64) }
+      }
+    ).setOrigin(0.5);
+
+    root.add([blocker, label]);
+    this._uiLoading = root;
+
+    if (retry) {
+      label.setInteractive({ useHandCursor: true });
+
+      label.once('pointerdown', () => {
+        this.showUiLoading();
+        void this.finishCityStartup();
+      });
+    }
+  }
+
+  hideUiLoading() {
+    this._uiLoading?.destroy(true);
+    this._uiLoading = null;
   }
 
   bindLifecycleListeners() {
@@ -279,111 +372,216 @@ export class CityScene extends BaseScene {
   canStartInteraction() {
     return (
       this.canUseCity() &&
+      this.uiReady &&
       !this.isTransitioning &&
       !this.activePopup
     );
   }
 
-  async setupCityUi() {
-    if (this.isSettingUpUi || !this.canUseCity()) return;
+  waitForUi(predicate, token) {
+    return new Promise(resolve => {
+      let settled = false;
+      let timeout = null;
 
-    this.isSettingUpUi = true;
+      const finish = result => {
+        if (settled) return;
+        settled = true;
 
-    try {
-      const uiScene = await this.ensureOverlayScene('UIScene');
-      if (!this.canUseCity()) return;
+        clearTimeout(timeout);
+        this.game.events.off('poststep', check);
+        this._waitCancels.delete(cancel);
 
-      if (uiScene) {
-        this.game.events.emit('setHudVisible', true);
-        EventBus.emit('showHUD');
+        resolve(result);
+      };
 
-        uiScene.refreshScoreHud?.();
-        uiScene.refreshMoneyHud?.();
-        uiScene.updateEnergy?.();
-        uiScene.updateTime?.({
-          day: gameState.currentDay || gameState.day || 1,
-          hour: gameState.currentHour ?? gameState.hour ?? 8,
-          minute: gameState.currentMinute ?? gameState.minute ?? 0,
-          partOfDay:
-            gameState.currentPartOfDay ||
-            gameState.partOfDay ||
-            'Morning'
-        });
-      }
+      const cancel = () => finish(false);
 
-      const playerHud = await this.restorePlayerHud();
-      if (!this.canUseCity()) return;
-
-      if (playerHud) {
-        playerHud.setCurrentGameplayScene?.('CityScene');
-        playerHud.closeAllUIPanels?.();
-        playerHud.refreshNotebook?.();
-        playerHud.refreshUI?.();
-      }
-
-      const newsHud = await this.ensureOverlayScene('NewsHud');
-      if (!this.canUseCity()) return;
-
-      if (newsHud) {
-        newsHud.events?.emit('setNewspaperVisible', true);
-        newsHud.events?.emit('setTvVisible', false);
-        this.bringSceneToTopIfActive('NewsHud');
-      }
-    } catch (error) {
-      if (!this._cleanupDone) {
-        console.error('[CityScene] Failed to restore city UI:', error);
-      }
-    } finally {
-      this.isSettingUpUi = false;
-    }
-  }
-
-  openInitialOverlayIfNeeded() {
-    if (!this.canUseCity()) return;
-
-    if (this.isFinalShowdown) {
-      this.time.delayedCall(250, () => {
-        if (!this.canUseCity()) return;
-
-        this.closeAllUIPanels();
-
-        if (this.isSceneActive('ArrestSelectionScene')) {
-          this.scene.bringToTop('ArrestSelectionScene');
+      const check = () => {
+        if (
+          token !== this._runToken ||
+          this._cleanupDone
+        ) {
+          finish(false);
           return;
         }
 
-        void this.launchOverlay('ArrestSelectionScene');
-      });
+        try {
+          if (predicate()) finish(true);
+        } catch (error) {
+          console.error('[CityScene] UI readiness check failed:', error);
+          finish(false);
+        }
+      };
 
+      this._waitCancels.add(cancel);
+      this.game.events.on('poststep', check);
+
+      timeout = setTimeout(
+        () => finish(false),
+        HUD_READY_TIMEOUT
+      );
+
+      check();
+    });
+  }
+
+  cancelUiWaits() {
+    for (const cancel of [...this._waitCancels]) {
+      cancel();
+    }
+
+    this._waitCancels.clear();
+  }
+
+  async setupCityUi() {
+    if (this._uiPromise) return this._uiPromise;
+    if (!this.canUseCity()) return false;
+
+    const token = this._runToken;
+    this.isSettingUpUi = true;
+
+    const promise = (async () => {
+      try {
+        const results = await Promise.all([
+          this.prepareMainHud(token),
+          this.preparePlayerHud(token),
+          this.prepareNewsHud(token)
+        ]);
+
+        if (
+          token !== this._runToken ||
+          !this.canUseCity() ||
+          results.some(result => !result)
+        ) {
+          return false;
+        }
+
+        this.registry.set('currentSceneKey', 'CityScene');
+
+        this.bringSceneToTopIfActive('PlayerHudScene');
+        this.bringSceneToTopIfActive('NewsHud');
+
+        this.uiReady = true;
+        return true;
+      } catch (error) {
+        if (token === this._runToken && !this._cleanupDone) {
+          console.error('[CityScene] UI setup failed:', error);
+        }
+
+        return false;
+      } finally {
+        if (token === this._runToken) {
+          this.isSettingUpUi = false;
+        }
+      }
+    })();
+
+    this._uiPromise = promise;
+
+    try {
+      return await promise;
+    } finally {
+      if (this._uiPromise === promise) {
+        this._uiPromise = null;
+      }
+    }
+  }
+
+  async prepareMainHud(token) {
+    const hud = await this.ensureOverlayScene('UIScene');
+
+    if (!hud || token !== this._runToken) return false;
+
+    const ready = await this.waitForUi(
+      () => (
+        hud.sys.isActive() &&
+        !hud._isDestroyed &&
+        Boolean(hud.dom?.container?.isConnected) &&
+        Boolean(hud.hudStanding)
+      ),
+      token
+    );
+
+    if (!ready || !this.canUseCity()) return false;
+
+    hud.scene.setVisible(true);
+    hud.showHUD();
+
+    return true;
+  }
+
+  async preparePlayerHud(token) {
+    const hud = await this.restorePlayerHud();
+
+    if (!hud || token !== this._runToken) return false;
+
+    const ready = await this.waitForUi(
+      () => hud.sys.isActive() && hud.isHudReady === true,
+      token
+    );
+
+    if (!ready || !this.canUseCity()) return false;
+
+    hud.scene.setVisible(true);
+    hud.setCurrentGameplayScene?.('CityScene');
+    hud.closeAllUIPanels?.();
+    hud.refreshNotebook?.();
+    hud.refreshUI?.();
+
+    ensureHud(this);
+    return true;
+  }
+
+  async prepareNewsHud(token) {
+    const hud = await this.ensureOverlayScene('NewsHud');
+
+    if (!hud || token !== this._runToken) return false;
+
+    const ready = await this.waitForUi(
+      () => hud.sys.isActive() && hud.isUiReady?.() === true,
+      token
+    );
+
+    if (!ready || !this.canUseCity()) return false;
+
+    hud.scene.setVisible(true);
+    hud.setHudVisible(true);
+    hud.setNewspaperVisible(true);
+    hud.setTvVisible(false);
+
+    return true;
+  }
+
+  openInitialOverlayIfNeeded() {
+    if (
+      !this.canUseCity() ||
+      !this.uiReady ||
+      this._initialOverlayOpened
+    ) {
+      return;
+    }
+
+    this._initialOverlayOpened = true;
+
+    if (this.isFinalShowdown) {
+      this.closeAllUIPanels();
+      void this.launchOverlay('ArrestSelectionScene');
       return;
     }
 
     if (this.shouldShowPhoneCallNow()) {
-      this.time.delayedCall(400, () => {
-        if (!this.canUseCity()) return;
+      this.closeAllUIPanels();
 
-        this.closeAllUIPanels();
-
-        if (this.isSceneActive('PhoneCallScene')) {
-          this.scene.bringToTop('PhoneCallScene');
-          return;
-        }
-
-        void this.launchOverlay('PhoneCallScene', {
-          sourceScene: 'CityScene',
-          cityId: this.cityId
-        });
+      void this.launchOverlay('PhoneCallScene', {
+        sourceScene: 'CityScene',
+        cityId: this.cityId
       });
 
       return;
     }
 
     if (this.openDestinationsOnCreate) {
-      this.time.delayedCall(150, () => {
-        if (this.canUseCity()) {
-          this.openDestinationsPanel();
-        }
-      });
+      this.openDestinationsPanel();
     }
   }
 
@@ -410,12 +608,20 @@ export class CityScene extends BaseScene {
 
     this.isTransitioning = false;
 
+    this.cameras.main.resetFX();
+    this.cameras.main.setAlpha(1);
+
     if (!this.cityAmbient?.isPlaying) {
       this.playCityAmbient();
     }
 
     this.refreshEncounterViews();
-    void this.setupCityUi();
+
+    void this.setupCityUi().then(ready => {
+      if (ready && this.canUseCity()) {
+        this.hideUiLoading();
+      }
+    });
   }
 
   onSleep() {
@@ -423,8 +629,11 @@ export class CityScene extends BaseScene {
   }
 
   changeScore(points, label = 'City investigation') {
-    const delta = Number.isFinite(points) ? Math.floor(points) : 0;
-    if (delta === 0) return gameState.score || 0;
+    const delta = Number.isFinite(points)
+      ? Math.floor(points)
+      : 0;
+
+    if (!delta) return gameState.score || 0;
 
     addSessionScore(delta, label);
 
@@ -457,7 +666,10 @@ export class CityScene extends BaseScene {
       {}
     );
 
-    gameState.cityEncounterState = { ...generated, ...existing };
+    gameState.cityEncounterState = {
+      ...generated,
+      ...existing
+    };
 
     if (!Array.isArray(gameState.cityEncounterState[this.cityId])) {
       gameState.cityEncounterState[this.cityId] =
@@ -465,18 +677,72 @@ export class CityScene extends BaseScene {
     }
   }
 
+  ensureHarborEncounter() {
+    if (this.city?.harbor !== true) return;
+
+    const encounters = gameState.cityEncounterState[this.cityId];
+
+    if (!Array.isArray(encounters)) return;
+
+    const existing = encounters.find(encounter => (
+      encounter?.locationId === 'harbor' &&
+      encounter.enabled !== false
+    ));
+
+    if (existing) return;
+
+    const pair = this.city.encounterPool?.find(entry => (
+      entry?.npcId === 'sailor' &&
+      entry?.locationId === 'harbor'
+    )) || {
+      id: `${this.cityId}_sailor_harbor`,
+      npcId: 'sailor',
+      locationId: 'harbor'
+    };
+
+    const occupiedSlots = new Set(
+      encounters
+        .filter(entry => entry?.enabled !== false)
+        .map(entry => entry.slotId)
+    );
+
+    const freeSlot = this.city.encounterSlots?.find(slot => (
+      slot.enabled &&
+      !occupiedSlots.has(slot.id)
+    ));
+
+    const slotId = freeSlot?.id || 'harbor_extra';
+
+    const harbor = {
+      id: buildEncounterId(this.cityId, pair.id, slotId),
+      baseEncounterId: pair.id,
+      cityId: this.cityId,
+      cityX: freeSlot?.cityX ?? 130,
+      cityY: freeSlot?.cityY ?? Math.max(230, this.scale.height - 260),
+      slotId,
+      npcId: pair.npcId,
+      locationId: 'harbor',
+      enabled: true
+    };
+
+    gameState.cityEncounterState = {
+      ...gameState.cityEncounterState,
+      [this.cityId]: [...encounters, harbor]
+    };
+
+    saveGameState();
+  }
+
   getEncounters() {
     const list = gameState.cityEncounterState?.[this.cityId];
 
     if (!Array.isArray(list)) return [];
 
-    return list.filter((encounter) => {
-      return (
-        encounter &&
-        typeof encounter === 'object' &&
-        encounter.enabled !== false
-      );
-    });
+    return list.filter(encounter => (
+      encounter &&
+      typeof encounter === 'object' &&
+      encounter.enabled !== false
+    ));
   }
 
   isEncounterVisited(encounterId) {
@@ -488,7 +754,11 @@ export class CityScene extends BaseScene {
 
     const memory = gameState.encounterMemory;
 
-    if (!memory || typeof memory !== 'object' || Array.isArray(memory)) {
+    if (
+      !memory ||
+      typeof memory !== 'object' ||
+      Array.isArray(memory)
+    ) {
       return null;
     }
 
@@ -511,44 +781,57 @@ export class CityScene extends BaseScene {
   createEncounters() {
     this.destroyEncounterViews();
 
-    this.getEncounters().forEach((encounter) => {
+    for (const encounter of this.getEncounters()) {
       this.createEncounterView(encounter);
-    });
+    }
   }
 
   createEncounterView(encounter) {
-    const textureKey = getNpcTextureKey(encounter.npcId, this.npcTheme);
+    const textureKey = getNpcTextureKey(
+      encounter.npcId,
+      this.npcTheme
+    );
+
     const iconKey = this.textures.exists(textureKey)
       ? textureKey
       : 'fence_w';
 
-    const x = encounter.cityX;
-    const y = encounter.cityY;
-
-    const icon = this.add
-      .image(x, y, iconKey)
-      .setScale(0.45)
+    const icon = this.add.image(
+      encounter.cityX,
+      encounter.cityY,
+      iconKey
+    )
+      .setScale(NPC_SCALE)
+      .setDepth(3)
       .setInteractive({ useHandCursor: true });
 
-    const nameLabel = this.add
-      .text(x, y + 88, getNpcLabel(encounter.npcId), {
-        fontFamily: 'SpecialElite',
-        fontSize: '18px',
-        color: '#ffffff',
-        backgroundColor: '#000000aa',
-        padding: { left: 8, right: 8, top: 4, bottom: 4 }
-      })
-      .setOrigin(0.5);
+    const name = getNpcLabel(encounter.npcId);
 
-    const statusLabel = this.add
-      .text(x, y - 82, '', {
-        fontFamily: 'SpecialElite',
-        fontSize: '14px',
-        color: '#f1e6b8',
-        backgroundColor: '#000000cc',
-        padding: { left: 6, right: 6, top: 3, bottom: 3 }
-      })
-      .setOrigin(0.5)
+    const label = encounter.locationId === 'harbor'
+      ? `${name} · Harbor`
+      : name;
+
+    const nameLabel = this.add.text(0, 0, label, {
+      fontFamily: 'SpecialElite',
+      fontSize: '20px',
+      color: '#ffffff',
+      backgroundColor: '#000000bb',
+      padding: { left: 8, right: 8, top: 4, bottom: 4 },
+      align: 'center',
+      wordWrap: { width: 220 }
+    })
+      .setOrigin(0.5, 0)
+      .setDepth(4);
+
+    const statusLabel = this.add.text(0, 0, '', {
+      fontFamily: 'SpecialElite',
+      fontSize: '15px',
+      color: '#f1e6b8',
+      backgroundColor: '#000000cc',
+      padding: { left: 6, right: 6, top: 3, bottom: 3 }
+    })
+      .setOrigin(0.5, 1)
+      .setDepth(4)
       .setVisible(false);
 
     const view = {
@@ -571,7 +854,7 @@ export class CityScene extends BaseScene {
       this.updateEncounterView(view);
     });
 
-    icon.on('pointerdown', (pointer) => {
+    icon.on('pointerdown', pointer => {
       if (
         pointer?.event?.button !== undefined &&
         pointer.event.button !== 0
@@ -584,6 +867,7 @@ export class CityScene extends BaseScene {
 
     this.encounterViews.push(view);
     this.interactiveObjects.push(icon);
+
     this.updateEncounterView(view);
   }
 
@@ -594,17 +878,49 @@ export class CityScene extends BaseScene {
       this.getEncounterStatus(view.encounter);
 
     view.icon
-      .setScale(view.hovered ? 0.5 : 0.45)
-      .setAlpha(isVisited ? (view.hovered ? 0.78 : 0.62) : 1)
-      .setTint(isVisited ? 0xb8b8b8 : 0xffffff);
+      .setScale(view.hovered ? NPC_HOVER_SCALE : NPC_SCALE)
+      .setAlpha(isVisited ? (view.hovered ? 0.88 : 0.72) : 1)
+      .setTint(isVisited ? 0xc8c8c8 : 0xffffff);
 
-    view.nameLabel.setColor(
-      view.hovered
-        ? (isVisited ? '#f1e6b8' : '#ffe066')
-        : (isVisited ? '#d0d0d0' : '#ffffff')
+    const halfWidth = view.icon.displayWidth / 2;
+    const halfHeight = view.icon.displayHeight / 2;
+
+    const minX = halfWidth + 12;
+    const maxX = this.scale.width - halfWidth - 12;
+
+    const minY = halfHeight + 115;
+    const maxY = this.scale.height - halfHeight - 125;
+
+    view.icon.setPosition(
+      Phaser.Math.Clamp(
+        Number(view.encounter.cityX) || this.scale.width / 2,
+        Math.min(minX, maxX),
+        Math.max(minX, maxX)
+      ),
+      Phaser.Math.Clamp(
+        Number(view.encounter.cityY) || this.scale.height / 2,
+        Math.min(minY, maxY),
+        Math.max(minY, maxY)
+      )
     );
 
-    view.statusLabel.setVisible(isVisited);
+    view.nameLabel
+      .setPosition(
+        view.icon.x,
+        view.icon.y + halfHeight + 10
+      )
+      .setColor(
+        view.hovered
+          ? (isVisited ? '#f1e6b8' : '#ffe066')
+          : (isVisited ? '#d0d0d0' : '#ffffff')
+      );
+
+    view.statusLabel
+      .setPosition(
+        view.icon.x,
+        view.icon.y - halfHeight - 8
+      )
+      .setVisible(isVisited);
 
     if (isVisited) {
       view.statusLabel.setText(
@@ -616,26 +932,26 @@ export class CityScene extends BaseScene {
   }
 
   refreshEncounterViews() {
-    this.encounterViews.forEach((view) => {
+    for (const view of this.encounterViews) {
       view.hovered = false;
       this.updateEncounterView(view);
-    });
+    }
   }
 
   destroyEncounterViews() {
     const views = this.encounterViews.splice(0);
-    const icons = new Set(views.map((view) => view.icon));
+    const icons = new Set(views.map(view => view.icon));
 
     this.interactiveObjects = this.interactiveObjects.filter(
-      (object) => !icons.has(object)
+      object => !icons.has(object)
     );
 
-    views.forEach(({ icon, nameLabel, statusLabel }) => {
-      [icon, nameLabel, statusLabel].forEach((object) => {
+    for (const { icon, nameLabel, statusLabel } of views) {
+      for (const object of [icon, nameLabel, statusLabel]) {
         object?.removeAllListeners?.();
         object?.destroy?.();
-      });
-    });
+      }
+    }
   }
 
   getCityClock() {
@@ -674,9 +990,7 @@ export class CityScene extends BaseScene {
   isLocationOpen(locationId, clock = this.getCityClock()) {
     const allowed = LOCATION_HOURS[locationId];
 
-    if (!allowed) return true;
-
-    return allowed.includes(
+    return !allowed || allowed.includes(
       this.getPartOfDayForHour(clock.hour)
     );
   }
@@ -686,16 +1000,14 @@ export class CityScene extends BaseScene {
 
     if (this.isLocationOpen(locationId, clock)) return 0;
 
-    for (let minutes = 1; minutes <= MINUTES_PER_DAY; minutes += 1) {
+    for (let minutes = 1; minutes <= MINUTES_PER_DAY; minutes++) {
       const total =
         (clock.totalMinutes + minutes) % MINUTES_PER_DAY;
 
-      const futureClock = {
+      if (this.isLocationOpen(locationId, {
         hour: Math.floor(total / 60),
         minute: total % 60
-      };
-
-      if (this.isLocationOpen(locationId, futureClock)) {
+      })) {
         return minutes;
       }
     }
@@ -712,14 +1024,12 @@ export class CityScene extends BaseScene {
 
   formatWaitDuration(minutes) {
     const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
+    const remaining = minutes % 60;
 
-    if (hours && remainingMinutes) {
-      return `${hours}h ${remainingMinutes}m`;
-    }
-
+    if (hours && remaining) return `${hours}h ${remaining}m`;
     if (hours) return `${hours}h`;
-    return `${remainingMinutes}m`;
+
+    return `${remaining}m`;
   }
 
   visitEncounter(encounter) {
@@ -728,19 +1038,19 @@ export class CityScene extends BaseScene {
     this.closeAllUIPanels();
 
     const flags = this.getCityProgressFlags();
-    const dialogueTargetCityId = this.getDialogueTargetCityId(flags);
+    const target = this.getDialogueTargetCityId(flags);
 
     if (!this.isLocationOpen(encounter.locationId)) {
       this.showLocationClosedPopup(
         encounter.locationId,
         encounter,
-        dialogueTargetCityId
+        target
       );
 
       return false;
     }
 
-    return this.openEncounter(encounter, dialogueTargetCityId);
+    return this.openEncounter(encounter, target);
   }
 
   openEncounter(encounter, dialogueTargetCityId) {
@@ -782,30 +1092,24 @@ export class CityScene extends BaseScene {
   }
 
   getDialogueTargetCityId(progressFlags = null) {
-    const routeManager = gameState.routeManager;
+    const manager = gameState.routeManager;
     const flags = progressFlags || this.getCityProgressFlags();
 
-    if (
-      routeManager &&
-      typeof routeManager.getNextExpectedCity === 'function'
-    ) {
-      return routeManager.getNextExpectedCity();
+    if (typeof manager?.getNextExpectedCity === 'function') {
+      return manager.getNextExpectedCity();
     }
 
-    if (flags.isCrimeCity) {
-      return gameState.crimeCityId || null;
-    }
-
-    return gameState.nextTargetCityId || null;
+    return flags.isCrimeCity
+      ? gameState.crimeCityId || null
+      : gameState.nextTargetCityId || null;
   }
 
   getCityProgressFlags() {
-    const routeManager = gameState.routeManager;
+    const manager = gameState.routeManager;
 
     const expectedCityId =
-      routeManager &&
-      typeof routeManager.getNextExpectedCity === 'function'
-        ? routeManager.getNextExpectedCity()
+      typeof manager?.getNextExpectedCity === 'function'
+        ? manager.getNextExpectedCity()
         : gameState.nextTargetCityId || null;
 
     const isCrimeCity = Boolean(
@@ -847,7 +1151,7 @@ export class CityScene extends BaseScene {
   }
 
   openDestinationsPanel() {
-    if (this._cleanupDone) return false;
+    if (this._cleanupDone || !this.uiReady) return false;
 
     const hud = this.getPlayerHudScene();
     hud?.closeAllUIPanels?.();
@@ -868,11 +1172,13 @@ export class CityScene extends BaseScene {
     const key = city.backgroundKey || this.getCityBackgroundKey(city);
 
     if (this.textures.exists(key)) {
-      this.add
-        .image(this.scale.width / 2, this.scale.height / 2, key)
-        .setDisplaySize(this.scale.width, this.scale.height);
+      this.add.image(
+        this.scale.width / 2,
+        this.scale.height / 2,
+        key
+      ).setDisplaySize(this.scale.width, this.scale.height);
     } else {
-      console.warn('Missing city background', key);
+      console.warn('[CityScene] Missing city background:', key);
       this.cameras.main.setBackgroundColor('#20242b');
     }
   }
@@ -882,9 +1188,9 @@ export class CityScene extends BaseScene {
   }
 
   createHeader(city) {
-    this.add
-      .rectangle(0, 0, this.scale.width, 80, 0x000000, 0.45)
-      .setOrigin(0, 0);
+    this.add.rectangle(
+      0, 0, this.scale.width, 80, 0x000000, 0.45
+    ).setOrigin(0);
 
     this.add.text(40, 24, `${city.city}, ${city.country}`, {
       fontFamily: 'SpecialElite',
@@ -899,15 +1205,139 @@ export class CityScene extends BaseScene {
         'The suspect is cornered. Review the evidence and make the arrest.';
     } else if (this.cityCompleted) {
       subtitle = 'City cleared. Choose the next destination on the map.';
-    } else if (this.shouldShowPhoneCallNow()) {
-      subtitle = 'Headquarters is trying to reach you.';
     }
 
     this.add.text(40, 54, subtitle, {
       fontFamily: 'SpecialElite',
       fontSize: '18px',
-      color: '#f1e6b8'
+      color: '#f1e6b8',
+      wordWrap: { width: Math.max(100, this.scale.width - 80) }
     });
+  }
+
+  createHotelIcon() {
+    this.destroyHotelObjects();
+
+    const configured = this.city?.hotel;
+    const x = Number.isFinite(configured?.x)
+      ? configured.x
+      : this.scale.width - 130;
+
+    const y = Number.isFinite(configured?.y)
+      ? configured.y
+      : Math.max(150, this.scale.height - 355);
+
+    let icon;
+
+    if (this.textures.exists('hotel_icon')) {
+      icon = this.add.image(x, y, 'hotel_icon');
+
+      const size = Math.max(icon.width, icon.height, 1);
+      icon.setScale(112 / size);
+    } else {
+      icon = this.add.rectangle(
+        x, y, 112, 86, 0x30271d, 0.96
+      ).setStrokeStyle(3, 0xd4af37);
+    }
+
+    const baseScaleX = icon.scaleX;
+    const baseScaleY = icon.scaleY;
+
+    icon
+      .setDepth(5)
+      .setInteractive({ useHandCursor: true });
+
+    const label = this.add.text(
+      x,
+      y + 66,
+      'HOTEL',
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '22px',
+        color: '#ffffff',
+        backgroundColor: '#000000bb',
+        padding: { x: 10, y: 5 }
+      }
+    )
+      .setOrigin(0.5, 0)
+      .setDepth(6)
+      .setInteractive({ useHandCursor: true });
+
+    const objects = [icon, label];
+
+    if (!this.textures.exists('hotel_icon')) {
+      const symbol = this.add.text(x, y, 'HOTEL', {
+        fontFamily: 'PressStart2P',
+        fontSize: '13px',
+        color: '#f6dc8c'
+      })
+        .setOrigin(0.5)
+        .setDepth(6);
+
+      objects.push(symbol);
+    }
+
+    const enter = pointer => {
+      if (
+        pointer?.event?.button !== undefined &&
+        pointer.event.button !== 0
+      ) {
+        return;
+      }
+
+      this.visitHotel();
+    };
+
+    for (const target of [icon, label]) {
+      target.on('pointerdown', enter);
+
+      target.on('pointerover', () => {
+        if (!this.canStartInteraction()) return;
+
+        icon.setScale(baseScaleX * 1.08, baseScaleY * 1.08);
+        label.setColor('#ffe066');
+      });
+
+      target.on('pointerout', () => {
+        icon.setScale(baseScaleX, baseScaleY);
+        label.setColor('#ffffff');
+      });
+    }
+
+    this.hotelObjects.push(...objects);
+    this.interactiveObjects.push(icon, label);
+  }
+
+  visitHotel() {
+    if (!this.canStartInteraction()) return false;
+
+    this.closeAllUIPanels();
+
+    return this.transitionTo('HotelScene', {
+      cityId: this.cityId,
+      returnScene: 'CityScene',
+      returnData: {
+        cityId: this.cityId,
+        cityCompleted: this.cityCompleted,
+        investigationStatus: this.investigationStatus,
+        pendingPhoneCall: false,
+        openDestinations: false
+      }
+    });
+  }
+
+  destroyHotelObjects() {
+    const objects = this.hotelObjects.splice(0);
+    const removing = new Set(objects);
+
+    this.interactiveObjects = this.interactiveObjects.filter(
+      object => !removing.has(object)
+    );
+
+    for (const object of objects) {
+      object?.removeAllListeners?.();
+      object?.destroy?.();
+    }
   }
 
   createShopIcon() {
@@ -922,15 +1352,13 @@ export class CityScene extends BaseScene {
 
     const icon = hasTexture
       ? this.add.image(position.x, position.y, 'shop_icon')
-      : this.add
-          .circle(
-            position.x,
-            position.y,
-            SHOP_ICON_SIZE / 2,
-            0x806127,
-            0.95
-          )
-          .setStrokeStyle(3, 0xffd166);
+      : this.add.circle(
+          position.x,
+          position.y,
+          SHOP_ICON_SIZE / 2,
+          0x806127,
+          0.95
+        ).setStrokeStyle(3, 0xffd166);
 
     const baseScale = hasTexture
       ? SHOP_ICON_SIZE / Math.max(icon.width, icon.height, 1)
@@ -941,20 +1369,19 @@ export class CityScene extends BaseScene {
       .setDepth(5)
       .setInteractive({ useHandCursor: true });
 
-    const label = this.add
-      .text(
-        position.x,
-        position.y + SHOP_LABEL_OFFSET,
-        `Shop (-${SHOP_TAXI_ENERGY} Energy)`,
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#ffffff',
-          backgroundColor: '#000000aa',
-          padding: { x: 7, y: 4 },
-          align: 'center'
-        }
-      )
+    const label = this.add.text(
+      position.x,
+      position.y + SHOP_LABEL_OFFSET,
+      `Shop (-${SHOP_TAXI_ENERGY} Energy)`,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '18px',
+        color: '#ffffff',
+        backgroundColor: '#000000aa',
+        padding: { x: 7, y: 4 },
+        align: 'center'
+      }
+    )
       .setOrigin(0.5, 0)
       .setDepth(6);
 
@@ -970,7 +1397,7 @@ export class CityScene extends BaseScene {
       label.setColor('#ffffff');
     });
 
-    icon.on('pointerdown', (pointer) => {
+    icon.on('pointerdown', pointer => {
       if (
         pointer?.event?.button !== undefined &&
         pointer.event.button !== 0
@@ -984,13 +1411,14 @@ export class CityScene extends BaseScene {
     this.shopObjects.push(icon, label);
     this.interactiveObjects.push(icon);
 
-    if (!hasTexture) {
-      this.requestShopIconAsset();
-    }
+    if (!hasTexture) this.requestShopIconAsset();
   }
 
   requestShopIconAsset() {
-    if (this.shopAssetHandler || this.textures.exists('shop_icon')) {
+    if (
+      this.shopAssetHandler ||
+      this.textures.exists('shop_icon')
+    ) {
       return;
     }
 
@@ -1019,13 +1447,13 @@ export class CityScene extends BaseScene {
     const removing = new Set(objects);
 
     this.interactiveObjects = this.interactiveObjects.filter(
-      (object) => !removing.has(object)
+      object => !removing.has(object)
     );
 
-    objects.forEach((object) => {
+    for (const object of objects) {
       object?.removeAllListeners?.();
       object?.destroy?.();
-    });
+    }
   }
 
   visitShop() {
@@ -1075,6 +1503,7 @@ export class CityScene extends BaseScene {
           2800,
           '#8b0000'
         );
+
         return false;
       }
 
@@ -1085,22 +1514,29 @@ export class CityScene extends BaseScene {
         return false;
       }
 
-      energy.consumeCustom(SHOP_TAXI_ENERGY, 'Taxi to shop: -3');
+      energy.consumeCustom(
+        SHOP_TAXI_ENERGY,
+        'Taxi to shop: -3'
+      );
+
       saveGameState();
+
       this.getSceneIfActive('UIScene')?.updateEnergy?.();
 
       this.scene.pause();
       return true;
     } catch (error) {
-      console.error('[CityScene] Opening ShopScene failed.', error);
+      console.error('[CityScene] Opening ShopScene failed:', error);
 
       if (this.canUseCity()) {
         this.scene.stop('ShopScene');
+
         this.showMessage(
           'The shop could not be opened.\nCheck the console for details.',
           3200,
           '#8b0000'
         );
+
         void this.setupCityUi();
       }
 
@@ -1121,34 +1557,40 @@ export class CityScene extends BaseScene {
   showMessage(text, duration = 2200, color = '#37474f') {
     if (!text || !this.canUseCity()) return null;
 
-    const popup = this.add
-      .text(this.scale.width / 2, this.scale.height / 2, text, {
+    const popup = this.add.text(
+      this.scale.width / 2,
+      this.scale.height / 2,
+      text,
+      {
         fontFamily: 'SpecialElite',
         fontSize: '19px',
         color: '#ffffff',
         backgroundColor: color,
         padding: { x: 24, y: 16 },
-        align: 'center'
-      })
+        align: 'center',
+        wordWrap: { width: Math.max(100, this.scale.width - 70) }
+      }
+    )
       .setOrigin(0.5)
       .setDepth(200);
 
     this.time.delayedCall(duration, () => {
-      if (popup?.active) {
-        popup.destroy();
-      }
+      if (popup?.active) popup.destroy();
     });
 
     return popup;
   }
 
   transitionTo(sceneKey, data = {}) {
-    if (!sceneKey || this.isTransitioning || !this.canUseCity()) {
+    if (
+      !sceneKey ||
+      this.isTransitioning ||
+      !this.canUseCity()
+    ) {
       return false;
     }
 
     this.isTransitioning = true;
-    this.cameras.main.fadeOut(300, 0, 0, 0);
 
     this.cameras.main.once(
       Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
@@ -1159,13 +1601,13 @@ export class CityScene extends BaseScene {
         }
 
         void this.goto(sceneKey, data)
-          .then((started) => {
+          .then(started => {
             if (!started && !this._cleanupDone) {
               this.isTransitioning = false;
               this.cameras.main.fadeIn(200, 0, 0, 0);
             }
           })
-          .catch((error) => {
+          .catch(error => {
             if (!this._cleanupDone) {
               console.error(
                 `[CityScene] Transition to "${sceneKey}" failed:`,
@@ -1179,6 +1621,7 @@ export class CityScene extends BaseScene {
       }
     );
 
+    this.cameras.main.fadeOut(300, 0, 0, 0);
     return true;
   }
 
@@ -1189,16 +1632,12 @@ export class CityScene extends BaseScene {
   ) {
     if (!this.canStartInteraction()) return;
 
-    const width = this.scale.width;
-    const height = this.scale.height;
-    const popupObjects = [];
+    const { width, height } = this.scale;
+    const objects = [];
 
     const clock = this.getCityClock();
     const waitMinutes = this.getMinutesUntilOpening(locationId);
     const allowed = (LOCATION_HOURS[locationId] || []).join(', ');
-
-    const currentPartOfDay =
-      this.getPartOfDayForHour(clock.hour);
 
     const waitLabel = waitMinutes === null
       ? 'Opening unavailable'
@@ -1206,44 +1645,49 @@ export class CityScene extends BaseScene {
         ? 'Enter now'
         : `Wait ${this.formatWaitDuration(waitMinutes)}`;
 
-    const overlay = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.7)
-      .setOrigin(0, 0)
+    const overlay = this.add.rectangle(
+      0, 0, width, height, 0x000000, 0.7
+    )
+      .setOrigin(0)
       .setDepth(99)
       .setInteractive();
 
-    const popupBg = this.add
-      .rectangle(width / 2, height / 2, 500, 300, 0x111111, 0.95)
+    const popupBg = this.add.rectangle(
+      width / 2, height / 2, 500, 300, 0x111111, 0.95
+    )
       .setStrokeStyle(4, 0xff0000)
       .setDepth(100)
       .setInteractive();
 
-    const warningText = this.add
-      .text(
-        width / 2,
-        height / 2 - 50,
-        [
-          'Location is currently closed.',
-          `Open: ${allowed}`,
-          `Current: ${this.formatCityClock(clock)} (${currentPartOfDay})`
-        ].join('\n'),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '20px',
-          color: '#ffffff',
-          align: 'center',
-          wordWrap: { width: 460 }
-        }
-      )
+    const warningText = this.add.text(
+      width / 2,
+      height / 2 - 50,
+      [
+        'Location is currently closed.',
+        `Open: ${allowed}`,
+        `Current: ${this.formatCityClock(clock)} (${this.getPartOfDayForHour(clock.hour)})`
+      ].join('\n'),
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '20px',
+        color: '#ffffff',
+        align: 'center',
+        wordWrap: { width: 460 }
+      }
+    )
       .setOrigin(0.5)
       .setDepth(101);
 
-    const waitBtn = this.add
-      .text(width / 2, height / 2 + 30, waitLabel, {
+    const waitBtn = this.add.text(
+      width / 2,
+      height / 2 + 30,
+      waitLabel,
+      {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: waitMinutes === null ? '#777777' : '#ffcc00'
-      })
+      }
+    )
       .setOrigin(0.5)
       .setDepth(101);
 
@@ -1251,17 +1695,21 @@ export class CityScene extends BaseScene {
       waitBtn.setInteractive({ useHandCursor: true });
     }
 
-    const cancelBtn = this.add
-      .text(width / 2, height / 2 + 80, 'Return', {
+    const cancelBtn = this.add.text(
+      width / 2,
+      height / 2 + 80,
+      'Return',
+      {
         fontFamily: 'SpecialElite',
         fontSize: '22px',
         color: '#aaaaaa'
-      })
+      }
+    )
       .setOrigin(0.5)
       .setDepth(101)
       .setInteractive({ useHandCursor: true });
 
-    popupObjects.push(
+    objects.push(
       overlay,
       popupBg,
       warningText,
@@ -1271,17 +1719,17 @@ export class CityScene extends BaseScene {
 
     const popupState = {
       cleanup: null,
-      objects: popupObjects,
+      objects,
       busy: false
     };
 
     const cleanupPopup = () => {
-      popupObjects.forEach((object) => {
+      for (const object of objects) {
         if (object?.active) {
           object.removeAllListeners?.();
           object.destroy();
         }
-      });
+      }
 
       if (this.activePopup === popupState) {
         this.activePopup = null;
@@ -1298,7 +1746,7 @@ export class CityScene extends BaseScene {
     overlay.on('pointerdown', cancelPopup);
     cancelBtn.on('pointerdown', cancelPopup);
 
-    waitBtn.on('pointerdown', (pointer) => {
+    waitBtn.on('pointerdown', pointer => {
       if (
         pointer?.event?.button !== undefined &&
         pointer.event.button !== 0
@@ -1335,7 +1783,6 @@ export class CityScene extends BaseScene {
           getGameTimeManager().handleAdvanceTime(0, minutesToWait);
         }
 
-        // Zmiana czasu może uruchomić koniec sprawy lub zmianę sceny.
         if (
           !this.canUseCity() ||
           this.activePopup !== popupState
@@ -1349,17 +1796,14 @@ export class CityScene extends BaseScene {
         }
 
         cleanupPopup();
-
         this.openEncounter(encounterData, dialogueTargetCityId);
       } catch (error) {
-        console.error('[CityScene] Waiting until opening failed:', error);
+        console.error('[CityScene] Waiting failed:', error);
 
         if (
           this.canUseCity() &&
           this.activePopup === popupState
         ) {
-          // Nie ponawiamy automatycznie przesunięcia czasu:
-          // zegar mógł już zostać zmieniony przed wystąpieniem błędu.
           cleanupPopup();
 
           this.showMessage(
@@ -1379,8 +1823,15 @@ export class CityScene extends BaseScene {
   cleanupScene() {
     this.unbindLifecycleListeners();
 
+    this._runToken = null;
+    this.cancelUiWaits();
+
     this.isSettingUpUi = false;
     this.isTransitioning = false;
+    this.uiReady = false;
+    this._uiPromise = null;
+
+    this.hideUiLoading();
 
     this.activePopup?.cleanup?.();
     this.activePopup = null;
@@ -1390,15 +1841,17 @@ export class CityScene extends BaseScene {
         this.shopAssetHandler.event,
         this.shopAssetHandler.callback
       );
+
       this.shopAssetHandler = null;
     }
 
     this.destroyEncounterViews();
     this.destroyShopObjects();
+    this.destroyHotelObjects();
 
-    this.interactiveObjects.forEach((object) => {
+    for (const object of this.interactiveObjects) {
       object?.removeAllListeners?.();
-    });
+    }
 
     this.interactiveObjects = [];
     this.stopCityAmbient();
