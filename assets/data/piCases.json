@@ -64,32 +64,40 @@
       "initialLinks": []
     },
     {
-      "id": "pi_missing_suitcase",
+      "id": "pi_dead_men_calling",
       "kind": "side",
-      "title": "The Missing Suitcase",
-      "description": "Locate the brown suitcase reported missing from the station lockers.",
+      "title": "Dead Men Calling",
+      "description": "Investigate three voicemail messages that appear to contain the voice of a deceased man.",
       "requiresBoard": true,
       "reward": 120,
       "objectives": [
         {
+          "id": "read_client_email",
+          "text": "Read the client’s email and obtain her contact details."
+        },
+        {
+          "id": "review_recordings",
+          "text": "Review all three recent voicemail transcripts."
+        },
+        {
           "id": "contact_client",
-          "text": "Find a way to contact the advertiser."
+          "text": "Complete the telephone interview with Margaret Vale."
         },
         {
-          "id": "investigate_disappearance",
-          "text": "Investigate the disappearance of the suitcase."
+          "id": "compare_archive",
+          "text": "Obtain Edward’s older recordings and compare them with the recent messages."
         },
         {
-          "id": "recover_suitcase",
-          "text": "Recover the suitcase and arrange its return."
+          "id": "identify_caller",
+          "text": "Establish who is calling and why they want the blue folder."
         }
       ],
       "initialItems": [
         {
           "id": "classified-ad",
           "type": "note",
-          "label": "Missing suitcase. No questions.",
-          "text": "A concerned traveller is offering $120 for the return of a brown suitcase missing from the station lockers. The suitcase must remain unopened.",
+          "label": "Dead Men Calling",
+          "text": "A widow reports receiving messages in what sounds like her late husband’s voice. Read the client’s email before drawing conclusions.",
           "metaText": "Source: Classifieds",
           "color": "yellow",
           "x": 100,
@@ -100,10 +108,10 @@
           "editableByPlayer": false
         },
         {
-          "id": "client-lead",
+          "id": "dead_men_open_question",
           "type": "note",
-          "label": "Who placed the advertisement?",
-          "text": "The advertiser has not provided a direct telephone number.",
+          "label": "A voice is not an identity",
+          "text": "Are the recent messages genuine speech, reused recordings, an imitation or something else? The advertisement does not establish the answer.",
           "metaText": "Open question",
           "color": "blue",
           "x": 420,
@@ -114,7 +122,11 @@
           "editableByPlayer": false
         }
       ],
-      "initialLinks": []
+      "initialLinks": [],
+      "metadata": {
+        "contentVersion": 1,
+        "implementedStage": "client_interview"
+      }
     },
     {
       "id": "pi_stolen_alibi",

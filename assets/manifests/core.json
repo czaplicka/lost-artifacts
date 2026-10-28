@@ -482,6 +482,30 @@
         "ui"
       ]
     },
+        {
+      "key": "tv1",
+      "url": "assets/audio/tv1.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+            {
+      "key": "tv2",
+      "url": "assets/audio/tv2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+                {
+      "key": "ad_jingle",
+      "url": "assets/audio/ad_jingle.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
     {
       "key": "themeGame",
       "url": "assets/audio/game.mp3",

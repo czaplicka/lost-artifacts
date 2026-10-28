@@ -1,0 +1,102 @@
+RECONSTRUCTION AUDIT
+Pairs: 264
+Passed: 250
+Failed or timed out: 14
+
+FAIL | global | dockyard | Alexandra Ivanova
+Skills: Martial arts, Firearms, Tactical planning
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: movement, security, distraction, escape, access, removal, confrontation].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: movement, confrontation, escape, access, security, distraction, removal].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: escape, removal, distraction, access, movement, security, confrontation].
+
+FAIL | global | dockyard | Anna Bocian
+Skills: History, Museum studies, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: removal, target, access, cover]; Research: 21 candidates [groups: access, escape, cover_up, target, movement, distraction, removal].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: cover, removal, access, target]; Research: 21 candidates [groups: access, escape, removal, movement, cover_up, target, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: removal, cover, access, target]; Research: 21 candidates [groups: escape, cover_up, target, access, distraction, movement, removal].
+
+FAIL | global | louvre | Anne Apple
+Skills: Hacking, Pickpocket, Manipulation
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+
+FAIL | global | louvre | Rebecca Muller
+Skills: Forgery, Art history, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: distraction, target, cover, movement].
+
+FAIL | global | louvre | Anna Bocian
+Skills: History, Museum studies, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: cover, target, removal, access]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: access, removal, target, cover]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: access, cover, removal, target]; Research: 7 candidates [groups: distraction, target, cover, movement].
+
+FAIL | global | louvre | Aleksander Petrov
+Skills: Lockpicking, Disguise, Pickpocketing
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: removal, access, security].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: security, removal, access].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: removal, access, security].
+
+FAIL | global | tower | Alexandra Ivanova
+Skills: Martial arts, Firearms, Tactical planning
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: distraction, movement, security, access, removal, cover, escape, vertical_access].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: movement, distraction, access, security, removal, escape, cover, vertical_access].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: distraction, movement, security, vertical_access, cover, access, escape, removal].
+
+FAIL | scene-file | dockyard | Alexandra Ivanova
+Skills: Martial arts, Firearms, Tactical planning
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: movement, security, distraction, escape, access, removal, confrontation].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: movement, confrontation, escape, access, security, distraction, removal].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 57 candidates [groups: escape, removal, distraction, access, movement, security, confrontation].
+
+FAIL | scene-file | dockyard | Anna Bocian
+Skills: History, Museum studies, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: removal, target, access, cover]; Research: 21 candidates [groups: access, escape, cover_up, target, movement, distraction, removal].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: cover, removal, access, target]; Research: 21 candidates [groups: access, escape, removal, movement, cover_up, target, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "dockyard", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 7 candidates [groups: removal, cover, access, target]; Research: 21 candidates [groups: escape, cover_up, target, access, distraction, movement, removal].
+
+FAIL | scene-file | louvre | Anne Apple
+Skills: Hacking, Pickpocket, Manipulation
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anne_apple". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocket: 0 candidates [groups: none]; Manipulation: 3 candidates [groups: security, distraction]; Hacking: 24 candidates [groups: security, access, movement].
+
+FAIL | scene-file | louvre | Rebecca Muller
+Skills: Forgery, Art history, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "rebecca_muller". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Forgery: 0 candidates [groups: none]; Art history: 2 candidates [groups: target]; Research: 7 candidates [groups: distraction, target, cover, movement].
+
+FAIL | scene-file | louvre | Anna Bocian
+Skills: History, Museum studies, Research
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: cover, target, removal, access]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: access, removal, target, cover]; Research: 7 candidates [groups: cover, target, movement, distraction].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "anna_bocian". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: History: 0 candidates [groups: none]; Museum studies: 5 candidates [groups: access, cover, removal, target]; Research: 7 candidates [groups: distraction, target, cover, movement].
+
+FAIL | scene-file | louvre | Aleksander Petrov
+Skills: Lockpicking, Disguise, Pickpocketing
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: removal, access, security].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: security, removal, access].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "louvre", thief "aleksander_petrov". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Pickpocketing: 0 candidates [groups: none]; Disguise: 4 candidates [groups: cover, access]; Lockpicking: 9 candidates [groups: removal, access, security].
+
+FAIL | scene-file | tower | Alexandra Ivanova
+Skills: Martial arts, Firearms, Tactical planning
+
+Seed 1: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: distraction, movement, security, access, removal, cover, escape, vertical_access].
+Seed 42: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: movement, distraction, access, security, removal, escape, cover, vertical_access].
+Seed 2026: ReconstructionGenerator: could not build reconstruction for scene "tower", thief "alexandra_ivanova". No valid combination of distinct skills, solution items, and question groups was found. Candidate counts: Martial arts: 2 candidates [groups: distraction]; Firearms: 2 candidates [groups: distraction]; Tactical planning: 39 candidates [groups: distraction, movement, security, vertical_access, cover, access, escape, removal].

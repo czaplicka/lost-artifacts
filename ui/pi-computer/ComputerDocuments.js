@@ -1,9 +1,10 @@
 import { COLORS, FONTS } from './ComputerTheme.js';
 import { BorrowedAlibiMail } from './BorrowedAlibiMail.js';
 import { AlibiReportUI } from './AlibiReportUI.js';
+import { installDeadMenMail } from '../../managers/DeadMenCallingService.js';
 
 export class ComputerDocuments {
- constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);}
+ constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);}
  getMail(){
   const supplied=this.ui.options.getMail?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);
   const data=this.ui.scene.cache.json.get('piOfficeMail');return Array.isArray(data?.messages)?data.messages.filter(i=>i&&i.id):[];

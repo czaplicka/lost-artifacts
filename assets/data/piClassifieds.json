@@ -1,13 +1,13 @@
 {
   "advertisements": [
     {
-      "id": "missing_suitcase",
+      "id": "dead_men_calling",
       "kind": "pi",
-      "title": "Missing suitcase. No questions.",
-      "contact": "A concerned traveller",
-      "description": "A brown suitcase disappeared from the station lockers.\n\nFind it unopened. If it starts ticking, that is probably the clock.",
+      "title": "Dead Men Calling",
+      "contact": "A concerned widow",
+      "description": "My late husband keeps leaving messages. The phone company says this is not covered by my plan.\n\nHe wants me to find a document and tell no one. I would like to know who is really calling. Preferably someone alive.",
       "reward": 120,
-      "missionId": "pi_missing_suitcase"
+      "missionId": "pi_dead_men_calling"
     },
     {
       "id": "stolen_alibi",

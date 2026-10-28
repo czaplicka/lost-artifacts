@@ -1,0 +1,148 @@
+{
+  "assets": [
+    {
+      "key": "Reed_conference",
+      "url": "assets/side_quests/Reed/conference.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "Reed_terrace",
+      "url": "assets/side_quests/Reed/terrace.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_administration",
+      "url": "assets/side_quests/Halloween/dead_mail_administration.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_camera",
+      "url": "assets/side_quests/Halloween/dead_mail_camera.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_cemetery_day",
+      "url": "assets/side_quests/Halloween/dead_mail_cemetery_day.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_cemetery_night",
+      "url": "assets/side_quests/Halloween/dead_mail_cemetery_night.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_chapel_interior",
+      "url": "assets/side_quests/Halloween/dead_mail_chapel_interior.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_delivery_photo",
+      "url": "assets/side_quests/Halloween/dead_mail_delivery_photo.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_edwin",
+      "url": "assets/side_quests/Halloween/dead_mail_edwin.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_florence",
+      "url": "assets/side_quests/Halloween/dead_mail_florence.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_gate_collection",
+      "url": "assets/side_quests/Halloween/dead_mail_gate_collection.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_ghost",
+      "url": "assets/side_quests/Halloween/dead_mail_ghost.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_milo",
+      "url": "assets/side_quests/Halloween/dead_mail_milo.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_parcel",
+      "url": "assets/side_quests/Halloween/dead_mail_parcel.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_rose",
+      "url": "assets/side_quests/Halloween/dead_mail_rose.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_shed_interior",
+      "url": "assets/side_quests/Halloween/dead_mail_shed_interior.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_tessa",
+      "url": "assets/side_quests/Halloween/dead_mail_tessa.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "dead_mail_vale_reveal",
+      "url": "assets/side_quests/Halloween/dead_mail_vale_reveal.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    }
+  ]
+}

@@ -1,9 +1,11 @@
 import { audioManager } from '../../managers/AudioManager.js';
 
-/**
- * Proceduralne dźwięki telewizora (WebAudio), bo w assets/audio nie ma plików TV.
- * Szanuje mute i głośność SFX z audioManager. Gdy brak WebAudio, nic nie robi.
- */
+const SEGMENT_AUDIO = {
+  filler: 'tv1',
+  ad: 'ad_jingle',
+  news: 'tv2'
+};
+
 export class TvBroadcastAudio {
   constructor(scene) {
     this.scene = scene;
@@ -13,12 +15,108 @@ export class TvBroadcastAudio {
     this.humNodes = null;
     this.live = new Set();
     this.destroyed = false;
+
+    this.segmentSound = null;
+    this.segmentToken = null;
+    this.warned = new Set();
+
+    scene.events.on('update', this.syncSegment, this);
+  }
+
+  syncSegment() {
+    const scene = this.scene;
+
+    if (this.destroyed || !scene) return;
+
+    if (
+      scene.isClosing ||
+      scene.isTransitioning ||
+      !scene.hasStarted
+    ) {
+      this.stopSegment();
+      this.segmentToken = null;
+      return;
+    }
+
+    const segment = scene.currentSegment;
+    const key = SEGMENT_AUDIO[segment?.type];
+
+    const token = segment
+      ? `${scene.currentSegmentIndex}:${segment.id || segment.type}`
+      : null;
+
+    if (token !== this.segmentToken) {
+      this.stopSegment();
+      this.segmentToken = token;
+
+      if (key && scene.cache.audio.exists(key)) {
+        try {
+          const sound = scene.sound.add(key, {
+            loop: false,
+            volume: this.getVolume()
+          });
+
+          this.segmentSound = sound;
+          sound.play();
+        } catch (error) {
+          console.warn(
+            '[TV] Could not play audio:',
+            key,
+            error
+          );
+        }
+      } else if (key && !this.warned.has(key)) {
+        this.warned.add(key);
+
+        console.warn(
+          '[TV] Audio missing from cache:',
+          key
+        );
+      }
+    }
+
+    const sound = this.segmentSound;
+
+    if (sound && !sound.pendingRemove) {
+      sound.setVolume(this.getVolume());
+
+      if (scene.isBroadcastPaused && sound.isPlaying) {
+        sound.pause();
+      } else if (
+        !scene.isBroadcastPaused &&
+        sound.isPaused
+      ) {
+        sound.resume();
+      }
+    }
+
+    const ctx = this.getContext();
+
+    if (ctx && this.humNodes) {
+      this.humNodes.gain.gain.setTargetAtTime(
+        this.getVolume(0.05),
+        ctx.currentTime,
+        0.05
+      );
+    }
+  }
+
+  stopSegment() {
+    const sound = this.segmentSound;
+    this.segmentSound = null;
+
+    if (sound && !sound.pendingRemove) {
+      sound.stop();
+      sound.destroy();
+    }
   }
 
   getContext() {
     const ctx = this.scene?.sound?.context;
 
-    return ctx && typeof ctx.createGain === 'function' ? ctx : null;
+    return ctx && typeof ctx.createGain === 'function'
+      ? ctx
+      : null;
   }
 
   ensure() {
@@ -43,40 +141,58 @@ export class TvBroadcastAudio {
     try {
       if (audioManager.getMuted?.()) return 0;
 
-      let volume = Number(audioManager.getSfxVolume?.());
+      let volume = Number(
+        audioManager.getSfxVolume?.()
+      );
 
-      if (!Number.isFinite(volume)) volume = 0.5;
+      if (!Number.isFinite(volume)) {
+        volume = 0.5;
+      }
 
-      return Math.max(0, Math.min(1, volume * this.level * scale));
-    } catch (error) {
+      return Math.max(
+        0,
+        Math.min(1, volume * this.level * scale)
+      );
+    } catch {
       return 0.3 * this.level * scale;
     }
   }
 
   setLevel(level) {
-    this.level = Math.max(0, Math.min(1, level));
+    this.level = Math.max(
+      0,
+      Math.min(1, Number(level) || 0)
+    );
 
-    if (this.humNodes) {
-      const ctx = this.getContext();
+    this.segmentSound?.setVolume(
+      this.getVolume()
+    );
 
-      if (ctx) {
-        this.humNodes.gain.gain.setTargetAtTime(
-          this.getVolume(0.05),
-          ctx.currentTime,
-          0.05
-        );
-      }
+    const ctx = this.getContext();
+
+    if (ctx && this.humNodes) {
+      this.humNodes.gain.gain.setTargetAtTime(
+        this.getVolume(0.05),
+        ctx.currentTime,
+        0.05
+      );
     }
   }
 
   getNoiseBuffer(ctx) {
-    if (this.noiseBuffer) return this.noiseBuffer;
+    if (this.noiseBuffer) {
+      return this.noiseBuffer;
+    }
 
-    const length = ctx.sampleRate;
-    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const buffer = ctx.createBuffer(
+      1,
+      ctx.sampleRate,
+      ctx.sampleRate
+    );
+
     const data = buffer.getChannelData(0);
 
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < data.length; i++) {
       data[i] = Math.random() * 2 - 1;
     }
 
@@ -85,16 +201,16 @@ export class TvBroadcastAudio {
     return buffer;
   }
 
-  track(node) {
+  track(node, connections = []) {
     this.live.add(node);
 
     node.onended = () => {
       this.live.delete(node);
 
-      try {
-        node.disconnect();
-      } catch (error) {
-        /* ignore */
+      for (const item of [node, ...connections]) {
+        try {
+          item.disconnect();
+        } catch {}
       }
     };
   }
@@ -118,24 +234,36 @@ export class TvBroadcastAudio {
       filter.Q.value = 0.4;
 
       const gain = ctx.createGain();
+
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(volume * 0.6, t + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      gain.gain.exponentialRampToValueAtTime(
+        volume * 0.6,
+        t + 0.012
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t + duration
+      );
 
       source.connect(filter);
       filter.connect(gain);
       gain.connect(this.getOutput(ctx));
 
-      this.track(source);
+      this.track(source, [filter, gain]);
 
       source.start(t);
       source.stop(t + duration + 0.05);
-    } catch (error) {
-      /* optional */
-    }
+    } catch {}
   }
 
-  tone(freq, duration = 0.1, type = 'sine', strength = 0.4) {
+  tone(
+    freq,
+    duration = 0.1,
+    type = 'sine',
+    strength = 0.4
+  ) {
     try {
       const ctx = this.ensure();
       const volume = this.getVolume(strength);
@@ -149,23 +277,36 @@ export class TvBroadcastAudio {
       osc.frequency.setValueAtTime(freq, t);
 
       const gain = ctx.createGain();
+
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(volume * 0.5, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      gain.gain.exponentialRampToValueAtTime(
+        volume * 0.5,
+        t + 0.01
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t + duration
+      );
 
       osc.connect(gain);
       gain.connect(this.getOutput(ctx));
 
-      this.track(osc);
+      this.track(osc, [gain]);
 
       osc.start(t);
       osc.stop(t + duration + 0.05);
-    } catch (error) {
-      /* optional */
-    }
+    } catch {}
   }
 
-  sweep(from, to, duration = 0.25, type = 'sawtooth', strength = 0.3) {
+  sweep(
+    from,
+    to,
+    duration = 0.25,
+    type = 'sawtooth',
+    strength = 0.3
+  ) {
     try {
       const ctx = this.ensure();
       const volume = this.getVolume(strength);
@@ -176,24 +317,39 @@ export class TvBroadcastAudio {
 
       const osc = ctx.createOscillator();
       osc.type = type;
-      osc.frequency.setValueAtTime(Math.max(20, from), t);
-      osc.frequency.exponentialRampToValueAtTime(Math.max(20, to), t + duration);
+
+      osc.frequency.setValueAtTime(
+        Math.max(20, from),
+        t
+      );
+
+      osc.frequency.exponentialRampToValueAtTime(
+        Math.max(20, to),
+        t + duration
+      );
 
       const gain = ctx.createGain();
+
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(volume * 0.4, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+      gain.gain.exponentialRampToValueAtTime(
+        volume * 0.4,
+        t + 0.02
+      );
+
+      gain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        t + duration
+      );
 
       osc.connect(gain);
       gain.connect(this.getOutput(ctx));
 
-      this.track(osc);
+      this.track(osc, [gain]);
 
       osc.start(t);
       osc.stop(t + duration + 0.05);
-    } catch (error) {
-      /* optional */
-    }
+    } catch {}
   }
 
   beep(freq = 1000, duration = 0.25) {
@@ -205,12 +361,28 @@ export class TvBroadcastAudio {
   }
 
   powerOn() {
-    this.sweep(70, 2600, 0.28, 'sawtooth', 0.35);
+    this.sweep(
+      70,
+      2600,
+      0.28,
+      'sawtooth',
+      0.35
+    );
+
     this.staticBurst(0.12, 0.35);
   }
 
   powerOff() {
-    this.sweep(2000, 50, 0.24, 'sawtooth', 0.35);
+    this.stopSegment();
+
+    this.sweep(
+      2000,
+      50,
+      0.24,
+      'sawtooth',
+      0.35
+    );
+
     this.staticBurst(0.08, 0.3);
   }
 
@@ -223,8 +395,16 @@ export class TvBroadcastAudio {
       if (!ctx) return;
 
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(this.getVolume(0.05), ctx.currentTime + 0.4);
+
+      gain.gain.setValueAtTime(
+        0.0001,
+        ctx.currentTime
+      );
+
+      gain.gain.linearRampToValueAtTime(
+        this.getVolume(0.05),
+        ctx.currentTime + 0.4
+      );
 
       const low = ctx.createOscillator();
       low.type = 'sine';
@@ -241,60 +421,68 @@ export class TvBroadcastAudio {
       low.start();
       high.start();
 
-      this.humNodes = { low, high, gain };
-    } catch (error) {
-      /* optional */
-    }
+      this.humNodes = {
+        low,
+        high,
+        gain
+      };
+    } catch {}
   }
 
   stopHum() {
     if (!this.humNodes) return;
 
     const { low, high, gain } = this.humNodes;
-
     this.humNodes = null;
 
     try {
-      const ctx = this.getContext();
-      const t = ctx ? ctx.currentTime : 0;
+      const t = this.getContext()?.currentTime || 0;
 
       gain.gain.cancelScheduledValues(t);
-      gain.gain.setTargetAtTime(0.0001, t, 0.05);
+
+      gain.gain.setTargetAtTime(
+        0.0001,
+        t,
+        0.05
+      );
+
+      low.onended = () => {
+        for (const node of [low, high, gain]) {
+          try {
+            node.disconnect();
+          } catch {}
+        }
+      };
 
       low.stop(t + 0.3);
       high.stop(t + 0.3);
-
-      low.onended = () => {
-        try {
-          low.disconnect();
-          high.disconnect();
-          gain.disconnect();
-        } catch (error) {
-          /* ignore */
-        }
-      };
-    } catch (error) {
-      /* ignore */
-    }
+    } catch {}
   }
 
   destroy() {
+    if (this.destroyed) return;
+
     this.destroyed = true;
 
+    this.scene?.events.off(
+      'update',
+      this.syncSegment,
+      this
+    );
+
+    this.stopSegment();
     this.stopHum();
 
     for (const node of this.live) {
       try {
         node.stop();
-        node.disconnect();
-      } catch (error) {
-        /* ignore */
-      }
+      } catch {}
     }
 
     this.live.clear();
 
     this.noiseBuffer = null;
+    this.segmentToken = null;
     this.scene = null;
   }
 }

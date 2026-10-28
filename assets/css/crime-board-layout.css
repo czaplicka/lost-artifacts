@@ -1,40 +1,204 @@
-/* Keep deduction controls out of the board/sidebar grid cells. */
+/* Crime board layout: compact menus, horizontal motive checks. */
 .crime-board-app {
-  grid-template-rows: auto minmax(0, 1fr);
-}
-.crime-board-app > .crime-board-deduction {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  min-width: 0;
-  padding-right: 90px !important;
+  position: relative;
+  grid-template-rows: minmax(0, 1fr);
 }
 .crime-board-app > .crime-board-sidebar {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1;
+  z-index: 1100;
 }
 .crime-board-app > .crime-board-shell {
   grid-column: 2;
-  grid-row: 2;
+  grid-row: 1;
+  position: relative;
+  min-width: 0;
   overflow: auto;
 }
-/* Preserve the original card coordinates on smaller viewports. */
 .crime-board-shell > .crime-board {
   min-width: 1440px;
   min-height: 1000px;
 }
-.crime-board-ui-root {
-  overflow: auto;
+.crime-board-ui-root { overflow: auto; }
+.crime-board-app [hidden] { display: none !important; }
+
+/* Small Board button instead of the rotated side tab. */
+.crime-board-app > .crime-board-sidebar-tab {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1400;
+  transform: none;
+  transform-origin: center;
+  width: auto;
+  min-width: 76px;
+  min-height: 36px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.2;
 }
-/* Author display rules must not override the hidden attribute. */
-.crime-board-app [hidden] {
+.crime-board-app > .crime-board-sidebar-tab:hover {
+  transform: none;
+}
+
+/* Both details elements float above the board; neither consumes a grid row. */
+.crime-board-app > .crime-board-workspace-panel,
+.crime-board-shell > .crime-board-workspace-panel {
+  position: absolute !important;
+  top: 12px;
+  bottom: auto;
+  width: max-content !important;
+  max-width: 180px;
+  min-width: 0;
+  height: auto;
+  margin: 0 !important;
+  padding: 0;
+  align-self: start;
+  justify-self: start;
+  z-index: 1300 !important;
+  border: 1px solid #806645;
+  border-radius: 8px;
+  background: #29231f;
+  color: #f4e6cb;
+  overflow: visible;
+  font: 14px SpecialElite, monospace;
+}
+.crime-board-shell > .crime-board-workspace-panel { left: 104px; }
+.crime-board-app > .crime-board-workspace-panel { left: 248px; }
+.crime-board-app .crime-board-workspace-panel > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 9px 12px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  list-style: none;
+  font-size: 0;
+}
+.crime-board-workspace-panel > summary::-webkit-details-marker { display: none; }
+.crime-board-app .crime-board-workspace-panel > summary::before {
+  content: '+';
+  font-size: 16px;
+  line-height: 1;
+}
+.crime-board-app .crime-board-workspace-panel[open] > summary::before { content: '-'; }
+.crime-board-shell > .crime-board-workspace-panel > summary::after {
+  content: 'Tools';
+  font-size: 14px;
+}
+.crime-board-app > .crime-board-workspace-panel > summary::after {
+  content: 'Motive checks';
+  font-size: 14px;
+}
+.crime-board-workspace-panel > summary:focus-visible {
+  outline: 2px solid #ffd36c;
+  outline-offset: 3px;
+}
+.crime-board-app .crime-board-workspace-panel:not([open]) > .crime-board-workspace-panel__content {
   display: none !important;
 }
+.crime-board-app .crime-board-workspace-panel[open] > .crime-board-workspace-panel__content {
+  position: absolute;
+  top: calc(100% + 6px);
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+  gap: 12px;
+  max-height: min(440px, 65vh);
+  padding: 12px;
+  margin: 0;
+  background: #29231f;
+  color: #f4e6cb;
+  border: 1px solid #806645;
+  border-radius: 8px;
+  box-shadow: 0 12px 26px rgba(0,0,0,.45);
+  overflow: auto;
+  box-sizing: border-box;
+}
+.crime-board-shell > .crime-board-workspace-panel > .crime-board-workspace-panel__content {
+  left: -88px;
+  width: min(380px, calc(100vw - 72px));
+}
+.crime-board-app > .crime-board-workspace-panel > .crime-board-workspace-panel__content {
+  left: -232px;
+  width: min(660px, calc(100vw - 72px));
+}
+
+/* Horizontal layout, including the existing inline-styled deduction panel. */
+.crime-board-app .crime-board-deduction {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  align-items: center;
+  gap: 10px 16px;
+  width: 100% !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 12px !important;
+  box-sizing: border-box;
+}
+.crime-board-app .crime-board-deduction > p:first-child {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  margin: 0 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.crime-board-app .crime-board-deduction > button {
+  grid-column: 2;
+  grid-row: 1;
+  width: auto !important;
+  max-width: 260px;
+  min-height: 36px;
+  margin: 0;
+  white-space: normal;
+  line-height: 1.35;
+}
+.crime-board-app .crime-board-deduction > p[role='status'] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+  margin: 0 !important;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+/* Fallback if the deduction panel has not been wrapped by BoardWorkspace. */
+.crime-board-app > .crime-board-deduction {
+  position: absolute !important;
+  top: 56px;
+  left: 16px;
+  z-index: 1300 !important;
+  width: min(660px, calc(100% - 32px)) !important;
+}
+
 @media (max-width: 1100px) {
   .crime-board-app,
   .crime-board-app.is-sidebar-collapsed {
     grid-template-columns: minmax(0, 1fr);
   }
-  .crime-board-app > .crime-board-shell {
-    grid-column: 1;
+  .crime-board-app > .crime-board-shell { grid-column: 1; }
+}
+@media (max-width: 520px) {
+  .crime-board-app > .crime-board-workspace-panel {
+    top: 56px;
+    left: 12px;
+  }
+  .crime-board-app > .crime-board-workspace-panel > .crime-board-workspace-panel__content {
+    left: 0;
+    width: calc(100vw - 64px);
+  }
+  .crime-board-app .crime-board-deduction {
+    grid-template-columns: minmax(0, 1fr) minmax(110px, .9fr) !important;
+    gap: 8px;
+    padding: 8px !important;
+    font-size: 12px;
+  }
+  .crime-board-app .crime-board-deduction > button {
+    max-width: 100%;
+    padding: 8px !important;
+    font-size: 11px !important;
   }
 }

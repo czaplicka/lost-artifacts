@@ -8,7 +8,8 @@
     "assets/manifests/suspects.json",
     "assets/manifests/newspapers.json",
     "assets/manifests/story.json",
-    "assets/manifests/other.json"
+    "assets/manifests/other.json",
+    "assets/manifests/side-quests.json"
   ],
   "startup": {
     "backgrounds": [
@@ -376,6 +377,9 @@
       "json:dialogue",
       "image:intro"
     ],
+    "scene:SpyShopScene": [
+  "image:pi_spy_shop_background"
+],
     "scene:GameOverScene": [
       "image:backgroundgo"
     ],
@@ -439,7 +443,10 @@
       "image:television",
       "image:tv_news_studio",
       "image:tv_anchor_generic",
-      "image:tv_anchor_genericf"
+      "image:tv_anchor_genericf",
+      "audio:tv1",
+      "audio:tv2",
+      "audio:ad_jingle"
     ],
     "scene:CrimeCityScene": [
       "json:objects-data",
@@ -1094,6 +1101,28 @@
     ],
     "optional-video:out": [
       "video:out"
+    ],
+    "quest:dead_mail": [
+      "image:dead_mail_administration",
+      "image:dead_mail_camera",
+      "image:dead_mail_cemetery_day",
+      "image:dead_mail_cemetery_night",
+      "image:dead_mail_chapel_interior",
+      "image:dead_mail_delivery_photo",
+      "image:dead_mail_edwin",
+      "image:dead_mail_florence",
+      "image:dead_mail_gate_collection",
+      "image:dead_mail_ghost",
+      "image:dead_mail_milo",
+      "image:dead_mail_parcel",
+      "image:dead_mail_rose",
+      "image:dead_mail_shed_interior",
+      "image:dead_mail_tessa",
+      "image:dead_mail_vale_reveal"
+    ],
+    "quest:reed": [
+      "image:Reed_conference",
+      "image:Reed_terrace"
     ]
   }
 }

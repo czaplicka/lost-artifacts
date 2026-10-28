@@ -1,3 +1,5 @@
+import { canUsePhone } from './phoneAccess.js';
+
 export class PlayerMenuUI {
     static _registry = new WeakMap();
 
@@ -9,6 +11,7 @@ export class PlayerMenuUI {
         this.isAnimating = false;
         this.debugHitboxes = false;
         this.crimeBoardAvailable = false;
+        this.phoneAvailable = canUsePhone(scene);
         this.isDestroyed = false;
 
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
@@ -16,6 +19,7 @@ export class PlayerMenuUI {
         this.boundDebugHandler = this.onDebugKeyDown.bind(this);
         this.boundInventoryHandler = this.onInventoryKeyDown.bind(this);
         this.boundCrimeBoardHandler = this.onCrimeBoardKeyDown.bind(this);
+        this.boundAccessHandler = this.refreshPhoneAvailability.bind(this);
         this.boundSceneEndHandler = () => this.destroy();
 
         const existing = PlayerMenuUI._registry.get(scene);
@@ -31,10 +35,8 @@ export class PlayerMenuUI {
 
         this.config = {
             width: Math.min(1180, width * (isMobile ? 0.96 : 0.92)),
-
-height: isMobile ? 145 : 185,
-buttonAreaHeight: isMobile ? 145 : 185,
-
+            height: isMobile ? 145 : 185,
+            buttonAreaHeight: isMobile ? 145 : 185,
             buttonSize: isMobile ? 52 : 72,
             slotRadius: isMobile ? 28 : 38,
             fontSize: isMobile ? '9px' : '12px'
@@ -64,21 +66,12 @@ buttonAreaHeight: isMobile ? 145 : 185,
         this.bindInventoryShortcut();
         this.bindCrimeBoardShortcut();
 
-        scene.scale.on(
-            'resize',
-            this.boundResizeHandler,
-            this
-        );
+        scene.scale.on('resize', this.boundResizeHandler, this);
 
-        scene.events.once(
-            'shutdown',
-            this.boundSceneEndHandler
-        );
+        scene.events.on('update', this.boundAccessHandler);
 
-        scene.events.once(
-            'destroy',
-            this.boundSceneEndHandler
-        );
+        scene.events.once('shutdown', this.boundSceneEndHandler);
+        scene.events.once('destroy', this.boundSceneEndHandler);
 
         this.updateMenuInteractivity();
     }
@@ -133,7 +126,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         event.preventDefault();
         event.stopPropagation?.();
-
         this.toggle();
     }
 
@@ -142,7 +134,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         event.preventDefault();
         event.stopPropagation?.();
-
         this.openInventory();
     }
 
@@ -156,13 +147,11 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         event.preventDefault();
         event.stopPropagation?.();
-
         this.openCrimeBoard();
     }
 
     onDebugKeyDown(event) {
         if (this.shouldIgnoreShortcut(event)) return;
-
         this.toggleDebugHitboxes();
     }
 
@@ -178,9 +167,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
     }
 
     canOpenCrimeBoard() {
-        if (this.isDestroyed || !this.scene) {
-            return false;
-        }
+        if (this.isDestroyed || !this.scene) return false;
 
         const sceneKey = this.scene.currentGameplaySceneKey;
 
@@ -192,6 +179,48 @@ buttonAreaHeight: isMobile ? 145 : 185,
         }
 
         return this.scene.isCrimeBoardAvailable?.() === true;
+    }
+
+    canOpenPhone() {
+        return (
+            !this.isDestroyed &&
+            Boolean(this.scene) &&
+            canUsePhone(this.scene)
+        );
+    }
+
+    refreshPhoneAvailability() {
+        if (this.isDestroyed || !this.scene) return;
+
+        const available = this.canOpenPhone();
+
+        if (available === this.phoneAvailable) return;
+
+        this.phoneAvailable = available;
+
+        if (!available) {
+            this.scene._panelInstances
+                ?.get('phoneUI')
+                ?.close?.();
+        }
+
+        this.updateMenuInteractivity();
+
+        if (this.debugHitboxes) {
+            this.drawDebugHitboxes();
+        }
+    }
+
+    isButtonAvailable(button) {
+        if (button.key === 'telephone') {
+            return this.phoneAvailable;
+        }
+
+        if (button.restricted) {
+            return this.crimeBoardAvailable;
+        }
+
+        return true;
     }
 
     toggleDebugHitboxes() {
@@ -222,7 +251,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
         this.menuButtons.forEach((button, index) => {
             const hitArea = button.hitAreaObject;
 
-            if (!hitArea) return;
+            if (!hitArea || !hitArea.visible) return;
 
             const x = hitArea.x - hitArea.width / 2;
             const y = hitArea.y - hitArea.height / 2;
@@ -232,20 +261,8 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
             graphics.fillStyle(color, 0.15);
             graphics.lineStyle(2, color, 1);
-
-            graphics.fillRect(
-                x,
-                y,
-                hitArea.width,
-                hitArea.height
-            );
-
-            graphics.strokeRect(
-                x,
-                y,
-                hitArea.width,
-                hitArea.height
-            );
+            graphics.fillRect(x, y, hitArea.width, hitArea.height);
+            graphics.strokeRect(x, y, hitArea.width, hitArea.height);
 
             const label = this.scene.add
                 .text(
@@ -260,9 +277,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
                     }
                 )
                 .setOrigin(0.5, 0);
-
-            graphics.setVisible(hitArea.visible);
-            label.setVisible(hitArea.visible);
 
             this.container.add([graphics, label]);
             this.debugGraphics.push(graphics, label);
@@ -369,10 +383,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
         const container = this.scene.add.container(x, y);
         const label = String(fullLabel || '');
         const key = String(hotkey || '').toLowerCase();
-
-        const index = key
-            ? label.toLowerCase().indexOf(key)
-            : -1;
+        const index = key ? label.toLowerCase().indexOf(key) : -1;
 
         const style = {
             fontFamily,
@@ -389,12 +400,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         if (index === -1) {
             const text = this.scene.add
-                .text(
-                    0,
-                    0,
-                    label,
-                    { ...style, color: baseColor }
-                )
+                .text(0, 0, label, { ...style, color: baseColor })
                 .setOrigin(0.5, 0);
 
             container.add(text);
@@ -436,8 +442,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
             )
             .setOrigin(0);
 
-        const totalWidth =
-            before.width + letter.width + after.width;
+        const totalWidth = before.width + letter.width + after.width;
 
         before.x = -totalWidth / 2;
         letter.x = before.x + before.width;
@@ -450,11 +455,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         container.setSize(
             totalWidth,
-            Math.max(
-                before.height,
-                letter.height,
-                after.height
-            )
+            Math.max(before.height, letter.height, after.height)
         );
 
         return container;
@@ -474,14 +475,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
     setCrimeBoardAvailable(available) {
         this.crimeBoardAvailable = Boolean(available);
-
-        const button = this.buttonMap.get('crime_board');
-
-        if (button) {
-            button.container.setVisible(this.crimeBoardAvailable);
-            button.hitAreaObject.setVisible(this.crimeBoardAvailable);
-        }
-
         this.updateMenuInteractivity();
 
         if (this.debugHitboxes) {
@@ -495,47 +488,27 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
         graphics.fillStyle(0x000000, 0.4);
         graphics.fillRoundedRect(
-            -width / 2 - 4,
-            -4,
-            width + 8,
-            height + 8,
-            12
+            -width / 2 - 4, -4, width + 8, height + 8, 12
         );
 
         graphics.fillStyle(0x3a281c, 1);
         graphics.fillRoundedRect(
-            -width / 2,
-            0,
-            width,
-            height,
-            10
+            -width / 2, 0, width, height, 10
         );
 
         graphics.lineStyle(3, 0xb5838d, 0.9);
         graphics.strokeRoundedRect(
-            -width / 2 + 3,
-            3,
-            width - 6,
-            height - 6,
-            8
+            -width / 2 + 3, 3, width - 6, height - 6, 8
         );
 
         graphics.fillStyle(0x1e1713, 0.96);
         graphics.fillRoundedRect(
-            -width / 2 + 8,
-            8,
-            width - 16,
-            height - 16,
-            6
+            -width / 2 + 8, 8, width - 16, height - 16, 6
         );
 
         graphics.lineStyle(2, 0x0c0a09, 0.8);
         graphics.strokeRoundedRect(
-            -width / 2 + 9,
-            9,
-            width - 18,
-            height - 18,
-            5
+            -width / 2 + 9, 9, width - 18, height - 18, 5
         );
 
         [
@@ -555,14 +528,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
         });
 
         const hitArea = this.scene.add
-            .rectangle(
-                0,
-                height / 2,
-                width,
-                height,
-                0x000000,
-                0
-            )
+            .rectangle(0, height / 2, width, height, 0x000000, 0)
             .setInteractive();
 
         this.container.add([graphics, hitArea]);
@@ -572,17 +538,12 @@ buttonAreaHeight: isMobile ? 145 : 185,
     }
 
     createToggleButton(screenWidth, screenHeight) {
-        const isMobile =
-            !this.scene.sys.game.device.os.desktop;
-
+        const isMobile = !this.scene.sys.game.device.os.desktop;
         const width = isMobile ? 170 : 215;
         const height = isMobile ? 38 : 44;
 
         this.toggleContainer = this.scene.add
-            .container(
-                screenWidth / 2,
-                screenHeight - height / 2
-            )
+            .container(screenWidth / 2, screenHeight - height / 2)
             .setDepth(41);
 
         const graphics = this.scene.add.graphics();
@@ -645,14 +606,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
         this.toggleArrows = { left, right };
 
         const hitBox = this.scene.add
-            .rectangle(
-                0,
-                0,
-                width,
-                height,
-                0x000000,
-                0
-            )
+            .rectangle(0, 0, width, height, 0x000000, 0)
             .setInteractive({ useHandCursor: true });
 
         hitBox.on('pointerdown', () => this.toggle());
@@ -661,9 +615,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
             if (!this.scene.sys.game.device.os.desktop) return;
 
             this.setHotkeyLabelColors(
-                this.toggleText,
-                '#ffffff',
-                '#ffd54a'
+                this.toggleText, '#ffffff', '#ffd54a'
             );
 
             this.toggleText.setScale(1.05);
@@ -675,9 +627,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
             if (!this.scene.sys.game.device.os.desktop) return;
 
             this.setHotkeyLabelColors(
-                this.toggleText,
-                '#f4eac1',
-                '#ffcc00'
+                this.toggleText, '#f4eac1', '#ffcc00'
             );
 
             this.toggleText.setScale(1);
@@ -755,9 +705,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
             }
         ];
 
-        const isMobile =
-            !this.scene.sys.game.device.os.desktop;
-
+        const isMobile = !this.scene.sys.game.device.os.desktop;
         const padding = isMobile ? 22 : 42;
         const availableWidth = this.config.width - padding;
         const spacing = availableWidth / data.length;
@@ -777,7 +725,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
             background.fillStyle(0x120d0a, 0.8);
             background.fillCircle(0, iconY, radius);
-
             background.lineStyle(1, 0x3a281c, 1);
             background.strokeCircle(0, iconY, radius);
 
@@ -794,12 +741,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
             let icon;
 
             if (this.scene.textures.exists(textureKey)) {
-                icon = this.scene.add.image(
-                    0,
-                    iconY,
-                    textureKey
-                );
-
+                icon = this.scene.add.image(0, iconY, textureKey);
                 icon.setDisplaySize(
                     this.config.buttonSize,
                     this.config.buttonSize
@@ -816,9 +758,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
                         0,
                         iconY,
                         item.fallbackIcon || '❔',
-                        {
-                            fontSize: isMobile ? '31px' : '42px'
-                        }
+                        { fontSize: isMobile ? '31px' : '42px' }
                     )
                     .setOrigin(0.5);
             }
@@ -834,19 +774,13 @@ buttonAreaHeight: isMobile ? 145 : 185,
                 { fontSize: this.config.fontSize }
             );
 
-            container.add([
-                background,
-                shadow,
-                icon,
-                label
-            ]);
+            container.add([background, shadow, icon, label]);
 
             const hitWidth = Math.max(
                 spacing * 0.92,
                 this.config.buttonSize + 12
             );
 
-            // Przyciski nie przykrywają dolnego rzędu statystyk.
             const hitArea = this.scene.add
                 .rectangle(
                     x,
@@ -858,13 +792,20 @@ buttonAreaHeight: isMobile ? 145 : 185,
                 )
                 .setInteractive({ useHandCursor: true });
 
-            hitArea.on('pointerover', () => {
-                if (
-                    item.restricted &&
-                    !this.canOpenCrimeBoard()
-                ) {
-                    return;
+            const actionAllowed = () => {
+                if (item.key === 'telephone') {
+                    return this.canOpenPhone();
                 }
+
+                if (item.restricted) {
+                    return this.canOpenCrimeBoard();
+                }
+
+                return true;
+            };
+
+            hitArea.on('pointerover', () => {
+                if (!actionAllowed()) return;
 
                 if (this.scene.sys.game.device.os.desktop) {
                     this.scene.tweens.killTweensOf([icon, shadow]);
@@ -886,9 +827,7 @@ buttonAreaHeight: isMobile ? 145 : 185,
                     });
 
                     this.setHotkeyLabelColors(
-                        label,
-                        '#ffffff',
-                        '#ffd54a'
+                        label, '#ffffff', '#ffd54a'
                     );
                 }
 
@@ -921,18 +860,15 @@ buttonAreaHeight: isMobile ? 145 : 185,
                 });
 
                 this.setHotkeyLabelColors(
-                    label,
-                    '#dcdcdc',
-                    '#ffcc00'
+                    label, '#dcdcdc', '#ffcc00'
                 );
             });
 
             hitArea.on('pointerdown', () => {
-                if (!this.isOpen || this.isAnimating) return;
-
                 if (
-                    item.restricted &&
-                    !this.canOpenCrimeBoard()
+                    !this.isOpen ||
+                    this.isAnimating ||
+                    !actionAllowed()
                 ) {
                     return;
                 }
@@ -958,7 +894,10 @@ buttonAreaHeight: isMobile ? 145 : 185,
                     onComplete: () => {
                         if (this.isDestroyed) return;
 
-                        item.action();
+                        if (actionAllowed()) {
+                            item.action();
+                        }
+
                         this.close();
                     }
                 });
@@ -980,6 +919,8 @@ buttonAreaHeight: isMobile ? 145 : 185,
             this.buttonMap.set(item.key, record);
         });
 
+        this.phoneAvailable = this.canOpenPhone();
+
         this.setCrimeBoardAvailable(
             this.crimeBoardAvailable
         );
@@ -987,13 +928,14 @@ buttonAreaHeight: isMobile ? 145 : 185,
 
     setButtonsInteractive(enabled) {
         this.menuButtons.forEach(button => {
-            const locked =
-                button.restricted &&
-                !this.crimeBoardAvailable;
+            const available = this.isButtonAvailable(button);
+
+            button.container.setVisible(available);
+            button.hitAreaObject.setVisible(available);
 
             if (button.hitAreaObject?.input) {
                 button.hitAreaObject.input.enabled =
-                    enabled && !locked;
+                    enabled && available;
             }
         });
 
@@ -1013,11 +955,8 @@ buttonAreaHeight: isMobile ? 145 : 185,
     toggle() {
         if (this.isDestroyed || this.isAnimating) return;
 
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
+        if (this.isOpen) this.close();
+        else this.open();
     }
 
     open() {
@@ -1028,6 +967,8 @@ buttonAreaHeight: isMobile ? 145 : 185,
         ) {
             return;
         }
+
+        this.refreshPhoneAvailability();
 
         this.isAnimating = true;
         this.isOpen = true;
@@ -1117,7 +1058,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
             console.warn(
                 '[PlayerMenuUI] No currentMission. Case File will not open.'
             );
-
             return;
         }
 
@@ -1150,7 +1090,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
         this.scene.closeAllUIPanels();
 
         const mission = this.gameState.currentMission || {};
-
         const country = String(mission.country || '')
             .trim()
             .toLowerCase();
@@ -1184,22 +1123,17 @@ buttonAreaHeight: isMobile ? 145 : 185,
     }
 
     openCrimeBoard() {
-        if (!this.canOpenCrimeBoard()) {
-            return false;
-        }
+        if (!this.canOpenCrimeBoard()) return false;
 
         this.close();
 
-        const opened =
-            this.scene.openCrimeBoard?.() === true;
+        const opened = this.scene.openCrimeBoard?.() === true;
 
         if (opened) {
-            const boardApi =
-                this.scene.crimeBoardUI?.boardApi;
+            const boardApi = this.scene.crimeBoardUI?.boardApi;
 
             if (boardApi?.getData) {
-                this.gameState.crimeBoardData =
-                    boardApi.getData();
+                this.gameState.crimeBoardData = boardApi.getData();
             }
         }
 
@@ -1207,23 +1141,29 @@ buttonAreaHeight: isMobile ? 145 : 185,
     }
 
     openPhone() {
+        if (!this.canOpenPhone()) return false;
+
         this.scene.closeAllUIPanels();
 
         if (this.scene.phoneUI) {
             this.scene.phoneUI.open(this.gameState);
-            return;
+            return true;
         }
 
         if (this.scene.phoneCallUI) {
             this.scene.phoneCallUI.open(this.gameState);
-            return;
+            return true;
         }
 
         if (this.scene.scene.manager.keys.PhoneScene) {
             this.scene.scene.launch('PhoneScene', {
                 gameState: this.gameState
             });
+
+            return true;
         }
+
+        return false;
     }
 
     openPassport() {
@@ -1246,7 +1186,6 @@ buttonAreaHeight: isMobile ? 145 : 185,
             console.warn(
                 '[PlayerMenuUI] inventoryUI is unavailable in PlayerHudScene.'
             );
-
             return;
         }
 
@@ -1271,21 +1210,10 @@ buttonAreaHeight: isMobile ? 145 : 185,
             PlayerMenuUI._registry.delete(scene);
         }
 
-        scene.scale?.off(
-            'resize',
-            this.boundResizeHandler,
-            this
-        );
-
-        scene.events?.off(
-            'shutdown',
-            this.boundSceneEndHandler
-        );
-
-        scene.events?.off(
-            'destroy',
-            this.boundSceneEndHandler
-        );
+        scene.scale?.off('resize', this.boundResizeHandler, this);
+        scene.events?.off('update', this.boundAccessHandler);
+        scene.events?.off('shutdown', this.boundSceneEndHandler);
+        scene.events?.off('destroy', this.boundSceneEndHandler);
 
         const keyboard = scene.input?.keyboard;
 

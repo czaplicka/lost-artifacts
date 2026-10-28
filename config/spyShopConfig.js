@@ -2,8 +2,8 @@
 export const SPY_SHOP_CONFIG = {
   // Set this to the actual image path when your background is ready.
   // Example: backgroundUrl: 'assets/local/spyshop.webp',
-  backgroundUrl: null,
-  backgroundKey: 'pi_spy_shop_background',
+backgroundUrl: 'assets/local/spyshop.webp',
+backgroundKey: 'pi_spy_shop_background',
   title: 'DISCREET ELECTRONICS',
   subtitle: 'Repairs. Accessories. Plausible deniability.',
   // Normalised coordinates: x/y are the centre; w/h are width and height.

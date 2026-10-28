@@ -17,6 +17,12 @@
       ]
     },
     {
+  "key": "pi_spy_shop_background",
+  "url": "assets/pi/city/spyshop.webp",
+  "type": "image",
+  "groups": ["backgrounds"]
+},
+    {
       "key": "background2",
       "url": "assets/start_2.webp",
       "type": "image",
