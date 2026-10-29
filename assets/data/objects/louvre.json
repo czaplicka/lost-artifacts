@@ -23,6 +23,15 @@
           "Stealth"
         ],
         "heistExplanation": "The display case was opened without forcing the lock, allowing the artifact to disappear before any alarm noticed the difference."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Art history",
+          "Deception"
+        ],
+        "heistExplanation": "A near-perfect replica went into the case before anyone looked closely, so the museum admired the fake for hours."
       }
     ]
   },
@@ -504,7 +513,8 @@
         "skills": [
           "Hacking",
           "Deception",
-          "Electronics"
+          "Electronics",
+          "Pickpocket"
         ],
         "heistExplanation": "The thief cloned the badge credentials, using the original only long enough to copy its access data."
       },
@@ -559,7 +569,8 @@
         "skills": [
           "Seduction",
           "Persuasion",
-          "Deception"
+          "Deception",
+          "Pickpocket"
         ],
         "heistExplanation": "The hat created exactly the kind of minor scene that makes a bored guard look up, walk over, and stop watching the gallery."
       }
@@ -776,7 +787,8 @@
         "skills": [
           "Art history",
           "Museum studies",
-          "Research"
+          "Research",
+          "History"
         ],
         "heistExplanation": "The thief used the book to distinguish the original artifact from nearby copies and less valuable lookalikes."
       },
@@ -794,7 +806,8 @@
         "skills": [
           "Research",
           "Persuasion",
-          "Deception"
+          "Deception",
+          "History"
         ],
         "heistExplanation": "A serious-looking art book made the thief look like exactly the kind of visitor who stares at a display case for too long."
       }
@@ -1216,6 +1229,15 @@
           "Problem-solving"
         ],
         "heistExplanation": "The thief dismantled the display mount carefully enough to remove the artifact without smashing the case."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Problem-solving",
+          "Engineering",
+          "Intimidation"
+        ],
+        "heistExplanation": "A heavy wrench and a very serious expression persuaded the guard that stepping aside was a career-saving decision."
       }
     ]
   },

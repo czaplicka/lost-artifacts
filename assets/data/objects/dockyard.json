@@ -617,7 +617,8 @@
           "Negotiation",
           "Research",
           "Deception",
-          "Persuasion"
+          "Persuasion",
+          "History"
         ],
         "heistExplanation": "The card connected the thief to a buyer who specified exactly which artifact was worth stealing."
       },
@@ -678,7 +679,8 @@
           "Museum studies",
           "Research",
           "Deception",
-          "Persuasion"
+          "Persuasion",
+          "History"
         ],
         "heistExplanation": "The thief used the visitor map to identify a service-adjacent door that looked public enough to try without raising suspicion."
       },
@@ -801,7 +803,8 @@
         "skills": [
           "Hand-to-hand combat",
           "Tactical planning",
-          "Intimidation"
+          "Intimidation",
+          "Martial arts"
         ],
         "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
       }

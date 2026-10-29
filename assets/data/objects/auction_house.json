@@ -211,7 +211,8 @@
         "skills": [
           "Art history",
           "Museum studies",
-          "Research"
+          "Research",
+          "History"
         ],
         "heistExplanation": "The thief used the book to distinguish the original artifact from nearby copies and less valuable lookalikes."
       },
@@ -229,7 +230,8 @@
         "skills": [
           "Research",
           "Persuasion",
-          "Deception"
+          "Deception",
+          "History"
         ],
         "heistExplanation": "A serious-looking art book made the thief look like exactly the kind of visitor who stares at a display case for too long."
       }
@@ -685,7 +687,8 @@
         "skills": [
           "Hand-to-hand combat",
           "Tactical planning",
-          "Intimidation"
+          "Intimidation",
+          "Martial arts"
         ],
         "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
       }

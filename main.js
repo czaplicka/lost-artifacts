@@ -17,6 +17,7 @@ import { bindCaseTimeGame } from './managers/CaseTimeWatcher.js';
 import { getReedContactService } from './managers/ReedContactService.js';
 import { supabase } from './supabase-client.js';
 import { installAchievementSystem } from './managers/AchievementManager.js';
+import { installChaseTutorial } from './tutorials/chase/ChaseTutorial.js';
 
 const RESIZE_DEBOUNCE_MS = 120;
 function installResizeNotification(game) {
@@ -116,3 +117,4 @@ installAchievementSystem(game);
 installResizeNotification(game);
 installScenePrefetch(game);
 installDevTools(game);
+installChaseTutorial(game);

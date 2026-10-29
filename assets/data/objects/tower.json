@@ -750,6 +750,15 @@
           "Problem-solving"
         ],
         "heistExplanation": "The thief dismantled the display mount carefully enough to remove the artifact without smashing the case."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Problem-solving",
+          "Engineering",
+          "Intimidation"
+        ],
+        "heistExplanation": "A heavy wrench and a very serious expression persuaded the guard that stepping aside was a career-saving decision."
       }
     ]
   },

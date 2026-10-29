@@ -2,9 +2,10 @@ import { COLORS, FONTS } from './ComputerTheme.js';
 import { BorrowedAlibiMail } from './BorrowedAlibiMail.js';
 import { AlibiReportUI } from './AlibiReportUI.js';
 import { installDeadMenMail } from '../../managers/DeadMenCallingService.js';
+import { installAlibiImprovements } from './AlibiImprovements.js';
 
 export class ComputerDocuments {
- constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);}
+ constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);this.alibiImprovements=installAlibiImprovements(ui,this);}
  getMail(){
   const supplied=this.ui.options.getMail?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);
   const data=this.ui.scene.cache.json.get('piOfficeMail');return Array.isArray(data?.messages)?data.messages.filter(i=>i&&i.id):[];
@@ -17,6 +18,8 @@ export class ComputerDocuments {
   const ui=this.ui,d=ui.drawing,box=ui.window,isMail=ui.app==='mail',items=isMail?this.getMail():this.getClassifieds();
   if(!items.length){d.bevel(box.x+9,box.y+48,box.w-18,box.h-95,0xe7e5dc,true);d.rectangle(box.x+20,box.y+58,box.w-40,box.h-115,0xf2ecd6);d.text(box.x+44,box.y+90,isMail?'No messages available.\n\nInbox empty. Not even spam. Suspicious.':'No advertisements available.\n\nThe city is suspiciously honest today.',18,COLORS.muted,box.w-90);return;}
   const listW=270,perPage=Math.max(1,Math.floor((box.h-150)/64)),pages=Math.max(1,Math.ceil(items.length/perPage));
+  const selectedIndex=items.findIndex(item=>item.id===ui.selectedId);
+  if(selectedIndex>=0)ui.listPage=Math.floor(selectedIndex/perPage);
   ui.listPage=Phaser.Math.Clamp(ui.listPage,0,pages-1);const visible=items.slice(ui.listPage*perPage,(ui.listPage+1)*perPage);
   const selected=visible.find(i=>i.id===ui.selectedId)||visible[0];ui.selectedId=selected.id;
   d.bevel(box.x+9,box.y+48,listW-8,box.h-95,0xe7e5dc,true);
