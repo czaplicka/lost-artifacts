@@ -1,47 +1,282 @@
 {
   "hiddenObjects": [
-    { "id": "standard_6", "weight": 60, "minCaseIndex": 0, "effect": { "itemCount": 6, "realCount": 3 } },
-    { "id": "tight_4", "weight": 20, "minCaseIndex": 2, "effect": { "itemCount": 4, "realCount": 2 } },
-    { "id": "witness_addon", "weight": 15, "minCaseIndex": 2, "effect": { "itemCount": 6, "realCount": 3, "extraWitnessClue": true } },
-    { "id": "unusual_scene", "weight": 10, "minCaseIndex": 3, "effect": { "itemCount": 5, "realCount": 3, "sceneType": "vehicle" } }
+    {
+      "id": "standard_6",
+      "weight": 60,
+      "minCaseIndex": 0,
+      "effect": {
+        "itemCount": 6,
+        "realCount": 3
+      }
+    },
+    {
+      "id": "tight_4",
+      "weight": 20,
+      "minCaseIndex": 2,
+      "effect": {
+        "itemCount": 4,
+        "realCount": 2
+      }
+    },
+    {
+      "id": "witness_addon",
+      "weight": 15,
+      "minCaseIndex": 2,
+      "effect": {
+        "itemCount": 6,
+        "realCount": 3,
+        "extraWitnessClue": true
+      }
+    },
+    {
+      "id": "unusual_scene",
+      "weight": 10,
+      "minCaseIndex": 3,
+      "effect": {
+        "itemCount": 5,
+        "realCount": 3,
+        "sceneType": "vehicle"
+      }
+    }
   ],
   "lab": [
-    { "id": "call_only", "weight": 0, "minCaseIndex": 0, "effect": { "gameCount": 0, "callOnly": true, "technicianGivesLead": true } },
-    { "id": "single_game", "weight": 0, "minCaseIndex": 0, "effect": { "gameCount": 1 } },
-    { "id": "two_games", "weight": 30, "minCaseIndex": 2, "effect": { "gameCount": 2 } },
-    { "id": "full_three", "weight": 55, "minCaseIndex": 4, "effect": { "gameCount": 3 } },
-    { "id": "damaged_evidence", "weight": 15, "minCaseIndex": 4, "effect": { "gameCount": 2, "skipReason": "evidence_contaminated" } },
-    { "id": "bonus_game", "weight": 10, "minCaseIndex": 5, "effect": { "gameCount": 4 } }
+    {
+      "id": "call_only",
+      "weight": 0,
+      "minCaseIndex": 0,
+      "effect": {
+        "gameCount": 0,
+        "callOnly": true,
+        "technicianGivesLead": true
+      }
+    },
+    {
+      "id": "single_game",
+      "weight": 0,
+      "minCaseIndex": 0,
+      "effect": {
+        "gameCount": 1
+      }
+    },
+    {
+      "id": "two_games",
+      "weight": 30,
+      "minCaseIndex": 2,
+      "effect": {
+        "gameCount": 2
+      }
+    },
+    {
+      "id": "full_three",
+      "weight": 55,
+      "minCaseIndex": 4,
+      "effect": {
+        "gameCount": 3
+      }
+    },
+    {
+      "id": "damaged_evidence",
+      "weight": 15,
+      "minCaseIndex": 4,
+      "effect": {
+        "gameCount": 2,
+        "skipReason": "evidence_contaminated"
+      }
+    },
+    {
+      "id": "bonus_game",
+      "weight": 10,
+      "minCaseIndex": 5,
+      "effect": {
+        "gameCount": 4
+      }
+    }
   ],
   "suspectFiltering": [
-    { "id": "standard", "weight": 70, "minCaseIndex": 0, "effect": { "liarAtCityStage": false } },
-    { "id": "early_liar", "weight": 30, "minCaseIndex": 3, "effect": { "liarAtCityStage": true } }
+    {
+      "id": "standard",
+      "weight": 70,
+      "minCaseIndex": 0,
+      "effect": {
+        "liarAtCityStage": false
+      }
+    },
+    {
+      "id": "early_liar",
+      "weight": 30,
+      "minCaseIndex": 3,
+      "effect": {
+        "liarAtCityStage": true
+      }
+    }
   ],
   "interviews": [
-    { "id": "neutral_tone", "weight": 50, "minCaseIndex": 0, "effect": { "tone": "neutral" } },
-    { "id": "hostile_tone", "weight": 20, "minCaseIndex": 2, "effect": { "tone": "hostile", "requiresLeverage": true } },
-    { "id": "bribable_tone", "weight": 20, "minCaseIndex": 2, "effect": { "tone": "bribable", "requiresMoney": true } },
-    { "id": "scared_tone", "weight": 10, "minCaseIndex": 3, "effect": { "tone": "scared", "requiresReassurance": true } }
+    {
+      "id": "neutral_tone",
+      "weight": 50,
+      "minCaseIndex": 0,
+      "effect": {
+        "tone": "neutral"
+      }
+    },
+    {
+      "id": "hostile_tone",
+      "weight": 20,
+      "minCaseIndex": 2,
+      "effect": {
+        "tone": "hostile",
+        "requiresLeverage": true
+      }
+    },
+    {
+      "id": "bribable_tone",
+      "weight": 20,
+      "minCaseIndex": 2,
+      "effect": {
+        "tone": "bribable",
+        "requiresMoney": true
+      }
+    },
+    {
+      "id": "scared_tone",
+      "weight": 10,
+      "minCaseIndex": 3,
+      "effect": {
+        "tone": "scared",
+        "requiresReassurance": true
+      }
+    }
   ],
   "mastermind": [
-    { "id": "standard_3slot", "weight": 75, "minCaseIndex": 0, "effect": { "slots": 3, "attempts": 3 } },
-    { "id": "hard_4slot", "weight": 15, "minCaseIndex": 4, "effect": { "slots": 4, "attempts": 3 } },
-    { "id": "reversed_disprove", "weight": 10, "minCaseIndex": 5, "effect": { "slots": 3, "attempts": 3, "mode": "disprove" } }
+    {
+      "id": "standard_3slot",
+      "weight": 75,
+      "minCaseIndex": 0,
+      "effect": {
+        "slots": 3,
+        "attempts": 3
+      }
+    },
+    {
+      "id": "hard_4slot",
+      "weight": 15,
+      "minCaseIndex": 4,
+      "effect": {
+        "slots": 4,
+        "attempts": 3
+      }
+    },
+    {
+      "id": "reversed_disprove",
+      "weight": 10,
+      "minCaseIndex": 5,
+      "effect": {
+        "slots": 3,
+        "attempts": 3,
+        "mode": "disprove"
+      }
+    }
   ],
   "apartment": [
-    { "id": "empty_clues", "weight": 10, "minCaseIndex": 0, "effect": { "state": "empty", "clueCount": 4 } },
-    { "id": "fresh_escape", "weight": 10, "minCaseIndex": 3, "effect": { "state": "fresh", "hasChaseBeat": true } },
-    { "id": "trap_left", "weight": 10, "minCaseIndex": 4, "effect": { "state": "empty", "clueCount": 3, "hasTrap": true } },
-    { "id": "artifact_pawned", "weight": 25, "minCaseIndex": 1, "effect": { "state": "empty", "clueCount": 4, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "pawnshop" } },
-    { "id": "artifact_shipped", "weight": 20, "minCaseIndex": 2, "effect": { "state": "empty", "clueCount": 4, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "parcel_abroad" } },
-    { "id": "artifact_collector", "weight": 15, "minCaseIndex": 3, "effect": { "state": "empty", "clueCount": 3, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "private_collector" } }
+    {
+      "id": "empty_clues",
+      "weight": 10,
+      "minCaseIndex": 0,
+      "effect": {
+        "state": "empty",
+        "clueCount": 4
+      }
+    },
+    {
+      "id": "fresh_escape",
+      "weight": 10,
+      "minCaseIndex": 3,
+      "effect": {
+        "state": "fresh",
+        "hasChaseBeat": true
+      }
+    },
+    {
+      "id": "trap_left",
+      "weight": 10,
+      "minCaseIndex": 4,
+      "effect": {
+        "state": "empty",
+        "clueCount": 3,
+        "hasTrap": true
+      }
+    },
+    {
+      "id": "artifact_pawned",
+      "weight": 25,
+      "minCaseIndex": 1,
+      "effect": {
+        "state": "empty",
+        "clueCount": 4,
+        "artifactState": "carried_away",
+        "hasOccupant": true,
+        "artifactTrail": "pawnshop"
+      }
+    },
+    {
+      "id": "artifact_shipped",
+      "weight": 20,
+      "minCaseIndex": 2,
+      "effect": {
+        "state": "empty",
+        "clueCount": 4,
+        "artifactState": "carried_away",
+        "hasOccupant": true,
+        "artifactTrail": "parcel_abroad"
+      }
+    },
+    {
+      "id": "artifact_collector",
+      "weight": 15,
+      "minCaseIndex": 3,
+      "effect": {
+        "state": "empty",
+        "clueCount": 3,
+        "artifactState": "carried_away",
+        "hasOccupant": true,
+        "artifactTrail": "private_collector"
+      }
+    }
   ],
   "travelCities": [
-    { "id": "quiet_travel", "weight": 60, "minCaseIndex": 0, "effect": { "randomEncounter": false } }
+    {
+      "id": "quiet_travel",
+      "weight": 60,
+      "minCaseIndex": 0,
+      "effect": {
+        "randomEncounter": false
+      }
+    }
   ],
   "cityChain": [
-    { "id": "two_cities", "weight": 0, "minCaseIndex": 0, "effect": { "cityCount": 2 } },
-    { "id": "three_cities", "weight": 40, "minCaseIndex": 3, "effect": { "cityCount": 3 } },
-    { "id": "four_cities", "weight": 60, "minCaseIndex": 4, "effect": { "cityCount": 4 } }
+    {
+      "id": "two_cities",
+      "weight": 0,
+      "minCaseIndex": 0,
+      "effect": {
+        "cityCount": 2
+      }
+    },
+    {
+      "id": "three_cities",
+      "weight": 40,
+      "minCaseIndex": 3,
+      "effect": {
+        "cityCount": 3
+      }
+    },
+    {
+      "id": "four_cities",
+      "weight": 60,
+      "minCaseIndex": 4,
+      "effect": {
+        "cityCount": 4
+      }
+    }
   ]
 }

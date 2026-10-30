@@ -32,6 +32,17 @@ const canonical = value => ({
 
 const idOf = asset => `${asset.type}:${asset.key}`;
 
+const isOptionalNewspaper = asset => (
+  asset?.type === 'json' &&
+  typeof asset.key === 'string' &&
+  asset.key.startsWith('newspaper_')
+);
+
+const isOptionalNewspaperRef = ref => (
+  typeof ref === 'string' &&
+  ref.startsWith('json:newspaper_')
+);
+
 class AssetWorkerScene extends Phaser.Scene {
   constructor(ready) {
     super({ key: WORKER });
@@ -64,9 +75,13 @@ export class AssetManager {
     this.textureEvents = [];
     this.reportedInvalidObjects = new WeakSet();
 
+    this.unavailableNewspapers = new Set();
+
     this.textureDiagnostics =
       typeof window !== 'undefined' &&
-      ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      ['localhost', '127.0.0.1'].includes(
+        window.location.hostname
+      );
 
     this.boundCollect = () => {
       this.collectPending = false;
@@ -77,21 +92,39 @@ export class AssetManager {
       this.reportInvalidRenderFrames();
     };
 
-    this.game.events.on('prerender', this.boundRenderCheck);
+    this.game.events.on(
+      'prerender',
+      this.boundRenderCheck
+    );
 
     this.game.events.once('destroy', () => {
       this.destroyed = true;
-      this.game.events.off('prerender', this.boundRenderCheck);
-      this.game.events.off('poststep', this.boundCollect);
+
+      this.game.events.off(
+        'prerender',
+        this.boundRenderCheck
+      );
+
+      this.game.events.off(
+        'poststep',
+        this.boundCollect
+      );
+
       this.owners.clear();
       this.prepared.clear();
+      this.unavailableNewspapers.clear();
     });
   }
 
   get manifest() {
-    const manifest = this.game.cache.json.get('assetManifest');
+    const manifest = this.game.cache.json.get(
+      'assetManifest'
+    );
 
-    if (!manifest?.bundles || manifest.bundleVersion !== 1) {
+    if (
+      !manifest?.bundles ||
+      manifest.bundleVersion !== 1
+    ) {
       throw new Error(
         '[AssetManager] Run the block-3 manifest builder first.'
       );
@@ -121,27 +154,63 @@ export class AssetManager {
     if (asset.type === 'css') {
       if (this.cssLoaded.has(asset.key)) return true;
 
-      const url = new URL(asset.url, document.baseURI).href;
+      const url = new URL(
+        asset.url,
+        document.baseURI
+      ).href;
 
       return [
-        ...document.querySelectorAll('link[rel~="stylesheet"][href]')
+        ...document.querySelectorAll(
+          'link[rel~="stylesheet"][href]'
+        )
       ].some(link => link.href === url);
     }
 
-    return Boolean(this.game.cache[asset.type]?.exists(asset.key));
+    return Boolean(
+      this.game.cache[asset.type]?.exists(asset.key)
+    );
+  }
+
+  markNewspaperUnavailable(asset) {
+    const id = idOf(asset);
+
+    if (this.unavailableNewspapers.has(id)) return;
+
+    this.unavailableNewspapers.add(id);
+
+    console.warn(
+      '[AssetManager] Newspaper unavailable. ' +
+      'Continuing without this issue:',
+      {
+        key: asset.key,
+        url: asset.url
+      }
+    );
   }
 
   queue(loader, asset) {
     if (this.has(asset)) return false;
+
+    if (
+      isOptionalNewspaper(asset) &&
+      this.unavailableNewspapers.has(idOf(asset))
+    ) {
+      return false;
+    }
 
     const { key, url, type } = asset;
 
     if (type === 'tilemap') {
       loader.tilemapTiledJSON(key, url);
     } else if (type === 'video') {
-      loader.video(key, url, Boolean(asset.noAudio));
+      loader.video(
+        key,
+        url,
+        Boolean(asset.noAudio)
+      );
     } else if (
-      ['image', 'json', 'audio', 'html', 'css'].includes(type)
+      ['image', 'json', 'audio', 'html', 'css']
+        .includes(type)
     ) {
       loader[type](key, url);
     } else {
@@ -169,7 +238,11 @@ export class AssetManager {
 
   emitProgress(value, label) {
     this.progress = { value, label };
-    this.game.events.emit('asset-progress', this.progress);
+
+    this.game.events.emit(
+      'asset-progress',
+      this.progress
+    );
   }
 
   assetsFor(bundleIds) {
@@ -193,6 +266,20 @@ export class AssetManager {
         const asset = this.catalog.get(ref);
 
         if (!asset) {
+          if (isOptionalNewspaperRef(ref)) {
+            if (!this.unavailableNewspapers.has(ref)) {
+              this.unavailableNewspapers.add(ref);
+
+              console.warn(
+                '[AssetManager] Newspaper missing ' +
+                'from catalog. Continuing:',
+                ref
+              );
+            }
+
+            continue;
+          }
+
           throw new Error(
             `[AssetManager] Unknown asset: ${ref}`
           );
@@ -206,7 +293,10 @@ export class AssetManager {
   }
 
   pin(owner, assets) {
-    this.owners.set(owner, new Set(assets.map(idOf)));
+    this.owners.set(
+      owner,
+      new Set(assets.map(idOf))
+    );
   }
 
   unpin(owner) {
@@ -215,7 +305,11 @@ export class AssetManager {
     if (this.destroyed || this.collectPending) return;
 
     this.collectPending = true;
-    this.game.events.once('poststep', this.boundCollect);
+
+    this.game.events.once(
+      'poststep',
+      this.boundCollect
+    );
   }
 
   scenesForInspection() {
@@ -240,7 +334,12 @@ export class AssetManager {
 
       seen.add(object);
 
-      if (visibleOnly && object.visible === false) return;
+      if (
+        visibleOnly &&
+        object.visible === false
+      ) {
+        return;
+      }
 
       visitor(object, scene, path);
 
@@ -275,7 +374,9 @@ export class AssetManager {
         walk(
           object,
           scene,
-          object?.name || object?.type || String(index)
+          object?.name ||
+          object?.type ||
+          String(index)
         );
       });
     }
@@ -286,16 +387,19 @@ export class AssetManager {
   liveTextureKeys() {
     const keys = new Set();
 
-    const inspected = this.inspectSceneObjects(object => {
-      // Retain references even for hidden, paused or sleeping objects.
-      if (typeof object.texture?.key === 'string') {
-        keys.add(object.texture.key);
-      }
+    const inspected = this.inspectSceneObjects(
+      object => {
+        if (typeof object.texture?.key === 'string') {
+          keys.add(object.texture.key);
+        }
 
-      if (typeof object.frame?.texture?.key === 'string') {
-        keys.add(object.frame.texture.key);
+        if (
+          typeof object.frame?.texture?.key === 'string'
+        ) {
+          keys.add(object.frame.texture.key);
+        }
       }
-    });
+    );
 
     return inspected ? keys : null;
   }
@@ -316,7 +420,8 @@ export class AssetManager {
     if (this.destroyed) return;
 
     const retained = new Set(
-      [...this.owners.values()].flatMap(set => [...set])
+      [...this.owners.values()]
+        .flatMap(set => [...set])
     );
 
     const live = this.liveTextureKeys();
@@ -331,16 +436,27 @@ export class AssetManager {
       }
 
       if (asset.type === 'image') {
-        // Do not destroy a Texture still referenced by a display object.
-        if (live === null || live.has(asset.key)) continue;
+        if (
+          live === null ||
+          live.has(asset.key)
+        ) {
+          continue;
+        }
 
-        this.rememberTextureEvent('remove', asset.key);
+        this.rememberTextureEvent(
+          'remove',
+          asset.key
+        );
 
-        if (this.game.textures.exists(asset.key)) {
+        if (
+          this.game.textures.exists(asset.key)
+        ) {
           this.game.textures.remove(asset.key);
         }
       } else {
-        this.game.cache[asset.type]?.remove(asset.key);
+        this.game.cache[asset.type]?.remove(
+          asset.key
+        );
       }
 
       this.managed.delete(id);
@@ -348,37 +464,50 @@ export class AssetManager {
   }
 
   reportInvalidRenderFrames() {
-    if (this.destroyed || !this.textureDiagnostics) return;
+    if (
+      this.destroyed ||
+      !this.textureDiagnostics
+    ) {
+      return;
+    }
 
-    this.inspectSceneObjects((object, scene, path) => {
-      const frame = object.frame;
+    this.inspectSceneObjects(
+      (object, scene, path) => {
+        const frame = object.frame;
 
-      if (
-        !frame ||
-        frame.source !== null ||
-        this.reportedInvalidObjects.has(object)
-      ) {
-        return;
-      }
+        if (
+          !frame ||
+          frame.source !== null ||
+          this.reportedInvalidObjects.has(object)
+        ) {
+          return;
+        }
 
-      this.reportedInvalidObjects.add(object);
+        this.reportedInvalidObjects.add(object);
 
-      console.error('[AssetManager] INVALID_RENDER_FRAME', {
-        scene: scene.sys?.settings?.key,
-        path,
-        type: object.type,
-        name: object.name || '',
-        textureKey:
-          object.texture?.key ??
-          frame.texture?.key ??
-          '(destroyed)',
-        frameName: frame.name,
-        x: object.x,
-        y: object.y,
-        hasScene: Boolean(object.scene),
-        recentTextureRemovals: [...this.textureEvents]
-      });
-    }, true);
+        console.error(
+          '[AssetManager] INVALID_RENDER_FRAME',
+          {
+            scene: scene.sys?.settings?.key,
+            path,
+            type: object.type,
+            name: object.name || '',
+            textureKey:
+              object.texture?.key ??
+              frame.texture?.key ??
+              '(destroyed)',
+            frameName: frame.name,
+            x: object.x,
+            y: object.y,
+            hasScene: Boolean(object.scene),
+            recentTextureRemovals: [
+              ...this.textureEvents
+            ]
+          }
+        );
+      },
+      true
+    );
   }
 
   setTextureDiagnostics(enabled = true) {
@@ -389,44 +518,89 @@ export class AssetManager {
   loadAssets(assets, label) {
     const run = async () => {
       if (this.destroyed) {
-        throw new Error('[AssetManager] Game destroyed.');
+        throw new Error(
+          '[AssetManager] Game destroyed.'
+        );
       }
 
-      const missing = assets.filter(asset => !this.has(asset));
+      const missing = assets.filter(asset => {
+        if (this.has(asset)) return false;
+
+        return !(
+          isOptionalNewspaper(asset) &&
+          this.unavailableNewspapers.has(
+            idOf(asset)
+          )
+        );
+      });
 
       if (!missing.length) return;
 
       const scene = await this.worker();
 
       if (this.destroyed) {
-        throw new Error('[AssetManager] Game destroyed.');
+        throw new Error(
+          '[AssetManager] Game destroyed.'
+        );
       }
 
       this.emitProgress(0, label);
 
       await new Promise((resolve, reject) => {
-        const failed = [];
+        const failed = new Set();
+
+        const requested = new Map(
+          missing.map(asset => [
+            idOf(asset),
+            asset
+          ])
+        );
 
         const onProgress = value => {
           this.emitProgress(value, label);
         };
 
         const onError = file => {
-          failed.push(`${file.type}:${file.key}`);
+          const id = `${file.type}:${file.key}`;
+          const asset = requested.get(id);
+
+          if (isOptionalNewspaper(asset)) {
+            this.markNewspaperUnavailable(asset);
+            return;
+          }
+
+          failed.add(id);
         };
 
         const cleanup = () => {
-          scene.load.off('progress', onProgress);
-          scene.load.off('loaderror', onError);
-          scene.load.off('complete', onComplete);
-          this.game.events.off('destroy', onDestroy);
+          scene.load.off(
+            'progress',
+            onProgress
+          );
+
+          scene.load.off(
+            'loaderror',
+            onError
+          );
+
+          scene.load.off(
+            'complete',
+            onComplete
+          );
+
+          this.game.events.off(
+            'destroy',
+            onDestroy
+          );
         };
 
         const onDestroy = () => {
           cleanup();
 
           reject(
-            new Error('[AssetManager] Loading cancelled.')
+            new Error(
+              '[AssetManager] Loading cancelled.'
+            )
           );
         };
 
@@ -434,50 +608,87 @@ export class AssetManager {
           cleanup();
 
           for (const asset of missing) {
+            const id = idOf(asset);
+
             if (
               asset.type === 'css' &&
-              !failed.includes(idOf(asset))
+              !failed.has(id)
             ) {
               this.cssLoaded.add(asset.key);
             }
 
             if (this.has(asset)) {
-              this.managed.set(idOf(asset), asset);
+              this.managed.set(id, asset);
+
+              if (isOptionalNewspaper(asset)) {
+                this.unavailableNewspapers.delete(id);
+              }
+            } else if (isOptionalNewspaper(asset)) {
+              this.markNewspaperUnavailable(asset);
             }
           }
 
-          const absent = missing.filter(
-            asset => !this.has(asset)
+          const absentRequired = missing.filter(
+            asset => (
+              !isOptionalNewspaper(asset) &&
+              !this.has(asset)
+            )
           );
 
-          if (failed.length || absent.length) {
-            const errors = [
-              ...new Set([
-                ...failed,
-                ...absent.map(idOf)
-              ])
-            ];
+          const errors = [
+            ...new Set([
+              ...failed,
+              ...absentRequired.map(idOf)
+            ])
+          ];
 
+          if (errors.length) {
             reject(
               new Error(
-                `[AssetManager] Load failed: ${errors.join(', ')}`
+                '[AssetManager] Load failed: ' +
+                errors.join(', ')
               )
             );
-          } else {
-            this.emitProgress(1, label);
-            resolve();
+
+            return;
           }
+
+          this.emitProgress(1, label);
+          resolve();
         };
 
-        scene.load.on('progress', onProgress);
-        scene.load.on('loaderror', onError);
-        scene.load.once('complete', onComplete);
+        scene.load.on(
+          'progress',
+          onProgress
+        );
 
-        this.game.events.once('destroy', onDestroy);
+        scene.load.on(
+          'loaderror',
+          onError
+        );
+
+        scene.load.once(
+          'complete',
+          onComplete
+        );
+
+        this.game.events.once(
+          'destroy',
+          onDestroy
+        );
 
         try {
+          let queued = 0;
+
           for (const asset of missing) {
-            this.queue(scene.load, asset);
+            if (this.queue(scene.load, asset)) {
+              queued += 1;
+            }
+          }
+
+          if (!queued) {
+            onComplete();
+            return;
           }
 
           scene.load.start();
@@ -510,7 +721,12 @@ export class AssetManager {
   }
 
   resolveCity(key, data) {
-    if (INITIAL.has(key) || UI.has(key)) return null;
+    if (
+      INITIAL.has(key) ||
+      UI.has(key)
+    ) {
+      return null;
+    }
 
     if (
       [
@@ -522,7 +738,9 @@ export class AssetManager {
       return 'hq';
     }
 
-    if (key === 'TravelTransitionScene') return null;
+    if (key === 'TravelTransitionScene') {
+      return null;
+    }
 
     return canonical(
       data.cityId ||
@@ -575,7 +793,10 @@ export class AssetManager {
           data.mapKey ||
           gameState.currentMission?.scene;
 
-        if (!crimeId || !bundles[`crime:${crimeId}`]) {
+        if (
+          !crimeId ||
+          !bundles[`crime:${crimeId}`]
+        ) {
           throw new Error(
             '[AssetManager] Unknown hidden-objects location.'
           );
@@ -588,9 +809,15 @@ export class AssetManager {
         requested.push(`scene:${key}`);
       }
 
-      const cityId = this.resolveCity(key, data);
+      const cityId = this.resolveCity(
+        key,
+        data
+      );
 
-      if (cityId && bundles[`city:${cityId}`]) {
+      if (
+        cityId &&
+        bundles[`city:${cityId}`]
+      ) {
         requested.push(`city:${cityId}`);
       }
 
@@ -609,11 +836,24 @@ export class AssetManager {
       }
 
       const release = () => {
-        target.events.off('shutdown', release);
-        target.events.off('destroy', release);
-        target.events.off('create', created);
+        target.events.off(
+          'shutdown',
+          release
+        );
 
-        if (this.prepared.get(key) === record) {
+        target.events.off(
+          'destroy',
+          release
+        );
+
+        target.events.off(
+          'create',
+          created
+        );
+
+        if (
+          this.prepared.get(key) === record
+        ) {
           this.prepared.delete(key);
         }
 
@@ -628,9 +868,20 @@ export class AssetManager {
 
       record.cleanup = release;
 
-      target.events.once('shutdown', release);
-      target.events.once('destroy', release);
-      target.events.once('create', created);
+      target.events.once(
+        'shutdown',
+        release
+      );
+
+      target.events.once(
+        'destroy',
+        release
+      );
+
+      target.events.once(
+        'create',
+        created
+      );
     })().catch(error => {
       this.prepared.delete(key);
       this.unpin(token);
@@ -680,17 +931,26 @@ export class AssetManager {
 
   debugStatus() {
     return {
-      build: 'live-texture-guard-holly-video-2026-10-27',
+      build: 'optional-newspaper-json-2026-10-30',
       currentCity: this.currentCity,
-      preparedScenes: [...this.prepared.keys()],
-      managedAssets: [...this.managed.keys()],
-
-      owners: [...this.owners].map(([owner, ids]) => ({
-        owner: String(owner),
-        count: ids.size
-      })),
-
-      recentTextureRemovals: [...this.textureEvents],
+      preparedScenes: [
+        ...this.prepared.keys()
+      ],
+      managedAssets: [
+        ...this.managed.keys()
+      ],
+      unavailableNewspapers: [
+        ...this.unavailableNewspapers
+      ],
+      owners: [...this.owners].map(
+        ([owner, ids]) => ({
+          owner: String(owner),
+          count: ids.size
+        })
+      ),
+      recentTextureRemovals: [
+        ...this.textureEvents
+      ],
       progress: this.progress
     };
   }

@@ -1,23 +1,37 @@
 import { gameState } from '../../GameData.js';
-import { requestAutosave } from '../../gameStatePersistence.js';
-import { advanceCrimeTutorial } from '../../CrimeCityTutorial.js';
+
+import {
+  requestAutosave
+} from '../../gameStatePersistence.js';
+
+import {
+  advanceCrimeTutorial
+} from '../../CrimeCityTutorial.js';
 
 const LAB_PHONE_DELAY_MS = 250;
+const PHONE_RETRY_DELAY_MS = 3000;
 
 export class CrimeCityTutorialController {
   constructor(scene) {
     this.scene = scene;
+
     this.showLabCompletionPhoneCall = false;
     this.showSuspectTutorial = false;
+
     this.phoneCallTimer = null;
     this.suspectTutorialTimer = null;
     this.syncTimer = null;
+
     this.phoneScenePromise = null;
     this.phoneCallPending = false;
+    this.nextPhoneAttemptAt = 0;
+
     this.lifecycleToken = 0;
     this.npcTarget = null;
 
-    this.onSceneReady = () => this.startProgressSync();
+    this.onSceneReady = () => {
+      this.startProgressSync();
+    };
 
     scene.events.on(
       Phaser.Scenes.Events.CREATE,
@@ -46,8 +60,10 @@ export class CrimeCityTutorialController {
 
     if (!loader) {
       console.error(
-        '[CrimeCityTutorialController] SceneLoader is unavailable.'
+        '[CrimeCityTutorialController] ' +
+        'SceneLoader is unavailable.'
       );
+
       return Promise.resolve(false);
     }
 
@@ -61,12 +77,14 @@ export class CrimeCityTutorialController {
 
     const promise = Promise.resolve()
       .then(() => loader.ensure('PhoneCallScene'))
-      .then(() => true)
-      .catch((error) => {
+      .then(() => loader.has('PhoneCallScene'))
+      .catch(error => {
         console.error(
-          '[CrimeCityTutorialController] Phone preparation failed.',
+          '[CrimeCityTutorialController] ' +
+          'Phone preparation failed.',
           error
         );
+
         return false;
       });
 
@@ -83,17 +101,54 @@ export class CrimeCityTutorialController {
 
   hasPhoneDecision() {
     const key = this.scene?.getCaseKey();
-    const decision =
-      gameState.suspectFilesPhoneDecisions?.[String(key)];
 
-    return decision === 'answer' || decision === 'ignore';
+    const decision =
+      gameState.suspectFilesPhoneDecisions?.[
+        String(key)
+      ];
+
+    return (
+      decision === 'answer' ||
+      decision === 'ignore'
+    );
   }
 
   getCommittedGrid() {
     const key = this.scene?.getCaseKey();
 
     return (
-      gameState.suspectExclusionState?.[key]?.finished === true
+      gameState.suspectExclusionState
+        ?.[key]?.finished === true
+    );
+  }
+
+  hasPendingLabPhone() {
+    const scene = this.scene;
+
+    if (
+      !scene ||
+      scene._cleanupDone
+    ) {
+      return false;
+    }
+
+    const caseKey = scene.getCaseKey();
+
+    if (
+      caseKey === null ||
+      caseKey === undefined ||
+      caseKey === ''
+    ) {
+      return false;
+    }
+
+    return Boolean(
+      scene.isCrimeSceneCompleted() &&
+      scene.isCrimeLabCompleted() &&
+      !scene.isGridCompleted() &&
+      !this.getCommittedGrid() &&
+      !scene.hasVisitedApartment() &&
+      !this.hasPhoneDecision()
     );
   }
 
@@ -106,24 +161,25 @@ export class CrimeCityTutorialController {
       scene.sys.isActive() &&
       !scene.isTransitioning &&
       !scene.isVisitingApartment &&
-      this.showLabCompletionPhoneCall &&
-      scene.isCrimeSceneCompleted() &&
-      scene.isCrimeLabCompleted() &&
-      !scene.isGridCompleted() &&
-      !this.getCommittedGrid() &&
-      !scene.hasVisitedApartment() &&
-      !this.hasPhoneDecision()
+      !scene.isSettingUpUi &&
+      this.hasPendingLabPhone()
     );
   }
 
   startProgressSync() {
     this.syncTimer?.remove(false);
+    this.syncTimer = null;
 
-    if (!this.scene || this.scene._cleanupDone) {
+    const scene = this.scene;
+
+    if (
+      !scene ||
+      scene._cleanupDone
+    ) {
       return;
     }
 
-    this.syncTimer = this.scene.time.addEvent({
+    this.syncTimer = scene.time.addEvent({
       delay: 250,
       loop: true,
       callback: () => this.syncProgress()
@@ -143,9 +199,16 @@ export class CrimeCityTutorialController {
       return;
     }
 
-    const tutorialState = gameState.onboarding?.crimeCity;
+    // The lab call works independently of tutorial visibility.
+    this.scheduleLabCompletionPhoneCall();
 
-    if (!tutorialState || tutorialState.completed) {
+    const tutorialState =
+      gameState.onboarding?.crimeCity;
+
+    if (
+      !tutorialState ||
+      tutorialState.completed
+    ) {
       return;
     }
 
@@ -160,19 +223,31 @@ export class CrimeCityTutorialController {
       tutorialState.step === 'hypothesis' &&
       reconstruction?.playerTheoryResult
     ) {
-      advanceCrimeTutorial(gameState, 'hypothesis');
+      advanceCrimeTutorial(
+        gameState,
+        'hypothesis'
+      );
     }
 
     if (this.getCommittedGrid()) {
       if (tutorialState.step === 'suspects') {
-        advanceCrimeTutorial(gameState, 'suspects');
+        advanceCrimeTutorial(
+          gameState,
+          'suspects'
+        );
       }
 
-      if (tutorialState.step === 'suspect_grid') {
-        advanceCrimeTutorial(gameState, 'suspect_grid');
+      if (
+        tutorialState.step === 'suspect_grid'
+      ) {
+        advanceCrimeTutorial(
+          gameState,
+          'suspect_grid'
+        );
       }
 
       this.showSuspectTutorial = false;
+
       this.suspectTutorialTimer?.remove(false);
       this.suspectTutorialTimer = null;
     }
@@ -207,16 +282,16 @@ export class CrimeCityTutorialController {
 
     const icons = (
       scene.npcManager?.createdObjects || []
-    ).filter((object) =>
+    ).filter(object => (
       object?.active &&
       object.visible &&
       object.input?.enabled &&
       object.type === 'Image' &&
       typeof object.getBounds === 'function'
-    );
+    ));
 
     const target =
-      icons.find((object) => object.alpha > 0.9) ||
+      icons.find(object => object.alpha > 0.9) ||
       icons[0];
 
     if (!target) {
@@ -225,6 +300,7 @@ export class CrimeCityTutorialController {
         tutorial.clearHighlight();
         this.npcTarget = null;
       }
+
       return;
     }
 
@@ -256,18 +332,24 @@ export class CrimeCityTutorialController {
       scrollFactorY: target.scrollFactorY ?? 1
     });
 
-    this.npcTarget = { object: target, signature };
+    this.npcTarget = {
+      object: target,
+      signature
+    };
   }
 
   scheduleLabCompletionPhoneCall() {
+    const scene = this.scene;
+
     if (
+      !scene ||
       this.phoneCallPending ||
+      scene.time.now < this.nextPhoneAttemptAt ||
       !this.canOfferLabPhone()
     ) {
       return;
     }
 
-    const scene = this.scene;
     const token = this.lifecycleToken;
     const caseKey = scene.getCaseKey();
     const scheduledAt = performance.now();
@@ -311,11 +393,15 @@ export class CrimeCityTutorialController {
       }
 
       if (!ready) {
+        this.nextPhoneAttemptAt =
+          scene.time.now + PHONE_RETRY_DELAY_MS;
+
         scene.showMessage(
-          'HQ could not connect.\nLeave and re-enter the Crime Lab to retry.',
-          3500,
+          'HQ could not connect.\nRetrying the line...',
+          2500,
           '#8b0000'
         );
+
         return;
       }
 
@@ -336,15 +422,30 @@ export class CrimeCityTutorialController {
         caseKey,
         scheduledAt,
         returnScene: 'CrimeCityScene',
-        returnData: { cityId: scene.cityId }
+        returnData: {
+          cityId: scene.cityId
+        }
       });
 
+      scene.scene.bringToTop('PhoneCallScene');
+
       this.showLabCompletionPhoneCall = false;
+
+      this.nextPhoneAttemptAt =
+        scene.time.now + PHONE_RETRY_DELAY_MS;
     } catch (error) {
       console.error(
         '[CrimeCityTutorialController] Lab phone failed.',
         error
       );
+
+      if (
+        this.lifecycleToken === token &&
+        this.scene === scene
+      ) {
+        this.nextPhoneAttemptAt =
+          scene.time.now + PHONE_RETRY_DELAY_MS;
+      }
     } finally {
       if (this.lifecycleToken === token) {
         this.phoneCallPending = false;
@@ -373,7 +474,9 @@ export class CrimeCityTutorialController {
         this.suspectTutorialTimer = null;
 
         if (
-          !this.scene?.scene.isActive('CrimeCityScene') ||
+          !this.scene?.scene.isActive(
+            'CrimeCityScene'
+          ) ||
           this.getCommittedGrid()
         ) {
           return;
@@ -392,17 +495,30 @@ export class CrimeCityTutorialController {
     const { width, height } = scene.scale;
 
     const overlay = scene.add.rectangle(
-      width / 2, height / 2,
-      width, height, 0x000000, 0.76
-    ).setDepth(500).setInteractive();
+      width / 2,
+      height / 2,
+      width,
+      height,
+      0x000000,
+      0.76
+    )
+      .setDepth(500)
+      .setInteractive();
 
     const panel = scene.add.rectangle(
-      width / 2, height / 2,
-      720, 330, 0x1d2733, 0.98
-    ).setStrokeStyle(4, 0xd4af37).setDepth(501);
+      width / 2,
+      height / 2,
+      720,
+      330,
+      0x1d2733,
+      0.98
+    )
+      .setStrokeStyle(4, 0xd4af37)
+      .setDepth(501);
 
     const title = scene.add.text(
-      width / 2, height / 2 - 120,
+      width / 2,
+      height / 2 - 120,
       'NEW LEAD: SUSPECT FILES',
       {
         fontFamily: 'PressStart2P',
@@ -410,10 +526,13 @@ export class CrimeCityTutorialController {
         color: '#ffe066',
         align: 'center'
       }
-    ).setOrigin(0.5).setDepth(502);
+    )
+      .setOrigin(0.5)
+      .setDepth(502);
 
     const body = scene.add.text(
-      width / 2, height / 2 - 25,
+      width / 2,
+      height / 2 - 25,
       [
         'The lab report is in, detective.',
         '',
@@ -431,10 +550,13 @@ export class CrimeCityTutorialController {
         align: 'center',
         lineSpacing: 8
       }
-    ).setOrigin(0.5).setDepth(502);
+    )
+      .setOrigin(0.5)
+      .setDepth(502);
 
     const button = scene.add.text(
-      width / 2, height / 2 + 118,
+      width / 2,
+      height / 2 + 118,
       'OPEN SUSPECT FILES',
       {
         fontFamily: 'PressStart2P',
@@ -442,12 +564,18 @@ export class CrimeCityTutorialController {
         color: '#17202a',
         backgroundColor: '#f1c94b',
         padding: {
-          left: 20, right: 20,
-          top: 14, bottom: 14
+          left: 20,
+          right: 20,
+          top: 14,
+          bottom: 14
         }
       }
-    ).setOrigin(0.5).setDepth(502)
-      .setInteractive({ useHandCursor: true });
+    )
+      .setOrigin(0.5)
+      .setDepth(502)
+      .setInteractive({
+        useHandCursor: true
+      });
 
     button.on('pointerover', () => {
       button.setStyle({
@@ -469,15 +597,21 @@ export class CrimeCityTutorialController {
         !gameState.caseSuspects.length
       ) {
         scene.showMessage(
-          'Suspect files are still being assembled.\nBureaucracy has entered its larval stage.',
+          'Suspect files are still being assembled.\n' +
+          'Bureaucracy has entered its larval stage.',
           2800,
           '#5d2a00'
         );
+
         return;
       }
 
       for (const object of [
-        overlay, panel, title, body, button
+        overlay,
+        panel,
+        title,
+        body,
+        button
       ]) {
         object.destroy();
       }
@@ -487,16 +621,21 @@ export class CrimeCityTutorialController {
       scene.transitionTo('SuspectsScene', {
         cityId: scene.cityId,
         returnScene: 'CrimeCityScene',
-        returnData: { cityId: scene.cityId },
+        returnData: {
+          cityId: scene.cityId
+        },
         sourceScene: 'CrimeCityScene',
         caseSuspects: gameState.caseSuspects,
-        identityEvidence: gameState.identityEvidence,
+        identityEvidence:
+          gameState.identityEvidence,
         identityEvidenceResult:
           gameState.identityEvidenceResult,
-        hypothesisEvidence: gameState.hypothesisEvidence,
+        hypothesisEvidence:
+          gameState.hypothesisEvidence,
         hypothesisEvidenceResult:
           gameState.hypothesisEvidenceResult,
-        forensicResults: gameState.forensicResults || [],
+        forensicResults:
+          gameState.forensicResults || [],
         gameState
       });
     });
@@ -504,7 +643,9 @@ export class CrimeCityTutorialController {
 
   clearTimers() {
     this.lifecycleToken += 1;
+
     this.phoneCallPending = false;
+    this.nextPhoneAttemptAt = 0;
 
     this.phoneCallTimer?.remove(false);
     this.phoneCallTimer = null;
@@ -529,8 +670,10 @@ export class CrimeCityTutorialController {
 
     this.npcTarget = null;
     this.phoneScenePromise = null;
+
     this.showLabCompletionPhoneCall = false;
     this.showSuspectTutorial = false;
+
     this.scene = null;
   }
 }

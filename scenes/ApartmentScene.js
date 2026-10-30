@@ -8,12 +8,14 @@ import { ApartmentObject } from './apartament/ApartmentObject.js';
 import { ApartmentInventoryUI } from './apartament/ApartmentInventoryUI.js';
 import { ApartmentRoomSystem } from './apartament/ApartmentRoomSystem.js';
 import { generateApartment } from './apartament/ApartmentGenerator.js';
+import { ApartmentOccupantController } from './apartament/ApartmentOccupantController.js';
 import { saveGameState, requestAutosave, flushAutosave } from '../gameStatePersistence.js';
 
 const DEFAULT_APARTMENT_MODIFIER={id:'empty_clues',effect:{state:'empty',clueCount:4,artifactState:'left_behind',artifactRequired:true,artifactRecoveryBonus:30,escapeMethod:'direct'}};
 export class ApartmentScene extends BaseScene {
- constructor(){super({key:'ApartmentScene'});this.crimeTutorial=null;this.apartmentObjects=[];this.roomSystem=null;}
+ constructor(){super({key:'ApartmentScene'});this.crimeTutorial=null;this.apartmentObjects=[];this.roomSystem=null;this.occupantController=null;}
  init(data={}){
+  this.occupantController?.destroy();this.occupantController=null;
   this.destroyCrimeTutorial();this.roomSystem?.destroy();this.roomSystem=null;
   this.mission=data.mission||gameState.currentMission||{};this.cityId=data.cityId||gameState.crimeCityId||null;
   this.suspectId=data.suspectId||this.mission.thiefId||gameState.currentThiefId||'suspect_001';
@@ -39,6 +41,8 @@ export class ApartmentScene extends BaseScene {
     if(!item||!(item.isArtifact||item.type==='artifact'))return item?[item]:[];
     return this.missionArtifact?[{...item,...this.missionArtifact}]:[];
    })}));
+   this.occupantController=new ApartmentOccupantController(this);
+   this.occupantController.installEvidence();
    this.roomSystem=new ApartmentRoomSystem(this);
   }catch(error){this.generationError=error;this.apartmentConfig={title:"Suspect's Apartment",objects:[]};console.error('[ApartmentScene] Apartment preparation failed:',error);}
  }
@@ -65,6 +69,7 @@ export class ApartmentScene extends BaseScene {
   if(this.generationError){this.showFailureView();return;}
   try{
    this.playerInventory=new ApartmentInventoryUI(this);this.createBackground();this.createHeader();this.createControls();this.restoreInventory();this.createApartmentObjects();
+   this.occupantController?.mount();
   }catch(error){this.generationError=error;console.error('[ApartmentScene] Apartment rendering failed:',error);this.showFailureView();return;}
   this.onBus('inventoryUpdated',this.onInventoryUpdated,this);this.onBus('itemCombined',this.onItemCombined,this);
   this.trackInputEvent(this.events,Phaser.Scenes.Events.WAKE,this.setupSharedHud,this);
@@ -74,6 +79,7 @@ export class ApartmentScene extends BaseScene {
   if(!this.missionArtifact)this.showMessage('The case file has no valid stolen artefact. No replacement item has been generated.',5000,'#8b3030');
  }
  showFailureView(){
+  this.occupantController?.destroy();
   this.destroyCrimeTutorial();this.failureRoot?.destroy(true);
   const hud=this.getPlayerHudScene();hud?.closeAllUIPanels();inventoryManager.close();
   const host=hud?.sys?.isActive()?hud:this;if(host===hud){hud.scene.setVisible(true);hud.scene.bringToTop();}
@@ -100,7 +106,7 @@ export class ApartmentScene extends BaseScene {
   }catch(error){console.error('[ApartmentScene] Shared HUD failed:',error);return null;}
  }
  async openSharedInventory(){
-  if(this.isTransitioning||this.isOpeningInventory||this.leaveDialog)return false;this.isOpeningInventory=true;
+  if(this.isTransitioning||this.isOpeningInventory||this.leaveDialog||this.occupantController?.root)return false;this.isOpeningInventory=true;
   try{const hud=this.getPlayerHudScene()||await this.setupSharedHud();if(!hud||this._cleanupDone||!this.sys.isActive())return false;const panel=await hud.ensurePanel('inventoryUI');if(!panel||this._cleanupDone||!this.sys.isActive())return false;hud.setCurrentGameplayScene('ApartmentScene');hud.closeAllUIPanels();panel.open();return true;}
   catch(error){console.error('[ApartmentScene] Cannot open inventory:',error);this.showMessage('Your inventory could not be opened. Please try again.',2500,'#8b3030');return false;}finally{this.isOpeningInventory=false;}
  }
@@ -170,7 +176,7 @@ export class ApartmentScene extends BaseScene {
   this.messageTimer=this.time.delayedCall(duration,()=>{popup.destroy();if(this.messageBox===popup)this.messageBox=null;this.messageTimer=null;});return popup;
  }
  hasUncollectedEvidence(){return (this.apartmentConfig?.objects||[]).some(object=>(object.unlocks||[]).some(item=>{if(!item||item.isRedHerring)return false;if(item.isArtifact||item.type==='artifact')return !this.artifactRecovered;return (item.isClue||item.isEscapeClue||item.isEscapeFragment)&&!this.hasItemAlready(item.id);}));}
- exitApartment(){if(this.isTransitioning||this.leaveDialog||!this.sys.isActive())return;if(this.hasUncollectedEvidence())this.showLeaveWarning();else this.leaveApartment();}
+ exitApartment(){if(this.isTransitioning||this.leaveDialog||this.occupantController?.root||!this.sys.isActive())return;if(this.hasUncollectedEvidence())this.showLeaveWarning();else this.leaveApartment();}
  showLeaveWarning(){
   this.getPlayerHudScene()?.closeAllUIPanels();const {width,height}=this.scale,pw=Math.min(560,width-30),root=this.add.container(0,0).setDepth(25000);this.leaveDialog=root;
   root.add(this.add.rectangle(width/2,height/2,width,height,0x000000,0.75).setInteractive());root.add(this.add.rectangle(width/2,height/2,pw,240,0x28221b).setStrokeStyle(3,0xbfa065).setInteractive());
@@ -180,12 +186,13 @@ export class ApartmentScene extends BaseScene {
  }
  closeLeaveWarning(){this.leaveDialog?.destroy(true);this.leaveDialog=null;}
  leaveApartment(){if(this.isTransitioning)return;this.persistApartmentState();saveGameState();this.transitionToScene('CrimeCityScene',{cityId:gameState.crimeCityId});}
- transitionToScene(key,data={}){if(this.isTransitioning||!this.sys.isActive())return;this.isTransitioning=true;inventoryManager.close();this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,()=>{if(this.sys.isActive())void this.performSceneTransition(key,data);});this.cameras.main.fadeOut(400,0,0,0);}
+ transitionToScene(key,data={}){if(this.isTransitioning||!this.sys.isActive())return;this.isTransitioning=true;this.occupantController?.close();inventoryManager.close();this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,()=>{if(this.sys.isActive())void this.performSceneTransition(key,data);});this.cameras.main.fadeOut(400,0,0,0);}
  async performSceneTransition(key,data){try{const started=await this.goto(key,data);if(started===false&&this.sys.isActive())this.restoreAfterTransitionFailure();}catch(error){console.error('[ApartmentScene] Navigation failed:',error);if(this.sys.isActive())this.restoreAfterTransitionFailure();}}
  restoreAfterTransitionFailure(){this.isTransitioning=false;this.cameras.main.fadeIn(200,0,0,0);this.showMessage('Could not leave the apartment. Try EXIT again.',2500,'#8b3030');}
  startCrimeTutorial(){this.destroyCrimeTutorial();const saved=gameState.onboarding?.crimeCity;if(!saved||saved.completed||saved.step!=='search_apartment')return;this.crimeTutorial=new CrimeCityTutorial(this,gameState);this.crimeTutorial.start();}
  destroyCrimeTutorial(){try{this.crimeTutorial?.destroy();}catch(error){console.warn('[ApartmentScene] Tutorial cleanup failed:',error);}this.crimeTutorial=null;}
  onShutdown(){
+  this.occupantController?.destroy();this.occupantController=null;
   this.destroyCrimeTutorial();this.roomSystem?.destroy();this.roomSystem=null;this.messageTimer?.remove(false);this.migrationTimer?.remove(false);this.messageTimer=this.migrationTimer=null;this.closeLeaveWarning();
   this.failureRoot?.destroy(true);this.failureRoot=null;
   if(this.apartmentHud&&this.hudReadyHandler)this.apartmentHud.events.off('hud-ready',this.hudReadyHandler);this.hudReadyHandler=null;this.apartmentHud=null;
