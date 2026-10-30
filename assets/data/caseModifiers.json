@@ -29,9 +29,12 @@
     { "id": "reversed_disprove", "weight": 10, "minCaseIndex": 5, "effect": { "slots": 3, "attempts": 3, "mode": "disprove" } }
   ],
   "apartment": [
-    { "id": "empty_clues", "weight": 65, "minCaseIndex": 0, "effect": { "state": "empty", "clueCount": 4 } },
-    { "id": "fresh_escape", "weight": 20, "minCaseIndex": 3, "effect": { "state": "fresh", "hasChaseBeat": true } },
-    { "id": "trap_left", "weight": 15, "minCaseIndex": 4, "effect": { "state": "empty", "clueCount": 3, "hasTrap": true } }
+    { "id": "empty_clues", "weight": 10, "minCaseIndex": 0, "effect": { "state": "empty", "clueCount": 4 } },
+    { "id": "fresh_escape", "weight": 10, "minCaseIndex": 3, "effect": { "state": "fresh", "hasChaseBeat": true } },
+    { "id": "trap_left", "weight": 10, "minCaseIndex": 4, "effect": { "state": "empty", "clueCount": 3, "hasTrap": true } },
+    { "id": "artifact_pawned", "weight": 25, "minCaseIndex": 1, "effect": { "state": "empty", "clueCount": 4, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "pawnshop" } },
+    { "id": "artifact_shipped", "weight": 20, "minCaseIndex": 2, "effect": { "state": "empty", "clueCount": 4, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "parcel_abroad" } },
+    { "id": "artifact_collector", "weight": 15, "minCaseIndex": 3, "effect": { "state": "empty", "clueCount": 3, "artifactState": "carried_away", "hasOccupant": true, "artifactTrail": "private_collector" } }
   ],
   "travelCities": [
     { "id": "quiet_travel", "weight": 60, "minCaseIndex": 0, "effect": { "randomEncounter": false } }

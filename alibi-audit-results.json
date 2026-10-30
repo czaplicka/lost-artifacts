@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-10-29T23:30:50.025Z",
+  "scope": "Local source data and pure logic; browser services stubbed; NOT a Phaser end-to-end test",
+  "passed": 16,
+  "failed": 0,
+  "skipped": 0,
+  "results": [
+    {
+      "name": "Expanded search data passes the real validator",
+      "status": "PASS"
+    },
+    {
+      "name": "Expanded phone data passes the real validator",
+      "status": "PASS"
+    },
+    {
+      "name": "Kitchen failure returns the restaurant notice",
+      "status": "PASS"
+    },
+    {
+      "name": "arthur_finch has one matching social result",
+      "status": "PASS"
+    },
+    {
+      "name": "nora_bell has one matching social result",
+      "status": "PASS"
+    },
+    {
+      "name": "simon_pike has one matching social result",
+      "status": "PASS"
+    },
+    {
+      "name": "evelyn_shaw has one matching social result",
+      "status": "PASS"
+    },
+    {
+      "name": "Uncollected search terms do not resolve",
+      "status": "PASS"
+    },
+    {
+      "name": "Nora cannot be confronted without the required evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "Every declared phone topic can be reached with its own gates",
+      "status": "PASS"
+    },
+    {
+      "name": "Company cannot verify the folder before Evelyn’s slip",
+      "status": "PASS"
+    },
+    {
+      "name": "Conversation effects and transcript are committed once per topic",
+      "status": "PASS"
+    },
+    {
+      "name": "Named contacts survive JSON save/reload without duplicates",
+      "status": "PASS"
+    },
+    {
+      "name": "Hints escalate to three levels, then reset with stage change",
+      "status": "PASS"
+    },
+    {
+      "name": "Board does not reveal undiscovered evidence",
+      "status": "PASS"
+    },
+    {
+      "name": "Board distinguishes a statement from independent verification",
+      "status": "PASS"
+    }
+  ]
+}

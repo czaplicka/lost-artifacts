@@ -2,7 +2,7 @@
   "assets": [
     {
       "key": "btnRookie",
-      "url": "assets/rookie.png",
+      "url": "assets/buttons/rookie.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -11,7 +11,7 @@
     },
     {
       "key": "btnOfficer",
-      "url": "assets/officer.png",
+      "url": "assets/buttons/officer.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -20,7 +20,7 @@
     },
     {
       "key": "btnCaptain",
-      "url": "assets/captain.png",
+      "url": "assets/buttons/captain.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -29,7 +29,7 @@
     },
     {
       "key": "btnStart",
-      "url": "assets/start.png",
+      "url": "assets/buttons/start.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -38,7 +38,7 @@
     },
     {
       "key": "back",
-      "url": "assets/back.png",
+      "url": "assets/buttons/back.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -47,7 +47,7 @@
     },
     {
       "key": "next",
-      "url": "assets/next.png",
+      "url": "assets/buttons/next.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -56,7 +56,7 @@
     },
     {
       "key": "load",
-      "url": "assets/load.png",
+      "url": "assets/buttons/load.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -65,7 +65,7 @@
     },
     {
       "key": "btnSave",
-      "url": "assets/save.png",
+      "url": "assets/buttons/save.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -74,7 +74,7 @@
     },
     {
       "key": "btnContinue",
-      "url": "assets/continue.png",
+      "url": "assets/buttons/continue.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -83,7 +83,7 @@
     },
     {
       "key": "btnExit",
-      "url": "assets/exit.png",
+      "url": "assets/buttons/exit.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -92,7 +92,7 @@
     },
     {
       "key": "btnSettings",
-      "url": "assets/settings.png",
+      "url": "assets/buttons/settings.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -101,7 +101,7 @@
     },
     {
       "key": "btnHiscore",
-      "url": "assets/hiscore.png",
+      "url": "assets/buttons/hiscore.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -110,7 +110,7 @@
     },
     {
       "key": "new_game",
-      "url": "assets/new_game.png",
+      "url": "assets/buttons/new_game.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -119,7 +119,7 @@
     },
     {
       "key": "loginbtn",
-      "url": "assets/login.png",
+      "url": "assets/buttons/login.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -128,7 +128,7 @@
     },
     {
       "key": "registerbtn",
-      "url": "assets/register.png",
+      "url": "assets/buttons/register.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -306,9 +306,33 @@
         "backgrounds"
       ]
     },
-    {
+        {
+      "key": "tv1",
+      "url": "assets/audio/tv1.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+        {
+      "key": "tv2",
+      "url": "assets/udio/tv2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+        {
+      "key": "ad_jingle",
+      "url": "assets/audio/ad_jingle.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+   {
       "key": "notebook_bg",
-      "url": "assets/ui/notebook_bg.png",
+      "url": "assets/ui/notebook_bg.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -317,7 +341,7 @@
     },
     {
       "key": "sketch_base",
-      "url": "assets/ui/sketch_base.png",
+      "url": "assets/ui/sketch_base.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -326,7 +350,7 @@
     },
     {
       "key": "sketch_eyes",
-      "url": "assets/ui/sketch_eyes.png",
+      "url": "assets/ui/sketch_eyes.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -335,7 +359,7 @@
     },
     {
       "key": "beard",
-      "url": "assets/ui/beard.png",
+      "url": "assets/ui/beard.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -344,7 +368,7 @@
     },
     {
       "key": "big_forhead",
-      "url": "assets/ui/big_forhead.png",
+      "url": "assets/ui/big_forhead.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -353,7 +377,7 @@
     },
     {
       "key": "earings",
-      "url": "assets/ui/earings.png",
+      "url": "assets/ui/earings.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -362,7 +386,7 @@
     },
     {
       "key": "glasses",
-      "url": "assets/ui/glasses.png",
+      "url": "assets/ui/glasses.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -371,7 +395,7 @@
     },
     {
       "key": "gotee",
-      "url": "assets/ui/gotee.png",
+      "url": "assets/ui/gotee.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -380,7 +404,7 @@
     },
     {
       "key": "long_hair",
-      "url": "assets/ui/long_hair.png",
+      "url": "assets/ui/long_hair.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -389,7 +413,7 @@
     },
     {
       "key": "moustache",
-      "url": "assets/ui/moustache.png",
+      "url": "assets/ui/moustache.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -398,7 +422,7 @@
     },
     {
       "key": "neckles",
-      "url": "assets/ui/neckles.png",
+      "url": "assets/ui/neckles.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -407,7 +431,7 @@
     },
     {
       "key": "rainbow_streak",
-      "url": "assets/ui/rainbow_streak.png",
+      "url": "assets/ui/rainbow_streak.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -416,7 +440,7 @@
     },
     {
       "key": "scar",
-      "url": "assets/ui/scar.png",
+      "url": "assets/ui/scar.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -425,14 +449,13 @@
     },
     {
       "key": "tatoo",
-      "url": "assets/ui/tatoo.png",
+      "url": "assets/ui/tatoo.webp",
       "type": "image",
       "groups": [
         "ui",
         "backgrounds"
       ]
-    },
-    {
+    },    {
       "key": "mapbg",
       "url": "assets/map.webp",
       "type": "image",
@@ -460,7 +483,7 @@
     },
     {
       "key": "tv_news_studio",
-      "url": "assets/tv/tv_news_studio.jpg",
+      "url": "assets/tv/tv_news_studio.webp",
       "type": "image",
       "groups": [
         "ui"
@@ -468,7 +491,7 @@
     },
     {
       "key": "tv_anchor_generic",
-      "url": "assets/tv/tv_anchor_generic.jpg",
+      "url": "assets/tv/tv_anchor_generic.webp",
       "type": "image",
       "groups": [
         "ui"
@@ -476,34 +499,10 @@
     },
     {
       "key": "tv_anchor_genericf",
-      "url": "assets/tv/tv_anchor_genericf.jpg",
+      "url": "assets/tv/tv_anchor_genericf.webp",
       "type": "image",
       "groups": [
         "ui"
-      ]
-    },
-        {
-      "key": "tv1",
-      "url": "assets/audio/tv1.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-            {
-      "key": "tv2",
-      "url": "assets/audio/tv2.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-                {
-      "key": "ad_jingle",
-      "url": "assets/audio/ad_jingle.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
       ]
     },
     {

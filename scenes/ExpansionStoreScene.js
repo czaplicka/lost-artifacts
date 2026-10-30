@@ -1,6 +1,8 @@
 import { BaseScene } from './BaseScene.js';
 import { isDeadMailPreviewEnabled, getDeadMailProgress } from '../managers/DeadMailManager.js';
 import { getDeadMailNightProgress } from '../managers/DeadMailNightManager.js';
+import { openPayPalSandbox } from '../ui/PayPalSandboxCheckout.js';
+
 const SCENE_KEY='ExpansionStoreScene';
 const PRODUCTS=[
  {id:'dead_mail',category:'HALLOWEEN / PI CASE',title:'DEAD\nMAIL',location:'Blackthorn Cemetery',description:'A parcel for a dead woman.\nShe would like to complain\nin person.',
@@ -27,10 +29,11 @@ export class ExpansionStoreScene extends BaseScene{
   if(this.textures.exists('shopping'))this.root.add(this.add.image(960,540,'shopping').setDisplaySize(1920,1080));else this.root.add(this.add.rectangle(960,540,1920,1080,0x29201b));
   this.addText(70,28,'MARK AGENCY / EXTRA CASES',22,'#e8d9b0',{fontFamily:'PressStart2P'});
   this.addText(70,70,'Additional assignments. Additional paperwork.',24,'#c4b69a');
+  this.button(1500,48,'PAYPAL TEST',()=>openPayPalSandbox(this),{width:270,height:54,fill:0x493b2c});
   this.button(1790,48,'CLOSE',()=>this.closeStore(),{width:180,height:54,fill:0x29231f});
   this.button(575,820,'<',()=>this.changeProduct(-1),{width:64,height:64});this.button(974,820,'>',()=>this.changeProduct(1),{width:64,height:64});
-  this.addText(286,755,'MY COLLECTION',19,'#e7d5af',{angle:-12});this.addText(278,798,'Not connected yet',20,'#c2ae8b',{angle:-12});
-  this.addText(960,1024,'CATALOG PREVIEW — NO PAYMENTS ARE AVAILABLE',18,'#d8c9a7',{originX:.5});
+  this.addText(286,755,'MY COLLECTION',19,'#e7d5af',{angle:-12});this.addText(278,798,'Use PayPal Test',20,'#c2ae8b',{angle:-12});
+  this.addText(960,1024,'CATALOG PREVIEW — PAYPAL TEST: SANDBOX ONLY / 1 EUR',18,'#d8c9a7',{originX:.5});
   this.drawProduct();this.fitLayout();this.scale.on('resize',this.fitLayout,this);
   if(this.input.keyboard){
    this.trackInputEvent(this.input.keyboard,'keydown-ESC',()=>{if(this.detailsLayer)this.closeDetails();else this.closeStore();});
@@ -76,7 +79,7 @@ export class ExpansionStoreScene extends BaseScene{
   const text=(x,y,v,size=24,color='#34291e',options={})=>this.addText(x,y,v,size,color,options,layer);
   text(470,125,p.category,20,'#785436');text(470,178,p.title.replace(/\n/g,' '),36);text(470,246,p.location,25,'#6a5136');
   text(470,302,'LOCAL PREVIEW CONTENT / NOT FOR SALE',20,'#785436');text(470,350,p.contents.map(s=>'• '+s).join('\n'),24,'#34291e',{wordWrap:{width:970},lineSpacing:16});
-  text(470,560,'No payments or ownership are simulated. Use a test save for rewards.',21,'#785436',{wordWrap:{width:950}});
+  text(470,560,'These previews are not for sale. PayPal Test is a separate Sandbox product.',21,'#785436',{wordWrap:{width:950}});
   if(p.id==='dead_mail'&&isDeadMailPreviewEnabled()){
    const day=getDeadMailProgress(),night=getDeadMailNightProgress();
    this.button(960,650,day.clues.length?'RESUME DAY PREVIEW':'PLAY DAY PREVIEW',()=>void this.launchPreview('day'),{width:510,parent:layer});

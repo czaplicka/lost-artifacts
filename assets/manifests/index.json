@@ -378,8 +378,8 @@
       "image:intro"
     ],
     "scene:SpyShopScene": [
-  "image:pi_spy_shop_background"
-],
+      "image:pi_spy_shop_background"
+    ],
     "scene:GameOverScene": [
       "image:backgroundgo"
     ],
@@ -916,6 +916,7 @@
       "image:berlin",
       "image:berlin_crime",
       "json:newspaper_daily_berlin",
+      "json:newspaper_time_berlin",
       "image:paper_berlin_heist_photo",
       "image:paper_berlin_statue_photo",
       "image:paper_berlin_dj_photo",
@@ -927,6 +928,7 @@
       "image:london",
       "image:london_crime",
       "json:newspaper_daily_london",
+      "json:newspaper_time_london",
       "image:paper_london_heist_photo",
       "image:paper_london_queue_photo",
       "image:paper_london_weather_photo",
@@ -938,6 +940,7 @@
       "image:newdelhi",
       "image:new_delhi_crime",
       "json:newspaper_daily_new_delhi",
+      "json:newspaper_time_new_delhi",
       "image:paper_new_delhi_heist_photo",
       "image:paper_new_delhi_tea_photo",
       "image:paper_new_delhi_monkey_photo",
@@ -949,6 +952,7 @@
       "image:newyorkcity",
       "image:new_york_city_crime",
       "json:newspaper_daily_new_york_city",
+      "json:newspaper_time_new_york_city",
       "image:paper_new_york_heist_photo",
       "image:paper_new_york_subway_photo",
       "image:paper_new_york_deli_photo",
@@ -960,6 +964,7 @@
       "image:paris",
       "image:paris_crime",
       "json:newspaper_daily_paris",
+      "json:newspaper_time_paris",
       "image:paper_paris_heist_photo",
       "image:paper_paris_cafe_photo",
       "image:paper_paris_pigeon_baguette_photo",
@@ -971,6 +976,7 @@
       "image:warsaw",
       "image:warsaw_crime",
       "json:newspaper_daily_warsaw",
+      "json:newspaper_time_warsaw",
       "image:paper_warsaw_heist_photo",
       "image:paper_warsaw_vending_photo",
       "image:paper_warsaw_river_photo",
@@ -1015,6 +1021,7 @@
     ],
     "city:hq": [
       "json:newspaper_daily_hq",
+      "json:newspaper_time_hq",
       "image:paper_hq_case_briefing_photo",
       "image:paper_hq_crimewave_photo",
       "image:paper_hq_coffee_machine_photo",

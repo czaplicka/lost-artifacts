@@ -4,697 +4,565 @@
       "key": "paper_daily_bg",
       "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
     },
     {
       "key": "comix1",
       "url": "assets/newspapers/comix1.webp",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
     },
     {
       "key": "comix2",
       "url": "assets/newspapers/comix2.webp",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
     },
     {
       "key": "paper_fallback_blank",
       "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
     },
     {
       "key": "paper_tabloid_bg",
       "url": "assets/newspapers/paper_tabloid_bg_1920x1080.png",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
     },
     {
       "key": "paper_time_bg",
       "url": "assets/newspapers/paper_time_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "newspapers"
-      ]
+      "groups": ["newspapers"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_berlin",
+      "url": "assets/data/newspapers/time/berlin.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_london",
+      "url": "assets/data/newspapers/time/london.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_new_delhi",
+      "url": "assets/data/newspapers/time/new_dehli.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_new_york_city",
+      "url": "assets/data/newspapers/time/new_york.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_paris",
+      "url": "assets/data/newspapers/time/paris.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_warsaw",
+      "url": "assets/data/newspapers/time/warsaw.json",
+      "groups": ["json"]
+    },
+    {
+      "type": "json",
+      "key": "newspaper_time_hq",
+      "url": "assets/data/newspapers/time/hq.json",
+      "groups": ["json"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_berlin",
       "url": "assets/data/newspapers/daily/berlin.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_berlin_heist_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_berlin_statue_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_statue_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_berlin_dj_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_dj_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_berlin_transit_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_transit_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_berlin_spaeti_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_spaeti_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_berlin_dog_raincoat_photo",
       "url": "assets/newspapers/newspapers/paper_berlin_dog_raincoat_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_hq",
       "url": "assets/data/newspapers/daily/hq.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_hq_case_briefing_photo",
       "url": "assets/newspapers/newspapers/paper_hq_case_briefing_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_hq_crimewave_photo",
       "url": "assets/newspapers/newspapers/paper_hq_crimewave_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_hq_coffee_machine_photo",
       "url": "assets/newspapers/newspapers/paper_hq_coffee_machine_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_hq_hr_fun_photo",
       "url": "assets/newspapers/newspapers/paper_hq_hr_fun_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_hq_elevator_photo",
       "url": "assets/newspapers/newspapers/paper_hq_elevator_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_hq_archive_photo",
       "url": "assets/newspapers/newspapers/paper_hq_archive_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_islamabad",
       "url": "assets/data/newspapers/daily/islamabad.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_islamabad_hills_photo",
       "url": "assets/newspapers/newspapers/paper_islamabad_hills_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_islamabad_chai_photo",
       "url": "assets/newspapers/newspapers/paper_islamabad_chai_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_islamabad_sunset_photo",
       "url": "assets/newspapers/newspapers/paper_islamabad_sunset_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_islamabad_peacock_photo",
       "url": "assets/newspapers/newspapers/paper_islamabad_peacock_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_islamabad_traffic_photo",
       "url": "assets/newspapers/newspapers/paper_islamabad_traffic_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_kotte",
       "url": "assets/data/newspapers/daily/kotte.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_kotte_monitor_lizard_photo",
       "url": "assets/newspapers/newspapers/paper_kotte_monitor_lizard_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_kotte_lake_photo",
       "url": "assets/newspapers/newspapers/paper_kotte_lake_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_kotte_tea_photo",
       "url": "assets/newspapers/newspapers/paper_kotte_tea_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_kotte_tuktuk_photo",
       "url": "assets/newspapers/newspapers/paper_kotte_tuktuk_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_kotte_pigeon_photo",
       "url": "assets/newspapers/newspapers/paper_kotte_pigeon_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_london",
       "url": "assets/data/newspapers/daily/london.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_london_heist_photo",
       "url": "assets/newspapers/newspapers/paper_london_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_london_queue_photo",
       "url": "assets/newspapers/newspapers/paper_london_queue_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_london_weather_photo",
       "url": "assets/newspapers/newspapers/paper_london_weather_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_london_tube_photo",
       "url": "assets/newspapers/newspapers/paper_london_tube_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_london_pigeon_bus_photo",
       "url": "assets/newspapers/newspapers/paper_london_pigeon_bus_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_london_tourist_map_photo",
       "url": "assets/newspapers/newspapers/paper_london_tourist_map_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_nairobi",
       "url": "assets/data/newspapers/daily/nairobi.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_nairobi_matatu_photo",
       "url": "assets/newspapers/newspapers/paper_nairobi_matatu_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_nairobi_giraffe_skyline_photo",
       "url": "assets/newspapers/newspapers/paper_nairobi_giraffe_skyline_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_nairobi_karura_photo",
       "url": "assets/newspapers/newspapers/paper_nairobi_karura_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_nairobi_cafe_photo",
       "url": "assets/newspapers/newspapers/paper_nairobi_cafe_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_nairobi_startup_photo",
       "url": "assets/newspapers/newspapers/paper_nairobi_startup_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_new_delhi",
       "url": "assets/data/newspapers/daily/new_delhi.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_heist_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_tea_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_tea_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_monkey_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_monkey_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_market_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_market_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_traffic_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_traffic_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_delhi_food_stall_photo",
       "url": "assets/newspapers/newspapers/paper_new_delhi_food_stall_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_new_york_city",
       "url": "assets/data/newspapers/daily/new_york_city.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_new_york_heist_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_york_subway_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_subway_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_york_deli_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_deli_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_york_street_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_street_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_york_dog_park_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_dog_park_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_new_york_taxi_photo",
       "url": "assets/newspapers/newspapers/paper_new_york_taxi_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_paris",
       "url": "assets/data/newspapers/daily/paris.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_paris_heist_photo",
       "url": "assets/newspapers/newspapers/paper_paris_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_paris_cafe_photo",
       "url": "assets/newspapers/newspapers/paper_paris_cafe_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_paris_pigeon_baguette_photo",
       "url": "assets/newspapers/newspapers/paper_paris_pigeon_baguette_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_paris_beret_photo",
       "url": "assets/newspapers/newspapers/paper_paris_beret_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_paris_metro_photo",
       "url": "assets/newspapers/newspapers/paper_paris_metro_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_paris_dog_portrait_photo",
       "url": "assets/newspapers/newspapers/paper_paris_dog_portrait_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_tokyo",
       "url": "assets/data/newspapers/daily/tokyo.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_tokyo_train_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_train_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_tokyo_vending_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_vending_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_tokyo_station_cat_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_station_cat_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_tokyo_convenience_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_convenience_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_tokyo_fuji_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_fuji_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_toronto",
       "url": "assets/data/newspapers/daily/toronto.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_toronto_raccoon_photo",
       "url": "assets/newspapers/newspapers/paper_toronto_raccoon_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_toronto_streetcar_photo",
       "url": "assets/newspapers/newspapers/paper_toronto_streetcar_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_toronto_path_photo",
       "url": "assets/newspapers/newspapers/paper_toronto_path_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_toronto_dog_park_photo",
       "url": "assets/newspapers/newspapers/paper_toronto_dog_park_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_toronto_tower_photo",
       "url": "assets/newspapers/newspapers/paper_toronto_tower_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "json",
       "key": "newspaper_daily_warsaw",
       "url": "assets/data/newspapers/daily/warsaw.json",
-      "groups": [
-        "json"
-      ]
+      "groups": ["json"]
     },
     {
       "type": "image",
       "key": "paper_warsaw_heist_photo",
       "url": "assets/newspapers/newspapers/paper_warsaw_heist_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_warsaw_vending_photo",
       "url": "assets/newspapers/newspapers/paper_warsaw_vending_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_warsaw_river_photo",
       "url": "assets/newspapers/newspapers/paper_warsaw_river_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_warsaw_mermaid_photo",
       "url": "assets/newspapers/newspapers/paper_warsaw_mermaid_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "type": "image",
       "key": "paper_warsaw_palace_photo",
       "url": "assets/newspapers/newspapers/paper_warsaw_palace_photo.webp",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "key": "paper_daily_bg_1920x1080",
       "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "key": "paper_time_bg_1920x1080",
       "url": "assets/newspapers/paper_time_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     },
     {
       "key": "paper_placeholder_1920",
       "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
       "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
+      "groups": ["backgrounds"]
     }
   ]
 }

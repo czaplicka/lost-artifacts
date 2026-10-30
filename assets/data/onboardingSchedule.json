@@ -16,7 +16,7 @@
     "suspectFiltering": "standard",
     "interviews": "neutral_tone",
     "mastermind": "standard_3slot",
-    "apartment": "empty_clues",
+    "apartment": "artifact_pawned",
     "travelCities": "quiet_travel",
     "cityChain": "two_cities"
   },
@@ -27,18 +27,17 @@
     "suspectFiltering": "standard",
     "interviews": "hostile_tone",
     "mastermind": "standard_3slot",
-    "apartment": "empty_clues",
+    "apartment": "artifact_shipped",
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   },
 
   "3": {
     "hiddenObjects": "unusual_scene",
-    "lab": "three_games",
+    "lab": "full_three",
     "suspectFiltering": "early_liar",
     "interviews": "scared_tone",
     "mastermind": "standard_3slot",
-    "apartment": "fresh_escape",
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   },
@@ -49,7 +48,6 @@
     "suspectFiltering": "early_liar",
     "interviews": "scared_tone",
     "mastermind": "standard_3slot",
-    "apartment": "fresh_escape",
     "travelCities": "quiet_travel",
     "cityChain": "three_cities"
   }

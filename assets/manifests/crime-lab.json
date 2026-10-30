@@ -42,7 +42,7 @@
     },
     {
       "key": "desk1",
-      "url": "assets/CSI/desk1.jpg",
+      "url": "assets/CSI/desk1.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -50,7 +50,7 @@
     },
     {
       "key": "desk2",
-      "url": "assets/CSI/desk2.jpg",
+      "url": "assets/CSI/desk2.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -58,7 +58,7 @@
     },
     {
       "key": "evidence_bag",
-      "url": "assets/CSI/evidence_bag.png",
+      "url": "assets/CSI/evidence_bag.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -66,7 +66,7 @@
     },
     {
       "key": "hair_board",
-      "url": "assets/CSI/hair_board.png",
+      "url": "assets/CSI/hair_board.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -74,7 +74,7 @@
     },
     {
       "key": "hair_strand_blond",
-      "url": "assets/CSI/hair_strand_blond.png",
+      "url": "assets/CSI/hair_strand_blond.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -82,7 +82,7 @@
     },
     {
       "key": "hair_strand_black",
-      "url": "assets/CSI/hair_strand_black.png",
+      "url": "assets/CSI/hair_strand_black.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -90,7 +90,7 @@
     },
     {
       "key": "hair_strand_red",
-      "url": "assets/CSI/hair_strand_red.png",
+      "url": "assets/CSI/hair_strand_red.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -98,7 +98,7 @@
     },
     {
       "key": "hair_strand_brown",
-      "url": "assets/CSI/hair_strand_brown.png",
+      "url": "assets/CSI/hair_strand_brown.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -106,7 +106,7 @@
     },
     {
       "key": "hair_strand_auburn",
-      "url": "assets/CSI/hair_strand_auburn.png",
+      "url": "assets/CSI/hair_strand_auburn.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -114,7 +114,7 @@
     },
     {
       "key": "hair_strand_grey",
-      "url": "assets/CSI/hair_strand_grey.png",
+      "url": "assets/CSI/hair_strand_grey.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -122,7 +122,7 @@
     },
     {
       "key": "hair_strand_white",
-      "url": "assets/CSI/hair_strand_white.png",
+      "url": "assets/CSI/hair_strand_white.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -130,7 +130,7 @@
     },
     {
       "key": "tweezers",
-      "url": "assets/CSI/tweezers.png",
+      "url": "assets/CSI/tweezers.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -138,7 +138,7 @@
     },
     {
       "key": "microscope_look",
-      "url": "assets/CSI/microscope_look.png",
+      "url": "assets/CSI/microscope_look.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -146,7 +146,7 @@
     },
     {
       "key": "pipette",
-      "url": "assets/CSI/pipette.png",
+      "url": "assets/CSI/pipette.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -154,7 +154,7 @@
     },
     {
       "key": "blood_evidence_bag",
-      "url": "assets/CSI/blood_evidence_bag.png",
+      "url": "assets/CSI/blood_evidence_bag.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -162,7 +162,7 @@
     },
     {
       "key": "blood_microscope_slide",
-      "url": "assets/CSI/blood_microscope_slide.png",
+      "url": "assets/CSI/blood_microscope_slide.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -170,7 +170,7 @@
     },
     {
       "key": "blood_reagent_A",
-      "url": "assets/CSI/blood_reagent_A.png",
+      "url": "assets/CSI/blood_reagent_A.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -178,7 +178,7 @@
     },
     {
       "key": "blood_reagent_B",
-      "url": "assets/CSI/blood_reagent_B.png",
+      "url": "assets/CSI/blood_reagent_B.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -186,7 +186,7 @@
     },
     {
       "key": "blood_reagent_Rh",
-      "url": "assets/CSI/blood_reagent_Rh.png",
+      "url": "assets/CSI/blood_reagent_Rh.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -194,7 +194,7 @@
     },
     {
       "key": "blood_swab",
-      "url": "assets/CSI/blood_swab.png",
+      "url": "assets/CSI/blood_swab.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -202,7 +202,7 @@
     },
     {
       "key": "blood_swab_closed",
-      "url": "assets/CSI/blood_swab_closed.png",
+      "url": "assets/CSI/blood_swab_closed.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -210,7 +210,7 @@
     },
     {
       "key": "blood_type_A",
-      "url": "assets/CSI/blood_type_A.png",
+      "url": "assets/CSI/blood_type_A.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -218,7 +218,7 @@
     },
     {
       "key": "blood_type_B",
-      "url": "assets/CSI/blood_type_B.png",
+      "url": "assets/CSI/blood_type_B.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -226,7 +226,7 @@
     },
     {
       "key": "blood_type_AB",
-      "url": "assets/CSI/blood_type_AB.png",
+      "url": "assets/CSI/blood_type_AB.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -234,7 +234,7 @@
     },
     {
       "key": "blood_type_0",
-      "url": "assets/CSI/blood_type_0.png",
+      "url": "assets/CSI/blood_type_0.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -242,7 +242,7 @@
     },
     {
       "key": "dna_swab_closed",
-      "url": "assets/CSI/dna_swab_closed.png",
+      "url": "assets/CSI/dna_swab_closed.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -250,7 +250,7 @@
     },
     {
       "key": "dna_swab_open",
-      "url": "assets/CSI/dna_swab_open.png",
+      "url": "assets/CSI/dna_swab_open.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -258,7 +258,7 @@
     },
     {
       "key": "dna_swab",
-      "url": "assets/CSI/dna_swab.png",
+      "url": "assets/CSI/dna_swab.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -266,7 +266,7 @@
     },
     {
       "key": "pcr_tube",
-      "url": "assets/CSI/pcr_tube.png",
+      "url": "assets/CSI/pcr_tube.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -274,7 +274,7 @@
     },
     {
       "key": "thermocycler",
-      "url": "assets/CSI/thermocycler.png",
+      "url": "assets/CSI/thermocycler.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -282,7 +282,7 @@
     },
     {
       "key": "gel_tray",
-      "url": "assets/CSI/gel_tray.png",
+      "url": "assets/CSI/gel_tray.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -290,7 +290,7 @@
     },
     {
       "key": "tool_brush",
-      "url": "assets/CSI/tool_brush.png",
+      "url": "assets/CSI/tool_brush.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -298,7 +298,7 @@
     },
     {
       "key": "fingerprint_card_sealed",
-      "url": "assets/CSI/fingerprint_card_sealed.png",
+      "url": "assets/CSI/fingerprint_card_sealed.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -306,7 +306,7 @@
     },
     {
       "key": "fingerprint_card_open",
-      "url": "assets/CSI/fingerprint_card_open.png",
+      "url": "assets/CSI/fingerprint_card_open.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -314,7 +314,7 @@
     },
     {
       "key": "fingerprint_card_dusted",
-      "url": "assets/CSI/fingerprint_card_dusted.png",
+      "url": "assets/CSI/fingerprint_card_dusted.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -322,7 +322,7 @@
     },
     {
       "key": "fingerprint_card_lifted",
-      "url": "assets/CSI/fingerprint_card_lifted.png",
+      "url": "assets/CSI/fingerprint_card_lifted.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -330,7 +330,7 @@
     },
     {
       "key": "fingerprint_pattern_loop",
-      "url": "assets/CSI/fingerprint_pattern_loop.png",
+      "url": "assets/CSI/fingerprint_pattern_loop.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -338,7 +338,7 @@
     },
     {
       "key": "fingerprint_pattern_whorl",
-      "url": "assets/CSI/fingerprint_pattern_whorl.png",
+      "url": "assets/CSI/fingerprint_pattern_whorl.webp",
       "type": "image",
       "groups": [
         "csi"
@@ -346,7 +346,7 @@
     },
     {
       "key": "fingerprint_pattern_arch",
-      "url": "assets/CSI/fingerprint_pattern_arch.png",
+      "url": "assets/CSI/fingerprint_pattern_arch.webp",
       "type": "image",
       "groups": [
         "csi"

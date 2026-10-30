@@ -10,75 +10,56 @@ import {
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
-const NEWSPAPER_PRICE = 5;
-const COMIX_PRICE = 1;
-const DAILY_NEWSPAPER_ACCESS_KEY = 'dailyNewspaperAccess';
+import {
+  NEWSSTAND_CONFIG,
+  normalizeNewsstandCityId,
+  isEditableTarget
+} from '../config/newsstandConfig.js';
 
-const VIDEO_URL = 'assets/video/newsstand.mp4';
-const VIDEO_DELAY_MS = 10000;
-const VIDEO_CHECK_DELAY_MS = 5000;
+import {
+  NewsstandBackground
+} from '../systems/newsstand/NewsstandBackground.js';
 
-const DESIGN_WIDTH = 1920;
-const DESIGN_HEIGHT = 1080;
+import {
+  NewsstandHotspots
+} from '../systems/newsstand/NewsstandHotspots.js';
 
-// Separate framing: increase the still image without enlarging the video.
-const IMAGE_BACKGROUND_ZOOM = 1.30;
-const VIDEO_BACKGROUND_ZOOM = 1.20;
+import {
+  NewsstandComix
+} from '../systems/newsstand/NewsstandComix.js';
 
 export class NewsstandScene extends BaseScene {
   constructor() {
     super({ key: 'NewsstandScene' });
 
-    this.cityId = 'paris';
-
     this.handleResize = this.handleResize.bind(this);
     this.handleEscape = this.handleEscape.bind(this);
     this.handleShutdown = this.handleShutdown.bind(this);
-
-    this.retryVideoFromPointer =
-      this.retryVideoFromPointer.bind(this);
   }
 
   init(data = {}) {
-    this.cityId =
+    this.cityId = normalizeNewsstandCityId(
       data.cityId ||
       gameState.currentCityId ||
       this.registry.get('currentCityId') ||
       this.registry.get('currentCity') ||
-      'paris';
+      'paris'
+    );
 
-    this.isAnimatingOverlay = false;
     this.isOpeningNewspaper = false;
-    this.currentMode = 'none';
+    this.isShuttingDown = false;
+    this.sceneRunToken = {};
 
-    this.bgImage = null;
-    this.bgVideo = null;
-    this.sceneDim = null;
-
-    this.videoTimer = null;
-    this.videoCheckTimer = null;
-
-    this.videoRequested = false;
-    this.videoVisible = false;
-    this.videoFinished = false;
-
-    this.overlayRoot = null;
-    this.overlayBlocker = null;
-    this.comixContainer = null;
-    this.comixImage = null;
-    this.comixCloseBtn = null;
-
-    this.hotspotEntries = [];
-    this.backgroundTransform = null;
-    this.missingBackgroundText = null;
+    this.background = null;
+    this.hotspots = null;
+    this.comix = null;
+    this.closeButton = null;
   }
 
   preload() {}
 
   create() {
     super.create();
-
-    const { width, height } = this.scale;
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -95,471 +76,30 @@ export class NewsstandScene extends BaseScene {
       );
     }
 
-    this.input.on(
-      'pointerdown',
-      this.retryVideoFromPointer
-    );
-
     EventBus.emit('hideHUD');
 
-    this.createBackground(width, height);
-    this.createSceneDim(width, height);
-    this.createPaperHotspots();
-    this.createComixHotspots();
-    this.createSceneCloseButton();
-    this.createComixOverlay();
-
-    this.videoTimer = this.time.delayedCall(
-      VIDEO_DELAY_MS,
-      () => {
-        this.videoTimer = null;
-
-        if (this.sys.isActive()) {
-          this.switchToVideoBackground();
-        }
-      }
-    );
-  }
-
-  createBackground(width, height) {
-    if (this.textures.exists('newsstand_bg')) {
-      this.bgImage = this.add
-        .image(width / 2, height / 2, 'newsstand_bg')
-        .setDepth(0)
-        .setOrigin(0.5);
-
-      this.resizeImageCover(this.bgImage);
-    } else {
-      console.error(
-        '[NewsstandScene] Missing texture: newsstand_bg.'
-      );
-
-      this.bgImage = this.add
-        .rectangle(
-          width / 2,
-          height / 2,
-          width,
-          height,
-          0x211815,
-          1
-        )
-        .setDepth(0);
-
-      this.missingBackgroundText = this.add
-        .text(
-          width / 2,
-          height / 2,
-          'NEWSSTAND BACKGROUND MISSING\n\nnewsstand_bg',
-          {
-            fontFamily: 'SpecialElite',
-            fontSize: '28px',
-            color: '#f7e6b5',
-            align: 'center'
-          }
-        )
-        .setOrigin(0.5)
-        .setDepth(100);
-
-      this.setBackgroundTransform(
-        DESIGN_WIDTH,
-        DESIGN_HEIGHT,
-        IMAGE_BACKGROUND_ZOOM
-      );
-    }
-
-    this.bgVideo = this.add
-      .video(width / 2, height / 2)
-      .setDepth(0.5)
-      .setOrigin(0.5)
-      .setVisible(false);
-
-    const events = Phaser.GameObjects.Events;
-
-    const revealVideo = () => {
-      if (
-        !this.sys.isActive() ||
-        !this.videoRequested ||
-        this.videoFinished ||
-        !this.bgVideo?.scene
-      ) {
-        return;
-      }
-
-      const element = this.bgVideo.video;
-
-      if (
-        !element ||
-        element.readyState < 2 ||
-        !element.videoWidth ||
-        !element.videoHeight
-      ) {
-        return;
-      }
-
-      this.videoVisible = true;
-
-      this.resizeVideoCover(this.bgVideo);
-
-      this.bgVideo.setVisible(true);
-      this.bgImage?.setVisible(false);
-
-      this.layoutHotspots();
-
-      this.videoCheckTimer?.remove(false);
-      this.videoCheckTimer = null;
-    };
-
-    this.bgVideo.on(
-      events.VIDEO_PLAY || 'play',
-      revealVideo
+    this.background = new NewsstandBackground(
+      this,
+      () => this.hotspots?.resize()
     );
 
-    this.bgVideo.on(
-      events.VIDEO_CREATED || 'created',
-      revealVideo
+    this.background.create();
+
+    this.comix = new NewsstandComix(this);
+    this.comix.create();
+
+    this.hotspots = new NewsstandHotspots(
+      this,
+      this.background
     );
 
-    this.bgVideo.on(
-      events.VIDEO_TEXTURE || 'textureready',
-      revealVideo
-    );
+    this.hotspots.create();
 
-    this.bgVideo.on(
-      events.VIDEO_PLAYING || 'playing',
-      () => {
-        if (this.bgVideo?.frameReady) {
-          revealVideo();
-        }
-      }
-    );
-
-    this.bgVideo.on(
-      events.VIDEO_COMPLETE || 'complete',
-      () => {
-        this.videoFinished = true;
-        this.switchToImageBackground();
-      }
-    );
-
-    this.bgVideo.on(
-      events.VIDEO_LOCKED || 'locked',
-      () => {
-        console.warn(
-          '[NewsstandScene] Video blocked by browser. ' +
-          'Click inside the game to retry.'
-        );
-
-        this.logVideoStatus();
-      }
-    );
-
-    this.bgVideo.on(
-      events.VIDEO_UNLOCKED || 'unlocked',
-      () => {
-        console.info('[NewsstandScene] Video unlocked.');
-      }
-    );
-
-    for (const eventName of [
-      events.VIDEO_UNSUPPORTED || 'unsupported',
-      events.VIDEO_ERROR || 'error'
-    ]) {
-      this.bgVideo.on(eventName, error => {
-        console.error(
-          '[NewsstandScene] Video unavailable.',
-          error
-        );
-
-        this.logVideoStatus();
-
-        this.videoFinished = true;
-        this.switchToImageBackground();
-      });
-    }
-
-    try {
-      this.bgVideo.loadURL(VIDEO_URL, true);
-      this.bgVideo.setMute(true);
-      this.bgVideo.setLoop(false);
-    } catch (error) {
-      console.error(
-        '[NewsstandScene] Video setup failed.',
-        error
-      );
-
-      this.videoFinished = true;
-      this.switchToImageBackground();
-    }
-  }
-
-  createSceneDim(width, height) {
-    this.sceneDim = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.42)
-      .setOrigin(0, 0)
-      .setDepth(1)
-      .setInteractive();
-  }
-
-  switchToVideoBackground() {
-    if (
-      !this.bgVideo?.scene ||
-      this.videoFinished
-    ) {
-      return;
-    }
-
-    this.videoRequested = true;
-
-    try {
-      const element = this.bgVideo.video;
-
-      if (element) {
-        element.muted = true;
-        element.defaultMuted = true;
-        element.playsInline = true;
-
-        element.setAttribute('playsinline', '');
-        element.setAttribute('webkit-playsinline', '');
-      }
-
-      this.bgVideo.setMute(true).setLoop(false);
-
-      this.resizeVideoCover(this.bgVideo);
-      this.bgVideo.play(false);
-
-      this.videoCheckTimer?.remove(false);
-
-      this.videoCheckTimer = this.time.delayedCall(
-        VIDEO_CHECK_DELAY_MS,
-        () => {
-          this.videoCheckTimer = null;
-
-          if (
-            this.sys.isActive() &&
-            !this.videoVisible &&
-            !this.videoFinished
-          ) {
-            console.warn(
-              '[NewsstandScene] Video has not become visible.'
-            );
-
-            this.logVideoStatus();
-          }
-        }
-      );
-    } catch (error) {
-      console.error(
-        '[NewsstandScene] Could not start video.',
-        error
-      );
-
-      this.logVideoStatus();
-      this.switchToImageBackground();
-    }
-  }
-
-  retryVideoFromPointer() {
-    if (
-      !this.videoRequested ||
-      this.videoVisible ||
-      this.videoFinished ||
-      !this.bgVideo?.scene
-    ) {
-      return;
-    }
-
-    if (this.bgVideo.touchLocked) {
-      this.bgVideo.play(false);
-    }
-  }
-
-  logVideoStatus() {
-    const element = this.bgVideo?.video;
-
-    console.info('[NewsstandScene] Video status:', {
-      sceneActive: this.sys.isActive(),
-      scenePaused: this.sys.isPaused(),
-
-      requested: this.videoRequested,
-      visible: this.videoVisible,
-      finished: this.videoFinished,
-
-      currentSrc:
-        element?.currentSrc ||
-        element?.src ||
-        null,
-
-      readyState: element?.readyState,
-      networkState: element?.networkState,
-
-      currentTime: element?.currentTime,
-      duration: element?.duration,
-
-      paused: element?.paused,
-      ended: element?.ended,
-      muted: element?.muted,
-
-      videoWidth: element?.videoWidth,
-      videoHeight: element?.videoHeight,
-
-      frameReady: this.bgVideo?.frameReady,
-      touchLocked: this.bgVideo?.touchLocked,
-
-      mediaErrorCode: element?.error?.code,
-      mediaErrorMessage: element?.error?.message
-    });
-  }
-
-  switchToImageBackground() {
-    this.videoCheckTimer?.remove(false);
-    this.videoCheckTimer = null;
-
-    this.bgVideo?.setVisible(false);
-    this.bgImage?.setVisible(true);
-
-    this.videoVisible = false;
-
-    this.bgVideo?.stop();
-
-    if (this.bgImage?.texture) {
-      this.resizeImageCover(this.bgImage);
-    } else {
-      this.setBackgroundTransform(
-        DESIGN_WIDTH,
-        DESIGN_HEIGHT,
-        IMAGE_BACKGROUND_ZOOM
-      );
-    }
-
-    this.layoutHotspots();
-  }
-
-  getCoverTransform(
-    sourceWidth,
-    sourceHeight,
-    zoom = IMAGE_BACKGROUND_ZOOM
-  ) {
-    const safeWidth = Number(sourceWidth) > 0
-      ? Number(sourceWidth)
-      : DESIGN_WIDTH;
-
-    const safeHeight = Number(sourceHeight) > 0
-      ? Number(sourceHeight)
-      : DESIGN_HEIGHT;
-
-    const coverScale = Math.max(
-      this.scale.width / safeWidth,
-      this.scale.height / safeHeight
-    );
-
-    const scale = coverScale * zoom;
-
-    const width = safeWidth * scale;
-    const height = safeHeight * scale;
-
-    return {
-      scale,
-      width,
-      height,
-      x: (this.scale.width - width) / 2,
-      y: (this.scale.height - height) / 2
-    };
-  }
-
-  setBackgroundTransform(
-    sourceWidth,
-    sourceHeight,
-    zoom = IMAGE_BACKGROUND_ZOOM
-  ) {
-    this.backgroundTransform = this.getCoverTransform(
-      sourceWidth,
-      sourceHeight,
-      zoom
-    );
-  }
-
-  resizeImageCover(image) {
-    if (
-      !image?.scene ||
-      !image.width ||
-      !image.height
-    ) {
-      return;
-    }
-
-    if (!image.texture) {
-      image
-        .setPosition(
-          this.scale.width / 2,
-          this.scale.height / 2
-        )
-        .setDisplaySize(
-          this.scale.width,
-          this.scale.height
-        );
-
-      if (!this.videoVisible) {
-        this.setBackgroundTransform(
-          DESIGN_WIDTH,
-          DESIGN_HEIGHT,
-          IMAGE_BACKGROUND_ZOOM
-        );
-      }
-
-      return;
-    }
-
-    const transform = this.getCoverTransform(
-      image.width,
-      image.height,
-      IMAGE_BACKGROUND_ZOOM
-    );
-
-    image
-      .setPosition(
-        this.scale.width / 2,
-        this.scale.height / 2
-      )
-      .setScale(transform.scale);
-
-    if (!this.videoVisible) {
-      this.backgroundTransform = transform;
-    }
-  }
-
-  resizeVideoCover(video) {
-    if (!video?.scene) return;
-
-    const width =
-      video.video?.videoWidth ||
-      video.width;
-
-    const height =
-      video.video?.videoHeight ||
-      video.height;
-
-    if (!width || !height) return;
-
-    const transform = this.getCoverTransform(
-      width,
-      height,
-      VIDEO_BACKGROUND_ZOOM
-    );
-
-    video
-      .setPosition(
-        this.scale.width / 2,
-        this.scale.height / 2
-      )
-      .setScale(transform.scale);
-
-    if (this.videoVisible) {
-      this.backgroundTransform = transform;
-    }
+    this.createCloseButton();
   }
 
   getActiveCityId() {
-    return (
+    return normalizeNewsstandCityId(
       gameState.currentCityId ||
       this.cityId ||
       this.registry.get('currentCityId') ||
@@ -568,152 +108,14 @@ export class NewsstandScene extends BaseScene {
     );
   }
 
-  getScaledHotspot(spot) {
-    const transform =
-      this.backgroundTransform ||
-      this.getCoverTransform(
-        DESIGN_WIDTH,
-        DESIGN_HEIGHT,
-        IMAGE_BACKGROUND_ZOOM
-      );
-
-    const sx = transform.width / DESIGN_WIDTH;
-    const sy = transform.height / DESIGN_HEIGHT;
-
-    return {
-      ...spot,
-      x: transform.x + spot.x * sx,
-      y: transform.y + spot.y * sy,
-      width: spot.width * sx,
-      height: spot.height * sy
-    };
-  }
-
-  positionPriceLabel(label, spot) {
-    const { width, height } = this.scale;
-    const margin = 12;
-
-    label.setScale(1);
-
-    const availableWidth = Math.max(
-      1,
-      width - margin * 2
-    );
-
-    if (label.width > availableWidth) {
-      label.setScale(availableWidth / label.width);
-    }
-
-    const halfWidth = label.displayWidth / 2;
-
-    const x = Phaser.Math.Clamp(
-      spot.x + spot.width / 2,
-      margin + halfWidth,
-      width - margin - halfWidth
-    );
-
-    const maxY = Math.max(
-      margin,
-      height - margin - label.displayHeight
-    );
-
-    const y = Phaser.Math.Clamp(
-      spot.y + spot.height + 10,
-      margin,
-      maxY
-    );
-
-    label.setPosition(x, y);
-  }
-
-  createPriceLabel(spot) {
-    const label = this.add
-      .text(0, 0, spot.priceLabel, {
-        fontFamily: 'PressStart2P',
-        fontSize: '12px',
-        color: '#f6dc8c',
-        backgroundColor: '#1a1111',
-        padding: { x: 8, y: 6 },
-        stroke: '#000000',
-        strokeThickness: 3
-      })
-      .setOrigin(0.5, 0)
-      .setDepth(spot.labelDepth);
-
-    this.positionPriceLabel(label, spot);
-
-    return label;
-  }
-
-  addPurchaseHotspot(rawSpot, depth, callback) {
-    const spot = this.getScaledHotspot(rawSpot);
-
-    const zone = this.add
-      .zone(
-        spot.x,
-        spot.y,
-        spot.width,
-        spot.height
-      )
-      .setOrigin(0, 0)
-      .setDepth(depth)
-      .setInteractive({ useHandCursor: true });
-
-    zone.on('pointerup', callback);
-
-    const label = this.createPriceLabel(spot);
-
-    this.hotspotEntries.push({
-      rawSpot,
-      zone,
-      label
-    });
-  }
-
-  layoutHotspots() {
-    for (const entry of this.hotspotEntries || []) {
-      const { rawSpot, zone, label } = entry;
-      const spot = this.getScaledHotspot(rawSpot);
-
-      zone
-        .setPosition(spot.x, spot.y)
-        .setSize(spot.width, spot.height);
-
-      zone.input?.hitArea?.setTo(
-        0,
-        0,
-        spot.width,
-        spot.height
-      );
-
-      this.positionPriceLabel(label, spot);
-    }
-  }
-
-  createPaperHotspots() {
-    const spot = {
-      id: 'daily',
-
-      x: 510,
-      y: 710,
-      width: 460,
-      height: 230,
-
-      type: 'daily',
-      jsonKey: 'newspapers_daily',
-      backgroundKey: 'paper_daily_bg',
-
-      price: NEWSPAPER_PRICE,
-      priceLabel: 'DAILY PAPER — $5',
-      labelDepth: 11
-    };
-
-    this.addPurchaseHotspot(
-      spot,
-      10,
-      () => {
-        void this.buyAndOpenNewspaper(spot);
-      }
+  isPurchaseBlocked() {
+    return (
+      this.isShuttingDown ||
+      this.hotspots?.debugMode ||
+      this.isOpeningNewspaper ||
+      this.comix?.isOpen ||
+      this.comix?.isAnimating ||
+      this.scene.isActive('NewspaperOverlayScene')
     );
   }
 
@@ -731,16 +133,12 @@ export class NewsstandScene extends BaseScene {
   }
 
   getNewspaperPurchaseKey(cityId, newspaperId) {
-    const safeCityId = String(
-      cityId || 'unknown_city'
-    )
+    const safeCityId = String(cityId || 'unknown_city')
       .trim()
       .toLowerCase()
       .replace(/\s+/g, '_');
 
-    const safeNewspaperId = String(
-      newspaperId || 'daily'
-    )
+    const safeNewspaperId = String(newspaperId || 'daily')
       .trim()
       .toLowerCase()
       .replace(/\s+/g, '_');
@@ -752,21 +150,22 @@ export class NewsstandScene extends BaseScene {
     );
   }
 
-  ensureDailyNewspaperAccessState() {
+  ensureNewspaperAccessState() {
+    const key = NEWSSTAND_CONFIG.newspaperAccessKey;
+
     if (
-      !gameState[DAILY_NEWSPAPER_ACCESS_KEY] ||
-      typeof gameState[DAILY_NEWSPAPER_ACCESS_KEY] !== 'object' ||
-      Array.isArray(gameState[DAILY_NEWSPAPER_ACCESS_KEY])
+      !gameState[key] ||
+      typeof gameState[key] !== 'object' ||
+      Array.isArray(gameState[key])
     ) {
-      gameState[DAILY_NEWSPAPER_ACCESS_KEY] = {};
+      gameState[key] = {};
     }
 
-    return gameState[DAILY_NEWSPAPER_ACCESS_KEY];
+    return gameState[key];
   }
 
   hasNewspaperAccessForToday(cityId, newspaperId) {
-    const purchases =
-      this.ensureDailyNewspaperAccessState();
+    const purchases = this.ensureNewspaperAccessState();
 
     const key = this.getNewspaperPurchaseKey(
       cityId,
@@ -777,8 +176,7 @@ export class NewsstandScene extends BaseScene {
   }
 
   markNewspaperAccessForToday(cityId, newspaperId) {
-    const purchases =
-      this.ensureDailyNewspaperAccessState();
+    const purchases = this.ensureNewspaperAccessState();
 
     const key = this.getNewspaperPurchaseKey(
       cityId,
@@ -791,44 +189,102 @@ export class NewsstandScene extends BaseScene {
     return key;
   }
 
-  async buyAndOpenNewspaper(spot) {
-    if (
-      this.isAnimatingOverlay ||
-      this.isOpeningNewspaper ||
-      this.currentMode !== 'none'
-    ) {
-      return;
+  checkNewspaperAssets(config, cityId) {
+    const jsonKey = `newspaper_${config.type}_${cityId}`;
+    const json = this.cache.json.get(jsonKey);
+
+    const backgroundExists =
+      this.textures.exists(config.backgroundKey);
+
+    let dataValid = Boolean(
+      json &&
+      typeof json === 'object' &&
+      !Array.isArray(json)
+    );
+
+    if (dataValid) {
+      dataValid = config.type === 'time'
+        ? (
+            Array.isArray(json.coverLines) &&
+            json.coverLines.length > 0 &&
+            json.coverLines.every(
+              line => typeof line === 'string'
+            )
+          )
+        : Array.isArray(json.articles);
     }
 
+    if (!dataValid || !backgroundExists) {
+      console.error(
+        '[NewsstandScene] Newspaper unavailable:',
+        {
+          cityId,
+          type: config.type,
+          jsonKey,
+          jsonExists: Boolean(json),
+          dataValid,
+          backgroundKey: config.backgroundKey,
+          backgroundExists
+        }
+      );
+
+      this.showPurchaseErrorMessage([
+        'ISSUE UNAVAILABLE!',
+        '',
+        `${config.label} — ${cityId}`,
+        'The vendor cannot find a readable copy.',
+        'You have not been charged.',
+        '',
+        'Click to close.'
+      ].join('\n'));
+
+      return null;
+    }
+
+    return jsonKey;
+  }
+
+  async buyAndOpenNewspaper(config) {
+    if (this.isPurchaseBlocked()) return;
+
     this.isOpeningNewspaper = true;
+
+    const runToken = this.sceneRunToken;
 
     try {
       const cityId = this.getActiveCityId();
 
+      const jsonKey = this.checkNewspaperAssets(
+        config,
+        cityId
+      );
+
+      if (!jsonKey) return;
+
       const alreadyPaidToday =
         this.hasNewspaperAccessForToday(
           cityId,
-          spot.id
+          config.id
         );
 
       let purchaseId = null;
 
       if (!alreadyPaidToday) {
         const purchase = moneyManager.spend(
-          spot.price,
+          config.price,
           {
             source: MONEY_SOURCE.CASH,
             category: ECONOMY_CATEGORY.NEWSPAPER,
 
             description:
-              `Bought ${spot.type} newspaper ` +
+              `Bought ${config.type} newspaper ` +
               `in ${cityId} on investigation day ` +
               this.getCurrentGameDay(),
 
             metadata: {
               cityId,
-              newspaperId: spot.id,
-              newspaperType: spot.type,
+              newspaperId: config.id,
+              newspaperType: config.type,
               gameDay: this.getCurrentGameDay()
             }
           }
@@ -836,7 +292,7 @@ export class NewsstandScene extends BaseScene {
 
         if (!purchase.ok) {
           this.showNotEnoughMoneyMessage(
-            'NEWSPAPER',
+            config.label,
             purchase.required,
             purchase.available
           );
@@ -844,12 +300,11 @@ export class NewsstandScene extends BaseScene {
           return;
         }
 
-        purchaseId =
-          purchase.transaction?.id || null;
+        purchaseId = purchase.transaction?.id || null;
 
         this.markNewspaperAccessForToday(
           cityId,
-          spot.id
+          config.id
         );
       }
 
@@ -861,16 +316,20 @@ export class NewsstandScene extends BaseScene {
         'NewspaperOverlayScene',
         {
           cityId,
-          type: spot.type,
-          jsonKey: spot.jsonKey,
-          backgroundKey: spot.backgroundKey,
+          type: config.type,
+          jsonKey,
+          backgroundKey: config.backgroundKey,
           purchaseId,
           alreadyPaidToday,
           sourceScene: 'NewsstandScene'
         }
       );
 
-      if (!opened && this.sys.isActive()) {
+      if (
+        !opened &&
+        this.sceneRunToken === runToken &&
+        this.sys.isActive()
+      ) {
         this.showPurchaseErrorMessage();
       }
     } catch (error) {
@@ -879,49 +338,26 @@ export class NewsstandScene extends BaseScene {
         error
       );
 
-      if (this.sys.isActive()) {
+      if (
+        this.sceneRunToken === runToken &&
+        this.sys.isActive()
+      ) {
         this.showPurchaseErrorMessage();
       }
     } finally {
-      this.isOpeningNewspaper = false;
+      if (this.sceneRunToken === runToken) {
+        this.isOpeningNewspaper = false;
+      }
     }
   }
 
-  createComixHotspots() {
-    const spot = {
-      id: 'comix_1',
+  buyAndOpenComix(config) {
+    if (this.isPurchaseBlocked()) return;
 
-      x: 1500,
-      y: 710,
-      width: 250,
-      height: 230,
-
-      textureKey: 'comix1',
-      price: COMIX_PRICE,
-      priceLabel: 'COMIX — $1',
-      labelDepth: 13
-    };
-
-    this.addPurchaseHotspot(
-      spot,
-      12,
-      () => this.buyAndOpenComix(spot)
-    );
-  }
-
-  buyAndOpenComix(spot) {
-    if (
-      this.isAnimatingOverlay ||
-      this.isOpeningNewspaper ||
-      this.currentMode !== 'none'
-    ) {
-      return;
-    }
-
-    if (!this.textures.exists(spot.textureKey)) {
+    if (!this.textures.exists(config.textureKey)) {
       console.error(
         '[NewsstandScene] Missing comix texture:',
-        spot.textureKey
+        config.textureKey
       );
 
       this.showPurchaseErrorMessage(
@@ -936,24 +372,24 @@ export class NewsstandScene extends BaseScene {
     const cityId = this.getActiveCityId();
 
     const purchase = moneyManager.spend(
-      spot.price,
+      config.price,
       {
         source: MONEY_SOURCE.CASH,
         category: ECONOMY_CATEGORY.ITEM,
 
-        description: `Bought ${spot.id} in ${cityId}`,
+        description: `Bought ${config.id} in ${cityId}`,
 
         metadata: {
           cityId,
-          comixId: spot.id,
-          textureKey: spot.textureKey
+          comixId: config.id,
+          textureKey: config.textureKey
         }
       }
     );
 
     if (!purchase.ok) {
       this.showNotEnoughMoneyMessage(
-        'COMIX',
+        config.label,
         purchase.required,
         purchase.available
       );
@@ -961,49 +397,54 @@ export class NewsstandScene extends BaseScene {
       return;
     }
 
-    this.openComixOverlay(spot.textureKey);
+    this.comix.open(config.textureKey);
   }
 
-  showNotEnoughMoneyMessage(itemName, required, available) {
+  createMessage(text, options = {}) {
     const message = this.add
       .text(
         this.scale.width / 2,
         this.scale.height / 2,
-        [
-          'NO CASH!',
-          '',
-          `${itemName}: $${required}`,
-          `You have: $${available}`,
-          '',
-          'The vendor says:',
-          '"Come back when your pockets make noise."'
-        ].join('\n'),
+        text,
         {
           fontFamily: 'SpecialElite',
-          fontSize: '28px',
-          color: '#f7e6b5',
-          backgroundColor: '#1d1511',
+          fontSize: `${options.fontSize || 26}px`,
+          color: options.color || '#ffd966',
+          backgroundColor: options.backgroundColor || '#2b1711',
           align: 'center',
-          padding: { x: 28, y: 24 },
+          padding: { x: 26, y: 22 },
           stroke: '#000000',
-          strokeThickness: 5
+          strokeThickness: 5,
+          wordWrap: {
+            width: Math.max(100, this.scale.width - 100)
+          }
         }
       )
       .setOrigin(0.5)
-      .setDepth(500)
-      .setAlpha(0)
+      .setDepth(501)
       .setInteractive({ useHandCursor: true });
 
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: message,
-        alpha: 1,
-        duration: 120,
-        ease: 'Quad.Out'
-      })
-    );
+    if (options.animate) {
+      message.setAlpha(0);
+
+      this.addTrackedTween(
+        this.tweens.add({
+          targets: message,
+          alpha: 1,
+          duration: 120,
+          ease: 'Quad.Out'
+        })
+      );
+    }
 
     message.once('pointerup', () => {
+      if (!options.animate) {
+        message.destroy();
+        return;
+      }
+
+      this.tweens.killTweensOf(message);
+
       this.addTrackedTween(
         this.tweens.add({
           targets: message,
@@ -1014,239 +455,45 @@ export class NewsstandScene extends BaseScene {
         })
       );
     });
+
+    return message;
+  }
+
+  showNotEnoughMoneyMessage(itemName, required, available) {
+    this.createMessage(
+      [
+        'NO CASH!',
+        '',
+        `${itemName}: $${required}`,
+        `You have: $${available}`,
+        '',
+        'The vendor says:',
+        '"Come back when your pockets make noise."'
+      ].join('\n'),
+      {
+        fontSize: 28,
+        color: '#f7e6b5',
+        backgroundColor: '#1d1511',
+        animate: true
+      }
+    );
   }
 
   showPurchaseErrorMessage(text = null) {
-    const message = this.add
-      .text(
-        this.scale.width / 2,
-        this.scale.height / 2,
-        text || [
-          'THE PRESS STOPPED!',
-          '',
-          'The newspaper could not be opened.',
-          'If already paid, today’s access remains available.',
-          '',
-          'Close this message and try again.'
-        ].join('\n'),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '26px',
-          color: '#ffd966',
-          backgroundColor: '#2b1711',
-          align: 'center',
-          padding: { x: 26, y: 22 },
-          stroke: '#000000',
-          strokeThickness: 5
-        }
-      )
-      .setOrigin(0.5)
-      .setDepth(501)
-      .setInteractive({ useHandCursor: true });
-
-    message.once('pointerup', () => message.destroy());
-  }
-
-  createComixOverlay() {
-    const { width, height } = this.scale;
-
-    this.overlayRoot = this.add
-      .container(0, 0)
-      .setDepth(200)
-      .setVisible(false)
-      .setAlpha(0);
-
-    this.overlayBlocker = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.72)
-      .setOrigin(0, 0)
-      .setInteractive();
-
-    this.overlayBlocker.on(
-      'pointerup',
-      () => this.closeComixOverlay()
-    );
-
-    this.comixContainer = this.add
-      .container(width / 2, height / 2)
-      .setAlpha(0)
-      .setScale(0.9);
-
-    this.comixImage = this.textures.exists('comix1')
-      ? this.add.image(0, 0, 'comix1').setOrigin(0.5)
-      : this.add
-          .rectangle(0, 0, 500, 650, 0x35241c, 1)
-          .setStrokeStyle(4, 0xf6dc8c);
-
-    this.comixCloseBtn = this.add
-      .text(0, 0, 'X', {
-        fontFamily: 'PressStart2P',
-        fontSize: '12px',
-        color: '#ffffff',
-        backgroundColor: '#111111',
-        padding: { x: 8, y: 6 }
-      })
-      .setOrigin(1, 0)
-      .setInteractive({ useHandCursor: true });
-
-    this.comixCloseBtn.on(
-      'pointerup',
-      () => this.closeComixOverlay()
-    );
-
-    this.comixContainer.add([
-      this.comixImage,
-      this.comixCloseBtn
-    ]);
-
-    this.overlayRoot.add([
-      this.overlayBlocker,
-      this.comixContainer
-    ]);
-
-    this.layoutComixOverlay();
-  }
-
-  layoutComixOverlay() {
-    if (!this.comixImage || !this.comixCloseBtn) return;
-
-    const width = this.comixImage.width || 1;
-    const height = this.comixImage.height || 1;
-
-    const scale = Math.min(
-      this.scale.width * 0.84 / width,
-      this.scale.height * 0.82 / height,
-      1
-    );
-
-    const displayWidth = width * scale;
-    const displayHeight = height * scale;
-
-    this.comixImage.setDisplaySize(
-      displayWidth,
-      displayHeight
-    );
-
-    this.comixCloseBtn.setPosition(
-      displayWidth / 2 - 12,
-      -displayHeight / 2 + 12
-    );
-
-    this.comixContainer?.setPosition(
-      this.scale.width / 2,
-      this.scale.height / 2
+    this.createMessage(
+      text || [
+        'THE PRESS STOPPED!',
+        '',
+        'The newspaper could not be opened.',
+        'If already paid, today’s access remains available.',
+        '',
+        'Close this message and try again.'
+      ].join('\n')
     );
   }
 
-  openComixOverlay(textureKey) {
-    if (
-      !this.overlayRoot ||
-      !this.comixImage ||
-      this.isAnimatingOverlay ||
-      this.currentMode !== 'none'
-    ) {
-      return;
-    }
-
-    this.currentMode = 'comix';
-    this.isAnimatingOverlay = true;
-
-    if (this.comixImage.setTexture) {
-      this.comixImage.setTexture(textureKey);
-    }
-
-    this.layoutComixOverlay();
-
-    this.overlayRoot
-      .setVisible(true)
-      .setAlpha(0);
-
-    this.comixContainer
-      .setAlpha(0)
-      .setScale(0.9)
-      .setAngle(0)
-      .setPosition(
-        this.scale.width / 2,
-        this.scale.height / 2 + 12
-      );
-
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: this.overlayRoot,
-        alpha: 1,
-        duration: 140,
-        ease: 'Quad.Out'
-      })
-    );
-
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: this.comixContainer,
-        alpha: 1,
-        scaleX: 1,
-        scaleY: 1,
-        y: this.scale.height / 2,
-        duration: 200,
-        ease: 'Back.Out',
-
-        onComplete: () => {
-          this.isAnimatingOverlay = false;
-        }
-      })
-    );
-  }
-
-  closeComixOverlay(onClosed) {
-    if (
-      !this.overlayRoot?.visible ||
-      this.isAnimatingOverlay
-    ) {
-      return;
-    }
-
-    this.isAnimatingOverlay = true;
-
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: this.overlayRoot,
-        alpha: 0,
-        duration: 140,
-        ease: 'Quad.Out'
-      })
-    );
-
-    this.addTrackedTween(
-      this.tweens.add({
-        targets: this.comixContainer,
-        alpha: 0,
-        scaleX: 0.86,
-        scaleY: 0.86,
-        y: this.scale.height / 2 + 18,
-        angle: 1.5,
-        duration: 180,
-        ease: 'Quad.In',
-
-        onComplete: () => {
-          this.overlayRoot?.setVisible(false);
-
-          this.comixContainer
-            ?.setAlpha(0)
-            .setAngle(0)
-            .setPosition(
-              this.scale.width / 2,
-              this.scale.height / 2
-            );
-
-          this.currentMode = 'none';
-          this.isAnimatingOverlay = false;
-
-          onClosed?.();
-        }
-      })
-    );
-  }
-
-  createSceneCloseButton() {
-    const button = this.add
+  createCloseButton() {
+    this.closeButton = this.add
       .text(28, 20, 'X', {
         fontFamily: 'PressStart2P',
         fontSize: '16px',
@@ -1258,9 +505,9 @@ export class NewsstandScene extends BaseScene {
       .setDepth(30)
       .setInteractive({ useHandCursor: true });
 
-    button.on('pointerup', () => {
-      if (this.overlayRoot?.visible) {
-        this.closeComixOverlay(() => this.closeScene());
+    this.closeButton.on('pointerup', () => {
+      if (this.comix?.isOpen) {
+        this.comix.close(() => this.closeScene());
         return;
       }
 
@@ -1268,9 +515,20 @@ export class NewsstandScene extends BaseScene {
     });
   }
 
-  handleEscape() {
-    if (this.overlayRoot?.visible) {
-      this.closeComixOverlay();
+  handleEscape(event) {
+    if (isEditableTarget(event)) return;
+
+    if (this.scene.isActive('NewspaperOverlayScene')) {
+      return;
+    }
+
+    if (this.hotspots?.debugMode) {
+      this.hotspots.setDebugMode(false);
+      return;
+    }
+
+    if (this.comix?.isOpen) {
+      this.comix.close();
       return;
     }
 
@@ -1278,90 +536,45 @@ export class NewsstandScene extends BaseScene {
   }
 
   handleResize() {
-    const { width, height } = this.scale;
-
-    this.resizeImageCover(this.bgImage);
-    this.resizeVideoCover(this.bgVideo);
-
-    this.sceneDim?.setSize(width, height);
-
-    this.sceneDim?.input?.hitArea?.setTo(
-      0,
-      0,
-      width,
-      height
-    );
-
-    this.overlayBlocker?.setSize(width, height);
-
-    this.overlayBlocker?.input?.hitArea?.setTo(
-      0,
-      0,
-      width,
-      height
-    );
-
-    this.missingBackgroundText?.setPosition(
-      width / 2,
-      height / 2
-    );
-
-    this.layoutHotspots();
-    this.layoutComixOverlay();
+    this.background?.resize();
+    this.hotspots?.resize();
+    this.comix?.resize();
   }
 
   closeScene() {
     if (
-      this.isAnimatingOverlay ||
-      this.isOpeningNewspaper
+      this.isOpeningNewspaper ||
+      this.comix?.isAnimating ||
+      this.isShuttingDown
     ) {
       return;
     }
 
+    this.hotspots?.setDebugMode(false);
     this.scene.stop();
   }
 
   handleShutdown() {
-    this.videoTimer?.remove(false);
-    this.videoCheckTimer?.remove(false);
+    if (this.isShuttingDown) return;
 
-    this.videoTimer = null;
-    this.videoCheckTimer = null;
-
-    this.input.off(
-      'pointerdown',
-      this.retryVideoFromPointer
-    );
-
-    this.bgVideo?.removeAllListeners();
-    this.bgVideo?.stop();
+    this.isShuttingDown = true;
+    this.sceneRunToken = null;
 
     this.scale.off('resize', this.handleResize);
 
     this.stopSceneIfActive('NewspaperOverlayScene');
 
-    EventBus.emit('showHUD');
+    this.hotspots?.destroy();
+    this.comix?.destroy();
+    this.background?.destroy();
 
-    this.isAnimatingOverlay = false;
+    this.hotspots = null;
+    this.comix = null;
+    this.background = null;
+    this.closeButton = null;
+
     this.isOpeningNewspaper = false;
-    this.currentMode = 'none';
 
-    this.videoRequested = false;
-    this.videoVisible = false;
-    this.videoFinished = false;
-
-    this.bgImage = null;
-    this.bgVideo = null;
-    this.sceneDim = null;
-
-    this.overlayRoot = null;
-    this.overlayBlocker = null;
-    this.comixContainer = null;
-    this.comixImage = null;
-    this.comixCloseBtn = null;
-
-    this.hotspotEntries = [];
-    this.backgroundTransform = null;
-    this.missingBackgroundText = null;
+    EventBus.emit('showHUD');
   }
 }

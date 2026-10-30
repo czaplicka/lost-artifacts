@@ -138,7 +138,7 @@
     },
     {
       "key": "louvre_bg",
-      "url": "assets/crimes/louvre.jpg",
+      "url": "assets/crimes/louvre.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -146,7 +146,7 @@
     },
     {
       "key": "tower_bg",
-      "url": "assets/crimes/tower.jpg",
+      "url": "assets/crimes/tower.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -154,7 +154,7 @@
     },
     {
       "key": "castle_bg",
-      "url": "assets/crimes/castle.jpg",
+      "url": "assets/crimes/castle.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -162,7 +162,7 @@
     },
     {
       "key": "dockyard_bg",
-      "url": "assets/crimes/dockyard.jpg",
+      "url": "assets/crimes/dockyard.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -170,7 +170,7 @@
     },
     {
       "key": "auction_house_bg",
-      "url": "assets/crimes/auction_house.jpg",
+      "url": "assets/crimes/auction_house.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -178,7 +178,7 @@
     },
     {
       "key": "havela_bg",
-      "url": "assets/crimes/havela.jpg",
+      "url": "assets/crimes/havela.webp",
       "type": "image",
       "groups": [
         "backgrounds"
