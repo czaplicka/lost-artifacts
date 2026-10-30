@@ -92,7 +92,7 @@ export class WarrantSketch {
       if (file?.key === 'sketch_hair') {
         console.error(
           '[WarrantSketch] Could not load ' +
-          'assets/ui/sketch_hair.png'
+          'assets/ui/sketch_hair.webp'
         );
       }
     };
@@ -110,7 +110,7 @@ export class WarrantSketch {
 
       scene.load.image(
         'sketch_hair',
-        'assets/ui/sketch_hair.png'
+        'assets/ui/sketch_hair.webp'
       );
 
       if (!scene.load.isLoading()) {

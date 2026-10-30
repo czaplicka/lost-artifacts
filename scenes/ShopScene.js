@@ -144,7 +144,7 @@ export class ShopScene extends BaseScene {
 
   preload() {
     if (!this.textures.exists('shop_bg')) {
-      this.load.image('shop_bg', 'assets/local/shop.jpg');
+      this.load.image('shop_bg', 'assets/local/shop.webp');
     }
   }
 

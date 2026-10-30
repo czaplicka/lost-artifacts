@@ -1,0 +1,541 @@
+{
+  "assets": [
+    {
+      "key": "theme",
+      "url": "assets/audio/theme.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "crime-board",
+      "url": "assets/crime-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "agent",
+      "url": "assets/css/agent.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "character-creation",
+      "url": "assets/css/character-creation.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "crime-board-layout",
+      "url": "assets/css/crime-board-layout.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "hud-mobile",
+      "url": "assets/css/hud-mobile.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "hud",
+      "url": "assets/css/hud.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "login",
+      "url": "assets/css/login.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "profile",
+      "url": "assets/css/profile.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "register",
+      "url": "assets/css/register.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "reset",
+      "url": "assets/css/reset.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "update-password",
+      "url": "assets/css/update-password.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "arrest-agents",
+      "url": "assets/cutscenes/arrest-agents.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "agencyMail",
+      "url": "assets/data/agencyMail.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "caseModifiers",
+      "url": "assets/data/caseModifiers.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "csi_clues_config",
+      "url": "assets/data/csi_clues_config.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "archivist",
+      "url": "assets/data/dialogue/archivist.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "sailor",
+      "url": "assets/data/dialogue/sailor.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "events",
+      "url": "assets/data/events.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "ItemsCatalog",
+      "url": "assets/data/ItemsCatalog.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "motives",
+      "url": "assets/data/motives.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "newspapers-tabloid",
+      "url": "assets/data/newspapers-tabloid.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "newspapers-time",
+      "url": "assets/data/newspapers-time.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "npcMotiveClues",
+      "url": "assets/data/npcMotiveClues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "officeSchedule",
+      "url": "assets/data/officeSchedule.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "onboardingSchedule",
+      "url": "assets/data/onboardingSchedule.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piCases",
+      "url": "assets/data/piCases.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piClassifieds",
+      "url": "assets/data/piClassifieds.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piMail",
+      "url": "assets/data/piMail.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneDialogues",
+      "url": "assets/data/piPhoneDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneDirectory",
+      "url": "assets/data/piPhoneDirectory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhoneInvestigations",
+      "url": "assets/data/piPhoneInvestigations.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piPhotoQuest",
+      "url": "assets/data/piPhotoQuest.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "piSearch",
+      "url": "assets/data/piSearch.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "rankConfig",
+      "url": "assets/data/rankConfig.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reedContact",
+      "url": "assets/data/reedContact.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "reedFinale",
+      "url": "assets/data/reedFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "cog",
+      "url": "assets/ico/cog.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "player",
+      "url": "assets/ico/player.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "icon-192",
+      "url": "assets/icons/icon-192.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "icon-512",
+      "url": "assets/icons/icon-512.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "big_office",
+      "url": "assets/local/big_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "kitchen",
+      "url": "assets/local/kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pioffice",
+      "url": "assets/local/pioffice.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "spy_shop",
+      "url": "assets/local/spy_shop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "logo",
+      "url": "assets/logo.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_coffee_machine_photo",
+      "url": "assets/newspapers/tabloid/hq_coffee_machine_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_gold_stapler_photo",
+      "url": "assets/newspapers/tabloid/hq_gold_stapler_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_sunglasses_photo",
+      "url": "assets/newspapers/tabloid/hq_sunglasses_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hq_window_chair_photo",
+      "url": "assets/newspapers/tabloid/hq_window_chair_photo.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_burial_register",
+      "url": "assets/side_quests/Halloween/dead_mail_burial_register.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_cemetery_plan",
+      "url": "assets/side_quests/Halloween/dead_mail_cemetery_plan.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_cover",
+      "url": "assets/side_quests/Halloween/dead_mail_cover.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_document_blank",
+      "url": "assets/side_quests/Halloween/dead_mail_document_blank.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_last_ringtone",
+      "url": "assets/side_quests/Halloween/dead_mail_last_ringtone.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dead_mail_recorder",
+      "url": "assets/side_quests/Halloween/dead_mail_recorder.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "second",
+      "url": "assets/side_quests/Reed/second.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "third",
+      "url": "assets/side_quests/Reed/third.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "desk-lamp-flicker",
+      "url": "assets/spritesheet/office/desk-lamp-flicker.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "2",
+      "url": "assets/ui/2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "terrace",
+      "url": "assets/ui/pi-cases/terrace.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "base",
+      "url": "assets/ui/pi-phone/base.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "desk",
+      "url": "assets/ui/pi-phone/desk.jpg",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dial",
+      "url": "assets/ui/pi-phone/dial.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "handset",
+      "url": "assets/ui/pi-phone/handset.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "sketch_hair",
+      "url": "assets/ui/sketch_hair.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newsstand",
+      "url": "assets/video/newsstand.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
+    }
+  ]
+}

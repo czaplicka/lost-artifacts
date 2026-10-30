@@ -49,7 +49,9 @@ export const SCENE_TIERS = {
     "ApartmentScene",
     "SuccessScene",
     "AgainScene",
-    "CourtScene"
+    "CourtScene",
+    "ArchiveIndexPuzzleScene",
+        "RecoveredArtifactsScene"
   ],
   "TIER_3": [
     "HiddenObjectsScene",
@@ -80,7 +82,7 @@ export const sceneRegistry = {
   GameScene: () => import('./scenes/GameScene.js').then(m => m.GameScene),
   OfficeScene: () => import('./scenes/OfficeSceneWithLamp.js').then(m => m.OfficeScene),
   ArchiveScene: () => import('./scenes/ArchiveSceneWithAnimations.js').then(m => m.ArchiveScene),
-  AgencyStorageScene: () => import('./scenes/AgencyStorageScene.js').then(m => m.AgencyStorageScene),
+  AgencyStorageScene: () => import('./scenes/AgencyStorageSceneWithAnimations.js').then(m => m.AgencyStorageScene),
   HighscoreScene: () => import('./scenes/HighscoreScene.js').then(m => m.HighscoreScene),
   CityScene: () => import('./scenes/CityScene.js').then(m => m.CityScene),
   LocationScene: () => import('./scenes/LocationScene.js').then(m => m.LocationScene),
@@ -103,6 +105,7 @@ export const sceneRegistry = {
   SuspectsScene: () => import('./scenes/SuspectsScene.js').then(m => m.SuspectsScene),
   SuspectGridScene: () => import('./scenes/SuspectGridScene.js').then(m => m.SuspectGridScene),
   HypothesisScene: () => import('./scenes/HypothesisScene.js').then(m => m.HypothesisScene),
+    RecoveredArtifactsScene: () => import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
   TheoryResultCallScene: () => import('./scenes/TheoryResultCallScene.js').then(m => m.TheoryResultCallScene),
   WantedDatabaseScene: () => import('./scenes/WantedDatabaseScene.js').then(m => m.WantedDatabaseScene),
   RecoveredArtifactsScene: () => import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
@@ -114,6 +117,7 @@ export const sceneRegistry = {
   SuccessScene: () => import('./scenes/SuccessChaseScene.js').then(m => m.SuccessScene),
   AgainScene: () => import('./scenes/AgainScene.js').then(m => m.AgainScene),
   CourtScene: () => import('./scenes/CourtScene.js').then(m => m.CourtScene),
+  ArchiveIndexPuzzleScene: () => import('./scenes/ArchiveIndexPuzzleScene.js').then(m => m.ArchiveIndexPuzzleScene),
   HiddenObjectsScene: () => import('./scenes/HiddenObjectsScene.js').then(m => m.HiddenObjectsScene),
   CrimeLabScene: () => import('./scenes/CSI/CrimeLabScene.js').then(m => m.CrimeLabScene),
   HairAnalysisScene: () => import('./scenes/CSI/HairAnalysisScene.js').then(m => m.HairAnalysisScene),

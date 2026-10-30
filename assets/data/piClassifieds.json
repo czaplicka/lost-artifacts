@@ -1,6 +1,15 @@
 {
   "advertisements": [
     {
+      "id": "dead_mail",
+      "kind": "pi",
+      "title": "Dead Mail",
+      "contact": "Florence Finch",
+      "description": "A courier delivered a parcel to my grave. I would like to complain in person.\n\nThe marker has my name, my date of birth and tomorrow’s date as the day I die. I remain alive and would prefer to keep it that way.\n\nA discreet investigator is required. Please do not send flowers.",
+      "reward": null,
+      "missionId": "pi_dead_mail_preview"
+    },
+    {
       "id": "dead_men_calling",
       "kind": "pi",
       "title": "Dead Men Calling",

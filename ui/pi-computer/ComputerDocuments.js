@@ -3,6 +3,7 @@ import { BorrowedAlibiMail } from './BorrowedAlibiMail.js';
 import { AlibiReportUI } from './AlibiReportUI.js';
 import { installDeadMenMail } from '../../managers/DeadMenCallingService.js';
 import { installAlibiImprovements } from './AlibiImprovements.js';
+import { renderDeadMailOfficeButton, syncDeadMailOfficeQuest } from '../../managers/DeadMailOfficeIntegration.js';
 
 export class ComputerDocuments {
  constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);this.alibiImprovements=installAlibiImprovements(ui,this);}
@@ -11,6 +12,7 @@ export class ComputerDocuments {
   const data=this.ui.scene.cache.json.get('piOfficeMail');return Array.isArray(data?.messages)?data.messages.filter(i=>i&&i.id):[];
  }
  getClassifieds(){
+  syncDeadMailOfficeQuest();
   const supplied=this.ui.options.getClassifieds?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);
   const data=this.ui.scene.cache.json.get('piOfficeClassifieds');return Array.isArray(data?.advertisements)?data.advertisements.filter(i=>i&&i.id):[];
  }
@@ -45,7 +47,9 @@ export class ComputerDocuments {
   row.on('pointerdown',()=>{ui.options.onSfx?.('click');ui.selectedId=item.id;ui.bodyPage=0;ui.notice='';ui.viewToken+=1;ui.render();});
  }
  renderJobButton(selected,x,y){
-  const ui=this.ui,connected=typeof ui.options.onAcceptMission==='function'&&Boolean(selected.missionId),status=selected.missionId?ui.options.getMissionStatus?.(selected.missionId)||'available':'unavailable',available=status==='available';
+  const ui=this.ui;
+  if(renderDeadMailOfficeButton(ui,selected,x,y))return;
+  const connected=typeof ui.options.onAcceptMission==='function'&&Boolean(selected.missionId),status=selected.missionId?ui.options.getMissionStatus?.(selected.missionId)||'available':'unavailable',available=status==='available';
   const labels={active:'JOB ACCEPTED',completed:'JOB COMPLETED',failed:'JOB FAILED',abandoned:'JOB CLOSED'};
   const label=!connected?'APPLICATIONS UNAVAILABLE':!available?labels[status]||'JOB UNAVAILABLE':ui.accepting?'PLEASE WAIT...':'ACCEPT JOB';
   ui.drawing.button(x,y,label,()=>void ui.acceptMission(selected),connected&&available&&!ui.accepting);

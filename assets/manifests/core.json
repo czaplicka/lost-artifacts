@@ -306,7 +306,7 @@
         "backgrounds"
       ]
     },
-        {
+    {
       "key": "tv1",
       "url": "assets/audio/tv1.mp3",
       "type": "audio",
@@ -314,15 +314,15 @@
         "audio"
       ]
     },
-        {
+    {
       "key": "tv2",
-      "url": "assets/udio/tv2.mp3",
+      "url": "assets/audio/tv2.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
-        {
+    {
       "key": "ad_jingle",
       "url": "assets/audio/ad_jingle.mp3",
       "type": "audio",
@@ -330,7 +330,7 @@
         "audio"
       ]
     },
-   {
+    {
       "key": "notebook_bg",
       "url": "assets/ui/notebook_bg.webp",
       "type": "image",
@@ -455,7 +455,8 @@
         "ui",
         "backgrounds"
       ]
-    },    {
+    },
+    {
       "key": "mapbg",
       "url": "assets/map.webp",
       "type": "image",
@@ -483,7 +484,7 @@
     },
     {
       "key": "tv_news_studio",
-      "url": "assets/tv/tv_news_studio.webp",
+      "url": "assets/tv/tv_news_studio.jpg",
       "type": "image",
       "groups": [
         "ui"
@@ -491,7 +492,7 @@
     },
     {
       "key": "tv_anchor_generic",
-      "url": "assets/tv/tv_anchor_generic.webp",
+      "url": "assets/tv/tv_anchor_generic.jpg",
       "type": "image",
       "groups": [
         "ui"
@@ -499,7 +500,7 @@
     },
     {
       "key": "tv_anchor_genericf",
-      "url": "assets/tv/tv_anchor_genericf.webp",
+      "url": "assets/tv/tv_anchor_genericf.jpg",
       "type": "image",
       "groups": [
         "ui"
@@ -545,7 +546,7 @@
         "audio"
       ]
     },
-        {
+    {
       "key": "new_mail",
       "url": "assets/audio/new_mail.mp3",
       "type": "audio",

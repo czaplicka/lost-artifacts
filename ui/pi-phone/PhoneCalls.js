@@ -1,9 +1,11 @@
 import { SFX } from './PhoneConfig.js';
 import { installDeadMenPhone } from '../../managers/DeadMenCallingService.js';
+import { installDeadMenFollowupPhone } from '../../managers/DeadMenCallingFollowup.js';
 
 export const PhoneCalls = {
   pickUp() {
     installDeadMenPhone(this);
+    installDeadMenFollowupPhone(this);
     if (this.state !== 'on_hook') { this.hangUp(); return; }
     this.state = 'ready'; this.number = '';
     this.status = 'Dial a three-digit local number.';

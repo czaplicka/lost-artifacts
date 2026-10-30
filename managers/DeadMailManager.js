@@ -3,10 +3,15 @@ import { requestAutosave } from '../gameStatePersistence.js';
 import { registerPICase, addPIEvidence } from './PIInvestigationManager.js';
 import { STAFF, FACTS, DEDUCTIONS } from '../assets/data/deadMailChapterTwo.js';
 
+// Keep the existing ID and export names to preserve saves and chapter imports.
 export const DEAD_MAIL_PREVIEW_CASE = 'pi_dead_mail_preview';
-export const isDeadMailPreviewEnabled = () =>
-  ['localhost','127.0.0.1','[::1]'].includes(window.location.hostname) &&
-  new URLSearchParams(window.location.search).get('devDeadMail') === '1';
+export function isDeadMailPreviewEnabled() {
+  const quest = gameState.piQuests?.quests?.[DEAD_MAIL_PREVIEW_CASE];
+  if (quest?.metadata?.contentId === 'dead_mail' && ['active','completed'].includes(quest.status)) return true;
+  return typeof window !== 'undefined' &&
+    ['localhost','127.0.0.1','[::1]'].includes(window.location.hostname) &&
+    new URLSearchParams(window.location.search).get('devDeadMail') === '1';
+}
 const initial = () => ({version:1,stage:'mail',clues:[],questions:[],attempts:0,chapterComplete:false,
   cemeteryFacts:[],staffTopics:[],deductions:[],dayComplete:false});
 const unique = a => [...new Set(Array.isArray(a)?a.filter(x=>typeof x==='string'):[])];
@@ -19,12 +24,12 @@ export function getDeadMailProgress(){
     staffTopics:unique(s.staffTopics),deductions:unique(s.deductions).filter(x=>DEDUCTIONS.some(d=>d.id===x))};
 }
 function commit(s){gameState.deadMailPreview=s;requestAutosave();return s;}
-function note(id,label,text,metaText='Dead Mail / development preview',color='blue'){
+function note(id,label,text,metaText='Dead Mail',color='blue'){
   return addPIEvidence(DEAD_MAIL_PREVIEW_CASE,{id:`dead-mail-${id}`,label,text,metaText,color,pinned:true});
 }
 export function beginDeadMailPreview(){
-  if(!isDeadMailPreviewEnabled())throw new Error('Local development preview only. No purchase has been verified.');
-  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:'Dead Mail [DEVELOPMENT PREVIEW]',initialItems:[],initialLinks:[]});
+  if(!isDeadMailPreviewEnabled())throw new Error('Accept Dead Mail in the office Classifieds first.');
+  registerPICase({id:DEAD_MAIL_PREVIEW_CASE,kind:'side',requiresBoard:true,title:'Dead Mail',initialItems:[],initialLinks:[]});
   return commit(getDeadMailProgress());
 }
 export function canUseDeadMailStage(stage,s=getDeadMailProgress()){

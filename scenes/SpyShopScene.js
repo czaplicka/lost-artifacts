@@ -4,6 +4,7 @@ import { SPY_SHOP_CONFIG } from '../config/spyShopConfig.js';
 import { SPY_SHOP_STOCK } from '../config/spyShopStock.js';
 import { moneyManager, MONEY_SOURCE } from '../managers/MoneyManager.js';
 import { spyShopPurchaseService } from '../managers/SpyShopPurchaseService.js';
+import { SpyShopHudBridge } from '../ui/SpyShopHudBridge.js';
 
 const KEY = 'SpyShopScene';
 const CATALOG_KEY = 'piSpyShopItemCatalog';
@@ -30,6 +31,7 @@ export class SpyShopScene extends BaseScene {
     this.statusMessage = '';
     this.balanceElapsed = 0;
     this.lastDisplayedCash = null;
+    this.topHud = null;
   }
   preload() {
     const cfg = SPY_SHOP_CONFIG;
@@ -40,10 +42,9 @@ export class SpyShopScene extends BaseScene {
   create() {
     super.create();
     this.registry.set('currentSceneKey', KEY);
-    for (const key of ['PlayerHudScene', 'UIScene']) {
-      if (key === 'PlayerHudScene') this.getRegisteredScene(key)?.closeAllUIPanels?.();
-      this.stopSceneIfActive(key);
-    }
+    // Only the bottom gameplay menu is disabled. UIScene is the top HTML HUD.
+    this.getRegisteredScene('PlayerHudScene')?.closeAllUIPanels?.();
+    this.stopSceneIfActive('PlayerHudScene');
     const news = this.getRegisteredScene('NewsHud');
     if (news) {
       news.setHudVisible?.(false); news.closeMenu?.(true);
@@ -52,18 +53,34 @@ export class SpyShopScene extends BaseScene {
     this.drawBackground();
     this.hotspots = this.hotspotDefs.map((h, i) => this.createHotspot(h, i));
     const { width, height } = this.scale;
-    this.add.text(24, 18, SPY_SHOP_CONFIG.title, this.style(28)).setDepth(100);
-    this.add.text(24, 70, SPY_SHOP_CONFIG.subtitle, this.style(21)).setDepth(100);
-    this.moneyText = this.add.text(24, 118, '', this.style(23)).setDepth(100);
+    this.add.text(24, 170, SPY_SHOP_CONFIG.title, this.style(28)).setDepth(100);
+    this.add.text(24, 220, SPY_SHOP_CONFIG.subtitle, this.style(21)).setDepth(100);
+    // Fallback balance remains available if the HTML HUD fails to load.
+    this.moneyText = this.add.text(24, 268, '', this.style(23)).setDepth(100);
     this.feedback = this.add.text(24, height - 90, INSTRUCTION, {
       ...this.style(24), wordWrap: { width: width - 80 }
     }).setDepth(110);
     this.debugText = this.add.text(24, height - 220, '', this.style(20)).setDepth(120);
-    this.makeButton(null, width - 230, 30, 'Exit to street', () => void this.exitShop(), 22);
+    this.makeButton(null, width - 230, 170, 'Exit to street', () => void this.exitShop(), 22);
     this.trackInputEvent(this.input, 'drag', this.onHotspotDrag);
     if (this.input.keyboard) this.trackInputEvent(this.input.keyboard, 'keydown', this.onKey);
     this.events.once('shutdown', this.disposeShop, this);
     this.refreshHotspots(); this.refreshMoney();
+    this.topHud = new SpyShopHudBridge(this);
+    void this.setupTopHud();
+  }
+  async setupTopHud() {
+    const token = this.runToken;
+    try {
+      const ready = await this.topHud.start();
+      if (this.disposed || this.runToken !== token || this.navigating) return;
+      if (ready) {
+        this.moneyText?.setVisible(false);
+        this.refreshMoney();
+      } else console.warn('[SpyShopScene] Top HUD unavailable; using fallback balance.');
+    } catch (error) {
+      if (!this.disposed && this.runToken === token) console.error('[SpyShopScene] Top HUD setup failed:', error);
+    }
   }
   style(size = 24) {
     return { fontFamily: 'SpecialElite, monospace', fontSize: `${size}px`, color: '#f5e5be',
@@ -309,7 +326,10 @@ export class SpyShopScene extends BaseScene {
     this.buying = true;
     let result;
     try { result = spyShopPurchaseService.buy(product); }
-    finally { this.buying = false; }
+    catch (error) {
+      console.error('[SpyShopScene] Purchase UI failed:', error);
+      result = { message: 'Purchase error. Check your balance before trying again.' };
+    } finally { this.buying = false; }
     this.closeConfirmation();
     if (this.disposed) return;
     this.statusMessage = result.message;
@@ -320,6 +340,7 @@ export class SpyShopScene extends BaseScene {
     const cash = moneyManager.getBalance(MONEY_SOURCE.CASH);
     this.lastDisplayedCash = cash;
     this.moneyText?.setText(`Private cash: $${cash}`);
+    this.topHud?.refreshMoney();
   }
   update(_time, delta) {
     if (this.disposed || this.navigating || this.buying) return;
@@ -353,6 +374,7 @@ export class SpyShopScene extends BaseScene {
   disposeShop() {
     if (this.disposed) return;
     this.disposed = true; this.runToken = null;
+    this.topHud?.destroy(); this.topHud = null;
     this.feedbackTimer?.remove(false); this.feedbackTimer = null;
     this.confirmation?.destroy(); this.confirmation = null; this.confirmedProduct = null;
     this.panel?.destroy(); this.panel = null; this.panelBody = null; this.panelType = null;

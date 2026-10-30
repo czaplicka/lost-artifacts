@@ -8,7 +8,7 @@
         "backgrounds"
       ]
     },
-        {
+    {
       "key": "shopping",
       "url": "assets/shopping.webp",
       "type": "image",
@@ -17,11 +17,13 @@
       ]
     },
     {
-  "key": "pi_spy_shop_background",
-  "url": "assets/pi/city/spyshop.webp",
-  "type": "image",
-  "groups": ["backgrounds"]
-},
+      "key": "pi_spy_shop_background",
+      "url": "assets/pi/city/spyshop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
     {
       "key": "background2",
       "url": "assets/start_2.webp",
@@ -382,7 +384,7 @@
         "backgrounds"
       ]
     },
-        {
+    {
       "key": "harbor_b",
       "url": "assets/local/harbor_b.webp",
       "type": "image",
@@ -390,7 +392,7 @@
         "backgrounds"
       ]
     },
-            {
+    {
       "key": "harbor_a",
       "url": "assets/local/harbor_a.webp",
       "type": "image",
@@ -398,7 +400,7 @@
         "backgrounds"
       ]
     },
-            {
+    {
       "key": "harbor_h",
       "url": "assets/local/harbor_h.webp",
       "type": "image",
@@ -406,7 +408,7 @@
         "backgrounds"
       ]
     },
-            {
+    {
       "key": "harbor_w",
       "url": "assets/local/harbor_w.webp",
       "type": "image",
@@ -726,7 +728,7 @@
         "npcPortraits"
       ]
     },
-        {
+    {
       "key": "sailor_a",
       "url": "assets/npc/sailor_a.webp",
       "type": "image",
@@ -734,7 +736,7 @@
         "npcPortraits"
       ]
     },
-            {
+    {
       "key": "sailor_b",
       "url": "assets/npc/sailor_b.webp",
       "type": "image",
@@ -742,7 +744,7 @@
         "npcPortraits"
       ]
     },
-            {
+    {
       "key": "sailor_h",
       "url": "assets/npc/sailor_h.webp",
       "type": "image",
@@ -750,7 +752,7 @@
         "npcPortraits"
       ]
     },
-            {
+    {
       "key": "sailor_w",
       "url": "assets/npc/sailor_w.webp",
       "type": "image",
@@ -816,7 +818,7 @@
     },
     {
       "key": "artifact_crown_jewels",
-      "url": "assets/artifacts/crown_jewels.png",
+      "url": "assets/artifacts/crown_jewels.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -824,7 +826,7 @@
     },
     {
       "key": "artifact_amber_necklace",
-      "url": "assets/artifacts/amber_necklace.png",
+      "url": "assets/artifacts/amber_necklace.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -832,7 +834,7 @@
     },
     {
       "key": "artifact_liberty_torch",
-      "url": "assets/artifacts/liberty_torch.png",
+      "url": "assets/artifacts/liberty_torch.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -840,7 +842,7 @@
     },
     {
       "key": "artifact_mona_lisa",
-      "url": "assets/artifacts/mona_lisa.png",
+      "url": "assets/artifacts/mona_lisa.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -848,7 +850,7 @@
     },
     {
       "key": "artifact_mughal_dagger",
-      "url": "assets/artifacts/mughal_dagger.png",
+      "url": "assets/artifacts/mughal_dagger.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -856,7 +858,7 @@
     },
     {
       "key": "artifact_royal_seal",
-      "url": "assets/artifacts/royal_seal.png",
+      "url": "assets/artifacts/royal_seal.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -864,7 +866,7 @@
     },
     {
       "key": "artifact_fallback",
-      "url": "assets/artifacts/artifact_unknown.png",
+      "url": "assets/artifacts/artifact_unknown.webp",
       "type": "image",
       "groups": [
         "artifacts"
@@ -872,7 +874,7 @@
     },
     {
       "key": "portrait_fallback",
-      "url": "assets/portraits/portrait_fallback.png",
+      "url": "assets/portraits/portrait_fallback.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -880,7 +882,7 @@
     },
     {
       "key": "portrait_holmes",
-      "url": "assets/portraits/holmes.png",
+      "url": "assets/portraits/holmes.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -888,7 +890,7 @@
     },
     {
       "key": "portrait_CSI",
-      "url": "assets/portraits/CSI.png",
+      "url": "assets/portraits/csi.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -896,7 +898,7 @@
     },
     {
       "key": "portrait_home",
-      "url": "assets/portraits/home.png",
+      "url": "assets/portraits/home.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -904,7 +906,7 @@
     },
     {
       "key": "portrait_hq",
-      "url": "assets/portraits/hq.png",
+      "url": "assets/portraits/hq.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -912,7 +914,7 @@
     },
     {
       "key": "portrait_informant",
-      "url": "assets/portraits/informant.png",
+      "url": "assets/portraits/informant.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -920,7 +922,7 @@
     },
     {
       "key": "portrait_police-station",
-      "url": "assets/portraits/police-station.png",
+      "url": "assets/portraits/police-station.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -928,7 +930,7 @@
     },
     {
       "key": "portrait_watson",
-      "url": "assets/portraits/watson.png",
+      "url": "assets/portraits/watson.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -936,13 +938,13 @@
     },
     {
       "key": "portrait_accounting",
-      "url": "assets/portraits/portrait_accounting.png",
+      "url": "assets/portraits/portrait_accounting.webp",
       "type": "image",
       "groups": [
         "portraits"
       ]
     },
-        {
+    {
       "key": "portrait_magazine",
       "url": "assets/portraits/magazine_manager.webp",
       "type": "image",

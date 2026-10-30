@@ -2,6 +2,7 @@ import { OfficeScene as OriginalOfficeScene } from './OfficeScene.js';
 import { OfficeScreenAnimations } from './office/OfficeScreenAnimations.js';
 import { OfficeElevatorAnimations } from './office/OfficeElevatorAnimations.js';
 import { OfficeCabinetAnimations } from './office/OfficeCabinetAnimations.js';
+import { OfficeStorageAnimations } from './office/OfficeStorageAnimations.js';
 import { OfficePanelActions } from './office/OfficePanelActions.js';
 
 const LAMP_CONFIG = {
@@ -9,19 +10,10 @@ const LAMP_CONFIG = {
   textureKey: 'office-desk-lamp-frames-v1',
   animationKey: 'office-desk-lamp-flicker-v2',
   url: 'assets/spritesheet/office/desk-lamp-flicker.png',
-  sheetWidth: 2064,
-  sheetHeight: 512,
-  frameWidth: 344,
-  frameHeight: 512,
-  frameCount: 6,
-  x: 1020,
-  y: 397,
-  width: 190,
-  height: 290,
-  depth: 1,
-  minDelay: 9000,
-  maxDelay: 22000,
-  frameRate: 4
+  sheetWidth: 2064, sheetHeight: 512,
+  frameWidth: 344, frameHeight: 512, frameCount: 6,
+  x: 1020, y: 397, width: 190, height: 290, depth: 1,
+  minDelay: 9000, maxDelay: 22000, frameRate: 4
 };
 
 export class OfficeScene extends OriginalOfficeScene {
@@ -40,12 +32,19 @@ export class OfficeScene extends OriginalOfficeScene {
     this.officeScreens = null;
     this.elevatorEffects = null;
     this.cabinetEffects = null;
+    this.storageEffects = null;
     this.events.once('shutdown', this.destroyDeskLamp, this);
     this.events.once('destroy', this.destroyDeskLamp, this);
     this.createDeskLamp();
     this.officeScreens = new OfficeScreenAnimations(this);
     this.elevatorEffects = new OfficeElevatorAnimations(this);
     this.cabinetEffects = new OfficeCabinetAnimations(this);
+    this.storageEffects = new OfficeStorageAnimations(this);
+    console.info('[OfficeAnimations] Cabinet and globe-room effects initialized.');
+  }
+
+  getOfficeAnimationStatus() {
+    return { cabinet: this.cabinetEffects?.debugStatus(), storage: this.storageEffects?.debugStatus() };
   }
 
   createDeskLamp() {
@@ -58,8 +57,7 @@ export class OfficeScene extends OriginalOfficeScene {
     this.deskLamp = this.add.sprite(0, 0, LAMP_CONFIG.textureKey, 0)
       .setOrigin(0, 0).setDepth(LAMP_CONFIG.depth);
     this.positionDeskLamp();
-    this.deskLamp.on(`animationcomplete-${LAMP_CONFIG.animationKey}`,
-      this.onDeskLampFlickerComplete, this);
+    this.deskLamp.on(`animationcomplete-${LAMP_CONFIG.animationKey}`, this.onDeskLampFlickerComplete, this);
     this.scale.on('resize', this.positionDeskLamp, this);
     this.scheduleDeskLampFlicker();
   }
@@ -78,12 +76,8 @@ export class OfficeScene extends OriginalOfficeScene {
       return false;
     }
     this.textures.addSpriteSheet(LAMP_CONFIG.textureKey, source, {
-      frameWidth: LAMP_CONFIG.frameWidth,
-      frameHeight: LAMP_CONFIG.frameHeight,
-      startFrame: 0,
-      endFrame: LAMP_CONFIG.frameCount - 1,
-      margin: 0,
-      spacing: 0
+      frameWidth: LAMP_CONFIG.frameWidth, frameHeight: LAMP_CONFIG.frameHeight,
+      startFrame: 0, endFrame: LAMP_CONFIG.frameCount - 1, margin: 0, spacing: 0
     });
     return true;
   }
@@ -92,19 +86,15 @@ export class OfficeScene extends OriginalOfficeScene {
     if (this.anims.exists(LAMP_CONFIG.animationKey)) return;
     this.anims.create({
       key: LAMP_CONFIG.animationKey,
-      frames: this.anims.generateFrameNumbers(LAMP_CONFIG.textureKey, {
-        start: 0, end: LAMP_CONFIG.frameCount - 1
-      }),
-      frameRate: LAMP_CONFIG.frameRate,
-      repeat: 0
+      frames: this.anims.generateFrameNumbers(LAMP_CONFIG.textureKey, { start: 0, end: LAMP_CONFIG.frameCount - 1 }),
+      frameRate: LAMP_CONFIG.frameRate, repeat: 0
     });
   }
 
   positionDeskLamp() {
     const bg = this.rooms?.office?.bg;
     if (!this.deskLamp?.active || !bg?.active) return;
-    const sx = bg.displayWidth / 1920;
-    const sy = bg.displayHeight / 1080;
+    const sx = bg.displayWidth / 1920, sy = bg.displayHeight / 1080;
     this.deskLamp.setPosition(bg.x + LAMP_CONFIG.x * sx, bg.y + LAMP_CONFIG.y * sy)
       .setDisplaySize(LAMP_CONFIG.width * sx, LAMP_CONFIG.height * sy);
   }
@@ -113,17 +103,15 @@ export class OfficeScene extends OriginalOfficeScene {
     this.deskLampTimer?.remove(false);
     this.deskLampTimer = null;
     if (!this.deskLamp?.active) return;
-    this.deskLampTimer = this.time.delayedCall(
-      Phaser.Math.Between(LAMP_CONFIG.minDelay, LAMP_CONFIG.maxDelay), () => {
-        this.deskLampTimer = null;
-        if (!this.deskLamp?.active) return;
-        if (!this.sys.isActive() || this.currentView !== 'office') {
-          this.scheduleDeskLampFlicker();
-          return;
-        }
-        this.deskLamp.play(LAMP_CONFIG.animationKey);
+    this.deskLampTimer = this.time.delayedCall(Phaser.Math.Between(LAMP_CONFIG.minDelay, LAMP_CONFIG.maxDelay), () => {
+      this.deskLampTimer = null;
+      if (!this.deskLamp?.active) return;
+      if (!this.sys.isActive() || this.currentView !== 'office') {
+        this.scheduleDeskLampFlicker();
+        return;
       }
-    );
+      this.deskLamp.play(LAMP_CONFIG.animationKey);
+    });
   }
 
   onDeskLampFlickerComplete() {
@@ -136,21 +124,15 @@ export class OfficeScene extends OriginalOfficeScene {
     this.events.off('shutdown', this.destroyDeskLamp, this);
     this.events.off('destroy', this.destroyDeskLamp, this);
     this.scale.off('resize', this.positionDeskLamp, this);
-    this.officeScreens?.destroy();
-    this.officeScreens = null;
-    this.elevatorEffects?.destroy();
-    this.elevatorEffects = null;
-    this.cabinetEffects?.destroy();
-    this.cabinetEffects = null;
-    this.deskLampTimer?.remove(false);
-    this.deskLampTimer = null;
+    this.officeScreens?.destroy(); this.officeScreens = null;
+    this.elevatorEffects?.destroy(); this.elevatorEffects = null;
+    this.cabinetEffects?.destroy(); this.cabinetEffects = null;
+    this.storageEffects?.destroy(); this.storageEffects = null;
+    this.deskLampTimer?.remove(false); this.deskLampTimer = null;
     if (this.deskLamp) {
-      this.deskLamp.off(`animationcomplete-${LAMP_CONFIG.animationKey}`,
-        this.onDeskLampFlickerComplete, this);
-      this.deskLamp.destroy();
-      this.deskLamp = null;
+      this.deskLamp.off(`animationcomplete-${LAMP_CONFIG.animationKey}`, this.onDeskLampFlickerComplete, this);
+      this.deskLamp.destroy(); this.deskLamp = null;
     }
   }
 }
-
 Object.assign(OfficeScene.prototype, OfficePanelActions);

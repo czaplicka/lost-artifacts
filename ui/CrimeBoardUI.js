@@ -2,6 +2,7 @@ import { initCrimeBoard } from '../CrimeBoardInit.js';
 import { EventBus } from '../EventBus.js';
 import { syncCrimeBoardSuspects } from '../crimeBoard/BoardSuspects.js';
 import { installBoardWorkspace, savedBoard } from '../crimeBoard/BoardWorkspace.js';
+import { installCaseTheory } from '../crimeBoard/CaseTheory.js';
 
 const ALLOWED_SCENES = new Set(['OfficeScene', 'HotelScene']);
 
@@ -94,12 +95,13 @@ export class CrimeBoardUI {
         return api.getData();
       };
       installBoardWorkspace(api, state, saved);
+      installCaseTheory(api, state, this.root);
       this.boardApi = api;
       pendingApi = null;
       if (!this.canOpen()) { this.close(); return false; }
       return true;
     } catch (error) {
-      if (pendingApi) { pendingApi.board?.destroy?.(); pendingApi.destroy?.(); }
+      if (pendingApi) { pendingApi.destroy?.(); pendingApi.board?.destroy?.(); }
       if (this.isDestroyed || token !== this._openToken) return false;
       console.error('CrimeBoardUI open failed:', error);
       this.close(); return false;

@@ -6,6 +6,7 @@ import { getEnergyManager } from '../managers/EnergyManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
 
 import { ensureAlibiEncounters } from '../alibi/AlibiEncounterSetup.js';
+import { getCaseSuspects } from '../suspects/CaseSuspects.js';
 import { EventBus } from '../EventBus.js';
 
 import { CrimeCityProgressService } from './crimeCity/CrimeCityProgressService.js';
@@ -16,6 +17,10 @@ import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 import { buildCrimeCityLayout } from './crimeCity/CrimeCityLayout.js';
 
 import { CrimeCityTutorial } from '../CrimeCityTutorial.js';
+
+import {
+  launchFailedAlibiArrest
+} from './FailedAlibiArrestOverlayScene.js';
 
 const SHOP_TAXI_ENERGY = 3;
 
@@ -65,6 +70,7 @@ export class CrimeCityScene extends BaseScene {
 
     this.interactiveObjects = [];
     this.cityAmbient = null;
+
     this.isSettingUpUi = false;
     this.isTransitioning = false;
     this.isVisitingApartment = false;
@@ -80,7 +86,9 @@ export class CrimeCityScene extends BaseScene {
         getCaseKey: () => this.getCaseKey()
       });
 
-    this.tutorialController = new CrimeCityTutorialController(this);
+    this.tutorialController =
+      new CrimeCityTutorialController(this);
+
     this.tutorialController.initialize(data);
 
     this.mapUI = new CrimeCityMapUI(this);
@@ -207,8 +215,10 @@ export class CrimeCityScene extends BaseScene {
         uiScene.updateTime?.({
           day: gameState.currentDay || gameState.day || 1,
           hour: gameState.currentHour ?? gameState.hour ?? 8,
-          minute: gameState.currentMinute ?? gameState.minute ?? 0,
-
+          minute:
+            gameState.currentMinute ??
+            gameState.minute ??
+            0,
           partOfDay:
             gameState.currentPartOfDay ||
             gameState.partOfDay ||
@@ -274,7 +284,6 @@ export class CrimeCityScene extends BaseScene {
         '[CrimeCityScene] Missing city configuration:',
         this.cityId
       );
-
       return;
     }
 
@@ -302,7 +311,9 @@ export class CrimeCityScene extends BaseScene {
   }
 
   playCityAmbient() {
-    if (this.cityAmbient?.isPlaying) return this.cityAmbient;
+    if (this.cityAmbient?.isPlaying) {
+      return this.cityAmbient;
+    }
 
     this.cityAmbient = audioManager.playAmbient(
       'citysound',
@@ -366,7 +377,9 @@ export class CrimeCityScene extends BaseScene {
   }
 
   startCrimeTutorial() {
-    if (this._cleanupDone || !this.cityData?.crimeCity) return;
+    if (this._cleanupDone || !this.cityData?.crimeCity) {
+      return;
+    }
 
     this.crimeTutorial?.destroy();
 
@@ -385,7 +398,6 @@ export class CrimeCityScene extends BaseScene {
     if (!tutorial?.isActive()) return;
 
     const saved = gameState.onboarding?.crimeCity;
-
     if (!saved) return;
 
     if (saved.completed || saved.step === 'finished') {
@@ -441,7 +453,8 @@ export class CrimeCityScene extends BaseScene {
   scheduleStoryEvents() {
     if (this.hasVisitedApartment()) return;
 
-    this.tutorialController?.scheduleLabCompletionPhoneCall();
+    this.tutorialController
+      ?.scheduleLabCompletionPhoneCall();
   }
 
   createShopPin() {
@@ -449,19 +462,19 @@ export class CrimeCityScene extends BaseScene {
   }
 
   getLocalActivityEnergyCost(targetNodeId) {
-    const activityType = Object.prototype.hasOwnProperty.call(
-      LOCAL_ACTIVITY_BY_NODE,
-      targetNodeId
-    )
-      ? LOCAL_ACTIVITY_BY_NODE[targetNodeId]
-      : null;
+    const activityType =
+      Object.prototype.hasOwnProperty.call(
+        LOCAL_ACTIVITY_BY_NODE,
+        targetNodeId
+      )
+        ? LOCAL_ACTIVITY_BY_NODE[targetNodeId]
+        : null;
 
     if (!activityType) {
       console.error(
         '[CrimeCityScene] Unknown local activity node:',
         targetNodeId
       );
-
       return null;
     }
 
@@ -498,7 +511,6 @@ export class CrimeCityScene extends BaseScene {
     }
 
     const costs = this.getLocalActivityEnergyCost(targetNodeId);
-
     if (!costs) return false;
 
     const energy = getEnergyManager();
@@ -510,7 +522,6 @@ export class CrimeCityScene extends BaseScene {
         3200,
         '#8b0000'
       );
-
       return false;
     }
 
@@ -577,7 +588,6 @@ export class CrimeCityScene extends BaseScene {
           2800,
           '#8b0000'
         );
-
         return false;
       }
 
@@ -609,7 +619,8 @@ export class CrimeCityScene extends BaseScene {
         this.scene.stop('ShopScene');
 
         this.showMessage(
-          'The shop could not be opened.\nCheck the console for details.',
+          'The shop could not be opened.\n' +
+            'Check the console for details.',
           3200,
           '#8b0000'
         );
@@ -636,11 +647,11 @@ export class CrimeCityScene extends BaseScene {
 
     if (!mission?.scene) {
       this.showMessage(
-        'This case has no crime-scene data yet.\nEven the chalk outline is confused.',
+        'This case has no crime-scene data yet.\n' +
+          'Even the chalk outline is confused.',
         2600,
         '#5d2a00'
       );
-
       return;
     }
 
@@ -649,11 +660,11 @@ export class CrimeCityScene extends BaseScene {
 
     if (!reconstruction) {
       this.showMessage(
-        'The case reconstruction could not be prepared.\nThe evidence board is having an existential crisis.',
+        'The case reconstruction could not be prepared.\n' +
+          'The evidence board is having an existential crisis.',
         3200,
         '#8b0000'
       );
-
       return;
     }
 
@@ -669,11 +680,11 @@ export class CrimeCityScene extends BaseScene {
       );
 
       this.showMessage(
-        'The case produced an invalid evidence set.\nCheck the reconstruction generator data.',
+        'The case produced an invalid evidence set.\n' +
+          'Check the reconstruction generator data.',
         3200,
         '#8b0000'
       );
-
       return;
     }
 
@@ -730,6 +741,45 @@ export class CrimeCityScene extends BaseScene {
     });
   }
 
+  resolveApartmentTarget(suspectId) {
+    const suspects = getCaseSuspects(gameState);
+
+    if (!suspectId) {
+      return { valid: false, reason: 'missing_selection' };
+    }
+
+    const target = suspects.find(
+      suspect => suspect?.id === suspectId
+    );
+
+    if (!target) {
+      return { valid: false, reason: 'unknown_suspect' };
+    }
+
+    const thieves = suspects.filter(suspect => (
+      suspect?.isRealThief === true ||
+      suspect?.hiddenCaseData?.isTrueThief === true
+    ));
+
+    if (thieves.length !== 1) {
+      console.error(
+        '[CrimeCityScene] Expected exactly one real case thief.',
+        {
+          suspectId,
+          thiefCount: thieves.length
+        }
+      );
+
+      return { valid: false, reason: 'invalid_thief_data' };
+    }
+
+    return {
+      valid: true,
+      target,
+      isCorrect: target.id === thieves[0].id
+    };
+  }
+
   visitApartment(suspectId) {
     if (
       this.isTransitioning ||
@@ -740,26 +790,28 @@ export class CrimeCityScene extends BaseScene {
       return false;
     }
 
-    const targetSuspectId =
-      suspectId || gameState.currentThiefId;
+    // Never silently substitute the real thief for the player's choice.
+    const target = this.resolveApartmentTarget(suspectId);
 
-    if (!targetSuspectId) {
+    if (!target.valid) {
       this.showMessage(
-        'No suspect selected.\nPick someone from the board first.',
-        2200,
+        target.reason === 'missing_selection'
+          ? 'No suspect selected.\nPick someone from the board first.'
+          : 'The suspect file could not be verified.\n' +
+            'No arrest team was dispatched.',
+        3000,
         '#5d2a00'
       );
-
       return false;
     }
 
-    if (!this.isAlibiDebunked(targetSuspectId)) {
+    if (!this.isAlibiDebunked(suspectId)) {
       this.showMessage(
-        "This suspect's alibi still holds up.\nCheck the witness statements first.",
+        "This suspect's alibi still holds up.\n" +
+          'Check the witness statements first.',
         2600,
         '#5d2a00'
       );
-
       return false;
     }
 
@@ -771,7 +823,7 @@ export class CrimeCityScene extends BaseScene {
     this.isVisitingApartment = true;
 
     void this.prepareApartmentVisit(
-      targetSuspectId,
+      suspectId,
       this._runToken
     );
 
@@ -780,20 +832,41 @@ export class CrimeCityScene extends BaseScene {
 
   async prepareApartmentVisit(suspectId, token) {
     try {
-      // Lazy registration must happen before any Phaser start/launch call.
+      let target = this.resolveApartmentTarget(suspectId);
+
+      if (!target.valid) {
+        throw new Error(
+          `Invalid apartment target: ${target.reason}`
+        );
+      }
+
+      // Preload the destination before spending energy.
       if (this.game.sceneLoader) {
-        await this.game.sceneLoader.ensure('ApartmentScene');
+        await this.game.sceneLoader.ensure(
+          target.isCorrect ? 'ApartmentScene' : 'GameOverScene'
+        );
       }
 
       if (!this.isCurrentRun(token)) return;
 
-      if (!this.hasScene('ApartmentScene')) {
+      target = this.resolveApartmentTarget(suspectId);
+
+      if (!target.valid) {
         throw new Error(
-          'ApartmentScene could not be registered by SceneLoader.'
+          `Apartment target changed: ${target.reason}`
         );
       }
 
-      // Recheck after asynchronous loading.
+      const destination = target.isCorrect
+        ? 'ApartmentScene'
+        : 'GameOverScene';
+
+      if (!this.hasScene(destination)) {
+        throw new Error(
+          `${destination} could not be registered by SceneLoader.`
+        );
+      }
+
       if (!this.isAlibiDebunked(suspectId)) {
         this.restoreAfterApartmentFailure(token);
         return;
@@ -818,7 +891,30 @@ export class CrimeCityScene extends BaseScene {
 
       this.closeAllUIPanels();
 
-      // Keep the existing tutorial signal for compatibility.
+      // Wrong suspect: do not enter or generate the apartment.
+      if (!target.isCorrect) {
+        const opened = await launchFailedAlibiArrest(this, {
+          suspectId,
+          caseId:
+            gameState.currentCaseId ??
+            gameState.currentMission?.id ??
+            this.getCaseKey()
+        });
+
+        if (!opened && this.isCurrentRun(token)) {
+          this.restoreAfterApartmentFailure(token);
+
+          this.showMessage(
+            'The arrest animation could not be opened.\n' +
+              'Please try again.',
+            3200,
+            '#8b0000'
+          );
+        }
+
+        return;
+      }
+
       EventBus.emit('crimeCityTutorialStep', {
         step: 'search_apartment'
       });
@@ -849,7 +945,8 @@ export class CrimeCityScene extends BaseScene {
       this.restoreAfterApartmentFailure(token);
 
       this.showMessage(
-        'The apartment could not be loaded.\nPlease try again. Check the console if it happens again.',
+        'The operation could not be prepared.\n' +
+          'Please try again. Check the console if it happens again.',
         4000,
         '#8b0000'
       );
@@ -885,7 +982,8 @@ export class CrimeCityScene extends BaseScene {
       this.restoreAfterApartmentFailure(token);
 
       this.showMessage(
-        'The apartment could not be opened.\nCheck the console for details.',
+        'The apartment could not be opened.\n' +
+          'Check the console for details.',
         4000,
         '#8b0000'
       );
@@ -994,7 +1092,6 @@ export class CrimeCityScene extends BaseScene {
     }
 
     const token = this._runToken;
-
     this.isTransitioning = true;
 
     this.cameras.main.once(
@@ -1029,7 +1126,8 @@ export class CrimeCityScene extends BaseScene {
 
   showNoEnergyPopup() {
     this.showMessage(
-      "You're too exhausted, detective.\nGet some rest before continuing the case.",
+      "You're too exhausted, detective.\n" +
+        'Get some rest before continuing the case.',
       2400,
       '#8b0000'
     );
@@ -1137,8 +1235,6 @@ export class CrimeCityScene extends BaseScene {
     this.mapUI = null;
 
     this.reconstructionService = null;
-
-    this.progressService?.destroy();
     this.progressService = null;
   }
 }

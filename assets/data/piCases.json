@@ -180,6 +180,55 @@
         }
       ],
       "initialLinks": []
+    },
+    {
+      "id": "pi_dead_mail_preview",
+      "kind": "side",
+      "title": "Dead Mail",
+      "description": "Investigate Florence Finch’s false grave marker and the suspicious deliveries at Blackthorn Cemetery.",
+      "requiresBoard": true,
+      "reward": 0,
+      "objectives": [
+        {
+          "id": "inspect_photo",
+          "text": "Inspect the delivery photograph and identify the location."
+        },
+        {
+          "id": "day_shift",
+          "text": "Investigate the cemetery staff and delivery records."
+        },
+        {
+          "id": "night_shift",
+          "text": "Complete the night observation and verify the witness."
+        },
+        {
+          "id": "final_report",
+          "text": "Document the controlled delivery and submit the final report."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "dead-mail-advert",
+          "type": "note",
+          "label": "Florence Finch — a living client",
+          "text": "Florence says a courier delivered a parcel to a grave bearing her name. Inspect the photograph and interview her before drawing conclusions.",
+          "metaText": "Source: Classifieds",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": [],
+      "metadata": {
+        "contentId": "dead_mail",
+        "contentVersion": 1,
+        "accessMode": "integration_build",
+        "cashReward": false
+      }
     }
   ]
 }

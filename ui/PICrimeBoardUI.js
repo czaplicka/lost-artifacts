@@ -1,8 +1,8 @@
-// ui/PICrimeBoardUI.js
-
 import { CrimeBoardUI } from './CrimeBoardUI.js';
 import { CrimeBoard } from '../CrimeBoard.js';
+
 import { EventBus } from '../EventBus.js';
+import { gameState } from '../GameData.js';
 
 import {
   registerPICase,
@@ -12,6 +12,8 @@ import {
   selectPICase,
   savePIBoard
 } from '../managers/PIInvestigationManager.js';
+
+const HOLLY_CASE_ID = 'holly_missing_husband';
 
 const EDITOR_IDS = {
   formId: 'crime-board-form',
@@ -31,29 +33,87 @@ const EDITOR_IDS = {
   verifyMotiveBtnId: 'crime-board-verify-motive-btn'
 };
 
+// PI investigations do not use agency motive checks.
+class PrivateInvestigationBoard extends CrimeBoard {
+  createDeductionPanel() {}
+
+  getMotiveDeductionRequest() {
+    return null;
+  }
+
+  refreshDeductionPanel() {}
+
+  verifyMotiveGuess() {
+    return {
+      verified: false,
+      reason: 'PI_MOTIVE_CHECK_DISABLED'
+    };
+  }
+
+  hasVerifiedCorrectMotive() {
+    return false;
+  }
+}
+
 export class PICrimeBoardUI extends CrimeBoardUI {
   constructor(scene, options = {}) {
     super(scene);
 
     this.piOptions = options;
+
     this.caseId = null;
-    this.mode = 'main';
+    this.mode = 'side';
+
     this.template = null;
     this.mount = null;
     this.message = null;
 
-    this.overlay.classList.add('pi-crime-board-ui');
+    this.caseSelect = null;
+    this.mainButton = null;
+    this.sideButton = null;
+
+    this.overlay.classList.add(
+      'pi-crime-board-ui'
+    );
 
     this.boundShutdown = () => this.destroy();
 
-    scene.events.once('shutdown', this.boundShutdown);
+    scene.events.once(
+      'shutdown',
+      this.boundShutdown
+    );
   }
 
   canOpen() {
     return Boolean(
       !this.isDestroyed &&
       this.scene?.sys?.isActive() &&
-      this.scene.sys.settings.key === 'DetectiveOfficeScene'
+      this.scene.sys.settings.key ===
+        'DetectiveOfficeScene'
+    );
+  }
+
+  isCaseAvailable(investigation) {
+    if (!investigation) return false;
+
+    if (
+      investigation.id === HOLLY_CASE_ID
+    ) {
+      return gameState.hollyIntroSeen === true;
+    }
+
+    return true;
+  }
+
+  getAvailableCases(mode = null) {
+    return getPICases().filter(
+      investigation => (
+        this.isCaseAvailable(investigation) &&
+        (
+          mode === null ||
+          investigation.kind === mode
+        )
+      )
     );
   }
 
@@ -61,20 +121,25 @@ export class PICrimeBoardUI extends CrimeBoardUI {
     if (!this.canOpen()) return false;
     if (this.isOpen) return true;
 
-    // Do not mount two crimeboard workspaces simultaneously.
     const otherBoard = document.querySelector(
       '.crime-board-ui-overlay.is-open'
     );
 
-    if (otherBoard && otherBoard !== this.overlay) {
+    if (
+      otherBoard &&
+      otherBoard !== this.overlay
+    ) {
       return false;
     }
 
     const token = ++this._openToken;
 
     this.isOpen = true;
+
     this.overlay.classList.add('is-open');
-    this.root.textContent = 'Loading private investigations...';
+
+    this.root.textContent =
+      'Loading private investigations...';
 
     this.disableUnderlyingScenesInput();
 
@@ -102,27 +167,50 @@ export class PICrimeBoardUI extends CrimeBoardUI {
       const definitions =
         this.scene.cache.json.get('piCases');
 
-      const mainDefinition = definitions?.cases?.find(
-        item => item.id === definitions.mainCaseId
-      );
+      const mainDefinition =
+        definitions?.cases?.find(
+          item => item.id === definitions.mainCaseId
+        );
 
       if (!mainDefinition) {
-        throw new Error('The PI main case definition is missing.');
+        throw new Error(
+          'The PI main case definition is missing.'
+        );
       }
 
-      registerPICase(mainDefinition);
+      if (this.isCaseAvailable(mainDefinition)) {
+        registerPICase(mainDefinition);
+      }
 
       this.buildWorkspace();
 
-      const selected = getPICase(getSelectedPICaseId());
-      const initial = selected || getPICase(mainDefinition.id);
+      const cases = this.getAvailableCases();
 
-      this.mode = initial.kind;
-      this.switchCase(initial.id);
+      const selectedId = getSelectedPICaseId();
+
+      const initial =
+        cases.find(
+          investigation =>
+            investigation.id === selectedId
+        ) ||
+        cases.find(
+          investigation =>
+            investigation.id === mainDefinition.id
+        ) ||
+        cases[0];
+
+      if (initial) {
+        this.switchCase(initial.id);
+      } else {
+        this.showEmptyMode('side');
+      }
 
       return true;
     } catch (error) {
-      console.error('[PICrimeBoardUI] Open failed:', error);
+      console.error(
+        '[PICrimeBoardUI] Open failed:',
+        error
+      );
 
       if (
         !this.isDestroyed &&
@@ -138,23 +226,40 @@ export class PICrimeBoardUI extends CrimeBoardUI {
   buildWorkspace() {
     this.root.replaceChildren();
 
-    const header = document.createElement('div');
+    const header =
+      document.createElement('div');
+
     header.className = 'pi-board-header';
 
-    const title = document.createElement('h2');
-    title.textContent = 'PRIVATE INVESTIGATIONS';
+    const title =
+      document.createElement('h2');
 
-    const mainButton = document.createElement('button');
-    mainButton.type = 'button';
-    mainButton.textContent = 'Main Case';
-    mainButton.onclick = () => this.switchMode('main');
+    title.textContent =
+      'PRIVATE INVESTIGATIONS';
 
-    const sideButton = document.createElement('button');
-    sideButton.type = 'button';
-    sideButton.textContent = 'Side Cases';
-    sideButton.onclick = () => this.switchMode('side');
+    this.mainButton =
+      document.createElement('button');
 
-    this.caseSelect = document.createElement('select');
+    this.mainButton.type = 'button';
+    this.mainButton.textContent = 'Main Case';
+
+    this.mainButton.onclick = () => {
+      this.switchMode('main');
+    };
+
+    this.sideButton =
+      document.createElement('button');
+
+    this.sideButton.type = 'button';
+    this.sideButton.textContent = 'Side Cases';
+
+    this.sideButton.onclick = () => {
+      this.switchMode('side');
+    };
+
+    this.caseSelect =
+      document.createElement('select');
+
     this.caseSelect.setAttribute(
       'aria-label',
       'Select private investigation'
@@ -164,74 +269,119 @@ export class PICrimeBoardUI extends CrimeBoardUI {
       this.switchCase(this.caseSelect.value);
     };
 
-    this.message = document.createElement('p');
-    this.message.className = 'pi-board-message';
+    this.message =
+      document.createElement('p');
 
-    this.mount = document.createElement('div');
-    this.mount.className = 'pi-board-workspace';
+    this.message.className =
+      'pi-board-message';
+
+    this.mount =
+      document.createElement('div');
+
+    this.mount.className =
+      'pi-board-workspace';
 
     header.append(
       title,
-      mainButton,
-      sideButton,
+      this.mainButton,
+      this.sideButton,
       this.caseSelect
     );
 
-    this.root.append(header, this.message, this.mount);
-
-    this.mainButton = mainButton;
-    this.sideButton = sideButton;
+    this.root.append(
+      header,
+      this.message,
+      this.mount
+    );
   }
 
   switchMode(mode) {
-    const cases = getPICases().filter(
-      investigation => investigation.kind === mode
-    );
+    if (
+      !this.mount ||
+      !['main', 'side'].includes(mode)
+    ) {
+      return;
+    }
 
-    this.mode = mode;
+    const cases = this.getAvailableCases(mode);
 
     if (cases.length) {
       this.switchCase(cases[0].id);
       return;
     }
 
+    this.showEmptyMode(mode);
+  }
+
+  showEmptyMode(mode) {
     this.saveToGameState();
     this.disposeBoard();
 
+    this.mode = mode;
     this.caseId = null;
-    this.mount.replaceChildren();
+
+    this.mount?.replaceChildren();
 
     this.refreshSelector();
 
-    this.message.textContent =
-      'No side investigations require a crime board yet.';
+    if (this.message) {
+      this.message.textContent =
+        mode === 'main'
+          ? 'No main investigation is available yet.'
+          : 'No side investigations require a crime board yet.';
+    }
   }
 
   refreshSelector() {
-    const cases = getPICases().filter(
-      investigation => investigation.kind === this.mode
-    );
+    if (
+      !this.caseSelect ||
+      !this.mainButton ||
+      !this.sideButton
+    ) {
+      return;
+    }
+
+    const cases =
+      this.getAvailableCases(this.mode);
+
+    const mainCases =
+      this.getAvailableCases('main');
 
     this.caseSelect.replaceChildren();
 
     for (const investigation of cases) {
-      const option = document.createElement('option');
+      const option =
+        document.createElement('option');
 
       option.value = investigation.id;
+
       option.textContent =
         investigation.title +
-        (investigation.status === 'completed'
-          ? ' — Completed'
-          : '');
+        (
+          investigation.status === 'completed'
+            ? ' — Completed'
+            : ''
+        );
 
       this.caseSelect.appendChild(option);
     }
 
-    this.caseSelect.disabled = cases.length === 0;
+    this.caseSelect.disabled =
+      cases.length === 0;
 
-    if (this.caseId) {
+    if (
+      this.caseId &&
+      cases.some(
+        investigation =>
+          investigation.id === this.caseId
+      )
+    ) {
       this.caseSelect.value = this.caseId;
     }
+
+    // Do not expose the Holly tab before her introduction.
+    this.mainButton.hidden =
+      mainCases.length === 0;
 
     this.mainButton.setAttribute(
       'aria-pressed',
@@ -245,9 +395,19 @@ export class PICrimeBoardUI extends CrimeBoardUI {
   }
 
   switchCase(caseId) {
+    if (
+      !this.mount ||
+      !this.template
+    ) {
+      return;
+    }
+
     const investigation = getPICase(caseId);
 
-    if (!investigation) return;
+    // Also blocks direct selection of a locked saved case.
+    if (!this.isCaseAvailable(investigation)) {
+      return;
+    }
 
     this.saveToGameState();
     this.disposeBoard();
@@ -257,44 +417,61 @@ export class PICrimeBoardUI extends CrimeBoardUI {
 
     this.mount.innerHTML = this.template;
 
-    // Unique IDs for controls looked up globally by CrimeBoard.
     const rendererOptions = {};
 
-    for (const [optionName, originalId] of Object.entries(EDITOR_IDS)) {
-      const element = this.mount.querySelector(`#${originalId}`);
+    for (
+      const [optionName, originalId]
+      of Object.entries(EDITOR_IDS)
+    ) {
+      const element =
+        this.mount.querySelector(
+          `#${originalId}`
+        );
+
       const nextId = `pi-${originalId}`;
 
-      if (element) element.id = nextId;
+      if (element) {
+        element.id = nextId;
+      }
 
       rendererOptions[optionName] = nextId;
     }
 
     const boardRoot =
-      this.mount.querySelector('#crime-board');
+      this.mount.querySelector(
+        '#crime-board'
+      );
 
     if (!boardRoot) {
-      throw new Error('PI board template is missing its board root.');
+      throw new Error(
+        'PI board template is missing its board root.'
+      );
     }
 
     boardRoot.id = 'pi-crime-board';
 
-    // No agency motive verification in the PI workspace.
     this.mount.querySelector(
       '#pi-crime-board-verify-motive-btn'
     )?.remove();
 
-    const heading = this.mount.querySelector(
-      '.crime-board-sidebar__title'
-    );
+    this.mount.querySelectorAll(
+      '.crime-board-deduction'
+    ).forEach(element => element.remove());
+
+    const heading =
+      this.mount.querySelector(
+        '.crime-board-sidebar__title'
+      );
 
     if (heading) {
       heading.textContent = 'PI Crime Board';
     }
 
-    const renderer = new CrimeBoard(
-      boardRoot,
-      rendererOptions
-    );
+    const renderer =
+      new PrivateInvestigationBoard(
+        boardRoot,
+        rendererOptions
+      );
 
     this.boardApi = {
       getData: () => renderer.getBoardData(),
@@ -313,7 +490,12 @@ export class PICrimeBoardUI extends CrimeBoardUI {
   }
 
   saveToGameState() {
-    if (!this.caseId || !this.boardApi) return;
+    if (
+      !this.caseId ||
+      !this.boardApi
+    ) {
+      return;
+    }
 
     savePIBoard(
       this.caseId,
@@ -329,8 +511,6 @@ export class PICrimeBoardUI extends CrimeBoardUI {
   disableUnderlyingScenesInput() {
     super.disableUnderlyingScenesInput();
 
-    // Base CrimeBoardUI skips its owner scene.
-    // Here the owner is the office, so block it as well.
     if (
       this.disabledScenesInput.some(
         record => record.scene === this.scene
@@ -341,9 +521,13 @@ export class PICrimeBoardUI extends CrimeBoardUI {
 
     this.disabledScenesInput.push({
       scene: this.scene,
-      inputEnabled: this.scene.input?.enabled ?? null,
+
+      inputEnabled:
+        this.scene.input?.enabled ?? null,
+
       keyboardEnabled:
-        this.scene.input?.keyboard?.enabled ?? null
+        this.scene.input
+          ?.keyboard?.enabled ?? null
     });
 
     if (this.scene.input) {
@@ -362,6 +546,11 @@ export class PICrimeBoardUI extends CrimeBoardUI {
 
     this.caseId = null;
     this.mount = null;
+
+    this.caseSelect = null;
+    this.mainButton = null;
+    this.sideButton = null;
+    this.message = null;
 
     if (wasOpen) {
       this.piOptions?.onClose?.();

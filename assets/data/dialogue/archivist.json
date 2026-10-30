@@ -1,16 +1,13 @@
 {
-  "version": 3,
+  "version": 4,
   "npcId": "archivist_drebin",
   "speaker": "Lieutenant Frank Drebin",
   "portraitKey": "portrait_fallback",
   "clickReplies": [
-    "No report yet? Use MISSION REPORT on the agency computer. It only bites when you forget an attachment.",
-    "Report first. Conversation second. The computer is in the office; I am not your printer.",
-    "Complete it on the office computer, print it, then bring it here. Paperwork enjoys a little travel."
+    "Report first. Conversation second. Use MISSION REPORT on the office computer, print it, then bring it here."
   ],
   "wrongItemReplies": [
-    "That is not a report. I admire your confidence, not your filing skills.",
-    "Wrong department. Try Lost Property. Preferably while lost."
+    "That is not a report. I admire your confidence, not your filing skills."
   ],
   "alreadySubmittedReplies": [
     "I have already filed that report. Once was quite enough."
@@ -22,16 +19,34 @@
       "Filed. You may now ask questions. Brief ones. The cabinets are listening."
     ]
   },
-  "afterReportConversation": {
+  "indexPuzzleOffer": {
     "lines": [
-      "Now that the report is filed, I can officially acknowledge your existence.",
-      "People think an archive is where information goes to die. Nonsense. It comes here to be mislabelled.",
-      "Looking for an old file? Bring me a name, a date, or a scandal. Ideally all three.",
-      "When you're ready for more fieldwork, use NEXT MISSION. Until then, try not to alphabetise anything. I have a system."
+      "You filed every attachment. I almost respect you. Almost.",
+      "Help me sort these index cards. Match each document to its department.",
+      "Use SORT INDEX CARDS when you are ready. The cards can wait. They have no social life."
     ]
   },
-  "submittedMessage": "Mission report filed. You can now talk to Frank or select NEXT MISSION.",
+  "duplicateConversation": {
+    "lines": [
+      "JM-041? Yes. John McClane's field report. An artifact recovery operation that went wrong.",
+      "One entry for the general archive. Another for restricted storage. Same report number, different access rules.",
+      "That does not tell us what happened to him. It tells us someone did not want the whole file on the same shelf.",
+      "Start with the ordinary records. And do not confuse 'restricted' with 'please help yourself'."
+    ]
+  },
+  "afterReportConversation": {
+    "lines": [
+      "People think an archive is where information goes to die. Nonsense. It comes here to be mislabelled.",
+      "When you are ready for more fieldwork, use NEXT MISSION."
+    ]
+  },
+  "submittedMessage": "Mission report filed. Click Frank to talk, or select NEXT MISSION.",
   "inventoryFullMessage": "Your printed report is waiting. Free one inventory slot, then click Frank to collect it.",
   "wrongReportMessage": "This report belongs to a different case. Nothing has been filed.",
-  "absentMessage": "The archivist is out. Apparently paperwork also has field assignments."
+  "absentMessage": "The archivist is out. Apparently paperwork also has field assignments.",
+  "saveWarning": "Report filed. Automatic saving is unavailable; save manually.",
+  "indexPuzzleAvailableMessage": "Use SORT INDEX CARDS when ready. You can also leave and return later.",
+  "askAboutDuplicateMessage": "Click Frank to ask about the duplicate entry for JM-041.",
+  "duplicateDiscussedMessage": "Lead recorded: investigate the ordinary records for John McClane's operation.",
+  "puzzleLoadError": "The index cards could not be opened. Please try again."
 }

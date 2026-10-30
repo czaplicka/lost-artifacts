@@ -7,11 +7,36 @@ backgroundKey: 'pi_spy_shop_background',
   title: 'DISCREET ELECTRONICS',
   subtitle: 'Repairs. Accessories. Plausible deniability.',
   // Normalised coordinates: x/y are the centre; w/h are width and height.
-  hotspots: [
-    { id: 'exit', label: 'Exit', action: 'exit', x: 0.14, y: 0.49, w: 0.18, h: 0.65 },
-    { id: 'shopkeeper', label: 'Shopkeeper', action: 'talk', x: 0.48, y: 0.42, w: 0.22, h: 0.42 },
-    { id: 'equipment', label: 'Browse Equipment', action: 'browse', x: 0.80, y: 0.48, w: 0.29, h: 0.65 }
-  ],
+hotspots: [
+  {
+    "id": "exit",
+    "label": "Exit",
+    "action": "exit",
+    "x": 0.12567708333333333,
+    "y": 0.5895370370370371,
+    "w": 0.20604166666666657,
+    "h": 0.8212962962962971
+  },
+  {
+    "id": "shopkeeper",
+    "label": "Shopkeeper",
+    "action": "talk",
+    "x": 0.5158072916666666,
+    "y": 0.5831944444444443,
+    "w": 0.22,
+    "h": 0.42
+  },
+  {
+    "id": "equipment",
+    "label": "Browse Equipment",
+    "action": "browse",
+    "x": 0.8533854166666667,
+    "y": 0.6235185185185185,
+    "w": 0.29,
+    "h": 0.65
+  }
+],
+
   products: [
     { category: 'equipment', key: 'camera' },
     { category: 'equipment', key: 'mobilePhone' },
