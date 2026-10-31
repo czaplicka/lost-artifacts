@@ -12,9 +12,105 @@
           "The sea keeps its secrets. This harbor puts them on an invoice.",
           "I used to trust people. Then someone invented the phrase 'water-resistant luggage'.",
           "I'm not superstitious. I just respect the possibility that the boat holds grudges.",
-          "If you're here about the missing sandwich, I can identify the gull."
+          "If you're here about the missing sandwich, I can identify the gull.",
+          "Before you ask: yes, I saw someone. No, I don't know where your car is. That's the other end of the transport industry.",
+          "I keep a log of arrivals and departures. Management keeps asking me to call it a customer journey. The customers mostly journey toward the wrong boat.",
+          "You can ask about the traveler. Just don't say 'quick question.' That's how the last safety committee started.",
+          "I was told to report suspicious activity. So far I've reported the ticket prices twice."
         ],
-        "topics": {},
+        "topics": {
+          "features": {
+            "Big forehead": [
+              "A big forehead. Plenty of deck space above the eyebrows. I remember thinking: that person could wear a captain's hat and still have room for cargo."
+            ],
+            "Tattoo": [
+              "A tattoo. I noticed it when they reached for their bag. No, I didn't ask what it meant. I've heard enough stories that begin with 'It was a different time.'"
+            ],
+            "Rainbow hair streak": [
+              "A rainbow streak in their hair. They asked how to avoid attracting attention. I suggested starting with the part visible from the lighthouse."
+            ],
+            "Necklace": [
+              "A necklace. They kept checking it was still there. I do the same with my wallet whenever someone says 'complimentary harbor tour.'"
+            ],
+            "Scar": [
+              "A scar. I remember the mark, not how they got it. If you need an origin story, ask three sailors. You'll get five, plus a whale."
+            ],
+            "Moustache": [
+              "A moustache. Definitely. I remember because the wind was doing its best to give it a different heading."
+            ],
+            "Glasses": [
+              "Glasses. They cleaned the lenses before studying the departures. Sensible. If you're making a terrible decision, you should at least see it clearly."
+            ],
+            "Beard": [
+              "A beard. I remember it clearly. Don't put 'looked nautical' in your notes, though. That's how I got questioned about a missing submarine."
+            ],
+            "Long hair": [
+              "Long hair. The breeze kept blowing it across their face while they read the timetable. Nature's privacy screen. Terrible for navigation."
+            ],
+            "Earrings": [
+              "Earrings. Caught the light when they turned toward the boarding gate. No, earrings don't make someone a pirate. The marina gift shop has ruined that test."
+            ],
+            "Goatee": [
+              "A goatee. Little patch on the chin. I can describe the beard, detective, but I won't testify about whether it was a good decision."
+            ],
+            "Scarf": [
+              "A scarf. They adjusted it while asking about departures. I remember thinking it was a bold choice near a winch. Fashion rarely reads the safety notices."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "A Canadian accent. We spoke about departures while I untangled a rope. The rope gave me more trouble than the conversation."
+            ],
+            "Mexican": [
+              "A Mexican accent. I heard them ask the same question at the ticket window and then ask me. I gave the same answer, but with more rope in my hands."
+            ],
+            "Australian": [
+              "An Australian accent. We talked long enough for me to remember it. Also long enough for a gull to steal half my lunch. Put the accent in the report, not the sandwich."
+            ],
+            "American": [
+              "An American accent. They asked about the last departure. I checked the timetable, which was a refreshing change from everyone expecting me to negotiate with the tide."
+            ],
+            "Dutch": [
+              "A Dutch accent. Heard it clearly when they asked where to board. They were standing beside the sign. In their defense, a gull had contributed to the lettering."
+            ],
+            "British": [
+              "A British accent. They asked about the departure time while I was making tea. The tea is not evidence. Please stop looking at my mug like that."
+            ],
+            "German": [
+              "A German accent. I remember our conversation at the ticket board. The board said one time, the office said another. For once, the sea wasn't the confusing part."
+            ],
+            "Polish": [
+              "A Polish accent. We talked by the crates. I remember because I had to stop the conversation to explain that 'FRAGILE' wasn't the name of the shipping company."
+            ],
+            "Spanish": [
+              "A Spanish accent. They asked me to repeat the boarding instructions. Fair enough. The loudspeaker makes every announcement sound like a blender requesting asylum."
+            ],
+            "Belarussian": [
+              "A Belarussian accent. I heard it during our conversation beside the mooring posts. I remember the voice. The rest of the evening was mostly a disagreement with a knot."
+            ],
+            "Russian": [
+              "A Russian accent. We spoke near the departures board. I can tell you what I heard, not their nationality. A voice isn't a passport, detective."
+            ],
+            "Italian": [
+              "An Italian accent. They asked about onward travel while I checked a delivery. I remember the conversation better than the delivery. The delivery was forty identical buckets."
+            ],
+            "Irish": [
+              "An Irish accent. Heard it clearly when they asked about tickets. Then the foghorn interrupted. Even the harbor has opinions about letting me finish a sentence."
+            ],
+            "French": [
+              "A French accent. We talked beside the boarding sign. I remember because the sign fell over halfway through. Nothing personal. It also collapses during staff meetings."
+            ],
+            "Belgian": [
+              "A Belgian accent, as far as I could tell from our conversation. Record it as my recollection, not a citizenship certificate. My qualifications are mostly waterproof."
+            ],
+            "Ukrainian": [
+              "A Ukrainian accent. I heard it when they asked about connections. I pointed to the office. They pointed out it was closed. Excellent teamwork from all concerned."
+            ],
+            "Indian": [
+              "An Indian accent. We spoke over by the luggage trolley. The trolley kept rolling away. It had a more detailed escape plan than anyone I've met this week."
+            ]
+          }
+        },
         "travelHints": {
           "london": [
             "They asked about meeting someone beside the Thames. I told them to specify a bank. Apparently that was 'unhelpful nautical aggression'.",

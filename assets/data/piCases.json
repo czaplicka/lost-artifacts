@@ -125,7 +125,25 @@
       "initialLinks": [],
       "metadata": {
         "contentVersion": 1,
-        "implementedStage": "client_interview"
+        "implementedStage": "client_interview",
+        "artwork": {
+          "colin": {
+            "key": "dead_men_colin",
+            "url": "assets/side_quests/Dead-men/Colin.jpg"
+          },
+          "blueFolder": {
+            "key": "dead_men_blue_file",
+            "url": "assets/side_quests/Dead-men/blue_file.jpg"
+          },
+          "recorder": {
+            "key": "dead_men_recorder",
+            "url": "assets/side_quests/Dead-men/recorder.jpg"
+          },
+          "couplePhoto": {
+            "key": "dead_men_margaret_edward",
+            "url": "assets/side_quests/Dead-men/Margaret_Edwarda.jpg"
+          }
+        }
       }
     },
     {

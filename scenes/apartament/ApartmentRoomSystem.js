@@ -3,6 +3,7 @@ import { markApartmentVisited } from '../../managers/ApartmentVisitRegistry.js';
 import { FALLBACK_APARTMENT_PACK_ID, getApartmentRoomPack, drawApartmentRoomPack } from './ApartmentRoomPacks.js';
 import { getApartmentRoomLayout, configureApartmentHotspots } from './ApartmentRoomLayouts.js';
 import { ApartmentHotspotDebug, apartmentLocalDebugAllowed } from './ApartmentHotspotDebug.js';
+import { ApartmentHintUI } from './ApartmentHintUI.js';
 
 export class ApartmentRoomSystem {
   constructor(scene) {
@@ -15,6 +16,7 @@ export class ApartmentRoomSystem {
     this.navigationLabel = null;
     this.roomLabel = null;
     this.debugger = null;
+    this.hintUI = null;
     this.newsSnapshot = null;
     this.layoutConfig = null;
     this.renderedPackId = null;
@@ -84,7 +86,6 @@ export class ApartmentRoomSystem {
       if (!this.roomIds.includes(slot.roomId)) throw new Error(`Unknown room in apartment slot: ${slot.id}`);
     }
     this.loadLocalGeometry();
-    // ApartmentScene calls createBackground before constructing ApartmentObject instances.
     scene.apartmentConfig.objects = configureApartmentHotspots(scene.apartmentConfig.objects, this.layoutConfig);
     this.persistSelection();
     this.roomLabel = scene.add.text(scene.scale.width / 2, 116, '', {
@@ -109,6 +110,8 @@ export class ApartmentRoomSystem {
     this.debugger = new ApartmentHotspotDebug(this);
     this.hideNewsHud();
     this.render();
+    this.hintUI = new ApartmentHintUI(scene);
+    this.hintUI.create();
   }
 
   nextRoomId() {
@@ -118,6 +121,7 @@ export class ApartmentRoomSystem {
   showRoom(id) {
     if (this.destroyed || !this.roomIds.includes(id) || this.scene.isTransitioning ||
       this.scene.leaveDialog || this.scene.getPlayerHudScene()?.isAnyPanelOpen()) return false;
+    this.hintUI?.clearHintMarker();
     this.roomId=id;
     this.persistSelection();
     this.scene.showDescription('');
@@ -235,6 +239,8 @@ export class ApartmentRoomSystem {
   destroy() {
     if (this.destroyed) return;
     this.destroyed=true;
+    this.hintUI?.destroy();
+    this.hintUI=null;
     this.scene.scale.off('resize',this.handleResize);
     this.scene.events.off('preupdate',this.handleTick);
     this.debugger?.destroy();

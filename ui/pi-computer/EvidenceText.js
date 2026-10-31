@@ -1,11 +1,11 @@
 const EVIDENCE_COLORS = {
   normalText: '#343e35',
 
-  newText: '#ffe56c',
-  newBackground: 0x344841,
+  newText: '#171717',
+  newBackground: 0xffe600,
 
-  knownText: '#d5f0cb',
-  knownBackground: 0x355c43
+  knownText: '#303030',
+  knownBackground: 0xd9d9d9
 };
 
 export function drawEvidenceText(
@@ -30,7 +30,6 @@ export function drawEvidenceText(
     {
       fontFamily:
         'SpecialElite, "Special Elite", monospace',
-
       fontSize: `${fontSize}px`
     }
   ).setVisible(false);
@@ -139,7 +138,6 @@ export function drawEvidenceText(
                   label.y,
                   label.width + 2,
                   lineHeight - 2,
-
                   known
                     ? EVIDENCE_COLORS.knownBackground
                     : EVIDENCE_COLORS.newBackground

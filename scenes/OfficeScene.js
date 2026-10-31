@@ -34,6 +34,8 @@ const LOCAL_DEBUG_ALLOWED = [
   '127.0.0.1'
 ].includes(window.location.hostname);
 
+const HUD_READY_TIMEOUT_MS = 12000;
+
 export class OfficeScene extends BaseScene {
   constructor() {
     super({ key: 'OfficeScene' });
@@ -61,6 +63,7 @@ export class OfficeScene extends BaseScene {
     this.firstCaseTutorial = null;
 
     this._runToken = null;
+    this._uiRestoreToken = null;
     this._uiLayersPromise = null;
     this._tutorialStartTimer = null;
     this._playerHud = null;
@@ -106,6 +109,7 @@ export class OfficeScene extends BaseScene {
 
     this._playerHud = null;
     this._uiLayersPromise = null;
+    this._uiRestoreToken = null;
     this._tutorialStartTimer = null;
     this._runToken = Symbol('office-run');
     this._officeDisposed = false;
@@ -128,6 +132,7 @@ export class OfficeScene extends BaseScene {
         step: null,
         completed: false,
         skipped: false,
+        storageVisited: false,
         walkedToCaseFile: false,
         caseFileOpened: false,
         routeOpened: false,
@@ -140,7 +145,8 @@ export class OfficeScene extends BaseScene {
       this.gameState.progress.firstMissionSuccess = false;
     }
 
-    const tutorialState = this.gameState.onboarding?.firstCase;
+    const tutorialState =
+      this.gameState.onboarding?.firstCase;
 
     const tutorialFinished = (
       tutorialState?.completed === true ||
@@ -190,10 +196,13 @@ export class OfficeScene extends BaseScene {
   }
 
   preload() {
-    const manifest = this.cache.json.get('assetManifest');
+    const manifest =
+      this.cache.json.get('assetManifest');
 
     if (!manifest) {
-      console.error('[OfficeScene] assetManifest is missing.');
+      console.error(
+        '[OfficeScene] assetManifest is missing.'
+      );
       return;
     }
 
@@ -242,14 +251,7 @@ export class OfficeScene extends BaseScene {
 
     const { width, height } = this.scale;
 
-    this.registry.set('currentSceneKey', 'OfficeScene');
-    this.registry.set('currentCity', 'hq');
-    this.registry.set('currentCityId', 'hq');
-    this.registry.set('gameState', this.gameState);
-    this.registry.set(
-      'activeMission',
-      this.gameState.currentMission || null
-    );
+    this.restoreOfficeRegistry();
 
     this.createBackgrounds(width, height);
     this.createCameraSetup(height);
@@ -263,9 +265,10 @@ export class OfficeScene extends BaseScene {
     this.navigation.create();
     this.agencyLedgerUI = new AgencyLedgerUI(this);
 
-    this.hotspotManager = new OfficeHotspotManager(this, {
-      debugEnabled: this.DEBUG_HOTSPOTS
-    });
+    this.hotspotManager = new OfficeHotspotManager(
+      this,
+      { debugEnabled: this.DEBUG_HOTSPOTS }
+    );
 
     this.hotspotManager.create(
       createOfficeHotspotDefinitions(this)
@@ -274,12 +277,9 @@ export class OfficeScene extends BaseScene {
     this.createArchiveButton();
     this.createStorageButton();
     this.createSaveControls();
-    this.createFirstCaseTutorial();
 
     this.monologue?.startIdle('idle.office');
-
     this.setupAudioUnlock();
-    this.playOfficeAmbient();
 
     this.navigation.goTo('office', false);
     this.navigation.showIntroHint();
@@ -342,9 +342,43 @@ export class OfficeScene extends BaseScene {
 
     this.refreshPanelLock();
 
+    this.events.once(
+      Phaser.Scenes.Events.CREATE,
+      this.onOfficeCreated,
+      this
+    );
+  }
+
+  onOfficeCreated() {
+    if (!this.isOfficeActive()) return;
+
+    this.restoreOfficeRegistry();
+    this.releasePIOfficeHudLock();
+    this.playOfficeAmbient();
+
     void this.setupOfficeUiLayers({
       closePanels: true
     });
+  }
+
+  restoreOfficeRegistry() {
+    this.registry.set('currentSceneKey', 'OfficeScene');
+    this.registry.set('currentCity', 'hq');
+    this.registry.set('currentCityId', 'hq');
+    this.registry.set('gameState', this.gameState);
+
+    this.registry.set(
+      'activeMission',
+      this.gameState.currentMission || null
+    );
+  }
+
+  releasePIOfficeHudLock() {
+    if (!this.isOfficeActive()) return;
+
+    document.documentElement.classList.remove(
+      'pi-office-hide-gameplay-hud'
+    );
   }
 
   _getOfficeEventBindings() {
@@ -357,10 +391,19 @@ export class OfficeScene extends BaseScene {
   }
 
   _bindOfficeEvents() {
-    for (const [event, callback] of this._getOfficeEventBindings()) {
+    for (
+      const [event, callback]
+      of this._getOfficeEventBindings()
+    ) {
       this.events.off(event, callback, this);
       this.events.on(event, callback, this);
     }
+
+    this.events.off(
+      Phaser.Scenes.Events.CREATE,
+      this.onOfficeCreated,
+      this
+    );
 
     for (const event of [
       Phaser.Scenes.Events.SHUTDOWN,
@@ -372,7 +415,8 @@ export class OfficeScene extends BaseScene {
   }
 
   isOfficeTutorialBlocking() {
-    const tutorialState = this.gameState.onboarding?.firstCase;
+    const tutorialState =
+      this.gameState.onboarding?.firstCase;
 
     if (
       tutorialState?.completed === true ||
@@ -389,7 +433,8 @@ export class OfficeScene extends BaseScene {
   }
 
   hasFirstMissionSuccess() {
-    const firstCase = this.gameState.onboarding?.firstCase;
+    const firstCase =
+      this.gameState.onboarding?.firstCase;
 
     return Boolean(
       this.gameState.firstMissionSuccess ||
@@ -411,19 +456,18 @@ export class OfficeScene extends BaseScene {
   }
 
   createEntranceButton(y, label, action, isBlocked) {
-    const button = this.add
-      .text(24, y, label, {
-        fontFamily: 'SpecialElite',
-        fontSize: '22px',
-        color: '#f2d477',
-        backgroundColor: '#17110e',
-        padding: {
-          left: 14,
-          right: 14,
-          top: 10,
-          bottom: 10
-        }
-      })
+    const button = this.add.text(24, y, label, {
+      fontFamily: 'SpecialElite',
+      fontSize: '22px',
+      color: '#f2d477',
+      backgroundColor: '#17110e',
+      padding: {
+        left: 14,
+        right: 14,
+        top: 10,
+        bottom: 10
+      }
+    })
       .setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(100)
@@ -496,6 +540,7 @@ export class OfficeScene extends BaseScene {
     }
 
     this.refreshPanelLock();
+
     if (this.uiLocked) return false;
 
     const isStorage = sceneKey === 'AgencyStorageScene';
@@ -608,15 +653,57 @@ export class OfficeScene extends BaseScene {
   }
 
   getPlayerHud() {
-    if (
-      this._playerHud?.isHudReady &&
-      this.isSceneActive('PlayerHudScene')
-    ) {
-      return this._playerHud;
+    const hud = this.getPlayerHudScene();
+    this._playerHud = hud;
+    return hud;
+  }
+
+  invalidateOfficeUiRestore() {
+    this._uiRestoreToken = null;
+    this._uiLayersPromise = null;
+    this.isRestoringOfficeUi = false;
+  }
+
+  async waitForOfficeOverlay(
+    sceneKey,
+    overlay,
+    isCurrent,
+    ready = () => true
+  ) {
+    const deadline = Date.now() + HUD_READY_TIMEOUT_MS;
+
+    while (isCurrent()) {
+      if (
+        this.getRegisteredScene(sceneKey) !== overlay
+      ) {
+        return false;
+      }
+
+      if (
+        this.isSceneActive(sceneKey) &&
+        ready(overlay)
+      ) {
+        return true;
+      }
+
+      if (Date.now() >= deadline) {
+        console.error(
+          `[OfficeScene] ${sceneKey} did not become ready.`,
+          {
+            status: overlay?.sys?.settings?.status,
+            active: this.isSceneActive(sceneKey)
+          }
+        );
+
+        return false;
+      }
+
+      await new Promise(resolve => {
+        window.setTimeout(resolve, 20);
+      });
     }
 
-    this._playerHud = this.getPlayerHudScene();
-    return this._playerHud;
+    return false;
   }
 
   setupOfficeUiLayers({ closePanels = false } = {}) {
@@ -628,103 +715,201 @@ export class OfficeScene extends BaseScene {
       return this._uiLayersPromise;
     }
 
-    const token = this._runToken;
+    const runToken = this._runToken;
+    const restoreToken = Symbol('office-ui-restore');
+
+    this._uiRestoreToken = restoreToken;
+    this.isRestoringOfficeUi = true;
 
     const isCurrent = () => (
-      this.isCurrentOfficeRun(token) &&
-      this.sys.isActive()
+      this.isCurrentOfficeRun(runToken) &&
+      this._uiRestoreToken === restoreToken &&
+      this.sys.isActive() &&
+      this.registry.get('currentSceneKey') === 'OfficeScene'
     );
 
-    const request = (async () => {
+    const restoreLayer = async (name, action) => {
       try {
-        const uiScene = await this.ensureOverlayScene('UIScene');
-        if (!isCurrent()) return false;
-
-        const playerHud = await this.restorePlayerHud();
-        if (!isCurrent()) return false;
-
-        if (playerHud) {
-          this._playerHud = playerHud;
-
-          if (closePanels) {
-            playerHud.closeAllUIPanels?.();
-          }
-
-          playerHud.setCurrentGameplayScene?.('OfficeScene');
-        } else {
-          console.warn(
-            '[OfficeScene] PlayerHudScene could not be restored.'
-          );
-        }
-
-        if (uiScene) {
-          const visible = !this.agencyLedgerUI?.isOpen;
-
-          EventBus.emit(visible ? 'showHUD' : 'hideHUD');
-          this.game.events.emit('setHudVisible', visible);
-        }
-
-        if (!isCurrent()) return false;
-
-        const newsReady = await this.setupNewsHud();
-        if (!isCurrent()) return false;
-
-        if (!newsReady) {
-          console.warn(
-            '[OfficeScene] NewsHud could not be restored.'
-          );
-        }
-
-        this.refreshPanelLock();
-        return true;
+        if (!isCurrent()) return null;
+        return await action();
       } catch (error) {
-        if (this.isCurrentOfficeRun(token)) {
+        if (isCurrent()) {
           console.error(
-            '[OfficeScene] Failed to set up UI layers:',
+            `[OfficeScene] ${name} restoration failed:`,
             error
           );
         }
 
-        return false;
+        return null;
       }
-    })();
+    };
+
+    // Start in a microtask so the request is stored first.
+    const request = Promise.resolve().then(async () => {
+      if (!isCurrent()) return false;
+
+      this.releasePIOfficeHudLock();
+
+      const uiScene = await restoreLayer(
+        'UIScene',
+        async () => {
+          const ui = await this.ensureOverlayScene('UIScene');
+
+          if (!ui || !isCurrent()) return null;
+
+          const ready = await this.waitForOfficeOverlay(
+            'UIScene',
+            ui,
+            isCurrent
+          );
+
+          if (!ready || !isCurrent()) return null;
+
+          this.scene.setVisible(true, 'UIScene');
+          return ui;
+        }
+      );
+
+      if (!isCurrent()) return false;
+
+      const playerHud = await restoreLayer(
+        'PlayerHudScene',
+        async () => {
+          const hud = await this.restorePlayerHud();
+
+          if (!hud || !isCurrent()) return null;
+
+          const ready = await this.waitForOfficeOverlay(
+            'PlayerHudScene',
+            hud,
+            isCurrent,
+            value => value.isHudReady !== false
+          );
+
+          if (!ready || !isCurrent()) return null;
+
+          this._playerHud = hud;
+
+          this.scene.setVisible(true, 'PlayerHudScene');
+
+          if (closePanels) {
+            hud.closeAllUIPanels?.();
+          }
+
+          hud.setCurrentGameplayScene?.('OfficeScene');
+
+          this.bringSceneToTopIfActive('PlayerHudScene');
+
+          return hud;
+        }
+      );
+
+      if (!isCurrent()) return false;
+
+      await restoreLayer('HUD visibility', async () => {
+        this.releasePIOfficeHudLock();
+
+        const visible = !this.agencyLedgerUI?.isOpen;
+
+        if (uiScene) {
+          this.scene.setVisible(true, 'UIScene');
+        }
+
+        EventBus.emit(visible ? 'showHUD' : 'hideHUD');
+        this.game.events.emit('setHudVisible', visible);
+      });
+
+      if (!isCurrent()) return false;
+
+      // A failure in another HUD must not skip NewsHud.
+      const newsReady = await restoreLayer(
+        'NewsHud',
+        () => this.setupNewsHud(isCurrent)
+      );
+
+      if (!isCurrent()) return false;
+
+      if (!newsReady) {
+        console.warn(
+          '[OfficeScene] NewsHud could not be restored.'
+        );
+      }
+
+      await restoreLayer('Tutorial', async () => {
+        this.restoreFirstCaseTutorial();
+      });
+
+      if (!isCurrent()) return false;
+
+      this.refreshPanelLock();
+
+      return Boolean(uiScene && playerHud && newsReady);
+    }).catch(error => {
+      if (isCurrent()) {
+        console.error(
+          '[OfficeScene] Failed to set up UI layers:',
+          error
+        );
+      }
+
+      return false;
+    });
 
     this._uiLayersPromise = request;
-    this.isRestoringOfficeUi = true;
 
     const releaseRequest = () => {
-      if (this._uiLayersPromise === request) {
+      if (
+        this._uiLayersPromise === request &&
+        this._uiRestoreToken === restoreToken
+      ) {
         this._uiLayersPromise = null;
         this.isRestoringOfficeUi = false;
       }
     };
 
     void request.then(releaseRequest, releaseRequest);
+
     return request;
   }
 
-  async setupNewsHud() {
+  async setupNewsHud(
+    isCurrent = () => this.isOfficeActive()
+  ) {
     const token = this._runToken;
+
+    const current = () => (
+      this.isCurrentOfficeRun(token) &&
+      isCurrent()
+    );
+
+    if (!current()) return false;
+
     const newsHud = await this.ensureOverlayScene('NewsHud');
 
-    if (
-      !newsHud ||
-      !this.isCurrentOfficeRun(token) ||
-      !this.sys.isActive()
-    ) {
-      return false;
-    }
+    if (!newsHud || !current()) return false;
 
-    this.registry.set('currentSceneKey', 'OfficeScene');
-    this.scene.setVisible(true, 'NewsHud');
+    const ready = await this.waitForOfficeOverlay(
+      'NewsHud',
+      newsHud,
+      current,
+      news => (
+        typeof news.isUiReady === 'function'
+          ? news.isUiReady()
+          : news.uiReady === true
+      )
+    );
+
+    if (!ready || !current()) return false;
 
     newsHud.setButtonsVisible(true);
     newsHud.setNewspaperVisible(true);
     newsHud.setTvVisible(true);
 
     const visible = !this.agencyLedgerUI?.isOpen;
+
     newsHud.setHudVisible(visible);
 
+    this.scene.setVisible(true, 'NewsHud');
     this.bringSceneToTopIfActive('NewsHud');
 
     return true;
@@ -749,8 +934,7 @@ export class OfficeScene extends BaseScene {
     const completed = this.hasCompletedFirstMission();
 
     const background = (x, key) => (
-      this.add
-        .image(x, 0, key)
+      this.add.image(x, 0, key)
         .setOrigin(0, 0)
         .setDisplaySize(gameWidth, gameHeight)
     );
@@ -816,52 +1000,115 @@ export class OfficeScene extends BaseScene {
     );
   }
 
-  createFirstCaseTutorial() {
-    const tutorialState = this.gameState.onboarding?.firstCase;
-
-    const shouldStart = (
-      this.startOnboarding ||
-      tutorialState?.active === true
-    );
+  shouldRestoreFirstCaseTutorial() {
+    const state = this.gameState.onboarding?.firstCase;
 
     if (
-      !shouldStart ||
-      tutorialState?.completed === true ||
-      tutorialState?.skipped === true
+      state?.completed === true ||
+      state?.skipped === true
     ) {
+      return false;
+    }
+
+    return Boolean(
+      this.startOnboarding ||
+      state?.active === true
+    );
+  }
+
+  suspendFirstCaseTutorial() {
+    this._tutorialStartTimer?.remove(false);
+    this._tutorialStartTimer = null;
+
+    const tutorial = this.firstCaseTutorial;
+    this.firstCaseTutorial = null;
+
+    if (tutorial) {
+      try {
+        tutorial.destroy();
+      } catch (error) {
+        console.warn(
+          '[OfficeScene] Tutorial suspension failed:',
+          error
+        );
+      }
+    }
+  }
+
+  restoreFirstCaseTutorial() {
+    if (!this.isOfficeActive()) return;
+
+    if (!this.shouldRestoreFirstCaseTutorial()) {
+      this.suspendFirstCaseTutorial();
       this.refreshEntranceButtons();
       return;
     }
 
-    this._tutorialStartTimer?.remove(false);
-    this._tutorialStartTimer = null;
-    this.firstCaseTutorial?.destroy();
+    if (
+      this.firstCaseTutorial?.isActive() &&
+      this.firstCaseTutorial.overlay?.scene
+    ) {
+      this.firstCaseTutorial.registerStorageButton();
+      this.firstCaseTutorial.rebuildOverlay();
+      this.refreshEntranceButtons();
+      return;
+    }
 
-    this.firstCaseTutorial = new FirstCaseTutorial(
+    this.createFirstCaseTutorial();
+  }
+
+  createFirstCaseTutorial() {
+    if (!this.isOfficeActive()) return;
+
+    if (!this.shouldRestoreFirstCaseTutorial()) {
+      this.suspendFirstCaseTutorial();
+      this.refreshEntranceButtons();
+      return;
+    }
+
+    if (this._tutorialStartTimer) return;
+
+    this.suspendFirstCaseTutorial();
+
+    const tutorial = new FirstCaseTutorial(
       this,
       this.gameState
     );
 
-    for (const hotspot of this.hotspotManager?.hotspots ?? []) {
+    this.firstCaseTutorial = tutorial;
+
+    for (
+      const hotspot
+      of this.hotspotManager?.hotspots ?? []
+    ) {
       const id = hotspot?.hotspotData?.id;
 
       if (id) {
-        this.firstCaseTutorial.registerHotspot(id, hotspot);
+        tutorial.registerHotspot(id, hotspot);
       }
     }
 
+    tutorial.registerStorageButton();
+
     const token = this._runToken;
 
-    this._tutorialStartTimer = this.time.delayedCall(100, () => {
-      if (!this.isCurrentOfficeRun(token)) return;
+    this._tutorialStartTimer = this.time.delayedCall(
+      100,
+      () => {
+        this._tutorialStartTimer = null;
 
-      this._tutorialStartTimer = null;
+        if (
+          !this.isCurrentOfficeRun(token) ||
+          !this.sys.isActive() ||
+          this.firstCaseTutorial !== tutorial
+        ) {
+          return;
+        }
 
-      if (this.sys.isActive()) {
-        this.firstCaseTutorial?.start();
+        tutorial.start();
         this.refreshEntranceButtons();
       }
-    });
+    );
 
     this.refreshEntranceButtons();
   }
@@ -948,8 +1195,11 @@ export class OfficeScene extends BaseScene {
 
     const { width } = this.scale;
 
-    const text = this.add
-      .text(width / 2, 115, message, {
+    const text = this.add.text(
+      width / 2,
+      115,
+      message,
+      {
         fontFamily: 'SpecialElite',
         fontSize: '20px',
         color: '#f2d477',
@@ -964,7 +1214,8 @@ export class OfficeScene extends BaseScene {
         wordWrap: {
           width: Math.max(100, Math.min(width - 80, 760))
         }
-      })
+      }
+    )
       .setOrigin(0.5)
       .setScrollFactor(0)
       .setDepth(1000)
@@ -1141,9 +1392,7 @@ export class OfficeScene extends BaseScene {
         returnScene: 'OfficeScene'
       });
 
-      if (!this.isCurrentOfficeRun(token)) {
-        return false;
-      }
+      if (!this.isCurrentOfficeRun(token)) return false;
 
       if (!opened) {
         this.showOfficeStatusMessage(
@@ -1296,22 +1545,26 @@ export class OfficeScene extends BaseScene {
   onWakeOrResume() {
     if (!this.isOfficeActive()) return;
 
-    this.registry.set('currentSceneKey', 'OfficeScene');
-    this.registry.set('currentCity', 'hq');
-    this.registry.set('currentCityId', 'hq');
-
+    this.restoreOfficeRegistry();
+    this.releasePIOfficeHudLock();
     this.resetOpeningFlags();
+    this.invalidateOfficeUiRestore();
 
     this.navigation?.updateVisibility();
     this.refreshMissionProgressVisuals();
     this.refreshPanelLock();
     this.playOfficeAmbient();
 
-    void this.setupOfficeUiLayers();
+    void this.setupOfficeUiLayers({
+      closePanels: true
+    });
   }
 
   onSleep() {
     if (!this.isCurrentOfficeRun()) return;
+
+    this.invalidateOfficeUiRestore();
+    this.suspendFirstCaseTutorial();
 
     void this.flushOfficeAutosave();
 
@@ -1328,6 +1581,7 @@ export class OfficeScene extends BaseScene {
 
     this.navigation?.hideHint();
     this._stopOfficeAmbient();
+    this._playerHud = null;
   }
 
   cleanupScene() {
@@ -1336,6 +1590,7 @@ export class OfficeScene extends BaseScene {
     this._officeDisposed = true;
     this._runToken = null;
 
+    this.invalidateOfficeUiRestore();
     void this.flushOfficeAutosave();
 
     const clean = (label, action) => {
@@ -1349,16 +1604,9 @@ export class OfficeScene extends BaseScene {
       }
     };
 
-    clean('Tutorial timer', () => {
-      this._tutorialStartTimer?.remove(false);
-    });
-
-    this._tutorialStartTimer = null;
-    this._uiLayersPromise = null;
-    this.isRestoringOfficeUi = false;
-
     const bindings = [
       ...this._getOfficeEventBindings(),
+      [Phaser.Scenes.Events.CREATE, this.onOfficeCreated],
       [Phaser.Scenes.Events.SHUTDOWN, this.cleanupScene],
       [Phaser.Scenes.Events.DESTROY, this.cleanupScene]
     ];
@@ -1367,38 +1615,59 @@ export class OfficeScene extends BaseScene {
       this.events.off(event, callback, this);
     }
 
-    for (const key of [
-      'saveUI',
-      'firstCaseTutorial',
-      'hotspotManager',
-      'agencyLedgerUI',
-      'navigation'
-    ]) {
-      const resource = this[key];
-      this[key] = null;
+    clean('Tutorial', () => {
+      this.suspendFirstCaseTutorial();
+    });
 
-      clean(key, () => resource?.destroy());
-    }
-
-    for (const key of ['archiveButton', 'storageButton']) {
-      const button = this[key];
-      this[key] = null;
-
-      clean(key, () => {
-        button?.removeAllListeners();
-        button?.destroy();
+    clean('Ledger close', () => {
+      this.agencyLedgerUI?.close({
+        restoreHud: false
       });
-    }
+    });
 
-    clean('Ambient', () => this._stopOfficeAmbient());
+    clean('Ledger', () => {
+      this.agencyLedgerUI?.destroy?.();
+    });
 
-    this._playerHud = null;
+    clean('Save UI', () => {
+      this.saveUI?.destroy?.();
+    });
+
+    clean('Navigation', () => {
+      this.navigation?.destroy?.();
+    });
+
+    clean('Hotspots', () => {
+      this.hotspotManager?.destroy?.();
+    });
+
+    clean('Ambient audio', () => {
+      this._stopOfficeAmbient();
+    });
+
+    clean('Archive button', () => {
+      this.archiveButton?.destroy();
+    });
+
+    clean('Storage button', () => {
+      this.storageButton?.destroy();
+    });
+
+    this.firstCaseTutorial = null;
+    this._tutorialStartTimer = null;
+    this.agencyLedgerUI = null;
+    this.saveUI = null;
+    this.navigation = null;
+    this.hotspotManager = null;
+    this.archiveButton = null;
+    this.storageButton = null;
     this.elevatorBackground = null;
+    this._playerHud = null;
+
     this.rooms = {};
     this.roomOrder = [];
     this.viewPositions = {};
     this.totalWidth = 0;
-    this.uiLocked = false;
 
     this.resetOpeningFlags();
   }

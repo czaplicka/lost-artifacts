@@ -2,15 +2,19 @@ import { gameState } from '../../GameData.js';
 import { inventoryManager } from '../../managers/InventoryManager.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { getEvidenceCaseKey, evidenceMatchesCase, readApartmentEvidence } from '../../managers/ApartmentEvidenceModel.js';
-import { generateApartmentOccupant, createOccupantProgress, confrontApartmentOccupant } from './ApartmentOccupantData.js';
+import { resolveApartmentOccupant, createOccupantProgress, confrontApartmentOccupant } from './ApartmentOccupantData.js';
 
 export class ApartmentOccupantController {
   constructor(scene) {
     this.scene = scene; this.root = null; this.button = null;
     this.statementIndex = 0; this.itemIndex = 0; this.notice = '';
     this.caseKey = getEvidenceCaseKey(gameState);
-    this.occupant = generateApartmentOccupant({ caseKey: this.caseKey,
-      missionId: scene.missionId, suspectId: scene.suspectId, effect: scene.apartmentEffect });
+    this.occupant = resolveApartmentOccupant({ caseKey: this.caseKey,
+      missionId: scene.missionId, suspectId: scene.suspectId, effect: scene.apartmentEffect },
+      { progress: scene.getProgress(), items: inventoryManager.getAllItems() });
+    if (this.occupant && scene.getProgress().occupantPlan?.caseKey !== this.caseKey) {
+      scene.updateProgress({ occupantPlan: structuredClone(this.occupant) });
+    }
   }
   installEvidence() {
     if (!this.occupant) return;
@@ -88,7 +92,7 @@ export class ApartmentOccupantController {
     text(this.occupant.introduction, left, top + 72, w - 32, h * 0.12);
     if (p.solved) {
       text(this.occupant.confrontation.confession, left, top + h * 0.30, w - 32, h * 0.27);
-      text(`NEW LEAD — NOT YET VERIFIED\n${p.lead.text}`, left, top + h * 0.62, w - 32, h * 0.30, 19, '#d9edb2');
+      text(`NEW LEAD — NOT YET VERIFIED\n${p.lead?.text || this.occupant.lead.text}`, left, top + h * 0.62, w - 32, h * 0.30, 19, '#d9edb2');
       return;
     }
     const statements = this.occupant.statements;

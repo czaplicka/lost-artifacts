@@ -1,251 +1,172 @@
-// Evidence handover uses the existing Inventory entry in the bottom player menu.
-import { EventBus } from '../../EventBus.js';
-import { inventoryManager } from '../../managers/InventoryManager.js';
-import { analyseEscapeEvidence, getTicketAnalysis, getTicketCaseKey } from '../../managers/TicketAnalysisService.js';
-import { hasVisitedApartment } from '../../managers/ApartmentVisitRegistry.js';
+import { gameState } from '../GameData.js';
+import { inventoryManager } from './InventoryManager.js';
+import { requestAutosave } from '../gameStatePersistence.js';
+import { beginEscapePhaseClock, isCrimePhaseExpired, isTotalTimeExpired } from '../CaseTimeHelper.js';
+import { getRouteManager, syncInvestigationState, generateDestinationsForCurrentCity } from './InvestigationManager.js';
+import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { getTicketAirportCode } from '../config/TicketAirports.js';
+import { getEvidenceCaseKey, readApartmentEvidence, evidenceMatchesCase } from './ApartmentEvidenceModel.js';
 
-export class TicketAnalysisPanel {
-  constructor(scene) {
-    this.scene = scene;
-    this.destroyed = false;
-    this.token = {};
-    this.caseKey = getTicketCaseKey(scene.gameState);
-    this.hud = null;
-    this.highlight = null;
-    this.dropLabel = null;
-    this.handlingDrop = false;
-    this.handleInventoryChanged = () => this.refresh();
-    this.handleRequest = request => this.requestDragTarget(request);
-    this.handleDrop = drop => this.receiveDrop(drop);
-    this.handleMove = drag => this.updateDragHighlight(drag);
-    this.handleDragEnd = drag => {
-      if (this.matches(drag)) this.hideHighlight();
-    };
-    this.handleResize = () => this.layout();
-    this.handleInactive = () => this.hideHighlight();
+const TICKET_IDS = new Set(['torn_ticket','plane_ticket_receipt','plane_booking','ticket_identity_matched']);
+export function getTicketCaseKey(state=gameState) { return getEvidenceCaseKey(state); }
+export function getTicketAnalysis(state=gameState) {
+  return state.caseData?.ticketAnalyses?.[getTicketCaseKey(state)] || null;
+}
+export function isCurrentCaseEvidence(item,state=gameState) { return evidenceMatchesCase(item,state); }
+export function isTicketEvidence(item) {
+  const evidence=readApartmentEvidence(item);
+  return Boolean(evidence && (TICKET_IDS.has(evidence.originalId) || evidence.metadata?.ticketEvidence===true));
+}
+export function findCaseTicket(state=gameState,inventory=inventoryManager) {
+  return inventory.getAllItems().find(item=>isTicketEvidence(item) && isCurrentCaseEvidence(item,state)) || null;
+}
+export function getTicketTravelBlock(destinationId,state=gameState) {
+  if(state.caseFailed) return 'case_failed';
+  if(!state.isGameActive || !state.currentMission || state.caseResolved) return null;
+  if(destinationId==='hq' || destinationId===state.crimeCityId || destinationId===state.currentCityId) return null;
+  return state.escapePhaseActive===true ? null : 'ticket_analysis_required';
+}
+export function getEvidenceExamination(itemId,state=gameState) {
+  return state.caseData?.labEvidenceExaminations?.[getTicketCaseKey(state)]?.[itemId] || null;
+}
+function recordExamination(item,text,useful,state) {
+  const key=getTicketCaseKey(state),all=state.caseData?.labEvidenceExaminations || {};
+  state.updateState({caseData:{...(state.caseData || {}),labEvidenceExaminations:{...all,
+    [key]:{...(all[key] || {}),[item.id]:{itemId:item.id,text,useful,examinedAt:new Date().toISOString()}}}}});
+  requestAutosave();
+}
+function refusalFor(item) {
+  if(item.isArtifact || item.type==='artifact') return 'A recovered artefact belongs in the case records, not my centrifuge. The museum has already had a difficult week.';
+  if(item.isRedHerring) return 'Examined. No useful travel information. This object is innocent, which is more than I can say for my coffee machine.';
+  if(item.isEscapeFragment) return 'This appears to be part of something. Try combining the matching pieces before asking me to perform a miracle.';
+  if(item.isEscapeClue) return 'This may be a travel lead, but I have no reliable analysis for it yet. I will not invent a destination.';
+  return 'No useful destination information. I can examine the object, detective. I cannot make it confess.';
+}
+function resolveLead(item,target,state) {
+  if(!isCurrentCaseEvidence(item,state)) return {ok:false,message:'This evidence belongs to another case. Please keep the paperwork in its own crime.'};
+  if(item.isRedHerring || item.isArtifact) return {ok:false,message:refusalFor(item),examined:true};
+  if(isTicketEvidence(item)) {
+    const airportCode=getTicketAirportCode(target);
+    if(!airportCode) return {ok:false,message:'This destination has no valid airport code in the case configuration.'};
+    return {ok:true,kind:'airport_code',airportCode,value:airportCode,
+      clueText:`Damaged ticket analysis: destination airport code ${airportCode}.`,
+      assistantText:`The destination code is ${airportCode}.\n\nThe ink survived. The passenger's travel plans did not.\nI have recorded the code in your notebook.`};
   }
-
-  get isOpen() {
-    const dialog = this.scene?.assistantDialog;
-    return Boolean(dialog?.isOpen() && String(dialog.currentNodeId || '').startsWith('__evidence_'));
+  const definition=item.metadata?.escapeEvidence;
+  const hint=definition?.kind==='location_hint'?definition.hintsByCity?.[target.id]:null;
+  if(typeof hint==='string' && hint.trim()) return {ok:true,kind:'location_hint',value:hint.trim(),
+    clueText:hint.trim(),assistantText:`${hint.trim()}\n\nI have recorded the finding in your notebook.`};
+  return {ok:false,message:refusalFor(item),examined:true};
+}
+function countryOf(target) {
+  return typeof target?.country==='string' ? target.country.trim() : '';
+}
+function countryMessage(text,country) {
+  if(!country) return text;
+  const finding=`Escape destination country: ${country}.`;
+  return text.includes(finding) ? text : `${text}\n\n${finding}\nRecorded in your notebook.`;
+}
+function recordCountry(state,result,locations) {
+  if(!result?.completed) return result;
+  const list=Array.isArray(locations)?locations:locations?.locations;
+  const target=Array.isArray(list)?list.find(location=>location?.id===result.targetCityId):null;
+  const country=countryOf(target) || (typeof result.targetCountry==='string' ? result.targetCountry.trim() : '');
+  if(!country) return result;
+  const updated={...result,targetCountry:country,assistantText:countryMessage(
+    result.assistantText || result.clueText || 'Analysis completed.',country)};
+  const key=getTicketCaseKey(state);
+  state.updateState({caseData:{...(state.caseData || {}),ticketAnalyses:{
+    ...(state.caseData?.ticketAnalyses || {}),[key]:updated}}});
+  const id=`escape_country_${key}`;
+  if(!(state.cluesCollected || []).some(clue=>clue?.id===id)) {
+    state.addClue({id,type:'travel',category:'travel',source:'crime_lab',
+      key:'escape_country',value:country,text:`Laboratory analysis — escape destination country: ${country}.`,
+      cityId:state.crimeCityId,missionId:state.currentMission?.id || state.currentMission?.missionId || null});
   }
+  requestAutosave();
+  return updated;
+}
 
-  isAvailable() {
-    return Boolean(!this.destroyed && this.scene &&
-      getTicketCaseKey(this.scene.gameState) === this.caseKey &&
-      hasVisitedApartment(this.scene.gameState));
-  }
-
-  canReceive() {
-    const scene = this.scene;
-    return Boolean(this.isAvailable() && scene.sys.isActive() &&
-      scene.currentView === 'lab_intro' && !scene.uiLocked && !scene.isExitingLab &&
-      !scene.assistantDialog?.isOpen() && !this.handlingDrop);
-  }
-
-  create() {
-    if (this.destroyed) return;
-    const scene = this.scene;
-    if (scene.assistantDialog) scene.assistantDialog.extension = this;
-    EventBus.on('inventoryUpdated', this.handleInventoryChanged, this);
-    EventBus.on('inventory:request-drag-target', this.handleRequest, this);
-    EventBus.on('inventory:item-dropped', this.handleDrop, this);
-    EventBus.on('inventory:drag-moved', this.handleMove, this);
-    EventBus.on('inventory:drag-ended', this.handleDragEnd, this);
-    scene.scale.on('resize', this.handleResize, this);
-    scene.events.on('pause', this.handleInactive, this);
-    scene.events.on('sleep', this.handleInactive, this);
-    if (this.isAvailable()) {
-      scene.labOnboarding = {
-        ...scene.labOnboarding, assistantPresent: true,
-        backgroundKey: 'crimelab_point_assistant'
-      };
-      if (scene.labView) {
-        scene.labView.backgroundKeys.lab_intro = 'crimelab_point_assistant';
-        scene.labView.showView(scene.currentView);
-      }
-      if (!scene.assistantHotspot) scene.createAssistantHotspot();
-      this.createDropFeedback();
-      void this.ensureInventoryHud();
+export function analyseEscapeEvidence(locations,options={}) {
+  const state=options.state || gameState,inventory=options.inventory || inventoryManager;
+  if(!state.isGameActive || state.caseFailed || state.caseResolved) return {ok:false,message:'This case is no longer active.'};
+  const raw=inventory.getAllItems().find(entry=>entry?.id===options.itemId);
+  if(!raw) return {ok:false,message:'That item is no longer in your inventory.'};
+  const item=readApartmentEvidence(raw);
+  if(!isCurrentCaseEvidence(item,state)) return {ok:false,message:'This evidence belongs to another case.'};
+  const examination=getEvidenceExamination(item.id,state);
+  let previous=getTicketAnalysis(state);
+  const travelEvidence=isTicketEvidence(item) || item.isEscapeClue || Boolean(item.metadata?.escapeEvidence);
+  const retryLegacyNegative=examination && !examination.useful && travelEvidence && !item.isRedHerring && !item.isArtifact;
+  if(examination && !retryLegacyNegative && (!examination.useful || previous?.completed)) {
+    if(examination.useful) {
+      previous=recordCountry(state,previous,locations);
+      const text=countryMessage(examination.text,previous?.targetCountry);
+      recordExamination(item,text,true,state);
+      return {ok:true,alreadyAnalysed:true,message:text,result:previous};
     }
-    this.refresh();
+    return {ok:false,alreadyAnalysed:true,message:examination.text,result:null};
   }
-
-  createDropFeedback() {
-    const scene = this.scene;
-    this.highlight = scene.add.rectangle(0, 0, 230, 410, 0x39ff14, 0.10)
-      .setOrigin(0).setStrokeStyle(3, 0x39ff14, 0.9)
-      .setScrollFactor(0).setDepth(65).setVisible(false);
-    this.dropLabel = scene.add.text(0, 0, 'Give evidence', {
-      fontFamily: 'SpecialElite', fontSize: '20px', color: '#b9ff8f',
-      backgroundColor: '#07111b', padding: { x: 8, y: 5 }
-    }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(66).setVisible(false);
-    this.layout();
+  if(previous?.completed && previous.sourceItemId===item.id) {
+    previous=recordCountry(state,previous,locations);
+    const text=previous.assistantText || (previous.airportCode
+      ? `The destination code is ${previous.airportCode}. It is already in your notebook.`
+      : previous.clueText || 'The finding is already in your notebook.');
+    recordExamination(item,text,true,state);
+    return {ok:true,alreadyAnalysed:true,message:text,result:previous};
   }
-
-  layout() {
-    const scene = this.scene;
-    if (!scene || this.destroyed) return;
-    const bounds = scene.assistantHotspot?.getBounds();
-    if (bounds) {
-      this.highlight?.setPosition(bounds.x, bounds.y).setSize(bounds.width, bounds.height);
-      this.dropLabel?.setPosition(bounds.centerX, Math.max(30, bounds.y - 10));
-    }
+  if(isTotalTimeExpired(state) || (!state.escapePhaseActive && isCrimePhaseExpired(state))) {
+    return {ok:false,message:'The investigation deadline has expired.'};
   }
-
-  async ensureInventoryHud() {
-    const scene = this.scene;
-    try {
-      const hud = await scene.restorePlayerHud();
-      if (this.destroyed || this.scene !== scene || !scene.sys.isActive()) return null;
-      this.hud = hud;
-      hud?.setCurrentGameplayScene('CrimeLabScene');
-      if (hud) await hud.ensurePanel('inventoryUI');
-      if (this.destroyed || !scene.sys.isActive()) return null;
-      if (scene.assistantDialog?.isOpen()) scene.scene.bringToTop();
-      return hud;
-    } catch (error) {
-      console.error('[TicketAnalysisPanel] Inventory HUD unavailable.', error);
-      return null;
-    }
+  const manager=options.routeManager || getRouteManager();
+  const list=Array.isArray(locations)?locations:locations?.locations;
+  if(!Array.isArray(list) || !manager || !Array.isArray(manager.route) || !manager.route.length) {
+    return {ok:false,message:'The existing escape route is missing. No new route has been generated.'};
   }
-
-  requestDragTarget(request) {
-    if (!request || request.targetSceneKey || !this.canReceive()) return;
-    if (!inventoryManager.getItem(request.itemId)) return;
-    request.targetSceneKey = this.scene.sys.settings.key;
-    request.targetToken = this.token;
+  if(!manager.route.every(id=>typeof id==='string' && id!==state.crimeCityId && id!=='hq' && list.some(location=>location?.id===id))) {
+    return {ok:false,message:'The saved escape route contains an invalid destination. It has not been replaced.'};
   }
-
-  matches(data) {
-    return Boolean(data && !this.destroyed && data.targetToken === this.token &&
-      data.targetSceneKey === this.scene?.sys.settings.key);
-  }
-
-  isOverAssistant(data) {
-    if (!Number.isFinite(data?.xRatio) || !Number.isFinite(data?.yRatio)) return false;
-    const bounds = this.scene.assistantHotspot?.getBounds();
-    if (!bounds) return false;
-    return bounds.contains(data.xRatio * this.scene.scale.width, data.yRatio * this.scene.scale.height);
-  }
-
-  updateDragHighlight(data) {
-    if (!this.matches(data) || !this.canReceive()) return;
-    this.layout();
-    const over = this.isOverAssistant(data);
-    this.highlight?.setVisible(true).setFillStyle(0x39ff14, over ? 0.25 : 0.08);
-    this.dropLabel?.setVisible(true).setText(over ? 'Release to examine' : 'Give evidence');
-  }
-
-  hideHighlight() {
-    this.highlight?.setVisible(false);
-    this.dropLabel?.setVisible(false);
-  }
-
-  receiveDrop(drop) {
-    if (!this.matches(drop) || !this.canReceive() || !this.isOverAssistant(drop)) return;
-    if (!inventoryManager.getItem(drop.itemId)) return;
-    drop.accepted = true;
-    this.hideHighlight();
-    this.handlingDrop = true;
-    try {
-      const response = analyseEscapeEvidence(this.scene.cache.json.get('locations'), {
-        state: this.scene.gameState, itemId: drop.itemId
-      });
-      this.showResponse(response.message || 'The analysis could not be completed.');
-      this.scene.hud?.refreshFromScene();
-    } catch (error) {
-      console.error('[TicketAnalysisPanel] Evidence analysis failed.', error);
-      this.showResponse('The analysis could not be completed. Your evidence has not been removed.');
-    } finally {
-      this.handlingDrop = false;
-      this.refresh();
+  const targetId=manager.route[0],target=list.find(location=>location?.id===targetId);
+  const lead=resolveLead(item,target,state);
+  if(!lead.ok) { if(lead.examined) recordExamination(item,lead.message,false,state); return lead; }
+  const country=countryOf(target);
+  if(!country) return {ok:false,message:'The escape destination has no country in the case configuration. No country has been invented.'};
+  if(!previous?.completed) {
+    const inCrimeCityPhase=manager.isCrimeCityPhase();
+    if(inCrimeCityPhase && manager.getCrimeCity()!==state.crimeCityId) return {ok:false,message:'The route belongs to a different crime city.'};
+    if(!inCrimeCityPhase && (!manager.isRoutePhase() || manager.currentRouteIndex!==0)) return {ok:false,message:'This route has already advanced beyond the first escape destination.'};
+    const routeBefore=manager.serialize();
+    if(inCrimeCityPhase && !manager.enterCity(state.crimeCityId).ok) return {ok:false,message:'The pursuit route could not be unlocked.'};
+    if(!beginEscapePhaseClock(state)) {
+      manager.restore(routeBefore); return {ok:false,message:'The case clock could not be started. No extra time has been granted.'};
     }
   }
-
-  showResponse(text) {
-    const scene = this.scene;
-    inventoryManager.close();
-    const opened = scene.assistantDialog.open({
-      dialogue: {
-        id: 'lab_evidence_handover', defaultNodeId: '__evidence_result', nodes: {
-          __evidence_result: {
-            speaker: 'LAB ASSISTANT', text,
-            choices: [{ text: 'Thanks. I will take it from here.', action: 'close' }]
-          }
-        }
-      },
-      onClose: () => {
-        if (this.destroyed || scene.isExitingLab) return;
-        scene.applyLock(false);
-        this.hud?.scene.bringToTop();
-      }
-    });
-    if (opened) {
-      scene.applyLock(true);
-      scene.scene.bringToTop();
-    }
+  const result={completed:true,analysisType:lead.kind,targetCityId:targetId,targetCountry:country,sourceItemId:item.id,
+    analysedAt:new Date().toISOString(),analysisMinutes:0,route:[...manager.route],clueText:lead.clueText,
+    assistantText:countryMessage(lead.assistantText,country),...(lead.airportCode?{airportCode:lead.airportCode}:{})};
+  if(!previous?.completed) state.updateState({caseData:{...(state.caseData || {}),
+    ticketAnalyses:{...(state.caseData?.ticketAnalyses || {}),[getTicketCaseKey(state)]:result}},
+    crimeSceneVisited:true,escapeRoute:[...manager.route]});
+  state.addClue({id:`escape_evidence_${getTicketCaseKey(state)}_${item.id}`,
+    type:lead.kind==='airport_code'?'ticket_analysis':'escape_evidence_analysis',category:'travel',source:'crime_lab',
+    key:lead.kind,value:lead.value,text:lead.clueText,cityId:state.crimeCityId,
+    missionId:state.currentMission?.id || state.currentMission?.missionId || null});
+  recordCountry(state,previous?.completed ? previous : result,list);
+  recordExamination(item,result.assistantText,true,state);
+  if(!previous?.completed) {
+    if(options.sync) options.sync(list,manager);
+    else { syncInvestigationState(list); state.currentDestinations=generateDestinationsForCurrentCity(list); }
+    advanceCrimeTutorial(state,'search_apartment');
   }
+  requestAutosave();
+  return {ok:true,alreadyAnalysed:false,message:result.assistantText,result};
+}
 
-  augmentChoices(dialog, choices) {
-    if (!this.isAvailable()) return choices;
-    const root = dialog.dialogue?.defaultNodeId;
-    if (String(dialog.currentNodeId).startsWith('__evidence_')) return choices;
-    if (dialog.currentNodeId !== root && dialog.currentNodeId !== 'greeting') return choices;
-    const result = getTicketAnalysis(this.scene.gameState);
-    return [
-      { text: 'How do I give you evidence?', action: 'explain_evidence_handover' },
-      ...(result?.completed ? [{ text: 'Remind me what you found.', action: 'recall_escape_analysis' }] : []),
-      ...choices
-    ];
+export function analyseCaseTicket(locations,options={}) {
+  const state=options.state || gameState,inventory=options.inventory || inventoryManager;
+  const ticket=options.itemId!=null?inventory.getAllItems().find(item=>item?.id===options.itemId):findCaseTicket(state,inventory);
+  if(!ticket || !isTicketEvidence(ticket) || !isCurrentCaseEvidence(ticket,state)) {
+    return {ok:false,message:'Bring the damaged ticket from the suspect apartment to the lab first.'};
   }
-
-  handleChoice(choice, dialog) {
-    if (!['explain_evidence_handover', 'recall_escape_analysis', 'analyse_apartment_ticket'].includes(choice.action)) return false;
-    const previousNode = dialog.currentNodeId;
-    const result = getTicketAnalysis(this.scene.gameState);
-    const text = choice.action === 'recall_escape_analysis' && result?.completed
-      ? result.assistantText || (result.airportCode
-        ? `The destination code is ${result.airportCode}. It is in your notebook.`
-        : result.clueText || 'The finding is in your notebook.')
-      : 'Close this conversation, open Inventory from the bottom menu (or press I), and drag the object onto me.\n\nOne object at a time. This is a laboratory, not a clearance sale.';
-    dialog.dialogue.nodes.__evidence_help = {
-      speaker: 'LAB ASSISTANT', text, choices: [
-        { text: 'Back to my questions.', next: previousNode },
-        { text: 'Let me get the evidence.', action: 'close' }
-      ]
-    };
-    dialog.currentNodeId = '__evidence_help';
-    dialog.choicePage = 0;
-    dialog.renderCurrentNode();
-    return true;
-  }
-
-  refresh() {
-    if (this.destroyed || !this.scene) return;
-    if (this.scene.assistantDialog) this.scene.assistantDialog.extension = this;
-    if (!this.canReceive()) this.hideHighlight();
-  }
-
-  destroy() {
-    if (this.destroyed) return;
-    this.hideHighlight();
-    this.destroyed = true;
-    EventBus.off('inventoryUpdated', this.handleInventoryChanged, this);
-    EventBus.off('inventory:request-drag-target', this.handleRequest, this);
-    EventBus.off('inventory:item-dropped', this.handleDrop, this);
-    EventBus.off('inventory:drag-moved', this.handleMove, this);
-    EventBus.off('inventory:drag-ended', this.handleDragEnd, this);
-    this.scene?.scale.off('resize', this.handleResize, this);
-    this.scene?.events.off('pause', this.handleInactive, this);
-    this.scene?.events.off('sleep', this.handleInactive, this);
-    if (this.scene?.assistantDialog?.extension === this) this.scene.assistantDialog.extension = null;
-    for (const object of [this.highlight, this.dropLabel]) {
-      object?.removeAllListeners?.();
-      object?.destroy();
-    }
-    this.hud = null;
-    this.scene = null;
-    this.token = null;
-  }
+  return analyseEscapeEvidence(locations,{...options,state,inventory,itemId:ticket.id});
 }

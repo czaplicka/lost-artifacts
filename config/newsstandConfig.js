@@ -4,7 +4,7 @@ export const NEWSSTAND_CONFIG = {
 
   backgroundKey: 'newsstand_bg',
   imageZoom: 1.30,
-  videoZoom: 1.20,
+  videoZoom: 1.25,
   dimAlpha: 0.42,
 
   videoUrl: 'assets/video/newsstand.mp4',

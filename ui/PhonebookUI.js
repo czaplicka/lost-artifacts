@@ -17,7 +17,7 @@ export class PhonebookUI {
         this.boundAccessHandler = this.checkPhoneAccess.bind(this);
 
         this.currentCity = 'UNKNOWN CITY';
-        this.policeAvailable = false;
+        this.policeAvailable = true;
 
         this.staticContacts = [
             {
@@ -117,8 +117,8 @@ export class PhonebookUI {
         const policeContact = {
             name: `POLICE STATION (${this.currentCity.toUpperCase()})`,
             number: this.getPoliceNumber(),
-            key: 'police',
-            available: this.policeAvailable
+            key: 'police-station',
+            available: true
         };
 
         return [...this.staticContacts, policeContact];
@@ -141,7 +141,7 @@ export class PhonebookUI {
 
     setCrimeCity(cityName) {
         this.currentCity = cityName || 'UNKNOWN CITY';
-        this.policeAvailable = false;
+        this.policeAvailable = true;
         this.rebuildList();
     }
 
@@ -534,9 +534,9 @@ export class PhonebookUI {
 
         this._callPhase = 'busy';
 
-        const outcome = contact.key === 'police'
-            ? 'no_answer'
-            : (Math.random() < 0.5 ? 'busy' : 'no_answer');
+        const outcome = Math.random() < 0.5
+            ? 'busy'
+            : 'no_answer';
 
         this.busySound = audioManager.playPersistentLoop(
             'sfx_busy'
@@ -570,13 +570,9 @@ export class PhonebookUI {
         this.scene.tweens.killTweensOf(this.statusText);
         this.statusText.setAlpha(1);
 
-        const message = contact.key === 'police'
-            ? 'Police only respond once the city has been left.'
-            : (
-                outcome === 'busy'
-                    ? 'The line is busy. Try again later.'
-                    : 'No one is picking up.'
-            );
+        const message = outcome === 'busy'
+            ? 'The line is busy. Try again later.'
+            : 'No one is picking up.';
 
         this.setStatus(message);
 
@@ -740,10 +736,7 @@ export class PhonebookUI {
                 this.setCrimeCity(newCity);
             }
 
-            this.policeAvailable = Boolean(
-                gameState.hasLeftCurrentCity
-            );
-
+            this.policeAvailable = true;
             this.rebuildList();
         }
 

@@ -1,730 +1,208 @@
 import { saveManager } from '../saveGameService.js';
 
-export const SAVE_LOCATION_TYPES = Object.freeze([
-  'office',
-  'hotel'
-]);
-
-function normalizeLocationType(value) {
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  const normalized = value.trim().toLowerCase();
-
-  return SAVE_LOCATION_TYPES.includes(normalized)
-    ? normalized
-    : null;
-}
-
-function normalizeSaveCode(value, fallback) {
-  if (typeof value !== 'string') {
-    return fallback;
-  }
-
-  return value.trim().toLowerCase() || fallback;
-}
-
+export const SAVE_LOCATION_TYPES = Object.freeze(['office', 'hotel']);
+const stop = event => event?.stopPropagation?.();
 export class OfficeSaveUI {
   constructor(scene, options = {}) {
     this.scene = scene;
-
-    const requestedType =
-      options.locationType ?? 'office';
-
-    this.locationType =
-      normalizeLocationType(requestedType);
-
-    if (!this.locationType) {
-      throw new Error(
-        `[OfficeSaveUI] Invalid locationType "${requestedType}". ` +
-        `Expected: ${SAVE_LOCATION_TYPES.join(', ')}.`
-      );
-    }
-
-    this.locationCode = normalizeSaveCode(
-      options.locationCode,
-      this.locationType === 'hotel'
-        ? 'hotel_room'
-        : 'agency_headquarters'
-    );
-
-    this.cityCode = normalizeSaveCode(
-      options.cityCode,
-      this.locationType === 'hotel'
-        ? 'unknown_city'
-        : 'hq'
-    );
-
+    this.locationType = String(options.locationType ?? 'office').trim().toLowerCase();
+    if (!SAVE_LOCATION_TYPES.includes(this.locationType)) throw new Error('Invalid save location.');
+    this.locationCode = options.locationCode || (this.locationType === 'hotel' ? 'hotel_room' : 'agency_headquarters');
+    this.cityCode = options.cityCode || (this.locationType === 'hotel' ? 'unknown_city' : 'hq');
     this.button = null;
     this.panel = null;
     this.backdrop = null;
-    this.slotButtons = [];
     this.statusText = null;
-
+    this.slotButtons = [];
     this.isOpen = false;
     this.isSaving = false;
-
     this.destroyed = false;
-    this._openToken = null;
-    this._closeTimer = null;
     this._buttonLocked = false;
-    this._buttonBaseScale = 1;
+    this._openToken = null;
+    this._slots = [];
   }
-
   _isCurrentOpening(token) {
-    return Boolean(
-      !this.destroyed &&
-      this.isOpen &&
-      this._openToken === token &&
-      this.panel?.active
-    );
+    return !this.destroyed && this.isOpen && this._openToken === token && this.panel?.active;
   }
-
   _notifyPanelState() {
-    if (!this.scene) {
-      return;
+    this.scene.events?.emit('ui-panel-state-changed', { panel: 'save', isOpen: this.isOpen });
+    if (typeof this.scene.refreshPanelLock === 'function') this.scene.refreshPanelLock();
+    else {
+      const hud = this.scene.getPlayerHud?.() ?? this.scene.getPlayerHudScene?.();
+      this.scene.applyLock?.(Boolean(this.isOpen || this.scene.agencyLedgerUI?.isOpen || hud?.isAnyPanelOpen?.()));
     }
-
-    this.scene.events?.emit(
-      'ui-panel-state-changed',
-      {
-        panel: 'save',
-        isOpen: this.isOpen
-      }
-    );
-
-    if (
-      typeof this.scene.refreshPanelLock === 'function'
-    ) {
-      this.scene.refreshPanelLock();
-      return;
-    }
-
-    // Zgodność z obecną wersją OfficeScene i HotelScene.
-    const hud =
-      this.scene.getPlayerHud?.() ??
-      this.scene.getPlayerHudScene?.();
-
-    const locked = Boolean(
-      this.isOpen ||
-      this.scene.agencyLedgerUI?.isOpen ||
-      hud?.isAnyPanelOpen?.()
-    );
-
-    this.scene.applyLock?.(locked);
   }
-
   createButton() {
-    if (this.destroyed || this.button?.active) {
-      return;
-    }
-
+    if (this.destroyed || this.button?.active) return;
     const { width, height } = this.scene.scale;
-
     const x = Math.min(1780, width - 95);
     const y = height - 66;
-
-    const hasTexture =
-      this.scene.textures.exists('btnSave');
-
-    this._buttonBaseScale = hasTexture ? 0.5 : 1;
-
-    if (hasTexture) {
-      this.button = this.scene.add.image(
-        x,
-        y,
-        'btnSave'
-      ).setScale(this._buttonBaseScale);
+    if (this.scene.textures.exists('btnSave')) {
+      this.button = this.scene.add.image(x, y, 'btnSave').setScale(0.5);
     } else {
-      this.button = this.scene.add.text(
-        x,
-        y,
-        'SAVE',
-        {
-          fontFamily: 'SpecialElite, monospace',
-          fontSize: '12px',
-          color: '#f1d480',
-          backgroundColor: '#1c1109',
-          stroke: '#000000',
-          strokeThickness: 2,
-          padding: {
-            left: 8,
-            right: 8,
-            top: 5,
-            bottom: 5
-          }
-        }
-      );
-    }
-
-    this.button
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(1000)
-      .setInteractive({
-        useHandCursor: true
+      this.button = this.scene.add.text(x, y, 'SAVE', {
+        fontFamily: 'SpecialElite, monospace', fontSize: '18px', color: '#f1d480',
+        backgroundColor: '#1c1109', padding: { x: 12, y: 8 }
       });
-
-    this.button.on('pointerover', () => {
-      if (
-        this.destroyed ||
-        this._buttonLocked ||
-        this.scene.uiLocked ||
-        this.isOpen ||
-        this.isSaving
-      ) {
-        return;
-      }
-
-      this.button.setScale(
-        this._buttonBaseScale * 1.08
-      );
-
-      if (!hasTexture) {
-        this.button.setColor('#fff1b7');
-      }
+    }
+    this.button.setOrigin(0.5).setScrollFactor(0).setDepth(1000);
+    this.button.on('pointerdown', (pointer, x, y, event) => {
+      stop(event);
+      if (!this.destroyed && !this._buttonLocked && !this.scene.uiLocked && !this.isOpen && !this.isSaving) void this.open();
     });
-
-    this.button.on('pointerout', () => {
-      if (!this.button?.active) {
-        return;
-      }
-
-      this.button.setScale(
-        this._buttonBaseScale
-      );
-
-      if (!hasTexture) {
-        this.button.setColor('#f1d480');
-      }
-    });
-
-    this.button.on('pointerdown', () => {
-      if (
-        this.destroyed ||
-        this._buttonLocked ||
-        this.scene.uiLocked ||
-        this.isOpen ||
-        this.isSaving
-      ) {
-        return;
-      }
-
-      void this.open();
-    });
-
     this.setLocked(this._buttonLocked);
   }
-
   setLocked(locked) {
     this._buttonLocked = Boolean(locked);
-
-    if (!this.button?.active) {
-      return;
-    }
-
-    this.button.setScale(
-      this._buttonBaseScale
-    );
-
-    if (this._buttonLocked) {
-      this.button
-        .disableInteractive()
-        .setAlpha(0.4);
-    } else {
-      this.button
-        .setInteractive({
-          useHandCursor: true
-        })
-        .setAlpha(1);
-    }
+    if (!this.button?.active) return;
+    this.button.setAlpha(locked ? 0.4 : 1);
+    if (locked) this.button.disableInteractive();
+    else this.button.setInteractive({ useHandCursor: true });
   }
-
   async open() {
-    if (
-      this.destroyed ||
-      this.isOpen ||
-      this.isSaving ||
-      !this.scene?.sys?.isActive()
-    ) {
-      return;
-    }
-
+    if (this.destroyed || this.isOpen || this.isSaving || !this.scene.sys.isActive()) return;
     const token = Symbol('save-panel');
     this._openToken = token;
-
     this.isOpen = true;
-
     const { width, height } = this.scene.scale;
-
-    this.backdrop = this.scene.add.rectangle(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      0x000000,
-      0.78
-    )
-      .setScrollFactor(0)
-      .setDepth(1500)
-      .setInteractive();
-
-    this.backdrop.on(
-      'pointerdown',
-      (pointer, x, y, event) => {
-        event?.stopPropagation();
-
-        if (!this.isSaving) {
-          this.close();
-        }
-      }
-    );
-
-    this.panel = this.scene.add.container(
-      width / 2,
-      height / 2
-    )
-      .setScrollFactor(0)
-      .setDepth(1501);
-
-    const panelBg = this.scene.add.rectangle(
-      0,
-      0,
-      560,
-      500,
-      0x17100b,
-      1
-    )
-      .setStrokeStyle(4, 0xc99738, 1)
-      .setInteractive();
-
-    panelBg.on(
-      'pointerdown',
-      (pointer, x, y, event) => {
-        event?.stopPropagation();
-      }
-    );
-
-    const title = this.scene.add.text(
-      0,
-      -205,
-      this.locationType === 'hotel'
-        ? 'HOTEL SAFE'
-        : 'AGENCY ARCHIVES',
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: '31px',
-        color: '#f2d989',
-        stroke: '#000000',
-        strokeThickness: 5
-      }
-    ).setOrigin(0.5);
-
-    const subtitle = this.scene.add.text(
-      0,
-      -163,
-      'Choose a case file to save your investigation.',
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: '19px',
-        color: '#d4c4a6',
-        align: 'center'
-      }
-    ).setOrigin(0.5);
-
-    const closeButton = this.scene.add.text(
-      235,
-      -218,
-      '×',
-      {
-        fontFamily: 'Arial, sans-serif',
-        fontSize: '40px',
-        color: '#f0c2b6'
-      }
-    )
-      .setOrigin(0.5)
-      .setInteractive({
-        useHandCursor: true
-      });
-
-    closeButton.on(
-      'pointerdown',
-      (pointer, x, y, event) => {
-        event?.stopPropagation();
-
-        if (!this.isSaving) {
-          this.close();
-        }
-      }
-    );
-
-    closeButton.on('pointerover', () => {
-      closeButton
-        .setColor('#ffffff')
-        .setScale(1.15);
+    this.backdrop = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.8)
+      .setScrollFactor(0).setDepth(1500).setInteractive();
+    this.backdrop.on('pointerdown', (pointer, x, y, event) => {
+      stop(event);
+      if (!this.isSaving) this.close();
     });
-
-    closeButton.on('pointerout', () => {
-      closeButton
-        .setColor('#f0c2b6')
-        .setScale(1);
-    });
-
-    this.statusText = this.scene.add.text(
-      0,
-      190,
-      'Reading case files...',
-      {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: '18px',
-        color: '#d8c49a',
-        align: 'center',
-        wordWrap: {
-          width: 470
-        }
-      }
-    ).setOrigin(0.5);
-
-    this.panel.add([
-      panelBg,
-      title,
-      subtitle,
-      closeButton,
-      this.statusText
-    ]);
-
+    this.panel = this.scene.add.container(width / 2, height / 2).setScrollFactor(0).setDepth(1501);
+    this.panel.setScale(Math.min(1, (width - 24) / 660, (height - 24) / 620));
+    const bg = this.scene.add.rectangle(0, 0, 640, 600, 0x17100b)
+      .setStrokeStyle(4, 0xc99738).setInteractive();
+    bg.on('pointerdown', (pointer, x, y, event) => stop(event));
+    const title = this.makeText(0, -255, this.locationType === 'hotel' ? 'HOTEL SAFE' : 'AGENCY ARCHIVES', 29, '#f2d989');
+    const subtitle = this.makeText(0, -212, 'Choose a case file to save your investigation.', 18);
+    const close = this.makeText(280, -263, 'X', 28, '#f0c2b6').setInteractive({ useHandCursor: true });
+    close.on('pointerdown', (pointer, x, y, event) => { stop(event); if (!this.isSaving) this.close(); });
+    this.statusText = this.makeText(0, 240, 'Reading case files...', 18);
+    this.panel.add([bg, title, subtitle, close, this.statusText]);
+    this._slots = ['slot_1', 'slot_2', 'slot_3'].map(slotKey => ({
+      slotKey, localMeta: saveManager.readLocalMeta(slotKey), cloudMeta: null, preferredSource: 'local'
+    }));
+    this.createSlotButtons(this._slots);
     this._notifyPanelState();
-
     try {
       const slots = await saveManager.listSlots();
-
-      if (!this._isCurrentOpening(token)) {
-        return;
-      }
-
+      if (!this._isCurrentOpening(token) || this.isSaving) return;
       this.createSlotButtons(slots);
       this.setStatus('Choose a save slot.');
     } catch (error) {
-      if (!this._isCurrentOpening(token)) {
-        return;
-      }
-
-      console.error(
-        '[OfficeSaveUI] Failed to read save slots:',
-        error
-      );
-
-      this.createSlotButtons([]);
-
-      this.setStatus(
-        'Archive unavailable. You may still save locally.',
-        '#ffbbb0'
-      );
+      if (this._isCurrentOpening(token) && !this.isSaving) this.setStatus('Cloud unavailable. Local saving is ready.', '#f3d28a');
+      console.warn('[OfficeSaveUI]', error);
     }
   }
-
+  makeText(x, y, text, size = 17, color = '#d4c4a6') {
+    return this.scene.add.text(x, y, text, {
+      fontFamily: 'SpecialElite, monospace', fontSize: `${size}px`, color,
+      align: 'center', wordWrap: { width: 550 }, lineSpacing: 4
+    }).setOrigin(0.5);
+  }
   _destroySlotButtons() {
-    for (const slot of this.slotButtons) {
-      slot.background?.destroy();
-      slot.text?.destroy();
-    }
-
+    for (const slot of this.slotButtons) { slot.background?.destroy(); slot.text?.destroy(); }
     this.slotButtons = [];
   }
-
-  createSlotButtons(slots = []) {
-    if (
-      this.destroyed ||
-      !this.isOpen ||
-      !this.panel?.active
-    ) {
-      return;
-    }
-
-    this._destroySlotButtons();
-
-    const validSlots = Array.isArray(slots)
-      ? slots
-      : [];
-
-    for (let index = 0; index < 3; index += 1) {
-      const slotKey = `slot_${index + 1}`;
-
-      const slot = validSlots.find(
-        item => item.slotKey === slotKey
-      );
-
-      const meta = this.getPreferredMeta(slot);
-
-      const label = meta
-        ? this.formatSlotLabel(index + 1, meta)
-        : `SLOT ${index + 1}\nEmpty case file`;
-
-      const y = -95 + index * 100;
-
-      const background = this.scene.add.rectangle(
-        0,
-        y,
-        470,
-        76,
-        0x24170e,
-        1
-      )
-        .setStrokeStyle(2, 0x8f6b35, 1)
-        .setInteractive({
-          useHandCursor: true
-        });
-
-      const text = this.scene.add.text(
-        0,
-        y,
-        label,
-        {
-          fontFamily: 'SpecialElite, monospace',
-          fontSize: '18px',
-          color: meta ? '#f1deb0' : '#a99a80',
-          align: 'center',
-          lineSpacing: 6
-        }
-      ).setOrigin(0.5);
-
-      this.panel.add([background, text]);
-
-      background.on('pointerover', () => {
-        if (this.isSaving) {
-          return;
-        }
-
-        background
-          .setFillStyle(0x4a3219, 1)
-          .setStrokeStyle(2, 0xe0b354, 1);
-
-        text.setColor('#ffffff');
-      });
-
-      background.on('pointerout', () => {
-        if (this.isSaving) {
-          return;
-        }
-
-        background
-          .setFillStyle(0x24170e, 1)
-          .setStrokeStyle(2, 0x8f6b35, 1);
-
-        text.setColor(
-          meta ? '#f1deb0' : '#a99a80'
-        );
-      });
-
-      background.on(
-        'pointerdown',
-        (pointer, x, y, event) => {
-          event?.stopPropagation();
-          void this.saveToSlot(slotKey);
-        }
-      );
-
-      this.slotButtons.push({
-        background,
-        text
-      });
-    }
-  }
-
   getPreferredMeta(slot) {
-    if (!slot || slot.preferredSource === 'none') {
-      return null;
+    if (!slot) return null;
+    return slot.preferredSource === 'cloud' ? slot.cloudMeta : slot.localMeta ?? slot.cloudMeta;
+  }
+  formatSlotLabel(number, meta, source = '') {
+    const city = String(meta.cityCode || 'UNKNOWN CITY').toUpperCase();
+    const location = String(meta.locationCode || 'unknown location').replaceAll('_', ' ');
+    return `SLOT ${number} — ${city}\nAgent: ${meta.agentName || 'Name unavailable in this older save'}\n${source}\nDay ${meta.dayNumber ?? 1}, ${String(meta.inGameHour ?? 8).padStart(2, '0')}:00 — ${location}`;
+  }
+  createSlotButtons(slots = []) {
+    if (this.destroyed || !this.isOpen || !this.panel?.active) return;
+    this._slots = slots;
+    this._destroySlotButtons();
+    for (let index = 0; index < 3; index++) {
+      const slotKey = `slot_${index + 1}`;
+      const slot = slots.find(item => item.slotKey === slotKey);
+      const meta = this.getPreferredMeta(slot);
+      const sources = [slot?.localMeta ? 'LOCAL' : '', slot?.cloudMeta ? 'CLOUD' : ''].filter(Boolean).join(' + ');
+      const source = sources ? `${sources} | Latest: ${(slot?.preferredSource || 'local').toUpperCase()}` : '';
+      const label = meta ? this.formatSlotLabel(index + 1, meta, source) : `SLOT ${index + 1}\nEmpty case file`;
+      const y = -125 + index * 120;
+      const background = this.scene.add.rectangle(0, y, 570, 108, 0x24170e)
+        .setStrokeStyle(2, 0x8f6b35).setInteractive({ useHandCursor: true });
+      const text = this.makeText(0, y, label, 17, meta ? '#f1deb0' : '#a99a80');
+      this.panel.add([background, text]);
+      background.on('pointerdown', (pointer, x, y, event) => {
+        stop(event);
+        void this.saveToSlot(slotKey);
+      });
+      background.on('pointerover', () => { if (!this.isSaving) background.setFillStyle(0x4a3219); });
+      background.on('pointerout', () => { if (!this.isSaving) background.setFillStyle(0x24170e); });
+      this.slotButtons.push({ background, text });
     }
-
-    return slot.preferredSource === 'cloud'
-      ? slot.cloudMeta
-      : slot.localMeta;
   }
-
-  formatSlotLabel(slotNumber, meta) {
-    const city = meta.cityCode
-      ? String(meta.cityCode).toUpperCase()
-      : 'UNKNOWN CITY';
-
-    const location = meta.locationCode
-      ? String(meta.locationCode).replaceAll('_', ' ')
-      : 'unknown location';
-
-    const hour = String(
-      meta.inGameHour ?? 8
-    ).padStart(2, '0');
-
-    return [
-      `SLOT ${slotNumber} — ${city}`,
-      `Day ${meta.dayNumber ?? 1}, ${hour}:00 — ${location}`
-    ].join('\n');
-  }
-
   async saveToSlot(slotKey) {
-    if (
-      this.destroyed ||
-      !this.isOpen ||
-      this.isSaving
-    ) {
-      return;
-    }
-
+    if (this.destroyed || !this.isOpen || this.isSaving) return;
     const token = this._openToken;
-
-    this._clearCloseTimer();
-
     this.isSaving = true;
     this.setSlotButtonsEnabled(false);
-
-    this.setStatus(
-      'Securing evidence...',
-      '#f1d480'
-    );
-
+    this.setStatus('Saving locally...', '#f1d480');
     try {
-      const result = await saveManager.save(
-        slotKey,
-        {
-          locationType: this.locationType,
-          locationCode: this.locationCode,
-          cityCode: this.cityCode,
-          sceneKey: this.scene.scene.key
+      const result = await saveManager.save(slotKey, {
+        locationType: this.locationType, locationCode: this.locationCode,
+        cityCode: this.cityCode, sceneKey: this.scene.scene.key,
+        onLocalSaved: payload => {
+          if (!this._isCurrentOpening(token)) return;
+          this.updateSlot(slotKey, payload.meta, false);
+          this.setStatus('LOCAL saved. Checking CLOUD...', '#a8e796');
         }
-      );
-
-      if (!this._isCurrentOpening(token)) {
-        return;
-      }
-
-      if (!result?.ok) {
-        throw new Error(
-          'Save manager did not confirm the save.'
-        );
-      }
-
-      const slotName = slotKey
-        .replace('_', ' ')
-        .toUpperCase();
-
-      if (result.mode === 'cloud+local') {
-        this.setStatus(
-          `${slotName} saved locally and in Agency Archives.`,
-          '#a8e796'
-        );
-      } else if (result.mode === 'local-fallback') {
-        this.setStatus(
-          `${slotName} saved locally. Agency Archives are unavailable.`,
-          '#f3d28a'
-        );
-      } else {
-        this.setStatus(
-          `${slotName} saved locally.`,
-          '#a8e796'
-        );
-      }
-
-      // Nie parsujemy ponownie całego zapisu tylko
-      // w celu weryfikacji zakończonego writeLocal().
-      this._closeTimer =
-        this.scene.time.delayedCall(2600, () => {
-          this._closeTimer = null;
-
-          if (this._isCurrentOpening(token)) {
-            this.close();
-          }
-        });
+      });
+      if (!this._isCurrentOpening(token)) return;
+      if (!result?.ok) throw new Error('Save was not confirmed.');
+      this.updateSlot(slotKey, result.payload.meta, result.mode === 'cloud+local');
+      if (result.mode === 'cloud+local') this.setStatus('Saved: LOCAL + CLOUD.', '#a8e796');
+      else if (result.mode === 'local-fallback') this.setStatus('Saved: LOCAL. CLOUD not confirmed.', '#f3d28a');
+      else this.setStatus('Saved: LOCAL. No active cloud session.', '#a8e796');
     } catch (error) {
-      if (!this._isCurrentOpening(token)) {
-        return;
-      }
-
-      console.error(
-        '[OfficeSaveUI] Save failed:',
-        error
-      );
-
-      this.setStatus(
-        `Save failed: ${error?.message || String(error)}`,
-        '#ff9f91'
-      );
-
-      this.setSlotButtonsEnabled(true);
+      console.error('[OfficeSaveUI] Save failed:', error);
+      if (this._isCurrentOpening(token)) this.setStatus(`Save failed: ${error?.message || error}`, '#ff9f91');
     } finally {
-      // Podczas zamkniętego okna nadal blokujemy
-      // ponowne open(), dopóki request nie wróci.
       this.isSaving = false;
+      if (this._isCurrentOpening(token)) this.setSlotButtonsEnabled(true);
     }
   }
-
+  updateSlot(key, meta, cloudConfirmed) {
+    this._slots = this._slots.filter(slot => slot.slotKey !== key).concat({
+      slotKey: key, localMeta: meta, cloudMeta: cloudConfirmed ? meta : null, preferredSource: 'local'
+    });
+    this.createSlotButtons(this._slots);
+    this.setSlotButtonsEnabled(false);
+  }
   setSlotButtonsEnabled(enabled) {
     for (const slot of this.slotButtons) {
-      if (!slot.background?.active) {
-        continue;
-      }
-
-      if (enabled) {
-        slot.background.setInteractive({
-          useHandCursor: true
-        });
-      } else {
-        slot.background.disableInteractive();
-      }
-
-      slot.background.setAlpha(
-        enabled ? 1 : 0.55
-      );
-
-      slot.text?.setAlpha(
-        enabled ? 1 : 0.55
-      );
+      if (!slot.background?.active) continue;
+      if (enabled) slot.background.setInteractive({ useHandCursor: true });
+      else slot.background.disableInteractive();
+      slot.background.setAlpha(enabled ? 1 : 0.65);
     }
   }
-
-  setStatus(message, color = '#d8c49a') {
-    if (!this.statusText?.active) {
-      return;
-    }
-
-    this.statusText
-      .setText(message)
-      .setColor(color);
+  setStatus(text, color = '#d8c49a') {
+    if (this.statusText?.active) this.statusText.setText(text).setColor(color);
   }
-
-  _clearCloseTimer() {
-    this._closeTimer?.remove(false);
-    this._closeTimer = null;
-  }
-
   close() {
-    this._clearCloseTimer();
     this._openToken = null;
-
     const wasOpen = this.isOpen;
     this.isOpen = false;
-
     this._destroySlotButtons();
-
     this.panel?.destroy(true);
     this.backdrop?.destroy();
-
-    this.panel = null;
-    this.backdrop = null;
-    this.statusText = null;
-
-    if (wasOpen) {
-      this._notifyPanelState();
-    }
+    this.panel = this.backdrop = this.statusText = null;
+    if (wasOpen) this._notifyPanelState();
   }
-
   destroy() {
-    if (this.destroyed) {
-      return;
-    }
-
+    if (this.destroyed) return;
     this.destroyed = true;
     this.close();
-
     this.button?.destroy();
     this.button = null;
   }

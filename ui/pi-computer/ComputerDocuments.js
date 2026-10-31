@@ -2,11 +2,14 @@ import { COLORS, FONTS } from './ComputerTheme.js';
 import { BorrowedAlibiMail } from './BorrowedAlibiMail.js';
 import { AlibiReportUI } from './AlibiReportUI.js';
 import { installDeadMenMail } from '../../managers/DeadMenCallingService.js';
+import { installDeadMenFollowupMail } from '../../managers/DeadMenCallingFollowup.js';
+import { installDeadMenFinaleMail } from '../../managers/DeadMenCallingFinale.js';
 import { installAlibiImprovements } from './AlibiImprovements.js';
 import { renderDeadMailOfficeButton, syncDeadMailOfficeQuest } from '../../managers/DeadMailOfficeIntegration.js';
+import { installDeadMenEvidenceUI } from './DeadMenEvidenceUI.js';
 
 export class ComputerDocuments {
- constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);this.alibiImprovements=installAlibiImprovements(ui,this);}
+ constructor(ui){this.ui=ui;ui.documents=this;this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);installDeadMenMail(ui);installDeadMenFollowupMail(ui);installDeadMenFinaleMail(ui);this.alibiImprovements=installAlibiImprovements(ui,this);installDeadMenEvidenceUI(ui);}
  getMail(){
   const supplied=this.ui.options.getMail?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);
   const data=this.ui.scene.cache.json.get('piOfficeMail');return Array.isArray(data?.messages)?data.messages.filter(i=>i&&i.id):[];

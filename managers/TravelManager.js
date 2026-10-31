@@ -115,7 +115,6 @@ export function getDestinationPreviewData(locations) {
     ...getTravelData(gameState.currentCity, location.city, locations, { transportType: 'plane' }),
     isCorrect: resolveLocationId(location, 'destination preview') === gameState.nextTargetCityId }));
 }
-
 export function executeTravel({ fromCityName, toCityName, locations, transportType = 'plane', allowEncounter = true, description = null, metadata = {} }) {
   if (travelExecutionInProgress) return { success: false, reason: 'travel_in_progress' };
   travelExecutionInProgress = true;
@@ -123,7 +122,6 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
     const fromLocation = getLocationByCity(fromCityName, locations), toLocation = getLocationByCity(toCityName, locations);
     if (!fromLocation || !toLocation) return { ok: false, success: false, reason: 'invalid_location', fromCityName, toCityName };
     const destinationId = resolveLocationId(toLocation, 'travel destination');
-    // The gate runs before payment, random encounters, time or energy consumption.
     const ticketBlock = getTicketTravelBlock(destinationId);
     if (ticketBlock) {
       if (ticketBlock === 'ticket_analysis_required') EventBus.emit('showDialogue', {
@@ -164,7 +162,6 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
       freeTransfers: getFreeTransfers(), energyReachedZero: Boolean(energy.energyReachedZero) };
   } finally { travelExecutionInProgress = false; }
 }
-
 export function travelToCity(cityName, locations, transportType = 'plane') {
   const previousCity = gameState.currentCity, previousCityId = gameState.currentCityId;
   const origin = getLocationByCity(previousCity, locations), destination = getLocationByCity(cityName, locations);
@@ -215,11 +212,15 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
   };
   gameState.lastTravel = record; gameState.lastTravelEncounter = travel.travelEncounter; gameState.addTravel(record);
   enterCity(cityName, locations); clearTravelCluesForCity(destinationId);
-  const isFinal = wasCorrect && manager.isRoutePhase() && manager.currentRouteIndex === manager.route.length - 1;
+  // Each accepted escape-city ARRIVAL consumes exactly one route stop.
+  // Crime-city departure remains gated by the ticket-analysis service.
+  const arrival = wasCorrect && manager.isRoutePhase() ? manager.enterCity(destinationId) : null;
+  const isFinal = Boolean(arrival?.ok && manager.isComplete());
   addSessionScore(wasCorrect ? 100 : -25, wasCorrect ? `Correct city: ${cityName}` : `False city: ${cityName}`);
   if (isFinal) {
-    manager.enterCity(destinationId); syncInvestigationState(locations);
-    gameState.justReachedCorrectCityId = null; gameState.currentDestinations = []; gameState.activeLocations = [];
+    syncInvestigationState(locations);
+    gameState.justReachedCorrectCityId = destinationId;
+    gameState.currentDestinations = []; gameState.activeLocations = [];
     requestTravelAutosave();
     return { blocked: false, wasCorrect: true, ...travel, energyReachedZero: Boolean(execution.energyReachedZero),
       status: 'FINAL_SHOWDOWN', fromCity: previousCity, toCity: cityName, toCityId: destinationId,
