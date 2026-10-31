@@ -28,17 +28,9 @@ export class WarrantSketch {
       .setOrigin(0.5)
       .setVisible(false);
 
-    this.layers.base = this._createPencilLayer(
-      'sketch_base'
-    );
-
-    this.layers.eyes = this._createPencilLayer(
-      'sketch_eyes'
-    );
-
-    this.layers.hair = this._createPencilLayer(
-      'sketch_hair'
-    );
+    this.layers.base = this._createPencilLayer('sketch_base');
+    this.layers.eyes = this._createPencilLayer('sketch_eyes');
+    this.layers.hair = this._createPencilLayer('sketch_hair');
 
     this.layers.feature = scene.add
       .image(SKETCH_X, SKETCH_Y, '__DEFAULT')
@@ -69,20 +61,14 @@ export class WarrantSketch {
     ]);
 
     this._onHairLoaded = () => {
-      if (
-        this.destroyed ||
-        !this.layers.hair?.scene
-      ) {
+      if (this.destroyed || !this.layers.hair?.scene) {
         return;
       }
 
       this.layers.hair.setTexture('sketch_hair');
 
       if (this.lastTraits && this.lastFilters) {
-        this.update(
-          this.lastTraits,
-          this.lastFilters
-        );
+        this.update(this.lastTraits, this.lastFilters);
       } else {
         this.layers.hair.setVisible(true);
       }
@@ -91,8 +77,7 @@ export class WarrantSketch {
     this._onLoadError = file => {
       if (file?.key === 'sketch_hair') {
         console.error(
-          '[WarrantSketch] Could not load ' +
-          'assets/ui/sketch_hair.webp'
+          '[WarrantSketch] Could not load assets/ui/sketch_hair.webp'
         );
       }
     };
@@ -103,10 +88,7 @@ export class WarrantSketch {
         this._onHairLoaded
       );
 
-      scene.load.on(
-        'loaderror',
-        this._onLoadError
-      );
+      scene.load.on('loaderror', this._onLoadError);
 
       scene.load.image(
         'sketch_hair',
@@ -150,16 +132,11 @@ export class WarrantSketch {
   }
 
   _pop(object) {
-    if (
-      !object?.scene ||
-      !object.visible
-    ) {
+    if (!object?.scene || !object.visible) {
       return;
     }
 
     this.fx.kill(object);
-
-    // Nie skalujemy osobnych części portretu.
     object.setAlpha(0.55);
 
     this.fx.tween({
@@ -176,11 +153,7 @@ export class WarrantSketch {
     });
   }
 
-  update(
-    traitsData,
-    filters,
-    changedKey = null
-  ) {
+  update(traitsData, filters, changedKey = null) {
     if (this.destroyed) return;
 
     const safeTraits = traitsData || {};
@@ -190,10 +163,7 @@ export class WarrantSketch {
     this.lastFilters = { ...safeFilters };
 
     const pick = key => {
-      return (
-        safeTraits[key]?.[safeFilters[key]] ||
-        'NONE'
-      );
+      return safeTraits[key]?.[safeFilters[key]] || 'NONE';
     };
 
     const accent = pick('accent');
@@ -206,9 +176,8 @@ export class WarrantSketch {
     };
 
     const hairTint =
-      PENCIL_COLORS.hair[
-        aliases[hairName] || hairName
-      ] ?? PENCIL_COLORS.hair.NONE;
+      PENCIL_COLORS.hair[aliases[hairName] || hairName] ??
+      PENCIL_COLORS.hair.NONE;
 
     const l = this.layers;
 
@@ -224,32 +193,28 @@ export class WarrantSketch {
 
     this._setTint(
       l.base,
-      PENCIL_COLORS.skin[
-        up(pick('race'))
-      ] ?? PENCIL_COLORS.skin.NONE
+      PENCIL_COLORS.skin[up(pick('race'))] ??
+        PENCIL_COLORS.skin.NONE
     );
 
     this._setTint(
       l.eyes,
-      PENCIL_COLORS.eyes[
-        up(pick('eyes'))
-      ] ?? PENCIL_COLORS.eyes.NONE
+      PENCIL_COLORS.eyes[up(pick('eyes'))] ??
+        PENCIL_COLORS.eyes.NONE
     );
 
-    const featureTexture =
-      FEATURE_TEXTURES[feature];
+    const featureTexture = FEATURE_TEXTURES[feature];
 
     const featureAvailable = Boolean(
       featureTexture &&
       this.scene.textures.exists(featureTexture)
     );
 
+    // Długie włosy uzupełniają zwykłe włosy, nie zastępują ich.
     const overrideHair =
       featureAvailable &&
-      (
-        feature === 'LONG HAIR' ||
-        HAIR_OVERRIDE_FEATURES.includes(feature)
-      );
+      feature !== 'LONG HAIR' &&
+      HAIR_OVERRIDE_FEATURES.includes(feature);
 
     l.hair.setVisible(
       this.scene.textures.exists('sketch_hair') &&
@@ -257,13 +222,9 @@ export class WarrantSketch {
     );
 
     this._setTint(l.hair, hairTint);
-
     this._updateFeature(feature, hairTint);
 
-    const flag = ensureFlagTexture(
-      this.scene,
-      up(accent)
-    );
+    const flag = ensureFlagTexture(this.scene, up(accent));
 
     if (flag) {
       l.accentFlag
@@ -273,13 +234,10 @@ export class WarrantSketch {
       l.accentFlag.setVisible(false);
     }
 
-    const showAccent =
-      Number(safeFilters.accent) > 0;
+    const showAccent = Number(safeFilters.accent) > 0;
 
     this.accentLabel
-      .setText(
-        showAccent ? String(accent) : ''
-      )
+      .setText(showAccent ? String(accent) : '')
       .setVisible(showAccent);
 
     if (changedKey === 'hair') {
@@ -312,14 +270,11 @@ export class WarrantSketch {
     l.feature.setVisible(false);
     l.featureBack.setVisible(false);
 
-    if (
-      !texture ||
-      !this.scene.textures.exists(texture)
-    ) {
+    if (!texture || !this.scene.textures.exists(texture)) {
       return;
     }
 
-    // Pełna warstwa długich włosów zostaje za twarzą.
+    // Długie pasma za twarzą; zwykłe włosy zostają z przodu.
     const target =
       feature === 'LONG HAIR'
         ? l.featureBack

@@ -2,6 +2,7 @@ import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { buildReedBoardEvidence } from './ReedBoardEvidence.js';
 import { buildAlibiBoardEvidence } from './AlibiBoardEvidence.js';
+import { DEAD_MEN_ART_CASE, syncDeadMenArtwork } from './DeadMenArtwork.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const REED = 'pi_two_glasses';
@@ -17,7 +18,6 @@ function getState() {
     if (!state.cases || typeof state.cases !== 'object' || Array.isArray(state.cases)) state.cases = {};
     return state;
 }
-
 function syncGenerated(id, generated) {
     const state = getState();
     const investigation = state.cases[id];
@@ -51,12 +51,10 @@ function syncGenerated(id, generated) {
     requestAutosave();
     return true;
 }
-
 export function syncReedBoardEvidence() {
     if (!getState().cases[REED]?.board) return false;
     return syncGenerated(REED, buildReedBoardEvidence(gameState));
 }
-
 export function syncAlibiBoardEvidence() {
     const state = getState();
     const quest = gameState.piQuests?.quests?.[ALIBI];
@@ -81,28 +79,25 @@ export function syncAlibiBoardEvidence() {
     if (changed) requestAutosave();
     return syncGenerated(ALIBI, buildAlibiBoardEvidence(gameState)) || changed;
 }
-
 export function getPICase(id) {
     if (id === REED) syncReedBoardEvidence();
     if (id === ALIBI) syncAlibiBoardEvidence();
+    if (id === DEAD_MEN_ART_CASE) syncDeadMenArtwork();
     return getState().cases[id] || null;
 }
-
 export function getPICases() {
     syncReedBoardEvidence();
     syncAlibiBoardEvidence();
+    syncDeadMenArtwork();
     return Object.values(getState().cases);
 }
-
 export function getSelectedPICaseId() { return getState().selectedCaseId; }
-
 export function selectPICase(id) {
     if (!getPICase(id)) return false;
     getState().selectedCaseId = id;
     requestAutosave();
     return true;
 }
-
 export function registerPICase(definition) {
     if (!definition?.id || !['main', 'side'].includes(definition.kind) || definition.requiresBoard !== true) return null;
     const state = getState();
@@ -118,12 +113,11 @@ export function registerPICase(definition) {
     requestAutosave();
     return getPICase(definition.id);
 }
-
 export function savePIBoard(id, board) {
     const investigation = getPICase(id);
     if (!investigation || !board) return false;
     const next = clone(board);
-    if (id === REED || id === ALIBI) {
+    if (id === REED || id === ALIBI || id === DEAD_MEN_ART_CASE) {
         next.items = Array.isArray(next.items) ? next.items : [];
         const ids = new Set(next.items.map(item => item.id));
         for (const item of investigation.board.items || []) {
@@ -137,9 +131,9 @@ export function savePIBoard(id, board) {
     requestAutosave();
     if (id === REED) syncReedBoardEvidence();
     if (id === ALIBI) syncAlibiBoardEvidence();
+    if (id === DEAD_MEN_ART_CASE) syncDeadMenArtwork();
     return true;
 }
-
 export function addPIEvidence(id, item) {
     const investigation = getPICase(id);
     if (!investigation || !item?.id || investigation.board.items.some(existing => existing.id === item.id)) return false;

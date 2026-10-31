@@ -1,7 +1,7 @@
 import '../pi-computer/AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
-import { discoverSearchKeywords, getSearchProgress } from '../pi-computer/ComputerSearch.js';
+import { discoverSearchKeywords, getSearchProgress } from '../pi-computer/ComputerSearchCore.js';
 import { mergeAlibiSearch, mergeAlibiPhone } from '../pi-computer/AlibiCaseData.js';
 import { renderPhoneFieldNotes } from './PhoneFieldNotes.js';
 const KEY = 'piPhoneInvestigations';

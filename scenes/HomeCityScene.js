@@ -4,20 +4,14 @@ import { requestAutosave } from '../gameStatePersistence.js';
 import { HomeCityRenderer } from './homeCity/HomeCityRenderer.js';
 
 const KEY = 'HomeCityScene';
-const COLS = 26;
-const ROWS = 22;
-const HW = 64;
-const HH = 32;
-const OX = 1600;
-const OY = 240;
+const COLS = 26, ROWS = 22, HW = 64, HH = 32, OX = 1600, OY = 240;
 const INSTRUCTION = 'Arrow keys or click to walk. Enter at a door to enter.';
 const ARROWS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const BUILDINGS = [
   { id: 'pi-office', name: 'PI Office', x: 4, y: 3, w: 3, h: 3, color: 0xc5ab79, message: '' },
   { id: 'spy-shop', name: 'Spy Shop', x: 12, y: 3, w: 3, h: 3, color: 0x688d8b,
     message: 'Closed for a discreet inventory. Even the inventory is undercover.' },
-  { id: 'tavern', name: 'Tavern', x: 20, y: 5, w: 3, h: 3, color: 0xae7458,
-    message: 'The bartender is polishing an alibi. The tavern interior is coming later.' },
+  { id: 'tavern', name: 'Tavern', x: 20, y: 5, w: 3, h: 3, color: 0xae7458, message: '' },
   { id: 'police-station', name: 'Police Station', x: 5, y: 13, w: 4, h: 3, color: 0x758aa5,
     message: 'Please take a number. The number dispenser is under investigation.' },
   { id: 'your-home', name: 'Your Home', x: 16, y: 14, w: 3, h: 3, color: 0x96905c,
@@ -36,24 +30,13 @@ const PROPS = [
 export class HomeCityScene extends BaseScene {
   constructor() { super({ key: KEY }); }
   init(data = {}) {
-    this.cols = COLS;
-    this.rows = ROWS;
-    this.entryPoint = data.entryPoint ?? null;
+    this.cols = COLS; this.rows = ROWS; this.entryPoint = data.entryPoint ?? null;
     this.buildings = BUILDINGS.map(b => ({ ...b, door: { x: b.x + Math.floor(b.w / 2), y: b.y + b.h } }));
     this.props = PROPS.map(p => ({ ...p }));
-    this.path = [];
-    this.destinationBuilding = null;
-    this.navigating = false;
-    this.disposed = false;
-    this.runToken = Symbol(KEY);
-    this.saveElapsed = 0;
-    this.feedbackTimer = null;
-    this.lastCameraPosition = null;
-    this.position = null;
-    this.cityArt = null;
-    this.heldArrows = new Set();
-    this.movementMode = 'pointer';
-    this.blocked = new Set();
+    this.path = []; this.destinationBuilding = null; this.navigating = false; this.disposed = false;
+    this.runToken = Symbol(KEY); this.saveElapsed = 0; this.feedbackTimer = null;
+    this.lastCameraPosition = null; this.position = null; this.cityArt = null;
+    this.heldArrows = new Set(); this.movementMode = 'pointer'; this.blocked = new Set();
     for (const b of this.buildings) {
       for (let y = b.y; y < b.y + b.h; y++) {
         for (let x = b.x; x < b.x + b.w; x++) this.blocked.add(this.cellKey(x, y));
@@ -70,10 +53,8 @@ export class HomeCityScene extends BaseScene {
     }
     const news = this.getRegisteredScene('NewsHud');
     if (news) {
-      news.setHudVisible?.(false);
-      news.closeMenu?.(true);
-      this.sleepSceneIfActive('NewsHud');
-      this.scene.setVisible(false, 'NewsHud');
+      news.setHudVisible?.(false); news.closeMenu?.(true);
+      this.sleepSceneIfActive('NewsHud'); this.scene.setVisible(false, 'NewsHud');
     }
     this.cameras.main.setBackgroundColor('#343e34');
     this.cityArt = new HomeCityRenderer(this);
@@ -273,6 +254,7 @@ export class HomeCityScene extends BaseScene {
     if (!building) return;
     if (building.id === 'pi-office') void this.openOffice();
     else if (building.id === 'spy-shop') void this.openSpyShop();
+    else if (building.id === 'tavern') void this.openTavern();
     else this.say(`${building.name}: ${building.message}`);
   }
   async openOffice() {
@@ -280,6 +262,9 @@ export class HomeCityScene extends BaseScene {
   }
   async openSpyShop() {
     return this.openCityInterior('SpyShopScene', 'The shop could not be opened. Please try again.');
+  }
+  async openTavern() {
+    return this.openCityInterior('TavernScene', 'The tavern could not be opened. Please try again.');
   }
   async openCityInterior(sceneKey, errorMessage) {
     if (this.disposed || this.navigating) return false;
@@ -319,6 +304,5 @@ export class HomeCityScene extends BaseScene {
     this.disposed = true; this.runToken = null; this.heldArrows.clear(); this.remember();
     this.feedbackTimer?.remove(false); this.feedbackTimer = null;
     this.path = []; this.destinationBuilding = null; this.cityArt?.destroy(); this.cityArt = null;
-    // Do not access the camera here: it may already be removed.
   }
 }

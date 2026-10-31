@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "id": "miramar_demo",
+  "questId": "pi_two_glasses",
+  "title": "Two Glasses",
+  "caseFields": {},
+  "keywordsFile": "keywords.json",
+  "searchFile": "search.json",
+  "pageFiles": [
+    "pages/hotels.json",
+    "pages/organisations.json",
+    "pages/news.json",
+    "pages/social.json"
+  ],
+  "pageOrder": [
+    "miramar",
+    "mariner",
+    "coral",
+    "organisation",
+    "events",
+    "miramar_event",
+    "miramar_meetings",
+    "mariner_events",
+    "coral_events",
+    "jacket_generic",
+    "gallery",
+    "team",
+    "contact",
+    "swallow_birds",
+    "swallow_couriers",
+    "claire_social",
+    "claire_private",
+    "nora_social",
+    "nora_private",
+    "claire_work",
+    "nora_work",
+    "claire_other",
+    "nora_other"
+  ]
+}

@@ -1,0 +1,245 @@
+{
+  "pages": [
+    {
+      "id": "organisation",
+      "title": "Open Skies Foundation",
+      "address": "www.openskies.local",
+      "brand": "OPEN SKIES",
+      "theme": "organisation",
+      "blocks": [
+        [
+          {
+            "keywordId": "open_skies"
+          },
+          " supports local projects through training, grants and regional partnerships."
+        ],
+        [
+          "The swallow in our emblem represents movement, cooperation and a place to return to."
+        ],
+        [
+          "Registration is open for the next ",
+          {
+            "keywordId": "conference"
+          },
+          ". Regional coordinators will meet for workshops and an evening reception."
+        ]
+      ],
+      "links": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "snippet": "Regional partnerships, community projects and the New Horizons programme."
+    },
+    {
+      "id": "events",
+      "title": "New Horizons | Open Skies",
+      "address": "www.openskies.local/events/new-horizons",
+      "brand": "OPEN SKIES",
+      "theme": "organisation",
+      "blocks": [
+        [
+          {
+            "keywordId": "conference"
+          }
+        ],
+        [
+          "09:00 Registration and coffee. 10:00 Regional reports. 12:30 Lunch. 14:00 Community funding workshops. 18:30 Coordinators' reception."
+        ],
+        [
+          "Delegates receive orange passes at registration. Speakers and volunteers collect grey passes from the information desk."
+        ],
+        [
+          "The programme is organised by ",
+          {
+            "keywordId": "open_skies"
+          },
+          "."
+        ]
+      ],
+      "links": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "snippet": "Workshops, regional reports and an evening reception for delegates."
+    },
+    {
+      "id": "gallery",
+      "title": "New Horizons | Reception photographs",
+      "address": "www.openskies.local/photos/new-horizons",
+      "brand": "OPEN SKIES",
+      "theme": "organisation",
+      "blocks": [
+        [
+          "Regional coordinators at the evening reception."
+        ],
+        [
+          "Left to right: ",
+          {
+            "keywordId": "claire"
+          },
+          " and ",
+          {
+            "keywordId": "nora"
+          },
+          "."
+        ],
+        [
+          "Photography: Martin Cole. Reproduction by permission of the foundation."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Programme",
+          "pageId": "events"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "snippet": "Photographs from the reception at Hotel Miramar.",
+      "imageKey": "Reed_conference",
+      "imageUrl": "assets/side_quests/Reed/conference.webp"
+    },
+    {
+      "id": "team",
+      "title": "Our people | Open Skies",
+      "address": "www.openskies.local/people",
+      "brand": "OPEN SKIES",
+      "theme": "organisation",
+      "blocks": [
+        [
+          {
+            "keywordId": "claire"
+          },
+          " — West Region. Community partnerships and volunteer training."
+        ],
+        [
+          {
+            "keywordId": "nora"
+          },
+          " — North Region. Small grants and local outreach."
+        ],
+        [
+          "General enquiries are handled by the programme office during business hours."
+        ]
+      ],
+      "links": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "snippet": "Meet our regional coordinators and programme staff."
+    },
+    {
+      "id": "contact",
+      "title": "Contact | Open Skies",
+      "address": "www.openskies.local/contact",
+      "brand": "OPEN SKIES",
+      "theme": "organisation",
+      "blocks": [
+        [
+          "Programme office"
+        ],
+        [
+          "Telephone: ",
+          {
+            "keywordId": "office_phone",
+            "text": "318"
+          },
+          ". Monday to Friday, 09:00–17:00."
+        ],
+        [
+          "For event photographs and delegate enquiries, ask for the events coordinator."
+        ],
+        [
+          "Press enquiries: press@openskies.local."
+        ]
+      ],
+      "links": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        }
+      ],
+      "snippet": "Programme enquiries, press requests and event administration."
+    },
+    {
+      "id": "swallow_birds",
+      "title": "Swallow Watch | Coastal birdwatching club",
+      "address": "www.swallowwatch.local",
+      "brand": "SWALLOW WATCH",
+      "theme": "organisation",
+      "blocks": [
+        [
+          "Early starts. Sensible shoes. Unreasonable enthusiasm for distant dots."
+        ],
+        [
+          "Our swallow emblem appears on club badges and the cover of our quarterly field journal."
+        ],
+        [
+          "Saturday walk: meet at the east marsh car park at 06:30. Bring binoculars and a flask. The birds have declined to provide a schedule."
+        ]
+      ],
+      "links": [],
+      "snippet": "Guided walks, migration notes and a swallow badge for members."
+    },
+    {
+      "id": "swallow_couriers",
+      "title": "Swiftwing Couriers | Same-day delivery",
+      "address": "www.swiftwing.local",
+      "brand": "SWIFTWING",
+      "theme": "organisation",
+      "blocks": [
+        [
+          "Local parcels, business documents and same-day deliveries."
+        ],
+        [
+          "Look for the blue swallow on our vans. Our refreshed emblem keeps the familiar wings and adds a brighter background."
+        ],
+        [
+          "Please attach a delivery address. “You know, the building near the other building” remains outside our service guarantee."
+        ]
+      ],
+      "links": [],
+      "snippet": "Business deliveries and local parcels. Look for the blue swallow."
+    }
+  ]
+}

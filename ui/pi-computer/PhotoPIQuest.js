@@ -1,7 +1,7 @@
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
-import { discoverSearchKeywords, getSearchProgress } from './ComputerSearch.js';
+import { discoverSearchKeywords, getSearchProgress } from './ComputerSearchCore.js';
 import { ReedGalleryViewer } from './ReedGalleryViewer.js';
 import { PhotoHotspotEditor } from './PhotoHotspotEditor.js';
 import { ReedContactMail } from './ReedContactMail.js';

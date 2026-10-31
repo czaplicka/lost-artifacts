@@ -20,7 +20,8 @@ export class NPCController {
     this.targetCityId = knownRouteCity ? context.targetCityId : normalizePursuitCityId(options.targetCityId);
     if (this.targetCityId === this.cityId) this.targetCityId = null;
     this.targetCountryData = countryFacts?.[this.targetCityId] || null;
-    this.isCorrectCity = options.isCorrectCity !== false;
+    this.isCorrectCity = context.isCorrectCity;
+    this.isFutureRouteCity = context.isFutureRouteCity;
     this.npcId = options.npcId || null;
     if (!this.cityData) throw new Error(`No NPC data or default fallback for city: ${cityId}`);
   }
@@ -75,7 +76,6 @@ export class NPCController {
     return { text: lines[0], isNew: true, topicId, traitValue };
   }
   _askTemplateTopic(topicId, templates) {
-    // Currency exchanged for the next journey must describe the destination.
     const context = topicId === 'currency' ? this.targetCountryData : this.countryData;
     if (!context) return { text: 'Nothing worth mentioning on that subject.', isNew: false, topicId };
     const fillable = templates.filter(t => NPCController.canFillTemplate(t, context));
@@ -116,6 +116,10 @@ export class NPCController {
       label: hit.stage.label, boardAnswerUnlocked: Boolean(hit.stage.boardAnswerUnlocked) };
   }
   getFalseLeadLine() {
+    if (this.isFutureRouteCity) return {
+      text: 'You are ahead of the verified trail. Establish the missing stops first; this visit does not advance the case.',
+      isNew: false, topicId: 'falseLead'
+    };
     const pool = Array.isArray(this.cityData.falseLeadLines) ? this.cityData.falseLeadLines : [];
     const pair = pool[Math.floor(Math.random() * pool.length)];
     return { text: pair ? `${pair[0]} ${pair[1]}` : 'Wrong city, detective. No one matching that trail came through here.',
@@ -134,7 +138,9 @@ export class NPCController {
     if (!result?.isNew || result.topicId === 'motive' || result.topicId === 'falseLead') return null;
     if (result.topicId === 'travel' || result.topicId === 'currency') return {
       id: `${result.topicId}_${toSlug(this.cityId)}_${toSlug(result.cityId)}`,
-      type: 'travel', cityId: result.cityId || null, tag: result.text, value: result.cityId || null
+      type: 'travel', cityId: result.cityId || null,
+      sourceCityId: this.cityId, targetCityId: result.cityId || null,
+      tag: result.text, value: result.cityId || null
     };
     if (result.traitValue !== undefined) return {
       id: `suspect_${toSlug(result.topicId)}_${toSlug(result.traitValue)}`,

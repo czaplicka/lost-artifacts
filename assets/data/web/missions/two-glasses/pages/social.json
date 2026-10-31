@@ -1,0 +1,146 @@
+{
+  "pages": [
+    {
+      "id": "claire_social",
+      "title": "Claire Sutton | CommonRoom",
+      "address": "www.commonroom.local/claire.sutton",
+      "brand": "COMMONROOM",
+      "theme": "social",
+      "blocks": [
+        [
+          {
+            "keywordId": "claire"
+          },
+          " · West Region"
+        ],
+        [
+          "Community partnerships and volunteer training at Open Skies Foundation."
+        ],
+        [
+          "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+        ],
+        [
+          "Posts shared with friends and private photographs are visible to signed-in members only."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Public profile",
+          "pageId": "claire_social"
+        },
+        {
+          "label": "Private posts",
+          "pageId": "claire_private"
+        },
+        {
+          "label": "Photos",
+          "pageId": "claire_private"
+        }
+      ],
+      "snippet": "Community partnerships and volunteer training. Public profile and updates."
+    },
+    {
+      "id": "claire_private",
+      "title": "Sign in | CommonRoom",
+      "address": "www.commonroom.local/login?profile=claire",
+      "brand": "COMMONROOM",
+      "theme": "social",
+      "blocks": [
+        [
+          "SIGN IN TO COMMONROOM"
+        ],
+        [
+          "Email address: ____________________"
+        ],
+        [
+          "Password: ________________________"
+        ],
+        [
+          "Private posts and photographs are available to signed-in members with permission to view them."
+        ],
+        [
+          "This content is not available in the public view."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Back to profile",
+          "pageId": "claire_social"
+        }
+      ],
+      "snippet": "Sign in | CommonRoom",
+      "heading": "Members-only content"
+    },
+    {
+      "id": "nora_social",
+      "title": "Nora Bell | CommonRoom",
+      "address": "www.commonroom.local/nora.bell",
+      "brand": "COMMONROOM",
+      "theme": "social",
+      "blocks": [
+        [
+          {
+            "keywordId": "nora"
+          },
+          " · North Region"
+        ],
+        [
+          "Small grants and local outreach at Open Skies Foundation."
+        ],
+        [
+          "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+        ],
+        [
+          "Posts shared with friends and private photographs are visible to signed-in members only."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Public profile",
+          "pageId": "nora_social"
+        },
+        {
+          "label": "Private posts",
+          "pageId": "nora_private"
+        },
+        {
+          "label": "Photos",
+          "pageId": "nora_private"
+        }
+      ],
+      "snippet": "Small grants and local outreach. Public profile and updates."
+    },
+    {
+      "id": "nora_private",
+      "title": "Sign in | CommonRoom",
+      "address": "www.commonroom.local/login?profile=nora",
+      "brand": "COMMONROOM",
+      "theme": "social",
+      "blocks": [
+        [
+          "SIGN IN TO COMMONROOM"
+        ],
+        [
+          "Email address: ____________________"
+        ],
+        [
+          "Password: ________________________"
+        ],
+        [
+          "Private posts and photographs are available to signed-in members with permission to view them."
+        ],
+        [
+          "This content is not available in the public view."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Back to profile",
+          "pageId": "nora_social"
+        }
+      ],
+      "snippet": "Sign in | CommonRoom",
+      "heading": "Members-only content"
+    }
+  ]
+}

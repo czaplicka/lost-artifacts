@@ -1,0 +1,90 @@
+{
+  "clouds": [
+    {
+      "id": "place",
+      "title": "THE NAPKIN"
+    },
+    {
+      "id": "person",
+      "title": "THE BADGE / JACKET"
+    }
+  ],
+  "keywords": [
+    {
+      "id": "seahorse_logo",
+      "label": "Seahorse emblem",
+      "cloudId": "place"
+    },
+    {
+      "id": "miramar",
+      "label": "Hotel Miramar",
+      "cloudId": "place"
+    },
+    {
+      "id": "mariner",
+      "label": "The Mariner",
+      "cloudId": "place"
+    },
+    {
+      "id": "coral",
+      "label": "Coral Crown Hotel",
+      "cloudId": "place"
+    },
+    {
+      "id": "swallow_logo",
+      "label": "Swallow emblem",
+      "cloudId": "person"
+    },
+    {
+      "id": "open_skies",
+      "label": "Open Skies Foundation",
+      "cloudId": "person"
+    },
+    {
+      "id": "conference",
+      "label": "New Horizons Conference",
+      "cloudId": "person"
+    },
+    {
+      "id": "checked_jacket",
+      "label": "Green checked jacket",
+      "cloudId": "person"
+    },
+    {
+      "id": "claire",
+      "label": "Claire Sutton",
+      "cloudId": "person"
+    },
+    {
+      "id": "nora",
+      "label": "Nora Bell",
+      "cloudId": "person"
+    },
+    {
+      "id": "office_phone",
+      "label": "Open Skies: 318",
+      "cloudId": "person"
+    },
+    {
+      "id": "jacket_owner",
+      "label": "Claire’s jacket",
+      "cloudId": "person"
+    },
+    {
+      "id": "jacket_returned",
+      "label": "Jacket returned to Claire",
+      "cloudId": "person"
+    },
+    {
+      "id": "work_email",
+      "label": "work email",
+      "cloudId": "person"
+    },
+    {
+      "id": "claire_email",
+      "label": "claire.sutton@openskies.local",
+      "cloudId": "person"
+    }
+  ],
+  "initialKeywords": []
+}

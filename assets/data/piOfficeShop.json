@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "shopId": "pi_office_shop",
+  "title": "Office Supplies & Questionable Hires",
+  "currency": "USD",
+  "intro": "Build a respectable detective agency. Or at least buy enough equipment to look like one.",
+  "balanceStatus": "provisional",
+  "items": [
+    {
+      "id": "office_assistant",
+      "name": "Office Assistant",
+      "category": "staff",
+      "price": 350,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Handles appointments, negotiates fees and explains that exposure is not a currency.",
+      "benefitText": "Planned: earn 15% more from successfully completed PI jobs.",
+      "purchaseMessage": "Assistant hired. Your calendar is organised. Your life remains under review.",
+      "requires": [],
+      "effects": [
+        {
+          "type": "reward_bonus",
+          "scope": "pi_job_completion",
+          "percent": 15,
+          "rounding": "floor",
+          "excludePassiveIncome": true,
+          "excludeRefunds": true,
+          "excludeAdvances": true
+        }
+      ],
+      "officePropId": "secretary",
+      "visual": {
+        "textureKey": null,
+        "textureUrl": null
+      }
+    },
+    {
+      "id": "office_case_files",
+      "name": "Case Filing System",
+      "category": "equipment",
+      "price": 100,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "A filing system for solved cases. Alphabetical order costs extra. We have declined.",
+      "benefitText": "Search completed PI cases, contacts, summaries and objectives.",
+      "purchaseMessage": "Files installed. The paperwork now has somewhere to hide.",
+      "requires": [],
+      "effects": [
+        {
+          "type": "unlock_feature",
+          "featureId": "pi_case_archive"
+        }
+      ],
+      "officePropId": "case_files",
+      "visual": {
+        "textureKey": null,
+        "textureUrl": null
+      }
+    },
+    {
+      "id": "office_printer",
+      "name": "Office Printer",
+      "category": "equipment",
+      "price": 200,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Prints reports, invoices and occasional cries for help. Paper jams are its preferred form of communication.",
+      "benefitText": "Planned: unlock paid document-preparation jobs.",
+      "purchaseMessage": "Printer installed. It already claims to be out of cyan.",
+      "requires": [],
+      "effects": [
+        {
+          "type": "unlock_job_category",
+          "categoryId": "pi_document_jobs"
+        }
+      ],
+      "officePropId": "printer",
+      "visual": {
+        "textureKey": null,
+        "textureUrl": null
+      }
+    },
+    {
+      "id": "office_employee",
+      "name": "Junior Investigator",
+      "category": "staff",
+      "price": 600,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Takes small local jobs while you handle the dramatic ones. Has only followed the wrong person twice. This week.",
+      "benefitText": "Generate $25 net income per full 24 in-game hours. Collect up to $100 in this office shop.",
+      "purchaseMessage": "Investigator hired. Someone else can now watch the wrong doorway.",
+      "requires": [],
+      "effects": [
+        {
+          "type": "passive_income",
+          "amountPerDay": 25,
+          "timeSource": "game_time",
+          "interval": "full_day_since_purchase",
+          "accrueFromPurchase": true,
+          "includeRealWorldOfflineTime": false,
+          "maxUncollected": 100,
+          "collection": "manual_at_office",
+          "amountIsNet": true,
+          "affectedByRewardBonuses": false
+        }
+      ],
+      "officePropId": "employee",
+      "visual": {
+        "textureKey": null,
+        "textureUrl": null
+      }
+    }
+  ]
+}

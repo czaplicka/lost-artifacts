@@ -1,0 +1,221 @@
+{
+  "pages": [
+    {
+      "id": "miramar",
+      "title": "Hotel Miramar | Stay by the sea",
+      "address": "www.miramar.local",
+      "brand": "MIRAMAR",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "Welcome to ",
+          {
+            "keywordId": "miramar"
+          },
+          ". Sea air, late breakfasts and no reason to check your watch."
+        ],
+        [
+          "Our seahorse crest has welcomed guests for three generations. Terrace service runs from breakfast until eleven in the evening."
+        ],
+        [
+          "Double rooms from £120. Ask about our midweek rates and private dining room."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        }
+      ],
+      "snippet": "Rooms, terrace dining and private events overlooking the coast."
+    },
+    {
+      "id": "mariner",
+      "title": "The Mariner | Harbour accommodation",
+      "address": "www.mariner.local",
+      "brand": "THE MARINER",
+      "theme": "hotel",
+      "blocks": [
+        [
+          {
+            "keywordId": "mariner"
+          },
+          " offers comfortable rooms above the old harbour. Our brass seahorse sign marks the entrance on Quay Street."
+        ],
+        [
+          "Breakfast is served from seven. The residents' lounge is available for small meetings and family celebrations."
+        ],
+        [
+          "Our bar quiz returns on Thursday. The answer is not always \"the harbour\"."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "mariner"
+        },
+        {
+          "label": "Events",
+          "pageId": "mariner_events"
+        }
+      ],
+      "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse."
+    },
+    {
+      "id": "coral",
+      "title": "Coral Crown Hotel | Coast and comfort",
+      "address": "www.coralcrown.local",
+      "brand": "CORAL CROWN",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "Make yourself at home at ",
+          {
+            "keywordId": "coral"
+          },
+          ". Our seahorse crest is a familiar sight on the eastern promenade."
+        ],
+        [
+          "Family suites, indoor swimming pool and private dining. Dogs welcome. Seagulls will be asked to leave."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "coral"
+        },
+        {
+          "label": "Functions",
+          "pageId": "coral_events"
+        }
+      ],
+      "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest."
+    },
+    {
+      "id": "miramar_event",
+      "title": "New Horizons reception | Hotel Miramar",
+      "address": "www.miramar.local/journal/new-horizons",
+      "brand": "MIRAMAR",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "We were delighted to welcome the ",
+          {
+            "keywordId": "open_skies"
+          },
+          " to ",
+          {
+            "keywordId": "miramar"
+          },
+          " for the ",
+          {
+            "keywordId": "conference"
+          },
+          "."
+        ],
+        [
+          "The Bellini Room hosted the afternoon workshops. Dinner was served on the west terrace, with music from the Harbour Quartet."
+        ],
+        [
+          "Thank you to the delegates, speakers and our events team for a memorable evening."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        }
+      ],
+      "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace."
+    },
+    {
+      "id": "miramar_meetings",
+      "title": "Meetings & private events | Miramar",
+      "address": "www.miramar.local/meetings",
+      "brand": "MIRAMAR",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "The Bellini Room seats eighty delegates. Smaller groups can reserve the library or west terrace."
+        ],
+        [
+          "Recent guests include the ",
+          {
+            "keywordId": "open_skies"
+          },
+          " and the Coastline Business Forum."
+        ],
+        [
+          "Contact our events team for menus, seating plans and group rates."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Journal",
+          "pageId": "miramar_event"
+        }
+      ],
+      "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests."
+    },
+    {
+      "id": "mariner_events",
+      "title": "What's on | The Mariner",
+      "address": "www.mariner.local/whats-on",
+      "brand": "THE MARINER",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "Thursday: Harbour Quiz, 19:30. Friday: acoustic music from the Quay Street Trio."
+        ],
+        [
+          "Saturday afternoon: the Harbour Accountants Association hosts its annual lunch. Please book your place with the association secretary."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "mariner"
+        }
+      ],
+      "snippet": "Quiz nights, harbour history talks and live music in the lounge."
+    },
+    {
+      "id": "coral_events",
+      "title": "Functions | Coral Crown",
+      "address": "www.coralcrown.local/functions",
+      "brand": "CORAL CROWN",
+      "theme": "hotel",
+      "blocks": [
+        [
+          "Our ballroom is available for weddings and private functions."
+        ],
+        [
+          "This month we welcome the Coastal Garden Society for its spring dinner and the junior sailing club for its awards ceremony."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "coral"
+        }
+      ],
+      "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner."
+    }
+  ]
+}

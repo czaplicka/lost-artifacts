@@ -2,7 +2,7 @@ import './AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
-import { discoverSearchKeywords, getSearchProgress, validateSearchData } from './ComputerSearch.js';
+import { discoverSearchKeywords, getSearchProgress, validateSearchData } from './ComputerSearchCore.js';
 import { ALIBI_SEARCH_ID, ALIBI_SEARCH_CASE, mergeAlibiSearch } from './AlibiCaseData.js';
 const QUEST = 'pi_stolen_alibi';
 const KEY = 'piBorrowedAlibi';

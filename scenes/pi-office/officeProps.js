@@ -1,75 +1,64 @@
+import { OFFICE_CONFIG } from '../../config/detectiveOfficeConfig.js';
+
 /**
- * officeProps.js
- * -----------------------------------------------------------------------
- * Data-driven definitions for interactive objects placed on top of the
- * DetectiveOfficeScene background. Mirrors the pattern used in
- * scenes/office/officeHotspots.js for the Mark Agency office, so the two
- * systems stay consistent and you can eventually merge them if needed.
+ * Obiekty PI office.
  *
- * Each entry:
- *  - id:        unique string, used for save/debug/lookup
- *  - textureKey: key of the image/sprite to draw (transparent PNG recommended)
- *  - x, y:      position as a FRACTION of screen width/height (0..1) so it
- *               stays responsive on different resolutions
- *  - scale:     optional scale multiplier (default 1)
- *  - condition: (state) => boolean — whether this prop should be visible
- *               right now, based on gameState. Omit for "always visible".
- *  - tooltip:   short label shown on hover (PressStart2P)
- *  - onClick:   (scene) => void — what happens when clicked
- * -----------------------------------------------------------------------
+ * Istniejące hotspoty zachowują współrzędne z OFFICE_CONFIG:
+ * x, y, w, h są podane w pikselach oryginalnego tła.
+ *
+ * Dla przyszłych obiektów można dodać:
+ * - condition: (state, scene) => boolean
+ * - onClick: (scene) => void
+ * - textureKey: klucz wcześniej załadowanej grafiki
+ * - textureUrl: opcjonalny adres grafiki do załadowania
+ * - scale: skala grafiki względem oryginalnego tła
+ * - depth: głębokość obiektu
+ *
+ * Telefon i komputer nie potrzebują osobnych grafik.
  */
 
-export function createOfficeObjectDefinitions(scene) {
-  return [
-    {
-      id: 'phone',
-      textureKey: 'prop_phone',
-      x: 0.86,
-      y: 0.78,
-      scale: 1,
-      tooltip: 'Phone',
-      condition: () => true, // always on the desk
-      onClick: (s) => {
-        s.scene.launch('PhoneCallScene');
-        s.scene.pause();
-      },
-    },
-    {
-      id: 'computer',
-      textureKey: 'prop_computer',
-      x: 0.72,
-      y: 0.74,
-      scale: 1,
-      tooltip: 'Computer',
-      condition: (state) => state.office?.hasComputer === true,
-      onClick: (s) => {
-        s.openComputerUI ? s.openComputerUI() : s.scene.launch('EmailScene');
-      },
-    },
-    {
-      id: 'secretary',
-      textureKey: 'npc_secretary',
-      x: 0.12,
-      y: 0.62,
-      scale: 1,
-      tooltip: 'Secretary',
-      condition: (state) => state.office?.hasSecretary === true,
-      onClick: (s) => {
-        s.startDialogue ? s.startDialogue('secretary_smalltalk') : null;
-      },
-    },
-    {
-      id: 'case_files',
-      textureKey: 'prop_case_files',
-      x: 0.5,
-      y: 0.82,
-      scale: 0.9,
-      tooltip: 'Case files',
-      condition: (state) => state.office?.hasOpenCase === true,
-      onClick: (s) => {
-        s.scene.launch('CrimeBoardScene');
-        s.scene.pause();
-      },
-    },
-  ];
+const ACTIONS = {
+  computer: scene => scene.openComputer(),
+  phone: scene => scene.openPhone(),
+  city: scene => scene.goToCity(),
+  gotoCity: scene => scene.goToCity()
+};
+
+export function createOfficeObjectDefinitions() {
+  return (OFFICE_CONFIG.hotspots || []).map(config => {
+    const definition = { ...config };
+
+    definition.tooltip =
+      definition.tooltip ||
+      definition.label ||
+      definition.id;
+
+    // Podstawowe wyposażenie nie wymaga zakupu.
+    if (
+      definition.id === 'phone' ||
+      definition.id === 'computer' ||
+      definition.action === 'phone' ||
+      definition.action === 'computer'
+    ) {
+      definition.condition = () => true;
+    }
+
+    if (typeof definition.onClick !== 'function') {
+      definition.onClick = scene => {
+        const action = ACTIONS[definition.action];
+
+        if (action) {
+          return action(scene);
+        }
+
+        console.warn(
+          '[PI office] Unknown object action:',
+          definition.id,
+          definition.action
+        );
+      };
+    }
+
+    return definition;
+  });
 }

@@ -1,6 +1,6 @@
 import './AlibiSearchExpansion.js';
 import { gameState } from '../../GameData.js';
-import { discoverSearchKeywords } from './ComputerSearch.js';
+import { discoverSearchKeywords } from './ComputerSearchCore.js';
 import { ALIBI_CONTACTS, contactFor, saveAlibiContact } from './AlibiContactBook.js';
 import { getQuestHintOffer, purchaseQuestHint } from './QuestHintPurchase.js';
 import { renderSocialPage } from './SocialProfileTemplate.js';

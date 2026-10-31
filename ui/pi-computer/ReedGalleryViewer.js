@@ -1,6 +1,6 @@
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
-import { discoverSearchKeywords } from './ComputerSearch.js';
+import { discoverSearchKeywords } from './ComputerSearchCore.js';
 import { syncReedBoardEvidence } from '../../managers/PIInvestigationManager.js';
 const SEARCH='miramar_demo',QUEST='pi_two_glasses';
 export const REED_GALLERY_HOTSPOTS=[{id:'badge',x:800/1200,y:432/620,w:56/1200,h:86/620},{id:'jacket',x:704/1200,y:258/620,w:344/1200,h:362/620},{id:'claire',x:213/1200,y:26/620,w:215/1200,h:289/620},{id:'nora',x:758/1200,y:26/620,w:215/1200,h:230/620}];

@@ -29,6 +29,7 @@ export const SCENE_TIERS = {
     "DetectiveOfficeScene",
     "HomeCityScene",
     "SpyShopScene",
+    "TavernScene",
     "NewspaperOverlayScene",
     "TvBroadcastScene",
     "GameOverScene",
@@ -51,7 +52,7 @@ export const SCENE_TIERS = {
     "AgainScene",
     "CourtScene",
     "ArchiveIndexPuzzleScene",
-        "RecoveredArtifactsScene"
+    "RecoveredArtifactsScene"
   ],
   "TIER_3": [
     "HiddenObjectsScene",
@@ -97,6 +98,7 @@ export const sceneRegistry = {
   DetectiveOfficeScene: () => import('./scenes/DetectiveOfficeScene.js').then(m => m.DetectiveOfficeScene),
   HomeCityScene: () => import('./scenes/HomeCityScene.js').then(m => m.HomeCityScene),
   SpyShopScene: () => import('./scenes/SpyShopScene.js').then(m => m.SpyShopScene),
+  TavernScene: () => import('./scenes/TavernScene.js').then(m => m.TavernScene),
   NewspaperOverlayScene: () => import('./scenes/NewspaperOverlayScene.js').then(m => m.NewspaperOverlayScene),
   TvBroadcastScene: () => import('./scenes/TvBroadcastScene.js').then(m => m.TvBroadcastScene),
   GameOverScene: () => import('./scenes/GameOverChaseScene.js').then(m => m.GameOverScene),
@@ -105,11 +107,10 @@ export const sceneRegistry = {
   SuspectsScene: () => import('./scenes/SuspectsScene.js').then(m => m.SuspectsScene),
   SuspectGridScene: () => import('./scenes/SuspectGridScene.js').then(m => m.SuspectGridScene),
   HypothesisScene: () => import('./scenes/HypothesisScene.js').then(m => m.HypothesisScene),
-    RecoveredArtifactsScene: () => import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
   TheoryResultCallScene: () => import('./scenes/TheoryResultCallScene.js').then(m => m.TheoryResultCallScene),
   WantedDatabaseScene: () => import('./scenes/WantedDatabaseScene.js').then(m => m.WantedDatabaseScene),
   RecoveredArtifactsScene: () => import('./scenes/RecoveredArtifactsScene.js').then(m => m.RecoveredArtifactsScene),
-  ArrestSelectionScene: () => import('./scenes/ArrestChaseSelectionScene.js').then(m => m.ArrestSelectionScene),
+  ArrestSelectionScene: () => import('./scenes/ArrestSelectionScene.js').then(m => m.ArrestSelectionScene),
   ChaseScene: () => import('./scenes/ChaseScene.js').then(m => m.ChaseScene),
   AlibiScene: () => import('./scenes/AlibiScene.js').then(m => m.AlibiScene),
   AlibiTimelineScene: () => import('./scenes/AlibiTimelineScene.js').then(m => m.AlibiTimelineScene),

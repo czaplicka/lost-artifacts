@@ -5,6 +5,7 @@ import { ScoreManager } from './ScoreManager.js';
 import { RouteManager } from './RouteManager.js';
 import { HQ_ID, MAX_DESTINATIONS } from '../TransportConfig.js';
 import { getLocationByCity, getLocationById, resolveLocationId } from '../ui/LocationUI.js';
+import { getPursuitCityContext } from './PursuitCityContext.js';
 
 let scoreManagerInstance = null;
 
@@ -78,13 +79,14 @@ export function ensureMustIncludeDestination(destinations, locations) {
   const result = [];
   const seen = new Set();
   const add = location => {
+    if (!location?.city) return;
     const id = resolveLocationId(location, 'destination');
-    if (!location?.city || !id || id === gameState.currentCityId || id === HQ_ID || seen.has(id)) return;
+    if (!id || id === gameState.currentCityId || id === HQ_ID || seen.has(id)) return;
     seen.add(id);
     result.push(location);
   };
   if (gameState.mustIncludeCityId) add(getLocationById(gameState.mustIncludeCityId, locations));
-  destinations.forEach(add);
+  (destinations || []).forEach(add);
   return result.slice(0, MAX_DESTINATIONS);
 }
 
@@ -112,11 +114,9 @@ function getDestinationMemory() {
 }
 
 function getLocalRouteTargetId(cityId) {
-  const manager = getRouteManager();
-  // Each city keeps its own next route stop, not the current global target.
-  if (cityId === gameState.crimeCityId) return manager.route[0] || null;
-  const index = manager.route.indexOf(cityId);
-  if (index >= 0) return manager.route[index + 1] || null;
+  getRouteManager();
+  const context = getPursuitCityContext(gameState, cityId);
+  if (context.isCrimeCity || context.isCorrectCity) return context.targetCityId;
   return gameState.nextTargetCityId || null;
 }
 
@@ -136,33 +136,27 @@ export function generateDestinationsForCurrentCity(locations, options = {}) {
     seen.add(id);
     result.push(location);
   };
+  const requireDestination = location => {
+    if (!location?.city) return;
+    const id = resolveLocationId(location, 'required local destination');
+    if (!id || id === cityId || id === HQ_ID || seen.has(id)) return;
+    if (result.length >= MAX_DESTINATIONS) {
+      const removed = result.pop();
+      seen.delete(resolveLocationId(removed, 'replaced destination'));
+    }
+    add(location);
+  };
 
   if (Array.isArray(savedIds)) {
     for (const id of savedIds) add(getLocationById(id, list));
-    // No global target insertion, reshuffle or previous-city insertion on return.
-    return result.slice(0, MAX_DESTINATIONS);
-  }
-
-  if (options.preserveCurrent && Array.isArray(gameState.currentDestinations)) {
+  } else if (options.preserveCurrent && Array.isArray(gameState.currentDestinations)) {
     for (const location of gameState.currentDestinations) {
-      const id = resolveLocationId(location, 'existing destination');
-      add(getLocationById(id, list));
+      if (location?.city) add(getLocationById(resolveLocationId(location, 'existing destination'), list));
     }
   }
-
-  const target = getLocationById(getLocalRouteTargetId(cityId), list);
-  if (target?.city && target.id !== cityId && target.id !== HQ_ID) {
-    const targetId = resolveLocationId(target, 'local route destination');
-    if (!seen.has(targetId)) {
-      if (result.length >= MAX_DESTINATIONS) {
-        const removed = result.pop();
-        seen.delete(resolveLocationId(removed, 'replaced destination'));
-      }
-      add(target);
-    }
-  }
-
-  add(getLocationById(gameState.lastTravel?.fromCityId, list));
+  // Repair a legacy map only when its local next stop is missing.
+  requireDestination(getLocationById(getLocalRouteTargetId(cityId), list));
+  if (!Array.isArray(savedIds)) add(getLocationById(gameState.lastTravel?.fromCityId, list));
   if (result.length < MAX_DESTINATIONS) {
     const filler = list.filter(location => {
       if (!location?.city) return false;
@@ -174,22 +168,18 @@ export function generateDestinationsForCurrentCity(locations, options = {}) {
       add(location);
     }
   }
-
   const selected = result.slice(0, MAX_DESTINATIONS);
   const ids = selected.map(location => resolveLocationId(location, 'saved destination'));
-  gameState.destinationMapMemory = {
-    ...memory, cities: { ...memory.cities, [key]: ids }
-  };
-  requestAutosave();
+  if (JSON.stringify(savedIds) !== JSON.stringify(ids)) {
+    gameState.destinationMapMemory = { ...memory, cities: { ...memory.cities, [key]: ids } };
+    requestAutosave();
+  }
   return selected;
 }
 
 export function clearTravelCluesForCity(cityId) {
-  if (!cityId || !Array.isArray(gameState.cluesCollected)) return;
-  gameState.cluesCollected = gameState.cluesCollected.filter(clue =>
-    !clue || typeof clue !== 'object' || clue.type !== 'travel' ||
-    (clue.cityId !== cityId && clue.value !== cityId)
-  );
+  // Compatibility export: collected evidence must survive arrival and revisits.
+  return cityId || null;
 }
 
 export function enterCity(cityName, locations) {
@@ -213,6 +203,11 @@ export function markEncounterVisited(encounterId, clue = null) {
 
 export function advanceInvestigation(locations, enteredCityId) {
   const manager = getRouteManager();
+  const context = getPursuitCityContext(gameState, enteredCityId);
+  if (context.isCurrentVisitedRouteCity || (context.isCrimeCity && !manager.isCrimeCityPhase())) {
+    syncInvestigationState(locations);
+    return { success: true, status: 'RETURN_VISIT', result: { ok: true, reason: 'already_accepted', advanced: false } };
+  }
   const result = manager.enterCity(enteredCityId);
   if (!result.ok) {
     syncInvestigationState(locations);
@@ -220,7 +215,7 @@ export function advanceInvestigation(locations, enteredCityId) {
     return { success: false, status: 'WRONG_CITY', result };
   }
   if (result.reason === 'crime_city_accepted') gameState.crimeSceneVisited = true;
-  gameState.justReachedCorrectCityId = null;
+  gameState.justReachedCorrectCityId = context.isCrimeCity ? null : enteredCityId;
   syncInvestigationState(locations);
   if (manager.isComplete()) {
     gameState.currentDestinations = [];
@@ -233,9 +228,7 @@ export function advanceInvestigation(locations, enteredCityId) {
 }
 
 export function completeCityInvestigation(locations) {
-  const manager = getRouteManager();
   if (!gameState.currentCityId) return { success: false, status: 'NO_ACTIVE_TARGET' };
-  if (!manager.canEnterCity(gameState.currentCityId)) return { success: false, status: 'WRONG_CITY' };
   return advanceInvestigation(locations, gameState.currentCityId);
 }
 

@@ -1,0 +1,184 @@
+{
+  "recipes": [
+    {
+      "terms": [
+        "seahorse_logo"
+      ],
+      "pageIds": [
+        "mariner",
+        "coral",
+        "miramar"
+      ]
+    },
+    {
+      "terms": [
+        "swallow_logo"
+      ],
+      "pageIds": [
+        "organisation",
+        "swallow_birds",
+        "swallow_couriers"
+      ]
+    },
+    {
+      "terms": [
+        "open_skies"
+      ],
+      "pageIds": [
+        "organisation",
+        "events",
+        "contact"
+      ]
+    },
+    {
+      "terms": [
+        "conference"
+      ],
+      "pageIds": [
+        "events"
+      ]
+    },
+    {
+      "terms": [
+        "miramar"
+      ],
+      "pageIds": [
+        "miramar"
+      ]
+    },
+    {
+      "terms": [
+        "miramar",
+        "open_skies"
+      ],
+      "pageIds": [
+        "miramar_event",
+        "gallery"
+      ]
+    },
+    {
+      "terms": [
+        "miramar",
+        "conference"
+      ],
+      "pageIds": [
+        "miramar_event",
+        "gallery"
+      ]
+    },
+    {
+      "terms": [
+        "mariner"
+      ],
+      "pageIds": [
+        "mariner"
+      ]
+    },
+    {
+      "terms": [
+        "coral"
+      ],
+      "pageIds": [
+        "coral"
+      ]
+    },
+    {
+      "terms": [
+        "checked_jacket"
+      ],
+      "pageIds": [
+        "jacket_generic"
+      ]
+    },
+    {
+      "terms": [
+        "checked_jacket",
+        "conference"
+      ],
+      "pageIds": [
+        "gallery"
+      ]
+    },
+    {
+      "terms": [
+        "checked_jacket",
+        "open_skies"
+      ],
+      "pageIds": [
+        "gallery"
+      ]
+    },
+    {
+      "terms": [
+        "claire"
+      ],
+      "pageIds": [
+        "claire_social",
+        "claire_work",
+        "claire_other",
+        "team"
+      ]
+    },
+    {
+      "terms": [
+        "nora"
+      ],
+      "pageIds": [
+        "nora_social",
+        "nora_work",
+        "nora_other",
+        "team"
+      ]
+    },
+    {
+      "terms": [
+        "office_phone"
+      ],
+      "pageIds": [
+        "contact"
+      ]
+    },
+    {
+      "terms": [
+        "claire",
+        "open_skies"
+      ],
+      "pageIds": [
+        "team",
+        "claire_work",
+        "claire_social"
+      ]
+    },
+    {
+      "terms": [
+        "nora",
+        "open_skies"
+      ],
+      "pageIds": [
+        "team",
+        "nora_work",
+        "nora_social"
+      ]
+    },
+    {
+      "terms": [
+        "claire",
+        "conference"
+      ],
+      "pageIds": [
+        "gallery",
+        "claire_work"
+      ]
+    },
+    {
+      "terms": [
+        "nora",
+        "conference"
+      ],
+      "pageIds": [
+        "gallery",
+        "nora_work"
+      ]
+    }
+  ]
+}

@@ -7,9 +7,10 @@ import { TRANSPORT_CONFIG, TRAVEL_ENCOUNTERS, TRAVEL_ENCOUNTER_CHANCE } from '..
 import { getLocationByCity, getTravelDistance, isTransportAvailable, resolveLocationId } from '../ui/LocationUI.js';
 import {
   getRouteManager, syncInvestigationState, generateDestinationsForCurrentCity,
-  clearTravelCluesForCity, enterCity, addSessionScore
+  enterCity, addSessionScore
 } from './InvestigationManager.js';
 import { getTicketTravelBlock } from './TicketAnalysisService.js';
+import { classifyPursuitArrival } from './PursuitCityContext.js';
 
 let travelExecutionInProgress = false;
 function getRandomItem(items) { return Array.isArray(items) && items.length ? items[Math.floor(Math.random() * items.length)] : null; }
@@ -111,9 +112,14 @@ export function getTravelHours(fromCityName, toCityName, locations, transportTyp
   return getTravelData(fromCityName, toCityName, locations, { transportType }).travelHours;
 }
 export function getDestinationPreviewData(locations) {
-  return (gameState.currentDestinations || []).map(location => ({ ...location,
-    ...getTravelData(gameState.currentCity, location.city, locations, { transportType: 'plane' }),
-    isCorrect: resolveLocationId(location, 'destination preview') === gameState.nextTargetCityId }));
+  getRouteManager();
+  return (gameState.currentDestinations || []).map(location => {
+    const arrivalKind = classifyPursuitArrival(gameState, resolveLocationId(location, 'destination preview'));
+    return { ...location,
+      ...getTravelData(gameState.currentCity, location.city, locations, { transportType: 'plane' }),
+      arrivalKind, isCorrect: ['NEXT_ROUTE_CITY', 'CRIME_CITY', 'RETURN_VISIT'].includes(arrivalKind)
+    };
+  });
 }
 export function executeTravel({ fromCityName, toCityName, locations, transportType = 'plane', allowEncounter = true, description = null, metadata = {} }) {
   if (travelExecutionInProgress) return { success: false, reason: 'travel_in_progress' };
@@ -179,7 +185,10 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
   const destinationId = resolveLocationId(destination, 'travelToCity');
   const manager = getRouteManager();
   if (!manager) throw new Error('Route manager is missing.');
-  const wasCorrect = manager.canEnterCity(destinationId), isCrimeSceneArrival = destinationId === gameState.crimeCityId;
+  const arrivalKind = classifyPursuitArrival(gameState, destinationId);
+  const shouldAdvance = arrivalKind === 'NEXT_ROUTE_CITY' && manager.isRoutePhase() && manager.canEnterCity(destinationId);
+  const wasCorrect = ['NEXT_ROUTE_CITY', 'RETURN_VISIT', 'CRIME_CITY'].includes(arrivalKind);
+  const isCrimeSceneArrival = destinationId === gameState.crimeCityId;
   const energyManager = getEnergyManager(), before = energyManager.getCurrentEnergy();
   const execution = executeTravel({ fromCityName: previousCity, toCityName: cityName, locations, transportType, allowEncounter: true });
   if (!execution.success) return {
@@ -201,6 +210,10 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
     agencyDebtAdded: Math.max(0, Number(payment.debtAdded) || 0), usedFreeTransfer: Boolean(payment.usedFreeTransfer),
     freeTransfersRemaining: getFreeTransfers(), energyChange, travelEncounter: travelData.travelEncounter, travelLabel: travelData.travelLabel
   };
+  enterCity(cityName, locations);
+  const arrival = shouldAdvance ? manager.enterCity(destinationId) : null;
+  const advancedRoute = Boolean(arrival?.ok);
+  const isFinal = Boolean(advancedRoute && manager.isComplete());
   const record = {
     from: previousCity, fromCityId: previousCityId, to: cityName, toCityId: destinationId,
     transportType: travel.transportType, transportLabel: travel.transportLabel,
@@ -208,28 +221,25 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
     effectiveMoneySpent: travel.effectiveMoneySpent, costFromCash: travel.costFromCash,
     costFromBudget: travel.costFromBudget, energyChange, agencyDebtAdded: travel.agencyDebtAdded,
     usedFreeTransfer: travel.usedFreeTransfer, freeTransfersRemaining: travel.freeTransfersRemaining,
-    wasCorrect, encounter: travel.travelEncounter, travelLabel: travel.travelLabel
+    wasCorrect, arrivalKind, advancedRoute, encounter: travel.travelEncounter, travelLabel: travel.travelLabel
   };
   gameState.lastTravel = record; gameState.lastTravelEncounter = travel.travelEncounter; gameState.addTravel(record);
-  enterCity(cityName, locations); clearTravelCluesForCity(destinationId);
-  // Each accepted escape-city ARRIVAL consumes exactly one route stop.
-  // Crime-city departure remains gated by the ticket-analysis service.
-  const arrival = wasCorrect && manager.isRoutePhase() ? manager.enterCity(destinationId) : null;
-  const isFinal = Boolean(arrival?.ok && manager.isComplete());
-  addSessionScore(wasCorrect ? 100 : -25, wasCorrect ? `Correct city: ${cityName}` : `False city: ${cityName}`);
+  // Points are awarded only for a newly accepted pursuit stop, never a revisit.
+  if (advancedRoute) addSessionScore(100, `Correct city: ${cityName}`);
+  else if (arrivalKind === 'FALSE_LEAD') addSessionScore(-25, `False city: ${cityName}`);
+  gameState.justReachedCorrectCityId = advancedRoute ? destinationId : null;
+  syncInvestigationState(locations);
   if (isFinal) {
-    syncInvestigationState(locations);
-    gameState.justReachedCorrectCityId = destinationId;
     gameState.currentDestinations = []; gameState.activeLocations = [];
-    requestTravelAutosave();
-    return { blocked: false, wasCorrect: true, ...travel, energyReachedZero: Boolean(execution.energyReachedZero),
-      status: 'FINAL_SHOWDOWN', fromCity: previousCity, toCity: cityName, toCityId: destinationId,
-      cityId: destinationId, isCrimeSceneArrival: false };
+  } else {
+    gameState.currentDestinations = generateDestinationsForCurrentCity(locations);
   }
-  gameState.justReachedCorrectCityId = wasCorrect ? destinationId : null;
-  syncInvestigationState(locations); gameState.currentDestinations = generateDestinationsForCurrentCity(locations);
   requestTravelAutosave();
-  return { blocked: false, wasCorrect, ...travel, energyReachedZero: Boolean(execution.energyReachedZero),
-    status: wasCorrect ? isCrimeSceneArrival ? 'CRIME_SCENE_REACHED' : 'CORRECT_CITY_REACHED' : 'FALSE_LEAD',
+  const status = isFinal ? 'FINAL_SHOWDOWN'
+    : isCrimeSceneArrival ? 'CRIME_SCENE_REACHED'
+    : advancedRoute ? 'CORRECT_CITY_REACHED'
+    : arrivalKind;
+  return { blocked: false, wasCorrect, ...travel, arrivalKind, advancedRoute,
+    energyReachedZero: Boolean(execution.energyReachedZero), status,
     fromCity: previousCity, toCity: cityName, toCityId: destinationId, cityId: destinationId, isCrimeSceneArrival };
 }

@@ -1,0 +1,117 @@
+{
+  "pages": [
+    {
+      "id": "jacket_generic",
+      "title": "Green checks are having a moment",
+      "address": "www.everydayedit.local/style/green-checks",
+      "brand": "THE EVERYDAY EDIT",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "The return of green checks"
+        ],
+        [
+          "A ",
+          {
+            "keywordId": "checked_jacket"
+          },
+          " works just as well with a plain white T-shirt as it does with a matching skirt. This season’s versions favour a relaxed shoulder and contrasting pocket trim."
+        ],
+        [
+          "Choose one strong pattern and keep the rest simple. For evening wear, add a silk scarf or a narrow belt."
+        ],
+        [
+          "Our editor favours dark green checks with brass buttons. Dry-clean only, unless you were hoping to buy a smaller jacket."
+        ]
+      ],
+      "links": [],
+      "snippet": "The country-club classic returns, with softer tailoring and brighter accessories."
+    },
+    {
+      "id": "claire_work",
+      "title": "Volunteers build stronger local partnerships",
+      "address": "www.communityledger.local/news/volunteer-training",
+      "brand": "COMMUNITY LEDGER",
+      "theme": "magazine",
+      "blocks": [
+        [
+          {
+            "keywordId": "claire"
+          },
+          ", West Region coordinator at Open Skies, led a workshop on recruiting and supporting community volunteers."
+        ],
+        [
+          "The session covered induction, safeguarding and the mysterious disappearance of every working marker pen."
+        ],
+        [
+          "Local groups can contact the foundation’s programme office for future training dates."
+        ]
+      ],
+      "links": [],
+      "snippet": "Claire Sutton led a practical workshop for local volunteer groups."
+    },
+    {
+      "id": "nora_work",
+      "title": "Small grants, practical results",
+      "address": "www.communityledger.local/news/north-region-grants",
+      "brand": "COMMUNITY LEDGER",
+      "theme": "magazine",
+      "blocks": [
+        [
+          {
+            "keywordId": "nora"
+          },
+          " presented the North Region’s small-grants programme at the community centre."
+        ],
+        [
+          "Projects included a repair café, a neighbourhood garden and new equipment for the youth club."
+        ],
+        [
+          "Applications will be reviewed by the regional panel. Biscuits will be reviewed by everyone."
+        ]
+      ],
+      "links": [],
+      "snippet": "Nora Bell outlined community funding opportunities in the North Region."
+    },
+    {
+      "id": "claire_other",
+      "title": "Clare Sutton | Ceramics and workshops",
+      "address": "www.claresuttonstudio.local",
+      "brand": "CLARE SUTTON STUDIO",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "Clare Sutton makes hand-thrown stoneware from a small studio on Market Lane."
+        ],
+        [
+          "Weekend workshops cover bowls, glazing and accepting that your first mug may resemble an ashtray."
+        ],
+        [
+          "Studio visits by appointment. Wholesale enquiries welcome."
+        ]
+      ],
+      "links": [],
+      "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes."
+    },
+    {
+      "id": "nora_other",
+      "title": "Norah Bell | Piano lessons",
+      "address": "www.norahbellmusic.local",
+      "brand": "NORAH BELL MUSIC",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "Norah Bell offers individual piano lessons for beginners and returning players."
+        ],
+        [
+          "Evening appointments are available at the Riverside teaching studio."
+        ],
+        [
+          "Patient tuition. The metronome is less patient."
+        ]
+      ],
+      "links": [],
+      "snippet": "Norah Bell offers piano tuition and accompaniment services."
+    }
+  ]
+}

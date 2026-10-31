@@ -6,32 +6,233 @@ import { ComputerLedger } from './pi-computer/ComputerLedger.js';
 import { ComputerSearch } from './pi-computer/ComputerSearch.js';
 import { PhotoPIQuest } from './pi-computer/PhotoPIQuest.js';
 import { installComputerNotebook, ComputerMailNotifications } from './pi-computer/ComputerReedIntegration.js';
-export class PIOfficeComputerUI{
- constructor(scene,options={}){
-  Object.assign(this,{scene,options,isOpen:false,suspended:false,destroyed:false,app:'desktop',selectedId:null,listPage:0,bodyPage:0,notice:'',accepting:false,layout:null,window:null,content:null,viewToken:0,menuOpen:false,booting:false,bootStep:0,bootLines:null,hasBooted:false,powerOn:false,jokeIndex:0,fontsChecked:false});
-  this.root=scene.add.container(0,0).setDepth(1500).setVisible(false);this.drawing=new ComputerDrawing(this);this.monitor=new ComputerMonitor(this);this.desktop=new ComputerDesktop(this);this.documents=new ComputerDocuments(this);this.ledger=new ComputerLedger(this);this.search=new ComputerSearch(this);this.photoQuest=new PhotoPIQuest(this);installComputerNotebook(this);this.mailNotifications=new ComputerMailNotifications(this);
-  this.onKey=e=>{
-   if(this.destroyed||!this.isOpen||this.suspended)return;const t=e.target;if(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName))return;if(this.photoQuest.debugEditor.handleKey(e))return;if(e.code!=='Escape')return;e.preventDefault();
-   if(this.booting){this.monitor.finishBoot();return;}if(this.menuOpen){this.menuOpen=false;this.render();return;}if(this.photoQuest.galleryViewer.active){this.photoQuest.galleryViewer.close();return;}if(this.photoQuest.contactMail.composing){this.photoQuest.contactMail.closeComposer();return;}if(this.app==='photo'){this.photoQuest.returnToMail();return;}if(this.notice&&this.app==='desktop'){this.notice='';this.render();return;}if(this.app!=='desktop')this.openApp('desktop');else this.close();
-  };
-  this.onResize=()=>{if(this.isOpen&&!this.suspended&&!this.destroyed)this.render();};scene.input.keyboard?.on('keydown',this.onKey);scene.scale.on('resize',this.onResize);scene.events.once('shutdown',this.destroy,this);void this.photoQuest.load();
- }
- open(){if(this.destroyed||this.isOpen)return;Object.assign(this,{isOpen:true,suspended:false,app:'desktop',selectedId:null,listPage:0,bodyPage:0,notice:'',menuOpen:false,booting:false,powerOn:true});this.photoQuest.galleryViewer.active=false;this.photoQuest.contactMail.composing=false;this.viewToken++;this.root.setVisible(true);this.options.onOpen?.();this.ensureFonts();if(!this.options.skipBoot)this.monitor.startBoot();this.render();void this.photoQuest.load();}
- close(){if(this.destroyed||!this.isOpen||this.suspended)return;Object.assign(this,{isOpen:false,suspended:false,menuOpen:false,booting:false});this.photoQuest.debugEditor.enabled=false;this.photoQuest.galleryViewer.active=false;this.photoQuest.contactMail.composing=false;this.monitor.stopBoot();this.monitor.clearFx();this.viewToken++;this.root.setVisible(false);this.options.onClose?.();}
- suspend(){if(this.destroyed||!this.isOpen)return;Object.assign(this,{suspended:true,menuOpen:false,booting:false});this.photoQuest.debugEditor.enabled=false;this.monitor.stopBoot();this.monitor.clearFx();this.viewToken++;this.root.setVisible(false);}
- resume(){if(this.destroyed||!this.isOpen)return;Object.assign(this,{suspended:false,app:'desktop',notice:'',menuOpen:false,booting:false,powerOn:false});this.viewToken++;this.root.setVisible(true);this.render();}
- openApp(app){
-  if(this.destroyed||!this.isOpen||this.suspended)return;this.menuOpen=false;if(app==='investigations'){this.launchExternal(this.options.onOpenInvestigations,'The investigation board is currently unavailable.');return;}if(app==='travel'){this.launchExternal(this.options.onOpenWorldTravel,'World travel is currently unavailable.');return;}if(!['desktop','mail','ledger','classifieds','search'].includes(app))return;this.photoQuest.galleryViewer.active=false;this.photoQuest.contactMail.composing=false;Object.assign(this,{app,selectedId:null,listPage:0,bodyPage:0,notice:''});this.viewToken++;this.render();if(app==='search')void this.search.load();if(app==='mail'||app==='classifieds')void this.photoQuest.load();
- }
- launchExternal(callback,message){if(typeof callback!=='function'){this.notice=message;this.render();return;}try{const r=callback();if(r?.catch)r.catch(e=>this.handleExternalError(e,message));}catch(e){this.handleExternalError(e,message);}}
- handleExternalError(e,message){console.error('[PIOfficeComputerUI] Application failed:',e);if(this.destroyed||!this.isOpen)return;if(this.suspended)this.resume();this.notice=message;this.render();}
- ensureFonts(){if(this.fontsChecked||typeof document==='undefined'||!document.fonts)return;this.fontsChecked=true;const specs=['16px "Special Elite"','10px "Press Start 2P"'];try{if(specs.every(s=>document.fonts.check(s)))return;}catch(_){return;}Promise.all(specs.map(s=>document.fonts.load(s))).then(()=>{if(!this.destroyed&&this.isOpen&&!this.suspended)this.render();}).catch(()=>{});}
- money(v){return Number.isFinite(v)?new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v):'Unknown';}
- render(){this.monitor.render();}getMail(){return this.documents.getMail();}getClassifieds(){return this.documents.getClassifieds();}getLedger(){return this.ledger.getData();}formatLedgerDate(v){return this.ledger.formatDate(v);}
- addToContent(o){return this.drawing.add(o);}text(...a){return this.drawing.text(...a);}pixel(...a){return this.drawing.pixel(...a);}rectangle(...a){return this.drawing.rectangle(...a);}bevel(...a){return this.drawing.bevel(...a);}button(...a){return this.drawing.button(...a);}
- drawMonitorDetails(){return this.monitor.drawMonitorDetails();}drawWallpaper(){return this.monitor.drawWallpaper();}drawTaskbar(){return this.monitor.drawTaskbar();}renderDesktop(){return this.desktop.render();}createDesktopIcon(...a){return this.desktop.createIcon(...a);}renderApplication(){return this.monitor.renderApplication();}renderDocuments(){return this.documents.render();}changeListPage(...a){return this.documents.changeListPage(...a);}renderPagedText(...a){return this.documents.renderPagedText(...a);}renderLedger(){return this.ledger.render();}
- async acceptMission(a){
-  if(this.accepting||this.destroyed||!this.isOpen||this.suspended||this.app!=='classifieds'||typeof this.options.onAcceptMission!=='function'||!a?.missionId)return;const t=this.viewToken,id=a.id;this.accepting=true;this.notice='';this.render();let m='';try{const r=await this.options.onAcceptMission(a);m=r?.ok?r.message||'Job accepted.':r?.message||'This job could not be accepted.';}catch(e){console.error('[PIOfficeComputerUI] Accept job failed:',e);m='Could not accept this job. Please try again.';}finally{this.accepting=false;if(!this.destroyed&&this.isOpen&&!this.suspended){if(t===this.viewToken&&this.app==='classifieds'&&this.selectedId===id)this.notice=m;this.render();}}
- }
- destroy(){if(this.destroyed)return;this.suspended=false;this.close();this.destroyed=true;this.mailNotifications.destroy();this.photoQuest.destroy();this.search.destroy();this.viewToken++;this.monitor.stopBoot();this.monitor.clearFx();this.scene.input.keyboard?.off('keydown',this.onKey);this.scene.scale.off('resize',this.onResize);this.scene.events.off('shutdown',this.destroy,this);this.root?.destroy(true);this.root=null;this.content=null;this.layout=null;this.window=null;}
+import { installOfficeShop } from './pi-computer/ComputerOfficeShop.js';
+
+export class PIOfficeComputerUI {
+  constructor(scene, options = {}) {
+    Object.assign(this, {
+      scene, options, isOpen: false, suspended: false, destroyed: false,
+      app: 'desktop', selectedId: null, listPage: 0, bodyPage: 0,
+      notice: '', accepting: false, layout: null, window: null, content: null,
+      viewToken: 0, menuOpen: false, booting: false, bootStep: 0,
+      bootLines: null, hasBooted: false, powerOn: false, jokeIndex: 0,
+      fontsChecked: false
+    });
+    this.root = scene.add.container(0, 0).setDepth(1500).setVisible(false);
+    this.drawing = new ComputerDrawing(this);
+    this.monitor = new ComputerMonitor(this);
+    this.desktop = new ComputerDesktop(this);
+    this.documents = new ComputerDocuments(this);
+    this.ledger = new ComputerLedger(this);
+    this.search = new ComputerSearch(this);
+    this.photoQuest = new PhotoPIQuest(this);
+    installComputerNotebook(this);
+    this.mailNotifications = new ComputerMailNotifications(this);
+    this.officeShop = installOfficeShop(this);
+
+    this.onKey = event => {
+      if (this.destroyed || !this.isOpen || this.suspended) return;
+      const target = event.target;
+      if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
+      if (this.photoQuest.debugEditor.handleKey(event)) return;
+      if (event.code !== 'Escape') return;
+      event.preventDefault();
+      if (this.booting) { this.monitor.finishBoot(); return; }
+      if (this.menuOpen) { this.menuOpen = false; this.render(); return; }
+      if (this.photoQuest.galleryViewer.active) { this.photoQuest.galleryViewer.close(); return; }
+      if (this.photoQuest.contactMail.composing) { this.photoQuest.contactMail.closeComposer(); return; }
+      if (this.app === 'photo') { this.photoQuest.returnToMail(); return; }
+      if (this.notice && this.app === 'desktop') { this.notice = ''; this.render(); return; }
+      if (this.app !== 'desktop') this.openApp('desktop');
+      else this.close();
+    };
+    this.onResize = () => {
+      if (this.isOpen && !this.suspended && !this.destroyed) this.render();
+    };
+    scene.input.keyboard?.on('keydown', this.onKey);
+    scene.scale.on('resize', this.onResize);
+    scene.events.once('shutdown', this.destroy, this);
+    void this.photoQuest.load();
+  }
+
+  open() {
+    if (this.destroyed || this.isOpen) return;
+    Object.assign(this, {
+      isOpen: true, suspended: false, app: 'desktop', selectedId: null,
+      listPage: 0, bodyPage: 0, notice: '', menuOpen: false,
+      booting: false, powerOn: true
+    });
+    this.photoQuest.galleryViewer.active = false;
+    this.photoQuest.contactMail.composing = false;
+    this.viewToken++;
+    this.root.setVisible(true);
+    this.options.onOpen?.();
+    this.ensureFonts();
+    if (!this.options.skipBoot) this.monitor.startBoot();
+    this.render();
+    void this.photoQuest.load();
+  }
+
+  close() {
+    if (this.destroyed || !this.isOpen || this.suspended) return;
+    Object.assign(this, { isOpen: false, suspended: false, menuOpen: false, booting: false });
+    this.photoQuest.debugEditor.enabled = false;
+    this.photoQuest.galleryViewer.active = false;
+    this.photoQuest.contactMail.composing = false;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
+    this.viewToken++;
+    this.root.setVisible(false);
+    this.options.onClose?.();
+  }
+
+  suspend() {
+    if (this.destroyed || !this.isOpen) return;
+    Object.assign(this, { suspended: true, menuOpen: false, booting: false });
+    this.photoQuest.debugEditor.enabled = false;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
+    this.viewToken++;
+    this.root.setVisible(false);
+  }
+
+  resume() {
+    if (this.destroyed || !this.isOpen) return;
+    Object.assign(this, {
+      suspended: false, app: 'desktop', notice: '', menuOpen: false,
+      booting: false, powerOn: false
+    });
+    this.viewToken++;
+    this.root.setVisible(true);
+    this.render();
+  }
+
+  openApp(app) {
+    if (this.destroyed || !this.isOpen || this.suspended) return;
+    this.menuOpen = false;
+    if (app === 'investigations') {
+      this.launchExternal(this.options.onOpenInvestigations,
+        'The investigation board is currently unavailable.');
+      return;
+    }
+    if (app === 'travel') {
+      this.launchExternal(this.options.onOpenWorldTravel,
+        'World travel is currently unavailable.');
+      return;
+    }
+    if (!['desktop', 'mail', 'ledger', 'classifieds', 'search'].includes(app)) return;
+    this.photoQuest.galleryViewer.active = false;
+    this.photoQuest.contactMail.composing = false;
+    Object.assign(this, { app, selectedId: null, listPage: 0, bodyPage: 0, notice: '' });
+    this.viewToken++;
+    this.render();
+    if (app === 'search') void this.search.load();
+    if (app === 'mail' || app === 'classifieds') void this.photoQuest.load();
+  }
+
+  launchExternal(callback, message) {
+    if (typeof callback !== 'function') {
+      this.notice = message;
+      this.render();
+      return;
+    }
+    try {
+      const result = callback();
+      if (result?.catch) result.catch(error => this.handleExternalError(error, message));
+    } catch (error) { this.handleExternalError(error, message); }
+  }
+
+  handleExternalError(error, message) {
+    console.error('[PIOfficeComputerUI] Application failed:', error);
+    if (this.destroyed || !this.isOpen) return;
+    if (this.suspended) this.resume();
+    this.notice = message;
+    this.render();
+  }
+
+  ensureFonts() {
+    if (this.fontsChecked || typeof document === 'undefined' || !document.fonts) return;
+    this.fontsChecked = true;
+    const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
+    try { if (specs.every(spec => document.fonts.check(spec))) return; }
+    catch (_) { return; }
+    Promise.all(specs.map(spec => document.fonts.load(spec))).then(() => {
+      if (!this.destroyed && this.isOpen && !this.suspended) this.render();
+    }).catch(() => {});
+  }
+
+  money(value) {
+    return Number.isFinite(value)
+      ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
+      : 'Unknown';
+  }
+  render() { this.monitor.render(); }
+  getMail() { return this.documents.getMail(); }
+  getClassifieds() { return this.documents.getClassifieds(); }
+  getLedger() { return this.ledger.getData(); }
+  formatLedgerDate(value) { return this.ledger.formatDate(value); }
+  addToContent(object) { return this.drawing.add(object); }
+  text(...args) { return this.drawing.text(...args); }
+  pixel(...args) { return this.drawing.pixel(...args); }
+  rectangle(...args) { return this.drawing.rectangle(...args); }
+  bevel(...args) { return this.drawing.bevel(...args); }
+  button(...args) { return this.drawing.button(...args); }
+  drawMonitorDetails() { return this.monitor.drawMonitorDetails(); }
+  drawWallpaper() { return this.monitor.drawWallpaper(); }
+  drawTaskbar() { return this.monitor.drawTaskbar(); }
+  renderDesktop() { return this.desktop.render(); }
+  createDesktopIcon(...args) { return this.desktop.createIcon(...args); }
+  renderApplication() { return this.monitor.renderApplication(); }
+  renderDocuments() { return this.documents.render(); }
+  changeListPage(...args) { return this.documents.changeListPage(...args); }
+  renderPagedText(...args) { return this.documents.renderPagedText(...args); }
+  renderLedger() { return this.ledger.render(); }
+
+  async acceptMission(advert) {
+    if (this.accepting || this.destroyed || !this.isOpen || this.suspended ||
+        this.app !== 'classifieds' || typeof this.options.onAcceptMission !== 'function' ||
+        !advert?.missionId) return;
+    const token = this.viewToken, id = advert.id;
+    this.accepting = true;
+    this.notice = '';
+    this.render();
+    let message = '';
+    try {
+      const result = await this.options.onAcceptMission(advert);
+      message = result?.ok ? result.message || 'Job accepted.'
+        : result?.message || 'This job could not be accepted.';
+    } catch (error) {
+      console.error('[PIOfficeComputerUI] Accept job failed:', error);
+      message = 'Could not accept this job. Please try again.';
+    } finally {
+      this.accepting = false;
+      if (!this.destroyed && this.isOpen && !this.suspended) {
+        if (token === this.viewToken && this.app === 'classifieds' && this.selectedId === id) {
+          this.notice = message;
+        }
+        this.render();
+      }
+    }
+  }
+
+  destroy() {
+    if (this.destroyed) return;
+    this.suspended = false;
+    this.close();
+    this.destroyed = true;
+    this.mailNotifications.destroy();
+    this.photoQuest.destroy();
+    this.search.destroy();
+    this.viewToken++;
+    this.monitor.stopBoot();
+    this.monitor.clearFx();
+    this.scene.input.keyboard?.off('keydown', this.onKey);
+    this.scene.scale.off('resize', this.onResize);
+    this.scene.events.off('shutdown', this.destroy, this);
+    this.root?.destroy(true);
+    this.root = null;
+    this.content = null;
+    this.layout = null;
+    this.window = null;
+  }
 }
