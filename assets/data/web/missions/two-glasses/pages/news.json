@@ -25,7 +25,8 @@
         ]
       ],
       "links": [],
-      "snippet": "The country-club classic returns, with softer tailoring and brighter accessories."
+      "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
+      "template": "lifestyle"
     },
     {
       "id": "claire_work",
@@ -48,7 +49,8 @@
         ]
       ],
       "links": [],
-      "snippet": "Claire Sutton led a practical workshop for local volunteer groups."
+      "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
+      "template": "news"
     },
     {
       "id": "nora_work",
@@ -71,14 +73,15 @@
         ]
       ],
       "links": [],
-      "snippet": "Nora Bell outlined community funding opportunities in the North Region."
+      "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
+      "template": "news"
     },
     {
       "id": "claire_other",
       "title": "Clare Sutton | Ceramics and workshops",
       "address": "www.claresuttonstudio.local",
       "brand": "CLARE SUTTON STUDIO",
-      "theme": "magazine",
+      "theme": "business",
       "blocks": [
         [
           "Clare Sutton makes hand-thrown stoneware from a small studio on Market Lane."
@@ -91,14 +94,15 @@
         ]
       ],
       "links": [],
-      "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes."
+      "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes.",
+      "template": "business"
     },
     {
       "id": "nora_other",
       "title": "Norah Bell | Piano lessons",
       "address": "www.norahbellmusic.local",
       "brand": "NORAH BELL MUSIC",
-      "theme": "magazine",
+      "theme": "business",
       "blocks": [
         [
           "Norah Bell offers individual piano lessons for beginners and returning players."
@@ -111,7 +115,8 @@
         ]
       ],
       "links": [],
-      "snippet": "Norah Bell offers piano tuition and accompaniment services."
+      "snippet": "Norah Bell offers piano tuition and accompaniment services.",
+      "template": "business"
     }
   ]
 }

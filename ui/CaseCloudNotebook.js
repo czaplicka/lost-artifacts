@@ -2,6 +2,7 @@ import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
 const STORE = 'caseCloudNotebookV1';
+const VIEW_STORE = 'caseCloudNotebookViewV1';
 const INK = 0x345b68;
 const FONT = '"SpecialElite", "Special Elite", monospace';
 const list = value => Array.isArray(value) ? value : [];
@@ -10,17 +11,25 @@ const hash = value => [...String(value)].reduce((n, c) => ((n * 31 + c.charCodeA
 export function installCaseNotebook(ui, scope) {
   if (!['pi', 'agency'].includes(scope)) throw Error('Invalid notebook scope');
   if (ui.caseCloudNotebook) return ui.caseCloudNotebook;
+
   const state = ui.state || gameState;
   let dead = false;
   let selected = null;
   let tabStart = 0;
   let signature = '';
   let lastCheck = 0;
+  let snapshotCache = '';
+  let notebookRoot = null;
+  let handleRoot = null;
+  let handleLabel = null;
+  let slideTween = null;
+  let moving = false;
+  let collapsed = state[VIEW_STORE]?.[scope]?.collapsed === true;
+  const slide = { value: collapsed ? 0 : 1 };
   const pages = new Map();
   const keywordPages = new Map();
-  let snapshotCache = '';
-
   const save = () => requestAutosave();
+
   const store = () => {
     state[STORE] ||= { pi: {}, agency: {} };
     state[STORE][scope] ||= {};
@@ -92,7 +101,6 @@ export function installCaseNotebook(ui, scope) {
         const terms = list(item.terms).map(id => groups.get(id)).filter(Boolean);
         if (terms.length === 2 && terms[0] !== terms[1]) links.push({ from: terms[0], to: terms[1] });
       });
-      // Optional explicit links require evidence already discovered by the player.
       list(definition.notebookLinks).forEach(link => {
         if (list(link.requires).length && list(link.requires).every(id => known.has(id))) links.push(link);
       });
@@ -101,7 +109,7 @@ export function installCaseNotebook(ui, scope) {
   }
 
   function pickKeyword(definition, keyword) {
-    if (scope !== 'pi') return;
+    if (scope !== 'pi' || collapsed || moving) return;
     const search = ui.search;
     if (ui.app === 'search') {
       if (search.definition?.id !== definition.id) search.selectCase(definition.id);
@@ -116,8 +124,6 @@ export function installCaseNotebook(ui, scope) {
   ui.search.notesOpen = false;
 
   if (scope === 'agency') {
-    // ComputerSearch currently uses the PI state and PI dataset globally.
-    // Do not expose private cases through the agency computer.
     ui.search.load = async () => {};
     ui.search.render = () => {
       const d = ui.drawing;
@@ -131,32 +137,100 @@ export function installCaseNotebook(ui, scope) {
     };
   }
 
-  const paperHeight = () => Math.min(420, Math.max(240, ui.scene.scale.height * 0.43));
+  // Monitor geometry never depends on the notebook's visibility.
   if (scope === 'pi') {
     ui.monitor.calculateWorkspace = () => {
       const { width, height } = ui.scene.scale;
-      const available = Math.max(1, height - paperHeight() - 18);
-      const scale = Math.max(0.001, Math.min((width - 16) / 1120, available / 800));
-      return { scale, left: (width - 1120 * scale) / 2, top: 4 };
+      const scale = Math.max(0.001, Math.min(Math.max(1, width - 16) / 1120, Math.max(1, height - 16) / 800));
+      return { scale, left: (width - 1120 * scale) / 2, top: (height - 800 * scale) / 2 };
     };
+  }
+
+  const paperHeight = () => Math.min(420, Math.max(240, ui.scene.scale.height * 0.43));
+  const handleText = () => collapsed ? '\u25B2 CASE NOTES' : '\u25BC HIDE NOTES';
+
+  function updateInput() {
+    if (!notebookRoot?.scene) return;
+    const enabled = !collapsed && !moving;
+    const visit = object => {
+      if (object.input) {
+        if (object.notebookInputEnabled === undefined) object.notebookInputEnabled = object.input.enabled;
+        object.input.enabled = enabled && object.notebookInputEnabled;
+      }
+      object.list?.forEach(visit);
+    };
+    visit(notebookRoot);
+  }
+
+  function updateSlide() {
+    const { width, height } = ui.scene.scale;
+    const scale = Math.max(0.001, Math.min(Math.max(1, width - 16) / 1280, paperHeight() / 370));
+    const amount = Math.max(0, Math.min(1, slide.value));
+    const openY = height - 370 * scale - 4;
+    if (notebookRoot?.scene) {
+      notebookRoot.setScale(scale).setPosition((width - 1280 * scale) / 2, height + (openY - height) * amount);
+      notebookRoot.setVisible(amount > 0.0001);
+    }
+    if (handleRoot?.scene) {
+      const handleScale = Math.min(1, Math.max(0.1, (width - 16) / 240));
+      const closedY = height - 36 * handleScale - 4;
+      const openHandleY = Math.max(0, openY - 36 * handleScale);
+      handleRoot.setScale(handleScale).setPosition((width - 240 * handleScale) / 2, closedY + (openHandleY - closedY) * amount);
+    }
+    handleLabel?.setText(handleText());
+  }
+
+  function stopSlide() {
+    slideTween?.stop();
+    slideTween = null;
+    ui.scene.tweens?.killTweensOf(slide);
+    moving = false;
+  }
+
+  function setCollapsed(value, animate = true) {
+    if (dead || ui.destroyed) return;
+    collapsed = Boolean(value);
+    state[VIEW_STORE] ||= {};
+    state[VIEW_STORE][scope] = { ...state[VIEW_STORE][scope], collapsed };
+    save();
+    stopSlide();
+    const target = collapsed ? 0 : 1;
+    if (!animate || !ui.isOpen || ui.suspended || !ui.scene.tweens || Math.abs(slide.value - target) < 0.0001) {
+      slide.value = target;
+      updateSlide();
+      updateInput();
+      return;
+    }
+    moving = true;
+    updateInput();
+    updateSlide();
+    slideTween = ui.scene.tweens.add({
+      targets: slide,
+      value: target,
+      duration: Math.max(80, 280 * Math.abs(slide.value - target)),
+      ease: 'Sine.easeInOut',
+      onUpdate: updateSlide,
+      onComplete: () => {
+        slideTween = null;
+        moving = false;
+        slide.value = target;
+        updateSlide();
+        updateInput();
+      }
+    });
   }
 
   function renderNotebook() {
     if (dead || ui.destroyed || !ui.isOpen || ui.suspended) return;
-    if (scope === 'agency' && ui.content?.scene) {
-      const { width, height } = ui.scene.scale;
-      const scale = Math.max(0.001, Math.min((width - 16) / 1120, Math.max(1, height - paperHeight() - 18) / 760));
-      ui.content.setScale(scale).setPosition((width - 1120 * scale) / 2, 4);
-    }
     const cases = getCases();
     const definition = cases.find(item => item.id === selected) ||
       cases.find(item => item.id === (scope === 'pi' ? state.piKeywordSearch?.selectedCaseId : agencyId())) || cases[0];
     selected = definition?.id || null;
-    const { width, height } = ui.scene.scale;
-    const scale = Math.max(0.001, Math.min((width - 16) / 1280, paperHeight() / 370));
-    const root = ui.scene.add.container((width - 1280 * scale) / 2, height - 370 * scale - 4).setScale(scale);
+    const root = ui.scene.add.container(0, 0);
+    notebookRoot = root;
     ui.root.add(root);
     const add = object => { object.setScrollFactor(0); root.add(object); return object; };
+    const consume = (pointer, x, y, event) => event?.stopPropagation();
     const rect = (x, y, w, h, color, alpha = 1) => add(ui.scene.add.rectangle(x, y, w, h, color, alpha).setOrigin(0));
     const text = (x, y, value, size = 18, color = '#345b68', wrap = null) => add(ui.scene.add.text(x, y, String(value), {
       fontFamily: FONT, fontSize: `${size}px`, color,
@@ -164,25 +238,28 @@ export function installCaseNotebook(ui, scope) {
     }));
     const button = (x, y, value, callback, enabled = true) => {
       const label = text(x, y, value, 17, enabled ? '#714c36' : '#a99b7a');
-      if (enabled) label.setInteractive({ useHandCursor: true }).on('pointerdown', callback);
+      if (enabled) label.setInteractive({ useHandCursor: true }).on('pointerdown', (pointer, lx, ly, event) => {
+        event?.stopPropagation();
+        callback();
+      });
       return label;
     };
     rect(5, 32, 1275, 338, 0x000000, 0.32);
-    rect(0, 27, 1280, 340, 0xe9e2b2).setInteractive();
+    rect(0, 27, 1280, 340, 0xe9e2b2).setInteractive().on('pointerdown', consume);
     rect(33, 38, 2, 312, 0xb87969, 0.5);
     const graphics = add(ui.scene.add.graphics());
     graphics.lineStyle(2, 0x48463b, 0.85);
     for (let y = 44; y < 355; y += 21) graphics.strokeEllipse(10, y, 24, 10);
     text(48, 40, scope === 'pi' ? 'PRIVATE INVESTIGATIONS' : 'MARK AGENCY / CASE NOTES', 15);
     const title = text(370, 39, definition?.title || 'NO ACTIVE CASE', 20);
-    while (title.width > 660 && parseInt(title.style.fontSize) > 12) title.setFontSize(parseInt(title.style.fontSize) - 1);
-    button(1165, 40, '[ OFF ]', () => ui.close());
+    while (title.width > 650 && parseInt(title.style.fontSize) > 12) title.setFontSize(parseInt(title.style.fontSize) - 1);
+    button(1095, 40, '[ HIDE NOTES ]', () => setCollapsed(true));
     tabStart = Math.max(0, Math.min(tabStart, Math.max(0, cases.length - 9)));
     button(43, 5, '<', () => { tabStart--; ui.render(); }, tabStart > 0);
     cases.slice(tabStart, tabStart + 9).forEach((item, i) => {
       const x = 70 + i * 55;
       rect(x, item.id === selected ? 0 : 6, 45, 29, item.id === selected ? 0xe9e2b2 : 0xcab85e).setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => { selected = item.id; ui.render(); });
+        .on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation(); selected = item.id; ui.render(); });
       text(x + 14, 7, tabStart + i + 1, 17);
     });
     button(575, 5, '>', () => { tabStart++; ui.render(); }, tabStart + 9 < cases.length);
@@ -241,7 +318,7 @@ export function installCaseNotebook(ui, scope) {
             label.setColor(active ? '#a44933' : '#345b68').setInteractive({ useHandCursor: true })
               .on('pointerover', () => label.setColor('#a44933'))
               .on('pointerout', () => label.setColor(active ? '#a44933' : '#345b68'))
-              .on('pointerdown', () => pickKeyword(definition, keyword));
+              .on('pointerdown', (pointer, lx, ly, event) => { event?.stopPropagation(); pickKeyword(definition, keyword); });
           }
         });
         if (count > 1) button(p.x + 92, p.y + 40, `${index + 1}/${count} >`, () => {
@@ -252,6 +329,25 @@ export function installCaseNotebook(ui, scope) {
       text(595, 337, `${page + 1} / ${pageCount}`, 16);
       button(1155, 337, 'PAGE >', () => { pages.set(definition.id, page + 1); ui.render(); }, page + 1 < pageCount);
     }
+
+    handleRoot = ui.scene.add.container(0, 0).setScrollFactor(0);
+    ui.root.add(handleRoot);
+    const handle = ui.scene.add.rectangle(0, 0, 240, 36, 0xe9e2b2).setOrigin(0).setScrollFactor(0)
+      .setStrokeStyle(2, 0x88774c).setInteractive({ useHandCursor: true });
+    handleRoot.add(handle);
+    handleLabel = ui.scene.add.text(120, 18, handleText(), {
+      fontFamily: FONT, fontSize: '18px', color: '#345b68'
+    }).setOrigin(0.5).setScrollFactor(0);
+    handleRoot.add(handleLabel);
+    handle.on('pointerdown', (pointer, lx, ly, event) => {
+      event?.stopPropagation();
+      ui.options?.onSfx?.('click');
+      setCollapsed(!collapsed);
+    });
+    handle.on('pointerover', () => handle.setFillStyle(0xf5ecc3));
+    handle.on('pointerout', () => handle.setFillStyle(0xe9e2b2));
+    updateSlide();
+    updateInput();
     signature = JSON.stringify([cases, ui.app, ui.search.terms, ui.booting]);
     if (scope === 'pi' && !ui.booting && !ui.search.data && !ui.search.loading && !ui.search.error) void ui.search.load();
   }
@@ -263,6 +359,24 @@ export function installCaseNotebook(ui, scope) {
     renderNotebook();
     return result;
   };
+
+  // Animation survives application redraws because it targets plain state, not the paper container.
+  const settleSlide = () => {
+    stopSlide();
+    slide.value = collapsed ? 0 : 1;
+    updateSlide();
+    updateInput();
+  };
+  for (const name of ['close', 'suspend']) {
+    if (typeof ui[name] !== 'function') continue;
+    const original = ui[name];
+    ui[name] = function (...args) {
+      const result = original.apply(this, args);
+      if (!ui.isOpen || ui.suspended) settleSlide();
+      return result;
+    };
+  }
+
   const step = () => {
     if (dead || ui.destroyed || !ui.isOpen || ui.suspended || ui.booting) return;
     const now = ui.scene.time.now;
@@ -275,9 +389,13 @@ export function installCaseNotebook(ui, scope) {
   const cleanup = () => {
     if (dead) return;
     dead = true;
+    stopSlide();
     ui.scene.game.events.off('poststep', step);
     ui.scene.events.off('shutdown', cleanup);
     ui.scene.events.off('destroy', cleanup);
+    notebookRoot = null;
+    handleRoot = null;
+    handleLabel = null;
   };
   ui.scene.events.once('shutdown', cleanup);
   ui.scene.events.once('destroy', cleanup);
@@ -286,6 +404,12 @@ export function installCaseNotebook(ui, scope) {
     cleanup();
     return originalDestroy.apply(this, args);
   };
-  ui.caseCloudNotebook = { scope };
+  ui.caseCloudNotebook = {
+    scope,
+    hide: (animate = true) => setCollapsed(true, animate),
+    show: (animate = true) => setCollapsed(false, animate),
+    toggle: (animate = true) => setCollapsed(!collapsed, animate),
+    get collapsed() { return collapsed; }
+  };
   return ui.caseCloudNotebook;
 }

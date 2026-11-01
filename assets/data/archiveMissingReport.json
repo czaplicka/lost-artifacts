@@ -1,0 +1,26 @@
+{
+  "minimumCompletedMissions": 2,
+  "requiredFlags": [
+    "duplicate_record_found",
+    "archive_duplicate_discussed"
+  ],
+  "flags": {
+    "started": "archive_missing_report_started",
+    "catalogueSearched": "archive_missing_report_catalogue_searched",
+    "found": "archive_shredder_fragments_found",
+    "completed": "shredded_report_reconstructed"
+  },
+  "messages": {
+    "absent": "Frank is out. The catalogue cabinet is available. Apparently it has fewer appointments.",
+    "missing": "JM-041 should be here. The slot is empty. There are fresh paper fragments in the shredder bin.",
+    "found": "Fragments of JM-041. Someone tried to turn the report into office confetti.",
+    "restored": "Report restored. The author is Marcus; the supporting annex was filed separately. Frank is back at his desk.",
+    "failed": "The document could not be opened. Nothing was lost. Please try again.",
+    "saveFailed": "Progress is in memory, but automatic saving failed. Save manually before closing the game."
+  },
+  "buttons": {
+    "catalogue": "SEARCH CATALOGUE",
+    "shredder": "EXAMINE SHREDDER",
+    "read": "READ RECOVERED REPORT"
+  }
+}

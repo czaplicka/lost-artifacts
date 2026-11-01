@@ -124,7 +124,9 @@
               "pageId": "miramar_meetings"
             }
           ],
-          "snippet": "Rooms, terrace dining and private events overlooking the coast."
+          "snippet": "Rooms, terrace dining and private events overlooking the coast.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
         },
         {
           "id": "mariner",
@@ -156,7 +158,9 @@
               "pageId": "mariner_events"
             }
           ],
-          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse."
+          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
         },
         {
           "id": "coral",
@@ -186,7 +190,9 @@
               "pageId": "coral_events"
             }
           ],
-          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest."
+          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
         },
         {
           "id": "organisation",
@@ -230,7 +236,9 @@
               "pageId": "contact"
             }
           ],
-          "snippet": "Regional partnerships, community projects and the New Horizons programme."
+          "snippet": "Regional partnerships, community projects and the New Horizons programme.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
         },
         {
           "id": "events",
@@ -276,7 +284,9 @@
               "pageId": "contact"
             }
           ],
-          "snippet": "Workshops, regional reports and an evening reception for delegates."
+          "snippet": "Workshops, regional reports and an evening reception for delegates.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
         },
         {
           "id": "miramar_event",
@@ -321,7 +331,9 @@
               "pageId": "miramar_meetings"
             }
           ],
-          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace."
+          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
         },
         {
           "id": "miramar_meetings",
@@ -354,7 +366,9 @@
               "pageId": "miramar_event"
             }
           ],
-          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests."
+          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
         },
         {
           "id": "mariner_events",
@@ -376,7 +390,9 @@
               "pageId": "mariner"
             }
           ],
-          "snippet": "Quiz nights, harbour history talks and live music in the lounge."
+          "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
         },
         {
           "id": "coral_events",
@@ -398,7 +414,9 @@
               "pageId": "coral"
             }
           ],
-          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner."
+          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
         },
         {
           "id": "jacket_generic",
@@ -464,7 +482,9 @@
           ],
           "snippet": "Photographs from the reception at Hotel Miramar.",
           "imageKey": "Reed_conference",
-          "imageUrl": "assets/side_quests/Reed/conference.webp"
+          "imageUrl": "assets/side_quests/Reed/conference.webp",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
         },
         {
           "id": "team",
@@ -499,7 +519,9 @@
               "pageId": "contact"
             }
           ],
-          "snippet": "Meet our regional coordinators and programme staff."
+          "snippet": "Meet our regional coordinators and programme staff.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
         },
         {
           "id": "contact",
@@ -536,7 +558,9 @@
               "pageId": "team"
             }
           ],
-          "snippet": "Programme enquiries, press requests and event administration."
+          "snippet": "Programme enquiries, press requests and event administration.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
         },
         {
           "id": "swallow_birds",
@@ -556,7 +580,9 @@
             ]
           ],
           "links": [],
-          "snippet": "Guided walks, migration notes and a swallow badge for members."
+          "snippet": "Guided walks, migration notes and a swallow badge for members.",
+          "logoKey": "reed_web_logo_swallow_watch",
+          "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp"
         },
         {
           "id": "swallow_couriers",
@@ -576,7 +602,9 @@
             ]
           ],
           "links": [],
-          "snippet": "Business deliveries and local parcels. Look for the blue swallow."
+          "snippet": "Business deliveries and local parcels. Look for the blue swallow.",
+          "logoKey": "reed_web_logo_swiftwing",
+          "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp"
         },
         {
           "id": "claire_social",

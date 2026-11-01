@@ -1,3 +1,46 @@
+// ui/inventory/InventoryView.js
+
+const CATEGORIES = {
+  clue:     { color: 0x6fb7e9, css: '#6fb7e9' },
+  evidence: { color: 0xe0654f, css: '#e0654f' },
+  key:      { color: 0xe6c65c, css: '#e6c65c' },
+  document: { color: 0xcdb892, css: '#cdb892' },
+  misc:     { color: 0x9a95ad, css: '#9a95ad' },
+};
+
+const SUBTITLES = [
+  'Evidence. Snacks. Regrets.',
+  'Chain of custody: mostly you.',
+  'Please do not lick the evidence.',
+  'Contents may have settled in transit.',
+  'Pockets: now with extra pockets.',
+  'Everything in here is probably legal.',
+  'Property of the Agency. Allegedly.',
+];
+
+const EMPTY_BODIES = [
+  'Your pockets. Slightly more organised than your life.',
+  'Nothing suspicious here. Yet.',
+  'A detective is only as good as their pockets. Yours are... fine.',
+  'Lint, hope and a receipt. The usual.',
+];
+
+function categoryOf(item) {
+  const type = String(item?.type || item?.category || 'misc').toLowerCase();
+
+  for (const key of Object.keys(CATEGORIES)) {
+    if (type.startsWith(key)) return CATEGORIES[key];
+  }
+
+  return CATEGORIES.misc;
+}
+
+function capacityStyle(ratio) {
+  if (ratio >= 1) return { color: 0xe0654f, css: '#e0654f' };
+  if (ratio >= 0.75) return { color: 0xe6c65c, css: '#e6c65c' };
+  return { color: 0x7cfc8a, css: '#7cfc8a' };
+}
+
 export class InventoryView {
   constructor(scene, actions) {
     this.scene = scene;
@@ -15,15 +58,18 @@ export class InventoryView {
     this.height = 510;
 
     this.colors = {
-      background: '#1a1a2e',
+      background: '#15111c',
       border: '#d4af37',
       text: '#f2eadc',
       muted: '#bcaeaa',
       hover: '#f4b860',
       selected: '#ffd700',
-      slot: '#2a2a3e',
+      slot: '#242036',
       shadow: '#000000',
       use: '#7cfc8a',
+      paper: '#e6d5a8',
+      ink: '#2b1d12',
+      inkMuted: '#6b5638',
     };
 
     this._destroyed = false;
@@ -40,13 +86,21 @@ export class InventoryView {
     this.panelRect = null;
     this._windowPress = null;
     this._savedPosition = null;
+    this._glowTween = null;
 
     this._detailKey = null;
     this._detailPages = [''];
     this._detailPage = 0;
+    this._emptyBody = Phaser.Utils.Array.GetRandom(EMPTY_BODIES);
+
+    // Karta z opisem (pergamin po prawej)
+    this.cardX = 528;
+    this.cardY = 76;
+    this.cardW = 268;
+    this.cardH = 262;
 
     this.detailsX = 540;
-    this.detailsWidth = 254;
+    this.detailsWidth = 244;
     this.detailsBottom = 330;
   }
 
@@ -71,8 +125,9 @@ export class InventoryView {
       .setDepth(1000)
       .setScrollFactor(0);
 
+    // Baza panelu: zachowuje obrys i blokuje klikanie "przez" okno.
     this.panel = this.scene.add
-      .rectangle(0, 0, this.width, this.height, 0x1a1a2e, 0.99)
+      .rectangle(0, 0, this.width, this.height, 0x15111c, 1)
       .setOrigin(0)
       .setStrokeStyle(3, 0xd4af37)
       .setInteractive();
@@ -80,10 +135,15 @@ export class InventoryView {
     this.panel.on('pointerdown', stop);
     this.panel.on('pointerup', stop);
 
+    // Dekoracje (tlo, naglowek, ramki, pergamin)
+    this.frame = this.scene.add.graphics();
+    this.drawFrame();
+
     this.container = this.scene.add.container(24, 82);
 
+    // Pasek naglowka = uchwyt do przesuwania okna (niewidoczny, ale klikalny)
     this.header = this.scene.add
-      .rectangle(0, 0, this.width - 78, 64, 0x262338, 1)
+      .rectangle(0, 0, this.width - 78, 64, 0x000000, 0)
       .setOrigin(0)
       .setInteractive({ cursor: 'grab' });
 
@@ -117,46 +177,63 @@ export class InventoryView {
       20,
       this.colors.border,
       true
-    ).setPosition(24, 24);
+    )
+      .setPosition(24, 13)
+      .setShadow(3, 3, '#000000', 0, false, true);
+
+    this.subtitleText = text(
+      Phaser.Utils.Array.GetRandom(SUBTITLES),
+      14,
+      this.colors.muted
+    ).setPosition(24, 41);
 
     this.counterText = text('', 20)
       .setOrigin(1, 0)
-      .setPosition(this.width - 92, 24);
+      .setPosition(this.width - 64, 14);
+
+    this.capGfx = this.scene.add.graphics();
 
     this.closeButton = text(
-      '[X]',
-      18,
-      this.colors.border,
+      'X',
+      16,
+      this.colors.text,
       true
     )
       .setOrigin(1, 0)
-      .setPosition(this.width - 24, 24)
+      .setPosition(this.width - 18, 16)
+      .setPadding(10, 8, 10, 8)
+      .setBackgroundColor('#5a2222')
       .setInteractive({ useHandCursor: true });
 
     this.closeButton.on('pointerdown', stop);
+
+    this.closeButton.on('pointerover', () => {
+      this.closeButton.setBackgroundColor('#8a2e2e');
+    });
+
+    this.closeButton.on('pointerout', () => {
+      this.closeButton.setBackgroundColor('#5a2222');
+    });
 
     this.closeButton.on('pointerup', (p, x, y, event) => {
       event?.stopPropagation();
       this.actions.close();
     });
 
-    this.divider = this.scene.add
-      .rectangle(24, 64, this.width - 48, 2, 0xd4af37, 0.6)
-      .setOrigin(0);
-
-    this.detailsDivider = this.scene.add
-      .rectangle(516, 82, 2, 382, 0xd4af37, 0.35)
-      .setOrigin(0);
-
+    // --- Karta ze szczegolami przedmiotu ---
     this.selectedLabel = text(
       'SELECT AN ITEM',
       22,
-      this.colors.selected
+      this.colors.ink
     )
-      .setPosition(this.detailsX, 86)
+      .setPosition(this.detailsX, 88)
       .setWordWrapWidth(this.detailsWidth, true);
 
-    this.tooltip = text('', 18)
+    this.typeChip = text('', 10, '#17110a', true)
+      .setPadding(6, 5, 6, 5)
+      .setVisible(false);
+
+    this.tooltip = text('', 18, this.colors.ink)
       .setPosition(this.detailsX, 150)
       .setWordWrapWidth(this.detailsWidth, true)
       .setLineSpacing(3);
@@ -166,7 +243,7 @@ export class InventoryView {
       14,
       this.colors.border
     )
-      .setPosition(this.detailsX, 344)
+      .setPosition(this.cardX, 346)
       .setInteractive({ useHandCursor: true });
 
     this.detailsPageText = text(
@@ -175,7 +252,7 @@ export class InventoryView {
       this.colors.muted
     )
       .setOrigin(0.5, 0)
-      .setPosition(667, 344);
+      .setPosition(this.cardX + this.cardW / 2, 346);
 
     this.detailsNext = text(
       'NEXT >',
@@ -183,7 +260,7 @@ export class InventoryView {
       this.colors.border
     )
       .setOrigin(1, 0)
-      .setPosition(794, 344)
+      .setPosition(this.cardX + this.cardW, 346)
       .setInteractive({ useHandCursor: true });
 
     this.detailsPrevious.on('pointerdown', stop);
@@ -200,11 +277,11 @@ export class InventoryView {
     });
 
     this.hintText = text('', 14, this.colors.muted)
-      .setPosition(this.detailsX, 370)
-      .setWordWrapWidth(this.detailsWidth, true);
+      .setPosition(this.cardX, 372)
+      .setWordWrapWidth(this.cardW, true);
 
     this.useButtonBg = this.scene.add
-      .rectangle(540, 408, 254, 56, 0x353541)
+      .rectangle(this.cardX, 410, this.cardW, 54, 0x353541)
       .setOrigin(0)
       .setStrokeStyle(2, 0xd4af37)
       .setInteractive({ useHandCursor: true });
@@ -216,7 +293,8 @@ export class InventoryView {
       true
     )
       .setOrigin(0.5)
-      .setPosition(667, 436);
+      .setPosition(this.cardX + this.cardW / 2, 437)
+      .setShadow(2, 2, '#000000', 0, false, true);
 
     this.useButtonBg.on('pointerdown', stop);
 
@@ -238,28 +316,33 @@ export class InventoryView {
       this.updateUseButton();
     });
 
-    this.previousButton = text(
-      '<',
-      20,
-      this.colors.border,
-      true
-    )
-      .setPosition(24, 464)
+    // --- Paginacja siatki ---
+    const pageButton = label => text(label, 20, this.colors.border, true)
+      .setPadding(10, 6, 10, 6)
+      .setBackgroundColor('#2c2439')
       .setInteractive({ useHandCursor: true });
+
+    this.previousButton = pageButton('<').setPosition(24, 460);
 
     this.pageText = text('', 18, this.colors.muted)
       .setOrigin(0.5, 0)
-      .setPosition(260, 465);
+      .setPosition(266, 468);
 
-    this.nextButton = text(
-      '>',
-      20,
-      this.colors.border,
-      true
-    )
+    this.nextButton = pageButton('>')
       .setOrigin(1, 0)
-      .setPosition(508, 464)
-      .setInteractive({ useHandCursor: true });
+      .setPosition(508, 460);
+
+    for (const button of [this.previousButton, this.nextButton]) {
+      button.on('pointerdown', stop);
+
+      button.on('pointerover', () => {
+        button.setColor(this.colors.selected);
+      });
+
+      button.on('pointerout', () => {
+        button.setColor(this.colors.border);
+      });
+    }
 
     this.previousButton.on('pointerup', (p, x, y, event) => {
       event?.stopPropagation();
@@ -273,14 +356,16 @@ export class InventoryView {
 
     this.root.add([
       this.panel,
+      this.frame,
       this.header,
-      this.divider,
-      this.detailsDivider,
       this.container,
       this.titleText,
+      this.subtitleText,
+      this.capGfx,
       this.counterText,
       this.closeButton,
       this.selectedLabel,
+      this.typeChip,
       this.tooltip,
       this.detailsPrevious,
       this.detailsPageText,
@@ -346,9 +431,148 @@ export class InventoryView {
     window.addEventListener('blur', this._onBlur);
 
     this.layout();
+    this.updateCapacity();
     this.updateDetails();
     this.setPanelVisible(false);
   }
+
+  // ---------------------------------------------------------------------------
+  // Rysowanie ramki, tla i pergaminu
+  // ---------------------------------------------------------------------------
+
+  drawFrame() {
+    const g = this.frame;
+    const W = this.width;
+    const H = this.height;
+    const Color = Phaser.Display.Color;
+
+    g.clear();
+
+    // Tlo: pionowy gradient zlozony z pasow (dziala tez w Canvas)
+    const top = Color.ValueToColor(0x241d31);
+    const bottom = Color.ValueToColor(0x120e19);
+    const bands = 20;
+    const bandH = (H - 4) / bands;
+
+    for (let i = 0; i < bands; i++) {
+      const c = Color.Interpolate.ColorWithColor(top, bottom, bands - 1, i);
+
+      g.fillStyle(Color.GetColor(c.r, c.g, c.b), 1);
+      g.fillRect(2, 2 + i * bandH, W - 4, Math.ceil(bandH) + 1);
+    }
+
+    // Naglowek
+    g.fillStyle(0x2c2439, 1);
+    g.fillRect(2, 2, W - 4, 62);
+
+    g.lineStyle(1, 0xd4af37, 0.08);
+    for (let x = 30; x <= W - 4; x += 14) {
+      g.lineBetween(x, 2, x - 24, 64);
+    }
+
+    g.fillStyle(0xd4af37, 0.9);
+    g.fillRect(2, 64, W - 4, 2);
+    g.fillStyle(0x000000, 0.35);
+    g.fillRect(2, 66, W - 4, 3);
+
+    // Taca pod siatke
+    g.fillStyle(0x0e0b13, 0.75);
+    g.fillRect(14, 72, 504, 382);
+    g.lineStyle(2, 0x4a3d22, 1);
+    g.strokeRect(14, 72, 504, 382);
+
+    // Karta-pergamin: cien, papier, krawedz
+    const { cardX, cardY, cardW, cardH } = this;
+
+    g.fillStyle(0x000000, 0.45);
+    g.fillRect(cardX + 4, cardY + 5, cardW, cardH);
+
+    g.fillStyle(0xe6d5a8, 1);
+    g.fillRect(cardX, cardY, cardW, cardH);
+
+    g.fillStyle(0xd8c690, 1);
+    g.fillRect(cardX, cardY, cardW, 5);
+
+    g.lineStyle(1, 0x8a7340, 1);
+    g.strokeRect(cardX, cardY, cardW, cardH);
+
+    g.lineStyle(1, 0x8a7340, 0.35);
+    g.strokeRect(cardX + 5, cardY + 9, cardW - 10, cardH - 14);
+
+    // Zagiety rog
+    const cx = cardX + cardW;
+    const cy = cardY + cardH;
+    const fold = 20;
+
+    g.fillStyle(0x15111c, 1);
+    g.fillTriangle(cx, cy, cx, cy - fold, cx - fold, cy);
+    g.fillStyle(0xbfa874, 1);
+    g.fillTriangle(cx - fold, cy - fold, cx, cy - fold, cx - fold, cy);
+
+    // Spinacz
+    g.lineStyle(2, 0xa7adb5, 1);
+    g.strokeRoundedRect(cx - 40, cardY - 8, 13, 36, 6);
+    g.strokeRoundedRect(cx - 37, cardY - 1, 7, 26, 3);
+
+    // Zlote narozniki
+    const L = 20;
+    g.lineStyle(3, 0xd4af37, 1);
+
+    g.beginPath();
+    g.moveTo(6, 6 + L); g.lineTo(6, 6); g.lineTo(6 + L, 6);
+    g.strokePath();
+
+    g.beginPath();
+    g.moveTo(W - 6 - L, 6); g.lineTo(W - 6, 6); g.lineTo(W - 6, 6 + L);
+    g.strokePath();
+
+    g.beginPath();
+    g.moveTo(6, H - 6 - L); g.lineTo(6, H - 6); g.lineTo(6 + L, H - 6);
+    g.strokePath();
+
+    g.beginPath();
+    g.moveTo(W - 6 - L, H - 6); g.lineTo(W - 6, H - 6); g.lineTo(W - 6, H - 6 - L);
+    g.strokePath();
+
+    // Nity
+    g.fillStyle(0xd4af37, 1);
+    for (const [x, y] of [[13, 13], [W - 13, 13], [13, H - 13], [W - 13, H - 13]]) {
+      g.fillCircle(x, y, 2.5);
+    }
+
+    // Cienka wewnetrzna ramka
+    g.lineStyle(1, 0xd4af37, 0.2);
+    g.strokeRect(9, 9, W - 18, H - 18);
+  }
+
+  updateCapacity() {
+    if (!this.capGfx || !this.counterText) return;
+
+    const { current, max } = this._capacity;
+    const ratio = max > 0 ? Math.min(1, current / max) : 0;
+    const style = capacityStyle(ratio);
+
+    const barW = 150;
+    const barH = 8;
+    const barX = this.width - 64 - barW;
+    const barY = 46;
+
+    this.counterText
+      .setText(`${current} / ${max}`)
+      .setColor(style.css);
+
+    this.capGfx.clear();
+    this.capGfx.fillStyle(0x0d0b13, 1);
+    this.capGfx.fillRect(barX, barY, barW, barH);
+    this.capGfx.fillStyle(style.color, 1);
+    this.capGfx.fillRect(barX, barY, Math.round(barW * ratio), barH);
+    this.capGfx.lineStyle(1, 0x5a4a28, 1);
+    this.capGfx.strokeRect(barX, barY, barW, barH);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Przesuwanie okna
+  // ---------------------------------------------------------------------------
 
   windowPointer(event) {
     const press = this._windowPress;
@@ -490,6 +714,14 @@ export class InventoryView {
     this.isVisible = true;
     this.layout();
 
+    // Nowy zart i nowy opis pustego ekwipunku przy kazdym otwarciu
+    this.subtitleText?.setText(Phaser.Utils.Array.GetRandom(SUBTITLES));
+    this._emptyBody = Phaser.Utils.Array.GetRandom(EMPTY_BODIES);
+    this._detailKey = null;
+    this.updateDetails();
+
+    this._glowTween?.resume();
+
     this.scene.tweens.killTweensOf(this.root);
 
     this.root
@@ -512,12 +744,18 @@ export class InventoryView {
     this.endWindowMove();
     this.isVisible = false;
 
+    this._glowTween?.pause();
+
     this.scene.tweens.killTweensOf(this.root);
 
     this.root
       .setVisible(false)
       .setAlpha(0);
   }
+
+  // ---------------------------------------------------------------------------
+  // Siatka przedmiotow
+  // ---------------------------------------------------------------------------
 
   render(items, capacity, selectedItem, usable) {
     if (
@@ -546,10 +784,7 @@ export class InventoryView {
     );
 
     this.renderSlots();
-
-    this.counterText.setText(
-      `${this._capacity.current} / ${this._capacity.max}`
-    );
+    this.updateCapacity();
 
     this.pageText.setText(
       `${this._page + 1} / ${pages}`
@@ -607,8 +842,13 @@ export class InventoryView {
   }
 
   renderSlots() {
+    // Tween musi zniknac PRZED zniszczeniem obiektow, ktore animuje.
+    this._glowTween?.remove();
+    this._glowTween = null;
+
     this.container.removeAll(true);
 
+    const S = this.slotSize;
     const pageSize = this.cols * this.rows;
     const first = this._page * pageSize;
 
@@ -617,18 +857,18 @@ export class InventoryView {
       this._items.length
     );
 
+    const gfx = this.scene.add.graphics();
+    this.container.add(gfx);
+
+    const overlays = [];
+
     for (
       let index = 0;
       index < pageSize && first + index < total;
       index++
     ) {
-      const x =
-        (index % this.cols) *
-        (this.slotSize + this.slotPadding);
-
-      const y =
-        Math.floor(index / this.cols) *
-        (this.slotSize + this.slotPadding);
+      const x = (index % this.cols) * (S + this.slotPadding);
+      const y = Math.floor(index / this.cols) * (S + this.slotPadding);
 
       const item = this._items[first + index];
 
@@ -637,31 +877,89 @@ export class InventoryView {
         this._selectedItem?.id === item.id
       );
 
-      const slot = this.scene.add
-        .rectangle(
-          x,
-          y,
-          this.slotSize,
-          this.slotSize,
-          selected ? 0x403929 : 0x2a2a3e
-        )
-        .setOrigin(0)
-        .setStrokeStyle(
-          selected ? 3 : 2,
-          selected ? 0xffd700 : 0x7e6839
-        );
-
-      this.container.add(slot);
+      this.drawSlot(gfx, x, y, item, selected);
 
       if (item) {
-        this.renderItem(
-          slot,
-          item,
-          x,
-          y,
-          selected
-        );
+        overlays.push({ x, y, item, selected });
       }
+    }
+
+    for (const { x, y, item, selected } of overlays) {
+      this.renderItem(x, y, item, selected);
+    }
+
+    if (this._items.length === 0 && this._page === 0) {
+      const plaque = this.scene.add
+        .text(
+          (this.cols * (S + this.slotPadding) - this.slotPadding) / 2,
+          (this.rows * (S + this.slotPadding) - this.slotPadding) / 2,
+          'Nothing here.\nNot even a clue.',
+          {
+            fontFamily: 'SpecialElite',
+            fontSize: '22px',
+            color: this.colors.muted,
+            align: 'center',
+            backgroundColor: '#0e0b13',
+            padding: { x: 18, y: 12 },
+          }
+        )
+        .setOrigin(0.5);
+
+      this.container.add(plaque);
+    }
+  }
+
+  drawSlot(g, x, y, item, selected) {
+    const S = this.slotSize;
+    const cx = x + S / 2;
+
+    // Tlo komorki
+    g.fillStyle(
+      selected ? 0x3a3020 : item ? 0x242036 : 0x161320,
+      1
+    );
+    g.fillRect(x, y, S, S);
+
+    g.fillStyle(0x000000, 0.25);
+    g.fillRect(x, y, S, 6);
+
+    // Efekt wcisniecia (ciemna gora/lewo, jasny dol/prawo)
+    g.lineStyle(2, 0x000000, 0.5);
+    g.lineBetween(x + 1, y + 1, x + S - 1, y + 1);
+    g.lineBetween(x + 1, y + 1, x + 1, y + S - 1);
+
+    g.lineStyle(2, 0xffffff, 0.07);
+    g.lineBetween(x + S - 1, y + 1, x + S - 1, y + S - 1);
+    g.lineBetween(x + 1, y + S - 1, x + S - 1, y + S - 1);
+
+    // Ramka
+    g.lineStyle(
+      selected ? 3 : 2,
+      selected ? 0xffd700 : item ? 0x8a7340 : 0x3b3250,
+      1
+    );
+    g.strokeRect(x, y, S, S);
+
+    if (item) {
+      const cat = categoryOf(item);
+
+      // Pasek kategorii
+      g.fillStyle(cat.color, 0.9);
+      g.fillRect(x + 3, y + S - 7, S - 6, 4);
+
+      // Podkladka pod ikone
+      g.fillStyle(0x0d0b13, 0.85);
+      g.fillCircle(cx, y + 34, 27);
+
+      g.lineStyle(2, cat.color, 0.55);
+      g.strokeCircle(cx, y + 34, 27);
+    } else {
+      // Pusta komorka: maly romb
+      const cy = y + S / 2;
+
+      g.fillStyle(0x2a2540, 1);
+      g.fillTriangle(cx, cy - 8, cx + 8, cy, cx, cy + 8);
+      g.fillTriangle(cx, cy - 8, cx - 8, cy, cx, cy + 8);
     }
   }
 
@@ -689,7 +987,7 @@ export class InventoryView {
       object.setFontSize(size);
     }
 
-    // Preserve the complete title even for unusually long names.
+    // Zachowaj caly tytul nawet przy bardzo dlugich nazwach.
     if (
       object.height > height ||
       object.width > width
@@ -704,17 +1002,40 @@ export class InventoryView {
     }
   }
 
-  renderItem(slot, item, x, y, selected) {
-    const centerX = x + this.slotSize / 2;
+  renderItem(x, y, item, selected) {
+    const S = this.slotSize;
+    const cx = x + S / 2;
+
+    // Poswiata zaznaczonego przedmiotu
+    if (selected) {
+      const glow = this.scene.add
+        .rectangle(x - 3, y - 3, S + 6, S + 6)
+        .setOrigin(0)
+        .setStrokeStyle(3, 0xffd700, 0.9);
+
+      this.container.add(glow);
+
+      this._glowTween = this.scene.tweens.add({
+        targets: glow,
+        alpha: { from: 0.3, to: 1 },
+        duration: 700,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+
+      if (!this.isVisible) this._glowTween.pause();
+    }
 
     const icon = this.scene.add
       .text(
-        centerX,
-        y + 33,
+        cx,
+        y + 34,
         item.icon || '📦',
-        { fontSize: '42px' }
+        { fontSize: '32px' }
       )
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setScale(selected ? 1.1 : 1);
 
     const fullName = String(
       item.name ||
@@ -724,83 +1045,41 @@ export class InventoryView {
 
     const label = this.scene.add
       .text(
-        centerX,
+        cx,
         y + 66,
         '',
         {
           fontFamily: 'SpecialElite',
-          fontSize: '15px',
-          color: this.colors.text,
+          fontSize: '14px',
+          color: selected ? this.colors.selected : this.colors.text,
           align: 'center',
         }
       )
       .setOrigin(0.5, 0);
 
     this.fitText(label, fullName, {
-      width: this.slotSize - 12,
-      height: this.slotSize - 72,
-      maxSize: 15,
-      minSize: 10,
+      width: S - 12,
+      height: 36,
+      maxSize: 14,
+      minSize: 9,
     });
 
-    if (selected) {
-      icon.setTint(0xffd700);
-    }
+    const highlight = this.scene.add
+      .rectangle(x, y, S, S)
+      .setOrigin(0)
+      .setStrokeStyle(2, 0xf4b860, 1)
+      .setVisible(false);
 
-    for (const object of [slot, icon, label]) {
-      object.setInteractive({
-        useHandCursor: true,
-      });
-
-      object.on('pointerover', () => {
-        if (
-          !this.isVisible ||
-          this.actions.isDragging() ||
-          this._windowPress
-        ) {
-          return;
-        }
-
-        slot.setFillStyle(0x403746);
-        this.actions.tooltip(item);
-      });
-
-      object.on('pointerout', () => {
-        slot.setFillStyle(
-          selected ? 0x403929 : 0x2a2a3e
-        );
-
-        this.hideTooltip();
-      });
-
-      object.on(
-        'pointerdown',
-        (pointer, lx, ly, event) => {
-          event?.stopPropagation();
-
-          if (
-            this.isVisible &&
-            !this._windowPress
-          ) {
-            this.actions.press(item, pointer);
-          }
-        }
-      );
-    }
-
-    this.container.add([icon, label]);
+    this.container.add([icon, label, highlight]);
 
     if (item.quantity > 1) {
-      const badgeX = x + this.slotSize - 14;
-      const badgeY = y + 14;
+      const badgeX = x + S - 16;
+      const badgeY = y + 16;
 
       this.container.add([
-        this.scene.add.circle(
-          badgeX,
-          badgeY,
-          13,
-          0xd4af37
-        ),
+        this.scene.add
+          .circle(badgeX, badgeY, 13, 0xd4af37)
+          .setStrokeStyle(2, 0x17131c),
 
         this.scene.add
           .text(
@@ -809,13 +1088,52 @@ export class InventoryView {
             String(item.quantity),
             {
               fontFamily: 'SpecialElite',
-              fontSize: '17px',
+              fontSize: '16px',
               color: '#17131c',
             }
           )
           .setOrigin(0.5),
       ]);
     }
+
+    // Jedna wspolna strefa klikania na komorke (na wierzchu)
+    const zone = this.scene.add
+      .zone(cx, y + S / 2, S, S)
+      .setInteractive({ useHandCursor: true });
+
+    this.container.add(zone);
+
+    zone.on('pointerover', () => {
+      if (
+        !this.isVisible ||
+        this.actions.isDragging() ||
+        this._windowPress
+      ) {
+        return;
+      }
+
+      highlight.setVisible(true);
+      this.actions.tooltip(item);
+    });
+
+    zone.on('pointerout', () => {
+      highlight.setVisible(false);
+      this.hideTooltip();
+    });
+
+    zone.on(
+      'pointerdown',
+      (pointer, lx, ly, event) => {
+        event?.stopPropagation();
+
+        if (
+          this.isVisible &&
+          !this._windowPress
+        ) {
+          this.actions.press(item, pointer);
+        }
+      }
+    );
   }
 
   updateUseButton() {
@@ -853,6 +1171,10 @@ export class InventoryView {
         : 'default';
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Karta ze szczegolami
+  // ---------------------------------------------------------------------------
 
   buildDescriptionPages(value, maxHeight) {
     this.tooltip
@@ -911,36 +1233,30 @@ export class InventoryView {
         )
       : 'SELECT AN ITEM';
 
+    const typeLabel = item
+      ? String(item.type || 'misc').toUpperCase()
+      : '';
+
+    const energy = item?.metadata?.effect?.energy;
+
     let body;
     let hint;
 
     if (!item) {
-      body =
-        'Your pockets. Slightly more organised than your life.';
+      body = this._emptyBody;
 
       hint =
         'Drag the header to move.\n' +
         'Drag items onto scene targets.';
     } else {
-      let type = String(
-        item.type || 'misc'
-      ).toUpperCase();
-
-      const energy = item.metadata?.effect?.energy;
-
-      if (
-        usable &&
-        energy != null
-      ) {
-        type += `\n+${energy} ENERGY`;
-      }
-
       const description = String(
         item.description ||
         'No description. Suspicious.'
       );
 
-      body = `${type}\n\n${description}`;
+      body = usable && energy != null
+        ? `+${energy} ENERGY\n\n${description}`
+        : description;
 
       const consumable = Boolean(
         item.metadata?.consumable &&
@@ -955,6 +1271,7 @@ export class InventoryView {
     const key = JSON.stringify([
       item?.id ?? null,
       name,
+      typeLabel,
       body,
       hint,
     ]);
@@ -967,17 +1284,16 @@ export class InventoryView {
     this._detailKey = key;
     this._detailPage = 0;
 
-    this.selectedLabel.setPosition(
-      this.detailsX,
-      86
-    );
+    this.selectedLabel
+      .setColor(this.colors.ink)
+      .setPosition(this.detailsX, 88);
 
     this.fitText(
       this.selectedLabel,
       name,
       {
         width: this.detailsWidth,
-        height: 68,
+        height: 64,
         maxSize: 22,
         minSize: 16,
       }
@@ -987,10 +1303,23 @@ export class InventoryView {
       this.selectedLabel.height *
       this.selectedLabel.scaleY;
 
-    const descriptionY =
+    let descriptionY =
       this.selectedLabel.y +
       titleHeight +
-      12;
+      10;
+
+    // Plakietka kategorii (kolor zalezy od typu przedmiotu)
+    if (item) {
+      this.typeChip
+        .setText(typeLabel)
+        .setBackgroundColor(categoryOf(item).css)
+        .setPosition(this.detailsX, descriptionY)
+        .setVisible(true);
+
+      descriptionY += this.typeChip.height + 12;
+    } else {
+      this.typeChip.setVisible(false);
+    }
 
     this.tooltip.setPosition(
       this.detailsX,
@@ -1119,6 +1448,9 @@ export class InventoryView {
     this._destroyed = true;
     this.isVisible = false;
 
+    this._glowTween?.remove();
+    this._glowTween = null;
+
     this.scene?.input?.off(
       'pointermove',
       this._onWindowMove
@@ -1165,13 +1497,22 @@ export class InventoryView {
     this.root = null;
     this.container = null;
     this.panel = null;
+    this.frame = null;
+    this.capGfx = null;
     this.header = null;
     this.button = null;
     this.panelRect = null;
 
+    this.titleText = null;
+    this.subtitleText = null;
+    this.counterText = null;
+    this.closeButton = null;
     this.selectedLabel = null;
+    this.typeChip = null;
     this.tooltip = null;
     this.hintText = null;
+    this.useButton = null;
+    this.useButtonBg = null;
 
     this.detailsPrevious = null;
     this.detailsNext = null;

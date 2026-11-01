@@ -42,7 +42,9 @@
           "pageId": "contact"
         }
       ],
-      "snippet": "Regional partnerships, community projects and the New Horizons programme."
+      "snippet": "Regional partnerships, community projects and the New Horizons programme.",
+      "logoKey": "reed_web_logo_open_skies",
+      "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
     },
     {
       "id": "events",
@@ -88,7 +90,9 @@
           "pageId": "contact"
         }
       ],
-      "snippet": "Workshops, regional reports and an evening reception for delegates."
+      "snippet": "Workshops, regional reports and an evening reception for delegates.",
+      "logoKey": "reed_web_logo_open_skies",
+      "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
     },
     {
       "id": "gallery",
@@ -127,7 +131,9 @@
       ],
       "snippet": "Photographs from the reception at Hotel Miramar.",
       "imageKey": "Reed_conference",
-      "imageUrl": "assets/side_quests/Reed/conference.webp"
+      "imageUrl": "assets/side_quests/Reed/conference.webp",
+      "logoKey": "reed_web_logo_open_skies",
+      "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
     },
     {
       "id": "team",
@@ -162,7 +168,9 @@
           "pageId": "contact"
         }
       ],
-      "snippet": "Meet our regional coordinators and programme staff."
+      "snippet": "Meet our regional coordinators and programme staff.",
+      "logoKey": "reed_web_logo_open_skies",
+      "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
     },
     {
       "id": "contact",
@@ -199,7 +207,9 @@
           "pageId": "team"
         }
       ],
-      "snippet": "Programme enquiries, press requests and event administration."
+      "snippet": "Programme enquiries, press requests and event administration.",
+      "logoKey": "reed_web_logo_open_skies",
+      "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
     },
     {
       "id": "swallow_birds",
@@ -219,7 +229,9 @@
         ]
       ],
       "links": [],
-      "snippet": "Guided walks, migration notes and a swallow badge for members."
+      "snippet": "Guided walks, migration notes and a swallow badge for members.",
+      "logoKey": "reed_web_logo_swallow_watch",
+      "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp"
     },
     {
       "id": "swallow_couriers",
@@ -239,7 +251,9 @@
         ]
       ],
       "links": [],
-      "snippet": "Business deliveries and local parcels. Look for the blue swallow."
+      "snippet": "Business deliveries and local parcels. Look for the blue swallow.",
+      "logoKey": "reed_web_logo_swiftwing",
+      "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp"
     }
   ]
 }

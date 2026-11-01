@@ -1,12 +1,12 @@
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
-export const DEAD_MEN_ART_CASE='pi_dead_men_calling';
+export const DEAD_MEN_ART_CASE='pi_dead_men_calling'; 
 const DEFAULTS={
- colin:{key:'dead_men_colin',url:'assets/side_quests/Dead-men/Colin.jpg'},
- blueFolder:{key:'dead_men_blue_file',url:'assets/side_quests/Dead-men/blue_file.jpg'},
- recorder:{key:'dead_men_recorder',url:'assets/side_quests/Dead-men/recorder.jpg'},
- couplePhoto:{key:'dead_men_margaret_edward',url:'assets/side_quests/Dead-men/Margaret_Edwarda.jpg'}
+ colin:{key:'dead_men_colin',url:'assets/side_quests/Dead-men/Colin.webp'},
+ blueFolder:{key:'dead_men_blue_file',url:'assets/side_quests/Dead-men/blue_file.webp'},
+ recorder:{key:'dead_men_recorder',url:'assets/side_quests/Dead-men/recorder.webp'},
+ couplePhoto:{key:'dead_men_margaret_edward',url:'assets/side_quests/Dead-men/Margaret_Edwarda.webp'}
 };
 export function getDeadMenArtwork(scene=null){
  const cached=scene?.cache?.json?.get('piCases')?.cases?.find(c=>c.id===DEAD_MEN_ART_CASE)?.metadata?.artwork;

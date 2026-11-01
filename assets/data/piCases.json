@@ -129,19 +129,19 @@
         "artwork": {
           "colin": {
             "key": "dead_men_colin",
-            "url": "assets/side_quests/Dead-men/Colin.jpg"
+            "url": "assets/side_quests/Dead-men/Colin.webp"
           },
           "blueFolder": {
             "key": "dead_men_blue_file",
-            "url": "assets/side_quests/Dead-men/blue_file.jpg"
+            "url": "assets/side_quests/Dead-men/blue_file.webp"
           },
           "recorder": {
             "key": "dead_men_recorder",
-            "url": "assets/side_quests/Dead-men/recorder.jpg"
+            "url": "assets/side_quests/Dead-men/recorder.webp"
           },
           "couplePhoto": {
             "key": "dead_men_margaret_edward",
-            "url": "assets/side_quests/Dead-men/Margaret_Edwarda.jpg"
+            "url": "assets/side_quests/Dead-men/Margaret_Edwarda.webp"
           }
         }
       }

@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "dailyLimit": 2,
+  "durationMinutes": 30,
+  "reward": 35,
+  "templates": [
+    {
+      "id": "pigeon",
+      "title": "Discreet delivery instructions",
+      "description": "The pigeon requests a paper trail. This is professionally troubling.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "PIGEON-204",
+          "draft": "PIGEON-204",
+          "options": [
+            "PIGEON-204",
+            "PIGEON-240",
+            "PIGEON-402"
+          ]
+        },
+        {
+          "label": "Recipient",
+          "source": "Mr Finch",
+          "draft": "Mr Flinch",
+          "options": [
+            "Mr Finch",
+            "Mr Fink",
+            "Mrs Finch"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "museum",
+      "title": "Museum insurance form",
+      "description": "Please insure the vase, not the person who dropped it.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "MUSEUM-204",
+          "draft": "MUSEUM-204",
+          "options": [
+            "MUSEUM-204",
+            "MUSEUM-240",
+            "MUSEUM-402"
+          ]
+        },
+        {
+          "label": "Item",
+          "source": "Bronze vase",
+          "draft": "Bronze face",
+          "options": [
+            "Bronze vase",
+            "Brass vase",
+            "Bronze case"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "title": "Missing cat notices",
+      "description": "The cat is not missing. It is refusing to attend meetings.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "CAT-204",
+          "draft": "CAT-204",
+          "options": [
+            "CAT-204",
+            "CAT-240",
+            "CAT-402"
+          ]
+        },
+        {
+          "label": "Telephone",
+          "source": "619",
+          "draft": "691",
+          "options": [
+            "619",
+            "691",
+            "916"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alibi",
+      "title": "Dinner reservation copies",
+      "description": "An actual reservation. We checked. Twice.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "ALIBI-204",
+          "draft": "ALIBI-204",
+          "options": [
+            "ALIBI-204",
+            "ALIBI-240",
+            "ALIBI-402"
+          ]
+        },
+        {
+          "label": "Guests",
+          "source": "1",
+          "draft": "11",
+          "options": [
+            "1",
+            "2",
+            "10"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "invoice",
+      "title": "Stationery invoice",
+      "description": "The client insists that invisible ink is not a missing delivery.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "INVOICE-204",
+          "draft": "INVOICE-204",
+          "options": [
+            "INVOICE-204",
+            "INVOICE-240",
+            "INVOICE-402"
+          ]
+        },
+        {
+          "label": "Total",
+          "source": "$48",
+          "draft": "$84",
+          "options": [
+            "$48",
+            "$84",
+            "$44"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "society",
+      "title": "Neighbourhood watch leaflet",
+      "description": "Please do not print the watchword on the front cover again.",
+      "fields": [
+        {
+          "label": "Reference",
+          "source": "SOCIETY-204",
+          "draft": "SOCIETY-204",
+          "options": [
+            "SOCIETY-204",
+            "SOCIETY-240",
+            "SOCIETY-402"
+          ]
+        },
+        {
+          "label": "Meeting",
+          "source": "Tuesday",
+          "draft": "Thursday",
+          "options": [
+            "Tuesday",
+            "Thursday",
+            "Saturday"
+          ]
+        },
+        {
+          "label": "Copies",
+          "source": "3",
+          "draft": "3",
+          "options": [
+            "3",
+            "30",
+            "13"
+          ]
+        }
+      ]
+    }
+  ]
+}

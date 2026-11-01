@@ -1,0 +1,21 @@
+{ 
+  "title": "TIME", 
+  "covers": [ 
+    { 
+      "coverLines": [ 
+        "Deutshe Bahn is perfectly on time, people panic", 
+        "Doner kebab prices up by 10 Cents, riot declared", 
+        "Summer arrives in Berlin for exactly 4 hours", 
+        "Cyclist rings bell 40 times at confused tourist" 
+      ] 
+    }, 
+    { 
+      "coverLines": [ 
+        "Pfand machine shockingly accepts non-german bottle", 
+        "Apartment viewing queue stretches to Poland", 
+        "School wifi achieves record speed of three kilobytes", 
+        "Thief steals bike and returns it because it was too ugly" 
+      ] 
+    } 
+  ] 
+}

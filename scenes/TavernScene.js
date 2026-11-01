@@ -59,7 +59,7 @@ export class TavernScene extends BaseScene {
     this.spots = [];
   }
   preload() {
-    if (!this.textures.exists('tavern_bg')) this.load.image('tavern_bg', 'assets/local/tavern.webp');
+    if (!this.textures.exists('tavern_bg')) this.load.image('tavern_bg', 'assets/pi/city/tavern.webp');
     if (!this.cache.json.exists('piOfficeClassifieds')) this.load.json('piOfficeClassifieds', 'assets/data/piClassifieds.json');
   }
   create() {

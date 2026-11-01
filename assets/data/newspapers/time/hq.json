@@ -1,0 +1,21 @@
+{ 
+  "title": "TIME", 
+  "covers": [ 
+    { 
+      "coverLines": [ 
+        "Missing donut case: Team blames night shift", 
+        "Interrogation stalled: Suspect asks for snack", 
+        "Chief's missing mug: Entire precinct fingerprinted", 
+        "Coffee brake takes longer than investigation " 
+      ] 
+    }, 
+    { 
+      "coverLines": [ 
+        "Informant demands payment only in cat treats", 
+        "Stakeout vehicle mistaken for delivery truck", 
+        "Detectives accidentally spy on each other for a day", 
+        "Dog profesionally gets promoted by boss " 
+      ] 
+    } 
+  ] 
+}

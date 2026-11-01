@@ -31,7 +31,9 @@
           "pageId": "miramar_meetings"
         }
       ],
-      "snippet": "Rooms, terrace dining and private events overlooking the coast."
+      "snippet": "Rooms, terrace dining and private events overlooking the coast.",
+      "imageKey": "reed_web_hotel_miramar",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
     },
     {
       "id": "mariner",
@@ -63,7 +65,9 @@
           "pageId": "mariner_events"
         }
       ],
-      "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse."
+      "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
+      "imageKey": "reed_web_hotel_mariner",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
     },
     {
       "id": "coral",
@@ -93,7 +97,9 @@
           "pageId": "coral_events"
         }
       ],
-      "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest."
+      "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
+      "imageKey": "reed_web_hotel_coral_crown",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
     },
     {
       "id": "miramar_event",
@@ -138,7 +144,9 @@
           "pageId": "miramar_meetings"
         }
       ],
-      "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace."
+      "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
+      "imageKey": "reed_web_hotel_miramar",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
     },
     {
       "id": "miramar_meetings",
@@ -171,7 +179,9 @@
           "pageId": "miramar_event"
         }
       ],
-      "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests."
+      "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
+      "imageKey": "reed_web_hotel_miramar",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
     },
     {
       "id": "mariner_events",
@@ -193,7 +203,9 @@
           "pageId": "mariner"
         }
       ],
-      "snippet": "Quiz nights, harbour history talks and live music in the lounge."
+      "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
+      "imageKey": "reed_web_hotel_mariner",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
     },
     {
       "id": "coral_events",
@@ -215,7 +227,9 @@
           "pageId": "coral"
         }
       ],
-      "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner."
+      "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
+      "imageKey": "reed_web_hotel_coral_crown",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
     }
   ]
 }

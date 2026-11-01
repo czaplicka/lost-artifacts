@@ -146,7 +146,7 @@
     },
     {
       "key": "dead_men_colin",
-      "url": "assets/side_quests/Dead-men/Colin.jpg",
+      "url": "assets/side_quests/Dead-men/Colin.webp",
       "type": "image",
       "groups": [
         "sidequests"
@@ -154,7 +154,7 @@
     },
     {
       "key": "dead_men_blue_file",
-      "url": "assets/side_quests/Dead-men/blue_file.jpg",
+      "url": "assets/side_quests/Dead-men/blue_file.webp",
       "type": "image",
       "groups": [
         "sidequests"
@@ -162,7 +162,7 @@
     },
     {
       "key": "dead_men_recorder",
-      "url": "assets/side_quests/Dead-men/recorder.jpg",
+      "url": "assets/side_quests/Dead-men/recorder.webp",
       "type": "image",
       "groups": [
         "sidequests"
@@ -170,7 +170,7 @@
     },
     {
       "key": "dead_men_margaret_edward",
-      "url": "assets/side_quests/Dead-men/Margaret_Edwarda.jpg",
+      "url": "assets/side_quests/Dead-men/Margaret_Edwarda.webp",
       "type": "image",
       "groups": [
         "sidequests"

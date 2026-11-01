@@ -1,0 +1,122 @@
+{
+  "id": "jm041_redacted",
+  "documentId": "JM-041",
+  "title": "THE BLACK INK PROBLEM",
+  "intro": "Reconstruct four redacted fields. For each answer, select the supporting attachment.",
+  "fields": [
+    {
+      "id": "destination",
+      "label": "FINAL DESTINATION",
+      "choices": [
+        {
+          "id": "harbour",
+          "text": "Harbour warehouse"
+        },
+        {
+          "id": "airport",
+          "text": "Airport depot B-6"
+        },
+        {
+          "id": "museum",
+          "text": "Museum storeroom"
+        }
+      ],
+      "answer": "airport",
+      "evidence": "dispatch"
+    },
+    {
+      "id": "transfer",
+      "label": "ASSET TRANSFER",
+      "choices": [
+        {
+          "id": "returned",
+          "text": "Returned to owner"
+        },
+        {
+          "id": "sealed",
+          "text": "Sealed annex S-2"
+        },
+        {
+          "id": "public",
+          "text": "General collection"
+        }
+      ],
+      "answer": "sealed",
+      "evidence": "registry"
+    },
+    {
+      "id": "status",
+      "label": "OPERATIVE STATUS",
+      "choices": [
+        {
+          "id": "dead",
+          "text": "Confirmed dead"
+        },
+        {
+          "id": "missing",
+          "text": "Contact lost"
+        },
+        {
+          "id": "safe",
+          "text": "Returned safely"
+        }
+      ],
+      "answer": "missing",
+      "evidence": "radio"
+    },
+    {
+      "id": "authorization",
+      "label": "AUTHORIZATION CODE",
+      "choices": [
+        {
+          "id": "c17",
+          "text": "C-17"
+        },
+        {
+          "id": "c71",
+          "text": "C-71"
+        },
+        {
+          "id": "routine",
+          "text": "Routine clearance"
+        }
+      ],
+      "answer": "c17",
+      "evidence": "carbon"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "dispatch",
+      "label": "A / DISPATCH AMENDMENT",
+      "text": "JM-041: harbour delivery CANCELLED. Replacement destination: airport depot B-6. This amendment supersedes the original route."
+    },
+    {
+      "id": "registry",
+      "label": "B / TRANSFER REGISTER",
+      "text": "JM-041: asset transfer entered under S-2. Register key: S = sealed annex. No owner-return receipt is attached."
+    },
+    {
+      "id": "radio",
+      "label": "C / RADIO LOG",
+      "text": "JM-041: contact lost during transport. No later check-in. No recovery confirmation. Status must remain CONTACT LOST pending verification."
+    },
+    {
+      "id": "carbon",
+      "label": "D / CARBON IMPRESSION",
+      "text": "JM-041: final approval reads C-17. The 1 is a straight stroke; the 7 has a crossbar. Impression matches the approved copy."
+    },
+    {
+      "id": "oldroute",
+      "label": "E / ORIGINAL ROUTE",
+      "text": "JM-041: deliver to the harbour warehouse. Stamp: SUPERSEDED. Retained for the audit trail, not for dispatch."
+    },
+    {
+      "id": "rejected",
+      "label": "F / REJECTED REQUEST",
+      "text": "Request C-71. Stamp: REJECTED. The replacement approval is on the carbon copy. This sheet does not authorize the operation."
+    }
+  ],
+  "success": "The destination was amended, the transfer used a sealed annex, and contact was lost. Approval C-17 is on the final copy. This does not establish whether John died.",
+  "lead": "Ask Alex Murphy about the transport and its separately filed records."
+}

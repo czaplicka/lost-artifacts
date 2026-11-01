@@ -14,7 +14,7 @@
       "purchaseType": "one_time",
       "maxOwned": 1,
       "description": "Handles appointments, negotiates fees and explains that exposure is not a currency.",
-      "benefitText": "Planned: earn 15% more from successfully completed PI jobs.",
+      "benefitText": "Earn 15% extra on eligible PI contract fees paid after hiring. Bribes, refunds, advances and employee income are excluded.",
       "purchaseMessage": "Assistant hired. Your calendar is organised. Your life remains under review.",
       "requires": [],
       "effects": [
@@ -65,7 +65,7 @@
       "purchaseType": "one_time",
       "maxOwned": 1,
       "description": "Prints reports, invoices and occasional cries for help. Paper jams are its preferred form of communication.",
-      "benefitText": "Planned: unlock paid document-preparation jobs.",
+      "benefitText": "Unlock document jobs: up to 2 new jobs per game day, $35 per job, 30 in-game minutes to start.",
       "purchaseMessage": "Printer installed. It already claims to be out of cyan.",
       "requires": [],
       "effects": [
