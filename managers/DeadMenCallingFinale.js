@@ -85,14 +85,14 @@ function ownMail(){
  const s=state(),q=getPIQuest(DEAD_MEN_QUEST);
  if(!q||(!unlocked()&&!s.confronted&&!s.settlement))return [];
  const items=[];
- if(q.status==='active')items.push(mail('dead_men_confront_next','Your case notes','Confront Colin — call 621','The folder review is complete. Call Colin on 621 again and put the archive manifest and delivery acknowledgement to him. Record his explanation and seek corroboration.'));
+ if(q.status==='active')items.push(mail('dead_men_confront_next','Your case notes','Confront Colin — call the published contact number','The folder review is complete. Call Colin at Ward Consulting again and put the archive manifest and delivery acknowledgement to him. Record his explanation and seek corroboration.'));
  if(s.confronted)items.unshift(
   mail('dead_men_admission_copy','Your telephone transcript','Colin’s admission — corroboration required',transcript(confrontation)),
-  mail('dead_men_audio_next','Your case notes','Original audio — obtain Margaret’s permission','Colin has authorised release of the relay records and supplied an editing project. Call Margaret on 619 for permission to compare her original recent recordings. Then call Leo on 620.'),
+  mail('dead_men_audio_next','Your case notes','Original audio — obtain Margaret’s permission','Colin has authorised release of the relay records and supplied an editing project. Call Margaret through the published family contact for permission to compare her original recent recordings. Then call Leo at Mercer Audio.'),
   mail(relay.id,'Relay provider — authorised extract',relay.subject,relay.body),
   mail(project.id,'Colin Ward — supplied material',project.subject,project.body)
  );
- if(s.consent)items.unshift(mail('dead_men_consent_copy','Margaret Vale','Written permission — original recording comparison','I authorise Leo Mercer to compare my preserved recent voicemail recordings with the older archive and the supplied project and relay payloads. I have provided copies of the original recent files and retained my originals. — Margaret Vale\n\nCall Leo on 620 to obtain his findings.'));
+ if(s.consent)items.unshift(mail('dead_men_consent_copy','Margaret Vale','Written permission — original recording comparison','I authorise Leo Mercer to compare my preserved recent voicemail recordings with the older archive and the supplied project and relay payloads. I have provided copies of the original recent files and retained my originals. — Margaret Vale\n\nCall Leo at Mercer Audio to obtain his findings.'));
  if(s.verified)items.unshift(mail(REVIEW,'Your investigation notebook','Reconstruct Dead Men Calling',reviewBody()),mail(technical.id,'Mercer Audio',technical.subject,technical.body));
  if(s.reconstructed&&!s.settlement?.phase?.includes('completed')){
   const p=s.settlement?.preview||preview();
@@ -179,8 +179,8 @@ export function installDeadMenFinaleMail(ui){
 }
 function route(number){
  if(!unlocked())return null;const s=state();
- if(number==='621')return {contact:contacts[number],lines:confrontation,flag:'confronted',message:'Admission recorded. Seek Margaret’s audio permission on 619.'};
- if(number==='619'&&s.confronted)return {contact:contacts[number],lines:consentInterview,flag:'consent',message:'Permission recorded. Call Leo on 620 for his comparison.'};
+ if(number==='621')return {contact:contacts[number],lines:confrontation,flag:'confronted',message:'Admission recorded. Seek Margaret’s audio permission through the published family contact.'};
+ if(number==='619'&&s.confronted)return {contact:contacts[number],lines:consentInterview,flag:'consent',message:'Permission recorded. Call Leo at Mercer Audio for his comparison.'};
  if(number==='620'&&s.confronted&&s.consent)return {contact:contacts[number],lines:verificationInterview,flag:'verified',message:'Analyst report received. Complete your final reconstruction.'};
  return null;
 }

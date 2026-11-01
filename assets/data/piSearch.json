@@ -443,7 +443,8 @@
             ]
           ],
           "links": [],
-          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories."
+          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
+          "template": "lifestyle"
         },
         {
           "id": "gallery",
@@ -769,7 +770,8 @@
             ]
           ],
           "links": [],
-          "snippet": "Claire Sutton led a practical workshop for local volunteer groups."
+          "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
+          "template": "news"
         },
         {
           "id": "nora_work",
@@ -792,14 +794,15 @@
             ]
           ],
           "links": [],
-          "snippet": "Nora Bell outlined community funding opportunities in the North Region."
+          "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
+          "template": "news"
         },
         {
           "id": "claire_other",
           "title": "Clare Sutton | Ceramics and workshops",
           "address": "www.claresuttonstudio.local",
           "brand": "CLARE SUTTON STUDIO",
-          "theme": "magazine",
+          "theme": "business",
           "blocks": [
             [
               "Clare Sutton makes hand-thrown stoneware from a small studio on Market Lane."
@@ -812,14 +815,15 @@
             ]
           ],
           "links": [],
-          "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes."
+          "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes.",
+          "template": "business"
         },
         {
           "id": "nora_other",
           "title": "Norah Bell | Piano lessons",
           "address": "www.norahbellmusic.local",
           "brand": "NORAH BELL MUSIC",
-          "theme": "magazine",
+          "theme": "business",
           "blocks": [
             [
               "Norah Bell offers individual piano lessons for beginners and returning players."
@@ -832,7 +836,8 @@
             ]
           ],
           "links": [],
-          "snippet": "Norah Bell offers piano tuition and accompaniment services."
+          "snippet": "Norah Bell offers piano tuition and accompaniment services.",
+          "template": "business"
         }
       ],
       "recipes": [
@@ -1014,6 +1019,701 @@
           "pageIds": [
             "gallery",
             "nora_work"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dead_men_calling",
+      "title": "Dead Men Calling",
+      "clouds": [
+        {
+          "id": "people",
+          "title": "PEOPLE & CONNECTIONS"
+        },
+        {
+          "id": "recordings",
+          "title": "VOICE & RECORDINGS"
+        },
+        {
+          "id": "documents",
+          "title": "THE BLUE FOLDER"
+        }
+      ],
+      "keywords": [
+        {
+          "id": "dm_edward",
+          "label": "Edward Vale",
+          "cloudId": "people",
+          "aliases": [
+            "Edward Vale",
+            "Edward"
+          ]
+        },
+        {
+          "id": "dm_margaret",
+          "label": "Margaret Vale",
+          "cloudId": "people",
+          "aliases": [
+            "Margaret Vale"
+          ]
+        },
+        {
+          "id": "dm_colin",
+          "label": "Colin Ward",
+          "cloudId": "people",
+          "aliases": [
+            "Colin Ward"
+          ]
+        },
+        {
+          "id": "dm_ward",
+          "label": "Ward Consulting",
+          "cloudId": "people",
+          "aliases": [
+            "Ward Consulting"
+          ]
+        },
+        {
+          "id": "dm_phone_margaret",
+          "label": "619 — Margaret Vale",
+          "cloudId": "people",
+          "aliases": []
+        },
+        {
+          "id": "dm_phone_colin",
+          "label": "621 — Colin Ward",
+          "cloudId": "people",
+          "aliases": []
+        },
+        {
+          "id": "dm_voice",
+          "label": "voicemail",
+          "cloudId": "recordings",
+          "aliases": [
+            "voicemail"
+          ]
+        },
+        {
+          "id": "dm_archive",
+          "label": "recording archive",
+          "cloudId": "recordings",
+          "aliases": [
+            "recording archive",
+            "older recordings"
+          ]
+        },
+        {
+          "id": "dm_recorder",
+          "label": "office recorder",
+          "cloudId": "recordings",
+          "aliases": [
+            "office recorder",
+            "recorder test"
+          ]
+        },
+        {
+          "id": "dm_background",
+          "label": "repeated background",
+          "cloudId": "recordings",
+          "aliases": [
+            "repeated background"
+          ]
+        },
+        {
+          "id": "dm_mercer",
+          "label": "Mercer Audio",
+          "cloudId": "recordings",
+          "aliases": [
+            "Mercer Audio"
+          ]
+        },
+        {
+          "id": "dm_leo",
+          "label": "Leo Mercer",
+          "cloudId": "recordings",
+          "aliases": [
+            "Leo Mercer"
+          ]
+        },
+        {
+          "id": "dm_phone_leo",
+          "label": "620 — Mercer Audio",
+          "cloudId": "recordings",
+          "aliases": []
+        },
+        {
+          "id": "dm_mv14",
+          "label": "MV-14",
+          "cloudId": "recordings",
+          "aliases": [
+            "MV-14"
+          ]
+        },
+        {
+          "id": "dm_folder",
+          "label": "blue folder",
+          "cloudId": "documents",
+          "aliases": [
+            "blue folder"
+          ]
+        },
+        {
+          "id": "dm_accounts",
+          "label": "company records",
+          "cloudId": "documents",
+          "aliases": [
+            "company records",
+            "company accounts"
+          ]
+        },
+        {
+          "id": "dm_cw41",
+          "label": "CW-41",
+          "cloudId": "documents",
+          "aliases": [
+            "CW-41"
+          ]
+        },
+        {
+          "id": "dm_tr884",
+          "label": "TR-884",
+          "cloudId": "documents",
+          "aliases": [
+            "TR-884"
+          ]
+        },
+        {
+          "id": "dm_sheet",
+          "label": "reconciliation sheet",
+          "cloudId": "documents",
+          "aliases": [
+            "reconciliation sheet"
+          ]
+        }
+      ],
+      "initialKeywords": [],
+      "pages": [
+        {
+          "id": "dm_memorial",
+          "title": "Remembering Edward Vale",
+          "brand": "VALE FAMILY ARCHIVE",
+          "address": "www.valefamily.local/edward",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_edward"
+              },
+              " — remembered by family, friends and former colleagues."
+            ],
+            [
+              "Edward kept notes, recordings and a filing system dominated by blue stationery. He considered colour coding an adequate substitute for labelling."
+            ],
+            [
+              "This family page is maintained by ",
+              {
+                "keywordId": "dm_margaret"
+              },
+              ". Correspondence concerning Edward may be sent through the contact page."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Family contact",
+              "pageId": "dm_family_contact"
+            }
+          ],
+          "snippet": "Edward Vale — remembered by family, friends and former colleagues."
+        },
+        {
+          "id": "dm_family_contact",
+          "title": "Family correspondence | Edward Vale",
+          "brand": "VALE FAMILY ARCHIVE",
+          "address": "www.valefamily.local/edward/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Contact for correspondence concerning Edward’s memorial and family archive."
+            ],
+            [
+              {
+                "keywordId": "dm_margaret"
+              },
+              ": ",
+              {
+                "keywordId": "dm_phone_margaret",
+                "text": "619"
+              },
+              " (local)."
+            ],
+            [
+              "Published by Margaret for this purpose. Please leave a message if there is no answer. No recordings or private family papers are published here."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Remembering Edward",
+              "pageId": "dm_memorial"
+            }
+          ],
+          "snippet": "Contact for correspondence concerning Edward’s memorial and family archive."
+        },
+        {
+          "id": "dm_mercer_home",
+          "title": "Mercer Audio | Archive transfers",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_mercer"
+              },
+              " preserves speech recordings, voicemail exports and small business archives."
+            ],
+            [
+              "Our services include transfer, cataloguing and preservation copies. We retain the character of the source. Unfortunately this includes the singing."
+            ],
+            [
+              "For transfer enquiries, contact ",
+              {
+                "keywordId": "dm_leo"
+              },
+              ". Client files and job records are supplied only with appropriate permission."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
+            },
+            {
+              "label": "Services",
+              "pageId": "dm_mercer_services"
+            }
+          ],
+          "snippet": "Mercer Audio preserves speech recordings, voicemail exports and small business archives."
+        },
+        {
+          "id": "dm_mercer_contact",
+          "title": "Contact | Mercer Audio",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_leo"
+              },
+              " — archive transfer enquiries."
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "dm_phone_leo",
+                "text": "620"
+              },
+              " (local)."
+            ],
+            [
+              "Quote the job reference if available. Client archives are not public downloads."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Services",
+              "pageId": "dm_mercer_services"
+            },
+            {
+              "label": "Home",
+              "pageId": "dm_mercer_home"
+            }
+          ],
+          "snippet": "Leo Mercer — archive transfer enquiries."
+        },
+        {
+          "id": "dm_mercer_services",
+          "title": "Preserving speech | Mercer Audio",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local/services",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_voice"
+              },
+              " preservation and ",
+              {
+                "keywordId": "dm_archive"
+              },
+              " transfers."
+            ],
+            [
+              "We can copy compatible source files, prepare an itemised manifest and record delivery of authorised copies."
+            ],
+            [
+              "Restoration and comparison are separate services. An enquiry about pricing does not authorise disclosure of another client’s files."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
+            }
+          ],
+          "snippet": "voicemail preservation and recording archive transfers."
+        },
+        {
+          "id": "dm_ward_home",
+          "title": "Ward Consulting | Business records",
+          "brand": "WARD CONSULTING",
+          "address": "www.wardconsulting.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_ward"
+              },
+              " offers support with small-business administration and ",
+              {
+                "keywordId": "dm_accounts"
+              },
+              "."
+            ],
+            [
+              "Principal: ",
+              {
+                "keywordId": "dm_colin"
+              },
+              ". Clear answers. Flexible invoicing."
+            ],
+            [
+              "For business correspondence, use the contact page. Individual client records are not published on this site."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_ward_contact"
+            }
+          ],
+          "snippet": "Ward Consulting offers support with small-business administration and company records."
+        },
+        {
+          "id": "dm_ward_contact",
+          "title": "Contact | Ward Consulting",
+          "brand": "WARD CONSULTING",
+          "address": "www.wardconsulting.local/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_colin"
+              },
+              " — business enquiries."
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "dm_phone_colin",
+                "text": "621"
+              },
+              " (local)."
+            ],
+            [
+              "Please quote the relevant reference when asking about past correspondence. Our answering machine has been instructed not to negotiate rates."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Company",
+              "pageId": "dm_ward_home"
+            }
+          ],
+          "snippet": "Colin Ward — business enquiries."
+        },
+        {
+          "id": "dm_audio_article",
+          "title": "Keeping a useful voicemail archive",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/guides/voicemail-archive",
+          "theme": "magazine",
+          "template": "news",
+          "blocks": [
+            [
+              "An orderly ",
+              {
+                "keywordId": "dm_archive"
+              },
+              " starts with keeping original files and recording where each copy came from."
+            ],
+            [
+              "If you ask a service to transfer recordings, retain its paperwork. A filename is a label, not a witness."
+            ],
+            [
+              "This consumer guide covers routine preservation. It does not describe any particular family or investigation."
+            ]
+          ],
+          "links": [],
+          "snippet": "An orderly recording archive starts with keeping original files and recording where each copy came from."
+        },
+        {
+          "id": "dm_folder_article",
+          "title": "When a reconciliation needs another look",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/business/reconciliation",
+          "theme": "magazine",
+          "template": "news",
+          "blocks": [
+            [
+              "A ",
+              {
+                "keywordId": "dm_sheet"
+              },
+              " can record questions about ",
+              {
+                "keywordId": "dm_accounts"
+              },
+              " that still need supporting documents."
+            ],
+            [
+              "An entry marked for review is not the same thing as a completed explanation. Original invoices, dates and references help keep queries attached to the right transaction."
+            ],
+            [
+              "Our contributor recommends a filing system. Our editor recommends finding the filing cabinet first."
+            ]
+          ],
+          "links": [],
+          "snippet": "A reconciliation sheet can record questions about company records that still need supporting documents."
+        },
+        {
+          "id": "dm_blue_shop",
+          "title": "Blue folders | Desk & Drawer",
+          "brand": "DESK & DRAWER",
+          "address": "www.deskanddrawer.local/stationery/blue-folders",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+            ],
+            [
+              "A4 stationery for offices and homes. Labels sold separately. Dramatic secrets not included."
+            ]
+          ],
+          "links": [],
+          "snippet": "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+        },
+        {
+          "id": "dm_edward_namesake",
+          "title": "Edward Vale | Landscape photography",
+          "brand": "EDWARD VALE PHOTOGRAPHY",
+          "address": "www.edwardvalephotos.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Edward Vale photographs coastal landscapes and empty railway platforms."
+            ],
+            [
+              "Prints available by appointment. Portrait sessions are not currently offered. Please specify the photograph title when enquiring."
+            ]
+          ],
+          "links": [],
+          "snippet": "Edward Vale photographs coastal landscapes and empty railway platforms."
+        },
+        {
+          "id": "dm_mercer_namesake",
+          "title": "Mercer Music | Instrument repairs",
+          "brand": "MERCER MUSIC",
+          "address": "www.mercermusic.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Guitar setups, amplifier repairs and piano tuning by appointment."
+            ],
+            [
+              "We do not transfer voicemail archives. We can, however, make your guitar sound less like a filing cabinet falling downstairs."
+            ]
+          ],
+          "links": [],
+          "snippet": "Guitar setups, amplifier repairs and piano tuning by appointment."
+        }
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "dm_edward"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_edward_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_margaret"
+          ],
+          "pageIds": [
+            "dm_memorial"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_margaret"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_family_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_folder"
+          ],
+          "pageIds": [
+            "dm_blue_shop"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_folder"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_blue_shop"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer"
+          ],
+          "pageIds": [
+            "dm_mercer_home",
+            "dm_mercer_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_leo"
+          ],
+          "pageIds": [
+            "dm_mercer_contact",
+            "dm_mercer_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer",
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_mercer_services",
+            "dm_mercer_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer",
+            "dm_leo"
+          ],
+          "pageIds": [
+            "dm_mercer_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_voice"
+          ],
+          "pageIds": [
+            "dm_audio_article",
+            "dm_mercer_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_recorder"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_background"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_colin"
+          ],
+          "pageIds": [
+            "dm_ward_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_ward"
+          ],
+          "pageIds": [
+            "dm_ward_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_colin",
+            "dm_ward"
+          ],
+          "pageIds": [
+            "dm_ward_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_accounts"
+          ],
+          "pageIds": [
+            "dm_folder_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_sheet"
+          ],
+          "pageIds": [
+            "dm_folder_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_folder",
+            "dm_accounts"
+          ],
+          "pageIds": [
+            "dm_folder_article",
+            "dm_blue_shop"
           ]
         }
       ]

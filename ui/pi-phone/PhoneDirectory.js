@@ -1,9 +1,11 @@
+import { deadMenWebContacts, isDeadMenWebContactVisible } from '../../managers/DeadMenWebIntegration.js';
 import { DW, DH, FONT_TEXT, FONT_PIXEL, SFX } from './PhoneConfig.js';
 import { savedPhoneContacts } from '../pi-computer/AlibiContactBook.js';
 function directoryContacts(phone){
  const contacts=new Map((phone.contacts||[]).filter(c=>c.listed===true).map(c=>[c.number,c]));
  for(const contact of savedPhoneContacts())if(!contacts.has(contact.number))contacts.set(contact.number,contact);
- return [...contacts.values()];
+ for(const contact of deadMenWebContacts())contacts.set(contact.number,contact);
+ return [...contacts.values()].filter(isDeadMenWebContactVisible);
 }
 export const PhoneDirectory={
  openDirectory(){if(!this.isOpen||this.state==='dialling')return;this.directoryOpen=true;this.playOnce(SFX.paper,.5);this.renderDirectory();this.dir.setVisible(true);},

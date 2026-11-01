@@ -1,0 +1,123 @@
+{
+  "id": "john_last_operation",
+  "title": "THE LAST FLIGHT",
+  "slotCount": 5,
+  "correctOrder": [
+    "recovered",
+    "departure",
+    "contact_lost",
+    "crash",
+    "sealed"
+  ],
+  "cards": [
+    {
+      "id": "recovered",
+      "title": "ARTIFACT RECOVERED",
+      "text": "The recovered object is prepared for transport.",
+      "evidence": "handover"
+    },
+    {
+      "id": "departure",
+      "title": "TRANSPORT DEPARTS",
+      "text": "John leaves aboard the transport carrying the artifact.",
+      "evidence": "departure"
+    },
+    {
+      "id": "contact_lost",
+      "title": "RADIO CONTACT LOST",
+      "text": "The operation loses contact with John's transport.",
+      "evidence": "radio"
+    },
+    {
+      "id": "crash",
+      "title": "AIRCRAFT GOES DOWN",
+      "text": "Alex witnesses the aircraft go down.",
+      "evidence": "alex"
+    },
+    {
+      "id": "sealed",
+      "title": "RECORDS RESTRICTED",
+      "text": "The agency restricts the operation's records after the incident.",
+      "evidence": "archive"
+    },
+    {
+      "id": "body",
+      "title": "BODY IDENTIFIED",
+      "text": "A recovery team identifies John's body.",
+      "evidence": "recovery"
+    },
+    {
+      "id": "returned",
+      "title": "ARTIFACT RETURNED",
+      "text": "The artifact is checked back into agency storage.",
+      "evidence": "inventory"
+    },
+    {
+      "id": "murder",
+      "title": "MURDER CONFIRMED",
+      "text": "The agency confirms that John was murdered.",
+      "evidence": "finding"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "handover",
+      "title": "HANDOVER NOTE",
+      "text": "The object was recovered before departure. The dispatch record refers to this completed handover."
+    },
+    {
+      "id": "departure",
+      "title": "DISPATCH RECORD",
+      "text": "After the handover, the transport departed with McClane and the recovered object aboard."
+    },
+    {
+      "id": "radio",
+      "title": "RADIO LOG",
+      "text": "Contact was lost after departure. Alex's account places the unanswered calls before the aircraft went down."
+    },
+    {
+      "id": "alex",
+      "title": "ALEX'S ACCOUNT",
+      "text": "After the unanswered calls, I saw the aircraft go down. I did not see a survivor. I do not believe John could have survived."
+    },
+    {
+      "id": "archive",
+      "title": "RECORDS AMENDMENT",
+      "text": "Following the reported crash, the agency placed supporting records in restricted circulation."
+    },
+    {
+      "id": "recovery",
+      "title": "RECOVERY STATUS",
+      "text": "No body was recovered or identified. The exact crash site was not established in these records."
+    },
+    {
+      "id": "inventory",
+      "title": "ASSET REGISTER",
+      "text": "The artifact has no completed return entry. A departure record is not proof that it came back."
+    },
+    {
+      "id": "finding",
+      "title": "FINDING STATUS",
+      "text": "These documents establish a reported crash and restricted records. They do not establish a murder."
+    }
+  ],
+  "conclusions": [
+    {
+      "id": "presumed_dead",
+      "label": "PRESUMED DEAD",
+      "explanation": "Alex's account supports presumed death. No recovered body means it is not confirmed."
+    },
+    {
+      "id": "confirmed_dead",
+      "label": "CONFIRMED DEAD",
+      "explanation": "No body was recovered or identified. The records do not confirm death."
+    },
+    {
+      "id": "confirmed_alive",
+      "label": "CONFIRMED ALIVE",
+      "explanation": "No evidence currently establishes that John survived."
+    }
+  ],
+  "correctConclusion": "presumed_dead",
+  "success": "The aircraft went down with John and the artifact unaccounted for. Alex believes John died. The records support presumed death, not a confirmed identification and not a proven murder."
+}

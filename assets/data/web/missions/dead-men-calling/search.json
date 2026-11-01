@@ -1,0 +1,170 @@
+{
+  "recipes": [
+    {
+      "terms": [
+        "dm_edward"
+      ],
+      "pageIds": [
+        "dm_memorial",
+        "dm_edward_namesake"
+      ]
+    },
+    {
+      "terms": [
+        "dm_margaret"
+      ],
+      "pageIds": [
+        "dm_memorial"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_margaret"
+      ],
+      "pageIds": [
+        "dm_memorial",
+        "dm_family_contact"
+      ]
+    },
+    {
+      "terms": [
+        "dm_folder"
+      ],
+      "pageIds": [
+        "dm_blue_shop"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_folder"
+      ],
+      "pageIds": [
+        "dm_memorial",
+        "dm_blue_shop"
+      ]
+    },
+    {
+      "terms": [
+        "dm_mercer"
+      ],
+      "pageIds": [
+        "dm_mercer_home",
+        "dm_mercer_namesake"
+      ]
+    },
+    {
+      "terms": [
+        "dm_leo"
+      ],
+      "pageIds": [
+        "dm_mercer_contact",
+        "dm_mercer_home"
+      ]
+    },
+    {
+      "terms": [
+        "dm_mercer",
+        "dm_archive"
+      ],
+      "pageIds": [
+        "dm_mercer_services",
+        "dm_mercer_home"
+      ]
+    },
+    {
+      "terms": [
+        "dm_mercer",
+        "dm_leo"
+      ],
+      "pageIds": [
+        "dm_mercer_contact"
+      ]
+    },
+    {
+      "terms": [
+        "dm_voice"
+      ],
+      "pageIds": [
+        "dm_audio_article",
+        "dm_mercer_namesake"
+      ]
+    },
+    {
+      "terms": [
+        "dm_archive"
+      ],
+      "pageIds": [
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_recorder"
+      ],
+      "pageIds": [
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_background"
+      ],
+      "pageIds": [
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_colin"
+      ],
+      "pageIds": [
+        "dm_ward_home"
+      ]
+    },
+    {
+      "terms": [
+        "dm_ward"
+      ],
+      "pageIds": [
+        "dm_ward_home"
+      ]
+    },
+    {
+      "terms": [
+        "dm_colin",
+        "dm_ward"
+      ],
+      "pageIds": [
+        "dm_ward_contact"
+      ]
+    },
+    {
+      "terms": [
+        "dm_accounts"
+      ],
+      "pageIds": [
+        "dm_folder_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_sheet"
+      ],
+      "pageIds": [
+        "dm_folder_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_folder",
+        "dm_accounts"
+      ],
+      "pageIds": [
+        "dm_folder_article",
+        "dm_blue_shop"
+      ]
+    }
+  ]
+}

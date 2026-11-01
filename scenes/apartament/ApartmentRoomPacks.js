@@ -1,6 +1,5 @@
 export const FALLBACK_APARTMENT_PACK_ID = 'debt';
 
-// A pack may contain any set of rooms. Every room needs a matching layout.
 export const APARTMENT_ROOM_PACKS = [
   {
     id: 'debt', weight: 1, layoutId: 'debt',
@@ -12,6 +11,19 @@ export const APARTMENT_ROOM_PACKS = [
       kitchen: {
         label: 'Kitchen', key: 'apartment_debt_kitchen',
         path: 'assets/apartments/apartment_debt_kitchen.webp'
+      }
+    }
+  },
+  {
+    id: 'collector', weight: 1, layoutId: 'collector',
+    rooms: {
+      bedroom: {
+        label: 'Bedroom', key: 'apartment_collector_bedroom',
+        path: 'assets/apartments/apartment_collector_bedroom.webp'
+      },
+      bathroom: {
+        label: 'Bathroom', key: 'apartment_collector_bathroom',
+        path: 'assets/apartments/apartment_collector_bathroom.webp'
       }
     }
   },
@@ -41,7 +53,6 @@ export const APARTMENT_ROOM_PACKS = [
 export function getApartmentRoomPack(id) {
   return APARTMENT_ROOM_PACKS.find(pack => pack.id === id) || null;
 }
-
 export function drawApartmentRoomPack(random = Math.random) {
   const candidates = APARTMENT_ROOM_PACKS.filter(pack =>
     Number.isFinite(pack.weight) && pack.weight > 0 && pack.layoutId &&

@@ -72,8 +72,14 @@
         "h": 0.4,
         "description": "Two glasses. Neither came with a witness statement.",
         "fragments": [
-          "Two glasses. Neither came with a witness statement."
-        ]
+          {
+            "text": "Two glasses",
+            "keywordId": "two_glasses"
+          },
+          ". Neither came with a witness statement."
+        ],
+        "keywordId": "two_glasses",
+        "keywordLabel": "Two glasses"
       },
       {
         "id": "napkin",

@@ -11,14 +11,92 @@ import {
   getSuspectImageKey
 } from '../suspects/suspectHelpers.js';
 
+/* -------------------------------------------------------------------------- */
+/*  CONFIG                                                                    */
+/* -------------------------------------------------------------------------- */
+
+const FONT_PIXEL = 'PressStart2P';
+const FONT_TYPE = 'SpecialElite';
+
+// Final, irreversible decision -> ask "are you sure?" before ending the game.
+// Set to false to restore the old one-click arrest.
+const REQUIRE_ARREST_CONFIRMATION = true;
+
+const SLIDE_DISTANCE = 140;
+const SLIDE_DURATION = 240;
+const ARREST_COMMIT_DELAY = 750;
+
+const DESK_TEXTURE_KEY = 'arrest_desk_tex';
+const VIGNETTE_TEXTURE_KEY = 'arrest_vignette_tex';
+
+const PAL = {
+  gold: 0xd4af37,
+  goldCss: '#D4AF37',
+  ink: '#2b1a0e',
+  inkSoft: '#7a5a38',
+  cream: '#f6e9c4',
+  creamWarm: '#f1dfb0',
+  red: 0x8f1d14,
+  redBright: 0xb3281c,
+  redCss: '#8f1d14',
+  brown: 0x57391d,
+  brownHover: 0x7a5229,
+  brownDark: 0x3a2916
+};
+
+const DEFAULT_DIALOGUE =
+  'Compare each file with your evidence. One of them took the artifact. ' +
+  'Choose wisely, detective.';
+
+const DEFAULT_NOTE =
+  '<  >  browse files   |   ENTER  arrest   |   Cross-check means, motive and opportunity.';
+
+// Fields shown on the "Subject Record" page. Add/remove rows freely:
+// { label: 'short label', key: 'property in suspects.json' }
+const DOSSIER_FIELDS = [
+  { label: 'SEX', key: 'gender' },
+  { label: 'HAIR', key: 'hair' },
+  { label: 'EYES', key: 'eyes' },
+  { label: 'MARKS', key: 'features' },
+  { label: 'ACCENT', key: 'accent' },
+  { label: 'SKILLS', key: 'skills' },
+  { label: 'HABITS', key: 'habitus' },
+  { label: 'HANDED', key: 'handedness' },
+  { label: 'BLOOD', key: 'bloodType' },
+  { label: 'SHOES', key: 'shoeSizeCategory' }
+];
+
+// Sticky-note jokes. One is picked per suspect, no repeats inside a lineup.
+const FIELD_NOTE_QUIPS = [
+  'Suspicious. Then again, so is anyone holding a sandwich that long.',
+  'Gut feeling: guilty. Gut is also hungry, so double-check.',
+  'Alibi: "I was at home." Nobody has ever been at home.',
+  'Has the face of someone who says "not me" a bit too early.',
+  'Keep this one away from the evidence room. And the biscuits.',
+  'My horoscope says never trust that haircut. Scorpios know.',
+  'Would look great on a Wanted poster. Not proof, but still.',
+  'Warning: photo may be fashionably misleading.',
+  'If we are wrong, we blame the intern. We have no intern. Yet.',
+  'Probably innocent. Probably. Check the shoes.'
+];
+
+/* -------------------------------------------------------------------------- */
+/*  SCENE                                                                     */
+/* -------------------------------------------------------------------------- */
+
 export class ArrestSelectionScene extends BaseScene {
   constructor() {
     super({ key: 'ArrestSelectionScene' });
+    this.resetState();
+  }
 
+  resetState() {
     this.dialogueText = null;
     this.resultOverlay = null;
+    this.resultPanel = null;
     this.resultTitle = null;
     this.resultText = null;
+    this.continueBtn = null;
 
     this.nextSceneKey = 'GameOverScene';
     this.isLeaving = false;
@@ -26,86 +104,52 @@ export class ArrestSelectionScene extends BaseScene {
     this.selectedSuspectId = null;
     this.suspectsPool = [];
     this.displaySuspects = [];
+    this.quipOrder = [];
 
     this.selectionLocked = false;
     this.resultCommitted = false;
     this.currentSuspectIndex = 0;
     this.currentCard = null;
     this.isAnimatingSlide = false;
+    this.confirmOpen = false;
 
-    this.overlayRoot = null;
+    this.backdropRoot = null;
     this.viewerRoot = null;
+    this.stripRoot = null;
     this.cardSlot = null;
 
     this.leftArrow = null;
     this.rightArrow = null;
     this.arrestButton = null;
     this.arrestButtonText = null;
-    this.dotsText = null;
+    this.arrestGlow = null;
+    this.arrestPulse = null;
+    this.orderStamp = null;
     this.counterText = null;
+    this.thumbs = [];
 
     this.backBtn = null;
     this.backBtnLabel = null;
 
     this.zoomOverlay = null;
     this.zoomImage = null;
+    this.zoomCaption = null;
     this.zoomHintText = null;
 
+    this.confirmOverlay = null;
+    this.confirmBody = null;
+
     this.caseNumberText = null;
-    this.statusStampText = null;
     this.bottomNoteText = null;
-    this.suspectLabelText = null;
 
     this.onLeftKeyDown = null;
     this.onRightKeyDown = null;
     this.onEnterKeyDown = null;
+    this.onEscKeyDown = null;
   }
 
   init() {
-    this.selectedSuspectId = null;
-    this.suspectsPool = [];
-    this.displaySuspects = [];
-
-    this.selectionLocked = false;
-    this.resultCommitted = false;
-    this.currentSuspectIndex = 0;
-    this.currentCard = null;
-    this.isAnimatingSlide = false;
-
-    this.nextSceneKey = 'GameOverScene';
-    this.isLeaving = false;
-
-    this.dialogueText = null;
-    this.resultOverlay = null;
-    this.resultTitle = null;
-    this.resultText = null;
-
-    this.overlayRoot = null;
-    this.viewerRoot = null;
-    this.cardSlot = null;
-
-    this.leftArrow = null;
-    this.rightArrow = null;
-    this.arrestButton = null;
-    this.arrestButtonText = null;
-    this.dotsText = null;
-    this.counterText = null;
-
-    this.backBtn = null;
-    this.backBtnLabel = null;
-
-    this.zoomOverlay = null;
-    this.zoomImage = null;
-    this.zoomHintText = null;
-
-    this.caseNumberText = null;
-    this.statusStampText = null;
-    this.bottomNoteText = null;
-    this.suspectLabelText = null;
-
-    this.onLeftKeyDown = null;
-    this.onRightKeyDown = null;
-    this.onEnterKeyDown = null;
+    this.resetState();
   }
 
   create() {
@@ -153,13 +197,8 @@ export class ArrestSelectionScene extends BaseScene {
 
     const suspectsData = this.cache.json.get('suspects');
 
-    if (
-      !Array.isArray(suspectsData) ||
-      suspectsData.length < 5
-    ) {
-      console.error(
-        'suspects.json must contain at least 5 suspects.'
-      );
+    if (!Array.isArray(suspectsData) || suspectsData.length < 5) {
+      console.error('suspects.json must contain at least 5 suspects.');
 
       this.goto('GameScene');
       return;
@@ -200,154 +239,620 @@ export class ArrestSelectionScene extends BaseScene {
       return;
     }
 
+    this.quipOrder = Phaser.Utils.Array.Shuffle(
+      FIELD_NOTE_QUIPS.map((_, index) => index)
+    );
+
     this.createBackdrop();
-    this.createBackButton();
+    this.createFolder();
     this.createHeader();
-    this.createInstructionBox();
-    this.createDossierViewer();
+    this.createBackButton();
+    this.createCardSlot();
+    this.createControlStrip();
+    this.createZoomOverlay();
+    this.createConfirmOverlay();
     this.createResultOverlay();
+    this.registerKeyboard();
     this.registerSceneCleanup();
+
+    this.updatePagination();
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  LIFECYCLE                                                               */
+  /* ------------------------------------------------------------------------ */
+
+  registerKeyboard() {
+    this.onLeftKeyDown = () => {
+      if (this.canNavigate()) this.changeSuspect(-1);
+    };
+
+    this.onRightKeyDown = () => {
+      if (this.canNavigate()) this.changeSuspect(1);
+    };
+
+    this.onEnterKeyDown = () => {
+      if (this.confirmOpen) {
+        this.confirmArrestFromModal();
+        return;
+      }
+
+      if (this.resultCommitted && this.resultOverlay?.visible) {
+        this.proceedFromResult();
+        return;
+      }
+
+      if (this.canNavigate()) this.requestArrest();
+    };
+
+    this.onEscKeyDown = () => {
+      if (this.zoomOverlay?.visible) {
+        this.closeZoom();
+        return;
+      }
+
+      if (this.confirmOpen) this.closeConfirm();
+    };
+
+    this.input.keyboard?.on('keydown-LEFT', this.onLeftKeyDown);
+    this.input.keyboard?.on('keydown-RIGHT', this.onRightKeyDown);
+    this.input.keyboard?.on('keydown-ENTER', this.onEnterKeyDown);
+    this.input.keyboard?.on('keydown-ESC', this.onEscKeyDown);
   }
 
   registerSceneCleanup() {
-    this.events.once(
-      Phaser.Scenes.Events.SHUTDOWN,
-      () => {
-        if (this.input?.keyboard) {
-          if (this.onLeftKeyDown) {
-            this.input.keyboard.off(
-              'keydown-LEFT',
-              this.onLeftKeyDown
-            );
-          }
-
-          if (this.onRightKeyDown) {
-            this.input.keyboard.off(
-              'keydown-RIGHT',
-              this.onRightKeyDown
-            );
-          }
-
-          if (this.onEnterKeyDown) {
-            this.input.keyboard.off(
-              'keydown-ENTER',
-              this.onEnterKeyDown
-            );
-          }
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      if (this.input?.keyboard) {
+        if (this.onLeftKeyDown) {
+          this.input.keyboard.off('keydown-LEFT', this.onLeftKeyDown);
         }
 
-        this.onLeftKeyDown = null;
-        this.onRightKeyDown = null;
-        this.onEnterKeyDown = null;
+        if (this.onRightKeyDown) {
+          this.input.keyboard.off('keydown-RIGHT', this.onRightKeyDown);
+        }
+
+        if (this.onEnterKeyDown) {
+          this.input.keyboard.off('keydown-ENTER', this.onEnterKeyDown);
+        }
+
+        if (this.onEscKeyDown) {
+          this.input.keyboard.off('keydown-ESC', this.onEscKeyDown);
+        }
       }
+
+      this.arrestPulse?.stop?.();
+      this.arrestPulse = null;
+
+      this.onLeftKeyDown = null;
+      this.onRightKeyDown = null;
+      this.onEnterKeyDown = null;
+      this.onEscKeyDown = null;
+    });
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  SMALL HELPERS                                                           */
+  /* ------------------------------------------------------------------------ */
+
+  hexToCss(hex) {
+    return `#${hex.toString(16).padStart(6, '0')}`;
+  }
+
+  fitImage(image, maxW, maxH) {
+    const src = image.texture?.getSourceImage?.();
+
+    if (!src?.width || !src?.height) {
+      image.setDisplaySize(maxW, maxH);
+      return image;
+    }
+
+    const scale = Math.min(maxW / src.width, maxH / src.height);
+    image.setDisplaySize(src.width * scale, src.height * scale);
+
+    return image;
+  }
+
+  drawDotted(graphics, x1, x2, y, dash = 6, gap = 6) {
+    for (let x = x1; x < x2; x += dash + gap) {
+      graphics.lineBetween(x, y, Math.min(x + dash, x2), y);
+    }
+  }
+
+  getSuspectField(suspect, key) {
+    return suspect?.[key] ?? suspect?.publicProfile?.[key];
+  }
+
+  getSuspectDisplayName(suspect, index) {
+    return (
+      suspect?.name ||
+      suspect?.fullName ||
+      suspect?.title ||
+      `Suspect ${index + 1}`
     );
+  }
+
+  formatDossierValue(value) {
+    const text = Array.isArray(value)
+      ? value.join(', ')
+      : String(value ?? '').trim();
+
+    if (!text) return 'Unknown';
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  getQuipFor(index) {
+    const pick =
+      this.quipOrder[index % this.quipOrder.length] ?? 0;
+
+    return FIELD_NOTE_QUIPS[pick];
+  }
+
+  createStamp(x, y, label, fontSize, colorHex, rotation = 0) {
+    const text = this.add
+      .text(0, 0, label, {
+        fontFamily: FONT_PIXEL,
+        fontSize: `${fontSize}px`,
+        color: this.hexToCss(colorHex)
+      })
+      .setOrigin(0.5);
+
+    const w = text.width + 34;
+    const h = text.height + 26;
+
+    const outer = this.add
+      .rectangle(0, 0, w, h, 0x000000, 0)
+      .setStrokeStyle(4, colorHex, 1);
+
+    const inner = this.add
+      .rectangle(0, 0, w - 12, h - 12, 0x000000, 0)
+      .setStrokeStyle(1.5, colorHex, 1);
+
+    return this.add
+      .container(x, y, [outer, inner, text])
+      .setRotation(rotation);
+  }
+
+  createButton(x, y, w, h, label, options = {}) {
+    const {
+      fontSize = 18,
+      fill = PAL.brown,
+      fillHover = PAL.brownHover,
+      stroke = PAL.gold,
+      textColor = '#fff3d0',
+      font = FONT_PIXEL
+    } = options;
+
+    const bg = this.add
+      .rectangle(0, 0, w, h, fill, 1)
+      .setStrokeStyle(3, stroke, 1);
+
+    const inner = this.add
+      .rectangle(0, 0, w - 12, h - 12, fill, 0)
+      .setStrokeStyle(1, stroke, 0.45);
+
+    const text = this.add
+      .text(0, 0, label, {
+        fontFamily: font,
+        fontSize: `${fontSize}px`,
+        color: textColor
+      })
+      .setOrigin(0.5);
+
+    const container = this.add.container(x, y, [bg, inner, text]);
+
+    container.setSize(w, h);
+    container.bg = bg;
+    container.label = text;
+    container.fillNormal = fill;
+    container.fillHover = fillHover;
+
+    container.setInteractive({ useHandCursor: true });
+
+    container.on('pointerover', () => {
+      if (!container.input?.enabled) return;
+
+      bg.setFillStyle(container.fillHover, 1);
+      this.tweens.killTweensOf(container);
+      this.tweens.add({
+        targets: container,
+        scale: 1.04,
+        duration: 90
+      });
+    });
+
+    container.on('pointerout', () => {
+      bg.setFillStyle(
+        container.input?.enabled
+          ? container.fillNormal
+          : bg.fillColor,
+        1
+      );
+
+      this.tweens.killTweensOf(container);
+      this.tweens.add({
+        targets: container,
+        scale: 1,
+        duration: 90
+      });
+    });
+
+    return container;
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  BACKDROP: wooden desk, props, vignette                                  */
+  /* ------------------------------------------------------------------------ */
+
+  ensureDecorTextures() {
+    const { width, height } = this.scale;
+
+    if (!this.textures.exists(DESK_TEXTURE_KEY)) {
+      const tex = this.textures.createCanvas(
+        DESK_TEXTURE_KEY,
+        width,
+        height
+      );
+
+      const ctx = tex?.getContext();
+
+      if (ctx) {
+        const plankH = 120;
+
+        for (let y = 0; y < height; y += plankH) {
+          const r = 70 + Math.floor(Math.random() * 18);
+          const g = 46 + Math.floor(Math.random() * 12);
+          const b = 28 + Math.floor(Math.random() * 8);
+
+          ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          ctx.fillRect(0, y, width, plankH);
+
+          for (let i = 0; i < 70; i += 1) {
+            const gx = Math.random() * width;
+            const gy = y + 6 + Math.random() * (plankH - 12);
+            const len = 140 + Math.random() * 520;
+
+            ctx.strokeStyle = `rgba(0, 0, 0, ${
+              0.05 + Math.random() * 0.09
+            })`;
+            ctx.lineWidth = 1 + Math.random() * 1.6;
+
+            ctx.beginPath();
+            ctx.moveTo(gx, gy);
+            ctx.bezierCurveTo(
+              gx + len * 0.3,
+              gy + (Math.random() - 0.5) * 6,
+              gx + len * 0.6,
+              gy + (Math.random() - 0.5) * 6,
+              gx + len,
+              gy + (Math.random() - 0.5) * 4
+            );
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+          ctx.fillRect(0, y, width, 3);
+
+          ctx.fillStyle = 'rgba(255, 220, 160, 0.06)';
+          ctx.fillRect(0, y + 3, width, 2);
+
+          const jointX = Math.random() * width;
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+          ctx.fillRect(jointX, y, 3, plankH);
+        }
+
+        tex.refresh();
+      }
+    }
+
+    if (!this.textures.exists(VIGNETTE_TEXTURE_KEY)) {
+      const tex = this.textures.createCanvas(
+        VIGNETTE_TEXTURE_KEY,
+        width,
+        height
+      );
+
+      const ctx = tex?.getContext();
+
+      if (ctx) {
+        const warm = ctx.createRadialGradient(
+          width * 0.5,
+          height * 0.42,
+          40,
+          width * 0.5,
+          height * 0.42,
+          height * 0.9
+        );
+
+        warm.addColorStop(0, 'rgba(255, 205, 120, 0.16)');
+        warm.addColorStop(1, 'rgba(255, 205, 120, 0)');
+
+        ctx.fillStyle = warm;
+        ctx.fillRect(0, 0, width, height);
+
+        const dark = ctx.createRadialGradient(
+          width / 2,
+          height / 2,
+          height * 0.38,
+          width / 2,
+          height / 2,
+          height * 1.0
+        );
+
+        dark.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        dark.addColorStop(1, 'rgba(0, 0, 0, 0.8)');
+
+        ctx.fillStyle = dark;
+        ctx.fillRect(0, 0, width, height);
+
+        tex.refresh();
+      }
+    }
   }
 
   createBackdrop() {
     const { width, height } = this.scale;
 
-    this.overlayRoot = this.add
+    this.ensureDecorTextures();
+
+    this.backdropRoot = this.add
       .container(0, 0)
       .setDepth(300);
 
-    const vignette = this.add.rectangle(
+    const desk = this.add.image(width / 2, height / 2, DESK_TEXTURE_KEY);
+
+    const props = this.add.graphics();
+
+    // coffee ring peeking out from under the folder
+    props.fillStyle(0x2a1709, 0.1);
+    props.fillCircle(1850, 880, 60);
+    props.lineStyle(7, 0x2a1709, 0.38);
+    props.strokeCircle(1850, 880, 64);
+    props.lineStyle(3, 0x2a1709, 0.25);
+    props.strokeCircle(1853, 884, 57);
+
+    // pencil lying on the desk (bottom-left)
+    const pencil = this.add
+      .graphics({ x: 215, y: 1002 })
+      .setRotation(-0.22);
+
+    pencil.fillStyle(0x000000, 0.25);
+    pencil.fillRect(-146, 6, 300, 20);
+    pencil.fillStyle(0xe2b53a, 1);
+    pencil.fillRect(-150, -10, 300, 20);
+    pencil.fillStyle(0xb8861b, 1);
+    pencil.fillRect(-150, -2, 300, 4);
+    pencil.fillStyle(0xc9c2b0, 1);
+    pencil.fillRect(-168, -10, 18, 20);
+    pencil.fillStyle(0xd9667a, 1);
+    pencil.fillRect(-186, -10, 18, 20);
+    pencil.fillStyle(0xe8cfa0, 1);
+    pencil.fillTriangle(150, -10, 150, 10, 190, 0);
+    pencil.fillStyle(0x2b2b2b, 1);
+    pencil.fillTriangle(176, -3, 176, 3, 190, 0);
+
+    const vignette = this.add.image(
       width / 2,
       height / 2,
-      width,
-      height,
-      0x120d07,
-      0.63
+      VIGNETTE_TEXTURE_KEY
     );
 
-    const outerShadow = this.add.rectangle(
-      width / 2,
-      height / 2 + 14,
-      1600,
-      1010,
-      0x000000,
-      0.28
+    this.backdropRoot.add([desk, props, pencil, vignette]);
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  FOLDER (static layer: folder, sheets, clip, labels)                     */
+  /* ------------------------------------------------------------------------ */
+
+  createFolder() {
+    this.viewerRoot = this.add
+      .container(0, 0)
+      .setDepth(320);
+
+    const g = this.add.graphics();
+
+    // drop shadow
+    g.fillStyle(0x000000, 0.42);
+    g.fillRoundedRect(112, 168, 1720, 740, 18);
+
+    // folder tab + body
+    g.fillStyle(0xc9a15c, 1);
+    g.fillRoundedRect(130, 116, 360, 40, { tl: 14, tr: 14, bl: 0, br: 0 });
+    g.fillRoundedRect(100, 150, 1720, 730, { tl: 0, tr: 18, bl: 18, br: 18 });
+
+    g.lineStyle(3, 0x8c6a33, 1);
+    g.strokeRoundedRect(100, 150, 1720, 730, { tl: 0, tr: 18, bl: 18, br: 18 });
+    g.strokeRoundedRect(130, 116, 360, 40, { tl: 14, tr: 14, bl: 0, br: 0 });
+
+    g.lineStyle(2, 0xe3c487, 0.7);
+    g.lineBetween(104, 154, 1812, 154);
+
+    // paper stack hints
+    g.fillStyle(0xe6d8b8, 1);
+    g.fillRoundedRect(148, 186, 750, 676, 4);
+    g.fillRoundedRect(923, 186, 865, 676, 4);
+
+    // sheet shadows
+    g.fillStyle(0x000000, 0.22);
+    g.fillRoundedRect(145, 184, 750, 676, 4);
+    g.fillRoundedRect(920, 184, 865, 676, 4);
+
+    // sheets
+    g.fillStyle(0xf5ebd2, 1);
+    g.fillRoundedRect(140, 178, 750, 676, 4);
+    g.fillRoundedRect(915, 178, 865, 676, 4);
+
+    g.lineStyle(2, 0xcdb98a, 1);
+    g.strokeRoundedRect(140, 178, 750, 676, 4);
+    g.strokeRoundedRect(915, 178, 865, 676, 4);
+
+    // right page: header + signature line
+    g.lineStyle(3, 0x4a2e17, 1);
+    g.lineBetween(975, 232, 1735, 232);
+
+    g.lineStyle(2, 0x4a2e17, 0.8);
+    g.lineBetween(975, 800, 1500, 800);
+
+    // paper clip
+    g.lineStyle(4, 0x8a8f98, 1);
+    g.strokeRoundedRect(944, 160, 28, 86, 13);
+    g.strokeRoundedRect(951, 176, 14, 70, 7);
+
+    const caseId =
+      gameState.currentCaseId ??
+      gameState.caseId ??
+      '017';
+
+    const caseNumber = String(caseId).padStart(3, '0');
+
+    const tabText = this.add
+      .text(310, 136, `CASE ${caseNumber}`, {
+        fontFamily: FONT_PIXEL,
+        fontSize: '13px',
+        color: PAL.ink
+      })
+      .setOrigin(0.5);
+
+    const pageTitle = this.add.text(975, 206, 'SUBJECT RECORD', {
+      fontFamily: FONT_PIXEL,
+      fontSize: '17px',
+      color: PAL.ink
+    });
+
+    this.counterText = this.add
+      .text(1735, 208, '', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '12px',
+        color: PAL.redCss
+      })
+      .setOrigin(1, 0);
+
+    const signCaption = this.add.text(
+      975,
+      808,
+      "Arresting officer's signature",
+      {
+        fontFamily: FONT_TYPE,
+        fontSize: '16px',
+        color: PAL.inkSoft
+      }
     );
 
-    const dossierPaper = this.add
-      .rectangle(
-        width / 2,
-        height / 2 + 6,
-        1540,
-        980,
-        0xc7ad73,
-        0.96
-      )
-      .setStrokeStyle(5, 0x4a3720, 1);
+    const signScribble = this.add
+      .text(1000, 764, '(sign here, detective)', {
+        fontFamily: FONT_TYPE,
+        fontSize: '28px',
+        fontStyle: 'italic',
+        color: '#6c7396'
+      })
+      .setAlpha(0.45)
+      .setRotation(-0.03);
 
-    const dossierInner = this.add
-      .rectangle(
-        width / 2,
-        height / 2 + 6,
-        1485,
-        930,
-        0xd7bf89,
-        0.78
-      )
-      .setStrokeStyle(2, 0x7a5a34, 0.95);
+    const confidential = this.createStamp(
+      1610,
+      730,
+      'CONFIDENTIAL',
+      22,
+      PAL.red,
+      -0.2
+    ).setAlpha(0.2);
 
-    const topStrip = this.add.rectangle(
-      width / 2,
-      92,
-      1485,
-      108,
-      0x5a4121,
-      0.95
-    );
-
-    const topStripLine = this.add.rectangle(
-      width / 2,
-      142,
-      1485,
-      3,
-      0xe8d3a0,
-      0.95
-    );
-
-    const bottomStrip = this.add.rectangle(
-      width / 2,
-      height - 82,
-      1485,
-      72,
-      0x5a4121,
-      0.95
-    );
-
-    this.overlayRoot.add([
-      vignette,
-      outerShadow,
-      dossierPaper,
-      dossierInner,
-      topStrip,
-      topStripLine,
-      bottomStrip
+    this.viewerRoot.add([
+      g,
+      tabText,
+      pageTitle,
+      this.counterText,
+      signCaption,
+      signScribble,
+      confidential
     ]);
   }
 
+  /* ------------------------------------------------------------------------ */
+  /*  HEADER + BACK BUTTON                                                    */
+  /* ------------------------------------------------------------------------ */
+
+  createHeader() {
+    const { width } = this.scale;
+
+    const band = this.add.graphics().setDepth(335);
+
+    band.fillStyle(0x1b120a, 0.94);
+    band.fillRect(0, 0, width, 112);
+
+    band.fillStyle(PAL.gold, 1);
+    band.fillRect(0, 108, width, 4);
+
+    band.fillStyle(0x000000, 0.4);
+    band.fillRect(0, 112, width, 6);
+
+    this.add
+      .text(width / 2, 36, 'MARK AGENCY', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '18px',
+        color: PAL.goldCss,
+        stroke: '#2e1f10',
+        strokeThickness: 5
+      })
+      .setOrigin(0.5)
+      .setDepth(340);
+
+    this.add
+      .text(width / 2, 78, 'FINAL SUSPECT DOSSIER', {
+        fontFamily: FONT_TYPE,
+        fontSize: '34px',
+        color: PAL.creamWarm
+      })
+      .setOrigin(0.5)
+      .setDepth(340);
+
+    const caseId =
+      gameState.currentCaseId ??
+      gameState.caseId ??
+      '017';
+
+    this.caseNumberText = this.add
+      .text(
+        width - 210,
+        34,
+        `CASE FILE ${String(caseId).padStart(3, '0')}`,
+        {
+          fontFamily: FONT_PIXEL,
+          fontSize: '13px',
+          color: '#fff4cf',
+          backgroundColor: '#6e1f17',
+          padding: { left: 10, right: 10, top: 8, bottom: 8 }
+        }
+      )
+      .setOrigin(0.5)
+      .setDepth(341);
+
+    this.createStamp(
+      width - 210,
+      80,
+      'TOP PRIORITY',
+      12,
+      0xc0392b,
+      -0.07
+    ).setDepth(341);
+  }
+
   createBackButton() {
-    const baseX = 165;
-    const baseY = 82;
+    const baseX = 80;
+    const baseY = 56;
 
     if (this.textures.exists('back')) {
       this.backBtn = this.add
         .image(baseX, baseY, 'back')
         .setInteractive({ useHandCursor: true })
         .setScale(0.42)
-        .setDepth(320);
+        .setDepth(345);
 
-      this.addHoverEffect(
-        this.backBtn,
-        0.42,
-        0.48
-      );
+      this.addHoverEffect(this.backBtn, 0.42, 0.48);
     } else {
       this.backBtn = this.add
         .text(baseX, baseY, '<', {
-          fontFamily: 'PressStart2P',
+          fontFamily: FONT_PIXEL,
           fontSize: '22px',
           color: '#f6e7bc',
           backgroundColor: '#3a2916'
@@ -355,7 +860,7 @@ export class ArrestSelectionScene extends BaseScene {
         .setOrigin(0.5)
         .setPadding(12)
         .setInteractive({ useHandCursor: true })
-        .setDepth(320);
+        .setDepth(345);
 
       this.backBtn.on('pointerover', () => {
         this.backBtn.setScale(1.06);
@@ -368,18 +873,19 @@ export class ArrestSelectionScene extends BaseScene {
 
     this.backBtnLabel = this.add
       .text(baseX + 70, baseY, 'BACK', {
-        fontFamily: 'SpecialElite',
+        fontFamily: FONT_TYPE,
         fontSize: '24px',
         color: '#f5e7bf'
       })
       .setOrigin(0, 0.5)
-      .setDepth(320);
+      .setDepth(345);
 
     this.backBtn.on('pointerdown', () => {
       if (
         this.selectionLocked ||
         this.isAnimatingSlide ||
-        this.isLeaving
+        this.isLeaving ||
+        this.confirmOpen
       ) {
         return;
       }
@@ -394,604 +900,494 @@ export class ArrestSelectionScene extends BaseScene {
     });
   }
 
-  createHeader() {
-    const { width } = this.scale;
+  /* ------------------------------------------------------------------------ */
+  /*  CARD SLOT + SUSPECT CARD                                                */
+  /* ------------------------------------------------------------------------ */
 
-    this.add
-      .text(width / 2, 64, 'MARK AGENCY', {
-        fontFamily: 'PressStart2P',
-        fontSize: '16px',
-        color: '#f5e8b8',
-        stroke: '#2e1f10',
-        strokeThickness: 5
-      })
-      .setOrigin(0.5)
-      .setDepth(320);
-
-    this.add
-      .text(width / 2, 108, 'SUSPECT DOSSIER', {
-        fontFamily: 'SpecialElite',
-        fontSize: '28px',
-        color: '#f4ddb2'
-      })
-      .setOrigin(0.5)
-      .setDepth(320);
-
-    const caseId =
-      gameState.currentCaseId ??
-      gameState.caseId ??
-      '017';
-
-    const caseNumber =
-      `CASE FILE ${String(caseId).padStart(3, '0')}`;
-
-    this.caseNumberText = this.add
-      .text(width - 265, 76, caseNumber, {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#fff4cf',
-        backgroundColor: '#6e1f17',
-        padding: {
-          left: 10,
-          right: 10,
-          top: 8,
-          bottom: 8
-        }
-      })
-      .setOrigin(0.5)
-      .setDepth(321);
-
-    this.statusStampText = this.add
-      .text(width - 265, 118, 'TOP PRIORITY', {
-        fontFamily: 'SpecialElite',
-        fontSize: '24px',
-        color: '#6e1f17',
-        stroke: '#f7dfb2',
-        strokeThickness: 1
-      })
-      .setOrigin(0.5)
-      .setAlpha(0.95)
-      .setRotation(-0.08)
-      .setDepth(321);
-  }
-
-  createInstructionBox() {
-    const x = 230;
-    const y = 792;
-    const w = 1440;
-    const h = 126;
-
-    const panel = this.add.graphics().setDepth(320);
-
-    panel.fillStyle(0xecd6a6, 0.9);
-    panel.fillRoundedRect(x, y, w, h, 14);
-
-    panel.lineStyle(3, 0x6a4a26, 1);
-    panel.strokeRoundedRect(x, y, w, h, 14);
-
-    panel.lineStyle(1, 0x8d6a3a, 0.8);
-    panel.strokeRoundedRect(
-      x + 10,
-      y + 10,
-      w - 20,
-      h - 20,
-      10
-    );
-
-    this.add
-      .text(x + 30, y + 18, 'FIELD NOTES', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#4f3218'
-      })
-      .setDepth(321);
-
-    this.dialogueText = this.add
-      .text(
-        x + 34,
-        y + 46,
-        'Review each dossier entry. Use arrows to inspect suspects, ' +
-          'click the photograph to enlarge it, and confirm the arrest ' +
-          'when you are ready to submit your decision.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '24px',
-          color: '#332012',
-          wordWrap: { width: 1280 },
-          lineSpacing: 6
-        }
-      )
-      .setDepth(321);
-
-    this.bottomNoteText = this.add
-      .text(
-        x + w - 34,
-        y + h - 12,
-        'Cross-check means, motive, and opportunity before arrest.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#6b4d2e'
-        }
-      )
-      .setOrigin(1, 1)
-      .setDepth(321);
-  }
-
-  createDossierViewer() {
-    const cx = this.scale.width / 2;
-    const cy = 410;
-
-    this.viewerRoot = this.add
-      .container(cx, cy)
-      .setDepth(320);
-
-    const leftPanel = this.add
-      .rectangle(
-        -455,
-        -10,
-        245,
-        610,
-        0xe8cf99,
-        0.92
-      )
-      .setStrokeStyle(3, 0x6a4a26, 1);
-
-    const centerPanel = this.add
-      .rectangle(
-        20,
-        -10,
-        790,
-        610,
-        0xf0ddb2,
-        0.94
-      )
-      .setStrokeStyle(4, 0x5b3e20, 1);
-
-    const rightPanel = this.add
-      .rectangle(
-        500,
-        -10,
-        255,
-        610,
-        0xe8cf99,
-        0.92
-      )
-      .setStrokeStyle(3, 0x6a4a26, 1);
-
-    const leftHeader = this.add
-      .text(-455, -268, 'CASE SUMMARY', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#4a2e17'
-      })
-      .setOrigin(0.5);
-
-    const leftBody = this.add.text(
-      -555,
-      -224,
-      [
-        '• Final suspect lineup',
-        '• Review facial match',
-        '• Confirm evidence trail',
-        '• Verify suspect profile',
-        '',
-        'Submit one suspect',
-        'for detention.'
-      ].join('\n'),
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '22px',
-        color: '#392113',
-        lineSpacing: 7,
-        wordWrap: { width: 190 }
-      }
-    );
-
-    const rightHeader = this.add
-      .text(500, -268, 'ARREST PROTOCOL', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#4a2e17'
-      })
-      .setOrigin(0.5);
-
-    const rightBody = this.add.text(
-      395,
-      -224,
-      [
-        '1. Inspect photo',
-        '2. Compare with clues',
-        '3. Review all files',
-        '4. Submit arrest order',
-        '',
-        'The bureau will review',
-        'the case after detention.'
-      ].join('\n'),
-      {
-        fontFamily: 'SpecialElite',
-        fontSize: '21px',
-        color: '#392113',
-        lineSpacing: 7,
-        wordWrap: { width: 200 }
-      }
-    );
-
-    this.cardSlot = this.add.container(20, -35);
-
-    this.suspectLabelText = this.add
-      .text(20, 220, '', {
-        fontFamily: 'SpecialElite',
-        fontSize: '24px',
-        color: '#5a3b21',
-        align: 'center',
-        wordWrap: { width: 540 }
-      })
-      .setOrigin(0.5);
-
-    this.counterText = this.add
-      .text(20, 252, '', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#6e1f17',
-        align: 'center'
-      })
-      .setOrigin(0.5);
-
-    this.dotsText = this.add
-      .text(20, 284, '', {
-        fontFamily: 'PressStart2P',
-        fontSize: '18px',
-        color: '#4a2e17',
-        align: 'center'
-      })
-      .setOrigin(0.5);
-
-    this.leftArrow = this.add
-      .text(-255, 252, '<', {
-        fontFamily: 'PressStart2P',
-        fontSize: '34px',
-        color: '#fff3d0',
-        backgroundColor: '#57391d'
-      })
-      .setOrigin(0.5)
-      .setPadding(14)
-      .setInteractive({ useHandCursor: true });
-
-    this.rightArrow = this.add
-      .text(295, 252, '>', {
-        fontFamily: 'PressStart2P',
-        fontSize: '34px',
-        color: '#fff3d0',
-        backgroundColor: '#57391d'
-      })
-      .setOrigin(0.5)
-      .setPadding(14)
-      .setInteractive({ useHandCursor: true });
-
-    this.arrestButton = this.add
-      .rectangle(
-        500,
-        214,
-        190,
-        56,
-        0x7b241c,
-        1
-      )
-      .setStrokeStyle(3, 0xf7e6bc, 1)
-      .setInteractive({ useHandCursor: true });
-
-    this.arrestButtonText = this.add
-      .text(500, 214, 'ARREST', {
-        fontFamily: 'PressStart2P',
-        fontSize: '16px',
-        color: '#fff7de'
-      })
-      .setOrigin(0.5);
-
-    const stamp = this.add
-      .text(500, 282, 'AUTHORIZED SIGN-OFF', {
-        fontFamily: 'SpecialElite',
-        fontSize: '20px',
-        color: '#6f4f30'
-      })
-      .setOrigin(0.5)
-      .setRotation(-0.04);
-
-    this.leftArrow.on('pointerover', () => {
-      if (this.canNavigate()) {
-        this.leftArrow.setScale(1.06);
-      }
-    });
-
-    this.leftArrow.on('pointerout', () => {
-      this.leftArrow.setScale(1);
-    });
-
-    this.rightArrow.on('pointerover', () => {
-      if (this.canNavigate()) {
-        this.rightArrow.setScale(1.06);
-      }
-    });
-
-    this.rightArrow.on('pointerout', () => {
-      this.rightArrow.setScale(1);
-    });
-
-    this.leftArrow.on('pointerdown', () => {
-      if (!this.canNavigate()) return;
-      this.changeSuspect(-1);
-    });
-
-    this.rightArrow.on('pointerdown', () => {
-      if (!this.canNavigate()) return;
-      this.changeSuspect(1);
-    });
-
-    this.arrestButton.on('pointerover', () => {
-      if (!this.selectionLocked) {
-        this.arrestButton.setFillStyle(0x983128, 1);
-      }
-    });
-
-    this.arrestButton.on('pointerout', () => {
-      if (!this.selectionLocked) {
-        this.arrestButton.setFillStyle(0x7b241c, 1);
-      }
-    });
-
-    this.arrestButton.on('pointerdown', () => {
-      if (
-        !this.canNavigate() ||
-        this.resultCommitted
-      ) {
-        return;
-      }
-
-      const suspect =
-        this.displaySuspects[this.currentSuspectIndex];
-
-      if (!suspect) return;
-
-      this.selectionLocked = true;
-      this.selectedSuspectId = suspect.id;
-
-      this.disableNavigation();
-
-      this.arrestButton.disableInteractive();
-      this.arrestButton.setFillStyle(0x555555, 1);
-      this.arrestButtonText.setAlpha(0.7);
-
-      this.dialogueText.setText(
-        'Arrest order submitted. The team is proceeding with detention...'
-      );
-
-      this.bottomNoteText.setText(
-        'The case will be reviewed after the suspect is detained.'
-      );
-
-      if (this.currentCard?.frame) {
-        this.currentCard.frame.setStrokeStyle(
-          5,
-          0x6e1f17,
-          1
-        );
-      }
-
-      this.time.delayedCall(
-        220,
-        () => this.confirmSelection()
-      );
-    });
-
-    this.viewerRoot.add([
-      leftPanel,
-      centerPanel,
-      rightPanel,
-      leftHeader,
-      leftBody,
-      rightHeader,
-      rightBody,
-      this.cardSlot,
-      this.suspectLabelText,
-      this.counterText,
-      this.dotsText,
-      this.leftArrow,
-      this.rightArrow,
-      this.arrestButton,
-      this.arrestButtonText,
-      stamp
-    ]);
-
-    this.onLeftKeyDown = () => {
-      if (this.canNavigate()) {
-        this.changeSuspect(-1);
-      }
-    };
-
-    this.onRightKeyDown = () => {
-      if (this.canNavigate()) {
-        this.changeSuspect(1);
-      }
-    };
-
-    this.onEnterKeyDown = () => {
-      if (this.canNavigate()) {
-        this.arrestButton.emit('pointerdown');
-      }
-    };
-
-    this.input.keyboard?.on(
-      'keydown-LEFT',
-      this.onLeftKeyDown
-    );
-
-    this.input.keyboard?.on(
-      'keydown-RIGHT',
-      this.onRightKeyDown
-    );
-
-    this.input.keyboard?.on(
-      'keydown-ENTER',
-      this.onEnterKeyDown
-    );
+  createCardSlot() {
+    // Absolute coordinates inside cards, so the slot sits at 0,0.
+    this.cardSlot = this.add.container(0, 0);
+    this.viewerRoot.add(this.cardSlot);
 
     this.currentCard = this.buildSuspectCard(
       this.displaySuspects[this.currentSuspectIndex],
+      this.currentSuspectIndex,
       0
     );
 
     this.cardSlot.add(this.currentCard);
-
-    this.updatePagination();
-    this.createZoomOverlay();
   }
 
-  buildSuspectCard(suspect, offsetX = 0) {
-    const container = this.add.container(offsetX, 0);
+  buildSuspectCard(suspect, index, offsetX = 0) {
+    const card = this.add.container(offsetX, 0);
 
-    const frameShadow = this.add.rectangle(
-      6,
-      8,
-      670,
-      430,
-      0x000000,
-      0.16
-    );
-
-    const frame = this.add
-      .rectangle(0, 0, 670, 430, 0xf5e4bc, 1)
-      .setStrokeStyle(4, 0x5d4022, 1);
-
-    const innerFrame = this.add
-      .rectangle(0, 0, 635, 395, 0xe6cb95, 0.9)
-      .setStrokeStyle(2, 0x8b6840, 1);
-
-    const mugshotFrame = this.add
-      .rectangle(0, -42, 540, 240, 0x1e1a16, 1)
-      .setStrokeStyle(3, 0x6e5433, 1);
-
+    const name = this.getSuspectDisplayName(suspect, index);
     const imageKey = getSuspectImageKey(suspect);
+    const hasPhoto = Boolean(imageKey && this.textures.exists(imageKey));
 
-    let portrait = null;
-    let fallback = null;
-    let fallbackText = null;
+    /* ---------- LEFT PAGE: polaroid with surveillance photo ---------- */
 
-    if (
-      imageKey &&
-      this.textures.exists(imageKey)
-    ) {
-      portrait = this.add
-        .image(0, -42, imageKey)
-        .setDisplaySize(515, 220)
-        .setInteractive({ useHandCursor: true });
+    const polaroid = this.add
+      .container(515, 440)
+      .setRotation(-0.012);
 
-      portrait.on('pointerdown', () => {
-        this.openZoom(imageKey);
-      });
+    const pShadow = this.add.rectangle(8, 10, 640, 470, 0x000000, 0.28);
+
+    const pFrame = this.add
+      .rectangle(0, 0, 640, 470, 0xfbf4e0, 1)
+      .setStrokeStyle(2, 0xcfc2a0, 1);
+
+    const photoBg = this.add
+      .rectangle(0, -50, 580, 326, 0x1c1814, 1)
+      .setStrokeStyle(2, 0x6e5433, 1);
+
+    polaroid.add([pShadow, pFrame, photoBg]);
+
+    if (hasPhoto) {
+      const photo = this.add.image(0, -50, imageKey);
+      this.fitImage(photo, 580, 326);
+      photo.setInteractive({ useHandCursor: true });
+
+      const hoverFrame = this.add
+        .rectangle(0, -50, 580, 326, 0xffffff, 0)
+        .setStrokeStyle(5, PAL.gold, 1)
+        .setVisible(false);
+
+      photo.on('pointerover', () => hoverFrame.setVisible(true));
+      photo.on('pointerout', () => hoverFrame.setVisible(false));
+      photo.on('pointerdown', () => this.openZoom(imageKey, name));
+
+      polaroid.add([photo, hoverFrame]);
     } else {
-      fallback = this.add
-        .rectangle(0, -42, 515, 220, 0x57514b, 1)
-        .setStrokeStyle(2, 0xf5e4bc, 1);
-
-      fallbackText = this.add
-        .text(0, -42, 'PHOTO MISSING', {
-          fontFamily: 'PressStart2P',
+      const missing = this.add
+        .text(0, -50, 'PHOTO MISSING', {
+          fontFamily: FONT_PIXEL,
           fontSize: '18px',
-          color: '#f7ebc6',
-          align: 'center'
+          color: '#f7ebc6'
         })
         .setOrigin(0.5);
+
+      polaroid.add(missing);
     }
 
-    const pinLine = this.add.rectangle(
-      0,
-      -178,
-      560,
-      2,
-      0x8b6840,
-      0.75
-    );
+    const tagBg = this.add.rectangle(-160, -197, 260, 28, 0x000000, 0.65);
 
-    const fileTitle = this.add
-      .text(0, -198, 'SUSPECT PHOTOGRAPH', {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#51341b'
+    const tagText = this.add
+      .text(-160, -197, 'SURVEILLANCE PHOTO', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '10px',
+        color: PAL.goldCss
       })
       .setOrigin(0.5);
 
-    const zoomHint = this.add
-      .text(
-        0,
-        100,
-        'Click photo to enlarge evidence image',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '20px',
-          color: '#68482a'
-        }
-      )
+    const caption = this.add
+      .text(0, 148, name, {
+        fontFamily: FONT_TYPE,
+        fontSize: '36px',
+        color: PAL.ink,
+        align: 'center',
+        wordWrap: { width: 600 }
+      })
       .setOrigin(0.5);
 
-    const suspectNumber = this.add
-      .text(
-        0,
-        138,
-        `DOSSIER ENTRY ${this.currentSuspectIndex + 1}`,
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '15px',
-          color: '#6e1f17'
-        }
-      )
-      .setOrigin(0.5);
+    polaroid.add([tagBg, tagText, caption]);
 
-    const summary = this.add
-      .text(
-        0,
-        182,
-        'Observe appearance, compare it with witness clues, ' +
-          'then decide whether the file justifies an arrest.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '22px',
-          color: '#3c2614',
-          align: 'center',
-          wordWrap: { width: 560 }
-        }
-      )
-      .setOrigin(0.5);
+    if (hasPhoto) {
+      const hint = this.add
+        .text(0, 198, 'click photo to enlarge', {
+          fontFamily: FONT_TYPE,
+          fontSize: '18px',
+          color: '#8a6a44'
+        })
+        .setOrigin(0.5);
 
-    const children = [
-      frameShadow,
-      frame,
-      innerFrame,
-      mugshotFrame,
-      pinLine,
-      fileTitle
-    ];
+      polaroid.add(hint);
+    }
 
-    if (portrait) children.push(portrait);
-    if (fallback) children.push(fallback);
-    if (fallbackText) children.push(fallbackText);
+    const tapeLeft = this.add
+      .rectangle(-250, -232, 120, 32, 0xe8d9a0, 0.78)
+      .setRotation(-0.5);
 
-    children.push(
-      zoomHint,
-      suspectNumber,
-      summary
+    const tapeRight = this.add
+      .rectangle(250, -232, 120, 32, 0xe8d9a0, 0.78)
+      .setRotation(0.5);
+
+    polaroid.add([tapeLeft, tapeRight]);
+
+    /* ---------- LEFT PAGE: sticky note ---------- */
+
+    const sticky = this.add
+      .container(515, 772)
+      .setRotation(0.012);
+
+    const stickyShadow = this.add.rectangle(5, 7, 560, 140, 0x000000, 0.25);
+
+    const stickyBody = this.add
+      .rectangle(0, 0, 560, 140, 0xf7e47f, 1)
+      .setStrokeStyle(2, 0xd8bd47, 1);
+
+    const stickyTape = this.add.rectangle(0, -70, 120, 22, 0xe8d9a0, 0.7);
+
+    const stickyHeader = this.add.text(-258, -54, 'NOTE TO SELF', {
+      fontFamily: FONT_PIXEL,
+      fontSize: '10px',
+      color: '#8a6a14'
+    });
+
+    const stickyText = this.add.text(
+      -258,
+      -30,
+      this.getQuipFor(index),
+      {
+        fontFamily: FONT_TYPE,
+        fontSize: '23px',
+        color: '#4a3512',
+        lineSpacing: 4,
+        wordWrap: { width: 516 }
+      }
     );
 
-    container.add(children);
+    sticky.add([
+      stickyShadow,
+      stickyBody,
+      stickyTape,
+      stickyHeader,
+      stickyText
+    ]);
 
-    container.frame = frame;
-    container.zoomHint = zoomHint;
-    container.fileTitle = fileTitle;
-    container.summary = summary;
-    container.suspectId = suspect.id;
+    /* ---------- RIGHT PAGE: typed record ---------- */
 
-    return container;
+    const mugKey = suspect?.portraitKey;
+    const hasMug = Boolean(
+      mugKey &&
+        mugKey !== imageKey &&
+        this.textures.exists(mugKey)
+    );
+
+    const nameLabel = this.add.text(975, 246, 'NAME', {
+      fontFamily: FONT_PIXEL,
+      fontSize: '10px',
+      color: PAL.inkSoft
+    });
+
+    const nameText = this.add.text(975, 262, name.toUpperCase(), {
+      fontFamily: FONT_TYPE,
+      fontSize: '40px',
+      color: PAL.ink,
+      wordWrap: { width: hasMug ? 600 : 760 }
+    });
+
+    const rule = this.add.graphics();
+    rule.lineStyle(2, 0x4a2e17, 0.7);
+    rule.lineBetween(975, 322, hasMug ? 1590 : 1735, 322);
+
+    const dotted = this.add.graphics();
+    dotted.lineStyle(1, 0x8b6840, 0.6);
+
+    card.add([polaroid, sticky, nameLabel, nameText, rule, dotted]);
+
+    const labelX = 975;
+    const valueX = 1135;
+    let rowY = 338;
+
+    DOSSIER_FIELDS.forEach(({ label, key }) => {
+      const value = this.formatDossierValue(
+        this.getSuspectField(suspect, key)
+      );
+
+      const labelText = this.add.text(labelX, rowY + 9, label, {
+        fontFamily: FONT_PIXEL,
+        fontSize: '11px',
+        color: PAL.inkSoft
+      });
+
+      const valueText = this.add.text(valueX, rowY, value, {
+        fontFamily: FONT_TYPE,
+        fontSize: '25px',
+        color: PAL.ink,
+        wordWrap: { width: 480 }
+      });
+
+      const rowHeight = Math.max(40, valueText.height + 12);
+
+      this.drawDotted(dotted, labelX, 1735, rowY + rowHeight - 4);
+
+      card.add([labelText, valueText]);
+
+      rowY += rowHeight;
+    });
+
+    if (hasMug) {
+      const mug = this.add.container(1680, 290).setRotation(0.03);
+
+      const mugShadow = this.add.rectangle(5, 6, 128, 152, 0x000000, 0.25);
+
+      const mugFrame = this.add
+        .rectangle(0, 0, 128, 152, 0xfbf4e0, 1)
+        .setStrokeStyle(2, 0xcfc2a0, 1);
+
+      const mugImage = this.add.image(0, -6, mugKey);
+      this.fitImage(mugImage, 112, 136);
+
+      const mugTape = this.add
+        .rectangle(0, -76, 60, 18, 0xe8d9a0, 0.78)
+        .setRotation(0.1);
+
+      mug.add([mugShadow, mugFrame, mugImage, mugTape]);
+      card.add(mug);
+    }
+
+    card.frame = pFrame;
+    card.polaroidFrame = pFrame;
+    card.suspectId = suspect?.id;
+
+    return card;
   }
+
+  /* ------------------------------------------------------------------------ */
+  /*  CONTROL STRIP: arrows, thumbnails, arrest button, notes                 */
+  /* ------------------------------------------------------------------------ */
+
+  createControlStrip() {
+    this.stripRoot = this.add
+      .container(0, 0)
+      .setDepth(325);
+
+    const y = 985;
+
+    this.dialogueText = this.add
+      .text(960, 912, DEFAULT_DIALOGUE, {
+        fontFamily: FONT_TYPE,
+        fontSize: '22px',
+        color: PAL.creamWarm,
+        align: 'center',
+        wordWrap: { width: 1500 }
+      })
+      .setOrigin(0.5)
+      .setShadow(2, 2, '#000000', 3, false, true);
+
+    this.bottomNoteText = this.add
+      .text(960, 1058, DEFAULT_NOTE, {
+        fontFamily: FONT_TYPE,
+        fontSize: '17px',
+        color: '#b39a6c',
+        align: 'center'
+      })
+      .setOrigin(0.5)
+      .setShadow(1, 1, '#000000', 2, false, true);
+
+    this.leftArrow = this.createButton(500, y, 60, 64, '<', {
+      fontSize: '26px'
+    });
+
+    this.rightArrow = this.createButton(1420, y, 60, 64, '>', {
+      fontSize: '26px'
+    });
+
+    this.leftArrow.on('pointerdown', () => {
+      if (this.canNavigate()) this.changeSuspect(-1);
+    });
+
+    this.rightArrow.on('pointerdown', () => {
+      if (this.canNavigate()) this.changeSuspect(1);
+    });
+
+    this.createThumbnails(y);
+    this.createArrestButton(1650, y);
+
+    this.stripRoot.add([
+      this.dialogueText,
+      this.bottomNoteText,
+      this.leftArrow,
+      this.rightArrow,
+      this.arrestButton
+    ]);
+  }
+
+  createThumbnails(y) {
+    this.thumbs = [];
+
+    const count = this.displaySuspects.length;
+    const w = 146;
+    const h = 98;
+    const gap = 14;
+    const total = count * w + (count - 1) * gap;
+    const startX = 960 - total / 2 + w / 2;
+
+    this.displaySuspects.forEach((suspect, index) => {
+      const imageKey = getSuspectImageKey(suspect);
+
+      const shadow = this.add.rectangle(3, 5, w, h, 0x000000, 0.35);
+
+      const frame = this.add
+        .rectangle(0, 0, w, h, 0xfbf4e0, 1)
+        .setStrokeStyle(3, 0x8b6840, 1);
+
+      const photoBg = this.add.rectangle(0, -8, 130, 73, 0x1c1814, 1);
+
+      const children = [shadow, frame, photoBg];
+
+      if (imageKey && this.textures.exists(imageKey)) {
+        const image = this.add.image(0, -8, imageKey);
+        this.fitImage(image, 130, 73);
+        children.push(image);
+      } else {
+        children.push(
+          this.add
+            .text(0, -8, '?', {
+              fontFamily: FONT_PIXEL,
+              fontSize: '22px',
+              color: '#f7ebc6'
+            })
+            .setOrigin(0.5)
+        );
+      }
+
+      children.push(
+        this.add
+          .text(0, 37, `FILE ${index + 1}`, {
+            fontFamily: FONT_PIXEL,
+            fontSize: '9px',
+            color: PAL.ink
+          })
+          .setOrigin(0.5)
+      );
+
+      const thumb = this.add.container(
+        startX + index * (w + gap),
+        y,
+        children
+      );
+
+      thumb.setSize(w, h);
+      thumb.frame = frame;
+      thumb.setInteractive({ useHandCursor: true });
+
+      thumb.on('pointerdown', () => this.goToSuspect(index));
+
+      thumb.on('pointerover', () => {
+        if (
+          index !== this.currentSuspectIndex &&
+          thumb.input?.enabled
+        ) {
+          thumb.setAlpha(0.95);
+        }
+      });
+
+      thumb.on('pointerout', () => this.refreshThumbs());
+
+      this.thumbs.push(thumb);
+      this.stripRoot.add(thumb);
+    });
+  }
+
+  createArrestButton(x, y) {
+    const w = 320;
+    const h = 84;
+
+    const glow = this.add
+      .rectangle(0, 0, w + 14, h + 14, 0xff3b2a, 0.12)
+      .setStrokeStyle(3, 0xff6a4a, 0.7);
+
+    const bg = this.add
+      .rectangle(0, 0, w, h, PAL.red, 1)
+      .setStrokeStyle(3, 0xf7e6bc, 1);
+
+    const inner = this.add
+      .rectangle(0, 0, w - 14, h - 14, PAL.red, 0)
+      .setStrokeStyle(1, 0xf7e6bc, 0.5);
+
+    this.arrestButtonText = this.add
+      .text(0, -9, 'ARREST', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '26px',
+        color: '#fff7de'
+      })
+      .setOrigin(0.5);
+
+    const sub = this.add
+      .text(0, 22, 'SIGN THE ORDER', {
+        fontFamily: FONT_TYPE,
+        fontSize: '16px',
+        color: '#f3d9c4'
+      })
+      .setOrigin(0.5);
+
+    this.arrestGlow = glow;
+
+    this.arrestButton = this.add.container(x, y, [
+      glow,
+      bg,
+      inner,
+      this.arrestButtonText,
+      sub
+    ]);
+
+    this.arrestButton.setSize(w, h);
+    this.arrestButton.bg = bg;
+    this.arrestButton.fillNormal = PAL.red;
+    this.arrestButton.fillHover = PAL.redBright;
+    this.arrestButton.setInteractive({ useHandCursor: true });
+
+    this.arrestButton.on('pointerover', () => {
+      if (!this.arrestButton.input?.enabled) return;
+
+      bg.setFillStyle(PAL.redBright, 1);
+      this.tweens.killTweensOf(this.arrestButton);
+      this.tweens.add({
+        targets: this.arrestButton,
+        scale: 1.04,
+        duration: 90
+      });
+    });
+
+    this.arrestButton.on('pointerout', () => {
+      if (this.arrestButton.input?.enabled) {
+        bg.setFillStyle(PAL.red, 1);
+      }
+
+      this.tweens.killTweensOf(this.arrestButton);
+      this.tweens.add({
+        targets: this.arrestButton,
+        scale: 1,
+        duration: 90
+      });
+    });
+
+    this.arrestButton.on('pointerdown', () => {
+      this.requestArrest();
+    });
+
+    this.startArrestPulse();
+  }
+
+  startArrestPulse() {
+    this.arrestPulse?.stop?.();
+
+    if (!this.arrestGlow) return;
+
+    this.arrestPulse = this.tweens.add({
+      targets: this.arrestGlow,
+      alpha: { from: 0.4, to: 1 },
+      scaleX: { from: 1, to: 1.06 },
+      scaleY: { from: 1, to: 1.12 },
+      duration: 800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.InOut'
+    });
+  }
+
+  stopArrestPulse() {
+    this.arrestPulse?.stop?.();
+    this.arrestPulse = null;
+
+    this.arrestGlow?.setAlpha(0.12).setScale(1);
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  ZOOM OVERLAY                                                            */
+  /* ------------------------------------------------------------------------ */
 
   createZoomOverlay() {
     const { width, height } = this.scale;
@@ -1002,54 +1398,46 @@ export class ArrestSelectionScene extends BaseScene {
       .setVisible(false);
 
     const bg = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        0x120b06,
-        0.94
-      )
+      .rectangle(width / 2, height / 2, width, height, 0x0d0804, 0.95)
       .setInteractive({ useHandCursor: true });
 
-    const board = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width * 0.84,
-        height * 0.82,
-        0xe8cf99,
-        0.96
-      )
-      .setStrokeStyle(4, 0x5d4022, 1);
+    const frameShadow = this.add.rectangle(
+      width / 2 + 10,
+      height / 2 + 28,
+      1480,
+      900,
+      0x000000,
+      0.35
+    );
 
-    const inner = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width * 0.8,
-        height * 0.76,
-        0xf3e0b6,
-        1
-      )
-      .setStrokeStyle(2, 0x8b6840, 1);
+    const frame = this.add
+      .rectangle(width / 2, height / 2 + 18, 1480, 900, 0xfbf4e0, 1)
+      .setStrokeStyle(3, 0xcfc2a0, 1);
+
+    const photoBg = this.add
+      .rectangle(width / 2, 499, 1420, 798, 0x1c1814, 1)
+      .setStrokeStyle(2, 0x6e5433, 1);
 
     this.zoomImage = this.add
-      .image(
-        width / 2,
-        height / 2 - 20,
-        '__DEFAULT'
-      )
+      .image(width / 2, 499, '__DEFAULT')
       .setVisible(false);
+
+    this.zoomCaption = this.add
+      .text(width / 2, 936, '', {
+        fontFamily: FONT_TYPE,
+        fontSize: '38px',
+        color: PAL.ink
+      })
+      .setOrigin(0.5);
 
     this.zoomHintText = this.add
       .text(
         width / 2,
-        height - 82,
-        'CLICK ANYWHERE TO CLOSE DOSSIER PHOTO',
+        height - 38,
+        'CLICK ANYWHERE TO CLOSE',
         {
-          fontFamily: 'PressStart2P',
-          fontSize: '16px',
+          fontFamily: FONT_PIXEL,
+          fontSize: '14px',
           color: '#fff4d6'
         }
       )
@@ -1059,18 +1447,21 @@ export class ArrestSelectionScene extends BaseScene {
 
     this.zoomOverlay.add([
       bg,
-      board,
-      inner,
+      frameShadow,
+      frame,
+      photoBg,
       this.zoomImage,
+      this.zoomCaption,
       this.zoomHintText
     ]);
   }
 
-  openZoom(imageKey) {
+  openZoom(imageKey, caption = '') {
     if (
       this.selectionLocked ||
       this.isAnimatingSlide ||
       this.isLeaving ||
+      this.confirmOpen ||
       !imageKey ||
       !this.textures.exists(imageKey) ||
       !this.zoomOverlay ||
@@ -1079,99 +1470,325 @@ export class ArrestSelectionScene extends BaseScene {
       return;
     }
 
-    const { width, height } = this.scale;
+    this.zoomImage.setTexture(imageKey);
+    this.fitImage(this.zoomImage, 1420, 798);
+    this.zoomImage.setVisible(true);
 
-    const texture = this.textures
-      .get(imageKey)
-      .getSourceImage();
+    this.zoomCaption?.setText(caption);
 
-    if (!texture?.width || !texture?.height) {
-      return;
-    }
+    this.tweens.killTweensOf(this.zoomOverlay);
+    this.zoomOverlay.setAlpha(0).setVisible(true);
 
-    const maxWidth = width * 0.68;
-    const maxHeight = height * 0.62;
-
-    const scale = Math.min(
-      maxWidth / texture.width,
-      maxHeight / texture.height
-    );
-
-    this.currentCard?.zoomHint?.setVisible(false);
-    this.currentCard?.fileTitle?.setVisible(false);
-    this.currentCard?.summary?.setVisible(false);
-    this.dialogueText?.setVisible(false);
-    this.bottomNoteText?.setVisible(false);
-
-    this.zoomImage
-      .setTexture(imageKey)
-      .setDisplaySize(
-        texture.width * scale,
-        texture.height * scale
-      )
-      .setVisible(true);
-
-    this.zoomOverlay.setVisible(true);
+    this.tweens.add({
+      targets: this.zoomOverlay,
+      alpha: 1,
+      duration: 140
+    });
   }
 
   closeZoom() {
     if (!this.zoomOverlay) return;
 
-    this.zoomOverlay.setVisible(false);
-    this.zoomImage?.setVisible(false);
+    this.tweens.killTweensOf(this.zoomOverlay);
 
-    this.currentCard?.zoomHint?.setVisible(true);
-    this.currentCard?.fileTitle?.setVisible(true);
-    this.currentCard?.summary?.setVisible(true);
-    this.dialogueText?.setVisible(true);
-    this.bottomNoteText?.setVisible(true);
+    this.zoomOverlay.setVisible(false).setAlpha(1);
+    this.zoomImage?.setVisible(false);
   }
 
-  changeSuspect(direction) {
+  /* ------------------------------------------------------------------------ */
+  /*  CONFIRMATION MODAL                                                      */
+  /* ------------------------------------------------------------------------ */
+
+  createConfirmOverlay() {
+    const { width, height } = this.scale;
+
+    this.confirmOverlay = this.add
+      .container(0, 0)
+      .setDepth(600)
+      .setVisible(false);
+
+    const dim = this.add
+      .rectangle(width / 2, height / 2, width, height, 0x000000, 0.72)
+      .setInteractive();
+
+    const panel = this.add.container(width / 2, height / 2);
+
+    const shadow = this.add.rectangle(10, 12, 900, 380, 0x000000, 0.3);
+
+    const paper = this.add
+      .rectangle(0, 0, 900, 380, 0xf5ebd2, 1)
+      .setStrokeStyle(4, 0x5e3d20, 1);
+
+    const band = this.add.rectangle(0, -150, 900, 80, 0x4a3118, 1);
+
+    const title = this.add
+      .text(0, -150, 'ISSUE ARREST ORDER?', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '24px',
+        color: PAL.goldCss
+      })
+      .setOrigin(0.5);
+
+    this.confirmBody = this.add
+      .text(0, -30, '', {
+        fontFamily: FONT_TYPE,
+        fontSize: '32px',
+        color: PAL.ink,
+        align: 'center',
+        lineSpacing: 10,
+        wordWrap: { width: 780 }
+      })
+      .setOrigin(0.5);
+
+    const yesBtn = this.createButton(-190, 120, 320, 70, 'ARREST', {
+      fontSize: '20px',
+      fill: PAL.red,
+      fillHover: PAL.redBright,
+      stroke: 0xf7e6bc
+    });
+
+    const noBtn = this.createButton(190, 120, 320, 70, 'KEEP LOOKING', {
+      fontSize: '16px'
+    });
+
+    yesBtn.on('pointerdown', () => this.confirmArrestFromModal());
+    noBtn.on('pointerdown', () => this.closeConfirm());
+
+    panel.add([
+      shadow,
+      paper,
+      band,
+      title,
+      this.confirmBody,
+      yesBtn,
+      noBtn
+    ]);
+
+    this.confirmOverlay.add([dim, panel]);
+  }
+
+  openConfirm(suspect) {
+    if (!this.confirmOverlay || this.confirmOpen) return;
+
+    const name = this.getSuspectDisplayName(
+      suspect,
+      this.currentSuspectIndex
+    );
+
+    this.confirmBody.setText(
+      `You are about to detain\n${name.toUpperCase()}.\nThis decision is final.`
+    );
+
+    this.confirmOpen = true;
+    this.confirmOverlay.setAlpha(0).setVisible(true);
+
+    this.tweens.add({
+      targets: this.confirmOverlay,
+      alpha: 1,
+      duration: 120
+    });
+  }
+
+  closeConfirm() {
+    if (!this.confirmOverlay) return;
+
+    this.tweens.killTweensOf(this.confirmOverlay);
+
+    this.confirmOverlay.setVisible(false).setAlpha(1);
+    this.confirmOpen = false;
+  }
+
+  confirmArrestFromModal() {
+    if (!this.confirmOpen) return;
+
+    this.closeConfirm();
+    this.beginArrest();
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  RESULT OVERLAY                                                          */
+  /* ------------------------------------------------------------------------ */
+
+  createResultOverlay() {
+    const { width, height } = this.scale;
+
+    this.resultOverlay = this.add
+      .container(0, 0)
+      .setDepth(700)
+      .setVisible(false);
+
+    const darkBg = this.add
+      .rectangle(width / 2, height / 2, width, height, 0x000000, 0.78)
+      .setInteractive();
+
+    this.resultPanel = this.add.container(width / 2, height / 2);
+
+    const shadow = this.add.rectangle(10, 12, 900, 430, 0x000000, 0.3);
+
+    const panel = this.add
+      .rectangle(0, 0, 900, 430, 0xf5ebd2, 1)
+      .setStrokeStyle(4, 0x5e3d20, 1);
+
+    const band = this.add.rectangle(0, -180, 900, 70, 0x4a3118, 1);
+
+    this.resultTitle = this.add
+      .text(0, -180, '', {
+        fontFamily: FONT_PIXEL,
+        fontSize: '24px',
+        color: PAL.goldCss,
+        align: 'center'
+      })
+      .setOrigin(0.5);
+
+    this.resultText = this.add
+      .text(0, -40, '', {
+        fontFamily: FONT_TYPE,
+        fontSize: '30px',
+        color: PAL.ink,
+        align: 'center',
+        wordWrap: { width: 780 },
+        lineSpacing: 10
+      })
+      .setOrigin(0.5);
+
+    const filedStamp = this.createStamp(
+      300,
+      110,
+      'FILED',
+      22,
+      PAL.red,
+      -0.22
+    ).setAlpha(0.85);
+
+    this.continueBtn = this.createButton(0, 150, 300, 66, 'CONTINUE', {
+      fontSize: '18px'
+    });
+
+    this.continueBtn.on('pointerdown', () => this.proceedFromResult());
+
+    this.resultPanel.add([
+      shadow,
+      panel,
+      band,
+      this.resultTitle,
+      this.resultText,
+      filedStamp,
+      this.continueBtn
+    ]);
+
+    this.resultOverlay.add([darkBg, this.resultPanel]);
+  }
+
+  showResult(title, message) {
+    this.resultTitle.setText(title);
+    this.resultText.setText(message);
+
+    this.resultOverlay.setVisible(true);
+    this.resultPanel.setScale(0.9).setAlpha(0);
+
+    this.tweens.add({
+      targets: this.resultPanel,
+      scale: 1,
+      alpha: 1,
+      duration: 220,
+      ease: 'Back.Out'
+    });
+  }
+
+  proceedFromResult() {
+    if (this.isLeaving || !this.resultCommitted) return;
+
+    this.isLeaving = true;
+    this.continueBtn?.disableInteractive();
+
+    const isCorrect = gameState.finalArrestResult === 'SUCCESS';
+
+    const nextSceneKey = isCorrect
+      ? 'SuccessScene'
+      : 'GameOverScene';
+
+    const payload = {
+      caseId: gameState.currentCaseId,
+      suspectId: gameState.finalArrestSuspectId,
+      source: 'final_arrest',
+
+      reasonCode: isCorrect
+        ? 'correct_arrest'
+        : 'wrong_arrest'
+    };
+
+    if (!isCorrect) {
+      payload.title = 'FALSE ARREST';
+
+      payload.message =
+        gameState.gameOverReason ||
+        'Incorrect suspect detained. The real thief escaped.';
+    }
+
+    this.resultOverlay.setVisible(false);
+    this.scene.stop('CityScene');
+
+    this.goto(nextSceneKey, payload);
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  NAVIGATION                                                              */
+  /* ------------------------------------------------------------------------ */
+
+  goToSuspect(index) {
     if (
-      !this.displaySuspects.length ||
-      !this.canNavigate()
+      !this.canNavigate() ||
+      index === this.currentSuspectIndex ||
+      index < 0 ||
+      index >= this.displaySuspects.length
     ) {
       return;
     }
+
+    const direction = index > this.currentSuspectIndex ? 1 : -1;
+
+    this.changeSuspect(direction, index);
+  }
+
+  changeSuspect(direction, targetIndex = null) {
+    if (!this.displaySuspects.length || !this.canNavigate()) {
+      return;
+    }
+
+    const total = this.displaySuspects.length;
+
+    const nextIndex =
+      targetIndex !== null
+        ? targetIndex
+        : (this.currentSuspectIndex + direction + total) % total;
+
+    if (nextIndex === this.currentSuspectIndex) return;
 
     this.closeZoom();
 
     this.isAnimatingSlide = true;
     this.disableNavigation();
 
-    const total = this.displaySuspects.length;
-
-    this.currentSuspectIndex =
-      (
-        this.currentSuspectIndex +
-        direction +
-        total
-      ) % total;
+    this.currentSuspectIndex = nextIndex;
 
     const oldCard = this.currentCard;
 
-    const newSuspect =
-      this.displaySuspects[this.currentSuspectIndex];
-
-    const enterFromX = direction > 0 ? 460 : -460;
-    const exitToX = direction > 0 ? -460 : 460;
-
     const newCard = this.buildSuspectCard(
-      newSuspect,
-      enterFromX
+      this.displaySuspects[nextIndex],
+      nextIndex,
+      direction * SLIDE_DISTANCE
     );
 
-    newCard.alpha = 0.9;
+    newCard.setAlpha(0);
 
     this.cardSlot.add(newCard);
     this.updatePagination();
 
     this.tweens.add({
       targets: oldCard,
-      x: exitToX,
-      alpha: 0.42,
-      duration: 220,
+      x: -direction * SLIDE_DISTANCE,
+      alpha: 0,
+      duration: SLIDE_DURATION,
       ease: 'Cubic.Out'
     });
 
@@ -1179,7 +1796,7 @@ export class ArrestSelectionScene extends BaseScene {
       targets: newCard,
       x: 0,
       alpha: 1,
-      duration: 220,
+      duration: SLIDE_DURATION,
       ease: 'Cubic.Out',
 
       onComplete: () => {
@@ -1194,46 +1811,33 @@ export class ArrestSelectionScene extends BaseScene {
           this.enableNavigation();
         }
 
-        this.dialogueText?.setText(
-          'Review each dossier entry. Use arrows to inspect suspects, ' +
-            'click the photograph to enlarge it, and confirm the arrest ' +
-            'when you are ready to submit your decision.'
-        );
-
-        this.bottomNoteText?.setText(
-          'Cross-check means, motive, and opportunity before arrest.'
-        );
+        this.dialogueText?.setText(DEFAULT_DIALOGUE);
+        this.bottomNoteText?.setText(DEFAULT_NOTE);
       }
     });
   }
 
   updatePagination() {
-    const suspect =
-      this.displaySuspects[this.currentSuspectIndex];
-
-    this.counterText.setText(
-      `${this.currentSuspectIndex + 1} / ${this.displaySuspects.length}`
+    this.counterText?.setText(
+      `FILE ${this.currentSuspectIndex + 1} / ${this.displaySuspects.length}`
     );
 
-    const dots = this.displaySuspects
-      .map((_, index) =>
-        index === this.currentSuspectIndex
-          ? '●'
-          : '○'
-      )
-      .join(' ');
+    this.refreshThumbs();
+  }
 
-    this.dotsText.setText(dots);
+  refreshThumbs() {
+    this.thumbs.forEach((thumb, index) => {
+      const active = index === this.currentSuspectIndex;
 
-    const displayName =
-      suspect?.name ||
-      suspect?.fullName ||
-      suspect?.title ||
-      `Suspect ${this.currentSuspectIndex + 1}`;
+      thumb.frame.setStrokeStyle(
+        active ? 5 : 3,
+        active ? PAL.gold : 0x8b6840,
+        1
+      );
 
-    this.suspectLabelText?.setText(
-      `Current file: ${displayName}`
-    );
+      thumb.setScale(active ? 1.07 : 1);
+      thumb.setAlpha(active ? 1 : 0.6);
+    });
   }
 
   canNavigate() {
@@ -1242,16 +1846,18 @@ export class ArrestSelectionScene extends BaseScene {
       !this.resultCommitted &&
       !this.isAnimatingSlide &&
       !this.isLeaving &&
+      !this.confirmOpen &&
       !this.zoomOverlay?.visible
     );
   }
 
   disableNavigation() {
-    this.leftArrow?.disableInteractive();
-    this.leftArrow?.setAlpha(0.45);
+    [this.leftArrow, this.rightArrow].forEach((arrow) => {
+      arrow?.disableInteractive();
+      arrow?.setAlpha(0.45);
+    });
 
-    this.rightArrow?.disableInteractive();
-    this.rightArrow?.setAlpha(0.45);
+    this.thumbs.forEach((thumb) => thumb.disableInteractive());
   }
 
   enableNavigation() {
@@ -1263,20 +1869,99 @@ export class ArrestSelectionScene extends BaseScene {
       return;
     }
 
-    this.leftArrow
-      ?.setInteractive({ useHandCursor: true })
-      .setAlpha(1);
+    [this.leftArrow, this.rightArrow].forEach((arrow) => {
+      arrow?.setInteractive({ useHandCursor: true });
+      arrow?.setAlpha(1);
+    });
 
-    this.rightArrow
-      ?.setInteractive({ useHandCursor: true })
-      .setAlpha(1);
+    this.thumbs.forEach((thumb) =>
+      thumb.setInteractive({ useHandCursor: true })
+    );
+
+    this.refreshThumbs();
+  }
+
+  /* ------------------------------------------------------------------------ */
+  /*  ARREST FLOW                                                             */
+  /* ------------------------------------------------------------------------ */
+
+  requestArrest() {
+    if (!this.canNavigate() || this.resultCommitted) return;
+
+    const suspect = this.displaySuspects[this.currentSuspectIndex];
+
+    if (!suspect) return;
+
+    if (REQUIRE_ARREST_CONFIRMATION) {
+      this.openConfirm(suspect);
+      return;
+    }
+
+    this.beginArrest();
+  }
+
+  beginArrest() {
+    if (this.resultCommitted || this.selectionLocked || this.isLeaving) {
+      return;
+    }
+
+    const suspect = this.displaySuspects[this.currentSuspectIndex];
+
+    if (!suspect) return;
+
+    this.selectionLocked = true;
+    this.selectedSuspectId = suspect.id;
+
+    this.disableNavigation();
+
+    this.arrestButton.disableInteractive();
+    this.arrestButton.bg.setFillStyle(0x555555, 1);
+    this.arrestButtonText.setAlpha(0.7);
+    this.stopArrestPulse();
+
+    this.dialogueText.setText(
+      'Arrest order submitted. The team is moving in to detain the suspect...'
+    );
+
+    this.bottomNoteText.setText(
+      'The case will be reviewed once the suspect is in custody.'
+    );
+
+    this.currentCard?.polaroidFrame?.setStrokeStyle(5, PAL.red, 1);
+
+    // rubber stamp slam on the record page (identical for every suspect)
+    this.orderStamp?.destroy();
+
+    this.orderStamp = this.createStamp(
+      1450,
+      690,
+      'ORDER SIGNED',
+      26,
+      0xb3281c,
+      -0.18
+    )
+      .setDepth(340)
+      .setAlpha(0)
+      .setScale(3.2);
+
+    this.tweens.add({
+      targets: this.orderStamp,
+      alpha: 0.92,
+      scale: 1,
+      duration: 260,
+      ease: 'Cubic.In',
+      onComplete: () => {
+        this.cameras.main.shake(120, 0.004);
+      }
+    });
+
+    this.time.delayedCall(ARREST_COMMIT_DELAY, () =>
+      this.confirmSelection()
+    );
   }
 
   confirmSelection() {
-    if (
-      this.resultCommitted ||
-      this.isLeaving
-    ) {
+    if (this.resultCommitted || this.isLeaving) {
       return;
     }
 
@@ -1284,29 +1969,25 @@ export class ArrestSelectionScene extends BaseScene {
       gameState.currentThief?.id ??
       gameState.currentThiefId;
 
-    const selectedSuspectId =
-      this.selectedSuspectId;
+    const selectedSuspectId = this.selectedSuspectId;
 
-    if (
-      selectedSuspectId == null ||
-      thiefId == null
-    ) {
+    if (selectedSuspectId == null || thiefId == null) {
       console.error(
         '[ArrestSelectionScene] Cannot submit arrest: missing suspect data.',
-        {
-          selectedSuspectId,
-          thiefId
-        }
+        { selectedSuspectId, thiefId }
       );
 
       this.selectionLocked = false;
       this.enableNavigation();
 
-      this.arrestButton
-        ?.setInteractive({ useHandCursor: true })
-        .setFillStyle(0x7b241c, 1);
+      this.orderStamp?.destroy();
+      this.orderStamp = null;
 
+      this.arrestButton
+        ?.setInteractive({ useHandCursor: true });
+      this.arrestButton?.bg?.setFillStyle(PAL.red, 1);
       this.arrestButtonText?.setAlpha(1);
+      this.startArrestPulse();
 
       this.dialogueText?.setText(
         'The arrest order could not be submitted. ' +
@@ -1332,8 +2013,8 @@ export class ArrestSelectionScene extends BaseScene {
     this.arrestButton?.disableInteractive();
     this.closeZoom();
 
-    // Wynik wewnętrzny do obsługi zakończenia.
-    // Ta scena nie nalicza punktów, reputacji ani uczciwości.
+    // Internal result used by the ending scenes.
+    // This scene awards no points, reputation or integrity.
     gameState.finalArrestSuspectId = selectedSuspectId;
 
     gameState.finalArrestResult = isCorrect
@@ -1361,7 +2042,7 @@ export class ArrestSelectionScene extends BaseScene {
       );
     }
 
-    // Identyczne potwierdzenie dla prawidłowego i błędnego wyboru.
+    // Identical confirmation for correct and wrong picks (no spoilers).
     this.showResult(
       'SUSPECT DETAINED',
       'The selected suspect has been taken into custody. ' +
@@ -1369,193 +2050,17 @@ export class ArrestSelectionScene extends BaseScene {
     );
   }
 
-  createResultOverlay() {
-    const { width, height } = this.scale;
-
-    this.resultOverlay = this.add
-      .container(0, 0)
-      .setDepth(500)
-      .setVisible(false);
-
-    const darkBg = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        0x000000,
-        0.76
-      )
-      .setInteractive();
-
-    const shadow = this.add.rectangle(
-      width / 2 + 8,
-      height / 2 + 10,
-      790,
-      360,
-      0x000000,
-      0.25
-    );
-
-    const panel = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        780,
-        350,
-        0xe5cb94,
-        0.98
-      )
-      .setStrokeStyle(4, 0x5e3d20, 1);
-
-    const panelInner = this.add
-      .rectangle(
-        width / 2,
-        height / 2,
-        736,
-        308,
-        0xf5e5bc,
-        1
-      )
-      .setStrokeStyle(2, 0x8b6840, 1);
-
-    this.resultTitle = this.add
-      .text(
-        width / 2,
-        height / 2 - 78,
-        '',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '22px',
-          color: '#5a3b21',
-          align: 'center'
-        }
-      )
-      .setOrigin(0.5);
-
-    this.resultText = this.add
-      .text(
-        width / 2,
-        height / 2 + 2,
-        '',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '30px',
-          color: '#352113',
-          align: 'center',
-          wordWrap: { width: 620 },
-          lineSpacing: 10
-        }
-      )
-      .setOrigin(0.5);
-
-    const continueBtn = this.add
-      .rectangle(
-        width / 2,
-        height / 2 + 108,
-        250,
-        58,
-        0x6c4820,
-        1
-      )
-      .setStrokeStyle(3, 0xf7e6bc, 1)
-      .setInteractive({ useHandCursor: true });
-
-    const continueText = this.add
-      .text(
-        width / 2,
-        height / 2 + 108,
-        'CONTINUE',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '18px',
-          color: '#fff7de'
-        }
-      )
-      .setOrigin(0.5);
-
-    continueBtn.on('pointerover', () => {
-      continueBtn.setFillStyle(0x8a5c29, 1);
-    });
-
-    continueBtn.on('pointerout', () => {
-      continueBtn.setFillStyle(0x6c4820, 1);
-    });
-
-    continueBtn.on('pointerdown', () => {
-      if (
-        this.isLeaving ||
-        !this.resultCommitted
-      ) {
-        return;
-      }
-
-      this.isLeaving = true;
-      continueBtn.disableInteractive();
-
-      const isCorrect =
-        gameState.finalArrestResult === 'SUCCESS';
-
-      const nextSceneKey = isCorrect
-        ? 'SuccessScene'
-        : 'GameOverScene';
-
-      const payload = {
-        caseId: gameState.currentCaseId,
-        suspectId: gameState.finalArrestSuspectId,
-        source: 'final_arrest',
-
-        reasonCode: isCorrect
-          ? 'correct_arrest'
-          : 'wrong_arrest'
-      };
-
-      if (!isCorrect) {
-        payload.title = 'FALSE ARREST';
-
-        payload.message =
-          gameState.gameOverReason ||
-          'Incorrect suspect detained. The real thief escaped.';
-      }
-
-      this.resultOverlay.setVisible(false);
-      this.scene.stop('CityScene');
-
-      this.goto(nextSceneKey, payload);
-    });
-
-    this.resultOverlay.add([
-      darkBg,
-      shadow,
-      panel,
-      panelInner,
-      this.resultTitle,
-      this.resultText,
-      continueBtn,
-      continueText
-    ]);
-  }
-
-  showResult(title, message) {
-    this.resultTitle.setText(title);
-    this.resultTitle.setColor('#5a3b21');
-
-    this.resultText.setText(message);
-    this.resultOverlay.setVisible(true);
-  }
+  /* ------------------------------------------------------------------------ */
+  /*  MISC                                                                    */
+  /* ------------------------------------------------------------------------ */
 
   closeAllUIPanels() {
-    const hud =
-      this.scene.manager.keys.PlayerHudScene;
+    const hud = this.scene.manager.keys.PlayerHudScene;
 
     hud?.closeAllUIPanels?.();
   }
 
-  addHoverEffect(
-    button,
-    baseScale = 0.8,
-    hoverScale = 0.9
-  ) {
+  addHoverEffect(button, baseScale = 0.8, hoverScale = 0.9) {
     button.on('pointerover', () => {
       button.setScale(hoverScale);
     });

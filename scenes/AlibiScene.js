@@ -28,15 +28,12 @@ export class AlibiScene extends BaseScene {
     this.root = null; this.view = null; this.entry = null;
     this.tab = 'questions'; this.replyPage = 0; this.historyIndex = -1;
     this.isLeaving = false; this.isSaving = false; this.error = ''; this.fileError = false;
-    this.interviewHud = null;
-    this.hudInputWasEnabled = null;
+    this.interviewHud = null; this.hudInputWasEnabled = null;
   }
   create() {
     super.create();
-    this.stopSceneIfActive('NewsHud');
-    this.bindInterviewHud();
-    this.cameras.main.resetFX();
-    this.cameras.main.setAlpha(1);
+    this.stopSceneIfActive('NewsHud'); this.bindInterviewHud();
+    this.cameras.main.resetFX(); this.cameras.main.setAlpha(1);
     this.cameras.main.setBackgroundColor(C.desk);
     this.trackInputEvent(this.scale, 'resize', this.handleResize, this);
     try {
@@ -52,7 +49,6 @@ export class AlibiScene extends BaseScene {
       this.fileError = true; this.renderError();
     }
   }
-
   bindInterviewHud() {
     this.releaseInterviewHud();
     this.interviewHud = this.getRegisteredScene('PlayerHudScene');
@@ -67,19 +63,14 @@ export class AlibiScene extends BaseScene {
     this.events.once('destroy', this.releaseInterviewHud, this);
     this.hideInterviewHud();
   }
-
   hideInterviewHud() {
     if (this._cleanupDone || this.isLeaving) return;
     const hud = this.interviewHud;
     if (!hud || hud._cleanupDone) return;
-    hud.closeAllUIPanels?.();
-    hud.setCurrentGameplayScene?.('AlibiScene');
-    hud.hideHud?.();
-    // Also hide before asynchronous HUD initialization has finished.
+    hud.closeAllUIPanels?.(); hud.setCurrentGameplayScene?.('AlibiScene'); hud.hideHud?.();
     hud.scene?.setVisible(false);
     if (hud.input) hud.input.enabled = false;
   }
-
   releaseInterviewHud() {
     const hud = this.interviewHud;
     hud?.events?.off('hud-ready', this.hideInterviewHud, this);
@@ -87,11 +78,8 @@ export class AlibiScene extends BaseScene {
     this.events?.off('wake', this.hideInterviewHud, this);
     this.events?.off('shutdown', this.releaseInterviewHud, this);
     this.events?.off('destroy', this.releaseInterviewHud, this);
-    this.interviewHud = null;
-    this.hudInputWasEnabled = null;
-    // The destination scene controls visibility; never force the HUD over another minigame.
+    this.interviewHud = null; this.hudInputWasEnabled = null;
   }
-
   loadWitness() {
     if (!this.caseKey || !this.encounterId || !this.suspectId || !this.npcId) throw new Error('Missing interview navigation data.');
     this.encounter = gameState.crimeCityEncounterState?.[this.caseKey]?.find(item => item.id === this.encounterId);
@@ -107,10 +95,10 @@ export class AlibiScene extends BaseScene {
   }
   layout() {
     const narrow = this.scale.width / Math.max(1, this.scale.height) < 1.15;
-    const w = narrow ? 780 : 1440, h = narrow ? 1160 : 970;
+    const w = narrow ? 780 : 1440, h = narrow ? 1280 : 1040;
     return narrow
-      ? { narrow, w, h, side: { x: 28, y: 90, w: 724, h: 210 }, main: { x: 28, y: 320, w: 724, h: 374 }, tabsY: 714, actionsY: 778, actionsH: 228, footerY: 1028 }
-      : { narrow, w, h, side: { x: 30, y: 100, w: 310, h: 694 }, main: { x: 366, y: 100, w: 1044, h: 416 }, tabsY: 540, actionsY: 608, actionsH: 220, footerY: 846 };
+      ? { narrow, w, h, side: { x: 28, y: 90, w: 724, h: 300 }, main: { x: 28, y: 410, w: 724, h: 374 }, tabsY: 804, actionsY: 868, actionsH: 228, footerY: 1118 }
+      : { narrow, w, h, side: { x: 30, y: 100, w: 360, h: 764 }, main: { x: 416, y: 100, w: 994, h: 416 }, tabsY: 540, actionsY: 608, actionsH: 220, footerY: 916 };
   }
   rect(x, y, w, h, fill, stroke = null, alpha = 1) {
     const object = this.add.rectangle(x + w / 2, y + h / 2, w, h, fill, alpha);
@@ -165,27 +153,29 @@ export class AlibiScene extends BaseScene {
     this.rect(s.x + 4, s.y + 5, s.w, s.h, C.shadow, null, 0.13);
     this.rect(s.x, s.y, s.w, s.h, 0xdcd0b1, C.edge);
     const px = s.x + 18, py = s.y + 18;
-    const pw = narrow ? 134 : s.w - 36, ph = narrow ? 170 : 228;
-    this.rect(px, py, pw, ph, 0xf5ecd6, C.edge); this.rect(px + 8, py + 8, pw - 16, ph - 32, C.dark);
+    const pw = narrow ? 210 : s.w - 36, ph = narrow ? 264 : 342;
+    this.rect(px, py, pw, ph, 0xf5ecd6, C.edge);
+    this.rect(px + 8, py + 8, pw - 16, ph - 32, C.dark);
     const key = [this.encounter.portraitKey, this.testimony.portraitKey, ...PORTRAITS].find(value => typeof value === 'string' && this.textures.exists(value));
     if (key) {
       const image = this.add.image(px + pw / 2, py + (ph - 24) / 2, key);
-      image.setScale(Math.min((pw - 28) / image.width, (ph - 46) / image.height)); this.root.add(image);
+      image.setScale(Math.min((pw - 20) / image.width, (ph - 36) / image.height));
+      this.root.add(image);
     } else this.label(px + 16, py + 50, 'NO PHOTO', pw - 32, '#eee0bd');
     this.label(px + 10, py + ph - 20, 'WITNESS FILE', pw - 20);
-    const tx = narrow ? px + pw + 22 : px, ty = narrow ? py : py + ph + 26;
+    const tx = narrow ? px + pw + 22 : px, ty = narrow ? py + 12 : py + ph + 22;
     const tw = narrow ? s.w - pw - 62 : pw;
     this.label(tx, ty, 'CONTACT FOR', tw);
-    this.fitText(this.text(tx, ty + 23, this.testimony.suspectName || 'Unknown suspect', tw, { fontSize: '27px' }), narrow ? 38 : 72, 19);
-    const roleY = ty + (narrow ? 66 : 94);
-    this.fitText(this.text(tx, roleY, this.testimony.role || 'Witness', tw, { fontSize: '20px', color: C.muted }), 32, 17);
-    const cy = narrow ? roleY + 37 : roleY + 56, window = this.testimony.crimeWindow;
+    this.fitText(this.text(tx, ty + 23, this.testimony.suspectName || 'Unknown suspect', tw, { fontSize: '27px' }), narrow ? 64 : 60, 19);
+    const roleY = ty + (narrow ? 100 : 88);
+    this.fitText(this.text(tx, roleY, this.testimony.role || 'Witness', tw, { fontSize: '20px', color: C.muted }), 45, 17);
+    const cy = roleY + 56, window = this.testimony.crimeWindow;
     this.text(tx, cy, window ? `THEFT  ${clock(window.startMinute)} - ${clock(window.endMinute)}` : 'THEFT TIME UNAVAILABLE', tw, { fontSize: '19px', color: '#843e35' });
     if (narrow) return;
-    this.rect(px, cy + 44, pw, 2, C.edge); this.label(px, cy + 65, 'COOPERATION', pw);
-    this.text(px, cy + 91, COOPERATION_LABELS[this.view.state.level] || 'Cautious', pw, { fontSize: '25px' });
-    for (let i = 0; i < 4; i++) this.rect(px + i * ((pw + 8) / 4), cy + 128, (pw - 24) / 4, 12, i <= this.view.state.level ? C.green : 0xbeb395);
-    this.fitText(this.text(px, cy + 157, 'Willing to talk does not mean telling the truth.', pw, { fontSize: '19px', color: C.muted }), 76, 18);
+    this.rect(px, cy + 40, pw, 2, C.edge); this.label(px, cy + 58, 'COOPERATION', pw);
+    this.text(px, cy + 82, COOPERATION_LABELS[this.view.state.level] || 'Cautious', pw, { fontSize: '25px' });
+    for (let i = 0; i < 4; i++) this.rect(px + i * ((pw + 8) / 4), cy + 119, (pw - 24) / 4, 12, i <= this.view.state.level ? C.green : 0xbeb395);
+    this.fitText(this.text(px, cy + 147, 'Willing to talk does not mean telling the truth.', pw, { fontSize: '19px', color: C.muted }), 68, 17);
   }
   renderReply() {
     const { main: m, narrow } = this.L;
@@ -323,7 +313,6 @@ export class AlibiScene extends BaseScene {
       const opened = await this.goto(sceneKey, data);
       if (opened) {
         this.releaseInterviewHud();
-        // Do not overwrite a context already set by the destination scene.
         if (hud && !hud._cleanupDone && hud.currentGameplaySceneKey === 'AlibiScene') hud.setCurrentGameplayScene?.(sceneKey);
       } else if (!this._cleanupDone) {
         this.isLeaving = false; this.hideInterviewHud();

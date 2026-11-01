@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "ui": {
+    "title": "THE TAVERN",
+    "backToTown": "Back to town",
+    "hint": "Select someone to talk. Escape: close / leave.",
+    "somethingElse": "Something else…",
+    "goodbye": "Goodbye.",
+    "askForWork": "Heard of anyone needing a detective?",
+    "leadsAvailable": "Word gets around. Whether it should is another matter.",
+    "leadsEmpty": "Nothing I can point you to today. Try the office classifieds later.",
+    "completedRumor": "You already closed that one. Good. I was running out of irresponsible theories.",
+    "activeRumor": "You have already taken that job. I can offer moral support, but not an alibi.",
+    "contact": "Contact: {contact}",
+    "contactFallback": "See the office classifieds.",
+    "rumorDisclaimer": "The full notice is in your office classifieds. Hearing a rumor does not accept a job.",
+    "readNotice": "Read the notice.",
+    "boardTitle": "Noticeboard",
+    "boardIntro": "Local opportunities. Some more advisable than others.",
+    "boardEmpty": "No notices available. The classifieds could not be loaded.",
+    "stepAway": "Step away.",
+    "status": "Status: {status}.",
+    "notAccepted": "Not accepted",
+    "statusLabels": {
+      "active": "In progress",
+      "completed": "Completed"
+    },
+    "contactMissing": "Not provided",
+    "goToOffice": "Go to the office classifieds.",
+    "back": "Back.",
+    "close": "Close.",
+    "navigationErrorTitle": "Could not open location",
+    "navigationError": "Please try again."
+  },
+  "npcs": {
+    "bartender": {
+      "name": "Bartender",
+      "greeting": "Welcome. If you are looking for trouble, try the menu.",
+      "chat": [
+        {
+          "id": "business",
+          "question": "How is business?",
+          "answer": "People come here to forget. Then they forget to pay."
+        },
+        {
+          "id": "glass",
+          "question": "You polish that glass a lot.",
+          "answer": "It has seen things. I am trying to remove the evidence."
+        },
+        {
+          "id": "recommendation",
+          "question": "What do you recommend?",
+          "answer": "Lower expectations. Goes with everything."
+        }
+      ],
+      "leads": [
+        "dead_men_calling"
+      ]
+    },
+    "regular": {
+      "name": "The Regular",
+      "greeting": "Sit down. I have a theory. Several, actually. None improved by evidence.",
+      "chat": [
+        {
+          "id": "theory",
+          "question": "What is your theory?",
+          "answer": "The pigeons work for someone. Nobody walks that confidently without a pension."
+        },
+        {
+          "id": "table",
+          "question": "Is this your usual table?",
+          "answer": "We have an understanding. I support it emotionally. Those beer mats handle the structural work."
+        },
+        {
+          "id": "newspaper",
+          "question": "Anything in the newspaper?",
+          "answer": "Yesterday I was worried about tomorrow. Today the paper confirms I was right."
+        }
+      ],
+      "leads": [
+        "stolen_alibi"
+      ]
+    },
+    "guest": {
+      "name": "Woman in the Mustard Coat",
+      "greeting": "If you are selling insurance, I am already anxious enough.",
+      "chat": [
+        {
+          "id": "waiting",
+          "question": "Waiting for someone?",
+          "answer": "No. That is the beauty of it. Nobody can be late."
+        },
+        {
+          "id": "place",
+          "question": "Nice place.",
+          "answer": "The coffee is terrible, but nobody asks me to join a mailing list."
+        },
+        {
+          "id": "visits",
+          "question": "Do you come here often?",
+          "answer": "Only when I need peace. So, increasingly often."
+        }
+      ],
+      "leads": [
+        "dead_mail"
+      ]
+    }
+  },
+  "rumors": {
+    "dead_mail": "Florence Finch says someone delivered a parcel to her grave. Awkward, considering she is still using her body.",
+    "dead_men_calling": "A widow says her late husband keeps leaving phone messages. Apparently even death does not improve communication.",
+    "stolen_alibi": "Someone says three strangers used them as a dinner alibi. They ate alone. Imagine having your social life stolen before you even acquire one."
+  },
+  "hotspots": [
+    {
+      "id": "bartender",
+      "label": "Talk to the bartender",
+      "x": 0.145,
+      "y": 0.23,
+      "w": 0.125,
+      "h": 0.28
+    },
+    {
+      "id": "regular",
+      "label": "Talk to the regular",
+      "x": 0.475,
+      "y": 0.3,
+      "w": 0.11,
+      "h": 0.38
+    },
+    {
+      "id": "guest",
+      "label": "Talk to the woman",
+      "x": 0.79,
+      "y": 0.395,
+      "w": 0.105,
+      "h": 0.25
+    },
+    {
+      "id": "board",
+      "label": "Read the noticeboard",
+      "x": 0.731,
+      "y": 0.216,
+      "w": 0.1,
+      "h": 0.15
+    },
+    {
+      "id": "exit",
+      "label": "Return to the neighborhood",
+      "x": 0.875,
+      "y": 0.1,
+      "w": 0.075,
+      "h": 0.29
+    }
+  ]
+}

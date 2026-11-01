@@ -134,7 +134,7 @@ const accessInterview = [
   },
   {
     "speaker": "Margaret Vale",
-    "text": "Yes. I have sent Leo written permission through the same email thread. His number is 620. Ask for the transfer job and delivery acknowledgement, not his opinion of Colin."
+    "text": "Yes. I have sent Leo written permission through the same email thread. He handles transfer enquiries at Mercer Audio. Ask for the transfer job and delivery acknowledgement, not his opinion of Colin."
   },
   {
     "speaker": "You",
@@ -388,7 +388,7 @@ function currentQuestion(spec) {
 }
 function reviewBody(id) {
   const s = getDeadMenProgress(), spec = reviewSpec(id);
-  if (id === REVIEW && spec.done) return 'COMPARISON RECORDED\n\nThe recent messages contain phrases found in Archives A and C. Their background descriptions also match Archive B.\n\nReusing older material is plausible. The transcripts do not prove an exact audio match or identify the caller.\n\nNEXT: Call Margaret again on 619. Ask who could obtain the archive.';
+  if (id === REVIEW && spec.done) return 'COMPARISON RECORDED\n\nThe recent messages contain phrases found in Archives A and C. Their background descriptions also match Archive B.\n\nReusing older material is plausible. The transcripts do not prove an exact audio match or identify the caller.\n\nNEXT: Call Margaret again through the published family contact. Ask who could obtain the archive.';
   if (id === ACCESS_REVIEW && spec.done) return 'ACCESS REVIEW RECORDED\n\nMargaret authorised release. The manifest lists all three older sources. The delivery acknowledgement records a copy supplied to Colin Ward.\n\nThis establishes a documented access lead, not the caller’s identity. Other copies may exist.\n\nNEXT: Establish Colin’s explanation and what the blue folder contains. These enquiries belong to the next stage.\n\nThe case remains open.';
   if (!spec.ready) {
     const required = id === REVIEW ? [...recordings,...archive] : accessDocuments;
@@ -406,7 +406,7 @@ export function getDeadMenMail() {
   if (!q || !['active','completed'].includes(q.status)) return [];
   const s = getDeadMenProgress();
   const items = [mail(INTRO,'Margaret Vale','Dead Men Calling — the messages',
-    'Detective,\n\nThank you for taking my case. My name is Margaret Vale. My husband Edward died a year ago. Since Monday, I have received three voicemail messages in what sounds like his voice.\n\nThe three transcripts are separate attachments in this mailbox. I have preserved the original audio. Square brackets describe sounds heard in each recording.\n\nThe caller wants a blue folder and insists I tell no one. I have decided this does not apply to someone I am paying.\n\nPlease call me on 619. I would rather explain the rest to someone with a pulse.\n\nMargaret Vale'),
+    'Detective,\n\nThank you for taking my case. My name is Margaret Vale. My husband Edward Vale died a year ago. Since Monday, I have received three voicemail messages in what sounds like his voice.\n\nThe three transcripts are separate attachments in this mailbox. I have preserved the original audio. Square brackets describe sounds heard in each recording.\n\nThe caller wants a blue folder and insists I tell no one. I have decided this does not apply to someone I am paying.\n\nPlease contact me when you can. I would rather explain the rest to someone with a pulse.\n\nMargaret Vale'),
     ...recordings.map(m => mail(m.id,'Margaret Vale — attachment',m.subject,m.body,'Original voicemail transcript'))];
   if (s.interviewCompleted) items.unshift(
     mail(REVIEW,'Your investigation notebook','Compare the recordings',reviewBody(REVIEW),'Evidence review'),
@@ -415,10 +415,10 @@ export function getDeadMenMail() {
     ...archive.map(m => mail(m.id,'Margaret Vale — archive attachment',m.subject,m.body,'Client-supplied older recording'))
   );
   if (s.archiveCompared) items.unshift(mail('dead_men_access_enquiry','Your case notes','Next enquiry — who had the archive?',
-    'The transcript comparison is recorded.\n\nCall Margaret Vale again on 619. Ask who handled Edward’s archive and whether any copies were released. Do not accuse anyone on the strength of access alone.'));
+    'The transcript comparison is recorded.\n\nCall Margaret Vale again through the published family contact. Ask who handled Edward’s archive and whether any copies were released. Do not accuse anyone on the strength of access alone.'));
   if (s.accessInterviewCompleted) items.unshift(
     mail('dead_men_mercer_permission','Margaret Vale','Mercer Audio — permission and contact',
-      'Detective,\n\nI have authorised Leo Mercer at Mercer Audio to discuss job MV-14 and supply the relevant transfer records. Call him on 620.\n\nI have also forwarded my original authorisation for a copy to Colin Ward. Please distinguish what I permitted from what was actually delivered.\n\nMargaret Vale'),
+      'Detective,\n\nI have authorised Leo Mercer at Mercer Audio to discuss job MV-14 and supply the relevant transfer records. Call him at Mercer Audio.\n\nI have also forwarded my original authorisation for a copy to Colin Ward. Please distinguish what I permitted from what was actually delivered.\n\nMargaret Vale'),
     mail(accessDocuments[0].id,'Margaret Vale — forwarded original',accessDocuments[0].subject,accessDocuments[0].body)
   );
   if (s.technicianCompleted) items.unshift(
@@ -437,7 +437,7 @@ export function syncDeadMenEvidence() {
   if (!getPIQuest(DEAD_MEN_QUEST)) return;
   const s = getDeadMenProgress();
   if (s.read.includes(INTRO)) {
-    addNote('dead_men_client_contact','Margaret Vale — 619','Call Margaret Vale on 619 to obtain her account.','Source: client email','blue');
+    addNote('dead_men_client_contact','Margaret Vale','Call Margaret Vale through the published family contact to obtain her account.','Source: client email','blue');
     completeObjectives(['read_client_email']);
   }
   const visible = [...recordings,...(s.interviewCompleted ? archive : []),...(s.accessInterviewCompleted ? accessDocuments.slice(0,1) : []),...(s.technicianCompleted ? accessDocuments.slice(1) : [])];
@@ -450,12 +450,12 @@ export function syncDeadMenEvidence() {
   }
   if (s.archiveCompared) {
     addNote('dead_men_archive_comparison','Comparison: matching older material','The recent phrases also occur in Archives A and C. The described background sequence appears in Archive B. Reused recordings are plausible. An original-audio comparison is still needed. This does not identify the caller.','Source: player’s transcript comparison');
-    addNote('dead_men_access_lead','Who could obtain the recordings?','Call Margaret on 619 to ask who handled or received copies. Access is a lead, not proof.','Open lead — source material and access','blue');
+    addNote('dead_men_access_lead','Who could obtain the recordings?','Call Margaret through the published family contact to ask who handled or received copies. Access is a lead, not proof.','Open lead — source material and access','blue');
     completeObjectives(['compare_archive']);
   }
   if (s.accessInterviewCompleted) {
     addNote('dead_men_access_interview','Margaret: the archive copies',transcript(accessInterview),'Source: completed follow-up interview','blue');
-    addNote('dead_men_mercer_contact','Mercer Audio — 620','Margaret has authorised discussion of job MV-14. Call Leo Mercer on 620 for the transfer records.','Source: client authorisation','blue');
+    addNote('dead_men_mercer_contact','Mercer Audio','Margaret has authorised discussion of job MV-14. Call Leo Mercer at Mercer Audio for the transfer records.','Source: client authorisation','blue');
   }
   if (s.technicianCompleted) addNote('dead_men_technician_interview','Leo Mercer: transfer records',transcript(technicianInterview),'Source: completed technician interview','blue');
   if (s.accessReviewed) addNote('dead_men_access_result','Colin Ward received source material','The authorisation permits release to Colin. The MV-14 manifest includes the three older sources. MV-14-D2 records delivery of that archive to Colin Ward. This establishes access, not the caller’s identity. Seek his explanation and investigate the blue folder.','Source: player’s document comparison');
@@ -516,7 +516,7 @@ function routeFor(number) {
   const s = getDeadMenProgress();
   if (number === MARGARET.number && s.read.includes(INTRO)) {
     return s.interviewCompleted && s.archiveCompared
-      ? {contact:MARGARET,lines:accessInterview,flag:'accessInterviewCompleted',message:'Interview saved. Call Mercer Audio on 620 and check your mailbox.'}
+      ? {contact:MARGARET,lines:accessInterview,flag:'accessInterviewCompleted',message:'Interview saved. Call Mercer Audio at Mercer Audio and check your mailbox.'}
       : {contact:MARGARET,lines:interview,flag:'interviewCompleted',message:'Interview saved. Archive copies are available in your mailbox.'};
   }
   if (number === LEO.number && s.archiveCompared && s.accessInterviewCompleted) {

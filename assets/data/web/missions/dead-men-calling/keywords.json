@@ -1,0 +1,169 @@
+{
+  "clouds": [
+    {
+      "id": "people",
+      "title": "PEOPLE & CONNECTIONS"
+    },
+    {
+      "id": "recordings",
+      "title": "VOICE & RECORDINGS"
+    },
+    {
+      "id": "documents",
+      "title": "THE BLUE FOLDER"
+    }
+  ],
+  "keywords": [
+    {
+      "id": "dm_edward",
+      "label": "Edward Vale",
+      "cloudId": "people",
+      "aliases": [
+        "Edward Vale",
+        "Edward"
+      ]
+    },
+    {
+      "id": "dm_margaret",
+      "label": "Margaret Vale",
+      "cloudId": "people",
+      "aliases": [
+        "Margaret Vale"
+      ]
+    },
+    {
+      "id": "dm_colin",
+      "label": "Colin Ward",
+      "cloudId": "people",
+      "aliases": [
+        "Colin Ward"
+      ]
+    },
+    {
+      "id": "dm_ward",
+      "label": "Ward Consulting",
+      "cloudId": "people",
+      "aliases": [
+        "Ward Consulting"
+      ]
+    },
+    {
+      "id": "dm_phone_margaret",
+      "label": "619 — Margaret Vale",
+      "cloudId": "people",
+      "aliases": []
+    },
+    {
+      "id": "dm_phone_colin",
+      "label": "621 — Colin Ward",
+      "cloudId": "people",
+      "aliases": []
+    },
+    {
+      "id": "dm_voice",
+      "label": "voicemail",
+      "cloudId": "recordings",
+      "aliases": [
+        "voicemail"
+      ]
+    },
+    {
+      "id": "dm_archive",
+      "label": "recording archive",
+      "cloudId": "recordings",
+      "aliases": [
+        "recording archive",
+        "older recordings"
+      ]
+    },
+    {
+      "id": "dm_recorder",
+      "label": "office recorder",
+      "cloudId": "recordings",
+      "aliases": [
+        "office recorder",
+        "recorder test"
+      ]
+    },
+    {
+      "id": "dm_background",
+      "label": "repeated background",
+      "cloudId": "recordings",
+      "aliases": [
+        "repeated background"
+      ]
+    },
+    {
+      "id": "dm_mercer",
+      "label": "Mercer Audio",
+      "cloudId": "recordings",
+      "aliases": [
+        "Mercer Audio"
+      ]
+    },
+    {
+      "id": "dm_leo",
+      "label": "Leo Mercer",
+      "cloudId": "recordings",
+      "aliases": [
+        "Leo Mercer"
+      ]
+    },
+    {
+      "id": "dm_phone_leo",
+      "label": "620 — Mercer Audio",
+      "cloudId": "recordings",
+      "aliases": []
+    },
+    {
+      "id": "dm_mv14",
+      "label": "MV-14",
+      "cloudId": "recordings",
+      "aliases": [
+        "MV-14"
+      ]
+    },
+    {
+      "id": "dm_folder",
+      "label": "blue folder",
+      "cloudId": "documents",
+      "aliases": [
+        "blue folder"
+      ]
+    },
+    {
+      "id": "dm_accounts",
+      "label": "company records",
+      "cloudId": "documents",
+      "aliases": [
+        "company records",
+        "company accounts"
+      ]
+    },
+    {
+      "id": "dm_cw41",
+      "label": "CW-41",
+      "cloudId": "documents",
+      "aliases": [
+        "CW-41"
+      ]
+    },
+    {
+      "id": "dm_tr884",
+      "label": "TR-884",
+      "cloudId": "documents",
+      "aliases": [
+        "TR-884"
+      ]
+    },
+    {
+      "id": "dm_sheet",
+      "label": "reconciliation sheet",
+      "cloudId": "documents",
+      "aliases": [
+        "reconciliation sheet"
+      ]
+    }
+  ],
+  "initialKeywords": []
+}

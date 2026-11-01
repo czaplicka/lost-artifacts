@@ -1,0 +1,33 @@
+{
+  "minimumCompletedMissions": 3,
+  "flags": {
+    "prerequisite": "shredded_report_reconstructed",
+    "referred": "frank_referred_to_alex",
+    "refused": "alex_refused_john_questions",
+    "decoded": "redacted_report_decoded"
+  },
+  "frankLines": [
+    "You filed every attachment... again? I am suspicious of your competence now.",
+    "Marcus prepared the report. That does not make him the only person involved in the operation.",
+    "Alex Murphy handled its equipment records. Storage room. You have probably met him and survived the manual.",
+    "Ask him about McClane's transport. Then come back if his memory develops a security classification."
+  ],
+  "alexLines": [
+    "McClane? That is not an equipment request.",
+    "Yes, I handled equipment records. No, I am not discussing a restricted operation because you found some paper.",
+    "Bring me an authorized account of that transport, not an archaeological reconstruction of the waste bin.",
+    "The archive has the redacted copy and its attachments. If you have a question, establish what the paperwork actually says first."
+  ],
+  "messages": {
+    "referred": "Lead recorded: ask Alex Murphy in the storage room about John's transport.",
+    "refused": "Alex will not discuss the operation. Return to the archive and reconstruct the redacted report.",
+    "decoded": "Report reconstructed. Keep it for the later confrontation with Alex.",
+    "unfinished": "Your report choices are saved. You can return to the reconstruction later.",
+    "loadFailed": "The document could not be opened. Please try again.",
+    "saveFailed": "Automatic saving failed. Save manually before leaving the game."
+  },
+  "buttons": {
+    "decode": "RECONSTRUCT REDACTED REPORT",
+    "read": "READ DECODED REPORT"
+  }
+}

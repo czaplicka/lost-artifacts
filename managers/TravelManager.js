@@ -4,7 +4,8 @@ import { EventBus } from '../EventBus.js';
 import { getEnergyManager } from './EnergyManager.js';
 import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from './MoneyManager.js';
 import { TRANSPORT_CONFIG, TRAVEL_ENCOUNTERS, TRAVEL_ENCOUNTER_CHANCE } from '../TransportConfig.js';
-import { getLocationByCity, getTravelDistance, isTransportAvailable, resolveLocationId } from '../ui/LocationUI.js';
+import { planTravel } from '../config/TravelNetwork.js';
+import { getLocationByCity, isTransportAvailable, resolveLocationId } from '../ui/LocationUI.js';
 import {
   getRouteManager, syncInvestigationState, generateDestinationsForCurrentCity,
   enterCity, addSessionScore
@@ -96,17 +97,29 @@ export function payForTravel(amount, description, metadata = {}) {
 }
 export function getAvailableFreeTransfers() { return getFreeTransfers(); }
 export function getTravelData(fromCityName, toCityName, locations, options = {}) {
-  const transportType = options.transportType || 'plane', config = getTransportConfig(transportType);
+  const transportType = options.transportType || 'plane';
+  const config = getTransportConfig(transportType);
   if (!config) throw new Error(`Unknown transport type: ${transportType}`);
-  const values = calculateTravelValues(getTravelDistance(fromCityName, toCityName, locations), transportType);
+  const from = getLocationByCity(fromCityName, locations), to = getLocationByCity(toCityName, locations);
+  const itinerary = planTravel(from, to, transportType, locations);
+  if (!itinerary) throw new Error(`${transportType} is unavailable: ${fromCityName} → ${toCityName}`);
+  const encounterLegIndex = options.encounterLegIndex ?? Math.floor(itinerary.legs.length / 2);
+  const encounterMode = itinerary.legs[encounterLegIndex]?.transportType || transportType;
   const encounter = options.travelEncounter !== undefined ? options.travelEncounter
-    : options.allowEncounter ? rollTravelEncounter(transportType) : null;
+    : options.allowEncounter ? rollTravelEncounter(encounterMode) : null;
   const freeTransferAvailable = hasFreeTransfer();
-  return { fromCity: fromCityName, toCity: toCityName, transportType, transportLabel: config.label,
-    baseTravelHours: values.baseTravelHours, travelHours: values.baseTravelHours + (encounter?.timePenalty || 0),
-    moneySpent: values.moneySpent, effectiveMoneySpent: freeTransferAvailable ? 0 : values.moneySpent,
-    estimatedEnergyChange: values.estimatedEnergyChange, travelEncounter: encounter, freeTransferAvailable,
-    travelLabel: encounter ? `${values.baseTravelHours}h + ${encounter.timePenalty}h` : `${values.baseTravelHours}h` };
+  const baseTravelHours = itinerary.baseTravelHours;
+  const travelHours = baseTravelHours + (encounter?.timePenalty || 0);
+  return {
+    fromCity: fromCityName, toCity: toCityName, transportType, transportLabel: itinerary.label,
+    itinerary, encounterLegIndex: encounter ? encounterLegIndex : null,
+    baseTravelHours, travelHours,
+    moneySpent: itinerary.moneySpent,
+    effectiveMoneySpent: freeTransferAvailable ? 0 : itinerary.moneySpent,
+    estimatedEnergyChange: -getEnergyManager().getTravelCost(transportType),
+    travelEncounter: encounter, freeTransferAvailable,
+    travelLabel: encounter ? `${baseTravelHours}h + ${encounter.timePenalty}h` : `${baseTravelHours}h`
+  };
 }
 export function getTravelHours(fromCityName, toCityName, locations, transportType = 'plane') {
   return getTravelData(fromCityName, toCityName, locations, { transportType }).travelHours;
@@ -148,7 +161,8 @@ export function executeTravel({ fromCityName, toCityName, locations, transportTy
     try {
       payment = prepareTravelPayment(travelData.moneySpent, paymentDescription, { ...metadata,
         fromCity: fromCityName, toCity: toCityName, transportType, baseTravelHours: travelData.baseTravelHours,
-        travelHours: travelData.travelHours, encounterId: travelData.travelEncounter?.id ?? null });
+        travelHours: travelData.travelHours, itinerary: travelData.itinerary,
+        encounterId: travelData.travelEncounter?.id ?? null });
       if (!payment.ok) { restorePaymentState(snapshot); return { success: false, reason: payment.reason || 'payment_failed', payment }; }
     } catch (error) {
       restorePaymentState(snapshot); console.error('[TravelManager] Payment preparation failed:', error);
@@ -204,6 +218,7 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
   const { travelData, payment } = execution;
   const travel = {
     transportType: travelData.transportType, transportLabel: travelData.transportLabel,
+    itinerary: travelData.itinerary, encounterLegIndex: travelData.encounterLegIndex,
     travelHours: travelData.travelHours, baseTravelHours: travelData.baseTravelHours,
     moneySpent: Math.max(0, Number(payment.amount) || 0), effectiveMoneySpent: Math.max(0, Number(payment.amount) || 0),
     costFromCash: Math.max(0, Number(payment.costFromCash) || 0), costFromBudget: Math.max(0, Number(payment.costFromBudget) || 0),
@@ -217,6 +232,7 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
   const record = {
     from: previousCity, fromCityId: previousCityId, to: cityName, toCityId: destinationId,
     transportType: travel.transportType, transportLabel: travel.transportLabel,
+    itinerary: travel.itinerary, encounterLegIndex: travel.encounterLegIndex,
     hours: travel.travelHours, baseHours: travel.baseTravelHours, moneySpent: travel.moneySpent,
     effectiveMoneySpent: travel.effectiveMoneySpent, costFromCash: travel.costFromCash,
     costFromBudget: travel.costFromBudget, energyChange, agencyDebtAdded: travel.agencyDebtAdded,
@@ -224,7 +240,6 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
     wasCorrect, arrivalKind, advancedRoute, encounter: travel.travelEncounter, travelLabel: travel.travelLabel
   };
   gameState.lastTravel = record; gameState.lastTravelEncounter = travel.travelEncounter; gameState.addTravel(record);
-  // Points are awarded only for a newly accepted pursuit stop, never a revisit.
   if (advancedRoute) addSessionScore(100, `Correct city: ${cityName}`);
   else if (arrivalKind === 'FALSE_LEAD') addSessionScore(-25, `False city: ${cityName}`);
   gameState.justReachedCorrectCityId = advancedRoute ? destinationId : null;
@@ -237,8 +252,7 @@ export function travelToCity(cityName, locations, transportType = 'plane') {
   requestTravelAutosave();
   const status = isFinal ? 'FINAL_SHOWDOWN'
     : isCrimeSceneArrival ? 'CRIME_SCENE_REACHED'
-    : advancedRoute ? 'CORRECT_CITY_REACHED'
-    : arrivalKind;
+    : advancedRoute ? 'CORRECT_CITY_REACHED' : arrivalKind;
   return { blocked: false, wasCorrect, ...travel, arrivalKind, advancedRoute,
     energyReachedZero: Boolean(execution.energyReachedZero), status,
     fromCity: previousCity, toCity: cityName, toCityId: destinationId, cityId: destinationId, isCrimeSceneArrival };

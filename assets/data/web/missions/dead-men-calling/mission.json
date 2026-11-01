@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "id": "dead_men_calling",
+  "questId": "pi_dead_men_calling",
+  "title": "Dead Men Calling",
+  "keywordsFile": "keywords.json",
+  "searchFile": "search.json",
+  "pageFiles": [
+    "pages/businesses.json",
+    "pages/news.json"
+  ]
+}

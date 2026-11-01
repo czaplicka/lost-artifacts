@@ -16,9 +16,13 @@ export class CityUi {
 
     if (!ready) {
       this.showUiLoading(
-        `Interface unavailable: ${(this._uiFailures || []).join(', ') || 'HUD startup'}.\nClick here to retry.`,
+        `Interface unavailable: ${
+          (this._uiFailures || []).join(', ') ||
+          'HUD startup'
+        }.\nClick here to retry.`,
         true
       );
+
       return;
     }
 
@@ -39,7 +43,12 @@ export class CityUi {
       .setScrollFactor(0);
 
     const blocker = this.add.rectangle(
-      0, 0, width, height, 0x000000, 0.24
+      0,
+      0,
+      width,
+      height,
+      0x000000,
+      0.24
     )
       .setOrigin(0)
       .setInteractive();
@@ -55,7 +64,9 @@ export class CityUi {
         backgroundColor: '#17110eee',
         padding: { x: 24, y: 18 },
         align: 'center',
-        wordWrap: { width: Math.max(100, width - 64) }
+        wordWrap: {
+          width: Math.max(100, width - 64)
+        }
       }
     ).setOrigin(0.5);
 
@@ -66,6 +77,10 @@ export class CityUi {
       label.setInteractive({ useHandCursor: true });
 
       label.once('pointerdown', () => {
+        if (this._cleanupDone || this.isSettingUpUi) {
+          return;
+        }
+
         this.showUiLoading();
         void this.finishCityStartup();
       });
@@ -78,12 +93,15 @@ export class CityUi {
   }
 
   waitForUi(predicate, token) {
+    this._waitCancels ??= new Set();
+
     return new Promise(resolve => {
       let settled = false;
       let timeout = null;
 
       const finish = result => {
         if (settled) return;
+
         settled = true;
 
         clearTimeout(timeout);
@@ -105,9 +123,15 @@ export class CityUi {
         }
 
         try {
-          if (predicate()) finish(true);
+          if (predicate()) {
+            finish(true);
+          }
         } catch (error) {
-          console.error('[CityScene] UI readiness check failed:', error);
+          console.error(
+            '[CityScene] UI readiness check failed:',
+            error
+          );
+
           finish(false);
         }
       };
@@ -125,6 +149,8 @@ export class CityUi {
   }
 
   cancelUiWaits() {
+    if (!this._waitCancels) return;
+
     for (const cancel of [...this._waitCancels]) {
       cancel();
     }
@@ -133,54 +159,142 @@ export class CityUi {
   }
 
   async setupCityUi() {
-    if (this._uiPromise) return this._uiPromise;
-    if (!this.canUseCity()) return false;
+    if (this._uiPromise) {
+      return this._uiPromise;
+    }
+
+    if (this._cleanupDone || !this._runToken) {
+      return false;
+    }
+
     const token = this._runToken;
+
     this.isSettingUpUi = true;
     this.uiReady = false;
     this._uiFailures = [];
+
     const promise = (async () => {
       try {
+        // create() może wykonać się przed przejściem sceny
+        // do stanu aktywnego. To nie oznacza awarii HUD.
+        const cityActive = await this.waitForUi(
+          () => this.canUseCity(),
+          token
+        );
+
+        if (
+          token !== this._runToken ||
+          this._cleanupDone
+        ) {
+          return false;
+        }
+
+        if (!cityActive) {
+          this._uiFailures = ['CityScene activation'];
+
+          console.error(
+            '[CityScene] City did not become active before HUD startup.',
+            {
+              status: this.sys?.settings?.status,
+              active: this.sys?.isActive?.(),
+              cleanupDone: this._cleanupDone
+            }
+          );
+
+          return false;
+        }
+
         const tasks = [
           ['UIScene', () => this.prepareMainHud(token)],
-          ['PlayerHudScene', () => this.preparePlayerHud(token)],
+          [
+            'PlayerHudScene',
+            () => this.preparePlayerHud(token)
+          ],
           ['NewsHud', () => this.prepareNewsHud(token)]
         ];
-        const results = await Promise.allSettled(tasks.map(([, run]) => run()));
-        if (token !== this._runToken || !this.canUseCity()) return false;
+
+        const results = await Promise.allSettled(
+          tasks.map(([, run]) => run())
+        );
+
+        if (
+          token !== this._runToken ||
+          !this.canUseCity()
+        ) {
+          return false;
+        }
+
         results.forEach((result, index) => {
-          if (result.status === 'rejected' || result.value !== true) {
+          if (
+            result.status === 'rejected' ||
+            result.value !== true
+          ) {
             const key = tasks[index][0];
+
             this._uiFailures.push(key);
-            console.error(`[CityScene] ${key} did not become ready.`,
-              result.status === 'rejected' ? result.reason : this.getRegisteredScene(key));
+
+            console.error(
+              `[CityScene] ${key} did not become ready.`,
+              result.status === 'rejected'
+                ? result.reason
+                : this.getRegisteredScene(key)
+            );
           }
         });
-        if (this._uiFailures.length) return false;
-        this.registry.set('currentSceneKey', 'CityScene');
+
+        if (this._uiFailures.length) {
+          return false;
+        }
+
+        this.registry.set(
+          'currentSceneKey',
+          'CityScene'
+        );
+
         this.bringSceneToTopIfActive('PlayerHudScene');
         this.bringSceneToTopIfActive('NewsHud');
+
         this.uiReady = true;
+
         return true;
       } catch (error) {
-        if (token === this._runToken && !this._cleanupDone) {
-          console.error('[CityScene] UI setup failed:', error);
+        if (
+          token === this._runToken &&
+          !this._cleanupDone
+        ) {
+          console.error(
+            '[CityScene] UI setup failed:',
+            error
+          );
+
           this._uiFailures = ['HUD setup'];
         }
+
         return false;
       } finally {
-        if (token === this._runToken) this.isSettingUpUi = false;
+        if (token === this._runToken) {
+          this.isSettingUpUi = false;
+        }
       }
     })();
+
     this._uiPromise = promise;
-    try { return await promise; }
-    finally { if (this._uiPromise === promise) this._uiPromise = null; }
+
+    try {
+      return await promise;
+    } finally {
+      if (this._uiPromise === promise) {
+        this._uiPromise = null;
+      }
+    }
   }
 
   async prepareMainHud(token) {
     const hud = await this.ensureOverlayScene('UIScene');
 
-    if (!hud || token !== this._runToken) return false;
+    if (!hud || token !== this._runToken) {
+      return false;
+    }
 
     const ready = await this.waitForUi(
       () => (
@@ -192,7 +306,9 @@ export class CityUi {
       token
     );
 
-    if (!ready || !this.canUseCity()) return false;
+    if (!ready || !this.canUseCity()) {
+      return false;
+    }
 
     hud.scene.setVisible(true);
     hud.showHUD();
@@ -203,14 +319,21 @@ export class CityUi {
   async preparePlayerHud(token) {
     const hud = await this.restorePlayerHud();
 
-    if (!hud || token !== this._runToken) return false;
+    if (!hud || token !== this._runToken) {
+      return false;
+    }
 
     const ready = await this.waitForUi(
-      () => hud.sys.isActive() && hud.isHudReady === true,
+      () => (
+        hud.sys.isActive() &&
+        hud.isHudReady === true
+      ),
       token
     );
 
-    if (!ready || !this.canUseCity()) return false;
+    if (!ready || !this.canUseCity()) {
+      return false;
+    }
 
     hud.scene.setVisible(true);
     hud.setCurrentGameplayScene?.('CityScene');
@@ -219,20 +342,28 @@ export class CityUi {
     hud.refreshUI?.();
 
     ensureHud(this);
+
     return true;
   }
 
   async prepareNewsHud(token) {
     const hud = await this.ensureOverlayScene('NewsHud');
 
-    if (!hud || token !== this._runToken) return false;
+    if (!hud || token !== this._runToken) {
+      return false;
+    }
 
     const ready = await this.waitForUi(
-      () => hud.sys.isActive() && hud.isUiReady?.() === true,
+      () => (
+        hud.sys.isActive() &&
+        hud.isUiReady?.() === true
+      ),
       token
     );
 
-    if (!ready || !this.canUseCity()) return false;
+    if (!ready || !this.canUseCity()) {
+      return false;
+    }
 
     hud.scene.setVisible(true);
     hud.setHudVisible(true);
@@ -269,9 +400,12 @@ export class CityUi {
   }
 
   openDestinationsPanel() {
-    if (this._cleanupDone || !this.uiReady) return false;
+    if (this._cleanupDone || !this.uiReady) {
+      return false;
+    }
 
     const hud = this.getPlayerHudScene();
+
     hud?.closeAllUIPanels?.();
 
     if (hud?.openDestinationsPanel) {
@@ -283,6 +417,7 @@ export class CityUi {
     }
 
     EventBus.emit('openDestinations');
+
     return true;
   }
 

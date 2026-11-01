@@ -1,3 +1,4 @@
+import { installDeadMenWebPhone } from '../../managers/DeadMenWebIntegration.js';
 import { SFX } from './PhoneConfig.js';
 import { installDeadMenPhone } from '../../managers/DeadMenCallingService.js';
 import { installDeadMenFollowupPhone } from '../../managers/DeadMenCallingFollowup.js';
@@ -5,7 +6,7 @@ import { installDeadMenFinalePhone } from '../../managers/DeadMenCallingFinale.j
 
 export const PhoneCalls={
  pickUp(){
-  installDeadMenPhone(this);installDeadMenFollowupPhone(this);installDeadMenFinalePhone(this);
+  installDeadMenPhone(this);installDeadMenFollowupPhone(this);installDeadMenFinalePhone(this);installDeadMenWebPhone(this);
   if(this.state!=='on_hook'){this.hangUp();return;}
   this.state='ready';this.number='';this.status='Dial a three-digit local number.';this.clearLog();this.playOnce(SFX.pickup,0.7);
   if(this._hasAudio(SFX.dialTone))this.playOnce(SFX.dialTone,0.6);else this.later(250,()=>this.tone(350,0.65));this.render();

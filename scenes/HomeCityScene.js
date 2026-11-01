@@ -2,6 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { HomeCityRenderer } from './homeCity/HomeCityRenderer.js';
+import { CEMETERY_BUILDING, enterCemeteryFromMap } from './homeCity/CemeteryMapAccess.js';
 
 const KEY = 'HomeCityScene';
 const COLS = 26, ROWS = 22, HW = 64, HH = 32, OX = 1600, OY = 240;
@@ -15,7 +16,8 @@ const BUILDINGS = [
   { id: 'police-station', name: 'Police Station', x: 5, y: 13, w: 4, h: 3, color: 0x758aa5,
     message: 'Please take a number. The number dispenser is under investigation.' },
   { id: 'your-home', name: 'Your Home', x: 16, y: 14, w: 3, h: 3, color: 0x96905c,
-    message: 'Home sweet home. Currently furnished with potential.' }
+    message: 'Home sweet home. Currently furnished with potential.' },
+  CEMETERY_BUILDING
 ];
 const PROPS = [
   { x: 8, y: 6, kind: 'lamp' }, { x: 12, y: 7, kind: 'lamp' },
@@ -37,6 +39,7 @@ export class HomeCityScene extends BaseScene {
     this.runToken = Symbol(KEY); this.saveElapsed = 0; this.feedbackTimer = null;
     this.lastCameraPosition = null; this.position = null; this.cityArt = null;
     this.heldArrows = new Set(); this.movementMode = 'pointer'; this.blocked = new Set();
+    this.cemeteryRefusalIndex = 0;
     for (const b of this.buildings) {
       for (let y = b.y; y < b.y + b.h; y++) {
         for (let x = b.x; x < b.x + b.w; x++) this.blocked.add(this.cellKey(x, y));
@@ -255,6 +258,7 @@ export class HomeCityScene extends BaseScene {
     if (building.id === 'pi-office') void this.openOffice();
     else if (building.id === 'spy-shop') void this.openSpyShop();
     else if (building.id === 'tavern') void this.openTavern();
+    else if (building.id === 'cemetery') void this.openCemetery();
     else this.say(`${building.name}: ${building.message}`);
   }
   async openOffice() {
@@ -265,6 +269,9 @@ export class HomeCityScene extends BaseScene {
   }
   async openTavern() {
     return this.openCityInterior('TavernScene', 'The tavern could not be opened. Please try again.');
+  }
+  async openCemetery() {
+    return enterCemeteryFromMap(this);
   }
   async openCityInterior(sceneKey, errorMessage) {
     if (this.disposed || this.navigating) return false;

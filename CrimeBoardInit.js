@@ -7,8 +7,8 @@ import {
   getApartmentIdentityContext
 } from './scenes/apartament/ApartmentIdentityEvidence.js';
 
-const UNKNOWN_SUSPECT_IMAGE='assets/suspects/unknown.jpg';
-const DEFAULT_ARTIFACT_IMAGE='assets/artifacts/artifact_unknown.png';
+const UNKNOWN_SUSPECT_IMAGE='assets/suspects/unknown.webp';
+const DEFAULT_ARTIFACT_IMAGE='assets/artifacts/artifact_unknown.webp';
 const DEFAULT_OBJECTS_URL='/assets/data/objects.json';
 
 async function loadJson(url){
@@ -43,7 +43,7 @@ function currentCaseKey(state){
 function resolveArtifactImage(mission={}){
   if(mission.image)return mission.image;if(mission.artifactImage)return mission.artifactImage;
   if(mission.artifactPhoto)return mission.artifactPhoto;if(mission.photo)return mission.photo;
-  if(mission.artifactKey)return`assets/artifacts/${mission.artifactKey.replace(/^artifact_/,'')}.png`;
+  if(mission.artifactKey)return`assets/artifacts/${mission.artifactKey.replace(/^artifact_/,'')}.webp`;
   return DEFAULT_ARTIFACT_IMAGE;
 }
 

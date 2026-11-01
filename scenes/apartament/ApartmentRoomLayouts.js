@@ -1,4 +1,4 @@
-// Coordinates refer to the original 1920 x 1080 background images.
+// Top-left hotspot coordinates on the original 1920 x 1080 backgrounds.
 const slot = (id, sourceId, roomId, label, x, y, w, h, discoveryAction, description, actionHint = '') => ({
   id, sourceId, roomId, label, x, y, w, h, discoveryAction, description, actionHint
 });
@@ -52,6 +52,70 @@ export const APARTMENT_ROOM_LAYOUTS = {
         'A scrap of paper partly hidden beneath the table.',
         'Lift it to find out whether it matters.')
     ]
+  },
+  collector: {
+    width: 1920,
+    height: 1080,
+    slots: [
+      slot('collector_wardrobe', 'bookshelf', 'bedroom', 'Wardrobe', 126, 237, 245, 610, 'search',
+        'A wardrobe full of clothes and decisions best left in the dark.',
+        'Check the shelves, pockets, and space behind the clothes.'),
+      slot('collector_trunk', 'instrument_case', 'bedroom', 'Travel Trunk', 389, 626, 192, 193, 'search',
+        'A sturdy travel trunk. It has seen more countries than my expense account.',
+        'Open the lid and check beneath the lining.'),
+      slot('collector_bed', 'sofa', 'bedroom', 'Bed', 590, 649, 408, 270, 'move',
+        'One side is neatly made. The other has clearly retained legal counsel.',
+        'Lift the bedding and check beneath the mattress.'),
+      slot('collector_bedside', 'nightstand_drawer', 'bedroom', 'Bedside Drawer', 1067, 637, 150, 62, 'search',
+        'A small drawer within convenient reach of insomnia.',
+        'Search inside the drawer.'),
+      slot('collector_books', 'wine_rack', 'bedroom', 'Bedside Books', 1063, 704, 151, 95, 'search',
+        'Bedtime reading. Apparently the plot was not gripping enough.',
+        'Check between the books.'),
+      slot('collector_landscape', 'framed_photo', 'bedroom', 'Framed Landscape', 1040, 253, 161, 153, 'move',
+        'A small landscape hanging at an unnecessarily dramatic angle.',
+        'Lift the frame and inspect its backing.'),
+      slot('collector_dressing_drawer', 'desk', 'bedroom', 'Dressing Table Drawer', 1353, 644, 162, 76, 'search',
+        'A dressing-table drawer. Vanity and secrecy share excellent storage solutions.',
+        'Search the drawer and check beneath its lining.'),
+      slot('collector_keepsake_box', 'jewelry_box', 'bedroom', 'Keepsake Box', 1529, 575, 90, 55, 'search',
+        'A small box beside the mirror. Too small for a statue, large enough for regret.',
+        'Open the box.'),
+      slot('collector_lamp', 'lamp', 'bedroom', 'Floor Lamp', 1230, 379, 110, 432, 'move',
+        'A lamp providing more illumination than most of the witnesses.',
+        'Check beneath the base.'),
+      slot('collector_coat', null, 'bedroom', 'Coat on the Chair', 1668, 590, 119, 344, 'search',
+        'A coat abandoned halfway through an excellent excuse.'),
+      slot('collector_sleeping_bust', null, 'bedroom', 'Sleeping Philosopher', 471, 176, 103, 169, 'inspect',
+        'Even the philosopher has stopped looking for answers. He has a sleep mask.'),
+      slot('collector_slippers', null, 'bedroom', 'Slippers', 1038, 851, 105, 60, 'inspect',
+        'A matching pair. The most stable relationship in this apartment.'),
+      slot('collector_medicine', 'desk_computer', 'bathroom', 'Medicine Cabinet', 787, 285, 166, 207, 'search',
+        'A mirrored medicine cabinet. Please do not diagnose the suspect from their toothpaste.',
+        'Open the mirrored door and inspect the shelves.'),
+      slot('collector_vanity', 'cabinet', 'bathroom', 'Under-Sink Cabinet', 1038, 684, 275, 180, 'search',
+        'A cupboard beneath the sink. Plumbing above, questionable storage below.',
+        'Open both doors and inspect the contents.'),
+      slot('collector_linen', 'safe', 'bathroom', 'Linen Cupboard', 1406, 303, 188, 549, 'search',
+        'A tall cupboard with room for towels and inconvenient personal belongings.',
+        'Search the shelves behind the door.'),
+      slot('collector_mirror', 'painting', 'bathroom', 'Bathroom Mirror', 1063, 260, 183, 227, 'move',
+        'An old wooden mirror. It reflects poorly on the suspect, but that is not evidence.',
+        'Carefully check behind the frame.'),
+      slot('collector_laundry', null, 'bathroom', 'Laundry Basket', 1612, 770, 226, 291, 'search',
+        'A laundry basket. Every detective eventually reaches a low point.'),
+      slot('collector_bin', null, 'bathroom', 'Wastebasket', 896, 731, 116, 136, 'search',
+        'A small bin. The glamour of detective work remains difficult to locate.'),
+      slot('collector_towels', null, 'bathroom', 'Towels', 1679, 490, 187, 258, 'move',
+        'Two towels. Neither appears willing to talk.',
+        'Lift them to check the rail and the wall behind it.'),
+      slot('collector_bath', null, 'bathroom', 'Bathtub', 395, 632, 266, 157, 'search',
+        'A bathtub with suspiciously respectable brass taps.'),
+      slot('collector_duck', null, 'bathroom', 'Rubber Duck', 193, 702, 69, 62, 'inspect',
+        'A bath duck displayed like a priceless antiquity. Finally, a collector with taste.'),
+      slot('collector_shower_bust', null, 'bathroom', 'Shower-Cap Philosopher', 835, 146, 89, 137, 'inspect',
+        'A philosopher in a shower cap. His school of thought is apparently waterproof.')
+    ]
   }
 };
 
@@ -59,6 +123,18 @@ export function getApartmentRoomLayout(packId) {
   const source = APARTMENT_ROOM_LAYOUTS[packId];
   return source ? JSON.parse(JSON.stringify(source)) : null;
 }
+
+const EMPTY_TEXT = {
+  kitchen_mug: 'Cold coffee. No clues. The real victim here was breakfast.',
+  kitchen_bin: 'Peelings, packaging, and a regrettable smell. Nothing useful.',
+  kitchen_bag: 'An empty shopping bag. A surprisingly accurate portrait of my finances.',
+  kitchen_floor_paper: 'An old shopping list. No secret code. Just onions.',
+  collector_coat: 'Empty pockets. A familiar financial situation.',
+  collector_laundry: 'Laundry. Not even the socks are prepared to testify.',
+  collector_bin: 'Packaging and tissues. No useful evidence. Considerable professional sacrifice.',
+  collector_towels: 'Just towels. A cover-up, but not the kind I am investigating.',
+  collector_bath: 'Nothing useful. I am investigating a theft, not water pressure.'
+};
 
 export function configureApartmentHotspots(objects, layout) {
   const sources = new Map();
@@ -74,31 +150,14 @@ export function configureApartmentHotspots(objects, layout) {
     const original = entry.sourceId ? sources.get(entry.sourceId) : null;
     const id = entry.sourceId || `layout_${entry.id}`;
     return {
-      ...(original || {}),
-      id,
-      layoutSlotId: entry.id,
-      roomId: entry.roomId,
-      label: entry.label,
-      description: entry.description,
-      inspectText: entry.description,
-      actionHint: entry.actionHint,
-      discoveryAction: entry.discoveryAction,
-      position: {x: entry.x, y: entry.y},
-      size: {w: entry.w, h: entry.h},
+      ...(original || {}), id, layoutSlotId: entry.id, roomId: entry.roomId,
+      label: entry.label, description: entry.description, inspectText: entry.description,
+      actionHint: entry.actionHint, discoveryAction: entry.discoveryAction,
+      position: {x: entry.x, y: entry.y}, size: {w: entry.w, h: entry.h},
       unlocks: (original?.unlocks || []).filter(Boolean).map(item => ({...item})),
-      state: original?.state || 'open',
-      requiresItem: original?.requiresItem,
-      animation: undefined,
-      afterSearchText: 'Already checked. Nothing else to collect here.',
-      emptySearchText: entry.id === 'kitchen_mug'
-        ? 'Cold coffee. No clues. The real victim here was breakfast.'
-        : entry.id === 'kitchen_bin'
-          ? 'Peelings, packaging, and a regrettable smell. Nothing useful.'
-          : entry.id === 'kitchen_bag'
-            ? 'An empty shopping bag. A surprisingly accurate portrait of my finances.'
-            : entry.id === 'kitchen_floor_paper'
-              ? 'An old shopping list. No secret code. Just onions.'
-              : 'Nothing useful. Not every hiding place has received the memo.'
+      state: original?.state || 'open', requiresItem: original?.requiresItem,
+      animation: undefined, afterSearchText: 'Already checked. Nothing else to collect here.',
+      emptySearchText: EMPTY_TEXT[entry.id] || 'Nothing useful. Not every hiding place has received the memo.'
     };
   });
 }

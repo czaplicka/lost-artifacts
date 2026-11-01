@@ -1,3 +1,4 @@
+import { installDeadMenWebUI } from '../managers/DeadMenWebIntegration.js';
 import { ComputerDrawing } from './pi-computer/ComputerDrawing.js';
 import { ComputerMonitor } from './pi-computer/ComputerMonitor.js';
 import { ComputerDesktop } from './pi-computer/ComputerDesktop.js';
@@ -30,6 +31,7 @@ export class PIOfficeComputerUI {
     installCommonRoomPages(this);
     installBusinessPages(this);
     this.photoQuest = new PhotoPIQuest(this);
+    installDeadMenWebUI(this);
     installComputerNotebook(this);
     this.mailNotifications = new ComputerMailNotifications(this);
     this.officeShop = installOfficeShop(this);

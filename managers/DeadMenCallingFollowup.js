@@ -16,7 +16,7 @@ const folderInterview=[
  {speaker:'You',text:'Keep the originals. A question in Edward’s notes is not a finding of theft. Has anyone asked you for these papers?'},
  {speaker:'Margaret Vale',text:'Colin emailed me before the recent calls. He wanted Edward’s original reconciliation sheet. He said he was tidying the company records. I am forwarding that email too.'},
  {speaker:'You',text:'May I contact him about the archive and those records?'},
- {speaker:'Margaret Vale',text:'Yes. His business number is 621. He may answer “Ward Consulting”. It is still Colin, only more expensive.'},
+ {speaker:'Margaret Vale',text:'Yes. He works through Ward Consulting. He may answer “Ward Consulting”. It is still Colin, only more expensive.'},
  {speaker:'You',text:'Thank you. I will compare his explanation with the documents, not assume that a disputed payment identifies a caller.'}
 ];
 const colinInterview=[
@@ -55,16 +55,16 @@ function current(){return questions.find(q=>!state().answers.includes(q.id))||nu
 function reviewBody(){
  const s=state();
  if(s.reviewed)return 'REVIEW RECORDED\n\nColin’s denial of receiving voice recordings conflicts with the authorised transfer records. His Friday email shows he wanted the original reconciliation sheet before the recent calls.\n\nThe sheet records an unresolved payment query. The bank excerpt confirms a debit, not theft or the caller’s identity.\n\nNEXT: Put the documentary contradiction to Colin and seek corroboration of who actually made the calls.\n\nNo final report, arrest or payment is available yet.';
- if(!ready())return 'BLUE FOLDER REVIEW\n\nComplete the call to Colin on 621 and open all three folder documents.\n\nStill to read:\n'+papers.filter(m=>!s.read.includes(m.id)).map(m=>'• '+m.subject).join('\n');
+ if(!ready())return 'BLUE FOLDER REVIEW\n\nComplete the call to Colin at Ward Consulting and open all three folder documents.\n\nStill to read:\n'+papers.filter(m=>!s.read.includes(m.id)).map(m=>'• '+m.subject).join('\n');
  return `BLUE FOLDER REVIEW — ${s.answers.length+1}/${questions.length}\n\n${current().prompt}\n\nUse NEXT OPTION and CHECK ANSWER. Refer to the Mercer documents and Colin’s interview when needed.`;
 }
 function mail(id,from,subject,body){return {id,from,subject,body,date:'Dead Men Calling — follow-up'};}
 function ownMail(){
  const s=state();if(!getPIQuest(DEAD_MEN_QUEST)||(!getDeadMenProgress().accessReviewed&&!s.folderInterview))return [];
- const items=[mail('dead_men_folder_next','Your case notes','The blue folder — call Margaret', 'The access review is recorded. Call Margaret on 619 again to ask about the blue folder and obtain Colin’s business contact. Access alone is not enough to identify a caller.')];
+ const items=[mail('dead_men_folder_next','Your case notes','The blue folder — call Margaret', 'The access review is recorded. Call Margaret through the published family contact again to ask about the blue folder and obtain Colin’s business contact. Access alone is not enough to identify a caller.')];
  if(s.folderInterview)items.unshift(
   mail(REVIEW,'Your investigation notebook','Review Colin’s account and the blue folder',reviewBody()),
-  mail('dead_men_folder_cover','Margaret Vale','Blue-folder scans and Colin’s number', 'Detective,\n\nI have supplied three documents: Edward’s reconciliation sheet, the bank entry and Colin’s earlier email asking for the original sheet. I have kept the originals.\n\nColin Ward’s business number is 621. Ask him about the archive and CW-41 / TR-884.\n\nThe accounts were not my responsibility. I can tell you where I found the papers, not what happened to the payment.\n\nMargaret Vale'),
+  mail('dead_men_folder_cover','Margaret Vale','Blue-folder scans and Colin’s number', 'Detective,\n\nI have supplied three documents: Edward’s reconciliation sheet, the bank entry and Colin’s earlier email asking for the original sheet. I have kept the originals.\n\nColin Ward’s business number is the published contact number. Ask him about the archive and CW-41 / TR-884.\n\nThe accounts were not my responsibility. I can tell you where I found the papers, not what happened to the payment.\n\nMargaret Vale'),
   ...papers.map(m=>mail(m.id,'Margaret Vale — supplied document',m.subject,m.body))
  );
  if(s.colinInterview)items.unshift(mail('dead_men_colin_statement','Your telephone transcript','Colin Ward — account to verify',transcript(colinInterview)));
@@ -77,7 +77,7 @@ function sync(){
  const s=state();if(!getPIQuest(DEAD_MEN_QUEST))return;
  if(s.folderInterview){
   note('dead_men_folder_interview','Margaret: the blue folder',transcript(folderInterview),'Source: completed follow-up interview');
-  note('dead_men_colin_contact','Colin Ward — 621','Margaret supplied Colin’s business number: 621. Ask him about the archive and the original reconciliation sheet.','Source: client contact information');
+  note('dead_men_colin_contact','Colin Ward','Margaret supplied Colin’s business number: the published contact number. Ask him about the archive and the original reconciliation sheet.','Source: client contact information');
   for(const m of papers)if(s.read.includes(m.id))note(m.id,m.subject,m.body,'Source: client-supplied document transcription');
  }
  if(s.colinInterview)note('dead_men_colin_statement','Colin’s account — not verified',transcript(colinInterview),'Source: completed telephone interview');
@@ -105,7 +105,7 @@ export function installDeadMenFollowupMail(ui){
 }
 function route(number){
  if(!unlocked())return null;
- if(number==='619')return {contact:MARGARET,lines:folderInterview,flag:'folderInterview',message:'Folder documents received. Call Colin Ward on 621.'};
+ if(number==='619')return {contact:MARGARET,lines:folderInterview,flag:'folderInterview',message:'Folder documents received. Call Colin Ward at Ward Consulting.'};
  if(number==='621'&&state().folderInterview)return {contact:COLIN,lines:colinInterview,flag:'colinInterview',message:'Colin’s statement saved. Compare it with the documents.'};
  return null;
 }

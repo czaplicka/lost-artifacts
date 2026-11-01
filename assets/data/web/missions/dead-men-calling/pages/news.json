@@ -1,0 +1,112 @@
+{
+  "pages": [
+    {
+      "id": "dm_audio_article",
+      "title": "Keeping a useful voicemail archive",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/guides/voicemail-archive",
+      "theme": "magazine",
+      "template": "news",
+      "blocks": [
+        [
+          "An orderly ",
+          {
+            "keywordId": "dm_archive"
+          },
+          " starts with keeping original files and recording where each copy came from."
+        ],
+        [
+          "If you ask a service to transfer recordings, retain its paperwork. A filename is a label, not a witness."
+        ],
+        [
+          "This consumer guide covers routine preservation. It does not describe any particular family or investigation."
+        ]
+      ],
+      "links": [],
+      "snippet": "An orderly recording archive starts with keeping original files and recording where each copy came from."
+    },
+    {
+      "id": "dm_folder_article",
+      "title": "When a reconciliation needs another look",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/business/reconciliation",
+      "theme": "magazine",
+      "template": "news",
+      "blocks": [
+        [
+          "A ",
+          {
+            "keywordId": "dm_sheet"
+          },
+          " can record questions about ",
+          {
+            "keywordId": "dm_accounts"
+          },
+          " that still need supporting documents."
+        ],
+        [
+          "An entry marked for review is not the same thing as a completed explanation. Original invoices, dates and references help keep queries attached to the right transaction."
+        ],
+        [
+          "Our contributor recommends a filing system. Our editor recommends finding the filing cabinet first."
+        ]
+      ],
+      "links": [],
+      "snippet": "A reconciliation sheet can record questions about company records that still need supporting documents."
+    },
+    {
+      "id": "dm_blue_shop",
+      "title": "Blue folders | Desk & Drawer",
+      "brand": "DESK & DRAWER",
+      "address": "www.deskanddrawer.local/stationery/blue-folders",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+        ],
+        [
+          "A4 stationery for offices and homes. Labels sold separately. Dramatic secrets not included."
+        ]
+      ],
+      "links": [],
+      "snippet": "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+    },
+    {
+      "id": "dm_edward_namesake",
+      "title": "Edward Vale | Landscape photography",
+      "brand": "EDWARD VALE PHOTOGRAPHY",
+      "address": "www.edwardvalephotos.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Edward Vale photographs coastal landscapes and empty railway platforms."
+        ],
+        [
+          "Prints available by appointment. Portrait sessions are not currently offered. Please specify the photograph title when enquiring."
+        ]
+      ],
+      "links": [],
+      "snippet": "Edward Vale photographs coastal landscapes and empty railway platforms."
+    },
+    {
+      "id": "dm_mercer_namesake",
+      "title": "Mercer Music | Instrument repairs",
+      "brand": "MERCER MUSIC",
+      "address": "www.mercermusic.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Guitar setups, amplifier repairs and piano tuning by appointment."
+        ],
+        [
+          "We do not transfer voicemail archives. We can, however, make your guitar sound less like a filing cabinet falling downstairs."
+        ]
+      ],
+      "links": [],
+      "snippet": "Guitar setups, amplifier repairs and piano tuning by appointment."
+    }
+  ]
+}

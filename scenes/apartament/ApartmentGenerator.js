@@ -4,6 +4,7 @@ import { requestAutosave } from '../../gameStatePersistence.js';
 import { createApartmentEscapeLead } from '../../config/ApartmentEscapeLeads.js';
 
 const VERSION=5;
+const ARTIFACT_HOST_IDS=new Set(['instrument_case','desk','bookshelf','sofa']);
 const clone=value=>JSON.parse(JSON.stringify(value));
 const DEFAULT_EFFECT={state:'empty',clueCount:4,artifactState:'left_behind',artifactRequired:true,artifactRecoveryBonus:30,escapeMethod:'direct'};
 const LABELS={bank_statement:'Bank Statement',casino_receipt:'Casino Receipt',threatening_letter:'Threatening Letter',
@@ -74,9 +75,16 @@ export class ApartmentGenerator {
   return tasks;
  }
  buildRequiredAssignments(objects){
-  const tasks=this.requiredTasks().map(task=>({...task,candidates:this.shuffle(objects.filter(o=>o.canHoldRequiredContent!==false&&((o.possibleContents||[]).some(i=>i.id===task.contentId)||(task.role==='motive'&&(HOSTS[task.item.id]||[]).includes(o.id)))))}));
-  for(const task of tasks){if(!task.candidates.length)throw new ApartmentGenerationError(`No hiding place for ${task.item.id}.`);if(task.role==='artifact')task.candidates.sort((a,b)=>Number(!!b.preferredForMissionArtifact)-Number(!!a.preferredForMissionArtifact));}
-  tasks.sort((a,b)=>a.candidates.length-b.candidates.length);
+  const tasks=this.requiredTasks().map(task=>({...task,candidates:this.shuffle(objects.filter(o=>
+   o.canHoldRequiredContent!==false&&(
+    (o.possibleContents||[]).some(i=>i.id===task.contentId)||
+    (task.role==='artifact'&&ARTIFACT_HOST_IDS.has(o.id))||
+    (task.role==='motive'&&(HOSTS[task.item.id]||[]).includes(o.id))
+   )
+  ))}));
+  for(const task of tasks)if(!task.candidates.length)throw new ApartmentGenerationError(`No hiding place for ${task.item.id}.`);
+  // Choose the artefact host first, from its shuffled pool, without a preferred case.
+  tasks.sort((a,b)=>Number(b.role==='artifact')-Number(a.role==='artifact')||a.candidates.length-b.candidates.length);
   const placed=[],loads=new Map(),exclusive=new Set();
   const visit=index=>{
    if(index===tasks.length)return true;const task=tasks[index],choices=[...task.candidates];
