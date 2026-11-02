@@ -1,3 +1,4 @@
+import { deadMenTopicTranscript } from './DeadMenPhoneTopics.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { getPIQuest } from './PIQuestManager.js';
@@ -388,8 +389,8 @@ function currentQuestion(spec) {
 }
 function reviewBody(id) {
   const s = getDeadMenProgress(), spec = reviewSpec(id);
-  if (id === REVIEW && spec.done) return 'COMPARISON RECORDED\n\nThe recent messages contain phrases found in Archives A and C. Their background descriptions also match Archive B.\n\nReusing older material is plausible. The transcripts do not prove an exact audio match or identify the caller.\n\nNEXT: Call Margaret again through the published family contact. Ask who could obtain the archive.';
-  if (id === ACCESS_REVIEW && spec.done) return 'ACCESS REVIEW RECORDED\n\nMargaret authorised release. The manifest lists all three older sources. The delivery acknowledgement records a copy supplied to Colin Ward.\n\nThis establishes a documented access lead, not the caller’s identity. Other copies may exist.\n\nNEXT: Establish Colin’s explanation and what the blue folder contains. These enquiries belong to the next stage.\n\nThe case remains open.';
+  if (id === REVIEW && spec.done) return 'COMPARISON RECORDED\n\nThe recent messages contain phrases found in Archives A and C. Their background descriptions also match Archive B.\n\nReusing older material is plausible. The transcripts do not prove an exact audio match or identify the caller.';
+  if (id === ACCESS_REVIEW && spec.done) return 'ACCESS REVIEW RECORDED\n\nMargaret authorised release. The manifest lists all three older sources. The delivery acknowledgement records a copy supplied to Colin Ward.\n\nThis establishes a documented access lead, not the caller’s identity. Other copies may exist.\n\nThe case remains open.';
   if (!spec.ready) {
     const required = id === REVIEW ? [...recordings,...archive] : accessDocuments;
     const missing = required.filter(m => !s.read.includes(m.id)).map(m => m.subject);
@@ -414,19 +415,19 @@ export function getDeadMenMail() {
       'Detective,\n\nAs promised, I have supplied copies of three older recordings: Archive A, Archive B and Archive C. They predate Edward’s death according to my records. I have kept the originals.\n\nPlease compare them with the recent messages. I would prefer an explanation requiring neither a medium nor another telephone contract.\n\nMargaret Vale'),
     ...archive.map(m => mail(m.id,'Margaret Vale — archive attachment',m.subject,m.body,'Client-supplied older recording'))
   );
-  if (s.archiveCompared) items.unshift(mail('dead_men_access_enquiry','Your case notes','Next enquiry — who had the archive?',
-    'The transcript comparison is recorded.\n\nCall Margaret Vale again through the published family contact. Ask who handled Edward’s archive and whether any copies were released. Do not accuse anyone on the strength of access alone.'));
+  if (s.archiveCompared) items.unshift(mail('dead_men_access_enquiry','Your case notes','Archive access — open question',
+    'The supplied older recordings contain matching phrases and background descriptions. The recent messages do not establish who obtained or used copies.'));
   if (s.accessInterviewCompleted) items.unshift(
     mail('dead_men_mercer_permission','Margaret Vale','Mercer Audio — permission and contact',
-      'Detective,\n\nI have authorised Leo Mercer at Mercer Audio to discuss job MV-14 and supply the relevant transfer records. Call him at Mercer Audio.\n\nI have also forwarded my original authorisation for a copy to Colin Ward. Please distinguish what I permitted from what was actually delivered.\n\nMargaret Vale'),
+      'Detective,\n\nI have authorised Leo Mercer at Mercer Audio to discuss job MV-14 and supply the relevant transfer records.\n\nI have also forwarded my original authorisation for a copy to Colin Ward. Please distinguish what I permitted from what was actually delivered.\n\nMargaret Vale'),
     mail(accessDocuments[0].id,'Margaret Vale — forwarded original',accessDocuments[0].subject,accessDocuments[0].body)
   );
   if (s.technicianCompleted) items.unshift(
     mail(ACCESS_REVIEW,'Your investigation notebook','Review the archive access',reviewBody(ACCESS_REVIEW),'Document comparison'),
     ...accessDocuments.slice(1).map(m => mail(m.id,'Mercer Audio — authorised records',m.subject,m.body,'After your call to Leo'))
   );
-  if (s.accessReviewed) items.unshift(mail('dead_men_colin_lead','Your case notes','Next lead — Colin Ward',
-    'Colin Ward received a copy containing all three older source recordings. This is supported by the authorisation, archive manifest and delivery acknowledgement.\n\nIt does not establish that he made the recent calls.\n\nNEXT ENQUIRIES:\n• Obtain Colin’s explanation.\n• Establish what the blue folder contains.\n• Seek original-audio comparison, not just matching transcriptions.\n\nNo arrest, final report or payment is available in this stage.'));
+  if (s.accessReviewed) items.unshift(mail('dead_men_colin_lead','Your case notes','Archive delivery — Colin Ward',
+    'Colin Ward received a copy containing all three older source recordings. This is supported by the authorisation, archive manifest and delivery acknowledgement.\n\nIt does not establish that he made the recent calls.'));
   return items;
 }
 function addNote(id,label,text,meta='Source: investigation records',color='yellow') {
@@ -437,28 +438,28 @@ export function syncDeadMenEvidence() {
   if (!getPIQuest(DEAD_MEN_QUEST)) return;
   const s = getDeadMenProgress();
   if (s.read.includes(INTRO)) {
-    addNote('dead_men_client_contact','Margaret Vale','Call Margaret Vale through the published family contact to obtain her account.','Source: client email','blue');
+    addNote('dead_men_client_contact','Margaret Vale','Margaret Vale supplied the messages and retained the original audio files.','Source: client email','blue');
     completeObjectives(['read_client_email']);
   }
   const visible = [...recordings,...(s.interviewCompleted ? archive : []),...(s.accessInterviewCompleted ? accessDocuments.slice(0,1) : []),...(s.technicianCompleted ? accessDocuments.slice(1) : [])];
   for (const m of visible) if (s.read.includes(m.id)) addNote(m.id,m.subject,m.body,'Source: client or authorised archive records');
   if (recordings.every(m => s.read.includes(m.id))) completeObjectives(['review_recordings']);
   if (s.interviewCompleted) {
-    addNote('dead_men_client_interview','Margaret’s account',transcript(interview),'Source: completed client interview','blue');
-    addNote('dead_men_archive_lead','Older recordings of Edward','Obtain and compare Margaret’s copies of the older recordings. The caller is not identified.','Open lead — archive comparison');
+    addNote('dead_men_client_interview','Margaret’s account',(deadMenTopicTranscript('margaret_initial') || transcript(interview)),'Source: completed client interview','blue');
+    addNote('dead_men_archive_lead','Older recordings of Edward','Margaret supplied copies of older recordings. The caller is not identified.','Open lead — archive comparison');
     completeObjectives(['contact_client']);
   }
   if (s.archiveCompared) {
     addNote('dead_men_archive_comparison','Comparison: matching older material','The recent phrases also occur in Archives A and C. The described background sequence appears in Archive B. Reused recordings are plausible. An original-audio comparison is still needed. This does not identify the caller.','Source: player’s transcript comparison');
-    addNote('dead_men_access_lead','Who could obtain the recordings?','Call Margaret through the published family contact to ask who handled or received copies. Access is a lead, not proof.','Open lead — source material and access','blue');
+    addNote('dead_men_access_lead','Who could obtain the recordings?','The archive predates the recent calls. Access to source recordings and the identity of the caller are separate questions.','Open lead — source material and access','blue');
     completeObjectives(['compare_archive']);
   }
   if (s.accessInterviewCompleted) {
-    addNote('dead_men_access_interview','Margaret: the archive copies',transcript(accessInterview),'Source: completed follow-up interview','blue');
-    addNote('dead_men_mercer_contact','Mercer Audio','Margaret has authorised discussion of job MV-14. Call Leo Mercer at Mercer Audio for the transfer records.','Source: client authorisation','blue');
+    addNote('dead_men_access_interview','Margaret: the archive copies',(deadMenTopicTranscript('margaret_access') || transcript(accessInterview)),'Source: completed follow-up interview','blue');
+    addNote('dead_men_mercer_contact','Mercer Audio','Margaret has authorised Mercer Audio to discuss job MV-14 and supply the relevant transfer records.','Source: client authorisation','blue');
   }
-  if (s.technicianCompleted) addNote('dead_men_technician_interview','Leo Mercer: transfer records',transcript(technicianInterview),'Source: completed technician interview','blue');
-  if (s.accessReviewed) addNote('dead_men_access_result','Colin Ward received source material','The authorisation permits release to Colin. The MV-14 manifest includes the three older sources. MV-14-D2 records delivery of that archive to Colin Ward. This establishes access, not the caller’s identity. Seek his explanation and investigate the blue folder.','Source: player’s document comparison');
+  if (s.technicianCompleted) addNote('dead_men_technician_interview','Leo Mercer: transfer records',(deadMenTopicTranscript('leo_transfer') || transcript(technicianInterview)),'Source: completed technician interview','blue');
+  if (s.accessReviewed) addNote('dead_men_access_result','Colin Ward received source material','The authorisation permits release to Colin. The MV-14 manifest includes the three older sources. MV-14-D2 records delivery of that archive to Colin Ward. This establishes access, not the caller’s identity.','Source: player’s document comparison');
 }
 function markRead(id) {
   if (!getDeadMenMail().some(m => m.id === id)) return;
@@ -472,7 +473,7 @@ function checkAnswer(reviewId, questionId, index) {
   if (!q.options[index]?.correct) return {ok:false,message:q.feedback};
   save({[spec.key]:[...getDeadMenProgress()[spec.key],q.id]});
   syncDeadMenEvidence();
-  return {ok:true,message:currentQuestion(spec) ? 'Evidence matched. Continue.' : 'Review recorded. New lead added to your board.'};
+  return {ok:true,message:currentQuestion(spec) ? 'Evidence matched. Continue.' : 'Review recorded.'};
 }
 export function installDeadMenMail(ui) {
   const docs = ui.documents;

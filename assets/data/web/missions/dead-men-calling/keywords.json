@@ -163,6 +163,23 @@
       "aliases": [
         "reconciliation sheet"
       ]
+    },
+    {
+      "id": "dm_denial",
+      "label": "Colin: no voice recordings",
+      "cloudId": "recordings",
+      "aliases": [
+        "I never received any voice recordings",
+        "no voice recordings"
+      ]
+    },
+    {
+      "id": "dm_delivery",
+      "label": "MV-14-D2 delivery acknowledgement",
+      "cloudId": "recordings",
+      "aliases": [
+        "MV-14-D2"
+      ]
     }
   ],
   "initialKeywords": []

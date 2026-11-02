@@ -143,14 +143,118 @@ export function renderCommonRoom(ui, search, page) {
     fit(cx + 20, cy + 19, privateView ? 'MEMBERS ONLY' : 'PROFILE & PUBLIC UPDATES',
         cw - 40, 8, privateView ? '#806747' : '#46645e', true);
     const size = small ? 14 : 16, lh = small ? 24 : 27;
-    const rows = commonRoomLines(search, page, cw - 42, size, privateView);
+    // REED_SOCIAL_PHOTO_POSTS_V1
     const perPage = Math.max(1, Math.floor((ch - 53) / lh));
+    const rows = [];
+    const socialPosts = !privateView && Array.isArray(page.socialPosts)
+        ? page.socialPosts : [];
+
+    for (const post of socialPosts) {
+        const headingLines = search.retroArticleLines({
+            blocks: [[post.author || name], [post.text || '']],
+            links: []
+        }, cw - 42, size);
+
+        for (const line of headingLines) {
+            rows.push({ line, update: true });
+        }
+
+        for (const photo of post.photos || []) {
+            if (!photo.key || !photo.url) continue;
+
+            const slots = Math.min(5, perPage);
+            const remaining = perPage - (rows.length % perPage);
+
+            if (remaining < slots) {
+                for (let i = 0; i < remaining; i++) {
+                    rows.push({ gap: true });
+                }
+            }
+
+            rows.push({
+                photo,
+                slots,
+                galleryPageId: post.galleryPageId || 'gallery',
+                update: true
+            });
+
+            for (let i = 1; i < slots; i++) {
+                rows.push({ photoContinuation: true });
+            }
+
+            const captionLines = search.retroArticleLines({
+                blocks: [[photo.label || 'Conference photograph']],
+                links: []
+            }, cw - 42, size);
+
+            for (const line of captionLines) {
+                rows.push({ line, update: true });
+            }
+
+            rows.push({ gap: true });
+        }
+
+        rows.push({ gap: true });
+    }
+
+    rows.push(...commonRoomLines(
+        search, page, cw - 42, size, privateView
+    ));
     const count = Math.max(1, Math.ceil(rows.length / perPage));
     search.bodyPage = Math.max(0, Math.min(count - 1, Number(search.bodyPage) || 0));
     const shown = rows.slice(search.bodyPage * perPage, (search.bodyPage + 1) * perPage);
     shown.forEach((row, i) => {
-        if (row.gap) return;
+        if (row.gap || row.photoContinuation) return;
         const ty = cy + 46 + i * lh;
+
+        if (row.photo) {
+            const photo = row.photo;
+            const px = cx + 21;
+            const pw = cw - 42;
+            const ph = Math.max(12, row.slots * lh - 6);
+
+            d.rectangle(px - 3, ty - 2, pw + 6, ph + 4, 0xe3e9e1);
+
+            if (!search.textureOk(photo.key)) {
+                search.addTexture(photo.key, photo.url);
+            }
+
+            const image = search.art(photo.key, px, ty, pw, ph);
+
+            if (image) {
+                image.setInteractive({ useHandCursor: true })
+                    .on('pointerover', () => image.setAlpha(.8))
+                    .on('pointerout', () => image.setAlpha(1))
+                    .on('pointerdown', () => {
+                        ui.options.onSfx?.('click');
+
+                        const gallery = search.definition?.pages?.find(
+                            item => item.id === row.galleryPageId
+                        );
+
+                        if (!gallery) return;
+
+                        search.openPage(gallery.id);
+
+                        const viewer = ui.photoQuest?.galleryViewer;
+
+                        if (viewer && !viewer.dead) {
+                            viewer.open(gallery, photo.id);
+                        }
+                    });
+            } else {
+                fit(
+                    px + 8,
+                    ty + 4,
+                    'Loading conference photograph...',
+                    Math.max(1, pw - 16),
+                    11,
+                    '#61746e'
+                );
+            }
+
+            return;
+        }
         d.rectangle(cx + 11, ty - 2, cw - 22, lh, row.update ? 0xebe5d7 : 0xf0f2e9);
         if (row.update) d.rectangle(cx + 11, ty - 2, 3, lh, 0xc0a775);
         let cursor = cx + 21;

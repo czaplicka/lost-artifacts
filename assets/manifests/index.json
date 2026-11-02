@@ -1821,7 +1821,28 @@
       "video:out",
       "audio:detective-intro",
       "image:apartment_collector_bathroom",
-      "image:apartment_collector_bedroom"
+      "image:apartment_collector_bedroom",
+      "json:crashTimelinePuzzle",
+      "json:data__web__missions__dead-men-calling__keywords",
+      "json:data__web__missions__dead-men-calling__mission",
+      "json:businesses",
+      "json:data__web__missions__dead-men-calling__pages__news",
+      "json:phone",
+      "json:data__web__missions__dead-men-calling__search",
+      "image:pi__city__tavern__bartender",
+      "image:men",
+      "image:pi__city__tavern__tavern_empty",
+      "image:woman",
+      "image:claire_sutton_avatar",
+      "json:tavernScene",
+      "image:nora_bell_avatar",
+      "image:clare_sutton_studio",
+      "image:community_ledger_small_grants",
+      "image:community_ledger_volunteer_training",
+      "image:everyday_edit_green_checks",
+      "image:norah_bell_piano_studio",
+      "json:tavernExtras",
+      "image:home-police"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2040,7 +2061,10 @@
       "json:tavernDialogues",
       "json:thirdMissionStory",
       "json:tips",
-      "json:tv-config"
+      "json:tv-config",
+      "json:crashTimelinePuzzle",
+      "json:tavernScene",
+      "json:tavernExtras"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2539,6 +2563,36 @@
     ],
     "auto:folder:voice": [
       "audio:detective-intro"
+    ],
+    "auto:folder:data/web/missions/dead-men-calling": [
+      "json:data__web__missions__dead-men-calling__keywords",
+      "json:data__web__missions__dead-men-calling__mission",
+      "json:phone",
+      "json:data__web__missions__dead-men-calling__search"
+    ],
+    "auto:folder:data/web/missions/dead-men-calling/pages": [
+      "json:businesses",
+      "json:data__web__missions__dead-men-calling__pages__news"
+    ],
+    "auto:folder:pi/city/tavern": [
+      "image:pi__city__tavern__bartender",
+      "image:men",
+      "image:pi__city__tavern__tavern_empty",
+      "image:woman"
+    ],
+    "auto:folder:side_quests/Reed/web/FaceSpace": [
+      "image:claire_sutton_avatar",
+      "image:nora_bell_avatar"
+    ],
+    "auto:folder:side_quests/Reed/web/news": [
+      "image:clare_sutton_studio",
+      "image:community_ledger_small_grants",
+      "image:community_ledger_volunteer_training",
+      "image:everyday_edit_green_checks",
+      "image:norah_bell_piano_studio"
+    ],
+    "auto:folder:pi/police": [
+      "image:home-police"
     ]
   }
 }

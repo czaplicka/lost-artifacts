@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "background": {
+    "key": "pi__city__tavern__tavern_empty",
+    "url": "assets/pi/city/tavern/tavern_empty.webp"
+  },
+  "npcs": {
+    "bartender": {
+      "key": "pi__city__tavern__bartender",
+      "url": "assets/pi/city/tavern/bartender.webp",
+      "present": true,
+      "depth": 10,
+      "placement": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1
+      },
+      "hotspot": {
+        "label": "Talk to the bartender",
+        "x": 0.13,
+        "y": 0.23,
+        "w": 0.115,
+        "h": 0.28
+      }
+    },
+    "regular": {
+      "key": "men",
+      "url": "assets/pi/city/tavern/men.webp",
+      "present": true,
+      "depth": 11,
+      "placement": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1
+      },
+      "hotspot": {
+        "label": "Talk to the regular",
+        "x": 0.49,
+        "y": 0.3,
+        "w": 0.105,
+        "h": 0.38
+      }
+    },
+    "guest": {
+      "key": "woman",
+      "url": "assets/pi/city/tavern/woman.webp",
+      "present": true,
+      "depth": 12,
+      "placement": {
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1
+      },
+      "hotspot": {
+        "label": "Talk to the woman",
+        "x": 0.785,
+        "y": 0.36,
+        "w": 0.115,
+        "h": 0.53
+      }
+    }
+  },
+  "hotspots": [
+    {
+      "id": "board",
+      "label": "Read the noticeboard",
+      "x": 0.733,
+      "y": 0.22,
+      "w": 0.1,
+      "h": 0.145
+    },
+    {
+      "id": "exit",
+      "label": "Return to the neighborhood",
+      "x": 0.881,
+      "y": 0.1,
+      "w": 0.072,
+      "h": 0.38
+    }
+  ]
+}

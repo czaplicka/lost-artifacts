@@ -5,6 +5,7 @@ import { EventBus } from '../EventBus.js';
 import { HQ_CITY, HQ_ID } from '../TransportConfig.js';
 import { planTravel } from '../config/TravelNetwork.js';
 import { getLocationById, getLocationByCity } from '../ui/LocationUI.js';
+import { PassportUI } from '../ui/PassportUI.js';
 import { TRANSPORT_VISUALS, CITY_QUIPS, GENERIC_ARRIVAL_QUIPS } from './travel/TransportVisuals.js';
 import {
   playTransportSfx, cleanupTravelEffects, getDetailText,
@@ -14,7 +15,7 @@ import { ensureTravelTextures, normalizeKey, pick, fs, TRAVEL_DEPTH } from './tr
 import { TravelRouteStage, getEncounterVisual, playEncounterEffect } from './travel/TravelTransitionEffects.js';
 import {
   TravelTicket, TravelJournal, createTravelHeader,
-  createPolaroid, createPassportMark, createPhoneNotice
+  createPolaroid, createPhoneNotice
 } from './travel/TravelTicketUI.js';
 
 const SKIP_UNLOCK_MS = 1000;
@@ -47,6 +48,9 @@ export class TravelTransitionScene extends BaseScene {
     this.journal = null;
     this.polaroid = null;
     this.passportMark = null;
+    this.travelPassport = null;
+    this.arrivalStamp = null;
+    this.passportPresentationPending = false;
     this.phoneNotice = null;
     this.encounterEffect = null;
     this._travelSfx = null;
@@ -94,7 +98,6 @@ export class TravelTransitionScene extends BaseScene {
     const from = getLocationByCity(data.fromCity, locations);
     const to = getLocationById(target, locations) || getLocationByCity(data.toCity, locations);
     const last = gameState.lastTravel;
-    // Compatibility with callers that only forward the old transition fields.
     const matchingLast = !returning && last && last.from === data.fromCity &&
       last.to === data.toCity && last.transportType === (data.transportType || 'plane');
     this.itinerary = returning ? null : data.itinerary ||
@@ -121,6 +124,7 @@ export class TravelTransitionScene extends BaseScene {
       newStamp = stampPassportForArrival(this, data.fromCity, target);
       if (newStamp) EventBus.emit('passportStampEarned', newStamp);
     }
+    this.arrivalStamp = newStamp;
     const { width, height } = this.scale;
     this.layout = { width, height, U: Math.min(width / 1920, height / 1080) };
     const { U } = this.layout;
@@ -149,7 +153,6 @@ export class TravelTransitionScene extends BaseScene {
     this.polaroid = createPolaroid(this, {
       width, height, U, textureKey: photoKey, city: data.toCity, country: to?.country || ''
     });
-    if (newStamp) this.passportMark = createPassportMark(this, { width, height, U, country: newStamp.country || data.toCity });
     if (this.shouldShowPhoneCall) this.phoneNotice = createPhoneNotice(this, { width, U });
     this.createContinueHint(width, height, U);
     this.playLeg(0, true);
@@ -161,10 +164,12 @@ export class TravelTransitionScene extends BaseScene {
     this.sleepPlayerHud();
     this.sleepSceneIfActive('NewsHud');
   }
+
   getLocations() {
     const data = this.cache?.json?.get('locations');
     return Array.isArray(data) ? data : Array.isArray(data?.locations) ? data.locations : [];
   }
+
   findCityPhoto(targetCityId, toCity) {
     if (targetCityId === HQ_ID) return null;
     for (const raw of [targetCityId, toCity]) {
@@ -175,13 +180,12 @@ export class TravelTransitionScene extends BaseScene {
     }
     return null;
   }
+
   getTransportVisual(type) { return TRANSPORT_VISUALS[type] || TRANSPORT_VISUALS.plane; }
 
   clearStage() {
     this.stage?.destroy();
-    for (const tween of this.stageTweens) {
-      this.removeTrackedTween(tween);
-    }
+    for (const tween of this.stageTweens) this.removeTrackedTween(tween);
     this.stageTweens.clear();
     for (const object of this.stageObjects) {
       this.killTrackedTweensOf(object);
@@ -236,7 +240,6 @@ export class TravelTransitionScene extends BaseScene {
     if (!first) this.buildStage(leg);
     const mode = leg.ferry ? 'Ferry' : leg.transportType[0].toUpperCase() + leg.transportType.slice(1);
     this.routeText.setText(`Leg ${index + 1}/${legs.length}: ${leg.fromCity} → ${leg.toCity} | ${mode} | ${leg.hours}h`);
-    // Update the header badge when the vehicle changes; keep the overall route title.
     this.headerObjects[1]?.setTexture(this.stage.vehicleKey);
     this.headerObjects[2]?.setText(transport.logTitle);
     if (first) {
@@ -282,20 +285,51 @@ export class TravelTransitionScene extends BaseScene {
     this.stageCall(() => this.stage.playZoom(first ? 1300 : 500, run));
   }
 
+  passportBlocksContinue() {
+    return Boolean(this.passportPresentationPending || this.travelPassport?.isOpen ||
+      this.travelPassport?._closingContainer);
+  }
+
+  showArrivalPassport() {
+    if (this.isLeaving || !this.arrivalStamp?.stampId) {
+      this.passportPresentationPending = false;
+      return;
+    }
+    try {
+      this.travelPassport?.destroy();
+      this.travelPassport = new PassportUI(this);
+      this.travelPassport.open({ highlightStampId: this.arrivalStamp.stampId });
+      this.continueHint?.setText('Close passport, then click to continue').setColor('#f4e7c1');
+    } catch (error) {
+      console.error('[TravelTransitionScene] Passport presentation failed:', error);
+      this.travelPassport?.destroy();
+      this.travelPassport = null;
+      this.continueHint?.setText('Click to continue').setColor('#f4e7c1');
+    } finally {
+      this.passportPresentationPending = false;
+    }
+  }
+
   onArrive({ returning, targetCityId, toCity, hadEncounter }) {
     this.arrived = true;
     this.canContinue = true;
     this.ticket?.markArrived();
     this.routeText.setText(`Arrived in ${toCity || 'your private office'}`);
+    const showPassport = !returning && Boolean(this.arrivalStamp?.stampId);
     if (!returning) {
       const quip = CITY_QUIPS[normalizeKey(targetCityId)] || CITY_QUIPS[normalizeKey(toCity)] || pick(GENERIC_ARRIVAL_QUIPS);
       this.journal.type(quip);
       this.delay(450, () => this.polaroid?.reveal());
-      this.delay(1100, () => this.passportMark?.slam());
+      if (showPassport) {
+        this.passportPresentationPending = true;
+        this.delay(1100, () => this.showArrivalPassport());
+      }
       this.delay(800, () => this.phoneNotice?.show());
     }
-    this.continueHint?.setText('Click to continue').setColor('#f4e7c1');
-    this.delay(AUTO_CONTINUE_MS + (hadEncounter ? 1000 : 0), () => this.leaveScene());
+    this.continueHint?.setText(showPassport ? 'Passport inspection...' : 'Click to continue').setColor('#f4e7c1');
+    if (!showPassport) {
+      this.delay(AUTO_CONTINUE_MS + (hadEncounter ? 1000 : 0), () => this.leaveScene());
+    }
   }
 
   createContinueHint(width, height, U) {
@@ -309,14 +343,16 @@ export class TravelTransitionScene extends BaseScene {
       this.canContinue = true;
       if (!this.arrived) this.continueHint.setText('Click to skip');
     });
-    const proceed = () => { if (this.canContinue && !this.isLeaving) this.leaveScene(); };
+    const proceed = () => {
+      if (this.canContinue && !this.isLeaving && !this.passportBlocksContinue()) this.leaveScene();
+    };
     this.trackInputEvent(this.input, 'pointerdown', proceed);
     this.trackInputEvent(this.input.keyboard, 'keydown-SPACE', proceed);
     this.trackInputEvent(this.input.keyboard, 'keydown-ENTER', proceed);
   }
 
   leaveScene() {
-    if (this.isLeaving) return;
+    if (this.isLeaving || this.passportBlocksContinue()) return;
     this.isLeaving = true;
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       if (!this.sys.isActive()) return;
@@ -353,6 +389,10 @@ export class TravelTransitionScene extends BaseScene {
     this.isLeaving = true;
     this.timers.forEach(timer => timer?.remove(false));
     this.timers = [];
+    this.travelPassport?.destroy();
+    this.travelPassport = null;
+    this.arrivalStamp = null;
+    this.passportPresentationPending = false;
     this.encounterEffect?.dismiss();
     this.encounterEffect = null;
     this.journal?.destroy();

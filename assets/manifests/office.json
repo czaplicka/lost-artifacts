@@ -17,11 +17,13 @@
       ]
     },
     {
-  "key": "alex-storage",
-  "url": "assets/spritesheet/office/alex-storage.png",
-  "type": "image",
-  "groups": ["portraits"]
-},
+      "key": "alex-storage",
+      "url": "assets/spritesheet/office/alex-storage.png",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
     {
       "key": "agency_storage_room_v2",
       "url": "assets/local/storage.webp",

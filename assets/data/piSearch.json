@@ -444,7 +444,9 @@
           ],
           "links": [],
           "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
-          "template": "lifestyle"
+          "template": "lifestyle",
+          "imageKey": "everyday_edit_green_checks",
+          "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp"
         },
         {
           "id": "gallery",
@@ -636,6 +638,10 @@
               "pageId": "claire_social"
             },
             {
+              "label": "Friends",
+              "pageId": "claire_social_friends"
+            },
+            {
               "label": "Private posts",
               "pageId": "claire_private"
             },
@@ -644,7 +650,40 @@
               "pageId": "claire_private"
             }
           ],
-          "snippet": "Community partnerships and volunteer training. Public profile and updates."
+          "snippet": "Community partnerships and volunteer training. Public profile and updates.",
+          "profile": {
+            "avatarKey": "claire_sutton_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp"
+          },
+          "socialPosts": [
+            {
+              "id": "reed_claire_conference_post",
+              "author": "Claire Sutton",
+              "text": "New Horizons, in photographs. A lovely evening with the team. My notebook is full. So is the laundry basket.",
+              "visibility": "public",
+              "galleryPageId": "gallery",
+              "photos": [
+                {
+                  "id": "conference",
+                  "key": "Reed_gallery_conference_v3",
+                  "url": "assets/side_quests/Reed/conference.webp",
+                  "label": "Reception photograph"
+                },
+                {
+                  "id": "second",
+                  "key": "Reed_gallery_second_v3",
+                  "url": "assets/side_quests/Reed/second.webp",
+                  "label": "Reception photograph II"
+                },
+                {
+                  "id": "third",
+                  "key": "Reed_gallery_third_v3",
+                  "url": "assets/side_quests/Reed/third.webp",
+                  "label": "Conference room"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "claire_private",
@@ -707,6 +746,10 @@
               "pageId": "nora_social"
             },
             {
+              "label": "Friends",
+              "pageId": "nora_social_friends"
+            },
+            {
               "label": "Private posts",
               "pageId": "nora_private"
             },
@@ -715,7 +758,40 @@
               "pageId": "nora_private"
             }
           ],
-          "snippet": "Small grants and local outreach. Public profile and updates."
+          "snippet": "Small grants and local outreach. Public profile and updates.",
+          "profile": {
+            "avatarKey": "nora_bell_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp"
+          },
+          "socialPosts": [
+            {
+              "id": "reed_nora_conference_post",
+              "author": "Nora Bell",
+              "text": "A few photographs from New Horizons. Good company, useful conversations, and a heroic amount of conference coffee.",
+              "visibility": "public",
+              "galleryPageId": "gallery",
+              "photos": [
+                {
+                  "id": "conference",
+                  "key": "Reed_gallery_conference_v3",
+                  "url": "assets/side_quests/Reed/conference.webp",
+                  "label": "Reception photograph"
+                },
+                {
+                  "id": "second",
+                  "key": "Reed_gallery_second_v3",
+                  "url": "assets/side_quests/Reed/second.webp",
+                  "label": "Reception photograph II"
+                },
+                {
+                  "id": "third",
+                  "key": "Reed_gallery_third_v3",
+                  "url": "assets/side_quests/Reed/third.webp",
+                  "label": "Conference room"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "nora_private",
@@ -771,7 +847,9 @@
           ],
           "links": [],
           "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
-          "template": "news"
+          "template": "news",
+          "imageKey": "community_ledger_volunteer_training",
+          "imageUrl": "assets/side_quests/Reed/web/news/community_ledger_volunteer_training.webp"
         },
         {
           "id": "nora_work",
@@ -795,7 +873,9 @@
           ],
           "links": [],
           "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
-          "template": "news"
+          "template": "news",
+          "imageKey": "community_ledger_small_grants",
+          "imageUrl": "assets/side_quests/Reed/web/news/community_ledger_small_grants.webp"
         },
         {
           "id": "claire_other",
@@ -816,7 +896,9 @@
           ],
           "links": [],
           "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes.",
-          "template": "business"
+          "template": "business",
+          "imageKey": "clare_sutton_studio",
+          "imageUrl": "assets/side_quests/Reed/web/news/clare_sutton_studio.webp"
         },
         {
           "id": "nora_other",
@@ -837,7 +919,177 @@
           ],
           "links": [],
           "snippet": "Norah Bell offers piano tuition and accompaniment services.",
-          "template": "business"
+          "template": "business",
+          "imageKey": "norah_bell_piano_studio",
+          "imageUrl": "assets/side_quests/Reed/web/news/norah_bell_piano_studio.webp"
+        },
+        {
+          "id": "reed_miramar_social",
+          "title": "Hotel Miramar | CommonRoom",
+          "address": "www.commonroom.local/hotel.miramar",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Hotel Miramar"
+          },
+          "blocks": [
+            [
+              "HOTEL MIRAMAR"
+            ],
+            [
+              "Sea air, terrace dining and late breakfasts."
+            ],
+            [
+              "Public update: Thank you to the Open Skies team and everyone who joined us for New Horizons. Our terrace has almost recovered."
+            ],
+            [
+              "FRIENDS & CONNECTIONS"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            },
+            {
+              "label": "Official hotel website",
+              "pageId": "miramar"
+            }
+          ],
+          "snippet": "The official CommonRoom page of Hotel Miramar."
+        },
+        {
+          "id": "reed_open_skies_social",
+          "title": "Open Skies Foundation | CommonRoom",
+          "address": "www.commonroom.local/open.skies",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Open Skies Foundation",
+            "avatarKey": "reed_web_logo_open_skies",
+            "avatarUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+          },
+          "blocks": [
+            [
+              "OPEN SKIES FOUNDATION"
+            ],
+            [
+              "Community projects, regional partnerships and volunteer training."
+            ],
+            [
+              "Public update: Thank you to our regional coordinators and Hotel Miramar for a welcoming New Horizons event. The paperwork continues."
+            ],
+            [
+              "FRIENDS & CONNECTIONS"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Official foundation website",
+              "pageId": "organisation"
+            }
+          ],
+          "snippet": "The official CommonRoom page of Open Skies Foundation."
+        },
+        {
+          "id": "claire_social_friends",
+          "title": "Claire Sutton | Friends | CommonRoom",
+          "address": "www.commonroom.local/claire.sutton/friends",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Claire Sutton",
+            "avatarKey": "claire_sutton_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp"
+          },
+          "heading": "Friends",
+          "blocks": [
+            [
+              "FRIENDS"
+            ],
+            [
+              "Claire Sutton is connected with these people and pages."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            }
+          ],
+          "snippet": "Friends and connections of Claire Sutton."
+        },
+        {
+          "id": "nora_social_friends",
+          "title": "Nora Bell | Friends | CommonRoom",
+          "address": "www.commonroom.local/nora.bell/friends",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Nora Bell",
+            "avatarKey": "nora_bell_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp"
+          },
+          "heading": "Friends",
+          "blocks": [
+            [
+              "FRIENDS"
+            ],
+            [
+              "Nora Bell is connected with these people and pages."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            }
+          ],
+          "snippet": "Friends and connections of Nora Bell."
         }
       ],
       "recipes": [
@@ -1189,6 +1441,23 @@
           "cloudId": "documents",
           "aliases": [
             "reconciliation sheet"
+          ]
+        },
+        {
+          "id": "dm_denial",
+          "label": "Colin: no voice recordings",
+          "cloudId": "recordings",
+          "aliases": [
+            "I never received any voice recordings",
+            "no voice recordings"
+          ]
+        },
+        {
+          "id": "dm_delivery",
+          "label": "MV-14-D2 delivery acknowledgement",
+          "cloudId": "recordings",
+          "aliases": [
+            "MV-14-D2"
           ]
         }
       ],

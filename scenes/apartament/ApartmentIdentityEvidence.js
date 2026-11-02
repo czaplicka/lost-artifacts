@@ -1,14 +1,13 @@
 import { gameState } from '../../GameData.js';
-import { requestAutosave } from '../../gameStatePersistence.js';
 
-const FIELDS = ['features', 'race', 'eyes', 'hair', 'gender'];
+import {
+  requestAutosave
+} from '../../gameStatePersistence.js';
+
+const FIELD = 'eyes';
 
 const LABELS = {
-  features: 'Features',
-  race: 'Race / Skin',
-  eyes: 'Eyes',
-  hair: 'Hair',
-  gender: 'Gender'
+  eyes: 'Eye colour'
 };
 
 const HOST_IDS = [
@@ -21,10 +20,13 @@ const HOST_IDS = [
 
 const valid = value =>
   typeof value === 'string' &&
-  value.trim() &&
-  !['NONE', 'UNKNOWN', 'N/A', 'NOT KNOWN'].includes(
-    value.trim().toUpperCase()
-  );
+  Boolean(value.trim()) &&
+  ![
+    'NONE',
+    'UNKNOWN',
+    'N/A',
+    'NOT KNOWN'
+  ].includes(value.trim().toUpperCase());
 
 const values = value =>
   (Array.isArray(value) ? value : [value])
@@ -46,14 +48,24 @@ function hash(value) {
   return (number >>> 0).toString(36);
 }
 
-export function getApartmentIdentityContext(state, scene = null) {
+export function getApartmentIdentityContext(
+  state,
+  scene = null
+) {
   const ids = [
     state.actualCriminalId,
     state.currentThiefId,
     state.currentThief?.id
-  ].filter(id => typeof id === 'string' && id);
+  ].filter(id =>
+    typeof id === 'string' && id
+  );
 
-  if (!ids.length || new Set(ids).size !== 1) return null;
+  if (
+    !ids.length ||
+    new Set(ids).size !== 1
+  ) {
+    return null;
+  }
 
   const actualId = ids[0];
 
@@ -66,10 +78,16 @@ export function getApartmentIdentityContext(state, scene = null) {
     state.currentThief?.caseSuspectId
   ].filter(Boolean);
 
-  if (new Set(caseIds).size > 1) return null;
+  if (new Set(caseIds).size > 1) {
+    return null;
+  }
 
   const caseId = caseIds[0] || actualId;
-  const mission = scene?.mission || state.currentMission || {};
+
+  const mission =
+    scene?.mission ||
+    state.currentMission ||
+    {};
 
   const missionId = String(
     scene?.missionId ||
@@ -82,7 +100,9 @@ export function getApartmentIdentityContext(state, scene = null) {
 
   const ownerId = scene?.suspectId || caseId;
 
-  if (![actualId, caseId].includes(ownerId)) return null;
+  if (![actualId, caseId].includes(ownerId)) {
+    return null;
+  }
 
   const key = hash(
     JSON.stringify([
@@ -108,8 +128,9 @@ function canonicalRecord(scene, context) {
 
   if (Array.isArray(database)) {
     return (
-      database.find(entry => entry?.id === context.actualId) ||
-      null
+      database.find(
+        entry => entry?.id === context.actualId
+      ) || null
     );
   }
 
@@ -121,31 +142,40 @@ function canonicalRecord(scene, context) {
 const clueId = key => `apartment_identity_${key}`;
 
 function chooseHost(scene, context) {
-  const configs = scene.apartmentConfig?.objects || [];
+  const configs =
+    scene.apartmentConfig?.objects || [];
 
-  const hosts = HOST_IDS.filter(
-    id =>
-      configs.some(
-        config =>
-          config.id === id &&
-          config.state !== 'locked'
-      ) &&
-      scene.getObjectProgress?.(id)?.state !== 'locked'
+  const hosts = HOST_IDS.filter(id =>
+    configs.some(config =>
+      config.id === id &&
+      config.state !== 'locked'
+    ) &&
+    scene.getObjectProgress?.(id)?.state !== 'locked'
   );
 
   if (!hosts.length) return null;
 
   const index =
-    parseInt(hash(`${context.key}:identity-host`), 36) %
-    hosts.length;
+    parseInt(
+      hash(`${context.key}:identity-host`),
+      36
+    ) % hosts.length;
 
   return hosts[index];
 }
 
-export function ensureApartmentIdentityItem(scene, config) {
-  if (!HOST_IDS.includes(config.id)) return null;
+export function ensureApartmentIdentityItem(
+  scene,
+  config
+) {
+  if (!HOST_IDS.includes(config.id)) {
+    return null;
+  }
 
-  const context = getApartmentIdentityContext(gameState, scene);
+  const context = getApartmentIdentityContext(
+    gameState,
+    scene
+  );
 
   if (!context) return null;
 
@@ -153,60 +183,72 @@ export function ensureApartmentIdentityItem(scene, config) {
 
   if (!record) return null;
 
-  const plans = scene.getProgress().identityLeadPlans || {};
+  const eyeValues = values(record[FIELD]);
+
+  if (!eyeValues.length) {
+    console.warn(
+      '[ApartmentIdentityEvidence] ' +
+      'The canonical thief record has no eye colour.',
+      context.actualId
+    );
+
+    return null;
+  }
+
+  const plans =
+    scene.getProgress().identityLeadPlans || {};
+
   let plan = plans[context.key];
+
+  // Replace an older, uncollected appearance plan.
+  // Never substitute a different trait for eye colour.
+  if (plan && plan.field !== FIELD) {
+    const previousHost = HOST_IDS.includes(plan.hostId)
+      ? plan.hostId
+      : null;
+
+    const hostId =
+      previousHost ||
+      chooseHost(scene, context);
+
+    if (!hostId) return null;
+
+    plan = {
+      field: FIELD,
+      value: eyeValues[0],
+      hostId
+    };
+
+    scene.updateProgress({
+      identityLeadPlans: {
+        ...plans,
+        [context.key]: plan
+      }
+    });
+  }
 
   if (
     plan &&
-    (
-      !FIELDS.includes(plan.field) ||
-      !values(record[plan.field]).some(value =>
-        same(value, plan.value)
-      )
+    !eyeValues.some(value =>
+      same(value, plan.value)
     )
   ) {
     console.warn(
-      '[ApartmentIdentityEvidence] Saved clue conflicts with the canonical record.'
+      '[ApartmentIdentityEvidence] ' +
+      'Saved eye colour conflicts with the canonical record.'
     );
 
     return null;
   }
 
   if (!plan) {
-    const clues = Array.isArray(gameState.cluesCollected)
-      ? gameState.cluesCollected
-      : [];
-
-    const known = (field, value) =>
-      clues.some(
-        clue =>
-          clue?.category === field &&
-          same(clue.value ?? '', value) &&
-          (
-            !clue.missionId ||
-            String(clue.missionId) === context.missionId
-          )
-      );
-
-    const candidates = FIELDS.flatMap(field =>
-      values(record[field]).map(value => ({
-        field,
-        value
-      }))
-    );
-
-    const trait =
-      candidates.find(
-        candidate => !known(candidate.field, candidate.value)
-      ) ||
-      candidates[0];
-
     const hostId = chooseHost(scene, context);
 
-    if (!trait || !hostId) return null;
+    if (!hostId) return null;
 
     plan = {
-      ...trait,
+      field: FIELD,
+      value: eyeValues[0],
       hostId
     };
 
@@ -217,7 +259,6 @@ export function ensureApartmentIdentityItem(scene, config) {
       }
     });
   } else if (!plan.hostId) {
-    // Preserve the hiding place used by older saves.
     plan = {
       ...plan,
       hostId: 'framed_photo'
@@ -231,7 +272,9 @@ export function ensureApartmentIdentityItem(scene, config) {
     });
   }
 
-  if (plan.hostId !== config.id) return null;
+  if (plan.hostId !== config.id) {
+    return null;
+  }
 
   const description =
     "An envelope containing the suspect's photograph, " +
@@ -240,7 +283,7 @@ export function ensureApartmentIdentityItem(scene, config) {
     '"Your new ID is ready. The name and occupation are ' +
     'exactly as requested. Memorise both before using it. ' +
     'And stop signing your real name on the collection receipt."\n\n' +
-    `Photo reference: ${LABELS[plan.field]} — ${plan.value}.\n\n` +
+    `The ID proof records the eye colour as ${plan.value}.\n\n` +
     'The receipt is missing. Nothing here reveals the real name. ' +
     'The identity in the suspect file is an alias.';
 
@@ -262,17 +305,19 @@ export function ensureApartmentIdentityItem(scene, config) {
       version: 3,
       caseKey: context.key,
       missionId: context.missionId,
-      field: plan.field,
+      field: FIELD,
       value: plan.value,
       hostId: plan.hostId,
-      sourceLabel: config.label || 'Apartment hiding place'
+      sourceLabel:
+        config.label ||
+        'Apartment hiding place'
     },
 
     metadata: {
       useMessage:
         'The suspect used a false identity. ' +
         'Their real name is still unknown. ' +
-        'Use the recovered appearance detail to narrow the wanted records.'
+        'Use the recovered eye colour to narrow the wanted records.'
     }
   };
 
@@ -285,19 +330,26 @@ export function ensureApartmentIdentityItem(scene, config) {
 
   if (config.id === 'framed_photo') {
     config.discoveryAction = 'move';
+
     config.actionHint =
       'A thin envelope is caught beneath the frame backing. ' +
       'Turn the frame over.';
   } else {
     config.actionHint =
-      (config.actionHint ? config.actionHint + ' ' : '') +
+      (
+        config.actionHint
+          ? config.actionHint + ' '
+          : ''
+      ) +
       'There may be private papers tucked out of sight.';
   }
 
   return item;
 }
 
-export function getKnownApartmentIdentityClues(state = gameState) {
+export function getKnownApartmentIdentityClues(
+  state = gameState
+) {
   const context = getApartmentIdentityContext(state);
 
   if (!context) return [];
@@ -306,19 +358,25 @@ export function getKnownApartmentIdentityClues(state = gameState) {
     ? state.cluesCollected
     : [];
 
-  return clues.filter(
-    clue =>
-      clue?.id === clueId(context.key) &&
-      clue.source === 'suspect_apartment_identity' &&
-      clue.caseKey === context.key &&
-      String(clue.missionId) === context.missionId &&
-      FIELDS.includes(clue.category) &&
-      valid(clue.value)
+  return clues.filter(clue =>
+    clue?.id === clueId(context.key) &&
+    clue.source === 'suspect_apartment_identity' &&
+    clue.caseKey === context.key &&
+    String(clue.missionId) === context.missionId &&
+    clue.category === FIELD &&
+    valid(clue.value)
   );
 }
 
-export function collectApartmentIdentityItem(scene, item) {
-  const context = getApartmentIdentityContext(gameState, scene);
+export function collectApartmentIdentityItem(
+  scene,
+  item
+) {
+  const context = getApartmentIdentityContext(
+    gameState,
+    scene
+  );
+
   const lead = item?.identityLead;
 
   if (
@@ -327,21 +385,24 @@ export function collectApartmentIdentityItem(scene, item) {
     item.id !== clueId(context.key) ||
     lead.caseKey !== context.key ||
     String(lead.missionId) !== context.missionId ||
-    !FIELDS.includes(lead.field)
+    lead.field !== FIELD
   ) {
     return false;
   }
 
   const plan =
-    scene.getProgress().identityLeadPlans?.[context.key];
+    scene.getProgress()
+      .identityLeadPlans?.[context.key];
 
   if (
     !plan ||
-    plan.field !== lead.field ||
+    plan.field !== FIELD ||
     !same(plan.value, lead.value) ||
     (
       lead.hostId &&
-      lead.hostId !== (plan.hostId || 'framed_photo')
+      lead.hostId !== (
+        plan.hostId || 'framed_photo'
+      )
     )
   ) {
     return false;
@@ -351,7 +412,7 @@ export function collectApartmentIdentityItem(scene, item) {
 
   if (
     !record ||
-    !values(record[lead.field]).some(value =>
+    !values(record[FIELD]).some(value =>
       same(value, lead.value)
     )
   ) {
@@ -364,7 +425,8 @@ export function collectApartmentIdentityItem(scene, item) {
   ) {
     if (!scene.playerInventory.addItem(item)) {
       scene.showMessage(
-        'Your inventory is full. The envelope is still in its hiding place.',
+        'Your inventory is full. ' +
+          'The envelope is still in its hiding place.',
         3000,
         '#795548'
       );
@@ -373,21 +435,24 @@ export function collectApartmentIdentityItem(scene, item) {
     }
   }
 
-  const label = LABELS[lead.field];
+  const label = LABELS[FIELD];
 
   gameState.addClue({
     id: item.id,
     type: 'apartment_identity',
-    category: lead.field,
-    key: lead.field,
+    category: FIELD,
+    key: FIELD,
     value: lead.value,
 
     text:
       'False identity evidence: an order for forged identification ' +
       "matches the suspect's recorded name and occupation. " +
       'Their real name is still unknown. ' +
-      `Photo reference — ${label}: ${lead.value}. ` +
-      `Source: ${lead.sourceLabel || 'Photograph frame'}.`,
+      `${label}: ${lead.value}. ` +
+      `Source: ${
+        lead.sourceLabel ||
+        'Apartment hiding place'
+      }.`,
 
     missionId: context.missionId,
     caseKey: context.key,
@@ -397,13 +462,14 @@ export function collectApartmentIdentityItem(scene, item) {
 
   scene.markItemCollected(item);
   scene.persistApartmentState();
+
   requestAutosave();
 
   scene.showMessage(
     'The suspect used a false identity. ' +
-    'Their real name is still unknown.\n\n' +
-    `Recorded: ${label} — ${lead.value}\n` +
-    "Use this detail in the warrant's suspect filters.",
+      'Their real name is still unknown.\n\n' +
+      `Recorded: ${label} — ${lead.value}\n` +
+      "Use this detail in the warrant's suspect filters.",
     6500,
     '#3e683d'
   );
@@ -414,14 +480,16 @@ export function collectApartmentIdentityItem(scene, item) {
 export function applyApartmentIdentityClues(ui) {
   let applied = 0;
 
-  for (const clue of getKnownApartmentIdentityClues()) {
+  for (
+    const clue of getKnownApartmentIdentityClues()
+  ) {
     const index =
-      ui.traitsData[clue.category]?.findIndex(value =>
+      ui.traitsData[FIELD]?.findIndex(value =>
         same(value, clue.value)
       ) ?? -1;
 
     if (index > 0) {
-      ui.currentFilters[clue.category] = index;
+      ui.currentFilters[FIELD] = index;
       applied++;
     }
   }
@@ -429,8 +497,12 @@ export function applyApartmentIdentityClues(ui) {
   return applied;
 }
 
-export function apartmentIdentitySummary(state = gameState) {
+export function apartmentIdentitySummary(
+  state = gameState
+) {
   return getKnownApartmentIdentityClues(state)
-    .map(clue => `${LABELS[clue.category]}: ${clue.value}`)
+    .map(clue =>
+      `${LABELS[FIELD]}: ${clue.value}`
+    )
     .join('; ');
 }

@@ -3,6 +3,8 @@ import { MainStoryManager } from '../managers/MainStoryManager.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { loadJson } from '../config/loadJson.js';
 import { evaluateCrashTimeline } from './archive/CrashTimelineModel.js';
+import { getCrashTimelineHelp } from './archive/CrashTimelineHelp.js';
+import { TimelineHelpController } from './archive/TimelineHelpController.js';
 
 const DATA = await loadJson('../assets/data/crashTimelinePuzzle.json', import.meta.url);
 const STATE_KEY = 'john_crash_timeline';
@@ -18,6 +20,11 @@ export class CrashTimelineScene extends BaseScene {
     this.selected = null; this.selectedSlot = null; this.cards = []; this.slotObjects = [];
     this.conclusionButtons = []; this.checks = 0; this.finished = false; this.closing = false;
     this.layerStates = []; this.parentPausedByMe = false; this.savedOk = null;
+    this.timelineHelp = null;
+    // Stable main-case identity: unrelated agency missions must not reset purchased hints.
+    this.caseKey = 'holly_missing_husband';
+    this.stationId = 'john_last_operation';
+    this.evidenceConfig = { id: 'john_crash_timeline' };
   }
   create() {
     super.create();
@@ -37,14 +44,14 @@ export class CrashTimelineScene extends BaseScene {
     this.root = this.add.container(0,0);
     this.root.add(this.add.rectangle(720,510,1440,1020,0x302729));
     this.label(720,42,DATA.title,25,'#f0ce88','PressStart2P');
-    this.label(720,88,'Select an event, read its source, then click a timeline position.',22);
-    this.label(720,120,'Five events belong on the timeline. Three are unsupported interpretations.',20,'#c5b59a');
+    this.label(720,88,'Reconstruct JOHN\'S operation. Select an event, read its source, then choose a timeline position.',21);
+    this.label(720,120,'Five events belong on the timeline. Stuck? Use HINT for assistance.',20,'#c5b59a');
     this.label(360,159,'EVENT CARDS',19,'#cdbb9a');
     this.label(1080,159,'LAST OPERATION / EARLIEST TO LATEST',19,'#cdbb9a');
     this.buildCards(); this.buildSlots();
     this.root.add(this.add.rectangle(720,736,1360,116,0xe2d4b6).setStrokeStyle(2,0x9b8662));
-    this.sourceTitle = this.label(720,701,'EVIDENCE',19,'#74463a');
-    this.sourceBody = this.label(720,750,'Select a card to inspect the record that supports or contradicts it.',21,'#3d332c');
+    this.sourceTitle = this.label(720,701,'SOURCE FOR THE SELECTED EVENT — NOT A HINT',18,'#74463a');
+    this.sourceBody = this.label(720,750,'Click an event card above. This panel shows the document or testimony linked to that card.',21,'#3d332c');
     this.sourceBody.setWordWrapWidth(1300);
     this.label(720,819,'WHAT CAN YOU CONCLUDE?',19,'#cdbb9a');
     DATA.conclusions.forEach((item,index) => {
@@ -58,7 +65,9 @@ export class CrashTimelineScene extends BaseScene {
     this.checkButton = this.button(265,972,'CHECK TIMELINE',()=>this.checkTimeline());
     this.clearButton = this.button(600,972,'CLEAR SLOT',()=>this.clearSlot());
     this.button(1235,972,'BACK',()=>this.closeTimeline());
-    this.mode = this.label(925,972,this.preview?'PREVIEW':'STORY',16,'#baa98e');
+    this.mode = this.label(720,1006,this.preview?'PREVIEW / hints are free test displays':'STORY',13,'#baa98e');
+    this.timelineHelp = new TimelineHelpController(this);
+    this.timelineHelp.create();
     this.update();this.layout();
     if(this.finished)this.showSuccess();
     this.trackInputEvent(this.scale,'resize',this.layout);
@@ -101,8 +110,20 @@ export class CrashTimelineScene extends BaseScene {
   inspect(cardId) {
     const card=DATA.cards.find(item=>item.id===cardId);
     const source=DATA.evidence.find(item=>item.id===card?.evidence);
-    if(source){this.sourceTitle.setText(source.title);this.sourceBody.setText(source.text);}
+    if(source){
+      this.sourceTitle.setText(`SOURCE FOR: ${card.title} / ${source.title}`);
+      this.sourceBody.setText(source.text);
+    }
   }
+  getForensicHelp() {
+    const definition=getCrashTimelineHelp(DATA,this.slots,this.conclusion);
+    const targets=[];
+    if(definition.cardId)targets.push(this.cards.find(card=>card.id===definition.cardId)?.box);
+    if(Number.isInteger(definition.slotIndex))targets.push(this.slotObjects[definition.slotIndex]?.box);
+    if(definition.conclusionId)targets.push(this.conclusionButtons.find(item=>item.id===definition.conclusionId)?.button);
+    return {...definition,targets:targets.filter(Boolean)};
+  }
+  setDialogue(text) { this.message?.setText(`HINT: ${text}`).setFontSize(18); }
   chooseSlot(index) {
     if(this.closing)return;
     if(this.slots[index])this.inspect(this.slots[index]);
@@ -151,15 +172,16 @@ export class CrashTimelineScene extends BaseScene {
     if(!result.ok){
       if(result.cardId)this.inspect(result.cardId);
       if(Number.isInteger(result.slotIndex))this.selectedSlot=result.slotIndex;
-      this.message.setText(result.message);this.update();this.persist();return;
+      this.message.setText(result.message).setFontSize(20);this.update();this.persist();return;
     }
     this.finished=true;this.selected=null;this.selectedSlot=null;this.persist();this.showSuccess();
     if(!this.preview)this.emitBus('mainStory:crashTimelineCompleted',{flag:FLAG,conclusion:DATA.correctConclusion});
   }
   showSuccess() {
     this.checkButton.setVisible(false);this.clearButton.setVisible(false);
+    this.timelineHelp?.hintButton?.setVisible(false);
     this.conclusionButtons.forEach(item=>item.button.disableInteractive());
-    this.message.setText(this.preview?'RECONSTRUCTION COMPLETE / preview only. Story progress was not changed.':this.savedOk===false?'Reconstruction complete. Saving failed; save manually.':'Reconstruction complete. The conversation with Holly is the next story step.');
+    this.message.setText(this.preview?'RECONSTRUCTION COMPLETE / preview only. Story progress was not changed.':this.savedOk===false?'Reconstruction complete. Saving failed; save manually.':'Reconstruction complete. The conversation with Holly is the next story step.').setFontSize(20);
     this.sourceTitle.setText('SUPPORTED CONCLUSION: PRESUMED DEAD');this.sourceBody.setText(DATA.success);this.update();
   }
   layout(){if(!this.root)return;const{width,height}=this.scale;const s=Math.min(width/1440,height/1020);this.root.setScale(s).setPosition((width-1440*s)/2,(height-1020*s)/2);}
@@ -176,7 +198,7 @@ export class CrashTimelineScene extends BaseScene {
     this.parentPausedByMe=false;
   }
   closeTimeline(){
-    if(this.closing)return;this.closing=true;this.persist();const callback=this.onFinished;this.onFinished=null;this.restoreBackground();
+    if(this.closing)return;this.closing=true;this.timelineHelp?.close();this.persist();const callback=this.onFinished;this.onFinished=null;this.restoreBackground();
     try{callback?.({completed:this.finished,preview:this.preview,saved:this.savedOk,conclusion:this.conclusion});}finally{this.scene.stop();}
   }
 }

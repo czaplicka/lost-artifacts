@@ -1,3 +1,4 @@
+import { deadMenTopicTranscript } from './DeadMenPhoneTopics.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave, saveGameState } from '../gameStatePersistence.js';
 import { moneyManager, ECONOMY_CATEGORY } from './MoneyManager.js';
@@ -65,9 +66,9 @@ function transcript(lines){return lines.map(l=>`${l.speaker}: ${l.text}`).join('
 function note(id,label,text,meta='Source: case records'){addPIEvidence(DEAD_MEN_QUEST,{id,label,text,metaText:meta,color:'yellow'});}
 function sync(){
  const s=state();if(!getPIQuest(DEAD_MEN_QUEST))return;
- if(s.confronted)note('dead_men_confrontation','Colin: recorded admission',transcript(confrontation),'Source: completed confrontation — admission to be corroborated');
- if(s.consent)note('dead_men_audio_consent','Margaret: permission for original-audio comparison',transcript(consentInterview),'Source: completed client interview');
- if(s.verified)note('dead_men_verification_call','Leo: original-file comparison',transcript(verificationInterview),'Source: completed analyst interview');
+ if(s.confronted)note('dead_men_confrontation','Colin: recorded admission',(deadMenTopicTranscript('colin_confrontation') || transcript(confrontation)),'Source: completed confrontation — admission to be corroborated');
+ if(s.consent)note('dead_men_audio_consent','Margaret: permission for original-audio comparison',(deadMenTopicTranscript('margaret_consent') || transcript(consentInterview)),'Source: completed client interview');
+ if(s.verified)note('dead_men_verification_call','Leo: original-file comparison',(deadMenTopicTranscript('leo_verification') || transcript(verificationInterview)),'Source: completed analyst interview');
  for(const m of [relay,project,...(s.verified?[technical]:[])])if(s.confronted&&s.read.includes(m.id))note(m.id,m.subject,m.body);
 }
 function reviewBody(){
@@ -85,14 +86,14 @@ function ownMail(){
  const s=state(),q=getPIQuest(DEAD_MEN_QUEST);
  if(!q||(!unlocked()&&!s.confronted&&!s.settlement))return [];
  const items=[];
- if(q.status==='active')items.push(mail('dead_men_confront_next','Your case notes','Confront Colin — call the published contact number','The folder review is complete. Call Colin at Ward Consulting again and put the archive manifest and delivery acknowledgement to him. Record his explanation and seek corroboration.'));
+ if(q.status==='active')items.push(mail('dead_men_confront_next','Your case notes','Archive delivery — recorded discrepancy','The folder review records a discrepancy between Colin’s account and the archive delivery documents.'));
  if(s.confronted)items.unshift(
-  mail('dead_men_admission_copy','Your telephone transcript','Colin’s admission — corroboration required',transcript(confrontation)),
-  mail('dead_men_audio_next','Your case notes','Original audio — obtain Margaret’s permission','Colin has authorised release of the relay records and supplied an editing project. Call Margaret through the published family contact for permission to compare her original recent recordings. Then call Leo at Mercer Audio.'),
+  mail('dead_men_admission_copy','Your telephone transcript','Colin’s admission — corroboration required',(deadMenTopicTranscript('colin_confrontation') || transcript(confrontation))),
+  mail('dead_men_audio_next','Your case notes','Audio materials — supplied sources','Colin has authorised release of the relay records and supplied an editing project. These are separate sources from Margaret’s preserved recent recordings.'),
   mail(relay.id,'Relay provider — authorised extract',relay.subject,relay.body),
   mail(project.id,'Colin Ward — supplied material',project.subject,project.body)
  );
- if(s.consent)items.unshift(mail('dead_men_consent_copy','Margaret Vale','Written permission — original recording comparison','I authorise Leo Mercer to compare my preserved recent voicemail recordings with the older archive and the supplied project and relay payloads. I have provided copies of the original recent files and retained my originals. — Margaret Vale\n\nCall Leo at Mercer Audio to obtain his findings.'));
+ if(s.consent)items.unshift(mail('dead_men_consent_copy','Margaret Vale','Written permission — original recording comparison','I authorise Leo Mercer to compare my preserved recent voicemail recordings with the older archive and the supplied project and relay payloads. I have provided copies of the original recent files and retained my originals. — Margaret Vale'));
  if(s.verified)items.unshift(mail(REVIEW,'Your investigation notebook','Reconstruct Dead Men Calling',reviewBody()),mail(technical.id,'Mercer Audio',technical.subject,technical.body));
  if(s.reconstructed&&!s.settlement?.phase?.includes('completed')){
   const p=s.settlement?.preview||preview();
@@ -179,9 +180,9 @@ export function installDeadMenFinaleMail(ui){
 }
 function route(number){
  if(!unlocked())return null;const s=state();
- if(number==='621')return {contact:contacts[number],lines:confrontation,flag:'confronted',message:'Admission recorded. Seek Margaret’s audio permission through the published family contact.'};
- if(number==='619'&&s.confronted)return {contact:contacts[number],lines:consentInterview,flag:'consent',message:'Permission recorded. Call Leo at Mercer Audio for his comparison.'};
- if(number==='620'&&s.confronted&&s.consent)return {contact:contacts[number],lines:verificationInterview,flag:'verified',message:'Analyst report received. Complete your final reconstruction.'};
+ if(number==='621')return {contact:contacts[number],lines:confrontation,flag:'confronted',message:'Statement recorded.'};
+ if(number==='619'&&s.confronted)return {contact:contacts[number],lines:consentInterview,flag:'consent',message:'Written permission recorded.'};
+ if(number==='620'&&s.confronted&&s.consent)return {contact:contacts[number],lines:verificationInterview,flag:'verified',message:'Analyst report received.'};
  return null;
 }
 export function installDeadMenFinalePhone(phone){

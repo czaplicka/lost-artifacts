@@ -800,6 +800,174 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "crashTimelinePuzzle",
+      "url": "assets/data/crashTimelinePuzzle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__keywords",
+      "url": "assets/data/web/missions/dead-men-calling/keywords.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__mission",
+      "url": "assets/data/web/missions/dead-men-calling/mission.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "businesses",
+      "url": "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__pages__news",
+      "url": "assets/data/web/missions/dead-men-calling/pages/news.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "phone",
+      "url": "assets/data/web/missions/dead-men-calling/phone.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "data__web__missions__dead-men-calling__search",
+      "url": "assets/data/web/missions/dead-men-calling/search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "pi__city__tavern__bartender",
+      "url": "assets/pi/city/tavern/bartender.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "men",
+      "url": "assets/pi/city/tavern/men.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__city__tavern__tavern_empty",
+      "url": "assets/pi/city/tavern/tavern_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "woman",
+      "url": "assets/pi/city/tavern/woman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "claire_sutton_avatar",
+      "url": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tavernScene",
+      "url": "assets/data/tavernScene.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "nora_bell_avatar",
+      "url": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "clare_sutton_studio",
+      "url": "assets/side_quests/Reed/web/news/clare_sutton_studio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "community_ledger_small_grants",
+      "url": "assets/side_quests/Reed/web/news/community_ledger_small_grants.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "community_ledger_volunteer_training",
+      "url": "assets/side_quests/Reed/web/news/community_ledger_volunteer_training.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "everyday_edit_green_checks",
+      "url": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "norah_bell_piano_studio",
+      "url": "assets/side_quests/Reed/web/news/norah_bell_piano_studio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "tavernExtras",
+      "url": "assets/data/tavernExtras.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "home-police",
+      "url": "assets/pi/police/home-police.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

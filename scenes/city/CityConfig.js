@@ -1,9 +1,4 @@
-export const ALL_DAY = [
-  'Morning',
-  'Afternoon',
-  'Evening',
-  'Night'
-];
+export const ALL_DAY = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
 export const LOCATION_HOURS = {
   bank: ['Morning', 'Afternoon'],
@@ -19,25 +14,18 @@ export const LOCATION_HOURS = {
 };
 
 export const CITY_BACKGROUND_KEYS = {
-  london: 'london',
-  paris: 'paris',
-  new_delhi: 'newdelhi',
-  newdelhi: 'newdelhi',
-  warsaw: 'warsaw',
-  new_york_city: 'newyorkcity',
-  newyorkcity: 'newyorkcity',
-  berlin: 'berlin',
-  toronto: 'toronto',
-  nairobi: 'nairobi',
-  islamabad: 'islamabad',
-  kotte: 'kotte',
-  tokyo: 'tokyo',
-  hq: 'start'
+  london: 'london', paris: 'paris',
+  new_delhi: 'newdelhi', newdelhi: 'newdelhi',
+  warsaw: 'warsaw', new_york_city: 'newyorkcity',
+  newyorkcity: 'newyorkcity', berlin: 'berlin',
+  toronto: 'toronto', nairobi: 'nairobi',
+  islamabad: 'islamabad', kotte: 'kotte',
+  tokyo: 'tokyo', hq: 'start'
 };
 
 export const NPC_QUESTION_PENALTY = 10;
-export const NPC_SCALE = 0.62;
-export const NPC_HOVER_SCALE = 0.68;
+export const NPC_SCALE = 0.80;
+export const NPC_HOVER_SCALE = 0.88;
 
 export const SHOP_TAXI_ENERGY = 3;
 export const SHOP_ICON_SIZE = 132;

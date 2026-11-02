@@ -1,0 +1,10 @@
+[
+  {
+    "file": "assets/manifests/index.json",
+    "existed": true
+  },
+  {
+    "file": "assets/manifests/auto-discovered.json",
+    "existed": true
+  }
+]

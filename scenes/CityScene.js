@@ -1,12 +1,9 @@
 import { BaseScene } from './BaseScene.js';
 import { CityMapDebug } from './city/CityMapDebug.js';
+import { applyCityVisualLayout } from './city/CityVisualLayout.js';
 import { gameState } from '../GameData.js';
 import { audioManager } from '../managers/AudioManager.js';
-import {
-  resolveCityNpcTheme,
-  getNpcTextureKey,
-  getNpcLabel
-} from '../npcThemeHelper.js';
+import { resolveCityNpcTheme } from '../npcThemeHelper.js';
 import { CityUi } from './city/CityUi.js';
 import { CityEncounters } from './city/CityEncounters.js';
 import { CityClock } from './city/CityClock.js';
@@ -20,16 +17,13 @@ export class CityScene extends BaseScene {
 
     this.city = null;
     this.cityId = 'warsaw';
-
     this.interactiveObjects = [];
     this.encounterViews = [];
     this.shopObjects = [];
     this.hotelObjects = [];
-
     this.shopAssetHandler = null;
     this.cityAmbient = null;
     this.activePopup = null;
-
     this._uiPromise = null;
     this._uiFailures = [];
     this._runToken = null;
@@ -46,130 +40,85 @@ export class CityScene extends BaseScene {
 
   init(data = {}) {
     this.cancelUiWaits();
-
     this._runToken = Symbol('city-run');
     this._uiPromise = null;
     this._uiFailures = [];
     this._initialOverlayOpened = false;
     this._uiLoading = null;
 
-    this.cityId =
-      data.cityId ||
-      gameState.currentCityId ||
-      this.registry.get('currentCityId') ||
-      'warsaw';
-
+    this.cityId = data.cityId || gameState.currentCityId ||
+      this.registry.get('currentCityId') || 'warsaw';
     this.cityCompleted = Boolean(data.cityCompleted);
     this.investigationStatus = data.investigationStatus ?? null;
-
-    this.isFinalShowdown = Boolean(
-      data.isFinalShowdown ||
-      this.investigationStatus === 'FINAL_SHOWDOWN'
-    );
-
-    this.pendingPhoneCall = Boolean(
-      data.pendingPhoneCall ?? gameState.pendingPhoneCall
-    );
-
-    this.pendingPhoneCallCityId =
-      data.pendingPhoneCallCityId ??
-      gameState.pendingPhoneCallCityId ??
-      null;
-
-    this.openDestinationsOnCreate = Boolean(
-      data.openDestinations ||
-      (
-        this.cityCompleted &&
-        this.investigationStatus &&
-        this.investigationStatus !== 'CITY_STILL_ACTIVE' &&
-        this.investigationStatus !== 'FINAL_SHOWDOWN'
-      )
-    );
+    this.isFinalShowdown = Boolean(data.isFinalShowdown ||
+      this.investigationStatus === 'FINAL_SHOWDOWN');
+    this.pendingPhoneCall = Boolean(data.pendingPhoneCall ?? gameState.pendingPhoneCall);
+    this.pendingPhoneCallCityId = data.pendingPhoneCallCityId ??
+      gameState.pendingPhoneCallCityId ?? null;
+    this.openDestinationsOnCreate = Boolean(data.openDestinations || (
+      this.cityCompleted && this.investigationStatus &&
+      this.investigationStatus !== 'CITY_STILL_ACTIVE' &&
+      this.investigationStatus !== 'FINAL_SHOWDOWN'
+    ));
 
     this.city = null;
     this.interactiveObjects = [];
     this.encounterViews = [];
     this.shopObjects = [];
     this.hotelObjects = [];
-
     this.cityAmbient = null;
     this.npcTheme = 'default';
-
     this.isSettingUpUi = false;
     this.isTransitioning = false;
     this.activePopup = null;
     this.shopAssetHandler = null;
     this.uiReady = false;
 
-    [
-      'encounterMemory',
-      'specialScenesVisited',
-      'cityEncounterState'
-    ].forEach(key => {
+    ['encounterMemory', 'specialScenesVisited', 'cityEncounterState'].forEach(key => {
       const value = gameState[key];
-
-      if (
-        !value ||
-        typeof value !== 'object' ||
-        Array.isArray(value)
-      ) {
-        gameState[key] = {};
-      }
+      if (!value || typeof value !== 'object' || Array.isArray(value)) gameState[key] = {};
     });
   }
 
   create() {
     super.create();
-
     this.cameras.main.resetFX();
     this.cameras.main.setAlpha(1);
-
     this.unbindLifecycleListeners();
     this.bindLifecycleListeners();
-
     this.stopSceneIfActive('LocationScene');
     this.stopSceneIfActive('ArrestSelectionScene');
 
     audioManager.init(this);
-
     if (!audioManager.isMusicPlaying('themeGame')) {
       audioManager.playMusic('themeGame', { loop: true });
     }
-
     this.playCityAmbient();
 
     const locations = this.cache.json.get('locations');
-
     if (!Array.isArray(locations)) {
       console.error('[CityScene] Invalid locations data.', locations);
-
       void this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: 'City data could not be loaded.'
       });
-
       return;
     }
 
     this.city = locations.find(entry => entry?.id === this.cityId);
-
     if (!this.city) {
       console.error('[CityScene] Unknown city:', this.cityId);
-
       void this.goto('MenuScene', {
         citySetupFailed: true,
         errorMessage: `Unknown city: ${this.cityId}`
       });
-
       return;
     }
 
     this.npcTheme = resolveCityNpcTheme(this.city);
-
     gameState.currentCityId = this.cityId;
     gameState.currentCity = this.city.city;
     gameState.currentCountry = this.city.country;
-
     if (gameState.currentCityData?.id !== this.city.id) {
       gameState.currentCityData = structuredClone(this.city);
     }
@@ -181,7 +130,7 @@ export class CityScene extends BaseScene {
 
     this.ensureCityEncounterState(locations);
     this.ensureHarborEncounter();
-
+    applyCityVisualLayout(this);
     this.createBackground(this.city);
     this.createHeader(this.city);
 
@@ -193,7 +142,6 @@ export class CityScene extends BaseScene {
 
     this.cityDebug?.destroy();
     this.cityDebug = new CityMapDebug(this);
-
     this.showUiLoading();
     void this.finishCityStartup();
   }

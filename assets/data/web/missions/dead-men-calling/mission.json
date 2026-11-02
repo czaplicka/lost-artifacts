@@ -8,5 +8,6 @@
   "pageFiles": [
     "pages/businesses.json",
     "pages/news.json"
-  ]
+  ],
+  "phoneFile": "phone.json"
 }

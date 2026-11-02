@@ -1,0 +1,18 @@
+{
+  "comments": {
+    "boardBusy": "I have too much work to read about more work.",
+    "extraComment": "Nothing to investigate here. For once."
+  },
+  "ui": {
+    "loadingError": "Tavern data could not be loaded. Click here to return to town.",
+    "exported": "Tavern configuration exported to the console. Copy it into config/tavernConfig.js.",
+    "added": "New hotspot added. Drag it into position, then press C to export.",
+    "debugHelp": "Drag / arrows: move | Shift + arrows: resize | Alt: 1px\nTab: next | N: new hotspot | C: export | D / Escape: close",
+    "debugState": "DEBUG: {id} | {presence}\nx:{x} y:{y} w:{w} h:{h}",
+    "present": "present",
+    "absent": "absent",
+    "environment": "environment",
+    "debugButton": "Hotspots [D]",
+    "unknownComment": "There is no comment for this hotspot yet."
+  }
+}
