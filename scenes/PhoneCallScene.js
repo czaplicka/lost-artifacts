@@ -1,7 +1,7 @@
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { BaseScene } from './BaseScene.js';
 
 export class PhoneCallScene extends BaseScene {

@@ -10,6 +10,7 @@ import { installComputerNotebook, ComputerMailNotifications } from './pi-compute
 import { installOfficeShop } from './pi-computer/ComputerOfficeShop.js';
 import { installBusinessPages } from './pi-computer/BusinessPageTemplate.js';
 import { installCommonRoomPages } from './pi-computer/CommonRoomTemplate.js';
+import { installNotebookContactActions } from './pi-computer/NotebookContactActions.js';
 
 export class PIOfficeComputerUI {
   constructor(scene, options = {}) {
@@ -35,6 +36,7 @@ export class PIOfficeComputerUI {
     installComputerNotebook(this);
     this.mailNotifications = new ComputerMailNotifications(this);
     this.officeShop = installOfficeShop(this);
+    this.notebookContactActions = installNotebookContactActions(this);
     this.onKey = event => {
       if (this.destroyed || !this.isOpen || this.suspended) return;
       const target = event.target;
@@ -175,6 +177,7 @@ export class PIOfficeComputerUI {
   }
   destroy() {
     if (this.destroyed) return;
+    this.notebookContactActions?.destroy();
     this.suspended = false; this.close(); this.destroyed = true;
     this.mailNotifications.destroy(); this.photoQuest.destroy(); this.search.destroy(); this.viewToken++;
     this.monitor.stopBoot(); this.monitor.clearFx();

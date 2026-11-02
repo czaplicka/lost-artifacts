@@ -3,7 +3,7 @@ import { OfficeSaveUI } from '../ui/OfficeSaveUI.js';
 import { gameState } from '../GameData.js';
 import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
-import { FirstCaseTutorial } from '../FirstCaseTutorial.js';
+import { FirstCaseTutorial } from '../tutorials/FirstCaseTutorial.js';
 import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 

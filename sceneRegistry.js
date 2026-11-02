@@ -147,17 +147,17 @@ export const sceneRegistry = {
     import('./scenes/NewsstandScene.js').then(m => m.NewsstandScene),
 
   ShopScene: () =>
-    import('./scenes/ShopScene.js').then(m => m.ShopScene),
+    import('./scenes/ShopSceneWithAnimations.js').then(m => m.ShopScene),
 
   DetectiveOfficeScene: () =>
-    import('./scenes/DetectiveOfficeScene.js')
+    import('./scenes/DetectiveOfficeSceneWithAnimations.js')
       .then(m => m.DetectiveOfficeScene),
 
   HomeCityScene: () =>
     import('./scenes/HomeCityScene.js').then(m => m.HomeCityScene),
 
   SpyShopScene: () =>
-    import('./scenes/SpyShopScene.js').then(m => m.SpyShopScene),
+    import('./scenes/SpyShopSceneWithAnimations.js').then(m => m.SpyShopScene),
 
   TavernScene: () =>
     import('./scenes/TavernScene.js').then(m => m.TavernScene),
@@ -236,7 +236,7 @@ export const sceneRegistry = {
     import('./scenes/HiddenObjectsScene.js').then(m => m.HiddenObjectsScene),
 
   CrimeLabScene: () =>
-    import('./scenes/CSI/CrimeLabScene.js').then(m => m.CrimeLabScene),
+    import('./scenes/CSI/CrimeLabSceneWithAnimations.js').then(m => m.CrimeLabScene),
 
   HairAnalysisScene: () =>
     import('./scenes/CSI/HairAnalysisScene.js').then(m => m.HairAnalysisScene),

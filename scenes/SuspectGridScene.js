@@ -2,7 +2,7 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
 import { CrimeLabManager } from './CSI/CrimeLabManager.js';
-import { CrimeCityTutorial, advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { CrimeCityTutorial, advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { getGridMarkState } from '../suspectsBoard/gridHelpers.js';
 import { GridDataMixin } from '../suspectsBoard/GridData.mixin.js';
 import { GridDrawMixin } from '../suspectsBoard/GridDraw.mixin.js';

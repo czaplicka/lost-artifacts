@@ -1,7 +1,7 @@
-import { EventBus } from './EventBus.js';
-import { PlayerMenuUI } from './ui/PlayerMenuUI.js';
-import { getEvidenceCaseKey } from './managers/ApartmentEvidenceModel.js';
-import { requestAutosave } from './gameStatePersistence.js';
+import { EventBus } from '../EventBus.js';
+import { PlayerMenuUI } from '../ui/PlayerMenuUI.js';
+import { getEvidenceCaseKey } from '../managers/ApartmentEvidenceModel.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 
 const FONT_PIXEL = '"PressStart2P"';
 const FONT_TYPE = '"SpecialElite"';

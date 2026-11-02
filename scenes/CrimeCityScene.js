@@ -16,7 +16,7 @@ import { CrimeCityMapUI } from './crimeCity/CrimeCityMapUI.js';
 import { CrimeCityNpcManager } from './crimeCity/CrimeCityNpcManager.js';
 import { buildCrimeCityLayout } from './crimeCity/CrimeCityLayout.js';
 
-import { CrimeCityTutorial } from '../CrimeCityTutorial.js';
+import { CrimeCityTutorial } from '../tutorials/CrimeCityTutorial.js';
 
 import {
   launchFailedAlibiArrest

@@ -2,13 +2,8 @@ const CONFIG = {
   key: 'alex-storage',
   url: 'assets/spritesheet/office/alex-storage.png',
   frames: 4,
-
-  // Crop within EACH full frame, based on the supplied 4-frame artwork.
-  // Only lips and a small surrounding patch; no nose, jaw outline or whole face.
   crop: { x: 0.43, y: 0.55, width: 0.38, height: 0.19 },
-
-  // Center and display size relative to the 1920 x 1080 room background.
-  x: 1247,
+  x: 1243,
   y: 460,
   width: 28,
   height: 14,
@@ -93,7 +88,6 @@ export class AlexMouthAnimation {
         );
       }
 
-      // A soft elliptical edge hides the rectangular skin-patch boundary.
       const pixels = context.getImageData(
         0, 0, cropWidth * CONFIG.frames, cropHeight
       );

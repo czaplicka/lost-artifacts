@@ -1,11 +1,12 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
+import { getAcceptedPIQuests } from '../managers/PIQuestManager.js';
 
 const KEY = 'PoliceStationScene';
 const BACKGROUND_KEY = 'home-police';
 const BACKGROUND_URL = 'assets/pi/police/home-police.webp';
 
-// x/y oznaczają lewy górny róg, w/h rozmiar; wszystko względem tła.
+// x/y = lewy górny róg; wszystkie wartości względem obrazu tła.
 const HOTSPOTS = [
   { id:'officer', label:'Desk officer', x:0.698, y:0.401, w:0.094, h:0.190 },
   { id:'exit', label:'Return to the street', x:0.024, y:0.198, w:0.091, h:0.680 },
@@ -34,7 +35,10 @@ const TOPICS = [
 ];
 const END = [['Ask something else.','topics'],['Goodbye.','goodbye']];
 const DIALOGUE = {
-  start: {text:"Welcome to the precinct. If you're here to report a crime, please tell me it's a short one.",choices:TOPICS},
+  start: {
+    text:"Word is you've actually helped someone around here. Makes a nice change from business cards.\n\nAll right. What do you need?",
+    choices:TOPICS
+  },
   topics: {text:'Anything else?',choices:TOPICS},
   investigator: {player:"I'm a private investigator.",text:"Then you'll appreciate a good mystery. Someone keeps taking my stapler.",choices:[['Do you have any suspects?','stapler'],["I'll try not to interfere with police business.",'professional'],...END]},
   stapler: {player:'Do you have any suspects?',text:"Three officers, a civilian clerk, and me.\n\nI'm keeping an open mind. I have found it in my own drawer before.",choices:[['A classic inside job.','inside-job'],...END]},
@@ -51,6 +55,14 @@ const DIALOGUE = {
   ticket: {player:'Do I still need a ticket?',text:"No. You're the entire queue.\n\nCongratulations on your promotion.",choices:END},
   goodbye: {text:'Stay out of trouble. The paperwork is considerable.',choices:[['End conversation.',null]]}
 };
+
+// Ten rejestr zawiera lokalne zlecenia PI, nie misje Mark Agency.
+// Brak dodatkowej flagi: odblokowanie wynika z istniejącego zapisu gry.
+export function hasCompletedPolicePIQuest(quests = getAcceptedPIQuests()) {
+  return Array.isArray(quests) && quests.some(quest =>
+    quest !== null && typeof quest === 'object' && quest.status === 'completed'
+  );
+}
 
 const CSS = `
 html.la-police-active #hud-container{display:none!important;pointer-events:none!important;}
@@ -123,7 +135,6 @@ export class PoliceStationScene extends BaseScene {
     this.trackInputEvent(this.input,'dragstart',this.onHotspotDragStart);
     this.trackInputEvent(this.input,'drag',this.onHotspotDrag);
     if(this.input.keyboard) this.trackInputEvent(this.input.keyboard,'keydown',this.onKey);
-    // Phaser i DOM mogą otrzymać to samo zdarzenie; WeakSet zapobiega podwójnej obsłudze.
     this.handledKeys=new WeakSet();
     this.domKeyHandler=e=>this.onKey(e);
     this.root.addEventListener('keydown',this.domKeyHandler);
@@ -229,7 +240,7 @@ export class PoliceStationScene extends BaseScene {
       if(!visible)continue;
       const selected=index===this.selectedIndex;
       const {x,y,width:w,height:h}=spot.zone;
-      this.debugGraphics.fillStyle(selected?0xff77c8:0xffd27d,selected ? 0.22 : 0.12).fillRect(x,y,w,h);
+      this.debugGraphics.fillStyle(selected?0xff77c8:0xffd27d,selected?0.22:0.12).fillRect(x,y,w,h);
       this.debugGraphics.lineStyle(selected?3:2,selected?0xff77c8:0xffd27d,1).strokeRect(x,y,w,h);
       spot.zone.setDepth(selected?20:10);
       spot.debugLabel.setColor(selected?'#ff91d5':'#ffedb0');
@@ -320,7 +331,6 @@ export class PoliceStationScene extends BaseScene {
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download='police-hotspots.json';
     document.body.appendChild(a);a.click();a.remove();
-    // Opóźnienie pozwala przeglądarce rozpocząć pobieranie przed zwolnieniem URL.
     window.setTimeout(()=>URL.revokeObjectURL(url),1000);
     this.exportMessage='JSON exported to console and downloaded. Source files are unchanged.';
     this.refreshDebug();
@@ -355,11 +365,28 @@ export class PoliceStationScene extends BaseScene {
     this.panel.append(response,options);this.root.appendChild(this.panel);
     this.refreshDebug();options.querySelector('button')?.focus({preventScroll:true});
   }
+  showOfficerRefusal(){
+    if(this.disposed||this.navigating||this.debugMode)return;
+    this.showPanel('Desk officer',
+      "A private investigator? Around here, a business card isn't a track record.\n\n"+
+      "Finish a job for someone in the neighborhood. Then we'll talk.",
+      [['Leave him to his paperwork.',()=>this.closePanel()]]
+    );
+  }
   openConversation(){
-    if(!this.canInteract()||this.debugMode)return;this.showDialogue('start');
+    if(!this.canInteract()||this.debugMode)return;
+    if(!hasCompletedPolicePIQuest()){
+      this.showOfficerRefusal();return;
+    }
+    this.showDialogue('start');
   }
   showDialogue(id){
-    const node=DIALOGUE[id];if(!node||this.disposed||this.navigating)return;
+    if(this.disposed||this.navigating||this.debugMode)return;
+    // Chroni również wejścia do kolejnych węzłów rozmowy.
+    if(!hasCompletedPolicePIQuest()){
+      this.showOfficerRefusal();return;
+    }
+    const node=DIALOGUE[id];if(!node)return;
     this.visitedNodes.add(id);
     this.showPanel('Desk officer',node.text,node.choices.map(([label,target])=>[
       label,()=>target===null?this.closePanel():this.showDialogue(target),

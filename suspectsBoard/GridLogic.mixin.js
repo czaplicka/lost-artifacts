@@ -2,7 +2,7 @@ import { requestAutosave, saveGameState, flushAutosave } from '../gameStatePersi
 import { applyGridExclusions, getCaseKey } from './applyGridExclusions.js';
 import { RULED_OUT_EVERYONE_REASON } from './gridConstants.js';
 import { formatCellValue } from './gridHelpers.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 
 export const GridLogicMixin = {
   getPlacedClueIds() { return new Set(Object.values(this.placedCluesByCell)); },

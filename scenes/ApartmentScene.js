@@ -3,7 +3,7 @@ import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
 import { inventoryManager } from '../managers/InventoryManager.js';
 import { getCaseSuspects } from '../suspects/CaseSuspects.js';
-import { CrimeCityTutorial, advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { CrimeCityTutorial, advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { ApartmentObject } from './apartament/ApartmentObject.js';
 import { ApartmentInventoryUI } from './apartament/ApartmentInventoryUI.js';
 import { ApartmentRoomSystem } from './apartament/ApartmentRoomSystem.js';

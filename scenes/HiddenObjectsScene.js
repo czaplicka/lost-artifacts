@@ -10,7 +10,7 @@ import { HiddenObjectsUI } from '../ui/HiddenObjectsUI.js';
 import {
   CrimeCityTutorial,
   advanceCrimeTutorial
-} from '../CrimeCityTutorial.js';
+} from '../tutorials/CrimeCityTutorial.js';
 import {
   HiddenObjectsResultOverlay
 } from '../ui/HiddenObjectsResultOverlay.js';

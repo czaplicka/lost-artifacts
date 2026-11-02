@@ -1,6 +1,6 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { flushAutosave, requestAutosave } from '../gameStatePersistence.js';
 import { getWitnessTestimony, markAlibiWitnessInterviewed, allWitnessesVisited } from '../alibi/AlibiEncounterSetup.js';
 import { APPROACHES, CHALLENGES, COOPERATION_LABELS, getRapport, getInterviewView, applyApproach, askWitness, challengeWitness, followUpChallenge } from '../alibi/AlibiCooperation.js';

@@ -1,7 +1,7 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 
 import {
   allWitnessesVisited,

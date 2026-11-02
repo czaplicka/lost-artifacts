@@ -8,6 +8,7 @@ import { installAlibiImprovements } from './AlibiImprovements.js';
 import { renderDeadMailOfficeButton, syncDeadMailOfficeQuest } from '../../managers/DeadMailOfficeIntegration.js';
 import { installDeadMenEvidenceUI } from './DeadMenEvidenceUI.js';
 import { DeadMenArtworkUI } from './DeadMenArtworkUI.js';
+import { installAlibiAdvertEmailFlow } from './AlibiAdvertEmailFlow.js';
 
 export class ComputerDocuments {
  constructor(ui){
@@ -15,6 +16,7 @@ export class ComputerDocuments {
   this.alibiMail=new BorrowedAlibiMail(ui);this.alibiFinale=new AlibiReportUI(ui);
   installDeadMenMail(ui);installDeadMenFollowupMail(ui);installDeadMenFinaleMail(ui);
   this.alibiImprovements=installAlibiImprovements(ui,this);installDeadMenEvidenceUI(ui);
+  this.alibiAdvertEmailFlow=installAlibiAdvertEmailFlow(ui,this);
  }
  getMail(){
   const supplied=this.ui.options.getMail?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);

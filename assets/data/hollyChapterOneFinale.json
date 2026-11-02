@@ -1,0 +1,54 @@
+{
+  "title": "A DIFFICULT CALL",
+  "offer": "The records and Alex's account point to John's presumed death. Holly is waiting for an update.",
+  "lines": [
+    {
+      "speaker": "DETECTIVE",
+      "text": "Holly, I have reconstructed the last operation. John was transporting an artifact his team had already recovered."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "And what happened to him?"
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "The transport lost radio contact. Alex Murphy says he saw the aircraft go down. He believes John could not have survived."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "You believe my husband is dead."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "That is the conclusion the available evidence supports. Presumed dead. No body has been recovered or identified, so I cannot call it confirmed."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "Then find him."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "His remains?"
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "Yes. If he is dead, I want his remains found. I want to know where he is, not what somebody wrote on a form."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "I will investigate the crash and the recovery records. I cannot promise what I will find."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "Then promise me you will keep looking."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "I will keep looking."
+    }
+  ],
+  "chapterTitle": "CHAPTER I COMPLETE",
+  "nextTitle": "CHAPTER II / THE MISSING REMAINS",
+  "nextObjective": "Investigate the crash and determine what happened to John's remains.",
+  "saveWarning": "The story has progressed in memory, but automatic saving failed. Save manually before closing the game."
+}

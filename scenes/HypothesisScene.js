@@ -10,7 +10,7 @@ import { HypothesisBoardUI } from '../ui/HypothesisBoardUI.js';
 import {
   CrimeCityTutorial,
   advanceCrimeTutorial
-} from '../CrimeCityTutorial.js';
+} from '../tutorials/CrimeCityTutorial.js';
 
 
 export class HypothesisScene extends BaseScene {

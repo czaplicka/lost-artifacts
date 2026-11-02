@@ -3,7 +3,7 @@ import { inventoryManager } from './InventoryManager.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { beginEscapePhaseClock, isCrimePhaseExpired, isTotalTimeExpired } from '../CaseTimeHelper.js';
 import { getRouteManager, syncInvestigationState, generateDestinationsForCurrentCity } from './InvestigationManager.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { getTicketAirportCode } from '../config/TicketAirports.js';
 import { getEvidenceCaseKey, readApartmentEvidence, evidenceMatchesCase } from './ApartmentEvidenceModel.js';
 

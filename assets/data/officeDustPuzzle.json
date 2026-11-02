@@ -1,0 +1,58 @@
+{
+  "title": "SOMEBODY MOVED MY PAPERWORK",
+  "objects": [
+    {
+      "id": "mug",
+      "label": "COFFEE MUG",
+      "shape": "mug"
+    },
+    {
+      "id": "notebook",
+      "label": "NOTEBOOK",
+      "shape": "book"
+    },
+    {
+      "id": "stapler",
+      "label": "STAPLER",
+      "shape": "stapler"
+    },
+    {
+      "id": "lamp",
+      "label": "DESK LAMP",
+      "shape": "lamp"
+    }
+  ],
+  "traces": [
+    {
+      "id": "trace_mug",
+      "label": "DUST TRACE A",
+      "shape": "mug",
+      "objectId": "mug"
+    },
+    {
+      "id": "trace_book",
+      "label": "DUST TRACE B",
+      "shape": "book",
+      "objectId": "notebook"
+    },
+    {
+      "id": "trace_stapler",
+      "label": "DUST TRACE C",
+      "shape": "stapler",
+      "objectId": "stapler"
+    },
+    {
+      "id": "trace_lamp",
+      "label": "DUST TRACE D",
+      "shape": "lamp",
+      "objectId": "lamp"
+    },
+    {
+      "id": "trace_unknown",
+      "label": "DUST TRACE E",
+      "shape": "unknown",
+      "objectId": null
+    }
+  ],
+  "success": "The four objects fit their old positions. One clear footprint has no matching object. Something is unaccounted for. Its identity and who moved it remain unknown."
+}

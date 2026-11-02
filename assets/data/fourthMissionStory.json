@@ -1,0 +1,36 @@
+{
+  "minimumCompletedMissions": 4,
+  "flags": {
+    "reportDecoded": "redacted_report_decoded",
+    "accountHeard": "alex_crash_account_heard",
+    "timelineCompleted": "crash_timeline_reconstructed"
+  },
+  "conversation": [
+    "All right. You have the amended route, the restricted transfer and the final approval. Those are the operation's records. Not just office rumours.",
+    "John was bringing a recovered artifact back. It was already in our custody before the transport left. He was not flying out to steal it from somebody else.",
+    "We lost radio contact. After the unanswered calls, I saw the aircraft go down.",
+    "I did not see anyone get out. I do not believe John could have survived that crash.",
+    "No, I did not identify a body. The exact crash site was not established in the records you have. There was no recovered body to identify.",
+    "The artifact was not checked back into storage either. Missing cargo is not returned cargo, however optimistically Finance files it.",
+    "The agency restricted the operation's records afterwards. I thought someone here had made a terrible mistake. That is not the same as knowing there was a murder.",
+    "John's marriage was difficult. He did not give me details. I am not going to turn that into evidence I do not have.",
+    "Put the records beside what I have told you. Work out what we actually know, not what we are afraid it means."
+  ],
+  "reviewConversation": [
+    "The radio went silent before I saw the aircraft go down. I believed John died. I still cannot give you a body identification.",
+    "The recovered artifact was aboard before departure. It never received a completed return entry here.",
+    "That is my account. Use the records to reconstruct the operation."
+  ],
+  "buttons": {
+    "start": "RECONSTRUCT JOHN'S LAST OPERATION",
+    "review": "REVIEW JOHN'S LAST OPERATION"
+  },
+  "messages": {
+    "ready": "Alex's account is recorded. Select RECONSTRUCT JOHN'S LAST OPERATION when ready.",
+    "completed": "Reconstruction complete. The supported conclusion is presumed death. The conversation with Holly is the next story step.",
+    "unfinished": "The reconstruction is not finished. Your timeline choices are saved; you can continue later.",
+    "saveFailed": "Automatic saving failed. Save manually before closing the game.",
+    "loadFailed": "The reconstruction could not be opened. Please try again.",
+    "preparing": "Preparing the operation records..."
+  }
+}

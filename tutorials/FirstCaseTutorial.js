@@ -1,5 +1,5 @@
-import { EventBus } from './EventBus.js';
-import { requestAutosave } from './gameStatePersistence.js';
+import { EventBus } from '../EventBus.js';
+import { requestAutosave } from '../gameStatePersistence.js';
 
 const STEP_ORDER = [
   'visit_storage',

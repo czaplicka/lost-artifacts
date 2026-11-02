@@ -1,13 +1,11 @@
 // scenes/crimeCity/CrimeCityProgressService.js
+
 import { gameState } from '../../GameData.js';
+import { getEnergyManager } from '../../managers/EnergyManager.js';
+import { requestAutosave } from '../../gameStatePersistence.js';
 
-import {
-  getEnergyManager
-} from '../../managers/EnergyManager.js';
-
-import {
-  requestAutosave
-} from '../../gameStatePersistence.js';
+import { CrimeLabManager } from '../CSI/CrimeLabManager.js';
+import { isCompletedLabResult } from '../CSI/LabResultState.js';
 
 const ALLOWED_LOCAL_TRANSPORTS = new Set([
   'taxi'
@@ -34,6 +32,15 @@ export class CrimeCityProgressService {
       mission.caseId ||
       `${this.scene?.cityId}_${mission.artifact || 'default'}`
     );
+  }
+
+  getLabCaseKey() {
+    const manager = new CrimeLabManager(
+      gameState,
+      this.scene?.cityId
+    );
+
+    return manager.getCaseKey();
   }
 
   getCrimeSceneVisitKey() {
@@ -187,9 +194,55 @@ export class CrimeCityProgressService {
   }
 
   isCrimeLabCompleted() {
-    return Boolean(
-      this.getCrimeCityProgress().crimeLabCompleted
-    );
+    if (this.getCrimeCityProgress().crimeLabCompleted) {
+      return true;
+    }
+
+    // Lab and map may use different case keys.
+    const labCaseKey = this.getLabCaseKey();
+
+    const labProgress =
+      gameState.crimeCityProgress?.[labCaseKey];
+
+    if (labProgress?.crimeLabCompleted !== true) {
+      return false;
+    }
+
+    const forensics =
+      gameState.caseForensics?.[labCaseKey];
+
+    if (!forensics) {
+      return false;
+    }
+
+    const results = [
+      forensics.identityEvidenceResult,
+      forensics.traceEvidenceResults?.[0],
+      forensics.traceEvidenceResults?.[1]
+    ];
+
+    const cityId = this.scene?.cityId;
+
+    return results.every(result => {
+      if (
+        !isCompletedLabResult(result, {
+          caseKey: labCaseKey
+        })
+      ) {
+        return false;
+      }
+
+      // Do not accept results explicitly assigned to another city.
+      if (
+        result.cityId != null &&
+        cityId != null &&
+        result.cityId !== cityId
+      ) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   isGridCompleted() {

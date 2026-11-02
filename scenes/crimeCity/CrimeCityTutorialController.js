@@ -6,7 +6,7 @@ import {
 
 import {
   advanceCrimeTutorial
-} from '../../CrimeCityTutorial.js';
+} from '../../tutorials/CrimeCityTutorial.js';
 
 const LAB_PHONE_DELAY_MS = 250;
 const PHONE_RETRY_DELAY_MS = 3000;

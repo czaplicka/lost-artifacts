@@ -10,7 +10,7 @@ import {CrimeLabEvidenceService} from './CrimeLabEvidenceService.js';
 import {CrimeLabAssistantDialog} from './CrimeLabAssistantDialog.js';
 import {CrimeLabTimeController} from './CrimeLabTimeController.js';
 import {TicketAnalysisPanel} from './TicketAnalysisPanel.js';
-import {advanceCrimeTutorial} from '../../CrimeCityTutorial.js';
+import {advanceCrimeTutorial} from '../../tutorials/CrimeCityTutorial.js';
 const STATION_IDS=['identity','trace_0','trace_1'];
 const LOCAL_DEBUG_ALLOWED=['127.0.0.1','localhost'].includes(window.location.hostname);
 

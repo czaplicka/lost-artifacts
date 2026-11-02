@@ -1,9 +1,6 @@
 import { EventBus } from '../../EventBus.js';
 import { gameState } from '../../GameData.js';
-
-import {
-  requestAutosave
-} from '../../gameStatePersistence.js';
+import { requestAutosave } from '../../gameStatePersistence.js';
 
 import {
   getReedContactService,
@@ -19,21 +16,67 @@ import {
 
 import { ReedReportUI } from './ReedReportUI.js';
 
-const ID = 'reed_claire_outgoing';
-const DRAFT = 'reedMailDraft';
+const REED_MESSAGE_ID = 'reed_claire_outgoing';
+const DRAFT_KEY = 'reedMailDraft';
+const OUTGOING_KEY = 'piKeywordOutgoingMail';
+
+const GENERIC_VARIANTS = [
+  {
+    id: 'formal',
+    label: 'FORMAL',
+    body:
+      'Hello,\n\n' +
+      'I am a private investigator following up on an enquiry. ' +
+      'I would appreciate an opportunity to ask you a few questions. ' +
+      'Please reply when convenient.\n\n' +
+      'Kind regards,\n'
+  },
+  {
+    id: 'discreet',
+    label: 'DISCREET',
+    body:
+      'Hello,\n\n' +
+      'I would like to speak with you about a private enquiry. ' +
+      'I would prefer not to discuss the details in an unsolicited message. ' +
+      'Please let me know whether you are willing to talk.\n\n' +
+      'Thank you,\n'
+  },
+  {
+    id: 'direct',
+    label: 'DIRECT',
+    body:
+      'Hello,\n\n' +
+      'I am investigating a matter that may involve you. ' +
+      'Can you contact me so I can ask a few questions?\n\n' +
+      'Regards,\n'
+  }
+];
+
+function extractEmail(value) {
+  if (typeof value !== 'string') return '';
+
+  const match = value.match(
+    /[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+/
+  );
+
+  return match?.[0] || '';
+}
+
+function normalizeEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
 
 export class ReedContactMail {
   constructor(ui) {
     Object.assign(this, {
       ui,
       dead: false,
-      composing: false
+      composing: false,
+      sending: false,
+      restorers: []
     });
 
-    this.service = getReedContactService(
-      ui.scene.game
-    );
-
+    this.service = getReedContactService(ui.scene.game);
     this.onChange = () => this.refresh();
 
     EventBus.on(
@@ -43,163 +86,223 @@ export class ReedContactMail {
       this
     );
 
-    const docs = ui.documents;
-    const originalGetMail = docs.getMail.bind(docs);
-
-    docs.getMail = () => {
-      const items = originalGetMail().filter(
-        item => item.id !== ID
-      );
-
-      const config = this.service.data;
-      const sent = getReedContactRecord();
-
-      if (
-        !config ||
-        !sent ||
-        !gameState.piQuests?.quests?.[config.questId]
-      ) {
-        return items;
-      }
-
-      const at = sent.sentAt;
-
-      const date =
-        `Day ${Math.floor(at / 1440) + 1}, ` +
-        `${String(Math.floor(at % 1440 / 60)).padStart(2, '0')}:` +
-        String(at % 60).padStart(2, '0');
-
-      return [
-        {
-          id: ID,
-          from: `You → ${sent.to || config.email}`,
-          subject: `Sent: ${config.subject}`,
-          date,
-          body: sent.body
-        },
-        ...items
-      ];
-    };
-
-    const originalRender = docs.render.bind(docs);
-
-    docs.render = () => {
-      if (this.dead) {
-        return originalRender();
-      }
-
-      if (
-        ui.app === 'mail' &&
-        this.composing
-      ) {
-        this.renderComposer();
-        return;
-      }
-
-      originalRender();
-
-      if (ui.app === 'mail') {
-        const bounds = ui.window;
-
-        ui.drawing.button(
-          bounds.x + bounds.w - 206,
-          bounds.y + 6,
-          'NEW MAIL',
-          () => void this.openComposer()
-        );
-      }
-    };
-
-    const originalSelectKeyword =
-      ui.search.selectKeyword.bind(ui.search);
-
-    ui.search.selectKeyword = id => {
-      if (
-        !this.dead &&
-        ui.app === 'mail' &&
-        this.composing
-      ) {
-        this.selectRecipient(id);
-        return;
-      }
-
-      originalSelectKeyword(id);
-    };
-
-    const originalSearchRefresh =
-      ui.search.refresh.bind(ui.search);
-
-    ui.search.refresh = () => {
-      if (
-        !this.dead &&
-        ui.app === 'mail' &&
-        this.composing
-      ) {
-        this.refresh();
-      } else {
-        originalSearchRefresh();
-      }
-    };
-
-    const originalMonitorRender =
-      ui.monitor.render.bind(ui.monitor);
-
-    ui.monitor.render = () => {
-      originalMonitorRender();
-
-      if (
-        !this.dead &&
-        this.composing &&
-        ui.app === 'mail' &&
-        ui.isOpen &&
-        !ui.suspended &&
-        !ui.destroyed &&
-        !ui.booting &&
-        ui.search.data
-      ) {
-        ui.search.renderNotebook();
-        ui.pin?.();
-      }
-    };
+    this.installMailList();
+    this.installComposer();
+    this.installFieldNotes();
 
     this.reportUI = new ReedReportUI(ui);
 
-    void this.service.load();
+    void this.loadReedService().catch(error => {
+      console.error(
+        '[ReedContactMail] Contact load failed:',
+        error
+      );
+    });
   }
 
-  refresh() {
+  wrap(target, method, factory) {
+    if (typeof target?.[method] !== 'function') return;
+
+    const original = target[method];
+    const replacement = factory(original.bind(target));
+
+    target[method] = replacement;
+
+    this.restorers.push(() => {
+      if (target[method] === replacement) {
+        target[method] = original;
+      }
+    });
+  }
+
+  installMailList() {
+    this.wrap(
+      this.ui.documents,
+      'getMail',
+      original => (...args) => {
+        const outgoing = this.getOutgoingMessages();
+
+        const managedIds = new Set([
+          REED_MESSAGE_ID,
+          ...outgoing.map(message => message.id)
+        ]);
+
+        const items = original(...args).filter(
+          message => !managedIds.has(message.id)
+        );
+
+        const config = this.service.data;
+        const sent = getReedContactRecord();
+
+        const reedMessages = [];
+
+        if (
+          config &&
+          sent &&
+          gameState.piQuests?.quests?.[config.questId]
+        ) {
+          reedMessages.push({
+            id: REED_MESSAGE_ID,
+            from: `You → ${sent.to || config.email}`,
+            subject: `Sent: ${config.subject}`,
+            date: this.formatReedDate(sent.sentAt),
+            body: sent.body
+          });
+        }
+
+        return [
+          ...outgoing.slice().reverse(),
+          ...reedMessages,
+          ...items
+        ];
+      }
+    );
+  }
+
+  installComposer() {
     const ui = this.ui;
 
-    if (
+    this.wrap(
+      ui.documents,
+      'render',
+      original => (...args) => {
+        if (
+          !this.dead &&
+          ui.app === 'mail' &&
+          this.composing
+        ) {
+          this.renderComposer();
+          return;
+        }
+
+        const result = original(...args);
+
+        if (
+          !this.dead &&
+          ui.app === 'mail' &&
+          ui.window
+        ) {
+          ui.drawing.button(
+            ui.window.x + ui.window.w - 206,
+            ui.window.y + 6,
+            'NEW MAIL',
+            () => void this.openComposer()
+          );
+        }
+
+        return result;
+      }
+    );
+  }
+
+  installFieldNotes() {
+    const ui = this.ui;
+
+    this.wrap(
+      ui.search,
+      'selectKeyword',
+      original => keywordId => {
+        if (
+          !this.dead &&
+          ui.app === 'mail' &&
+          this.composing
+        ) {
+          this.selectRecipient(keywordId);
+          return;
+        }
+
+        return original(keywordId);
+      }
+    );
+
+    this.wrap(
+      ui.search,
+      'refresh',
+      original => (...args) => {
+        if (
+          !this.dead &&
+          ui.app === 'mail' &&
+          this.composing
+        ) {
+          this.refresh();
+          return;
+        }
+
+        return original(...args);
+      }
+    );
+
+    this.wrap(
+      ui.monitor,
+      'render',
+      original => (...args) => {
+        const result = original(...args);
+
+        if (
+          this.isLive() &&
+          this.composing &&
+          !ui.booting &&
+          ui.search.data
+        ) {
+          ui.search.renderNotebook();
+          ui.pin?.();
+        }
+
+        return result;
+      }
+    );
+  }
+
+  isLive() {
+    const ui = this.ui;
+
+    return Boolean(
       !this.dead &&
       !ui.destroyed &&
       ui.isOpen &&
       !ui.suspended &&
       ui.app === 'mail'
-    ) {
-      ui.render();
+    );
+  }
+
+  refresh() {
+    if (this.isLive()) {
+      this.ui.render();
     }
+  }
+
+  async loadReedService() {
+    return this.service.load();
+  }
+
+  formatReedDate(value) {
+    const minutes = Number.isFinite(value) ? value : 0;
+
+    const day = Math.floor(minutes / 1440) + 1;
+    const hour = String(
+      Math.floor((minutes % 1440) / 60)
+    ).padStart(2, '0');
+    const minute = String(
+      minutes % 60
+    ).padStart(2, '0');
+
+    return `Day ${day}, ${hour}:${minute}`;
   }
 
   available() {
     const config = this.service.data;
 
-    if (!config?.questId) {
-      return false;
-    }
-
-    return (
-      gameState.piQuests
-        ?.quests?.[config.questId]?.status === 'active'
+    return Boolean(
+      config?.questId &&
+      gameState.piQuests?.quests?.[config.questId]
+        ?.status === 'active'
     );
   }
 
   knownAddress() {
     const config = this.service.data;
 
-    if (!config) {
-      return false;
-    }
+    if (!config) return false;
 
     const known =
       gameState.piKeywordSearch
@@ -215,14 +318,17 @@ export class ReedContactMail {
       config?.email &&
       this.available() &&
       this.knownAddress() &&
-      this.draft.to === config.email
+      normalizeEmail(this.draft.to) ===
+        normalizeEmail(config.email)
     );
   }
 
   get draft() {
-    return gameState[DRAFT] || {
+    return gameState[DRAFT_KEY] || {
       version: 1,
       to: '',
+      caseId: null,
+      keywordId: null,
       variantId: null,
       route: null
     };
@@ -231,7 +337,7 @@ export class ReedContactMail {
   updateDraft(patch) {
     if (this.dead) return;
 
-    gameState[DRAFT] = {
+    gameState[DRAFT_KEY] = {
       ...this.draft,
       ...patch,
       version: 1
@@ -240,27 +346,89 @@ export class ReedContactMail {
     requestAutosave();
   }
 
-  selectRecipient(keywordId) {
-    if (
-      this.dead ||
-      !this.composing
-    ) {
-      return;
+  getRecipients() {
+    const recipients = [];
+    const definitions = this.ui.search.data?.cases || [];
+
+    for (const definition of definitions) {
+      const known =
+        gameState.piKeywordSearch
+          ?.cases?.[definition.id]?.known || [];
+
+      for (const keyword of definition.keywords || []) {
+        if (!known.includes(keyword.id)) continue;
+
+        const email =
+          extractEmail(keyword.email) ||
+          extractEmail(keyword.label) ||
+          extractEmail(keyword.value);
+
+        if (!email) continue;
+
+        recipients.push({
+          caseId: definition.id,
+          keywordId: keyword.id,
+          email
+        });
+      }
     }
 
+    // Claire keeps her existing configuration-based address.
     const config = this.service.data;
 
     if (
-      !config ||
-      !this.available() ||
-      !this.knownAddress() ||
-      keywordId !== config.requiredKeyword
+      config?.email &&
+      this.knownAddress() &&
+      !recipients.some(
+        recipient =>
+          recipient.caseId === config.searchCaseId &&
+          recipient.keywordId === config.requiredKeyword
+      )
     ) {
+      recipients.push({
+        caseId: config.searchCaseId,
+        keywordId: config.requiredKeyword,
+        email: config.email
+      });
+    }
+
+    return recipients;
+  }
+
+  hasRecipient() {
+    const email = normalizeEmail(this.draft.to);
+
+    if (!email) return false;
+
+    return this.getRecipients().some(
+      recipient =>
+        normalizeEmail(recipient.email) === email
+    );
+  }
+
+  selectRecipient(keywordId) {
+    if (!this.isLive() || !this.composing) return;
+
+    const currentCaseId = this.ui.search.definition?.id;
+
+    const recipient = this.getRecipients().find(
+      contact =>
+        contact.caseId === currentCaseId &&
+        contact.keywordId === keywordId
+    );
+
+    if (!recipient) {
+      this.ui.notice =
+        'Select a discovered email address from FIELD NOTES.';
+
+      this.refresh();
       return;
     }
 
     this.updateDraft({
-      to: config.email,
+      to: recipient.email,
+      caseId: recipient.caseId,
+      keywordId: recipient.keywordId,
       variantId: null,
       route: null
     });
@@ -273,9 +441,7 @@ export class ReedContactMail {
 
   officeNumber() {
     const directory =
-      this.ui.scene.cache.json.get(
-        'piPhoneDirectory'
-      ) || {};
+      this.ui.scene.cache.json.get('piPhoneDirectory') || {};
 
     return directory.contacts?.find(
       contact => contact.id === directory.ownContactId
@@ -295,38 +461,25 @@ export class ReedContactMail {
   }
 
   isCurrentComposer(token) {
-    const ui = this.ui;
-
     return Boolean(
-      !this.dead &&
-      !ui.destroyed &&
-      ui.isOpen &&
-      !ui.suspended &&
-      ui.app === 'mail' &&
+      this.isLive() &&
       this.composing &&
-      ui.viewToken === token
+      this.ui.viewToken === token
     );
   }
 
   async openComposer() {
+    if (!this.isLive()) return;
+
     const ui = this.ui;
-
-    if (
-      this.dead ||
-      ui.destroyed ||
-      !ui.isOpen ||
-      ui.suspended ||
-      ui.app !== 'mail'
-    ) {
-      return;
-    }
-
     const token = ++ui.viewToken;
 
     ui.notice = '';
 
     this.updateDraft({
       to: '',
+      caseId: null,
+      keywordId: null,
       variantId: null,
       route: null
     });
@@ -339,32 +492,29 @@ export class ReedContactMail {
 
     this.refresh();
 
-    try {
-      await Promise.all([
-        this.service.load(),
-        ui.search.load()
-      ]);
+    // Failure of Claire's service must not block other recipients.
+    const results = await Promise.allSettled([
+      this.loadReedService(),
+      ui.search.load()
+    ]);
 
-      if (!this.isCurrentComposer(token)) {
-        return;
+    if (!this.isCurrentComposer(token)) return;
+
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        console.error(
+          '[ReedContactMail] Could not load mail data:',
+          result.reason
+        );
       }
-
-      this.refresh();
-    } catch (error) {
-      if (!this.isCurrentComposer(token)) {
-        return;
-      }
-
-      console.error(
-        '[ReedContactMail] Could not load mail contacts:',
-        error
-      );
-
-      ui.notice =
-        'Contacts could not be loaded. Please try again.';
-
-      this.refresh();
     }
+
+    if (!ui.search.data) {
+      ui.notice =
+        'Field notes could not be loaded. Close this message and try again.';
+    }
+
+    this.refresh();
   }
 
   closeComposer() {
@@ -375,27 +525,25 @@ export class ReedContactMail {
     this.refresh();
   }
 
-  chooseVariant(id) {
-    if (
-      this.dead ||
-      !this.composing ||
-      !this.hasReedRecipient()
-    ) {
-      return;
-    }
+  getVariants() {
+    return this.hasReedRecipient()
+      ? REED_MAIL_VARIANTS
+      : GENERIC_VARIANTS;
+  }
 
+  chooseVariant(variantId) {
     if (
-      !REED_MAIL_VARIANTS.some(
-        variant => variant.id === id
+      !this.isLive() ||
+      !this.composing ||
+      !this.hasRecipient() ||
+      !this.getVariants().some(
+        variant => variant.id === variantId
       )
     ) {
       return;
     }
 
-    this.updateDraft({
-      variantId: id
-    });
-
+    this.updateDraft({ variantId });
     this.ui.bodyPage = 0;
 
     this.refresh();
@@ -403,7 +551,7 @@ export class ReedContactMail {
 
   chooseReplyRoute(route) {
     if (
-      this.dead ||
+      !this.isLive() ||
       !this.composing ||
       !this.hasReedRecipient() ||
       !['office', 'mobile'].includes(route)
@@ -411,60 +559,167 @@ export class ReedContactMail {
       return;
     }
 
-    this.updateDraft({
-      route
-    });
-
+    this.updateDraft({ route });
     this.ui.bodyPage = 0;
 
     this.refresh();
   }
 
+  getMessageBody() {
+    const detective = String(
+      gameState.playerName || 'Detective'
+    );
+
+    if (this.hasReedRecipient()) {
+      return buildReedMailBody(
+        this.draft.variantId,
+        this.replyNumber() || '[reply number]',
+        detective
+      );
+    }
+
+    const variant = GENERIC_VARIANTS.find(
+      item => item.id === this.draft.variantId
+    );
+
+    return variant ? variant.body + detective : '';
+  }
+
+  canSend() {
+    if (
+      this.sending ||
+      !this.hasRecipient() ||
+      !this.getVariants().some(
+        variant => variant.id === this.draft.variantId
+      )
+    ) {
+      return false;
+    }
+
+    if (this.hasReedRecipient()) {
+      return Boolean(
+        this.service.canSend() &&
+        this.replyNumber()
+      );
+    }
+
+    return true;
+  }
+
+  getOutgoingMessages() {
+    const messages = gameState[OUTGOING_KEY]?.messages;
+
+    return Array.isArray(messages)
+      ? messages.filter(message => message?.id)
+      : [];
+  }
+
+  saveGenericMessage() {
+    const previous = this.getOutgoingMessages();
+
+    const oldSequence = Number(
+      gameState[OUTGOING_KEY]?.sequence
+    );
+
+    let sequence = Math.max(
+      Number.isSafeInteger(oldSequence) ? oldSequence : 0,
+      previous.length
+    ) + 1;
+
+    const existingIds = new Set(
+      previous.map(message => message.id)
+    );
+
+    while (existingIds.has(`pi_keyword_mail_${sequence}`)) {
+      sequence += 1;
+    }
+
+    const message = {
+      id: `pi_keyword_mail_${sequence}`,
+      from: `You → ${this.draft.to}`,
+      to: this.draft.to,
+      subject: 'Sent: Private enquiry',
+      date: 'Sent',
+      body: this.getMessageBody(),
+      caseId: this.draft.caseId || null,
+      keywordId: this.draft.keywordId || null
+    };
+
+    gameState[OUTGOING_KEY] = {
+      version: 1,
+      sequence,
+      messages: [...previous, message]
+    };
+
+    return message.id;
+  }
+
   send() {
     if (
-      this.dead ||
+      !this.isLive() ||
       !this.composing ||
-      !this.hasReedRecipient()
+      !this.canSend()
     ) {
       return;
     }
 
-    const result = this.service.send(
-      this.draft.route,
-      this.officeNumber(),
-      {
-        to: this.draft.to,
-        variantId: this.draft.variantId
+    this.sending = true;
+
+    try {
+      let selectedId;
+
+      if (this.hasReedRecipient()) {
+        const result = this.service.send(
+          this.draft.route,
+          this.officeNumber(),
+          {
+            to: this.draft.to,
+            variantId: this.draft.variantId
+          }
+        );
+
+        this.ui.notice = result.message;
+
+        if (!result.ok) return;
+
+        selectedId = REED_MESSAGE_ID;
+      } else {
+        selectedId = this.saveGenericMessage();
+
+        this.ui.notice =
+          'Message sent. A reply is not guaranteed.';
       }
-    );
 
-    this.ui.notice = result.message;
-
-    if (result.ok) {
       this.composing = false;
-      gameState[DRAFT] = null;
+      gameState[DRAFT_KEY] = null;
 
       requestAutosave();
 
-      this.ui.selectedId = ID;
+      this.ui.selectedId = selectedId;
       this.ui.bodyPage = 0;
       this.ui.listPage = 0;
-    }
+    } catch (error) {
+      console.error(
+        '[ReedContactMail] Send failed:',
+        error
+      );
 
-    this.refresh();
+      this.ui.notice =
+        'The message could not be sent. Please try again.';
+    } finally {
+      this.sending = false;
+      this.refresh();
+    }
   }
 
   renderComposer() {
-    if (
-      this.dead ||
-      !this.composing
-    ) {
-      return;
-    }
+    if (this.dead || !this.composing) return;
 
     const ui = this.ui;
     const drawing = ui.drawing;
     const bounds = ui.window;
+
+    if (!bounds) return;
 
     const x = bounds.x + 14;
     const y = bounds.y + 47;
@@ -511,21 +766,28 @@ export class ReedContactMail {
       true
     );
 
-    const hasRecipient = this.hasReedRecipient();
+    const hasRecipient = this.hasRecipient();
 
-    drawing.text(
+    const address = drawing.text(
       x + 70,
       y + 44,
-      hasRecipient ? this.draft.to : '',
+      '',
       15,
       '#303b32'
+    );
+
+    drawing.fit(
+      address,
+      hasRecipient ? this.draft.to : '',
+      Math.max(20, width - 90)
     );
 
     if (!hasRecipient) {
       drawing.text(
         x + 14,
         y + 76,
-        'Select an email address from FIELD NOTES.',
+        'Select an email address from FIELD NOTES.\n' +
+          'Use the case tabs to find addresses from other enquiries.',
         13,
         '#6f6a53',
         width - 28
@@ -550,48 +812,31 @@ export class ReedContactMail {
     });
   }
 
-  renderReedMessage({
-    x,
-    y,
-    width,
-    bottom
-  }) {
-    if (!this.hasReedRecipient()) {
-      return;
-    }
-
+  renderReedMessage({ x, y, width, bottom }) {
     const ui = this.ui;
     const drawing = ui.drawing;
+    const isReed = this.hasReedRecipient();
 
-    REED_MAIL_VARIANTS.forEach(
-      (variant, index) => {
-        const selected =
-          this.draft.variantId === variant.id;
-
-        drawing.button(
-          x + 14 + index * 155,
-          y + 103,
-          (selected ? '• ' : '') + variant.label,
-          () => this.chooseVariant(variant.id)
-        );
-      }
+    const step = Math.min(
+      155,
+      Math.floor((width - 28) / 3)
     );
 
-    const number = this.replyNumber();
+    this.getVariants().forEach((variant, index) => {
+      const selected =
+        this.draft.variantId === variant.id;
 
-    const body = buildReedMailBody(
-      this.draft.variantId,
-      number || '[reply number]',
-      String(gameState.playerName || 'Detective')
-    );
+      drawing.button(
+        x + 14 + index * step,
+        y + 103,
+        (selected ? '• ' : '') + variant.label,
+        () => this.chooseVariant(variant.id)
+      );
+    });
 
     const bodyY = y + 151;
     const controlsY = bottom - 65;
-
-    const bodyHeight = Math.max(
-      46,
-      controlsY - bodyY - 24
-    );
+    const body = this.getMessageBody();
 
     if (body) {
       ui.documents.renderPagedText(
@@ -599,7 +844,7 @@ export class ReedContactMail {
         x + 14,
         bodyY,
         width - 28,
-        bodyHeight
+        Math.max(46, controlsY - bodyY - 24)
       );
     } else {
       drawing.text(
@@ -611,66 +856,73 @@ export class ReedContactMail {
       );
     }
 
-    drawing.text(
-      x + 14,
-      controlsY - 13,
-      'Reply telephone:',
-      13,
-      '#303b32'
-    );
+    if (isReed) {
+      drawing.text(
+        x + 14,
+        controlsY - 13,
+        'Reply telephone:',
+        13,
+        '#303b32'
+      );
 
-    const office = this.officeNumber();
-    const mobile = ownedMobileLine();
+      drawing.button(
+        x + 14,
+        controlsY + 9,
+        (this.draft.route === 'office' ? '• ' : '') +
+          'OFFICE',
+        () => this.chooseReplyRoute('office'),
+        Boolean(this.officeNumber())
+      );
 
-    drawing.button(
-      x + 14,
-      controlsY + 9,
-      (this.draft.route === 'office' ? '• ' : '') +
-        'OFFICE',
-      () => this.chooseReplyRoute('office'),
-      Boolean(office)
-    );
+      drawing.button(
+        x + 155,
+        controlsY + 9,
+        (this.draft.route === 'mobile' ? '• ' : '') +
+          'MOBILE',
+        () => this.chooseReplyRoute('mobile'),
+        Boolean(ownedMobileLine())
+      );
 
-    drawing.button(
-      x + 155,
-      controlsY + 9,
-      (this.draft.route === 'mobile' ? '• ' : '') +
-        'MOBILE',
-      () => this.chooseReplyRoute('mobile'),
-      Boolean(mobile)
-    );
-
-    drawing.text(
-      x + 305,
-      controlsY + 18,
-      number,
-      14,
-      '#575c4c'
-    );
-
-    const ready = Boolean(
-      this.hasReedRecipient() &&
-      this.service.canSend() &&
-      number &&
-      REED_MAIL_VARIANTS.some(
-        variant => variant.id === this.draft.variantId
-      )
-    );
+      drawing.text(
+        x + 305,
+        controlsY + 18,
+        this.replyNumber(),
+        14,
+        '#575c4c'
+      );
+    } else {
+      drawing.text(
+        x + 14,
+        controlsY - 13,
+        'A reply is not guaranteed. Silence is not an alibi.',
+        13,
+        '#575c4c',
+        Math.max(60, width - 140)
+      );
+    }
 
     drawing.button(
       x + width - 102,
       controlsY + 9,
       'SEND',
       () => this.send(),
-      ready
+      Boolean(this.canSend())
     );
   }
 
   destroy() {
+    if (this.dead) return;
+
     this.dead = true;
     this.composing = false;
 
     this.reportUI.destroy();
     EventBus.clearScope(this);
+
+    for (const restore of this.restorers.reverse()) {
+      restore();
+    }
+
+    this.restorers.length = 0;
   }
 }

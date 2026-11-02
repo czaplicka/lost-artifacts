@@ -1,7 +1,7 @@
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { EventBus } from '../EventBus.js';
-import { advanceCrimeTutorial } from '../CrimeCityTutorial.js';
+import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
 import { travelToCity as performTravel } from '../managers/TravelManager.js';
 import { getCityId, normalizeCityId } from './DestinationMeta.js';
 
