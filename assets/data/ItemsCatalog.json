@@ -712,6 +712,20 @@
         "useMessage": "I'll save the supplies for an actual investigation task. Opening the kit dramatically isn't one."
       },
       "quantity": 2
+    },
+    "pigeonFeed": {
+      "id": "pigeon_feed",
+      "name": "Pigeon Feed",
+      "icon": "🌾",
+      "description": "Premium pigeon feed. Payment in advance. Findings not guaranteed.",
+      "type": "item",
+      "stackable": true,
+      "metadata": {
+        "purpose": "pigeon_feeding",
+        "pigeonFeed": true,
+        "portionsPerUnit": 1,
+        "useMessage": "For the pigeons. My detective work is questionable enough without eating the payroll."
+      }
     }
   },
   "equipment": {

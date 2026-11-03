@@ -1,4 +1,19 @@
 import { COLORS } from './gridConstants.js';
+import { prettify } from './gridHelpers.js';
+import {
+  THEME, bevelBox, cornerBrackets, hatch, hashString, pill, tapeStrip
+} from './gridTheme.js';
+
+const QUIPS = [
+  'Fingerprints never lie. Suspects, on the other hand...',
+  'Every empty cell is a thief with a good lawyer.',
+  'Elementary, my dear spreadsheet.',
+  'Trust no one. Especially the curator.',
+  'Coffee: 3. Leads: 2. Progress: pending.',
+  'The butler did not do it. Probably.',
+  'If in doubt, blame the intern.',
+  'Somewhere, a thief is sneezing at your detective work.'
+];
 
 export const GridDrawMixin = {
   computeLayout() {
@@ -32,7 +47,20 @@ export const GridDrawMixin = {
     };
   },
 
+  /** Tweens created for grid visuals are tracked so clearUI can kill them. */
+  trackTween(config) {
+    const tween = this.tweens.add(config);
+    (this.gridTweens ??= []).push(tween);
+    return tween;
+  },
+
   clearUI() {
+    (this.gridTweens || []).forEach((tween) => {
+      tween?.stop?.();
+      tween?.remove?.();
+    });
+    this.gridTweens = [];
+
     this.maskGraphics.forEach((g) => g?.destroy());
     this.maskGraphics = [];
 
@@ -52,6 +80,8 @@ export const GridDrawMixin = {
     this.nameContainer = null;
     this.clueListContainer = null;
     this.feedbackText = null;
+    this.scrollbars = {};
+    this.gridHover = null;
   },
 
   makeMask(x, y, w, h) {
@@ -78,27 +108,39 @@ export const GridDrawMixin = {
     this.applyScroll();
   },
 
+  /* ----------------------------- BACKGROUND -------------------------- */
+
   drawBackground(L) {
     const { width, height } = L;
 
     this.uiRoot.add([
       this.add.rectangle(0, 0, width, height, COLORS.bg, 1).setOrigin(0),
+      hatch(this, 0, 88, width, height - 88 - 62, {
+        spacing: 14, color: THEME.gold, alpha: 0.025
+      }),
       this.add.rectangle(0, 0, width, 88, COLORS.band, 1).setOrigin(0),
+      hatch(this, 0, 0, width, 85, { spacing: 8, color: 0x000000, alpha: 0.18 }),
+      this.add.rectangle(0, 81, width, 1, THEME.gold, 0.3).setOrigin(0),
       this.add.rectangle(0, 85, width, 3, COLORS.gold, 0.95).setOrigin(0),
-      this.add
-        .rectangle(0, height - 62, width, 62, 0x0c090a, 1)
-        .setOrigin(0)
+      tapeStrip(this, 0, 89, width, 5, 12).setAlpha(0.85),
+      this.add.rectangle(0, height - 62, width, 62, 0x0c090a, 1).setOrigin(0),
+      this.add.rectangle(0, height - 62, width, 2, THEME.gold, 0.55).setOrigin(0)
     ]);
   },
 
+  /* ------------------------------- HEADER ---------------------------- */
+
   drawHeader(L) {
     const { width } = L;
+    const narrow = width < 900;
 
-    const placedCount = Object.keys(this.placedCluesByCell).length;
+    const placedCount = this.clueCards.length - this.getUnplacedClues().length;
     const unlikelyCount = this.suspects.filter(
       (s) => this.markedUnlikelyBySuspectId[s.id]
     ).length;
     const possibleCount = this.suspects.length - unlikelyCount;
+
+    this.uiRoot.add(cornerBrackets(this, 8, 6, width - 16, 72, { len: 14, alpha: 0.45 }));
 
     const title = this.add
       .text(width / 2, 8, 'EVIDENCE GRID', {
@@ -106,37 +148,63 @@ export const GridDrawMixin = {
         fontSize: '28px',
         color: '#f5e7c6'
       })
-      .setOrigin(0.5, 0);
+      .setOrigin(0.5, 0)
+      .setShadow(3, 3, '#000000', 0, false, true);
 
     const sub = this.add
       .text(
         width / 2,
         44,
         'Pick a clue card, then click the glowing cell. Compare the crime scene row with each suspect.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '14px',
-          color: '#d9c998',
-          align: 'center',
-          wordWrap: { width: width - 40, useAdvancedWrap: true }
-        }
+        { fontFamily: 'SpecialElite', fontSize: '13px', color: '#d9c998' }
       )
       .setOrigin(0.5, 0);
+    sub.setScale(Math.min(1, (width - 40) / Math.max(1, sub.width)));
 
-    const stats = this.add
-      .text(
-        width / 2,
-        66,
-        `CLUES ${placedCount}/${this.clueCards.length + placedCount}   ·   POSSIBLE ${possibleCount}   ·   UNLIKELY ${unlikelyCount}`,
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '8px',
-          color: '#ffdc73'
-        }
-      )
-      .setOrigin(0.5, 0);
+    this.uiRoot.add([title, sub]);
 
-    this.uiRoot.add([title, sub, stats]);
+    if (!narrow) {
+      const city = prettify(this.cityId || 'unknown').toUpperCase();
+      const quip = QUIPS[
+        hashString(`${this.cityId}|${this.gameState.currentMission?.id || ''}`) % QUIPS.length
+      ];
+
+      this.uiRoot.add([
+        this.add.text(18, 12, 'CASE FILE', {
+          fontFamily: 'PressStart2P', fontSize: '7px', color: '#a8946a'
+        }),
+        this.add.text(18, 26, city, {
+          fontFamily: 'SpecialElite', fontSize: '18px', color: '#f5e7c6',
+          wordWrap: { width: 250, useAdvancedWrap: true }
+        }),
+        this.add
+          .text(width - 18, 14, quip, {
+            fontFamily: 'SpecialElite', fontSize: '13px', color: '#a8946a',
+            align: 'right', wordWrap: { width: 260, useAdvancedWrap: true }
+          })
+          .setOrigin(1, 0)
+      ]);
+    }
+
+    const pills = [
+      pill(this, 0, 74, `CLUES ${placedCount}/${this.clueCards.length}`, {
+        dot: THEME.gold, color: '#ffdc73'
+      }),
+      pill(this, 0, 74, `POSSIBLE ${possibleCount}`, {
+        dot: COLORS.okStroke, color: '#d5ffd2', stroke: COLORS.okStroke
+      }),
+      pill(this, 0, 74, `UNLIKELY ${unlikelyCount}`, {
+        dot: COLORS.noStroke, color: '#ffd1c8', stroke: COLORS.noStroke
+      })
+    ];
+    const gap = 10;
+    const total = pills.reduce((sum, p) => sum + p.width, 0) + gap * (pills.length - 1);
+    let cursor = width / 2 - total / 2;
+    pills.forEach((p) => {
+      p.container.x = cursor + p.width / 2;
+      cursor += p.width + gap;
+      this.uiRoot.add(p.container);
+    });
   },
 
   /* ------------------------------ SIDEBAR ---------------------------- */
@@ -145,12 +213,14 @@ export const GridDrawMixin = {
     const s = L.sidebar;
     const clues = this.getUnplacedClues();
 
+    this.uiRoot.add(
+      bevelBox(this, s.x, s.y, s.w, s.h, { fill: COLORS.panel, stroke: COLORS.panelStroke })
+    );
     this.uiRoot.add([
+      this.add.rectangle(s.x + 2, s.y + 2, s.w - 4, 28, 0x2b2018, 1).setOrigin(0),
+      this.add.rectangle(s.x + 2, s.y + 30, s.w - 4, 2, THEME.gold, 0.7).setOrigin(0),
       this.add
-        .rectangle(s.x + s.w / 2, s.y + s.h / 2, s.w, s.h, COLORS.panel, 1)
-        .setStrokeStyle(2, COLORS.panelStroke, 1),
-      this.add
-        .text(s.x + 12, s.y + 10, `CLUE CARDS (${clues.length})`, {
+        .text(s.x + 12, s.y + 11, `CLUE CARDS (${clues.length})`, {
           fontFamily: 'PressStart2P',
           fontSize: '9px',
           color: '#ffdc73'
@@ -159,9 +229,9 @@ export const GridDrawMixin = {
     ]);
 
     const listX = s.x + 8;
-    const listY = s.y + 34;
+    const listY = s.y + 38;
     const listW = s.w - 16;
-    const listH = s.h - 42;
+    const listH = s.h - 46;
 
     this.regions.clueList = { x: listX, y: listY, w: listW, h: listH };
 
@@ -170,7 +240,7 @@ export const GridDrawMixin = {
     this.uiRoot.add(this.clueListContainer);
 
     if (!clues.length) {
-      const empty = this.add
+      const done = this.add
         .text(listW / 2, 30, 'All clue cards are on the board.', {
           fontFamily: 'SpecialElite',
           fontSize: '16px',
@@ -179,94 +249,115 @@ export const GridDrawMixin = {
           wordWrap: { width: listW - 20, useAdvancedWrap: true }
         })
         .setOrigin(0.5, 0);
+      const joke = this.add
+        .text(listW / 2, done.y + done.height + 12, 'Not bad, detective. Not bad at all.', {
+          fontFamily: 'SpecialElite',
+          fontSize: '13px',
+          color: '#8f7f60',
+          align: 'center',
+          wordWrap: { width: listW - 20, useAdvancedWrap: true }
+        })
+        .setOrigin(0.5, 0);
 
-      this.clueListContainer.add(empty);
+      this.clueListContainer.add([done, joke]);
       this.minClueScroll = 0;
       this.clueScrollY = 0;
       return;
     }
 
-    let cursorY = 0;
+    const cardW = listW - 20;
+    let cursorY = 8;
 
     clues.forEach((clue) => {
-      const card = this.createClueCard(clue, listW, cursorY);
+      const card = this.createClueCard(clue, cardW, cursorY);
       this.clueListContainer.add(card.container);
-      cursorY += card.height + 8;
+      cursorY += card.height + 10;
     });
 
     this.minClueScroll = Math.min(0, listH - cursorY);
-    this.clueScrollY = Phaser.Math.Clamp(
-      this.clueScrollY,
-      this.minClueScroll,
-      0
-    );
+    this.clueScrollY = Phaser.Math.Clamp(this.clueScrollY, this.minClueScroll, 0);
 
     if (this.minClueScroll < 0) {
       this.uiRoot.add(
         this.add
-          .text(s.x + s.w - 10, s.y + 12, 'SCROLL ↕', {
+          .text(s.x + s.w - 12, s.y + 12, 'SCROLL', {
             fontFamily: 'PressStart2P',
             fontSize: '6px',
             color: '#aa9263'
           })
           .setOrigin(1, 0)
       );
+      this.addScrollbar('clues', {
+        axis: 'v',
+        start: listY,
+        fixed: s.x + s.w - 9,
+        trackLen: listH,
+        viewport: listH,
+        content: listH - this.minClueScroll,
+        getScroll: () => this.clueScrollY,
+        getMin: () => this.minClueScroll
+      });
     }
   },
 
   createClueCard(clue, cardW, y) {
     const selected = clue.id === this.selectedClueId;
     const isScene = clue.type === 'crime_scene_fact';
-    const accent = isScene ? 0xd4af37 : 0x6fa8dc;
+    const accent = isScene ? THEME.sceneAccent : THEME.suspectAccent;
+    const padL = 18;
+    const textW = cardW - padL - 12;
 
-    const container = this.add.container(0, y);
+    const container = this.add.container(6, y);
 
-    const tag = this.add
-      .text(
-        16,
-        10,
-        `${isScene ? 'CRIME SCENE' : 'SUSPECT'} · ${clue.label.toUpperCase()}`,
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '7px',
-          color: selected ? '#18110b' : isScene ? '#ffdc73' : '#a9d0f5',
-          wordWrap: { width: cardW - 28, useAdvancedWrap: true }
-        }
-      )
+    const badgeText = this.add
+      .text(padL + 6, 11, isScene ? 'CRIME SCENE' : 'SUSPECT', {
+        fontFamily: 'PressStart2P',
+        fontSize: '6px',
+        color: '#15100a'
+      })
+      .setOrigin(0, 0.5);
+    const badge = this.add
+      .rectangle(padL, 4, Math.ceil(badgeText.width) + 12, 14, accent, 1)
+      .setOrigin(0);
+
+    const label = this.add
+      .text(padL, 26, clue.label.toUpperCase(), {
+        fontFamily: 'PressStart2P',
+        fontSize: '7px',
+        color: selected ? '#4a3414' : isScene ? '#ffdc73' : '#a9d0f5',
+        wordWrap: { width: textW, useAdvancedWrap: true }
+      })
       .setOrigin(0, 0);
 
     const body = this.add
-      .text(16, tag.y + tag.height + 8, clue.text, {
+      .text(padL, label.y + label.height + 7, clue.text, {
         fontFamily: 'SpecialElite',
         fontSize: '15px',
         color: selected ? '#21160c' : '#f1e2c0',
-        wordWrap: { width: cardW - 28, useAdvancedWrap: true }
+        wordWrap: { width: textW, useAdvancedWrap: true }
       })
       .setOrigin(0, 0);
 
     const cardH = Math.ceil(body.y + body.height + 12);
 
+    const shadow = this.add.rectangle(3, 4, cardW, cardH, 0x000000, 0.4).setOrigin(0);
+
     const bg = this.add
-      .rectangle(
-        cardW / 2,
-        cardH / 2,
-        cardW,
-        cardH,
-        selected ? 0xe3c26a : 0x302217,
-        1
-      )
-      .setStrokeStyle(selected ? 3 : 2, selected ? 0xfff0b0 : 0x806440, 1)
+      .rectangle(0, 0, cardW, cardH, selected ? THEME.paper : THEME.card, 1)
+      .setOrigin(0)
+      .setStrokeStyle(selected ? 3 : 2, selected ? 0xfff0b0 : THEME.cardEdge, 1)
       .setInteractive({ useHandCursor: true });
 
-    const stripe = this.add
-      .rectangle(0, 0, 5, cardH, accent, 1)
-      .setOrigin(0, 0);
+    const stripe = this.add.rectangle(0, 0, 6, cardH, accent, 1).setOrigin(0);
+    const tape = this.add
+      .rectangle(cardW / 2, -1, 34, 10, 0xe8dcae, 0.55)
+      .setAngle(-3);
 
     bg.on('pointerover', () => {
-      if (!selected) bg.setFillStyle(0x45321f, 1);
+      if (!selected) bg.setFillStyle(THEME.cardHover, 1);
     });
     bg.on('pointerout', () => {
-      if (!selected) bg.setFillStyle(0x302217, 1);
+      if (!selected) bg.setFillStyle(THEME.card, 1);
     });
     bg.on('pointerup', (pointer) => {
       if (this.modalOpen || this.dragMoved) return;
@@ -274,9 +365,65 @@ export const GridDrawMixin = {
       this.selectClue(clue.id);
     });
 
-    container.add([bg, stripe, tag, body]);
+    container.add([shadow, bg, stripe, tape, badge, badgeText, label, body]);
+
+    if (selected) {
+      const glow = this.add
+        .rectangle(cardW / 2, cardH / 2, cardW + 8, cardH + 8)
+        .setStrokeStyle(2, 0xffdc73, 1);
+      container.add(glow);
+      this.trackTween({
+        targets: glow,
+        alpha: { from: 0.25, to: 1 },
+        duration: 650,
+        yoyo: true,
+        repeat: -1
+      });
+    }
 
     return { container, height: cardH };
+  },
+
+  /* ------------------------------ SCROLLBARS ------------------------- */
+
+  addScrollbar(key, { axis, start, fixed, trackLen, viewport, content, getScroll, getMin }) {
+    const T = 6;
+    const vertical = axis === 'v';
+    const thumbLen = Math.max(
+      20,
+      Math.min(trackLen, Math.round((trackLen * viewport) / Math.max(content, 1)))
+    );
+
+    const track = this.add
+      .rectangle(
+        vertical ? fixed : start, vertical ? start : fixed,
+        vertical ? T : trackLen, vertical ? trackLen : T,
+        0x000000, 0.35
+      )
+      .setOrigin(0);
+    const thumb = this.add
+      .rectangle(
+        vertical ? fixed : start, vertical ? start : fixed,
+        vertical ? T : thumbLen, vertical ? thumbLen : T,
+        THEME.gold, 0.75
+      )
+      .setOrigin(0);
+
+    this.uiRoot.add([track, thumb]);
+    (this.scrollbars ??= {})[key] = {
+      thumb, vertical, start, fixed, trackLen, thumbLen, getScroll, getMin
+    };
+  },
+
+  updateScrollbars() {
+    Object.values(this.scrollbars || {}).forEach((bar) => {
+      if (!bar?.thumb?.scene) return;
+      const min = bar.getMin();
+      const frac = min < 0 ? Phaser.Math.Clamp(bar.getScroll() / min, 0, 1) : 0;
+      const pos = bar.start + (bar.trackLen - bar.thumbLen) * frac;
+      if (bar.vertical) bar.thumb.setPosition(bar.fixed, pos);
+      else bar.thumb.setPosition(pos, bar.fixed);
+    });
   },
 
   /* ------------------------------- FOOTER ---------------------------- */
@@ -333,14 +480,18 @@ export const GridDrawMixin = {
     fill = 0x2d2118,
     hoverFill = 0x4b3322,
     textColor = '#f6e7bf',
+    ignoreModal = false,
     onClick
   }) {
     const container = this.add.container(x, y);
 
+    const shadow = this.add.rectangle(3, 4, width, height, 0x000000, 0.55);
     const background = this.add
       .rectangle(0, 0, width, height, fill, 1)
       .setStrokeStyle(2, 0x8b704b, 1)
       .setInteractive({ useHandCursor: true });
+    const light = this.add.rectangle(0, -height / 2 + 4, width - 8, 2, 0xffffff, 0.12);
+    const dark = this.add.rectangle(0, height / 2 - 4, width - 8, 2, 0x000000, 0.3);
 
     const text = this.add
       .text(0, 0, label, {
@@ -352,6 +503,11 @@ export const GridDrawMixin = {
       })
       .setOrigin(0.5);
 
+    const rest = () => {
+      container.setPosition(x, y);
+      shadow.setVisible(true);
+    };
+
     background.on('pointerover', () => {
       background.setFillStyle(hoverFill, 1);
       background.setStrokeStyle(2, COLORS.gold, 1);
@@ -359,13 +515,20 @@ export const GridDrawMixin = {
     background.on('pointerout', () => {
       background.setFillStyle(fill, 1);
       background.setStrokeStyle(2, 0x8b704b, 1);
+      rest();
+    });
+    background.on('pointerdown', () => {
+      if (this.modalOpen && !ignoreModal) return;
+      container.setPosition(x + 1, y + 2);
+      shadow.setVisible(false);
     });
     background.on('pointerup', () => {
-      if (this.modalOpen) return;
+      rest();
+      if (this.modalOpen && !ignoreModal) return;
       onClick();
     });
 
-    container.add([background, text]);
+    container.add([shadow, background, light, dark, text]);
     return container;
   },
 
@@ -379,19 +542,17 @@ export const GridDrawMixin = {
     this.modalRoot = root;
 
     const blocker = this.add
-      .rectangle(0, 0, width, height, 0x000000, 0.75)
+      .rectangle(0, 0, width, height, 0x000000, 0.78)
       .setOrigin(0)
       .setInteractive();
 
     const boxW = Math.min(580, width - 40);
     const boxH = 270;
-
-    const box = this.add
-      .rectangle(width / 2, height / 2, boxW, boxH, 0x1f1614, 1)
-      .setStrokeStyle(3, COLORS.noStroke, 1);
+    const boxX = width / 2 - boxW / 2;
+    const boxY = height / 2 - boxH / 2;
 
     const titleText = this.add
-      .text(width / 2, height / 2 - boxH / 2 + 28, title, {
+      .text(width / 2, boxY + 34, title, {
         fontFamily: 'PressStart2P',
         fontSize: '11px',
         color: '#ff9d8f',
@@ -401,7 +562,7 @@ export const GridDrawMixin = {
       .setOrigin(0.5, 0);
 
     const msgText = this.add
-      .text(width / 2, height / 2 - 16, message, {
+      .text(width / 2, height / 2 - 8, message, {
         fontFamily: 'SpecialElite',
         fontSize: '16px',
         color: '#f1e2c0',
@@ -410,7 +571,15 @@ export const GridDrawMixin = {
       })
       .setOrigin(0.5, 0.5);
 
-    root.add([blocker, box, titleText, msgText]);
+    root.add([
+      blocker,
+      ...bevelBox(this, boxX, boxY, boxW, boxH, {
+        fill: 0x1f1614, stroke: COLORS.noStroke, strokeW: 3
+      }),
+      tapeStrip(this, boxX + 3, boxY + 3, boxW - 6, 9, 12),
+      titleText,
+      msgText
+    ]);
 
     const closeModal = () => {
       this.modalOpen = false;
@@ -418,40 +587,40 @@ export const GridDrawMixin = {
       this.modalRoot = null;
     };
 
-    const makeBtn = (bx, label, fill, hover, cb) => {
-      const bw = Math.floor((boxW - 60) / 2);
-      const bh = 44;
-      const by = height / 2 + boxH / 2 - 44;
+    const bw = Math.floor((boxW - 60) / 2);
+    const by = height / 2 + boxH / 2 - 44;
 
-      const bg = this.add
-        .rectangle(bx, by, bw, bh, fill, 1)
-        .setStrokeStyle(2, 0x8b704b, 1)
-        .setInteractive({ useHandCursor: true });
+    root.add(
+      this.createButton({
+        x: width / 2 - boxW / 4,
+        y: by,
+        width: bw,
+        height: 44,
+        label: noLabel,
+        fill: 0x24442a,
+        hoverFill: 0x38673e,
+        textColor: '#d6ffd5',
+        ignoreModal: true,
+        onClick: closeModal
+      })
+    );
 
-      const tx = this.add
-        .text(bx, by, label, {
-          fontFamily: 'PressStart2P',
-          fontSize: '7px',
-          color: '#fff0cb',
-          align: 'center',
-          wordWrap: { width: bw - 12, useAdvancedWrap: true }
-        })
-        .setOrigin(0.5);
-
-      bg.on('pointerover', () => bg.setFillStyle(hover, 1));
-      bg.on('pointerout', () => bg.setFillStyle(fill, 1));
-      bg.on('pointerup', cb);
-
-      root.add([bg, tx]);
-    };
-
-    makeBtn(width / 2 - boxW / 4, noLabel, 0x24442a, 0x38673e, () => {
-      closeModal();
-    });
-
-    makeBtn(width / 2 + boxW / 4, yesLabel, 0x632923, 0x823b31, () => {
-      closeModal();
-      onYes();
-    });
+    root.add(
+      this.createButton({
+        x: width / 2 + boxW / 4,
+        y: by,
+        width: bw,
+        height: 44,
+        label: yesLabel,
+        fill: 0x632923,
+        hoverFill: 0x823b31,
+        textColor: '#ffe3dc',
+        ignoreModal: true,
+        onClick: () => {
+          closeModal();
+          onYes();
+        }
+      })
+    );
   }
 };

@@ -1,0 +1,128 @@
+{
+  "id": "last-gnome-standing",
+  "title": "Last Gnome Standing",
+  "culprit": "colin",
+  "brief": {
+    "Victim": "Reginald Prune, chairman of the gardening society.",
+    "Location": "The judging pavilion, annual garden competition.",
+    "Time of death": "Saturday, between 17:10 and 17:20.",
+    "Cause of death": "A blow to the head with the ceramic Best Neighbour trophy.",
+    "Officer’s note": "Three suspects. Eleven years of hedge complaints. Please do not ask me to measure anything."
+  },
+  "suspects": [
+    {
+      "id": "barbara",
+      "name": "Barbara Bloom",
+      "role": "Defending garden champion",
+      "relation": "Reginald judged her prize-winning garden.",
+      "suspicion": "He discovered that her supposedly natural flowers were plastic.",
+      "portrait": null
+    },
+    {
+      "id": "penny",
+      "name": "Penny Potts",
+      "role": "Society treasurer",
+      "relation": "Reginald was checking her greenhouse accounts.",
+      "suspicion": "The society paid for a greenhouse. The greenhouse has declined to exist.",
+      "portrait": null
+    },
+    {
+      "id": "colin",
+      "name": "Colin Hedge",
+      "role": "Next-door neighbour",
+      "relation": "Eleven-year dispute over a boundary hedge.",
+      "suspicion": "He wants seven centimetres of hedge removed. He has measured them extensively.",
+      "portrait": null
+    }
+  ],
+  "crimeScene": [
+    {
+      "title": "Broken Best Neighbour trophy",
+      "text": "A heavy ceramic gnome, recovered beside the body. A small piece of green knitted fabric is caught on its broken edge.",
+      "media": null
+    },
+    {
+      "title": "Pavilion",
+      "text": "The trophy table stands behind a canvas screen. The rear gate gives access from the gardens. A camera covers the gate, but not the trophy table.",
+      "media": null
+    },
+    {
+      "title": "Colin’s incident binder",
+      "text": "Eleven years of complaints, filed by hedge height. The final page reads: “SATURDAY: IT ENDS.”",
+      "media": null
+    }
+  ],
+  "interrogations": [
+    {
+      "title": "Barbara — a private arrangement",
+      "text": "“Reginald agreed not to disqualify me if I withdrew next year. I needed this year’s prize money. The sponsor only pays if Reginald completes the live presentation. It is in the contract. Yes, I read it. It contains money.”"
+    },
+    {
+      "title": "Penny — the envelope",
+      "text": "“On Friday he showed me an envelope for his solicitor. Copies of the accounts. He said it would be opened if anything happened to him. I asked whether we could define ‘anything’. He said no.”"
+    },
+    {
+      "title": "Colin — his route",
+      "text": "“I took the blue path to the car park at five past five. Never went near the pavilion. Those gloves? Lost the right one on Friday. Probably stolen. Standards have collapsed.”"
+    }
+  ],
+  "evidence": [
+    {
+      "title": "E1 — Gate camera contact sheet",
+      "kind": "contact",
+      "caption": "Pavilion rear gate · Saturday · camera clock checked by police",
+      "frames": [
+        {
+          "time": "17:12",
+          "text": "Colin enters. He is wearing two green gloves."
+        },
+        {
+          "time": "17:18",
+          "text": "Colin leaves. His right hand is bare."
+        }
+      ],
+      "media": null
+    },
+    {
+      "title": "E2 — Fabric comparison",
+      "kind": "fabric",
+      "caption": "Left: fabric recovered from the broken trophy. Right: Colin’s remaining glove.",
+      "text": "Both samples show a green knit crossed by a distinctive orange repair thread. The laboratory reports matching fibre and dye profiles, not a unique identification.",
+      "media": null
+    },
+    {
+      "title": "E3 — Sponsor’s signed terms",
+      "kind": "document",
+      "text": "“The £2,000 winner’s payment is conditional on Reginald Prune personally completing the live award presentation. If he cannot do so, the event is cancelled and no prize payment is due.”\n\nBarbara’s signature appears below the terms.",
+      "media": null
+    },
+    {
+      "title": "E4 — Solicitor’s receipt",
+      "kind": "document",
+      "text": "FRIDAY, 15:40\nReceived: duplicate greenhouse accounts and invoices.\nInstruction: release the enclosed material to the society committee and police upon the death of Reginald Prune.\n\nCopy of receipt acknowledged by Penny Potts, Friday, 16:05.",
+      "media": null
+    },
+    {
+      "title": "E5 — Boundary agreement",
+      "kind": "document",
+      "text": "“Colin Hedge agrees not to cut the disputed seven-centimetre strip during Reginald Prune’s lifetime. Following Prune’s death, the restriction ends.”\n\nSigned by both neighbours.\nMargin note in Colin’s handwriting: “AT LAST. EVENTUALLY.”",
+      "media": null
+    }
+  ],
+  "intel": [
+    {
+      "title": "Gardening society secretary",
+      "text": "“The next treasurer was due to receive the full greenhouse accounts on Monday anyway. Reginald’s death did not cancel that handover. We have already sent the copies to the police.”"
+    },
+    {
+      "title": "Officer’s timing check",
+      "text": "The sponsor confirmed that cancellation means no prize payment. The camera clock is accurate. Barbara and Penny both visited the pavilion earlier; neither is excluded simply because she knew where the trophy was."
+    }
+  ],
+  "resolution": {
+    "summary": "Colin Hedge killed Reginald Prune.",
+    "reason": "The boundary agreement gave Colin a concrete benefit from Reginald’s death. His claim that he went straight to the car park is contradicted by the gate camera, which places him at the pavilion during the death window. He enters wearing two gloves and leaves without the right one; fabric on the broken murder weapon is consistent with the unusually repaired glove he still owns. No single detail carries the case alone.",
+    "others": "Barbara needed Reginald alive to receive the prize; his death cancels payment. Penny knew the duplicate accounts would be released upon his death, and Monday’s handover would still happen. These facts weaken their apparent motives, but do not magically prove innocence: Colin’s false account and the physical evidence are what complete the case.",
+    "officer": "“Eleven years of correspondence. One ceramic gnome. Seven centimetres. I am requesting a transfer to organised crime.”"
+  }
+}

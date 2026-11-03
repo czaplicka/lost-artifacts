@@ -37,6 +37,8 @@ export const GridInputMixin = {
         this.regions.clueList.y + this.clueScrollY
       );
     }
+
+    this.updateScrollbars?.();
   },
 
   handlePointerDown(pointer) {

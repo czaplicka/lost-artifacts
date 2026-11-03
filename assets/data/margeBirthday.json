@@ -1,0 +1,129 @@
+{
+  "id": "marge_birthday",
+  "npcId": "hr_gunderson",
+  "speaker": "Marge Gunderson",
+  "requiredFlag": "hr_insurance_inquiry_unlocked",
+  "flags": {
+    "refusal": "hr_insurance_refusal_heard",
+    "deduced": "marge_birthday_discovered"
+  },
+  "backgrounds": {
+    "occupied": {
+      "key": "marge_hr_occupied",
+      "url": "assets/local/HR.webp"
+    },
+    "empty": {
+      "key": "marge_hr_empty",
+      "url": "assets/local/HRs.webp"
+    }
+  },
+  "hotspots": [
+    {
+      "id": "marge",
+      "label": "Marge Gunderson",
+      "x": 1190,
+      "y": 565,
+      "w": 330,
+      "h": 470
+    },
+    {
+      "id": "calendar",
+      "label": "Laptop / calendar",
+      "x": 710,
+      "y": 667,
+      "w": 145,
+      "h": 135
+    },
+    {
+      "id": "mug",
+      "label": "Coffee mug",
+      "x": 950,
+      "y": 742,
+      "w": 92,
+      "h": 103
+    },
+    {
+      "id": "note",
+      "label": "Monitor note",
+      "x": 612,
+      "y": 693,
+      "w": 91,
+      "h": 87
+    }
+  ],
+  "refusalLines": [
+    "John McClane's insurance file? Personnel records are not a lending library.",
+    "And 'Frank sent me' is not an authorization level. Neither is looking disappointed.",
+    "If a document is signed with an alias, ask for the proper record. I am not identifying staff from their dramatic stationery.",
+    "I have work to do. Apparently that is the only thing anyone remembers about me today."
+  ],
+  "repeatLines": [
+    "The answer is still no. The filing cabinet has not become more sociable since you last asked."
+  ],
+  "clues": [
+    {
+      "id": "calendar",
+      "label": "Calendar on the laptop",
+      "text": "The open staff calendar marks today: 'M. Gunderson \u2014 birthday'. There is no retirement or promotion event listed.",
+      "note": "The occasion is today, and the entry belongs to Marge."
+    },
+    {
+      "id": "mug",
+      "label": "Receipt tucked behind the mug",
+      "text": "The mug itself carries a workplace joke. A folded receipt tucked behind it lists one birthday cupcake, one candle, collection today. Customer and payer: M. Gunderson.",
+      "note": "Marge appears to have arranged her own birthday treat."
+    },
+    {
+      "id": "note",
+      "label": "Reverse of the monitor note",
+      "text": "On the front: 'Check for human errors (or cat hairs!)'. On the reverse, a private note: 'No cards. No birthday wishes. At least the deadlines remembered to arrive. \u2014 M.G.'",
+      "note": "The note says her birthday has gone unacknowledged."
+    }
+  ],
+  "questions": [
+    {
+      "id": "occasion",
+      "prompt": "What is special about today?",
+      "options": [
+        {
+          "id": "birthday",
+          "label": "Marge's birthday"
+        },
+        {
+          "id": "promotion",
+          "label": "Marge's promotion"
+        },
+        {
+          "id": "retirement",
+          "label": "Marge's retirement"
+        }
+      ],
+      "answer": "birthday"
+    },
+    {
+      "id": "mood",
+      "prompt": "What explains her personal remark?",
+      "options": [
+        {
+          "id": "forgotten",
+          "label": "Nobody acknowledged her birthday"
+        },
+        {
+          "id": "paycut",
+          "label": "Her salary was cut"
+        },
+        {
+          "id": "evidence",
+          "label": "She knows who altered the insurance entry"
+        }
+      ],
+      "answer": "forgotten"
+    }
+  ],
+  "success": "It is Marge's birthday and it has gone unacknowledged. Her mood is not proof that she altered the insurance record. A thoughtful birthday gesture may help start a better conversation.",
+  "hints": [
+    "Talk to Marge first. Her final remark concerns being remembered today.",
+    "Inspect the laptop calendar, the mug and the note stuck to the monitor. The birthday clues are inside those close-ups, not printed on the room background.",
+    "The calendar identifies today's occasion, the receipt shows she bought her own treat, and the private note explains her mood. Choose her birthday and nobody acknowledged it."
+  ]
+}

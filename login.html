@@ -1,13 +1,32 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Enter Mark Agency HQ — Log in</title>
-<link rel="stylesheet" href="./assets/css/login.css">
+
+  <link
+    rel="icon"
+    href="./assets/favicon.ico"
+    type="image/x-icon"
+  >
+
+  <link
+    rel="stylesheet"
+    href="./assets/css/login.css"
+  >
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
   <link
     href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap"
     rel="stylesheet"
@@ -19,46 +38,81 @@
     <h1>Enter Mark Agency HQ</h1>
 
     <p class="intro">
-      Confirm your identity, agent. HQ awaits your raport.
+      Confirm your identity, agent. HQ awaits your report.
+    </p>
+
+    <p
+      id="login-status"
+      role="status"
+      aria-live="polite"
+      style="white-space: pre-line;"
+    >
+      Checking your clearance...
     </p>
 
     <form id="login-form" class="login-form">
       <div class="form-group">
-        <label for="login-email">Agent ID (e-mail)</label>
+        <label for="login-email">
+          Agent ID (email)
+        </label>
 
         <input
           id="login-email"
+          name="email"
           type="email"
-          placeholder="agent@interpol.com"
+          placeholder="agent@markagency.com"
           autocomplete="email"
           required
+          disabled
         >
       </div>
 
       <div class="form-group">
-        <label for="login-password">Authorization Code (password)</label>
+        <label for="login-password">
+          Authorization Code (password)
+        </label>
 
         <input
           id="login-password"
+          name="password"
           type="password"
           placeholder="********"
           autocomplete="current-password"
           required
+          disabled
         >
       </div>
 
-      <button id="loginbtn" class="btn-stamp" type="submit">
-        Log in
+      <button
+        id="loginbtn"
+        class="btn-stamp"
+        type="submit"
+        disabled
+      >
+        Checking clearance...
       </button>
 
-      <p id="login-error" class="status-msg error" role="alert"></p>
+      <p
+        id="login-error"
+        class="status-msg error"
+        role="alert"
+        style="display: none; white-space: pre-line;"
+      ></p>
 
       <div class="form-actions">
-        <a href="register.html" class="btn-secondary" id="registerbtn">
+        <a
+          href="register.html"
+          class="btn-secondary"
+          id="registerbtn"
+        >
           Register
         </a>
 
-        <a href="reset.html" class="btn-secondary" id="resetbtn">
+        <a
+          href="reset.html"
+          class="btn-secondary"
+          id="resetbtn"
+        >
           Reset password
         </a>
       </div>
@@ -66,17 +120,34 @@
   </main>
 
   <script type="module">
-    import { supabase } from './supabase-client.js';
-
     const form = document.querySelector('#login-form');
     const emailInput = document.querySelector('#login-email');
     const passwordInput = document.querySelector('#login-password');
     const loginButton = document.querySelector('#loginbtn');
     const errorElement = document.querySelector('#login-error');
+    const statusElement = document.querySelector('#login-status');
+
+    let supabase = null;
+    let busy = true;
+    let enteringGame = false;
+
+    const callbackUrl = new URL(window.location.href);
+    const hashParams = new URLSearchParams(
+      callbackUrl.hash.replace(/^#/, '')
+    );
+
+    const callbackError =
+      hashParams.get('error_code') ||
+      hashParams.get('error') ||
+      callbackUrl.searchParams.get('error_code') ||
+      callbackUrl.searchParams.get('error');
+
+    function showStatus(message) {
+      statusElement.textContent = message;
+    }
 
     function showError(message) {
       errorElement.textContent = message;
-      errorElement.className = 'status-msg error';
       errorElement.style.display = 'block';
     }
 
@@ -85,33 +156,132 @@
       errorElement.style.display = 'none';
     }
 
-    function setBusy(isBusy) {
-      loginButton.disabled = isBusy;
-      loginButton.textContent = isBusy
-        ? 'Connecting to HQ...'
+    function setBusy(value, label = 'Connecting to HQ...') {
+      busy = value;
+
+      emailInput.disabled = value;
+      passwordInput.disabled = value;
+      loginButton.disabled = value;
+
+      loginButton.textContent = value
+        ? label
         : 'Log in';
     }
 
-    function translateAuthError(message) {
-      const normalizedMessage = message.toLowerCase();
+    function friendlyError(error) {
+      const message = String(
+        error?.message || error || ''
+      ).toLowerCase();
 
-      if (normalizedMessage.includes('invalid login credentials')) {
-        return 'Nieprawidłowy Agent ID lub kod autoryzacyjny.';
+      if (message.includes('invalid login credentials')) {
+        return 'Incorrect email or password.';
       }
 
-      if (normalizedMessage.includes('email not confirmed')) {
-        return 'Potwierdź adres e-mail przed pierwszym logowaniem.';
+      if (message.includes('email not confirmed')) {
+        return 'Please confirm your email address before logging in.';
       }
 
-      if (normalizedMessage.includes('too many requests')) {
-        return 'Za dużo prób logowania. Spróbuj ponownie za chwilę.';
+      if (
+        message.includes('too many requests') ||
+        message.includes('rate limit')
+      ) {
+        return 'Too many attempts. Please try again shortly.';
       }
 
-      return 'Nie udało się połączyć z centralą. Spróbuj ponownie.';
+      if (
+        message.includes('fetch') ||
+        message.includes('network') ||
+        message.includes('load failed')
+      ) {
+        return 'HQ is unreachable. Check your connection and try again.';
+      }
+
+      return 'HQ could not verify your clearance. Please try logging in again.';
     }
 
-    form.addEventListener('submit', async (event) => {
+    function clearCallbackAddress() {
+      const cleanUrl = new URL(window.location.href);
+
+      cleanUrl.hash = '';
+
+      for (const key of [
+        'code',
+        'error',
+        'error_code',
+        'error_description'
+      ]) {
+        cleanUrl.searchParams.delete(key);
+      }
+
+      try {
+        window.history.replaceState(
+          null,
+          '',
+          cleanUrl.pathname + cleanUrl.search
+        );
+      } catch {
+        // Address cleanup must not block login.
+      }
+    }
+
+    async function enterGame() {
+      if (enteringGame) {
+        return;
+      }
+
+      enteringGame = true;
+      setBusy(true, 'Entering HQ...');
+      showStatus('Identity confirmed. Opening your case files...');
+
+      try {
+        if (window.parent !== window) {
+          window.parent.postMessage(
+            {
+              type: 'lost-artefacts:auth-signed-in'
+            },
+            window.location.origin
+          );
+
+          showStatus(
+            'Identity confirmed. Return to the game window.'
+          );
+
+          return;
+        }
+
+        const gameUrl = new URL(
+          './index.html',
+          window.location.href
+        );
+
+        window.location.replace(gameUrl.href);
+      } catch (error) {
+        enteringGame = false;
+        throw error;
+      }
+    }
+
+    async function verifyUserAndEnter() {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.user) {
+        throw new Error('No verified user was returned.');
+      }
+
+      clearCallbackAddress();
+      await enterGame();
+    }
+
+    form.addEventListener('submit', async event => {
       event.preventDefault();
+
+      if (busy || enteringGame || !supabase) {
+        return;
+      }
 
       hideError();
 
@@ -119,37 +289,108 @@
       const password = passwordInput.value;
 
       if (!email || !password) {
-        showError('Podaj Agent ID oraz kod autoryzacyjny.');
+        showError('Please enter your email and password.');
         return;
       }
 
       setBusy(true);
+      showStatus('Contacting HQ...');
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      try {
+        const { data, error } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
-      setBusy(false);
+        if (error) {
+          throw error;
+        }
 
-      if (error) {
-        console.error('Supabase signInWithPassword:', error.message);
-        showError(translateAuthError(error.message));
-        return;
+        if (!data?.session || !data?.user) {
+          throw new Error('No active session was returned.');
+        }
+
+        await verifyUserAndEnter();
+      } catch (error) {
+        console.error('[Login] Sign-in failed:', {
+          name: error?.name,
+          message: error?.message,
+          status: error?.status
+        });
+
+        showStatus('Awaiting identification.');
+        showError(friendlyError(error));
+      } finally {
+        if (!enteringGame) {
+          setBusy(false);
+        }
       }
-
-      if (!data.session || !data.user) {
-        showError('Centrala nie zwróciła aktywnej sesji. Spróbuj ponownie.');
-        return;
-      }
-
-      window.parent.postMessage(
-        {
-          type: 'lost-artefacts:auth-signed-in',
-        },
-        window.location.origin,
-      );
     });
+
+    async function initializeLogin() {
+      setBusy(true, 'Checking clearance...');
+
+      try {
+        const module = await import('./supabase-client.js');
+        supabase = module.supabase;
+
+        // Wait for Supabase to process any session in the URL.
+        const { data, error } =
+          await supabase.auth.getSession();
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.session) {
+          await verifyUserAndEnter();
+          return;
+        }
+
+        if (callbackError) {
+          clearCallbackAddress();
+
+          showStatus('Awaiting identification.');
+          showError(
+            'The confirmation link could not be used. ' +
+            'It may have expired or already been opened.\n' +
+            'Try logging in with your email and password.'
+          );
+
+          return;
+        }
+
+        showStatus(
+          'Enter your email and password to continue.'
+        );
+      } catch (error) {
+        console.error('[Login] Initialization failed:', {
+          name: error?.name,
+          message: error?.message,
+          status: error?.status
+        });
+
+        showStatus('Automatic sign-in could not be completed.');
+
+        showError(
+          supabase
+            ? friendlyError(error)
+            : 'The login module could not be loaded. ' +
+              'Check your connection and reload this page.'
+        );
+      } finally {
+        if (!enteringGame) {
+          setBusy(false);
+
+          if (!supabase) {
+            loginButton.disabled = true;
+          }
+        }
+      }
+    }
+
+    void initializeLogin();
   </script>
 </body>
 </html>

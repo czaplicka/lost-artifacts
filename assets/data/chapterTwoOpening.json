@@ -1,0 +1,23 @@
+{
+  "flags": {
+    "chapterOpen": "holly_chapter_two_unlocked",
+    "chapterOneComplete": "holly_chapter_one_completed",
+    "followup": "chapter_two_alex_followup_heard",
+    "deskComplete": "office_dust_reconstructed"
+  },
+  "conversation": [
+    "Holly wants his remains found? I understand. But I cannot turn what I saw into a recovery report I never filed.",
+    "I witnessed the aircraft go down. I did not identify a crash site for a recovery team, and I did not recover John.",
+    "Keep the operation's field records separate from any later search records. One describes the mission; the other would describe what was actually found afterwards.",
+    "If the agency commissioned a search, its paperwork may have been filed separately. Ask the archive about the follow-up records.",
+    "That is as much as I can honestly give you now. Take your copies back to your desk before you chase the next file. And keep them out of the shredder. It has had enough character development."
+  ],
+  "messages": {
+    "afterAlex": "Return to the agency office. Your desk needs a closer look before you continue.",
+    "deskPrompt": "Some objects are not where you left them. Examine the traces on your desk.",
+    "deskDone": "Desk examined. An unidentified object is unaccounted for. The next planned story event follows mission five.",
+    "saveFailed": "Automatic saving failed. Save manually before closing the game.",
+    "loadFailed": "The desk investigation could not be opened. Please try again."
+  },
+  "button": "EXAMINE YOUR DESK"
+}

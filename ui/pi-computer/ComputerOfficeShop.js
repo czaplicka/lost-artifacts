@@ -3,13 +3,19 @@ import {
   getEmployeeIncome, collectEmployeeIncome, getOfficeArchive
 } from '../../managers/PIOfficeShopManager.js';
 import { moneyManager, MONEY_SOURCE } from '../../managers/MoneyManager.js';
+import { inventoryManager } from '../../managers/InventoryManager.js';
+import {
+  PIGEON_FEED_PRICE, PIGEON_FEED_ID,
+  getPigeonFeedAvailability, buyPigeonFeed
+} from '../../managers/PigeonFeedShopManager.js';
 import { ComputerDocumentJobs } from './ComputerDocumentJobs.js';
 
 const APPS = ['office-shop', 'office-archive', 'office-documents'];
 export class ComputerOfficeShop {
   constructor(ui) {
     Object.assign(this, { ui, catalog: null, error: '', loading: null,
-      pendingId: null, page: 0, archivePage: 0, query: '' });
+      pendingId: null, page: 0, archivePage: 0, query: '',
+      feedItem: null, feedError: '', feedLoading: null });
     this.documentJobs = new ComputerDocumentJobs(this);
   }
   async load() {
@@ -32,6 +38,39 @@ export class ComputerOfficeShop {
     })();
     return this.loading;
   }
+  async loadFeed() {
+    if (this.feedItem) return;
+    if (this.feedLoading) return this.feedLoading;
+    this.feedError = '';
+    this.feedLoading = (async () => {
+      try {
+        const response = await fetch('assets/data/ItemsCatalog.json');
+        if (!response.ok) throw Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const item = data?.misc?.pigeonFeed;
+        if (item?.id !== PIGEON_FEED_ID || !item.stackable ||
+            item.metadata?.pigeonFeed !== true || !item.name ||
+            item.metadata?.consumable === true || item.metadata?.effect) {
+          throw Error('Invalid pigeon feed data.');
+        }
+        this.feedItem = item;
+      } catch (error) {
+        this.feedError = 'Pigeon feed could not be loaded. No money has been charged.';
+        console.error('[ComputerOfficeShop] Pigeon feed:', error);
+      } finally { this.feedLoading = null; this.redraw(); }
+    })();
+    return this.feedLoading;
+  }
+  products() {
+    const items = this.catalog?.items || [];
+    return [...items, {
+      id: PIGEON_FEED_ID,
+      name: this.feedItem?.name || 'Pigeon Feed',
+      price: PIGEON_FEED_PRICE,
+      description: this.feedItem?.description || 'Premium pigeon feed. Payment in advance. Findings not guaranteed.',
+      benefitText: 'One portion for one pigeon flight. Added to your inventory. Repeat purchases allowed.'
+    }];
+  }
   redraw() {
     const ui = this.ui;
     if (!ui.destroyed && ui.isOpen && !ui.suspended && APPS.includes(ui.app)) ui.render();
@@ -45,7 +84,7 @@ export class ComputerOfficeShop {
     this.pendingId = null;
     ui.viewToken++;
     ui.render();
-    if (app === 'office-shop') void this.load();
+    if (app === 'office-shop') { void this.load(); void this.loadFeed(); }
     if (app === 'office-documents') void this.documentJobs.load();
   }
   frame(title) {
@@ -64,7 +103,7 @@ export class ComputerOfficeShop {
     const ui = this.ui, d = ui.drawing;
     const box = this.frame('OFFICE SHOP');
     const left = box.x + 22, top = box.y + 58;
-    d.text(left, top, 'Office Supplies & Questionable Hires', 22, '#263a47');
+    d.text(left, top, 'Office Supplies, Pigeon Feed & Questionable Hires', 22, '#263a47');
     d.text(left, top + 32,
       `Personal cash: ${ui.money(moneyManager.getBalance(MONEY_SOURCE.CASH))} | Agency funds are not accepted.`, 16, '#315539');
     if (!this.catalog) {
@@ -72,20 +111,27 @@ export class ComputerOfficeShop {
       if (this.error) d.button(left, top + 155, 'RETRY', () => { void this.load(); });
       return;
     }
-    const items = this.catalog.items;
+    const items = this.products();
     this.page = Math.max(0, Math.min(this.page, items.length - 1));
-    const item = items[this.page], owned = ownsOfficeItem(item.id);
-    const availability = getOfficeShopAvailability(item), cardY = top + 82;
+    const item = items[this.page], isFeed = item.id === PIGEON_FEED_ID;
+    const owned = !isFeed && ownsOfficeItem(item.id);
+    const availability = isFeed
+      ? getPigeonFeedAvailability(this.feedItem)
+      : getOfficeShopAvailability(item);
+    const cardY = top + 82;
     d.bevel(left, cardY, box.w - 44, 254, 0xe9e6d7, true);
     d.text(left + 20, cardY + 18, item.name, 25, '#263a47');
     d.text(left + box.w - 65, cardY + 20, ui.money(item.price), 22, '#315539').setOrigin(1, 0);
     d.text(left + 20, cardY + 61, item.description, 18, '#474b42', box.w - 90);
-    d.text(left + 20, cardY + 125, item.benefitText, 17, '#315539', box.w - 90);
+    const count = inventoryManager.getItem(PIGEON_FEED_ID)?.quantity || 0;
+    d.text(left + 20, cardY + 125,
+      isFeed ? `${item.benefitText} In inventory: ${count}.` : item.benefitText,
+      17, '#315539', box.w - 90);
     const purchaseY = cardY + 198;
     if (this.pendingId === item.id && availability.enabled) {
       d.text(left + 20, purchaseY - 21, `Confirm purchase for ${ui.money(item.price)}?`, 16, '#713d32');
       d.button(left + 20, purchaseY + 3, 'CONFIRM', () => {
-        const result = buyOfficeItem(this.catalog, item.id);
+        const result = isFeed ? buyPigeonFeed(this.feedItem) : buyOfficeItem(this.catalog, item.id);
         this.pendingId = null; ui.notice = result.message; ui.render();
       });
       d.button(left + 170, purchaseY + 3, 'CANCEL', () => { this.pendingId = null; ui.render(); });
@@ -93,7 +139,13 @@ export class ComputerOfficeShop {
       d.button(left + 20, purchaseY, owned ? 'OWNED' : 'BUY', () => {
         this.pendingId = item.id; ui.notice = ''; ui.render();
       }, availability.enabled);
-      if (!availability.enabled && !owned) d.text(left + 160, purchaseY + 9, availability.reason, 16, '#713d32', box.w - 220);
+      if (!availability.enabled && !owned) {
+        const reason = isFeed && !this.feedItem
+          ? this.feedError || 'Loading pigeon feed...'
+          : availability.reason;
+        d.text(left + 160, purchaseY + 9, reason, 16, '#713d32', box.w - 220);
+      }
+      if (isFeed && this.feedError) d.button(left + 20, purchaseY - 40, 'RETRY', () => { void this.loadFeed(); });
       if (owned && item.id === 'office_case_files') d.button(left + 160, purchaseY, 'OPEN ARCHIVE', () => ui.openApp('office-archive'));
       if (owned && item.id === 'office_printer') d.button(left + 160, purchaseY, 'DOCUMENT JOBS', () => ui.openApp('office-documents'));
     }
@@ -108,7 +160,7 @@ export class ComputerOfficeShop {
       d.text(left, navY + 49, `$${income.amountPerDay} per full 24 in-game hours. No real-world offline earnings.`, 15, '#55584b');
     }
     if (ui.notice) d.text(left, box.y + box.h - 106, ui.notice, 17, '#713d32', box.w - 44);
-    d.text(left, box.y + box.h - 34, 'Phone and computer are included. We are not THAT kind of shop.', 14, '#55584b');
+    d.text(left, box.y + box.h - 34, 'Phone and computer are included. Pigeons sold separately. Figuratively.', 14, '#55584b');
   }
   changePage(direction) { this.page += direction; this.pendingId = null; this.ui.notice = ''; this.ui.render(); }
   renderArchive() {

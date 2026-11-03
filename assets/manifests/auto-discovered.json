@@ -968,6 +968,390 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "chapterTwoOpening",
+      "url": "assets/data/chapterTwoOpening.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "last-gnome-standing",
+      "url": "assets/data/cold-cases/last-gnome-standing.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "fourthMissionStory",
+      "url": "assets/data/fourthMissionStory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "hollyChapterOneFinale",
+      "url": "assets/data/hollyChapterOneFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "insuranceArchiveStory",
+      "url": "assets/data/insuranceArchiveStory.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeBirthday",
+      "url": "assets/data/margeBirthday.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "officeDustPuzzle",
+      "url": "assets/data/officeDustPuzzle.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "typewriterComparison",
+      "url": "assets/data/typewriterComparison.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "biuro_medium",
+      "url": "assets/local/biuro_medium.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "7cm",
+      "url": "assets/murders/Reginald Prune/7cm.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Barbara_Bloom",
+      "url": "assets/murders/Reginald Prune/Barbara_Bloom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Barbara_reward",
+      "url": "assets/murders/Reginald Prune/Barbara_reward.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still1",
+      "url": "assets/murders/Reginald Prune/camera_still1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still2",
+      "url": "assets/murders/Reginald Prune/camera_still2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "camera_still3",
+      "url": "assets/murders/Reginald Prune/camera_still3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Colin_Hedge",
+      "url": "assets/murders/Reginald Prune/Colin_Hedge.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "crime_scene",
+      "url": "assets/murders/Reginald Prune/crime_scene.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glove_sample",
+      "url": "assets/murders/Reginald Prune/glove_sample.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "glove",
+      "url": "assets/murders/Reginald Prune/glove.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "greenhouse",
+      "url": "assets/murders/Reginald Prune/greenhouse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Penny_Potts",
+      "url": "assets/murders/Reginald Prune/Penny_Potts.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Reginald_Prune",
+      "url": "assets/murders/Reginald Prune/Reginald_Prune.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "reward",
+      "url": "assets/murders/Reginald Prune/reward.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "the_incidents",
+      "url": "assets/murders/Reginald Prune/the_incidents.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "attic",
+      "url": "assets/pi/home/attic.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage1",
+      "url": "assets/pi/home/cage1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage2",
+      "url": "assets/pi/home/cage2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "cage3",
+      "url": "assets/pi/home/cage3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "collection_cabinet",
+      "url": "assets/pi/home/collection_cabinet.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food_empty",
+      "url": "assets/pi/home/food_empty.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food_full",
+      "url": "assets/pi/home/food_full.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "food",
+      "url": "assets/pi/home/food.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p1",
+      "url": "assets/pi/home/p1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p1b",
+      "url": "assets/pi/home/p1b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p2",
+      "url": "assets/pi/home/p2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p2b",
+      "url": "assets/pi/home/p2b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p3",
+      "url": "assets/pi/home/p3.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "p3b",
+      "url": "assets/pi/home/p3b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "board",
+      "url": "assets/ui/computer/icons/board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "envelope",
+      "url": "assets/ui/computer/icons/envelope.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "globe",
+      "url": "assets/ui/computer/icons/globe.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ledger",
+      "url": "assets/ui/computer/icons/ledger.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper",
+      "url": "assets/ui/computer/icons/paper.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "report",
+      "url": "assets/ui/computer/icons/report.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__computer__icons__shop",
+      "url": "assets/ui/computer/icons/shop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "trash",
+      "url": "assets/ui/computer/icons/trash.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wallpaper_mark",
+      "url": "assets/ui/computer/wallpaper_mark.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wallpaper_pi",
+      "url": "assets/ui/computer/wallpaper_pi.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

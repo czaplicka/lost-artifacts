@@ -1,0 +1,37 @@
+{
+  "minimumCompletedMissions": 5,
+  "requiredFlags": [
+    "holly_chapter_two_unlocked",
+    "office_dust_reconstructed"
+  ],
+  "flags": {
+    "offered": "insurance_documents_received",
+    "examined": "insurance_typewriter_mismatch_found",
+    "discussed": "insurance_mismatch_discussed",
+    "hrLead": "hr_insurance_inquiry_unlocked"
+  },
+  "offerLines": [
+    "I found a separately filed record relating to the incident. Signed 'Commissioner'. No, the catalogue does not tell me who that is. Apparently mystery is a management qualification.",
+    "There is an insurance attachment as well. The entry suggests a small insured sum. The typing does not quite sit with the rest of the page.",
+    "Compare the characters in the body with the questioned entry. Look at their shapes and alignment, not just how tired the ribbon was.",
+    "I have put the comparison on the desk. Examine it when you are ready, then tell me what you can actually support."
+  ],
+  "discussionLines": [
+    "A broken e, a low a and an incomplete R in the questioned entry. Those features are not in the reference text.",
+    "That gives us a reason to challenge the entry. It does not magically supply the original sum, its author or a beneficiary.",
+    "For the personnel side of the cover, ask Marge Gunderson in HR. She may know which records were attached to John's file.",
+    "And ask who 'Commissioner' is while you are there. I file aliases. I do not adopt them."
+  ],
+  "buttons": {
+    "compare": "COMPARE INSURANCE TYPING",
+    "review": "REVIEW INSURANCE COMPARISON"
+  },
+  "messages": {
+    "received": "Insurance papers received. Select COMPARE INSURANCE TYPING, then return to Frank with your findings.",
+    "unfinished": "Your comparison is saved. You can return to it later.",
+    "examined": "Comparison completed. Click Frank to discuss the questioned insurance entry.",
+    "discussed": "New lead: ask Marge Gunderson in HR about John's insurance records and the Commissioner alias.",
+    "loadFailed": "The comparison could not be opened. Check that TypewriterComparisonScene.js and its data/helper files are installed, then try again.",
+    "saveFailed": "Automatic saving failed. Save manually before closing the game."
+  }
+}

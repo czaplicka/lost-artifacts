@@ -1,0 +1,56 @@
+{
+  "title": "THE WRONG TYPE",
+  "referenceLabel": "ORIGINAL DOCUMENT BODY",
+  "questionedLabel": "QUESTIONED INSURANCE ENTRY",
+  "intro": "Compare the same characters in the document body and the questioned entry. Mark three structural differences.",
+  "characters": [
+    {
+      "id": "e",
+      "label": "e",
+      "defect": "broken_bar",
+      "structural": true,
+      "hint": "The questioned e has a break in its central horizontal stroke. The reference e does not."
+    },
+    {
+      "id": "a",
+      "label": "a",
+      "defect": "low_baseline",
+      "structural": true,
+      "hint": "The questioned a lands lower than the reference. Compare both with the dashed baseline."
+    },
+    {
+      "id": "R",
+      "label": "R",
+      "defect": "missing_leg",
+      "structural": true,
+      "hint": "The diagonal leg of R is incomplete in the questioned entry. Look at its lower-right side."
+    },
+    {
+      "id": "t",
+      "label": "t",
+      "defect": "light_ink",
+      "structural": false,
+      "hint": "The t is lighter, but its shape and baseline match. Do not select it just for ribbon intensity."
+    },
+    {
+      "id": "o",
+      "label": "o",
+      "defect": "none",
+      "structural": false,
+      "hint": "The two o characters share the same shape and baseline."
+    },
+    {
+      "id": "n",
+      "label": "n",
+      "defect": "dark_ink",
+      "structural": false,
+      "hint": "The questioned n is darker, but its construction matches the reference. Colour alone is not a structural defect."
+    }
+  ],
+  "success": "The insurance entry has a broken e, a low a and an incomplete R not present in the document body. It is inconsistent with the reference typing. Investigate the altered entry; this comparison alone does not recover the original insured amount or identify the author.",
+  "correctIds": [
+    "e",
+    "a",
+    "R"
+  ]
+}

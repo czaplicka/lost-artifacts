@@ -1,4 +1,5 @@
 import { FONT_TEXT, FONT_PIXEL, AMBER, AMBER_CSS, GREEN, GREEN_CSS, FAINT_CSS, SCREEN_W, SCREEN_H } from './PhoneConfig.js';
+import { bindKeywordStyle, refreshKeywordStyles } from '../pi-computer/KeywordStyle.js';
 export const PhoneTranscript={
  clearLog(){
   this.logItems.forEach(i=>{i.timer?.remove?.(false);this.timers.delete(i.timer);i.container?.destroy?.(true);});this.logItems=[];this.typingItem=null;
@@ -18,6 +19,7 @@ export const PhoneTranscript={
  drawClickableFragments(item){
   if(item.richDrawn||!item.fragments||!this.investigation?.active)return;
   if(item.fragments.map(p=>typeof p==='string'?p:p.text).join('')!==item.full)return;
+  const caseId=this.investigation.active.caseId;
   const s=this.scene,probe=s.add.text(0,0,'',{fontFamily:FONT_TEXT,fontSize:'19px'}).setVisible(false),measure=v=>{probe.setText(v);return probe.width;};
   probe.setText('Ag');const width=402,lineHeight=Math.max(19,Math.ceil(probe.height));
   const root=s.add.container(item.body.x,item.body.y);item.container.add(root);let x=0,y=0;
@@ -27,11 +29,19 @@ export const PhoneTranscript={
      if(token==='\n'){x=0;y+=lineHeight;continue;}if(/^\s+$/.test(token)){if(x)x+=measure(token);continue;}
      let chunks=[],chunk='';for(const ch of token){if(chunk&&measure(chunk+ch)>width){chunks.push(chunk);chunk='';}chunk+=ch;}if(chunk)chunks.push(chunk);
      for(const word of chunks){const tw=measure(word);if(x&&x+tw>width){x=0;y+=lineHeight;}
-      const t=s.add.text(x,y,word,{fontFamily:FONT_TEXT,fontSize:'19px',color:id?'#ffe56c':item.isYou?'#ffe6b8':'#d9f5e8'});root.add(t);
-      if(id)t.setInteractive({useHandCursor:true}).on('pointerdown',(pointer,lx,ly,event)=>{
-       event?.stopPropagation();if(this.directoryOpen)return;
-       this.investigation?.collectFragment(id,item.fragments);
-      });x+=tw;
+      const normal=item.isYou?'#ffe6b8':'#d9f5e8';
+      const t=s.add.text(x,y,word,{fontFamily:FONT_TEXT,fontSize:'19px',color:normal});root.add(t);
+      if(id){
+       bindKeywordStyle(s,t,{
+        isKnown:()=>this.investigation.known(caseId).includes(id),
+        surface:item.isYou?0x2a2010:0x14261d,normalText:normal
+       });
+       t.setInteractive({useHandCursor:true}).on('pointerdown',(pointer,lx,ly,event)=>{
+        event?.stopPropagation();if(this.directoryOpen||this.investigation?.active?.caseId!==caseId)return;
+        if(!this.investigation.known(caseId).includes(id))this.investigation.collectFragment(id,item.fragments);
+        refreshKeywordStyles(s);
+       });
+      }x+=tw;
      }
     }
    }

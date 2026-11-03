@@ -38,14 +38,14 @@ export class OfficeDustScene extends BaseScene {
     this.cameras.main.setBackgroundColor('#171619');this.root=this.add.container(0,0);
     this.root.add(this.add.rectangle(720,510,1440,1020,0x302729));
     this.label(720,44,DATA.title,20,'#f0ce88','PressStart2P');
-    this.label(720,90,'Select an object, then its dust footprint. All footprints show top-down views.',23);
-    this.label(720,128,'After placing everything, select the unmatched footprint and mark it MISSING.',21,'#c5b59a');
-    this.label(235,183,'MOVED OBJECTS',21);this.label(920,183,'THE DESK / OLD POSITIONS',21);
+    this.label(720,90,'Select an object NAME, then the dust trace it could have left.',23);
+    this.label(720,128,'Assignments are hypotheses. Place all four objects, then mark the unmatched trace MISSING.',20,'#c5b59a');
+    this.label(235,183,'OBJECT LIST',21);this.label(920,183,'THE DESK / OLD POSITIONS',21);
     this.root.add(this.add.rectangle(915,475,935,535,0x594333).setStrokeStyle(4,0x96704b));
-    DATA.objects.forEach((object,index)=>this.buildObject(object,index));
+    Phaser.Utils.Array.Shuffle([...DATA.objects]).forEach((object,index)=>this.buildObject(object,index));
     DATA.traces.forEach((trace,index)=>this.buildTrace(trace,index));
-    this.message=this.label(720,815,'The dust remembers where things stood. It does not identify the visitor.',22);
-    this.button(390,884,'MARK SELECTED TRACE MISSING',()=>this.markMissing());
+    this.message=this.label(720,815,'Read the traces. The object list contains names, not reference pictures.',22);
+    this.missingButton=this.button(390,884,'MARK SELECTED TRACE MISSING',()=>this.markMissing());
     this.clearButton=this.button(1035,884,'CLEAR SELECTED TRACE',()=>this.clearTrace());
     this.checkButton=this.button(245,972,'CHECK DESK',()=>this.checkDesk());
     this.button(1250,972,'BACK',()=>this.closeDesk());
@@ -63,14 +63,13 @@ export class OfficeDustScene extends BaseScene {
     const button=this.add.text(x,y,text,{fontFamily:'SpecialElite, monospace',fontSize:'20px',color:'#f1d89d',backgroundColor:'#4a3933',padding:{x:17,y:12}}).setOrigin(0.5).setInteractive({useHandCursor:true});
     button.on('pointerdown',()=>{if(!this.closing)callback();});this.root.add(button);return button;
   }
-  drawShape(graphics,shape,outline){
-    const fill=outline?0xbda57e:0x7f9a9b,ink=outline?0xd9c6a1:0x26373c;
-    graphics.fillStyle(fill,outline?0.48:1);graphics.lineStyle(3,ink,1);
+  // Only the desk traces are drawn. No object illustrations are created.
+  drawDustTrace(graphics,shape){
+    graphics.fillStyle(0xbda57e,0.48);graphics.lineStyle(3,0xd9c6a1,1);
     const rect=(x,y,w,h)=>{graphics.fillRect(x,y,w,h);graphics.strokeRect(x,y,w,h);};
     if(shape==='mug'){
       graphics.fillCircle(-10,0,32);graphics.strokeCircle(-10,0,32);
       graphics.strokeRoundedRect(17,-16,24,32,6);
-      if(!outline){graphics.fillStyle(0x51372b);graphics.fillCircle(-10,0,23);}
     }else if(shape==='book'){
       rect(-57,-36,114,72);graphics.lineBetween(-44,-36,-44,36);
       graphics.lineBetween(-30,-14,35,-14);graphics.lineBetween(-30,0,20,0);
@@ -80,36 +79,37 @@ export class OfficeDustScene extends BaseScene {
       graphics.fillEllipse(0,0,116,72);graphics.strokeEllipse(0,0,116,72);
       graphics.lineBetween(-10,0,34,-31);graphics.strokeCircle(-10,0,11);
     }else{
-      rect(-37,-45,74,90);graphics.lineBetween(-37,-24,37,-24);
-      graphics.lineBetween(-37,25,37,25);
+      rect(-37,-45,74,90);graphics.lineBetween(-37,-24,37,-24);graphics.lineBetween(-37,25,37,25);
     }
   }
   buildObject(object,index){
     const x=235,y=279+index*120;
     const box=this.add.rectangle(x,y,360,105,0xe2d4b6).setStrokeStyle(2,0x9b8662).setInteractive({useHandCursor:true});
-    const icon=this.add.graphics({x:x-100,y:y});this.drawShape(icon,object.shape,false);icon.setScale(0.65);
-    const text=this.add.text(x+55,y,object.label,{fontFamily:'SpecialElite, monospace',fontSize:'21px',color:'#413428',align:'center',wordWrap:{width:190}}).setOrigin(0.5);
-    this.root.add([box,icon,text]);
+    const text=this.add.text(x,y-8,object.label,{fontFamily:'SpecialElite, monospace',fontSize:'25px',color:'#413428',align:'center',wordWrap:{width:320}}).setOrigin(0.5);
+    const status=this.add.text(x,y+29,'',{fontFamily:'SpecialElite, monospace',fontSize:'15px',color:'#71634f',align:'center',wordWrap:{width:320}}).setOrigin(0.5);
+    this.root.add([box,text,status]);
     box.on('pointerdown',()=>{
-      if(this.finished)return;this.selectedObject=this.selectedObject===object.id?null:object.id;this.selectedTrace=null;this.refreshDesk();
+      if(this.finished||this.closing)return;
+      this.selectedObject=this.selectedObject===object.id?null:object.id;this.selectedTrace=null;this.refreshDesk();
     });
-    this.objects.push({id:object.id,box,icon,text});
+    this.objects.push({id:object.id,box,text,status});
   }
   buildTrace(trace,index){
     const positions=[[615,345],[915,345],[1215,345],[765,595],[1065,595]];
     const[x,y]=positions[index];
     const box=this.add.rectangle(x,y,246,205,0x604c3b).setStrokeStyle(2,0x8e7658).setInteractive({useHandCursor:true});
-    const dust=this.add.graphics({x,y:y-12});this.drawShape(dust,trace.shape,true);
-    const object=this.add.graphics({x,y:y-12});
-    const title=this.add.text(x,y+77,trace.label,{fontFamily:'SpecialElite, monospace',fontSize:'17px',color:'#e4d0aa',align:'center',wordWrap:{width:230}}).setOrigin(0.5);
-    this.root.add([box,dust,object,title]);
+    const dust=this.add.graphics({x,y:y-12});this.drawDustTrace(dust,trace.shape);
+    const title=this.add.text(x,y+77,trace.label,{fontFamily:'SpecialElite, monospace',fontSize:'16px',color:'#e4d0aa',align:'center',wordWrap:{width:230}}).setOrigin(0.5);
+    this.root.add([box,dust,title]);
     box.on('pointerdown',()=>{
-      if(this.finished)return;this.selectedTrace=trace.id;
+      if(this.finished||this.closing)return;
+      this.selectedTrace=trace.id;
       if(this.selectedObject){
         const previous=Object.keys(this.placements).find(id=>this.placements[id]===this.selectedObject);
         const displaced=this.placements[trace.id];
         if(previous&&previous!==trace.id){
           if(displaced)this.placements[previous]=displaced;else delete this.placements[previous];
+          if(this.missingTrace===previous&&displaced)this.missingTrace=null;
         }
         this.placements[trace.id]=this.selectedObject;this.selectedObject=null;
         if(this.missingTrace===trace.id)this.missingTrace=null;
@@ -117,19 +117,23 @@ export class OfficeDustScene extends BaseScene {
       }
       this.refreshDesk();
     });
-    this.traces.push({id:trace.id,box,dust,object,title});
+    this.traces.push({id:trace.id,box,dust,title});
   }
   refreshDesk(){
     this.objects.forEach(object=>{
-      object.box.setFillStyle(Object.values(this.placements).includes(object.id)?0xc2c8ae:0xe2d4b6);
-      object.box.setStrokeStyle(this.selectedObject===object.id?4:2,this.selectedObject===object.id?0xe7ac48:0x9b8662);
+      const traceId=Object.keys(this.placements).find(id=>this.placements[id]===object.id);
+      const trace=DATA.traces.find(item=>item.id===traceId);
+      const selected=this.selectedObject===object.id;
+      object.box.setFillStyle(selected?0xf1dfb5:0xe2d4b6);
+      object.box.setStrokeStyle(selected?4:2,selected?0xe7ac48:0x9b8662);
+      object.status.setText(selected?'SELECT A DUST TRACE':trace?`Assigned to ${trace.label}`:'NOT ASSIGNED');
     });
     this.traces.forEach(trace=>{
-      trace.object.clear();const item=DATA.objects.find(object=>object.id===this.placements[trace.id]);
-      if(item)this.drawShape(trace.object,item.shape,false);
-      trace.dust.setAlpha(item?0.35:1);
+      const item=DATA.objects.find(object=>object.id===this.placements[trace.id]);
+      const definition=DATA.traces.find(item=>item.id===trace.id);
+      trace.dust.setAlpha(1);
       trace.box.setStrokeStyle(this.selectedTrace===trace.id||this.missingTrace===trace.id?4:2,this.missingTrace===trace.id?0xce7560:this.selectedTrace===trace.id?0xe7ac48:0x8e7658);
-      trace.title.setText(this.missingTrace===trace.id?'MARKED: MISSING':item?item.label:DATA.traces.find(item=>item.id===trace.id).label);
+      trace.title.setText(`${definition.label}\n${this.missingTrace===trace.id?'MARKED: MISSING':item?item.label:'UNASSIGNED'}`);
     });
   }
   clearTrace(){
@@ -138,21 +142,22 @@ export class OfficeDustScene extends BaseScene {
     this.refreshDesk();this.persist();
   }
   markMissing(){
-    if(this.finished||!this.selectedTrace)return;
-    if(this.placements[this.selectedTrace]){this.message.setText('That footprint contains an object. Select an empty footprint.');return;}
+    if(this.finished)return;
+    if(!this.selectedTrace){this.message.setText('Select an empty dust trace first.');return;}
+    if(this.placements[this.selectedTrace]){this.message.setText('A name is already assigned there. Clear it first, or select another trace.');return;}
     this.missingTrace=this.selectedTrace;this.selectedObject=null;this.refreshDesk();this.persist();
   }
   getForensicHelp(){
-    const instructions='Select an object, then its dust footprint. Match the outline and proportions. Place all four objects, select the remaining empty footprint, mark it MISSING, then CHECK DESK.';
+    const instructions='Select a name from the object list, then the trace it could have left. Names are hypotheses, not confirmed matches. Assign all four names, mark the remaining trace MISSING, then CHECK DESK.';
     const wrong=DATA.traces.find(trace=>this.placements[trace.id]&&this.placements[trace.id]!==trace.objectId);
-    if(wrong)return{id:`wrong_${wrong.id}`,instructions,text:'This object does not fit the selected footprint. Clear it. The mug has a handle; the lamp base is oval; the stapler is long and narrow; the notebook is a broad rectangle.',targets:[this.traces.find(trace=>trace.id===wrong.id)?.box].filter(Boolean)};
+    if(wrong)return{id:`wrong_${wrong.id}`,instructions,text:'This assignment is inconsistent. Compare proportions and contact details: the mug has a handle; the lamp base is oval; the stapler is long and narrow; the notebook is broad and rectangular.',targets:[this.traces.find(trace=>trace.id===wrong.id)?.box].filter(Boolean)};
     const pending=DATA.objects.find(object=>!Object.values(this.placements).includes(object.id));
     if(pending){
       const target=DATA.traces.find(trace=>trace.objectId===pending.id);
-      return{id:`place_${pending.id}`,instructions,text:`Match ${pending.label} to ${target.label}. Compare the shape rather than the current position.`,targets:[this.objects.find(item=>item.id===pending.id)?.box,this.traces.find(item=>item.id===target.id)?.box].filter(Boolean)};
+      return{id:`place_${pending.id}`,instructions,text:`Assign ${pending.label} to ${target.label}. You are identifying what could have left this footprint, not moving an illustrated object.`,targets:[this.objects.find(item=>item.id===pending.id)?.box,this.traces.find(item=>item.id===target.id)?.box].filter(Boolean)};
     }
     const empty=DATA.traces.find(trace=>trace.objectId===null);
-    return{id:'missing_footprint',instructions,text:'The four movable objects are accounted for. Select the remaining empty rectangular footprint and click MARK SELECTED TRACE MISSING. The footprint alone does not tell you what the missing object was.',targets:[this.traces.find(item=>item.id===empty.id)?.box].filter(Boolean)};
+    return{id:'missing_footprint',instructions,text:'The four listed objects are accounted for. Select the remaining empty rectangular footprint and click MARK SELECTED TRACE MISSING. The footprint alone does not identify the missing object.',targets:[this.traces.find(item=>item.id===empty.id)?.box].filter(Boolean)};
   }
   setDialogue(text){this.message.setText(`HINT: ${text}`).setFontSize(18);}
   persist(){
@@ -168,7 +173,7 @@ export class OfficeDustScene extends BaseScene {
     if(!this.preview)this.emitBus('mainStory:officeDustCompleted',{flag:FLAG,missingObjectId:null});
   }
   showSuccess(){
-    this.checkButton.setVisible(false);this.clearButton.setVisible(false);this.help.hintButton?.setVisible(false);
+    this.checkButton.setVisible(false);this.clearButton.setVisible(false);this.missingButton.setVisible(false);this.help.hintButton?.setVisible(false);
     this.message.setText(DATA.success).setFontSize(20);
     this.mode.setText(this.preview?'PREVIEW COMPLETE':this.savedOk===false?'Save failed: save manually.':'Observation recorded.');this.refreshDesk();
   }

@@ -1842,7 +1842,55 @@
       "image:everyday_edit_green_checks",
       "image:norah_bell_piano_studio",
       "json:tavernExtras",
-      "image:home-police"
+      "image:home-police",
+      "json:chapterTwoOpening",
+      "json:last-gnome-standing",
+      "json:fourthMissionStory",
+      "json:hollyChapterOneFinale",
+      "json:insuranceArchiveStory",
+      "json:margeBirthday",
+      "json:officeDustPuzzle",
+      "json:typewriterComparison",
+      "image:biuro_medium",
+      "image:7cm",
+      "image:Barbara_Bloom",
+      "image:Barbara_reward",
+      "image:camera_still1",
+      "image:camera_still2",
+      "image:camera_still3",
+      "image:Colin_Hedge",
+      "image:crime_scene",
+      "image:glove_sample",
+      "image:glove",
+      "image:greenhouse",
+      "image:Penny_Potts",
+      "image:Reginald_Prune",
+      "image:reward",
+      "image:the_incidents",
+      "image:attic",
+      "image:cage1",
+      "image:cage2",
+      "image:cage3",
+      "image:collection_cabinet",
+      "image:food_empty",
+      "image:food_full",
+      "image:food",
+      "image:p1",
+      "image:p1b",
+      "image:p2",
+      "image:p2b",
+      "image:p3",
+      "image:p3b",
+      "image:board",
+      "image:envelope",
+      "image:globe",
+      "image:ledger",
+      "image:paper",
+      "image:report",
+      "image:ui__computer__icons__shop",
+      "image:trash",
+      "image:wallpaper_mark",
+      "image:wallpaper_pi"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2064,7 +2112,14 @@
       "json:tv-config",
       "json:crashTimelinePuzzle",
       "json:tavernScene",
-      "json:tavernExtras"
+      "json:tavernExtras",
+      "json:chapterTwoOpening",
+      "json:fourthMissionStory",
+      "json:hollyChapterOneFinale",
+      "json:insuranceArchiveStory",
+      "json:margeBirthday",
+      "json:officeDustPuzzle",
+      "json:typewriterComparison"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2221,7 +2276,8 @@
       "image:shop",
       "image:spy_shop",
       "image:agency_storage_manager",
-      "image:agency_storage_room_v2"
+      "image:agency_storage_room_v2",
+      "image:biuro_medium"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2593,6 +2649,56 @@
     ],
     "auto:folder:pi/police": [
       "image:home-police"
+    ],
+    "auto:folder:data/cold-cases": [
+      "json:last-gnome-standing"
+    ],
+    "auto:folder:murders/Reginald Prune": [
+      "image:7cm",
+      "image:Barbara_Bloom",
+      "image:Barbara_reward",
+      "image:camera_still1",
+      "image:camera_still2",
+      "image:camera_still3",
+      "image:Colin_Hedge",
+      "image:crime_scene",
+      "image:glove_sample",
+      "image:glove",
+      "image:greenhouse",
+      "image:Penny_Potts",
+      "image:Reginald_Prune",
+      "image:reward",
+      "image:the_incidents"
+    ],
+    "auto:folder:pi/home": [
+      "image:attic",
+      "image:cage1",
+      "image:cage2",
+      "image:cage3",
+      "image:collection_cabinet",
+      "image:food_empty",
+      "image:food_full",
+      "image:food",
+      "image:p1",
+      "image:p1b",
+      "image:p2",
+      "image:p2b",
+      "image:p3",
+      "image:p3b"
+    ],
+    "auto:folder:ui/computer/icons": [
+      "image:board",
+      "image:envelope",
+      "image:globe",
+      "image:ledger",
+      "image:paper",
+      "image:report",
+      "image:ui__computer__icons__shop",
+      "image:trash"
+    ],
+    "auto:folder:ui/computer": [
+      "image:wallpaper_mark",
+      "image:wallpaper_pi"
     ]
   }
 }
