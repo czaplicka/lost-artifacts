@@ -1890,7 +1890,20 @@
       "image:ui__computer__icons__shop",
       "image:trash",
       "image:wallpaper_mark",
-      "image:wallpaper_pi"
+      "image:wallpaper_pi",
+      "json:margeGift",
+      "json:jacket-search",
+      "json:table-search",
+      "image:cat",
+      "image:owl_search",
+      "image:power",
+      "image:logo_small",
+      "image:ui__computer__search__logo",
+      "image:magnifier",
+      "image:owl_lost",
+      "image:owl",
+      "image:start_mark",
+      "image:start_pi"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2119,7 +2132,8 @@
       "json:insuranceArchiveStory",
       "json:margeBirthday",
       "json:officeDustPuzzle",
-      "json:typewriterComparison"
+      "json:typewriterComparison",
+      "json:margeGift"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2183,7 +2197,9 @@
       "json:hotels",
       "json:news",
       "json:organisations",
-      "json:social"
+      "json:social",
+      "json:jacket-search",
+      "json:table-search"
     ],
     "auto:folder:ico": [
       "image:apt_icon",
@@ -2694,11 +2710,23 @@
       "image:paper",
       "image:report",
       "image:ui__computer__icons__shop",
-      "image:trash"
+      "image:trash",
+      "image:cat",
+      "image:owl_search",
+      "image:power"
     ],
     "auto:folder:ui/computer": [
       "image:wallpaper_mark",
-      "image:wallpaper_pi"
+      "image:wallpaper_pi",
+      "image:start_mark",
+      "image:start_pi"
+    ],
+    "auto:folder:ui/computer/search": [
+      "image:logo_small",
+      "image:ui__computer__search__logo",
+      "image:magnifier",
+      "image:owl_lost",
+      "image:owl"
     ]
   }
 }

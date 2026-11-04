@@ -6,36 +6,36 @@ import { ReedGalleryViewer } from './ReedGalleryViewer.js';
 import { PhotoHotspotEditor } from './PhotoHotspotEditor.js';
 import { ReedContactMail } from './ReedContactMail.js';
 import { drawEvidenceText } from './EvidenceText.js';
+import { SEA_VIEW_KEYWORD, SEA_VIEW_LABEL, ensureSeaViewSearch } from './SeaViewClue.js';
 const QUEST_ID='pi_two_glasses',SEARCH_ID='miramar_demo',PHOTO_STATE='piPhotoEvidence';
-const clone=v=>JSON.parse(JSON.stringify(v));
+const clone=value=>JSON.parse(JSON.stringify(value));
 export function preparePhotoSearch(){
-  const s=clone(getSearchProgress());
-  if(!s.cases[SEARCH_ID]){s.cases[SEARCH_ID]={known:[],history:[]};gameState.piKeywordSearch=s;requestAutosave();}
+  const state=clone(getSearchProgress());
+  if(!state.cases[SEARCH_ID]){state.cases[SEARCH_ID]={known:[],history:[]};gameState.piKeywordSearch=state;requestAutosave();}
 }
 export function getPhotoProgress(){return gameState[PHOTO_STATE]?.[QUEST_ID]||{opened:false,inspected:[],selectedId:null};}
 export function updatePhotoProgress(patch){
-  const old=getPhotoProgress(),next={...old,...patch};
-  if(JSON.stringify(old)===JSON.stringify(next))return next;
+  const old=getPhotoProgress(),next={...old,...patch};if(JSON.stringify(old)===JSON.stringify(next))return next;
   gameState[PHOTO_STATE]={...(gameState[PHOTO_STATE]||{}),[QUEST_ID]:next};requestAutosave();return next;
 }
-export function validatePhotoQuest(d){
-  if(d?.version!==1||d.definition?.id!==QUEST_ID||d.searchCaseId!==SEARCH_ID||d.advert?.missionId!==QUEST_ID)throw Error('Invalid photo quest IDs');
-  if(!d.message?.id||!d.photo?.imageUrl||!Array.isArray(d.photo.hotspots)||d.photo.hotspots.length!==4)throw Error('Incomplete photo quest');
+export function validatePhotoQuest(data){
+  if(data?.version!==1||data.definition?.id!==QUEST_ID||data.searchCaseId!==SEARCH_ID||data.advert?.missionId!==QUEST_ID)throw Error('Invalid photo quest IDs');
+  if(!data.message?.id||!data.photo?.imageUrl||!Array.isArray(data.photo.hotspots)||data.photo.hotspots.length!==4)throw Error('Incomplete photo quest');
   const ids=new Set();
-  for(const h of d.photo.hotspots){
-    if(!h.id||ids.has(h.id)||typeof h.description!=='string'||![h.x,h.y,h.w,h.h].every(Number.isFinite)||h.x<0||h.y<0||h.w<=0||h.h<=0||h.x+h.w>1||h.y+h.h>1)throw Error('Invalid photo hotspot');
-    ids.add(h.id);
-    if(h.keywordId&&typeof h.keywordLabel!=='string')throw Error('Missing keyword label');
-    if(h.fragments!==undefined){
-      if(!Array.isArray(h.fragments)||h.fragments.some(p=>typeof p!=='string'&&(!p||typeof p.text!=='string'||typeof p.keywordId!=='string')))throw Error('Invalid photo fragments');
-      if(h.fragments.map(p=>typeof p==='string'?p:p.text).join('')!==h.description)throw Error('Photo fragments must match description');
+  for(const hotspot of data.photo.hotspots){
+    if(!hotspot.id||ids.has(hotspot.id)||typeof hotspot.description!=='string'||![hotspot.x,hotspot.y,hotspot.w,hotspot.h].every(Number.isFinite)||hotspot.x<0||hotspot.y<0||hotspot.w<=0||hotspot.h<=0||hotspot.x+hotspot.w>1||hotspot.y+hotspot.h>1)throw Error('Invalid photo hotspot');
+    ids.add(hotspot.id);
+    if(hotspot.keywordId&&typeof hotspot.keywordLabel!=='string')throw Error('Missing keyword label');
+    if(hotspot.fragments!==undefined){
+      if(!Array.isArray(hotspot.fragments)||hotspot.fragments.some(part=>typeof part!=='string'&&(!part||typeof part.text!=='string'||typeof part.keywordId!=='string')))throw Error('Invalid photo fragments');
+      if(hotspot.fragments.map(part=>typeof part==='string'?part:part.text).join('')!==hotspot.description)throw Error('Photo fragments must match description');
     }
   }
-  return d;
+  return data;
 }
 export class PhotoPIQuest{
   constructor(ui){
-    Object.assign(this,{ui,data:null,loading:null,dead:false,error:'',image:null,selectedId:null,imageFailed:false});
+    Object.assign(this,{ui,data:null,loading:null,dead:false,error:'',image:null,selectedId:null,imageFailed:false,seaCollecting:false});
     this.controller=null;this.debugEditor=new PhotoHotspotEditor(this);preparePhotoSearch();this.install();
     this.galleryViewer=new ReedGalleryViewer(ui);this.contactMail=new ReedContactMail(ui);
   }
@@ -43,17 +43,19 @@ export class PhotoPIQuest{
   install(){
     const ui=this.ui,docs=ui.documents;
     const mail=docs.getMail.bind(docs);
-    docs.getMail=()=>{const items=mail();return this.data&&this.accepted?[this.data.message,...items.filter(m=>m.id!==this.data.message.id)]:items;};
+    docs.getMail=()=>{const items=mail();return this.data&&this.accepted?[this.data.message,...items.filter(message=>message.id!==this.data.message.id)]:items;};
     const adverts=docs.getClassifieds.bind(docs);
-    docs.getClassifieds=()=>{const items=adverts();return this.data?[this.data.advert,...items.filter(a=>a.id!==this.data.advert.id)]:items;};
+    docs.getClassifieds=()=>{const items=adverts();return this.data?[this.data.advert,...items.filter(advert=>advert.id!==this.data.advert.id)]:items;};
     const paged=docs.renderPagedText.bind(docs);
-    docs.renderPagedText=(c,x,y,w,h)=>paged(c,x,y,w,ui.app==='mail'&&ui.selectedId===this.data?.message.id&&this.accepted?Math.max(40,h-48):h);
+    docs.renderPagedText=(content,x,y,w,h)=>paged(content,x,y,w,ui.app==='mail'&&ui.selectedId===this.data?.message.id&&this.accepted?Math.max(40,h-48):h);
     const documents=docs.render.bind(docs);
-    docs.render=()=>{documents();if(ui.app==='mail'&&ui.selectedId===this.data?.message.id&&this.accepted){const b=ui.window;ui.drawing.button(b.x+312,b.y+b.h-90,'Open photo',()=>void this.openPhoto());}};
+    docs.render=()=>{documents();if(ui.app==='mail'&&ui.selectedId===this.data?.message.id&&this.accepted){const bounds=ui.window;ui.drawing.button(bounds.x+312,bounds.y+bounds.h-90,'Open photo',()=>void this.openPhoto());}};
     const application=ui.monitor.renderApplication.bind(ui.monitor);
     ui.monitor.renderApplication=()=>ui.app==='photo'?this.render():application();
+    const loadSearch=ui.search.load.bind(ui.search);
+    ui.search.load=async(...args)=>{const result=await loadSearch(...args);if(!this.dead)ensureSeaViewSearch(ui.search);return result;};
     const monitor=ui.monitor.render.bind(ui.monitor);
-    ui.monitor.render=()=>{monitor();if(ui.isOpen&&!ui.destroyed&&!ui.suspended&&!ui.booting&&ui.app==='photo'&&ui.search.data)ui.search.renderNotebook();};
+    ui.monitor.render=()=>{if(!this.dead)ensureSeaViewSearch(ui.search);monitor();if(ui.isOpen&&!ui.destroyed&&!ui.suspended&&!ui.booting&&ui.app==='photo'&&ui.search.data)ui.search.renderNotebook();};
   }
   refresh(){if(!this.dead&&this.ui.isOpen&&!this.ui.destroyed&&!this.ui.suspended)this.ui.render();}
   async load(){
@@ -61,15 +63,15 @@ export class PhotoPIQuest{
     this.error='';this.controller=new AbortController();
     this.loading=(async()=>{
       try{
-        const r=await fetch('assets/data/piPhotoQuest.json',{signal:this.controller.signal});if(!r.ok)throw Error(`HTTP ${r.status}`);
-        const data=validatePhotoQuest(await r.json());if(this.dead)return;this.data=data;this.register();this.loadImage();
-      }catch(e){if(!this.dead&&e.name!=='AbortError'){this.error='The case file could not be loaded.';console.error('[PhotoPIQuest]',e);if(['mail','classifieds'].includes(this.ui.app))this.ui.notice=this.error;}}
+        const response=await fetch('assets/data/piPhotoQuest.json',{signal:this.controller.signal});if(!response.ok)throw Error(`HTTP ${response.status}`);
+        const data=validatePhotoQuest(await response.json());if(this.dead)return;this.data=data;this.register();this.loadImage();
+      }catch(error){if(!this.dead&&error.name!=='AbortError'){this.error='The case file could not be loaded.';console.error('[PhotoPIQuest]',error);if(['mail','classifieds'].includes(this.ui.app))this.ui.notice=this.error;}}
       finally{this.loading=null;this.refresh();}
     })();return this.loading;
   }
   register(){
     const cache=this.ui.scene.cache.json;
-    const put=(key,field,item)=>{const d=cache.get(key)||{},list=Array.isArray(d[field])?d[field]:[];const next={...d,[field]:[...list.filter(e=>e.id!==item.id),clone(item)]};if(cache.exists(key))cache.remove(key);cache.add(key,next);};
+    const put=(key,field,item)=>{const data=cache.get(key)||{},list=Array.isArray(data[field])?data[field]:[],next={...data,[field]:[...list.filter(entry=>entry.id!==item.id),clone(item)]};if(cache.exists(key))cache.remove(key);cache.add(key,next);};
     put('piCases','cases',this.data.definition);put('piOfficeClassifieds','advertisements',this.data.advert);
   }
   loadImage(){
@@ -80,35 +82,52 @@ export class PhotoPIQuest{
     image.onerror=()=>{if(!this.dead){this.imageFailed=true;this.refresh();}};image.src=this.data.photo.imageUrl;
   }
   markOpened(){
-    updatePhotoProgress({opened:true});const q=getPIQuest(QUEST_ID);if(!q)return;
-    const objectives=q.objectives.map(o=>o.id==='review_photo'?{...o,completed:true}:o);
-    if(JSON.stringify(q.objectives)!==JSON.stringify(objectives)){gameState.piQuests={...gameState.piQuests,quests:{...gameState.piQuests.quests,[QUEST_ID]:{...q,objectives}}};requestAutosave();}
+    updatePhotoProgress({opened:true});const quest=getPIQuest(QUEST_ID);if(!quest)return;
+    const objectives=quest.objectives.map(objective=>objective.id==='review_photo'?{...objective,completed:true}:objective);
+    if(JSON.stringify(quest.objectives)!==JSON.stringify(objectives)){gameState.piQuests={...gameState.piQuests,quests:{...gameState.piQuests.quests,[QUEST_ID]:{...quest,objectives}}};requestAutosave();}
   }
   async openPhoto(){
     if(!this.data||!this.accepted||this.dead||!this.ui.isOpen)return;
     this.selectedId=getPhotoProgress().selectedId;this.markOpened();this.ui.app='photo';this.ui.menuOpen=false;this.ui.notice='';this.ui.viewToken++;
-    const s=clone(getSearchProgress());s.selectedCaseId=SEARCH_ID;gameState.piKeywordSearch=s;requestAutosave();this.refresh();
+    const state=clone(getSearchProgress());state.selectedCaseId=SEARCH_ID;gameState.piKeywordSearch=state;requestAutosave();this.refresh();
     await this.ui.search.load();if(!this.dead)this.refresh();
   }
   inspect(id){
     if(this.debugEditor.enabled)return;
-    const h=this.data.photo.hotspots.find(h=>h.id===id);if(!h||!this.accepted)return;
+    const hotspot=this.data.photo.hotspots.find(item=>item.id===id);if(!hotspot||!this.accepted)return;
     this.selectedId=id;updatePhotoProgress({selectedId:id,inspected:[...new Set([...getPhotoProgress().inspected,id])]});this.refresh();
   }
-  fragments(h){
-    if(h.fragments)return h.fragments;
-    if(!h.keywordId)return [h.description];
-    const index=h.description.toLowerCase().indexOf(h.keywordLabel.toLowerCase());
-    if(index<0)return [h.description];
-    return [h.description.slice(0,index),{text:h.description.slice(index,index+h.keywordLabel.length),keywordId:h.keywordId},h.description.slice(index+h.keywordLabel.length)];
+  fragments(hotspot){
+    if(hotspot.fragments)return hotspot.fragments;
+    if(!hotspot.keywordId)return[hotspot.description];
+    const index=hotspot.description.toLowerCase().indexOf(hotspot.keywordLabel.toLowerCase());if(index<0)return[hotspot.description];
+    return[hotspot.description.slice(0,index),{text:hotspot.description.slice(index,index+hotspot.keywordLabel.length),keywordId:hotspot.keywordId},hotspot.description.slice(index+hotspot.keywordLabel.length)];
   }
   collect(id,keywordId){
     if(this.debugEditor.enabled)return false;
-    const h=this.data.photo.hotspots.find(h=>h.id===id);
-    if(!h||!this.accepted||!getPhotoProgress().inspected.includes(id))return false;
-    const wanted=keywordId||h.keywordId;
-    if(!wanted||!this.fragments(h).some(p=>typeof p==='object'&&p.keywordId===wanted))return false;
+    const hotspot=this.data.photo.hotspots.find(item=>item.id===id);
+    if(!hotspot||!this.accepted||!getPhotoProgress().inspected.includes(id))return false;
+    const wanted=keywordId||hotspot.keywordId;
+    if(!wanted||!this.fragments(hotspot).some(part=>typeof part==='object'&&part.keywordId===wanted))return false;
     discoverSearchKeywords(SEARCH_ID,[wanted]);this.refresh();return true;
+  }
+  canCollectSeaView(){
+    return Boolean(!this.dead&&!this.debugEditor.enabled&&this.accepted&&this.ui.isOpen&&!this.ui.destroyed&&!this.ui.suspended&&this.ui.app==='photo'&&
+      this.data?.photo&&getPhotoProgress().opened&&this.ui.scene.textures.exists(this.data.photo.imageKey));
+  }
+  async collectSeaView(){
+    if(!this.canCollectSeaView()||this.seaCollecting)return false;
+    this.seaCollecting=true;const token=this.ui.viewToken;
+    try{
+      if(!ensureSeaViewSearch(this.ui.search))await this.ui.search.load();
+      if(!this.canCollectSeaView()||this.ui.viewToken!==token||!ensureSeaViewSearch(this.ui.search))return false;
+      if(!getSearchProgress().cases[SEARCH_ID]?.known?.includes(SEA_VIEW_KEYWORD))discoverSearchKeywords(SEARCH_ID,[SEA_VIEW_KEYWORD]);
+      this.ui.caseCloudNotebook?.revealKeyword?.(SEARCH_ID,SEA_VIEW_KEYWORD);
+      this.refresh();return true;
+    }catch(error){
+      console.error('[PhotoPIQuest] Sea-view clue could not be collected:',error);
+      if(this.canCollectSeaView()){this.ui.notice='The clue could not be saved. Please try again.';this.refresh();}return false;
+    }finally{this.seaCollecting=false;}
   }
   returnToMail(){
     this.debugEditor.enabled=false;const ui=this.ui;ui.app='mail';ui.menuOpen=false;ui.selectedId=this.data?.message.id||null;ui.listPage=0;ui.bodyPage=0;ui.notice='';ui.viewToken++;this.refresh();
@@ -123,6 +142,7 @@ export class PhotoPIQuest{
       d.text(b.x+20,b.y+65,this.imageFailed?'The photograph could not be loaded.':'Loading photograph...',18,'#383c38');
       if(this.imageFailed)d.button(b.x+20,b.y+112,'Retry',()=>{this.image=null;this.loadImage();this.refresh();});return;
     }
+    ensureSeaViewSearch(ui.search);
     const texture=ui.scene.textures.get(key).getSourceImage(),scale=Math.min((b.w-32)/texture.width,(b.h-174)/texture.height);
     const pw=texture.width*scale,ph=texture.height*scale,px=b.x+(b.w-pw)/2,py=b.y+42;
     d.add(ui.scene.add.image(px,py,key).setOrigin(0).setDisplaySize(pw,ph));
@@ -134,12 +154,23 @@ export class PhotoPIQuest{
     this.debugEditor.sync();
     const by=b.y+b.h-120;d.rectangle(b.x+12,by,b.w-24,108,0xeee3c4);
     if(this.debugEditor.enabled){this.debugEditor.drawHelp(b.x+26,by+10,b.w-52);return;}
-    const selected=this.data.photo.hotspots.find(h=>h.id===this.selectedId);if(!selected)return;
+    const selected=this.data.photo.hotspots.find(hotspot=>hotspot.id===this.selectedId);
     drawEvidenceText(ui,{
-      blocks:[this.fragments(selected)],x:b.x+26,y:by+12,width:b.w-52,
-      isKnown:id=>Boolean(getSearchProgress().cases[SEARCH_ID]?.known.includes(id)),
+      blocks:[[{text:SEA_VIEW_LABEL,keywordId:SEA_VIEW_KEYWORD}]],x:b.x+26,y:by+10,width:b.w-52,
+      fontSize:16,lineHeight:23,
+      isKnown:id=>Boolean(getSearchProgress().cases[SEARCH_ID]?.known?.includes(id)),
+      onCollect:()=>void this.collectSeaView()
+    });
+    if(!selected)return;
+    drawEvidenceText(ui,{
+      blocks:[this.fragments(selected)],x:b.x+26,y:by+38,width:b.w-52,
+      fontSize:b.w<700?14:16,lineHeight:b.w<700?21:25,
+      isKnown:id=>Boolean(getSearchProgress().cases[SEARCH_ID]?.known?.includes(id)),
       onCollect:id=>this.collect(selected.id,id)
     });
   }
-  destroy(){this.dead=true;this.debugEditor.destroy();this.contactMail.destroy();this.galleryViewer.destroy();this.controller?.abort();if(this.image){this.image.onload=null;this.image.onerror=null;}}
+  destroy(){
+    this.dead=true;this.debugEditor.destroy();this.contactMail.destroy();this.galleryViewer.destroy();this.controller?.abort();
+    if(this.image){this.image.onload=null;this.image.onerror=null;}
+  }
 }

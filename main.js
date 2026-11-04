@@ -89,7 +89,6 @@ function installDevTools(game) {
   import('./tests/BaseSceneLeakTest.js')
     .then(({ installLeakTest }) => {
       installLeakTest(game);
-      console.info('[dev] leakTest("SceneKey", { cycles: 10 }) is ready.');
     })
     .catch(error => console.warn('[dev] Could not load BaseSceneLeakTest.', error));
 }

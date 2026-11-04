@@ -1,12 +1,21 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
+
+import {
+  saveGameState
+} from '../gameStatePersistence.js';
 
 const SCENE_KEY = 'FailedAlibiArrestOverlayScene';
 
 const SOURCE_KEY = 'failed-alibi-arrest-source';
 const CUTOUT_KEY = 'failed-alibi-arrest-cutout';
 const AGENTS_PATH = 'assets/cutscenes/arrest-agents.jpg';
+
+const HUD_KEYS = [
+  'PlayerHudScene',
+  'NewsHud',
+  'UIScene'
+];
 
 const FAILURE_MESSAGE =
   'Your team followed the wrong lead. ' +
@@ -22,9 +31,15 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
   }
 
   init(data = {}) {
-    this.parentSceneKey = data.parentSceneKey || 'CrimeCityScene';
+    this.parentSceneKey =
+      data.parentSceneKey || 'CrimeCityScene';
+
     this.suspectId = data.suspectId ?? null;
-    this.caseId = data.caseId ?? gameState.currentCaseId ?? null;
+
+    this.caseId =
+      data.caseId ??
+      gameState.currentCaseId ??
+      null;
 
     this.root = null;
     this.blocker = null;
@@ -33,6 +48,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.caption = null;
     this.statusText = null;
     this.retryButton = null;
+    this.lampGlow = null;
 
     this.phase = 'outbound';
     this.moving = false;
@@ -42,8 +58,11 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.motion = { x: -240 };
     this.clock = 0;
     this.agentsBaseScale = 1;
-    this.returnDirection = 1;
     this.missingArtwork = false;
+
+    this.hudSnapshot = {};
+    this.parentWasPaused = false;
+    this.parentPausedByOperation = false;
   }
 
   preload() {
@@ -60,8 +79,11 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     this.input.setTopOnly(true);
 
+    this.captureHud();
+    this.hideOperationHud();
+
     this.blocker = this.add
-      .rectangle(0, 0, 1, 1, 0x000000, 0.78)
+      .rectangle(0, 0, 1, 1, 0x000000, 0.94)
       .setOrigin(0)
       .setInteractive();
 
@@ -81,18 +103,96 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     this.layoutOverlay();
 
+    this.parentWasPaused =
+      this.scene.isPaused(this.parentSceneKey);
+
+    if (
+      this.hasScene(this.parentSceneKey) &&
+      this.scene.isActive(this.parentSceneKey)
+    ) {
+      this.parentPausedByOperation = true;
+      this.scene.pause(this.parentSceneKey);
+    }
+
     this.events.once('shutdown', () => {
       this.moving = false;
+
+      // The successful-address subclass restores its own parent.
+      if (
+        this.sys.settings.key === SCENE_KEY &&
+        !this.finished
+      ) {
+        this.restoreOperationHud();
+        this.resumeOperationParent();
+      }
     });
 
+    this.scene.bringToTop();
     this.startSequence();
+  }
+
+  captureHud() {
+    for (const key of HUD_KEYS) {
+      const hud = this.getRegisteredScene(key);
+
+      if (!hud) continue;
+
+      this.hudSnapshot[key] = {
+        visible: this.scene.isVisible(key),
+        inputEnabled: hud.input?.enabled
+      };
+    }
+  }
+
+  hideOperationHud() {
+    for (const key of HUD_KEYS) {
+      const hud = this.getRegisteredScene(key);
+
+      if (!hud) continue;
+
+      this.scene.setVisible(false, key);
+
+      if (hud.input) {
+        hud.input.enabled = false;
+      }
+    }
+  }
+
+  restoreOperationHud() {
+    for (
+      const [key, snapshot]
+      of Object.entries(this.hudSnapshot)
+    ) {
+      const hud = this.getRegisteredScene(key);
+
+      if (!hud) continue;
+
+      this.scene.setVisible(snapshot.visible, key);
+
+      if (
+        hud.input &&
+        typeof snapshot.inputEnabled === 'boolean'
+      ) {
+        hud.input.enabled = snapshot.inputEnabled;
+      }
+    }
+  }
+
+  resumeOperationParent() {
+    if (
+      this.parentPausedByOperation &&
+      !this.parentWasPaused &&
+      this.hasScene(this.parentSceneKey) &&
+      this.scene.isPaused(this.parentSceneKey)
+    ) {
+      this.scene.resume(this.parentSceneKey);
+    }
   }
 
   layoutOverlay() {
     if (!this.root || !this.blocker) return;
 
-    const width = this.scale.width;
-    const height = this.scale.height;
+    const { width, height } = this.scale;
 
     this.blocker.setSize(width, height);
 
@@ -111,7 +211,14 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
   rect(x, y, width, height, color, alpha = 1) {
     const object = this.add
-      .rectangle(x, y, width, height, color, alpha)
+      .rectangle(
+        x,
+        y,
+        width,
+        height,
+        color,
+        alpha
+      )
       .setOrigin(0);
 
     this.root.add(object);
@@ -119,32 +226,61 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
   }
 
   label(x, y, text, options = {}) {
-    const object = this.add.text(x, y, text, {
-      fontFamily: 'SpecialElite',
-      fontSize: '28px',
-      color: '#f4e3bc',
-      ...options
-    });
+    const object = this.add.text(
+      x,
+      y,
+      text,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '28px',
+        color: '#f4e3bc',
+        ...options
+      }
+    );
 
     this.root.add(object);
     return object;
   }
 
   drawWindow() {
-    this.rect(8, 12, W - 8, H - 12, 0x000000, 0.55);
+    this.rect(
+      8,
+      12,
+      W - 8,
+      H - 12,
+      0x000000,
+      0.55
+    );
 
     this.rect(0, 0, W, H, 0x171c22)
       .setStrokeStyle(4, 0xa58655);
 
-    this.rect(12, 12, W - 24, 66, 0x342a20);
+    this.rect(
+      12,
+      12,
+      W - 24,
+      66,
+      0x342a20
+    );
 
-    this.label(32, 33, 'MARK AGENCY / FIELD OPERATION', {
-      fontFamily: 'PressStart2P',
-      fontSize: '16px',
-      color: '#ead1a0'
-    });
+    this.label(
+      32,
+      33,
+      'MARK AGENCY / FIELD OPERATION',
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '16px',
+        color: '#ead1a0'
+      }
+    );
 
-    this.rect(12, 80, W - 24, 550, 0x101623);
+    this.rect(
+      12,
+      80,
+      W - 24,
+      550,
+      0x101623
+    );
   }
 
   drawStreet() {
@@ -168,9 +304,14 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     for (let y = 104; y < 520; y += 26) {
       graphics.lineBetween(16, y, 546, y);
 
-      const offset = Math.floor(y / 26) % 2 ? 0 : 44;
+      const offset =
+        Math.floor(y / 26) % 2 ? 0 : 44;
 
-      for (let x = 16 + offset; x < 546; x += 88) {
+      for (
+        let x = 16 + offset;
+        x < 546;
+        x += 88
+      ) {
         graphics.lineBetween(x, y, x, y + 26);
       }
     }
@@ -180,26 +321,52 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     for (let y = 104; y < 520; y += 52) {
       graphics.lineBetween(792, y, 1264, y);
 
-      const offset = Math.floor(y / 52) % 2 ? 0 : 64;
+      const offset =
+        Math.floor(y / 52) % 2 ? 0 : 64;
 
-      for (let x = 792 + offset; x < 1264; x += 128) {
+      for (
+        let x = 792 + offset;
+        x < 1264;
+        x += 128
+      ) {
         graphics.lineBetween(x, y, x, y + 52);
       }
     }
 
     const drawWindow = (x, y, width, height) => {
       graphics.fillStyle(0x17161b);
-      graphics.fillRect(x - 8, y - 8, width + 16, height + 16);
+      graphics.fillRect(
+        x - 8,
+        y - 8,
+        width + 16,
+        height + 16
+      );
 
       graphics.fillStyle(0x090f19);
       graphics.fillRect(x, y, width, height);
 
       graphics.fillStyle(0x49423b);
-      graphics.fillRect(x + width / 2 - 3, y, 6, height);
-      graphics.fillRect(x, y + height / 2 - 3, width, 6);
+      graphics.fillRect(
+        x + width / 2 - 3,
+        y,
+        6,
+        height
+      );
+
+      graphics.fillRect(
+        x,
+        y + height / 2 - 3,
+        width,
+        6
+      );
 
       graphics.fillStyle(0x66605b);
-      graphics.fillRect(x - 12, y + height + 6, width + 24, 10);
+      graphics.fillRect(
+        x - 12,
+        y + height + 6,
+        width + 24,
+        10
+      );
     };
 
     drawWindow(70, 140, 110, 150);
@@ -233,7 +400,11 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     graphics.fillStyle(0xe5a341, 0.045);
 
-    for (let radius = 104; radius >= 32; radius -= 18) {
+    for (
+      let radius = 104;
+      radius >= 32;
+      radius -= 18
+    ) {
       graphics.fillCircle(250, 169, radius);
     }
 
@@ -247,7 +418,14 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     graphics.fillRect(240, 137, 20, 32);
 
     graphics.fillStyle(0x201f24);
-    graphics.fillTriangle(216, 121, 284, 121, 250, 94);
+    graphics.fillTriangle(
+      216,
+      121,
+      284,
+      121,
+      250,
+      94
+    );
 
     graphics.fillStyle(0x966b38, 0.7);
 
@@ -264,8 +442,13 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       graphics.fillRect(x + 5, y - 3, 7, 4);
     }
 
-    this.lampGlow = this.add
-      .circle(250, 153, 45, 0xffc462, 0.055);
+    this.lampGlow = this.add.circle(
+      250,
+      153,
+      45,
+      0xffc462,
+      0.055
+    );
 
     this.root.add(this.lampGlow);
   }
@@ -279,9 +462,12 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       return null;
     }
 
-    const source = this.textures.get(SOURCE_KEY).getSourceImage();
+    const source = this.textures
+      .get(SOURCE_KEY)
+      .getSourceImage();
 
     const canvas = document.createElement('canvas');
+
     canvas.width = source.width;
     canvas.height = source.height;
 
@@ -309,7 +495,8 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
-        const index = (y * canvas.width + x) * 4;
+        const index =
+          (y * canvas.width + x) * 4;
 
         const r = pixels[index];
         const g = pixels[index + 1];
@@ -318,11 +505,10 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
         const minimum = Math.min(r, g, b);
         const maximum = Math.max(r, g, b);
 
-        const whiteBackground =
+        if (
           minimum >= 225 &&
-          maximum - minimum <= 24;
-
-        if (whiteBackground) {
+          maximum - minimum <= 24
+        ) {
           pixels[index + 3] = 0;
           continue;
         }
@@ -343,7 +529,6 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     context.putImageData(image, 0, 0);
 
     const padding = 4;
-
     const left = Math.max(0, minX - padding);
     const top = Math.max(0, minY - padding);
 
@@ -389,7 +574,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       key = this.buildAgentCutout();
     } catch (error) {
       console.error(
-        '[FailedAlibiArrest] Could not prepare agent image.',
+        '[FailedAlibiArrest] Could not prepare agent image:',
         error
       );
     }
@@ -406,9 +591,12 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       .image(0, 0, key)
       .setOrigin(0.5, 1);
 
-    this.agentsBaseScale = 275 / this.agentsVisual.height;
+    this.agentsBaseScale =
+      275 / this.agentsVisual.height;
 
-    this.agentsVisual.setScale(this.agentsBaseScale);
+    this.agentsVisual.setScale(
+      this.agentsBaseScale
+    );
 
     this.agents.add(this.agentsVisual);
   }
@@ -433,25 +621,32 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       {
         fontSize: '27px',
         align: 'center',
-        wordWrap: { width: W - 100 }
+        wordWrap: {
+          width: W - 100
+        }
       }
     ).setOrigin(0.5);
 
     this.retryButton = this.label(
       W / 2,
       772,
-      'RETRY OPENING GAME OVER',
+      'RETRY',
       {
         fontFamily: 'PressStart2P',
         fontSize: '12px',
         color: '#ffd68e',
         backgroundColor: '#4b3025',
-        padding: { x: 14, y: 10 }
+        padding: {
+          x: 14,
+          y: 10
+        }
       }
     )
       .setOrigin(0.5)
       .setVisible(false)
-      .setInteractive({ useHandCursor: true });
+      .setInteractive({
+        useHandCursor: true
+      });
 
     this.retryButton.on('pointerdown', () => {
       void this.finishToGameOver();
@@ -462,7 +657,7 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
         W / 2,
         360,
         'Agent artwork could not be loaded.\n' +
-          'The operation will still finish.',
+        'The operation will still finish.',
         {
           fontSize: '26px',
           align: 'center',
@@ -486,14 +681,22 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       ease: 'Linear',
 
       onComplete: () => {
+        if (this._cleanupDone) return;
+
         this.moving = false;
 
-        this.statusText.setText('CHECKING THE ADDRESS...');
-        this.caption.setText('A brief silence. Never a good sign.');
+        this.statusText.setText(
+          'CHECKING THE ADDRESS...'
+        );
 
-        this.time.delayedCall(1100, () => {
-          this.startReturn();
-        });
+        this.caption.setText(
+          'A brief silence. Never a good sign.'
+        );
+
+        this.time.delayedCall(
+          1100,
+          () => this.startReturn()
+        );
       }
     });
   }
@@ -507,8 +710,13 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     this.agentsVisual?.setFlipX(false);
 
-    this.statusText.setText('NO SUSPECT DETAINED');
-    this.caption.setText('Wrong suspect. Excellent cardio.');
+    this.statusText.setText(
+      'NO SUSPECT DETAINED'
+    );
+
+    this.caption.setText(
+      'Wrong suspect. Excellent cardio.'
+    );
 
     this.createTrackedTween({
       targets: this.motion,
@@ -517,6 +725,8 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
       ease: 'Linear',
 
       onComplete: () => {
+        if (this._cleanupDone) return;
+
         this.moving = false;
 
         this.time.delayedCall(1300, () => {
@@ -527,27 +737,36 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
   }
 
   update(time, delta) {
+    this.hideOperationHud();
+    this.scene.bringToTop();
+
     this.clock += Math.min(delta, 100);
 
     if (this.lampGlow) {
       this.lampGlow.alpha =
-        0.05 + Math.sin(this.clock / 160) * 0.008;
+        0.05 +
+        Math.sin(this.clock / 160) * 0.008;
     }
 
     if (!this.agents) return;
 
     this.agents.x = this.motion.x;
 
-    if (!this.moving || !this.agentsVisual) {
+    if (
+      !this.moving ||
+      !this.agentsVisual
+    ) {
       return;
     }
 
     const outbound = this.phase === 'outbound';
 
-    const cycle = this.clock / (outbound ? 60 : 130);
+    const cycle =
+      this.clock / (outbound ? 60 : 130);
 
     const bounce =
-      Math.abs(Math.sin(cycle)) * (outbound ? 13 : 3);
+      Math.abs(Math.sin(cycle)) *
+      (outbound ? 13 : 3);
 
     this.agents.y = 594 - bounce;
 
@@ -559,9 +778,17 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
 
     this.agentsVisual.setScale(
       this.agentsBaseScale *
-        (1 + Math.sin(cycle * 2) * (outbound ? 0.012 : 0.004)),
+      (
+        1 +
+        Math.sin(cycle * 2) *
+        (outbound ? 0.012 : 0.004)
+      ),
       this.agentsBaseScale *
-        (1 - Math.sin(cycle * 2) * (outbound ? 0.012 : 0.004))
+      (
+        1 -
+        Math.sin(cycle * 2) *
+        (outbound ? 0.012 : 0.004)
+      )
     );
   }
 
@@ -577,98 +804,114 @@ export class FailedAlibiArrestOverlayScene extends BaseScene {
     this.finishing = true;
     this.retryButton.setVisible(false);
 
-    gameState.caseResolved = false;
-    gameState.caseFailed = true;
-    gameState.isGameActive = false;
-    gameState.gameOverReason = FAILURE_MESSAGE;
+    try {
+      if (this.game.sceneLoader) {
+        await this.game.sceneLoader.ensure(
+          'GameOverScene'
+        );
+      }
 
-    saveGameState();
+      if (this._cleanupDone) return;
 
-    const opened = await this.goto('GameOverScene', {
-      title: 'WRONG SUSPECT',
-      reasonCode: 'failed_alibi_arrest',
-      caseId: this.caseId,
-      suspectId: this.suspectId,
-      message: FAILURE_MESSAGE
-    });
+      gameState.caseResolved = false;
+      gameState.caseFailed = true;
+      gameState.isGameActive = false;
+      gameState.gameOverReason = FAILURE_MESSAGE;
 
-    if (opened) {
+      saveGameState();
+
+      const opened = await this.goto(
+        'GameOverScene',
+        {
+          title: 'WRONG SUSPECT',
+          reasonCode: 'failed_alibi_arrest',
+          caseId: this.caseId,
+          suspectId: this.suspectId,
+          message: FAILURE_MESSAGE
+        }
+      );
+
+      if (!opened) {
+        throw new Error(
+          'GameOverScene could not be opened.'
+        );
+      }
+
       this.finished = true;
 
       if (this.hasScene(this.parentSceneKey)) {
         this.scene.stop(this.parentSceneKey);
       }
+    } catch (error) {
+      console.error(
+        '[FailedAlibiArrest] Could not finish operation:',
+        error
+      );
 
-      return;
-    }
+      if (this._cleanupDone) return;
 
-    if (!this._cleanupDone) {
       this.finishing = false;
+
       this.caption.setText(
         'Game Over could not be opened. Please try again.'
       );
+
       this.retryButton.setVisible(true);
     }
   }
 }
 
-export async function launchFailedAlibiArrest(scene, data = {}) {
-  if (!scene || scene._cleanupDone || !scene.sys.isActive()) {
+export async function launchFailedAlibiArrest(
+  scene,
+  data = {}
+) {
+  if (
+    !scene ||
+    scene._cleanupDone ||
+    !scene.sys.isActive()
+  ) {
     return false;
   }
 
-  if (!scene.hasScene(SCENE_KEY)) {
-    scene.scene.add(
-      SCENE_KEY,
-      FailedAlibiArrestOverlayScene,
-      false
-    );
+  if (scene.isSceneRunning(SCENE_KEY)) {
+    scene.scene.bringToTop(SCENE_KEY);
+    return true;
   }
 
-  const opened = await scene.launchOverlay(SCENE_KEY, {
-    parentSceneKey: scene.sys.settings.key,
-    suspectId: data.suspectId,
-    caseId:
-      data.caseId ??
-      gameState.currentCaseId ??
-      gameState.currentMission?.id ??
-      null
-  });
+  try {
+    scene.closeAllUIPanels?.();
+    scene.getPlayerHudScene()?.closeAllUIPanels?.();
 
-  if (!opened || scene._cleanupDone) {
-    return false;
-  }
-
-  scene.closeAllUIPanels?.();
-
-  for (const key of [
-    'PlayerHudScene',
-    'NewsHud',
-    'UIScene'
-  ]) {
-    const overlay = scene.getRegisteredScene(key);
-
-    if (!overlay) continue;
-
-    overlay.closeAllUIPanels?.();
-    overlay.hideHud?.();
-
-    scene.scene.setVisible(false, key);
-
-    if (overlay.input) {
-      overlay.input.enabled = false;
+    if (!scene.hasScene(SCENE_KEY)) {
+      scene.scene.add(
+        SCENE_KEY,
+        FailedAlibiArrestOverlayScene,
+        false
+      );
     }
+
+    // This overlay loads its artwork in preload().
+    // It does not need SceneLoader's asset preparation.
+    scene.scene.launch(
+      SCENE_KEY,
+      {
+        parentSceneKey: scene.sys.settings.key,
+        suspectId: data.suspectId,
+        caseId:
+          data.caseId ??
+          gameState.currentCaseId ??
+          gameState.currentMission?.id ??
+          null
+      }
+    );
+
+    return true;
+  } catch (error) {
+    console.error(
+      '[FailedAlibiArrest] Could not launch operation:',
+      error
+    );
+
+    return false;
   }
-
-  gameState.caseResolved = false;
-  gameState.caseFailed = true;
-  gameState.isGameActive = false;
-  gameState.gameOverReason = FAILURE_MESSAGE;
-
-  saveGameState();
-
-  scene.scene.bringToTop(SCENE_KEY);
-  scene.scene.pause();
-
-  return true;
 }

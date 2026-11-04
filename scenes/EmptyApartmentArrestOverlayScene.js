@@ -2,13 +2,13 @@ import {
   FailedAlibiArrestOverlayScene
 } from './FailedAlibiArrestOverlayScene.js';
 
-const SCENE_KEY = 'EmptyApartmentArrestOverlayScene';
+import {
+  requestAutosave,
+  flushAutosave
+} from '../gameStatePersistence.js';
 
-const HUD_KEYS = [
-  'PlayerHudScene',
-  'NewsHud',
-  'UIScene'
-];
+const SCENE_KEY =
+  'EmptyApartmentArrestOverlayScene';
 
 export class EmptyApartmentArrestOverlayScene
   extends FailedAlibiArrestOverlayScene {
@@ -22,7 +22,6 @@ export class EmptyApartmentArrestOverlayScene
   init(data = {}) {
     super.init(data);
 
-    this.previousHudVisibility = data.hudVisibility || {};
     this.completed = false;
     this.apartmentRestored = false;
   }
@@ -38,33 +37,31 @@ export class EmptyApartmentArrestOverlayScene
   createLabels() {
     super.createLabels();
 
-    this.retryButton.setText('RETRY OPENING APARTMENT');
-  }
-
-  startReturn() {
-    if (this._cleanupDone || this.finished) return;
-
-    super.startReturn();
-
-    this.caption.setText(
-      'Right address. Missing thief. The furniture refuses to testify.'
+    this.retryButton.setText(
+      'RETRY OPENING APARTMENT'
     );
   }
 
-  update(time, delta) {
-    super.update(time, delta);
-
-    for (const key of HUD_KEYS) {
-      if (this.hasScene(key)) {
-        this.scene.setVisible(false, key);
-      }
+  startReturn() {
+    if (
+      this._cleanupDone ||
+      this.finished
+    ) {
+      return;
     }
 
-    this.scene.bringToTop();
+    super.startReturn();
+
+    this.statusText.setText(
+      'SUSPECT HAS ALREADY ESCAPED'
+    );
+
+    this.caption.setText(
+      'Right address. Missing thief. ' +
+      'The furniture refuses to testify.'
+    );
   }
 
-  // The inherited animation calls this method when the agents return.
-  // This version continues the investigation instead of opening Game Over.
   async finishToGameOver() {
     if (
       this.finishing ||
@@ -102,6 +99,9 @@ export class EmptyApartmentArrestOverlayScene
         }
       });
 
+      requestAutosave();
+      flushAutosave();
+
       this.completed = true;
       this.finished = true;
 
@@ -117,7 +117,8 @@ export class EmptyApartmentArrestOverlayScene
       this.finishing = false;
 
       this.caption.setText(
-        'The search could not be opened. Please try again.'
+        'The apartment search could not be opened. ' +
+        'Please try again.'
       );
 
       this.retryButton.setVisible(true);
@@ -129,14 +130,7 @@ export class EmptyApartmentArrestOverlayScene
 
     this.apartmentRestored = true;
 
-    for (
-      const [key, visible]
-      of Object.entries(this.previousHudVisibility)
-    ) {
-      if (this.hasScene(key)) {
-        this.scene.setVisible(visible, key);
-      }
-    }
+    this.restoreOperationHud();
 
     const apartment = this.getRegisteredScene(
       this.parentSceneKey
@@ -151,14 +145,19 @@ export class EmptyApartmentArrestOverlayScene
       return;
     }
 
-    if (this.scene.isPaused(this.parentSceneKey)) {
+    if (
+      this.scene.isPaused(this.parentSceneKey)
+    ) {
       this.scene.resume(this.parentSceneKey);
     }
+
+    apartment._arrestIntroOpening = false;
 
     if (this.completed) {
       apartment.showMessage(
         'The suspect has already escaped.\n' +
-          'Search the apartment for clues to their next destination.',
+        'Search the apartment for clues ' +
+        'to their next destination.',
         4500,
         '#795548'
       );
@@ -168,7 +167,9 @@ export class EmptyApartmentArrestOverlayScene
   }
 }
 
-export async function launchEmptyApartmentArrest(scene) {
+export async function launchEmptyApartmentArrest(
+  scene
+) {
   if (
     !scene ||
     scene._cleanupDone ||
@@ -188,32 +189,14 @@ export async function launchEmptyApartmentArrest(scene) {
     return false;
   }
 
+  if (scene.isSceneRunning(SCENE_KEY)) {
+    scene.scene.bringToTop(SCENE_KEY);
+    return true;
+  }
+
   scene._arrestIntroOpening = true;
 
-  const suspectId = scene.suspectId;
-  const caseKey = scene.caseKey;
-  const hudVisibility = {};
-
   try {
-    await scene.setupSharedHud();
-
-    if (
-      scene._cleanupDone ||
-      !scene.sys.isActive() ||
-      scene.suspectId !== suspectId ||
-      scene.caseKey !== caseKey
-    ) {
-      return false;
-    }
-
-    for (const key of HUD_KEYS) {
-      const hud = scene.getRegisteredScene(key);
-
-      if (hud) {
-        hudVisibility[key] = scene.scene.isVisible(key);
-      }
-    }
-
     scene.getPlayerHudScene()?.closeAllUIPanels?.();
 
     if (!scene.hasScene(SCENE_KEY)) {
@@ -224,51 +207,38 @@ export async function launchEmptyApartmentArrest(scene) {
       );
     }
 
-    const opened = await scene.launchOverlay(
+    // ApartmentOccupantController.mount() already calls
+    // this function, including apartments with no occupant.
+    scene.scene.launch(
       SCENE_KEY,
       {
         parentSceneKey: scene.sys.settings.key,
-        suspectId,
-        caseId: caseKey,
-        hudVisibility
+        suspectId: scene.suspectId,
+        caseId: scene.caseKey
       }
     );
 
-    if (!opened || scene._cleanupDone) {
-      return false;
-    }
-
-    for (const key of Object.keys(hudVisibility)) {
-      scene.scene.setVisible(false, key);
-    }
-
-    scene.scene.bringToTop(SCENE_KEY);
-    scene.scene.pause();
-
     return true;
   } catch (error) {
+    scene._arrestIntroOpening = false;
+
     console.error(
       '[EmptyApartmentArrest] Could not launch operation:',
       error
     );
 
-    for (const [key, visible] of Object.entries(hudVisibility)) {
-      if (scene.hasScene(key)) {
-        scene.scene.setVisible(visible, key);
-      }
-    }
-
-    if (!scene._cleanupDone && scene.sys.isActive()) {
+    if (
+      !scene._cleanupDone &&
+      scene.sys.isActive()
+    ) {
       scene.showMessage(
-        'The suspect has escaped.\n' +
-          'Search the apartment for clues.',
+        'The arrest operation could not be opened.\n' +
+        'Check the console for details.',
         4000,
-        '#795548'
+        '#8b3030'
       );
     }
 
     return false;
-  } finally {
-    scene._arrestIntroOpening = false;
   }
 }

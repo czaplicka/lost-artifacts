@@ -1,0 +1,1991 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "miramar_demo",
+      "title": "Two Glasses",
+      "clouds": [
+        {
+          "id": "place",
+          "title": "THE NAPKIN"
+        },
+        {
+          "id": "person",
+          "title": "THE BADGE / JACKET"
+        }
+      ],
+      "keywords": [
+        {
+          "id": "seahorse_logo",
+          "label": "Seahorse emblem",
+          "cloudId": "place"
+        },
+        {
+          "id": "miramar",
+          "label": "Hotel Miramar",
+          "cloudId": "place"
+        },
+        {
+          "id": "mariner",
+          "label": "The Mariner",
+          "cloudId": "place"
+        },
+        {
+          "id": "coral",
+          "label": "Coral Crown Hotel",
+          "cloudId": "place"
+        },
+        {
+          "id": "swallow_logo",
+          "label": "Swallow emblem",
+          "cloudId": "person"
+        },
+        {
+          "id": "open_skies",
+          "label": "Open Skies Foundation",
+          "cloudId": "person"
+        },
+        {
+          "id": "conference",
+          "label": "New Horizons Conference",
+          "cloudId": "person"
+        },
+        {
+          "id": "checked_jacket",
+          "label": "Green checked jacket",
+          "cloudId": "person"
+        },
+        {
+          "id": "claire",
+          "label": "Claire Sutton",
+          "cloudId": "person"
+        },
+        {
+          "id": "nora",
+          "label": "Nora Bell",
+          "cloudId": "person"
+        },
+        {
+          "id": "office_phone",
+          "label": "Open Skies: 318",
+          "cloudId": "person"
+        },
+        {
+          "id": "jacket_owner",
+          "label": "Claire’s jacket",
+          "cloudId": "person"
+        },
+        {
+          "id": "jacket_returned",
+          "label": "Jacket returned to Claire",
+          "cloudId": "person"
+        },
+        {
+          "id": "work_email",
+          "label": "work email",
+          "cloudId": "person"
+        },
+        {
+          "id": "claire_email",
+          "label": "claire.sutton@openskies.local",
+          "cloudId": "person"
+        }
+      ],
+      "initialKeywords": [],
+      "pages": [
+        {
+          "id": "miramar",
+          "title": "Hotel Miramar | Stay by the sea",
+          "address": "www.miramar.local",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Welcome to ",
+              {
+                "keywordId": "miramar"
+              },
+              ". Sea air, late breakfasts and no reason to check your watch."
+            ],
+            [
+              "Our seahorse crest has welcomed guests for three generations. Terrace service runs from breakfast until eleven in the evening."
+            ],
+            [
+              "Double rooms from £120. Ask about our midweek rates and private dining room."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            }
+          ],
+          "snippet": "Rooms, terrace dining and private events overlooking the coast.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
+        },
+        {
+          "id": "mariner",
+          "title": "The Mariner | Harbour accommodation",
+          "address": "www.mariner.local",
+          "brand": "THE MARINER",
+          "theme": "hotel",
+          "blocks": [
+            [
+              {
+                "keywordId": "mariner"
+              },
+              " offers comfortable rooms above the old harbour. Our brass seahorse sign marks the entrance on Quay Street."
+            ],
+            [
+              "Breakfast is served from seven. The residents' lounge is available for small meetings and family celebrations."
+            ],
+            [
+              "Our bar quiz returns on Thursday. The answer is not always \"the harbour\"."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Events",
+              "pageId": "mariner_events"
+            }
+          ],
+          "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
+        },
+        {
+          "id": "coral",
+          "title": "Coral Crown Hotel | Coast and comfort",
+          "address": "www.coralcrown.local",
+          "brand": "CORAL CROWN",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Make yourself at home at ",
+              {
+                "keywordId": "coral"
+              },
+              ". Our seahorse crest is a familiar sight on the eastern promenade."
+            ],
+            [
+              "Family suites, indoor swimming pool and private dining. Dogs welcome. Seagulls will be asked to leave."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "coral"
+            },
+            {
+              "label": "Functions",
+              "pageId": "coral_events"
+            }
+          ],
+          "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
+        },
+        {
+          "id": "organisation",
+          "title": "Open Skies Foundation",
+          "address": "www.openskies.local",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              {
+                "keywordId": "open_skies"
+              },
+              " supports local projects through training, grants and regional partnerships."
+            ],
+            [
+              "The swallow in our emblem represents movement, cooperation and a place to return to."
+            ],
+            [
+              "Registration is open for the next ",
+              {
+                "keywordId": "conference"
+              },
+              ". Regional coordinators will meet for workshops and an evening reception."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ],
+          "snippet": "Regional partnerships, community projects and the New Horizons programme.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+        },
+        {
+          "id": "events",
+          "title": "New Horizons | Open Skies",
+          "address": "www.openskies.local/events/new-horizons",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              {
+                "keywordId": "conference"
+              }
+            ],
+            [
+              "09:00 Registration and coffee. 10:00 Regional reports. 12:30 Lunch. 14:00 Community funding workshops. 18:30 Coordinators' reception."
+            ],
+            [
+              "Delegates receive orange passes at registration. Speakers and volunteers collect grey passes from the information desk."
+            ],
+            [
+              "The programme is organised by ",
+              {
+                "keywordId": "open_skies"
+              },
+              "."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ],
+          "snippet": "Workshops, regional reports and an evening reception for delegates.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+        },
+        {
+          "id": "miramar_event",
+          "title": "New Horizons reception | Hotel Miramar",
+          "address": "www.miramar.local/journal/new-horizons",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "We were delighted to welcome the ",
+              {
+                "keywordId": "open_skies"
+              },
+              " to ",
+              {
+                "keywordId": "miramar"
+              },
+              " for the ",
+              {
+                "keywordId": "conference"
+              },
+              "."
+            ],
+            [
+              "The Bellini Room hosted the afternoon workshops. Dinner was served on the west terrace, with music from the Harbour Quartet."
+            ],
+            [
+              "Thank you to the delegates, speakers and our events team for a memorable evening."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            }
+          ],
+          "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
+        },
+        {
+          "id": "miramar_meetings",
+          "title": "Meetings & private events | Miramar",
+          "address": "www.miramar.local/meetings",
+          "brand": "MIRAMAR",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "The Bellini Room seats eighty delegates. Smaller groups can reserve the library or west terrace."
+            ],
+            [
+              "Recent guests include the ",
+              {
+                "keywordId": "open_skies"
+              },
+              " and the Coastline Business Forum."
+            ],
+            [
+              "Contact our events team for menus, seating plans and group rates."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Journal",
+              "pageId": "miramar_event"
+            }
+          ],
+          "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp"
+        },
+        {
+          "id": "mariner_events",
+          "title": "What's on | The Mariner",
+          "address": "www.mariner.local/whats-on",
+          "brand": "THE MARINER",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Thursday: Harbour Quiz, 19:30. Friday: acoustic music from the Quay Street Trio."
+            ],
+            [
+              "Saturday afternoon: the Harbour Accountants Association hosts its annual lunch. Please book your place with the association secretary."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "mariner"
+            }
+          ],
+          "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp"
+        },
+        {
+          "id": "coral_events",
+          "title": "Functions | Coral Crown",
+          "address": "www.coralcrown.local/functions",
+          "brand": "CORAL CROWN",
+          "theme": "hotel",
+          "blocks": [
+            [
+              "Our ballroom is available for weddings and private functions."
+            ],
+            [
+              "This month we welcome the Coastal Garden Society for its spring dinner and the junior sailing club for its awards ceremony."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Home",
+              "pageId": "coral"
+            }
+          ],
+          "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp"
+        },
+        {
+          "id": "jacket_generic",
+          "title": "Green checks are having a moment",
+          "address": "www.everydayedit.local/style/green-checks",
+          "brand": "THE EVERYDAY EDIT",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "The return of green checks"
+            ],
+            [
+              "A ",
+              {
+                "keywordId": "checked_jacket"
+              },
+              " works just as well with a plain white T-shirt as it does with a matching skirt. This season’s versions favour a relaxed shoulder and contrasting pocket trim."
+            ],
+            [
+              "Choose one strong pattern and keep the rest simple. For evening wear, add a silk scarf or a narrow belt."
+            ],
+            [
+              "Our editor favours dark green checks with brass buttons. Dry-clean only, unless you were hoping to buy a smaller jacket."
+            ]
+          ],
+          "links": [],
+          "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
+          "template": "lifestyle",
+          "imageKey": "everyday_edit_green_checks",
+          "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp"
+        },
+        {
+          "id": "gallery",
+          "title": "New Horizons | Reception photographs",
+          "address": "www.openskies.local/photos/new-horizons",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Regional coordinators at the evening reception."
+            ],
+            [
+              "Left to right: ",
+              {
+                "keywordId": "claire"
+              },
+              " and ",
+              {
+                "keywordId": "nora"
+              },
+              "."
+            ],
+            [
+              "Photography: Martin Cole. Reproduction by permission of the foundation."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Programme",
+              "pageId": "events"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ],
+          "snippet": "Photographs from the reception at Hotel Miramar.",
+          "imageKey": "Reed_conference",
+          "imageUrl": "assets/side_quests/Reed/conference.webp",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+        },
+        {
+          "id": "team",
+          "title": "Our people | Open Skies",
+          "address": "www.openskies.local/people",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              " — West Region. Community partnerships and volunteer training."
+            ],
+            [
+              {
+                "keywordId": "nora"
+              },
+              " — North Region. Small grants and local outreach."
+            ],
+            [
+              "General enquiries are handled by the programme office during business hours."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
+            }
+          ],
+          "snippet": "Meet our regional coordinators and programme staff.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+        },
+        {
+          "id": "contact",
+          "title": "Contact | Open Skies",
+          "address": "www.openskies.local/contact",
+          "brand": "OPEN SKIES",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Programme office"
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "office_phone",
+                "text": "318"
+              },
+              ". Monday to Friday, 09:00–17:00."
+            ],
+            [
+              "For event photographs and delegate enquiries, ask for the events coordinator."
+            ],
+            [
+              "Press enquiries: press@openskies.local."
+            ]
+          ],
+          "links": [
+            {
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            }
+          ],
+          "snippet": "Programme enquiries, press requests and event administration.",
+          "logoKey": "reed_web_logo_open_skies",
+          "logoUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+        },
+        {
+          "id": "swallow_birds",
+          "title": "Swallow Watch | Coastal birdwatching club",
+          "address": "www.swallowwatch.local",
+          "brand": "SWALLOW WATCH",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Early starts. Sensible shoes. Unreasonable enthusiasm for distant dots."
+            ],
+            [
+              "Our swallow emblem appears on club badges and the cover of our quarterly field journal."
+            ],
+            [
+              "Saturday walk: meet at the east marsh car park at 06:30. Bring binoculars and a flask. The birds have declined to provide a schedule."
+            ]
+          ],
+          "links": [],
+          "snippet": "Guided walks, migration notes and a swallow badge for members.",
+          "logoKey": "reed_web_logo_swallow_watch",
+          "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp"
+        },
+        {
+          "id": "swallow_couriers",
+          "title": "Swiftwing Couriers | Same-day delivery",
+          "address": "www.swiftwing.local",
+          "brand": "SWIFTWING",
+          "theme": "organisation",
+          "blocks": [
+            [
+              "Local parcels, business documents and same-day deliveries."
+            ],
+            [
+              "Look for the blue swallow on our vans. Our refreshed emblem keeps the familiar wings and adds a brighter background."
+            ],
+            [
+              "Please attach a delivery address. “You know, the building near the other building” remains outside our service guarantee."
+            ]
+          ],
+          "links": [],
+          "snippet": "Business deliveries and local parcels. Look for the blue swallow.",
+          "logoKey": "reed_web_logo_swiftwing",
+          "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp"
+        },
+        {
+          "id": "claire_social",
+          "title": "Claire Sutton | CommonRoom",
+          "address": "www.commonroom.local/claire.sutton",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              " · West Region"
+            ],
+            [
+              "Community partnerships and volunteer training at Open Skies Foundation."
+            ],
+            [
+              "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+            ],
+            [
+              "Posts shared with friends and private photographs are visible to signed-in members only."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Public profile",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Friends",
+              "pageId": "claire_social_friends"
+            },
+            {
+              "label": "Private posts",
+              "pageId": "claire_private"
+            },
+            {
+              "label": "Photos",
+              "pageId": "claire_private"
+            }
+          ],
+          "snippet": "Community partnerships and volunteer training. Public profile and updates.",
+          "profile": {
+            "avatarKey": "claire_sutton_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp"
+          },
+          "socialPosts": [
+            {
+              "id": "reed_claire_conference_post",
+              "author": "Claire Sutton",
+              "text": "New Horizons, in photographs. A lovely evening with the team. My notebook is full. So is the laundry basket.",
+              "visibility": "public",
+              "galleryPageId": "gallery",
+              "photos": [
+                {
+                  "id": "conference",
+                  "key": "Reed_gallery_conference_v3",
+                  "url": "assets/side_quests/Reed/conference.webp",
+                  "label": "Reception photograph"
+                },
+                {
+                  "id": "second",
+                  "key": "Reed_gallery_second_v3",
+                  "url": "assets/side_quests/Reed/second.webp",
+                  "label": "Reception photograph II"
+                },
+                {
+                  "id": "third",
+                  "key": "Reed_gallery_third_v3",
+                  "url": "assets/side_quests/Reed/third.webp",
+                  "label": "Conference room"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "claire_private",
+          "title": "Sign in | CommonRoom",
+          "address": "www.commonroom.local/login?profile=claire",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              "SIGN IN TO COMMONROOM"
+            ],
+            [
+              "Email address: ____________________"
+            ],
+            [
+              "Password: ________________________"
+            ],
+            [
+              "Private posts and photographs are available to signed-in members with permission to view them."
+            ],
+            [
+              "This content is not available in the public view."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "claire_social"
+            }
+          ],
+          "snippet": "Sign in | CommonRoom",
+          "heading": "Members-only content"
+        },
+        {
+          "id": "nora_social",
+          "title": "Nora Bell | CommonRoom",
+          "address": "www.commonroom.local/nora.bell",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              {
+                "keywordId": "nora"
+              },
+              " · North Region"
+            ],
+            [
+              "Small grants and local outreach at Open Skies Foundation."
+            ],
+            [
+              "Public update: Thank you to everyone who made New Horizons such a welcoming event. My notebook is full. So is the laundry basket."
+            ],
+            [
+              "Posts shared with friends and private photographs are visible to signed-in members only."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Public profile",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Friends",
+              "pageId": "nora_social_friends"
+            },
+            {
+              "label": "Private posts",
+              "pageId": "nora_private"
+            },
+            {
+              "label": "Photos",
+              "pageId": "nora_private"
+            }
+          ],
+          "snippet": "Small grants and local outreach. Public profile and updates.",
+          "profile": {
+            "avatarKey": "nora_bell_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp"
+          },
+          "socialPosts": [
+            {
+              "id": "reed_nora_conference_post",
+              "author": "Nora Bell",
+              "text": "A few photographs from New Horizons. Good company, useful conversations, and a heroic amount of conference coffee.",
+              "visibility": "public",
+              "galleryPageId": "gallery",
+              "photos": [
+                {
+                  "id": "conference",
+                  "key": "Reed_gallery_conference_v3",
+                  "url": "assets/side_quests/Reed/conference.webp",
+                  "label": "Reception photograph"
+                },
+                {
+                  "id": "second",
+                  "key": "Reed_gallery_second_v3",
+                  "url": "assets/side_quests/Reed/second.webp",
+                  "label": "Reception photograph II"
+                },
+                {
+                  "id": "third",
+                  "key": "Reed_gallery_third_v3",
+                  "url": "assets/side_quests/Reed/third.webp",
+                  "label": "Conference room"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "nora_private",
+          "title": "Sign in | CommonRoom",
+          "address": "www.commonroom.local/login?profile=nora",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "blocks": [
+            [
+              "SIGN IN TO COMMONROOM"
+            ],
+            [
+              "Email address: ____________________"
+            ],
+            [
+              "Password: ________________________"
+            ],
+            [
+              "Private posts and photographs are available to signed-in members with permission to view them."
+            ],
+            [
+              "This content is not available in the public view."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "nora_social"
+            }
+          ],
+          "snippet": "Sign in | CommonRoom",
+          "heading": "Members-only content"
+        },
+        {
+          "id": "claire_work",
+          "title": "Volunteers build stronger local partnerships",
+          "address": "www.communityledger.local/news/volunteer-training",
+          "brand": "COMMUNITY LEDGER",
+          "theme": "magazine",
+          "blocks": [
+            [
+              {
+                "keywordId": "claire"
+              },
+              ", West Region coordinator at Open Skies, led a workshop on recruiting and supporting community volunteers."
+            ],
+            [
+              "The session covered induction, safeguarding and the mysterious disappearance of every working marker pen."
+            ],
+            [
+              "Local groups can contact the foundation’s programme office for future training dates."
+            ]
+          ],
+          "links": [],
+          "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
+          "template": "news",
+          "imageKey": "community_ledger_volunteer_training",
+          "imageUrl": "assets/side_quests/Reed/web/news/community_ledger_volunteer_training.webp"
+        },
+        {
+          "id": "nora_work",
+          "title": "Small grants, practical results",
+          "address": "www.communityledger.local/news/north-region-grants",
+          "brand": "COMMUNITY LEDGER",
+          "theme": "magazine",
+          "blocks": [
+            [
+              {
+                "keywordId": "nora"
+              },
+              " presented the North Region’s small-grants programme at the community centre."
+            ],
+            [
+              "Projects included a repair café, a neighbourhood garden and new equipment for the youth club."
+            ],
+            [
+              "Applications will be reviewed by the regional panel. Biscuits will be reviewed by everyone."
+            ]
+          ],
+          "links": [],
+          "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
+          "template": "news",
+          "imageKey": "community_ledger_small_grants",
+          "imageUrl": "assets/side_quests/Reed/web/news/community_ledger_small_grants.webp"
+        },
+        {
+          "id": "claire_other",
+          "title": "Clare Sutton | Ceramics and workshops",
+          "address": "www.claresuttonstudio.local",
+          "brand": "CLARE SUTTON STUDIO",
+          "theme": "business",
+          "blocks": [
+            [
+              "Clare Sutton makes hand-thrown stoneware from a small studio on Market Lane."
+            ],
+            [
+              "Weekend workshops cover bowls, glazing and accepting that your first mug may resemble an ashtray."
+            ],
+            [
+              "Studio visits by appointment. Wholesale enquiries welcome."
+            ]
+          ],
+          "links": [],
+          "snippet": "Clare Sutton: handmade stoneware, studio visits and pottery classes.",
+          "template": "business",
+          "imageKey": "clare_sutton_studio",
+          "imageUrl": "assets/side_quests/Reed/web/news/clare_sutton_studio.webp"
+        },
+        {
+          "id": "nora_other",
+          "title": "Norah Bell | Piano lessons",
+          "address": "www.norahbellmusic.local",
+          "brand": "NORAH BELL MUSIC",
+          "theme": "business",
+          "blocks": [
+            [
+              "Norah Bell offers individual piano lessons for beginners and returning players."
+            ],
+            [
+              "Evening appointments are available at the Riverside teaching studio."
+            ],
+            [
+              "Patient tuition. The metronome is less patient."
+            ]
+          ],
+          "links": [],
+          "snippet": "Norah Bell offers piano tuition and accompaniment services.",
+          "template": "business",
+          "imageKey": "norah_bell_piano_studio",
+          "imageUrl": "assets/side_quests/Reed/web/news/norah_bell_piano_studio.webp"
+        },
+        {
+          "id": "reed_miramar_social",
+          "title": "Hotel Miramar | CommonRoom",
+          "address": "www.commonroom.local/hotel.miramar",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Hotel Miramar"
+          },
+          "blocks": [
+            [
+              "HOTEL MIRAMAR"
+            ],
+            [
+              "Sea air, terrace dining and late breakfasts."
+            ],
+            [
+              "Public update: Thank you to the Open Skies team and everyone who joined us for New Horizons. Our terrace has almost recovered."
+            ],
+            [
+              "FRIENDS & CONNECTIONS"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            },
+            {
+              "label": "Official hotel website",
+              "pageId": "miramar"
+            }
+          ],
+          "snippet": "The official CommonRoom page of Hotel Miramar."
+        },
+        {
+          "id": "reed_open_skies_social",
+          "title": "Open Skies Foundation | CommonRoom",
+          "address": "www.commonroom.local/open.skies",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Open Skies Foundation",
+            "avatarKey": "reed_web_logo_open_skies",
+            "avatarUrl": "assets/side_quests/Reed/web/logos/open_skies.webp"
+          },
+          "blocks": [
+            [
+              "OPEN SKIES FOUNDATION"
+            ],
+            [
+              "Community projects, regional partnerships and volunteer training."
+            ],
+            [
+              "Public update: Thank you to our regional coordinators and Hotel Miramar for a welcoming New Horizons event. The paperwork continues."
+            ],
+            [
+              "FRIENDS & CONNECTIONS"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Official foundation website",
+              "pageId": "organisation"
+            }
+          ],
+          "snippet": "The official CommonRoom page of Open Skies Foundation."
+        },
+        {
+          "id": "claire_social_friends",
+          "title": "Claire Sutton | Friends | CommonRoom",
+          "address": "www.commonroom.local/claire.sutton/friends",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Claire Sutton",
+            "avatarKey": "claire_sutton_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/claire_sutton_avatar.webp"
+          },
+          "heading": "Friends",
+          "blocks": [
+            [
+              "FRIENDS"
+            ],
+            [
+              "Claire Sutton is connected with these people and pages."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Nora Bell",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            }
+          ],
+          "snippet": "Friends and connections of Claire Sutton."
+        },
+        {
+          "id": "nora_social_friends",
+          "title": "Nora Bell | Friends | CommonRoom",
+          "address": "www.commonroom.local/nora.bell/friends",
+          "brand": "COMMONROOM",
+          "theme": "social",
+          "profile": {
+            "name": "Nora Bell",
+            "avatarKey": "nora_bell_avatar",
+            "avatarUrl": "assets/side_quests/Reed/web/FaceSpace/nora_bell_avatar.webp"
+          },
+          "heading": "Friends",
+          "blocks": [
+            [
+              "FRIENDS"
+            ],
+            [
+              "Nora Bell is connected with these people and pages."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Back to profile",
+              "pageId": "nora_social"
+            },
+            {
+              "label": "Claire Sutton",
+              "pageId": "claire_social"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "reed_miramar_social"
+            },
+            {
+              "label": "Open Skies Foundation",
+              "pageId": "reed_open_skies_social"
+            }
+          ],
+          "snippet": "Friends and connections of Nora Bell."
+        }
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "seahorse_logo"
+          ],
+          "pageIds": [
+            "mariner",
+            "coral",
+            "miramar"
+          ]
+        },
+        {
+          "terms": [
+            "swallow_logo"
+          ],
+          "pageIds": [
+            "organisation",
+            "swallow_birds",
+            "swallow_couriers"
+          ]
+        },
+        {
+          "terms": [
+            "open_skies"
+          ],
+          "pageIds": [
+            "organisation",
+            "events",
+            "contact"
+          ]
+        },
+        {
+          "terms": [
+            "conference"
+          ],
+          "pageIds": [
+            "events"
+          ]
+        },
+        {
+          "terms": [
+            "miramar"
+          ],
+          "pageIds": [
+            "miramar"
+          ]
+        },
+        {
+          "terms": [
+            "miramar",
+            "open_skies"
+          ],
+          "pageIds": [
+            "miramar_event",
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "miramar",
+            "conference"
+          ],
+          "pageIds": [
+            "miramar_event",
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "mariner"
+          ],
+          "pageIds": [
+            "mariner"
+          ]
+        },
+        {
+          "terms": [
+            "coral"
+          ],
+          "pageIds": [
+            "coral"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket"
+          ],
+          "pageIds": [
+            "jacket_generic"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "checked_jacket",
+            "open_skies"
+          ],
+          "pageIds": [
+            "gallery"
+          ]
+        },
+        {
+          "terms": [
+            "claire"
+          ],
+          "pageIds": [
+            "claire_social",
+            "claire_work",
+            "claire_other",
+            "team"
+          ]
+        },
+        {
+          "terms": [
+            "nora"
+          ],
+          "pageIds": [
+            "nora_social",
+            "nora_work",
+            "nora_other",
+            "team"
+          ]
+        },
+        {
+          "terms": [
+            "office_phone"
+          ],
+          "pageIds": [
+            "contact"
+          ]
+        },
+        {
+          "terms": [
+            "claire",
+            "open_skies"
+          ],
+          "pageIds": [
+            "team",
+            "claire_work",
+            "claire_social"
+          ]
+        },
+        {
+          "terms": [
+            "nora",
+            "open_skies"
+          ],
+          "pageIds": [
+            "team",
+            "nora_work",
+            "nora_social"
+          ]
+        },
+        {
+          "terms": [
+            "claire",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery",
+            "claire_work"
+          ]
+        },
+        {
+          "terms": [
+            "nora",
+            "conference"
+          ],
+          "pageIds": [
+            "gallery",
+            "nora_work"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dead_men_calling",
+      "title": "Dead Men Calling",
+      "clouds": [
+        {
+          "id": "people",
+          "title": "PEOPLE & CONNECTIONS"
+        },
+        {
+          "id": "recordings",
+          "title": "VOICE & RECORDINGS"
+        },
+        {
+          "id": "documents",
+          "title": "THE BLUE FOLDER"
+        }
+      ],
+      "keywords": [
+        {
+          "id": "dm_edward",
+          "label": "Edward Vale",
+          "cloudId": "people",
+          "aliases": [
+            "Edward Vale",
+            "Edward"
+          ]
+        },
+        {
+          "id": "dm_margaret",
+          "label": "Margaret Vale",
+          "cloudId": "people",
+          "aliases": [
+            "Margaret Vale"
+          ]
+        },
+        {
+          "id": "dm_colin",
+          "label": "Colin Ward",
+          "cloudId": "people",
+          "aliases": [
+            "Colin Ward"
+          ]
+        },
+        {
+          "id": "dm_ward",
+          "label": "Ward Consulting",
+          "cloudId": "people",
+          "aliases": [
+            "Ward Consulting"
+          ]
+        },
+        {
+          "id": "dm_phone_margaret",
+          "label": "619 — Margaret Vale",
+          "cloudId": "people",
+          "aliases": []
+        },
+        {
+          "id": "dm_phone_colin",
+          "label": "621 — Colin Ward",
+          "cloudId": "people",
+          "aliases": []
+        },
+        {
+          "id": "dm_voice",
+          "label": "voicemail",
+          "cloudId": "recordings",
+          "aliases": [
+            "voicemail"
+          ]
+        },
+        {
+          "id": "dm_archive",
+          "label": "recording archive",
+          "cloudId": "recordings",
+          "aliases": [
+            "recording archive",
+            "older recordings"
+          ]
+        },
+        {
+          "id": "dm_recorder",
+          "label": "office recorder",
+          "cloudId": "recordings",
+          "aliases": [
+            "office recorder",
+            "recorder test"
+          ]
+        },
+        {
+          "id": "dm_background",
+          "label": "repeated background",
+          "cloudId": "recordings",
+          "aliases": [
+            "repeated background"
+          ]
+        },
+        {
+          "id": "dm_mercer",
+          "label": "Mercer Audio",
+          "cloudId": "recordings",
+          "aliases": [
+            "Mercer Audio"
+          ]
+        },
+        {
+          "id": "dm_leo",
+          "label": "Leo Mercer",
+          "cloudId": "recordings",
+          "aliases": [
+            "Leo Mercer"
+          ]
+        },
+        {
+          "id": "dm_phone_leo",
+          "label": "620 — Mercer Audio",
+          "cloudId": "recordings",
+          "aliases": []
+        },
+        {
+          "id": "dm_mv14",
+          "label": "MV-14",
+          "cloudId": "recordings",
+          "aliases": [
+            "MV-14"
+          ]
+        },
+        {
+          "id": "dm_folder",
+          "label": "blue folder",
+          "cloudId": "documents",
+          "aliases": [
+            "blue folder"
+          ]
+        },
+        {
+          "id": "dm_accounts",
+          "label": "company records",
+          "cloudId": "documents",
+          "aliases": [
+            "company records",
+            "company accounts"
+          ]
+        },
+        {
+          "id": "dm_cw41",
+          "label": "CW-41",
+          "cloudId": "documents",
+          "aliases": [
+            "CW-41"
+          ]
+        },
+        {
+          "id": "dm_tr884",
+          "label": "TR-884",
+          "cloudId": "documents",
+          "aliases": [
+            "TR-884"
+          ]
+        },
+        {
+          "id": "dm_sheet",
+          "label": "reconciliation sheet",
+          "cloudId": "documents",
+          "aliases": [
+            "reconciliation sheet"
+          ]
+        },
+        {
+          "id": "dm_denial",
+          "label": "Colin: no voice recordings",
+          "cloudId": "recordings",
+          "aliases": [
+            "I never received any voice recordings",
+            "no voice recordings"
+          ]
+        },
+        {
+          "id": "dm_delivery",
+          "label": "MV-14-D2 delivery acknowledgement",
+          "cloudId": "recordings",
+          "aliases": [
+            "MV-14-D2"
+          ]
+        }
+      ],
+      "initialKeywords": [],
+      "pages": [
+        {
+          "id": "dm_memorial",
+          "title": "Remembering Edward Vale",
+          "brand": "VALE FAMILY ARCHIVE",
+          "address": "www.valefamily.local/edward",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_edward"
+              },
+              " — remembered by family, friends and former colleagues."
+            ],
+            [
+              "Edward kept notes, recordings and a filing system dominated by blue stationery. He considered colour coding an adequate substitute for labelling."
+            ],
+            [
+              "This family page is maintained by ",
+              {
+                "keywordId": "dm_margaret"
+              },
+              ". Correspondence concerning Edward may be sent through the contact page."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Family contact",
+              "pageId": "dm_family_contact"
+            }
+          ],
+          "snippet": "Edward Vale — remembered by family, friends and former colleagues."
+        },
+        {
+          "id": "dm_family_contact",
+          "title": "Family correspondence | Edward Vale",
+          "brand": "VALE FAMILY ARCHIVE",
+          "address": "www.valefamily.local/edward/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Contact for correspondence concerning Edward’s memorial and family archive."
+            ],
+            [
+              {
+                "keywordId": "dm_margaret"
+              },
+              ": ",
+              {
+                "keywordId": "dm_phone_margaret",
+                "text": "619"
+              },
+              " (local)."
+            ],
+            [
+              "Published by Margaret for this purpose. Please leave a message if there is no answer. No recordings or private family papers are published here."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Remembering Edward",
+              "pageId": "dm_memorial"
+            }
+          ],
+          "snippet": "Contact for correspondence concerning Edward’s memorial and family archive."
+        },
+        {
+          "id": "dm_mercer_home",
+          "title": "Mercer Audio | Archive transfers",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_mercer"
+              },
+              " preserves speech recordings, voicemail exports and small business archives."
+            ],
+            [
+              "Our services include transfer, cataloguing and preservation copies. We retain the character of the source. Unfortunately this includes the singing."
+            ],
+            [
+              "For transfer enquiries, contact ",
+              {
+                "keywordId": "dm_leo"
+              },
+              ". Client files and job records are supplied only with appropriate permission."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
+            },
+            {
+              "label": "Services",
+              "pageId": "dm_mercer_services"
+            }
+          ],
+          "snippet": "Mercer Audio preserves speech recordings, voicemail exports and small business archives."
+        },
+        {
+          "id": "dm_mercer_contact",
+          "title": "Contact | Mercer Audio",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_leo"
+              },
+              " — archive transfer enquiries."
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "dm_phone_leo",
+                "text": "620"
+              },
+              " (local)."
+            ],
+            [
+              "Quote the job reference if available. Client archives are not public downloads."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Services",
+              "pageId": "dm_mercer_services"
+            },
+            {
+              "label": "Home",
+              "pageId": "dm_mercer_home"
+            }
+          ],
+          "snippet": "Leo Mercer — archive transfer enquiries."
+        },
+        {
+          "id": "dm_mercer_services",
+          "title": "Preserving speech | Mercer Audio",
+          "brand": "MERCER AUDIO",
+          "address": "www.merceraudio.local/services",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_voice"
+              },
+              " preservation and ",
+              {
+                "keywordId": "dm_archive"
+              },
+              " transfers."
+            ],
+            [
+              "We can copy compatible source files, prepare an itemised manifest and record delivery of authorised copies."
+            ],
+            [
+              "Restoration and comparison are separate services. An enquiry about pricing does not authorise disclosure of another client’s files."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
+            }
+          ],
+          "snippet": "voicemail preservation and recording archive transfers."
+        },
+        {
+          "id": "dm_ward_home",
+          "title": "Ward Consulting | Business records",
+          "brand": "WARD CONSULTING",
+          "address": "www.wardconsulting.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_ward"
+              },
+              " offers support with small-business administration and ",
+              {
+                "keywordId": "dm_accounts"
+              },
+              "."
+            ],
+            [
+              "Principal: ",
+              {
+                "keywordId": "dm_colin"
+              },
+              ". Clear answers. Flexible invoicing."
+            ],
+            [
+              "For business correspondence, use the contact page. Individual client records are not published on this site."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Contact",
+              "pageId": "dm_ward_contact"
+            }
+          ],
+          "snippet": "Ward Consulting offers support with small-business administration and company records."
+        },
+        {
+          "id": "dm_ward_contact",
+          "title": "Contact | Ward Consulting",
+          "brand": "WARD CONSULTING",
+          "address": "www.wardconsulting.local/contact",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_colin"
+              },
+              " — business enquiries."
+            ],
+            [
+              "Telephone: ",
+              {
+                "keywordId": "dm_phone_colin",
+                "text": "621"
+              },
+              " (local)."
+            ],
+            [
+              "Please quote the relevant reference when asking about past correspondence. Our answering machine has been instructed not to negotiate rates."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Company",
+              "pageId": "dm_ward_home"
+            }
+          ],
+          "snippet": "Colin Ward — business enquiries."
+        },
+        {
+          "id": "dm_audio_article",
+          "title": "Keeping a useful voicemail archive",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/guides/voicemail-archive",
+          "theme": "magazine",
+          "template": "news",
+          "blocks": [
+            [
+              "An orderly ",
+              {
+                "keywordId": "dm_archive"
+              },
+              " starts with keeping original files and recording where each copy came from."
+            ],
+            [
+              "If you ask a service to transfer recordings, retain its paperwork. A filename is a label, not a witness."
+            ],
+            [
+              "This consumer guide covers routine preservation. It does not describe any particular family or investigation."
+            ]
+          ],
+          "links": [],
+          "snippet": "An orderly recording archive starts with keeping original files and recording where each copy came from."
+        },
+        {
+          "id": "dm_folder_article",
+          "title": "When a reconciliation needs another look",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/business/reconciliation",
+          "theme": "magazine",
+          "template": "news",
+          "blocks": [
+            [
+              "A ",
+              {
+                "keywordId": "dm_sheet"
+              },
+              " can record questions about ",
+              {
+                "keywordId": "dm_accounts"
+              },
+              " that still need supporting documents."
+            ],
+            [
+              "An entry marked for review is not the same thing as a completed explanation. Original invoices, dates and references help keep queries attached to the right transaction."
+            ],
+            [
+              "Our contributor recommends a filing system. Our editor recommends finding the filing cabinet first."
+            ]
+          ],
+          "links": [],
+          "snippet": "A reconciliation sheet can record questions about company records that still need supporting documents."
+        },
+        {
+          "id": "dm_blue_shop",
+          "title": "Blue folders | Desk & Drawer",
+          "brand": "DESK & DRAWER",
+          "address": "www.deskanddrawer.local/stationery/blue-folders",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+            ],
+            [
+              "A4 stationery for offices and homes. Labels sold separately. Dramatic secrets not included."
+            ]
+          ],
+          "links": [],
+          "snippet": "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+        },
+        {
+          "id": "dm_edward_namesake",
+          "title": "Edward Vale | Landscape photography",
+          "brand": "EDWARD VALE PHOTOGRAPHY",
+          "address": "www.edwardvalephotos.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Edward Vale photographs coastal landscapes and empty railway platforms."
+            ],
+            [
+              "Prints available by appointment. Portrait sessions are not currently offered. Please specify the photograph title when enquiring."
+            ]
+          ],
+          "links": [],
+          "snippet": "Edward Vale photographs coastal landscapes and empty railway platforms."
+        },
+        {
+          "id": "dm_mercer_namesake",
+          "title": "Mercer Music | Instrument repairs",
+          "brand": "MERCER MUSIC",
+          "address": "www.mercermusic.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "Guitar setups, amplifier repairs and piano tuning by appointment."
+            ],
+            [
+              "We do not transfer voicemail archives. We can, however, make your guitar sound less like a filing cabinet falling downstairs."
+            ]
+          ],
+          "links": [],
+          "snippet": "Guitar setups, amplifier repairs and piano tuning by appointment."
+        }
+      ],
+      "recipes": [
+        {
+          "terms": [
+            "dm_edward"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_edward_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_margaret"
+          ],
+          "pageIds": [
+            "dm_memorial"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_margaret"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_family_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_folder"
+          ],
+          "pageIds": [
+            "dm_blue_shop"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_folder"
+          ],
+          "pageIds": [
+            "dm_memorial",
+            "dm_blue_shop"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer"
+          ],
+          "pageIds": [
+            "dm_mercer_home",
+            "dm_mercer_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_leo"
+          ],
+          "pageIds": [
+            "dm_mercer_contact",
+            "dm_mercer_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer",
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_mercer_services",
+            "dm_mercer_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_mercer",
+            "dm_leo"
+          ],
+          "pageIds": [
+            "dm_mercer_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_voice"
+          ],
+          "pageIds": [
+            "dm_audio_article",
+            "dm_mercer_namesake"
+          ]
+        },
+        {
+          "terms": [
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_recorder"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_background"
+          ],
+          "pageIds": [
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_colin"
+          ],
+          "pageIds": [
+            "dm_ward_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_ward"
+          ],
+          "pageIds": [
+            "dm_ward_home"
+          ]
+        },
+        {
+          "terms": [
+            "dm_colin",
+            "dm_ward"
+          ],
+          "pageIds": [
+            "dm_ward_contact"
+          ]
+        },
+        {
+          "terms": [
+            "dm_accounts"
+          ],
+          "pageIds": [
+            "dm_folder_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_sheet"
+          ],
+          "pageIds": [
+            "dm_folder_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_folder",
+            "dm_accounts"
+          ],
+          "pageIds": [
+            "dm_folder_article",
+            "dm_blue_shop"
+          ]
+        }
+      ]
+    }
+  ]
+}

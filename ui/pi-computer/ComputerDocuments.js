@@ -9,6 +9,7 @@ import { renderDeadMailOfficeButton, syncDeadMailOfficeQuest } from '../../manag
 import { installDeadMenEvidenceUI } from './DeadMenEvidenceUI.js';
 import { DeadMenArtworkUI } from './DeadMenArtworkUI.js';
 import { installAlibiAdvertEmailFlow } from './AlibiAdvertEmailFlow.js';
+import { getPIQuest } from '../../managers/PIQuestManager.js';
 
 export class ComputerDocuments {
  constructor(ui){
@@ -24,16 +25,31 @@ export class ComputerDocuments {
  }
  getClassifieds(){
   syncDeadMailOfficeQuest();
-  const supplied=this.ui.options.getClassifieds?.();if(Array.isArray(supplied))return supplied.filter(i=>i&&i.id);
-  const data=this.ui.scene.cache.json.get('piOfficeClassifieds');return Array.isArray(data?.advertisements)?data.advertisements.filter(i=>i&&i.id):[];
+  const supplied=this.ui.options.getClassifieds?.();
+  const data=Array.isArray(supplied)?null:this.ui.scene.cache.json.get('piOfficeClassifieds');
+  const items=Array.isArray(supplied)?supplied:Array.isArray(data?.advertisements)?data.advertisements:[];
+  return items.filter(item=>{
+   if(!item||!item.id)return false;
+   if(item.kind!=='pi'||!item.missionId)return true;
+   const quest=getPIQuest(item.missionId);
+   const status=this.ui.options.getMissionStatus?.(item.missionId);
+   const accepted=Boolean(quest)||(Boolean(status)&&status!=='available'&&status!=='unavailable');
+   if(accepted)this.alibiAdvertEmailFlow?.onAccepted?.(item);
+   return !accepted;
+  });
  }
  render(){
   const ui=this.ui,d=ui.drawing,box=ui.window,isMail=ui.app==='mail',items=isMail?this.getMail():this.getClassifieds();
   this.artworkUI.sync();
-  if(!items.length){d.bevel(box.x+9,box.y+48,box.w-18,box.h-95,0xe7e5dc,true);d.rectangle(box.x+20,box.y+58,box.w-40,box.h-115,0xf2ecd6);d.text(box.x+44,box.y+90,isMail?'No messages available.\n\nInbox empty. Not even spam. Suspicious.':'No advertisements available.\n\nThe city is suspiciously honest today.',18,COLORS.muted,box.w-90);return;}
+  if(!items.length){
+   ui.selectedId=null;ui.listPage=0;ui.bodyPage=0;
+   d.bevel(box.x+9,box.y+48,box.w-18,box.h-95,0xe7e5dc,true);d.rectangle(box.x+20,box.y+58,box.w-40,box.h-115,0xf2ecd6);
+   d.text(box.x+44,box.y+90,isMail?'No messages available.\n\nInbox empty. Not even spam. Suspicious.':'No advertisements available.\n\nThe city is suspiciously honest today.',18,COLORS.muted,box.w-90);return;
+  }
   const listW=270,perPage=Math.max(1,Math.floor((box.h-150)/64)),pages=Math.max(1,Math.ceil(items.length/perPage));
   const selectedIndex=items.findIndex(item=>item.id===ui.selectedId);
   if(selectedIndex>=0)ui.listPage=Math.floor(selectedIndex/perPage);
+  else{ui.selectedId=null;ui.bodyPage=0;}
   ui.listPage=Phaser.Math.Clamp(ui.listPage,0,pages-1);const visible=items.slice(ui.listPage*perPage,(ui.listPage+1)*perPage);
   const selected=visible.find(i=>i.id===ui.selectedId)||visible[0];ui.selectedId=selected.id;
   d.bevel(box.x+9,box.y+48,listW-8,box.h-95,0xe7e5dc,true);
@@ -44,7 +60,7 @@ export class ComputerDocuments {
   const x0=px+28,innerW=pw-56,hasJobButton=!isMail&&selected.kind==='pi';
   const asset=isMail&&innerW>=230?this.artworkUI.resolve(selected.id):null;
   if(asset&&this.artworkUI.expanded(selected.id,px+18,py+18,pw-36,ph-36))return;
-  if(!asset)d.stamp(px+pw-28,py+18,isMail?'PRIVATE':selected.kind==='pi'?'PI JOB':'ODDITIES',isMail?0x7a5c3a:selected.kind==='pi'?0xa23232:0x3a4a8a,-6,11);
+  if(!asset)d.stamp(px+pw-28,py+18,isMail?'PRIVATE':selected.kind==='pi'?'PI CASE':'ODDITIES',isMail?0x7a5c3a:selected.kind==='pi'?0xa23232:0x3a4a8a,-6,11);
   const titleStr=(isMail?selected.subject:selected.title)||(isMail?'Untitled message':'Untitled advertisement');
   const titleWidth=Math.max(70,innerW-(asset?104:130));
   const title=d.pixel(x0,py+26,titleStr,13,COLORS.text,titleWidth).setLineSpacing(7);
@@ -60,7 +76,7 @@ export class ComputerDocuments {
   const ui=this.ui,d=ui.drawing,rowX=box.x+14,rowY=box.y+55+index*64,rowW=listW-24,rowH=60,base=isSelected?COLORS.titlebar:index%2?0xdedbcf:0xeceae1;
   const row=d.rectangle(rowX,rowY,rowW,rowH,base).setInteractive({useHandCursor:true});d.rectangle(rowX,rowY,6,rowH,isMail?0x3d6a9e:item.kind==='pi'?0xd4af37:0x7a8fa0);
   const title=d.text(rowX+16,rowY+8,'',15,isSelected?'#ffffff':COLORS.text);d.fit(title,(isMail?item.subject:item.title)||'Untitled',rowW-28);
-  const metaStr=isMail?`${item.from||'Unknown sender'}${item.date?` · ${item.date}`:''}`:`${item.kind==='pi'?'PI JOB':'ODDITIES'}${item.contact?` · ${item.contact}`:''}`;
+  const metaStr=isMail?`${item.from||'Unknown sender'}${item.date?` · ${item.date}`:''}`:`${item.kind==='pi'?'PI CASE':'ODDITIES'}${item.contact?` · ${item.contact}`:''}`;
   const meta=d.text(rowX+16,rowY+34,'',12,isSelected?'#c9d8ee':COLORS.muted);d.fit(meta,metaStr,rowW-28);
   row.on('pointerover',()=>{if(!isSelected)row.setFillStyle(0xf8f6ec);});row.on('pointerout',()=>{if(!isSelected)row.setFillStyle(base);});
   row.on('pointerdown',()=>{ui.options.onSfx?.('click');this.artworkUI.zoom=null;ui.selectedId=item.id;ui.bodyPage=0;ui.notice='';ui.viewToken+=1;ui.render();});
@@ -68,9 +84,9 @@ export class ComputerDocuments {
  renderJobButton(selected,x,y){
   const ui=this.ui;
   if(renderDeadMailOfficeButton(ui,selected,x,y))return;
-  const connected=typeof ui.options.onAcceptMission==='function'&&Boolean(selected.missionId),status=selected.missionId?ui.options.getMissionStatus?.(selected.missionId)||'available':'unavailable',available=status==='available';
-  const labels={active:'JOB ACCEPTED',completed:'JOB COMPLETED',failed:'JOB FAILED',abandoned:'JOB CLOSED'};
-  const label=!connected?'APPLICATIONS UNAVAILABLE':!available?labels[status]||'JOB UNAVAILABLE':ui.accepting?'PLEASE WAIT...':'ACCEPT JOB';
+  const connected=typeof ui.options.onAcceptMission==='function'&&Boolean(selected.missionId),status=selected.missionId?ui.options.getMissionStatus?.(selected.missionId)||'available':'unavailable',available=status==='available'&&!getPIQuest(selected.missionId);
+  const labels={active:'CASE ACCEPTED',completed:'CASE COMPLETED',failed:'CASE FAILED',abandoned:'CASE CLOSED'};
+  const label=!connected?'APPLICATIONS UNAVAILABLE':!available?labels[status]||'CASE UNAVAILABLE':ui.accepting?'PLEASE WAIT...':'ACCEPT CASE';
   ui.drawing.button(x,y,label,()=>void ui.acceptMission(selected),connected&&available&&!ui.accepting);
  }
  changeListPage(direction,pages){const ui=this.ui;this.artworkUI.zoom=null;ui.listPage=(ui.listPage+direction+pages)%pages;ui.selectedId=null;ui.bodyPage=0;ui.notice='';ui.viewToken+=1;ui.render();}

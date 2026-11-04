@@ -7,6 +7,10 @@
     {
       "id": "person",
       "title": "THE BADGE / JACKET"
+    },
+    {
+      "id": "table",
+      "title": "THE TABLE"
     }
   ],
   "keywords": [
@@ -84,6 +88,11 @@
       "id": "claire_email",
       "label": "claire.sutton@openskies.local",
       "cloudId": "person"
+    },
+    {
+      "id": "two_glasses",
+      "label": "Two glasses",
+      "cloudId": "table"
     }
   ],
   "initialKeywords": []

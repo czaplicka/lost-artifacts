@@ -1,4 +1,5 @@
 import { gameState } from '../../GameData.js';
+import { requestAutosave } from '../../gameStatePersistence.js';
 import { discoverSearchKeywords, getSearchProgress } from './ComputerSearchCore.js';
 import { ALIBI_SEARCH_ID, ALIBI_SEARCH_CASE } from './AlibiCaseData.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
@@ -41,12 +42,23 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
     ensureKeyword(ALIBI_SEARCH_CASE);
     for (const definition of ui.search?.data?.cases || []) ensureKeyword(definition);
   };
-  function collectAddress() {
-    if (!alive()) return;
+  function rememberAddress() {
+    if (!alive() || known()) return false;
     ensureDefinitions();
     discoverSearchKeywords(ALIBI_SEARCH_ID, [KEYWORD]);
     const progress = getSearchProgress();
     gameState.piKeywordSearch = { ...progress, selectedCaseId: ALIBI_SEARCH_ID };
+    requestAutosave();
+    return true;
+  }
+  function onAccepted(advert) {
+    if (advert?.missionId !== QUEST || !getPIQuest(QUEST)) return;
+    // Preserve this contact before its accepted advertisement disappears.
+    rememberAddress();
+  }
+  function collectAddress() {
+    if (!alive()) return;
+    rememberAddress();
     refreshKeywordStyles(ui.scene);
     ui.notice = 'Email saved to CASE NOTES. Click it there to write a message.';
     ui.caseCloudNotebook?.show(false);
@@ -59,7 +71,7 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
   }
   function openMessage() {
     if (!alive() || !known()) return;
-    if (!getPIQuest(QUEST)) { ui.notice = 'Accept this job before contacting the advertiser.'; refresh(); return; }
+    if (!getPIQuest(QUEST)) { ui.notice = 'Accept this case before contacting the advertiser.'; refresh(); return; }
     const sent = Boolean(gameState.piBorrowedAlibi?.sent);
     if (!sent && !active()) { ui.notice = 'This enquiry is no longer active.'; refresh(); return; }
     const generic = ui.photoQuest?.contactMail;
@@ -75,9 +87,7 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
     if (!paper?.visible) return;
     for (const label of paper.list || []) {
       if (label.text !== EMAIL || typeof label.setInteractive !== 'function') continue;
-      label.setColor('#000000');
-      label.removeAllListeners('pointerdown');
-      label.setInteractive({ useHandCursor: true });
+      label.setColor('#000000'); label.removeAllListeners('pointerdown'); label.setInteractive({ useHandCursor: true });
       label.on('pointerdown', (pointer, localX, localY, event) => {
         event?.stopPropagation(); ui.options.onSfx?.('click'); openMessage();
       });
@@ -86,6 +96,7 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
   function install() {
     if (!alive() || installed) return;
     installed = true; ensureDefinitions();
+    if (getPIQuest(QUEST)) rememberAddress();
     wrap(documents, 'getMail', original => (...args) => original(...args)
       .filter(message => message.id !== DRAFT || (known() && ui.selectedId === DRAFT))
       .map(message => message.id === DRAFT ? {
@@ -99,8 +110,7 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
       const d = ui.drawing, labelY = y + Math.max(35, height - reserved) + 7;
       const label = d.text(x, labelY, EMAIL, 16, '#000000', width);
       bindKeywordStyle(ui.scene, label, { isKnown: known, surface: () => keywordSurface(ui, label) });
-      label.setName('Save Box 17 email to case notes');
-      label.setInteractive({ useHandCursor: true });
+      label.setName('Save Box 17 email to case notes'); label.setInteractive({ useHandCursor: true });
       label.on('pointerdown', (pointer, localX, localY, event) => {
         event?.stopPropagation(); ui.options.onSfx?.('click'); collectAddress();
       });
@@ -135,7 +145,7 @@ export function installAlibiAdvertEmailFlow(ui, documents) {
     for (const restore of restorers.reverse()) restore();
     if (ui[INSTALLATION] === api) delete ui[INSTALLATION];
   }
-  const api = { destroy };
+  const api = { destroy, onAccepted };
   ui[INSTALLATION] = api;
   ui.scene.events.once('shutdown', destroy); ui.scene.events.once('destroy', destroy);
   queueMicrotask(install);

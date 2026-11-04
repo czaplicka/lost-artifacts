@@ -87,7 +87,7 @@ export const sceneRegistry = {
   ArchiveScene: () => import('./scenes/ArchiveSceneWithAnimations.js').then(m => m.ArchiveScene),
   AgencyStorageScene: () => import('./scenes/AgencyStorageSceneWithAnimations.js').then(m => m.AgencyStorageScene),
   HighscoreScene: () => import('./scenes/HighscoreScene.js').then(m => m.HighscoreScene),
-  CityScene: () => import('./scenes/CityScene.js').then(m => m.CityScene),
+  CityScene: () => import('./scenes/CitySceneWithAnimations.js').then(m => m.CityScene),
   LocationScene: () => import('./scenes/LocationScene.js').then(m => m.LocationScene),
   TravelTransitionScene: () => import('./scenes/TravelTransitionScene.js').then(m => m.TravelTransitionScene),
   HotelScene: () => import('./scenes/HotelScene.js').then(m => m.HotelScene),

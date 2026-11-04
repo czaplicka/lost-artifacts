@@ -87,7 +87,11 @@
         "checked_jacket"
       ],
       "pageIds": [
-        "jacket_generic"
+        "jacket_generic",
+        "jacket_shop",
+        "jacket_hire",
+        "jacket_cleaner",
+        "jacket_forum"
       ]
     },
     {
@@ -178,6 +182,16 @@
       "pageIds": [
         "gallery",
         "nora_work"
+      ]
+    },
+    {
+      "terms": [
+        "two_glasses"
+      ],
+      "pageIds": [
+        "two_glasses_table",
+        "two_glasses_shop",
+        "two_glasses_specs"
       ]
     }
   ]

@@ -4,7 +4,10 @@ export function buildReedBoardEvidence(state){
  if(!state.piQuests?.quests?.[QUEST])return[];
  const known=new Set(state.piKeywordSearch?.cases?.[SEARCH]?.known||[]),flags=new Set(state.piPhoneInvestigations?.cases?.[SEARCH]?.flags||[]),photo=state.piPhotoEvidence?.[QUEST]||{},gallery=state.reedGalleryEvidence||{},cards=[];
  if(photo.opened)cards.push({id:'reed_client_photo',type:'photo',label:'Daniel’s photograph',image:'assets/side_quests/Reed/terrace.webp',caption:'Photograph supplied by Mrs Reed.',meta:['Source: client correspondence']});
- if(gallery.opened)cards.push({id:'reed_conference_photo',type:'photo',label:'New Horizons reception',image:'assets/side_quests/Reed/conference.webp',caption:'Photograph from the conference reception.',meta:['Source: Open Skies public gallery']});
+ if(gallery.opened){
+  cards.push({id:'reed_conference_photo',type:'photo',label:'New Horizons reception',image:'assets/side_quests/Reed/conference.webp',caption:'Photograph from the conference reception.',meta:['Source: Open Skies public gallery']});
+  cards.push({id:'reed_conference_photo_2',type:'photo',label:'New Horizons reception — photograph II',image:'assets/side_quests/Reed/second.webp',caption:'Second photograph from the conference reception.',meta:['Source: Open Skies public gallery']});
+ }
  if(known.has('seahorse_logo'))cards.push(note('reed_napkin_emblem','Seahorse emblem','An embroidered seahorse emblem appears on the napkin in Daniel’s photograph.','Observation — client photograph'));
  if(known.has('swallow_logo'))cards.push(note('reed_badge_emblem','Swallow emblem','An orange badge has a swallow emblem.','Observation — photograph'));
  if(known.has('checked_jacket'))cards.push(note('reed_checked_jacket','Green checked jacket','A green checked jacket with contrasting pocket trim appears in Daniel’s photograph.','Observation — client photograph'));
@@ -18,5 +21,5 @@ export function buildReedBoardEvidence(state){
  if(flags.has('jacket_returned'))cards.push(note('reed_jacket_return_statement','Jacket returned','The events coordinator said she saw Nora return the jacket to Claire immediately after the photograph.','Witness statement — events coordinator','blue'));
  if(flags.has('claire_phone_refused'))cards.push(note('reed_privacy_refusal','Private number withheld','The events coordinator declined to disclose Claire’s private telephone number.','Conversation record — events coordinator','blue'));
  if(known.has('claire_email'))cards.push(note('reed_claire_work_address','Claire’s work email','claire.sutton@openskies.local','Collected contact detail'));
- return cards.map(c=>({...c,discovered:true,createdByPlayer:false,editableByPlayer:false}));
+ return cards.map(card=>({...card,discovered:true,createdByPlayer:false,editableByPlayer:false}));
 }

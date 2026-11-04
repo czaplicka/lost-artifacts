@@ -1,4 +1,6 @@
-import { installMarkAgencyComputer } from '../../ui/markAgencyComputerInstaller.js';
+import {
+  installMarkAgencyComputer
+} from '../../ui/markAgencyComputerInstaller.js';
 
 export function createOfficeHotspotDefinitions(scene) {
   const computer = installMarkAgencyComputer(scene);
@@ -125,10 +127,10 @@ export function createOfficeHotspotDefinitions(scene) {
     {
       ...computer.hotspot,
       id: 'agency-computer',
-      x: 2730,
-      y: 418,
-      width: 190,
-      height: 200
+      x: 2366,
+      y: 444,
+      width: 275,
+      height: 215
     }
   ];
 }

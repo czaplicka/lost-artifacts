@@ -1,16 +1,36 @@
-import { getEnergyManager } from '../../managers/EnergyManager.js';
+import {
+  getEnergyManager
+} from '../../managers/EnergyManager.js';
+
 import { gameState } from '../../GameData.js';
 import { EventBus } from '../../EventBus.js';
+
 import {
   flushAutosave,
   requestAutosave
 } from '../../gameStatePersistence.js';
 
-const SLEEP_RECOVERY = {
-  2: 40,
-  4: 60,
-  8: 100
-};
+const SLEEP_RECOVERY = Object.freeze({
+  1: 7,
+  2: 15,
+  3: 24,
+  4: 34,
+  5: 45,
+  6: 57,
+  7: 70,
+  8: 84
+});
+
+const SLEEP_HOURS = Object.freeze(
+  Object.keys(SLEEP_RECOVERY).map(Number)
+);
+
+function isValidSleepDuration(value) {
+  return (
+    Number.isInteger(value) &&
+    Object.hasOwn(SLEEP_RECOVERY, value)
+  );
+}
 
 export class HotelSleep {
   constructor(scene) {
@@ -37,11 +57,26 @@ export class HotelSleep {
   }
 
   getRecovery(hours) {
+    const duration = Number(hours);
+
+    if (!isValidSleepDuration(duration)) {
+      return 0;
+    }
+
     const energy = getEnergyManager();
 
+    const configuredMultiplier = Number(
+      this.scene.hotelConfig?.recoveryMultiplier ?? 1
+    );
+
+    const hotelMultiplier =
+      Number.isFinite(configuredMultiplier) &&
+      configuredMultiplier > 0
+        ? configuredMultiplier
+        : 1;
+
     let amount =
-      SLEEP_RECOVERY[hours] *
-      (this.scene.hotelConfig?.recoveryMultiplier ?? 1);
+      SLEEP_RECOVERY[duration] * hotelMultiplier;
 
     if (energy.difficulty === 'rookie') {
       amount *= 1.15;
@@ -50,12 +85,28 @@ export class HotelSleep {
     return Math.ceil(amount);
   }
 
+  getActualRecovery(hours) {
+    const energy = getEnergyManager();
+
+    const missingEnergy = Math.max(
+      0,
+      energy.getMaxEnergy() -
+      energy.getCurrentEnergy()
+    );
+
+    return Math.min(
+      missingEnergy,
+      this.getRecovery(hours)
+    );
+  }
+
   openMenu() {
     const scene = this.scene;
 
     if (
       scene.isHotelInteractionBlocked() ||
-      !scene.hotelConfig
+      !scene.hotelConfig ||
+      this.menu
     ) {
       return;
     }
@@ -65,48 +116,78 @@ export class HotelSleep {
     scene.hotspotUI?.setLocked(true);
 
     const { width, height } = scene.scale;
+    const energy = getEnergyManager();
 
-    this.menu = scene.add.container(0, 0).setDepth(400);
+    this.menu = scene.add
+      .container(0, 0)
+      .setDepth(400);
 
     this.menuBlocker = scene.add
-      .rectangle(0, 0, width, height, 0x000000, 0.7)
+      .rectangle(
+        0,
+        0,
+        width,
+        height,
+        0x000000,
+        0.7
+      )
       .setOrigin(0)
       .setInteractive();
 
-    this.menuBlocker.on('pointerdown', () => this.closeMenu());
+    this.menuBlocker.on(
+      'pointerdown',
+      () => this.closeMenu()
+    );
+
     this.menu.add(this.menuBlocker);
 
-    const panelW = 760;
-    const panelH = 350;
+    const panelW = 820;
+    const panelH = 430;
 
     const scale = Math.max(
       0.01,
-      Math.min(1, (width - 32) / panelW, (height - 32) / panelH)
+      Math.min(
+        1,
+        (width - 32) / panelW,
+        (height - 32) / panelH
+      )
     );
 
-    const content = scene.add.container(
-      (width - panelW * scale) / 2,
-      (height - panelH * scale) / 2
-    ).setScale(scale);
+    const content = scene.add
+      .container(
+        (width - panelW * scale) / 2,
+        (height - panelH * scale) / 2
+      )
+      .setScale(scale);
 
     this.menu.add(content);
 
     const panel = scene.add
-      .rectangle(0, 0, panelW, panelH, 0x17110e, 0.98)
+      .rectangle(
+        0,
+        0,
+        panelW,
+        panelH,
+        0x17110e,
+        0.98
+      )
       .setOrigin(0)
       .setStrokeStyle(4, 0xd4af37)
       .setInteractive();
 
-    panel.on('pointerdown', (_pointer, _x, _y, event) => {
-      event.stopPropagation();
-    });
+    panel.on(
+      'pointerdown',
+      (_pointer, _x, _y, event) => {
+        event?.stopPropagation();
+      }
+    );
 
     content.add(panel);
 
     content.add(
       scene.add.text(
         panelW / 2,
-        44,
+        42,
         'HOW LONG DO YOU SLEEP?',
         {
           fontFamily: 'PressStart2P',
@@ -119,7 +200,7 @@ export class HotelSleep {
     content.add(
       scene.add.text(
         panelW / 2,
-        88,
+        82,
         `${scene.hotelConfig.label} — room already paid`,
         {
           fontFamily: 'SpecialElite',
@@ -129,26 +210,79 @@ export class HotelSleep {
       ).setOrigin(0.5)
     );
 
-    [2, 4, 8].forEach((hours, index) => {
+    content.add(
+      scene.add.text(
+        panelW / 2,
+        113,
+        (
+          `ENERGY: ${energy.getCurrentEnergy()}` +
+          ` / ${energy.getMaxEnergy()}`
+        ),
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '18px',
+          color: '#c4b895'
+        }
+      ).setOrigin(0.5)
+    );
+
+    const columns = 4;
+    const spacingX = 190;
+    const spacingY = 112;
+    const startX = 125;
+    const startY = 192;
+
+    SLEEP_HOURS.forEach((hours, index) => {
+      const column = index % columns;
+      const row = Math.floor(index / columns);
+
       this.createOption(
         content,
-        170 + index * 210,
-        210,
+        startX + column * spacingX,
+        startY + row * spacingY,
         hours
       );
     });
 
-    const close = scene.add.text(panelW - 30, 25, 'X', {
-      fontFamily: 'PressStart2P',
-      fontSize: '14px',
-      color: '#ffffff',
-      backgroundColor: '#3b1111',
-      padding: { x: 10, y: 8 }
-    })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
+    content.add(
+      scene.add.text(
+        panelW / 2,
+        386,
+        'Longer sleep pays off. The thief does not take a nap.',
+        {
+          fontFamily: 'SpecialElite',
+          fontSize: '18px',
+          color: '#c4b895',
+          align: 'center'
+        }
+      ).setOrigin(0.5)
+    );
 
-    close.on('pointerdown', () => this.closeMenu());
+    const close = scene.add.text(
+      panelW - 30,
+      25,
+      'X',
+      {
+        fontFamily: 'PressStart2P',
+        fontSize: '14px',
+        color: '#ffffff',
+        backgroundColor: '#3b1111',
+        padding: {
+          x: 10,
+          y: 8
+        }
+      }
+    )
+      .setOrigin(0.5)
+      .setInteractive({
+        useHandCursor: true
+      });
+
+    close.on(
+      'pointerdown',
+      () => this.closeMenu()
+    );
+
     content.add(close);
 
     this.menu.setAlpha(0);
@@ -164,15 +298,27 @@ export class HotelSleep {
   createOption(container, x, y, hours) {
     const scene = this.scene;
 
+    const potentialRecovery = this.getRecovery(hours);
+    const actualRecovery = this.getActualRecovery(hours);
+
     const button = scene.add
-      .rectangle(x, y, 170, 106, 0x29211d, 1)
+      .rectangle(
+        x,
+        y,
+        170,
+        94,
+        0x29211d,
+        1
+      )
       .setStrokeStyle(2, 0xf1e6b8)
-      .setInteractive({ useHandCursor: true });
+      .setInteractive({
+        useHandCursor: true
+      });
 
     const title = scene.add.text(
       x,
-      y - 20,
-      `${hours} HOURS`,
+      y - 25,
+      `${hours} ${hours === 1 ? 'HOUR' : 'HOURS'}`,
       {
         fontFamily: 'PressStart2P',
         fontSize: '11px',
@@ -182,12 +328,28 @@ export class HotelSleep {
 
     const description = scene.add.text(
       x,
-      y + 18,
-      `+${this.getRecovery(hours)} ENERGY`,
+      y + 2,
+      `+${actualRecovery} ENERGY`,
       {
         fontFamily: 'SpecialElite',
         fontSize: '19px',
-        color: '#ffe066'
+        color:
+          actualRecovery > 0
+            ? '#ffe066'
+            : '#b8ad97'
+      }
+    ).setOrigin(0.5);
+
+    const detail = scene.add.text(
+      x,
+      y + 28,
+      actualRecovery < potentialRecovery
+        ? `Up to +${potentialRecovery}; capped`
+        : `${(potentialRecovery / hours).toFixed(1)} per hour`,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '13px',
+        color: '#c4b895'
       }
     ).setOrigin(0.5);
 
@@ -214,13 +376,23 @@ export class HotelSleep {
       this.doSleep(hours);
     });
 
-    container.add([button, title, description]);
+    container.add([
+      button,
+      title,
+      description,
+      detail
+    ]);
   }
 
   closeMenu() {
     const scene = this.scene;
 
-    if (!scene.isSleepMenuOpen || !this.menu) return;
+    if (
+      !scene.isSleepMenuOpen ||
+      !this.menu
+    ) {
+      return;
+    }
 
     scene.isSleepMenuOpen = false;
 
@@ -238,16 +410,20 @@ export class HotelSleep {
       alpha: 0,
       duration: 120,
       ease: 'Quad.In',
+
       onComplete: () => {
         this.closingMenus.delete(menu);
 
-        if (menu.active) menu.destroy(true);
+        if (menu.active) {
+          menu.destroy(true);
+        }
       }
     });
   }
 
   destroyMenu() {
     const scene = this.scene;
+
     scene.isSleepMenuOpen = false;
 
     if (this.menu) {
@@ -260,7 +436,11 @@ export class HotelSleep {
   }
 
   doSleep(hours) {
-    if (!Object.hasOwn(SLEEP_RECOVERY, hours)) return;
+    const duration = Number(hours);
+
+    if (!isValidSleepDuration(duration)) {
+      return;
+    }
 
     const scene = this.scene;
 
@@ -272,16 +452,17 @@ export class HotelSleep {
       return;
     }
 
-    this.pendingHours = hours;
+    this.pendingHours = duration;
     this.sleepCompleted = false;
 
-    this.begin(hours);
+    this.begin(duration);
   }
 
   begin(hours) {
     const scene = this.scene;
 
     if (
+      !isValidSleepDuration(hours) ||
       scene.isLeaving ||
       scene.isSleeping ||
       scene._cleanupDone
@@ -296,10 +477,14 @@ export class HotelSleep {
     scene.applyLock(true);
     scene.hideHoverHint();
 
-    const result = getEnergyManager().startManualSleep(hours);
+    const result =
+      getEnergyManager().startManualSleep(hours);
 
     if (!result?.success) {
-      console.warn('[HotelScene] Could not start sleep:', result);
+      console.warn(
+        '[HotelScene] Could not start sleep:',
+        result
+      );
 
       this.pendingHours = null;
       scene.restoreAfterFailedExit();
@@ -327,10 +512,15 @@ export class HotelSleep {
     const scene = this.scene;
 
     try {
-      const opened = await scene.launchOverlay('HollyIntroScene', {
-        returnScene: 'HotelScene',
-        returnData: { sleepHours: hours }
-      });
+      const opened = await scene.launchOverlay(
+        'HollyIntroScene',
+        {
+          returnScene: 'HotelScene',
+          returnData: {
+            sleepHours: hours
+          }
+        }
+      );
 
       if (!this.isAlive()) return;
 
@@ -339,12 +529,20 @@ export class HotelSleep {
         return;
       }
 
-      scene.bringSceneToTopIfActive('HollyIntroScene');
+      scene.bringSceneToTopIfActive(
+        'HollyIntroScene'
+      );
+
       scene.scene.pause();
     } catch (error) {
-      console.error('[HotelScene] Holly intro failed:', error);
+      console.error(
+        '[HotelScene] Holly intro failed:',
+        error
+      );
 
-      if (this.isAlive()) this.finish(hours);
+      if (this.isAlive()) {
+        this.finish(hours);
+      }
     }
   }
 
@@ -362,13 +560,19 @@ export class HotelSleep {
 
     this.hollyResolving = true;
 
+    const pending = Number(this.pendingHours);
+
     const requested = Number(
-      payload.sleepHours || this.pendingHours || 8
+      payload.sleepHours ??
+      this.pendingHours ??
+      8
     );
 
-    const hours = Object.hasOwn(SLEEP_RECOVERY, requested)
-      ? requested
-      : this.pendingHours || 8;
+    const hours = isValidSleepDuration(pending)
+      ? pending
+      : isValidSleepDuration(requested)
+        ? requested
+        : 8;
 
     this.resumeHandler = () => {
       this.resumeHandler = null;
@@ -399,36 +603,50 @@ export class HotelSleep {
       return;
     }
 
-    const sleepHours = Number(hours || this.pendingHours || 8);
-    if (!Object.hasOwn(SLEEP_RECOVERY, sleepHours)) return;
+    const sleepHours = Number(
+      hours ?? this.pendingHours ?? 8
+    );
+
+    if (!isValidSleepDuration(sleepHours)) {
+      return;
+    }
 
     const energy = getEnergyManager();
     const recovery = this.getRecovery(sleepHours);
 
     try {
-      // recoverCustom jest blokowane podczas snu.
+      // Recovery requires releasing the manual sleep lock.
       energy.cancelManualSleep();
 
       const result = energy.recoverCustom(
         recovery,
-        `Hotel sleep (${sleepHours}h, ${scene.hotelId}): +${recovery}`,
+        (
+          `Hotel sleep (${sleepHours}h, ` +
+          `${scene.hotelId}): +${recovery}`
+        ),
         {
           recoveryType: 'sleep',
           recoverySubtype: `hotel_${scene.hotelId}`
         }
       );
 
-      if (!result.success && result.reason !== 'energy_full') {
+      if (
+        !result.success &&
+        result.reason !== 'energy_full'
+      ) {
         throw new Error(
           `Hotel energy recovery failed: ${result.reason}`
         );
       }
 
-      // Oznaczamy zakończenie przed zdarzeniami zewnętrznymi.
       this.sleepCompleted = true;
       this.ownsManualSleep = false;
 
-      EventBus.emit('advanceTime', sleepHours, 0);
+      EventBus.emit(
+        'advanceTime',
+        sleepHours,
+        0
+      );
 
       EventBus.emit('manualSleepFinished', {
         sleepHours,
@@ -439,7 +657,10 @@ export class HotelSleep {
       requestAutosave();
       flushAutosave();
     } catch (error) {
-      console.error('[HotelScene] Sleep completion failed:', error);
+      console.error(
+        '[HotelScene] Sleep completion failed:',
+        error
+      );
 
       this.pendingHours = null;
       scene.restoreAfterFailedExit();
@@ -461,23 +682,37 @@ export class HotelSleep {
       this.fadeHandler
     );
 
-    scene.cameras.main.fadeOut(700, 0, 0, 0);
+    scene.cameras.main.fadeOut(
+      700,
+      0,
+      0,
+      0
+    );
   }
 
   async returnAfterSleep(hours) {
     const scene = this.scene;
 
     try {
-      const moved = await scene.goto(scene.returnScene, {
-        ...scene.returnData,
-        wokeUp: true,
-        sleptHours: hours
-      });
+      const moved = await scene.goto(
+        scene.returnScene,
+        {
+          ...scene.returnData,
+          wokeUp: true,
+          sleptHours: hours
+        }
+      );
 
-      if (!moved) scene.restoreAfterFailedExit();
+      if (!moved) {
+        scene.restoreAfterFailedExit();
+      }
     } catch (error) {
       if (!scene._cleanupDone) {
-        console.error('[HotelScene] Return after sleep failed:', error);
+        console.error(
+          '[HotelScene] Return after sleep failed:',
+          error
+        );
+
         scene.restoreAfterFailedExit();
       }
     }
@@ -498,7 +733,9 @@ export class HotelSleep {
     for (const menu of this.closingMenus) {
       this.scene.killTrackedTweensOf(menu);
 
-      if (menu.active) menu.destroy(true);
+      if (menu.active) {
+        menu.destroy(true);
+      }
     }
 
     this.closingMenus.clear();

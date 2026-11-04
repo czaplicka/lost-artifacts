@@ -1,3 +1,4 @@
+import { ComputerAudio } from './pi-computer/ComputerAudio.js';
 import { installDeadMenWebUI } from '../managers/DeadMenWebIntegration.js';
 import { ComputerDrawing } from './pi-computer/ComputerDrawing.js';
 import { ComputerMonitor } from './pi-computer/ComputerMonitor.js';
@@ -20,15 +21,12 @@ export class PIOfficeComputerUI {
       notice: '', accepting: false, layout: null, window: null, content: null,
       viewToken: 0, menuOpen: false, booting: false, bootStep: 0,
       bootLines: null, hasBooted: false, powerOn: false, jokeIndex: 0,
-      fontsChecked: false
+      fontsChecked: false, fontPromise: null,
+      openGeneration: 0, pendingBootFrame: null
     });
-
     this.root = scene.add.container(0, 0).setDepth(1500).setVisible(false);
     this.drawing = new ComputerDrawing(this);
-
-    // The ComputerMonitor creates `this.shell` (window manager + taskbar + start menu).
     this.monitor = new ComputerMonitor(this);
-
     this.desktop = new ComputerDesktop(this);
     this.documents = new ComputerDocuments(this);
     this.ledger = new ComputerLedger(this);
@@ -41,177 +39,210 @@ export class PIOfficeComputerUI {
     this.mailNotifications = new ComputerMailNotifications(this);
     this.officeShop = installOfficeShop(this);
     this.notebookContactActions = installNotebookContactActions(this);
-
+    this.audioApp = new ComputerAudio(this);
     this.onKey = event => {
       if (this.destroyed || !this.isOpen || this.suspended) return;
-
       const target = event.target;
       if (target?.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target?.tagName)) return;
-
       if (this.photoQuest.debugEditor.handleKey(event)) return;
       if (event.code !== 'Escape') return;
-
       event.preventDefault();
-
-      if (this.booting) { this.monitor.finishBoot(); return; }
+      if (this.booting) {
+        this.cancelPendingBootStart();
+        this.monitor.finishBoot();
+        return;
+      }
       if (this.menuOpen) { this.menuOpen = false; this.render(); return; }
       if (this.photoQuest.galleryViewer.active) { this.photoQuest.galleryViewer.close(); return; }
       if (this.photoQuest.contactMail.composing) { this.photoQuest.contactMail.closeComposer(); return; }
       if (this.app === 'photo') { this.photoQuest.returnToMail(); return; }
       if (this.notice && this.app === 'desktop') { this.notice = ''; this.render(); return; }
-
-      // Esc closes the focused window; with no window open it closes the computer.
       if (this.app !== 'desktop') this.openApp('desktop');
       else this.close();
     };
-
     this.onResize = () => { if (this.isOpen && !this.suspended && !this.destroyed) this.render(); };
-
     scene.input.keyboard?.on('keydown', this.onKey);
     scene.scale.on('resize', this.onResize);
     scene.events.once('shutdown', this.destroy, this);
-
     void this.photoQuest.load();
   }
 
   open() {
     if (this.destroyed || this.isOpen) return;
-
+    this.cancelPendingBootStart();
+    const boot = !this.options.skipBoot;
+    const generation = ++this.openGeneration;
     Object.assign(this, {
       isOpen: true, suspended: false, app: 'desktop', selectedId: null,
-      listPage: 0, bodyPage: 0, notice: '', menuOpen: false, booting: false, powerOn: true
+      listPage: 0, bodyPage: 0, notice: '', menuOpen: false,
+      booting: boot, powerOn: true
     });
-
-    this.shell.reset();   // every session starts with an empty desktop
-
+    this.shell.reset();
     this.photoQuest.galleryViewer.active = false;
     this.photoQuest.contactMail.composing = false;
-
     this.viewToken++;
+    if (boot) {
+      // Prepare BIOS before any callback can redraw the desktop.
+      this.monitor.startBoot();
+      this.monitor.stopBoot();
+      this.bootStep = 1;
+    } else {
+      this.monitor.stopBoot();
+    }
+    // Build the new screen while the old root is still hidden.
+    this.render();
     this.root.setVisible(true);
     this.options.onOpen?.();
-    this.ensureFonts();
-
-    if (!this.options.skipBoot) this.monitor.startBoot();
-
-    this.render();
+    const fonts = this.ensureFonts();
+    if (boot) {
+      Promise.resolve(fonts).then(() => {
+        if (!this.isBootSession(generation)) return;
+        this.render();
+        this.startBootAfterPaint(generation);
+      });
+    }
     void this.photoQuest.load();
+  }
+
+  isBootSession(generation) {
+    return !this.destroyed && this.isOpen && !this.suspended &&
+      this.booting && this.openGeneration === generation;
+  }
+
+  cancelPendingBootStart() {
+    const pending = this.pendingBootFrame;
+    if (!pending) return;
+    this.pendingBootFrame = null;
+    pending.emitter?.off('postrender', pending.callback);
+    pending.timer?.remove?.(false);
+  }
+
+  startBootAfterPaint(generation) {
+    this.cancelPendingBootStart();
+    if (!this.isBootSession(generation)) return;
+    const emitter = this.scene.game?.events;
+    const pending = { emitter, callback: null, timer: null };
+    const begin = () => {
+      if (this.pendingBootFrame !== pending) return;
+      this.cancelPendingBootStart();
+      if (!this.isBootSession(generation)) return;
+      this.monitor.startBoot();
+      this.bootStep = 1;
+      this.render();
+    };
+    pending.callback = begin;
+    this.pendingBootFrame = pending;
+    if (emitter?.once) emitter.once('postrender', begin);
+    if (this.scene.time?.delayedCall) {
+      pending.timer = this.scene.time.delayedCall(250, begin);
+    } else if (!emitter?.once) {
+      begin();
+    }
   }
 
   close() {
     if (this.destroyed || !this.isOpen || this.suspended) return;
-
+    this.cancelPendingBootStart();
+    this.openGeneration++;
     Object.assign(this, { isOpen: false, suspended: false, menuOpen: false, booting: false });
-
     this.photoQuest.debugEditor.enabled = false;
     this.photoQuest.galleryViewer.active = false;
     this.photoQuest.contactMail.composing = false;
-
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
-    this.viewToken++;
-
-    this.root.setVisible(false);
-    this.options.onClose?.();
+    this.monitor.stopBoot(); this.monitor.clearFx(); this.viewToken++;
+    this.root.setVisible(false); this.options.onClose?.();
   }
 
   suspend() {
     if (this.destroyed || !this.isOpen) return;
-
+    this.cancelPendingBootStart();
+    this.openGeneration++;
     Object.assign(this, { suspended: true, menuOpen: false, booting: false });
-
     this.photoQuest.debugEditor.enabled = false;
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
-    this.viewToken++;
+    this.monitor.stopBoot(); this.monitor.clearFx(); this.viewToken++;
     this.root.setVisible(false);
   }
 
   resume() {
     if (this.destroyed || !this.isOpen) return;
-
-    // Open windows survive a trip to the investigation board / world travel.
+    this.cancelPendingBootStart();
+    this.openGeneration++;
     Object.assign(this, { suspended: false, notice: '', menuOpen: false, booting: false, powerOn: false });
-
-    this.viewToken++;
-    this.root.setVisible(true);
-    this.render();
+    this.viewToken++; this.root.setVisible(true); this.render();
   }
 
   openApp(app) {
-    if (this.destroyed || !this.isOpen || this.suspended) return;
-
+    if (this.destroyed || !this.isOpen || this.suspended || this.booting) return;
     this.menuOpen = false;
-
     if (app === 'investigations') {
-      this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.');
-      return;
+      this.launchExternal(this.options.onOpenInvestigations, 'The investigation board is currently unavailable.'); return;
     }
-
     if (app === 'travel') {
-      this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.');
-      return;
+      this.launchExternal(this.options.onOpenWorldTravel, 'World travel is currently unavailable.'); return;
     }
-
-    // "desktop" = close the focused window (that is what every window's X button asks for).
     if (app === 'desktop') {
-      this.shell.closeFocused();
-      this.viewToken++;
-      this.render();
-      return;
+      this.shell.closeFocused(); this.viewToken++; this.render(); return;
     }
-
-    if (!['mail', 'ledger', 'classifieds', 'search'].includes(app)) return;
-
+    if (!['mail', 'ledger', 'classifieds', 'search', 'audio'].includes(app)) return;
     this.photoQuest.galleryViewer.active = false;
     this.photoQuest.contactMail.composing = false;
-
-    this.shell.open(app);   // creates the window, or restores / focuses the existing one
-
-    this.viewToken++;
-    this.render();
-
+    this.shell.open(app); this.viewToken++; this.render();
     if (app === 'search') void this.search.load();
     if (app === 'mail' || app === 'classifieds') void this.photoQuest.load();
   }
 
   launchExternal(callback, message) {
     if (typeof callback !== 'function') { this.notice = message; this.render(); return; }
-
     try {
       const result = callback();
       if (result?.catch) result.catch(error => this.handleExternalError(error, message));
-    } catch (error) {
-      this.handleExternalError(error, message);
-    }
+    } catch (error) { this.handleExternalError(error, message); }
   }
 
   handleExternalError(error, message) {
     console.error('[PIOfficeComputerUI] Application failed:', error);
-
     if (this.destroyed || !this.isOpen) return;
     if (this.suspended) this.resume();
-
-    this.notice = message;
-    this.render();
+    this.notice = message; this.render();
   }
 
   ensureFonts() {
-    if (this.fontsChecked || typeof document === 'undefined' || !document.fonts) return;
-
+    if (this.fontPromise) return this.fontPromise;
     this.fontsChecked = true;
-
-    const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
-
-    try {
-      if (specs.every(spec => document.fonts.check(spec))) return;
-    } catch (_) {
-      return;
+    if (typeof document === 'undefined' || !document.fonts) {
+      this.fontPromise = Promise.resolve();
+      return this.fontPromise;
     }
-
-    Promise.all(specs.map(spec => document.fonts.load(spec))).then(() => {
+    const specs = ['16px "Special Elite"', '10px "Press Start 2P"'];
+    try {
+      if (specs.every(spec => document.fonts.check(spec))) {
+        this.fontPromise = Promise.resolve();
+        return this.fontPromise;
+      }
+    } catch (_) {
+      this.fontPromise = Promise.resolve();
+      return this.fontPromise;
+    }
+    let loading;
+    try {
+      loading = Promise.all(specs.map(spec => document.fonts.load(spec))).catch(() => {});
+    } catch (_) {
+      loading = Promise.resolve();
+    }
+    loading.then(() => {
       if (!this.destroyed && this.isOpen && !this.suspended) this.render();
-    }).catch(() => {});
+    });
+    this.fontPromise = new Promise(resolve => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        resolve();
+      };
+      const timer = setTimeout(finish, 2000);
+      loading.then(finish);
+    });
+    return this.fontPromise;
   }
 
   money(value) {
@@ -219,7 +250,6 @@ export class PIOfficeComputerUI {
       ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
       : 'Unknown';
   }
-
   render() { this.monitor.render(); }
   getMail() { return this.documents.getMail(); }
   getClassifieds() { return this.documents.getClassifieds(); }
@@ -245,26 +275,33 @@ export class PIOfficeComputerUI {
   async acceptMission(advert) {
     if (this.accepting || this.destroyed || !this.isOpen || this.suspended ||
         this.app !== 'classifieds' || typeof this.options.onAcceptMission !== 'function' || !advert?.missionId) return;
-
     const token = this.viewToken, id = advert.id;
-
-    this.accepting = true;
-    this.notice = '';
-    this.render();
-
-    let message = '';
-
+    this.accepting = true; this.notice = ''; this.render();
+    let message = '', accepted = false;
     try {
       const result = await this.options.onAcceptMission(advert);
-      message = result?.ok ? result.message || 'Job accepted.' : result?.message || 'This job could not be accepted.';
+      accepted = result?.ok === true;
+      message = accepted ? result.message || 'Case accepted.' : result?.message || 'This case could not be accepted.';
+      message = String(message).replace(/\bJob\b/g,'Case').replace(/\bjob\b/g,'case');
+      if (accepted && !this.destroyed) {
+        try { this.documents.alibiAdvertEmailFlow?.onAccepted?.(advert); }
+        catch (error) { console.error('[PIOfficeComputerUI] Contact preservation failed:', error); }
+      }
     } catch (error) {
-      console.error('[PIOfficeComputerUI] Accept job failed:', error);
-      message = 'Could not accept this job. Please try again.';
+      console.error('[PIOfficeComputerUI] Accept case failed:', error);
+      message = 'Could not accept this case. Please try again.';
     } finally {
       this.accepting = false;
-
       if (!this.destroyed && this.isOpen && !this.suspended) {
-        if (token === this.viewToken && this.app === 'classifieds' && this.selectedId === id) this.notice = message;
+        if (token === this.viewToken && this.app === 'classifieds') {
+          if (accepted) {
+            if (this.selectedId === id) {
+              this.documents.artworkUI.zoom = null;
+              this.selectedId = null; this.bodyPage = 0;
+            }
+            this.notice = message;
+          } else if (this.selectedId === id) this.notice = message;
+        }
         this.render();
       }
     }
@@ -272,29 +309,15 @@ export class PIOfficeComputerUI {
 
   destroy() {
     if (this.destroyed) return;
-
+    this.cancelPendingBootStart();
+    this.openGeneration++;
     this.notebookContactActions?.destroy();
-    this.suspended = false;
-    this.close();
-    this.destroyed = true;
-
-    this.mailNotifications.destroy();
-    this.photoQuest.destroy();
-    this.search.destroy();
-    this.shell?.destroy();
-    this.viewToken++;
-
-    this.monitor.stopBoot();
-    this.monitor.clearFx();
-
+    this.suspended = false; this.close(); this.destroyed = true;
+    this.mailNotifications.destroy(); this.photoQuest.destroy(); this.search.destroy(); this.shell?.destroy();
+    this.viewToken++; this.monitor.stopBoot(); this.monitor.clearFx();
     this.scene.input.keyboard?.off('keydown', this.onKey);
     this.scene.scale.off('resize', this.onResize);
     this.scene.events.off('shutdown', this.destroy, this);
-
-    this.root?.destroy(true);
-    this.root = null;
-    this.content = null;
-    this.layout = null;
-    this.window = null;
+    this.root?.destroy(true); this.root = null; this.content = null; this.layout = null; this.window = null;
   }
 }

@@ -1352,6 +1352,110 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "margeGift",
+      "url": "assets/data/margeGift.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "jacket-search",
+      "url": "assets/data/web/missions/two-glasses/pages/jacket-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "table-search",
+      "url": "assets/data/web/missions/two-glasses/pages/table-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "cat",
+      "url": "assets/ui/computer/icons/cat.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "owl_search",
+      "url": "assets/ui/computer/icons/owl_search.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "power",
+      "url": "assets/ui/computer/icons/power.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "logo_small",
+      "url": "assets/ui/computer/search/logo_small.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__computer__search__logo",
+      "url": "assets/ui/computer/search/logo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "magnifier",
+      "url": "assets/ui/computer/search/magnifier.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "owl_lost",
+      "url": "assets/ui/computer/search/owl_lost.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "owl",
+      "url": "assets/ui/computer/search/owl.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "start_mark",
+      "url": "assets/ui/computer/start_mark.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "start_pi",
+      "url": "assets/ui/computer/start_pi.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

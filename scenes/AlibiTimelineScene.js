@@ -1,7 +1,10 @@
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { saveGameState } from '../gameStatePersistence.js';
-import { advanceCrimeTutorial } from '../tutorials/CrimeCityTutorial.js';
+
+import {
+  advanceCrimeTutorial
+} from '../tutorials/CrimeCityTutorial.js';
 
 import {
   allWitnessesVisited,
@@ -28,6 +31,10 @@ import {
 
 const W = 1100;
 const H = 1040;
+
+const FEEDBACK_ERROR = '#b3261e';
+const FEEDBACK_NORMAL = '#594a36';
+const FEEDBACK_SUCCESS = '#35633b';
 
 export class AlibiTimelineScene extends BaseScene {
   constructor() {
@@ -56,8 +63,9 @@ export class AlibiTimelineScene extends BaseScene {
     this.busy = false;
     this.solved = false;
     this.result = 'pending';
+
     this.feedback = '';
-    this.feedbackColor = '#594a36';
+    this.feedbackColor = FEEDBACK_NORMAL;
 
     this.deduction = new AlibiDeductionController(this);
   }
@@ -69,6 +77,7 @@ export class AlibiTimelineScene extends BaseScene {
     this.getPlayerHudScene()?.closeAllUIPanels?.();
 
     this.cameras.main.resetFX();
+
     this.cameras.main
       .setAlpha(1)
       .setBackgroundColor('#171b22');
@@ -96,9 +105,12 @@ export class AlibiTimelineScene extends BaseScene {
         60,
         160,
         'The alibi board is unavailable. ' +
-          'Complete all three interviews first.',
+        'Complete all three interviews first.',
         960,
-        { fontSize: '26px' }
+        {
+          fontSize: '26px',
+          color: FEEDBACK_ERROR
+        }
       );
 
       this.button(
@@ -119,7 +131,9 @@ export class AlibiTimelineScene extends BaseScene {
       !this.suspectId ||
       !allWitnessesVisited(this.caseKey, this.suspectId)
     ) {
-      throw new Error('Incomplete interviews or missing case.');
+      throw new Error(
+        'Incomplete interviews or missing case.'
+      );
     }
 
     const board = getTimelineBoardData(
@@ -145,11 +159,13 @@ export class AlibiTimelineScene extends BaseScene {
         entry.suspectId === this.suspectId &&
         entry.alibiWitness === true
       )
-      .map(entry => getWitnessTestimony(
-        this.caseKey,
-        this.suspectId,
-        entry.npcId
-      ));
+      .map(entry =>
+        getWitnessTestimony(
+          this.caseKey,
+          this.suspectId,
+          entry.npcId
+        )
+      );
 
     if (
       this.witnesses.length !== 3 ||
@@ -203,20 +219,27 @@ export class AlibiTimelineScene extends BaseScene {
       this.scale.height / H
     );
 
-    this.root.setScale(scale).setPosition(
-      (this.scale.width - W * scale) / 2,
-      (this.scale.height - H * scale) / 2
-    );
+    this.root
+      .setScale(scale)
+      .setPosition(
+        (this.scale.width - W * scale) / 2,
+        (this.scale.height - H * scale) / 2
+      );
   }
 
   text(parent, x, y, content, width, options = {}) {
-    const object = this.add.text(x, y, content, {
-      fontFamily: 'SpecialElite',
-      fontSize: '19px',
-      color: '#382e24',
-      wordWrap: { width },
-      ...options
-    });
+    const object = this.add.text(
+      x,
+      y,
+      content,
+      {
+        fontFamily: 'SpecialElite',
+        fontSize: '19px',
+        color: '#382e24',
+        wordWrap: { width },
+        ...options
+      }
+    );
 
     parent.add(object);
     return object;
@@ -315,6 +338,11 @@ export class AlibiTimelineScene extends BaseScene {
     );
   }
 
+  clearFeedback() {
+    this.feedback = '';
+    this.feedbackColor = FEEDBACK_NORMAL;
+  }
+
   render() {
     this.createRoot();
 
@@ -343,7 +371,7 @@ export class AlibiTimelineScene extends BaseScene {
       30,
       92,
       `Theft: ${formatNoteTime(this.crimeWindow.startMinute)}–` +
-        `${formatNoteTime(this.crimeWindow.endMinute)}`,
+      `${formatNoteTime(this.crimeWindow.endMinute)}`,
       740
     );
 
@@ -377,7 +405,8 @@ export class AlibiTimelineScene extends BaseScene {
       this.root,
       30,
       135,
-      '1. Order the event times, earliest first. Intervals show how long each account covers.',
+      '1. Order the event times, earliest first. ' +
+      'Intervals show how long each account covers.',
       1030,
       { fontSize: '18px' }
     );
@@ -396,7 +425,7 @@ export class AlibiTimelineScene extends BaseScene {
           : 'Click a witness card below.',
         () => {
           this.slots[index] = null;
-          this.feedback = '';
+          this.clearFeedback();
           this.render();
         }
       );
@@ -458,7 +487,7 @@ export class AlibiTimelineScene extends BaseScene {
           : choice.label,
         () => {
           this.choice = choice.id;
-          this.feedback = '';
+          this.clearFeedback();
           this.render();
         },
         { selected: this.choice === choice.id }
@@ -532,9 +561,11 @@ export class AlibiTimelineScene extends BaseScene {
           ? 'alibi accepted'
           : 'alibi challenged'
       }.\n\n` +
-      (choice
-        ? `Recorded conclusion: ${choice.label}.\n\n`
-        : '') +
+      (
+        choice
+          ? `Recorded conclusion: ${choice.label}.\n\n`
+          : ''
+      ) +
       'This report is final and cannot be amended.',
       940,
       {
@@ -554,9 +585,9 @@ export class AlibiTimelineScene extends BaseScene {
         70,
         490,
         'Filed timeline:\n\n' +
-          ordered.map((card, index) =>
-            `${index + 1}. ${card.role}\n${this.cardBody(card)}`
-          ).join('\n\n'),
+        ordered.map((card, index) =>
+          `${index + 1}. ${card.role}\n${this.cardBody(card)}`
+        ).join('\n\n'),
         960,
         { fontSize: '20px' }
       );
@@ -602,7 +633,10 @@ export class AlibiTimelineScene extends BaseScene {
       y + 48,
       body,
       width - 30,
-      { fontSize: '18px', lineSpacing: 3 }
+      {
+        fontSize: '18px',
+        lineSpacing: 3
+      }
     );
 
     this.fitText(content, height - 58, 13);
@@ -611,7 +645,11 @@ export class AlibiTimelineScene extends BaseScene {
       background
         .setInteractive({ useHandCursor: true })
         .on('pointerdown', () => {
-          if (!this.busy && !this.solved && !this.modal) {
+          if (
+            !this.busy &&
+            !this.solved &&
+            !this.modal
+          ) {
             callback();
           }
         });
@@ -653,7 +691,7 @@ export class AlibiTimelineScene extends BaseScene {
       () => {
         this.slots = [null, null, null];
         this.choice = null;
-        this.feedback = '';
+        this.clearFeedback();
         this.render();
       }
     );
@@ -670,25 +708,31 @@ export class AlibiTimelineScene extends BaseScene {
   }
 
   placeCard(id) {
-    if (this.solved || this.slots.includes(id)) return;
+    if (
+      this.solved ||
+      this.slots.includes(id)
+    ) {
+      return;
+    }
 
     const index = this.slots.indexOf(null);
 
     if (index < 0) {
       this.setFeedback(
-        'The timeline is full. Remove a card first.'
+        'The timeline is full. Remove a card first.',
+        FEEDBACK_ERROR
       );
       return;
     }
 
     this.slots[index] = id;
-    this.feedback = '';
+    this.clearFeedback();
     this.render();
   }
 
-  setFeedback(message) {
+  setFeedback(message, color = FEEDBACK_NORMAL) {
     this.feedback = message;
-    this.feedbackColor = '#594a36';
+    this.feedbackColor = color;
 
     this.messageText
       ?.setText(message)
@@ -696,7 +740,13 @@ export class AlibiTimelineScene extends BaseScene {
   }
 
   checkDeduction() {
-    if (this.busy || this.solved || this.modal) return;
+    if (
+      this.busy ||
+      this.solved ||
+      this.modal
+    ) {
+      return;
+    }
 
     this.busy = true;
 
@@ -709,14 +759,19 @@ export class AlibiTimelineScene extends BaseScene {
       );
 
       if (!result.accepted) {
-        this.setFeedback(result.message);
+        this.setFeedback(
+          result.message,
+          FEEDBACK_ERROR
+        );
         return;
       }
 
       this.result = result.status;
       this.solved = true;
 
-      if (result.alreadyFiled) this.loadBoard();
+      if (result.alreadyFiled) {
+        this.loadBoard();
+      }
 
       if (result.status === 'contradicted') {
         advanceCrimeTutorial(gameState, 'find_liar');
@@ -724,6 +779,7 @@ export class AlibiTimelineScene extends BaseScene {
       }
 
       this.feedback = 'Conclusion recorded.';
+      this.feedbackColor = FEEDBACK_SUCCESS;
       this.render();
     } catch (error) {
       console.error(
@@ -744,7 +800,8 @@ export class AlibiTimelineScene extends BaseScene {
       }
 
       this.setFeedback(
-        'The report could not be fully saved. Check the console.'
+        'The report could not be fully saved. Check the console.',
+        FEEDBACK_ERROR
       );
     } finally {
       this.busy = false;
@@ -955,11 +1012,18 @@ export class AlibiTimelineScene extends BaseScene {
 
     const xFor = minute =>
       left +
-      ((minute - minimum) / Math.max(1, maximum - minimum)) *
-        width;
+      (
+        (minute - minimum) /
+        Math.max(1, maximum - minimum)
+      ) * width;
 
-    const crimeLeft = xFor(this.crimeWindow.startMinute);
-    const crimeRight = xFor(this.crimeWindow.endMinute);
+    const crimeLeft = xFor(
+      this.crimeWindow.startMinute
+    );
+
+    const crimeRight = xFor(
+      this.crimeWindow.endMinute
+    );
 
     modal.add(
       this.add.rectangle(
@@ -976,9 +1040,9 @@ export class AlibiTimelineScene extends BaseScene {
       modal,
       45,
       125,
-      `Shaded area: theft window ` +
-        `${formatNoteTime(this.crimeWindow.startMinute)}–` +
-        `${formatNoteTime(this.crimeWindow.endMinute)}`,
+      'Shaded area: theft window ' +
+      `${formatNoteTime(this.crimeWindow.startMinute)}–` +
+      `${formatNoteTime(this.crimeWindow.endMinute)}`,
       1010,
       {
         fontSize: '20px',
@@ -988,7 +1052,8 @@ export class AlibiTimelineScene extends BaseScene {
 
     for (let index = 0; index <= 6; index++) {
       const minute = Math.round(
-        minimum + ((maximum - minimum) * index) / 6
+        minimum +
+        ((maximum - minimum) * index) / 6
       );
 
       const x = xFor(minute);
@@ -1026,7 +1091,11 @@ export class AlibiTimelineScene extends BaseScene {
         55,
         y - 48,
         `${index + 1}. ${row.witness.role}` +
-          (revision ? ' — original account withdrawn' : ''),
+        (
+          revision
+            ? ' — original account withdrawn'
+            : ''
+        ),
         990,
         {
           fontSize: '21px',
@@ -1079,10 +1148,11 @@ export class AlibiTimelineScene extends BaseScene {
           ? row.note.ranges.map(range =>
               `${formatNoteTime(range.startMinute)}–` +
               `${formatNoteTime(range.endMinute)}: ` +
-              `${range.label}`
+              range.label
             ).join('\n')
           : `${row.note.eventLabel}. ` +
-            'No bounded observation interval stated.',
+            'No complete start–end interval identified; ' +
+            'read the original account.',
         990,
         {
           fontSize: '19px',
@@ -1098,7 +1168,7 @@ export class AlibiTimelineScene extends BaseScene {
       55,
       825,
       'Overlapping times do not prove an account is true. ' +
-        'Compare the person observed, the place and the date as well.',
+      'Compare the person observed, the place and the date as well.',
       990,
       {
         fontSize: '21px',
@@ -1118,7 +1188,13 @@ export class AlibiTimelineScene extends BaseScene {
   }
 
   async returnToCity() {
-    if (this.busy || this._cleanupDone || this.modal) return;
+    if (
+      this.busy ||
+      this._cleanupDone ||
+      this.modal
+    ) {
+      return;
+    }
 
     this.busy = true;
 
@@ -1130,8 +1206,10 @@ export class AlibiTimelineScene extends BaseScene {
 
       if (!opened && !this._cleanupDone) {
         this.busy = false;
+
         this.setFeedback(
-          'Could not return to the city. Try again.'
+          'Could not return to the city. Try again.',
+          FEEDBACK_ERROR
         );
       }
     } catch (error) {
@@ -1142,8 +1220,10 @@ export class AlibiTimelineScene extends BaseScene {
 
       if (!this._cleanupDone) {
         this.busy = false;
+
         this.setFeedback(
-          'Could not return to the city. Try again.'
+          'Could not return to the city. Try again.',
+          FEEDBACK_ERROR
         );
       }
     }

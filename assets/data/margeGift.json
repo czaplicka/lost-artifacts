@@ -1,0 +1,46 @@
+{
+  "minimumCompletedMissions": 6,
+  "flags": {
+    "birthday": "marge_birthday_discovered",
+    "giftGiven": "marge_birthday_gift_given",
+    "helpCompleted": "marge_helpful_conversation_completed",
+    "commissionerKnown": "commissioner_identity_learned",
+    "supervisorLead": "supervisor_insurance_inquiry_unlocked"
+  },
+  "gifts": [
+    {
+      "category": "souvenirs",
+      "key": "postcard",
+      "previewLabel": "Postcard",
+      "acceptance": [
+        "A birthday card? You remembered.",
+        "It is a postcard, technically, but I am prepared to overlook the geographical inaccuracy.",
+        "Thank you. That was thoughtful."
+      ]
+    },
+    {
+      "category": "souvenirs",
+      "key": "snowGlobe",
+      "previewLabel": "Souvenir Snow Globe",
+      "acceptance": [
+        "A snow globe. A tiny office where the weather is somebody else's problem.",
+        "You remembered my birthday. Thank you.",
+        "I will find it a place that is not on top of a personnel file."
+      ]
+    }
+  ],
+  "helpLines": [
+    "Before we return to the paperwork: thank you for the birthday gesture.",
+    "I can explain the alias without handing you somebody else's private personnel file. 'Commissioner' was an old alias used by our supervisor. Gordon.",
+    "That tells you whose authorization to ask about. It does not establish who typed the questioned insurance entry.",
+    "For the operation's approval and any separately filed search records, take the discrepancy to Gordon. Ask him directly.",
+    "And do not say that HR told you to break into anything. HR has enough forms."
+  ],
+  "messages": {
+    "tooEarly": "You know about Marge's birthday. Complete the sixth agency mission before this follow-up.",
+    "noGift": "Buy a postcard or a souvenir snow globe in the existing city shop, then bring it back. No money is taken in HR.",
+    "given": "Gift delivered. Click Marge to continue the insurance inquiry.",
+    "done": "New lead: the Commissioner alias belongs to Gordon. Ask the supervisor about the operation's authorization.",
+    "saveFailed": "Progress changed in memory, but automatic saving failed. Save manually before closing the game."
+  }
+}

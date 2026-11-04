@@ -2,6 +2,7 @@
   "id": "last-gnome-standing",
   "title": "Last Gnome Standing",
   "culprit": "colin",
+  "victimPortrait": "assets/murders/Reginald Prune/Reginald_Prune.webp",
   "brief": {
     "Victim": "Reginald Prune, chairman of the gardening society.",
     "Location": "The judging pavilion, annual garden competition.",
@@ -16,7 +17,7 @@
       "role": "Defending garden champion",
       "relation": "Reginald judged her prize-winning garden.",
       "suspicion": "He discovered that her supposedly natural flowers were plastic.",
-      "portrait": null
+      "portrait": "assets/murders/Reginald Prune/Barbara_Bloom.webp"
     },
     {
       "id": "penny",
@@ -24,7 +25,7 @@
       "role": "Society treasurer",
       "relation": "Reginald was checking her greenhouse accounts.",
       "suspicion": "The society paid for a greenhouse. The greenhouse has declined to exist.",
-      "portrait": null
+      "portrait": "assets/murders/Reginald Prune/Penny_Potts.webp"
     },
     {
       "id": "colin",
@@ -32,24 +33,19 @@
       "role": "Next-door neighbour",
       "relation": "Eleven-year dispute over a boundary hedge.",
       "suspicion": "He wants seven centimetres of hedge removed. He has measured them extensively.",
-      "portrait": null
+      "portrait": "assets/murders/Reginald Prune/Colin_Hedge.webp"
     }
   ],
   "crimeScene": [
     {
-      "title": "Broken Best Neighbour trophy",
-      "text": "A heavy ceramic gnome, recovered beside the body. A small piece of green knitted fabric is caught on its broken edge.",
-      "media": null
-    },
-    {
       "title": "Pavilion",
       "text": "The trophy table stands behind a canvas screen. The rear gate gives access from the gardens. A camera covers the gate, but not the trophy table.",
-      "media": null
+      "media": "assets/murders/Reginald Prune/crime_scene.webp"
     },
     {
-      "title": "Colin’s incident binder",
-      "text": "Eleven years of complaints, filed by hedge height. The final page reads: “SATURDAY: IT ENDS.”",
-      "media": null
+      "title": "Broken Best Neighbour trophy",
+      "text": "A heavy ceramic gnome, recovered beside the body. A small piece of green knitted fabric is caught on its broken edge.",
+      "media": "assets/murders/Reginald Prune/reward.webp"
     }
   ],
   "interrogations": [
@@ -68,45 +64,60 @@
   ],
   "evidence": [
     {
-      "title": "E1 — Gate camera contact sheet",
-      "kind": "contact",
-      "caption": "Pavilion rear gate · Saturday · camera clock checked by police",
-      "frames": [
+      "title": "Competition preparations",
+      "media": "assets/murders/Reginald Prune/Barbara_reward.webp",
+      "caption": "Photograph taken during preparations, before judging."
+    },
+    {
+      "title": "Greenhouse site",
+      "media": "assets/murders/Reginald Prune/greenhouse.webp",
+      "caption": "The site listed in the society’s greenhouse accounts."
+    },
+    {
+      "title": "Disputed boundary",
+      "media": "assets/murders/Reginald Prune/7cm.webp",
+      "caption": "The hedge strip referred to in the boundary agreement."
+    },
+    {
+      "title": "Rear gate camera",
+      "caption": "Saturday · camera clock checked by police. Select a frame to enlarge it.",
+      "gallery": [
         {
-          "time": "17:12",
-          "text": "Colin enters. He is wearing two green gloves."
+          "media": "assets/murders/Reginald Prune/camera_still3.webp",
+          "caption": "Rear gate — frame 1",
+          "effect": "cctv"
         },
         {
-          "time": "17:18",
-          "text": "Colin leaves. His right hand is bare."
+          "media": "assets/murders/Reginald Prune/camera_still1.webp",
+          "caption": "Rear gate — frame 2",
+          "effect": "cctv"
+        },
+        {
+          "media": "assets/murders/Reginald Prune/camera_still2.webp",
+          "caption": "Rear gate — frame 3",
+          "effect": "cctv"
         }
-      ],
-      "media": null
+      ]
     },
     {
-      "title": "E2 — Fabric comparison",
-      "kind": "fabric",
-      "caption": "Left: fabric recovered from the broken trophy. Right: Colin’s remaining glove.",
-      "text": "Both samples show a green knit crossed by a distinctive orange repair thread. The laboratory reports matching fibre and dye profiles, not a unique identification.",
-      "media": null
+      "title": "Incident binder",
+      "text": "Eleven years of complaints, filed by hedge height.",
+      "media": "assets/murders/Reginald Prune/the_incidents.webp"
     },
     {
-      "title": "E3 — Sponsor’s signed terms",
-      "kind": "document",
+      "title": "Sponsor’s signed terms",
       "text": "“The £2,000 winner’s payment is conditional on Reginald Prune personally completing the live award presentation. If he cannot do so, the event is cancelled and no prize payment is due.”\n\nBarbara’s signature appears below the terms.",
-      "media": null
+      "kind": "document"
     },
     {
-      "title": "E4 — Solicitor’s receipt",
-      "kind": "document",
+      "title": "Solicitor’s receipt",
       "text": "FRIDAY, 15:40\nReceived: duplicate greenhouse accounts and invoices.\nInstruction: release the enclosed material to the society committee and police upon the death of Reginald Prune.\n\nCopy of receipt acknowledged by Penny Potts, Friday, 16:05.",
-      "media": null
+      "kind": "document"
     },
     {
-      "title": "E5 — Boundary agreement",
-      "kind": "document",
+      "title": "Boundary agreement",
       "text": "“Colin Hedge agrees not to cut the disputed seven-centimetre strip during Reginald Prune’s lifetime. Following Prune’s death, the restriction ends.”\n\nSigned by both neighbours.\nMargin note in Colin’s handwriting: “AT LAST. EVENTUALLY.”",
-      "media": null
+      "kind": "document"
     }
   ],
   "intel": [
@@ -121,8 +132,19 @@
   ],
   "resolution": {
     "summary": "Colin Hedge killed Reginald Prune.",
-    "reason": "The boundary agreement gave Colin a concrete benefit from Reginald’s death. His claim that he went straight to the car park is contradicted by the gate camera, which places him at the pavilion during the death window. He enters wearing two gloves and leaves without the right one; fabric on the broken murder weapon is consistent with the unusually repaired glove he still owns. No single detail carries the case alone.",
-    "others": "Barbara needed Reginald alive to receive the prize; his death cancels payment. Penny knew the duplicate accounts would be released upon his death, and Monday’s handover would still happen. These facts weaken their apparent motives, but do not magically prove innocence: Colin’s false account and the physical evidence are what complete the case.",
+    "reason": "The boundary agreement gave Colin a concrete benefit from Reginald’s death. His claim that he went straight to the car park is contradicted by the gate camera, which places him at the pavilion during the death window. He enters wearing two gloves and leaves without the right one. His statement that he lost it on Friday does not fit the images. These observations, together with the boundary agreement, form the case against him.",
+    "others": "Barbara needed Reginald alive to receive the prize; his death cancels payment. Penny knew the duplicate accounts would be released upon his death, and Monday’s handover would still happen. These facts weaken their apparent motives, but do not automatically prove innocence. Presence near the trophy is not, on its own, proof of murder.",
+    "corroboration": "The comparison below is additional corroboration shown after your decision, not a clue you were required to see before accusing anyone. The trophy scrap and the remaining glove have consistent green knitting and orange repair thread. Matching fibre and dye profiles do not uniquely identify a particular glove.",
     "officer": "“Eleven years of correspondence. One ceramic gnome. Seven centimetres. I am requesting a transfer to organised crime.”"
-  }
+  },
+  "resolutionMedia": [
+    {
+      "media": "assets/murders/Reginald Prune/glove_sample.webp",
+      "caption": "Post-case comparison: trophy scrap and remaining glove."
+    },
+    {
+      "media": "assets/murders/Reginald Prune/glove.webp",
+      "caption": "Colin’s remaining glove — supplementary close-up."
+    }
+  ]
 }

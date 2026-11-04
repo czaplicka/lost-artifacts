@@ -52,7 +52,7 @@ export class DetectiveOfficeScene extends BaseScene {
     const backgroundUrl=OFFICE_CONFIG.backgroundUrl||'assets/local/pioffice.webp';
     if(!this.textures.exists(backgroundKey))this.load.image(backgroundKey,backgroundUrl);
     for(const[key,url]of DATA_FILES)if(!this.cache.json.exists(key))this.load.json(key,url);
-    const images=[...PHONE_ART,['pi_computer_wallpaper','assets/ui/pi-computer/wallpaper.png']];
+    const images=[...PHONE_ART,['pi_computer_wallpaper','assets/ui/computer/wallpaper_pi.webp']];
     for(const definition of this.hotspotDefs)if(definition.textureKey&&definition.textureUrl)images.push([definition.textureKey,definition.textureUrl]);
     const queued=new Set();
     for(const[key,url]of images){

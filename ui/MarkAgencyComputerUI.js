@@ -307,7 +307,7 @@ export class MarkAgencyComputerUI {
 
     // Optional art: assets/ui/computer/wallpaper_mark.png (loaded in the background on first use).
     const key = this.options.wallpaperKey || 'mark_computer_wallpaper';
-    if (!scene.textures.exists(key)) this.shell.art(key, 'wallpaper_mark.png');
+    if (!scene.textures.exists(key)) this.shell.art(key, 'wallpaper_mark.webp');
 
     if (scene.textures.exists(key)) {
       d.add(scene.add.image(x, y, key).setOrigin(0).setDisplaySize(w, h - 36));

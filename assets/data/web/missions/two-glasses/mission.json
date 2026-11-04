@@ -10,7 +10,9 @@
     "pages/hotels.json",
     "pages/organisations.json",
     "pages/news.json",
-    "pages/social.json"
+    "pages/social.json",
+    "pages/table-search.json",
+    "pages/jacket-search.json"
   ],
   "pageOrder": [
     "miramar",
@@ -39,6 +41,13 @@
     "reed_miramar_social",
     "reed_open_skies_social",
     "claire_social_friends",
-    "nora_social_friends"
+    "nora_social_friends",
+    "two_glasses_table",
+    "two_glasses_shop",
+    "two_glasses_specs",
+    "jacket_shop",
+    "jacket_hire",
+    "jacket_cleaner",
+    "jacket_forum"
   ]
 }

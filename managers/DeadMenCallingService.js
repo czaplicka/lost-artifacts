@@ -410,7 +410,7 @@ export function getDeadMenMail() {
     'Detective,\n\nThank you for taking my case. My name is Margaret Vale. My husband Edward Vale died a year ago. Since Monday, I have received three voicemail messages in what sounds like his voice.\n\nThe three transcripts are separate attachments in this mailbox. I have preserved the original audio. Square brackets describe sounds heard in each recording.\n\nThe caller wants a blue folder and insists I tell no one. I have decided this does not apply to someone I am paying.\n\nPlease contact me when you can. I would rather explain the rest to someone with a pulse.\n\nMargaret Vale'),
     ...recordings.map(m => mail(m.id,'Margaret Vale — attachment',m.subject,m.body,'Original voicemail transcript'))];
   if (s.interviewCompleted) items.unshift(
-    mail(REVIEW,'Your investigation notebook','Compare the recordings',reviewBody(REVIEW),'Evidence review'),
+    
     mail('dead_men_archive_delivery','Margaret Vale','Edward’s older recordings — three attachments',
       'Detective,\n\nAs promised, I have supplied copies of three older recordings: Archive A, Archive B and Archive C. They predate Edward’s death according to my records. I have kept the originals.\n\nPlease compare them with the recent messages. I would prefer an explanation requiring neither a medium nor another telephone contract.\n\nMargaret Vale'),
     ...archive.map(m => mail(m.id,'Margaret Vale — archive attachment',m.subject,m.body,'Client-supplied older recording'))
@@ -565,4 +565,32 @@ export function installDeadMenPhone(phone) {
   if (close) phone.close = () => {activeRoute=null;phone.deadMenInterview=false;close();};
   const finish = phone.finishCall.bind(phone);
   phone.finishCall = message => {activeRoute=null;phone.deadMenInterview=false;finish(message);};
+}
+
+// OWL_AUDIO_BRIDGE_V1 — shares existing progress, validation and evidence.
+export function getDeadMenAudioWorkspace() {
+  const quest=getPIQuest(DEAD_MEN_QUEST);
+  const available=Boolean(quest&&['active','completed'].includes(quest.status));
+  const state=getDeadMenProgress();
+  const spec=reviewSpec(REVIEW);
+  const q=spec&&!spec.done?currentQuestion(spec):null;
+  return {
+    available,
+    recent:available?clone(recordings):[],
+    archive:available&&state.interviewCompleted?clone(archive):[],
+    ready:available&&Boolean(spec?.ready),
+    done:available&&Boolean(spec?.done),
+    body:available?reviewBody(REVIEW):'No case sources available.',
+    question:q?{id:q.id,prompt:q.prompt,options:q.options.map(option=>({label:option.label}))}:null
+  };
+}
+export function readDeadMenAudioSource(id) {
+  const state=getDeadMenProgress();
+  const sources=[...recordings,...(state.interviewCompleted?archive:[])];
+  if(!sources.some(source=>source.id===id)||!getPIQuest(DEAD_MEN_QUEST))return false;
+  markRead(id);
+  return true;
+}
+export function answerDeadMenAudioComparison(questionId,index) {
+  return checkAnswer(REVIEW,questionId,index);
 }

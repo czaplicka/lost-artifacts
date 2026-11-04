@@ -1,93 +1,228 @@
 import { gameState } from '../GameData.js';
 import { discoverSearchKeywords, getSearchProgress } from '../ui/pi-computer/ComputerSearchCore.js';
+import { drawEvidenceText } from '../ui/pi-computer/EvidenceText.js';
+import { FONT_TEXT, AMBER, GREEN } from '../ui/pi-phone/PhoneConfig.js';
 
-export const DEAD_MEN_WEB_CASE = 'dead_men_calling';
+export const DEAD_MEN_WEB_CASE='dead_men_calling';
 const QUEST='pi_dead_men_calling';
 const CONTACTS={
- '619':{id:'dead_men_margaret',number:'619',name:'Margaret Vale',keyword:'dm_phone_margaret'},
- '620':{id:'dead_men_leo',number:'620',name:'Leo Mercer',keyword:'dm_phone_leo'},
- '621':{id:'dead_men_colin',number:'621',name:'Colin Ward',keyword:'dm_phone_colin'}
+  '619':{id:'dead_men_margaret',number:'619',name:'Margaret Vale',keyword:'dm_phone_margaret'},
+  '620':{id:'dead_men_leo',number:'620',name:'Leo Mercer',keyword:'dm_phone_leo'},
+  '621':{id:'dead_men_colin',number:'621',name:'Colin Ward',keyword:'dm_phone_colin'}
 };
 const UI_INSTALLED=Symbol.for('lostArtifacts.deadMenWebUI');
 const PHONE_INSTALLED=Symbol.for('lostArtifacts.deadMenWebPhone');
+const EXTRA_KEYWORDS=[
+  {id:'dm_hiss',label:'Low hiss',cloudId:'recordings',aliases:['low hiss','hiss']},
+  {id:'dm_tram_bell',label:'Two tram-bell rings',cloudId:'recordings',aliases:['tram bell: two short rings','two tram-bell rings','tram-bell rings','tram bell']},
+  {id:'dm_metallic_taps',label:'Three metallic taps',cloudId:'recordings',aliases:['three metallic taps','three microphone-stand taps','three taps']},
+  {id:'dm_archive_a',label:'Archive A',cloudId:'recordings',aliases:['Archive A']},
+  {id:'dm_archive_b',label:'Archive B',cloudId:'recordings',aliases:['Archive B']},
+  {id:'dm_archive_c',label:'Archive C',cloudId:'recordings',aliases:['Archive C']}
+];
+const REPLAYS=new Set([
+  '[hiss] [two tram-bell rings] [three taps]',
+  '“Margaret. It is me. I need you to find the blue folder.”',
+  '“Margaret. Listen carefully. The blue folder. You know where to look.”',
+  '“Have you found it? Do not tell anyone. I will call again.”'
+]);
+const PLAYER_IDS=new Set(['dead_men_recording_1','dead_men_recording_2','dead_men_recording_3','dead_men_archive_a','dead_men_archive_b','dead_men_archive_c']);
 function accepted(){return ['active','completed'].includes(gameState.piQuests?.quests?.[QUEST]?.status);}
 function known(){return getSearchProgress().cases[DEAD_MEN_WEB_CASE]?.known||[];}
+const normalize=value=>String(value||'').replace(/\s+/g,' ').trim().toLowerCase();
+
+export function ensureDeadMenNotebook(data){
+  const definition=data?.cases?.find(item=>item.id===DEAD_MEN_WEB_CASE);
+  if(!definition)return null;
+  if(!definition.clouds.some(item=>item.id==='recordings'))definition.clouds.push({id:'recordings',title:'VOICE & RECORDINGS'});
+  for(const spec of EXTRA_KEYWORDS){
+    const old=definition.keywords.find(item=>item.id===spec.id);
+    if(!old)definition.keywords.push({...spec,aliases:[...spec.aliases]});
+    else old.aliases=[...new Set([...(old.aliases||[]),...spec.aliases])];
+  }
+  const targets=['dm_audio_article'].filter(id=>definition.pages.some(page=>page.id===id));
+  if(targets.length){
+    const recipes=definition.recipes;
+    for(const spec of EXTRA_KEYWORDS){
+      if(!recipes.some(recipe=>recipe.terms.length===1&&recipe.terms[0]===spec.id))recipes.push({terms:[spec.id],pageIds:[...targets]});
+    }
+  }
+  return definition;
+}
+
 export function isDeadMenWebContactVisible(contact){
- const spec=CONTACTS[contact?.number];
- return !spec || (accepted()&&known().includes(spec.keyword));
+  const spec=CONTACTS[contact?.number];
+  return !spec||(accepted()&&known().includes(spec.keyword));
 }
 export function deadMenWebContacts(){
- return Object.values(CONTACTS).filter(isDeadMenWebContactVisible)
-  .map(({keyword,...contact})=>({...contact,listed:true,status:'available',dialogueId:null}));
+  return Object.values(CONTACTS).filter(isDeadMenWebContactVisible)
+    .map(({keyword,...contact})=>({...contact,listed:true,status:'available',dialogueId:null}));
 }
-export function installDeadMenWebPhone(phone){
- if(phone[PHONE_INSTALLED])return;phone[PHONE_INSTALLED]=true;
- const start=phone.startCall.bind(phone);
- phone.startCall=()=>{
-  if(CONTACTS[phone.number]&&!isDeadMenWebContactVisible({number:phone.number})){
-   phone.finishCall('The number cannot be connected.');return;
-  }
-  return start();
- };
-}
+
 export function fragmentDeadMenText(value,keywords){
- const aliases=[];
- for(const keyword of keywords){
-  // Numbers can only be discovered through their website fragments.
-  if(keyword.id.startsWith('dm_phone_'))continue;
-  for(const alias of keyword.aliases||[]){if(alias)aliases.push({alias,id:keyword.id});}
- }
- aliases.sort((a,b)=>b.alias.length-a.alias.length);
- const source=String(value),result=[];let plain='',index=0;
- while(index<source.length){
-  const match=aliases.find(item=>source.slice(index,index+item.alias.length).toLowerCase()===item.alias.toLowerCase()&&
-   (index===0||!/[a-z0-9_]/i.test(source[index-1]))&&
-   (index+item.alias.length===source.length||!/[a-z0-9_]/i.test(source[index+item.alias.length])));
-  if(!match){plain+=source[index++];continue;}
-  if(plain){result.push(plain);plain='';}
-  result.push({keywordId:match.id,text:source.slice(index,index+match.alias.length)});index+=match.alias.length;
- }
- if(plain)result.push(plain);return result;
-}
-const MAILS=new Set([
- 'dead_men_client_mail','dead_men_archive_delivery','dead_men_access_enquiry',
- 'dead_men_mercer_permission','dead_men_release','dead_men_manifest','dead_men_delivery',
- 'dead_men_folder_cover','dead_men_folder_sheet','dead_men_folder_bank','dead_men_colin_request',
- 'dead_men_colin_statement','dead_men_admission_copy','dead_men_consent_copy','dead_men_audio_next'
-]);
-export function installDeadMenWebUI(ui){
- if(ui[UI_INSTALLED])return;ui[UI_INSTALLED]=true;
- const docs=ui.documents,original=docs.renderPagedText.bind(docs);
- docs.renderPagedText=(content,x,y,w,h)=>{
-  if(!accepted()||ui.app!=='mail'||!MAILS.has(ui.selectedId))return original(content,x,y,w,h);
-  const search=ui.search;
-  const definition=search.data?.cases?.find(c=>c.id===DEAD_MEN_WEB_CASE);
-  if(!definition){if(!search.loading&&!search.error)void search.load();return original(content,x,y,w,h);}
-  const blocks=String(content).split('\n').map(line=>fragmentDeadMenText(line,definition.keywords));
-  const lines=search.retroArticleLines.call({definition,textWidth:search.textWidth.bind(search)},
-   {blocks,links:[]},Math.max(1,w-8),16);
-  const lineHeight=25,rows=Math.max(1,Math.floor((h-38)/lineHeight));
-  const pages=Math.max(1,Math.ceil(lines.length/rows));
-  ui.bodyPage=Math.max(0,Math.min(pages-1,Number(ui.bodyPage)||0));
-  const mailId=ui.selectedId;
-  lines.slice(ui.bodyPage*rows,(ui.bodyPage+1)*rows).forEach((line,i)=>{
-   let xx=x;const yy=y+i*lineHeight;
-   for(const part of line){
-    const collected=part.keywordId&&known().includes(part.keywordId);
-    const label=ui.drawing.text(xx,yy,part.text,16,part.keywordId?(collected?'#497050':'#94572f'):'#343e35');
-    if(part.keywordId){
-     ui.drawing.rectangle(xx,yy+label.height+1,Math.max(1,label.width),1,collected?0x497050:0x94572f);
-     label.setInteractive({useHandCursor:true}).on('pointerdown',()=>{
-      if(!accepted()||ui.app!=='mail'||ui.selectedId!==mailId)return;
-      discoverSearchKeywords(DEAD_MEN_WEB_CASE,[part.keywordId]);ui.render();
-     });
+  const aliases=[];
+  for(const keyword of keywords||[]){
+    // Phone numbers remain collectible only from their explicit website tags.
+    if(keyword.id.startsWith('dm_phone_'))continue;
+    for(const alias of keyword.aliases||[]){
+      if(typeof alias!=='string'||!alias.trim())continue;
+      const pattern=alias.trim().split(/\s+/).map(part=>part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('\\s+');
+      aliases.push({alias,id:keyword.id,expression:new RegExp('^(?:'+pattern+')','i')});
     }
-    xx+=search.textWidth(part.text,16);
-   }
+  }
+  aliases.sort((a,b)=>b.alias.length-a.alias.length);
+  const source=String(value),result=[];let plain='',index=0;
+  while(index<source.length){
+    let found=null;
+    if(index===0||!/[a-z0-9_]/i.test(source[index-1])){
+      for(const candidate of aliases){
+        const match=source.slice(index).match(candidate.expression);
+        if(!match)continue;
+        const end=index+match[0].length;
+        if(end<source.length&&/[a-z0-9_]/i.test(source[end]))continue;
+        found={id:candidate.id,text:match[0]};break;
+      }
+    }
+    if(!found){plain+=source[index++];continue;}
+    if(plain){result.push(plain);plain='';}
+    result.push({keywordId:found.id,text:found.text});index+=found.text.length;
+  }
+  if(plain)result.push(plain);
+  return result;
+}
+
+function hasKeywords(parts){return parts.some(part=>part&&typeof part==='object'&&part.keywordId);}
+function allowedMail(message){
+  return Boolean(message?.id?.startsWith('dead_men_')&&!/(?:draft|review|pending)/i.test(message.id)&&!/^You\s*→/.test(message.from||''));
+}
+
+export function installDeadMenWebUI(ui){
+  if(ui[UI_INSTALLED])return;
+  ui[UI_INSTALLED]=true;
+  const docs=ui.documents,search=ui.search,restorers=[];
+  let dead=false,rendering=false,drawingRich=false,cached=null,loading=null;
+  const alive=()=>!dead&&!ui.destroyed;
+  const refresh=()=>{if(alive()&&ui.isOpen&&!ui.suspended&&!ui.booting)ui.render();};
+  const wrap=(target,key,factory)=>{
+    if(typeof target?.[key]!=='function')return;
+    const original=target[key],wrapped=factory(original.bind(target));target[key]=wrapped;
+    restorers.push(()=>{if(target[key]===wrapped)target[key]=original;});
+  };
+  const definition=()=>ensureDeadMenNotebook(search.data);
+  function loadDefinitions(){
+    if(definition()||loading||search.error||!accepted())return;
+    loading=Promise.resolve().then(()=>search.load()).then(()=>{
+      if(alive())definition();
+    }).catch(error=>console.error('[DeadMenWebUI] Notebook data unavailable:',error))
+      .finally(()=>{loading=null;if(alive()&&definition())refresh();});
+  }
+  function sourceMessage(){
+    const id=ui.selectedId;
+    if(cached?.id===id)return cached;
+    const items=docs.getMail();
+    const message=items.find(item=>item.id===id)||
+      (docs.mailbox?.trash?docs.mailbox.displayed().find(item=>item.id===id):null);
+    cached={id,message,body:normalize(message?.body)};return cached;
+  }
+  function collect(id,mailId){
+    if(!alive()||!accepted()||!ui.isOpen||ui.suspended||ui.app!=='mail'||ui.selectedId!==mailId)return;
+    const def=definition();
+    if(!def?.keywords.some(keyword=>keyword.id===id)||id.startsWith('dm_phone_'))return;
+    discoverSearchKeywords(DEAD_MEN_WEB_CASE,[id]);
+    queueMicrotask(()=>{
+      if(!alive()||!ui.isOpen||ui.suspended||ui.app!=='mail'||ui.selectedId!==mailId)return;
+      if(!ui.caseCloudNotebook?.revealKeyword?.(DEAD_MEN_WEB_CASE,id))refresh();
+    });
+  }
+  wrap(search,'load',original=>async(...args)=>{
+    const result=await original(...args);if(alive())definition();return result;
   });
-  const fy=y+h-32;
-  ui.drawing.button(x,fy,'<',()=>{ui.bodyPage--;ui.render();},ui.bodyPage>0);
-  ui.drawing.text(x+62,fy+8,`${ui.bodyPage+1}/${pages}`,13,'#696c59');
-  ui.drawing.button(x+122,fy,'>',()=>{ui.bodyPage++;ui.render();},ui.bodyPage<pages-1);
- };
+  wrap(ui.drawing,'text',original=>(x,y,value,size=17,color,wrapWidth=0,font='body')=>{
+    const label=original(x,y,value,size,color,wrapWidth,font);
+    if(!alive()||!rendering||drawingRich||!accepted()||ui.app!=='mail'||font==='pixel'||typeof value!=='string')return label;
+    const def=definition();if(!def)return label;
+    const source=sourceMessage();if(!allowedMail(source.message))return label;
+    const text=normalize(value);
+    const replay=PLAYER_IDS.has(ui.selectedId)&&REPLAYS.has(value);
+    if(!text||(!replay&&!source.body.includes(text)))return label;
+    const parts=fragmentDeadMenText(value,def.keywords);if(!hasKeywords(parts))return label;
+    const mailId=ui.selectedId,width=wrapWidth>0?wrapWidth:Math.max(1,label.width);
+    label.setVisible(false);drawingRich=true;
+    try{
+      drawEvidenceText(ui,{
+        blocks:[parts],x,y,width,fontSize:size,lineHeight:size+4,
+        isKnown:id=>known().includes(id),onCollect:id=>collect(id,mailId)
+      });
+    }finally{drawingRich=false;}
+    return label;
+  });
+  wrap(docs,'render',original=>(...args)=>{
+    cached=null;
+    if(alive()&&accepted()){definition();loadDefinitions();}
+    const previous=rendering;rendering=true;
+    try{return original(...args);}finally{rendering=previous;}
+  });
+  const cleanup=()=>{
+    if(dead)return;dead=true;cached=null;
+    ui.scene.events.off('shutdown',cleanup);ui.scene.events.off('destroy',cleanup);
+    for(const restore of restorers.reverse())restore();delete ui[UI_INSTALLED];
+  };
+  ui.scene.events.once('shutdown',cleanup);ui.scene.events.once('destroy',cleanup);
+}
+
+export function installDeadMenWebPhone(phone){
+  if(phone[PHONE_INSTALLED])return;
+  phone[PHONE_INSTALLED]=true;
+  const restorers=[];let dead=false;
+  const wrap=(key,factory)=>{
+    if(typeof phone[key]!=='function')return;
+    const original=phone[key],wrapped=factory(original.bind(phone));phone[key]=wrapped;
+    restorers.push(()=>{if(phone[key]===wrapped)phone[key]=original;});
+  };
+  function definition(){
+    return ensureDeadMenNotebook(phone.investigation?.searchData)||ensureDeadMenNotebook(phone.scene.computerUI?.search?.data);
+  }
+  function activeCall(){
+    const spec=CONTACTS[phone.number];
+    return Boolean(!dead&&!phone.destroyed&&phone.isOpen&&phone.state==='connected'&&spec&&phone.contactName===spec.name&&accepted());
+  }
+  wrap('startCall',original=>()=>{
+    if(CONTACTS[phone.number]&&!isDeadMenWebContactVisible({number:phone.number})){
+      phone.finishCall('The number cannot be connected.');return;
+    }
+    return original();
+  });
+  wrap('drawClickableFragments',original=>item=>{
+    if(!activeCall()||item.richDrawn||item.typing||!phone.logItems.includes(item))return original(item);
+    const def=definition();if(!def)return original(item);
+    const parts=fragmentDeadMenText(item.full,def.keywords);if(!hasKeywords(parts))return original(item);
+    const scene=phone.scene,root=scene.add.container(item.body.x,item.body.y);item.container.add(root);
+    const normal=item.isYou?'#ffe6b8':'#d9f5e8';
+    const surface=item.isYou?0x2a2010:0x14261d;
+    const probe=scene.add.text(0,0,'Ag',{fontFamily:FONT_TEXT,fontSize:'19px'}).setVisible(false);
+    const lineHeight=Math.max(19,Math.ceil(probe.height));probe.destroy();
+    const drawing={text(x,y,text,size){
+      const label=scene.add.text(x,y,text,{fontFamily:FONT_TEXT,fontSize:`${size}px`,color:normal});root.add(label);return label;
+    }};
+    const height=drawEvidenceText({scene,drawing,content:root},{
+      blocks:[parts],x:0,y:0,width:402,fontSize:19,lineHeight,surface,
+      isKnown:id=>known().includes(id),
+      onCollect:id=>{
+        if(!activeCall()||phone.directoryOpen||!phone.logItems.includes(item)||item.typing||id.startsWith('dm_phone_'))return;
+        discoverSearchKeywords(DEAD_MEN_WEB_CASE,[id]);
+        phone.scene.computerUI?.caseCloudNotebook?.revealKeyword?.(DEAD_MEN_WEB_CASE,id);
+        phone.render();
+      }
+    });
+    item.richDrawn=true;item.body.setVisible(false);item.height=Math.max(item.height,height+42);
+    const h=item.height-24;
+    item.bg.clear();item.bg.fillStyle(surface,1);item.bg.fillRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);
+    item.bg.lineStyle(1,item.isYou?AMBER:GREEN,.6);item.bg.strokeRoundedRect(item.bubbleOffset,16,item.bubbleWidth,h,8);
+    phone.layoutLog();
+  });
+  const cleanup=()=>{
+    if(dead)return;dead=true;phone.scene.events.off('shutdown',cleanup);
+    for(const restore of restorers.reverse())restore();delete phone[PHONE_INSTALLED];
+  };
+  phone.scene.events.once('shutdown',cleanup);
 }

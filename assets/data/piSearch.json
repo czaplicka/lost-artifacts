@@ -12,6 +12,10 @@
         {
           "id": "person",
           "title": "THE BADGE / JACKET"
+        },
+        {
+          "id": "table",
+          "title": "THE TABLE"
         }
       ],
       "keywords": [
@@ -89,6 +93,11 @@
           "id": "claire_email",
           "label": "claire.sutton@openskies.local",
           "cloudId": "person"
+        },
+        {
+          "id": "two_glasses",
+          "label": "Two glasses",
+          "cloudId": "table"
         }
       ],
       "initialKeywords": [],
@@ -1090,6 +1099,173 @@
             }
           ],
           "snippet": "Friends and connections of Nora Bell."
+        },
+        {
+          "id": "two_glasses_table",
+          "title": "Why are there two glasses at my place setting?",
+          "address": "www.tablematters.local/service/two-glasses",
+          "brand": "TABLE MATTERS",
+          "theme": "business",
+          "snippet": "Water glass, wine glass, mystery glass: a short guide to finding your drink.",
+          "blocks": [
+            [
+              "A guest writes: “There are two glasses beside my plate. Have I accidentally booked dinner for two?”"
+            ],
+            [
+              "Not necessarily. A single place setting may include a water glass and a wine glass. At receptions, staff may also prepare glassware before guests arrive."
+            ],
+            [
+              "Count place settings, not just glasses: plates, cutlery and chairs provide the context. A photograph of a table does not tell you which glasses were used."
+            ],
+            [
+              "If neither glass contains your drink, try asking the waiter. Staring meaningfully at the table remains an experimental technique."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "two_glasses_shop",
+          "title": "Two glasses, one gift box | The Toast Rack",
+          "address": "www.thetoastrack.local/shop/two-glasses",
+          "brand": "THE TOAST RACK",
+          "theme": "business",
+          "snippet": "A boxed pair of wine glasses. For anniversaries, housewarmings and ambitious solo evenings.",
+          "blocks": [
+            [
+              "Two matching wine glasses in a presentation box. Clear glass, slender stems, absolutely no ability to improve the wine."
+            ],
+            [
+              "Popular for wedding gifts, housewarmings and replacing the two glasses you broke while explaining how careful you are."
+            ],
+            [
+              "Gift message optional. “You already own these” is not currently available as a printed greeting."
+            ],
+            [
+              "Price: £18 per pair. Wine not included. A surprisingly common source of disappointment."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "two_glasses_specs",
+          "title": "Two glasses at once? | The Spare Pair Forum",
+          "address": "www.sparepair.local/forum/two-glasses",
+          "brand": "THE SPARE PAIR FORUM",
+          "theme": "forum",
+          "snippet": "One pair on your nose. One on your head. Still looking for your glasses.",
+          "blocks": [
+            [
+              "THREAD: Does anyone else keep two glasses on them?"
+            ],
+            [
+              "MAGNIFYING_MARGARET: “Reading glasses on my nose, distance glasses on my head. I can see everything except where I put either pair.”"
+            ],
+            [
+              "FRAME_OF_MIND: “Those are two PAIRS of glasses, Margaret.”"
+            ],
+            [
+              "MAGNIFYING_MARGARET: “Thank you. I now have twice as many missing.”"
+            ],
+            [
+              "MODERATOR: “For drinking glasses, please use the homeware section. This is the third time this week.”"
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "jacket_shop",
+          "title": "Fenwick green-check blazer | Marsh & Button",
+          "address": "www.marshandbutton.local/womenswear/fenwick",
+          "brand": "MARSH & BUTTON",
+          "theme": "business",
+          "snippet": "Dark green checks, contrasting pocket trim and enough pockets to lose your own receipt.",
+          "blocks": [
+            [
+              "THE FENWICK BLAZER — Forest green check with contrasting pocket trim. Available in several sizes."
+            ],
+            [
+              "For workdays, receptions and telling somebody you need to speak to the manager without actually saying it."
+            ],
+            [
+              "Our catalogue photograph shows one styling suggestion. Shirt, trousers and air of professional competence sold separately."
+            ],
+            [
+              "Check availability with your local branch. We cannot identify a customer from a photograph of a jacket. We also cannot identify our own regional manager without her name badge."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "jacket_hire",
+          "title": "Green checked jackets | Second Impression Hire",
+          "address": "www.secondimpression.local/hire/green-check",
+          "brand": "SECOND IMPRESSION",
+          "theme": "business",
+          "snippet": "Jackets for conferences, interviews and occasions that unexpectedly require an iron.",
+          "blocks": [
+            [
+              "Need a green checked jacket for one evening rather than the rest of your life? Our smart-casual range includes several checked styles."
+            ],
+            [
+              "Hire includes basic cleaning. Please return the jacket, its buttons and approximately the number of pockets it left with."
+            ],
+            [
+              "Exact patterns and pocket trims vary by size and availability. Ask to see the actual garment before booking."
+            ],
+            [
+              "Customer names and booking records are private. “I am being very nosy” does not qualify as written authorisation."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "jacket_cleaner",
+          "title": "Caring for a checked blazer | Pressing Matters",
+          "address": "www.pressingmatters.local/care/checked-blazers",
+          "brand": "PRESSING MATTERS",
+          "theme": "business",
+          "snippet": "Wool checks, decorative trim and the mysterious contents of your pockets.",
+          "blocks": [
+            [
+              "A green checked blazer with contrasting pocket trim may contain several materials. Check the care label before choosing a cleaning method."
+            ],
+            [
+              "Empty every pocket before bringing it in. Conference badges, business cards and emergency biscuits are not part of the garment."
+            ],
+            [
+              "Tell us about previous repairs or borrowed clothing. We can treat a stain; we cannot negotiate who pays for it."
+            ],
+            [
+              "All collection tickets must be presented at the counter. “It was green” describes both half our rail and the accountant after seeing the electricity bill."
+            ]
+          ],
+          "links": []
+        },
+        {
+          "id": "jacket_forum",
+          "title": "Someone went home in my green jacket",
+          "address": "www.coatcheck.local/forum/green-jacket-swap",
+          "brand": "THE COAT CHECK",
+          "theme": "forum",
+          "snippet": "A reception, two similar jackets and a pocket full of somebody else’s mints.",
+          "blocks": [
+            [
+              "THREAD STARTED BY: SLEEVE_IT_OUT"
+            ],
+            [
+              "SLEEVE_IT_OUT: “Came home from a reception wearing a green checked jacket. Mine was also green and checked. This one contains reading glasses and has much better manners.”"
+            ],
+            [
+              "POCKET_SQUARE: “Try the venue’s lost property desk. Give them the size, lining and a description of the pocket trim.”"
+            ],
+            [
+              "SLEEVE_IT_OUT: “Already called. They asked what was in my pockets. Apparently ‘potential’ is not specific enough.”"
+            ],
+            [
+              "MODERATOR: “Please do not post strangers’ names or photographs. This is a lost-property forum, not a public trial with coat hangers.”"
+            ]
+          ],
+          "links": []
         }
       ],
       "recipes": [
@@ -1180,7 +1356,11 @@
             "checked_jacket"
           ],
           "pageIds": [
-            "jacket_generic"
+            "jacket_generic",
+            "jacket_shop",
+            "jacket_hire",
+            "jacket_cleaner",
+            "jacket_forum"
           ]
         },
         {
@@ -1271,6 +1451,16 @@
           "pageIds": [
             "gallery",
             "nora_work"
+          ]
+        },
+        {
+          "terms": [
+            "two_glasses"
+          ],
+          "pageIds": [
+            "two_glasses_table",
+            "two_glasses_shop",
+            "two_glasses_specs"
           ]
         }
       ]
