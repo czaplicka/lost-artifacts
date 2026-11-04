@@ -1,0 +1,216 @@
+{
+  "pages": [
+    {
+      "id": "mariner_breakfast",
+      "title": "Breakfast & the residents’ lounge | The Mariner",
+      "brand": "THE MARINER",
+      "address": "www.mariner.local/breakfast-and-lounge",
+      "theme": "hotel",
+      "template": "hotel",
+      "blocks": [
+        [
+          "Breakfast at ",
+          {
+            "keywordId": "mariner",
+            "text": "The Mariner"
+          },
+          " is served from seven. Please consult reception for current serving arrangements."
+        ],
+        [
+          "Our residents’ lounge is available for small meetings and family celebrations. Ask about availability before inviting everyone you have ever met."
+        ],
+        [
+          "For public quiz nights and music, see our events page. An empty table is not a reservation, however confidently your uncle places his coat on it."
+        ],
+        [
+          "Guests requiring a quiet breakfast are advised not to ask the quiz regulars what they thought of last week’s answers."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel",
+          "pageId": "mariner"
+        },
+        {
+          "label": "What’s on",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
+        }
+      ],
+      "snippet": "Breakfast from seven, small meetings and family celebrations in the residents’ lounge.",
+      "imageKey": "reed_web_hotel_mariner",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp",
+      "imageCaption": "The Mariner — official hotel photograph"
+    },
+    {
+      "id": "mariner_guest_faq",
+      "title": "Finding us & guest questions | The Mariner",
+      "brand": "THE MARINER",
+      "address": "www.mariner.local/guest-questions",
+      "theme": "hotel",
+      "template": "hotel",
+      "blocks": [
+        [
+          "WHERE IS THE ENTRANCE?"
+        ],
+        [
+          "Look for the brass seahorse sign on Quay Street. ",
+          {
+            "keywordId": "mariner",
+            "text": "The Mariner"
+          },
+          " overlooks the old harbour."
+        ],
+        [
+          "IS THAT A UNIQUE SYMBOL?"
+        ],
+        [
+          "It is our sign, not a copyright claim over the entire seahorse population. Please check the hotel name as well as the animal."
+        ],
+        [
+          "CAN I CHECK SOMEONE ELSE’S BOOKING?"
+        ],
+        [
+          "We do not publish guest lists or private booking details. “They would probably want me to know” is not authorisation."
+        ],
+        [
+          "I LEFT SOMETHING IN THE LOUNGE."
+        ],
+        [
+          "Contact reception with a description and approximate date. We cannot return “the correct answer to question six”; the quizmaster says it never left."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel",
+          "pageId": "mariner"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
+        },
+        {
+          "label": "Events",
+          "pageId": "mariner_events"
+        }
+      ],
+      "snippet": "The Quay Street entrance, a brass seahorse and a firm policy on other people’s bookings.",
+      "imageKey": "reed_web_hotel_mariner",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp",
+      "imageCaption": "The Mariner — official hotel photograph"
+    },
+    {
+      "id": "mariner_harbour_guide",
+      "title": "The Mariner | Old harbour visitor guide",
+      "brand": "QUAYSIDE VISITOR GUIDE",
+      "address": "www.quaysideguide.local/stay/the-mariner",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "mariner",
+            "text": "The Mariner"
+          },
+          " offers family-run accommodation above the old harbour. Its entrance is marked by a brass seahorse sign on Quay Street."
+        ],
+        [
+          "The hotel advertises breakfasts, small meetings and family celebrations, alongside public quiz nights and acoustic music."
+        ],
+        [
+          "Check the hotel’s current listings for event information. Our guide is an introduction to the harbour, not an exhaustive calendar of everything that happens near water."
+        ],
+        [
+          "Other coastal hotels include Hotel Miramar and Coral Crown Hotel. Similar nautical branding is common enough that we recommend reading signs before carrying luggage upstairs."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Official website",
+          "pageId": "mariner"
+        },
+        {
+          "label": "Hotel events",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Hotel Miramar",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral"
+        }
+      ],
+      "snippet": "Quay Street accommodation, a brass seahorse sign and the old harbour."
+    },
+    {
+      "id": "mariner_quiz_thread",
+      "title": "The Mariner quiz — is “the harbour” ever the answer?",
+      "brand": "QUAYSIDE QUIZ FORUM",
+      "address": "www.quaysidequiz.local/forum/mariner-answers",
+      "theme": "forum",
+      "template": "forum",
+      "blocks": [
+        [
+          "TEAM_LAST_AGAIN: “Thinking of trying Thursday’s quiz at The Mariner. How seriously do people take it?”"
+        ],
+        [
+          "PENCIL_DOWN: “One team brought a clipboard. Another brought a substitute. Make of that what you will.”"
+        ],
+        [
+          "QUIZ_ME_GENTLY: “We answered ‘the harbour’ to six questions. It was correct once. Apparently the capital of Portugal has moved inland.”"
+        ],
+        [
+          "PENCIL_DOWN: “Check the hotel’s events page before going. This thread is not a booking service.”"
+        ],
+        [
+          "MODERATOR: “No posting current answers, private guest details or photographs of someone else’s answer sheet. Yes, this includes zoomed-in reflections in spoons.”"
+        ]
+      ],
+      "links": [
+        {
+          "label": "Published quiz listing",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Hotel website",
+          "pageId": "mariner"
+        }
+      ],
+      "snippet": "Clipboards, disputed answers and a team with excessive confidence in the harbour."
+    },
+    {
+      "id": "mariner_quay_trio",
+      "title": "Quay Street Trio | Acoustic music for small venues",
+      "brand": "QUAY STREET TRIO",
+      "address": "www.quaystreettrio.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "The Quay Street Trio plays acoustic sets for lounges, small venues and private celebrations. Three musicians. Several instruments. One continuing disagreement about the van."
+        ],
+        [
+          "You can find us in The Mariner’s Friday music listing. Check the venue’s current programme before travelling; this page is not a live attendance record."
+        ],
+        [
+          "For enquiries, include your venue, preferred date and the space available. “Between the drinks cabinet and the argument” is not a stage measurement."
+        ],
+        [
+          "Please do not confuse us with the Harbour Quartet. They have an extra person and remain suspiciously organised."
+        ]
+      ],
+      "links": [
+        {
+          "label": "The Mariner — what’s on",
+          "pageId": "mariner_events"
+        }
+      ],
+      "snippet": "Acoustic music, small-venue bookings and an ongoing disagreement about the van."
+    }
+  ]
+}

@@ -1,3 +1,7 @@
+const HIDDEN_OBJECT_FOUND_POINTS = 15;
+const HIDDEN_OBJECT_MISS_POINTS = -3;
+const HIDDEN_OBJECT_FOUND_COLOR = '#7CFC00';
+
 export class HiddenObjectsInteractionController {
   constructor(scene) {
     this.scene = scene;
@@ -96,14 +100,7 @@ export class HiddenObjectsInteractionController {
     scene.foundItems.add(id);
     this.recordCollectedCard(id);
 
-    const isMissionRelevant =
-      scene.missionRelevantItemIds.has(id);
-
-    const clueType = itemData.clueType || 'soft_clue';
-
-    const points = isMissionRelevant
-      ? (clueType === 'hard_clue' ? 25 : 15)
-      : 5;
+    const points = HIDDEN_OBJECT_FOUND_POINTS;
 
     scene.score =
       scene.scoreManager.addHiddenObjectScore(points);
@@ -116,24 +113,24 @@ export class HiddenObjectsInteractionController {
     scene.ui.refreshList();
     this.bumpText(scene.ui.scoreText);
 
+    const isMissionRelevant =
+      scene.missionRelevantItemIds.has(id);
+
     if (isMissionRelevant) {
+      const clueType = itemData.clueType || 'soft_clue';
+
       this.emitClueFound(itemData);
 
       scene.stateManager.storeHiddenObjectClue(
         itemData,
         clueType
       );
-
-      scene.ui.showMessage(
-        `Evidence secured: ${itemData.item} (+${points})`,
-        '#7CFC00'
-      );
-    } else {
-      scene.ui.showMessage(
-        `Found: ${itemData.item} (+${points})`,
-        '#ffd966'
-      );
     }
+
+    scene.ui.showMessage(
+      `Found: ${itemData.item} (+${points})`,
+      HIDDEN_OBJECT_FOUND_COLOR
+    );
 
     if (
       scene.activeItems.length > 0 &&
@@ -169,7 +166,9 @@ export class HiddenObjectsInteractionController {
     scene.incorrectClicks += 1;
 
     scene.score =
-      scene.scoreManager.addHiddenObjectScore(-3);
+      scene.scoreManager.addHiddenObjectScore(
+        HIDDEN_OBJECT_MISS_POINTS
+      );
 
     scene.ui.updateScoreAndMisses(
       scene.score,
@@ -183,7 +182,7 @@ export class HiddenObjectsInteractionController {
     this.flashScreen(0xff4d4d, 0.12, 120);
 
     scene.ui.showMessage(
-      'No useful evidence there. (-3)',
+      `Nothing found there. (${HIDDEN_OBJECT_MISS_POINTS})`,
       '#ff8a8a'
     );
   }

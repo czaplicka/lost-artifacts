@@ -12,6 +12,9 @@ const CAT_JOKES=[
   'Cat_Pics.zip: 4,096 photos, 4,095 of them out of focus. The cat will not comment.',
   'Cat_Pics.zip is currently asleep. Please try again in 16 hours.'
 ];
+const SEARCH_ICON_Y=310;
+const AUDIO_ICON_Y=SEARCH_ICON_Y+100;
+
 export class ComputerDesktop{
   constructor(ui){this.ui=ui;}
   render(){
@@ -22,7 +25,7 @@ export class ComputerDesktop{
       ['travel','World\nTravel','globe',0x98b9ce]
     ];
     entries.forEach(([app,label,kind,color],i)=>this.createIcon(x+12,y+10+i*100,128,label,kind,color,()=>ui.openApp(app)));
-    this.createIcon(x+152,y+10,128,'Owl Audio','audio',0x93ba99,()=>ui.openApp('audio'));
+    this.createIcon(x+152,y+AUDIO_ICON_Y,128,'Owl Audio','audio',0x93ba99,()=>ui.openApp('audio'));
     this.createIcon(x+w-290,y+dh-108,128,'Cat_Pics\n.zip','cat',0xe0a458,()=>this.joke(CAT_JOKES));
     this.createIcon(x+w-150,y+dh-108,128,'Recycle\nBin','trash',0x8b99a3,()=>this.joke(TRASH_JOKES));
     this.renderStickyNote(x+252,y+130);
@@ -58,13 +61,14 @@ export class ComputerDesktop{
   }
   createIcon(x,y,width,label,kind,color,callback){
     const ui=this.ui,d=ui.drawing,scene=ui.scene;
-    // ComputerSearch adds this icon after rendering the desktop.
     if(label==='Web Search'||label==='Owl Search'){
-      x=ui.layout.x+152;y=ui.layout.y+310;kind='owl_search';
+      x=ui.layout.x+152;y=ui.layout.y+SEARCH_ICON_Y;kind='owl_search';
+    }
+    if(label==='Owl Audio'){
+      x=ui.layout.x+152;y=ui.layout.y+AUDIO_ICON_Y;
     }
     const cx=x+width/2,top=y+5;
     const highlight=d.rectangle(x+4,y,width-8,94,0x2b5a9a,0);
-    // assets/ui/computer/icons/<kind>.webp; drawn glyph if unavailable.
     const key=ui.shell?.iconKey(kind);
     if(key){
       d.rectangle(cx-20,top+50,40,6,0x000000,0.28);d.add(scene.add.image(cx,top+27,key).setDisplaySize(48,48));

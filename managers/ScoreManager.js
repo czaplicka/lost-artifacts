@@ -1,541 +1,191 @@
 import { EventBus } from '../EventBus.js';
 import { gameState } from '../GameData.js';
 import { getDifficultyConfig } from '../DifficultySettings.js';
+import { SCORE_CONFIG } from '../config/ScoreConfig.js';
+export { SCORE_CONFIG } from '../config/ScoreConfig.js';
 
-const MAX_HIGH_SCORES = 10;
-const MAX_SESSION_BREAKDOWN = 200;
-const MAX_PLAYER_NAME_LENGTH = 24;
-const MAX_LABEL_LENGTH = 80;
-const MAX_SCORE_VALUE = 100000000;
-
+const LIMIT = 100000000;
+const MAX_HISTORY = 200;
+const DIFFICULTIES = ['rookie', 'field', 'master'];
 const DEFAULT_SCORES = {
-  rookie: [
-    { name: 'Nora Finch', points: 34800 },
-    { name: 'Leo Bramble', points: 32650 },
-    { name: 'Mina Cole', points: 29400 },
-    { name: 'Tommy Vex', points: 25100 },
-    { name: 'Ada Flint', points: 22800 }
-  ],
-
-  field: [
-    { name: 'Czaplicka', points: 99999 },
-    { name: "Victor 'Shadow' Thorne", points: 98450 },
-    { name: 'Elena Vance', points: 92100 },
-    { name: 'Marcus Thorne', points: 89750 },
-    { name: 'Rita Glass', points: 84300 }
-  ],
-
-  master: [
-    { name: "Victor 'Shadow' Thorne", points: 128400 },
-    { name: 'Iris Blackwood', points: 121750 },
-    { name: 'Carmen Vale', points: 117200 },
-    { name: 'Dr. Felix Stone', points: 111900 },
-    { name: 'Agent 00-Nope', points: 104600 }
-  ]
+  rookie: [{name:'Nora Finch',points:34800},{name:'Leo Bramble',points:32650},
+    {name:'Mina Cole',points:29400},{name:'Tommy Vex',points:25100},{name:'Ada Flint',points:22800}],
+  field: [{name:'Czaplicka',points:99999},{name:"Victor 'Shadow' Thorne",points:98450},
+    {name:'Elena Vance',points:92100},{name:'Marcus Thorne',points:89750},{name:'Rita Glass',points:84300}],
+  master: [{name:"Victor 'Shadow' Thorne",points:128400},{name:'Iris Blackwood',points:121750},
+    {name:'Carmen Vale',points:117200},{name:'Dr. Felix Stone',points:111900},{name:'Agent 00-Nope',points:104600}]
 };
-
-const DIFFICULTY_KEYS = [
-  'rookie',
-  'field',
-  'master'
-];
-
-export const SCORE_CONFIG = {
-  HIDDEN_OBJECT_PASS_THROUGH: true,
-  HYPOTHESIS_FIRST_TRY: 5000,
-  HYPOTHESIS_SECOND_TRY: 2500,
-  CORRECT_ARREST: 15000,
-  TIME_BONUS_PER_SECOND: 10,
-  CORRECT_CITY: 3000,
-
-  NPC_PENALTY: -200,
-  WRONG_WARRANT_PENALTY: -5000,
-  WRONG_CITY_PENALTY: -2000
-};
-
-function canUseLocalStorage() {
-  try {
-    const testKey = '__detective_scores_test__';
-
-    localStorage.setItem(testKey, '1');
-    localStorage.removeItem(testKey);
-
-    return true;
-  } catch {
-    return false;
-  }
+const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const own = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+const clamp = value => Number.isFinite(value) ? Math.max(0, Math.min(LIMIT, Math.floor(value))) : 0;
+const labelText = value => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').slice(0, 80) || 'Score update' : 'Score update';
+const difficultyKey = value => DIFFICULTIES.includes(value) ? value : 'field';
+function playerName(value) {
+  if (typeof value !== 'string') return 'Anonymous';
+  return value.normalize('NFKC').trim().replace(/\s+/g, ' ')
+    .replace(/[^\p{L}\p{N} ._'’-]/gu, '').slice(0, 24) || 'Anonymous';
 }
-
-function sanitizePlayerName(value) {
-  if (typeof value !== 'string') {
-    return 'Anonymous';
-  }
-
-  const normalized = value
-    .normalize('NFKC')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .replace(/[^\p{L}\p{N} ._'’-]/gu, '')
-    .slice(0, MAX_PLAYER_NAME_LENGTH);
-
-  return normalized || 'Anonymous';
+function defaults() { return structuredClone(DEFAULT_SCORES); }
+function scoreList(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter(entry => isObject(entry) && typeof entry.name === 'string' && Number.isFinite(entry.points))
+    .map(entry => ({name:playerName(entry.name), points:clamp(entry.points),
+      ...(typeof entry.date === 'string' ? {date:entry.date.slice(0,40)} : {})}))
+    .sort((a,b) => b.points-a.points).slice(0,10);
 }
-
-function sanitizePoints(value) {
-  if (!Number.isFinite(value)) {
-    return 0;
+function itemKey(kind, id) {
+  if ((typeof id !== 'string' && typeof id !== 'number') || !String(id).trim()) {
+    throw new Error(`[ScoreManager] ${kind} requires a stable ID.`);
   }
-
-  return Math.min(
-    MAX_SCORE_VALUE,
-    Math.max(0, Math.floor(value))
-  );
-}
-
-function sanitizeDelta(value) {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  return Math.max(
-    -MAX_SCORE_VALUE,
-    Math.min(MAX_SCORE_VALUE, Math.floor(value))
-  );
-}
-
-function sanitizeLabel(value) {
-  if (typeof value !== 'string') {
-    return 'Score update';
-  }
-
-  const normalized = value
-    .trim()
-    .replace(/\s+/g, ' ')
-    .slice(0, MAX_LABEL_LENGTH);
-
-  return normalized || 'Score update';
-}
-
-function createDefaultScores() {
-  return Object.fromEntries(
-    DIFFICULTY_KEYS.map((difficulty) => [
-      difficulty,
-      DEFAULT_SCORES[difficulty].map((entry) => ({
-        name: entry.name,
-        points: entry.points
-      }))
-    ])
-  );
-}
-
-function normalizeScoreEntry(entry) {
-  if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
-    return null;
-  }
-
-  if (
-    typeof entry.name !== 'string' ||
-    !Number.isFinite(entry.points)
-  ) {
-    return null;
-  }
-
-  return {
-    name: sanitizePlayerName(entry.name),
-    points: sanitizePoints(entry.points),
-    date: typeof entry.date === 'string'
-      ? entry.date.slice(0, 40)
-      : undefined
-  };
-}
-
-function normalizeDifficulty(value) {
-  return DIFFICULTY_KEYS.includes(value)
-    ? value
-    : 'field';
-}
-
-function normalizeScoreList(value) {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value
-    .map(normalizeScoreEntry)
-    .filter(Boolean)
-    .sort((a, b) => b.points - a.points)
-    .slice(0, MAX_HIGH_SCORES);
+  return JSON.stringify([kind, String(id)]);
 }
 
 export class ScoreManager {
   constructor() {
     this.storageKey = 'detectiveScores';
     this.scoresByDifficulty = this.loadScores();
-
-    /*
-     * gameState.score is the canonical score.
-     * _sessionPoints exists only for compatibility,
-     * breakdown data and older code.
-     */
     this._sessionPoints = this.getCanonicalScore();
-    this._breakdown = [];
   }
-
-  getCanonicalScore() {
-    return sanitizePoints(
-      Number(gameState.score) || 0
-    );
-  }
-
+  getCanonicalScore() { return clamp(Number(gameState.score)); }
   setCanonicalScore(value) {
-    const score = sanitizePoints(value);
-
+    const score = clamp(value);
     gameState.score = score;
     this._sessionPoints = score;
-
     return score;
   }
-
-  startSession({ reset = false } = {}) {
+  getLedger() {
+    const caseData = isObject(gameState.caseData) ? gameState.caseData : {};
+    const saved = caseData.scoreLedger;
+    if (isObject(saved) && saved.version === 1 && isObject(saved.claimed) && Array.isArray(saved.breakdown)) return saved;
+    const ledger = {version:1, claimed:{}, breakdown:[]};
+    // Preserve the score of an existing case; do not award old milestones again.
+    const manager = gameState.routeManager;
+    const route = Array.isArray(manager?.route) ? manager.route : gameState.escapeRoute || [];
+    const progress = Number.isInteger(manager?.currentRouteIndex) ? manager.currentRouteIndex : gameState.routeIndex;
+    const accepted = manager?.state === 'DONE' ? route.length : Math.max(0, Number(progress) || 0);
+    for (const city of route.slice(0, accepted)) ledger.claimed[itemKey('city', city)] = true;
+    if (gameState.finalArrestResult) ledger.claimed['arrest:final'] = true;
+    if (gameState.reconstructedHeist?.hypothesisConfirmed || gameState.hypothesisEvidenceResult?.success) {
+      ledger.claimed['hypothesis:solved'] = true;
+    }
+    if (['partial','weak'].includes(gameState.reconstructedHeist?.playerTheoryResult)) {
+      ledger.claimed['hypothesis:exhausted'] = true;
+    }
+    gameState.caseData = {...caseData, scoreLedger:ledger};
+    return ledger;
+  }
+  startSession({reset=false} = {}) {
     if (reset) {
-      this._breakdown = [];
       this.setCanonicalScore(0);
-    } else {
-      this._sessionPoints = this.getCanonicalScore();
-    }
-
-    EventBus.emit('scoreChanged', {
-      delta: 0,
-      total: gameState.score,
-      label: reset
-        ? 'New score session started'
-        : 'Score session restored'
-    });
-
-    return gameState.score;
+      gameState.caseData = {...(gameState.caseData || {}), scoreLedger:{version:1,claimed:{},breakdown:[]}};
+    } else this._sessionPoints = this.getCanonicalScore();
+    EventBus.emit('scoreChanged', {delta:0,total:this.getSessionPoints(),
+      label:reset ? 'New score session started' : 'Score session restored'});
+    return this.getSessionPoints();
   }
-
-  getSessionPoints() {
-    /*
-     * Never return a stale private value.
-     * Some older scenes may still modify gameState.score directly.
-     */
-    this._sessionPoints = this.getCanonicalScore();
-
-    return this._sessionPoints;
+  getSessionPoints() { return this._sessionPoints = this.getCanonicalScore(); }
+  getBreakdown() { return this.getLedger().breakdown.map(entry => ({...entry})); }
+  hasScored(key) { return own(this.getLedger().claimed, String(key)); }
+  claimOnce(key) {
+    const ledger = this.getLedger();
+    if (own(ledger.claimed, key)) return false;
+    gameState.caseData = {...gameState.caseData, scoreLedger:{...ledger, claimed:{...ledger.claimed,[key]:true}}};
+    return true;
   }
-
-  getBreakdown() {
-    return this._breakdown.map((entry) => ({
-      ...entry
-    }));
+  addScoreEvent(points, label='Score update', options={}) { return this._add(points,label,options); }
+  addOnce(key, points, label, options={}) {
+    if (!Number.isFinite(points)) return this.getSessionPoints();
+    if (!this.claimOnce(key)) return this.getSessionPoints();
+    return this._add(points,label,{...options,eventKey:key});
   }
-
-  addScoreEvent(points, label = 'Score update') {
-    return this._add(points, label);
+  addHiddenObjectScore(points, evidenceId=null) {
+    return evidenceId == null ? this._add(points,'Hidden Objects')
+      : this.addOnce(itemKey('hidden_object',evidenceId),points,'Hidden Objects');
   }
-
-  addHiddenObjectScore(points) {
-    return this._add(points, 'Hidden Objects');
-  }
-
   addHypothesisScore(attempt) {
-    const points = attempt === 1
-      ? SCORE_CONFIG.HYPOTHESIS_FIRST_TRY
-      : SCORE_CONFIG.HYPOTHESIS_SECOND_TRY;
-
-    return this._add(
-      points,
-      `Hypothesis solved (attempt ${attempt})`
-    );
+    if (!Number.isInteger(attempt) || attempt < 1) throw new Error('[ScoreManager] Invalid hypothesis attempt.');
+    const points = attempt === 1 ? SCORE_CONFIG.HYPOTHESIS_FIRST_TRY
+      : attempt === 2 ? SCORE_CONFIG.HYPOTHESIS_SECOND_TRY : SCORE_CONFIG.HYPOTHESIS_THIRD_TRY;
+    return this.addOnce('hypothesis:solved',points,`Hypothesis solved (attempt ${attempt})`);
   }
-
-  addCorrectArrest() {
-    return this._add(
-      SCORE_CONFIG.CORRECT_ARREST,
-      'Correct arrest'
-    );
+  penalizeHypothesisExhausted() {
+    return this.addOnce('hypothesis:exhausted',SCORE_CONFIG.HYPOTHESIS_EXHAUSTED_PENALTY,'Three unsuccessful hypothesis attempts');
   }
-
-  addTimeBonus(secondsLeft) {
-    const seconds = Number.isFinite(secondsLeft)
-      ? Math.max(0, Math.floor(secondsLeft))
-      : 0;
-
-    const points =
-      seconds * SCORE_CONFIG.TIME_BONUS_PER_SECOND;
-
-    if (points <= 0) {
-      return this.getSessionPoints();
-    }
-
-    return this._add(
-      points,
-      `Time bonus (${seconds}s remaining)`
-    );
+  addCorrectCityScore(cityId) { return this.addOnce(itemKey('city',cityId),SCORE_CONFIG.CORRECT_CITY,`Correct city: ${cityId}`); }
+  penalizeWrongCity(city='unknown city') { return this._add(SCORE_CONFIG.WRONG_CITY_PENALTY,`Wrong city: ${city}`); }
+  penalizeNpcInterrogation() { return this.getSessionPoints(); }
+  addCorrectArrest() { return this.addOnce('arrest:final',SCORE_CONFIG.CORRECT_ARREST,'Correct arrest'); }
+  penalizeWrongArrest() { return this.addOnce('arrest:final',SCORE_CONFIG.WRONG_ARREST_PENALTY,'Wrong arrest'); }
+  addCorrectWarrant() { return this.addOnce('warrant:correct',SCORE_CONFIG.CORRECT_WARRANT,'Correct arrest warrant'); }
+  penalizeWrongWarrant(submissionId=null) {
+    return submissionId == null ? this._add(SCORE_CONFIG.WRONG_WARRANT_PENALTY,'Wrong arrest warrant')
+      : this.addOnce(itemKey('wrong_warrant',submissionId),SCORE_CONFIG.WRONG_WARRANT_PENALTY,'Wrong arrest warrant');
   }
-
-  penalizeNpcInterrogation(npcName = 'NPC') {
-    return this._add(
-      SCORE_CONFIG.NPC_PENALTY,
-      `Interrogated ${sanitizePlayerName(npcName)}`
-    );
+  addCsiAnalysis(id) { return this.addOnce(itemKey('csi',id),SCORE_CONFIG.CSI_ANALYSIS,'Forensic analysis completed'); }
+  addVerifiedAlibi(id) { return this.addOnce(itemKey('alibi',id),SCORE_CONFIG.VERIFIED_ALIBI,'Alibi verified'); }
+  addForensicTwinResolution() { return this.addOnce('alibi:twin_resolved',SCORE_CONFIG.FORENSIC_TWIN_RESOLVED,'Forensic twin resolved'); }
+  addApartmentEvidence(id) { return this.addOnce(itemKey('apartment',id),SCORE_CONFIG.APARTMENT_EVIDENCE,'Key apartment evidence'); }
+  addMotiveEvidence(id) { return this.addOnce(itemKey('motive',id),SCORE_CONFIG.MOTIVE_EVIDENCE,'Motive evidence discovered'); }
+  addCourtAnswer(id) { return this.addOnce(itemKey('court_answer',id),SCORE_CONFIG.COURT_ANSWER,'Correct court answer'); }
+  addConviction() { return this.addOnce('court:conviction',SCORE_CONFIG.CONVICTION,'Suspect convicted'); }
+  addTimeBonus(remaining, total) {
+    // Both arguments must use the same time unit. One-argument legacy calls are deliberately ignored.
+    if (!Number.isFinite(remaining) || !Number.isFinite(total) || total <= 0) return this.getSessionPoints();
+    const ratio = Math.max(0,Math.min(1,remaining/total));
+    return this.addOnce('case:time_bonus',Math.round(SCORE_CONFIG.TIME_BONUS_MAX*ratio),'Time remaining bonus',{applyMultiplier:false});
   }
-
-  penalizeWrongWarrant() {
-    return this._add(
-      SCORE_CONFIG.WRONG_WARRANT_PENALTY,
-      'Wrong arrest warrant'
-    );
-  }
-
-  penalizeWrongCity(cityName = 'unknown city') {
-    return this._add(
-      SCORE_CONFIG.WRONG_CITY_PENALTY,
-      `Wrong city: ${sanitizeLabel(String(cityName))}`
-    );
-  }
-
-  addCorrectCityScore(cityName = 'city') {
-    return this._add(
-      SCORE_CONFIG.CORRECT_CITY,
-      `Correct city: ${sanitizeLabel(String(cityName))}`
-    );
-  }
-
-  finishMission(agentName) {
-    return this.addScore(
-      agentName,
-      this.getSessionPoints()
-    );
-  }
-
   getDifficultyMultiplier() {
-    const difficulty =
-      gameState.difficulty || 'field';
-
-    const difficultyConfig =
-      getDifficultyConfig(difficulty);
-
-    return Number.isFinite(
-      difficultyConfig?.scoreMultiplier
-    )
-      ? difficultyConfig.scoreMultiplier
-      : 1;
+    const value = getDifficultyConfig(gameState.difficulty || 'field')?.scoreMultiplier;
+    return Number.isFinite(value) && value > 0 ? value : 1;
   }
-
-  _add(delta, label = 'Score update') {
-    const rawDelta = sanitizeDelta(delta);
-
-    const multiplier = rawDelta > 0
-      ? this.getDifficultyMultiplier()
-      : 1;
-
-    const safeDelta = rawDelta > 0
-      ? Math.round(rawDelta * multiplier)
-      : rawDelta;
-
-    /*
-     * Critical:
-     * Always read gameState.score immediately before scoring.
-     *
-     * Example:
-     * gameState.score = 420
-     * this._sessionPoints = 0
-     * Hidden Object = +5
-     *
-     * Result:
-     * 420 + 5 = 425
-     *
-     * The old implementation used:
-     * 0 + 5 = 5
-     */
-    const currentScore = this.getCanonicalScore();
-
-    const nextScore = this.setCanonicalScore(
-      currentScore + safeDelta
-    );
-
-    const multiplierSuffix = multiplier > 1
-      ? ` x${multiplier.toFixed(2)}`
-      : '';
-
-    this._breakdown.push({
-      label: sanitizeLabel(label),
-      rawDelta,
-      delta: safeDelta,
-      multiplier,
-      running: nextScore,
-      time: Date.now()
-    });
-
-    if (this._breakdown.length > MAX_SESSION_BREAKDOWN) {
-      this._breakdown.splice(
-        0,
-        this._breakdown.length - MAX_SESSION_BREAKDOWN
-      );
-    }
-
-    EventBus.emit('scoreChanged', {
-      delta: safeDelta,
-      rawDelta,
-      multiplier,
-      label: `${sanitizeLabel(label)}${multiplierSuffix}`,
-      total: nextScore
-    });
-
-    return nextScore;
+  _add(delta, label='Score update', {applyMultiplier=true,eventKey=null}={}) {
+    if (!Number.isFinite(delta)) return this.getSessionPoints();
+    const rawDelta = Math.max(-LIMIT,Math.min(LIMIT,Math.trunc(delta)));
+    if (rawDelta === 0) return this.getSessionPoints();
+    const multiplier = rawDelta > 0 && applyMultiplier ? this.getDifficultyMultiplier() : 1;
+    const requestedDelta = Math.max(-LIMIT,Math.min(LIMIT,Math.round(rawDelta*multiplier)));
+    const before = this.getCanonicalScore();
+    const next = this.setCanonicalScore(before+requestedDelta);
+    const actualDelta = next-before;
+    const entry = {label:labelText(label), rawDelta,requestedDelta,delta:actualDelta,
+      multiplier,running:next,time:Date.now(),eventKey};
+    const ledger = this.getLedger();
+    gameState.caseData = {...gameState.caseData,scoreLedger:{...ledger,
+      breakdown:[...ledger.breakdown,entry].slice(-MAX_HISTORY)}};
+    EventBus.emit('scoreChanged',{...entry,total:next});
+    return next;
   }
-
+  finishMission(agentName) { return this.addScore(agentName,this.getSessionPoints()); }
   loadScores() {
-    if (!canUseLocalStorage()) {
-      return createDefaultScores();
-    }
-
+    const result = defaults();
     try {
-      const raw = localStorage.getItem(
-        this.storageKey
-      );
-
-      if (!raw) {
-        return createDefaultScores();
-      }
-
+      const raw = localStorage.getItem(this.storageKey);
+      if (!raw) return result;
       const parsed = JSON.parse(raw);
-
-      if (
-        !parsed ||
-        typeof parsed !== 'object' ||
-        Array.isArray(parsed)
-      ) {
-        return createDefaultScores();
+      if (!isObject(parsed)) return result;
+      for (const difficulty of DIFFICULTIES) {
+        const entries = scoreList(parsed[difficulty]);
+        if (entries.length) result[difficulty] = entries;
       }
-
-      const defaults = createDefaultScores();
-
-      for (const difficulty of DIFFICULTY_KEYS) {
-        const scores = normalizeScoreList(
-          parsed[difficulty]
-        );
-
-        if (scores.length > 0) {
-          defaults[difficulty] = scores;
-        }
-      }
-
-      return defaults;
-    } catch (error) {
-      console.error(
-        'Błąd odczytu rankingów:',
-        error
-      );
-
-      return createDefaultScores();
-    }
+    } catch (error) { console.warn('[ScoreManager] Rankings unavailable:',error); }
+    return result;
   }
-
   persistScores() {
-    if (!canUseLocalStorage()) {
-      console.warn(
-        'localStorage unavailable, skipping score save.'
-      );
-
-      return false;
-    }
-
     try {
-      const scoresToSave = Object.fromEntries(
-        DIFFICULTY_KEYS.map((difficulty) => [
-          difficulty,
-          this.scoresByDifficulty[difficulty]
-            .slice(0, MAX_HIGH_SCORES)
-        ])
-      );
-
-      localStorage.setItem(
-        this.storageKey,
-        JSON.stringify(scoresToSave)
-      );
-
+      const data = Object.fromEntries(DIFFICULTIES.map(key => [key,scoreList(this.scoresByDifficulty[key])]));
+      localStorage.setItem(this.storageKey,JSON.stringify(data));
       return true;
-    } catch (error) {
-      console.error(
-        'Błąd zapisu rankingów:',
-        error
-      );
-
-      return false;
-    }
+    } catch (error) { console.warn('[ScoreManager] Cannot save rankings:',error); return false; }
   }
-
-  addScore(
-    name,
-    points,
-    difficulty = gameState.difficulty
-  ) {
-    const rankingDifficulty =
-      normalizeDifficulty(difficulty);
-
-    const entry = {
-      name: sanitizePlayerName(name),
-      points: sanitizePoints(points),
-      date: new Date().toLocaleDateString()
-    };
-
-    if (
-      !Array.isArray(
-        this.scoresByDifficulty[rankingDifficulty]
-      )
-    ) {
-      this.scoresByDifficulty[rankingDifficulty] = [];
-    }
-
-    this.scoresByDifficulty[rankingDifficulty].push(
-      entry
-    );
-
-    this.scoresByDifficulty[rankingDifficulty].sort(
-      (a, b) => b.points - a.points
-    );
-
-    this.scoresByDifficulty[rankingDifficulty] =
-      this.scoresByDifficulty[rankingDifficulty]
-        .slice(0, MAX_HIGH_SCORES);
-
+  addScore(name,points,difficulty=gameState.difficulty) {
+    const key = difficultyKey(difficulty);
+    const entry = {name:playerName(name),points:clamp(points),date:new Date().toLocaleDateString()};
+    this.scoresByDifficulty[key] = [...(this.scoresByDifficulty[key] || []),entry]
+      .sort((a,b) => b.points-a.points).slice(0,10);
     this.persistScores();
-
-    return {
-      ...entry,
-      difficulty: rankingDifficulty
-    };
+    return {...entry,difficulty:key};
   }
-
-  getScores(difficulty = 'field') {
-    const rankingDifficulty =
-      normalizeDifficulty(difficulty);
-
-    const scores =
-      this.scoresByDifficulty[rankingDifficulty] || [];
-
-    return scores.map((entry) => ({
-      ...entry
-    }));
-  }
-
-  clearScores() {
-    this.scoresByDifficulty = createDefaultScores();
-    this.persistScores();
-  }
-
-  saveScore(
-    name,
-    points,
-    difficulty = gameState.difficulty
-  ) {
-    return this.addScore(
-      name,
-      points,
-      difficulty
-    );
-  }
+  getScores(difficulty='field') { return (this.scoresByDifficulty[difficultyKey(difficulty)] || []).map(entry=>({...entry})); }
+  clearScores() { this.scoresByDifficulty=defaults(); this.persistScores(); }
+  saveScore(name,points,difficulty=gameState.difficulty) { return this.addScore(name,points,difficulty); }
 }

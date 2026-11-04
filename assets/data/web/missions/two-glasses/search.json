@@ -43,7 +43,12 @@
         "miramar"
       ],
       "pageIds": [
-        "miramar"
+        "miramar",
+        "miramar_terrace",
+        "miramar_guest_faq",
+        "miramar_coast_guide",
+        "miramar_guest_thread",
+        "miramar_cinema_namesake"
       ]
     },
     {
@@ -71,7 +76,12 @@
         "mariner"
       ],
       "pageIds": [
-        "mariner"
+        "mariner",
+        "mariner_breakfast",
+        "mariner_guest_faq",
+        "mariner_harbour_guide",
+        "mariner_quiz_thread",
+        "mariner_quay_trio"
       ]
     },
     {
@@ -79,7 +89,12 @@
         "coral"
       ],
       "pageIds": [
-        "coral"
+        "coral",
+        "coral_family_stays",
+        "coral_pool_questions",
+        "coral_dog_guide",
+        "coral_coast_listing",
+        "coral_guest_thread"
       ]
     },
     {

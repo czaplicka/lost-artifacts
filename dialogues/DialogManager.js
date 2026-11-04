@@ -1,310 +1,92 @@
-import { DialogUI } from '../ui/DialogUI.js';
-import { EventBus } from '../EventBus.js';
-import { moneyManager, ECONOMY_CATEGORY } from '../managers/MoneyManager.js';
+import { DialogManager as DialogManagerBase } from './DialogManagerBase.js';
+import { holmesDailyHintService } from '../managers/HolmesDailyHintService.js';
 
-const DIALOG_CACHE_PREFIX = 'dialog_';
-
-const EXPECTED_CONTACT_KEYS = [
-    'csi',
-    'informant',
-    'watson',
-    'holmes',
-    'police-station',
-    'hq',
-    'home',
-    'accounting'
-];
-
-const ACCOUNTING_LOAN_AMOUNT = 75;
-const ACCOUNTING_MAX_LOANS = 3;
-
-export class DialogManager {
-    constructor(scene, gameState) {
-        this.scene = scene;
-        this.gameState = gameState;
-        this.dialogUI = new DialogUI(scene);
-
-        this.contactKeys = this.discoverContactKeys();
-        this.data = {};
-
-        this.contactKeys.forEach(key => {
-            const json = scene.cache.json.get(`${DIALOG_CACHE_PREFIX}${key}`);
-
-            if (!json) {
-                console.warn(
-                    `[DialogManager] Missing or empty "${DIALOG_CACHE_PREFIX}${key}.json" - ` +
-                    `contact "${key}" will fall back to a generic "No response." dialog.`
-                );
-            }
-
-            this.data[key] = json || {};
-        });
-
-        if (!this.gameState.dialogVariants) {
-            this.gameState.dialogVariants = {};
-        }
-
-        this.ensureAccountingState();
+export class DialogManager extends DialogManagerBase {
+  constructor(scene,gameState) {
+    super(scene,gameState);
+    this.holmesRequest=0;
+    this.claimingHolmesHint=false;
+  }
+  discoverContactKeys() {return [...new Set([...super.discoverContactKeys(),'holmes'])];}
+  hasContact(key) {return key==='holmes' || super.hasContact(key);}
+  startDialog(key,contact) {
+    this.holmesRequest++;
+    if (key==='holmes') return this.startHolmesDialog();
+    return super.startDialog(key,contact);
+  }
+  openHolmes(lines,options={}) {
+    if (!this.dialogUI || this.dialogUI.destroyed) return;
+    this.dialogUI.open({speaker:'Insp. Holmes',portraitKey:'portrait_holmes',lines},options);
+  }
+  isCurrentHolmesRequest(token) {
+    return token===this.holmesRequest && this.dialogUI && !this.dialogUI.destroyed && this.dialogUI.isOpen;
+  }
+  resetText(value) {
+    const date=new Date(value);
+    if (!value || !Number.isFinite(date.getTime())) return 'the next midnight UTC';
+    return new Intl.DateTimeFormat('en-GB',{dateStyle:'medium',timeStyle:'short',timeZone:'UTC'}).format(date)+' UTC';
+  }
+  showHolmesFailure(reason) {
+    const messages={
+      login_required:['Daily free hints are for signed-in players.','Sign in to your game account, then call me again.'],
+      registered_account_required:['This consultation requires a registered account.','A guest or anonymous Supabase session is not eligible.'],
+      connection_error:['I cannot reach the consultation register.','Check your internet connection and call again. If a delivery was interrupted, the same request will be retried.'],
+      migration_required:['My new consultation register has not been installed yet.','The game administrator needs to run the Holmes delivery v2 SQL migration.'],
+      storage_unavailable:['I cannot safely record the pending hint delivery on this device.','Allow local storage and try again. The daily limit itself is stored on the server.'],
+      save_failed:['The hint delivery could not be saved safely.','Check that the game can save, then call me again to retry any pending delivery.'],
+      different_save:['An unfinished hint delivery belongs to a different campaign.','Load the campaign in which you started collecting it, then call me again.'],
+      account_changed:['The signed-in account changed during the consultation.','No hint will be delivered to the other account. Sign back into the original account to resume.'],
+      no_active_save:['Start or load a game before collecting the hint.','I need a campaign to attach the delivery to. Even generosity needs a file number.']
+    };
+    this.openHolmes(messages[reason] || ['The consultation could not be completed safely.','Please try again. No extra hint will be issued without server confirmation.']);
+  }
+  async startHolmesDialog() {
+    if (this.claimingHolmesHint) return;
+    const token=++this.holmesRequest;
+    this.openHolmes(['Checking the consultation register. Watson has promised not to alphabetise the internet again.']);
+    const status=await holmesDailyHintService.getStatus();
+    if (!this.isCurrentHolmesRequest(token)) return;
+    if (!status.success) {this.showHolmesFailure(status.reason);return;}
+    if (status.pendingDelivery) {
+      this.openHolmes(['There is an unfinished hint delivery for this account.','Shall we resume it? No second daily reward will be created.'],{
+        choices:[
+          {text:'RESUME DELIVERY',callback:()=>{void this.claimHolmesHint(status.userId);}},
+          {text:'NOT NOW',callback:()=>{}}
+        ]});return;
     }
-
-    discoverContactKeys() {
-        const jsonCache = this.scene?.cache?.json;
-
-        if (!jsonCache || typeof jsonCache.getKeys !== 'function') {
-            console.warn(
-                '[DialogManager] JSON cache introspection unavailable, falling back to static contact list.'
-            );
-
-            return [...EXPECTED_CONTACT_KEYS];
-        }
-
-        const discovered = jsonCache.getKeys()
-            .filter(cacheKey => cacheKey.startsWith(DIALOG_CACHE_PREFIX))
-            .map(cacheKey => cacheKey.slice(DIALOG_CACHE_PREFIX.length));
-
-        if (discovered.length === 0) {
-            console.warn(
-                '[DialogManager] No dialog_*.json files found in cache, falling back to static contact list.'
-            );
-
-            return [...EXPECTED_CONTACT_KEYS];
-        }
-
-        EXPECTED_CONTACT_KEYS.forEach(expectedKey => {
-            if (!discovered.includes(expectedKey)) {
-                console.warn(
-                    `[DialogManager] Expected core contact "${expectedKey}" has no matching ` +
-                    `"${DIALOG_CACHE_PREFIX}${expectedKey}.json" in the cache.`
-                );
-            }
-        });
-
-        return discovered;
+    if (!status.available) {
+      this.openHolmes(['Today’s free hint has already been collected on this account.',
+        `The next offer starts at ${this.resetText(status.nextResetAt)}.`,
+        'Changing devices will not change my appointment book. Watson has tested that too.']);return;
     }
-
-ensureAccountingState() {
-    if (!this.gameState.accounting) {
-        this.gameState.accounting = {
-            loansTaken: 0
-        };
-    }
-
-    if (typeof this.gameState.accounting.loansTaken !== 'number') {
-        this.gameState.accounting.loansTaken = 0;
-    }
-}
-
-    hasContact(key) {
-        return Boolean(
-            this.data[key] &&
-            Object.keys(this.data[key]).length > 0
-        );
-    }
-
-    getAvailableContacts() {
-        return this.contactKeys.filter(key => this.hasContact(key));
-    }
-
-    startDialog(key, contact) {
-        if (!this.contactKeys.includes(key)) {
-            console.warn(
-                `[DialogManager] startDialog() called with unknown contact key "${key}". ` +
-                `Did you forget to create/load "${DIALOG_CACHE_PREFIX}${key}.json"?`
-            );
-        }
-
-        if (key === 'accounting') {
-            this.startAccountingDialog(contact);
-            return;
-        }
-
-        const entry = this.resolveEntry(key, contact);
-
-        if (!entry) {
-            this.openDialogOrFallback(null, contact);
-            return;
-        }
-
-        this.dialogUI.open(entry);
-        this.applyDialogEffects(key, entry);
-    }
-
-    startAccountingDialog(contact) {
-        this.ensureAccountingState();
-
-        const accounting = this.gameState.accounting;
-
-        if (accounting.loansTaken >= ACCOUNTING_MAX_LOANS) {
-            const entry = this.resolveCustomEntry(
-                'accounting',
-                'loan_limit_reached'
-            );
-
-            this.openDialogOrFallback(entry, contact);
-            return;
-        }
-
-        const entry = this.resolveEntry('accounting', contact);
-
-        if (!entry) {
-            this.openDialogOrFallback(null, contact);
-            return;
-        }
-
-        this.dialogUI.open(entry, {
-            choices: [
-                {
-                    text: `TAKE $${ACCOUNTING_LOAN_AMOUNT} LOAN`,
-                    callback: () => this.grantAccountingLoan(contact)
-                },
-                {
-                    text: 'NEVER MIND',
-                    callback: () => this.showAccountingExit(contact)
-                }
-            ]
-        });
-    }
-
-    grantAccountingLoan(contact) {
-    this.ensureAccountingState();
-
-    const accounting = this.gameState.accounting;
-
-    if (accounting.loansTaken >= ACCOUNTING_MAX_LOANS) {
-        const entry = this.resolveCustomEntry(
-            'accounting',
-            'loan_limit_reached'
-        );
-
-        this.openDialogOrFallback(entry, contact);
-        return;
-    }
-
-    const state = moneyManager.addAgencyBudget(
-        ACCOUNTING_LOAN_AMOUNT,
-        {
-            category: ECONOMY_CATEGORY.AGENCY_ADVANCE,
-            description: 'Emergency budget increase from Accounting',
-            missionId: this.gameState.currentMission?.id ?? null,
-            metadata: {
-                contact: 'accounting',
-                loanNumber: accounting.loansTaken + 1
-            }
-        }
-    );
-
-    accounting.loansTaken += 1;
-
-    const approvedEntry = this.resolveCustomEntry(
-        'accounting',
-        'loan_approved'
-    );
-
-    const entry = approvedEntry
-        ? {
-            ...approvedEntry,
-            lines: [
-                ...approvedEntry.lines,
-                `Agency budget available: $${state.agencyBudget}.`
-            ]
-        }
-        : null;
-
-    this.openDialogOrFallback(entry, contact);
-}
-
-    showAccountingExit(contact) {
-        const entry = this.resolveCustomEntry(
-            'accounting',
-            'loan_cancelled'
-        );
-
-        if (entry) {
-            this.dialogUI.open(entry);
-            return;
-        }
-
-        this.dialogUI.open({
-            speaker: 'Ms. Ledger',
-            portraitKey: 'portrait_accounting',
-            lines: [
-                'A wise decision.',
-                'Try not to expense anything that explodes.'
-            ]
-        });
-    }
-
-    openDialogOrFallback(entry, contact) {
-        this.dialogUI.open(
-            entry || {
-                speaker: contact?.name || 'Accounting',
-                portraitKey: 'portrait_fallback',
-                lines: ['...', 'No response.']
-            }
-        );
-    }
-
-    resolveCustomEntry(key, stageKey) {
-        const contactData = this.data[key];
-
-        if (!contactData || Object.keys(contactData).length === 0) {
-            return null;
-        }
-
-        const variants = contactData[stageKey];
-
-        if (!variants || variants.length === 0) {
-            return null;
-        }
-
-        return this.pickVariant(key, stageKey, variants);
-    }
-
-    resolveEntry(key, contact) {
-        const contactData = this.data[key];
-
-        if (!contactData || Object.keys(contactData).length === 0) {
-            return null;
-        }
-
-        let stageKey;
-
-        if (key === 'police-station' && !contact?.available) {
-            stageKey = 'locked';
-        } else {
-            stageKey = `stage_${this.gameState.currentStage || 1}`;
-
-            if (!contactData[stageKey]) {
-                stageKey = 'default';
-            }
-        }
-
-        const variants = contactData[stageKey];
-
-        if (!variants || variants.length === 0) {
-            return null;
-        }
-
-        return this.pickVariant(key, stageKey, variants);
-    }
-
-    pickVariant(key, stageKey, variants) {
-        const variantMapKey = `${key}_${stageKey}`;
-
-        if (this.gameState.dialogVariants[variantMapKey] === undefined) {
-            const randomIndex = Math.floor(Math.random() * variants.length);
-
-            this.gameState.dialogVariants[variantMapKey] = randomIndex;
-        }
-
-        const chosenIndex = this.gameState.dialogVariants[variantMapKey];
-
-        return variants[chosenIndex] || variants[0];
-    }
-
-    applyDialogEffects(key, entry) {
-        if (key === 'informant' && this.gameState.cluesFound >= 2) {
-            this.gameState.informantUnlocked = true;
-        }
-    }
+    this.openHolmes(['One complimentary hint per real-world day, for your signed-in account.',
+      'Would you like one free hint added to this game’s hint pool?',
+      'The register uses server time. The daily reset is midnight UTC.'],{
+      choices:[
+        {text:'CLAIM TODAY’S FREE HINT',callback:()=>{void this.claimHolmesHint(status.userId);}},
+        {text:'NOT NOW',callback:()=>{}}
+      ]});
+  }
+  async claimHolmesHint(expectedUserId) {
+    if (this.claimingHolmesHint) return;
+    this.claimingHolmesHint=true;
+    const token=++this.holmesRequest;
+    this.openHolmes(['Recording your hint delivery. Please hold. The violin is optional.']);
+    try {
+      const result=await holmesDailyHintService.claim({expectedUserId});
+      if (!this.isCurrentHolmesRequest(token)) return;
+      if (result.success) {
+        this.openHolmes([result.granted===1 ? 'One free hint has been added to this game’s hint pool.'
+          : 'Your earlier hint delivery is already recorded in this save. No duplicate was added.',
+          'Use the existing free-hint option when you need assistance.',
+          'Elementary. Unlike the paperwork.']);
+      } else if (result.reason==='already_claimed') {
+        this.openHolmes(['Today’s hint was already collected on this account.',
+          `The next offer starts at ${this.resetText(result.nextResetAt)}.`]);
+      } else {this.showHolmesFailure(result.reason);}
+    } catch(error) {
+      console.error('[Holmes] Consultation failed.',error);
+      if (this.isCurrentHolmesRequest(token)) this.showHolmesFailure('connection_error');
+    } finally {this.claimingHolmesHint=false;}
+  }
 }

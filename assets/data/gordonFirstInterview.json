@@ -1,0 +1,48 @@
+{
+  "id": "gordon_first_interview",
+  "npcId": "supervisor_gordon",
+  "speaker": "Commissioner Gordon",
+  "backgroundKey": null,
+  "portraitKey": null,
+  "minimumCompletedMissions": 6,
+  "requiredFlag": "supervisor_insurance_inquiry_unlocked",
+  "completedFlag": "gordon_first_interview_completed",
+  "opening": [
+    "You wanted to discuss an authorization. Make it brief."
+  ],
+  "topics": [
+    {
+      "id": "alias",
+      "label": "The Commissioner alias",
+      "question": "Your old alias appears on the separately filed record. What did you authorize?",
+      "reply": [
+        "My former operational names are not an invitation to browse restricted files.",
+        "If a signature needs verification, submit it through the proper channel. My office is not a shortcut around that channel."
+      ]
+    },
+    {
+      "id": "insurance",
+      "label": "The insurance entry",
+      "question": "The questioned insurance entry has different typing characteristics from the document body. I need to verify the original entry.",
+      "reply": [
+        "A discrepancy is a reason to request verification. It is not authority to question every restricted operation attached to it.",
+        "Put your findings in writing. I am not releasing additional records in this meeting."
+      ]
+    },
+    {
+      "id": "crash",
+      "label": "John's transport",
+      "question": "Alex believes John died, but no body was identified. Holly wants his remains found. Where are the follow-up records?",
+      "reply": [
+        "I will not discuss the contents or disposition of restricted operational records with you.",
+        "You have an assigned recovery case. Attend to it. Speculation is not an additional assignment."
+      ]
+    }
+  ],
+  "dismissal": [
+    "That is enough. This meeting is over.",
+    "Return to your assigned case. Close the door on your way out. For once, leave something closed."
+  ],
+  "successText": "Gordon refused to discuss the restricted records. His refusal does not prove that he caused the crash or altered the insurance entry.",
+  "nextObjective": "complete_agency_mission_seven"
+}

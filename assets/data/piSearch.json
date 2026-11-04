@@ -1266,6 +1266,631 @@
             ]
           ],
           "links": []
+        },
+        {
+          "id": "miramar_terrace",
+          "title": "Terrace dining | Hotel Miramar",
+          "brand": "MIRAMAR",
+          "address": "www.miramar.local/dining",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "The west terrace at ",
+              {
+                "keywordId": "miramar",
+                "text": "Hotel Miramar"
+              },
+              " serves hotel residents, visitors and private-event guests. Sea views are included. The sea has declined to accept reservations."
+            ],
+            [
+              "Terrace service runs from breakfast until eleven in the evening. Please check with reception when a private function is taking place."
+            ],
+            [
+              "Lunches, afternoon drinks and group dinners are available. Our staff can arrange tables for small parties or larger receptions."
+            ],
+            [
+              "Please do not feed the seagulls. They have already reviewed the menu and consider themselves entitled to everything on it."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "miramar_guest_faq"
+            }
+          ],
+          "snippet": "West-terrace dining, afternoon drinks and private-event service.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+          "imageCaption": "Hotel Miramar — official hotel photograph"
+        },
+        {
+          "id": "miramar_guest_faq",
+          "title": "Before your stay | Miramar guest questions",
+          "brand": "MIRAMAR",
+          "address": "www.miramar.local/guest-questions",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "DO I NEED A ROOM TO VISIT THE TERRACE?"
+            ],
+            [
+              "No. ",
+              {
+                "keywordId": "miramar",
+                "text": "Hotel Miramar"
+              },
+              " welcomes non-residents for dining and drinks, subject to availability and private functions."
+            ],
+            [
+              "CAN I ASK WHETHER SOMEONE IS STAYING WITH YOU?"
+            ],
+            [
+              "We do not publish guest lists, room allocations or private bookings. Please contact the person directly. Looking concerned while holding a notebook does not change this policy."
+            ],
+            [
+              "WHAT IF I LEFT SOMETHING BEHIND?"
+            ],
+            [
+              "Contact reception with a description, the approximate date and where you last saw it. “My dignity, near the dance floor” is unfortunately outside our storage policy."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Dining",
+              "pageId": "miramar_terrace"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            }
+          ],
+          "snippet": "Terrace visits, guest privacy and the lost-property cupboard.",
+          "imageKey": "reed_web_hotel_miramar",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+          "imageCaption": "Hotel Miramar — official hotel photograph"
+        },
+        {
+          "id": "miramar_coast_guide",
+          "title": "Hotel Miramar | Coastline visitor guide",
+          "brand": "COASTLINE VISITOR GUIDE",
+          "address": "www.coastlineguide.local/stay/hotel-miramar",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "miramar",
+                "text": "Hotel Miramar"
+              },
+              " is a seafront hotel offering accommodation, terrace dining and meeting facilities. Its traditional seahorse crest appears on the hotel’s own website."
+            ],
+            [
+              "The terrace also serves visitors who are not staying overnight. Check directly with the hotel before making a special journey, particularly when events are scheduled."
+            ],
+            [
+              "This is a visitor listing, not a booking register. We can help you find somewhere to stay, not establish where your brother-in-law was last Thursday."
+            ],
+            [
+              "Our directory also lists The Mariner and Coral Crown Hotel. Please check the property name before sending a complaint about the swimming pool."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Official hotel website",
+              "pageId": "miramar"
+            },
+            {
+              "label": "The Mariner",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Coral Crown Hotel",
+              "pageId": "coral"
+            }
+          ],
+          "snippet": "Seafront accommodation, terrace dining and meeting facilities. Check details with the hotel."
+        },
+        {
+          "id": "miramar_guest_thread",
+          "title": "Hotel Miramar — worth visiting just for the terrace?",
+          "brand": "COASTAL BREAKS FORUM",
+          "address": "www.coastalbreaks.local/forum/miramar-terrace",
+          "theme": "forum",
+          "template": "forum",
+          "blocks": [
+            [
+              "SALT_AND_PEPPER: “Can you visit the Miramar terrace without booking a room? I want lunch, not a mortgage.”"
+            ],
+            [
+              "WEEKEND_WANDERER: “Yes, we went for drinks. Check with the hotel first if they have a private function.”"
+            ],
+            [
+              "BISCUIT_INSPECTOR: “Nice view. A gull maintained eye contact with my sandwich for the entire meal. Very attentive service, wrong employee.”"
+            ],
+            [
+              "HAND_LUGGAGE_ONLY: “Make sure you mean the hotel. My cousin arranged to meet us at the Miramar cinema. We gave the lunch four stars; he gave the film two.”"
+            ],
+            [
+              "MODERATOR: “Hotel reviews only. No naming other guests or speculating about who they were with. The gull may be identified by its lack of remorse.”"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel website",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Terrace information",
+              "pageId": "miramar_terrace"
+            },
+            {
+              "label": "Miramar Picture House",
+              "pageId": "miramar_cinema_namesake"
+            }
+          ],
+          "snippet": "Lunch, sea views and one deeply committed sandwich thief."
+        },
+        {
+          "id": "miramar_cinema_namesake",
+          "title": "Miramar Picture House | Films & ticket information",
+          "brand": "MIRAMAR PICTURE HOUSE",
+          "address": "www.miramarpictures.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "MIRAMAR PICTURE HOUSE — an independent cinema on Station Road."
+            ],
+            [
+              "Two screens, evening showings and a concessions counter with strong opinions about outside snacks. This is a cinema, not Hotel Miramar."
+            ],
+            [
+              "Seat reservations are available at the box office. We cannot reserve a seat on the hotel terrace, although several callers have asked with admirable persistence."
+            ],
+            [
+              "Please switch off mobile phones during the film. Whispering “I am in the cinema” does not count as switching it off."
+            ]
+          ],
+          "links": [],
+          "snippet": "Independent cinema on Station Road. Film tickets, not hotel rooms."
+        },
+        {
+          "id": "coral_family_stays",
+          "title": "Family stays | Coral Crown Hotel",
+          "brand": "CORAL CROWN",
+          "address": "www.coralcrown.local/family-stays",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "Make room for everyone at ",
+              {
+                "keywordId": "coral",
+                "text": "Coral Crown Hotel"
+              },
+              ". Our family suites are designed for seaside breaks with children, luggage and the one toy nobody can sleep without."
+            ],
+            [
+              "An indoor swimming pool provides an alternative when the coast is doing its impression of a leaking ceiling."
+            ],
+            [
+              "Ask reception about room arrangements before booking. Writing “the quiet child” in the special requests box does not create one."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "coral"
+            },
+            {
+              "label": "Pool information",
+              "pageId": "coral_pool_questions"
+            },
+            {
+              "label": "Functions",
+              "pageId": "coral_events"
+            }
+          ],
+          "snippet": "Family suites and indoor swimming, with room for the favourite toy.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp",
+          "imageCaption": "Coral Crown Hotel — official hotel photograph"
+        },
+        {
+          "id": "coral_pool_questions",
+          "title": "Pool questions | Coral Crown",
+          "brand": "CORAL CROWN",
+          "address": "www.coralcrown.local/pool-information",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "IS THE POOL INDOORS?"
+            ],
+            [
+              "Yes. Our heated indoor pool is protected from the weather, though not from your uncle’s explanation of how he nearly became a competitive swimmer."
+            ],
+            [
+              "CAN CHILDREN USE IT?"
+            ],
+            [
+              "Please check current swimming arrangements with reception. Children must be supervised; an inflatable crocodile does not count as a responsible adult."
+            ],
+            [
+              "ARE TOWELS A SOUVENIR?"
+            ],
+            [
+              "No. Neither are the robes, the room key or the unusually reassuring receptionist."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "coral"
+            },
+            {
+              "label": "Family stays",
+              "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Guest discussion",
+              "pageId": "coral_guest_thread"
+            }
+          ],
+          "snippet": "Indoor swimming, supervision and the disputed legal status of borrowed towels.",
+          "imageKey": "reed_web_hotel_coral_crown",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/coral_crown.webp",
+          "imageCaption": "Coral Crown Hotel — official hotel photograph"
+        },
+        {
+          "id": "coral_dog_guide",
+          "title": "Coral Crown Hotel | Stay with your dog",
+          "brand": "PAWS ON HOLIDAY",
+          "address": "www.pawsonholiday.local/stays/coral-crown",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "The ",
+              {
+                "keywordId": "coral",
+                "text": "Coral Crown Hotel"
+              },
+              " lists dogs as welcome. Check directly with the hotel about suitable rooms and any arrangements before booking."
+            ],
+            [
+              "Dogs welcome does not mean dogs welcome everywhere. Ask about dining areas and other shared facilities rather than letting your spaniel negotiate at the door."
+            ],
+            [
+              "Pack a lead, your dog’s usual food and something familiar to sleep on. If they prefer your expensive jumper, congratulations: they have already packed."
+            ],
+            [
+              "This is a dog-friendly accommodation listing. We do not maintain records of individual guests, human or otherwise."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Official hotel website",
+              "pageId": "coral"
+            },
+            {
+              "label": "Family rooms",
+              "pageId": "coral_family_stays"
+            }
+          ],
+          "snippet": "A dog-friendly seaside stay. Confirm room arrangements with the hotel."
+        },
+        {
+          "id": "coral_coast_listing",
+          "title": "Coral Crown Hotel | Eastern promenade directory",
+          "brand": "COASTLINE VISITOR GUIDE",
+          "address": "www.coastlineguide.local/stay/coral-crown",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "The ",
+              {
+                "keywordId": "coral",
+                "text": "Coral Crown Hotel"
+              },
+              " advertises family suites, an indoor pool and private functions on the eastern promenade."
+            ],
+            [
+              "Its seahorse crest is part of the hotel’s branding. Seaside businesses are not obliged to choose different marine animals, however much easier that would make our directory."
+            ],
+            [
+              "The hotel’s functions page lists weddings, a Coastal Garden Society dinner and a junior sailing club awards ceremony. Consult the hotel’s own page for the published information."
+            ],
+            [
+              "Other coastal accommodation includes The Mariner and Hotel Miramar. Similar crests do not mean shared bookings, owners or guest lists."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Official website",
+              "pageId": "coral"
+            },
+            {
+              "label": "Published functions",
+              "pageId": "coral_events"
+            },
+            {
+              "label": "The Mariner",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "miramar"
+            }
+          ],
+          "snippet": "Family suites, indoor pool and private functions on the eastern promenade."
+        },
+        {
+          "id": "coral_guest_thread",
+          "title": "Coral Crown — family break or competitive towel folding?",
+          "brand": "COASTAL BREAKS FORUM",
+          "address": "www.coastalbreaks.local/forum/coral-crown",
+          "theme": "forum",
+          "template": "forum",
+          "blocks": [
+            [
+              "SUITCASE_TETRIS: “Looking at Coral Crown for a family break. Is the indoor pool worth packing three extra bags?”"
+            ],
+            [
+              "JUST_ONE_MORE_BAG: “My children considered the pool the entire holiday. Apparently the sea was insufficiently rectangular.”"
+            ],
+            [
+              "PAWS_AND_EFFECT: “We took our dog. Contact the hotel about room arrangements first. He approved of the bed, which is not the same as being allowed on it.”"
+            ],
+            [
+              "FOLDING_PROFESSIONAL: “The towel animal in our room looked like a swan. By morning it looked like a tax dispute.”"
+            ],
+            [
+              "MODERATOR: “Please keep reviews about your own stay. No photographs of other guests or children. The towel swan has declined an interview.”"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel information",
+              "pageId": "coral"
+            },
+            {
+              "label": "Family stays",
+              "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Pool questions",
+              "pageId": "coral_pool_questions"
+            }
+          ],
+          "snippet": "Indoor pools, dogs and a towel swan with unresolved personal issues."
+        },
+        {
+          "id": "mariner_breakfast",
+          "title": "Breakfast & the residents’ lounge | The Mariner",
+          "brand": "THE MARINER",
+          "address": "www.mariner.local/breakfast-and-lounge",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "Breakfast at ",
+              {
+                "keywordId": "mariner",
+                "text": "The Mariner"
+              },
+              " is served from seven. Please consult reception for current serving arrangements."
+            ],
+            [
+              "Our residents’ lounge is available for small meetings and family celebrations. Ask about availability before inviting everyone you have ever met."
+            ],
+            [
+              "For public quiz nights and music, see our events page. An empty table is not a reservation, however confidently your uncle places his coat on it."
+            ],
+            [
+              "Guests requiring a quiet breakfast are advised not to ask the quiz regulars what they thought of last week’s answers."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "mariner"
+            },
+            {
+              "label": "What’s on",
+              "pageId": "mariner_events"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "mariner_guest_faq"
+            }
+          ],
+          "snippet": "Breakfast from seven, small meetings and family celebrations in the residents’ lounge.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp",
+          "imageCaption": "The Mariner — official hotel photograph"
+        },
+        {
+          "id": "mariner_guest_faq",
+          "title": "Finding us & guest questions | The Mariner",
+          "brand": "THE MARINER",
+          "address": "www.mariner.local/guest-questions",
+          "theme": "hotel",
+          "template": "hotel",
+          "blocks": [
+            [
+              "WHERE IS THE ENTRANCE?"
+            ],
+            [
+              "Look for the brass seahorse sign on Quay Street. ",
+              {
+                "keywordId": "mariner",
+                "text": "The Mariner"
+              },
+              " overlooks the old harbour."
+            ],
+            [
+              "IS THAT A UNIQUE SYMBOL?"
+            ],
+            [
+              "It is our sign, not a copyright claim over the entire seahorse population. Please check the hotel name as well as the animal."
+            ],
+            [
+              "CAN I CHECK SOMEONE ELSE’S BOOKING?"
+            ],
+            [
+              "We do not publish guest lists or private booking details. “They would probably want me to know” is not authorisation."
+            ],
+            [
+              "I LEFT SOMETHING IN THE LOUNGE."
+            ],
+            [
+              "Contact reception with a description and approximate date. We cannot return “the correct answer to question six”; the quizmaster says it never left."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Hotel",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Breakfast & lounge",
+              "pageId": "mariner_breakfast"
+            },
+            {
+              "label": "Events",
+              "pageId": "mariner_events"
+            }
+          ],
+          "snippet": "The Quay Street entrance, a brass seahorse and a firm policy on other people’s bookings.",
+          "imageKey": "reed_web_hotel_mariner",
+          "imageUrl": "assets/side_quests/Reed/web/hotels/the_mariner.webp",
+          "imageCaption": "The Mariner — official hotel photograph"
+        },
+        {
+          "id": "mariner_harbour_guide",
+          "title": "The Mariner | Old harbour visitor guide",
+          "brand": "QUAYSIDE VISITOR GUIDE",
+          "address": "www.quaysideguide.local/stay/the-mariner",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "mariner",
+                "text": "The Mariner"
+              },
+              " offers family-run accommodation above the old harbour. Its entrance is marked by a brass seahorse sign on Quay Street."
+            ],
+            [
+              "The hotel advertises breakfasts, small meetings and family celebrations, alongside public quiz nights and acoustic music."
+            ],
+            [
+              "Check the hotel’s current listings for event information. Our guide is an introduction to the harbour, not an exhaustive calendar of everything that happens near water."
+            ],
+            [
+              "Other coastal hotels include Hotel Miramar and Coral Crown Hotel. Similar nautical branding is common enough that we recommend reading signs before carrying luggage upstairs."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Official website",
+              "pageId": "mariner"
+            },
+            {
+              "label": "Hotel events",
+              "pageId": "mariner_events"
+            },
+            {
+              "label": "Hotel Miramar",
+              "pageId": "miramar"
+            },
+            {
+              "label": "Coral Crown Hotel",
+              "pageId": "coral"
+            }
+          ],
+          "snippet": "Quay Street accommodation, a brass seahorse sign and the old harbour."
+        },
+        {
+          "id": "mariner_quiz_thread",
+          "title": "The Mariner quiz — is “the harbour” ever the answer?",
+          "brand": "QUAYSIDE QUIZ FORUM",
+          "address": "www.quaysidequiz.local/forum/mariner-answers",
+          "theme": "forum",
+          "template": "forum",
+          "blocks": [
+            [
+              "TEAM_LAST_AGAIN: “Thinking of trying Thursday’s quiz at The Mariner. How seriously do people take it?”"
+            ],
+            [
+              "PENCIL_DOWN: “One team brought a clipboard. Another brought a substitute. Make of that what you will.”"
+            ],
+            [
+              "QUIZ_ME_GENTLY: “We answered ‘the harbour’ to six questions. It was correct once. Apparently the capital of Portugal has moved inland.”"
+            ],
+            [
+              "PENCIL_DOWN: “Check the hotel’s events page before going. This thread is not a booking service.”"
+            ],
+            [
+              "MODERATOR: “No posting current answers, private guest details or photographs of someone else’s answer sheet. Yes, this includes zoomed-in reflections in spoons.”"
+            ]
+          ],
+          "links": [
+            {
+              "label": "Published quiz listing",
+              "pageId": "mariner_events"
+            },
+            {
+              "label": "Hotel website",
+              "pageId": "mariner"
+            }
+          ],
+          "snippet": "Clipboards, disputed answers and a team with excessive confidence in the harbour."
+        },
+        {
+          "id": "mariner_quay_trio",
+          "title": "Quay Street Trio | Acoustic music for small venues",
+          "brand": "QUAY STREET TRIO",
+          "address": "www.quaystreettrio.local",
+          "theme": "business",
+          "template": "business",
+          "blocks": [
+            [
+              "The Quay Street Trio plays acoustic sets for lounges, small venues and private celebrations. Three musicians. Several instruments. One continuing disagreement about the van."
+            ],
+            [
+              "You can find us in The Mariner’s Friday music listing. Check the venue’s current programme before travelling; this page is not a live attendance record."
+            ],
+            [
+              "For enquiries, include your venue, preferred date and the space available. “Between the drinks cabinet and the argument” is not a stage measurement."
+            ],
+            [
+              "Please do not confuse us with the Harbour Quartet. They have an extra person and remain suspiciously organised."
+            ]
+          ],
+          "links": [
+            {
+              "label": "The Mariner — what’s on",
+              "pageId": "mariner_events"
+            }
+          ],
+          "snippet": "Acoustic music, small-venue bookings and an ongoing disagreement about the van."
         }
       ],
       "recipes": [
@@ -1312,7 +1937,12 @@
             "miramar"
           ],
           "pageIds": [
-            "miramar"
+            "miramar",
+            "miramar_terrace",
+            "miramar_guest_faq",
+            "miramar_coast_guide",
+            "miramar_guest_thread",
+            "miramar_cinema_namesake"
           ]
         },
         {
@@ -1340,7 +1970,12 @@
             "mariner"
           ],
           "pageIds": [
-            "mariner"
+            "mariner",
+            "mariner_breakfast",
+            "mariner_guest_faq",
+            "mariner_harbour_guide",
+            "mariner_quiz_thread",
+            "mariner_quay_trio"
           ]
         },
         {
@@ -1348,7 +1983,12 @@
             "coral"
           ],
           "pageIds": [
-            "coral"
+            "coral",
+            "coral_family_stays",
+            "coral_pool_questions",
+            "coral_dog_guide",
+            "coral_coast_listing",
+            "coral_guest_thread"
           ]
         },
         {

@@ -8,6 +8,7 @@ import { AgencyLedgerUI } from '../ui/AgencyLedgerUI.js';
 import { flushAutosave } from '../gameStatePersistence.js';
 
 import { OfficeNavigation } from './office/OfficeNavigation.js';
+import { OfficeDoorSigns } from './office/OfficeDoorsigns.js';
 import { OfficeHotspotManager } from './office/OfficeHotspotManager.js';
 import {
   createOfficeHotspotDefinitions
@@ -53,6 +54,7 @@ export class OfficeScene extends BaseScene {
     this.saveUI = null;
     this.officeAmbient = null;
     this.agencyLedgerUI = null;
+    this.doorSigns = null;
     this.archiveButton = null;
     this.storageButton = null;
     this.elevatorBackground = null;
@@ -98,6 +100,7 @@ export class OfficeScene extends BaseScene {
     this.saveUI = null;
     this.officeAmbient = null;
     this.firstCaseTutorial = null;
+    this.doorSigns = null;
     this.archiveButton = null;
     this.storageButton = null;
     this.elevatorBackground = null;
@@ -259,7 +262,8 @@ export class OfficeScene extends BaseScene {
     this.navigation = new OfficeNavigation(this, {
       roomOrder: this.roomOrder,
       viewPositions: this.viewPositions,
-      initialView: 'office'
+      initialView: 'office',
+      getRoomMeta: key => this.getOfficeRoomMeta(key)
     });
 
     this.navigation.create();
@@ -274,8 +278,7 @@ export class OfficeScene extends BaseScene {
       createOfficeHotspotDefinitions(this)
     );
 
-    this.createArchiveButton();
-    this.createStorageButton();
+    this.createDoorSigns();
     this.createSaveControls();
 
     this.monologue?.startIdle('idle.office');
@@ -455,83 +458,81 @@ export class OfficeScene extends BaseScene {
     return Boolean(this.uiLocked);
   }
 
-  createEntranceButton(y, label, action, isBlocked) {
-    const button = this.add.text(24, y, label, {
-      fontFamily: 'SpecialElite',
-      fontSize: '22px',
-      color: '#f2d477',
-      backgroundColor: '#17110e',
-      padding: {
-        left: 14,
-        right: 14,
-        top: 10,
-        bottom: 10
+  /**
+   * Nazwy i podpisy pokoi na pasku nawigacji oraz pod strzałkami.
+   * Klucze to nazwy widoków z createBackgrounds():
+   * elevator | storage (globus + szafa z aktami) | office | cabinet.
+   * Zmieniaj tu teksty, nie w OfficeNavigation.
+   */
+  getOfficeRoomMeta(roomKey) {
+    const meta = {
+      elevator: {
+        label: 'ELEVATOR',
+        subtitle: this.hasCompletedFirstMission()
+          ? 'Back in service'
+          : 'Out of order'
+      },
+      storage: {
+        label: 'CASE ROOM',
+        subtitle: 'Globe & cabinet'
+      },
+      office: {
+        label: 'OFFICE',
+        subtitle: 'Desk & denial'
+      },
+      cabinet: {
+        label: 'RECORDS',
+        subtitle: 'Ledger & atlas'
       }
-    })
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setInteractive({ useHandCursor: true });
+    };
 
-    button.on('pointerover', () => {
-      if (this.isOfficeActive() && !isBlocked()) {
-        button.setColor('#ffffff');
-      }
-    });
-
-    button.on('pointerout', () => {
-      if (this.isCurrentOfficeRun()) {
-        this.refreshEntranceButtons();
-      }
-    });
-
-    button.on('pointerdown', pointer => {
-      if (
-        pointer?.event?.button !== undefined &&
-        pointer.event.button !== 0
-      ) {
-        return;
-      }
-
-      if (!this.isOfficeActive() || isBlocked()) return;
-
-      void action();
-    });
-
-    return button;
+    return meta[roomKey] ?? null;
   }
 
-  createArchiveButton() {
-    this.archiveButton = this.createEntranceButton(
-      170,
-      'ARCHIVE >',
-      () => this.openArchive(),
-      () => this.isArchiveBlocked()
-    );
-  }
+  createDoorSigns() {
+    this.doorSigns?.destroy();
 
-  createStorageButton() {
-    this.storageButton = this.createEntranceButton(
-      230,
-      'STORAGE >',
-      () => this.openStorage(),
-      () => this.isStorageBlocked()
-    );
+    this.doorSigns = new OfficeDoorSigns(this, {
+      x: 24,
+      y: 170,
+      spacing: 82,
+      doors: [
+        {
+          id: 'archive',
+          label: 'ARCHIVE',
+          subtitle: 'Paper. So much paper.',
+          glyph: 'archive',
+          lockedLabel: 'LOCKED',
+          isBlocked: () => this.isArchiveBlocked(),
+          onBlockedClick: () => {
+            if (!this.uiLocked && this.isOfficeTutorialBlocking()) {
+              this.showOfficeStatusMessage(
+                'Finish your introduction before visiting other rooms.'
+              );
+            }
+          },
+          onOpen: () => this.openArchive()
+        },
+        {
+          id: 'storage',
+          label: 'STORAGE ROOM',
+          subtitle: 'Gadgets, manuals, Alex',
+          glyph: 'storage',
+          isBlocked: () => this.isStorageBlocked(),
+          onOpen: () => this.openStorage()
+        }
+      ]
+    });
+
+    this.doorSigns.create();
+
+    // FirstCaseTutorial podświetla storageButton przez getBounds().
+    this.archiveButton = this.doorSigns.getSign('archive');
+    this.storageButton = this.doorSigns.getSign('storage');
   }
 
   refreshEntranceButtons() {
-    const entries = [
-      [this.archiveButton, this.isArchiveBlocked()],
-      [this.storageButton, this.isStorageBlocked()]
-    ];
-
-    entries.forEach(([button, blocked]) => {
-      if (!button?.active || !button.input) return;
-
-      button.input.enabled = !blocked;
-      button.setAlpha(blocked ? 0.45 : 1);
-      button.setColor(blocked ? '#8b8475' : '#f2d477');
-    });
+    this.doorSigns?.refresh();
   }
 
   async _openOfficeRoom(sceneKey, flagName, roomName) {
@@ -1163,6 +1164,7 @@ export class OfficeScene extends BaseScene {
     }
 
     this.hotspotManager?.refreshAvailability?.();
+    this.navigation?.refreshRoomMeta();
     this.refreshEntranceButtons();
   }
 
@@ -1645,12 +1647,8 @@ export class OfficeScene extends BaseScene {
       this._stopOfficeAmbient();
     });
 
-    clean('Archive button', () => {
-      this.archiveButton?.destroy();
-    });
-
-    clean('Storage button', () => {
-      this.storageButton?.destroy();
+    clean('Door signs', () => {
+      this.doorSigns?.destroy();
     });
 
     this.firstCaseTutorial = null;
@@ -1659,6 +1657,7 @@ export class OfficeScene extends BaseScene {
     this.saveUI = null;
     this.navigation = null;
     this.hotspotManager = null;
+    this.doorSigns = null;
     this.archiveButton = null;
     this.storageButton = null;
     this.elevatorBackground = null;

@@ -1,3 +1,4 @@
+import { isForumPage, renderForum } from './ForumPageTemplate.js';
 import { organisationKind, renderOrganisation } from './OrganisationPageTemplate.js';
 import { isPublicDirectoryPage, renderPublicDirectory } from './PublicDirectoryTemplate.js';
 
@@ -22,6 +23,7 @@ export function installBusinessPages(ui){
   search.render=function(...args){
     const page=this.definition?.pages?.find(item=>item.id===this.pageId);
     if(this.view==='page'){
+      if(isForumPage(page))return renderForum(this,page);
       if(isPublicDirectoryPage(page))return renderPublicDirectory(this,page);
       const kind=businessKind(page);if(kind)return renderBusiness(this,page,kind);
       const organisation=organisationKind(page);if(organisation)return renderOrganisation(this,page,organisation);

@@ -1456,6 +1456,70 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "gordonFirstInterview",
+      "url": "assets/data/gordonFirstInterview.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "miramar-search",
+      "url": "assets/data/web/missions/two-glasses/pages/miramar-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "edward_vale_photography",
+      "url": "assets/side_quests/Dead-men/edward_vale_photography.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__search__logo_small",
+      "url": "assets/ui/search/logo_small.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__search__logo",
+      "url": "assets/ui/search/logo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__search__magnifier",
+      "url": "assets/ui/search/magnifier.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__search__owl_lost",
+      "url": "assets/ui/search/owl_lost.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "ui__search__owl",
+      "url": "assets/ui/search/owl.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

@@ -12,7 +12,10 @@
     "pages/news.json",
     "pages/social.json",
     "pages/table-search.json",
-    "pages/jacket-search.json"
+    "pages/jacket-search.json",
+    "pages/miramar-search.json",
+    "pages/coral-search.json",
+    "pages/mariner-search.json"
   ],
   "pageOrder": [
     "miramar",
@@ -48,6 +51,21 @@
     "jacket_shop",
     "jacket_hire",
     "jacket_cleaner",
-    "jacket_forum"
+    "jacket_forum",
+    "miramar_terrace",
+    "miramar_guest_faq",
+    "miramar_coast_guide",
+    "miramar_guest_thread",
+    "miramar_cinema_namesake",
+    "coral_family_stays",
+    "coral_pool_questions",
+    "coral_dog_guide",
+    "coral_coast_listing",
+    "coral_guest_thread",
+    "mariner_breakfast",
+    "mariner_guest_faq",
+    "mariner_harbour_guide",
+    "mariner_quiz_thread",
+    "mariner_quay_trio"
   ]
 }

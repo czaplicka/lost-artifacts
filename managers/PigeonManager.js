@@ -3,6 +3,7 @@ import { requestAutosave, flushAutosave } from '../gameStatePersistence.js';
 import { inventoryManager } from './InventoryManager.js';
 import { moneyManager, MONEY_SOURCE, ECONOMY_CATEGORY } from './MoneyManager.js';
 import { PIGEON_CONFIG as C, PIGEON_FINDS } from '../config/pigeonConfig.js';
+import { loadPigeonCatalog, getPigeonCatalogItem, getPigeonCatalogStatus } from './PigeonCatalog.js';
 
 const KEY = 'pigeonLoft', ORDER = [3, 2, 1];
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -20,8 +21,7 @@ function read() {
   if (state.version === 1) {
     if (!Array.isArray(state.birds) || state.birds.length > C.maxPigeons) throw Error('Invalid pigeon save.');
     const previous = clone(state);
-    state = { ...state, version: 2, perches: Math.max(1, state.birds.length),
-      legacyBackup: previous,
+    state = { ...state, version: 2, perches: Math.max(1, state.birds.length), legacyBackup: previous,
       birds: state.birds.map((bird, index) => ({ ...bird, slot: ORDER[index], fed: false,
         arrived: bird.returnAt != null || (bird.flights || 0) > 0 })) };
   }
@@ -37,21 +37,16 @@ function read() {
           !PIGEON_FINDS.some(f => f.id === b.findId)))) throw Error('Invalid pigeon flight data.');
     ids.add(b.id); slots.add(b.slot);
   }
-  state.collection ??= {}; state.junkDiscarded ??= 0;
-  return state;
+  state.collection ??= {}; state.junkDiscarded ??= 0; return state;
 }
-function write(state) {
-  gameState[KEY] = clone(state); requestAutosave(); flushAutosave();
-}
+function write(state) { gameState[KEY] = clone(state); requestAutosave(); flushAutosave(); }
 function transaction(callback) {
   if (busy) return { ok: false, message: 'Please wait for the previous action.' };
-  busy = true;
-  let previous, inventory, selected, money;
+  busy = true; let previous, inventory, selected, money;
   try {
     previous = gameState[KEY] == null ? null : clone(gameState[KEY]);
     inventory = inventoryManager.exportState(); selected = inventoryManager.getSelectedItem()?.id;
-    money = clone(moneyManager.getState());
-    return callback();
+    money = clone(moneyManager.getState()); return callback();
   } catch (error) {
     if (money) {
       gameState[KEY] = previous; gameState.cash = money.cash; gameState.moneyLog = money.moneyLog;
@@ -67,23 +62,31 @@ function birdIn(state, id) {
   if (!bird) throw Error('There is no pigeon here yet. Add grain to attract one.');
   return bird;
 }
+function resolveFind(definition) {
+  if (!definition) return null;
+  const find = clone(definition);
+  if (find.catalogRef) {
+    const item = getPigeonCatalogItem(find.catalogRef);
+    if (item) { find.item = item; find.name = item.name; }
+  }
+  return find;
+}
 function rollFind() {
   let roll = Math.random() * PIGEON_FINDS.reduce((sum, f) => sum + f.weight, 0);
   for (const f of PIGEON_FINDS) { roll -= f.weight; if (roll < 0) return f.id; }
   return PIGEON_FINDS[PIGEON_FINDS.length - 1].id;
 }
 export function getPigeonLoft(time = Date.now()) {
-  const state = read();
-  if (gameState[KEY]?.version !== 2) write(state);
+  void loadPigeonCatalog();
+  const state = read(); if (gameState[KEY]?.version !== 2) write(state);
   const birds = state.birds.filter(b => b.arrived).map(b => ({ ...b,
     status: b.returnAt == null ? 'home' : time >= b.returnAt ? 'ready' : 'flying',
     remainingMs: b.returnAt == null ? 0 : Math.max(0, b.returnAt - time),
-    find: b.returnAt != null && time >= b.returnAt ? clone(PIGEON_FINDS.find(f => f.id === b.findId)) : null }));
+    find: b.returnAt != null && time >= b.returnAt ? resolveFind(PIGEON_FINDS.find(f => f.id === b.findId)) : null }));
   return { ...state, birds, feed: inventoryManager.getItem(C.feedId)?.quantity || 0,
     feederFull: birds.some(b => b.fed),
     nextPerchPrice: state.perches < C.maxPigeons ? C.extraPerchPrices[state.perches - 1] ?? null : null,
-    slots: ORDER.map((slot, index) => ({ slot, owned: index < state.perches,
-      bird: birds.find(b => b.slot === slot) || null })) };
+    slots: ORDER.map((slot, index) => ({ slot, owned: index < state.perches, bird: birds.find(b => b.slot === slot) || null })) };
 }
 export function feedPigeon(slot) {
   return transaction(() => {
@@ -96,8 +99,7 @@ export function feedPigeon(slot) {
     if (!inventoryManager.removeQuantity(C.feedId, 1)) throw Error('The grain could not be poured.');
     if (!bird) { bird = birdFor(index); state.birds.push(bird); }
     const newcomer = !bird.arrived; bird.arrived = true; bird.fed = true; write(state);
-    return { ok: true, message: newcomer
-      ? `${bird.name} arrived for the grain. One portion used. Ready for a flight.`
+    return { ok: true, message: newcomer ? `${bird.name} arrived for the grain. One portion used. Ready for a flight.`
       : `${bird.name} has been fed. Ready for a flight.` };
   });
 }
@@ -111,26 +113,32 @@ export function renamePigeon(id, value) {
   });
 }
 export function sendPigeon(id) {
+  void loadPigeonCatalog();
   return transaction(() => {
     const state = read(), bird = birdIn(state, id);
     if (bird.returnAt != null) return { ok: false, message: 'Collect the previous find first.' };
     if (!bird.fed) return { ok: false, message: 'Click the feeder to pour one portion of grain first.' };
+    const catalog = getPigeonCatalogStatus();
+    if (!catalog.ready) return { ok: false, message: catalog.error || 'Loading the item catalog. Try again in a moment. No grain was lost.' };
     const now = Date.now();
     Object.assign(bird, { fed: false, departedAt: now, returnAt: now + C.flightMs, findId: rollFind() });
-    write(state); return { ok: true, message: `${bird.name} has departed. No additional grain charged.` };
+    write(state); return { ok: true, message: `${bird.name} has departed for two hours. No additional grain charged.` };
   });
 }
 export function collectPigeonFind(id) {
+  void loadPigeonCatalog();
   return transaction(() => {
     const state = read(), bird = birdIn(state, id);
     if (bird.returnAt == null || Date.now() < bird.returnAt) return { ok: false, message: 'This pigeon is not back yet.' };
-    const find = PIGEON_FINDS.find(f => f.id === bird.findId);
+    const find = resolveFind(PIGEON_FINDS.find(f => f.id === bird.findId));
     if (!find) throw Error('The find could not be identified.');
     if (find.kind === 'usable') {
+      if (!find.item) return { ok: false, message: getPigeonCatalogStatus().error || 'Loading the item catalog. Your pigeon will keep the find safe.' };
       const item = inventoryManager.getItem(find.item.id), cap = inventoryManager.getCapacity();
       if ((item && (!item.stackable || item.quantity >= 999)) || (!item && cap.current >= cap.max)) {
         return { ok: false, message: 'Inventory full. Your pigeon will keep the find safe.' };
       }
+      // Ignore catalog quantity fields: each flight delivers exactly ONE item.
       if (!inventoryManager.addItem({ ...clone(find.item), quantity: 1 })) throw Error('The find could not be added.');
     } else if (find.kind === 'collection') {
       const count = Object.prototype.hasOwnProperty.call(state.collection, find.id) ? state.collection[find.id] : 0;
@@ -138,8 +146,7 @@ export function collectPigeonFind(id) {
     } else state.junkDiscarded++;
     bird.flights = (bird.flights || 0) + 1;
     Object.assign(bird, { departedAt: null, returnAt: null, findId: null }); write(state);
-    return { ok: true, find: clone(find), message: find.kind === 'junk'
-      ? `${find.name}: ${find.description} Discarded.`
+    return { ok: true, find: clone(find), message: find.kind === 'junk' ? `${find.name}: ${find.description} Discarded.`
       : `${find.name} added to ${find.kind === 'collection' ? 'your collection' : 'your inventory'}.` };
   });
 }
@@ -148,11 +155,9 @@ export function buyPigeonPerch() {
     const state = read(), price = C.extraPerchPrices[state.perches - 1];
     if (state.perches >= C.maxPigeons || !Number.isSafeInteger(price)) return { ok: false, message: 'The loft is fully expanded.' };
     if (!moneyManager.canAfford(price, MONEY_SOURCE.CASH)) return { ok: false, message: 'Not enough personal cash.' };
-    const purchase = moneyManager.spend(price, { source: MONEY_SOURCE.CASH,
-      category: ECONOMY_CATEGORY.OFFICE_UPGRADE, description: 'Pigeon loft: empty cage',
-      missionId: null, metadata: { pigeonLoft: true, slot: ORDER[state.perches] } });
+    const purchase = moneyManager.spend(price, { source: MONEY_SOURCE.CASH, category: ECONOMY_CATEGORY.OFFICE_UPGRADE,
+      description: 'Pigeon loft: empty cage', missionId: null, metadata: { pigeonLoft: true, slot: ORDER[state.perches] } });
     if (!purchase.ok) return { ok: false, message: 'Not enough personal cash.' };
-    state.perches++; write(state);
-    return { ok: true, message: 'Empty cage installed. Pour grain to attract its pigeon.' };
+    state.perches++; write(state); return { ok: true, message: 'Empty cage installed. Pour grain to attract its pigeon.' };
   });
 }

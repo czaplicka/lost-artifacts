@@ -1,38 +1,12 @@
 import {
     STATE_KEY,
     clone,
-    safeId,
-    signature,
     getSearchProgress,
-    discoverSearchKeywords,
     validateSearchData,
-    resolveSearchResults,
-    resolveSearch,
-    ART_BASE,
-    ART_FILES,
-    FAILED_ART,
-    VISITED,
-    THEMES,
-    DEFAULT_THEME,
-    CLOUD_COLORS,
-    BRAND,
-    ITEM_HEIGHT,
     TAGLINES,
-    HOOTY_LINES,
-    ADS,
-    AD_CLICKS,
-    NO_RESULT_JOKES,
-    ABOUT_TIP,
-    PRIVACY_TIP,
-    slug,
-    hash,
     pick,
-    titleCase,
     gameState,
-    requestAutosave,
-    FONTS,
-    lerpColor,
-    seeded
+    requestAutosave
 } from './ComputerSearchShared.js';
 
 import { ComputerSearchAssets } from './ComputerSearchAssets.js';
@@ -43,7 +17,13 @@ import { ComputerSearchNotebook } from './ComputerSearchNotebook.js';
 import { ComputerSearchHome } from './ComputerSearchHome.js';
 import { ComputerSearchResults } from './ComputerSearchResults.js';
 
-export { getSearchProgress, discoverSearchKeywords, validateSearchData, resolveSearchResults, resolveSearch } from './ComputerSearchShared.js';
+export {
+    getSearchProgress,
+    discoverSearchKeywords,
+    validateSearchData,
+    resolveSearchResults,
+    resolveSearch
+} from './ComputerSearchShared.js';
 
 export class ComputerSearch {
     constructor(ui) {
@@ -217,8 +197,6 @@ export class ComputerSearch {
 
         return this.loading;
     }
-
-    /* -------------------------- assets --------------------------- */
 
     render() {
         const ui = this.ui;
