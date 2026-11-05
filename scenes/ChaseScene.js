@@ -2,7 +2,6 @@ import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { CHASE_CONFIG as C } from '../config/chaseConfig.js';
 
-
 import {
   applyChoice,
   advanceRound,
@@ -19,6 +18,19 @@ import {
 } from '../systems/chasePersistence.js';
 
 import { audioManager } from '../managers/AudioManager.js';
+
+const RUNNER = Object.freeze({
+  textureKey: 'chase_runner_sheet',
+  animationKey: 'chase_runner_run',
+  url: 'assets/chase/chase_runner_sheet.png',
+  frameWidth: 256,
+  frameHeight: 256,
+  frameRate: 8,
+  x: 960,
+  y: 530,
+  minScale: 0.42,
+  maxScale: 1.05
+});
 
 export class ChaseScene extends BaseScene {
   constructor() {
@@ -41,6 +53,10 @@ export class ChaseScene extends BaseScene {
 
     this.pageHideHandler = null;
     this.visibilityHandler = null;
+
+    this.runner = null;
+    this.runnerShadow = null;
+    this.runnerIsSprite = false;
   }
 
   preload() {
@@ -50,6 +66,19 @@ export class ChaseScene extends BaseScene {
       if (url && !this.textures.exists(key)) {
         this.load.image(key, url);
       }
+    }
+
+    if (!this.textures.exists(RUNNER.textureKey)) {
+      this.load.spritesheet(
+        RUNNER.textureKey,
+        RUNNER.url,
+        {
+          frameWidth: RUNNER.frameWidth,
+          frameHeight: RUNNER.frameHeight,
+          startFrame: 0,
+          endFrame: 2
+        }
+      );
     }
 
     for (const [kind, url] of Object.entries(C.assets.audio)) {
@@ -95,6 +124,8 @@ export class ChaseScene extends BaseScene {
     if (this.cache.audio.exists('chase_music')) {
       this.musicSound = audioManager.playMusic('chase_music');
     }
+
+    this.createRunnerAnimation();
 
     this.art = this.add.container();
 
@@ -208,6 +239,8 @@ export class ChaseScene extends BaseScene {
       if (document.hidden && !this.leaving) {
         this.save();
       }
+
+      this.syncRunnerAnimation();
     };
 
     window.addEventListener(
@@ -238,6 +271,10 @@ export class ChaseScene extends BaseScene {
 
         this.stepsSound = null;
         this.musicSound = null;
+
+        this.runner = null;
+        this.runnerShadow = null;
+        this.runnerIsSprite = false;
       }
     );
 
@@ -250,6 +287,32 @@ export class ChaseScene extends BaseScene {
       fontSize: `${size}px`,
       color: '#f7e6bc'
     };
+  }
+
+  createRunnerAnimation() {
+    if (!this.textures.exists(RUNNER.textureKey)) {
+      console.warn(
+        `[ChaseScene] Missing runner sprite: ${RUNNER.url}`
+      );
+
+      return;
+    }
+
+    this.textures
+      .get(RUNNER.textureKey)
+      .setFilter(Phaser.Textures.FilterMode.NEAREST);
+
+    if (!this.anims.exists(RUNNER.animationKey)) {
+      this.anims.create({
+        key: RUNNER.animationKey,
+        frames: [0, 1, 0, 2].map(frame => ({
+          key: RUNNER.textureKey,
+          frame
+        })),
+        frameRate: RUNNER.frameRate,
+        repeat: -1
+      });
+    }
   }
 
   makeButton(x, y, index) {
@@ -295,6 +358,10 @@ export class ChaseScene extends BaseScene {
   }
 
   drawPlaceholder(kind) {
+    this.runner = null;
+    this.runnerShadow = null;
+    this.runnerIsSprite = false;
+
     this.art.removeAll(true);
 
     const colors = {
@@ -372,20 +439,65 @@ export class ChaseScene extends BaseScene {
       );
     }
 
-    this.runner = this.add.container(960, 420);
+    this.createRunner();
+  }
 
-    this.runner.add([
-      this.add.circle(0, -35, 13, 0xe0c79b),
-      this.add.rectangle(0, 0, 22, 44, 0x17191c),
-      this.add
-        .rectangle(-11, 34, 10, 30, 0x17191c)
-        .setAngle(20),
-      this.add
-        .rectangle(11, 34, 10, 30, 0x17191c)
-        .setAngle(-20)
-    ]);
+  createRunner() {
+    this.runnerShadow = this.add.ellipse(
+      RUNNER.x,
+      RUNNER.y - 5,
+      92,
+      22,
+      0x000000,
+      0.28
+    );
+
+    this.art.add(this.runnerShadow);
+
+    if (this.textures.exists(RUNNER.textureKey)) {
+      this.runner = this.add
+        .sprite(
+          RUNNER.x,
+          RUNNER.y,
+          RUNNER.textureKey,
+          0
+        )
+        .setOrigin(0.5, 244 / RUNNER.frameHeight);
+
+      this.runnerIsSprite = true;
+    } else {
+      this.runner = this.add
+        .text(
+          RUNNER.x,
+          RUNNER.y,
+          'SPRITE MISSING',
+          this.style(14, true)
+        )
+        .setOrigin(0.5, 1);
+
+      this.runnerIsSprite = false;
+    }
 
     this.art.add(this.runner);
+    this.syncRunnerAnimation();
+  }
+
+  syncRunnerAnimation() {
+    if (!this.runnerIsSprite || !this.runner?.anims) {
+      return;
+    }
+
+    const shouldRun =
+      this.record?.phase === 'choice' &&
+      !this.leaving &&
+      !document.hidden &&
+      !chaseFailureCode(this.record);
+
+    if (shouldRun) {
+      this.runner.play(RUNNER.animationKey, true);
+    } else {
+      this.runner.anims.stop();
+    }
   }
 
   refresh() {
@@ -412,9 +524,22 @@ export class ChaseScene extends BaseScene {
         : ''
     );
 
-    this.runner?.setScale(
-      0.55 + (1 - r.distance / C.escapeDistance) * 0.8
+    const distanceRatio = Phaser.Math.Clamp(
+      r.distance / C.escapeDistance,
+      0,
+      1
     );
+
+    const scale = Phaser.Math.Linear(
+      RUNNER.maxScale,
+      RUNNER.minScale,
+      distanceRatio
+    );
+
+    this.runner?.setScale(scale);
+    this.runnerShadow?.setScale(scale);
+
+    this.syncRunnerAnimation();
   }
 
   sfx(kind) {
@@ -471,9 +596,9 @@ export class ChaseScene extends BaseScene {
     }
 
     if (chaseFailureCode(r)) {
-  this.description.setText(terminalData(r).message);
-  this.singleButton('GAME OVER');
-} else if (r.phase === 'choice') {
+      this.description.setText(terminalData(r).message);
+      this.singleButton('GAME OVER');
+    } else if (r.phase === 'choice') {
       const current = r.plan.rounds[r.round];
 
       this.options = current.flip
@@ -551,9 +676,7 @@ export class ChaseScene extends BaseScene {
       this.singleButton('GAME OVER');
     } else if (r.phase === 'settled') {
       if (r.arrestOutcome) {
-        this.description.setText(
-          r.arrestOutcome.message
-        );
+        this.description.setText(r.arrestOutcome.message);
 
         this.buttons.forEach(button => {
           button.root.setVisible(false);
@@ -583,15 +706,15 @@ export class ChaseScene extends BaseScene {
     }
 
     if (r.phase === 'settled' && r.arrestOutcome) {
-  const failedWarrant =
-    ['missing_warrant', 'warrant_mismatch'].includes(
-      r.arrestOutcome.code
-    );
+      const failedWarrant =
+        ['missing_warrant', 'warrant_mismatch'].includes(
+          r.arrestOutcome.code
+        );
 
-  if (!failedWarrant && !chaseFailureCode(r)) {
-    return;
-  }
-}
+      if (!failedWarrant && !chaseFailureCode(r)) {
+        return;
+      }
+    }
 
     if (r.phase === 'choice') {
       const before = r.distance;
@@ -733,165 +856,166 @@ export class ChaseScene extends BaseScene {
   }
 
   async finish() {
-  const r = this.record;
+    const r = this.record;
 
-  if (!r || this.leaving) return;
+    if (!r || this.leaving) return;
 
-  const previousOutcome = r.arrestOutcome;
+    const previousOutcome = r.arrestOutcome;
 
-  const isPreviousWarrantFailure =
-    r.phase === 'settled' &&
-    previousOutcome &&
-    ['missing_warrant', 'warrant_mismatch'].includes(
-      previousOutcome.code
-    );
-
-  if (
-    !['caught', 'review', 'escaped', 'settled']
-      .includes(r.phase)
-  ) {
-    return;
-  }
-
-  this.leaving = true;
-
-  try {
-    if (
-      !chaseFailureCode(r) &&
-      (
-        ['caught', 'review'].includes(r.phase) ||
-        isPreviousWarrantFailure
-      )
-    ) {
-      const outcome = isPreviousWarrantFailure
-        ? previousOutcome
-        : this.evaluateArrest();
-
-      r.arrestOutcome = outcome;
-
-      if (outcome.arrested) {
-  r.arrestOutcome = outcome;
-
-  // Nie oznaczamy jeszcze całej sprawy jako zakończonej.
-  r.phase = 'review';
-  r.terminalScene = 'CourtScene';
-
-  this.save();
-
-  const opened = await this.goto('CourtScene', {
-    caseId: r.caseId,
-    suspectId: r.suspectId
-  });
-
-  if (opened) {
-    if (
-      this.sourceKey &&
-      this.sourceKey !== this.sys.settings.key
-    ) {
-      this.scene.stop(this.sourceKey);
-    }
-
-    this.scene.stop('CityScene');
-  } else if (!this._cleanupDone) {
-    this.leaving = false;
-
-    this.saveNotice?.setText(
-      'Could not open the court. Press Enter to retry.'
-    );
-  }
-
-  return;
-}
-
-      r.failureCode =
-        outcome.code === 'not_caught'
-          ? 'chase_escape'
-          : outcome.code;
-
-      // Porażka nakazu nie oznacza, że podejrzany uciekł.
-      r.phase = r.failureCode === 'chase_escape'
-        ? 'escaped'
-        : 'review';
-
-      r.terminalScene = 'GameOverScene';
-    }
-
-    if (chaseFailureCode(r)) {
-      this.save();
-
-      const opened = await this.goto(
-        'GameOverScene',
-        terminalData(r)
+    const isPreviousWarrantFailure =
+      r.phase === 'settled' &&
+      previousOutcome &&
+      ['missing_warrant', 'warrant_mismatch'].includes(
+        previousOutcome.code
       );
 
-      if (!opened && !this._cleanupDone) {
-        this.leaving = false;
+    if (
+      !['caught', 'review', 'escaped', 'settled']
+        .includes(r.phase)
+    ) {
+      return;
+    }
 
-        this.saveNotice?.setText(
-          'Could not open Game Over. Press Enter to retry.'
+    this.leaving = true;
+    this.syncRunnerAnimation();
+
+    try {
+      if (
+        !chaseFailureCode(r) &&
+        (
+          ['caught', 'review'].includes(r.phase) ||
+          isPreviousWarrantFailure
+        )
+      ) {
+        const outcome = isPreviousWarrantFailure
+          ? previousOutcome
+          : this.evaluateArrest();
+
+        r.arrestOutcome = outcome;
+
+        if (outcome.arrested) {
+          r.arrestOutcome = outcome;
+
+          // The court determines whether the case is resolved.
+          r.phase = 'review';
+          r.terminalScene = 'CourtScene';
+
+          this.save();
+
+          const opened = await this.goto('CourtScene', {
+            caseId: r.caseId,
+            suspectId: r.suspectId
+          });
+
+          if (opened) {
+            if (
+              this.sourceKey &&
+              this.sourceKey !== this.sys.settings.key
+            ) {
+              this.scene.stop(this.sourceKey);
+            }
+
+            this.scene.stop('CityScene');
+          } else if (!this._cleanupDone) {
+            this.leaving = false;
+
+            this.saveNotice?.setText(
+              'Could not open the court. Press Enter to retry.'
+            );
+          }
+
+          return;
+        }
+
+        r.failureCode =
+          outcome.code === 'not_caught'
+            ? 'chase_escape'
+            : outcome.code;
+
+        // A warrant failure does not mean the suspect escaped.
+        r.phase = r.failureCode === 'chase_escape'
+          ? 'escaped'
+          : 'review';
+
+        r.terminalScene = 'GameOverScene';
+      }
+
+      if (chaseFailureCode(r)) {
+        this.save();
+
+        const opened = await this.goto(
+          'GameOverScene',
+          terminalData(r)
         );
+
+        if (!opened && !this._cleanupDone) {
+          this.leaving = false;
+
+          this.saveNotice?.setText(
+            'Could not open Game Over. Press Enter to retry.'
+          );
+
+          return;
+        }
+
+        if (opened) {
+          if (
+            this.sourceKey &&
+            this.sourceKey !== this.sys.settings.key &&
+            this.sourceKey !== 'GameOverScene'
+          ) {
+            this.scene.stop(this.sourceKey);
+          }
+
+          this.scene.stop('CityScene');
+        }
 
         return;
       }
 
-      if (opened) {
-        if (
-          this.sourceKey &&
-          this.sourceKey !== this.sys.settings.key &&
-          this.sourceKey !== 'GameOverScene'
-        ) {
-          this.scene.stop(this.sourceKey);
-        }
-
-        this.scene.stop('CityScene');
-      }
-
-      return;
-    }
-
-    if (r.phase === 'settled' && r.arrestOutcome) {
-      this.leaving = false;
-      this.render();
-      return;
-    }
-
-    if (r.phase === 'settled' && r.terminalScene) {
-      if (r.terminalScene === 'ChaseScene') {
+      if (r.phase === 'settled' && r.arrestOutcome) {
         this.leaving = false;
         this.render();
         return;
       }
 
-      const opened = await this.goto(r.terminalScene, {
-        caseId: r.caseId,
-        suspectId: r.suspectId
-      });
+      if (r.phase === 'settled' && r.terminalScene) {
+        if (r.terminalScene === 'ChaseScene') {
+          this.leaving = false;
+          this.render();
+          return;
+        }
 
-      if (!opened && !this._cleanupDone) {
+        const opened = await this.goto(r.terminalScene, {
+          caseId: r.caseId,
+          suspectId: r.suspectId
+        });
+
+        if (!opened && !this._cleanupDone) {
+          this.leaving = false;
+
+          this.saveNotice?.setText(
+            'Could not open the result. Press Enter to retry.'
+          );
+        }
+
+        return;
+      }
+
+      this.leaving = false;
+    } catch (error) {
+      console.error(
+        '[ChaseScene] Could not finish chase:',
+        error
+      );
+
+      if (!this._cleanupDone) {
         this.leaving = false;
 
         this.saveNotice?.setText(
-          'Could not open the result. Press Enter to retry.'
+          'Could not finish the pursuit. Press Enter to retry.'
         );
       }
-
-      return;
-    }
-
-    this.leaving = false;
-  } catch (error) {
-    console.error(
-      '[ChaseScene] Could not finish chase:',
-      error
-    );
-
-    if (!this._cleanupDone) {
-      this.leaving = false;
-
-      this.saveNotice?.setText(
-        'Could not finish the pursuit. Press Enter to retry.'
-      );
     }
   }
-}
 }

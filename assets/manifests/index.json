@@ -1911,7 +1911,45 @@
       "image:ui__search__logo",
       "image:ui__search__magnifier",
       "image:ui__search__owl_lost",
-      "image:ui__search__owl"
+      "image:ui__search__owl",
+      "image:chase_runner_sheet",
+      "json:agencyFieldManual",
+      "json:coral-search",
+      "json:mariner-search",
+      "image:background",
+      "image:game_over",
+      "image:lamp",
+      "image:map",
+      "image:medallion_officer",
+      "image:medialion",
+      "image:officer_left_01",
+      "image:officer_left_02_1",
+      "image:officer_left_02",
+      "image:officer_right_01_1",
+      "image:officer_right_01",
+      "image:officer_right_02",
+      "image:paper_01",
+      "image:paper_02",
+      "image:paper_03",
+      "image:police_car",
+      "image:pouch",
+      "image:thief",
+      "image:wall",
+      "image:courtroom",
+      "image:Gordon",
+      "image:no_Gordon",
+      "image:post_office_poste_restante",
+      "image:post_office_postman",
+      "image:post_office",
+      "image:postman",
+      "image:edward_vale",
+      "image:coat_check_green_jacket_swap",
+      "image:marsh_button_fenwick_blazer",
+      "image:pressing_matters_checked_blazer",
+      "image:second_impression_green_jackets",
+      "image:spare_pair_two_glasses",
+      "image:table_matters_two_glasses",
+      "image:toast_rack_two_glasses_gift_box"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -1981,7 +2019,8 @@
       "image:chase_courtyard",
       "image:chase_square",
       "image:chase_stairs",
-      "image:chase_street"
+      "image:chase_street",
+      "image:chase_runner_sheet"
     ],
     "auto:folder:cities": [
       "image:berlin",
@@ -2142,7 +2181,8 @@
       "json:officeDustPuzzle",
       "json:typewriterComparison",
       "json:margeGift",
-      "json:gordonFirstInterview"
+      "json:gordonFirstInterview",
+      "json:agencyFieldManual"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2209,7 +2249,9 @@
       "json:social",
       "json:jacket-search",
       "json:table-search",
-      "json:miramar-search"
+      "json:miramar-search",
+      "json:coral-search",
+      "json:mariner-search"
     ],
     "auto:folder:ico": [
       "image:apt_icon",
@@ -2303,7 +2345,10 @@
       "image:spy_shop",
       "image:agency_storage_manager",
       "image:agency_storage_room_v2",
-      "image:biuro_medium"
+      "image:biuro_medium",
+      "image:courtroom",
+      "image:Gordon",
+      "image:no_Gordon"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2486,7 +2531,8 @@
       "image:dead_men_colin",
       "image:dead_men_margaret_edward",
       "image:dead_men_recorder",
-      "image:edward_vale_photography"
+      "image:edward_vale_photography",
+      "image:edward_vale"
     ],
     "auto:folder:side_quests/Halloween": [
       "image:dead_mail_administration",
@@ -2672,7 +2718,14 @@
       "image:community_ledger_small_grants",
       "image:community_ledger_volunteer_training",
       "image:everyday_edit_green_checks",
-      "image:norah_bell_piano_studio"
+      "image:norah_bell_piano_studio",
+      "image:coat_check_green_jacket_swap",
+      "image:marsh_button_fenwick_blazer",
+      "image:pressing_matters_checked_blazer",
+      "image:second_impression_green_jackets",
+      "image:spare_pair_two_glasses",
+      "image:table_matters_two_glasses",
+      "image:toast_rack_two_glasses_gift_box"
     ],
     "auto:folder:pi/police": [
       "image:home-police"
@@ -2745,6 +2798,33 @@
       "image:ui__search__magnifier",
       "image:ui__search__owl_lost",
       "image:ui__search__owl"
+    ],
+    "auto:folder:game_over": [
+      "image:background",
+      "image:game_over",
+      "image:lamp",
+      "image:map",
+      "image:medallion_officer",
+      "image:medialion",
+      "image:officer_left_01",
+      "image:officer_left_02_1",
+      "image:officer_left_02",
+      "image:officer_right_01_1",
+      "image:officer_right_01",
+      "image:officer_right_02",
+      "image:paper_01",
+      "image:paper_02",
+      "image:paper_03",
+      "image:police_car",
+      "image:pouch",
+      "image:thief",
+      "image:wall"
+    ],
+    "auto:folder:pi/postoffice": [
+      "image:post_office_poste_restante",
+      "image:post_office_postman",
+      "image:post_office",
+      "image:postman"
     ]
   }
 }

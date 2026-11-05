@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "questId": "pi_two_glasses",
+  "searchCaseId": "miramar_demo",
+  "requiredKeyword": "claire_email",
+  "email": "claire.sutton@openskies.local",
+  "officeSceneKey": "DetectiveOfficeScene",
+  "safeMobileScenes": [
+    "HomeCityScene",
+    "CityScene",
+    "CrimeCityScene"
+  ],
+  "delayMinutes": 90,
+  "ringWindowMinutes": 15,
+  "retryMinutes": 120,
+  "firstCallHour": 9,
+  "lastCallHour": 21,
+  "subject": "A private inquiry concerning Daniel Reed",
+  "body": "Hello Claire,\n\nI am a private investigator and would like to speak with you about Daniel Reed. Please call me when you can speak privately.\n\nMy number is {number}.\n\nRegards,\n{detective}",
+  "lines": [
+    {
+      "speaker": "Claire Sutton",
+      "text": "You emailed me about Daniel Reed. What is this about?"
+    },
+    {
+      "speaker": "You",
+      "text": "His wife has asked me to look into his trip. Were you with him at the Miramar?"
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "Yes. We were there together. But you cannot be working for his wife."
+    },
+    {
+      "speaker": "You",
+      "text": "Why not?"
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "He told me she died two years ago."
+    },
+    {
+      "speaker": "You",
+      "text": "My client is alive. She contacted me herself."
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "Then he has been lying to one of us. I need to speak to him."
+    }
+  ],
+  "evidence": {
+    "id": "claire_callback_statement",
+    "type": "note",
+    "label": "Claire’s account",
+    "text": "Claire Sutton confirmed she was with Daniel Reed at the Miramar. Daniel told her that his wife died two years ago. The client who hired the detective is his wife.",
+    "metaText": "Source: telephone conversation with Claire Sutton",
+    "color": "blue"
+  }
+}

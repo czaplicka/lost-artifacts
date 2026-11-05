@@ -22,7 +22,7 @@ const recordings = [
   {
     "id": "dead_men_recording_2",
     "subject": "Attachment 2 — Tuesday, 20:14",
-    "body": "VOICEMAIL TRANSCRIPT — 2\nSource: recording supplied by Margaret Vale\nReceived: Tuesday, 20:14\nVoice: identified by Margaret as her late husband, Edward\n\n[low hiss]\n[tram bell: two short rings]\n[three metallic taps]\n\n“Margaret. Listen carefully. The blue folder. You know where to look.”\n\n[abrupt click]\n[end of message]\n\nClient note: This sounds like his voice. That does not mean I know who made the call."
+    "body": "VOICEMAIL TRANSCRIPT — 2\nSource: recording supplied by Margaret Vale\nReceived: Tuesday, 20:14\nVoice: identified by Margaret as her late husband, Edward\n\n[low hiss]\n[tram bell: two short rings]\n[three metallic taps]\n\n“Margaret. Listen carefully. The blue folder. You know where to look.”\n\n[abrupt click]\n[end of message]"
   },
   {
     "id": "dead_men_recording_3",
@@ -35,17 +35,17 @@ const archive = [
   {
     "id": "dead_men_archive_a",
     "subject": "Archive A — the blue folder",
-    "body": "ARCHIVE A — OLD VOICEMAIL\nSupplied by Margaret Vale after your interview.\nClient dates this message to before Edward’s death. Original file retained by the client.\n\n“Margaret. It is me. I need you to find the blue folder. The plumber’s invoice is inside. Listen carefully. The blue folder. You know where to look. Top drawer, beneath the takeaway menus.”\n\n[message ends]\n\nMargaret’s note: I found the invoice. The plumber had filed himself under Emergency Noodles.\n\nThese are Edward’s words in the older recording. They do not identify the person making the recent calls."
+    "body": "ARCHIVE A — OLD VOICEMAIL\nSupplied by Margaret Vale after your interview.\nClient dates this message to before Edward’s death. Original file retained by the client.\n\n“Margaret. It is me. I need you to find the blue folder. The plumber’s invoice is inside. Listen carefully. The blue folder. You know where to look. Top drawer, beneath the takeaway menus.”\n\n[message ends]\n\nMargaret’s note: I found the invoice. The plumber had filed himself under Emergency Noodles."
   },
   {
     "id": "dead_men_archive_b",
     "subject": "Archive B — office recorder test",
-    "body": "ARCHIVE B — OFFICE RECORDER TEST\nSupplied by Margaret Vale after your interview.\nClient dates this file to before Edward’s death. Label on the retained file: Office recorder test.\n\n[low hiss]\n[tram bell: two short rings]\n[three metallic taps]\n\n“Recorder test. Window open. Tram outside. Three taps on the microphone stand. This should help identify the room track. Not a musical career.”\n\n[test ends]\n\nMargaret’s note: Edward recorded notes in his office. It faced the tram stop.\n\nThe sound sequence matches the descriptions in all three recent transcripts. A transcription match is a reason to compare the original audio, not proof of a present-day location."
+    "body": "ARCHIVE B — OFFICE RECORDER TEST\nSupplied by Margaret Vale after your interview.\nClient dates this file to before Edward’s death. Label on the retained file: Office recorder test.\n\n[low hiss]\n[tram bell: two short rings]\n[three metallic taps]\n\n“Recorder test. Window open. Tram outside. Three taps on the microphone stand. This should help identify the room track. Not a musical career.”\n\n[test ends]\n\nMargaret’s note: Edward recorded notes in his office. It faced the tram stop."
   },
   {
     "id": "dead_men_archive_c",
     "subject": "Archive C — a surprise for Margaret",
-    "body": "ARCHIVE C — OLD OFFICE MESSAGE\nSupplied by Margaret Vale after your interview.\nClient dates this message to before Edward’s death. Original file retained by the client.\n\n“Have you found it? Do not tell anyone. I will call again. If Margaret asks, the anniversary tickets are in the blue folder.”\n\n[message ends]\n\nMargaret’s note: He was arranging a surprise with someone from the office. I heard this later. Apparently secrecy was easier than choosing a restaurant.\n\nThe first three sentences also appear in Wednesday’s recent message. This archive does not establish who had access to a copy."
+    "body": "ARCHIVE C — OLD OFFICE MESSAGE\nSupplied by Margaret Vale after your interview.\nClient dates this message to before Edward’s death. Original file retained by the client.\n\n“Have you found it? Do not tell anyone. I will call again. If Margaret asks, the anniversary tickets are in the blue folder.”\n\n[message ends]\n\nMargaret’s note: He was arranging a surprise with someone from the office. I heard this later. Apparently secrecy was easier than choosing a restaurant."
   }
 ];
 
@@ -407,19 +407,19 @@ export function getDeadMenMail() {
   if (!q || !['active','completed'].includes(q.status)) return [];
   const s = getDeadMenProgress();
   const items = [mail(INTRO,'Margaret Vale','Dead Men Calling — the messages',
-    'Detective,\n\nThank you for taking my case. My name is Margaret Vale. My husband Edward Vale died a year ago. Since Monday, I have received three voicemail messages in what sounds like his voice.\n\nThe three transcripts are separate attachments in this mailbox. I have preserved the original audio. Square brackets describe sounds heard in each recording.\n\nThe caller wants a blue folder and insists I tell no one. I have decided this does not apply to someone I am paying.\n\nPlease contact me when you can. I would rather explain the rest to someone with a pulse.\n\nMargaret Vale'),
+    "Detective,\n\nMy husband Edward died a year ago. Since Monday, I have received three messages in what sounds like his voice. I have attached the transcripts and kept the original files.\n\nPlease call me when you can. I would rather explain the rest to someone with a pulse.\n\nMargaret Vale"),
     ...recordings.map(m => mail(m.id,'Margaret Vale — attachment',m.subject,m.body,'Original voicemail transcript'))];
   if (s.interviewCompleted) items.unshift(
     
     mail('dead_men_archive_delivery','Margaret Vale','Edward’s older recordings — three attachments',
-      'Detective,\n\nAs promised, I have supplied copies of three older recordings: Archive A, Archive B and Archive C. They predate Edward’s death according to my records. I have kept the originals.\n\nPlease compare them with the recent messages. I would prefer an explanation requiring neither a medium nor another telephone contract.\n\nMargaret Vale'),
+      "Detective,\n\nHere are the three older recordings I mentioned. They were made before Edward died. I have kept the originals.\n\nOne of them concerns a plumber’s invoice. Edward was capable of making even that sound confidential.\n\nMargaret Vale"),
     ...archive.map(m => mail(m.id,'Margaret Vale — archive attachment',m.subject,m.body,'Client-supplied older recording'))
   );
   if (s.archiveCompared) items.unshift(mail('dead_men_access_enquiry','Your case notes','Archive access — open question',
     'The supplied older recordings contain matching phrases and background descriptions. The recent messages do not establish who obtained or used copies.'));
   if (s.accessInterviewCompleted) items.unshift(
     mail('dead_men_mercer_permission','Margaret Vale','Mercer Audio — permission and contact',
-      'Detective,\n\nI have authorised Leo Mercer at Mercer Audio to discuss job MV-14 and supply the relevant transfer records.\n\nI have also forwarded my original authorisation for a copy to Colin Ward. Please distinguish what I permitted from what was actually delivered.\n\nMargaret Vale'),
+      "Detective,\n\nLeo Mercer at Mercer Audio has my permission to discuss job MV-14 with you and send you the transfer records.\n\nMy original authorisation is attached.\n\nMargaret Vale"),
     mail(accessDocuments[0].id,'Margaret Vale — forwarded original',accessDocuments[0].subject,accessDocuments[0].body)
   );
   if (s.technicianCompleted) items.unshift(
@@ -594,3 +594,5 @@ export function readDeadMenAudioSource(id) {
 export function answerDeadMenAudioComparison(questionId,index) {
   return checkAnswer(REVIEW,questionId,index);
 }
+
+// MARGARET_MAIL_EDIT_V1

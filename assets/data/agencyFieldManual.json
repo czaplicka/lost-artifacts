@@ -1,0 +1,30 @@
+{
+  "itemId": "agency_field_manual",
+  "title": "MARK AGENCY / FIELD MANUAL",
+  "missingMessage": "Your Agency Field Manual contains the general service procedure. If you lost your copy, Alex Murphy can issue a free replacement in Storage. Free one inventory slot if necessary.",
+  "chapters": [
+    {
+      "id": "overview",
+      "title": "Issued equipment",
+      "paragraphs": [
+        "This manual is issued by Alex Murphy in the Storage Room at the start of your first agency assignment.",
+        "Reading the manual does not consume it, spend a hint or deduct money, energy or game minutes.",
+        "If your copy is lost, discarded or otherwise missing from inventory, return to Storage. Alex will issue a replacement free of charge. You must have room in your inventory.",
+        "A replacement is not a new recruitment bonus. Please do not apply for a second first day."
+      ]
+    },
+    {
+      "id": "security-panels",
+      "title": "Electronic service panels",
+      "paragraphs": [
+        "GENERAL ENTRY PROCEDURE",
+        "Read the serial number. If its final digit is ODD, start with MEM. If its final digit is EVEN, start with TEST. Zero is even.",
+        "Perform the intermediate operations specified in the device's own service note. Firmware revisions can change which DIP switch is connected and where RESET belongs.",
+        "After those intermediate operations, press whichever of TEST or MEM you did NOT use as the starting button.",
+        "Finish with ENTER to execute the selected service operation. Whether that operation releases a door or exports an event log depends on the device.",
+        "Do not infer the correct switch from the position of a label. Consult the local service note and observe the actual panel.",
+        "The local service note is not a substitute for this manual. This manual is not a substitute for reading the local service note. Legal enjoyed writing that sentence."
+      ]
+    }
+  ]
+}

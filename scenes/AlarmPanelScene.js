@@ -1,356 +1,170 @@
 import { BaseScene } from './BaseScene.js';
-
-const FONT_UI = 'PressStart2P';
-const FONT_DOC = 'SpecialElite';
-const EXIT_SCENE = 'CrimeSceneScene'; // TODO: podmień na klucz swojej sceny miejsca zbrodni
-
-const WRONG_LINES = [
-  'The panel buzzes. It is judging you.',
-  'Sparks! Somewhere, a security engineer senses a disturbance.',
-  'Nope. The manual weeps quietly in the corner.',
-  'The panel pretends nothing happened. Your score disagrees.',
-  'A tiny "REALLY?" flickers on the display.',
-];
-
-const BONUS_CLUES = [
-  { id: 'hair',   label: 'A black hair stuck under the cover' },
-  { id: 'thread', label: 'A snagged piece of red thread' },
-  { id: 'button', label: 'A torn-off coat button' },
-];
-
-export class AlarmPanelScene extends BaseScene {
-  constructor() {
-    super('AlarmPanelScene');
+import { gameState } from '../GameData.js';
+import { MainStoryManager } from '../managers/MainStoryManager.js';
+import { getCompletedAgencyCaseCount } from '../archiveMissingReportService.js';
+import { getScoreManager } from '../managers/InvestigationManager.js';
+import { saveGameState } from '../gameStatePersistence.js';
+import { hasAgencyFieldManual } from '../managers/AgencyManualService.js';
+import { openAgencyFieldManual,isAgencyManualOpen,closeAgencyFieldManual } from '../ui/AgencyManualReader.js';
+import { createAlarmState,restoreAlarmState,buildAlarmSolution,applyAlarmAction,removeAlarmScrew,describeAlarmAction } from './alarm/AlarmPanelModel.js';
+import { AlarmPanelHelpController } from './alarm/AlarmPanelHelpController.js';
+const WRONG_LINES=['The panel buzzes. It is judging you.','Nope. The manual weeps quietly in the corner.','A tiny "REALLY?" flickers on the display.','The panel pretends nothing happened.'];
+export class AlarmPanelScene extends BaseScene{
+  constructor(){super({key:'AlarmPanelScene'});}
+  init(data={}){
+    this.preview=data.preview===true;this.mode=data.mode==='gordon_door'?'gordon_door':'museum_log';
+    this.contextId=this.mode==='gordon_door'?'gordon_door':data.contextId??gameState.currentCaseId??null;
+    this.returnSceneKey=data.returnSceneKey??data.returnScene??null;this.onFinished=typeof data.onFinished==='function'?data.onFinished:null;
+    this.eventLog=this.mode==='museum_log'&&Array.isArray(data.eventLog)?data.eventLog.filter(line=>typeof line==='string'):[];
+    this.bonusClue=this.mode==='museum_log'?(data.bonusClue??null):null;
+    this.storageKey=`service_panel:${this.mode}:${this.contextId??'preview'}`;
+    this.stateData=null;this.controls=new Map();this.dipKnobs={};this.screws=[];this.manual=null;
+    this.hardwareAnimating=false;this.finished=false;this.resolved=false;this.closing=false;this.savedOk=null;
+    this.layerStates=[];this.parentPausedByMe=false;this.resultTimers=[];
+    this.caseKey=this.mode==='gordon_door'?'holly_missing_husband':String(this.contextId??'preview');this.stationId=this.mode;this.evidenceConfig={id:this.storageKey};
   }
-
-  create() {
-    super.create();
-    this.generatePuzzle();
-    this.buildUI();
-    this.buildManual();
-    this.setMessage('The thief tampered with the alarm. Dump the event log. The manual is... somewhere.');
-  }
-
-  // ---------- PUZZLE LOGIC ----------
-
-  generatePuzzle() {
-    this.serial = String(Phaser.Math.Between(0, 99999)).padStart(5, '0');
-    this.serialOdd = parseInt(this.serial.slice(-1), 10) % 2 === 1;
-    this.firmware = Phaser.Math.RND.pick(['v2.4', 'v3.1']);
-    this.isV3 = this.firmware.startsWith('v3');
-    this.sensorsTripped = Phaser.Math.Between(2, 5);
-    this.bonusClue = Phaser.Math.RND.pick(BONUS_CLUES);
-
-    const firstButton = this.serialOdd ? 'MEM' : 'TEST';
-    const secondButton = this.serialOdd ? 'TEST' : 'MEM';
-    const dipId = this.isV3 ? 1 : 2;
-    const resetEarly = this.sensorsTripped > 3;
-
-    this.solution = [{ type: 'button', id: firstButton }];
-    if (resetEarly) {
-      this.solution.push({ type: 'button', id: 'RESET' }, { type: 'dip', id: dipId, state: true });
-    } else {
-      this.solution.push({ type: 'dip', id: dipId, state: true }, { type: 'button', id: 'RESET' });
+  create(){
+    super.create();this.cameras.main.setBackgroundColor('rgba(0,0,0,0)');
+    this.allowed=this.preview||(this.mode==='gordon_door'?getCompletedAgencyCaseCount()>=7&&MainStoryManager.hasFlag('gordon_dismissal_heard'):this.contextId!==null);
+    if(!this.preview&&this.allowed)this.stateData=restoreAlarmState(MainStoryManager.getSideClue(this.storageKey));
+    this.stateData??=createAlarmState({serial:String(Phaser.Math.Between(0,99999)).padStart(5,'0'),firmware:Phaser.Utils.Array.GetRandom(['v2.4','v3.1']),sensorsTripped:Phaser.Math.Between(2,5)});
+    this.finished=this.stateData.solved;this.resolved=!this.allowed;this.root=this.add.container(0,0);
+    this.root.add(this.add.rectangle(720,500,1440,1000,0x000000,0.65));
+    this.label(720,55,this.mode==='gordon_door'?'SUPERVISOR / ACCESS PANEL':'ALARM / SERVICE PANEL',22,'#ffd75e','PressStart2P');
+    this.hud=this.label(720,108,'',19,'#c2d2b4');
+    this.panel=this.add.rectangle(720,460,1040,670,0x858c8b).setStrokeStyle(5,0x323d39);this.root.add(this.panel);
+    this.root.add(this.add.rectangle(720,253,940,174,0x10251a).setStrokeStyle(4,0x253f2a));
+    this.displayText=this.add.text(270,180,'',{fontFamily:'SpecialElite, monospace',fontSize:'25px',color:'#a5f3b3',wordWrap:{width:900},lineSpacing:5});this.root.add(this.displayText);
+    this.root.add(this.add.text(280,373,'ZONES:',{fontFamily:'PressStart2P',fontSize:'14px',color:'#17271e'}));
+    for(let i=0;i<5;i++){
+      const led=this.add.circle(445+i*85,382,15,i<this.stateData.sensorsTripped?0xd54d42:0x402821).setStrokeStyle(3,0x29382b);this.root.add(led);
+      if(i<this.stateData.sensorsTripped)this.createTrackedTween({targets:led,alpha:0.45,duration:600,yoyo:true,repeat:-1,delay:i*90});
     }
-    this.solution.push({ type: 'button', id: secondButton }, { type: 'button', id: 'ENTER' });
-
-    this.progress = 0;
-    this.strikes = 0;
-    this.solved = false;
-    this.dipStates = { 1: false, 2: false, 3: false, 4: false };
-    this.screwsOut = 0;
-  }
-
-  handleAction(action) {
-    if (this.solved) return;
-    this.skipSatisfiedDips();
-    const expected = this.solution[this.progress];
-    const match = expected
-      && expected.type === action.type
-      && expected.id === action.id
-      && (action.type !== 'dip' || expected.state === action.state);
-
-    if (match) {
-      this.playSfx('sfx_ok');
-      this.progress++;
-      this.skipSatisfiedDips();
-      if (this.progress >= this.solution.length) this.onWin();
-      else this.setMessage(`Step ${this.progress}/${this.solution.length} accepted. The panel purrs.`);
-    } else {
-      if (action.type === 'dip') this.revertDip(action.id);
-      this.onMistake();
-    }
-  }
-
-  skipSatisfiedDips() {
-    while (this.progress < this.solution.length) {
-      const s = this.solution[this.progress];
-      if (s.type === 'dip' && this.dipStates[s.id] === s.state) this.progress++;
-      else break;
-    }
-  }
-
-  onMistake() {
-    this.strikes++;
-    this.playSfx('sfx_buzz');
-    this.addScore(-50);
-    this.cameras.main.shake(120, 0.004);
-    this.flashPanel();
-    let msg = Phaser.Math.RND.pick(WRONG_LINES) + '  (-50 pts)';
-    if (this.strikes % 3 === 0) {
-      this.progress = 0;
-      msg += ' BUFFER WIPED — start the sequence over.';
-    }
-    this.setMessage(msg);
-    this.refreshHud();
-  }
-
-  onWin() {
-    this.solved = true;
-    this.addScore(200);
-    this.refreshHud();
-    this.playSfx('sfx_success');
-    this.setMessage('LOG DUMPED. The panel has seen things. +200 pts');
-
-    const log = [
-      '23:41  ZONE 3 — VAULT DOOR CONTACT',
-      '23:44  ZONE 3 — MOTION (12 SEC)',
-      '23:47  KEYPAD — SILENCED WITH CODE 2 (NIGHT GUARD)',
-      '23:52  ZONE 1 — SERVICE DOOR OPENED',
-      '00:03  ZONE 2 — GIFT SHOP MOTION (probably a cat)',
-    ];
-    this.registry.set('alarmLog', log);          // timeline dla Masterminda
-    this.registry.set('crimeClue', this.bonusClue); // wskazówka do labu
-
-    this.displayText.setText('EVENT LOG — DUMPING...');
-    log.forEach((line, i) => {
-      this.time.delayedCall(600 * (i + 1), () => this.printLogLine(line, i));
+    [['TEST',0xb48e42],['MEM',0xb48e42],['RESET',0xa44f43],['ENTER',0x39784e]].forEach(([id,color],index)=>this.makeControl(420+index*200,475,id,color));
+    this.root.add(this.add.text(280,562,'DIP SWITCH BANK',{fontFamily:'PressStart2P',fontSize:'13px',color:'#17271e'}));
+    for(let id=1;id<=4;id++)this.makeDip(355+(id-1)*110,650,id);
+    this.sticker=this.add.text(990,650,`S/N ${this.stateData.serial}`,{fontFamily:'SpecialElite',fontSize:'28px',color:'#332d23',backgroundColor:'#e8dfc5',padding:{x:14,y:12}}).setOrigin(0.5).setAngle(-4).setVisible(this.stateData.coverOpen);this.root.add(this.sticker);
+    this.cover=this.add.rectangle(990,650,280,126,0x69736f).setStrokeStyle(4,0x35443b).setInteractive({useHandCursor:true});this.root.add(this.cover);
+    this.cover.on('pointerdown',()=>{if(this.canOperate())this.setMessage('Two screws. It is always two screws.');});
+    [[875,609],[1105,691]].forEach(([x,y],id)=>{
+      const screw=this.add.text(x,y,'+',{fontFamily:'SpecialElite',fontSize:'40px',color:'#17271e'}).setOrigin(0.5).setAngle(45).setInteractive({useHandCursor:true});this.root.add(screw);screw.on('pointerdown',()=>this.removeScrew(id));this.screws.push(screw);
     });
-    this.time.delayedCall(600 * (log.length + 1), () => {
-      this.printLogLine(`EVIDENCE BAGGED: ${this.bonusClue.label}.`, log.length, '#7dff7a');
-      this.exitButton.setVisible(true);
+    this.root.add(this.add.text(280,756,'DIP 3 / 4: AUXILIARY — NOT CONNECTED',{fontFamily:'SpecialElite',fontSize:'18px',color:'#26352b'}));
+    this.message=this.label(720,842,'',23,'#ffedb9');this.message.setWordWrapWidth(1260);
+    this.continueButton=this.makeUiButton(155,932,this.mode==='gordon_door'?'OPEN DOOR':'RETURN WITH LOG',()=>this.closePanel());this.continueButton.setVisible(this.finished);
+    this.makeUiButton(475,932,'SERVICE NOTE',()=>this.toggleManual());
+    this.agencyManualButton=this.makeUiButton(755,932,'AGENCY MANUAL',()=>this.openAgencyManual());
+    this.makeUiButton(1290,932,'BACK',()=>this.closePanel());
+    this.help=new AlarmPanelHelpController(this);this.help.create();
+    this.refreshPanel();this.layout();
+    if(this.finished)this.displayResult();else this.setMessage(this.allowed?'Combine the local SERVICE NOTE with your AGENCY MANUAL. The serial is under the cover.':'This panel is not available in the current story context.');
+    this.trackInputEvent(this.scale,'resize',this.layout);
+    this.onBus('inventoryUpdated',()=>this.refreshManualAvailability());
+    if(this.input.keyboard)this.trackInputEvent(this.input.keyboard,'keydown-ESC',event=>{
+      if(event.repeat)return;if(this.help.modal)this.help.close();else if(this.manual)this.toggleManual();else this.closePanel();
     });
+    this.suspendBackground();this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{
+      closeAgencyFieldManual();this.resultTimers.forEach(timer=>timer.remove(false));this.help?.destroy();this.restoreBackground();this.onFinished=null;
+    });this.persist();
   }
-
-  addScore(delta) {
-    const score = (this.registry.get('score') ?? 0) + delta;
-    this.registry.set('score', score);
+  label(x,y,text,size=23,color='#eee5cf',font='SpecialElite'){
+    const object=this.add.text(x,y,text,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color,align:'center',wordWrap:{width:1300}}).setOrigin(0.5);this.root.add(object);return object;
   }
-
-  // ---------- UI ----------
-
-  buildUI() {
-    const W = this.cameras.main.width;
-    const H = this.cameras.main.height;
-    this.add.rectangle(W / 2, H / 2, W, H, 0x101828);
-
-    this.add.text(W / 2, 34, 'MUSEUM ALARM PANEL', {
-      fontFamily: FONT_UI, fontSize: '20px', color: '#ffd75e',
-    }).setOrigin(0.5);
-
-    this.hudText = this.add.text(W - 20, 20, '', {
-      fontFamily: FONT_UI, fontSize: '12px', color: '#9fd0ff',
-    }).setOrigin(1, 0);
-    this.refreshHud();
-
-    // Obudowa panelu
-    this.panel = this.add.rectangle(W / 2, H / 2 + 20, 620, 440, 0x8a8f98)
-      .setStrokeStyle(4, 0x3a3f46);
-    this.spark = this.add.rectangle(W / 2, H / 2 + 20, 620, 440, 0xffe14d).setAlpha(0);
-
-    // Wyświetlacz
-    this.add.rectangle(W / 2, H / 2 - 130, 540, 90, 0x1a2b1a).setStrokeStyle(3, 0x0c140c);
-    this.displayText = this.add.text(W / 2 - 260, H / 2 - 168,
-      `SEC-PANEL OS  ${this.firmware}\nZONES TRIPPED: ${this.sensorsTripped}\nS/N: [under service cover]`, {
-        fontFamily: FONT_DOC, fontSize: '20px', color: '#7dff7a', lineSpacing: 6,
-      });
-
-    // LED-y stref (5 szt., zapalone = sensorsTripped)
-    this.add.text(W / 2 - 270, H / 2 - 70, 'ZONES:', { fontFamily: FONT_UI, fontSize: '10px', color: '#222' });
-    for (let i = 0; i < 5; i++) {
-      const lit = i < this.sensorsTripped;
-      const led = this.add.circle(W / 2 - 180 + i * 46, H / 2 - 64, 10, lit ? 0xff4444 : 0x442222)
-        .setStrokeStyle(2, 0x222222);
-      if (lit) this.tweens.add({ targets: led, alpha: 0.35, duration: 400, yoyo: true, repeat: -1, delay: i * 120 });
-    }
-
-    // Przyciski
-    const btnDefs = [
-      { id: 'TEST',  color: 0xd9a441 },
-      { id: 'MEM',   color: 0xd9a441 },
-      { id: 'RESET', color: 0xc0392b },
-      { id: 'ENTER', color: 0x27ae60 },
-    ];
-    btnDefs.forEach((def, i) => this.makeButton(W / 2 - 195 + i * 130, H / 2 + 10, def));
-
-    // DIP-switch bank (3 i 4 to red herringi)
-    this.add.text(W / 2 - 270, H / 2 + 70, 'DIP:', { fontFamily: FONT_UI, fontSize: '10px', color: '#222' });
-    this.dipKnobs = {};
-    for (let i = 1; i <= 4; i++) this.makeDip(W / 2 - 180 + (i - 1) * 60, H / 2 + 110, i);
-
-    // Klapka serwisowa + śrubki + naklejka S/N
-    this.sticker = this.add.text(W / 2 + 150, H / 2 + 110, `S/N ${this.serial}`, {
-      fontFamily: FONT_DOC, fontSize: '22px', color: '#333333',
-      backgroundColor: '#e8e3d3', padding: { x: 10, y: 6 },
-    }).setAngle(-4).setVisible(false);
-
-    this.cover = this.add.rectangle(W / 2 + 150, H / 2 + 115, 190, 90, 0x6f747c)
-      .setStrokeStyle(3, 0x3a3f46).setInteractive({ useHandCursor: true });
-    this.cover.on('pointerdown', () => this.setMessage('Two screws. It is always two screws.'));
-
-    this.screws = [];
-    [[-80, -35], [80, 35]].forEach(([dx, dy]) => {
-      const screw = this.add.text(this.cover.x + dx, this.cover.y + dy, '+', {
-        fontFamily: FONT_DOC, fontSize: '24px', color: '#222',
-      }).setOrigin(0.5).setAngle(45).setInteractive({ useHandCursor: true });
-      screw.on('pointerdown', () => this.removeScrew(screw));
-      this.screws.push(screw);
-    });
-
-    // Instrukcja + wyjście
-    this.makeUiButton(W - 120, H - 40, 'MANUAL', () => this.toggleManual());
-    this.exitButton = this.makeUiButton(120, H - 40, 'FILE CASE', () => this.scene.start(EXIT_SCENE));
-    this.exitButton.setVisible(false);
-
-    this.messageText = this.add.text(W / 2, H - 78, '', {
-      fontFamily: FONT_UI, fontSize: '11px', color: '#ffe9a8',
-      wordWrap: { width: W - 260 }, align: 'center',
-    }).setOrigin(0.5);
+  makeUiButton(x,y,label,callback){
+    const button=this.add.text(x,y,label,{fontFamily:'SpecialElite',fontSize:'21px',color:'#ffe0a2',backgroundColor:'#234333',padding:{x:15,y:13}}).setOrigin(0.5).setInteractive({useHandCursor:true});
+    button.on('pointerdown',()=>{if(!this.closing&&!this.manual&&!this.hardwareAnimating&&!isAgencyManualOpen())callback();});this.root.add(button);return button;
   }
-
-  makeButton(x, y, def) {
-    const bg = this.add.rectangle(x, y, 110, 56, def.color).setStrokeStyle(3, 0x222222)
-      .setInteractive({ useHandCursor: true });
-    const label = this.add.text(x, y, def.id, { fontFamily: FONT_UI, fontSize: '12px', color: '#fff' }).setOrigin(0.5);
-    bg.on('pointerdown', () => {
-      this.tweens.add({ targets: [bg, label], y: y + 3, duration: 60, yoyo: true });
-      this.playSfx('sfx_click');
-      this.handleAction({ type: 'button', id: def.id });
-    });
+  canOperate(){return this.allowed&&!this.finished&&!this.closing&&!this.manual&&!this.hardwareAnimating&&!this.help?.modal&&!isAgencyManualOpen();}
+  playSfx(key){if(this.cache.audio.exists(key))this.sound.play(key);}
+  makeControl(x,y,id,color){
+    const box=this.add.rectangle(x,y,168,72,color).setStrokeStyle(4,0x26382d).setInteractive({useHandCursor:true});
+    const label=this.add.text(x,y,id,{fontFamily:'PressStart2P',fontSize:'18px',color:'#fff3d1'}).setOrigin(0.5);this.root.add([box,label]);this.controls.set(id,{box,label});
+    box.on('pointerdown',()=>{if(this.canOperate()){this.playSfx('click_sound');this.handleAction({type:'button',id});}});
   }
-
-  makeDip(x, y, id) {
-    this.add.text(x, y - 52, `${id}`, { fontFamily: FONT_UI, fontSize: '10px', color: '#222' }).setOrigin(0.5);
-    this.add.rectangle(x, y, 30, 70, 0x2c2f36).setStrokeStyle(2, 0x111111);
-    const knob = this.add.rectangle(x, y + 18, 24, 26, 0xd9d9d9).setStrokeStyle(2, 0x555555)
-      .setInteractive({ useHandCursor: true });
-    this.dipKnobs[id] = { knob, baseY: y };
-    knob.on('pointerdown', () => {
-      if (this.solved) return;
-      if (id >= 3) {
-        this.setMessage(`DIP ${id} is not connected to anything. Probably. It clicks anyway.`);
-        this.playSfx('sfx_click');
-        return;
-      }
-      this.playSfx('sfx_click');
-      const newState = !this.dipStates[id];
-      this.dipStates[id] = newState;
-      this.tweens.add({ targets: knob, y: y + (newState ? -18 : 18), duration: 80 });
-      this.handleAction({ type: 'dip', id, state: newState });
-    });
+  makeDip(x,y,id){
+    this.root.add(this.add.text(x,y-74,String(id),{fontFamily:'PressStart2P',fontSize:'17px',color:'#17271e'}).setOrigin(0.5));
+    this.root.add(this.add.rectangle(x,y,50,110,0x26352e).setStrokeStyle(3,0x14241c));
+    const knob=this.add.rectangle(x,y+26,42,40,0xd9d9c9).setStrokeStyle(3,0x566456).setInteractive({useHandCursor:true});this.root.add(knob);this.dipKnobs[id]={knob,baseY:y};
+    knob.on('pointerdown',()=>{if(!this.canOperate())return;this.playSfx('click_sound');if(id>=3){this.setMessage(`DIP ${id} is disconnected. It does not advance the sequence.`);return;}this.handleAction({type:'dip',id,state:!this.stateData.dipStates[id]});});
   }
-
-  revertDip(id) {
-    this.dipStates[id] = !this.dipStates[id];
-    const { knob, baseY } = this.dipKnobs[id];
-    this.tweens.add({ targets: knob, y: baseY + (this.dipStates[id] ? -18 : 18), duration: 80 });
+  score(delta,label){if(this.preview)return 0;const manager=getScoreManager(),before=manager.getSessionPoints();manager.addScoreEvent(delta,label);return manager.getSessionPoints()-before;}
+  handleAction(action){
+    if(!this.canOperate())return;const result=applyAlarmAction(this.stateData,action);this.stateData=result.state;
+    if(result.won){this.onWin();return;}
+    if(result.accepted){this.playSfx('sfx_ok');this.setMessage(`Step ${this.stateData.progress}/${buildAlarmSolution(this.stateData).length} accepted. The panel purrs.`);}
+    if(result.mistake){const delta=this.score(-50,'Service panel: incorrect input');this.playSfx('sfx_buzz');this.cameras.main.shake(120,0.004);
+      this.setMessage(Phaser.Utils.Array.GetRandom(WRONG_LINES)+(this.preview?' / preview, no penalty':` (${delta} pts)`)+(result.reset?' BUFFER WIPED. All DIP switches reset to OFF. Begin again.':''));}
+    this.refreshPanel();this.persist();
   }
-
-  removeScrew(screw) {
-    this.playSfx('sfx_screw');
-    this.tweens.add({
-      targets: screw, angle: 400, alpha: 0, y: screw.y + 30, duration: 400,
-      onComplete: () => screw.destroy(),
-    });
-    this.screwsOut++;
-    this.setMessage(this.screwsOut === 1 ? 'Lefty loosey. One down.' : 'Cover is loose. Secrets imminent.');
-    if (this.screwsOut === 2) {
-      this.tweens.add({
-        targets: this.cover, x: this.cover.x + 240, angle: 15, duration: 500, ease: 'Cubic.easeIn',
-        onComplete: () => {
-          this.cover.destroy();
-          this.sticker.setVisible(true);
-          this.displayText.setText(
-            `SEC-PANEL OS  ${this.firmware}\nZONES TRIPPED: ${this.sensorsTripped}\nS/N: ${this.serial}`);
-          this.setMessage(`Serial number: ${this.serial}. The manual suddenly makes sense. Almost.`);
-        },
-      });
-    }
+  removeScrew(id){
+    if(!this.canOperate()||this.stateData.removedScrews.includes(id))return;const result=removeAlarmScrew(this.stateData,id);if(!result.changed)return;
+    this.stateData=result.state;this.hardwareAnimating=true;const screw=this.screws[id];screw.disableInteractive();this.playSfx('sfx_screw');this.persist();
+    this.createTrackedTween({targets:screw,angle:405,alpha:0,duration:350,onComplete:()=>{
+      screw.setVisible(false);this.hardwareAnimating=false;
+      if(this.stateData.coverOpen){this.hardwareAnimating=true;this.createTrackedTween({targets:this.cover,x:1180,angle:14,alpha:0,duration:420,onComplete:()=>{this.hardwareAnimating=false;this.refreshPanel();this.setMessage(`Serial number: ${this.stateData.serial}. Consult both instruction sources.`);}});}
+      else{this.refreshPanel();this.setMessage('One screw removed. The other declines to resign.');}
+    }});
   }
-
-  makeUiButton(x, y, label, cb) {
-    const bg = this.add.rectangle(x, y, 150, 40, 0x24344d).setStrokeStyle(2, 0x9fd0ff)
-      .setInteractive({ useHandCursor: true });
-    this.add.text(x, y, label, { fontFamily: FONT_UI, fontSize: '12px', color: '#9fd0ff' }).setOrigin(0.5);
-    bg.on('pointerdown', cb);
-    return bg;
+  refreshManualAvailability(){this.agencyManualButton?.setAlpha(hasAgencyFieldManual()?1:0.6);}
+  refreshPanel(){
+    const state=this.stateData;this.hud.setText(this.preview?`PREVIEW / STRIKES ${state.strikes}`:`SCORE ${Number(gameState.score||0)} / STRIKES ${state.strikes}`);
+    if(!this.finished)this.displayText.setText(`SEC-PANEL OS ${state.firmware}\nZONES TRIPPED: ${state.sensorsTripped}\nS/N: ${state.coverOpen?state.serial:'[under service cover]'}`);
+    for(const[id,{knob,baseY}]of Object.entries(this.dipKnobs))knob.setY(baseY+(state.dipStates[id]?-26:26));
+    if(!this.hardwareAnimating){
+      this.cover.setPosition(990,650).setAngle(0).setAlpha(1).setVisible(!state.coverOpen);if(this.cover.input)this.cover.input.enabled=!state.coverOpen;
+      this.sticker.setVisible(state.coverOpen);this.screws.forEach((screw,id)=>{const present=!state.removedScrews.includes(id);screw.setVisible(present).setAlpha(1);if(screw.input)screw.input.enabled=present&&!this.finished;});
+    }this.refreshManualAvailability();
   }
-
-  buildManual() {
-    const W = this.cameras.main.width;
-    const H = this.cameras.main.height;
-    this.manual = this.add.container(0, 0).setVisible(false).setDepth(10);
-    this.manual.add(this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.75).setInteractive());
-    this.manual.add(this.add.rectangle(W / 2, H / 2, W - 160, H - 140, 0xf1ead8).setStrokeStyle(4, 0x8a7f5c));
-    this.manual.add(this.add.text(W / 2 - (W - 200) / 2, 100,
-`MUSEUM SECURITY SYSTEMS — SERVICE MANUAL
-(abridged edition, coffee-stained, 1987)
-
-1. Find the serial number (service cover, two screws).
-   - Serial ends in an ODD digit  -> begin with MEM.
-   - Serial ends in an EVEN digit -> begin with TEST.
-
-2. Check the firmware version on the display.
-   - v3.x -> next, flip DIP 1 ON.
-   - v2.x -> next, flip DIP 2 ON.
-
-3. Count the tripped zones (red LEDs).
-   - MORE than 3 -> press RESET right after step 1,
-     BEFORE touching the DIP switches.
-   - 3 or fewer  -> press RESET after the DIP switch.
-
-4. Press whichever of TEST / MEM you did NOT use in step 1.
-
-5. Press ENTER to dump the event log.
-
-WARNING: Every wrong input shocks the operator (-50 pts).
-Three mistakes wipe the buffer. And your dignity.
-DIP 3-4: not connected. Do not write to us about them.`, {
-      fontFamily: FONT_DOC, fontSize: '19px', color: '#2b2b2b',
-      lineSpacing: 7, wordWrap: { width: W - 220 },
-    }));
-    this.manual.add(this.add.text(W / 2, H - 90, '[ click MANUAL to close ]', {
-      fontFamily: FONT_UI, fontSize: '10px', color: '#6b6248',
-    }).setOrigin(0.5));
+  persist(){
+    if(this.preview||!this.allowed)return;MainStoryManager.setSideClue(this.storageKey,JSON.parse(JSON.stringify(this.stateData)));
+    if(this.mode==='gordon_door'&&this.stateData.solved)MainStoryManager.setFlag('gordon_door_access_bypassed',true);this.savedOk=saveGameState();
   }
-
-  toggleManual() {
-    this.manual.setVisible(!this.manual.visible);
-    this.playSfx('sfx_paper');
+  onWin(){
+    this.finished=true;let delta=0;
+    if(!this.stateData.rewardClaimed&&!this.preview){delta=this.score(200,this.mode==='gordon_door'?'Supervisor door panel bypassed':'Alarm event log recovered');this.stateData.rewardClaimed=true;}
+    this.persist();this.playSfx('sfx_success');this.refreshPanel();this.displayResult();
+    this.setMessage(this.mode==='gordon_door'?`ACCESS GRANTED.${this.preview?' Preview only.':` +${delta} pts.`} The safe is still locked.`:`LOG RECOVERED.${this.preview?' Preview only.':` +${delta} pts.`}`);
   }
-
-  // ---------- HELPERS ----------
-
-  printLogLine(line, i, color = '#7dff7a') {
-    this.add.text(this.displayText.x, this.displayText.y + 70 + i * 26, line, {
-      fontFamily: FONT_DOC, fontSize: '17px', color,
-    });
-    this.playSfx('sfx_print');
+  displayResult(){
+    this.help.hintButton?.setVisible(false);this.continueButton.setVisible(true);
+    if(this.mode==='gordon_door'){this.displayText.setText('ACCESS GRANTED\nDOOR INTERLOCK RELEASED\nSAFE: SEPARATE SECURITY SYSTEM');return;}
+    const lines=this.eventLog.length?this.eventLog:['No event-log lines were supplied by the calling case.'];this.displayText.setFontSize(20).setText('EVENT LOG');
+    lines.slice(0,4).forEach((line,index)=>this.resultTimers.push(this.time.delayedCall(350*(index+1),()=>this.displayText.setText(['EVENT LOG',...lines.slice(0,index+1)].join('\n')))));
   }
-
-  flashPanel() {
-    this.tweens.add({ targets: this.spark, alpha: 0.5, duration: 60, yoyo: true, repeat: 2 });
+  openAgencyManual(){
+    const result=openAgencyFieldManual('security-panels',{ownerScene:this});if(!result.ok)this.setMessage(result.message);
   }
-
-  setMessage(msg) {
-    this.messageText.setText(msg);
+  toggleManual(){
+    if(this.manual){this.manual.destroy(true);this.manual=null;return;}
+    if(this.closing||this.hardwareAnimating||this.help?.modal||isAgencyManualOpen())return;
+    const panel=this.add.container(0,0);this.manual=panel;this.root.add(panel);
+    const shade=this.add.rectangle(720,500,1440,1000,0x000000,0.82).setInteractive();shade.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());panel.add(shade);
+    panel.add(this.add.rectangle(720,495,1260,850,0xf1ead8).setStrokeStyle(4,0x8a7f5c));
+    const text=`DEVICE SERVICE NOTE\nHardware-specific information / keep with this device\n\nSERIAL LOCATION\nUnder the service cover. Remove both screws.\n\nFIRMWARE / CONNECTED SWITCH\nv3.x: use DIP 1.\nv2.x: use DIP 2.\nDIP 3 and DIP 4 are not connected.\n\nINTERMEDIATE OPERATIONS\nMore than 3 tripped zones: RESET, then selected DIP ON.\n3 or fewer tripped zones: selected DIP ON, then RESET.\n\nFor the STARTING button and FINISHING sequence, consult\nAgency Field Manual / Electronic service panels.\n\nWrong input: -50 points. Every third error resets the buffer\nand all DIP switches to OFF. Reading either document is free.`;
+    panel.add(this.add.text(145,120,text,{fontFamily:'SpecialElite, monospace',fontSize:'28px',color:'#2b2b2b',wordWrap:{width:1150},lineSpacing:7}));
+    const close=this.add.text(720,862,'CLOSE NOTE / ESC',{fontFamily:'SpecialElite',fontSize:'25px',color:'#ffe2a1',backgroundColor:'#234333',padding:{x:20,y:12}}).setOrigin(0.5).setInteractive({useHandCursor:true});
+    close.on('pointerdown',(p,x,y,event)=>{event?.stopPropagation();this.toggleManual();});panel.add(close);this.playSfx('sfx_paper');
   }
-
-  refreshHud() {
-    this.hudText.setText(`SCORE ${this.registry.get('score') ?? 0}   STRIKES ${this.strikes}`);
+  getForensicHelp(){
+    const state=this.stateData,instructions='Read the free Agency Manual for the entry/exit procedure and SERVICE NOTE for this model\'s DIP and RESET operations.';
+    if(!state.coverOpen){const id=[0,1].find(id=>!state.removedScrews.includes(id));return{id:`cover_screw_${id}`,instructions,text:'Remove both screws to reveal the serial number. Then combine its last digit with the rules in your Agency Field Manual.',targets:[this.screws[id]].filter(Boolean)};}
+    const next=buildAlarmSolution(state)[state.progress];if(!next)return{id:'complete',instructions,text:'The service operation is complete.',targets:[this.continueButton]};
+    const odd=Number(state.serial.slice(-1))%2===1;
+    return{id:`sequence_step_${state.progress}`,instructions,text:`S/N ${state.serial} ends ${odd?'ODD':'EVEN'}; firmware ${state.firmware}; ${state.sensorsTripped} zones tripped. Next action: ${describeAlarmAction(next)} `+(state.sensorsTripped>3?'RESET belongs before the selected DIP.':'RESET belongs after the selected DIP.'),targets:[next.type==='dip'?this.dipKnobs[next.id]?.knob:this.controls.get(next.id)?.box].filter(Boolean)};
   }
-
-  playSfx(key) {
-    if (this.cache.audio.exists(key)) this.sound.play(key);
+  setMessage(text){this.message.setText(text).setFontSize(23);}
+  setDialogue(text){this.message.setText(`HINT: ${text}`).setFontSize(20);}
+  layout(){if(!this.root)return;const{width,height}=this.scale,s=Math.min(width/1440,height/1000);this.root.setScale(s).setPosition((width-1440*s)/2,(height-1000*s)/2);}
+  suspendBackground(){
+    this.layerStates=['PlayerHudScene','UIScene','NewsHud'].filter(key=>this.isSceneActive(key)).map(key=>{const visible=this.getRegisteredScene(key).sys.settings.visible;this.scene.setVisible(false,key);this.scene.pause(key);return{key,visible};});
+    if(this.returnSceneKey&&this.isSceneActive(this.returnSceneKey)){this.parentPausedByMe=true;this.scene.pause(this.returnSceneKey);}
+  }
+  restoreBackground(){
+    for(const{key,visible}of this.layerStates){if(!this.hasScene(key))continue;this.scene.setVisible(visible,key);if(this.isScenePaused(key))this.scene.resume(key);}
+    this.layerStates=[];if(this.parentPausedByMe&&this.isScenePaused(this.returnSceneKey))this.scene.resume(this.returnSceneKey);this.parentPausedByMe=false;
+  }
+  closePanel(){
+    if(this.closing)return;this.closing=true;closeAgencyFieldManual();this.help?.close();this.persist();const callback=this.onFinished;this.onFinished=null;this.restoreBackground();
+    try{callback?.({completed:this.finished,preview:this.preview,saved:this.savedOk,mode:this.mode,eventLog:[...this.eventLog],bonusClue:this.bonusClue});}finally{this.scene.stop();}
   }
 }

@@ -1,4 +1,3 @@
-// Reference coordinates for the supplied 1920 x 1080 Warsaw panorama.
 export const WARSAW_PATHS = {
   inn:[[528,980],[573,987],[628,993]],
   frontage:[[858,971],[889,977],[922,983]],
@@ -23,7 +22,6 @@ function pointAt(r,distance){
   return{x:s.a[0]+(s.b[0]-s.a[0])*p,y:s.a[1]+(s.b[1]-s.a[1])*p,ux:s.ux,uy:s.uy};
 }
 const LAMPS=[[210,961],[449,896],[475,861],[805,720],[870,878],[1525,894]];
-
 export class WarsawPanoramaAnimations {
   constructor(scene,background){
     this.scene=scene;this.background=background;this.disposed=false;this.elapsed=0;
@@ -92,8 +90,7 @@ export class WarsawPanoramaAnimations {
     g.fillStyle(color,alpha);g.fillPoints(points,true);g.lineStyle(.7,0x3b4748,alpha*.8);g.strokePoints(points,true);
   }
   drawBoat(g,a){
-    const p=(u,v)=>({x:a.x+a.ux*u*a.size-a.uy*v*a.size,
-      y:a.y+a.uy*u*a.size+a.ux*v*a.size*.55});
+    const p=(u,v)=>({x:a.x+a.ux*u*a.size-a.uy*v*a.size,y:a.y+a.uy*u*a.size+a.ux*v*a.size*.55});
     const left=p(-24,-7),right=p(-24,7);
     g.lineStyle(1,0xc3d6d9,a.alpha*.6);g.lineBetween(a.x,a.y,left.x,left.y);g.lineBetween(a.x,a.y,right.x,right.y);
     this.polygon(g,[p(17,0),p(9,-6),p(-15,-6),p(-18,0),p(-15,6),p(9,6)],a.color,a.alpha);

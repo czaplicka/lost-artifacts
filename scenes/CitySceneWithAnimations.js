@@ -12,12 +12,10 @@ export class CityScene extends OriginalCityScene {
       item=>item.type==='Image'&&item.texture?.key===key
     );
     if(background?.active){
-      // Keep decorative motion under all original city UI, including depth-0 objects.
       background.setDepth(-10);
       this.warsawPanoramaAnimations=new WarsawPanoramaAnimations(this,background);
     }
   }
-
   cleanupScene(...args){
     this.warsawPanoramaAnimations?.destroy();
     this.warsawPanoramaAnimations=null;

@@ -83,9 +83,9 @@ export function installDeadMenTopicPhone(phone){
  function prepare(c){
   const topics=currentTopics(c.number),signatures=new Set();
   for(const topic of topics){const key=sig(topic.terms);if(signatures.has(key))throw Error(`Ambiguous available topic: ${key}`);signatures.add(key);}
-  return {...c,caseId:CASE,choicePrompt:'Choose one or two recorded clues to ask about.',
+  return {...c,caseId:CASE,choicePrompt:'Choose a topic from your named clouds.',
    greeting:decorate(c.greeting),fallback:decorate(c.fallback),
-   topics:topics.map(t=>({id:t.id,terms:t.terms,requiresFlags:[],grantFlags:[],grantKeywords:[],lines:decorate(t.lines)}))};
+   topics:topics.map(t=>({id:t.id,terms:t.terms,group:t.group,effect:t.effect,requiresFlags:[],grantFlags:[],grantKeywords:[],lines:decorate(t.lines)}))};
  }
  const start=phone.startCall.bind(phone);
  phone.startCall=()=>{
@@ -133,3 +133,5 @@ export function installDeadMenTopicPhone(phone){
  };
  const destroy=inv.destroy.bind(inv);inv.destroy=()=>{controller?.abort();data=null;destroy();};
 }
+
+// DM_PLAYER_CLOUD_METADATA_V1

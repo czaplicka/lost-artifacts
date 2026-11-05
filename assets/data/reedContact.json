@@ -20,11 +20,19 @@
   "lines": [
     {
       "speaker": "Claire Sutton",
-      "text": "You emailed me about Daniel Reed. What is this about?"
+      "text": "You emailed me about Daniel Reed. Before we start: are you calling from his office?"
     },
     {
       "speaker": "You",
-      "text": "His wife has asked me to look into his trip. Were you with him at the Miramar?"
+      "text": "No. I am a private investigator. His wife asked me to look into his trip."
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "His wife?"
+    },
+    {
+      "speaker": "You",
+      "text": "Were you with him at the Miramar?"
     },
     {
       "speaker": "Claire Sutton",
@@ -44,7 +52,31 @@
     },
     {
       "speaker": "Claire Sutton",
-      "text": "Then he has been lying to one of us. I need to speak to him."
+      "text": "I asked him directly whether he was married. That was his answer."
+    },
+    {
+      "speaker": "You",
+      "text": "Did you know he had described the trip as business?"
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "I was at the event for work. I do not know what he told anyone else about the rest of his trip."
+    },
+    {
+      "speaker": "You",
+      "text": "I will record what you have told me. I am not asking you to contact him on my behalf."
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "Good. When I speak to him, it will be on my own behalf."
+    },
+    {
+      "speaker": "You",
+      "text": "Thank you for returning my call."
+    },
+    {
+      "speaker": "Claire Sutton",
+      "text": "I nearly didn’t. Apparently that would have saved Daniel a very uncomfortable conversation."
     }
   ],
   "evidence": {
@@ -54,5 +86,6 @@
     "text": "Claire Sutton confirmed she was with Daniel Reed at the Miramar. Daniel told her that his wife died two years ago. The client who hired the detective is his wife.",
     "metaText": "Source: telephone conversation with Claire Sutton",
     "color": "blue"
-  }
+  },
+  "dialogueEdition": "reed-more-phone-v1"
 }

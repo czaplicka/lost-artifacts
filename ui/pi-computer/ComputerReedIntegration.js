@@ -1,6 +1,7 @@
 import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { installCaseNotebook } from '../CaseCloudNotebook.js';
+import { installDeadMailMailbox } from './DeadMailMailboxIntegration.js';
 
 const KEY = 'piComputerMailNotifications';
 
@@ -20,6 +21,11 @@ export class ComputerMailNotifications {
     this.dead = false;
     this.last = -Infinity;
     this.dot = null;
+
+    // Register the existing Florence mailbox before notifications read it.
+    this.ownsDeadMailMailbox = !ui.deadMailMailbox;
+    this.deadMailMailbox = installDeadMailMailbox(ui);
+
     const documents = ui.documents;
     const renderDocuments = documents.render.bind(documents);
     documents.render = () => {
@@ -99,10 +105,13 @@ export class ComputerMailNotifications {
     }
   }
   destroy() {
+    if (this.dead) return;
     this.dead = true;
     this.ui.scene.game.events.off('poststep', this.onStep);
     this.ui.scene.input.off('pointerdown', this.onPointer);
     this.updateOfficeDot();
+    if (this.ownsDeadMailMailbox) this.deadMailMailbox?.destroy();
+    this.deadMailMailbox = null;
   }
 }
 

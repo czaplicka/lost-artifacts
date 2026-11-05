@@ -7,8 +7,67 @@ import {
   flushAutosave
 } from '../gameStatePersistence.js';
 
-const SCENE_KEY =
-  'EmptyApartmentArrestOverlayScene';
+const SCENE_KEY = 'EmptyApartmentArrestOverlayScene';
+
+const pendingLaunches = new WeakMap();
+
+function cancelPendingLaunch(scene) {
+  const pending = pendingLaunches.get(scene);
+
+  if (!pending) return;
+
+  scene.events.off(
+    Phaser.Scenes.Events.PRE_UPDATE,
+    pending.onReady
+  );
+
+  scene.events.off(
+    Phaser.Scenes.Events.SHUTDOWN,
+    pending.onShutdown
+  );
+
+  pendingLaunches.delete(scene);
+}
+
+function scheduleLaunchAfterCreate(scene) {
+  if (pendingLaunches.has(scene)) {
+    return true;
+  }
+
+  const onReady = () => {
+    cancelPendingLaunch(scene);
+
+    if (
+      scene._cleanupDone ||
+      !scene.sys.isActive()
+    ) {
+      return;
+    }
+
+    void launchEmptyApartmentArrest(scene);
+  };
+
+  const onShutdown = () => {
+    cancelPendingLaunch(scene);
+  };
+
+  pendingLaunches.set(scene, {
+    onReady,
+    onShutdown
+  });
+
+  scene.events.once(
+    Phaser.Scenes.Events.PRE_UPDATE,
+    onReady
+  );
+
+  scene.events.once(
+    Phaser.Scenes.Events.SHUTDOWN,
+    onShutdown
+  );
+
+  return true;
+}
 
 export class EmptyApartmentArrestOverlayScene
   extends FailedAlibiArrestOverlayScene {
@@ -29,9 +88,10 @@ export class EmptyApartmentArrestOverlayScene
   create() {
     super.create();
 
-    this.events.once('shutdown', () => {
-      this.restoreApartment();
-    });
+    this.events.once(
+      Phaser.Scenes.Events.SHUTDOWN,
+      () => this.restoreApartment()
+    );
   }
 
   createLabels() {
@@ -167,15 +227,28 @@ export class EmptyApartmentArrestOverlayScene
   }
 }
 
-export async function launchEmptyApartmentArrest(
-  scene
-) {
+export async function launchEmptyApartmentArrest(scene) {
   if (
     !scene ||
-    scene._cleanupDone ||
-    !scene.sys.isActive() ||
-    scene._arrestIntroOpening
+    !scene.sys ||
+    scene._cleanupDone
   ) {
+    return false;
+  }
+
+  // mount() calls this during ApartmentScene.create().
+  // Wait until the apartment reaches its first update.
+  if (
+    scene.sys.settings.status === Phaser.Scenes.CREATING
+  ) {
+    return scheduleLaunchAfterCreate(scene);
+  }
+
+  if (!scene.sys.isActive()) {
+    return false;
+  }
+
+  if (scene._arrestIntroOpening) {
     return false;
   }
 
@@ -190,7 +263,15 @@ export async function launchEmptyApartmentArrest(
   }
 
   if (scene.isSceneRunning(SCENE_KEY)) {
+    if (scene.scene.isSleeping(SCENE_KEY)) {
+      scene.scene.wake(SCENE_KEY);
+    } else if (scene.scene.isPaused(SCENE_KEY)) {
+      scene.scene.resume(SCENE_KEY);
+    }
+
+    scene.scene.setVisible(true, SCENE_KEY);
     scene.scene.bringToTop(SCENE_KEY);
+
     return true;
   }
 
@@ -207,8 +288,6 @@ export async function launchEmptyApartmentArrest(
       );
     }
 
-    // ApartmentOccupantController.mount() already calls
-    // this function, including apartments with no occupant.
     scene.scene.launch(
       SCENE_KEY,
       {

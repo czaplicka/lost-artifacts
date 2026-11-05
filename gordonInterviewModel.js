@@ -1,10 +1,11 @@
-export function normalizeGordonInterview(data, raw={}) {
+export function normalizeGordonInterview(data,raw={}){
   const ids=new Set(data.topics.map(topic=>topic.id));
   const asked=[...new Set(Array.isArray(raw.asked)?raw.asked.filter(id=>ids.has(id)):[])];
-  const pendingTopic=ids.has(raw.pendingTopic)&&!asked.includes(raw.pendingTopic)?raw.pendingTopic:null;
-  return{version:1,asked,pendingTopic,dismissalPending:asked.length===ids.size,completed:raw.completed===true};
+  const completed=raw.completed===true;
+  const pendingTopic=!completed&&ids.has(raw.pendingTopic)&&!asked.includes(raw.pendingTopic)?raw.pendingTopic:null;
+  return{version:1,asked,pendingTopic,dismissalPending:!completed&&asked.length===ids.size,completed};
 }
-export function planGordonQuestion(data, raw, topicId) {
+export function planGordonQuestion(data,raw,topicId){
   const state=normalizeGordonInterview(data,raw);
   if(state.completed)return{ok:false,reason:'completed'};
   if(state.dismissalPending)return{ok:false,reason:'dismissal_pending'};
@@ -14,7 +15,7 @@ export function planGordonQuestion(data, raw, topicId) {
   if(state.asked.includes(topicId))return{ok:false,reason:'already_asked'};
   return{ok:true,state:{...state,pendingTopic:topicId},question:topic.question,reply:[...topic.reply]};
 }
-export function acknowledgeGordonReply(data, raw) {
+export function acknowledgeGordonReply(data,raw){
   const state=normalizeGordonInterview(data,raw);
   if(state.completed)return{ok:false,reason:'completed'};
   if(!state.pendingTopic)return{ok:false,reason:'no_pending_reply'};

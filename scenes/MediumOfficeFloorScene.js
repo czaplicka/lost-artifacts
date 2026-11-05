@@ -1,45 +1,50 @@
 import { MediumOfficeScene } from './MediumOfficeScene.js';
 import { saveGameState } from '../gameStatePersistence.js';
 import { MEDIUM_OFFICE_CONFIG } from '../config/mediumOfficeConfig.js';
+import { getGordonInterviewState } from '../gordonInterviewService.js';
 
 export class MediumOfficeFloorScene extends MediumOfficeScene {
-  init(data={}){super.init(data);this.hrOpening=false;this.hrEntry=null;}
+  init(data={}){super.init(data);this.hrOpening=false;this.gordonOpening=false;this.hrEntry=null;this.gordonEntry=null;}
   create(){
     super.create();
-    this.hrEntry=this.add.text(MEDIUM_OFFICE_CONFIG.width-30,30,'HUMAN RESOURCES >',this.style(23))
-      .setOrigin(1,0).setInteractive({useHandCursor:true});
-    this.root.add(this.hrEntry);
-    this.hrEntry.on('pointerover',()=>{if(!this.uiLocked)this.hrEntry.setColor('#ffffff');});
-    this.hrEntry.on('pointerout',()=>this.hrEntry.setColor('#ffe5ae'));
-    this.hrEntry.on('pointerdown',()=>{void this.openHR();});
-    this.refreshPanelLock();
+    const make=(y,label,callback)=>{
+      const entry=this.add.text(MEDIUM_OFFICE_CONFIG.width-30,y,label,this.style(23)).setOrigin(1,0).setInteractive({useHandCursor:true});
+      this.root.add(entry);entry.on('pointerover',()=>{if(!this.uiLocked)entry.setColor('#ffffff');});
+      entry.on('pointerout',()=>entry.setColor('#ffe5ae'));entry.on('pointerdown',callback);return entry;
+    };
+    this.hrEntry=make(30,'HUMAN RESOURCES >',()=>{void this.openHR();});
+    this.gordonEntry=make(85,'SUPERVISOR >',()=>{void this.openGordon();});this.refreshPanelLock();
   }
   refreshPanelLock(){
-    super.refreshPanelLock();
-    if(this.hrOpening)this.applyLock(true);
-    if(this.hrEntry){
-      this.hrEntry.setVisible(this.allowed&&!this.debugMode);
-      if(this.hrEntry.input)this.hrEntry.input.enabled=this.allowed&&!this.uiLocked&&!this.leaving&&!this.debugMode;
-    }
+    super.refreshPanelLock();if(this.hrOpening||this.gordonOpening)this.applyLock(true);
+    const usable=this.allowed&&!this.uiLocked&&!this.leaving&&!this.debugMode;
+    if(this.hrEntry){this.hrEntry.setVisible(this.allowed&&!this.debugMode);if(this.hrEntry.input)this.hrEntry.input.enabled=usable;}
+    if(this.gordonEntry){const available=this.allowed&&!this.debugMode&&getGordonInterviewState().unlocked;this.gordonEntry.setVisible(available);if(this.gordonEntry.input)this.gordonEntry.input.enabled=available&&usable;}
   }
-  async openHR(){
-    if(!this.isOfficeActive()||!this.allowed||this.uiLocked||this.debugMode||this.hrOpening)return;
-    const token=this._runToken;this.hrOpening=true;this.refreshPanelLock();this.tooltip?.setVisible(false);
+  async openHR(){await this.openUpperRoom('hr');}
+  async openGordon(){await this.openUpperRoom('gordon');}
+  async openUpperRoom(kind){
+    if(!this.isOfficeActive()||!this.allowed||this.uiLocked||this.debugMode||this.hrOpening||this.gordonOpening)return;
+    if(kind==='gordon'&&!getGordonInterviewState().unlocked)return;
+    const token=this._runToken,flag=kind==='hr'?'hrOpening':'gordonOpening';
+    this[flag]=true;this.refreshPanelLock();this.tooltip?.setVisible(false);
     try{
-      const{openMargeHR}=await import('../margeHRLauncher.js');
+      const module=kind==='hr'?await import('../margeHRLauncher.js'):await import('../gordonInterviewLauncher.js');
       if(!this.isCurrentOfficeRun(token)||!this.sys.isActive())return;
-      const opened=openMargeHR(this.game,{preview:false,returnSceneKey:'MediumOfficeScene',onFinished:()=>{
+      const launch=kind==='hr'?module.openMargeHR:module.openGordonInterview;
+      const opened=launch(this.game,{preview:false,returnSceneKey:'MediumOfficeScene',onFinished:result=>{
         if(!this.isCurrentOfficeRun(token))return;
-        this.hrOpening=false;this.registry.set('currentSceneKey','MediumOfficeScene');this.refreshPanelLock();
+        this[flag]=false;this.registry.set('currentSceneKey','MediumOfficeScene');this.refreshPanelLock();
+        if(kind==='gordon'&&result?.completed)this.showOfficeStatusMessage(result.saved===false?'The meeting is complete, but saving failed. Save manually.':'Gordon ended the meeting. The next story event follows mission seven.');
       }});
-      if(!opened)throw new Error('HR is already open.');
+      if(!opened)throw new Error('This room is already open.');
     }catch(error){
-      console.error('[MediumOfficeFloorScene] HR:',error);
-      if(this.isCurrentOfficeRun(token)){this.hrOpening=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message||'HR could not be opened.');}
+      console.error('[MediumOfficeFloorScene]',kind,error);
+      if(this.isCurrentOfficeRun(token)){this[flag]=false;this.refreshPanelLock();this.showOfficeStatusMessage(error.message||'The room could not be opened.');}
     }
   }
   async returnDownstairs(){
-    if(!this.isOfficeActive()||this.uiLocked||this.debugMode||this.hrOpening)return;
+    if(!this.isOfficeActive()||this.uiLocked||this.debugMode||this.hrOpening||this.gordonOpening)return;
     this.leaving=true;this.refreshPanelLock();saveGameState();
     try{
       const opened=await this.goto('OfficeScene',{gameState:this.gameState,entryView:'elevator'});

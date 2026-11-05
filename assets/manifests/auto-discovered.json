@@ -1520,6 +1520,310 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "chase_runner_sheet",
+      "url": "assets/chase/chase_runner_sheet.png",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "agencyFieldManual",
+      "url": "assets/data/agencyFieldManual.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "coral-search",
+      "url": "assets/data/web/missions/two-glasses/pages/coral-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "mariner-search",
+      "url": "assets/data/web/missions/two-glasses/pages/mariner-search.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "background",
+      "url": "assets/game_over/background.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "game_over",
+      "url": "assets/game_over/game_over.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "lamp",
+      "url": "assets/game_over/lamp.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "map",
+      "url": "assets/game_over/map.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medallion_officer",
+      "url": "assets/game_over/medallion_officer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "medialion",
+      "url": "assets/game_over/medialion.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_left_01",
+      "url": "assets/game_over/officer_left_01.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_left_02_1",
+      "url": "assets/game_over/officer_left_02_1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_left_02",
+      "url": "assets/game_over/officer_left_02.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_right_01_1",
+      "url": "assets/game_over/officer_right_01_1.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_right_01",
+      "url": "assets/game_over/officer_right_01.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officer_right_02",
+      "url": "assets/game_over/officer_right_02.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_01",
+      "url": "assets/game_over/paper_01.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_02",
+      "url": "assets/game_over/paper_02.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_03",
+      "url": "assets/game_over/paper_03.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_car",
+      "url": "assets/game_over/police_car.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pouch",
+      "url": "assets/game_over/pouch.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "thief",
+      "url": "assets/game_over/thief.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wall",
+      "url": "assets/game_over/wall.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "courtroom",
+      "url": "assets/local/courtroom.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "Gordon",
+      "url": "assets/local/Gordon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no_Gordon",
+      "url": "assets/local/no_Gordon.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office_poste_restante",
+      "url": "assets/pi/postoffice/post_office_poste_restante.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office_postman",
+      "url": "assets/pi/postoffice/post_office_postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "post_office",
+      "url": "assets/pi/postoffice/post_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "postman",
+      "url": "assets/pi/postoffice/postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "edward_vale",
+      "url": "assets/side_quests/Dead-men/edward_vale.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "coat_check_green_jacket_swap",
+      "url": "assets/side_quests/Reed/web/news/coat_check_green_jacket_swap.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "marsh_button_fenwick_blazer",
+      "url": "assets/side_quests/Reed/web/news/marsh_button_fenwick_blazer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pressing_matters_checked_blazer",
+      "url": "assets/side_quests/Reed/web/news/pressing_matters_checked_blazer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "second_impression_green_jackets",
+      "url": "assets/side_quests/Reed/web/news/second_impression_green_jackets.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "spare_pair_two_glasses",
+      "url": "assets/side_quests/Reed/web/news/spare_pair_two_glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "table_matters_two_glasses",
+      "url": "assets/side_quests/Reed/web/news/table_matters_two_glasses.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "toast_rack_two_glasses_gift_box",
+      "url": "assets/side_quests/Reed/web/news/toast_rack_two_glasses_gift_box.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

@@ -2,11 +2,69 @@
   "id": "gordon_first_interview",
   "npcId": "supervisor_gordon",
   "speaker": "Commissioner Gordon",
-  "backgroundKey": null,
-  "portraitKey": null,
   "minimumCompletedMissions": 6,
   "requiredFlag": "supervisor_insurance_inquiry_unlocked",
   "completedFlag": "gordon_first_interview_completed",
+  "backgrounds": {
+    "occupied": {
+      "key": "gordon_office_occupied",
+      "url": "assets/local/Gordon.webp"
+    },
+    "empty": {
+      "key": "gordon_office_empty",
+      "url": "assets/local/no_Gordon.webp"
+    }
+  },
+  "hotspots": [
+    {
+      "id": "gordon",
+      "label": "Commissioner Gordon",
+      "x": 1380,
+      "y": 355,
+      "w": 455,
+      "h": 385
+    },
+    {
+      "id": "door",
+      "label": "Return to upper floor",
+      "x": 383,
+      "y": 198,
+      "w": 285,
+      "h": 560
+    },
+    {
+      "id": "access",
+      "label": "Door access panel",
+      "x": 683,
+      "y": 399,
+      "w": 60,
+      "h": 78
+    },
+    {
+      "id": "safe",
+      "label": "Closed safe",
+      "x": 993,
+      "y": 381,
+      "w": 197,
+      "h": 229
+    },
+    {
+      "id": "folder",
+      "label": "Closed case folder",
+      "x": 1310,
+      "y": 662,
+      "w": 255,
+      "h": 81
+    },
+    {
+      "id": "telephone",
+      "label": "Desk telephone",
+      "x": 1534,
+      "y": 740,
+      "w": 245,
+      "h": 90
+    }
+  ],
   "opening": [
     "You wanted to discuss an authorization. Make it brief."
   ],
