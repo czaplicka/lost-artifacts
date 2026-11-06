@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "combination": [
+    38,
+    24,
+    61
+  ],
+  "targets": [
+    0.26,
+    0.72,
+    0.47
+  ],
+  "normal": {
+    "periodMs": 2800,
+    "zoneWidth": 0.18
+  },
+  "slow": {
+    "periodMs": 5600,
+    "zoneWidth": 0.24
+  },
+  "clues": {
+    "folder": {
+      "title": "Service folder",
+      "text": "A service slip is tucked into the otherwise ordinary folder.\n\nCOMBINATION ORDER: desk extension / access-unit number / filing reference.\n\nFILING REFERENCE: 61.\n\nGordon has filed his memory under 'somebody else's problem'."
+    },
+    "telephone": {
+      "title": "Telephone label",
+      "text": "The extension label under the handset reads 38.\n\nYou do not make a call. Breaking into an office is awkward enough without leaving a voicemail."
+    },
+    "access": {
+      "title": "Access-unit plate",
+      "text": "The entrance interlock is already released.\n\nA separate identification plate reads UNIT 24. This is its equipment number, not its firmware version."
+    }
+  },
+  "emptyContents": "Expense claims. Spare letterheads. A deeply unnecessary number of rubber stamps.\n\nNothing here explains what happened to John. The safe was better protected than its contents deserved."
+}

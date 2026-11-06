@@ -1,0 +1,339 @@
+[
+  {
+    "id": "empty_display_case",
+    "item": "Empty display case",
+    "tags": [
+      "museum",
+      "crime_scene",
+      "art",
+      "exhibit",
+      "missing_item"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The glass is so clean because the curator spent three hours polishing it right before the theft.",
+    "heistExplanation": "The thief opened the case so cleanly that the dust pattern on the glass is the only thing that moved.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Stealth"
+        ],
+        "heistExplanation": "The display case was opened without forcing the lock, allowing the artifact to disappear before any alarm noticed the difference."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Art history",
+          "Deception"
+        ],
+        "heistExplanation": "A near-perfect replica went into the case before anyone looked closely, so the museum admired the fake for hours."
+      }
+    ]
+  },
+  {
+    "id": "open_alarm_panel",
+    "item": "Open alarm panel",
+    "tags": [
+      "alarm",
+      "electronics",
+      "lock",
+      "wiring",
+      "security"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The technician left a sticky note inside saying \"DO NOT TOUCH – I'LL FIX IT TOMORROW\".",
+    "heistExplanation": "The thief read the note as \"VIP access\" and slipped a bypass in while the system was already half-asleep.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Engineering",
+          "Lockpicking"
+        ],
+        "heistExplanation": "The thief exploited the panel's unfinished repair and bypassed the security circuit before it could report the intrusion."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Engineering"
+        ],
+        "heistExplanation": "A temporary bridge across the exposed wiring silenced the alarm without cutting power to the whole museum."
+      }
+    ]
+  },
+  {
+    "id": "broken_access_card",
+    "item": "Broken access card",
+    "tags": [
+      "card",
+      "door",
+      "badge",
+      "entry",
+      "fragment"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The card is snapped right through the word \"EXPIRED\" on the back.",
+    "heistExplanation": "The thief had a functioning card; this one died bravely in a failed attempt at overtime access.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Hacking",
+          "Deception",
+          "Electronics",
+          "Pickpocket"
+        ],
+        "heistExplanation": "The thief cloned the badge credentials, using the original only long enough to copy its access data."
+      },
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Deception"
+        ],
+        "heistExplanation": "A copied access credential convinced the door system that an authorised staff member was entering."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Hacking",
+          "Deception",
+          "Espionage",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief triggered a routine staff-door event at exactly the right moment, manipulating the control room into focusing on a harmless access alert while the real route remained unwatched."
+      }
+    ]
+  },
+  {
+    "id": "fancy_hat",
+    "item": "Fancy wide-brim hat",
+    "tags": [
+      "clothing",
+      "fashion",
+      "cover",
+      "identity",
+      "costume"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "There is a price tag the size of a postcard still dangling from the brim.",
+    "heistExplanation": "The thief chose a more subtle disguise; it is hard to blend in when your hat has its own orbit.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief used an extravagant visitor outfit to become memorable for the wrong reasons while their face stayed hidden in plain sight."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Seduction",
+          "Persuasion",
+          "Deception",
+          "Pickpocket"
+        ],
+        "heistExplanation": "The hat created exactly the kind of minor scene that makes a bored guard look up, walk over, and stop watching the gallery."
+      }
+    ]
+  },
+  {
+    "id": "crime_board",
+    "item": "Crime board with photos and strings",
+    "tags": [
+      "board",
+      "photos",
+      "clues",
+      "web",
+      "case"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The red string connects suspects to a big circle labeled \"MAYBE?\".",
+    "heistExplanation": "The thief made sure their own photo never left a trace, not even a blurry corner on this board.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Analysis",
+          "Deduction",
+          "Investigation"
+        ],
+        "heistExplanation": "The thief mapped exhibition schedules, staff routines, and insurance values until one artifact stood out as the perfect target."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Analysis",
+          "Tactical planning",
+          "Investigation"
+        ],
+        "heistExplanation": "The connected photos and schedules revealed a route through the museum with fewer witnesses and slower response times."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Problem-solving",
+          "Deception",
+          "Analysis"
+        ],
+        "heistExplanation": "The board linked a minor incident to the exact wing where a distraction would draw security away from the target."
+      }
+    ]
+  },
+  {
+    "id": "bullet_casing",
+    "item": "Spent bullet casing",
+    "tags": [
+      "metal",
+      "weapon",
+      "shot",
+      "evidence",
+      "floor"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The casing is stamped \"training only\" and smells more of blanks than danger.",
+    "heistExplanation": "The thief planned it so well that nobody had time—or need—to fire anything real.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Firearms",
+          "Tactical planning",
+          "Intimidation"
+        ],
+        "heistExplanation": "A blank round caused a loud but harmless panic, pulling guards toward the wrong end of the museum."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Firearms",
+          "Intimidation",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief fired a warning shot into the air, creating just enough fear to clear the route without a direct confrontation."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Tactical planning",
+          "Deception",
+          "Intimidation"
+        ],
+        "heistExplanation": "The casing was planted to make the theft look like a violent break-in, drawing the investigation toward the wrong kind of suspect."
+      }
+    ]
+  },
+  {
+    "id": "hanging_rope",
+    "item": "Hanging climbing rope",
+    "tags": [
+      "rope",
+      "height",
+      "climb",
+      "access",
+      "escape"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "A sign nearby says \"Staff only – do not swing\", which someone obviously ignored.",
+    "heistExplanation": "The thief chose stairs over circus tricks; stealth looks less impressive but works every time.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Acrobatics",
+          "Parkour",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief descended through an upper service opening, avoiding every public entrance and staffed door."
+      },
+      {
+        "questionId": "reach_target",
+        "skills": [
+          "Acrobatics",
+          "Parkour",
+          "Survival skills"
+        ],
+        "heistExplanation": "The rope gave the thief a route to a high gallery ledge that could not be reached from the public floor."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Stealth"
+        ],
+        "heistExplanation": "Once the artifact was secured, the rope offered a fast exit over the same upper route before the building locked down."
+      }
+    ]
+  },
+  {
+    "id": "security_system",
+    "item": "Security system",
+    "tags": [
+      "museum",
+      "security",
+      "alarm",
+      "system",
+      "surveillance"
+    ],
+    "scene": [
+      "louvre"
+    ],
+    "trueExplanation": "The status screen proudly says \"UPTIME: 999 DAYS\" – which no real system would brag about.",
+    "heistExplanation": "The thief did not even touch the panel; why fight a system that is clearly already living in fantasy.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief exploited the system's neglected maintenance mode to pass a false all-clear to the alarm network."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "A carefully timed command stopped the alarm from escalating while leaving the normal status lights reassuringly green."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Hacking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief redirected one camera to a harmless maintenance feed, leaving the target gallery temporarily unseen."
+      }
+    ]
+  }
+]

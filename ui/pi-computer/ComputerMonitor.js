@@ -5,7 +5,7 @@ const MONITOR_WIDTH=1120,MONITOR_HEIGHT=800,NOTEBOOK_WIDTH=300,WORKSPACE_GAP=20;
 const SCREEN={x:48,y:36,w:1024,h:700};
 const TEX_SCAN='pi_crt_scanlines',TEX_FRAME='pi_crt_frame_large_v2';
 const BOOT_FULL=[
-  'NIGHT OWL BIOS v4.86  (C) 1993 Night Owl Ltd.',
+  'NIGHT OWL BIOS vx.12345  (C) 1989 SKYNET',
   'CPU: 486DX2 @ 66MHz ........ OK',
   'Memory test: 4096K ........ OK (nobody needs more)',
   'Detecting coffee ........ off-screen, finally',
@@ -30,18 +30,21 @@ const APP_INFO={
   photo:{title:'Photo Viewer',color:0xc69d7d,kind:'board'},
   'office-shop':{title:'Office Shop',color:0xd4af37,kind:'ledger'},
   'office-archive':{title:'Case Filing',color:0xd4af37,kind:'ledger'},
-  'office-documents':{title:'Documents',color:0xd4af37,kind:'paper'}
+  'office-documents':{title:'Documents',color:0xd4af37,kind:'paper'},
+  chat: { title: 'IMEGO — Instant Messenger', color: 0x8db7a6,  kind: 'chat'},
+  thiefdoku: { title: 'Thiefdoku',  color: 0xc69d7d,  kind: 'board'},
 };
 const APP_TITLES={
-  audio:'Owl Audio — Recording comparison',mail:'Mail — Private correspondence',ledger:'Personal Ledger — Private funds',classifieds:'Classifieds — City notices'};
+  audio:'Owl Audio — Recording comparison',chat: 'IMEGO — Instant Messenger Error Guide Online',mail:'Mail — Private correspondence',ledger:'Personal Ledger — Private funds',classifieds:'Classifieds — City notices'};
 const APP_STATUS={
   audio:'Source transcripts. Comparisons are saved to the case notes.',
   mail:'Private correspondence. Spam folder: 14,212 items.',
   ledger:'Personal funds — separate from agency finances (the agency has none).',
-  classifieds:'Local notices and private enquiries. Please do not call about the llama.'
+  classifieds:'Local notices and private enquiries. Please do not call about the llama.',
+  chat: 'Private messages. The walls have ears. The inbox has worse.'
 };
 const APP_ACCENT={
-  audio:0x93ba99,desktop:0x98b9ce,mail:0xe6d9ab,ledger:0xa5c397,classifieds:0xd1d6d8,search:0x9fc9a9,photo:0xc69d7d};
+  audio:0x93ba99,desktop:0x98b9ce,mail:0xe6d9ab,ledger:0xa5c397,classifieds:0xd1d6d8,search:0x9fc9a9,chat: 0x8db7a6,photo:0xc69d7d};
 const MENU_ITEMS=[
   {app:'audio',label:'Owl Audio',color:0x93ba99,kind:'audio'},
   {app:'mail',label:'Mail',color:0xe6d9ab,kind:'envelope'},
@@ -253,7 +256,7 @@ export class ComputerMonitor{
     const stripeX=box.x+34+title.width+14,stripeEnd=box.x+box.w-120;
     if(stripeEnd>stripeX)for(let index=0;index<5;index++)drawing.rectangle(stripeX,box.y+9+index*5,stripeEnd-stripeX,2,COLORS.titlebarLight,0.7);
     drawing.button(box.x+box.w-48,box.y+6,'X',()=>ui.openApp('desktop'));
-    if(ui.app==='audio')ui.audioApp.render();else if(ui.app==='ledger')ui.ledger.render();else ui.documents.render();
+    if(ui.app==='audio')ui.audioApp.render();else if(ui.app==='ledger')ui.ledger.render();else if (ui.app === 'thiefdoku') ui.thiefdoku.render();else if(ui.app === 'chat')ui.chatApp.render();else ui.documents.render();
     drawing.bevel(box.x+8,box.y+box.h-35,box.w-16,26,0xc3c2b7,true);
     drawing.text(box.x+16,box.y+box.h-30,ui.notice||APP_STATUS[ui.app]||'',13,'#3a3428',box.w-32);
   }

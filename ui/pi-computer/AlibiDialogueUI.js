@@ -1,0 +1,120 @@
+import { gameState } from '../../GameData.js';
+import { getSearchProgress } from './ComputerSearchCore.js';
+import { ensureAlibiDialogueDefinitions } from './AlibiDialogueData.js';
+import { sendReceiptRequest, deliverReceiptReply, receiptRequestState, restaurantMessages,
+  hasArthurAuthorisation, COPPER_DRAFT, COPPER_SENT, COPPER_REPLY } from './AlibiReceiptService.js';
+
+const KEY=Symbol.for('lostArtifacts.alibiDialogueUIV2');
+const REVIEW='alibi_final_report_draft';
+export function installAlibiDialogueUI(ui,docs) {
+  if (ui[KEY]) return ui[KEY];
+  let dead=false,reviewOpen=false,timer=null,refreshQueued=false;
+  const restorers=[],mailHooks=new WeakSet();
+  const live=()=>!dead && !ui.destroyed;
+  const active=()=>gameState.piQuests?.quests?.pi_stolen_alibi?.status==='active';
+  const known=()=>(getSearchProgress().cases.borrowed_alibi?.known || []).includes('copper_email');
+  const wrap=(target,name,factory)=>{
+    if (typeof target?.[name]!=='function') return;
+    const original=target[name],replacement=factory(original.bind(target));target[name]=replacement;
+    restorers.push(()=>{if (target[name]===replacement) target[name]=original;});
+  };
+  const refresh=()=>{
+    if (!live() || refreshQueued) return;refreshQueued=true;
+    queueMicrotask(()=>{refreshQueued=false;if (live() && ui.isOpen && !ui.suspended && !ui.booting) ui.render();});
+  };
+  function scheduleReply() {
+    clearTimeout(timer);timer=null;
+    const state=receiptRequestState();
+    if (!live() || state?.status!=='pending' || !active() || !Number.isFinite(state.dueAt)) return;
+    const wait=state.dueAt-Date.now();
+    if (wait<=0) {if (deliverReceiptReply()) refresh();return;}
+    timer=setTimeout(()=>{timer=null;if (live()) scheduleReply();},Math.min(wait,2147483647));
+  }
+  function ensureDefinitions() {
+    for (const definition of ui.search?.data?.cases || []) ensureAlibiDialogueDefinitions(definition);
+  }
+  function openDraft() {
+    if (!live() || !known()) return false;
+    if (!active()) {ui.notice='This case is not active.';refresh();return false;}
+    if (ui.photoQuest?.contactMail) ui.photoQuest.contactMail.composing=false;
+    reviewOpen=false;
+    const received=(gameState.piPhoneInvestigations?.cases?.borrowed_alibi?.flags || []).includes('receipt_received');
+    const pending=receiptRequestState()?.status==='pending';
+    Object.assign(ui,{app:'mail',selectedId:received ? COPPER_REPLY : pending ? COPPER_SENT : COPPER_DRAFT,
+      listPage:0,bodyPage:0,notice:received ? 'The receipt is already in your case correspondence.' : ''});
+    ui.viewToken=(Number(ui.viewToken)||0)+1;refresh();return true;
+  }
+  function ensureMailHook() {
+    const mail=ui.photoQuest?.contactMail;
+    if (!mail || mailHooks.has(mail) || typeof mail.selectRecipient!=='function') return;
+    mailHooks.add(mail);
+    wrap(mail,'selectRecipient',original=>(id,...args)=>{
+      if (live() && id==='copper_email' && known()) {openDraft();return;}
+      return original(id,...args);
+    });
+  }
+  function renderDraft() {
+    const d=ui.drawing,b=ui.window;
+    const x=b.x+24,y=b.y+56,w=b.w-48,bottom=b.y+b.h-48;
+    d.rectangle(b.x+9,b.y+48,b.w-18,b.h-95,0xf2ecd6).setInteractive();
+    const title=d.text(x,y,'REQUEST A RECEIPT',21,'#303d35',w);
+    const address=d.text(x,y+title.height+10,'To: receipts@copperspoon.local',17,'#183b63',w);
+    const note=hasArthurAuthorisation()
+      ? 'Arthur’s existing written permission will be forwarded with this request.'
+      : 'Arthur’s written permission has not been collected. The restaurant cannot release his record without it.';
+    const caption=d.text(x,address.y+address.height+10,note,14,'#705a35',w);
+    const draft=restaurantMessages().find(item=>item.id===COPPER_DRAFT);
+    const bodyY=caption.y+caption.height+12;
+    docs.renderPagedText(draft?.body || 'This request is no longer available.',x,bodyY,w,Math.max(50,bottom-bodyY-54));
+    d.button(x,bottom-30,'BACK',()=>{ui.selectedId=null;ui.bodyPage=0;refresh();});
+    d.button(x+w-190,bottom-30,'SEND REQUEST',()=>{
+      if (!live() || ui.app!=='mail' || ui.selectedId!==COPPER_DRAFT) return;
+      const result=sendReceiptRequest();ui.notice=result.message;
+      if (result.ok) {ui.selectedId=COPPER_SENT;ui.bodyPage=0;scheduleReply();}
+      refresh();
+    },Boolean(draft));
+  }
+  // The review is an explicit screen, never an incoming "Your case file" email.
+  wrap(docs.alibiFinale,'mail',original=>(...args)=>original(...args).filter(message=>message.id!==REVIEW));
+  wrap(docs.alibiFinale,'back',original=>(...args)=>{reviewOpen=false;return original(...args);});
+  wrap(docs,'getMail',original=>(...args)=>{
+    ensureDefinitions();ensureMailHook();scheduleReply();
+    const messages=restaurantMessages(),ids=new Set(messages.map(item=>item.id));
+    return [...messages,...original(...args).filter(message=>message.id!==REVIEW && !ids.has(message.id))];
+  });
+  wrap(docs,'renderPagedText',original=>(content,x,y,w,h)=>{
+    const reserve=live() && active() && ui.app==='mail' && !reviewOpen && ui.selectedId!==COPPER_DRAFT;
+    return original(content,x,y,w,reserve ? Math.max(45,h-44) : h);
+  });
+  wrap(docs,'render',original=>(...args)=>{
+    if (!live()) return original(...args);
+    ensureDefinitions();ensureMailHook();scheduleReply();
+    if (ui.app!=='mail') reviewOpen=false;
+    if (ui.app==='mail' && ui.selectedId===COPPER_DRAFT && active()) {renderDraft();return;}
+    if (ui.app==='mail' && reviewOpen && active()) {docs.alibiFinale.render();return;}
+    if (ui.selectedId===REVIEW) ui.selectedId=null;
+    const result=original(...args);
+    if (ui.app==='mail' && active() && ui.window) {
+      const b=ui.window;
+      ui.drawing.button(b.x+b.w-(b.w>=600 ? 190 : 120),b.y+b.h-77,b.w>=600 ? 'CASE REVIEW' : 'REVIEW',()=>{
+        reviewOpen=true;ui.bodyPage=0;ui.notice='';refresh();
+      });
+    }
+    return result;
+  });
+  wrap(ui.search,'selectKeyword',original=>(id,...args)=>{
+    if (live() && id==='copper_email' && known()) {openDraft();return;}
+    return original(id,...args);
+  });
+  wrap(ui.search,'load',original=>async(...args)=>{const result=await original(...args);if (live()) ensureDefinitions();return result;});
+  function destroy() {
+    if (dead) return;dead=true;clearTimeout(timer);timer=null;
+    ui.scene.events.off('shutdown',destroy);ui.scene.events.off('destroy',destroy);
+    for (const restore of restorers.reverse()) restore();
+    if (ui[KEY]===api) delete ui[KEY];
+  }
+  const api={destroy,openDraft};ui[KEY]=api;
+  ui.scene.events.once('shutdown',destroy);ui.scene.events.once('destroy',destroy);
+  wrap(ui,'destroy',original=>(...args)=>{destroy();return original(...args);});
+  ensureDefinitions();ensureMailHook();scheduleReply();return api;
+}

@@ -1,5 +1,5 @@
 import { gameState } from '../GameData.js';
-import { ROUTE_LINE_COLOR, ROUTE_SHADOW_COLOR, getCityId } from './DestinationMeta.js';
+import { getCityId, getCityQuip } from './DestinationMeta.js';
 import { getTransportOptions } from './DestinationCalculator.js';
 import { generateDestinationsForCurrentCity } from '../managers/InvestigationManager.js';
 
@@ -26,78 +26,102 @@ export class DestinationMap {
     return destinations;
   }
 
+  isMapInteractionBlocked() {
+    return Boolean(this.isTransitioning || this.committedTravelPayload || this.isDestroyed);
+  }
+
   clearPins() {
-    for (const object of this.activePins) object?.destroy?.(true);
+    // The world map owns and destroys the pins, the "you are here" marker,
+    // the flight network and the route preview.
+    this.worldMap?.clearPins();
     this.activePins = [];
   }
 
   renderCityPins(cities) {
-    for (const city of cities) {
-      const x = city.map?.x ?? city.mapX ?? this.scene.scale.width / 2;
-      const y = city.map?.y ?? city.mapY ?? this.scene.scale.height / 2;
-      const pin = this.scene.add.container(x, y);
-      const dot = this.scene.add.circle(0, 0, 15, 0xffcc00)
-        .setStrokeStyle(4, 0x8b0000).setInteractive({ useHandCursor: true });
-      const label = this.scene.add.text(0, 30, city.city || 'Unknown city', {
-        fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff',
-        backgroundColor: '#000000', padding: { x: 5, y: 5 }
-      }).setOrigin(0.5);
-      pin.add([dot, label]);
-      this.container.add(pin);
-      this.activePins.push(pin);
-      dot.on('pointerover', () => {
-        if (this.isTransitioning || this.committedTravelPayload || this.selectedPin === dot) return;
-        dot.setFillStyle(0xffffff);
-        label.setColor('#ffcc00');
-      });
-      dot.on('pointerout', () => {
-        if (this.selectedPin === dot) return;
-        dot.setFillStyle(0xffcc00);
-        label.setColor('#ffffff');
-      });
-      dot.on('pointerdown', () => {
-        if (this.isTransitioning || this.committedTravelPayload) return;
-        this.selectCity(city, dot, label);
+    const worldMap = this.worldMap;
+    if (!worldMap) return;
+
+    const current = this.getCurrentCityData();
+    const currentId = getCityId(current);
+    // In the PI office the retained "hq" city id does not mean the player
+    // is standing in the Mark Agency HQ, so no marker there.
+    const hideHere = currentId === 'hq' && this.getMapTheme() === 'pi';
+    worldMap.setCurrentCity(current, { hidden: hideHere });
+
+    const headquarters = this.getLocationsData().find(
+      location => getCityId(location) === 'hq'
+    );
+
+    if (headquarters) {
+      worldMap.setHeadquarters(headquarters, {
+        onOver: pin => {
+          if (this.isMapInteractionBlocked()) return;
+          pin.setHover(true);
+          worldMap.say(getCityQuip(headquarters));
+        },
+        onOut: pin => pin.setHover(false),
+        onDown: () => {
+          if (this.isMapInteractionBlocked() || this.isAtHQ()) return;
+          this.selectHeadquarters();
+        }
       });
     }
+
+    const list = (cities || []).filter(city => getCityId(city) !== 'hq');
+    for (const city of list) {
+      const pin = worldMap.addPin(city, {
+        onOver: p => {
+          if (this.isMapInteractionBlocked()) return;
+          p.setHover(true);
+          worldMap.say(getCityQuip(city));
+        },
+        onOut: p => p.setHover(false),
+        onDown: p => {
+          if (this.isMapInteractionBlocked()) return;
+          this.selectCity(city, p);
+        }
+      });
+      if (pin) this.activePins.push(pin);
+    }
+
+    worldMap.layoutLabels();
+    worldMap.setNetwork(
+      worldMap.getCityPosition(current),
+      list.map(city => worldMap.getCityPosition(city))
+    );
   }
 
-  selectCity(city, dot = null, label = null) {
+  selectCity(city, pin = null) {
     if (this.isTransitioning || this.committedTravelPayload) return;
     this.clearTravelErrorTimer();
-    this.selectedPin?.setFillStyle(0xffcc00);
-    this.selectedPin?.setScale(1);
-    this.selectedLabel?.setColor('#ffffff');
+
+    this.selectedPin?.setSelected?.(false);
+
+    const id = getCityId(city);
+    const target = pin ||
+      (id === 'hq'
+        ? this.worldMap?.hqPin
+        : this.activePins.find(candidate => getCityId(candidate.city) === id)) ||
+      null;
+
     this.selectedCity = city;
-    this.selectedPin = dot;
-    this.selectedLabel = label;
-    dot?.setFillStyle(0xffffff);
-    dot?.setScale(1.15);
-    label?.setColor('#ffcc00');
+    this.selectedPin = target;
+    target?.setSelected(true);
+
     const options = getTransportOptions(this.getCurrentCityData(), city) || [];
     this.selectedTransport = options[0] || null;
     this.createTransportButtons(options);
     this.refreshInfoPanel(city);
     this.previewRoute(city);
     this.setConfirmEnabled(Boolean(this.selectedTransport));
+    this.worldMap?.say(getCityQuip(city));
   }
 
   previewRoute(city) {
-    this.routePreview?.destroy();
-    this.routePreview = null;
-    const current = this.getCurrentCityData();
-    if (!current?.map || !city?.map) return;
-    this.routePreview = this.scene.add.graphics();
-    for (const [width, color, alpha] of [
-      [9, ROUTE_SHADOW_COLOR, 0.55], [4, ROUTE_LINE_COLOR, 0.98]
-    ]) {
-      this.routePreview.lineStyle(width, color, alpha);
-      this.routePreview.beginPath();
-      this.routePreview.moveTo(current.map.x, current.map.y);
-      this.routePreview.lineTo(city.map.x, city.map.y);
-      this.routePreview.strokePath();
-    }
-    this.container.add(this.routePreview);
-    this.container.moveAbove(this.routePreview, this.mapImage);
+    const worldMap = this.worldMap;
+    if (!worldMap) return;
+    const from = worldMap.getCityPosition(this.getCurrentCityData());
+    const to = worldMap.getCityPosition(city);
+    worldMap.showRoute(from, to);
   }
 }

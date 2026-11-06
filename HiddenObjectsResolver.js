@@ -60,7 +60,7 @@ export class HiddenObjectsResolver {
   }
 
   isKnownSceneId(sceneId) {
-    return ['louvre', 'tower', 'castle', 'dockyard', 'auction_house', 'havela'].includes(sceneId);
+    return ['louvre', 'tower', 'castle', 'dockyard', 'auction_house', 'havela','tokyo_museum'].includes(sceneId);
   }
 
   getSceneIdFromCity(value) {
@@ -77,7 +77,8 @@ export class HiddenObjectsResolver {
       'nyc': 'dockyard',
       'new delhi': 'havela',
       'new dehli': 'havela',
-      'delhi': 'havela'
+      'delhi': 'havela',
+      'tokyo': 'tokyo_museum',
     };
     return cityToSceneMap[city] || '';
   }

@@ -1,336 +1,8 @@
 {
   "assets": [
     {
-      "key": "intro",
-      "url": "assets/intro.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "shopping",
-      "url": "assets/shopping.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "pi_spy_shop_background",
-      "url": "assets/pi/city/spyshop.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "background2",
-      "url": "assets/start_2.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgroundgo",
-      "url": "assets/GameOver.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgrounds",
-      "url": "assets/success.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgroundpc",
-      "url": "assets/hiscores.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "dossier",
-      "url": "assets/dossier.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgroundset",
-      "url": "assets/local/cabinet.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "enter",
-      "url": "assets/local/enter.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_lux",
-      "url": "assets/local/hotel_lux.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_poor",
-      "url": "assets/local/hotel_poor.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "newsstand_bg",
-      "url": "assets/local/newsstand.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "shop",
-      "url": "assets/local/shop.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "file",
-      "url": "assets/file.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "notes",
-      "url": "assets/notes.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bank_w",
-      "url": "assets/local/bank_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "alley_w",
-      "url": "assets/local/alley_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "airport_w",
-      "url": "assets/local/airport_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_maid_w",
-      "url": "assets/local/hotel_maid_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parking_w",
-      "url": "assets/local/parking_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "policehq_w",
-      "url": "assets/local/police_hq_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "restaurant_w",
-      "url": "assets/local/restaurant_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "garbage_w",
-      "url": "assets/local/garbage_w.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bank_h",
-      "url": "assets/local/bank_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "alley_h",
-      "url": "assets/local/alley_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "airport_h",
-      "url": "assets/local/airport_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_maid_h",
-      "url": "assets/local/hotel_maid_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parking_h",
-      "url": "assets/local/parking_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "policehq_h",
-      "url": "assets/local/police_hq_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "restaurant_h",
-      "url": "assets/local/restaurant_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "garbage_h",
-      "url": "assets/local/garbage_h.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bank_a",
-      "url": "assets/local/bank_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "alley_a",
-      "url": "assets/local/alley_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "airport_a",
       "url": "assets/local/airport_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_maid_a",
-      "url": "assets/local/hotel_maid_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "parking_a",
-      "url": "assets/local/parking_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "policehq_a",
-      "url": "assets/local/police_hq_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "restaurant_a",
-      "url": "assets/local/restaurant_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "garbage_a",
-      "url": "assets/local/garbage_a.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "bank_b",
-      "url": "assets/local/bank_b.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "alley_b",
-      "url": "assets/local/alley_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -345,32 +17,528 @@
       ]
     },
     {
-      "key": "hotel_maid_b",
-      "url": "assets/local/hotel_maid_b.webp",
+      "key": "airport_h",
+      "url": "assets/local/airport_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "parking_b",
-      "url": "assets/local/parking_b.webp",
+      "key": "airport_w",
+      "url": "assets/local/airport_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "policehq_b",
-      "url": "assets/local/police_hq_b.webp",
+      "key": "alley_a",
+      "url": "assets/local/alley_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "restaurant_b",
-      "url": "assets/local/restaurant_b.webp",
+      "key": "alley_b",
+      "url": "assets/local/alley_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_h",
+      "url": "assets/local/alley_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_w",
+      "url": "assets/local/alley_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_debt_kitchen",
+      "url": "assets/apartments/apartment_debt_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "apartment_debt_living_room",
+      "url": "assets/apartments/apartment_debt_living_room.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "artifact_amber_necklace",
+      "url": "assets/artifacts/amber_necklace.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_crown_jewels",
+      "url": "assets/artifacts/crown_jewels.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_fallback",
+      "url": "assets/artifacts/artifact_unknown.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_liberty_torch",
+      "url": "assets/artifacts/liberty_torch.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_mona_lisa",
+      "url": "assets/artifacts/mona_lisa.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_mughal_dagger",
+      "url": "assets/artifacts/mughal_dagger.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "artifact_royal_seal",
+      "url": "assets/artifacts/royal_seal.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
+    {
+      "key": "atlas",
+      "url": "assets/data/atlas.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "background2",
+      "url": "assets/start_2.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundpc",
+      "url": "assets/hiscores.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundset",
+      "url": "assets/local/cabinet.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_a",
+      "url": "assets/local/bank_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_b",
+      "url": "assets/local/bank_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_h",
+      "url": "assets/local/bank_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_w",
+      "url": "assets/local/bank_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bankier_a",
+      "url": "assets/npc/bankier_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_b",
+      "url": "assets/npc/bankier_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_h",
+      "url": "assets/npc/bankier_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bankier_w",
+      "url": "assets/npc/bankier_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_a",
+      "url": "assets/npc/bum_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_b",
+      "url": "assets/npc/bum_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_h",
+      "url": "assets/npc/bum_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "bum_w",
+      "url": "assets/npc/bum_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "chase_courtyard",
+      "url": "assets/chase/chase_courtyard.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_square",
+      "url": "assets/chase/chase_square.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_stairs",
+      "url": "assets/chase/chase_stairs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chase_street",
+      "url": "assets/chase/chase_street.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "city_clues",
+      "url": "assets/data/city-clues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "citysuspects",
+      "url": "assets/data/citysuspects.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "country_facts",
+      "url": "assets/data/countryFacts.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "crime_lab_assistant_dialogues",
+      "url": "assets/data/dialogue/crimeLabAssistantDialogues.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "crimeCityTutorial",
+      "url": "assets/data/crime-city-tutorial.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "csi",
+      "url": "assets/data/dialogue/csi.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_accounting",
+      "url": "assets/data/dialogue/accounting.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_csi",
+      "url": "assets/data/dialogue/dialog_csi.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_holmes",
+      "url": "assets/data/dialogue/holmes.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_home",
+      "url": "assets/data/dialogue/home.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_hq",
+      "url": "assets/data/dialogue/hq.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_informant",
+      "url": "assets/data/dialogue/informant.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_police-station",
+      "url": "assets/data/dialogue/police-station.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialog_watson",
+      "url": "assets/data/dialogue/watson.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue",
+      "url": "assets/data/dialogue.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_banker",
+      "url": "assets/data/dialogue/banker.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_bum",
+      "url": "assets/data/dialogue/bum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_fence",
+      "url": "assets/data/dialogue/fence.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_knajpa",
+      "url": "assets/data/dialogue/knajpa.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_maid",
+      "url": "assets/data/dialogue/maid.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_parkingowy",
+      "url": "assets/data/dialogue/parkingowy.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_police",
+      "url": "assets/data/dialogue/police.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dialogue_stewardess",
+      "url": "assets/data/dialogue/stewardess.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "dossier",
+      "url": "assets/dossier.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "enter",
+      "url": "assets/local/enter.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "fence_a",
+      "url": "assets/npc/fence_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_b",
+      "url": "assets/npc/fence_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_h",
+      "url": "assets/npc/fence_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "fence_w",
+      "url": "assets/npc/fence_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "file",
+      "url": "assets/file.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_a",
+      "url": "assets/local/garbage_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -385,8 +553,16 @@
       ]
     },
     {
-      "key": "harbor_b",
-      "url": "assets/local/harbor_b.webp",
+      "key": "garbage_h",
+      "url": "assets/local/garbage_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "garbage_w",
+      "url": "assets/local/garbage_w.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -395,6 +571,14 @@
     {
       "key": "harbor_a",
       "url": "assets/local/harbor_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "harbor_b",
+      "url": "assets/local/harbor_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -417,22 +601,6 @@
       ]
     },
     {
-      "key": "apartment_debt_living_room",
-      "url": "assets/apartments/apartment_debt_living_room.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "apartment_debt_kitchen",
-      "url": "assets/apartments/apartment_debt_kitchen.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "holly",
       "url": "assets/pi/holly.webp",
       "type": "image",
@@ -441,176 +609,64 @@
       ]
     },
     {
-      "key": "chase_street",
-      "url": "assets/chase/chase_street.webp",
+      "key": "hotel_lux",
+      "url": "assets/local/hotel_lux.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "chase_courtyard",
-      "url": "assets/chase/chase_courtyard.webp",
+      "key": "hotel_maid_a",
+      "url": "assets/local/hotel_maid_a.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "chase_stairs",
-      "url": "assets/chase/chase_stairs.webp",
+      "key": "hotel_maid_b",
+      "url": "assets/local/hotel_maid_b.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "chase_square",
-      "url": "assets/chase/chase_square.webp",
+      "key": "hotel_maid_h",
+      "url": "assets/local/hotel_maid_h.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "bankier_w",
-      "url": "assets/npc/bankier_w.webp",
+      "key": "hotel_maid_w",
+      "url": "assets/local/hotel_maid_w.webp",
       "type": "image",
       "groups": [
-        "npcPortraits"
+        "backgrounds"
       ]
     },
     {
-      "key": "fence_w",
-      "url": "assets/npc/fence_w.webp",
+      "key": "hotel_poor",
+      "url": "assets/local/hotel_poor.webp",
       "type": "image",
       "groups": [
-        "npcPortraits"
+        "backgrounds"
       ]
     },
     {
-      "key": "knajpa_w",
-      "url": "assets/npc/knajpa_w.webp",
+      "key": "intro",
+      "url": "assets/intro.webp",
       "type": "image",
       "groups": [
-        "npcPortraits"
+        "backgrounds"
       ]
     },
     {
-      "key": "maid_w",
-      "url": "assets/npc/maid_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "parkingowy_w",
-      "url": "assets/npc/parkingowy_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "police_w",
-      "url": "assets/npc/police_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_w",
-      "url": "assets/npc/stewardesa_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_w",
-      "url": "assets/npc/bum_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_h",
-      "url": "assets/npc/bankier_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_h",
-      "url": "assets/npc/fence_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "knajpa_h",
-      "url": "assets/npc/knajpa_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "maid_h",
-      "url": "assets/npc/maid_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "parkingowy_h",
-      "url": "assets/npc/parkingowy_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "police_h",
-      "url": "assets/npc/police_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_h",
-      "url": "assets/npc/stewardesa_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_h",
-      "url": "assets/npc/bum_h.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_b",
-      "url": "assets/npc/bankier_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_b",
-      "url": "assets/npc/fence_b.webp",
+      "key": "knajpa_a",
+      "url": "assets/npc/knajpa_a.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
@@ -625,67 +681,27 @@
       ]
     },
     {
-      "key": "maid_b",
-      "url": "assets/npc/maid_b.webp",
+      "key": "knajpa_h",
+      "url": "assets/npc/knajpa_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
       ]
     },
     {
-      "key": "parkingowy_b",
-      "url": "assets/npc/parkingowy_b.webp",
+      "key": "knajpa_w",
+      "url": "assets/npc/knajpa_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
       ]
     },
     {
-      "key": "police_b",
-      "url": "assets/npc/police_b.webp",
-      "type": "image",
+      "key": "locations",
+      "url": "assets/data/locations.json",
+      "type": "json",
       "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "stewardessa_b",
-      "url": "assets/npc/stewardesa_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bum_b",
-      "url": "assets/npc/bum_b.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "bankier_a",
-      "url": "assets/npc/bankier_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "fence_a",
-      "url": "assets/npc/fence_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "knajpa_a",
-      "url": "assets/npc/knajpa_a.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
+        "json"
       ]
     },
     {
@@ -697,67 +713,59 @@
       ]
     },
     {
-      "key": "parkingowy_a",
-      "url": "assets/npc/parkingowy_a.webp",
+      "key": "maid_b",
+      "url": "assets/npc/maid_b.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
       ]
     },
     {
-      "key": "police_a",
-      "url": "assets/npc/police_a.webp",
+      "key": "maid_h",
+      "url": "assets/npc/maid_h.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
       ]
     },
     {
-      "key": "stewardessa_a",
-      "url": "assets/npc/stewardesa_a.webp",
+      "key": "maid_w",
+      "url": "assets/npc/maid_w.webp",
       "type": "image",
       "groups": [
         "npcPortraits"
       ]
     },
     {
-      "key": "bum_a",
-      "url": "assets/npc/bum_a.webp",
-      "type": "image",
+      "key": "missions",
+      "url": "assets/data/missions.json",
+      "type": "json",
       "groups": [
-        "npcPortraits"
+        "json"
       ]
     },
     {
-      "key": "sailor_a",
-      "url": "assets/npc/sailor_a.webp",
-      "type": "image",
+      "key": "monologues",
+      "url": "assets/data/monologues.json",
+      "type": "json",
       "groups": [
-        "npcPortraits"
+        "json"
       ]
     },
     {
-      "key": "sailor_b",
-      "url": "assets/npc/sailor_b.webp",
+      "key": "newsstand_bg",
+      "url": "assets/local/newsstand.webp",
       "type": "image",
       "groups": [
-        "npcPortraits"
+        "backgrounds"
       ]
     },
     {
-      "key": "sailor_h",
-      "url": "assets/npc/sailor_h.webp",
+      "key": "notes",
+      "url": "assets/notes.webp",
       "type": "image",
       "groups": [
-        "npcPortraits"
-      ]
-    },
-    {
-      "key": "sailor_w",
-      "url": "assets/npc/sailor_w.webp",
-      "type": "image",
-      "groups": [
-        "npcPortraits"
+        "backgrounds"
       ]
     },
     {
@@ -817,59 +825,163 @@
       ]
     },
     {
-      "key": "artifact_crown_jewels",
-      "url": "assets/artifacts/crown_jewels.webp",
-      "type": "image",
+      "key": "objects-data",
+      "url": "assets/data/objects.json",
+      "type": "json",
       "groups": [
-        "artifacts"
+        "json"
       ]
     },
     {
-      "key": "artifact_amber_necklace",
-      "url": "assets/artifacts/amber_necklace.webp",
+      "key": "parking_a",
+      "url": "assets/local/parking_a.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "backgrounds"
       ]
     },
     {
-      "key": "artifact_liberty_torch",
-      "url": "assets/artifacts/liberty_torch.webp",
+      "key": "parking_b",
+      "url": "assets/local/parking_b.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "backgrounds"
       ]
     },
     {
-      "key": "artifact_mona_lisa",
-      "url": "assets/artifacts/mona_lisa.webp",
+      "key": "parking_h",
+      "url": "assets/local/parking_h.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "backgrounds"
       ]
     },
     {
-      "key": "artifact_mughal_dagger",
-      "url": "assets/artifacts/mughal_dagger.webp",
+      "key": "parking_w",
+      "url": "assets/local/parking_w.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "backgrounds"
       ]
     },
     {
-      "key": "artifact_royal_seal",
-      "url": "assets/artifacts/royal_seal.webp",
+      "key": "parkingowy_a",
+      "url": "assets/npc/parkingowy_a.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "npcPortraits"
       ]
     },
     {
-      "key": "artifact_fallback",
-      "url": "assets/artifacts/artifact_unknown.webp",
+      "key": "parkingowy_b",
+      "url": "assets/npc/parkingowy_b.webp",
       "type": "image",
       "groups": [
-        "artifacts"
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_h",
+      "url": "assets/npc/parkingowy_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "parkingowy_w",
+      "url": "assets/npc/parkingowy_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "pi_spy_shop_background",
+      "url": "assets/pi/city/spyshop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "police_a",
+      "url": "assets/npc/police_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_b",
+      "url": "assets/npc/police_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_h",
+      "url": "assets/npc/police_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "police_w",
+      "url": "assets/npc/police_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "policehq_a",
+      "url": "assets/local/police_hq_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_b",
+      "url": "assets/local/police_hq_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_h",
+      "url": "assets/local/police_hq_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "policehq_w",
+      "url": "assets/local/police_hq_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "portrait_accounting",
+      "url": "assets/portraits/portrait_accounting.webp",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
+      "key": "portrait_CSI",
+      "url": "assets/portraits/csi.webp",
+      "type": "image",
+      "groups": [
+        "portraits"
       ]
     },
     {
@@ -883,14 +995,6 @@
     {
       "key": "portrait_holmes",
       "url": "assets/portraits/holmes.webp",
-      "type": "image",
-      "groups": [
-        "portraits"
-      ]
-    },
-    {
-      "key": "portrait_CSI",
-      "url": "assets/portraits/csi.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -921,6 +1025,14 @@
       ]
     },
     {
+      "key": "portrait_magazine",
+      "url": "assets/portraits/magazine_manager.webp",
+      "type": "image",
+      "groups": [
+        "portraits"
+      ]
+    },
+    {
       "key": "portrait_police-station",
       "url": "assets/portraits/police-station.webp",
       "type": "image",
@@ -937,32 +1049,136 @@
       ]
     },
     {
-      "key": "portrait_accounting",
-      "url": "assets/portraits/portrait_accounting.webp",
-      "type": "image",
-      "groups": [
-        "portraits"
-      ]
-    },
-    {
-      "key": "portrait_magazine",
-      "url": "assets/portraits/magazine_manager.webp",
-      "type": "image",
-      "groups": [
-        "portraits"
-      ]
-    },
-    {
-      "key": "suspects",
-      "url": "assets/data/suspects.json",
+      "key": "reconstruction_questions",
+      "url": "assets/data/reconstruction_questions.json",
       "type": "json",
       "groups": [
         "json"
       ]
     },
     {
-      "key": "citysuspects",
-      "url": "assets/data/citysuspects.json",
+      "key": "restaurant_a",
+      "url": "assets/local/restaurant_a.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_b",
+      "url": "assets/local/restaurant_b.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_h",
+      "url": "assets/local/restaurant_h.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "restaurant_w",
+      "url": "assets/local/restaurant_w.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "sailor_a",
+      "url": "assets/npc/sailor_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "sailor_b",
+      "url": "assets/npc/sailor_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "sailor_h",
+      "url": "assets/npc/sailor_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "sailor_w",
+      "url": "assets/npc/sailor_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "shop",
+      "url": "assets/local/shop.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "shopping",
+      "url": "assets/shopping.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "statuses",
+      "url": "assets/data/statuses.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "stewardessa_a",
+      "url": "assets/npc/stewardesa_a.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_b",
+      "url": "assets/npc/stewardesa_b.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_h",
+      "url": "assets/npc/stewardesa_h.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "stewardessa_w",
+      "url": "assets/npc/stewardesa_w.webp",
+      "type": "image",
+      "groups": [
+        "npcPortraits"
+      ]
+    },
+    {
+      "key": "suspect_clues",
+      "url": "assets/data/suspect-clues.json",
       "type": "json",
       "groups": [
         "json"
@@ -977,72 +1193,8 @@
       ]
     },
     {
-      "key": "missions",
-      "url": "assets/data/missions.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "locations",
-      "url": "assets/data/locations.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "country_facts",
-      "url": "assets/data/countryFacts.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "atlas",
-      "url": "assets/data/atlas.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "city_clues",
-      "url": "assets/data/city-clues.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "suspect_clues",
-      "url": "assets/data/suspect-clues.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "objects-data",
-      "url": "assets/data/objects.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "reconstruction_questions",
-      "url": "assets/data/reconstruction_questions.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "monologues",
-      "url": "assets/data/monologues.json",
+      "key": "suspects",
+      "url": "assets/data/suspects.json",
       "type": "json",
       "groups": [
         "json"
@@ -1057,176 +1209,8 @@
       ]
     },
     {
-      "key": "statuses",
-      "url": "assets/data/statuses.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
       "key": "tv-config",
       "url": "assets/data/tv-config.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "crimeCityTutorial",
-      "url": "assets/data/crime-city-tutorial.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue",
-      "url": "assets/data/dialogue.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_banker",
-      "url": "assets/data/dialogue/banker.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_bum",
-      "url": "assets/data/dialogue/bum.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_maid",
-      "url": "assets/data/dialogue/maid.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_stewardess",
-      "url": "assets/data/dialogue/stewardess.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_police",
-      "url": "assets/data/dialogue/police.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_fence",
-      "url": "assets/data/dialogue/fence.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_knajpa",
-      "url": "assets/data/dialogue/knajpa.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialogue_parkingowy",
-      "url": "assets/data/dialogue/parkingowy.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "crime_lab_assistant_dialogues",
-      "url": "assets/data/dialogue/crimeLabAssistantDialogues.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "csi",
-      "url": "assets/data/dialogue/csi.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_csi",
-      "url": "assets/data/dialogue/dialog_csi.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_informant",
-      "url": "assets/data/dialogue/informant.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_watson",
-      "url": "assets/data/dialogue/watson.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_holmes",
-      "url": "assets/data/dialogue/holmes.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_police-station",
-      "url": "assets/data/dialogue/police-station.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_hq",
-      "url": "assets/data/dialogue/hq.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_home",
-      "url": "assets/data/dialogue/home.json",
-      "type": "json",
-      "groups": [
-        "json"
-      ]
-    },
-    {
-      "key": "dialog_accounting",
-      "url": "assets/data/dialogue/accounting.json",
       "type": "json",
       "groups": [
         "json"

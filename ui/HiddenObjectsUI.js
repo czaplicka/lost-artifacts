@@ -2,6 +2,16 @@ import { hintManager } from '../managers/HintManager.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { EventBus } from '../EventBus.js';
 import { saveGameState } from '../gameStatePersistence.js';
+import {
+  HO_COLORS as C,
+  HO_FONTS as F,
+  addPaper,
+  createStamp,
+  drawCheckMark,
+  drawDashedLine,
+  drawPaperclip,
+  ensureNoiseTile
+} from './HiddenObjectsTheme.js';
 
 const HINT_OPTIONS = {
   cut_corners: {
@@ -11,7 +21,8 @@ const HINT_OPTIONS = {
       'Faster now. Awkward in court.',
     energy: 5,
     minutes: 10,
-    moralLabel: 'Procedural misconduct'
+    moralLabel: 'Procedural misconduct',
+    accent: 0xd9382f
   },
 
   squad_help: {
@@ -21,21 +32,43 @@ const HINT_OPTIONS = {
       'More eyes. More paperwork.',
     energy: 10,
     minutes: 30,
-    moralLabel: 'Documented assistance'
+    moralLabel: 'Documented assistance',
+    accent: 0x4aa3df
   }
 };
+
+const FREE_HINT_ACCENT = 0x7cb342;
+
+const OPENING_LINES = [
+  'Touch nothing. Click everything.',
+  'Everything is evidence. Mostly.',
+  'Somebody was here. Somebody with questionable taste.',
+  'Look closely. The dust bunnies are witnesses.',
+  'The paperwork can wait. The clues cannot.'
+];
+
+const TYPE_DELAY_MS = 14;
+const LOW_TIME_SECONDS = 15;
 
 export class HiddenObjectsUI {
   constructor(scene) {
     this.scene = scene;
 
     this.timerText = null;
+    this.timerBar = null;
     this.scoreText = null;
     this.missesText = null;
-    this.listText = null;
+    this.tally = null;
+    this.counterText = null;
     this.messageText = null;
     this.backBtn = null;
     this.hintBtn = null;
+    this.hintLabel = null;
+
+    this.rows = new Map();
+    this.totalTime = 1;
+    this.lowTimePulse = null;
+    this.typeEvent = null;
 
     this.resultOverlay = null;
     this.resultContainer = null;
@@ -65,131 +98,587 @@ export class HiddenObjectsUI {
     return object;
   }
 
+  // -------------------------------------------------------------------------
+  // Panel boczny: "teczka śledcza"
+  // -------------------------------------------------------------------------
+
   createSidebarUI() {
     this.destroyed = false;
     this.isReturningToCity = false;
 
-    const { width, height } = this.scene.scale;
-    const sidebarWidth = this.scene.sidebarWidth;
+    const scene = this.scene;
+    const { width, height } = scene.scale;
+    const sidebarWidth = scene.sidebarWidth;
+
+    this.totalTime = Math.max(1, Number(scene.timeLeft) || 1);
+
+    const pad = 16;
+
+    const card = {
+      x: pad,
+      y: pad,
+      w: sidebarWidth - pad * 2,
+      h: height - pad * 2
+    };
+
+    const inner = 22;
+    const left = card.x + inner;
+    const innerW = card.w - inner * 2;
+
+    // Dół panelu liczymy od dołu, górę - kursorem od góry.
+    const dispatchH = 104;
+    const dispatchY = card.y + card.h - 18 - dispatchH;
+    const hintH = 54;
+    const hintY = dispatchY - 16 - hintH;
+    const rowsBottom = hintY - 14;
+
+    this.buildBackdrop(sidebarWidth, height);
+    this.buildCard(card, hintY + hintH / 2);
+
+    let y = this.buildHeader(card, left, innerW, inner);
+
+    y = this.buildGauges(left, y, innerW);
+    y = this.buildMissesRow(left, y, innerW);
+    y = this.buildEvidenceHeader(left, y, innerW);
+
+    this.buildEvidenceRows(left, y, rowsBottom, innerW);
+    this.buildHintButton(left, hintY, hintH, innerW);
+    this.buildDispatchPlate(left, dispatchY, innerW, dispatchH);
+
+    this.createBackButton(width);
+    this.refreshHintButton();
+    this.updateTimer(scene.timeLeft);
+    this.refreshList(true);
+
+    EventBus.on(
+      'hints:changed',
+      this.boundRefreshHintButton
+    );
+
+    scene.events.once(
+      'shutdown',
+      this.boundDestroy
+    );
+
+    this.showMessage(
+      OPENING_LINES[
+        Math.floor(Math.random() * OPENING_LINES.length)
+      ],
+      C.cream
+    );
+  }
+
+  buildBackdrop(sidebarWidth, height) {
+    const scene = this.scene;
+
+    const noiseKey = ensureNoiseTile(scene);
+
+    if (noiseKey) {
+      this.own(
+        scene.add
+          .tileSprite(0, 0, sidebarWidth, height, noiseKey)
+          .setOrigin(0, 0)
+          .setDepth(1000)
+      );
+    } else {
+      this.own(
+        scene.add
+          .rectangle(0, 0, sidebarWidth, height, C.leather, 1)
+          .setOrigin(0, 0)
+          .setDepth(1000)
+      );
+    }
+
+    // Cień przy krawędzi pola gry.
+    this.own(
+      scene.add
+        .rectangle(sidebarWidth - 6, 0, 6, height, 0x000000, 0.35)
+        .setOrigin(0, 0)
+        .setDepth(1000.2)
+    );
+  }
+
+  buildCard(card, stainCenterY) {
+    const scene = this.scene;
 
     this.own(
-      this.scene.add
-        .rectangle(
-          0, 0, sidebarWidth, height,
-          0x111111, 0.94
-        )
+      scene.add
+        .rectangle(card.x + 6, card.y + 8, card.w, card.h, 0x000000, 0.5)
         .setOrigin(0, 0)
-        .setDepth(1000)
+        .setDepth(1000.4)
     );
 
     this.own(
-      this.scene.add
-        .rectangle(
-          18, 18,
-          sidebarWidth - 36,
-          height - 36,
-          0x1b1b1f,
-          0.96
-        )
-        .setOrigin(0, 0)
-        .setStrokeStyle(2, 0xc8a75a, 0.45)
-        .setDepth(1000)
+      addPaper(scene, card.x, card.y, card.w, card.h, {
+        origin: 0,
+        seed: 7,
+        stain: {
+          x: card.w - 72,
+          y: stainCenterY - card.y,
+          r: 34
+        }
+      }).setDepth(1001)
     );
 
     this.own(
-      this.scene.add
-        .text(34, 34, this.scene.title, {
-          fontFamily: 'SpecialElite, Arial',
-          fontSize: '26px',
-          color: '#ffffff',
-          wordWrap: {
-            width: sidebarWidth - 90
-          }
+      scene.add
+        .rectangle(
+          card.x + 8,
+          card.y + 8,
+          card.w - 16,
+          card.h - 16
+        )
+        .setOrigin(0, 0)
+        .setStrokeStyle(1, C.ink, 0.28)
+        .setDepth(1002)
+    );
+  }
+
+  buildHeader(card, left, innerW, inner) {
+    const scene = this.scene;
+
+    this.own(
+      drawPaperclip(scene, card.x + card.w / 2, card.y - 2)
+        .setDepth(1005)
+    );
+
+    this.own(
+      scene.add
+        .text(left, card.y + 30, 'CASE FILE', {
+          fontFamily: F.pixel,
+          fontSize: '10px',
+          color: C.inkSoftHex
         })
-        .setDepth(1001)
+        .setOrigin(0, 0.5)
+        .setDepth(1003)
     );
+
+    const title = this.own(
+      scene.add
+        .text(left, card.y + 48, String(scene.title || 'Crime Scene'), {
+          fontFamily: F.body,
+          fontSize: '26px',
+          color: C.inkHex,
+          lineSpacing: -2,
+          wordWrap: { width: innerW - 132 }
+        })
+        .setOrigin(0, 0)
+        .setDepth(1003)
+    );
+
+    let size = 26;
+
+    while (title.height > 86 && size > 16) {
+      size -= 2;
+      title.setFontSize(size);
+    }
+
+    this.own(
+      createStamp(
+        scene,
+        card.x + card.w - inner - 64,
+        card.y + 84,
+        'TOP SECRET',
+        C.red,
+        C.redHex,
+        { angle: -9, fontSize: 11, sub: '*ish', alpha: 0.78 }
+      ).setDepth(1004)
+    );
+
+    const y = Math.max(
+      title.y + title.height,
+      card.y + 120
+    ) + 8;
+
+    const rule = this.own(scene.add.graphics().setDepth(1003));
+
+    rule.lineStyle(2, C.ink, 0.45);
+    drawDashedLine(rule, left, left + innerW, y);
+
+    return y + 16;
+  }
+
+  buildGauges(left, y, innerW) {
+    const scene = this.scene;
+
+    const plateH = 84;
+    const gap = 12;
+    const plateW = Math.floor((innerW - gap) / 2);
+
+    const makePlate = (x, label) => {
+      const g = this.own(scene.add.graphics().setDepth(1002));
+
+      g.fillStyle(C.plate, 1);
+      g.fillRoundedRect(x, y, plateW, plateH, 6);
+
+      g.lineStyle(2, C.gold, 0.8);
+      g.strokeRoundedRect(x, y, plateW, plateH, 6);
+
+      g.lineStyle(1, C.gold, 0.25);
+      g.strokeRoundedRect(x + 4, y + 4, plateW - 8, plateH - 8, 4);
+
+      this.own(
+        scene.add
+          .text(x + 12, y + 11, label, {
+            fontFamily: F.pixel,
+            fontSize: '8px',
+            color: '#b9a574'
+          })
+          .setOrigin(0, 0)
+          .setDepth(1003)
+      );
+    };
+
+    // Zegar.
+    makePlate(left, 'TIME');
 
     this.timerText = this.own(
-      this.scene.add
-        .text(
-          34,
-          88,
-          `Time: ${this.scene.formatTime(this.scene.timeLeft)}`,
-          {
-            fontFamily: 'Arial',
-            fontSize: '22px',
-            color: '#ffd966'
-          }
-        )
-        .setDepth(1001)
-    );
-
-    this.scoreText = this.own(
-      this.scene.add
-        .text(220, 88, `Score: ${this.scene.score}`, {
-          fontFamily: 'Arial',
+      scene.add
+        .text(left + plateW / 2, y + 42, '0:00', {
+          fontFamily: F.pixel,
           fontSize: '22px',
-          color: '#7CFC00'
+          color: C.amber
         })
-        .setDepth(1001)
-    );
-
-    this.missesText = this.own(
-      this.scene.add
-        .text(
-          34,
-          114,
-          `Misses: ${this.scene.incorrectClicks}`,
-          {
-            fontFamily: 'Arial',
-            fontSize: '16px',
-            color: '#ff8a8a'
-          }
-        )
-        .setDepth(1001)
+        .setOrigin(0.5)
+        .setDepth(1003)
     );
 
     this.own(
-      this.scene.add
-        .text(34, 142, 'Find these objects:', {
-          fontFamily: 'Arial',
-          fontSize: '20px',
-          color: '#ffffff',
-          fontStyle: 'bold'
-        })
-        .setDepth(1001)
+      scene.add
+        .rectangle(
+          left + 12,
+          y + plateH - 14,
+          plateW - 24,
+          6,
+          0x000000,
+          0.55
+        )
+        .setOrigin(0, 0.5)
+        .setDepth(1003)
     );
 
-    this.listText = this.own(
-      this.scene.add
-        .text(34, 170, this.buildListText(), {
-          fontFamily: 'Arial',
-          fontSize: '18px',
-          color: '#f2f2f2',
-          lineSpacing: 8,
-          wordWrap: {
-            width: sidebarWidth - 68
-          }
-        })
-        .setDepth(1001)
+    this.timerBar = this.own(
+      scene.add
+        .rectangle(
+          left + 12,
+          y + plateH - 14,
+          plateW - 24,
+          6,
+          0x7cb342,
+          1
+        )
+        .setOrigin(0, 0.5)
+        .setDepth(1003.5)
     );
+
+    // Wynik.
+    const scoreX = left + plateW + gap;
+
+    makePlate(scoreX, 'SCORE');
+
+    this.scoreText = this.own(
+      scene.add
+        .text(scoreX + plateW / 2, y + 42, String(scene.score), {
+          fontFamily: F.pixel,
+          fontSize: '22px',
+          color: C.lime
+        })
+        .setOrigin(0.5)
+        .setDepth(1003)
+    );
+
+    const dots = this.own(scene.add.graphics().setDepth(1003));
+
+    dots.lineStyle(1, C.gold, 0.35);
+    drawDashedLine(
+      dots,
+      scoreX + 12,
+      scoreX + plateW - 12,
+      y + plateH - 14,
+      4,
+      4
+    );
+
+    return y + plateH + 14;
+  }
+
+  buildMissesRow(left, y, innerW) {
+    const scene = this.scene;
+
+    this.missesText = this.own(
+      scene.add
+        .text(left, y, `Misses: ${scene.incorrectClicks}`, {
+          fontFamily: F.body,
+          fontSize: '18px',
+          color: '#8b2a22'
+        })
+        .setOrigin(0, 0)
+        .setDepth(1003)
+    );
+
+    this.tally = {
+      graphics: this.own(scene.add.graphics().setDepth(1003)),
+      x: left + 148,
+      y,
+      width: innerW - 148
+    };
+
+    this.redrawTally(scene.incorrectClicks);
+
+    return y + 36;
+  }
+
+  /** Kreski jak na ścianie celi - za każde pudło jedna. */
+  redrawTally(count) {
+    const tally = this.tally;
+
+    if (!tally?.graphics?.active) {
+      return;
+    }
+
+    const g = tally.graphics;
+
+    g.clear();
+    g.lineStyle(2, C.ink, 0.8);
+
+    const groupWidth = 34;
+    const groupGap = 10;
+
+    const maxGroups = Math.max(
+      1,
+      Math.floor((tally.width + groupGap) / (groupWidth + groupGap))
+    );
+
+    let remaining = Math.min(
+      Math.max(0, Number(count) || 0),
+      maxGroups * 5
+    );
+
+    for (let group = 0; group < maxGroups && remaining > 0; group += 1) {
+      const marks = Math.min(5, remaining);
+      remaining -= marks;
+
+      const gx = tally.x + group * (groupWidth + groupGap);
+
+      for (let i = 0; i < Math.min(4, marks); i += 1) {
+        g.lineBetween(
+          gx + i * 8,
+          tally.y + 2,
+          gx + i * 8,
+          tally.y + 22
+        );
+      }
+
+      if (marks === 5) {
+        g.lineBetween(
+          gx - 4,
+          tally.y + 18,
+          gx + groupWidth - 2,
+          tally.y + 6
+        );
+      }
+    }
+  }
+
+  buildEvidenceHeader(left, y, innerW) {
+    const scene = this.scene;
+
+    this.own(
+      scene.add
+        .text(left, y, 'EVIDENCE TO LOCATE', {
+          fontFamily: F.pixel,
+          fontSize: '10px',
+          color: C.inkHex
+        })
+        .setOrigin(0, 0)
+        .setDepth(1003)
+    );
+
+    this.counterText = this.own(
+      scene.add
+        .text(left + innerW, y, '0/0', {
+          fontFamily: F.pixel,
+          fontSize: '10px',
+          color: C.inkSoftHex
+        })
+        .setOrigin(1, 0)
+        .setDepth(1003)
+    );
+
+    const rule = this.own(scene.add.graphics().setDepth(1003));
+
+    rule.lineStyle(2, C.ink, 0.45);
+    drawDashedLine(rule, left, left + innerW, y + 22);
+
+    return y + 30;
+  }
+
+  buildEvidenceRows(left, top, bottom, innerW) {
+    const scene = this.scene;
+    const items = Array.isArray(scene.activeItems)
+      ? scene.activeItems
+      : [];
+
+    this.rows.clear();
+
+    const count = Math.max(1, items.length);
+    const available = Math.max(60, bottom - top);
+
+    const rowH = Phaser.Math.Clamp(
+      Math.floor(available / count),
+      30,
+      54
+    );
+
+    const box = Phaser.Math.Clamp(Math.round(rowH * 0.5), 18, 26);
+
+    const baseFont = Phaser.Math.Clamp(
+      Math.round(rowH * 0.42),
+      15,
+      22
+    );
+
+    const textX = left + box + 14;
+    const textWidth = innerW - box - 20;
+
+    items.forEach((item, index) => {
+      const cy = top + index * rowH + rowH / 2;
+
+      // Linijka księgi.
+      this.own(
+        scene.add
+          .rectangle(left, top + (index + 1) * rowH - 1, innerW, 1, C.inkSoft, 0.25)
+          .setOrigin(0, 0)
+          .setDepth(1003)
+      );
+
+      // Pole wyboru (podwójna kreska = ręczne rysowanie).
+      const boxGraphics = this.own(
+        scene.add.graphics({ x: left, y: cy - box / 2 }).setDepth(1003)
+      );
+
+      boxGraphics.lineStyle(2, C.ink, 0.85);
+      boxGraphics.strokeRect(0, 0, box, box);
+
+      boxGraphics.lineStyle(1, C.ink, 0.35);
+      boxGraphics.strokeRect(1, -1, box, box);
+
+      const label = this.own(
+        scene.add
+          .text(
+            textX,
+            cy,
+            String(item.item ?? item.id ?? '???'),
+            {
+              fontFamily: F.body,
+              fontSize: `${baseFont}px`,
+              color: C.inkHex,
+              wordWrap: { width: textWidth }
+            }
+          )
+          .setOrigin(0, 0.5)
+          .setDepth(1003)
+      );
+
+      let fontSize = baseFont;
+
+      while (label.height > rowH - 6 && fontSize > 13) {
+        fontSize -= 1;
+        label.setFontSize(fontSize);
+      }
+
+      const check = this.own(
+        scene.add
+          .graphics({ x: left + box / 2, y: cy })
+          .setDepth(1004)
+      );
+
+      drawCheckMark(check, box * 1.1, C.green, 4);
+      check.setVisible(false);
+
+      const strike = this.own(
+        scene.add
+          .rectangle(textX - 4, cy + 1, label.width + 8, 3, C.redInk, 0.9)
+          .setOrigin(0, 0.5)
+          .setDepth(1004)
+          .setScale(0, 1)
+      );
+
+      this.rows.set(String(item.id), {
+        item,
+        label,
+        check,
+        strike,
+        done: false
+      });
+    });
+  }
+
+  markRowFound(row, animate) {
+    const scene = this.scene;
+
+    row.done = true;
+    row.label.setColor(C.inkFaintHex);
+    row.check.setVisible(true);
+
+    if (!animate) {
+      row.check.setScale(1);
+      row.strike.setScale(1, 1);
+      return;
+    }
+
+    row.check.setScale(0);
+
+    scene.tweens.add({
+      targets: row.check,
+      scale: 1,
+      duration: 260,
+      ease: 'Back.Out'
+    });
+
+    scene.tweens.add({
+      targets: row.strike,
+      scaleX: 1,
+      duration: 280,
+      delay: 80,
+      ease: 'Cubic.Out'
+    });
+  }
+
+  buildHintButton(left, y, height, innerW) {
+    const scene = this.scene;
+
+    const width = Math.min(248, innerW - 100);
 
     this.hintBtn = this.own(
-      this.scene.add
-        .text(34, 0, 'HINT', {
-          fontFamily: 'PressStart2P, Arial',
-          fontSize: '14px',
-          color: '#fff2c4',
-          backgroundColor: '#604b29',
-          padding: {
-            left: 18,
-            right: 18,
-            top: 16,
-            bottom: 16
-          }
-        })
+      scene.add
+        .rectangle(left, y, width, height, C.brass, 1)
+        .setOrigin(0, 0)
+        .setStrokeStyle(2, C.goldLight, 0.9)
         .setInteractive({ useHandCursor: true })
-        .setDepth(1001)
+        .setDepth(1003)
+    );
+
+    // Lupa.
+    const icon = this.own(
+      scene.add
+        .graphics({ x: left + 26, y: y + height / 2 })
+        .setDepth(1004)
+    );
+
+    icon.lineStyle(3, 0xfff2c4, 1);
+    icon.strokeCircle(-2, -2, 8);
+    icon.lineBetween(4, 4, 11, 11);
+
+    this.hintLabel = this.own(
+      scene.add
+        .text(left + width / 2 + 14, y + height / 2, 'HINT', {
+          fontFamily: F.pixel,
+          fontSize: '13px',
+          color: '#fff2c4'
+        })
+        .setOrigin(0.5)
+        .setDepth(1004)
     );
 
     this.hintBtn.on(
@@ -202,40 +691,49 @@ export class HiddenObjectsUI {
 
     this.hintBtn.on('pointerover', () => {
       if (!this.hintBusy && !this.hintModalOpen) {
-        this.hintBtn.setBackgroundColor('#806338');
+        this.hintBtn.setFillStyle(C.brassLight, 1);
       }
     });
 
     this.hintBtn.on('pointerout', () => {
-      this.hintBtn?.setBackgroundColor('#604b29');
+      this.hintBtn?.setFillStyle(C.brass, 1);
     });
+  }
+
+  /** Ciemna tabliczka z "dalekopisu": komunikaty pisane litera po literze. */
+  buildDispatchPlate(left, y, innerW, height) {
+    const scene = this.scene;
+
+    const g = this.own(scene.add.graphics().setDepth(1002));
+
+    g.fillStyle(C.plate, 1);
+    g.fillRoundedRect(left, y, innerW, height, 6);
+
+    g.lineStyle(2, C.gold, 0.7);
+    g.strokeRoundedRect(left, y, innerW, height, 6);
+
+    this.own(
+      scene.add
+        .text(left + 12, y + 10, 'DISPATCH', {
+          fontFamily: F.pixel,
+          fontSize: '8px',
+          color: '#8f7f55'
+        })
+        .setOrigin(0, 0)
+        .setDepth(1003)
+    );
 
     this.messageText = this.own(
-      this.scene.add
-        .text(34, height - 170, '', {
-          fontFamily: 'Arial',
-          fontSize: '18px',
-          color: '#ffd966',
-          wordWrap: {
-            width: sidebarWidth - 68
-          },
-          lineSpacing: 6
+      scene.add
+        .text(left + 12, y + 28, '', {
+          fontFamily: F.body,
+          fontSize: '17px',
+          color: C.amber,
+          wordWrap: { width: innerW - 24 },
+          lineSpacing: 5
         })
-        .setDepth(1001)
-    );
-
-    this.positionHintButton();
-    this.createBackButton(width);
-    this.refreshHintButton();
-
-    EventBus.on(
-      'hints:changed',
-      this.boundRefreshHintButton
-    );
-
-    this.scene.events.once(
-      'shutdown',
-      this.boundDestroy
+        .setOrigin(0, 0)
+        .setDepth(1003)
     );
   }
 
@@ -253,10 +751,10 @@ export class HiddenObjectsUI {
       this.backBtn = this.own(
         this.scene.add
           .text(width - 125, 46, 'RETURN TO CITY', {
-            fontFamily: 'PressStart2P, Arial',
+            fontFamily: F.pixel,
             fontSize: '12px',
-            color: '#ffffff',
-            backgroundColor: '#222222',
+            color: '#fff2c4',
+            backgroundColor: '#3a2e1c',
             padding: {
               left: 16,
               right: 16,
@@ -315,48 +813,45 @@ export class HiddenObjectsUI {
     );
   }
 
-  positionHintButton() {
-    if (!this.hintBtn || !this.listText) {
-      return;
+  // -------------------------------------------------------------------------
+  // Aktualizacje (API używane przez kontrolery)
+  // -------------------------------------------------------------------------
+
+  refreshList(instant = false) {
+    const scene = this.scene;
+    const items = Array.isArray(scene.activeItems)
+      ? scene.activeItems
+      : [];
+
+    let found = 0;
+
+    for (const item of items) {
+      const id = String(item.id);
+      const row = this.rows.get(id);
+
+      if (!row || !scene.foundItems.has(id)) {
+        continue;
+      }
+
+      found += 1;
+
+      if (!row.done) {
+        this.markRowFound(row, !instant);
+      }
     }
 
-    this.hintBtn.setY(
-      this.listText.y + this.listText.height + 24
-    );
-
-    if (this.messageText) {
-      this.messageText.setY(
-        Math.max(
-          this.scene.scale.height - 170,
-          this.hintBtn.y + this.hintBtn.height + 20
-        )
-      );
-    }
-  }
-
-  buildListText() {
-    return this.scene.activeItems
-      .map((item) => {
-        const found = this.scene.foundItems.has(item.id);
-        return `${found ? '✓' : '•'} ${item.item}`;
-      })
-      .join('\n');
-  }
-
-  refreshList() {
-    this.listText?.setText(this.buildListText());
-    this.positionHintButton();
+    this.counterText?.setText(`${found}/${items.length}`);
 
     if (
       this.hintMarker &&
-      this.scene.foundItems.has(this.hintMarker.itemId)
+      scene.foundItems.has(String(this.hintMarker.itemId))
     ) {
       this.clearHintMarker();
     }
   }
 
   refreshHintButton(summary = null) {
-    if (!this.hintBtn?.active || this.destroyed) {
+    if (!this.hintLabel?.active || this.destroyed) {
       return;
     }
 
@@ -364,40 +859,114 @@ export class HiddenObjectsUI {
       summary?.available ??
       hintManager.getAvailableCount();
 
-    this.hintBtn.setText(`HINT (${count})`);
+    this.hintLabel.setText(`HINT (${count})`);
   }
 
   updateTimer(timeLeft) {
-    this.timerText?.setText(
-      `Time: ${this.scene.formatTime(timeLeft)}`
-    );
+    if (!this.timerText?.active) {
+      return;
+    }
+
+    const scene = this.scene;
+    const ratio = Phaser.Math.Clamp(timeLeft / this.totalTime, 0, 1);
+
+    this.timerText.setText(scene.formatTime(timeLeft));
+    this.timerBar?.setScale(ratio, 1);
+
+    let textColor = C.amber;
+    let barColor = 0x7cb342;
+
+    if (ratio <= 0.25 || timeLeft <= 30) {
+      textColor = '#ff8a6b';
+      barColor = 0xd9382f;
+    } else if (ratio <= 0.5) {
+      barColor = 0xe6a817;
+    }
+
+    this.timerText.setColor(textColor);
+    this.timerBar?.setFillStyle(barColor, 1);
+
+    const low = timeLeft > 0 && timeLeft <= LOW_TIME_SECONDS;
+
+    if (low && !this.lowTimePulse) {
+      this.lowTimePulse = scene.tweens.add({
+        targets: this.timerText,
+        scale: 1.12,
+        duration: 350,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.InOut'
+      });
+    } else if (!low && this.lowTimePulse) {
+      this.stopLowTimePulse();
+    }
+  }
+
+  stopLowTimePulse() {
+    this.lowTimePulse?.stop();
+    this.lowTimePulse = null;
+
+    if (this.timerText?.active) {
+      this.timerText.setScale(1);
+    }
   }
 
   updateScoreAndMisses(score, misses) {
-    this.scoreText?.setText(`Score: ${score}`);
+    this.scoreText?.setText(String(score));
     this.missesText?.setText(`Misses: ${misses}`);
+    this.redrawTally(misses);
   }
 
-  showMessage(text, color = '#ffd966') {
+  showMessage(text, color = C.amber) {
     if (!this.messageText?.active) {
       return;
     }
 
-    this.scene.tweens.killTweensOf(this.messageText);
+    const scene = this.scene;
+
+    scene.tweens.killTweensOf(this.messageText);
+
+    this.typeEvent?.remove(false);
+    this.typeEvent = null;
+
+    const full = String(text ?? '');
 
     this.messageText
-      .setText(text)
+      .setText('')
       .setColor(color)
       .setAlpha(1);
 
-    this.scene.tweens.add({
+    if (!full.length) {
+      return;
+    }
+
+    let index = 0;
+
+    this.typeEvent = scene.time.addEvent({
+      delay: TYPE_DELAY_MS,
+      repeat: full.length - 1,
+      callback: () => {
+        if (!this.messageText?.active) {
+          return;
+        }
+
+        index += 1;
+        this.messageText.setText(full.slice(0, index));
+      }
+    });
+
+    scene.tweens.add({
       targets: this.messageText,
       alpha: 0,
       duration: 2200,
-      delay: 1000,
+      delay: full.length * TYPE_DELAY_MS + 1800,
       ease: 'Linear'
     });
   }
+
+  // -------------------------------------------------------------------------
+  // Podpowiedzi
+  // -------------------------------------------------------------------------
 
   canUseHints() {
     return (
@@ -541,22 +1110,49 @@ export class HiddenObjectsUI {
       }
     );
 
+    const shadow = this.scene.add
+      .rectangle(6, 8, panelWidth, panelHeight, 0x000000, 0.55);
+
     const panel = this.scene.add
       .rectangle(
         0, 0,
         panelWidth, panelHeight,
         0x1c1915, 1
       )
-      .setStrokeStyle(2, 0xc8a75a, 0.95);
+      .setStrokeStyle(2, C.gold, 0.95);
+
+    const innerFrame = this.scene.add
+      .rectangle(0, 0, panelWidth - 16, panelHeight - 16)
+      .setStrokeStyle(1, C.gold, 0.35);
+
+    const studs = [
+      [-1, -1], [1, -1], [-1, 1], [1, 1]
+    ].map(([sx, sy]) =>
+      this.scene.add.circle(
+        sx * (panelWidth / 2 - 14),
+        sy * (panelHeight / 2 - 14),
+        4,
+        C.gold,
+        0.8
+      )
+    );
 
     const title = this.scene.add
       .text(0, -250, 'A LITTLE HELP?', {
-        fontFamily: 'SpecialElite, Arial',
+        fontFamily: F.body,
         fontSize: '32px',
         color: '#f8e7b9',
         align: 'center'
       })
       .setOrigin(0.5);
+
+    const titleLineLeft = this.scene.add
+      .rectangle(-panelWidth / 2 + 40, -250, 60, 2, C.gold, 0.7)
+      .setOrigin(0, 0.5);
+
+    const titleLineRight = this.scene.add
+      .rectangle(panelWidth / 2 - 40, -250, 60, 2, C.gold, 0.7)
+      .setOrigin(1, 0.5);
 
     const available = hintManager.getAvailableCount();
 
@@ -566,7 +1162,7 @@ export class HiddenObjectsUI {
         -205,
         `Free hints available: ${available}`,
         {
-          fontFamily: 'SpecialElite, Arial',
+          fontFamily: F.body,
           fontSize: '20px',
           color: '#ded6c3'
         }
@@ -575,8 +1171,13 @@ export class HiddenObjectsUI {
 
     this.hintModal.add([
       blocker,
+      shadow,
       panel,
+      innerFrame,
+      ...studs,
       title,
+      titleLineLeft,
+      titleLineRight,
       subtitle
     ]);
 
@@ -585,6 +1186,7 @@ export class HiddenObjectsUI {
       width: panelWidth - 56,
       label: 'USE FREE HINT',
       details: 'One hint from your personal supply.',
+      accent: FREE_HINT_ACCENT,
       enabled: available > 0,
       callback: () => this.applyHint('free_hint')
     });
@@ -608,6 +1210,7 @@ export class HiddenObjectsUI {
           `${option.minutes} min · ` +
           option.moralLabel +
           (affordability.ok ? '' : ' · Not enough energy'),
+        accent: option.accent,
         enabled: affordability.ok,
         callback: () => this.applyHint(method)
       });
@@ -615,7 +1218,7 @@ export class HiddenObjectsUI {
 
     this.hintModalMessage = this.scene.add
       .text(0, 158, '', {
-        fontFamily: 'SpecialElite, Arial',
+        fontFamily: F.body,
         fontSize: '17px',
         color: '#ffb3b3',
         align: 'center',
@@ -629,7 +1232,7 @@ export class HiddenObjectsUI {
 
     const cancel = this.scene.add
       .text(0, 240, 'KEEP LOOKING', {
-        fontFamily: 'PressStart2P, Arial',
+        fontFamily: F.pixel,
         fontSize: '12px',
         color: '#f8e7b9',
         backgroundColor: '#39332a',
@@ -642,6 +1245,14 @@ export class HiddenObjectsUI {
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
+
+    cancel.on('pointerover', () => {
+      cancel.setBackgroundColor('#4d4436');
+    });
+
+    cancel.on('pointerout', () => {
+      cancel.setBackgroundColor('#39332a');
+    });
 
     cancel.on(
       'pointerdown',
@@ -667,7 +1278,17 @@ export class HiddenObjectsUI {
       height / modalScale
     );
 
-    this.hintModal.setScale(modalScale);
+    this.hintModal
+      .setAlpha(0)
+      .setScale(modalScale * 0.94);
+
+    this.scene.tweens.add({
+      targets: this.hintModal,
+      alpha: 1,
+      scale: modalScale,
+      duration: 170,
+      ease: 'Back.Out'
+    });
   }
 
   addHintOption({
@@ -675,6 +1296,7 @@ export class HiddenObjectsUI {
     width,
     label,
     details,
+    accent,
     enabled,
     callback
   }) {
@@ -686,16 +1308,26 @@ export class HiddenObjectsUI {
       )
       .setStrokeStyle(
         1,
-        enabled ? 0xc8a75a : 0x666052,
+        enabled ? C.gold : 0x666052,
         0.8
       )
       .setInteractive({
         useHandCursor: enabled
       });
 
+    const accentBar = this.scene.add
+      .rectangle(
+        -width / 2 + 3,
+        y,
+        6,
+        92,
+        accent,
+        enabled ? 1 : 0.3
+      );
+
     const heading = this.scene.add
       .text(0, y - 26, label, {
-        fontFamily: 'PressStart2P, Arial',
+        fontFamily: F.pixel,
         fontSize: '11px',
         color: enabled ? '#fff2c4' : '#918b7c'
       })
@@ -703,7 +1335,7 @@ export class HiddenObjectsUI {
 
     const body = this.scene.add
       .text(0, y + 13, details, {
-        fontFamily: 'SpecialElite, Arial',
+        fontFamily: F.body,
         fontSize: '16px',
         color: enabled ? '#e4ddcf' : '#918b7c',
         align: 'center',
@@ -743,6 +1375,7 @@ export class HiddenObjectsUI {
 
     this.hintModal.add([
       background,
+      accentBar,
       heading,
       body
     ]);
@@ -915,7 +1548,11 @@ export class HiddenObjectsUI {
   }
 
   removeHintModal() {
-    this.hintModal?.destroy();
+    if (this.hintModal) {
+      this.scene.tweens?.killTweensOf(this.hintModal);
+      this.hintModal.destroy();
+    }
+
     this.hintModal = null;
     this.hintModalMessage = null;
     this.hintModalOpen = false;
@@ -928,6 +1565,7 @@ export class HiddenObjectsUI {
     this.refreshHintButton();
   }
 
+  /** Złoty pulsujący pierścień + "sonar" wokół wskazanego obiektu. */
   highlightZone(zone) {
     this.clearHintMarker();
 
@@ -939,24 +1577,29 @@ export class HiddenObjectsUI {
       return;
     }
 
-    const marker = this.scene.add
-      .rectangle(
-        zone.x,
-        zone.y,
-        zone.width + 20,
-        zone.height + 20,
-        0xffd966,
-        0.12
-      )
-      .setStrokeStyle(3, 0xffd966, 1)
+    const scene = this.scene;
+
+    const w = Math.max(60, zone.width + 28);
+    const h = Math.max(60, zone.height + 28);
+
+    const ring = scene.add
+      .ellipse(0, 0, w, h, 0xffd966, 0.12)
+      .setStrokeStyle(4, 0xffd966, 1);
+
+    const sonar = scene.add
+      .ellipse(0, 0, w, h)
+      .setStrokeStyle(3, 0xffd966, 0.8);
+
+    const marker = scene.add
+      .container(zone.x, zone.y, [sonar, ring])
       .setDepth(900);
 
     marker.itemId = zone.getData('id');
     this.hintMarker = marker;
 
-    this.scene.tweens.add({
-      targets: marker,
-      alpha: 0.25,
+    scene.tweens.add({
+      targets: ring,
+      alpha: 0.35,
       scaleX: 1.08,
       scaleY: 1.08,
       duration: 450,
@@ -965,7 +1608,17 @@ export class HiddenObjectsUI {
       ease: 'Sine.InOut'
     });
 
-    this.hintMarkerTimer = this.scene.time.delayedCall(
+    scene.tweens.add({
+      targets: sonar,
+      scaleX: 1.9,
+      scaleY: 1.9,
+      alpha: 0,
+      duration: 900,
+      repeat: -1,
+      ease: 'Quad.Out'
+    });
+
+    this.hintMarkerTimer = scene.time.delayedCall(
       3600,
       () => this.clearHintMarker()
     );
@@ -976,269 +1629,46 @@ export class HiddenObjectsUI {
     this.hintMarkerTimer = null;
 
     if (this.hintMarker) {
-      this.scene.tweens.killTweensOf(this.hintMarker);
-      this.hintMarker.destroy();
+      const marker = this.hintMarker;
       this.hintMarker = null;
+
+      for (const child of marker.list || []) {
+        this.scene.tweens?.killTweensOf(child);
+      }
+
+      this.scene.tweens?.killTweensOf(marker);
+      marker.destroy();
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Wynik
+  // -------------------------------------------------------------------------
+
+  /** Wywoływane przez HiddenObjectsResultOverlay tuż przed pokazaniem wyniku. */
+  freezeForResult() {
+    this.closeHintModal();
+    this.clearHintMarker();
+    this.stopLowTimePulse();
+
+    this.hintBtn?.disableInteractive();
+  }
+
+  // Wynik rysuje HiddenObjectsResultOverlay (scene.overlay);
+  // te metody zostają jako cienkie przekierowanie dla zgodności.
   showSuccessOverlay() {
-    this.showResultOverlay(true);
+    this.freezeForResult();
+    this.scene.overlay?.showSuccessOverlay();
   }
 
   showFailureOverlay() {
-    this.showResultOverlay(false);
+    this.freezeForResult();
+    this.scene.overlay?.showFailureOverlay();
   }
 
-  showResultOverlay(success) {
-    this.closeHintModal();
-    this.clearHintMarker();
-
-    this.hintBtn?.disableInteractive();
-
-    this.resultOverlay?.destroy();
-    this.resultContainer?.destroy();
-
-    const { width, height } = this.scene.scale;
-
-    const panelWidth = success ? 700 : 680;
-    const panelHeight = success ? 420 : 340;
-
-    const centerX =
-      this.scene.sidebarWidth +
-      (width - this.scene.sidebarWidth) / 2;
-
-    const centerY = height / 2;
-    const finalScore = this.scene.score;
-
-    this.resultOverlay = this.scene.add
-      .rectangle(
-        0, 0, width, height,
-        0x000000, success ? 0.72 : 0.68
-      )
-      .setOrigin(0, 0)
-      .setDepth(3000)
-      .setAlpha(0)
-      .setInteractive();
-
-    this.resultOverlay.on(
-      'pointerdown',
-      (pointer, localX, localY, event) => {
-        event?.stopPropagation();
-      }
-    );
-
-    this.resultContainer = this.scene.add
-      .container(centerX, centerY)
-      .setDepth(3001)
-      .setAlpha(0);
-
-    const panel = this.scene.add
-      .rectangle(
-        0, 0,
-        panelWidth, panelHeight,
-        success ? 0x181511 : 0x1c1212,
-        0.98
-      )
-      .setStrokeStyle(
-        3,
-        success ? 0xd4af37 : 0xa44a4a,
-        0.95
-      );
-
-    const title = this.scene.add
-      .text(
-        0,
-        success ? -155 : -95,
-        success
-          ? 'Crime Scene Complete'
-          : 'Crime Scene Lost',
-        {
-          fontFamily: 'SpecialElite, Arial',
-          fontSize: success ? '38px' : '36px',
-          color: success ? '#f8e7b9' : '#ffb3b3',
-          align: 'center'
-        }
-      )
-      .setOrigin(0.5);
-
-    this.resultContainer.add([panel, title]);
-
-    if (success) {
-      const subtitle = this.scene.add
-        .text(
-          0,
-          -104,
-          'The forensic sweep is finished.',
-          {
-            fontFamily: 'SpecialElite, Arial',
-            fontSize: '22px',
-            color: '#f2f2f2',
-            align: 'center'
-          }
-        )
-        .setOrigin(0.5);
-
-      const stats = this.scene.add
-        .text(
-          0,
-          -5,
-          [
-            `Objects found: ${this.scene.foundItems.size}/${this.scene.activeItems.length}`,
-            `Misses: ${this.scene.incorrectClicks}`,
-            `Time left: ${this.scene.formatTime(this.scene.timeLeft)}`,
-            `Time bonus: +${this.scene.timeLeft * 2}`,
-            `Final score: ${finalScore}`
-          ].join('\n'),
-          {
-            fontFamily: 'SpecialElite, Arial',
-            fontSize: '24px',
-            color: '#ffffff',
-            align: 'center',
-            lineSpacing: 10
-          }
-        )
-        .setOrigin(0.5);
-
-      const note = this.scene.add
-        .text(
-          0,
-          112,
-          'Evidence logged. Return to the city ' +
-          'and continue the investigation.',
-          {
-            fontFamily: 'SpecialElite, Arial',
-            fontSize: '19px',
-            color: '#d8d8d8',
-            align: 'center',
-            wordWrap: {
-              width: panelWidth - 100
-            }
-          }
-        )
-        .setOrigin(0.5);
-
-      this.resultContainer.add([
-        subtitle,
-        stats,
-        note
-      ]);
-    } else {
-      const body = this.scene.add
-        .text(
-          0,
-          -10,
-          [
-            'You ran out of time before the scene was fully processed.',
-            '',
-            `Objects found: ${this.scene.foundItems.size}/${this.scene.activeItems.length}`,
-            `Misses: ${this.scene.incorrectClicks}`,
-            `Score: ${finalScore}`
-          ].join('\n'),
-          {
-            fontFamily: 'SpecialElite, Arial',
-            fontSize: '22px',
-            color: '#f4f4f4',
-            align: 'center',
-            lineSpacing: 8,
-            wordWrap: {
-              width: panelWidth - 100
-            }
-          }
-        )
-        .setOrigin(0.5);
-
-      this.resultContainer.add(body);
-    }
-
-    const buttonY = success ? 175 : 112;
-
-    const button = this.scene.add
-      .rectangle(
-        0,
-        buttonY,
-        success ? 430 : 410,
-        success ? 64 : 62,
-        success ? 0x8b6b2f : 0x6b2a2a,
-        1
-      )
-      .setStrokeStyle(
-        3,
-        success ? 0xf0d48a : 0xd88b8b,
-        0.95
-      )
-      .setInteractive({ useHandCursor: true });
-
-    const label = this.scene.add
-      .text(0, buttonY, 'RETURN TO CRIME CITY', {
-        fontFamily: 'PressStart2P, Arial',
-        fontSize: '14px',
-        color: success ? '#fff7dc' : '#fff1f1'
-      })
-      .setOrigin(0.5);
-
-    let returning = false;
-
-    button.on('pointerover', () => {
-      button.setFillStyle(
-        success ? 0xa07a34 : 0x823333
-      );
-    });
-
-    button.on('pointerout', () => {
-      button.setFillStyle(
-        success ? 0x8b6b2f : 0x6b2a2a
-      );
-    });
-
-    button.on(
-      'pointerdown',
-      (pointer, localX, localY, event) => {
-        event?.stopPropagation();
-
-        if (returning) {
-          return;
-        }
-
-        returning = true;
-        button.disableInteractive();
-
-        if (success) {
-          this.scene.playSfx('correct', {
-            volume: 0.35
-          });
-        }
-
-        this.scene.restoreSourceScene();
-
-        this.scene.returnToSafeScene({
-          ...this.scene.returnData,
-          hiddenObjectsSuccess: success,
-          hiddenObjectsScore: finalScore,
-          incorrectClicks: this.scene.incorrectClicks,
-          foundItems: Array.from(this.scene.foundItems),
-          sceneId: this.scene.sceneId
-        });
-      }
-    );
-
-    this.resultContainer.add([button, label]);
-
-    this.scene.tweens.add({
-      targets: this.resultOverlay,
-      alpha: 1,
-      duration: success ? 250 : 220,
-      ease: 'Power2'
-    });
-
-    this.scene.tweens.add({
-      targets: this.resultContainer,
-      alpha: 1,
-      y: centerY - 8,
-      duration: success ? 320 : 280,
-      ease: 'Back.Out'
-    });
-  }
+  // -------------------------------------------------------------------------
+  // Sprzątanie
+  // -------------------------------------------------------------------------
 
   destroy() {
     if (this.destroyed) {
@@ -1260,6 +1690,11 @@ export class HiddenObjectsUI {
     this.sleepWaitEvent?.remove(false);
     this.sleepWaitEvent = null;
 
+    this.typeEvent?.remove(false);
+    this.typeEvent = null;
+
+    this.stopLowTimePulse();
+
     this.removeHintModal();
     this.clearHintMarker();
     this.unlockGameplay();
@@ -1274,6 +1709,7 @@ export class HiddenObjectsUI {
     }
 
     this.ownedObjects = [];
+    this.rows.clear();
 
     this.resultOverlay?.destroy();
     this.resultContainer?.destroy();
@@ -1282,11 +1718,14 @@ export class HiddenObjectsUI {
     this.resultContainer = null;
 
     this.timerText = null;
+    this.timerBar = null;
     this.scoreText = null;
     this.missesText = null;
-    this.listText = null;
+    this.tally = null;
+    this.counterText = null;
     this.messageText = null;
     this.backBtn = null;
     this.hintBtn = null;
+    this.hintLabel = null;
   }
 }

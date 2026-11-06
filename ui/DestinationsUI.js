@@ -4,6 +4,8 @@ import { DestinationNavigation } from './DestinationNavigation.js';
 import { DestinationMap } from './DestinationMap.js';
 import { DestinationPanel } from './DestinationPanel.js';
 import { DestinationTravel } from './DestinationTravel.js';
+import { DestinationWorldMap } from './DestinationWorldMap.js';
+import { getDestinationTheme } from './DestinationMeta.js';
 
 export class DestinationsUI {
   constructor(scene) {
@@ -21,10 +23,8 @@ export class DestinationsUI {
 
     this.selectedCity = null;
     this.selectedPin = null;
-    this.selectedLabel = null;
     this.selectedTransport = null;
 
-    this.routePreview = null;
     this.travelErrorTimer = null;
 
     // A committed journey must not be purchased again
@@ -49,6 +49,11 @@ export class DestinationsUI {
 
     const { width, height } = scene.scale;
 
+    // "agency" = modern spy grid, "pi" = expedition map.
+    // Subclasses choose the look by overriding getMapTheme().
+    const themeId = this.getMapTheme();
+    this.theme = getDestinationTheme(themeId);
+
     this.container = scene.add
       .container(0, 0)
       .setDepth(1800)
@@ -65,19 +70,21 @@ export class DestinationsUI {
 
     this.container.add(this.overlay);
 
-    this.mapImage = scene.add
-      .image(width / 2, height / 2, 'mapbg')
-      .setDisplaySize(width, height)
-      .setInteractive();
+    // Painted world map (replaces the old 'mapbg' picture).
+    this.worldMap = new DestinationWorldMap(scene, this.container, {
+      themeId,
+      width,
+      height
+    });
 
     // The map blocks clicks from reaching the background overlay.
-    this.container.add(this.mapImage);
+    this.mapImage = this.worldMap.baseImage;
 
     this.closeBtn = scene.add
       .text(width - 100, 75, 'X', {
         fontFamily: 'SpecialElite',
         fontSize: '48px',
-        color: '#fbff00'
+        color: this.theme.closeColor
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -97,6 +104,12 @@ export class DestinationsUI {
       Phaser.Scenes.Events.SHUTDOWN,
       this.boundShutdownHandler
     );
+  }
+
+  // Overridden by PIOfficeDestinationsUI. Must not depend on instance state:
+  // it is called from the base constructor.
+  getMapTheme() {
+    return 'agency';
   }
 
   registerKeyboard() {
@@ -149,6 +162,7 @@ export class DestinationsUI {
 
     this.isOpen = true;
     this.container.setVisible(true);
+    this.worldMap?.activate();
 
     EventBus.emit('hideHUD');
 
@@ -213,6 +227,7 @@ export class DestinationsUI {
 
     this.isOpen = false;
     this.container.setVisible(false);
+    this.worldMap?.deactivate();
 
     this.clearPins();
     this.resetSelectionState();
@@ -245,16 +260,16 @@ export class DestinationsUI {
   resetSelectionState() {
     this.clearTravelErrorTimer();
 
+    this.selectedPin?.setSelected?.(false);
+
     this.selectedCity = null;
     this.selectedPin = null;
-    this.selectedLabel = null;
     this.selectedTransport = null;
     this.canConfirm = false;
 
     this.clearTransportButtons();
 
-    this.routePreview?.destroy();
-    this.routePreview = null;
+    this.worldMap?.clearRoute();
   }
 
   destroy() {
@@ -277,8 +292,9 @@ export class DestinationsUI {
     this.clearPins();
     this.clearTransportButtons();
 
-    this.routePreview?.destroy();
-    this.routePreview = null;
+    this.worldMap?.destroy();
+    this.worldMap = null;
+    this.mapImage = null;
 
     this.container?.destroy(true);
     this.container = null;
@@ -293,7 +309,6 @@ export class DestinationsUI {
 
     this.selectedCity = null;
     this.selectedPin = null;
-    this.selectedLabel = null;
     this.selectedTransport = null;
 
     this.gameState = null;

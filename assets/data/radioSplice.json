@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "title": "JM-041 / RADIO TRANSCRIPT RECONSTRUCTION",
+  "minimumCompletedMissions": 11,
+  "requiredFlags": [
+    "holly_prior_search_confirmed",
+    "mission_radio_review_after_eleven_unlocked"
+  ],
+  "slotCount": 6,
+  "provenance": "Archive-supplied working transcript, divided into six fragments. No original audio is attached in this build. Speaker labels identify channels, not authenticated individuals.",
+  "report": "WORKING MISSION SUMMARY: The transport followed the dispatch plan until radio contact was lost. No useful further instructions were recorded in this summary.",
+  "clips": [
+    {
+      "id": "warning",
+      "label": "FRAGMENT A",
+      "speaker": "TRANSPORT",
+      "text": "Handover postponed, acknowledged. We have an equipment warning. Request immediate assistance.",
+      "audio": null
+    },
+    {
+      "id": "redirect",
+      "label": "FRAGMENT B",
+      "speaker": "CONTROL CHANNEL / VOICE UNVERIFIED",
+      "text": "Transport, disregard the scheduled route. Use the alternate approach.",
+      "audio": null
+    },
+    {
+      "id": "airborne",
+      "label": "FRAGMENT C",
+      "speaker": "TRANSPORT",
+      "text": "Control, transport airborne. Confirm the scheduled route.",
+      "audio": null
+    },
+    {
+      "id": "standby",
+      "label": "FRAGMENT D",
+      "speaker": "CONTROL CHANNEL / VOICE UNVERIFIED",
+      "text": "Equipment warning received. Stand by.",
+      "audio": null
+    },
+    {
+      "id": "handover_query",
+      "label": "FRAGMENT E",
+      "speaker": "TRANSPORT",
+      "text": "Alternate approach acknowledged. Request confirmation of the cargo handover point.",
+      "audio": null
+    },
+    {
+      "id": "postpone",
+      "label": "FRAGMENT F",
+      "speaker": "CONTROL CHANNEL / VOICE UNVERIFIED",
+      "text": "Cargo handover is postponed. Hold for further instructions.",
+      "audio": null
+    }
+  ],
+  "correctOrder": [
+    "airborne",
+    "redirect",
+    "handover_query",
+    "postpone",
+    "warning",
+    "standby"
+  ],
+  "conclusions": [
+    {
+      "id": "changed_instructions",
+      "label": "INSTRUCTIONS CHANGED",
+      "explanation": "The transcript includes a route change and postponed handover, which the working summary omits."
+    },
+    {
+      "id": "complete_summary",
+      "label": "SUMMARY IS COMPLETE",
+      "explanation": "Compare the alternate-approach instruction and postponed handover with the summary's claim."
+    },
+    {
+      "id": "speaker_identified",
+      "label": "SPEAKER IDENTIFIED",
+      "explanation": "A channel label and transcript do not authenticate the individual speaking."
+    }
+  ],
+  "correctConclusion": "changed_instructions",
+  "success": "The reconstructed transcript contains a route change and postponed cargo handover absent from the working summary. It does not authenticate the speaker, identify a saboteur or locate John. Compare the primary archive material with Alex's retained copy after mission twelve.",
+  "messages": {
+    "complete": "Radio transcript reconstructed. Next: mission twelve, then compare the archive material with Alex's retained copy.",
+    "unfinished": "Your radio reconstruction is saved. You can return to it later.",
+    "loadFailed": "The radio reconstruction could not be opened. Nothing was lost.",
+    "saveFailed": "Automatic saving failed. Progress remains in memory; save manually before closing."
+  }
+}

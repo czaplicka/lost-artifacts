@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "source": {
+    "title": "HOW DO YOU ACCOUNT FOR YOUR INFORMATION?",
+    "intro": "Gordon studies your request. “Before we discuss authorization: what are you prepared to put on the record about your source?”",
+    "choices": [
+      {
+        "id": "own_inquiry",
+        "label": "Keep the request focused on my findings. Do not identify a source.",
+        "requires": "always",
+        "reply": [
+          "Your findings are yours to submit. I am not asking you to invent an authorization you do not possess.",
+          "Put the discrepancy through the proper channel. You are still not getting restricted records in this meeting."
+        ],
+        "reflection": "You did not identify Marge or show a restricted extract.",
+        "effect": "source_protected"
+      },
+      {
+        "id": "official_reference",
+        "label": "Cite the authorized index reference Marge pointed me to.",
+        "requires": "official",
+        "reply": [
+          "An index reference establishes which authorization you want checked. It does not grant access to the underlying operation.",
+          "You used the formal route. Keep using it."
+        ],
+        "reflection": "You relied on the official reference, not on a confidential disclosure.",
+        "effect": "official_reference_used"
+      },
+      {
+        "id": "name_marge",
+        "label": "Name Marge as the person who confirmed your alias.",
+        "requires": "confidential",
+        "reply": [
+          "Marge confirmed it? Then I will ask HR what was disclosed.",
+          "Do not confuse naming your source with verifying the insurance entry. Those remain different questions."
+        ],
+        "reflection": "You identified Marge after promising to protect her name. Gordon has said he will ask HR about the disclosure.",
+        "effect": "promise_broken_by_name"
+      },
+      {
+        "id": "show_extract",
+        "label": "Show the restricted administrative extract Marge supplied.",
+        "requires": "extract",
+        "reply": [
+          "That extract is restricted. Its circulation will need to be accounted for.",
+          "It identifies an administrative filing arrangement. It does not prove who typed the insurance entry, and it does not authorize you to inspect search records."
+        ],
+        "reflection": "You showed the restricted extract. You did not say Marge’s name, but its circulation may expose her help.",
+        "effect": "restricted_extract_exposed"
+      }
+    ]
+  },
+  "privacy": {
+    "title": "A FILE IS NOT AN INVITATION",
+    "intro": "The folder contains routine office paperwork and a sealed personal letter marked PRIVATE. Nothing visible links the letter to John, the artifact or the insurance entry.",
+    "letter": "Please do not sell the family house to cover the theatre’s debts. You have already paid more of its rent than anyone knows. I would rather close the place than let you lose everything keeping it open. And please stop telling me that a deficit is just a budget wearing a disguise.",
+    "choices": [
+      {
+        "id": "leave_sealed",
+        "label": "Leave the personal letter sealed.",
+        "result": "You leave the personal correspondence untouched. The routine paperwork establishes nothing about John.",
+        "effect": "privacy_respected"
+      },
+      {
+        "id": "read_only",
+        "label": "Read the private letter, but do not copy it.",
+        "result": "You read a family appeal about Gordon’s financial support for a theatre. It reveals vulnerability, not evidence about John. You do not make a copy.",
+        "effect": "private_letter_read"
+      },
+      {
+        "id": "copy_notes",
+        "label": "Read it and copy its wording into your private notes.",
+        "result": "You copy the personal letter. It is potentially useful pressure material, but it is not evidence in the investigation.",
+        "effect": "private_letter_copied"
+      }
+    ]
+  },
+  "messages": {
+    "sourceRecorded": "Your source decision is recorded. The meeting still follows its original questions and refusal.",
+    "privacyRecorded": "The search decision is recorded. The safe is still locked.",
+    "locked": "This choice is not available at the current story stage.",
+    "savedFailed": "Progress changed in this session, but saving failed. Save manually before closing the game.",
+    "notNow": "No decision recorded.",
+    "legacy": "No new source decision is required for a meeting already completed in an older save."
+  }
+}

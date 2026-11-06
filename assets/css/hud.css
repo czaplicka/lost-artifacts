@@ -1,3 +1,8 @@
+/* ═══════════════════════════════════════════════════════
+   Lost Artifacts — HUD Styles
+   Detective noir theme with warm paper & dark wood.
+   ═══════════════════════════════════════════════════════ */
+
 #hud-container,
 #hud-container * {
   box-sizing: border-box;
@@ -9,26 +14,34 @@
   right: 10px;
   z-index: 2000;
   display: block;
-  width: min(calc(100% - 20px), 560px);
-  padding: 8px;
+  width: min(calc(100% - 20px), 580px);
+  padding: 10px;
   color: #2b1e16;
-  background: #2b1e16;
-  border: 3px solid #1a0f0a;
-  border-radius: 8px;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 70%);
+  background:
+    linear-gradient(135deg, #2f2117 0%, #1a0f0a 60%, #241811 100%);
+  border: 3px solid #4a3525;
+  border-radius: 10px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 240, 200, 0.06);
   font-family: 'Courier New', monospace;
   user-select: none;
 }
 
+/* ═══ Top row: paper panel with clock, date, deadline, energy ═══ */
 .hud-paper-bg {
   display: grid;
-  grid-template-columns: 1.05fr 0.85fr 1fr 0.8fr;
+  grid-template-columns: 1.1fr 0.8fr 1fr 0.75fr;
   align-items: center;
-  min-height: 72px;
-  padding: 7px 8px;
-  background: #f1e4c3;
+  min-height: 78px;
+  padding: 9px 10px;
+  background:
+    linear-gradient(180deg, #f5ecd5 0%, #e8dabb 50%, #f1e4c3 100%);
   border: 1px solid #bfa074;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hud-cell {
@@ -36,8 +49,8 @@
   align-items: center;
   justify-content: center;
   min-width: 0;
-  min-height: 54px;
-  padding: 0 8px;
+  min-height: 58px;
+  padding: 0 10px;
   border-right: 1px solid #cfb58d;
 }
 
@@ -50,30 +63,33 @@
 #deadline-target,
 #energy-target,
 #score-target,
+#xp-target,
 #cash-target {
   cursor: help;
 }
 
-/* Clock */
+/* ═══ Digital Clock ═══ */
 .digital-clock-display {
-  min-width: 76px;
-  padding: 7px 8px 6px;
+  min-width: 80px;
+  padding: 8px 10px 7px;
   text-align: center;
   background: #091209;
   border: 2px solid #2b1e16;
-  border-radius: 4px;
-  box-shadow: inset 0 0 6px rgb(0 0 0 / 90%);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 0 8px rgba(0, 0, 0, 0.9),
+    0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .clock-digital {
   display: block;
   color: #53ff53;
   font-family: 'Courier New', monospace;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   line-height: 1;
-  text-shadow: 0 0 4px rgb(83 255 83 / 70%);
+  text-shadow: 0 0 6px rgba(83, 255, 83, 0.7);
 }
 
 .clock-period {
@@ -82,24 +98,27 @@
   color: #42a842;
   font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   line-height: 1;
+  text-shadow: 0 0 3px rgba(66, 168, 66, 0.5);
 }
 
-/* Calendar */
+/* ═══ Calendar Card ═══ */
 .calendar-card {
   position: relative;
-  width: 52px;
+  width: 54px;
   overflow: visible;
   background: #fffcf2;
   border: 2px solid #2b1e16;
-  border-radius: 4px;
-  box-shadow: 1px 2px 0 rgb(43 30 22 / 25%);
+  border-radius: 5px;
+  box-shadow:
+    2px 3px 0 rgba(43, 30, 22, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .calendar-rings {
   position: absolute;
-  top: -4px;
+  top: -5px;
   right: 0;
   left: 0;
   z-index: 2;
@@ -108,64 +127,66 @@
 }
 
 .calendar-rings span {
-  width: 6px;
-  height: 8px;
+  width: 7px;
+  height: 9px;
   background: #1a0f0a;
   border: 1px solid #f1e4c3;
   border-radius: 2px;
 }
 
 .date-header {
-  padding: 5px 0 4px;
+  padding: 6px 0 4px;
   color: #fff7df;
-  background: #a82418;
+  background: linear-gradient(180deg, #c22e1f 0%, #a82418 100%);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   line-height: 1;
   text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .date-body {
-  padding: 5px 0 4px;
+  padding: 6px 0 5px;
   color: #2b1e16;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1;
   text-align: center;
 }
 
-/* Deadline: hourglass + compact progress */
+/* ═══ Deadline: hourglass + progress bar ═══ */
 .hourglass-wrapper {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .hourglass-icon {
   flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   fill: #5a3e2b;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
 }
 
 .deadline-info {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  min-width: 43px;
+  min-width: 46px;
 }
 
 .deadline-value {
   color: #2b1e16;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
 }
 
 .deadline-progress-bg {
-  width: 42px;
-  height: 5px;
+  width: 44px;
+  height: 6px;
   overflow: hidden;
   background: #d8caad;
   border: 1px solid #947a58;
@@ -180,24 +201,25 @@
   transition: width 280ms ease, background-color 280ms ease;
 }
 
-/* Energy: SVG circle MUST use stroke/fill, not color. */
+/* ═══ Energy: SVG circle + bolt ═══ */
 .energy-wrapper {
   position: relative;
   display: flex;
-  flex: 0 0 48px;
+  flex: 0 0 52px;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   cursor: pointer;
 }
 
 .energy-circle {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   overflow: visible;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
 }
 
 .energy-bg,
@@ -223,8 +245,8 @@
   top: 50%;
   left: 50%;
   z-index: 2;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
@@ -263,16 +285,19 @@
   50% { transform: translateX(3px); }
 }
 
-/* Bottom row */
+/* ═══ Bottom row: stats + action buttons ═══ */
 .hud-bottom-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 44px;
-  margin-top: 6px;
-  padding: 7px 10px;
-  background: #1a0f0a;
-  border-radius: 4px;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background:
+    linear-gradient(180deg, #1e140e 0%, #1a0f0a 100%);
+  border: 1px solid #3a2a1e;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.04);
 }
 
 .stat-group,
@@ -288,23 +313,38 @@
 .stat-item {
   display: flex;
   align-items: baseline;
-  gap: 7px;
-  min-width: 100px;
+  gap: 6px;
   font-size: 12px;
   font-weight: 700;
 }
 
+.stat-item .stat-icon {
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
 .stat-item .label {
   color: #a28970;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .stat-item .value {
   color: #fff7df;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .stat-item .value.score {
   color: #ee9b00;
+}
+
+.stat-item .value.xp {
+  color: #ffd166;
 }
 
 .stat-item .value.cash {
@@ -313,60 +353,72 @@
 
 .stat-divider {
   width: 1px;
-  height: 20px;
-  background: #4a3525;
+  height: 22px;
+  background: linear-gradient(180deg, transparent 0%, #4a3525 50%, transparent 100%);
 }
 
+/* ═══ Action buttons ═══ */
 .hud-buttons {
-  gap: 9px;
+  gap: 8px;
 }
 
 .hud-icon-btn {
-  width: 29px;
-  height: 29px;
-  padding: 2px;
+  width: 32px;
+  height: 32px;
+  padding: 3px;
   object-fit: contain;
   cursor: pointer;
   background: #2b1e16;
-  border: 1px solid #8c684d;
+  border: 1.5px solid #8c684d;
   border-radius: 50%;
-  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .hud-icon-btn:hover {
   background: #4a3525;
   border-color: #e0bd82;
-  transform: translateY(-1px) scale(1.08);
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* Tooltip and energy log. pointer-events:none stops hover flicker. */
+.hud-icon-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.hud-icon-btn:focus-visible {
+  outline: 2px solid #ffd166;
+  outline-offset: 2px;
+}
+
+/* ═══ Tooltip + energy log ═══ */
 .hud-tooltip,
 .hud-energy-log {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
   z-index: 2100;
-
   display: none;
-
   width: min(680px, calc(100vw - 20px));
   min-width: min(480px, calc(100vw - 20px));
   max-width: calc(100vw - 20px);
-
   padding: 14px 18px;
-
   color: #f1e4c3;
-  background: #1a0f0a;
+  background:
+    linear-gradient(180deg, #201510 0%, #1a0f0a 100%);
   border: 1px solid #8c684d;
-  border-radius: 6px;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 80%);
-
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
   font-family: 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.5;
   letter-spacing: 0.15px;
   white-space: pre-line;
-
   pointer-events: none;
 }
 
@@ -375,25 +427,99 @@
   display: block;
 }
 
-.hud-tooltip {
-  border-color: #8c684d;
-}
-
 .hud-energy-log {
   color: #fff1d3;
   border-color: #a82418;
-  background: #2a120d;
+  background:
+    linear-gradient(180deg, #301812 0%, #2a120d 100%);
 }
 
-.hud-tooltip.visible,
-.hud-energy-log.visible {
-  display: block;
+.hud-tooltip-title {
+  margin-bottom: 7px;
+  color: #ffd166;
+  font-family: 'SpecialElite', 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.hud-energy-log {
-  border-color: #a82418;
+#hud-tooltip-text {
+  color: #f1e4c3;
 }
 
+/* ═══ Expand button (collapsed state) ═══ */
+.hud-expand-btn {
+  display: none;
+  width: 46px;
+  height: 46px;
+  background: #2b1e16;
+  border: 2px solid #8c684d;
+  border-radius: 10px;
+  color: #f1e4c3;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 240, 200, 0.06);
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.hud-expand-btn:hover {
+  background: #4a3525;
+  border-color: #e0bd82;
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* ═══ Collapse button ═══ */
+.hud-collapse-btn {
+  width: 32px;
+  height: 32px;
+  background: #2b1e16;
+  border: 1.5px solid #8c684d;
+  border-radius: 50%;
+  color: #f1e4c3;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.hud-collapse-btn:hover {
+  background: #a82418;
+  border-color: #e0bd82;
+}
+
+/* ═══ Collapsed state ═══ */
+#hud-container.collapsed {
+  width: auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+#hud-container.collapsed .hud-content {
+  display: none !important;
+}
+
+#hud-container.collapsed .hud-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#hud-container.collapsed .hud-tooltip,
+#hud-container.collapsed .hud-energy-log {
+  display: none !important;
+}
+
+/* ═══ Responsive: medium screens ═══ */
 @media (max-width: 540px) {
   #hud-container {
     right: 6px;
@@ -426,80 +552,20 @@
     gap: 8px;
   }
 }
-/* Styling dla ikony otwarcia (zwiniętego panelu) */
-.hud-expand-btn {
-  display: none;
-  width: 42px;
-  height: 42px;
-  background: #2b1e16;
-  border: 2px solid #8c684d;
-  border-radius: 8px;
-  color: #f1e4c3;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
 
-.hud-expand-btn:hover {
-  background: #4a3525;
-  border-color: #e0bd82;
-  transform: scale(1.05);
-}
+/* ═══ Reduced motion ═══ */
+@media (prefers-reduced-motion: reduce) {
+  .energy-fill,
+  .deadline-progress-fill,
+  .hud-icon-btn,
+  .hud-expand-btn,
+  .hud-collapse-btn {
+    transition: none !important;
+  }
 
-/* Przycisk zwijania wewnątrz dolnego paska */
-.hud-collapse-btn {
-  width: 29px;
-  height: 29px;
-  background: #2b1e16;
-  border: 1px solid #8c684d;
-  border-radius: 50%;
-  color: #f1e4c3;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
-.hud-collapse-btn:hover {
-  background: #a82418;
-  border-color: #e0bd82;
-}
-
-/* Stan zwinięty (COLLAPSED) */
-#hud-container.collapsed {
-  width: auto !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-#hud-container.collapsed .hud-content {
-  display: none !important;
-}
-
-#hud-container.collapsed .hud-expand-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#hud-container.collapsed .hud-tooltip,
-#hud-container.collapsed .hud-energy-log {
-  display: none !important;
-}
-.hud-tooltip-title {
-  margin-bottom: 7px;
-  color: #ffd166;
-  font-family: 'SpecialElite', 'Courier New', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-#hud-tooltip-text {
-  color: #f1e4c3;
+  .energy-wrapper.low-energy,
+  .energy-wrapper.flash-warning,
+  .energy-wrapper.shake-zero {
+    animation: none !important;
+  }
 }

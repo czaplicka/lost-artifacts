@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 12,
+  "requiredFlags": [
+    "john_radio_transcript_reconstructed",
+    "microfilm_comparison_after_twelve_unlocked"
+  ],
+  "intro": [
+    "I found the duplicate reel I kept from the incident paperwork. It includes a later contact amendment, not just the original flight record.",
+    "I never had a reader. A strip of tiny rectangles is not a forwarding address. I still do not know where John is.",
+    "Take it to Drebin. Compare the record identifiers before comparing the fields. I would prefer not to confess to two unrelated filing errors."
+  ],
+  "leftFrames": [
+    {
+      "id": "cargo",
+      "title": "CARGO INDEX",
+      "rows": {
+        "mission": "JM-041",
+        "city": "Not a contact entry",
+        "contact": "Cargo handover",
+        "status": "Transport record"
+      },
+      "image": null
+    },
+    {
+      "id": "contact",
+      "title": "CONTACT AMENDMENT",
+      "rows": {
+        "mission": "JM-041",
+        "city": "[redacted]",
+        "contact": "[not indexed]",
+        "status": "No usable address"
+      },
+      "image": null
+    },
+    {
+      "id": "recovery",
+      "title": "RECOVERY INDEX",
+      "rows": {
+        "mission": "JM-041",
+        "city": "Crash site reference",
+        "contact": "JM-041-R",
+        "status": "Wreckage located"
+      },
+      "image": null
+    }
+  ],
+  "rightFrames": [
+    {
+      "id": "recovery",
+      "title": "RECOVERY INDEX",
+      "rows": {
+        "mission": "JM-041",
+        "city": "Crash site reference",
+        "contact": "JM-041-R",
+        "status": "Wreckage located"
+      },
+      "image": null
+    },
+    {
+      "id": "cargo",
+      "title": "CARGO INDEX",
+      "rows": {
+        "mission": "JM-041",
+        "city": "Not a contact entry",
+        "contact": "Cargo handover",
+        "status": "Transport record"
+      },
+      "image": null
+    },
+    {
+      "id": "contact",
+      "title": "CONTACT AMENDMENT",
+      "rows": {
+        "mission": "JM-041",
+        "city": "Warsaw",
+        "contact": "WAW-17",
+        "status": "Post-incident contact retained"
+      },
+      "image": null
+    }
+  ],
+  "labels": {
+    "mission": "Related mission",
+    "city": "Contact city",
+    "contact": "Contact reference",
+    "status": "Amendment status"
+  },
+  "targetFrame": "contact",
+  "differenceFields": [
+    "city",
+    "contact",
+    "status"
+  ],
+  "focusTarget": 0.6,
+  "focusTolerance": 0.12,
+  "destinations": [
+    {
+      "id": "paris",
+      "label": "Paris"
+    },
+    {
+      "id": "warsaw",
+      "label": "Warsaw"
+    },
+    {
+      "id": "toronto",
+      "label": "Toronto"
+    }
+  ],
+  "correctCityId": "warsaw",
+  "contactReference": "WAW-17",
+  "success": "The retained contact amendment names Warsaw and reference WAW-17. This is the lead for finding John; it does not record an in-person meeting or identify who tried to harm him.",
+  "messages": {
+    "ready": "Ask Alex for his retained reel, then compare it in the archive.",
+    "complete": "Warsaw lead recorded. Next: travel to Warsaw and follow contact reference WAW-17.",
+    "unfinished": "Microfilm progress saved. Return to the reader when ready.",
+    "saveFailed": "Saving failed. Progress remains in memory; save manually before closing.",
+    "loadFailed": "The microfilm view could not be opened. Nothing was lost."
+  }
+}

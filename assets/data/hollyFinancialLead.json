@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 8,
+  "requiredFlags": [
+    "holly_informed_staged_disappearance",
+    "holly_financial_lead_conversation_unlocked"
+  ],
+  "offer": "Holly knows the crash concealed John's escape. Discuss continuing the search and what records she can provide.",
+  "unavailable": "Tell Holly about the staged disappearance before discussing this next lead.",
+  "lines": [
+    {
+      "speaker": "Holly",
+      "text": "I have thought about what you told me. I still want you to find John."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Then we need a trail beyond the aircraft. The records show how he left, not where he went."
+    },
+    {
+      "speaker": "Holly",
+      "text": "Would financial records help? There are payments and correspondence in my own files."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "They could give us leads. Can you supply copies of records you are authorized to share? Statements, receipts, payment references. No passwords."
+    },
+    {
+      "speaker": "Holly",
+      "text": "Yes. I agree to provide copies from my records for this investigation."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "I will keep the source clear. Supplied copies are not unrestricted access to somebody else's bank account."
+    },
+    {
+      "speaker": "Holly",
+      "text": "Understood. Do you need originals, or will copies do?"
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Start with copies and keep the originals. Half the agency still treats carbon paper as emerging technology."
+    },
+    {
+      "speaker": "Holly",
+      "text": "All right. Please keep looking for him."
+    },
+    {
+      "speaker": "SYSTEM",
+      "text": "The scope is recorded: documents Holly supplies for the investigation. No live account access, bank credentials or conclusion about her earlier knowledge has been established."
+    }
+  ],
+  "resultTitle": "SEARCH CONTINUATION RECORDED",
+  "nextTitle": "NEXT / AGENCY MISSION NINE",
+  "objective": "Complete agency mission nine, then attend the agency's medical review.",
+  "messages": {
+    "complete": "Holly agreed to continue the search and supply financial-record copies. Next: mission nine, then the agency medical review.",
+    "saveFailed": "Saving failed. Progress is in memory; save manually before closing.",
+    "loadFailed": "The call could not be opened. Try the telephone in your PI office again."
+  }
+}

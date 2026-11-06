@@ -1,22 +1,6 @@
 {
   "assets": [
     {
-      "key": "Reed_conference",
-      "url": "assets/side_quests/Reed/conference.webp",
-      "type": "image",
-      "groups": [
-        "sidequests"
-      ]
-    },
-    {
-      "key": "Reed_terrace",
-      "url": "assets/side_quests/Reed/terrace.webp",
-      "type": "image",
-      "groups": [
-        "sidequests"
-      ]
-    },
-    {
       "key": "dead_mail_administration",
       "url": "assets/side_quests/Halloween/dead_mail_administration.webp",
       "type": "image",
@@ -145,6 +129,14 @@
       ]
     },
     {
+      "key": "dead_men_blue_file",
+      "url": "assets/side_quests/Dead-men/blue_file.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
       "key": "dead_men_colin",
       "url": "assets/side_quests/Dead-men/Colin.webp",
       "type": "image",
@@ -153,8 +145,8 @@
       ]
     },
     {
-      "key": "dead_men_blue_file",
-      "url": "assets/side_quests/Dead-men/blue_file.webp",
+      "key": "dead_men_margaret_edward",
+      "url": "assets/side_quests/Dead-men/Margaret_Edwarda.webp",
       "type": "image",
       "groups": [
         "sidequests"
@@ -169,8 +161,16 @@
       ]
     },
     {
-      "key": "dead_men_margaret_edward",
-      "url": "assets/side_quests/Dead-men/Margaret_Edwarda.webp",
+      "key": "Reed_conference",
+      "url": "assets/side_quests/Reed/conference.webp",
+      "type": "image",
+      "groups": [
+        "sidequests"
+      ]
+    },
+    {
+      "key": "Reed_terrace",
+      "url": "assets/side_quests/Reed/terrace.webp",
       "type": "image",
       "groups": [
         "sidequests"

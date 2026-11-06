@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "speaker": "Commissioner Gordon",
+  "opening": [
+    {
+      "speaker": "Commissioner Gordon",
+      "text": "That is an impressive amount of effort to inspect my stationery."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "The records do not agree. You refused to explain why."
+    },
+    {
+      "speaker": "Commissioner Gordon",
+      "text": "And you mistook that for permission to open my safe. Close it. Then ask your questions."
+    }
+  ],
+  "topics": [
+    {
+      "id": "wreckage",
+      "label": "The wreckage was found?",
+      "factFlag": "gordon_wreckage_recovery_disclosed",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "Alex said the crash site had not been located. Was the wreckage found afterwards?"
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "Yes. A later search located the wreckage. The account you read did not contain the subsequent recovery findings."
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "Then the original mission report is not the whole record."
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "Correct. An incomplete account is not permission to invent its missing pages."
+        }
+      ]
+    },
+    {
+      "id": "missing",
+      "label": "What about John and the artifact?",
+      "factFlag": "gordon_body_and_artifact_missing_disclosed",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "Were John's remains recovered? Was the artifact there?"
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "Neither John's body nor the artifact was recovered from the wreckage."
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "That does not establish whether he died there."
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "No. Nor does it establish that he survived. Keep those statements separate."
+        }
+      ]
+    },
+    {
+      "id": "sabotage",
+      "label": "Sabotage and the separate record",
+      "factFlag": "gordon_sabotage_disclosed",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "What did the later examination establish about the crash?"
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "The aircraft had been sabotaged. That finding belongs to the separately registered follow-up, not the original mission entry."
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "So the archive needs a different reference. I have been looking under the mission number."
+        },
+        {
+          "speaker": "Commissioner Gordon",
+          "text": "Ask Drebin to cross-reference the recovery and technical follow-up. Do not treat a different registration as evidence that you already know who caused it."
+        }
+      ]
+    }
+  ],
+  "closing": [
+    {
+      "speaker": "DETECTIVE",
+      "text": "I will check the archive's follow-up records. Properly, this time."
+    },
+    {
+      "speaker": "Commissioner Gordon",
+      "text": "An ambitious experiment. Begin by using the door instead of dismantling it."
+    }
+  ],
+  "objective": "Ask Drebin to cross-reference the original mission with the wreckage recovery and technical follow-up.",
+  "summary": "Gordon states that the wreckage was found later. Neither John's body nor the artifact was recovered. The aircraft had been sabotaged; the recovery and technical follow-up use a separate registration. This does not establish who caused the sabotage or whether John survived."
+}

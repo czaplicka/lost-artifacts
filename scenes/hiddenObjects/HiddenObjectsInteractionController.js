@@ -2,10 +2,28 @@ const HIDDEN_OBJECT_FOUND_POINTS = 15;
 const HIDDEN_OBJECT_MISS_POINTS = -3;
 const HIDDEN_OBJECT_FOUND_COLOR = '#7CFC00';
 
+const FOUND_VERBS = [
+  'Found:',
+  'Bagged:',
+  'Tagged:',
+  'Gotcha:',
+  'Evidence logged:'
+];
+
+const MISS_LINES = [
+  'Nothing there. Just a very confident wall.',
+  'Bold guess. Wrong, but bold.',
+  'You poked the scenery. It is unimpressed.',
+  'That is not evidence. That is decor.',
+  'The dust bunnies send their regards.',
+  'Close. Not that close.'
+];
+
 export class HiddenObjectsInteractionController {
   constructor(scene) {
     this.scene = scene;
     this.inputEmitter = null;
+    this.lastMissLine = -1;
 
     this.handleGlobalPointerDown =
       this.handleGlobalPointerDown.bind(this);
@@ -105,6 +123,9 @@ export class HiddenObjectsInteractionController {
     scene.score =
       scene.scoreManager.addHiddenObjectScore(points);
 
+    // Czerwone kółko + numerowany znacznik dowodu na obiekcie.
+    this.markFound(zone, points, scene.foundItems.size);
+
     scene.ui.updateScoreAndMisses(
       scene.score,
       scene.incorrectClicks
@@ -127,8 +148,13 @@ export class HiddenObjectsInteractionController {
       );
     }
 
+    const verb =
+      FOUND_VERBS[
+        Math.floor(Math.random() * FOUND_VERBS.length)
+      ];
+
     scene.ui.showMessage(
-      `Found: ${itemData.item} (+${points})`,
+      `${verb} ${itemData.item} (+${points})`,
       HIDDEN_OBJECT_FOUND_COLOR
     );
 
@@ -177,14 +203,29 @@ export class HiddenObjectsInteractionController {
 
     scene.playSfx('wrong', { volume: 0.38 });
 
+    this.markMiss(pointer, HIDDEN_OBJECT_MISS_POINTS);
+
     this.bumpText(scene.ui.missesText);
     this.bumpText(scene.ui.scoreText);
     this.flashScreen(0xff4d4d, 0.12, 120);
 
     scene.ui.showMessage(
-      `Nothing found there. (${HIDDEN_OBJECT_MISS_POINTS})`,
+      `${this.pickMissLine()} (${HIDDEN_OBJECT_MISS_POINTS})`,
       '#ff8a8a'
     );
+  }
+
+  /** Losuje kwestię za pudło, bez powtarzania tej samej dwa razy z rzędu. */
+  pickMissLine() {
+    let index = Math.floor(Math.random() * MISS_LINES.length);
+
+    if (index === this.lastMissLine) {
+      index = (index + 1) % MISS_LINES.length;
+    }
+
+    this.lastMissLine = index;
+
+    return MISS_LINES[index];
   }
 
   recordCollectedCard(id) {
@@ -251,6 +292,17 @@ export class HiddenObjectsInteractionController {
         sceneKey: scene.scene.key
       }
     );
+  }
+
+  markFound(zone, points, order) {
+    this.scene.presentation?.markFound?.(zone, {
+      points,
+      order
+    });
+  }
+
+  markMiss(pointer, points) {
+    this.scene.presentation?.markMiss?.(pointer, points);
   }
 
   pulseZone(zone, color) {

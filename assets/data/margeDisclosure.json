@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "id": "marge_hr_disclosure",
+  "title": "A GIFT IS NOT A CLEARANCE LEVEL",
+  "introLines": [
+    "Before we return to the paperwork: thank you for remembering my birthday.",
+    "That gets you cake. It does not automatically get you somebody else’s personnel file.",
+    "I can point you to the proper record, confirm a limited detail, or consider showing you a restricted administrative attachment. Tell me what you are actually asking for."
+  ],
+  "choicePrompt": "How far do you ask Marge to go?",
+  "confirmLabel": "REQUEST THIS ROUTE",
+  "cancelLabel": "NOT NOW",
+  "messages": {
+    "choiceRequired": "Choose how to request the information first.",
+    "cancelled": "No request confirmed. Marge has not released any new information.",
+    "unavailable": "The requirements changed. Please speak to Marge again.",
+    "confirmed": "Request recorded. New lead: ask Gordon about the operation’s authorization.",
+    "reviewTitle": "Your earlier request to Marge is already recorded."
+  },
+  "commonClue": {
+    "name": "Gordon",
+    "role": "agency_supervisor",
+    "source": "Marge Gunderson"
+  },
+  "choices": [
+    {
+      "id": "official_record",
+      "title": "Use the proper record",
+      "label": "Just point me to the proper record. I won’t put your job at risk.",
+      "summary": "You asked for an authorized route to the alias record, not private personnel material.",
+      "lines": [
+        "Good. An actual request with actual boundaries. HR may survive the afternoon.",
+        "The operation’s authorization index lists “Commissioner” as an old alias used by our supervisor. Gordon. Use that reference to ask him about the authorization.",
+        "This identifies whose approval to ask about. It does not establish who typed the disputed insurance entry, and it is not a finding about John’s fate.",
+        "You have the official reference. You do not have a copy of the restricted attachment."
+      ],
+      "document": {
+        "id": "marge_official_alias_reference",
+        "title": "Authorization index reference",
+        "text": "The authorization index identifies Commissioner as an old alias of supervisor Gordon. This reference does not identify the author of the disputed insurance entry.",
+        "restricted": false
+      },
+      "context": {
+        "sourceMode": "official_reference",
+        "sourceProtectionPromised": false,
+        "restrictedCopy": false,
+        "relationshipTag": "boundaries_respected"
+      }
+    },
+    {
+      "id": "limited_confirmation",
+      "title": "Ask for a limited confirmation",
+      "label": "Confirm one detail without giving me the file. I’ll keep your name out of it.",
+      "summary": "You requested a limited confirmation and promised to protect Marge as the source.",
+      "lines": [
+        "One detail. That is a quantity I can work with.",
+        "Yes. “Commissioner” was an old alias used by Gordon, our supervisor. That is the confirmation, not permission to browse his personnel file.",
+        "The alias and the identity of the person who typed the insurance entry are different questions. Do not turn my answer to one into an answer to both.",
+        "You said you would keep my name out of it. Ask Gordon about the authorization on the strength of your own inquiry. I am not giving you a document copy."
+      ],
+      "document": null,
+      "context": {
+        "sourceMode": "confidential_confirmation",
+        "sourceProtectionPromised": true,
+        "restrictedCopy": false,
+        "relationshipTag": "trust_with_promise"
+      }
+    },
+    {
+      "id": "restricted_copy",
+      "title": "Request the restricted attachment",
+      "label": "I need the restricted administrative attachment. I’ll protect your name.",
+      "summary": "You requested a restricted administrative extract and promised not to expose Marge as its source.",
+      "lines": [
+        "A postcard, followed by a restricted-record request. That is an ambitious birthday tradition.",
+        "I will provide an extract of the administrative attachment, not the private personnel file. It identifies Gordon as the supervisor behind the Commissioner alias.",
+        "The extract also notes that authorization material and later search records are filed separately. It does not tell you what the search found. You still have to ask Gordon.",
+        "This is not proof of who typed the disputed insurance entry, or of what happened to John.",
+        "The extract is restricted. Showing it may reveal that somebody in HR helped you. You promised to protect my name; that promise now has paperwork attached."
+      ],
+      "document": {
+        "id": "marge_restricted_administrative_extract",
+        "title": "Restricted administrative extract",
+        "text": "Commissioner: alias associated with supervisor Gordon. The authorization material and subsequent search records are filed separately. No search result or authorship of the disputed insurance entry is established by this extract.",
+        "restricted": true
+      },
+      "context": {
+        "sourceMode": "restricted_extract",
+        "sourceProtectionPromised": true,
+        "restrictedCopy": true,
+        "relationshipTag": "trust_at_risk"
+      }
+    }
+  ]
+}

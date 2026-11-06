@@ -460,7 +460,7 @@
     "background": "tokyo.webp",
     "npcTheme": "asian",
     "map": { "x": 1530, "y": 380 },
-    "isCrimeCity": false,
+    "isCrimeCity": true,
     "encounterSlots": [
       { "id": "slot_1", "cityX": 260, "cityY": 390, "enabled": true },
       { "id": "slot_2", "cityX": 560, "cityY": 470, "enabled": true },

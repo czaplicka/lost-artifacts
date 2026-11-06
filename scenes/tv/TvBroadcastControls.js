@@ -1,11 +1,9 @@
+import { TV_BUTTON_OVERRIDES } from './TvBroadcastControlsConfig.js';
+
 const LOCAL_DEBUG_ALLOWED = [
   'localhost',
   '127.0.0.1'
 ].includes(window.location.hostname);
-
-// Po ustawieniu przycisków skopiuj tutaj wynik z konsoli (klawisz D, potem C).
-// null oznacza domyślne pozycje wyliczane z layoutu.
-const TV_BUTTON_OVERRIDES = null;
 
 export class TvBroadcastControls {
   constructor(scene, options = {}) {
@@ -71,7 +69,6 @@ export class TvBroadcastControls {
       tvHeight * 0.43 -
       20;
 
-    // Gałki: pozycje przybliżone, skalibruj klawiszem D (lokalnie).
     const knobY = y - tvHeight * 0.021;
     const knobDx = tvWidth * 0.3;
     const knobSize = 130;
@@ -98,8 +95,16 @@ export class TvBroadcastControls {
     });
 
     const knobs = [
-      { id: 'volume', action: this.onVolume, x: centerX - knobDx },
-      { id: 'tune', action: this.onTune, x: centerX + knobDx }
+      {
+        id: 'volume',
+        action: this.onVolume,
+        x: centerX - knobDx
+      },
+      {
+        id: 'tune',
+        action: this.onTune,
+        x: centerX + knobDx
+      }
     ];
 
     knobs.forEach(knob => {
@@ -185,8 +190,22 @@ export class TvBroadcastControls {
 
     const glow = (
       config.shape === 'round'
-        ? this.scene.add.ellipse(cfg.x, cfg.y, cfg.w, cfg.h, 0xffffff, 0)
-        : this.scene.add.rectangle(cfg.x, cfg.y, cfg.w, cfg.h, 0xffffff, 0)
+        ? this.scene.add.ellipse(
+            cfg.x,
+            cfg.y,
+            cfg.w,
+            cfg.h,
+            0xffffff,
+            0
+          )
+        : this.scene.add.rectangle(
+            cfg.x,
+            cfg.y,
+            cfg.w,
+            cfg.h,
+            0xffffff,
+            0
+          )
     )
       .setDepth(29)
       .setBlendMode(Phaser.BlendModes.ADD);
@@ -199,12 +218,12 @@ export class TvBroadcastControls {
 
     const label = LOCAL_DEBUG_ALLOWED
       ? this.scene.add.text(0, 0, '', {
-        fontFamily: 'SpecialElite, monospace',
-        fontSize: '16px',
-        color: '#ffffff',
-        backgroundColor: '#191b16',
-        padding: { x: 6, y: 4 }
-      })
+          fontFamily: 'SpecialElite, monospace',
+          fontSize: '16px',
+          color: '#ffffff',
+          backgroundColor: '#191b16',
+          padding: { x: 6, y: 4 }
+        })
         .setOrigin(0.5, 1)
         .setDepth(32)
         .setVisible(false)
@@ -281,7 +300,6 @@ export class TvBroadcastControls {
 
       entry.action?.();
 
-      // tooltip może się zmienić po akcji (PAUSE <-> PLAY, głośność)
       if (this.hoveredEntry === entry) {
         this.showTooltip(entry);
       }
@@ -362,7 +380,11 @@ export class TvBroadcastControls {
 
     this.tooltip
       .setPosition(
-        Phaser.Math.Clamp(cfg.x, half + 8, width - half - 8),
+        Phaser.Math.Clamp(
+          cfg.x,
+          half + 8,
+          width - half - 8
+        ),
         cfg.y - cfg.h / 2 - 6
       )
       .setVisible(true);
@@ -510,12 +532,12 @@ export class TvBroadcastControls {
     this.debugText?.setText(
       show
         ? [
-          `LOCAL TV DEBUG: ${cfg?.id || 'no buttons'}`,
-          `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}`,
-          'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
-          'Tab / Shift+Tab: select | C: export | D: close',
-          'Button clicks disabled. TV keyboard shortcuts remain active.'
-        ].join('\n')
+            `LOCAL TV DEBUG: ${cfg?.id || 'no buttons'}`,
+            `x:${cfg?.x} y:${cfg?.y} w:${cfg?.w} h:${cfg?.h}`,
+            'Drag / Arrows: move | Shift+Arrows: resize | Alt: 1px',
+            'Tab / Shift+Tab: select | C: export | D: close',
+            'Button clicks disabled. TV keyboard shortcuts remain active.'
+          ].join('\n')
         : ''
     );
   }
@@ -637,11 +659,11 @@ export class TvBroadcastControls {
     );
 
     console.log(
-      'COPY INTO scenes/tv/TvBroadcastControls.js:'
+      'COPY INTO scenes/tv/TvBroadcastControlsConfig.js:'
     );
 
     console.log(
-      'const TV_BUTTON_OVERRIDES = ' +
+      'export const TV_BUTTON_OVERRIDES = ' +
       JSON.stringify(config, null, 2) +
       ';'
     );

@@ -22,7 +22,9 @@ export class ComputerDesktop{
     const entries=[
       ['mail','Mail','envelope',0xe6d9ab],['ledger','Personal\nLedger','ledger',0xa5c397],
       ['classifieds','Classifieds','paper',0xd1d6d8],['investigations','Investigations','board',0xc69d7d],
-      ['travel','World\nTravel','globe',0x98b9ce]
+      ['travel','World\nTravel','globe',0x98b9ce],
+      ['chat', 'IMEGO', 'chat', 0x8db7a6],
+            ['thiefdoku', 'Thiefdoku', 'boards', 0xd9a7b5]
     ];
     entries.forEach(([app,label,kind,color],i)=>this.createIcon(x+12,y+10+i*100,128,label,kind,color,()=>ui.openApp(app)));
     this.createIcon(x+152,y+AUDIO_ICON_Y,128,'Owl Audio','audio',0x93ba99,()=>ui.openApp('audio'));
@@ -109,6 +111,26 @@ export class ComputerDesktop{
         g.fillStyle(0xf0dfac,1);g.fillRect(cx-20,top+11,15,16);g.fillRect(cx+5,top+22,15,15);
         g.lineStyle(2,0xa23232,1);g.lineBetween(cx-12,top+15,cx+12,top+26);
         g.fillStyle(0xa23232,1);g.fillCircle(cx-12,top+15,2.5);g.fillCircle(cx+12,top+26,2.5);break;
+        case 'boards':
+        // Tablica śledcza z czterema polami sudoku.
+        g.fillStyle(0x000000, 0.3);
+        g.fillRect(cx - 24, top + 9, 56, 44);
+        g.fillStyle(0x6b4529, 1);
+        g.fillRect(cx - 28, top + 3, 56, 44);
+        g.strokeRect(cx - 28, top + 3, 56, 44);
+        g.fillStyle(color, 1);
+        g.fillRect(cx - 24, top + 7, 48, 36);
+
+        g.lineStyle(2, 0x28232a, 1);
+        for (let i = 1; i < 4; i++) {
+          g.lineBetween(cx - 24 + i * 12, top + 7, cx - 24 + i * 12, top + 43);
+          g.lineBetween(cx - 24, top + 7 + i * 9, cx + 24, top + 7 + i * 9);
+        }
+
+        g.fillStyle(0xf0dfac, 1);
+        g.fillCircle(cx - 12, top + 16, 3);
+        g.fillCircle(cx + 12, top + 34, 3);
+        break;
       case 'owl_search':
         g.fillStyle(0x000000,0.3);g.fillEllipse(cx+3,top+52,42,8);
         g.fillStyle(0x76553a,1);g.fillEllipse(cx,top+29,42,43);

@@ -3,16 +3,26 @@ import { gameState } from '../GameData.js';
 import { BaseScene } from '../scenes/BaseScene.js';
 import { getEnergyManager } from '../managers/EnergyManager.js';
 import { createHudStanding } from '../ui/HudStanding.js';
+
 import {
   getAchievementList,
   hasAchievement
 } from '../managers/AchievementManager.js';
+
 import { moneyManager } from '../managers/MoneyManager.js';
 import { getGameTimeManager } from '../managers/GameTimeManager.js';
+
+import {
+  progressionManager,
+  PROGRESSION_CHANGED,
+  LEVEL_UP
+} from '../managers/ProgressionManager.js';
+
 import {
   getCaseTimeRemaining,
   getTimeChangedPayload
 } from '../CaseTimeHelper.js';
+
 import {
   STAT_IDS,
   STAT_NAMES,
@@ -22,6 +32,7 @@ import {
 
 const ENERGY_CIRCUMFERENCE = 251.327;
 const MONEY_EVENT = 'lost-artifacts:money-changed';
+const PROGRESSION_STYLE_ID = 'ui-progression-styles';
 
 const IS_LOCAL_DEV = [
   'localhost',
@@ -60,6 +71,7 @@ export class UIScene extends BaseScene {
     this.energyManager = null;
     this.currentGameDay = 1;
     this.missionDays = 4;
+
     this.startDate = {
       year: 1990,
       monthIndex: 3,
@@ -73,11 +85,15 @@ export class UIScene extends BaseScene {
     this._warningTimer = null;
     this._zeroTimer = null;
     this._modalRefreshFrame = null;
+    this._levelUpTimer = null;
+    this._levelUpNotice = null;
 
     this.domAbortController = null;
     this.moneyChangeHandler = null;
+
     this._isDestroyed = false;
     this._htmlPromises = new Map();
+    this._spendingSkillPoint = false;
 
     this.caseTimerInitialSeconds = null;
 
@@ -91,9 +107,12 @@ export class UIScene extends BaseScene {
     super.create();
 
     this._isDestroyed = false;
+    this._spendingSkillPoint = false;
     this.caseTimerInitialSeconds = null;
+
     this._resetEnergyTooltipState();
     this._energySnapshot = null;
+    this._installProgressionStyles();
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
@@ -130,6 +149,7 @@ export class UIScene extends BaseScene {
     this._bindEvents();
     this._setupButtonListeners();
     this._setupTooltipListeners();
+    this._setupSkillPointListener();
 
     getGameTimeManager(this._readTimeFromGameState());
 
@@ -193,8 +213,7 @@ export class UIScene extends BaseScene {
         document.getElementById('energy-target'),
 
       energyWrapper:
-        container?.querySelector('.energy-wrapper') ||
-        null,
+        container?.querySelector('.energy-wrapper') || null,
 
       energyFill:
         document.getElementById('energy-fill'),
@@ -231,9 +250,15 @@ export class UIScene extends BaseScene {
 
     this.onBus(
       'character-created',
+      this._onCharacterCreated
+    );
+
+    this.onBus(
+      PROGRESSION_CHANGED,
       this._queueModalRefresh
     );
 
+    this.onBus(LEVEL_UP, this._showLevelUpNotice);
     this.onBus('gameOver', this._showGameOver);
 
     this.onBus(
@@ -244,8 +269,14 @@ export class UIScene extends BaseScene {
     this.onBus('energyChanged', this._onEnergyChanged);
     this.onBus('energyWarning', this._onEnergyWarning);
     this.onBus('energyZero', this._onEnergyZero);
+
     this.onBus('showHUD', this.showHUD);
     this.onBus('hideHUD', this.hideHUD);
+  }
+
+  _onCharacterCreated() {
+    this._clearLevelUpNotice();
+    this._queueModalRefresh();
   }
 
   _cleanup() {
@@ -267,6 +298,8 @@ export class UIScene extends BaseScene {
     this._energyLogTimer = null;
     this._warningTimer = null;
     this._zeroTimer = null;
+
+    this._clearLevelUpNotice();
 
     if (this._modalRefreshFrame !== null) {
       cancelAnimationFrame(this._modalRefreshFrame);
@@ -301,10 +334,7 @@ export class UIScene extends BaseScene {
   }
 
   _setDomStyle(element, property, value) {
-    if (
-      element &&
-      element.style[property] !== value
-    ) {
+    if (element && element.style[property] !== value) {
       element.style[property] = value;
     }
   }
@@ -319,12 +349,14 @@ export class UIScene extends BaseScene {
     this.refreshMoneyHud();
     this.updateEnergy();
     this.hudStanding?.refresh();
+    this._queueModalRefresh();
   }
 
   hideHUD() {
     this._resetEnergyTooltipState();
     this._hideTooltip();
     this._setEnergyLogVisible(false);
+    this._clearLevelUpNotice();
 
     if (this.dom.container) {
       this.dom.container.style.display = 'none';
@@ -401,6 +433,526 @@ export class UIScene extends BaseScene {
     );
   }
 
+  _setupSkillPointListener() {
+    document.addEventListener(
+      'click',
+      event => {
+        const target = event.target;
+
+        if (!(target instanceof Element)) return;
+
+        const button = target.closest(
+          '#profile-modal button[data-progression-stat]'
+        );
+
+        if (!(button instanceof HTMLButtonElement)) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (
+          this._isDestroyed ||
+          this._spendingSkillPoint ||
+          button.disabled
+        ) {
+          return;
+        }
+
+        const modal = button.closest('#profile-modal');
+
+        if (!this._isModalOpen(modal)) return;
+
+        this._spendingSkillPoint = true;
+        button.disabled = true;
+
+        try {
+          const result = progressionManager.spendPoint(
+            button.dataset.progressionStat
+          );
+
+          if (!result.success) {
+            this._setProgressionMessage(
+              modal,
+              this._getSkillPointError(result.reason),
+              true
+            );
+
+            this._renderProfileStats(modal);
+            return;
+          }
+
+          this._populateProfileModalData(modal);
+
+          this._setProgressionMessage(
+            modal,
+            `${STAT_NAMES[result.statId]} increased to ${
+              result.effectiveStats[result.statId]
+            }.`,
+            false
+          );
+
+          const nextButton = modal.querySelector(
+            `button[data-progression-stat="${result.statId}"]`
+          );
+
+          if (
+            nextButton instanceof HTMLButtonElement &&
+            !nextButton.disabled
+          ) {
+            nextButton.focus({ preventScroll: true });
+          } else {
+            modal.querySelector(
+              '[data-progression-summary]'
+            )?.focus({ preventScroll: true });
+          }
+        } catch (error) {
+          console.error(
+            '[UIScene] Could not spend skill point:',
+            error
+          );
+
+          this._setProgressionMessage(
+            modal,
+            'Could not update this personnel file.',
+            true
+          );
+
+          this._renderProfileStats(modal);
+        } finally {
+          this._spendingSkillPoint = false;
+        }
+      },
+      this.getDomListenerOptions()
+    );
+  }
+
+  _getSkillPointError(reason) {
+    const messages = {
+      no_skill_points: 'No skill points available.',
+      unknown_stat: 'Unknown field assessment.',
+      character_stats_missing:
+        'Character assessment unavailable.',
+      stat_limit: 'This skill cannot be increased further.'
+    };
+
+    return messages[reason] || 'Could not increase this skill.';
+  }
+
+  _readProgressionSummary() {
+    try {
+      return progressionManager.getSummary();
+    } catch (error) {
+      console.error(
+        '[UIScene] Could not read progression:',
+        error
+      );
+
+      return null;
+    }
+  }
+
+  _installProgressionStyles() {
+    if (document.getElementById(PROGRESSION_STYLE_ID)) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = PROGRESSION_STYLE_ID;
+
+    style.textContent = `
+      #profile-modal .ui-progression {
+        box-sizing: border-box;
+        margin: 12px 0 16px;
+        padding: 12px;
+        border: 2px solid #6c5135;
+        background: rgba(92, 65, 35, .07);
+        color: #35281d;
+        font-family: 'SpecialElite', 'Special Elite', monospace;
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      #profile-modal .ui-progression-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 9px;
+      }
+
+      #profile-modal .ui-progression-level {
+        font-family: 'PressStart2P', 'Press Start 2P', monospace;
+        font-size: 10px;
+        line-height: 1.7;
+      }
+
+      #profile-modal .ui-progression-total {
+        font-size: 13px;
+      }
+
+      #profile-modal .ui-progression-bar {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        height: 15px;
+        border: 2px solid #6c5135;
+        background: #d9c9a9;
+        overflow: hidden;
+      }
+
+      #profile-modal .ui-progression-fill {
+        display: block;
+        height: 100%;
+        background: #66734a;
+        transition: width 180ms ease;
+      }
+
+      #profile-modal .ui-progression-caption,
+      #profile-modal .ui-progression-points,
+      #profile-modal .ui-progression-message {
+        margin: 8px 0 0;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      #profile-modal .ui-progression-points.has-points {
+        color: #365327;
+        font-weight: bold;
+      }
+
+      #profile-modal .ui-progression-message {
+        min-height: 1.45em;
+      }
+
+      #profile-modal .ui-progression-message.is-error {
+        color: #8c241e;
+      }
+
+      #profile-modal .profile-stat-value.ui-stat-value {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      #profile-modal .ui-stat-increase {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 34px;
+        box-sizing: border-box;
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        margin: 0;
+        padding: 0;
+        border: 2px solid #5d452e;
+        border-radius: 0;
+        background: #e7dabd;
+        color: #35281d;
+        box-shadow: 2px 2px 0 #5d452e;
+        font-family: 'SpecialElite', 'Special Elite', monospace;
+        font-size: 23px;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      #profile-modal .ui-stat-increase:hover:not(:disabled) {
+        background: #f5e9ce;
+      }
+
+      #profile-modal .ui-stat-increase:active:not(:disabled) {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0 #5d452e;
+      }
+
+      #profile-modal .ui-stat-increase:disabled {
+        opacity: .35;
+        box-shadow: none;
+        cursor: default;
+      }
+
+      #profile-modal .ui-stat-increase:focus-visible,
+      #profile-modal .ui-progression:focus-visible {
+        outline: 3px solid #47668b;
+        outline-offset: 3px;
+      }
+
+      .ui-level-up-notice {
+        position: fixed;
+        z-index: 100000;
+        left: 50%;
+        top: max(20px, env(safe-area-inset-top));
+        transform: translateX(-50%);
+        box-sizing: border-box;
+        width: min(440px, calc(100vw - 32px));
+        padding: 18px 20px;
+        border: 3px solid #59412b;
+        background: #eddfbf;
+        color: #35281d;
+        box-shadow: 5px 5px 0 rgba(0, 0, 0, .4);
+        pointer-events: none;
+        font-family: 'SpecialElite', 'Special Elite', monospace;
+        text-align: center;
+      }
+
+      .ui-level-up-notice-title {
+        margin: 0 0 10px;
+        font-family: 'PressStart2P', 'Press Start 2P', monospace;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      .ui-level-up-notice-text {
+        margin: 6px 0 0;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #profile-modal .ui-progression-fill {
+          transition: none;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  _ensureProgressionSection(modal) {
+    let section = modal.querySelector(
+      '[data-progression-summary]'
+    );
+
+    if (section instanceof HTMLElement) return section;
+
+    const statsGrid = modal.querySelector('#profile-stats');
+
+    if (!(statsGrid instanceof HTMLElement)) return null;
+
+    section = document.createElement('section');
+    section.className = 'ui-progression';
+    section.dataset.progressionSummary = 'true';
+    section.tabIndex = -1;
+    section.setAttribute('aria-label', 'Character progression');
+
+    section.innerHTML = `
+      <div class="ui-progression-heading">
+        <span
+          class="ui-progression-level"
+          data-progression-level
+        ></span>
+        <span
+          class="ui-progression-total"
+          data-progression-total
+        ></span>
+      </div>
+
+      <div
+        class="ui-progression-bar"
+        data-progression-bar
+        role="progressbar"
+        aria-label="Experience toward next level"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span
+          class="ui-progression-fill"
+          data-progression-fill
+        ></span>
+      </div>
+
+      <p
+        class="ui-progression-caption"
+        data-progression-caption
+      ></p>
+
+      <p
+        class="ui-progression-points"
+        data-progression-points
+      ></p>
+
+      <p
+        class="ui-progression-message"
+        data-progression-message
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      ></p>
+    `;
+
+    statsGrid.insertAdjacentElement('beforebegin', section);
+
+    return section;
+  }
+
+  _renderProgression(modal) {
+    const section = this._ensureProgressionSection(modal);
+
+    if (!section) return;
+
+    const summary = this._readProgressionSummary();
+
+    section.hidden = false;
+
+    if (!summary) {
+      this._setHtmlText(
+        section,
+        '[data-progression-level]',
+        'PROGRESSION UNAVAILABLE'
+      );
+
+      this._setHtmlText(
+        section,
+        '[data-progression-total], [data-progression-caption]',
+        ''
+      );
+
+      this._setHtmlText(
+        section,
+        '[data-progression-points]',
+        'Personnel file could not be read.'
+      );
+
+      const bar = section.querySelector('[data-progression-bar]');
+      if (bar) bar.hidden = true;
+
+      return;
+    }
+
+    this._setHtmlText(
+      section,
+      '[data-progression-level]',
+      `LEVEL ${summary.level}`
+    );
+
+    this._setHtmlText(
+      section,
+      '[data-progression-total]',
+      `${formatNumber(summary.totalXP)} total XP`
+    );
+
+    const bar = section.querySelector('[data-progression-bar]');
+    const fill = section.querySelector('[data-progression-fill]');
+
+    const percent = Math.max(
+      0,
+      Math.min(100, Math.round(summary.progress * 100))
+    );
+
+    if (bar) {
+      bar.hidden = false;
+      bar.setAttribute('aria-valuenow', String(percent));
+
+      bar.setAttribute(
+        'aria-valuetext',
+        summary.isMaxLevel
+          ? 'Maximum level reached'
+          : `${summary.currentLevelXP} of ${summary.requiredXP} XP`
+      );
+    }
+
+    if (fill instanceof HTMLElement) {
+      fill.style.width = `${percent}%`;
+    }
+
+    this._setHtmlText(
+      section,
+      '[data-progression-caption]',
+      summary.isMaxLevel
+        ? 'Maximum level reached. HR is investigating.'
+        : `${formatNumber(summary.currentLevelXP)} / ${
+            formatNumber(summary.requiredXP)
+          } XP — ${formatNumber(summary.xpToNextLevel)} to next level`
+    );
+
+    const points = section.querySelector(
+      '[data-progression-points]'
+    );
+
+    if (points) {
+      points.textContent =
+        summary.availablePoints > 0
+          ? `${summary.availablePoints} skill ${
+              summary.availablePoints === 1 ? 'point' : 'points'
+            } available. Use + to improve a skill.`
+          : 'No unspent skill points. Next level grants 1 point.';
+
+      points.classList.toggle(
+        'has-points',
+        summary.availablePoints > 0
+      );
+    }
+  }
+
+  _setProgressionMessage(modal, text, isError = false) {
+    const message = modal?.querySelector(
+      '[data-progression-message]'
+    );
+
+    if (!(message instanceof HTMLElement)) return;
+
+    message.textContent = text;
+    message.classList.toggle('is-error', isError);
+  }
+
+  _showLevelUpNotice(data = {}) {
+    if (this._isDestroyed) return;
+
+    const summary = data.after || this._readProgressionSummary();
+
+    if (!summary) return;
+
+    this._clearLevelUpNotice();
+
+    const notice = document.createElement('div');
+    notice.className = 'ui-level-up-notice';
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+
+    const title = document.createElement('p');
+    title.className = 'ui-level-up-notice-title';
+    title.textContent = `LEVEL ${summary.level}`;
+
+    const message = document.createElement('p');
+    message.className = 'ui-level-up-notice-text';
+    message.textContent =
+      'Your paperwork now suggests professional growth.';
+
+    const points = document.createElement('p');
+    points.className = 'ui-level-up-notice-text';
+
+    const gainedPoints = Math.max(
+      1,
+      Math.floor(Number(data.gainedPoints) || 1)
+    );
+
+    points.textContent =
+      `${gainedPoints} skill ${
+        gainedPoints === 1 ? 'point' : 'points'
+      } earned. Open your Personnel File to spend.`;
+
+    notice.append(title, message, points);
+    document.body.appendChild(notice);
+
+    this._levelUpNotice = notice;
+
+    this._levelUpTimer = setTimeout(() => {
+      this._clearLevelUpNotice();
+    }, 6500);
+
+    this._queueModalRefresh();
+  }
+
+  _clearLevelUpNotice() {
+    clearTimeout(this._levelUpTimer);
+    this._levelUpTimer = null;
+
+    this._levelUpNotice?.remove();
+    this._levelUpNotice = null;
+  }
+
   _setupTooltipListeners() {
     const options = this.getDomListenerOptions();
 
@@ -439,20 +991,12 @@ export class UIScene extends BaseScene {
       if (!(element instanceof HTMLElement)) return;
 
       const show = () => {
-        if (
-          !this.dom.container?.classList.contains(
-            'collapsed'
-          )
-        ) {
+        if (!this.dom.container?.classList.contains('collapsed')) {
           this._showTooltip(getContent());
         }
       };
 
-      element.addEventListener(
-        'mouseenter',
-        show,
-        options
-      );
+      element.addEventListener('mouseenter', show, options);
 
       element.addEventListener(
         'mouseleave',
@@ -460,11 +1004,7 @@ export class UIScene extends BaseScene {
         options
       );
 
-      element.addEventListener(
-        'focus',
-        show,
-        options
-      );
+      element.addEventListener('focus', show, options);
 
       element.addEventListener(
         'blur',
@@ -539,10 +1079,7 @@ export class UIScene extends BaseScene {
     target.addEventListener(
       'keydown',
       event => {
-        if (
-          event.key === 'Enter' ||
-          event.key === ' '
-        ) {
+        if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           event.stopPropagation();
           this._toggleEnergyLog();
@@ -616,31 +1153,27 @@ export class UIScene extends BaseScene {
     );
 
     const hour = Phaser.Math.Clamp(
-      Math.floor(
-        Number(data.hour ?? snapshot.hour) || 0
-      ),
+      Math.floor(Number(data.hour ?? snapshot.hour) || 0),
       0,
       23
     );
 
     const minute = Phaser.Math.Clamp(
-      Math.floor(
-        Number(data.minute ?? snapshot.minute) || 0
-      ),
+      Math.floor(Number(data.minute ?? snapshot.minute) || 0),
       0,
       59
     );
 
     this._setDomText(
       this.dom.time,
-      `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+      `${String(hour).padStart(2, '0')}:${
+        String(minute).padStart(2, '0')
+      }`
     );
 
     this._setDomText(
       this.dom.partOfDay,
-      String(
-        data.partOfDay ?? snapshot.partOfDay
-      ).toUpperCase()
+      String(data.partOfDay ?? snapshot.partOfDay).toUpperCase()
     );
 
     this._updateDateDisplay(this.currentGameDay);
@@ -648,11 +1181,10 @@ export class UIScene extends BaseScene {
   }
 
   updateCaseDeadline(data = {}) {
-    const hasRemaining =
-      Object.prototype.hasOwnProperty.call(
-        data,
-        'caseTimeRemaining'
-      );
+    const hasRemaining = Object.prototype.hasOwnProperty.call(
+      data,
+      'caseTimeRemaining'
+    );
 
     const rawSeconds = hasRemaining
       ? data.caseTimeRemaining
@@ -661,8 +1193,7 @@ export class UIScene extends BaseScene {
     const parsedSeconds = Number(rawSeconds);
 
     const remainingSeconds =
-      rawSeconds != null &&
-      Number.isFinite(parsedSeconds)
+      rawSeconds != null && Number.isFinite(parsedSeconds)
         ? Math.max(0, Math.floor(parsedSeconds))
         : null;
 
@@ -702,11 +1233,7 @@ export class UIScene extends BaseScene {
       this._formatCaseDeadline(remainingSeconds)
     );
 
-    this._setDomStyle(
-      this.dom.deadlineValue,
-      'color',
-      color
-    );
+    this._setDomStyle(this.dom.deadlineValue, 'color', color);
 
     this._setDomStyle(
       this.dom.deadlineProgress,
@@ -728,12 +1255,8 @@ export class UIScene extends BaseScene {
     );
 
     const days = Math.floor(safeSeconds / 86400);
-    const hours = Math.floor(
-      (safeSeconds % 86400) / 3600
-    );
-    const minutes = Math.floor(
-      (safeSeconds % 3600) / 60
-    );
+    const hours = Math.floor((safeSeconds % 86400) / 3600);
+    const minutes = Math.floor((safeSeconds % 3600) / 60);
 
     if (days > 0) {
       return `${days}D ${String(hours).padStart(2, '0')}H`;
@@ -751,11 +1274,7 @@ export class UIScene extends BaseScene {
   }
 
   _calculateDate(gameDay) {
-    const {
-      year,
-      monthIndex,
-      day
-    } = this.startDate;
+    const { year, monthIndex, day } = this.startDate;
 
     const safeDay = Math.max(
       1,
@@ -763,11 +1282,7 @@ export class UIScene extends BaseScene {
     );
 
     return new Date(
-      Date.UTC(
-        year,
-        monthIndex,
-        day + safeDay - 1
-      )
+      Date.UTC(year, monthIndex, day + safeDay - 1)
     );
   }
 
@@ -804,16 +1319,8 @@ export class UIScene extends BaseScene {
           ? '#ee9b00'
           : '#4caf50';
 
-    this._setDomText(
-      this.dom.deadlineValue,
-      `${daysLeft}D`
-    );
-
-    this._setDomStyle(
-      this.dom.deadlineValue,
-      'color',
-      color
-    );
+    this._setDomText(this.dom.deadlineValue, `${daysLeft}D`);
+    this._setDomStyle(this.dom.deadlineValue, 'color', color);
 
     this._setDomStyle(
       this.dom.deadlineProgress,
@@ -874,21 +1381,15 @@ export class UIScene extends BaseScene {
 
   updateEnergy(data = {}) {
     const snapshot = this._readEnergySnapshot(data);
-
     this._energySnapshot = snapshot;
 
-    const {
-      fraction,
-      percent
-    } = snapshot;
+    const { fraction, percent } = snapshot;
 
     const color = this._colorToHex(
-      data.color ??
-      this.energyManager?.getEnergyColor()
+      data.color ?? this.energyManager?.getEnergyColor()
     );
 
-    const offset =
-      ENERGY_CIRCUMFERENCE * (1 - fraction);
+    const offset = ENERGY_CIRCUMFERENCE * (1 - fraction);
 
     if (this.dom.energyFill) {
       this.dom.energyFill.style.strokeDasharray =
@@ -926,7 +1427,6 @@ export class UIScene extends BaseScene {
 
   _onEnergyWarning() {
     const wrapper = this.dom.energyWrapper;
-
     if (!wrapper) return;
 
     wrapper.classList.remove('flash-warning');
@@ -943,7 +1443,6 @@ export class UIScene extends BaseScene {
 
   _onEnergyZero() {
     const wrapper = this.dom.energyWrapper;
-
     if (!wrapper) return;
 
     wrapper.classList.remove('shake-zero');
@@ -960,15 +1459,9 @@ export class UIScene extends BaseScene {
 
   _showTooltip(content) {
     const isEnergyLogOpen =
-      this.dom.energyLogBg?.classList.contains(
-        'visible'
-      );
+      this.dom.energyLogBg?.classList.contains('visible');
 
-    if (
-      !content ||
-      !this.dom.tooltipBg ||
-      isEnergyLogOpen
-    ) {
+    if (!content || !this.dom.tooltipBg || isEnergyLogOpen) {
       return;
     }
 
@@ -1003,17 +1496,12 @@ export class UIScene extends BaseScene {
     this._energyLogTimer = null;
 
     const isVisible =
-      this.dom.energyLogBg?.classList.contains(
-        'visible'
-      );
+      this.dom.energyLogBg?.classList.contains('visible');
 
     this._energyTooltipSuppressed = !isVisible;
     this._setEnergyLogVisible(!isVisible);
 
-    if (
-      isVisible &&
-      this._isEnergyTooltipActive()
-    ) {
+    if (isVisible && this._isEnergyTooltipActive()) {
       this._showEnergyTooltip();
     }
   }
@@ -1036,10 +1524,7 @@ export class UIScene extends BaseScene {
   }
 
   _updateEnergyLogText() {
-    if (
-      !this.dom.energyLogText ||
-      !this.energyManager
-    ) {
+    if (!this.dom.energyLogText || !this.energyManager) {
       return;
     }
 
@@ -1047,20 +1532,19 @@ export class UIScene extends BaseScene {
       .getEnergyLog()
       .slice(-5)
       .reverse()
-      .map(
-        entry => entry.label || 'Energy changed.'
-      );
+      .map(entry => entry.label || 'Energy changed.');
 
-    this.dom.energyLogText.textContent =
-      entries.length
-        ? entries.join('\n')
-        : 'No energy changes recorded.';
+    this.dom.energyLogText.textContent = entries.length
+      ? entries.join('\n')
+      : 'No energy changes recorded.';
   }
 
   _getClockTooltip() {
     return [
       'TIME',
-      `${this.dom.time?.textContent || '--:--'} — ${this.dom.partOfDay?.textContent || ''}`,
+      `${this.dom.time?.textContent || '--:--'} — ${
+        this.dom.partOfDay?.textContent || ''
+      }`,
       'Conversations, travel and tasks move time forward.'
     ].join('\n');
   }
@@ -1078,8 +1562,7 @@ export class UIScene extends BaseScene {
   }
 
   _getDeadlineTooltip() {
-    const remainingSeconds =
-      this._getCaseDeadlineSeconds();
+    const remainingSeconds = this._getCaseDeadlineSeconds();
 
     if (remainingSeconds !== null) {
       return [
@@ -1110,8 +1593,7 @@ export class UIScene extends BaseScene {
     }
 
     const { percent } =
-      this._energySnapshot ||
-      this._readEnergySnapshot();
+      this._energySnapshot || this._readEnergySnapshot();
 
     const last = manager.lastEnergyChange?.label;
 
@@ -1131,9 +1613,7 @@ export class UIScene extends BaseScene {
 
   updateScore(data) {
     const rawScore =
-      typeof data === 'object'
-        ? data?.total
-        : data;
+      typeof data === 'object' ? data?.total : data;
 
     this._renderScore(rawScore ?? gameState.score);
     this._queueModalRefresh();
@@ -1141,8 +1621,7 @@ export class UIScene extends BaseScene {
 
   _renderScore(value) {
     if (this.dom.score) {
-      this.dom.score.textContent =
-        formatNumber(value);
+      this.dom.score.textContent = formatNumber(value);
     }
   }
 
@@ -1152,12 +1631,10 @@ export class UIScene extends BaseScene {
         ? data?.total ?? data?.cash
         : data;
 
-    const cash =
-      rawCash ?? moneyManager.getState().cash;
+    const cash = rawCash ?? moneyManager.getState().cash;
 
     if (this.dom.cash) {
-      this.dom.cash.textContent =
-        `$${formatNumber(cash)}`;
+      this.dom.cash.textContent = `$${formatNumber(cash)}`;
     }
   }
 
@@ -1171,9 +1648,7 @@ export class UIScene extends BaseScene {
       return;
     }
 
-    const opened = await this.launchOverlay(
-      'SettingsScene'
-    );
+    const opened = await this.launchOverlay('SettingsScene');
 
     if (opened && !this._isDestroyed) {
       this.bringSceneToTopIfActive('SettingsScene');
@@ -1190,6 +1665,7 @@ export class UIScene extends BaseScene {
     if (!modal || this._isDestroyed) return;
 
     this._populateProfileModalData(modal);
+    this._setProgressionMessage(modal, '');
     modal.style.display = 'flex';
   }
 
@@ -1215,10 +1691,7 @@ export class UIScene extends BaseScene {
 
     const promise = (async () => {
       try {
-        const response = await fetch(
-          url,
-          HTML_FETCH_OPTIONS
-        );
+        const response = await fetch(url, HTML_FETCH_OPTIONS);
 
         if (!response.ok) {
           throw new Error(
@@ -1226,30 +1699,22 @@ export class UIScene extends BaseScene {
           );
         }
 
-        const template =
-          document.createElement('template');
+        const template = document.createElement('template');
 
-        template.innerHTML =
-          (await response.text()).trim();
+        template.innerHTML = (await response.text()).trim();
 
         const element =
           template.content.querySelector(selector);
 
         if (!(element instanceof HTMLElement)) {
-          throw new Error(
-            `Missing ${selector} inside ${url}`
-          );
+          throw new Error(`Missing ${selector} inside ${url}`);
         }
 
         return element;
       } catch (error) {
         console.error(
           '[UIScene] HTML load error:',
-          {
-            url,
-            selector,
-            error
-          }
+          { url, selector, error }
         );
 
         return null;
@@ -1263,11 +1728,7 @@ export class UIScene extends BaseScene {
     return promise;
   }
 
-  async _loadHtmlModal(
-    fileName,
-    modalId,
-    closeButtonId
-  ) {
+  async _loadHtmlModal(fileName, modalId, closeButtonId) {
     let modal = document.getElementById(modalId);
 
     if (!(modal instanceof HTMLElement)) {
@@ -1325,9 +1786,7 @@ export class UIScene extends BaseScene {
   }
 
   _setupModalEvents(modal, closeButtonId) {
-    if (modal.dataset.eventsBound === 'true') {
-      return;
-    }
+    if (modal.dataset.eventsBound === 'true') return;
 
     modal
       .querySelector(`#${closeButtonId}`)
@@ -1359,17 +1818,17 @@ export class UIScene extends BaseScene {
       return;
     }
 
-    this._modalRefreshFrame = requestAnimationFrame(
-      () => {
-        this._modalRefreshFrame = null;
+    this._modalRefreshFrame = requestAnimationFrame(() => {
+      this._modalRefreshFrame = null;
+
+      if (!this._isDestroyed) {
         this._refreshOpenAgentModal();
       }
-    );
+    });
   }
 
   _refreshOpenAgentModal() {
-    const agentModal =
-      document.getElementById('agent-modal');
+    const agentModal = document.getElementById('agent-modal');
 
     if (this._isModalOpen(agentModal)) {
       this._populateAgentModalData(agentModal);
@@ -1379,7 +1838,32 @@ export class UIScene extends BaseScene {
       document.getElementById('profile-modal');
 
     if (this._isModalOpen(profileModal)) {
+      const focused = document.activeElement;
+
+      const focusedStat =
+        focused instanceof HTMLButtonElement &&
+        profileModal.contains(focused)
+          ? focused.dataset.progressionStat
+          : null;
+
       this._populateProfileModalData(profileModal);
+
+      if (focusedStat) {
+        const replacement = profileModal.querySelector(
+          `button[data-progression-stat="${focusedStat}"]`
+        );
+
+        if (
+          replacement instanceof HTMLButtonElement &&
+          !replacement.disabled
+        ) {
+          replacement.focus({ preventScroll: true });
+        } else {
+          profileModal.querySelector(
+            '[data-progression-summary]'
+          )?.focus({ preventScroll: true });
+        }
+      }
     }
   }
 
@@ -1405,15 +1889,12 @@ export class UIScene extends BaseScene {
       'field';
 
     const selected =
-      difficultyData[currentDifficulty] ||
-      difficultyData.field;
+      difficultyData[currentDifficulty] || difficultyData.field;
 
     this._setHtmlText(
       modal,
       '#profile-alias',
-      gameState.playerName ||
-      gameState.agentName ||
-      'Detective'
+      gameState.playerName || gameState.agentName || 'Detective'
     );
 
     this._setHtmlText(
@@ -1446,13 +1927,12 @@ export class UIScene extends BaseScene {
       selected[1]
     );
 
+    this._renderProgression(modal);
     this._renderProfileStats(modal);
   }
 
   _renderProfileStats(modal) {
-    const grid = modal.querySelector(
-      '#profile-stats'
-    );
+    const grid = modal.querySelector('#profile-stats');
 
     if (!(grid instanceof HTMLElement)) return;
 
@@ -1478,19 +1958,13 @@ export class UIScene extends BaseScene {
         'No character assessment was found in this personnel file.'
       );
 
-      const note = modal.querySelector(
-        '.profile-stats-note'
-      );
-
+      const note = modal.querySelector('.profile-stats-note');
       if (note) note.hidden = true;
 
       return;
     }
 
-    const profile = getProfile(
-      gameState.detectiveProfile
-    );
-
+    const profile = getProfile(gameState.detectiveProfile);
     const baseStats = {};
 
     for (const statId of STAT_IDS) {
@@ -1512,6 +1986,19 @@ export class UIScene extends BaseScene {
       stats: baseStats
     });
 
+    const progression = this._readProgressionSummary();
+
+    const hasValidStats = STAT_IDS.every(
+      statId =>
+        Number.isSafeInteger(savedStats[statId]) &&
+        savedStats[statId] >= 1
+    );
+
+    const canSpend =
+      hasValidStats &&
+      progression !== null &&
+      progression.availablePoints > 0;
+
     this._setHtmlText(
       modal,
       '#profile-archetype',
@@ -1524,10 +2011,7 @@ export class UIScene extends BaseScene {
       `PROFILE BONUS: ${profile.bonus}`
     );
 
-    const note = modal.querySelector(
-      '.profile-stats-note'
-    );
-
+    const note = modal.querySelector('.profile-stats-note');
     if (note) note.hidden = false;
 
     for (const statId of STAT_IDS) {
@@ -1547,13 +2031,36 @@ export class UIScene extends BaseScene {
       name.textContent = STAT_NAMES[statId];
 
       const value = document.createElement('dd');
-      value.className = 'profile-stat-value';
-      value.textContent = String(finalValue);
+      value.className = 'profile-stat-value ui-stat-value';
+
+      const number = document.createElement('span');
+      number.textContent = String(finalValue);
+
+      const increase = document.createElement('button');
+      increase.type = 'button';
+      increase.className = 'ui-stat-increase';
+      increase.dataset.progressionStat = statId;
+      increase.textContent = '+';
+
+      increase.disabled =
+        !canSpend ||
+        savedStats[statId] >= Number.MAX_SAFE_INTEGER;
+
+      increase.setAttribute(
+        'aria-label',
+        `Increase ${STAT_NAMES[statId]} by 1. Costs 1 skill point.`
+      );
+
+      increase.title = !hasValidStats
+        ? 'Character assessment unavailable'
+        : increase.disabled
+          ? 'No skill points available or skill limit reached'
+          : `Spend 1 skill point on ${STAT_NAMES[statId]}`;
+
+      value.append(number, increase);
 
       const breakdown = document.createElement('dd');
-
-      breakdown.className =
-        'profile-stat-breakdown';
+      breakdown.className = 'profile-stat-breakdown';
 
       breakdown.textContent =
         bonus > 0
@@ -1626,9 +2133,7 @@ export class UIScene extends BaseScene {
     let tagline = modal.querySelector('#pub-tagline');
 
     if (!(tagline instanceof HTMLElement)) {
-      const title = modal.querySelector(
-        '#agent-dossier-title'
-      );
+      const title = modal.querySelector('#agent-dossier-title');
 
       if (!(title instanceof HTMLElement)) return;
 
@@ -1636,10 +2141,7 @@ export class UIScene extends BaseScene {
       tagline.id = 'pub-tagline';
       tagline.className = 'agent-tagline';
 
-      title.insertAdjacentElement(
-        'afterend',
-        tagline
-      );
+      title.insertAdjacentElement('afterend', tagline);
     }
 
     const alias =
@@ -1667,29 +2169,21 @@ export class UIScene extends BaseScene {
   }
 
   _renderAchievementsGrid(modal) {
-    const grid = modal.querySelector(
-      '#achievement-grid'
-    );
+    const grid = modal.querySelector('#achievement-grid');
 
     if (!(grid instanceof HTMLElement)) return;
 
     const all = getAchievementList();
 
     const achievements = [
-      ...all.filter(
-        item => hasAchievement(item.id)
-      ),
-      ...all.filter(
-        item => !hasAchievement(item.id)
-      )
+      ...all.filter(item => hasAchievement(item.id)),
+      ...all.filter(item => !hasAchievement(item.id))
     ].slice(0, 4);
 
     grid.replaceChildren();
 
     achievements.forEach(achievement => {
-      const unlocked = hasAchievement(
-        achievement.id
-      );
+      const unlocked = hasAchievement(achievement.id);
 
       const item = document.createElement('div');
 
@@ -1703,14 +2197,10 @@ export class UIScene extends BaseScene {
 
       const icon = document.createElement('span');
       icon.className = 'achievement-icon';
-
-      icon.textContent = unlocked
-        ? achievement.icon
-        : '🔒';
+      icon.textContent = unlocked ? achievement.icon : '🔒';
 
       const title = document.createElement('span');
       title.className = 'achievement-title';
-
       title.textContent = unlocked
         ? achievement.title
         : 'CLASSIFIED';
@@ -1721,18 +2211,14 @@ export class UIScene extends BaseScene {
   }
 
   _setHtmlText(container, selector, text) {
-    container
-      .querySelectorAll(selector)
-      .forEach(element => {
-        element.textContent = text;
-      });
+    container.querySelectorAll(selector).forEach(element => {
+      element.textContent = text;
+    });
   }
 
   _colorToHex(color) {
     if (typeof color === 'string') {
-      return color.startsWith('#')
-        ? color
-        : `#${color}`;
+      return color.startsWith('#') ? color : `#${color}`;
     }
 
     const numericColor = Number(color);
@@ -1743,6 +2229,8 @@ export class UIScene extends BaseScene {
   }
 
   async _showGameOver(reason) {
+    this._clearLevelUpNotice();
+
     const started = await this.goto(
       'GameOverScene',
       { reason }

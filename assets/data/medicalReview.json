@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "width": 1376,
+  "height": 768,
+  "minimumCompletedMissions": 9,
+  "requiredFlags": [
+    "holly_financial_lead_received",
+    "agency_medical_review_lead_unlocked"
+  ],
+  "backgrounds": {
+    "occupied": {
+      "key": "medical_office_occupied",
+      "url": "assets/local/medical_office.webp"
+    },
+    "empty": {
+      "key": "medical_office_empty",
+      "url": "assets/local/medical_office_empty.webp"
+    }
+  },
+  "hotspots": [
+    {
+      "id": "door",
+      "label": "Upper floor",
+      "x": 15,
+      "y": 143,
+      "w": 210,
+      "h": 550
+    },
+    {
+      "id": "couch",
+      "label": "Examination couch",
+      "x": 463,
+      "y": 381,
+      "w": 378,
+      "h": 176
+    },
+    {
+      "id": "reflex",
+      "label": "Reflex test / instrument trolley",
+      "x": 370,
+      "y": 450,
+      "w": 145,
+      "h": 192
+    },
+    {
+      "id": "eye_chart",
+      "label": "Eye chart",
+      "x": 875,
+      "y": 218,
+      "w": 108,
+      "h": 158
+    },
+    {
+      "id": "cabinet",
+      "label": "Medical records cabinet",
+      "x": 1124,
+      "y": 302,
+      "w": 193,
+      "h": 230
+    },
+    {
+      "id": "telephone",
+      "label": "Doctor's telephone",
+      "x": 779,
+      "y": 503,
+      "w": 137,
+      "h": 89
+    },
+    {
+      "id": "folder",
+      "label": "Patient folder",
+      "x": 935,
+      "y": 540,
+      "w": 173,
+      "h": 70
+    },
+    {
+      "id": "coordination",
+      "label": "Coordination test / metronome",
+      "x": 1055,
+      "y": 570,
+      "w": 99,
+      "h": 112
+    },
+    {
+      "id": "apple",
+      "label": "Apple under glass",
+      "x": 1158,
+      "y": 594,
+      "w": 85,
+      "h": 113
+    },
+    {
+      "id": "doctor",
+      "label": "Dr. Hannibal Lecter",
+      "x": 958,
+      "y": 315,
+      "w": 368,
+      "h": 255
+    }
+  ],
+  "rounds": 3,
+  "reflexWindowMs": 900,
+  "slowReflexWindowMs": 1800,
+  "holdMs": 450,
+  "periodMs": 5000,
+  "slowPeriodMs": 8000,
+  "zoneWidth": 0.28,
+  "slowZoneWidth": 0.4,
+  "findings": [
+    {
+      "speaker": "Dr. Hannibal Lecter",
+      "text": "Your annual review is complete. A triumph for both coordination and administrative persistence."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "I am also following up John's transport. Does his earlier agency medical record add anything?"
+    },
+    {
+      "speaker": "Dr. Hannibal Lecter",
+      "text": "The earlier clinical summary records treatment for poisoning and a gunshot wound. Both entries predate that transport flight."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "So those were not injuries caused by the aircraft hitting the ground."
+    },
+    {
+      "speaker": "Dr. Hannibal Lecter",
+      "text": "Correct. The dates separate the events. They do not identify who was responsible or tell you why it happened."
+    },
+    {
+      "speaker": "Dr. Hannibal Lecter",
+      "text": "Do not diagnose a culprit from a treatment entry. Even this agency has limits on creative paperwork."
+    }
+  ],
+  "objective": "Complete agency mission ten, then examine the financial trail using the records Holly supplies.",
+  "messages": {
+    "ready": "Annual medical review is available on the upper floor.",
+    "complete": "Medical review completed. John's poisoning and gunshot treatment predate the flight. Next: mission ten, then the financial trail.",
+    "saveFailed": "Saving failed. Progress remains in memory; save manually before closing."
+  }
+}

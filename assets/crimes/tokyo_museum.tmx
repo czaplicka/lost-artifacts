@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="1" height="1" tilewidth="1920" tileheight="1080" infinite="0" nextlayerid="5" nextobjectid="90">
+ <tileset firstgid="1" name="auction_house" tilewidth="1920" tileheight="1080" tilecount="1" columns="1">
+  <image source="auction_house.webp" width="1920" height="1080"/>
+ </tileset>
+ <tileset firstgid="2" name="dockyard" tilewidth="1920" tileheight="1080" tilecount="1" columns="1">
+  <image source="dockyard.webp" width="1920" height="1080"/>
+ </tileset>
+ <tileset firstgid="3" name="tokyo_museum" tilewidth="1920" tileheight="1080" tilecount="1" columns="1">
+  <image source="tokyo_museum.webp" width="1920" height="1080"/>
+ </tileset>
+ <layer id="1" name="Warstwa Kafelków 1" width="1" height="1">
+  <data encoding="csv">
+3
+</data>
+ </layer>
+ <objectgroup id="3" name="HiddenObjects">
+  <object id="1" name="fine_lockpick_set" x="268.462" y="597.548" width="68.5439" height="47.4378"/>
+  <object id="74" name="alarm_override_usb" x="1051.64" y="456.12" width="68.5439" height="47.4378"/>
+  <object id="75" name="shutdown_procedure" x="755.096" y="825.657" width="88.3134" height="65.6866"/>
+  <object id="76" name="camera_coverage_plan" x="1430.3" y="589.944" width="130.894" height="64.1659"/>
+  <object id="77" name="camera_signal_jammer" x="183.301" y="381.604" width="74.6268" height="42.8756"/>
+  <object id="78" name="gallery_reflection_photo" x="1264.54" y="189.991" width="74.6268" height="42.8756"/>
+  <object id="79" name="patrol_timing_notes" x="1246.29" y="54.6463" width="88.3134" height="67.2073"/>
+  <object id="80" name="silent_shoe_covers" x="493.53" y="772.432" width="70.0646" height="41.3549"/>
+  <object id="81" name="private_meeting_invitation" x="1527.63" y="1021.83" width="102" height="61.1244"/>
+  <object id="82" name="frame_release_key" x="1027.31" y="600.589" width="60.9402" height="27.6683"/>
+  <object id="83" name="weighted_print_insert" x="822.009" y="669.022" width="70.0646" height="52"/>
+  <object id="84" name="print_mounting_instructions" x="657.77" y="746.579" width="98.9585" height="71.7695"/>
+  <object id="85" name="conservator_coat" x="966.478" y="819.574" width="209.972" height="159.972"/>
+  <object id="86" name="forged_conservation_order" x="1466.8" y="932.109" width="158.267" height="77.8524"/>
+  <object id="87" name="visiting_researcher_notebook" x="867.631" y="568.654" width="94.3963" height="64.1659"/>
+  <object id="88" name="service_passage_map" x="929.981" y="662.939" width="176.516" height="71.7695"/>
+  <object id="89" name="escape_grappling_rop" x="1881.96" y="7.50362" width="33.5671" height="369.833"/>
+  <object id="21" name="escape_route_blueprint" x="1437.33" y="225.333" width="93.3333" height="129.333"/>
+  <object id="22" name="magnifying_glass" x="1625.26" y="604.95" width="95.2719" height="50.1045"/>
+  <object id="28" name="tactical_floorplan_stopwatch" x="1584" y="197.333" width="66.6667" height="100"/>
+  <object id="30" name="rubber_duck_lucky" x="740.887" y="436.011" width="83.5821" height="53.0016"/>
+  <object id="32" name="novelty_fake_mustache" x="1178.57" y="955.011" width="126.667" height="25.3333"/>
+  <object id="39" name="cloned_access_card" x="34.2272" y="874.408" width="75.9634" height="54.2919"/>
+  <object id="73" name="display_security_blueprint" x="402.244" y="819.662" width="75.9634" height="54.2919"/>
+  <object id="40" name="multifunction_device" x="140.224" y="199.985" width="56" height="42.6667"/>
+  <object id="42" name="recorded_staff_argument" x="1834.47" y="680.108" width="58.6667" height="46.6667"/>
+  <object id="47" name="broken_glass" x="1537.88" y="229.247" width="100.993" height="84.3727"/>
+  <object id="48" name="evidence_note" x="919.95" y="283.479" width="73.3333" height="53.3333"/>
+  <object id="49" name="broken_camera" x="99.2483" y="7.6317" width="90.6667" height="66.6667"/>
+  <object id="51" name="fake_guard_pass" x="107.311" y="535.925" width="45.3333" height="70.6667"/>
+  <object id="53" name="hidden_tracker_watch" x="1574.57" y="615.649" width="62.4362" height="43.8341"/>
+  <object id="54" name="hand_print" x="712.892" y="131.567" width="93.8094" height="100.476"/>
+  <object id="57" name="red_fiber" x="1612.26" y="528.698" width="45.3333" height="38.6667"/>
+  <object id="61" name="signal_jammer" x="1662.74" y="66.3715" width="50.6667" height="86.6667"/>
+  <object id="64" name="cable_ties" x="60.054" y="936.022" width="77.3333" height="102.667"/>
+  <object id="66" name="humidity_controller" x="1369.4" y="306.439" width="36.2736" height="64.6484"/>
+  <object id="67" name="delivery_bento_box" x="1259.91" y="551.276" width="129.038" height="85.9386"/>
+  <object id="68" name="shoji_screen" x="1107.84" y="245.609" width="124.476" height="590.822"/>
+  <object id="72" name="conservation_tube" x="1627.93" y="610.585" width="162.494" height="306.445"/>
+  <object id="70" name="ticket_machine" x="1802.81" y="400.724" width="115.352" height="280.592"/>
+  <object id="71" name="origami_crane_note" x="1241.66" y="821.967" width="180.743" height="92.0215"/>
+  <object id="69" name="audio_guide_headset" x="1696.36" y="367.268" width="103.186" height="101.146"/>
+  <object id="65" name="woodblock_workbench" x="116.321" y="584.732" width="503.138" height="134.602"/>
+ </objectgroup>
+</map>

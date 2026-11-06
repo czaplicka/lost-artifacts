@@ -2,6 +2,30 @@ import { gameState } from '../../GameData.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { EventBus } from '../../EventBus.js';
 
+import {
+  progressionManager
+} from '../../managers/ProgressionManager.js';
+
+function stableId(value) {
+  if (
+    typeof value !== 'string' &&
+    typeof value !== 'number'
+  ) {
+    return null;
+  }
+
+  if (
+    typeof value === 'number' &&
+    !Number.isFinite(value)
+  ) {
+    return null;
+  }
+
+  const id = String(value).trim();
+
+  return id && id.length <= 400 ? id : null;
+}
+
 export class HiddenObjectsSceneFlow {
   constructor(scene) {
     this.scene = scene;
@@ -54,7 +78,6 @@ export class HiddenObjectsSceneFlow {
 
     if (!targetScene) {
       scene.isReturning = false;
-
       return false;
     }
 
@@ -110,17 +133,17 @@ export class HiddenObjectsSceneFlow {
     const scene = this.scene;
 
     const zoneIds = new Set(
-      scene.hiddenZones.map((zone) =>
+      scene.hiddenZones.map(zone =>
         String(zone.getData('id'))
       )
     );
 
     const missingZoneIds = scene.activeItems
-      .map((item) => String(item.id))
-      .filter((id) => !zoneIds.has(id));
+      .map(item => String(item.id))
+      .filter(id => !zoneIds.has(id));
 
     this.handleSceneSetupFailure(
-      `Missing clickable Tiled zones for: ` +
+      'Missing clickable Tiled zones for: ' +
       `${missingZoneIds.join(', ')}.`
     );
   }
@@ -294,11 +317,65 @@ export class HiddenObjectsSceneFlow {
 
     if (success) {
       this.handleSuccess();
-
       return;
     }
 
     this.handleFailure();
+  }
+
+  getProgressionCaseId() {
+    const candidates = [
+      gameState.currentCaseId,
+      gameState.currentMission?.caseId,
+      gameState.currentMission?.id
+    ];
+
+    for (const candidate of candidates) {
+      const id = stableId(candidate);
+
+      if (id !== null) {
+        return id;
+      }
+    }
+
+    return null;
+  }
+
+  grantCompletionXP() {
+    const caseId = this.getProgressionCaseId();
+
+    if (!caseId) {
+      console.warn(
+        '[HiddenObjectsSceneFlow] XP skipped: no stable case ID.',
+        {
+          cityId: this.scene.cityId,
+          sceneId: this.scene.sceneId
+        }
+      );
+
+      return {
+        success: false,
+        reason: 'missing_case_id'
+      };
+    }
+
+    try {
+      return progressionManager.grantReward(
+        'crime_scene_completed',
+        caseId,
+        'Crime scene processed'
+      );
+    } catch (error) {
+      console.error(
+        '[HiddenObjectsSceneFlow] Could not grant completion XP:',
+        error
+      );
+
+      return {
+        success: false,
+        reason: 'progression_error'
+      };
+    }
   }
 
   handleSuccess() {
@@ -330,12 +407,14 @@ export class HiddenObjectsSceneFlow {
       completed: true,
       completedAt: Date.now(),
       foundCardIds: [...scene.foundItems],
+
       collectedCardIds: [
         ...(
           gameState.reconstructedHeist
             ?.collectedCardIds || []
         )
       ],
+
       solutionCardIds: [
         ...(
           gameState.reconstructedHeist
@@ -351,6 +430,10 @@ export class HiddenObjectsSceneFlow {
         timeBonus
       );
 
+    // XP i identyfikator odebranej nagrody trafiają
+    // do tego samego zapisu co ukończenie sceny.
+    const xpResult = this.grantCompletionXP();
+
     saveGameState();
 
     scene.ui.updateScoreAndMisses(
@@ -358,8 +441,13 @@ export class HiddenObjectsSceneFlow {
       scene.incorrectClicks
     );
 
+    const xpMessage =
+      xpResult.success && xpResult.grantedXP > 0
+        ? ` | +${xpResult.grantedXP} XP`
+        : '';
+
     scene.ui.showMessage(
-      `Crime scene processed. Time bonus +${timeBonus}`,
+      `Crime scene processed. Time bonus +${timeBonus}${xpMessage}`,
       '#7CFC00'
     );
 
@@ -426,7 +514,6 @@ export class HiddenObjectsSceneFlow {
       typeof scene.timerController.stop === 'function'
     ) {
       scene.timerController.stop();
-
       return;
     }
 
@@ -445,11 +532,10 @@ export class HiddenObjectsSceneFlow {
         'function'
     ) {
       scene.zoneFactory.disableAllZones();
-
       return;
     }
 
-    scene.hiddenZones.forEach((zone) => {
+    scene.hiddenZones.forEach(zone => {
       if (zone?.input?.enabled) {
         zone.disableInteractive();
       }
@@ -465,13 +551,11 @@ export class HiddenObjectsSceneFlow {
         'function'
     ) {
       scene.timerController.advanceGameTime();
-
       return;
     }
 
     if (typeof scene.advanceGameTime === 'function') {
       scene.advanceGameTime();
-
       return;
     }
 
@@ -489,7 +573,6 @@ export class HiddenObjectsSceneFlow {
         'function'
     ) {
       scene.timerController.showTimeAdvanceToast();
-
       return;
     }
 

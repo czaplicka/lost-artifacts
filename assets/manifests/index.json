@@ -7,7 +7,6 @@
     "assets/manifests/cities.json",
     "assets/manifests/suspects.json",
     "assets/manifests/newspapers.json",
-    "assets/manifests/story.json",
     "assets/manifests/other.json",
     "assets/manifests/side-quests.json",
     "assets/manifests/auto-discovered.json"
@@ -380,12 +379,6 @@
     ],
     "scene:SpyShopScene": [
       "image:pi_spy_shop_background"
-    ],
-    "scene:GameOverScene": [
-      "image:backgroundgo"
-    ],
-    "scene:SuccessScene": [
-      "image:backgrounds"
     ],
     "scene:HighscoreScene": [
       "image:backgroundpc",
@@ -1949,13 +1942,72 @@
       "image:second_impression_green_jackets",
       "image:spare_pair_two_glasses",
       "image:table_matters_two_glasses",
-      "image:toast_rack_two_glasses_gift_box"
+      "image:toast_rack_two_glasses_gift_box",
+      "image:local__post_office_poste_restante",
+      "image:local__post_office_postman",
+      "image:local__post_office",
+      "image:local__postman",
+      "image:Success__background",
+      "image:banner",
+      "image:medalion_officer",
+      "image:medalion",
+      "image:money_bag_left",
+      "image:money_bag_right",
+      "image:Success__police_car",
+      "image:police_left",
+      "image:police_right",
+      "image:police_right02",
+      "image:suspect",
+      "image:treasures",
+      "image:Success__wall",
+      "image:apartment_research_kitchen",
+      "image:apartment_research_living_room",
+      "image:great_wave",
+      "image:tokyo_museum",
+      "json:alexRecoveryInquiry",
+      "json:archiveCrashFollowup",
+      "json:escapeTimeline",
+      "json:financialTrace",
+      "json:gordonConfrontation",
+      "json:gordonEthics",
+      "json:gordonSafe",
+      "json:hollyFinancialLead",
+      "json:hollySurvivalUpdate",
+      "json:margeDisclosure",
+      "json:medicalReview",
+      "json:tokyo_museum",
+      "json:_manifest",
+      "json:auction_house",
+      "json:castle",
+      "json:dockyard",
+      "json:havela",
+      "json:louvre",
+      "json:shared",
+      "json:data__objects-source__tokyo_museum",
+      "json:tower",
+      "json:reportIncidents",
+      "image:doctor",
+      "image:medical_office_empty",
+      "image:medical_office",
+      "image:no_doctor",
+      "image:post_office_poste_restante_empty",
+      "image:return_to_sender_clock_repairs_notice",
+      "image:return_to_sender_delivered_card",
+      "image:return_to_sender_envelope",
+      "image:return_to_sender_forwarding_card",
+      "image:return_to_sender_reply",
+      "tilemap:tokyo_museum",
+      "json:johnMicrofilm",
+      "json:radioSplice",
+      "image:tokio"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
       "image:apartment_debt_living_room",
       "image:apartment_collector_bathroom",
-      "image:apartment_collector_bedroom"
+      "image:apartment_collector_bedroom",
+      "image:apartment_research_kitchen",
+      "image:apartment_research_living_room"
     ],
     "auto:folder:artifacts": [
       "image:artifact_amber_necklace",
@@ -1964,7 +2016,8 @@
       "image:artifact_liberty_torch",
       "image:artifact_mona_lisa",
       "image:artifact_mughal_dagger",
-      "image:artifact_royal_seal"
+      "image:artifact_royal_seal",
+      "image:great_wave"
     ],
     "auto:folder:audio": [
       "audio:ad_jingle",
@@ -2063,7 +2116,9 @@
       "tilemap:louvre",
       "image:louvre_bg",
       "tilemap:tower",
-      "image:tower_bg"
+      "image:tower_bg",
+      "image:tokyo_museum",
+      "tilemap:tokyo_museum"
     ],
     "auto:folder:CSI": [
       "image:blood_evidence_bag",
@@ -2182,7 +2237,21 @@
       "json:typewriterComparison",
       "json:margeGift",
       "json:gordonFirstInterview",
-      "json:agencyFieldManual"
+      "json:agencyFieldManual",
+      "json:alexRecoveryInquiry",
+      "json:archiveCrashFollowup",
+      "json:escapeTimeline",
+      "json:financialTrace",
+      "json:gordonConfrontation",
+      "json:gordonEthics",
+      "json:gordonSafe",
+      "json:hollyFinancialLead",
+      "json:hollySurvivalUpdate",
+      "json:margeDisclosure",
+      "json:medicalReview",
+      "json:reportIncidents",
+      "json:johnMicrofilm",
+      "json:radioSplice"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2235,7 +2304,8 @@
       "json:objects-data:dockyard",
       "json:objects-data:havela",
       "json:objects-data:louvre",
-      "json:objects-data:tower"
+      "json:objects-data:tower",
+      "json:tokyo_museum"
     ],
     "auto:folder:data/web/missions/two-glasses": [
       "json:keywords",
@@ -2348,7 +2418,15 @@
       "image:biuro_medium",
       "image:courtroom",
       "image:Gordon",
-      "image:no_Gordon"
+      "image:no_Gordon",
+      "image:local__post_office_poste_restante",
+      "image:local__post_office_postman",
+      "image:local__post_office",
+      "image:local__postman",
+      "image:doctor",
+      "image:medical_office_empty",
+      "image:medical_office",
+      "image:no_doctor"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2356,7 +2434,8 @@
       "image:new_delhi_crime",
       "image:new_york_city_crime",
       "image:paris_crime",
-      "image:warsaw_crime"
+      "image:warsaw_crime",
+      "image:tokio"
     ],
     "auto:folder:newspapers": [
       "image:comix1",
@@ -2825,6 +2904,40 @@
       "image:post_office_postman",
       "image:post_office",
       "image:postman"
+    ],
+    "auto:folder:Success": [
+      "image:Success__background",
+      "image:banner",
+      "image:medalion_officer",
+      "image:medalion",
+      "image:money_bag_left",
+      "image:money_bag_right",
+      "image:Success__police_car",
+      "image:police_left",
+      "image:police_right",
+      "image:police_right02",
+      "image:suspect",
+      "image:treasures",
+      "image:Success__wall"
+    ],
+    "auto:folder:data/objects-source": [
+      "json:_manifest",
+      "json:auction_house",
+      "json:castle",
+      "json:dockyard",
+      "json:havela",
+      "json:louvre",
+      "json:shared",
+      "json:data__objects-source__tokyo_museum",
+      "json:tower"
+    ],
+    "auto:folder:side_quests/Post": [
+      "image:post_office_poste_restante_empty",
+      "image:return_to_sender_clock_repairs_notice",
+      "image:return_to_sender_delivered_card",
+      "image:return_to_sender_envelope",
+      "image:return_to_sender_forwarding_card",
+      "image:return_to_sender_reply"
     ]
   }
 }

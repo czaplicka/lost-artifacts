@@ -1,0 +1,1056 @@
+[
+  {
+    "id": "dark_hood",
+    "item": "Dark hood",
+    "skills": [
+      "Disguise",
+      "Stealth",
+      "Surveillance",
+      "Hand-to-hand combat"
+    ],
+    "tags": [
+      "hood",
+      "cloak",
+      "concealment",
+      "night",
+      "anonymous"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Smells strongly of salt air and wet wool; left on a mooring post by a chilled dockworker.",
+    "heistExplanation": "The most useful gear in a busy industrial dockyard is looking like an anonymous silhouette in the rain.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Stealth",
+          "Deception"
+        ],
+        "heistExplanation": "The thief blended into the dockyard's rain-soaked night crews as an unremarkable hooded silhouette."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Stealth",
+          "Surveillance",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The dark hood let the thief cross between stacked containers without becoming a recognisable shape on distant cameras."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Stealth",
+          "Disguise",
+          "Survival skills"
+        ],
+        "heistExplanation": "Once outside the warehouse, the hood helped the thief merge with workers leaving the docks in bad weather."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Hand-to-hand combat",
+          "Tactical planning",
+          "Intimidation"
+        ],
+        "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
+      }
+    ]
+  },
+  {
+    "id": "copper_dust_glove",
+    "item": "Work glove with copper dust",
+    "skills": [
+      "Investigation",
+      "Analysis",
+      "Forgery"
+    ],
+    "tags": [
+      "glove",
+      "dust",
+      "copper",
+      "residue",
+      "trace"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Belongs to a welder who spent the morning grinding copper pipes on barge #4.",
+    "heistExplanation": "Hands lie when questioned, but metallic residue under a blacklight usually tells the whole truth.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Analysis",
+          "Deception"
+        ],
+        "heistExplanation": "The thief used copper dust to imitate the residue left by legitimate dock workers, muddying the forensic trail."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Deception",
+          "Investigation",
+          "Stealth"
+        ],
+        "heistExplanation": "The glove allowed the thief to enter the working industrial zone disguised as part of the daytime maintenance crew."
+      }
+    ]
+  },
+  {
+    "id": "security_tape_fragment",
+    "item": "Torn security tape fragment",
+    "skills": [
+      "Investigation",
+      "Forgery",
+      "Museum studies"
+    ],
+    "tags": [
+      "tape",
+      "security",
+      "seal",
+      "tamper",
+      "evidence"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Ripped off an official shipping crate that contained nothing more valuable than rubber gaskets.",
+    "heistExplanation": "A master thief knows they can't hide a forced break-in unless they replace the broken tamper-evident tape with an exact match.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Investigation",
+          "Deception"
+        ],
+        "heistExplanation": "The thief replaced the tamper seal after opening the artifact crate, making the shipment look untouched at a glance."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Investigation",
+          "Forgery",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief opened the sealed crate, removed the artifact, and restored the tape well enough to delay discovery."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Museum studies",
+          "Investigation",
+          "Research"
+        ],
+        "heistExplanation": "The security markings identified which crate held the museum shipment rather than ordinary dock cargo."
+      }
+    ]
+  },
+  {
+    "id": "security_id_badge",
+    "item": "Security ID badge",
+    "skills": [
+      "Disguise",
+      "Surveillance",
+      "Interrogation"
+    ],
+    "tags": [
+      "badge",
+      "security",
+      "access",
+      "identity",
+      "disguise"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Belongs to a guard who lost it last Friday and was too embarrassed to tell his supervisor.",
+    "heistExplanation": "Sometimes the most lethal weapon in a night heist is a plastic badge that lets you walk past three checkpoints without blinking.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Surveillance"
+        ],
+        "heistExplanation": "The badge let the thief pass three security checkpoints as a guard with somewhere routine to be."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Interrogation"
+        ],
+        "heistExplanation": "The badge made other workers assume the thief belonged at the docks, even when they had never seen the face before."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Interrogation",
+          "Surveillance"
+        ],
+        "heistExplanation": "The thief used the badge to report a fake perimeter problem, sending genuine guards to inspect the wrong gate."
+      }
+    ]
+  },
+  {
+    "id": "boot_print_casting",
+    "item": "Boot print casting",
+    "skills": [
+      "Tracking",
+      "Analysis",
+      "Deduction"
+    ],
+    "tags": [
+      "footprint",
+      "shoe",
+      "track",
+      "mud",
+      "forensics"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "A steel-toed workboot tread left in wet harbor silt by the morning shift.",
+    "heistExplanation": "Every rushed escape leaves a detailed autobiography pressed directly into the mud.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Tactical planning",
+          "Survival skills"
+        ],
+        "heistExplanation": "The thief followed the deepest existing workboot tracks to reach a muddy route no patrol bothered to monitor."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief used the tide and fresh worker tracks to move when their own boot marks would be impossible to distinguish."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tracking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "A planted boot trail led guards across the docks toward a decoy escape route."
+      }
+    ]
+  },
+  {
+    "id": "dark_gloves",
+    "item": "Dark gloves",
+    "skills": [
+      "Stealth",
+      "Disguise",
+      "Deception"
+    ],
+    "tags": [
+      "gloves",
+      "concealment",
+      "grip",
+      "night",
+      "accessory"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Cheap cotton gloves bought in bulk; one has a hole right at the thumb.",
+    "heistExplanation": "A careful criminal leaves fewer reasons to be remembered by forensic technicians after the lights go out.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Stealth",
+          "Deception",
+          "Pickpocket"
+        ],
+        "heistExplanation": "The gloves let the thief handle the crate seal and artifact without leaving usable fingerprints."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Disguise",
+          "Deception"
+        ],
+        "heistExplanation": "Dark gloves completed the silhouette of an ordinary night-shift dock worker rather than a bare-handed intruder."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Stealth",
+          "Deception",
+          "Engineering"
+        ],
+        "heistExplanation": "The gloves provided grip and concealment while the thief climbed a wet perimeter fence into the cargo yard."
+      }
+    ]
+  },
+  {
+    "id": "service_key",
+    "item": "Service key",
+    "skills": [
+      "Hacking",
+      "Engineering",
+      "Tactical planning",
+      "Lockpicking"
+    ],
+    "tags": [
+      "key",
+      "service",
+      "access",
+      "maintenance",
+      "door"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Master key for the harbor maintenance sheds; usually kept in an unlocked box by the tea station.",
+    "heistExplanation": "Most heavily locked industrial complexes are only locked for people who don't know where the utility staff keeps spare keys.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used the maintenance master key to enter the cargo sheds through a door guards assumed was secure."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Stealth",
+          "Engineering"
+        ],
+        "heistExplanation": "The key opened service corridors behind the loading bays, allowing the thief to avoid the main patrol route."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief used the key to unlock the secured storage cage holding the artifact crate."
+      }
+    ]
+  },
+  {
+    "id": "dock_map",
+    "item": "Dock map",
+    "skills": [
+      "Research",
+      "Tracking",
+      "Analysis"
+    ],
+    "tags": [
+      "map",
+      "dock",
+      "route",
+      "planning",
+      "harbor"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Tacked to a noticeboard; water-damaged and showing shipping lanes from three years ago.",
+    "heistExplanation": "The getaway boat route was calculated down to the tide changes long before the vault door was even touched.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Research",
+          "Tracking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief planned a boat route around the tide schedule, leaving the dockyard before patrol launches could respond."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The map revealed a quiet path between loading zones where stacked containers blocked the guards' sight lines."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Research",
+          "Analysis",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used the map to find a lightly monitored waterside entrance used only by maintenance crews."
+      }
+    ]
+  },
+  {
+    "id": "ferry_ticket",
+    "item": "Ferry ticket",
+    "skills": [
+      "Tracking",
+      "Deduction",
+      "Investigation"
+    ],
+    "tags": [
+      "ticket",
+      "ferry",
+      "travel",
+      "route",
+      "receipt"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "One-way ticket for the 6:15 AM commuter ferry, covered in coffee stains.",
+    "heistExplanation": "A tiny piece of printed paper that can slip a very large criminal problem across international waters.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Tactical planning",
+          "Deduction"
+        ],
+        "heistExplanation": "The thief used the early commuter ferry as a low-profile escape route before the theft had even been reported."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Stealth",
+          "Tracking"
+        ],
+        "heistExplanation": "Blending into the morning commuter crowd let the thief leave the dockyard without needing a dramatic getaway."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Analysis",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The ferry timetable gave the thief a deadline precise enough to time the route through the docks between patrols."
+      }
+    ]
+  },
+  {
+    "id": "glass_fragment",
+    "item": "Glass fragment from a port lamp",
+    "skills": [
+      "Investigation",
+      "Surveillance",
+      "Analysis"
+    ],
+    "tags": [
+      "glass",
+      "fragment",
+      "lamp",
+      "harbor",
+      "trace"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Shattered when a seagull had a very poor landing on top of lighting post #3.",
+    "heistExplanation": "When a port lamp breaks suddenly, dark shadows expand right over the ideal cargo loading zone.",
+    "reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Tactical planning",
+          "Engineering"
+        ],
+        "heistExplanation": "The thief broke the lamp above the loading zone, creating a patch of darkness beyond the camera's useful range."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Stealth",
+          "Surveillance",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The darkened loading zone allowed the thief to move the artifact crate between containers without being recognised."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Engineering",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The broken lamp created an apparent safety hazard, keeping guards and maintenance staff busy away from the real operation."
+      }
+    ]
+  },
+  {
+    "id": "old_guard_badge",
+    "item": "Old guard badge",
+    "skills": [
+      "Disguise",
+      "Surveillance",
+      "Interrogation"
+    ],
+    "tags": [
+      "badge",
+      "guard",
+      "old",
+      "identity",
+      "access"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Outdated metal badge retired when the dockyard updated to digital keycards in 1988.",
+    "heistExplanation": "Expired authority still flashes impressively enough in a dark alleyway to stall a junior patrolman.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Interrogation"
+        ],
+        "heistExplanation": "The old badge was convincing enough in poor light to get the thief through an unattended perimeter checkpoint."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Surveillance",
+          "Deception"
+        ],
+        "heistExplanation": "The badge made dock workers assume the thief was a guard checking routine night activity."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Interrogation",
+          "Deception",
+          "Surveillance"
+        ],
+        "heistExplanation": "The thief flashed the badge while questioning a worker about an invented breach, keeping real guards occupied."
+      }
+    ]
+  },
+  {
+    "id": "harbor_chain",
+    "item": "Cargo chain",
+    "skills": [
+      "Tactical planning",
+      "Engineering",
+      "Hand-to-hand combat"
+    ],
+    "tags": [
+      "chain",
+      "cargo",
+      "dock",
+      "load",
+      "secure"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Heavy galvanized steel chain used to anchor floating dock platforms.",
+    "heistExplanation": "Heavy industrial gear leaves heavy, undeniable evidence when dragged across a quiet pier.",
+    "reconstructionUses": [
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Engineering",
+          "Tactical planning",
+          "Strength"
+        ],
+        "heistExplanation": "The thief used the chain and a loading hoist to move a heavy artifact crate without needing a crew."
+      },
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Tactical planning",
+          "Engineering",
+          "Intimidation",
+          "Hand-to-hand combat"
+        ],
+        "heistExplanation": "The thief used direct physical combat to subdue a dock guard and clear the path to the cargo container."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Engineering",
+          "Tactical planning",
+          "Survival skills"
+        ],
+        "heistExplanation": "The thief used the cargo chain to lower the crate onto a waiting boat below the pier."
+      }
+    ]
+  },
+  {
+    "id": "hdmi_box",
+    "item": "Cardboard box for AV gear with HDMI cable",
+    "skills": [
+      "Electronics",
+      "Hacking",
+      "Technical knowledge"
+    ],
+    "tags": [
+      "box",
+      "av",
+      "hdmi",
+      "equipment",
+      "electronics"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Discarded by the crew setting up the giant screen for outdoor movie night.",
+    "heistExplanation": "A clever thief can smuggle an entire signal array inside a box labeled \"BORING CABLES – DO NOT OPEN\".",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief hid a signal-interception rig in the AV box and used it to mimic an authorised security-device connection."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The harmless-looking cable box concealed equipment that interrupted the wireless alarm link during the crate transfer."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Electronics",
+          "Surveillance",
+          "Hacking"
+        ],
+        "heistExplanation": "The thief routed a false feed through the AV equipment, leaving one dock camera showing an earlier empty loading zone."
+      }
+    ]
+  },
+  {
+    "id": "tin_medallion",
+    "item": "Tin medallion with an eagle motif",
+    "skills": [
+      "Art history",
+      "Museum studies",
+      "Analysis",
+      "History"
+    ],
+    "tags": [
+      "medallion",
+      "eagle",
+      "artifact",
+      "ornament",
+      "symbol"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "A cheap carnival prize lost by a child during the harbor festival.",
+    "heistExplanation": "Not every shiny old object is a stolen artifact; some are just very old, worthless distractions.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "Museum studies",
+          "Analysis"
+        ],
+        "heistExplanation": "The medallion's maker marks helped the thief distinguish a valuable historic shipment from decorative tourist stock."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Art history",
+          "Forgery",
+          "Deception"
+        ],
+        "heistExplanation": "The thief used a cheap imitation medallion to make a crate of stolen pieces appear to contain harmless souvenir merchandise."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Museum studies",
+          "Analysis",
+          "Research"
+        ],
+        "heistExplanation": "The thief compared the medallion's metal and markings with the cargo list to identify the artifact worth taking."
+      }
+    ]
+  },
+  {
+    "id": "shipment_docs",
+    "item": "Rolled transport documents",
+    "skills": [
+      "Research",
+      "Investigation",
+      "Deduction"
+    ],
+    "tags": [
+      "documents",
+      "transport",
+      "shipment",
+      "paperwork",
+      "logistics"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Standard manifests for three shipping containers of imported canned tomatoes.",
+    "heistExplanation": "The escape route is often typed up by an overworked clerk who never dreamed a thief would read it.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Research",
+          "Deduction",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The transport schedule told the thief exactly which ship could carry the artifact away before anyone raised an alarm."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Research",
+          "Investigation",
+          "Analysis"
+        ],
+        "heistExplanation": "The documents revealed which container held the museum shipment disguised among routine cargo."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Research",
+          "Deception",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief used the manifest details to make the stolen artifact crate look like an ordinary scheduled export."
+      }
+    ]
+  },
+  {
+    "id": "cargo_label",
+    "item": "Shipping label marked 'Liberty Torch'",
+    "skills": [
+      "Research",
+      "Investigation",
+      "Deception"
+    ],
+    "tags": [
+      "label",
+      "shipping",
+      "cargo",
+      "liberty",
+      "fake"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "A misprinted shipping sticker slapped onto a crate of spare tractor engine parts.",
+    "heistExplanation": "The smartest heist turns a stolen treasure into routine freight moving through regular customs channels.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Research",
+          "Forgery"
+        ],
+        "heistExplanation": "The label reclassified the stolen artifact as routine freight, sending it through customs without inviting a close look."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Research"
+        ],
+        "heistExplanation": "The thief attached the label to route the artifact onto a departing cargo shipment rather than carrying it out personally."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Research",
+          "Investigation",
+          "Analysis"
+        ],
+        "heistExplanation": "The unusual label revealed which apparently ordinary crate was connected to the targeted artifact shipment."
+      }
+    ]
+  },
+  {
+    "id": "ferry_receipt",
+    "item": "Crumpled ferry receipt",
+    "skills": [
+      "Research",
+      "Tracking",
+      "Investigation"
+    ],
+    "tags": [
+      "receipt",
+      "ferry",
+      "travel",
+      "paper",
+      "harbor"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Receipt for a sausage roll and coffee purchased at the harbor kiosk.",
+    "heistExplanation": "Panicking people throw away receipts; detectives use them to rebuild precise escape timelines.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Research",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief bought passage under an ordinary name and left the dockyard on the next scheduled ferry."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The ferry timetable gave the thief a precise deadline for crossing the dockyard without waiting long enough to be noticed."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Deception",
+          "Tracking"
+        ],
+        "heistExplanation": "The thief used a routine passenger ferry rather than a dramatic private boat, disappearing among commuters and tourists."
+      }
+    ]
+  },
+  {
+    "id": "subway_map_charm",
+    "item": "Mini subway map charm",
+    "skills": [
+      "Tracking",
+      "Research",
+      "Deduction"
+    ],
+    "tags": [
+      "subway",
+      "map",
+      "charm",
+      "travel",
+      "nyc"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Fell off a commuter's keychain during the morning rush hour.",
+    "heistExplanation": "In a city like New York, even dropped keychain charms point toward potential escape subway lines.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Research",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used the nearby subway connection as the final stage of the escape after leaving the harbor."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Research",
+          "Tracking",
+          "Stealth"
+        ],
+        "heistExplanation": "The charm reminded the thief which station entrance lay beyond the warehouses, helping them avoid the watched streets."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Disguise",
+          "Tracking"
+        ],
+        "heistExplanation": "The thief changed into commuter clothes and vanished into the subway crowd instead of leaving by boat."
+      }
+    ]
+  },
+  {
+    "id": "seagull_sunglasses",
+    "item": "Plastic seagull with sunglasses",
+    "skills": [
+      "Investigation",
+      "Analysis",
+      "Deduction"
+    ],
+    "tags": [
+      "seagull",
+      "sunglasses",
+      "toy",
+      "harbor",
+      "comic"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "Tacky harbor gift shop novelty item that someone left on top of a pier railing.",
+    "heistExplanation": "Even master criminals occasionally drop something ridiculous enough to become the main evidence photo.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Investigation"
+        ],
+        "heistExplanation": "The thief used the novelty bird as a decoy package, sending guards to inspect a suspicious object on the wrong pier."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Deception",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief placed the toy near a motion sensor, repeatedly triggering harmless alerts until guards stopped treating that camera view as urgent."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Stealth",
+          "Disguise"
+        ],
+        "heistExplanation": "The thief used the toy as part of a dockside vendor disguise, looking more ridiculous than suspicious."
+      }
+    ]
+  },
+  {
+    "id": "inflatable_bagel",
+    "item": "Inflatable bagel",
+    "skills": [
+      "Investigation",
+      "Deduction",
+      "Analysis"
+    ],
+    "tags": [
+      "bagel",
+      "inflatable",
+      "food",
+      "nyc",
+      "comic"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "A promotional pool toy from a local bakery grand opening that blew into the harbor.",
+    "heistExplanation": "In New York, even breakfast-themed pool toys can end up bobbing in a crime scene search radius.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief released the inflatable into the harbor to create an apparent rescue problem, drawing attention away from the loading pier."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tactical planning",
+          "Survival skills",
+          "Deception"
+        ],
+        "heistExplanation": "The bagel marked the tide line and pickup point for a small boat waiting beyond the main dock lights."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Stealth",
+          "Disguise"
+        ],
+        "heistExplanation": "The thief posed as a frantic bakery promoter searching for the escaped inflatable, gaining a harmless reason to linger near the water."
+      }
+    ]
+  },
+  {
+    "id": "fake_pigeon_statue",
+    "item": "Tiny fake pigeon statue",
+    "skills": [
+      "Surveillance",
+      "Investigation",
+      "Deduction"
+    ],
+    "tags": [
+      "pigeon",
+      "statue",
+      "city",
+      "toy",
+      "comic"
+    ],
+    "scene": [
+      "dockyard"
+    ],
+    "trueExplanation": "A resin bird used by the pier owner to scare away actual birds; it failed completely.",
+    "heistExplanation": "In New York, real pigeons are everywhere — which makes a perfectly motionless plastic one very suspicious.",
+    "reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "The fake pigeon concealed a tiny camera that showed when the guards had left the cargo lane unwatched."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Tactical planning",
+          "Espionage"
+        ],
+        "heistExplanation": "The concealed camera's view let the thief time each move through the pier-side containers."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Surveillance",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The pigeon camera alerted an accomplice to lure guards away the moment the cargo route was clear."
+      }
+    ]
+  }
+]

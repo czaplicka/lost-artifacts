@@ -1,13 +1,14 @@
 import { gameState } from '../../GameData.js';
 import {
- ALIBI_QUEST_ID,ALIBI_QUESTIONS,ALIBI_ENDINGS,getAlibiFinale,getAlibiMissing,
+ ALIBI_QUEST_ID,ALIBI_QUESTIONS,ALIBI_ENDINGS,getAlibiFinale,
  isAlibiReady,isAlibiReconstructed,setAlibiStep,selectAlibiAnswer,checkAlibiAnswer,
  selectAlibiEnding,getAlibiPreview,alibiPreviewToken,finishAlibiReport
 } from '../../managers/AlibiResolutionService.js';
+import { alibiSilenceOfferKnown } from './AlibiGuidanceRules.js';
 const DRAFT='alibi_final_report_draft',SENT='alibi_final_report_sent',REPLY='alibi_final_report_reply',OFFER='alibi_club_silence_offer';
 const IDS=new Set([DRAFT,SENT,REPLY,OFFER]);
 export class AlibiReportUI{
- constructor(ui){this.ui=ui;this.confirmedPreview=null;this.notice='';this.install();}
+ constructor(ui){this.ui=ui;this.confirmedPreview=null;this.notice='';this.opened=false;this.install();}
  refresh(){const u=this.ui;if(u.isOpen&&!u.suspended&&!u.destroyed&&u.app==='mail')u.render();}
  mail(items){
   const normal=items.filter(m=>!IDS.has(m.id)),q=gameState.piQuests?.quests?.[ALIBI_QUEST_ID],s=getAlibiFinale();
@@ -17,30 +18,31 @@ export class AlibiReportUI{
    return[{id:REPLY,from:'Arthur Finch',subject:'Re: The Borrowed Alibi — case closed',date:'Case correspondence',body:p.reply},
     {id:SENT,from:'You → '+p.deliveries.join('; '),subject:'Sent: The Borrowed Alibi — final report',date:'Case closed',body:p.report+(p.dossier?'\n\nREFERRAL DOSSIER\n'+p.dossier:'')},...normal];
   }
-  const flags=gameState.piPhoneInvestigations?.cases?.borrowed_alibi?.flags||[];
   if(q.status!=='active'&&!s.settlement)return normal;
-  if(!flags.includes('club_sample_received')&&!s.settlement)return normal;
-  const result=[{id:DRAFT,from:'Your case file',subject:'Case review — The Borrowed Alibi',date:s.settlement?'Settlement pending':'Reconstruction / final report',body:'Review the evidence, reconstruct the case and choose a report.'}];
-  if(isAlibiReady()||s.settlement)result.push({id:OFFER,from:'Tuesday Alibi Club — Membership',subject:'A private customer-feedback arrangement',date:'Follow-up to your sample request',body:'Dear prospective customer,\n\nFollowing your demonstration request, we can offer $120 for keeping our package and any findings about its use out of further reports. Send your client an inconclusive account instead.\n\nThis is a payment for silence, not a purchase refund. If you accept, your own contract fee is separate. The offer cannot erase anything you have already told other people.\n\nNo money will be transferred unless you explicitly accept this arrangement in your final report.\n\nTuesday Alibi Club'});
-  return[...result,...normal];
+  const offer=alibiSilenceOfferKnown(gameState)?[{id:OFFER,from:'Tuesday Alibi Club — Membership',
+   subject:'The private feedback arrangement you discussed',date:'Following your telephone enquiry',
+   body:'As discussed during your call, we offer $120 for keeping our package and findings about its use out of further reports. Send your client an inconclusive account instead.\n\nThis is payment for silence, not a refund. The client’s contract fee is separate. The offer cannot erase earlier conversations.\n\nNo money is transferred unless you explicitly accept this arrangement when confirming your final report.\n\nTuesday Alibi Club'}]:[];
+  return [...offer,...normal];
  }
+ open(){this.opened=true;this.confirmedPreview=null;this.ui.app='mail';this.ui.selectedId=null;this.ui.bodyPage=0;this.notice='';this.refresh();}
  install(){
   const u=this.ui,docs=u.documents,mail=docs.getMail.bind(docs);docs.getMail=()=>this.mail(mail());
   this.paged=docs.renderPagedText.bind(docs);
   const render=docs.render.bind(docs);
   docs.render=()=>{
-   if(u.app==='mail'){
-    const items=docs.getMail(),per=Math.max(1,Math.floor((u.window.h-150)/64));
-    const pages=Math.max(1,Math.ceil(items.length/per));
-    u.listPage=Math.max(0,Math.min(u.listPage||0,pages-1));
-    const visible=items.slice(u.listPage*per,(u.listPage+1)*per);
-    const selected=visible.find(m=>m.id===u.selectedId)||visible[0];
-    if(selected?.id===DRAFT){u.selectedId=DRAFT;this.render();return;}
-   }
+   if(u.app!=='mail')this.opened=false;
+   const active=gameState.piQuests?.quests?.[ALIBI_QUEST_ID]?.status==='active';
+   if(u.app==='mail'&&this.opened&&active){this.render();return;}
+   if(u.selectedId===DRAFT)u.selectedId=null;
    render();
+   // The earlier receipt/dialogue package already supplies its own review button.
+   if(u.app==='mail'&&active&&u.window&&!u[Symbol.for('lostArtifacts.alibiDialogueUIV2')]){
+    const b=u.window;u.drawing.button(b.x+b.w-(b.w>=600?190:120),b.y+b.h-77,b.w>=600?'CASE REVIEW':'REVIEW',()=>this.open());
+   }
   };
  }
  back(){
+  this.opened=false;
   const u=this.ui,items=u.documents.getMail(),target=items.find(m=>m.id!==DRAFT),per=Math.max(1,Math.floor((u.window.h-150)/64));
   u.selectedId=target?.id||null;u.listPage=Math.max(0,Math.floor(items.findIndex(m=>m.id===u.selectedId)/per));u.bodyPage=0;this.confirmedPreview=null;this.refresh();
  }
@@ -54,8 +56,11 @@ export class AlibiReportUI{
   const s=getAlibiFinale();
   if(this.confirmedPreview){this.renderConfirmation();return;}
   if(s.settlement||isAlibiReconstructed()){this.renderReports();return;}
-  const missing=getAlibiMissing();
-  if(missing.length){const a=this.frame('THE BORROWED ALIBI — CASE REVIEW');this.paged('Before reconstruction:\n\n'+missing.map(t=>'• '+t).join('\n\n')+'\n\nFinish each phone response through RETURN TO NOTES. Collect highlighted clues manually.',a.x,a.y,a.w,Math.max(80,a.bottom-a.y-10));return;}
+  if(!isAlibiReady()){
+   const a=this.frame('THE BORROWED ALIBI — CASE RECORDS');
+   this.paged('There are still unverified parts of the case.\n\nUse the relevant conversations to establish what each source can confirm: a sample supplies wording; the restaurant records a real visit; a person’s explanation is not independent attendance evidence.\n\nIf a comparison is unclear, ask the source about the document or the relevant incident. Keep statements, records and your conclusions separate.\n\nThis screen does not select a suspect or a keyword combination for you. Optional HINT assistance remains available from the normal case interface.',
+    a.x,a.y,a.w,Math.max(80,a.bottom-a.y-10));return;
+  }
   this.renderReconstruction();
  }
  renderReconstruction(){
@@ -77,9 +82,12 @@ export class AlibiReportUI{
  }
  renderReports(){
   const u=this.ui,d=u.drawing,s=getAlibiFinale(),locked=Boolean(s.settlement),a=this.frame(locked?'THE BORROWED ALIBI — FINISH SETTLEMENT':'THE BORROWED ALIBI — FINAL REPORT');
-  ALIBI_ENDINGS.forEach((e,i)=>d.button(a.x+i*230,a.y,e.label,()=>{selectAlibiEnding(e.id);this.notice='';u.bodyPage=0;this.refresh();},!locked));
+  const endings=ALIBI_ENDINGS.filter(e=>e.id!=='silence'||alibiSilenceOfferKnown(gameState));
+  endings.forEach((e,i)=>d.button(a.x+i*230,a.y,e.label,()=>{selectAlibiEnding(e.id);this.notice='';u.bodyPage=0;this.refresh();},!locked));
   const p=getAlibiPreview();
-  const text=p?`${p.title}\n\n${p.report}${p.dossier?'\n\nSEPARATE COMPANY DOSSIER\n'+p.dossier:''}\n\nDelivery: ${p.deliveries.join('; ')}\n\nPrivacy: ${p.privacy}`:'Choose a report above.\n\nRELEVANT FACTS: preserve the relevant findings, omit unnecessary private explanations.\n\nFULL DISCLOSURE: include the two embarrassing personal explanations in the client report.\n\nTAKE THE OFFER: accept $120 for silence and withhold the findings. This does not erase earlier conversations.';
+  const descriptions={discreet:'Preserve relevant findings; omit unnecessary private explanations.',full:'Include the two personal explanations in the client report.',silence:'Accept the discussed $120 silence payment and withhold the findings. Earlier conversations are not erased.'};
+  const text=p?`${p.title}\n\n${p.report}${p.dossier?'\n\nSEPARATE COMPANY DOSSIER\n'+p.dossier:''}\n\nDelivery: ${p.deliveries.join('; ')}\n\nPrivacy: ${p.privacy}`
+   :'Choose a report above.\n\n'+endings.map(e=>e.label+': '+descriptions[e.id]).join('\n\n');
   this.paged(text,a.x,a.y+52,a.w,Math.max(70,a.bottom-a.y-165));
   if(p)d.text(a.x,a.bottom-100,`Contract: $${p.fee} | Silence payment: $${p.bonus} | Total: $${p.total}\nIntegrity: ${p.nominalIntegrity>=0?'+':''}${p.nominalIntegrity} (subject to the existing -100 / +100 limits).`,14,'#514c39',a.w);
   d.text(a.x,a.bottom-60,this.notice||s.settlement?.lastError||'Nothing is sent or paid until you confirm.',13,'#725a3a',a.w);
@@ -92,7 +100,7 @@ export class AlibiReportUI{
   d.text(a.x,a.bottom-116,`Contract $${p.fee} + silence payment $${p.bonus} = $${p.total}.\nIntegrity ${p.nominalIntegrity>=0?'+':''}${p.nominalIntegrity}, clamped by the reputation system.\nThis closes the quest. A referral is not a conviction.`,14,'#514c39',a.w);
   d.button(a.x,a.bottom-29,'SEND & CLOSE',()=>{
    const result=finishAlibiReport(p.endingId,alibiPreviewToken(p));this.confirmedPreview=null;this.notice=result.message;u.notice=result.message;
-   if(result.ok){u.selectedId=REPLY;u.listPage=0;}u.bodyPage=0;this.refresh();
+   if(result.ok){this.opened=false;u.selectedId=REPLY;u.listPage=0;}u.bodyPage=0;this.refresh();
   });
   d.button(a.x+a.w-120,a.bottom-29,'CANCEL',()=>{this.confirmedPreview=null;u.bodyPage=0;this.refresh();});
  }

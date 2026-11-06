@@ -6,9 +6,10 @@ export const APPEARANCE_OPTIONS = {
       { id: 'warm', label: 'Warm' },
       { id: 'golden', label: 'Golden' },
       { id: 'deep', label: 'Deep' },
-      { id: 'rich', label: 'Rich' },
-    ],
+      { id: 'rich', label: 'Rich' }
+    ]
   },
+
   hairStyle: {
     label: 'Hair Style',
     options: [
@@ -20,9 +21,10 @@ export const APPEARANCE_OPTIONS = {
       { id: 'braids', label: 'Braids' },
       { id: 'pixie', label: 'Pixie' },
       { id: 'shaved', label: 'Shaved' },
-      { id: 'hat', label: 'Hat' },
-    ],
+      { id: 'hat', label: 'Hat' }
+    ]
   },
+
   hairColor: {
     label: 'Hair Colour',
     options: [
@@ -30,27 +32,30 @@ export const APPEARANCE_OPTIONS = {
       { id: 'brown', label: 'Brown' },
       { id: 'blonde', label: 'Blonde' },
       { id: 'red', label: 'Red' },
-      { id: 'grey', label: 'Grey' },
-    ],
+      { id: 'grey', label: 'Grey' }
+    ]
   },
+
   coat: {
     label: 'Coat',
     options: [
       { id: 'trench', label: 'Trench' },
       { id: 'leather', label: 'Leather' },
       { id: 'blazer', label: 'Blazer' },
-      { id: 'sweater', label: 'Sweater' },
-    ],
+      { id: 'sweater', label: 'Sweater' }
+    ]
   },
+
   facialHair: {
     label: 'Facial Hair',
     options: [
       { id: 'none', label: 'None' },
       { id: 'moustache', label: 'Moustache' },
       { id: 'shortBeard', label: 'Short Beard' },
-      { id: 'fullBeard', label: 'Full Beard' },
-    ],
+      { id: 'fullBeard', label: 'Full Beard' }
+    ]
   },
+
   makeup: {
     label: 'Makeup',
     options: [
@@ -58,8 +63,10 @@ export const APPEARANCE_OPTIONS = {
       { id: 'natural', label: 'Natural' },
       { id: 'red', label: 'Red Lip' },
       { id: 'dark', label: 'Dark Lip' },
-    ],
+      { id: 'glitter', label: 'Glitter' }
+    ]
   },
+
   accessory: {
     label: 'Accessory',
     options: [
@@ -69,8 +76,19 @@ export const APPEARANCE_OPTIONS = {
       { id: 'notebook', label: 'Notebook' },
       { id: 'studs', label: 'Studs' },
       { id: 'hoops', label: 'Hoops' },
-    ],
+      { id: 'earring', label: 'Earring' }
+    ]
   },
+
+  tattoos: {
+    label: 'Tattoos',
+    options: [
+      { id: 'none', label: 'None' },
+      { id: 'dragon', label: 'Dragon' },
+      { id: 'skull', label: 'Skull' },
+      { id: 'rose', label: 'Rose' }
+    ]
+  }
 };
 
 export const DEFAULT_APPEARANCE = {
@@ -81,6 +99,7 @@ export const DEFAULT_APPEARANCE = {
   facialHair: 'none',
   makeup: 'none',
   accessory: 'none',
+  tattoos: 'none'
 };
 
 const SUMMARY_LABELS = {
@@ -89,8 +108,9 @@ const SUMMARY_LABELS = {
     warm: 'Warm skin',
     golden: 'Golden skin',
     deep: 'Deep skin',
-    rich: 'Rich skin',
+    rich: 'Rich skin'
   },
+
   hairStyle: {
     neat: 'Neat',
     messy: 'Messy',
@@ -100,33 +120,39 @@ const SUMMARY_LABELS = {
     braids: 'Braided',
     pixie: 'Pixie',
     shaved: 'Shaved',
-    hat: 'Hat',
+    hat: 'Hat'
   },
+
   hairColor: {
     black: 'black hair',
     brown: 'brown hair',
     blonde: 'blonde hair',
     red: 'red hair',
-    grey: 'grey hair',
+    grey: 'grey hair'
   },
+
   coat: {
     trench: 'Trench coat',
     leather: 'Leather jacket',
     blazer: 'Blazer',
-    sweater: 'Sweater',
+    sweater: 'Sweater'
   },
+
   facialHair: {
     none: 'No facial hair',
     moustache: 'Moustache',
     shortBeard: 'Short beard',
-    fullBeard: 'Full beard',
+    fullBeard: 'Full beard'
   },
+
   makeup: {
     none: 'No makeup',
     natural: 'Natural makeup',
     red: 'Red lip',
     dark: 'Dark lip',
+    glitter: 'Glitter'
   },
+
   accessory: {
     none: 'No accessory',
     glasses: 'Glasses',
@@ -134,7 +160,15 @@ const SUMMARY_LABELS = {
     notebook: 'Notebook',
     studs: 'Stud earrings',
     hoops: 'Hoop earrings',
+    earring: 'Earring'
   },
+
+  tattoos: {
+    none: 'No tattoos',
+    dragon: 'Dragon tattoo',
+    skull: 'Skull tattoo',
+    rose: 'Rose tattoo'
+  }
 };
 
 function escapeHtml(value = '') {
@@ -147,11 +181,18 @@ function escapeHtml(value = '') {
 }
 
 export function normalizeAppearance(appearance = {}) {
+  const source =
+    appearance && typeof appearance === 'object'
+      ? appearance
+      : {};
+
   const normalized = { ...DEFAULT_APPEARANCE };
 
   Object.entries(APPEARANCE_OPTIONS).forEach(([category, group]) => {
-    const candidate = appearance[category];
-    const isValid = group.options.some(({ id }) => id === candidate);
+    const candidate = source[category];
+    const isValid = group.options.some(
+      ({ id }) => id === candidate
+    );
 
     if (isValid) {
       normalized[category] = candidate;
@@ -171,10 +212,15 @@ export function getAppearanceSummary(appearance = {}) {
     SUMMARY_LABELS.facialHair[value.facialHair],
     SUMMARY_LABELS.makeup[value.makeup],
     SUMMARY_LABELS.accessory[value.accessory],
+    SUMMARY_LABELS.tattoos[value.tattoos]
   ].join(' · ');
 }
 
-export function renderAppearanceOption(category, option, selectedValue) {
+export function renderAppearanceOption(
+  category,
+  option,
+  selectedValue
+) {
   const selected = option.id === selectedValue;
 
   return `
@@ -183,33 +229,47 @@ export function renderAppearanceOption(category, option, selectedValue) {
       type="button"
       role="radio"
       aria-checked="${selected}"
-      data-appearance-category="${category}"
-      data-appearance-value="${option.id}"
+      data-appearance-category="${escapeHtml(category)}"
+      data-appearance-value="${escapeHtml(option.id)}"
     >
-      ${option.label}
+      ${escapeHtml(option.label)}
     </button>
   `;
 }
 
-export function renderAppearanceGroup(category, group, appearance) {
+export function renderAppearanceGroup(
+  category,
+  group,
+  appearance
+) {
   return `
     <fieldset
       class="appearance-option-group"
       role="radiogroup"
-      aria-label="${group.label}"
+      aria-label="${escapeHtml(group.label)}"
     >
-      <legend>${group.label}</legend>
+      <legend>${escapeHtml(group.label)}</legend>
 
       <div class="appearance-option-list">
-        ${group.options.map((option) => (
-          renderAppearanceOption(category, option, appearance[category])
-        )).join('')}
+        ${group.options
+          .map(option =>
+            renderAppearanceOption(
+              category,
+              option,
+              appearance[category]
+            )
+          )
+          .join('')}
       </div>
     </fieldset>
   `;
 }
 
-export function renderAvatarPreview({ appearance, name, alias }) {
+export function renderAvatarPreview({
+  appearance,
+  name,
+  alias
+} = {}) {
   const value = normalizeAppearance(appearance);
   const safeName = escapeHtml(name || 'UNNAMED APPLICANT');
   const safeAlias = escapeHtml(alias || 'UNLISTED');
@@ -231,6 +291,7 @@ export function renderAvatarPreview({ appearance, name, alias }) {
         data-facial-hair="${value.facialHair}"
         data-makeup="${value.makeup}"
         data-accessory="${value.accessory}"
+        data-tattoos="${value.tattoos}"
         role="img"
         aria-label="Detective portrait preview"
       >
@@ -245,6 +306,7 @@ export function renderAvatarPreview({ appearance, name, alias }) {
         <div class="avatar-mouth"></div>
         <div class="avatar-facial-hair"></div>
         <div class="avatar-makeup"></div>
+        <div class="avatar-tattoos"></div>
         <div class="avatar-accessory"></div>
       </div>
 
@@ -263,10 +325,11 @@ export function renderAvatarPreview({ appearance, name, alias }) {
   `;
 }
 
-export function renderIdentityStep(playerData) {
-  const appearance = normalizeAppearance(playerData.appearance);
-  const safeName = escapeHtml(playerData.name || '');
-  const safeAlias = escapeHtml(playerData.alias || '');
+export function renderIdentityStep(playerData = {}) {
+  const data = playerData || {};
+  const appearance = normalizeAppearance(data.appearance);
+  const safeName = escapeHtml(data.name || '');
+  const safeAlias = escapeHtml(data.alias || '');
 
   return `
     <section
@@ -284,6 +347,7 @@ export function renderIdentityStep(playerData) {
         <div class="character-identity-fields">
           <div class="character-field">
             <label for="character-name">Name</label>
+
             <input
               id="character-name"
               name="name"
@@ -298,6 +362,7 @@ export function renderIdentityStep(playerData) {
 
           <div class="character-field">
             <label for="character-alias">Alias</label>
+
             <input
               id="character-alias"
               name="alias"
@@ -329,17 +394,23 @@ export function renderIdentityStep(playerData) {
             </p>
 
             <div class="character-appearance-controls">
-              ${Object.entries(APPEARANCE_OPTIONS).map(([category, group]) => (
-                renderAppearanceGroup(category, group, appearance)
-              )).join('')}
+              ${Object.entries(APPEARANCE_OPTIONS)
+                .map(([category, group]) =>
+                  renderAppearanceGroup(
+                    category,
+                    group,
+                    appearance
+                  )
+                )
+                .join('')}
             </div>
           </section>
         </div>
 
         ${renderAvatarPreview({
           appearance,
-          name: playerData.name,
-          alias: playerData.alias,
+          name: data.name,
+          alias: data.alias
         })}
       </div>
     </section>

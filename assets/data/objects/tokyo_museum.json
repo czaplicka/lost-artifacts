@@ -1,0 +1,428 @@
+[
+  {
+    "id": "woodblock_workbench",
+    "item": "Woodblock printing workbench",
+    "skills": [
+      "Forgery",
+      "Art history",
+      "Research",
+      "History",
+      "Museum studies",
+      "Engineering",
+      "Problem-solving",
+      "Technical knowledge"
+    ],
+    "tags": [
+      "wood",
+      "printing",
+      "workbench",
+      "ink"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "The botanical test print has been rejected eleven times. The twelfth version has an angry leaf.",
+    "heistExplanation": "The thief used the printing station to prepare matching paper and ink samples for a substitute that would survive a casual inspection.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Art history",
+          "Research"
+        ],
+        "heistExplanation": "The thief used the printing station to prepare matching paper and ink samples for a substitute that would survive a casual inspection."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "History",
+          "Museum studies"
+        ],
+        "heistExplanation": "Comparison proofs at the printing station showed the fine line details that distinguished the valuable early impression from later copies."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Engineering",
+          "Problem-solving",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief used the workbench's flat support boards to slide the fragile print out of its opened mount without bending the paper."
+      }
+    ]
+  },
+  {
+    "id": "humidity_controller",
+    "item": "Display humidity controller",
+    "skills": [
+      "Electronics",
+      "Engineering",
+      "Technical knowledge",
+      "Hacking",
+      "Analysis",
+      "Investigation",
+      "Deduction"
+    ],
+    "tags": [
+      "climate",
+      "panel",
+      "electronics",
+      "display"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "The controller reports perfect conditions. The plant beside it has filed a dissenting opinion.",
+    "heistExplanation": "The thief put the display into its authorised conservation mode, temporarily suspending the case-open alarm while keeping climate control running.",
+    "reconstructionUses": [
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief put the display into its authorised conservation mode, temporarily suspending the case-open alarm while keeping climate control running."
+      },
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief exploited the controller's linked maintenance interface to make the display accept an unauthorised conservation session."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Analysis",
+          "Investigation",
+          "Deduction"
+        ],
+        "heistExplanation": "The controller's service log revealed the scheduled maintenance interval when the display camera was routinely taken offline; the thief timed the crossing for that gap."
+      }
+    ]
+  },
+  {
+    "id": "delivery_bento_box",
+    "item": "Delivery bento box",
+    "skills": [
+      "Disguise",
+      "Deception",
+      "Persuasion",
+      "Manipulation",
+      "Negotiation",
+      "Tactical planning",
+      "Stealth"
+    ],
+    "tags": [
+      "food",
+      "delivery",
+      "box",
+      "compartments"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "Every compartment is empty except the pickles. Even a criminal has standards.",
+    "heistExplanation": "The thief carried the bento delivery through the service entrance, posing as the courier expected by the evening staff.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief carried the bento delivery through the service entrance, posing as the courier expected by the evening staff."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Manipulation",
+          "Negotiation",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief arranged a disputed food delivery that drew the guards to the service counter while the gallery was left unattended."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "Carrying the delivery box gave the thief an ordinary reason to wait beside the staff corridor without looking like a visitor studying security."
+      }
+    ]
+  },
+  {
+    "id": "shoji_screen",
+    "item": "Sliding exhibition screen",
+    "skills": [
+      "Stealth",
+      "Tactical planning",
+      "Surveillance",
+      "Problem-solving",
+      "Deception",
+      "Museum studies",
+      "Manipulation"
+    ],
+    "tags": [
+      "screen",
+      "wood",
+      "paper",
+      "partition"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "A paper partition: the museum's most confident answer to the question of structural security.",
+    "heistExplanation": "The thief moved behind the exhibition screen after checking the patrol position, keeping their silhouette out of the guards' sight.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Stealth",
+          "Tactical planning",
+          "Surveillance"
+        ],
+        "heistExplanation": "The thief moved behind the exhibition screen after checking the patrol position, keeping their silhouette out of the guards' sight."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Problem-solving",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief shifted the freestanding screen into the camera's sight line, concealing the approach to the display."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Museum studies",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief positioned the screen as if conservation work were in progress, making the temporarily obscured display look like routine museum business."
+      }
+    ]
+  },
+  {
+    "id": "audio_guide_headset",
+    "item": "Museum audio-guide headset",
+    "skills": [
+      "Disguise",
+      "Deception",
+      "Stealth",
+      "Research",
+      "History",
+      "Museum studies",
+      "Problem-solving",
+      "Manipulation"
+    ],
+    "tags": [
+      "headset",
+      "audio",
+      "visitor",
+      "charging"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "Track seven is a twelve-minute explanation of a rectangle. Critics call it immersive.",
+    "heistExplanation": "The thief wore the museum headset and followed the visitor route, appearing to study the exhibition rather than the guards.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief wore the museum headset and followed the visitor route, appearing to study the exhibition rather than the guards."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Research",
+          "History",
+          "Museum studies"
+        ],
+        "heistExplanation": "The detailed audio commentary identified the early impression and described the distinguishing publisher mark the thief needed to find."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Problem-solving",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief left the headset playing loudly beside the charging station, prompting a guard to leave the gallery and investigate the apparent equipment fault."
+      }
+    ]
+  },
+  {
+    "id": "ticket_machine",
+    "item": "Museum ticket machine",
+    "skills": [
+      "Hacking",
+      "Electronics",
+      "Technical knowledge",
+      "Engineering",
+      "Problem-solving",
+      "Tactical planning"
+    ],
+    "tags": [
+      "machine",
+      "ticket",
+      "screen",
+      "service"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "The machine offers adult tickets, student tickets, and the silent judgement of anyone selecting the wrong one.",
+    "heistExplanation": "The thief used the ticket machine's service interface to issue a temporary installer credential accepted by the staff entrance.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief used the ticket machine's service interface to issue a temporary installer credential accepted by the staff entrance."
+      },
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Engineering",
+          "Technical knowledge",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief exploited the machine's maintenance connection to trigger the authorised installer-entry procedure without passing the visitor checkpoint."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Hacking",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief triggered repeated ticket-validation errors, drawing the entrance guard away to deal with the growing queue."
+      }
+    ]
+  },
+  {
+    "id": "origami_crane_note",
+    "item": "Origami crane with a folded note",
+    "skills": [
+      "Seduction",
+      "Persuasion",
+      "Manipulation",
+      "Negotiation",
+      "Interrogation",
+      "Investigation",
+      "Deduction"
+    ],
+    "tags": [
+      "origami",
+      "crane",
+      "paper",
+      "message"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "The note says 'We need to talk.' Somehow folding it into a bird has not made this less threatening.",
+    "heistExplanation": "A personal invitation tucked into the crane persuaded a guard to leave the gallery for a private meeting in the service corridor.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Seduction",
+          "Persuasion",
+          "Manipulation"
+        ],
+        "heistExplanation": "A personal invitation tucked into the crane persuaded a guard to leave the gallery for a private meeting in the service corridor."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Negotiation",
+          "Persuasion",
+          "Manipulation"
+        ],
+        "heistExplanation": "The folded note recorded an arrangement with a staff member to leave the service door open during the exhibition changeover."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Interrogation",
+          "Investigation",
+          "Deduction"
+        ],
+        "heistExplanation": "Answers concealed inside the folded note revealed the guards' break routine; the thief had questioned a staff member beforehand and used that information to choose an unwatched crossing."
+      }
+    ]
+  },
+  {
+    "id": "conservation_tube",
+    "item": "Indigo conservation transport tube",
+    "skills": [
+      "Tactical planning",
+      "Survival skills",
+      "Deception",
+      "Forgery",
+      "Museum studies",
+      "Technical knowledge",
+      "Problem-solving"
+    ],
+    "tags": [
+      "tube",
+      "transport",
+      "indigo",
+      "strap",
+      "conservation"
+    ],
+    "scene": [
+      "tokyo_museum"
+    ],
+    "trueExplanation": "The label promises archival protection. It says nothing about protection from international embarrassment.",
+    "heistExplanation": "The thief secured the print inside the rigid tube and carried it out with the scheduled conservation delivery, protecting the paper during the escape.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tactical planning",
+          "Survival skills",
+          "Deception"
+        ],
+        "heistExplanation": "The thief secured the print inside the rigid tube and carried it out with the scheduled conservation delivery, protecting the paper during the escape."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Museum studies",
+          "Deception"
+        ],
+        "heistExplanation": "The thief attached a forged conservation-transfer label to the tube, making the stolen print look like an authorised outgoing loan."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Museum studies",
+          "Technical knowledge",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief used the tube's removable archival carrier to support the unmounted print and transfer it without tearing or creasing the paper."
+      }
+    ]
+  }
+]

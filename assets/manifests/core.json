@@ -1,8 +1,24 @@
 {
   "assets": [
     {
-      "key": "btnRookie",
-      "url": "assets/buttons/rookie.webp",
+      "key": "ad_jingle",
+      "url": "assets/audio/ad_jingle.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "alleysound",
+      "url": "assets/audio/alley.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "apt_icon",
+      "url": "assets/ico/apt.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -10,8 +26,16 @@
       ]
     },
     {
-      "key": "btnOfficer",
-      "url": "assets/buttons/officer.webp",
+      "key": "arrestsound",
+      "url": "assets/audio/arrest.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "atlas",
+      "url": "assets/ico/atlas.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -19,21 +43,11 @@
       ]
     },
     {
-      "key": "btnCaptain",
-      "url": "assets/buttons/captain.webp",
-      "type": "image",
+      "key": "auth-styles-css",
+      "url": "assets/css/auth-styles.css",
+      "type": "css",
       "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "btnStart",
-      "url": "assets/buttons/start.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
+        "css"
       ]
     },
     {
@@ -46,8 +60,16 @@
       ]
     },
     {
-      "key": "next",
-      "url": "assets/buttons/next.webp",
+      "key": "banksound",
+      "url": "assets/audio/bank.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "beard",
+      "url": "assets/ui/beard.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -55,8 +77,8 @@
       ]
     },
     {
-      "key": "load",
-      "url": "assets/buttons/load.webp",
+      "key": "big_forhead",
+      "url": "assets/ui/big_forhead.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -64,8 +86,8 @@
       ]
     },
     {
-      "key": "btnSave",
-      "url": "assets/buttons/save.webp",
+      "key": "btnCaptain",
+      "url": "assets/buttons/captain.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -91,15 +113,6 @@
       ]
     },
     {
-      "key": "btnSettings",
-      "url": "assets/buttons/settings.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
       "key": "btnHiscore",
       "url": "assets/buttons/hiscore.webp",
       "type": "image",
@@ -109,8 +122,8 @@
       ]
     },
     {
-      "key": "new_game",
-      "url": "assets/buttons/new_game.webp",
+      "key": "btnOfficer",
+      "url": "assets/buttons/officer.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -118,8 +131,8 @@
       ]
     },
     {
-      "key": "loginbtn",
-      "url": "assets/buttons/login.webp",
+      "key": "btnRookie",
+      "url": "assets/buttons/rookie.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -127,8 +140,8 @@
       ]
     },
     {
-      "key": "registerbtn",
-      "url": "assets/buttons/register.webp",
+      "key": "btnSave",
+      "url": "assets/buttons/save.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -136,8 +149,8 @@
       ]
     },
     {
-      "key": "atlas",
-      "url": "assets/ico/atlas.webp",
+      "key": "btnSettings",
+      "url": "assets/buttons/settings.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -145,8 +158,8 @@
       ]
     },
     {
-      "key": "inventory_icon",
-      "url": "assets/ico/inventory.webp",
+      "key": "btnStart",
+      "url": "assets/buttons/start.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -154,62 +167,32 @@
       ]
     },
     {
-      "key": "destination",
-      "url": "assets/ico/plane.webp",
-      "type": "image",
+      "key": "citysound",
+      "url": "assets/audio/city.mp3",
+      "type": "audio",
       "groups": [
-        "ui",
-        "backgrounds"
+        "audio"
       ]
     },
     {
-      "key": "plane",
-      "url": "assets/ico/plane.webp",
-      "type": "image",
+      "key": "click_sound",
+      "url": "assets/audio/click.mp3",
+      "type": "audio",
       "groups": [
-        "ui",
-        "backgrounds"
+        "audio"
       ]
     },
     {
-      "key": "search",
-      "url": "assets/ico/search.webp",
-      "type": "image",
+      "key": "correct",
+      "url": "assets/audio/correct.mp3",
+      "type": "audio",
       "groups": [
-        "ui",
-        "backgrounds"
+        "audio"
       ]
     },
     {
-      "key": "policja",
-      "url": "assets/ico/policja.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "hotel_icon",
-      "url": "assets/ico/hotel.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "shop_icon",
-      "url": "assets/ico/shop.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "apt_icon",
-      "url": "assets/ico/apt.webp",
+      "key": "crime_board",
+      "url": "assets/ico/crime_board.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -226,6 +209,56 @@
       ]
     },
     {
+      "key": "crime-board-css",
+      "url": "assets/css/crime-board.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "crimelab_ambient",
+      "url": "assets/audio/crimelab_ambient.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "destination",
+      "url": "assets/ico/plane.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "detective-intro",
+      "url": "assets/voice/detective-intro.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "detectiveIntro",
+      "url": "assets/video/detective-intro.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ]
+    },
+    {
+      "key": "earings",
+      "url": "assets/ui/earings.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
       "key": "filebutt",
       "url": "assets/ico/file.webp",
       "type": "image",
@@ -235,8 +268,16 @@
       ]
     },
     {
-      "key": "passport",
-      "url": "assets/ico/passport.webp",
+      "key": "game_over",
+      "url": "assets/audio/game_over.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "glasses",
+      "url": "assets/ui/glasses.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -244,8 +285,8 @@
       ]
     },
     {
-      "key": "telephone",
-      "url": "assets/ico/telephone.webp",
+      "key": "gotee",
+      "url": "assets/ui/gotee.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -253,8 +294,130 @@
       ]
     },
     {
-      "key": "crime_board",
-      "url": "assets/ico/crime_board.webp",
+      "key": "hotel_icon",
+      "url": "assets/ico/hotel.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotelsound",
+      "url": "assets/audio/hotel.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "in",
+      "url": "assets/video/in.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ]
+    },
+    {
+      "key": "inventory_icon",
+      "url": "assets/ico/inventory.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "load",
+      "url": "assets/buttons/load.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "loginbtn",
+      "url": "assets/buttons/login.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "long_hair",
+      "url": "assets/ui/long_hair.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "mapbg",
+      "url": "assets/map.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "modal-css",
+      "url": "assets/css/modal.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "moustache",
+      "url": "assets/ui/moustache.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "neckles",
+      "url": "assets/ui/neckles.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "new_game",
+      "url": "assets/buttons/new_game.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "new_mail",
+      "url": "assets/audio/new_mail.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "news",
+      "url": "assets/ico/news.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "next",
+      "url": "assets/buttons/next.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -271,8 +434,100 @@
       ]
     },
     {
-      "key": "warrant",
-      "url": "assets/ico/warrant.webp",
+      "key": "notebook_bg",
+      "url": "assets/ui/notebook_bg.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "officescenesound",
+      "url": "assets/audio/officescene.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "out",
+      "url": "assets/video/out.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ]
+    },
+    {
+      "key": "pagesound",
+      "url": "assets/audio/page.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "paper_rustle",
+      "url": "assets/audio/paper_rustle.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "parkingsound",
+      "url": "assets/audio/parking.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "passport",
+      "url": "assets/ico/passport.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "phonebook",
+      "url": "assets/phonebook.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "plane",
+      "url": "assets/ico/plane.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "planesound",
+      "url": "assets/audio/plane.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "policesound",
+      "url": "assets/audio/police.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "policja",
+      "url": "assets/ico/policja.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -289,8 +544,8 @@
       ]
     },
     {
-      "key": "news",
-      "url": "assets/ico/news.webp",
+      "key": "rainbow_streak",
+      "url": "assets/ui/rainbow_streak.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -298,8 +553,8 @@
       ]
     },
     {
-      "key": "tv",
-      "url": "assets/ico/tv.webp",
+      "key": "registerbtn",
+      "url": "assets/buttons/register.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -307,32 +562,74 @@
       ]
     },
     {
-      "key": "tv1",
-      "url": "assets/audio/tv1.mp3",
+      "key": "restaurantsound",
+      "url": "assets/audio/restaurant.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
     {
-      "key": "tv2",
-      "url": "assets/audio/tv2.mp3",
+      "key": "scar",
+      "url": "assets/ui/scar.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "search",
+      "url": "assets/ico/search.webp",
+      "type": "image",
+      "groups": [
+        "ui",
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "sfx_busy",
+      "url": "assets/audio/phone-busy.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
     {
-      "key": "ad_jingle",
-      "url": "assets/audio/ad_jingle.mp3",
+      "key": "sfx_dial",
+      "url": "assets/audio/phone-dial.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
     {
-      "key": "notebook_bg",
-      "url": "assets/ui/notebook_bg.webp",
+      "key": "sfx_pickup",
+      "url": "assets/audio/phone-pick.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "sfx_ring",
+      "url": "assets/audio/phone-ring.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "sfx_ringing",
+      "url": "assets/audio/phone-ringing.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "shop_icon",
+      "url": "assets/ico/shop.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -358,93 +655,11 @@
       ]
     },
     {
-      "key": "beard",
-      "url": "assets/ui/beard.webp",
-      "type": "image",
+      "key": "successsound",
+      "url": "assets/audio/success.mp3",
+      "type": "audio",
       "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "big_forhead",
-      "url": "assets/ui/big_forhead.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "earings",
-      "url": "assets/ui/earings.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "glasses",
-      "url": "assets/ui/glasses.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "gotee",
-      "url": "assets/ui/gotee.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "long_hair",
-      "url": "assets/ui/long_hair.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "moustache",
-      "url": "assets/ui/moustache.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "neckles",
-      "url": "assets/ui/neckles.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "rainbow_streak",
-      "url": "assets/ui/rainbow_streak.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "scar",
-      "url": "assets/ui/scar.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
+        "audio"
       ]
     },
     {
@@ -457,17 +672,8 @@
       ]
     },
     {
-      "key": "mapbg",
-      "url": "assets/map.webp",
-      "type": "image",
-      "groups": [
-        "ui",
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "phonebook",
-      "url": "assets/phonebook.webp",
+      "key": "telephone",
+      "url": "assets/ico/telephone.webp",
       "type": "image",
       "groups": [
         "ui",
@@ -483,11 +689,20 @@
       ]
     },
     {
-      "key": "tv_news_studio",
-      "url": "assets/tv/tv_news_studio.jpg",
+      "key": "themeGame",
+      "url": "assets/audio/game.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "tv",
+      "url": "assets/ico/tv.webp",
       "type": "image",
       "groups": [
-        "ui"
+        "ui",
+        "backgrounds"
       ]
     },
     {
@@ -507,35 +722,36 @@
       ]
     },
     {
-      "key": "themeGame",
-      "url": "assets/audio/game.mp3",
+      "key": "tv_news_studio",
+      "url": "assets/tv/tv_news_studio.jpg",
+      "type": "image",
+      "groups": [
+        "ui"
+      ]
+    },
+    {
+      "key": "tv1",
+      "url": "assets/audio/tv1.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
     {
-      "key": "game_over",
-      "url": "assets/audio/game_over.mp3",
+      "key": "tv2",
+      "url": "assets/audio/tv2.mp3",
       "type": "audio",
       "groups": [
         "audio"
       ]
     },
     {
-      "key": "successsound",
-      "url": "assets/audio/success.mp3",
-      "type": "audio",
+      "key": "warrant",
+      "url": "assets/ico/warrant.webp",
+      "type": "image",
       "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "correct",
-      "url": "assets/audio/correct.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
+        "ui",
+        "backgrounds"
       ]
     },
     {
@@ -544,225 +760,6 @@
       "type": "audio",
       "groups": [
         "audio"
-      ]
-    },
-    {
-      "key": "new_mail",
-      "url": "assets/audio/new_mail.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "click_sound",
-      "url": "assets/audio/click.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "pagesound",
-      "url": "assets/audio/page.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "paper_rustle",
-      "url": "assets/audio/paper_rustle.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "citysound",
-      "url": "assets/audio/city.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "alleysound",
-      "url": "assets/audio/alley.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "arrestsound",
-      "url": "assets/audio/arrest.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "banksound",
-      "url": "assets/audio/bank.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "hotelsound",
-      "url": "assets/audio/hotel.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "officescenesound",
-      "url": "assets/audio/officescene.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "parkingsound",
-      "url": "assets/audio/parking.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "planesound",
-      "url": "assets/audio/plane.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "policesound",
-      "url": "assets/audio/police.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "restaurantsound",
-      "url": "assets/audio/restaurant.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "crimelab_ambient",
-      "url": "assets/audio/crimelab_ambient.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "sfx_dial",
-      "url": "assets/audio/phone-dial.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "sfx_ring",
-      "url": "assets/audio/phone-ring.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "sfx_ringing",
-      "url": "assets/audio/phone-ringing.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "sfx_busy",
-      "url": "assets/audio/phone-busy.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "sfx_pickup",
-      "url": "assets/audio/phone-pick.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "detective-intro",
-      "url": "assets/voice/detective-intro.mp3",
-      "type": "audio",
-      "groups": [
-        "audio"
-      ]
-    },
-    {
-      "key": "detectiveIntro",
-      "url": "assets/video/detective-intro.mp4",
-      "type": "video",
-      "noAudio": true,
-      "groups": [
-        "videos"
-      ]
-    },
-    {
-      "key": "in",
-      "url": "assets/video/in.mp4",
-      "type": "video",
-      "noAudio": false,
-      "groups": [
-        "videos"
-      ]
-    },
-    {
-      "key": "out",
-      "url": "assets/video/out.mp4",
-      "type": "video",
-      "noAudio": false,
-      "groups": [
-        "videos"
-      ]
-    },
-    {
-      "key": "crime-board-css",
-      "url": "assets/css/crime-board.css",
-      "type": "css",
-      "groups": [
-        "css"
-      ]
-    },
-    {
-      "key": "auth-styles-css",
-      "url": "assets/css/auth-styles.css",
-      "type": "css",
-      "groups": [
-        "css"
-      ]
-    },
-    {
-      "key": "modal-css",
-      "url": "assets/css/modal.css",
-      "type": "css",
-      "groups": [
-        "css"
       ]
     }
   ]

@@ -1,0 +1,1490 @@
+[
+  {
+    "id": "lockpick_set_velvet_case",
+    "item": "Lockpick set in velvet case",
+    "skills": [
+      "Lockpicking",
+      "Engineering",
+      "Technical knowledge"
+    ],
+    "tags": [
+      "tools",
+      "metal",
+      "case",
+      "locks"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's the appraiser's letter-opener set; he insists picks are 'just very rude keys.'",
+    "heistExplanation": "The thief popped the display lock so gently the hinges wrote a thank-you note.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief opened a private viewing-room door without forcing the lock or triggering a visible breach."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Stealth"
+        ],
+        "heistExplanation": "The picks opened the lot display lock so cleanly that the case looked untouched after the artifact was removed."
+      },
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Lockpicking",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief bypassed the protected lock housing instead of confronting the auction house alarm system directly."
+      }
+    ]
+  },
+  {
+    "id": "forged_provenance_papers",
+    "item": "Forged provenance certificate",
+    "skills": [
+      "Forgery",
+      "Art history",
+      "Research",
+      "Deception",
+      "History"
+    ],
+    "tags": [
+      "paper",
+      "stamp",
+      "signature",
+      "documents"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Real paperwork — the coffee stain just makes it look 300 years older.",
+    "heistExplanation": "The seal's fake grandfather has officially owned it since 1863, per this napkin.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Art history"
+        ],
+        "heistExplanation": "The thief used forged provenance to make the stolen lot look like an authorised private transfer."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "Research",
+          "History"
+        ],
+        "heistExplanation": "The papers revealed which auction lot had a valuable history worth faking and a buyer willing to pay for it."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The certificate gave the thief a credible reason to enter the restricted appraisal area as a representative of the owner."
+      }
+    ]
+  },
+  {
+    "id": "disguise_caterer_uniform",
+    "item": "Wrinkled caterer's uniform",
+    "skills": [
+      "Disguise",
+      "Deception",
+      "Manipulation"
+    ],
+    "tags": [
+      "clothing",
+      "uniform",
+      "waiter",
+      "fabric"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "A real waiter spilled champagne on himself and hid the evidence in the coat closet.",
+    "heistExplanation": "Nobody suspects the man refilling canapé trays — least of all the canapés.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief entered through the catering delivery door as staff expected to serve the auction guests."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Stealth",
+          "Deception"
+        ],
+        "heistExplanation": "A caterer's uniform made the thief invisible in plain sight: someone carrying trays is never where security expects trouble."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Manipulation",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief staged a champagne spill near the entrance, keeping staff and guards busy while the lot room was left unobserved."
+      }
+    ]
+  },
+  {
+    "id": "hidden_earpiece_static",
+    "item": "Tiny earpiece, still buzzing",
+    "skills": [
+      "Surveillance",
+      "Electronics",
+      "Technical knowledge",
+      "Espionage"
+    ],
+    "tags": [
+      "electronics",
+      "audio",
+      "wire",
+      "small"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It fell out of a hearing-aid demo booth left over from last week's trade fair.",
+    "heistExplanation": "Someone outside was narrating the heist like a very tense sports broadcast.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Surveillance",
+          "Espionage",
+          "Tactical planning"
+        ],
+        "heistExplanation": "An accomplice watched the hallway cameras and directed the thief through the gallery at the exact safe moments."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Surveillance",
+          "Electronics",
+          "Espionage"
+        ],
+        "heistExplanation": "The earpiece relayed when the camera operator was distracted, giving the thief a brief window to cross the monitored room."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The outside observer used the earpiece to time a false disturbance exactly when the nearest guard could not ignore it."
+      }
+    ]
+  },
+  {
+    "id": "laser_grid_bypass_kit",
+    "item": "Mirror-and-mist bypass kit",
+    "skills": [
+      "Electronics",
+      "Engineering",
+      "Hacking",
+      "Technical knowledge"
+    ],
+    "tags": [
+      "mirrors",
+      "spray",
+      "tech",
+      "gadget"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's the janitor's fog machine for the Halloween party nobody approved.",
+    "heistExplanation": "Turns out lasers get very shy when you spray them with hairspray.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Hacking"
+        ],
+        "heistExplanation": "The thief redirected the laser grid rather than breaking it, keeping the security circuit convinced that every beam remained intact."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The bypass kit defeated the display's laser protection without causing the obvious total-system failure guards expect."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Engineering",
+          "Hacking",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "Mirrors created one narrow safe path through the laser grid where the thief could reach the lot unseen."
+      }
+    ]
+  },
+  {
+    "id": "annotated_auction_catalog",
+    "item": "Auction catalog with circled lots",
+    "skills": [
+      "Art history",
+      "Investigation",
+      "Research",
+      "Analysis"
+    ],
+    "tags": [
+      "paper",
+      "catalog",
+      "notes",
+      "circles"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's a bored intern's fantasy shopping list — none of it real money.",
+    "heistExplanation": "Looks incriminating, but every collector in Berlin circles the same three lots.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "Research",
+          "Analysis"
+        ],
+        "heistExplanation": "The circled entries revealed which lot had been undervalued and would be easiest to resell discreetly."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Investigation",
+          "Analysis",
+          "Tactical planning"
+        ],
+        "heistExplanation": "Notes beside the lot numbers told the thief when each room would be busy with bidders, leaving another temporarily empty."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Art history",
+          "Deception",
+          "Research"
+        ],
+        "heistExplanation": "The thief used the catalog descriptions to alter the expected lot details, making the missing object look like a minor cataloguing error."
+      }
+    ]
+  },
+  {
+    "id": "velvet_glove_pickpocket",
+    "item": "Single velvet glove, palm worn thin",
+    "skills": [
+      "Pickpocket",
+      "Manipulation",
+      "Stealth"
+    ],
+    "tags": [
+      "fabric",
+      "glove",
+      "worn",
+      "quiet"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "A guest lost it while too aggressively 'testing the texture' of a silk scarf.",
+    "heistExplanation": "The thief could lift a wallet and a compliment from the same handshake.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Pickpocket",
+          "Stealth",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief lifted an access card from a distracted staff member during the pre-auction crowd."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Pickpocket",
+          "Stealth",
+          "Deception"
+        ],
+        "heistExplanation": "In the press of the bidding crowd, the thief removed a small artifact without anyone noticing the display was lighter."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Manipulation",
+          "Disguise"
+        ],
+        "heistExplanation": "The glove helped the thief look like an elegant guest rather than someone whose hands were working far too carefully."
+      }
+    ]
+  },
+  {
+    "id": "grappling_hook",
+    "item": "Collapsible grappling hook",
+    "skills": [
+      "Parkour",
+      "Acrobatics",
+      "Survival skills",
+      "Engineering"
+    ],
+    "tags": [
+      "rope",
+      "metal",
+      "climbing",
+      "compact"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's from the building's very optimistic window-washing kit.",
+    "heistExplanation": "Skylight met ceiling; ceiling met a man who never skips leg day.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief entered through a skylight above the auction room, avoiding the guarded guest entrance."
+      },
+      {
+        "questionId": "reach_target",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Engineering"
+        ],
+        "heistExplanation": "The grappling hook reached an upper service ledge overlooking the protected lots."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Parkour",
+          "Acrobatics",
+          "Survival skills"
+        ],
+        "heistExplanation": "The thief exited over the roofline before the auction-house doors could be locked down."
+      }
+    ]
+  },
+  {
+    "id": "forged_bidder_paddle",
+    "item": "Duplicate bidder paddle, #47",
+    "skills": [
+      "Forgery",
+      "Deception",
+      "Persuasion"
+    ],
+    "tags": [
+      "wood",
+      "number",
+      "paddle",
+      "duplicate"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The printer misfired and made two — the house never noticed.",
+    "heistExplanation": "Two paddles, one identity crisis, zero questions asked at check-in.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The duplicate paddle got the thief through the bidder registration point as a guest with private-viewing privileges."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Persuasion",
+          "Disguise"
+        ],
+        "heistExplanation": "Among dozens of bidders, paddle number 47 made the thief look like someone else's wealthy problem."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Deception",
+          "Research"
+        ],
+        "heistExplanation": "The thief used the duplicate identity to make the missing lot appear to have been legitimately collected by bidder 47."
+      }
+    ]
+  },
+  {
+    "id": "silenced_alarm_jammer",
+    "item": "Small black box, blinking light",
+    "skills": [
+      "Electronics",
+      "Hacking",
+      "Technical knowledge",
+      "Engineering"
+    ],
+    "tags": [
+      "gadget",
+      "box",
+      "blinking",
+      "signal"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's a lost baby monitor from the security guard's night shifts.",
+    "heistExplanation": "The alarm went silent so fast it left a polite apology note.",
+    "reconstructionUses": [
+      {
+        "questionId": "beat_security",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Engineering"
+        ],
+        "heistExplanation": "The black box jammed the auction house's wireless alarm signal just long enough for the thief to take the lot."
+      },
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Hacking",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The jammer stopped the alarm panel from reporting to the control room while leaving its status lights reassuringly normal."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Surveillance"
+        ],
+        "heistExplanation": "The device interfered with the camera relay, producing a short blind patch around the targeted display."
+      }
+    ]
+  },
+  {
+    "id": "wax_seal_stamp_kit",
+    "item": "Wax seal stamp kit, still warm",
+    "skills": [
+      "Forgery",
+      "Art history",
+      "Manipulation",
+      "History"
+    ],
+    "tags": [
+      "wax",
+      "stamp",
+      "kit",
+      "warm"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's for sealing wedding invitations — the groom just has odd taste in crests.",
+    "heistExplanation": "One stamp, one impression, and a 'genuine' pruski pieczęć was born.",
+    "reconstructionUses": [
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Forgery",
+          "Art history",
+          "Deception"
+        ],
+        "heistExplanation": "The thief used a convincing wax seal to make forged transfer papers look like an authorised release of the stolen lot."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Forgery",
+          "History",
+          "Manipulation"
+        ],
+        "heistExplanation": "A sealed authorisation order convinced staff to open the restricted appraisal room without checking who had delivered it."
+      },
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "History",
+          "Research"
+        ],
+        "heistExplanation": "The seal design helped the thief identify the lot connected to a valuable Prussian collection."
+      }
+    ]
+  },
+  {
+    "id": "combat_manual_dogeared",
+    "item": "Dog-eared martial arts manual",
+    "skills": [
+      "Martial arts",
+      "Hand-to-hand combat",
+      "Tactical planning"
+    ],
+    "tags": [
+      "book",
+      "manual",
+      "pages",
+      "diagrams"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The night guard reads it to look intimidating during his 3 a.m. rounds.",
+    "heistExplanation": "Chapter 7, 'Politely Removing a Guard From a Doorway,' is heavily highlighted.",
+    "reconstructionUses": [
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Martial arts",
+          "Hand-to-hand combat",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used a fast, controlled takedown to clear a guard from the lot room without raising a prolonged alarm."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Hand-to-hand combat",
+          "Tactical planning",
+          "Deception"
+        ],
+        "heistExplanation": "A staged scuffle created enough noise to pull security toward the wrong hallway while the real theft continued elsewhere."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Martial arts",
+          "Tactical planning",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief neutralised the guard stationed at a private door long enough to enter the appraisal area."
+      }
+    ]
+  },
+  {
+    "id": "gps_tracker_coin",
+    "item": "Coin-shaped GPS tracker",
+    "skills": [
+      "Tracking",
+      "Electronics",
+      "Surveillance"
+    ],
+    "tags": [
+      "coin",
+      "metal",
+      "chip",
+      "hidden"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "A courier's old 'lost luggage' gadget, never removed from a spare coat.",
+    "heistExplanation": "The seal now has a heartbeat — and a very confused delivery van.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Electronics",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The tracker let an accomplice follow the stolen lot to the handoff point without using a risky phone call."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tracking",
+          "Surveillance",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used a tracker on a guard vehicle to know which route would be empty at the right moment."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Tracking",
+          "Deception",
+          "Electronics"
+        ],
+        "heistExplanation": "The tracker was planted on a decoy package, sending security toward a moving signal while the thief stayed in the building."
+      }
+    ]
+  },
+  {
+    "id": "seduction_perfume_bottle",
+    "item": "Half-empty perfume bottle",
+    "skills": [
+      "Seduction",
+      "Manipulation",
+      "Persuasion",
+      "Deception"
+    ],
+    "tags": [
+      "glass",
+      "perfume",
+      "scent",
+      "bottle"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The auctioneer overdoes it before every gala; the receptionist just complains loudly.",
+    "heistExplanation": "One guard forgot his post entirely, and honestly, so would you.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Seduction",
+          "Manipulation",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief charmed a guard into abandoning their post for a conversation that became much longer than planned."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Persuasion",
+          "Seduction",
+          "Deception"
+        ],
+        "heistExplanation": "A flattering conversation persuaded staff to open a private viewing-room door that should have stayed locked."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Seduction",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "By appearing to be a glamorous guest rather than a threat, the thief could stand near the target without attracting scrutiny."
+      }
+    ]
+  },
+  {
+    "id": "intimidating_note_typed",
+    "item": "Typed note, unsigned",
+    "skills": [
+      "Intimidation",
+      "Deception",
+      "Manipulation"
+    ],
+    "tags": [
+      "paper",
+      "typed",
+      "threat",
+      "note"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "It's a strongly worded complaint about the buffet's warm champagne.",
+    "heistExplanation": "'Don't touch the seal or you'll regret it' works surprisingly well on interns.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Intimidation",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The note made security focus on protecting a threatened lot while the thief moved against a different target."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Intimidation",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The thief used a threatening instruction to pressure an intern into opening a restricted storage area."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deception",
+          "Intimidation",
+          "Analysis"
+        ],
+        "heistExplanation": "The note framed the disappearance as extortion, steering the investigation toward the wrong motive and suspect."
+      }
+    ]
+  },
+  {
+    "id": "interrogation_transcript_page",
+    "item": "Torn interrogation transcript page",
+    "skills": [
+      "Interrogation",
+      "Investigation",
+      "Deduction",
+      "Analysis"
+    ],
+    "tags": [
+      "paper",
+      "transcript",
+      "torn",
+      "notes"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Leftover from a previous, unrelated fraud case the historian consulted on.",
+    "heistExplanation": "Someone already rehearsed their alibi on paper before the crime even happened.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Interrogation",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief rehearsed a detailed bidder alibi, making their presence near the lot room sound ordinary and well documented."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Investigation",
+          "Manipulation"
+        ],
+        "heistExplanation": "The transcript planted a believable fraud lead that redirected the auction-house staff toward an old case."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Deduction",
+          "Deception",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief used a rehearsed story to make the missing lot look like a dispute over provenance rather than a theft."
+      }
+    ]
+  },
+  {
+    "id": "escape_route_blueprint",
+    "item": "Hand-drawn escape route blueprint",
+    "skills": [
+      "Tactical planning",
+      "Engineering",
+      "Problem-solving",
+      "Investigation"
+    ],
+    "tags": [
+      "paper",
+      "blueprint",
+      "arrows",
+      "routes"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Fire-safety diagram from the building inspector, mislabeled as 'top secret.'",
+    "heistExplanation": "Every arrow leads to the loading dock — and conveniently past no cameras.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tactical planning",
+          "Engineering",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The thief followed the loading-dock route marked on the plan and left before the auction-house doors were locked down."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Investigation",
+          "Stealth"
+        ],
+        "heistExplanation": "The plan led through service passages that avoided the crowded sale rooms and their visible security staff."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Tactical planning",
+          "Engineering",
+          "Analysis"
+        ],
+        "heistExplanation": "The blueprint revealed a loading corridor with no reliable camera overlap, creating a safe route to the exit."
+      }
+    ]
+  },
+  {
+    "id": "antique_appraisal_loupe",
+    "item": "Antique appraisal loupe",
+    "skills": [
+      "Art history",
+      "Museum studies",
+      "Analysis",
+      "Research"
+    ],
+    "tags": [
+      "glass",
+      "lens",
+      "brass",
+      "tool"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The appraiser's spare loupe, kept for 'emergencies' (dropped coffee).",
+    "heistExplanation": "Whoever took the seal checked it was real before stealing it — professional courtesy.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "Art history",
+          "Museum studies",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief used the loupe to verify the seal's maker marks and choose the genuine object over a convincing copy."
+      },
+      {
+        "questionId": "remove_artifact",
+        "skills": [
+          "Analysis",
+          "Research",
+          "Art history"
+        ],
+        "heistExplanation": "Close inspection showed the thief which display held the original seal before they removed it from the lot room."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Research",
+          "Art history",
+          "Deception"
+        ],
+        "heistExplanation": "The loupe gave the thief a credible collector's reason to linger beside the protected lot without drawing suspicion."
+      }
+    ]
+  },
+  {
+    "id": "concealed_pistol_holster",
+    "item": "Empty shoulder holster",
+    "skills": [
+      "Firearms",
+      "Stealth",
+      "Tactical planning"
+    ],
+    "tags": [
+      "leather",
+      "holster",
+      "empty",
+      "strap"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The guard's costume prop from last year's 'Casino Night' charity gala.",
+    "heistExplanation": "Scary-looking, but nobody at this heist actually fired a shot — too classy.",
+    "reconstructionUses": [
+      {
+        "questionId": "overcome_guard",
+        "skills": [
+          "Firearms",
+          "Intimidation",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The appearance of a concealed weapon was enough to make a guard step aside without the thief firing a shot."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Stealth",
+          "Disguise",
+          "Deception"
+        ],
+        "heistExplanation": "The holster completed a believable private-security disguise that let the thief move through back corridors."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Intimidation",
+          "Deception",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief made security believe an armed intruder was elsewhere, pulling guards away from the targeted lot."
+      }
+    ]
+  },
+  {
+    "id": "burner_phone_encrypted",
+    "item": "Burner phone, battery dead",
+    "skills": [
+      "Espionage",
+      "Hacking",
+      "Electronics",
+      "Technical knowledge"
+    ],
+    "tags": [
+      "phone",
+      "plastic",
+      "cheap",
+      "prepaid"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The intern's backup phone after she 'definitely did not' lose the good one.",
+    "heistExplanation": "One text sent, one seal gone, one phone thrown in the Spree afterward.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Espionage",
+          "Deception",
+          "Electronics"
+        ],
+        "heistExplanation": "The burner phone sent a false security alert that drew guards toward a completely unrelated floor."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Espionage",
+          "Hacking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used encrypted messages to coordinate each move with an accomplice watching the auction-house cameras."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Electronics",
+          "Espionage",
+          "Tactical planning"
+        ],
+        "heistExplanation": "A final encrypted message summoned the getaway vehicle, after which the thief disposed of the phone before leaving."
+      }
+    ]
+  },
+  {
+    "id": "negotiation_ledger",
+    "item": "Ledger with crossed-out figures",
+    "skills": [
+      "Negotiation",
+      "Persuasion",
+      "Deception",
+      "Manipulation"
+    ],
+    "tags": [
+      "book",
+      "numbers",
+      "ink",
+      "ledger"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Just the house haggling itself down on catering costs, badly.",
+    "heistExplanation": "Someone was quoted a price for 'access' and negotiated it down considerably.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Negotiation",
+          "Persuasion",
+          "Deception"
+        ],
+        "heistExplanation": "The thief bribed a staff member for access to the private lot room and kept the deal off every official record."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "Negotiation",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The ledger recorded a payoff that ensured the missing lot would be quietly described as a paperwork error."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Persuasion",
+          "Manipulation",
+          "Deception"
+        ],
+        "heistExplanation": "The thief arranged a payment dispute that kept staff arguing over money while the real operation began."
+      }
+    ]
+  },
+  {
+    "id": "deduction_notebook_diagrams",
+    "item": "Notebook full of diagrams and arrows",
+    "skills": [
+      "Deduction",
+      "Investigation",
+      "Analysis",
+      "Problem-solving"
+    ],
+    "tags": [
+      "notebook",
+      "diagrams",
+      "arrows",
+      "ink"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "A crossword-obsessed guest's leftover puzzle notes.",
+    "heistExplanation": "Every guard shift, every camera blind spot, mapped out like a Sudoku.",
+    "reconstructionUses": [
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Analysis",
+          "Deduction",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The diagrams mapped camera angles and revealed the narrow strip of gallery no lens could reliably cover."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Investigation",
+          "Analysis",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The thief used the marked guard shifts to cross each room during the gaps between patrols."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Problem-solving",
+          "Deduction",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The notebook linked service doors and stairwells into an escape route that bypassed the public exits."
+      }
+    ]
+  },
+  {
+    "id": "history_thesis_prussia",
+    "item": "Unfinished thesis on Prussian seals",
+    "skills": [
+      "History",
+      "Art history",
+      "Research",
+      "Museum studies"
+    ],
+    "tags": [
+      "paper",
+      "thesis",
+      "footnotes",
+      "prussia"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Just an overdue university paper nobody proofread in three years.",
+    "heistExplanation": "Whoever wrote this knew the seal's exact value down to the last thaler.",
+    "reconstructionUses": [
+      {
+        "questionId": "identify_target",
+        "skills": [
+          "History",
+          "Art history",
+          "Research"
+        ],
+        "heistExplanation": "The thesis identified the one Prussian seal in the catalog whose historical value far exceeded its listed price."
+      },
+      {
+        "questionId": "hide_theft",
+        "skills": [
+          "History",
+          "Research",
+          "Forgery"
+        ],
+        "heistExplanation": "The thief used the thesis details to create a plausible history for a substitute seal after taking the original."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Research",
+          "Art history",
+          "Deception"
+        ],
+        "heistExplanation": "Carrying an academic thesis gave the thief a believable scholar's reason to inspect the targeted lot at length."
+      }
+    ]
+  },
+  {
+    "id": "tactical_floorplan_stopwatch",
+    "item": "Floor plan taped to a stopwatch",
+    "skills": [
+      "Tactical planning",
+      "Surveillance",
+      "Problem-solving",
+      "Analysis"
+    ],
+    "tags": [
+      "paper",
+      "stopwatch",
+      "tape",
+      "timing"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The fire marshal's evacuation drill kit, abandoned mid-inspection.",
+    "heistExplanation": "Every guard patrol timed to the second — down to their coffee breaks.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Surveillance",
+          "Analysis"
+        ],
+        "heistExplanation": "The thief timed the patrol circuit precisely and moved through the galleries in the seconds when every guard was elsewhere."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Tactical planning",
+          "Surveillance",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The floor plan and stopwatch identified the exact overlap gap between camera sweeps near the targeted lot."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tactical planning",
+          "Problem-solving",
+          "Analysis"
+        ],
+        "heistExplanation": "The timing plan sent the thief through the loading corridor just before the guards began their next full sweep."
+      }
+    ]
+  },
+  {
+    "id": "wire_cutter_multitool",
+    "item": "Multitool with fresh wire shavings",
+    "skills": [
+      "Engineering",
+      "Technical knowledge",
+      "Problem-solving",
+      "Electronics"
+    ],
+    "tags": [
+      "metal",
+      "tool",
+      "shavings",
+      "wire"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The electrician left it after fixing the espresso machine, priorities intact.",
+    "heistExplanation": "One snipped wire, one dead camera, one very well-caffeinated staff room.",
+    "reconstructionUses": [
+      {
+        "questionId": "disable_system",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Technical knowledge"
+        ],
+        "heistExplanation": "The thief cut the alarm communication wire while leaving the visible panel powered and apparently normal."
+      },
+      {
+        "questionId": "create_blind_spot",
+        "skills": [
+          "Electronics",
+          "Engineering",
+          "Problem-solving"
+        ],
+        "heistExplanation": "One careful cut disabled the camera covering the lot room without affecting the rest of the auction house."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Engineering",
+          "Technical knowledge",
+          "Problem-solving"
+        ],
+        "heistExplanation": "The multitool opened a service-panel latch that led into the secured back corridor."
+      }
+    ]
+  },
+  {
+    "id": "energy_drink_sixpack",
+    "item": "Half-finished six-pack of energy drinks",
+    "skills": [
+      "Survival skills",
+      "Tactical planning",
+      "Analysis"
+    ],
+    "tags": [
+      "cans",
+      "drink",
+      "sugar",
+      "leftover"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The overnight security shift survives on these and regret.",
+    "heistExplanation": "Someone was very, very awake for this heist. Possibly too awake.",
+    "reconstructionUses": [
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Tactical planning",
+          "Deception",
+          "Survival skills"
+        ],
+        "heistExplanation": "The thief spiked the guards' break routine with energy drinks, ensuring they were all gathered at the staff room when the theft began."
+      },
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Tactical planning",
+          "Analysis",
+          "Stealth"
+        ],
+        "heistExplanation": "The empty cans revealed the guard's predictable break cycle, giving the thief a quiet window to cross the building."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Survival skills",
+          "Tactical planning",
+          "Parkour"
+        ],
+        "heistExplanation": "The thief prepared for a long overnight escape through the service network instead of relying on a quick vehicle pickup."
+      }
+    ]
+  },
+  {
+    "id": "parking_ticket_crumpled",
+    "item": "Crumpled parking ticket",
+    "skills": [
+      "Research",
+      "Investigation",
+      "Tracking"
+    ],
+    "tags": [
+      "paper",
+      "fine",
+      "crumpled",
+      "street"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Just the caterer's van, illegally parked again, as always.",
+    "heistExplanation": "The getaway car got a parking fine mid-heist. Truly elite planning.",
+    "reconstructionUses": [
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Tracking",
+          "Research",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The ticket identified the nearby garage where the thief had staged a getaway vehicle before the auction began."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Tracking",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief used an ordinary caterer's van as cover, leaving the area in a vehicle nobody thought to inspect."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Tactical planning",
+          "Investigation"
+        ],
+        "heistExplanation": "A deliberately obvious parking violation pulled staff outside to deal with the van while the thief moved inside."
+      }
+    ]
+  },
+  {
+    "id": "self_help_confidence_book",
+    "item": "Self-help book, 'Own the Room'",
+    "skills": [
+      "Persuasion",
+      "Manipulation",
+      "Deception"
+    ],
+    "tags": [
+      "book",
+      "paperback",
+      "cover",
+      "motivational"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The receptionist's lunch-break reading, dog-eared to chapter 3.",
+    "heistExplanation": "Someone really needed to 'walk in like they belong there' tonight.",
+    "reconstructionUses": [
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Persuasion",
+          "Deception",
+          "Manipulation"
+        ],
+        "heistExplanation": "The thief walked into the private sale area with such convincing confidence that staff assumed the invitation had been checked already."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Deception",
+          "Persuasion",
+          "Disguise"
+        ],
+        "heistExplanation": "By acting like an impatient collector with every right to be there, the thief made questioning them feel socially awkward."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Manipulation",
+          "Persuasion",
+          "Deception"
+        ],
+        "heistExplanation": "The thief started a loud, authoritative complaint that kept staff focused on appeasing them instead of watching the lot room."
+      }
+    ]
+  },
+  {
+    "id": "hawaiian_shirt_loud",
+    "item": "Extremely loud Hawaiian shirt",
+    "skills": [
+      "Disguise",
+      "Deception",
+      "Persuasion"
+    ],
+    "tags": [
+      "clothing",
+      "colorful",
+      "print",
+      "shirt"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "Left over from someone's disastrously misjudged 'casual Friday.'",
+    "heistExplanation": "The worst possible stealth outfit, and yet somehow nobody looked twice.",
+    "reconstructionUses": [
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Disguise",
+          "Deception",
+          "Persuasion"
+        ],
+        "heistExplanation": "The shirt made the thief so spectacularly memorable that witnesses remembered the outfit but not the face beneath it."
+      },
+      {
+        "questionId": "distract_guards",
+        "skills": [
+          "Deception",
+          "Persuasion",
+          "Manipulation"
+        ],
+        "heistExplanation": "The absurd outfit started an argument with security over dress code, keeping eyes away from the targeted lot."
+      },
+      {
+        "questionId": "gain_access",
+        "skills": [
+          "Persuasion",
+          "Deception",
+          "Disguise"
+        ],
+        "heistExplanation": "The thief posed as an eccentric but wealthy bidder, using confidence and a terrible shirt to get waved through registration."
+      }
+    ]
+  },
+  {
+    "id": "lucky_socks_holes",
+    "item": "Lucky socks, several holes",
+    "skills": [
+      "Survival skills",
+      "Tracking",
+      "Analysis"
+    ],
+    "tags": [
+      "fabric",
+      "socks",
+      "worn",
+      "personal"
+    ],
+    "scene": [
+      "auction_house"
+    ],
+    "trueExplanation": "The night guard swears by them; his wife has begged him to throw them out.",
+    "heistExplanation": "Worn on every 'important' night. Their track record remains unclear.",
+    "reconstructionUses": [
+      {
+        "questionId": "move_unnoticed",
+        "skills": [
+          "Survival skills",
+          "Stealth",
+          "Tracking"
+        ],
+        "heistExplanation": "The thief removed their shoes and used padded socks to cross the polished back corridor without making a sound."
+      },
+      {
+        "questionId": "escape_route",
+        "skills": [
+          "Survival skills",
+          "Tracking",
+          "Tactical planning"
+        ],
+        "heistExplanation": "The socks helped the thief leave a quieter, less distinctive trail while using the service stairs to escape."
+      },
+      {
+        "questionId": "avoid_attention",
+        "skills": [
+          "Analysis",
+          "Deception",
+          "Stealth"
+        ],
+        "heistExplanation": "The thief planted the worn socks to make investigators focus on a familiar night guard rather than the real intruder."
+      }
+    ]
+  }
+]

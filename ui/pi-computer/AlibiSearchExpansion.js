@@ -201,10 +201,10 @@ const article = (
 
 addPage(article(
     'search_context',
-    'City Index | Checking a claim',
+    "City Index | Around town",
     [
-        'Public listings are leads, not proof of attendance.',
-        'Check the source, date and person before treating a matching name as evidence. The internet once identified our editor as a garden shed.'
+        "Local businesses, community notices and public listings.",
+        "Our editor was once listed under Garden Buildings. He remains available for editorial enquiries, but not winter storage."
     ]
 ));
 
@@ -213,7 +213,7 @@ addPage(article(
     'Classifieds | Yesterday’s ordinary problems',
     [
         'Lost umbrella. Found umbrella. Neither party willing to negotiate.',
-        'Unrelated listing. No connection to the dinner enquiry has been established.'
+        "Wanted: dining table. Must tolerate elbows. Seller of the previous table need not apply."
     ]
 ));
 
@@ -222,7 +222,7 @@ addPage(article(
     'Local appliance repairs | We repair what chefs threaten',
     [
         'Kitchen failure? Our engineers specialise in dramatic cookers.',
-        'General advertising only. This company does not identify the cause or duration of the Copper Spoon incident.'
+        "Domestic and commercial cooker repairs. Please have the make and model ready. “The angry one” is insufficiently specific."
     ]
 ));
 
@@ -231,7 +231,7 @@ addPage(article(
     'Arthur Finch | Public directory',
     [
         'Arthur Finch has no public telephone listing in this directory.',
-        'For the current enquiry, use his existing Box 17 correspondence. Please do not telephone everyone named Finch.'
+        "Members choose which contact details appear in the public directory."
     ]
 ));
 
@@ -240,7 +240,7 @@ addPage(article(
     'Arthur Finch | Antique spoon collection',
     [
         'An archive entry names an Arthur Finch as a spoon collector.',
-        'No identifying details link this namesake to your client. A shared name is not a shared life.'
+        "The collection notes cover silver marks, decorative handles and a surprisingly heated dispute about a soup ladle."
     ]
 ));
 
@@ -249,25 +249,25 @@ const people = [
         'arthur_finch',
         'Arthur Finch',
         'Quiet evenings enthusiast.',
-        'Enjoys cold sandwiches, sensible receipts and being consulted before appearing in other people’s plans.'
+        "Books, quiet lunches and plans which involve being asked first."
     ],
     [
         'nora_bell',
         'Nora Bell',
         'Community events and optimistic portions.',
-        'Public contact details are available in the community directory. Family invitations are currently under review.'
+        "Local volunteering, community events and food worth leaving the house for."
     ],
     [
         'simon_pike',
         'Simon Pike',
         'Board games. Serious business. Tiny wooden sheep.',
-        'Member of the local tabletop circle. A profile is not a timed attendance record.'
+        "Member of the local tabletop circle. Still waiting for an opponent to appreciate his opening strategy."
     ],
     [
         'evelyn_shaw',
         'Evelyn Shaw',
         'Accounts assistant. No unsolicited networking.',
-        'Work contact appears in the Morrow Records staff directory. This preview contains no incident evidence.'
+        "Work enquiries through the Morrow Records staff directory. Personal networking requests will be admired from a distance."
     ]
 ];
 
@@ -494,12 +494,12 @@ const extraPages = [
         brand: 'THE EVENING FORK',
         address: 'www.eveningfork.local/archive/copper-spoon',
         theme: 'magazine',
-        snippet: 'Our archive review praises the soup. The review is older than the current service notice.',
+        snippet: "From our review archive: a Saturday lunch, three years ago.",
         body: [
             'FROM THE REVIEW ARCHIVE — published three years ago.',
             'The Copper Spoon serves a tomato soup with enough confidence to introduce itself before the waiter.',
             'Our reviewer visited on a Saturday afternoon. He described the dining room as intimate and the bill as less intimate.',
-            'Archived reviews are preserved as originally published. Current menus and service changes should be checked with the restaurant.'
+            "Originally published in the Saturday dining supplement. The reviewer still considers the bread basket a personal triumph."
         ],
         terms: [
             ['copper_spoon'],
@@ -522,7 +522,7 @@ const extraPages = [
         snippet: 'A guide to decorative copper spoons. Dinner reservations not accepted.',
         body: [
             'Copper spoons: display, cleaning and storage.',
-            'This guide covers decorative metalware, not a restaurant.',
+            "Decorative copper spoons reward careful cleaning. They do not reward being used to scrape burnt porridge.",
             'Avoid abrasive cleaners on old finishes. If the spoon has survived a century, it can survive you reading the label first.',
             'Our editorial office cannot reserve tables. We have one table and it is covered in spoons.'
         ],
@@ -540,7 +540,7 @@ const extraPages = [
             'WEEKEND WAITING STAFF',
             'We are accepting applications for future Friday and Saturday shifts.',
             'Applicants should be comfortable carrying plates, explaining specials and recognising when a customer is about to review the lighting.',
-            'This vacancy notice does not list current employees or previous shift assignments.'
+            "Please include relevant experience and availability in your application. Carrying six plates is impressive; returning with all six is preferred."
         ],
         terms: [
             ['copper_spoon']
@@ -567,7 +567,7 @@ const extraPages = [
             'A simple tomato soup for two.',
             'Cook chopped onion, add tomatoes and stock, then simmer until the vegetables have stopped resisting.',
             'Blend carefully. A kitchen ceiling is not a serving suggestion.',
-            'This is a home recipe. We do not supply The Copper Spoon, and our saucepan has never been called as a witness.'
+            "Serve with bread or croutons. If serving directly from the saucepan, describe the presentation as rustic."
         ],
         terms: [
             ['tomato_soup']
@@ -584,7 +584,7 @@ const extraPages = [
             'A practical guide to red-wine spills.',
             'Check the fabric care label before treating a stain. Different materials require different approaches.',
             'Our reader survey found that the most common first response is pointing at someone else.',
-            'A stain cannot identify a guest, establish a date or explain why Uncle Bernard was holding two glasses.'
+            "Uncle Bernard recommends keeping the tablecloth in a cupboard. His dinner parties remain difficult to book."
         ],
         terms: [
             ['red_wine']
@@ -600,7 +600,7 @@ const extraPages = [
         body: [
             'TUESDAY REDS — our weekly shop promotion.',
             'Selected red wines are discounted every Tuesday while stocks last.',
-            'This is a retail offer. We do not maintain restaurant guest records or individual dining receipts.',
+            "Offers apply to selected bottles in the shop. Ask at the counter for the current selection.",
             'Please drink responsibly. Please also stop asking whether the delivery bicycle counts as a vineyard tour.'
         ],
         terms: [
@@ -614,12 +614,12 @@ const extraPages = [
         brand: 'SERVICE INDUSTRY FORUM',
         address: 'www.serviceforum.local/archive/cooker-trouble',
         theme: 'social',
-        snippet: 'An archived discussion from another town. Several replies recommend shouting.',
+        snippet: "An archived winter discussion from Northbridge. Several replies recommend shouting.",
         body: [
             'ARCHIVED THREAD — posted last winter by user PanHandling.',
             'Our cooker failed during lunch service in Northbridge. We switched to cold food and tried to look as though it was a concept.',
             'Reply from GravyTrain: Call an engineer. The cooker will not respond to a strongly worded menu.',
-            'The author does not name The Copper Spoon. This thread concerns a different kitchen and a different service.'
+            "PanHandling: “Engineer booked. Cold lunch sold better than expected. The chef says this proves nothing.”"
         ],
         terms: [
             ['kitchen_failure']
@@ -635,7 +635,7 @@ const extraPages = [
         body: [
             'Duplicate receipt books for shops and small businesses.',
             'Each book includes numbered pages and carbon-copy sheets. Available in packs of five.',
-            'We sell blank stationery. We cannot provide a copy of a receipt issued by another business.',
+            "Choose from pocket, counter and desk formats. Carbon paper included; legible handwriting remains your responsibility.",
             'Customer review: “Excellent paper trail. Unfortunately, my accountant followed it.”'
         ],
         terms: [
@@ -653,7 +653,7 @@ const extraPages = [
             'Arthur Finch — contributor, Northbridge.',
             'A retired railway engineer who writes a monthly column on garden birds.',
             'His latest article concerns a robin which has taken possession of his shed.',
-            'Contributor biography: based in Northbridge for forty years. No restaurant visits or personal contact details are listed here.'
+            "Arthur has lived in Northbridge for forty years. The robin has occupied the shed for three months and already behaves like the landlord."
         ],
         terms: [
             ['arthur_finch']
@@ -669,7 +669,7 @@ const extraPages = [
         body: [
             'Nora Bell founded Bell Bakes in Eastmere.',
             'The studio specialises in celebration cakes and edible flowers.',
-            'Nora has worked as a baker for twenty years. This business biography does not mention community-event work.',
+            "Nora has worked as a baker for twenty years. Her edible roses are considerably better behaved than the real ones outside the studio.",
             'Please do not send seating-plan disputes. We make the cake, not the peace treaty.'
         ],
         terms: [
@@ -686,7 +686,7 @@ const extraPages = [
         body: [
             'Simon Pike — owner, Pike & Line, Westhaven.',
             'Fishing rods, reels and patient advice for people who have bought the wrong bait.',
-            'This profile identifies a full-time tackle-shop owner. It contains no board-game club membership or dinner attendance records.',
+            "Simon runs the Westhaven shop full-time. Repairs and equipment advice are available at the counter.",
             'Our most successful lure remains the sign saying “SALE”.'
         ],
         terms: [
@@ -699,11 +699,11 @@ const extraPages = [
         brand: 'SHAW COSTUMES',
         address: 'www.shawcostumes.local/about-evelyn',
         theme: 'magazine',
-        snippet: 'Historical costume hire in Millchester. No accounting services, even in costume.',
+        snippet: "Historical costume hire in Millchester. Capes, crowns and inconveniently wide skirts.",
         body: [
             'Evelyn Shaw manages a theatrical costume workshop in Millchester.',
             'The workshop supplies amateur theatre groups, museums and people who have misunderstood “casual Friday”.',
-            'Her public biography describes a career in costume design, not an accounts role at Morrow Records.',
+            "Evelyn’s work includes costume design, alterations and convincing amateur kings that the crown is a rental.",
             'All capes must be returned dry. All crowns must be returned without constitutional claims.'
         ],
         terms: [
@@ -720,7 +720,7 @@ const extraPages = [
         body: [
             'TUESDAY PACKAGE COLLECTION',
             'Our Tuesday route collects prepaid parcels from participating shops.',
-            'This page concerns physical deliveries. No restaurant bookings, dinner companions or revised personal histories are included.',
+            "Prepaid parcels should be labelled and ready before the collection window. Unlabelled boxes will be treated as an attempt at mystery.",
             'If your package contains an excuse, please pack it securely. They tend to fall apart in transit.'
         ],
         terms: [
@@ -737,8 +737,8 @@ const extraPages = [
         snippet: 'Why every shared folder contains six final versions and one quiet cry for help.',
         body: [
             'Revision numbers describe document versions.',
-            'The label “revision 2” appears in many unrelated documents. On its own, it does not identify the author or the source.',
-            'Compare the document title, exact wording and originating organisation before linking two files.',
+            "Revision 2 usually follows revision 1. The emergency version found on a memory stick may follow no recognised system at all.",
+            "Choose a consistent naming system. Adding more exclamation marks is not version control.",
             'Our own final draft is named final_REALLY_FINAL_7. We are not taking questions.'
         ],
         terms: [
@@ -755,8 +755,8 @@ const extraPages = [
         body: [
             'A short guide to being invited back.',
             'Listen, ask questions and avoid explaining the correct way to run the restaurant before the bread arrives.',
-            'Respectability is not a certification. Anyone can put the word on a website, including us.',
-            'This etiquette column does not provide witnesses, bookings or confirmation of anyone’s movements.'
+            "Arrive when invited, learn your host’s name and allow someone else to finish a sentence before describing your investments.",
+            "If you drop a fork, ask for another. Crawling under the table is rarely the impression you intended to make."
         ],
         terms: [
             ['respectable_witness'],
@@ -773,7 +773,7 @@ const extraPages = [
         body: [
             'A consumer column about promotional samples.',
             'Check whether a sample requires payment details, a purchase or an ongoing subscription.',
-            'This article discusses marketing offers in general. It does not reproduce material from the Tuesday Alibi Club.',
+            "Keep the offer terms and check any cancellation instructions before handing over your payment details.",
             'Our free newsletter costs nothing. Escaping our editor at parties is considerably harder.'
         ],
         terms: [
@@ -786,12 +786,12 @@ const extraPages = [
         brand: 'WHAT’S ON, PROBABLY',
         address: 'www.whatsonprobably.local/weekly/tuesday',
         theme: 'magazine',
-        snippet: 'Recurring Tuesday activities. Attendance not guaranteed, even by the organisers.',
+        snippet: "Bridge, pottery and choir practice in our weekly listings.",
         body: [
-            'WEEKLY LISTINGS — recurring events, not a guest register.',
+            "WEEKLY LISTINGS",
             'Tuesday: beginners’ bridge, pottery practice and the municipal choir.',
             'The choir has asked us to clarify that “beginners welcome” is an invitation, not an acoustic forecast.',
-            'A weekly listing does not establish that an event ran on a particular date or that a particular person attended.'
+            "Contact the organisers for booking details and schedule changes. The pottery group has asked us to stop printing “bring your own kiln”."
         ],
         terms: [
             ['tuesday']
@@ -807,7 +807,7 @@ const extraPages = [
         body: [
             'Dining alone should not require an explanation.',
             'Our columnist recommends a book, a comfortable chair and refusing to apologise to an empty place setting.',
-            'This is an opinion column, not a record of any particular restaurant visit.',
+            "Order what you want. You are not obliged to choose something which looks convincing in the empty chair’s photograph.",
             'The spare chair declined to comment. It was enjoying the evening.'
         ],
         terms: [
@@ -1198,3 +1198,4 @@ for (const config of configs) {
 }
 
 export const ALIBI_ENRICHED_CASE = definition;
+// ALIBI_PUBLIC_TEXT_EDIT_V1

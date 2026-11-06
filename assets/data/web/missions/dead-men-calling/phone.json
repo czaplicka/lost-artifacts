@@ -17,7 +17,7 @@
       "fallback": [
         {
           "speaker": "Margaret Vale",
-          "text": "I cannot connect those details. Ask me about Edward, the messages or his papers."
+          "text": "Ask about the voicemail, Edward’s older recordings or the blue folder. I can tell you what I have, not identify the caller by his voice."
         }
       ]
     },
@@ -35,7 +35,7 @@
       "fallback": [
         {
           "speaker": "Leo Mercer",
-          "text": "I can discuss our work, but private records require the client’s permission and a relevant enquiry."
+          "text": "I can explain comparison methods. Releasing archive-transfer records requires Margaret’s permission; analysing her recent original files requires her permission for that separate task."
         }
       ]
     },
@@ -53,64 +53,12 @@
       "fallback": [
         {
           "speaker": "Colin Ward",
-          "text": "I cannot give you a useful answer from those details. Be specific about the archive or company records."
+          "text": "Are you asking what the archive contained, about the reconciliation sheet, or challenging something I said? Keep those questions separate."
         }
       ]
     }
   ],
   "topics": [
-    {
-      "id": "dm_margaret_edward",
-      "number": "619",
-      "terms": [
-        "dm_edward"
-      ],
-      "requires": {},
-      "effect": null,
-      "group": "dm_margaret_edward",
-      "lines": [
-        {
-          "speaker": "You",
-          "text": "Tell me about Edward and the material he left behind."
-        },
-        {
-          "speaker": "Margaret Vale",
-          "text": "Edward died a year ago. I identified him, and I have the death certificate. I am not asking you to hold a seance."
-        },
-        {
-          "speaker": "Margaret Vale",
-          "text": "He left older recordings: voicemail messages and notes from an office recorder. He kept so many blue folders that he could have registered as weather."
-        }
-      ]
-    },
-    {
-      "id": "dm_margaret_calls",
-      "number": "619",
-      "terms": [
-        "dm_voice"
-      ],
-      "requires": {
-        "none": [
-          "confronted"
-        ]
-      },
-      "effect": null,
-      "group": "dm_margaret_calls",
-      "lines": [
-        {
-          "speaker": "You",
-          "text": "Did you speak to the caller?"
-        },
-        {
-          "speaker": "Margaret Vale",
-          "text": "All three recent calls went to voicemail, at 20:14 on successive evenings. The number was withheld. I never spoke live to the caller."
-        },
-        {
-          "speaker": "Margaret Vale",
-          "text": "I have preserved the original files and older recordings of Edward. His voice alone does not tell me who placed a call."
-        }
-      ]
-    },
     {
       "id": "dm_margaret_archive",
       "number": "619",
@@ -118,6 +66,7 @@
         "dm_archive"
       ],
       "requires": {
+        "all": [],
         "none": [
           "archiveCompared",
           "confronted"
@@ -125,18 +74,23 @@
       },
       "effect": "interviewCompleted",
       "group": "margaret_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "May I have copies of the older recordings?"
+          "text": "May I have copies of Edward’s older recordings?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Yes. I will supply copies of three older recordings: a blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
+          "text": "Yes. I will send the blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
+        },
+        {
+          "speaker": "You",
+          "text": "What should I compare first?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "They predate Edward’s death according to my records. Compare them with the new messages before deciding what they mean."
+          "text": "The exact words and the sounds described in the transcripts. I can supply the files, but I cannot tell you which parts match. Edward made even a plumber’s invoice sound confidential."
         }
       ]
     },
@@ -147,6 +101,7 @@
         "dm_recorder"
       ],
       "requires": {
+        "all": [],
         "none": [
           "archiveCompared",
           "confronted"
@@ -154,18 +109,23 @@
       },
       "effect": "interviewCompleted",
       "group": "margaret_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "May I have copies of the older recordings?"
+          "text": "May I have copies of Edward’s older recordings?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Yes. I will supply copies of three older recordings: a blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
+          "text": "Yes. I will send the blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
+        },
+        {
+          "speaker": "You",
+          "text": "What should I compare first?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "They predate Edward’s death according to my records. Compare them with the new messages before deciding what they mean."
+          "text": "The exact words and the sounds described in the transcripts. I can supply the files, but I cannot tell you which parts match. Edward made even a plumber’s invoice sound confidential."
         }
       ]
     },
@@ -177,6 +137,7 @@
         "dm_archive"
       ],
       "requires": {
+        "all": [],
         "none": [
           "archiveCompared",
           "confronted"
@@ -184,42 +145,23 @@
       },
       "effect": "interviewCompleted",
       "group": "margaret_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "May I have copies of the older recordings?"
+          "text": "May I have copies of Edward’s older recordings?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Yes. I will supply copies of three older recordings: a blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
+          "text": "Yes. I will send the blue-folder voicemail, an office recorder test and an anniversary message. I will keep the originals."
         },
-        {
-          "speaker": "Margaret Vale",
-          "text": "They predate Edward’s death according to my records. Compare them with the new messages before deciding what they mean."
-        }
-      ]
-    },
-    {
-      "id": "dm_margaret_folder_early",
-      "number": "619",
-      "terms": [
-        "dm_folder"
-      ],
-      "requires": {
-        "none": [
-          "accessReviewed"
-        ]
-      },
-      "effect": null,
-      "group": "dm_margaret_folder_early",
-      "lines": [
         {
           "speaker": "You",
-          "text": "What do you know about the blue folder?"
+          "text": "What should I compare first?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Edward kept blue folders in his study. I have not checked all the papers yet. He once filed a plumber under Emergency Noodles."
+          "text": "The exact words and the sounds described in the transcripts. I can supply the files, but I cannot tell you which parts match. Edward made even a plumber’s invoice sound confidential."
         }
       ]
     },
@@ -239,22 +181,31 @@
       },
       "effect": "accessInterviewCompleted",
       "group": "margaret_access",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Who handled the archive, and who was allowed a copy?"
+          "text": "Who handled the recording archive and who could obtain a copy?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Leo Mercer at Mercer Audio transferred Edward’s voicemail files and office recordings into one recording archive."
+          "text": "Leo Mercer at Mercer Audio transferred the voicemail and office recordings. The job was MV-14."
+        },
+        {
+          "speaker": "You",
+          "text": "Did anyone else ask for the material?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Colin Ward asked for records to reconcile the former company accounts. I authorised one archive copy. I will forward my original authorisation."
+          "text": "Colin Ward wanted company records. I authorised an archive copy. I will forward my authorisation and give Leo permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "I should distinguish permission, archive contents and actual delivery."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "You may ask Mercer Audio for the relevant transfer records. I have sent Leo written permission to discuss the job with you."
+          "text": "Yes. Ask Leo about the transfer job, not whether he thinks Colin is unpleasant. That would require a considerably longer call."
         }
       ]
     },
@@ -274,22 +225,31 @@
       },
       "effect": "accessInterviewCompleted",
       "group": "margaret_access",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Who handled the archive, and who was allowed a copy?"
+          "text": "Who handled the recording archive and who could obtain a copy?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Leo Mercer at Mercer Audio transferred Edward’s voicemail files and office recordings into one recording archive."
+          "text": "Leo Mercer at Mercer Audio transferred the voicemail and office recordings. The job was MV-14."
+        },
+        {
+          "speaker": "You",
+          "text": "Did anyone else ask for the material?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Colin Ward asked for records to reconcile the former company accounts. I authorised one archive copy. I will forward my original authorisation."
+          "text": "Colin Ward wanted company records. I authorised an archive copy. I will forward my authorisation and give Leo permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "I should distinguish permission, archive contents and actual delivery."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "You may ask Mercer Audio for the relevant transfer records. I have sent Leo written permission to discuss the job with you."
+          "text": "Yes. Ask Leo about the transfer job, not whether he thinks Colin is unpleasant. That would require a considerably longer call."
         }
       ]
     },
@@ -310,22 +270,117 @@
       },
       "effect": "accessInterviewCompleted",
       "group": "margaret_access",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Who handled the archive, and who was allowed a copy?"
+          "text": "Who handled the recording archive and who could obtain a copy?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Leo Mercer at Mercer Audio transferred Edward’s voicemail files and office recordings into one recording archive."
+          "text": "Leo Mercer at Mercer Audio transferred the voicemail and office recordings. The job was MV-14."
+        },
+        {
+          "speaker": "You",
+          "text": "Did anyone else ask for the material?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Colin Ward asked for records to reconcile the former company accounts. I authorised one archive copy. I will forward my original authorisation."
+          "text": "Colin Ward wanted company records. I authorised an archive copy. I will forward my authorisation and give Leo permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "I should distinguish permission, archive contents and actual delivery."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "You may ask Mercer Audio for the relevant transfer records. I have sent Leo written permission to discuss the job with you."
+          "text": "Yes. Ask Leo about the transfer job, not whether he thinks Colin is unpleasant. That would require a considerably longer call."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_access_direct",
+      "number": "619",
+      "terms": [
+        "dm_archive",
+        "dm_mercer"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": "accessInterviewCompleted",
+      "group": "margaret_access",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Who handled the recording archive and who could obtain a copy?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Leo Mercer at Mercer Audio transferred the voicemail and office recordings. The job was MV-14."
+        },
+        {
+          "speaker": "You",
+          "text": "Did anyone else ask for the material?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Colin Ward wanted company records. I authorised an archive copy. I will forward my authorisation and give Leo permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "I should distinguish permission, archive contents and actual delivery."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Yes. Ask Leo about the transfer job, not whether he thinks Colin is unpleasant. That would require a considerably longer call."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_folder_early",
+      "number": "619",
+      "terms": [
+        "dm_folder"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "accessReviewed",
+          "confronted"
+        ]
+      },
+      "effect": "folderInterview",
+      "group": "margaret_folder",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The caller keeps asking for the blue folder. Please check what is actually inside it."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I checked the study. There is Edward’s reconciliation sheet, a company bank entry and Colin Ward’s earlier request for the annotated original."
+        },
+        {
+          "speaker": "You",
+          "text": "Please send copies and keep the originals."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I will. The sheet mentions expense claim CW-41 and payment TR-884. I can tell you where I found the papers, not where the money went."
+        },
+        {
+          "speaker": "You",
+          "text": "May I ask Colin about them?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Yes. He works through Ward Consulting. The documents record a query, not a finding of theft. I would also like the plumber removed from Emergency Noodles, but that can wait."
         }
       ]
     },
@@ -345,22 +400,137 @@
       },
       "effect": "folderInterview",
       "group": "margaret_folder",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "What is in the blue folder, and may I ask Colin about it?"
+          "text": "The caller keeps asking for the blue folder. Please check what is actually inside it."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "I checked the study. The blue folder contains Edward’s reconciliation sheet, a company bank entry and Colin Ward’s earlier request for the annotated original."
+          "text": "I checked the study. There is Edward’s reconciliation sheet, a company bank entry and Colin Ward’s earlier request for the annotated original."
+        },
+        {
+          "speaker": "You",
+          "text": "Please send copies and keep the originals."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "The sheet records an unresolved expense claim, CW-41, linked to payment TR-884. I will send scans and keep the originals."
+          "text": "I will. The sheet mentions expense claim CW-41 and payment TR-884. I can tell you where I found the papers, not where the money went."
+        },
+        {
+          "speaker": "You",
+          "text": "May I ask Colin about them?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "You may ask Colin about them. He works through Ward Consulting. The accounts were not my responsibility. I can tell you where the papers were, not where the money went."
+          "text": "Yes. He works through Ward Consulting. The documents record a query, not a finding of theft. I would also like the plumber removed from Emergency Noodles, but that can wait."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_calls",
+      "number": "619",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "dm_margaret_calls",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Did you ever speak live to the recent caller?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "No. All three messages went to voicemail at 20:14 on successive evenings. The number was withheld."
+        },
+        {
+          "speaker": "You",
+          "text": "So recognising the voice would not identify who sent a file."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Exactly. I saved the original files. Ask me about the older recordings if you need something to compare."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_edward",
+      "number": "619",
+      "terms": [
+        "dm_edward"
+      ],
+      "requires": {
+        "all": [],
+        "none": []
+      },
+      "effect": "clientWishes",
+      "group": "margaret_wishes",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Tell me about Edward and the material he left."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "He died a year ago. I identified him and have the death certificate. I am not asking you to hold a seance."
+        },
+        {
+          "speaker": "You",
+          "text": "If I discover private matters about Edward that do not explain the calls, how do you want me to handle them?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I want to know if you find anything. I have had enough people deciding what I can handle."
+        },
+        {
+          "speaker": "You",
+          "text": "I will distinguish evidence about the calls from unrelated private material. I will not destroy anything."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Thank you. I still keep the old anniversary message. Let me make my own decisions about my memories."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_wishes",
+      "number": "619",
+      "terms": [
+        "dm_margaret"
+      ],
+      "requires": {
+        "all": [],
+        "none": []
+      },
+      "effect": "clientWishes",
+      "group": "margaret_wishes",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "If I discover private matters about Edward that do not explain the calls, how do you want me to handle them?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I want to know if you find anything. I have had enough people deciding what I can handle."
+        },
+        {
+          "speaker": "You",
+          "text": "I will distinguish evidence about the calls from unrelated private material. I will not destroy anything."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Thank you. I still keep the old anniversary message. Let me make my own decisions about my memories."
         }
       ]
     },
@@ -380,6 +550,7 @@
       },
       "effect": "technicianCompleted",
       "group": "leo_transfer",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -387,15 +558,23 @@
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission. Job MV-14 combined her voicemail files and Edward’s office recorder files."
+          "text": "I have Margaret’s written permission. The job combined her voicemail files with Edward’s office recorder files."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "A preservation copy went to Margaret. A second copy went to Colin Ward under her authorisation. The manifest includes the blue-folder voicemail, recorder test and anniversary message."
+          "text": "A preservation copy went to Margaret. An authorised second copy went to Colin Ward."
+        },
+        {
+          "speaker": "You",
+          "text": "What do the documents establish separately?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will forward the authorisation, manifest and delivery acknowledgement MV-14-D2. Delivery establishes access to that copy, not who used it later."
+          "text": "The authorisation says what was permitted. The manifest says what was included. MV-14-D2 records delivery. I will send those records; compare their references rather than treating any one of them as the whole story."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Access to a copy is not proof of who used it later. My filing cabinet is precise, not clairvoyant."
         }
       ]
     },
@@ -415,6 +594,7 @@
       },
       "effect": "technicianCompleted",
       "group": "leo_transfer",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -422,15 +602,23 @@
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission. Job MV-14 combined her voicemail files and Edward’s office recorder files."
+          "text": "I have Margaret’s written permission. The job combined her voicemail files with Edward’s office recorder files."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "A preservation copy went to Margaret. A second copy went to Colin Ward under her authorisation. The manifest includes the blue-folder voicemail, recorder test and anniversary message."
+          "text": "A preservation copy went to Margaret. An authorised second copy went to Colin Ward."
+        },
+        {
+          "speaker": "You",
+          "text": "What do the documents establish separately?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will forward the authorisation, manifest and delivery acknowledgement MV-14-D2. Delivery establishes access to that copy, not who used it later."
+          "text": "The authorisation says what was permitted. The manifest says what was included. MV-14-D2 records delivery. I will send those records; compare their references rather than treating any one of them as the whole story."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Access to a copy is not proof of who used it later. My filing cabinet is precise, not clairvoyant."
         }
       ]
     },
@@ -450,6 +638,7 @@
       },
       "effect": "technicianCompleted",
       "group": "leo_transfer",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -457,15 +646,413 @@
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission. Job MV-14 combined her voicemail files and Edward’s office recorder files."
+          "text": "I have Margaret’s written permission. The job combined her voicemail files with Edward’s office recorder files."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "A preservation copy went to Margaret. A second copy went to Colin Ward under her authorisation. The manifest includes the blue-folder voicemail, recorder test and anniversary message."
+          "text": "A preservation copy went to Margaret. An authorised second copy went to Colin Ward."
+        },
+        {
+          "speaker": "You",
+          "text": "What do the documents establish separately?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will forward the authorisation, manifest and delivery acknowledgement MV-14-D2. Delivery establishes access to that copy, not who used it later."
+          "text": "The authorisation says what was permitted. The manifest says what was included. MV-14-D2 records delivery. I will send those records; compare their references rather than treating any one of them as the whole story."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Access to a copy is not proof of who used it later. My filing cabinet is precise, not clairvoyant."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_method_voice",
+      "number": "620",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The voice sounds familiar. I do not know what to compare."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Start with exact words, not an impression of a voice. Does a complete sentence also occur in an older recording?"
+        },
+        {
+          "speaker": "You",
+          "text": "And the noises behind it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Compare those separately, in order. One bell means little. The same sequence deserves attention. Even a tram should not repeat its performance on command."
+        },
+        {
+          "speaker": "You",
+          "text": "This is still a transcript comparison, not an original-file audio test."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Correct. It gives you a hypothesis to test. It does not name the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_method_pair",
+      "number": "620",
+      "terms": [
+        "dm_voice",
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The voice sounds familiar. I do not know what to compare."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Start with exact words, not an impression of a voice. Does a complete sentence also occur in an older recording?"
+        },
+        {
+          "speaker": "You",
+          "text": "And the noises behind it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Compare those separately, in order. One bell means little. The same sequence deserves attention. Even a tram should not repeat its performance on command."
+        },
+        {
+          "speaker": "You",
+          "text": "This is still a transcript comparison, not an original-file audio test."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Correct. It gives you a hypothesis to test. It does not name the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_method_background",
+      "number": "620",
+      "terms": [
+        "dm_background"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The voice sounds familiar. I do not know what to compare."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Start with exact words, not an impression of a voice. Does a complete sentence also occur in an older recording?"
+        },
+        {
+          "speaker": "You",
+          "text": "And the noises behind it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Compare those separately, in order. One bell means little. The same sequence deserves attention. Even a tram should not repeat its performance on command."
+        },
+        {
+          "speaker": "You",
+          "text": "This is still a transcript comparison, not an original-file audio test."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Correct. It gives you a hypothesis to test. It does not name the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_method_sounds",
+      "number": "620",
+      "terms": [
+        "dm_hiss",
+        "dm_tram_bell"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The voice sounds familiar. I do not know what to compare."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Start with exact words, not an impression of a voice. Does a complete sentence also occur in an older recording?"
+        },
+        {
+          "speaker": "You",
+          "text": "And the noises behind it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Compare those separately, in order. One bell means little. The same sequence deserves attention. Even a tram should not repeat its performance on command."
+        },
+        {
+          "speaker": "You",
+          "text": "This is still a transcript comparison, not an original-file audio test."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Correct. It gives you a hypothesis to test. It does not name the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_method_taps",
+      "number": "620",
+      "terms": [
+        "dm_metallic_taps"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The voice sounds familiar. I do not know what to compare."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Start with exact words, not an impression of a voice. Does a complete sentence also occur in an older recording?"
+        },
+        {
+          "speaker": "You",
+          "text": "And the noises behind it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Compare those separately, in order. One bell means little. The same sequence deserves attention. Even a tram should not repeat its performance on command."
+        },
+        {
+          "speaker": "You",
+          "text": "This is still a transcript comparison, not an original-file audio test."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Correct. It gives you a hypothesis to test. It does not name the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_transfer_permission",
+      "number": "620",
+      "terms": [
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "accessInterviewCompleted",
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_access_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Can you tell me who received Edward’s archive?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Not without Margaret’s permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "Permission for an audio comparison?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Different job. Ask Margaret about Mercer Audio and the recording archive. Once she authorises the transfer enquiry, give me the job reference if you have it."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_job_permission",
+      "number": "620",
+      "terms": [
+        "dm_mv14"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "accessInterviewCompleted",
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_access_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Can you tell me who received Edward’s archive?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Not without Margaret’s permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "Permission for an audio comparison?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Different job. Ask Margaret about Mercer Audio and the recording archive. Once she authorises the transfer enquiry, give me the job reference if you have it."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_firm_permission",
+      "number": "620",
+      "terms": [
+        "dm_mercer"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "accessInterviewCompleted",
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_access_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Can you tell me who received Edward’s archive?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Not without Margaret’s permission to release the transfer records."
+        },
+        {
+          "speaker": "You",
+          "text": "Permission for an audio comparison?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Different job. Ask Margaret about Mercer Audio and the recording archive. Once she authorises the transfer enquiry, give me the job reference if you have it."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_delivery_help",
+      "number": "620",
+      "terms": [
+        "dm_delivery"
+      ],
+      "requires": {
+        "all": [
+          "technicianCompleted"
+        ],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_document_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "I have the transfer paperwork, but I am not sure how to compare it."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Permission, contents, delivery: three different questions. Follow the job reference from one document to the next."
+        },
+        {
+          "speaker": "You",
+          "text": "So an authorisation alone does not prove the copy arrived."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Exactly. Read the acknowledgement as well as the manifest. Do not substitute my opinion of a recipient for the record itself."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_job_help",
+      "number": "620",
+      "terms": [
+        "dm_mv14",
+        "dm_delivery"
+      ],
+      "requires": {
+        "all": [
+          "technicianCompleted"
+        ],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_document_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "I have the transfer paperwork, but I am not sure how to compare it."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Permission, contents, delivery: three different questions. Follow the job reference from one document to the next."
+        },
+        {
+          "speaker": "You",
+          "text": "So an authorisation alone does not prove the copy arrived."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Exactly. Read the acknowledgement as well as the manifest. Do not substitute my opinion of a recipient for the record itself."
         }
       ]
     },
@@ -486,6 +1073,7 @@
       },
       "effect": "colinInterview",
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -494,6 +1082,10 @@
         {
           "speaker": "Colin Ward",
           "text": "No. My copy contained invoices only. No voicemail files, no recorder test. I never received any voice recordings."
+        },
+        {
+          "speaker": "You",
+          "text": "I will record that statement and check it against the supplied records."
         },
         {
           "speaker": "Colin Ward",
@@ -518,6 +1110,7 @@
       },
       "effect": "colinInterview",
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -526,6 +1119,10 @@
         {
           "speaker": "Colin Ward",
           "text": "No. My copy contained invoices only. No voicemail files, no recorder test. I never received any voice recordings."
+        },
+        {
+          "speaker": "You",
+          "text": "I will record that statement and check it against the supplied records."
         },
         {
           "speaker": "Colin Ward",
@@ -549,18 +1146,23 @@
       },
       "effect": null,
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Explain your interest in the annotated sheet and the payment query."
+          "text": "Explain your interest in the annotated reconciliation sheet and the payment query."
         },
         {
           "speaker": "Colin Ward",
-          "text": "I asked Margaret for the original reconciliation sheet to finish the old company accounts."
+          "text": "I asked Margaret for the original to finish the company accounts. CW-41 and TR-884 concern a supplier payment, as far as I remember."
+        },
+        {
+          "speaker": "You",
+          "text": "Can you identify the original supplier invoice?"
         },
         {
           "speaker": "Colin Ward",
-          "text": "CW-41 and TR-884 concern a supplier payment, as far as I remember. I would need to find the original invoice before giving you more detail."
+          "text": "I would need to find it. The accounting query and somebody’s voicemail are not the same question."
         }
       ]
     },
@@ -580,18 +1182,23 @@
       },
       "effect": null,
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Explain your interest in the annotated sheet and the payment query."
+          "text": "Explain your interest in the annotated reconciliation sheet and the payment query."
         },
         {
           "speaker": "Colin Ward",
-          "text": "I asked Margaret for the original reconciliation sheet to finish the old company accounts."
+          "text": "I asked Margaret for the original to finish the company accounts. CW-41 and TR-884 concern a supplier payment, as far as I remember."
+        },
+        {
+          "speaker": "You",
+          "text": "Can you identify the original supplier invoice?"
         },
         {
           "speaker": "Colin Ward",
-          "text": "CW-41 and TR-884 concern a supplier payment, as far as I remember. I would need to find the original invoice before giving you more detail."
+          "text": "I would need to find it. The accounting query and somebody’s voicemail are not the same question."
         }
       ]
     },
@@ -611,18 +1218,23 @@
       },
       "effect": null,
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Explain your interest in the annotated sheet and the payment query."
+          "text": "Explain your interest in the annotated reconciliation sheet and the payment query."
         },
         {
           "speaker": "Colin Ward",
-          "text": "I asked Margaret for the original reconciliation sheet to finish the old company accounts."
+          "text": "I asked Margaret for the original to finish the company accounts. CW-41 and TR-884 concern a supplier payment, as far as I remember."
+        },
+        {
+          "speaker": "You",
+          "text": "Can you identify the original supplier invoice?"
         },
         {
           "speaker": "Colin Ward",
-          "text": "CW-41 and TR-884 concern a supplier payment, as far as I remember. I would need to find the original invoice before giving you more detail."
+          "text": "I would need to find it. The accounting query and somebody’s voicemail are not the same question."
         }
       ]
     },
@@ -642,18 +1254,23 @@
       },
       "effect": null,
       "group": "colin_initial",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "Explain your interest in the annotated sheet and the payment query."
+          "text": "Explain your interest in the annotated reconciliation sheet and the payment query."
         },
         {
           "speaker": "Colin Ward",
-          "text": "I asked Margaret for the original reconciliation sheet to finish the old company accounts."
+          "text": "I asked Margaret for the original to finish the company accounts. CW-41 and TR-884 concern a supplier payment, as far as I remember."
+        },
+        {
+          "speaker": "You",
+          "text": "Can you identify the original supplier invoice?"
         },
         {
           "speaker": "Colin Ward",
-          "text": "CW-41 and TR-884 concern a supplier payment, as far as I remember. I would need to find the original invoice before giving you more detail."
+          "text": "I would need to find it. The accounting query and somebody’s voicemail are not the same question."
         }
       ]
     },
@@ -667,10 +1284,12 @@
       "requires": {
         "all": [
           "folderReviewed"
-        ]
+        ],
+        "none": []
       },
       "effect": "confronted",
       "group": "colin_confrontation",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
@@ -682,15 +1301,132 @@
         },
         {
           "speaker": "Colin Ward",
-          "text": "Yes. I assembled the three messages from Edward’s old recordings and sent them through my business voice-message relay. I scheduled all three for 20:14."
+          "text": "Yes. I assembled the three messages from Edward’s old recordings and sent them through my business voice-message relay. I scheduled them for 20:14."
         },
         {
           "speaker": "Colin Ward",
-          "text": "Margaret had ignored my request for the original reconciliation sheet. I wanted Edward’s annotations out of her hands before anyone checked my expense claim. I thought his voice would make her listen."
+          "text": "Margaret ignored my request for the original reconciliation sheet. I wanted Edward’s annotations out of her hands before anyone checked my expense claim."
+        },
+        {
+          "speaker": "You",
+          "text": "I still need to check your account. Will you supply the project and authorise release of the dispatch records?"
         },
         {
           "speaker": "Colin Ward",
-          "text": "I will supply the editing project and authorise release of the relevant dispatch records. Keep unrelated client details out of it."
+          "text": "Yes. Keep the unrelated client material out of it."
+        },
+        {
+          "speaker": "You",
+          "text": "Those are your materials. Margaret’s preserved original voicemail files are the other side of the comparison. I will ask her for permission and have Leo check them."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_denial_help",
+      "number": "620",
+      "terms": [
+        "dm_denial"
+      ],
+      "requires": {
+        "all": [
+          "colinInterview",
+          "technicianCompleted"
+        ],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_confrontation_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin’s account does not seem to fit the transfer papers."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Put his exact denial beside the delivery acknowledgement. What did he deny receiving, and what archive does that record acknowledge?"
+        },
+        {
+          "speaker": "You",
+          "text": "That is the discrepancy to put to him, separately from the payment query."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Yes. Do not ask one contradiction to do two jobs. Complete your own document review before turning it into an accusation."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_denial_delivery_help",
+      "number": "620",
+      "terms": [
+        "dm_denial",
+        "dm_delivery"
+      ],
+      "requires": {
+        "all": [
+          "colinInterview",
+          "technicianCompleted"
+        ],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "leo_confrontation_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin’s account does not seem to fit the transfer papers."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Put his exact denial beside the delivery acknowledgement. What did he deny receiving, and what archive does that record acknowledge?"
+        },
+        {
+          "speaker": "You",
+          "text": "That is the discrepancy to put to him, separately from the payment query."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Yes. Do not ask one contradiction to do two jobs. Complete your own document review before turning it into an accusation."
+        }
+      ]
+    },
+    {
+      "id": "dm_colin_confront_early",
+      "number": "621",
+      "terms": [
+        "dm_denial",
+        "dm_delivery"
+      ],
+      "requires": {
+        "all": [
+          "colinInterview"
+        ],
+        "none": [
+          "folderReviewed",
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "colin_comparison_pending",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Your account appears inconsistent with the delivery record."
+        },
+        {
+          "speaker": "Colin Ward",
+          "text": "Then identify exactly what you are comparing. Do not confuse your suspicions about the accounts with a statement about the archive."
+        },
+        {
+          "speaker": "You",
+          "text": "I should finish comparing the recorded statement and the original documents first."
         }
       ]
     },
@@ -704,22 +1440,28 @@
       "requires": {
         "all": [
           "confronted"
-        ]
+        ],
+        "none": []
       },
       "effect": "consent",
       "group": "margaret_consent",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "May Leo compare your original recent recordings with the supplied sources and exports?"
+          "text": "May Leo compare your original recent recordings with the archive, Colin’s project and the relay payloads?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Yes. Leo Mercer may compare my original recent voicemail recordings with the archive, Colin’s project and the authorised relay payloads."
+          "text": "Yes. I have sent Leo written permission and copies of my preserved originals. I will retain the originals."
+        },
+        {
+          "speaker": "You",
+          "text": "Colin’s admission still needs corroboration. The company payment is a separate enquiry."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "I have sent written permission and copies of my preserved originals. I will keep the originals. Please establish who called me; the accounts can be checked separately."
+          "text": "Good. Please establish who called me. I hired a detective, not a haunted calculator."
         }
       ]
     },
@@ -733,22 +1475,164 @@
       "requires": {
         "all": [
           "confronted"
-        ]
+        ],
+        "none": []
       },
       "effect": "consent",
       "group": "margaret_consent",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "May Leo compare your original recent recordings with the supplied sources and exports?"
+          "text": "May Leo compare your original recent recordings with the archive, Colin’s project and the relay payloads?"
         },
         {
           "speaker": "Margaret Vale",
-          "text": "Yes. Leo Mercer may compare my original recent voicemail recordings with the archive, Colin’s project and the authorised relay payloads."
+          "text": "Yes. I have sent Leo written permission and copies of my preserved originals. I will retain the originals."
+        },
+        {
+          "speaker": "You",
+          "text": "Colin’s admission still needs corroboration. The company payment is a separate enquiry."
         },
         {
           "speaker": "Margaret Vale",
-          "text": "I have sent written permission and copies of my preserved originals. I will keep the originals. Please establish who called me; the accounts can be checked separately."
+          "text": "Good. Please establish who called me. I hired a detective, not a haunted calculator."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_comparison_early",
+      "number": "619",
+      "terms": [
+        "dm_voice",
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "margaret_comparison_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Can I compare the recent messages with the older recordings?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Yes. Ask me for the older recordings. Compare the exact sentences and the described background before deciding what to ask an analyst to prove."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_needs_consent_pair",
+      "number": "620",
+      "terms": [
+        "dm_voice",
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": [
+          "consent"
+        ]
+      },
+      "effect": null,
+      "group": "leo_permission_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin has admitted making the messages. Can you verify it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "I can compare files, not certify a confession. I need Margaret’s original recent voicemail files and her written permission for this analysis."
+        },
+        {
+          "speaker": "You",
+          "text": "Then I should ask her about comparing the voicemail with the recording archive."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Precisely. Not another printout of the transcript. The actual files."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_needs_consent_voice",
+      "number": "620",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": [
+          "consent"
+        ]
+      },
+      "effect": null,
+      "group": "leo_permission_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin has admitted making the messages. Can you verify it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "I can compare files, not certify a confession. I need Margaret’s original recent voicemail files and her written permission for this analysis."
+        },
+        {
+          "speaker": "You",
+          "text": "Then I should ask her about comparing the voicemail with the recording archive."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Precisely. Not another printout of the transcript. The actual files."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_needs_consent_archive",
+      "number": "620",
+      "terms": [
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": [
+          "consent"
+        ]
+      },
+      "effect": null,
+      "group": "leo_permission_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin has admitted making the messages. Can you verify it?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "I can compare files, not certify a confession. I need Margaret’s original recent voicemail files and her written permission for this analysis."
+        },
+        {
+          "speaker": "You",
+          "text": "Then I should ask her about comparing the voicemail with the recording archive."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Precisely. Not another printout of the transcript. The actual files."
         }
       ]
     },
@@ -763,26 +1647,36 @@
         "all": [
           "confronted",
           "consent"
-        ]
+        ],
+        "none": []
       },
       "effect": "verified",
       "group": "leo_verification",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "What did your original-file comparison establish?"
+          "text": "What does the original-file comparison establish?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission and the original recent files, the older archive, Colin’s editing project and the authorised relay payloads."
+          "text": "I have Margaret’s permission and the recent original files, the older archive, Colin’s supplied project and the authorised relay payloads."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "The selected voice segments correspond to Archives A and C. The repeated background comes from the recorder test, Archive B. The three exports match the recent messages and the retained relay payloads."
+          "text": "The voice segments correspond to Archives A and C; the background comes from Archive B. The exports match the recent messages and retained relay payloads."
+        },
+        {
+          "speaker": "You",
+          "text": "An audio match alone does not identify the person operating an account."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will send the original-file comparison report. The audio match corroborates assembly; dispatch and identity also require the separate records and recorded admission. The accounting query is outside my analysis."
+          "text": "Correct. Read it with the dispatch records and recorded admission. I will send my comparison report. The accounting question is outside my analysis."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "There is also an unused continuation in the complete archive. It is separate from the technical findings. Ask about Archive C if you want to review that additional material."
         }
       ]
     },
@@ -796,26 +1690,36 @@
         "all": [
           "confronted",
           "consent"
-        ]
+        ],
+        "none": []
       },
       "effect": "verified",
       "group": "leo_verification",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "What did your original-file comparison establish?"
+          "text": "What does the original-file comparison establish?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission and the original recent files, the older archive, Colin’s editing project and the authorised relay payloads."
+          "text": "I have Margaret’s permission and the recent original files, the older archive, Colin’s supplied project and the authorised relay payloads."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "The selected voice segments correspond to Archives A and C. The repeated background comes from the recorder test, Archive B. The three exports match the recent messages and the retained relay payloads."
+          "text": "The voice segments correspond to Archives A and C; the background comes from Archive B. The exports match the recent messages and retained relay payloads."
+        },
+        {
+          "speaker": "You",
+          "text": "An audio match alone does not identify the person operating an account."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will send the original-file comparison report. The audio match corroborates assembly; dispatch and identity also require the separate records and recorded admission. The accounting query is outside my analysis."
+          "text": "Correct. Read it with the dispatch records and recorded admission. I will send my comparison report. The accounting question is outside my analysis."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "There is also an unused continuation in the complete archive. It is separate from the technical findings. Ask about Archive C if you want to review that additional material."
         }
       ]
     },
@@ -829,26 +1733,318 @@
         "all": [
           "confronted",
           "consent"
-        ]
+        ],
+        "none": []
       },
       "effect": "verified",
       "group": "leo_verification",
+      "priority": 10,
       "lines": [
         {
           "speaker": "You",
-          "text": "What did your original-file comparison establish?"
+          "text": "What does the original-file comparison establish?"
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I have Margaret’s written permission and the original recent files, the older archive, Colin’s editing project and the authorised relay payloads."
+          "text": "I have Margaret’s permission and the recent original files, the older archive, Colin’s supplied project and the authorised relay payloads."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "The selected voice segments correspond to Archives A and C. The repeated background comes from the recorder test, Archive B. The three exports match the recent messages and the retained relay payloads."
+          "text": "The voice segments correspond to Archives A and C; the background comes from Archive B. The exports match the recent messages and retained relay payloads."
+        },
+        {
+          "speaker": "You",
+          "text": "An audio match alone does not identify the person operating an account."
         },
         {
           "speaker": "Leo Mercer",
-          "text": "I will send the original-file comparison report. The audio match corroborates assembly; dispatch and identity also require the separate records and recorded admission. The accounting query is outside my analysis."
+          "text": "Correct. Read it with the dispatch records and recorded admission. I will send my comparison report. The accounting question is outside my analysis."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "There is also an unused continuation in the complete archive. It is separate from the technical findings. Ask about Archive C if you want to review that additional material."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_private_continuation",
+      "number": "620",
+      "terms": [
+        "dm_archive",
+        "dm_recorder"
+      ],
+      "requires": {
+        "all": [
+          "verified"
+        ],
+        "none": []
+      },
+      "effect": "privateRequested",
+      "group": "leo_private_material",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Was there anything else in the complete archive that was not used in the recent messages?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "There is a continuation beyond the shorter Archive C extract. It does not change my findings about the calls."
+        },
+        {
+          "speaker": "You",
+          "text": "What sort of material?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Private and potentially painful. I have preserved it separately. I will not summarise somebody’s private life as a footnote to a technical report."
+        },
+        {
+          "speaker": "You",
+          "text": "Let me review the complete continuation before deciding how to discuss it with Margaret."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "I will supply it as a separate private attachment. No original will be destroyed."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_private_archive_c",
+      "number": "620",
+      "terms": [
+        "dm_archive_c"
+      ],
+      "requires": {
+        "all": [
+          "verified"
+        ],
+        "none": []
+      },
+      "effect": "privateRequested",
+      "group": "leo_private_material",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Was there anything else in the complete archive that was not used in the recent messages?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "There is a continuation beyond the shorter Archive C extract. It does not change my findings about the calls."
+        },
+        {
+          "speaker": "You",
+          "text": "What sort of material?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "Private and potentially painful. I have preserved it separately. I will not summarise somebody’s private life as a footnote to a technical report."
+        },
+        {
+          "speaker": "You",
+          "text": "Let me review the complete continuation before deciding how to discuss it with Margaret."
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "I will supply it as a separate private attachment. No original will be destroyed."
+        }
+      ]
+    },
+    {
+      "id": "dm_leo_private_signpost",
+      "number": "620",
+      "terms": [
+        "dm_mercer"
+      ],
+      "requires": {
+        "all": [
+          "verified"
+        ],
+        "none": []
+      },
+      "effect": null,
+      "group": "leo_private_signpost",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Is the technical enquiry finished?"
+        },
+        {
+          "speaker": "Leo Mercer",
+          "text": "My report covers the assembled messages. There is also material in the complete archive that was not used. If you want to review the unused continuation, ask about Archive C, not the identity of the caller."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_after_admission",
+      "number": "619",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": [
+          "consent"
+        ]
+      },
+      "effect": null,
+      "group": "margaret_consent_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Colin has supplied an account, but I still need independent checks."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Tell me what you need from my recordings. Do not simply forward his confession back to me as an answer."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_revisit_verified",
+      "number": "619",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [
+          "verified"
+        ],
+        "none": []
+      },
+      "effect": null,
+      "group": "margaret_report_help",
+      "priority": 30,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "The recordings and dispatch are now corroborated. The company accounts remain a separate question."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "Then keep that distinction in the report. If you have found anything else about Edward, ask me how I want to handle it rather than deciding silently."
+        }
+      ]
+    },
+    {
+      "id": "dm_colin_money_not_calls",
+      "number": "621",
+      "terms": [
+        "dm_accounts",
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [
+          "folderInterview"
+        ],
+        "none": [
+          "confronted"
+        ]
+      },
+      "effect": null,
+      "group": "colin_scope_help",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Are the accounting query and your archive copy connected?"
+        },
+        {
+          "speaker": "Colin Ward",
+          "text": "They are company records. If you dispute what I received, identify that record. If you want an explanation of a payment, identify the payment."
+        },
+        {
+          "speaker": "You",
+          "text": "I should separate the archive statement from the unresolved accounts."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_folder_after_confrontation",
+      "number": "619",
+      "terms": [
+        "dm_folder"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": []
+      },
+      "effect": null,
+      "group": "margaret_preservation",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Please keep the folder and its original documents secure."
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I will. The annotated sheet and the company bank entry stay with me. The originals are not a prize for whoever tells the most dramatic story."
+        }
+      ]
+    },
+    {
+      "id": "dm_margaret_waiting_for_analysis",
+      "number": "619",
+      "terms": [
+        "dm_voice"
+      ],
+      "requires": {
+        "all": [
+          "consent"
+        ],
+        "none": [
+          "verified"
+        ]
+      },
+      "effect": null,
+      "group": "margaret_analysis_pending",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Do you need anything else for the comparison?"
+        },
+        {
+          "speaker": "Margaret Vale",
+          "text": "I have sent Leo my permission and copies of the original recent files. Ask Mercer Audio about the voicemail and recording archive for the technical result. I will not improve the evidence by guessing what he found."
+        }
+      ]
+    },
+    {
+      "id": "dm_colin_after_admission_archive",
+      "number": "621",
+      "terms": [
+        "dm_archive"
+      ],
+      "requires": {
+        "all": [
+          "confronted"
+        ],
+        "none": []
+      },
+      "effect": null,
+      "group": "colin_followup",
+      "priority": 10,
+      "lines": [
+        {
+          "speaker": "You",
+          "text": "Have you preserved the source material and supplied the project?"
+        },
+        {
+          "speaker": "Colin Ward",
+          "text": "Yes. The supplied project and the authorised relay records are available. Have them checked against Margaret’s files."
+        },
+        {
+          "speaker": "You",
+          "text": "I will keep your account separate from the independent checks and the accounting query."
         }
       ]
     }

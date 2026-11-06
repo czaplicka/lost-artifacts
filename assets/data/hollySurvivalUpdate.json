@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 8,
+  "requiredFlags": [
+    "john_escape_timeline_reconstructed",
+    "holly_survival_update_unlocked",
+    "holly_chapter_one_completed"
+  ],
+  "offer": "The reconstructed sequence changes the account you gave Holly. Call her with what the evidence now supports \u2014 and what it still does not establish.",
+  "lines": [
+    {
+      "speaker": "DETECTIVE",
+      "text": "Holly, I need to correct what I told you about John. The later records and Alex's account change the picture."
+    },
+    {
+      "speaker": "Holly",
+      "text": "You found him?"
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Not his location. We established that he prepared an escape and left the aircraft under a parachute before it crashed. He used the crash to cover his disappearance."
+    },
+    {
+      "speaker": "SYSTEM",
+      "text": "The line remains connected. Holly says nothing.",
+      "silenceMs": 2800
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Holly? Are you still there?"
+    },
+    {
+      "speaker": "Holly",
+      "text": "Yes. I am here. I just... need a moment."
+    },
+    {
+      "speaker": "Holly",
+      "text": "Then he did not die in that crash."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "He escaped before impact. I still do not know where he went or what happened afterwards."
+    },
+    {
+      "speaker": "Holly",
+      "text": "I understand. Thank you for telling me."
+    },
+    {
+      "speaker": "SYSTEM",
+      "text": "The call ends without the questions you expected. Her silence is something you noticed, not proof of why she reacted that way."
+    }
+  ],
+  "resultTitle": "CASE UPDATE RECORDED",
+  "nextTitle": "NEXT / FINDING JOHN",
+  "objective": "Speak to Holly about continuing the search and obtaining a financial lead.",
+  "messages": {
+    "complete": "Holly has been told about John's staged disappearance. Next: discuss continuing the search and a financial lead.",
+    "saveFailed": "Saving failed. Progress is in memory; save manually before closing the game.",
+    "loadFailed": "The call could not be opened. Nothing was lost. Try the telephone in your PI office again."
+  }
+}

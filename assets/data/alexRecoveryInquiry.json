@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 8,
+  "requiredFlags": [
+    "archive_crash_followup_verified",
+    "gordon_safe_confrontation_completed"
+  ],
+  "reference": "JM-041-R",
+  "items": [
+    {
+      "id": "radio",
+      "label": "Field radio",
+      "issued": 1,
+      "accounted": 1
+    },
+    {
+      "id": "first_aid",
+      "label": "First-aid kit",
+      "issued": 1,
+      "accounted": 1
+    },
+    {
+      "id": "signal_kit",
+      "label": "Signal kit",
+      "issued": 1,
+      "accounted": 1
+    },
+    {
+      "id": "parachute",
+      "label": "Emergency parachute",
+      "issued": 1,
+      "accounted": 0
+    }
+  ],
+  "opening": "You brought the recovery reference. Good. Compare the equipment issued for the transport with the later accounting. 'Accounted for' does not mean 'still works'. It means somebody wrote down what happened to it.",
+  "confession": [
+    {
+      "speaker": "DETECTIVE",
+      "text": "One parachute was issued. The recovery accounting does not account for it. That is a discrepancy, not proof of a jump. What happened?"
+    },
+    {
+      "speaker": "Alex Murphy",
+      "text": "It is not a clerical error. I helped John arrange a way out before the crash."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "You let me believe there was no chance he survived."
+    },
+    {
+      "speaker": "Alex Murphy",
+      "text": "Yes. That was the cover story. I helped with the preparations and kept quiet afterwards."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Where did he go?"
+    },
+    {
+      "speaker": "Alex Murphy",
+      "text": "I do not know his destination. Helping him prepare to disappear did not mean getting a forwarding address."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "Then I need to separate the planned escape from what actually happened during the flight."
+    },
+    {
+      "speaker": "Alex Murphy",
+      "text": "Start with the sequence. The equipment entry, the intended escape, the crash, then the later recovery. Do not make the paperwork answer questions it cannot answer."
+    }
+  ],
+  "objective": "Reconstruct John's planned escape and the crash using the records and Alex's admission.",
+  "messages": {
+    "ready": "Select RECOVERY EQUIPMENT to compare the issue and recovery records with Alex.",
+    "unfinished": "Your comparison and conversation progress are saved.",
+    "complete": "Alex admitted helping John prepare his disappearance. Next: reconstruct the escape and crash timeline.",
+    "saveFailed": "Automatic saving failed. Progress is in memory; save manually before closing the game.",
+    "loadFailed": "The recovery inquiry could not be opened. Nothing was lost. Please try again."
+  }
+}

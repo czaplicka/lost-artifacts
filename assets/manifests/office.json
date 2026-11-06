@@ -1,24 +1,8 @@
 {
   "assets": [
     {
-      "key": "archive",
-      "url": "assets/local/archive.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgroundhi",
-      "url": "assets/local/office.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "alex-storage",
-      "url": "assets/spritesheet/office/alex-storage.png",
+      "key": "agency_storage_manager",
+      "url": "assets/local/storage_manager.webp",
       "type": "image",
       "groups": [
         "portraits"
@@ -33,24 +17,48 @@
       ]
     },
     {
-      "key": "agency_storage_manager",
-      "url": "assets/local/storage_manager.webp",
+      "key": "alex-storage",
+      "url": "assets/spritesheet/office/alex-storage.png",
       "type": "image",
       "groups": [
         "portraits"
       ]
     },
     {
-      "key": "hotel",
-      "url": "assets/local/hotel.jpg",
+      "key": "archive",
+      "url": "assets/local/archive.webp",
       "type": "image",
       "groups": [
         "backgrounds"
       ]
     },
     {
-      "key": "elevator_open",
-      "url": "assets/local/elevator_open.webp",
+      "key": "archivist",
+      "url": "assets/local/archivist.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundhi",
+      "url": "assets/local/office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "backgroundoff",
+      "url": "assets/local/biuro.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "elevator_broken",
+      "url": "assets/local/elevator_broken.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -65,8 +73,16 @@
       ]
     },
     {
-      "key": "elevator_broken",
-      "url": "assets/local/elevator_broken.webp",
+      "key": "elevator_open",
+      "url": "assets/local/elevator_open.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "hotel",
+      "url": "assets/local/hotel.jpg",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -89,24 +105,8 @@
       ]
     },
     {
-      "key": "archivist",
-      "url": "assets/local/archivist.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "premium_office",
       "url": "assets/local/premium_office.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "backgroundoff",
-      "url": "assets/local/biuro.webp",
       "type": "image",
       "groups": [
         "backgrounds"

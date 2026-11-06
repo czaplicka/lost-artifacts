@@ -70,5 +70,17 @@
     "description": "This bronze model replica of the torch from the Statue of Liberty is a symbol of freedom and democracy, representing the ideals upon which the United States was founded.",
     "significance": "Containing the original architectural blueprints of the Statue of Liberty, used by 19th-century spies to conceal coded messages about transatlantic shipping routes.",
     "narrative": "The torch links the theft to espionage, shipping routes, and a hidden intelligence network operating across the Atlantic."
-  }
+  },
+  {
+  "city": "Tokyo",
+  "country": "Japan",
+  "artifact": "Great Wave First Impression",
+  "scene": "tokyo_museum",
+  "location": "Tokyo National Museum, Ueno",
+  "clue": "The suspect was seen near Ueno Park, holding a very large tube and a very small umbrella.",
+  "artifactKey": "artifact_great_wave",
+  "description": "A first-edition woodblock print of Hokusai's Great Wave, one of only about a hundred surviving first impressions in the world.",
+  "significance": "Its margin hides a faint registration mark that, when overlaid with the other 45 prints of the Fuji series, forms a map of a secret shipping route.",
+  "narrative": "The theft links Edo-period smugglers to a modern collector who wants the full route, and drags the player into a chain of hidden prints."
+}
 ]

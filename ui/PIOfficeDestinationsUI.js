@@ -9,6 +9,12 @@ export class PIOfficeDestinationsUI extends DestinationsUI {
     this.piOptions = options;
   }
 
+  // Expedition-style parchment map for the PI office.
+  // Called from the base constructor, so it must not use instance state.
+  getMapTheme() {
+    return 'pi';
+  }
+
   // The map is opened from the computer, not by a global hotkey.
   registerKeyboard() {}
 

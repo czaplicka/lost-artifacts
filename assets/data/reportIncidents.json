@@ -1,0 +1,625 @@
+{
+  "version": 1,
+  "incidents": [
+    {
+      "id": "wrong_recipient",
+      "category": "loyalty",
+      "sender": "Nora Finch",
+      "channel": "Operations memo",
+      "subject": "A small correction to a large misunderstanding",
+      "body": "I sent an internal transport schedule to the wrong recipient. Access has been revoked and the breach logged. It concerned an upcoming shipment, not evidence in your closed case. Please advise how it should be escalated.",
+      "choices": [
+        {
+          "id": "name",
+          "label": "Document the breach and name me.",
+          "reportText": "Document the breach and name me.",
+          "outcome": "The review names Nora and includes her corrective action. Nora is disappointed, but the cause is documented.",
+          "relationshipDelta": -1
+        },
+        {
+          "id": "anonymous",
+          "label": "Document the breach without my name.",
+          "reportText": "Document the breach without my name.",
+          "outcome": "Operations recorded the breach and requested a confidential follow-up. Nora appreciates the discretion.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "omit",
+          "label": "Recommend no further mention.",
+          "reportText": "Recommend no further mention.",
+          "outcome": "Nora is relieved. The incident remains in the original security log; your recommendation does not erase it.",
+          "relationshipDelta": 2
+        }
+      ]
+    },
+    {
+      "id": "missing_credit",
+      "category": "loyalty",
+      "sender": "Sam Pike",
+      "channel": "Draft attribution",
+      "subject": "Apparently I am a department now",
+      "body": "The attached research note is mine. Felix credited a senior agent who forwarded it. The timestamped draft confirms authorship. Please choose the attribution for the internal bulletin.",
+      "choices": [
+        {
+          "id": "credit",
+          "label": "Credit Sam as the author.",
+          "reportText": "Credit Sam as the author.",
+          "outcome": "The bulletin credits Sam. Felix calls it a minor correction with major punctuation.",
+          "relationshipDelta": 2
+        },
+        {
+          "id": "team",
+          "label": "Credit the team and list contributors.",
+          "reportText": "Credit the team and list contributors.",
+          "outcome": "The bulletin lists Sam among the contributors. The senior agent keeps the lead credit.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "official",
+          "label": "Approve the existing attribution.",
+          "reportText": "Approve the existing attribution.",
+          "outcome": "The senior agent keeps the credit. Sam stops offering unsolicited research notes.",
+          "relationshipDelta": -2
+        }
+      ]
+    },
+    {
+      "id": "emergency_car",
+      "category": "loyalty",
+      "sender": "Eddie Bell",
+      "channel": "Vehicle log",
+      "subject": "Unauthorized family transport",
+      "body": "I used a pool car to take a relative to hospital after my shift. No operation was delayed. The mileage is logged. Please recommend how the supervisor should handle it.",
+      "choices": [
+        {
+          "id": "context",
+          "label": "Report the use and the emergency context.",
+          "reportText": "Report the use and the emergency context.",
+          "outcome": "The supervisor receives the complete account. Eddie accepts that the mileage needed an explanation.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "self",
+          "label": "Request a signed statement from Eddie.",
+          "reportText": "Request a signed statement from Eddie.",
+          "outcome": "Eddie submits his own account. The decision remains with the supervisor.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "ignore",
+          "label": "Recommend no follow-up.",
+          "reportText": "Recommend no follow-up.",
+          "outcome": "Eddie thanks you. Fleet management still has the mileage discrepancy on record.",
+          "relationshipDelta": 2
+        }
+      ]
+    },
+    {
+      "id": "overtime",
+      "category": "loyalty",
+      "sender": "June Mercer",
+      "channel": "Payroll review",
+      "subject": "Overtime is not a character trait",
+      "body": "Sam has six documented overtime hours missing from payroll. Recognizing them reduces the discretionary bonus pool. June requests a recommendation, not permission to alter wages.",
+      "choices": [
+        {
+          "id": "correct",
+          "label": "Support the documented correction.",
+          "reportText": "Support the documented correction.",
+          "outcome": "Payroll receives June’s evidence. The bonus pool is being recalculated.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "review",
+          "label": "Request an independent payroll review.",
+          "reportText": "Request an independent payroll review.",
+          "outcome": "The claim remains open for verification. June appreciates that it has not vanished into a drawer.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "close",
+          "label": "Recommend closing the query unchanged.",
+          "reportText": "Recommend closing the query unchanged.",
+          "outcome": "The query is marked disputed. Sam is told to pursue the missing hours himself.",
+          "relationshipDelta": -2
+        }
+      ]
+    },
+    {
+      "id": "sick_shift",
+      "category": "loyalty",
+      "sender": "Nora Finch",
+      "channel": "Staffing note",
+      "subject": "My replacement is also me",
+      "body": "I answered routine office requests while signed off sick because there was no replacement. No field operation depended on it. I would rather not become the example in a staffing review.",
+      "choices": [
+        {
+          "id": "staffing",
+          "label": "Record the staffing failure and context.",
+          "reportText": "Record the staffing failure and context.",
+          "outcome": "Operations receives a request for replacement coverage. Nora dislikes the attention but welcomes the proposal.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "private",
+          "label": "Request a confidential welfare review.",
+          "reportText": "Request a confidential welfare review.",
+          "outcome": "Nora receives a private check-in. The staffing issue remains on the review agenda.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "normal",
+          "label": "Describe it as ordinary coverage.",
+          "reportText": "Describe it as ordinary coverage.",
+          "outcome": "The shift is presented as normal. Nora thanks you, then receives another out-of-hours request.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "lost_receipt",
+      "category": "money",
+      "sender": "Eddie Bell",
+      "channel": "Expense query",
+      "subject": "Insufficient receipt-shaped evidence",
+      "body": "I paid for an office delivery and lost the receipt. The courier confirms the amount and service. Finance asks whether an exception should be considered. This recommendation does not spend your personal money.",
+      "choices": [
+        {
+          "id": "exception",
+          "label": "Support a documented exception.",
+          "reportText": "Support a documented exception.",
+          "outcome": "Finance accepts the courier confirmation for review. Eddie is grateful for the support.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "duplicate",
+          "label": "Request a duplicate receipt first.",
+          "reportText": "Request a duplicate receipt first.",
+          "outcome": "The claim stays open while Eddie requests a duplicate.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "reject",
+          "label": "Recommend rejecting the claim.",
+          "reportText": "Recommend rejecting the claim.",
+          "outcome": "Finance receives your recommendation. Eddie objects that the delivery was never in dispute.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "hotel_invoice",
+      "category": "money",
+      "sender": "Felix Ward",
+      "channel": "Invoice review",
+      "subject": "A discount nobody negotiated",
+      "body": "An invoice for an agency conference room is lower than the signed booking. The hotel has probably made a mistake. Felix suggests accepting the invoice as issued.",
+      "choices": [
+        {
+          "id": "correct",
+          "label": "Ask the hotel to check the invoice.",
+          "reportText": "Ask the hotel to check the invoice.",
+          "outcome": "The hotel confirms a billing error and issues a correction. Felix mourns the accidental discount.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "finance",
+          "label": "Refer the discrepancy to Finance.",
+          "reportText": "Refer the discrepancy to Finance.",
+          "outcome": "Finance takes ownership of the query. The invoice is not approved yet.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "accept",
+          "label": "Recommend approving it unchanged.",
+          "reportText": "Recommend approving it unchanged.",
+          "outcome": "The discrepancy remains unresolved. Your recommendation is recorded for a later reconciliation.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "visitor_fare",
+      "category": "money",
+      "sender": "Sam Pike",
+      "channel": "Visitor expense",
+      "subject": "A promise with no budget code",
+      "body": "A visitor gave an administrative training interview after being promised travel reimbursement. The office now disputes who authorized it. Sam asks you to support the claim; no evidence in your case is affected.",
+      "choices": [
+        {
+          "id": "honour",
+          "label": "Support honoring the documented promise.",
+          "reportText": "Support honoring the documented promise.",
+          "outcome": "Finance receives the promise and travel receipt. Sam thanks you for taking it seriously.",
+          "relationshipDelta": 2
+        },
+        {
+          "id": "check",
+          "label": "Ask who authorized the promise.",
+          "reportText": "Ask who authorized the promise.",
+          "outcome": "The claim stays open pending authorization checks. Sam forwards the correspondence.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "decline",
+          "label": "Recommend declining unauthorized costs.",
+          "reportText": "Recommend declining unauthorized costs.",
+          "outcome": "The visitor is told the claim is disputed. Sam is left explaining why the promise was made.",
+          "relationshipDelta": -2
+        }
+      ]
+    },
+    {
+      "id": "supplier_gift",
+      "category": "money",
+      "sender": "June Mercer",
+      "channel": "Gift register",
+      "subject": "The hamper has diplomatic immunity",
+      "body": "A supplier sent the operations team an expensive hamper after a routine contract review. The attached policy requires a recorded decision. June asks what to recommend.",
+      "choices": [
+        {
+          "id": "return",
+          "label": "Return it with a polite explanation.",
+          "reportText": "Return it with a polite explanation.",
+          "outcome": "The hamper is returned and the reason logged. June rescues the thank-you card from the bin.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "declare",
+          "label": "Declare it and request a shared-gift ruling.",
+          "reportText": "Declare it and request a shared-gift ruling.",
+          "outcome": "The sealed hamper goes to the gifts register pending a ruling. June appreciates having a procedure to point to.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "keep",
+          "label": "Recommend keeping it off the register.",
+          "reportText": "Recommend keeping it off the register.",
+          "outcome": "June records your recommendation but warns that the delivery receipt still exists.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "courier_penalty",
+      "category": "money",
+      "sender": "Eddie Bell",
+      "channel": "Contract review",
+      "subject": "Late, but not catastrophically late",
+      "body": "A small courier firm delivered office supplies late after a breakdown. No mission was affected. The contract penalty would erase its fee. Procurement requests your recommendation.",
+      "choices": [
+        {
+          "id": "full",
+          "label": "Recommend the full contractual penalty.",
+          "reportText": "Recommend the full contractual penalty.",
+          "outcome": "Procurement records a strict-enforcement recommendation. Eddie forwards the breakdown report anyway.",
+          "relationshipDelta": -1
+        },
+        {
+          "id": "partial",
+          "label": "Recommend a reduced penalty.",
+          "reportText": "Recommend a reduced penalty.",
+          "outcome": "Procurement receives a compromise proposal and supporting circumstances.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "waive",
+          "label": "Recommend waiving the penalty.",
+          "reportText": "Recommend waiving the penalty.",
+          "outcome": "Procurement receives a waiver request. Eddie thanks you; approval remains with Procurement.",
+          "relationshipDelta": 1
+        }
+      ]
+    },
+    {
+      "id": "anonymous_helper",
+      "category": "privacy",
+      "sender": "Nora Finch",
+      "channel": "Publication consent",
+      "subject": "Please do not make me a headline",
+      "body": "A volunteer helped organize an agency public workshop and explicitly declined publicity. Felix wants to identify them in the staff newsletter. This is a publication decision, not a change to any witness record.",
+      "choices": [
+        {
+          "id": "anonymous",
+          "label": "Keep the volunteer anonymous.",
+          "reportText": "Keep the volunteer anonymous.",
+          "outcome": "The newsletter thanks an unnamed volunteer. Nora confirms the request was respected.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "consent",
+          "label": "Request consent for a limited credit.",
+          "reportText": "Request consent for a limited credit.",
+          "outcome": "Publication of the name is held pending consent. Nora forwards the proposed wording.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "name",
+          "label": "Approve using the name anyway.",
+          "reportText": "Approve using the name anyway.",
+          "outcome": "The proposed identification is escalated to the privacy officer. Nora is unhappy with your recommendation.",
+          "relationshipDelta": -2
+        }
+      ]
+    },
+    {
+      "id": "photo_data",
+      "category": "privacy",
+      "sender": "Felix Ward",
+      "channel": "Photo approval",
+      "subject": "Your password is having a press conference",
+      "body": "An office publicity photo shows a personal document on a desk. The face of the document is readable. Felix wants approval before sending it to the newsletter.",
+      "choices": [
+        {
+          "id": "redact",
+          "label": "Approve only a redacted copy.",
+          "reportText": "Approve only a redacted copy.",
+          "outcome": "Felix masks the document before publication. The photo survives; the private data does not.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "replace",
+          "label": "Use the less impressive safe photo.",
+          "reportText": "Use the less impressive safe photo.",
+          "outcome": "The alternative photo is selected. Felix describes it as aggressively adequate.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "original",
+          "label": "Approve the unedited original.",
+          "reportText": "Approve the unedited original.",
+          "outcome": "The original is held for a privacy review. Felix now has a second form to complete.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "sponsor_credit",
+      "category": "privacy",
+      "sender": "Felix Ward",
+      "channel": "Press wording",
+      "subject": "Sponsored by an unrelated success",
+      "body": "A sponsor funded an agency exhibition, not your investigation. Felix’s draft implies the sponsor helped solve the theft. He asks which wording to send for approval.",
+      "choices": [
+        {
+          "id": "correct",
+          "label": "State that the sponsor funded the exhibition.",
+          "reportText": "State that the sponsor funded the exhibition.",
+          "outcome": "The distinction stays in the copy. Felix complains about the death of a perfectly good implication.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "separate",
+          "label": "Keep the sponsor in a separate thank-you box.",
+          "reportText": "Keep the sponsor in a separate thank-you box.",
+          "outcome": "The sponsor receives a separate acknowledgment without investigative credit.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "approve",
+          "label": "Approve the exaggerated claim.",
+          "reportText": "Approve the exaggerated claim.",
+          "outcome": "The draft retains the misleading credit. A correction request is added to the communications file.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "sensational_copy",
+      "category": "privacy",
+      "sender": "Felix Ward",
+      "channel": "Press draft",
+      "subject": "Please approve the attached version of reality",
+      "body": "Felix’s draft calls a routine office evacuation a near-fatal escape. The evacuation log confirms there was no injury or immediate danger. Choose the recommended headline.",
+      "choices": [
+        {
+          "id": "plain",
+          "label": "Use an accurate, plain description.",
+          "reportText": "Use an accurate, plain description.",
+          "outcome": "The bulletin reports the evacuation accurately. Felix files it under missed opportunities.",
+          "relationshipDelta": -1
+        },
+        {
+          "id": "accurate",
+          "label": "Use an engaging but factual headline.",
+          "reportText": "Use an engaging but factual headline.",
+          "outcome": "The revised headline keeps the drama in the wording, not in invented danger.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "sensational",
+          "label": "Approve the near-fatal version.",
+          "reportText": "Approve the near-fatal version.",
+          "outcome": "The sensational draft is flagged when Facilities compares it with the evacuation log.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "expert_credit",
+      "category": "privacy",
+      "sender": "Sam Pike",
+      "channel": "Attribution request",
+      "subject": "Payment in exposure, but actually requested",
+      "body": "An external expert contributed to an agency training guide. She waived a fee on the condition that she receives credit. Sam asks you to approve the acknowledgment.",
+      "choices": [
+        {
+          "id": "credit",
+          "label": "Include her requested credit.",
+          "reportText": "Include her requested credit.",
+          "outcome": "The guide names the expert. Sam forwards her appreciative reply.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "permission",
+          "label": "Request permission for anonymous use.",
+          "reportText": "Request permission for anonymous use.",
+          "outcome": "Distribution waits for her answer. Sam confirms that silence is not consent.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "omit",
+          "label": "Recommend using it without attribution.",
+          "reportText": "Recommend using it without attribution.",
+          "outcome": "The expert requests a correction. Sam preserves the original agreement.",
+          "relationshipDelta": -2
+        }
+      ]
+    },
+    {
+      "id": "replica_damage",
+      "category": "procedure",
+      "sender": "June Mercer",
+      "channel": "Inventory correction",
+      "subject": "An original replica",
+      "body": "An intern broke a cheap display replica. The storage label incorrectly described it as an original. This is an office display object, not the recovered artifact from your case.",
+      "choices": [
+        {
+          "id": "both",
+          "label": "Record the damage and the labeling error.",
+          "reportText": "Record the damage and the labeling error.",
+          "outcome": "Both issues enter the inventory review. June is pleased that the label is finally being corrected.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "self",
+          "label": "Ask the intern to file a complete account.",
+          "reportText": "Ask the intern to file a complete account.",
+          "outcome": "The intern submits an account including the misleading label.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "quiet",
+          "label": "Recommend replacing it without a report.",
+          "reportText": "Recommend replacing it without a report.",
+          "outcome": "The replacement proposal leaves the false inventory label unresolved.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "translation_app",
+      "category": "procedure",
+      "sender": "Sam Pike",
+      "channel": "Data handling note",
+      "subject": "Free translation. Expensive implications.",
+      "body": "I pasted an internal office schedule into an unapproved translation app. It contained staff names but no case evidence. I deleted the upload where possible. We have no approved translation tool.",
+      "choices": [
+        {
+          "id": "both",
+          "label": "Report the exposure and the missing tool.",
+          "reportText": "Report the exposure and the missing tool.",
+          "outcome": "The data team receives the incident and a request for an approved tool. Sam accepts the review.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "self",
+          "label": "Ask Sam to make the disclosure himself.",
+          "reportText": "Ask Sam to make the disclosure himself.",
+          "outcome": "Sam files his account and includes the attempted deletion.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "ignore",
+          "label": "Recommend taking no further action.",
+          "reportText": "Recommend taking no further action.",
+          "outcome": "The exposure remains unreviewed. Sam is relieved but still has no approved tool.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "caretaker_blame",
+      "category": "procedure",
+      "sender": "Nora Finch",
+      "channel": "Facilities review",
+      "subject": "Conveniently junior personnel",
+      "body": "A facilities manager blames the night caretaker for an office leak. Attached maintenance requests show the caretaker reported the fault repeatedly. This concerns agency premises, not the theft.",
+      "choices": [
+        {
+          "id": "attach",
+          "label": "Attach the earlier maintenance requests.",
+          "reportText": "Attach the earlier maintenance requests.",
+          "outcome": "The review now includes the prior warnings. Nora thanks you for keeping the record complete.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "confidential",
+          "label": "Send the requests to the reviewer privately.",
+          "reportText": "Send the requests to the reviewer privately.",
+          "outcome": "The reviewer receives the documents with a request to limit circulation.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "stay_out",
+          "label": "Recommend no additional submission.",
+          "reportText": "Recommend no additional submission.",
+          "outcome": "The reviewer receives no extra documents from you. Nora retains her own copies.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "research_notes",
+      "category": "procedure",
+      "sender": "June Mercer",
+      "channel": "Retention request",
+      "subject": "Scheduled for historical disappearance",
+      "body": "Old public research notes are due for disposal under a storage schedule. They contain no private information or case evidence, but a curator says they have historical value. June requests a recommendation.",
+      "choices": [
+        {
+          "id": "exception",
+          "label": "Request an authorized retention exception.",
+          "reportText": "Request an authorized retention exception.",
+          "outcome": "Disposal is paused while the archive reviews the historical claim.",
+          "relationshipDelta": 1
+        },
+        {
+          "id": "copy",
+          "label": "Recommend keeping an unauthorized copy.",
+          "reportText": "Recommend keeping an unauthorized copy.",
+          "outcome": "June records your suggestion and requests a ruling before making a copy.",
+          "relationshipDelta": -1
+        },
+        {
+          "id": "dispose",
+          "label": "Support the existing disposal schedule.",
+          "reportText": "Support the existing disposal schedule.",
+          "outcome": "The notes remain on the disposal list. June records the curator’s objection alongside your recommendation.",
+          "relationshipDelta": -1
+        }
+      ]
+    },
+    {
+      "id": "wrong_employee",
+      "category": "procedure",
+      "sender": "June Mercer",
+      "channel": "Personnel correction",
+      "subject": "A typo with disciplinary ambitions",
+      "body": "A reprimand was attached to Sam’s file because two employee numbers were transposed. You previously initialed the unchecked cover sheet. The attached source record establishes the error.",
+      "choices": [
+        {
+          "id": "own",
+          "label": "Correct the record and acknowledge your initials.",
+          "reportText": "Correct the record and acknowledge your initials.",
+          "outcome": "June requests that Sam’s record be corrected and includes your acknowledgment.",
+          "relationshipDelta": 2
+        },
+        {
+          "id": "review",
+          "label": "Request a fresh review without explaining your role.",
+          "reportText": "Request a fresh review without explaining your role.",
+          "outcome": "The record goes for review. June notes that the earlier approval will also be examined.",
+          "relationshipDelta": 0
+        },
+        {
+          "id": "leave",
+          "label": "Recommend leaving the closed file alone.",
+          "reportText": "Recommend leaving the closed file alone.",
+          "outcome": "June preserves the discrepancy and escalates it herself. Sam learns that you did not support the correction.",
+          "relationshipDelta": -2
+        }
+      ]
+    }
+  ]
+}

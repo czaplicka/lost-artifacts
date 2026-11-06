@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "title": "JOHN / THE STAGED DISAPPEARANCE",
+  "minimumCompletedMissions": 8,
+  "requiredFlags": [
+    "alex_staged_crash_admission_heard",
+    "escape_timeline_reconstruction_unlocked",
+    "archive_crash_followup_verified"
+  ],
+  "slotCount": 5,
+  "clarification": [
+    "DETECTIVE: Before I reconstruct this: did you only help with preparations, or did you actually see John leave the aircraft?",
+    "ALEX: I saw him leave the aircraft and his parachute open before impact. What I said earlier about the crash ending everything was the cover story. I did not follow him to his destination."
+  ],
+  "cards": [
+    {
+      "id": "prepare",
+      "title": "Escape prepared",
+      "text": "Alex helps John prepare a disappearance.",
+      "evidence": "preparation"
+    },
+    {
+      "id": "depart",
+      "title": "Transport departs",
+      "text": "The aircraft begins the artifact transport.",
+      "evidence": "mission"
+    },
+    {
+      "id": "jump",
+      "title": "John leaves under parachute",
+      "text": "John gets clear before the impact.",
+      "evidence": "witness"
+    },
+    {
+      "id": "impact",
+      "title": "Aircraft crashes",
+      "text": "The flight ends without John aboard.",
+      "evidence": "witness"
+    },
+    {
+      "id": "recovery",
+      "title": "Wreckage found later",
+      "text": "Recovery does not account for John or the artifact.",
+      "evidence": "recovery"
+    },
+    {
+      "id": "body",
+      "title": "John's body identified",
+      "text": "The recovery proves his death.",
+      "evidence": "recovery"
+    },
+    {
+      "id": "artifact",
+      "title": "Artifact recovered from wreck",
+      "text": "The missing cargo is accounted for.",
+      "evidence": "recovery"
+    },
+    {
+      "id": "destination",
+      "title": "John's hideout located",
+      "text": "Alex supplies John's current address.",
+      "evidence": "limits"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "preparation",
+      "title": "Alex's admission / equipment accounting",
+      "text": "Alex admits helping John prepare his disappearance. The equipment issue includes one parachute; the later recovery accounting does not account for it. Preparations precede the flight."
+    },
+    {
+      "id": "mission",
+      "title": "JM-041 / transport record",
+      "text": "The aircraft was transporting the recovered artifact. Departure precedes both the witnessed exit and the crash."
+    },
+    {
+      "id": "witness",
+      "title": "Alex's clarification",
+      "text": "Alex states he saw John leave the aircraft and the parachute open before impact. This is the witness basis for the exit event; the missing equipment entry alone would not establish a jump."
+    },
+    {
+      "id": "recovery",
+      "title": "JM-041-R / later recovery",
+      "text": "The wreckage was located after the crash. Neither John's body nor the artifact was recovered. No identification of John's body or recovery of the artifact is documented here."
+    },
+    {
+      "id": "limits",
+      "title": "Limits of Alex's account",
+      "text": "Alex does not know John's destination. His account supports an escape before impact, not a current address or a guarantee about John's present circumstances."
+    }
+  ],
+  "correctOrder": [
+    "prepare",
+    "depart",
+    "jump",
+    "impact",
+    "recovery"
+  ],
+  "conclusions": [
+    {
+      "id": "staged_escape",
+      "label": "STAGED ESCAPE",
+      "explanation": "The preparations, witness account and recovery record support an escape before impact."
+    },
+    {
+      "id": "confirmed_dead",
+      "label": "DEATH CONFIRMED",
+      "explanation": "No body was identified, and Alex places John outside the aircraft before impact."
+    },
+    {
+      "id": "location_known",
+      "label": "LOCATION KNOWN",
+      "explanation": "Alex explicitly says he does not know John's destination."
+    }
+  ],
+  "correctConclusion": "staged_escape",
+  "success": "John arranged an escape before the crash and used the crash as cover for his disappearance. The reconstruction does not locate him or identify whoever was responsible for every act of sabotage.",
+  "messages": {
+    "ready": "Select RECONSTRUCT ESCAPE to test the new sequence against the records and Alex's account.",
+    "unfinished": "Escape reconstruction progress saved. Return when you are ready.",
+    "complete": "Escape reconstruction complete. Next: update Holly about John's staged disappearance.",
+    "saveFailed": "Automatic saving failed. Progress is in memory; save manually before closing.",
+    "loadFailed": "The escape reconstruction could not be opened. Nothing was lost. Please try again."
+  }
+}

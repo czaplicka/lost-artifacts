@@ -4,11 +4,26 @@
   </button>
   <div class="hud-content">
     <div class="hud-paper-bg">
-      <div class="hud-cell" id="clock-target"><div class="digital-clock-display"><span class="clock-digital" id="clock-time">08:00</span><span class="clock-period" id="clock-part">MORNING</span></div></div>
-      <div class="hud-cell" id="date-target"><div class="calendar-card"><div class="calendar-rings"><span></span><span></span></div><div class="date-header" id="date-month">APR</div><div class="date-body" id="date-day">01</div></div></div>
+      <div class="hud-cell" id="clock-target">
+        <div class="digital-clock-display">
+          <span class="clock-digital" id="clock-time">08:00</span>
+          <span class="clock-period" id="clock-part">MORNING</span>
+        </div>
+      </div>
+      <div class="hud-cell" id="date-target">
+        <div class="calendar-card">
+          <div class="calendar-rings"><span></span><span></span></div>
+          <div class="date-header" id="date-month">APR</div>
+          <div class="date-body" id="date-day">01</div>
+        </div>
+      </div>
       <div class="hud-cell" id="deadline-target">
-        <div class="hourglass-wrapper"><svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z"/></svg>
-          <div class="deadline-info"><span class="deadline-value" id="deadline-value">4D</span><div class="deadline-progress-bg"><div class="deadline-progress-fill" id="deadline-progress"></div></div></div>
+        <div class="hourglass-wrapper">
+          <svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z"/></svg>
+          <div class="deadline-info">
+            <span class="deadline-value" id="deadline-value">4D</span>
+            <div class="deadline-progress-bg"><div class="deadline-progress-fill" id="deadline-progress"></div></div>
+          </div>
         </div>
       </div>
       <div class="hud-cell" id="energy-target">
@@ -23,17 +38,30 @@
     </div>
     <div class="hud-bottom-bar">
       <div class="stat-group">
-        <div class="stat-item" id="score-target"><span class="label">SCORE</span><span class="value score" id="hud-score">0</span></div>
+        <div class="stat-item" id="score-target">
+          <span class="stat-icon" aria-hidden="true">⭐</span>
+          <span class="label">SCORE</span>
+          <span class="value score" id="hud-score">0</span>
+        </div>
         <div class="stat-divider"></div>
-        <div class="stat-item" id="cash-target"><span class="label">CASH</span><span class="value cash" id="hud-cash">$250</span></div>
+        <div class="stat-item" id="xp-target">
+          <span class="stat-icon" aria-hidden="true">📈</span>
+          <span class="label">XP</span>
+          <span class="value xp" id="hud-xp">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" id="cash-target">
+          <span class="stat-icon" aria-hidden="true">💵</span>
+          <span class="label">CASH</span>
+          <span class="value cash" id="hud-cash">$250</span>
+        </div>
       </div>
       <div class="hud-buttons">
         <img src="assets/ico/player.webp" id="btn-profile" class="hud-icon-btn" alt="Agent" title="AGENT DOSSIER"/>
         <img src="assets/ico/profile.webp" id="btn-player" class="hud-icon-btn" alt="Profile" title="DETECTIVE PROFILE"/>
         <button id="btn-expansion-store" class="hud-icon-btn" type="button" title="EXTRA CASES — ADDITIONAL CONTENT" aria-label="Open additional content store"
-          style="display:inline-flex;align-items:center;justify-content:center;padding:3px;background:transparent;border:0;color:#ddc398;cursor:pointer;flex-shrink:0;"
           onclick="event.preventDefault();event.stopPropagation();if(!this.disabled){this.disabled=true;import('./scenes/ExpansionStoreScene.js').then(module=>module.openExpansionStore()).catch(error=>{console.error('[Extra Cases] Could not open store:',error);window.alert('The additional content catalog could not be opened.');}).finally(()=>{this.disabled=false;});}">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="display:block;max-width:100%;max-height:100%;filter:drop-shadow(1px 2px 1px #201910);">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="display:block;filter:drop-shadow(1px 2px 1px #201910);">
             <path d="M3 10H13L16 13H29V27H3V10Z" fill="#b99257" stroke="#49351f" stroke-width="2"/>
             <path d="M3 10V6H13L16 10H27V13" fill="#dfc28a" stroke="#49351f" stroke-width="2"/>
             <path d="M11 20H21M16 15V25" stroke="#fff0c9" stroke-width="3"/>
@@ -48,11 +76,14 @@
   <div class="hud-energy-log" id="hud-energy-log"><div id="hud-energy-log-text"></div></div>
   <!-- The existing UIScene.updateEnergy() updates aria-valuenow on #energy-target. -->
   <style>
+    /* ═══ HUD Custom Variables ═══ */
     #hud-container {
       --hud-energy-level: 0%;
       --hud-energy-color: #69706a;
       --hud-energy-label: '--';
     }
+
+    /* ═══ Collapsed expand button — energy fill + label ═══ */
     #hud-container #btn-hud-expand {
       box-sizing: border-box;
       overflow: hidden;
@@ -90,6 +121,36 @@
       outline: 3px solid #fff0b8;
       outline-offset: 3px;
     }
+
+    /* ═══ XP stat styling ═══ */
+    .stat-item .value.xp {
+      color: #ffd166;
+    }
+
+    #xp-target {
+      cursor: help;
+    }
+
+    /* ═══ Stat icons ═══ */
+    .stat-icon {
+      font-size: 13px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    /* ═══ Expansion store button ═══ */
+    #btn-expansion-store.hud-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ═══ Energy level → CSS var mapping ═══ */
     #hud-container:has(#energy-target[aria-valuenow="0"]) { --hud-energy-level: 0%; --hud-energy-color: #df4b48; --hud-energy-label: "0%"; }
     #hud-container:has(#energy-target[aria-valuenow="1"]) { --hud-energy-level: 1%; --hud-energy-color: #df4b48; --hud-energy-label: "1%"; }
     #hud-container:has(#energy-target[aria-valuenow="2"]) { --hud-energy-level: 2%; --hud-energy-color: #df4b48; --hud-energy-label: "2%"; }

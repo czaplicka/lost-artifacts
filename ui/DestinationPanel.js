@@ -1,19 +1,54 @@
 import { gameState } from '../GameData.js';
-import { getCityId } from './DestinationMeta.js';
+import { getCityId, getDestinationTheme } from './DestinationMeta.js';
 import { getAvailableAgencyBudget, wouldCreateDebt, formatMoney } from './DestinationCalculator.js';
 
 export class DestinationPanel {
+  getPanelTheme() {
+    return this.theme || getDestinationTheme('agency');
+  }
+
   createInfoPanel(width, height) {
+    const t = this.getPanelTheme();
+    const isAgency = t.id === 'agency';
+
     this.infoPanel = this.scene.add.container(
       width - 405,
       height - 430
     );
 
     const bg = this.scene.add
-      .rectangle(0, 0, 380, 415, 0x101820, 0.96)
+      .rectangle(0, 0, 380, 415, t.panelBg, t.panelAlpha)
       .setOrigin(0)
-      .setStrokeStyle(2, 0xd4af37)
+      .setStrokeStyle(2, t.panelStroke)
       .setInteractive();
+
+    // Theme decoration: HUD brackets (agency) or ledger rules (PI).
+    const deco = this.scene.add.graphics();
+
+    if (isAgency) {
+      deco.lineStyle(3, t.accent, 1);
+
+      [[0, 0, 1, 1], [380, 0, -1, 1], [0, 415, 1, -1], [380, 415, -1, -1]]
+        .forEach(([x, y, dx, dy]) => {
+          deco.beginPath();
+          deco.moveTo(x + dx * 26, y);
+          deco.lineTo(x, y);
+          deco.lineTo(x, y + dy * 26);
+          deco.strokePath();
+        });
+
+      deco.lineStyle(1, t.accent, 0.5);
+      deco.lineBetween(20, 52, 360, 52);
+    } else {
+      deco.lineStyle(2, t.panelStroke, 0.9);
+      deco.lineBetween(20, 51, 360, 51);
+      deco.lineStyle(1, t.panelStroke, 0.7);
+      deco.lineBetween(20, 55, 360, 55);
+      deco.fillStyle(0xd9c27a, 0.85);
+      deco.fillPoints([
+        { x: -6, y: 8 }, { x: 18, y: -4 }, { x: 30, y: 10 }, { x: 6, y: 22 }
+      ], true);
+    }
 
     const text = (x, y, value, size, color, wrap = 0) => {
       return this.scene.add.text(x, y, value, {
@@ -27,40 +62,48 @@ export class DestinationPanel {
     };
 
     this.infoTitle = text(
-      20, 16, 'Travel dossier', 27, '#f4e7c1'
+      20, 14, t.panelTitle, 27, t.titleColor
     );
 
+    this.panelTag = isAgency
+      ? this.scene.add.text(360, 26, 'ENCRYPTED', {
+        fontFamily: 'PressStart2P',
+        fontSize: '8px',
+        color: t.accentCss
+      }).setOrigin(1, 0.5)
+      : null;
+
     this.infoCity = text(
-      20, 58, '', 23, '#ffffff'
+      20, 60, '', 23, t.cityColor
     );
 
     this.infoCountry = text(
-      20, 86, '', 17, '#c6d7e5', 335
+      20, 88, '', 17, t.countryColor, 335
     );
 
     this.transportPrompt = text(
-      20, 113, '', 17, '#ffd166', 335
+      20, 113, '', 17, t.promptColor, 335
     );
 
     this.infoTravel = text(
-      20, 211, '', 17, '#d6e4f0', 340
+      20, 211, '', 17, t.travelColor, 340
     );
 
     this.infoHours = text(
-      20, 257, '', 18, '#ffd166'
+      20, 257, '', 18, t.hoursColor
     );
 
     this.debtWarning = text(
-      20, 282, '', 14, '#ff9d6b', 340
+      20, 282, '', 14, t.warnColor, 340
     );
 
     this.confirmButton = this.scene.add
-      .rectangle(190, 350, 280, 44, 0x6c757d, 1)
-      .setStrokeStyle(2, 0xf1f1f1)
+      .rectangle(190, 350, 280, 44, t.confirmOff, 1)
+      .setStrokeStyle(2, t.confirmStroke)
       .setInteractive({ useHandCursor: true });
 
     this.confirmLabel = text(
-      190, 350, 'Choose a city', 17, '#ffffff'
+      190, 350, 'Choose a city', 17, t.confirmText
     ).setOrigin(0.5);
 
     this.confirmButton.on('pointerdown', () => {
@@ -87,7 +130,9 @@ export class DestinationPanel {
 
     this.infoPanel.add([
       bg,
+      deco,
       this.infoTitle,
+      ...(this.panelTag ? [this.panelTag] : []),
       this.infoCity,
       this.infoCountry,
       this.transportPrompt,
@@ -103,18 +148,20 @@ export class DestinationPanel {
   }
 
   createHQButton() {
+    const t = this.getPanelTheme();
+
     this.hqButton = this.scene.add.container(150, 105);
 
     this.hqButtonBg = this.scene.add
-      .rectangle(0, 0, 220, 44, 0x251926, 0.96)
-      .setStrokeStyle(2, 0xff4f81)
+      .rectangle(0, 0, 220, 44, t.hq.fill, 0.96)
+      .setStrokeStyle(2, t.hq.stroke)
       .setInteractive({ useHandCursor: true });
 
     this.hqButtonLabel = this.scene.add
       .text(0, 0, 'RETURN TO HQ', {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
-        color: '#fff2f6'
+        color: t.hq.text
       })
       .setOrigin(0.5);
 
@@ -132,7 +179,7 @@ export class DestinationPanel {
         return;
       }
 
-      this.hqButtonBg.setFillStyle(0x5a1c38, 1);
+      this.hqButtonBg.setFillStyle(t.hq.hover, 1);
     });
 
     this.hqButtonBg.on('pointerout', () => {
@@ -164,6 +211,8 @@ export class DestinationPanel {
   updateHQButton() {
     if (!this.hqButtonBg) return;
 
+    const t = this.getPanelTheme();
+
     const blocked =
       this.isAtHQ() ||
       this.isTransitioning ||
@@ -173,20 +222,20 @@ export class DestinationPanel {
     this.hqButton.setAlpha(blocked ? 0.6 : 1);
 
     this.hqButtonBg.setFillStyle(
-      blocked ? 0x30343b : 0x251926,
+      blocked ? t.hq.blockedFill : t.hq.fill,
       0.96
     );
 
     this.hqButtonBg.setStrokeStyle(
       2,
-      blocked ? 0x777777 : 0xff4f81
+      blocked ? t.hq.blockedStroke : t.hq.stroke
     );
 
     this.hqButtonLabel
       .setText(
         this.isAtHQ() ? 'MARK AGENCY HQ' : 'RETURN TO HQ'
       )
-      .setColor(blocked ? '#a5a5a5' : '#fff2f6');
+      .setColor(blocked ? t.hq.blockedText : t.hq.text);
 
     if (blocked) {
       this.hqButtonBg.disableInteractive();
@@ -221,18 +270,20 @@ export class DestinationPanel {
   }
 
   createOfficeButton() {
+    const t = this.getPanelTheme();
+
     this.officeButton = this.scene.add.container(430, 105);
 
     this.officeButtonBg = this.scene.add
-      .rectangle(0, 0, 220, 44, 0x1c2a1e, 0.96)
-      .setStrokeStyle(2, 0x6fbf73)
+      .rectangle(0, 0, 220, 44, t.office.fill, 0.96)
+      .setStrokeStyle(2, t.office.stroke)
       .setInteractive({ useHandCursor: true });
 
     this.officeButtonLabel = this.scene.add
       .text(0, 0, 'PI OFFICE', {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
-        color: '#eaf6ec'
+        color: t.office.text
       })
       .setOrigin(0.5);
 
@@ -249,8 +300,7 @@ export class DestinationPanel {
         return;
       }
 
-      this.officeButtonBg.setFillStyle(0x2c4a30, 1);
-      this.officeButtonLabel.setColor('#c9f2cf');
+      this.officeButtonBg.setFillStyle(t.office.hover, 1);
     });
 
     this.officeButtonBg.on('pointerout', () => {
@@ -277,6 +327,8 @@ export class DestinationPanel {
   updateOfficeButton() {
     if (!this.officeButtonBg) return;
 
+    const t = this.getPanelTheme();
+
     const blocked =
       this.isTransitioning ||
       Boolean(this.committedTravelPayload);
@@ -285,8 +337,8 @@ export class DestinationPanel {
       .setVisible(true)
       .setAlpha(blocked ? 0.6 : 1);
 
-    this.officeButtonBg.setFillStyle(0x1c2a1e, 0.96);
-    this.officeButtonLabel.setColor('#eaf6ec');
+    this.officeButtonBg.setFillStyle(t.office.fill, 0.96);
+    this.officeButtonLabel.setColor(t.office.text);
 
     if (blocked) {
       this.officeButtonBg.disableInteractive();
@@ -310,6 +362,7 @@ export class DestinationPanel {
 
     if (options.length <= 1) return;
 
+    const t = this.getPanelTheme();
     const gap = 8;
 
     const buttonWidth = Math.min(
@@ -336,20 +389,24 @@ export class DestinationPanel {
         .rectangle(
           0, 0,
           buttonWidth, 48,
-          selected ? option.color : 0x273746,
+          selected ? option.color : t.transportIdle,
           1
         )
         .setStrokeStyle(
           2,
-          selected ? 0xffffff : option.color
+          selected ? t.confirmStroke : option.color
         )
         .setInteractive({ useHandCursor: true });
+
+      const textColor = selected
+        ? t.transportTextSelected
+        : t.transportText;
 
       const icon = this.scene.add
         .text(0, -9, option.icon || '', {
           fontFamily: 'SpecialElite',
           fontSize: '21px',
-          color: '#ffffff'
+          color: textColor
         })
         .setOrigin(0.5);
 
@@ -357,7 +414,7 @@ export class DestinationPanel {
         .text(0, 14, option.label || option.id, {
           fontFamily: 'SpecialElite',
           fontSize: '13px',
-          color: '#ffffff'
+          color: textColor
         })
         .setOrigin(0.5);
 
@@ -400,11 +457,13 @@ export class DestinationPanel {
   refreshInfoPanel(city = null) {
     if (this.isDestroyed) return;
 
+    const t = this.getPanelTheme();
+
     if (!city) {
       this.infoCity.setText('Choose a city');
       this.infoCountry.setText('');
       this.transportPrompt
-        .setColor('#ffd166')
+        .setColor(t.promptColor)
         .setText('');
 
       this.infoTravel.setText('');
@@ -419,7 +478,7 @@ export class DestinationPanel {
 
     if (!this.selectedTransport) {
       this.transportPrompt
-        .setColor('#ff6b6b')
+        .setColor(t.errorColor)
         .setText('No sensible route is available.');
 
       this.infoTravel.setText('');
@@ -447,7 +506,7 @@ export class DestinationPanel {
       cost > 0 && wouldCreateDebt(cost);
 
     this.transportPrompt
-      .setColor('#ffd166')
+      .setColor(t.promptColor)
       .setText(
         `Selected: ${this.selectedTransport.icon || ''} ` +
         this.selectedTransport.label
@@ -487,8 +546,10 @@ export class DestinationPanel {
 
     if (!this.confirmButton || this.isDestroyed) return;
 
+    const t = this.getPanelTheme();
+
     this.confirmButton.setFillStyle(
-      this.canConfirm ? 0x9b5de5 : 0x6c757d,
+      this.canConfirm ? t.confirmOn : t.confirmOff,
       1
     );
 
@@ -509,7 +570,7 @@ export class DestinationPanel {
     this.clearTravelErrorTimer();
 
     this.transportPrompt
-      .setColor('#ff6b6b')
+      .setColor(this.getPanelTheme().errorColor)
       .setText(message);
 
     this.travelErrorTimer =

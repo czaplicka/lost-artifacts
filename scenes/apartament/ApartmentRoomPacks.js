@@ -1,3 +1,8 @@
+import { APARTMENT_ROOM_LAYOUTS } from './ApartmentRoomLayouts.js';
+import { RESEARCH_APARTMENT_LAYOUT } from './ApartmentResearchLayout.js';
+
+APARTMENT_ROOM_LAYOUTS.research = RESEARCH_APARTMENT_LAYOUT;
+
 export const FALLBACK_APARTMENT_PACK_ID = 'debt';
 
 export const APARTMENT_ROOM_PACKS = [
@@ -28,10 +33,16 @@ export const APARTMENT_ROOM_PACKS = [
     }
   },
   {
-    id: 'research', weight: 0,
+    id: 'research', weight: 1, layoutId: 'research',
     rooms: {
-      living_room: {key:'apartment_research_living_room', path:null},
-      kitchen: {key:'apartment_research_kitchen', path:null}
+      living_room: {
+        label: 'Living Room', key: 'apartment_research_living_room',
+        path: 'assets/apartments/apartment_research_living_room.webp'
+      },
+      kitchen: {
+        label: 'Kitchen', key: 'apartment_research_kitchen',
+        path: 'assets/apartments/apartment_research_kitchen.webp'
+      }
     }
   },
   {
@@ -53,6 +64,7 @@ export const APARTMENT_ROOM_PACKS = [
 export function getApartmentRoomPack(id) {
   return APARTMENT_ROOM_PACKS.find(pack => pack.id === id) || null;
 }
+
 export function drawApartmentRoomPack(random = Math.random) {
   const candidates = APARTMENT_ROOM_PACKS.filter(pack =>
     Number.isFinite(pack.weight) && pack.weight > 0 && pack.layoutId &&

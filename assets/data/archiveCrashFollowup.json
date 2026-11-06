@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 7,
+  "requiredFlags": [
+    "gordon_safe_confrontation_completed",
+    "archive_crash_followup_inquiry_unlocked"
+  ],
+  "intro": [
+    "Gordon says there is a separately registered follow-up? Good. We can now investigate the filing system instead of his furniture.",
+    "JM-041 is the original mission reference. The recovery and technical examination have their own entries, cross-referenced to it.",
+    "I have brought the three records together. Read what each one actually establishes. A missing body is not a death certificate. It is not a forwarding address either."
+  ],
+  "documents": [
+    {
+      "id": "mission",
+      "reference": "JM-041",
+      "title": "Original mission entry",
+      "text": "RECORD CLASS: ORIGINAL MISSION\n\nThis entry concerns John's transport assignment. Its initial account did not locate the wreckage and did not contain the subsequent recovery findings.\n\nCROSS-REFERENCES:\nJM-041-R \u2014 wreckage recovery.\nJM-041-T \u2014 technical examination.\n\nThe original entry must not be read as a complete account of the later investigation."
+    },
+    {
+      "id": "recovery",
+      "reference": "JM-041-R",
+      "title": "Wreckage recovery record",
+      "text": "RECORD CLASS: RECOVERY FOLLOW-UP\nRELATED MISSION: JM-041\n\nA subsequent search located the aircraft wreckage.\n\nRECOVERY FINDINGS:\nJohn's body was not recovered.\nThe transported artifact was not recovered.\n\nThese are recovery results. They do not establish that John survived or explain what happened to the artifact beyond its not being recovered.\n\nTechnical findings are registered separately as JM-041-T."
+    },
+    {
+      "id": "technical",
+      "reference": "JM-041-T",
+      "title": "Technical examination",
+      "text": "RECORD CLASS: TECHNICAL FOLLOW-UP\nRELATED RECOVERY: JM-041-R\nRELATED MISSION: JM-041\n\nExamination established deliberate interference with the aircraft: sabotage.\n\nThis record does not identify the person responsible. It does not establish whether John survived.\n\nAny further equipment-accounting inquiry should use the recovery reference, not only the original mission number."
+    }
+  ],
+  "discussion": [
+    "Three entries, one incident. Different references do not mean three different aircraft. We could not afford that much paperwork.",
+    "The records corroborate the later recovery and the sabotage finding. They do not tell us who caused it or where John is.",
+    "After your eighth completed agency assignment, ask Alex about the equipment accounting attached to this recovery. Take the cross-reference, not a theory dressed as a conclusion."
+  ],
+  "objective": "Complete agency mission eight, then ask Alex about the equipment accounting attached to the recovery follow-up.",
+  "messages": {
+    "ready": "Click Frank or select FOLLOW-UP RECORDS to examine the cross-referenced records.",
+    "unfinished": "Your reading progress is saved. You can return to the follow-up records later.",
+    "complete": "Records cross-checked. Next: complete mission eight, then ask Alex about the recovery equipment accounting.",
+    "saveFailed": "Automatic saving failed. Progress is in memory; save manually before closing the game.",
+    "loadFailed": "The follow-up records could not be opened. Nothing was lost. Please try again."
+  }
+}

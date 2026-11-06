@@ -12,6 +12,8 @@ import { installOfficeShop } from './pi-computer/ComputerOfficeShop.js';
 import { installBusinessPages } from './pi-computer/BusinessPageTemplate.js';
 import { installCommonRoomPages } from './pi-computer/CommonRoomTemplate.js';
 import { installNotebookContactActions } from './pi-computer/NotebookContactActions.js';
+import { ComputerChat } from './pi-computer/ComputerChat.js';
+import { ComputerThiefdoku } from './pi-computer/ComputerThiefdoku.js';
 
 export class PIOfficeComputerUI {
   constructor(scene, options = {}) {
@@ -40,6 +42,7 @@ export class PIOfficeComputerUI {
     this.officeShop = installOfficeShop(this);
     this.notebookContactActions = installNotebookContactActions(this);
     this.audioApp = new ComputerAudio(this);
+    this.chatApp = new ComputerChat(this);
     this.onKey = event => {
       if (this.destroyed || !this.isOpen || this.suspended) return;
       const target = event.target;
@@ -188,6 +191,7 @@ export class PIOfficeComputerUI {
     this.shell.open(app); this.viewToken++; this.render();
     if (app === 'search') void this.search.load();
     if (app === 'mail' || app === 'classifieds') void this.photoQuest.load();
+    if (!['mail', 'ledger', 'classifieds', 'search', 'audio', 'chat', 'thiefdoku'].includes(app)) return;
   }
 
   launchExternal(callback, message) {
@@ -319,5 +323,6 @@ export class PIOfficeComputerUI {
     this.scene.scale.off('resize', this.onResize);
     this.scene.events.off('shutdown', this.destroy, this);
     this.root?.destroy(true); this.root = null; this.content = null; this.layout = null; this.window = null;
+    this.chatApp?.destroy();
   }
 }

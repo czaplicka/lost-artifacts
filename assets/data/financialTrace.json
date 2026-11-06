@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "minimumCompletedMissions": 10,
+  "requiredFlags": [
+    "agency_medical_review_completed",
+    "financial_trace_after_mission_ten_unlocked",
+    "holly_financial_records_permission_recorded"
+  ],
+  "transactions": [
+    {
+      "id": "stationery",
+      "payee": "Paper Tiger Office Supply",
+      "offset": -3,
+      "amount": 24,
+      "reference": "PT-04",
+      "memo": "Office supplies"
+    },
+    {
+      "id": "tracing",
+      "payee": "Second Opinion Tracing",
+      "offset": -12,
+      "amount": 480,
+      "reference": "SOT-17",
+      "memo": "Private enquiry / retainer"
+    },
+    {
+      "id": "utilities",
+      "payee": "City Utilities",
+      "offset": 2,
+      "amount": 61,
+      "reference": "CU-08",
+      "memo": "Standing household payment"
+    }
+  ],
+  "leadTransaction": "tracing",
+  "specimen": {
+    "notch": "right",
+    "dots": 3,
+    "center": "S"
+  },
+  "copies": [
+    {
+      "id": "original",
+      "title": "Retained receipt copy",
+      "offset": -12,
+      "seal": {
+        "notch": "right",
+        "dots": 3,
+        "center": "S"
+      }
+    },
+    {
+      "id": "altered",
+      "title": "Second receipt copy",
+      "offset": 2,
+      "seal": {
+        "notch": "left",
+        "dots": 2,
+        "center": "S"
+      }
+    }
+  ],
+  "alteredCopy": "altered",
+  "company": {
+    "id": "holly_trace_company",
+    "number": "782",
+    "name": "Second Opinion Tracing",
+    "listed": true,
+    "status": "available",
+    "dialogueId": null
+  },
+  "companyLines": [
+    {
+      "speaker": "Second Opinion Tracing",
+      "text": "Second Opinion Tracing. We find people. We do not improve their reasons for being missing."
+    },
+    {
+      "speaker": "You",
+      "text": "I am following up receipt SOT-17 supplied by Holly Gennaro for this investigation. Can you confirm the record she agreed to have checked?"
+    },
+    {
+      "speaker": "Second Opinion Tracing",
+      "text": "Her permission covers that enquiry. SOT-17 was our retainer for a search for John McClane, twelve days before your retainer began."
+    },
+    {
+      "speaker": "You",
+      "text": "I also have a copy showing a date two days after my retainer. Its seal does not match your specimen."
+    },
+    {
+      "speaker": "Second Opinion Tracing",
+      "text": "That is not the date in our retained record. The earlier date is correct. We cannot tell you who altered the later copy."
+    },
+    {
+      "speaker": "You",
+      "text": "Did you merely open a missing-person search, or did Holly receive an indication that John had survived?"
+    },
+    {
+      "speaker": "Second Opinion Tracing",
+      "text": "We sent her a live-contact verification before your retainer began. Our delivery record contains her acknowledgement. She knew our result when she later hired you."
+    },
+    {
+      "speaker": "You",
+      "text": "Did your report provide his current address?"
+    },
+    {
+      "speaker": "Second Opinion Tracing",
+      "text": "No. It verified a live contact, not a current address. We can confirm our report and delivery; we cannot identify who altered your copy or why she withheld this from you."
+    }
+  ],
+  "objective": "Complete agency mission eleven, then examine the mission radio communications.",
+  "messages": {
+    "complete": "The company confirms Holly received a survival verification before hiring you. Next: mission eleven, then the radio records.",
+    "ready": "Review Holly's supplied financial copies. Find the enquiry payment, then compare the seals.",
+    "saveFailed": "Saving failed. Progress remains in memory; save manually before closing."
+  }
+}
