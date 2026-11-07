@@ -1,3 +1,4 @@
+// tutorial-compact-objectives-v1
 import { EventBus } from '../EventBus.js';
 import { PlayerMenuUI } from '../ui/PlayerMenuUI.js';
 import { getEvidenceCaseKey } from '../managers/ApartmentEvidenceModel.js';
@@ -319,6 +320,7 @@ export class CrimeCityTutorial {
     this.overlay = this.scene.add.container(0, 0).setScrollFactor(0).setDepth(10000);
     const panel = this.scene.add.rectangle(width / 2, panelCenterY, panelWidth, panelHeight, COLORS.panel, 0.95)
       .setScrollFactor(0).setStrokeStyle(3, COLORS.panelBorder, 0.92);
+    this.panel = panel;
     const items = [panel];
     if (!collapsed) {
       const portraitX = panelLeft + 16 + PORTRAIT_SIZE / 2, portraitY = panelCenterY + 4;
@@ -362,7 +364,19 @@ export class CrimeCityTutorial {
     if (!this.overlay?.scene || !step) return;
     if (this.currentStep === 'suspect_grid' && this.sceneKey === 'SuspectGridScene') step = this.getDisplayStep();
     this.stepNumberText?.setText(`CRIME CITY ${step.number}/${CRIME_TUTORIAL_STEPS.length}`);
-    this.titleText?.setText(step.title); this.objectiveText?.setText(step.objective); this.hintText?.setText(step.hint);
+    this.titleText?.setText(this.collapsed ? (step.objective || step.title) : step.title);
+    if (this.collapsed && this.titleText && this.panel) {
+      const width = Math.max(80, this.panel.width - 32);
+      this.titleText.setFontFamily(FONT_TYPE).setFontSize(18);
+      this.titleText.setWordWrapWidth(width);
+      const top = this.panel.y - this.panel.height / 2;
+      const height = Math.max(PANEL_HEIGHT_COLLAPSED, this.titleText.y - top + this.titleText.height + 12);
+      this.panel.setSize(this.panel.width, height);
+      this.panel.setY(top + height / 2);
+      this.feedbackText?.setY(top + height + 28);
+    }
+    this.objectiveText?.setText(step.objective);
+    this.hintText?.setText(step.hint);
   }
   highlightHotspot(hotspotId) {
     this.clearHighlight();

@@ -1,169 +1,169 @@
 {
-  "version": 1,
+  "version": 2,
   "notes": {
-    "purpose": "Motive clue lines for the generic city NPCs. Lookup order: npcMotiveClues[npcId][motiveId][clueKey]. dialogueBuilder merges these next to the per-profession dialogue trees (maid.json, banker.json, ...), so the eight large files stay untouched.",
-    "canon": "Every line describes a RANDOM ENCOUNTER DURING THE THIEF'S ESCAPE - a hotel stay, bank visit, parking lot, bar, border check on the road. No NPC knew the thief before the crime, and nobody witnessed the theft itself.",
-    "humor": "Deadpan, workplace-grievance comedy. The witness tells the truth but from a petty personal angle."
+    "purpose": "Role-specific first-hand observations during the escape route. Motive policy controls where and when a statement is available.",
+    "canon": "No generic city NPC witnessed the theft or knew the suspect before the crime. Statements report local observations, overheard words, documents voluntarily shown, or local reports explicitly identified as such.",
+    "humor": "Deadpan workplace comedy; no omniscient explanation of the crime."
   },
   "clipsByNpc": {
     "bankier": {
       "gambling_debt": {
-        "banker_large_withdrawal": "A nervous type emptied his account here two days ago and asked, dead serious, whether debts follow you across borders. I said only the honest ones do."
+        "banker_large_withdrawal": "They asked whether debts follow people across borders, then requested the account balance twice. I can print the same bad news in several fonts."
       },
       "medical_treatment": {
-        "banker_clinic_transfer": "A customer wired his savings to a foreign clinic, hands shaking, and asked if money travels faster than regret. It does not, sir. Nothing does."
+        "banker_clinic_transfer": "The payment reference named a clinic. They asked whether it would arrive before the treatment deposit was due. I explained the transfer time, not the diagnosis."
       },
       "blackmail_secret": {
-        "banker_anonymous_payments": "Someone made three cash deposits into an account with no name on it, always in small notes, always avoiding the cameras. Very amateur spy craft. The hat alone deserved a fee."
+        "banker_anonymous_payments": "They asked how much of a cash payment could be traced back to the sender. Then they asked whether I could forget the question. Our memory service is not a banking product."
       },
       "repatriation_cause": {
-        "banker_foundation_wire": "A traveler transferred a modest sum to a heritage foundation and asked for the receipt 'for my ancestors'. Charming. Our commission still applied."
+        "banker_foundation_wire": "They requested a transfer to a heritage foundation and said the receipt was 'for the people it belongs to'. I recorded the payment reference. The philosophy did not fit in the box."
       },
       "career_coverup": {
-        "banker_pension_cashout": "A man tried to cash out his entire pension in one visit and wept when I mentioned the notice period. Career decisions should not be made at my counter, but here we are."
+        "banker_pension_cashout": "They asked how quickly they could withdraw their pension if their professional association expelled them. I explained the notice period. They disliked both parts of that answer."
       },
       "family_heirloom": {
-        "banker_estate_inquiry": "Someone kept asking about unclaimed estate accounts from eighty years ago. I deal in current balances. He was banking on nostalgia."
+        "banker_estate_inquiry": "They showed me an old estate reference and asked whether an ancestor's account could prove family ownership. I handle balances, not hereditary arguments."
       }
     },
     "maid": {
       "gambling_debt": {
-        "maid_overheard_debt_call": "Guest in room 12 shouted into the phone that he'd 'have the money after the sale'. Then he ordered pancakes. Denial with whipped cream, that's a new one."
+        "maid_overheard_debt_call": "I heard them on the phone: 'You will get your money after the sale. Stop calling.' Then they asked whether the breakfast was included. Apparently one debt at a time."
       },
       "medical_treatment": {
-        "maid_medical_envelope": "Found a clinic envelope under the bed with 'DO NOT BEND' and, inside, a list of surgery prices circled in three colors. I bent it anyway. The prices bend harder."
+        "maid_medical_envelope": "An open clinic envelope was on the desk. A treatment price and a payment deadline were circled. They asked me not to move it. I worked around it, like the rest of the furniture with feelings."
       },
       "blackmail_secret": {
-        "maid_burned_letters": "Room smelled of burnt paper and someone had written on the mirror, then wiped it, then written it again: 'not my fault'. Housekeeping sees everything, darling."
+        "maid_burned_letters": "The room smelled of burnt paper. While I changed the towels, I heard: 'I paid you. You said the photographs would disappear.' I can remove stains. That sounded outside my department."
       },
       "repatriation_cause": {
-        "maid_origin_map": "The guest left a map on the desk with arrows drawn toward one little town and a heart over it. Men draw hearts on maps. The heart had a museum symbol next to it."
+        "maid_origin_map": "There was a museum leaflet beside a parcel marked 'RETURN TO THE COMMUNITY'. They told me it was going where it belonged. I asked whether the empty cups were too."
       },
       "career_coverup": {
-        "maid_shredded_documents": "Room 8 left the bin full of shredded papers. I taped two pieces together out of professional curiosity: 'internal audit' and a date. I put them back. Tips were better than secrets."
+        "maid_shredded_documents": "A page headed 'Internal audit' was lying beside a very full shredder. They asked whether we collected confidential waste separately. We collect all panic in the same bin."
       },
       "family_heirloom": {
-        "maid_family_portrait": "Guest asked me not to touch the old photograph on the mantel 'because it belongs with its family'. It was a photo FOR a heartbeat. Then I noticed the jewel in it. It looked expensive enough to have opinions."
+        "maid_family_portrait": "They showed me an old family photograph with a jewel in it and said, 'That should never have left our family.' I recognised the photograph as old. I am not qualified to date a grievance."
       }
     },
     "parkingowy": {
       "gambling_debt": {
-        "parkingowy_impatient_customer": "One customer paced the lot for an hour waiting for a call, smoking the whole pack, then paid for parking with coins like he was emptying a swear jar."
+        "parkingowy_impatient_customer": "They paced beside the car waiting for a call. When it came, I heard, 'The creditor wants the money tonight.' Then they paid the parking fee in coins. I counted. Several feelings occurred."
       },
       "medical_treatment": {
-        "parkingowy_clinic_rush": "Left his car diagonally across two bays and ran toward the private clinic district with an envelope taped to his chest. Bold. Also a parking ticket."
+        "parkingowy_clinic_rush": "They asked which exit led towards the private clinics and kept checking a treatment appointment on their phone. Their concern was understandable. Their parking across two bays was not."
       },
       "blackmail_secret": {
-        "parkingowy_midnight_pickup": "Same sedan came three nights running at 2 a.m., driver kept checking the mirrors instead of the road, left an envelope under a windshield that wasn't his. I watch cars, not crimes, so I watched."
+        "parkingowy_midnight_pickup": "Their speakerphone was loud enough for my booth: 'Leave the museum piece where I told you, or the photographs go out.' I heard that sentence. I did not see who was calling."
       },
       "repatriation_cause": {
-        "parkingowy_border_roads": "Asked me twice which exit roads avoid the border cameras. I get that question from smugglers and romantics who missed toll payments. He tipped like the second kind."
+        "parkingowy_border_roads": "They asked about taking a parcel back to its community without selling it. Then they asked which roads avoided inspections. I suggested the official crossing. It was not the popular answer."
       },
       "career_coverup": {
-        "parkingowy_angry_calls": "Customer spent forty minutes in his car on the phone yelling 'the audit was YOUR idea, Gerald'. Gerald is now a legend in my lot."
+        "parkingowy_angry_calls": "They sat in the car shouting, 'If the auditors see that piece, they will check the signatures.' I heard the call from the booth. Gerald, whoever that is, also had a difficult afternoon."
       },
       "family_heirloom": {
-        "parkingowy_old_estate_trip": "Rented a bay for two days while he drove out to some ruined family estate. Came back muddier and calmer. Dirt is cheaper than therapy, I suppose."
+        "parkingowy_old_estate_trip": "They showed me a family estate photograph while asking for directions. Said they wanted to check an old inventory. I checked their parking ticket. We were both doing research."
       }
     },
     "knajpa": {
       "gambling_debt": {
-        "knajpa_threat_call": "One guest answered the phone, turned the color of my cheapest soup, and whispered 'he knows where my parrot is'. He paid cash, left fast, left the soup. The soup forgives no one."
+        "knajpa_threat_call": "They answered a call at the table and whispered, 'Do not send your collector here. I will get the money.' Then they left half their soup. The soup was not involved in the dispute."
       },
       "medical_treatment": {
-        "knajpa_medical_broker_talk": "Two men at the corner table talked surgery prices like horse odds. One said 'the artifact covers the deposit'. The other said 'get a lawyer'. He ordered dessert instead. Wrong investment."
+        "knajpa_medical_broker_talk": "I heard them tell their companion, 'Selling the artifact will cover the treatment deposit.' That is what was said at the table. I cannot confirm the treatment. I can confirm the unpaid dessert."
       },
       "blackmail_secret": {
-        "knajpa_dead_drop": "Customer kept slipping envelopes under the rim of the chessboard and a second customer kept collecting them. Neither played chess. Terrible manners, above-average suspense."
+        "knajpa_dead_drop": "They put an envelope under a chessboard. Another customer collected it without playing a move. I then heard, 'This buys silence until tomorrow.' Terrible chess. Very efficient payment."
       },
       "repatriation_cause": {
-        "knajpa_advocate_meeting": "One guest bought drinks for a loud woman with a tote bag reading 'HISTORY IS NOT DECORATION'. They argued about shipping insurance for two hours. True passion requires napkin math."
+        "knajpa_advocate_meeting": "They met someone carrying a heritage campaign leaflet. I heard them argue about returning a piece to its community and the cost of shipping it. The shipping part sounded painfully sincere."
       },
       "career_coverup": {
-        "knajpa_audit_rant": "A gentleman did the whole monologue with hand gestures: signature forged, ledgers cooked, blame shifted. I comped his coffee. Theater of this quality should not pay full price."
+        "knajpa_audit_rant": "They complained that an audit would expose forged signatures and mismatched provenance papers. I heard the complaint. I did not audit it. My own accounts are enough theatre."
       },
       "family_heirloom": {
-        "knajpa_portrait_questions": "He showed every table a crinkled portrait and asked if anyone 'recognised the family'. Nobody did. Adorable man. Mistook a bar for a genealogy archive."
+        "knajpa_portrait_questions": "They showed an old portrait to the people at the next table and asked whether anyone recognised the family or its jewellery. This is a restaurant. Our genealogy service remains disappointing."
       }
     },
     "police": {
       "gambling_debt": {
-        "police_harassment_report": "A traveler tried to report 'two gentlemen with opinions about his kneecaps'. Harassment complaint number four this month. The city's collectors have become punctual."
+        "police_harassment_report": "The visitor asked how to report threats from a debt collector without naming the creditor. I took down what they would tell me. It was a remarkably short statement."
       },
       "medical_treatment": {
-        "police_clinic_disturbance": "We had a call from a private clinic: a visitor refused to leave without 'a receipt for hope'. Technically not a crime, but the paperwork exists now."
+        "police_clinic_disturbance": "A clinic reported a visitor refusing to leave over a treatment deposit. The caller described the person you asked about. That is a report, not a finding about why they needed the money."
       },
       "blackmail_secret": {
-        "police_followed_report": "Someone filed a report that they were being followed, refused to say by whom, then asked if the report itself could be anonymous. From inside the station. We framed it."
+        "police_followed_report": "They came to the desk saying someone was following them and threatening to release photographs. They would not identify the caller. We recorded the allegation, not the caller's identity."
       },
       "repatriation_cause": {
-        "police_export_questions": "A gentleman asked the front desk which forms one files to export a stolen artifact back home legally. Officer Dutra drew him a flowchart. Citizenship award pending."
+        "police_export_questions": "They asked which forms apply when returning a disputed museum object to its community. I explained that a belief about ownership is not export authorisation. They requested a shorter form."
       },
       "career_coverup": {
-        "police_archive_trespass": "Someone was caught sleeping inside the city archive among the provenance files. Called it 'research'. The archive called it 'trespassing'. Both sides wrote excellent memos."
+        "police_archive_trespass": "The local archive reported a visitor refusing to leave the provenance section. The visitor said an audit was about to ruin their career. We logged both accounts. Neither reduced the paperwork."
       },
       "family_heirloom": {
-        "police_inheritance_claim": "Filed a claim that a museum jewel was 'inherited in spirit'. We logged it under 'civil disputes' and 'interesting hats'. The hat really was something."
+        "police_inheritance_claim": "They asked how to establish a family claim to a museum jewel and brought a copy of an old inventory. We explained the civil process. 'But it is ours' is not a case number."
       }
     },
     "bum": {
       "gambling_debt": {
-        "bum_collector_argument": "Saw a fella in a good coat get cornered by a bigger fella near the depot. Bigger one said 'Friday'. Coat-fella nodded like Friday was a disease. I moved benches. Fridays, man."
+        "bum_collector_argument": "I saw someone corner them by the depot. Heard 'your gambling debt' and 'Friday'. Your person nodded like Friday was an illness. I changed benches. I prefer my deadlines voluntary."
       },
       "medical_treatment": {
-        "bum_clinic_bench": "Someone slept on the bench outside the private clinic two nights, holding a briefcase like a newborn. Offered me money to 'watch it'. I watched. Nothing happened. Money well watched."
+        "bum_clinic_bench": "They waited outside the private clinic holding a briefcase. I heard them say on the phone, 'The sale will pay for the operation.' I did not see inside the case. It paid no rent on the bench."
       },
       "blackmail_secret": {
-        "bum_black_car_argument": "Black car, tinted windows, man inside doing pointing gestures while our friend outside did shrinking gestures. Classic. The best theater in this city is free."
+        "bum_black_car_argument": "They stood beside a dark car while the person inside said, 'Pay, or everyone sees the pictures.' I heard the threat. Tinted windows are much less effective against ears."
       },
       "repatriation_cause": {
-        "bum_consulate_watch": "Fella stood across from the consulate gardens for an hour with a rolled-up poster tube and ideas. Didn't rob anyone. Suspiciously well-mannered loiterer."
+        "bum_consulate_watch": "They waited near the consulate with a parcel and told someone on the phone, 'I am bringing it back, not selling it.' I cannot tell you what was in the parcel. It was not my lunch."
       },
       "career_coverup": {
-        "bum_shredder_dumpster": "Found half a shredded file in the dumpster behind the notary - 'provenance, signature, internal'. Warm paper. Good blanket season, terrible secrets."
+        "bum_shredder_dumpster": "I saw them put a bundle of torn papers in the bin behind the notary. One loose piece said 'provenance audit'. I can read two words without becoming the investigating authority."
       },
       "family_heirloom": {
-        "bum_cemetery_research": "Watched a guy compare gravestones to a photo album for three hours in the rain, then hug a headstone. Family research is a contact sport here."
+        "bum_cemetery_research": "They compared names on gravestones with an old family album and kept talking about a missing heirloom. I saw the album. I did not attend the inheritance hearing."
       }
     },
     "fence": {
       "gambling_debt": {
-        "fence_artifact_offer": "Someone offered me a museum-grade piece at half price, cash tonight, no questions. Desperate men never haggle. I only haggle. So no deal, and good luck to him."
+        "fence_artifact_offer": "They offered me the museum piece cheaply and said the proceeds had to reach a gambling creditor that night. That was their proposal. I declined. Desperation is not a discount code."
       },
       "medical_treatment": {
-        "fence_artifact_for_treatment": "Was offered an artifact 'worth a surgery abroad, deposit due Friday'. I don't move items with a pulse on the paperwork. Sent them to a notary. Probably lost a friend."
+        "fence_artifact_for_treatment": "They asked whether the piece would cover a relative's treatment deposit. I heard the reason they gave. I did not verify the hospital bill. I also did not agree to buy it."
       },
       "blackmail_secret": {
-        "fence_blackmail_delivery": "A client didn't want to sell - wanted me to hold an artifact 'for a man who knows things'. I'm a fence, not a mailbox. Almost insulting."
+        "fence_blackmail_delivery": "They wanted the artifact delivered, not sold. Said a blackmailer had demanded the piece in exchange for keeping photographs private. I am a fence, not a confidential postal service."
       },
       "repatriation_cause": {
-        "fence_refused_sale": "A contact asked for buy-back routes 'home, not to market'. No profit margin in virtue, my friend. He left without haggling, which told me he was either honest or doomed."
+        "fence_refused_sale": "They asked for a route back to the object's community and refused my offer to buy it. 'Home, not the market,' they said. A terrible opening position for a negotiation."
       },
       "career_coverup": {
-        "fence_evidence_for_safekeeping": "Someone asked if I 'store evidence where insurers can't subpoena it'. Romantic phrasing. That's just storage with extra steps and prison at the end."
+        "fence_evidence_for_safekeeping": "They wanted the piece hidden before an audit could connect it to forged provenance papers. Those were their words. I declined to become the storage department of that sentence."
       },
       "family_heirloom": {
-        "fence_not_for_sale": "Tried to buy a piece off a traveler. He said it 'was never for sale, only visiting its family'. First time I'm the sentimental one in the room."
+        "fence_not_for_sale": "I asked whether the piece was for sale. They said, 'It belonged to my family. I am taking it back.' That is their ownership claim, not my professional valuation."
       }
     },
     "stewardessa": {
       "gambling_debt": {
-        "stewardess_debt_confession": "Passenger 14C told the man next to him he was 'one sale away from being debt-free or dead'. Sir, this is a beverage service, not a confessional."
+        "stewardess_debt_confession": "I heard the passenger tell their neighbour, 'One sale and I can pay the gambling debt.' I was serving drinks, not taking a sworn statement. I still remember that part."
       },
       "medical_treatment": {
-        "stewardess_rebooking_surgery": "A passenger begged to move to an earlier connection - said the hospital wouldn't wait. Refund policy is heartless, so I upgraded his juice. All I had, really."
+        "stewardess_rebooking_surgery": "They asked about an earlier connection and showed me a message about a relative's operation. They said the deposit could not wait. I could check the connection, not the medical account."
       },
       "blackmail_secret": {
-        "stewardess_demand_note": "Found a seat-pocket note: 'THE ARTIFACT. NO MONEY. OR SILVERHILL BURNS.' No idea what Silverhill is, but it now has a fire safety concern."
+        "stewardess_demand_note": "The passenger dropped an open note while reaching for their bag: 'THE ARTIFACT. NOT MONEY. OR THE PHOTOGRAPHS GO PUBLIC.' I handed it back. It did not look like a loyalty offer."
       },
       "repatriation_cause": {
-        "stewardess_restitution_crate": "One passenger checked a crate labeled 'HANDLE WITH CARE - GOING HOME' and cried when it cleared security. Forty kilos of guilt, sir, and the baggage allowance agrees with you."
+        "stewardess_restitution_crate": "Their luggage was marked 'RETURN TO THE COMMUNITY'. They told their neighbour they were taking something home, not selling it. I saw the label, not the contents. Baggage has boundaries."
       },
       "career_coverup": {
-        "stewardess_burn_envelope": "A passenger asked if he could burn documents in the lavatory 'for professional reasons'. No, sir. The smoke detector has seniority."
+        "stewardess_burn_envelope": "They asked whether they could destroy an envelope before an audit and muttered that the artifact was evidence against them. I refused the suggestion involving the lavatory. The smoke detector outranks both of us."
       },
       "family_heirloom": {
-        "stewardess_heirloom_declaration": "A gentleman declared at customs that his jewel was 'inherited family property, returning'. With an inventory page from 1890. Bold stationery."
+        "stewardess_heirloom_declaration": "They showed their neighbour an old inventory page and said, 'This proves the jewel was our family's. I am bringing it back.' I heard the claim. I was not conducting probate at cruising altitude."
       }
     }
   }

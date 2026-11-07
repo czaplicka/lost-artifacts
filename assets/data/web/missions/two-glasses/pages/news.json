@@ -28,7 +28,10 @@
       "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
       "template": "lifestyle",
       "imageKey": "everyday_edit_green_checks",
-      "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp"
+      "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp",
+      "layout": "editorial",
+      "imageCaption": "Green checks / The Everyday Edit",
+      "showImage": true
     },
     {
       "id": "claire_work",
@@ -50,7 +53,16 @@
           "Local groups can contact the foundation’s programme office for future training dates."
         ]
       ],
-      "links": [],
+      "links": [
+        {
+          "label": "Volunteers build stronger local partnerships",
+          "pageId": "claire_work"
+        },
+        {
+          "label": "Small grants, practical results",
+          "pageId": "nora_work"
+        }
+      ],
       "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
       "template": "news",
       "imageKey": "community_ledger_volunteer_training",
@@ -76,7 +88,16 @@
           "Applications will be reviewed by the regional panel. Biscuits will be reviewed by everyone."
         ]
       ],
-      "links": [],
+      "links": [
+        {
+          "label": "Volunteers build stronger local partnerships",
+          "pageId": "claire_work"
+        },
+        {
+          "label": "Small grants, practical results",
+          "pageId": "nora_work"
+        }
+      ],
       "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
       "template": "news",
       "imageKey": "community_ledger_small_grants",

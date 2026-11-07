@@ -63,7 +63,7 @@ export function checkAndAwardAchievements(){
  return newlyUnlocked;
 }
 const installations=new WeakMap();
-const NON_PLAY_SCENES=new Set(['BootScene','PreloaderScene','MenuScene','SettingsScene','EnterScene','EnterChaseScene','PlayerHudScene','UIScene','NewsHud','LoadingOverlayScene','SuccessScene','GameOverScene','AgainScene']);
+const NON_PLAY_SCENES=new Set(['BootScene','PreloaderScene','SettingsScene','EnterScene','EnterChaseScene','PlayerHudScene','UIScene','NewsHud','LoadingOverlayScene','SuccessScene','GameOverScene','AgainScene']);
 export function installAchievementSystem(game){
  if(installations.has(game))return installations.get(game);
  let disposed=false,lastTime=performance.now(),lastCase=null,wasRunning=false,paused=false;

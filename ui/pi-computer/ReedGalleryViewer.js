@@ -17,7 +17,7 @@ export const REED_GALLERY_HOTSPOTS=[
 ];
 export const REED_SECOND_GALLERY_HOTSPOTS=[
   rect('badge',684,371,39,54),rect('badge',440,344,44,57),
-  rect('claire',353,77,160,177),rect('nora',660,77,140,166),
+  rect('nora',353,77,160,177),rect('claire',660,77,140,166),
   rect('jacket',603,232,259,366)
 ];
 export const REED_GALLERY_HOTSPOTS_BY_PHOTO={
@@ -39,6 +39,30 @@ const descriptions={
   jacket:['A ',word('checked_jacket','green checked jacket'),' with contrasting pocket trim.'],
   badge:['An orange conference badge with a ',word('swallow_logo','swallow emblem'),'.']
 };
+
+// REED_SECOND_PHOTO_NAMES_FIXED
+
+const secondPhotoDescriptions = {
+  ...descriptions,
+
+  nora: [
+    'The caption identifies the woman on the left as ',
+    word('nora', 'Nora Bell'),
+    '.'
+  ],
+
+  claire: [
+    'The caption identifies the woman on the right as ',
+    word('claire', 'Claire Sutton'),
+    '.'
+  ]
+};
+
+function photoDescriptions(photoId) {
+  return photoId === 'second'
+    ? secondPhotoDescriptions
+    : descriptions;
+}
 
 export function isReedGalleryKeywordKnown(id,state=gameState) {
   return (state.piKeywordSearch?.cases?.[SEARCH]?.known || []).includes(id);
@@ -95,7 +119,7 @@ export class ReedGalleryViewer {
   }
   collect(id,parts) {
     if (this.dead || !this.active || !this.interactivePhoto() || !this.selectedId || !this.accepted()) return false;
-    const shown=descriptions[this.selectedId];
+    const shown=photoDescriptions(this.photoId)[this.selectedId];
     if (shown!==parts || !parts.some(part=>typeof part==='object' && part.keywordId===id)) return false;
     if (isReedGalleryKeywordKnown(id)) {refreshKeywordStyles(this.ui.scene);return false;}
     discoverSearchKeywords(SEARCH,[id]);
@@ -192,8 +216,8 @@ export class ReedGalleryViewer {
     }
     const py=y+h+12;
     d.rectangle(a.x+10,py,a.w-20,Math.max(1,a.y+a.h-py-8),DESCRIPTION_SURFACE);
-    if (photo.hotspots && this.selectedId && descriptions[this.selectedId]) {
-      this.words(descriptions[this.selectedId],a.x+23,py+13,a.w-46);
+    if (photo.hotspots && this.selectedId && photoDescriptions(this.photoId)[this.selectedId]) {
+      this.words(photoDescriptions(this.photoId)[this.selectedId],a.x+23,py+13,a.w-46);
     } else d.text(a.x+23,py+13,photo.label,16,DESCRIPTION_TEXT);
   }
   destroy() {

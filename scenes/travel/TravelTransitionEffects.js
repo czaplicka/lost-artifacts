@@ -1,6 +1,7 @@
 // scenes/travel/TravelTransitionEffects.js
-// 1) TravelRouteStage  - lamp-lit desk, the same parchment map as the Destinations screen,
-//                        zoom-in, dashed route drawn live, vehicle + particle trail, pins.
+// 1) TravelRouteStage  - the painted world map (same one as the Destinations screen:
+//                        "agency" spy grid or "pi" expedition parchment), zoom-in,
+//                        route drawn live, vehicle + particle trail, pins.
 // 2) playEncounterEffect - incident popup (mini animation) for every encounter id,
 //                        plus full-screen weather / detour layers where it makes sense.
 //
@@ -9,8 +10,17 @@
 
 import { DEFAULT_ENCOUNTER_VISUAL, ENCOUNTER_VISUALS } from './TransportVisuals.js';
 import { TRAVEL_DEPTH, fs, hex } from './TravelTextures.js';
+import { MAP_H, MAP_W, ensureTravelMapTexture } from './TravelMapTexture.js';
+import { TravelMapAmbient } from './TravelMapAmbient.js';
+import { TravelSeaLife } from './TravelSeaLife.js';
 
-export const MAP_MAX_ZOOM = 2;      // lower it if the map looks too blurry when zoomed
+// The map texture is 1920x1080, so a very deep zoom gets soft.
+// Lower it if the map looks too blurry, raise it for more dramatic close-ups.
+export const MAP_MAX_ZOOM = 3.6;
+
+// Real geography makes short hops tiny (London -> Dover is ~8 px on the map).
+// Routes shorter than this on screen are stretched around their midpoint.
+const MIN_ROUTE_SCREEN_PX = 190;
 const ROUTE_SAMPLES = 200;
 
 const TRAIL_STYLES = {
@@ -25,12 +35,20 @@ const TRAIL_STYLES = {
 // ===========================================================================
 
 export class TravelRouteStage {
-  constructor(scene, { width, height, U, transport, fromPoint = null, toPoint = null, fromCity = '', toCity = '' }) {
+  /**
+   * fromPoint / toPoint are in MAP TEXTURE space (1920x1080), i.e. the output of
+   * PROJECTION.project(lon, lat). Pass null when unknown.
+   */
+  constructor(scene, {
+    width, height, U, transport, themeId = 'agency',
+    fromPoint = null, toPoint = null, fromCity = '', toCity = ''
+  }) {
     this.scene = scene;
     this.width = width;
     this.height = height;
     this.U = U;
     this.transport = transport;
+    this.themeId = themeId === 'pi' ? 'pi' : 'agency';
     this.fromPoint = fromPoint;
     this.toPoint = toPoint;
     this.fromCity = fromCity;
@@ -44,6 +62,8 @@ export class TravelRouteStage {
     this.marker = null;
     this.detourGraphics = null;
     this.detourTween = null;
+    this.ambient = null;
+    this.seaLife = null;
 
     this.build();
   }
@@ -62,33 +82,77 @@ export class TravelRouteStage {
       TRAVEL_DEPTH.desk
     );
 
-    const mapKey = scene.textures.exists('mapbg') ? 'mapbg' : 'travel-fallback-map';
+    const mapKey = ensureTravelMapTexture(scene, this.themeId) ||
+      (scene.textures.exists('mapbg') ? 'mapbg' : 'travel-fallback-map');
+
     this.map = this.track(
-      scene.add.image(width / 2, height / 2, mapKey).setDisplaySize(width, height).setTint(0xeadcbc),
+      scene.add.image(width / 2, height / 2, mapKey).setDisplaySize(width, height),
       TRAVEL_DEPTH.map
     );
+
+    // Animated details of the painted map (satellites, ships, clouds...).
+    // Skipped for the old fallback pictures: their coordinates do not match.
+    if (mapKey.includes('destination_map_') || mapKey.includes('travel_map_')) {
+      this.ambient = new TravelMapAmbient(this);
+    }
+
+    // Parchment gets a warm lamp-light tint; the spy grid stays untouched.
+    if (this.themeId === 'pi') this.map.setTint(0xf4ead0);
 
     this.computeRoute();
     this.applyMapTransform(0);
     this.routeGraphics = this.track(scene.add.graphics(), TRAVEL_DEPTH.route);
     this.createPins();
     this.createVehicle();
+
+    // Ship legs: seagulls overhead and something fin-shaped in the water.
+    if (this.transport.id === 'ship') {
+      this.seaLife = new TravelSeaLife(this);
+    }
+
     this.createAtmosphere();
   }
 
   // ---- route geometry ------------------------------------------------------
 
+  scalePoint(point) {
+    return {
+      x: (point.x * this.width) / MAP_W,
+      y: (point.y * this.height) / MAP_H
+    };
+  }
+
   computeRoute() {
-    const { width, height, transport } = this;
+    const { width, height, transport, U } = this;
 
-    let a = this.fromPoint ? { ...this.fromPoint } : { x: width * 0.34, y: height * 0.46 };
-    let b = this.toPoint ? { ...this.toPoint } : { x: width * 0.66, y: height * 0.4 };
+    let a = this.fromPoint ? this.scalePoint(this.fromPoint) : null;
+    let b = this.toPoint ? this.scalePoint(this.toPoint) : null;
 
-    // Same city (e.g. returning to the private office): a short local hop.
-    if (Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y) < 30) {
-      const { x, y } = a;
-      a = { x: x - 150, y: y + 16 };
-      b = { x: x + 150, y: y - 16 };
+    if (!a && !b) {
+      a = { x: width * 0.34, y: height * 0.46 };
+      b = { x: width * 0.66, y: height * 0.4 };
+    } else if (!a) {
+      a = { ...b };
+    } else if (!b) {
+      b = { ...a };               // e.g. "Back to the private office"
+    }
+
+    // Too short to read at the maximum zoom: stretch the route around its midpoint.
+    const rawDistance = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
+    const target = (MIN_ROUTE_SCREEN_PX * U) / MAP_MAX_ZOOM;
+
+    if (rawDistance < target) {
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+
+      if (rawDistance < 1) {
+        // Same place twice (local hop): lay the route out horizontally.
+        a = { x: mid.x - target / 2, y: mid.y + 4 * U };
+        b = { x: mid.x + target / 2, y: mid.y - 4 * U };
+      } else {
+        const k = target / rawDistance;
+        a = { x: mid.x + (a.x - mid.x) * k, y: mid.y + (a.y - mid.y) * k };
+        b = { x: mid.x + (b.x - mid.x) * k, y: mid.y + (b.y - mid.y) * k };
+      }
     }
 
     const A = new Phaser.Math.Vector2(a.x, a.y);
@@ -120,8 +184,26 @@ export class TravelRouteStage {
     this.focus = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
     this.center = { x: width / 2, y: height * 0.4 };
 
+    this.clampFocus();
+
     this.points = mapPoints.map((p) => this.toScreen(p));
     this.length = curve.getLength() * this.zoom;
+  }
+
+  // Keep the zoomed map covering the whole screen (no empty desk at the map edge).
+  clampFocus() {
+    const { width, height, zoom, center } = this;
+    if (zoom <= 1) return;
+
+    const minX = center.x / zoom;
+    const maxX = width - (width - center.x) / zoom;
+    const minY = center.y / zoom;
+    const maxY = height - (height - center.y) / zoom;
+
+    this.focus = {
+      x: minX <= maxX ? Phaser.Math.Clamp(this.focus.x, minX, maxX) : width / 2,
+      y: minY <= maxY ? Phaser.Math.Clamp(this.focus.y, minY, maxY) : height / 2
+    };
   }
 
   toScreen(p) {
@@ -142,6 +224,14 @@ export class TravelRouteStage {
 
     this.map.setPosition(cx + (width / 2 - fx) * Z, cy + (height / 2 - fy) * Z);
     this.map.setDisplaySize(width * Z, height * Z);
+
+    // The map image is centred on its position; keep the animated layer on it.
+    this.ambient?.setTransform(
+      this.map.x - (width * Z) / 2,
+      this.map.y - (height * Z) / 2,
+      (width * Z) / MAP_W,
+      (height * Z) / MAP_H
+    );
   }
 
   // ---- pins, vehicle, atmosphere -------------------------------------------
@@ -197,7 +287,10 @@ export class TravelRouteStage {
     const { scene, U, transport } = this;
     const key = scene.textures.exists(transport.customVehicleKey) ? transport.customVehicleKey : transport.vehicleKey;
     this.vehicleKey = key;
-    this.baseScale = (transport.vehicleScale ?? 0.6) * U;
+
+    // Short (stretched) routes get a smaller vehicle so it does not cover the whole trail.
+    const fit = Phaser.Math.Clamp(this.length / (420 * U), 0.5, 1);
+    this.baseScale = (transport.vehicleScale ?? 0.6) * U * fit;
 
     this.shadow = this.track(
       scene.add.image(0, 0, key).setTint(0x000000).setAlpha(0).setScale(this.baseScale),
@@ -213,7 +306,7 @@ export class TravelRouteStage {
       scene.add.particles(0, 0, 'travel-puff', {
         emitting: false,
         lifespan: style.lifespan,
-        scale: { start: style.scale.start * U, end: style.scale.end * U },
+        scale: { start: style.scale.start * U * fit, end: style.scale.end * U * fit },
         alpha: style.alpha,
         tint: style.tint,
         ...(style.speedY ? { speedY: style.speedY } : {})
@@ -237,7 +330,7 @@ export class TravelRouteStage {
         alpha: { start: 0.45, end: 0 },
         quantity: 1,
         frequency: 240,
-        tint: 0xffe2a0,
+        tint: this.themeId === 'agency' ? 0x9ffcff : 0xffe2a0,
         blendMode: 'ADD'
       }),
       TRAVEL_DEPTH.dust
@@ -383,8 +476,15 @@ export class TravelRouteStage {
     const period = on + Math.max(1, Math.round((11 * U) / spacing));
     const end = Math.min(upTo + 1, pts.length - 1);
 
+    // Dark map: bright transport colour + glow. Parchment: dark ink-like colour.
+    const agency = this.themeId === 'agency';
+    const lineColor = agency ? transport.routeColor : transport.lineColor;
+    const passes = agency
+      ? [[13 * U, lineColor, 0.16], [8 * U, 0x02060c, 0.5], [4.5 * U, lineColor, 1]]
+      : [[8 * U, 0x1a0f08, 0.35], [4.5 * U, lineColor, 0.95]];
+
     g.clear();
-    for (const [width, color, alpha] of [[8 * U, 0x1a0f08, 0.35], [4.5 * U, transport.lineColor, 0.95]]) {
+    for (const [width, color, alpha] of passes) {
       g.lineStyle(width, color, alpha);
       g.beginPath();
       for (let i = 0; i < end; i++) {
@@ -534,6 +634,10 @@ export class TravelRouteStage {
   destroy() {
     this.destroyed = true;
     this.running = false;
+    this.ambient?.destroy();
+    this.ambient = null;
+    this.seaLife?.destroy();
+    this.seaLife = null;
     this.stopDetour();
     if (this.marker?.active) this.marker.destroy();
     this.marker = null;

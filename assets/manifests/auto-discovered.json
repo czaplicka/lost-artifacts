@@ -546,7 +546,7 @@
     },
     {
       "key": "desk",
-      "url": "assets/ui/pi-phone/desk.jpg",
+      "url": "assets/ui/pi-phone/desk.webp",
       "type": "image",
       "groups": [
         "backgrounds"
@@ -753,14 +753,6 @@
       ]
     },
     {
-      "key": "great_wave",
-      "url": "assets/artifacts/great_wave.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "greenhouse",
       "url": "assets/murders/Reginald Prune/greenhouse.webp",
       "type": "image",
@@ -947,22 +939,6 @@
     {
       "key": "ledger",
       "url": "assets/ui/computer/icons/ledger.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "local__post_office",
-      "url": "assets/local/post_office.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "local__post_office_poste_restante",
-      "url": "assets/local/post_office_poste_restante.webp",
       "type": "image",
       "groups": [
         "backgrounds"

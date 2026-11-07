@@ -6,7 +6,11 @@
       ],
       "pageIds": [
         "dm_memorial",
-        "dm_edward_namesake"
+        "dm_edward_namesake",
+        "dm_edward_directory",
+        "dm_edward_filing_profile",
+        "dm_edward_recorder_notice",
+        "dm_edward_bowls_namesake"
       ]
     },
     {
@@ -14,7 +18,11 @@
         "dm_margaret"
       ],
       "pageIds": [
-        "dm_memorial"
+        "dm_memorial",
+        "dm_margaret_directory",
+        "dm_margaret_library_notice",
+        "dm_margaret_thanks",
+        "dm_margaret_costumes_namesake"
       ]
     },
     {
@@ -24,7 +32,9 @@
       ],
       "pageIds": [
         "dm_memorial",
-        "dm_family_contact"
+        "dm_family_contact",
+        "dm_margaret_library_notice",
+        "dm_margaret_thanks"
       ]
     },
     {
@@ -42,7 +52,8 @@
       ],
       "pageIds": [
         "dm_memorial",
-        "dm_blue_shop"
+        "dm_blue_shop",
+        "dm_edward_filing_profile"
       ]
     },
     {
@@ -163,6 +174,79 @@
       ],
       "pageIds": [
         "dm_folder_article",
+        "dm_blue_shop"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_voice"
+      ],
+      "pageIds": [
+        "dm_edward_recorder_notice",
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_archive"
+      ],
+      "pageIds": [
+        "dm_edward_filing_profile",
+        "dm_edward_recorder_notice",
+        "dm_memorial"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_recorder"
+      ],
+      "pageIds": [
+        "dm_edward_recorder_notice",
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_edward",
+        "dm_accounts"
+      ],
+      "pageIds": [
+        "dm_edward_directory",
+        "dm_edward_filing_profile"
+      ]
+    },
+    {
+      "terms": [
+        "dm_margaret",
+        "dm_voice"
+      ],
+      "pageIds": [
+        "dm_margaret_directory",
+        "dm_family_contact",
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_margaret",
+        "dm_archive"
+      ],
+      "pageIds": [
+        "dm_margaret_thanks",
+        "dm_family_contact",
+        "dm_audio_article"
+      ]
+    },
+    {
+      "terms": [
+        "dm_margaret",
+        "dm_folder"
+      ],
+      "pageIds": [
+        "dm_family_contact",
         "dm_blue_shop"
       ]
     }

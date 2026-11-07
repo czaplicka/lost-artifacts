@@ -136,6 +136,14 @@
         "artifacts"
       ]
     },
+        {
+      "key": "artifact_great_wave",
+      "url": "assets/artifacts/great_wave.webp",
+      "type": "image",
+      "groups": [
+        "artifacts"
+      ]
+    },
     {
       "key": "atlas",
       "url": "assets/data/atlas.json",

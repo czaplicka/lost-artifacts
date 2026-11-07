@@ -156,6 +156,7 @@ export class UIScene extends BaseScene {
     this.updateTime(getTimeChangedPayload(gameState));
     this.refreshScoreHud();
     this.refreshMoneyHud();
+    this.refreshXpHud();
     this.updateEnergy();
     this.hudStanding?.refresh();
 
@@ -198,6 +199,14 @@ export class UIScene extends BaseScene {
 
     this.dom = {
       container,
+
+      clockTarget: document.getElementById('clock-target'),
+      dateTarget: document.getElementById('date-target'),
+      deadlineTarget: document.getElementById('deadline-target'),
+      scoreTarget: document.getElementById('score-target'),
+      xpTarget: document.getElementById('xp-target'),
+      cashTarget: document.getElementById('cash-target'),
+
       time: document.getElementById('clock-time'),
       partOfDay: document.getElementById('clock-part'),
       month: document.getElementById('date-month'),
@@ -222,10 +231,14 @@ export class UIScene extends BaseScene {
         document.getElementById('energy-bolt'),
 
       score: document.getElementById('hud-score'),
+      xp: document.getElementById('hud-xp'),
       cash: document.getElementById('hud-cash'),
 
       tooltipBg:
         document.getElementById('hud-tooltip'),
+
+      tooltipTitle:
+        document.getElementById('hud-tooltip-title'),
 
       tooltipText:
         document.getElementById('hud-tooltip-text'),
@@ -258,6 +271,8 @@ export class UIScene extends BaseScene {
       this._queueModalRefresh
     );
 
+    this.onBus(PROGRESSION_CHANGED, this.refreshXpHud);
+
     this.onBus(LEVEL_UP, this._showLevelUpNotice);
     this.onBus('gameOver', this._showGameOver);
 
@@ -277,6 +292,7 @@ export class UIScene extends BaseScene {
   _onCharacterCreated() {
     this._clearLevelUpNotice();
     this._queueModalRefresh();
+    this.refreshXpHud();
   }
 
   _cleanup() {
@@ -347,6 +363,7 @@ export class UIScene extends BaseScene {
     this.updateTime(getTimeChangedPayload(gameState));
     this.refreshScoreHud();
     this.refreshMoneyHud();
+    this.refreshXpHud();
     this.updateEnergy();
     this.hudStanding?.refresh();
     this._queueModalRefresh();
@@ -956,25 +973,25 @@ export class UIScene extends BaseScene {
   _setupTooltipListeners() {
     const options = this.getDomListenerOptions();
 
+    // Tooltipy podpięte pod całe bloki (#score-target itd.),
+    // a nie tylko pod małe <span> z wartością.
     const bindings = [
       {
-        element: this.dom.time,
+        element: this.dom.clockTarget || this.dom.time,
         getContent: () => this._getClockTooltip()
       },
       {
-        element: this.dom.month,
+        element:
+          this.dom.dateTarget || this.dom.month,
         getContent: () => this._getDateTooltip()
       },
       {
-        element: this.dom.day,
-        getContent: () => this._getDateTooltip()
-      },
-      {
-        element: this.dom.deadlineValue,
+        element:
+          this.dom.deadlineTarget || this.dom.deadlineValue,
         getContent: () => this._getDeadlineTooltip()
       },
       {
-        element: this.dom.score,
+        element: this.dom.scoreTarget || this.dom.score,
         getContent: () => [
           'SCORE',
           `${formatNumber(gameState.score)} points.`,
@@ -982,7 +999,11 @@ export class UIScene extends BaseScene {
         ].join('\n')
       },
       {
-        element: this.dom.cash,
+        element: this.dom.xpTarget || this.dom.xp,
+        getContent: () => this._getXpTooltip()
+      },
+      {
+        element: this.dom.cashTarget || this.dom.cash,
         getContent: () => this._getCashTooltip()
       }
     ];
@@ -1144,6 +1165,32 @@ export class UIScene extends BaseScene {
     ].join('\n');
   }
 
+  _getXpTooltip() {
+    const summary = this._readProgressionSummary();
+
+    if (!summary) {
+      return [
+        'EXPERIENCE',
+        'Personnel file could not be read.'
+      ].join('\n');
+    }
+
+    const points = summary.availablePoints;
+
+    return [
+      `EXPERIENCE: LEVEL ${summary.level}`,
+      `${formatNumber(summary.totalXP)} total XP.`,
+      summary.isMaxLevel
+        ? 'Maximum level reached. HR is investigating.'
+        : `${formatNumber(summary.xpToNextLevel)} XP to next level.`,
+      points > 0
+        ? `${points} unspent skill ${
+            points === 1 ? 'point' : 'points'
+          }. Open your Detective Profile.`
+        : 'Solve cases and make smart arrests to gain XP.'
+    ].join('\n');
+  }
+
   updateTime(data = {}) {
     const snapshot = this._readTimeFromGameState();
 
@@ -1246,6 +1293,22 @@ export class UIScene extends BaseScene {
       'backgroundColor',
       color
     );
+
+    this._setDeadlineUrgency(
+      remainingSeconds <= 3600
+        ? 'critical'
+        : remainingSeconds <= 43200
+          ? 'warn'
+          : 'ok'
+    );
+  }
+
+  _setDeadlineUrgency(level) {
+    const target = this.dom.deadlineTarget;
+
+    if (target && target.dataset.urgency !== level) {
+      target.dataset.urgency = level;
+    }
   }
 
   _formatCaseDeadline(seconds) {
@@ -1333,6 +1396,14 @@ export class UIScene extends BaseScene {
       'backgroundColor',
       color
     );
+
+    this._setDeadlineUrgency(
+      daysLeft <= 1
+        ? 'critical'
+        : daysLeft <= 2
+          ? 'warn'
+          : 'ok'
+    );
   }
 
   _onEnergyChanged(data = {}) {
@@ -1405,6 +1476,24 @@ export class UIScene extends BaseScene {
       this.dom.energyBolt.style.fill = color;
     }
 
+    // Zwinięty HUD (przycisk #btn-hud-expand) korzysta z tych zmiennych.
+    // Zastępuje to 101 reguł :has() z dawnego hud.template.
+    const container = this.dom.container;
+
+    if (container) {
+      container.style.setProperty(
+        '--hud-energy-level',
+        `${percent}%`
+      );
+
+      container.style.setProperty('--hud-energy-color', color);
+
+      container.style.setProperty(
+        '--hud-energy-label',
+        `"${percent}%"`
+      );
+    }
+
     this.dom.energyWrapper?.classList.toggle(
       'low-energy',
       fraction <= 0.2
@@ -1465,7 +1554,18 @@ export class UIScene extends BaseScene {
       return;
     }
 
-    if (this.dom.tooltipText) {
+    // Pierwsza linia = tytuł (osobny styl), reszta = treść.
+    const lines = String(content).split('\n');
+    const title = lines.shift() || '';
+    const body = lines.join('\n');
+
+    if (this.dom.tooltipTitle) {
+      this.dom.tooltipTitle.textContent = body ? title : '';
+
+      if (this.dom.tooltipText) {
+        this.dom.tooltipText.textContent = body || title;
+      }
+    } else if (this.dom.tooltipText) {
       this.dom.tooltipText.textContent = content;
     }
 
@@ -1623,6 +1723,17 @@ export class UIScene extends BaseScene {
     if (this.dom.score) {
       this.dom.score.textContent = formatNumber(value);
     }
+  }
+
+  refreshXpHud() {
+    if (this._isDestroyed || !this.dom.xp) return;
+
+    const summary = this._readProgressionSummary();
+
+    this._setDomText(
+      this.dom.xp,
+      formatNumber(summary?.totalXP ?? 0)
+    );
   }
 
   updateCash(data) {

@@ -14,6 +14,18 @@ export class DestinationTravel {
     hud?.closeAllUIPanels?.();
   }
 
+  // Which painted world map the travel transition should reuse:
+  // "agency" (spy grid) or "pi" (expedition parchment).
+  getTransitionMapTheme() {
+    return (
+      this.worldMap?.themeId ||
+      (typeof this.getMapTheme === 'function'
+        ? this.getMapTheme()
+        : null) ||
+      'agency'
+    );
+  }
+
   async travelToCity(selectedCity, selectedTransport) {
     if (
       this.isDestroyed ||
@@ -188,7 +200,11 @@ export class DestinationTravel {
 
         pendingPhoneCallCityId:
           gameState.pendingPhoneCallCityId ||
-          toCityId
+          toCityId,
+
+        // The transition scene paints the same world map
+        // the player just used to buy the ticket.
+        mapTheme: this.getTransitionMapTheme()
       };
 
       // Save before any subsequent UI operations.

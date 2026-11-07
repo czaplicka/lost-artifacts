@@ -1,7 +1,6 @@
 import { AssetManager } from './managers/AssetManager.js';
 import { BootScene } from './scenes/BootScene.js';
 import { PreloaderScene } from './scenes/PreloaderScene.js';
-import { MenuScene } from './scenes/MenuScene.js';
 import { SettingsScene } from './scenes/SettingsScene.js';
 import { EnterScene } from './scenes/EnterChaseScene.js';
 import { PlayerHudScene } from './scenes/PlayerHudScene.js';
@@ -98,7 +97,7 @@ const config = {
   height: 1080,
   parent: 'game-container',
   backgroundColor: '#000000',
-  scene: [BootScene, PreloaderScene, MenuScene, SettingsScene, EnterScene,
+  scene: [BootScene, PreloaderScene, SettingsScene, EnterScene,
     PlayerHudScene, UIScene, NewsHud, LoadingOverlayScene],
   dom: { createContainer: true },
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, autoRound: true },

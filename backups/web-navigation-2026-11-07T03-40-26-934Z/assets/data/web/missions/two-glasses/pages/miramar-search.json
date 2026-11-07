@@ -1,0 +1,205 @@
+{
+  "pages": [
+    {
+      "id": "miramar_terrace",
+      "title": "Terrace dining | Hotel Miramar",
+      "brand": "MIRAMAR",
+      "address": "www.miramar.local/dining",
+      "theme": "hotel",
+      "template": "hotel",
+      "blocks": [
+        [
+          "The west terrace at ",
+          {
+            "keywordId": "miramar",
+            "text": "Hotel Miramar"
+          },
+          " serves hotel residents, visitors and private-event guests. Sea views are included. The sea has declined to accept reservations."
+        ],
+        [
+          "Terrace service runs from breakfast until eleven in the evening. Please check with reception when a private function is taking place."
+        ],
+        [
+          "Lunches, afternoon drinks and group dinners are available. Our staff can arrange tables for small parties or larger receptions."
+        ],
+        [
+          "Please do not feed the seagulls. They have already reviewed the menu and consider themselves entitled to everything on it."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
+        }
+      ],
+      "snippet": "West-terrace dining, afternoon drinks and private-event service.",
+      "imageKey": "reed_web_hotel_miramar",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+      "imageCaption": "Hotel Miramar — official hotel photograph"
+    },
+    {
+      "id": "miramar_guest_faq",
+      "title": "Before your stay | Miramar guest questions",
+      "brand": "MIRAMAR",
+      "address": "www.miramar.local/guest-questions",
+      "theme": "hotel",
+      "template": "hotel",
+      "blocks": [
+        [
+          "DO I NEED A ROOM TO VISIT THE TERRACE?"
+        ],
+        [
+          "No. ",
+          {
+            "keywordId": "miramar",
+            "text": "Hotel Miramar"
+          },
+          " welcomes non-residents for dining and drinks, subject to availability and private functions."
+        ],
+        [
+          "CAN I ASK WHETHER SOMEONE IS STAYING WITH YOU?"
+        ],
+        [
+          "We do not publish guest lists, room allocations or private bookings. Please contact the person directly. Looking concerned while holding a notebook does not change this policy."
+        ],
+        [
+          "WHAT IF I LEFT SOMETHING BEHIND?"
+        ],
+        [
+          "Contact reception with a description, the approximate date and where you last saw it. “My dignity, near the dance floor” is unfortunately outside our storage policy."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        }
+      ],
+      "snippet": "Terrace visits, guest privacy and the lost-property cupboard.",
+      "imageKey": "reed_web_hotel_miramar",
+      "imageUrl": "assets/side_quests/Reed/web/hotels/miramar.webp",
+      "imageCaption": "Hotel Miramar — official hotel photograph"
+    },
+    {
+      "id": "miramar_coast_guide",
+      "title": "Hotel Miramar | Coastline visitor guide",
+      "brand": "COASTLINE VISITOR GUIDE",
+      "address": "www.coastlineguide.local/stay/hotel-miramar",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "miramar",
+            "text": "Hotel Miramar"
+          },
+          " is a seafront hotel offering accommodation, terrace dining and meeting facilities. Its traditional seahorse crest appears on the hotel’s own website."
+        ],
+        [
+          "The terrace also serves visitors who are not staying overnight. Check directly with the hotel before making a special journey, particularly when events are scheduled."
+        ],
+        [
+          "This is a visitor listing, not a booking register. We can help you find somewhere to stay, not establish where your brother-in-law was last Thursday."
+        ],
+        [
+          "Our directory also lists The Mariner and Coral Crown Hotel. Please check the property name before sending a complaint about the swimming pool."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Official hotel website",
+          "pageId": "miramar"
+        },
+        {
+          "label": "The Mariner",
+          "pageId": "mariner"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral"
+        }
+      ],
+      "snippet": "Seafront accommodation, terrace dining and meeting facilities. Check details with the hotel."
+    },
+    {
+      "id": "miramar_guest_thread",
+      "title": "Hotel Miramar — worth visiting just for the terrace?",
+      "brand": "COASTAL BREAKS FORUM",
+      "address": "www.coastalbreaks.local/forum/miramar-terrace",
+      "theme": "forum",
+      "template": "forum",
+      "blocks": [
+        [
+          "SALT_AND_PEPPER: “Can you visit the Miramar terrace without booking a room? I want lunch, not a mortgage.”"
+        ],
+        [
+          "WEEKEND_WANDERER: “Yes, we went for drinks. Check with the hotel first if they have a private function.”"
+        ],
+        [
+          "BISCUIT_INSPECTOR: “Nice view. A gull maintained eye contact with my sandwich for the entire meal. Very attentive service, wrong employee.”"
+        ],
+        [
+          "HAND_LUGGAGE_ONLY: “Make sure you mean the hotel. My cousin arranged to meet us at the Miramar cinema. We gave the lunch four stars; he gave the film two.”"
+        ],
+        [
+          "MODERATOR: “Hotel reviews only. No naming other guests or speculating about who they were with. The gull may be identified by its lack of remorse.”"
+        ]
+      ],
+      "links": [
+        {
+          "label": "Hotel website",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Terrace information",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Miramar Picture House",
+          "pageId": "miramar_cinema_namesake"
+        }
+      ],
+      "snippet": "Lunch, sea views and one deeply committed sandwich thief."
+    },
+    {
+      "id": "miramar_cinema_namesake",
+      "title": "Miramar Picture House | Films & ticket information",
+      "brand": "MIRAMAR PICTURE HOUSE",
+      "address": "www.miramarpictures.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "MIRAMAR PICTURE HOUSE — an independent cinema on Station Road."
+        ],
+        [
+          "Two screens, evening showings and a concessions counter with strong opinions about outside snacks. This is a cinema, not Hotel Miramar."
+        ],
+        [
+          "Seat reservations are available at the box office. We cannot reserve a seat on the hotel terrace, although several callers have asked with admirable persistence."
+        ],
+        [
+          "Please switch off mobile phones during the film. Whispering “I am in the cinema” does not count as switching it off."
+        ]
+      ],
+      "links": [],
+      "snippet": "Independent cinema on Station Road. Film tickets, not hotel rooms."
+    }
+  ]
+}

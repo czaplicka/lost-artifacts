@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "requiredFlags": [
+    "john_account_independent_review_completed",
+    "john_primary_incident_records_lead_unlocked"
+  ],
+  "background": {
+    "key": "john_primary_clinic",
+    "url": "assets/local/medical_office.webp"
+  },
+  "permission": "John authorises inspection of the pre-flight poisoning and gunshot entries and their attachment references only. This is not permission to inspect unrelated patient files.",
+  "folders": [
+    {
+      "id": "annual",
+      "label": "JOHN MCCLANE / ANNUAL REVIEW",
+      "reply": "Lecter: \"Your interest in his coordination is touching. Also irrelevant to this request.\""
+    },
+    {
+      "id": "preflight",
+      "label": "JOHN MCCLANE / PRE-FLIGHT INCIDENTS",
+      "reply": "The identifiers match the earlier clinical summary."
+    },
+    {
+      "id": "supplies",
+      "label": "CLINICAL SUPPLIES / COMPLAINTS",
+      "reply": "Lecter: \"The stapler survived. Its prognosis is excellent.\""
+    }
+  ],
+  "correctFolder": "preflight",
+  "documents": [
+    {
+      "id": "poison",
+      "title": "PRIMARY POISONING ENTRY",
+      "text": "Patient: John McClane. Treatment entry predates the transport flight. Poisoning treatment is recorded. The circumstances and specimen-related incident material are cross-referenced under INC-P17. Those incident attachments are not held in this clinical folder. This entry does not identify a perpetrator.",
+      "reference": "INC-P17"
+    },
+    {
+      "id": "gunshot",
+      "title": "PRIMARY GUNSHOT ENTRY",
+      "text": "Patient: John McClane. Gunshot treatment entry predates the transport flight. Related incident material, including the projectile examination reference, is cross-referenced under INC-G04. That material is not a clinical finding identifying who fired the weapon.",
+      "reference": "INC-G04"
+    },
+    {
+      "id": "register",
+      "title": "ATTACHMENT REGISTER",
+      "text": "The clinical summary omitted the external attachment references. INC-P17 and INC-G04 belong to the incident files, not the medical cabinet. Request those two files through the incident-records enquiry. Possession of the medical entries is not a finding of guilt.",
+      "reference": null
+    }
+  ],
+  "conclusions": [
+    {
+      "id": "attachments",
+      "label": "REQUEST INC-P17 AND INC-G04"
+    },
+    {
+      "id": "culprit",
+      "label": "DECLARE HOLLY RESPONSIBLE"
+    },
+    {
+      "id": "crash",
+      "label": "ATTRIBUTE BOTH INJURIES TO THE CRASH"
+    }
+  ],
+  "correctConclusion": "attachments",
+  "success": "Primary entries inspected. INC-P17 and INC-G04 are the next incident-file references. The injuries predate the flight; their perpetrator is not established by these pages."
+}

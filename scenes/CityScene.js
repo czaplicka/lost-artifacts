@@ -98,7 +98,7 @@ export class CityScene extends BaseScene {
     const locations = this.cache.json.get('locations');
     if (!Array.isArray(locations)) {
       console.error('[CityScene] Invalid locations data.', locations);
-      void this.goto('MenuScene', {
+      void this.goto('EnterScene', {
         citySetupFailed: true,
         errorMessage: 'City data could not be loaded.'
       });
@@ -108,7 +108,7 @@ export class CityScene extends BaseScene {
     this.city = locations.find(entry => entry?.id === this.cityId);
     if (!this.city) {
       console.error('[CityScene] Unknown city:', this.cityId);
-      void this.goto('MenuScene', {
+      void this.goto('EnterScene', {
         citySetupFailed: true,
         errorMessage: `Unknown city: ${this.cityId}`
       });

@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "requiredFlags": [
+    "john_met_in_warsaw",
+    "john_initial_account_heard",
+    "agency_medical_review_completed",
+    "holly_prior_search_confirmed"
+  ],
+  "sources": [
+    {
+      "id": "alex",
+      "title": "ALEX / ADMISSION",
+      "text": "Alex admitted helping John prepare a way out before the crash, and admitted keeping the cover story afterwards. He did not know John's destination."
+    },
+    {
+      "id": "medical",
+      "title": "MEDICAL / EARLIER SUMMARY",
+      "text": "The clinical summary records poisoning treatment and a gunshot wound before the transport flight. The dates separate the injuries from the crash. They do not identify a responsible person."
+    },
+    {
+      "id": "company",
+      "title": "SECOND OPINION / CONFIRMATION",
+      "text": "Second Opinion Tracing confirmed that Holly received a live-contact verification before hiring you. Its delivery record includes her acknowledgement. This did not provide John's current address."
+    },
+    {
+      "id": "limits",
+      "title": "SOURCE LIMITS / CROSS-CHECK",
+      "text": "The medical entries name no perpetrator. The tracing company cannot explain why Holly withheld its result or identify who altered the receipt. The radio channel label does not authenticate a speaker."
+    },
+    {
+      "id": "radio",
+      "title": "RADIO / RECONSTRUCTION",
+      "text": "Control instructed the alternate approach and postponed the handover. The reconstructed transcript does not authenticate the individual speaking."
+    }
+  ],
+  "claims": [
+    {
+      "id": "planned",
+      "text": "John arranged his disappearance rather than simply vanishing by accident.",
+      "source": "alex",
+      "verdict": "supported"
+    },
+    {
+      "id": "injuries",
+      "text": "The documented poisoning and gunshot treatment predate the transport flight.",
+      "source": "medical",
+      "verdict": "supported"
+    },
+    {
+      "id": "knowledge",
+      "text": "Holly had already received a survival verification when she hired you.",
+      "source": "company",
+      "verdict": "supported"
+    },
+    {
+      "id": "culprit",
+      "text": "These records establish that Holly caused the poisoning and gunshot wound.",
+      "source": "limits",
+      "verdict": "unestablished"
+    }
+  ],
+  "verdicts": [
+    {
+      "id": "supported",
+      "label": "SUPPORTED"
+    },
+    {
+      "id": "unestablished",
+      "label": "NOT ESTABLISHED"
+    }
+  ],
+  "success": "Alex corroborates the planned disappearance. Medical dates place the earlier injuries before the flight. The company confirms Holly's prior survival knowledge. None of these identifies who caused the injuries. Obtain the primary pre-flight incident records next."
+}

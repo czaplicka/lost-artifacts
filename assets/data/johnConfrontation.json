@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "requiredFlags": [
+    "john_incident_attachments_reviewed",
+    "holly_attack_evidence_established",
+    "john_met_in_warsaw"
+  ],
+  "intro": "Warsaw. You return through contact WAW-17 with the two incident files. This time you have independent records, not just John's account.",
+  "evidence": [
+    {
+      "id": "INC-P17",
+      "label": "INC-P17 / POISONING"
+    },
+    {
+      "id": "INC-G04",
+      "label": "INC-G04 / SHOOTING"
+    },
+    {
+      "id": "ALEX",
+      "label": "ALEX / ESCAPE ADMISSION"
+    },
+    {
+      "id": "SOT-17",
+      "label": "SOT-17 / EARLIER SEARCH"
+    }
+  ],
+  "evidenceNotes": "INC-P17 links the eyewitness, retained drink, vial comparison and recovery record. INC-G04 links the eyewitness, recovered weapon and projectile comparison. Alex admitted helping prepare the disappearance. SOT-17 establishes Holly's earlier survival knowledge, not an attack.",
+  "topics": [
+    {
+      "id": "poison",
+      "title": "THE POISONING",
+      "evidence": "INC-P17",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "The drink, the vial and the witness all belong to INC-P17. The identity record links Holly McClane to your wife."
+        },
+        {
+          "speaker": "JOHN",
+          "text": "It was Holly. At the time I did not know what had been put in the drink. I knew I had become ill. The incident records tell you more about the substance than I could."
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "Then I will keep your account separate from what the records establish. They support the administration and the substance link; you are confirming who you were with."
+        }
+      ]
+    },
+    {
+      "id": "shot",
+      "title": "THE SHOOTING",
+      "evidence": "INC-G04",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "INC-G04 contains the eyewitness statement, the weapon recovery and the projectile comparison. The other surname did not make her another person."
+        },
+        {
+          "speaker": "JOHN",
+          "text": "Holly shot me. After that, I stopped believing that changing the subject would keep me safe. I was trying to leave, and I was afraid she would find me again."
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "The gunshot treatment predates the flight. I am not attributing it to the crash, or treating a laboratory comparison alone as identification of the shooter."
+        }
+      ]
+    },
+    {
+      "id": "escape",
+      "title": "THE DISAPPEARANCE",
+      "evidence": "ALEX",
+      "lines": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "Alex admitted helping you prepare an exit before the crash. You already admitted arranging your disappearance. Why maintain the death story?"
+        },
+        {
+          "speaker": "JOHN",
+          "text": "Because I thought being difficult to find was not enough. After the poisoning and the shooting, I wanted Holly to stop looking for a living husband. Alex helped me prepare a way out."
+        },
+        {
+          "speaker": "JOHN",
+          "text": "That does not make every detail of the flight my doing. I cannot authenticate the control-channel voice. I can tell you why I disappeared. A forwarding address was the one piece of paperwork I intended not to complete."
+        }
+      ]
+    }
+  ],
+  "success": "John has answered the incident files and explained that he staged his disappearance to escape Holly. His testimony is recorded separately from the independent evidence. The confrontation is complete; the final decision about Holly remains yours.",
+  "nextObjective": "Review the completed case before deciding whether to arrest Holly or let her go."
+}

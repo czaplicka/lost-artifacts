@@ -234,7 +234,33 @@ export class DetectiveOfficeScene extends BaseScene {
     rect.setVisible(hotspot.available);image?.setVisible(hotspot.available);
     rect.on('pointerover',()=>{if(hotspot.available&&this.canUseOffice()&&!this.debugMode)label.setVisible(true);});
     rect.on('pointerout',()=>{if(!this.debugMode){rect.setFillStyle(0xffd166,0);label.setVisible(false);}});
-    rect.on('pointerdown',()=>{
+    // OFFICE_NOTEBOOK_MANUAL_OPEN_V1
+    rect.on('pointerdown',(pointer)=>{
+      const event = pointer?.event;
+
+      const touch =
+        event?.changedTouches?.[0] ||
+        event?.touches?.[0];
+
+      const clientX = touch?.clientX ?? event?.clientX;
+      const clientY = touch?.clientY ?? event?.clientY;
+
+      const target = event?.target;
+
+      if (target?.closest?.('.pcn')) return;
+
+      if (
+        Number.isFinite(clientX) &&
+        Number.isFinite(clientY)
+      ) {
+        const topElement = document.elementFromPoint(
+          clientX,
+          clientY
+        );
+
+        if (topElement?.closest?.('.pcn')) return;
+      }
+
       if(!this.canUseOffice()||!this.isObjectVisible(config))return;
       if(this.debugMode){this.selectedIndex=index;this.updateDebug();return;}
       rect.setFillStyle(0xffd166,0);label.setVisible(false);this.activateObject(config);

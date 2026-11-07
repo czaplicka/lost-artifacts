@@ -1,0 +1,19 @@
+.personnel-roster{box-sizing:border-box;display:flex;flex-direction:column;gap:10px;padding:18px;background:#e6d5ae;color:#2c1b14;border:6px solid #44271c;font-family:SpecialElite,monospace;overflow:hidden;pointer-events:auto}
+.personnel-roster *{box-sizing:border-box}
+.personnel-roster header,.personnel-roster footer{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.personnel-roster header{justify-content:space-between}.personnel-roster h1{margin:0;font-size:25px}.personnel-roster>p{margin:0}
+.personnel-roster button{font:inherit;color:inherit;cursor:pointer;background:#f3e8cb;border:2px solid #74563a;padding:9px;pointer-events:auto}
+.personnel-roster button:focus-visible{outline:3px solid #a0282d;outline-offset:2px}.personnel-roster button:disabled{opacity:.5;cursor:default}
+.personnel-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;flex:1;min-height:0;overflow:hidden}
+.personnel-layout aside{overflow:auto;padding:12px;background:#d6bd8c;border:1px solid #74563a}.personnel-layout h2{font-size:20px;margin:0 0 10px}
+.personnel-layout [data-statements]{display:grid;gap:5px}.personnel-layout [data-witness][aria-pressed=true]{background:#582920;color:#fff0cd}
+.personnel-layout article{font-size:18px;line-height:1.45}.personnel-proof{border-top:1px dashed #74563a;padding-top:10px;font-size:15px;color:#24432b}
+.personnel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:10px;overflow:auto;align-content:start;padding:4px}
+.personnel-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;text-align:center;box-shadow:2px 3px #74563a55}
+.personnel-card>span:not(.personnel-photo),.personnel-card small{overflow-wrap:anywhere}.personnel-name{font-size:18px}.personnel-card small{font-size:12px;min-height:30px}.personnel-status{font-size:10px;letter-spacing:1px;color:#724637}
+.personnel-photo{position:relative;display:block;width:126px;height:140px;overflow:hidden;flex-shrink:0}
+.personnel-photo .agency-id-avatar{position:absolute;top:0;left:0;width:280px!important;height:310px!important;min-height:310px!important;transform:scale(.45);transform-origin:top left;--noir-gold:#b28e46;--noir-crimson:#7a1f22;--radius-sm:2px}
+.personnel-card.is-cleared{background:#c3bcab;box-shadow:none}.personnel-card.is-cleared .personnel-photo{filter:grayscale(1);opacity:.4}.personnel-card.is-cleared .personnel-name{text-decoration:line-through}.personnel-card.is-cleared .personnel-status{color:#8d2424}
+.personnel-card.is-cleared:after{content:'CLEARED';position:absolute;top:70px;left:5px;right:5px;border:3px solid #9c3434;color:#9c3434;background:#eadcbece;transform:rotate(-12deg);font-size:19px;padding:5px;pointer-events:none}
+.personnel-roster footer{border-top:2px solid #74563a;padding-top:10px;flex-shrink:0}.personnel-roster [data-message]{flex:1;min-width:120px;color:#8d2424;font-size:15px}
+@media(max-width:760px){.personnel-roster{padding:9px;gap:6px}.personnel-layout{grid-template-columns:1fr;grid-template-rows:40% minmax(0,1fr);gap:8px}.personnel-layout aside{padding:8px}.personnel-layout [data-statements]{display:flex;overflow:auto}.personnel-layout [data-witness]{flex-shrink:0;font-size:13px}.personnel-layout article{font-size:15px}.personnel-layout h2{display:none}.personnel-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}.personnel-roster h1{font-size:19px}}

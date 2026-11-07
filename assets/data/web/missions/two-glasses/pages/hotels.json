@@ -27,8 +27,20 @@
           "pageId": "miramar"
         },
         {
+          "label": "Journal",
+          "pageId": "miramar_event"
+        },
+        {
           "label": "Meetings",
           "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
         }
       ],
       "snippet": "Rooms, terrace dining and private events overlooking the coast.",
@@ -61,8 +73,16 @@
           "pageId": "mariner"
         },
         {
-          "label": "Events",
+          "label": "What's on",
           "pageId": "mariner_events"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
         }
       ],
       "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
@@ -95,6 +115,14 @@
         {
           "label": "Functions",
           "pageId": "coral_events"
+        },
+        {
+          "label": "Family stays",
+          "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
         }
       ],
       "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
@@ -132,16 +160,28 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "miramar"
         },
         {
-          "label": "Event gallery",
-          "pageId": "gallery"
+          "label": "Journal",
+          "pageId": "miramar_event"
         },
         {
           "label": "Meetings",
           "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
         }
       ],
       "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
@@ -177,6 +217,18 @@
         {
           "label": "Journal",
           "pageId": "miramar_event"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
         }
       ],
       "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
@@ -201,6 +253,18 @@
         {
           "label": "Home",
           "pageId": "mariner"
+        },
+        {
+          "label": "What's on",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
         }
       ],
       "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
@@ -225,6 +289,18 @@
         {
           "label": "Home",
           "pageId": "coral"
+        },
+        {
+          "label": "Functions",
+          "pageId": "coral_events"
+        },
+        {
+          "label": "Family stays",
+          "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
         }
       ],
       "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",

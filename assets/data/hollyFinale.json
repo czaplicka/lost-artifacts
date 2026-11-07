@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "requiredFlags": [
+    "john_formal_confrontation_completed",
+    "holly_final_case_review_unlocked"
+  ],
+  "review": [
+    {
+      "id": "incidents",
+      "title": "INDEPENDENT INCIDENT EVIDENCE",
+      "text": "INC-P17 links the witness, retained drink, vial comparison and recovery record. INC-G04 links the witness, recovered weapon and projectile comparison. The verified identity register connects both incident names to Holly."
+    },
+    {
+      "id": "statement",
+      "title": "JOHN'S RECORDED ACCOUNT",
+      "text": "John confirmed arranging his disappearance to escape Holly after the poisoning and shooting. His account is recorded separately from the independent incident evidence. He did not authenticate the control-channel voice."
+    },
+    {
+      "id": "limits",
+      "title": "WHAT THIS DECISION DOES NOT ESTABLISH",
+      "text": "Holly's prior search and withheld survival knowledge do not, alone, prove an attack. The incident files supply that evidence in this story. An arrest is not an automatic conviction. Letting her go does not erase the evidence or make her innocent."
+    }
+  ],
+  "dialogue": [
+    {
+      "speaker": "NARRATION",
+      "text": "Back at your PI office, Holly arrives for the report. You do not disclose John's contact address."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "You found him."
+    },
+    {
+      "speaker": "DETECTIVE",
+      "text": "I found the incident files. The poisoning. The shooting. Both names. This is no longer just a missing-person enquiry."
+    },
+    {
+      "speaker": "HOLLY",
+      "text": "Then stop asking me questions you have already answered. Tell me what you intend to do."
+    }
+  ],
+  "choices": [
+    {
+      "id": "arrest",
+      "label": "ARREST HOLLY",
+      "confirmation": "Confirm the arrest ending? This closes the main investigation in this save. It does not automatically convict Holly or end your agency cases."
+    },
+    {
+      "id": "release",
+      "label": "LET HOLLY GO",
+      "confirmation": "Confirm that you let Holly go? This closes the main investigation in this save. The evidence remains recorded; this is not an exoneration."
+    }
+  ],
+  "endings": {
+    "arrest": {
+      "title": "ENDING / THE RECORD STANDS",
+      "text": "You initiate Holly's arrest and preserve the incident material and recorded statements. Her guilt is not replaced by a checkbox, and the arrest is not a court verdict. John's hiding address stays out of the report you give her. The missing-husband investigation is closed.",
+      "epilogue": "Your agency work remains available. Somewhere, a filing clerk discovers that \"marital complications\" does not fit in the standard incident field."
+    },
+    "release": {
+      "title": "ENDING / THE DOOR LEFT OPEN",
+      "text": "You let Holly leave instead of initiating her arrest. You keep the evidence and do not disclose John's hiding address. This does not clear her name or undo the attacks. The choice to let her go is yours, not John's. The missing-husband investigation is closed.",
+      "epilogue": "Your agency work remains available. The file closes; the consequences do not. There is no checkbox for that either."
+    }
+  }
+}

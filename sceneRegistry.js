@@ -2,7 +2,6 @@ export const SCENE_TIERS = {
   TIER_0: [
     'BootScene',
     'PreloaderScene',
-    'MenuScene',
     'SettingsScene',
     'EnterScene',
     'PlayerHudScene',
@@ -82,9 +81,6 @@ export const sceneRegistry = {
   PreloaderScene: () =>
     import('./scenes/PreloaderSceneWithKitchenAnimations.js')
       .then(m => m.PreloaderScene),
-
-  MenuScene: () =>
-    import('./scenes/MenuScene.js').then(m => m.MenuScene),
 
   SettingsScene: () =>
     import('./scenes/SettingsScene.js').then(m => m.SettingsScene),

@@ -7,151 +7,209 @@ import {
 
 const STYLE_ID = 'hud-standing-styles';
 
-function installStyles() {
-  if (document.getElementById(STYLE_ID)) {
-    return;
+const STANDING_CSS = `
+  #hud-container .hud-standing-row {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 12px 11px;
+    background: linear-gradient(
+      180deg,
+      #251810 0%,
+      #170e09 100%
+    );
+    border: 1px solid var(--hud-brass-dark, #5a4416);
+    border-radius: 3px;
+    box-shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 225, 150, 0.06);
+    color: var(--hud-text, #f1e4c3);
+    font-family: var(--hud-font-type, 'SpecialElite', Georgia, serif);
   }
 
-  const style = document.createElement('style');
+  #hud-container .hud-standing-stat {
+    min-width: 0;
+    outline: none;
+    cursor: help;
+  }
 
-  style.id = STYLE_ID;
+  #hud-container .hud-standing-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 7px;
+    line-height: 1.2;
+  }
 
-  style.textContent = `
+  #hud-container .hud-standing-label {
+    min-width: 0;
+    font-family: var(--hud-font-pixel, 'PressStart2P', monospace);
+    font-size: 7px;
+    letter-spacing: 0.5px;
+    color: var(--hud-muted, #a28970);
+    white-space: nowrap;
+  }
+
+  #hud-container .hud-standing-value {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: #fff7df;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+  }
+
+  #hud-container .hud-standing-track {
+    position: relative;
+    box-sizing: border-box;
+    height: 11px;
+    overflow: hidden;
+    border: 1px solid var(--hud-brass-dim, #8a6d1f);
+    border-radius: 2px;
+    background: #0d0805;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.75);
+  }
+
+  /* LED-segment overlay on top of the fills */
+  #hud-container .hud-standing-track::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0 6px,
+      rgba(0, 0, 0, 0.45) 6px 7px
+    );
+  }
+
+  #hud-container .hud-standing-fill {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    width: 0;
+    border-radius: 1px;
+    transition: width 280ms ease, left 280ms ease;
+  }
+
+  #hud-container .hud-standing-fame-fill {
+    left: 1px;
+    max-width: calc(100% - 2px);
+    background: linear-gradient(
+      180deg,
+      #f0d77a 0%,
+      #d4af37 55%,
+      #a98621 100%
+    );
+  }
+
+  #hud-container .hud-standing-integrity-fill {
+    left: 50%;
+    background: linear-gradient(
+      180deg,
+      #b9d9c9 0%,
+      #71988a 100%
+    );
+  }
+
+  #hud-container .hud-standing-integrity-fill.is-negative {
+    background: linear-gradient(
+      180deg,
+      #e0a58f 0%,
+      #a8503d 100%
+    );
+  }
+
+  #hud-container .hud-standing-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 3;
+    width: 1px;
+    pointer-events: none;
+    background: rgba(226, 211, 180, 0.35);
+  }
+
+  #hud-container .hud-standing-marker.is-center {
+    left: 50%;
+    background: rgba(245, 231, 204, 0.9);
+  }
+
+  #hud-container .hud-standing-marker.is-underworld {
+    left: 30%;
+  }
+
+  #hud-container .hud-standing-marker.is-police {
+    left: 70%;
+  }
+
+  #hud-container .hud-standing-status {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--hud-muted, #b6a88f);
+  }
+
+  #hud-container .hud-standing-stat:focus-visible {
+    outline: 2px solid var(--hud-brass, #d4af37);
+    outline-offset: 4px;
+  }
+
+  #hud-container.collapsed .hud-standing-row {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
     #hud-container .hud-standing-row {
-      box-sizing: border-box;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 20px;
-      width: 100%;
-      padding: 12px 16px 15px;
-      border-top: 1px solid rgba(166, 132, 80, 0.35);
-      background: linear-gradient(
-        180deg,
-        #291e16 0%,
-        #201810 100%
-      );
-      color: #e7d4ad;
-      font-family: 'SpecialElite', Georgia, serif;
-    }
-
-    #hud-container .hud-standing-stat {
-      min-width: 0;
-      outline: none;
-    }
-
-    #hud-container .hud-standing-heading {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 6px;
-      margin-bottom: 7px;
-      line-height: 1.2;
+      gap: 10px;
+      margin-top: 6px;
+      padding: 8px 8px 9px;
     }
 
     #hud-container .hud-standing-label {
-      min-width: 0;
-      font-size: 11px;
-      letter-spacing: 0.6px;
-      color: #cebb98;
-      white-space: nowrap;
+      font-size: 6px;
     }
 
     #hud-container .hud-standing-value {
-      flex-shrink: 0;
       font-size: 12px;
-      font-variant-numeric: tabular-nums;
-      color: #ead6a7;
-      white-space: nowrap;
     }
 
     #hud-container .hud-standing-track {
-      position: relative;
-      box-sizing: border-box;
       height: 9px;
-      overflow: hidden;
-      border: 1px solid #715736;
-      border-radius: 3px;
-      background: #110e0a;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.65);
-    }
-
-    #hud-container .hud-standing-fill {
-      position: absolute;
-      top: 1px;
-      bottom: 1px;
-      width: 0;
-      border-radius: 1px;
-    }
-
-    #hud-container .hud-standing-fame-fill {
-      left: 1px;
-      max-width: calc(100% - 2px);
-      background: linear-gradient(
-        180deg,
-        #e0c58c 0%,
-        #b08b4f 100%
-      );
-    }
-
-    #hud-container .hud-standing-integrity-fill {
-      left: 50%;
-      background: linear-gradient(
-        180deg,
-        #b0c6b9 0%,
-        #71988a 100%
-      );
-    }
-
-    #hud-container .hud-standing-integrity-fill.is-negative {
-      background: linear-gradient(
-        180deg,
-        #d2a08d 0%,
-        #a36b5d 100%
-      );
-    }
-
-    #hud-container .hud-standing-marker {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      z-index: 1;
-      width: 1px;
-      pointer-events: none;
-      background: rgba(226, 211, 180, 0.35);
-    }
-
-    #hud-container .hud-standing-marker.is-center {
-      left: 50%;
-      background: rgba(245, 231, 204, 0.85);
-    }
-
-    #hud-container .hud-standing-marker.is-underworld {
-      left: 30%;
-    }
-
-    #hud-container .hud-standing-marker.is-police {
-      left: 70%;
     }
 
     #hud-container .hud-standing-status {
-      display: block;
-      margin-top: 6px;
       font-size: 10px;
-      line-height: 1.3;
-      color: #b6a88f;
     }
+  }
 
-    #hud-container .hud-standing-stat:focus-visible {
-      outline: 1px solid #d1ad6c;
-      outline-offset: 4px;
+  @media (prefers-reduced-motion: reduce) {
+    #hud-container .hud-standing-fill {
+      transition: none;
     }
+  }
+`;
 
-    #hud-container.collapsed .hud-standing-row {
-      display: none;
-    }
-  `;
+function installStyles() {
+  let style = document.getElementById(STYLE_ID);
 
-  document.head.appendChild(style);
+  if (!style) {
+    style = document.createElement('style');
+    style.id = STYLE_ID;
+    document.head.appendChild(style);
+  }
+
+  // Aktualizujemy zawartość także dla istniejącego <style>,
+  // żeby zmiany były widoczne po hot-reloadzie.
+  if (style.textContent !== STANDING_CSS) {
+    style.textContent = STANDING_CSS;
+  }
 }
 
 function clamp(value, min, max) {
@@ -368,9 +426,9 @@ export function createHudStanding(
 
     integrityValue.style.color =
       integrity > 0
-        ? '#b0c6b9'
+        ? '#b9d9c9'
         : integrity < 0
-          ? '#d2a08d'
+          ? '#e0a58f'
           : '#d3c4a9';
 
     fameMeter.setAttribute(

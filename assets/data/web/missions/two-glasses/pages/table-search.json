@@ -5,7 +5,7 @@
       "title": "Why are there two glasses at my place setting?",
       "address": "www.tablematters.local/service/two-glasses",
       "brand": "TABLE MATTERS",
-      "theme": "business",
+      "theme": "magazine",
       "snippet": "Water glass, wine glass, mystery glass: a short guide to finding your drink.",
       "blocks": [
         [
@@ -21,7 +21,14 @@
           "If neither glass contains your drink, try asking the waiter. Staring meaningfully at the table remains an experimental technique."
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "lifestyle",
+      "layout": "editorial",
+      "imageKey": "reed_web_table_matters",
+      "imageUrl": "assets/side_quests/Reed/web/news/table_matters_two_glasses.webp",
+      "imageCaption": "Two glasses / Table Matters",
+      "category": "DINING / TABLE SETTINGS",
+      "showImage": true
     },
     {
       "id": "two_glasses_shop",
@@ -44,7 +51,13 @@
           "Price: £18 per pair. Wine not included. A surprisingly common source of disappointment."
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "business",
+      "imageKey": "reed_web_toast_rack",
+      "imageUrl": "assets/side_quests/Reed/web/news/toast_rack_two_glasses_gift_box.webp",
+      "imageCaption": "A boxed pair / The Toast Rack",
+      "sectionLabel": "SHOP / GLASSWARE",
+      "showImage": true
     },
     {
       "id": "two_glasses_specs",
@@ -70,7 +83,12 @@
           "MODERATOR: “For drinking glasses, please use the homeware section. This is the third time this week.”"
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "forum",
+      "imageKey": "reed_web_spare_pair_attachment",
+      "imageUrl": "assets/side_quests/Reed/web/news/spare_pair_two_glasses.webp",
+      "imageCaption": "Two pairs / Archived thread attachment",
+      "showImage": true
     }
   ]
 }

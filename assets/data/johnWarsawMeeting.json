@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "title": "WARSAW / A PRIVATE ENQUIRY",
+  "cityId": "warsaw",
+  "contactReference": "WAW-17",
+  "requiredFlags": [
+    "john_microfilm_compared",
+    "john_warsaw_lead_unlocked"
+  ],
+  "briefing": "The retained contact amendment names Warsaw and reference WAW-17. Follow this private lead without changing your agency assignment.",
+  "arrival": "Warsaw. The contact reference leads to a discreet message desk. No agency badge on the counter. No names in the visitors' book.",
+  "contactPrompt": "The keeper slides a blank card across the counter. \"Reference? And please do not write classified. We already have a drawer full of those.\"",
+  "contactChoices": [
+    {
+      "id": "mission",
+      "label": "JM-041",
+      "correct": false,
+      "reply": "\"A mission number is not a contact reference. Different drawer. Same dust.\""
+    },
+    {
+      "id": "contact",
+      "label": "WAW-17",
+      "correct": true,
+      "reply": "\"That reference is still active. Someone wants to know what you actually found.\""
+    },
+    {
+      "id": "food",
+      "label": "I was promised pierogi.",
+      "correct": false,
+      "reply": "\"That is not a reference. It is, however, the most reasonable request today.\""
+    }
+  ],
+  "verificationPrompt": "A handwritten question arrives: \"What happened to the scheduled route in the missing radio instructions?\"",
+  "verificationChoices": [
+    {
+      "id": "unchanged",
+      "label": "The scheduled route was confirmed.",
+      "correct": false,
+      "reply": "The keeper returns the card. \"Read your source again. Nobody is charging by the attempt.\""
+    },
+    {
+      "id": "alternate",
+      "label": "Control ordered the alternate approach.",
+      "correct": true,
+      "reply": "The keeper folds the answer. \"Wait. Quietly is optional, but recommended.\""
+    },
+    {
+      "id": "murder",
+      "label": "Control confirmed a murder.",
+      "correct": false,
+      "reply": "That is not in the reconstructed transcript. An accusation is not a missing instruction."
+    }
+  ],
+  "johnLines": [
+    "You found the amendment. I was beginning to think the filing system had buried me more effectively than the crash.",
+    "Yes. I am John. I arranged my disappearance. Being recorded as dead seemed safer than remaining easy to find.",
+    "You have the route change and the retained contact reference. Keep the originals. Someone is going to tell you that you misunderstood them.",
+    "I will not give you a convenient name to put in a report. Check my account independently first. Until then, do not disclose this contact."
+  ],
+  "success": "You met John in Warsaw. He confirms arranging his disappearance and asks you to verify his account independently. No perpetrator has been established by this meeting.",
+  "messages": {
+    "saveFailed": "Saving failed. Progress remains in memory; save manually before closing.",
+    "loadFailed": "The Warsaw enquiry could not be opened.",
+    "complete": "John found in Warsaw. Next: independently verify his account."
+  }
+}

@@ -1,0 +1,614 @@
+{
+  "mode": "fix",
+  "createdAt": "2026-11-07T03:40:26.951Z",
+  "filesRead": [
+    "assets/data/piSearch.json",
+    "assets/data/web/missions/dead-men-calling/mission.json",
+    "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+    "assets/data/web/missions/dead-men-calling/pages/news.json",
+    "assets/data/web/missions/two-glasses/mission.json",
+    "assets/data/web/missions/two-glasses/pages/hotels.json",
+    "assets/data/web/missions/two-glasses/pages/organisations.json",
+    "assets/data/web/missions/two-glasses/pages/news.json",
+    "assets/data/web/missions/two-glasses/pages/social.json",
+    "assets/data/web/missions/two-glasses/pages/table-search.json",
+    "assets/data/web/missions/two-glasses/pages/jacket-search.json",
+    "assets/data/web/missions/two-glasses/pages/miramar-search.json",
+    "assets/data/web/missions/two-glasses/pages/coral-search.json",
+    "assets/data/web/missions/two-glasses/pages/mariner-search.json"
+  ],
+  "changedFiles": [
+    "assets/data/piSearch.json",
+    "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+    "assets/data/web/missions/dead-men-calling/pages/news.json",
+    "assets/data/web/missions/two-glasses/pages/hotels.json",
+    "assets/data/web/missions/two-glasses/pages/organisations.json",
+    "assets/data/web/missions/two-glasses/pages/news.json",
+    "assets/data/web/missions/two-glasses/pages/miramar-search.json",
+    "assets/data/web/missions/two-glasses/pages/coral-search.json",
+    "assets/data/web/missions/two-glasses/pages/mariner-search.json",
+    "ui/pi-computer/WebsiteNavigation.js",
+    "ui/pi-computer/BusinessPageTemplate.js",
+    "ui/pi-computer/OrganisationPageTemplate.js",
+    "ui/pi-computer/ComputerSearchPages.js"
+  ],
+  "websites": [
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "miramar.local",
+      "pages": [
+        "miramar",
+        "miramar_event",
+        "miramar_meetings",
+        "miramar_terrace",
+        "miramar_guest_faq"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Journal",
+          "pageId": "miramar_event"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
+        }
+      ],
+      "changedPages": [
+        "miramar",
+        "miramar_event",
+        "miramar_meetings",
+        "miramar_terrace",
+        "miramar_guest_faq"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "mariner.local",
+      "pages": [
+        "mariner",
+        "mariner_events",
+        "mariner_breakfast",
+        "mariner_guest_faq"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "mariner"
+        },
+        {
+          "label": "What's on",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
+        }
+      ],
+      "changedPages": [
+        "mariner",
+        "mariner_events",
+        "mariner_breakfast",
+        "mariner_guest_faq"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "coralcrown.local",
+      "pages": [
+        "coral",
+        "coral_events",
+        "coral_family_stays",
+        "coral_pool_questions"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "coral"
+        },
+        {
+          "label": "Functions",
+          "pageId": "coral_events"
+        },
+        {
+          "label": "Family stays",
+          "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
+        }
+      ],
+      "changedPages": [
+        "coral",
+        "coral_events",
+        "coral_family_stays",
+        "coral_pool_questions"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "openskies.local",
+      "pages": [
+        "organisation",
+        "events",
+        "gallery",
+        "team",
+        "contact"
+      ],
+      "menu": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "changedPages": [
+        "organisation",
+        "events",
+        "gallery",
+        "team",
+        "contact"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "communityledger.local",
+      "pages": [
+        "claire_work",
+        "nora_work"
+      ],
+      "menu": [
+        {
+          "label": "Volunteers build stronger local partnerships",
+          "pageId": "claire_work"
+        },
+        {
+          "label": "Small grants, practical results",
+          "pageId": "nora_work"
+        }
+      ],
+      "changedPages": [
+        "claire_work",
+        "nora_work"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:miramar_demo",
+      "host": "coastlineguide.local",
+      "pages": [
+        "miramar_coast_guide",
+        "coral_coast_listing"
+      ],
+      "menu": [
+        {
+          "label": "Hotel Miramar",
+          "pageId": "miramar_coast_guide"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral_coast_listing"
+        }
+      ],
+      "changedPages": [
+        "miramar_coast_guide",
+        "coral_coast_listing"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:dead_men_calling",
+      "host": "valefamily.local",
+      "pages": [
+        "dm_memorial",
+        "dm_family_contact"
+      ],
+      "menu": [
+        {
+          "label": "Remembering Edward",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Family contact",
+          "pageId": "dm_family_contact"
+        }
+      ],
+      "changedPages": [
+        "dm_memorial",
+        "dm_family_contact"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:dead_men_calling",
+      "host": "merceraudio.local",
+      "pages": [
+        "dm_mercer_home",
+        "dm_mercer_contact",
+        "dm_mercer_services"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "dm_mercer_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_mercer_contact"
+        },
+        {
+          "label": "Services",
+          "pageId": "dm_mercer_services"
+        }
+      ],
+      "changedPages": [
+        "dm_mercer_home",
+        "dm_mercer_contact",
+        "dm_mercer_services"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:dead_men_calling",
+      "host": "wardconsulting.local",
+      "pages": [
+        "dm_ward_home",
+        "dm_ward_contact"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "dm_ward_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_ward_contact"
+        }
+      ],
+      "changedPages": [
+        "dm_ward_home",
+        "dm_ward_contact"
+      ]
+    },
+    {
+      "source": "assets/data/piSearch.json:dead_men_calling",
+      "host": "communityledger.local",
+      "pages": [
+        "dm_audio_article",
+        "dm_folder_article"
+      ],
+      "menu": [
+        {
+          "label": "Keeping a useful voicemail archive",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "When a reconciliation needs another look",
+          "pageId": "dm_folder_article"
+        }
+      ],
+      "changedPages": [
+        "dm_audio_article",
+        "dm_folder_article"
+      ]
+    },
+    {
+      "source": "dead_men_calling",
+      "host": "valefamily.local",
+      "pages": [
+        "dm_memorial",
+        "dm_family_contact"
+      ],
+      "menu": [
+        {
+          "label": "Remembering Edward",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Family contact",
+          "pageId": "dm_family_contact"
+        }
+      ],
+      "changedPages": [
+        "dm_memorial",
+        "dm_family_contact"
+      ]
+    },
+    {
+      "source": "dead_men_calling",
+      "host": "merceraudio.local",
+      "pages": [
+        "dm_mercer_home",
+        "dm_mercer_contact",
+        "dm_mercer_services"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "dm_mercer_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_mercer_contact"
+        },
+        {
+          "label": "Services",
+          "pageId": "dm_mercer_services"
+        }
+      ],
+      "changedPages": [
+        "dm_mercer_home",
+        "dm_mercer_contact",
+        "dm_mercer_services"
+      ]
+    },
+    {
+      "source": "dead_men_calling",
+      "host": "wardconsulting.local",
+      "pages": [
+        "dm_ward_home",
+        "dm_ward_contact"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "dm_ward_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_ward_contact"
+        }
+      ],
+      "changedPages": [
+        "dm_ward_home",
+        "dm_ward_contact"
+      ]
+    },
+    {
+      "source": "dead_men_calling",
+      "host": "communityledger.local",
+      "pages": [
+        "dm_audio_article",
+        "dm_folder_article"
+      ],
+      "menu": [
+        {
+          "label": "Keeping a useful voicemail archive",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "When a reconciliation needs another look",
+          "pageId": "dm_folder_article"
+        }
+      ],
+      "changedPages": [
+        "dm_audio_article",
+        "dm_folder_article"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "miramar.local",
+      "pages": [
+        "miramar",
+        "miramar_event",
+        "miramar_meetings",
+        "miramar_terrace",
+        "miramar_guest_faq"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "miramar"
+        },
+        {
+          "label": "Journal",
+          "pageId": "miramar_event"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
+        }
+      ],
+      "changedPages": [
+        "miramar",
+        "miramar_event",
+        "miramar_meetings",
+        "miramar_terrace",
+        "miramar_guest_faq"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "mariner.local",
+      "pages": [
+        "mariner",
+        "mariner_events",
+        "mariner_breakfast",
+        "mariner_guest_faq"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "mariner"
+        },
+        {
+          "label": "What's on",
+          "pageId": "mariner_events"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
+        },
+        {
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
+        }
+      ],
+      "changedPages": [
+        "mariner",
+        "mariner_events",
+        "mariner_breakfast",
+        "mariner_guest_faq"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "coralcrown.local",
+      "pages": [
+        "coral",
+        "coral_events",
+        "coral_family_stays",
+        "coral_pool_questions"
+      ],
+      "menu": [
+        {
+          "label": "Home",
+          "pageId": "coral"
+        },
+        {
+          "label": "Functions",
+          "pageId": "coral_events"
+        },
+        {
+          "label": "Family stays",
+          "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
+        }
+      ],
+      "changedPages": [
+        "coral",
+        "coral_events",
+        "coral_family_stays",
+        "coral_pool_questions"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "openskies.local",
+      "pages": [
+        "organisation",
+        "events",
+        "gallery",
+        "team",
+        "contact"
+      ],
+      "menu": [
+        {
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
+        }
+      ],
+      "changedPages": [
+        "organisation",
+        "events",
+        "gallery",
+        "team",
+        "contact"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "communityledger.local",
+      "pages": [
+        "claire_work",
+        "nora_work"
+      ],
+      "menu": [
+        {
+          "label": "Volunteers build stronger local partnerships",
+          "pageId": "claire_work"
+        },
+        {
+          "label": "Small grants, practical results",
+          "pageId": "nora_work"
+        }
+      ],
+      "changedPages": [
+        "claire_work",
+        "nora_work"
+      ]
+    },
+    {
+      "source": "miramar_demo",
+      "host": "coastlineguide.local",
+      "pages": [
+        "miramar_coast_guide",
+        "coral_coast_listing"
+      ],
+      "menu": [
+        {
+          "label": "Hotel Miramar",
+          "pageId": "miramar_coast_guide"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral_coast_listing"
+        }
+      ],
+      "changedPages": [
+        "miramar_coast_guide",
+        "coral_coast_listing"
+      ]
+    }
+  ],
+  "brokenLinks": [],
+  "warnings": [
+    "Social profiles, directories and forums were not merged into a shared domain-wide menu.",
+    "Pages generated dynamically by JavaScript are not rewritten by this data-file maintenance script."
+  ]
+}

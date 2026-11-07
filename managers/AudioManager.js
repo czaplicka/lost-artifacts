@@ -5,12 +5,49 @@ const STORAGE = {
 const DEFAULTS = { MUSIC: 0.2, SFX: 0.8, MUTED: false };
 const AUDIO_HOST_KEY = '__LostArtifactsAudioHost';
 const BACKGROUND_KEYS = new Set(['themeMusic', 'themeGame']);
-export const JUKEBOX_TRACKS = Object.freeze([
-  { id: 'The_Second_Alibi', title: 'The Second Alibi' },
-  { id: 'Rain_Against_the_Windowpane', title: 'Rain Against the Windowpane' },
-  { id: 'A_Matchbox_Left_Behind', title: 'A Matchbox Left Behind' }
-].map(track => Object.freeze({ ...track, key: `jukebox_${track.id}`,
-  url: `assets/audio/music/${track.id}.mp3` })));
+const CATALOG_URL = new URL('../assets/audio/music/tracks.json', import.meta.url);
+let catalogError = '';
+
+async function loadJukeboxCatalog() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(CATALOG_URL, {
+      cache: 'no-cache', signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('Expected a non-empty array of tracks.');
+    }
+    const used = new Set();
+    return Object.freeze(data.map((track, index) => {
+      if (!track || typeof track.id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(track.id)) {
+        throw new Error(`Track ${index + 1}: id must contain only letters, numbers, underscores or hyphens.`);
+      }
+      if (used.has(track.id)) throw new Error(`Duplicate track id: ${track.id}`);
+      if (typeof track.title !== 'string' || !track.title.trim()) {
+        throw new Error(`Track ${index + 1}: title is required.`);
+      }
+      used.add(track.id);
+      return Object.freeze({
+        id: track.id,
+        title: track.title.trim(),
+        key: `jukebox_${track.id}`,
+        url: new URL(`${encodeURIComponent(track.id)}.mp3`, CATALOG_URL).href
+      });
+    }));
+  } catch (error) {
+    catalogError = `Cannot load assets/audio/music/tracks.json: ${error.name === 'AbortError' ? 'request timed out' : error.message}`;
+    console.error('[Jukebox]', catalogError);
+    return Object.freeze([]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export const JUKEBOX_TRACKS = await loadJukeboxCatalog();
+
 function safeGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
 function safeSet(key, value) { try { localStorage.setItem(key, value); } catch {} }
 function clamp01(value) {
@@ -38,10 +75,10 @@ class AudioManager {
     this._sceneBindings = new Map(); this._soundOwners = new WeakMap();
     this._destroyingSounds = new WeakSet(); this._audioHost = null; this._hostRequested = false;
     this._boundGameDestroy = () => this._destroyForGame();
-    this.selectedTrack = JUKEBOX_TRACKS.find(t => t.id === safeGet(STORAGE.TRACK))?.id || JUKEBOX_TRACKS[0].id;
+    this.selectedTrack = JUKEBOX_TRACKS.find(t => t.id === safeGet(STORAGE.TRACK))?.id || JUKEBOX_TRACKS[0]?.id || null;
     const mode = safeGet(STORAGE.MODE);
     this.jukeboxMode = ['playing', 'paused', 'stopped'].includes(mode) ? mode : 'playing';
-    this.jukeboxStatus = 'stopped'; this.jukeboxError = '';
+    this.jukeboxStatus = catalogError ? 'error' : 'stopped'; this.jukeboxError = catalogError;
     this._requestId = 0; this._loads = new Map(); this._loadCancels = new Set();
     this._jukeboxTask = null;
   }
@@ -266,7 +303,7 @@ class AudioManager {
   stopPersistentLoop(key) { this.stopAmbient(key); }
   stopAllMusic() {
     ++this._requestId; this._jukeboxTask = null;
-    this._stopAllStored(this.activeMusic); this.jukeboxStatus = 'stopped';
+    this._stopAllStored(this.activeMusic); this.jukeboxStatus = catalogError ? 'error' : 'stopped';
   }
   stopAllAmbient() { this._stopAllStored(this.activeAmbient); }
   stopAllPersistent() { this.stopAllAmbient(); }
@@ -333,17 +370,20 @@ class AudioManager {
     return promise;
   }
   ensureJukebox() {
-    if (this.jukeboxMode !== 'playing' || this._jukeboxSound()?.isPlaying || this._jukeboxTask || this.jukeboxStatus === 'error') return;
+    if (!JUKEBOX_TRACKS.length || this.jukeboxMode !== 'playing' || this._jukeboxSound()?.isPlaying || this._jukeboxTask || this.jukeboxStatus === 'error') return;
     this.playJukebox(this.selectedTrack).catch(error => console.warn('[Jukebox]', error));
   }
   playJukebox(id = this.selectedTrack) {
+    if (catalogError) {
+      this.jukeboxStatus = 'error'; this.jukeboxError = catalogError;
+      return Promise.reject(new Error(catalogError));
+    }
     const track = JUKEBOX_TRACKS.find(t => t.id === id);
     if (!track) return Promise.reject(new Error(`Unknown jukebox track: ${id}`));
     if (!this.game) return Promise.reject(new Error('Initialize AudioManager first.'));
     const request = ++this._requestId, game = this.game;
     this.selectedTrack = id; safeSet(STORAGE.TRACK, id);
     this._setJukeboxMode('playing'); this.jukeboxError = ''; this.jukeboxStatus = 'loading';
-    // Remove the old background keys, including any sounds created before this update.
     for (const key of BACKGROUND_KEYS) {
       this._stopStored(this.activeMusic, key); game.sound.stopByKey(key);
     }
@@ -369,12 +409,12 @@ class AudioManager {
   }
   pauseJukebox() {
     ++this._requestId; this._jukeboxTask = null; this._setJukeboxMode('paused');
-    this._jukeboxSound()?.pause(); this.jukeboxStatus = 'paused';
+    this._jukeboxSound()?.pause(); this.jukeboxStatus = catalogError ? 'error' : 'paused';
   }
   stopJukebox() {
     ++this._requestId; this._jukeboxTask = null; this._setJukeboxMode('stopped');
     for (const track of JUKEBOX_TRACKS) this._stopStored(this.activeMusic, track.key);
-    this.jukeboxStatus = 'stopped'; this.jukeboxError = '';
+    this.jukeboxStatus = catalogError ? 'error' : 'stopped'; this.jukeboxError = catalogError;
   }
   _destroyForGame() {
     this._stopAllTweens(); this.stopAllMusic(); this.stopAllNonMusic();

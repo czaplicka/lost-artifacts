@@ -6,7 +6,6 @@ const INITIAL = new Set([
   'BootScene',
   'PreloaderScene',
   'EnterScene',
-  'MenuScene',
   'SettingsScene'
 ]);
 

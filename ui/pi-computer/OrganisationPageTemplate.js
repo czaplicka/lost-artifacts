@@ -1,3 +1,4 @@
+import { drawWebsiteNavigation } from './WebsiteNavigation.js';
 import { REED_GALLERY_PHOTOS } from './ReedGalleryViewer.js';
 
 const THEMES = {
@@ -79,26 +80,46 @@ export function renderOrganisation(search, page, kind) {
     fit(sx+lw+23,hy+(compact?17:21),brand,sw-lw-38,compact?14:19,css(p.dark),true);
     fit(sx+lw+23,hy+hh-28,page.tagline||p.label,sw-lw-38,compact?10:12,'#718084');
 
-    const cy=hy+hh+gap, footerY=b.y+b.h-35;
-    const ch=footerY-cy-gap;
-    if(ch<70){fit(sx+8,cy,'Enlarge the game window to read this page.',sw-16,12);return;}
-    const viewer=ui.photoQuest?.galleryViewer;
-    const reedGallery=page.id==='gallery' && search.definition.id==='miramar_demo' && viewer && !viewer.dead;
-    const sidebar=b.w>=720 && ch>=170 && !reedGallery;
-    const railW=sidebar?Math.min(190,Math.floor(sw*.24)):0;
-    const mainX=sx+(sidebar?railW+gap:0);
-    const mainW=sw-(sidebar?railW+gap:0);
-    const links=page.links||[];
-    if(sidebar){
-        d.bevel(sx,cy,railW,ch,p.light);
-        d.rectangle(sx+6,cy+6,railW-12,27,p.dark);
-        fit(sx+15,cy+15,'EXPLORE',railW-30,8,'#f6eed6',true);
-        const slots=Math.max(0,Math.floor((ch-52)/35));
-        links.slice(0,slots).forEach((link,i)=>{
-            button(sx+8,cy+43+i*35,railW-16,29,link.label,()=>search.openPage(link.pageId),true,link.pageId===page.id);
-        });
-        if(!links.length)fit(sx+14,cy+48,'PUBLIC INFORMATION',railW-28,8,css(p.dark),true);
+    const navigationHeight = drawWebsiteNavigation(
+        search,
+        page,
+        {
+            x: sx,
+            y: hy + hh + gap,
+            width: sw,
+            button,
+            background: p.light
+        }
+    );
+
+    const cy = hy + hh + gap +
+        navigationHeight + gap;
+
+    const footerY = b.y + b.h - 35;
+    const ch = footerY - cy - gap;
+
+    if (ch < 70) {
+        fit(
+            sx + 8,
+            cy,
+            'Enlarge the game window to read this page.',
+            sw - 16,
+            12
+        );
+        return;
     }
+
+    const viewer = ui.photoQuest?.galleryViewer;
+
+    const reedGallery =
+        page.id === 'gallery' &&
+        search.definition.id === 'miramar_demo' &&
+        viewer &&
+        !viewer.dead;
+
+    const mainX = sx;
+    const mainW = sw;
+
     d.bevel(mainX,cy,mainW,ch,0xf9f8ef,true);
     if (reedGallery) {
         viewer.page = page;

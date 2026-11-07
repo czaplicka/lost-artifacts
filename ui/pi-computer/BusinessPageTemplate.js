@@ -1,3 +1,4 @@
+import { drawWebsiteNavigation } from './WebsiteNavigation.js';
 import {
   isForumPage,
   renderForum
@@ -733,66 +734,22 @@ function renderBusiness(search, page, kind) {
   const navigationY =
     headerY + headerH + 6;
 
-  drawing.rectangle(
-    sectionX,
-    navigationY,
-    sectionW,
-    31,
-    palette.navigationColor
-  );
-
   const links = page.links || [];
 
-  const visibleLinks = links.slice(
-    0,
-    Math.max(
-      1,
-      Math.min(
-        4,
-        Math.floor(sectionW / 115)
-      )
-    )
+  const navigationHeight = drawWebsiteNavigation(
+    search,
+    page,
+    {
+      x: sectionX,
+      y: navigationY,
+      width: sectionW,
+      button,
+      background: palette.navigationColor
+    }
   );
-
-  const navigationWidth = Math.min(
-    160,
-    Math.floor(
-      (sectionW - 8) /
-      Math.max(1, visibleLinks.length)
-    ) - 4
-  );
-
-  let navigationX = sectionX + 4;
-
-  for (const link of visibleLinks) {
-    button(
-      navigationX,
-      navigationY + 2,
-      navigationWidth,
-      26,
-      link.label,
-      () => search.openPage(link.pageId),
-      true,
-      link.pageId === page.id
-    );
-
-    navigationX += navigationWidth + 4;
-  }
-
-  if (!links.length) {
-    fit(
-      sectionX + 12,
-      navigationY + 10,
-      palette.navigation,
-      sectionW - 24,
-      8,
-      css(palette.dark),
-      true
-    );
-  }
 
   const contentY =
-    navigationY + 31 + gap;
+    navigationY + navigationHeight + gap;
 
   const footerY =
     bounds.y + bounds.h - 35;

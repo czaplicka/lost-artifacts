@@ -2,7 +2,7 @@
   "assets": [
     {
       "key": "aa",
-      "url": "assets/suspects/aa.jpg",
+      "url": "assets/suspects/aa.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -10,7 +10,7 @@
     },
     {
       "key": "ab",
-      "url": "assets/suspects/ab.jpg",
+      "url": "assets/suspects/ab.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -18,7 +18,7 @@
     },
     {
       "key": "ai",
-      "url": "assets/suspects/ai.jpg",
+      "url": "assets/suspects/ai.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -26,7 +26,7 @@
     },
     {
       "key": "aj",
-      "url": "assets/suspects/aj.jpg",
+      "url": "assets/suspects/aj.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -34,7 +34,7 @@
     },
     {
       "key": "albert_johnson",
-      "url": "assets/suspects/albert_johnson.jpg",
+      "url": "assets/suspects/albert_johnson.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -42,7 +42,7 @@
     },
     {
       "key": "aleksander_petrov",
-      "url": "assets/suspects/aleksander_petrov.jpg",
+      "url": "assets/suspects/aleksander_petrov.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -50,7 +50,7 @@
     },
     {
       "key": "alexandra_ivanova",
-      "url": "assets/suspects/alexandra_ivanova.jpg",
+      "url": "assets/suspects/alexandra_ivanova.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -58,7 +58,7 @@
     },
     {
       "key": "anna_bocian",
-      "url": "assets/suspects/anna_bocian.jpg",
+      "url": "assets/suspects/anna_bocian.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -66,7 +66,7 @@
     },
     {
       "key": "anne_apple",
-      "url": "assets/suspects/anne_apple.jpg",
+      "url": "assets/suspects/anne_apple.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -74,7 +74,7 @@
     },
     {
       "key": "ap",
-      "url": "assets/suspects/ap.jpg",
+      "url": "assets/suspects/ap.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -82,7 +82,7 @@
     },
     {
       "key": "at",
-      "url": "assets/suspects/at.jpg",
+      "url": "assets/suspects/at.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -90,7 +90,7 @@
     },
     {
       "key": "ava_thompson",
-      "url": "assets/suspects/ava_thompson.jpg",
+      "url": "assets/suspects/ava_thompson.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -98,7 +98,7 @@
     },
     {
       "key": "bai_williams",
-      "url": "assets/suspects/bai_williams.jpg",
+      "url": "assets/suspects/bai_williams.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -106,7 +106,7 @@
     },
     {
       "key": "bernard_porter",
-      "url": "assets/suspects/bernard_porter.jpg",
+      "url": "assets/suspects/bernard_porter.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -114,7 +114,7 @@
     },
     {
       "key": "bert_goodman",
-      "url": "assets/suspects/bert_goodman.jpg",
+      "url": "assets/suspects/bert_goodman.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -122,7 +122,7 @@
     },
     {
       "key": "bg",
-      "url": "assets/suspects/bg.jpg",
+      "url": "assets/suspects/bg.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -130,7 +130,7 @@
     },
     {
       "key": "bp",
-      "url": "assets/suspects/bp.jpg",
+      "url": "assets/suspects/bp.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -138,7 +138,7 @@
     },
     {
       "key": "br",
-      "url": "assets/suspects/br.jpg",
+      "url": "assets/suspects/br.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -146,7 +146,7 @@
     },
     {
       "key": "brendan_ross",
-      "url": "assets/suspects/brendan_ross.jpg",
+      "url": "assets/suspects/brendan_ross.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -154,7 +154,7 @@
     },
     {
       "key": "bw",
-      "url": "assets/suspects/bw.jpg",
+      "url": "assets/suspects/bw.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -162,7 +162,7 @@
     },
     {
       "key": "fg",
-      "url": "assets/suspects/fg.jpg",
+      "url": "assets/suspects/fg.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -170,7 +170,7 @@
     },
     {
       "key": "frank_groot",
-      "url": "assets/suspects/frank_groot.jpg",
+      "url": "assets/suspects/frank_groot.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -178,7 +178,7 @@
     },
     {
       "key": "garett_gutter",
-      "url": "assets/suspects/garett_gutter.jpg",
+      "url": "assets/suspects/garett_gutter.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -186,7 +186,7 @@
     },
     {
       "key": "gg",
-      "url": "assets/suspects/gg.jpg",
+      "url": "assets/suspects/gg.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -194,7 +194,7 @@
     },
     {
       "key": "ir",
-      "url": "assets/suspects/ir.jpg",
+      "url": "assets/suspects/ir.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -202,7 +202,7 @@
     },
     {
       "key": "isabella_rossi",
-      "url": "assets/suspects/isabella_rossi.jpg",
+      "url": "assets/suspects/isabella_rossi.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -210,7 +210,7 @@
     },
     {
       "key": "jacek_kowalski",
-      "url": "assets/suspects/jacek_kowalski.jpg",
+      "url": "assets/suspects/jacek_kowalski.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -218,7 +218,7 @@
     },
     {
       "key": "jk",
-      "url": "assets/suspects/jk.jpg",
+      "url": "assets/suspects/jk.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -226,7 +226,7 @@
     },
     {
       "key": "lc",
-      "url": "assets/suspects/lc.jpg",
+      "url": "assets/suspects/lc.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -234,7 +234,7 @@
     },
     {
       "key": "liam_oconnor",
-      "url": "assets/suspects/liam_oconnor.jpg",
+      "url": "assets/suspects/liam_oconnor.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -242,7 +242,7 @@
     },
     {
       "key": "lo",
-      "url": "assets/suspects/lo.jpg",
+      "url": "assets/suspects/lo.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -250,7 +250,7 @@
     },
     {
       "key": "lotte_chantal",
-      "url": "assets/suspects/lotte_chantal.jpg",
+      "url": "assets/suspects/lotte_chantal.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -258,7 +258,7 @@
     },
     {
       "key": "marie_dubois",
-      "url": "assets/suspects/marie_dubois.jpg",
+      "url": "assets/suspects/marie_dubois.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -266,7 +266,7 @@
     },
     {
       "key": "maximilian_schmidt",
-      "url": "assets/suspects/maximilian_schmidt.jpg",
+      "url": "assets/suspects/maximilian_schmidt.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -274,7 +274,7 @@
     },
     {
       "key": "md",
-      "url": "assets/suspects/md.jpg",
+      "url": "assets/suspects/md.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -282,7 +282,7 @@
     },
     {
       "key": "ms",
-      "url": "assets/suspects/ms.jpg",
+      "url": "assets/suspects/ms.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -290,7 +290,7 @@
     },
     {
       "key": "pablo_fernandez",
-      "url": "assets/suspects/pablo_fernandez.jpg",
+      "url": "assets/suspects/pablo_fernandez.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -298,7 +298,7 @@
     },
     {
       "key": "pf",
-      "url": "assets/suspects/pf.jpg",
+      "url": "assets/suspects/pf.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -306,7 +306,7 @@
     },
     {
       "key": "rebecca_muller",
-      "url": "assets/suspects/rebecca_muller.jpg",
+      "url": "assets/suspects/rebecca_muller.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -314,7 +314,7 @@
     },
     {
       "key": "rm",
-      "url": "assets/suspects/rm.jpg",
+      "url": "assets/suspects/rm.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -322,7 +322,7 @@
     },
     {
       "key": "sergei_petrov",
-      "url": "assets/suspects/sergei_petrov.jpg",
+      "url": "assets/suspects/sergei_petrov.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -330,7 +330,7 @@
     },
     {
       "key": "sofia_vargas",
-      "url": "assets/suspects/sofia_vargas.jpg",
+      "url": "assets/suspects/sofia_vargas.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -338,7 +338,7 @@
     },
     {
       "key": "sp",
-      "url": "assets/suspects/sp.jpg",
+      "url": "assets/suspects/sp.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -346,7 +346,7 @@
     },
     {
       "key": "sv",
-      "url": "assets/suspects/sv.jpg",
+      "url": "assets/suspects/sv.webp",
       "type": "image",
       "groups": [
         "suspectThumbnails"
@@ -354,7 +354,7 @@
     },
     {
       "key": "unknown",
-      "url": "assets/suspects/unknown.jpg",
+      "url": "assets/suspects/unknown.webp",
       "type": "image",
       "groups": [
         "suspects"
@@ -362,7 +362,7 @@
     },
     {
       "key": "wanted_albert_johnson",
-      "url": "assets/suspects/18.jpg",
+      "url": "assets/suspects/18.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -370,7 +370,7 @@
     },
     {
       "key": "wanted_aleksander_petrov",
-      "url": "assets/suspects/20.jpg",
+      "url": "assets/suspects/20.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -378,7 +378,7 @@
     },
     {
       "key": "wanted_alexandra_ivanova",
-      "url": "assets/suspects/10.jpg",
+      "url": "assets/suspects/10.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -386,7 +386,7 @@
     },
     {
       "key": "wanted_anna_bocian",
-      "url": "assets/suspects/19.jpg",
+      "url": "assets/suspects/19.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -394,7 +394,7 @@
     },
     {
       "key": "wanted_anne_apple",
-      "url": "assets/suspects/4.jpg",
+      "url": "assets/suspects/4.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -402,7 +402,7 @@
     },
     {
       "key": "wanted_ava_thompson",
-      "url": "assets/suspects/14.jpg",
+      "url": "assets/suspects/14.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -410,7 +410,7 @@
     },
     {
       "key": "wanted_bai_williams",
-      "url": "assets/suspects/17.jpg",
+      "url": "assets/suspects/17.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -418,7 +418,7 @@
     },
     {
       "key": "wanted_bernard_porter",
-      "url": "assets/suspects/6.jpg",
+      "url": "assets/suspects/6.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -426,7 +426,7 @@
     },
     {
       "key": "wanted_bert_goodman",
-      "url": "assets/suspects/3.jpg",
+      "url": "assets/suspects/3.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -434,7 +434,7 @@
     },
     {
       "key": "wanted_brendan_ross",
-      "url": "assets/suspects/16.jpg",
+      "url": "assets/suspects/16.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -442,7 +442,7 @@
     },
     {
       "key": "wanted_frank_groot",
-      "url": "assets/suspects/5.jpg",
+      "url": "assets/suspects/5.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -450,7 +450,7 @@
     },
     {
       "key": "wanted_garett_gutter",
-      "url": "assets/suspects/1.jpg",
+      "url": "assets/suspects/1.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -458,7 +458,7 @@
     },
     {
       "key": "wanted_isabella_rossi",
-      "url": "assets/suspects/12.jpg",
+      "url": "assets/suspects/12.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -466,7 +466,7 @@
     },
     {
       "key": "wanted_jacek_kowalski",
-      "url": "assets/suspects/8.jpg",
+      "url": "assets/suspects/8.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -474,7 +474,7 @@
     },
     {
       "key": "wanted_liam_oconnor",
-      "url": "assets/suspects/13.jpg",
+      "url": "assets/suspects/13.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -482,7 +482,7 @@
     },
     {
       "key": "wanted_lotte_chantal",
-      "url": "assets/suspects/22.jpg",
+      "url": "assets/suspects/22.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -490,7 +490,7 @@
     },
     {
       "key": "wanted_marie_dubois",
-      "url": "assets/suspects/21.jpg",
+      "url": "assets/suspects/21.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -498,7 +498,7 @@
     },
     {
       "key": "wanted_maximilian_schmidt",
-      "url": "assets/suspects/15.jpg",
+      "url": "assets/suspects/15.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -506,7 +506,7 @@
     },
     {
       "key": "wanted_pablo_fernandez",
-      "url": "assets/suspects/9.jpg",
+      "url": "assets/suspects/9.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -514,7 +514,7 @@
     },
     {
       "key": "wanted_rebecca_muller",
-      "url": "assets/suspects/7.jpg",
+      "url": "assets/suspects/7.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -522,7 +522,7 @@
     },
     {
       "key": "wanted_sergei_petrov",
-      "url": "assets/suspects/11.jpg",
+      "url": "assets/suspects/11.webp",
       "type": "image",
       "groups": [
         "wantedPosters"
@@ -530,7 +530,7 @@
     },
     {
       "key": "wanted_sofia_vargas",
-      "url": "assets/suspects/2.jpg",
+      "url": "assets/suspects/2.webp",
       "type": "image",
       "groups": [
         "wantedPosters"

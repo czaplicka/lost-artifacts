@@ -6,8 +6,29 @@
   "keywordsFile": "keywords.json",
   "searchFile": "search.json",
   "pageFiles": [
-    "pages/businesses.json",
-    "pages/news.json"
+    "pages/pages.json"
   ],
-  "phoneFile": "phone.json"
+  "phoneFile": "phone.json",
+  "pageOrder": [
+    "dm_memorial",
+    "dm_family_contact",
+    "dm_mercer_home",
+    "dm_mercer_contact",
+    "dm_mercer_services",
+    "dm_ward_home",
+    "dm_ward_contact",
+    "dm_audio_article",
+    "dm_folder_article",
+    "dm_blue_shop",
+    "dm_edward_namesake",
+    "dm_mercer_namesake",
+    "dm_edward_directory",
+    "dm_edward_filing_profile",
+    "dm_edward_recorder_notice",
+    "dm_edward_bowls_namesake",
+    "dm_margaret_directory",
+    "dm_margaret_library_notice",
+    "dm_margaret_thanks",
+    "dm_margaret_costumes_namesake"
+  ]
 }

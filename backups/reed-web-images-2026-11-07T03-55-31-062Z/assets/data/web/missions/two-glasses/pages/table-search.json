@@ -1,0 +1,76 @@
+{
+  "pages": [
+    {
+      "id": "two_glasses_table",
+      "title": "Why are there two glasses at my place setting?",
+      "address": "www.tablematters.local/service/two-glasses",
+      "brand": "TABLE MATTERS",
+      "theme": "business",
+      "snippet": "Water glass, wine glass, mystery glass: a short guide to finding your drink.",
+      "blocks": [
+        [
+          "A guest writes: “There are two glasses beside my plate. Have I accidentally booked dinner for two?”"
+        ],
+        [
+          "Not necessarily. A single place setting may include a water glass and a wine glass. At receptions, staff may also prepare glassware before guests arrive."
+        ],
+        [
+          "Count place settings, not just glasses: plates, cutlery and chairs provide the context. A photograph of a table does not tell you which glasses were used."
+        ],
+        [
+          "If neither glass contains your drink, try asking the waiter. Staring meaningfully at the table remains an experimental technique."
+        ]
+      ],
+      "links": []
+    },
+    {
+      "id": "two_glasses_shop",
+      "title": "Two glasses, one gift box | The Toast Rack",
+      "address": "www.thetoastrack.local/shop/two-glasses",
+      "brand": "THE TOAST RACK",
+      "theme": "business",
+      "snippet": "A boxed pair of wine glasses. For anniversaries, housewarmings and ambitious solo evenings.",
+      "blocks": [
+        [
+          "Two matching wine glasses in a presentation box. Clear glass, slender stems, absolutely no ability to improve the wine."
+        ],
+        [
+          "Popular for wedding gifts, housewarmings and replacing the two glasses you broke while explaining how careful you are."
+        ],
+        [
+          "Gift message optional. “You already own these” is not currently available as a printed greeting."
+        ],
+        [
+          "Price: £18 per pair. Wine not included. A surprisingly common source of disappointment."
+        ]
+      ],
+      "links": []
+    },
+    {
+      "id": "two_glasses_specs",
+      "title": "Two glasses at once? | The Spare Pair Forum",
+      "address": "www.sparepair.local/forum/two-glasses",
+      "brand": "THE SPARE PAIR FORUM",
+      "theme": "forum",
+      "snippet": "One pair on your nose. One on your head. Still looking for your glasses.",
+      "blocks": [
+        [
+          "THREAD: Does anyone else keep two glasses on them?"
+        ],
+        [
+          "MAGNIFYING_MARGARET: “Reading glasses on my nose, distance glasses on my head. I can see everything except where I put either pair.”"
+        ],
+        [
+          "FRAME_OF_MIND: “Those are two PAIRS of glasses, Margaret.”"
+        ],
+        [
+          "MAGNIFYING_MARGARET: “Thank you. I now have twice as many missing.”"
+        ],
+        [
+          "MODERATOR: “For drinking glasses, please use the homeware section. This is the third time this week.”"
+        ]
+      ],
+      "links": []
+    }
+  ]
+}

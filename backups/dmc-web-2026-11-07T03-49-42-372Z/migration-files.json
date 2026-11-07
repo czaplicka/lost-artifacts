@@ -1,0 +1,37 @@
+[
+  {
+    "path": "assets/data/web/missions/dead-men-calling/pages/pages.json",
+    "action": "write",
+    "existed": false
+  },
+  {
+    "path": "assets/data/web/missions/dead-men-calling/search.json",
+    "action": "write",
+    "existed": true
+  },
+  {
+    "path": "assets/data/web/missions/dead-men-calling/mission.json",
+    "action": "write",
+    "existed": true
+  },
+  {
+    "path": "assets/data/piSearch.json",
+    "action": "write",
+    "existed": true
+  },
+  {
+    "path": "ui/pi-computer/DeadMenSearchExpansion.js",
+    "action": "write",
+    "existed": true
+  },
+  {
+    "path": "assets/data/web/missions/dead-men-calling/pages/businesses.json",
+    "action": "delete",
+    "existed": true
+  },
+  {
+    "path": "assets/data/web/missions/dead-men-calling/pages/news.json",
+    "action": "delete",
+    "existed": true
+  }
+]

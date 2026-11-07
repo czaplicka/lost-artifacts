@@ -50,10 +50,6 @@ export class HiddenObjectsSceneFlow {
       return 'CityScene';
     }
 
-    if (scene.hasScene('MenuScene')) {
-      return 'MenuScene';
-    }
-
     console.error(
       '[HiddenObjectsSceneFlow] No valid return scene could be determined.',
       {

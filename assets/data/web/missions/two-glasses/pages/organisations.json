@@ -34,6 +34,10 @@
           "pageId": "events"
         },
         {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
           "label": "People",
           "pageId": "team"
         },
@@ -82,6 +86,10 @@
           "pageId": "events"
         },
         {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
           "label": "People",
           "pageId": "team"
         },
@@ -121,8 +129,20 @@
       ],
       "links": [
         {
-          "label": "Programme",
+          "label": "About",
+          "pageId": "organisation"
+        },
+        {
+          "label": "Events",
           "pageId": "events"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
         },
         {
           "label": "Contact",
@@ -164,6 +184,18 @@
           "pageId": "organisation"
         },
         {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
+          "label": "People",
+          "pageId": "team"
+        },
+        {
           "label": "Contact",
           "pageId": "contact"
         }
@@ -203,8 +235,20 @@
           "pageId": "organisation"
         },
         {
+          "label": "Events",
+          "pageId": "events"
+        },
+        {
+          "label": "Event gallery",
+          "pageId": "gallery"
+        },
+        {
           "label": "People",
           "pageId": "team"
+        },
+        {
+          "label": "Contact",
+          "pageId": "contact"
         }
       ],
       "snippet": "Programme enquiries, press requests and event administration.",
@@ -231,7 +275,8 @@
       "links": [],
       "snippet": "Guided walks, migration notes and a swallow badge for members.",
       "logoKey": "reed_web_logo_swallow_watch",
-      "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp"
+      "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp",
+      "showImage": true
     },
     {
       "id": "swallow_couriers",
@@ -253,7 +298,8 @@
       "links": [],
       "snippet": "Business deliveries and local parcels. Look for the blue swallow.",
       "logoKey": "reed_web_logo_swiftwing",
-      "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp"
+      "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp",
+      "showImage": true
     }
   ]
 }

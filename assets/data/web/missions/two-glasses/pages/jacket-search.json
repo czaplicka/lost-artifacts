@@ -5,7 +5,7 @@
       "title": "Fenwick green-check blazer | Marsh & Button",
       "address": "www.marshandbutton.local/womenswear/fenwick",
       "brand": "MARSH & BUTTON",
-      "theme": "business",
+      "theme": "magazine",
       "snippet": "Dark green checks, contrasting pocket trim and enough pockets to lose your own receipt.",
       "blocks": [
         [
@@ -21,14 +21,21 @@
           "Check availability with your local branch. We cannot identify a customer from a photograph of a jacket. We also cannot identify our own regional manager without her name badge."
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "lifestyle",
+      "layout": "editorial",
+      "imageKey": "reed_web_fenwick_blazer",
+      "imageUrl": "assets/side_quests/Reed/web/news/marsh_button_fenwick_blazer.webp",
+      "imageCaption": "The Fenwick blazer / Marsh & Button",
+      "category": "STYLE / CATALOGUE",
+      "showImage": true
     },
     {
       "id": "jacket_hire",
       "title": "Green checked jackets | Second Impression Hire",
       "address": "www.secondimpression.local/hire/green-check",
       "brand": "SECOND IMPRESSION",
-      "theme": "business",
+      "theme": "magazine",
       "snippet": "Jackets for conferences, interviews and occasions that unexpectedly require an iron.",
       "blocks": [
         [
@@ -44,14 +51,21 @@
           "Customer names and booking records are private. “I am being very nosy” does not qualify as written authorisation."
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "lifestyle",
+      "layout": "editorial",
+      "imageKey": "reed_web_second_impression",
+      "imageUrl": "assets/side_quests/Reed/web/news/second_impression_green_jackets.webp",
+      "imageCaption": "Green checked jackets / Second Impression",
+      "category": "STYLE / CLOTHING HIRE",
+      "showImage": true
     },
     {
       "id": "jacket_cleaner",
       "title": "Caring for a checked blazer | Pressing Matters",
       "address": "www.pressingmatters.local/care/checked-blazers",
       "brand": "PRESSING MATTERS",
-      "theme": "business",
+      "theme": "magazine",
       "snippet": "Wool checks, decorative trim and the mysterious contents of your pockets.",
       "blocks": [
         [
@@ -67,7 +81,14 @@
           "All collection tickets must be presented at the counter. “It was green” describes both half our rail and the accountant after seeing the electricity bill."
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "news",
+      "layout": "editorial",
+      "imageKey": "reed_web_pressing_matters",
+      "imageUrl": "assets/side_quests/Reed/web/news/pressing_matters_checked_blazer.webp",
+      "imageCaption": "Checked blazer / Pressing Matters",
+      "category": "CLOTHING / CARE GUIDE",
+      "showImage": true
     },
     {
       "id": "jacket_forum",
@@ -93,7 +114,12 @@
           "MODERATOR: “Please do not post strangers’ names or photographs. This is a lost-property forum, not a public trial with coat hangers.”"
         ]
       ],
-      "links": []
+      "links": [],
+      "template": "forum",
+      "imageKey": "reed_web_coat_check_attachment",
+      "imageUrl": "assets/side_quests/Reed/web/news/coat_check_green_jacket_swap.webp",
+      "imageCaption": "Green jacket / Archived thread attachment",
+      "showImage": true
     }
   ]
 }

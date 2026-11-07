@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "title": "HR HAS A MEMORY",
+  "cases": {
+    "official": {
+      "relationship": "professional",
+      "requiresReply": false,
+      "notice": null,
+      "intro": [
+        {
+          "speaker": "DETECTIVE",
+          "text": "I kept the request on the official record. The index was a reference, not permission to open the operation file."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Good. A boundary successfully recognized in the wild. I shall notify the stationery cupboard."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Official requests still go through the official route. You can review what we established here."
+        }
+      ],
+      "summary": "You used the authorized route. Marge continues to deal with you professionally."
+    },
+    "protected": {
+      "relationship": "trusted",
+      "requiresReply": false,
+      "notice": null,
+      "intro": [
+        {
+          "speaker": "Marge Gunderson",
+          "text": "You went to Gordon. Did you keep the request about your findings?"
+        },
+        {
+          "speaker": "DETECTIVE",
+          "text": "Yes. I did not identify you or show the restricted material. I kept our conversation confidential."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Thank you for telling me. Keeping a promise should not be a special skill. Around here it apparently needs its own training module."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "I can still help you sort out what we already know. That is not permission to borrow another restricted file."
+        }
+      ],
+      "summary": "You told Marge you kept her name and the restricted extract out of the meeting. Your confidential working relationship remains intact."
+    },
+    "named": {
+      "relationship": "formal_only",
+      "requiresReply": true,
+      "notice": {
+        "id": "gordon_hr_disclosure_query",
+        "title": "HR clarification request",
+        "sender": "Supervisor office / Gordon",
+        "recipient": "Human Resources / Marge Gunderson",
+        "text": "Please clarify the scope of the alias confirmation you supplied to the detective. Your name was given as the source during the authorization meeting. This request is not a finding of misconduct."
+      },
+      "intro": [
+        {
+          "speaker": "HR CORRESPONDENCE",
+          "text": "Gordon’s office has sent Marge a request to clarify what she disclosed. The request identifies her as the source named during your meeting."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Gordon asked me about our conversation. Apparently “keep my name out of it” was the part you filed under optional."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "I answered one question. You promised discretion. Now I have to explain a conversation you volunteered on my behalf."
+        }
+      ],
+      "summary": "Gordon named Marge in a clarification request. She now limits help to official business."
+    },
+    "extract": {
+      "relationship": "formal_only",
+      "requiresReply": true,
+      "notice": {
+        "id": "gordon_extract_circulation_query",
+        "title": "Restricted extract circulation query",
+        "sender": "Supervisor office / Gordon",
+        "recipient": "Human Resources / records desk",
+        "text": "A restricted administrative extract was presented at the authorization meeting. Please check its circulation and identify how it left the HR record. No source has been established by this query."
+      },
+      "intro": [
+        {
+          "speaker": "HR CORRESPONDENCE",
+          "text": "Gordon’s office has asked HR to account for the restricted extract presented in your meeting. Marge has received the circulation query as the person handling the record."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "You did not say my name. I am not accusing you of that. You did show a restricted extract I helped you obtain."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Now the records desk has to trace it. I know which copy I gave you. Protecting a source takes more than omitting the name from the title page."
+        }
+      ],
+      "summary": "The extract triggered a circulation query. Gordon has not been told Marge’s name by this action, but she recognizes the copy she supplied and limits further informal help."
+    }
+  },
+  "responses": [
+    {
+      "id": "apologize",
+      "label": "I put you at risk. That was my decision. I am sorry.",
+      "lines": [
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Thank you for owning it. That is better than asking me to apologize for having trusted you."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "An apology is a beginning, not a reset button. Official requests are welcome. Off-the-record favors are not."
+        }
+      ],
+      "attitude": "accountability_acknowledged"
+    },
+    {
+      "id": "justify",
+      "label": "I thought the investigation mattered more.",
+      "lines": [
+        {
+          "speaker": "Marge Gunderson",
+          "text": "It matters. So does telling people what you intend to do with the help they give you."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "You could have asked me before using it that way. From now on, put your requests through the official route."
+        }
+      ],
+      "attitude": "priorities_disputed"
+    },
+    {
+      "id": "deflect",
+      "label": "You agreed to help. You knew there was a risk.",
+      "lines": [
+        {
+          "speaker": "Marge Gunderson",
+          "text": "I agreed to help under a condition you accepted. That condition was not decorative."
+        },
+        {
+          "speaker": "Marge Gunderson",
+          "text": "Official business only. If you need a favor, try the photocopier. It also remembers who jams it."
+        }
+      ],
+      "attitude": "responsibility_deflected"
+    }
+  ],
+  "recap": {
+    "title": "QUICK OFF-THE-RECORD RECAP",
+    "lines": [
+      {
+        "speaker": "Marge Gunderson",
+        "text": "Gordon used the Commissioner alias. Ask him about the authorization. The alias does not identify who typed the disputed insurance entry."
+      },
+      {
+        "speaker": "Marge Gunderson",
+        "text": "Authorization records and later search records are different things. Nothing we established here proves what happened to John."
+      }
+    ],
+    "denied": [
+      {
+        "speaker": "Marge Gunderson",
+        "text": "Official business only. You may review the information already given to you, but I am not doing another off-the-record desk check."
+      }
+    ]
+  },
+  "messages": {
+    "saveFailed": "Progress changed in this session, but saving failed. Save manually before closing the game.",
+    "later": "There is no follow-up conversation available yet.",
+    "cancelled": "No reply chosen. You can return to finish the conversation.",
+    "recorded": "Conversation recorded. Official investigation access is unchanged.",
+    "retry": "The conversation could not be recorded. Keep this session open and try again.",
+    "choose": "Choose your response. Clicking an option records it immediately."
+  }
+}

@@ -28,8 +28,6 @@ function resetRetryResources(locations) {
   if (!Number.isFinite(maximum) || maximum <= 0 || current !== maximum) {
     throw new Error('[AgainScene] Retry energy initialization did not restore full energy.');
   }
-
-  // Use the new route, never the previous attempt's remaining funds.
   const quote = fundCase(gameState, locations);
   if (!Number.isInteger(quote?.agencyBudget) || quote.agencyBudget <= 0) {
     throw new Error('[AgainScene] Retry budget quote is invalid.');
@@ -60,10 +58,7 @@ function resetRetryResources(locations) {
   }
   EventBus.emit('moneyChanged', { ...balances, reason: 'retry_started', caseId });
   console.info('[AgainScene] Retry resources ready', {
-    caseId,
-    energy: current,
-    maxEnergy: maximum,
-    agencyBudget: balances.agencyBudget
+    caseId, energy: current, maxEnergy: maximum, agencyBudget: balances.agencyBudget
   });
 }
 
@@ -147,11 +142,11 @@ export class AgainScene extends BaseScene {
         .setScale(0.5).setDepth(30).setInteractive({ useHandCursor: true });
       this.addHoverEffect(this.backBtn, 0.5, 0.6);
     } else {
-      this.backBtn = this.add.text(24, 24, this.afterReport ? '< OFFICE' : '< MENU', {
+      this.backBtn = this.add.text(24, 24, '< BACK', {
         fontFamily: 'SpecialElite', fontSize: '24px', color: '#ffffff'
       }).setDepth(30).setInteractive({ useHandCursor: true });
     }
-    this.backBtn.on('pointerdown', () => { void this.returnToMenu(); });
+    this.backBtn.on('pointerdown', () => { void this.returnToEntry(); });
   }
 
   createDetectiveSection() {
@@ -179,7 +174,7 @@ export class AgainScene extends BaseScene {
       return [rect, text];
     };
     [this.yesBtn, this.yesText] = button(540, 'YES', 0x2e6b3a, 0x3d8a4c, () => this.startNewMission());
-    [this.noBtn, this.noText] = button(820, 'NO', 0x7a2f2f, 0x9a3e3e, () => this.returnToMenu());
+    [this.noBtn, this.noText] = button(820, 'NO', 0x7a2f2f, 0x9a3e3e, () => this.returnAfterDecline());
   }
 
   registerKeyboardShortcuts() {
@@ -188,7 +183,7 @@ export class AgainScene extends BaseScene {
       if (!event.repeat) void this.startNewMission();
     });
     this.trackInputEvent(this.input.keyboard, 'keydown-ESC', event => {
-      if (!event.repeat) void this.returnToMenu();
+      if (!event.repeat) void this.returnToEntry();
     });
   }
 
@@ -210,7 +205,6 @@ export class AgainScene extends BaseScene {
     this.stopTyping();
     this.dialogueText?.setText('Preparing a new mission file...');
     let backup = null;
-
     try {
       if (!this.missionPrepared) {
         const energy = getEnergyManager();
@@ -234,7 +228,6 @@ export class AgainScene extends BaseScene {
         gameState.isGameActive = true;
         gameState.scoreSaved = false;
         moveStateToHeadquarters(locations);
-        // From here, another YES retries only navigation, never resource allocation.
         this.missionPrepared = true;
         saveGameState();
       }
@@ -266,14 +259,22 @@ export class AgainScene extends BaseScene {
     }
   }
 
-  async returnToMenu() {
-    if (this.isBusy()) return;
+  async returnToEntry() {
+    return this.leaveFor('EnterScene');
+  }
+
+  async returnAfterDecline() {
+    const sceneKey = this.afterReport || this.missionPrepared ? 'OfficeScene' : 'EnterScene';
+    return this.leaveFor(sceneKey);
+  }
+
+  async leaveFor(sceneKey) {
+    if (this.isBusy() || this._cleanupDone) return;
     this.isLeaving = true;
     this.setButtonsEnabled(false);
     this.stopTyping();
-    const sceneKey = this.afterReport || this.missionPrepared ? 'OfficeScene' : 'MenuScene';
     try {
-      const opened = await this.goto(sceneKey, { gameState });
+      const opened = await this.goto(sceneKey, sceneKey === 'EnterScene' ? {} : { gameState });
       if (opened === false && !this._cleanupDone) throw new Error(`Could not open ${sceneKey}.`);
     } catch (error) {
       console.error('[AgainScene] Navigation failed:', error);

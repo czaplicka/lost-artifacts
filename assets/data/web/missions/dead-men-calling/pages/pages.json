@@ -1,0 +1,801 @@
+{
+  "pages": [
+    {
+      "id": "dm_memorial",
+      "title": "Remembering Edward Vale",
+      "brand": "VALE FAMILY ARCHIVE",
+      "address": "www.valefamily.local/edward",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_edward"
+          },
+          " — remembered by family, friends and former colleagues."
+        ],
+        [
+          "Edward kept notes, recordings and a filing system dominated by blue stationery. He considered colour coding an adequate substitute for labelling."
+        ],
+        [
+          "This family page is maintained by ",
+          {
+            "keywordId": "dm_margaret"
+          },
+          ". Correspondence concerning Edward may be sent through the contact page."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Memorial",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_family_contact"
+        },
+        {
+          "label": "Acknowledgements",
+          "pageId": "dm_margaret_thanks"
+        }
+      ],
+      "snippet": "Edward Vale — remembered by family, friends and former colleagues."
+    },
+    {
+      "id": "dm_family_contact",
+      "title": "Family correspondence | Edward Vale",
+      "brand": "VALE FAMILY ARCHIVE",
+      "address": "www.valefamily.local/edward/contact",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Contact for correspondence concerning Edward’s memorial and family archive."
+        ],
+        [
+          {
+            "keywordId": "dm_margaret"
+          },
+          ": ",
+          {
+            "keywordId": "dm_phone_margaret",
+            "text": "619"
+          },
+          " (local)."
+        ],
+        [
+          "Published by Margaret for this purpose. Please leave a message if there is no answer. No recordings or private family papers are published here."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Memorial",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_family_contact"
+        },
+        {
+          "label": "Acknowledgements",
+          "pageId": "dm_margaret_thanks"
+        }
+      ],
+      "snippet": "Contact for correspondence concerning Edward’s memorial and family archive."
+    },
+    {
+      "id": "dm_mercer_home",
+      "title": "Mercer Audio | Archive transfers",
+      "brand": "MERCER AUDIO",
+      "address": "www.merceraudio.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_mercer"
+          },
+          " preserves speech recordings, voicemail exports and small business archives."
+        ],
+        [
+          "Our services include transfer, cataloguing and preservation copies. We retain the character of the source. Unfortunately this includes the singing."
+        ],
+        [
+          "For transfer enquiries, contact ",
+          {
+            "keywordId": "dm_leo"
+          },
+          ". Client files and job records are supplied only with appropriate permission."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "dm_mercer_home"
+        },
+        {
+          "label": "Services",
+          "pageId": "dm_mercer_services"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_mercer_contact"
+        }
+      ],
+      "snippet": "Mercer Audio preserves speech recordings, voicemail exports and small business archives."
+    },
+    {
+      "id": "dm_mercer_contact",
+      "title": "Contact | Mercer Audio",
+      "brand": "MERCER AUDIO",
+      "address": "www.merceraudio.local/contact",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_leo"
+          },
+          " — archive transfer enquiries."
+        ],
+        [
+          "Telephone: ",
+          {
+            "keywordId": "dm_phone_leo",
+            "text": "620"
+          },
+          " (local)."
+        ],
+        [
+          "Quote the job reference if available. Client archives are not public downloads."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "dm_mercer_home"
+        },
+        {
+          "label": "Services",
+          "pageId": "dm_mercer_services"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_mercer_contact"
+        }
+      ],
+      "snippet": "Leo Mercer — archive transfer enquiries."
+    },
+    {
+      "id": "dm_mercer_services",
+      "title": "Preserving speech | Mercer Audio",
+      "brand": "MERCER AUDIO",
+      "address": "www.merceraudio.local/services",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_voice"
+          },
+          " preservation and ",
+          {
+            "keywordId": "dm_archive"
+          },
+          " transfers."
+        ],
+        [
+          "We can copy compatible source files, prepare an itemised manifest and record delivery of authorised copies."
+        ],
+        [
+          "Restoration and comparison are separate services. An enquiry about pricing does not authorise disclosure of another client’s files."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "dm_mercer_home"
+        },
+        {
+          "label": "Services",
+          "pageId": "dm_mercer_services"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_mercer_contact"
+        }
+      ],
+      "snippet": "voicemail preservation and recording archive transfers."
+    },
+    {
+      "id": "dm_ward_home",
+      "title": "Ward Consulting | Business records",
+      "brand": "WARD CONSULTING",
+      "address": "www.wardconsulting.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_ward"
+          },
+          " offers support with small-business administration and ",
+          {
+            "keywordId": "dm_accounts"
+          },
+          "."
+        ],
+        [
+          "Principal: ",
+          {
+            "keywordId": "dm_colin"
+          },
+          ". Clear answers. Flexible invoicing."
+        ],
+        [
+          "For business correspondence, use the contact page. Individual client records are not published on this site."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "dm_ward_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_ward_contact"
+        }
+      ],
+      "snippet": "Ward Consulting offers support with small-business administration and company records."
+    },
+    {
+      "id": "dm_ward_contact",
+      "title": "Contact | Ward Consulting",
+      "brand": "WARD CONSULTING",
+      "address": "www.wardconsulting.local/contact",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_colin"
+          },
+          " — business enquiries."
+        ],
+        [
+          "Telephone: ",
+          {
+            "keywordId": "dm_phone_colin",
+            "text": "621"
+          },
+          " (local)."
+        ],
+        [
+          "Please quote the relevant reference when asking about past correspondence. Our answering machine has been instructed not to negotiate rates."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Home",
+          "pageId": "dm_ward_home"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_ward_contact"
+        }
+      ],
+      "snippet": "Colin Ward — business enquiries."
+    },
+    {
+      "id": "dm_audio_article",
+      "title": "Keeping a useful voicemail archive",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/guides/voicemail-archive",
+      "theme": "magazine",
+      "template": "news",
+      "blocks": [
+        [
+          "An orderly ",
+          {
+            "keywordId": "dm_archive"
+          },
+          " starts with keeping original files and recording where each copy came from."
+        ],
+        [
+          "If you ask a service to transfer recordings, retain its paperwork. A filename is a label, not a witness."
+        ],
+        [
+          "This consumer guide covers routine preservation. It does not describe any particular family or investigation."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Audio archives",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "Business records",
+          "pageId": "dm_folder_article"
+        },
+        {
+          "label": "Edward: filing",
+          "pageId": "dm_edward_filing_profile"
+        },
+        {
+          "label": "Book volunteers",
+          "pageId": "dm_margaret_library_notice"
+        }
+      ],
+      "snippet": "An orderly recording archive starts with keeping original files and recording where each copy came from."
+    },
+    {
+      "id": "dm_folder_article",
+      "title": "When a reconciliation needs another look",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/business/reconciliation",
+      "theme": "magazine",
+      "template": "news",
+      "blocks": [
+        [
+          "A ",
+          {
+            "keywordId": "dm_sheet"
+          },
+          " can record questions about ",
+          {
+            "keywordId": "dm_accounts"
+          },
+          " that still need supporting documents."
+        ],
+        [
+          "An entry marked for review is not the same thing as a completed explanation. Original invoices, dates and references help keep queries attached to the right transaction."
+        ],
+        [
+          "Our contributor recommends a filing system. Our editor recommends finding the filing cabinet first."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Audio archives",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "Business records",
+          "pageId": "dm_folder_article"
+        },
+        {
+          "label": "Edward: filing",
+          "pageId": "dm_edward_filing_profile"
+        },
+        {
+          "label": "Book volunteers",
+          "pageId": "dm_margaret_library_notice"
+        }
+      ],
+      "snippet": "A reconciliation sheet can record questions about company records that still need supporting documents."
+    },
+    {
+      "id": "dm_blue_shop",
+      "title": "Blue folders | Desk & Drawer",
+      "brand": "DESK & DRAWER",
+      "address": "www.deskanddrawer.local/stationery/blue-folders",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+        ],
+        [
+          "A4 stationery for offices and homes. Labels sold separately. Dramatic secrets not included."
+        ]
+      ],
+      "links": [],
+      "snippet": "Blue folders. With tabs, without tabs, and with the confidence that comes from containing absolutely nothing."
+    },
+    {
+      "id": "dm_edward_namesake",
+      "title": "Edward Vale | Landscape photography",
+      "brand": "EDWARD VALE PHOTOGRAPHY",
+      "address": "www.edwardvalephotos.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Edward Vale photographs coastal landscapes and empty railway platforms."
+        ],
+        [
+          "Prints available by appointment. Portrait sessions are not currently offered. Please specify the photograph title when enquiring."
+        ]
+      ],
+      "links": [],
+      "snippet": "Edward Vale photographs coastal landscapes and empty railway platforms."
+    },
+    {
+      "id": "dm_mercer_namesake",
+      "title": "Mercer Music | Instrument repairs",
+      "brand": "MERCER MUSIC",
+      "address": "www.mercermusic.local",
+      "theme": "business",
+      "template": "business",
+      "blocks": [
+        [
+          "Guitar setups, amplifier repairs and piano tuning by appointment."
+        ],
+        [
+          "We do not transfer voicemail archives. We can, however, make your guitar sound less like a filing cabinet falling downstairs."
+        ]
+      ],
+      "links": [],
+      "snippet": "Guitar setups, amplifier repairs and piano tuning by appointment."
+    },
+    {
+      "id": "dm_edward_directory",
+      "title": "Edward Vale | Archived business listing",
+      "brand": "PUBLIC DIRECTORY",
+      "address": "www.publicdirectory.local/archive/edward-vale",
+      "template": "directory",
+      "theme": "directory",
+      "blocks": [
+        [
+          "ARCHIVED ENTRY — no longer an active business listing."
+        ],
+        [
+          {
+            "keywordId": "dm_edward",
+            "text": "Edward Vale"
+          },
+          " — small-business administration and record keeping."
+        ],
+        [
+          "The retained listing describes office administration and the organisation of ",
+          {
+            "keywordId": "dm_accounts",
+            "text": "company records"
+          },
+          ". It is not a register of individual transactions."
+        ],
+        [
+          "The old business telephone number has been removed. The directory cannot put you through to the past, despite several persistent requests."
+        ],
+        [
+          "Family correspondence is handled through the Vale family archive. No private papers or recordings are available in this listing."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Edward Vale",
+          "pageId": "dm_edward_directory"
+        },
+        {
+          "label": "Margaret Vale",
+          "pageId": "dm_margaret_directory"
+        },
+        {
+          "label": "Family memorial",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Family contact",
+          "pageId": "dm_family_contact"
+        }
+      ],
+      "snippet": "ARCHIVED ENTRY — no longer an active business listing. Edward Vale  — small-business administration and record keeping."
+    },
+    {
+      "id": "dm_edward_filing_profile",
+      "title": "Edward Vale and the triumph of the blue folder",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/archive/edward-vale-filing",
+      "template": "news",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "FROM THE LOCAL FEATURES ARCHIVE — published before the family memorial."
+        ],
+        [
+          {
+            "keywordId": "dm_edward",
+            "text": "Edward Vale"
+          },
+          " preferred a ",
+          {
+            "keywordId": "dm_folder",
+            "text": "blue folder"
+          },
+          " to a complicated filing system. Asked how he found anything, he replied that the difficult part was remembering which blue."
+        ],
+        [
+          "The feature describes everyday office habits: written notes, labelled papers and dictated reminders. It does not reproduce any documents."
+        ],
+        [
+          "The editor recommended labels. Edward recommended buying more folders. The stationery shop declined to take sides."
+        ],
+        [
+          "This is an old profile, not a record of recent activity or evidence about who has access to private material."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Audio archives",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "Business records",
+          "pageId": "dm_folder_article"
+        },
+        {
+          "label": "Edward: filing",
+          "pageId": "dm_edward_filing_profile"
+        },
+        {
+          "label": "Book volunteers",
+          "pageId": "dm_margaret_library_notice"
+        },
+        {
+          "label": "Archived business listing",
+          "pageId": "dm_edward_directory"
+        }
+      ],
+      "snippet": "FROM THE LOCAL FEATURES ARCHIVE — published before the family memorial. Edward Vale  preferred a  blue folder  to a complicated filing system. Asked how he found anything, he replied that the difficult part was remembering which blue."
+    },
+    {
+      "id": "dm_edward_recorder_notice",
+      "title": "From the archive: Edward Vale on recording reminders",
+      "brand": "SMALL BUSINESS CIRCULAR",
+      "address": "www.smallbusinesscircular.local/archive/recording-reminders",
+      "template": "news",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "ARCHIVED WORKSHOP NOTE — everyday office routines."
+        ],
+        [
+          {
+            "keywordId": "dm_edward",
+            "text": "Edward Vale"
+          },
+          " described using an ",
+          {
+            "keywordId": "dm_recorder",
+            "text": "office recorder"
+          },
+          " for reminders and short dictated notes."
+        ],
+        [
+          "The workshop summary discusses labelling files and retaining the original ",
+          {
+            "keywordId": "dm_voice",
+            "text": "voicemail"
+          },
+          " when copying messages."
+        ],
+        [
+          "No recordings were published with the article. No individual message is quoted or identified."
+        ],
+        [
+          "The session ended early when someone recorded the tea order over the minutes. The tea order was considerably clearer."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Archive preservation guide",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "Local profile: filing",
+          "pageId": "dm_edward_filing_profile"
+        }
+      ],
+      "snippet": "ARCHIVED WORKSHOP NOTE — everyday office routines. Edward Vale  described using an  office recorder  for reminders and short dictated notes."
+    },
+    {
+      "id": "dm_edward_bowls_namesake",
+      "title": "Edward Vale | Bowls club captain",
+      "brand": "GREEN JACK BOWLS CLUB",
+      "address": "www.greenjack.local/team/edward-vale",
+      "template": "business",
+      "theme": "business",
+      "blocks": [
+        [
+          "Edward Vale — club captain and retired garden-centre manager."
+        ],
+        [
+          "His member biography describes years of competitive bowls and a carefully maintained collection of gardening trophies."
+        ],
+        [
+          "Latest club update: the captain has again asked members to stop calling a narrow defeat a conspiracy."
+        ],
+        [
+          "This biography gives a different occupation from the archived office-administration listing. It supplies no family-archive connection."
+        ]
+      ],
+      "links": [],
+      "snippet": "Edward Vale — club captain and retired garden-centre manager. His member biography describes years of competitive bowls and a carefully maintained collection of gardening trophies."
+    },
+    {
+      "id": "dm_margaret_directory",
+      "title": "Margaret Vale | Public correspondence listing",
+      "brand": "PUBLIC DIRECTORY",
+      "address": "www.publicdirectory.local/people/margaret-vale",
+      "template": "directory",
+      "theme": "directory",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_margaret",
+            "text": "Margaret Vale"
+          },
+          " — correspondence concerning the Vale family memorial."
+        ],
+        [
+          "The listing directs enquiries to the family archive’s own contact page. No additional contact details are published here."
+        ],
+        [
+          "Private messages, personal papers and copies of recordings must be requested from the person authorised to release them."
+        ],
+        [
+          "Please do not send offers to improve the memorial’s search ranking. The family has enough unwelcome messages."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Edward Vale",
+          "pageId": "dm_edward_directory"
+        },
+        {
+          "label": "Margaret Vale",
+          "pageId": "dm_margaret_directory"
+        },
+        {
+          "label": "Published family contact",
+          "pageId": "dm_family_contact"
+        },
+        {
+          "label": "Family memorial",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Public acknowledgement",
+          "pageId": "dm_margaret_thanks"
+        }
+      ],
+      "snippet": "Margaret Vale  — correspondence concerning the Vale family memorial. The listing directs enquiries to the family archive’s own contact page. No additional contact details are published here."
+    },
+    {
+      "id": "dm_margaret_library_notice",
+      "title": "Margaret Vale thanks the library book volunteers",
+      "brand": "COMMUNITY LEDGER",
+      "address": "www.communityledger.local/community/vale-book-volunteers",
+      "template": "news",
+      "theme": "magazine",
+      "blocks": [
+        [
+          "COMMUNITY NOTICE — a book-donation acknowledgement."
+        ],
+        [
+          {
+            "keywordId": "dm_margaret",
+            "text": "Margaret Vale"
+          },
+          " thanked the volunteers who helped sort books donated in memory of ",
+          {
+            "keywordId": "dm_edward",
+            "text": "Edward Vale"
+          },
+          "."
+        ],
+        [
+          "The notice concerns books, not private office papers or recordings. The library has no family archive available for inspection."
+        ],
+        [
+          "One box arrived labelled MISCELLANEOUS. Volunteers considered this unusually optimistic."
+        ],
+        [
+          "No attendance register or information about anyone’s recent movements is included."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Audio archives",
+          "pageId": "dm_audio_article"
+        },
+        {
+          "label": "Business records",
+          "pageId": "dm_folder_article"
+        },
+        {
+          "label": "Edward: filing",
+          "pageId": "dm_edward_filing_profile"
+        },
+        {
+          "label": "Book volunteers",
+          "pageId": "dm_margaret_library_notice"
+        },
+        {
+          "label": "Family acknowledgement",
+          "pageId": "dm_margaret_thanks"
+        },
+        {
+          "label": "Memorial page",
+          "pageId": "dm_memorial"
+        }
+      ],
+      "snippet": "COMMUNITY NOTICE — a book-donation acknowledgement. Margaret Vale  thanked the volunteers who helped sort books donated in memory of  Edward Vale ."
+    },
+    {
+      "id": "dm_margaret_thanks",
+      "title": "A thank-you from Margaret Vale",
+      "brand": "VALE FAMILY ARCHIVE",
+      "address": "www.valefamily.local/edward/thanks",
+      "template": "business",
+      "theme": "business",
+      "blocks": [
+        [
+          {
+            "keywordId": "dm_margaret",
+            "text": "Margaret Vale"
+          },
+          " thanks everyone who sent kind messages in memory of ",
+          {
+            "keywordId": "dm_edward",
+            "text": "Edward Vale"
+          },
+          "."
+        ],
+        [
+          "The family is keeping personal papers and the ",
+          {
+            "keywordId": "dm_archive",
+            "text": "recording archive"
+          },
+          " privately. Public photographs and memorial notices do not imply permission to copy private files."
+        ],
+        [
+          "Please use the published contact page for genuine correspondence. No downloads of private messages are offered here."
+        ],
+        [
+          "Thank you also to whoever returned the borrowed casserole dish. Identifying the lid remains an open investigation."
+        ]
+      ],
+      "links": [
+        {
+          "label": "Memorial",
+          "pageId": "dm_memorial"
+        },
+        {
+          "label": "Contact",
+          "pageId": "dm_family_contact"
+        },
+        {
+          "label": "Acknowledgements",
+          "pageId": "dm_margaret_thanks"
+        }
+      ],
+      "snippet": "Margaret Vale  thanks everyone who sent kind messages in memory of  Edward Vale . The family is keeping personal papers and the  recording archive  privately. Public photographs and memorial notices do not imply permission to copy private files."
+    },
+    {
+      "id": "dm_margaret_costumes_namesake",
+      "title": "Margaret Vale | Theatre alterations",
+      "brand": "VALE COSTUME REPAIRS",
+      "address": "www.valecostumerepairs.local/about",
+      "template": "business",
+      "theme": "business",
+      "blocks": [
+        [
+          "Margaret Vale — theatrical alterations, costume repairs and emergency hems."
+        ],
+        [
+          "The workshop biography describes a full-time costume maker serving touring theatre companies."
+        ],
+        [
+          "Please state the production and collection date when enquiring. We cannot repair a dramatic exit once it has happened."
+        ],
+        [
+          "The business page does not mention Edward or the Vale family memorial. A matching name alone does not connect the two listings."
+        ]
+      ],
+      "links": [],
+      "snippet": "Margaret Vale — theatrical alterations, costume repairs and emergency hems. The workshop biography describes a full-time costume maker serving touring theatre companies."
+    }
+  ]
+}

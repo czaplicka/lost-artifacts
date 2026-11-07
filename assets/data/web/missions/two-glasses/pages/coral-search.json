@@ -25,16 +25,20 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "coral"
-        },
-        {
-          "label": "Pool information",
-          "pageId": "coral_pool_questions"
         },
         {
           "label": "Functions",
           "pageId": "coral_events"
+        },
+        {
+          "label": "Family stays",
+          "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
         }
       ],
       "snippet": "Family suites and indoor swimming, with room for the favourite toy.",
@@ -71,12 +75,20 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "coral"
+        },
+        {
+          "label": "Functions",
+          "pageId": "coral_events"
         },
         {
           "label": "Family stays",
           "pageId": "coral_family_stays"
+        },
+        {
+          "label": "Pool questions",
+          "pageId": "coral_pool_questions"
         },
         {
           "label": "Guest discussion",
@@ -153,6 +165,14 @@
         ]
       ],
       "links": [
+        {
+          "label": "Hotel Miramar",
+          "pageId": "miramar_coast_guide"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral_coast_listing"
+        },
         {
           "label": "Official website",
           "pageId": "coral"

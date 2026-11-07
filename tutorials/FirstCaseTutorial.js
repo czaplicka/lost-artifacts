@@ -1,3 +1,4 @@
+// tutorial-compact-objectives-v1
 import { EventBus } from '../EventBus.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 
@@ -505,7 +506,7 @@ export class FirstCaseTutorial {
 
     this.titleText = addText(textX, contentY, '', {
       fontFamily: 'PressStart2P',
-      fontSize: collapsed ? '7px' : '9px',
+      fontSize: collapsed ? '18px' : '9px',
       wordWrap: { width: wrap }
     });
 
@@ -636,7 +637,15 @@ export class FirstCaseTutorial {
       `OBJECTIVE ${step.number}/${STEP_ORDER.length}`
     );
 
-    this.titleText?.setText(step.title);
+    this.titleText?.setText(this.collapsed ? (step.objective || step.title) : step.title);
+    if (this.collapsed && this.titleText && this.panel) {
+      this.titleText.setFontFamily('SpecialElite');
+      const top = this.panel.y - this.panel.height / 2;
+      const height = Math.max(74, this.titleText.y - top + this.titleText.height + 14);
+      this.panel.setSize(this.panel.width, height);
+      this.panel.setY(top + height / 2);
+      this.feedbackText?.setY(top + height + 14);
+    }
     this.objectiveText?.setText(step.objective);
 
     if (this.objectiveText && this.titleText) {

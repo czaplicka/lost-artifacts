@@ -707,7 +707,7 @@
     },
     {
       "key": "tv_anchor_generic",
-      "url": "assets/tv/tv_anchor_generic.jpg",
+      "url": "assets/tv/tv_anchor_generic.webp",
       "type": "image",
       "groups": [
         "ui"
@@ -715,7 +715,7 @@
     },
     {
       "key": "tv_anchor_genericf",
-      "url": "assets/tv/tv_anchor_genericf.jpg",
+      "url": "assets/tv/tv_anchor_genericf.webp",
       "type": "image",
       "groups": [
         "ui"
@@ -723,7 +723,7 @@
     },
     {
       "key": "tv_news_studio",
-      "url": "assets/tv/tv_news_studio.jpg",
+      "url": "assets/tv/tv_news_studio.webp",
       "type": "image",
       "groups": [
         "ui"

@@ -1,0 +1,20 @@
+{
+  "assets": [
+    {
+      "key": "tokyo_museum_bg",
+      "url": "assets/crimes/tokyo_museum.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "objects-data:tokyo_museum",
+      "url": "assets/data/objects/tokyo_museum.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    }
+  ]
+}

@@ -2,22 +2,26 @@
   <button id="btn-hud-expand" class="hud-expand-btn" type="button" title="Open HUD" aria-label="Open HUD">
     <span class="hud-expand-detective" aria-hidden="true">🕵️‍♂️</span>
   </button>
+
   <div class="hud-content">
+    <!-- ═══ Row 1: parchment strip — clock, date, deadline, energy ═══ -->
     <div class="hud-paper-bg">
-      <div class="hud-cell" id="clock-target">
+      <div class="hud-cell" id="clock-target" tabindex="0">
         <div class="digital-clock-display">
           <span class="clock-digital" id="clock-time">08:00</span>
           <span class="clock-period" id="clock-part">MORNING</span>
         </div>
       </div>
-      <div class="hud-cell" id="date-target">
+
+      <div class="hud-cell" id="date-target" tabindex="0">
         <div class="calendar-card">
           <div class="calendar-rings"><span></span><span></span></div>
           <div class="date-header" id="date-month">APR</div>
           <div class="date-body" id="date-day">01</div>
         </div>
       </div>
-      <div class="hud-cell" id="deadline-target">
+
+      <div class="hud-cell" id="deadline-target" data-urgency="ok" tabindex="0">
         <div class="hourglass-wrapper">
           <svg class="hourglass-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12v6l-4 4 4 4v6H6v-6l4-4-4-4V2zm10 14.5l-3.5-3.5 3.5-3.5V4H8v3.5L11.5 11 8 14.5V20h8v-3.5z"/></svg>
           <div class="deadline-info">
@@ -26,6 +30,7 @@
           </div>
         </div>
       </div>
+
       <div class="hud-cell" id="energy-target">
         <div class="energy-wrapper">
           <svg class="energy-circle" viewBox="0 0 100 100" aria-hidden="true">
@@ -36,32 +41,45 @@
         </div>
       </div>
     </div>
+
+    <!-- ═══ Row 2: dark wood panel — score / XP / cash + buttons ═══ -->
     <div class="hud-bottom-bar">
       <div class="stat-group">
-        <div class="stat-item" id="score-target">
-          <span class="stat-icon" aria-hidden="true">⭐</span>
-          <span class="label">SCORE</span>
-          <span class="value score" id="hud-score">0</span>
+        <div class="stat-item" id="score-target" tabindex="0">
+          <svg class="stat-icon icon-score" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.1 6.6 7.2.9-5.3 4.9 1.4 7.1L12 17.9 5.6 21.5 7 14.4 1.7 9.5l7.2-.9z"/></svg>
+          <span class="stat-text">
+            <span class="label">SCORE</span>
+            <span class="value score" id="hud-score">0</span>
+          </span>
         </div>
         <div class="stat-divider"></div>
-        <div class="stat-item" id="xp-target">
-          <span class="stat-icon" aria-hidden="true">📈</span>
-          <span class="label">XP</span>
-          <span class="value xp" id="hud-xp">0</span>
+        <div class="stat-item" id="xp-target" tabindex="0">
+          <svg class="stat-icon icon-xp" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21v-7h4v7H3zm7 0V9h4v12h-4zm7 0V3h4v18h-4z"/></svg>
+          <span class="stat-text">
+            <span class="label">XP</span>
+            <span class="value xp" id="hud-xp">0</span>
+          </span>
         </div>
         <div class="stat-divider"></div>
-        <div class="stat-item" id="cash-target">
-          <span class="stat-icon" aria-hidden="true">💵</span>
-          <span class="label">CASH</span>
-          <span class="value cash" id="hud-cash">$250</span>
+        <div class="stat-item" id="cash-target" tabindex="0">
+          <svg class="stat-icon icon-cash" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <circle class="coin-rim" cx="12" cy="12" r="7.2"/>
+            <path class="coin-mark" d="M12.9 6.5v1.3c1.5.3 2.5 1.2 2.6 2.6h-1.9c-.1-.7-.7-1.1-1.6-1.1-.9 0-1.5.4-1.5 1 0 .6.5.9 1.9 1.2 2 .4 3.2 1 3.2 2.7 0 1.3-1 2.2-2.7 2.5v1.3h-1.5v-1.3c-1.7-.3-2.8-1.2-2.9-2.8h1.9c.1.8.8 1.3 1.8 1.3 1 0 1.6-.4 1.6-1 0-.7-.6-.9-2-1.2-1.9-.4-3-1-3-2.6 0-1.2.9-2.1 2.4-2.4V6.5h1.7z"/>
+          </svg>
+          <span class="stat-text">
+            <span class="label">CASH</span>
+            <span class="value cash" id="hud-cash">$250</span>
+          </span>
         </div>
       </div>
+
       <div class="hud-buttons">
         <img src="assets/ico/player.webp" id="btn-profile" class="hud-icon-btn" alt="Agent" title="AGENT DOSSIER"/>
         <img src="assets/ico/profile.webp" id="btn-player" class="hud-icon-btn" alt="Profile" title="DETECTIVE PROFILE"/>
         <button id="btn-expansion-store" class="hud-icon-btn" type="button" title="EXTRA CASES — ADDITIONAL CONTENT" aria-label="Open additional content store"
           onclick="event.preventDefault();event.stopPropagation();if(!this.disabled){this.disabled=true;import('./scenes/ExpansionStoreScene.js').then(module=>module.openExpansionStore()).catch(error=>{console.error('[Extra Cases] Could not open store:',error);window.alert('The additional content catalog could not be opened.');}).finally(()=>{this.disabled=false;});}">
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="display:block;filter:drop-shadow(1px 2px 1px #201910);">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="display:block;filter:drop-shadow(1px 2px 1px #201910);">
             <path d="M3 10H13L16 13H29V27H3V10Z" fill="#b99257" stroke="#49351f" stroke-width="2"/>
             <path d="M3 10V6H13L16 10H27V13" fill="#dfc28a" stroke="#49351f" stroke-width="2"/>
             <path d="M11 20H21M16 15V25" stroke="#fff0c9" stroke-width="3"/>
@@ -72,185 +90,12 @@
       </div>
     </div>
   </div>
-  <div class="hud-tooltip" id="hud-tooltip"><div class="hud-tooltip-title" id="hud-tooltip-title"></div><div id="hud-tooltip-text"></div></div>
+
+  <div class="hud-tooltip" id="hud-tooltip" role="tooltip">
+    <div class="hud-tooltip-title" id="hud-tooltip-title"></div>
+    <div id="hud-tooltip-text"></div>
+  </div>
   <div class="hud-energy-log" id="hud-energy-log"><div id="hud-energy-log-text"></div></div>
-  <!-- The existing UIScene.updateEnergy() updates aria-valuenow on #energy-target. -->
-  <style>
-    /* ═══ HUD Custom Variables ═══ */
-    #hud-container {
-      --hud-energy-level: 0%;
-      --hud-energy-color: #69706a;
-      --hud-energy-label: '--';
-    }
-
-    /* ═══ Collapsed expand button — energy fill + label ═══ */
-    #hud-container #btn-hud-expand {
-      box-sizing: border-box;
-      overflow: hidden;
-      isolation: isolate;
-      border-color: var(--hud-energy-color) !important;
-      background: linear-gradient(to top,
-        var(--hud-energy-color) 0%,
-        var(--hud-energy-color) var(--hud-energy-level),
-        #24251f var(--hud-energy-level),
-        #24251f 100%) !important;
-      box-shadow: inset 0 0 0 2px #11170fc0, 0 3px 8px #0008;
-      text-shadow: 0 2px 3px #000;
-    }
-    #hud-container #btn-hud-expand .hud-expand-detective {
-      position: relative;
-      top: -4px;
-      pointer-events: none;
-      filter: drop-shadow(0 1px 2px #000b);
-    }
-    #hud-container #btn-hud-expand::after {
-      content: var(--hud-energy-label);
-      position: absolute;
-      bottom: 3px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff7df;
-      background: #111a;
-      border-radius: 3px;
-      padding: 1px 3px;
-      font: 10px/1.15 SpecialElite, monospace;
-      pointer-events: none;
-      white-space: nowrap;
-    }
-    #hud-container #btn-hud-expand:focus-visible {
-      outline: 3px solid #fff0b8;
-      outline-offset: 3px;
-    }
-
-    /* ═══ XP stat styling ═══ */
-    .stat-item .value.xp {
-      color: #ffd166;
-    }
-
-    #xp-target {
-      cursor: help;
-    }
-
-    /* ═══ Stat icons ═══ */
-    .stat-icon {
-      font-size: 13px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-
-    /* ═══ Expansion store button ═══ */
-    #btn-expansion-store.hud-icon-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      background: transparent;
-      border: 0;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    /* ═══ Energy level → CSS var mapping ═══ */
-    #hud-container:has(#energy-target[aria-valuenow="0"]) { --hud-energy-level: 0%; --hud-energy-color: #df4b48; --hud-energy-label: "0%"; }
-    #hud-container:has(#energy-target[aria-valuenow="1"]) { --hud-energy-level: 1%; --hud-energy-color: #df4b48; --hud-energy-label: "1%"; }
-    #hud-container:has(#energy-target[aria-valuenow="2"]) { --hud-energy-level: 2%; --hud-energy-color: #df4b48; --hud-energy-label: "2%"; }
-    #hud-container:has(#energy-target[aria-valuenow="3"]) { --hud-energy-level: 3%; --hud-energy-color: #df4b48; --hud-energy-label: "3%"; }
-    #hud-container:has(#energy-target[aria-valuenow="4"]) { --hud-energy-level: 4%; --hud-energy-color: #df4b48; --hud-energy-label: "4%"; }
-    #hud-container:has(#energy-target[aria-valuenow="5"]) { --hud-energy-level: 5%; --hud-energy-color: #df4b48; --hud-energy-label: "5%"; }
-    #hud-container:has(#energy-target[aria-valuenow="6"]) { --hud-energy-level: 6%; --hud-energy-color: #df4b48; --hud-energy-label: "6%"; }
-    #hud-container:has(#energy-target[aria-valuenow="7"]) { --hud-energy-level: 7%; --hud-energy-color: #df4b48; --hud-energy-label: "7%"; }
-    #hud-container:has(#energy-target[aria-valuenow="8"]) { --hud-energy-level: 8%; --hud-energy-color: #df4b48; --hud-energy-label: "8%"; }
-    #hud-container:has(#energy-target[aria-valuenow="9"]) { --hud-energy-level: 9%; --hud-energy-color: #df4b48; --hud-energy-label: "9%"; }
-    #hud-container:has(#energy-target[aria-valuenow="10"]) { --hud-energy-level: 10%; --hud-energy-color: #df4b48; --hud-energy-label: "10%"; }
-    #hud-container:has(#energy-target[aria-valuenow="11"]) { --hud-energy-level: 11%; --hud-energy-color: #f28b35; --hud-energy-label: "11%"; }
-    #hud-container:has(#energy-target[aria-valuenow="12"]) { --hud-energy-level: 12%; --hud-energy-color: #f28b35; --hud-energy-label: "12%"; }
-    #hud-container:has(#energy-target[aria-valuenow="13"]) { --hud-energy-level: 13%; --hud-energy-color: #f28b35; --hud-energy-label: "13%"; }
-    #hud-container:has(#energy-target[aria-valuenow="14"]) { --hud-energy-level: 14%; --hud-energy-color: #f28b35; --hud-energy-label: "14%"; }
-    #hud-container:has(#energy-target[aria-valuenow="15"]) { --hud-energy-level: 15%; --hud-energy-color: #f28b35; --hud-energy-label: "15%"; }
-    #hud-container:has(#energy-target[aria-valuenow="16"]) { --hud-energy-level: 16%; --hud-energy-color: #f28b35; --hud-energy-label: "16%"; }
-    #hud-container:has(#energy-target[aria-valuenow="17"]) { --hud-energy-level: 17%; --hud-energy-color: #f28b35; --hud-energy-label: "17%"; }
-    #hud-container:has(#energy-target[aria-valuenow="18"]) { --hud-energy-level: 18%; --hud-energy-color: #f28b35; --hud-energy-label: "18%"; }
-    #hud-container:has(#energy-target[aria-valuenow="19"]) { --hud-energy-level: 19%; --hud-energy-color: #f28b35; --hud-energy-label: "19%"; }
-    #hud-container:has(#energy-target[aria-valuenow="20"]) { --hud-energy-level: 20%; --hud-energy-color: #f28b35; --hud-energy-label: "20%"; }
-    #hud-container:has(#energy-target[aria-valuenow="21"]) { --hud-energy-level: 21%; --hud-energy-color: #f28b35; --hud-energy-label: "21%"; }
-    #hud-container:has(#energy-target[aria-valuenow="22"]) { --hud-energy-level: 22%; --hud-energy-color: #f28b35; --hud-energy-label: "22%"; }
-    #hud-container:has(#energy-target[aria-valuenow="23"]) { --hud-energy-level: 23%; --hud-energy-color: #f28b35; --hud-energy-label: "23%"; }
-    #hud-container:has(#energy-target[aria-valuenow="24"]) { --hud-energy-level: 24%; --hud-energy-color: #f28b35; --hud-energy-label: "24%"; }
-    #hud-container:has(#energy-target[aria-valuenow="25"]) { --hud-energy-level: 25%; --hud-energy-color: #f28b35; --hud-energy-label: "25%"; }
-    #hud-container:has(#energy-target[aria-valuenow="26"]) { --hud-energy-level: 26%; --hud-energy-color: #edc948; --hud-energy-label: "26%"; }
-    #hud-container:has(#energy-target[aria-valuenow="27"]) { --hud-energy-level: 27%; --hud-energy-color: #edc948; --hud-energy-label: "27%"; }
-    #hud-container:has(#energy-target[aria-valuenow="28"]) { --hud-energy-level: 28%; --hud-energy-color: #edc948; --hud-energy-label: "28%"; }
-    #hud-container:has(#energy-target[aria-valuenow="29"]) { --hud-energy-level: 29%; --hud-energy-color: #edc948; --hud-energy-label: "29%"; }
-    #hud-container:has(#energy-target[aria-valuenow="30"]) { --hud-energy-level: 30%; --hud-energy-color: #edc948; --hud-energy-label: "30%"; }
-    #hud-container:has(#energy-target[aria-valuenow="31"]) { --hud-energy-level: 31%; --hud-energy-color: #edc948; --hud-energy-label: "31%"; }
-    #hud-container:has(#energy-target[aria-valuenow="32"]) { --hud-energy-level: 32%; --hud-energy-color: #edc948; --hud-energy-label: "32%"; }
-    #hud-container:has(#energy-target[aria-valuenow="33"]) { --hud-energy-level: 33%; --hud-energy-color: #edc948; --hud-energy-label: "33%"; }
-    #hud-container:has(#energy-target[aria-valuenow="34"]) { --hud-energy-level: 34%; --hud-energy-color: #edc948; --hud-energy-label: "34%"; }
-    #hud-container:has(#energy-target[aria-valuenow="35"]) { --hud-energy-level: 35%; --hud-energy-color: #edc948; --hud-energy-label: "35%"; }
-    #hud-container:has(#energy-target[aria-valuenow="36"]) { --hud-energy-level: 36%; --hud-energy-color: #edc948; --hud-energy-label: "36%"; }
-    #hud-container:has(#energy-target[aria-valuenow="37"]) { --hud-energy-level: 37%; --hud-energy-color: #edc948; --hud-energy-label: "37%"; }
-    #hud-container:has(#energy-target[aria-valuenow="38"]) { --hud-energy-level: 38%; --hud-energy-color: #edc948; --hud-energy-label: "38%"; }
-    #hud-container:has(#energy-target[aria-valuenow="39"]) { --hud-energy-level: 39%; --hud-energy-color: #edc948; --hud-energy-label: "39%"; }
-    #hud-container:has(#energy-target[aria-valuenow="40"]) { --hud-energy-level: 40%; --hud-energy-color: #edc948; --hud-energy-label: "40%"; }
-    #hud-container:has(#energy-target[aria-valuenow="41"]) { --hud-energy-level: 41%; --hud-energy-color: #edc948; --hud-energy-label: "41%"; }
-    #hud-container:has(#energy-target[aria-valuenow="42"]) { --hud-energy-level: 42%; --hud-energy-color: #edc948; --hud-energy-label: "42%"; }
-    #hud-container:has(#energy-target[aria-valuenow="43"]) { --hud-energy-level: 43%; --hud-energy-color: #edc948; --hud-energy-label: "43%"; }
-    #hud-container:has(#energy-target[aria-valuenow="44"]) { --hud-energy-level: 44%; --hud-energy-color: #edc948; --hud-energy-label: "44%"; }
-    #hud-container:has(#energy-target[aria-valuenow="45"]) { --hud-energy-level: 45%; --hud-energy-color: #edc948; --hud-energy-label: "45%"; }
-    #hud-container:has(#energy-target[aria-valuenow="46"]) { --hud-energy-level: 46%; --hud-energy-color: #edc948; --hud-energy-label: "46%"; }
-    #hud-container:has(#energy-target[aria-valuenow="47"]) { --hud-energy-level: 47%; --hud-energy-color: #edc948; --hud-energy-label: "47%"; }
-    #hud-container:has(#energy-target[aria-valuenow="48"]) { --hud-energy-level: 48%; --hud-energy-color: #edc948; --hud-energy-label: "48%"; }
-    #hud-container:has(#energy-target[aria-valuenow="49"]) { --hud-energy-level: 49%; --hud-energy-color: #edc948; --hud-energy-label: "49%"; }
-    #hud-container:has(#energy-target[aria-valuenow="50"]) { --hud-energy-level: 50%; --hud-energy-color: #edc948; --hud-energy-label: "50%"; }
-    #hud-container:has(#energy-target[aria-valuenow="51"]) { --hud-energy-level: 51%; --hud-energy-color: #48b85b; --hud-energy-label: "51%"; }
-    #hud-container:has(#energy-target[aria-valuenow="52"]) { --hud-energy-level: 52%; --hud-energy-color: #48b85b; --hud-energy-label: "52%"; }
-    #hud-container:has(#energy-target[aria-valuenow="53"]) { --hud-energy-level: 53%; --hud-energy-color: #48b85b; --hud-energy-label: "53%"; }
-    #hud-container:has(#energy-target[aria-valuenow="54"]) { --hud-energy-level: 54%; --hud-energy-color: #48b85b; --hud-energy-label: "54%"; }
-    #hud-container:has(#energy-target[aria-valuenow="55"]) { --hud-energy-level: 55%; --hud-energy-color: #48b85b; --hud-energy-label: "55%"; }
-    #hud-container:has(#energy-target[aria-valuenow="56"]) { --hud-energy-level: 56%; --hud-energy-color: #48b85b; --hud-energy-label: "56%"; }
-    #hud-container:has(#energy-target[aria-valuenow="57"]) { --hud-energy-level: 57%; --hud-energy-color: #48b85b; --hud-energy-label: "57%"; }
-    #hud-container:has(#energy-target[aria-valuenow="58"]) { --hud-energy-level: 58%; --hud-energy-color: #48b85b; --hud-energy-label: "58%"; }
-    #hud-container:has(#energy-target[aria-valuenow="59"]) { --hud-energy-level: 59%; --hud-energy-color: #48b85b; --hud-energy-label: "59%"; }
-    #hud-container:has(#energy-target[aria-valuenow="60"]) { --hud-energy-level: 60%; --hud-energy-color: #48b85b; --hud-energy-label: "60%"; }
-    #hud-container:has(#energy-target[aria-valuenow="61"]) { --hud-energy-level: 61%; --hud-energy-color: #48b85b; --hud-energy-label: "61%"; }
-    #hud-container:has(#energy-target[aria-valuenow="62"]) { --hud-energy-level: 62%; --hud-energy-color: #48b85b; --hud-energy-label: "62%"; }
-    #hud-container:has(#energy-target[aria-valuenow="63"]) { --hud-energy-level: 63%; --hud-energy-color: #48b85b; --hud-energy-label: "63%"; }
-    #hud-container:has(#energy-target[aria-valuenow="64"]) { --hud-energy-level: 64%; --hud-energy-color: #48b85b; --hud-energy-label: "64%"; }
-    #hud-container:has(#energy-target[aria-valuenow="65"]) { --hud-energy-level: 65%; --hud-energy-color: #48b85b; --hud-energy-label: "65%"; }
-    #hud-container:has(#energy-target[aria-valuenow="66"]) { --hud-energy-level: 66%; --hud-energy-color: #48b85b; --hud-energy-label: "66%"; }
-    #hud-container:has(#energy-target[aria-valuenow="67"]) { --hud-energy-level: 67%; --hud-energy-color: #48b85b; --hud-energy-label: "67%"; }
-    #hud-container:has(#energy-target[aria-valuenow="68"]) { --hud-energy-level: 68%; --hud-energy-color: #48b85b; --hud-energy-label: "68%"; }
-    #hud-container:has(#energy-target[aria-valuenow="69"]) { --hud-energy-level: 69%; --hud-energy-color: #48b85b; --hud-energy-label: "69%"; }
-    #hud-container:has(#energy-target[aria-valuenow="70"]) { --hud-energy-level: 70%; --hud-energy-color: #48b85b; --hud-energy-label: "70%"; }
-    #hud-container:has(#energy-target[aria-valuenow="71"]) { --hud-energy-level: 71%; --hud-energy-color: #48b85b; --hud-energy-label: "71%"; }
-    #hud-container:has(#energy-target[aria-valuenow="72"]) { --hud-energy-level: 72%; --hud-energy-color: #48b85b; --hud-energy-label: "72%"; }
-    #hud-container:has(#energy-target[aria-valuenow="73"]) { --hud-energy-level: 73%; --hud-energy-color: #48b85b; --hud-energy-label: "73%"; }
-    #hud-container:has(#energy-target[aria-valuenow="74"]) { --hud-energy-level: 74%; --hud-energy-color: #48b85b; --hud-energy-label: "74%"; }
-    #hud-container:has(#energy-target[aria-valuenow="75"]) { --hud-energy-level: 75%; --hud-energy-color: #48b85b; --hud-energy-label: "75%"; }
-    #hud-container:has(#energy-target[aria-valuenow="76"]) { --hud-energy-level: 76%; --hud-energy-color: #48b85b; --hud-energy-label: "76%"; }
-    #hud-container:has(#energy-target[aria-valuenow="77"]) { --hud-energy-level: 77%; --hud-energy-color: #48b85b; --hud-energy-label: "77%"; }
-    #hud-container:has(#energy-target[aria-valuenow="78"]) { --hud-energy-level: 78%; --hud-energy-color: #48b85b; --hud-energy-label: "78%"; }
-    #hud-container:has(#energy-target[aria-valuenow="79"]) { --hud-energy-level: 79%; --hud-energy-color: #48b85b; --hud-energy-label: "79%"; }
-    #hud-container:has(#energy-target[aria-valuenow="80"]) { --hud-energy-level: 80%; --hud-energy-color: #48b85b; --hud-energy-label: "80%"; }
-    #hud-container:has(#energy-target[aria-valuenow="81"]) { --hud-energy-level: 81%; --hud-energy-color: #48b85b; --hud-energy-label: "81%"; }
-    #hud-container:has(#energy-target[aria-valuenow="82"]) { --hud-energy-level: 82%; --hud-energy-color: #48b85b; --hud-energy-label: "82%"; }
-    #hud-container:has(#energy-target[aria-valuenow="83"]) { --hud-energy-level: 83%; --hud-energy-color: #48b85b; --hud-energy-label: "83%"; }
-    #hud-container:has(#energy-target[aria-valuenow="84"]) { --hud-energy-level: 84%; --hud-energy-color: #48b85b; --hud-energy-label: "84%"; }
-    #hud-container:has(#energy-target[aria-valuenow="85"]) { --hud-energy-level: 85%; --hud-energy-color: #48b85b; --hud-energy-label: "85%"; }
-    #hud-container:has(#energy-target[aria-valuenow="86"]) { --hud-energy-level: 86%; --hud-energy-color: #48b85b; --hud-energy-label: "86%"; }
-    #hud-container:has(#energy-target[aria-valuenow="87"]) { --hud-energy-level: 87%; --hud-energy-color: #48b85b; --hud-energy-label: "87%"; }
-    #hud-container:has(#energy-target[aria-valuenow="88"]) { --hud-energy-level: 88%; --hud-energy-color: #48b85b; --hud-energy-label: "88%"; }
-    #hud-container:has(#energy-target[aria-valuenow="89"]) { --hud-energy-level: 89%; --hud-energy-color: #48b85b; --hud-energy-label: "89%"; }
-    #hud-container:has(#energy-target[aria-valuenow="90"]) { --hud-energy-level: 90%; --hud-energy-color: #48b85b; --hud-energy-label: "90%"; }
-    #hud-container:has(#energy-target[aria-valuenow="91"]) { --hud-energy-level: 91%; --hud-energy-color: #48b85b; --hud-energy-label: "91%"; }
-    #hud-container:has(#energy-target[aria-valuenow="92"]) { --hud-energy-level: 92%; --hud-energy-color: #48b85b; --hud-energy-label: "92%"; }
-    #hud-container:has(#energy-target[aria-valuenow="93"]) { --hud-energy-level: 93%; --hud-energy-color: #48b85b; --hud-energy-label: "93%"; }
-    #hud-container:has(#energy-target[aria-valuenow="94"]) { --hud-energy-level: 94%; --hud-energy-color: #48b85b; --hud-energy-label: "94%"; }
-    #hud-container:has(#energy-target[aria-valuenow="95"]) { --hud-energy-level: 95%; --hud-energy-color: #48b85b; --hud-energy-label: "95%"; }
-    #hud-container:has(#energy-target[aria-valuenow="96"]) { --hud-energy-level: 96%; --hud-energy-color: #48b85b; --hud-energy-label: "96%"; }
-    #hud-container:has(#energy-target[aria-valuenow="97"]) { --hud-energy-level: 97%; --hud-energy-color: #48b85b; --hud-energy-label: "97%"; }
-    #hud-container:has(#energy-target[aria-valuenow="98"]) { --hud-energy-level: 98%; --hud-energy-color: #48b85b; --hud-energy-label: "98%"; }
-    #hud-container:has(#energy-target[aria-valuenow="99"]) { --hud-energy-level: 99%; --hud-energy-color: #48b85b; --hud-energy-label: "99%"; }
-    #hud-container:has(#energy-target[aria-valuenow="100"]) { --hud-energy-level: 100%; --hud-energy-color: #48b85b; --hud-energy-label: "100%"; }
-  </style>
+  <!-- UIScene.updateEnergy() sets aria-valuenow on #energy-target and the
+       --hud-energy-* CSS variables on #hud-container (used by #btn-hud-expand). -->
 </div>

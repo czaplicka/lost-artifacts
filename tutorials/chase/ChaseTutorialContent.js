@@ -1,109 +1,45 @@
 export const CONTENT = {
-  npc: [
-    'LOCAL SOURCES',
-    'Talk to people in the city. Ask about the suspect and the next ' +
-    'destination. You need clues, not restaurant recommendations.'
-  ],
+  npc:['LOCAL SOURCES','Talk to a witness and ask about the suspect and the next destination.'],
+  dialogue:['ASK THE QUESTIONS','Ask the available questions about the suspect and the next destination.'],
+  leave:['BACK TO THE CITY','Return to the city map. Your next task is waiting there.'],
+  inventory:['CHECK THE RECOVERED ID','Open Inventory and select the ID Preparation Envelope. Read the eye colour recorded in the forged ID proof.'],
+  envelope:['READ THE ID PROOF','Select the ID Preparation Envelope and read its description. Remember the eye colour. Then close Inventory.'],
+  envelope_missing:['RECOVERED ID EVIDENCE','The ID Preparation Envelope is not in your inventory. Recover it from the suspect’s apartment before continuing this lesson. You can skip the tutorial without changing your case.'],
+  envelope_done:['DETAIL RECORDED','You have viewed the envelope. Close Inventory, then open Warrant from the player menu.'],
+  warrant:['BUILD THE PROFILE','Open Warrant. Combine the eye colour from the envelope with the witness descriptions.'],
+  warrant_edit:['THREE SUPPORTED TRAITS','Select at least three traits supported by your evidence. Include the eye colour from the envelope. USE CLUE can apply that recovered detail.'],
+  warrant_search:['SEARCH THE RECORDS','Your three traits are selected. Click SEARCH RECORDS to find matching suspects.'],
+  warrant_searching:['SEARCHING','The records search is running. Wait for the results.'],
+  warrant_issue:['ISSUE THE WARRANT','Compare the matching records with your evidence. Click ISSUE beside your chosen suspect.'],
+  warrant_no_match:['CHECK THE PROFILE','No records match these traits. Check the selected values against your evidence, then search again.'],
+  warrant_issued:['WARRANT ISSUED','The warrant has been issued. Close this window or wait for it to close.'],
+  hotel:['A ROOM WITH A CASE','Visit the hotel. Your room gives you access to the Crime Board and Case Theory.'],
+  booking:['CHECK IN','Choose a hotel within your budget. You can review the Crime Board from your room.'],
+  board:['CONNECT THE CLUES','Use the desk in your room to open the Crime Board.'],
+  board_edit:['EVIDENCE, NOT WALLPAPER','Review your evidence, then open the Case Theory tab.'],
+  theory_open:['FROM CLUES TO A CASE','Open the Case Theory tab. Turn your evidence into supported conclusions.'],
+  theory_edit:['MAKE YOUR CASE','Build Identity, Motive, Means and Opportunity. Attach evidence to support each conclusion. You can revise your theory later.'],
+  return:['BACK TO WORK','Close the board and return to the city. There are still witnesses to question.'],
+  travel:['THE CHASE IS ON','Open Travel and compare the destination clues from your three witnesses.'],
+  travel_choose:['NO RANDOM HOLIDAYS','Choose the next city using the destination clues.'],
+  arrest:['FIVE PEOPLE UNDER WATCH','Compare the five dossiers with your witness statements and warrant. Choose the person to arrest. Surveillance is not proof of guilt.'],
+  arrest_theory:['CUSTODY IS NOT A CONVICTION','Your warrant authorises an arrest. Your evidence-backed Case Theory provides the argument for court. Choosing a suspect does not prove the rest of the case.']
+};
 
-  dialogue: [
-    'ASK THE QUESTIONS',
-    'Choose the available conversation topics. Witnesses can describe ' +
-    'the suspect and point you towards the next city. Listen carefully: ' +
-    'a confident witness is not necessarily a useful witness.'
-  ],
-
-  leave: [
-    'BACK TO THE CITY',
-    'You have asked the available questions. Return to the city map ' +
-    'and put those answers to work.'
-  ],
-
-  warrant: [
-    'BUILD THE PROFILE',
-    'Open Warrant from the player menu. Use witness descriptions to ' +
-    'build the suspect profile and issue your arrest warrant. ' +
-    'A suspicious expression is not a recognised identifying feature.'
-  ],
-
-  warrant_edit: [
-    'PAPERWORK WITH CONSEQUENCES',
-    'Set the traits supported by your witness statements and issue ' +
-    'the warrant. Do not invent missing details. Close this window ' +
-    'when you are ready to continue.'
-  ],
-
-  hotel: [
-    'A ROOM WITH A CASE',
-    'Visit the hotel. Your room gives you access to the Crime Board ' +
-    'and Case Theory. Apparently the agency could afford a desk, ' +
-    'but not an office in every city.'
-  ],
-
-  booking: [
-    'CHECK IN',
-    'Choose a hotel within your budget. You can review the Crime Board ' +
-    'from your room. The minibar is not an investigative expense.'
-  ],
-
-  board: [
-    'CONNECT THE CLUES',
-    'Use the desk in your room to open the Crime Board. ' +
-    'This is where you organise the evidence gathered during the case.'
-  ],
-
-  board_edit: [
-    'EVIDENCE, NOT WALLPAPER',
-    'Review your evidence and use the board to organise the case. ' +
-    'Next, open the Case Theory tab. An attractive arrangement of ' +
-    'photographs is not yet a prosecution.'
-  ],
-
-  theory_open: [
-    'FROM CLUES TO A CASE',
-    'Open the Case Theory tab. The Evidence Board stores and organises ' +
-    'your findings; Case Theory explains what you think those findings prove.'
-  ],
-
-  theory_edit: [
-    'MAKE YOUR CASE',
-    'Build four conclusions: Identity — who did it; Motive — why; ' +
-    'Means — which skills were used; Opportunity — what made the theft ' +
-    'possible. Attach evidence to support each conclusion. This theory ' +
-    'will be used in court. You can return and revise it as you learn more. ' +
-    'A complete theory is not necessarily a correct theory.'
-  ],
-
-  return: [
-    'BACK TO WORK',
-    'Close the board when you are ready, then return to the city. ' +
-    'There are still witnesses to question and a thief with travel plans.'
-  ],
-
-  travel: [
-    'THE CHASE IS ON',
-    'You have questioned three witnesses. Open Travel and compare ' +
-    'the destination clues before choosing your next city.'
-  ],
-
-  travel_choose: [
-    'NO RANDOM HOLIDAYS',
-    'Choose your next city using the destination clues. ' +
-    'The thief is travelling. That does not make this a holiday.'
-  ],
-
-  arrest: [
-    'FIVE PEOPLE UNDER WATCH',
-    'Our agents are watching these five people in this city. Your thief ' +
-    'should be among them. Review their dossiers and compare them with ' +
-    'your witness statements and warrant, then choose who to arrest. ' +
-    'Surveillance is not proof of guilt. Neither is a suspicious moustache.'
-  ],
-
-  arrest_theory: [
-    'CUSTODY IS NOT A CONVICTION',
-    'The warrant authorises the arrest. Your choice identifies the person ' +
-    'to detain. Case Theory provides the argument for court: Identity, ' +
-    'Motive, Means and Opportunity, supported by evidence. ' +
-    'Choosing a suspect does not prove the rest of the case.'
-  ]
+export const COMPACT_OBJECTIVES = {
+  npc:'Talk to a witness.',dialogue:'Ask about the suspect and destination.',leave:'Return to the city map.',
+  inventory:'Open Inventory and select the ID Preparation Envelope.',
+  envelope:'Read the eye colour in the ID Preparation Envelope.',
+  envelope_missing:'Recover the ID Preparation Envelope from the apartment.',
+  envelope_done:'Close Inventory and open Warrant.',
+  warrant:'Open Warrant from the player menu.',
+  warrant_edit:'Select three traits, including the recovered eye colour.',
+  warrant_search:'Click SEARCH RECORDS.',warrant_searching:'Wait for the records search.',
+  warrant_issue:'Click ISSUE beside your chosen suspect.',warrant_no_match:'Check the traits and search again.',
+  warrant_issued:'Close the issued warrant.',hotel:'Visit the hotel.',booking:'Choose a hotel.',
+  board:'Use the desk to open the Crime Board.',board_edit:'Review the evidence and open Case Theory.',
+  theory_open:'Open the Case Theory tab.',theory_edit:'Build four evidence-backed conclusions.',
+  return:'Close the board and return to the city.',travel:'Open Travel and compare the clues.',
+  travel_choose:'Choose the next city using the clues.',arrest:'Compare the dossiers and select your suspect.',
+  arrest_theory:'Review how your Case Theory supports the case.'
 };

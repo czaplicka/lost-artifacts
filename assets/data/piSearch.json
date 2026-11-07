@@ -129,8 +129,20 @@
               "pageId": "miramar"
             },
             {
+              "label": "Journal",
+              "pageId": "miramar_event"
+            },
+            {
               "label": "Meetings",
               "pageId": "miramar_meetings"
+            },
+            {
+              "label": "Dining",
+              "pageId": "miramar_terrace"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "miramar_guest_faq"
             }
           ],
           "snippet": "Rooms, terrace dining and private events overlooking the coast.",
@@ -163,8 +175,16 @@
               "pageId": "mariner"
             },
             {
-              "label": "Events",
+              "label": "What's on",
               "pageId": "mariner_events"
+            },
+            {
+              "label": "Breakfast & lounge",
+              "pageId": "mariner_breakfast"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "mariner_guest_faq"
             }
           ],
           "snippet": "A family-run hotel beside the old harbour. Look for our brass seahorse.",
@@ -197,6 +217,14 @@
             {
               "label": "Functions",
               "pageId": "coral_events"
+            },
+            {
+              "label": "Family stays",
+              "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Pool questions",
+              "pageId": "coral_pool_questions"
             }
           ],
           "snippet": "A seaside resort with family suites, a heated pool and our familiar seahorse crest.",
@@ -235,6 +263,10 @@
             {
               "label": "Events",
               "pageId": "events"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
             },
             {
               "label": "People",
@@ -285,6 +317,10 @@
               "pageId": "events"
             },
             {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
               "label": "People",
               "pageId": "team"
             },
@@ -328,16 +364,28 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "miramar"
             },
             {
-              "label": "Event gallery",
-              "pageId": "gallery"
+              "label": "Journal",
+              "pageId": "miramar_event"
             },
             {
               "label": "Meetings",
               "pageId": "miramar_meetings"
+            },
+            {
+              "label": "Dining",
+              "pageId": "miramar_terrace"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "miramar_guest_faq"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
             }
           ],
           "snippet": "Open Skies delegates joined us for workshops, dinner and an evening on the terrace.",
@@ -373,6 +421,18 @@
             {
               "label": "Journal",
               "pageId": "miramar_event"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
+            },
+            {
+              "label": "Dining",
+              "pageId": "miramar_terrace"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "miramar_guest_faq"
             }
           ],
           "snippet": "Meeting rooms, terrace receptions and private dining for up to eighty guests.",
@@ -397,6 +457,18 @@
             {
               "label": "Home",
               "pageId": "mariner"
+            },
+            {
+              "label": "What's on",
+              "pageId": "mariner_events"
+            },
+            {
+              "label": "Breakfast & lounge",
+              "pageId": "mariner_breakfast"
+            },
+            {
+              "label": "Guest questions",
+              "pageId": "mariner_guest_faq"
             }
           ],
           "snippet": "Quiz nights, harbour history talks and live music in the lounge.",
@@ -421,6 +493,18 @@
             {
               "label": "Home",
               "pageId": "coral"
+            },
+            {
+              "label": "Functions",
+              "pageId": "coral_events"
+            },
+            {
+              "label": "Family stays",
+              "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Pool questions",
+              "pageId": "coral_pool_questions"
             }
           ],
           "snippet": "Weddings, anniversaries and the Coastal Garden Society spring dinner.",
@@ -455,7 +539,10 @@
           "snippet": "The country-club classic returns, with softer tailoring and brighter accessories.",
           "template": "lifestyle",
           "imageKey": "everyday_edit_green_checks",
-          "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp"
+          "imageUrl": "assets/side_quests/Reed/web/news/everyday_edit_green_checks.webp",
+          "layout": "editorial",
+          "imageCaption": "Green checks / The Everyday Edit",
+          "showImage": true
         },
         {
           "id": "gallery",
@@ -484,8 +571,20 @@
           ],
           "links": [
             {
-              "label": "Programme",
+              "label": "About",
+              "pageId": "organisation"
+            },
+            {
+              "label": "Events",
               "pageId": "events"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
             },
             {
               "label": "Contact",
@@ -527,6 +626,18 @@
               "pageId": "organisation"
             },
             {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
+              "label": "People",
+              "pageId": "team"
+            },
+            {
               "label": "Contact",
               "pageId": "contact"
             }
@@ -566,8 +677,20 @@
               "pageId": "organisation"
             },
             {
+              "label": "Events",
+              "pageId": "events"
+            },
+            {
+              "label": "Event gallery",
+              "pageId": "gallery"
+            },
+            {
               "label": "People",
               "pageId": "team"
+            },
+            {
+              "label": "Contact",
+              "pageId": "contact"
             }
           ],
           "snippet": "Programme enquiries, press requests and event administration.",
@@ -594,7 +717,8 @@
           "links": [],
           "snippet": "Guided walks, migration notes and a swallow badge for members.",
           "logoKey": "reed_web_logo_swallow_watch",
-          "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp"
+          "logoUrl": "assets/side_quests/Reed/web/logos/swallow_watch.webp",
+          "showImage": true
         },
         {
           "id": "swallow_couriers",
@@ -616,7 +740,8 @@
           "links": [],
           "snippet": "Business deliveries and local parcels. Look for the blue swallow.",
           "logoKey": "reed_web_logo_swiftwing",
-          "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp"
+          "logoUrl": "assets/side_quests/Reed/web/logos/swiftwing.webp",
+          "showImage": true
         },
         {
           "id": "claire_social",
@@ -854,7 +979,16 @@
               "Local groups can contact the foundation’s programme office for future training dates."
             ]
           ],
-          "links": [],
+          "links": [
+            {
+              "label": "Volunteers build stronger local partnerships",
+              "pageId": "claire_work"
+            },
+            {
+              "label": "Small grants, practical results",
+              "pageId": "nora_work"
+            }
+          ],
           "snippet": "Claire Sutton led a practical workshop for local volunteer groups.",
           "template": "news",
           "imageKey": "community_ledger_volunteer_training",
@@ -880,7 +1014,16 @@
               "Applications will be reviewed by the regional panel. Biscuits will be reviewed by everyone."
             ]
           ],
-          "links": [],
+          "links": [
+            {
+              "label": "Volunteers build stronger local partnerships",
+              "pageId": "claire_work"
+            },
+            {
+              "label": "Small grants, practical results",
+              "pageId": "nora_work"
+            }
+          ],
           "snippet": "Nora Bell outlined community funding opportunities in the North Region.",
           "template": "news",
           "imageKey": "community_ledger_small_grants",
@@ -1105,7 +1248,7 @@
           "title": "Why are there two glasses at my place setting?",
           "address": "www.tablematters.local/service/two-glasses",
           "brand": "TABLE MATTERS",
-          "theme": "business",
+          "theme": "magazine",
           "snippet": "Water glass, wine glass, mystery glass: a short guide to finding your drink.",
           "blocks": [
             [
@@ -1121,7 +1264,14 @@
               "If neither glass contains your drink, try asking the waiter. Staring meaningfully at the table remains an experimental technique."
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "lifestyle",
+          "layout": "editorial",
+          "imageKey": "reed_web_table_matters",
+          "imageUrl": "assets/side_quests/Reed/web/news/table_matters_two_glasses.webp",
+          "imageCaption": "Two glasses / Table Matters",
+          "category": "DINING / TABLE SETTINGS",
+          "showImage": true
         },
         {
           "id": "two_glasses_shop",
@@ -1144,7 +1294,13 @@
               "Price: £18 per pair. Wine not included. A surprisingly common source of disappointment."
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "business",
+          "imageKey": "reed_web_toast_rack",
+          "imageUrl": "assets/side_quests/Reed/web/news/toast_rack_two_glasses_gift_box.webp",
+          "imageCaption": "A boxed pair / The Toast Rack",
+          "sectionLabel": "SHOP / GLASSWARE",
+          "showImage": true
         },
         {
           "id": "two_glasses_specs",
@@ -1170,14 +1326,19 @@
               "MODERATOR: “For drinking glasses, please use the homeware section. This is the third time this week.”"
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "forum",
+          "imageKey": "reed_web_spare_pair_attachment",
+          "imageUrl": "assets/side_quests/Reed/web/news/spare_pair_two_glasses.webp",
+          "imageCaption": "Two pairs / Archived thread attachment",
+          "showImage": true
         },
         {
           "id": "jacket_shop",
           "title": "Fenwick green-check blazer | Marsh & Button",
           "address": "www.marshandbutton.local/womenswear/fenwick",
           "brand": "MARSH & BUTTON",
-          "theme": "business",
+          "theme": "magazine",
           "snippet": "Dark green checks, contrasting pocket trim and enough pockets to lose your own receipt.",
           "blocks": [
             [
@@ -1193,14 +1354,21 @@
               "Check availability with your local branch. We cannot identify a customer from a photograph of a jacket. We also cannot identify our own regional manager without her name badge."
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "lifestyle",
+          "layout": "editorial",
+          "imageKey": "reed_web_fenwick_blazer",
+          "imageUrl": "assets/side_quests/Reed/web/news/marsh_button_fenwick_blazer.webp",
+          "imageCaption": "The Fenwick blazer / Marsh & Button",
+          "category": "STYLE / CATALOGUE",
+          "showImage": true
         },
         {
           "id": "jacket_hire",
           "title": "Green checked jackets | Second Impression Hire",
           "address": "www.secondimpression.local/hire/green-check",
           "brand": "SECOND IMPRESSION",
-          "theme": "business",
+          "theme": "magazine",
           "snippet": "Jackets for conferences, interviews and occasions that unexpectedly require an iron.",
           "blocks": [
             [
@@ -1216,14 +1384,21 @@
               "Customer names and booking records are private. “I am being very nosy” does not qualify as written authorisation."
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "lifestyle",
+          "layout": "editorial",
+          "imageKey": "reed_web_second_impression",
+          "imageUrl": "assets/side_quests/Reed/web/news/second_impression_green_jackets.webp",
+          "imageCaption": "Green checked jackets / Second Impression",
+          "category": "STYLE / CLOTHING HIRE",
+          "showImage": true
         },
         {
           "id": "jacket_cleaner",
           "title": "Caring for a checked blazer | Pressing Matters",
           "address": "www.pressingmatters.local/care/checked-blazers",
           "brand": "PRESSING MATTERS",
-          "theme": "business",
+          "theme": "magazine",
           "snippet": "Wool checks, decorative trim and the mysterious contents of your pockets.",
           "blocks": [
             [
@@ -1239,7 +1414,14 @@
               "All collection tickets must be presented at the counter. “It was green” describes both half our rail and the accountant after seeing the electricity bill."
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "news",
+          "layout": "editorial",
+          "imageKey": "reed_web_pressing_matters",
+          "imageUrl": "assets/side_quests/Reed/web/news/pressing_matters_checked_blazer.webp",
+          "imageCaption": "Checked blazer / Pressing Matters",
+          "category": "CLOTHING / CARE GUIDE",
+          "showImage": true
         },
         {
           "id": "jacket_forum",
@@ -1265,7 +1447,12 @@
               "MODERATOR: “Please do not post strangers’ names or photographs. This is a lost-property forum, not a public trial with coat hangers.”"
             ]
           ],
-          "links": []
+          "links": [],
+          "template": "forum",
+          "imageKey": "reed_web_coat_check_attachment",
+          "imageUrl": "assets/side_quests/Reed/web/news/coat_check_green_jacket_swap.webp",
+          "imageCaption": "Green jacket / Archived thread attachment",
+          "showImage": true
         },
         {
           "id": "miramar_terrace",
@@ -1295,12 +1482,20 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "miramar"
+            },
+            {
+              "label": "Journal",
+              "pageId": "miramar_event"
             },
             {
               "label": "Meetings",
               "pageId": "miramar_meetings"
+            },
+            {
+              "label": "Dining",
+              "pageId": "miramar_terrace"
             },
             {
               "label": "Guest questions",
@@ -1346,16 +1541,24 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "miramar"
+            },
+            {
+              "label": "Journal",
+              "pageId": "miramar_event"
+            },
+            {
+              "label": "Meetings",
+              "pageId": "miramar_meetings"
             },
             {
               "label": "Dining",
               "pageId": "miramar_terrace"
             },
             {
-              "label": "Meetings",
-              "pageId": "miramar_meetings"
+              "label": "Guest questions",
+              "pageId": "miramar_guest_faq"
             }
           ],
           "snippet": "Terrace visits, guest privacy and the lost-property cupboard.",
@@ -1389,6 +1592,14 @@
             ]
           ],
           "links": [
+            {
+              "label": "Hotel Miramar",
+              "pageId": "miramar_coast_guide"
+            },
+            {
+              "label": "Coral Crown Hotel",
+              "pageId": "coral_coast_listing"
+            },
             {
               "label": "Official hotel website",
               "pageId": "miramar"
@@ -1493,16 +1704,20 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "coral"
-            },
-            {
-              "label": "Pool information",
-              "pageId": "coral_pool_questions"
             },
             {
               "label": "Functions",
               "pageId": "coral_events"
+            },
+            {
+              "label": "Family stays",
+              "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Pool questions",
+              "pageId": "coral_pool_questions"
             }
           ],
           "snippet": "Family suites and indoor swimming, with room for the favourite toy.",
@@ -1539,12 +1754,20 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "coral"
+            },
+            {
+              "label": "Functions",
+              "pageId": "coral_events"
             },
             {
               "label": "Family stays",
               "pageId": "coral_family_stays"
+            },
+            {
+              "label": "Pool questions",
+              "pageId": "coral_pool_questions"
             },
             {
               "label": "Guest discussion",
@@ -1621,6 +1844,14 @@
             ]
           ],
           "links": [
+            {
+              "label": "Hotel Miramar",
+              "pageId": "miramar_coast_guide"
+            },
+            {
+              "label": "Coral Crown Hotel",
+              "pageId": "coral_coast_listing"
+            },
             {
               "label": "Official website",
               "pageId": "coral"
@@ -1708,12 +1939,16 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "mariner"
             },
             {
-              "label": "What’s on",
+              "label": "What's on",
               "pageId": "mariner_events"
+            },
+            {
+              "label": "Breakfast & lounge",
+              "pageId": "mariner_breakfast"
             },
             {
               "label": "Guest questions",
@@ -1765,16 +2000,20 @@
           ],
           "links": [
             {
-              "label": "Hotel",
+              "label": "Home",
               "pageId": "mariner"
+            },
+            {
+              "label": "What's on",
+              "pageId": "mariner_events"
             },
             {
               "label": "Breakfast & lounge",
               "pageId": "mariner_breakfast"
             },
             {
-              "label": "Events",
-              "pageId": "mariner_events"
+              "label": "Guest questions",
+              "pageId": "mariner_guest_faq"
             }
           ],
           "snippet": "The Quay Street entrance, a brass seahorse and a firm policy on other people’s bookings.",
@@ -2320,8 +2559,16 @@
           ],
           "links": [
             {
-              "label": "Family contact",
+              "label": "Memorial",
+              "pageId": "dm_memorial"
+            },
+            {
+              "label": "Contact",
               "pageId": "dm_family_contact"
+            },
+            {
+              "label": "Acknowledgements",
+              "pageId": "dm_margaret_thanks"
             }
           ],
           "snippet": "Edward Vale — remembered by family, friends and former colleagues."
@@ -2354,8 +2601,16 @@
           ],
           "links": [
             {
-              "label": "Remembering Edward",
+              "label": "Memorial",
               "pageId": "dm_memorial"
+            },
+            {
+              "label": "Contact",
+              "pageId": "dm_family_contact"
+            },
+            {
+              "label": "Acknowledgements",
+              "pageId": "dm_margaret_thanks"
             }
           ],
           "snippet": "Contact for correspondence concerning Edward’s memorial and family archive."
@@ -2387,12 +2642,16 @@
           ],
           "links": [
             {
-              "label": "Contact",
-              "pageId": "dm_mercer_contact"
+              "label": "Home",
+              "pageId": "dm_mercer_home"
             },
             {
               "label": "Services",
               "pageId": "dm_mercer_services"
+            },
+            {
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
             }
           ],
           "snippet": "Mercer Audio preserves speech recordings, voicemail exports and small business archives."
@@ -2425,12 +2684,16 @@
           ],
           "links": [
             {
+              "label": "Home",
+              "pageId": "dm_mercer_home"
+            },
+            {
               "label": "Services",
               "pageId": "dm_mercer_services"
             },
             {
-              "label": "Home",
-              "pageId": "dm_mercer_home"
+              "label": "Contact",
+              "pageId": "dm_mercer_contact"
             }
           ],
           "snippet": "Leo Mercer — archive transfer enquiries."
@@ -2461,6 +2724,14 @@
             ]
           ],
           "links": [
+            {
+              "label": "Home",
+              "pageId": "dm_mercer_home"
+            },
+            {
+              "label": "Services",
+              "pageId": "dm_mercer_services"
+            },
             {
               "label": "Contact",
               "pageId": "dm_mercer_contact"
@@ -2499,6 +2770,10 @@
           ],
           "links": [
             {
+              "label": "Home",
+              "pageId": "dm_ward_home"
+            },
+            {
               "label": "Contact",
               "pageId": "dm_ward_contact"
             }
@@ -2533,8 +2808,12 @@
           ],
           "links": [
             {
-              "label": "Company",
+              "label": "Home",
               "pageId": "dm_ward_home"
+            },
+            {
+              "label": "Contact",
+              "pageId": "dm_ward_contact"
             }
           ],
           "snippet": "Colin Ward — business enquiries."
@@ -2561,7 +2840,24 @@
               "This consumer guide covers routine preservation. It does not describe any particular family or investigation."
             ]
           ],
-          "links": [],
+          "links": [
+            {
+              "label": "Audio archives",
+              "pageId": "dm_audio_article"
+            },
+            {
+              "label": "Business records",
+              "pageId": "dm_folder_article"
+            },
+            {
+              "label": "Edward: filing",
+              "pageId": "dm_edward_filing_profile"
+            },
+            {
+              "label": "Book volunteers",
+              "pageId": "dm_margaret_library_notice"
+            }
+          ],
           "snippet": "An orderly recording archive starts with keeping original files and recording where each copy came from."
         },
         {
@@ -2590,7 +2886,24 @@
               "Our contributor recommends a filing system. Our editor recommends finding the filing cabinet first."
             ]
           ],
-          "links": [],
+          "links": [
+            {
+              "label": "Audio archives",
+              "pageId": "dm_audio_article"
+            },
+            {
+              "label": "Business records",
+              "pageId": "dm_folder_article"
+            },
+            {
+              "label": "Edward: filing",
+              "pageId": "dm_edward_filing_profile"
+            },
+            {
+              "label": "Book volunteers",
+              "pageId": "dm_margaret_library_notice"
+            }
+          ],
           "snippet": "A reconciliation sheet can record questions about company records that still need supporting documents."
         },
         {
@@ -2646,6 +2959,375 @@
           ],
           "links": [],
           "snippet": "Guitar setups, amplifier repairs and piano tuning by appointment."
+        },
+        {
+          "id": "dm_edward_directory",
+          "title": "Edward Vale | Archived business listing",
+          "brand": "PUBLIC DIRECTORY",
+          "address": "www.publicdirectory.local/archive/edward-vale",
+          "template": "directory",
+          "theme": "directory",
+          "blocks": [
+            [
+              "ARCHIVED ENTRY — no longer an active business listing."
+            ],
+            [
+              {
+                "keywordId": "dm_edward",
+                "text": "Edward Vale"
+              },
+              " — small-business administration and record keeping."
+            ],
+            [
+              "The retained listing describes office administration and the organisation of ",
+              {
+                "keywordId": "dm_accounts",
+                "text": "company records"
+              },
+              ". It is not a register of individual transactions."
+            ],
+            [
+              "The old business telephone number has been removed. The directory cannot put you through to the past, despite several persistent requests."
+            ],
+            [
+              "Family correspondence is handled through the Vale family archive. No private papers or recordings are available in this listing."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Edward Vale",
+              "pageId": "dm_edward_directory"
+            },
+            {
+              "label": "Margaret Vale",
+              "pageId": "dm_margaret_directory"
+            },
+            {
+              "label": "Family memorial",
+              "pageId": "dm_memorial"
+            },
+            {
+              "label": "Family contact",
+              "pageId": "dm_family_contact"
+            }
+          ],
+          "snippet": "ARCHIVED ENTRY — no longer an active business listing. Edward Vale  — small-business administration and record keeping."
+        },
+        {
+          "id": "dm_edward_filing_profile",
+          "title": "Edward Vale and the triumph of the blue folder",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/archive/edward-vale-filing",
+          "template": "news",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "FROM THE LOCAL FEATURES ARCHIVE — published before the family memorial."
+            ],
+            [
+              {
+                "keywordId": "dm_edward",
+                "text": "Edward Vale"
+              },
+              " preferred a ",
+              {
+                "keywordId": "dm_folder",
+                "text": "blue folder"
+              },
+              " to a complicated filing system. Asked how he found anything, he replied that the difficult part was remembering which blue."
+            ],
+            [
+              "The feature describes everyday office habits: written notes, labelled papers and dictated reminders. It does not reproduce any documents."
+            ],
+            [
+              "The editor recommended labels. Edward recommended buying more folders. The stationery shop declined to take sides."
+            ],
+            [
+              "This is an old profile, not a record of recent activity or evidence about who has access to private material."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Audio archives",
+              "pageId": "dm_audio_article"
+            },
+            {
+              "label": "Business records",
+              "pageId": "dm_folder_article"
+            },
+            {
+              "label": "Edward: filing",
+              "pageId": "dm_edward_filing_profile"
+            },
+            {
+              "label": "Book volunteers",
+              "pageId": "dm_margaret_library_notice"
+            },
+            {
+              "label": "Archived business listing",
+              "pageId": "dm_edward_directory"
+            }
+          ],
+          "snippet": "FROM THE LOCAL FEATURES ARCHIVE — published before the family memorial. Edward Vale  preferred a  blue folder  to a complicated filing system. Asked how he found anything, he replied that the difficult part was remembering which blue."
+        },
+        {
+          "id": "dm_edward_recorder_notice",
+          "title": "From the archive: Edward Vale on recording reminders",
+          "brand": "SMALL BUSINESS CIRCULAR",
+          "address": "www.smallbusinesscircular.local/archive/recording-reminders",
+          "template": "news",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "ARCHIVED WORKSHOP NOTE — everyday office routines."
+            ],
+            [
+              {
+                "keywordId": "dm_edward",
+                "text": "Edward Vale"
+              },
+              " described using an ",
+              {
+                "keywordId": "dm_recorder",
+                "text": "office recorder"
+              },
+              " for reminders and short dictated notes."
+            ],
+            [
+              "The workshop summary discusses labelling files and retaining the original ",
+              {
+                "keywordId": "dm_voice",
+                "text": "voicemail"
+              },
+              " when copying messages."
+            ],
+            [
+              "No recordings were published with the article. No individual message is quoted or identified."
+            ],
+            [
+              "The session ended early when someone recorded the tea order over the minutes. The tea order was considerably clearer."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Archive preservation guide",
+              "pageId": "dm_audio_article"
+            },
+            {
+              "label": "Local profile: filing",
+              "pageId": "dm_edward_filing_profile"
+            }
+          ],
+          "snippet": "ARCHIVED WORKSHOP NOTE — everyday office routines. Edward Vale  described using an  office recorder  for reminders and short dictated notes."
+        },
+        {
+          "id": "dm_edward_bowls_namesake",
+          "title": "Edward Vale | Bowls club captain",
+          "brand": "GREEN JACK BOWLS CLUB",
+          "address": "www.greenjack.local/team/edward-vale",
+          "template": "business",
+          "theme": "business",
+          "blocks": [
+            [
+              "Edward Vale — club captain and retired garden-centre manager."
+            ],
+            [
+              "His member biography describes years of competitive bowls and a carefully maintained collection of gardening trophies."
+            ],
+            [
+              "Latest club update: the captain has again asked members to stop calling a narrow defeat a conspiracy."
+            ],
+            [
+              "This biography gives a different occupation from the archived office-administration listing. It supplies no family-archive connection."
+            ]
+          ],
+          "links": [],
+          "snippet": "Edward Vale — club captain and retired garden-centre manager. His member biography describes years of competitive bowls and a carefully maintained collection of gardening trophies."
+        },
+        {
+          "id": "dm_margaret_directory",
+          "title": "Margaret Vale | Public correspondence listing",
+          "brand": "PUBLIC DIRECTORY",
+          "address": "www.publicdirectory.local/people/margaret-vale",
+          "template": "directory",
+          "theme": "directory",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_margaret",
+                "text": "Margaret Vale"
+              },
+              " — correspondence concerning the Vale family memorial."
+            ],
+            [
+              "The listing directs enquiries to the family archive’s own contact page. No additional contact details are published here."
+            ],
+            [
+              "Private messages, personal papers and copies of recordings must be requested from the person authorised to release them."
+            ],
+            [
+              "Please do not send offers to improve the memorial’s search ranking. The family has enough unwelcome messages."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Edward Vale",
+              "pageId": "dm_edward_directory"
+            },
+            {
+              "label": "Margaret Vale",
+              "pageId": "dm_margaret_directory"
+            },
+            {
+              "label": "Published family contact",
+              "pageId": "dm_family_contact"
+            },
+            {
+              "label": "Family memorial",
+              "pageId": "dm_memorial"
+            },
+            {
+              "label": "Public acknowledgement",
+              "pageId": "dm_margaret_thanks"
+            }
+          ],
+          "snippet": "Margaret Vale  — correspondence concerning the Vale family memorial. The listing directs enquiries to the family archive’s own contact page. No additional contact details are published here."
+        },
+        {
+          "id": "dm_margaret_library_notice",
+          "title": "Margaret Vale thanks the library book volunteers",
+          "brand": "COMMUNITY LEDGER",
+          "address": "www.communityledger.local/community/vale-book-volunteers",
+          "template": "news",
+          "theme": "magazine",
+          "blocks": [
+            [
+              "COMMUNITY NOTICE — a book-donation acknowledgement."
+            ],
+            [
+              {
+                "keywordId": "dm_margaret",
+                "text": "Margaret Vale"
+              },
+              " thanked the volunteers who helped sort books donated in memory of ",
+              {
+                "keywordId": "dm_edward",
+                "text": "Edward Vale"
+              },
+              "."
+            ],
+            [
+              "The notice concerns books, not private office papers or recordings. The library has no family archive available for inspection."
+            ],
+            [
+              "One box arrived labelled MISCELLANEOUS. Volunteers considered this unusually optimistic."
+            ],
+            [
+              "No attendance register or information about anyone’s recent movements is included."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Audio archives",
+              "pageId": "dm_audio_article"
+            },
+            {
+              "label": "Business records",
+              "pageId": "dm_folder_article"
+            },
+            {
+              "label": "Edward: filing",
+              "pageId": "dm_edward_filing_profile"
+            },
+            {
+              "label": "Book volunteers",
+              "pageId": "dm_margaret_library_notice"
+            },
+            {
+              "label": "Family acknowledgement",
+              "pageId": "dm_margaret_thanks"
+            },
+            {
+              "label": "Memorial page",
+              "pageId": "dm_memorial"
+            }
+          ],
+          "snippet": "COMMUNITY NOTICE — a book-donation acknowledgement. Margaret Vale  thanked the volunteers who helped sort books donated in memory of  Edward Vale ."
+        },
+        {
+          "id": "dm_margaret_thanks",
+          "title": "A thank-you from Margaret Vale",
+          "brand": "VALE FAMILY ARCHIVE",
+          "address": "www.valefamily.local/edward/thanks",
+          "template": "business",
+          "theme": "business",
+          "blocks": [
+            [
+              {
+                "keywordId": "dm_margaret",
+                "text": "Margaret Vale"
+              },
+              " thanks everyone who sent kind messages in memory of ",
+              {
+                "keywordId": "dm_edward",
+                "text": "Edward Vale"
+              },
+              "."
+            ],
+            [
+              "The family is keeping personal papers and the ",
+              {
+                "keywordId": "dm_archive",
+                "text": "recording archive"
+              },
+              " privately. Public photographs and memorial notices do not imply permission to copy private files."
+            ],
+            [
+              "Please use the published contact page for genuine correspondence. No downloads of private messages are offered here."
+            ],
+            [
+              "Thank you also to whoever returned the borrowed casserole dish. Identifying the lid remains an open investigation."
+            ]
+          ],
+          "links": [
+            {
+              "label": "Memorial",
+              "pageId": "dm_memorial"
+            },
+            {
+              "label": "Contact",
+              "pageId": "dm_family_contact"
+            },
+            {
+              "label": "Acknowledgements",
+              "pageId": "dm_margaret_thanks"
+            }
+          ],
+          "snippet": "Margaret Vale  thanks everyone who sent kind messages in memory of  Edward Vale . The family is keeping personal papers and the  recording archive  privately. Public photographs and memorial notices do not imply permission to copy private files."
+        },
+        {
+          "id": "dm_margaret_costumes_namesake",
+          "title": "Margaret Vale | Theatre alterations",
+          "brand": "VALE COSTUME REPAIRS",
+          "address": "www.valecostumerepairs.local/about",
+          "template": "business",
+          "theme": "business",
+          "blocks": [
+            [
+              "Margaret Vale — theatrical alterations, costume repairs and emergency hems."
+            ],
+            [
+              "The workshop biography describes a full-time costume maker serving touring theatre companies."
+            ],
+            [
+              "Please state the production and collection date when enquiring. We cannot repair a dramatic exit once it has happened."
+            ],
+            [
+              "The business page does not mention Edward or the Vale family memorial. A matching name alone does not connect the two listings."
+            ]
+          ],
+          "links": [],
+          "snippet": "Margaret Vale — theatrical alterations, costume repairs and emergency hems. The workshop biography describes a full-time costume maker serving touring theatre companies."
         }
       ],
       "recipes": [
@@ -2655,7 +3337,11 @@
           ],
           "pageIds": [
             "dm_memorial",
-            "dm_edward_namesake"
+            "dm_edward_namesake",
+            "dm_edward_directory",
+            "dm_edward_filing_profile",
+            "dm_edward_recorder_notice",
+            "dm_edward_bowls_namesake"
           ]
         },
         {
@@ -2663,7 +3349,11 @@
             "dm_margaret"
           ],
           "pageIds": [
-            "dm_memorial"
+            "dm_memorial",
+            "dm_margaret_directory",
+            "dm_margaret_library_notice",
+            "dm_margaret_thanks",
+            "dm_margaret_costumes_namesake"
           ]
         },
         {
@@ -2673,7 +3363,9 @@
           ],
           "pageIds": [
             "dm_memorial",
-            "dm_family_contact"
+            "dm_family_contact",
+            "dm_margaret_library_notice",
+            "dm_margaret_thanks"
           ]
         },
         {
@@ -2691,7 +3383,8 @@
           ],
           "pageIds": [
             "dm_memorial",
-            "dm_blue_shop"
+            "dm_blue_shop",
+            "dm_edward_filing_profile"
           ]
         },
         {
@@ -2812,6 +3505,79 @@
           ],
           "pageIds": [
             "dm_folder_article",
+            "dm_blue_shop"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_voice"
+          ],
+          "pageIds": [
+            "dm_edward_recorder_notice",
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_edward_filing_profile",
+            "dm_edward_recorder_notice",
+            "dm_memorial"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_recorder"
+          ],
+          "pageIds": [
+            "dm_edward_recorder_notice",
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_edward",
+            "dm_accounts"
+          ],
+          "pageIds": [
+            "dm_edward_directory",
+            "dm_edward_filing_profile"
+          ]
+        },
+        {
+          "terms": [
+            "dm_margaret",
+            "dm_voice"
+          ],
+          "pageIds": [
+            "dm_margaret_directory",
+            "dm_family_contact",
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_margaret",
+            "dm_archive"
+          ],
+          "pageIds": [
+            "dm_margaret_thanks",
+            "dm_family_contact",
+            "dm_audio_article"
+          ]
+        },
+        {
+          "terms": [
+            "dm_margaret",
+            "dm_folder"
+          ],
+          "pageIds": [
+            "dm_family_contact",
             "dm_blue_shop"
           ]
         }

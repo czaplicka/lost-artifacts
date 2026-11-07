@@ -9,7 +9,8 @@
     "assets/manifests/newspapers.json",
     "assets/manifests/other.json",
     "assets/manifests/side-quests.json",
-    "assets/manifests/auto-discovered.json"
+    "assets/manifests/auto-discovered.json",
+    "assets/manifests/tokyo-crime.json"
   ],
   "startup": {
     "backgrounds": [
@@ -365,7 +366,8 @@
       "json:dialog_hq",
       "json:dialog_home",
       "json:dialog_accounting",
-      "css:crime-board-css"
+      "css:crime-board-css",
+      "image:artifact_great_wave"
     ],
     "scene:IntroScene": [
       "image:intro"
@@ -1074,9 +1076,7 @@
       "tilemap:havela",
       "image:havela_bg"
     ],
-    "scene:PreloaderScene": [
-      "image:backgrounds"
-    ],
+    "scene:PreloaderScene": [],
     "scene:EnterScene": [
       "image:hotel"
     ],
@@ -1430,7 +1430,6 @@
       "json:search",
       "image:dossier",
       "image:file",
-      "image:backgroundgo",
       "image:backgroundpc",
       "image:apt_icon",
       "image:atlas",
@@ -1712,7 +1711,6 @@
       "image:alex-storage",
       "image:desk-lamp-flicker",
       "image:background2",
-      "image:backgrounds",
       "image:wanted_garett_gutter",
       "image:wanted_alexandra_ivanova",
       "image:wanted_sergei_petrov",
@@ -1931,10 +1929,6 @@
       "image:courtroom",
       "image:Gordon",
       "image:no_Gordon",
-      "image:post_office_poste_restante",
-      "image:post_office_postman",
-      "image:post_office",
-      "image:postman",
       "image:edward_vale",
       "image:coat_check_green_jacket_swap",
       "image:marsh_button_fenwick_blazer",
@@ -1943,10 +1937,6 @@
       "image:spare_pair_two_glasses",
       "image:table_matters_two_glasses",
       "image:toast_rack_two_glasses_gift_box",
-      "image:local__post_office_poste_restante",
-      "image:local__post_office_postman",
-      "image:local__post_office",
-      "image:local__postman",
       "image:Success__background",
       "image:banner",
       "image:medalion_officer",
@@ -1962,7 +1952,6 @@
       "image:Success__wall",
       "image:apartment_research_kitchen",
       "image:apartment_research_living_room",
-      "image:great_wave",
       "image:tokyo_museum",
       "json:alexRecoveryInquiry",
       "json:archiveCrashFollowup",
@@ -2017,7 +2006,7 @@
       "image:artifact_mona_lisa",
       "image:artifact_mughal_dagger",
       "image:artifact_royal_seal",
-      "image:great_wave"
+      "image:artifact_great_wave"
     ],
     "auto:folder:audio": [
       "audio:ad_jingle",
@@ -2092,7 +2081,6 @@
       "image:crime-board",
       "image:dossier",
       "image:file",
-      "image:backgroundgo",
       "image:backgroundpc",
       "image:intro",
       "image:logo",
@@ -2101,7 +2089,6 @@
       "image:phonebook",
       "image:shopping",
       "image:background2",
-      "image:backgrounds",
       "image:television"
     ],
     "auto:folder:crimes": [
@@ -2419,10 +2406,6 @@
       "image:courtroom",
       "image:Gordon",
       "image:no_Gordon",
-      "image:local__post_office_poste_restante",
-      "image:local__post_office_postman",
-      "image:local__post_office",
-      "image:local__postman",
       "image:doctor",
       "image:medical_office_empty",
       "image:medical_office",
@@ -2938,6 +2921,11 @@
       "image:return_to_sender_envelope",
       "image:return_to_sender_forwarding_card",
       "image:return_to_sender_reply"
+    ],
+    "crime:tokyo_museum": [
+      "tilemap:tokyo_museum",
+      "image:tokyo_museum_bg",
+      "json:objects-data:tokyo_museum"
     ]
   }
 }

@@ -61,24 +61,61 @@ export class ComputerSearchPages {
         drawing.fit(masthead, masthead.text, area.w - 76);
 
         let linkX = area.x + 20;
+        let navigationY = area.y + 64;
+
+        const rightEdge =
+            area.x + area.w - 20;
 
         for (const link of page.links || []) {
+            const active =
+                link.pageId === page.id;
+
+            const label = active
+                ? '[' + link.label + ']'
+                : link.label;
+
             const text = drawing.text(
                 linkX,
-                area.y + 64,
-                link.label,
+                navigationY,
+                label,
                 14,
-                '#315279'
+                active ? '#23494d' : '#315279'
             );
 
-            text
-                .setInteractive({ useHandCursor: true })
-                .on('pointerdown', () => this.openPage(link.pageId));
+            drawing.fit(
+                text,
+                text.text,
+                Math.max(1, area.w - 40)
+            );
+
+            if (
+                linkX > area.x + 20 &&
+                linkX + text.width > rightEdge
+            ) {
+                linkX = area.x + 20;
+                navigationY += 28;
+
+                text.setPosition(
+                    linkX,
+                    navigationY
+                );
+            }
+
+            if (!active) {
+                text
+                    .setInteractive({
+                        useHandCursor: true
+                    })
+                    .on(
+                        'pointerdown',
+                        () => this.openPage(link.pageId)
+                    );
+            }
 
             linkX += text.width + 24;
         }
 
-        let start = area.y + 96;
+        let start = navigationY + 32;
 
         if (
             page.imageKey &&

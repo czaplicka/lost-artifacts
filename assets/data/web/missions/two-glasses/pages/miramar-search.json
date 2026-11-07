@@ -28,12 +28,20 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "miramar"
+        },
+        {
+          "label": "Journal",
+          "pageId": "miramar_event"
         },
         {
           "label": "Meetings",
           "pageId": "miramar_meetings"
+        },
+        {
+          "label": "Dining",
+          "pageId": "miramar_terrace"
         },
         {
           "label": "Guest questions",
@@ -79,16 +87,24 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "miramar"
+        },
+        {
+          "label": "Journal",
+          "pageId": "miramar_event"
+        },
+        {
+          "label": "Meetings",
+          "pageId": "miramar_meetings"
         },
         {
           "label": "Dining",
           "pageId": "miramar_terrace"
         },
         {
-          "label": "Meetings",
-          "pageId": "miramar_meetings"
+          "label": "Guest questions",
+          "pageId": "miramar_guest_faq"
         }
       ],
       "snippet": "Terrace visits, guest privacy and the lost-property cupboard.",
@@ -122,6 +138,14 @@
         ]
       ],
       "links": [
+        {
+          "label": "Hotel Miramar",
+          "pageId": "miramar_coast_guide"
+        },
+        {
+          "label": "Coral Crown Hotel",
+          "pageId": "coral_coast_listing"
+        },
         {
           "label": "Official hotel website",
           "pageId": "miramar"

@@ -28,12 +28,16 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "mariner"
         },
         {
-          "label": "What’s on",
+          "label": "What's on",
           "pageId": "mariner_events"
+        },
+        {
+          "label": "Breakfast & lounge",
+          "pageId": "mariner_breakfast"
         },
         {
           "label": "Guest questions",
@@ -85,16 +89,20 @@
       ],
       "links": [
         {
-          "label": "Hotel",
+          "label": "Home",
           "pageId": "mariner"
+        },
+        {
+          "label": "What's on",
+          "pageId": "mariner_events"
         },
         {
           "label": "Breakfast & lounge",
           "pageId": "mariner_breakfast"
         },
         {
-          "label": "Events",
-          "pageId": "mariner_events"
+          "label": "Guest questions",
+          "pageId": "mariner_guest_faq"
         }
       ],
       "snippet": "The Quay Street entrance, a brass seahorse and a firm policy on other people’s bookings.",

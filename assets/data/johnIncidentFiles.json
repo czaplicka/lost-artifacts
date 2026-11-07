@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "requiredFlags": [
+    "john_primary_records_examined",
+    "john_incident_attachments_unlocked"
+  ],
+  "documents": [
+    {
+      "id": "identity",
+      "title": "IDENTITY / CROSS-REFERENCE",
+      "text": "The verified identity cross-reference lists Holly Gennaro and Holly McClane as names used by the same person: John's wife and your client. Earlier incident entries were indexed under different surnames. A shared first name alone would not establish this link."
+    },
+    {
+      "id": "p_witness",
+      "title": "INC-P17 / WITNESS",
+      "text": "A signed contemporary witness statement identifies Holly McClane as the person who poured liquid from a small vial into John's unattended drink. The witness saw John drink it and become ill. The witness could not identify the substance. The retained cup is exhibit P17-CUP."
+    },
+    {
+      "id": "p_lab",
+      "title": "INC-P17 / EXHIBIT COMPARISON",
+      "text": "The incident laboratory report records the same toxic compound in the residue from P17-CUP and in vial P17-VIAL. The report cross-references John's poisoning entry. This chemical comparison does not, by itself, identify who administered the substance."
+    },
+    {
+      "id": "p_custody",
+      "title": "INC-P17 / RECOVERY RECORD",
+      "text": "The recovery record identifies P17-VIAL as the vial taken from Holly McClane immediately after the incident. Exhibit identifiers and transfer entries match the laboratory submission. The witness statement and chemical comparison must be considered with this record."
+    },
+    {
+      "id": "g_witness",
+      "title": "INC-G04 / WITNESS",
+      "text": "A signed contemporary witness statement identifies Holly Gennaro raising a handgun and firing toward John. The witness saw him struck. The incident time matches the earlier gunshot treatment entry. The weapon recovered at the scene is identified in the related recovery record."
+    },
+    {
+      "id": "g_lab",
+      "title": "INC-G04 / PROJECTILE COMPARISON",
+      "text": "The incident examination attributes retained projectile G04-PROJECTILE to weapon G04-WEAPON. The laboratory report does not identify the person who fired it. The eyewitness and recovery records provide the separate actor and possession evidence."
+    },
+    {
+      "id": "g_custody",
+      "title": "INC-G04 / RECOVERY RECORD",
+      "text": "The signed recovery entry records G04-WEAPON being secured from Holly Gennaro at the scene. Its identifier matches the weapon examined in the projectile report. The file had remained separate from the clinical record indexed under John McClane."
+    }
+  ],
+  "poisonLinks": [
+    {
+      "id": "p_match",
+      "label": "P17-CUP \u2194 P17-VIAL"
+    },
+    {
+      "id": "p_wrong_case",
+      "label": "P17-CUP \u2194 G04-WEAPON"
+    },
+    {
+      "id": "p_summary_only",
+      "label": "CLINICAL ENTRY ALONE"
+    }
+  ],
+  "gunshotLinks": [
+    {
+      "id": "g_match",
+      "label": "G04-PROJECTILE \u2194 G04-WEAPON"
+    },
+    {
+      "id": "g_wrong_case",
+      "label": "G04-PROJECTILE \u2194 P17-VIAL"
+    },
+    {
+      "id": "g_summary_only",
+      "label": "CLINICAL ENTRY ALONE"
+    }
+  ],
+  "identityChoices": [
+    {
+      "id": "same_client",
+      "label": "THE IDENTITY REGISTER LINKS BOTH NAMES TO HOLLY"
+    },
+    {
+      "id": "two_people",
+      "label": "THE TWO SURNAMES MUST MEAN TWO DIFFERENT PEOPLE"
+    },
+    {
+      "id": "first_name",
+      "label": "A SHARED FIRST NAME IS ENOUGH"
+    }
+  ],
+  "correct": {
+    "poison": "p_match",
+    "gunshot": "g_match",
+    "identity": "same_client"
+  },
+  "success": "The identity cross-reference links both incident names to Holly. In INC-P17, the eyewitness, retained drink, vial comparison and recovery record support her administering the poison. In INC-G04, the eyewitness, weapon recovery and projectile comparison support her shooting John. Together they establish the threat behind his disappearance in this story.",
+  "nextObjective": "Return to John and confront him with the two incident files. No final arrest-or-release decision has been made."
+}

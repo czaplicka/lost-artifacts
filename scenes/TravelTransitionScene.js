@@ -4,6 +4,7 @@ import { BaseScene } from './BaseScene.js';
 import { EventBus } from '../EventBus.js';
 import { HQ_CITY, HQ_ID } from '../TransportConfig.js';
 import { planTravel } from '../config/TravelNetwork.js';
+import { resolveTravelLonLat } from '../config/TravelNodeCoordinates.js';
 import { getLocationById, getLocationByCity } from '../ui/LocationUI.js';
 import { PassportUI } from '../ui/PassportUI.js';
 import { TRANSPORT_VISUALS, CITY_QUIPS, GENERIC_ARRIVAL_QUIPS } from './travel/TransportVisuals.js';
@@ -12,6 +13,7 @@ import {
   registerVisitedCity, stampPassportForArrival
 } from './travel/TravelTransitionHelpers.js';
 import { ensureTravelTextures, normalizeKey, pick, fs, TRAVEL_DEPTH } from './travel/TravelTextures.js';
+import { PROJECTION, resolveMapTheme } from './travel/TravelMapTexture.js';
 import { TravelRouteStage, getEncounterVisual, playEncounterEffect } from './travel/TravelTransitionEffects.js';
 import {
   TravelTicket, TravelJournal, createTravelHeader,
@@ -36,6 +38,11 @@ export class TravelTransitionScene extends BaseScene {
       this.transitionData.destinationScene = 'OfficeScene';
       this.transitionData.isCrimeSceneArrival = false;
     }
+
+    // Which world map to paint: "agency" (spy grid) or "pi" (expedition parchment).
+    // Same choice the Destinations screen made. Payload field "mapTheme" wins.
+    this.mapTheme = resolveMapTheme(this.transitionData, this.registry);
+
     this.canContinue = false;
     this.isLeaving = false;
     this.arrived = false;
@@ -170,6 +177,21 @@ export class TravelTransitionScene extends BaseScene {
     return Array.isArray(data) ? data : Array.isArray(data?.locations) ? data.locations : [];
   }
 
+  /**
+   * Position of a leg end on the painted world map (map texture space, 1920x1080).
+   * Uses real lon/lat -> the same projection the Destinations screen uses.
+   * Returns null when the place is unknown (the stage then picks a sensible default).
+   */
+  projectLegPoint(leg, side) {
+    const lonLat = resolveTravelLonLat(
+      leg?.[`${side}Id`],
+      leg?.[`${side}City`],
+      this.getLocations()
+    );
+
+    return lonLat ? PROJECTION.project(lonLat[0], lonLat[1]) : null;
+  }
+
   findCityPhoto(targetCityId, toCity) {
     if (targetCityId === HQ_ID) return null;
     for (const raw of [targetCityId, toCity]) {
@@ -204,7 +226,9 @@ export class TravelTransitionScene extends BaseScene {
     const start = this.effectObjects.length;
     const transport = this.getTransportVisual(leg.transportType);
     this.stage = new TravelRouteStage(this, {
-      ...this.layout, transport, fromPoint: leg.fromPoint, toPoint: leg.toPoint,
+      ...this.layout, transport, themeId: this.mapTheme,
+      fromPoint: this.projectLegPoint(leg, 'from'),
+      toPoint: this.projectLegPoint(leg, 'to'),
       fromCity: leg.fromCity, toCity: leg.toCity
     });
     this.stageObjects.push(...this.effectObjects.slice(start));
