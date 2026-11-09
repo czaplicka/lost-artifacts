@@ -601,38 +601,6 @@
       ]
     },
     {
-      "key": "paper_placeholder_1920",
-      "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "paper_tabloid_bg",
-      "url": "assets/newspapers/paper_tabloid_bg_1920x1080.png",
-      "type": "image",
-      "groups": [
-        "newspapers"
-      ]
-    },
-    {
-      "key": "paper_time_bg",
-      "url": "assets/newspapers/paper_time_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "newspapers"
-      ]
-    },
-    {
-      "key": "paper_time_bg_1920x1080",
-      "url": "assets/newspapers/paper_time_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "paper_tokyo_convenience_photo",
       "url": "assets/newspapers/newspapers/paper_tokyo_convenience_photo.webp",
       "type": "image",

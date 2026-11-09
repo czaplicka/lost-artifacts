@@ -7,7 +7,7 @@ export class HollyCaseCallScene extends BaseScene{
     this.progress=null;this.finished=false;this.closing=false;this.savedOk=null;this.callUI=null;this.silenceUntil=0;this.inputLockedUntil=0;
     this.layerStates=[];this.parentPausedByMe=false;
   }
-  preload(){if(!this.textures.exists('holly'))this.load.image('holly','assets/pi/holly.webp');if(!this.textures.exists('pi_phone_desk'))this.load.image('pi_phone_desk','assets/ui/pi-phone/desk.jpg');}
+  preload(){if(!this.textures.exists('holly'))this.load.image('holly','assets/pi/holly.webp');if(!this.textures.exists('pi_phone_desk'))this.load.image('pi_phone_desk','assets/ui/pi-phone/desk.webp');}
   create(){
     super.create();this.cameras.main.setBackgroundColor('#050b08');const h=this.callHooks,DATA=h.data,status=h.getState();this.allowed=this.preview||status.canContact;
     this.progress=h.normalize(DATA,this.preview?null:status);

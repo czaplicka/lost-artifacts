@@ -2239,6 +2239,318 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "A_Matchbox_Left_Behind",
+      "url": "assets/audio/music/A_Matchbox_Left_Behind.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "Rain_Against_the_Windowpane",
+      "url": "assets/audio/music/Rain_Against_the_Windowpane.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "The_Second_Alibi",
+      "url": "assets/audio/music/The_Second_Alibi.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "tracks",
+      "url": "assets/audio/music/tracks.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "personnel-roster",
+      "url": "assets/css/personnel-roster.css",
+      "type": "css",
+      "groups": [
+        "css"
+      ]
+    },
+    {
+      "key": "hollyFinale",
+      "url": "assets/data/hollyFinale.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnAccountReview",
+      "url": "assets/data/johnAccountReview.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnConfrontation",
+      "url": "assets/data/johnConfrontation.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnIncidentFiles",
+      "url": "assets/data/johnIncidentFiles.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnPrimaryRecords",
+      "url": "assets/data/johnPrimaryRecords.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "johnWarsawMeeting",
+      "url": "assets/data/johnWarsawMeeting.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "margeTrust",
+      "url": "assets/data/margeTrust.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "pages",
+      "url": "assets/data/web/missions/dead-men-calling/pages/pages.json",
+      "type": "json",
+      "groups": [
+        "json"
+      ]
+    },
+    {
+      "key": "ico__shopping",
+      "url": "assets/ico/shopping.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "jukebox",
+      "url": "assets/local/jukebox.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office_poste_restante",
+      "url": "assets/local/post_office_poste_restante.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office_postman",
+      "url": "assets/local/post_office_postman.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "local__post_office",
+      "url": "assets/local/post_office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no_nurse",
+      "url": "assets/pi/hospital/no_nurse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "nurse",
+      "url": "assets/pi/hospital/nurse.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "artifact",
+      "url": "assets/pi/office/artifact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office-ad",
+      "url": "assets/pi/office/bigger-office-ad.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office-reality",
+      "url": "assets/pi/office/bigger-office-reality.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bigger-office",
+      "url": "assets/pi/office/bigger-office.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "books",
+      "url": "assets/pi/office/books.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "case-files",
+      "url": "assets/pi/office/case-files.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chairs",
+      "url": "assets/pi/office/chairs.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "coffee",
+      "url": "assets/pi/office/coffee.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__office__crime-board",
+      "url": "assets/pi/office/crime-board.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "notepad",
+      "url": "assets/pi/office/notepad.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "painting",
+      "url": "assets/pi/office/painting.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "printer",
+      "url": "assets/pi/office/printer.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "pi__office__tv",
+      "url": "assets/pi/office/tv.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "artur_finch_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/artur_finch_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "evelyn_shaw_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/evelyn_shaw_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "simon_pike_avatar",
+      "url": "assets/side_quests/Alibi/web/FaceSpace/simon_pike_avatar.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "audio",
+      "url": "assets/ui/computer/icons/audio.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "boards",
+      "url": "assets/ui/computer/icons/boards.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "chat",
+      "url": "assets/ui/computer/icons/chat.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

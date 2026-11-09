@@ -1,145 +1,182 @@
 import { HomeCityScene as OriginalHomeCityScene } from './HomeCityScene.js';
 import { PostOfficeScene } from './PostOfficeScene.js';
+import { HospitalScene } from './HospitalScene.js';
+import { BusinessCenterScene } from './BusinessCenterScene.js';
+import { PALETTES } from './homeCity/HomeCityConfig.js';
+import { HomeCityRendererCore } from './homeCity/HomeCityRendererCore.js';
 
-const POST_OFFICE = {
-  id: 'post-office',
-  name: 'Post Office',
-  x: 16,
-  y: 3,
-  w: 3,
-  h: 3,
-  color: 0xa06048,
-  message: ''
+const COLS = 36, ROWS = 22, WORLD_WIDTH = 4125, WORLD_HEIGHT = 2400;
+const EXTRA_BUILDINGS = [
+  { id: 'post-office', name: 'Post Office', x: 16, y: 3, w: 3, h: 3,
+    color: 0xa06048, message: '', sceneKey: 'PostOfficeScene', SceneClass: PostOfficeScene },
+  { id: 'hospital', name: 'Hospital', x: 29, y: 13, w: 4, h: 3,
+    color: 0xaebdac, message: '', sceneKey: 'HospitalScene', SceneClass: HospitalScene },
+  { id: 'business-center', name: 'Business Center', x: 29, y: 3, w: 4, h: 3,
+    color: 0x8e9b9b, message: '', sceneKey: 'BusinessCenterScene', SceneClass: BusinessCenterScene }
+];
+const HOSPITAL_PROPS = [
+  { x: 27, y: 13, kind: 'tree', variant: 0 },
+  { x: 34, y: 13, kind: 'tree', variant: 1 },
+  { x: 27, y: 16, kind: 'planter' }, { x: 35, y: 16, kind: 'planter' },
+  { x: 29, y: 17, kind: 'bench' }, { x: 33, y: 17, kind: 'bench' },
+  { x: 28, y: 17, kind: 'lamp' }, { x: 34, y: 17, kind: 'lamp' }
+];
+PALETTES['post-office'] = {
+  wall: 0xb98c62, shade: 0x88563f, roof: 0x493c35,
+  trim: 0xe1c99e, glass: 0x35494c, accent: 0xd7b16b,
+  height: 138, style: 'brick', door: 0x49382d,
+  lit: .3, blinds: true, blade: 'lens', sign: 'POST OFFICE',
+  features: [{ t: [1, 1], k: 'vent' }]
+};
+PALETTES.hospital = {
+  wall: 0xb6c3ae, shade: 0x788f83, roof: 0x455b56,
+  trim: 0xe3dfc6, glass: 0x354f55, accent: 0xd6c89c,
+  height: 180, style: 'stone', door: 0x3d5953,
+  lit: .55, blinds: true, blade: 'badge', sign: 'HOSPITAL / RECEPTION',
+  features: [{ t: [0, 0], k: 'vent' }, { t: [3, 0], k: 'vent' }]
+};
+PALETTES['business-center'] = {
+  wall: 0x9eaaa5, shade: 0x687c79, roof: 0x3e4b4d,
+  trim: 0xd9d4b9, glass: 0x304b57, accent: 0xcbb57b,
+  height: 230, style: 'stone', door: 0x324943,
+  lit: .25, blinds: true, pilasters: true, blade: 'lens',
+  sign: 'BUSINESS CENTER',
+  features: [{ t: [0, 0], k: 'vent' }, { t: [3, 0], k: 'antenna' }]
 };
 
 export class HomeCityScene extends OriginalHomeCityScene {
   init(data = {}) {
     super.init(data);
-    const b = {
-      ...POST_OFFICE,
-      door: {
-        x: POST_OFFICE.x + Math.floor(POST_OFFICE.w / 2),
-        y: POST_OFFICE.y + POST_OFFICE.h
+    this.cols = COLS;
+    this.rows = ROWS;
+    this.alignTavern();
+    this.extraBuildings = EXTRA_BUILDINGS.map(def => ({ ...def,
+      door: { x: def.x + Math.floor(def.w / 2), y: def.y + def.h }
+    }));
+    for (const building of this.extraBuildings) {
+      this.reserveBuilding(building);
+      this.buildings.push(building);
+    }
+    for (const prop of HOSPITAL_PROPS) {
+      if (!this.walkable(prop.x, prop.y)) throw new Error(`[HomeCity] Occupied prop cell: ${prop.x},${prop.y}`);
+      this.props.push({ ...prop });
+      this.blocked.add(this.cellKey(prop.x, prop.y));
+    }
+    const start = this.buildings.find(b => b.id === 'pi-office')?.door;
+    for (const building of this.buildings) {
+      if (!start || this.findPath(start, building.door) === null) {
+        throw new Error(`[HomeCity] Unreachable entrance: ${building.id}`);
       }
-    };
-
-    for (let y = b.y; y < b.y + b.h; y++) {
-      for (let x = b.x; x < b.x + b.w; x++) {
-        if (!this.walkable(x, y)) {
-          throw new Error(`[PostOfficeMap] Occupied footprint cell: ${x},${y}`);
+    }
+    this.postalBuilding = this.extraBuildings.find(b => b.id === 'post-office');
+  }
+  alignTavern() {
+    const tavern = this.buildings.find(b => b.id === 'tavern');
+    const spyShop = this.buildings.find(b => b.id === 'spy-shop');
+    if (!tavern || !spyShop) throw new Error('[HomeCity] Missing tavern or spy shop.');
+    tavern.y = spyShop.y;
+    tavern.door = { x: tavern.x + Math.floor(tavern.w / 2), y: tavern.y + tavern.h };
+    this.blocked.clear();
+    for (const building of this.buildings) {
+      for (let y = building.y; y < building.y + building.h; y++) {
+        for (let x = building.x; x < building.x + building.w; x++) {
+          const key = this.cellKey(x, y);
+          if (this.blocked.has(key) || HomeCityRendererCore.prototype.isRoad(x, y)) {
+            throw new Error(`[HomeCity] Invalid building footprint: ${building.id} at ${x},${y}`);
+          }
+          this.blocked.add(key);
         }
       }
     }
-    if (!this.walkable(b.door.x, b.door.y)) {
-      throw new Error('[PostOfficeMap] The post office entrance is blocked.');
-    }
-
-    this.postalBuilding = b;
-    for (let y = b.y; y < b.y + b.h; y++) {
-      for (let x = b.x; x < b.x + b.w; x++) {
-        this.blocked.add(this.cellKey(x, y));
-      }
-    }
-
-    const start = this.buildings.find(item => item.id === 'pi-office')?.door;
-    if (!start || this.findPath(start, b.door) === null) {
-      throw new Error('[PostOfficeMap] No walking route to the post office.');
-    }
-    for (const existing of this.buildings) {
-      if (this.findPath(start, existing.door) === null) {
-        throw new Error(`[PostOfficeMap] Entrance became unreachable: ${existing.id}`);
+    for (const prop of this.props) {
+      for (let dy = 0; dy < (prop.h || 1); dy++) {
+        for (let dx = 0; dx < (prop.w || 1); dx++) {
+          const key = this.cellKey(prop.x + dx, prop.y + dy);
+          if (this.blocked.has(key)) throw new Error(`[HomeCity] Prop overlaps a building or prop: ${key}`);
+          this.blocked.add(key);
+        }
       }
     }
   }
-
+  walkable(x, y) {
+    return Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y >= 0 &&
+      x < this.cols && y < this.rows && !this.blocked.has(this.cellKey(x, y));
+  }
+  reserveBuilding(building) {
+    for (let y = building.y; y < building.y + building.h; y++) {
+      for (let x = building.x; x < building.x + building.w; x++) {
+        if (HomeCityRendererCore.prototype.isRoad(x, y)) throw new Error(`[HomeCity] Building on road: ${building.id}`);
+        if (!this.walkable(x, y)) throw new Error(`[HomeCity] Occupied building cell: ${building.id} at ${x},${y}`);
+      }
+    }
+    if (!this.walkable(building.door.x, building.door.y)) throw new Error(`[HomeCity] Blocked entrance: ${building.id}`);
+    for (let y = building.y; y < building.y + building.h; y++) {
+      for (let x = building.x; x < building.x + building.w; x++) this.blocked.add(this.cellKey(x, y));
+    }
+  }
   create() {
-    // The original renderer handles the original buildings only.
     super.create();
-    const b = this.postalBuilding;
-    this.buildings.push(b);
-    this.drawPostOffice(b);
-
-    if (this.entryPoint === b.id) {
-      this.position = { ...b.door };
-      this.placePlayer();
-      this.cameras.main.centerOn(this.player.x, this.player.y);
-      this.remember();
-    }
+    this.extendGround();
+    this.drawHospitalForecourt();
+    this.drawHospitalCross();
+    this.drawBusinessCenterDetails();
+    this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.cameras.main.centerOn(this.player.x, this.player.y);
   }
-
-  drawPostOffice(b) {
-    const left = b.x - 0.5;
-    const right = b.x + b.w - 0.5;
-    const back = b.y - 0.5;
-    const front = b.y + b.h - 0.5;
-    const height = 130;
-    const centreX = b.x + (b.w - 1) / 2;
-    const depth = (b.x + b.y + b.w + b.h - 2) * 100;
-    const p = (x, y, z = 0) => {
-      const point = this.project(x, y);
-      return { x: point.x, y: point.y - z };
+  extendGround() {
+    const art = this.cityArt;
+    const tile = (x, y, width, height) => {
+      const key = art.bake(`extension_${x}_${y}`, width, height,
+        ctx => art.paintGround(ctx, x, y, width, height), x, y);
+      if (key) this.add.image(x, y, key).setOrigin(0).setDepth(-1000);
     };
-    const g = this.add.graphics().setDepth(depth);
-    const roof = [
-      p(left, back, height),
-      p(right, back, height),
-      p(right, front, height),
-      p(left, front, height)
-    ];
-
-    g.fillStyle(0x88563f).fillPoints([
-      p(right, back), p(right, front),
-      p(right, front, height), p(right, back, height)
-    ], true);
-    g.fillStyle(0xb98c62).fillPoints([
-      p(left, front), p(right, front),
-      p(right, front, height), p(left, front, height)
-    ], true);
-    g.fillStyle(0x493c35).fillPoints(roof, true);
-
-    const door = p(centreX, front);
-    g.fillStyle(0x303b40).fillRect(door.x - 19, door.y - 65, 38, 65);
-
-    const sign = p(centreX, front, 105);
-    this.add.text(sign.x, sign.y, 'POST OFFICE', {
-      fontFamily: 'PressStart2P, monospace',
-      fontSize: '13px',
-      color: '#ffe4ac',
-      backgroundColor: '#493c35',
-      padding: { x: 8, y: 8 }
-    })
-      .setOrigin(0.5)
-      .setDepth(depth + 1)
-      .setInteractive({ useHandCursor: true })
-      .setData('buildingId', b.id);
-
-    const outline = [
-      p(left, back, height), p(right, back, height),
-      p(right, back), p(right, front),
-      p(left, front), p(left, front, height)
-    ];
-    g.setInteractive(
-      new Phaser.Geom.Polygon(outline),
-      Phaser.Geom.Polygon.Contains
-    ).setData('buildingId', b.id);
-    g.input.cursor = 'pointer';
+    tile(3300, 0, 825, 1000);
+    tile(3300, 1000, 825, 1000);
+    for (let x = 0; x < WORLD_WIDTH; x += 825) tile(x, 2000, Math.min(825, WORLD_WIDTH - x), 400);
   }
-
-  arrive() {
-    if (this.destinationBuilding?.id !== 'post-office') {
-      return super.arrive();
+  drawHospitalForecourt() {
+    const g = this.add.graphics().setDepth(-800);
+    for (let y = 16; y <= 17; y++) {
+      for (let x = 28; x <= 34; x++) {
+        const points = this.diamond(x, y);
+        g.fillStyle((x + y) % 2 ? 0xa79d83 : 0xb3a88e).fillPoints(points, true);
+        g.lineStyle(1, 0x756c57, .6).strokePoints(points, true);
+      }
     }
+  }
+  drawHospitalCross() {
+    const b = this.buildings.find(item => item.id === 'hospital');
+    const art = this.cityArt, fy = b.y + b.h - .5;
+    const center = this.project(b.door.x, fy), left = center.x - 65, top = center.y - 182;
+    const key = art.bake('hospital_cross', 130, 110, ctx => {
+      art.face(ctx, 'x', fy + .02, b.door.x - .34, b.door.x + .34, 126, 164, 0xe9e4cd, 0x66796c);
+      art.face(ctx, 'x', fy + .03, b.door.x - .065, b.door.x + .065, 131, 159, 0xa6443b, null);
+      art.face(ctx, 'x', fy + .03, b.door.x - .25, b.door.x + .25, 140, 150, 0xa6443b, null);
+    }, left, top);
+    if (key) this.add.image(left, top, key).setOrigin(0)
+      .setDepth((b.door.x + b.y + b.h - 1) * 100 + 101);
+  }
+  drawBusinessCenterDetails() {
+    const b = this.buildings.find(item => item.id === 'business-center');
+    const art = this.cityArt;
+    const ground = this.add.graphics().setDepth(-800);
+    for (let y = 6; y <= 7; y++) {
+      for (let x = 29; x <= 33; x++) {
+        const points = this.diamond(x, y);
+        ground.fillStyle((x + y) % 2 ? 0xa79d83 : 0xb3a88e).fillPoints(points, true);
+        ground.lineStyle(1, 0x756c57, .6).strokePoints(points, true);
+      }
+    }
+    art.bakeBanner(b, 'UNDER CONSTRUCTION', 160, 3.0);
+  }
+  arrive() {
+    const building = this.extraBuildings.find(item => item.id === this.destinationBuilding?.id);
+    if (!building) return super.arrive();
     this.destinationBuilding = null;
     this.targetMarker.setVisible(false);
     this.cityArt.clearRoute();
     this.remember();
-
-    if (!this.hasScene('PostOfficeScene')) {
-      this.scene.add('PostOfficeScene', PostOfficeScene, false);
-    }
-    void this.openCityInterior(
-      'PostOfficeScene',
-      'The post office could not be opened. Please try again.'
-    );
+    if (!this.hasScene(building.sceneKey)) this.scene.add(building.sceneKey, building.SceneClass, false);
+    void this.openCityInterior(building.sceneKey, `${building.name} could not be opened. Please try again.`);
   }
 }

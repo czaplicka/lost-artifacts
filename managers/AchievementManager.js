@@ -48,7 +48,10 @@ export const ACHIEVEMENTS={
  chief_inspector:{id:'chief_inspector',icon:'⭐',title:'Chief Inspector',description:'Make five successful arrests.',isUnlocked:()=>gameState.arrests>=5},
  dead_mail_return_to_sender:{id:'dead_mail_return_to_sender',icon:'✉️',title:'Return to Sender',
   description:'Solve the Blackthorn Cemetery case. The recipient remains alive.',
-  isUnlocked:()=>gameState.deadMailPreview?.finale?.completed===true}
+  isUnlocked:()=>gameState.deadMailPreview?.finale?.completed===true},
+ postal_delivered_eventually:{id:'postal_delivered_eventually',icon:'MAIL',title:'Delivered. Eventually.',
+  description:'Complete Return to Sender without opening the sealed letter.',
+  isUnlocked:()=>gameState.postOffice?.returnCase?.stage==='completed'}
 };
 export function getAchievementList(){return Object.values(ACHIEVEMENTS);}
 export function hasAchievement(achievementId){return list(gameState.achievements).includes(achievementId);}

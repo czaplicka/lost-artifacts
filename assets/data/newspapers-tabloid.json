@@ -1,7 +1,6 @@
 {
   "layout": {
-    "type": "tabloid",
-    "backgroundKey": "paper_tabloid_bg_1920x1080"
+    "type": "tabloid"
   },
   "cities": {
     "warsaw": {

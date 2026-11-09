@@ -4,7 +4,7 @@ import { normalizeFinancial,chooseFinancialTransaction,chooseAlteredSeal } from 
 export class FinancialTraceScene extends BaseScene{
  constructor(){super({key:'FinancialTraceScene'});}
  init(data={}){this.preview=data.preview===true;this.returnSceneKey=data.returnSceneKey??null;this.onFinished=typeof data.onFinished==='function'?data.onFinished:null;this.progress=null;this.closing=false;this.describe=false;this.message='';this.savedOk=null;this.layers=[];this.parentPaused=false;this.lockUntil=0;}
- preload(){if(!this.textures.exists('pi_phone_desk'))this.load.image('pi_phone_desk','assets/ui/pi-phone/desk.jpg');}
+ preload(){if(!this.textures.exists('pi_phone_desk'))this.load.image('pi_phone_desk','assets/ui/pi-phone/desk.webp');}
  create(){
   super.create();const s=getFinancialTraceStory();this.allowed=this.preview||s.eligible;this.progress=normalizeFinancial(DATA,this.preview?null:s);
   this.root=this.add.container(0,0);this.root.add(this.add.image(800,500,'pi_phone_desk').setDisplaySize(1600,1000));this.root.add(this.add.rectangle(800,500,1600,1000,0x000000,0.65));

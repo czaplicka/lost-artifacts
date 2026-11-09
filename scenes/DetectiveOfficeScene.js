@@ -21,7 +21,7 @@ const DATA_FILES=[
   ['piCases','assets/data/piCases.json']
 ];
 const PHONE_ART=[
-  ['pi_phone_desk','assets/ui/pi-phone/desk.jpg'],
+  ['pi_phone_desk','assets/ui/pi-phone/desk.webp'],
   ['pi_phone_base','assets/ui/pi-phone/base.webp'],
   ['pi_phone_handset','assets/ui/pi-phone/handset.webp'],
   ['pi_phone_dial','assets/ui/pi-phone/dial.webp']

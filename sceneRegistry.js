@@ -29,6 +29,7 @@ export const SCENE_TIERS = {
     'DetectiveOfficeScene',
     'HomeCityScene',
     'PostOfficeScene',
+    'HospitalScene',
     'PigeonLoftScene',
     'SpyShopScene',
     'TavernScene',
@@ -160,6 +161,9 @@ export const sceneRegistry = {
 
   PostOfficeScene: () =>
     import('./scenes/PostOfficeScene.js').then(m => m.PostOfficeScene),
+
+    HospitalScene: () =>
+    import('./scenes/HospitalScene.js').then(m => m.HospitalScene),
 
   PigeonLoftScene: () =>
     import('./scenes/PigeonLoftScene.js').then(m => m.PigeonLoftScene),

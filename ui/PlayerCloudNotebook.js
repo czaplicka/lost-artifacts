@@ -23,10 +23,15 @@ import {
   notebookContact
 } from './pi-computer/NotebookContactActions.js';
 
-// CASE_NOTES_RESTYLE_V1
-// Visual-only pass: leather-bound PI notebook, aged paper, thought-cloud
-// cards, typewriter slips. All class names from the previous version are
-// kept (pcn-*), logic and public API are unchanged.
+// CASE_NOTES_RESTYLE_V2
+// Readability pass inspired by the field-notebook in "Do Not Feed the Monkeys":
+//  - one fluid type scale (--fs) so everything is readable on big monitors
+//  - taller page + ENLARGE toggle
+//  - ruled bank where every word sits exactly on a line
+//  - wide hand-drawn ellipse clouds with words flowing inside them
+//  - red-pencil arrows between linked clouds
+//  - click anywhere on a cloud to select it
+// Logic, state shape and public API are unchanged (pcn-* class names kept).
 
 const PIXEL = "PressStart2P,'Press Start 2P',monospace";
 
@@ -35,28 +40,34 @@ const NOISE =
   "width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence " +
   "type='fractalNoise' baseFrequency='.8' numOctaves='2' " +
   "stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 " +
-  ".33 0 0 0 0 .12 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='160' " +
+  ".33 0 0 0 0 .12 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='160' " +
   "height='160' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 const CHECK =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
   "viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.5 4.8 10 10.8 1.8' fill='none' " +
-  "stroke='%239b2f22' stroke-width='2.2' stroke-linecap='round' " +
+  "stroke='%239b2f22' stroke-width='2.4' stroke-linecap='round' " +
   "stroke-linejoin='round'/%3E%3C/svg%3E\")";
 
 const ARROW =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' " +
-  "viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%2327434f'/%3E" +
+  "viewBox='0 0 10 6'%3E%3Cpath d='M0 0h10L5 6z' fill='%231d3a4a'/%3E" +
   "%3C/svg%3E\")";
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const CSS = `
 .pcn{
-  --paper:#eadfb4;--paper-hi:#f6eccb;--paper-lo:#d8c995;
-  --ink:#27434f;--ink-soft:#52707b;--red:#9b2f22;
+  /* fluid type scale: 15px on phones -> 19px on big screens */
+  --fs:clamp(15px,.75vw + 8.5px,19px);
+  --lh:calc(var(--fs)*2);
+  --paper:#efe5bd;--paper-hi:#f8f0d0;--paper-lo:#d8c995;
+  --ink:#1d3a4a;--ink-soft:#4a6673;--red:#9b2f22;
   --gold:#d4af37;--gold-dk:#8a6a16;--brass:#a89560;
-  --leather:#2b1a0e;--leather-hi:#4a2f1b;--rule:rgba(72,112,130,.24);
+  --leather:#2b1a0e;--leather-hi:#4a2f1b;--rule:rgba(60,100,120,.28);
   position:fixed;z-index:11000;left:8px;right:8px;bottom:0;
   font-family:SpecialElite,'Special Elite',monospace;color:var(--ink);
+  font-size:var(--fs);line-height:1.3;
   pointer-events:none
 }
 .pcn *{box-sizing:border-box}
@@ -67,8 +78,8 @@ const CSS = `
 :where(.pcn) button{
   border:1px solid #8f8050;border-bottom-width:3px;border-radius:3px;
   background:linear-gradient(#f9f0cf,#e5d8a2);color:var(--ink);
-  padding:5px 10px 4px;min-height:34px;cursor:pointer;font-size:12px;
-  letter-spacing:.04em;text-transform:uppercase;
+  padding:.35em .8em .3em;min-height:2.3em;cursor:pointer;font-size:.78em;
+  letter-spacing:.05em;text-transform:uppercase;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
   transition:transform .08s,background .12s
 }
@@ -84,12 +95,12 @@ const CSS = `
 /* ---------- handle: leather tab sticking out of the notebook */
 .pcn .pcn-handle{
   display:block;position:relative;margin:auto;pointer-events:auto;
-  min-width:230px;min-height:34px;padding:9px 18px 8px;
+  min-width:15em;min-height:2.6em;padding:.8em 1.6em .7em;
   border:2px solid var(--gold-dk);border-bottom:0;
   border-radius:9px 9px 0 0;
   background:linear-gradient(#5a3a22,var(--leather));
-  color:var(--gold);font-family:${PIXEL};font-size:9px;line-height:1.4;
-  letter-spacing:.06em;text-shadow:0 1px 0 #000;
+  color:var(--gold);font-family:${PIXEL};font-size:calc(var(--fs)*.6);
+  line-height:1.4;letter-spacing:.06em;text-shadow:0 1px 0 #000;
   box-shadow:inset 0 1px 0 rgba(255,220,140,.25),0 -3px 10px rgba(0,0,0,.35)
 }
 .pcn .pcn-handle:hover,.pcn .pcn-handle:focus-visible{
@@ -101,18 +112,19 @@ const CSS = `
 /* ---------- paper */
 .pcn .pcn-paper{
   position:relative;pointer-events:auto;display:flex;flex-direction:column;
-  height:min(46vh,440px);min-height:250px;padding:10px 14px 8px 46px;
+  height:min(62vh,660px);min-height:290px;padding:.8em 1em .6em 46px;
   border:2px solid #9c8a57;border-bottom:0;border-radius:3px 6px 0 0;
   background-color:var(--paper);
   background-image:
-    radial-gradient(circle at 93% 16%,transparent 0 20px,
-      rgba(120,80,30,.13) 21px 24px,transparent 25px),
+    radial-gradient(circle at 97% 92%,transparent 0 20px,
+      rgba(120,80,30,.10) 21px 24px,transparent 25px),
     ${NOISE},
-    radial-gradient(ellipse at 100% 0,rgba(150,105,40,.20),transparent 55%),
-    radial-gradient(ellipse at 0 100%,rgba(150,105,40,.16),transparent 50%);
-  box-shadow:0 -6px 22px rgba(0,0,0,.45),inset 0 0 40px rgba(120,85,30,.18);
+    radial-gradient(ellipse at 100% 0,rgba(150,105,40,.16),transparent 55%),
+    radial-gradient(ellipse at 0 100%,rgba(150,105,40,.14),transparent 50%);
+  box-shadow:0 -6px 22px rgba(0,0,0,.45),inset 0 0 40px rgba(120,85,30,.16);
   animation:pcn-rise .22s ease-out
 }
+.pcn.pcn-big .pcn-paper{height:min(90vh,1000px)}
 @keyframes pcn-rise{
   from{transform:translateY(14px);opacity:0}
   to{transform:none;opacity:1}
@@ -128,28 +140,30 @@ const CSS = `
 }
 
 /* ---------- header */
-.pcn .pcn-top{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.pcn .pcn-top{
+  display:flex;align-items:center;flex-wrap:wrap;gap:.6em;margin-bottom:.6em
+}
 .pcn .pcn-title{
-  font-family:${PIXEL};font-size:10px;letter-spacing:.05em;color:#6b4f12;
-  text-shadow:0 1px 0 rgba(255,248,215,.8);white-space:nowrap
+  font-family:${PIXEL};font-size:calc(var(--fs)*.62);letter-spacing:.05em;
+  color:#6b4f12;text-shadow:0 1px 0 rgba(255,248,215,.8);white-space:nowrap
 }
 .pcn .pcn-title::before{content:'\\25C6  ';color:var(--gold-dk)}
 .pcn .pcn-grow{flex:1 1 0;min-width:0}
 .pcn .pcn-stamp{
-  font-size:11px;letter-spacing:.08em;color:var(--red);white-space:nowrap;
-  border:2px solid var(--red);border-radius:3px;padding:2px 7px 1px;
-  transform:rotate(-2.5deg);opacity:.85;
+  font-size:.72em;letter-spacing:.08em;color:var(--red);white-space:nowrap;
+  border:2px solid var(--red);border-radius:3px;padding:.2em .6em .1em;
+  transform:rotate(-2.5deg);opacity:.9;
   box-shadow:inset 0 0 0 1px rgba(155,47,34,.35)
 }
 .pcn select{
-  appearance:none;-webkit-appearance:none;max-width:250px;min-height:34px;
-  padding:6px 28px 5px 10px;font-size:13px;cursor:pointer;color:var(--ink);
-  background:#f7edc9 ${ARROW} right 9px center/10px no-repeat;
+  appearance:none;-webkit-appearance:none;max-width:16em;min-height:2.3em;
+  padding:.4em 2em .35em .7em;font-size:.88em;cursor:pointer;color:var(--ink);
+  background:#f9f0cc ${ARROW} right .7em center/.7em no-repeat;
   border:1px solid #8f8050;border-bottom-width:3px;border-radius:3px
 }
 .pcn select:focus-visible{outline:2px solid var(--red);outline-offset:1px}
 .pcn .pcn-tabs{display:inline-flex}
-.pcn .pcn-tabs button{border-radius:0;font-size:11px}
+.pcn .pcn-tabs button{border-radius:0;font-size:.78em}
 .pcn .pcn-tabs button:first-child{border-radius:3px 0 0 3px}
 .pcn .pcn-tabs button:last-child{border-radius:0 3px 3px 0;border-left-width:0}
 .pcn button.pcn-selected,
@@ -157,153 +171,203 @@ const CSS = `
   background:linear-gradient(#35566a,#25414f);color:var(--gold);
   border-color:#162a34;box-shadow:inset 0 2px 4px rgba(0,0,0,.35);transform:none
 }
+.pcn .pcn-size{font-size:.7em}
 
 /* ---------- working area */
 .pcn .pcn-work{
-  display:grid;grid-template-columns:minmax(190px,26%) 1fr;gap:14px;
+  display:grid;grid-template-columns:minmax(210px,27%) 1fr;gap:1em;
   min-height:0;flex:1
 }
 .pcn .pcn-bank,.pcn .pcn-board,.pcn .pcn-names{
   scrollbar-width:thin;scrollbar-color:#8f8050 transparent
 }
-.pcn ::-webkit-scrollbar{width:9px;height:9px}
+.pcn ::-webkit-scrollbar{width:10px;height:10px}
 .pcn ::-webkit-scrollbar-track{background:transparent}
 .pcn ::-webkit-scrollbar-thumb{
   background:#8f8050;border-radius:5px;border:2px solid var(--paper)
 }
 
-/* bank = ruled page, words sit on the lines */
+/* bank = ruled page, every word sits exactly on a line */
 .pcn .pcn-bank{
-  overflow:auto;padding:0 10px 0 2px;border-right:3px double var(--brass);
-  background-image:repeating-linear-gradient(to bottom,transparent 0 27px,
-    var(--rule) 27px 28px);
+  min-height:0;overflow:auto;padding:0 .7em 0 .1em;
+  border-right:3px double var(--brass);
+  background-image:repeating-linear-gradient(to bottom,transparent 0
+    calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px) var(--lh));
   background-attachment:local
 }
+.pcn .pcn-bank-head{
+  display:flex;align-items:center;gap:.6em;height:var(--lh)
+}
 .pcn .pcn-bank h3{
-  display:flex;align-items:center;gap:8px;margin:0;line-height:28px;
-  font-family:${PIXEL};font-size:9px;font-weight:normal;color:#6b4f12
+  display:flex;align-items:center;gap:.6em;margin:0;
+  font-family:${PIXEL};font-size:calc(var(--fs)*.58);font-weight:normal;
+  color:#6b4f12;line-height:var(--lh)
 }
 .pcn .pcn-count{
-  font-family:SpecialElite,'Special Elite',monospace;font-size:11px;
-  line-height:16px;padding:0 7px;border-radius:9px;
+  font-family:SpecialElite,'Special Elite',monospace;font-size:var(--fs);
+  line-height:1.3;padding:0 .5em;border-radius:1em;
   background:var(--ink);color:var(--gold)
 }
-.pcn .pcn-bank > button{min-height:28px;margin:0;padding:2px 8px 1px;font-size:11px}
+.pcn .pcn-bank-head button{
+  margin-left:auto;min-height:0;height:calc(var(--lh) - 6px);
+  padding:0 .6em;font-size:.68em
+}
 .pcn .pcn-words{display:flex;flex-direction:column;gap:0}
 
 .pcn .pcn-word{
-  display:flex;align-items:center;gap:8px;min-height:28px;padding:0 4px;
-  font-size:14px;line-height:1.15;border-radius:2px
+  display:flex;align-items:flex-start;gap:.5em;min-height:var(--lh);
+  padding:0 .3em;font-size:1em;line-height:var(--lh);border-radius:2px
 }
+.pcn .pcn-word > span{flex:1;min-width:0;overflow-wrap:anywhere}
 .pcn label.pcn-word{cursor:pointer}
-.pcn label.pcn-word:hover{background:rgba(212,175,55,.18)}
-.pcn .pcn-word:has(input:checked){background:rgba(212,175,55,.28)}
+.pcn label.pcn-word:hover{background:rgba(212,175,55,.2)}
+.pcn .pcn-word:has(input:checked){background:rgba(212,175,55,.34)}
 
 /* custom checkbox: tick it with red pencil */
 .pcn .pcn-word input{
-  appearance:none;-webkit-appearance:none;width:16px;height:16px;margin:0;
-  flex-shrink:0;cursor:pointer;border:2px solid var(--ink);border-radius:2px;
-  background:#fbf4d6 center/12px no-repeat
+  appearance:none;-webkit-appearance:none;width:1.05em;height:1.05em;
+  margin:calc((var(--lh) - 1.05em)/2) 0 0;flex-shrink:0;cursor:pointer;
+  border:2px solid var(--ink);border-radius:2px;
+  background:#fdf7dc center/80% no-repeat
 }
 .pcn .pcn-word input:checked{background-image:${CHECK}}
 .pcn .pcn-word input:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 
+/* buttons inside word rows (use-words mode, e-mails) */
 .pcn .pcn-word button{
-  width:100%;min-height:26px;padding:2px 4px;border:0;border-radius:2px;
+  display:inline-flex;align-items:baseline;gap:.4em;flex:1;min-width:0;
+  min-height:0;padding:0 .25em;border:0;border-radius:2px;
   background:transparent;box-shadow:none;transform:none;text-align:left;
-  text-transform:none;letter-spacing:0;font-size:inherit;
+  text-transform:none;letter-spacing:0;font-size:1em;line-height:inherit;
   overflow-wrap:anywhere
 }
-.pcn .pcn-word button:hover:not(:disabled){background:rgba(212,175,55,.22);transform:none}
+.pcn .pcn-word button:hover:not(:disabled){
+  background:rgba(212,175,55,.26);transform:none
+}
 .pcn .pcn-word button:active:not(:disabled){transform:none}
 /* "use words" mode: marker-pen highlighted leads */
 .pcn .pcn-lead button{
-  background:linear-gradient(transparent 58%,rgba(212,175,55,.42) 58%)
+  background:linear-gradient(transparent 55%,rgba(212,175,55,.5) 55%)
 }
-.pcn .pcn-lead button:hover:not(:disabled){background:rgba(212,175,55,.55)}
+.pcn .pcn-lead button:hover:not(:disabled){background:rgba(212,175,55,.65)}
 .pcn .pcn-word .pcn-email{
-  color:#17406b;text-decoration:underline;text-underline-offset:3px
+  color:#12406e;text-decoration:underline;text-underline-offset:3px
 }
-.pcn .pcn-word .pcn-email::before{content:'\\2709  ';text-decoration:none}
-.pcn .pcn-word .pcn-email:hover,.pcn .pcn-word .pcn-email:focus-visible{color:#8a3d26}
+.pcn .pcn-word .pcn-email::before{
+  content:'\\2709';flex:none;text-decoration:none
+}
+.pcn .pcn-word .pcn-email:hover,.pcn .pcn-word .pcn-email:focus-visible{
+  color:#8a3d26
+}
 
-.pcn .pcn-empty{margin:6px 4px;font-size:13px;font-style:italic;color:var(--ink-soft)}
+.pcn .pcn-empty{
+  margin:.4em .3em;font-size:.9em;line-height:1.4;font-style:italic;
+  color:var(--ink-soft)
+}
 
 /* ---------- clouds */
-.pcn .pcn-board{overflow:auto;min-width:0}
+.pcn .pcn-board{min-height:0;min-width:0;overflow:auto}
 .pcn .pcn-clouds{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:30px 16px;padding:8px 10px 34px
+  position:relative;display:grid;align-items:start;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));
+  gap:2.6em 2.4em;padding:1.4em .9em 2.6em
 }
 .pcn .pcn-clouds > .pcn-empty{grid-column:1/-1}
+
+/* red-pencil arrows between linked clouds (drawn behind the cards) */
+.pcn .pcn-strings{
+  position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;
+  pointer-events:none;overflow:visible
+}
+
 .pcn .pcn-cloud{
-  position:relative;min-height:140px;padding:18px 26px 22px;
-  border:2px dashed var(--ink-soft);
-  border-radius:46% 54% 50% 50% / 34% 38% 62% 66%;
-  background:radial-gradient(ellipse at 30% 20%,#f7efcf,#eee3b8 70%);
-  box-shadow:0 3px 0 rgba(90,70,30,.18),0 8px 14px rgba(60,40,10,.15);
+  --lh:calc(var(--fs)*1.8);
+  position:relative;z-index:1;display:flex;flex-direction:column;
+  justify-content:center;min-height:9em;padding:1.3em 14% 1.8em;
+  border:2.5px solid var(--ink);
+  border-radius:50% 47% 52% 50% / 46% 52% 50% 54%;
+  background:radial-gradient(ellipse at 35% 25%,
+    rgba(255,252,234,.97),rgba(248,238,202,.95) 78%);
+  box-shadow:0 3px 0 rgba(70,55,20,.18),0 10px 16px rgba(60,40,10,.14);
   transition:transform .15s,box-shadow .15s
 }
-.pcn .pcn-cloud:nth-child(odd){transform:rotate(-.6deg)}
-.pcn .pcn-cloud:nth-child(even){transform:rotate(.5deg)}
+.pcn .pcn-cloud:nth-child(odd){transform:rotate(-.5deg)}
+.pcn .pcn-cloud:nth-child(even){transform:rotate(.4deg)}
 .pcn .pcn-cloud:hover{transform:rotate(0) translateY(-2px)}
-/* thought-bubble dots */
-.pcn .pcn-cloud::before,.pcn .pcn-cloud::after{
-  content:'';position:absolute;border-radius:50%;
-  border:2px solid var(--ink-soft);background:#eee3b8
-}
-.pcn .pcn-cloud::before{width:13px;height:13px;left:16%;bottom:-13px}
-.pcn .pcn-cloud::after{width:8px;height:8px;left:11%;bottom:-25px}
+.pcn .pcn-cloud.pcn-pick{cursor:pointer}
 .pcn .pcn-cloud.pcn-active{
-  border-style:solid;border-color:var(--red);
-  background:radial-gradient(ellipse at 30% 20%,#fffbe0,#f6ebbf 70%);
-  box-shadow:0 0 0 3px rgba(212,175,55,.55),0 10px 18px rgba(60,40,10,.25)
+  border-color:var(--red);
+  background:radial-gradient(ellipse at 35% 25%,#fffdea,#faf0c4 78%);
+  box-shadow:0 0 0 4px rgba(212,175,55,.6),0 12px 20px rgba(60,40,10,.25)
 }
-.pcn .pcn-cloud.pcn-active::before,.pcn .pcn-cloud.pcn-active::after{
-  border-color:var(--red);background:#f6ebbf
+.pcn .pcn-cloud.pcn-active::before{
+  content:'SELECTED';position:absolute;top:-.9em;left:50%;
+  transform:translateX(-50%) rotate(-2deg);padding:.15em .7em .05em;
+  font-size:.6em;letter-spacing:.14em;white-space:nowrap;
+  background:var(--red);color:#fff4d0;border-radius:2px;
+  box-shadow:0 1px 2px rgba(0,0,0,.3)
 }
 .pcn .pcn-cloud-title{
-  display:block;width:100%;min-height:28px;padding:2px 4px 6px;
-  border:0;border-bottom:1px dotted var(--ink-soft);border-radius:0;
+  display:block;width:100%;min-height:0;padding:.1em .3em .3em;
+  border:0;border-bottom:1.5px dotted var(--ink-soft);border-radius:0;
   background:transparent;box-shadow:none;transform:none;color:var(--ink);
-  font-size:15px;line-height:1.2;text-align:center;
-  text-transform:none;letter-spacing:0
+  font-size:1.15em;line-height:1.25;text-align:center;
+  text-transform:none;letter-spacing:0;text-shadow:.4px 0 0 currentColor;
+  overflow-wrap:anywhere
 }
-.pcn .pcn-cloud-title:hover:not(:disabled){background:rgba(212,175,55,.2);transform:none}
-.pcn .pcn-cloud .pcn-word{font-size:13px;min-height:26px}
-.pcn .pcn-cloud .pcn-word button{font-size:13px}
-.pcn .pcn-cloud .pcn-empty{margin:8px 0 0;text-align:center;font-size:12px}
-/* red string to linked clouds */
+.pcn .pcn-cloud-title:hover:not(:disabled){
+  background:rgba(212,175,55,.22);transform:none
+}
+.pcn .pcn-cloud.pcn-active .pcn-cloud-title{color:var(--red)}
+.pcn .pcn-cloud-words{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;
+  gap:0 1.1em;margin-top:.4em
+}
+.pcn .pcn-cloud .pcn-word{
+  flex:0 1 auto;display:inline-flex;max-width:100%;font-size:1em
+}
+.pcn .pcn-cloud .pcn-word > span{flex:0 1 auto}
+.pcn .pcn-cloud .pcn-word button{flex:0 1 auto}
+.pcn .pcn-cloud .pcn-empty{margin:.5em 0 0;text-align:center;font-size:.85em}
+/* linked-cloud caption */
 .pcn .pcn-cloud small{
-  display:block;margin-top:6px;padding-top:4px;font-size:12px;color:var(--red);
+  display:block;margin-top:.5em;padding-top:.3em;font-size:.78em;
+  line-height:1.3;text-align:center;color:var(--red);
   border-top:1px dashed rgba(155,47,34,.5)
 }
 
 /* ---------- tools strip */
 .pcn .pcn-tools{
-  display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;
-  padding:8px 0 0;border-top:3px double var(--brass);font-size:13px
+  display:flex;flex-wrap:wrap;align-items:center;gap:.45em;margin-top:.5em;
+  padding:.6em 0 0;border-top:3px double var(--brass);font-size:.9em
 }
-.pcn .pcn-tools button{min-height:30px;padding:3px 8px 2px;font-size:11px}
-.pcn .pcn-tools select{min-height:30px;max-width:160px;font-size:12px}
+.pcn .pcn-tools button{min-height:2.3em;padding:.3em .7em .25em;font-size:.76em}
+.pcn .pcn-tools select{min-height:2.3em;max-width:11em;font-size:.82em}
+.pcn .pcn-tools .pcn-label{
+  font-size:.78em;letter-spacing:.08em;color:var(--ink-soft);margin-left:.6em
+}
 .pcn .pcn-tools button.pcn-primary{
-  background:linear-gradient(#ecce63,#c9a02c);border-color:#7a5d12;color:var(--leather)
+  background:linear-gradient(#ecce63,#c9a02c);border-color:#7a5d12;
+  color:var(--leather)
 }
 .pcn .pcn-tools button.pcn-primary:hover:not(:disabled){
   background:linear-gradient(#f5da7c,#d6ac36)
 }
 .pcn .pcn-tools button.pcn-danger{color:var(--red);border-color:#8a3a2c}
-.pcn .pcn-tools .pcn-sel{margin-left:auto;font-size:12px;opacity:.8;white-space:nowrap}
+.pcn .pcn-tools .pcn-sel{
+  margin-left:auto;font-size:.82em;opacity:.85;white-space:nowrap
+}
 
 .pcn .pcn-status{
-  min-height:18px;margin-top:6px;font-size:12px;font-style:italic;color:var(--ink-soft)
+  min-height:1.4em;margin-top:.4em;font-size:.82em;line-height:1.35;
+  font-style:italic;color:var(--ink-soft)
 }
 .pcn .pcn-status::before{content:'\\25B8  ';color:var(--red);font-style:normal}
 
 /* ---------- name-cloud dialog: a taped slip of paper */
 .pcn .pcn-dialog{
   position:absolute;left:50%;top:50%;z-index:3;
-  width:min(520px,calc(100% - 40px));padding:24px 22px 18px;
+  width:min(560px,calc(100% - 40px));padding:1.6em 1.4em 1.2em;
   transform:translate(-50%,-50%) rotate(-.4deg);
   background:var(--paper-hi);border:2px solid var(--ink-soft);
   box-shadow:0 14px 30px rgba(0,0,0,.45)
@@ -314,21 +378,26 @@ const CSS = `
   box-shadow:0 1px 2px rgba(0,0,0,.2)
 }
 .pcn .pcn-dialog h3{
-  margin:0 0 10px;font-family:${PIXEL};font-size:10px;line-height:1.5;
-  font-weight:normal;color:#6b4f12
+  margin:0 0 .7em;font-family:${PIXEL};font-size:calc(var(--fs)*.62);
+  line-height:1.5;font-weight:normal;color:#6b4f12
 }
-.pcn .pcn-dialog p{margin:0;font-size:13px}
-.pcn .pcn-names{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;max-height:150px;overflow:auto}
-.pcn .pcn-dialog > button{margin-right:6px}
+.pcn .pcn-dialog p{margin:0;font-size:.9em}
+.pcn .pcn-names{
+  display:flex;flex-wrap:wrap;gap:.5em;margin:1em 0;max-height:10em;overflow:auto
+}
+.pcn .pcn-dialog > button{margin-right:.4em}
 
 @media(max-width:650px){
-  .pcn .pcn-paper{height:55vh;min-height:280px;padding:7px 8px 6px 34px}
+  .pcn .pcn-paper{height:66vh;min-height:300px;padding:.5em .5em .4em 34px}
+  .pcn.pcn-big .pcn-paper{height:92vh}
   .pcn .pcn-paper::before{width:22px;background-size:22px 40px,auto}
-  .pcn .pcn-work{grid-template-columns:minmax(120px,34%) 1fr;gap:6px}
-  .pcn .pcn-clouds{grid-template-columns:1fr}
-  .pcn .pcn-top select{max-width:170px}
+  .pcn .pcn-work{
+    grid-template-columns:1fr;grid-template-rows:minmax(80px,34%) 1fr;gap:.4em
+  }
+  .pcn .pcn-bank{border-right:0;border-bottom:3px double var(--brass)}
+  .pcn .pcn-clouds{grid-template-columns:1fr;gap:2.2em 1em}
+  .pcn .pcn-top select{max-width:11em}
   .pcn .pcn-title,.pcn .pcn-stamp{display:none}
-  .pcn .pcn-tools button{font-size:10px;padding:3px 6px 2px}
   .pcn .pcn-tools .pcn-sel{margin-left:0;white-space:normal}
 }
 @media(prefers-reduced-motion:reduce){
@@ -382,6 +451,8 @@ export function installPlayerCloudNotebook(ui) {
   let collapsed =
     state.playerCloudViewV1?.collapsed !== false;
 
+  let big = state.playerCloudViewV1?.big === true;
+
   let caseId =
     state.playerCloudViewV1?.selectedCaseId ||
     state.piKeywordSearch?.selectedCaseId ||
@@ -401,6 +472,9 @@ export function installPlayerCloudNotebook(ui) {
 
   // Remembers which case the scroll offsets below belong to.
   let scrollCaseId = null;
+
+  // Keeps the red arrows between linked clouds in sync with the layout.
+  let stringObserver = null;
 
   const root = el('section', undefined, 'pcn');
   const style = el('style', CSS);
@@ -532,6 +606,18 @@ export function installPlayerCloudNotebook(ui) {
     state.playerCloudViewV1 = {
       ...(state.playerCloudViewV1 || {}),
       collapsed
+    };
+
+    requestAutosave();
+    draw();
+  }
+
+  function setBig(value) {
+    big = Boolean(value);
+
+    state.playerCloudViewV1 = {
+      ...(state.playerCloudViewV1 || {}),
+      big
     };
 
     requestAutosave();
@@ -695,13 +781,138 @@ export function installPlayerCloudNotebook(ui) {
 
   function inactiveWordRow(word, definition) {
     if (!getEmailContact(word)) {
-      return el('div', word.label, 'pcn-word');
+      return el('div', undefined, 'pcn-word').appendChild(
+        el('span', word.label)
+      ).parentNode;
     }
 
     const row = el('div', undefined, 'pcn-word');
     row.append(emailButton(word, definition));
 
     return row;
+  }
+
+  // Red-pencil arrows between linked clouds, drawn behind the cards.
+  function drawStrings(grid, progress) {
+    grid.querySelector('.pcn-strings')?.remove();
+
+    if (!progress.links.length) return;
+
+    const cards = new Map(
+      [...grid.querySelectorAll('.pcn-cloud')].map(
+        node => [node.dataset.cloud, node]
+      )
+    );
+
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'pcn-strings');
+    svg.setAttribute('aria-hidden', 'true');
+
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    const marker = document.createElementNS(SVG_NS, 'marker');
+
+    marker.setAttribute('id', 'pcn-arrow');
+    marker.setAttribute('viewBox', '0 0 10 10');
+    marker.setAttribute('refX', '8');
+    marker.setAttribute('refY', '5');
+    marker.setAttribute('markerWidth', '7');
+    marker.setAttribute('markerHeight', '7');
+    marker.setAttribute('orient', 'auto-start-reverse');
+
+    const tip = document.createElementNS(SVG_NS, 'path');
+    tip.setAttribute('d', 'M0 0L10 5L0 10z');
+    tip.setAttribute('fill', '#9b2f22');
+
+    marker.append(tip);
+    defs.append(marker);
+    svg.append(defs);
+
+    let drawn = 0;
+
+    for (const link of progress.links) {
+      const a = cards.get(link.from);
+      const b = cards.get(link.to);
+
+      if (!a || !b) continue;
+
+      const ax = a.offsetLeft + a.offsetWidth / 2;
+      const ay = a.offsetTop + a.offsetHeight / 2;
+      const bx = b.offsetLeft + b.offsetWidth / 2;
+      const by = b.offsetTop + b.offsetHeight / 2;
+
+      const dx = bx - ax;
+      const dy = by - ay;
+      const length = Math.hypot(dx, dy);
+
+      if (!length) continue;
+
+      const ux = dx / length;
+      const uy = dy / length;
+
+      // distance from an ellipse's centre to its edge along (ux, uy)
+      const reach = card => {
+        const rx = Math.max(1, card.offsetWidth / 2);
+        const ry = Math.max(1, card.offsetHeight / 2);
+
+        return 1 / Math.sqrt((ux / rx) ** 2 + (uy / ry) ** 2);
+      };
+
+      const gap = 7;
+      const start = reach(a) + gap;
+      const end = length - reach(b) - gap;
+
+      if (end - start < 14) continue;
+
+      const x1 = ax + ux * start;
+      const y1 = ay + uy * start;
+      const x2 = ax + ux * end;
+      const y2 = ay + uy * end;
+
+      const bend = (end - start) * 0.14;
+      const cx = (x1 + x2) / 2 - uy * bend;
+      const cy = (y1 + y2) / 2 + ux * bend;
+
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', '#9b2f22');
+      path.setAttribute('stroke-width', '2.6');
+      path.setAttribute('stroke-linecap', 'round');
+      path.setAttribute('stroke-dasharray', '7 5');
+      path.setAttribute('marker-start', 'url(#pcn-arrow)');
+      path.setAttribute('marker-end', 'url(#pcn-arrow)');
+
+      svg.append(path);
+      drawn += 1;
+    }
+
+    if (drawn) grid.prepend(svg);
+  }
+
+  function watchStrings(grid, progress) {
+    stringObserver?.disconnect();
+    stringObserver = null;
+
+    try {
+      drawStrings(grid, progress);
+    } catch (error) {
+      console.warn('[PlayerCloudNotebook] arrows skipped:', error);
+      return;
+    }
+
+    if (typeof ResizeObserver === 'undefined') return;
+
+    stringObserver = new ResizeObserver(() => {
+      if (dead || !grid.isConnected) return;
+
+      try {
+        drawStrings(grid, progress);
+      } catch (error) {
+        console.warn('[PlayerCloudNotebook] arrows skipped:', error);
+      }
+    });
+
+    stringObserver.observe(grid);
   }
 
   function draw() {
@@ -713,6 +924,8 @@ export function installPlayerCloudNotebook(ui) {
     const definition = syncSelection();
     const available = cases();
 
+    root.classList.toggle('pcn-big', big);
+
     handle.textContent = collapsed
       ? '▲ CASE NOTES'
       : '▼ HIDE NOTES';
@@ -720,7 +933,11 @@ export function installPlayerCloudNotebook(ui) {
     handle.setAttribute('aria-expanded', String(!collapsed));
     paper.hidden = collapsed;
 
-    if (collapsed) return;
+    if (collapsed) {
+      stringObserver?.disconnect();
+      stringObserver = null;
+      return;
+    }
 
     // Redrawing rebuilds the whole page; keep the reader's place
     // so ticking a word does not throw the list back to the top.
@@ -766,11 +983,15 @@ export function installPlayerCloudNotebook(ui) {
       draw();
     });
 
+    organise.title = 'Group your clues into clouds';
+
     const useButton = button('USE WORDS', () => {
       mode = 'use';
       dialogId = null;
       draw();
     });
+
+    useButton.title = 'Click a clue to search, call or write';
 
     (mode === 'organise' ? organise : useButton)
       .classList.add('pcn-selected');
@@ -778,6 +999,18 @@ export function installPlayerCloudNotebook(ui) {
     const tabs = el('span', undefined, 'pcn-tabs');
     tabs.append(organise, useButton);
     top.append(tabs);
+
+    const sizeButton = button(
+      big ? 'SHRINK' : 'ENLARGE',
+      () => setBig(!big)
+    );
+
+    sizeButton.classList.add('pcn-size');
+    sizeButton.title = big
+      ? 'Make the notebook smaller'
+      : 'Make the notebook bigger';
+
+    top.append(sizeButton);
     paper.append(top);
 
     if (!definition) {
@@ -821,7 +1054,9 @@ export function installPlayerCloudNotebook(ui) {
       el('span', String(bankWords.length), 'pcn-count')
     );
 
-    bank.append(
+    const bankHead = el('div', undefined, 'pcn-bank-head');
+
+    bankHead.append(
       bankHeading,
       button(all ? 'SHOW UNSORTED' : 'SHOW ALL', () => {
         all = !all;
@@ -829,6 +1064,8 @@ export function installPlayerCloudNotebook(ui) {
         draw();
       })
     );
+
+    bank.append(bankHead);
 
     const list = el('div', undefined, 'pcn-words');
 
@@ -856,10 +1093,23 @@ export function installPlayerCloudNotebook(ui) {
       const card = el(
         'article',
         undefined,
-        'pcn-cloud' + (cloud.id === activeId ? ' pcn-active' : '')
+        'pcn-cloud' +
+        (cloud.id === activeId ? ' pcn-active' : '') +
+        (mode === 'organise' && cloud.id !== activeId ? ' pcn-pick' : '')
       );
 
       card.dataset.cloud = cloud.id;
+
+      // Clicking anywhere on a cloud selects it (organise mode).
+      if (mode === 'organise') {
+        card.addEventListener('click', () => {
+          if (!live() || activeId === cloud.id) return;
+
+          activeId = cloud.id;
+          memberSelection.clear();
+          draw();
+        });
+      }
 
       const title = button(
         cloudTitle(state, definition, cloud) +
@@ -875,14 +1125,17 @@ export function installPlayerCloudNotebook(ui) {
       card.append(title);
 
       const members = cloud.words.map(id => map.get(id)).filter(Boolean);
+      const wordsBox = el('div', undefined, 'pcn-cloud-words');
 
       for (const word of members) {
         if (mode === 'organise' && cloud.id !== activeId) {
-          card.append(inactiveWordRow(word, definition));
+          wordsBox.append(inactiveWordRow(word, definition));
         } else {
-          card.append(wordRow(word, memberSelection, definition));
+          wordsBox.append(wordRow(word, memberSelection, definition));
         }
       }
+
+      if (members.length) card.append(wordsBox);
 
       if (!members.length) {
         card.append(
@@ -917,7 +1170,7 @@ export function installPlayerCloudNotebook(ui) {
       grid.append(
         el(
           'p',
-          'Select words and create your first cloud. ' +
+          'Tick some words on the left and press CREATE CLOUD. ' +
           'Nothing is grouped automatically.',
           'pcn-empty'
         )
@@ -996,6 +1249,7 @@ export function installPlayerCloudNotebook(ui) {
         }
 
         tools.append(
+          el('span', 'LINK WITH:', 'pcn-label'),
           targets,
           button('LINK', () => {
             linkClouds(state, caseId, activeId, targets.value);
@@ -1020,16 +1274,21 @@ export function installPlayerCloudNotebook(ui) {
       tools.append(
         el(
           'span',
-          'Click a word to search, dial a discovered number ' +
-          'or use an email address.'
+          'Click a highlighted word to search, dial a discovered ' +
+          'number or use an email address.'
         )
       );
     }
 
     const status = el(
       'div',
-      message ||
-      'Names are hypotheses. The notebook does not mark them right or wrong.',
+      message || (
+        mode === 'organise'
+          ? 'Click a cloud to work on it. Names are hypotheses — ' +
+            'the notebook never says who is right.'
+          : 'Names are hypotheses. The notebook does not mark them ' +
+            'right or wrong.'
+      ),
       'pcn-status'
     );
 
@@ -1037,6 +1296,9 @@ export function installPlayerCloudNotebook(ui) {
     status.setAttribute('aria-live', 'polite');
 
     paper.append(tools, status);
+
+    // Arrows need the final layout, so they are drawn once the page exists.
+    watchStrings(grid, progress);
 
     // Restore after the full layout exists so the offsets are not clamped.
     bank.scrollTop = bankTop;
@@ -1248,6 +1510,9 @@ export function installPlayerCloudNotebook(ui) {
     if (dead) return;
 
     dead = true;
+
+    stringObserver?.disconnect();
+    stringObserver = null;
 
     ui.scene.game.events.off('poststep', tick);
     ui.scene.scale.off('resize', resize);

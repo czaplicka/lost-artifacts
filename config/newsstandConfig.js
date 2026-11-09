@@ -31,7 +31,6 @@ export const NEWSSTAND_HOTSPOTS = [
     height: 230,
 
     type: 'daily',
-    backgroundKey: 'paper_daily_bg',
 
     price: 5,
     depth: 10,
@@ -48,7 +47,6 @@ export const NEWSSTAND_HOTSPOTS = [
     height: 230,
 
     type: 'time',
-    backgroundKey: 'paper_time_bg',
 
     price: 5,
     depth: 10,

@@ -23,7 +23,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene{
   if(this._hollyUpdateOpening||!this.canUseOffice()||this.debugMode||!getState().canContact)return false;
   const token=this.runToken;this._hollyUpdateOpening=true;this.activeDevice='holly-case-call';this.refreshInteractions();
   const release=()=>{if(this.disposed||this.runToken!==token)return;this._hollyUpdateOpening=false;if(this.activeDevice==='holly-case-call')this.activeDevice=null;if(this.sys.isActive()){this.hideGameplayHud();this.refreshInteractions();}};
-  try{const module=financial?await import('../hollyFinancialLeadLauncher.js'):await import('../hollySurvivalUpdateLauncher.js');if(!this.isCurrent(token))return false;const open=financial?module.openHollyFinancialLead:module.openHollySurvivalUpdate;
+  try{const module=financial?await import('../hollyFinancialLeadLauncher.js'):await import('../hollySurvivalUpdateLauncher.js');if(!this.isCurrent(token)){release();return false;}const open=financial?module.openHollyFinancialLead:module.openHollySurvivalUpdate;
    const opened=open(this.game,{preview:false,returnSceneKey:'DetectiveOfficeScene',onFinished:r=>{release();if(this.isCurrent(token))this.showFeedback(r.completed?DATA.messages.complete:'Call paused. Use the telephone to resume.');}});if(!opened){release();this.showFeedback('The call is already open or no longer available.');return false;}return true;
   }catch(error){release();if(this.isCurrent(token))this.showFeedback(DATA.messages.loadFailed);console.error('[DetectiveOfficeScene] Holly call:',error);return false;}
  }
@@ -31,7 +31,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene{
   if(!this.canUseOffice()||this.debugMode||!getFinancialTraceStory().eligible)return;
   const token=this.runToken;this.activeDevice='financial-trace';this.refreshInteractions();
   const release=()=>{if(this.disposed||this.runToken!==token)return;if(this.activeDevice==='financial-trace')this.activeDevice=null;if(this.sys.isActive()){this.hideGameplayHud();this.refreshInteractions();}};
-  try{const{openFinancialTrace}=await import('../financialTraceLauncher.js');if(!this.isCurrent(token))return;
+  try{const{openFinancialTrace}=await import('../financialTraceLauncher.js');if(!this.isCurrent(token)){release();return false;}
    if(!openFinancialTrace(this.game,{preview:false,returnSceneKey:'DetectiveOfficeScene',onFinished:r=>{release();if(this.isCurrent(token)&&r.companyUnlocked&&!r.completed)this.showFeedback('Use your telephone directory to contact Second Opinion Tracing.');}})){release();this.showFeedback('The financial trail is already open or unavailable.');}
   }catch(error){release();if(this.isCurrent(token))this.showFeedback('The financial trail could not be opened.');console.error('[Financial trace]',error);}
  }
@@ -40,7 +40,7 @@ export class DetectiveOfficeScene extends OriginalOfficeScene{
   if(!this.canUseOffice()||this.debugMode||!getHollyResumeEntry())return false;
   const token=this.runToken;this.activeDevice='holly-case';this.refreshInteractions();
   const release=()=>{if(this.disposed||this.runToken!==token)return;if(this.activeDevice==='holly-case')this.activeDevice=null;if(this.sys.isActive()){this.hideGameplayHud();this.refreshInteractions();}};
-  try{const{openHollyCaseFromOffice}=await import('../hollyCaseHubService.js');if(!this.isCurrent(token))return false;
+  try{const{openHollyCaseFromOffice}=await import('../hollyCaseHubService.js');if(!this.isCurrent(token)){release();return false;}
    const result=await openHollyCaseFromOffice(this.game,{isCurrent:()=>this.isCurrent(token)&&this.activeDevice==='holly-case',onFinished:()=>{release();}});
    if(!result.opened){release();if(this.isCurrent(token))this.showFeedback(result.message);}return result.opened;
   }catch(error){release();if(this.isCurrent(token))this.showFeedback('The case file could not be opened.');console.error('[Holly case file]',error);return false;}

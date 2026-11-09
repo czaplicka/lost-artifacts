@@ -36,7 +36,18 @@ export function getDeadMailMessages() {
   return [{id:DEAD_MAIL_MESSAGE,from:'Florence Finch',subject:'Dead Mail — apparently, I am unavailable',
     date:'Case correspondence',threadId:DEAD_MAIL_QUEST,
     attachments:[{id:'dead_mail_delivery_photo',type:'image',name:'delivery_photo.webp',imageKey:'dead_mail_delivery_photo'}],
-    body:'Detective,\n\nThank you for accepting my case.\n\nYesterday a courier sent me a delivery confirmation. The parcel was addressed to me. The delivery address was Blackthorn Cemetery.\n\nI went there. There is a marker with my name, my correct date of birth, and tomorrow’s date as the day I die.\n\nI would like this corrected before it becomes accurate.\n\nI have attached their delivery photograph. Inspect it first; I can then meet you to explain what happened. I remain mobile.\n\nFlorence Finch\n\nATTACHMENT: delivery_photo.webp'}];
+    body: [
+      'Detective,',
+      'Thank you for accepting my case.',
+      'Yesterday a courier sent me a delivery confirmation. The parcel was addressed to me. The delivery address was Blackthorn Cemetery.',
+      'I went there. There is a marker with my name, my correct date of birth, and tomorrow’s date as the day I die.',
+      'I would like this corrected before it becomes accurate.',
+      'I have attached their delivery photograph. Inspect it first and collect all three clues before you come.',
+      'Then close the computer, find Blackthorn Cemetery on the city map, walk there, and enter through its gate. Meet me at the cemetery; I will explain what happened in person.',
+      'I remain mobile. I would prefer to keep it that way.',
+      'Florence Finch',
+      'ATTACHMENT: delivery_photo.webp'
+    ].join('\n\n')}];
 }
 export function markDeadMailMessageRead(id) {
   if(id!==DEAD_MAIL_MESSAGE||!hasDeadMailCorrespondence())return false;
@@ -65,7 +76,6 @@ export function ensureDeadMailSearchDefinition(search) {
   if(!search.data.cases.some(c=>c.id===DEAD_MAIL_SEARCH)){
     search.data={...search.data,cases:[...search.data.cases,JSON.parse(JSON.stringify(searchDefinition))]};changed=true;
   }
-  // Older saves already contain photograph clues; restore their notebook tags without resetting anything.
   const missing=getDeadMailProgress().clues.filter(id=>Object.hasOwn(DEAD_MAIL_PHOTO_DETAILS,id))
     .map(id=>DEAD_MAIL_PHOTO_DETAILS[id].keywordId)
     .filter(id=>!getSearchProgress().cases[DEAD_MAIL_SEARCH]?.known?.includes(id));

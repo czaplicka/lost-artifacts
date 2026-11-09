@@ -20,7 +20,7 @@ export class HollyChapterOneFinaleScene extends BaseScene {
   }
   preload(){
     if(!this.textures.exists(PORTRAIT_KEY))this.load.image(PORTRAIT_KEY,'assets/pi/holly.webp');
-    if(!this.textures.exists(DESK_KEY))this.load.image(DESK_KEY,'assets/ui/pi-phone/desk.jpg');
+    if(!this.textures.exists(DESK_KEY))this.load.image(DESK_KEY,'assets/ui/pi-phone/desk.webp');
   }
   create(){
     super.create();this.cameras.main.setBackgroundColor('#050b08');

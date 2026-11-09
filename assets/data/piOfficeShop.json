@@ -3,9 +3,31 @@
   "shopId": "pi_office_shop",
   "title": "Office Supplies & Questionable Hires",
   "currency": "USD",
-  "intro": "Build a respectable detective agency. Or at least buy enough equipment to look like one.",
+  "intro": "First buy a proper PI office. Then fill it with equipment and questionable employees.",
   "balanceStatus": "provisional",
   "items": [
+    {
+      "id": "office_new_premises",
+      "name": "New PI Office",
+      "category": "premises",
+      "price": 1000,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "A proper office with room for equipment and employees. Your current office requires visitors to exhale before entering.",
+      "benefitText": "Unlock purchases of office equipment and staff. Equipment is sold separately. Pigeon feed does not require a new office.",
+      "purchaseMessage": "New PI office purchased. Equipment and staff purchases are now unlocked.",
+      "requires": [],
+      "effects": [
+        {
+          "type": "unlock_feature",
+          "featureId": "pi_office_upgrades"
+        }
+      ],
+      "visual": {
+        "textureKey": null,
+        "textureUrl": null
+      }
+    },
     {
       "id": "office_assistant",
       "name": "Office Assistant",
@@ -16,7 +38,9 @@
       "description": "Handles appointments, negotiates fees and explains that exposure is not a currency.",
       "benefitText": "Earn 15% extra on eligible PI contract fees paid after hiring. Bribes, refunds, advances and employee income are excluded.",
       "purchaseMessage": "Assistant hired. Your calendar is organised. Your life remains under review.",
-      "requires": [],
+      "requires": [
+        "office_new_premises"
+      ],
       "effects": [
         {
           "type": "reward_bonus",
@@ -44,7 +68,9 @@
       "description": "A filing system for solved cases. Alphabetical order costs extra. We have declined.",
       "benefitText": "Search completed PI cases, contacts, summaries and objectives.",
       "purchaseMessage": "Files installed. The paperwork now has somewhere to hide.",
-      "requires": [],
+      "requires": [
+        "office_new_premises"
+      ],
       "effects": [
         {
           "type": "unlock_feature",
@@ -67,7 +93,9 @@
       "description": "Prints reports, invoices and occasional cries for help. Paper jams are its preferred form of communication.",
       "benefitText": "Unlock document jobs: up to 2 new jobs per game day, $35 per job, 30 in-game minutes to start.",
       "purchaseMessage": "Printer installed. It already claims to be out of cyan.",
-      "requires": [],
+      "requires": [
+        "office_new_premises"
+      ],
       "effects": [
         {
           "type": "unlock_job_category",
@@ -90,7 +118,9 @@
       "description": "Takes small local jobs while you handle the dramatic ones. Has only followed the wrong person twice. This week.",
       "benefitText": "Generate $25 net income per full 24 in-game hours. Collect up to $100 in this office shop.",
       "purchaseMessage": "Investigator hired. Someone else can now watch the wrong doorway.",
-      "requires": [],
+      "requires": [
+        "office_new_premises"
+      ],
       "effects": [
         {
           "type": "passive_income",

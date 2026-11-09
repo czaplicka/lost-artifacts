@@ -1,19 +1,19 @@
 export const POST_OFFICE_ART = {
   room: {
     key: 'postal_room',
-    url: 'assets/local/post_office_postman.webp'
+    url: 'assets/pi/postoffice/post_office_postman.webp'
   },
   empty: {
     key: 'postal_empty',
-    url: 'assets/local/post_office.webp'
+    url: 'assets/pi/postoffice/post_office.webp'
   },
   restante: {
     key: 'postal_restante',
-    url: 'assets/local/post_office_poste_restante.webp'
+    url: 'assets/pi/postoffice/post_office_poste_restante.webp'
   },
   portrait: {
     key: 'postal_postman',
-    url: 'assets/local/postman.webp'
+    url: 'assets/pi/postoffice/postman.webp'
   }
 };
 

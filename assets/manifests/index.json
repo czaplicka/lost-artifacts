@@ -415,15 +415,8 @@
     ],
     "scene:NewsstandScene": [
       "image:newsstand_bg",
-      "image:paper_daily_bg",
       "image:comix1",
-      "image:comix2",
-      "image:paper_fallback_blank",
-      "image:paper_tabloid_bg",
-      "image:paper_time_bg",
-      "image:paper_daily_bg_1920x1080",
-      "image:paper_time_bg_1920x1080",
-      "image:paper_placeholder_1920"
+      "image:comix2"
     ],
     "scene:ShopScene": [
       "image:shop"
@@ -1036,15 +1029,9 @@
       "image:kotte"
     ],
     "scene:NewspaperOverlayScene": [
-      "image:paper_daily_bg",
       "image:comix1",
       "image:comix2",
-      "image:paper_fallback_blank",
-      "image:paper_tabloid_bg",
-      "image:paper_time_bg",
-      "image:paper_daily_bg_1920x1080",
-      "image:paper_time_bg_1920x1080",
-      "image:paper_placeholder_1920"
+      "image:paper_fallback_blank"
     ],
     "crime:louvre": [
       "json:objects-data:louvre",
@@ -1595,13 +1582,7 @@
       "image:paper_warsaw_palace_photo",
       "image:paper_warsaw_river_photo",
       "image:paper_warsaw_vending_photo",
-      "image:paper_daily_bg",
       "image:paper_fallback_blank",
-      "image:paper_daily_bg_1920x1080",
-      "image:paper_placeholder_1920",
-      "image:paper_tabloid_bg",
-      "image:paper_time_bg",
-      "image:paper_time_bg_1920x1080",
       "image:hq_coffee_machine_photo",
       "image:hq_gold_stapler_photo",
       "image:hq_sunglasses_photo",
@@ -1988,7 +1969,53 @@
       "tilemap:tokyo_museum",
       "json:johnMicrofilm",
       "json:radioSplice",
-      "image:tokio"
+      "image:tokio",
+      "image:artifact_great_wave",
+      "audio:A_Matchbox_Left_Behind",
+      "audio:Rain_Against_the_Windowpane",
+      "audio:The_Second_Alibi",
+      "json:tracks",
+      "image:tokyo_museum_bg",
+      "css:personnel-roster",
+      "json:hollyFinale",
+      "json:johnAccountReview",
+      "json:johnConfrontation",
+      "json:johnIncidentFiles",
+      "json:johnPrimaryRecords",
+      "json:johnWarsawMeeting",
+      "json:margeTrust",
+      "json:objects-data:tokyo_museum",
+      "json:pages",
+      "image:ico__shopping",
+      "image:jukebox",
+      "image:local__post_office_poste_restante",
+      "image:local__post_office_postman",
+      "image:local__post_office",
+      "image:no_nurse",
+      "image:nurse",
+      "image:artifact",
+      "image:bigger-office-ad",
+      "image:bigger-office-reality",
+      "image:bigger-office",
+      "image:books",
+      "image:case-files",
+      "image:chairs",
+      "image:coffee",
+      "image:pi__office__crime-board",
+      "image:notepad",
+      "image:painting",
+      "image:printer",
+      "image:pi__office__tv",
+      "image:post_office_poste_restante",
+      "image:post_office_postman",
+      "image:post_office",
+      "image:postman",
+      "image:artur_finch_avatar",
+      "image:evelyn_shaw_avatar",
+      "image:simon_pike_avatar",
+      "image:audio",
+      "image:boards",
+      "image:chat"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2105,7 +2132,8 @@
       "tilemap:tower",
       "image:tower_bg",
       "image:tokyo_museum",
-      "tilemap:tokyo_museum"
+      "tilemap:tokyo_museum",
+      "image:tokyo_museum_bg"
     ],
     "auto:folder:CSI": [
       "image:blood_evidence_bag",
@@ -2161,7 +2189,8 @@
       "css:profile",
       "css:register",
       "css:reset",
-      "css:update-password"
+      "css:update-password",
+      "css:personnel-roster"
     ],
     "auto:folder:cutscenes": [
       "image:arrest-agents"
@@ -2238,7 +2267,14 @@
       "json:medicalReview",
       "json:reportIncidents",
       "json:johnMicrofilm",
-      "json:radioSplice"
+      "json:radioSplice",
+      "json:hollyFinale",
+      "json:johnAccountReview",
+      "json:johnConfrontation",
+      "json:johnIncidentFiles",
+      "json:johnPrimaryRecords",
+      "json:johnWarsawMeeting",
+      "json:margeTrust"
     ],
     "auto:folder:data/dialogue": [
       "json:dialog_accounting",
@@ -2292,7 +2328,8 @@
       "json:objects-data:havela",
       "json:objects-data:louvre",
       "json:objects-data:tower",
-      "json:tokyo_museum"
+      "json:tokyo_museum",
+      "json:objects-data:tokyo_museum"
     ],
     "auto:folder:data/web/missions/two-glasses": [
       "json:keywords",
@@ -2331,7 +2368,8 @@
       "image:shop_icon",
       "image:telephone",
       "image:tv",
-      "image:warrant"
+      "image:warrant",
+      "image:ico__shopping"
     ],
     "auto:folder:icons": [
       "image:icon-192",
@@ -2409,7 +2447,11 @@
       "image:doctor",
       "image:medical_office_empty",
       "image:medical_office",
-      "image:no_doctor"
+      "image:no_doctor",
+      "image:jukebox",
+      "image:local__post_office_poste_restante",
+      "image:local__post_office_postman",
+      "image:local__post_office"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2423,13 +2465,7 @@
     "auto:folder:newspapers": [
       "image:comix1",
       "image:comix2",
-      "image:paper_daily_bg",
-      "image:paper_fallback_blank",
-      "image:paper_daily_bg_1920x1080",
-      "image:paper_placeholder_1920",
-      "image:paper_tabloid_bg",
-      "image:paper_time_bg",
-      "image:paper_time_bg_1920x1080"
+      "image:paper_fallback_blank"
     ],
     "auto:folder:newspapers/newspapers": [
       "image:paper_berlin_dj_photo",
@@ -2565,13 +2601,39 @@
       "image:office_assistant",
       "image:office_case_files",
       "image:office_employee",
-      "image:office_printer"
+      "image:office_printer",
+      "image:artifact",
+      "image:bigger-office-ad",
+      "image:bigger-office-reality",
+      "image:bigger-office",
+      "image:books",
+      "image:case-files",
+      "image:chairs",
+      "image:coffee",
+      "image:pi__office__crime-board",
+      "image:notepad",
+      "image:painting",
+      "image:printer",
+      "image:pi__office__tv"
     ],
     "scene:DetectiveOfficeScene": [
       "image:office_assistant",
       "image:office_case_files",
       "image:office_employee",
-      "image:office_printer"
+      "image:office_printer",
+      "image:artifact",
+      "image:bigger-office-ad",
+      "image:bigger-office-reality",
+      "image:bigger-office",
+      "image:books",
+      "image:case-files",
+      "image:chairs",
+      "image:coffee",
+      "image:pi__office__crime-board",
+      "image:notepad",
+      "image:painting",
+      "image:printer",
+      "image:pi__office__tv"
     ],
     "auto:folder:portraits": [
       "image:portrait_CSI",
@@ -2763,7 +2825,8 @@
     ],
     "auto:folder:data/web/missions/dead-men-calling/pages": [
       "json:businesses",
-      "json:data__web__missions__dead-men-calling__pages__news"
+      "json:data__web__missions__dead-men-calling__pages__news",
+      "json:pages"
     ],
     "auto:folder:pi/city/tavern": [
       "image:pi__city__tavern__bartender",
@@ -2839,7 +2902,10 @@
       "image:trash",
       "image:cat",
       "image:owl_search",
-      "image:power"
+      "image:power",
+      "image:audio",
+      "image:boards",
+      "image:chat"
     ],
     "auto:folder:ui/computer": [
       "image:wallpaper_mark",
@@ -2926,6 +2992,21 @@
       "tilemap:tokyo_museum",
       "image:tokyo_museum_bg",
       "json:objects-data:tokyo_museum"
+    ],
+    "auto:folder:audio/music": [
+      "audio:A_Matchbox_Left_Behind",
+      "audio:Rain_Against_the_Windowpane",
+      "audio:The_Second_Alibi",
+      "json:tracks"
+    ],
+    "auto:folder:pi/hospital": [
+      "image:no_nurse",
+      "image:nurse"
+    ],
+    "auto:folder:side_quests/Alibi/web/FaceSpace": [
+      "image:artur_finch_avatar",
+      "image:evelyn_shaw_avatar",
+      "image:simon_pike_avatar"
     ]
   }
 }
