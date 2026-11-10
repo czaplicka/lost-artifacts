@@ -1,6 +1,11 @@
 import { gameState } from '../GameData.js';
 import { EventBus } from '../EventBus.js';
-import { requestAutosave } from '../gameStatePersistence.js';
+
+import {
+  requestAutosave,
+  saveGameState
+} from '../gameStatePersistence.js';
+
 import { hintManager } from './HintManager.js';
 
 import {
@@ -59,6 +64,35 @@ function validId(value) {
   );
 }
 
+function stableId(value) {
+  if (
+    typeof value !== 'string' &&
+    typeof value !== 'number'
+  ) {
+    return null;
+  }
+
+  if (
+    typeof value === 'number' &&
+    !Number.isFinite(value)
+  ) {
+    return null;
+  }
+
+  const id = String(value).trim();
+
+  if (
+    !id ||
+    id.length > 400 ||
+    id === 'unknown_mission' ||
+    id === 'default_case'
+  ) {
+    return null;
+  }
+
+  return id;
+}
+
 function defaultState() {
   return {
     version: VERSION,
@@ -70,13 +104,12 @@ function defaultState() {
 }
 
 /**
- * Łączne XP wymagane do osiągnięcia poziomu.
- *
- * Level 1: 0
- * Level 2: 200
- * Level 3: 500
- * Level 4: 900
- * Level 5: 1400
+ * Łączne XP wymagane do osiągnięcia poziomu:
+ * 1: 0
+ * 2: 200
+ * 3: 500
+ * 4: 900
+ * 5: 1400
  */
 export function totalXPForLevel(level) {
   if (
@@ -119,7 +152,10 @@ class ProgressionManager {
       return defaultState();
     }
 
-    if (!isObject(saved) || saved.version !== VERSION) {
+    if (
+      !isObject(saved) ||
+      saved.version !== VERSION
+    ) {
       throw new Error(
         '[Progression] Unsupported or damaged progression state.'
       );
@@ -130,7 +166,8 @@ class ProgressionManager {
       MAX_TOTAL_XP
     );
 
-    const earnedPoints = levelForTotalXP(totalXP) - 1;
+    const earnedPoints =
+      levelForTotalXP(totalXP) - 1;
 
     return {
       version: VERSION,
@@ -219,9 +256,8 @@ class ProgressionManager {
   }
 
   hasReward(eventId) {
-    return this.readState().appliedEventIds.includes(
-      eventId
-    );
+    return this.readState()
+      .appliedEventIds.includes(eventId);
   }
 
   publish(eventName, payload) {
@@ -246,12 +282,6 @@ class ProgressionManager {
     return summary;
   }
 
-  /**
-   * scopeId musi oznaczać konkretną sprawę lub zagadkę.
-   * Nie nazwę sceny i nie aktualny czas.
-   *
-   * Ta sama nagroda + ten sam scopeId = tylko jeden grant.
-   */
   grantReward(rewardId, scopeId, label = '') {
     if (
       !Object.prototype.hasOwnProperty.call(
@@ -301,7 +331,10 @@ class ProgressionManager {
       };
     }
 
-    if (!Number.isSafeInteger(amount) || amount < 1) {
+    if (
+      !Number.isSafeInteger(amount) ||
+      amount < 1
+    ) {
       return {
         success: false,
         reason: 'invalid_amount'
@@ -338,7 +371,8 @@ class ProgressionManager {
     });
 
     const after = this.commit(state);
-    const gainedLevels = after.level - before.level;
+    const gainedLevels =
+      after.level - before.level;
 
     const result = {
       success: true,
@@ -400,7 +434,9 @@ class ProgressionManager {
       baseStats,
 
       effectiveStats: getEffectiveStats({
-        profile: gameState.detectiveProfile || 'analyst',
+        profile:
+          gameState.detectiveProfile || 'analyst',
+
         stats: baseStats
       }),
 
@@ -435,7 +471,9 @@ class ProgressionManager {
       };
     }
 
-    if (baseStats[statId] >= Number.MAX_SAFE_INTEGER) {
+    if (
+      baseStats[statId] >= Number.MAX_SAFE_INTEGER
+    ) {
       return {
         success: false,
         reason: 'stat_limit'
@@ -459,8 +497,6 @@ class ProgressionManager {
       createdAt: new Date().toISOString()
     });
 
-    // Obie zmiany trafiają do stanu przed zapisem
-    // i przed powiadomieniem pozostałych systemów.
     gameState.detectiveStats = nextStats;
     gameState.progressionState = copy(state);
 
@@ -500,11 +536,108 @@ class ProgressionManager {
     };
   }
 
+  grantArtifactRecoveryXP(payload = {}) {
+    if (!isObject(payload)) {
+      return {
+        success: false,
+        reason: 'invalid_recovery_event'
+      };
+    }
+
+    const missionId = stableId(payload.missionId);
+    const artifactId = stableId(payload.artifact?.id);
+
+    if (!missionId || !artifactId) {
+      return {
+        success: false,
+        reason: 'missing_recovery_identity'
+      };
+    }
+
+    // Zdarzenie samo w sobie nie wystarcza.
+    // W kolekcji musi istnieć pasujący wpis.
+    const recoveredArtifacts =
+      Array.isArray(gameState.recoveredArtifacts)
+        ? gameState.recoveredArtifacts
+        : [];
+
+    const registered = recoveredArtifacts.find(
+      entry =>
+        stableId(entry?.missionId) === missionId &&
+        stableId(entry?.artifactId) === artifactId
+    );
+
+    if (!registered) {
+      console.warn(
+        '[Progression] Artifact XP skipped: no matching recovery record.',
+        {
+          missionId,
+          artifactId
+        }
+      );
+
+      return {
+        success: false,
+        reason: 'artifact_not_registered'
+      };
+    }
+
+    // Klucz misji z wpisu kolekcji nie zmienia się
+    // zależnie od miejsca odzyskania artefaktu.
+    const result = this.grantReward(
+      'artifact_recovered',
+      missionId,
+      'Stolen artefact recovered'
+    );
+
+    if (result.success) {
+      // Sceny mogą zapisać odzyskanie jeszcze przed
+      // wysłaniem zdarzenia. Zapisujemy więc również XP.
+      const saveSucceeded = saveGameState();
+
+      if (!saveSucceeded) {
+        console.warn(
+          '[Progression] Artifact XP granted in memory, but saving failed.'
+        );
+      }
+
+      return {
+        ...result,
+        saveSucceeded
+      };
+    }
+
+    return result;
+  }
+
   getHistory() {
     return copy(this.readState().history);
   }
 }
 
-export const progressionManager = new ProgressionManager();
+export const progressionManager =
+  new ProgressionManager();
+
+function handleArtifactRecovered(payload) {
+  try {
+    progressionManager.grantArtifactRecoveryXP(
+      payload
+    );
+  } catch (error) {
+    console.error(
+      '[Progression] Artifact recovery XP failed:',
+      error
+    );
+  }
+}
+
+// Rejestracja dla całej sesji gry, nie dla konkretnej sceny.
+// Zmiana sceny ani zamknięcie HUD-u jej nie usuwa.
+EventBus.on(
+  'artifactRecovered',
+  handleArtifactRecovered,
+  null,
+  progressionManager
+);
 
 export default progressionManager;

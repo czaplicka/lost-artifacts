@@ -3,6 +3,7 @@ import {
 } from '../../managers/PIInventoryManager.js';
 
 import {
+  NEW_PI_OFFICE_ID,
   ownsOfficeItem,
   getOfficeShopAvailability,
   buyOfficeItem
@@ -17,26 +18,9 @@ import {
 const INK = {
   navy: '#263a47',
   green: '#315539',
-  darkGreen: '#26402e',
   brown: '#713d32',
-  olive: '#474b42',
   muted: '#55584b',
-  faint: '#8a8878',
-  gold: '#d4af37',
-  dark: '#2b2a26'
-};
-
-const CATEGORIES = {
-  staff: 'STAFF',
-  equipment: 'EQUIPMENT'
-};
-
-const ICONS = {
-  office_assistant: 'assistant',
-  office_case_files: 'files',
-  office_printer: 'printer',
-  office_employee: 'investigator',
-  [PIGEON_FEED_ID]: 'feed'
+  faint: '#8a8878'
 };
 
 const methods = {
@@ -44,17 +28,18 @@ const methods = {
     const ui = this.ui;
     const d = ui.drawing;
 
-    const isFeed = item.id === PIGEON_FEED_ID;
-    const owned = !isFeed && ownsOfficeItem(item.id);
-    const cash = this.balance();
+    const feed = item.id === PIGEON_FEED_ID;
+    const owned = !feed && ownsOfficeItem(item.id);
 
-    const pricey =
-      !owned &&
-      cash !== null &&
-      cash < item.price;
+    const availability = feed
+      ? getPigeonFeedAvailability(this.feedItem)
+      : getOfficeShopAvailability(item);
 
     d.bevel(
-      x, y, w, h,
+      x,
+      y,
+      w,
+      h,
       selected ? 0xf3e6b0 : 0xe9e6d7,
       selected
     );
@@ -63,49 +48,27 @@ const methods = {
       d.rectangle(x, y, 5, h, 0xd4af37);
     }
 
-    const tile = h - 16;
-
-    d.rectangle(
-      x + 10, y + 8,
-      tile, tile,
-      0x1b2530
-    );
-
-    this.sprite(
-      ICONS[item.id],
-      x + 10 + Math.floor((tile - 48) / 2),
-      y + 8 + Math.floor((tile - 48) / 2),
-      3
-    );
-
-    d.frame(
-      x + 10, y + 8,
-      tile, tile,
-      0xd4af37,
-      selected ? 1 : 0.55,
-      2
-    );
-
-    const textX = x + 10 + tile + 12;
+    const category = String(
+      item.category || 'goods'
+    ).toUpperCase();
 
     d.fit(
-      d.text(textX, y + 10, '', 18, INK.navy),
+      d.text(x + 14, y + 9, '', 18, INK.navy),
       item.name,
-      w - (textX - x) - 104
+      w - 125
     );
 
     d.pixel(
-      textX,
+      x + 14,
       y + 42,
-      CATEGORIES[item.category] ||
-        String(item.category || 'GOODS').toUpperCase(),
+      category,
       7,
       INK.muted
     );
 
     d.pixel(
       x + w - 12,
-      y + 14,
+      y + 12,
       ui.money(item.price),
       10,
       INK.green
@@ -117,19 +80,14 @@ const methods = {
     if (owned) {
       status = 'OWNED';
       color = INK.green;
-    } else if (isFeed) {
+    } else if (feed) {
       const count =
         piInventoryManager.getItem(PIGEON_FEED_ID)
           ?.quantity || 0;
 
-      if (count > 0) {
-        status = `IN BAG: ${count}`;
-      } else if (pricey) {
-        status = 'TOO PRICEY';
-        color = INK.brown;
-      }
-    } else if (pricey) {
-      status = 'TOO PRICEY';
+      status = count ? `IN BAG: ${count}` : '';
+    } else if (!availability.enabled) {
+      status = 'LOCKED';
       color = INK.brown;
     }
 
@@ -144,18 +102,21 @@ const methods = {
     }
 
     const hit = d.rectangle(
-      x, y, w, h,
+      x,
+      y,
+      w,
+      h,
       0xffffff,
       0
     ).setInteractive({ useHandCursor: true });
 
-    hit.on('pointerover', () => {
-      hit.setFillStyle(0xffffff, 0.14);
-    });
+    hit.on('pointerover', () =>
+      hit.setFillStyle(0xffffff, 0.12)
+    );
 
-    hit.on('pointerout', () => {
-      hit.setFillStyle(0xffffff, 0);
-    });
+    hit.on('pointerout', () =>
+      hit.setFillStyle(0xffffff, 0)
+    );
 
     hit.on('pointerdown', () => {
       ui.options.onSfx?.('click');
@@ -168,16 +129,15 @@ const methods = {
 
   drawDetail(item, x, y, w, h) {
     const ui = this.ui;
+    const scene = ui.scene;
     const d = ui.drawing;
 
-    const isFeed = item.id === PIGEON_FEED_ID;
-    const owned = !isFeed && ownsOfficeItem(item.id);
+    const feed = item.id === PIGEON_FEED_ID;
+    const owned = !feed && ownsOfficeItem(item.id);
 
-    const availability = isFeed
+    const availability = feed
       ? getPigeonFeedAvailability(this.feedItem)
       : getOfficeShopAvailability(item);
-
-    const cash = this.balance();
 
     const pending =
       this.pendingId === item.id &&
@@ -185,248 +145,162 @@ const methods = {
 
     d.bevel(x, y, w, h, 0xe9e6d7, true);
 
-    const pedX = x + 16;
-    const pedY = y + 14;
-    const ped = 120;
+    const preview = {
+      x: x + 16,
+      y: y + 12,
+      w: w - 32,
+      h: 120
+    };
 
     d.rectangle(
-      pedX, pedY,
-      ped, ped,
-      0x1b2530
+      preview.x,
+      preview.y,
+      preview.w,
+      preview.h,
+      0x24251f
     );
 
-    const glow = this.gfx();
+    const textureKey = item.visual?.textureKey;
+    const source = textureKey &&
+      scene.textures.exists(textureKey)
+      ? scene.textures.get(textureKey).getSourceImage()
+      : null;
 
-    glow.fillStyle(0x4a79b0, 0.28);
-    glow.fillCircle(pedX + 60, pedY + 58, 54);
+    let previewBounds = { ...preview };
 
-    glow.fillStyle(0x4a79b0, 0.22);
-    glow.fillCircle(pedX + 60, pedY + 58, 40);
+    if (source) {
+      const fit = Math.min(
+        preview.w / source.width,
+        preview.h / source.height
+      );
 
-    d.rectangle(
-      pedX,
-      pedY + ped - 16,
-      ped,
-      16,
-      0x0e1822
-    );
+      const imageW = source.width * fit;
+      const imageH = source.height * fit;
 
-    if (
-      !this.sprite(
-        ICONS[item.id],
-        pedX + 12,
-        pedY + 10,
-        6
-      )
-    ) {
-      d.pixel(
-        pedX + 44,
-        pedY + 44,
-        '?',
-        32,
-        INK.gold
+      previewBounds = {
+        x: preview.x + (preview.w - imageW) / 2,
+        y: preview.y + (preview.h - imageH) / 2,
+        w: imageW,
+        h: imageH
+      };
+
+      d.add(
+        scene.add.image(
+          previewBounds.x,
+          previewBounds.y,
+          textureKey
+        )
+          .setOrigin(0)
+          .setDisplaySize(imageW, imageH)
+      );
+    } else {
+      d.text(
+        preview.x + 14,
+        preview.y + 40,
+        feed ? 'PIGEON FEED' : 'OFFICE UPGRADE',
+        18,
+        '#d4af37',
+        preview.w - 28
       );
     }
 
     d.frame(
-      pedX, pedY,
-      ped, ped,
-      0xd4af37,
-      1,
-      3
-    );
-
-    if (owned) {
-      d.stamp(
-        pedX + ped + 6,
-        pedY + ped - 34,
-        'OWNED',
-        0x2f6b3f,
-        -8,
-        11
-      );
-    }
-
-    const colX = pedX + ped + 18;
-    const colW = w - (colX - x) - 16;
-
-    const category =
-      CATEGORIES[item.category] ||
-      String(item.category || 'GOODS').toUpperCase();
-
-    const chip = isFeed
-      ? `${category} - REPEATABLE`
-      : category;
-
-    d.bevel(
-      colX,
-      y + 14,
-      chip.length * 8 + 18,
-      22,
-      0xd0cec6
-    );
-
-    d.pixel(
-      colX + 9,
-      y + 21,
-      chip,
-      8,
-      INK.navy
-    );
-
-    d.fit(
-      d.text(colX, y + 44, '', 24, INK.navy),
-      item.name,
-      colW
-    );
-
-    const price = ui.money(item.price);
-
-    const tagX = colX;
-    const tagY = y + 82;
-    const tagW = 40 + price.length * 14;
-
-    const tag = this.gfx();
-
-    const points = [
-      { x: tagX, y: tagY + 14 },
-      { x: tagX + 14, y: tagY },
-      { x: tagX + tagW, y: tagY },
-      { x: tagX + tagW, y: tagY + 28 },
-      { x: tagX + 14, y: tagY + 28 }
-    ];
-
-    tag.fillStyle(0xd4af37, 1);
-    tag.fillPoints(points, true);
-
-    tag.lineStyle(2, 0x8a6d1a, 1);
-    tag.strokePoints(points, true);
-
-    tag.fillStyle(0x1b2530, 1);
-    tag.fillCircle(tagX + 14, tagY + 14, 3);
-
-    d.pixel(
-      tagX + 28,
-      tagY + 7,
-      price,
-      14,
-      INK.dark
-    );
-
-    let hint = '';
-    let hintColor = INK.muted;
-
-    if (owned) {
-      hint = 'Installed. Nobody has complained. Yet.';
-      hintColor = INK.green;
-    } else if (
-      cash !== null &&
-      cash < item.price
-    ) {
-      hint = `Short by ${ui.money(item.price - cash)}.`;
-      hintColor = INK.brown;
-    } else if (cash !== null) {
-      hint =
-        `Cash after purchase: ${ui.money(cash - item.price)}`;
-    }
-
-    if (hint) {
-      d.text(
-        colX,
-        y + 114,
-        hint,
-        14,
-        hintColor,
-        colW
-      );
-    }
-
-    this.fitHeight(
-      d.text(
-        x + 16,
-        y + 146,
-        item.description || '',
-        17,
-        INK.olive,
-        w - 32
-      ),
-      84,
-      12
-    );
-
-    const boxY = y + 238;
-    const boxH = 88;
-
-    d.rectangle(
-      x + 16,
-      boxY,
-      w - 32,
-      boxH,
-      0xdfe8d2
-    );
-
-    d.frame(
-      x + 16,
-      boxY,
-      w - 32,
-      boxH,
-      0x315539,
+      preview.x,
+      preview.y,
+      preview.w,
+      preview.h,
+      0x8a7440,
       1,
       2
     );
 
-    d.pixel(
-      x + 28,
-      boxY + 10,
-      'WHAT YOU GET',
-      8,
-      INK.green
+    d.fit(
+      d.text(x + 16, y + 142, '', 23, INK.navy),
+      item.name,
+      w - 32
     );
 
-    const count =
-      piInventoryManager.getItem(PIGEON_FEED_ID)
-        ?.quantity || 0;
-
-    const benefit = isFeed
-      ? `${item.benefitText || ''} In PI inventory: ${count}.`
-      : item.benefitText || '';
+    d.text(
+      x + 16,
+      y + 173,
+      `${ui.money(item.price)}${owned ? ' — OWNED' : ''}`,
+      18,
+      INK.green,
+      w - 32
+    );
 
     this.fitHeight(
       d.text(
-        x + 28,
-        boxY + 28,
+        x + 16,
+        y + 201,
+        item.description || '',
+        16,
+        INK.muted,
+        w - 32
+      ),
+      61,
+      11
+    );
+
+    const benefit = feed
+      ? `${item.benefitText || ''} In PI inventory: ${
+          piInventoryManager.getItem(PIGEON_FEED_ID)
+            ?.quantity || 0
+        }.`
+      : item.benefitText || '';
+
+    d.rectangle(
+      x + 16,
+      y + 270,
+      w - 32,
+      58,
+      0xdfe8d2
+    );
+
+    this.fitHeight(
+      d.text(
+        x + 25,
+        y + 277,
         benefit,
         15,
-        INK.darkGreen,
-        w - 56
+        INK.green,
+        w - 50
       ),
-      boxH - 34,
+      44,
       11
     );
 
     const actionY = y + 338;
-    const buttonX = x + 16;
 
     if (pending) {
       const confirm = d.button(
-        buttonX,
+        x + 16,
         actionY,
         'CONFIRM',
         () => {
-          const result = isFeed
+          const result = feed
             ? buyPigeonFeed(this.feedItem)
             : buyOfficeItem(this.catalog, item.id);
 
           this.pendingId = null;
-          this.noticeOk = result?.ok !== false;
+          this.noticeOk = result?.ok === true;
           ui.notice = result?.message || '';
 
           ui.render();
+
+          if (result?.ok && !feed) {
+            scene.handleOfficePurchase?.(
+              item.id,
+              item.id === NEW_PI_OFFICE_ID
+                ? previewBounds
+                : null
+            );
+          }
         }
       );
 
       d.button(
-        buttonX + confirm.width + 10,
+        x + 26 + confirm.width,
         actionY,
         'CANCEL',
         () => {
@@ -436,7 +310,7 @@ const methods = {
       );
     } else {
       const buy = d.button(
-        buttonX,
+        x + 16,
         actionY,
         owned ? 'OWNED' : 'BUY',
         () => {
@@ -447,140 +321,87 @@ const methods = {
         availability.enabled
       );
 
-      let nextX = buttonX + buy.width + 10;
+      const nextX = x + 26 + buy.width;
 
-      if (isFeed && this.feedError) {
-        const retry = d.button(
-          nextX,
-          actionY,
-          'RETRY',
-          () => {
-            void this.loadFeed();
-          }
-        );
-
-        nextX += retry.width + 10;
-      }
-
-      if (
-        owned &&
-        item.id === 'office_case_files'
-      ) {
+      if (owned && item.id === 'office_case_files') {
         d.button(
           nextX,
           actionY,
-          'OPEN ARCHIVE',
+          'ARCHIVE',
           () => ui.openApp('office-archive')
         );
       }
 
-      if (
-        owned &&
-        item.id === 'office_printer'
-      ) {
+      if (owned && item.id === 'office_printer') {
         d.button(
           nextX,
           actionY,
-          'DOCUMENT JOBS',
+          'JOBS',
           () => ui.openApp('office-documents')
+        );
+      }
+
+      if (feed && this.feedError) {
+        d.button(
+          nextX,
+          actionY,
+          'RETRY',
+          () => void this.loadFeed()
         );
       }
     }
 
     const total = this.products().length;
-    const right = x + w - 16;
 
     d.button(
-      right - 35,
-      actionY,
-      '>',
-      () => this.changePage(1),
-      this.page < total - 1
-    );
-
-    d.text(
-      right - 87,
-      actionY + 8,
-      `${this.page + 1} / ${total}`,
-      15,
-      INK.navy
-    );
-
-    d.button(
-      right - 130,
+      x + w - 94,
       actionY,
       '<',
       () => this.changePage(-1),
       this.page > 0
     );
 
-    const receiptY = y + 380;
-    const receiptH = 48;
+    d.button(
+      x + w - 48,
+      actionY,
+      '>',
+      () => this.changePage(1),
+      this.page < total - 1
+    );
+
+    let message = 'Receipt paper loaded. Dignity not included.';
+    let color = INK.faint;
+
+    if (pending) {
+      message = `Confirm purchase for ${ui.money(item.price)}?`;
+      color = INK.brown;
+    } else if (ui.notice) {
+      message = ui.notice;
+      color = this.noticeOk ? INK.green : INK.brown;
+    } else if (!owned && !availability.enabled) {
+      message = availability.reason;
+      color = INK.brown;
+    }
 
     d.rectangle(
       x + 16,
-      receiptY,
+      y + 380,
       w - 32,
-      receiptH,
+      48,
       0xf7efda
     );
 
-    d.frame(
-      x + 16,
-      receiptY,
-      w - 32,
-      receiptH,
-      0xb8a878,
-      1,
-      1
-    );
-
-    d.rectangle(
-      x + 16,
-      receiptY,
-      5,
-      receiptH,
-      0xd4af37
-    );
-
-    let message = '';
-    let color = INK.brown;
-
-    if (pending) {
-      message =
-        `Confirm purchase for ${ui.money(item.price)}? ` +
-        'Payment is due in advance.';
-    } else if (ui.notice) {
-      message = ui.notice;
-      color = this.noticeOk
-        ? INK.green
-        : INK.brown;
-    } else if (
-      !owned &&
-      !availability.enabled
-    ) {
-      message =
-        isFeed && !this.feedItem
-          ? this.feedError || 'Loading pigeon feed...'
-          : availability.reason;
-    } else {
-      message =
-        'Receipt paper loaded. Dignity not included.';
-
-      color = INK.faint;
-    }
-
     this.fitHeight(
       d.text(
-        x + 32,
-        receiptY + 6,
+        x + 25,
+        y + 386,
         message,
-        15,
+        14,
         color,
-        w - 64
+        w - 50
       ),
-      receiptH - 10,
-      11
+      36,
+      10
     );
   }
 };

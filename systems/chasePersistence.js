@@ -1,7 +1,20 @@
 import { gameState } from '../GameData.js';
-import { saveGameState } from '../gameStatePersistence.js';
-import { saveManager } from '../saveGameService.js';
-import { validChase } from './chaseLogic.js';
+
+import {
+  saveGameState
+} from '../gameStatePersistence.js';
+
+import {
+  saveManager
+} from '../saveGameService.js';
+
+import {
+  progressionManager
+} from '../managers/ProgressionManager.js';
+
+import {
+  validChase
+} from './chaseLogic.js';
 
 export const ESCAPE_MESSAGE =
   'You lost the suspect during the pursuit. ' +
@@ -33,7 +46,8 @@ const COURT_RELEASE_MESSAGE =
   'The court released the defendant. ' +
   'The prosecution failed to establish the case.';
 
-const PREFIX = 'lost-artefacts:chase-checkpoint:v2:';
+const PREFIX =
+  'lost-artefacts:chase-checkpoint:v2:';
 
 const SLOT_KEYS = [
   'slot_1',
@@ -41,10 +55,10 @@ const SLOT_KEYS = [
   'slot_3'
 ];
 
-const sameId = (a, b) =>
-  a != null &&
-  b != null &&
-  String(a) === String(b);
+const sameId = (first, second) =>
+  first != null &&
+  second != null &&
+  String(first) === String(second);
 
 function isObject(value) {
   return (
@@ -54,12 +68,42 @@ function isObject(value) {
   );
 }
 
+function stableProgressionId(value) {
+  if (
+    typeof value !== 'string' &&
+    typeof value !== 'number'
+  ) {
+    return null;
+  }
+
+  if (
+    typeof value === 'number' &&
+    !Number.isFinite(value)
+  ) {
+    return null;
+  }
+
+  const id = String(value).trim();
+
+  if (
+    !id ||
+    id.length > 400 ||
+    id === 'default_case' ||
+    id === 'unknown_mission'
+  ) {
+    return null;
+  }
+
+  return id;
+}
+
 function checkpointSlot(record) {
   if (SLOT_KEYS.includes(record?.slotKey)) {
     return record.slotKey;
   }
 
-  const lastUsedSlot = saveManager.getLastUsedSlot();
+  const lastUsedSlot =
+    saveManager.getLastUsedSlot();
 
   return SLOT_KEYS.includes(lastUsedSlot)
     ? lastUsedSlot
@@ -94,7 +138,6 @@ function validCheckpoint(payload) {
 }
 
 function applyCheckpoint(payload) {
-  // Przygotowujemy niezależną kopię przed zmianą stanu gry.
   const data = structuredClone(payload.data);
 
   const energyData = {
@@ -151,6 +194,100 @@ export function chaseFailureCode(record) {
   return null;
 }
 
+function grantNewArrestXP(record, previousRecord) {
+  if (
+    record.phase !== 'review' ||
+    record.failureCode ||
+    record.arrestOutcome?.code !== 'arrested' ||
+    record.arrestOutcome?.arrested !== true ||
+    record.terminalScene !== 'CourtScene'
+  ) {
+    return {
+      success: false,
+      reason: 'arrest_not_completed'
+    };
+  }
+
+  // Nie przyznajemy XP wstecz przy zapisywaniu
+  // aresztowania już obecnego w starszym zapisie.
+  const previouslyArrested =
+    previousRecord &&
+    sameId(previousRecord.caseId, record.caseId) &&
+    previousRecord.campaignId === record.campaignId &&
+    sameId(
+      previousRecord.suspectId,
+      record.suspectId
+    ) &&
+    previousRecord.arrestOutcome?.code === 'arrested' &&
+    previousRecord.arrestOutcome?.arrested === true;
+
+  if (previouslyArrested) {
+    return {
+      success: false,
+      reason: 'arrest_already_recorded'
+    };
+  }
+
+  if (
+    record.distance !== 0 ||
+    !gameState.arrestWarrantIssued ||
+    !sameId(
+      gameState.warrantSuspectId,
+      record.suspectId
+    )
+  ) {
+    return {
+      success: false,
+      reason: 'invalid_arrest'
+    };
+  }
+
+  const thiefId =
+    gameState.trueThiefCaseSuspectId ||
+    gameState.realThiefSuspectId;
+
+  // Porównujemy identyfikator podejrzanego w sprawie,
+  // nie identyfikator jego profilu z bazy złodziei.
+  if (!sameId(record.suspectId, thiefId)) {
+    return {
+      success: false,
+      reason: 'not_the_case_thief'
+    };
+  }
+
+  const caseId =
+    stableProgressionId(record.caseId);
+
+  if (!caseId) {
+    console.warn(
+      '[Chase] Arrest XP skipped: no stable case ID.'
+    );
+
+    return {
+      success: false,
+      reason: 'missing_case_id'
+    };
+  }
+
+  try {
+    return progressionManager.grantReward(
+      'correct_arrest',
+      caseId,
+      'Correct suspect arrested'
+    );
+  } catch (error) {
+    console.error(
+      '[Chase] Could not grant arrest XP:',
+      error
+    );
+
+    return {
+      success: false,
+      reason: 'progression_error'
+    };
+  }
+}
+
 export function persistChase(record) {
   try {
     if (
@@ -162,6 +299,9 @@ export function persistChase(record) {
     ) {
       return false;
     }
+
+    const previousRecord =
+      gameState.chaseState;
 
     const slot = checkpointSlot(record);
     const failureCode = chaseFailureCode(record);
@@ -189,13 +329,28 @@ export function persistChase(record) {
     record.slotKey = slot;
     record.updatedAt = Date.now();
 
+    // Sprawdzamy przejście do zatwierdzonego aresztowania,
+    // zanim nadpiszemy poprzedni rekord.
+    const isNewArrest =
+      !failureCode &&
+      record.phase === 'review' &&
+      record.arrestOutcome?.code === 'arrested' &&
+      record.arrestOutcome?.arrested === true;
+
     gameState.chaseState =
       structuredClone(record);
 
+    if (isNewArrest) {
+      grantNewArrestXP(
+        record,
+        previousRecord
+      );
+    }
+
+    // XP zostało już dodane do stanu:
+    // autosave i checkpoint zawierają tę samą nagrodę.
     const mainSaveWritten = saveGameState();
 
-    // Pełny stan zawiera również courtState,
-    // jeżeli rozpoczęła się już rozprawa.
     const data = saveManager.getState();
 
     const payload = {
@@ -217,7 +372,6 @@ export function persistChase(record) {
       JSON.stringify(payload)
     );
 
-    // Sukces oznacza zapis autosave'a i checkpointu.
     return mainSaveWritten === true;
   } catch (error) {
     console.warn(
@@ -244,8 +398,6 @@ export function restoreLocalChaseCheckpoint(slotKey) {
       return false;
     }
 
-    // Automatyczne odtworzenie nie może przełączyć
-    // gracza do innej sprawy lub kampanii.
     if (
       !sameId(
         payload.caseId,
@@ -258,7 +410,6 @@ export function restoreLocalChaseCheckpoint(slotKey) {
 
     const loaded = currentChase();
 
-    // Nie cofamy nowszego wczytanego stanu.
     if (
       loaded &&
       Number.isFinite(loaded.updatedAt) &&
@@ -291,7 +442,6 @@ export function terminalData(record) {
     court.verdict === 'released' &&
     court.resultCommitted === true;
 
-  // Zwolnienie przez sąd nie jest ucieczką.
   if (releasedByCourt) {
     return {
       title: 'DEFENDANT RELEASED',
@@ -316,12 +466,14 @@ export function terminalData(record) {
     };
   }
 
-  // Awaryjny komunikat nie sugeruje,
-  // że podejrzany uciekł, jeśli brak takiego wyniku.
   return {
     title: 'MISSION FAILED',
     reasonCode: 'mission_failed',
-    caseId: record?.caseId ?? gameState.currentCaseId,
+
+    caseId:
+      record?.caseId ??
+      gameState.currentCaseId,
+
     suspectId:
       record?.suspectId ??
       gameState.finalArrestSuspectId,
@@ -377,13 +529,13 @@ export function latestLocalChaseCheckpoint() {
 
       candidates.push(payload);
     } catch {
-      // Uszkodzony checkpoint nie blokuje
-      // odczytu pozostałych slotów.
+      // Uszkodzony slot nie blokuje pozostałych.
     }
   }
 
   candidates.sort(
-    (a, b) => b.updatedAt - a.updatedAt
+    (first, second) =>
+      second.updatedAt - first.updatedAt
   );
 
   return candidates[0] || null;
@@ -395,8 +547,6 @@ export function restoreExplicitChaseCheckpoint(payload) {
       return false;
     }
 
-    // Jawny wybór checkpointu może przywrócić
-    // jego sprawę i kampanię.
     return applyCheckpoint(payload);
   } catch (error) {
     console.warn(

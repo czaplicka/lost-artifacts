@@ -1,8 +1,3 @@
-import {
-  initCrimeBoard as initCrimeBoardCore,
-  buildBoardLayout as buildBoardLayoutCore
-} from './CrimeBoardInitCore.js';
-
 const REPORT_TAG = 'object-lab-report';
 
 function asArray(value) {

@@ -1,6 +1,7 @@
 import { gameState } from '../GameData.js';
 import { getGameTimeInSeconds } from '../CaseTimeHelper.js';
 import { requestAutosave } from '../gameStatePersistence.js';
+
 import {
   moneyManager,
   MONEY_SOURCE,
@@ -13,10 +14,16 @@ export const NEW_PI_OFFICE_ID = 'office_new_premises';
 
 const SUPPORTED = new Set([
   NEW_PI_OFFICE_ID,
-  'office_assistant',
   'office_case_files',
-  'office_employee',
-  'office_printer'
+  'office_printer',
+  'office_books',
+  'office_chairs',
+  'office_coffee',
+  'office_crime_board',
+  'office_notepad',
+  'office_painting',
+  'office_artifact',
+  'office_tv'
 ]);
 
 let busy = false;
@@ -24,23 +31,24 @@ let busy = false;
 const clone = value => JSON.parse(JSON.stringify(value));
 
 const record = value =>
-  value &&
+  value !== null &&
   typeof value === 'object' &&
   !Array.isArray(value);
 
 const integer = value =>
-  Number.isSafeInteger(value) &&
-  value >= 0;
+  Number.isSafeInteger(value) && value >= 0;
 
 function state() {
-  const raw = gameState[KEY];
+  const raw = record(gameState[KEY]) ? gameState[KEY] : {};
 
   return {
-    version: 1,
-    owned: record(raw?.owned) ? clone(raw.owned) : {},
-    employee: record(raw?.employee)
+    ...clone(raw),
+    version: 2,
+    owned: record(raw.owned) ? clone(raw.owned) : {},
+    employee: record(raw.employee)
       ? clone(raw.employee)
-      : null
+      : null,
+    moveInComplete: raw.moveInComplete === true
   };
 }
 
@@ -53,7 +61,7 @@ function now() {
   const seconds = getGameTimeInSeconds();
 
   return Number.isFinite(seconds)
-    ? Math.max(0, seconds)
+    ? Math.max(0, Math.floor(seconds))
     : 0;
 }
 
@@ -70,56 +78,6 @@ function validItem(item) {
   );
 }
 
-function incomeConfig(item) {
-  const effect = Array.isArray(item?.effects)
-    ? item.effects.find(
-        entry => entry?.type === 'passive_income'
-      )
-    : null;
-
-  if (
-    !effect ||
-    !Number.isSafeInteger(effect.amountPerDay) ||
-    effect.amountPerDay <= 0 ||
-    !Number.isSafeInteger(effect.maxUncollected) ||
-    effect.maxUncollected < effect.amountPerDay
-  ) {
-    return null;
-  }
-
-  return {
-    amountPerDay: effect.amountPerDay,
-    maxUncollected: effect.maxUncollected
-  };
-}
-
-function assistantConfig(item) {
-  const effect = Array.isArray(item?.effects)
-    ? item.effects.find(
-        entry =>
-          entry?.type === 'reward_bonus' &&
-          entry.scope === 'pi_job_completion'
-      )
-    : null;
-
-  if (
-    !effect ||
-    !Number.isSafeInteger(effect.percent) ||
-    effect.percent <= 0 ||
-    effect.percent > 100 ||
-    effect.rounding !== 'floor' ||
-    effect.excludePassiveIncome !== true ||
-    effect.excludeRefunds !== true ||
-    effect.excludeAdvances !== true
-  ) {
-    return null;
-  }
-
-  return {
-    rewardBonusPercent: effect.percent
-  };
-}
-
 export function ownsOfficeItem(id) {
   return Object.prototype.hasOwnProperty.call(
     state().owned,
@@ -129,6 +87,21 @@ export function ownsOfficeItem(id) {
 
 export function ownsNewPIOffice() {
   return ownsOfficeItem(NEW_PI_OFFICE_ID);
+}
+
+export function needsOfficeMoveIn() {
+  return ownsNewPIOffice() && !state().moveInComplete;
+}
+
+export function completeOfficeMoveIn() {
+  if (!ownsNewPIOffice()) return false;
+
+  const next = state();
+
+  next.moveInComplete = true;
+  write(next);
+
+  return true;
 }
 
 export function getOfficeShopAvailability(item) {
@@ -149,7 +122,7 @@ export function getOfficeShopAvailability(item) {
   if (!SUPPORTED.has(item.id)) {
     return {
       enabled: false,
-      reason: 'Unavailable.'
+      reason: 'Unavailable in this shop.'
     };
   }
 
@@ -166,22 +139,12 @@ export function getOfficeShopAvailability(item) {
   }
 
   if (
-    item.id === 'office_employee' &&
-    !incomeConfig(item)
+    item.id !== NEW_PI_OFFICE_ID &&
+    needsOfficeMoveIn()
   ) {
     return {
       enabled: false,
-      reason: 'Invalid employee income data.'
-    };
-  }
-
-  if (
-    item.id === 'office_assistant' &&
-    !assistantConfig(item)
-  ) {
-    return {
-      enabled: false,
-      reason: 'Invalid assistant bonus data.'
+      reason: 'Finish moving into your new office first.'
     };
   }
 
@@ -241,22 +204,14 @@ export function buyOfficeItem(catalog, id) {
 
   try {
     const next = clone(previous);
-    const purchasedAt = now();
 
     next.owned[id] = {
-      purchasedAt,
-      price: item.price,
-      ...(id === 'office_assistant'
-        ? assistantConfig(item)
-        : {})
+      purchasedAt: now(),
+      price: item.price
     };
 
-    if (id === 'office_employee') {
-      next.employee = {
-        ...incomeConfig(item),
-        lastAccrualAt: purchasedAt,
-        uncollected: 0
-      };
+    if (id === NEW_PI_OFFICE_ID) {
+      next.moveInComplete = false;
     }
 
     gameState[KEY] = next;
@@ -284,6 +239,7 @@ export function buyOfficeItem(catalog, id) {
 
     return {
       ok: true,
+      itemId: id,
       message:
         item.purchaseMessage ||
         'Purchase completed.'
@@ -308,6 +264,7 @@ export function buyOfficeItem(catalog, id) {
   }
 }
 
+// Zachowanie dochodu pracowników kupionych w starszych zapisach.
 export function getEmployeeIncome() {
   const current = state();
   const employee = current.employee;
@@ -330,7 +287,6 @@ export function getEmployeeIncome() {
   }
 
   const time = now();
-
   const elapsed = Math.max(
     0,
     time - employee.lastAccrualAt
@@ -423,8 +379,7 @@ export function collectEmployeeIncome() {
     return {
       ok: false,
       message:
-        'Collection failed. ' +
-        'Your earnings are still available.'
+        'Collection failed. Your earnings are still available.'
     };
   } finally {
     busy = false;
@@ -442,9 +397,7 @@ export function getOfficeArchive(query = '') {
     return [];
   }
 
-  const search = String(query)
-    .trim()
-    .toLowerCase();
+  const search = String(query).trim().toLowerCase();
 
   return Object.values(quests)
     .filter(

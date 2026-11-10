@@ -52,7 +52,12 @@ export class ComputerDrawing {
     return this.paintBevel(g, x, y, width, height, fill, inset);
   }
   button(x, y, label, callback, enabled = true) {
-    const ui = this.ui, parent = ui.content || ui.root;
+    const ui = this.ui;
+    // Case assistance now lives in the office, not inside an application.
+    if (label === 'HINT' && ui.scene?.sys?.settings?.key === 'DetectiveOfficeScene') {
+      return this.text(x, y, '', 11).setVisible(false);
+    }
+    const parent = ui.content || ui.root;
     const text = this.text(x, y, label, 11, enabled ? COLORS.text : '#8a8878', 0, 'pixel');
     text.setPadding(12, 9, 12, 7);
     const w = text.width, h = text.height;

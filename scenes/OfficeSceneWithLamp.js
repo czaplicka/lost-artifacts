@@ -62,7 +62,6 @@ export class OfficeScene extends OriginalOfficeScene {
     this.onBus('rank-changed',()=>this.refreshMissionProgressVisuals());
     if(this._requestedEntryView==='elevator')this.navigation?.goTo('elevator',false);
     this.refreshMissionProgressVisuals();
-    console.info('[OfficeAnimations] Cabinet and globe-room effects initialized.');
   }
   getOfficeAnimationStatus(){return{cabinet:this.cabinetEffects?.debugStatus(),storage:this.storageEffects?.debugStatus()};}
   createDeskLamp(){

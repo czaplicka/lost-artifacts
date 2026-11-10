@@ -1233,38 +1233,6 @@
       ]
     },
     {
-      "key": "office_assistant",
-      "url": "assets/pi/office/office_assistant.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "office_case_files",
-      "url": "assets/pi/office/office_case_files.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "office_employee",
-      "url": "assets/pi/office/office_employee.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "office_printer",
-      "url": "assets/pi/office/office_printer.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
       "key": "officeDustPuzzle",
       "url": "assets/data/officeDustPuzzle.json",
       "type": "json",

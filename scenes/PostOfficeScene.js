@@ -51,7 +51,12 @@ export class PostOfficeScene extends BaseScene {
     this.tooltip=this.add.text(15,h-42,'',this.style(17)).setVisible(false);this.visuals.add(this.tooltip);
     this.spots().forEach((cfg,index)=>this.makeHotspot(cfg,index));
     if(doc){
-      this.visuals.add(this.add.text(14,12,this.documents[this.documentId].title,{...this.style(17),wordWrap:{width:Math.max(80,w*.5-24)}}));
+      const titleX=28+w*.20;
+      const title=this.add.text(titleX,12,this.documents[this.documentId].title,{
+        ...this.style(17),wordWrap:{width:Math.max(20,w*.55-titleX-18)}
+      });
+      while(title.height>navHeight&&parseInt(title.style.fontSize)>8)title.setFontSize(parseInt(title.style.fontSize)-1);
+      this.visuals.add(title);
       const overlay=this.documents[this.documentId].overlay;
       if(overlay&&!missing){
         const{s,x,y}=this.fit;
@@ -63,12 +68,12 @@ export class PostOfficeScene extends BaseScene {
     }
     this.addButton(w-14,h-40,'[ HINT ]',()=>this.openHints(),16,1);
     if(this.view!=='room')this.addNavigationButton(w-28-w*.22,12,NAV.back,()=>this.goBack(),navHeight);
-    this.addNavigationButton(w-14,12,NAV.exit,()=>void this.leave(),navHeight);
+    this.addNavigationButton(14,12,NAV.exit,()=>void this.leave(),navHeight,0);
     this.drawHintMarker();this.editor?.build();
   }
-  addNavigationButton(x,y,asset,action,height){
-    if(!this.textures.exists(asset.key))return this.addButton(x,y,asset===NAV.back?'BACK':'EXIT',action,18,1);
-    const image=this.add.image(x,y,asset.key).setOrigin(1,0);image.setScale(Math.min(height/image.height,(this.scale.width*.20)/image.width)).setInteractive({useHandCursor:true});
+  addNavigationButton(x,y,asset,action,height,origin=1){
+    if(!this.textures.exists(asset.key))return this.addButton(x,y,asset===NAV.back?'BACK':'EXIT',action,18,origin);
+    const image=this.add.image(x,y,asset.key).setOrigin(origin,0);image.setScale(Math.min(height/image.height,(this.scale.width*.20)/image.width)).setInteractive({useHandCursor:true});
     image.on('pointerdown',()=>{if(!this.modal&&!this.exiting&&!this.editor?.enabled)action();});this.visuals.add(image);return image;
   }
   addButton(x,y,label,fn,size=18,origin=0){

@@ -13,7 +13,6 @@ function displayReceipt(receipt){
  if(!receipt)return null;
  const current=getQuestHint(receipt.questId,receipt.level);
  if(!current||current.stage!==receipt.stage)return {...receipt};
- // Presentation only: the original receipt remains unchanged in the save.
  return {...receipt,originalText:receipt.originalText??receipt.text,text:current.text,
   presentationUpdated:current.text!==receipt.text};
 }
@@ -36,16 +35,19 @@ export function purchaseQuestHint(questId,method,expected,sceneId){
   ||offer.contextToken!==expected.contextToken){
   return {success:false,stale:true,message:'The investigation has moved on. Open hints again.'};
  }
- const energy=getEnergyManager();
- if(energy.isForcedSleepActive()||energy.isManualSleepActive())return {success:false,message:'Finish resting before requesting assistance.'};
+ const homeTown=sceneId==='DetectiveOfficeScene';
+ const energy=homeTown?null:getEnergyManager();
+ if(energy&&(energy.isForcedSleepActive()||energy.isManualSleepActive()))return {success:false,message:'Finish resting before requesting assistance.'};
  const context={caseId:questId,missionId:null,sceneId,itemId:`pi_hint:${offer.stage}:${offer.level}`};
  let result;
  if(method==='free_hint')result=hintManager.useFreeHint(context);
  else{
-  const cost=COSTS[method];
-  if(!energy.canAfford(cost.energy).ok)return {success:false,message:'Not enough energy. Rest or choose a free hint.'};
-  const payment=energy.consumeCustom(cost.energy,`PI assistance (${method})`,{requireFullAmount:true,activityType:'pi_quest_hint'});
-  if(!payment.success)return {success:false,message:payment.message||'Unable to pay for assistance.'};
+  const cost=homeTown?{energy:0,minutes:0}:COSTS[method];
+  if(energy){
+   if(!energy.canAfford(cost.energy).ok)return {success:false,message:'Not enough energy. Rest or choose a free hint.'};
+   const payment=energy.consumeCustom(cost.energy,`PI assistance (${method})`,{requireFullAmount:true,activityType:'pi_quest_hint'});
+   if(!payment.success)return {success:false,message:payment.message||'Unable to pay for assistance.'};
+  }
   result=hintManager.recordPaidHint(method,context,{...cost,cash:0});
  }
  if(!result?.success)return {success:false,message:method==='free_hint'?'No free hints remain. Choose another method.':'Assistance could not be obtained.'};
@@ -55,6 +57,6 @@ export function purchaseQuestHint(questId,method,expected,sceneId){
   [RECEIPTS_KEY]:{...(gameState[RECEIPTS_KEY]||{}),[receiptKey(questId,receipt.stage,receipt.level)]:receipt},
   piQuestHints:{version:1,quests:{...(gameState.piQuestHints?.quests||{}),[questId]:{stage:receipt.stage,level:receipt.level}}}
  });
- if(COSTS[method])EventBus.emit('advanceTime',0,COSTS[method].minutes);
+ if(!homeTown&&COSTS[method])EventBus.emit('advanceTime',0,COSTS[method].minutes);
  const saved=saveGameState();return {success:true,receipt,saved};
 }

@@ -1637,10 +1637,6 @@
       "image:tavern_empty",
       "image:tavern",
       "image:holly",
-      "image:office_assistant",
-      "image:office_case_files",
-      "image:office_employee",
-      "image:office_printer",
       "image:portrait_CSI",
       "image:portrait_holmes",
       "image:portrait_home",
@@ -2598,10 +2594,6 @@
       "image:holly"
     ],
     "auto:folder:pi/office": [
-      "image:office_assistant",
-      "image:office_case_files",
-      "image:office_employee",
-      "image:office_printer",
       "image:artifact",
       "image:bigger-office-ad",
       "image:bigger-office-reality",
@@ -2617,9 +2609,6 @@
       "image:pi__office__tv"
     ],
     "scene:DetectiveOfficeScene": [
-      "image:office_assistant",
-      "image:office_case_files",
-      "image:office_employee",
       "image:office_printer",
       "image:artifact",
       "image:bigger-office-ad",

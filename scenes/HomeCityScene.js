@@ -28,14 +28,16 @@ const PROPS = [
   { x: 19, y: 17, kind: 'planter' },
   // trees
   { x: 4, y: 1, kind: 'tree', variant: 0 }, { x: 7, y: 1, kind: 'tree', variant: 1 }, { x: 15, y: 1, kind: 'tree', variant: 2 },
-  { x: 18, y: 2, kind: 'tree', variant: 0 }, { x: 24, y: 3, kind: 'tree', variant: 1 }, { x: 24, y: 6, kind: 'tree', variant: 0 },
-  { x: 13, y: 14, kind: 'tree', variant: 2 }, { x: 24, y: 15, kind: 'tree', variant: 1 }, { x: 6, y: 21, kind: 'tree', variant: 0 },
-  { x: 14, y: 21, kind: 'tree', variant: 2 }, { x: 22, y: 21, kind: 'tree', variant: 1 },
+{ x: 24, y: 3, kind: 'tree', variant: 1 }, { x: 24, y: 6, kind: 'tree', variant: 0 },
+  { x: 13, y: 14, kind: 'tree', variant: 2 }, { x: 24, y: 15, kind: 'tree', variant: 1 }, { x: 14, y: 21, kind: 'tree', variant: 0 }, { x: 22, y: 21, kind: 'tree', variant: 1 },
   // bushes & street furniture
   { x: 7, y: 4, kind: 'bush' }, { x: 15, y: 3, kind: 'bush' }, { x: 19, y: 6, kind: 'bush' },
   { x: 4, y: 14, kind: 'bush' }, { x: 15, y: 13, kind: 'bush' }, { x: 4, y: 16, kind: 'bush' },
-  { x: 12, y: 12, kind: 'hydrant' }, { x: 0, y: 12, kind: 'mailbox' }, { x: 17, y: 7, kind: 'kiosk' },
+  { x: 8, y: 12, kind: 'hydrant' }, { x: 0, y: 12, kind: 'mailbox' }, { x: 17, y: 7, kind: 'kiosk' },
   { x: 19, y: 7, kind: 'crate' },
+  // landmarks
+  { x: 15, y: 9, kind: 'statue' }, { x: 18, y: 9, kind: 'signpost' }, { x: 12, y: 10, kind: 'cart' },
+  { x: 12, y: 13, kind: 'phonebooth' }, { x: 12, y: 17, kind: 'clock' },
   // parked cars (2 cells long)
   { x: 4, y: 11, kind: 'car', w: 2, h: 1, variant: 0 },
   { x: 11, y: 14, kind: 'car', w: 1, h: 2, variant: 1 },
@@ -54,6 +56,11 @@ const PROP_QUIPS = {
   mailbox: ['Mail for the dead goes in the other box.', 'Return to sender. Sender unknown. Typical.'],
   kiosk: ['Newspapers, gum, and rumours. All three are stale.', 'HOT NEWS: local detective ignores kiosk. More at eleven.'],
   crate: ['Empty bottles. The tavern calls it recycling. I call it evidence.', 'Fragile. Like my sense of justice before noon.'],
+  statue: ['Monument to the Unknown Pigeon. Died as he lived: on a windowsill.', 'The plaque says: "He saw everything. Told nobody." My kind of guy.'],
+  signpost: ['Four arrows. Three of them are useful. THE TRUTH points nowhere.', 'THE TRUTH: closed for lunch. Since 1987.'],
+  cart: ['Sir Loin\'s Hot Dogs. Contains 0% dog. Allegedly.', 'No, I do not take bribes in sausage. ...Mustard, maybe.'],
+  phonebooth: ['Out of order. The phone, not the detective.', 'Someone left a coin inside. Evidence, or a very cheap tip.'],
+  clock: ['It has said ten past ten for years. Right twice a day, like me.', 'Time flies. Deadlines fly faster.'],
   car: ['Parked illegally. Not my department. Also not my car.', 'Vintage. The engine is cold. So is the case.']
 };
 

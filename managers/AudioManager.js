@@ -81,6 +81,7 @@ class AudioManager {
     this.jukeboxStatus = catalogError ? 'error' : 'stopped'; this.jukeboxError = catalogError;
     this._requestId = 0; this._loads = new Map(); this._loadCancels = new Set();
     this._jukeboxTask = null;
+    this._jukeboxCompletion = null;
   }
   init(scene) {
     if (!scene?.game) { console.warn('[AudioManager] init() requires a Phaser scene.'); return this; }
@@ -168,6 +169,7 @@ class AudioManager {
   }
   _destroySound(sound) {
     if (!sound || this._destroyingSounds.has(sound)) return;
+    if (this._jukeboxCompletion?.sound === sound) this._detachJukeboxCompletion();
     this._destroyingSounds.add(sound); this._cancelFade(sound);
     try { if (this._isValidSound(sound)) { sound.stop?.(); sound.destroy?.(); } }
     finally { this._destroyingSounds.delete(sound); }
@@ -302,6 +304,7 @@ class AudioManager {
   stopAmbient(key) { this._stopStored(this.activeAmbient, key); }
   stopPersistentLoop(key) { this.stopAmbient(key); }
   stopAllMusic() {
+    this._detachJukeboxCompletion();
     ++this._requestId; this._jukeboxTask = null;
     this._stopAllStored(this.activeMusic); this.jukeboxStatus = catalogError ? 'error' : 'stopped';
   }
@@ -369,6 +372,29 @@ class AudioManager {
     promise.then(() => this._loads.delete(track.key), () => this._loads.delete(track.key));
     return promise;
   }
+  _detachJukeboxCompletion() {
+    const binding = this._jukeboxCompletion;
+    if (!binding) return;
+    this._jukeboxCompletion = null;
+    binding.sound.off('complete', binding.onComplete);
+  }
+  _watchJukeboxCompletion(sound, track, request, game) {
+    this._detachJukeboxCompletion();
+    const binding = { sound, onComplete: null };
+    binding.onComplete = () => {
+      if (this._jukeboxCompletion !== binding) return;
+      this._detachJukeboxCompletion();
+      if (request !== this._requestId || game !== this.game ||
+          this.jukeboxMode !== 'playing' || this.selectedTrack !== track.id ||
+          this.activeMusic.get(track.key) !== sound) return;
+      const index = JUKEBOX_TRACKS.findIndex(t => t.id === track.id);
+      const next = JUKEBOX_TRACKS[(index + 1) % JUKEBOX_TRACKS.length];
+      if (!next) return;
+      this.playJukebox(next.id).catch(error => console.warn('[Jukebox] Next track failed:', error));
+    };
+    this._jukeboxCompletion = binding;
+    sound.once('complete', binding.onComplete);
+  }
   ensureJukebox() {
     if (!JUKEBOX_TRACKS.length || this.jukeboxMode !== 'playing' || this._jukeboxSound()?.isPlaying || this._jukeboxTask || this.jukeboxStatus === 'error') return;
     this.playJukebox(this.selectedTrack).catch(error => console.warn('[Jukebox]', error));
@@ -381,6 +407,7 @@ class AudioManager {
     const track = JUKEBOX_TRACKS.find(t => t.id === id);
     if (!track) return Promise.reject(new Error(`Unknown jukebox track: ${id}`));
     if (!this.game) return Promise.reject(new Error('Initialize AudioManager first.'));
+    this._detachJukeboxCompletion();
     const request = ++this._requestId, game = this.game;
     this.selectedTrack = id; safeSet(STORAGE.TRACK, id);
     this._setJukeboxMode('playing'); this.jukeboxError = ''; this.jukeboxStatus = 'loading';
@@ -394,9 +421,11 @@ class AudioManager {
         if (request !== this._requestId || game !== this.game) return null;
         let sound = this.activeMusic.get(track.key);
         if (this._isValidSound(sound) && sound.isPaused) {
+          sound.setLoop(false);
           this._applySoundState(sound, this.musicVolume); sound.resume();
-        } else sound = this._createOrReuse(track.key, { loop: true }, this.activeMusic, this.musicVolume, true);
+        } else sound = this._createOrReuse(track.key, { loop: false }, this.activeMusic, this.musicVolume, false);
         if (!sound) throw new Error(`Cannot create audio: ${track.title}`);
+        this._watchJukeboxCompletion(sound, track, request, game);
         this.jukeboxStatus = 'playing'; return sound;
       } catch (error) {
         if (request === this._requestId && game === this.game) {
@@ -408,10 +437,12 @@ class AudioManager {
     this._jukeboxTask = task; return task;
   }
   pauseJukebox() {
+    this._detachJukeboxCompletion();
     ++this._requestId; this._jukeboxTask = null; this._setJukeboxMode('paused');
     this._jukeboxSound()?.pause(); this.jukeboxStatus = catalogError ? 'error' : 'paused';
   }
   stopJukebox() {
+    this._detachJukeboxCompletion();
     ++this._requestId; this._jukeboxTask = null; this._setJukeboxMode('stopped');
     for (const track of JUKEBOX_TRACKS) this._stopStored(this.activeMusic, track.key);
     this.jukeboxStatus = catalogError ? 'error' : 'stopped'; this.jukeboxError = catalogError;

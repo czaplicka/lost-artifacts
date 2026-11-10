@@ -4,6 +4,11 @@ const STORE = 'playerCloudNotebookV1';
 const array = value =>
   Array.isArray(value) ? value : [];
 
+const signature = values =>
+  [...new Set(array(values))]
+    .sort()
+    .join('|');
+
 const NAME_IDS = new Set([
   'arthur_finch',
   'nora_bell',
@@ -15,63 +20,6 @@ const NAME_IDS = new Set([
   'pie_contest',
   'board_tournament'
 ]);
-
-export function alibiNamingOptions(
-  state,
-  definition
-) {
-  if (definition?.id !== CASE) return [];
-
-  const known = new Set(
-    array(
-      state.piKeywordSearch
-        ?.cases?.[CASE]?.known
-    )
-  );
-
-  return array(definition.keywords)
-    .filter(word =>
-      known.has(word.id) &&
-      NAME_IDS.has(word.id)
-    )
-    .map(word => ({
-      id: word.id,
-      label: word.label
-    }));
-}
-
-function cloudContext(state, cloud, known) {
-  const progress =
-    state[STORE]?.cases?.[CASE] || {};
-
-  const neighbours = new Set();
-
-  for (const link of array(progress.links)) {
-    if (link.from === cloud.id) {
-      neighbours.add(link.to);
-    }
-
-    if (link.to === cloud.id) {
-      neighbours.add(link.from);
-    }
-  }
-
-  const relevant = [
-    cloud,
-    ...array(progress.clouds).filter(
-      item => neighbours.has(item.id)
-    )
-  ];
-
-  return new Set(
-    relevant
-      .flatMap(item => [
-        item.titleKey,
-        ...array(item.words)
-      ])
-      .filter(id => known.has(id))
-  );
-}
 
 const PEOPLE = [
   'arthur_finch',
@@ -106,6 +54,70 @@ const COMPANY = new Set([
   'records_breakin',
   'blue_folder'
 ]);
+
+export function alibiNamingOptions(
+  state,
+  definition
+) {
+  if (definition?.id !== CASE) {
+    return [];
+  }
+
+  const known = new Set(
+    array(
+      state.piKeywordSearch
+        ?.cases?.[CASE]?.known
+    )
+  );
+
+  return array(definition.keywords)
+    .filter(word =>
+      known.has(word.id) &&
+      NAME_IDS.has(word.id)
+    )
+    .map(word => ({
+      id: word.id,
+      label: word.label
+    }));
+}
+
+function cloudContext(
+  state,
+  cloud,
+  known
+) {
+  const progress =
+    state[STORE]?.cases?.[CASE] || {};
+
+  const neighbours = new Set();
+
+  for (const link of array(progress.links)) {
+    if (link.from === cloud.id) {
+      neighbours.add(link.to);
+    }
+
+    if (link.to === cloud.id) {
+      neighbours.add(link.from);
+    }
+  }
+
+  const relevant = [
+    cloud,
+
+    ...array(progress.clouds).filter(
+      item => neighbours.has(item.id)
+    )
+  ];
+
+  return new Set(
+    relevant
+      .flatMap(item => [
+        item.titleKey,
+        ...array(item.words)
+      ])
+      .filter(id => known.has(id))
+  );
+}
 
 function subjectsFor(topic) {
   const result = new Set();
@@ -156,27 +168,50 @@ function subjectsFor(topic) {
   return result;
 }
 
-function equivalentQuestion(topic) {
-  const flags = [
-    ...new Set(array(topic.grantFlags))
-  ].sort();
+function available(
+  topic,
+  known,
+  flags
+) {
+  return (
+    array(topic.requiresFlags).every(
+      flag => flags.has(flag)
+    ) &&
 
-  if (flags.length) {
-    return 'effect:' + flags.join('|');
-  }
+    !array(topic.unlessFlags).some(
+      flag => flags.has(flag)
+    ) &&
 
-  const reply = array(topic.lines)
-    .filter(line => line.speaker !== 'You')
-    .map(line =>
-      String(line.text || '')
-        .replace(/\s+/g, ' ')
-        .trim()
+    array(topic.requiresKeywords).every(
+      id => known.has(id)
+    ) &&
+
+    !array(topic.unlessKeywords).some(
+      id => known.has(id)
     )
-    .join('|');
+  );
+}
 
-  return reply
-    ? 'reply:' + reply
-    : 'id:' + topic.id;
+function priority(topic) {
+  const value = Number(topic.priority);
+
+  return Number.isFinite(value)
+    ? value
+    : 0;
+}
+
+function responseSignature(topic) {
+  return JSON.stringify({
+    lines: array(topic.lines),
+
+    grantFlags: [
+      ...new Set(array(topic.grantFlags))
+    ].sort(),
+
+    grantKeywords: [
+      ...new Set(array(topic.grantKeywords))
+    ].sort()
+  });
 }
 
 export function alibiCloudQuestions(
@@ -197,11 +232,14 @@ export function alibiCloudQuestions(
   const validName = alibiNamingOptions(
     state,
     definition
-  ).some(option =>
-    option.id === cloud.titleKey
+  ).some(
+    option =>
+      option.id === cloud.titleKey
   );
 
-  if (!validName) return [];
+  if (!validName) {
+    return [];
+  }
 
   const known = new Set(
     array(
@@ -210,48 +248,94 @@ export function alibiCloudQuestions(
     )
   );
 
+  const currentFlags = new Set(
+    array(flags)
+  );
+
   const context = cloudContext(
     state,
     cloud,
     known
   );
 
-  const available = array(contact.topics)
-    .filter(topic => {
-      const terms = array(topic.terms);
+  const selected = new Map();
 
-      return (
-        terms.length > 0 &&
-        terms.length <= 2 &&
+  for (const topic of array(contact.topics)) {
+    const terms = array(topic.terms);
 
-        subjectsFor(topic).has(
-          cloud.titleKey
-        ) &&
+    if (
+      !terms.length ||
+      terms.length > 2 ||
+      new Set(terms).size !== terms.length
+    ) {
+      continue;
+    }
 
-        terms.every(id =>
-          known.has(id) &&
-          context.has(id)
-        ) &&
+    if (
+      !subjectsFor(topic).has(
+        cloud.titleKey
+      )
+    ) {
+      continue;
+    }
 
-        array(topic.requiresFlags).every(
-          flag => flags.includes(flag)
-        )
-      );
-    })
-    .sort((a, b) =>
-      array(b.terms).length -
-      array(a.terms).length
-    );
+    if (
+      !terms.every(id =>
+        known.has(id) &&
+        context.has(id)
+      )
+    ) {
+      continue;
+    }
+
+    if (
+      !available(
+        topic,
+        known,
+        currentFlags
+      )
+    ) {
+      continue;
+    }
+
+    if (!array(topic.lines).length) {
+      continue;
+    }
+
+    const key = signature(terms);
+
+    const previous = selected.get(key);
+
+    if (
+      !previous ||
+      priority(topic) > priority(previous)
+    ) {
+      selected.set(key, topic);
+    }
+  }
 
   const seen = new Set();
 
-  return available
+  return [...selected.values()]
+    .sort((a, b) =>
+      (
+        array(b.terms).length -
+        array(a.terms).length
+      ) ||
+      (
+        priority(b) -
+        priority(a)
+      )
+    )
     .filter(topic => {
-      const key = equivalentQuestion(topic);
+      const key = responseSignature(topic);
 
-      if (seen.has(key)) return false;
+      if (seen.has(key)) {
+        return false;
+      }
 
       seen.add(key);
+
       return true;
     })
     .map(topic => ({
@@ -259,9 +343,11 @@ export function alibiCloudQuestions(
 
       questionLabel:
         topic.questionLabel ||
+
         array(topic.lines).find(
           line => line.speaker === 'You'
         )?.text ||
+
         'Ask about this topic'
     }));
 }

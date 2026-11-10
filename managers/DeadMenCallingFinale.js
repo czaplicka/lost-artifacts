@@ -5,9 +5,12 @@ import { moneyManager, ECONOMY_CATEGORY } from './MoneyManager.js';
 import { getPIQuest } from './PIQuestManager.js';
 import { addPIEvidence } from './PIInvestigationManager.js';
 import { DEAD_MEN_QUEST, getDeadMenProgress } from './DeadMenCallingService.js';
+import { progressionManager } from './ProgressionManager.js';
 
 const KEY='piDeadMenCallingFinale', REVIEW='dead_men_final_review', REPORT='dead_men_final_report_draft';
 const clone=v=>JSON.parse(JSON.stringify(v));
+const XP_REWARD_ID='pi_case_large';
+function xpEventId(){return JSON.stringify(['reward',XP_REWARD_ID,DEAD_MEN_QUEST]);}
 let busy=false;
 const contacts={
  '619':{id:'dead_men_margaret',number:'619',name:'Margaret Vale'},
@@ -114,9 +117,24 @@ function check(id,index){
  return {ok:true,message:state().reconstructed?'Reconstruction recorded. Review your final report.':'Conclusion supported. Continue.'};
 }
 function paid(id){return (gameState.moneyLog||[]).some(t=>t.type==='income'&&t.source==='cash'&&t.metadata?.deadMenSettlementId===id);}
+function settleDeadMenXP(pending){
+ if(pending.phase!=='settling'||pending.paid!==true||!getPIQuest(DEAD_MEN_QUEST))throw Error('The report is not ready for XP settlement.');
+ const eventId=xpEventId();
+ let result;
+ try{
+  result=progressionManager.grantReward(XP_REWARD_ID,DEAD_MEN_QUEST,'PI case completed: Dead Men Calling');
+ }catch(error){
+  if(!progressionManager.hasReward(eventId))throw error;
+  console.error('[DeadMenCallingFinale] XP notification failed after commit:',error);
+  result={success:false,reason:'already_granted'};
+ }
+ if(!result.success&&result.reason!=='already_granted')throw Error(`XP settlement failed: ${result.reason||'unknown_error'}`);
+ if(!progressionManager.hasReward(eventId))throw Error('The XP reward was not recorded.');
+ return {result,record:{eventId,rewardId:XP_REWARD_ID,scopeId:DEAD_MEN_QUEST,applied:true}};
+}
 function closeCase(settlement){
  const qs=gameState.piQuests,q=qs?.quests?.[DEAD_MEN_QUEST];if(!q)throw Error('Contract missing.');
- const resolution={summary:'Colin’s assembled messages and dispatch were established; company accounts remain unresolved.',reward:settlement.preview.fee,paid:true,settlementId:settlement.id};
+ const resolution={summary:'Colin’s assembled messages and dispatch were established; company accounts remain unresolved.',reward:settlement.preview.fee,paid:true,settlementId:settlement.id,xp:clone(settlement.xp)};
  gameState.piQuests={...qs,quests:{...qs.quests,[DEAD_MEN_QUEST]:{...q,status:'completed',completedAt:settlement.completedAt,objectives:(q.objectives||[]).map(o=>({...o,completed:true})),resolution}}};
  note('dead_men_final_report','Final report — Dead Men Calling',settlement.preview.report,'Report sent to Margaret Vale');
  const inv=gameState.piInvestigations,c=inv?.cases?.[DEAD_MEN_QUEST];
@@ -139,12 +157,29 @@ function finish(expectedToken){
    try{moneyManager.addCash(p.fee,{category:ECONOMY_CATEGORY.SIDE_CASE,description:'PI case closed: Dead Men Calling',missionId:DEAD_MEN_QUEST,metadata:{deadMenSettlementId:pending.id,questId:DEAD_MEN_QUEST}});}
    catch(error){if(!paid(pending.id)){gameState.cash=before.cash;gameState.moneyLog=clone(before.moneyLog);throw error;}}
   }
-  pending={...pending,paid:true};save({settlement:pending});
-  const completed={...pending,phase:'completed',completedAt:new Date().toISOString()};
+  pending={...pending,paid:true,lastError:null};save({settlement:pending});
+  let xpSettlement;
+  try{
+   xpSettlement=settleDeadMenXP(pending);
+   pending={...pending,xp:xpSettlement.record,lastError:null};
+   save({settlement:pending});
+  }catch(error){
+   console.error('[DeadMenCallingFinale] XP settlement failed:',error);
+   save({settlement:{...pending,lastError:'XP settlement failed.'}});
+   return {ok:false,message:'Payment recorded. Retry sending the same report to finish XP; recorded rewards will not repeat.'};
+  }
+  const completed={...pending,phase:'completed',completedAt:new Date().toISOString(),lastError:null};
   closeCase(completed);save({settlement:completed});
-  let saved=false;try{saved=saveGameState()===true;}catch(error){}
-  return {ok:true,message:saved?`Case closed. Received $${p.fee}.`:'Case closed. Saving failed — save your game before leaving.'};
- }catch(error){requestAutosave();return {ok:false,message:'Settlement interrupted. Retry the same report; a recorded payment will not repeat.'};}
+  let saved=false;
+  try{saved=saveGameState()===true;}
+  catch(error){console.error('[DeadMenCallingFinale] Save failed:',error);}
+  const xpGranted=xpSettlement.result.success?xpSettlement.result.grantedXP:0;
+  return {ok:true,saved,xpGranted,message:saved?`Case closed. Received $${p.fee}.`+(xpGranted>0?` +${xpGranted} XP.`:''):'Case closed. Saving failed — save your game before leaving.'};
+ }catch(error){
+  console.error('[DeadMenCallingFinale] Settlement interrupted:',error);
+  requestAutosave();
+  return {ok:false,message:'Settlement interrupted. Retry the same report; recorded payment and XP will not repeat.'};
+ }
  finally{busy=false;}
 }
 export function installDeadMenFinaleMail(ui){

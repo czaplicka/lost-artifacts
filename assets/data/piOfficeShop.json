@@ -1,9 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "shopId": "pi_office_shop",
-  "title": "Office Supplies & Questionable Hires",
+  "title": "Office Supplies & Optimistic Listings",
   "currency": "USD",
-  "intro": "First buy a proper PI office. Then fill it with equipment and questionable employees.",
+  "intro": "Buy the office. Supply your own expectations.",
   "balanceStatus": "provisional",
   "items": [
     {
@@ -13,9 +13,9 @@
       "price": 1000,
       "purchaseType": "one_time",
       "maxOwned": 1,
-      "description": "A proper office with room for equipment and employees. Your current office requires visitors to exhale before entering.",
-      "benefitText": "Unlock purchases of office equipment and staff. Equipment is sold separately. Pigeon feed does not require a new office.",
-      "purchaseMessage": "New PI office purchased. Equipment and staff purchases are now unlocked.",
+      "description": "A prestigious business address. The advertisement has been photographed from its most legally defensible angle.",
+      "benefitText": "Your own larger office. Computer and telephone included. Other equipment sold separately.",
+      "purchaseMessage": "Office purchased. Please lower your expectations before entering.",
       "requires": [],
       "effects": [
         {
@@ -24,38 +24,8 @@
         }
       ],
       "visual": {
-        "textureKey": null,
-        "textureUrl": null
-      }
-    },
-    {
-      "id": "office_assistant",
-      "name": "Office Assistant",
-      "category": "staff",
-      "price": 350,
-      "purchaseType": "one_time",
-      "maxOwned": 1,
-      "description": "Handles appointments, negotiates fees and explains that exposure is not a currency.",
-      "benefitText": "Earn 15% extra on eligible PI contract fees paid after hiring. Bribes, refunds, advances and employee income are excluded.",
-      "purchaseMessage": "Assistant hired. Your calendar is organised. Your life remains under review.",
-      "requires": [
-        "office_new_premises"
-      ],
-      "effects": [
-        {
-          "type": "reward_bonus",
-          "scope": "pi_job_completion",
-          "percent": 15,
-          "rounding": "floor",
-          "excludePassiveIncome": true,
-          "excludeRefunds": true,
-          "excludeAdvances": true
-        }
-      ],
-      "officePropId": "secretary",
-      "visual": {
-        "textureKey": null,
-        "textureUrl": null
+        "textureKey": "bigger-office-ad",
+        "textureUrl": "assets/pi/office/bigger-office-ad.webp"
       }
     },
     {
@@ -68,19 +38,16 @@
       "description": "A filing system for solved cases. Alphabetical order costs extra. We have declined.",
       "benefitText": "Search completed PI cases, contacts, summaries and objectives.",
       "purchaseMessage": "Files installed. The paperwork now has somewhere to hide.",
-      "requires": [
-        "office_new_premises"
-      ],
+      "requires": ["office_new_premises"],
       "effects": [
         {
           "type": "unlock_feature",
           "featureId": "pi_case_archive"
         }
       ],
-      "officePropId": "case_files",
       "visual": {
-        "textureKey": null,
-        "textureUrl": null
+        "textureKey": "case-files",
+        "textureUrl": "assets/pi/office/case-files.webp"
       }
     },
     {
@@ -93,52 +60,152 @@
       "description": "Prints reports, invoices and occasional cries for help. Paper jams are its preferred form of communication.",
       "benefitText": "Unlock document jobs: up to 2 new jobs per game day, $35 per job, 30 in-game minutes to start.",
       "purchaseMessage": "Printer installed. It already claims to be out of cyan.",
-      "requires": [
-        "office_new_premises"
-      ],
+      "requires": ["office_new_premises"],
       "effects": [
         {
           "type": "unlock_job_category",
           "categoryId": "pi_document_jobs"
         }
       ],
-      "officePropId": "printer",
       "visual": {
-        "textureKey": null,
-        "textureUrl": null
+        "textureKey": "printer",
+        "textureUrl": "assets/pi/office/printer.webp"
       }
     },
     {
-      "id": "office_employee",
-      "name": "Junior Investigator",
-      "category": "staff",
-      "price": 600,
+      "id": "office_notepad",
+      "name": "Desk Notebook",
+      "category": "equipment",
+      "price": 40,
       "purchaseType": "one_time",
       "maxOwned": 1,
-      "description": "Takes small local jobs while you handle the dramatic ones. Has only followed the wrong person twice. This week.",
-      "benefitText": "Generate $25 net income per full 24 in-game hours. Collect up to $100 in this office shop.",
-      "purchaseMessage": "Investigator hired. Someone else can now watch the wrong doorway.",
-      "requires": [
-        "office_new_premises"
-      ],
-      "effects": [
-        {
-          "type": "passive_income",
-          "amountPerDay": 25,
-          "timeSource": "game_time",
-          "interval": "full_day_since_purchase",
-          "accrueFromPurchase": true,
-          "includeRealWorldOfflineTime": false,
-          "maxUncollected": 100,
-          "collection": "manual_at_office",
-          "amountIsNet": true,
-          "affectedByRewardBonuses": false
-        }
-      ],
-      "officePropId": "employee",
+      "description": "A dedicated home for promising leads and increasingly aggressive underlining.",
+      "benefitText": "Adds a clickable shortcut to your existing Case Notes. Your notes remain available without this purchase.",
+      "purchaseMessage": "Notebook placed. The pencil has requested anonymity.",
+      "requires": ["office_new_premises"],
+      "effects": [],
       "visual": {
-        "textureKey": null,
-        "textureUrl": null
+        "textureKey": "notepad",
+        "textureUrl": "assets/pi/office/notepad.webp"
+      }
+    },
+    {
+      "id": "office_crime_board",
+      "name": "Investigation Board",
+      "category": "equipment",
+      "price": 150,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Put your theories on the wall. They look more convincing with string.",
+      "benefitText": "Adds a wall shortcut to your existing PI investigation board. Investigations remain available on the computer.",
+      "purchaseMessage": "Board installed. Coincidence has nowhere left to hide.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "pi__office__crime-board",
+        "textureUrl": "assets/pi/office/crime-board.webp"
+      }
+    },
+    {
+      "id": "office_coffee",
+      "name": "Coffee Machine",
+      "category": "equipment",
+      "price": 180,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Turns expensive beans into a convincing reason to remain at your desk.",
+      "benefitText": "Visual office upgrade. No energy or time bonus.",
+      "purchaseMessage": "Coffee machine installed. Your accountant smells trouble.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "coffee",
+        "textureUrl": "assets/pi/office/coffee.webp"
+      }
+    },
+    {
+      "id": "office_tv",
+      "name": "Office Television",
+      "category": "equipment",
+      "price": 250,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "For keeping up with current affairs and avoiding your own.",
+      "benefitText": "Visual office upgrade. Television programmes are not connected in this version.",
+      "purchaseMessage": "Television installed. Productivity is watching nervously.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "pi__office__tv",
+        "textureUrl": "assets/pi/office/tv.webp"
+      }
+    },
+    {
+      "id": "office_books",
+      "name": "Reference Library",
+      "category": "decor",
+      "price": 120,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Enough serious-looking books to discourage basic questions.",
+      "benefitText": "Visual office upgrade. No investigation bonus.",
+      "purchaseMessage": "Books shelved. Reading remains optional.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "books",
+        "textureUrl": "assets/pi/office/books.webp"
+      }
+    },
+    {
+      "id": "office_chairs",
+      "name": "Visitor Chairs",
+      "category": "furniture",
+      "price": 160,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "Comfortable seating for people who insist this will only take a minute.",
+      "benefitText": "Visual office upgrade. Includes both visitor chairs.",
+      "purchaseMessage": "Chairs delivered. Clients have run out of standing excuses.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "chairs",
+        "textureUrl": "assets/pi/office/chairs.webp"
+      }
+    },
+    {
+      "id": "office_painting",
+      "name": "Framed Painting",
+      "category": "decor",
+      "price": 90,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "A subtle statement that the wall was too empty.",
+      "benefitText": "Visual office upgrade. Authenticity not included.",
+      "purchaseMessage": "Painting hung. The wall feels represented.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "painting",
+        "textureUrl": "assets/pi/office/painting.webp"
+      }
+    },
+    {
+      "id": "office_artifact",
+      "name": "Display Artefact",
+      "category": "decor",
+      "price": 300,
+      "purchaseType": "one_time",
+      "maxOwned": 1,
+      "description": "A decorative conversation piece with reassuringly vague provenance.",
+      "benefitText": "Visual office upgrade. Not evidence and not part of an agency case.",
+      "purchaseMessage": "Artefact displayed. Please keep the receipt.",
+      "requires": ["office_new_premises"],
+      "effects": [],
+      "visual": {
+        "textureKey": "artifact",
+        "textureUrl": "assets/pi/office/artifact.webp"
       }
     }
   ]
