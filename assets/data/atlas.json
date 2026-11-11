@@ -296,5 +296,37 @@
         "knownFor": "Capital of Japan"
       }
     ]
+  },
+  {
+    "id": "singapore",
+    "iso3": "SGP",
+    "name": "Singapore",
+    "capital": "Singapore",
+    "capitalCoordinates": [
+      103.8198,
+      1.3521
+    ],
+    "region": "Southeast Asia",
+    "description": "An island city-state at the southern end of the Malay Peninsula, with a busy port, tropical greenery and an impressive talent for making a short journey involve three excellent meals. Our file concerns the trail of a fugitive, not a new museum theft.",
+    "knownFor": "Merlion, trading port, shophouses, hawker food",
+    "cities": [
+      {
+        "id": "singapore",
+        "name": "Singapore",
+        "coordinates": [
+          103.8198,
+          1.3521
+        ],
+        "description": "Follow the river past Boat Quay, check the onward journey and keep your notebook dry. The Merlion has been questioned. Its statement was mostly water.",
+        "knownFor": "Merlion, Boat Quay, Changi Airport"
+      }
+    ],
+    "mapBounds": [
+      103.58,
+      1.15,
+      104.12,
+      1.49
+    ],
+    "mapLabel": "SINGAPORE"
   }
 ]

@@ -1,6 +1,76 @@
 {
   "title": "The Tokyo Ordinary Dispatch",
   "subtitle": "Tokyo Edition",
+  "missionLead": [
+    {
+      "slotId": "lead",
+      "headline": "Great Wave Stolen; Museum Requests Calm",
+      "lead": "Hokusai print disappears from Ueno. The empty space is not a new exhibition.",
+      "body": "Great Wave First Impression has been stolen from Tokyo National Museum in Ueno. Visitors hoping to see Hokusai's famous print will instead encounter the less celebrated experience of looking at where it used to be. 'The label is still here,' a museum spokesperson said. 'We appreciate that this is not an adequate substitute.' Mark Agency is investigating. Anyone with relevant information should contact the authorities. Anyone with an opinion about museum security is asked to take a number.",
+      "imageKey": "paper_tokyo_heist_photo",
+      "imageCaption": "The missing print has left a conspicuously well-lit absence.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_heist_photo.webp",
+      "missionCity": "Tokyo",
+      "missionArtifact": "Great Wave First Impression"
+    },
+    {
+      "slotId": "lead",
+      "headline": "Museum Retains Wall, Loses Masterpiece",
+      "lead": "The disappearance of Great Wave First Impression leaves an unusually expensive gap.",
+      "body": "Tokyo National Museum in Ueno is the focus of an investigation after the theft of Great Wave First Impression. The work is a first-edition woodblock print of Hokusai's Great Wave, not a painting, a distinction staff have continued to explain even under considerable stress. Mark Agency is assisting with the case. A proposed replacement consisting of a handwritten note saying 'imagine a very good wave' has not received curatorial approval.",
+      "imageKey": "paper_tokyo_heist_photo",
+      "imageCaption": "The gallery: one masterpiece short of its intended arrangement.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_heist_photo.webp",
+      "missionCity": "Tokyo",
+      "missionArtifact": "Great Wave First Impression"
+    },
+    {
+      "slotId": "lead",
+      "headline": "Great Wave Missing; Paperwork Arrives in Swell",
+      "lead": "Mark Agency takes on the Ueno theft. Nobody has requested a lifeboat. Officially.",
+      "body": "The theft of Great Wave First Impression from Tokyo National Museum in Ueno has brought Mark Agency into the investigation. The agency confirmed that the assignment concerns a missing print rather than a maritime emergency. 'We have withdrawn the equipment request,' an administrative representative said. 'The inflatable dinghy was an understandable misunderstanding.' Investigators are seeking the artwork and the person responsible. The museum would particularly welcome the return of the former.",
+      "imageKey": "paper_tokyo_briefing_photo",
+      "imageCaption": "An investigation requiring a notebook, not a flotation device.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_briefing_photo.webp",
+      "missionCity": "Tokyo",
+      "missionArtifact": "Great Wave First Impression"
+    },
+    {
+      "slotId": "lead",
+      "headline": "Great Wave Remains a Small Matter of International Concern",
+      "lead": "A famous print, a missing original and absolutely no shortage of opinions.",
+      "body": "The disappearance of Great Wave First Impression from Tokyo National Museum in Ueno has prompted questions about the artwork's whereabouts. Mark Agency is working on the case, while museum staff field enquiries from concerned visitors. Suggestions that the shop sell postcards of the empty display have been referred to management. 'We would prefer to have the print back,' a spokesperson said. 'Although the shop has asked us to keep them informed.'",
+      "imageKey": "paper_tokyo_heist_photo",
+      "imageCaption": "The display has become an attraction for entirely the wrong reason.",
+      "image": {
+        "x": 60,
+        "y": 640,
+        "width": 650,
+        "height": 400
+      },
+      "imageUrl": "assets/newspapers/newspapers/paper_tokyo_heist_photo.webp",
+      "missionCity": "Tokyo",
+      "missionArtifact": "Great Wave First Impression"
+    }
+  ],
   "articles": [
     {
       "slotId": "lead",

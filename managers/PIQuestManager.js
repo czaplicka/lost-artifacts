@@ -2,6 +2,7 @@
 
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
+import { checkAdvertRequirements } from './PIAdvertRequirements.js';
 
 import {
   registerPICase
@@ -73,7 +74,6 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     };
   }
 
-  // Resolve the actual advertisement from loaded JSON.
   const classifiedData =
     scene.cache.json.get('piOfficeClassifieds');
 
@@ -95,6 +95,15 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     return {
       ok: false,
       message: 'This advertisement does not offer a PI job.'
+    };
+  }
+
+  const requirements = checkAdvertRequirements(advert);
+
+  if (!requirements.ok) {
+    return {
+      ok: false,
+      message: requirements.message
     };
   }
 
@@ -177,7 +186,6 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     };
   }
 
-  // Prepare serializable quest data before changing game state.
   const quest = {
     id: definition.id,
     advertId: advert.id,
@@ -203,7 +211,6 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     metadata: clone(definition.metadata || {})
   };
 
-  // Only quests requiring a board appear in Side Cases.
   if (definition.requiresBoard) {
     const investigation = registerPICase(definition);
 
@@ -215,7 +222,6 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
     }
   }
 
-  // Assign through the game state proxy to mark the state dirty.
   const state = getState();
 
   gameState.piQuests = {
@@ -227,8 +233,6 @@ export function acceptPIQuestFromAdvert(scene, advertId) {
   };
 
   requestAutosave();
-
-  console.log('[PIQuestManager] Job accepted:', quest.id);
 
   return {
     ok: true,

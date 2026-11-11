@@ -18,99 +18,270 @@ import { supabase } from './supabase-client.js';
 import { installAchievementSystem } from './managers/AchievementManager.js';
 import { installChaseTutorial } from './tutorials/chase/ChaseTutorial.js';
 
+import './managers/PICaseRewards.js';
+
 const RESIZE_DEBOUNCE_MS = 120;
+
 function installResizeNotification(game) {
   let timer = null;
   let disposed = false;
+
   const viewport = window.visualViewport;
+
   const notifyResizeSettled = () => {
     if (disposed) return;
-    if (timer !== null) window.clearTimeout(timer);
+
+    if (timer !== null) {
+      window.clearTimeout(timer);
+    }
+
     timer = window.setTimeout(() => {
       timer = null;
+
       if (disposed || !game.scale) return;
-      game.events.emit('game-resize-settled', game.scale.gameSize);
+
+      game.events.emit(
+        'game-resize-settled',
+        game.scale.gameSize
+      );
     }, RESIZE_DEBOUNCE_MS);
   };
+
   const cleanup = () => {
     if (disposed) return;
+
     disposed = true;
-    if (timer !== null) { window.clearTimeout(timer); timer = null; }
-    window.removeEventListener('resize', notifyResizeSettled);
-    viewport?.removeEventListener('resize', notifyResizeSettled);
-    game.events.off(Phaser.Core.Events.DESTROY, cleanup);
+
+    if (timer !== null) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+
+    window.removeEventListener(
+      'resize',
+      notifyResizeSettled
+    );
+
+    viewport?.removeEventListener(
+      'resize',
+      notifyResizeSettled
+    );
+
+    game.events.off(
+      Phaser.Core.Events.DESTROY,
+      cleanup
+    );
   };
-  window.addEventListener('resize', notifyResizeSettled, { passive: true });
-  viewport?.addEventListener('resize', notifyResizeSettled, { passive: true });
-  game.events.once(Phaser.Core.Events.DESTROY, cleanup);
+
+  window.addEventListener(
+    'resize',
+    notifyResizeSettled,
+    { passive: true }
+  );
+
+  viewport?.addEventListener(
+    'resize',
+    notifyResizeSettled,
+    { passive: true }
+  );
+
+  game.events.once(
+    Phaser.Core.Events.DESTROY,
+    cleanup
+  );
+
   return cleanup;
 }
+
 function installScenePrefetch(game) {
   let disposed = false;
   let subscription = null;
+
   const requested = new Set();
+
   const prefetch = tier => {
-    if (disposed || !game.sceneLoader || requested.has(tier)) return;
+    if (
+      disposed ||
+      !game.sceneLoader ||
+      requested.has(tier)
+    ) {
+      return;
+    }
+
     requested.add(tier);
-    void game.sceneLoader.prefetchTier(tier).catch(error => {
-      requested.delete(tier);
-      if (!disposed) console.warn(`[main] Could not prefetch "${tier}".`, error);
-    });
+
+    void game.sceneLoader
+      .prefetchTier(tier)
+      .catch(error => {
+        requested.delete(tier);
+
+        if (!disposed) {
+          console.warn(
+            `[main] Could not prefetch "${tier}".`,
+            error
+          );
+        }
+      });
   };
+
   const onPlayerReady = () => prefetch('TIER_1');
-  const onCrimeSceneEntered = () => prefetch('TIER_3');
+
+  const onCrimeSceneEntered = () =>
+    prefetch('TIER_3');
+
   const cleanup = () => {
     if (disposed) return;
+
     disposed = true;
+
     subscription?.unsubscribe();
     subscription = null;
-    game.events.off('player-authenticated', onPlayerReady);
-    game.events.off('player-entry-started', onPlayerReady);
-    game.events.off('case-crime-scene-entered', onCrimeSceneEntered);
-    game.events.off(Phaser.Core.Events.DESTROY, cleanup);
+
+    game.events.off(
+      'player-authenticated',
+      onPlayerReady
+    );
+
+    game.events.off(
+      'player-entry-started',
+      onPlayerReady
+    );
+
+    game.events.off(
+      'case-crime-scene-entered',
+      onCrimeSceneEntered
+    );
+
+    game.events.off(
+      Phaser.Core.Events.DESTROY,
+      cleanup
+    );
   };
-  game.events.on('player-authenticated', onPlayerReady);
-  game.events.on('player-entry-started', onPlayerReady);
-  game.events.on('case-crime-scene-entered', onCrimeSceneEntered);
-  game.events.once(Phaser.Core.Events.DESTROY, cleanup);
+
+  game.events.on(
+    'player-authenticated',
+    onPlayerReady
+  );
+
+  game.events.on(
+    'player-entry-started',
+    onPlayerReady
+  );
+
+  game.events.on(
+    'case-crime-scene-entered',
+    onCrimeSceneEntered
+  );
+
+  game.events.once(
+    Phaser.Core.Events.DESTROY,
+    cleanup
+  );
+
   try {
-    const result = supabase.auth.onAuthStateChange((event, session) => {
-      if (disposed || !session?.user) return;
-      if (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN') return;
-      game.events.emit('player-authenticated', { userId: session.user.id });
-    });
+    const result = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (disposed || !session?.user) return;
+
+        if (
+          event !== 'INITIAL_SESSION' &&
+          event !== 'SIGNED_IN'
+        ) {
+          return;
+        }
+
+        game.events.emit(
+          'player-authenticated',
+          { userId: session.user.id }
+        );
+      }
+    );
+
     subscription = result.data.subscription;
-  } catch (error) { console.warn('[main] Auth prefetch listener unavailable.', error); }
+  } catch (error) {
+    console.warn(
+      '[main] Auth prefetch listener unavailable.',
+      error
+    );
+  }
 }
+
 function installDevTools(game) {
   const host = window.location.hostname;
-  if (host !== 'localhost' && host !== '127.0.0.1') return;
+
+  if (
+    host !== 'localhost' &&
+    host !== '127.0.0.1'
+  ) {
+    return;
+  }
+
   import('./tests/BaseSceneLeakTest.js')
     .then(({ installLeakTest }) => {
       installLeakTest(game);
     })
-    .catch(error => console.warn('[dev] Could not load BaseSceneLeakTest.', error));
+    .catch(error => {
+      console.warn(
+        '[dev] Could not load BaseSceneLeakTest.',
+        error
+      );
+    });
 }
+
 const config = {
   type: Phaser.AUTO,
   width: 1920,
   height: 1080,
   parent: 'game-container',
   backgroundColor: '#000000',
-  scene: [BootScene, PreloaderScene, SettingsScene, EnterScene,
-    PlayerHudScene, UIScene, NewsHud, LoadingOverlayScene],
-  dom: { createContainer: true },
-  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, autoRound: true },
-  audio: { disableWebAudio: false }
+
+  scene: [
+    BootScene,
+    PreloaderScene,
+    SettingsScene,
+    EnterScene,
+    PlayerHudScene,
+    UIScene,
+    NewsHud,
+    LoadingOverlayScene
+  ],
+
+  dom: {
+    createContainer: true
+  },
+
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoRound: true
+  },
+
+  audio: {
+    disableWebAudio: false
+  }
 };
+
 const game = new Phaser.Game(config);
+
 window.game = game;
+
 game.assets = new AssetManager(game);
-game.sceneLoader = new SceneLoader(game, sceneRegistry);
+
+game.sceneLoader = new SceneLoader(
+  game,
+  sceneRegistry
+);
+
 game.buildVersion = GAME_VERSION;
+
 bindCaseTimeGame(game);
 getReedContactService(game);
-RandomEventSystem.install(game, RandomEventScene);
+
+RandomEventSystem.install(
+  game,
+  RandomEventScene
+);
+
 installAchievementSystem(game);
 installResizeNotification(game);
 installScenePrefetch(game);

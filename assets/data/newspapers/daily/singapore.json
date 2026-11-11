@@ -1,0 +1,127 @@
+{
+  "title": "The Straits of Suspicion",
+  "subtitle": "Singapore Edition",
+  "articles": [
+    {
+      "id": "singapore_local_01",
+      "slotId": "lead",
+      "headline": "Merlion Refuses Interview, Continues Giving Same Statement",
+      "lead": "Waterfront icon maintains a consistent position.",
+      "body": "A reporter hoping to interview the Merlion received a faceful of water and no usable quotation. The editor praised the subject's consistency but requested a drier follow-up. A photograph of the encounter is being withheld until the reporter stops looking like evidence recovered from the harbour."
+    },
+    {
+      "id": "singapore_local_02",
+      "slotId": "lead",
+      "headline": "Office Worker Plans Quick Lunch, Discovers Several Competing Lunches",
+      "lead": "The original plan contained one stall. Reality offered alternatives.",
+      "body": "An office worker who left for a quick lunch returned with chicken rice, a second parcel for later and strong opinions about three stalls he had not intended to visit. Colleagues asked whether the meeting could begin. He asked whether it had to begin before the noodles."
+    },
+    {
+      "id": "singapore_local_03",
+      "slotId": "lead",
+      "headline": "Port Clerk Finds Missing Form Under Form About Missing Forms",
+      "lead": "An administrative mystery reaches its natural conclusion.",
+      "body": "A clerk searching for an absent shipping form discovered it beneath a report documenting its disappearance. The original form has been returned to service. The report must remain on file until someone establishes the procedure for declaring it unnecessary."
+    },
+    {
+      "id": "singapore_local_04",
+      "slotId": "lead",
+      "headline": "Visitor Packs Sweater for Air-Conditioning, Receives Weather Outside Instead",
+      "lead": "Two climates now compete for the same suitcase.",
+      "body": "A visitor stepping out of an air-conditioned office encountered enough humidity to reconsider several clothing decisions. Returning indoors immediately reversed the problem. The visitor is considering dressing in layers, with separate layers assigned to individual doorways."
+    },
+    {
+      "id": "singapore_local_05",
+      "slotId": "lead",
+      "headline": "Shophouse Owner Repaints Shutters, Neighbours Offer Unrequested Committee",
+      "lead": "The colour is now officially a community discussion.",
+      "body": "A shophouse owner repainting wooden shutters attracted neighbours with precise views about shades of green. Work paused while a sample was examined in sunlight, shade and increasingly personal terms. The owner has decided to finish the back windows first."
+    },
+    {
+      "id": "singapore_local_06",
+      "slotId": "lead",
+      "headline": "Harbour Worker Identifies Boat by Sound, Cannot Find Office Telephone",
+      "lead": "Professional expertise proves highly specialised.",
+      "body": "A harbour worker correctly recognised an approaching boat by its engine before spending several minutes searching for a ringing telephone. The phone was under a clipboard. Colleagues say the boat identification remains impressive, though the clipboard is becoming a recurring challenge."
+    },
+    {
+      "id": "singapore_local_07",
+      "slotId": "lead",
+      "headline": "Rain Ends Before Visitor Finishes Opening Umbrella",
+      "lead": "The sky declines to wait for a demonstration.",
+      "body": "A visitor sheltering beneath a shop awning finally persuaded a reluctant umbrella to open just as the shower stopped. Nearby customers offered the respectful silence reserved for an avoidable public struggle. The umbrella remained open for the walk home, purely as a precaution."
+    },
+    {
+      "id": "singapore_local_08",
+      "slotId": "secondary_1",
+      "headline": "Kopi Order Becomes First Successful Investigation of Morning",
+      "body": "A customer who carefully wrote down a coffee order received exactly the drink requested. Encouraged by this early result, the customer has begun taking equally detailed notes about breakfast. Staff welcome the clarity but draw the line at signed witness statements."
+    },
+    {
+      "id": "singapore_local_09",
+      "slotId": "secondary_1",
+      "headline": "Hotel Guest Declares Ceiling Fan Worthy of Promotion",
+      "body": "A hotel guest has praised a ceiling fan for remaining focused throughout the entire afternoon. The guest described it as tireless and reassuringly predictable. Management said the fan's salary review would be conducted at the next maintenance visit."
+    },
+    {
+      "id": "singapore_local_10",
+      "slotId": "secondary_1",
+      "headline": "Tailor Asked to Add One More Secret Pocket",
+      "body": "A customer requested another concealed pocket in a jacket already equipped with several. The tailor asked what it should hold. The customer said secrets. The tailor asked for their approximate dimensions."
+    },
+    {
+      "id": "singapore_local_11",
+      "slotId": "secondary_1",
+      "headline": "Newspaper Seller Folds Edition More Neatly Than Editor Intended",
+      "body": "A newspaper seller has folded the day's edition so neatly that several readers assumed the arrangement was part of the design. The editor has requested instructions. The seller has requested payment in advance."
+    },
+    {
+      "id": "singapore_local_12",
+      "slotId": "secondary_1",
+      "headline": "Boat Passenger Requests Quiet Engine, Receives Honest Look",
+      "body": "A passenger asked whether a boat engine could run more quietly during the trip. The operator looked at the engine, then at the passenger, then started it. Everyone understood the answer without further discussion."
+    },
+    {
+      "id": "singapore_local_13",
+      "slotId": "secondary_1",
+      "headline": "Shop Cat Sleeps Through Entire Stocktake",
+      "body": "A provision-shop cat declined to move while staff counted tins stacked around its preferred shelf. The inventory now includes one obstruction. Management has decided against marking it for clearance."
+    },
+    {
+      "id": "singapore_local_14",
+      "slotId": "secondary_2",
+      "headline": "Tourist Buys Souvenir Merlion, Negotiates Space in Suitcase",
+      "body": "A tourist who bought a small Merlion ornament discovered that the suitcase was already full. One pair of shoes is understood to have lost the argument. The ornament remains outwardly unmoved."
+    },
+    {
+      "id": "singapore_local_15",
+      "slotId": "secondary_2",
+      "headline": "Port Office Introduces Queue for Questions About Queue",
+      "body": "A port office has designated a separate counter for enquiries about waiting times. Visitors say the change has made it easier to determine where their uncertainty belongs. The original queue remains available for those already committed."
+    },
+    {
+      "id": "singapore_local_16",
+      "slotId": "secondary_2",
+      "headline": "Visitor Orders Mild Dish With Remarkable Confidence",
+      "body": "A visitor ordered a mild dish and immediately developed a new understanding of the word. Staff supplied water without commenting on the original confidence. The visitor has requested that future negotiations include a practical demonstration."
+    },
+    {
+      "id": "singapore_local_17",
+      "slotId": "secondary_2",
+      "headline": "Desk Fan Rotates Away at Worst Possible Moment",
+      "body": "An employee relying on a desk fan during a warm afternoon has criticised its commitment to serving the entire room. Colleagues defend the rotation as fair. Negotiations over the oscillation switch continue."
+    },
+    {
+      "id": "singapore_local_18",
+      "slotId": "secondary_2",
+      "headline": "Shipping Label Outlives Box It Was Attached To",
+      "body": "A warehouse worker found a carefully preserved label beside a box no longer fit to hold anything. Staff admired the label’s durability but agreed that shipping the address without the contents would disappoint the customer."
+    },
+    {
+      "id": "singapore_local_19",
+      "slotId": "secondary_2",
+      "headline": "Office Chooses Meeting Room by Air-Conditioning Rather Than Capacity",
+      "body": "A meeting has been moved to a room with excellent air-conditioning and insufficient chairs. Participants described the arrangement as manageable. The colleague standing beside the vent described it as ideal."
+    }
+  ]
+}

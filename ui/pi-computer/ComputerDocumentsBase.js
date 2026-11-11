@@ -13,7 +13,11 @@ import { installDeadMenEvidenceUI } from './DeadMenEvidenceUI.js';
 import { DeadMenArtworkUI } from './DeadMenArtworkUI.js';
 import { installAlibiAdvertEmailFlow } from './AlibiAdvertEmailFlow.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
-
+import {
+  checkAdvertRequirements,
+  getAdvertRequiredItems,
+  getRequiredItemLabel
+} from '../../managers/PIAdvertRequirements.js';
 /* ------------------------------------------------------------------ */
 /*  Small helpers (mail look & feel)                                   */
 /* ------------------------------------------------------------------ */
@@ -522,7 +526,7 @@ export class ComputerDocuments {
     }
   }
 
-  renderClassifiedHeader(selected, { x0, py, innerW }) {
+    renderClassifiedHeader(selected, { x0, py, innerW }) {
     const ui = this.ui;
     const d = ui.drawing;
 
@@ -533,10 +537,17 @@ export class ComputerDocuments {
       .pixel(x0, py + 26, titleStr, 13, COLORS.text, titleWidth)
       .setLineSpacing(7);
 
+    const requiredItems = getAdvertRequiredItems(selected);
+
     const metadata = [
       `Contact: ${selected.contact || 'Not provided'}`,
       Number.isFinite(selected.reward)
         ? `Offered payment: ${ui.money(selected.reward)}`
+        : null,
+      requiredItems.length
+        ? `Equipment required: ${requiredItems
+            .map(getRequiredItemLabel)
+            .join(', ')}`
         : null
     ]
       .filter(Boolean)
@@ -761,7 +772,7 @@ export class ComputerDocuments {
     });
   }
 
-  renderJobButton(selected, x, y) {
+    renderJobButton(selected, x, y) {
     const ui = this.ui;
 
     if (renderDeadMailOfficeButton(ui, selected, x, y)) {
@@ -779,6 +790,9 @@ export class ComputerDocuments {
     const available =
       status === 'available' && !getPIQuest(selected.missionId);
 
+    const requirements = checkAdvertRequirements(selected);
+    const locked = !requirements.ok;
+
     const labels = {
       active: 'CASE ACCEPTED',
       completed: 'CASE COMPLETED',
@@ -788,18 +802,29 @@ export class ComputerDocuments {
 
     const label = !connected
       ? 'APPLICATIONS UNAVAILABLE'
-      : !available
-        ? labels[status] || 'CASE UNAVAILABLE'
-        : ui.accepting
-          ? 'PLEASE WAIT...'
-          : 'ACCEPT CASE';
+      : locked
+        ? 'EQUIPMENT REQUIRED'
+        : !available
+          ? labels[status] || 'CASE UNAVAILABLE'
+          : ui.accepting
+            ? 'PLEASE WAIT...'
+            : 'ACCEPT CASE';
 
     ui.drawing.button(
       x,
       y,
       label,
-      () => void ui.acceptMission(selected),
-      connected && available && !ui.accepting
+      () => {
+        if (locked) {
+          ui.notice = requirements.message;
+          ui.options.onSfx?.('error');
+          ui.render();
+          return;
+        }
+
+        return void ui.acceptMission(selected);
+      },
+      connected && available && !ui.accepting && !locked
     );
   }
 

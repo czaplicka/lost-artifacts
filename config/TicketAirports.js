@@ -1,5 +1,6 @@
 // One selected serving airport per game location; this does not modify locations.json.
 export const TICKET_AIRPORT_CODES = Object.freeze({
+  singapore: 'SIN',
   london: 'LHR', paris: 'CDG', berlin: 'BER', warsaw: 'WAW',
   new_delhi: 'DEL', new_york_city: 'JFK', toronto: 'YYZ',
   islamabad: 'ISB', nairobi: 'NBO', tokyo: 'HND',

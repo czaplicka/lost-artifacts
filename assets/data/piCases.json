@@ -73,7 +73,7 @@
       "objectives": [
         {
           "id": "read_client_email",
-          "text": "Read the client’s email and obtain her contact details."
+          "text": "Read the client's email and obtain her contact details."
         },
         {
           "id": "review_recordings",
@@ -85,7 +85,7 @@
         },
         {
           "id": "compare_archive",
-          "text": "Obtain Edward’s older recordings and compare them with the recent messages."
+          "text": "Obtain Edward's older recordings and compare them with the recent messages."
         },
         {
           "id": "identify_caller",
@@ -97,7 +97,7 @@
           "id": "classified-ad",
           "type": "note",
           "label": "Dead Men Calling",
-          "text": "A widow reports receiving messages in what sounds like her late husband’s voice. Read the client’s email before drawing conclusions.",
+          "text": "A widow reports receiving messages in what sounds like her late husband's voice. Read the client's email before drawing conclusions.",
           "metaText": "Source: Classifieds",
           "color": "yellow",
           "x": 100,
@@ -203,7 +203,7 @@
       "id": "pi_dead_mail_preview",
       "kind": "side",
       "title": "Dead Mail",
-      "description": "Investigate Florence Finch’s false grave marker and the suspicious deliveries at Blackthorn Cemetery.",
+      "description": "Investigate Florence Finch's false grave marker and the suspicious deliveries at Blackthorn Cemetery.",
       "requiresBoard": true,
       "reward": 0,
       "objectives": [
@@ -246,6 +246,186 @@
         "contentVersion": 1,
         "accessMode": "integration_build",
         "cashReward": false
+      }
+    },
+    {
+      "id": "pi_grand_conspiracy",
+      "kind": "side",
+      "title": "The Midnight Gardener",
+      "description": "Elder Perkins demands proof that his neighbour Olga is up to something at midnight.",
+      "requiresBoard": true,
+      "reward": 100,
+      "objectives": [
+        {
+          "id": "watch_garden",
+          "text": "Watch Olga's garden at midnight without waking the hound."
+        },
+        {
+          "id": "photograph_activities",
+          "text": "Take three flashless photographs of what Olga is really doing."
+        },
+        {
+          "id": "report_perkins",
+          "text": "Deliver the evidence to Elder Perkins."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "classified-ad",
+          "type": "note",
+          "label": "The Midnight Gardener",
+          "text": "Elder Perkins claims his neighbour waters her garden at precisely midnight and wants photographic proof. He also misses his newspaper.",
+          "metaText": "Source: Classifieds",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "perkins-open-question",
+          "type": "note",
+          "label": "A routine is not a crime",
+          "text": "Odd habits are not evidence. What Olga actually does at midnight remains to be established by observation.",
+          "metaText": "Open question",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": false,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": [],
+      "metadata": {
+        "contentId": "grand_conspiracy",
+        "contentVersion": 1,
+        "implementedStage": "advert_only",
+        "photoMode": "stealth_focus",
+        "requiredItem": "camera"
+      }
+    },
+    {
+      "id": "pi_moms_not_proud",
+      "kind": "side",
+      "title": "Mom's Not Proud",
+      "description": "Vincenzo Moretti wants proof of the street artist painting the town — and refuses to believe it is his daughter.",
+      "requiresBoard": true,
+      "reward": 150,
+      "objectives": [
+        {
+          "id": "stakeout_downtown",
+          "text": "Stake out downtown and photograph the tagger in the act."
+        },
+        {
+          "id": "identify_artist",
+          "text": "Establish the identity of the 'Phantom' artist."
+        },
+        {
+          "id": "decide_fate",
+          "text": "Decide whether to give Raven to her father or protect her work."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "classified-ad",
+          "type": "note",
+          "label": "Mom's Not Proud",
+          "text": "Vincenzo Moretti, pizzeria owner, offers $150 for photographic proof of the street artist tagging the neighbourhood. He insists it is not his daughter Raven.",
+          "metaText": "Source: Classifieds",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "raven-open-question",
+          "type": "note",
+          "label": "A father's certainty",
+          "text": "Vincenzo is certain it is not Raven. Certainty without photographs is a family matter, not a case.",
+          "metaText": "Open question",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": false,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": [],
+      "metadata": {
+        "contentId": "moms_not_proud",
+        "contentVersion": 1,
+        "implementedStage": "advert_only",
+        "photoMode": "framing_zoom",
+        "requiredItem": "camera"
+      }
+    },
+    {
+      "id": "pi_short_shorts",
+      "kind": "side",
+      "title": "Who Wears Short Shorts?",
+      "description": "Insurance adjuster Ray Kolpon needs clear photographs of a claimant whose spine allegedly cannot support a fork.",
+      "requiresBoard": true,
+      "reward": 200,
+      "objectives": [
+        {
+          "id": "photograph_lifting",
+          "text": "Photograph Subject #4 lifting an object over 50kg."
+        },
+        {
+          "id": "photograph_face",
+          "text": "Photograph his face while he does it."
+        },
+        {
+          "id": "deliver_evidence",
+          "text": "Deliver both photographs to Ray Kolpon."
+        }
+      ],
+      "initialItems": [
+        {
+          "id": "classified-ad",
+          "type": "note",
+          "label": "Who Wears Short Shorts?",
+          "text": "Ray Kolpon of Kolpon & Sons Adjustments offers $200 for two clear photographs of Claimant #4, who collects disability while reportedly lifting refrigerators for cardio.",
+          "metaText": "Source: Classifieds",
+          "color": "yellow",
+          "x": 100,
+          "y": 100,
+          "pinned": true,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        },
+        {
+          "id": "kolpon-open-question",
+          "type": "note",
+          "label": "A report is not a spine",
+          "text": "Witnesses say he lifts refrigerators. Kolpon's paperwork says he cannot sit up. Photographs, not opinions, settle this.",
+          "metaText": "Open question",
+          "color": "blue",
+          "x": 420,
+          "y": 160,
+          "pinned": false,
+          "discovered": true,
+          "createdByPlayer": false,
+          "editableByPlayer": false
+        }
+      ],
+      "initialLinks": [],
+      "metadata": {
+        "contentId": "short_shorts",
+        "contentVersion": 1,
+        "implementedStage": "advert_only",
+        "photoMode": "multi_photo_combo",
+        "requiredItem": "camera"
       }
     }
   ]

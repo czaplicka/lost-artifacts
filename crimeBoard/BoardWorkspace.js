@@ -177,12 +177,13 @@ export function installBoardWorkspace(api, state, saved) {
   const addNote = document.createElement('button');
   addNote.type = 'button'; addNote.className = 'crime-board-btn'; addNote.textContent = '+ Add note';
   const hint = document.createElement('span');
+  hint.className = 'crime-board-hint';
   hint.textContent = 'Drag cards to arrange. Drag between pins to connect. Double-click your note to edit.';
   tools.append(addNote, hint);
+  // Functional rules only. All colours / fonts live in crime-board.css and crime-board-layout.css.
   const style = document.createElement('style');
   style.textContent = `
-    .crime-board-workspace-panel{background:#29231f;color:#f4e6cb;font:14px SpecialElite,monospace;border:1px solid #806645;margin:4px 0;position:relative;z-index:6}
-    .crime-board-workspace-panel>summary{cursor:pointer;padding:9px 12px;user-select:none}
+    .crime-board-workspace-panel{position:relative;z-index:6}
     .crime-board-workspace-panel:not([open])>.crime-board-workspace-panel__content{display:none!important}
     .crime-board-workspace-panel__content{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px}
     .crime-board-workspace-panel__content>.crime-board-deduction{width:100%;box-sizing:border-box}
@@ -210,18 +211,26 @@ export function installBoardWorkspace(api, state, saved) {
   };
 
   const dialog = document.createElement('dialog');
-  dialog.style.cssText = 'background:#e8d9b8;color:#241c15;border:3px solid #5d4031;max-width:90vw;width:420px;z-index:2147483647;font-family:SpecialElite,monospace;';
-  dialog.innerHTML = `<form method="dialog" style="display:grid;gap:12px">
-    <label>Title<input name="title" maxlength="120" style="display:block;width:100%;box-sizing:border-box"></label>
-    <label>Note<textarea name="text" rows="7" maxlength="8000" style="display:block;width:100%;box-sizing:border-box"></textarea></label>
-    <label>Colour<select name="color"><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="pink">Pink</option></select></label>
-    <div style="display:flex;gap:12px"><button value="save">Save note</button><button value="cancel" formnovalidate>Cancel</button><button type="button" data-delete>Delete note</button></div>
+  dialog.className = 'cb-note-dialog';
+  dialog.innerHTML = `<form method="dialog" class="cb-note-form">
+    <h2 class="cb-note-dialog__title">New note</h2>
+    <p class="cb-note-dialog__sub">Write something brilliant. Or at least plausible.</p>
+    <label class="cb-note-field"><span>Title</span><input name="title" maxlength="120"></label>
+    <label class="cb-note-field"><span>Note</span><textarea name="text" rows="7" maxlength="8000"></textarea></label>
+    <label class="cb-note-field"><span>Colour</span><select name="color"><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="pink">Pink</option></select></label>
+    <div class="cb-note-dialog__actions">
+      <button value="save" class="crime-board-btn">Save note</button>
+      <button value="cancel" formnovalidate class="crime-board-btn crime-board-btn--ghost">Cancel</button>
+      <button type="button" data-delete class="crime-board-btn crime-board-btn--danger">Delete note</button>
+    </div>
   </form>`;
   document.body.append(dialog);
   const form = dialog.querySelector('form');
+  const dialogTitle = dialog.querySelector('.cb-note-dialog__title');
   let editingId = null;
   const editNote = item => {
     editingId = item?.id || null;
+    dialogTitle.textContent = item ? 'Edit note' : 'New note';
     form.elements.title.value = item?.label || 'Detective note';
     form.elements.text.value = item?.text || '';
     form.elements.color.value = item?.color || 'yellow';

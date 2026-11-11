@@ -2519,6 +2519,191 @@
       "groups": [
         "backgrounds"
       ]
+    },
+    {
+      "key": "camera-flash",
+      "url": "assets/audio/camera-flash.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "card",
+      "url": "assets/audio/card.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "evidence_collect",
+      "url": "assets/audio/evidence_collect.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "kaching",
+      "url": "assets/audio/kaching.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "police-radio",
+      "url": "assets/audio/police-radio.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "police-siren",
+      "url": "assets/audio/police-siren.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "single-key",
+      "url": "assets/audio/single-key.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "stamp",
+      "url": "assets/audio/stamp.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "typing",
+      "url": "assets/audio/typing.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "lobby-under-construction",
+      "url": "assets/pi/business-center/lobby-under-construction.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "no-men",
+      "url": "assets/pi/business-center/no-men.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "singapore",
+      "url": "assets/cities/singapore.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_tokyo_briefing_photo",
+      "url": "assets/newspapers/newspapers/paper_tokyo_briefing_photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "paper_tokyo_heist_photo",
+      "url": "assets/newspapers/newspapers/paper_tokyo_heist_photo.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "25",
+      "url": "assets/side_quests/Grand Conspiracy/garden.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bag_onion",
+      "url": "assets/side_quests/Grand Conspiracy/bag_onion.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bag",
+      "url": "assets/side_quests/Grand Conspiracy/bag.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "dog",
+      "url": "assets/side_quests/Grand Conspiracy/dog.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "grandma",
+      "url": "assets/side_quests/Grand Conspiracy/grandma.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "newspaper",
+      "url": "assets/side_quests/Grand Conspiracy/newspaper.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "shovel",
+      "url": "assets/side_quests/Grand Conspiracy/shovel.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "wheelbarrow",
+      "url": "assets/side_quests/Grand Conspiracy/wheelbarrow.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "failed_arrest",
+      "url": "assets/video/failed_arrest.mp4",
+      "type": "video",
+      "groups": [
+        "videos"
+      ],
+      "noAudio": false
     }
   ]
 }

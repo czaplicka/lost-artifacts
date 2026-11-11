@@ -1,4 +1,5 @@
-/* Crime board layout: compact menus, horizontal motive checks. */
+/* Crime board layout: compact menus, horizontal motive checks.
+   Visual style matches crime-board.css (pixel-noir, brass trim, hard shadows). */
 .crime-board-app {
   position: relative;
   grid-template-rows: minmax(0, 1fr);
@@ -31,15 +32,18 @@
   transform: none;
   transform-origin: center;
   width: auto;
-  min-width: 76px;
+  min-width: 80px;
   min-height: 36px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 10px 10px 8px;
+  border-radius: 0;
+  font-size: 10px;
   line-height: 1.2;
 }
 .crime-board-app > .crime-board-sidebar-tab:hover {
   transform: none;
+}
+.crime-board-app > .crime-board-sidebar-tab:active {
+  transform: translateY(3px);
 }
 
 /* Both details elements float above the board; neither consumes a grid row. */
@@ -49,7 +53,7 @@
   top: 12px;
   bottom: auto;
   width: max-content !important;
-  max-width: 180px;
+  max-width: 200px;
   min-width: 0;
   height: auto;
   margin: 0 !important;
@@ -57,21 +61,25 @@
   align-self: start;
   justify-self: start;
   z-index: 1300 !important;
-  border: 1px solid #806645;
-  border-radius: 8px;
-  background: #29231f;
+  border: 3px solid var(--cb-wood-0, #0d0804);
+  border-radius: 0;
+  background: linear-gradient(180deg, #3a2a1b, #241a12);
   color: #f4e6cb;
   overflow: visible;
   font: 14px SpecialElite, monospace;
+  box-shadow:
+    inset 0 0 0 2px rgba(212, 175, 55, 0.35),
+    3px 4px 0 rgba(0, 0, 0, 0.45);
 }
-.crime-board-shell > .crime-board-workspace-panel { left: 104px; }
-.crime-board-app > .crime-board-workspace-panel { left: 248px; }
+.crime-board-shell > .crime-board-workspace-panel { left: 108px; }
+.crime-board-app > .crime-board-workspace-panel { left: 252px; }
+
 .crime-board-app .crime-board-workspace-panel > summary {
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 36px;
-  padding: 9px 12px;
+  padding: 10px 12px 8px;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -79,30 +87,34 @@
   font-size: 0;
 }
 .crime-board-workspace-panel > summary::-webkit-details-marker { display: none; }
+.crime-board-workspace-panel > summary:hover { background: rgba(212, 175, 55, 0.14); }
 .crime-board-app .crime-board-workspace-panel > summary::before {
   content: '+';
-  font-size: 16px;
-  line-height: 1;
+  color: var(--cb-gold-bright, #d4af37);
+  font: 400 12px/1 var(--cb-font-pixel, "PressStart2P", monospace);
 }
 .crime-board-app .crime-board-workspace-panel[open] > summary::before { content: '-'; }
 .crime-board-shell > .crime-board-workspace-panel > summary::after {
   content: 'Tools';
-  font-size: 14px;
+  font: 400 10px/1 var(--cb-font-pixel, "PressStart2P", monospace);
+  text-transform: uppercase;
 }
 .crime-board-app > .crime-board-workspace-panel > summary::after {
   content: 'Motive checks';
-  font-size: 14px;
+  font: 400 10px/1 var(--cb-font-pixel, "PressStart2P", monospace);
+  text-transform: uppercase;
 }
 .crime-board-workspace-panel > summary:focus-visible {
-  outline: 2px solid #ffd36c;
+  outline: 3px dashed var(--cb-gold-bright, #d4af37);
   outline-offset: 3px;
 }
+
 .crime-board-app .crime-board-workspace-panel:not([open]) > .crime-board-workspace-panel__content {
   display: none !important;
 }
 .crime-board-app .crime-board-workspace-panel[open] > .crime-board-workspace-panel__content {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   display: flex;
   align-items: center;
   flex-flow: row wrap;
@@ -110,21 +122,31 @@
   max-height: min(440px, 65vh);
   padding: 12px;
   margin: 0;
-  background: #29231f;
+  background: linear-gradient(180deg, #2f2318, #1d140d);
   color: #f4e6cb;
-  border: 1px solid #806645;
-  border-radius: 8px;
-  box-shadow: 0 12px 26px rgba(0,0,0,.45);
+  border: 3px solid var(--cb-wood-0, #0d0804);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px rgba(212, 175, 55, 0.3),
+    5px 6px 0 rgba(0, 0, 0, 0.5);
   overflow: auto;
   box-sizing: border-box;
 }
 .crime-board-shell > .crime-board-workspace-panel > .crime-board-workspace-panel__content {
-  left: -88px;
+  left: -92px;
   width: min(380px, calc(100vw - 72px));
 }
 .crime-board-app > .crime-board-workspace-panel > .crime-board-workspace-panel__content {
-  left: -232px;
+  left: -236px;
   width: min(660px, calc(100vw - 72px));
+}
+
+/* Tool hint text next to "+ Add note". */
+.crime-board-hint {
+  flex: 1 1 200px;
+  color: #d6c1a0;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 /* Horizontal layout, including the existing inline-styled deduction panel. */
@@ -138,6 +160,10 @@
   margin: 0 !important;
   padding: 12px !important;
   box-sizing: border-box;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  font-family: SpecialElite, serif !important;
 }
 .crime-board-app .crime-board-deduction > p:first-child {
   grid-column: 1;
@@ -155,13 +181,40 @@
   min-height: 36px;
   margin: 0;
   white-space: normal;
-  line-height: 1.35;
+  line-height: 1.4;
+  background: var(--cb-gold-bright, #d4af37) !important;
+  color: #21190e !important;
+  border: 3px solid var(--cb-wood-0, #0d0804) !important;
+  border-radius: 0 !important;
+  font: 400 10px/1.4 var(--cb-font-pixel, "PressStart2P", monospace) !important;
+  text-transform: uppercase;
+  box-shadow:
+    inset 3px 3px 0 rgba(255, 245, 200, 0.45),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.25),
+    0 3px 0 var(--cb-wood-0, #0d0804);
+}
+.crime-board-app .crime-board-deduction > button:hover:not(:disabled) {
+  background: #e8c55a !important;
+}
+.crime-board-app .crime-board-deduction > button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 3px 3px 0 rgba(255, 245, 200, 0.45),
+    inset -3px -3px 0 rgba(0, 0, 0, 0.25),
+    0 0 0 var(--cb-wood-0, #0d0804);
+}
+.crime-board-app .crime-board-deduction > button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .crime-board-app .crime-board-deduction > p[role='status'] {
   grid-column: 1 / -1;
   grid-row: 2;
   min-width: 0;
   margin: 0 !important;
+  padding: 8px 10px;
+  border-left: 5px solid var(--cb-gold-dim, #8d6b31);
+  background: rgba(0, 0, 0, 0.25);
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -172,6 +225,11 @@
   left: 16px;
   z-index: 1300 !important;
   width: min(660px, calc(100% - 32px)) !important;
+  background: linear-gradient(180deg, #2f2318, #1d140d) !important;
+  border: 3px solid var(--cb-wood-0, #0d0804) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(212, 175, 55, 0.3),
+    5px 6px 0 rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 1100px) {
@@ -199,6 +257,6 @@
   .crime-board-app .crime-board-deduction > button {
     max-width: 100%;
     padding: 8px !important;
-    font-size: 11px !important;
+    font-size: 9px !important;
   }
 }

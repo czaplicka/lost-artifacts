@@ -5,7 +5,7 @@
       "kind": "pi",
       "title": "Dead Mail",
       "contact": "Florence Finch",
-      "description": "A courier delivered a parcel to my grave. I would like to complain in person.\n\nThe marker has my name, my date of birth and tomorrow’s date as the day I die. I remain alive and would prefer to keep it that way.\n\nA discreet investigator is required. Please do not send flowers.",
+      "description": "A courier delivered a parcel to my grave. I would like to complain in person.\n\nThe marker has my name, my date of birth and tomorrow's date as the day I die. I remain alive and would prefer to keep it that way.\n\nA discreet investigator is required. Please do not send flowers.",
       "reward": null,
       "missionId": "pi_dead_mail_preview"
     },
@@ -26,6 +26,36 @@
       "description": "Three strangers claim they were having dinner with me on Tuesday.\n\nI ate alone. I would like to know why I suddenly have friends.",
       "reward": 180,
       "missionId": "pi_stolen_alibi"
+    },
+    {
+      "id": "grand_conspiracy",
+      "kind": "pi",
+      "title": "The Midnight Gardener",
+      "contact": "Elder Perkins",
+      "description": "My neighbour waters her garden at PRECISELY midnight. Nobody does that without a reason.\n\nAlso, where is my newspaper? Photographs required. Bring your own camera, opinions and a healthy fear of dogs.",
+      "reward": 100,
+      "missionId": "pi_grand_conspiracy",
+      "requiresItem": "camera"
+    },
+    {
+      "id": "moms_not_proud",
+      "kind": "pi",
+      "title": "Mom's Not Proud",
+      "contact": "V. Moretti, pizzeria owner",
+      "description": "Somebody paints masterpieces on my walls. And on the mayor's walls. The mayor disagrees about 'masterpieces'.\n\nI need photographic proof before the Health Inspector visits. It is NOT my daughter. Do not tell my daughter.",
+      "reward": 150,
+      "missionId": "pi_moms_not_proud",
+      "requiresItem": "camera"
+    },
+    {
+      "id": "short_shorts",
+      "kind": "pi",
+      "title": "Who Wears Short Shorts?",
+      "contact": "R. Kolpon, Kolpon & Sons Adjustments",
+      "description": "Claimant #4 has not lifted a fork since June. Yet witnesses report a man his size carrying a refrigerator up three flights of stairs. Twice. For cardio.\n\nWe require two clear photographs, legally obtained. Or at least quietly.",
+      "reward": 200,
+      "missionId": "pi_short_shorts",
+      "requiresItem": "camera"
     },
     {
       "id": "delayed_mirror",

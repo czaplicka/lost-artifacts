@@ -1,3 +1,5 @@
+import { BaseScene } from './BaseScene.js';
+
 import {
   FailedAlibiArrestOverlayScene
 } from './FailedAlibiArrestOverlayScene.js';
@@ -8,6 +10,7 @@ import {
 } from '../gameStatePersistence.js';
 
 const SCENE_KEY = 'EmptyApartmentArrestOverlayScene';
+const VIDEO_PATH = 'assets/video/failed_arrest.mp4';
 
 const pendingLaunches = new WeakMap();
 
@@ -30,9 +33,7 @@ function cancelPendingLaunch(scene) {
 }
 
 function scheduleLaunchAfterCreate(scene) {
-  if (pendingLaunches.has(scene)) {
-    return true;
-  }
+  if (pendingLaunches.has(scene)) return true;
 
   const onReady = () => {
     cancelPendingLaunch(scene);
@@ -83,46 +84,268 @@ export class EmptyApartmentArrestOverlayScene
 
     this.completed = false;
     this.apartmentRestored = false;
+
+    this.videoLayer = null;
+    this.videoElement = null;
+    this.videoButton = null;
+    this.videoMessage = null;
+
+    this.videoDisposed = false;
+    this.playAttempt = 0;
+  }
+
+  preload() {
+    // This scene uses an HTML video, not the old agent artwork.
   }
 
   create() {
-    super.create();
+    // Initialise BaseScene without creating the inherited animation.
+    BaseScene.prototype.create.call(this);
+
+    this.input.setTopOnly(true);
+
+    this.captureHud();
+    this.hideOperationHud();
+
+    const parent = this.getRegisteredScene(
+      this.parentSceneKey
+    );
+
+    this.parentWasPaused =
+      this.scene.isPaused(this.parentSceneKey);
+
+    if (
+      parent &&
+      this.scene.isActive(this.parentSceneKey)
+    ) {
+      this.parentPausedByOperation = true;
+      this.scene.pause(this.parentSceneKey);
+    }
 
     this.events.once(
       Phaser.Scenes.Events.SHUTDOWN,
-      () => this.restoreApartment()
+      () => {
+        this.disposeVideo();
+        this.restoreApartment();
+      }
     );
+
+    this.createVideoLayer();
+    this.scene.bringToTop();
+
+    void this.playVideo();
   }
 
-  createLabels() {
-    super.createLabels();
+  createVideoLayer() {
+    const layer = document.createElement('div');
 
-    this.retryButton.setText(
-      'RETRY OPENING APARTMENT'
-    );
+    Object.assign(layer.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: '10000',
+      background: '#000',
+      overflow: 'hidden',
+      pointerEvents: 'auto'
+    });
+
+    const video = document.createElement('video');
+
+    video.src = new URL(
+      VIDEO_PATH,
+      document.baseURI
+    ).href;
+
+    video.preload = 'auto';
+    video.playsInline = true;
+    video.controls = false;
+    video.loop = false;
+    video.muted = false;
+    video.disablePictureInPicture = true;
+
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+
+    Object.assign(video.style, {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain',
+      background: '#000'
+    });
+
+    const message = document.createElement('div');
+
+    Object.assign(message.style, {
+      position: 'absolute',
+      left: '24px',
+      right: '24px',
+      top: '45%',
+      color: '#f4e3bc',
+      textAlign: 'center',
+      fontFamily: 'SpecialElite, monospace',
+      fontSize: '22px',
+      pointerEvents: 'none'
+    });
+
+    message.textContent = 'Loading...';
+
+    const button = document.createElement('button');
+
+    Object.assign(button.style, {
+      position: 'absolute',
+      left: '50%',
+      top: '60%',
+      transform: 'translate(-50%, -50%)',
+      padding: '16px 24px',
+      border: '2px solid #a58655',
+      background: '#241e19',
+      color: '#f4e3bc',
+      fontFamily: 'PressStart2P, monospace',
+      fontSize: '12px',
+      cursor: 'pointer',
+      display: 'none'
+    });
+
+    button.textContent = 'PLAY';
+
+    button.onclick = () => {
+      if (this.finishing || this.videoDisposed) return;
+
+      if (this.videoElement?.error) {
+        this.videoElement.load();
+      }
+
+      void this.playVideo();
+    };
+
+    const skip = document.createElement('button');
+
+    Object.assign(skip.style, {
+      position: 'absolute',
+      right: '20px',
+      bottom: '20px',
+      padding: '12px 16px',
+      border: '1px solid #a58655',
+      background: 'rgba(0, 0, 0, 0.65)',
+      color: '#ead1a0',
+      fontFamily: 'PressStart2P, monospace',
+      fontSize: '10px',
+      cursor: 'pointer'
+    });
+
+    skip.textContent = 'SKIP';
+
+    skip.onclick = () => {
+      void this.finishToGameOver();
+    };
+
+    video.onplaying = () => {
+      if (this.videoDisposed) return;
+
+      message.textContent = '';
+      button.style.display = 'none';
+    };
+
+    video.onended = () => {
+      void this.finishToGameOver();
+    };
+
+    video.onerror = () => {
+      this.showVideoPrompt(
+        'The video could not be loaded. Retry or skip.',
+        'RETRY'
+      );
+    };
+
+    layer.append(video, message, button, skip);
+
+    // Keep the video inside fullscreen when the game uses it.
+    const fullscreenHost = document.fullscreenElement;
+
+    const host =
+      fullscreenHost instanceof HTMLElement &&
+      fullscreenHost !== this.game.canvas
+        ? fullscreenHost
+        : document.body;
+
+    host.appendChild(layer);
+
+    this.videoLayer = layer;
+    this.videoElement = video;
+    this.videoButton = button;
+    this.videoMessage = message;
   }
 
-  startReturn() {
+  showVideoPrompt(message, buttonText) {
     if (
+      this.videoDisposed ||
       this._cleanupDone ||
+      this.finishing ||
       this.finished
     ) {
       return;
     }
 
-    super.startReturn();
+    this.videoMessage.textContent = message;
+    this.videoButton.textContent = buttonText;
+    this.videoButton.style.display = 'block';
+  }
 
-    this.statusText.setText(
-      'SUSPECT HAS ALREADY ESCAPED'
-    );
+  async playVideo() {
+    if (
+      this.videoDisposed ||
+      this._cleanupDone ||
+      this.finishing ||
+      this.finished
+    ) {
+      return;
+    }
 
-    this.caption.setText(
-      'Right address. Missing thief. ' +
-      'The furniture refuses to testify.'
-    );
+    const attempt = ++this.playAttempt;
+
+    this.videoButton.style.display = 'none';
+    this.videoMessage.textContent = 'Loading...';
+
+    try {
+      await this.videoElement.play();
+    } catch (error) {
+      if (
+        attempt !== this.playAttempt ||
+        this.videoDisposed ||
+        this._cleanupDone
+      ) {
+        return;
+      }
+
+      if (error?.name === 'NotAllowedError') {
+        this.showVideoPrompt(
+          'Click to play.',
+          'PLAY'
+        );
+
+        return;
+      }
+
+      console.warn(
+        '[EmptyApartmentArrest] Video playback failed:',
+        error
+      );
+
+      this.showVideoPrompt(
+        'The video could not be played. Retry or skip.',
+        'RETRY'
+      );
+    }
+  }
+
+  update() {
+    this.hideOperationHud();
+    this.scene.bringToTop();
   }
 
   async finishToGameOver() {
+    // Keep the existing method name used by this overlay.
+    // A correct address leads to the apartment, not Game Over.
     if (
       this.finishing ||
       this.finished ||
@@ -132,7 +355,9 @@ export class EmptyApartmentArrestOverlayScene
     }
 
     this.finishing = true;
-    this.retryButton.setVisible(false);
+    this.playAttempt += 1;
+
+    this.videoElement?.pause();
 
     try {
       const apartment = this.getRegisteredScene(
@@ -176,13 +401,35 @@ export class EmptyApartmentArrestOverlayScene
 
       this.finishing = false;
 
-      this.caption.setText(
-        'The apartment search could not be opened. ' +
-        'Please try again.'
+      this.showVideoPrompt(
+        'The apartment search could not be opened. Press SKIP to retry.',
+        'REPLAY'
       );
-
-      this.retryButton.setVisible(true);
     }
+  }
+
+  disposeVideo() {
+    if (this.videoDisposed) return;
+
+    this.videoDisposed = true;
+    this.playAttempt += 1;
+
+    if (this.videoElement) {
+      this.videoElement.onplaying = null;
+      this.videoElement.onended = null;
+      this.videoElement.onerror = null;
+
+      this.videoElement.pause();
+      this.videoElement.removeAttribute('src');
+      this.videoElement.load();
+    }
+
+    this.videoLayer?.remove();
+
+    this.videoElement = null;
+    this.videoLayer = null;
+    this.videoButton = null;
+    this.videoMessage = null;
   }
 
   restoreApartment() {
@@ -205,9 +452,7 @@ export class EmptyApartmentArrestOverlayScene
       return;
     }
 
-    if (
-      this.scene.isPaused(this.parentSceneKey)
-    ) {
+    if (this.scene.isPaused(this.parentSceneKey)) {
       this.scene.resume(this.parentSceneKey);
     }
 
@@ -236,21 +481,15 @@ export async function launchEmptyApartmentArrest(scene) {
     return false;
   }
 
-  // mount() calls this during ApartmentScene.create().
-  // Wait until the apartment reaches its first update.
   if (
     scene.sys.settings.status === Phaser.Scenes.CREATING
   ) {
     return scheduleLaunchAfterCreate(scene);
   }
 
-  if (!scene.sys.isActive()) {
-    return false;
-  }
+  if (!scene.sys.isActive()) return false;
 
-  if (scene._arrestIntroOpening) {
-    return false;
-  }
+  if (scene._arrestIntroOpening) return false;
 
   const visit = scene.getProgress().arrestVisit;
 

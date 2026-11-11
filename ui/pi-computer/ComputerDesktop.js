@@ -1,5 +1,6 @@
 import { COLORS, FONTS } from './ComputerTheme.js';
 import { formatStampDate } from '../../managers/PassportManager.js';
+import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
 
 const INK = 0x1b2530;
 
@@ -51,15 +52,17 @@ export class ComputerDesktop {
       );
     });
 
-    this.createIcon(
-      x + 152,
-      y + THIEFDOKU_ICON_Y,
-      128,
-      'Thiefdoku',
-      'boards',
-      0xd9a7b5,
-      () => ui.openApp('thiefdoku')
-    );
+        if (thiefdokuService.isInstalled()) {
+      this.createIcon(
+        x + 152,
+        y + THIEFDOKU_ICON_Y,
+        128,
+        'Thiefdoku',
+        'boards',
+        0xd9a7b5,
+        () => ui.openApp('thiefdoku')
+      );
+    }
 
     this.createIcon(
       x + 152,

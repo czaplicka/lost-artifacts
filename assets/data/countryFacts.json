@@ -1,6 +1,12 @@
 {
   "warsaw": {
-    "currency": { "name": "zloty", "symbol": "z\u0142", "pennies": "groszy", "nickname": "translates literally to 'gold'", "oldCurrency": null },
+    "currency": {
+      "name": "zloty",
+      "symbol": "zł",
+      "pennies": "groszy",
+      "nickname": "translates literally to 'gold'",
+      "oldCurrency": null
+    },
     "coinSymbol": "a crowned white eagle",
     "wildlife": "a massive primeval forest where wild European bison roam free",
     "cityRiver": "a river that splits the city right down the middle",
@@ -23,7 +29,16 @@
     "mountainFact": "a mountain range with the highest peaks between the Alps and the Caucasus"
   },
   "paris": {
-    "currency": { "name": "euro", "symbol": "\u20ac", "pennies": "cents", "nickname": "the single currency shared by many European neighbors", "oldCurrency": { "name": "franc", "originFact": "named after a Latin phrase meaning 'king of a people', stamped on a coin used to ransom a captured king" } },
+    "currency": {
+      "name": "euro",
+      "symbol": "€",
+      "pennies": "cents",
+      "nickname": "the single currency shared by many European neighbors",
+      "oldCurrency": {
+        "name": "franc",
+        "originFact": "named after a Latin phrase meaning 'king of a people', stamped on a coin used to ransom a captured king"
+      }
+    },
     "coinSymbol": "a king riding a horse",
     "wildlife": "a mountain range that also lends its name to a large white dog breed",
     "cityRiver": "a river that runs past a cathedral famous for its gargoyles and a hunchback story",
@@ -46,7 +61,16 @@
     "mountainFact": "the highest peak in Western Europe, snow-capped year-round near the border with two other countries"
   },
   "london": {
-    "currency": { "name": "pound sterling", "symbol": "\u00a3", "pennies": "pence", "nickname": "gets its name from the weight of a pound of pure sterling silver", "oldCurrency": { "name": "guinea", "originFact": "named after a region in West Africa, where the gold used to mint the original coin came from" } },
+    "currency": {
+      "name": "pound sterling",
+      "symbol": "£",
+      "pennies": "pence",
+      "nickname": "gets its name from the weight of a pound of pure sterling silver",
+      "oldCurrency": {
+        "name": "guinea",
+        "originFact": "named after a region in West Africa, where the gold used to mint the original coin came from"
+      }
+    },
     "coinSymbol": "a helmeted woman holding a trident and shield",
     "wildlife": "a deep loch reputed to be home to a legendary monster",
     "cityRiver": "a river crossed by a bascule bridge that splits open to let tall ships pass",
@@ -69,7 +93,13 @@
     "mountainFact": "the highest peak on the whole island, modest by world standards but popular with hikers"
   },
   "new_delhi": {
-    "currency": { "name": "rupee", "symbol": "\u20b9", "pennies": "paise", "nickname": "comes from a Sanskrit word meaning 'wrought silver'", "oldCurrency": null },
+    "currency": {
+      "name": "rupee",
+      "symbol": "₹",
+      "pennies": "paise",
+      "nickname": "comes from a Sanskrit word meaning 'wrought silver'",
+      "oldCurrency": null
+    },
     "coinSymbol": "four lions standing back to back atop a stone pillar",
     "wildlife": "a reserve protecting one of the last wild tiger populations left in the world",
     "cityRiver": "a river flowing past the walls of an old red sandstone fort",
@@ -92,7 +122,16 @@
     "mountainFact": "the world's tallest mountain range, home to the highest peak on Earth"
   },
   "berlin": {
-    "currency": { "name": "euro", "symbol": "\u20ac", "pennies": "cents", "nickname": "the single currency shared by many European neighbors", "oldCurrency": { "name": "mark", "originFact": "named after a medieval unit of weight once used by traders to measure silver" } },
+    "currency": {
+      "name": "euro",
+      "symbol": "€",
+      "pennies": "cents",
+      "nickname": "the single currency shared by many European neighbors",
+      "oldCurrency": {
+        "name": "mark",
+        "originFact": "named after a medieval unit of weight once used by traders to measure silver"
+      }
+    },
     "coinSymbol": "an eagle with fully outstretched wings",
     "wildlife": "wild boars that occasionally wander right into city parks and gardens",
     "cityRiver": "a river once split by a wall for decades, now flowing freely with cyclists on both banks",
@@ -115,7 +154,13 @@
     "mountainFact": "the country's highest peak, popular for skiing near the southern border"
   },
   "new_york_city": {
-    "currency": { "name": "dollar", "symbol": "$", "pennies": "cents", "nickname": "nicknamed 'the greenback' for the green ink on its paper notes", "oldCurrency": null },
+    "currency": {
+      "name": "dollar",
+      "symbol": "$",
+      "pennies": "cents",
+      "nickname": "nicknamed 'the greenback' for the green ink on its paper notes",
+      "oldCurrency": null
+    },
     "coinSymbol": "a bald eagle clutching an olive branch and a bundle of arrows",
     "wildlife": "the American bison, once nearly hunted to extinction, now the national mammal",
     "cityRiver": "a river separating two boroughs, spanned by a stone-towered suspension bridge",
@@ -138,7 +183,13 @@
     "mountainFact": "an old, worn mountain range along the eastern part of the country"
   },
   "toronto": {
-    "currency": { "name": "Canadian dollar", "symbol": "C$", "pennies": "cents", "nickname": "nicknamed after a diving waterbird pictured on the one-dollar coin", "oldCurrency": null },
+    "currency": {
+      "name": "Canadian dollar",
+      "symbol": "C$",
+      "pennies": "cents",
+      "nickname": "nicknamed after a diving waterbird pictured on the one-dollar coin",
+      "oldCurrency": null
+    },
     "coinSymbol": "a loon, a diving waterbird, swimming across the coin's face",
     "wildlife": "a red maple leaf from a tree tapped every spring for sweet syrup",
     "cityRiver": "one of the largest freshwater lakes in the world, bordering the city's southern edge",
@@ -161,7 +212,13 @@
     "mountainFact": "a mountain range along the western edge of the country, famous for ski resorts"
   },
   "kotte": {
-    "currency": { "name": "Sri Lankan rupee", "symbol": "Rs", "pennies": "cents", "nickname": "shares its name and silver-based origin with several neighboring currencies", "oldCurrency": null },
+    "currency": {
+      "name": "Sri Lankan rupee",
+      "symbol": "Rs",
+      "pennies": "cents",
+      "nickname": "shares its name and silver-based origin with several neighboring currencies",
+      "oldCurrency": null
+    },
     "coinSymbol": "a lion holding a sword, taken straight from the national flag",
     "wildlife": "the largest land animal in Asia, still used ceremonially in temple processions here",
     "cityRiver": "a wetland sanctuary surrounding an old royal capital, now protected as a bird habitat",
@@ -184,7 +241,13 @@
     "mountainFact": "a sacred peak pilgrims climb overnight to watch the sunrise from the summit"
   },
   "islamabad": {
-    "currency": { "name": "Pakistani rupee", "symbol": "Rs", "pennies": "paisa", "nickname": "shares its name and silver-based origin with several neighboring currencies", "oldCurrency": null },
+    "currency": {
+      "name": "Pakistani rupee",
+      "symbol": "Rs",
+      "pennies": "paisa",
+      "nickname": "shares its name and silver-based origin with several neighboring currencies",
+      "oldCurrency": null
+    },
     "coinSymbol": "a crescent moon beside a five-pointed star",
     "wildlife": "a wild goat with long, corkscrew-shaped horns, found high in the mountains",
     "cityRiver": "a planned city built from scratch decades ago, backed by forested hills",
@@ -207,7 +270,13 @@
     "mountainFact": "home to some of the tallest and most dangerous peaks on Earth, including the world's second-highest mountain"
   },
   "nairobi": {
-    "currency": { "name": "Kenyan shilling", "symbol": "KSh", "pennies": "cents", "nickname": "named after an old East African trading coin used long before independence", "oldCurrency": null },
+    "currency": {
+      "name": "Kenyan shilling",
+      "symbol": "KSh",
+      "pennies": "cents",
+      "nickname": "named after an old East African trading coin used long before independence",
+      "oldCurrency": null
+    },
     "coinSymbol": "a rooster holding an axe, a symbol from the fight for independence",
     "wildlife": "the 'big five' game animals, all viewable within a short drive of the city center",
     "cityRiver": "a river valley cutting through the city center, lined with busy informal markets",
@@ -230,7 +299,16 @@
     "mountainFact": "the second-highest mountain on its continent, its peak capped with retreating glaciers near the equator"
   },
   "tokyo": {
-    "currency": { "name": "yen", "symbol": "\u00a5", "pennies": null, "nickname": "the character for this currency also means 'round object'", "oldCurrency": { "name": "sen", "originFact": "a subunit worth one-hundredth of a yen, phased out decades ago for being worth too little to use" } },
+    "currency": {
+      "name": "yen",
+      "symbol": "¥",
+      "pennies": null,
+      "nickname": "the character for this currency also means 'round object'",
+      "oldCurrency": {
+        "name": "sen",
+        "originFact": "a subunit worth one-hundredth of a yen, phased out decades ago for being worth too little to use"
+      }
+    },
     "coinSymbol": "a chrysanthemum flower, the imperial family's official emblem",
     "wildlife": "a red-faced monkey often seen bathing in hot springs during winter",
     "cityRiver": "a bridge once used as the official starting point for measuring all road distances in the country",
@@ -251,5 +329,34 @@
     "airlineName": "the flag carrier",
     "airlineLogoFact": "a red crane folded into a circular emblem on the tail",
     "mountainFact": "a near-perfectly symmetrical volcanic peak, the country's tallest and most photographed mountain"
+  },
+  "singapore": {
+    "currency": {
+      "name": "dollar",
+      "symbol": "S$",
+      "pennies": "cents",
+      "nickname": "issued by an island city-state and interchangeable at par with the Brunei dollar",
+      "oldCurrency": null
+    },
+    "coinSymbol": "a coat of arms supported by a lion and a tiger, with local flowers on the other side",
+    "wildlife": "long-tailed macaques living near a tropical rainforest reserve",
+    "cityRiver": "a short river lined with shophouses at Boat Quay, near a fountain shaped like a lion with a fish tail",
+    "famousPerson": "a founding prime minister named Lee Kuan Yew, who led an island city-state through independence",
+    "artStyle": "Nanyang paintings combining Chinese artistic traditions with Western painting techniques and tropical subjects",
+    "craftGood": "Peranakan beadwork and embroidered kebaya blouses",
+    "exportGood": "electronics and goods passing through a major trading port beside the Strait of Malacca",
+    "foodIngredient": "poached chicken served with fragrant rice, chilli sauce and ginger",
+    "specialtyDish": "chilli crab with a rich tomato-and-chilli sauce",
+    "flagColors": "red above white, with a white crescent and five white stars",
+    "traditionFact": "Peranakan traditions combining Chinese and Malay influences",
+    "guidebookNote": "a white Merlion fountain: a lion head on a fish body, near the mouth of a busy river",
+    "classicCar": "a boxy taxi driving past shophouses and the Merlion waterfront",
+    "drivingFact": "left-hand traffic on the island city-state south of the Malay Peninsula",
+    "callingCode": "+65",
+    "utcOffsetFact": "eight hours ahead of Greenwich, with no daylight saving time",
+    "plugType": "a British-style plug with three rectangular pins",
+    "airlineName": "the national carrier with a golden bird emblem",
+    "airlineLogoFact": "a golden bird on a dark blue tail",
+    "mountainFact": "a low tropical hill called Bukit Timah rather than a mountain range"
   }
 }

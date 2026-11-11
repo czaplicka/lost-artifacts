@@ -1,5 +1,6 @@
 import { ThiefdokuPuzzle } from '../../systems/thiefdoku/ThiefdokuPuzzle.js';
 import { ComputerThiefdokuArt } from './ComputerThiefdokuArt.js';
+import { thiefdokuService } from '../../systems/thiefdoku/ThiefdokuService.js';
 
 const ROOM_SHORT={bathroom:'BATH',kitchen:'KITCHEN',bedroom:'BEDROOM',living:'LOUNGE',study:'STUDY',dining:'DINING',guest_room:'GUEST',laundry:'LAUNDRY',conservatory:'GARDEN',attic:'ATTIC',gallery:'GALLERY',sculpture_hall:'SCULPTURE',archive:'ARCHIVE',restoration_lab:'LAB',museum_reception:'LOBBY',gift_shop:'SHOP',security:'SECURITY',exhibit_hall:'EXHIBITS',museum_kitchen:'KITCHEN',museum_bathroom:'WC',reception:'RECEPTION',open_office:'CUBICLES',conference:'MEETING',office_kitchen:'KITCHEN',ceo_office:'CEO',library:'LIBRARY',copy_room:'COPIER',accounts:'ACCOUNTS',break_room:'BREAK',office_bathroom:'WC'};
 
@@ -20,20 +21,35 @@ export class ComputerThiefdoku {
   this.art.text(x+w/2,y+6,label,11,enabled?'#302833':'#8c8278').setOrigin(0.5,0);
   if(enabled)this.hit(x,y,w,25,callback);
  }
+ judge(id){
+  const result=this.puzzle.submitGuess(id);
+  if(result.status==='success')thiefdokuService.addMedal(1);
+  return result;
+ }
  reset(){
-  if(this.destroyed)return;this.puzzle.reset();this.page=0;this.statementPage={};this.accused=null;
+  if(this.destroyed)return;
+  thiefdokuService.markCaseTaken();
+  this.puzzle.reset();this.page=0;this.statementPage={};this.accused=null;
   this.confirmNew=false;this.tool='place';this.offsetRow=0;this.offsetCol=0;this.zoom=false;
   this.feedback='A new theft. A fresh floor plan. Same suspicious people.';this.ui.render();
  }
- requestNew(){if(this.puzzle.completed||this.puzzle.failed||this.confirmNew){this.reset();return;}this.confirmNew=true;this.feedback='Discard this case? Click CONFIRM NEW again.';this.ui.render();}
+ requestNew(){
+  if(this.destroyed)return;
+  if(this.puzzle.completed||this.puzzle.failed||this.confirmNew){
+   if(!thiefdokuService.canTakeNewCase()){this.feedback='One board a day. The Chief is not a vending machine. Come back tomorrow.';this.ui.render();return;}
+   this.reset();return;
+  }
+  this.confirmNew=true;this.feedback='Discard this case? Click CONFIRM NEW again.';this.ui.render();
+ }
  render(){
   if(this.destroyed||!this.ui.window)return;
   const b=this.ui.window,a=this.art,s=this.puzzle.getState();if(!s.allPlaced)this.accused=null;
+  if(!s.completed&&!s.failed&&(s.placedCount>0||s.attempts>0)&&thiefdokuService.canTakeNewCase())thiefdokuService.markCaseTaken();
   const x=b.x+12,y=b.y+43,w=b.w-24,h=b.h-84,bg=a.graphic();bg.fillStyle(0xf1ebe5,1);bg.fillRect(x,y,w,h);
   if(w<720||h<460){a.text(x+20,y+20,'Enlarge the Thiefdoku window to see the floor plan.',15,'#302833',w-40);return;}
   a.text(x+12,y+5,'THIEFDOKU',22,'#292632');
   a.text(x+185,y+9,`${s.themeName} | ${s.size} x ${s.size} | ${s.size} rooms`,12);
-  a.text(x+185,y+25,`People ${s.placedCount}/${s.people.length} | Cases solved: ${s.solved}`,11,'#65515e');
+  a.text(x+185,y+25,`People ${s.placedCount}/${s.people.length} | Cases solved: ${s.solved} | Medals: ${thiefdokuService.getMedals()}`,11,'#65515e');
   a.text(x+12,y+45,`Missing: ${s.stolenItem}. The empty display is in the ${s.roomNames[s.theftRoom].toLowerCase()}.`,12,'#5b474b',w-24);
   const leftW=Math.min(354,Math.floor(w*0.38)),cardY=y+76,cardH=Math.floor((h-150)/2),gap=10;
   const cardW=Math.floor((leftW-gap)/2),perPage=4,pages=Math.ceil(s.people.length/perPage);this.page=Math.max(0,Math.min(this.page,pages-1));
@@ -43,7 +59,7 @@ export class ComputerThiefdoku {
   this.button(x+leftW-52,navY,55,'NEXT',()=>{this.page++;this.ui.render();},{enabled:this.page<pages-1});
   const availableW=w-leftW-85,side=Math.floor(Math.min(h-139,availableW)),bx=x+leftW+29+(availableW-side)/2,by=y+85;
   this.drawBoard(bx,by,side,s);this.drawTools(x+w-48,by,s);
-  a.text(bx,by+side+8,'One per row, column AND room. Pale X: automatic. Dark X: your notes.',10,'#5b474b',side);
+  a.text(bx,by+side+8,'One per row, column AND room. Pale X: automatic. Dark X: your own notes.',10,'#5b474b',side);
   if(this.help)this.drawHelp(bx,by,side,s);
   const footerY=y+h-32;
   this.button(x+10,footerY,108,s.completed?'NEXT CASE':this.confirmNew?'CONFIRM NEW':'NEW CASE',()=>this.requestNew());
@@ -88,7 +104,7 @@ export class ComputerThiefdoku {
   if(s.allPlaced)this.button(x+7,y+h-29,w-14,cleared?'CLEARED':chosen?'ACCUSE '+p.name:'SUSPECT',()=>{
    if(!this.puzzle.allPlaced()){this.accused=null;this.feedback='Place everyone first.';this.ui.render();return;}
    this.confirmNew=false;
-   if(this.accused===p.id){this.feedback=this.puzzle.submitGuess(p.id).message;this.accused=null;}
+   if(this.accused===p.id){this.feedback=this.judge(p.id).message;this.accused=null;}
    else{this.accused=p.id;this.feedback=`Accuse ${p.name}? Click ACCUSE on this card to confirm.`;}
    this.ui.render();
   },{enabled:!locked&&!cleared,active:chosen});
@@ -198,6 +214,6 @@ export class ComputerThiefdoku {
   this.button(x+20,y+side-47,60,'CLOSE',()=>{this.help=false;this.ui.render();});
   this.button(x+side-95,y+side-47,75,`${this.helpPage+1}/3 NEXT`,()=>{this.helpPage=(this.helpPage+1)%3;this.ui.render();});
  }
- checkBoard(){if(this.destroyed)return;this.feedback=this.puzzle.submitGuess(this.accused).message;this.accused=null;this.ui.render();}
+ checkBoard(){if(this.destroyed)return;this.feedback=this.judge(this.accused).message;this.accused=null;this.ui.render();}
  destroy(){if(this.destroyed)return;this.puzzle.save();this.destroyed=true;this.ui=null;this.art=null;this.puzzle=null;}
 }

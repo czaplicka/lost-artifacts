@@ -1,110 +1,86 @@
 import { audioManager } from '../../managers/AudioManager.js';
-import { DW, DH, FONT_TEXT, FONT_PIXEL, SFX, ART, AMBER, AMBER_CSS, GREEN, GREEN_CSS, RED, CREAM_CSS, FAINT_CSS, SCREEN_TEXT, DIAL_X, DIAL_Y, STOP_ANGLE, HOLE_RING, MON_X, MON_Y, MON_W, MON_H, SCREEN_X, SCREEN_Y, SCREEN_W, SCREEN_H, LEDS, VU_BARS, mulberry32 } from './PhoneConfig.js';
+import { SFX } from './PhoneConfig.js';
+
+const clamp01 = value => Math.max(0, Math.min(1, Number(value) || 0));
 
 export const PhoneAudio = {
   _hasAudio(key) {
-    return Boolean(key && this.scene.cache.audio.exists(key));
-  }
-,
+    return Boolean(key && this.scene?.cache?.audio?.exists(key));
+  },
+
   playOnce(key, volume = 0.6) {
     if (!this._hasAudio(key)) return null;
-
     try {
+      audioManager.init(this.scene);
       return audioManager.playSfx(key, {
-        volume: audioManager.getSfxVolume() * volume
+        volume: audioManager.getSfxVolume() * clamp01(volume)
       });
-    } catch (e) {
-      return null;
-    }
-  }
-,
+    } catch { return null; }
+  },
+
   startLoop(key, volume = 0.6) {
     if (!this._hasAudio(key)) return false;
-
     try {
+      audioManager.init(this.scene);
       const sound = audioManager.playLoopSfx(key, {
-        volume: audioManager.getSfxVolume() * volume
+        volume: audioManager.getSfxVolume() * clamp01(volume)
       });
-
       if (sound) {
         this.loops.add(key);
         return true;
       }
-    } catch (e) {
-      // dźwięk nigdy nie powinien wywalać UI
-    }
-
+    } catch {}
     return false;
-  }
-,
-  stopLoops() {
-    this.loops.forEach(key => {
-      try {
-        audioManager.stopAmbient(key);
-      } catch (e) {
-        // ignoruj
-      }
-    });
+  },
 
-    this.loops.clear();
-  }
-,
+  stopLoops() {
+    this.loops?.forEach(key => {
+      try { audioManager.stopAmbient(key); } catch {}
+    });
+    this.loops?.clear();
+  },
+
   sfxClick() {
     this.playOnce(SFX.click, 0.5);
-  }
+  },
 
-  // Syntetyczny dźwięk: fallback, gdy brakuje pliku.
-,
   tone(frequency, duration = 0.12, volume = 0.025) {
-    const sound = this.scene.sound;
-    const context = sound?.context;
-
-    if (!context || sound.mute) return;
-
+    const manager = this.scene?.sound;
+    const context = manager?.context;
+    const hz = Number(frequency);
+    const seconds = Number(duration);
+    if (!context || !Number.isFinite(hz) || hz <= 0 ||
+        !Number.isFinite(seconds) || seconds <= 0 ||
+        manager.mute || audioManager.getMuted() || audioManager.getSfxVolume() <= 0) return;
+    let oscillator, gain, entry;
+    const cleanup = () => {
+      if (entry) this.tones?.delete(entry);
+      try { oscillator?.disconnect(); } catch {}
+      try { gain?.disconnect(); } catch {}
+    };
     try {
-      if (context.state === 'suspended') {
-        void context.resume().catch(() => {});
-      }
-
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
+      if (context.state === 'suspended') void context.resume().catch(() => {});
+      oscillator = context.createOscillator();
+      gain = context.createGain();
       const now = context.currentTime;
-
+      const master = Number.isFinite(manager.volume) ? clamp01(manager.volume) : 1;
+      const level = clamp01(volume) * master * audioManager.getSfxVolume();
+      if (level <= 0) { cleanup(); return; }
       oscillator.type = 'sine';
-      oscillator.frequency.value = frequency;
-
-      const masterVolume = Number.isFinite(sound.volume)
-        ? sound.volume
-        : 1;
-
-      gain.gain.setValueAtTime(
-        Math.max(0.0001, volume * masterVolume),
-        now
-      );
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        now + duration
-      );
-
+      oscillator.frequency.value = hz;
+      gain.gain.setValueAtTime(Math.max(0.000001, level), now);
+      gain.gain.exponentialRampToValueAtTime(0.000001, now + seconds);
       oscillator.connect(gain);
       gain.connect(context.destination);
-
-      const entry = { oscillator, gain };
+      entry = { oscillator, gain };
       this.tones.add(entry);
-
-      oscillator.onended = () => {
-        oscillator.disconnect();
-        gain.disconnect();
-        this.tones.delete(entry);
-      };
-
+      oscillator.onended = cleanup;
       oscillator.start(now);
-      oscillator.stop(now + duration);
+      oscillator.stop(now + seconds);
     } catch (error) {
+      try { oscillator?.stop(); } catch {}
+      cleanup();
       console.warn('[PIOfficePhoneUI] Audio unavailable:', error);
     }
   }
-
-  // ─── Otwieranie / zamykanie ───────────────────────────────────────────────
 };

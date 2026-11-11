@@ -277,8 +277,6 @@ export class CaseFileUI {
       return;
     }
 
-    console.log('[CaseFileUI] Opening case file.', resolvedData);
-
     this.isAnimating = true;
     this.isOpen = true;
 
@@ -310,8 +308,6 @@ export class CaseFileUI {
     if (!this.isOpen || this.isAnimating) {
       return;
     }
-
-    console.log('[CaseFileUI] Closing case file.');
 
     this.isAnimating = true;
     this.isOpen = false;

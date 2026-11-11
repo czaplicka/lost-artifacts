@@ -259,3 +259,11 @@ export const DESTINATION_THEMES = {
 export function getDestinationTheme(id) {
     return DESTINATION_THEMES[id] || DESTINATION_THEMES.agency;
 }
+
+// BEGIN SINGAPORE CITY INTEGRATION v1
+CITY_ID_MAP.Singapore = 'singapore';
+CITY_COORDINATES.singapore = [103.8198, 1.3521];
+if (!GAME_COUNTRIES_ISO3.includes('SGP')) GAME_COUNTRIES_ISO3.push('SGP');
+COUNTRY_ISO3.singapore = 'SGP';
+CITY_QUIPS.singapore = 'SINGAPORE: The Merlion has no comment. Mostly water.';
+// END SINGAPORE CITY INTEGRATION v1

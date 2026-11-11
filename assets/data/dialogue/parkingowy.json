@@ -1,7 +1,6 @@
 {
   "parkingowyClues": {
     "locationVariants": {
-
       "default": {
         "banter": [
           "Nice of you to ask before towing something for once.",
@@ -10,37 +9,95 @@
         ],
         "topics": {
           "features": {
-            "Big forehead": ["Broad forehead, calculating expression, no patience for small talk."],
-            "Tattoo": ["A tattoo, mostly hidden, which only made it more obvious to me."],
-            "Rainbow hair streak": ["There was a streak of color in the hair. Hard to miss."],
-            "Necklace": ["A necklace flashed once when they reached for the keys."],
-            "Scar": ["A scar, old enough to be history, visible enough to still matter."],
-            "Moustache": ["A moustache so deliberate it looked like part of a disguise kit."],
-            "Glasses": ["Glasses, but the way they scanned number plates told me vision was not the issue."],
-            "Beard": ["A beard, neat enough to suggest planning, not laziness."],
-            "Long hair": ["Long hair, tied back like they didn't want it remembered."],
-            "Earrings": ["Small earrings, chosen carefully, like everything else about them."],
-            "Goatee": ["A goatee. Very curated. I distrust curated faces."],
-            "Scarf": ["A scarf, wound tight, like they didn't want their face remembered either."]
+            "Big forehead": [
+              "Broad forehead, calculating expression, no patience for small talk."
+            ],
+            "Tattoo": [
+              "A tattoo, mostly hidden, which only made it more obvious to me."
+            ],
+            "Rainbow hair streak": [
+              "There was a streak of color in the hair. Hard to miss."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they reached for the keys."
+            ],
+            "Scar": [
+              "A scar, old enough to be history, visible enough to still matter."
+            ],
+            "Moustache": [
+              "A moustache so deliberate it looked like part of a disguise kit."
+            ],
+            "Glasses": [
+              "Glasses, but the way they scanned number plates told me vision was not the issue."
+            ],
+            "Beard": [
+              "A beard, neat enough to suggest planning, not laziness."
+            ],
+            "Long hair": [
+              "Long hair, tied back like they didn't want it remembered."
+            ],
+            "Earrings": [
+              "Small earrings, chosen carefully, like everything else about them."
+            ],
+            "Goatee": [
+              "A goatee. Very curated. I distrust curated faces."
+            ],
+            "Scarf": [
+              "A scarf, wound tight, like they didn't want their face remembered either."
+            ]
           },
           "accent": {
-            "Canadian": ["Canadian accent, polite in shape, cautious in intent."],
-            "Mexican": ["Mexican accent, warm voice, sharp questions."],
-            "Australian": ["Australian accent, casual tone, watchful eyes."],
-            "American": ["American accent, confident enough to treat the lot like a stage."],
-            "Dutch": ["Dutch accent, precise and tidy, like the way they shut the car door."],
-            "British": ["British accent, local enough to blend, polished enough to ring false."],
-            "German": ["German accent, efficient, clipped, no wasted syllables."],
-            "Polish": ["Polish accent, grounded, unshowy, very hard to read."],
-            "Spanish": ["Spanish accent, quick and smooth, but there was nothing casual underneath it."],
-            "Belarussian": ["Belarussian accent, soft delivery, armored intent."],
-            "Russian": ["Russian accent, measured like every word had passed inspection."],
-            "Italian": ["Italian accent, charming on the surface, controlled underneath."],
-            "Irish": ["Irish accent, friendly enough to distract from what they were really doing."],
-            "French": ["French accent, polished, self-aware, impossible to mistake."],
-            "Belgian": ["Belgian accent, subtle enough to slip past most people. Not me."],
-            "Ukrainian": ["Ukrainian accent, quiet, watching the barrier arm more than me."],
-            "Indian": ["Indian accent, quick, negotiating the parking fee like a market stall."]
+            "Canadian": [
+              "Canadian accent, polite in shape, cautious in intent."
+            ],
+            "Mexican": [
+              "Mexican accent, warm voice, sharp questions."
+            ],
+            "Australian": [
+              "Australian accent, casual tone, watchful eyes."
+            ],
+            "American": [
+              "American accent, confident enough to treat the lot like a stage."
+            ],
+            "Dutch": [
+              "Dutch accent, precise and tidy, like the way they shut the car door."
+            ],
+            "British": [
+              "British accent, local enough to blend, polished enough to ring false."
+            ],
+            "German": [
+              "German accent, efficient, clipped, no wasted syllables."
+            ],
+            "Polish": [
+              "Polish accent, grounded, unshowy, very hard to read."
+            ],
+            "Spanish": [
+              "Spanish accent, quick and smooth, but there was nothing casual underneath it."
+            ],
+            "Belarussian": [
+              "Belarussian accent, soft delivery, armored intent."
+            ],
+            "Russian": [
+              "Russian accent, measured like every word had passed inspection."
+            ],
+            "Italian": [
+              "Italian accent, charming on the surface, controlled underneath."
+            ],
+            "Irish": [
+              "Irish accent, friendly enough to distract from what they were really doing."
+            ],
+            "French": [
+              "French accent, polished, self-aware, impossible to mistake."
+            ],
+            "Belgian": [
+              "Belgian accent, subtle enough to slip past most people. Not me."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, quiet, watching the barrier arm more than me."
+            ],
+            "Indian": [
+              "Indian accent, quick, negotiating the parking fee like a market stall."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -48,17 +105,34 @@
           ]
         },
         "repeatLines": [
-          ["We already talked, detective.", "Since then, only the drizzle has changed."],
-          ["Back again?", "Same car, same spot, same bad idea."],
-          ["No new clues.", "Just more damp footprints and patient taxis."]
+          [
+            "We already talked, detective.",
+            "Since then, only the drizzle has changed."
+          ],
+          [
+            "Back again?",
+            "Same car, same spot, same bad idea."
+          ],
+          [
+            "No new clues.",
+            "Just more damp footprints and patient taxis."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city, detective.", "Even the parking meters knew that wasn't right."],
-          ["That lead stalled on the wrong street.", "Next time, trust the map, not the mood."],
-          ["Your suspect wasn't there.", "Only confused tourists and angry cab drivers."]
+          [
+            "Wrong city, detective.",
+            "Even the parking meters knew that wasn't right."
+          ],
+          [
+            "That lead stalled on the wrong street.",
+            "Next time, trust the map, not the mood."
+          ],
+          [
+            "Your suspect wasn't there.",
+            "Only confused tourists and angry cab drivers."
+          ]
         ]
       },
-
       "london": {
         "banter": [
           "In London, people park like they're apologising to the curb.",
@@ -99,37 +173,95 @@
         },
         "topics": {
           "features": {
-            "Big forehead": ["Broad forehead, calculating expression, no patience for small talk."],
-            "Tattoo": ["A tattoo, mostly hidden, which only made it more obvious to me."],
-            "Rainbow hair streak": ["There was a streak of color in the hair. Hard to miss, even in London weather."],
-            "Necklace": ["A necklace flashed once when they reached for the keys."],
-            "Scar": ["A scar, old enough to be history, visible enough to still matter."],
-            "Moustache": ["A moustache so deliberate it looked like part of a disguise kit."],
-            "Glasses": ["Glasses, but the way they scanned number plates told me vision was not the issue."],
-            "Beard": ["A beard, neat enough to suggest planning, not laziness."],
-            "Long hair": ["Long hair, tied back like they didn't want it remembered."],
-            "Earrings": ["Small earrings, chosen carefully, like everything else about them."],
-            "Goatee": ["A goatee. Very curated. I distrust curated faces."],
-            "Scarf": ["A scarf, wound tight, like they didn't want their face remembered either."]
+            "Big forehead": [
+              "Broad forehead, calculating expression, no patience for small talk."
+            ],
+            "Tattoo": [
+              "A tattoo, mostly hidden, which only made it more obvious to me."
+            ],
+            "Rainbow hair streak": [
+              "There was a streak of color in the hair. Hard to miss, even in London weather."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they reached for the keys."
+            ],
+            "Scar": [
+              "A scar, old enough to be history, visible enough to still matter."
+            ],
+            "Moustache": [
+              "A moustache so deliberate it looked like part of a disguise kit."
+            ],
+            "Glasses": [
+              "Glasses, but the way they scanned number plates told me vision was not the issue."
+            ],
+            "Beard": [
+              "A beard, neat enough to suggest planning, not laziness."
+            ],
+            "Long hair": [
+              "Long hair, tied back like they didn't want it remembered."
+            ],
+            "Earrings": [
+              "Small earrings, chosen carefully, like everything else about them."
+            ],
+            "Goatee": [
+              "A goatee. Very curated. I distrust curated faces."
+            ],
+            "Scarf": [
+              "A scarf, wound tight, like they didn't want their face remembered either."
+            ]
           },
           "accent": {
-            "Canadian": ["Canadian accent, polite in shape, cautious in intent."],
-            "Mexican": ["Mexican accent, warm voice, sharp questions."],
-            "Australian": ["Australian accent, casual tone, watchful eyes."],
-            "American": ["American accent, confident enough to treat the lot like a stage."],
-            "Dutch": ["Dutch accent, precise and tidy, like the way they shut the car door."],
-            "British": ["British accent, local enough to blend, polished enough to ring false."],
-            "German": ["German accent, efficient, clipped, no wasted syllables."],
-            "Polish": ["Polish accent, grounded, unshowy, very hard to read."],
-            "Spanish": ["Spanish accent, quick and smooth, but there was nothing casual underneath it."],
-            "Belarussian": ["Belarussian accent, soft delivery, armored intent."],
-            "Russian": ["Russian accent, measured like every word had passed inspection."],
-            "Italian": ["Italian accent, charming on the surface, controlled underneath."],
-            "Irish": ["Irish accent, friendly enough to distract from what they were really doing."],
-            "French": ["French accent, polished, self-aware, impossible to mistake."],
-            "Belgian": ["Belgian accent, subtle enough to slip past most people. Not me."],
-            "Ukrainian": ["Ukrainian accent, quiet, watching the barrier arm more than me."],
-            "Indian": ["Indian accent, quick, negotiating the parking fee like a market stall."]
+            "Canadian": [
+              "Canadian accent, polite in shape, cautious in intent."
+            ],
+            "Mexican": [
+              "Mexican accent, warm voice, sharp questions."
+            ],
+            "Australian": [
+              "Australian accent, casual tone, watchful eyes."
+            ],
+            "American": [
+              "American accent, confident enough to treat the lot like a stage."
+            ],
+            "Dutch": [
+              "Dutch accent, precise and tidy, like the way they shut the car door."
+            ],
+            "British": [
+              "British accent, local enough to blend, polished enough to ring false."
+            ],
+            "German": [
+              "German accent, efficient, clipped, no wasted syllables."
+            ],
+            "Polish": [
+              "Polish accent, grounded, unshowy, very hard to read."
+            ],
+            "Spanish": [
+              "Spanish accent, quick and smooth, but there was nothing casual underneath it."
+            ],
+            "Belarussian": [
+              "Belarussian accent, soft delivery, armored intent."
+            ],
+            "Russian": [
+              "Russian accent, measured like every word had passed inspection."
+            ],
+            "Italian": [
+              "Italian accent, charming on the surface, controlled underneath."
+            ],
+            "Irish": [
+              "Irish accent, friendly enough to distract from what they were really doing."
+            ],
+            "French": [
+              "French accent, polished, self-aware, impossible to mistake."
+            ],
+            "Belgian": [
+              "Belgian accent, subtle enough to slip past most people. Not me."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, quiet, watching the barrier arm more than me."
+            ],
+            "Indian": [
+              "Indian accent, quick, negotiating the parking fee like a market stall."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -137,17 +269,34 @@
           ]
         },
         "repeatLines": [
-          ["We already talked, detective.", "Since then, only the drizzle has changed."],
-          ["Back again?", "Same car, same spot, same bad idea."],
-          ["No new clues.", "Just more damp footprints and patient taxis."]
+          [
+            "We already talked, detective.",
+            "Since then, only the drizzle has changed."
+          ],
+          [
+            "Back again?",
+            "Same car, same spot, same bad idea."
+          ],
+          [
+            "No new clues.",
+            "Just more damp footprints and patient taxis."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city, detective.", "Even the parking meters knew that wasn't right."],
-          ["That lead stalled on the wrong street.", "Next time, trust the map, not the mood."],
-          ["Your suspect wasn't there.", "Only confused tourists and angry cab drivers."]
+          [
+            "Wrong city, detective.",
+            "Even the parking meters knew that wasn't right."
+          ],
+          [
+            "That lead stalled on the wrong street.",
+            "Next time, trust the map, not the mood."
+          ],
+          [
+            "Your suspect wasn't there.",
+            "Only confused tourists and angry cab drivers."
+          ]
         ]
       },
-
       "paris": {
         "banter": [
           "Paris drivers treat lanes like suggestions and mirrors like decor.",
@@ -188,37 +337,95 @@
         },
         "topics": {
           "features": {
-            "Tattoo": ["A tattoo, discreetly hidden, which naturally made it more interesting."],
-            "Earrings": ["Earrings that suggested taste, money, or theft. Possibly all three."],
-            "Glasses": ["Glasses with sharp lines and sharper attention behind them."],
-            "Scarf": ["A scarf worn indoors. That's either fashion or strategy."],
-            "Big forehead": ["Big forehead, calculating the parking fine before it happened."],
-            "Rainbow hair streak": ["A streak of colour in the hair, bold enough to be a distraction."],
-            "Necklace": ["A necklace that flashed once when they reached for the keys."],
-            "Scar": ["A scar, never explained. Paris respects a good secret, even in a car park."],
-            "Moustache": ["A moustache, groomed like it had somewhere better to be than this lot."],
-            "Beard": ["A short beard, expensive-looking even parked badly."],
-            "Long hair": ["Long hair, loose, like they wanted the wind to finish the getaway."],
-            "Goatee": ["A goatee, trimmed like it was rehearsed for the valet."]
+            "Tattoo": [
+              "A tattoo, discreetly hidden, which naturally made it more interesting."
+            ],
+            "Earrings": [
+              "Earrings that suggested taste, money, or theft. Possibly all three."
+            ],
+            "Glasses": [
+              "Glasses with sharp lines and sharper attention behind them."
+            ],
+            "Scarf": [
+              "A scarf worn indoors. That's either fashion or strategy."
+            ],
+            "Big forehead": [
+              "Big forehead, calculating the parking fine before it happened."
+            ],
+            "Rainbow hair streak": [
+              "A streak of colour in the hair, bold enough to be a distraction."
+            ],
+            "Necklace": [
+              "A necklace that flashed once when they reached for the keys."
+            ],
+            "Scar": [
+              "A scar, never explained. Paris respects a good secret, even in a car park."
+            ],
+            "Moustache": [
+              "A moustache, groomed like it had somewhere better to be than this lot."
+            ],
+            "Beard": [
+              "A short beard, expensive-looking even parked badly."
+            ],
+            "Long hair": [
+              "Long hair, loose, like they wanted the wind to finish the getaway."
+            ],
+            "Goatee": [
+              "A goatee, trimmed like it was rehearsed for the valet."
+            ]
           },
           "accent": {
-            "French": ["French accent, polished enough to make deceit sound elegant."],
-            "Italian": ["Italian accent, smooth and confident, like they expected doors to open."],
-            "Spanish": ["Spanish accent, warm delivery, very cold intent."],
-            "Canadian": ["Canadian accent, polite even while blocking the exit."],
-            "Mexican": ["Mexican accent, warm tone, sharp reversing."],
-            "Australian": ["Australian accent, blunt about the space, careless about the mirrors."],
-            "American": ["American accent, loud enough to argue with the ticket machine."],
-            "Dutch": ["Dutch accent, direct, parked and gone before the meter ran out."],
-            "British": ["British accent, polite, though the parking wasn't."],
-            "German": ["German accent, precise, treating the space like a contract."],
-            "Polish": ["Polish accent, steady, unbothered by the tight squeeze."],
-            "Belarussian": ["Belarussian accent, quiet, left without a word."],
-            "Russian": ["Russian accent, composed, backed in like it was rehearsed."],
-            "Irish": ["Irish accent, chatty with the attendant, vague about the destination."],
-            "Ukrainian": ["Ukrainian accent, careful, checked the mirrors twice before leaving."],
-            "Indian": ["Indian accent, sharp, negotiating the fee like it was optional."],
-            "Belgian": ["Belgian accent, quiet enough that I almost missed the whole car."]
+            "French": [
+              "French accent, polished enough to make deceit sound elegant."
+            ],
+            "Italian": [
+              "Italian accent, smooth and confident, like they expected doors to open."
+            ],
+            "Spanish": [
+              "Spanish accent, warm delivery, very cold intent."
+            ],
+            "Canadian": [
+              "Canadian accent, polite even while blocking the exit."
+            ],
+            "Mexican": [
+              "Mexican accent, warm tone, sharp reversing."
+            ],
+            "Australian": [
+              "Australian accent, blunt about the space, careless about the mirrors."
+            ],
+            "American": [
+              "American accent, loud enough to argue with the ticket machine."
+            ],
+            "Dutch": [
+              "Dutch accent, direct, parked and gone before the meter ran out."
+            ],
+            "British": [
+              "British accent, polite, though the parking wasn't."
+            ],
+            "German": [
+              "German accent, precise, treating the space like a contract."
+            ],
+            "Polish": [
+              "Polish accent, steady, unbothered by the tight squeeze."
+            ],
+            "Belarussian": [
+              "Belarussian accent, quiet, left without a word."
+            ],
+            "Russian": [
+              "Russian accent, composed, backed in like it was rehearsed."
+            ],
+            "Irish": [
+              "Irish accent, chatty with the attendant, vague about the destination."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, careful, checked the mirrors twice before leaving."
+            ],
+            "Indian": [
+              "Indian accent, sharp, negotiating the fee like it was optional."
+            ],
+            "Belgian": [
+              "Belgian accent, quiet enough that I almost missed the whole car."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -226,17 +433,34 @@
           ]
         },
         "repeatLines": [
-          ["We already went over this.", "No new tyre marks, just new cigarette ash."],
-          ["Back so soon?", "The cars changed, the chaos stayed the same."],
-          ["No fresh clues.", "Only the same dents and better stories."]
+          [
+            "We already went over this.",
+            "No new tyre marks, just new cigarette ash."
+          ],
+          [
+            "Back so soon?",
+            "The cars changed, the chaos stayed the same."
+          ],
+          [
+            "No fresh clues.",
+            "Only the same dents and better stories."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city.", "Scenic mistake, still a mistake."],
-          ["That lead went in circles.", "Much like the traffic here."],
-          ["Your thief wasn't parked there.", "Just scooters, tourists, and bad decisions."]
+          [
+            "Wrong city.",
+            "Scenic mistake, still a mistake."
+          ],
+          [
+            "That lead went in circles.",
+            "Much like the traffic here."
+          ],
+          [
+            "Your thief wasn't parked there.",
+            "Just scooters, tourists, and bad decisions."
+          ]
         ]
       },
-
       "berlin": {
         "banter": [
           "In Berlin, people park like they're being graded.",
@@ -277,37 +501,95 @@
         },
         "topics": {
           "features": {
-            "Scar": ["A scar, visible, unannounced, and somehow very Berlin."],
-            "Tattoo": ["A tattoo, serious-looking, like it had paperwork behind it."],
-            "Glasses": ["Glasses with frames as minimal as their small talk."],
-            "Big forehead": ["Big forehead, calculating the exact centimeter of the space."],
-            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though nobody blinked."],
-            "Necklace": ["A plain necklace, functional, like everything else about them."],
-            "Moustache": ["A moustache, trimmed with the same discipline as the parking job."],
-            "Beard": ["A beard, precise at the edges, budgeted like the fuel."],
-            "Long hair": ["Long hair, tied back tight, nothing left loose in the whole visit."],
-            "Earrings": ["Small earrings, easy to miss, unlike the perfectly parallel parking."],
-            "Goatee": ["A goatee, exact, measured like the gap between the cars."],
-            "Scarf": ["A scarf, practical, wrapped like the cold mattered more than style."]
+            "Scar": [
+              "A scar, visible, unannounced, and somehow very Berlin."
+            ],
+            "Tattoo": [
+              "A tattoo, serious-looking, like it had paperwork behind it."
+            ],
+            "Glasses": [
+              "Glasses with frames as minimal as their small talk."
+            ],
+            "Big forehead": [
+              "Big forehead, calculating the exact centimeter of the space."
+            ],
+            "Rainbow hair streak": [
+              "A streak of colour in the hair, unusual here, though nobody blinked."
+            ],
+            "Necklace": [
+              "A plain necklace, functional, like everything else about them."
+            ],
+            "Moustache": [
+              "A moustache, trimmed with the same discipline as the parking job."
+            ],
+            "Beard": [
+              "A beard, precise at the edges, budgeted like the fuel."
+            ],
+            "Long hair": [
+              "Long hair, tied back tight, nothing left loose in the whole visit."
+            ],
+            "Earrings": [
+              "Small earrings, easy to miss, unlike the perfectly parallel parking."
+            ],
+            "Goatee": [
+              "A goatee, exact, measured like the gap between the cars."
+            ],
+            "Scarf": [
+              "A scarf, practical, wrapped like the cold mattered more than style."
+            ]
           },
           "accent": {
-            "German": ["German accent, precise and clipped, no spare syllables."],
-            "Polish": ["Polish accent, comfortable enough here to suggest previous visits."],
-            "Canadian": ["Canadian accent, apologizing for a parking job that wasn't sincere."],
-            "Mexican": ["Mexican accent, casual tone, careful parking."],
-            "Australian": ["Australian accent, blunt enough to skip the ticket machine instructions."],
-            "American": ["American accent, loud enough to wake the whole level."],
-            "Dutch": ["Dutch accent, matching the directness of the whole lot."],
-            "British": ["British accent, polite, though the space they took wasn't theirs."],
-            "Spanish": ["Spanish accent, warm, out of step with the concrete."],
-            "Belarussian": ["Belarussian accent, quiet, exact, took the ticket and said nothing else."],
-            "Russian": ["Russian accent, calm, made the whole maneuver look rehearsed."],
-            "Italian": ["Italian accent, animated enough to turn parallel parking into theater."],
-            "Irish": ["Irish accent, talkative, vague about where they'd actually been."],
-            "French": ["French accent, amused that Berlin takes its parking lines so seriously."],
-            "Ukrainian": ["Ukrainian accent, alert, checked the mirrors before trusting the space."],
-            "Indian": ["Indian accent, adapting fast to the cold and the rules."],
-            "Belgian": ["Belgian accent, easy to miss in this city's noise, but I caught it."]
+            "German": [
+              "German accent, precise and clipped, no spare syllables."
+            ],
+            "Polish": [
+              "Polish accent, comfortable enough here to suggest previous visits."
+            ],
+            "Canadian": [
+              "Canadian accent, apologizing for a parking job that wasn't sincere."
+            ],
+            "Mexican": [
+              "Mexican accent, casual tone, careful parking."
+            ],
+            "Australian": [
+              "Australian accent, blunt enough to skip the ticket machine instructions."
+            ],
+            "American": [
+              "American accent, loud enough to wake the whole level."
+            ],
+            "Dutch": [
+              "Dutch accent, matching the directness of the whole lot."
+            ],
+            "British": [
+              "British accent, polite, though the space they took wasn't theirs."
+            ],
+            "Spanish": [
+              "Spanish accent, warm, out of step with the concrete."
+            ],
+            "Belarussian": [
+              "Belarussian accent, quiet, exact, took the ticket and said nothing else."
+            ],
+            "Russian": [
+              "Russian accent, calm, made the whole maneuver look rehearsed."
+            ],
+            "Italian": [
+              "Italian accent, animated enough to turn parallel parking into theater."
+            ],
+            "Irish": [
+              "Irish accent, talkative, vague about where they'd actually been."
+            ],
+            "French": [
+              "French accent, amused that Berlin takes its parking lines so seriously."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, alert, checked the mirrors before trusting the space."
+            ],
+            "Indian": [
+              "Indian accent, adapting fast to the cold and the rules."
+            ],
+            "Belgian": [
+              "Belgian accent, easy to miss in this city's noise, but I caught it."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -315,17 +597,34 @@
           ]
         },
         "repeatLines": [
-          ["We already checked this car.", "It's still exactly where the rules said it should be."],
-          ["You're back.", "The facts are still aligned with the lines."],
-          ["No new evidence.", "If anything had changed, it would be documented."]
+          [
+            "We already checked this car.",
+            "It's still exactly where the rules said it should be."
+          ],
+          [
+            "You're back.",
+            "The facts are still aligned with the lines."
+          ],
+          [
+            "No new evidence.",
+            "If anything had changed, it would be documented."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city.", "Succinct, accurate, unfortunate."],
-          ["That lead didn't pass inspection.", "We prefer our mistakes smaller and less expensive."],
-          ["The suspect wasn't there.", "You just followed the wrong sign."]
+          [
+            "Wrong city.",
+            "Succinct, accurate, unfortunate."
+          ],
+          [
+            "That lead didn't pass inspection.",
+            "We prefer our mistakes smaller and less expensive."
+          ],
+          [
+            "The suspect wasn't there.",
+            "You just followed the wrong sign."
+          ]
         ]
       },
-
       "new_york_city": {
         "banter": [
           "New York drivers park like the world ends in ten minutes.",
@@ -366,37 +665,95 @@
         },
         "topics": {
           "features": {
-            "Tattoo": ["A tattoo visible under the streetlamp, something bold and unwise."],
-            "Glasses": ["Glasses with frames expensive enough to double as an alibi."],
-            "Beard": ["A beard trimmed like they were networking even while hiding."],
-            "Big forehead": ["Big forehead, already three moves ahead of the meter."],
-            "Rainbow hair streak": ["A streak of colour in the hair, loud enough to match the horn."],
-            "Necklace": ["A flashy necklace, part of the hustle, not the outfit."],
-            "Scar": ["A scar, no story offered, none needed on this block."],
-            "Moustache": ["A moustache, ironic enough to be a bit, serious enough to double-park."],
-            "Long hair": ["Long hair, moving fast, like the whole exit strategy."],
-            "Earrings": ["Small earrings, catching light every time they argued about the fee."],
-            "Goatee": ["A goatee, sharp-edged, the sort that means business or thinks it does."],
-            "Scarf": ["A scarf thrown on fast, more getaway than fashion."]
+            "Tattoo": [
+              "A tattoo visible under the streetlamp, something bold and unwise."
+            ],
+            "Glasses": [
+              "Glasses with frames expensive enough to double as an alibi."
+            ],
+            "Beard": [
+              "A beard trimmed like they were networking even while hiding."
+            ],
+            "Big forehead": [
+              "Big forehead, already three moves ahead of the meter."
+            ],
+            "Rainbow hair streak": [
+              "A streak of colour in the hair, loud enough to match the horn."
+            ],
+            "Necklace": [
+              "A flashy necklace, part of the hustle, not the outfit."
+            ],
+            "Scar": [
+              "A scar, no story offered, none needed on this block."
+            ],
+            "Moustache": [
+              "A moustache, ironic enough to be a bit, serious enough to double-park."
+            ],
+            "Long hair": [
+              "Long hair, moving fast, like the whole exit strategy."
+            ],
+            "Earrings": [
+              "Small earrings, catching light every time they argued about the fee."
+            ],
+            "Goatee": [
+              "A goatee, sharp-edged, the sort that means business or thinks it does."
+            ],
+            "Scarf": [
+              "A scarf thrown on fast, more getaway than fashion."
+            ]
           },
           "accent": {
-            "American": ["American accent, sure, but not New York. This city trains the ear."],
-            "British": ["British accent, wobbling under jet lag and the size of the fine."],
-            "Spanish": ["Spanish accent, fast-paced, keeping pace with the whole block."],
-            "Canadian": ["Canadian accent, polite enough to apologize for double-parking."],
-            "Mexican": ["Mexican accent, quick, in and out before the meter expired."],
-            "Australian": ["Australian accent, loud, though this city still out-talked it."],
-            "Dutch": ["Dutch accent, blunt, straight to the spot and out the door."],
-            "German": ["German accent, clipped, treating the ticket like an audit."],
-            "Polish": ["Polish accent, steady, unbothered by the honking."],
-            "Belarussian": ["Belarussian accent, guarded, said little beyond the plate number."],
-            "Russian": ["Russian accent, calm, making the chaos around them look worse."],
-            "Italian": ["Italian accent, turning a simple parking job into a performance."],
-            "Irish": ["Irish accent, chatty, saying plenty while revealing nothing useful."],
-            "French": ["French accent, cool, amused by how fast this city moves."],
-            "Ukrainian": ["Ukrainian accent, sharp, watching the meter as much as the mirrors."],
-            "Indian": ["Indian accent, smooth, negotiating the fee like they'd done it before."],
-            "Belgian": ["Belgian accent, quiet enough to almost get lost in the noise."]
+            "American": [
+              "American accent, sure, but not New York. This city trains the ear."
+            ],
+            "British": [
+              "British accent, wobbling under jet lag and the size of the fine."
+            ],
+            "Spanish": [
+              "Spanish accent, fast-paced, keeping pace with the whole block."
+            ],
+            "Canadian": [
+              "Canadian accent, polite enough to apologize for double-parking."
+            ],
+            "Mexican": [
+              "Mexican accent, quick, in and out before the meter expired."
+            ],
+            "Australian": [
+              "Australian accent, loud, though this city still out-talked it."
+            ],
+            "Dutch": [
+              "Dutch accent, blunt, straight to the spot and out the door."
+            ],
+            "German": [
+              "German accent, clipped, treating the ticket like an audit."
+            ],
+            "Polish": [
+              "Polish accent, steady, unbothered by the honking."
+            ],
+            "Belarussian": [
+              "Belarussian accent, guarded, said little beyond the plate number."
+            ],
+            "Russian": [
+              "Russian accent, calm, making the chaos around them look worse."
+            ],
+            "Italian": [
+              "Italian accent, turning a simple parking job into a performance."
+            ],
+            "Irish": [
+              "Irish accent, chatty, saying plenty while revealing nothing useful."
+            ],
+            "French": [
+              "French accent, cool, amused by how fast this city moves."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, sharp, watching the meter as much as the mirrors."
+            ],
+            "Indian": [
+              "Indian accent, smooth, negotiating the fee like they'd done it before."
+            ],
+            "Belgian": [
+              "Belgian accent, quiet enough to almost get lost in the noise."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -404,17 +761,34 @@
           ]
         },
         "repeatLines": [
-          ["Yeah, we already talked, detective.", "Still the same chaos, same tickets, same case."],
-          ["Back again?", "Welcome to the loop. We charge extra for that."],
-          ["No update.", "If something changed, it got towed before I saw it."]
+          [
+            "Yeah, we already talked, detective.",
+            "Still the same chaos, same tickets, same case."
+          ],
+          [
+            "Back again?",
+            "Welcome to the loop. We charge extra for that."
+          ],
+          [
+            "No update.",
+            "If something changed, it got towed before I saw it."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city, detective.", "Big scene, wrong set."],
-          ["That lead went nowhere.", "Well, gridlocked, technically."],
-          ["Your suspect wasn't there.", "Only people fighting over three legal spots."]
+          [
+            "Wrong city, detective.",
+            "Big scene, wrong set."
+          ],
+          [
+            "That lead went nowhere.",
+            "Well, gridlocked, technically."
+          ],
+          [
+            "Your suspect wasn't there.",
+            "Only people fighting over three legal spots."
+          ]
         ]
       },
-
       "warsaw": {
         "banter": [
           "Warsaw drivers park between history and roadworks.",
@@ -455,37 +829,95 @@
         },
         "topics": {
           "features": {
-            "Beard": ["A beard, common enough, but theirs looked maintained with intent."],
-            "Necklace": ["A necklace flashed once when they leaned over the dashboard."],
-            "Scar": ["A scar across the cheek, the kind that usually comes with a missing report."],
-            "Big forehead": ["Big forehead, the kind that suggests they'd calculated the fine already."],
-            "Tattoo": ["A tattoo, old and faded, outliving whatever it used to mean."],
-            "Rainbow hair streak": ["A streak of colour in the hair, unusual here, though the young ones are catching on."],
-            "Moustache": ["A moustache, unremarkable, half the men here have one."],
-            "Glasses": ["Glasses, slightly scratched, someone who works more than they park carefully."],
-            "Long hair": ["Long hair, tied back tight against the wind."],
-            "Earrings": ["Simple earrings, checked once, like they mattered more than the ticket."],
-            "Goatee": ["A goatee, kept out of habit more than fashion."],
-            "Scarf": ["A scarf, wrapped tight, the way everyone here learns eventually."]
+            "Beard": [
+              "A beard, common enough, but theirs looked maintained with intent."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they leaned over the dashboard."
+            ],
+            "Scar": [
+              "A scar across the cheek, the kind that usually comes with a missing report."
+            ],
+            "Big forehead": [
+              "Big forehead, the kind that suggests they'd calculated the fine already."
+            ],
+            "Tattoo": [
+              "A tattoo, old and faded, outliving whatever it used to mean."
+            ],
+            "Rainbow hair streak": [
+              "A streak of colour in the hair, unusual here, though the young ones are catching on."
+            ],
+            "Moustache": [
+              "A moustache, unremarkable, half the men here have one."
+            ],
+            "Glasses": [
+              "Glasses, slightly scratched, someone who works more than they park carefully."
+            ],
+            "Long hair": [
+              "Long hair, tied back tight against the wind."
+            ],
+            "Earrings": [
+              "Simple earrings, checked once, like they mattered more than the ticket."
+            ],
+            "Goatee": [
+              "A goatee, kept out of habit more than fashion."
+            ],
+            "Scarf": [
+              "A scarf, wrapped tight, the way everyone here learns eventually."
+            ]
           },
           "accent": {
-            "Polish": ["A Polish accent, steady, practical, not eager to be memorable."],
-            "Canadian": ["Canadian accent, polite, slightly out of place at this lot."],
-            "Mexican": ["Mexican accent, warm, an odd contrast to the grey outside."],
-            "Australian": ["Australian accent, casual, making our lines look excessive."],
-            "American": ["American accent, confident, parking like they already owned the spot."],
-            "Dutch": ["Dutch accent, direct, which people here actually respect."],
-            "British": ["British accent, formal, until the ticket machine got specific."],
-            "German": ["German accent, precise enough to double-check the gap twice."],
-            "Spanish": ["Spanish accent, lively, out of step with the quiet of the lot."],
-            "Belarussian": ["Belarussian accent, familiar, careful the way border towns teach you to be."],
-            "Russian": ["Russian accent, softened at the edges, still sharp about the fine."],
-            "Italian": ["Italian accent, animated, drawing more attention than the parking needed."],
-            "Irish": ["Irish accent, easygoing, offering stories instead of a straight answer."],
-            "French": ["French accent, amused by how seriously we take painted lines."],
-            "Ukrainian": ["Ukrainian accent, careful, used to being asked twice."],
-            "Indian": ["Indian accent, businesslike, adjusting fast to the cold and the rules."],
-            "Belgian": ["Belgian accent, quiet enough that most people miss it."]
+            "Polish": [
+              "A Polish accent, steady, practical, not eager to be memorable."
+            ],
+            "Canadian": [
+              "Canadian accent, polite, slightly out of place at this lot."
+            ],
+            "Mexican": [
+              "Mexican accent, warm, an odd contrast to the grey outside."
+            ],
+            "Australian": [
+              "Australian accent, casual, making our lines look excessive."
+            ],
+            "American": [
+              "American accent, confident, parking like they already owned the spot."
+            ],
+            "Dutch": [
+              "Dutch accent, direct, which people here actually respect."
+            ],
+            "British": [
+              "British accent, formal, until the ticket machine got specific."
+            ],
+            "German": [
+              "German accent, precise enough to double-check the gap twice."
+            ],
+            "Spanish": [
+              "Spanish accent, lively, out of step with the quiet of the lot."
+            ],
+            "Belarussian": [
+              "Belarussian accent, familiar, careful the way border towns teach you to be."
+            ],
+            "Russian": [
+              "Russian accent, softened at the edges, still sharp about the fine."
+            ],
+            "Italian": [
+              "Italian accent, animated, drawing more attention than the parking needed."
+            ],
+            "Irish": [
+              "Irish accent, easygoing, offering stories instead of a straight answer."
+            ],
+            "French": [
+              "French accent, amused by how seriously we take painted lines."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, careful, used to being asked twice."
+            ],
+            "Indian": [
+              "Indian accent, businesslike, adjusting fast to the cold and the rules."
+            ],
+            "Belgian": [
+              "Belgian accent, quiet enough that most people miss it."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -493,17 +925,34 @@
           ]
         },
         "repeatLines": [
-          ["We already discussed this car.", "It hasn't moved an inch or improved its manners."],
-          ["Back again?", "You and this city share the same persistence."],
-          ["No new clues.", "Only the same scratches and the same excuses."]
+          [
+            "We already discussed this car.",
+            "It hasn't moved an inch or improved its manners."
+          ],
+          [
+            "Back again?",
+            "You and this city share the same persistence."
+          ],
+          [
+            "No new clues.",
+            "Only the same scratches and the same excuses."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city, detective.", "Not ideal, but fixable."],
-          ["That lead was empty.", "Like the promise on most dashboards."],
-          ["The suspect isn't there.", "You'll need a new route, not a new ticket."]
+          [
+            "Wrong city, detective.",
+            "Not ideal, but fixable."
+          ],
+          [
+            "That lead was empty.",
+            "Like the promise on most dashboards."
+          ],
+          [
+            "The suspect isn't there.",
+            "You'll need a new route, not a new ticket."
+          ]
         ]
       },
-
       "new_delhi": {
         "banter": [
           "In New Delhi, parking is more negotiation than manoeuvre.",
@@ -544,37 +993,95 @@
         },
         "topics": {
           "features": {
-            "Glasses": ["Glasses fogged at the edges when they walked in from outside."],
-            "Necklace": ["A small pendant, tapping against the collar every time they lied."],
-            "Tattoo": ["A tattoo half-hidden under the sleeve, lines blurred slightly by heat and time."],
-            "Big forehead": ["Big forehead, gleaming under the heat, still deciding where to park."],
-            "Rainbow hair streak": ["A streak of colour in the hair, bright even in this glare."],
-            "Scar": ["A small scar, the kind nobody explains and everybody notices."],
-            "Moustache": ["A neat moustache, half the men here seem to grow one."],
-            "Beard": ["A short beard, more humidity than fashion by the time they parked."],
-            "Long hair": ["Long hair, tied back fast against the heat."],
-            "Earrings": ["Small earrings, catching light every time they argued about the fee."],
-            "Goatee": ["A goatee, trimmed despite the heat, which takes real dedication."],
-            "Scarf": ["A light scarf, more for the dust than for style."]
+            "Glasses": [
+              "Glasses fogged at the edges when they walked in from outside."
+            ],
+            "Necklace": [
+              "A small pendant, tapping against the collar every time they lied."
+            ],
+            "Tattoo": [
+              "A tattoo half-hidden under the sleeve, lines blurred slightly by heat and time."
+            ],
+            "Big forehead": [
+              "Big forehead, gleaming under the heat, still deciding where to park."
+            ],
+            "Rainbow hair streak": [
+              "A streak of colour in the hair, bright even in this glare."
+            ],
+            "Scar": [
+              "A small scar, the kind nobody explains and everybody notices."
+            ],
+            "Moustache": [
+              "A neat moustache, half the men here seem to grow one."
+            ],
+            "Beard": [
+              "A short beard, more humidity than fashion by the time they parked."
+            ],
+            "Long hair": [
+              "Long hair, tied back fast against the heat."
+            ],
+            "Earrings": [
+              "Small earrings, catching light every time they argued about the fee."
+            ],
+            "Goatee": [
+              "A goatee, trimmed despite the heat, which takes real dedication."
+            ],
+            "Scarf": [
+              "A light scarf, more for the dust than for style."
+            ]
           },
           "accent": {
-            "Indian": ["An Indian accent, local and quick, very used to talking over traffic."],
-            "American": ["American accent, but not local to here or there. Just passing through loudly."],
-            "Canadian": ["Canadian accent, polite even while haggling over the parking fee."],
-            "Mexican": ["Mexican accent, warm, right at home with the noise of the lot."],
-            "Australian": ["Australian accent, relaxed, though nothing here relaxes for long."],
-            "Dutch": ["Dutch accent, blunt, cutting past the small talk straight to the ticket."],
-            "German": ["German accent, oddly composed given the chaos of the lot."],
-            "Polish": ["Polish accent, steady, unbothered by the heat or the haggling."],
-            "Spanish": ["Spanish accent, animated, matching the energy of the street outside."],
-            "Belarussian": ["Belarussian accent, quiet, watching the car more than speaking."],
-            "Russian": ["Russian accent, measured, unaffected by the general commotion."],
-            "Italian": ["Italian accent, theatrical, turning a simple parking job into a performance."],
-            "Irish": ["Irish accent, friendly, chatting past every interruption without losing the spot."],
-            "French": ["French accent, cool, unmoved by the heat or the crowd."],
-            "Ukrainian": ["Ukrainian accent, alert, watching the lot as much as the stranger."],
-            "British": ["British accent, melting slightly with the first blast of heat."],
-            "Belgian": ["Belgian accent, easy to miss under all this noise. I didn't."]
+            "Indian": [
+              "An Indian accent, local and quick, very used to talking over traffic."
+            ],
+            "American": [
+              "American accent, but not local to here or there. Just passing through loudly."
+            ],
+            "Canadian": [
+              "Canadian accent, polite even while haggling over the parking fee."
+            ],
+            "Mexican": [
+              "Mexican accent, warm, right at home with the noise of the lot."
+            ],
+            "Australian": [
+              "Australian accent, relaxed, though nothing here relaxes for long."
+            ],
+            "Dutch": [
+              "Dutch accent, blunt, cutting past the small talk straight to the ticket."
+            ],
+            "German": [
+              "German accent, oddly composed given the chaos of the lot."
+            ],
+            "Polish": [
+              "Polish accent, steady, unbothered by the heat or the haggling."
+            ],
+            "Spanish": [
+              "Spanish accent, animated, matching the energy of the street outside."
+            ],
+            "Belarussian": [
+              "Belarussian accent, quiet, watching the car more than speaking."
+            ],
+            "Russian": [
+              "Russian accent, measured, unaffected by the general commotion."
+            ],
+            "Italian": [
+              "Italian accent, theatrical, turning a simple parking job into a performance."
+            ],
+            "Irish": [
+              "Irish accent, friendly, chatting past every interruption without losing the spot."
+            ],
+            "French": [
+              "French accent, cool, unmoved by the heat or the crowd."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, alert, watching the lot as much as the stranger."
+            ],
+            "British": [
+              "British accent, melting slightly with the first blast of heat."
+            ],
+            "Belgian": [
+              "Belgian accent, easy to miss under all this noise. I didn't."
+            ]
           },
           "cars": [
             "They admired {classicCar} and asked where it was made.",
@@ -582,17 +1089,166 @@
           ]
         },
         "repeatLines": [
-          ["We already talked, detective.", "Since then only the dust has settled. A little."],
-          ["Back again?", "You must enjoy heat, noise, and deja vu."],
-          ["No fresh clues.", "Just the same cars trying to fit where they don't."]
+          [
+            "We already talked, detective.",
+            "Since then only the dust has settled. A little."
+          ],
+          [
+            "Back again?",
+            "You must enjoy heat, noise, and deja vu."
+          ],
+          [
+            "No fresh clues.",
+            "Just the same cars trying to fit where they don't."
+          ]
         ],
         "falseLeadLines": [
-          ["Wrong city.", "Bold turn, wrong direction."],
-          ["That lead went nowhere useful.", "Like a car trapped in the wrong lane forever."],
-          ["Your suspect is somewhere else.", "You only managed to overheat your case."]
+          [
+            "Wrong city.",
+            "Bold turn, wrong direction."
+          ],
+          [
+            "That lead went nowhere useful.",
+            "Like a car trapped in the wrong lane forever."
+          ],
+          [
+            "Your suspect is somewhere else.",
+            "You only managed to overheat your case."
+          ]
+        ]
+      },
+      "singapore": {
+        "banter": [
+          "I remember cars. Faces are something the cars keep bringing with them.",
+          "If you're looking for a quick exit, begin by not parking across it.",
+          "A driver asked whether the shade would stay there all afternoon. I explained the sun's limited interest in reservations."
+        ],
+        "topics": {
+          "features": {
+            "Big forehead": [
+              "Broad forehead, calculating expression, no patience for small talk."
+            ],
+            "Tattoo": [
+              "A tattoo, mostly hidden, which only made it more obvious to me."
+            ],
+            "Rainbow hair streak": [
+              "There was a streak of color in the hair. Hard to miss."
+            ],
+            "Necklace": [
+              "A necklace flashed once when they reached for the keys."
+            ],
+            "Scar": [
+              "A scar, old enough to be history, visible enough to still matter."
+            ],
+            "Moustache": [
+              "A moustache so deliberate it looked like part of a disguise kit."
+            ],
+            "Glasses": [
+              "Glasses, but the way they scanned number plates told me vision was not the issue."
+            ],
+            "Beard": [
+              "A beard, neat enough to suggest planning, not laziness."
+            ],
+            "Long hair": [
+              "Long hair, tied back like they didn't want it remembered."
+            ],
+            "Earrings": [
+              "Small earrings, chosen carefully, like everything else about them."
+            ],
+            "Goatee": [
+              "A goatee. Very curated. I distrust curated faces."
+            ],
+            "Scarf": [
+              "A scarf, wound tight, like they didn't want their face remembered either."
+            ]
+          },
+          "accent": {
+            "Canadian": [
+              "Canadian accent, polite in shape, cautious in intent."
+            ],
+            "Mexican": [
+              "Mexican accent, warm voice, sharp questions."
+            ],
+            "Australian": [
+              "Australian accent, casual tone, watchful eyes."
+            ],
+            "American": [
+              "American accent, confident enough to treat the lot like a stage."
+            ],
+            "Dutch": [
+              "Dutch accent, precise and tidy, like the way they shut the car door."
+            ],
+            "British": [
+              "British accent, local enough to blend, polished enough to ring false."
+            ],
+            "German": [
+              "German accent, efficient, clipped, no wasted syllables."
+            ],
+            "Polish": [
+              "Polish accent, grounded, unshowy, very hard to read."
+            ],
+            "Spanish": [
+              "Spanish accent, quick and smooth, but there was nothing casual underneath it."
+            ],
+            "Belarussian": [
+              "Belarussian accent, soft delivery, armored intent."
+            ],
+            "Russian": [
+              "Russian accent, measured like every word had passed inspection."
+            ],
+            "Italian": [
+              "Italian accent, charming on the surface, controlled underneath."
+            ],
+            "Irish": [
+              "Irish accent, friendly enough to distract from what they were really doing."
+            ],
+            "French": [
+              "French accent, polished, self-aware, impossible to mistake."
+            ],
+            "Belgian": [
+              "Belgian accent, subtle enough to slip past most people. Not me."
+            ],
+            "Ukrainian": [
+              "Ukrainian accent, quiet, watching the barrier arm more than me."
+            ],
+            "Indian": [
+              "Indian accent, quick, negotiating the parking fee like a market stall."
+            ]
+          },
+          "cars": [
+            "They admired {classicCar} and asked where it was made.",
+            "They asked about driving here - I mentioned {drivingFact}."
+          ]
+        },
+        "repeatLines": [
+          [
+            "We already talked, detective.",
+            "Since then, only the drizzle has changed."
+          ],
+          [
+            "Back again?",
+            "Same car, same spot, same bad idea."
+          ],
+          [
+            "No new clues.",
+            "Just more damp footprints and patient taxis."
+          ]
+        ],
+        "falseLeadLines": [
+          [
+            "Wrong city, detective.",
+            "Even the parking meters knew that wasn't right."
+          ],
+          [
+            "That lead stalled on the wrong street.",
+            "Next time, trust the map, not the mood."
+          ],
+          [
+            "Your suspect wasn't there.",
+            "Only confused tourists and angry cab drivers."
+          ]
         ]
       }
-
     }
   }
 }
