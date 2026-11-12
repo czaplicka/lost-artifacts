@@ -1,4 +1,5 @@
 import { agencyManualData,hasAgencyFieldManual,getAgencyManualChapter } from '../managers/AgencyManualService.js';
+import { prepareManualReaderAudio,playManualReaderAudio } from './ManualReaderAudio.js';
 
 let active=null;
 const STYLE_ID='agency-field-manual-reader-style';
@@ -34,11 +35,14 @@ export function openAgencyFieldManual(chapterId='overview',{ownerScene=null}={})
   footer.textContent='Reading is free. The book remains in your inventory. Missing copy? Ask Alex in Storage.';
   dialog.append(header,nav,article,footer);document.body.appendChild(dialog);
   const buttons=[];
-  const select=id=>{
-    const chapter=getAgencyManualChapter(id);article.replaceChildren();
+  let selectedChapterId=null;
+  const select=(id,{sound=true}={})=>{
+    const chapter=getAgencyManualChapter(id),changed=selectedChapterId!==chapter.id;article.replaceChildren();
     const heading=document.createElement('h2');heading.textContent=chapter.title;article.appendChild(heading);
     for(const text of chapter.paragraphs){const paragraph=document.createElement('p');paragraph.textContent=text;article.appendChild(paragraph);}
     buttons.forEach(({id,button})=>button.setAttribute('aria-current',String(id===chapter.id)));
+    selectedChapterId=chapter.id;
+    if(sound&&changed&&active?.dialog===dialog)playManualReaderAudio(owner,'page');
   };
   for(const chapter of agencyManualData.chapters){
     const button=document.createElement('button');button.type='button';button.textContent=chapter.title;
@@ -46,6 +50,7 @@ export function openAgencyFieldManual(chapterId='overview',{ownerScene=null}={})
   }
   const game=window.game;
   const owner=ownerScene||game?.scene?.keys?.[game.registry?.get('currentSceneKey')];
+  prepareManualReaderAudio(owner);
   const stopKeys=event=>{
     if(active?.dialog!==dialog)return;
     event.stopPropagation();event.stopImmediatePropagation();
@@ -67,7 +72,8 @@ export function openAgencyFieldManual(chapterId='overview',{ownerScene=null}={})
   });
   window.addEventListener('keydown',stopKeys,true);
   owner?.events?.once('shutdown',finish);owner?.events?.once('sleep',finish);game?.events?.once('destroy',finish);
-  select(chapterId);
+  select(chapterId,{sound:false});
   try{dialog.showModal();dialog.focus();}catch(error){finish();return{ok:false,consumed:false,message:`The manual could not be opened: ${error.message}`};}
+  playManualReaderAudio(owner,'paper');
   return{ok:true,consumed:false,openedDocument:true,message:''};
 }

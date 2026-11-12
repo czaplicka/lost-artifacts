@@ -9,6 +9,29 @@ import { openAgencyFieldManual,isAgencyManualOpen,closeAgencyFieldManual } from 
 import { createAlarmState,restoreAlarmState,buildAlarmSolution,applyAlarmAction,removeAlarmScrew,describeAlarmAction } from './alarm/AlarmPanelModel.js';
 import { AlarmPanelHelpController } from './alarm/AlarmPanelHelpController.js';
 const WRONG_LINES=['The panel buzzes. It is judging you.','Nope. The manual weeps quietly in the corner.','A tiny "REALLY?" flickers on the display.','The panel pretends nothing happened.'];
+const LEAFLET_TITLE='MODEL SP-300 / INSTALLER LEAFLET';
+// Only hardware facts for THIS device. How to begin and how to leave live in the Agency Field Manual, buried on purpose.
+const LEAFLET_TEXT=[
+  'Please keep this leaflet. The device will not.',
+  '',
+  '1. WARRANTY',
+  'Void if opened. Void if unopened. Void on Tuesdays.',
+  '',
+  '2. FIRMWARE AND THE LIVE SWITCH',
+  'Only one DIP switch is wired to the controller. Which one depends on the firmware generation on the display. v3.x: the first switch. v2.x: the second. Switches 3 and 4 are decorative. The live switch goes ON, never off.',
+  '',
+  '3. ZONE LOAD AND RESET',
+  'RESET clears the zone buffer, and timing matters. With more than 3 zones tripped, clear the buffer BEFORE touching the live switch. With 3 or fewer, touch the live switch FIRST and clear the buffer afterwards.',
+  '',
+  '4. WRONG INPUT',
+  'Costs 50 points. Every third error wipes the buffer and returns all switches to OFF. Reading this leaflet is free.',
+  '',
+  '5. IDENTIFICATION',
+  'The identification plate is not on the front. Nothing important is.',
+  '',
+  '6. BEGINNING AND ENDING',
+  'Covered, somewhere, by your Agency Field Manual. Try the back.'
+].join('\n');
 export class AlarmPanelScene extends BaseScene{
   constructor(){super({key:'AlarmPanelScene'});}
   init(data={}){
@@ -132,7 +155,8 @@ export class AlarmPanelScene extends BaseScene{
     lines.slice(0,4).forEach((line,index)=>this.resultTimers.push(this.time.delayedCall(350*(index+1),()=>this.displayText.setText(['EVENT LOG',...lines.slice(0,index+1)].join('\n')))));
   }
   openAgencyManual(){
-    const result=openAgencyFieldManual('security-panels',{ownerScene:this});if(!result.ok)this.setMessage(result.message);
+    // No chapter id on purpose: the book opens on its cover / bookmark and the player has to find the pages themselves.
+    const result=openAgencyFieldManual('overview',{ownerScene:this});if(!result.ok)this.setMessage(result.message);
   }
   toggleManual(){
     if(this.manual){this.manual.destroy(true);this.manual=null;return;}
@@ -140,8 +164,13 @@ export class AlarmPanelScene extends BaseScene{
     const panel=this.add.container(0,0);this.manual=panel;this.root.add(panel);
     const shade=this.add.rectangle(720,500,1440,1000,0x000000,0.82).setInteractive();shade.on('pointerdown',(p,x,y,event)=>event?.stopPropagation());panel.add(shade);
     panel.add(this.add.rectangle(720,495,1260,850,0xf1ead8).setStrokeStyle(4,0x8a7f5c));
-    const text=`DEVICE SERVICE NOTE\nHardware-specific information / keep with this device\n\nSERIAL LOCATION\nUnder the service cover. Remove both screws.\n\nFIRMWARE / CONNECTED SWITCH\nv3.x: use DIP 1.\nv2.x: use DIP 2.\nDIP 3 and DIP 4 are not connected.\n\nINTERMEDIATE OPERATIONS\nMore than 3 tripped zones: RESET, then selected DIP ON.\n3 or fewer tripped zones: selected DIP ON, then RESET.\n\nFor the STARTING button and FINISHING sequence, consult\nAgency Field Manual / Electronic service panels.\n\nWrong input: -50 points. Every third error resets the buffer\nand all DIP switches to OFF. Reading either document is free.`;
-    panel.add(this.add.text(145,120,text,{fontFamily:'SpecialElite, monospace',fontSize:'28px',color:'#2b2b2b',wordWrap:{width:1150},lineSpacing:7}));
+    // Faint coffee ring, because every leaflet has one.
+    panel.add(this.add.circle(1080,700,62,0x000000,0).setStrokeStyle(7,0x8a6a3a,0.18));
+    panel.add(this.add.text(145,98,LEAFLET_TITLE,{fontFamily:'PressStart2P, monospace',fontSize:'19px',color:'#173527'}));
+    const body=this.add.text(145,150,LEAFLET_TEXT,{fontFamily:'SpecialElite, monospace',fontSize:'23px',color:'#2b2b2b',wordWrap:{width:1150},lineSpacing:4});
+    // Shrink the leaflet until it fits above the close button.
+    for(let size=23;body.height>660&&size>13;size--)body.setFontSize(size);
+    panel.add(body);
     const close=this.add.text(720,862,'CLOSE NOTE / ESC',{fontFamily:'SpecialElite',fontSize:'25px',color:'#ffe2a1',backgroundColor:'#234333',padding:{x:20,y:12}}).setOrigin(0.5).setInteractive({useHandCursor:true});
     close.on('pointerdown',(p,x,y,event)=>{event?.stopPropagation();this.toggleManual();});panel.add(close);this.playSfx('sfx_paper');
   }

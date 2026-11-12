@@ -12,6 +12,7 @@ export class PlayerMenuUI {
         this.debugHitboxes = false;
         this.crimeBoardAvailable = false;
         this.phoneAvailable = canUsePhone(scene);
+        this._officeRoomMenuSceneKey = scene.currentGameplaySceneKey;
         this.isDestroyed = false;
 
         this.boundToggleHandler = this.onToggleKeyDown.bind(this);
@@ -192,6 +193,13 @@ export class PlayerMenuUI {
     refreshPhoneAvailability() {
         if (this.isDestroyed || !this.scene) return;
 
+        const gameplayKey = this.scene.currentGameplaySceneKey;
+
+        if (gameplayKey !== this._officeRoomMenuSceneKey) {
+            this._officeRoomMenuSceneKey = gameplayKey;
+            this.rebuildLayout();
+        }
+
         const available = this.canOpenPhone();
 
         if (available === this.phoneAvailable) return;
@@ -211,7 +219,73 @@ export class PlayerMenuUI {
         }
     }
 
+    // OFFICE ROOM MENU ENTRIES
+
+    getOfficeRoomScene() {
+        if (
+            this.isDestroyed ||
+            !this.scene ||
+            this.scene.currentGameplaySceneKey !== 'OfficeScene'
+        ) {
+            return null;
+        }
+
+        const office = this.scene.scene.get('OfficeScene');
+
+        return office?.isOfficeActive?.() ? office : null;
+    }
+
+    canOpenOfficeRoom(room) {
+        const office = this.getOfficeRoomScene();
+
+        if (!office) return false;
+
+        if (room === 'storage') {
+            return !office.isStorageBlocked();
+        }
+
+        if (room === 'archive') {
+            return !office.isArchiveBlocked();
+        }
+
+        return false;
+    }
+
+    async openOfficeRoom(room) {
+        if (!this.canOpenOfficeRoom(room)) return false;
+
+        const office = this.getOfficeRoomScene();
+
+        if (!office) return false;
+
+        this.close();
+
+        try {
+            if (room === 'storage') {
+                return await office.openStorage();
+            }
+
+            if (room === 'archive') {
+                return await office.openArchive();
+            }
+
+            return false;
+        } catch (error) {
+            console.error(
+                '[PlayerMenuUI] Office room failed:',
+                room,
+                error
+            );
+
+            return false;
+        }
+    }
+
     isButtonAvailable(button) {
+        if (button.officeRoom) {
+            return Boolean(this.getOfficeRoomScene());
+        }
+
         if (button.key === 'telephone') {
             return this.phoneAvailable;
         }
@@ -647,6 +721,26 @@ export class PlayerMenuUI {
     createMenuButtons() {
         const data = [
             {
+                key: 'office_storage',
+                label: 'Storage',
+                hotkey: '',
+                officeRoom: 'storage',
+                fallbackIcon: 'ST',
+                action: () => {
+                    void this.openOfficeRoom('storage');
+                }
+            },
+            {
+                key: 'office_archive',
+                label: 'Archive',
+                hotkey: '',
+                officeRoom: 'archive',
+                fallbackIcon: 'AR',
+                action: () => {
+                    void this.openOfficeRoom('archive');
+                }
+            },
+            {
                 key: 'filebutt',
                 label: 'Case File',
                 hotkey: 'f',
@@ -703,7 +797,10 @@ export class PlayerMenuUI {
                 fallbackIcon: '🎒',
                 action: () => this.openInventory()
             }
-        ];
+        ].filter(item =>
+            !item.officeRoom ||
+            this.scene.currentGameplaySceneKey === 'OfficeScene'
+        );
 
         const isMobile = !this.scene.sys.game.device.os.desktop;
         const padding = isMobile ? 22 : 42;
@@ -713,7 +810,15 @@ export class PlayerMenuUI {
 
         const iconY = isMobile ? 48 : 62;
         const labelY = isMobile ? 102 : 132;
-        const radius = this.config.slotRadius;
+        const radius = Math.min(
+            this.config.slotRadius,
+            spacing * 0.42
+        );
+
+        const iconSize = Math.min(
+            this.config.buttonSize,
+            spacing * 0.76
+        );
 
         data.forEach((item, index) => {
             const x = startX + index * spacing;
@@ -742,10 +847,7 @@ export class PlayerMenuUI {
 
             if (this.scene.textures.exists(textureKey)) {
                 icon = this.scene.add.image(0, iconY, textureKey);
-                icon.setDisplaySize(
-                    this.config.buttonSize,
-                    this.config.buttonSize
-                );
+                icon.setDisplaySize(iconSize, iconSize);
             } else {
                 if (!item.fallbackIcon) {
                     console.warn(
@@ -758,7 +860,23 @@ export class PlayerMenuUI {
                         0,
                         iconY,
                         item.fallbackIcon || '❔',
-                        { fontSize: isMobile ? '31px' : '42px' }
+                        {
+                            fontFamily: item.officeRoom
+                                ? 'SpecialElite'
+                                : 'sans-serif',
+                            fontSize: (
+                                item.officeRoom
+                                    ? Math.max(
+                                        12,
+                                        Math.floor(iconSize * 0.42)
+                                    )
+                                    : Math.min(
+                                        isMobile ? 31 : 42,
+                                        iconSize
+                                    )
+                            ) + 'px',
+                            color: '#f2d477'
+                        }
                     )
                     .setOrigin(0.5);
             }
@@ -774,12 +892,18 @@ export class PlayerMenuUI {
                 { fontSize: this.config.fontSize }
             );
 
+            if (label.width > spacing * 0.9) {
+                label.setScale((spacing * 0.9) / label.width);
+            }
+
+            shadow.setDisplaySize(
+                Math.min(isMobile ? 38 : 52, spacing * 0.66),
+                isMobile ? 10 : 14
+            );
+
             container.add([background, shadow, icon, label]);
 
-            const hitWidth = Math.max(
-                spacing * 0.92,
-                this.config.buttonSize + 12
-            );
+            const hitWidth = spacing * 0.92;
 
             const hitArea = this.scene.add
                 .rectangle(
@@ -793,6 +917,10 @@ export class PlayerMenuUI {
                 .setInteractive({ useHandCursor: true });
 
             const actionAllowed = () => {
+                if (item.officeRoom) {
+                    return this.canOpenOfficeRoom(item.officeRoom);
+                }
+
                 if (item.key === 'telephone') {
                     return this.canOpenPhone();
                 }
@@ -912,6 +1040,7 @@ export class PlayerMenuUI {
                 icon,
                 shadow,
                 label,
+                officeRoom: item.officeRoom || null,
                 restricted: Boolean(item.restricted)
             };
 

@@ -194,10 +194,8 @@ export class ShopScene extends BaseScene {
       highlight.fillStyle(0x00ff88, 0.2); highlight.fillRect(cfg.x - cfg.w / 2, cfg.y - cfg.h / 2, cfg.w, cfg.h);
       highlight.lineStyle(2, index === this.selectedIndex ? 0xff44ff : 0x00ff88, 1);
       highlight.strokeRect(cfg.x - cfg.w / 2, cfg.y - cfg.h / 2, cfg.w, cfg.h);
-    } else if (hs.hovered && !this.hudPanelOpen && !this.exiting) {
-      highlight.fillStyle(0xffd166, 0.18); highlight.fillRect(cfg.x - cfg.w / 2, cfg.y - cfg.h / 2, cfg.w, cfg.h);
     }
-    highlight.setVisible(debugging || (hs.hovered && !this.hudPanelOpen && !this.exiting)); label?.setVisible(debugging);
+    highlight.setVisible(debugging); label?.setVisible(debugging);
   }
   setDebugMode(enabled) {
     if (!LOCAL_DEBUG_ALLOWED) return;

@@ -43,6 +43,10 @@ export class ArchiveScene extends BaseScene {
   }
 
   preload() {
+    if (!this.textures.exists('back')) {
+      this.load.image('back', 'assets/buttons/back.webp');
+    }
+
     const manifest = this.cache.json.get('assetManifest');
     for (const key of ['archive', 'archivist']) {
       if (this.textures.exists(key)) continue;
@@ -296,7 +300,25 @@ export class ArchiveScene extends BaseScene {
       object.on('pointerout', () => object.setColor('#f2d477'));
       return object;
     };
-    this.backButton = button('< BACK TO OFFICE', () => { void this.returnToOffice(); }).setOrigin(0, 1);
+    
+    this.backButton = this.add
+      .image(0, 0, 'back')
+      .setOrigin(0, 1)
+      .setDepth(100)
+      .setInteractive({ useHandCursor: true });
+
+    this.backButton.on('pointerdown', () => {
+      void this.returnToOffice();
+    });
+
+    this.backButton.on('pointerover', () => {
+      this.backButton?.setTint(0xffe4a3);
+    });
+
+    this.backButton.on('pointerout', () => {
+      this.backButton?.clearTint();
+    });
+
     this.nextMissionButton = button('NEXT MISSION >', () => { void this.openNextMission(); }).setOrigin(1, 1).setVisible(false);
     this.puzzleButton = button('SORT INDEX CARDS', () => { void this.openIndexPuzzle(); }).setOrigin(0.5, 1).setVisible(false);
     this.statusText = this.add.text(0, 0, '', { ...style, align: 'center' }).setOrigin(0.5, 0).setDepth(110).setVisible(false);
@@ -310,7 +332,18 @@ export class ArchiveScene extends BaseScene {
     this.frankHotspot?.setPosition(b.x, b.y);
     this.frankLabel?.setPosition(b.x + b.width / 2, b.y - 10);
     const font = width < 600 ? '14px' : '22px';
-    this.backButton?.setFontSize(font).setPosition(16, height - 24);
+    
+    if (this.backButton) {
+      const buttonWidth = Math.min(
+        width < 600 ? 120 : 160,
+        width * 0.3
+      );
+
+      this.backButton
+        .setScale(buttonWidth / this.backButton.width)
+        .setPosition(16, height - 24);
+    }
+
     this.nextMissionButton?.setFontSize(font).setPosition(width - 16, height - (width < 400 ? 82 : 24));
     this.puzzleButton?.setFontSize(font).setPosition(width / 2, height - (width < 400 ? 138 : 90));
     this.statusText?.setPosition(width / 2, 100).setWordWrapWidth(Math.max(120, Math.min(width - 48, 760)), true);

@@ -741,3 +741,109 @@
     animation: none !important;
   }
 }
+
+/* BEGIN LARGE ROUND HUD ICONS */
+
+#hud-container .hud-buttons {
+  --hud-action-size: 48px;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* The graphics already contain their circular design. */
+#hud-container .hud-buttons .hud-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--hud-action-size);
+
+  width: var(--hud-action-size);
+  height: var(--hud-action-size);
+  min-width: var(--hud-action-size);
+  min-height: var(--hud-action-size);
+
+  margin: 0;
+  padding: 0;
+
+  object-fit: contain;
+  object-position: center;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+
+  cursor: pointer;
+  touch-action: manipulation;
+
+  transition:
+    transform 120ms ease,
+    filter 120ms ease;
+}
+
+#hud-container .hud-buttons .hud-icon-btn:hover {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transform: translateY(-2px) scale(1.05);
+  filter: brightness(1.12);
+}
+
+#hud-container .hud-buttons .hud-icon-btn:active {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  transform: translateY(1px) scale(0.96);
+}
+
+#hud-container .hud-buttons .hud-icon-btn:focus-visible {
+  outline: 2px solid var(--hud-brass-light, #f0d77a);
+  outline-offset: 3px;
+}
+
+/* Override the store image's inline 26px dimensions. */
+#hud-container #btn-expansion-store > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+#hud-container .hud-buttons .hud-icon-btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  #hud-container .hud-buttons {
+    --hud-action-size: 42px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 390px) {
+  #hud-container .hud-buttons {
+    --hud-action-size: 38px;
+    gap: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hud-container .hud-buttons .hud-icon-btn {
+    transition: none;
+  }
+
+  #hud-container .hud-buttons .hud-icon-btn:hover,
+  #hud-container .hud-buttons .hud-icon-btn:active {
+    transform: none;
+  }
+}
+
+/* END LARGE ROUND HUD ICONS */

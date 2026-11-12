@@ -1,1 +1,30 @@
-*{box-sizing:border-box}body{margin:0;background:#14212a;color:#ece5d4;font:16px/1.5 system-ui,sans-serif}header{display:flex;align-items:center;gap:20px;padding:20px;background:#223641;border-bottom:2px solid #b69561}h1{font-size:24px;margin:0 auto 0 0}h2{font-size:20px;color:#ebd2a3}section{background:#1c2c35;border:1px solid #415760;border-radius:8px;padding:22px;margin:18px}#login{max-width:550px;margin:40px auto}#editor{display:grid;grid-template-columns:270px 1fr;max-width:1500px;margin:auto}aside{padding:18px;position:sticky;top:0;align-self:start}label{display:block;margin-bottom:15px;font-size:14px}input,select,textarea{width:100%;display:block;background:#101d25;border:1px solid #68818b;border-radius:5px;color:#f6efdf;padding:10px;font:inherit;margin-top:5px}textarea{min-height:90px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.checks{display:flex;flex-wrap:wrap;gap:16px}.checks label,.check{display:flex;align-items:center;gap:8px}.checks input,.check input{width:auto}button{background:#d8b678;color:#14212a;padding:11px 16px;border:0;border-radius:5px;font-weight:650;cursor:pointer;margin:5px 6px 8px 0}button:disabled{opacity:.55;cursor:wait}p,aside{font-size:13px;color:#bfcdd0}details{border:1px solid #47616b;padding:12px;margin:15px 0}summary{cursor:pointer;color:#e7c58b}.results{max-height:220px;overflow:auto}.results button{display:block;width:100%;text-align:left;background:#304a58;color:#f6ead2}.card{padding:16px;border:1px solid #536b75;border-radius:6px;margin:16px 0}#message{white-space:pre-wrap;padding:12px 24px;overflow-wrap:anywhere;color:#f6d79c}.error{color:#ffb9ad!important}#imagePreview{width:100%;max-height:400px;object-fit:contain;background:#091219}#planFiles{font-family:monospace;overflow-wrap:anywhere}#account{font-size:13px}[hidden]{display:none!important}@media(max-width:850px){#editor{grid-template-columns:1fr}aside{position:static}.grid{grid-template-columns:1fr}header{flex-wrap:wrap}section{margin:10px;padding:15px}}
+*{box-sizing:border-box}
+:root{color-scheme:dark}
+body{margin:0;background:#14212a;color:#ece5d4;font:16px/1.5 system-ui,sans-serif}
+header{display:flex;align-items:center;gap:20px;padding:20px;background:#223641;border-bottom:2px solid #b69561}
+h1{font-size:24px;margin:0 auto 0 0}h2{font-size:20px;color:#ebd2a3}h3{font-size:17px;color:#ebd2a3;margin-top:28px}
+section{background:#1c2c35;border:1px solid #415760;border-radius:8px;padding:22px;margin:18px}
+#login{max-width:550px;margin:40px auto}#editor{display:grid;grid-template-columns:270px minmax(0,1fr);max-width:1500px;margin:auto}main{min-width:0}
+aside{padding:18px;position:sticky;top:0;align-self:start}fieldset{border:0;padding:0;margin:0;min-width:0}
+label{display:block;margin-bottom:15px;font-size:14px}
+input,select,textarea{width:100%;min-width:0;display:block;background:#101d25;border:1px solid #68818b;border-radius:5px;color:#f6efdf;padding:10px;font:inherit;margin-top:5px}
+textarea{min-height:90px;resize:vertical}input[readonly]{background:#24323b;border-style:dashed;color:#c7d1d5}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #f0d09a;outline-offset:3px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}.checks{display:flex;flex-wrap:wrap;gap:16px}
+.checks label,.check{display:flex;align-items:center;gap:8px}.checks input,.check input{width:auto;margin-top:0}
+button{background:#d8b678;color:#14212a;padding:11px 16px;border:0;border-radius:5px;font:inherit;font-weight:650;cursor:pointer;margin:5px 6px 8px 0}
+button:hover:not(:disabled){background:#ebcd98}button:disabled{opacity:.55;cursor:wait}input:disabled,select:disabled,textarea:disabled{opacity:.65}
+p,aside{font-size:13px;color:#bfcdd0}details{border:1px solid #47616b;padding:12px;margin:15px 0}summary{cursor:pointer;color:#e7c58b}details[open]>summary{margin-bottom:15px}
+.results{max-height:220px;overflow:auto}.results button{display:block;width:100%;text-align:left;background:#304a58;color:#f6ead2}.results button:hover:not(:disabled){background:#3b5b6b}
+.card{padding:16px;border:1px solid #536b75;border-radius:6px;margin:16px 0}
+#message{white-space:pre-wrap;padding:12px 24px;overflow-wrap:anywhere;color:#f6d79c}.error{color:#ffb9ad!important}
+#imagePreview{width:100%;max-height:400px;object-fit:contain;background:#091219}#planFiles{font-family:monospace;overflow-wrap:anywhere}#planWarnings li{margin-bottom:10px}#account{font-size:13px;overflow-wrap:anywhere}
+#identityStatus{padding:10px 12px;background:#15232c;border-left:3px solid #d8b678}#countryStatus:empty{display:none}
+.notice{padding:14px;background:#293626;border:1px solid #6e7850;border-radius:6px;color:#e0dfbf;font-size:13px}
+#diffList{display:grid;gap:18px}.diff-card{min-width:0;overflow:hidden;border:1px solid #536b75;border-radius:6px;background:#15232c}.diff-card>h4{padding:12px 14px;margin:0;background:#253641;font:14px/1.6 monospace;overflow-wrap:anywhere}.diff-card>p{padding:12px}
+.diff-row{border-top:1px solid #415760;border-left:4px solid #f0cd84}.diff-row.added{border-left-color:#80d5a0}.diff-row.removed{border-left-color:#ffb2a9}
+.diff-row>h5{margin:0;padding:10px 14px;font:13px/1.5 monospace;overflow-wrap:anywhere}.diff-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.diff-columns>div{min-width:0;padding:14px;background:#192a25}.diff-columns>div:first-child{background:#251f24;border-right:1px solid #415760}.diff-columns h6{margin:0 0 8px;font-size:12px;text-transform:uppercase;color:#d6dfe1}
+pre{font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}#locationOverrides{padding:12px;background:#101d25}
+hr{margin:24px 0;border:0;border-top:1px solid #415760}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+@media(max-width:850px){#editor{grid-template-columns:minmax(0,1fr)}aside{position:static}.grid,.diff-columns{grid-template-columns:minmax(0,1fr)}header{flex-wrap:wrap}section{margin:10px;padding:15px}#login{margin:20px 10px}.diff-columns>div:first-child{border-right:0;border-bottom:1px solid #415760}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

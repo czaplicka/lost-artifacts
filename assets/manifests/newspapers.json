@@ -217,30 +217,6 @@
       ]
     },
     {
-      "key": "paper_daily_bg",
-      "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "newspapers"
-      ]
-    },
-    {
-      "key": "paper_daily_bg_1920x1080",
-      "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "backgrounds"
-      ]
-    },
-    {
-      "key": "paper_fallback_blank",
-      "url": "assets/newspapers/paper_daily_bg_1920x1080.webp",
-      "type": "image",
-      "groups": [
-        "newspapers"
-      ]
-    },
-    {
       "key": "paper_hq_archive_photo",
       "url": "assets/newspapers/newspapers/paper_hq_archive_photo.webp",
       "type": "image",

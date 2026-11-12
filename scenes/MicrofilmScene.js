@@ -1,9 +1,11 @@
 import { BaseScene } from './BaseScene.js';
 import { microfilmData as DATA,getMicrofilmStory,storeMicrofilm } from '../johnMicrofilmService.js';
 import { normalizeMicrofilm,receiveMicrofilm,microfilmAligned,microfilmFocused,markMicrofilmDifference,chooseMicrofilmCity } from './archive/MicrofilmModel.js';
+import { preloadReaderAudio,playReaderAudio } from './archive/ReaderAudio.js';
 export class MicrofilmScene extends BaseScene{
  constructor(){super({key:'MicrofilmScene'});}
  init(data={}){this.preview=data.preview===true;this.mode=data.mode==='receive'?'receive':'compare';this.returnSceneKey=data.returnSceneKey??null;this.onFinished=typeof data.onFinished==='function'?data.onFinished:null;this.progress=null;this.closing=false;this.savedOk=null;this.lockUntil=0;this.message='';this.activeReel='left';this.layers=[];this.parentPaused=false;}
+ preload(){preloadReaderAudio(this,['click','evidence','success']);}
  create(){
   super.create();const story=getMicrofilmStory();this.allowed=this.preview||(story.eligible&&(this.mode==='receive'||story.copyReceived));this.progress=normalizeMicrofilm(DATA,this.preview?null:story);if(this.preview&&this.mode==='compare')this.progress.copyReceived=true;
   this.cameras.main.setBackgroundColor('#101811');this.root=this.add.container(0,0);this.root.add(this.add.rectangle(800,500,1600,1000,0x19291f));
@@ -18,15 +20,15 @@ export class MicrofilmScene extends BaseScene{
  }
  text(x,y,value,size=25,width=1400,color='#eee0bf',parent=this.content,font='SpecialElite'){const t=this.add.text(x,y,value,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color,align:'center',wordWrap:{width},lineSpacing:6}).setOrigin(.5);parent.add(t);return t;}
  button(x,y,value,callback,parent=this.content){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite',fontSize:'23px',color:'#ffe2ae',backgroundColor:'#36513d',padding:{x:16,y:11}}).setOrigin(.5).setInteractive({useHandCursor:true});t.on('pointerdown',(p,x,y,e)=>{e?.stopPropagation();if(!this.closing&&this.time.now>=this.lockUntil){this.lockUntil=this.time.now+140;callback();}});parent.add(t);return t;}
- persist(){if(this.preview||!this.allowed)return;const result=storeMicrofilm(this.progress);this.savedOk=result.saved;if(!result.success)this.message='Story requirements changed. No progress was committed.';}
+ persist(){if(this.preview)return true;if(!this.allowed)return false;const result=storeMicrofilm(this.progress);this.savedOk=result.saved;if(!result.success)this.message='Story requirements changed. No progress was committed.';return result.success;}
  render(){
   this.content.removeAll(true);
   if(!this.allowed){this.text(800,460,'Collect the retained reel after mission twelve, then use the archive reader.',29);return;}
   if(this.mode==='receive'){
    this.text(800,260,'ALEX MURPHY',29,1200,'#f0d091');
-   this.text(800,470,this.progress.copyReceived?'The retained reel is available. Take it to Drebin\'s archive reader. It is recorded with the case, not stored in an inventory slot.':DATA.intro[this.progress.introLine],31,1340);
+   this.text(800,470,this.progress.copyReceived?"The retained reel is available. Take it to Drebin's archive reader. It is recorded with the case, not stored in an inventory slot.":DATA.intro[this.progress.introLine],31,1340);
    this.button(800,760,this.progress.copyReceived?'RETURN TO STORAGE':this.progress.introLine===DATA.intro.length-1?'RECEIVE REEL':'CONTINUE',()=>{
-    if(this.progress.copyReceived){this.closeVisit();return;}this.progress=receiveMicrofilm(DATA,this.progress);this.persist();this.render();
+    if(this.progress.copyReceived){this.closeVisit();return;}this.advanceReceipt();
    });this.footer();return;
   }
   if(this.progress.completed){this.text(800,270,'LOCATION LEAD / WARSAW',32,1300,'#f0d091');this.text(800,465,DATA.success,31,1320);this.text(800,655,'City: Warsaw / contact reference WAW-17\nNext: travel to Warsaw and verify the contact in person.',27);this.button(800,810,'RETURN TO ARCHIVE',()=>this.closeVisit());this.footer();return;}
@@ -35,8 +37,8 @@ export class MicrofilmScene extends BaseScene{
   this.drawFrame('right',1170,DATA.rightFrames[this.progress.right],this.progress.right,DATA.rightFrames.length);
   this.button(200,745,'< ARCHIVE',()=>this.moveReel('left',-1));this.button(650,745,'ARCHIVE >',()=>this.moveReel('left',1));this.button(940,745,'< ALEX',()=>this.moveReel('right',-1));this.button(1400,745,'ALEX >',()=>this.moveReel('right',1));
   this.button(380,825,'FOCUS -',()=>this.changeFocus(-.1));this.text(800,823,`FOCUS ${Math.round(this.progress.focus*100)}% / ${microfilmFocused(DATA,this.progress)?'READABLE':'ADJUST'}`,23);
-  this.button(1220,825,'FOCUS +',()=>this.changeFocus(.1));this.button(800,880,'AUTO FOCUS / FREE',()=>{this.progress.focus=DATA.focusTarget;this.persist();this.render();});
-  if(DATA.differenceFields.every(k=>this.progress.differences.includes(k))){DATA.destinations.forEach((d,i)=>this.button(370+i*430,930,d.label,()=>{const r=chooseMicrofilmCity(DATA,this.progress,d.id);this.progress=r.state;this.message=r.message;this.persist();this.render();}));}
+  this.button(1220,825,'FOCUS +',()=>this.changeFocus(.1));this.button(800,880,'AUTO FOCUS / FREE',()=>this.autoFocus());
+  if(DATA.differenceFields.every(k=>this.progress.differences.includes(k))){DATA.destinations.forEach((d,i)=>this.button(370+i*430,930,d.label,()=>this.chooseCity(d.id)));}
   else this.text(800,930,this.message||`Differences: ${this.progress.differences.length}/3. Click fields, not the page title.`,21);
   this.footer();
  }
@@ -51,11 +53,41 @@ export class MicrofilmScene extends BaseScene{
    const y=365+i*72,marked=same&&this.progress.differences.includes(field);
    const bg=this.add.rectangle(x,y,635,63,marked?0x52613a:0x203423).setInteractive({useHandCursor:true});this.content.add(bg);
    this.text(x-150,y,label,20,290,'#adb995').setAlpha(focus?1:.5);this.text(x+145,y,frame.rows[field],23,310,'#f1edca').setAlpha(focus?1:.4);
-   bg.on('pointerdown',()=>{if(this.closing||this.time.now<this.lockUntil)return;this.lockUntil=this.time.now+140;this.activeReel=side;const r=markMicrofilmDifference(DATA,this.progress,field);this.progress=r.state;this.message=r.message;this.persist();this.render();});
+   bg.on('pointerdown',()=>{if(this.closing||this.time.now<this.lockUntil)return;this.lockUntil=this.time.now+140;this.activeReel=side;this.markDifference(field);});
   });
  }
- moveReel(side,delta){if(this.progress.completed)return;const frames=side==='left'?DATA.leftFrames:DATA.rightFrames;this.activeReel=side;this.progress[side]=(this.progress[side]+delta+frames.length)%frames.length;this.message='';this.persist();this.render();}
- changeFocus(delta){this.progress.focus=Math.max(0,Math.min(1,Math.round((this.progress.focus+delta)*10)/10));this.persist();this.render();}
+ advanceReceipt(){
+  const received=this.progress.copyReceived;
+  this.progress=receiveMicrofilm(DATA,this.progress);const committed=this.persist();
+  if(committed!==false&&!received&&this.progress.copyReceived)playReaderAudio(this,'evidence');
+  this.render();
+ }
+ markDifference(field){
+  const already=this.progress.differences.includes(field);
+  const r=markMicrofilmDifference(DATA,this.progress,field);this.progress=r.state;this.message=r.message;const committed=this.persist();
+  if(committed!==false&&r.ok&&!already&&this.progress.differences.includes(field))playReaderAudio(this,'evidence');
+  this.render();
+ }
+ chooseCity(id){
+  const completed=this.progress.completed;
+  const r=chooseMicrofilmCity(DATA,this.progress,id);this.progress=r.state;this.message=r.message;const committed=this.persist();
+  if(committed!==false&&r.ok&&!completed&&this.progress.completed)playReaderAudio(this,'success');
+  this.render();
+ }
+ moveReel(side,delta){
+  if(this.progress.completed)return;const frames=side==='left'?DATA.leftFrames:DATA.rightFrames;
+  const before=this.progress[side];this.activeReel=side;this.progress[side]=(this.progress[side]+delta+frames.length)%frames.length;this.message='';this.persist();
+  if(this.progress[side]!==before)playReaderAudio(this,'click');this.render();
+ }
+ changeFocus(delta){
+  const before=this.progress.focus;
+  this.progress.focus=Math.max(0,Math.min(1,Math.round((this.progress.focus+delta)*10)/10));this.persist();
+  if(this.progress.focus!==before)playReaderAudio(this,'click');this.render();
+ }
+ autoFocus(){
+  const before=this.progress.focus;this.progress.focus=DATA.focusTarget;this.persist();
+  if(this.progress.focus!==before)playReaderAudio(this,'click');this.render();
+ }
  layout(){if(!this.root)return;const{width,height}=this.scale,s=Math.min(width/1600,height/1000);this.root.setScale(s).setPosition((width-1600*s)/2,(height-1000*s)/2);}
  suspend(){this.layers=['PlayerHudScene','UIScene','NewsHud'].filter(k=>this.isSceneActive(k)).map(key=>{const visible=this.getRegisteredScene(key).sys.settings.visible;this.scene.setVisible(false,key);this.scene.pause(key);return{key,visible};});if(this.returnSceneKey&&this.isSceneActive(this.returnSceneKey)){this.parentPaused=true;this.scene.pause(this.returnSceneKey);}}
  restore(){for(const{key,visible}of this.layers){if(!this.hasScene(key))continue;this.scene.setVisible(visible,key);if(this.isScenePaused(key))this.scene.resume(key);}this.layers=[];if(this.parentPaused&&this.isScenePaused(this.returnSceneKey))this.scene.resume(this.returnSceneKey);this.parentPaused=false;}

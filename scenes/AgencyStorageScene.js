@@ -35,7 +35,11 @@ export class AgencyStorageScene extends BaseScene{
     this.isLeaving=false;this._conversationOpen=false;this._preparing=false;this._finishing=false;this._timelineOpen=false;
     this._storageDisposed=false;this._storageRunToken=Symbol('storage-run');this._cancelHudWait=null;this._prepareTimer=null;
   }
-  preload(){if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_KEY,MANAGER_PORTRAIT_URL);}
+  preload(){
+    if (!this.textures.exists('back')) {
+      this.load.image('back', 'assets/buttons/back.webp');
+    }
+if(!this.textures.exists(MANAGER_PORTRAIT_KEY))this.load.image(MANAGER_PORTRAIT_KEY,MANAGER_PORTRAIT_URL);}
   create(){
     super.create();audioManager.init(this);this.registry.set('currentSceneKey','AgencyStorageScene');this.registry.set('currentCity','hq');this.registry.set('currentCityId','hq');
     this.registry.set('gameState',this.gameState);this.registry.set('activeMission',this.gameState.currentMission||null);this.cameras.main.setBackgroundColor('#17110e');
@@ -64,13 +68,42 @@ export class AgencyStorageScene extends BaseScene{
       const button=this.add.text(0,0,label,style).setOrigin(origin,1).setDepth(100).setInteractive({useHandCursor:true});
       button.on('pointerdown',callback);button.on('pointerover',()=>button.setColor('#ffffff'));button.on('pointerout',()=>button.setColor('#f2d477'));return button;
     };
-    this.backButton=make('< BACK TO OFFICE',0,()=>{void this.returnToOffice();});this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setVisible(false);
+    
+    this.backButton = this.add
+      .image(0, 0, 'back')
+      .setOrigin(0, 1)
+      .setDepth(100)
+      .setInteractive({ useHandCursor: true });
+
+    this.backButton.on('pointerdown', () => {
+      void this.returnToOffice();
+    });
+
+    this.backButton.on('pointerover', () => {
+      this.backButton?.setTint(0xffe4a3);
+    });
+
+    this.backButton.on('pointerout', () => {
+      this.backButton?.clearTint();
+    });
+this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setVisible(false);
     this.timelineButton=make(fourthMissionConfig.buttons.start,0.5,()=>{void this.openTimeline();}).setVisible(false);
     this.statusText=this.add.text(0,0,'',{...style,align:'center',padding:{x:16,y:12}}).setOrigin(0.5,0).setDepth(110).setVisible(false);
   }
   layoutStorage(){
     if(this._storageDisposed)return;const{width,height}=this.scale,compact=width<600;
-    this.background?.setDisplaySize(width,height);this.backButton?.setFontSize(compact?14:22).setPosition(16,height-24);
+    this.background?.setDisplaySize(width,height);
+    if (this.backButton) {
+      const buttonWidth = Math.min(
+        width < 600 ? 120 : 160,
+        width * 0.3
+      );
+
+      this.backButton
+        .setScale(buttonWidth / this.backButton.width)
+        .setPosition(16, height - 24);
+    }
+
     this.retryButton?.setFontSize(compact?14:22).setPosition(width-16,height-(width<420?82:24));this.timelineButton?.setFontSize(compact?14:22).setPosition(width/2,height-(width<420?145:95));
     this.statusText?.setFontSize(compact?17:22).setPosition(width/2,100).setWordWrapWidth(Math.max(120,Math.min(width-48,760)),true);
   }

@@ -1,6 +1,7 @@
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { installPIWorldReactionMail } from '../ui/PIWorldReactionMail.js';
+import { installWorldNpcReactions } from '../ui/WorldNpcReactionHooks.js';
 import {
   captureWorldOutcomes,latestOfficeReaction,officeReactionSeen,
   markOfficeReactionSeen,worldOfficeText
@@ -8,9 +9,21 @@ import {
 
 const games=new WeakMap();
 const scheduledScenes=new WeakSet();
+const activeScene=scene=>Boolean(scene&&!scene._cleanupDone&&scene.sys?.isActive?.());
 
-export function syncWorldReactions(){
-  const events=captureWorldOutcomes(gameState);
+export function readWorldOperationContext(game){
+  const keys=game?.scene?.keys||{},context={};
+  const apartment=keys.ApartmentScene;
+  if(activeScene(apartment)&&typeof apartment.getProgress==='function'){
+    context.apartment={active:true,caseKey:apartment.caseKey,suspectId:apartment.suspectId,
+      missionId:apartment.mission?.id??null,visit:apartment.getProgress()?.arrestVisit??null};
+  }
+  const gameOver=keys.GameOverScene;
+  if(activeScene(gameOver))context.gameOver={active:true,caseId:gameOver.caseId,reasonCode:gameOver.reasonCode};
+  return context;
+}
+export function syncWorldReactions(game=null){
+  const events=captureWorldOutcomes(gameState,Date.now(),readWorldOperationContext(game));
   if(events.length&&gameState.caseFailed!==true)requestAutosave();
   return events;
 }
@@ -24,8 +37,12 @@ export function installWorldReactions(game){
   let dead=false,last=-Infinity;
   const sync=()=>{
     if(dead)return[];
-    try{const events=syncWorldReactions();connectPIComputer(game);return events;}
-    catch(error){console.error('[WorldReactions]',error);return[];}
+    try{
+      const events=syncWorldReactions(game);
+      connectPIComputer(game);
+      installWorldNpcReactions(game);
+      return events;
+    }catch(error){console.error('[WorldReactions]',error);return[];}
   };
   const step=()=>{const now=Date.now();if(now-last<200)return;last=now;sync();};
   const destroy=()=>{
@@ -69,7 +86,7 @@ export function queueWorldOfficeReaction(scene){
   const present=()=>{
     if(scene._cleanupDone||!scene.sys.isActive())return;
     try{
-      syncWorldReactions();
+      syncWorldReactions(scene.game);
       if(system==='pi'&&scene.computerUI)installPIWorldReactionMail(scene.computerUI);
       const event=latestOfficeReaction(gameState,system);
       if(!event||officeReactionSeen(gameState,event.id))return;

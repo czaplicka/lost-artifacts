@@ -1031,8 +1031,7 @@
     ],
     "scene:NewspaperOverlayScene": [
       "image:comix1",
-      "image:comix2",
-      "image:paper_fallback_blank"
+      "image:comix2"
     ],
     "crime:louvre": [
       "json:objects-data:louvre",
@@ -1583,7 +1582,6 @@
       "image:paper_warsaw_palace_photo",
       "image:paper_warsaw_river_photo",
       "image:paper_warsaw_vending_photo",
-      "image:paper_fallback_blank",
       "image:hq_coffee_machine_photo",
       "image:hq_gold_stapler_photo",
       "image:hq_sunglasses_photo",
@@ -2494,8 +2492,7 @@
     ],
     "auto:folder:newspapers": [
       "image:comix1",
-      "image:comix2",
-      "image:paper_fallback_blank"
+      "image:comix2"
     ],
     "auto:folder:newspapers/newspapers": [
       "image:paper_berlin_dj_photo",
