@@ -1,4 +1,3 @@
-const QUEST = 'pi_stolen_alibi';
 const SEARCH = 'borrowed_alibi';
 
 export function buildAlibiBoardEvidence(state) {
@@ -18,10 +17,7 @@ export function buildAlibiBoardEvidence(state) {
         'Arthur says he ate alone at The Copper Spoon on Tuesday, approximately 19:00–20:00. He denies knowing the three people who requested confirmation and authorises release of his receipt. This is his statement, not independent verification.',
         'Source: Arthur Finch’s reply');
 
-    const requests = [
-        ['nora', 'Nora Bell'], ['simon', 'Simon Pike'], ['evelyn', 'Evelyn Shaw']
-    ];
-    for (const [id, name] of requests) {
+    for (const [id, name] of [['nora', 'Nora Bell'], ['simon', 'Simon Pike'], ['evelyn', 'Evelyn Shaw']]) {
         if (read.has(`alibi_forward_${id}`)) add(`request_${id}`, `${name} — forwarded request`,
             `${name} asked Arthur to confirm Tuesday dinner, 19:00–21:00, table six, tomato soup, spilled red wine and the waiter’s remark about second chances. A request to confirm a story does not establish that it happened.`,
             'Source: forwarded original message');
@@ -33,8 +29,8 @@ export function buildAlibiBoardEvidence(state) {
         'The restaurant manager confirmed the hot kitchen was closed throughout Tuesday evening. Cold sandwiches and drinks remained available. The claimed tomato-soup dinner contradicts this service record.',
         'Source: restaurant telephone enquiry');
     if (read.has('alibi_arthur_attachment')) add('attachment', 'Evelyn’s attachment — revision footer',
-        'Arthur reproduced the footer: “Tuesday package — revision 2. Remove before forwarding.” It identifies a document version, not the seller’s identity.',
-        'Source: Arthur’s follow-up message');
+        'The document attached to Evelyn’s forwarded email contains the footer: “Tuesday package — revision 2. Remove before forwarding.” It identifies a document version, not the seller’s identity.',
+        'Source: document attached to Evelyn Shaw’s forwarded email');
     if (read.has('alibi_club_sample')) add('sample', 'Tuesday Alibi Club — TUE-DC-02',
         'The free demonstration names Arthur Finch and repeats the venue, Tuesday 19:00–21:00, table six, tomato soup, spilled wine and waiter’s remark. Its terms say the named companion has not been contacted. Compare it with all three requests; the sample alone does not identify a burglar.',
         'Source: demonstration sample in Mail');
@@ -63,18 +59,16 @@ export function buildAlibiBoardEvidence(state) {
         'The liaison checked with the records manager: Evelyn’s physical description matches the missing item, was absent from the public statement, and Evelyn was not on the internal notification list. An undisclosed source remains possible. Refer the discrepancy for investigation; it is not proof of theft.',
         'Source: company liaison’s check');
 
-    const contacts = [
+    for (const [keyword, number, owner] of [
         ['copper_phone', '427', 'The Copper Spoon — Manager'],
         ['club_phone', '428', 'Tuesday Alibi Club — Membership'],
         ['nora_phone', '429', 'Nora Bell'],
         ['simon_phone', '430', 'Simon Pike'],
         ['evelyn_phone', '431', 'Evelyn Shaw'],
         ['company_phone', '432', 'Morrow Records — Records liaison']
-    ];
-    for (const [keyword, number, owner] of contacts) {
+    ]) {
         if (known.has(keyword)) add(`contact_${keyword}`, `Contact: ${owner}`,
-            `${owner}\nLocal telephone: ${number}`,
-            'Source: collected contact keyword');
+            `${owner}\nLocal telephone: ${number}`, 'Source: collected contact keyword');
     }
     return items;
 }

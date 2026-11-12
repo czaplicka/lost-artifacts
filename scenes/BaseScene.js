@@ -15,9 +15,17 @@ import {
   isPIInventoryScene
 } from '../ui/PIInventoryUI.js';
 
+import {
+  installWorldReactions,
+  queueWorldOfficeReaction
+} from '../systems/WorldReactionSystem.js';
+
 export class BaseScene extends BaseSceneCore {
   create() {
     super.create();
+
+    installWorldReactions(this.game);
+    queueWorldOfficeReaction(this);
 
     this.events.off(
       Phaser.Scenes.Events.CREATE,
@@ -45,27 +53,33 @@ export class BaseScene extends BaseSceneCore {
   }
 
   addInventoryItem(item) {
-    return this.getInventoryManager().addItem(item);
+    return this.getInventoryManager()
+      .addItem(item);
   }
 
   removeInventoryItem(itemId) {
-    return this.getInventoryManager().removeItem(itemId);
+    return this.getInventoryManager()
+      .removeItem(itemId);
   }
 
   getInventoryItem(itemId) {
-    return this.getInventoryManager().getItem(itemId);
+    return this.getInventoryManager()
+      .getItem(itemId);
   }
 
   hasInventoryItem(itemId) {
-    return this.getInventoryManager().hasItem(itemId);
+    return this.getInventoryManager()
+      .hasItem(itemId);
   }
 
   getAllInventoryItems() {
-    return this.getInventoryManager().getAllItems();
+    return this.getInventoryManager()
+      .getAllItems();
   }
 
   getSelectedInventoryItem() {
-    return this.getInventoryManager().getSelectedItem();
+    return this.getInventoryManager()
+      .getSelectedItem();
   }
 
   openInventory() {

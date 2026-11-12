@@ -1,132 +1,98 @@
 const NPC_IDS = [
-  'bankier',
-  'fence',
-  'knajpa',
-  'maid',
-  'parkingowy',
-  'police',
-  'stewardessa',
-  'bum',
-  'sailor'
+  'bankier', 'fence', 'knajpa', 'maid', 'parkingowy',
+  'police', 'stewardessa', 'bum', 'sailor'
 ];
 
 const THEME_SUFFIXES = {
-  white: 'w',
-  black: 'b',
-  asian: 'a',
-  south_asia: 'h'
+  white: 'w', black: 'b', asian: 'a', south_asia: 'h'
 };
-
-const THEME_ALIASES = {
-  south_asian: 'south_asia',
-  hindu: 'south_asia'
-};
-
-const LOCATION_BACKGROUND_ALIASES = {
-  hotel: 'hotel_maid',
-  hotel_maid: 'hotel_maid',
-  parking: 'parking',
-  parking_bg: 'parking'
-};
-
-const THEMES_WITH_ASSETS = [
-  'white',
-  'south_asia',
-  'black',
-  'asian'
-];
-
+const THEME_ALIASES = { south_asian: 'south_asia', hindu: 'south_asia' };
+const THEMES_WITH_ASSETS = ['white', 'south_asia', 'black', 'asian'];
 const LEGACY_CITY_THEME_FALLBACK = {
-  new_delhi: 'south_asia',
-  newdelhi: 'south_asia',
-  kotte: 'south_asia',
-  islamabad: 'south_asia',
-  nairobi: 'black',
-  tokyo: 'asian',
-  london: 'white',
-  paris: 'white',
-  warsaw: 'white',
-  berlin: 'white',
-  new_york_city: 'white',
-  newyorkcity: 'white',
-  toronto: 'white'
+  new_delhi: 'south_asia', newdelhi: 'south_asia', kotte: 'south_asia',
+  islamabad: 'south_asia', nairobi: 'black', tokyo: 'asian',
+  london: 'white', paris: 'white', warsaw: 'white', berlin: 'white',
+  new_york_city: 'white', newyorkcity: 'white', toronto: 'white'
 };
-
 const NPC_LABELS = {
-  bankier: 'Banker',
-  fence: 'Fence',
-  knajpa: 'Restaurant Manager',
-  maid: 'Maid',
-  parkingowy: 'Parking Worker',
-  police: 'Police Officer',
-  stewardessa: 'Flight Attendant',
-  bum: 'Homeless Man',
-  sailor: 'Sailor'
+  bankier: 'Banker', fence: 'Fence', knajpa: 'Restaurant Manager',
+  maid: 'Maid', parkingowy: 'Parking Worker', police: 'Police Officer',
+  stewardessa: 'Flight Attendant', bum: 'Homeless Man', sailor: 'Sailor'
 };
-
 function normalizeTheme(themeId) {
   return THEME_ALIASES[themeId] || themeId;
 }
-
 export function resolveCityNpcTheme(city) {
   if (!city) return 'white';
-
-  const declaredTheme = normalizeTheme(city.npcTheme);
-
-  if (declaredTheme && THEME_SUFFIXES[declaredTheme]) {
-    return declaredTheme;
-  }
-
-  const fallbackTheme = LEGACY_CITY_THEME_FALLBACK[city.id];
-
-  if (fallbackTheme && THEME_SUFFIXES[fallbackTheme]) {
-    return fallbackTheme;
-  }
-
-  return 'white';
+  const declared = normalizeTheme(city.npcTheme);
+  if (Object.hasOwn(THEME_SUFFIXES, declared)) return declared;
+  return LEGACY_CITY_THEME_FALLBACK[city.id] || 'white';
 }
-
 export function getNpcTextureKey(npcId, themeId = 'white') {
-  const normalizedTheme = normalizeTheme(themeId);
-  const suffix =
-    THEME_SUFFIXES[normalizedTheme] || THEME_SUFFIXES.white;
-
+  const theme = normalizeTheme(themeId);
+  const suffix = Object.hasOwn(THEME_SUFFIXES, theme) ? THEME_SUFFIXES[theme] : 'w';
   return `${npcId}_${suffix}`;
 }
-
-export function getNpcLabel(npcId) {
-  return NPC_LABELS[npcId] || 'Witness';
-}
-
+export function getNpcLabel(npcId) { return NPC_LABELS[npcId] || 'Witness'; }
 export function themeHasAssets(themeId) {
   return THEMES_WITH_ASSETS.includes(normalizeTheme(themeId));
 }
+export function getKnownNpcIds() { return [...NPC_IDS]; }
+export function getKnownThemeIds() { return Object.keys(THEME_SUFFIXES); }
 
-export function getKnownNpcIds() {
-  return [...NPC_IDS];
+// Background configuration is independent of NPC configuration.
+const LOCATION_BACKGROUND_ALIASES = {
+  hotel: 'hotel_maid', hotel_maid: 'hotel_maid',
+  parking: 'parking', parking_bg: 'parking'
+};
+const LOCATION_THEME_SUFFIXES = {
+  white: 'w', black: 'b', asian: 'a', south_asia: 'h',
+  w: 'w', b: 'b', a: 'a', h: 'h'
+};
+const LOCATION_THEME_ALIASES = {
+  south_asian: 'south_asia', hindu: 'south_asia'
+};
+// Existing cities keep their old background suffixes, regardless of npcTheme.
+const CITY_LOCATION_DEFAULTS = {
+  london: 'w', paris: 'w', warsaw: 'w', berlin: 'w',
+  new_york_city: 'w', newyorkcity: 'w', toronto: 'w',
+  new_delhi: 'h', newdelhi: 'h', kotte: 'h', islamabad: 'h',
+  nairobi: 'b', tokyo: 'a'
+};
+function normalizeLocationTheme(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const id = value.trim();
+  return LOCATION_THEME_ALIASES[id] || id;
 }
-
-export function getKnownThemeIds() {
-  return Object.keys(THEME_SUFFIXES);
+function backgroundKeys(value) {
+  return (Array.isArray(value) ? value : [value])
+    .filter(key => typeof key === 'string' && key.trim())
+    .map(key => key.trim());
 }
-
-export function getLocationBackgroundCandidates(
-  locationId,
-  themeId = 'white'
-) {
-  if (!locationId) return [];
-
-  const normalizedLocationId =
-    LOCATION_BACKGROUND_ALIASES[locationId] || locationId;
-
-  const normalizedTheme = normalizeTheme(themeId);
-
-  const suffix =
-    THEME_SUFFIXES[normalizedTheme] || THEME_SUFFIXES.white;
-
-  return [...new Set([
-    `${normalizedLocationId}_${suffix}`,
-    `${normalizedLocationId}_${THEME_SUFFIXES.white}`,
-    normalizedLocationId
-  ])];
+export function resolveCityLocationTheme(city) {
+  const declared = normalizeLocationTheme(city?.locationTheme);
+  if (declared) return declared;
+  return CITY_LOCATION_DEFAULTS[city?.id] || 'w';
+}
+export function getLocationBackgroundCandidates(locationId, cityOrTheme = null) {
+  if (typeof locationId !== 'string' || !locationId) return [];
+  const city = cityOrTheme && typeof cityOrTheme === 'object'
+    ? cityOrTheme : null;
+  const base = LOCATION_BACKGROUND_ALIASES[locationId] || locationId;
+  const theme = city
+    ? resolveCityLocationTheme(city)
+    : normalizeLocationTheme(cityOrTheme) || 'w';
+  const suffix = Object.hasOwn(LOCATION_THEME_SUFFIXES, theme)
+    ? LOCATION_THEME_SUFFIXES[theme] : theme;
+  const overrides = city?.locationBackgrounds;
+  const candidates = [
+    ...backgroundKeys(overrides?.[locationId]),
+    ...(base !== locationId ? backgroundKeys(overrides?.[base]) : []),
+    `${base}_${suffix}`
+  ];
+  // An explicitly selected new set may fall back to the city's existing set.
+  const previousSuffix = city ? CITY_LOCATION_DEFAULTS[city.id] : null;
+  if (previousSuffix) candidates.push(`${base}_${previousSuffix}`);
+  candidates.push(`${base}_w`, base);
+  return [...new Set(candidates)];
 }

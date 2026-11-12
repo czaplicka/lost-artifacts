@@ -13,7 +13,7 @@ export class HiddenObjectsTimer {
     this.scene = scene;
   }
 
-  canRun() {
+  canUseTimer() {
     const scene = this.scene;
 
     return Boolean(
@@ -21,17 +21,35 @@ export class HiddenObjectsTimer {
       !scene._cleanupDone &&
       !scene.isShuttingDownHiddenObjects &&
       !scene.isSceneFinished &&
-      !scene.isReturning &&
-      scene.sys?.isActive()
+      !scene.isReturning
+    );
+  }
+
+  canRun() {
+    return Boolean(
+      this.canUseTimer() &&
+      this.scene.sys?.isActive()
     );
   }
 
   start() {
     this.stop();
 
-    if (!this.canRun()) return null;
-
     const scene = this.scene;
+
+    // create() może jeszcze nie oznaczać aktywnej sceny.
+    // Aktywność sprawdzamy w tick(), nie przy tworzeniu timera.
+    if (!this.canUseTimer() || !scene.time) {
+      return null;
+    }
+
+    const initialTime = Number(scene.timeLeft);
+
+    scene.timeLeft = Number.isFinite(initialTime)
+      ? Math.max(0, Math.ceil(initialTime))
+      : 120;
+
+    scene.ui?.updateTimer?.(scene.timeLeft);
 
     scene.timerEvent = scene.time.addEvent({
       delay: 1000,
@@ -43,12 +61,14 @@ export class HiddenObjectsTimer {
   }
 
   tick() {
-    if (!this.canRun()) return;
+    if (!this.canRun()) {
+      return;
+    }
 
     const scene = this.scene;
 
     scene.timeLeft = Math.max(0, scene.timeLeft - 1);
-    scene.ui.updateTimer(scene.timeLeft);
+    scene.ui?.updateTimer?.(scene.timeLeft);
 
     if (scene.timeLeft === 0) {
       this.finishScene(false);
@@ -57,11 +77,14 @@ export class HiddenObjectsTimer {
 
   stop() {
     const scene = this.scene;
+    const timerEvent = scene?.timerEvent;
 
-    if (!scene.timerEvent) return false;
+    if (!timerEvent) {
+      return false;
+    }
 
-    scene.timerEvent.remove(false);
     scene.timerEvent = null;
+    timerEvent.remove(false);
 
     return true;
   }
@@ -70,6 +93,7 @@ export class HiddenObjectsTimer {
     const scene = this.scene;
 
     if (
+      !scene ||
       scene._cleanupDone ||
       scene.isShuttingDownHiddenObjects ||
       scene.timeAdvanced
@@ -81,7 +105,9 @@ export class HiddenObjectsTimer {
       ? scene.timeCostHours
       : 4;
 
-    if (hours <= 0) return false;
+    if (hours <= 0) {
+      return false;
+    }
 
     scene.timeAdvanced = true;
 
@@ -104,6 +130,7 @@ export class HiddenObjectsTimer {
     const scene = this.scene;
 
     if (
+      !scene ||
       scene._cleanupDone ||
       scene.isShuttingDownHiddenObjects ||
       !scene.timeAdvanced
@@ -115,7 +142,9 @@ export class HiddenObjectsTimer {
       ? scene.timeCostHours
       : 4;
 
-    if (hours <= 0) return false;
+    if (hours <= 0) {
+      return false;
+    }
 
     const flavor = TIME_PASSED_FLAVOR_LINES[
       Math.floor(
@@ -123,7 +152,7 @@ export class HiddenObjectsTimer {
       )
     ];
 
-    scene.ui.showMessage(
+    scene.ui?.showMessage?.(
       `${hours}h passed. ${flavor}`,
       '#9fd3ff'
     );
@@ -132,9 +161,13 @@ export class HiddenObjectsTimer {
   }
 
   finishScene(success) {
-    if (!this.canRun()) return;
+    if (!this.canRun()) {
+      return;
+    }
 
     const scene = this.scene;
+
+    this.stop();
 
     if (typeof scene.finishScene === 'function') {
       scene.finishScene(Boolean(success));
@@ -142,11 +175,10 @@ export class HiddenObjectsTimer {
     }
 
     console.error(
-      '[HiddenObjectsTimer] ' +
-      'Scene completion handler is unavailable.',
+      '[HiddenObjectsTimer] Scene completion handler is unavailable.',
       {
         success,
-        sceneKey: scene.scene.key
+        sceneKey: scene.scene?.key
       }
     );
   }

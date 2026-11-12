@@ -39,7 +39,13 @@ export class ComputerSearch {
       ui.desktop.createIcon(x+152,y+10,128,'Web Search','globe',0x9fc9a9,()=>ui.openApp('search'));
     };
     const application=ui.monitor.renderApplication.bind(ui.monitor);
-    ui.monitor.renderApplication=()=>ui.app==='search'?this.render():application();
+    ui.monitor.renderApplication=(...args)=>{
+      if(ui.app!=='search')return application(...args);
+      const result=this.render();
+      // Render after any page-specific chrome, including FaceSpace and magazines.
+      this.renderBrowserClose();
+      return result;
+    };
     const after=()=>{
       if (!this.dead && !ui.destroyed && ui.isOpen && !ui.suspended && !ui.booting && ui.app==='search') {
         this.renderNotebook();ui.pin?.();
@@ -52,6 +58,46 @@ export class ComputerSearch {
       const render=ui.render.bind(ui);
       ui.render=()=>{render();after();};
     } else throw TypeError('[ComputerSearch] Missing render');
+  }
+
+  closeBrowser() {
+    const ui=this.ui;
+    if(this.dead||ui.destroyed)return false;
+    ui.menuOpen=false;
+    ui.viewToken=(Number(ui.viewToken)||0)+1;
+    const shell=ui.shell;
+    if(shell&&typeof shell.groupOf==='function'&&typeof shell.byId==='function'&&typeof shell.close==='function'){
+      const id=shell.groupOf('search');
+      if(shell.byId(id))shell.close(id);
+      else if(typeof shell.pickNext==='function')shell.pickNext();
+      else ui.app='desktop';
+    }else{
+      ui.app='desktop';
+    }
+    ui.render();
+    return true;
+  }
+
+  renderBrowserClose() {
+    const ui=this.ui,b=ui.window;
+    if(this.dead||ui.destroyed||ui.app!=='search'||!b)return;
+    const d=ui.drawing;
+    const x=b.x+b.w-49,y=b.y+3,w=44,h=30;
+    // One title-bar control covers the slightly different X positions in templates.
+    // It is added last to the current window container, not to the desktop.
+    d.bevel(x,y,w,h,0xd0cec6);
+    const label=d.pixel(x+w/2,y+h/2,'X',10,'#252820').setOrigin(0.5);
+    label.setName?.('browser-close-caption');
+    const hit=d.rectangle(x,y,w,h,0xffffff,0.001)
+      .setInteractive({useHandCursor:true});
+    hit.setName?.('browser-close');
+    hit.on('pointerover',()=>hit.setFillStyle(0xffffff,0.15));
+    hit.on('pointerout',()=>hit.setFillStyle(0xffffff,0.001));
+    hit.on('pointerdown',(pointer,localX,localY,event)=>{
+      event?.stopPropagation();
+      ui.options.onSfx?.('click');
+      this.closeBrowser();
+    });
   }
 
   refresh() {
@@ -107,7 +153,7 @@ export class ComputerSearch {
     drawing.bevel(box.x,box.y,box.w,box.h,0xc6c7bf);
     drawing.rectangle(box.x+4,box.y+4,box.w-8,30,0x244452);
     drawing.pixel(box.x+14,box.y+14,'OWL Navigator',10,'#fff0cc');
-    drawing.button(box.x+box.w-45,box.y+3,'X',()=>ui.openApp('desktop'));
+    drawing.button(box.x+box.w-45,box.y+3,'X',()=>this.closeBrowser());
     drawing.button(box.x+8,box.y+39,'<',()=>this.back(),this.view!=='home');
     drawing.button(box.x+52,box.y+39,'Home',()=>this.goHome(),this.view!=='home');
     const page=this.definition?.pages.find(item=>item.id===this.pageId);

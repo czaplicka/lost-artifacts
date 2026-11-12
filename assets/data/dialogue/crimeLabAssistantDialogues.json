@@ -1,82 +1,262 @@
 {
   "id": "crime_lab_assistant_dialogues",
-  "version": 2,
+  "version": 3,
   "defaultNodeId": "greeting",
+  "_schema": "text/firstText: string or array (random variant). dynamic: assistant_results | remaining_work | time_cost | progress_verdict. mood: neutral|smug|happy|panic|tired|proud|suspicious. choice.showIf: has_assistant_results | has_pending_assistant | has_remaining_work | lab_complete | seen:<nodeId> (prefix ! to negate). choice.once: hide after use. Tokens: {artifact} {city} {remaining} {pending} {hours} {completed} {total} {onboarding}.",
+  "quips": {
+    "idle": [
+      "The centrifuge just made a noise. I am choosing to find it reassuring.",
+      "Please do not lean on the evidence table. It has feelings. Also fingerprints.",
+      "I labelled the fridge. Someone still ate Exhibit C. It was a sandwich. It is now Exhibit D.",
+      "If anyone asks, the hamster is a certified renewable energy source.",
+      "Fun fact: forensic science is 10% breakthroughs and 90% asking people not to touch things.",
+      "I have been staring at the printer for ten minutes. It knows what it did.",
+      "Somewhere, a detective is solving a case without a lab. Statistically, they are lying.",
+      "Nobody has said thank you to the microscope today. I will pass it on."
+    ],
+    "already_done": [
+      "That sample is already analysed. It has filed a restraining order.",
+      "Done and dusted. Mostly dusted.",
+      "You already did that one. The result is happy where it is.",
+      "Analysed, logged, stamped. Touching it again would be showing off."
+    ],
+    "delegated_done": [
+      "That one is already on file. I did it before you got here. It was very peaceful.",
+      "My station. My result. My filing system, which only I understand.",
+      "Finished it earlier. You can read the report from me, or from the printer, which is sulking."
+    ],
+    "delegated_pending": [
+      "That report is still brewing. Do not touch it, it is in a delicate mood.",
+      "Delegated, not forgotten. I am on it. Metaphorically. The printer is thinking.",
+      "Still in progress. Science is patient. I am slightly less so."
+    ],
+    "lab_complete": [
+      "All analyses on record. The lab goes quiet. The printer, suspiciously, does not.",
+      "Every result is logged. Zero explosions. The safety officer will be so disappointed.",
+      "That is everything. Check your crime board, then go catch someone."
+    ]
+  },
   "nodes": {
     "greeting": {
       "speaker": "LAB ASSISTANT",
-      "text": "Crime Lab. Please keep your fingerprints off the evidence and your coffee off the microscope.",
+      "mood": "neutral",
+      "firstText": "Crime Lab. Please keep your fingerprints off the evidence and your coffee off the microscope.\n\nAh, the {artifact} case. {onboarding}",
+      "text": [
+        "Back again. The samples missed you. I did not, but the samples did.",
+        "Yes? Make it quick, the centrifuge is mid-tantrum.",
+        "Crime Lab. If this is about the printer, it is not my fault, and it knows it.",
+        "Welcome back. Please do not touch anything that is labelled, glowing, or sticky.",
+        "I was just about to take a break. The kind where I stare at a wall."
+      ],
       "choices": [
-        {
-          "id": "case_results",
-          "text": "What reports are ready?",
-          "next": "case_results"
-        },
-        {
-          "id": "remaining_work",
-          "text": "What do you need me to do?",
-          "next": "remaining_work"
-        },
-        {
-          "id": "about_lab",
-          "text": "How is the lab holding up?",
-          "next": "about_lab"
-        },
-        {
-          "id": "goodbye",
-          "text": "Thanks. I will get back to the case.",
-          "action": "close"
-        }
+        { "id": "case_results", "text": "What reports are ready?", "next": "case_results" },
+        { "id": "remaining_work", "text": "What do you need me to do?", "next": "remaining_work" },
+        { "id": "advice", "text": "Any tips for reading the results?", "next": "advice" },
+        { "id": "small_talk", "text": "Got a minute to chat?", "next": "small_talk" },
+        { "id": "goodbye", "text": "Thanks. I will get back to the case.", "action": "close" }
       ]
     },
+
     "case_results": {
       "speaker": "LAB ASSISTANT",
-      "text": "I'll read out the delegated reports that are actually ready. The printer would like credit for its contribution.",
+      "mood": "proud",
+      "firstText": "I'll read out the delegated reports that are actually ready. The printer would like credit for its contribution.",
+      "text": [
+        "Reports, hot off the printer. Handle with care. The printer is sulking.",
+        "Here is what I have. Everything is verified, stamped and mildly warm."
+      ],
       "dynamic": "assistant_results",
       "choices": [
-        {
-          "id": "results_back",
-          "text": "Anything else?",
-          "next": "greeting"
-        },
-        {
-          "id": "results_leave",
-          "text": "I have what I need.",
-          "action": "close"
-        }
+        { "id": "results_back", "text": "Anything else?", "next": "greeting" },
+        { "id": "results_leave", "text": "I have what I need.", "action": "close" }
       ]
     },
+
     "remaining_work": {
       "speaker": "LAB ASSISTANT",
-      "text": "I can tell you exactly how much work remains. I cannot make the paperwork disappear. I have tried.",
-      "dynamic": "remaining_work",
+      "mood": "tired",
+      "firstText": "I can tell you exactly how much work remains. I cannot make the paperwork disappear. I have tried.",
+      "text": [
+        "Let me check the clipboard. The clipboard never lies. The clipboard also never smiles.",
+        "Remaining work, coming up. Please do not shoot the clipboard."
+      ],
+      "dynamic": ["remaining_work", "time_cost"],
       "choices": [
-        {
-          "id": "work_back",
-          "text": "Understood. What else?",
-          "next": "greeting"
-        },
-        {
-          "id": "work_leave",
-          "text": "I will handle it.",
-          "action": "close"
-        }
+        { "id": "work_help", "text": "I am stuck on an analysis.", "next": "advice_help", "showIf": "has_remaining_work" },
+        { "id": "work_back", "text": "Understood. What else?", "next": "greeting" },
+        { "id": "work_leave", "text": "I will handle it.", "action": "close" }
       ]
     },
+
+    "advice": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "smug",
+      "firstText": "Free advice. I would call it consulting, but nobody has approved the invoice.",
+      "text": [
+        "More advice? Fine. My rates are in sunflower seeds.",
+        "Ask away. I have opinions, and a laminated certificate that says I am allowed."
+      ],
+      "choices": [
+        { "id": "advice_identity", "text": "Which result matters most?", "next": "advice_identity" },
+        { "id": "advice_traces", "text": "What are the trace results for?", "next": "advice_traces" },
+        { "id": "advice_noise", "text": "Can a result be useless?", "next": "advice_noise" },
+        { "id": "advice_help", "text": "I am stuck in an analysis.", "next": "advice_help", "showIf": "has_remaining_work" },
+        { "id": "advice_board", "text": "Where do the results go?", "next": "advice_board" },
+        { "id": "advice_back", "text": "Back to the other questions.", "next": "greeting" }
+      ]
+    },
+
+    "advice_identity": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "proud",
+      "text": "The big one is the identity result: hair, blood, DNA or a fingerprint pattern. That is the one that lets you cross suspects off the list. It is the closest thing this lab has to a verdict.\n\nIf you remember one thing from this conversation, make it that one. Also: do not touch the glowing beaker.",
+      "choices": [
+        { "id": "more_advice", "text": "More tips.", "next": "advice" },
+        { "id": "advice_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "advice_traces": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "neutral",
+      "text": "Trace results describe how the thief moved: shoe size, which hand they favour, a little dust, a little material. None of them names anyone, but each one makes your suspect list shorter.\n\nCompare them with the suspect files. People are surprisingly consistent about the size of their own feet.",
+      "choices": [
+        { "id": "more_advice", "text": "More tips.", "next": "advice" },
+        { "id": "advice_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "advice_noise": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "suspicious",
+      "text": "Not every finding earns its drama. A partial print, a stray fibre, a coin from the wrong decade: if the report says inconclusive, believe it.\n\nA clue that rules nobody out is still information. Mostly about how much coffee the thief had.",
+      "choices": [
+        { "id": "more_advice", "text": "More tips.", "next": "advice" },
+        { "id": "advice_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "advice_help": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "happy",
+      "text": "Stuck on a machine? The HOW TO PLAY button is free, and I will never mention it again. The HINT button costs a free hint, or some energy and a few minutes if you are out.\n\nNo shame. The logbook records it, but the logbook has no sense of humour.",
+      "choices": [
+        { "id": "more_advice", "text": "More tips.", "next": "advice" },
+        { "id": "advice_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "advice_board": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "proud",
+      "text": "Every result I log goes to your crime board automatically, and identity results unlock the matching filter in the suspect files. No copying, no stapling.\n\nThe stapler remains on strike.",
+      "choices": [
+        { "id": "more_advice", "text": "More tips.", "next": "advice" },
+        { "id": "advice_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "small_talk": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "happy",
+      "firstText": "A chat? In this economy? I have roughly four minutes before the next crisis. Go on.",
+      "text": [
+        "Chatting is not in my job description. Neither is the hamster, and yet.",
+        "Small talk, my favourite kind of talk. It has no deadlines and no samples."
+      ],
+      "choices": [
+        { "id": "about_lab", "text": "How is the lab holding up?", "next": "about_lab" },
+        { "id": "hamster", "text": "Is that a hamster on a wheel?", "next": "hamster" },
+        { "id": "coffee", "text": "About that coffee machine...", "next": "coffee" },
+        { "id": "theory", "text": "Do you have a theory about the case?", "next": "theory" },
+        { "id": "verdict", "text": "How am I doing so far?", "next": "verdict" },
+        { "id": "talk_back", "text": "Let us get back to business.", "next": "greeting" }
+      ]
+    },
+
     "about_lab": {
       "speaker": "LAB ASSISTANT",
-      "text": "The centrifuge is dramatic, the printer is hostile, and the coffee machine has refused to testify. Standard operating conditions.",
+      "mood": "tired",
+      "firstText": "The centrifuge is dramatic, the printer is hostile, and the coffee machine has refused to testify. Standard operating conditions.",
+      "text": [
+        "Holding up is a strong phrase. Standing is accurate.",
+        "The lab is fine. By fine I mean there is a fire extinguisher nearby and I know where it is.",
+        "Everything works, in the sense that everything makes a noise."
+      ],
       "choices": [
-        {
-          "id": "lab_back",
-          "text": "Back to the case.",
-          "next": "greeting"
-        },
-        {
-          "id": "lab_leave",
-          "text": "Good luck with that.",
-          "action": "close"
-        }
+        { "id": "lab_more", "text": "Tell me about something else.", "next": "small_talk" },
+        { "id": "lab_back", "text": "Back to the case.", "next": "greeting" },
+        { "id": "lab_leave", "text": "Good luck with that.", "action": "close" }
+      ]
+    },
+
+    "hamster": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "smug",
+      "firstText": "That is Gerald. Gerald is the backup generator. He is not an intern, he is not a pet, and HR has asked me to stop calling him either.\n\nHe works voluntarily. Mostly. Sunflower seeds are involved.",
+      "text": [
+        "Gerald is on break. Gerald is always on break. The wheel is still turning, so draw your own conclusions.",
+        "Do not feed Gerald. He is on a very strict diet of sunflower seeds and electrical load.",
+        "Gerald has asked for a raise. I offered him another seed. We are still negotiating."
+      ],
+      "choices": [
+        { "id": "hamster_more", "text": "Tell me about something else.", "next": "small_talk" },
+        { "id": "hamster_leave", "text": "Okay. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "coffee": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "suspicious",
+      "firstText": "The coffee machine has refused to testify. I offered it immunity. I offered it descaler. Nothing.\n\nOfficially it is evidence in an unrelated case. Unofficially it makes the best coffee in the building, which is a low bar, and it clears it by an inch.",
+      "text": [
+        "The coffee machine has been moved to Exhibit B. I still use it. Chain of custody is a suggestion.",
+        "Do not use the coffee machine. If you must, do not tell it I sent you."
+      ],
+      "choices": [
+        { "id": "coffee_more", "text": "Tell me about something else.", "next": "small_talk" },
+        { "id": "coffee_leave", "text": "I did not hear any of that.", "action": "close" }
+      ]
+    },
+
+    "theory": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "suspicious",
+      "firstText": "I do not have theories. I have samples. Theories are what you do afterwards, with your face going all thoughtful in front of a corkboard.\n\nThough between us, {artifact} is a strange thing to steal. Someone really wanted it.",
+      "text": [
+        "Theories are your department. Mine is telling you exactly which theories the evidence just ruined.",
+        "If I guessed, I would be a detective. I prefer my job. It comes with a lab coat and fewer chases."
+      ],
+      "choices": [
+        { "id": "theory_more", "text": "Tell me about something else.", "next": "small_talk" },
+        { "id": "theory_leave", "text": "Fair enough. Back to work.", "action": "close" }
+      ]
+    },
+
+    "verdict": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "smug",
+      "text": [
+        "Honest feedback? Brace yourself.",
+        "You want a performance review from the person who labels the fridge. Fine."
+      ],
+      "dynamic": "progress_verdict",
+      "choices": [
+        { "id": "verdict_more", "text": "Tell me about something else.", "next": "small_talk" },
+        { "id": "verdict_leave", "text": "Thanks. Back to the case.", "action": "close" }
+      ]
+    },
+
+    "lab_complete": {
+      "speaker": "LAB ASSISTANT",
+      "mood": "proud",
+      "text": [
+        "That is everything. Three analyses, one set of results, zero explosions. I am putting that in my report.\n\nGo find your thief. The evidence is on your crime board.",
+        "All samples are done. The lab is quiet. I do not trust it, but I appreciate it.\n\nYour results are on the crime board. Go and be clever."
+      ],
+      "choices": [
+        { "id": "complete_question", "text": "One more question.", "next": "greeting" },
+        { "id": "complete_leave", "text": "On it. Thanks.", "action": "close" }
       ]
     }
   }

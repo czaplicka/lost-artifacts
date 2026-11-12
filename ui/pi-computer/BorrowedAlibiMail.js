@@ -4,16 +4,29 @@ import { requestAutosave } from '../../gameStatePersistence.js';
 import { getPIQuest } from '../../managers/PIQuestManager.js';
 import { discoverSearchKeywords, getSearchProgress, validateSearchData } from './ComputerSearchCore.js';
 import { ALIBI_SEARCH_ID, ALIBI_SEARCH_CASE, mergeAlibiSearch } from './AlibiCaseData.js';
+
 const QUEST = 'pi_stolen_alibi';
 const KEY = 'piBorrowedAlibi';
 const DRAFT = 'alibi_box17_draft';
 const SENT = 'alibi_box17_sent';
-const REPLY_DELAY_MS = 12000;
+const EVELYN = 'alibi_forward_evelyn';
+const LEGACY_ATTACHMENT = 'alibi_arthur_attachment';
+const REPLY_DELAY_MS = 10000;
 const VARIANTS = [
   { label: 'PROFESSIONAL', body: 'I am responding to your advertisement. Please forward all three original requests, including sender details and any attachments. Please describe where and when you actually ate on Tuesday.' },
   { label: 'FRIENDLY', body: 'I can help investigate your unexpected social life. Please send the three original messages and any attached documents. Tell me where and when you really had dinner on Tuesday.' },
   { label: 'DIRECT', body: 'Three dinner companions is a lot to acquire by accident. Forward their original messages, with sender details and attachments. I also need the restaurant and time of your actual dinner.' }
 ];
+const EVELYN_DOCUMENT = `Tuesday dinner, 7:00–9:00 p.m.
+The Copper Spoon, table six.
+Companion: Arthur Finch.
+Meal: tomato soup.
+The waiter says: “Our chef believes in second chances.”
+Arthur spills red wine on the tablecloth.
+
+DOCUMENT FOOTER
+Tuesday package — revision 2.
+Remove before forwarding.`;
 const INCOMING = [
   { id: 'alibi_arthur_reply', from: 'Arthur Finch via Box 17', subject: 'Re: Someone has been using my alibi', body: `Detective,
 
@@ -21,7 +34,7 @@ My name is Arthur Finch. I had dinner alone at The Copper Spoon on Tuesday, from
 
 I have forwarded the three requests separately. I do not know these people and never agreed to confirm their stories.
 
-IMPORTANT: Evelyn also attached a document. I have sent its contents in a separate message titled “Attachment: Evelyn’s dinner document — footer included”. There is a strange instruction at the bottom. Please check that as well as the three emails.
+Evelyn's document is included with her forwarded message. I have kept the original text and footer intact.
 
 You have my permission to release my receipt for that Tuesday visit. The classifieds relay may forward this signed authorisation to the restaurant with your request.
 
@@ -29,7 +42,7 @@ Apparently we all had a delightful evening. Please establish whether I enjoyed m
 
 Arthur Finch
 
-Enclosures: Nora Bell’s request; Simon Pike’s request; Evelyn Shaw’s request; Evelyn’s attached dinner document.` },
+Enclosures: Nora Bell’s request; Simon Pike’s request; Evelyn Shaw’s request with its attached dinner document.` },
   { id: 'alibi_forward_nora', from: 'Arthur Finch → forwarded: Nora Bell', subject: 'Dinner confirmation — Nora Bell', body: `FORWARDED ORIGINAL MESSAGE
 From: Nora Bell <nora.bell@post.local>
 To: Arthur Finch
@@ -58,7 +71,9 @@ Table six. Tomato soup. The waiter said, “Our chef believes in second chances.
 A very productive evening. Strategically speaking.
 
 Simon Pike` },
-  { id: 'alibi_forward_evelyn', from: 'Arthur Finch → forwarded: Evelyn Shaw', subject: 'Dinner confirmation — Evelyn Shaw', body: `FORWARDED ORIGINAL MESSAGE
+  { id: EVELYN, from: 'Arthur Finch → forwarded: Evelyn Shaw', subject: 'Dinner confirmation — Evelyn Shaw',
+    attachments: [{ id: 'evelyn_dinner_document', name: 'Dinner confirmation — original document', type: 'text', body: EVELYN_DOCUMENT }],
+    body: `FORWARDED ORIGINAL MESSAGE
 From: Evelyn Shaw <evelyn.shaw@post.local>
 To: Arthur Finch
 Subject: Confirmation required
@@ -73,37 +88,15 @@ There is no need to provide details beyond those above.
 
 Evelyn Shaw
 
-ATTACHED DOCUMENT: reproduced in Arthur’s separate “Attachment: Evelyn’s dinner document — footer included” message.` }
+----------------------------------------
+ATTACHED DOCUMENT — TRANSCRIPTION
+Dinner confirmation — original document
+----------------------------------------
+
+${EVELYN_DOCUMENT}
+
+----- END OF ATTACHED DOCUMENT -----` }
 ];
-const LEAD = {
-  id: 'alibi_arthur_attachment', from: 'Arthur Finch via Box 17',
-  subject: 'Attachment: Evelyn’s dinner document — footer included',
-  body: `ATTACHED DOCUMENT — TRANSCRIPTION
-DOCUMENT FOOTER: Tuesday package — revision 2. Remove before forwarding.
-
-Detective,
-
-That is the instruction printed at the bottom of Evelyn Shaw’s attachment. I have put it at the top of this message so neither of us misses it. The full document is reproduced below; there is no separate download to open.
-
------ DOCUMENT CONTENT -----
-Tuesday dinner, 7:00–9:00 p.m.
-The Copper Spoon, table six.
-Companion: Arthur Finch.
-Meal: tomato soup.
-The waiter says: “Our chef believes in second chances.”
-Arthur spills red wine on the tablecloth.
-
------ DOCUMENT FOOTER -----
-Tuesday package — revision 2.
-Remove before forwarding.
------ END DOCUMENT -----
-
-I did not agree to appear in this document. Is this what people mean by a packaged social life?
-
-Arthur Finch
-
-The footer identifies a document version, not the identity of the person who sold it.`
-};
 const RECEIPT = {
   id: 'alibi_copper_receipt', from: 'The Copper Spoon — Manager', subject: 'Authorised copy: Arthur Finch’s Tuesday receipt',
   body: `COPY — supplied with Arthur Finch’s permission
@@ -152,10 +145,12 @@ This template does not disclose who purchased it or what they actually did on Tu
 Tuesday Alibi Club
 Yesterday, improved.`
 };
-const MAIL_IDS = new Set([DRAFT, SENT, RECEIPT.id, LEAD.id, SAMPLE.id, ...INCOMING.map(m => m.id)]);
+const MAIL_IDS = new Set([DRAFT, SENT, RECEIPT.id, LEGACY_ATTACHMENT, SAMPLE.id, ...INCOMING.map(m => m.id)]);
+
 export class BorrowedAlibiMail {
   constructor(ui) {
     Object.assign(this, { ui, searchInstalled: false, searchHook: null, replyTimer: null, replyTimerDueAt: null, disposed: false, restorers: [] });
+    this.migrateAttachment();
     this.onSceneShutdown = () => this.destroy();
     this.install();
     ui.scene.events.once('shutdown', this.onSceneShutdown);
@@ -174,13 +169,57 @@ export class BorrowedAlibiMail {
   get sampleAvailable() { return this.replyReceived && this.flags.includes('club_sample_received'); }
   isAlive() { return !this.disposed && !this.ui.destroyed; }
   update(patch) { gameState[KEY] = { ...this.state, ...patch, version: 1 }; requestAutosave(); }
+
+  migrateAttachment() {
+    let changed = false;
+    const saved = gameState[KEY];
+    if (saved && saved.evelynAttachmentLayout !== 1) {
+      const read = Array.isArray(saved.read) ? saved.read : [];
+      // An old opened Evelyn email did not yet contain the document.
+      gameState[KEY] = {
+        ...saved,
+        evelynAttachmentLayout: 1,
+        read: read.includes(LEGACY_ATTACHMENT) ? read : read.filter(id => id !== EVELYN)
+      };
+      changed = true;
+    }
+    const box = gameState.piMailboxV1;
+    if (box && Array.isArray(box.records)) {
+      const evelyn = INCOMING.find(message => message.id === EVELYN);
+      let boxChanged = false;
+      const records = box.records.filter(record => {
+        if (record.id !== LEGACY_ATTACHMENT) return true;
+        boxChanged = true; return false;
+      }).map(record => {
+        if (!record.copy) return record;
+        if (record.id === EVELYN && record.copy.body !== evelyn.body) {
+          boxChanged = true;
+          return { ...record, copy: { ...record.copy, ...evelyn } };
+        }
+        const arthur = INCOMING[0];
+        if (record.id === arthur.id && record.copy.body !== arthur.body) {
+          boxChanged = true;
+          return { ...record, copy: { ...record.copy, body: arthur.body } };
+        }
+        return record;
+      });
+      const archived = (box.archived || []).filter(id => id !== LEGACY_ATTACHMENT);
+      const deleted = (box.deleted || []).filter(id => id !== LEGACY_ATTACHMENT);
+      if (boxChanged || archived.length !== (box.archived || []).length || deleted.length !== (box.deleted || []).length) {
+        gameState.piMailboxV1 = { ...box, records, archived, deleted };
+        changed = true;
+      }
+    }
+    if (changed) requestAutosave();
+  }
+
   refresh() {
     const u = this.ui;
     if (this.isAlive() && u.isOpen && !u.suspended && !u.booting) u.render();
   }
   isDraft() { return this.ui.app === 'mail' && this.ui.selectedId === DRAFT && this.active && !this.state.sent; }
   isEvidence() {
-    return this.ui.app === 'mail' && this.replyReceived && MAIL_IDS.has(this.ui.selectedId) && ![DRAFT,SENT].includes(this.ui.selectedId);
+    return this.ui.app === 'mail' && this.replyReceived && MAIL_IDS.has(this.ui.selectedId) && ![DRAFT,SENT,LEGACY_ATTACHMENT].includes(this.ui.selectedId);
   }
   wrap(target, method, factory) {
     if (typeof target?.[method] !== 'function') return false;
@@ -274,10 +313,14 @@ export class BorrowedAlibiMail {
     if (!this.isAlive()) return;
     const state = this.state;
     if (!state.sent || this.replyReceived) { this.clearReplyTimer(); return; }
+    const sentAt = Date.parse(state.sentAt);
     let due = Number(state.replyDueAt);
-    if (!Number.isFinite(due) || due <= 0) {
-      const at = Date.parse(state.sentAt);
-      due = (Number.isFinite(at) ? at : Date.now()) + REPLY_DELAY_MS;
+    const normalizedDue = Number.isFinite(sentAt) ? sentAt + REPLY_DELAY_MS : null;
+    if (normalizedDue !== null && due !== normalizedDue) {
+      due = normalizedDue;
+      this.update({replyDueAt:due});
+    } else if (!Number.isFinite(due) || due <= 0) {
+      due = Date.now() + REPLY_DELAY_MS;
       this.update({replyDueAt:due});
     }
     const remaining = due-Date.now();
@@ -290,8 +333,7 @@ export class BorrowedAlibiMail {
     if (!this.isAlive() || !this.state.sent || this.replyReceived) return;
     this.clearReplyTimer();
     this.update({replyReceived:true,replyReceivedAt:new Date().toISOString()});
-    this.ui.notice='Arthur replied: three forwarded requests and Evelyn’s attachment are now in Mail.';
-    // getMail may be called during render; avoid recursive rendering.
+    this.ui.notice='Arthur replied. The three forwarded requests are in Mail; Evelyn’s document is included with her message.';
     queueMicrotask(()=>this.refresh());
   }
   install() {
@@ -306,7 +348,6 @@ export class BorrowedAlibiMail {
         if(this.replyReceived){
           if(this.sampleAvailable)own.push({...SAMPLE,date:'Received after your club enquiry'});
           if(this.receivedReceipt)own.push({...RECEIPT,date:'Received after restaurant enquiry'});
-          own.push({...LEAD,date:'Enclosed with Arthur’s reply'});
           own.push(...INCOMING.map(m=>({...m,date:'Received after your Box 17 reply'})));
         }
         own.push({id:SENT,from:'You → Classifieds relay, Box 17',subject:'Re: Someone has been using my alibi',date:'Sent',body:state.sentBody||VARIANTS[state.variant].body});
@@ -322,6 +363,8 @@ export class BorrowedAlibiMail {
     });
     this.wrap(docs,'render',original=>(...args)=>{
       if(!this.isAlive())return original(...args);
+      this.migrateAttachment();
+      if (u.selectedId === LEGACY_ATTACHMENT) { u.selectedId=EVELYN; u.bodyPage=0; }
       this.installSearch();this.ensureSearch();this.syncReplyDelivery();
       const result=original(...args);
       if(this.isEvidence()&&!u.search?.data&&!u.search?.loading&&!u.search?.error)this.loadSearch();
@@ -330,7 +373,11 @@ export class BorrowedAlibiMail {
         u.drawing.button(b.x+298,by,'TONE: '+VARIANTS[this.state.variant].label,()=>{this.update({variant:(this.state.variant+1)%VARIANTS.length});u.bodyPage=0;this.refresh();});
         u.drawing.button(b.x+b.w-190,by,'SEND REPLY',()=>this.send());
       }
-      if(this.isEvidence()&&!this.state.read.includes(u.selectedId))this.update({read:[...this.state.read,u.selectedId]});
+      if(this.isEvidence()) {
+        const read = this.state.read;
+        const additions = u.selectedId === EVELYN ? [EVELYN,LEGACY_ATTACHMENT] : [u.selectedId];
+        if (additions.some(id=>!read.includes(id))) this.update({read:[...new Set([...read,...additions])]});
+      }
       if(u.app==='classifieds'&&this.active&&!this.state.sent&&docs.getClassifieds?.().find(a=>a.id===u.selectedId)?.missionId===QUEST){
         const b=u.window;
         u.drawing.button(b.x+b.w-270,b.y+b.h-101,'REPLY TO AD',()=>{
@@ -347,14 +394,14 @@ export class BorrowedAlibiMail {
   send() {
     if(!this.isAlive()||!this.active||this.state.sent)return;
     const now=Date.now();
-    this.update({sent:true,sentBody:VARIANTS[this.state.variant].body+'\n\n— Private Investigator',sentAt:new Date(now).toISOString(),replyDueAt:now+REPLY_DELAY_MS,replyReceived:false,replyReceivedAt:null,read:[]});
+    this.update({sent:true,sentBody:VARIANTS[this.state.variant].body+'\n\n— Private Investigator',sentAt:new Date(now).toISOString(),replyDueAt:now+REPLY_DELAY_MS,replyReceived:false,replyReceivedAt:null,read:[],evelynAttachmentLayout:1});
     const quest=getPIQuest(QUEST);
     if(quest){
       const state=gameState.piQuests||{};
       gameState.piQuests={...state,quests:{...(state.quests||{}),[QUEST]:{...quest,objectives:Array.isArray(quest.objectives)?quest.objectives.map(o=>o.id==='contact_client'?{...o,completed:true}:o):quest.objectives}}};
       requestAutosave();
     }
-    Object.assign(this.ui,{selectedId:SENT,listPage:0,bodyPage:0,notice:'Reply sent. Arthur will forward the original messages and attachments.'});
+    Object.assign(this.ui,{selectedId:SENT,listPage:0,bodyPage:0,notice:'Reply sent. Arthur will forward the original messages with their attachments.'});
     this.syncReplyDelivery();this.refresh();
   }
   destroy() {

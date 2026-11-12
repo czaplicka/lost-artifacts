@@ -5,17 +5,24 @@ import {
   phoneCaseProgress as readPhoneProgress
 } from './PhoneInvestigationBase.js';
 import { selectAlibiDialogueRule, installAlibiDialogueData } from '../pi-computer/AlibiDialogueData.js';
+import { installAlibiClubDialogue, selectAlibiClubRule } from '../pi-computer/AlibiClubDialogue.js';
 export * from './PhoneInvestigationBase.js';
 
 export function eligiblePhoneRule(contact,terms,known,flags) {
   if (!Array.isArray(terms) || !terms.length || terms.length>2 || new Set(terms).size!==terms.length
     || !terms.every(id=>known.includes(id))) return null;
+  if (contact.caseId==='borrowed_alibi' && contact.number==='428') {
+    return selectAlibiClubRule(contact,terms,known,flags);
+  }
   return contact.caseId==='borrowed_alibi' ? selectAlibiDialogueRule(contact,terms,known,flags)
     : originalEligible(contact,terms,known,flags);
 }
 export class PhoneInvestigation extends PhoneInvestigationBase {
   constructor(phone) {
-    super(phone);installAlibiDialogueData();this.committingAlibiResponse=false;
+    super(phone);
+    installAlibiDialogueData();
+    installAlibiClubDialogue();
+    this.committingAlibiResponse=false;
     this.beforeCompletionRender=phone.render;
     const previous=phone.render.bind(phone);
     this.completionRender=(...args)=>{
@@ -44,7 +51,7 @@ export class PhoneInvestigation extends PhoneInvestigationBase {
     const words=this.selected.map(id=>definition?.keywords.find(k=>k.id===id)?.label || id).join(' + ');
     const routes={
       '427':'I can check Tuesday service, explain our receipt procedure or give you the receipts email. A customer record requires their written permission.',
-      '428':'Ask about the Dinner Companion package, then request its free sample. I cannot verify an actual restaurant visit or disclose customers.',
+      '428':'I’m sorry, what are you asking about?',
       '429':'If you dispute my dinner account, compare the original messages, the sample reference and the restaurant evidence. Which part have you established?',
       '430':'Keep my account separate from the others. If you are matching it to a sample, use its actual reference and check the restaurant evidence.',
       '431':'State the dinner evidence you have checked. The company incident is a separate question; my employer’s name is not itself a contradiction.',

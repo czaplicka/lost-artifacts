@@ -1,0 +1,27 @@
+// CRIME CITY ONLINE ROUTES: authentication has already succeeded in the enclosing handler.
+if(action==='crimeCatalog'){
+ const gh=await github(),locations=JSON.parse(await gh.read('assets/data/locations.json')),facts=JSON.parse(await gh.read('assets/data/countryFacts.json')),atlas=JSON.parse(await gh.read('assets/data/atlas.json')),idx=JSON.parse(await gh.read('assets/manifests/index.json'));
+ const parts=await Promise.all(idx.files.map(p=>gh.read(p).then(JSON.parse))),assets=parts.flatMap(p=>p.assets),sus=assets.find(a=>a.type==='json'&&a.key==='suspects');crCheck(sus,'Nie znaleziono puli złodziei.');const data=JSON.parse(await gh.read(sus.url)),people=Array.isArray(data)?data:data.suspects||data.thieves||[];
+ const cities=locations.filter(c=>c.id!=='hq'&&(!c.isCrimeCity||c.crimeCity?.editorManaged===true)).map(c=>{const country=atlas.find(a=>a.cities?.some(x=>x.id===c.id)||a.name===c.country),entry=country?.cities?.find(x=>x.id===c.id),img=assets.find(a=>a.type==='image'&&a.key===(c.backgroundKey||c.id));const codes={london:'LHR',paris:'CDG',berlin:'BER',warsaw:'WAW',new_delhi:'DEL',new_york_city:'JFK',toronto:'YYZ',islamabad:'ISB',nairobi:'NBO',tokyo:'HND',kotte:'CMB',singapore:'SIN'};return{id:c.id,name:c.city,managed:c.crimeCity?.editorManaged===true,city:{id:c.id,originalId:c.id,name:c.city,country:c.country,iso3:country?.iso3||'',region:c.travelRegion||'',airportCode:c.airportCode||codes[c.id]||'',theme:c.npcTheme==='south_asian'?'south_asia':c.npcTheme||'white',lon:(c.coordinates||entry?.coordinates||[])[0]??'',lat:(c.coordinates||entry?.coordinates||[])[1]??'',mapX:c.map?.x??'',mapY:c.map?.y??'',harbor:!!c.harbor,busStation:!!c.busStation,trainStation:!!c.trainStation,npcs:(c.encounterPool||[]).map(x=>x.npcId),facts:facts[c.id]||{},image:img?{path:img.url}:null,newspapers:{}}};});
+ const questions=JSON.parse(await gh.read('assets/data/reconstruction_questions.json'));const source=JSON.parse(await gh.read('assets/data/objects-source/_manifest.json'));
+ return response(200,{head:gh.head,cities,questions:questions.reconstructionQuestions||questions.questions||questions,skills:[...new Set(people.flatMap(p=>crSkills(p.skills)))].sort(),templates:source.scenes});
+}
+if(action==='crimeTemplate'){
+ crId(input.sceneId);const gh=await github(),manifest=JSON.parse(await gh.read('assets/data/objects-source/_manifest.json'));crCheck(manifest.scenes.includes(input.sceneId),'Nieznana scena szablonowa.');const items=JSON.parse(await gh.read('assets/data/objects/'+input.sceneId+'.json')),map=JSON.parse(await gh.read('assets/crimes/'+input.sceneId+'.json'));const objects=map.layers?.find(l=>l.name==='HiddenObjects'&&l.type==='objectgroup')?.objects||[];
+ return response(200,{items:items.map(o=>{const z=objects.find(z=>String(z.properties?.find(p=>p.name==='id')?.value||z.name)===String(o.id));const width=Number(z?.width)||0,height=Number(z?.height)||0;return{...o,rect:z&&width>0&&height>0?{x:Number(z.x),y:Number(z.y),width,height}:null};})});
+}
+if(action==='crimeLoad'){
+ const id=crId(input.id),gh=await github(),text=await gh.read('assets/data/crime-editor-online.json');const data=text?JSON.parse(text):{cases:{}};crCheck(data.cases[id],'Ta sprawa nie została jeszcze opublikowana z nowego formularza.');return response(200,{head:gh.head,form:data.cases[id]});
+}
+if(action==='crimeDraftList'){
+ const {data,error}=await db.from('city_editor_crime_drafts').select('id,version,updated_at').order('updated_at',{ascending:false});crCheck(!error,'Nie można odczytać szkiców.');return response(200,{drafts:data});
+}
+if(action==='crimeDraftLoad'){
+ const id=crId(input.id);const {data,error}=await db.from('city_editor_crime_drafts').select('*').eq('id',id).single();crCheck(!error&&data?.content?.kind==='crime','Nie znaleziono szkicu sprawy.');return response(200,{draft:data});
+}
+if(action==='crimeDraftSave'){
+ const f=crimeNormalize(input.form,false),id=f.city.id,version=Number(input.version||0);crCheck(Number.isSafeInteger(version)&&version>=0,'Nieprawidłowa wersja szkicu.');const values={content:f,base_head:input.baseHead||null,updated_by:user.id,updated_at:new Date().toISOString(),version:version+1};let result;if(!version)result=await db.from('city_editor_crime_drafts').insert({id,...values,created_by:user.id}).select('version').single();else result=await db.from('city_editor_crime_drafts').update(values).eq('id',id).eq('version',version).select('version').maybeSingle();crCheck(!result.error&&result.data,'Szkic jest zajęty lub zmieniony przez drugą osobę. Otwórz go ponownie.');return response(200,{ok:true,version:result.data.version});
+}
+if(action==='crimePreview'){
+ const gh=await github();crCheck(gh.head===input.baseHead,'Repozytorium zmieniło się. Zachowaj szkic i porównaj go z aktualną wersją przed publikacją.');const plan=await crimeBuildPlan(input.form,gh.read,buildPlan);crCheck(plan.files.length,'Brak zmian.');const {data,error}=await db.from('city_editor_previews').insert({user_id:user.id,head:gh.head,branch:gh.branch,payload:plan,expires_at:new Date(Date.now()+600000).toISOString()}).select('id').single();crCheck(!error&&data,'Nie można zapisać podglądu.');return response(200,{previewId:data.id,files:plan.files.map(f=>f.path),warnings:plan.warnings,coverage:plan.coverage});
+}

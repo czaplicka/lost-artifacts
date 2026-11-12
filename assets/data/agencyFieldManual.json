@@ -1,29 +1,306 @@
 {
   "itemId": "agency_field_manual",
   "title": "MARK AGENCY / FIELD MANUAL",
-  "missingMessage": "Your Agency Field Manual contains the general service procedure. If you lost your copy, Alex Murphy can issue a free replacement in Storage. Free one inventory slot if necessary.",
-  "chapters": [
+  "subtitle": "Standard Issue. 11th Edition (Revised After Incident).",
+  "missingMessage": "You need your Agency Field Manual for this. If you lost your copy, Alex Murphy can issue a free replacement in Storage. Free one inventory slot if necessary.",
+  "aliases": {
+    "overview": "contents",
+    "security-panels": "contents"
+  },
+  "pages": [
     {
-      "id": "overview",
-      "title": "Issued equipment",
-      "paragraphs": [
-        "This manual is issued by Alex Murphy in the Storage Room at the start of your first agency assignment.",
-        "Reading the manual does not consume it, spend a hint or deduct money, energy or game minutes.",
-        "If your copy is lost, discarded or otherwise missing from inventory, return to Storage. Alex will issue a replacement free of charge. You must have room in your inventory.",
-        "A replacement is not a new recruitment bonus. Please do not apply for a second first day."
+      "id": "contents",
+      "header": "Contents",
+      "blocks": [
+        { "t": "h1", "text": "CONTENTS" },
+        {
+          "t": "toc",
+          "entries": [
+            { "title": "1. Welcome, Recruit", "page": "welcome" },
+            { "title": "2. Dress, Optics & Trench Coats", "page": "dress" },
+            { "title": "3. Stakeouts & Snack Logistics", "page": "stakeouts" },
+            { "title": "4. Informants & Narrators", "page": "informants" },
+            { "title": "5. Expenses & Receipts", "page": "expenses" },
+            { "title": "6. Telephones, Pigeons, Press", "page": "comms" },
+            { "title": "7. Crime Scenes", "page": "scenes" },
+            { "title": "8. Locks, Safes & Gordon", "page": "safes" },
+            { "title": "App. A  Glossary", "page": "glossary" },
+            { "title": "App. B  Care of Office Equipment", "page": "equipment" },
+            { "title": "App. C  Etiquette Toward Electronics", "page": "etiquette" },
+            { "title": "App. D  Farewells", "page": "farewells" },
+            { "title": "App. E  Approved Excuses", "page": "excuses" },
+            { "title": "Index", "page": "index-a" }
+          ]
+        },
+        { "t": "hand", "text": "Tip from the previous owner: the index is where this book stops pretending." }
       ]
     },
     {
-      "id": "security-panels",
-      "title": "Electronic service panels",
-      "paragraphs": [
-        "GENERAL ENTRY PROCEDURE",
-        "Read the serial number. If its final digit is ODD, start with MEM. If its final digit is EVEN, start with TEST. Zero is even.",
-        "Perform the intermediate operations specified in the device's own service note. Firmware revisions can change which DIP switch is connected and where RESET belongs.",
-        "After those intermediate operations, press whichever of TEST or MEM you did NOT use as the starting button.",
-        "Finish with ENTER to execute the selected service operation. Whether that operation releases a door or exports an event log depends on the device.",
-        "Do not infer the correct switch from the position of a label. Consult the local service note and observe the actual panel.",
-        "The local service note is not a substitute for this manual. This manual is not a substitute for reading the local service note. Legal enjoyed writing that sentence."
+      "id": "welcome",
+      "header": "Chapter 1",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 1 / WELCOME, RECRUIT" },
+        { "t": "p", "text": "Congratulations on joining Mark Agency, a proud tradition of recovering things other people stole, lost, or insured twice." },
+        { "t": "p", "text": "This manual is issued by Alex Murphy in the Storage Room. Reading it does not consume it, spend a hint, or deduct money, energy or minutes. Legal insisted we say so in writing. Twice." },
+        { "t": "p", "text": "If your copy is lost, discarded or eaten, return to Storage. Alex will issue a free replacement, provided you have room in your inventory." },
+        { "t": "p", "text": "A replacement is not a second recruitment bonus. Please do not apply for a second first day." },
+        { "t": "hand", "text": "The useful bits are always in the back. Ask me how I know." }
+      ]
+    },
+    {
+      "id": "dress",
+      "header": "Chapter 2",
+      "stain": "ring",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 2 / DRESS, OPTICS & TRENCH COATS" },
+        { "t": "p", "text": "A detective must look credible to clients and forgettable to suspects. This is achieved with a trench coat. Do not ask how." },
+        {
+          "t": "list",
+          "items": [
+            "**Hats:** optional indoors, mandatory in noir.",
+            "**Sunglasses:** not indoors, not at night, not ever, according to HR.",
+            "**Disguises:** one fake moustache is a disguise. Two is a cry for help.",
+            "**Shoes:** quiet ones. Squeaking soles have ended careers."
+          ]
+        },
+        { "t": "p", "text": "Agency policy on wigs remains under review since the Lisbon incident." },
+        { "t": "stamp", "text": "Wig policy: pending" }
+      ]
+    },
+    {
+      "id": "stakeouts",
+      "header": "Chapter 3",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 3 / STAKEOUTS & SNACK LOGISTICS" },
+        { "t": "p", "text": "A stakeout is waiting, with paperwork. Bring snacks that are silent. Nothing that crunches at the key moment." },
+        {
+          "t": "table",
+          "head": ["Snack", "Noise", "Verdict"],
+          "rows": [
+            ["Banana", "Low", "Approved"],
+            ["Crisps", "Critical", "Banned"],
+            ["Soup", "Low, tragic", "Banned"],
+            ["Sandwich", "Low", "Approved, label it"]
+          ]
+        },
+        { "t": "p", "text": "Energy matters. A tired detective misses clues and, eventually, the hotel. Sleep and coffee are both resources, but they are not interchangeable, whatever Gordon says." }
+      ]
+    },
+    {
+      "id": "informants",
+      "header": "Chapter 4",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 4 / INFORMANTS & OTHER UNRELIABLE NARRATORS" },
+        { "t": "p", "text": "Everyone in a city knows something. Most of it is wrong. Some of it is wrong on purpose." },
+        {
+          "t": "list",
+          "items": [
+            "A witness who saw everything probably saw nothing.",
+            "A witness who saw nothing may be hiding something.",
+            "An alibi offered before anyone asks has been rehearsed.",
+            "Ask three people. If one lies, it is the one who answers too smoothly."
+          ]
+        },
+        { "t": "hand", "text": "Chapter 4 is mostly true. The 'mostly' is doing a lot of work." }
+      ]
+    },
+    {
+      "id": "expenses",
+      "header": "Chapter 5",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 5 / EXPENSES, RECEIPTS & THE FINANCE FLOOR" },
+        { "t": "p", "text": "Keep every receipt. Finance does not believe in memory, only in paper." },
+        {
+          "t": "table",
+          "head": ["Item", "Reimbursable?"],
+          "rows": [
+            ["Train ticket", "Yes"],
+            ["Train ticket, first class", "Ask Marge"],
+            ["Disguise", "If it worked"],
+            ["Pigeon feed", "Yes (see Ch. 6)"],
+            ["Emotional support doughnut", "No"]
+          ]
+        },
+        { "t": "p", "text": "A taxi ride without a receipt is a gift to the Agency. The Agency has a policy of not accepting gifts, and a second policy of accepting them." }
+      ]
+    },
+    {
+      "id": "comms",
+      "header": "Chapter 6",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 6 / TELEPHONES, PIGEONS & THE PRESS" },
+        { "t": "p", "text": "Telephones are for asking questions. Pigeons are for questions you do not want overheard. Newspapers tell you tomorrow what everyone knew yesterday." },
+        {
+          "t": "list",
+          "items": [
+            "Identify yourself on the phone. Never identify your client.",
+            "A pigeon cannot be bugged, but it can be bribed.",
+            "The press is not your friend. The press is a friend of the story."
+          ]
+        },
+        { "t": "hand", "text": "One of the pigeons owes me five." }
+      ]
+    },
+    {
+      "id": "scenes",
+      "header": "Chapter 7",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 7 / CRIME SCENES & THINGS THAT LOOK SUSPICIOUS" },
+        { "t": "p", "text": "At a crime scene everything is evidence until proven otherwise. Then everything is a red herring until proven otherwise. Then it is Tuesday." },
+        {
+          "t": "list",
+          "items": [
+            "Look for what does not belong.",
+            "Then look for what was meant to look like it does not belong.",
+            "Do not touch the alarm. Do not touch the open alarm either. Especially not the open alarm."
+          ]
+        },
+        { "t": "p", "text": "A good detective finds three real clues and ignores three decoys. A great detective explains the decoys at dinner." }
+      ]
+    },
+    {
+      "id": "safes",
+      "header": "Chapter 8",
+      "blocks": [
+        { "t": "h1", "text": "CHAPTER 8 / LOCKS, SAFES & GORDON" },
+        { "t": "p", "text": "Locks are opened with keys, picks or persuasion. Safes are opened with patience. Gordon's safe is opened with something we are not yet authorised to describe." },
+        { "t": "p", "text": "Alarm systems: do not trip them. If you trip one, do not look surprised. If surprised, do not run. If running, see Chapter 3 (snacks, quietly)." },
+        {
+          "t": "warn",
+          "title": "NOTICE",
+          "text": "Safes have dials, pins and regrets. They do not have TEST or MEM buttons. If yours does, it is not a safe."
+        }
+      ]
+    },
+    {
+      "id": "glossary",
+      "header": "Appendix A",
+      "blocks": [
+        { "t": "h1", "text": "APPENDIX A / GLOSSARY" },
+        { "t": "p", "text": "**Alibi:** a story with a time stamp." },
+        { "t": "p", "text": "**Artefact:** expensive, shiny, someone else's." },
+        { "t": "p", "text": "**Clue:** something helpful, usually found after you needed it." },
+        { "t": "p", "text": "**Red herring:** a clue that is lying politely." },
+        { "t": "p", "text": "**Serial number:** the one honest thing about a device. Every device has one. Few advertise it." },
+        { "t": "p", "text": "**Suspect:** everybody, until Thursday." }
+      ]
+    },
+    {
+      "id": "equipment",
+      "header": "Appendix B",
+      "stain": "ring",
+      "blocks": [
+        { "t": "h1", "text": "APPENDIX B / CARE OF OFFICE EQUIPMENT" },
+        { "t": "p", "text": "Equipment is expensive and sulks. Each device has habits of its own. Rules below apply to the named device only." },
+        {
+          "t": "table",
+          "head": ["Device", "Procedure"],
+          "rows": [
+            ["Photocopier", "Odd serial: press START. Even serial: press COPY. Nobody knows why."],
+            ["Coffee machine", "Press BREW. Wait. Apologise."],
+            ["Vending machine", "Odd coins only. Even coins offend it."],
+            ["Fax machine", "It is the 21st century. Why do we have a fax machine?"],
+            ["Lift", "Press the button once. Pressing it more is a prayer, not a procedure."]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "etiquette",
+      "header": "Appendix C",
+      "blocks": [
+        { "t": "h1", "text": "APPENDIX C / ETIQUETTE TOWARD ELECTRONICS" },
+        { "t": "p", "text": "Electronic equipment is sensitive and expects to be greeted properly. Do not simply start pressing things. You would not do that at a dinner party. (Do not answer that.)" },
+        { "t": "p", "text": "**First, read the serial number.** It is rarely on the front. Only its final digit matters." },
+        { "t": "p", "text": "A device whose final digit is **odd** is sociable and expects its greeting from the **MEM** button. A device whose final digit is **even** is formal and expects the **TEST** button. Zero counts as even. Zero is also what you will score if you guess." },
+        { "t": "p", "text": "This applies to devices that have both buttons. Kettles are exempt." },
+        { "t": "hand", "text": "Greeting is not leaving. Leaving is in the back, the sad part." }
+      ]
+    },
+    {
+      "id": "farewells",
+      "header": "Appendix D",
+      "blocks": [
+        { "t": "h1", "text": "APPENDIX D / FAREWELLS" },
+        { "t": "p", "text": "Whatever the device asked of you in between (manufacturers love their own paperwork, so consult it), every visit ends the same way." },
+        {
+          "t": "list",
+          "ordered": true,
+          "items": [
+            "Press the OTHER greeting button, the one you did not open with. Equipment keeps score.",
+            "Press **ENTER**. Once. Firmly. It is not a lift."
+          ]
+        },
+        { "t": "p", "text": "Only then may you consider the device settled. Do not thank it. It will not reply, and it will remember." },
+        { "t": "figure", "art": "  .------.\n  |ENTER|   FIG. 4\n  '------'   (73% of actual size)", "caption": "A button. Be gentle." }
+      ]
+    },
+    {
+      "id": "excuses",
+      "header": "Appendix E",
+      "blocks": [
+        { "t": "h1", "text": "APPENDIX E / APPROVED EXCUSES FOR BEING IN A MUSEUM AFTER HOURS" },
+        {
+          "t": "list",
+          "items": [
+            "**I was looking for the toilets.** Accepted once. Do not reuse.",
+            "**I am from the Ministry of Inspection.** Which ministry? Be ready.",
+            "**I fell asleep.** Believable. Embarrassing.",
+            "**I am with the pigeons.** Nobody will ask a second question."
+          ]
+        },
+        { "t": "stamp", "text": "Not legal advice" }
+      ]
+    },
+    {
+      "id": "index-a",
+      "header": "Index A-K",
+      "blocks": [
+        { "t": "h1", "text": "INDEX A-K" },
+        {
+          "t": "index",
+          "entries": [
+            { "term": "Alarm systems, not tripping", "pages": ["safes"] },
+            { "term": "Alibi", "pages": ["glossary"] },
+            { "term": "Buttons, TEST and MEM", "pages": ["etiquette"] },
+            { "term": "Buttons, ENTER", "pages": ["farewells"] },
+            { "term": "Coffee", "pages": ["stakeouts", "equipment"] },
+            { "term": "Disguises", "pages": ["dress"] },
+            { "term": "Doughnuts, emotional support", "pages": ["expenses"] },
+            { "term": "Equipment, electronic, greeting", "pages": ["etiquette"] },
+            { "term": "Equipment, electronic, leaving", "pages": ["farewells"] },
+            { "term": "Equipment, office", "pages": ["equipment"] },
+            { "term": "Excuses, approved", "pages": ["excuses"] },
+            { "term": "Gordon", "pages": ["safes"] },
+            { "term": "Informants", "pages": ["informants"] },
+            { "term": "Kettles", "pages": ["etiquette"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "index-l",
+      "header": "Index L-Z",
+      "blocks": [
+        { "t": "h1", "text": "INDEX L-Z" },
+        {
+          "t": "index",
+          "entries": [
+            { "term": "Moustaches", "pages": ["dress"] },
+            { "term": "Panels, control", "see": "Equipment, electronic, greeting" },
+            { "term": "Pigeons", "pages": ["comms"] },
+            { "term": "Receipts", "pages": ["expenses"] },
+            { "term": "Red herrings", "pages": ["scenes", "glossary"] },
+            { "term": "Safes", "pages": ["safes"] },
+            { "term": "Serial numbers", "pages": ["glossary", "etiquette"] },
+            { "term": "Snacks", "pages": ["stakeouts"] },
+            { "term": "Stakeouts", "pages": ["stakeouts"] },
+            { "term": "Trench coats", "pages": ["dress"] },
+            { "term": "Wigs", "pages": ["dress"] },
+            { "term": "Zero, is even", "pages": ["etiquette"] }
+          ]
+        },
+        { "t": "hand", "text": "Index compiled by Legal. Page numbers checked by nobody." }
       ]
     }
   ]

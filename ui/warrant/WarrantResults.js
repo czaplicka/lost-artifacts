@@ -3,8 +3,40 @@ import {
   RESULT_STEP, MAX_RESULTS, NO_MATCH_JOKES, WARRANT_JOKES
 } from './warrantConfig.js';
 import { hashString, pickRandom } from './warrantUtils.js';
+import { audioManager } from '../../managers/AudioManager.js';
 
 const FONT = NOTEBOOK_CONFIG.FONT_HAND;
+const STAMP_KEY = 'sfx_warrant_issued_stamp';
+const STAMP_URL = 'assets/audio/stamp.mp3';
+const pendingLoads = new WeakMap();
+
+function prepareStampAudio(scene) {
+  if (scene.cache.audio.exists(STAMP_KEY)) return;
+  const loader = scene.load;
+  if (!loader || pendingLoads.has(loader)) return;
+  const completeEvent = `filecomplete-audio-${STAMP_KEY}`;
+  const cleanup = () => {
+    if (pendingLoads.get(loader) !== cleanup) return;
+    pendingLoads.delete(loader);
+    loader.off(completeEvent, cleanup);
+    loader.off('loaderror', failed);
+    scene.events.off('shutdown', cleanup);
+    scene.events.off('destroy', cleanup);
+  };
+  const failed = file => { if (file?.key === STAMP_KEY) cleanup(); };
+  pendingLoads.set(loader, cleanup);
+  loader.once(completeEvent, cleanup);
+  loader.on('loaderror', failed);
+  scene.events.once('shutdown', cleanup);
+  scene.events.once('destroy', cleanup);
+  try {
+    loader.audio(STAMP_KEY, STAMP_URL);
+    if (!loader.isLoading()) loader.start();
+  } catch (error) {
+    cleanup();
+    console.warn('[WarrantResults] Stamp audio could not be loaded:', error);
+  }
+}
 
 export class WarrantResults {
   constructor({ scene, bookGroup, fx, sfx, isOpen, onIssue, onClose }) {
@@ -17,9 +49,12 @@ export class WarrantResults {
     this.onClose = onClose;
     this.objects = [];
     this.stamp = null;
+    this._stampRun = 0;
+    prepareStampAudio(scene);
   }
 
   clear() {
+    ++this._stampRun;
     this.fx.kill(this.stamp);
     this.stamp = null;
     this.objects.forEach(obj => {
@@ -119,6 +154,8 @@ export class WarrantResults {
   }
 
   showWarrant(suspect) {
+    prepareStampAudio(this.scene);
+    const run = ++this._stampRun;
     const s = this.scene;
     const docW = 900;
     const cx = SCREEN_W / 2;
@@ -138,7 +175,6 @@ export class WarrantResults {
     const nameText = line(540, String(suspect.name || 'UNKNOWN').toUpperCase(), 42, NOTEBOOK_CONFIG.PENCIL_DARK);
     if (nameText.width > 520) nameText.setScale(520 / nameText.width);
 
-    // Allow for the stamp's rotated outline, not only its unrotated height.
     const angle = 12 * Math.PI / 180;
     const stampHalfHeight = Math.sin(angle) * 138 + Math.cos(angle) * 47;
     const nameBottom = nameText.y + nameText.displayHeight / 2;
@@ -176,12 +212,22 @@ export class WarrantResults {
     doc.setAlpha(0).setY(30);
     this.fx.tween({ targets: doc, alpha: 1, y: 0, duration: 260, ease: 'Cubic.easeOut' });
     this.sfx('paper_rustle', 0.45);
+    let landed = false;
     this.fx.tween({
       targets: stamp, scale: 1, alpha: 0.92, duration: 220, delay: 520, ease: 'Cubic.easeIn',
       onComplete: () => {
-        if (!this.isOpen()) return;
+        if (landed || run !== this._stampRun || this.stamp !== stamp || !this.isOpen() ||
+            s._cleanupDone || !s.sys?.isActive()) return;
+        landed = true;
         s.cameras.main.shake(120, 0.006);
-        this.sfx('correct', 0.5);
+        if (s.cache.audio.exists(STAMP_KEY)) {
+          try {
+            audioManager.init(s);
+            audioManager.playSfx(STAMP_KEY, { volume: audioManager.getSfxVolume() * 0.5 });
+          } catch (error) {
+            console.debug('[WarrantResults] Stamp sound unavailable:', error);
+          }
+        }
       }
     });
   }

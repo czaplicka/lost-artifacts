@@ -2,6 +2,7 @@ import { gameState } from '../../GameData.js';
 import { requestAutosave } from '../../gameStatePersistence.js';
 import { installCaseNotebook } from '../CaseCloudNotebook.js';
 import { installDeadMailMailbox } from './DeadMailMailboxIntegration.js';
+import { PIMailDelivery, isIncomingMessage } from './PIMailDelivery.js';
 
 const KEY = 'piComputerMailNotifications';
 
@@ -11,8 +12,7 @@ export function orderedNotebookKeywords(definition, known) {
 }
 
 export function incomingMail(items) {
-  return items.filter(message => message?.id && !/^You\s*→/.test(message.from || '') &&
-    !/^Unsent/i.test(message.date || '') && !/^Draft:/i.test(message.subject || ''));
+  return (Array.isArray(items) ? items : []).filter(isIncomingMessage);
 }
 
 export class ComputerMailNotifications {
@@ -21,68 +21,106 @@ export class ComputerMailNotifications {
     this.dead = false;
     this.last = -Infinity;
     this.dot = null;
+    this.restorers = [];
 
-    // Register the existing Florence mailbox before notifications read it.
     this.ownsDeadMailMailbox = !ui.deadMailMailbox;
     this.deadMailMailbox = installDeadMailMailbox(ui);
+    this.delivery = new PIMailDelivery(ui);
 
     const documents = ui.documents;
-    const renderDocuments = documents.render.bind(documents);
-    documents.render = () => {
-      renderDocuments();
-      if (ui.app === 'mail' && !ui.photoQuest?.contactMail?.composing && ui.selectedId) this.markRead(ui.selectedId);
+    const originalDocumentsRender = documents.render;
+    const renderDocuments = (...args) => {
+      const result = originalDocumentsRender.apply(documents, args);
+      if (ui.app === 'mail' && !ui.photoQuest?.contactMail?.composing && ui.selectedId) {
+        this.markRead(ui.selectedId);
+      }
+      return result;
     };
-    const renderDesktop = ui.desktop.render.bind(ui.desktop);
-    ui.desktop.render = () => {
-      renderDesktop();
-      if (this.unread().length) {
+    documents.render = renderDocuments;
+    this.restorers.push(() => {
+      if (documents.render === renderDocuments) documents.render = originalDocumentsRender;
+    });
+
+    const originalDesktopRender = ui.desktop.render;
+    const renderDesktop = (...args) => {
+      const result = originalDesktopRender.apply(ui.desktop, args);
+      if (this.unread().length && ui.layout) {
         const { x, y } = ui.layout;
         ui.drawing.add(ui.scene.add.circle(x + 102, y + 28, 6, 0xf34c3f));
       }
+      return result;
     };
+    ui.desktop.render = renderDesktop;
+    this.restorers.push(() => {
+      if (ui.desktop.render === renderDesktop) ui.desktop.render = originalDesktopRender;
+    });
+
     this.onStep = () => this.step();
     this.onPointer = () => this.announce();
     ui.scene.game.events.on('poststep', this.onStep);
     ui.scene.input.on('pointerdown', this.onPointer);
   }
-  state() { return gameState[KEY] || { known: [], read: [], announced: [] }; }
-  save(next) { gameState[KEY] = next; requestAutosave(); }
-  messages() { return incomingMail(this.ui.documents.getMail()); }
+
+  state() {
+    return gameState[KEY] || { known: [], read: [], announced: [] };
+  }
+
+  save(next) {
+    gameState[KEY] = next;
+    requestAutosave();
+  }
+
+  messages() {
+    return incomingMail(this.ui.documents.getMail());
+  }
+
   unread() {
     const read = new Set(this.state().read || []);
     return this.messages().filter(message => !read.has(message.id));
   }
+
   markRead(id) {
     if (!this.messages().some(message => message.id === id)) return;
     const state = this.state();
     if ((state.read || []).includes(id)) return;
     this.save({ ...state, read: [...(state.read || []), id] });
   }
+
   step() {
-    if (this.dead) return;
-    const ui = this.ui;
-    const now = ui.scene.time.now;
-    if (now - this.last < 250) return;
+    if (this.dead || this.ui.destroyed) return;
+    const now = Date.now();
+    if (now - this.last < 200) return;
     this.last = now;
-    const state = this.state();
     const ids = this.messages().map(message => message.id);
+    const state = this.state();
     if (ids.some(id => !(state.known || []).includes(id))) {
-      this.save({ ...state, known: [...new Set([...(state.known || []), ...ids])] });
+      this.save({
+        ...state,
+        known: [...new Set([...(state.known || []), ...ids])]
+      });
+      const ui = this.ui;
       if (ui.isOpen && !ui.suspended && !ui.booting) ui.render();
     }
     this.announce();
   }
-  updateOfficeDot() { this.dot?.destroy(); this.dot = null; }
+
+  updateOfficeDot() {
+    this.dot?.destroy();
+    this.dot = null;
+  }
+
   announce() {
-    if (this.dead) return;
+    if (this.dead || this.ui.destroyed) return;
     const ui = this.ui;
+    const messages = this.messages();
     const state = this.state();
-    const pending = this.messages().filter(message => !(state.announced || []).includes(message.id));
+    const pending = messages.filter(message => !(state.announced || []).includes(message.id));
     if (!pending.length) return;
     const sound = ui.scene.sound;
     if (!sound || sound.mute || sound.volume === 0 || sound.locked) return;
     const context = sound.context;
     if (!context || context.state !== 'running') return;
+
     try {
       const now = context.currentTime;
       const gain = context.createGain();
@@ -92,18 +130,29 @@ export class ComputerMailNotifications {
       gain.connect(sound.masterVolumeNode || context.destination);
       [660, 880].forEach((frequency, index) => {
         const oscillator = context.createOscillator();
-        oscillator.type = 'sine'; oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
         oscillator.connect(gain);
         oscillator.start(now + index * 0.16);
         oscillator.stop(now + index * 0.16 + 0.22);
         oscillator.onended = () => oscillator.disconnect();
       });
-      setTimeout(() => { try { gain.disconnect(); } catch (_) {} }, 850);
-      this.save({ ...this.state(), announced: [...new Set([...(this.state().announced || []), ...pending.map(message => message.id)])] });
+      setTimeout(() => {
+        try { gain.disconnect(); } catch (_) {}
+      }, 850);
+      const latest = this.state();
+      this.save({
+        ...latest,
+        announced: [...new Set([
+          ...(latest.announced || []),
+          ...pending.map(message => message.id)
+        ])]
+      });
     } catch (error) {
       console.warn('[ComputerMailNotifications] Notification sound unavailable', error);
     }
   }
+
   destroy() {
     if (this.dead) return;
     this.dead = true;
@@ -112,6 +161,9 @@ export class ComputerMailNotifications {
     this.updateOfficeDot();
     if (this.ownsDeadMailMailbox) this.deadMailMailbox?.destroy();
     this.deadMailMailbox = null;
+    for (const restore of this.restorers.reverse()) restore();
+    this.restorers = [];
+    this.delivery.destroy();
   }
 }
 

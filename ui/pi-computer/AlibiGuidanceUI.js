@@ -23,7 +23,7 @@ export function arthurWordingMessages(state=gameState){
   body:'Arthur,\n\nDid you give any of these three people the table, meal or incident details in their requests? Please distinguish anything you supplied from what they sent you.\n\nPrivate Investigator'};
  if(!f.received)return [sent];
  return [{id:REPLY_ID,from:'Arthur Finch via Box 17',subject:'Re: Did you supply the dinner details?',date:'Reply to your question',inReplyTo:QUESTION_ID,
-  body:'Detective,\n\nNo. I did not tell them about a table, soup, wine or a waiter. Those details are in the requests they sent me. I forwarded the originals, not a summary I wrote.\n\nCompare their exact sentences, not merely the fact that all three named me. One unexpected dinner companion is a misunderstanding. Three using the same waiter is apparently a business model.\n\nI do not know where they obtained the wording. That part needs checking.\n\nArthur Finch'},sent];
+  body:'Detective,\n\nNo. I did not tell them about a table, soup, wine or a waiter. Those details were already in the messages they sent me. I forwarded the originals without rewriting them.\n\nI do not know where they obtained those details. None of them asked me before sending a request.\n\nMy contribution to the evening was a sandwich.\n\nArthur Finch'},sent];
 }
 export function installAlibiGuidance(ui,documents){
  if(ui[MARKER])return ui[MARKER];
@@ -49,6 +49,8 @@ export function installAlibiGuidance(ui,documents){
   hooked.add(inv);let committing=false;
   wrap(inv,'ask',original=>(...args)=>{
    if(!active()||inv.active?.caseId!==CASE||inv.phase!=='choose'||phone.directoryOpen)return original(...args);
+   // 428 has its own dialogue selector, including footer and silence-offer topics.
+   if(inv.active.number==='428')return original(...args);
    const rule=resolveAlibiGuidance(inv.active.number,inv.selected,gameState);
    if(!rule)return original(...args);
    inv.pending={...rule,_alibiGuidanceV3:true};
