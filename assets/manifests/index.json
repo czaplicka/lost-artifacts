@@ -2033,7 +2033,38 @@
       "image:newspaper",
       "image:shovel",
       "image:wheelbarrow",
-      "video:failed_arrest"
+      "video:failed_arrest",
+      "audio:cabinet-open",
+      "audio:cabinet-open2",
+      "audio:drawer-open",
+      "audio:drawer-open2",
+      "audio:Espionage",
+      "audio:film-advance",
+      "audio:key-lock",
+      "audio:mobile-tune",
+      "audio:old-phone-dial-the-number",
+      "audio:printer",
+      "audio:pushing-chair",
+      "audio:sliding-things-off-a-table",
+      "audio:slow-film-advance",
+      "json:newspaper_daily_singapore",
+      "json:newspaper_time_singapore",
+      "image:airport_o",
+      "image:alley_o",
+      "image:bank_o",
+      "image:bankier_c",
+      "image:bankier_d",
+      "image:bankier_o",
+      "image:bum_o",
+      "image:alibi_club_contact",
+      "image:alibi_club_dinner",
+      "image:alibi_club_home",
+      "image:alibi_club_review",
+      "image:alibi_copper_contact",
+      "image:alibi_copper_kitchen",
+      "image:alibi_copper_menu",
+      "image:alibi_copper_restaurant",
+      "image:alibi_table_for_one"
     ],
     "auto:folder:apartments": [
       "image:apartment_debt_kitchen",
@@ -2091,7 +2122,20 @@
       "audio:police-siren",
       "audio:single-key",
       "audio:stamp",
-      "audio:typing"
+      "audio:typing",
+      "audio:cabinet-open",
+      "audio:cabinet-open2",
+      "audio:drawer-open",
+      "audio:drawer-open2",
+      "audio:Espionage",
+      "audio:film-advance",
+      "audio:key-lock",
+      "audio:mobile-tune",
+      "audio:old-phone-dial-the-number",
+      "audio:printer",
+      "audio:pushing-chair",
+      "audio:sliding-things-off-a-table",
+      "audio:slow-film-advance"
     ],
     "auto:folder:buttons": [
       "image:back",
@@ -2338,7 +2382,8 @@
       "json:newspaper_daily_paris",
       "json:newspaper_daily_tokyo",
       "json:newspaper_daily_toronto",
-      "json:newspaper_daily_warsaw"
+      "json:newspaper_daily_warsaw",
+      "json:newspaper_daily_singapore"
     ],
     "auto:folder:data/newspapers/time": [
       "json:newspaper_time_berlin",
@@ -2347,7 +2392,8 @@
       "json:newspaper_time_new_delhi",
       "json:newspaper_time_new_york_city",
       "json:newspaper_time_paris",
-      "json:newspaper_time_warsaw"
+      "json:newspaper_time_warsaw",
+      "json:newspaper_time_singapore"
     ],
     "auto:folder:data/objects": [
       "json:objects-data:auction_house",
@@ -2479,7 +2525,10 @@
       "image:jukebox",
       "image:local__post_office_poste_restante",
       "image:local__post_office_postman",
-      "image:local__post_office"
+      "image:local__post_office",
+      "image:airport_o",
+      "image:alley_o",
+      "image:bank_o"
     ],
     "auto:folder:maps": [
       "image:berlin_crime",
@@ -2606,7 +2655,11 @@
       "image:stewardessa_a",
       "image:stewardessa_b",
       "image:stewardessa_h",
-      "image:stewardessa_w"
+      "image:stewardessa_w",
+      "image:bankier_c",
+      "image:bankier_d",
+      "image:bankier_o",
+      "image:bum_o"
     ],
     "auto:folder:npc_crime_city": [
       "image:npc",
@@ -3048,6 +3101,17 @@
       "image:singapore",
       "json:newspaper_daily_singapore",
       "json:newspaper_time_singapore"
+    ],
+    "auto:folder:side_quests/Alibi/web": [
+      "image:alibi_club_contact",
+      "image:alibi_club_dinner",
+      "image:alibi_club_home",
+      "image:alibi_club_review",
+      "image:alibi_copper_contact",
+      "image:alibi_copper_kitchen",
+      "image:alibi_copper_menu",
+      "image:alibi_copper_restaurant",
+      "image:alibi_table_for_one"
     ]
   }
 }

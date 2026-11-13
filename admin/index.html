@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="robots" content="noindex,nofollow">
+<title>Mark Agency — panel administratora</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Przejdź do formularzy</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="./" aria-label="Mark Agency — strona główna panelu"><span class="brand-mark" aria-hidden="true">MA</span><span class="brand-text">MARK AGENCY<span>CONTENT ADMINISTRATION</span></span></a><a class="game-link" href="../">Powrót do gry <span aria-hidden="true">↗</span></a></div></header>
+<main id="main" class="page">
+<section class="intro" aria-labelledby="page-title"><p class="eyebrow">PANEL ADMINISTRATORA</p><h1 id="page-title">Centrum zarządzania grą</h1><p class="intro-copy">Formularze do tworzenia świata, spraw, artefaktów i muzyki. Wszystkie wejścia w jednym miejscu. Papierologia nadal we własnym zakresie.</p></section>
+<nav class="section-nav" aria-label="Sekcje panelu"><a href="#world">Świat gry</a><a href="#cases">Sprawy i artefakty</a><a href="#audio">Audio</a></nav>
+<section class="workflow" aria-labelledby="workflow-title"><div><p class="eyebrow">KOLEJNOŚĆ PRZYGOTOWANIA NOWEJ SPRAWY</p><h2 id="workflow-title">Miasto <span aria-hidden="true">→</span> miejsce zbrodni <span aria-hidden="true">→</span> artefakt</h2></div><p>Najpierw przygotuj miasto i scenę, potem wybierz ją w formularzu artefaktu. Lokalizacje miejskie i muzykę dodajesz niezależnie.</p></section>
+<section class="form-group" id="world" aria-labelledby="world-title"><div class="section-heading"><h2 id="world-title">Świat gry</h2><p>Miasta i zwykłe miejsca do odwiedzania.</p></div><div class="cards"><a class="card" href="cities/">
+<span class="card-number" aria-hidden="true">01</span>
+<div class="card-content"><p class="card-kind">Podstawowe dane miasta</p><h3>Miasta</h3><p class="card-description">Kraj, położenie, transport, panorama, tipy, zestawy grafik i gazety.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a><a class="card" href="city-places/">
+<span class="card-number" aria-hidden="true">02</span>
+<div class="card-content"><p class="card-kind">Miejsca na zwykłej mapie miasta</p><h3>Lokalizacje miejskie</h3><p class="card-description">Airport, harbor, restaurant lub nowy typ. Nazwa miejsca, tło, opcjonalny NPC i pozycja na mapie.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a></div></section><section class="form-group" id="cases" aria-labelledby="cases-title"><div class="section-heading"><h2 id="cases-title">Sprawy i artefakty</h2><p>Osobne formularze scen oraz artefaktów, a także wcześniejszy edytor łączony.</p></div><div class="cards"><a class="card" href="crime-scenes/">
+<span class="card-number" aria-hidden="true">03</span>
+<div class="card-content"><p class="card-kind">Najpierw przygotuj scenę</p><h3>Miejsca zbrodni</h3><p class="card-description">Tło sceny, pula hidden objects, strefy klikania i zastosowania przedmiotów w rekonstrukcji.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a><a class="card" href="artifacts/">
+<span class="card-number" aria-hidden="true">04</span>
+<div class="card-content"><p class="card-kind">Potem przypisz artefakt</p><h3>Artefakty</h3><p class="card-description">Nazwa, grafika, opisy i wybór istniejącego miejsca zbrodni. Kilka artefaktów może korzystać z jednej sceny.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a><a class="card" href="crime-cities/">
+<span class="card-number" aria-hidden="true">05</span>
+<div class="card-content"><p class="card-kind">Łączony formularz sprawy</p><h3>Sprawy crime — edytor łączony</h3><p class="card-description">Wcześniejszy formularz łączący dane sprawy, artefaktu i miejsca zbrodni. Zachowany jako osobny odnośnik.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a></div></section><section class="form-group" id="audio" aria-labelledby="audio-title"><div class="section-heading"><h2 id="audio-title">Audio</h2><p>Muzyka do istniejącego jukeboxa.</p></div><div class="cards"><a class="card" href="music/">
+<span class="card-number" aria-hidden="true">06</span>
+<div class="card-content"><p class="card-kind">Playlista jukeboxa</p><h3>Muzyka</h3><p class="card-description">Dodawanie MP3, odsłuch, tytuł, informacje o autorze i licencji oraz publikacja do playlisty.</p><span class="card-action">Otwórz formularz <span aria-hidden="true">→</span></span></div>
+</a></div></section>
+<aside class="access-note" aria-labelledby="access-title"><h2 id="access-title">Logowanie i publikacja</h2><p>Ta strona jest katalogiem odnośników. Formularze nadal wymagają własnej autoryzacji administratora; wejście tutaj nie nadaje uprawnień.</p><p>Jeśli odnośnik nie otwiera formularza, sprawdź, czy jego paczka została już wgrana na hosting. Sam panel główny nie instaluje formularzy ani funkcji Supabase.</p></aside>
+</main>
+<footer class="site-footer"><div><span>MARK AGENCY / ADMIN</span><span>Każdy formularz ma własny zapis i podgląd publikacji.</span></div></footer>
+</body>
+</html>

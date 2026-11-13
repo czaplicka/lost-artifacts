@@ -2704,6 +2704,238 @@
         "videos"
       ],
       "noAudio": false
+    },
+    {
+      "key": "cabinet-open",
+      "url": "assets/audio/cabinet-open.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "cabinet-open2",
+      "url": "assets/audio/cabinet-open2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "drawer-open",
+      "url": "assets/audio/drawer-open.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "drawer-open2",
+      "url": "assets/audio/drawer-open2.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "Espionage",
+      "url": "assets/audio/Espionage.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "film-advance",
+      "url": "assets/audio/film-advance.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "key-lock",
+      "url": "assets/audio/key-lock.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "mobile-tune",
+      "url": "assets/audio/mobile-tune.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "old-phone-dial-the-number",
+      "url": "assets/audio/old-phone-dial-the-number.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "printer",
+      "url": "assets/audio/printer.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "pushing-chair",
+      "url": "assets/audio/pushing-chair.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "sliding-things-off-a-table",
+      "url": "assets/audio/sliding-things-off-a-table.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "slow-film-advance",
+      "url": "assets/audio/slow-film-advance.mp3",
+      "type": "audio",
+      "groups": [
+        "audio"
+      ]
+    },
+    {
+      "key": "airport_o",
+      "url": "assets/local/airport_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alley_o",
+      "url": "assets/local/alley_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bank_o",
+      "url": "assets/local/bank_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bankier_c",
+      "url": "assets/npc/bankier_c.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bankier_d",
+      "url": "assets/npc/bankier_d.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bankier_o",
+      "url": "assets/npc/bankier_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "bum_o",
+      "url": "assets/npc/bum_o.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_contact",
+      "url": "assets/side_quests/Alibi/web/alibi_club_contact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_dinner",
+      "url": "assets/side_quests/Alibi/web/alibi_club_dinner.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_home",
+      "url": "assets/side_quests/Alibi/web/alibi_club_home.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_club_review",
+      "url": "assets/side_quests/Alibi/web/alibi_club_review.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_contact",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_contact.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_kitchen",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_kitchen.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_menu",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_menu.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_copper_restaurant",
+      "url": "assets/side_quests/Alibi/web/alibi_copper_restaurant.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
+    },
+    {
+      "key": "alibi_table_for_one",
+      "url": "assets/side_quests/Alibi/web/alibi_table_for_one.webp",
+      "type": "image",
+      "groups": [
+        "backgrounds"
+      ]
     }
   ]
 }

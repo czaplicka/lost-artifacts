@@ -3,10 +3,12 @@ import {
   installComputerKeywordStyle, styleComputerText,
   recordKeywordSurface, suppressLegacyKeywordDecoration
 } from './KeywordStyle.js';
+import { prepareComputerUiAudio, computerUiCanInteract, playComputerUiClick } from './ComputerUiAudio.js';
 
 export class ComputerDrawing {
   constructor(ui) {
     this.ui = ui;
+    prepareComputerUiAudio(ui.scene);
     queueMicrotask(() => { if (!ui.destroyed) installComputerKeywordStyle(ui); });
   }
   add(object) {
@@ -53,7 +55,7 @@ export class ComputerDrawing {
   }
   button(x, y, label, callback, enabled = true) {
     const ui = this.ui;
-    // Case assistance now lives in the office, not inside an application.
+    // Case assistance lives in the office, not in an application.
     if (label === 'HINT' && ui.scene?.sys?.settings?.key === 'DetectiveOfficeScene') {
       return this.text(x, y, '', 11).setVisible(false);
     }
@@ -70,7 +72,9 @@ export class ComputerDrawing {
         .on('pointerover', () => paint(0xe6e3d3))
         .on('pointerout', () => { paint(0xd0cec6); text.setY(y); })
         .on('pointerdown', () => {
-          ui.options.onSfx?.('click'); paint(0xc2c0b6, true); text.setY(y + 1); callback();
+          if (!computerUiCanInteract(ui) || text.active === false || !text.scene) return;
+          playComputerUiClick(ui);
+          paint(0xc2c0b6, true); text.setY(y + 1); callback();
         });
     }
     return text;

@@ -2,6 +2,7 @@ import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { installPIWorldReactionMail } from '../ui/PIWorldReactionMail.js';
 import { installWorldNpcReactions } from '../ui/WorldNpcReactionHooks.js';
+import { installWorldTownReactions } from '../ui/WorldTownReactionHooks.js';
 import {
   captureWorldOutcomes,latestOfficeReaction,officeReactionSeen,
   markOfficeReactionSeen,worldOfficeText
@@ -41,6 +42,7 @@ export function installWorldReactions(game){
       const events=syncWorldReactions(game);
       connectPIComputer(game);
       installWorldNpcReactions(game);
+      installWorldTownReactions(game);
       return events;
     }catch(error){console.error('[WorldReactions]',error);return[];}
   };

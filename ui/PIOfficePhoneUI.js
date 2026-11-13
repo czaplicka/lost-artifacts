@@ -10,7 +10,7 @@ import { renderPhoneFieldNotes } from './pi-phone/PhoneFieldNotes.js';
 export class PIOfficePhoneUI{
  constructor(scene,options={}){
   this.scene=scene;this.options=options;Object.assign(this,{isOpen:false,destroyed:false,state:'on_hook',number:'',status:'',directoryOpen:false,directoryPage:0,lines:[],lineIndex:0,contactName:'',dialTween:null,run:0,built:false,ui:null,logItems:[],typingItem:null,sticky:null,keys:[],uprights:[],holes:[],digitBoxes:[],ledViews:[],vuLevels:new Array(VU_BARS).fill(.05),tickCount:0,tickEvent:null,callStart:0,_handsetUp:false,_closing:false});
-  this.timers=new Set();this.tones=new Set();this.loops=new Set();this.root=scene.add.container(0,0).setDepth(1600).setVisible(false);
+  this.timers=new Set();this.tones=new Set();this.loops=new Set();this.phoneOneShots=new Set();this.preparePhoneAudio();this.root=scene.add.container(0,0).setDepth(1600).setVisible(false);
   this.onKey=event=>{if(!this.isOpen)return;const t=event.target;if(t?.isContentEditable||['INPUT','TEXTAREA','SELECT'].includes(t?.tagName))return;
    if(event.code==='Escape'){event.preventDefault();if(this.directoryOpen)this.closeDirectory();else this.close();return;}
    if(this.directoryOpen){if(event.code==='ArrowLeft')this.turnDirectory(-1);if(event.code==='ArrowRight')this.turnDirectory(1);return;}
