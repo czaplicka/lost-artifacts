@@ -1,4 +1,4 @@
-import { ComputerAudio } from './pi-computer/ComputerAudio.js';
+import { installPIComputerApps } from './pi-computer/PIComputerApps.js';
 import { installDeadMenWebUI } from '../managers/DeadMenWebIntegration.js';
 import { ComputerDrawing } from './pi-computer/ComputerDrawing.js';
 import { ComputerMonitor } from './pi-computer/ComputerMonitor.js';
@@ -40,9 +40,10 @@ export class PIOfficeComputerUI {
   this.mailNotifications = new ComputerMailNotifications(this);
   this.officeShop = installOfficeShop(this);
   this.notebookContactActions = installNotebookContactActions(this);
-  this.audioApp = new ComputerAudio(this);
+  this.audioApp = null;
   this.chatApp = new ComputerChat(this);
   this.thiefdoku = new ComputerThiefdoku(this);
+  installPIComputerApps(this);
   this.onKey = event => {
    if (this.destroyed || !this.isOpen || this.suspended) return;
    const target = event.target;

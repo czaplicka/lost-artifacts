@@ -1,5 +1,6 @@
 import { getArchiveCaseId, getMissionReportForm, saveMissionReportIncidentChoice } from '../../archiveReportService.js';
 import { getReportIncidentHistory } from '../../managers/ReportIncidentService.js';
+import { prepareMissionReportAudio, playMissionReportAudio, stopMissionReportAudio } from '../MissionReportAudio.js';
 function paginate(text, width=76, count=8) {
   const lines=[];
   for(const paragraph of String(text).split('\n')) {
@@ -12,14 +13,35 @@ function paginate(text, width=76, count=8) {
   const pages=[];for(let i=0;i<lines.length;i+=count)pages.push(lines.slice(i,i+count).join('\n'));
   return pages.length?pages:[''];
 }
+function renderSummary(owner,original){
+  const drawing=owner.drawing,button=drawing.button;
+  const wrapped=function(x,y,label,callback,...args){
+    const object=button.call(this,x,y,label,callback,...args);
+    if(label==='PRINT REPORT'||label==='COLLECT REPORT'){
+      object.removeAllListeners('pointerdown');
+      object.on('pointerdown',()=>{
+        if(owner.destroyed||!owner.isOpen||owner.suspended||owner.app!=='reports'||
+          !owner.scene.sys.isActive()||object.active===false||!object.scene)return;
+        callback();
+      });
+    }
+    return object;
+  };
+  drawing.button=wrapped;
+  try{return original.call(owner);}
+  finally{if(drawing.button===wrapped)drawing.button=button;}
+}
 export function installReportIncidentUI(Class) {
   const original=Class.prototype.renderReport;
   const originalPrint=Class.prototype.printReport;
+  const originalClose=Class.prototype.close;
+  if(typeof originalClose==='function')Class.prototype.close=function(...args){stopMissionReportAudio(this);return originalClose.apply(this,args);};
   Class.prototype.renderReport=function() {
-    if(!this.form?.ok){original.call(this);return;}
+    prepareMissionReportAudio(this.scene);
+    if(!this.form?.ok){renderSummary(this,original);return;}
     if(this.incidentCaseId!==this.reportCaseId){this.incidentCaseId=this.reportCaseId;this.incidentMode=null;this.incidentBodyPage=0;this.incidentHistoryPage=0;}
     if(!this.incidentMode) {
-      original.call(this);
+      renderSummary(this,original);
       const {x,y,h}=this.window;
       this.drawing.button(x+250,y+h-77,'OBSERVATIONS',()=>{this.persistReport();this.incidentMode='message';this.incidentBodyPage=0;this.render();});
       return;
@@ -74,10 +96,15 @@ export function installReportIncidentUI(Class) {
     if(this.incidentMode!=='history')d.text(b.x+24,b.y+b.h-32,this.notice||'Personnel consequences are not covered by the printer warranty.',13,'#665535',b.w-48);
   };
   Class.prototype.printReport=function(){
+    if(this.destroyed||!this.isOpen||this.suspended||this.app!=='reports'||!this.scene.sys.isActive())return;
     if(this.form?.incident?.phase==='draft' && !this.form.incident.choiceId){
       this.persistReport();this.incidentMode='message';this.incidentBodyPage=0;
       this.notice='Read the message and choose a recommendation in DECISION before printing.';this.render();return;
     }
-    originalPrint.call(this);
+    if(getArchiveCaseId(this.state)!==this.reportCaseId)return originalPrint.call(this);
+    const before=getMissionReportForm(this.locations(),this.state),caseId=this.reportCaseId;
+    const result=originalPrint.call(this);
+    if(getArchiveCaseId(this.state)===caseId&&this.reportCaseId===caseId&&!before.printed&&this.form?.printed&&!this.form.submitted)playMissionReportAudio(this);
+    return result;
   };
 }

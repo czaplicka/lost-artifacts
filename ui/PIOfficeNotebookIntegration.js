@@ -6,6 +6,15 @@ const INSTALL=Symbol.for('lostArtifacts.piOfficeNotebookIntegration.v1');
 const OFFICE='DetectiveOfficeScene';
 const ALLOWED_DEVICES=new Set([null,undefined,'phone','computer']);
 
+function ensureOfficeRefresh(scene){
+  if(typeof scene.refreshInteractions==='function')return;
+  scene.refreshInteractions=function(){
+    if(this.disposed||this._cleanupDone||!this.sys.isActive())return;
+    this.update();
+    if(!this.canUseOffice())this.tooltip?.setVisible(false);
+  };
+}
+
 export function officeNotebookVisible(scene){
   return Boolean(scene?.sys?.settings?.key===OFFICE&&scene.sys.isActive()
     &&!scene.disposed&&!scene._cleanupDone&&!scene.navigating&&!scene.debugMode
@@ -16,8 +25,6 @@ export function createOfficeNotebookFacade(ui){
   const methods=new Map();
   const facadeScene=new Proxy(scene,{
     get(target,key){
-      // This view is used only by the notebook. The real office still knows
-      // that the phone is open and keeps all underlying hotspots disabled.
       if(key==='activeDevice'&&target.activeDevice==='phone')return null;
       const value=Reflect.get(target,key,target);
       if(typeof value!=='function')return value;
@@ -64,7 +71,6 @@ export function bindPhoneNotebookUpdates(ui,notebook){
     const phone=scene.phoneUI,next=phoneNotebookSignature(gameState,phone);
     if(next===signature)return;
     signature=next;
-    // No hangUp/resetCall/play/nextLine: only redraw the existing topic sheet.
     if(phone?.isOpen&&!phone.destroyed&&phone.investigation?.active&&phone.built)phone.render();
   }
   function reveal(){
@@ -102,8 +108,9 @@ const CSS=`
 @media(max-width:600px){.pio-tools{top:8px;right:8px;gap:6px}.pio-tools button{font-size:14px;padding:8px}.pio-assist article{padding:16px;font-size:17px}}
 `;
 export function installPIOfficeNotebook(ui){
-  if(ui[INSTALL])return ui[INSTALL].notebook;
   const scene=ui.scene;
+  ensureOfficeRefresh(scene);
+  if(ui[INSTALL])return ui[INSTALL].notebook;
   const before=new Set(document.querySelectorAll('.pcn'));
   const notebook=installPlayerCloudNotebook(createOfficeNotebookFacade(ui));
   const notesRoot=[...document.querySelectorAll('.pcn')].find(node=>!before.has(node))||null;
@@ -203,9 +210,9 @@ export function installPIOfficeNotebook(ui){
   }
   async function openSettings(){
     if(!alive()||!scene.canUseOffice()||settingsOpening)return;
-    settingsOpening=true;scene.activeDevice='office-settings';scene.refreshInteractions();updateVisibility();
     let child=null,onClose=null;
     try{
+      settingsOpening=true;scene.activeDevice='office-settings';scene.refreshInteractions();updateVisibility();
       const {SettingsScene}=await import('../scenes/SettingsScene.js');
       if(!alive()||!scene.sys.isActive())return;
       if(!scene.game.scene.keys.SettingsScene)scene.game.scene.add('SettingsScene',SettingsScene,false);
@@ -215,7 +222,8 @@ export function installPIOfficeNotebook(ui){
       settingsBinding={child,onClose};child.events.once('shutdown',onClose);
       scene.hideGameplayHud();scene.scene.launch('SettingsScene');scene.scene.bringToTop('SettingsScene');
     }catch(error){
-      child?.events.off('shutdown',onClose);settingsBinding=null;
+      if(child&&onClose)child.events.off('shutdown',onClose);
+      settingsBinding=null;
       if(alive()){scene.showFeedback('Settings could not be opened.');console.error('[PI office settings]',error);}
     }finally{
       if(!settingsBinding){settingsOpening=false;releaseDevice('office-settings');}

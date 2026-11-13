@@ -1,10 +1,11 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 
-export const thirdMissionConfig = await loadJson('./assets/data/thirdMissionStory.json', import.meta.url);
+export const thirdMissionConfig = { ...(await loadJson('./assets/data/thirdMissionStory.json', import.meta.url)), ...storageRoomDialogues.thirdMission };
 const F = thirdMissionConfig.flags;
 export function getThirdMissionStory(state = gameState) {
   const eligible = MainStoryManager.hasFlag(F.prerequisite) &&

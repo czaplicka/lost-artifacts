@@ -5,23 +5,37 @@ import { installDeadMenPhone } from '../../managers/DeadMenCallingService.js';
 import { installDeadMenFollowupPhone } from '../../managers/DeadMenCallingFollowup.js';
 import { installDeadMenFinalePhone } from '../../managers/DeadMenCallingFinale.js';
 import { installFinancialTracePhone } from '../../managers/FinancialTracePhone.js';
+import { preparePhoneDialAudio,playPhoneDialAudio,stopPhoneDialAudio } from './PhoneDialAudio.js';
 export const PhoneCalls={
  pickUp(){
   installDeadMenPhone(this);installDeadMenFollowupPhone(this);installDeadMenFinalePhone(this);installDeadMenWebPhone(this);installDeadMenTopicPhone(this);installFinancialTracePhone(this);
   if(this.state!=='on_hook'){this.hangUp();return;}
+  preparePhoneDialAudio(this.scene);
   this.state='ready';this.number='';this.status='Dial a three-digit local number.';this.clearLog();this.playOnce(SFX.pickup,.7);
   if(this._hasAudio(SFX.dialTone))this.playOnce(SFX.dialTone,.6);else this.later(250,()=>this.tone(350,.65));this.render();
  },
  hangUp(){this.cancelActivity();this.tone(140,.09,.05);this.state='on_hook';this.number='';this.lines=[];this.lineIndex=0;this.clearLog();this.status='Receiver replaced.';this.render();},
  dialDigit(digit){
   if(this.destroyed||!this.isOpen||this.directoryOpen||this.state!=='ready')return;
+  if(typeof digit!=='string'||!/^[0-9]$/.test(digit))return;
   const length=Number(this.data.numberLength)||3;if(this.number.length>=length)return;
   this.state='dialling';this.status='Dialling...';const index=digit==='0'?9:Number(digit)-1,pulses=digit==='0'?10:Number(digit),rotation=60+index*30,run=this.run;
-  this.playOnce(SFX.dialSpin,.5);this.render();
+  let dialSound=null;
+  this.render();
   this.dialTween=this._tween({targets:this.dial,angle:rotation,duration:200+rotation*2.2,ease:'Sine.easeOut',onUpdate:()=>this.uprightLabels(),onComplete:()=>{
-   if(!this.isOpen||this.run!==run)return;const duration=220+pulses*70;for(let i=0;i<pulses;i++)this.later(i*duration/pulses,()=>this.tone(850,.025,.015));
-   this.dialTween=this._tween({targets:this.dial,angle:0,duration,ease:'Linear',onUpdate:()=>this.uprightLabels(),onComplete:()=>{if(!this.isOpen||this.run!==run)return;this.dialTween=null;this.number+=digit;this.state='ready';this.status='Dial the next digit.';if(this.number.length===length)this.startCall();else this.render();}});
-  }});if(!this.dialTween)this.state='ready';
+   if(!this.isOpen||this.run!==run){stopPhoneDialAudio(dialSound);return;}
+   const duration=220+pulses*70;
+   if(!dialSound)for(let i=0;i<pulses;i++)this.later(i*duration/pulses,()=>this.tone(850,.025,.015));
+   this.dialTween=this._tween({targets:this.dial,angle:0,duration,ease:'Linear',onUpdate:()=>this.uprightLabels(),onComplete:()=>{
+    stopPhoneDialAudio(dialSound);
+    if(!this.isOpen||this.run!==run)return;
+    this.dialTween=null;this.number+=digit;this.state='ready';this.status='Dial the next digit.';
+    if(this.number.length===length)this.startCall();else this.render();
+   }});
+   if(!this.dialTween)stopPhoneDialAudio(dialSound);
+  }});
+  if(!this.dialTween)this.state='ready';
+  else{dialSound=playPhoneDialAudio(this);if(!dialSound)this.playOnce(SFX.dialSpin,.5);}
  },
  startCall(){
   if(this.ownContact&&this.number===this.ownContact.number){this.finishCall('You are calling yourself. A bold investigative technique.');return;}

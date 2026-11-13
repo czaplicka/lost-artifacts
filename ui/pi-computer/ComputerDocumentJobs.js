@@ -2,12 +2,14 @@ import {
   validateDocumentCatalog, getDocumentJobs, getDocumentJob, startDocumentJob,
   answerDocumentJob, deliverDocumentJob, ownsPrinter
 } from '../../managers/PIDocumentJobsManager.js';
+import { prepareDocumentPrinterAudio, playDocumentPrinterAudio } from './DocumentPrinterAudio.js';
 
 export class ComputerDocumentJobs {
   constructor(shop) {
     this.shop = shop; this.ui = shop.ui;
     this.catalog = null; this.loading = null; this.error = ''; this.selectedId = null;
     this.page = 0; this.message = ''; this.confirmId = null;
+    prepareDocumentPrinterAudio(this.ui.scene);
   }
   active() {
     const ui = this.ui;
@@ -29,6 +31,15 @@ export class ComputerDocumentJobs {
       } finally { this.loading = null; this.redraw(); }
     })();
     return this.loading;
+  }
+  deliver(id) {
+    if (!this.active() || !this.ui.scene.sys.isActive()) return;
+    const before = getDocumentJob(id);
+    const freshPrint = before?.status === 'active' && before.corrected === true && before.timeCharged === true && !before.paid;
+    const result = deliverDocumentJob(id);
+    this.message = result.message;
+    if (result.ok && freshPrint && getDocumentJob(id)?.status === 'completed') playDocumentPrinterAudio(this.ui);
+    this.redraw();
   }
   render() {
     const ui = this.ui, d = ui.drawing;
@@ -99,8 +110,13 @@ export class ComputerDocumentJobs {
     } else if (job.status === 'completed') {
       d.text(x, answerY, `Delivered and paid: $${job.reward}`, 21, '#315539');
     } else if (job.corrected) {
-      d.button(x, answerY, job.status === 'paying' ? 'RETRY DELIVERY' : 'PRINT & DELIVER',
-        () => act(() => deliverDocumentJob(job.id)));
+      const button = d.button(x, answerY, job.status === 'paying' ? 'RETRY DELIVERY' : 'PRINT & DELIVER', () => {});
+      // This physical action has its own effect, not a generic button click.
+      button.removeAllListeners('pointerdown');
+      button.on('pointerdown', () => {
+        if (button.active === false || !button.scene) return;
+        this.deliver(job.id);
+      });
     } else {
       const field = job.fields.find(entry => entry.source !== entry.draft);
       const labels = job.fieldChecked ? field.options : job.fields.map(entry => entry.label);
@@ -108,7 +124,6 @@ export class ComputerDocumentJobs {
       labels.forEach((label, index) => {
         const button = d.button(x + index * (width / 3), answerY + 26,
           label, () => act(() => answerDocumentJob(job.id, job.fieldChecked ? 'value' : 'field', index)));
-        // Current templates use short labels; avoid clipping future long labels.
         if (button.width > width / 3 - 8) button.setScale((width / 3 - 8) / button.width);
       });
     }

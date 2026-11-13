@@ -1,10 +1,11 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 
-export const fourthMissionConfig = await loadJson('./assets/data/fourthMissionStory.json', import.meta.url);
+export const fourthMissionConfig = { ...(await loadJson('./assets/data/fourthMissionStory.json', import.meta.url)), ...storageRoomDialogues.fourthMission };
 const F = fourthMissionConfig.flags;
 
 export function getFourthMissionStory(state = gameState) {

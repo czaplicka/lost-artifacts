@@ -1,10 +1,11 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 import { normalizeAlexRecovery,canStartAlexRecovery } from './scenes/storage/AlexRecoveryModel.js';
-export const alexRecoveryData=await loadJson('./assets/data/alexRecoveryInquiry.json',import.meta.url);
+export const alexRecoveryData = { ...(await loadJson('./assets/data/alexRecoveryInquiry.json',import.meta.url)), ...storageRoomDialogues.recovery };
 const KEY='alex_recovery_inquiry_progress';
 export function getAlexRecoveryStory(state=gameState){
   const progress=normalizeAlexRecovery(alexRecoveryData,MainStoryManager.getSideClue(KEY));

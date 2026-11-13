@@ -1,10 +1,6 @@
 // config/shopConfig.js
-// Przedmioty pobieramy z assets/data/ItemsCatalog.json.
-// Tutaj ustawiamy ceny, hotspoty, etykiety i dostępność.
-//
-// type: 'permanent' — zawsze dostępne
-// type: 'rotating' — losowane codziennie z puli
-// cities: [...] — dostępne tylko w podanych miastach
+// Dane przedmiotów: assets/data/ItemsCatalog.json.
+// Tutaj: ceny, hotspoty, etykiety i dostępność.
 
 import { ItemsLoader } from '../ItemsLoader.js';
 
@@ -142,7 +138,10 @@ export const SHOP_CONFIG = {
       type: 'permanent',
       cities: ['berlin'],
       label: 'Wall Chunk (Certified*)',
-      ...CITY_SHELF,
+      x: 910,
+      y: 655,
+      w: 140,
+      h: 140,
       price: 14,
       item: fromCatalog('souvenirs', 'berlinWallChunk')
     },

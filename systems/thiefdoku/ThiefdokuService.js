@@ -19,21 +19,6 @@ function localDay() {
 function read() {
   const saved = gameState[KEY];
 
-  if (!saved || typeof saved !== 'object') {
-    return {
-      version: 2,
-      installed: false,
-      medals: 0,
-      earned: 0,
-      issuedDay: null,
-      rewardedCaseId: null,
-      activeCaseId: null,
-      caseCounter: 0,
-      puzzle: null,
-      backups: {}
-    };
-  }
-
   return {
     version: 2,
     installed: false,
@@ -45,7 +30,7 @@ function read() {
     caseCounter: 0,
     puzzle: null,
     backups: {},
-    ...saved
+    ...(saved && typeof saved === 'object' ? saved : {})
   };
 }
 
@@ -82,9 +67,21 @@ function addChiefMessage(text) {
   ];
 
   chat.contacts.commandant = conversation;
-  chat.unread.commandant = (chat.unread.commandant || 0) + 1;
+
+  chat.unread.commandant =
+    (Number(chat.unread.commandant) || 0) + 1;
 
   gameState.piChat = chat;
+}
+
+function assignCase(state) {
+  state.caseCounter =
+    Math.max(0, Number(state.caseCounter) || 0) + 1;
+
+  state.activeCaseId = `thiefdoku-${state.caseCounter}`;
+  state.issuedDay = localDay();
+
+  return state.activeCaseId;
 }
 
 export const thiefdokuService = {
@@ -117,6 +114,55 @@ export const thiefdokuService = {
     return !issuedDay || localDay() > issuedDay;
   },
 
+  canTakeNewCase() {
+    return thiefdokuService.canIssueCase();
+  },
+
+  markCaseTaken() {
+    const state = read();
+
+    // Integracja nadaje ID przed uruchomieniem nowej planszy.
+    // Ponowne renderowanie istniejącej sprawy nie zużywa nowego dnia.
+    if (state.activeCaseId) return false;
+
+    assignCase(state);
+    write(state);
+
+    return true;
+  },
+
+  addMedal(amount = 1) {
+    if (!Number.isInteger(amount) || amount !== 1) {
+      return false;
+    }
+
+    const state = read();
+
+    if (
+      !state.activeCaseId ||
+      state.rewardedCaseId === state.activeCaseId
+    ) {
+      return false;
+    }
+
+    state.rewardedCaseId = state.activeCaseId;
+
+    state.medals =
+      Math.max(0, Number(state.medals) || 0) + 1;
+
+    state.earned =
+      Math.max(0, Number(state.earned) || 0) + 1;
+
+    addChiefMessage(
+      'Case closed. One police medal has been credited to your profile. ' +
+      'Do not spend it all on evidence.'
+    );
+
+    write(state);
+
+    return true;
+  },
+
   spendMedals(amount) {
     if (!Number.isInteger(amount) || amount <= 0) {
       return {
@@ -126,15 +172,16 @@ export const thiefdokuService = {
     }
 
     const state = read();
+    const balance = Math.max(0, Number(state.medals) || 0);
 
-    if ((state.medals || 0) < amount) {
+    if (balance < amount) {
       return {
         ok: false,
         message: 'Not enough police medals.'
       };
     }
 
-    state.medals -= amount;
+    state.medals = balance - amount;
     write(state);
 
     return {
@@ -171,7 +218,12 @@ function refreshProfile() {
     value.style.color = '#aa7d24';
     value.title = 'Currency earned by solving Thiefdoku cases.';
 
-    row.append(label, document.createTextNode(' '), value);
+    row.append(
+      label,
+      document.createTextNode(' '),
+      value
+    );
+
     anchor.insertAdjacentElement('afterend', row);
   }
 
@@ -190,7 +242,9 @@ function watchProfile() {
     typeof document === 'undefined' ||
     typeof MutationObserver === 'undefined' ||
     profileObserver
-  ) return;
+  ) {
+    return;
+  }
 
   const start = () => {
     if (profileObserver || !document.body) return;
@@ -252,7 +306,9 @@ function makeStorage() {
         state.puzzle = null;
       } else {
         const backups = { ...(state.backups || {}) };
+
         delete backups[BACKUP_PREFIX + key];
+
         state.backups = backups;
       }
 
@@ -277,12 +333,10 @@ function prepareDailyPuzzle(ui) {
   app.puzzle = puzzle;
   app.dailyServiceInstalled = true;
 
-  let state = read();
+  const state = read();
 
   if (!hadSavedPuzzle || !state.activeCaseId) {
-    state.caseCounter = (state.caseCounter || 0) + 1;
-    state.activeCaseId = `thiefdoku-${state.caseCounter}`;
-    state.issuedDay = localDay();
+    assignCase(state);
     write(state);
   }
 
@@ -294,24 +348,11 @@ function prepareDailyPuzzle(ui) {
     const result = originalSubmit(id);
 
     if (!wasCompleted && result.status === 'success') {
-      const current = read();
+      const awarded = thiefdokuService.addMedal(1);
 
-      if (
-        current.activeCaseId &&
-        current.rewardedCaseId !== current.activeCaseId
-      ) {
-        current.rewardedCaseId = current.activeCaseId;
-        current.medals = (current.medals || 0) + 1;
-        current.earned = (current.earned || 0) + 1;
-
-        addChiefMessage(
-          'Case closed. One police medal has been credited to your profile. ' +
-          'Do not spend it all on evidence.'
-        );
-
-        write(current);
-
-        result.message += ' +1 police medal.';
+      if (awarded) {
+        result.message =
+          `${result.message || 'Case closed.'} +1 police medal.`;
       }
     }
 
@@ -321,6 +362,7 @@ function prepareDailyPuzzle(ui) {
   app.reset = () => {
     if (!thiefdokuService.canIssueCase()) {
       app.confirmNew = false;
+
       app.feedback =
         'Today’s case has already been delivered. ' +
         'Next delivery after local midnight.';
@@ -329,28 +371,27 @@ function prepareDailyPuzzle(ui) {
       return;
     }
 
-    const before = read();
+    const previous = read();
 
-    before.caseCounter = (before.caseCounter || 0) + 1;
-    before.activeCaseId = `thiefdoku-${before.caseCounter}`;
-    before.issuedDay = localDay();
+    const before = {
+      ...previous,
+      backups: { ...(previous.backups || {}) }
+    };
 
-    write(before);
+    const next = {
+      ...previous,
+      backups: { ...(previous.backups || {}) }
+    };
+
+    assignCase(next);
+    write(next);
 
     try {
       originalReset();
     } catch (error) {
-      const current = read();
-
-      current.caseCounter = before.caseCounter - 1;
-      current.activeCaseId = state.activeCaseId;
-      current.issuedDay = state.issuedDay;
-
-      write(current);
+      write(before);
       throw error;
     }
-
-    state = read();
   };
 
   app.confirmNew = false;
@@ -404,7 +445,9 @@ export function installThiefdokuIntegration(ui) {
       !this.isOpen ||
       this.suspended ||
       this.booting
-    ) return;
+    ) {
+      return;
+    }
 
     if (app === 'thiefdoku') {
       if (!thiefdokuService.isInstalled()) {
@@ -423,11 +466,20 @@ export function installThiefdokuIntegration(ui) {
 
   const integration = {
     destroy() {
-      ui.openApp = originalOpenApp;
-      ui.desktop.createIcon = originalCreateIcon;
+      if (ui.openApp === wrappedOpenApp) {
+        ui.openApp = originalOpenApp;
+      }
+
+      if (ui.desktop.createIcon === wrappedCreateIcon) {
+        ui.desktop.createIcon = originalCreateIcon;
+      }
+
       delete ui.dailyThiefdokuIntegration;
     }
   };
+
+  const wrappedOpenApp = ui.openApp;
+  const wrappedCreateIcon = ui.desktop.createIcon;
 
   ui.dailyThiefdokuIntegration = integration;
 

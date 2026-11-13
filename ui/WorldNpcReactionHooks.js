@@ -1,3 +1,4 @@
+import { storageRoomDialogues } from '../storageRoomDialogueService.js';
 import { gameState } from '../GameData.js';
 import { requestAutosave } from '../gameStatePersistence.js';
 import { isReportSubmitted } from '../archiveReportService.js';
@@ -14,7 +15,7 @@ function heard(state,reaction){
   }catch(error){console.error('[WorldNPC] Could not record reaction:',error);}
 }
 function reactionFor(state,npcId,options){
-  try{return getWorldNpcReaction(state,npcId,options);}
+  try{return getWorldNpcReaction(state,npcId,{...options,alexDialogues:storageRoomDialogues});}
   catch(error){console.error('[WorldNPC] Reaction unavailable:',error);return null;}
 }
 function installArchive(scene,restorers){

@@ -1,10 +1,11 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 import { normalizeMicrofilm,microfilmEligible } from './scenes/archive/MicrofilmModel.js';
-export const microfilmData=await loadJson('./assets/data/johnMicrofilm.json',import.meta.url);
+export const microfilmData = { ...(await loadJson('./assets/data/johnMicrofilm.json',import.meta.url)), ...storageRoomDialogues.microfilm };
 const KEY='john_microfilm_progress';
 export function getMicrofilmStory(state=gameState){return{...normalizeMicrofilm(microfilmData,MainStoryManager.getSideClue(KEY)),eligible:microfilmEligible(microfilmData,getCompletedAgencyCaseCount(state),f=>MainStoryManager.hasFlag(f))};}
 export function storeMicrofilm(raw,state=gameState){

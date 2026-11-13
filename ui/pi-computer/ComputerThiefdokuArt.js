@@ -11,13 +11,20 @@ export const ROOM_STYLE={
 const ALIASES={guest_room:'bedroom',laundry:'bathroom',conservatory:'kitchen',attic:'study',gallery:'dining',sculpture_hall:'study',archive:'bedroom',restoration_lab:'kitchen',museum_reception:'living',gift_shop:'dining',security:'study',exhibit_hall:'living',museum_kitchen:'kitchen',museum_bathroom:'bathroom',reception:'living',open_office:'study',conference:'dining',office_kitchen:'kitchen',ceo_office:'bedroom',library:'study',copy_room:'kitchen',accounts:'bedroom',break_room:'living',office_bathroom:'bathroom'};
 for(const [id,base] of Object.entries(ALIASES))ROOM_STYLE[id]={...ROOM_STYLE[base]};
 const INK=0x27242d;
+const hex=color=>'#'+color.toString(16).padStart(6,'0');
 const grey=color=>{const v=Math.round(((color>>16)&255)*0.3+((color>>8)&255)*0.59+(color&255)*0.11);return(v<<16)|(v<<8)|v;};
 
 export class ComputerThiefdokuArt {
  constructor(ui){this.ui=ui;this.parent=null;}
  add(o){if(this.parent){this.parent.add(o);return o;}return this.ui.drawing.add(o);}
  graphic(){return this.add(this.ui.scene.add.graphics());}
- text(x,y,value,size=12,color='#302833',wrap=0){return this.add(this.ui.scene.add.text(x,y,String(value),{fontFamily:FONTS.body,fontSize:`${size}px`,color,wordWrap:wrap?{width:wrap}:undefined}));}
+ text(x,y,value,size=12,color='#302833',wrap=0,style={}){
+  return this.add(this.ui.scene.add.text(x,y,String(value),{fontFamily:FONTS.body,fontSize:`${size}px`,color,wordWrap:wrap?{width:wrap}:undefined,...style}));
+ }
+ title(x,y,value,size=18,color='#d4af37'){
+  const t=this.text(x,y,value,size,color,0,{fontFamily:FONTS.title||FONTS.body});
+  t.setShadow(2,2,'#000000',0,false,true);return t;
+ }
  panel(g,x,y,w,h,color,r=5){g.fillStyle(color,1);g.fillRoundedRect(x,y,w,h,r);g.lineStyle(2,INK,1);g.strokeRoundedRect(x,y,w,h,r);}
  nameTag(x,y,name,maxWidth,font=13,{dark=false}={}){
   const g=this.graphic(),label=this.text(x,y,name,font,dark?'#fff9e8':'#211c29');
@@ -27,6 +34,32 @@ export class ComputerThiefdokuArt {
   g.fillStyle(dark?0x302838:0xfff5df,0.98);g.fillRoundedRect(x-width/2,y-height/2,width,height,3);
   g.lineStyle(1,dark?0xeee1c7:0x504053,0.95);g.strokeRoundedRect(x-width/2,y-height/2,width,height,3);
   return label;
+ }
+ // Paper clip for suspect cards.
+ clip(g,x,y){g.lineStyle(2,0x8c8f99,1);g.strokeRoundedRect(x,y,7,16,3);g.strokeRoundedRect(x+2,y+4,3,16,1.5);}
+ // Attempt marker: free = empty circle, used = red circle with a cross.
+ pip(g,x,y,r,used){
+  g.fillStyle(used?0xb34a4a:0xf5eee1,1);g.fillCircle(x,y,r);g.lineStyle(2,INK,1);g.strokeCircle(x,y,r);
+  if(used){g.lineStyle(2,0xfff2e0,1);g.lineBetween(x-r*0.5,y-r*0.5,x+r*0.5,y+r*0.5);g.lineBetween(x+r*0.5,y-r*0.5,x-r*0.5,y+r*0.5);}
+ }
+ // Magnifying glass centred on x,y. Returns a container so it can be tweened.
+ magnifier(x,y,size){
+  const sc=this.ui.scene,c=sc.add.container(x,y);this.add(c);const g=sc.add.graphics();
+  g.lineStyle(Math.max(2,size*0.14),0x6b4a2a,1);g.lineBetween(size*0.18,size*0.18,size*0.5,size*0.5);
+  g.fillStyle(0xcfe9ee,0.75);g.fillCircle(-size*0.1,-size*0.1,size*0.3);
+  g.lineStyle(Math.max(2,size*0.1),0xd4af37,1);g.strokeCircle(-size*0.1,-size*0.1,size*0.3);
+  g.lineStyle(1.5,0xffffff,0.8);g.beginPath();g.arc(-size*0.1,-size*0.1,size*0.19,Math.PI*1.1,Math.PI*1.55);g.strokePath();
+  c.add(g);return c;
+ }
+ // Rubber stamp. Returns a container (rotated, translucent).
+ stamp(x,y,label,size,color,angle=-12){
+  const sc=this.ui.scene,c=sc.add.container(x,y);this.add(c);
+  const t=sc.add.text(0,0,label,{fontFamily:FONTS.body,fontSize:`${size}px`,color:hex(color),fontStyle:'bold'}).setOrigin(0.5);
+  const pw=t.width+size,ph=t.height+size*0.5,g=sc.add.graphics();
+  g.fillStyle(0xf6efe3,0.82);g.fillRoundedRect(-pw/2,-ph/2,pw,ph,size*0.3);
+  g.lineStyle(Math.max(2,size*0.16),color,1);g.strokeRoundedRect(-pw/2,-ph/2,pw,ph,size*0.3);
+  g.lineStyle(1.5,color,1);g.strokeRoundedRect(-pw/2+4,-ph/2+4,pw-8,ph-8,size*0.22);
+  c.add([g,t]);c.setAngle(angle);c.setAlpha(0.9);return c;
  }
  floor(g,x,y,cell,room,row,col){
   const s=ROOM_STYLE[room]||ROOM_STYLE.living;g.fillStyle(s.base,1);g.fillRect(x,y,cell,cell);
@@ -155,11 +188,23 @@ export class ComputerThiefdokuArt {
   g.fillStyle(p.skin,1);g.fillRect(cx-w*0.09,y+h*0.59,w*0.18,h*0.2);g.fillEllipse(cx,y+h*0.41,w*0.43,h*0.5);
   g.fillStyle(p.hair,1);g.fillEllipse(cx-w*0.05,y+h*0.2,w*0.46,h*0.24);g.fillTriangle(cx-w*0.24,y+h*0.21,cx-w*0.23,y+h*0.43,cx-w*0.1,y+h*0.23);
   if(['curator','driver'].includes(p.id)){g.fillStyle(p.hair,1);g.fillEllipse(cx,y+h*0.57,w*0.38,h*0.23);g.fillStyle(p.skin,1);g.fillEllipse(cx,y+h*0.5,w*0.2,h*0.1);}
-  if(!pawn){g.lineStyle(1,0x392e31,0.45);g.lineBetween(cx-w*0.1,y+h*0.41,cx-w*0.04,y+h*0.41);g.lineBetween(cx+w*0.04,y+h*0.41,cx+w*0.1,y+h*0.41);}
+  if(!pawn){
+   // Everybody looks suspicious: dot eyes, slanted brows, flat mouth.
+   g.fillStyle(0x2a2230,0.9);g.fillCircle(cx-w*0.075,y+h*0.42,Math.max(1,w*0.025));g.fillCircle(cx+w*0.075,y+h*0.42,Math.max(1,w*0.025));
+   g.lineStyle(1.5,0x392e31,0.7);g.lineBetween(cx-w*0.13,y+h*0.35,cx-w*0.03,y+h*0.375);g.lineBetween(cx+w*0.13,y+h*0.35,cx+w*0.03,y+h*0.375);
+   g.lineBetween(cx-w*0.04,y+h*0.53,cx+w*0.05,y+h*0.52);
+  }
  }
  pawn(person,x,y,size){
-  const g=this.graphic();g.fillStyle(0x16101d,0.3);g.fillEllipse(x+size*0.54,y+size*0.86,size*0.82,size*0.22);
-  g.fillStyle(person.shirt,1);g.fillRoundedRect(x+size*0.2,y+size*0.35,size*0.6,size*0.51,size*0.13);g.fillCircle(x+size*0.5,y+size*0.27,size*0.19);
-  g.lineStyle(Math.max(1.5,size*0.045),INK,1);g.strokeRoundedRect(x+size*0.2,y+size*0.35,size*0.6,size*0.51,size*0.13);g.strokeCircle(x+size*0.5,y+size*0.27,size*0.19);
+  const g=this.graphic(),cx=x+size*0.5;
+  g.fillStyle(0x16101d,0.3);g.fillEllipse(cx+size*0.04,y+size*0.88,size*0.82,size*0.22);
+  g.fillStyle(person.shirt,1);g.fillRoundedRect(x+size*0.2,y+size*0.42,size*0.6,size*0.46,size*0.13);
+  g.fillStyle(0xffffff,0.16);g.fillRoundedRect(x+size*0.25,y+size*0.46,size*0.12,size*0.36,size*0.05);
+  g.lineStyle(Math.max(1.5,size*0.045),INK,1);g.strokeRoundedRect(x+size*0.2,y+size*0.42,size*0.6,size*0.46,size*0.13);
+  if(person.gender==='f'){g.fillStyle(person.hair,1);g.fillRoundedRect(cx-size*0.22,y+size*0.2,size*0.08,size*0.28,size*0.03);g.fillRoundedRect(cx+size*0.14,y+size*0.2,size*0.08,size*0.28,size*0.03);}
+  g.fillStyle(person.skin,1);g.fillCircle(cx,y+size*0.27,size*0.19);
+  g.lineStyle(Math.max(1.5,size*0.045),INK,1);g.strokeCircle(cx,y+size*0.27,size*0.19);
+  g.fillStyle(person.hair,1);g.fillEllipse(cx,y+size*0.17,size*0.38,size*0.17);
+  g.fillStyle(INK,1);g.fillCircle(cx-size*0.07,y+size*0.29,Math.max(1,size*0.022));g.fillCircle(cx+size*0.07,y+size*0.29,Math.max(1,size*0.022));
  }
 }

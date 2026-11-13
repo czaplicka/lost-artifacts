@@ -2,6 +2,7 @@ import { loadJson } from '../../config/loadJson.js';
 import { MainStoryManager } from '../../managers/MainStoryManager.js';
 import { saveGameState } from '../../gameStatePersistence.js';
 import { createSafeState,restoreSafeState,recordSafeClue,checkSafeCode,needlePosition,stopSafePin,searchSafe } from './GordonSafeModel.js';
+import { prepareGordonSafeAudio,playGordonSafeAudio,stopGordonSafeAudio } from './GordonSafeAudio.js';
 const DATA=await loadJson('../../assets/data/gordonSafe.json',import.meta.url);
 const KEY='gordon_safe_progress';
 export class GordonSafeController{
@@ -9,6 +10,7 @@ export class GordonSafeController{
     this.scene=scene;this.state=scene.preview?createSafeState():restoreSafeState(MainStoryManager.getSideClue(KEY));
     this.layer=null;this.content=null;this.kind=null;this.selected=0;this.buffer='';this.elapsed=0;this.cooldown=0;this.destroyed=false;
     this.onKeyBound=event=>this.onKey(event);this.onUpdateBound=(time,delta)=>this.update(delta);
+    prepareGordonSafeAudio(scene);
   }
   get isOpen(){return Boolean(this.layer);}
   persist(){
@@ -26,8 +28,7 @@ export class GordonSafeController{
   }
   open(){
     if(this.isOpen||this.destroyed)return;this.mount('GORDON / SAFE');
-    this.content=this.scene.add.container(0,0);this.layer.add(this.content);
-    this.render();
+    this.content=this.scene.add.container(0,0);this.layer.add(this.content);this.render();
   }
   mount(title){
     const scene=this.scene;scene.tooltip?.setVisible(false);scene.statusTimer?.remove(false);scene.status?.setVisible(false);
@@ -96,8 +97,10 @@ export class GordonSafeController{
   }
   stopPin(){
     if(this.kind!=='timing'||this.cooldown>0)return;
+    const wasOpened=this.state.opened;
     const result=stopSafePin(this.state,needlePosition(this.elapsed,this.tuning().periodMs),DATA.targets[this.state.pins],this.tuning().zoneWidth);
     this.state=result.state;this.persist();this.elapsed=0;this.cooldown=700;
+    if(result.accepted&&!wasOpened&&this.state.opened)playGordonSafeAudio(this);
     if(result.accepted){this.render();if(this.notice&&!this.state.opened)this.notice.setText('Pin seated. Your previous progress is safe.\nNext pin ready.');}
     else{
       this.needle?.setX(1010);this.notice.setText('The pin slipped. Retry this pin; the others are still set.\nUse SLOW ASSIST whenever you prefer.');
@@ -122,6 +125,7 @@ export class GordonSafeController{
     }
   }
   close(){
+    stopGordonSafeAudio(this);
     if(!this.layer)return;this.persist();
     this.scene.input.keyboard?.off('keydown',this.onKeyBound);this.scene.events.off('update',this.onUpdateBound);
     const layer=this.layer;this.layer=null;this.kind=null;this.content=null;this.needle=null;

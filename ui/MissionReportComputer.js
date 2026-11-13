@@ -3,6 +3,7 @@ import {
   getArchiveCaseId, getMissionReportForm, saveMissionReportDraft,
   printMissionReport, ensureMissionReport, isSuccessfulCase, isReportSubmitted
 } from '../archiveReportService.js';
+import { prepareMissionReportAudio,playMissionReportAudio,stopMissionReportAudio } from './MissionReportAudio.js';
 
 const CSS = `
 .mr-terminal{position:fixed;inset:0;z-index:2147483000;background:#080c0bf5;color:#c9ffd0;
@@ -24,21 +25,16 @@ const CSS = `
 .mr-terminal .mr-status{min-height:2em;color:#ffe69b}
 .mr-terminal small{display:block;font-size:.8em;color:#9ab6a0}
 `;
-
 export class MissionReportComputer {
   constructor(scene) {
-    this.scene = scene;
-    this.state = scene.gameState ?? gameState;
-    this.root = null;
-    this.inputs = [];
-    this.errors = new Set();
-    this.active = null;
+    this.scene = scene; this.state = scene.gameState ?? gameState;
+    this.root = null; this.inputs = []; this.errors = new Set(); this.active = null;
+    prepareMissionReportAudio(scene);
   }
   async open() {
     if (this.root) return;
     if (!isSuccessfulCase(this.state)) {
-      this.scene.showOfficeStatusMessage('The report terminal opens after a successful mission. Go solve something.');
-      return;
+      this.scene.showOfficeStatusMessage('The report terminal opens after a successful mission. Go solve something.'); return;
     }
     if (document.fullscreenElement?.tagName === 'CANVAS') {
       try { await document.exitFullscreen(); }
@@ -54,15 +50,11 @@ export class MissionReportComputer {
       ? 'Printed. Deliver your Mission Report to Frank Drebin, or collect it if your inventory was full.'
       : 'Select a blank, then click a word below.';
     this.previousFocus = document.activeElement;
-    this.root = document.createElement('div');
-    this.root.className = 'mr-terminal';
-    this.root.setAttribute('role', 'dialog');
-    this.root.setAttribute('aria-modal', 'true');
+    this.root = document.createElement('div'); this.root.className = 'mr-terminal';
+    this.root.setAttribute('role', 'dialog'); this.root.setAttribute('aria-modal', 'true');
     this.root.setAttribute('aria-label', 'Mission report computer');
-    const style = document.createElement('style'); style.textContent = CSS;
-    this.root.append(style);
-    this.panel = document.createElement('section'); this.panel.className = 'mr-monitor';
-    this.root.append(this.panel);
+    const style = document.createElement('style'); style.textContent = CSS; this.root.append(style);
+    this.panel = document.createElement('section'); this.panel.className = 'mr-monitor'; this.root.append(this.panel);
     this.root.addEventListener('keydown', event => {
       event.stopPropagation();
       if (event.key === 'Escape') { event.preventDefault(); this.close(); }
@@ -73,33 +65,23 @@ export class MissionReportComputer {
         if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }
     });
-    for (const event of ['pointerdown', 'pointerup', 'click', 'wheel', 'touchstart']) {
-      this.root.addEventListener(event, event => event.stopPropagation());
-    }
-    const host = document.fullscreenElement || document.body;
-    host.append(this.root);
+    for (const event of ['pointerdown', 'pointerup', 'click', 'wheel', 'touchstart']) this.root.addEventListener(event, event => event.stopPropagation());
+    const host = document.fullscreenElement || document.body; host.append(this.root);
     for (const scene of this.scene.scene.manager.scenes) {
       if (!scene.sys?.isActive?.() || !scene.input) continue;
-      this.inputs.push({ input: scene.input, enabled: scene.input.enabled,
-        keyboard: scene.input.keyboard, keyboardEnabled: scene.input.keyboard?.enabled });
-      scene.input.enabled = false;
-      if (scene.input.keyboard) scene.input.keyboard.enabled = false;
+      this.inputs.push({ input: scene.input, enabled: scene.input.enabled, keyboard: scene.input.keyboard, keyboardEnabled: scene.input.keyboard?.enabled });
+      scene.input.enabled = false; if (scene.input.keyboard) scene.input.keyboard.enabled = false;
     }
-    this.render();
-    this.panel.querySelector('button:not([disabled])')?.focus();
+    this.render(); this.panel.querySelector('button:not([disabled])')?.focus();
   }
   current() { return this.caseId === getArchiveCaseId(this.state) && isSuccessfulCase(this.state); }
   node(tag, text, className) {
-    const node = document.createElement(tag);
-    if (text !== undefined) node.textContent = text;
-    if (className) node.className = className;
-    return node;
+    const node = document.createElement(tag); if (text !== undefined) node.textContent = text;
+    if (className) node.className = className; return node;
   }
   button(text, action, disabled = false) {
-    const button = this.node('button', text);
-    button.type = 'button'; button.disabled = disabled;
-    button.addEventListener('click', event => { event.stopPropagation(); action(); });
-    return button;
+    const button = this.node('button', text); button.type = 'button'; button.disabled = disabled;
+    button.addEventListener('click', event => { event.stopPropagation(); action(); }); return button;
   }
   persist() {
     if (!this.current() || this.form.printed || this.form.submitted) return;
@@ -112,23 +94,17 @@ export class MissionReportComputer {
       if (this.active === field.id && this.answers[field.id]) {
         delete this.answers[field.id]; this.errors.delete(field.id); this.persist();
       }
-      this.active = field.id; this.render();
-      this.panel.querySelector(`[data-slot="${field.id}"]`)?.focus();
+      this.active = field.id; this.render(); this.panel.querySelector(`[data-slot="${field.id}"]`)?.focus();
     }, this.form.printed || this.form.submitted);
-    button.className = 'mr-slot' + (this.errors.has(field.id) ? ' mr-error' : '');
-    button.dataset.slot = field.id;
+    button.className = 'mr-slot' + (this.errors.has(field.id) ? ' mr-error' : ''); button.dataset.slot = field.id;
     button.setAttribute('aria-pressed', String(this.active === field.id));
-    button.setAttribute('aria-label', `${field.hint}: ${option?.label ?? 'blank'}`);
-    return button;
+    button.setAttribute('aria-label', `${field.hint}: ${option?.label ?? 'blank'}`); return button;
   }
   render() {
     if (!this.root) return;
-    this.panel.replaceChildren();
-    this.panel.append(this.node('h2', 'MARK AGENCY // MISSION REPORT'));
+    this.panel.replaceChildren(); this.panel.append(this.node('h2', 'MARK AGENCY // MISSION REPORT'));
     if (this.form.ok) {
-      const artifact = this.form.fields[0];
-      const suspect = this.form.fields[this.form.fields.length - 1];
-      const route = this.form.fields.slice(1, -1);
+      const artifact = this.form.fields[0], suspect = this.form.fields[this.form.fields.length - 1], route = this.form.fields.slice(1, -1);
       const first = this.node('p', 'The investigation concerned the theft of ');
       first.append(this.slot(artifact), document.createTextNode('.')); this.panel.append(first);
       const path = this.node('p', route.length ? 'The escape route led through ' : 'The case did not require an international pursuit.');
@@ -136,8 +112,7 @@ export class MissionReportComputer {
         if (index) path.append(document.createTextNode(index === route.length - 1 ? ' and ' : ', '));
         path.append(this.slot(field));
       });
-      if (route.length) path.append(document.createTextNode(', in that order.'));
-      this.panel.append(path);
+      if (route.length) path.append(document.createTextNode(', in that order.')); this.panel.append(path);
       const last = this.node('p', 'The investigation resulted in the arrest of ');
       last.append(this.slot(suspect), document.createTextNode('.')); this.panel.append(last);
       this.panel.append(this.node('small', 'No agency stationery was harmed during this investigation.'));
@@ -146,13 +121,10 @@ export class MissionReportComputer {
         const bank = this.node('div', undefined, 'mr-bank');
         for (const option of this.form.options) {
           bank.append(this.button(option.label, () => {
-            if (!this.current()) { this.close(); return; }
-            if (!this.active) return;
-            this.answers[this.active] = option.id;
-            this.errors.delete(this.active);
+            if (!this.current()) { this.close(); return; } if (!this.active) return;
+            this.answers[this.active] = option.id; this.errors.delete(this.active);
             this.active = this.form.fields.find(field => !this.answers[field.id])?.id ?? this.active;
-            this.persist(); this.render();
-            this.panel.querySelector(`[data-slot="${this.active}"]`)?.focus();
+            this.persist(); this.render(); this.panel.querySelector(`[data-slot="${this.active}"]`)?.focus();
           }, Object.values(this.answers).includes(option.id)));
         }
         this.panel.append(bank);
@@ -162,17 +134,16 @@ export class MissionReportComputer {
       : this.form.printed ? this.message || 'Printed. Deliver the report to Frank Drebin.' : this.message, 'mr-status');
     status.setAttribute('role', 'status'); this.panel.append(status);
     const actions = this.node('div', undefined, 'mr-actions');
-    if (this.form.ok && !this.form.submitted) {
-      actions.append(this.button(this.form.printed ? 'COLLECT REPORT' : 'PRINT REPORT', () => this.print()));
-    }
-    actions.append(this.button('BACK TO OFFICE', () => this.close()));
-    this.panel.append(actions);
+    if (this.form.ok && !this.form.submitted) actions.append(this.button(this.form.printed ? 'COLLECT REPORT' : 'PRINT REPORT', () => this.print()));
+    actions.append(this.button('BACK TO OFFICE', () => this.close())); this.panel.append(actions);
   }
   print() {
     if (!this.current()) { this.close(); return; }
+    if (!this.root || this.scene._cleanupDone || !this.scene.sys.isActive()) return;
+    const before = getMissionReportForm(this.locations, this.state);
     const result = printMissionReport(this.answers, this.locations, this.state);
-    this.errors = new Set(result.errors || []);
-    this.form = getMissionReportForm(this.locations, this.state);
+    this.errors = new Set(result.errors || []); this.form = getMissionReportForm(this.locations, this.state);
+    if (!before.printed && this.form.printed && !this.form.submitted) playMissionReportAudio(this);
     if (result.ok) this.message = 'Printed! Your Mission Report is in your inventory. Deliver it to Frank Drebin.';
     else if (result.reason === 'incorrect') this.message = 'Please correct the marked blanks. No penalties. The printer has seen worse.';
     else if (result.reason === 'full') this.message = 'Report ready. Free an inventory slot, then collect it here or visit Frank.';
@@ -182,26 +153,20 @@ export class MissionReportComputer {
     this.render(); this.panel.querySelector('.mr-actions button')?.focus();
   }
   close({ save = true } = {}) {
-    if (!this.root) return;
-    if (save) this.persist();
+    stopMissionReportAudio(this);
+    if (!this.root) return; if (save) this.persist();
     this.root.remove(); this.root = null;
     for (const entry of this.inputs) {
-      entry.input.enabled = entry.enabled;
-      if (entry.keyboard) entry.keyboard.enabled = entry.keyboardEnabled;
+      entry.input.enabled = entry.enabled; if (entry.keyboard) entry.keyboard.enabled = entry.keyboardEnabled;
     }
-    this.inputs = [];
-    if (this.previousFocus?.isConnected) this.previousFocus.focus();
+    this.inputs = []; if (this.previousFocus?.isConnected) this.previousFocus.focus();
   }
 }
-
 export function installReportComputerButton(scene) {
-  if (scene._reportComputerInstalled) return;
-  scene._reportComputerInstalled = true;
+  if (scene._reportComputerInstalled) return; scene._reportComputerInstalled = true;
   const computer = new MissionReportComputer(scene);
-  const button = scene.add.text(24, 290, 'COMPUTER >', {
-    fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
-    backgroundColor: '#17110e', padding: { x: 14, y: 10 }
-  }).setScrollFactor(0).setDepth(100).setInteractive({ useHandCursor: true });
+  const button = scene.add.text(24, 290, 'COMPUTER >', { fontFamily: 'SpecialElite', fontSize: '22px', color: '#f2d477',
+    backgroundColor: '#17110e', padding: { x: 14, y: 10 } }).setScrollFactor(0).setDepth(100).setInteractive({ useHandCursor: true });
   let opening = false;
   button.on('pointerdown', async pointer => {
     if (pointer?.event?.button !== undefined && pointer.event.button !== 0) return;
@@ -209,23 +174,15 @@ export function installReportComputerButton(scene) {
     opening = true;
     try { await computer.open(); }
     catch (error) {
-      console.error('[MissionReportComputer] Open failed:', error);
-      computer.close({ save: false });
+      console.error('[MissionReportComputer] Open failed:', error); computer.close({ save: false });
       scene.showOfficeStatusMessage('The report terminal could not be opened. Please try again.');
     } finally { opening = false; }
   });
-  button.on('pointerover', () => button.setColor('#ffffff'));
-  button.on('pointerout', () => button.setColor('#f2d477'));
+  button.on('pointerover', () => button.setColor('#ffffff')); button.on('pointerout', () => button.setColor('#f2d477'));
   let disposed = false;
   const cleanup = () => {
-    if (disposed) return;
-    disposed = true;
-    computer.close({ save: false });
-    button.removeAllListeners(); button.destroy();
-    scene._reportComputerInstalled = false;
-    scene.events.off(Phaser.Scenes.Events.SHUTDOWN, cleanup);
-    scene.events.off(Phaser.Scenes.Events.DESTROY, cleanup);
+    if (disposed) return; disposed = true; computer.close({ save: false }); button.removeAllListeners(); button.destroy();
+    scene._reportComputerInstalled = false; scene.events.off(Phaser.Scenes.Events.SHUTDOWN, cleanup); scene.events.off(Phaser.Scenes.Events.DESTROY, cleanup);
   };
-  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup);
-  scene.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
+  scene.events.once(Phaser.Scenes.Events.SHUTDOWN, cleanup); scene.events.once(Phaser.Scenes.Events.DESTROY, cleanup);
 }

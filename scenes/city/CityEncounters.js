@@ -1,5 +1,5 @@
 import {gameState} from '../../GameData.js';
-import {generateCaseCityState,buildEncounterId} from '../../city-encounter-generator.js';
+import {generateCaseCityState} from '../../city-encounter-generator.js';
 import {saveGameState} from '../../gameStatePersistence.js';
 import {getNpcTextureKey,getNpcLabel} from '../../npcThemeHelper.js';
 import {addSessionScore} from '../../managers/InvestigationManager.js';
@@ -10,7 +10,26 @@ import {ForgerObservationUI} from '../../ui/ForgerObservationUI.js';
 
 export class CityEncounters {
  ensureCityEncounterState(locations){const existing=gameState.cityEncounterState||{};if(Array.isArray(existing[this.cityId]))return;const caseId=gameState.currentMission?.id||gameState.currentMission?.caseId||gameState.currentArtifact||`${this.cityId}-default`,generated=generateCaseCityState(locations,String(caseId),{});gameState.cityEncounterState={...generated,...existing};if(!Array.isArray(gameState.cityEncounterState[this.cityId]))gameState.cityEncounterState[this.cityId]=generated[this.cityId]||[];}
- ensureHarborEncounter(){if(this.city?.harbor!==true)return;const encounters=gameState.cityEncounterState[this.cityId];if(!Array.isArray(encounters))return;if(encounters.find(e=>e?.locationId==='harbor'&&e.enabled!==false))return;const pair=this.city.encounterPool?.find(e=>e?.npcId==='sailor'&&e?.locationId==='harbor')||{id:`${this.cityId}_sailor_harbor`,npcId:'sailor',locationId:'harbor'},occupied=new Set(encounters.filter(e=>e?.enabled!==false).map(e=>e.slotId)),free=this.city.encounterSlots?.find(s=>s.enabled&&!occupied.has(s.id)),slotId=free?.id||'harbor_extra';const harbor={id:buildEncounterId(this.cityId,pair.id,slotId),baseEncounterId:pair.id,cityId:this.cityId,cityX:free?.cityX??130,cityY:free?.cityY??Math.max(230,this.scale.height-260),slotId,npcId:pair.npcId,locationId:'harbor',enabled:true};gameState.cityEncounterState={...gameState.cityEncounterState,[this.cityId]:[...encounters,harbor]};saveGameState();}
+
+ ensureHarborEncounter(){
+  // Kept for existing lifecycle callers. Sailors are selected by the generator.
+  const encounters=gameState.cityEncounterState?.[this.cityId];
+  if(!Array.isArray(encounters))return;
+  const configured=Number(this.city?.encounterRules?.count??3);
+  const count=Number.isFinite(configured)?Math.max(0,Math.floor(configured)):3;
+  let excess=encounters.filter(e=>e&&typeof e==='object'&&e.enabled!==false).length-count;
+  if(excess<=0)return;
+  const next=encounters.filter(e=>{
+   const legacyExtra=e&&e.enabled!==false&&e.slotId==='harbor_extra'
+    &&e.npcId==='sailor'&&e.locationId==='harbor';
+   if(excess>0&&legacyExtra){excess--;return false;}
+   return true;
+  });
+  if(next.length===encounters.length)return;
+  gameState.cityEncounterState={...gameState.cityEncounterState,[this.cityId]:next};
+  saveGameState();
+ }
+
  getEncounters(){const list=gameState.cityEncounterState?.[this.cityId],base=Array.isArray(list)?list.filter(e=>e&&typeof e==='object'&&e.enabled!==false):[];const places=Object.values(this.city?.cityPlaces||{}).filter(p=>p&&p.enabled!==false).map(p=>({id:`city_place:${this.cityId}:${p.id}`,placeId:p.id,cityPlace:true,cityId:this.cityId,locationId:p.id,npcId:p.npcId||null,name:p.name,cityX:this.scale.width*Number(p.x)/100,cityY:this.scale.height*Number(p.y)/100,enabled:true}));return [...base,...places];}
  isEncounterVisited(id){return gameState.hasEncounter(id);}
  getEncounterMemory(id){if(!id)return null;const m=gameState.encounterMemory;return m&&typeof m==='object'&&!Array.isArray(m)?m[id]||null:null;}

@@ -1,11 +1,13 @@
+import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
 import { microfilmData as DATA,getMicrofilmStory,storeMicrofilm } from '../johnMicrofilmService.js';
 import { normalizeMicrofilm,receiveMicrofilm,microfilmAligned,microfilmFocused,markMicrofilmDifference,chooseMicrofilmCity } from './archive/MicrofilmModel.js';
 import { preloadReaderAudio,playReaderAudio } from './archive/ReaderAudio.js';
+import { preloadMicrofilmTransport,playMicrofilmTransport,stopMicrofilmTransport } from './archive/MicrofilmTransportAudio.js';
 export class MicrofilmScene extends BaseScene{
  constructor(){super({key:'MicrofilmScene'});}
  init(data={}){this.preview=data.preview===true;this.mode=data.mode==='receive'?'receive':'compare';this.returnSceneKey=data.returnSceneKey??null;this.onFinished=typeof data.onFinished==='function'?data.onFinished:null;this.progress=null;this.closing=false;this.savedOk=null;this.lockUntil=0;this.message='';this.activeReel='left';this.layers=[];this.parentPaused=false;}
- preload(){preloadReaderAudio(this,['click','evidence','success']);}
+ preload(){preloadReaderAudio(this,['click','evidence','success']);preloadMicrofilmTransport(this);}
  create(){
   super.create();const story=getMicrofilmStory();this.allowed=this.preview||(story.eligible&&(this.mode==='receive'||story.copyReceived));this.progress=normalizeMicrofilm(DATA,this.preview?null:story);if(this.preview&&this.mode==='compare')this.progress.copyReceived=true;
   this.cameras.main.setBackgroundColor('#101811');this.root=this.add.container(0,0);this.root.add(this.add.rectangle(800,500,1600,1000,0x19291f));
@@ -16,7 +18,7 @@ export class MicrofilmScene extends BaseScene{
    if(e.code==='Tab'){e.preventDefault();this.activeReel=this.activeReel==='left'?'right':'left';this.render();return;}
    if(['ArrowLeft','ArrowRight'].includes(e.code)){e.preventDefault();this.moveReel(this.activeReel,e.code==='ArrowLeft'?-1:1);}
   });
-  this.suspend();this.events.once('shutdown',()=>{this.restore();this.onFinished=null;});
+  this.suspend();this.events.once('shutdown',()=>{stopMicrofilmTransport(this);this.restore();this.onFinished=null;});
  }
  text(x,y,value,size=25,width=1400,color='#eee0bf',parent=this.content,font='SpecialElite'){const t=this.add.text(x,y,value,{fontFamily:`${font}, monospace`,fontSize:`${size}px`,color,align:'center',wordWrap:{width},lineSpacing:6}).setOrigin(.5);parent.add(t);return t;}
  button(x,y,value,callback,parent=this.content){const t=this.add.text(x,y,value,{fontFamily:'SpecialElite',fontSize:'23px',color:'#ffe2ae',backgroundColor:'#36513d',padding:{x:16,y:11}}).setOrigin(.5).setInteractive({useHandCursor:true});t.on('pointerdown',(p,x,y,e)=>{e?.stopPropagation();if(!this.closing&&this.time.now>=this.lockUntil){this.lockUntil=this.time.now+140;callback();}});parent.add(t);return t;}
@@ -26,7 +28,7 @@ export class MicrofilmScene extends BaseScene{
   if(!this.allowed){this.text(800,460,'Collect the retained reel after mission twelve, then use the archive reader.',29);return;}
   if(this.mode==='receive'){
    this.text(800,260,'ALEX MURPHY',29,1200,'#f0d091');
-   this.text(800,470,this.progress.copyReceived?"The retained reel is available. Take it to Drebin's archive reader. It is recorded with the case, not stored in an inventory slot.":DATA.intro[this.progress.introLine],31,1340);
+   this.text(800,470,this.progress.copyReceived?DIALOGUES.microfilm.received:DATA.intro[this.progress.introLine],31,1340);
    this.button(800,760,this.progress.copyReceived?'RETURN TO STORAGE':this.progress.introLine===DATA.intro.length-1?'RECEIVE REEL':'CONTINUE',()=>{
     if(this.progress.copyReceived){this.closeVisit();return;}this.advanceReceipt();
    });this.footer();return;
@@ -77,7 +79,7 @@ export class MicrofilmScene extends BaseScene{
  moveReel(side,delta){
   if(this.progress.completed)return;const frames=side==='left'?DATA.leftFrames:DATA.rightFrames;
   const before=this.progress[side];this.activeReel=side;this.progress[side]=(this.progress[side]+delta+frames.length)%frames.length;this.message='';this.persist();
-  if(this.progress[side]!==before)playReaderAudio(this,'click');this.render();
+  if(this.progress[side]!==before)playMicrofilmTransport(this);this.render();
  }
  changeFocus(delta){
   const before=this.progress.focus;
@@ -91,5 +93,5 @@ export class MicrofilmScene extends BaseScene{
  layout(){if(!this.root)return;const{width,height}=this.scale,s=Math.min(width/1600,height/1000);this.root.setScale(s).setPosition((width-1600*s)/2,(height-1000*s)/2);}
  suspend(){this.layers=['PlayerHudScene','UIScene','NewsHud'].filter(k=>this.isSceneActive(k)).map(key=>{const visible=this.getRegisteredScene(key).sys.settings.visible;this.scene.setVisible(false,key);this.scene.pause(key);return{key,visible};});if(this.returnSceneKey&&this.isSceneActive(this.returnSceneKey)){this.parentPaused=true;this.scene.pause(this.returnSceneKey);}}
  restore(){for(const{key,visible}of this.layers){if(!this.hasScene(key))continue;this.scene.setVisible(visible,key);if(this.isScenePaused(key))this.scene.resume(key);}this.layers=[];if(this.parentPaused&&this.isScenePaused(this.returnSceneKey))this.scene.resume(this.returnSceneKey);this.parentPaused=false;}
- closeVisit(){if(this.closing)return;this.closing=true;this.persist();const callback=this.onFinished;this.onFinished=null;this.restore();try{callback?.({preview:this.preview,completed:this.progress.completed,copyReceived:this.progress.copyReceived,saved:this.savedOk,cityId:this.progress.completed?'warsaw':null});}finally{this.scene.stop();}}
+ closeVisit(){if(this.closing)return;this.closing=true;stopMicrofilmTransport(this);this.persist();const callback=this.onFinished;this.onFinished=null;this.restore();try{callback?.({preview:this.preview,completed:this.progress.completed,copyReceived:this.progress.copyReceived,saved:this.savedOk,cityId:this.progress.completed?'warsaw':null});}finally{this.scene.stop();}}
 }

@@ -1,0 +1,50 @@
+[
+  {
+    "path": "scenes/AgencyStorageScene.js",
+    "existed": true
+  },
+  {
+    "path": "thirdMissionStoryService.js",
+    "existed": true
+  },
+  {
+    "path": "fourthMissionStoryService.js",
+    "existed": true
+  },
+  {
+    "path": "chapterTwoOpeningService.js",
+    "existed": true
+  },
+  {
+    "path": "alexRecoveryInquiryService.js",
+    "existed": true
+  },
+  {
+    "path": "escapeTimelineService.js",
+    "existed": true
+  },
+  {
+    "path": "johnMicrofilmService.js",
+    "existed": true
+  },
+  {
+    "path": "scenes/MicrofilmScene.js",
+    "existed": true
+  },
+  {
+    "path": "systems/WorldNpcReactionModel.js",
+    "existed": true
+  },
+  {
+    "path": "ui/WorldNpcReactionHooks.js",
+    "existed": true
+  },
+  {
+    "path": "assets/data/storageRoomDialogues.json",
+    "existed": false
+  },
+  {
+    "path": "storageRoomDialogueService.js",
+    "existed": false
+  }
+]

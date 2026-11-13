@@ -1,3 +1,4 @@
+import { storageRoomDialogues as DIALOGUES } from '../storageRoomDialogueService.js';
 import { BaseScene } from './BaseScene.js';
 import { gameState } from '../GameData.js';
 import { ItemsLoader } from '../ItemsLoader.js';
@@ -9,24 +10,9 @@ import { fourthMissionConfig,getFourthMissionStory,markAlexCrashAccount } from '
 import { chapterTwoOpeningConfig,getChapterTwoOpening,markChapterTwoAlexFollowup } from '../chapterTwoOpeningService.js';
 const EMPTY_STORAGE_KEY='agency_storage_room_v2',MANAGER_STORAGE_KEY='agency_storage_manager';
 const MANAGER_PORTRAIT_KEY='portrait_magazine',MANAGER_PORTRAIT_URL='assets/portraits/magazine_manager.webp';
-const INTRO_LINES=[
-  'Ah. Fresh cannon fodder. HR calls it recruitment. I call it restocking.',
-  "Alex Murphy. Equipment, storage, and saying 'no' to requests involving grappling hooks.",
-  "Here's your Agency Field Manual. Evidence handling, travel procedures, paperwork. All the glamorous stuff.",
-  'It also contains the general procedure for electronic service panels. The device\'s own note supplies the model-specific instructions. You need both.',
-  'Use the manual from your inventory to read it. If you lose it, return here. Replacement copies are free, provided your pockets can fit one.',
-  "If your desk wobbles, stick it under the short leg. That's the advanced training.",
-  'Now get out. I have to count the emergency parachutes. Apparently, "probably enough" upset somebody in Legal.'
-];
-const REISSUE_LINES=[
-  'Lost the manual? Again? Here. The chapter on evidence handling is particularly optimistic in your case.',
-  'Replacement copy. Free of charge. This is not another first-day bonus.',
-  'The electronic service procedure is inside. Keep it this time. The shelves are starting to recognise you.'
-];
-const RETURN_LINES=[
-  "You've got your manual. If you've already lost it, try investigating. I hear that's your department.",
-  'If your copy actually goes missing, come back. I can issue another one. Now out. These boxes are not going to mislabel themselves.'
-];
+const INTRO_LINES=DIALOGUES.manual.intro;
+const REISSUE_LINES=DIALOGUES.manual.replacement;
+const RETURN_LINES=DIALOGUES.manual.return;
 export class AgencyStorageScene extends BaseScene{
   constructor(){super({key:'AgencyStorageScene'});this._storageDisposed=true;}
   init(data={}){
@@ -157,7 +143,7 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
     const lines=mode==='manualReplacement'?REISSUE_LINES:mode==='manual'?INTRO_LINES:mode==='chapterTwo'||mode==='chapterTwoReview'?chapterTwoOpeningConfig.conversation:mode==='crash'?fourthMissionConfig.conversation:mode==='review'?fourthMissionConfig.reviewConversation:mode==='refusal'?thirdMissionConfig.alexLines:RETURN_LINES;
     this._conversationOpen=true;this.backButton?.setVisible(false);this.retryButton?.setVisible(false);this.timelineButton?.setVisible(false);this.statusText?.setVisible(false);
     try{
-      this.showManagerBackground();this.showStorageHud();dialog.open({speaker:'Alex Murphy',portraitKey:MANAGER_PORTRAIT_KEY,lines:[...lines]},{onClose:()=>{
+      this.showManagerBackground();this.showStorageHud();dialog.open({speaker:DIALOGUES.speaker,portraitKey:MANAGER_PORTRAIT_KEY,lines:[...lines]},{onClose:()=>{
         if(!this.isCurrent(token)||!this._conversationOpen||this.isLeaving)return;this._conversationOpen=false;
         if(mode==='chapterTwo'||mode==='chapterTwoReview'){
           const result=mode==='chapterTwo'?markChapterTwoAlexFollowup():{success:true,saved:true};this.backButton?.setVisible(true);this.retryButton?.setVisible(true);this.refreshTimelineButton();this.showStatus(chapterTwoOpeningConfig.messages.afterAlex+(result.saved?'':` ${chapterTwoOpeningConfig.messages.saveFailed}`));
@@ -186,7 +172,7 @@ this.retryButton=make('TALK TO ALEX',1,()=>{void this.prepareVisit(true);}).setV
     if(!this.isCurrent()||this.isLeaving||this._finishing||!this.manualTemplate)return;this._finishing=true;const token=this._storageRunToken;let received=false;
     try{
       const issue=ensureAgencyFieldManual();
-      if(!issue.ok){this.showRecovery('"Your pockets are full. Come back with room for a book. Replacements are free; pocket dimensions are not my department."');return;}
+      if(!issue.ok){this.showRecovery(DIALOGUES.messages.pocketsFull);return;}
       if(!this.hasInventoryItem(this.manualTemplate.id))throw new Error('The manual was not added to inventory.');
       this.completeStorageTutorialVisit();if(!saveGameState())console.warn('[AgencyStorageScene] Manual received, but save failed.');received=true;
     }catch(error){this.showRecovery(`Manual error: ${error.message||String(error)}`,error);}finally{if(this._storageRunToken===token)this._finishing=false;}

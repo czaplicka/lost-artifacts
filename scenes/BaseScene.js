@@ -6,10 +6,12 @@ import { installWorldReactions,queueWorldOfficeReaction } from '../systems/World
 import { installSpyShopWorldReactions } from '../ui/WorldSpyShopReactionHooks.js';
 import { installPostOfficeWorldReactions } from '../ui/WorldPostOfficeReactionHooks.js';
 import { installWorldReactionInspector } from '../ui/WorldReactionInspector.js';
+import { installStartupTheme } from '../managers/StartupTheme.js';
 
 export class BaseScene extends BaseSceneCore{
  create(){
   super.create();
+  installStartupTheme(this);
   installWorldReactions(this.game);queueWorldOfficeReaction(this);
   installSpyShopWorldReactions(this);installPostOfficeWorldReactions(this);
   installWorldReactionInspector(this.game);

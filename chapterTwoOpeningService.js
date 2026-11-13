@@ -1,8 +1,9 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 
-export const chapterTwoOpeningConfig = await loadJson('./assets/data/chapterTwoOpening.json', import.meta.url);
+export const chapterTwoOpeningConfig = { ...(await loadJson('./assets/data/chapterTwoOpening.json', import.meta.url)), ...storageRoomDialogues.chapterTwo };
 const F = chapterTwoOpeningConfig.flags;
 export function getChapterTwoOpening() {
   const open = MainStoryManager.hasFlag(F.chapterOpen) && MainStoryManager.hasFlag(F.chapterOneComplete);

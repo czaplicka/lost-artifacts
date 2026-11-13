@@ -1,7 +1,4 @@
-import {
-  getEnergyManager
-} from '../../managers/EnergyManager.js';
-
+import { getEnergyManager } from '../../managers/EnergyManager.js';
 import { gameState } from '../../GameData.js';
 import { EventBus } from '../../EventBus.js';
 
@@ -11,25 +8,36 @@ import {
 } from '../../gameStatePersistence.js';
 
 const SLEEP_RECOVERY = Object.freeze({
-  1: 7,
-  2: 15,
-  3: 24,
-  4: 34,
-  5: 45,
-  6: 57,
-  7: 70,
-  8: 84
+  1: 6,
+  2: 14,
+  3: 21,
+  4: 28,
+  5: 35,
+  6: 42,
+  7: 49,
+  8: 56
 });
 
 const SLEEP_HOURS = Object.freeze(
   Object.keys(SLEEP_RECOVERY).map(Number)
 );
 
+const COLORS = {
+  wood: 0x21170f,
+  dark: 0x110d09,
+  brass: 0xb58a42,
+  brassLight: 0xe5c47c,
+  paper: 0xeee0bd,
+  paperHover: 0xfff0c9,
+  ink: '#33271b',
+  muted: '#7a674c',
+  cream: '#f3e7c9',
+  green: 0x74ad78
+};
+
 function isValidSleepDuration(value) {
-  return (
-    Number.isInteger(value) &&
-    Object.hasOwn(SLEEP_RECOVERY, value)
-  );
+  return Number.isInteger(value) &&
+    Object.hasOwn(SLEEP_RECOVERY, value);
 }
 
 export class HotelSleep {
@@ -37,8 +45,8 @@ export class HotelSleep {
     this.scene = scene;
 
     this.menu = null;
-    this.closingMenus = new Set();
     this.menuBlocker = null;
+    this.closingMenus = new Set();
 
     this.pendingHours = null;
     this.hollyResolving = false;
@@ -47,36 +55,41 @@ export class HotelSleep {
 
     this.resumeHandler = null;
     this.fadeHandler = null;
+
+    this.previewText = null;
+    this.previewFill = null;
+    this.previewBarWidth = 0;
+
+    this.resizeHandler = () => {
+      if (this.menu && this.scene.isSleepMenuOpen) {
+        this.renderMenu();
+      }
+    };
+
+    scene.scale.on('resize', this.resizeHandler);
   }
 
   isAlive() {
-    return (
-      !this.scene._cleanupDone &&
-      this.scene.sys.isActive()
-    );
+    return !this.scene._cleanupDone &&
+      this.scene.sys.isActive();
   }
 
   getRecovery(hours) {
     const duration = Number(hours);
 
-    if (!isValidSleepDuration(duration)) {
-      return 0;
-    }
+    if (!isValidSleepDuration(duration)) return 0;
 
     const energy = getEnergyManager();
 
-    const configuredMultiplier = Number(
+    const configured = Number(
       this.scene.hotelConfig?.recoveryMultiplier ?? 1
     );
 
-    const hotelMultiplier =
-      Number.isFinite(configuredMultiplier) &&
-      configuredMultiplier > 0
-        ? configuredMultiplier
-        : 1;
+    const multiplier = Number.isFinite(configured) && configured > 0
+      ? configured
+      : 1;
 
-    let amount =
-      SLEEP_RECOVERY[duration] * hotelMultiplier;
+    let amount = SLEEP_RECOVERY[duration] * multiplier;
 
     if (energy.difficulty === 'rookie') {
       amount *= 1.15;
@@ -88,16 +101,40 @@ export class HotelSleep {
   getActualRecovery(hours) {
     const energy = getEnergyManager();
 
-    const missingEnergy = Math.max(
+    const missing = Math.max(
       0,
-      energy.getMaxEnergy() -
-      energy.getCurrentEnergy()
+      energy.getMaxEnergy() - energy.getCurrentEnergy()
     );
 
-    return Math.min(
-      missingEnergy,
-      this.getRecovery(hours)
-    );
+    return Math.min(missing, this.getRecovery(hours));
+  }
+
+  addText(container, x, y, text, {
+    pixel = false,
+    size = 18,
+    color = COLORS.cream,
+    width,
+    originX = 0.5,
+    originY = 0
+  } = {}) {
+    const style = {
+      fontFamily: pixel ? 'PressStart2P' : 'SpecialElite',
+      fontSize: `${size}px`,
+      color,
+      align: originX === 0 ? 'left' : 'center'
+    };
+
+    if (width) {
+      style.wordWrap = { width };
+    }
+
+    const object = this.scene.add
+      .text(x, y, text, style)
+      .setOrigin(originX, originY);
+
+    container.add(object);
+
+    return object;
   }
 
   openMenu() {
@@ -106,7 +143,8 @@ export class HotelSleep {
     if (
       scene.isHotelInteractionBlocked() ||
       !scene.hotelConfig ||
-      this.menu
+      this.menu ||
+      this.closingMenus.size
     ) {
       return;
     }
@@ -115,175 +153,9 @@ export class HotelSleep {
     scene.hideHoverHint();
     scene.hotspotUI?.setLocked(true);
 
-    const { width, height } = scene.scale;
-    const energy = getEnergyManager();
+    this.menu = scene.add.container(0, 0).setDepth(400);
 
-    this.menu = scene.add
-      .container(0, 0)
-      .setDepth(400);
-
-    this.menuBlocker = scene.add
-      .rectangle(
-        0,
-        0,
-        width,
-        height,
-        0x000000,
-        0.7
-      )
-      .setOrigin(0)
-      .setInteractive();
-
-    this.menuBlocker.on(
-      'pointerdown',
-      () => this.closeMenu()
-    );
-
-    this.menu.add(this.menuBlocker);
-
-    const panelW = 820;
-    const panelH = 430;
-
-    const scale = Math.max(
-      0.01,
-      Math.min(
-        1,
-        (width - 32) / panelW,
-        (height - 32) / panelH
-      )
-    );
-
-    const content = scene.add
-      .container(
-        (width - panelW * scale) / 2,
-        (height - panelH * scale) / 2
-      )
-      .setScale(scale);
-
-    this.menu.add(content);
-
-    const panel = scene.add
-      .rectangle(
-        0,
-        0,
-        panelW,
-        panelH,
-        0x17110e,
-        0.98
-      )
-      .setOrigin(0)
-      .setStrokeStyle(4, 0xd4af37)
-      .setInteractive();
-
-    panel.on(
-      'pointerdown',
-      (_pointer, _x, _y, event) => {
-        event?.stopPropagation();
-      }
-    );
-
-    content.add(panel);
-
-    content.add(
-      scene.add.text(
-        panelW / 2,
-        42,
-        'HOW LONG DO YOU SLEEP?',
-        {
-          fontFamily: 'PressStart2P',
-          fontSize: '16px',
-          color: '#f6dc8c'
-        }
-      ).setOrigin(0.5)
-    );
-
-    content.add(
-      scene.add.text(
-        panelW / 2,
-        82,
-        `${scene.hotelConfig.label} — room already paid`,
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '21px',
-          color: '#f1e6b8'
-        }
-      ).setOrigin(0.5)
-    );
-
-    content.add(
-      scene.add.text(
-        panelW / 2,
-        113,
-        (
-          `ENERGY: ${energy.getCurrentEnergy()}` +
-          ` / ${energy.getMaxEnergy()}`
-        ),
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#c4b895'
-        }
-      ).setOrigin(0.5)
-    );
-
-    const columns = 4;
-    const spacingX = 190;
-    const spacingY = 112;
-    const startX = 125;
-    const startY = 192;
-
-    SLEEP_HOURS.forEach((hours, index) => {
-      const column = index % columns;
-      const row = Math.floor(index / columns);
-
-      this.createOption(
-        content,
-        startX + column * spacingX,
-        startY + row * spacingY,
-        hours
-      );
-    });
-
-    content.add(
-      scene.add.text(
-        panelW / 2,
-        386,
-        'Longer sleep pays off. The thief does not take a nap.',
-        {
-          fontFamily: 'SpecialElite',
-          fontSize: '18px',
-          color: '#c4b895',
-          align: 'center'
-        }
-      ).setOrigin(0.5)
-    );
-
-    const close = scene.add.text(
-      panelW - 30,
-      25,
-      'X',
-      {
-        fontFamily: 'PressStart2P',
-        fontSize: '14px',
-        color: '#ffffff',
-        backgroundColor: '#3b1111',
-        padding: {
-          x: 10,
-          y: 8
-        }
-      }
-    )
-      .setOrigin(0.5)
-      .setInteractive({
-        useHandCursor: true
-      });
-
-    close.on(
-      'pointerdown',
-      () => this.closeMenu()
-    );
-
-    content.add(close);
+    this.renderMenu();
 
     this.menu.setAlpha(0);
 
@@ -295,75 +167,350 @@ export class HotelSleep {
     });
   }
 
-  createOption(container, x, y, hours) {
-    const scene = this.scene;
+  renderMenu() {
+    if (!this.menu || !this.isAlive()) return;
 
-    const potentialRecovery = this.getRecovery(hours);
-    const actualRecovery = this.getActualRecovery(hours);
+    const scene = this.scene;
+    const { width, height } = scene.scale;
+    const portrait = width < 620 && height > width;
+
+    this.menu.removeAll(true);
+    this.clearPreviewReferences();
+
+    this.menuBlocker = scene.add
+      .rectangle(0, 0, width, height, 0x000000, 0.78)
+      .setOrigin(0)
+      .setInteractive();
+
+    this.menuBlocker.on('pointerdown', () => this.closeMenu());
+    this.menu.add(this.menuBlocker);
+
+    const panelW = portrait ? 430 : 840;
+    const panelH = portrait ? 850 : 566;
+
+    const scale = Math.max(
+      0.01,
+      Math.min(
+        1,
+        (width - 24) / panelW,
+        (height - 24) / panelH
+      )
+    );
+
+    const content = scene.add.container(
+      (width - panelW * scale) / 2,
+      (height - panelH * scale) / 2
+    ).setScale(scale);
+
+    this.menu.add(content);
+
+    const shadow = scene.add
+      .rectangle(7, 9, panelW, panelH, 0x000000, 0.5)
+      .setOrigin(0);
+
+    const panel = scene.add
+      .rectangle(0, 0, panelW, panelH, COLORS.wood)
+      .setOrigin(0)
+      .setStrokeStyle(3, COLORS.brass)
+      .setInteractive();
+
+    panel.on('pointerdown', (_pointer, _x, _y, event) => {
+      event?.stopPropagation();
+    });
+
+    const innerFrame = scene.add
+      .rectangle(10, 10, panelW - 20, panelH - 20)
+      .setOrigin(0)
+      .setFillStyle(COLORS.wood, 0)
+      .setStrokeStyle(1, COLORS.brass, 0.45);
+
+    content.add([shadow, panel, innerFrame]);
+
+    for (const x of [19, panelW - 19]) {
+      for (const y of [19, panelH - 19]) {
+        content.add(
+          scene.add.circle(x, y, 3, COLORS.brassLight)
+        );
+      }
+    }
+
+    const plaqueW = portrait ? 310 : 430;
+
+    content.add(
+      scene.add
+        .rectangle(
+          panelW / 2,
+          54,
+          plaqueW,
+          49,
+          COLORS.dark
+        )
+        .setStrokeStyle(1, COLORS.brass)
+    );
+
+    this.addText(
+      content,
+      panelW / 2,
+      47,
+      'DO NOT DISTURB',
+      {
+        pixel: true,
+        size: portrait ? 14 : 17,
+        color: '#e5c47c'
+      }
+    );
+
+    this.addText(
+      content,
+      panelW / 2,
+      91,
+      scene.hotelConfig.label,
+      {
+        size: 21,
+        width: panelW - 80
+      }
+    );
+
+    this.addText(
+      content,
+      panelW / 2,
+      124,
+      'Room paid. Rest is on the house.',
+      {
+        size: 17,
+        color: '#c6b28b',
+        width: panelW - 50
+      }
+    );
+
+    this.addText(
+      content,
+      panelW / 2,
+      161,
+      'CHOOSE YOUR REST',
+      {
+        pixel: true,
+        size: 12,
+        color: '#e5c47c'
+      }
+    );
+
+    const columns = portrait ? 2 : 4;
+    const cardW = portrait ? 180 : 184;
+    const cardH = 104;
+    const gapX = 14;
+    const gapY = 15;
+
+    const gridW = columns * cardW + (columns - 1) * gapX;
+    const startX = (panelW - gridW) / 2 + cardW / 2;
+    const startY = 248;
+
+    SLEEP_HOURS.forEach((hours, index) => {
+      this.createOption(
+        content,
+        startX + (index % columns) * (cardW + gapX),
+        startY + Math.floor(index / columns) * (cardH + gapY),
+        hours,
+        cardW,
+        cardH
+      );
+    });
+
+    const rows = Math.ceil(SLEEP_HOURS.length / columns);
+    const gridBottom =
+      startY +
+      (rows - 1) * (cardH + gapY) +
+      cardH / 2;
+
+    const previewY = gridBottom + 22;
+
+    content.add(
+      scene.add
+        .rectangle(
+          26,
+          previewY,
+          panelW - 52,
+          72,
+          COLORS.dark
+        )
+        .setOrigin(0)
+        .setStrokeStyle(1, COLORS.brass, 0.45)
+    );
+
+    this.previewText = this.addText(
+      content,
+      panelW / 2,
+      previewY + 12,
+      '',
+      {
+        size: 18,
+        color: COLORS.cream,
+        width: panelW - 72
+      }
+    );
+
+    this.previewBarWidth = panelW - 100;
+
+    content.add(
+      scene.add
+        .rectangle(
+          50,
+          previewY + 46,
+          this.previewBarWidth,
+          9,
+          0x342c20
+        )
+        .setOrigin(0)
+    );
+
+    this.previewFill = scene.add
+      .rectangle(
+        50,
+        previewY + 46,
+        this.previewBarWidth,
+        9,
+        COLORS.green
+      )
+      .setOrigin(0);
+
+    content.add(this.previewFill);
+
+    this.updatePreview();
+
+    this.addText(
+      content,
+      panelW / 2,
+      previewY + 86,
+      'The thief does not take a nap.',
+      {
+        size: 17,
+        color: '#c6b28b',
+        width: panelW - 50
+      }
+    );
+
+    const close = this.addText(
+      content,
+      panelW - 27,
+      25,
+      'X',
+      {
+        pixel: true,
+        size: 12,
+        color: '#e5c47c',
+        originY: 0.5
+      }
+    );
+
+    close.setPadding(9);
+    close.setInteractive({ useHandCursor: true });
+
+    close.on('pointerdown', (_pointer, _x, _y, event) => {
+      event?.stopPropagation();
+      this.closeMenu();
+    });
+  }
+
+  updatePreview(hours = null) {
+    if (!this.previewText || !this.previewFill) return;
+
+    const energy = getEnergyManager();
+    const current = energy.getCurrentEnergy();
+    const maximum = energy.getMaxEnergy();
+
+    const recovery = hours === null
+      ? 0
+      : this.getActualRecovery(hours);
+
+    const after = Math.min(maximum, current + recovery);
+
+    this.previewText.setText(
+      hours === null
+        ? `ENERGY: ${current} / ${maximum}`
+        : `${hours}h rest: ${current} -> ${after} / ${maximum}`
+    );
+
+    this.previewFill.setDisplaySize(
+      this.previewBarWidth * Phaser.Math.Clamp(
+        after / Math.max(1, maximum),
+        0,
+        1
+      ),
+      9
+    );
+  }
+
+  createOption(container, x, y, hours, width = 184, height = 104) {
+    const scene = this.scene;
+    const potential = this.getRecovery(hours);
+    const actual = this.getActualRecovery(hours);
+
+    const shadow = scene.add
+      .rectangle(x + 3, y + 4, width, height, 0x000000, 0.35);
 
     const button = scene.add
-      .rectangle(
-        x,
-        y,
-        170,
-        94,
-        0x29211d,
-        1
-      )
-      .setStrokeStyle(2, 0xf1e6b8)
-      .setInteractive({
-        useHandCursor: true
-      });
+      .rectangle(x, y, width, height, COLORS.paper)
+      .setStrokeStyle(1, COLORS.brass)
+      .setInteractive({ useHandCursor: true });
 
-    const title = scene.add.text(
+    container.add([shadow, button]);
+
+    this.addText(
+      container,
       x,
-      y - 25,
+      y - 35,
       `${hours} ${hours === 1 ? 'HOUR' : 'HOURS'}`,
       {
-        fontFamily: 'PressStart2P',
-        fontSize: '11px',
-        color: '#ffffff'
+        pixel: true,
+        size: 11,
+        color: COLORS.ink
       }
-    ).setOrigin(0.5);
+    );
 
-    const description = scene.add.text(
+    this.addText(
+      container,
       x,
-      y + 2,
-      `+${actualRecovery} ENERGY`,
+      y - 7,
+      `+${actual} ENERGY`,
       {
-        fontFamily: 'SpecialElite',
-        fontSize: '19px',
-        color:
-          actualRecovery > 0
-            ? '#ffe066'
-            : '#b8ad97'
+        size: 23,
+        color: actual > 0 ? '#355638' : COLORS.muted
       }
-    ).setOrigin(0.5);
+    );
 
-    const detail = scene.add.text(
+    this.addText(
+      container,
       x,
-      y + 28,
-      actualRecovery < potentialRecovery
-        ? `Up to +${potentialRecovery}; capped`
-        : `${(potentialRecovery / hours).toFixed(1)} per hour`,
+      y + 24,
+      actual < potential
+        ? `Up to +${potential}; energy cap`
+        : 'Click to sleep',
       {
-        fontFamily: 'SpecialElite',
-        fontSize: '13px',
-        color: '#c4b895'
+        size: 14,
+        color: COLORS.muted,
+        width: width - 12
       }
-    ).setOrigin(0.5);
+    );
 
     button.on('pointerover', () => {
-      button.setFillStyle(0x59422f);
-      title.setColor('#ffe066');
+      button
+        .setFillStyle(COLORS.paperHover)
+        .setStrokeStyle(2, COLORS.brassLight);
+
+      this.updatePreview(hours);
     });
 
     button.on('pointerout', () => {
-      button.setFillStyle(0x29211d);
-      title.setColor('#ffffff');
+      button
+        .setFillStyle(COLORS.paper)
+        .setStrokeStyle(1, COLORS.brass);
+
+      this.updatePreview();
     });
 
-    button.on('pointerdown', () => {
+    button.on('pointerdown', (_pointer, _x, _y, event) => {
+      event?.stopPropagation();
+
       if (
         scene.isSleeping ||
         scene.isLeaving ||
@@ -375,31 +522,27 @@ export class HotelSleep {
       this.destroyMenu();
       this.doSleep(hours);
     });
+  }
 
-    container.add([
-      button,
-      title,
-      description,
-      detail
-    ]);
+  clearPreviewReferences() {
+    this.previewText = null;
+    this.previewFill = null;
+    this.previewBarWidth = 0;
   }
 
   closeMenu() {
     const scene = this.scene;
 
-    if (
-      !scene.isSleepMenuOpen ||
-      !this.menu
-    ) {
-      return;
-    }
-
-    scene.isSleepMenuOpen = false;
+    if (!scene.isSleepMenuOpen || !this.menu) return;
 
     const menu = this.menu;
 
+    scene.isSleepMenuOpen = false;
+
     this.menu = null;
     this.menuBlocker = null;
+    this.clearPreviewReferences();
+
     this.closingMenus.add(menu);
 
     scene.killTrackedTweensOf(menu);
@@ -410,13 +553,10 @@ export class HotelSleep {
       alpha: 0,
       duration: 120,
       ease: 'Quad.In',
-
       onComplete: () => {
         this.closingMenus.delete(menu);
 
-        if (menu.active) {
-          menu.destroy(true);
-        }
+        if (menu.active) menu.destroy(true);
       }
     });
   }
@@ -433,18 +573,15 @@ export class HotelSleep {
     }
 
     this.menuBlocker = null;
+    this.clearPreviewReferences();
   }
 
   doSleep(hours) {
     const duration = Number(hours);
-
-    if (!isValidSleepDuration(duration)) {
-      return;
-    }
-
     const scene = this.scene;
 
     if (
+      !isValidSleepDuration(duration) ||
       scene.isLeaving ||
       scene.isSleeping ||
       scene._cleanupDone
@@ -477,14 +614,10 @@ export class HotelSleep {
     scene.applyLock(true);
     scene.hideHoverHint();
 
-    const result =
-      getEnergyManager().startManualSleep(hours);
+    const result = getEnergyManager().startManualSleep(hours);
 
     if (!result?.success) {
-      console.warn(
-        '[HotelScene] Could not start sleep:',
-        result
-      );
+      console.warn('[HotelScene] Could not start sleep:', result);
 
       this.pendingHours = null;
       scene.restoreAfterFailedExit();
@@ -516,9 +649,7 @@ export class HotelSleep {
         'HollyIntroScene',
         {
           returnScene: 'HotelScene',
-          returnData: {
-            sleepHours: hours
-          }
+          returnData: { sleepHours: hours }
         }
       );
 
@@ -529,20 +660,12 @@ export class HotelSleep {
         return;
       }
 
-      scene.bringSceneToTopIfActive(
-        'HollyIntroScene'
-      );
-
+      scene.bringSceneToTopIfActive('HollyIntroScene');
       scene.scene.pause();
     } catch (error) {
-      console.error(
-        '[HotelScene] Holly intro failed:',
-        error
-      );
+      console.error('[HotelScene] Holly intro failed:', error);
 
-      if (this.isAlive()) {
-        this.finish(hours);
-      }
+      if (this.isAlive()) this.finish(hours);
     }
   }
 
@@ -563,9 +686,7 @@ export class HotelSleep {
     const pending = Number(this.pendingHours);
 
     const requested = Number(
-      payload.sleepHours ??
-      this.pendingHours ??
-      8
+      payload.sleepHours ?? this.pendingHours ?? 8
     );
 
     const hours = isValidSleepDuration(pending)
@@ -603,37 +724,26 @@ export class HotelSleep {
       return;
     }
 
-    const sleepHours = Number(
-      hours ?? this.pendingHours ?? 8
-    );
+    const sleepHours = Number(hours ?? this.pendingHours ?? 8);
 
-    if (!isValidSleepDuration(sleepHours)) {
-      return;
-    }
+    if (!isValidSleepDuration(sleepHours)) return;
 
     const energy = getEnergyManager();
     const recovery = this.getRecovery(sleepHours);
 
     try {
-      // Recovery requires releasing the manual sleep lock.
       energy.cancelManualSleep();
 
       const result = energy.recoverCustom(
         recovery,
-        (
-          `Hotel sleep (${sleepHours}h, ` +
-          `${scene.hotelId}): +${recovery}`
-        ),
+        `Hotel sleep (${sleepHours}h, ${scene.hotelId}): +${recovery}`,
         {
           recoveryType: 'sleep',
           recoverySubtype: `hotel_${scene.hotelId}`
         }
       );
 
-      if (
-        !result.success &&
-        result.reason !== 'energy_full'
-      ) {
+      if (!result.success && result.reason !== 'energy_full') {
         throw new Error(
           `Hotel energy recovery failed: ${result.reason}`
         );
@@ -642,11 +752,7 @@ export class HotelSleep {
       this.sleepCompleted = true;
       this.ownsManualSleep = false;
 
-      EventBus.emit(
-        'advanceTime',
-        sleepHours,
-        0
-      );
+      EventBus.emit('advanceTime', sleepHours, 0);
 
       EventBus.emit('manualSleepFinished', {
         sleepHours,
@@ -657,10 +763,7 @@ export class HotelSleep {
       requestAutosave();
       flushAutosave();
     } catch (error) {
-      console.error(
-        '[HotelScene] Sleep completion failed:',
-        error
-      );
+      console.error('[HotelScene] Sleep completion failed:', error);
 
       this.pendingHours = null;
       scene.restoreAfterFailedExit();
@@ -673,7 +776,6 @@ export class HotelSleep {
       if (!this.isAlive()) return;
 
       this.pendingHours = null;
-
       void this.returnAfterSleep(sleepHours);
     };
 
@@ -682,12 +784,7 @@ export class HotelSleep {
       this.fadeHandler
     );
 
-    scene.cameras.main.fadeOut(
-      700,
-      0,
-      0,
-      0
-    );
+    scene.cameras.main.fadeOut(700, 0, 0, 0);
   }
 
   async returnAfterSleep(hours) {
@@ -703,9 +800,7 @@ export class HotelSleep {
         }
       );
 
-      if (!moved) {
-        scene.restoreAfterFailedExit();
-      }
+      if (!moved) scene.restoreAfterFailedExit();
     } catch (error) {
       if (!scene._cleanupDone) {
         console.error(
@@ -728,14 +823,14 @@ export class HotelSleep {
   }
 
   destroy() {
+    this.scene.scale.off('resize', this.resizeHandler);
+
     this.destroyMenu();
 
     for (const menu of this.closingMenus) {
       this.scene.killTrackedTweensOf(menu);
 
-      if (menu.active) {
-        menu.destroy(true);
-      }
+      if (menu.active) menu.destroy(true);
     }
 
     this.closingMenus.clear();

@@ -1,9 +1,12 @@
 import { bindKeywordStyle, refreshKeywordStyles, keywordSurface } from './KeywordStyle.js';
+import { prepareEvidenceTextAudio, playEvidenceTextAudio } from './EvidenceTextAudio.js';
 
 export function drawEvidenceText(ui, {
   blocks, x, y, width, fontSize = 16, lineHeight = 25,
-  onCollect, isKnown = () => false, surface = null
+  onCollect, isKnown = () => false, surface = null, collectSound = true
 }) {
+  if(collectSound && typeof onCollect==='function')prepareEvidenceTextAudio(ui.scene);
+  const viewToken=ui.viewToken,app=ui.app;
   const drawing = ui.drawing;
   const probe = ui.scene.add.text(0, 0, '', {
     fontFamily: 'SpecialElite, "Special Elite", monospace', fontSize: `${fontSize}px`
@@ -38,7 +41,12 @@ export function drawEvidenceText(ui, {
               if (!isKnown(keywordId) && typeof onCollect === 'function') {
                 label.setInteractive({ useHandCursor: true }).on('pointerdown', (pointer, lx, ly, event) => {
                   event?.stopPropagation();
-                  if (!isKnown(keywordId)) onCollect(keywordId);
+                  if(ui.destroyed||!ui.isOpen||ui.suspended||ui.booting||!ui.scene.sys.isActive()||
+                    ui.viewToken!==viewToken||ui.app!==app||label.active===false||!label.scene)return;
+                  if(!isKnown(keywordId)){
+                    onCollect(keywordId);
+                    if(collectSound && isKnown(keywordId))playEvidenceTextAudio(ui);
+                  }
                   refreshKeywordStyles(ui.scene);
                 });
               }

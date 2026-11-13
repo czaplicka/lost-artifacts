@@ -1,0 +1,151 @@
+{
+  "speaker": "Alex Murphy",
+  "manual": {
+    "intro": [
+      "Ah. Fresh cannon fodder. HR calls it recruitment. I call it restocking.",
+      "Alex Murphy. Equipment, storage, and saying 'no' to requests involving grappling hooks.",
+      "Here's your Agency Field Manual. Evidence handling, travel procedures, paperwork. All the glamorous stuff.",
+      "It also contains the general procedure for electronic service panels. The device's own note supplies the model-specific instructions. You need both.",
+      "Use the manual from your inventory to read it. If you lose it, return here. Replacement copies are free, provided your pockets can fit one.",
+      "If your desk wobbles, stick it under the short leg. That's the advanced training.",
+      "Now get out. I have to count the emergency parachutes. Apparently, \"probably enough\" upset somebody in Legal."
+    ],
+    "replacement": [
+      "Lost the manual? Again? Here. The chapter on evidence handling is particularly optimistic in your case.",
+      "Replacement copy. Free of charge. This is not another first-day bonus.",
+      "The electronic service procedure is inside. Keep it this time. The shelves are starting to recognise you."
+    ],
+    "return": [
+      "You've got your manual. If you've already lost it, try investigating. I hear that's your department.",
+      "If your copy actually goes missing, come back. I can issue another one. Now out. These boxes are not going to mislabel themselves."
+    ]
+  },
+  "messages": {
+    "pocketsFull": "\"Your pockets are full. Come back with room for a book. Replacements are free; pocket dimensions are not my department.\""
+  },
+  "thirdMission": {
+    "alexLines": [
+      "McClane? That is not an equipment request.",
+      "Yes, I handled equipment records. No, I am not discussing a restricted operation because you found some paper.",
+      "Bring me an authorized account of that transport, not an archaeological reconstruction of the waste bin.",
+      "The archive has the redacted copy and its attachments. If you have a question, establish what the paperwork actually says first."
+    ]
+  },
+  "fourthMission": {
+    "conversation": [
+      "All right. You have the amended route, the restricted transfer and the final approval. Those are the operation's records. Not just office rumours.",
+      "John was bringing a recovered artifact back. It was already in our custody before the transport left. He was not flying out to steal it from somebody else.",
+      "We lost radio contact. After the unanswered calls, I saw the aircraft go down.",
+      "I did not see anyone get out. I do not believe John could have survived that crash.",
+      "No, I did not identify a body. The exact crash site was not established in the records you have. There was no recovered body to identify.",
+      "The artifact was not checked back into storage either. Missing cargo is not returned cargo, however optimistically Finance files it.",
+      "The agency restricted the operation's records afterwards. I thought someone here had made a terrible mistake. That is not the same as knowing there was a murder.",
+      "John's marriage was difficult. He did not give me details. I am not going to turn that into evidence I do not have.",
+      "Put the records beside what I have told you. Work out what we actually know, not what we are afraid it means."
+    ],
+    "reviewConversation": [
+      "The radio went silent before I saw the aircraft go down. I believed John died. I still cannot give you a body identification.",
+      "The recovered artifact was aboard before departure. It never received a completed return entry here.",
+      "That is my account. Use the records to reconstruct the operation."
+    ]
+  },
+  "chapterTwo": {
+    "conversation": [
+      "Holly wants his remains found? I understand. But I cannot turn what I saw into a recovery report I never filed.",
+      "I witnessed the aircraft go down. I did not identify a crash site for a recovery team, and I did not recover John.",
+      "Keep the operation's field records separate from any later search records. One describes the mission; the other would describe what was actually found afterwards.",
+      "If the agency commissioned a search, its paperwork may have been filed separately. Ask the archive about the follow-up records.",
+      "That is as much as I can honestly give you now. Take your copies back to your desk before you chase the next file. And keep them out of the shredder. It has had enough character development."
+    ]
+  },
+  "recovery": {
+    "opening": "You brought the recovery reference. Good. Compare the equipment issued for the transport with the later accounting. 'Accounted for' does not mean 'still works'. It means somebody wrote down what happened to it.",
+    "confession": [
+      {
+        "speaker": "DETECTIVE",
+        "text": "One parachute was issued. The recovery accounting does not account for it. That is a discrepancy, not proof of a jump. What happened?"
+      },
+      {
+        "speaker": "Alex Murphy",
+        "text": "It is not a clerical error. I helped John arrange a way out before the crash."
+      },
+      {
+        "speaker": "DETECTIVE",
+        "text": "You let me believe there was no chance he survived."
+      },
+      {
+        "speaker": "Alex Murphy",
+        "text": "Yes. That was the cover story. I helped with the preparations and kept quiet afterwards."
+      },
+      {
+        "speaker": "DETECTIVE",
+        "text": "Where did he go?"
+      },
+      {
+        "speaker": "Alex Murphy",
+        "text": "I do not know his destination. Helping him prepare to disappear did not mean getting a forwarding address."
+      },
+      {
+        "speaker": "DETECTIVE",
+        "text": "Then I need to separate the planned escape from what actually happened during the flight."
+      },
+      {
+        "speaker": "Alex Murphy",
+        "text": "Start with the sequence. The equipment entry, the intended escape, the crash, then the later recovery. Do not make the paperwork answer questions it cannot answer."
+      }
+    ]
+  },
+  "escape": {
+    "clarification": [
+      "DETECTIVE: Before I reconstruct this: did you only help with preparations, or did you actually see John leave the aircraft?",
+      "ALEX: I saw him leave the aircraft and his parachute open before impact. What I said earlier about the crash ending everything was the cover story. I did not follow him to his destination."
+    ]
+  },
+  "microfilm": {
+    "intro": [
+      "I found the duplicate reel I kept from the incident paperwork. It includes a later contact amendment, not just the original flight record.",
+      "I never had a reader. A strip of tiny rectangles is not a forwarding address. I still do not know where John is.",
+      "Take it to Drebin. Compare the record identifiers before comparing the fields. I would prefer not to confess to two unrelated filing errors."
+    ],
+    "received": "The retained reel is available. Take it to Drebin's archive reader. It is recorded with the case, not stored in an inventory slot."
+  },
+  "reactions": {
+    "agency_convicted": [
+      "Heard about the verdict. Nice work. I’m still counting the equipment back in.",
+      "Legal says congratulations. Stores says check your pockets."
+    ],
+    "agency_released": [
+      "The court released them. Then that’s what goes in the record.",
+      "We don’t issue replacement verdicts. I checked the catalogue."
+    ],
+    "agency_time_expired": [
+      "Ran out of time? Equipment back on the counter, please.",
+      "We can replace a torch. The extra afternoon is still on back order."
+    ],
+    "agency_suspect_arrested": [
+      "You got someone in cuffs. Good.",
+      "I’ll wait for the court before ordering the commemorative mugs."
+    ],
+    "agency_pursuit_escape": [
+      "Lost them in the chase? Right.",
+      "Put the footwear complaint in writing. The shoes have already submitted theirs."
+    ],
+    "agency_arrest_missing_warrant": [
+      "You remembered the handcuffs and forgot the warrant.",
+      "That’s a very physical interpretation of procedure."
+    ],
+    "agency_arrest_warrant_mismatch": [
+      "The warrant had the wrong name?",
+      "Try not to solve that with a different pen."
+    ],
+    "agency_empty_apartment": [
+      "Empty flat? At least the handcuffs are still in stock.",
+      "Don’t mark them as surplus. Management gets ideas."
+    ],
+    "agency_wrong_arrest_attempt": [
+      "Wrong lead, no suspect. Not the operation you wanted.",
+      "The forms still want completing. They have no sense of occasion."
+    ]
+  },
+  "reactionIntro": "About the {artifact} case in {city}."
+}

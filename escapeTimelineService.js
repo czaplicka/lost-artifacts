@@ -1,10 +1,11 @@
+import { storageRoomDialogues } from './storageRoomDialogueService.js';
 import { MainStoryManager } from './managers/MainStoryManager.js';
 import { getCompletedAgencyCaseCount } from './archiveMissingReportService.js';
 import { gameState } from './GameData.js';
 import { saveGameState } from './gameStatePersistence.js';
 import { loadJson } from './config/loadJson.js';
 import { normalizeEscape,escapeEligible,escapeStagePlan } from './scenes/storage/EscapeTimelineModel.js';
-export const escapeTimelineData=await loadJson('./assets/data/escapeTimeline.json',import.meta.url);
+export const escapeTimelineData = { ...(await loadJson('./assets/data/escapeTimeline.json',import.meta.url)), ...storageRoomDialogues.escape };
 const KEY='john_escape_timeline';
 export function getEscapeTimelineStory(state=gameState){
   const progress=normalizeEscape(escapeTimelineData,MainStoryManager.getSideClue(KEY));

@@ -3,44 +3,7 @@ import { latestOfficeReaction, readWorldReactions } from './WorldReactionModel.j
 const NPCS=new Set(['archivist_drebin','alex_murphy']);
 const same=(a,b)=>a!=null&&b!=null&&String(a)===String(b);
 const LINES={
-  alex_murphy:{
-    agency_convicted:[
-      'Heard about the verdict. Nice work. I’m still counting the equipment back in.',
-      'Legal says congratulations. Stores says check your pockets.'
-    ],
-    agency_released:[
-      'The court released them. Then that’s what goes in the record.',
-      'We don’t issue replacement verdicts. I checked the catalogue.'
-    ],
-    agency_time_expired:[
-      'Ran out of time? Equipment back on the counter, please.',
-      'We can replace a torch. The extra afternoon is still on back order.'
-    ],
-    agency_suspect_arrested:[
-      'You got someone in cuffs. Good.',
-      'I’ll wait for the court before ordering the commemorative mugs.'
-    ],
-    agency_pursuit_escape:[
-      'Lost them in the chase? Right.',
-      'Put the footwear complaint in writing. The shoes have already submitted theirs.'
-    ],
-    agency_arrest_missing_warrant:[
-      'You remembered the handcuffs and forgot the warrant.',
-      'That’s a very physical interpretation of procedure.'
-    ],
-    agency_arrest_warrant_mismatch:[
-      'The warrant had the wrong name?',
-      'Try not to solve that with a different pen.'
-    ],
-    agency_empty_apartment:[
-      'Empty flat? At least the handcuffs are still in stock.',
-      'Don’t mark them as surplus. Management gets ideas.'
-    ],
-    agency_wrong_arrest_attempt:[
-      'Wrong lead, no suspect. Not the operation you wanted.',
-      'The forms still want completing. They have no sense of occasion.'
-    ]
-  },
+  alex_murphy:{},
   archivist_drebin:{
     agency_convicted:[
       'A conviction. Excellent. A conclusion with a court attached.',
@@ -88,16 +51,16 @@ function seenEntries(state){
   if(!Array.isArray(value))throw new Error('[WorldNPC] Invalid npcSeen history; it was not overwritten.');
   return value;
 }
-export function getWorldNpcReaction(state,npcId,{caseId=null}={}){
+export function getWorldNpcReaction(state,npcId,{caseId=null,alexDialogues=null}={}){
   if(!NPCS.has(npcId))return null;
   const event=latestOfficeReaction(state,'agency');
   if(!event||!['public','agency'].includes(event.visibility)||
     (caseId!==null&&!same(event.caseId,caseId)))return null;
-  const lines=LINES[npcId][event.kind];
+  const lines=(npcId==='alex_murphy'?alexDialogues?.reactions:LINES[npcId])?.[event.kind];
   if(!lines||seenEntries(state).includes(seenKey(npcId,event.id)))return null;
   return{
     npcId,eventId:event.id,
-    lines:[`About the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.`,...lines]
+    lines:[(npcId==='alex_murphy'?alexDialogues.reactionIntro.replace(/\{artifact\}|\{city\}/g,key=>key==='{artifact}'?(event.artifact||'artefact'):(event.cityName||'the city')):`About the ${event.artifact||'artefact'} case in ${event.cityName||'the city'}.`),...lines]
   };
 }
 export function markWorldNpcReaction(state,npcId,eventId){
