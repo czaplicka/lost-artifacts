@@ -1,5 +1,6 @@
 import { audioManager } from '../../managers/AudioManager.js';
 const KEY = 'sfx_pi_rotary_dial';
+const GAIN = 0.3;
 const pending = new WeakSet();
 export function preparePhoneDialAudio(scene) {
  const load=scene?.load;
@@ -13,10 +14,10 @@ export function preparePhoneDialAudio(scene) {
  catch(error){cleanup();console.debug('[PhoneDialAudio] Load unavailable:',error);}
 }
 export function playPhoneDialAudio(phone) {
- if(phone.destroyed||!phone.isOpen||!phone.scene?.cache?.audio?.exists(KEY))return null;
+ if(phone.destroyed||!phone.isOpen||phone.scene?._cleanupDone||!phone.scene?.sys?.isActive()||!phone.scene?.cache?.audio?.exists(KEY))return null;
  try{
   audioManager.init(phone.scene);
-  const sound=audioManager.playSfx(KEY,{volume:audioManager.getSfxVolume()*.3});
+  const sound=audioManager.playSfx(KEY,{gain:GAIN,volume:audioManager.getSfxVolume()*GAIN});
   if(sound){
    phone.phoneOneShots??=new Set();phone.phoneOneShots.add(sound);
    sound.once('destroy',()=>phone.phoneOneShots?.delete(sound));

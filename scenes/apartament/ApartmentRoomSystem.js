@@ -1,20 +1,28 @@
-import { dialogueText as __dialogueText } from "../../dialogues/DialogueText.js";
+import { dialogueText as __dialogueText } from '../../dialogues/DialogueText.js';
 import { gameState } from '../../GameData.js';
 import { markApartmentVisited } from '../../managers/ApartmentVisitRegistry.js';
+
 import {
   FALLBACK_APARTMENT_PACK_ID,
   getApartmentRoomPack,
   drawApartmentRoomPack
 } from './ApartmentRoomPacks.js';
+
 import {
   getApartmentRoomLayout,
   configureApartmentHotspots
 } from './ApartmentRoomLayouts.js';
+
 import {
   ApartmentHotspotDebug,
   apartmentLocalDebugAllowed
 } from './ApartmentHotspotDebug.js';
+
 import { ApartmentHintUI } from './ApartmentHintUI.js';
+import { DebtApartmentPuzzle } from './DebtApartmentPuzzle.js';
+
+// Change to false to restore random apartment selection.
+const FORCE_DEBT_APARTMENT = true;
 
 export class ApartmentRoomSystem {
   constructor(scene) {
@@ -33,6 +41,8 @@ export class ApartmentRoomSystem {
     this.layoutConfig = null;
     this.renderedPackId = null;
     this.usingFallback = false;
+    this.puzzle = null;
+    this.mountTimer = null;
 
     this.selectionKey = JSON.stringify([
       scene.caseKey || scene.missionId,
@@ -44,23 +54,24 @@ export class ApartmentRoomSystem {
       gameState.investigationStartTime ?? null
     ]);
 
-    const saved =
-      scene.getProgress().roomPackSelections?.[this.selectionKey];
+    const saved = scene.getProgress()
+      .roomPackSelections?.[this.selectionKey];
 
-    this.packId =
-      typeof saved?.packId === 'string'
-        ? saved.packId
-        : drawApartmentRoomPack().id;
+    this.packId = FORCE_DEBT_APARTMENT
+      ? 'debt'
+      : (
+          typeof saved?.packId === 'string'
+            ? saved.packId
+            : drawApartmentRoomPack().id
+        );
 
-    const selectedPack = getApartmentRoomPack(this.packId);
-    const firstRoomId =
-      Object.keys(selectedPack?.rooms || {})[0] ||
-      'living_room';
+    const pack = getApartmentRoomPack(this.packId);
+    const firstRoomId = Object.keys(pack?.rooms || {})[0] || 'living_room';
 
-    this.roomId =
+    this.roomId = saved?.packId === this.packId &&
       typeof saved?.roomId === 'string'
-        ? saved.roomId
-        : firstRoomId;
+      ? saved.roomId
+      : firstRoomId;
 
     this.handleResize = () => this.layout();
 
@@ -71,7 +82,7 @@ export class ApartmentRoomSystem {
       this.debugger?.update();
     };
 
-    if (!saved) this.persistSelection();
+    this.persistSelection();
   }
 
   persistSelection() {
@@ -91,12 +102,10 @@ export class ApartmentRoomSystem {
   preload() {
     const queued = new Set();
 
-    const packs = [
+    for (const pack of [
       getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID),
       getApartmentRoomPack(this.packId)
-    ];
-
-    for (const pack of packs) {
+    ]) {
       for (const room of Object.values(pack?.rooms || {})) {
         if (
           !room.path ||
@@ -125,13 +134,8 @@ export class ApartmentRoomSystem {
 
   resolveVisualPack() {
     const selected = getApartmentRoomPack(this.packId);
-    const fallback = getApartmentRoomPack(
-      FALLBACK_APARTMENT_PACK_ID
-    );
-
-    const visual = this.isComplete(selected)
-      ? selected
-      : fallback;
+    const fallback = getApartmentRoomPack(FALLBACK_APARTMENT_PACK_ID);
+    const visual = this.isComplete(selected) ? selected : fallback;
 
     this.renderedPackId = visual?.id || null;
     this.usingFallback = this.renderedPackId !== this.packId;
@@ -148,9 +152,7 @@ export class ApartmentRoomSystem {
     this.layoutConfig = getApartmentRoomLayout(pack?.layoutId);
 
     if (!this.layoutConfig) {
-      throw new Error(
-        `Missing apartment layout for ${pack?.id}`
-      );
+      throw new Error(`Missing apartment layout for ${pack?.id}`);
     }
 
     if (!this.roomIds.includes(this.roomId)) {
@@ -159,9 +161,7 @@ export class ApartmentRoomSystem {
 
     for (const slot of this.layoutConfig.slots) {
       if (!this.roomIds.includes(slot.roomId)) {
-        throw new Error(
-          `Unknown room in apartment slot: ${slot.id}`
-        );
+        throw new Error(`Unknown room in apartment slot: ${slot.id}`);
       }
     }
 
@@ -172,12 +172,15 @@ export class ApartmentRoomSystem {
       this.layoutConfig
     );
 
+    if (this.renderedPackId === 'debt') {
+      this.puzzle = new DebtApartmentPuzzle(this);
+      this.puzzle.prepare(scene.apartmentConfig.objects);
+    }
+
     this.persistSelection();
 
     this.roomLabel = scene.add.text(
-      scene.scale.width / 2,
-      116,
-      '',
+      scene.scale.width / 2, 116, '',
       {
         fontFamily: 'SpecialElite',
         fontSize: '18px',
@@ -190,11 +193,7 @@ export class ApartmentRoomSystem {
     this.navigation = scene.add.container(0, 0).setDepth(150);
 
     this.navigationBackground = scene.add.rectangle(
-      0,
-      0,
-      230,
-      48,
-      0x493d30
+      0, 0, 230, 48, 0x493d30
     )
       .setStrokeStyle(2, 0xd4af37)
       .setInteractive({ useHandCursor: true });
@@ -238,26 +237,34 @@ export class ApartmentRoomSystem {
     this.hideNewsHud();
     this.render();
 
-    this.hintUI = new ApartmentHintUI(scene);
-    this.hintUI.create();
+    // The scene creates ApartmentObject instances after createBackground().
+    this.mountTimer = scene.time.delayedCall(0, () => {
+      this.mountTimer = null;
+
+      if (this.destroyed || !scene.sys.isActive()) return;
+
+      this.puzzle?.mount();
+      this.applyObjectVisibility();
+    });
+
+    // Hidden-object hints remain available in other apartment types.
+    if (!this.puzzle) {
+      this.hintUI = new ApartmentHintUI(scene);
+      this.hintUI.create();
+    }
   }
 
   nextRoomId() {
     return this.roomIds[
-      (this.roomIds.indexOf(this.roomId) + 1) %
-        this.roomIds.length
+      (this.roomIds.indexOf(this.roomId) + 1) % this.roomIds.length
     ];
   }
 
   navigationGoesLeft() {
-    const currentIndex = this.roomIds.indexOf(this.roomId);
-    const nextIndex = this.roomIds.indexOf(this.nextRoomId());
+    const current = this.roomIds.indexOf(this.roomId);
+    const next = this.roomIds.indexOf(this.nextRoomId());
 
-    return (
-      currentIndex >= 0 &&
-      nextIndex >= 0 &&
-      nextIndex < currentIndex
-    );
+    return current >= 0 && next >= 0 && next < current;
   }
 
   showRoom(id) {
@@ -273,7 +280,6 @@ export class ApartmentRoomSystem {
 
     this.hintUI?.clearHintMarker();
     this.roomId = id;
-
     this.persistSelection();
     this.scene.showDescription('');
     this.render();
@@ -285,36 +291,24 @@ export class ApartmentRoomSystem {
     if (this.destroyed) return;
 
     const room = this.visualPack.rooms[this.roomId];
+    const { width, height } = this.scene.scale;
 
     this.background?.destroy();
 
-    const { width, height } = this.scene.scale;
-
     if (room?.key && this.scene.textures.exists(room.key)) {
       this.background = this.scene.add.image(
-        width / 2,
-        height / 2,
-        room.key
-      )
-        .setDisplaySize(width, height)
-        .setDepth(0);
+        width / 2, height / 2, room.key
+      ).setDisplaySize(width, height).setDepth(0);
     } else {
-      console.error(
-        '[ApartmentRoomSystem] Missing background:',
-        room?.key
-      );
+      console.error('[ApartmentRoomSystem] Missing background:', room?.key);
 
       this.background = this.scene.add.rectangle(
-        width / 2,
-        height / 2,
-        width,
-        height,
-        0x2c2c2c
+        width / 2, height / 2, width, height, 0x2c2c2c
       ).setDepth(0);
     }
 
     this.roomLabel.setText(
-      room.label || this.roomId.replaceAll(__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_d2e2adf7177b7a8afddb"), __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_36a9e7f1c95b82ffb997"))
+      room.label || this.roomId.replaceAll('_', ' ')
     );
 
     const nextId = this.nextRoomId();
@@ -323,12 +317,17 @@ export class ApartmentRoomSystem {
 
     this.navigationLabel.setText(
       this.navigationGoesLeft()
-        ? `${__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_be6e0938681083fa4b6c")}${label}`
-        : `${label}${__dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_31db8c407f903ec137b8")}`
+        ? `${__dialogueText(
+            'scenes/apartament/ApartmentRoomSystem.js',
+            't_be6e0938681083fa4b6c'
+          )}${label}`
+        : `${label}${__dialogueText(
+            'scenes/apartament/ApartmentRoomSystem.js',
+            't_31db8c407f903ec137b8'
+          )}`
     );
 
     this.navigation.setVisible(this.roomIds.length > 1);
-
     this.applyObjectVisibility();
     this.layout();
   }
@@ -342,15 +341,11 @@ export class ApartmentRoomSystem {
   applyGeometry() {
     if (!this.layoutConfig) return;
 
-    const sx =
-      this.scene.scale.width / this.layoutConfig.width;
-
-    const sy =
-      this.scene.scale.height / this.layoutConfig.height;
+    const sx = this.scene.scale.width / this.layoutConfig.width;
+    const sy = this.scene.scale.height / this.layoutConfig.height;
 
     for (const object of this.scene.apartmentObjects || []) {
       const slot = this.slotFor(object);
-
       if (!slot) continue;
 
       const x = slot.x * sx;
@@ -389,7 +384,7 @@ export class ApartmentRoomSystem {
 
     const { width, height } = this.scene.scale;
 
-    if (this.background?.type === __dialogueText("scenes/apartament/ApartmentRoomSystem.js", "t_1aa4cb0bcca76e92e306")) {
+    if (this.background?.type === 'Image') {
       this.background
         .setPosition(width / 2, height / 2)
         .setDisplaySize(width, height);
@@ -402,19 +397,16 @@ export class ApartmentRoomSystem {
     this.roomLabel?.setPosition(width / 2, 116);
 
     if (this.navigation) {
-      const buttonWidth = Math.min(
-        230,
-        Math.max(40, width - 24)
-      );
-
-      const scale = buttonWidth / 230;
+      const buttonWidth = Math.min(230, Math.max(40, width - 24));
       const left = 12 + buttonWidth / 2;
       const right = width - 12 - buttonWidth / 2;
 
-      this.navigation.setScale(scale).setPosition(
-        this.navigationGoesLeft() ? left : right,
-        Math.max(180, height - 112)
-      );
+      this.navigation
+        .setScale(buttonWidth / 230)
+        .setPosition(
+          this.navigationGoesLeft() ? left : right,
+          Math.max(180, height - 112)
+        );
     }
 
     this.applyGeometry();
@@ -422,10 +414,7 @@ export class ApartmentRoomSystem {
   }
 
   geometryStorageKey() {
-    return (
-      'lost-artifacts:apartment-layout:v1:' +
-      this.renderedPackId
-    );
+    return 'lost-artifacts:apartment-layout:v1:' + this.renderedPackId;
   }
 
   loadLocalGeometry() {
@@ -433,9 +422,7 @@ export class ApartmentRoomSystem {
 
     try {
       const saved = JSON.parse(
-        window.localStorage.getItem(
-          this.geometryStorageKey()
-        ) || 'null'
+        window.localStorage.getItem(this.geometryStorageKey()) || 'null'
       );
 
       if (
@@ -447,9 +434,7 @@ export class ApartmentRoomSystem {
       }
 
       for (const slot of this.layoutConfig.slots) {
-        const value = saved.slots?.find(
-          entry => entry.id === slot.id
-        );
+        const value = saved.slots?.find(entry => entry.id === slot.id);
 
         if (
           !value ||
@@ -486,11 +471,7 @@ export class ApartmentRoomSystem {
           width,
           height,
           slots: slots.map(({ id, x, y, w, h }) => ({
-            id,
-            x,
-            y,
-            w,
-            h
+            id, x, y, w, h
           }))
         })
       );
@@ -504,13 +485,9 @@ export class ApartmentRoomSystem {
 
   hideNewsHud() {
     const news = this.scene.scene.manager.keys.NewsHud;
-
     if (!news?.sys?.isActive()) return;
 
-    if (
-      !this.newsSnapshot ||
-      this.newsSnapshot.scene !== news
-    ) {
+    if (!this.newsSnapshot || this.newsSnapshot.scene !== news) {
       this.newsSnapshot = {
         scene: news,
         visible: news.sys.settings.visible,
@@ -538,6 +515,12 @@ export class ApartmentRoomSystem {
     if (this.destroyed) return;
 
     this.destroyed = true;
+
+    this.mountTimer?.remove(false);
+    this.mountTimer = null;
+
+    this.puzzle?.destroy();
+    this.puzzle = null;
 
     this.hintUI?.destroy();
     this.hintUI = null;
